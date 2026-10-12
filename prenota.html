@@ -651,7 +651,6 @@ gtag('config', 'G-412YFN67C4');
             <span class="pay-tx">
               <span class="pay-t" data-i18n="pay.online">Jetzt zahlen</span>
               <span class="pay-d" data-i18n="pay.online.d">Karte, Apple Pay oder Google Pay — sichere Online-Zahlung.</span>
-              <span class="pay-lock" data-i18n="pay.online.multi">Bei mehreren Fahrzeugen ist keine Online-Zahlung möglich: Bitte wählen Sie eine andere Zahlungsart, wir bestätigen den Gesamtbetrag per E-Mail.</span>
             </span>
             <span class="pay-radio"></span>
           </button>
@@ -1052,6 +1051,7 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
     if(fClasse)fClasse.value=state.classeName;
     var fck=document.getElementById('f-classe-key'); if(fck)fck.value=(ks.length===1?ks[0]:(ks.length?'multi':''));
     var fv=document.getElementById('f-veicoli'); if(fv)fv.value=(n||'');
+    window.JF_fleet={}; ks.forEach(function(c){window.JF_fleet[c]=state.fleet[c];});
     wiz.querySelectorAll('.cls-item').forEach(function(it){
       var q=state.fleet[it.getAttribute('data-item')]||0;
       it.classList.toggle('on',q>0);
@@ -1059,13 +1059,6 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
       var qn=it.querySelector('.q-n'); if(qn)qn.textContent=q;
       var plus=it.querySelector('.q-btn[data-q="1"]'); if(plus)plus.disabled=(q>=MAX_QTY);
     });
-    // pagamento online solo con un veicolo: la funzione Stripe (create-checkout) calcola il prezzo di uno solo
-    var onl=wiz.querySelector('.pay-card[data-pay=online]');
-    if(onl){
-      var lock=n>1;
-      onl.classList.toggle('locked',lock);
-      if(lock&&state.pagamento==='online'){state.pagamento=null; if(fPag)fPag.value=''; onl.classList.remove('sel');}
-    }
     updateSide();
   }
   // Sprinter: non prenotabile online, solo richiesta via WhatsApp/email con messaggio precompilato
@@ -1253,16 +1246,21 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
       try{ if(db) db.ref('bookings/' + id).update({status:'nuova', pagamento:'online (non riuscito, da definire)'}); }catch(e){}
     }
 
-    // pagamento online: chiedi alla funzione server la pagina di pagamento Stripe
+    // pagamento online: chiedi alla funzione server la pagina di pagamento SumUp
     if(pay === 'online'){
       try{
         fetch(CHECKOUT_FN, {method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ trip: id, classe: v('classe_key'), tipo: v('tipo'),
+          body: JSON.stringify({ trip: id, classe: v('classe_key'), flotta: window.JF_fleet || null, tipo: v('tipo'),
             km: v('km'), ore: v('ore'), email: v('email'),
             rt: (function(){var e=document.getElementById('f-rt');return (e&&e.checked)?1:0;})(),
             from: v('partenza'), to: v('destinazione') })
         }).then(function(r){ return r.json(); }).then(function(d){
-          if(d && d.url && !done){ done = true; location.href = d.url; } else { rescueBooking(); go(); }
+          if(d && d.url && !done){
+            done = true;
+            // id del pagamento SumUp: grazie.html lo usa per verificare l'esito
+            try{ localStorage.setItem('jf_sumup', JSON.stringify({id: d.id, trip: id})); }catch(e){}
+            location.href = d.url;
+          } else { rescueBooking(); go(); }
         }).catch(function(){ rescueBooking(); go(); });
       }catch(e){ rescueBooking(); go(); }
     }

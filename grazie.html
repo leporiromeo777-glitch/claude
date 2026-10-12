@@ -950,22 +950,27 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
 (function(){
   var q = new URLSearchParams(location.search);
   if(q.get('paid') !== '1'){ try{ localStorage.removeItem('jf_confirm'); }catch(e){} return; }
-  // 1) verifica lato server il pagamento e promuove la prenotazione da "attesa" a "nuova"
-  var sid = q.get('sid'), trip = q.get('trip');
-  if(sid && trip){
-    fetch('/.netlify/functions/confirm-payment', {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({sid: sid, trip: trip})}).catch(function(){});
-  }
-  // 2) email di conferma al cliente (i dati erano stati messi da parte alla prenotazione)
-  var raw = null; try{ raw = localStorage.getItem('jf_confirm'); }catch(e){}
-  if(raw && window.emailjs){
-    try{
-      var P = JSON.parse(raw);
-      emailjs.init({publicKey:'p6t_pclpd5K63rjOz'});
-      emailjs.send('service_dkfxn17','template_7ett4cn',P)
-        .then(function(){ try{ localStorage.removeItem('jf_confirm'); }catch(e){} })
-        .catch(function(){});
-    }catch(e){}
-  }
+  // 1) verifica lato server il pagamento SumUp e promuove la prenotazione da "attesa" a "nuova"
+  var trip = q.get('trip'), sid = q.get('sid');
+  if(!sid){ try{ var S = JSON.parse(localStorage.getItem('jf_sumup')||'null'); if(S && S.trip === trip) sid = S.id; }catch(e){} }
+  if(!sid || !trip) return;
+  fetch('/.netlify/functions/confirm-payment', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({sid: sid, trip: trip})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d || !d.paid) return;
+      try{ localStorage.removeItem('jf_sumup'); }catch(e){}
+      // 2) email di conferma al cliente, solo a pagamento verificato
+      var raw = null; try{ raw = localStorage.getItem('jf_confirm'); }catch(e){}
+      if(raw && window.emailjs){
+        try{
+          var P = JSON.parse(raw);
+          emailjs.init({publicKey:'p6t_pclpd5K63rjOz'});
+          emailjs.send('service_dkfxn17','template_7ett4cn',P)
+            .then(function(){ try{ localStorage.removeItem('jf_confirm'); }catch(e){} })
+            .catch(function(){});
+        }catch(e){}
+      }
+    }).catch(function(){});
 })();
 </script>
