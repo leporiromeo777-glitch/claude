@@ -36,5 +36,14 @@ async function call(method, path, body, query = '') {
 
 export const getBooking = (trip) => call('GET', `bookings/${trip}`);
 export const updateBooking = (trip, fields) => call('PATCH', `bookings/${trip}`, fields);
-export const findBookingsByEmail = (email) =>
-  call('GET', 'bookings', null, `orderBy=${encodeURIComponent('"email"')}&equalTo=${encodeURIComponent(JSON.stringify(email))}`);
+// Le regole non hanno ".indexOn": ["email"]: se la query filtrata viene rifiutata,
+// si leggono tutte le prenotazioni e si filtra qui (il database è piccolo).
+export async function findBookingsByEmail(email) {
+  try {
+    return await call('GET', 'bookings', null, `orderBy=${encodeURIComponent('"email"')}&equalTo=${encodeURIComponent(JSON.stringify(email))}`);
+  } catch (e) {
+    if (!/Index not defined/i.test(String(e.message))) throw e;
+    const all = (await call('GET', 'bookings')) || {};
+    return Object.fromEntries(Object.entries(all).filter(([, b]) => b && String(b.email || '').trim().toLowerCase() === email));
+  }
+}
