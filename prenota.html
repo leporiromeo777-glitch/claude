@@ -894,7 +894,7 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
   var prevBtn=document.getElementById('wiz-prev'), nextBtn=document.getElementById('wiz-next'), submitBtn=document.getElementById('wiz-submit');
   var fClasse=document.getElementById('f-classe'), fTipo=document.getElementById('f-tipo'), fPrezzo=document.getElementById('f-prezzo');
   var cur=1, state={classe:null, classeName:'', tipo:'transfer', pagamento:null, fleet:{}};
-  var MAX_QTY=5; // veicoli massimi per classe prenotabili dal sito
+  var MAX_QTY=3; // veicoli massimi per classe prenotabili dal sito
   var SPR_WA='41792055523', SPR_MAIL='info@jf-limo-service.ch'; // contatti per le richieste Sprinter
   var checkReturning=null; // verifica cliente di ritorno (assegnata sotto, per la card fattura)
   function L(){try{return localStorage.getItem('jf_lang')||'en';}catch(e){return 'de';}}
