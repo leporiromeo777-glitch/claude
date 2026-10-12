@@ -1318,6 +1318,7 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
 .ac-item{padding:10px 13px;font-size:.86rem;color:var(--cream);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06)}
 .ac-item:hover,.ac-item.hl{background:rgba(90,146,228,.14);color:var(--gold)}
 .ac-item small{display:block;color:var(--muted);font-size:.74rem;margin-top:2px}
+.ac-attr{padding:6px 13px;text-align:right;font-size:.68rem;color:var(--muted)}
 .route-hint{font-size:.82rem;color:var(--gold);margin-top:8px;min-height:18px}
 </style>
 <script>
@@ -1331,12 +1332,75 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
 
   function esc(s){ return String(s==null?'':s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
 
-  // geocodifica il primo risultato Photon (per indirizzi scritti a mano o precompilati)
+  // ── Ricerca indirizzi: Google Places (come Google Maps) se c'è la chiave, altrimenti Photon ──
+  // Chiave browser di Google Maps Platform: va limitata (HTTP referrer) a jf-limo-service.ch
+  // e abilitata solo per "Maps JavaScript API" + "Places API (New)".
+  var GMAPS_KEY = '';
+  function siteLang(){ try{ return localStorage.getItem('jf_lang')||'en'; }catch(e){ return 'en'; } }
+
+  var gLib = null, gToken = null;
+  function loadGoogle(){
+    if(!GMAPS_KEY) return Promise.reject(new Error('no key'));
+    if(gLib) return gLib;
+    gLib = new Promise(function(res, rej){
+      window.__jfGmapsInit = function(){ google.maps.importLibrary('places').then(res, rej); };
+      var s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(GMAPS_KEY) + '&loading=async&v=weekly&callback=__jfGmapsInit';
+      s.async = true;
+      s.onerror = function(){ gLib = null; rej(new Error('google load')); };
+      document.head.appendChild(s);
+    });
+    return gLib;
+  }
+  function googleSuggest(q){
+    return loadGoogle().then(function(P){
+      if(!gToken) gToken = new P.AutocompleteSessionToken();   // una sessione = una ricerca fino alla scelta
+      return P.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: q, sessionToken: gToken, language: siteLang(), region: 'ch',
+        locationBias: {center: {lat: 47.37, lng: 8.54}, radius: 50000}   // preferenza zona Zurigo
+      });
+    }).then(function(r){
+      return (r.suggestions || []).filter(function(s){ return s.placePrediction; }).slice(0, 6).map(function(s){
+        var p = s.placePrediction;
+        return { label: p.text.text, main: p.mainText ? p.mainText.text : p.text.text,
+                 sub: p.secondaryText ? p.secondaryText.text : '', g: p };
+      });
+    });
+  }
+  function googleCoord(it){
+    var place = it.g.toPlace();
+    return place.fetchFields({fields: ['location']}).then(function(){
+      gToken = null;   // la scelta chiude la sessione (fatturazione per sessione)
+      return place.location ? [place.location.lng(), place.location.lat()] : null;
+    });
+  }
+
+  function photonSuggest(q, limit){
+    var l = siteLang(); l = /^(de|en|fr)$/.test(l) ? l : 'default';   // Photon non supporta altre lingue (es. it → errore 400)
+    var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&lang=' + l + '&limit=' + (limit || 6)
+            + '&lat=47.37&lon=8.54&location_bias_scale=0.5';
+    return fetch(url).then(function(r){ return r.json(); }).then(function(d){
+      return (d.features||[]).map(function(f){
+        var p=f.properties||{}, c=f.geometry.coordinates;
+        var country = p.country || '';
+        if(/Schweiz|Suisse|Svizzera|Svizra|Switzerland/.test(country)) country = 'Svizzera';
+        var main = p.name || (p.street ? (p.street + (p.housenumber ? ' ' + p.housenumber : '')) : '') || p.city || country || '';
+        var loc = [p.postcode, p.city].filter(Boolean).join(' ');
+        if(p.city && main === p.city) loc = p.postcode || '';
+        var label = [main, loc].filter(Boolean).join(', ');
+        return { label: label, main: label, sub: [p.state, country].filter(Boolean).join(', '), coord: [c[0], c[1]] };
+      }).filter(function(it){ return it.label; });
+    });
+  }
+  function suggest(q){
+    return GMAPS_KEY ? googleSuggest(q).catch(function(){ return photonSuggest(q); }) : photonSuggest(q);
+  }
+  function coordOf(it){ return it.coord ? Promise.resolve(it.coord) : googleCoord(it); }
+
+  // geocodifica il primo risultato (per indirizzi scritti a mano o precompilati)
   function geoFirst(q, cb){
-    fetch('https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&lang=default&limit=1&lat=47.3&lon=8.5')
-      .then(function(r){ return r.json(); })
-      .then(function(d){ var ft=(d.features||[])[0]; cb(ft ? [ft.geometry.coordinates[0], ft.geometry.coordinates[1]] : null); })
-      .catch(function(){ cb(null); });
+    suggest(q).then(function(list){ return list[0] ? coordOf(list[0]) : null; })
+      .then(function(c){ cb(c || null); }).catch(function(){ cb(null); });
   }
 
   function attach(input, key){
@@ -1345,43 +1409,37 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
     var box = document.createElement('div'); box.className='ac-box'; field.appendChild(box);
     var timer=null, items=[], hl=-1;
 
-    function close(){ box.style.display='none'; box.innerHTML=''; items=[]; hl=-1; }
-    function pick(it){ input.value = it.label; coords[key] = it.coord; close(); maybeRoute(); }
+    var seq = 0;   // solo l'ultima ricerca può mostrare risultati (niente risposte vecchie sopra quelle nuove)
+    function close(){ seq++; box.style.display='none'; box.innerHTML=''; items=[]; hl=-1; }
+    function pick(it){
+      input.value = it.label; close();
+      coordOf(it).then(function(c){ if(c && input.value === it.label){ coords[key] = c; maybeRoute(); } })
+        .catch(function(){ geoFirst(it.label, function(c){ if(c){ coords[key] = c; maybeRoute(); } }); });
+    }
 
     input.addEventListener('input', function(){
       coords[key] = null;
       var q = input.value.trim();
       if(timer) clearTimeout(timer);
       if(q.length < 3){ close(); return; }
-      timer = setTimeout(function(){ search(q); }, 280);
+      timer = setTimeout(function(){ search(q); }, GMAPS_KEY ? 150 : 250);
     });
 
     function search(q){
-      var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&lang=default&limit=6&lat=47.3&lon=8.5';
-      fetch(url).then(function(r){return r.json();}).then(function(d){
-        items = (d.features||[]).map(function(f){
-          var p=f.properties||{}, c=f.geometry.coordinates;
-          var country = p.country || '';
-          if(/Schweiz|Suisse|Svizzera|Svizra/.test(country)) country = 'Svizzera';
-          var main = p.name || (p.street ? (p.street + (p.housenumber ? ' ' + p.housenumber : '')) : '') || p.city || country || '';
-          var loc = [p.postcode, p.city].filter(Boolean).join(' ');
-          if(p.city && main === p.city) loc = p.postcode || '';
-          var label = [main, loc].filter(Boolean).join(', ');
-          var sub = [p.state, country].filter(Boolean).join(', ');
-          return { label: label, sub: sub, coord: [c[0], c[1]] };
-        }).filter(function(it){ return it.label; });
-        render();
-      }).catch(function(){ close(); });
+      var my = ++seq;
+      suggest(q).then(function(list){ if(my !== seq) return; items = list; render(); })
+        .catch(function(){ if(my === seq) close(); });
     }
 
     function render(){
       if(!items.length){ close(); return; }
-      box.innerHTML = items.map(function(it,i){ return '<div class="ac-item" data-i="'+i+'">'+esc(it.label)+(it.sub?'<small>'+esc(it.sub)+'</small>':'')+'</div>'; }).join('');
+      box.innerHTML = items.map(function(it,i){ return '<div class="ac-item" data-i="'+i+'">'+esc(it.main||it.label)+(it.sub?'<small>'+esc(it.sub)+'</small>':'')+'</div>'; }).join('')
+        + (items[0].g ? '<div class="ac-attr">powered by Google</div>' : '');
       box.style.display='block';
-      [].slice.call(box.children).forEach(function(el){ el.addEventListener('mousedown', function(e){ e.preventDefault(); pick(items[+el.getAttribute('data-i')]); }); });
+      [].slice.call(box.querySelectorAll('.ac-item')).forEach(function(el){ el.addEventListener('mousedown', function(e){ e.preventDefault(); pick(items[+el.getAttribute('data-i')]); }); });
     }
 
-    function mark(){ [].slice.call(box.children).forEach(function(el,i){ el.classList.toggle('hl', i===hl); }); }
+    function mark(){ [].slice.call(box.querySelectorAll('.ac-item')).forEach(function(el,i){ el.classList.toggle('hl', i===hl); }); }
     input.addEventListener('keydown', function(e){
       if(box.style.display!=='block') return;
       if(e.key==='ArrowDown'){ hl=Math.min(hl+1,items.length-1); mark(); e.preventDefault(); }
