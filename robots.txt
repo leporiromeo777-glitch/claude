@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /bacheca.html
+Disallow: /autista.html
+Disallow: /team.html
+Disallow: /grazie.html
+
+Sitemap: https://jf-limo-service.ch/sitemap.xml

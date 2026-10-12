@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bacheca corse — JF Limo Service</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0d0d10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="JF Bacheca">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root{--gold:#5a92e4;--ink:#0d0d10;--panel:#16161b;--line:rgba(90,146,228,.22);--cream:#f6f3ec;--muted:#a2a2ad}
+  *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:none;-ms-overflow-style:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+  .top{padding:18px 20px;text-align:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ink);z-index:5}
+  .top .brand{font-weight:700;letter-spacing:.04em}
+  .top .brand span{color:var(--gold)}
+  .top .sub{color:var(--muted);font-size:.8rem;margin-top:3px}
+  .tabs{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .tab{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 14px;
+    font-family:inherit;font-size:.8rem;cursor:pointer;transition:.2s}
+  .tab.active{border-color:var(--gold);color:var(--gold)}
+  .wrap{max-width:620px;margin:0 auto;padding:18px 16px 96px}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:.92rem}
+  .day-head{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);
+    margin:24px 4px 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .day-head:first-child{margin-top:4px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+  .card.now{border-color:rgba(39,208,122,.5)}
+  .card.done{opacity:.55}
+  .row1{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+  .when{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:.95rem}
+  .tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;border-radius:999px}
+  .tag.now{background:rgba(39,208,122,.16);color:#5fe6a3}
+  .tag.sched{background:rgba(90,146,228,.14);color:var(--gold)}
+  .tag.acc{background:rgba(90,146,228,.2);color:var(--gold)}
+  .tag.done{background:rgba(255,255,255,.08);color:var(--muted)}
+  .tag.wait{background:rgba(255,166,77,.16);color:#ffb066}
+  .tag.paid{background:rgba(39,208,122,.16);color:#5fe6a3}
+  .card.wait{opacity:.55;border-style:dashed}
+  .who{font-size:1.05rem;font-weight:600;margin-bottom:2px}
+  .route{color:var(--cream);font-size:.9rem;margin:8px 0;line-height:1.5}
+  .route .ar{color:var(--gold);margin:0 6px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:.82rem;margin-bottom:14px}
+  .meta b{color:var(--cream);font-weight:500}
+  .actions{display:flex;gap:9px}
+  .btn{flex:1;text-align:center;border:none;border-radius:11px;padding:13px;font-size:.9rem;font-weight:600;
+    cursor:pointer;font-family:inherit;text-decoration:none;transition:.2s}
+  .btn-go{background:var(--gold);color:#04212b}
+  .btn-tel{background:transparent;color:var(--cream);border:1px solid var(--line)}
+  .r1-right{display:flex;align-items:center;gap:8px}
+  .del{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 7px;border-radius:6px;line-height:1}
+  .del:hover{color:#ff6b6b;background:rgba(255,107,107,.12)}
+  .warn{display:none;background:rgba(224,86,79,.12);border:1px solid rgba(224,86,79,.4);color:#ffb4af;
+    border-radius:10px;padding:12px;font-size:.84rem;text-align:center;margin-bottom:14px}
+  .login-screen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;padding:24px}
+  .login-box{width:min(92%,360px);text-align:center}
+  .login-box .brand{font-weight:700;letter-spacing:.04em;font-size:1.4rem;margin-bottom:4px}
+  .login-box .brand span{color:var(--gold)}
+  .login-sub{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+  .login-box input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    color:var(--cream);padding:14px;font-size:1rem;font-family:inherit;margin-bottom:11px}
+  .login-box input:focus{outline:none;border-color:var(--gold)}
+  .login-box button{width:100%;background:var(--gold);color:#04212b;border:none;border-radius:11px;
+    padding:14px;font-size:1rem;font-weight:600;font-family:inherit;cursor:pointer;margin-top:4px}
+  .login-err{color:#ffb4af;font-size:.84rem;margin-top:12px;min-height:18px}
+  .tag.manual{background:rgba(255,255,255,.08);color:var(--cream)}
+  /* pulsante + modulo corsa manuale */
+  .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:50;background:var(--gold);
+    color:#04212b;border:none;border-radius:999px;padding:14px 22px;font-family:inherit;font-size:.95rem;
+    font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .fab:active{transform:translateX(-50%) scale(.97)}
+  .modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center}
+  .modal.open{display:flex}
+  .modal-box{width:100%;max-width:620px;max-height:92vh;overflow-y:auto;background:var(--panel);
+    border:1px solid var(--line);border-bottom:none;border-radius:20px 20px 0 0}
+  @media(min-width:640px){.modal{align-items:center}.modal-box{border-radius:20px;border-bottom:1px solid var(--line)}}
+  .modal-head{position:sticky;top:0;background:var(--panel);display:flex;justify-content:space-between;
+    align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+  .modal-head h2{font-size:1.1rem}
+  .modal-x{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1}
+  .modal-body{padding:18px 20px 26px}
+  .modal-body label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:12px}
+  .modal-body input,.modal-body select,.modal-body textarea{width:100%;margin-top:5px;background:var(--ink);
+    border:1px solid var(--line);border-radius:10px;color:var(--cream);padding:12px;font-size:.95rem;font-family:inherit}
+  .modal-body input:focus,.modal-body select:focus,.modal-body textarea:focus{outline:none;border-color:var(--gold)}
+  .modal-body label.chk{display:flex;align-items:center;gap:9px;color:var(--cream);font-size:.9rem}
+  .modal-body label.chk input{width:auto;margin:0;transform:scale(1.2)}
+  .mrow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mtoggle{display:flex;gap:8px;margin-bottom:14px}
+  .mpill{flex:1;background:var(--ink);border:1px solid var(--line);color:var(--muted);border-radius:999px;
+    padding:11px;font-family:inherit;font-size:.9rem;cursor:pointer}
+  .mpill.active{background:var(--gold);color:#04212b;font-weight:600;border-color:var(--gold)}
+  .m-err{color:#ffb4af;font-size:.84rem;min-height:18px;margin-bottom:4px}
+  .m-save{width:100%;background:var(--gold);color:#04212b;border:none;border-radius:11px;padding:14px;
+    font-size:1rem;font-weight:600;font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+  <div class="login-screen" id="login">
+    <div class="login-box">
+      <div class="brand">JF <span>LIMO</span></div>
+      <div class="login-sub">Accesso autista</div>
+      <input type="email" id="lg-email" placeholder="Email" autocomplete="username">
+      <input type="password" id="lg-pass" placeholder="Password" autocomplete="current-password">
+      <button id="lg-btn">Entra</button>
+      <div class="login-err" id="lg-err"></div>
+    </div>
+  </div>
+  <div class="top">
+    <div class="brand">JF <span>LIMO</span> · Bacheca corse</div>
+    <div class="sub" id="count">—</div>
+    <div class="tabs">
+      <button class="tab active" data-f="attive">In arrivo</button>
+      <button class="tab" data-f="completate">Completate</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="warn" id="cfgWarn">⚠ Firebase non configurato.</div>
+    <div id="list"></div>
+  </div>
+
+  <button class="fab" id="addBtn">+ Corsa manuale</button>
+
+  <div class="modal" id="addModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>Nuova corsa manuale</h2>
+        <button class="modal-x" id="addClose" aria-label="Chiudi">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="mrow2">
+          <label>Cliente *<input type="text" id="m-nome" autocomplete="off"></label>
+          <label>Telefono<input type="tel" id="m-tel" autocomplete="off"></label>
+        </div>
+        <label>Email cliente <span style="opacity:.7">(per l'email di conferma)</span><input type="email" id="m-email" autocomplete="off"></label>
+        <div class="mtoggle">
+          <button type="button" class="mpill active" data-mtipo="transfer">Transfer</button>
+          <button type="button" class="mpill" data-mtipo="ore">A ore</button>
+        </div>
+        <label>Partenza *<input type="text" id="m-from" autocomplete="off"></label>
+        <label class="m-only-transfer">Destinazione *<input type="text" id="m-to" autocomplete="off"></label>
+        <label class="chk m-only-transfer" style="margin-bottom:14px"><input type="checkbox" id="m-rt"> Andata e ritorno</label>
+        <label class="m-only-ore">Ore<input type="number" id="m-ore" min="2" value="2"></label>
+        <div class="mrow2">
+          <label>Data<input type="date" id="m-data"></label>
+          <label>Ora<input type="time" id="m-ora"></label>
+        </div>
+        <div class="mrow2">
+          <label>Veicolo
+            <select id="m-classe">
+              <option value="">—</option>
+              <option>Business &middot; Mercedes E-Klasse</option>
+              <option>Minivan &middot; Mercedes V-Klasse</option>
+              <option>First &middot; Mercedes S-Klasse</option>
+              <option>Sprinter &middot; Mercedes Sprinter</option>
+            </select>
+          </label>
+          <label>Prezzo<input type="text" id="m-prezzo" placeholder="CHF …" autocomplete="off"></label>
+        </div>
+        <label>Lingua email cliente
+          <select id="m-lang">
+            <option value="de" selected>Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <label>Note<textarea id="m-note" rows="2"></textarea></label>
+        <div class="m-err" id="m-err"></div>
+        <button class="m-save" id="m-save">Aggiungi in bacheca</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBsCmhE88nTzMuLYYYpj0VcvXCjPkrgm4U",
+    authDomain: "jf-limo-tracking.firebaseapp.com",
+    databaseURL: "https://jf-limo-tracking-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "jf-limo-tracking",
+    storageBucket: "jf-limo-tracking.firebasestorage.app",
+    messagingSenderId: "1038480326716",
+    appId: "1:1038480326716:web:4aa9eda55151c3d0e14339"
+  };
+  let db = null;
+  if(!String(firebaseConfig.databaseURL).includes('INCOLLA')){ firebase.initializeApp(firebaseConfig); db = firebase.database(); }
+  else { document.getElementById('cfgWarn').style.display='block'; }
+
+  // ── EmailJS: email "autista confermato" al cliente quando l'autista accetta ──
+  const EMAILJS = { key:'p6t_pclpd5K63rjOz', service:'service_dkfxn17', tplTrack:'template_5jomkqk' };
+  const EMAILJS_READY = !!(window.emailjs && EMAILJS.key.indexOf('EMAILJS_') < 0);
+  if(EMAILJS_READY){ try{ emailjs.init({publicKey: EMAILJS.key}); }catch(e){} }
+
+  // ── Traduzioni email "autista confermato" (lingua salvata con la prenotazione: b.lang) ──
+  const TRACK_TR = {
+    it: {subject:"Corsa confermata — JF Limo Service", greeting:"Gentile {name},", accepted:"Il tuo autista JF Limo Service ha accettato la corsa {from} → {to}.", follow:"Ti aspettiamo all'orario concordato. Per qualsiasi necessità rispondi pure a questa email.", closing:"A presto,"},
+    de: {subject:"Fahrt bestätigt — JF Limo Service", greeting:"Guten Tag {name},", accepted:"Ihr JF Limo Service Chauffeur hat die Fahrt {from} → {to} angenommen.", follow:"Wir erwarten Sie zur vereinbarten Zeit. Bei Fragen antworten Sie einfach auf diese E-Mail.", closing:"Bis bald,"},
+    en: {subject:"Ride confirmed — JF Limo Service", greeting:"Dear {name},", accepted:"Your JF Limo Service chauffeur has accepted your ride {from} → {to}.", follow:"We'll see you at the agreed time. For anything you need, just reply to this email.", closing:"See you soon,"},
+    fr: {subject:"Course confirmée — JF Limo Service", greeting:"Cher/Chère {name},", accepted:"Votre chauffeur JF Limo Service a accepté la course {from} → {to}.", follow:"Nous vous attendons à l'heure convenue. Pour toute question, répondez simplement à cet e-mail.", closing:"À bientôt,"},
+    es: {subject:"Trayecto confirmado — JF Limo Service", greeting:"Estimado/a {name},", accepted:"Su chófer de JF Limo Service ha aceptado el trayecto {from} → {to}.", follow:"Le esperamos a la hora acordada. Para cualquier necesidad, responda a este correo.", closing:"Hasta pronto,"},
+    ru: {subject:"Поездка подтверждена — JF Limo Service", greeting:"Здравствуйте, {name}!", accepted:"Водитель JF Limo Service принял ваш заказ {from} → {to}.", follow:"Ждём вас в согласованное время. По любым вопросам просто ответьте на это письмо.", closing:"До скорой встречи,"},
+    zh: {subject:"行程已确认 — JF Limo Service", greeting:"尊敬的 {name}，您好：", accepted:"您的 JF Limo Service 司机已接单：{from} → {to}。", follow:"我们将按约定时间恭候您。如有任何需要，请直接回复此邮件。", closing:"期待与您相见，"},
+    ja: {subject:"ご乗車確定 — JF Limo Service", greeting:"{name} 様", accepted:"JF Limo Service のショーファーがご乗車 {from} → {to} を承りました。", follow:"お約束の時間にお待ちしております。ご不明な点はこのメールにご返信ください。", closing:"またお会いしましょう、"},
+    ar: {subject:"تم تأكيد الرحلة — JF Limo Service", greeting:"عزيزي {name}،", accepted:"قبل سائق JF Limo Service رحلتك {from} → {to}.", follow:"سنكون في انتظارك في الموعد المتفق عليه. لأي استفسار يمكنك الرد على هذه الرسالة مباشرة.", closing:"إلى اللقاء قريباً،"}
+  };
+  function trackParams(b){
+    var t = TRACK_TR[b.lang] || TRACK_TR.de;
+    var nm = b.name || 'Cliente', fr = b.from || '—', to = b.to || '—';
+    return {
+      to_email: b.email,
+      subject: t.subject,
+      greeting: t.greeting.replace('{name}', nm),
+      accepted: t.accepted.replace('{from}', fr).replace('{to}', to),
+      follow: t.follow,
+      track_url: '',            // niente più tracciamento: il template non deve mostrare link
+      closing: t.closing,
+      // legacy
+      name: nm, from: fr, to: to
+    };
+  }
+
+  let bookings = {}, filter = 'attive';
+  const listEl = document.getElementById('list'), countEl = document.getElementById('count');
+
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active'); filter = t.dataset.f; render();
+  }));
+
+  function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+  function whenLabel(b){
+    if(b.when === 'subito' || !b.when) return {txt:'Adesso', cls:'now', tag:'Adesso', tagcls:'now'};
+    const d = new Date(b.when);
+    const fmt = d.toLocaleString('it-IT', {weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+    return {txt:fmt, cls:'sched', tag:'Programmata', tagcls:'sched'};
+  }
+
+  function bookingDate(b){
+    if(b.when && b.when !== 'subito'){ const d=new Date(b.when); if(!isNaN(d.getTime())) return d; }
+    return new Date(b.createdAt || Date.now());
+  }
+  function dayKey(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+  function dayLabel(d){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const dd=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diff=Math.round((dd-today)/86400000);
+    const fmt=d.toLocaleDateString('it-IT',{weekday:'long', day:'2-digit', month:'long'});
+    if(diff===0) return 'Oggi · '+fmt;
+    if(diff===1) return 'Domani · '+fmt;
+    if(diff===-1) return 'Ieri · '+fmt;
+    return fmt;
+  }
+
+  function cardHtml(b){
+    const w = whenLabel(b);
+    const done = b.status === 'completata';
+    const accepted = b.status === 'accettata';
+    const waiting = b.status === 'attesa_pagamento';   // checkout Stripe non ancora concluso
+    const statusTag = done ? '<span class="tag done">Completata</span>'
+                     : waiting ? '<span class="tag wait">In attesa di pagamento</span>'
+                     : accepted ? '<span class="tag acc">Accettata</span>'
+                     : '<span class="tag '+w.tagcls+'">'+w.tag+'</span>';
+    const paidTag = (!done && !waiting && b.pagato) ? '<span class="tag paid">Pagata online</span>' : '';
+    const manualTag = b.manuale ? '<span class="tag manual">Manuale</span>' : '';
+    const price = b.prezzo ? '<span>Prezzo stimato <b>'+esc(b.prezzo)+'</b></span>' : '';
+    const cls = b.classe ? '<span>Classe <b>'+esc(b.classe)+'</b></span>' : '';
+    const pax = b.passeggeri ? '<span>Pax <b>'+esc(b.passeggeri)+'</b></span>' : '';
+    return '<div class="card '+(done?'done':(waiting?'wait':w.cls))+'">'
+      + '<div class="row1"><span class="when">🕒 '+esc(w.txt)+'</span><span class="r1-right">'+manualTag+paidTag+statusTag+'<button class="del" data-del="'+esc(b.trip)+'" title="Elimina corsa">✕</button></span></div>'
+      + '<div class="who">'+esc(b.name||'Cliente')+'</div>'
+      + '<div class="route">'+(b.tipo==='ore'
+          ? esc(b.from||'—')+' <span class="ar">·</span> a disposizione'+(b.ore?(' '+esc(b.ore)+'h'):'')
+          : esc(b.from||'—')+'<span class="ar">'+(b.viaggio==='andata e ritorno'?'⇄':'→')+'</span>'+esc(b.to||'—'))+'</div>'
+      + '<div class="meta">'+cls+pax+price+'</div>'
+      + '<div class="actions">'
+      +   (done || waiting ? ''
+            : '<a class="btn btn-go" data-acc="'+esc(b.trip)+'" href="autista.html?trip='+encodeURIComponent(b.trip)+'">'+(accepted?'Apri dettagli':'Accetta corsa')+'</a>')
+      +   (b.phone ? '<a class="btn btn-tel" href="tel:'+esc(b.phone)+'">Chiama</a>' : '')
+      + '</div></div>';
+  }
+
+  function render(){
+    let rows = Object.values(bookings).filter(b => {
+      const done = b.status === 'completata';
+      // checkout abbandonati: dopo 6 ore le "attesa pagamento" spariscono dalla lista
+      if(b.status === 'attesa_pagamento' && (Date.now() - (b.createdAt||0)) > 6*3600*1000) return false;
+      return filter === 'completate' ? done : !done;
+    });
+    countEl.textContent = rows.length + (filter==='completate' ? ' completate' : ' corse in arrivo');
+    if(!rows.length){ listEl.innerHTML = '<div class="empty">Nessuna corsa ' + (filter==='completate'?'completata':'in arrivo') + '.</div>'; return; }
+
+    // ordina cronologicamente; le completate dalla più recente
+    rows.sort((a,b) => bookingDate(a) - bookingDate(b));
+    if(filter==='completate') rows.reverse();
+
+    // raggruppa per giorno
+    const groups=[], idx={};
+    rows.forEach(b => {
+      const d=bookingDate(b), k=dayKey(d);
+      if(!(k in idx)){ idx[k]=groups.length; groups.push({label:dayLabel(d), items:[]}); }
+      groups[idx[k]].items.push(b);
+    });
+
+    listEl.innerHTML = groups.map(g =>
+      '<div class="day-head">'+esc(g.label)+'</div>' + g.items.map(cardHtml).join('')
+    ).join('');
+  }
+
+  // notifica sonora quando entra una prenotazione nuova
+  let known = null;
+  function beep(){
+    try{
+      const ac = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type='sine'; o.frequency.value=880; g.gain.value=0.18;
+      o.start(); o.frequency.setValueAtTime(1320, ac.currentTime+0.12);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+0.45);
+      o.stop(ac.currentTime+0.45);
+    }catch(e){}
+    if(navigator.vibrate) navigator.vibrate(200);
+  }
+  function checkNew(obj){
+    // le "attesa pagamento" non suonano: la notifica arriva quando il pagamento è confermato
+    const ids = Object.keys(obj).filter(id => obj[id] && obj[id].status !== 'attesa_pagamento');
+    if(known === null){ known = new Set(ids); return; }   // primo caricamento: non suonare
+    let fresh = false;
+    ids.forEach(id => { if(!known.has(id)){ fresh = true; known.add(id); } });
+    if(fresh){
+      beep();
+      if('Notification' in window && Notification.permission==='granted')
+        new Notification('Nuova corsa JF Limo', {body:'Hai una nuova prenotazione nella bacheca.'});
+    }
+  }
+  // chiedi permesso notifiche al primo tap
+  document.body.addEventListener('click', () => {
+    if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
+  }, {once:true});
+
+  // ACCETTA corsa: invia al cliente l'email "corsa confermata", marca accettata, apre il dettaglio
+  listEl.addEventListener('click', function(e){
+    var a = e.target.closest('[data-acc]'); if(!a) return;
+    e.preventDefault();
+    var id = a.getAttribute('data-acc'), b = bookings[id] || {};
+    var href = a.getAttribute('href');
+    var goDrv = function(){ location.href = href; };
+    var already = (b.status === 'accettata');
+    if(already){ goDrv(); return; }           // riapertura: niente nuova email
+    try{ if(db) db.ref('bookings/' + id).update({status:'accettata', acceptedAt: Date.now()}); }catch(e){}
+    if(EMAILJS_READY && b.email){
+      var p = null;
+      try{ p = emailjs.send(EMAILJS.service, EMAILJS.tplTrack, trackParams(b)); }catch(e){}
+      if(p && p.then){ p.then(goDrv).catch(goDrv); setTimeout(goDrv, 2500); }
+      else goDrv();
+    } else { goDrv(); }
+  });
+
+  // elimina corsa (solo autista loggato; richiede regole Firebase aggiornate)
+  listEl.addEventListener('click', function(e){
+    var btn = e.target.closest('.del'); if(!btn) return;
+    var id = btn.getAttribute('data-del');
+    if(!confirm('Eliminare questa corsa? L\'azione è definitiva.')) return;
+    if(!db) return;
+    db.ref('bookings/' + id).remove()
+      .catch(function(){ alert('Eliminazione non riuscita. Controlla di aver aggiornato le regole Firebase.'); });
+  });
+
+  // ── Corsa manuale: Jalal inserisce a mano le corse ricevute fuori dal sito ──
+  function mGenId(){ var c='abcdefghijkmnpqrstuvwxyz23456789', s=''; for(var i=0;i<6;i++) s+=c.charAt(Math.floor(Math.random()*c.length)); return s; }
+  var addModal = document.getElementById('addModal'), mTipo = 'transfer';
+  function mSetTipo(t){
+    mTipo = t;
+    document.querySelectorAll('.mpill').forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-mtipo')===t); });
+    document.querySelectorAll('.m-only-transfer').forEach(function(e){ e.style.display = (t==='transfer')?'':'none'; });
+    document.querySelectorAll('.m-only-ore').forEach(function(e){ e.style.display = (t==='ore')?'':'none'; });
+  }
+  function mReset(){
+    ['m-nome','m-tel','m-email','m-from','m-to','m-data','m-ora','m-prezzo','m-note'].forEach(function(x){ var el=document.getElementById(x); if(el) el.value=''; });
+    var o=document.getElementById('m-ore'); if(o) o.value='2';
+    var c=document.getElementById('m-classe'); if(c) c.value='';
+    var r=document.getElementById('m-rt'); if(r) r.checked=false;
+    document.getElementById('m-err').textContent='';
+    mSetTipo('transfer');
+  }
+  document.getElementById('addBtn').addEventListener('click', function(){ mReset(); addModal.classList.add('open'); });
+  document.getElementById('addClose').addEventListener('click', function(){ addModal.classList.remove('open'); });
+  addModal.addEventListener('click', function(e){ if(e.target===addModal) addModal.classList.remove('open'); });
+  document.querySelectorAll('.mpill').forEach(function(p){ p.addEventListener('click', function(){ mSetTipo(p.getAttribute('data-mtipo')); }); });
+  document.getElementById('m-save').addEventListener('click', function(){
+    var val = function(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; };
+    var err = document.getElementById('m-err'); err.textContent='';
+    var nome = val('m-nome'), from = val('m-from');
+    if(!nome){ err.textContent='Inserisci il nome del cliente.'; return; }
+    if(!from){ err.textContent='Inserisci la partenza.'; return; }
+    if(mTipo==='transfer' && !val('m-to')){ err.textContent='Inserisci la destinazione.'; return; }
+    if(!db){ err.textContent='Database non disponibile.'; return; }
+    var id = mGenId();
+    var data = val('m-data'), ora = val('m-ora'), when = 'subito';
+    try{ if(data){ var d=new Date(data+'T'+(ora||'00:00')); if(!isNaN(d.getTime())) when=d.toISOString(); } }catch(e){}
+    var rt = document.getElementById('m-rt') && document.getElementById('m-rt').checked;
+    var rec = {
+      trip:id, name:nome, phone:val('m-tel'), email:val('m-email'),
+      from:from, to:(mTipo==='transfer'?val('m-to'):''),
+      tipo:mTipo, ore:(mTipo==='ore'?val('m-ore'):''),
+      viaggio:(mTipo==='ore'?'':(rt?'andata e ritorno':'solo andata')),
+      classe:val('m-classe'), prezzo:val('m-prezzo'),
+      lang:(val('m-lang')||'de'), pagamento:'da definire (manuale)',
+      note:val('m-note'), manuale:true,
+      when:when, status:'nuova', createdAt:Date.now()
+    };
+    if(known) known.add(id);   // è Jalal ad aggiungerla: niente suoneria di "nuova corsa"
+    var btn=document.getElementById('m-save'); btn.disabled=true; btn.textContent='Salvataggio…';
+    db.ref('bookings/'+id).set(rec).then(function(){
+      addModal.classList.remove('open'); btn.disabled=false; btn.textContent='Aggiungi in bacheca';
+    }).catch(function(){ err.textContent='Salvataggio non riuscito.'; btn.disabled=false; btn.textContent='Aggiungi in bacheca'; });
+  });
+  mSetTipo('transfer');
+
+  // Accesso autista (solo Jalal vede le prenotazioni dei clienti)
+  var started = false;
+  function startBoard(){
+    if(started || !db) return;
+    started = true;
+    db.ref('bookings').on('value', s => { const val = s.val() || {}; checkNew(val); bookings = val; render(); });
+  }
+
+  if(db){
+    var auth = firebase.auth();
+    var loginEl = document.getElementById('login'), errEl = document.getElementById('lg-err');
+    auth.onAuthStateChanged(function(user){
+      if(user){ loginEl.style.display = 'none'; startBoard(); }
+      else { loginEl.style.display = 'flex'; }
+    });
+    function doLogin(){
+      var em = document.getElementById('lg-email').value.trim(), pw = document.getElementById('lg-pass').value;
+      errEl.textContent = '';
+      auth.signInWithEmailAndPassword(em, pw).catch(function(){
+        errEl.textContent = 'Accesso non riuscito. Controlla email e password.';
+      });
+    }
+    document.getElementById('lg-btn').addEventListener('click', doLogin);
+    document.getElementById('lg-pass').addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
+  }
+</script>
+</body>
+</html>

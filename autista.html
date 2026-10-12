@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dettaglio corsa — JF Limo Service</title>
+<meta name="theme-color" content="#0d0d10">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+  :root{--gold:#5a92e4;--ink:#0d0d10;--panel:#16161b;--line:rgba(90,146,228,.22);--cream:#f6f3ec;--muted:#a2a2ad}
+  *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:none;-ms-overflow-style:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+  .top{padding:18px 20px;text-align:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ink);z-index:5}
+  .top .brand{font-weight:700;letter-spacing:.04em}
+  .top .brand span{color:var(--gold)}
+  .top .sub{color:var(--muted);font-size:.8rem;margin-top:3px}
+  .wrap{max-width:620px;margin:0 auto;padding:18px 16px 60px}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:.86rem;margin-bottom:14px}
+  .back:hover{color:var(--gold)}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:.92rem;line-height:1.6}
+  .empty a{color:var(--gold)}
+
+  .head-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+  .row1{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .when{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:.98rem}
+  .tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;border-radius:999px}
+  .tag.now{background:rgba(39,208,122,.16);color:#5fe6a3}
+  .tag.sched{background:rgba(90,146,228,.14);color:var(--gold)}
+  .tag.acc{background:rgba(90,146,228,.2);color:var(--gold)}
+  .tag.done{background:rgba(255,255,255,.08);color:var(--muted)}
+  .tag.paid{background:rgba(39,208,122,.16);color:#5fe6a3}
+  .tag.manual{background:rgba(255,196,77,.16);color:#ffce6b}
+  .who{font-size:1.25rem;font-weight:700;margin:4px 0 2px}
+  .route{color:var(--cream);font-size:1rem;margin:10px 0 2px;line-height:1.55}
+  .route .ar{color:var(--gold);margin:0 8px}
+
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px 18px;margin-bottom:14px}
+  .box .bx-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);padding:12px 0 2px}
+  .field{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .field:last-child{border-bottom:none}
+  .field .k{color:var(--muted);font-size:.84rem;flex:0 0 auto}
+  .field .v{font-size:.95rem;font-weight:500;text-align:right;word-break:break-word}
+  .field .v a{color:var(--gold);text-decoration:none}
+  .note-v{white-space:pre-wrap;line-height:1.5}
+
+  .actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .arow{display:flex;gap:10px}
+  .btn{flex:1;display:block;text-align:center;border:none;border-radius:12px;padding:14px;font-size:.95rem;font-weight:600;
+    cursor:pointer;font-family:inherit;text-decoration:none;transition:.2s;color:var(--cream)}
+  .btn-gold{background:var(--gold);color:#04212b}
+  .btn-line{background:transparent;border:1px solid var(--line)}
+  .btn-done{background:rgba(39,208,122,.16);color:#5fe6a3;border:1px solid rgba(39,208,122,.4)}
+  .btn-undo{background:transparent;color:var(--muted);border:1px solid var(--line);font-size:.85rem;padding:11px}
+  .btn:active{transform:scale(.98)}
+  .okmsg{text-align:center;color:#5fe6a3;font-size:.9rem;padding:6px 0}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand">JF <span>LIMO</span> · Corsa</div>
+    <div class="sub" id="tripLabel">—</div>
+  </div>
+
+  <div class="wrap">
+    <a class="back" href="bacheca.html">‹ Torna alla bacheca</a>
+    <div id="content"><div class="empty">Caricamento…</div></div>
+  </div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBsCmhE88nTzMuLYYYpj0VcvXCjPkrgm4U",
+    authDomain: "jf-limo-tracking.firebaseapp.com",
+    databaseURL: "https://jf-limo-tracking-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "jf-limo-tracking",
+    storageBucket: "jf-limo-tracking.firebasestorage.app",
+    messagingSenderId: "1038480326716",
+    appId: "1:1038480326716:web:4aa9eda55151c3d0e14339"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database(), auth = firebase.auth();
+
+  const params = new URLSearchParams(location.search);
+  const trip = (params.get('trip') || '').replace(/[^a-z0-9]/gi, '');
+  document.getElementById('tripLabel').textContent = trip ? ('corsa ' + trip) : 'corsa —';
+  const content = document.getElementById('content');
+
+  function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+  function whenTxt(b){
+    if(b.when === 'subito' || !b.when) return 'Adesso';
+    const d = new Date(b.when);
+    if(isNaN(d.getTime())) return String(b.when);
+    return d.toLocaleString('it-IT', {weekday:'long', day:'2-digit', month:'long', hour:'2-digit', minute:'2-digit'});
+  }
+  function waLink(phone){
+    const n = String(phone||'').replace(/[^\d+]/g,'').replace(/^\+/, '').replace(/^00/, '');
+    return n ? ('https://wa.me/' + n) : null;
+  }
+  const LANGS = {it:'Italiano',de:'Deutsch',en:'English',fr:'Français',es:'Español',ru:'Русский',zh:'中文',ja:'日本語',ar:'العربية'};
+
+  function field(k, vHtml){ return vHtml ? '<div class="field"><span class="k">'+k+'</span><span class="v">'+vHtml+'</span></div>' : ''; }
+
+  let cur = null;
+  function render(b){
+    cur = b;
+    if(!b){ content.innerHTML = '<div class="empty">Corsa non trovata (forse è stata eliminata).<br><a href="bacheca.html">Torna alla bacheca</a></div>'; return; }
+    const done = b.status === 'completata';
+    const statusTag = done ? '<span class="tag done">Completata</span>'
+                    : b.status === 'accettata' ? '<span class="tag acc">Accettata</span>'
+                    : (b.when === 'subito' || !b.when) ? '<span class="tag now">Adesso</span>'
+                    : '<span class="tag sched">Programmata</span>';
+    const paidTag = b.pagato ? '<span class="tag paid">Pagata online</span>' : '';
+    const manualTag = b.manuale ? '<span class="tag manual">Manuale</span>' : '';
+
+    const isOre = b.tipo === 'ore';
+    const routeHtml = isOre
+      ? esc(b.from||'—') + ' <span class="ar">·</span> a disposizione' + (b.ore ? (' ' + esc(b.ore) + 'h') : '')
+      : esc(b.from||'—') + '<span class="ar">' + (b.viaggio==='andata e ritorno' ? '⇄' : '→') + '</span>' + esc(b.to||'—');
+
+    const wa = waLink(b.phone);
+    const gmaps = !isOre && b.from && b.to
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(b.from) + '&destination=' + encodeURIComponent(b.to)
+      : b.from ? 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(b.from) : null;
+
+    content.innerHTML =
+      '<div class="head-card">'
+      + '<div class="row1"><span class="when">🕒 ' + esc(whenTxt(b)) + '</span><span>' + manualTag + paidTag + statusTag + '</span></div>'
+      + '<div class="who">' + esc(b.name || 'Cliente') + '</div>'
+      + '<div class="route">' + routeHtml + '</div>'
+      + '</div>'
+
+      + '<div class="box"><div class="bx-title">Dettagli corsa</div>'
+      + field('Tipo', isOre ? 'A disposizione (a ore)' : 'Transfer')
+      + (isOre ? field('Ore', esc(b.ore)) : field('Viaggio', esc(b.viaggio || 'solo andata')))
+      + field('Partenza', esc(b.from))
+      + (!isOre ? field('Destinazione', esc(b.to)) : '')
+      + field('Veicolo', esc(b.classe))
+      + field('Prezzo', esc(b.prezzo))
+      + field('Pagamento', esc(b.pagamento) + (b.pagato ? ' · <b style="color:#5fe6a3">pagata</b>' : ''))
+      + '</div>'
+
+      + '<div class="box"><div class="bx-title">Cliente</div>'
+      + field('Nome', esc(b.name))
+      + field('Telefono', b.phone ? '<a href="tel:' + esc(b.phone) + '">' + esc(b.phone) + '</a>' : '')
+      + field('Email', b.email ? '<a href="mailto:' + esc(b.email) + '">' + esc(b.email) + '</a>' : '')
+      + field('Lingua', LANGS[b.lang] || esc(b.lang))
+      + (b.passeggeri ? field('Passeggeri', esc(b.passeggeri)) : '')
+      + (b.note ? '<div class="field"><span class="k">Note</span><span class="v note-v">' + esc(b.note) + '</span></div>' : '')
+      + '</div>'
+
+      + '<div class="actions">'
+      + '<div class="arow">'
+      +   (b.phone ? '<a class="btn btn-line" href="tel:' + esc(b.phone) + '">📞 Chiama</a>' : '')
+      +   (wa ? '<a class="btn btn-line" href="' + wa + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '')
+      + '</div>'
+      + (gmaps ? '<a class="btn btn-gold" href="' + gmaps + '" target="_blank" rel="noopener">🗺 Apri percorso in Google Maps</a>' : '')
+      + (done
+          ? '<div class="okmsg">✓ Corsa completata</div><button class="btn btn-undo" id="undoBtn">Ripristina come attiva</button>'
+          : '<button class="btn btn-done" id="doneBtn">✓ Segna come completata</button>')
+      + '</div>';
+
+    const doneBtn = document.getElementById('doneBtn');
+    if(doneBtn) doneBtn.addEventListener('click', function(){
+      db.ref('bookings/' + trip).update({status:'completata', completedAt: Date.now()});
+    });
+    const undoBtn = document.getElementById('undoBtn');
+    if(undoBtn) undoBtn.addEventListener('click', function(){
+      db.ref('bookings/' + trip).update({status:'accettata'});
+    });
+  }
+
+  if(!trip){
+    content.innerHTML = '<div class="empty">Nessuna corsa indicata.<br><a href="bacheca.html">Torna alla bacheca</a></div>';
+  } else {
+    auth.onAuthStateChanged(function(user){
+      if(!user){
+        content.innerHTML = '<div class="empty">Per vedere i dettagli devi accedere dalla bacheca.<br><br><a class="btn btn-gold" style="display:inline-block;padding:13px 26px" href="bacheca.html">Vai alla bacheca</a></div>';
+        return;
+      }
+      db.ref('bookings/' + trip).on('value', function(s){ render(s.val()); });
+    });
+  }
+</script>
+</body>
+</html>

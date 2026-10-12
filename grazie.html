@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking sent — JF Limo Service</title>
+<meta name="description" content="Your booking request has been received. JF Limo Service will confirm shortly.">
+<link rel="canonical" href="https://jf-limo-service.ch/grazie.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jf-limo-service.ch/grazie.html">
+<meta property="og:title" content="Booking sent — JF Limo Service">
+<meta property="og:description" content="Your booking request has been received. JF Limo Service will confirm shortly.">
+<meta property="og:image" content="https://jf-limo-service.ch/images/pexels-11556663.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d0d10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --ink:#0d0d10; --charcoal:#16161b; --panel:#1d1d24;
+  --gold:#5a92e4; --gold-l:#5fe0ff; --navy:#014599; --cream:#f6f3ec;
+  --muted:#a2a2ad; --line:rgba(90,146,228,.22); --white:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+/* nasconde la barra di scorrimento bianca in tutto il sito (lo scroll resta attivo) */
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{width:0;height:0;display:none}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);line-height:1.7;overflow-x:hidden}
+h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600;line-height:1.15;letter-spacing:.2px}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+.gold{color:var(--gold)}
+.eyebrow{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:18px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,16,.78);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background .3s}
+.nav-in{max-width:1180px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;font-family:'Playfair Display',serif;font-size:1.18rem;letter-spacing:1px;flex:1 1 0}
+.nav-side{flex:1 1 0;display:flex;align-items:center;justify-content:flex-end;gap:14px}
+.brand img{height:38px;width:38px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.brand-logo{height:48px!important;width:auto!important;border-radius:0!important;border:none!important;object-fit:contain!important}
+.nav-links{display:flex;gap:30px;list-style:none;margin:0;flex:0 0 auto}
+.nav-links a{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream);
+  font-weight:500;position:relative;padding:4px 0;opacity:.82;transition:opacity .2s}
+.nav-links a:hover,.nav-links a.active{opacity:1;color:var(--gold)}
+.nav-links a.active::after{content:"";position:absolute;left:0;bottom:-4px;width:100%;height:1px;background:var(--gold)}
+.nav-cta{border:1px solid var(--gold);color:var(--gold);padding:9px 20px;border-radius:40px;
+  font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;transition:.25s;white-space:nowrap}
+.nav-cta:hover{background:var(--gold);color:var(--ink)}
+.lang-dd{position:relative}
+.lang-dd-btn{display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);border-radius:999px;
+  color:var(--cream);font-family:'Inter',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:.06em;
+  padding:6px 12px;cursor:pointer;transition:.2s}
+.lang-dd-btn:hover{border-color:var(--gold);color:var(--gold)}
+.lang-dd-btn svg{width:11px;height:11px;opacity:.7;transition:transform .25s}
+.lang-dd.open .lang-dd-btn{border-color:var(--gold);color:var(--gold)}
+.lang-dd.open .lang-dd-btn svg{transform:rotate(180deg)}
+.lang-dd-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:148px;background:#0b0b0e;
+  border:1px solid var(--gold);border-radius:12px;padding:6px;display:none;box-shadow:0 18px 44px rgba(0,0,0,.55);
+  max-height:min(58vh,360px);overflow-y:auto}
+.lang-dd.open .lang-dd-menu{display:block}
+.lang-flat{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.lang-opt{display:block;width:100%;text-align:left;background:none;border:none;border-radius:8px;
+  color:var(--cream);font-family:'Inter',sans-serif;font-size:.84rem;padding:8px 12px;cursor:pointer;transition:.15s}
+.lang-opt:hover{background:rgba(90,146,228,.14);color:var(--gold)}
+.lang-opt.active{color:var(--gold);font-weight:600}
+.lang-flat .lang-opt{width:auto;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.78rem}
+html[dir=rtl] .lang-dd-menu{right:auto;left:0}
+html[dir=rtl] .lang-opt{text-align:right}
+.lang-switch{display:flex;align-items:center;gap:0}
+.lang-switch button{background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;
+  font-size:.74rem;font-weight:700;letter-spacing:.04em;cursor:pointer;padding:4px 3px;border-radius:5px;transition:.2s}
+.lang-switch button:hover{color:var(--cream)}
+.lang-switch button.active{color:var(--gold)}
+.lang-switch .sep{color:var(--muted);font-size:.72rem;opacity:.55;margin:0 1px}
+.lang-mobile{display:none}
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none}
+.burger span{width:26px;height:2px;background:var(--cream);transition:.3s}
+
+.hero{min-height:60vh;display:flex;align-items:center;position:relative;padding-top:96px;padding-bottom:20px;
+  background:linear-gradient(rgba(8,8,11,.62),rgba(8,8,11,.86)),url('images/pexels-3353610.jpg') center/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,var(--ink),transparent 36%)}
+/* video di sfondo hero (solo home) */
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.hero-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(8,8,11,.60),rgba(8,8,11,.86))}
+.hero-in{position:relative;z-index:2;max-width:760px}
+.hero h1{font-size:clamp(2.4rem,5.6vw,4.3rem);margin:6px 0 22px}
+.hero p{font-size:1.12rem;color:var(--cream);opacity:.9;max-width:560px;margin-bottom:34px;font-weight:300}
+
+.btn{display:inline-block;background:var(--gold);color:var(--ink);padding:15px 34px;border-radius:44px;
+  font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:.82rem;transition:.25s}
+.btn:hover{background:var(--gold-l);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--cream);margin-left:14px}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:transparent}
+
+section{padding:60px 0}
+.section-head{max-width:640px;margin-bottom:36px}
+.section-head h2{font-size:clamp(1.9rem,3.6vw,2.9rem);margin-bottom:16px}
+.section-head p{color:var(--muted);font-weight:300}
+.rev-badge{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:34px;flex-wrap:wrap}
+.rev-score{font-size:2.4rem;font-weight:700;color:var(--cream);line-height:1}
+.rev-badge-stars{color:#ffc247;font-size:1.45rem;letter-spacing:2px}
+.rev-count{color:var(--muted);font-size:.9rem}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.rev-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px}
+.rev-stars{display:flex;gap:3px}
+.rev-stars svg{width:17px;height:17px;fill:#ffc247}
+.rev-card blockquote{margin:0;color:var(--cream);font-weight:300;line-height:1.6;font-size:.95rem;flex:1}
+.rev-card figcaption{color:var(--gold);font-weight:600;font-size:.9rem;margin:0}
+.center{text-align:center;margin-left:auto;margin-right:auto}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);padding:46px 0}
+.stat h3{font-size:2.3rem;color:var(--gold)}
+.stat p{color:var(--muted);font-size:.92rem;margin-top:6px}
+
+.grid{display:grid;gap:26px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g4 .card{padding:32px 26px}
+@media(max-width:1100px){ .g4{grid-template-columns:repeat(2,1fr)} }
+
+/* box prenotazione rapida in home */
+.qb-card{background:linear-gradient(150deg,#16161c,#0e0e12);border:1px solid var(--line);border-radius:18px;
+  padding:32px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.qb-card .qb-h{font-size:1.6rem;margin-bottom:18px}
+.qb-card .wiz-fields{max-width:none;margin:0}
+.qb-btn{margin-top:18px;width:100%;text-align:center}
+.card{background:var(--charcoal);border:1px solid var(--line);border-radius:14px;padding:38px 32px;transition:.3s}
+.card:hover{transform:translateY(-6px);border-color:var(--gold)}
+.card .num{font-family:'Playfair Display',serif;color:var(--gold);font-size:1rem;letter-spacing:.1em}
+.card h3{font-size:1.4rem;margin:14px 0 12px}
+.card p{color:var(--muted);font-weight:300;font-size:.96rem}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.split img{border-radius:16px;width:100%;height:100%;object-fit:cover;min-height:360px;border:1px solid var(--line)}
+.split h2{font-size:clamp(1.8rem,3.4vw,2.7rem);margin-bottom:22px}
+.split p{color:var(--muted);font-weight:300;margin-bottom:16px}
+.lang{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.lang span{border:1px solid var(--line);color:var(--cream);padding:7px 16px;border-radius:30px;font-size:.82rem}
+
+.band{background:linear-gradient(rgba(13,13,16,.7),rgba(13,13,16,.85)),url('images/pexels-3353610.jpg') center/cover;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center}
+.band h2{font-size:clamp(2rem,4vw,3.2rem);margin-bottom:18px}
+.band p{color:var(--cream);opacity:.85;max-width:520px;margin:0 auto 32px;font-weight:300}
+
+.contact-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.contact-grid .contact-card{flex:0 1 300px}
+.contact-card{background:var(--charcoal);border:1px solid var(--line);border-radius:14px;padding:40px 30px;text-align:center}
+.contact-card .ico{font-size:1.6rem;color:var(--gold);margin-bottom:14px}
+.contact-card h3{font-size:1.15rem;margin-bottom:8px}
+.contact-card a,.contact-card p{color:var(--muted);font-weight:300}
+.contact-card a:hover{color:var(--gold)}
+
+footer{background:#0a0a0c;border-top:1px solid var(--line);padding:60px 0 30px}
+.foot-in{display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between;align-items:flex-start}
+.foot p{color:var(--muted);font-size:.9rem;font-weight:300;max-width:300px}
+.foot-links{display:flex;flex-direction:column;gap:10px}
+.foot-links a{color:var(--muted);font-size:.9rem} .foot-links a:hover{color:var(--gold)}
+/* bottone WhatsApp flottante */
+.wa-fab{position:fixed;right:22px;bottom:22px;z-index:80;width:54px;height:54px;border-radius:50%;
+  background:#25D366;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 26px rgba(0,0,0,.45);transition:.25s}
+.wa-fab:hover{transform:scale(1.1)}
+.wa-fab svg{width:30px;height:30px;fill:#fff}
+html[dir=rtl] .wa-fab{right:auto;left:22px}
+.copy{text-align:center;color:var(--muted);font-size:.8rem;margin-top:46px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+
+.booking{background:linear-gradient(150deg,#16161c,#0e0e12);border:1px solid var(--line);border-radius:18px;
+  padding:34px;box-shadow:0 24px 70px rgba(0,0,0,.45);position:relative}
+.booking .bk-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1 / -1}
+.field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{background:#0b0b0e;border:1px solid var(--line);border-radius:10px;
+  padding:13px 14px;color:var(--cream);font-family:'Inter',sans-serif;font-size:.95rem;transition:.2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(90,146,228,.12)}
+.field input::placeholder,.field textarea::placeholder{color:#6b6b78}
+.field select{appearance:none;-webkit-appearance:none;cursor:pointer}
+.field textarea{resize:vertical;min-height:70px}
+.booking button.btn{width:100%;text-align:center;margin-top:4px;border:none;cursor:pointer}
+.bk-hp{position:absolute;left:-9999px;opacity:0}
+.field.bk-check{flex-direction:row;align-items:center;gap:9px}
+.field.bk-check input{width:auto}
+.field.ac{position:relative}
+.bk-ac{position:absolute;top:100%;left:0;right:0;z-index:40;background:#0b0b0e;border:1px solid var(--gold);
+  border-top:none;border-radius:0 0 10px 10px;max-height:220px;overflow-y:auto;display:none}
+.bk-ac-item{padding:10px 13px;font-size:.84rem;color:var(--cream);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)}
+.bk-ac-item:hover{background:rgba(90,146,228,.14);color:var(--gold)}
+#bk-map{height:320px;border-radius:12px;border:1px solid var(--line);overflow:hidden;background:#0b0b0e;z-index:1}
+.bk-hint{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.bk-route{margin-top:12px;font-size:.95rem;color:var(--cream);background:#0b0b0e;border:1px solid var(--line);
+  border-radius:10px;padding:11px 15px;text-align:center}
+.bk-route strong{color:var(--gold);font-weight:700;letter-spacing:.02em}
+.bk-pin{width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #0d0d10;box-shadow:0 0 0 2px rgba(90,146,228,.55)}
+.leaflet-container{font-family:'Inter',sans-serif}
+.veh-select{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px}
+.veh-card{background:radial-gradient(120% 95% at 50% 30%,#3a3a45,#0e0e12);border:1px solid var(--line);
+  border-radius:14px;padding:14px 10px 12px;cursor:pointer;text-align:center;opacity:.58;
+  transition:transform .3s,border-color .3s,box-shadow .3s,opacity .3s}
+.veh-card img{width:100%;height:74px;object-fit:contain;transition:transform .35s;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55))}
+.veh-card .veh-name{font-family:'Playfair Display',serif;font-size:.9rem;margin-top:8px;color:var(--cream);line-height:1.2}
+.veh-card .veh-desc{color:var(--muted);font-size:.72rem;margin-top:2px}
+.veh-card .veh-cap{display:flex;align-items:center;justify-content:center;gap:5px;color:var(--gold);font-size:.8rem;font-weight:600;margin-top:7px}
+.veh-card .veh-cap svg{width:14px;height:14px}
+.veh-card:hover{opacity:1}
+.veh-card.selected{opacity:1;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 18px 44px rgba(0,0,0,.55);transform:translateY(-4px) scale(1.05)}
+.veh-card.selected img{transform:scale(1.13)}
+.seatmap-wrap{background:#0b0b0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.seatmap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:.85rem;color:var(--muted)}
+.seatmap-head b{color:var(--gold)}
+.cabin{display:flex;flex-direction:column;align-items:center;gap:9px}
+.seat-row{display:flex;gap:9px;justify-content:center}
+.seat{width:34px;height:34px;border-radius:9px 9px 11px 11px;border:1px solid var(--line);background:#15151b;
+  display:flex;align-items:center;justify-content:center;color:#4d4d59;transition:.3s}
+.seat svg{width:18px;height:18px}
+.seat.filled{background:var(--gold);border-color:var(--gold);color:var(--ink);box-shadow:0 0 14px rgba(90,146,228,.45);transform:translateY(-2px)}
+.seat.driver{background:#1b1b22;border-style:dashed;color:var(--muted)}
+/* showcase vetture (modellini nel vuoto) */
+.garage{text-align:center;padding-top:124px;padding-bottom:80px;min-height:88vh}
+.garage-eyebrow{display:flex;justify-content:center}
+.garage-title{font-size:clamp(2rem,4.5vw,3.4rem);margin-bottom:26px}
+.garage-stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:280px}
+.garage-stage::before{content:"";position:absolute;width:135%;height:165%;left:-17.5%;top:-32%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(90,146,228,.28),rgba(0,153,204,.10) 42%,transparent 72%);filter:blur(46px)}
+.garage-stage::after{content:"";position:absolute;bottom:4%;left:50%;transform:translateX(-50%);
+  width:48%;height:24px;background:radial-gradient(ellipse at center,rgba(0,0,0,.65),transparent 72%);filter:blur(9px);z-index:0}
+.veh-hero{position:relative;z-index:1;max-width:700px;width:80%;max-height:60vh;object-fit:contain;
+  filter:drop-shadow(0 34px 42px rgba(0,0,0,.65));animation:vehIn .55s ease}
+.veh-video{position:relative;z-index:1;max-width:720px;width:auto;max-height:64vh;object-fit:contain;border-radius:16px;
+  filter:drop-shadow(0 34px 46px rgba(0,0,0,.7));cursor:pointer}
+@keyframes vehIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.garage-info{margin-top:14px}
+.garage-info h2{font-size:clamp(1.7rem,3.4vw,2.6rem)}
+.garage-info p{color:var(--muted);margin-top:6px;font-weight:300}
+.veh-cap-big{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-weight:600;margin-top:16px;font-size:1rem}
+.veh-cap-big svg{width:17px;height:17px}
+.garage-thumbs{display:flex;justify-content:center;gap:34px;flex-wrap:wrap;margin-top:48px}
+.veh-thumb{background:none;border:none;cursor:pointer;padding:8px 4px 10px;opacity:.4;
+  border-bottom:2px solid transparent;transition:opacity .3s,border-color .3s}
+.veh-thumb img{height:58px;width:auto;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5));transition:transform .3s}
+.veh-thumb .tn{display:block;font-size:.74rem;color:var(--muted);margin-top:8px;letter-spacing:.03em;white-space:nowrap}
+.veh-thumb:hover{opacity:.85} .veh-thumb:hover img{transform:translateY(-3px)}
+.veh-thumb.selected{opacity:1;border-bottom-color:var(--gold)}
+.veh-thumb.selected .tn{color:var(--gold)}
+/* esperienza prenotazione immersiva (video sfondo) */
+.booker{position:relative;min-height:100vh;overflow:hidden}
+.bk-bg{position:absolute;inset:0;z-index:0}
+.bk-bg-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.bk-bg-media[hidden]{display:none}
+.bk-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(8,8,11,.5),rgba(8,8,11,.82));transition:background .6s}
+.booker.form-mode .bk-scrim{background:linear-gradient(to bottom,rgba(8,8,11,.88),rgba(8,8,11,.9))}
+.booker-inner{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  max-width:1100px;margin:0 auto;padding:120px 28px 70px;width:100%}
+.step{animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.step-choose{text-align:center}
+.step-choose .chosen h2{font-size:clamp(1.8rem,3.6vw,2.7rem)}
+.step-choose .chosen p{color:var(--cream);opacity:.85;margin-top:6px;font-weight:300}
+.step-choose .veh-cap-big{justify-content:center}
+.enter-btn{margin-top:34px;border:none;cursor:pointer}
+.step-form{max-width:740px;width:100%;margin:0 auto}
+.back-veh{background:none;border:none;color:var(--gold);cursor:pointer;font-size:.85rem;letter-spacing:.04em;margin-bottom:14px;padding:0}
+.form-title{font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:6px}
+.form-sub{color:var(--muted);margin-bottom:22px;font-weight:300}
+.hero-veh{position:relative;display:flex;justify-content:center;align-items:center;min-height:300px;margin:8px 0 4px}
+.hero-glow{position:absolute;width:130%;height:150%;left:-15%;top:-25%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(90,146,228,.30),rgba(0,153,204,.10) 42%,transparent 72%);filter:blur(48px)}
+.hero-veh-img{position:relative;z-index:1;max-width:560px;width:auto;max-height:44vh;object-fit:contain;
+  filter:drop-shadow(0 30px 40px rgba(0,0,0,.6));animation:vehIn .5s ease}
+.pax-stepper{display:flex;align-items:center;justify-content:center;gap:28px;margin-top:6px}
+.pax-btn{width:56px;height:56px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  color:var(--cream);font-size:1.7rem;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;padding:0}
+.pax-btn:hover{border-color:var(--gold);color:var(--gold)}
+.pax-btn:disabled{opacity:.3;cursor:default;border-color:var(--line);color:var(--cream)}
+.pax-num{font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--cream);min-width:96px;text-align:center;line-height:1}
+.pax-cap{font-size:1rem;color:var(--muted);margin-left:8px}
+/* wizard prenotazione */
+.wiz{min-height:100vh;padding:120px 0 70px}
+.wiz-inner{max-width:900px}
+.wiz-head{text-align:center;margin-bottom:34px}
+.wiz-head .eyebrow{display:flex;justify-content:center}
+.wiz-title{font-size:clamp(2rem,4vw,3rem);margin-bottom:18px}
+.wiz-progress{display:flex;justify-content:center;gap:10px;align-items:center;color:var(--muted);font-size:.82rem;letter-spacing:.05em}
+.wiz-progress .dot{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.3s}
+.wiz-progress .dot.on{background:var(--gold);box-shadow:0 0 10px rgba(90,146,228,.5)}
+.wiz-h{font-size:clamp(1.4rem,2.6vw,1.9rem);text-align:center;margin-bottom:26px}
+.wiz-step{animation:fadeUp .4s ease}
+.cls-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:620px;margin:0 auto}
+/* andata e ritorno */
+.field label.rt-check{display:flex;align-items:center;gap:10px;color:var(--cream);font-size:.95rem;cursor:pointer;
+  text-transform:none;letter-spacing:0;font-weight:400}
+.field label.rt-check input{width:auto;accent-color:var(--gold);transform:scale(1.25);cursor:pointer}
+/* pagamento — lista verticale elegante */
+.pay-list{display:flex;flex-direction:column;gap:14px;max-width:560px}
+.pay-card{display:flex;align-items:center;gap:18px;width:100%;text-align:start;background:var(--charcoal);
+  border:1px solid var(--line);border-radius:16px;padding:18px 20px;cursor:pointer;transition:.25s;
+  color:var(--cream);font-family:inherit}
+.pay-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.pay-card.sel{border-color:var(--gold);background:#1b1b22;box-shadow:0 0 0 1px var(--gold),0 16px 40px rgba(0,0,0,.45)}
+.pay-ic{flex:0 0 auto;width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  color:var(--gold);background:rgba(90,146,228,.09);border:1px solid rgba(90,146,228,.25)}
+.pay-tx{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.pay-t{font-family:'Playfair Display',serif;font-size:1.15rem}
+.pay-d{color:var(--muted);font-size:.85rem;font-weight:300}
+.pay-radio{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);position:relative;transition:.2s}
+.pay-card:hover .pay-radio{border-color:var(--gold)}
+.pay-card.sel .pay-radio{border-color:var(--gold)}
+.pay-card.sel .pay-radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--gold)}
+/* fattura bloccata per i clienti alla prima corsa */
+.pay-card.locked{opacity:.45;cursor:not-allowed}
+.pay-card.locked:hover{transform:none;border-color:var(--line)}
+.pay-card.locked:hover .pay-radio{border-color:var(--line)}
+.pay-lock{display:none;color:var(--gold);font-size:.76rem;margin-top:4px;letter-spacing:.02em}
+.pay-card.locked .pay-lock{display:inline}
+.cls-card,.type-card{background:var(--charcoal);border:1px solid var(--line);border-radius:16px;cursor:pointer;text-align:center;transition:.25s;color:var(--cream)}
+.cls-card{padding:18px 16px 20px} .type-card{padding:28px 20px}
+.cls-card:hover,.type-card:hover{transform:translateY(-4px);border-color:var(--gold)}
+.cls-card.sel,.type-card.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 16px 40px rgba(0,0,0,.5);background:#1b1b22}
+.cls-img{height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.cls-img img{max-height:96px;max-width:100%;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+.cls-cat{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.cls-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-top:2px}
+.cls-meta{display:flex;align-items:center;justify-content:center;gap:5px;color:var(--cream);font-size:.85rem;margin:10px 0 6px}
+.cls-meta svg{width:14px;height:14px;color:var(--gold)}
+.cls-price{color:var(--gold);font-weight:700;font-size:1.05rem}
+.cls-price span{color:var(--muted);font-weight:400;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+.type-ic{font-size:1.8rem;color:var(--gold);margin-bottom:12px;line-height:1}
+.type-t{font-family:'Playfair Display',serif;font-size:1.25rem}
+.type-d{color:var(--muted);font-size:.86rem;margin-top:8px;font-weight:300}
+.wiz-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:680px;margin:0 auto}
+.wiz-fields .field.full{grid-column:1 / -1}
+.price-box{max-width:680px;margin:0 auto 22px;background:linear-gradient(140deg,#16161c,#0e0e12);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center}
+.price-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.price-val{font-family:'Playfair Display',serif;font-size:2.6rem;color:var(--gold);margin:6px 0}
+.price-note{color:var(--muted);font-size:.8rem;font-weight:300}
+.wiz-summary{max-width:680px;margin:0 auto 22px;font-size:.9rem}
+.wiz-summary .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--muted)}
+.wiz-summary .row b{color:var(--cream);font-weight:500}
+.wiz-nav{display:flex;justify-content:space-between;gap:14px;max-width:680px;margin:30px auto 0}
+.wiz-nav .btn{cursor:pointer;border:none}
+.wiz-nav #wiz-prev{margin-left:0}
+.wiz-nav #wiz-next,.wiz-nav #wiz-submit{margin-left:auto}
+.btn.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* wizard v2 — layout due colonne con riepilogo sticky */
+.wiz-inner{max-width:1100px}
+.wiz-body{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:38px;align-items:start}
+.wiz-main{min-width:0}
+.wiz-h{text-align:left}
+.wiz-fields{max-width:none;margin:0}
+.cls-grid{grid-template-columns:repeat(2,1fr)}
+.cls-meta{gap:14px}
+.cls-meta .cm{display:inline-flex;align-items:center;gap:5px}
+.cls-meta .cm svg{width:14px;height:14px;color:var(--gold)}
+.mode-toggle{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px;gap:4px;margin-bottom:24px}
+.mode-pill{border:none;background:none;color:var(--muted);font-family:inherit;font-size:.9rem;padding:10px 20px;border-radius:999px;cursor:pointer;transition:.2s;display:inline-flex;gap:8px;align-items:center}
+.mode-pill .mp-ic{font-size:1rem;line-height:1}
+.mode-pill.sel{background:var(--gold);color:#0b1524;font-weight:600}
+@media(max-width:560px){
+  .mode-toggle{display:flex;width:100%;max-width:100%}
+  .mode-pill{flex:1;justify-content:center;padding:10px 6px;font-size:.85rem;min-width:0}
+  .mode-pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+.wiz-side{position:sticky;top:96px}
+.side-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}
+.side-price-hd{background:linear-gradient(140deg,#182338,#0d1017);padding:22px;border-bottom:1px solid var(--line)}
+.side-price-lbl{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.side-price{font-family:'Playfair Display',serif;font-size:2.3rem;color:var(--cream);margin-top:6px;line-height:1}
+.side-price .side-cur{font-size:1.05rem;color:var(--gold)}
+.side-price-sub{color:var(--muted);font-size:.76rem;margin-top:8px}
+.side-rows{padding:8px 20px 16px}
+.side-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.85rem;color:var(--muted)}
+.side-row b{color:var(--cream);font-weight:500;text-align:right;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-safe{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.76rem;padding-top:13px}
+.side-safe svg{color:var(--gold);flex:0 0 auto}
+.bd-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:26px}
+.bd-title{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.bd-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.9rem;color:var(--muted)}
+.bd-row b{color:var(--cream);font-weight:500}
+.bd-total{display:flex;justify-content:space-between;gap:12px;padding:13px 0 4px;font-size:1rem;color:var(--cream)}
+.bd-total b{color:var(--gold);font-weight:700;font-size:1.2rem}
+.bd-note{color:var(--muted);font-size:.76rem;font-weight:300;margin-top:8px}
+.wiz-nav{max-width:none;margin-left:0;margin-right:0}
+@media(max-width:980px){
+  .wiz-body{grid-template-columns:minmax(0,1fr) 250px;gap:24px}
+  .cls-grid{grid-template-columns:repeat(2,1fr)}
+}
+/* solo su telefono il riassunto scende sotto gli step */
+@media(max-width:700px){
+  .wiz-body{grid-template-columns:1fr}
+  .wiz-side{position:static;order:2;margin-top:28px}
+}
+/* sezione flotta */
+.fleet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px}
+.fleet-card{background:var(--charcoal);border:1px solid var(--line);border-radius:16px;padding:24px;transition:.3s;display:flex;flex-direction:column}
+.fleet-card:hover{transform:translateY(-6px);border-color:var(--gold)}
+.fleet-img{position:relative;height:150px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:16px}
+.fleet-img::before{content:"";position:absolute;width:86%;height:118%;left:7%;top:-12%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(90,146,228,.15),rgba(0,153,204,.05) 46%,transparent 70%);filter:blur(30px)}
+.fleet-img::after{content:"";position:absolute;bottom:6%;left:50%;transform:translateX(-50%);
+  width:62%;height:22px;background:radial-gradient(ellipse at center,rgba(0,0,0,.8),rgba(0,0,0,.4) 42%,transparent 72%);filter:blur(9px);z-index:0}
+.fleet-img img{position:relative;z-index:1;max-height:140px;max-width:100%;object-fit:contain}
+.fleet-cat{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.fleet-card h3{font-size:1.5rem;margin:4px 0 10px}
+.fleet-card p{color:var(--muted);font-weight:300;font-size:.95rem;flex:1}
+.fleet-meta{display:flex;align-items:center;justify-content:space-between;margin:16px 0;padding-top:14px;border-top:1px solid var(--line)}
+.fleet-pax{display:inline-flex;align-items:center;gap:6px;color:var(--cream);font-size:.9rem}
+.fleet-pax svg{width:15px;height:15px;color:var(--gold)}
+.fleet-price{color:var(--gold);font-weight:700}
+.fleet-price span{color:var(--muted);font-weight:400;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em}
+.fleet-link{display:inline-block;text-align:center;border:1px solid var(--gold);color:var(--gold);padding:11px;border-radius:40px;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;transition:.25s}
+.fleet-link:hover{background:var(--gold);color:var(--ink)}
+@media(max-width:860px){ .fleet-grid{grid-template-columns:1fr} }
+@media(max-width:980px){ .cls-grid{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:760px){ .type-grid,.wiz-fields{grid-template-columns:1fr} .wiz{padding-top:100px} }
+@media(max-width:520px){ .cls-grid{grid-template-columns:1fr} }
+@media(max-width:860px){ .booker-inner{padding-top:104px} .hero-veh-img{max-height:34vh} }
+@media(max-width:860px){ .booking{padding:22px} .booking .bk-grid{grid-template-columns:1fr} #bk-map{height:260px}
+  .veh-select{grid-template-columns:repeat(2,1fr)} .seat{width:30px;height:30px}
+  .garage{padding-top:100px} .veh-hero{width:92%} .garage-thumbs{gap:16px}
+  .veh-thumb img{height:44px} .veh-thumb .tn{font-size:.64rem} }
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+/* FAQ accordion */
+.faq{max-width:820px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{list-style:none;cursor:pointer;padding:20px 4px;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;font-size:1.08rem;font-weight:500;color:var(--cream)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";color:var(--gold);font-size:1.6rem;font-weight:300;line-height:1;flex:0 0 auto}
+.faq-item[open] summary::after{content:"\2212"}
+.faq-item .faq-a{padding:0 4px 22px;color:var(--muted);line-height:1.65;font-size:.98rem;max-width:700px}
+/* tratte più richieste */
+.routes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:920px;margin:0 auto;align-items:start}
+.route-card{background:var(--charcoal);border:1px solid var(--line);border-radius:14px;transition:border-color .25s}
+.route-card:hover,.route-card.open{border-color:var(--gold)}
+.route-head{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;
+  background:none;border:none;font-family:inherit;color:inherit;text-align:left;cursor:pointer;padding:18px 22px}
+.route-path{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rp-top{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.86rem}
+.rp-dest{color:var(--cream);font-weight:600;font-size:1.05rem;line-height:1.25}
+.route-arrow{color:var(--gold);flex:0 0 auto}
+.route-go{color:var(--gold);font-size:.82rem;white-space:nowrap;flex:0 0 auto}
+.route-card.open .route-go{opacity:.5}
+.route-form{padding:16px 22px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.rf-fields{display:flex;gap:12px}
+.rf-lb{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted)}
+.rf-lb input{background:var(--ink);border:1px solid var(--line);border-radius:9px;color:var(--cream);
+  padding:11px 12px;font-family:inherit;font-size:.9rem;color-scheme:dark;width:100%;-webkit-appearance:none;appearance:none;min-width:0;max-width:100%}
+.rf-lb input::-webkit-date-and-time-value{text-align:left;margin:0}
+.rf-lb input::-webkit-calendar-picker-indicator{margin-left:auto}
+.rf-lb input:focus{outline:none;border-color:var(--gold)}
+.rf-go{background:var(--gold);color:#04212b;border:none;border-radius:10px;padding:13px;font-family:inherit;
+  font-weight:600;font-size:.92rem;cursor:pointer;transition:.2s}
+.rf-go:active{transform:scale(.98)}
+@media(max-width:680px){ .routes-grid{grid-template-columns:1fr} .rp-dest{font-size:1rem} .rf-fields{flex-direction:column} }
+
+@media(max-width:860px){
+  .nav-links,.nav-cta,.lang-bar{display:none}
+  .burger{display:flex}
+  .nav-links.open{display:flex;position:fixed;top:80px;left:0;right:0;flex-direction:column;
+    background:var(--ink);padding:24px 28px;gap:20px;border-bottom:1px solid var(--line);margin-left:0;
+    max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .lang-mobile{display:flex;justify-content:flex-start;border-top:1px solid var(--line);padding-top:18px;margin-top:6px}
+  .lang-mobile .lang-dd-btn{font-size:1rem;padding:10px 18px}
+  /* su mobile il menu lingue si apre in-linea (spinge il contenuto): l'ultima voce resta sempre raggiungibile */
+  .lang-mobile .lang-dd-menu{position:static;left:auto;right:auto;transform:none;min-width:180px;margin-top:10px;box-shadow:none}
+  html[dir=rtl] .lang-mobile{justify-content:flex-end}
+  html[dir=rtl] .lang-mobile .lang-dd-menu{left:auto;right:0}
+  .lang-mobile .lang-opt{padding:11px 14px;font-size:.95rem}
+  .g3,.g2,.g4,.split,.stats{grid-template-columns:1fr}
+  .split{gap:34px} .stats{gap:34px;text-align:center}
+  section{padding:44px 0}
+  .hero-btns{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+  .hero-btns .btn-ghost{margin-left:0}
+  /* footer centrato su mobile (richiesta Jalal) */
+  .foot-in{flex-direction:column;align-items:center;text-align:center;gap:30px}
+  .foot p{max-width:none}
+  .foot .brand-logo{margin-left:auto;margin-right:auto}
+  .foot-links{align-items:center}
+  footer{padding-bottom:96px}  /* spazio per il bottone WhatsApp flottante */
+}
+</style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1704355880888667');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1704355880888667&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel Code -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17904154175"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-17904154175');
+</script>
+<!-- End Google tag -->
+<!-- Google Analytics GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-412YFN67C4"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-412YFN67C4');
+</script>
+</head>
+<body data-page="grazie">
+<nav>
+  <div class="nav-in">
+    <a href="index.html" class="brand"><img class="brand-logo" src="logo.png" alt="JF Limo Service"></a>
+    <ul class="nav-links" id="navlinks"><li><a href="index.html" data-i18n="nav.home">Home</a></li><li><a href="index.html#flotta" data-i18n="nav.fleet">Flotte</a></li><li><a href="prenota.html" data-i18n="nav.book">Buchen</a></li><li><a href="chi-siamo.html" data-i18n="nav.about">Über uns</a></li><li><a href="servizi.html" data-i18n="nav.services">Leistungen</a></li><li><a href="contatti.html" data-i18n="nav.contact">Kontakt</a></li><li class="lang-mobile"><div class="lang-dd lang-dd-m" id="langdd-m"><button type="button" class="lang-dd-btn"><span class="lang-cur">DE</span><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4z"/></svg></button><div class="lang-dd-menu"><button type="button" class="lang-opt" data-lang="it">Italiano</button><button type="button" class="lang-opt" data-lang="de">Deutsch</button><button type="button" class="lang-opt" data-lang="en">English</button><button type="button" class="lang-opt" data-lang="fr">Français</button><button type="button" class="lang-opt" data-lang="es">Español</button><button type="button" class="lang-opt" data-lang="ru">Русский</button><button type="button" class="lang-opt" data-lang="zh">中文</button><button type="button" class="lang-opt" data-lang="ja">日本語</button><button type="button" class="lang-opt" data-lang="ar">العربية</button></div></div></li></ul>
+    <div class="nav-side">
+      <div class="lang-bar"><div class="lang-dd " id="langdd"><button type="button" class="lang-dd-btn"><span class="lang-cur">DE</span><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4z"/></svg></button><div class="lang-dd-menu"><button type="button" class="lang-opt" data-lang="it">Italiano</button><button type="button" class="lang-opt" data-lang="de">Deutsch</button><button type="button" class="lang-opt" data-lang="en">English</button><button type="button" class="lang-opt" data-lang="fr">Français</button><button type="button" class="lang-opt" data-lang="es">Español</button><button type="button" class="lang-opt" data-lang="ru">Русский</button><button type="button" class="lang-opt" data-lang="zh">中文</button><button type="button" class="lang-opt" data-lang="ja">日本語</button><button type="button" class="lang-opt" data-lang="ar">العربية</button></div></div></div>
+      <a href="prenota.html" class="nav-cta" data-i18n="book.now">Jetzt buchen</a>
+      <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<section class="wrap" style="min-height:74vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:90px">
+  <div class="reveal in" style="max-width:560px">
+    <div class="eyebrow" style="text-align:center" data-i18n="thanks.eyebrow">Buchung</div>
+    <h1 style="font-size:clamp(2rem,4vw,3rem);margin-bottom:18px" data-i18n="thanks.title">Anfrage gesendet!</h1>
+    <p style="color:var(--muted);font-weight:300;margin-bottom:30px" data-i18n="thanks.msg">Vielen Dank! Wir haben Ihre Buchungsanfrage erhalten und Ihnen eine Bestätigungs-E-Mail gesendet. Wir melden uns in Kürze; sobald ein Chauffeur die Fahrt annimmt, erhalten Sie eine weitere Bestätigungs-E-Mail.</p>
+    <a href="index.html" class="btn" data-i18n="thanks.back">Zurück zur Startseite</a>
+  </div>
+</section>
+<footer>
+  <div class="wrap foot-in">
+    <div class="foot">
+      <div style="margin-bottom:18px"><img class="brand-logo" src="logo.png" alt="JF Limo Service"></div>
+      <p data-i18n="foot.tagline">Exklusiver Limousinen- und Chauffeurservice in Zürich und der ganzen Schweiz. Komfort, Eleganz und Diskretion, auf jeder Fahrt.</p>
+    </div>
+    <div class="foot-links">
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="prenota.html" data-i18n="nav.book">Buchen</a>
+      <a href="chi-siamo.html" data-i18n="nav.about">Über uns</a>
+      <a href="servizi.html" data-i18n="nav.services">Leistungen</a>
+      <a href="contatti.html" data-i18n="nav.contact">Kontakt</a>
+    </div>
+    <div class="foot-links">
+      <a href="airport-transfer-zurich.html">Airport Transfer Zurich</a>
+      <a href="corporate-chauffeur-zurich.html">Corporate Chauffeur Zurich</a>
+      <a href="private-driver-zurich.html">Private Driver Zurich</a>
+      <a href="chauffeur-by-the-hour-zurich.html">Chauffeur by the Hour</a>
+      <a href="hotel-transfer-zurich.html">Hotel Transfer Zurich</a>
+    </div>
+    <div class="foot-links">
+      <a href="tel:+41792055523">+41 79 205 55 23</a>
+      <a href="mailto:info@jf-limo-service.ch">info@jf-limo-service.ch</a>
+      <a href="https://wa.me/41792055523" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://www.instagram.com/jflimoservice1/" target="_blank" rel="noopener">Instagram</a>
+      <a href="#" data-i18n="foot.avail">24/7 verfügbar</a>
+    </div>
+  </div>
+  <div class="copy" data-i18n="foot.rights">© 2026 JF Limo Service — Alle Rechte vorbehalten.</div>
+</footer>
+<a class="wa-fab" href="https://wa.me/41792055523" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 32 32"><path d="M16 3C9.4 3 4 8.3 4 14.9c0 2.6.8 5 2.3 7L4.6 28l6.3-1.6c1.9 1 4 1.6 6.1 1.6 6.6 0 12-5.3 12-11.9S22.6 3 16 3zm0 22.1c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-3.7 1 1-3.6-.3-.4c-1.3-1.8-2-3.9-2-6.1C5.2 9.4 10 4.9 16 4.9s10.8 4.5 10.8 10-4.8 10.2-10.8 10.2zm5.9-7.6c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2.1-.4 0-.6-.1-.2-.7-1.8-1-2.4-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.2 3.1 1.3 3.3c.2.2 2.3 3.6 5.6 5 .8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.1-.3-.2-.6-.3z"/></svg>
+</a>
+<script>
+const TR={"it": {"nav.home": "Home", "nav.about": "Chi siamo", "nav.services": "Servizi", "nav.contact": "Contatti", "home.eyebrow": "Chauffeur privato · Svizzera", "home.h1": "Servizio di limousine esclusivo<br>ai massimi livelli", "home.lead": "Chauffeur di prima classe per viaggi executive, transfer VIP e hotel di lusso. Il tuo partner premium a Zurigo e in tutta la Svizzera.", "btn.transfer": "Richiedi un transfer", "btn.services": "I nostri servizi", "stats.years": "Anni di esperienza", "stats.satisf": "Soddisfazione cliente", "stats.avail": "Sempre disponibili", "home.tc": "Viaggia nel comfort", "home.servTitle": "I nostri servizi", "home.servSub": "Soluzioni di trasporto su misura, con comfort impeccabile e massima affidabilità.", "svc.airport.t": "Transfer aeroportuali", "svc.airport.d": "Trasporto senza stress da e verso gli aeroporti, con puntualità garantita.", "svc.business.t": "Viaggi business", "svc.business.d": "Mobilità professionale per la tua azienda e i tuoi appuntamenti executive.", "svc.wedding.t": "Matrimoni", "svc.wedding.d": "Limousine eleganti per rendere indimenticabile il tuo giorno speciale.", "svc.hourly.t": "Servizio a ore", "svc.hourly.d": "Autista privato a tua disposizione a ore: appuntamenti, eventi o tour, con l'auto sempre ad aspettarti.", "qb.title": "Prenota il tuo viaggio", "why.eyebrow": "Perché sceglierci", "why.title": "La tua prima scelta per il trasporto di lusso in Svizzera", "why.drivers": "<b style='color:var(--cream)'>Autisti professionali.</b> Qualificati e distinti per professionalità, cortesia ed esperienza.", "why.vehicles": "<b style='color:var(--cream)'>Veicoli di lusso.</b> Una flotta di altissimo livello che soddisfa i più alti standard di comfort e stile.", "why.avail": "<b style='color:var(--cream)'>Disponibili 24/7.</b> Un servizio attivo giorno e notte, per ogni tua esigenza di spostamento.", "band.home.t": "Viaggia con stile e discrezione", "band.home.s": "Transfer business, eventi esclusivi e matrimoni: ovunque tu debba andare, ti accompagniamo con eleganza.", "rev.eyebrow": "Recensioni", "rev.title": "Cosa dicono i clienti", "rev.count": "40 recensioni su Google", "rev.cta": "Leggi tutte le recensioni su Google", "wiz.rt": "Andata e ritorno", "email.subject": "Richiesta di prenotazione ricevuta — JF Limo Service", "email.greeting": "Gentile {name},", "email.client": "Cliente", "email.intro": "Grazie per aver scelto JF Limo Service. Abbiamo ricevuto la tua richiesta di prenotazione:", "email.l_route": "Tratta", "email.l_type": "Tipo", "email.l_class": "Classe", "email.l_when": "Data e ora", "email.l_price": "Prezzo stimato", "email.l_code": "Codice prenotazione", "email.tbd": "da definire", "email.outro": "Ti contatteremo a breve per confermare. Appena un autista accetta la corsa, riceverai un'email di conferma.", "band.callnow": "Chiama ora · +41 79 205 55 23", "about.eyebrow": "Chi siamo", "about.h1": "La storia e la passione di<br>JF Limo Service", "about.story.e": "La nostra storia", "about.story.t": "Eleganza e affidabilità, dal primo giorno", "about.story.p1": "Offriamo soluzioni di trasporto su misura, con comfort raffinato e affidabilità assoluta. Fin dalla nascita, JF Limo Service ha aiutato innumerevoli clienti a viaggiare con stile e comodità, sia per occasioni di lavoro che per matrimoni.", "about.story.p2": "Con oltre un decennio di esperienza, il nostro servizio di chauffeur offre un'eccellenza costante, massimo comfort e una professionalità discreta — per ogni occasione, in qualsiasi momento.", "stats.satisfG": "Soddisfazione garantita", "stats.langs": "Lingue parlate", "about.lang.e": "Comunicazione multilingue", "about.lang.t": "Autisti che parlano la tua lingua", "about.lang.s": "Limousine di lusso con chauffeur multilingue, per farti sentire a casa ovunque.", "lang.it": "Italiano", "lang.de": "Tedesco", "lang.en": "Inglese", "lang.es": "Spagnolo", "lang.ku": "Curdo", "lang.fr": "Francese", "about.band.t": "Pronto a viaggiare con noi?", "about.band.s": "Contattaci per organizzare il tuo prossimo transfer su misura.", "btn.contact": "Contattaci", "serv.h1": "Trasporto di lusso<br>per ogni occasione", "serv.airport.d": "Trasporto senza stress da e verso tutti gli aeroporti svizzeri, con monitoraggio dei voli e puntualità garantita.", "serv.business.d": "Mobilità professionale per la tua azienda: riunioni, appuntamenti executive e trasferte di lavoro in totale comfort.", "serv.wedding.d": "Limousine eleganti per il tuo giorno più importante, con un servizio impeccabile e curato in ogni dettaglio.", "serv.hourly.d": "Autista privato a disposizione a ore (minimo 2): riunioni, shopping, eventi o tour — l'auto ti aspetta e ti accompagna per tutto il tempo.", "serv.exp.e": "L'esperienza JF", "serv.exp.t": "Comfort, stile e discrezione assoluta", "serv.exp.p": "Mettiamo a tua disposizione una flotta di veicoli di altissimo livello, guidata da chauffeur qualificati e discreti. Eventi esclusivi, transfer VIP e hotel di lusso: ti accompagniamo ovunque, con la massima riservatezza.", "tag.vip": "Transfer VIP", "tag.events": "Eventi esclusivi", "tag.hotels": "Hotel di lusso", "tag.exec": "Viaggi executive", "serv.why.t": "Il meglio del trasporto di lusso", "serv.modes.e": "Modalità di prenotazione", "serv.modes.title": "Prenota come preferisci", "serv.modes.sub": "Tratta singola oppure autista a ore.", "card.drivers.t": "Autisti professionali", "card.drivers.d": "Chauffeur altamente qualificati, distinti per professionalità, cortesia ed esperienza.", "card.vehicles.t": "Veicoli di lusso", "card.vehicles.d": "Una flotta top di gamma che soddisfa i più alti standard di comfort e stile.", "card.avail.t": "Disponibili 24/7", "card.avail.d": "Servizio attivo giorno e notte, per ogni tua esigenza di trasporto, in qualsiasi momento.", "serv.band.t": "Prenota il tuo prossimo viaggio", "serv.band.s": "Raccontaci dove devi andare: pensiamo a tutto noi.", "band.call": "Chiama · +41 79 205 55 23", "cont.eyebrow": "Contatti", "cont.h1": "Mettiti in viaggio<br>con JF Limo Service", "cont.lead": "Siamo disponibili 24 ore su 24 per organizzare il tuo transfer su misura.", "cont.phone.t": "Telefono", "cont.email.t": "Email", "cont.avail.t": "Disponibilità", "cont.avail.v": "24 ore su 24, 7 giorni su 7", "cont.area.t": "Area di servizio", "cont.area.v": "Zurigo e tutta la Svizzera", "cont.ig.t": "Instagram", "cont.band.t": "Prenota ora", "cont.band.s": "Un chauffeur professionale è pronto a partire.", "foot.tagline": "Servizio di limousine e chauffeur esclusivo a Zurigo e in tutta la Svizzera. Comfort, eleganza e discrezione, in ogni viaggio.", "foot.avail": "Disponibili 24/7", "foot.rights": "© 2026 JF Limo Service — Tutti i diritti riservati.", "nav.book": "Prenota", "book.eyebrow": "Prenotazione online", "book.title": "Prenota il tuo transfer", "book.sub": "Inserisci i dettagli del viaggio: ti ricontattiamo per confermare disponibilità e preventivo.", "book.from": "Partenza", "book.from.ph": "Indirizzo o località di partenza", "book.to": "Destinazione", "book.to.ph": "Indirizzo o località di arrivo", "book.date": "Data", "book.time": "Ora", "book.passengers": "Passeggeri", "book.luggage": "Bagagli", "book.vehicle": "Veicolo", "book.veh.any": "Indifferente", "book.veh.sedan": "Berlina di lusso", "book.veh.van": "Van / Minibus", "book.veh.suv": "SUV", "veh.sclass.desc": "Berlina ammiraglia", "veh.eclass.desc": "Berlina executive", "veh.vclass.desc": "Van VIP", "veh.sprinter.desc": "Minibus", "book.seats": "Posti a bordo", "book.now": "Prenota ora", "nav.fleet": "Flotta", "fleet.eyebrow": "La nostra flotta", "fleet.title": "Scegli la classe perfetta per te", "fleet.sub": "Quattro categorie, tutte Mercedes, sempre con chauffeur professionale.", "wiz.title": "Prenota il tuo transfer", "wiz.s1": "Scegli la classe", "wiz.s2": "Come vuoi prenotare?", "wiz.s3": "Dettagli del viaggio", "wiz.s4": "Riepilogo e contatti", "wiz.s5": "Pagamento", "pay.online": "Paga ora", "pay.online.d": "Carta, Apple Pay o Google Pay — pagamento sicuro online.", "pay.cash": "Contanti", "pay.cash.d": "Paghi direttamente all'autista alla corsa.", "pay.bank": "Fattura", "pay.bank.d": "Ricevi la fattura via email e paghi comodamente con bonifico.", "pay.bonifico.locked": "Disponibile dal secondo viaggio", "wiz.from": "da", "wiz.t.transfer": "Transfer", "wiz.t.transfer.d": "Da un punto a un altro, prezzo per tratta.", "wiz.t.ore": "A ore", "wiz.t.ore.d": "Autista a disposizione per le ore che scegli.", "wiz.t.giornata": "A giornata", "wiz.t.giornata.d": "Servizio per l'intera giornata.", "wiz.km": "Distanza stimata (km)", "wiz.hours": "Numero di ore", "wiz.days": "Numero di giorni", "wiz.estprice": "Prezzo stimato", "wiz.pricenote": "Stima provvisoria, IVA inclusa. Il prezzo finale viene confermato via email.", "wiz.prev": "Indietro", "wiz.next": "Avanti", "wiz.step": "Passo", "sum.veh": "Vettura", "sum.route": "Tratta", "sum.when": "Data e ora", "sum.note": "Nessun costo nascosto", "sum.safe": "Prenotazione sicura · senza impegno", "bd.title": "Dettaglio prezzo", "bd.base": "Prezzo base (0–8 km)", "bd.dist": "Distanza", "bd.hourly": "Tariffa oraria", "bd.total": "Totale stimato", "wiz.of": "di", "cls.first.desc": "Berlina ammiraglia per un viaggio di rappresentanza.", "cls.business.desc": "Berlina executive, comfort e discrezione.", "cls.minivan.desc": "Van VIP fino a 7 passeggeri.", "cls.sprinter.desc": "Minibus VIP per gruppi fino a 16 passeggeri.", "book.choose": "Scegli la tua vettura", "book.enter": "Entra e prenota", "book.changeveh": "← Cambia vettura", "book.completesub": "Completa i dettagli del tuo viaggio.", "book.howmany": "Quanti passeggeri?", "book.upto": "fino a", "book.pax": "passeggeri", "book.return": "Andata e ritorno", "book.name": "Nome e cognome", "book.phone": "Telefono", "book.email": "Email", "book.notes": "Note", "book.notes.ph": "Bagagli speciali, seggiolino bimbo, richieste particolari…", "book.submit": "Richiedi prenotazione", "book.maphint": "Inserisci partenza e destinazione: la mappa calcola il percorso, la distanza e la durata stimata.", "book.routelabel": "Percorso stimato", "thanks.eyebrow": "Prenotazione", "thanks.title": "Richiesta inviata!", "thanks.msg": "Grazie! Abbiamo ricevuto la tua richiesta di prenotazione e ti abbiamo inviato un'email di conferma. Ti contatteremo al più presto per confermare disponibilità e dettagli; appena un autista accetta la corsa riceverai un'ulteriore email di conferma.", "thanks.back": "Torna alla home", "faq.eyebrow": "FAQ", "faq.title": "Domande frequenti", "faq.q1": "Come prenoto una corsa?", "faq.a1": "Prenoti direttamente dal sito in pochi istanti, oppure ci contatti per telefono o WhatsApp. Riceverai una conferma via email con tutti i dettagli.", "faq.q2": "In quali zone operate?", "faq.a2": "Operiamo a Zurigo e in tutta la Svizzera. Su richiesta effettuiamo anche tratte verso i Paesi confinanti.", "faq.q3": "Come funziona il pagamento?", "faq.a3": "Puoi pagare online in modo sicuro al momento della prenotazione, oppure ricevere comodamente la fattura via email. Nessun anticipo obbligatorio.", "faq.q4": "Fate transfer da e per l'aeroporto?", "faq.a4": "Sì. Monitoriamo l'orario del volo e adattiamo il ritiro in caso di ritardo, senza costi aggiuntivi. L'autista ti attende all'arrivo.", "faq.q5": "Quante persone e valigie posso portare?", "faq.a5": "Le nostre vetture ospitano da 3 a 7 passeggeri con relativo bagaglio. Per gruppi più numerosi disponiamo di V-Class e Sprinter.", "faq.q6": "Posso modificare o annullare la prenotazione?", "faq.a6": "Certo. Contattaci il prima possibile via telefono, WhatsApp o email e troveremo insieme la soluzione migliore.", "faq.q7": "I prezzi sono fissi o ci possono essere costi extra?", "faq.a7": "Il prezzo che vedi al momento della prenotazione è fisso e trasparente: nessun costo nascosto né sorprese dell'ultimo minuto. Eventuali tappe o attese aggiuntive vengono sempre concordate prima.", "routes.eyebrow": "Tratte", "routes.title": "Le tratte più richieste", "routes.sub": "Dall'Aeroporto di Zurigo verso le principali destinazioni svizzere.", "routes.airport": "Aeroporto di Zurigo", "routes.zurich": "Zurigo Città", "routes.geneva": "Ginevra", "routes.lucerne": "Lucerna", "routes.book": "Prenota", "routes.continue": "Continua"}, "de": {"nav.home": "Home", "nav.about": "Über uns", "nav.services": "Leistungen", "nav.contact": "Kontakt", "home.eyebrow": "Privatchauffeur · Schweiz", "home.h1": "Exklusiver Limousinenservice<br>auf höchstem Niveau", "home.lead": "Erstklassiger Chauffeur für Executive-Reisen, VIP-Transfers und Luxushotels. Ihr Premium-Partner in Zürich und in der ganzen Schweiz.", "btn.transfer": "Transfer anfragen", "btn.services": "Unsere Leistungen", "stats.years": "Jahre Erfahrung", "stats.satisf": "Kundenzufriedenheit", "stats.avail": "Immer verfügbar", "home.tc": "Komfortabel reisen", "home.servTitle": "Unsere Leistungen", "home.servSub": "Massgeschneiderte Transportlösungen mit makellosem Komfort und höchster Zuverlässigkeit.", "svc.airport.t": "Flughafentransfers", "svc.airport.d": "Stressfreier Transport von und zu den Flughäfen, mit garantierter Pünktlichkeit.", "svc.business.t": "Geschäftsreisen", "svc.business.d": "Professionelle Mobilität für Ihr Unternehmen und Ihre Executive-Termine.", "svc.wedding.t": "Hochzeiten", "svc.wedding.d": "Elegante Limousinen, die Ihren besonderen Tag unvergesslich machen.", "svc.hourly.t": "Stundenservice", "svc.hourly.d": "Ein privater Chauffeur stundenweise zu Ihrer Verfügung: Termine, Events oder Touren – der Wagen wartet stets auf Sie.", "qb.title": "Buchen Sie Ihre Fahrt", "why.eyebrow": "Warum wir", "why.title": "Ihre erste Wahl für Luxustransporte in der Schweiz", "why.drivers": "<b style='color:var(--cream)'>Professionelle Chauffeure.</b> Qualifiziert und ausgezeichnet durch Professionalität, Höflichkeit und Erfahrung.", "why.vehicles": "<b style='color:var(--cream)'>Luxusfahrzeuge.</b> Eine erstklassige Flotte, die höchste Ansprüche an Komfort und Stil erfüllt.", "why.avail": "<b style='color:var(--cream)'>24/7 verfügbar.</b> Ein Service rund um die Uhr, für jeden Ihrer Transportbedürfnisse.", "band.home.t": "Reisen Sie mit Stil und Diskretion", "band.home.s": "Geschäftstransfers, exklusive Events und Hochzeiten: Wohin Sie auch müssen, wir begleiten Sie mit Eleganz.", "rev.eyebrow": "Bewertungen", "rev.title": "Was unsere Kunden sagen", "rev.count": "40 Google-Bewertungen", "rev.cta": "Alle Bewertungen auf Google lesen", "wiz.rt": "Hin- und Rückfahrt", "email.subject": "Buchungsanfrage erhalten — JF Limo Service", "email.greeting": "Guten Tag {name},", "email.client": "Kunde", "email.intro": "Vielen Dank, dass Sie sich für JF Limo Service entschieden haben. Wir haben Ihre Buchungsanfrage erhalten:", "email.l_route": "Strecke", "email.l_type": "Art", "email.l_class": "Klasse", "email.l_when": "Datum/Uhrzeit", "email.l_price": "Geschätzter Preis", "email.l_code": "Buchungscode", "email.tbd": "wird festgelegt", "email.outro": "Wir kontaktieren Sie in Kürze zur Bestätigung. Sobald ein Chauffeur die Fahrt annimmt, erhalten Sie eine Bestätigungs-E-Mail.", "band.callnow": "Jetzt anrufen · +41 79 205 55 23", "about.eyebrow": "Über uns", "about.h1": "Die Geschichte und Leidenschaft von<br>JF Limo Service", "about.story.e": "Unsere Geschichte", "about.story.t": "Eleganz und Zuverlässigkeit, vom ersten Tag an", "about.story.p1": "Wir bieten massgeschneiderte Transportlösungen mit raffiniertem Komfort und absoluter Zuverlässigkeit. Seit seiner Gründung hat JF Limo Service unzähligen Kunden geholfen, stilvoll und bequem zu reisen – ob für geschäftliche Anlässe oder Hochzeiten.", "about.story.p2": "Mit über einem Jahrzehnt Erfahrung bietet unser Chauffeurservice konstante Exzellenz, höchsten Komfort und diskrete Professionalität – für jeden Anlass, zu jeder Zeit.", "stats.satisfG": "Garantierte Zufriedenheit", "stats.langs": "Gesprochene Sprachen", "about.lang.e": "Mehrsprachige Kommunikation", "about.lang.t": "Chauffeure, die Ihre Sprache sprechen", "about.lang.s": "Luxuslimousinen mit mehrsprachigen Chauffeuren, damit Sie sich überall zu Hause fühlen.", "lang.it": "Italienisch", "lang.de": "Deutsch", "lang.en": "Englisch", "lang.es": "Spanisch", "lang.ku": "Kurdisch", "lang.fr": "Französisch", "about.band.t": "Bereit, mit uns zu reisen?", "about.band.s": "Kontaktieren Sie uns, um Ihren nächsten massgeschneiderten Transfer zu organisieren.", "btn.contact": "Kontakt aufnehmen", "serv.h1": "Luxustransport<br>für jeden Anlass", "serv.airport.d": "Stressfreier Transport von und zu allen Schweizer Flughäfen, mit Flugüberwachung und garantierter Pünktlichkeit.", "serv.business.d": "Professionelle Mobilität für Ihr Unternehmen: Meetings, Executive-Termine und Geschäftsreisen in vollem Komfort.", "serv.wedding.d": "Elegante Limousinen für Ihren wichtigsten Tag, mit einem makellosen und bis ins Detail gepflegten Service.", "serv.hourly.d": "Privater Chauffeur stundenweise (mindestens 2 Stunden): Meetings, Shopping, Events oder Touren – der Wagen wartet auf Sie und begleitet Sie die ganze Zeit.", "serv.exp.e": "Das JF-Erlebnis", "serv.exp.t": "Komfort, Stil und absolute Diskretion", "serv.exp.p": "Wir stellen Ihnen eine erstklassige Fahrzeugflotte zur Verfügung, gefahren von qualifizierten und diskreten Chauffeuren. Exklusive Events, VIP-Transfers und Luxushotels: Wir begleiten Sie überall hin, mit höchster Diskretion.", "tag.vip": "VIP-Transfers", "tag.events": "Exklusive Events", "tag.hotels": "Luxushotels", "tag.exec": "Executive-Reisen", "serv.why.t": "Das Beste im Luxustransport", "serv.modes.e": "Buchungsarten", "serv.modes.title": "Buchen Sie nach Wunsch", "serv.modes.sub": "Einzelstrecke oder Chauffeur stundenweise.", "card.drivers.t": "Professionelle Chauffeure", "card.drivers.d": "Hochqualifizierte Chauffeure, ausgezeichnet durch Professionalität, Höflichkeit und Erfahrung.", "card.vehicles.t": "Luxusfahrzeuge", "card.vehicles.d": "Eine erstklassige Flotte, die höchste Ansprüche an Komfort und Stil erfüllt.", "card.avail.t": "24/7 verfügbar", "card.avail.d": "Service rund um die Uhr, für jeden Transportbedarf, jederzeit.", "serv.band.t": "Buchen Sie Ihre nächste Fahrt", "serv.band.s": "Sagen Sie uns, wohin Sie müssen: Wir kümmern uns um alles.", "band.call": "Anrufen · +41 79 205 55 23", "cont.eyebrow": "Kontakt", "cont.h1": "Machen Sie sich auf den Weg<br>mit JF Limo Service", "cont.lead": "Wir sind rund um die Uhr verfügbar, um Ihren massgeschneiderten Transfer zu organisieren.", "cont.phone.t": "Telefon", "cont.email.t": "E-Mail", "cont.avail.t": "Verfügbarkeit", "cont.avail.v": "24 Stunden am Tag, 7 Tage die Woche", "cont.area.t": "Einsatzgebiet", "cont.area.v": "Zürich und die ganze Schweiz", "cont.ig.t": "Instagram", "cont.band.t": "Jetzt buchen", "cont.band.s": "Ein professioneller Chauffeur ist startbereit.", "foot.tagline": "Exklusiver Limousinen- und Chauffeurservice in Zürich und der ganzen Schweiz. Komfort, Eleganz und Diskretion, auf jeder Fahrt.", "foot.avail": "24/7 verfügbar", "foot.rights": "© 2026 JF Limo Service — Alle Rechte vorbehalten.", "nav.book": "Buchen", "book.eyebrow": "Online-Buchung", "book.title": "Buchen Sie Ihren Transfer", "book.sub": "Geben Sie die Reisedetails ein: wir melden uns zur Bestätigung von Verfügbarkeit und Preis.", "book.from": "Abfahrt", "book.from.ph": "Abfahrtsadresse oder -ort", "book.to": "Ziel", "book.to.ph": "Zieladresse oder -ort", "book.date": "Datum", "book.time": "Uhrzeit", "book.passengers": "Fahrgäste", "book.luggage": "Gepäck", "book.vehicle": "Fahrzeug", "book.veh.any": "Egal", "book.veh.sedan": "Luxuslimousine", "book.veh.van": "Van / Minibus", "book.veh.suv": "SUV", "veh.sclass.desc": "Oberklasse-Limousine", "veh.eclass.desc": "Executive-Limousine", "veh.vclass.desc": "VIP-Van", "veh.sprinter.desc": "Minibus", "book.seats": "Sitzplätze an Bord", "book.now": "Jetzt buchen", "nav.fleet": "Flotte", "fleet.eyebrow": "Unsere Flotte", "fleet.title": "Die passende Klasse für Sie", "fleet.sub": "Vier Kategorien, alle Mercedes, immer mit professionellem Chauffeur.", "wiz.title": "Buchen Sie Ihren Transfer", "wiz.s1": "Wählen Sie die Klasse", "wiz.s2": "Wie möchten Sie buchen?", "wiz.s3": "Reisedetails", "wiz.s4": "Zusammenfassung & Kontakt", "wiz.s5": "Zahlung", "pay.online": "Jetzt zahlen", "pay.online.d": "Karte, Apple Pay oder Google Pay — sichere Online-Zahlung.", "pay.cash": "Bar", "pay.cash.d": "Zahlung direkt an den Chauffeur bei der Fahrt.", "pay.bank": "Rechnung", "pay.bank.d": "Sie erhalten die Rechnung per E-Mail und zahlen bequem per Überweisung.", "pay.bonifico.locked": "Ab der zweiten Fahrt verfügbar", "wiz.from": "ab", "wiz.t.transfer": "Transfer", "wiz.t.transfer.d": "Von Punkt zu Punkt, Preis pro Strecke.", "wiz.t.ore": "Pro Stunde", "wiz.t.ore.d": "Chauffeur stundenweise zu Ihrer Verfügung.", "wiz.t.giornata": "Tagesweise", "wiz.t.giornata.d": "Service für den ganzen Tag.", "wiz.km": "Geschätzte Distanz (km)", "wiz.hours": "Anzahl Stunden", "wiz.days": "Anzahl Tage", "wiz.estprice": "Geschätzter Preis", "wiz.pricenote": "Vorläufige Schätzung, inkl. MwSt. Der Endpreis wird per E-Mail bestätigt.", "wiz.prev": "Zurück", "wiz.next": "Weiter", "wiz.step": "Schritt", "sum.veh": "Fahrzeug", "sum.route": "Route", "sum.when": "Datum & Uhrzeit", "sum.note": "Keine versteckten Gebühren", "sum.safe": "Sichere Buchung · unverbindlich", "bd.title": "Preisaufschlüsselung", "bd.base": "Grundpreis (0–8 km)", "bd.dist": "Distanz", "bd.hourly": "Stundensatz", "bd.total": "Geschätzte Summe", "wiz.of": "von", "cls.first.desc": "Oberklasse-Limousine für repräsentative Fahrten.", "cls.business.desc": "Executive-Limousine, Komfort und Diskretion.", "cls.minivan.desc": "VIP-Van für bis zu 7 Fahrgäste.", "cls.sprinter.desc": "VIP-Minibus für Gruppen bis zu 16 Fahrgäste.", "book.choose": "Wählen Sie Ihr Fahrzeug", "book.enter": "Einsteigen & buchen", "book.changeveh": "← Fahrzeug ändern", "book.completesub": "Vervollständigen Sie Ihre Reisedetails.", "book.howmany": "Wie viele Fahrgäste?", "book.upto": "bis zu", "book.pax": "Fahrgäste", "book.return": "Hin- und Rückfahrt", "book.name": "Vor- und Nachname", "book.phone": "Telefon", "book.email": "E-Mail", "book.notes": "Anmerkungen", "book.notes.ph": "Sondergepäck, Kindersitz, besondere Wünsche…", "book.submit": "Buchung anfragen", "book.maphint": "Geben Sie Abfahrt und Ziel ein: die Karte berechnet Strecke, Distanz und geschätzte Dauer.", "book.routelabel": "Geschätzte Strecke", "thanks.eyebrow": "Buchung", "thanks.title": "Anfrage gesendet!", "thanks.msg": "Vielen Dank! Wir haben Ihre Buchungsanfrage erhalten und Ihnen eine Bestätigungs-E-Mail gesendet. Wir melden uns in Kürze; sobald ein Chauffeur die Fahrt annimmt, erhalten Sie eine weitere Bestätigungs-E-Mail.", "thanks.back": "Zurück zur Startseite", "faq.eyebrow": "FAQ", "faq.title": "Häufig gestellte Fragen", "faq.q1": "Wie buche ich eine Fahrt?", "faq.a1": "Sie buchen in wenigen Augenblicken direkt über die Website oder kontaktieren uns per Telefon oder WhatsApp. Sie erhalten eine Bestätigung mit allen Details per E-Mail.", "faq.q2": "In welchen Gebieten sind Sie tätig?", "faq.a2": "Wir sind in Zürich und in der ganzen Schweiz tätig. Auf Anfrage fahren wir auch in die Nachbarländer.", "faq.q3": "Wie funktioniert die Bezahlung?", "faq.a3": "Sie können bei der Buchung sicher online bezahlen oder bequem die Rechnung per E-Mail erhalten. Keine Anzahlung erforderlich.", "faq.q4": "Bieten Sie Flughafentransfers an?", "faq.a4": "Ja. Wir überwachen die Flugzeiten und passen die Abholung bei Verspätungen ohne Aufpreis an. Der Fahrer erwartet Sie bei der Ankunft.", "faq.q5": "Wie viele Personen und Gepäckstücke kann ich mitnehmen?", "faq.a5": "Unsere Fahrzeuge bieten Platz für 3 bis 7 Personen samt Gepäck. Für grössere Gruppen stehen V-Klasse und Sprinter bereit.", "faq.q6": "Kann ich meine Buchung ändern oder stornieren?", "faq.a6": "Natürlich. Kontaktieren Sie uns so früh wie möglich per Telefon, WhatsApp oder E-Mail und wir finden gemeinsam die beste Lösung.", "faq.q7": "Sind die Preise fix oder können Extrakosten anfallen?", "faq.a7": "Der Preis, den Sie bei der Buchung sehen, ist fest und transparent: keine versteckten Kosten, keine Überraschungen in letzter Minute. Zusätzliche Stopps oder Wartezeiten werden immer vorab vereinbart.", "routes.eyebrow": "Strecken", "routes.title": "Die gefragtesten Strecken", "routes.sub": "Vom Flughafen Zürich zu den wichtigsten Zielen der Schweiz.", "routes.airport": "Flughafen Zürich", "routes.zurich": "Zürich Stadt", "routes.geneva": "Genf", "routes.lucerne": "Luzern", "routes.book": "Buchen", "routes.continue": "Weiter"}, "en": {"nav.home": "Home", "nav.about": "About", "nav.services": "Services", "nav.contact": "Contact", "home.eyebrow": "Private chauffeur service · Zurich, Switzerland", "home.h1": "Private driver & limousine service<br>in Zurich, at the highest level", "home.lead": "First-class private driver for executive travel, VIP airport transfers and luxury hotel transfers. Your professional chauffeur in Zurich, across all of Switzerland.", "btn.transfer": "Request a transfer", "btn.services": "Our services", "stats.years": "Years of experience", "stats.satisf": "Customer satisfaction", "stats.avail": "Always available", "home.tc": "Travel in comfort", "home.servTitle": "Our services", "home.servSub": "Airport transfers, corporate chauffeur, private driver by the hour and hotel transfers — tailored to you.", "svc.airport.t": "Airport transfers", "svc.airport.d": "Executive airport transfer in Zurich with airport pickup, meet and greet and guaranteed punctuality.", "svc.business.t": "Business travel", "svc.business.d": "Corporate chauffeur and business transfer service for your company and executive appointments in Zurich.", "svc.wedding.t": "Weddings", "svc.wedding.d": "Elegant limousines to make your special day unforgettable.", "svc.hourly.t": "Hourly service", "svc.hourly.d": "A private chauffeur by the hour in Zurich: appointments, events or tours, with the car always waiting for you.", "qb.title": "Book your ride", "why.eyebrow": "Why choose us", "why.title": "Your first choice for a professional chauffeur in Zurich", "why.drivers": "<b style='color:var(--cream)'>Professional drivers.</b> Qualified and distinguished by professionalism, courtesy and experience.", "why.vehicles": "<b style='color:var(--cream)'>Luxury vehicles.</b> A top-class fleet that meets the highest standards of comfort and style.", "why.avail": "<b style='color:var(--cream)'>Available 24/7.</b> A service active day and night, for every travel need.", "band.home.t": "Travel with style and discretion", "band.home.s": "Business transfers, VIP airport pickups, exclusive events and weddings: wherever you need to go in Zurich and beyond, we take you there with elegance.", "rev.eyebrow": "Reviews", "rev.title": "What our clients say", "rev.count": "40 Google reviews", "rev.cta": "Read all reviews on Google", "wiz.rt": "Round trip", "email.subject": "Booking request received — JF Limo Service", "email.greeting": "Dear {name},", "email.client": "Customer", "email.intro": "Thank you for choosing JF Limo Service. We've received your booking request:", "email.l_route": "Route", "email.l_type": "Type", "email.l_class": "Class", "email.l_when": "Date/time", "email.l_price": "Estimated price", "email.l_code": "Booking code", "email.tbd": "to be defined", "email.outro": "We'll contact you shortly to confirm. As soon as a chauffeur accepts your ride, you'll receive a confirmation email.", "band.callnow": "Call now · +41 79 205 55 23", "about.eyebrow": "About us", "about.h1": "The story and passion of<br>JF Limo Service", "about.story.e": "Our story", "about.story.t": "Elegance and reliability, from day one", "about.story.p1": "We offer tailored transport solutions with refined comfort and absolute reliability. Since its founding, JF Limo Service has helped countless clients travel in style and comfort, whether for business occasions or weddings.", "about.story.p2": "With over a decade of experience, our chauffeur service delivers constant excellence, maximum comfort and discreet professionalism — for any occasion, at any time.", "stats.satisfG": "Guaranteed satisfaction", "stats.langs": "Languages spoken", "about.lang.e": "Multilingual communication", "about.lang.t": "Drivers who speak your language", "about.lang.s": "Luxury limousines with multilingual chauffeurs, to make you feel at home anywhere.", "lang.it": "Italian", "lang.de": "German", "lang.en": "English", "lang.es": "Spanish", "lang.ku": "Kurdish", "lang.fr": "French", "about.band.t": "Ready to travel with us?", "about.band.s": "Contact us to arrange your next tailored transfer.", "btn.contact": "Contact us", "serv.h1": "Chauffeur services in Zurich<br>for every occasion", "serv.airport.d": "Stress-free transport to and from all Swiss airports, with flight monitoring and guaranteed punctuality.", "serv.business.d": "Professional mobility for your company: meetings, executive appointments and business trips in total comfort.", "serv.wedding.d": "Elegant limousines for your most important day, with impeccable service down to every detail.", "serv.hourly.d": "A private chauffeur by the hour (minimum 2): meetings, shopping, events or tours — the car waits for you and stays with you the whole time.", "serv.exp.e": "The JF experience", "serv.exp.t": "Comfort, style and absolute discretion", "serv.exp.p": "We provide a top-class fleet of vehicles, driven by qualified and discreet chauffeurs. Exclusive events, VIP transfers and luxury hotels: we take you anywhere, with the utmost discretion.", "tag.vip": "VIP transfers", "tag.events": "Exclusive events", "tag.hotels": "Luxury hotels", "tag.exec": "Executive travel", "serv.why.t": "The best in luxury transport", "serv.modes.e": "Booking options", "serv.modes.title": "Book the way you prefer", "serv.modes.sub": "Single route or chauffeur by the hour.", "card.drivers.t": "Professional drivers", "card.drivers.d": "Highly qualified chauffeurs, distinguished by professionalism, courtesy and experience.", "card.vehicles.t": "Luxury vehicles", "card.vehicles.d": "A top-of-the-range fleet that meets the highest standards of comfort and style.", "card.avail.t": "Available 24/7", "card.avail.d": "Service active day and night, for every transport need, at any time.", "serv.band.t": "Book your next ride", "serv.band.s": "Tell us where you need to go: we take care of everything.", "band.call": "Call · +41 79 205 55 23", "cont.eyebrow": "Contact", "cont.h1": "Get on the road<br>with JF Limo Service", "cont.lead": "Your 24 hour chauffeur in Zurich: we are available around the clock to arrange your tailored transfer.", "cont.phone.t": "Phone", "cont.email.t": "Email", "cont.avail.t": "Availability", "cont.avail.v": "24 hours a day, 7 days a week", "cont.area.t": "Service area", "cont.area.v": "Zurich and all of Switzerland", "cont.ig.t": "Instagram", "cont.band.t": "Book now", "cont.band.s": "A professional chauffeur is ready to go.", "foot.tagline": "Private driver and executive chauffeur service in Zurich and across Switzerland. VIP airport transfers, corporate car service and hotel transfers — 24/7.", "foot.avail": "Available 24/7", "foot.rights": "© 2026 JF Limo Service — All rights reserved.", "nav.book": "Book", "book.eyebrow": "Online booking", "book.title": "Book your transfer", "book.sub": "Enter your trip details: we'll get back to you to confirm availability and quote.", "book.from": "Pick-up", "book.from.ph": "Pick-up address or place", "book.to": "Drop-off", "book.to.ph": "Drop-off address or place", "book.date": "Date", "book.time": "Time", "book.passengers": "Passengers", "book.luggage": "Luggage", "book.vehicle": "Vehicle", "book.veh.any": "Any", "book.veh.sedan": "Luxury sedan", "book.veh.van": "Van / Minibus", "book.veh.suv": "SUV", "veh.sclass.desc": "Flagship sedan", "veh.eclass.desc": "Executive sedan", "veh.vclass.desc": "VIP van", "veh.sprinter.desc": "Minibus", "book.seats": "Seats on board", "book.now": "Book now", "nav.fleet": "Fleet", "fleet.eyebrow": "Our fleet", "fleet.title": "The perfect class for you", "fleet.sub": "Four categories, all Mercedes, always with a professional chauffeur.", "wiz.title": "Book your transfer", "wiz.s1": "Choose your class", "wiz.s2": "How would you like to book?", "wiz.s3": "Trip details", "wiz.s4": "Summary & contact", "wiz.s5": "Payment", "pay.online": "Pay now", "pay.online.d": "Card, Apple Pay or Google Pay — secure online payment.", "pay.cash": "Cash", "pay.cash.d": "Pay the chauffeur directly during the ride.", "pay.bank": "Invoice", "pay.bank.d": "You'll receive the invoice by email and pay conveniently by bank transfer.", "pay.bonifico.locked": "Available from your second ride", "wiz.from": "from", "wiz.t.transfer": "Transfer", "wiz.t.transfer.d": "Point to point, price per route.", "wiz.t.ore": "By the hour", "wiz.t.ore.d": "Chauffeur at your disposal by the hour.", "wiz.t.giornata": "By the day", "wiz.t.giornata.d": "Service for the whole day.", "wiz.km": "Estimated distance (km)", "wiz.hours": "Number of hours", "wiz.days": "Number of days", "wiz.estprice": "Estimated price", "wiz.pricenote": "Provisional estimate, VAT included. Final price confirmed by email.", "wiz.prev": "Back", "wiz.next": "Next", "wiz.step": "Step", "sum.veh": "Vehicle", "sum.route": "Route", "sum.when": "Date & time", "sum.note": "No hidden fees", "sum.safe": "Secure booking · no obligation", "bd.title": "Price breakdown", "bd.base": "Base fare (0–8 km)", "bd.dist": "Distance", "bd.hourly": "Hourly rate", "bd.total": "Estimated total", "wiz.of": "of", "cls.first.desc": "Flagship sedan for executive travel.", "cls.business.desc": "Executive sedan, comfort and discretion.", "cls.minivan.desc": "VIP van for up to 7 passengers.", "cls.sprinter.desc": "VIP minibus for groups up to 16 passengers.", "book.choose": "Choose your vehicle", "book.enter": "Step inside & book", "book.changeveh": "← Change vehicle", "book.completesub": "Complete your trip details.", "book.howmany": "How many passengers?", "book.upto": "up to", "book.pax": "passengers", "book.return": "Round trip", "book.name": "Full name", "book.phone": "Phone", "book.email": "Email", "book.notes": "Notes", "book.notes.ph": "Special luggage, child seat, special requests…", "book.submit": "Request booking", "book.maphint": "Enter pick-up and drop-off: the map calculates the route, distance and estimated duration.", "book.routelabel": "Estimated route", "thanks.eyebrow": "Booking", "thanks.title": "Request sent!", "thanks.msg": "Thank you! We've received your booking request and sent you a confirmation email. We'll be in touch shortly; as soon as a chauffeur accepts the ride you'll get a further confirmation email.", "thanks.back": "Back to home", "faq.eyebrow": "FAQ", "faq.title": "Frequently asked questions", "faq.q1": "How do I book a ride?", "faq.a1": "Book directly on the website in seconds, or contact us by phone or WhatsApp. You'll receive an email confirmation with all the details.", "faq.q2": "Which areas do you cover?", "faq.a2": "We operate in Zurich and throughout Switzerland. On request we also drive to neighbouring countries.", "faq.q3": "How does payment work?", "faq.a3": "You can pay securely online when booking, or simply receive the invoice by email. No deposit required.", "faq.q4": "Do you offer airport transfers?", "faq.a4": "Yes. We monitor your flight and adjust the pickup in case of delays, at no extra cost. Your driver waits for you on arrival.", "faq.q5": "How many passengers and bags can I bring?", "faq.a5": "Our vehicles seat 3 to 7 passengers with luggage. For larger groups we offer the V-Class and Sprinter.", "faq.q6": "Can I change or cancel my booking?", "faq.a6": "Of course. Contact us as early as possible by phone, WhatsApp or email and we'll find the best solution together.", "faq.q7": "Are prices fixed or can there be extra costs?", "faq.a7": "The price you see when booking is fixed and transparent: no hidden costs, no last-minute surprises. Any extra stops or waiting time are always agreed in advance.", "routes.eyebrow": "Routes", "routes.title": "Most requested routes", "routes.sub": "From Zurich Airport to Switzerland's main destinations.", "routes.airport": "Zurich Airport", "routes.zurich": "Zurich City", "routes.geneva": "Geneva", "routes.lucerne": "Lucerne", "routes.book": "Book", "routes.continue": "Continue"}, "fr": {"nav.home": "Accueil", "nav.about": "À propos", "nav.services": "Services", "nav.contact": "Contact", "home.eyebrow": "Chauffeur privé · Suisse", "home.h1": "Service de limousine exclusif<br>au plus haut niveau", "home.lead": "Chauffeur de première classe pour voyages d'affaires, transferts VIP et hôtels de luxe. Votre partenaire premium à Zurich et dans toute la Suisse.", "btn.transfer": "Demander un transfert", "btn.services": "Nos services", "stats.years": "Ans d'expérience", "stats.satisf": "Satisfaction client", "stats.avail": "Toujours disponibles", "home.tc": "Voyagez confortablement", "home.servTitle": "Nos services", "home.servSub": "Des solutions de transport sur mesure, avec un confort impeccable et une fiabilité maximale.", "svc.airport.t": "Transferts aéroport", "svc.airport.d": "Transport sans stress depuis et vers les aéroports, avec une ponctualité garantie.", "svc.business.t": "Voyages d'affaires", "svc.business.d": "Une mobilité professionnelle pour votre entreprise et vos rendez-vous exécutifs.", "svc.wedding.t": "Mariages", "svc.wedding.d": "Des limousines élégantes pour rendre votre journée spéciale inoubliable.", "svc.hourly.t": "Service à l'heure", "svc.hourly.d": "Un chauffeur privé à votre disposition à l'heure : rendez-vous, événements ou circuits, la voiture vous attend toujours.", "qb.title": "Réservez votre trajet", "why.eyebrow": "Pourquoi nous choisir", "why.title": "Votre premier choix pour le transport de luxe en Suisse", "why.drivers": "<b style='color:var(--cream)'>Chauffeurs professionnels.</b> Qualifiés et distingués par leur professionnalisme, leur courtoisie et leur expérience.", "why.vehicles": "<b style='color:var(--cream)'>Véhicules de luxe.</b> Une flotte haut de gamme répondant aux plus hautes exigences de confort et de style.", "why.avail": "<b style='color:var(--cream)'>Disponibles 24/7.</b> Un service actif jour et nuit, pour tous vos besoins de déplacement.", "band.home.t": "Voyagez avec style et discrétion", "band.home.s": "Transferts d'affaires, événements exclusifs et mariages : où que vous deviez aller, nous vous accompagnons avec élégance.", "rev.eyebrow": "Avis", "rev.title": "Ce que disent nos clients", "rev.count": "40 avis sur Google", "rev.cta": "Lire tous les avis sur Google", "wiz.rt": "Aller-retour", "email.subject": "Demande de réservation reçue — JF Limo Service", "email.greeting": "Cher/Chère {name},", "email.client": "Client", "email.intro": "Merci d'avoir choisi JF Limo Service. Nous avons bien reçu votre demande de réservation :", "email.l_route": "Trajet", "email.l_type": "Type", "email.l_class": "Classe", "email.l_when": "Date/heure", "email.l_price": "Prix estimé", "email.l_code": "Code de réservation", "email.tbd": "à définir", "email.outro": "Nous vous contacterons sous peu pour confirmer. Dès qu'un chauffeur accepte la course, vous recevrez un e-mail de confirmation.", "band.callnow": "Appeler maintenant · +41 79 205 55 23", "about.eyebrow": "À propos", "about.h1": "L'histoire et la passion de<br>JF Limo Service", "about.story.e": "Notre histoire", "about.story.t": "Élégance et fiabilité, dès le premier jour", "about.story.p1": "Nous proposons des solutions de transport sur mesure, alliant confort raffiné et fiabilité absolue. Depuis sa création, JF Limo Service a aidé d'innombrables clients à voyager avec style et confort, pour des occasions professionnelles comme pour des mariages.", "about.story.p2": "Avec plus d'une décennie d'expérience, notre service de chauffeur offre une excellence constante, un confort optimal et un professionnalisme discret — pour chaque occasion, à tout moment.", "stats.satisfG": "Satisfaction garantie", "stats.langs": "Langues parlées", "about.lang.e": "Communication multilingue", "about.lang.t": "Des chauffeurs qui parlent votre langue", "about.lang.s": "Des limousines de luxe avec des chauffeurs multilingues, pour vous sentir chez vous partout.", "lang.it": "Italien", "lang.de": "Allemand", "lang.en": "Anglais", "lang.es": "Espagnol", "lang.ku": "Kurde", "lang.fr": "Français", "about.band.t": "Prêt à voyager avec nous ?", "about.band.s": "Contactez-nous pour organiser votre prochain transfert sur mesure.", "btn.contact": "Contactez-nous", "serv.h1": "Transport de luxe<br>pour chaque occasion", "serv.airport.d": "Transport sans stress depuis et vers tous les aéroports suisses, avec suivi des vols et ponctualité garantie.", "serv.business.d": "Une mobilité professionnelle pour votre entreprise : réunions, rendez-vous exécutifs et déplacements professionnels en tout confort.", "serv.wedding.d": "Des limousines élégantes pour votre jour le plus important, avec un service impeccable, soigné dans le moindre détail.", "serv.hourly.d": "Chauffeur privé à l'heure (minimum 2) : réunions, shopping, événements ou circuits — la voiture vous attend et vous accompagne tout le temps.", "serv.exp.e": "L'expérience JF", "serv.exp.t": "Confort, style et discrétion absolue", "serv.exp.p": "Nous mettons à votre disposition une flotte de véhicules haut de gamme, conduits par des chauffeurs qualifiés et discrets. Événements exclusifs, transferts VIP et hôtels de luxe : nous vous accompagnons partout, en toute confidentialité.", "tag.vip": "Transferts VIP", "tag.events": "Événements exclusifs", "tag.hotels": "Hôtels de luxe", "tag.exec": "Voyages exécutifs", "serv.why.t": "Le meilleur du transport de luxe", "serv.modes.e": "Modes de réservation", "serv.modes.title": "Réservez comme vous le souhaitez", "serv.modes.sub": "Trajet unique ou chauffeur à l'heure.", "card.drivers.t": "Chauffeurs professionnels", "card.drivers.d": "Des chauffeurs hautement qualifiés, distingués par leur professionnalisme, leur courtoisie et leur expérience.", "card.vehicles.t": "Véhicules de luxe", "card.vehicles.d": "Une flotte haut de gamme répondant aux plus hautes exigences de confort et de style.", "card.avail.t": "Disponibles 24/7", "card.avail.d": "Un service actif jour et nuit, pour tous vos besoins de transport, à tout moment.", "serv.band.t": "Réservez votre prochain trajet", "serv.band.s": "Dites-nous où vous devez aller : nous nous occupons de tout.", "band.call": "Appeler · +41 79 205 55 23", "cont.eyebrow": "Contact", "cont.h1": "Prenez la route<br>avec JF Limo Service", "cont.lead": "Nous sommes disponibles 24h/24 pour organiser votre transfert sur mesure.", "cont.phone.t": "Téléphone", "cont.email.t": "E-mail", "cont.avail.t": "Disponibilité", "cont.avail.v": "24 heures sur 24, 7 jours sur 7", "cont.area.t": "Zone de service", "cont.area.v": "Zurich et toute la Suisse", "cont.ig.t": "Instagram", "cont.band.t": "Réservez maintenant", "cont.band.s": "Un chauffeur professionnel est prêt à partir.", "foot.tagline": "Service de limousine et de chauffeur exclusif à Zurich et dans toute la Suisse. Confort, élégance et discrétion, à chaque trajet.", "foot.avail": "Disponibles 24/7", "foot.rights": "© 2026 JF Limo Service — Tous droits réservés.", "nav.book": "Réserver", "book.eyebrow": "Réservation en ligne", "book.title": "Réservez votre transfert", "book.sub": "Indiquez les détails du voyage : nous vous recontactons pour confirmer la disponibilité et le devis.", "book.from": "Départ", "book.from.ph": "Adresse ou lieu de départ", "book.to": "Destination", "book.to.ph": "Adresse ou lieu d'arrivée", "book.date": "Date", "book.time": "Heure", "book.passengers": "Passagers", "book.luggage": "Bagages", "book.vehicle": "Véhicule", "book.veh.any": "Indifférent", "book.veh.sedan": "Berline de luxe", "book.veh.van": "Van / Minibus", "book.veh.suv": "SUV", "veh.sclass.desc": "Berline amirale", "veh.eclass.desc": "Berline exécutive", "veh.vclass.desc": "Van VIP", "veh.sprinter.desc": "Minibus", "book.seats": "Places à bord", "book.now": "Réserver", "nav.fleet": "Flotte", "fleet.eyebrow": "Notre flotte", "fleet.title": "Choisissez la classe parfaite pour vous", "fleet.sub": "Quatre catégories, toutes des Mercedes, toujours avec chauffeur professionnel.", "wiz.title": "Réservez votre transfert", "wiz.s1": "Choisissez la classe", "wiz.s2": "Comment souhaitez-vous réserver ?", "wiz.s3": "Détails du voyage", "wiz.s4": "Récapitulatif et contact", "wiz.s5": "Paiement", "pay.online": "Payer maintenant", "pay.online.d": "Carte, Apple Pay ou Google Pay — paiement sécurisé en ligne.", "pay.cash": "Espèces", "pay.cash.d": "Payez directement le chauffeur pendant la course.", "pay.bank": "Facture", "pay.bank.d": "Vous recevez la facture par e-mail et payez par virement en toute simplicité.", "pay.bonifico.locked": "Disponible à partir du deuxième trajet", "wiz.from": "à partir de", "wiz.t.transfer": "Transfert", "wiz.t.transfer.d": "D'un point à un autre, prix par trajet.", "wiz.t.ore": "À l'heure", "wiz.t.ore.d": "Chauffeur à disposition pour les heures de votre choix.", "wiz.t.giornata": "À la journée", "wiz.t.giornata.d": "Service pour toute la journée.", "wiz.km": "Distance estimée (km)", "wiz.hours": "Nombre d'heures", "wiz.days": "Nombre de jours", "wiz.estprice": "Prix estimé", "wiz.pricenote": "Estimation provisoire, TVA incluse. Le prix final est confirmé par e-mail.", "wiz.prev": "Retour", "wiz.next": "Suivant", "wiz.step": "Étape", "sum.veh": "Véhicule", "sum.route": "Trajet", "sum.when": "Date et heure", "sum.note": "Aucun frais caché", "sum.safe": "Réservation sécurisée · sans engagement", "bd.title": "Détail du prix", "bd.base": "Prix de base (0–8 km)", "bd.dist": "Distance", "bd.hourly": "Tarif horaire", "bd.total": "Total estimé", "wiz.of": "sur", "cls.first.desc": "Berline amirale pour un voyage de représentation.", "cls.business.desc": "Berline exécutive, confort et discrétion.", "cls.minivan.desc": "Van VIP jusqu'à 7 passagers.", "cls.sprinter.desc": "Minibus VIP pour groupes jusqu'à 16 passagers.", "book.choose": "Choisissez votre véhicule", "book.enter": "Entrez et réservez", "book.changeveh": "← Changer de véhicule", "book.completesub": "Complétez les détails de votre voyage.", "book.howmany": "Combien de passagers ?", "book.upto": "jusqu'à", "book.pax": "passagers", "book.return": "Aller-retour", "book.name": "Nom et prénom", "book.phone": "Téléphone", "book.email": "E-mail", "book.notes": "Remarques", "book.notes.ph": "Bagages spéciaux, siège enfant, demandes particulières…", "book.submit": "Demander la réservation", "book.maphint": "Saisissez le départ et la destination : la carte calcule l'itinéraire, la distance et la durée estimée.", "book.routelabel": "Itinéraire estimé", "thanks.eyebrow": "Réservation", "thanks.title": "Demande envoyée !", "thanks.msg": "Merci ! Nous avons bien reçu votre demande de réservation et vous avons envoyé un e-mail de confirmation. Nous vous contacterons sous peu ; dès qu'un chauffeur accepte la course, vous recevrez un nouvel e-mail de confirmation.", "thanks.back": "Retour à l'accueil", "faq.eyebrow": "FAQ", "faq.title": "Questions fréquentes", "faq.q1": "Comment réserver une course ?", "faq.a1": "Réservez directement sur le site en quelques instants, ou contactez-nous par téléphone ou WhatsApp. Vous recevrez une confirmation par e-mail avec tous les détails.", "faq.q2": "Dans quelles zones opérez-vous ?", "faq.a2": "Nous opérons à Zurich et dans toute la Suisse. Sur demande, nous assurons aussi des trajets vers les pays voisins.", "faq.q3": "Comment fonctionne le paiement ?", "faq.a3": "Vous pouvez payer en ligne en toute sécurité lors de la réservation, ou recevoir simplement la facture par e-mail. Aucun acompte requis.", "faq.q4": "Proposez-vous des transferts aéroport ?", "faq.a4": "Oui. Nous surveillons votre vol et adaptons la prise en charge en cas de retard, sans frais supplémentaires. Le chauffeur vous attend à l'arrivée.", "faq.q5": "Combien de passagers et de bagages puis-je emmener ?", "faq.a5": "Nos véhicules accueillent de 3 à 7 passagers avec leurs bagages. Pour les groupes plus importants, nous disposons du V-Class et du Sprinter.", "faq.q6": "Puis-je modifier ou annuler ma réservation ?", "faq.a6": "Bien sûr. Contactez-nous le plus tôt possible par téléphone, WhatsApp ou e-mail et nous trouverons ensemble la meilleure solution.", "faq.q7": "Les prix sont-ils fixes ou peut-il y avoir des frais supplémentaires ?", "faq.a7": "Le prix affiché lors de la réservation est fixe et transparent : aucun frais caché, aucune surprise de dernière minute. Les arrêts ou temps d'attente supplémentaires sont toujours convenus à l'avance.", "routes.eyebrow": "Trajets", "routes.title": "Les trajets les plus demandés", "routes.sub": "De l'aéroport de Zurich vers les principales destinations suisses.", "routes.airport": "Aéroport de Zurich", "routes.zurich": "Zurich Ville", "routes.geneva": "Genève", "routes.lucerne": "Lucerne", "routes.book": "Réserver", "routes.continue": "Continuer"}, "es": {"nav.home": "Inicio", "nav.about": "Nosotros", "nav.services": "Servicios", "nav.contact": "Contacto", "home.eyebrow": "Chófer privado · Suiza", "home.h1": "Servicio de limusina exclusivo<br>al más alto nivel", "home.lead": "Chófer de primera clase para viajes ejecutivos, traslados VIP y hoteles de lujo. Su socio premium en Zúrich y en toda Suiza.", "btn.transfer": "Solicitar un traslado", "btn.services": "Nuestros servicios", "stats.years": "Años de experiencia", "stats.satisf": "Satisfacción del cliente", "stats.avail": "Siempre disponibles", "home.tc": "Viaja con confort", "home.servTitle": "Nuestros servicios", "home.servSub": "Soluciones de transporte a medida, con un confort impecable y máxima fiabilidad.", "svc.airport.t": "Traslados al aeropuerto", "svc.airport.d": "Transporte sin estrés desde y hacia los aeropuertos, con puntualidad garantizada.", "svc.business.t": "Viajes de negocios", "svc.business.d": "Movilidad profesional para su empresa y sus citas ejecutivas.", "svc.wedding.t": "Bodas", "svc.wedding.d": "Limusinas elegantes para hacer inolvidable su día especial.", "svc.hourly.t": "Servicio por horas", "svc.hourly.d": "Un chófer privado a su disposición por horas: citas, eventos o recorridos, con el coche siempre esperándole.", "qb.title": "Reserve su viaje", "why.eyebrow": "Por qué elegirnos", "why.title": "Su primera opción para el transporte de lujo en Suiza", "why.drivers": "<b style='color:var(--cream)'>Chóferes profesionales.</b> Cualificados y distinguidos por su profesionalidad, cortesía y experiencia.", "why.vehicles": "<b style='color:var(--cream)'>Vehículos de lujo.</b> Una flota de alta gama que cumple los más altos estándares de confort y estilo.", "why.avail": "<b style='color:var(--cream)'>Disponibles 24/7.</b> Un servicio activo día y noche, para todas sus necesidades de desplazamiento.", "band.home.t": "Viaje con estilo y discreción", "band.home.s": "Traslados de negocios, eventos exclusivos y bodas: dondequiera que vaya, le acompañamos con elegancia.", "rev.eyebrow": "Opiniones", "rev.title": "Lo que dicen los clientes", "rev.count": "40 reseñas en Google", "rev.cta": "Leer todas las reseñas en Google", "wiz.rt": "Ida y vuelta", "email.subject": "Solicitud de reserva recibida — JF Limo Service", "email.greeting": "Estimado/a {name},", "email.client": "Cliente", "email.intro": "Gracias por elegir JF Limo Service. Hemos recibido su solicitud de reserva:", "email.l_route": "Trayecto", "email.l_type": "Tipo", "email.l_class": "Clase", "email.l_when": "Fecha/hora", "email.l_price": "Precio estimado", "email.l_code": "Código de reserva", "email.tbd": "por definir", "email.outro": "Nos pondremos en contacto en breve para confirmar. En cuanto un chófer acepte el trayecto, recibirá un correo de confirmación.", "band.callnow": "Llamar ahora · +41 79 205 55 23", "about.eyebrow": "Quiénes somos", "about.h1": "La historia y la pasión de<br>JF Limo Service", "about.story.e": "Nuestra historia", "about.story.t": "Elegancia y fiabilidad, desde el primer día", "about.story.p1": "Ofrecemos soluciones de transporte a medida, con un confort refinado y una fiabilidad absoluta. Desde su fundación, JF Limo Service ha ayudado a innumerables clientes a viajar con estilo y comodidad, tanto en ocasiones de negocios como en bodas.", "about.story.p2": "Con más de una década de experiencia, nuestro servicio de chófer ofrece una excelencia constante, máximo confort y una profesionalidad discreta, para cualquier ocasión y en todo momento.", "stats.satisfG": "Satisfacción garantizada", "stats.langs": "Idiomas hablados", "about.lang.e": "Comunicación multilingüe", "about.lang.t": "Chóferes que hablan su idioma", "about.lang.s": "Limusinas de lujo con chóferes multilingües, para que se sienta como en casa en cualquier lugar.", "lang.it": "Italiano", "lang.de": "Alemán", "lang.en": "Inglés", "lang.es": "Español", "lang.ku": "Kurdo", "lang.fr": "Francés", "about.band.t": "¿Listo para viajar con nosotros?", "about.band.s": "Contáctenos para organizar su próximo traslado a medida.", "btn.contact": "Contáctenos", "serv.h1": "Transporte de lujo<br>para cada ocasión", "serv.airport.d": "Transporte sin estrés desde y hacia todos los aeropuertos suizos, con seguimiento de vuelos y puntualidad garantizada.", "serv.business.d": "Movilidad profesional para su empresa: reuniones, citas ejecutivas y viajes de trabajo con total confort.", "serv.wedding.d": "Limusinas elegantes para su día más importante, con un servicio impecable y cuidado en cada detalle.", "serv.hourly.d": "Chófer privado por horas (mínimo 2): reuniones, compras, eventos o recorridos — el coche le espera y le acompaña todo el tiempo.", "serv.exp.e": "La experiencia JF", "serv.exp.t": "Confort, estilo y discreción absoluta", "serv.exp.p": "Ponemos a su disposición una flota de vehículos de alta gama, conducidos por chóferes cualificados y discretos. Eventos exclusivos, traslados VIP y hoteles de lujo: le acompañamos a todas partes, con la máxima discreción.", "tag.vip": "Traslados VIP", "tag.events": "Eventos exclusivos", "tag.hotels": "Hoteles de lujo", "tag.exec": "Viajes ejecutivos", "serv.why.t": "Lo mejor del transporte de lujo", "serv.modes.e": "Modalidades de reserva", "serv.modes.title": "Reserve como prefiera", "serv.modes.sub": "Trayecto único o chófer por horas.", "card.drivers.t": "Chóferes profesionales", "card.drivers.d": "Chóferes altamente cualificados, distinguidos por su profesionalidad, cortesía y experiencia.", "card.vehicles.t": "Vehículos de lujo", "card.vehicles.d": "Una flota de alta gama que cumple los más altos estándares de confort y estilo.", "card.avail.t": "Disponibles 24/7", "card.avail.d": "Servicio activo día y noche, para todas sus necesidades de transporte, en cualquier momento.", "serv.band.t": "Reserve su próximo viaje", "serv.band.s": "Díganos a dónde debe ir: nosotros nos encargamos de todo.", "band.call": "Llamar · +41 79 205 55 23", "cont.eyebrow": "Contacto", "cont.h1": "Póngase en camino<br>con JF Limo Service", "cont.lead": "Estamos disponibles las 24 horas para organizar su traslado a medida.", "cont.phone.t": "Teléfono", "cont.email.t": "Correo", "cont.avail.t": "Disponibilidad", "cont.avail.v": "24 horas al día, 7 días a la semana", "cont.area.t": "Área de servicio", "cont.area.v": "Zúrich y toda Suiza", "cont.ig.t": "Instagram", "cont.band.t": "Reserva ahora", "cont.band.s": "Un chófer profesional está listo para salir.", "foot.tagline": "Servicio exclusivo de limusina y chófer en Zúrich y en toda Suiza. Confort, elegancia y discreción, en cada viaje.", "foot.avail": "Disponibles 24/7", "foot.rights": "© 2026 JF Limo Service — Todos los derechos reservados.", "nav.book": "Reservar", "book.eyebrow": "Reserva en línea", "book.title": "Reserve su traslado", "book.sub": "Indique los detalles del viaje: le contactaremos para confirmar la disponibilidad y el presupuesto.", "book.from": "Salida", "book.from.ph": "Dirección o lugar de salida", "book.to": "Destino", "book.to.ph": "Dirección o lugar de llegada", "book.date": "Fecha", "book.time": "Hora", "book.passengers": "Pasajeros", "book.luggage": "Equipaje", "book.vehicle": "Vehículo", "book.veh.any": "Indiferente", "book.veh.sedan": "Sedán de lujo", "book.veh.van": "Furgoneta / Minibús", "book.veh.suv": "SUV", "veh.sclass.desc": "Sedán insignia", "veh.eclass.desc": "Sedán ejecutivo", "veh.vclass.desc": "Furgoneta VIP", "veh.sprinter.desc": "Minibús", "book.seats": "Plazas a bordo", "book.now": "Reservar ahora", "nav.fleet": "Flota", "fleet.eyebrow": "Nuestra flota", "fleet.title": "Elija la clase perfecta para usted", "fleet.sub": "Cuatro categorías, todas Mercedes, siempre con chófer profesional.", "wiz.title": "Reserve su traslado", "wiz.s1": "Elija la clase", "wiz.s2": "¿Cómo desea reservar?", "wiz.s3": "Detalles del viaje", "wiz.s4": "Resumen y contacto", "wiz.s5": "Pago", "pay.online": "Pagar ahora", "pay.online.d": "Tarjeta, Apple Pay o Google Pay — pago seguro en línea.", "pay.cash": "Efectivo", "pay.cash.d": "Paga directamente al chófer durante el trayecto.", "pay.bank": "Factura", "pay.bank.d": "Recibirá la factura por correo electrónico y pagará cómodamente por transferencia.", "pay.bonifico.locked": "Disponible a partir del segundo viaje", "wiz.from": "desde", "wiz.t.transfer": "Traslado", "wiz.t.transfer.d": "De un punto a otro, precio por trayecto.", "wiz.t.ore": "Por horas", "wiz.t.ore.d": "Chófer a su disposición durante las horas que elija.", "wiz.t.giornata": "Por día", "wiz.t.giornata.d": "Servicio durante todo el día.", "wiz.km": "Distancia estimada (km)", "wiz.hours": "Número de horas", "wiz.days": "Número de días", "wiz.estprice": "Precio estimado", "wiz.pricenote": "Estimación provisional, IVA incluido. El precio final se confirma por correo electrónico.", "wiz.prev": "Atrás", "wiz.next": "Siguiente", "wiz.step": "Paso", "sum.veh": "Vehículo", "sum.route": "Trayecto", "sum.when": "Fecha y hora", "sum.note": "Sin costes ocultos", "sum.safe": "Reserva segura · sin compromiso", "bd.title": "Desglose del precio", "bd.base": "Precio base (0–8 km)", "bd.dist": "Distancia", "bd.hourly": "Tarifa por hora", "bd.total": "Total estimado", "wiz.of": "de", "cls.first.desc": "Sedán insignia para un viaje de representación.", "cls.business.desc": "Sedán ejecutivo, confort y discreción.", "cls.minivan.desc": "Furgoneta VIP hasta 7 pasajeros.", "cls.sprinter.desc": "Minibús VIP para grupos de hasta 16 pasajeros.", "book.choose": "Elija su vehículo", "book.enter": "Entre y reserve", "book.changeveh": "← Cambiar vehículo", "book.completesub": "Complete los detalles de su viaje.", "book.howmany": "¿Cuántos pasajeros?", "book.upto": "hasta", "book.pax": "pasajeros", "book.return": "Ida y vuelta", "book.name": "Nombre y apellido", "book.phone": "Teléfono", "book.email": "Correo electrónico", "book.notes": "Notas", "book.notes.ph": "Equipaje especial, silla infantil, peticiones particulares…", "book.submit": "Solicitar reserva", "book.maphint": "Introduzca salida y destino: el mapa calcula la ruta, la distancia y la duración estimada.", "book.routelabel": "Ruta estimada", "thanks.eyebrow": "Reserva", "thanks.title": "¡Solicitud enviada!", "thanks.msg": "¡Gracias! Hemos recibido su solicitud de reserva y le hemos enviado un correo de confirmación. Le contactaremos en breve; en cuanto un chófer acepte el viaje recibirá otro correo de confirmación.", "thanks.back": "Volver al inicio", "faq.eyebrow": "FAQ", "faq.title": "Preguntas frecuentes", "faq.q1": "¿Cómo reservo un trayecto?", "faq.a1": "Reserve directamente en el sitio en unos instantes, o contáctenos por teléfono o WhatsApp. Recibirá una confirmación por correo con todos los detalles.", "faq.q2": "¿En qué zonas operan?", "faq.a2": "Operamos en Zúrich y en toda Suiza. Bajo petición también realizamos trayectos a los países vecinos.", "faq.q3": "¿Cómo funciona el pago?", "faq.a3": "Puede pagar de forma segura en línea al reservar, o recibir cómodamente la factura por correo. Sin anticipo obligatorio.", "faq.q4": "¿Ofrecen traslados al aeropuerto?", "faq.a4": "Sí. Controlamos su vuelo y ajustamos la recogida en caso de retraso, sin coste adicional. El chófer le espera a la llegada.", "faq.q5": "¿Cuántos pasajeros y maletas puedo llevar?", "faq.a5": "Nuestros vehículos admiten de 3 a 7 pasajeros con equipaje. Para grupos más grandes disponemos de V-Class y Sprinter.", "faq.q6": "¿Puedo modificar o cancelar la reserva?", "faq.a6": "Por supuesto. Contáctenos lo antes posible por teléfono, WhatsApp o correo y encontraremos juntos la mejor solución.", "faq.q7": "¿Los precios son fijos o puede haber costes adicionales?", "faq.a7": "El precio que ve al reservar es fijo y transparente: sin costes ocultos ni sorpresas de última hora. Las paradas o esperas adicionales se acuerdan siempre por adelantado.", "routes.eyebrow": "Rutas", "routes.title": "Las rutas más solicitadas", "routes.sub": "Del aeropuerto de Zúrich a los principales destinos suizos.", "routes.airport": "Aeropuerto de Zúrich", "routes.zurich": "Zúrich Ciudad", "routes.geneva": "Ginebra", "routes.lucerne": "Lucerna", "routes.book": "Reservar", "routes.continue": "Continuar"}, "ru": {"nav.home": "Главная", "nav.about": "О нас", "nav.services": "Услуги", "nav.contact": "Контакты", "home.eyebrow": "Личный водитель · Швейцария", "home.h1": "Эксклюзивный лимузин-сервис<br>высочайшего уровня", "home.lead": "Водитель первого класса для деловых поездок, VIP-трансферов и люксовых отелей. Ваш премиум-партнёр в Цюрихе и по всей Швейцарии.", "btn.transfer": "Заказать трансфер", "btn.services": "Наши услуги", "stats.years": "Лет опыта", "stats.satisf": "Удовлетворённость клиентов", "stats.avail": "Всегда на связи", "home.tc": "Путешествуйте с комфортом", "home.servTitle": "Наши услуги", "home.servSub": "Индивидуальные транспортные решения с безупречным комфортом и максимальной надёжностью.", "svc.airport.t": "Трансфер в аэропорт", "svc.airport.d": "Трансфер в аэропорты и обратно без стресса, с гарантированной пунктуальностью.", "svc.business.t": "Деловые поездки", "svc.business.d": "Профессиональная мобильность для вашей компании и деловых встреч.", "svc.wedding.t": "Свадьбы", "svc.wedding.d": "Элегантные лимузины, чтобы сделать ваш особенный день незабываемым.", "svc.hourly.t": "Почасовая аренда", "svc.hourly.d": "Личный водитель с почасовой оплатой: встречи, мероприятия или экскурсии — автомобиль всегда ждёт вас.", "qb.title": "Забронируйте поездку", "why.eyebrow": "Почему мы", "why.title": "Ваш выбор номер один для люксовых перевозок в Швейцарии", "why.drivers": "<b style='color:var(--cream)'>Профессиональные водители.</b> Квалифицированные, отличающиеся профессионализмом, вежливостью и опытом.", "why.vehicles": "<b style='color:var(--cream)'>Автомобили класса люкс.</b> Первоклассный автопарк, отвечающий высочайшим стандартам комфорта и стиля.", "why.avail": "<b style='color:var(--cream)'>Доступны 24/7.</b> Сервис, работающий днём и ночью, для любых ваших поездок.", "band.home.t": "Путешествуйте стильно и конфиденциально", "band.home.s": "Деловые трансферы, эксклюзивные мероприятия и свадьбы: куда бы вам ни нужно было, мы доставим вас с элегантностью.", "rev.eyebrow": "Отзывы", "rev.title": "Что говорят клиенты", "rev.count": "40 отзывов в Google", "rev.cta": "Все отзывы в Google", "wiz.rt": "Туда и обратно", "email.subject": "Заявка на бронирование получена — JF Limo Service", "email.greeting": "Здравствуйте, {name}!", "email.client": "Клиент", "email.intro": "Спасибо, что выбрали JF Limo Service. Мы получили вашу заявку на бронирование:", "email.l_route": "Маршрут", "email.l_type": "Тип", "email.l_class": "Класс", "email.l_when": "Дата/время", "email.l_price": "Ориентировочная цена", "email.l_code": "Код бронирования", "email.tbd": "уточняется", "email.outro": "Мы свяжемся с вами в ближайшее время для подтверждения. Как только водитель примет заказ, вы получите письмо с подтверждением.", "band.callnow": "Позвонить · +41 79 205 55 23", "about.eyebrow": "О нас", "about.h1": "История и страсть<br>JF Limo Service", "about.story.e": "Наша история", "about.story.t": "Элегантность и надёжность с первого дня", "about.story.p1": "Мы предлагаем индивидуальные транспортные решения с изысканным комфортом и абсолютной надёжностью. С момента основания JF Limo Service помог множеству клиентов путешествовать стильно и комфортно — будь то деловые поводы или свадьбы.", "about.story.p2": "Имея более чем десятилетний опыт, наш сервис водителей обеспечивает неизменное совершенство, максимальный комфорт и сдержанный профессионализм — для любого случая и в любое время.", "stats.satisfG": "Гарантия удовлетворения", "stats.langs": "Языков", "about.lang.e": "Многоязычное общение", "about.lang.t": "Водители, говорящие на вашем языке", "about.lang.s": "Люксовые лимузины с многоязычными водителями, чтобы вы чувствовали себя как дома где угодно.", "lang.it": "Итальянский", "lang.de": "Немецкий", "lang.en": "Английский", "lang.es": "Испанский", "lang.ku": "Курдский", "lang.fr": "Французский", "about.band.t": "Готовы отправиться с нами?", "about.band.s": "Свяжитесь с нами, чтобы организовать ваш следующий индивидуальный трансфер.", "btn.contact": "Связаться", "serv.h1": "Люксовый транспорт<br>для любого случая", "serv.airport.d": "Трансфер во все аэропорты Швейцарии и обратно без стресса, с отслеживанием рейсов и гарантированной пунктуальностью.", "serv.business.d": "Профессиональная мобильность для вашей компании: встречи, деловые приёмы и командировки в полном комфорте.", "serv.wedding.d": "Элегантные лимузины для вашего самого важного дня, с безупречным сервисом до мелочей.", "serv.hourly.d": "Личный водитель с почасовой оплатой (минимум 2 часа): встречи, шопинг, мероприятия или экскурсии — автомобиль ждёт и сопровождает вас всё время.", "serv.exp.e": "Опыт JF", "serv.exp.t": "Комфорт, стиль и абсолютная конфиденциальность", "serv.exp.p": "Мы предоставляем первоклассный автопарк с квалифицированными и сдержанными водителями. Эксклюзивные мероприятия, VIP-трансферы и люксовые отели — мы доставим вас куда угодно с полной конфиденциальностью.", "tag.vip": "VIP-трансфер", "tag.events": "Эксклюзивные мероприятия", "tag.hotels": "Люксовые отели", "tag.exec": "Деловые поездки", "serv.why.t": "Лучшее в люксовых перевозках", "serv.modes.e": "Способы бронирования", "serv.modes.title": "Бронируйте, как вам удобно", "serv.modes.sub": "Разовая поездка или водитель на час.", "card.drivers.t": "Профессиональные водители", "card.drivers.d": "Высококвалифицированные водители, отличающиеся профессионализмом, вежливостью и опытом.", "card.vehicles.t": "Автомобили класса люкс", "card.vehicles.d": "Первоклассный автопарк, отвечающий высочайшим стандартам комфорта и стиля.", "card.avail.t": "Доступны 24/7", "card.avail.d": "Сервис, работающий днём и ночью, для любых ваших транспортных нужд в любое время.", "serv.band.t": "Забронируйте вашу следующую поездку", "serv.band.s": "Скажите, куда вам нужно, — мы позаботимся обо всём.", "band.call": "Позвонить · +41 79 205 55 23", "cont.eyebrow": "Контакты", "cont.h1": "Отправьтесь в путь<br>с JF Limo Service", "cont.lead": "Мы доступны круглосуточно, чтобы организовать ваш индивидуальный трансфер.", "cont.phone.t": "Телефон", "cont.email.t": "Эл. почта", "cont.avail.t": "Доступность", "cont.avail.v": "24 часа в сутки, 7 дней в неделю", "cont.area.t": "Зона обслуживания", "cont.area.v": "Цюрих и вся Швейцария", "cont.ig.t": "Instagram", "cont.band.t": "Забронируйте сейчас", "cont.band.s": "Профессиональный водитель готов выехать.", "foot.tagline": "Эксклюзивный сервис лимузинов и водителей в Цюрихе и по всей Швейцарии. Комфорт, элегантность и конфиденциальность в каждой поездке.", "foot.avail": "Доступны 24/7", "foot.rights": "© 2026 JF Limo Service — Все права защищены.", "nav.book": "Бронь", "book.eyebrow": "Онлайн-бронирование", "book.title": "Забронируйте трансфер", "book.sub": "Укажите детали поездки: мы свяжемся с вами для подтверждения наличия и стоимости.", "book.from": "Откуда", "book.from.ph": "Адрес или место отправления", "book.to": "Куда", "book.to.ph": "Адрес или место прибытия", "book.date": "Дата", "book.time": "Время", "book.passengers": "Пассажиры", "book.luggage": "Багаж", "book.vehicle": "Автомобиль", "book.veh.any": "Любой", "book.veh.sedan": "Люксовый седан", "book.veh.van": "Вэн / Минибус", "book.veh.suv": "Внедорожник", "veh.sclass.desc": "Флагманский седан", "veh.eclass.desc": "Бизнес-седан", "veh.vclass.desc": "VIP-вэн", "veh.sprinter.desc": "Минибус", "book.seats": "Мест в салоне", "book.now": "Забронировать", "nav.fleet": "Автопарк", "fleet.eyebrow": "Наш автопарк", "fleet.title": "Выберите идеальный класс для себя", "fleet.sub": "Четыре категории, все Mercedes, всегда с профессиональным водителем.", "wiz.title": "Забронируйте трансфер", "wiz.s1": "Выберите класс", "wiz.s2": "Как вы хотите забронировать?", "wiz.s3": "Детали поездки", "wiz.s4": "Итог и контакты", "wiz.s5": "Оплата", "pay.online": "Оплатить сейчас", "pay.online.d": "Карта, Apple Pay или Google Pay — безопасная онлайн-оплата.", "pay.cash": "Наличные", "pay.cash.d": "Оплата напрямую водителю во время поездки.", "pay.bank": "Оплата по счёту", "pay.bank.d": "Вы получите счёт по электронной почте и удобно оплатите его переводом.", "pay.bonifico.locked": "Доступно со второй поездки", "wiz.from": "от", "wiz.t.transfer": "Трансфер", "wiz.t.transfer.d": "Из точки в точку, цена за поездку.", "wiz.t.ore": "Почасово", "wiz.t.ore.d": "Водитель в вашем распоряжении на выбранное количество часов.", "wiz.t.giornata": "На день", "wiz.t.giornata.d": "Сервис на весь день.", "wiz.km": "Примерное расстояние (км)", "wiz.hours": "Количество часов", "wiz.days": "Количество дней", "wiz.estprice": "Ориентировочная цена", "wiz.pricenote": "Предварительная оценка, НДС включён. Окончательная цена подтверждается по электронной почте.", "wiz.prev": "Назад", "wiz.next": "Далее", "wiz.step": "Шаг", "sum.veh": "Автомобиль", "sum.route": "Маршрут", "sum.when": "Дата и время", "sum.note": "Без скрытых платежей", "sum.safe": "Безопасное бронирование · без обязательств", "bd.title": "Детализация цены", "bd.base": "Базовый тариф (0–8 км)", "bd.dist": "Расстояние", "bd.hourly": "Почасовой тариф", "bd.total": "Итого (оценка)", "wiz.of": "из", "cls.first.desc": "Флагманский седан для представительских поездок.", "cls.business.desc": "Бизнес-седан, комфорт и конфиденциальность.", "cls.minivan.desc": "VIP-вэн до 7 пассажиров.", "cls.sprinter.desc": "VIP-минибус для групп до 16 пассажиров.", "book.choose": "Выберите автомобиль", "book.enter": "Войдите и забронируйте", "book.changeveh": "← Сменить автомобиль", "book.completesub": "Заполните детали вашей поездки.", "book.howmany": "Сколько пассажиров?", "book.upto": "до", "book.pax": "пассажиров", "book.return": "Туда и обратно", "book.name": "Имя и фамилия", "book.phone": "Телефон", "book.email": "Эл. почта", "book.notes": "Примечания", "book.notes.ph": "Особый багаж, детское кресло, особые пожелания…", "book.submit": "Отправить заявку", "book.maphint": "Укажите пункт отправления и назначения: карта рассчитает маршрут, расстояние и примерное время.", "book.routelabel": "Примерный маршрут", "thanks.eyebrow": "Бронирование", "thanks.title": "Заявка отправлена!", "thanks.msg": "Спасибо! Мы получили вашу заявку и отправили вам письмо с подтверждением. Мы свяжемся с вами в ближайшее время; как только водитель примет поездку, вы получите ещё одно письмо с подтверждением.", "thanks.back": "На главную", "faq.eyebrow": "FAQ", "faq.title": "Частые вопросы", "faq.q1": "Как забронировать поездку?", "faq.a1": "Забронируйте прямо на сайте за несколько секунд или свяжитесь с нами по телефону либо в WhatsApp. Вы получите подтверждение со всеми деталями по электронной почте.", "faq.q2": "В каких регионах вы работаете?", "faq.a2": "Мы работаем в Цюрихе и по всей Швейцарии. По запросу выполняем поездки и в соседние страны.", "faq.q3": "Как происходит оплата?", "faq.a3": "Вы можете безопасно оплатить онлайн при бронировании или просто получить счёт по электронной почте. Предоплата не требуется.", "faq.q4": "Вы делаете трансферы в аэропорт?", "faq.a4": "Да. Мы отслеживаем ваш рейс и корректируем время подачи при задержках без дополнительной платы. Водитель встретит вас по прибытии.", "faq.q5": "Сколько пассажиров и багажа можно взять?", "faq.a5": "Наши автомобили вмещают от 3 до 7 пассажиров с багажом. Для больших групп есть V-Class и Sprinter.", "faq.q6": "Могу ли я изменить или отменить бронирование?", "faq.a6": "Конечно. Свяжитесь с нами как можно раньше по телефону, в WhatsApp или по email, и мы вместе найдём лучшее решение.", "faq.q7": "Цены фиксированные или могут быть доплаты?", "faq.a7": "Цена, которую вы видите при бронировании, фиксированная и прозрачная: без скрытых расходов и сюрпризов в последний момент. Дополнительные остановки или время ожидания всегда согласовываются заранее.", "routes.eyebrow": "Маршруты", "routes.title": "Самые популярные маршруты", "routes.sub": "Из аэропорта Цюриха к главным направлениям Швейцарии.", "routes.airport": "Аэропорт Цюриха", "routes.zurich": "Цюрих", "routes.geneva": "Женева", "routes.lucerne": "Люцерн", "routes.book": "Заказать", "routes.continue": "Продолжить"}, "zh": {"nav.home": "首页", "nav.about": "关于我们", "nav.services": "服务", "nav.contact": "联系", "home.eyebrow": "私人司机 · 瑞士", "home.h1": "尊享豪华礼宾轿车服务<br>极致品质", "home.lead": "为商务出行、贵宾接送及豪华酒店提供一流司机服务。您在苏黎世及全瑞士的高端出行伙伴。", "btn.transfer": "预约接送", "btn.services": "我们的服务", "stats.years": "年经验", "stats.satisf": "客户满意度", "stats.avail": "全天候服务", "home.tc": "舒适出行", "home.servTitle": "我们的服务", "home.servSub": "量身定制的出行方案，提供无可挑剔的舒适与极致可靠。", "svc.airport.t": "机场接送", "svc.airport.d": "往返机场的无忧接送，准时无虞。", "svc.business.t": "商务出行", "svc.business.d": "为您的企业及高管行程提供专业出行服务。", "svc.wedding.t": "婚礼", "svc.wedding.d": "优雅礼宾轿车，让您的特别日子难忘。", "svc.hourly.t": "按小时包车", "svc.hourly.d": "按小时提供专属司机：商务安排、活动或行程，车辆随时恭候。", "qb.title": "预订您的行程", "why.eyebrow": "为何选择我们", "why.title": "瑞士豪华出行的首选", "why.drivers": "<b style='color:var(--cream)'>专业司机。</b>资历深厚，以专业、礼貌和经验著称。", "why.vehicles": "<b style='color:var(--cream)'>豪华车型。</b>顶级车队，满足对舒适与格调的至高要求。", "why.avail": "<b style='color:var(--cream)'>全天候 24/7。</b>昼夜运营，满足您的一切出行需求。", "band.home.t": "尽享格调与私密的出行", "band.home.s": "商务接送、尊享活动与婚礼：无论您要去往何处，我们都以优雅相伴。", "rev.eyebrow": "评价", "rev.title": "客户怎么说", "rev.count": "40 条 Google 评价", "rev.cta": "在 Google 上查看全部评价", "wiz.rt": "往返", "email.subject": "已收到您的预订请求 — JF Limo Service", "email.greeting": "尊敬的 {name}，您好：", "email.client": "尊贵的客户", "email.intro": "感谢您选择 JF Limo Service。我们已收到您的预订请求：", "email.l_route": "路线", "email.l_type": "类型", "email.l_class": "车型", "email.l_when": "日期/时间", "email.l_price": "预计价格", "email.l_code": "预订编号", "email.tbd": "待定", "email.outro": "我们将尽快与您联系确认。司机接单后，您将收到确认邮件。", "band.callnow": "立即致电 · +41 79 205 55 23", "about.eyebrow": "关于我们", "about.h1": "JF Limo Service<br>的故事与热忱", "about.story.e": "我们的故事", "about.story.t": "始终如一的优雅与可靠", "about.story.p1": "我们提供量身定制的出行方案，兼具精致舒适与绝对可靠。自成立以来，JF Limo Service 已助力无数客户以格调与舒适出行，无论商务场合还是婚礼。", "about.story.p2": "凭借十余年经验，我们的司机服务始终如一地卓越，提供极致舒适与低调的专业——适合任何场合，随时待命。", "stats.satisfG": "满意保证", "stats.langs": "通晓语言", "about.lang.e": "多语沟通", "about.lang.t": "会说您语言的司机", "about.lang.s": "配备多语司机的豪华礼宾轿车，让您身处何地都宾至如归。", "lang.it": "意大利语", "lang.de": "德语", "lang.en": "英语", "lang.es": "西班牙语", "lang.ku": "库尔德语", "lang.fr": "法语", "about.band.t": "准备好与我们同行了吗？", "about.band.s": "联系我们，定制您的下一次专属接送。", "btn.contact": "联系我们", "serv.h1": "豪华出行<br>适合每个场合", "serv.airport.d": "往返瑞士各大机场的无忧接送，提供航班追踪与准时保障。", "serv.business.d": "为您的企业提供专业出行：会议、高管会面及商务出差，尽享舒适。", "serv.wedding.d": "为您最重要的日子准备优雅礼宾轿车，服务无可挑剔，细节尽善尽美。", "serv.hourly.d": "按小时包车（至少 2 小时）：会议、购物、活动或观光——车辆全程等候并陪伴您。", "serv.exp.e": "JF 体验", "serv.exp.t": "舒适、格调与绝对私密", "serv.exp.p": "我们为您提供顶级车队，由资深而低调的司机驾驶。尊享活动、贵宾接送与豪华酒店：我们以最高的私密性伴您前往任何地方。", "tag.vip": "贵宾接送", "tag.events": "尊享活动", "tag.hotels": "豪华酒店", "tag.exec": "高管出行", "serv.why.t": "豪华出行的极致之选", "serv.modes.e": "预订方式", "serv.modes.title": "按您所需预订", "serv.modes.sub": "单程或按小时包车。", "card.drivers.t": "专业司机", "card.drivers.d": "经验丰富、高度专业的司机，以专业、礼貌和经验著称。", "card.vehicles.t": "豪华车型", "card.vehicles.d": "顶级车队，满足对舒适与格调的至高要求。", "card.avail.t": "全天候 24/7", "card.avail.d": "昼夜运营，随时满足您的一切出行需求。", "serv.band.t": "预订您的下一次行程", "serv.band.s": "告诉我们您要去哪：一切交给我们。", "band.call": "致电 · +41 79 205 55 23", "cont.eyebrow": "联系", "cont.h1": "与 JF Limo Service<br>一同上路", "cont.lead": "我们 24 小时待命，为您定制专属接送。", "cont.phone.t": "电话", "cont.email.t": "电子邮箱", "cont.avail.t": "服务时间", "cont.avail.v": "全天 24 小时，每周 7 天", "cont.area.t": "服务区域", "cont.area.v": "苏黎世及全瑞士", "cont.ig.t": "Instagram", "cont.band.t": "立即预订", "cont.band.s": "专业司机已整装待发。", "foot.tagline": "苏黎世及全瑞士的尊享礼宾轿车与司机服务。每段旅程皆有舒适、优雅与私密相伴。", "foot.avail": "全天候 24/7", "foot.rights": "© 2026 JF Limo Service — 版权所有。", "nav.book": "预订", "book.eyebrow": "在线预订", "book.title": "预订您的接送", "book.sub": "填写行程详情：我们将与您联系确认可用性与报价。", "book.from": "出发地", "book.from.ph": "出发地址或地点", "book.to": "目的地", "book.to.ph": "到达地址或地点", "book.date": "日期", "book.time": "时间", "book.passengers": "乘客", "book.luggage": "行李", "book.vehicle": "车型", "book.veh.any": "不限", "book.veh.sedan": "豪华轿车", "book.veh.van": "厢式车 / 小巴", "book.veh.suv": "SUV", "veh.sclass.desc": "旗舰轿车", "veh.eclass.desc": "行政轿车", "veh.vclass.desc": "贵宾厢式车", "veh.sprinter.desc": "小巴", "book.seats": "座位数", "book.now": "立即预订", "nav.fleet": "车队", "fleet.eyebrow": "我们的车队", "fleet.title": "选择最适合您的车型", "fleet.sub": "四种车型，皆为奔驰，始终配备专业司机。", "wiz.title": "预订您的接送", "wiz.s1": "选择车型", "wiz.s2": "您想如何预订？", "wiz.s3": "行程详情", "wiz.s4": "摘要与联系方式", "wiz.s5": "支付", "pay.online": "立即支付", "pay.online.d": "银行卡、Apple Pay 或 Google Pay — 安全在线支付。", "pay.cash": "现金", "pay.cash.d": "乘车时直接付给司机。", "pay.bank": "发票付款", "pay.bank.d": "您将通过电子邮件收到发票，并可通过转账轻松付款。", "pay.bonifico.locked": "第二次乘车起可用", "wiz.from": "低至", "wiz.t.transfer": "接送", "wiz.t.transfer.d": "点到点，按单程计价。", "wiz.t.ore": "按小时", "wiz.t.ore.d": "司机按您选择的小时数随时待命。", "wiz.t.giornata": "按天", "wiz.t.giornata.d": "全天候服务。", "wiz.km": "预计距离（公里）", "wiz.hours": "小时数", "wiz.days": "天数", "wiz.estprice": "预计价格", "wiz.pricenote": "临时估价，含增值税。最终价格将通过电子邮件确认。", "wiz.prev": "上一步", "wiz.next": "下一步", "wiz.step": "步骤", "sum.veh": "车辆", "sum.route": "路线", "sum.when": "日期与时间", "sum.note": "无隐藏费用", "sum.safe": "安全预订 · 无需承诺", "bd.title": "价格明细", "bd.base": "起步价（0–8公里）", "bd.dist": "距离", "bd.hourly": "每小时费率", "bd.total": "预计总价", "wiz.of": "/", "cls.first.desc": "旗舰轿车，尽显商务尊崇。", "cls.business.desc": "行政轿车，舒适而低调。", "cls.minivan.desc": "贵宾厢式车，可载 7 名乘客。", "cls.sprinter.desc": "贵宾小巴，可载至多 16 人团体。", "book.choose": "选择您的车型", "book.enter": "进入并预订", "book.changeveh": "← 更换车型", "book.completesub": "请完善您的行程详情。", "book.howmany": "几位乘客？", "book.upto": "最多", "book.pax": "名乘客", "book.return": "往返", "book.name": "姓名", "book.phone": "电话", "book.email": "电子邮箱", "book.notes": "备注", "book.notes.ph": "特殊行李、儿童座椅、特别要求……", "book.submit": "提交预订请求", "book.maphint": "输入出发地与目的地：地图将计算路线、距离及预计时长。", "book.routelabel": "预计路线", "thanks.eyebrow": "预订", "thanks.title": "请求已发送！", "thanks.msg": "谢谢！我们已收到您的预订请求并已向您发送确认邮件。我们会尽快与您联系；一旦司机接受行程，您将收到另一封确认邮件。", "thanks.back": "返回首页", "faq.eyebrow": "常见问题", "faq.title": "常见问题", "faq.q1": "如何预订行程？", "faq.a1": "您可以在网站上快速预订，或通过电话或 WhatsApp 联系我们。您将收到包含所有详情的确认邮件。", "faq.q2": "你们服务哪些地区？", "faq.a2": "我们的服务覆盖苏黎世及整个瑞士。应要求也可前往邻国。", "faq.q3": "如何付款？", "faq.a3": "您可以在预订时安全地在线支付，或直接通过电子邮件收取发票。无需预付款。", "faq.q4": "你们提供机场接送吗？", "faq.a4": "提供。我们会跟踪您的航班，如遇延误将免费调整接机时间。司机将在您抵达时恭候。", "faq.q5": "可以乘坐几人、携带多少行李？", "faq.a5": "我们的车辆可搭载 3 至 7 名乘客及行李。团体出行另有 V-Class 和 Sprinter 可供选择。", "faq.q6": "我可以修改或取消预订吗？", "faq.a6": "当然可以。请尽早通过电话、WhatsApp 或电子邮件联系我们，我们会一起找到最合适的方案。", "faq.q7": "价格是固定的吗？会有额外费用吗？", "faq.a7": "您在预订时看到的价格是固定且透明的：没有隐藏费用，也没有临时的意外收费。任何额外停靠或等待时间都会提前商定。", "routes.eyebrow": "线路", "routes.title": "最受欢迎的线路", "routes.sub": "从苏黎世机场前往瑞士主要目的地。", "routes.airport": "苏黎世机场", "routes.zurich": "苏黎世市区", "routes.geneva": "日内瓦", "routes.lucerne": "琉森", "routes.book": "预订", "routes.continue": "继续"}, "ja": {"nav.home": "ホーム", "nav.about": "会社概要", "nav.services": "サービス", "nav.contact": "お問い合わせ", "home.eyebrow": "専属ショーファー · スイス", "home.h1": "最高峰の<br>エクスクルーシブなリムジンサービス", "home.lead": "エグゼクティブ旅行、VIP送迎、高級ホテルに一流のショーファーを。チューリッヒとスイス全土であなたのプレミアムパートナー。", "btn.transfer": "送迎を依頼する", "btn.services": "サービス一覧", "stats.years": "年の経験", "stats.satisf": "顧客満足度", "stats.avail": "常時対応", "home.tc": "快適な移動を", "home.servTitle": "サービス一覧", "home.servSub": "完璧な快適さと最高の信頼性を備えた、オーダーメイドの送迎ソリューション。", "svc.airport.t": "空港送迎", "svc.airport.d": "空港への往復をストレスなく、確実な時間厳守で。", "svc.business.t": "ビジネス出張", "svc.business.d": "御社のビジネスやエグゼクティブの予定に応える専門的な移動を。", "svc.wedding.t": "ウェディング", "svc.wedding.d": "特別な一日を忘れられないものにするエレガントなリムジン。", "svc.hourly.t": "時間制サービス", "svc.hourly.d": "時間単位の専属ドライバー。ご予定やイベント、ツアーの間も車が常に待機します。", "qb.title": "ご乗車を予約", "why.eyebrow": "選ばれる理由", "why.title": "スイスにおける高級送迎の第一の選択肢", "why.drivers": "<b style='color:var(--cream)'>プロのドライバー。</b>専門性・礼儀・経験に優れた有資格者です。", "why.vehicles": "<b style='color:var(--cream)'>高級車両。</b>快適性とスタイルの最高基準を満たす最上級のフリート。", "why.avail": "<b style='color:var(--cream)'>24時間365日対応。</b>昼夜を問わず、あらゆる移動ニーズにお応えします。", "band.home.t": "スタイルと品格のある移動を", "band.home.s": "ビジネス送迎、特別なイベント、ウェディング。どこへでもエレガントにお供します。", "rev.eyebrow": "レビュー", "rev.title": "お客様の声", "rev.count": "Google レビュー 40件", "rev.cta": "Google ですべてのレビューを見る", "wiz.rt": "往復", "email.subject": "ご予約リクエストを受け付けました — JF Limo Service", "email.greeting": "{name} 様", "email.client": "お客様", "email.intro": "JF Limo Service をお選びいただきありがとうございます。以下のご予約リクエストを承りました。", "email.l_route": "区間", "email.l_type": "種類", "email.l_class": "クラス", "email.l_when": "日時", "email.l_price": "概算料金", "email.l_code": "予約コード", "email.tbd": "未定", "email.outro": "確認のため間もなくご連絡いたします。ショーファーが乗車を承ると、確認メールが届きます。", "band.callnow": "今すぐ電話 · +41 79 205 55 23", "about.eyebrow": "会社概要", "about.h1": "JF Limo Service<br>の物語と情熱", "about.story.e": "私たちの歩み", "about.story.t": "初日からの優雅さと信頼性", "about.story.p1": "私たちは洗練された快適さと絶対的な信頼性を備えたオーダーメイドの送迎を提供します。創業以来、JF Limo Service はビジネスからウェディングまで、数多くのお客様をスタイリッシュかつ快適な移動でサポートしてきました。", "about.story.p2": "10年以上の経験を持つ当社のショーファーサービスは、常に卓越した品質、最高の快適さ、控えめなプロフェッショナリズムを、あらゆる場面でいつでもお届けします。", "stats.satisfG": "満足保証", "stats.langs": "対応言語", "about.lang.e": "多言語コミュニケーション", "about.lang.t": "あなたの言語を話すドライバー", "about.lang.s": "多言語対応のショーファーが運転する高級リムジンで、どこにいても我が家のような心地を。", "lang.it": "イタリア語", "lang.de": "ドイツ語", "lang.en": "英語", "lang.es": "スペイン語", "lang.ku": "クルド語", "lang.fr": "フランス語", "about.band.t": "私たちと出かけませんか？", "about.band.s": "次回のオーダーメイド送迎のご相談はお気軽に。", "btn.contact": "お問い合わせ", "serv.h1": "あらゆる場面に<br>高級送迎を", "serv.airport.d": "スイス全空港への往復をストレスなく。フライト監視と確実な時間厳守付き。", "serv.business.d": "御社のための専門的な移動：会議、エグゼクティブの面談、出張を快適に。", "serv.wedding.d": "人生で最も大切な日に、細部まで行き届いた完璧なサービスとエレガントなリムジンを。", "serv.hourly.d": "時間制の専属ドライバー（最低2時間）。会議、ショッピング、イベントや観光の間も、車が常に待機し同行します。", "serv.exp.e": "JF の体験", "serv.exp.t": "快適さ、スタイル、そして絶対的な品格", "serv.exp.p": "資格を持つ控えめなショーファーが運転する最上級のフリートをご用意。特別なイベント、VIP送迎、高級ホテルへ、最高の機密性でどこへでもお供します。", "tag.vip": "VIP送迎", "tag.events": "特別なイベント", "tag.hotels": "高級ホテル", "tag.exec": "エグゼクティブ旅行", "serv.why.t": "高級送迎の最高峰", "serv.modes.e": "予約方法", "serv.modes.title": "ご希望の方法で予約", "serv.modes.sub": "片道または時間制。", "card.drivers.t": "プロのドライバー", "card.drivers.d": "高い専門性・礼儀・経験で際立つ、熟練のショーファー。", "card.vehicles.t": "高級車両", "card.vehicles.d": "快適性とスタイルの最高基準を満たす最上級のフリート。", "card.avail.t": "24時間365日対応", "card.avail.d": "昼夜を問わず稼働し、いつでもあらゆる移動ニーズに対応。", "serv.band.t": "次のご旅行を予約", "serv.band.s": "行き先をお知らせください。あとはすべてお任せを。", "band.call": "電話 · +41 79 205 55 23", "cont.eyebrow": "お問い合わせ", "cont.h1": "JF Limo Service<br>と旅に出かけよう", "cont.lead": "オーダーメイド送迎のご手配に24時間対応しています。", "cont.phone.t": "電話", "cont.email.t": "メール", "cont.avail.t": "対応時間", "cont.avail.v": "24時間・週7日", "cont.area.t": "対応エリア", "cont.area.v": "チューリッヒとスイス全土", "cont.ig.t": "Instagram", "cont.band.t": "今すぐ予約", "cont.band.s": "プロのショーファーが出発の準備を整えています。", "foot.tagline": "チューリッヒとスイス全土で展開する、エクスクルーシブなリムジン＆ショーファーサービス。すべての移動に快適さ・優雅さ・品格を。", "foot.avail": "24時間365日対応", "foot.rights": "© 2026 JF Limo Service — 無断転載を禁じます。", "nav.book": "予約", "book.eyebrow": "オンライン予約", "book.title": "送迎を予約する", "book.sub": "ご旅行の詳細を入力してください。空き状況とお見積りの確認のためご連絡します。", "book.from": "出発地", "book.from.ph": "出発の住所または場所", "book.to": "目的地", "book.to.ph": "到着の住所または場所", "book.date": "日付", "book.time": "時刻", "book.passengers": "乗客", "book.luggage": "荷物", "book.vehicle": "車両", "book.veh.any": "指定なし", "book.veh.sedan": "高級セダン", "book.veh.van": "バン / ミニバス", "book.veh.suv": "SUV", "veh.sclass.desc": "フラッグシップセダン", "veh.eclass.desc": "エグゼクティブセダン", "veh.vclass.desc": "VIPバン", "veh.sprinter.desc": "ミニバス", "book.seats": "乗車定員", "book.now": "今すぐ予約", "nav.fleet": "車両", "fleet.eyebrow": "私たちの車両", "fleet.title": "あなたに最適なクラスを", "fleet.sub": "4つのカテゴリー、すべてメルセデス、常にプロのショーファー付き。", "wiz.title": "送迎を予約する", "wiz.s1": "クラスを選択", "wiz.s2": "ご予約方法は？", "wiz.s3": "ご旅行の詳細", "wiz.s4": "概要と連絡先", "wiz.s5": "お支払い", "pay.online": "今すぐ支払う", "pay.online.d": "カード・Apple Pay・Google Pay — 安全なオンライン決済。", "pay.cash": "現金", "pay.cash.d": "乗車時に運転手へ直接お支払い。", "pay.bank": "請求書払い", "pay.bank.d": "請求書をメールでお送りします。お振込みで簡単にお支払いいただけます。", "pay.bonifico.locked": "2回目のご乗車からご利用可能", "wiz.from": "から", "wiz.t.transfer": "送迎", "wiz.t.transfer.d": "地点から地点へ、区間ごとの料金。", "wiz.t.ore": "時間制", "wiz.t.ore.d": "ご指定の時間、ドライバーがお供します。", "wiz.t.giornata": "一日制", "wiz.t.giornata.d": "丸一日のサービス。", "wiz.km": "推定距離（km）", "wiz.hours": "時間数", "wiz.days": "日数", "wiz.estprice": "概算料金", "wiz.pricenote": "暫定見積り（付加価値税込み）。最終料金はメールで確定します。", "wiz.prev": "戻る", "wiz.next": "次へ", "wiz.step": "ステップ", "sum.veh": "車両", "sum.route": "ルート", "sum.when": "日時", "sum.note": "隠れた費用なし", "sum.safe": "安全な予約・キャンセル自由", "bd.title": "料金内訳", "bd.base": "基本料金（0–8km）", "bd.dist": "距離", "bd.hourly": "時間料金", "bd.total": "見積合計", "wiz.of": "/", "cls.first.desc": "公式の場にふさわしいフラッグシップセダン。", "cls.business.desc": "快適さと品格を備えたエグゼクティブセダン。", "cls.minivan.desc": "最大7名のVIPバン。", "cls.sprinter.desc": "最大16名のグループ向けVIPミニバス。", "book.choose": "車両をお選びください", "book.enter": "乗り込んで予約", "book.changeveh": "← 車両を変更", "book.completesub": "ご旅行の詳細を入力してください。", "book.howmany": "ご乗車人数は？", "book.upto": "最大", "book.pax": "名", "book.return": "往復", "book.name": "氏名", "book.phone": "電話", "book.email": "メール", "book.notes": "備考", "book.notes.ph": "特別な荷物、チャイルドシート、ご要望など…", "book.submit": "予約をリクエスト", "book.maphint": "出発地と目的地を入力すると、地図が経路・距離・所要時間の目安を計算します。", "book.routelabel": "推定経路", "thanks.eyebrow": "予約", "thanks.title": "リクエストを送信しました！", "thanks.msg": "ありがとうございます！ご予約リクエストを受け付け、確認メールをお送りしました。追ってご連絡します。ショーファーが乗車を承諾すると、改めて確認メールが届きます。", "thanks.back": "ホームに戻る", "faq.eyebrow": "よくある質問", "faq.title": "よくあるご質問", "faq.q1": "どうやって予約しますか？", "faq.a1": "サイトから数秒で直接予約するか、電話またはWhatsAppでご連絡ください。すべての詳細を記載した確認メールをお送りします。", "faq.q2": "どの地域で対応していますか？", "faq.a2": "チューリッヒおよびスイス全土で対応しています。ご要望に応じて近隣諸国への送迎も承ります。", "faq.q3": "支払いはどのように行いますか？", "faq.a3": "予約時にオンラインで安全にお支払いいただくか、請求書をメールで受け取ることもできます。前払いは不要です。", "faq.q4": "空港送迎はありますか？", "faq.a4": "はい。フライトを監視し、遅延の場合も追加料金なしでお迎え時間を調整します。到着時にドライバーがお待ちしています。", "faq.q5": "何名まで、荷物はいくつまで乗せられますか？", "faq.a5": "当社の車両は荷物を含め3〜7名まで対応します。大人数のグループにはVクラスやスプリンターもご用意しています。", "faq.q6": "予約の変更やキャンセルはできますか？", "faq.a6": "もちろんです。できるだけ早く電話、WhatsApp、またはメールでご連絡ください。最適な方法を一緒に見つけます。", "faq.q7": "料金は固定ですか、追加費用が発生することはありますか？", "faq.a7": "予約時に表示される料金は固定で明瞭です。隠れた費用や直前の追加料金はありません。追加の立ち寄りや待機時間は必ず事前に取り決めます。", "routes.eyebrow": "ルート", "routes.title": "人気のルート", "routes.sub": "チューリッヒ空港からスイスの主要目的地へ。", "routes.airport": "チューリッヒ空港", "routes.zurich": "チューリッヒ市内", "routes.geneva": "ジュネーブ", "routes.lucerne": "ルツェルン", "routes.book": "予約", "routes.continue": "続ける"}, "ar": {"nav.home": "الرئيسية", "nav.about": "من نحن", "nav.services": "الخدمات", "nav.contact": "اتصل بنا", "home.eyebrow": "سائق خاص · سويسرا", "home.h1": "خدمة ليموزين حصرية<br>على أعلى مستوى", "home.lead": "سائق من الدرجة الأولى لرحلات الأعمال ونقل كبار الشخصيات والفنادق الفاخرة. شريكك المميّز في زيورخ وكل سويسرا.", "btn.transfer": "اطلب خدمة نقل", "btn.services": "خدماتنا", "stats.years": "سنوات الخبرة", "stats.satisf": "رضا العملاء", "stats.avail": "متاحون دائماً", "home.tc": "سافر بكل راحة", "home.servTitle": "خدماتنا", "home.servSub": "حلول نقل مصمّمة خصيصاً، براحة لا تشوبها شائبة وموثوقية قصوى.", "svc.airport.t": "نقل من وإلى المطار", "svc.airport.d": "نقل مريح من وإلى المطارات مع ضمان الالتزام بالمواعيد.", "svc.business.t": "رحلات الأعمال", "svc.business.d": "تنقّل احترافي لشركتك ومواعيدك التنفيذية.", "svc.wedding.t": "حفلات الزفاف", "svc.wedding.d": "ليموزينات أنيقة تجعل يومك المميّز لا يُنسى.", "svc.hourly.t": "خدمة بالساعة", "svc.hourly.d": "سائق خاص تحت تصرفك بالساعة: مواعيد أو فعاليات أو جولات، والسيارة في انتظارك دائماً.", "qb.title": "احجز رحلتك", "why.eyebrow": "لماذا تختارنا", "why.title": "خيارك الأول للنقل الفاخر في سويسرا", "why.drivers": "<b style='color:var(--cream)'>سائقون محترفون.</b> مؤهّلون ويتميّزون بالاحترافية واللباقة والخبرة.", "why.vehicles": "<b style='color:var(--cream)'>مركبات فاخرة.</b> أسطول من الطراز الرفيع يلبّي أعلى معايير الراحة والأناقة.", "why.avail": "<b style='color:var(--cream)'>متاحون 24/7.</b> خدمة تعمل ليلاً ونهاراً لتلبية كل احتياجاتك للتنقّل.", "band.home.t": "سافر بأناقة وخصوصية", "band.home.s": "نقل الأعمال والفعاليات الحصرية وحفلات الزفاف: أينما كنت ذاهباً، نرافقك بأناقة.", "rev.eyebrow": "التقييمات", "rev.title": "ماذا يقول عملاؤنا", "rev.count": "40 تقييماً على Google", "rev.cta": "اقرأ كل التقييمات على Google", "wiz.rt": "ذهاب وإياب", "email.subject": "تم استلام طلب الحجز — JF Limo Service", "email.greeting": "عزيزي {name}،", "email.client": "عميلنا", "email.intro": "شكراً لاختيارك JF Limo Service. لقد استلمنا طلب الحجز الخاص بك:", "email.l_route": "المسار", "email.l_type": "النوع", "email.l_class": "الفئة", "email.l_when": "التاريخ/الوقت", "email.l_price": "السعر التقديري", "email.l_code": "رمز الحجز", "email.tbd": "يُحدَّد لاحقاً", "email.outro": "سنتواصل معك قريباً للتأكيد. بمجرد أن يقبل السائق الرحلة، ستصلك رسالة تأكيد بالبريد الإلكتروني.", "band.callnow": "اتصل الآن · +41 79 205 55 23", "about.eyebrow": "من نحن", "about.h1": "قصة وشغف<br>JF Limo Service", "about.story.e": "قصتنا", "about.story.t": "أناقة وموثوقية منذ اليوم الأول", "about.story.p1": "نقدّم حلول نقل مصمّمة خصيصاً، براحة راقية وموثوقية مطلقة. منذ تأسيسها، ساعدت JF Limo Service عدداً لا يُحصى من العملاء على السفر بأناقة وراحة، سواء في مناسبات العمل أو حفلات الزفاف.", "about.story.p2": "بخبرة تتجاوز عقداً من الزمن، يقدّم خدمتنا للسائقين تميّزاً ثابتاً وراحة قصوى واحترافية رصينة — لكل مناسبة وفي أي وقت.", "stats.satisfG": "رضا مضمون", "stats.langs": "اللغات المتحدثة", "about.lang.e": "تواصل متعدد اللغات", "about.lang.t": "سائقون يتحدثون لغتك", "about.lang.s": "ليموزينات فاخرة مع سائقين متعددي اللغات، لتشعر وكأنك في بيتك أينما كنت.", "lang.it": "الإيطالية", "lang.de": "الألمانية", "lang.en": "الإنجليزية", "lang.es": "الإسبانية", "lang.ku": "الكردية", "lang.fr": "الفرنسية", "about.band.t": "هل أنت مستعد للسفر معنا؟", "about.band.s": "تواصل معنا لتنظيم رحلتك القادمة المصمّمة خصيصاً.", "btn.contact": "تواصل معنا", "serv.h1": "نقل فاخر<br>لكل مناسبة", "serv.airport.d": "نقل مريح من وإلى جميع المطارات السويسرية، مع متابعة الرحلات وضمان المواعيد.", "serv.business.d": "تنقّل احترافي لشركتك: الاجتماعات والمواعيد التنفيذية ورحلات العمل براحة تامة.", "serv.wedding.d": "ليموزينات أنيقة ليومك الأهم، بخدمة لا تشوبها شائبة ومتقنة في أدق التفاصيل.", "serv.hourly.d": "سائق خاص بالساعة (ساعتان كحد أدنى): اجتماعات أو تسوق أو فعاليات أو جولات — السيارة تنتظرك وترافقك طوال الوقت.", "serv.exp.e": "تجربة JF", "serv.exp.t": "راحة وأناقة وخصوصية مطلقة", "serv.exp.p": "نضع في خدمتك أسطولاً من المركبات الراقية يقودها سائقون مؤهّلون ورصينون. فعاليات حصرية ونقل لكبار الشخصيات وفنادق فاخرة: نرافقك إلى كل مكان بأقصى درجات الخصوصية.", "tag.vip": "نقل كبار الشخصيات", "tag.events": "فعاليات حصرية", "tag.hotels": "فنادق فاخرة", "tag.exec": "رحلات تنفيذية", "serv.why.t": "الأفضل في النقل الفاخر", "serv.modes.e": "طرق الحجز", "serv.modes.title": "احجز بالطريقة التي تناسبك", "serv.modes.sub": "رحلة واحدة أو سائق بالساعة.", "card.drivers.t": "سائقون محترفون", "card.drivers.d": "سائقون على درجة عالية من الكفاءة، يتميّزون بالاحترافية واللباقة والخبرة.", "card.vehicles.t": "مركبات فاخرة", "card.vehicles.d": "أسطول راقٍ يلبّي أعلى معايير الراحة والأناقة.", "card.avail.t": "متاحون 24/7", "card.avail.d": "خدمة تعمل ليلاً ونهاراً لكل احتياجاتك للنقل في أي وقت.", "serv.band.t": "احجز رحلتك القادمة", "serv.band.s": "أخبرنا إلى أين تريد الذهاب: نتكفّل بكل شيء.", "band.call": "اتصل · +41 79 205 55 23", "cont.eyebrow": "اتصل بنا", "cont.h1": "انطلق في رحلتك<br>مع JF Limo Service", "cont.lead": "نحن متاحون على مدار الساعة لتنظيم رحلتك المصمّمة خصيصاً.", "cont.phone.t": "الهاتف", "cont.email.t": "البريد الإلكتروني", "cont.avail.t": "أوقات التوفّر", "cont.avail.v": "24 ساعة في اليوم، 7 أيام في الأسبوع", "cont.area.t": "منطقة الخدمة", "cont.area.v": "زيورخ وكل سويسرا", "cont.ig.t": "إنستغرام", "cont.band.t": "احجز الآن", "cont.band.s": "سائق محترف جاهز للانطلاق.", "foot.tagline": "خدمة ليموزين وسائقين حصرية في زيورخ وكل سويسرا. راحة وأناقة وخصوصية في كل رحلة.", "foot.avail": "متاحون 24/7", "foot.rights": "© 2026 JF Limo Service — جميع الحقوق محفوظة.", "nav.book": "احجز", "book.eyebrow": "الحجز عبر الإنترنت", "book.title": "احجز خدمة النقل", "book.sub": "أدخل تفاصيل الرحلة: سنتواصل معك لتأكيد التوفّر والسعر.", "book.from": "نقطة الانطلاق", "book.from.ph": "عنوان أو مكان الانطلاق", "book.to": "الوجهة", "book.to.ph": "عنوان أو مكان الوصول", "book.date": "التاريخ", "book.time": "الوقت", "book.passengers": "الركاب", "book.luggage": "الأمتعة", "book.vehicle": "المركبة", "book.veh.any": "غير محدّد", "book.veh.sedan": "سيدان فاخرة", "book.veh.van": "فان / حافلة صغيرة", "book.veh.suv": "إس يو في", "veh.sclass.desc": "سيدان رائدة", "veh.eclass.desc": "سيدان تنفيذية", "veh.vclass.desc": "فان VIP", "veh.sprinter.desc": "حافلة صغيرة", "book.seats": "المقاعد المتاحة", "book.now": "احجز الآن", "nav.fleet": "أسطولنا", "fleet.eyebrow": "أسطولنا", "fleet.title": "اختر الفئة المثالية لك", "fleet.sub": "أربع فئات، جميعها مرسيدس، دائماً مع سائق محترف.", "wiz.title": "احجز خدمة النقل", "wiz.s1": "اختر الفئة", "wiz.s2": "كيف ترغب بالحجز؟", "wiz.s3": "تفاصيل الرحلة", "wiz.s4": "الملخص والتواصل", "wiz.s5": "الدفع", "pay.online": "ادفع الآن", "pay.online.d": "بطاقة أو Apple Pay أو Google Pay — دفع آمن عبر الإنترنت.", "pay.cash": "نقداً", "pay.cash.d": "ادفع للسائق مباشرة أثناء الرحلة.", "pay.bank": "فاتورة", "pay.bank.d": "ستصلك الفاتورة عبر البريد الإلكتروني وتدفع بالتحويل البنكي بكل سهولة.", "pay.bonifico.locked": "متاح ابتداءً من الرحلة الثانية", "wiz.from": "من", "wiz.t.transfer": "نقل", "wiz.t.transfer.d": "من نقطة إلى أخرى، السعر لكل مسار.", "wiz.t.ore": "بالساعة", "wiz.t.ore.d": "سائق تحت تصرّفك للساعات التي تختارها.", "wiz.t.giornata": "باليوم", "wiz.t.giornata.d": "خدمة ليوم كامل.", "wiz.km": "المسافة التقديرية (كم)", "wiz.hours": "عدد الساعات", "wiz.days": "عدد الأيام", "wiz.estprice": "السعر التقديري", "wiz.pricenote": "تقدير مبدئي، شامل ضريبة القيمة المضافة. يتم تأكيد السعر النهائي عبر البريد الإلكتروني.", "wiz.prev": "رجوع", "wiz.next": "التالي", "wiz.step": "خطوة", "sum.veh": "المركبة", "sum.route": "المسار", "sum.when": "التاريخ والوقت", "sum.note": "بدون رسوم خفية", "sum.safe": "حجز آمن · بدون التزام", "bd.title": "تفاصيل السعر", "bd.base": "السعر الأساسي (0–8 كم)", "bd.dist": "المسافة", "bd.hourly": "التعرفة بالساعة", "bd.total": "الإجمالي التقديري", "wiz.of": "من", "cls.first.desc": "سيدان رائدة لرحلات التمثيل الرسمي.", "cls.business.desc": "سيدان تنفيذية، راحة وخصوصية.", "cls.minivan.desc": "فان VIP حتى 7 ركاب.", "cls.sprinter.desc": "حافلة صغيرة VIP للمجموعات حتى 16 راكباً.", "book.choose": "اختر مركبتك", "book.enter": "ادخل واحجز", "book.changeveh": "← تغيير المركبة", "book.completesub": "أكمل تفاصيل رحلتك.", "book.howmany": "كم عدد الركاب؟", "book.upto": "حتى", "book.pax": "ركاب", "book.return": "ذهاباً وإياباً", "book.name": "الاسم الكامل", "book.phone": "الهاتف", "book.email": "البريد الإلكتروني", "book.notes": "ملاحظات", "book.notes.ph": "أمتعة خاصة، مقعد أطفال، طلبات خاصة…", "book.submit": "اطلب الحجز", "book.maphint": "أدخل نقطة الانطلاق والوجهة: تحسب الخريطة المسار والمسافة والمدة التقديرية.", "book.routelabel": "المسار التقديري", "thanks.eyebrow": "الحجز", "thanks.title": "تم إرسال الطلب!", "thanks.msg": "شكراً! لقد استلمنا طلب حجزك وأرسلنا إليك رسالة تأكيد بالبريد الإلكتروني. سنتواصل معك قريباً؛ وبمجرد قبول السائق للرحلة ستصلك رسالة تأكيد أخرى.", "thanks.back": "العودة إلى الرئيسية", "faq.eyebrow": "الأسئلة الشائعة", "faq.title": "الأسئلة الشائعة", "faq.q1": "كيف أحجز رحلة؟", "faq.a1": "احجز مباشرة من الموقع خلال لحظات، أو تواصل معنا عبر الهاتف أو واتساب. ستصلك رسالة تأكيد بكل التفاصيل عبر البريد الإلكتروني.", "faq.q2": "ما المناطق التي تغطّونها؟", "faq.a2": "نعمل في زيورخ وجميع أنحاء سويسرا. وبناءً على الطلب ننفّذ رحلات إلى الدول المجاورة أيضًا.", "faq.q3": "كيف تتم عملية الدفع؟", "faq.a3": "يمكنك الدفع عبر الإنترنت بأمان عند الحجز، أو استلام الفاتورة عبر البريد الإلكتروني بكل سهولة. لا حاجة إلى دفعة مقدمة.", "faq.q4": "هل توفّرون خدمة النقل من وإلى المطار؟", "faq.a4": "نعم. نتابع موعد رحلتك ونعدّل موعد الاستقبال في حال التأخير دون أي تكلفة إضافية. وينتظرك السائق عند وصولك.", "faq.q5": "كم عدد الركاب والحقائب التي يمكنني اصطحابها؟", "faq.a5": "تتّسع سياراتنا لـ 3 إلى 7 ركاب مع أمتعتهم. وللمجموعات الأكبر لدينا V-Class وسبرينتر.", "faq.q6": "هل يمكنني تعديل الحجز أو إلغاؤه؟", "faq.a6": "بالتأكيد. تواصل معنا في أقرب وقت ممكن عبر الهاتف أو واتساب أو البريد الإلكتروني وسنجد معًا الحل الأنسب.", "faq.q7": "هل الأسعار ثابتة أم قد تكون هناك تكاليف إضافية؟", "faq.a7": "السعر الذي تراه عند الحجز ثابت وشفّاف: لا رسوم خفية ولا مفاجآت في اللحظة الأخيرة. وأي توقفات أو أوقات انتظار إضافية يتم الاتفاق عليها مسبقًا.", "routes.eyebrow": "المسارات", "routes.title": "المسارات الأكثر طلباً", "routes.sub": "من مطار زيورخ إلى أبرز الوجهات السويسرية.", "routes.airport": "مطار زيورخ", "routes.zurich": "مدينة زيورخ", "routes.geneva": "جنيف", "routes.lucerne": "لوتسيرن", "routes.book": "احجز", "routes.continue": "متابعة"}},TITLES={"home": {"it": "JF Limo Service — Servizio limousine esclusivo in Svizzera", "de": "JF Limo Service — Exklusiver Limousinenservice in der Schweiz", "en": "JF Limo Service — Private Driver & Chauffeur Service in Zurich", "fr": "JF Limo Service — Service de limousine exclusif en Suisse", "es": "JF Limo Service — Servicio de limusina exclusivo en Suiza", "ru": "JF Limo Service — Эксклюзивный лимузин-сервис в Швейцарии", "zh": "JF Limo Service — 瑞士尊享豪华礼宾轿车服务", "ja": "JF Limo Service — スイスのエクスクルーシブなリムジンサービス", "ar": "JF Limo Service — خدمة ليموزين حصرية في سويسرا"}, "about": {"it": "Chi siamo — JF Limo Service", "de": "Über uns — JF Limo Service", "en": "About Us — Professional Chauffeurs in Zurich | JF Limo Service", "fr": "À propos — JF Limo Service", "es": "Quiénes somos — JF Limo Service", "ru": "О нас — JF Limo Service", "zh": "关于我们 — JF Limo Service", "ja": "会社概要 — JF Limo Service", "ar": "من نحن — JF Limo Service"}, "servizi": {"it": "Servizi — JF Limo Service", "de": "Leistungen — JF Limo Service", "en": "Chauffeur Services in Zurich — JF Limo Service", "fr": "Services — JF Limo Service", "es": "Servicios — JF Limo Service", "ru": "Услуги — JF Limo Service", "zh": "服务 — JF Limo Service", "ja": "サービス — JF Limo Service", "ar": "الخدمات — JF Limo Service"}, "contatti": {"it": "Contatti — JF Limo Service", "de": "Kontakt — JF Limo Service", "en": "Contact — 24/7 Chauffeur in Zurich | JF Limo Service", "fr": "Contact — JF Limo Service", "es": "Contacto — JF Limo Service", "ru": "Контакты — JF Limo Service", "zh": "联系 — JF Limo Service", "ja": "お問い合わせ — JF Limo Service", "ar": "اتصل بنا — JF Limo Service"}, "prenota": {"it": "Prenota — JF Limo Service", "de": "Buchen — JF Limo Service", "en": "Book Your Chauffeur in Zurich — JF Limo Service", "fr": "Réserver — JF Limo Service", "es": "Reservar — JF Limo Service", "ru": "Бронирование — JF Limo Service", "zh": "预订 — JF Limo Service", "ja": "予約 — JF Limo Service", "ar": "احجز — JF Limo Service"}, "grazie": {"it": "Prenotazione inviata — JF Limo Service", "de": "Buchung gesendet — JF Limo Service", "en": "Booking sent — JF Limo Service", "fr": "Réservation envoyée — JF Limo Service", "es": "Reserva enviada — JF Limo Service", "ru": "Заявка отправлена — JF Limo Service", "zh": "预订已发送 — JF Limo Service", "ja": "予約を送信しました — JF Limo Service", "ar": "تم إرسال الحجز — JF Limo Service"}};
+function applyLang(lang){
+  if(!TR[lang])lang='it';
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(TR[lang][k]!==undefined)el.innerHTML=TR[lang][k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k=el.getAttribute('data-i18n-ph');
+    if(TR[lang][k]!==undefined)el.placeholder=TR[lang][k];
+  });
+  const p=document.body.dataset.page;
+  if(TITLES[p]&&TITLES[p][lang])document.title=TITLES[p][lang];
+  document.documentElement.dir = (lang==='ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+  document.querySelectorAll('.lang-cur').forEach(el=>el.textContent=lang.toUpperCase());
+  try{localStorage.setItem('jf_lang',lang);}catch(e){}
+}
+document.querySelectorAll('.lang-opt').forEach(b=>b.addEventListener('click',()=>{applyLang(b.dataset.lang);document.querySelectorAll('.lang-dd').forEach(dd=>dd.classList.remove('open'));const nl=document.getElementById('navlinks');if(nl)nl.classList.remove('open');}));
+document.querySelectorAll('.lang-dd').forEach(function(dd){
+  dd.querySelector('.lang-dd-btn').addEventListener('click',function(e){e.stopPropagation();var open=dd.classList.contains('open');document.querySelectorAll('.lang-dd').forEach(function(o){o.classList.remove('open');});if(!open)dd.classList.add('open');});
+});
+document.addEventListener('click',function(e){document.querySelectorAll('.lang-dd').forEach(function(dd){if(!dd.contains(e.target))dd.classList.remove('open');});});
+let saved='en';try{saved=localStorage.getItem('jf_lang')||'en';}catch(e){}
+applyLang(saved);
+const b=document.getElementById('burger'),n=document.getElementById('navlinks');
+if(b)b.addEventListener('click',()=>n.classList.toggle('open'));
+if(n)n.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>n.classList.remove('open')));
+window.addEventListener('pageshow',()=>{if(n)n.classList.remove('open');document.querySelectorAll('.lang-dd').forEach(dd=>dd.classList.remove('open'));});
+const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---- Video hero: lo fa ripartire da solo (ritorno da background, primo tocco, uscita da risparmio energetico) ---- */
+(function(){
+  var v=document.querySelector('.hero-video');
+  if(!v) return;
+  function go(){ try{ var p=v.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
+  v.addEventListener('pause', function(){ if(!document.hidden) setTimeout(go, 300); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) go(); });
+  window.addEventListener('pageshow', go);
+  ['touchstart','click','scroll','keydown'].forEach(function(ev){ window.addEventListener(ev, go, {once:true, passive:true}); });
+})();
+
+/* ---- Tratte più richieste: click -> casella data/ora -> prenota (step 2) ---- */
+(function(){
+  var cards=document.querySelectorAll('.route-card');
+  if(!cards.length) return;
+  var today=new Date();
+  var iso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  cards.forEach(function(card){
+    var head=card.querySelector('.route-head'), form=card.querySelector('.route-form'), goBtn=card.querySelector('.rf-go');
+    var dEl=card.querySelector('.rf-date'), tEl=card.querySelector('.rf-time');
+    if(!head||!form||!goBtn) return;
+    if(dEl) dEl.min=iso;
+    head.addEventListener('click', function(){
+      var wasOpen=!form.hidden;
+      document.querySelectorAll('.route-card .route-form').forEach(function(f){ f.hidden=true; });
+      document.querySelectorAll('.route-card').forEach(function(c){ c.classList.remove('open'); });
+      if(!wasOpen){ form.hidden=false; card.classList.add('open'); if(dEl) setTimeout(function(){ dEl.focus(); }, 50); }
+    });
+    goBtn.addEventListener('click', function(){
+      var q=new URLSearchParams();
+      q.set('tipo','transfer');
+      q.set('from', card.getAttribute('data-from')||'');
+      q.set('to', card.getAttribute('data-to')||'');
+      if(dEl&&dEl.value) q.set('data', dEl.value);
+      if(tEl&&tEl.value) q.set('ora', tEl.value);
+      location.href='prenota.html?'+q.toString();
+    });
+  });
+})();
+
+const di=document.querySelector('input[name="data"]');
+if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+/* ---- Mappa prenotazione: Leaflet + Nominatim + OSRM ---- */
+(function(){
+  var mapEl=document.getElementById('bk-map');
+  if(!mapEl||typeof L==='undefined')return;
+  var map=L.map('bk-map',{scrollWheelZoom:false}).setView([46.9,8.3],7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
+  function pin(c){return L.divIcon({className:'',html:'<div class="bk-pin" style="background:'+c+'"></div>',iconSize:[18,18],iconAnchor:[9,18]});}
+  var coords={from:null,to:null},mk={from:null,to:null},line=null;
+  function H(n){return document.querySelector('input[name="'+n+'"]');}
+  function fit(){var p=[coords.from,coords.to].filter(Boolean);if(p.length===1)map.setView(p[0],13);else if(p.length===2)map.fitBounds(p,{padding:[45,45]});}
+  function hav(a,b){var R=6371,dLa=(b[0]-a[0])*Math.PI/180,dLo=(b[1]-a[1])*Math.PI/180;var s=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);return 2*R*Math.asin(Math.sqrt(s));}
+  function show(km,min,approx){
+    if(H('distanza'))H('distanza').value=km.toFixed(1)+' km';
+    if(H('durata'))H('durata').value=(approx?'~':'')+min+' min';
+    var v=document.getElementById('bk-route-val'),r=document.getElementById('bk-route');
+    if(v)v.textContent=km.toFixed(1).replace('.',',')+' km · '+(approx?'~':'')+min+' min';
+    if(r)r.hidden=false;
+  }
+  function straight(){
+    if(line)map.removeLayer(line);
+    line=L.polyline([coords.from,coords.to],{color:'#5a92e4',weight:4,dashArray:'6 7',opacity:.8}).addTo(map);
+    map.fitBounds(line.getBounds(),{padding:[45,45]});
+    var km=hav(coords.from,coords.to);show(km,Math.round(km/70*60),true);
+  }
+  function route(){
+    if(!coords.from||!coords.to){var r=document.getElementById('bk-route');if(r)r.hidden=true;return;}
+    fetch('https://router.project-osrm.org/route/v1/driving/'+coords.from[1]+','+coords.from[0]+';'+coords.to[1]+','+coords.to[0]+'?overview=full&geometries=geojson')
+      .then(function(x){return x.json();}).then(function(d){
+        if(!d.routes||!d.routes[0])return straight();
+        if(line)map.removeLayer(line);
+        var g=d.routes[0].geometry.coordinates.map(function(c){return [c[1],c[0]];});
+        line=L.polyline(g,{color:'#5a92e4',weight:4,opacity:.9}).addTo(map);
+        map.fitBounds(line.getBounds(),{padding:[45,45]});
+        show(d.routes[0].distance/1000,Math.round(d.routes[0].duration/60),false);
+      }).catch(straight);
+  }
+  function setMk(w,lat,lon){
+    coords[w]=[lat,lon];
+    if(mk[w])map.removeLayer(mk[w]);
+    mk[w]=L.marker([lat,lon],{icon:pin(w==='from'?'#5a92e4':'#f6f3ec'),draggable:true}).addTo(map);
+    mk[w].on('dragend',function(e){var p=e.target.getLatLng();coords[w]=[p.lat,p.lng];if(H(w==='from'?'partenza_coords':'destinazione_coords'))H(w==='from'?'partenza_coords':'destinazione_coords').value=p.lat.toFixed(5)+','+p.lng.toFixed(5);route();});
+    if(H(w==='from'?'partenza_coords':'destinazione_coords'))H(w==='from'?'partenza_coords':'destinazione_coords').value=lat.toFixed(5)+','+lon.toFixed(5);
+    fit();route();
+  }
+  function ac(inId,listId,w){
+    var inp=document.getElementById(inId),list=document.getElementById(listId),t=null;
+    if(!inp)return;
+    inp.addEventListener('input',function(){
+      var q=inp.value.trim();clearTimeout(t);
+      if(q.length<3){list.innerHTML='';list.style.display='none';return;}
+      t=setTimeout(function(){
+        fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=it&countrycodes=ch,it,de,fr,at,li&q='+encodeURIComponent(q))
+          .then(function(x){return x.json();}).then(function(rs){
+            list.innerHTML='';
+            rs.forEach(function(r){
+              var d=document.createElement('div');d.className='bk-ac-item';d.textContent=r.display_name;
+              d.addEventListener('click',function(){inp.value=r.display_name;list.innerHTML='';list.style.display='none';setMk(w,parseFloat(r.lat),parseFloat(r.lon));});
+              list.appendChild(d);
+            });
+            list.style.display=rs.length?'block':'none';
+          }).catch(function(){});
+      },400);
+    });
+    document.addEventListener('click',function(e){if(e.target!==inp&&!list.contains(e.target))list.style.display='none';});
+  }
+  ac('bk-from','bk-from-list','from');ac('bk-to','bk-to-list','to');
+  setTimeout(function(){map.invalidateSize();},350);
+})();
+
+/* ---- Wizard prenotazione ---- */
+(function(){
+  var wiz=document.getElementById('wiz');
+  if(!wiz)return;
+  var RATES={ /* Listino 07/2026 — km da benchmark CH; tariffe orarie confermate da Jalal (03/07) */
+    business:{base:70, km:3.4, hour:110},
+    minivan: {base:95, km:4.2, hour:130},
+    first:   {base:110,km:4.6, hour:150},
+    sprinter:{base:140,km:5.2, hour:180}
+  };
+  function rtVal(){ var el=document.getElementById('f-rt'); return !!(el&&el.checked); }
+  // esposta per l'autocompletamento (anteprima prezzo nello step tratta) — stessa formula di calcPrice
+  window.JF_priceTransfer = function(c, km){ var r=RATES[c]; if(!r)return null; var p=Math.round(r.base + Math.max(0, km-8)*r.km); return rtVal()? p*2 : p; };
+  var steps=[].slice.call(wiz.querySelectorAll('.wiz-step'));
+  var total=steps.length;
+  var progress=document.getElementById('wiz-progress');
+  var prevBtn=document.getElementById('wiz-prev'), nextBtn=document.getElementById('wiz-next'), submitBtn=document.getElementById('wiz-submit');
+  var fClasse=document.getElementById('f-classe'), fTipo=document.getElementById('f-tipo'), fPrezzo=document.getElementById('f-prezzo');
+  var cur=1, state={classe:null, classeName:'', tipo:'transfer', pagamento:null};
+  var checkReturning=null; // verifica cliente di ritorno (assegnata sotto, per la card fattura)
+  function L(){try{return localStorage.getItem('jf_lang')||'en';}catch(e){return 'de';}}
+  function tr(k){var l=L();return (TR[l]&&TR[l][k])||(TR.de&&TR.de[k])||'';}
+  function fval(sel){var el=wiz.querySelector(sel);return el?(el.value||'').trim():'';}
+  function kmVal(){return Math.max(0,parseFloat((document.getElementById('f-km')||{}).value)||0);}
+  function oreVal(){return Math.min(24,Math.max(2,parseInt((document.getElementById('f-ore')||{}).value)||2));}
+  function buildProgress(){
+    var h='';
+    for(var i=1;i<=total;i++){h+='<span class="dot'+(i===cur?' on':'')+'"></span>';}
+    h+='<span style="margin-left:8px">'+tr('wiz.step')+' '+cur+' '+tr('wiz.of')+' '+total+'</span>';
+    progress.innerHTML=h;
+  }
+  function calcPrice(){
+    var r=RATES[state.classe]; if(!r||!state.tipo)return null;
+    if(state.tipo==='transfer'){var p=Math.round(r.base+Math.max(0,kmVal()-8)*r.km);return rtVal()?p*2:p;}
+    if(state.tipo==='ore'){return r.hour*oreVal();}
+    return null;
+  }
+  function updateSide(){
+    var p=calcPrice();
+    if(fPrezzo)fPrezzo.value=(p!=null?('CHF '+p):'');
+    var sp=document.getElementById('side-price'); if(sp)sp.textContent=(p!=null?p:'\u2014');
+    var sv=document.getElementById('side-veh'); if(sv)sv.textContent=state.classeName||'\u2014';
+    var sr=document.getElementById('side-route');
+    if(sr){
+      if(state.tipo==='ore'){
+        var po=fval('[name=partenza]');
+        sr.textContent=(po?(po+' \u00b7 '):'')+oreVal()+' h \u00b7 '+tr('wiz.t.ore');
+      }
+      else{
+        var pa=fval('[name=partenza]'), de=fval('[name=destinazione]');
+        sr.textContent=(pa||de)?((pa||'?')+(rtVal()?' \u21c4 ':' \u2192 ')+(de||'?')):'\u2014';
+      }
+    }
+    var sw=document.getElementById('side-when');
+    if(sw){var d=fval('[name=data]'), o=fval('[name=ora]'); sw.textContent=d?(d+(o?(' \u00b7 '+o):'')):'\u2014';}
+  }
+  function updateClsPrices(){
+    var km=kmVal(), n=oreVal();
+    wiz.querySelectorAll('.cls-card').forEach(function(c){
+      var r=RATES[c.getAttribute('data-cls')]; if(!r)return;
+      var el=c.querySelector('.cls-p'), fr=c.querySelector('.cls-from');
+      var exact=null;
+      if(state.tipo==='ore') exact=r.hour*n;
+      else if(km>0){ exact=Math.round(r.base+Math.max(0,km-8)*r.km); if(rtVal())exact*=2; }
+      if(el)el.innerHTML='CHF\u00a0'+(exact!=null?exact:r.base);
+      if(fr)fr.style.display=(exact!=null?'none':'');
+    });
+  }
+  function buildBreakdown(){
+    var r=RATES[state.classe]; if(!r)return;
+    var l1=document.getElementById('bd-l1'), v1=document.getElementById('bd-v1');
+    var r2=document.getElementById('bd-r2'), l2=document.getElementById('bd-l2'), v2=document.getElementById('bd-v2');
+    var tot=document.getElementById('bd-tot');
+    if(state.tipo==='ore'){
+      var n=oreVal();
+      if(l1)l1.textContent=tr('bd.hourly');
+      if(v1)v1.textContent='CHF '+r.hour+' \u00d7 '+n;
+      if(r2)r2.style.display='none';
+    } else {
+      var km=kmVal(), mul=rtVal()?2:1, x2=(mul>1?' \u00d7 2':'');
+      if(l1)l1.textContent=tr('bd.base')+x2;
+      if(v1)v1.textContent='CHF '+(r.base*mul);
+      if(r2)r2.style.display='';
+      if(l2)l2.textContent=tr('bd.dist')+' \u00b7 '+km+' km'+x2;
+      if(v2)v2.textContent='CHF '+(Math.round(Math.max(0,km-8)*r.km)*mul);
+    }
+    var p=calcPrice();
+    if(tot)tot.textContent=(p!=null?('CHF '+p):'\u2014');
+  }
+  function typeFields(){
+    var t=state.tipo||'transfer';
+    wiz.querySelectorAll('.only-transfer').forEach(function(e){e.style.display=(t==='transfer')?'':'none';});
+    wiz.querySelectorAll('.only-ore').forEach(function(e){e.style.display=(t==='ore')?'':'none';});
+    wiz.querySelectorAll('.mode-pill').forEach(function(p){p.classList.toggle('sel',p.getAttribute('data-type')===t);});
+  }
+  function showStep(n){
+    cur=n;
+    steps.forEach(function(s){s.hidden=(parseInt(s.getAttribute('data-step'),10)!==n);});
+    prevBtn.hidden=(n===1); nextBtn.hidden=(n===total); submitBtn.hidden=(n!==total);
+    buildProgress();
+    if(n===2)updateClsPrices();
+    if(n===3)buildBreakdown();
+    if(n===4&&checkReturning)checkReturning();
+    updateSide();
+    try{window.scrollTo({top:Math.max(0,wiz.offsetTop-10),behavior:'smooth'});}catch(e){}
+  }
+  function valid(n){
+    if(n===1){
+      if(state.tipo==='transfer')return !!(fval('[name=partenza]') && fval('[name=destinazione]'));
+      return oreVal()>=2 && !!fval('[name=partenza]');
+    }
+    if(n===2)return !!state.classe;
+    if(n===3){
+      var nm=fval('[name=nome]'), ph=fval('[name=telefono]'), em=fval('[name=email]');
+      return !!(nm && ph && /.+@.+\..+/.test(em));
+    }
+    if(n===4)return !!state.pagamento;
+    return true;
+  }
+  wiz.querySelectorAll('.mode-pill').forEach(function(p){p.addEventListener('click',function(){
+    state.tipo=p.getAttribute('data-type'); if(fTipo)fTipo.value=state.tipo;
+    typeFields(); updateSide();
+  });});
+  wiz.querySelectorAll('.cls-card').forEach(function(c){c.addEventListener('click',function(){
+    wiz.querySelectorAll('.cls-card').forEach(function(x){x.classList.remove('sel');});
+    c.classList.add('sel');
+    state.classe=c.getAttribute('data-cls'); state.classeName=c.getAttribute('data-name');
+    if(fClasse)fClasse.value=state.classeName;
+    var fck=document.getElementById('f-classe-key'); if(fck)fck.value=state.classe;
+    updateSide();
+  });});
+  var fPag=document.getElementById('f-pagamento');
+  wiz.querySelectorAll('.pay-card').forEach(function(c){c.addEventListener('click',function(){
+    if(c.classList.contains('locked'))return;
+    wiz.querySelectorAll('.pay-card').forEach(function(x){x.classList.remove('sel');});
+    c.classList.add('sel');
+    state.pagamento=c.getAttribute('data-pay'); if(fPag)fPag.value=state.pagamento;
+  });});
+  // fattura: consentita solo ai clienti di ritorno (verifica email lato server su Firebase)
+  var bonCard=wiz.querySelector('.pay-card[data-pay=fattura]');
+  if(bonCard){
+    var lastEm='';
+    var setBon=function(ok){
+      bonCard.classList.toggle('locked',!ok);
+      if(!ok&&state.pagamento==='fattura'){
+        state.pagamento=null; if(fPag)fPag.value='';
+        bonCard.classList.remove('sel');
+      }
+    };
+    setBon(false); // finche' non e' verificato, il cliente e' trattato come nuovo
+    checkReturning=function(){
+      var em=fval('[name=email]').toLowerCase();
+      if(!/.+@.+\..+/.test(em)||em===lastEm)return;
+      lastEm=em;
+      fetch('/.netlify/functions/check-customer',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:em})})
+        .then(function(r){return r.json();})
+        .then(function(d){setBon(!!(d&&d.returning));})
+        .catch(function(){setBon(false);});
+    };
+    var emEl=wiz.querySelector('[name=email]');
+    if(emEl){emEl.addEventListener('change',checkReturning);emEl.addEventListener('blur',checkReturning);}
+  }
+  wiz.addEventListener('input',function(){ updateSide(); if(cur===2)updateClsPrices(); if(cur===3)buildBreakdown(); });
+  wiz.addEventListener('change',function(){ updateSide(); });
+  nextBtn.addEventListener('click',function(){if(!valid(cur)){nextBtn.classList.add('shake');setTimeout(function(){nextBtn.classList.remove('shake');},400);return;} if(cur<total)showStep(cur+1);});
+  prevBtn.addEventListener('click',function(){if(cur>1)showStep(cur-1);});
+  document.querySelectorAll('.lang-opt').forEach(function(b){b.addEventListener('click',function(){setTimeout(function(){buildProgress();updateSide();if(cur===3)buildBreakdown();},0);});});
+  // prefill dal formulario rapido in home (prenota.html?tipo=..&from=..&to=..&km=..&ore=..&data=..&ora=..)
+  var startStep=1;
+  try{
+    var qs=new URLSearchParams(location.search);
+    if(qs.get('tipo')==='ore')state.tipo='ore';
+    var setv=function(sel,val){var el=wiz.querySelector(sel);if(el&&val)el.value=val;};
+    setv('[name=partenza]',qs.get('from')); setv('[name=destinazione]',qs.get('to'));
+    setv('[name=ore]',qs.get('ore')); setv('[name=data]',qs.get('data')); setv('[name=ora]',qs.get('ora'));
+    setv('[name=km]',qs.get('km'));
+    if(qs.get('rt')==='1'){var rte=document.getElementById('f-rt');if(rte)rte.checked=true;}
+    // arrivo dal modulo rapido / da una tratta: se lo step 1 è già completo, salta alla scelta del veicolo
+    if(qs.get('from') && valid(1)) startStep=2;
+  }catch(e){}
+  if(fTipo)fTipo.value=state.tipo;
+  typeFields(); showStep(startStep);
+})();
+</script>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// Meta Pixel: prenotazione completata (evento standard "Schedule").
+// Scatta una sola volta per prenotazione: guardia in localStorage sul codice corsa
+// (o su un timestamp se il codice non e' disponibile) per non contare i reload.
+(function(){
+  try{
+    var q = new URLSearchParams(location.search);
+    var trip = q.get('trip') || '';
+    var key = 'jf_px_' + (trip || 'last');
+    if(trip){ if(localStorage.getItem(key)) return; }
+    else {
+      var last = parseInt(localStorage.getItem(key) || '0', 10);
+      if(Date.now() - last < 10*60*1000) return; // stesso browser entro 10 min = reload
+    }
+    var fired = false;
+    if(window.fbq){
+      fbq('track', 'Schedule');
+      fired = true;
+    }
+    // Google Ads: conversione "Prenotazione appuntamento" (stessa guardia anti-reload)
+    if(window.gtag){
+      gtag('event', 'ads_conversion_Prenotazione_appuntamen_1', {});
+      // Google Ads: conversione "Invio modulo per i lead" (snippet evento ufficiale)
+      gtag('event', 'conversion', {'send_to': 'AW-17904154175/mq3OCNLutNQcEL_srtlC'});
+      fired = true;
+    }
+    if(fired) localStorage.setItem(key, trip ? '1' : String(Date.now()));
+  }catch(e){}
+})();
+</script>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  if(q.get('paid') !== '1'){ try{ localStorage.removeItem('jf_confirm'); }catch(e){} return; }
+  // 1) verifica lato server il pagamento e promuove la prenotazione da "attesa" a "nuova"
+  var sid = q.get('sid'), trip = q.get('trip');
+  if(sid && trip){
+    fetch('/.netlify/functions/confirm-payment', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({sid: sid, trip: trip})}).catch(function(){});
+  }
+  // 2) email di conferma al cliente (i dati erano stati messi da parte alla prenotazione)
+  var raw = null; try{ raw = localStorage.getItem('jf_confirm'); }catch(e){}
+  if(raw && window.emailjs){
+    try{
+      var P = JSON.parse(raw);
+      emailjs.init({publicKey:'p6t_pclpd5K63rjOz'});
+      emailjs.send('service_dkfxn17','template_7ett4cn',P)
+        .then(function(){ try{ localStorage.removeItem('jf_confirm'); }catch(e){} })
+        .catch(function(){});
+    }catch(e){}
+  }
+})();
+</script>
