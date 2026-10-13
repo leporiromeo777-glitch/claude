@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coronel Studio · Barbiere a Tesserete</title>
+<meta name="description" content="Coronel Studio, barbiere a Tesserete. Tagli, sfumature e barba su appuntamento. Via Luigi Canonica 7, Tesserete. Mar–Ven 9–18, Sab 9–17.">
+<meta name="theme-color" content="#0a0a0b">
+<meta property="og:title" content="Coronel Studio · Barbiere a Tesserete">
+<meta property="og:description" content="Tagli, sfumature e barba su appuntamento. Prenota online.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BarberShop",
+  "name": "Coronel Studio",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Via Luigi Canonica 7",
+    "postalCode": "6950",
+    "addressLocality": "Tesserete",
+    "addressRegion": "TI",
+    "addressCountry": "CH"
+  },
+  "openingHoursSpecification": [
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "18:00"},
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "17:00"}
+  ],
+  "sameAs": ["https://www.instagram.com/_coro.nel/"]
+}
+</script>
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg-2: #121215;
+    --line: #26262c;
+    --text: #f4f4f5;
+    --muted: #a1a1aa;
+    --blue: #2a4cc4;
+    --blue-soft: #3b5bdb;
+    --red: #e03131;
+    --white: #ffffff;
+    --radius: 18px;
+    --max: 1120px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Outfit", system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img, svg { display: block; }
+  .wrap { width: min(var(--max), 100% - 32px); margin-inline: auto; }
+
+  /* ---------- Logo ---------- */
+  .logo { display: inline-flex; flex-direction: column; line-height: .82; font-weight: 800; letter-spacing: -.02em; }
+  .logo .co { color: var(--blue); display: flex; align-items: center; }
+  .logo .co .o { position: relative; display: inline-grid; place-items: center; }
+  .logo .co .o svg { position: absolute; width: 42%; height: 42%; }
+  .logo .ro { color: var(--white); padding-left: .55em; }
+  .logo .nel { color: var(--red); font-family: "Archivo Black", sans-serif; letter-spacing: -.04em; }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    transition: background .3s, border-color .3s;
+    border-bottom: 1px solid transparent;
+  }
+  header.nav.scrolled { background: rgba(10,10,11,.85); backdrop-filter: blur(12px); border-color: var(--line); }
+  header.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .nav .logo { font-size: 15px; }
+  .nav ul { display: flex; gap: 28px; list-style: none; font-size: 15px; color: var(--muted); }
+  .nav ul a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 26px; border-radius: 999px; font-weight: 600; font-size: 16px;
+    transition: transform .2s, background .2s, box-shadow .2s;
+    cursor: pointer; border: 0; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--red); color: var(--white); box-shadow: 0 10px 30px -10px rgba(224,49,49,.7); }
+  .btn-primary:hover { background: #f03e3e; }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover { border-color: var(--muted); }
+  .btn-sm { padding: 10px 18px; font-size: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100svh; display: grid; align-items: center;
+    padding: 120px 0 80px; position: relative; isolation: isolate;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(60% 50% at 85% 20%, rgba(42,76,196,.25), transparent 70%),
+      radial-gradient(50% 45% at 10% 90%, rgba(224,49,49,.18), transparent 70%);
+  }
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+    padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; margin-bottom: 28px;
+  }
+  .flag { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex: none; }
+  h1 {
+    font-family: "Archivo Black", sans-serif; font-weight: 400;
+    font-size: clamp(44px, 7.5vw, 96px); line-height: .95; letter-spacing: -.03em;
+    text-transform: uppercase;
+  }
+  h1 .b { color: var(--blue-soft); }
+  h1 .r { color: var(--red); }
+  .lead { margin-top: 24px; font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 520px; font-weight: 300; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .status {
+    margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+  .dot.open { background: #40c057; box-shadow: 0 0 0 4px rgba(64,192,87,.2); animation: pulse 2s infinite; }
+  .dot.closed { background: var(--red); }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(64,192,87,0); } }
+
+  .hero-badge {
+    aspect-ratio: 1; width: 100%; max-width: 420px; justify-self: center;
+    border-radius: 50%; background: #000; display: grid; place-items: center;
+    box-shadow: 0 0 0 1px var(--line), 0 40px 120px -30px rgba(42,76,196,.45);
+    position: relative;
+  }
+  .hero-badge::after {
+    content: ""; position: absolute; inset: -14px; border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,.12); animation: spin 40s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero-badge .logo { font-size: clamp(54px, 9vw, 92px); }
+
+  /* ---------- Marquee ---------- */
+  .marquee { border-block: 1px solid var(--line); overflow: hidden; padding: 18px 0; background: var(--bg-2); }
+  .marquee-track { display: flex; gap: 48px; width: max-content; animation: scroll 30s linear infinite; }
+  .marquee span {
+    font-family: "Archivo Black", sans-serif; text-transform: uppercase; font-size: 20px;
+    letter-spacing: .02em; color: var(--muted); display: flex; align-items: center; gap: 48px;
+  }
+  .marquee span::after { content: "★"; color: var(--red); font-size: 14px; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+
+  /* ---------- Sections ---------- */
+  section.block { padding: 110px 0; }
+  .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 56px; flex-wrap: wrap; }
+  .kicker { color: var(--red); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+  h2 {
+    font-family: "Archivo Black", sans-serif; font-weight: 400; text-transform: uppercase;
+    font-size: clamp(32px, 5vw, 56px); line-height: 1; letter-spacing: -.02em;
+  }
+  .section-head p { color: var(--muted); max-width: 420px; }
+
+  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 32px 28px; position: relative; overflow: hidden;
+    transition: border-color .3s, transform .3s;
+  }
+  .card:hover { border-color: #3a3a42; transform: translateY(-4px); }
+  .card .num { font-family: "Archivo Black", sans-serif; font-size: 14px; color: var(--blue-soft); }
+  .card h3 { font-size: 22px; font-weight: 600; margin: 40px 0 10px; }
+  .card p { color: var(--muted); font-size: 15px; }
+  .card .ic { position: absolute; top: 26px; right: 26px; width: 28px; height: 28px; color: var(--muted); opacity: .6; }
+  .services-note { margin-top: 24px; color: var(--muted); font-size: 14px; text-align: center; }
+  .services-note a { color: var(--text); border-bottom: 1px solid var(--red); }
+
+  /* ---------- Why ---------- */
+  .why { background: var(--bg-2); border-block: 1px solid var(--line); }
+  .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .why-item { border-top: 2px solid var(--line); padding-top: 24px; }
+  .why-item:nth-child(1) { border-color: var(--blue); }
+  .why-item:nth-child(2) { border-color: var(--white); }
+  .why-item:nth-child(3) { border-color: var(--red); }
+  .why-item h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .why-item p { color: var(--muted); font-size: 15px; }
+
+  /* ---------- Info ---------- */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .info-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 36px; }
+  .info-card h3 { font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 20px; }
+  .hours { list-style: none; }
+  .hours li { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .hours li:last-child { border-bottom: 0; }
+  .hours li span:last-child { font-variant-numeric: tabular-nums; }
+  .hours li.off span:last-child { color: var(--muted); }
+  .hours li.today { color: var(--white); font-weight: 600; }
+  .hours li.today span:first-child::after {
+    content: "oggi"; margin-left: 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    background: var(--blue); color: var(--white); padding: 3px 8px; border-radius: 999px; vertical-align: 2px; font-weight: 600;
+  }
+  .address { font-size: 24px; font-weight: 600; line-height: 1.3; margin-bottom: 8px; }
+  .address-sub { color: var(--muted); margin-bottom: 24px; }
+  .map {
+    width: 100%; height: 240px; border: 0; border-radius: 12px; margin-bottom: 20px;
+    filter: grayscale(1) invert(.92) contrast(.9);
+  }
+  .contact-links { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    margin: 0 auto 110px; border-radius: 28px; padding: clamp(48px, 8vw, 88px) clamp(24px, 6vw, 72px);
+    text-align: center; position: relative; overflow: hidden; isolation: isolate;
+    background: linear-gradient(135deg, #10204f 0%, #0a0a0b 50%, #4a0f0f 100%);
+    border: 1px solid var(--line);
+  }
+  .cta h2 { font-size: clamp(34px, 6vw, 68px); }
+  .cta p { color: #d4d4d8; margin: 18px auto 34px; max-width: 480px; font-size: 18px; }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+  footer .logo { font-size: 12px; }
+
+  /* Mobile sticky booking bar */
+  .mobile-book {
+    display: none; position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60;
+  }
+  .mobile-book .btn { width: 100%; padding: 16px; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .nav ul { display: none; }
+    .hero .wrap { grid-template-columns: 1fr; text-align: left; }
+    .hero-badge { max-width: 280px; order: -1; justify-self: start; }
+    .why-grid, .info-grid { grid-template-columns: 1fr; }
+    section.block { padding: 80px 0; }
+  }
+  @media (max-width: 600px) {
+    .nav .btn { display: none; }
+    .mobile-book { display: block; }
+    footer { padding-bottom: 100px; }
+    .hero-badge { max-width: 200px; }
+    .info-card { padding: 26px; }
+    .hero-cta .btn { flex: 1 1 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Logo riutilizzabile -->
+<template id="logo-tpl">
+  <span class="logo" aria-label="Coronel">
+    <span class="co">C<span class="o">O<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.3L12 17.8 5.8 21.5l1.6-7.3L2 9.5l7.1-.6z"/></svg></span></span>
+    <span class="ro">ro</span>
+    <span class="nel">NEL</span>
+  </span>
+</template>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" data-logo></a>
+    <ul>
+      <li><a href="#servizi">Servizi</a></li>
+      <li><a href="#studio">Lo studio</a></li>
+      <li><a href="#orari">Orari &amp; dove</a></li>
+    </ul>
+    <a class="btn btn-primary btn-sm" data-book href="#">Prenota</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="eyebrow">
+          <svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#d52b1e"/><rect width="3" height="1" fill="#fff"/><rect width="1" height="1" fill="#0039a6"/><path fill="#fff" d="M.5.25l.06.18h.19l-.15.11.06.18L.5.61.34.72.4.54.25.43h.19z"/></svg>
+          Coronel Studio · Tesserete
+        </span>
+        <h1>Il tuo stile,<br><span class="b">tagliato</span> <span class="r">su misura</span></h1>
+        <p class="lead">Barbiere a Tesserete. Tagli, sfumature e barba curati nei dettagli, con tutto il tempo che serve — solo su appuntamento.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" data-book href="#">
+            Prenota il tuo appuntamento
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#orari">Orari &amp; indirizzo</a>
+        </div>
+        <div class="status"><span class="dot" id="status-dot"></span><span id="status-text">Mar–Ven 9–18 · Sab 9–17</span></div>
+      </div>
+      <div class="hero-badge reveal" data-logo></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Rasatura</span><span>Styling</span><span>Su appuntamento</span>
+      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Rasatura</span><span>Styling</span><span>Su appuntamento</span>
+    </div>
+  </div>
+
+  <!-- SERVIZI -->
+  <section class="block" id="servizi">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="kicker">Servizi</div>
+          <h2>Cosa facciamo</h2>
+        </div>
+        <p>Ogni servizio parte da una consulenza: capiamo insieme cosa vuoi e cosa ti sta meglio.</p>
+      </div>
+      <div class="services">
+        <article class="card reveal">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg>
+          <span class="num">01</span>
+          <h3>Taglio</h3>
+          <p>Classico o moderno, a forbice o macchinetta, rifinito e messo in piega.</p>
+        </article>
+        <article class="card reveal">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 20h16M6 16h12M8 12h8M10 8h4M11 4h2"/></svg>
+          <span class="num">02</span>
+          <h3>Sfumature &amp; Fade</h3>
+          <p>Low, mid, high, skin fade e taper: sfumature pulite e precise.</p>
+        </article>
+        <article class="card reveal">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9c0 6 3 11 7 11s7-5 7-11"/><path d="M9 13c1 1 5 1 6 0"/></svg>
+          <span class="num">03</span>
+          <h3>Barba</h3>
+          <p>Modellatura, contorni definiti e rasatura con panno caldo.</p>
+        </article>
+        <article class="card reveal">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.3L12 17.8 5.8 21.5l1.6-7.3L2 9.5l7.1-.6z"/></svg>
+          <span class="num">04</span>
+          <h3>Taglio + Barba</h3>
+          <p>Il servizio completo per uscire perfetto dalla testa al mento.</p>
+        </article>
+      </div>
+      <p class="services-note reveal">Prezzi e durata di ogni servizio li trovi nella <a data-book href="#">pagina di prenotazione</a>.</p>
+    </div>
+  </section>
+
+  <!-- PERCHÉ -->
+  <section class="block why" id="studio">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="kicker">Lo studio</div>
+          <h2>Perché Coronel</h2>
+        </div>
+        <p>Un piccolo studio nel cuore di Tesserete, con radici cilene e la cura di chi fa questo mestiere per passione.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-item reveal">
+          <h3>Niente attese</h3>
+          <p>Si lavora solo su appuntamento: arrivi all'orario prenotato e ti siedi subito.</p>
+        </div>
+        <div class="why-item reveal">
+          <h3>Tempo dedicato</h3>
+          <p>Un cliente alla volta, senza fretta. Ogni dettaglio viene curato fino alla fine.</p>
+        </div>
+        <div class="why-item reveal">
+          <h3>Prenoti in un minuto</h3>
+          <p>Scegli servizio, giorno e orario online, quando vuoi. Oppure scrivici in DM.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORARI & DOVE -->
+  <section class="block" id="orari">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="kicker">Orari &amp; dove</div>
+          <h2>Vieni a trovarci</h2>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-card reveal">
+          <h3>Orari di apertura</h3>
+          <ul class="hours" id="hours">
+            <li data-day="1" class="off"><span>Lunedì</span><span>Chiuso</span></li>
+            <li data-day="2"><span>Martedì</span><span>09:00 – 18:00</span></li>
+            <li data-day="3"><span>Mercoledì</span><span>09:00 – 18:00</span></li>
+            <li data-day="4"><span>Giovedì</span><span>09:00 – 18:00</span></li>
+            <li data-day="5"><span>Venerdì</span><span>09:00 – 18:00</span></li>
+            <li data-day="6"><span>Sabato</span><span>09:00 – 17:00</span></li>
+            <li data-day="0" class="off"><span>Domenica</span><span>Chiuso</span></li>
+          </ul>
+        </div>
+        <div class="info-card reveal">
+          <h3>Indirizzo</h3>
+          <p class="address">Via Luigi Canonica 7</p>
+          <p class="address-sub">6950 Tesserete · Ticino</p>
+          <iframe class="map" loading="lazy" title="Mappa Coronel Studio"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Via+Luigi+Canonica+7,+6950+Tesserete&output=embed"></iframe>
+          <div class="contact-links">
+            <a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=Via+Luigi+Canonica+7,+6950+Tesserete">Indicazioni</a>
+            <a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://ig.me/m/_coro.nel">Scrivici in DM</a>
+            <a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.instagram.com/_coro.nel/">@_coro.nel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="wrap">
+    <section class="cta reveal">
+      <div class="kicker">Su appuntamento</div>
+      <h2>Prenota il<br>tuo posto</h2>
+      <p>Scegli servizio e orario online in pochi secondi. Ti aspettiamo in studio.</p>
+      <a class="btn btn-primary" data-book href="#">Prenota ora</a>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-logo></span>
+    <span>Coronel Studio · Via Luigi Canonica 7, 6950 Tesserete</span>
+    <a href="https://www.instagram.com/_coro.nel/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</footer>
+
+<div class="mobile-book"><a class="btn btn-primary" data-book href="#">Prenota appuntamento</a></div>
+
+<script>
+  // Link di prenotazione: incollare qui l'URL completo (con ?studio=...) dalla bio Instagram.
+  const BOOKING_URL = "https://elegance-style-75db0663.base44.app/PrenotazioneCliente";
+
+  document.querySelectorAll("[data-book]").forEach(a => {
+    a.href = BOOKING_URL;
+    a.target = "_blank";
+    a.rel = "noopener";
+  });
+
+  const tpl = document.getElementById("logo-tpl");
+  document.querySelectorAll("[data-logo]").forEach(el => el.appendChild(tpl.content.cloneNode(true)));
+
+  // Header al passaggio dello scroll
+  const nav = document.getElementById("nav");
+  const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 20);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Aperto/chiuso in tempo reale (ora di Zurigo)
+  const HOURS = { 2: [9, 18], 3: [9, 18], 4: [9, 18], 5: [9, 18], 6: [9, 17] };
+  const DAY_NAMES = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+  const nowCH = () => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Zurich", weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+    }).formatToParts(new Date());
+    const get = t => parts.find(p => p.type === t).value;
+    const day = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(get("weekday"));
+    return { day, h: +get("hour") + +get("minute") / 60 };
+  };
+  function updateStatus() {
+    const { day, h } = nowCH();
+    const dot = document.getElementById("status-dot");
+    const txt = document.getElementById("status-text");
+    const today = HOURS[day];
+    document.querySelectorAll("#hours li").forEach(li => li.classList.toggle("today", +li.dataset.day === day));
+    if (today && h >= today[0] && h < today[1]) {
+      dot.className = "dot open";
+      txt.textContent = `Aperto ora · chiude alle ${today[1]}:00`;
+      return;
+    }
+    dot.className = "dot closed";
+    if (today && h < today[0]) { txt.textContent = `Chiuso · apre oggi alle 0${today[0]}:00`; return; }
+    for (let i = 1; i <= 7; i++) {
+      const d = (day + i) % 7;
+      if (HOURS[d]) {
+        txt.textContent = `Chiuso · riapre ${i === 1 ? "domani" : DAY_NAMES[d]} alle 0${HOURS[d][0]}:00`;
+        return;
+      }
+    }
+  }
+  updateStatus();
+  setInterval(updateStatus, 60000);
+
+  // Animazioni all'ingresso
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
