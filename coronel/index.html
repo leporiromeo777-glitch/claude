@@ -320,12 +320,13 @@
     position: absolute; inset: -15% 0; width: 100%; height: 130%; object-fit: cover; z-index: -2;
     transform: translateY(var(--py, 0px)); will-change: transform;
   }
-  .chile::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,10,11,.85), rgba(10,10,11,.35) 40%, rgba(10,10,11,.9)); }
+  .chile::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,10,11,.75), rgba(10,10,11,.2) 45%, rgba(10,10,11,.8)); }
   .chile blockquote {
     font-family: "Archivo Black", sans-serif; text-transform: uppercase;
     font-size: clamp(30px, 6vw, 72px); line-height: 1; letter-spacing: -.02em; max-width: 900px; padding: 0 16px;
+    text-shadow: 0 2px 4px rgba(0,0,0,.6), 0 8px 40px rgba(0,0,0,.85);
   }
-  .chile blockquote em { font-style: normal; color: var(--red); }
+  .chile blockquote em { font-style: normal; color: #ff4d4d; }
   .chile cite { display: block; margin-top: 22px; font-family: "Outfit", sans-serif; font-style: normal; font-size: 16px; letter-spacing: .2em; color: #d4d4d8; text-transform: uppercase; }
   .chile .word { display: inline-block; opacity: .15; transition: opacity .4s; }
   .chile .word.lit { opacity: 1; }
@@ -417,6 +418,8 @@
     .services::-webkit-scrollbar { display: none; }
     .svc { flex: 0 0 82%; scroll-snap-align: center; }
     .dots { display: flex; }
+    .chile { height: 480px; }
+    .chile img { object-position: 8% 50%; }
     .summary { bottom: 16px; padding: 10px 10px 10px 18px; gap: 10px; }
     .summary .btn { padding: 12px 18px; }
     .summary-tot { font-size: 18px; gap: 10px; }
