@@ -161,19 +161,41 @@
   }
   .section-head p { color: var(--muted); max-width: 420px; }
 
-  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .card {
-    background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 32px 28px; position: relative; overflow: hidden;
-    transition: border-color .3s, transform .3s;
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .svc {
+    display: flex; flex-direction: column; background: var(--bg-2);
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    transition: border-color .3s, transform .3s, box-shadow .3s;
   }
-  .card:hover { border-color: #3a3a42; transform: translateY(-4px); }
-  .card .num { font-family: "Archivo Black", sans-serif; font-size: 14px; color: var(--blue-soft); }
-  .card h3 { font-size: 22px; font-weight: 600; margin: 40px 0 10px; }
-  .card p { color: var(--muted); font-size: 15px; }
-  .card .ic { position: absolute; top: 26px; right: 26px; width: 28px; height: 28px; color: var(--muted); opacity: .6; }
-  .services-note { margin-top: 24px; color: var(--muted); font-size: 14px; text-align: center; }
-  .services-note a { color: var(--text); border-bottom: 1px solid var(--red); }
+  .svc:hover { border-color: #3a3a42; transform: translateY(-6px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.8); }
+  .svc-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #1a1a1f; }
+  .svc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s ease; }
+  .svc:hover .svc-img img { transform: scale(1.05); }
+  .svc-img::after {
+    content: ""; position: absolute; inset: auto 0 0 0; height: 30%;
+    background: linear-gradient(to top, rgba(18,18,21,.7), transparent);
+  }
+  .price {
+    position: absolute; top: 14px; right: 14px; z-index: 1;
+    background: rgba(10,10,11,.75); backdrop-filter: blur(8px); color: var(--white);
+    font-family: "Archivo Black", sans-serif; font-size: 20px; line-height: 1;
+    padding: 12px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12);
+  }
+  .badge {
+    position: absolute; top: 18px; left: 14px; z-index: 1;
+    background: var(--red); color: var(--white); font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; padding: 6px 11px; border-radius: 999px;
+  }
+  .svc-body { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 20px 22px 22px; }
+  .svc-body h3 { font-size: 22px; font-weight: 600; line-height: 1.2; }
+  .svc-body .dur { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .svc-book {
+    margin: 0 22px 22px; padding-top: 16px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; font-weight: 600; color: var(--muted); transition: color .2s;
+  }
+  .svc:hover .svc-book { color: var(--red); }
+  .services-note { margin-top: 28px; color: var(--muted); font-size: 14px; text-align: center; }
 
   /* ---------- Why ---------- */
   .why { background: var(--bg-2); border-block: 1px solid var(--line); }
@@ -236,6 +258,7 @@
     .hero .wrap { grid-template-columns: 1fr; text-align: left; }
     .hero-badge { max-width: 280px; order: -1; justify-self: start; }
     .why-grid, .info-grid { grid-template-columns: 1fr; }
+    .services { grid-template-columns: repeat(2, 1fr); }
     section.block { padding: 80px 0; }
   }
   @media (max-width: 600px) {
@@ -245,6 +268,9 @@
     .hero-badge { max-width: 200px; }
     .info-card { padding: 26px; }
     .hero-cta .btn { flex: 1 1 100%; }
+    .services { grid-template-columns: 1fr; gap: 16px; }
+    .svc-img { aspect-ratio: 4 / 3; }
+    .svc-img img { object-position: center 30%; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -302,8 +328,8 @@
   <!-- MARQUEE -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
-      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Rasatura</span><span>Styling</span><span>Su appuntamento</span>
-      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Rasatura</span><span>Styling</span><span>Su appuntamento</span>
+      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Decolorazione</span><span>Lavaggio</span><span>Su appuntamento</span>
+      <span>Taglio</span><span>Fade</span><span>Barba</span><span>Decolorazione</span><span>Lavaggio</span><span>Su appuntamento</span>
     </div>
   </div>
 
@@ -312,38 +338,55 @@
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <div class="kicker">Servizi</div>
-          <h2>Cosa facciamo</h2>
+          <div class="kicker">Servizi &amp; prezzi</div>
+          <h2>Il listino</h2>
         </div>
         <p>Ogni servizio parte da una consulenza: capiamo insieme cosa vuoi e cosa ti sta meglio.</p>
       </div>
       <div class="services">
-        <article class="card reveal">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg>
-          <span class="num">01</span>
-          <h3>Taglio</h3>
-          <p>Classico o moderno, a forbice o macchinetta, rifinito e messo in piega.</p>
-        </article>
-        <article class="card reveal">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 20h16M6 16h12M8 12h8M10 8h4M11 4h2"/></svg>
-          <span class="num">02</span>
-          <h3>Sfumature &amp; Fade</h3>
-          <p>Low, mid, high, skin fade e taper: sfumature pulite e precise.</p>
-        </article>
-        <article class="card reveal">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9c0 6 3 11 7 11s7-5 7-11"/><path d="M9 13c1 1 5 1 6 0"/></svg>
-          <span class="num">03</span>
-          <h3>Barba</h3>
-          <p>Modellatura, contorni definiti e rasatura con panno caldo.</p>
-        </article>
-        <article class="card reveal">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.3L12 17.8 5.8 21.5l1.6-7.3L2 9.5l7.1-.6z"/></svg>
-          <span class="num">04</span>
-          <h3>Taglio + Barba</h3>
-          <p>Il servizio completo per uscire perfetto dalla testa al mento.</p>
-        </article>
+        <a class="svc reveal" data-book href="#">
+          <div class="svc-img">
+            <span class="badge">Più richiesto</span>
+            <span class="price">32€</span>
+            <img src="img/taglio.webp" alt="Taglio uomo con sfumatura" width="928" height="1152" loading="lazy">
+          </div>
+          <div class="svc-body"><h3>Taglio Uomo</h3><span class="dur">45 min</span></div>
+          <span class="svc-book">Prenota <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="svc reveal" data-book href="#">
+          <div class="svc-img">
+            <span class="price">25€</span>
+            <img src="img/studente.webp" alt="Taglio per studenti" width="928" height="1152" loading="lazy">
+          </div>
+          <div class="svc-body"><h3>Taglio studente</h3><span class="dur">45 min</span></div>
+          <span class="svc-book">Prenota <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="svc reveal" data-book href="#">
+          <div class="svc-img">
+            <span class="price">15€</span>
+            <img src="img/barba.webp" alt="Rifinitura della barba" width="928" height="1152" loading="lazy">
+          </div>
+          <div class="svc-body"><h3>Barba</h3><span class="dur">30 min</span></div>
+          <span class="svc-book">Prenota <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="svc reveal" data-book href="#">
+          <div class="svc-img">
+            <span class="price">80€</span>
+            <img src="img/decolorazione.webp" alt="Decolorazione dei capelli" width="928" height="1152" loading="lazy">
+          </div>
+          <div class="svc-body"><h3>Decolorazione</h3><span class="dur">120 min</span></div>
+          <span class="svc-book">Prenota <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="svc reveal" data-book href="#">
+          <div class="svc-img">
+            <span class="price">5€</span>
+            <img src="img/lavaggio.webp" alt="Lavaggio dei capelli" width="928" height="1152" loading="lazy">
+          </div>
+          <div class="svc-body"><h3>Lavaggio</h3><span class="dur">10 min</span></div>
+          <span class="svc-book">Prenota <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
       </div>
-      <p class="services-note reveal">Prezzi e durata di ogni servizio li trovi nella <a data-book href="#">pagina di prenotazione</a>.</p>
+      <p class="services-note reveal">Ogni servizio include accoglienza e consulenza. Tocca un servizio per prenotarlo.</p>
     </div>
   </section>
 
