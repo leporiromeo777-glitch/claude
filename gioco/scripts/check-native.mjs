@@ -5,6 +5,9 @@
 //
 // Serve soprattutto dopo un aggiornamento di Capacitor o dopo aver rigenerato i
 // progetti con "npx cap add": verifica che le impostazioni fatte a mano ci siano ancora.
+// Controlla anche che ogni plugin di package.json sia registrato nei progetti nativi
+// (cioè che dopo averlo aggiunto si sia lanciato "npx cap sync") e che il privacy
+// manifest dichiari le API con motivo che i plugin portano nel binario.
 import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -98,6 +101,41 @@ const appId = /appId:\s*'([^']+)'/.exec(capConfig)?.[1];
 const appName = /appName:\s*'([^']+)'/.exec(capConfig)?.[1];
 check('capacitor.config.ts: appId it.trama.merletto', appId === 'it.trama.merletto', appId ?? 'appId non trovato');
 
+// --- Plugin di Capacitor dichiarati in package.json ---
+// Un plugin nuovo in package.json entra nei progetti nativi solo con "npx cap sync", che
+// riscrive capacitor.settings.gradle, app/capacitor.build.gradle e il Package.swift.
+// Se ci si dimentica, l'app nativa parte lo stesso ma il plugin non c'è (e il gioco
+// ripiega in silenzio sul comportamento web).
+// Plugin: dipendenza con "capacitor" nel nome, tranne il runtime (core, android, ios).
+// Le piattaforme vengono dal campo "capacitor" del suo package.json, se node_modules
+// c'è; altrimenti (copia del progetto senza dipendenze) si assumono entrambe.
+const PLATFORM_PACKAGES = new Set(['@capacitor/core', '@capacitor/android', '@capacitor/ios', '@capacitor/cli', '@capacitor/assets']);
+const PRIVACY_BY_PLUGIN = [
+  // [plugin, categoria di API, motivo, nome breve]
+  ['@capacitor/filesystem', 'NSPrivacyAccessedAPICategoryFileTimestamp', 'C617.1', 'FileTimestamp'],
+];
+let pkg = {};
+try {
+  pkg = JSON.parse(read('package.json') ?? '{}');
+} catch (err) {
+  check('package.json: leggibile', false, String(err));
+}
+const nativePlugins = Object.keys(pkg.dependencies ?? {})
+  .filter((name) => /capacitor/.test(name) && !PLATFORM_PACKAGES.has(name))
+  .map((name) => {
+    const meta = read(`node_modules/${name}/package.json`);
+    if (meta === null) return { name, android: true, ios: true };
+    let cap;
+    try {
+      cap = JSON.parse(meta).capacitor;
+    } catch {
+      cap = undefined;
+    }
+    return { name, android: Boolean(cap?.android), ios: Boolean(cap?.ios) };
+  })
+  .filter((p) => p.android || p.ios);
+check('package.json: plugin di Capacitor trovati', nativePlugins.length > 0, 'nessuna dipendenza con "capacitor" nel nome');
+
 // --- Android ---
 const manifest = read('android/app/src/main/AndroidManifest.xml');
 check('android/: progetto presente', manifest !== null, 'manca android/app/src/main/AndroidManifest.xml');
@@ -117,6 +155,28 @@ const appGradle = read('android/app/build.gradle') ?? '';
 const applicationId = /applicationId\s+"([^"]+)"/.exec(appGradle)?.[1];
 check('app/build.gradle: applicationId uguale ad appId', applicationId === appId, applicationId ?? 'non trovato');
 check('app/build.gradle: firma di rilascio solo da variabili d\'ambiente', /environmentVariable\('KEYSTORE_PATH'\)/.test(appGradle) && !/storePassword\s+["']/.test(appGradle));
+
+// Plugin registrati da "npx cap sync": in capacitor.settings.gradle una riga
+//   project(':capacitor-xxx').projectDir = new File('../node_modules/<pacchetto>/android')
+// più include ':capacitor-xxx', e in app/capacitor.build.gradle implementation project(':capacitor-xxx').
+const capSettings = read('android/capacitor.settings.gradle') ?? '';
+const capBuild = read('android/app/capacitor.build.gradle') ?? '';
+const androidModules = new Map(
+  [...capSettings.matchAll(/project\(':([^']+)'\)\.projectDir\s*=\s*new File\('\.\.\/node_modules\/(.+?)\/android'\)/g)].map((m) => [m[2], m[1]]),
+);
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const androidMissing = nativePlugins
+  .filter((p) => p.android)
+  .filter((p) => {
+    const mod = androidModules.get(p.name);
+    return !mod
+      || !new RegExp(`include\\s+':${escapeRe(mod)}'`).test(capSettings)
+      || !new RegExp(`implementation\\s+project\\(':${escapeRe(mod)}'\\)`).test(capBuild);
+  })
+  .map((p) => p.name);
+check('Android: plugin di package.json registrati in capacitor.settings.gradle e capacitor.build.gradle (npx cap sync)', androidMissing.length === 0, `mancano ${androidMissing.join(', ')}`);
+const androidExtra = [...androidModules.keys()].filter((name) => !nativePlugins.some((p) => p.name === name));
+check('Android: nessun plugin registrato che non è più in package.json (npx cap sync)', androidExtra.length === 0, androidExtra.join(', '));
 
 const res = 'android/app/src/main/res';
 const androidName = /<string name="app_name">([^<]*)<\/string>/.exec(read(`${res}/values/strings.xml`) ?? '')?.[1];
@@ -185,8 +245,19 @@ if (privacyXml !== null) {
   check('PrivacyInfo: nessun dominio di tracciamento', Array.isArray(privacy.NSPrivacyTrackingDomains) && privacy.NSPrivacyTrackingDomains.length === 0);
   check('PrivacyInfo: nessun dato raccolto', Array.isArray(privacy.NSPrivacyCollectedDataTypes) && privacy.NSPrivacyCollectedDataTypes.length === 0);
   const apis = Array.isArray(privacy.NSPrivacyAccessedAPITypes) ? privacy.NSPrivacyAccessedAPITypes : [];
-  const userDefaults = apis.find((a) => a && a.NSPrivacyAccessedAPIType === 'NSPrivacyAccessedAPICategoryUserDefaults');
-  check('PrivacyInfo: UserDefaults con motivo CA92.1', Boolean(userDefaults) && Array.isArray(userDefaults.NSPrivacyAccessedAPITypeReasons) && userDefaults.NSPrivacyAccessedAPITypeReasons.includes('CA92.1'));
+  const declares = (type, reason) => {
+    const api = apis.find((a) => a && a.NSPrivacyAccessedAPIType === type);
+    return Boolean(api) && Array.isArray(api.NSPrivacyAccessedAPITypeReasons) && api.NSPrivacyAccessedAPITypeReasons.includes(reason);
+  };
+  check('PrivacyInfo: UserDefaults con motivo CA92.1', declares('NSPrivacyAccessedAPICategoryUserDefaults', 'CA92.1'));
+  // API "con motivo dichiarato" che entrano nel binario con i plugin (elenco di Capacitor:
+  // capacitorjs.com/docs/ios/privacy-manifest). Senza la voce, App Store Connect rifiuta
+  // il caricamento (ITMS-91053).
+  for (const [plugin, type, reason, label] of PRIVACY_BY_PLUGIN) {
+    if (nativePlugins.some((p) => p.name === plugin)) {
+      check(`PrivacyInfo: ${label} con motivo ${reason} (${plugin})`, declares(type, reason));
+    }
+  }
 }
 const pbx = read('ios/App/App.xcodeproj/project.pbxproj') ?? '';
 const resourcesPhase = /isa = PBXResourcesBuildPhase;[\s\S]*?files = \(([\s\S]*?)\);/.exec(pbx)?.[1] ?? '';
@@ -194,6 +265,23 @@ check('Xcode: PrivacyInfo.xcprivacy nelle risorse del target App', /PrivacyInfo\
 const bundleIds = [...pbx.matchAll(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g)].map((m) => m[1]);
 check('Xcode: PRODUCT_BUNDLE_IDENTIFIER uguale ad appId', bundleIds.length > 0 && bundleIds.every((b) => b === appId), bundleIds.join(', '));
 check('Xcode: Swift Package Manager (niente CocoaPods)', /XCLocalSwiftPackageReference "CapApp-SPM"/.test(pbx) && !existsSync(join(ROOT, 'ios/App/Podfile')));
+
+// Plugin nel Package.swift scritto da "npx cap sync":
+//   .package(name: "Nome", path: "../../../node_modules/<pacchetto>")  e  .product(name: ..., package: "Nome")
+const spm = read('ios/App/CapApp-SPM/Package.swift') ?? '';
+const iosPackages = new Map(
+  [...spm.matchAll(/\.package\(\s*name:\s*"([^"]+)",\s*path:\s*"(?:\.\.\/)+node_modules\/([^"]+)"\s*\)/g)].map((m) => [m[2], m[1]]),
+);
+const iosMissing = nativePlugins
+  .filter((p) => p.ios)
+  .filter((p) => {
+    const pkgName = iosPackages.get(p.name);
+    return !pkgName || !new RegExp(`\\.product\\(\\s*name:\\s*"[^"]+",\\s*package:\\s*"${escapeRe(pkgName)}"\\s*\\)`).test(spm);
+  })
+  .map((p) => p.name);
+check('iOS: plugin di package.json nel Package.swift (npx cap sync)', spm !== '' && iosMissing.length === 0, spm === '' ? 'manca ios/App/CapApp-SPM/Package.swift' : `mancano ${iosMissing.join(', ')}`);
+const iosExtra = [...iosPackages.keys()].filter((name) => !nativePlugins.some((p) => p.name === name));
+check('iOS: nessun plugin nel Package.swift che non è più in package.json (npx cap sync)', iosExtra.length === 0, iosExtra.join(', '));
 
 const appIcon = pngInfo('ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png');
 check('iOS: icona 1024×1024', appIcon !== null && appIcon.width === 1024 && appIcon.height === 1024, appIcon ? `${appIcon.width}×${appIcon.height}` : 'mancante');

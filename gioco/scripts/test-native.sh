@@ -7,7 +7,8 @@
 #
 # Cosa prova:
 #   - scripts/check-native.mjs: verde sul progetto vero, e ogni impostazione tolta
-#     o sbagliata viene segnalata;
+#     o sbagliata viene segnalata (anche un plugin di package.json non sincronizzato
+#     con "npx cap sync" e una voce mancante nel privacy manifest);
 #   - scripts/android-build.sh: tentativi solo sugli errori di rete, attesa che
 #     raddoppia, stop subito sugli errori di compilazione, SDK e Java mancanti;
 #   - scripts/release-android.sh: variabili obbligatorie, keystore dentro il
@@ -131,6 +132,24 @@ mutate "bundle id diverso" ios/App/App.xcodeproj/project.pbxproj \
   's/PRODUCT_BUNDLE_IDENTIFIER = it\.trama\.merletto;/PRODUCT_BUNDLE_IDENTIFIER = com.getcapacitor.App;/' 'PRODUCT_BUNDLE_IDENTIFIER'
 mutate "keystore non escluso da .gitignore" .gitignore \
   's/^\*\.jks\n//m' '.gitignore: chiavi'
+# Privacy manifest e plugin: @capacitor/filesystem (D18 della revisione 1).
+mutate "privacy manifest senza FileTimestamp" ios/App/App/PrivacyInfo.xcprivacy \
+  's|\s*<dict>\s*<key>NSPrivacyAccessedAPIType</key>\s*<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>.*?</dict>||s' \
+  'FileTimestamp con motivo C617\.1 \(@capacitor/filesystem\)'
+mutate "motivo FileTimestamp sbagliato" ios/App/App/PrivacyInfo.xcprivacy \
+  's/C617\.1/0A2A.1/g' 'FileTimestamp con motivo C617\.1'
+mutate "filesystem assente da capacitor.settings.gradle (cap sync non fatto)" android/capacitor.settings.gradle \
+  "s/include ':capacitor-filesystem'\n[^\n]*\n//" 'Android: plugin di package.json registrati.*mancano @capacitor/filesystem'
+mutate "filesystem assente da app/capacitor.build.gradle" android/app/capacitor.build.gradle \
+  "s/[^\n]*project\(':capacitor-filesystem'\)[^\n]*\n//" 'Android: plugin di package.json registrati.*mancano @capacitor/filesystem'
+mutate "filesystem assente dal Package.swift (cap sync non fatto)" ios/App/CapApp-SPM/Package.swift \
+  's/[^\n]*"CapacitorFilesystem"[^\n]*\n//g' 'iOS: plugin di package.json nel Package.swift.*mancano @capacitor/filesystem'
+mutate "filesystem solo nell'elenco dei pacchetti Swift, non fra i prodotti" ios/App/CapApp-SPM/Package.swift \
+  's/[^\n]*\.product\(name: "CapacitorFilesystem"[^\n]*\n//' 'iOS: plugin di package.json nel Package.swift'
+mutate "plugin tolto da package.json ma rimasto su Android" package.json \
+  's/\s*"\@capacitor\/haptics": "[^"]*",//' 'Android: nessun plugin registrato che non è più in package.json.*@capacitor/haptics'
+mutate "plugin tolto da package.json ma rimasto su iOS" package.json \
+  's/\s*"\@capacitor\/haptics": "[^"]*",//' 'iOS: nessun plugin nel Package.swift che non è più in package.json.*@capacitor/haptics'
 
 mkdir -p "$P/android/app/src/test/java/com/getcapacitor/myapp"
 printf 'package com.getcapacitor.myapp;\n' >"$P/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java"

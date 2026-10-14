@@ -3,9 +3,13 @@
 <!--
   TRAMA: manifest della privacy (ARCHITETTURA 13, GDD 15).
   Nessun tracciamento, nessun dominio di tracciamento, nessun dato raccolto.
-  L'unica API "con motivo dichiarato" usata dall'app è UserDefaults
-  (salvataggi e impostazioni tramite @capacitor/preferences): motivo CA92.1,
-  dati letti e scritti solo dall'app stessa.
+  API "con motivo dichiarato" usate dall'app:
+  - UserDefaults (salvataggi e impostazioni tramite @capacitor/preferences):
+    motivo CA92.1, dati letti e scritti solo dall'app stessa;
+  - marcatura temporale dei file: @capacitor/filesystem contiene le chiamate che
+    leggono data di creazione e di modifica dei file (Apple le rileva nel binario).
+    L'app usa il plugin solo per l'immagine da condividere, scritta nella cache:
+    motivo C617.1, solo file dentro il contenitore dell'app.
 -->
 <plist version="1.0">
 <dict>
@@ -23,6 +27,14 @@
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
 				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
 			</array>
 		</dict>
 	</array>
