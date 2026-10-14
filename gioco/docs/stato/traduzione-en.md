@@ -1,6 +1,6 @@
 # Stato del pacchetto: traduzione-en
 
-**Stato:** done
+**Stato:** done (costruito, poi verificato e corretto dal verificatore).
 
 ## Riepilogo
 
@@ -10,144 +10,151 @@ Traduzione inglese di tutta la storia (livello L2): quattro file JSON più il te
 - `src/content/text/en/atto2.json`: g09-g16, Archivio A3-A4, Taccuino dell'Atto II, lettere di L. 8-11, lettera di Clotilde, le tre lettere del fascio.
 - `src/content/text/en/atto3.json`: g17-g23 con i quattro biglietti della scelta, Archivio A5-A6, Taccuino dell'Atto III, biglietti di Livia, nastro della nonna.
 - `src/content/text/en/finali.json`: i quattro finali (suggerimenti, margini, epiloghi con le varianti dei destini) e le mancanze del finale vero.
-- `tests/unit/content/en.test.ts`: 18 test.
+- `tests/unit/content/en.test.ts`: 24 test.
 
-| Namespace | Testi | Parole it | Parole en |
+| Namespace | Testi | Parole it | Parole en | Caratteri en / it |
+|---|---|---|---|---|
+| atto1 | 278 | 3.607 | 3.695 | 0,99 |
+| atto2 | 298 | 5.338 | 5.511 | 1,00 |
+| atto3 | 232 | 3.555 | 3.715 | 1,00 |
+| finali | 70 | 708 | 725 | 0,97 |
+| **Totale** | **878** | **13.208** | **13.646** | **1,00** |
+
+### API pubbliche (per gli altri pacchetti)
+
+Il pacchetto non ha codice: dà solo **chiavi i18n** nei namespace `atto1`, `atto2`, `atto3` e `finali` della lingua `en`.
+
+- Sono **le stesse chiavi dei file italiani**, con la stessa struttura annidata, gli stessi segnaposto e gli stessi a capo. Chi usa `t('atto2.lettere.lettera_clotilde')` o i `textKey`, `titleKey`, `labelKey`, `forgetKey` dei contenuti ottiene l'inglese quando la lingua è `en`.
+- I file vengono **caricati da soli**: `loadI18nSources()` (`src/core/i18n.ts`) li prende con il glob `../content/text/*/*.json`. Il loader dei contenuti non va toccato e non serve registrarli da nessuna parte.
+- In inglese `__GAME__.core.missingKeys('en')` restituisce **zero chiavi** (verificato nel browser). Prima la storia ripiegava sull'italiano.
+
+## Verifica (pacchetto verificatore)
+
+Ho riletto **tutte le 878 stringhe** mettendo vicini italiano e inglese, non solo un campione. Ho confrontato la traduzione con il GDD:
+
+- 2: il mondo;
+- 5.4: le voci dei personaggi;
+- 5.6-5.8: oggetti della sera, Libro dei Punti e Taccuino;
+- 6: la storia, i testi chiave, le lettere di L., la scelta e i finali;
+- 12 e 14.
+
+Ho controllato anche la terminologia di `comune.json` e dell'interfaccia. La qualità è alta: tono, voci, proverbi e testi chiave del GDD 6.4-6.6 sono resi bene. Ho corretto quello che non andava.
+
+### Correzioni alla traduzione
+
+| Chiave | Prima | Dopo | Perché |
 |---|---|---|---|
-| atto1 | 278 | 3.607 | 3.697 |
-| atto2 | 298 | 5.338 | 5.513 |
-| atto3 | 232 | 3.555 | 3.713 |
-| finali | 70 | 708 | 723 |
-| **Totale** | **878** | **13.208** | **13.646** (+3%) |
+| `atto1.g05.alba.calligrafia2` | «on the side of his heart» | «tucks it into his jacket, over his heart» | Calco dall'italiano. |
+| `atto1.g08.alba.filoNero`, `atto1.diario.domande.filoNero.apre` | «At three in the night» | «At three in the morning» | Non è idiomatico. Per stare in 90 caratteri ho riordinato la vignetta. |
+| `atto1.g06.alba.tuttiSanno2` | «Eight in Latin» | «An eight in Latin» | È un voto. |
+| `atto2.g14.alba.prete.1` | «And someone who isn't here to ask forgiveness of.» | «Father, I must give something back. And ask forgiveness of someone who isn't here.» | Contorta. È la battuta della svolta. |
+| `atto2.g16.perline.fascio` | «for Ada, via the Lighthouse» | «for Ada, care of the Lighthouse» | «presso» è l'indirizzo postale: *c/o*. |
+| `atto2.g16.alba.fascio.2d` | «by the sea» | «with the sea» | Uguale alla variante normale («col mare»). |
+| `atto2.g13.marta.testo` | «calls for the grandmother. Yours.» | «calling for Granny. Yours.» | È il Gino che chiama la nonna. Ora è coerente con «Mum, Granny always said keep still» della stessa giornata. |
+| `atto2.g09.marta.testo`, `atto2.diario.persone.bepi.dottore` | «stranger doctor» | «mainland doctor» | «the stranger doctor» si legge come comparativo, «il dottore più strano». |
+| `atto3.g18.alba.gino.1` | «a bitter sweet» | «a sweet that tasted bitter» | Si leggeva come *bittersweet*. |
+| `finali.chiuso.epilogo.3.1` | «I woke up on yesterday evening» | «I woke up and it was yesterday evening again» | Sgrammaticato. |
 
-I file vengono caricati da soli: `loadI18nSources()` (`src/core/i18n.ts`) prende con un glob tutti i `src/content/text/<lingua>/<ns>.json`. Il loader dei contenuti non va toccato. In inglese `__GAME__.core.missingKeys('en')` non ha più chiavi della storia (prima ripiegava sull'italiano).
+### Test aggiunti
 
-## Il test (`tests/unit/content/en.test.ts`)
+Con il codice reale ho controllato che i nuovi test falliscano davvero: ho inserito apposta «Molo», «cushion» e una «è» in un testo, poi ho rimesso il file com'era.
 
-Per `atto1`, `atto2`, `atto3` e `finali`:
+- **Crescita ≤ 20%** (dalla specifica: «non allungare più del 20%»):
+  - per ogni namespace nel suo insieme;
+  - per ogni testo di almeno 80 caratteri, cioè quelli che riempiono davvero l'interfaccia.
 
-- **File e struttura.** Il file inglese esiste ed è un namespace `en` del catalogo. Ha la stessa forma annidata dell'italiano (chiavi e tipi a ogni livello) e le stesse chiavi appiattite.
-- **Caricamento.** Con `createI18n` in inglese nessuna chiave della storia manca, e `t()` restituisce il testo inglese; tornando all'italiano, quello italiano.
-- **Stringhe.**
-  - Nessuna stringa vuota.
-  - Stessi segnaposto `{param}`, compresi quelli ICU (oggi nessun testo della storia ne ha), e stessi a capo (la lettera di Clotilde ne ha 8).
-  - Virgolette tipografiche bilanciate.
-- **Niente italiano rimasto.** Euristica su 108 parole italiane frequenti che in un testo inglese non compaiono (articoli, preposizioni articolate, ausiliari, *cara*, *babbo*, *merlettaia*, *vaporetto*, *Molo*…). Prima del controllo si tolgono le frasi latine di Don Piero e di Nina (*Ego te absolvo*, *Sapere aude*…). Nessun testo inglese è identico all'italiano, salvo quelli fatti solo di nomi propri, per esempio «Nina».
-- **Lunghezza.** Inglese ≤ 1,3 × italiano per ogni stringa.
-- **Limiti dell'interfaccia**, gli stessi dei test italiani:
-  - righe di gioco ≤ 90 caratteri: titoli, vignette con le varianti `d`, echi, rivelazioni, margini, risposte, suggerimenti, etichette di perline e fili, epiloghi e mancanze;
-  - bigliettini e voci del Taccuino ≤ 220 caratteri.
-- **Regole dei contenuti** (stato di contenuti-atti23), anche in inglese:
-  - da g12 i bigliettini non dicono «Ada» (tranne quelli della scelta);
-  - da g13 né il testo né le risposte nominano l'autore;
-  - le lettere di L. cominciano con «My dear,», finiscono con «L.» e non fanno nomi;
-  - le lettere di Livia cominciano con «My Ada,»;
-  - la lettera di Clotilde comincia con «Ada,» e finisce con «C.».
+  Resta anche il limite di 1,3× per ogni stringa, che il test già aveva.
+- **Niente virgolette « » e niente vocali con accento grave** (à, è, ì, ò, ù) nell'inglese. «fiancé» ha l'accento acuto ed è ammesso.
+- **Stessi marcatori di formattazione** dell'italiano.
+- **Glossario di `comune.json` e dell'interfaccia.** Se l'italiano usa un termine, l'inglese usa quello concordato:
+  - Libro dei Punti → Book of Stitches; Taccuino → Notebook; Archivio → Archive;
+  - spillo d'ottone → brass pin; filo d'avorio → ivory thread; nero di seppia → sepia black; punto aperto → open stitch;
+  - tombolo → lace pillow; matassa → skein; fuso → bobbin; merlettaia → lacemaker; bigliettino → note; cassapanca → chest;
+  - vaporetto → ferry; acqua alta → high water; febbre → fever;
+  - Molo, Forno, Piazza, Chiesa, Farmacia, Faro → Pier, Bakery, Square, Church, Pharmacy, Lighthouse.
 
-## Verifica nel browser (Playwright, porta 5310)
+  Ci sono due eccezioni motivate:
+  - il Gino scrive «Peer»;
+  - il suggerimento di g22 dice «the Lighthouse» invece di «dalla secca».
+- **Nessuna variante concorrente:** spindle, cushion, Book of Points, diary, journal, wharf, vaporetto, campanile, Piazza.
+- **Biglietti del Gino:** hanno tutti la sua ortografia da bambino (chirch, litehouse, tonite, preist…).
 
-Server di sviluppo con `?debug=1&lang=en`, viewport 390×844. Gli script sono stati usati solo per la verifica e non sono nel repository, perché `tests/e2e/` appartiene a piattaforma-qa.
+### Verifica nel browser
 
-- **Prologo**, con `campaign.newGame()`, poi il tombolo e `night.autoplay()`:
-  - il titolo della giornata è «Grandmother's Lace»;
-  - la Spinta dice «Look at the brass pins: they say where each one must be, and at what hour.»;
-  - all'alba ci sono le cinque vignette in inglese: Marta «The bakery opens at six even if the world ends.», Teresa, Don Piero…;
-  - nel Bilancio, le voci del Taccuino sono in inglese.
-- **Atto II.**
-  - **g12** (`campaign.goto('g12','sera')`, due spilli, notte in autoplay, alba): margine «Who names you, keeps you…»; vignette del nome e di Lunardi («Ada. Ada Vio. A fine name, short and precise, like a good prescription.»); Bilancio.
-  - **g14:** la lettera L11 alla porta e i quattro bigliettini (Zeno, Teresa, Nina, Gino con i suoi errori).
-  - **g15:** la lettera di Clotilde, con gli a capo.
-- In tutte le prove non ci sono stati errori in console. Gli screenshot sono nello scratchpad della sessione.
+Ho usato Playwright 1.56.1 e Chromium headless, con una build di prova servita da `vite preview` sulla porta 5315 (poi chiusa). Ho usato una build e non il server di sviluppo perché questo si ricarica quando altri agenti modificano file. La pagina era aperta con `?debug=1&lang=en`, a 390×844, in modalità touch.
 
-## Revisione di qualità
+Tutti i 43 controlli sono passati. Non ci sono stati errori in console né avvisi di chiavi mancanti.
 
-Ho riletto 40 stringhe fra le più importanti, mettendo vicini italiano e inglese:
+Su ogni schermata ho fatto girare un'euristica che cerca parole italiane nel testo visibile: non ne ha trovate.
 
-- la lettera di Clotilde;
-- i quattro biglietti della scelta;
-- le lettere di L. 1, 4, 7, 8 e 11;
-- il fascio 1 e 3;
-- i biglietti di Livia 1 e 6, e il nastro;
-- le battute chiave di g14, g16, g17, g18 e g22;
-- i margini degli Archivi;
-- le ultime righe e i margini dei finali.
+- **Lingua.** `document.documentElement.lang` vale `en`, e `__GAME__.core.missingKeys('en')` è vuoto.
+- **Prologo** (dalla nuova storia):
+  - la stanza, con il biglietto «Ada, you finish it. The sun is waiting. C.»;
+  - il tombolo, con il titolo «Grandmother's Lace»;
+  - la notte in autoplay;
+  - l'alba con le vignette di Marta, Teresa e Don Piero in inglese;
+  - il Bilancio.
+- **Atto II, g14:**
+  - la sera, con la lettera L11 alla porta e i 4 bigliettini (Zeno; il Gino con «litehouse»);
+  - la notte «Zeno's Letter»;
+  - l'alba con la battuta corretta di Zeno («Father, I must give something back…»);
+  - il Bilancio.
+- **Atto II, g15 e g16:** la lettera di Clotilde con gli a capo, e la notte «The Well Overflows».
+- **Atto III e finale:**
+  - la scelta di g23, con i biglietti A, B e C in inglese;
+  - D strappata, con le mancanze in inglese;
+  - la scelta B, la notte «The Sepia Thread» e l'epilogo («My mother took the lace pillow.» … «My mother still weaves.»).
 
-Ho migliorato:
-
-- **Clotilde.** «it was I who sent her away» (prima «I sent her away myself»). «I made sure they went there, one by one». E la frase-proverbio senza il futuro: «Two lacemakers on the same lace tear it.»
-- **Zeno, biglietto A:** «your mother needs to go free, this time».
-- **Livia, biglietto B:** «You go and live.»
-- **Lettere di L.:**
-  - L1: «The letters, I'm sure, don't.»;
-  - L7: «a hundred times over».
-- **Fascio:**
-  - fascio 1: «he's a good man»;
-  - fascio 3: «though I hope not».
-- **Finale aperto:** «At last, the bell in the tower rings in tune.»
+Lo script e gli screenshot sono nello scratchpad della sessione: `verify-traduzione-en/verify-en.mjs` e `verify-traduzione-en/shots/*.png`. Non sono nel repository, perché `tests/e2e/` appartiene a piattaforma-qa.
 
 ## Decisioni
 
-- **Inglese britannico**, come `comune.json` (*colour*, *recognise*, *practise*, *Mum*). Virgolette tipografiche “ ” per il parlato citato; apostrofo dritto, come in `comune.json`.
-- **Terminologia di `comune.json` e dell'interfaccia**, senza eccezioni:
-  - lace pillow (tombolo), bobbin (fuso), brass pin (spillo), skein (matassa);
-  - crossing, on top / below / pass under / pass over;
-  - Book of Stitches, Notebook, Archive;
-  - rumour (voce), secret, note (bigliettino);
-  - ivory thread, black thread, sepia black;
-  - open stitch (punto aperto), Fix the hour;
-  - i luoghi: Pier, Bakery, Square, Church, Pharmacy, Lighthouse.
-  - Restano in italiano: Fondamenta, Sant'Arianna, Don Piero, i nomi propri, Chioggia, Burano, Padova → Padua, Venezia → Venice.
-- **Vaporetto → ferry**, come in `comune.json` («the eight o'clock ferry»). Molo di Chioggia → «quay», per distinguerlo dal Pier dell'isola.
-- **Secca → shallows / low tide.**
-  - Il titolo di g22 è «Low Water», in coppia con «High Water» (g19).
-  - «la donna della secca» → «the woman from the shallows».
-  - «prendere la secca» → «hit the shoal» / «ran aground».
-- **La nonna → «Grandmother»** con la maiuscola, come nome, nella voce di Ada, coerente con `comune.json`. Il Gino, che è un bambino, dice «Granny».
-- **Articolo davanti ai nomi** («il Gino», «la Teresa»): in inglese cade.
-  - «cara» → «dear»;
-  - «figliola/figliolo» (Don Piero) → «my child» / «my son»;
-  - «signorina» → «miss»;
-  - «signorina merlettaia» (Lunardi) → «Miss Lacemaker»;
-  - «babbo» → «Dad».
-- **Voci.**
-  - Teresa: «dear», frasi lunghe e di corsa.
-  - Marta: frasi corte e imperativi («Gino is not to…»).
-  - Don Piero: il latino resta latino.
-  - Lunardi: inglese cerimonioso e un po' ridicolo («I should like», «One does not argue with fever»). Gioco di «lei/lei» in g13 reso con «I put myself in her hands. In yours, miss, I mean.»
-  - Nina: ironica e libresca. *I promessi sposi* → *The Betrothed*; il «capitolo trentuno» resta.
-  - Zeno: frasi brevi, senza articoli quando conta («Hundred and fourteen. As yesterday.»).
+- **Inglese britannico**, come `comune.json`: *colour*, *recognise*, *practise*, *Mum*, *jumper*. Per il parlato citato si usano le virgolette tipografiche “ ” (le « » diventano “ ”), con l'apostrofo dritto.
+- **Terminologia di `comune.json` e dell'interfaccia**, senza eccezioni (vedi il glossario del test).
+  - Restano italiani: Fondamenta, Sant'Arianna, Don Piero, i nomi propri, Chioggia e Burano.
+  - Padova diventa Padua, Venezia diventa Venice.
+- **Vaporetto → ferry.** Il molo di Chioggia, minuscolo nelle lettere di Livia, è «quay», per distinguerlo dal Pier dell'isola.
+- **Secca → shallows / low tide.** Il titolo di g22 è «Low Water», in coppia con «High Water» (g19).
+- **Forestiero.**
+  - Come nome è «the stranger».
+  - Come aggettivo del dottore è «mainland doctor» per Marta e per il Taccuino, «doctor from away» nel biglietto di Bepi.
+- **La nonna.**
+  - Nella voce di Ada è «Grandmother», con la maiuscola, come un nome.
+  - Il Gino, e Marta quando riporta le sue parole, dicono «Granny».
+- **Forme di rivolgersi alle persone.** Davanti ai nomi l'articolo cade («il Gino» → «Gino»).
+  - cara → dear;
+  - figliola / figliolo → my child / my son;
+  - signorina → miss;
+  - signorina merlettaia → Miss Lacemaker;
+  - babbo → Dad;
+  - la firma «La mamma» → Mum.
 - **Calligrafie popolari.**
-  - Gino scrive in minuscolo, con errori d'ortografia da bambino inglese («chirch», «Peer», «litehouse», «teecher», «sez», «tonite», «cofing», «preist») e i punti esclamativi.
-  - Bepi sbaglia le doppie: «specialy», «fevver», «pases», «tel», «setle», «wil», «loose» per *lose*, «goodby».
-- **Proverbi e margini** costruiti come i margini di `comune.json` («Who is on top, gives», «Who names you, keeps you»):
-  - «Who weaves is not woven.»
-  - «Nets can be made again. Daughters can't.»
-  - «A knot not tied is a knot that stays.»
-  - «One for six. And one who stayed.»
-- **Giochi di parole.**
-  - «Teresa crosses the street and Marta crosses herself» (anno 1958).
-  - «I'm on my way, one thread at a time» per «Sto arrivando, un filo alla volta». «Vengo» di L11 resta «I'm coming».
-  - Titoli degli atti come in `comune.json` (The Warp / The Weft / The Reverse).
-- **Firma del fascio.** «La mamma» → «Mum». Il campo `signed` dei dati non è mostrato come testo: serve solo a scegliere la calligrafia.
-- **Titoli corti.** Due titoli hanno perso l'articolo per stare nell'1,3×:
-  - g01 «First Evening»;
-  - g08 e g17 «Black Thread».
-- **«BRAVO» sulla pagella del Gino → «WELL DONE»**, con la W grande al posto della B.
-- **Etichette delle perline di conoscenza** (g17, g21, g22) rese come nomi, perché l'interfaccia le inserisce in frasi come «{chi} didn't get {perlina}»:
-  - «The name of the woman in the black shawl»;
-  - «The woman in black's name»;
-  - «The name of the shallows woman».
+  - Il Gino scrive minuscolo e con errori da bambino inglese.
+  - Bepi sbaglia le doppie: «fevver», «setle», «tel», «goodby».
+- **Proverbi** costruiti come i margini di `comune.json`: «Who weaves is not woven.», «Nets can be made again. Daughters can't.», «A knot not tied is a knot that stays.».
+- **Titoli corti.** Tre hanno perso l'articolo per stare nell'1,3× del test: «First Evening» (g01) e «Black Thread» (g08, g17).
+- **Etichette delle perline di conoscenza** (g17, g21, g22). Sono rese come nomi («The woman in black's name»), perché il tombolo le inserisce in frasi come «{chi} didn't get {perlina}».
+- **`atto2.diario.persone.zeno.lettera`.** L'inglese dice «all this time» e non «for a night» come l'italiano. La voce si sblocca con `done: g14` e Zeno teneva la lettera dalla notte del prologo, quindi l'italiano è sbagliato. Vedi le richieste.
 
 ## Problemi noti
 
-- **`atto2.diario.persone.zeno.lettera`.** L'italiano dice che Zeno ha tenuto la lettera della nonna «per una notte», ma l'ha tenuta dalla notte della morte di Clotilde fino a g14. L'inglese dice «all this time». Vedi le richieste.
-- **Lettere lunghe alla porta** (lettera di Clotilde, circa 150 parole). Nella finestra «At the door» a 390 px il foglio inclinato taglia il testo a sinistra e in basso. Succede uguale in italiano: è un problema di impaginazione della campagna, non della traduzione. Vedi le richieste.
-- **Bigliettini lunghi** (per esempio quello di Zeno in g14). Nella scheda chiusa sono troncati con i puntini, in italiano come in inglese: è lo stile della scheda.
+Nessuno nei file del pacchetto. Le cose che restano aperte sono negli altri pacchetti (vedi sotto).
 
 ## Richieste per altri pacchetti
 
-- **contenuti-atti23:** in `src/content/text/it/atto2.json`, `diario.persone.zeno.lettera`, sostituire «Zeno ha tenuto per una notte la lettera della nonna per me» con qualcosa come «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me». La voce si sblocca dopo g14, e la lettera gli era stata data la notte del prologo.
-- **campagna:**
-  - Nella finestra degli oggetti della sera, il testo delle lettere lunghe (`lettera_clotilde`) esce dal foglio a 390×844: è inclinato e tagliato a sinistra e in basso, sia in italiano che in inglese. Serve un foglio che scorre in verticale, senza rotazione del testo, o con la rotazione solo sul foglio e il testo contenuto.
-  - In `src/i18n/en/campaign.json` c'è «bell-tower clock», mentre `comune.json` usa «bell tower»: meglio uniformare.
-- **piattaforma-qa:** nella suite `layout` con lingua inglese conviene aggiungere uno screenshot di una vignetta dell'alba e della sera di una giornata dell'Atto II (per esempio g12 e g14), visto che ora la storia è tradotta.
+- **contenuti-atti23.** In `src/content/text/it/atto2.json`, `diario.persone.zeno.lettera` dice «Zeno ha tenuto per una notte la lettera della nonna per me». È in contraddizione con la storia: la voce si sblocca con `done: g14`, e la lettera gli fu data la notte del prologo. Proposta: «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me.» L'inglese dice già «all this time».
+- **campagna.**
+  - **Finestra «At the door».** A 390×844 la lettera di Clotilde (circa 150 parole) esce dal foglio inclinato ed è tagliata a sinistra e in basso. Lo si vede nello screenshot `en-20-g15-lettera-clotilde.png`. Serve un foglio che scorre in verticale, con il testo contenuto e la rotazione solo sul foglio.
+  - **Alba.** I toast delle voci nuove del Taccuino («Teresa lit up. What did she see?», «When Nina is on top…») compaiono sopra il riquadro della prima vignetta e ne coprono il testo per qualche secondo (`en-15-g14-alba-0.png`, `en-03-prologo-alba-0.png`). Non dipende dalla lingua. Meglio annunciare le voci dopo le vignette, o spostare i toast in alto durante l'alba.
+- **contenuti-atto1.** `src/content/text/en/comune.json` usa le virgolette dritte `"…"` in 9 coppie («calls everyone "dear"», «"the keeper"»…). La storia inglese usa le tipografiche “…”. Per coerenza conviene passare anche `comune.json` alle “ ”.
+- **piattaforma-qa.** Nella suite `layout` in inglese conviene aggiungere gli screenshot dell'alba e della sera di una giornata dell'Atto II (per esempio g14) e della scelta di g23. In alcune righe i testi inglesi sono fino al 30% più lunghi.
+
+## Test
+
+- `npx vitest run tests/unit/content/`: 3 file e 108 test passati, così divisi:
+  - `en.test.ts`: 24;
+  - `atto1.test.ts`: 34;
+  - `atto23.test.ts`: 50.
+- `npx tsc --noEmit -p .`: nessun errore, né nei file del pacchetto né nel resto del progetto.
+- Prova di mutazione dei nuovi test: ho inserito «Molo», «cushion» e una «è» nei testi e sono falliti 4 test; poi ho rimesso il file com'era.
+- Playwright sulla build di prova (porta 5315): 43 controlli su 43 passati. Il server è stato chiuso.
