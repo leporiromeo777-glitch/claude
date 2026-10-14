@@ -56,7 +56,7 @@ Si scrivono quando mancano o con `npx playwright test --update-snapshots` (oppur
 
 ## Risultati e test che falliscono
 
-Ultima esecuzione completa: vedi la sezione Test. Tutti i fallimenti sono difetti di altri pacchetti:
+Ultima esecuzione completa (sezione Test): 122 superati, 6 falliti. Tutti i fallimenti sono difetti di altri pacchetti:
 
 1. **tombolo · Archivio sul telefono: il tocco che apre la scelta dei nomi sceglie già un nome** (archivio.spec.ts su iphone, android-piccolo, ipad-orizzontale).
    - Errore: `il tocco che apre la scelta dei nomi non sceglie già un nome (click fantasma su clotilde)` e `la scelta dei nomi resta aperta dopo il tocco`.
@@ -90,4 +90,28 @@ Vedi il campo `requests_for_others` dell'esito del pacchetto (stessi contenuti d
 
 ## Test
 
-Vedi la sezione aggiornata alla fine dell'ultima esecuzione.
+Comandi di `npm run ci`, eseguiti uno per uno il 14/10/2026 su questa macchina (4 CPU condivise con altri agenti):
+
+| Passo | Risultato |
+|---|---|
+| `npm run build` (tsc + vite build) | uscita 0; un avviso di Vite sulla dimensione di `index-*.js` (678 KB, 164 KB gzip) |
+| `npm test` (Vitest) | 75 file, 1010 test superati |
+| `npm run levels:check` | 34 livelli OK |
+| `npm run native:check` | uscita 0 |
+| `npm run native:test` | 59 prove superate, 0 fallite |
+| `E2E_PORT=5291 npm run test:e2e -- --update-snapshots=all --workers=2` (webServer: build `VITE_E2E=1` + `vite preview`) | **122 superati, 6 falliti, 72 saltati** (progetti esclusi apposta) in 11,7 min |
+
+I 6 test falliti sono i difetti 1-3 della sezione «Risultati e test che falliscono»:
+- `archivio.spec.ts` su iphone, android-piccolo, ipad-orizzontale (tombolo: click fantasma nella scelta dei nomi);
+- `rete.spec.ts` «dopo il primo caricamento si gioca senza rete» su desktop e iphone (fondamenta: diorami e font non disponibili offline);
+- `layout.spec.ts` «in ogni livello due fili … motivo e icona diversi» su desktop (contenuti-atto1: arc3, Teresa e Aldo).
+
+Misure dell'ultima esecuzione (allegati dei test):
+- trascinamento su 6 colonne: p50 0,5 ms, **p95 2,4 ms**, massimo 6,8 ms, 58 fps, 269 fotogrammi durante il trascinamento;
+- heap JS dopo 10 giornate (g00-g09) in autoplay: **8 MB** usati (9,1 MB totali);
+- build: JavaScript 335 KB gzip (55 file), worker del solver 18,8 KB gzip, CSS 15 KB gzip (63,5 KB senza compressione), font woff2 222 KB, asset 2,15 MB, atlas 1,61 MB;
+- percorso d'oro (desktop e iphone): 24 giornate, 49 richieste appuntate e tutte soddisfatte, 6 Archivi rammendati, requisiti del finale vero raggiunti giocando (lettere liberate a g16, riconciliazione a g18, 8 desideri, memoria ≥ 1 per almeno 4 a fine g22).
+
+Esecuzioni precedenti sulla build statica (`VITE_E2E=1 vite build` nello scratchpad + `vite preview` sulla 5290, `E2E_REUSE=1`): stessi risultati, più il prologo che falliva su tutti e quattro i progetti da gioco per gli avvisi sopra i fusi, corretto poi dall'integrazione (46e24e6).
+
+`npx tsc --noEmit -p .`: nessun errore nei file di `tests/e2e/` (e in tutto il progetto).
