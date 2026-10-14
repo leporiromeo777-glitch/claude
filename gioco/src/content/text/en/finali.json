@@ -21,7 +21,7 @@
       },
       "4": {
         "1": "The sun rose every day. Nobody ever knew why.",
-        "0": "Every night, at one minute to six, the lace was finished."
+        "nastro": "Grandmother's ribbon I tied to the lace pillow, for the lacemaker who will come."
       },
       "2zeno": {
         "1": "I waved goodbye from the window. I had no thread to go down to the Pier.",
@@ -92,9 +92,9 @@
   "aperto": {
     "titolo": "The Open Lace",
     "perline": {
-      "L_teresa": "A letter from Ada, for Teresa",
-      "L_1951": "The 1951 letter, kept by Don Piero, for Ada",
-      "ettore": "The doctor's name is Ettore"
+      "L_teresa": "a letter from Ada for Teresa",
+      "L_1951": "the 1951 letter, which my mother got back from the well, for Ada",
+      "ettore": "the doctor's name"
     },
     "hint": {
       "spinta": "No crossings: plant up to five occasions and let it happen. You can try again.",
@@ -103,24 +103,39 @@
     "margine": "I command no one. I plant an occasion and wait.",
     "epilogo": {
       "1": {
-        "1": "My mother and I pinned only occasions: warm bread at seven,",
-        "2": "the festival in the Square at five, the lantern at eight. They did the rest."
-      },
-      "2": {
-        "1": "The threads crossed by themselves, as each one wished. Everyone has a thread.",
-        "2": "Me too. My mother too."
-      },
-      "3": {
-        "1": "The lace pillow stayed in the church, like a relic nobody uses any more.",
-        "2": "At last, the bell in the tower rings in tune."
+        "1": "My mother and I pinned only occasions: {occasioni}.",
+        "2": "They did the rest, each one as they wished."
       },
       "4": {
-        "1": "For a whole winter I learned to command people.",
+        "1": "For an autumn and a winter I learned to command people.",
         "2": "Then I learned to know them."
       },
-      "2bepi": {
-        "1": "The threads crossed by themselves, as each one wished. Everyone has a thread.",
-        "2": "Me too. My mother too. Bepi waves to Nina with his good arm."
+      "teresa": {
+        "1": "A letter written for me, dear. For me alone. I'll read it slowly, it has to last.",
+        "2": "I wrote it. Thirty years of other people's letters, and at last one of her own."
+      },
+      "gino": {
+        "1": "I'm inside the lantern! Lit! From INSIDE!",
+        "2": "At the end of something, I told you. Or at the start."
+      },
+      "lunardi": {
+        "1": "“Good morning, Ettore.” Three people said it to me, before lunch.",
+        "2": "I had to sit down on the wellhead, miss. From the emotion."
+      },
+      "nina": {
+        "1": "Nina left for Venice, by choice, her books in her suitcase.",
+        "2": "Bepi said goodbye to her properly, and then went fishing."
+      },
+      "ninaBepi": {
+        "2": "Bepi said goodbye to her properly, with his good arm, and then stayed to watch."
+      },
+      "zeno": {
+        "1": "Welcome back, Livia. No suitcase this time.",
+        "2": "This time I'm staying, Zeno. And there's nothing to forgive."
+      },
+      "nastro": {
+        "1": "The ribbon was long enough for two threads. I made one for me and one for my mother.",
+        "2": "Everyone has a thread now. The lace pillow rests in church, and the bell rings in tune."
       }
     }
   },

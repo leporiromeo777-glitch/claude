@@ -267,5 +267,10 @@
         }
       }
     ]
+  },
+  "apparizione": {
+    "hour": 3,
+    "side": "faro",
+    "passi": 2
   }
 }

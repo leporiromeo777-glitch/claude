@@ -31,20 +31,37 @@
     },
     "titolo": "The Pharmacist",
     "marta": {
-      "testo": "Gino has been burning for three days and won't keep still even with the fever. That mainland doctor is to see him by noon, and tonight he's to be well. I ask nothing else. I'll bring the man his bread."
+      "testo": "Gino has been burning for three days and won't keep still even with the fever. That mainland doctor is to see him by noon, and by tomorrow evening he's to be well. I ask nothing else. I'll bring the man his bread.",
+      "esito": {
+        "ok": "The doctor saw to Gino before noon. Cured, Gino started running again: Marta says she preferred the fever.",
+        "fallita": "Gino is still burning. Marta put the doctor's bread at the bottom of the basket, under yesterday's."
+      }
     },
     "teresa": {
-      "testo": "Dear, a doctor has come from Padua, one who knows nobody. Keep him away from me: I've the whole island's post in my bag, and some things are not to be touched.",
+      "testo": "Dear, a doctor arrives from Padua tomorrow morning, one who knows nobody. Keep him away from me: I've the whole island's post in my bag, and some things are not to be touched.",
       "r1": "Teresa, the doctor is here to cure people, not to read the post.",
-      "r2": "All right. He'll keep to the other end of the Fondamenta, I promise."
+      "r2": "All right. He'll keep to the other end of the Fondamenta, I promise.",
+      "esito": {
+        "ok": "The doctor and Teresa never crossed. The island's post stayed untouched, and so did Teresa, she says.",
+        "fallita": "The stranger crossed Teresa on the Fondamenta. She counted the envelopes twice, then three times."
+      }
     },
     "nina": {
-      "testo": "In The Betrothed the plague takes nearly everyone. I've no time for chapter thirty-one: don't let the fever reach me. Don't tell Dad, or he won't sleep."
+      "testo": "In The Betrothed the plague takes nearly everyone. I've no time for chapter thirty-one: don't let the fever reach me. Don't tell Dad, or he won't sleep.",
+      "esito": {
+        "ok": "The fever never found Nina. She read until late, to celebrate.",
+        "fallita": "The fever reached Nina too, hand to hand. Nobody has told her dad, for now."
+      }
+    },
+    "margine": {
+      "febbre": "Fever asks no leave: whoever crosses a sick thread, from above or below, falls ill.",
+      "ginoLetto": "Gino with a fever stays in bed: while he is ill he doesn't have to run.",
+      "cura": "Lunardi above a sick thread cures it. But Gino, once cured, starts running again."
     }
   },
   "g10": {
     "perline": {
-      "febbre": "The fever: Gino and Bepi"
+      "febbre": "Gino and Bepi's fever"
     },
     "hint": {
       "spinta": "Two sick: Gino gives the fever to whoever he crosses. Bakery and church stay open.",
@@ -79,23 +96,39 @@
       "r2": "Gino won't go away like Ernesto, Marta. I promise you.",
       "senzaArchivio": {
         "r2": "Gino will get better, Marta. And he'll stay here, with you."
+      },
+      "esito": {
+        "ok": "Marta kept Gino close all afternoon. If she caught the fever, she won't tell anyone.",
+        "fallita": "Gino spent the afternoon away from Marta. She kneaded until evening, without looking up."
       }
     },
     "lunardi": {
-      "testo": "Dear Miss Lacemaker, I beg you: at least three visits tomorrow morning, the first to the fisherman Scarpa, who won't open his door to me. One does not argue with fever. With fishermen, one does."
+      "testo": "Dear Miss Lacemaker, I beg you: at least three visits tomorrow, and call on the fisherman Scarpa too, who won't open his door to me. One does not argue with fever. With fishermen, one does.",
+      "esito": {
+        "ok": "The doctor made his visits, and the fisherman Scarpa opened his door to him. Once.",
+        "fallita": "The doctor knocked and knocked again. His rounds stayed half done, and the fever went about on its own."
+      }
     },
     "piero": {
-      "testo": "Tomorrow I'll say eleven o'clock mass for the healthy, and the sick will pray at home. But the priest at least must stay well: or who will say it? Help me, my child. Deo gratias."
+      "testo": "Tomorrow I'll say eleven o'clock mass for the healthy, and the sick will pray at home. But the priest at least must stay well: or who will say it? Help me, my child. Deo gratias.",
+      "esito": {
+        "ok": "The fever never got into the church. At eleven the pews were half empty, but the priest was on his feet.",
+        "fallita": "The priest fell ill. At eleven the healthy prayed on their own, and the Lord listened all the same."
+      }
     },
     "bepi": {
       "testo": "that doctor from away dont come in my house. the fevver I keep, it pases by itself like bad weather. and dont tel nina nothing",
       "r1": "Bepi, let him see you. Do it for Nina, if not for yourself.",
-      "r2": "All right. The doctor stays outside, and you keep your fever."
+      "r2": "All right. The doctor stays outside, and you keep your fever.",
+      "esito": {
+        "ok": "The doctor never crossed Bepi. Nina nursed his fever, with broth and a sharp tongue.",
+        "fallita": "The doctor got to Bepi. The door opened a hand's breadth, and then a little more."
+      }
     }
   },
   "g11": {
     "perline": {
-      "L_scuola": "Gino's school report, for Marta"
+      "L_scuola": "Gino's school report for Marta"
     },
     "hint": {
       "spinta": "If Teresa and Marta cross, they knot: nothing passes and they stand still an hour.",
@@ -120,25 +153,40 @@
       },
       "porta": {
         "1": "She saw me coming and went back in. She shut the bakery door, quietly.",
-        "2": "Thirty years, dear. And I don't even know why any more. I did, once."
+        "2": "Thirty years, dear. And I know exactly why, which is the worst of it."
       }
     },
     "titolo": "The Knot",
     "teresa": {
-      "testo": "Dear, it's been thirty years. Tomorrow morning I want to speak to Marta, even just on the bakery doorstep, even just for a minute. Let me meet her. I'll say the rest."
+      "testo": "Dear, it's been thirty years. Tomorrow morning I want to speak to Marta, even just on the bakery doorstep, even just for a minute. Let me meet her. I'll say the rest.",
+      "esito": {
+        "ok": "Teresa and Marta came face to face, after thirty years. They said nothing, but neither lowered her eyes.",
+        "fallita": "Teresa and Marta did not meet. Teresa said “never mind, dear” in the voice of someone counting years."
+      }
     },
     "marta": {
       "testo": "I don't want to see Teresa. Not tomorrow, not ever. Thirty years I've steered clear of her, and tomorrow I will too. I know the way with my eyes shut.",
       "r1": "What did she do to you, Marta, thirty years ago? Tell me, and maybe I'll understand.",
-      "r2": "All right. Steer clear of her, if it makes you feel better."
+      "r2": "All right. Steer clear of her, if it makes you feel better.",
+      "esito": {
+        "ok": "Marta didn't cross Teresa, not even from behind. Tonight her bread came out hard.",
+        "fallita": "Marta found Teresa in front of her, on the doorstep. She gripped her apron until her knuckles went white."
+      }
     },
     "gino": {
-      "testo": "the teecher gave me my report and it sez WELL DONE!!! teresa has got it. get it to mum before 2 so tonite she makes me the cake. the one with apples"
+      "testo": "the teecher gave me my report and it sez WELL DONE!!! teresa has got it. get it to mum before 2 so tomorow nite she makes me the cake. the one with apples",
+      "esito": {
+        "ok": "The report reached Marta before two. Tonight there's apple cake, and Gino has already eaten half.",
+        "fallita": "The report stayed in Teresa's bag. Gino waited for the cake until evening, and nothing."
+      }
+    },
+    "margine": {
+      "nodo": "Two who hate each other, if they meet, stand still: an hour knotted, giving nothing."
     }
   },
   "g12": {
     "perline": {
-      "debito": "Bepi has a debt in Chioggia"
+      "debito": "the gossip about Bepi's debt"
     },
     "margine": {
       "nome": "Who names you, keeps you. Before weaving, I pin my name on a thread."
@@ -173,23 +221,39 @@
     },
     "titolo": "The Name",
     "lunardi": {
-      "testo": "Forgive the question, I have wondered for a week: what is the lacemaker's name? Everyone says “the little one”, as if it were a name. I should like to know it properly."
+      "testo": "Forgive the question, I have wondered for a week: what is the lacemaker's name? Everyone says “the little one”, as if it were a name. I should like to know it properly.",
+      "esito": {
+        "ok": "The doctor learned my name. He greeted me by it three times, like someone trying out a new word.",
+        "fallita": "The doctor never learned my name. He greeted me with a bow, “miss”, the way one greets a stranger."
+      }
     },
     "bepi": {
-      "testo": "going to Chioggia on the ferry to setle a thing. Nina comes back this morning. she mustnt know about the debt. nothing. I wil see to it",
+      "testo": "going to chiogia on the ferry to setle a thing. nina comes back tomoro morning. she mustnt know about the debt. nothing. I wil see to it",
       "r1": "Sooner or later she'll know, Bepi. Better from you than from the street.",
-      "r2": "She won't hear it from me, Bepi. But the island is small, and Teresa's tongue is long."
+      "r2": "She won't hear it from me, Bepi. But the island is small, and Teresa's tongue is long.",
+      "esito": {
+        "ok": "Nina heard nothing about the debt. Bepi came back from Chioggia with empty pockets and the face of a man who has settled everything.",
+        "fallita": "Nina heard about the debt from the street, before she heard it from her dad. Tonight nobody talks in the Scarpa house."
+      }
     },
     "zeno": {
-      "testo": "After three the Lighthouse is mine. Nobody comes up. I have some handwriting to think about."
+      "testo": "After three the Lighthouse is mine. Nobody comes up. I have some handwriting to think about.",
+      "esito": {
+        "ok": "Zeno stayed alone on the Lighthouse after three. When he came down he had the eyes of a man who has reread an old letter.",
+        "fallita": "Zeno didn't have the Lighthouse to himself. He grumbled at the wind until evening."
+      }
     },
     "teresa": {
-      "testo": "Dear, Bepi owes money to half of Chioggia, everyone knows but his daughter. It isn't right, at seventeen you're grown. Let Nina know it before two."
+      "testo": "Dear, Bepi owes money to half of Chioggia, everyone knows but his daughter. It isn't right, at seventeen you're grown. Let Nina know it before two.",
+      "esito": {
+        "ok": "Teresa wanted Nina to know, and Nina knows. Teresa has the air of someone who has done a good deed.",
+        "fallita": "Nina found out nothing before two. Teresa said “just as well” with the face of someone who doesn't mean it."
+      }
     }
   },
   "g13": {
     "perline": {
-      "febbre": "The fever: four sick"
+      "febbre": "the fever of the four sick"
     },
     "hint": {
       "spinta": "Four sick and only one doctor. Tonight's thread is counted: not one crossing too many.",
@@ -197,7 +261,7 @@
     },
     "alba": {
       "specchio": {
-        "1": "A whole night of visits. I have never walked so much, not even in Padua.",
+        "1": "A whole day of visits. I have never walked so much, not even in Padua.",
         "2": "In the chest, a lace from 1958 has the same shape as last night's."
       },
       "gino": {
@@ -219,25 +283,41 @@
     },
     "titolo": "The Longest Night",
     "marta": {
-      "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let him be well by tomorrow evening. I'm asking you please, and I never ask."
+      "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let him be well by tomorrow evening. I'm asking you please, and I never ask.",
+      "esito": {
+        "ok": "Gino is cured, and the moment he was cured he started running again. Marta let him, for once.",
+        "fallita": "Gino still has the fever, and calls for Grandmother in his sleep. Marta sits up by his bed."
+      }
     },
     "lunardi": {
-      "testo": "Miss Lacemaker, I have medicine for all but legs for one. The Scarpa girl has an exam to prepare: let her be cured. I put myself in her hands. In yours, miss, I mean.",
+      "testo": "Miss Lacemaker, I have medicine for all but legs for one. The Scarpa girl has books on her bed and fever on her: let her be cured. I put myself in her hands. In yours, miss, I mean.",
       "r1": "Thank you, Doctor. We'll do our best, both of us.",
-      "r2": "Thank you, Ettore. We'll do our best, both of us."
+      "r2": "Thank you, Ettore. We'll do our best, both of us.",
+      "esito": {
+        "ok": "Nina got out of bed before evening, books under her arm. The doctor pretended not to see her.",
+        "fallita": "Nina still has the fever. The doctor passed under her window twice, without being able to go up."
+      }
     },
     "gino": {
       "testo": "don piero is cofing and cant say mass so who rings the bell?? cure him. and when im better i want to see the litehouse lantern from INSIDE. promise??",
       "r1": "Get better first. The lantern can wait, and so can Zeno.",
-      "r2": "From inside, I promise. But the priest first: he knows how to ring the bell."
+      "r2": "From inside, I promise. But the priest first: he knows how to ring the bell.",
+      "esito": {
+        "ok": "The priest is cured. Gino has already tried the bell rope, just to be sure.",
+        "fallita": "The priest is still coughing, and on Sunday the bell will stay silent. Gino took it badly."
+      }
     },
     "nina": {
-      "testo": "Dad has the fever and says it's nothing, like he said about Mum. Cure him first, please. I'll hold out: I held out against Leopardi, I can hold out against anything."
+      "testo": "Dad has the fever and says it's nothing, like he said about Mum. Cure him, please. I'll hold out: I held out against Leopardi, I can hold out against anything.",
+      "esito": {
+        "ok": "Bepi is cured, and said it was nothing. Nina cried in the kitchen, where he couldn't see her.",
+        "fallita": "Bepi is still burning. Nina changed his cold cloths all night, as her mother used to."
+      }
     }
   },
   "g14": {
     "perline": {
-      "L_esame": "The exam result, for Nina"
+      "L_esame": "the exam result for Nina"
     },
     "hint": {
       "spinta": "Zeno never strays more than two places from the Lighthouse: the priest must go to him.",
@@ -253,7 +333,7 @@
         "2": "I never could say no to that family."
       },
       "ammessa": {
-        "1": "Accepted! Teacher-training college, Venice, from September. Stamp and signature!",
+        "1": "Accepted! Teacher-training in Venice, with a boarding place from Easter. It's stamped!",
         "2": "Now comes the hard part: telling Dad before the Pier finds out."
       },
       "letta": {
@@ -270,7 +350,11 @@
     "zeno": {
       "testo": "Tomorrow I must speak to the priest. I have something that isn't mine, and someone to ask forgiveness of. Get me to him. On my own I won't come down to the village.",
       "r1": "Whose forgiveness? And for what?",
-      "r2": "You'll get there. I'll bring the priest to you, in my arms if need be."
+      "r2": "You'll get there. I'll bring the priest to you, in my arms if need be.",
+      "esito": {
+        "ok": "Zeno came down to the village and talked to the priest, a long while, under the porch. Neither would say what about.",
+        "fallita": "Zeno didn't make it to the priest. Tonight, he says, he'll come down anyway: some things won't wait any longer."
+      }
     },
     "teresa": {
       "testo": "Dear, a silly question: if one day a letter came for me, just one, would you bring it to me? For thirty years I've carried everyone else's.",
@@ -278,10 +362,18 @@
       "r2": "Who would write to you? Tell me."
     },
     "nina": {
-      "testo": "The result from the teacher-training college has come. The postwoman has it, and the postwoman reads everything, even the stamps. Let it reach me by noon. Sealed."
+      "testo": "The result from the teacher-training college has come. The postwoman has it, and the postwoman reads everything, even the stamps. Let it reach me by noon. Sealed.",
+      "esito": {
+        "ok": "The result reached Nina sealed, the stamp unbroken. She opened it alone, on the Pier, and shouted.",
+        "fallita": "The exam envelope didn't arrive as it should, sealed and in time. Nina said thank you anyway, through her teeth."
+      }
     },
     "gino": {
-      "testo": "zeno is taking me to the litehouse at one!!! to see the lantern. dont tell mum. and not teresa eether or mum will know"
+      "testo": "zeno is taking me to the litehouse at one!!! to see the lantern. dont tell mum. and not teresa eether or mum will know",
+      "esito": {
+        "ok": "Gino climbed the Lighthouse at one. He came down with hands black with grease and eyes full of glass.",
+        "fallita": "At one Gino was far from the Lighthouse. Zeno waited for him at the top of the stairs, with the door open."
+      }
     }
   },
   "g15": {
@@ -299,7 +391,7 @@
         "2": "The arm will heal, Mr Scarpa. For a month, no oars and no wine."
       },
       "nero": {
-        "1": "At the top edge of the lace, far off, the black thread is back. Closer than yesterday.",
+        "1": "At the top edge of the lace, far off, the black thread is back. Closer than last time.",
         "2": "Someone out there is weaving. I feel it the way you feel the wind before the wave."
       },
       "campane": {
@@ -313,26 +405,46 @@
     },
     "titolo": "The Storm",
     "nina": {
-      "testo": "Dad went out fishing and the sea has turned. Let Zeno stay at the Lighthouse with the light on from six to eight in the evening, the whole time. Please. Please. Please."
+      "testo": "Dad went out fishing and the sea has turned. Let Zeno stay at the Lighthouse with the light on from six to eight in the evening, the whole time. Please. Please. Please.",
+      "esito": {
+        "ok": "The Lighthouse light stayed lit until eight. Bepi came home whole, and Nina slept.",
+        "fallita": "Without the Lighthouse light, Bepi's boat hit the shallows. Tonight Nina hasn't written me a word.",
+        "lasciato": "I let Nina's request drop. Nobody kept the Lighthouse light for Bepi."
+      }
     },
     "marta": {
-      "testo": "In this wind Gino doesn't go out. From three on, away from the Pier, or the water takes him and I haven't another son."
+      "testo": "In this wind Gino doesn't go out. From three on, away from the Pier, or the water takes him and I haven't another son.",
+      "esito": {
+        "ok": "Gino stayed away from the Pier the whole storm. Marta baked bread twice, to keep her hands busy.",
+        "fallita": "Gino ended up at the Pier with the storm on top of him. Marta hasn't spoken to anyone tonight, not even to the oven."
+      }
     },
     "piero": {
-      "testo": "At seven in the evening I'll ring the storm bells, as they did in the old days. Let me be in church: the boats at sea must hear them, and know that here we pray."
+      "testo": "At seven in the evening I'll ring the storm bells, as they did in the old days. Let me be in church: the boats at sea must hear them, and know that here we pray.",
+      "esito": {
+        "ok": "At seven in the evening the storm bells rang. From the sea, someone answered with a whistle.",
+        "fallita": "At seven the priest wasn't in church, and the bells stayed silent. The wind rang on its own."
+      }
     },
     "gino": {
       "testo": "I WANT TO SEE THE STORM FROM THE LITEHOUSE WITH ZENO!!! at 7 in the evening. im not scared. a bit yes but not much",
       "r1": "Tonight the Lighthouse is Zeno's and the light's.",
-      "r2": "Watch it from the window, with your mum beside you."
+      "r2": "Watch it from the window, with your mum beside you.",
+      "esito": {
+        "ok": "Gino watched the storm from the Lighthouse, beside Zeno. He says the waves were as tall as the church.",
+        "fallita": "Gino didn't get to the Lighthouse. He watched the heavy sea from the window, his nose on the glass."
+      }
+    },
+    "sera": {
+      "vuota": "Tonight the lagoon brings nothing: it is black, and the wind is rising."
     }
   },
   "g16": {
     "perline": {
-      "fascio": "The bundle of L.'s letters, for Ada, care of the Lighthouse",
-      "confessione": "Teresa's confession, in the well",
-      "segretoNina": "Nina's suitcase is already packed",
-      "segretoMarta": "Marta still keeps Ernesto's letter"
+      "fascio": "the bundle of L.'s letters for Ada, to go to Zeno",
+      "confessione": "Teresa's confession, shut in the well",
+      "segretoNina": "Nina's secret about her packed suitcase",
+      "segretoMarta": "Marta's secret about Ernesto's letter"
     },
     "hint": {
       "spinta": "With three secrets the well overflows: at its next crossing from on top, it gives it all.",
@@ -366,29 +478,50 @@
     },
     "titolo": "The Well Overflows",
     "zeno": {
-      "testo": "The priest keeps a bundle of letters he doesn't know he has. They're yours, but you have no thread: get them to me, at the Lighthouse, and I'll bring them. I waited for them too."
+      "testo": "The priest keeps a bundle of letters he doesn't know he has. They're yours, but you have no thread: get them to me, at the Lighthouse, and I'll bring them. I waited for them too.",
+      "esito": {
+        "ok": "The bundle came out of the well and reached Zeno. My mother's letters, after fourteen years, are on their way.",
+        "fallita": "The bundle never left the well, or never reached the Lighthouse. Zeno waited at his door until dark.",
+        "lasciato": "I let the bundle drop. My mother's letters stay in the well, ten steps from home."
+      }
     },
     "teresa": {
       "testo": "Dear, I've decided: I'll read nothing more that isn't mine. But I can't do it alone, letters fall into my hands like cherries. Tomorrow keep me away from that bundle.",
       "r1": "You'll manage. I'll watch you from the lace pillow.",
-      "r2": "Those letters are my mother's. Let them arrive whole."
+      "r2": "Those letters are my mother's. Let them arrive whole.",
+      "esito": {
+        "ok": "Teresa never touched the bundle. She walked past the church with her hands in her pockets, on purpose.",
+        "fallita": "The bundle went through Teresa's bag. She has promised not to read any more, and this time she believes it too."
+      }
     },
     "piero": {
-      "testo": "Free me. I hold more secrets in my breast than one man can keep, and I no longer know which are mine. Send me whoever has something to confess. Domine, non sum dignus.",
+      "testo": "Free me, my child. I hold more secrets in my breast than one man can keep, and I no longer know which are mine. Send me whoever has something to confess. Domine, non sum dignus.",
       "r1": "I'll free you. But first tell me what you're keeping, and for whom.",
-      "r2": "What you keep isn't all yours. Giving it back is half the forgiveness."
+      "r2": "What you keep isn't all yours. Giving it back is half the forgiveness.",
+      "esito": {
+        "ok": "Nina's and Marta's secrets reached the priest. The well was full; now, he says, it can breathe.",
+        "fallita": "The secrets he asked for never reached the priest. He prayed alone, his hands on the altar cloths."
+      }
     },
     "marta": {
-      "testo": "What I have to tell the priest I tell the Lord, with no go-between. My secret stays mine, like my sourdough starter. No confession tomorrow."
+      "testo": "What I have to tell the priest I tell the Lord, with no go-between. My secret stays mine, like my sourdough starter. No confession tomorrow.",
+      "esito": {
+        "ok": "Marta's secret never reached the priest. She baked as always, and the bread came out better.",
+        "fallita": "Marta's secret ended up in the well. She hasn't forgiven me, but she brought me bread all the same."
+      }
+    },
+    "margine": {
+      "trabocco": "Even wells fill up: with three secrets Don Piero overflows, and gives all from above.",
+      "traboccato": "The well has given everything back: what it kept is on its way again."
     }
   },
   "arc3": {
     "scuola": "the school (six children)",
     "perline": {
-      "febbre": "The fever",
-      "medicina": "The doctor's only dose, for the school"
+      "febbre": "the fever",
+      "medicina": "the doctor's only dose for the school"
     },
-    "titolo": "1958. The Fever",
+    "titolo": "The Fever",
     "eco": {
       "1": "The school first. Six children, and in my bag I have a single dose.",
       "2": "Marta stepped aside without a word. They hadn't spoken for twenty-two years already.",
@@ -400,14 +533,22 @@
       "1": "In 1958 Grandmother sent the doctor to the school. Nobody came to Aldo.",
       "2": "Aldo wanted to take Teresa to the mainland the next summer. There was no next summer."
     },
-    "margine": "One for six. And one who stayed."
+    "margine": "One for six. And one who stayed.",
+    "guida": {
+      "nomina": "Who carries the medicine, who has the fever? Threads are known by what they do.",
+      "strappo": "Nine and ten are torn: weave them again as they were, up to the eleven o'clock row."
+    },
+    "hint": {
+      "spinta": "The thread with the medicine is the doctor. The one with the fever, nobody reaches.",
+      "indizio": "The mending is right when at eleven every thread is where the recorded row finds it."
+    }
   },
   "arc4": {
     "perline": {
       "valigia": "Livia's suitcase",
-      "L_ada": "A letter from Livia for Ada, who is two"
+      "L_ada": "a letter from Livia for Ada, who is two"
     },
-    "titolo": "1951. The Nine O'Clock Ferry",
+    "titolo": "The Nine O'Clock Ferry",
     "eco": {
       "1": "Here's the suitcase, Livia. Have a good trip, and come back soon.",
       "2": "Don Piero, you keep it. Give it to her when she's old enough.",
@@ -419,7 +560,15 @@
       "1": "In 1951 Grandmother wove my mother to the Pier, at ferry time.",
       "2": "Zeno carried her suitcase. Her letter for me ended up in Don Piero's well."
     },
-    "margine": "Not yet."
+    "margine": "Not yet.",
+    "guida": {
+      "nomina": "A suitcase, a letter for a two-year-old girl: who carries them, and to whom?",
+      "strappo": "Seven and eight are torn: weave them again, and at nine whoever is at the Pier leaves."
+    },
+    "hint": {
+      "spinta": "The suitcase-bearer never strays from the Lighthouse. Its owner is at the Pier by nine.",
+      "indizio": "The little girl's letter ends up with the one who takes everything and never gives."
+    }
   },
   "diario": {
     "desiderio": {
@@ -427,7 +576,7 @@
       "marta": "Marta wants Gino not to leave the way Ernesto did. She says it kneading, without looking up, the way you say something that has hurt for thirty years.",
       "piero": "Don Piero wants to give back what he keeps. All of it: letters, secrets, years. He says a full well quenches no one's thirst.",
       "bepi": "Bepi wants to say goodbye to Nina properly, before she goes. He doesn't know how, and won't ask anyone, but he wants it more than his boat.",
-      "zeno": "Zeno wants to ask forgiveness of Livia, my mother. He won't say for what: he looks at the sea towards Chioggia and keeps quiet.",
+      "zeno": "Zeno wants to ask forgiveness of someone who is no longer here. He won't say whom, or for what: he looks at the sea towards Chioggia and keeps quiet.",
       "lunardi": "Dr Lunardi wants the island to call him by his name. Ettore. So far here they call him “the stranger”, or “the doctor”, or nothing."
     },
     "persone": {
@@ -437,7 +586,7 @@
         "passo": "Lunardi walks slowly, as in the city. To cure someone he must pass over them; if he only passes by, the fever stays where it is.",
         "nome": "A name passes like a rumour. Whoever gets it remembers me; whoever doesn't, little by little, forgets.",
         "ettore": "I called him Ettore, and the doctor went red to the ears. In Padua, he says, nobody called him that.",
-        "scarpa": "Lunardi got into the Scarpa house and cured Bepi. Bepi says it was the wine. The wine has no medical degree.",
+        "scarpa": "Lunardi cured Bepi with a hand on his forehead. Bepi will never thank him out loud, but now he greets him with a nod of the chin.",
         "nomeNo": "Lunardi asked everyone my name, and nobody could answer. Here, a name is passed from hand to hand.",
         "dottore": "I thanked the doctor and called him “Doctor”, like everyone does. He smiled anyway, but only with his mouth."
       },
@@ -463,7 +612,7 @@
       },
       "marta": {
         "nodo": "If Teresa and Marta cross, they knot: they stand still an hour and pass nothing, not even a greeting. The knot stays drawn in the lace.",
-        "forno": "In the week of the fever Marta's bakery never closed. It shuts for an hour for Gino, and nobody dares complain.",
+        "forno": "In the week of the fever Marta's bakery stayed open, except for one hour: Gino's. Nobody dared complain.",
         "segreto": "Marta still keeps Ernesto's letter, the one from '36. She never told the priest, and perhaps not even the Lord.",
         "confessione": "Marta didn't confess. Her secret is still hers: it weighs the same, she says, but it's hers.",
         "fornoChiuso": "I told Marta to shut the bakery for an hour and stay with Gino. For the first time in thirty years, the bread waited.",
@@ -481,11 +630,11 @@
         "finestra": "Gino will watch the storm from the window, with his mum beside him. He says it's the same. It isn't, but that's all right."
       },
       "nina": {
-        "ammessa": "Nina has a place at the teacher-training college in Venice, from September. She's already decided where she'll sit: front row, by the window.",
+        "ammessa": "Nina has a place at the teacher-training college in Venice, boarding from Easter. She's already decided where she'll sit: front row, by the window.",
         "venezia": "Nina keeps the Venice ferry timetable under her pillow. She knows it by heart, like Leopardi, and recites it to fall asleep.",
         "valigia": "Nina has a suitcase packed under her bed. It's the worst-kept secret on the island: even the well knows.",
         "febbre": "Nina caught the fever from Gino, hand to hand. She reads Manzoni in bed, and says it's the right moment.",
-        "debito": "Teresa told Nina about Bepi's debt. It was only right, she says. Bepi won't say a word to her any more."
+        "debito": "Nina has found out about the debt. Bepi won't speak to anyone any more."
       },
       "zeno": {
         "lettera": "Zeno kept Grandmother's letter for me all this time. She gave it to him herself, at two, passing over him like a wave.",
@@ -506,8 +655,8 @@
         "g09": "With the doctor came the fever, or perhaps the other way round. The island looks at Lunardi the way you look at the sea in winter: from far off.",
         "g10": "In the week of the fever I understood something: whoever cures must be on top, and whoever loves wants to be near. It isn't always the same thing.",
         "g11": "Teresa and Marta knotted on my lace pillow, or steered clear of each other. Either way, the knot is there.",
-        "g12": "From tonight I pin my name on a thread. If I don't, the island forgets me a little at a time, as it forgot my mother.",
-        "g13": "The longest night: four sick, one doctor, the thread counted. In 1958 Grandmother chose. I tried not to choose.",
+        "g12": "From tonight I pin my name to a thread. If I don't, the island forgets me a little at a time, the way you forget a song.",
+        "g13": "The longest night: four sick, one doctor, the thread counted. I tried not to choose, and the thread told me what it costs.",
         "g14": "My mother is alive. Her name is Livia. I read Grandmother's letter three times, then put it under my pillow.",
         "g15": "During the storm the black thread came back to the edge of the lace. Someone outside is weaving towards us.",
         "g16": "Now I know where my mother's letters were: ten steps from home, under the altar cloths, for fourteen years.",
@@ -521,20 +670,20 @@
       },
       "anno1958": {
         "cassapanca": "In the chest there is a lace dated 1958. If I say that year, Teresa crosses the street and Marta crosses herself.",
-        "notte": "Last night I had to choose who to cure first. In 1958 Grandmother made the same choice: the lace in the chest has the same shape.",
+        "notte": "Four sick, a single doctor, and the thread counted. In the chest, the 1958 lace has the same shape as last night.",
         "risposta": "In 1958 Grandmother saved the six schoolchildren and left the fever to Aldo, Teresa's fiancé.",
-        "pista": "Where to look: Teresa speaks of a certain Aldo only when it rains. In the 1958 lace one thread goes towards the school, and one goes nowhere."
+        "pista": "Where to look: with the fever, the island's old folk say “like in fifty-eight” and change the subject. Teresa speaks of a certain Aldo only when it rains."
       },
       "chiL": {
         "risposta": "L. is Livia, my mother. She is alive, in Chioggia. She has written to me since I was two, and her letters never arrived."
       },
       "avorio": {
-        "lettera": "The ivory thread was Grandmother: she wove herself in just once, to give Zeno the letter for me."
+        "lettera": "The ivory thread was Grandmother: the last time she wove herself in, to give Zeno the letter for me."
       },
       "madre": {
         "apre": "Grandmother sent my mother away on the nine o'clock ferry. Why? In the chest there's a lace from 1951 I haven't opened yet.",
         "risposta": "My mother wanted an open lace, where people choose for themselves. Grandmother, afraid, wove her to the Pier at ferry time.",
-        "pista": "Where to look: Zeno watches the sea towards Chioggia. In 1951 someone gave him a suitcase to carry to the Pier, at ferry time."
+        "pista": "Where to look: the 1951 lace is still waiting in the chest. If I say that year, Zeno looks at the sea towards Chioggia."
       },
       "pozzo": {
         "pista": "Don Piero keeps something he doesn't know he has. Where to look: a well overflows when it holds three secrets.",
@@ -558,7 +707,7 @@
     "lettere": {
       "bottiglia_nodo_nero": "After the storm the lagoon brought an empty bottle. Inside, a knot of black thread. Nobody writes any more: someone weaves.",
       "fascio": "The bundle of my mother's letters: three readable and a hundred and sixty-five more, tied with bakery string. One a month, for fourteen years.",
-      "clotilde": "Grandmother's letter is in the sepia hand of the Book's margins. At the bottom, a single letter: C. As on the note on the pillow."
+      "clotilde": "Grandmother's letter is in the sepia hand of the Book's margins. At the bottom, a single letter: C. As on the note pinned to the lace pillow."
     }
   },
   "lettere": {
@@ -566,7 +715,7 @@
     "lettera_L9": "My dear, in Chioggia the women clean fish on their doorsteps and sing. I don't sing, but I clean fish beautifully by now: my hands are full of little cuts that don't hurt any more. Sometimes I think hands know how to do things the head never decided. Yours, who knows. I hope they can't clean fish. L.",
     "lettera_L10": "My dear, today I saw a little girl with plaits waiting for the ferry alone, serious as a notary, with a bag bigger than she was. It wasn't you, I know: you're grown now, and perhaps you don't wear plaits any more. But for a moment I stopped breathing, and the ferry left without me. I took the next one. L.",
     "lettera_L11": "My dear, she's dead, isn't she? Last night the sea was different. I'm coming. I don't know how yet. L.",
-    "lettera_clotilde": "Ada,\nif Zeno gives you this letter, it means the ivory thread held for an hour, and that I am gone.\nYour mother is alive. Her name is Livia, and it was I who sent her away, on the nine o'clock ferry, when you were two. She wanted to weave an open lace, to let people choose for themselves. I was afraid. I had seen what people do when they choose for themselves.\nShe has written to you every month. The letters are with Don Piero: I made sure they went there, one by one, every day for fourteen years. He doesn't even know he is keeping them.\nI did other things too. You will find them in the chest. I don't ask you to forgive me.\nI ask one thing only: don't believe anyone who tells you the island needs a lacemaker. I believed it for sixty years.\nTwo lacemakers on the same lace tear it. That much, at least, is true. I think.\nC.",
+    "lettera_clotilde": "Ada,\nif Zeno gives you this letter, it means the ivory thread held until three, and that I am gone.\nYour mother is alive. Her name is Livia, and it was I who sent her away, on the nine o'clock ferry, when you were two. She wanted to weave an open lace, to let people choose for themselves. I was afraid. I had seen what people do when they choose for themselves.\nShe has written to you every month. The letters are with Don Piero: I made sure they went there, one by one, for fourteen years. He doesn't even know he is keeping them.\nI did other things too. You will find them in the chest. I don't ask you to forgive me.\nI ask one thing only: don't believe anyone who tells you the island needs a lacemaker. I believed it for sixty years.\nTwo lacemakers on the same lace tear it. That much, at least, is true. I think.\nC.",
     "fascio_1": "My Ada, today you are two and a half and I am in Chioggia, in a room that smells of nets. I left you with your grandmother because it was the only way to leave you a whole island, with the bakery, the church and the Lighthouse. One day you'll understand, or you won't, and that will be all right too. I'll write every month, I promise. Don Piero will bring you the letters; he's a good man. Mum",
     "fascio_2": "My Ada, you are nine. They say there's fever on the island, and that the schoolchildren have all got well, one after another. I cried in the middle of the market like a fool, with the fish crates all around me. I know who deserves the credit, and I know what it cost. Someone always pays for that kind of credit. Keep your neck covered, and don't run about when you're sweaty. Mum",
     "fascio_3": "My Ada, fifteen. I no longer know what your face looks like: I picture you with your grandmother's nose, though I hope not. I've learned to weave on my own, in sepia black, which doesn't show on blue velvet. I'm not using it yet. I keep it ready, the way you keep a suitcase under the bed. The day she is gone, I'm coming. Mum"

@@ -175,30 +175,56 @@
         }
       },
       {
-        "id": "g16.alba.fascio",
+        "id": "g16.alba.teresa",
         "priority": 100,
-        "background": "dio/faro/notte",
+        "background": "dio/chiesa/giorno",
         "figures": [
           {
-            "character": "zeno",
-            "pose": "porge",
+            "character": "teresa",
+            "pose": "ferma",
             "x": 0.5
           }
         ],
         "lines": [
           {
-            "speaker": "zeno",
-            "textKey": "atto2.g16.alba.fascio.1",
-            "forgetKey": "atto2.g16.alba.fascio.1d"
+            "speaker": "teresa",
+            "textKey": "atto2.g16.alba.teresa.1",
+            "forgetKey": "atto2.g16.alba.teresa.1d"
           },
           {
-            "speaker": "zeno",
-            "textKey": "atto2.g16.alba.fascio.2",
-            "forgetKey": "atto2.g16.alba.fascio.2d"
+            "speaker": "teresa",
+            "textKey": "atto2.g16.alba.teresa.2",
+            "forgetKey": "atto2.g16.alba.teresa.2d"
           }
         ],
         "when": {
-          "ok": "g16.zeno"
+          "failed": "g16.teresa"
+        },
+        "dopo": "g16.alba.trabocco"
+      },
+      {
+        "id": "g16.alba.marta",
+        "priority": 100,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g16.alba.marta.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g16.alba.marta.2"
+          }
+        ],
+        "when": {
+          "ok": "g16.marta"
         }
       },
       {
@@ -234,57 +260,52 @@
         }
       },
       {
-        "id": "g16.alba.teresa",
-        "priority": 80,
-        "background": "dio/chiesa/giorno",
+        "id": "g16.alba.fascio",
+        "priority": 100,
+        "background": "dio/stanza/notte",
         "figures": [
           {
-            "character": "teresa",
-            "pose": "ferma",
+            "character": "zeno",
+            "pose": "porge",
             "x": 0.5
           }
         ],
         "lines": [
           {
-            "speaker": "teresa",
-            "textKey": "atto2.g16.alba.teresa.1",
-            "forgetKey": "atto2.g16.alba.teresa.1d"
+            "speaker": "zeno",
+            "textKey": "atto2.g16.alba.fascio.1",
+            "forgetKey": "atto2.g16.alba.fascio.1d"
           },
           {
-            "speaker": "teresa",
-            "textKey": "atto2.g16.alba.teresa.2",
-            "forgetKey": "atto2.g16.alba.teresa.2d"
+            "speaker": "zeno",
+            "textKey": "atto2.g16.alba.fascio.2",
+            "forgetKey": "atto2.g16.alba.fascio.2d"
           }
         ],
         "when": {
-          "failed": "g16.teresa"
-        }
-      },
-      {
-        "id": "g16.alba.marta",
-        "priority": 60,
-        "background": "dio/forno/giorno",
-        "figures": [
-          {
-            "character": "marta",
-            "pose": "ferma",
-            "x": 0.5
-          }
-        ],
-        "lines": [
-          {
-            "speaker": "marta",
-            "textKey": "atto2.g16.alba.marta.1"
-          },
-          {
-            "speaker": "marta",
-            "textKey": "atto2.g16.alba.marta.2"
-          }
-        ],
-        "when": {
-          "ok": "g16.marta"
+          "ok": "g16.zeno"
         }
       }
     ]
-  }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "atto2.g16.margine.trabocco"
+    },
+    {
+      "k": "pulsa",
+      "target": "fuso",
+      "hour": 7,
+      "thread": "piero"
+    },
+    {
+      "k": "margine",
+      "when": "evento",
+      "evento": "trabocca",
+      "textKey": "atto2.g16.margine.traboccato"
+    }
+  ]
 }

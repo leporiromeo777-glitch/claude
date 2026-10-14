@@ -30,7 +30,11 @@
         "setFlag": "martaLunardi",
         "value": "diffida"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g09.marta.esito.ok",
+      "fallita": "atto2.g09.marta.esito.fallita"
+    }
   },
   {
     "id": "g09.teresa",
@@ -69,7 +73,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g09.teresa.esito.ok",
+      "fallita": "atto2.g09.teresa.esito.fallita"
+    }
   },
   {
     "id": "g09.nina",
@@ -86,7 +94,11 @@
         "setFlag": "ninaFebbre",
         "value": true
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g09.nina.esito.ok",
+      "fallita": "atto2.g09.nina.esito.fallita"
+    }
   },
   {
     "id": "g10.marta",
@@ -126,6 +138,10 @@
     ],
     "availableIf": {
       "done": "arc1"
+    },
+    "esito": {
+      "ok": "atto2.g10.marta.esito.ok",
+      "fallita": "atto2.g10.marta.esito.fallita"
     }
   },
   {
@@ -172,6 +188,10 @@
       "not": {
         "done": "arc1"
       }
+    },
+    "esito": {
+      "ok": "atto2.g10.marta.esito.ok",
+      "fallita": "atto2.g10.marta.esito.fallita"
     }
   },
   {
@@ -193,6 +213,10 @@
           "b": "bepi"
         }
       ]
+    },
+    "esito": {
+      "ok": "atto2.g10.lunardi.esito.ok",
+      "fallita": "atto2.g10.lunardi.esito.fallita"
     }
   },
   {
@@ -204,6 +228,10 @@
       "t": "nonHa",
       "who": "piero",
       "bead": "febbre"
+    },
+    "esito": {
+      "ok": "atto2.g10.piero.esito.ok",
+      "fallita": "atto2.g10.piero.esito.fallita"
     }
   },
   {
@@ -240,7 +268,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g10.bepi.esito.ok",
+      "fallita": "atto2.g10.bepi.esito.fallita"
+    }
   },
   {
     "id": "g11.teresa",
@@ -257,7 +289,11 @@
         "setFlag": "primoNodo",
         "value": true
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g11.teresa.esito.ok",
+      "fallita": "atto2.g11.teresa.esito.fallita"
+    }
   },
   {
     "id": "g11.marta",
@@ -296,7 +332,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g11.marta.esito.ok",
+      "fallita": "atto2.g11.marta.esito.fallita"
+    }
   },
   {
     "id": "g11.gino",
@@ -307,6 +347,10 @@
       "t": "consegnata",
       "bead": "L_scuola",
       "by": 14
+    },
+    "esito": {
+      "ok": "atto2.g11.gino.esito.ok",
+      "fallita": "atto2.g11.gino.esito.fallita"
     }
   },
   {
@@ -323,7 +367,11 @@
       {
         "desire": "lunardi"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g12.lunardi.esito.ok",
+      "fallita": "atto2.g12.lunardi.esito.fallita"
+    }
   },
   {
     "id": "g12.bepi",
@@ -359,7 +407,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g12.bepi.esito.ok",
+      "fallita": "atto2.g12.bepi.esito.fallita"
+    }
   },
   {
     "id": "g12.zeno",
@@ -382,6 +434,10 @@
           "hour": 16
         }
       ]
+    },
+    "esito": {
+      "ok": "atto2.g12.zeno.esito.ok",
+      "fallita": "atto2.g12.zeno.esito.fallita"
     }
   },
   {
@@ -394,6 +450,10 @@
       "who": "nina",
       "bead": "voce:debito",
       "by": 14
+    },
+    "esito": {
+      "ok": "atto2.g12.teresa.esito.ok",
+      "fallita": "atto2.g12.teresa.esito.fallita"
     }
   },
   {
@@ -410,7 +470,11 @@
         "addFlag": "febbreCurati",
         "by": 1
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g13.marta.esito.ok",
+      "fallita": "atto2.g13.marta.esito.fallita"
+    }
   },
   {
     "id": "g13.lunardi",
@@ -454,7 +518,11 @@
         "addFlag": "febbreCurati",
         "by": 1
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g13.lunardi.esito.ok",
+      "fallita": "atto2.g13.lunardi.esito.fallita"
+    }
   },
   {
     "id": "g13.gino",
@@ -490,7 +558,11 @@
         "addFlag": "febbreCurati",
         "by": 1
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g13.gino.esito.ok",
+      "fallita": "atto2.g13.gino.esito.fallita"
+    }
   },
   {
     "id": "g13.nina",
@@ -506,7 +578,11 @@
         "addFlag": "febbreCurati",
         "by": 1
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g13.nina.esito.ok",
+      "fallita": "atto2.g13.nina.esito.fallita"
+    }
   },
   {
     "id": "g14.zeno",
@@ -547,7 +623,11 @@
       {
         "desire": "zeno"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g14.zeno.esito.ok",
+      "fallita": "atto2.g14.zeno.esito.fallita"
+    }
   },
   {
     "id": "g14.teresa",
@@ -596,6 +676,10 @@
           "bead": "letta:L_esame"
         }
       ]
+    },
+    "esito": {
+      "ok": "atto2.g14.nina.esito.ok",
+      "fallita": "atto2.g14.nina.esito.fallita"
     }
   },
   {
@@ -614,7 +698,11 @@
         "setFlag": "ginoFaro",
         "value": true
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g14.gino.esito.ok",
+      "fallita": "atto2.g14.gino.esito.fallita"
+    }
   },
   {
     "id": "g15.nina",
@@ -661,7 +749,12 @@
         "setFlag": "bepi",
         "value": "ferito"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g15.nina.esito.ok",
+      "fallita": "atto2.g15.nina.esito.fallita",
+      "lasciato": "atto2.g15.nina.esito.lasciato"
+    }
   },
   {
     "id": "g15.marta",
@@ -674,6 +767,10 @@
       "place": "molo",
       "from": 15,
       "to": 20
+    },
+    "esito": {
+      "ok": "atto2.g15.marta.esito.ok",
+      "fallita": "atto2.g15.marta.esito.fallita"
     }
   },
   {
@@ -686,6 +783,10 @@
       "who": "piero",
       "place": "chiesa",
       "hour": 19
+    },
+    "esito": {
+      "ok": "atto2.g15.piero.esito.ok",
+      "fallita": "atto2.g15.piero.esito.fallita"
     }
   },
   {
@@ -726,7 +827,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g15.gino.esito.ok",
+      "fallita": "atto2.g15.gino.esito.fallita"
+    }
   },
   {
     "id": "g16.zeno",
@@ -758,7 +863,12 @@
         "setFlag": "lettereLivia",
         "value": "sepolte"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g16.zeno.esito.ok",
+      "fallita": "atto2.g16.zeno.esito.fallita",
+      "lasciato": "atto2.g16.zeno.esito.lasciato"
+    }
   },
   {
     "id": "g16.teresa",
@@ -797,7 +907,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g16.teresa.esito.ok",
+      "fallita": "atto2.g16.teresa.esito.fallita"
+    }
   },
   {
     "id": "g16.piero",
@@ -848,7 +962,11 @@
       {
         "desire": "piero"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto2.g16.piero.esito.ok",
+      "fallita": "atto2.g16.piero.esito.fallita"
+    }
   },
   {
     "id": "g16.marta",
@@ -859,6 +977,10 @@
       "t": "nonHa",
       "who": "piero",
       "bead": "segreto:marta"
+    },
+    "esito": {
+      "ok": "atto2.g16.marta.esito.ok",
+      "fallita": "atto2.g16.marta.esito.fallita"
     }
   }
 ]

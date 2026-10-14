@@ -8,7 +8,7 @@
  * fin_seppia, testi chiave della bibbia (GDD 6.4, 6.6) e il numero di parole italiane.
  */
 import { describe, expect, it } from 'vitest';
-import type { CharacterId, Condition, ContentDB, LevelDef, NoteDef, OccasionDef, StoryCond } from '../../../src/core/types';
+import type { CharacterId, Condition, ContentDB, Effect, LevelDef, NoteDef, OccasionDef, StoryCond, VignetteDef } from '../../../src/core/types';
 import { loadContent } from '../../../src/content/loader';
 import { validateContent } from '../../../src/content/validate';
 import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
@@ -56,12 +56,15 @@ interface Story {
   memoria: Partial<Record<CharacterId, number>>;
   flags: Record<string, string | number | boolean>;
   desires: Set<string>;
+  /** Bigliettini riusciti (per le varianti con `availableIf: {ok}`). */
+  ok?: Set<string>;
 }
 function holds(c: StoryCond, s: Story): boolean {
   if ('all' in c) return c.all.every((x) => holds(x, s));
   if ('any' in c) return c.any.some((x) => holds(x, s));
   if ('not' in c) return !holds(c.not, s);
   if ('done' in c) return s.done.has(c.done);
+  if ('ok' in c) return s.ok?.has(c.ok) ?? false;
   if ('memoria' in c) {
     const m = s.memoria[c.memoria] ?? 0;
     return (c.gte === undefined || m >= c.gte) && (c.lte === undefined || m <= c.lte);
@@ -78,6 +81,8 @@ function holds(c: StoryCond, s: Story): boolean {
 const STATES: Story[] = [
   { done: new Set(), memoria: Object.fromEntries(CAST.map((c) => [c, 3])), flags: {}, desires: new Set() },
   { done: new Set(['arc1', 'arc2', 'arc3', 'arc4', 'arc5', 'arc6']), memoria: Object.fromEntries(CAST.map((c) => [c, 0])), flags: {}, desires: new Set() },
+  // Revisione 1: le varianti di g19 (dopo la pace) e di g22 (Teresa aveva riconosciuto Livia in g17).
+  { done: new Set(['arc1', 'arc3']), memoria: Object.fromEntries(CAST.map((c) => [c, 1])), flags: { riconciliate: true }, desires: new Set(), ok: new Set(['g17.teresa']) },
 ];
 const available = (day: string, s: Story): NoteDef[] => notesOf(day).filter((n) => !n.availableIf || holds(n.availableIf, s));
 
@@ -182,12 +187,13 @@ describe('validazione e testi', () => {
     }
   });
 
-  it('il report: parole italiane del pacchetto tra 9.000 e 12.000', () => {
+  // Revisione 1: gli esiti dei bigliettini (C05), i tutorial e i nuovi epiloghi alzano il conteggio.
+  it('il report: parole italiane del pacchetto tra 9.000 e 14.000', () => {
     const own = [...IT.entries()].filter(([k]) => /^(atto2|atto3|finali)\./.test(k));
     const words = own.reduce((n, [, v]) => n + v.split(/\s+/).filter(Boolean).length, 0);
     console.info(`contenuti-atti23: ${own.length} testi, ${words} parole italiane`);
     expect(words).toBeGreaterThanOrEqual(9000);
-    expect(words).toBeLessThanOrEqual(12000);
+    expect(words).toBeLessThanOrEqual(14000);
   });
 });
 
@@ -208,7 +214,7 @@ describe('bigliettini e vignette', () => {
     for (const s of STATES) for (const d of ACT3) expect(available(d, s).length, d).toBe(4);
   });
 
-  it('g23: quattro biglietti con ending A merlettaia, B seppia, C chiuso, D aperto, e i testi del GDD 6.6', () => {
+  it('g23: due bigliettini semplici la sera, poi quattro biglietti con ending A merlettaia, B seppia, C chiuso, D aperto (GDD 6.6)', () => {
     const textOf: Record<string, string> = {
       merlettaia: 'Resta. L\'isola ha bisogno di una merlettaia, e tua madre ha bisogno di andarsene libera, stavolta.',
       seppia: 'Dammi il tombolo, Ada. Tu vivi. Io ho già vissuto abbastanza fuori.',
@@ -217,7 +223,11 @@ describe('bigliettini e vignette', () => {
     };
     const authors: Record<string, string> = { seppia: 'livia', chiuso: 'clotilde', aperto: 'ada' };
     for (const s of STATES) {
-      const ns = available('g23', s);
+      // La sera prima della notte di g23: due richieste semplici (D14); la scelta usa gli altri quattro.
+      const sera = available('g23', s).filter((n) => !n.ending);
+      expect(sera.length).toBe(2);
+      expect(sera.every((n) => n.request !== undefined)).toBe(true);
+      const ns = available('g23', s).filter((n) => n.ending);
       expect(ns.length).toBe(4);
       expect(ns.map((n) => n.ending).sort()).toEqual(['aperto', 'chiuso', 'merlettaia', 'seppia']);
       for (const n of ns) {
@@ -229,7 +239,7 @@ describe('bigliettini e vignette', () => {
       const a = ns.find((n) => n.ending === 'merlettaia') as NoteDef;
       expect(a.author).toBe((s.memoria.zeno ?? 0) >= 1 ? 'zeno' : 'piero');
     }
-    expect(db.campaign.days.find((d) => d.id === 'g23')?.pins).toBe(1);
+    expect(db.campaign.days.find((d) => d.id === 'g23')?.pins).toBe(2);
   });
 
   it('ogni bigliettino citato da un livello esiste, e ogni bigliettino del pacchetto è citato dal suo giorno', () => {
@@ -237,9 +247,11 @@ describe('bigliettini e vignette', () => {
     for (const n of MY_NOTES) expect(level(n.day).notes ?? [], n.id).toContain(n.id);
   });
 
-  it('3-5 vignette dell\'alba per giornata, con condizioni sui flag di storia', () => {
+  it('3-5 vignette dell\'alba per giornata (una variante conta con la sua scena), con condizioni sui flag di storia', () => {
     for (const d of STORY) {
-      const cs = level(d).dawn?.candidates ?? [];
+      const all = level(d).dawn?.candidates ?? [];
+      // Una variante ha l'id della sua scena più un suffisso (g19.alba.medicine.pace).
+      const cs = all.filter((v) => !all.some((w) => w !== v && v.id.startsWith(`${w.id}.`)));
       expect(cs.length, d).toBeGreaterThanOrEqual(3);
       expect(cs.length, d).toBeLessThanOrEqual(5);
     }
@@ -422,22 +434,24 @@ describe('finali (GDD 6.6)', () => {
   }
   const visibleEpilogue = (id: string, s: Story) => ending(id).epilogue.filter((v) => !v.when || holds(v.when, s));
 
-  it('quattro finali: livelli, epiloghi di 3-4 vignette per ogni combinazione di destini, chiuso non conta come finale', () => {
+  it('quattro finali: livelli, epiloghi di 3-4 vignette (8 nel finale vero) per ogni combinazione di destini, chiuso non conta come finale', () => {
     expect([...db.endings.keys()].sort()).toEqual(['aperto', 'chiuso', 'merlettaia', 'seppia']);
     for (const [id, e] of db.endings) {
       expect(e.level).toBe(db.campaign.finals[id]);
       expect(e.countsAsEnding, id).toBe(id !== 'chiuso');
       for (const s of FATE_STATES) {
         const vis = visibleEpilogue(id, s);
-        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeGreaterThanOrEqual(3);
-        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeLessThanOrEqual(4);
+        // D14: il finale vero aggiunge le vignette che chiudono i desideri e il nastro.
+        const [lo, hi] = id === 'aperto' ? [8, 8] : [3, 4];
+        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeGreaterThanOrEqual(lo);
+        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeLessThanOrEqual(hi);
       }
     }
     // L'ultima riga di ogni epilogo è quella del GDD 6.6, qualunque siano i destini.
     const lastLines: Record<string, string> = {
       merlettaia: 'Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.',
       seppia: 'Mia madre tesse ancora. Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe.',
-      aperto: 'Per un inverno intero ho imparato a comandare le persone. Poi ho imparato a conoscerle.',
+      aperto: 'Per un autunno e un inverno ho imparato a comandare le persone. Poi ho imparato a conoscerle.',
       chiuso: 'Il punto di Clotilde: chi lo ripete, lo ripete per sempre.',
     };
     for (const s of FATE_STATES) {
@@ -795,7 +809,7 @@ describe('bibbia della verità (GDD 6.1, 6.4)', () => {
     ]);
     expect(vignetteText('g17.alba.livia')[0]).toBe('Nessuno qui sa chi sono. Va bene così. Basta che lei mi veda.');
     expect([...vignetteText('g18.alba.pace'), ...vignetteText('g18.alba.pane').slice(0, 1)]).toEqual([
-      'Trent\'anni, Teresa.', 'Trenta. E non era nemmeno colpa mia, si scopre.', 'Lo so. Siediti, che il pane è caldo.',
+      'Trent\'anni, Teresa.', 'Trenta. E non era nemmeno colpa mia, si scopre: me l\'ha detto la piccola.', 'Lo so. Siediti, che il pane è caldo.',
     ]);
     expect(vignetteText('g16.alba.trabocco')).toEqual(['Credevo di custodire peccati. Erano lettere.', 'Che Dio mi perdoni la distrazione.']);
   });
@@ -812,8 +826,539 @@ describe('bibbia della verità (GDD 6.1, 6.4)', () => {
 
   it('la lettera della nonna è rimasta a Zeno dalla notte del prologo fino a g14, non «per una notte»', () => {
     const entry = [...db.diary.values()].find((d) => d.id === 'persone.zeno.lettera');
-    expect(entry?.unlock).toEqual({ done: 'g14' });
+    // Revisione 1 (C03): la voce arriva quando Ada legge la lettera, alla fine dell'alba di g14.
+    expect(entry?.unlock).toEqual({ knows: 'oggetto', id: 'lettera_clotilde' });
     expect(t('atto2.diario.persone.zeno.lettera')).toContain('per tutto questo tempo');
     expect(t('atto2.diario.persone.zeno.lettera')).not.toContain('per una notte');
+  });
+});
+
+// ═════════════════════ Revisione 1 (REVISIONE-1.md, gruppo contenuti-atti23) ═════════════════════
+const EN = catalogs.tables.en;
+const te = (key: string): string => EN.get(key) ?? '';
+
+// ───────── Campagna simulata per il Taccuino (C03, C04, D09, D10) ─────────
+// Momenti della campagna dalla sera di g09 alla sera della scelta: sera (oggetto della sera prima letto),
+// fine della notte (giornata fatta), oggetto dell'alba letto, Archivio rammendato. Per ogni voce del Taccuino
+// si calcola se *può* essere sbloccata (qualche esito dei bigliettini la rende vera) e se *deve* esserlo.
+interface Moment { label: string; day: number; night: boolean; done: Set<string>; objects: Set<string>; mayObjects: Set<string> }
+interface Tri { may: boolean; must: boolean }
+const DAY_IDS = db.campaign.days.map((d) => d.id);
+const noteDay = (id: string): number => DAY_IDS.indexOf(db.notes.get(id)?.day ?? '');
+const effectsOf = (n: NoteDef): Effect[] => [...(n.onOk ?? []), ...(n.onFail ?? []), ...(n.onIgnore ?? []), ...(n.replies ?? []).flatMap((r) => r.effects)];
+/** Prima giornata in cui un bigliettino può far conoscere il desiderio (Infinity se nessuno). */
+function desireDay(c: string): number {
+  let best = Number.POSITIVE_INFINITY;
+  for (const n of db.notes.values()) if (effectsOf(n).some((e) => 'desire' in e && e.desire === c)) best = Math.min(best, noteDay(n.id));
+  return best;
+}
+function flagMay(c: { flag: string; eq?: unknown }, m: Moment): boolean {
+  for (const n of db.notes.values()) {
+    if (noteDay(n.id) > m.day) continue;
+    for (const e of effectsOf(n)) {
+      if ('setFlag' in e && e.setFlag === c.flag && (c.eq === undefined || e.value === c.eq)) return true;
+      if ('addFlag' in e && e.addFlag === c.flag && c.eq === undefined) return true;
+    }
+  }
+  return false;
+}
+function tri(c: StoryCond, m: Moment, depth = 0): Tri {
+  if ('all' in c) {
+    const xs = c.all.map((x) => tri(x, m, depth));
+    return { may: xs.every((x) => x.may), must: xs.every((x) => x.must) };
+  }
+  if ('any' in c) {
+    const xs = c.any.map((x) => tri(x, m, depth));
+    return { may: xs.some((x) => x.may), must: xs.some((x) => x.must) };
+  }
+  if ('not' in c) {
+    const x = tri(c.not, m, depth);
+    return { may: !x.must, must: !x.may };
+  }
+  if ('done' in c) return { may: m.done.has(c.done), must: m.done.has(c.done) };
+  if ('knows' in c) {
+    if (c.knows === 'oggetto') return { may: m.objects.has(c.id) || m.mayObjects.has(c.id), must: m.objects.has(c.id) };
+    if (c.knows === 'diary') {
+      const d = db.diary.get(c.id);
+      return d && depth < 8 ? tri(d.unlock, m, depth + 1) : { may: true, must: false };
+    }
+    if (c.knows === 'desire') return { may: desireDay(c.id) <= m.day, must: false };
+    return { may: true, must: false };
+  }
+  if ('ok' in c || 'failed' in c || 'ignored' in c) {
+    const d = noteDay('ok' in c ? c.ok : 'failed' in c ? c.failed : c.ignored);
+    return { may: d >= 0 && (d < m.day || (d === m.day && m.night)), must: false };
+  }
+  if ('accepted' in c || 'reply' in c) {
+    const d = noteDay('accepted' in c ? c.accepted : c.reply);
+    return { may: d >= 0 && d <= m.day, must: false };
+  }
+  if ('flag' in c) return { may: flagMay(c, m), must: false };
+  return { may: true, must: false }; // eventi della notte, memoria
+}
+function campaignMoments(): Moment[] {
+  const out: Moment[] = [];
+  const done = new Set<string>();
+  const objects = new Set<string>();
+  const mayObjects = new Set<string>();
+  const add = (o: string): void => {
+    // Il fascio arriva solo se le lettere sono liberate (C04): può esserci, non deve.
+    if (o === 'fascio_lettere') ['fascio_lettere', 'fascio_1', 'fascio_2', 'fascio_3'].forEach((x) => mayObjects.add(x));
+    else objects.add(o);
+  };
+  const start = DAY_IDS.indexOf('g09');
+  const snap = (label: string, day: number, night: boolean): void => {
+    if (day >= start) out.push({ label, day, night, done: new Set(done), objects: new Set(objects), mayObjects: new Set(mayObjects) });
+  };
+  db.campaign.days.forEach((d, i) => {
+    const prev = db.campaign.days[i - 1];
+    if (prev?.objectAfter) add(prev.objectAfter);
+    snap(`sera ${d.id}`, i, false);
+    done.add(d.id);
+    snap(`notte ${d.id}`, i, true);
+    if (d.dawnObject) {
+      add(d.dawnObject);
+      snap(`oggetto ${d.id}`, i, true);
+    }
+    if (d.archiveAfter) {
+      done.add(d.archiveAfter);
+      snap(`archivio ${d.archiveAfter}`, i, true);
+    }
+  });
+  const last = db.campaign.days[db.campaign.days.length - 1];
+  if (last?.objectAfter) add(last.objectAfter);
+  snap('scelta', db.campaign.days.length - 1, true);
+  return out;
+}
+const MOMENTS = campaignMoments();
+const momentAt = (label: string): Moment => {
+  const m = MOMENTS.find((x) => x.label === label);
+  if (!m) throw new Error(`momento ${label} assente`);
+  return m;
+};
+
+describe('revisione 1: la rivelazione di g14, il fascio, le piste (CA23-01)', () => {
+  it('campaign.json: lettera di Clotilde e fascio consegnati all\'alba di g14 e g16, sere vuote di g15 e g17 con il loro testo', () => {
+    const day = (id: string) => db.campaign.days.find((d) => d.id === id);
+    expect(day('g14')?.dawnObject).toBe('lettera_clotilde');
+    expect(day('g16')?.dawnObject).toBe('fascio_lettere');
+    expect(t(day('g15')?.eveningEmptyKey ?? '')).toBe('Stasera la laguna non porta niente: è nera, e si alza il vento.');
+    expect(t(day('g17')?.eveningEmptyKey ?? '')).toBe('Sotto la porta non c\'è niente. Fuori, qualcuno cammina sulla Fondamenta.');
+    for (const id of ['g15', 'g17']) expect(te(day(id)?.eveningEmptyKey ?? '').length, id).toBeGreaterThan(10);
+  });
+
+  it('g14: la consegna di Zeno è un culmine senza condizione, ed è l\'ultima vignetta (dopo esce la lettera)', () => {
+    const cs = level('g14').dawn?.candidates ?? [];
+    const sera = cs.at(-1) as VignetteDef;
+    expect(sera.id).toBe('g14.alba.sera');
+    expect(sera.when).toBeUndefined();
+    // Tutte culmini: escono tutte e nell'ordine dei dati (D11), così la consegna chiude l'alba.
+    expect(cs.every((v) => v.priority >= 100)).toBe(true);
+    const fascio = level('g16').dawn?.candidates ?? [];
+    expect(fascio.filter((v) => v.priority >= 100).at(-1)?.id).toBe('g16.alba.fascio');
+  });
+
+  it('campagna simulata: fra la fine della notte di g14 e la lettura nessuna voce può dire chi è Livia', () => {
+    const before = momentAt('notte g14');
+    const bad = [...db.diary.values()]
+      .filter((d) => tri(d.unlock, before).may && /\bLivia\b|\bmia madre\b/i.test(t(d.textKey)))
+      .map((d) => d.id);
+    expect(bad).toEqual([]);
+    // Letta la lettera (prima del bilancio), le voci della rivelazione ci sono.
+    const after = momentAt('oggetto g14');
+    for (const id of ['domande.chiL.risposta', 'persone.ada.g14', 'domande.madre.apre', 'lettere.clotilde', 'domande.avorio.lettera', 'persone.zeno.lettera']) {
+      expect(tri(db.diary.get(id)?.unlock as StoryCond, after).must, id).toBe(true);
+    }
+  });
+
+  it('il Taccuino ricorda, non anticipa: le voci sugli oggetti si sbloccano alla lettura (C03)', () => {
+    const byObject: Record<string, string[]> = {
+      lettera_clotilde: ['domande.chiL.risposta', 'persone.ada.g14', 'lettere.clotilde', 'domande.avorio.lettera', 'persone.zeno.lettera'],
+      fascio_1: ['lettere.fascio', 'persone.livia.lettere', 'domande.pozzo.risposta'],
+      bottiglia_nodo_nero: ['lettere.bottiglia_nodo_nero'],
+      pagina_strappata: ['domande.puntoAperto.pagina'],
+      biglietto_livia_1: ['lettere.bigliettiLivia'],
+      nastro_nonna: ['lettere.nastro', 'persone.ada.nastro'],
+    };
+    const mentions = (c: StoryCond, id: string): boolean => JSON.stringify(c).includes(JSON.stringify({ knows: 'oggetto', id }));
+    for (const [obj, ids] of Object.entries(byObject)) for (const id of ids) expect(mentions(db.diary.get(id)?.unlock as StoryCond, obj), id).toBe(true);
+    // Per ogni oggetto, prima del momento in cui arriva nessuna di queste voci è sbloccabile.
+    for (const [obj, ids] of Object.entries(byObject)) {
+      const first = MOMENTS.find((m) => m.objects.has(obj) || m.mayObjects.has(obj));
+      expect(first, obj).toBeDefined();
+      for (const m of MOMENTS.slice(0, MOMENTS.indexOf(first as Moment))) {
+        for (const id of ids) expect(tri(db.diary.get(id)?.unlock as StoryCond, m).may, `${id} a ${m.label}`).toBe(false);
+      }
+    }
+  });
+
+  it('campagna simulata: nessuna pista si sblocca dopo che la sua domanda è risolta (D10)', () => {
+    const piste = [...db.diary.values()].filter((d) => MY_DIARY.has(d.id) && d.pista);
+    expect(piste.length).toBeGreaterThanOrEqual(8);
+    let checked = 0;
+    for (const p of piste) {
+      const q = p.opens?.[0] ?? p.closes?.[0] ?? /^domande\.([^.]+)\./.exec(p.id)?.[1];
+      if (!q) continue;
+      const answers = [...db.diary.values()].filter((d) => d.closes?.includes(q));
+      const archives = [...db.levels.values()].filter((l) => l.archive?.closes.includes(q)).map((l) => l.id);
+      let seen = false;
+      for (const m of MOMENTS) {
+        const resolved = answers.some((a) => tri(a.unlock, m).must) || archives.some((a) => m.done.has(a));
+        const pt = tri(p.unlock, m);
+        if (resolved && !seen) {
+          expect(pt.may, `${p.id} a ${m.label}`).toBe(false);
+          checked++;
+        }
+        if (pt.must) seen = true;
+      }
+    }
+    expect(checked).toBeGreaterThan(20);
+    // La pista del 1958 arriva prima dell'Archivio (g10) e apre la domanda.
+    expect(JSON.stringify(db.diary.get('domande.anno1958.pista')?.unlock)).toContain('{"done":"g10"}');
+    expect(db.diary.get('domande.anno1958.pista')?.opens).toEqual(['anno1958']);
+  });
+
+  it('il desiderio di Zeno, che si può sapere la sera di g14, non dice ancora chi è Livia', () => {
+    expect(desireDay('zeno')).toBe(DAY_IDS.indexOf('g14'));
+    expect(t('atto2.diario.desiderio.zeno')).not.toMatch(/Livia|madre/);
+  });
+});
+
+describe('revisione 1: tutorial degli Atti II-III e degli Archivi 3-5 (CA23-02)', () => {
+  const steps = (id: string) => level(id).tutorial ?? [];
+  const margin = (id: string, key: string) => steps(id).find((s) => s.k === 'margine' && s.textKey === key);
+  const pulses = (id: string) => steps(id).filter((s) => s.k === 'pulsa');
+
+  it('ogni regola nuova ha la sua nota nella prima notte in cui vale (D03)', () => {
+    const story = [...db.levels.values()].filter((l) => /^g\d\d$/.test(l.id)).sort((a, b) => a.id.localeCompare(b.id));
+    const firstWith = (pred: (l: LevelDef) => boolean): string | undefined => story.find(pred)?.id;
+    expect(firstWith((l) => l.rules.includes('febbre'))).toBe('g09');
+    expect(firstWith((l) => l.rules.includes('rancore'))).toBe('g11');
+    expect(firstWith((l) => l.quirks.includes('pieroTrabocca'))).toBe('g16');
+    expect(firstWith((l) => l.rules.includes('nero'))).toBe('g17');
+    expect(firstWith((l) => l.rules.includes('marea'))).toBe('g19');
+    // g09: febbre alla prima ora, Gino a letto, la cura al primo evento `cura`.
+    expect(margin('g09', 'atto2.g09.margine.febbre')).toMatchObject({ when: 'primaOra' });
+    expect(margin('g09', 'atto2.g09.margine.ginoLetto')).toMatchObject({ when: 'ora', hour: 7 });
+    expect(margin('g09', 'atto2.g09.margine.cura')).toMatchObject({ when: 'evento', evento: 'cura' });
+    expect(pulses('g09')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ target: 'fuso', thread: 'gino' }), expect.objectContaining({ target: 'fuso', thread: 'lunardi' }),
+    ]));
+    // g11: il nodo alla prima ora, coi fusi di Teresa e Marta.
+    expect(margin('g11', 'atto2.g11.margine.nodo')).toMatchObject({ when: 'primaOra' });
+    expect(pulses('g11').map((s) => s.k === 'pulsa' && s.thread).sort()).toEqual(['marta', 'teresa']);
+    // g16: il trabocco alla prima ora e al primo evento `trabocca`, col fuso di Don Piero.
+    expect(margin('g16', 'atto2.g16.margine.trabocco')).toMatchObject({ when: 'primaOra' });
+    expect(steps('g16').some((s) => s.k === 'margine' && s.when === 'evento' && s.evento === 'trabocca')).toBe(true);
+    expect(pulses('g16')).toEqual([expect.objectContaining({ target: 'fuso', thread: 'piero' })]);
+    // g17: il filo nero, a matita, della mano di Ada.
+    expect(margin('g17', 'atto3.g17.margine.nero')).toMatchObject({ when: 'primaOra', mano: 'ada' });
+    // g19: all'inizio dell'ora prima dell'acqua alta, e pulsano le colonne allagate.
+    const tide = level('g19').tide?.[0];
+    expect(margin('g19', 'atto3.g19.margine.marea')).toMatchObject({ when: 'ora', hour: (tide?.from ?? 0) - 1 });
+    expect(pulses('g19')).toEqual([expect.objectContaining({ target: 'marea', hour: tide?.from })]);
+    // g12 (nome) resta com'era.
+    expect(steps('g12').some((s) => s.k === 'margine' && s.when === 'primaOra')).toBe(true);
+  });
+
+  it('Archivi 3-5: guida per nominare e per lo strappo, e i suggerimenti della lampada', () => {
+    for (const id of ['arc3', 'arc4', 'arc5']) {
+      const lv = level(id);
+      const hole = lv.archive?.holes[0];
+      expect(steps(id).some((s) => s.k === 'margine' && s.when === 'primaOra' && s.hour === hole?.from), id).toBe(true);
+      expect(steps(id).some((s) => s.k === 'margine' && s.when === 'archivioNomi'), id).toBe(true);
+      expect(t(lv.hintKeys?.spinta ?? ''), id).not.toBe('');
+      expect(t(lv.hintKeys?.indizio ?? ''), id).not.toBe('');
+    }
+  });
+
+  it('testi dei tutorial in italiano e in inglese, ≤ 90 caratteri', () => {
+    const keys = ['g09', 'g11', 'g16', 'g17', 'g19', 'arc3', 'arc4', 'arc5'].flatMap((id) => steps(id).flatMap((s) => (s.k === 'margine' ? [s.textKey] : [])));
+    expect(keys.length).toBeGreaterThanOrEqual(13);
+    for (const k of keys) {
+      expect(t(k).length, k).toBeGreaterThan(10);
+      expect(t(k).length, k).toBeLessThanOrEqual(90);
+      expect(te(k).length, k).toBeGreaterThan(10);
+      expect(te(k).length, k).toBeLessThanOrEqual(90);
+    }
+  });
+});
+
+describe('revisione 1: continuità degli Atti II-III (CA23-05)', () => {
+  /** Valuta una condizione su un assegnamento degli atomi (chiave → valore). */
+  function evalA(c: StoryCond, a: Record<string, unknown>): boolean {
+    if ('all' in c) return c.all.every((x) => evalA(x, a));
+    if ('any' in c) return c.any.some((x) => evalA(x, a));
+    if ('not' in c) return !evalA(c.not, a);
+    if ('flag' in c) {
+      const v = a[`flag:${c.flag}`];
+      if (c.eq !== undefined) return v === c.eq;
+      return typeof v === 'number' && (c.gte === undefined || v >= c.gte) && (c.lte === undefined || v <= c.lte);
+    }
+    if ('memoria' in c) {
+      const v = a[`mem:${c.memoria}`] as number;
+      return (c.gte === undefined || v >= c.gte) && (c.lte === undefined || v <= c.lte);
+    }
+    return a[JSON.stringify(c)] === true;
+  }
+  function atoms(c: StoryCond, out: Map<string, unknown[]>): void {
+    if ('all' in c) return c.all.forEach((x) => atoms(x, out));
+    if ('any' in c) return c.any.forEach((x) => atoms(x, out));
+    if ('not' in c) return atoms(c.not, out);
+    if ('flag' in c) {
+      const k = `flag:${c.flag}`;
+      const vs = out.get(k) ?? ['__altro', 0, 1, 2, 3, 4];
+      if (c.eq !== undefined && !vs.includes(c.eq)) vs.push(c.eq);
+      out.set(k, vs);
+    } else if ('memoria' in c) out.set(`mem:${c.memoria}`, [0, 1, 2, 3]);
+    else out.set(JSON.stringify(c), [true, false]);
+  }
+  function assignments(conds: StoryCond[]): Record<string, unknown>[] {
+    const m = new Map<string, unknown[]>();
+    conds.forEach((c) => atoms(c, m));
+    let out: Record<string, unknown>[] = [{}];
+    for (const [k, vs] of m) out = out.flatMap((a) => vs.map((v) => ({ ...a, [k]: v })));
+    return out;
+  }
+
+  it('le varianti dei bigliettini si escludono a vicenda e coprono tutti i casi', () => {
+    const groups = new Map<string, NoteDef[]>();
+    for (const n of MY_NOTES) {
+      const k = `${n.day}:${n.ending ?? n.author}`;
+      groups.set(k, [...(groups.get(k) ?? []), n]);
+    }
+    let withVariants = 0;
+    for (const [k, ns] of groups) {
+      if (ns.length < 2) continue;
+      withVariants++;
+      for (const a of assignments(ns.map((n) => n.availableIf ?? { all: [] }))) {
+        const avail = ns.filter((n) => !n.availableIf || evalA(n.availableIf, a));
+        expect(avail.length, `${k} ${JSON.stringify(a)}`).toBe(1);
+      }
+    }
+    expect(withVariants).toBeGreaterThanOrEqual(5); // g10.marta, g18.marta, g19.teresa, g22.teresa, g23 A
+    expect(db.notes.get('g22.teresa.riconosciuta')?.availableIf).toEqual({ ok: 'g17.teresa' });
+    expect(t('atto3.g22.teresa.riconosciuta.testo')).toBe('Quella donna l\'avevo riconosciuta, cara, e poi mi è scappata come una parola. Voglio rivederla appena mette piede sull\'isola.');
+    expect(db.notes.get('g19.teresa.pace')?.availableIf).toEqual({ flag: 'riconciliate', eq: true });
+    expect(t('atto3.g19.teresa.pace.testo')).toContain('Non le leggo più, ma l\'acqua sì');
+  });
+
+  it('le varianti delle vignette dell\'alba si escludono a vicenda', () => {
+    for (const d of STORY) {
+      const all = level(d).dawn?.candidates ?? [];
+      for (const v of all) {
+        const base = all.find((w) => w !== v && v.id.startsWith(`${w.id}.`));
+        if (!base) continue;
+        for (const a of assignments([v.when ?? { all: [] }, base.when ?? { all: [] }])) {
+          expect(evalA(v.when ?? { all: [] }, a) && evalA(base.when ?? { all: [] }, a), `${v.id} ${JSON.stringify(a)}`).toBe(false);
+        }
+      }
+    }
+    // Dopo la pace Teresa non legge più: la vignetta delle medicine aperte vale solo senza `riconciliate`.
+    expect(JSON.stringify(level('g19').dawn?.candidates.find((v) => v.id === 'g19.alba.medicine')?.when)).toContain('"not":{"flag":"riconciliate","eq":true}');
+  });
+
+  it('ogni testo citato nelle segnalazioni ha la versione nuova (D13)', () => {
+    const has: [string, string][] = [
+      ['atto2.lettere.lettera_clotilde', 'il filo d\'avorio ha tenuto fino alle tre'],
+      ['atto2.lettere.lettera_clotilde', 'una per una, per quattordici anni'],
+      ['atto2.diario.lettere.clotilde', 'Come sul biglietto appuntato al tombolo'],
+      ['atto2.diario.domande.avorio.lettera', 'l\'ultima volta'],
+      ['atto3.diario.archivio.arc6.punto', 'per la prima volta'],
+      ['atto2.g13.lunardi.testo', 'A lei, signorina, intendo.'],
+      ['atto2.g14.alba.ammessa.1', 'convitto da Pasqua'],
+      ['atto2.diario.persone.nina.ammessa', 'convitto da Pasqua'],
+      ['atto3.g18.alba.pace.2', 'me l\'ha detto la piccola'],
+      ['atto2.g10.lunardi.testo', 'passi anche dal pescatore Scarpa'],
+      ['atto2.g13.nina.testo', 'Curalo, ti prego.'],
+      ['finali.aperto.perline.L_1951', 'che mia madre ha riavuto dal pozzo'],
+    ];
+    for (const [k, s] of has) expect(t(k), k).toContain(s);
+    const hasNot: [string, string][] = [
+      ['atto2.lettere.lettera_clotilde', 'ogni giorno'],
+      ['atto2.lettere.lettera_clotilde', 'ha tenuto un\'ora'],
+      ['atto2.diario.lettere.clotilde', 'cuscino'],
+      ['atto3.diario.archivio.arc6.punto', 'una volta sola'],
+      ['atto2.diario.domande.avorio.lettera', 'una volta sola'],
+      ['atto2.g11.alba.porta.2', 'non so'],
+      ['atto2.g13.lunardi.testo', 'esame'],
+      ['atto2.g10.lunardi.testo', 'la prima'],
+      ['atto2.g13.nina.testo', 'per primo'],
+      ['finali.aperto.perline.L_1951', 'custodita'],
+    ];
+    for (const [k, s] of hasNot) expect(t(k), k).not.toContain(s);
+    expect(t('atto2.diario.persone.nina.debito')).toBe('La Nina ha saputo del debito. Il Bepi non parla più a nessuno.');
+    expect(t('atto3.g22.alba.teresa.2')).not.toContain('non me la ricordo');
+  });
+
+  it('voci del Taccuino non contraddittorie nella stessa giornata (P068)', () => {
+    expect(t('atto2.diario.persone.lunardi.scarpa')).not.toContain('vino');
+    expect(t('atto2.diario.persone.marta.forno')).not.toContain('non ha mai chiuso');
+    expect(t('atto2.diario.domande.anno1958.notte')).not.toContain('ho dovuto scegliere');
+    expect(t('atto2.diario.persone.ada.g12')).not.toContain('madre');
+    // La promessa a Marta (g21 R2) e il Gino al Faro: una voce che lo dice.
+    expect(db.diary.get('persone.marta.promessaRotta')?.unlock).toEqual({ all: [{ reply: 'g21.marta', is: 'R2' }, { ok: 'g21.gino' }] });
+    expect(t('atto3.diario.persone.marta.casa')).not.toMatch(/resterà/);
+  });
+});
+
+describe('revisione 1: esiti e albe (CA23-06)', () => {
+  it('ogni bigliettino con richiesta ha esito.ok ed esito.fallita, in italiano e in inglese (C05)', () => {
+    let n = 0;
+    for (const note of MY_NOTES) {
+      if (!note.request || note.ending) continue;
+      n++;
+      expect(note.esito?.ok, note.id).toBeTruthy();
+      expect(note.esito?.fallita, note.id).toBeTruthy();
+      for (const k of [note.esito?.ok, note.esito?.fallita, note.esito?.lasciato]) {
+        if (!k) continue;
+        expect(IT.has(k), k).toBe(true);
+        expect(EN.has(k), k).toBe(true);
+      }
+    }
+    expect(n).toBeGreaterThanOrEqual(52);
+    // Un esito proprio per g11.teresa: faccia a faccia senza parlarsi (P068).
+    expect(t(db.notes.get('g11.teresa')?.esito?.ok ?? '')).toContain('faccia a faccia');
+    // I destini che si decidono anche lasciando il bigliettino hanno un esito «lasciato».
+    for (const id of ['g15.nina', 'g16.zeno', 'g20.nina', 'g22.zeno']) expect(db.notes.get(id)?.esito?.lasciato, id).toBeTruthy();
+  });
+
+  it('un esito non ripete una vignetta dell\'alba né una voce del Taccuino (D12)', () => {
+    const diaryTexts = new Set([...db.diary.values()].map((d) => t(d.textKey)));
+    for (const note of MY_NOTES) {
+      if (!note.esito) continue;
+      const dawn = new Set((level(note.day).dawn?.candidates ?? []).flatMap((v) => v.lines.map((l) => t(l.textKey))));
+      for (const k of [note.esito.ok, note.esito.fallita, note.esito.lasciato]) {
+        if (!k) continue;
+        expect(dawn.has(t(k)), `${note.id} ${k}`).toBe(false);
+        expect(diaryTexts.has(t(k)), `${note.id} ${k}`).toBe(false);
+      }
+    }
+  });
+
+  it('i culmini delle albe di g11, g14, g16, g18 e g20 nei casi delle segnalazioni (P067, P117): niente battute generiche', () => {
+    interface Sc { ok?: string[]; failed?: string[]; events?: string[]; flags?: Record<string, unknown> }
+    const holdsSc = (c: StoryCond, s: Sc): boolean => {
+      if ('all' in c) return c.all.every((x) => holdsSc(x, s));
+      if ('any' in c) return c.any.some((x) => holdsSc(x, s));
+      if ('not' in c) return !holdsSc(c.not, s);
+      if ('ok' in c) return (s.ok ?? []).includes(c.ok);
+      if ('failed' in c) return (s.failed ?? []).includes(c.failed);
+      if ('event' in c) return (s.events ?? []).includes(c.event);
+      if ('flag' in c) return c.eq !== undefined && s.flags?.[c.flag] === c.eq;
+      return false;
+    };
+    const cases: [string, Sc][] = [
+      ['g11', { ok: ['g11.teresa'], events: ['nodo', 'incontro'] }],
+      ['g14', { ok: ['g14.zeno', 'g14.nina'] }],
+      ['g16', { ok: ['g16.zeno'], events: ['trabocca'], flags: { lettereLivia: 'liberate' } }],
+      ['g18', { ok: ['g18.teresa', 'g18.gino'], flags: { riconciliate: true } }],
+      ['g20', { failed: ['g20.nina'], flags: { nina: 'resta' } }],
+    ];
+    for (const [d, sc] of cases) {
+      const shown = (level(d).dawn?.candidates ?? []).filter((v) => !v.when || holdsSc(v.when, sc));
+      // D11: in una giornata con un culmine (priorità ≥ 100) le battute generiche non si aggiungono.
+      expect(shown.some((v) => v.priority >= 100), d).toBe(true);
+    }
+    // C06: il pane caldo esce subito dopo la pace; in g16 Teresa col fascio dopo il trabocco.
+    const vig = (d: string, id: string) => level(d).dawn?.candidates.find((v) => v.id === id) as VignetteDef & { dopo?: string };
+    expect(vig('g18', 'g18.alba.pane').dopo).toBe('g18.alba.pace');
+    expect(vig('g18', 'g18.alba.pane').priority).toBeGreaterThanOrEqual(100);
+    expect(vig('g16', 'g16.alba.teresa').dopo).toBe('g16.alba.trabocco');
+  });
+});
+
+describe('revisione 1: finali (CA23-04)', () => {
+  const FATES: Story[] = [];
+  for (const nina of ['parte', 'resta']) for (const bepi of ['salvo', 'ferito']) for (const zenoLivia of [true, false]) {
+    FATES.push({ done: new Set(), memoria: {}, flags: { nina, bepi, zenoLivia }, desires: new Set() });
+  }
+  const ep = (id: string) => db.endings.get(id as never)?.epilogue ?? [];
+  const visible = (id: string, s: Story) => ep(id).filter((v) => !v.when || holds(v.when, s));
+
+  it('nessuna riga d\'epilogo finisce con la virgola o resta a metà (it, en)', () => {
+    for (const e of db.endings.values()) {
+      for (const v of e.epilogue) {
+        for (const l of v.lines) {
+          for (const s of [t(l.textKey), te(l.textKey)]) expect(s.trim(), l.textKey).toMatch(/[.!?»”]$/);
+        }
+      }
+    }
+  });
+
+  it('epilogo D: le occasioni piantate in una frase sola, nessuna occasione fissa, i desideri chiusi, il nastro', () => {
+    const first = ep('aperto')[0] as VignetteDef;
+    expect(t(first.lines[0]?.textKey ?? '')).toContain('{occasioni}');
+    expect(te(first.lines[0]?.textKey ?? '')).toContain('{occasioni}');
+    const others = ep('aperto').flatMap((v) => v.lines.map((l) => l.textKey)).filter((k) => k !== first.lines[0]?.textKey);
+    const HOURS = /\b(alle|delle) (sei|sette|otto|nove|dieci|undici|dodici|una|due|tre|quattro|cinque|\d+)\b|mezzogiorno/i;
+    for (const k of others) expect(t(k), k).not.toMatch(HOURS);
+    for (const s of FATES) {
+      const vis = visible('aperto', s);
+      const ids = vis.map((v) => v.id);
+      for (const id of ['finale.aperto.teresa', 'finale.aperto.gino', 'finale.aperto.lunardi', 'finale.aperto.zeno', 'finale.aperto.nastro']) expect(ids, id).toContain(id);
+      expect(ids.filter((x) => x.startsWith('finale.aperto.nina')).length).toBe(1);
+      const text = vis.flatMap((v) => v.lines.map((l) => t(l.textKey))).join('\n');
+      expect(text).toContain('Il nastro era abbastanza lungo per due fili. Ne ho fatto uno per me e uno per mia madre.');
+      expect(text).toContain('Per un autunno e un inverno');
+    }
+  });
+
+  it('epilogo A: il nastro annodato al tombolo, in ogni combinazione di destini', () => {
+    for (const s of FATES) {
+      const text = visible('merlettaia', s).flatMap((v) => v.lines.map((l) => t(l.textKey))).join('\n');
+      expect(text).toContain('nastro della nonna');
+    }
+  });
+
+  it('finale C: chiusura «nodo» (C11)', () => {
+    expect(level('fin_chiuso').chiusura).toBe('nodo');
+  });
+});
+
+describe('revisione 1: testi minori (CA23-07)', () => {
+  it('deissi: i bigliettini parlano di domani, le albe di oggi (P065)', () => {
+    for (const n of MY_NOTES) {
+      if (n.ending) continue;
+      expect(t(n.textKey), n.id).not.toMatch(/\b(oggi|stamattina|stasera|stanotte|stanote)\b/i);
+    }
+    expect(t('atto2.g09.teresa.testo')).toContain('arriva un dottore');
+    expect(t('atto2.g13.alba.specchio.1')).toContain('Un giorno intero');
+  });
+
+  it('g15: il filo nero «più vicino dell\'altra volta» e la sua apparizione (C12)', () => {
+    expect(t('atto2.g15.alba.nero.1')).toContain('dell\'altra volta');
+    expect(level('g15').apparizione).toEqual({ hour: 3, side: 'faro', passi: 2 });
+  });
+
+  it('geografia, titoli e voci (P079, P081, P097, P119)', () => {
+    expect(t('atto3.g20.alba.resta.1')).toContain('Pellestrina');
+    expect(t('atto3.arc6.eco.2')).toContain('Don Piero');
+    expect(t('atto3.g17.titolo')).toBe('La donna in nero');
+    expect(t('atto3.g17.titolo')).not.toBe(t('atto1.g08.titolo'));
+    for (const id of ARCHIVES) expect(t(level(id).titleKey), id).not.toMatch(/\d/);
+    // Bepi: tutto minuscolo e senza doppie («la nina»); Don Piero dà del lei.
+    for (const n of MY_NOTES.filter((x) => x.author === 'bepi')) {
+      expect(t(n.textKey), n.id).toBe(t(n.textKey).toLowerCase());
+      expect(t(n.textKey), n.id).not.toContain('la Nina');
+    }
+    for (const n of MY_NOTES.filter((x) => x.author === 'piero' && !x.ending)) {
+      expect(t(n.textKey), n.id).not.toMatch(/\b(Fate|Liberatemi|Mandatemi|Fatemi)\b/);
+    }
+  });
+
+  it('etichette delle perline secondo C16: minuscole, con l\'articolo, le lettere col destinatario', () => {
+    for (const id of MINE) {
+      const lv = level(id);
+      for (const b of lv.beads) {
+        const s = t(b.labelKey);
+        expect(s[0], `${id} ${b.id}: ${s}`).toBe(s[0]?.toLowerCase());
+        if (b.type !== 'lettera' || !b.to) continue;
+        const to = lv.threads.find((x) => x.id === b.to);
+        const name = to?.character ? t(db.characters.get(to.character)?.nameKey ?? '') : t(to?.labelKey ?? '').split(' ')[1] ?? '';
+        expect(s, `${id} ${b.id}`).toContain(name);
+      }
+    }
+    expect(t('finali.aperto.perline.ettore')).toBe('il nome del dottore');
   });
 });

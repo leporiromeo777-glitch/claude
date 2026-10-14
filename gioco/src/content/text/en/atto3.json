@@ -1,7 +1,7 @@
 {
   "g17": {
     "perline": {
-      "livia": "The name of the woman in the black shawl"
+      "livia": "the name of the woman in the black shawl"
     },
     "hint": {
       "spinta": "At nine the black thread enters at the Lighthouse: whoever's there leaves. It seeks Zeno.",
@@ -30,25 +30,47 @@
         "2": "Some names are said only once, and said well. Not today. Not yet."
       }
     },
-    "titolo": "Black Thread",
+    "titolo": "The Woman in Black",
     "zeno": {
       "testo": "Tomorrow morning someone in a black shawl comes from the sea. I don't know how I know: I know it the way I know the weather. Let me meet her, before she vanishes again.",
       "r1": "Who is she? Tell me, at least.",
-      "r2": "You'll meet her. I promise on the lace pillow."
+      "r2": "You'll meet her. I promise on the lace pillow.",
+      "esito": {
+        "ok": "Zeno crossed the woman in black. They looked at each other like two who have known each other since before the sea.",
+        "fallita": "The woman in black walked the Fondamenta without finding Zeno. He searched for her with his telescope until evening."
+      }
     },
     "teresa": {
-      "testo": "Dear, there's talk of a stranger dressed in black. Nobody knows who she is, and I don't like not knowing. I want to know, and first. Before the priest, above all."
+      "testo": "Dear, there's talk of a stranger dressed in black. Nobody knows who she is, and I don't like not knowing. I want to know, and first. Before the priest, above all.",
+      "esito": {
+        "ok": "Teresa found out who the woman in black is, before anyone. Tonight she talks softly, like someone with something in her pocket.",
+        "fallita": "Teresa didn't find out who the woman in black is. She went round the Square three times, in vain."
+      }
     },
     "marta": {
-      "testo": "During the market I want no strange women in the Square. From nine to noon. Women in black bring bad luck, my mother said so, and my mother was never wrong."
+      "testo": "During the market I want no strange women in the Square. From nine to noon. Women in black bring bad luck, my mother said so, and my mother was never wrong.",
+      "esito": {
+        "ok": "During the market the stranger never came through the Square. Marta sold all her bread, and said “you see?”.",
+        "fallita": "The stranger came through the Square at market time. Marta touched iron, then the bread, then iron again."
+      }
     },
     "piero": {
-      "testo": "If she is who I think, Teresa mustn't know who she is. Not yet. Some things are said only once, and well, and in church. Fiat voluntas."
+      "testo": "If she is who I think, Teresa mustn't know who she is. Not yet. Some things are said only once, and well, and in church. Fiat voluntas.",
+      "esito": {
+        "ok": "Teresa didn't find out who the woman in black is. The priest let out a sigh as long as Vespers.",
+        "fallita": "Teresa found out who the woman in black is. The priest said “God's will be done”, and the postwoman's too."
+      }
+    },
+    "sera": {
+      "vuota": "There is nothing under the door. Outside, someone is walking along the Fondamenta."
+    },
+    "margine": {
+      "nero": "I didn't weave it. The black thread moves on its own, always above, and can't be touched."
     }
   },
   "g18": {
     "perline": {
-      "confessione": "Teresa's confession: '36"
+      "confessione": "Teresa's confession about '36"
     },
     "hint": {
       "spinta": "A secret only goes down, and Marta won't pass under Teresa: someone must go between.",
@@ -57,7 +79,8 @@
     "alba": {
       "pace": {
         "1": "Thirty years, Teresa.",
-        "2": "Thirty. And it wasn't even my fault, it turns out."
+        "2": "Thirty. And it wasn't even my fault, it turns out: the little one told me.",
+        "2d": "Thirty. And it wasn't even my fault, it turns out: the lacemaker told me."
       },
       "pane": {
         "1": "I know. Sit down, the bread is warm.",
@@ -79,7 +102,11 @@
     },
     "titolo": "Peace",
     "teresa": {
-      "testo": "Dear, my confession must reach Marta, and no one else: not Nina, not the doctor. I can't give it, she won't pass under me. Have Gino carry it."
+      "testo": "Dear, my confession must reach Marta, and no one else: not Nina, not the doctor. I can't give it, she won't pass under me. Have Gino carry it.",
+      "esito": {
+        "ok": "Teresa's confession reached Marta, and no one else. After thirty years, on the bakery doorstep, they sat down.",
+        "fallita": "The confession didn't arrive where it should. Teresa and Marta each stay on their own side of the Fondamenta."
+      }
     },
     "marta": {
       "testo": "If Teresa has something to say, let her say it. To me, not to the village, not to the priest. I'll listen. Once. Then we'll see.",
@@ -90,15 +117,23 @@
       }
     },
     "gino": {
-      "testo": "today i want to run to EVERYONE! every single one, even the doctor and the preist. 5 people!!! so i win. win what i dont know"
+      "testo": "tomorow i want to run to EVERYONE! every single one, even the doctor and the preist. 5 people!!! so i win. win what i dont know",
+      "esito": {
+        "ok": "Gino greeted five people, the doctor included. Tonight he's asleep in his clothes, tired as a fishing dog.",
+        "fallita": "Gino didn't reach five. He counted on his fingers all through supper, hoping he'd got it wrong."
+      }
     },
     "lunardi": {
-      "testo": "Miss, I still feel a stranger. I should like to meet at least three people tomorrow morning, and have one, just one, confide something to me. As islanders do."
+      "testo": "Miss, I still feel a stranger. I should like to meet at least three people tomorrow morning, and have one, just one, confide something to me. As islanders do.",
+      "esito": {
+        "ok": "The doctor had his three visits, and a confidence. He holds it as tight as a prescription.",
+        "fallita": "Nobody confided anything to the doctor. He dined alone in the Pharmacy, with the glass jars for company."
+      }
     }
   },
   "g19": {
     "perline": {
-      "L_farmacia": "The medicines for the Pharmacy"
+      "L_farmacia": "the medicines for Dr Lunardi"
     },
     "hint": {
       "spinta": "From ten to one the Pier and Square are flooded: whoever's there stays put, nobody passes.",
@@ -124,22 +159,48 @@
       "medicine": {
         "1": "The medicines arrived wet. And opened, it seems to me. All six.",
         "2": "I only looked at them, Doctor. To check they were all there."
+      },
+      "medicinePace": {
+        "1": "The medicines arrived late, and wet. All six.",
+        "2": "I didn't open them, Doctor, I swear. But the water swears nothing."
       }
     },
     "titolo": "High Water",
     "bepi": {
-      "testo": "tonite the water rises. the boat must be tied to the pier before 10. I go at 9, or I loose her. the boat is all I have, apart from nina"
+      "testo": "tomoro the water rises. the boat must be tied to the pier before 10. I go at 9, or I loose her. the boat is all I have, apart from nina",
+      "esito": {
+        "ok": "Bepi tied the boat in time. When the water rose he was already at the tavern saying he'd seen it coming.",
+        "fallita": "Bepi didn't reach the Pier in time. The high water took a plank from the boat, and some of his pride."
+      }
     },
     "nina": {
       "testo": "I want to see the high water from the Square, with my feet in it, at eleven. In Venice people watch it from their windows: I want to be in it.",
       "r1": "Venice is waiting for you. High water and all, even more so.",
-      "r2": "Stay here. The island needs you."
+      "r2": "Stay here. The island needs you.",
+      "esito": {
+        "ok": "At eleven Nina was in the Square with her feet in the water. She came home soaked to the knees, and happy.",
+        "fallita": "Nina didn't get to the Square in the high water. She watched it from afar, the way they do in Venice, and was cross."
+      }
     },
     "teresa": {
-      "testo": "Dear, the medicines for the Pharmacy are in my bag and the water rises at ten. Let them reach the doctor before then, dry. Yes, I know, I read them on the way."
+      "testo": "Dear, the medicines for the Pharmacy are in my bag and the water rises at ten. Let them reach the doctor before then, dry. Yes, I know, I read them on the way.",
+      "pace": {
+        "testo": "Dear, the medicines for the Pharmacy are in my bag and the water rises at ten. Let them reach the doctor before then, dry. I don't read them any more, but the water does."
+      },
+      "esito": {
+        "ok": "The medicines reached the doctor before ten, dry. Teresa made him say thank you twice.",
+        "fallita": "The medicines arrived late, after the water. The doctor set them to dry on the sill, one by one."
+      }
     },
     "lunardi": {
-      "testo": "During high water the Pharmacy stays open. I should like to see at least three people: with the damp, the coughs arrive on time, like the ferry."
+      "testo": "During high water the Pharmacy stays open. I should like to see at least three people: with the damp, the coughs arrive on time, like the ferry.",
+      "esito": {
+        "ok": "In the high water the doctor saw his three people. He says the coughs, this time, came late.",
+        "fallita": "In the high water the Pharmacy stayed empty. The doctor arranged his jars in alphabetical order, twice."
+      }
+    },
+    "margine": {
+      "marea": "High water makes the island smaller: from ten to one, the Pier and Square stand still."
     }
   },
   "g20": {
@@ -153,7 +214,7 @@
         "2": "Go. Go. The ferry won't wait, and neither will I: I'm off fishing."
       },
       "resta": {
-        "1": "The ferry left without me. I watched the smoke as far as Burano.",
+        "1": "The ferry left without me. I watched the smoke as far as Pellestrina.",
         "2": "Venice is still there, Dad says. So am I, it seems."
       },
       "saluto": {
@@ -171,26 +232,43 @@
     },
     "titolo": "Nina",
     "nina": {
-      "testo": "The nine o'clock ferry. My suitcase has been under the bed for a month, with Leopardi inside. Get me to the Pier in time, before I change my mind."
+      "testo": "The nine o'clock ferry. My suitcase has been under the bed for a month, with Leopardi inside. Get me to the Pier in time, before I change my mind.",
+      "esito": {
+        "ok": "At nine Nina boarded the ferry. From the deck she raised her hand just once, so as not to cry.",
+        "fallita": "The nine o'clock ferry left without Nina. The suitcase went back under the bed, still shut.",
+        "lasciato": "I let Nina's departure drop. The nine o'clock ferry left without her."
+      }
     },
     "bepi": {
-      "testo": "Nina is leaving. first I want to say goodby proper, not like last time. at 9 is too late. before. and dont tel her",
+      "testo": "nina is leaving. first I want to say goodby proper, not like last time. at 9 is to late. before. and dont tel her",
       "r1": "Tell her what you never told her. Even just two words.",
-      "r2": "Just be there. She already knows the rest."
+      "r2": "Just be there. She already knows the rest.",
+      "esito": {
+        "ok": "Bepi said goodbye to Nina before nine. I don't know what he told her: her eyes were red and she was laughing.",
+        "fallita": "Bepi didn't find Nina in time. He stayed at the Pier with his hands in his pockets and the words in his throat."
+      }
     },
     "marta": {
-      "testo": "Gino wants to follow Nina to the Pier. He mustn't: if he gets on that ferry for a game, I'll never get him back. Away from the Pier until nine."
+      "testo": "Gino wants to follow Nina to the Pier. He mustn't: if he gets on that ferry for a game, I'll never get him back. Away from the Pier until nine.",
+      "esito": {
+        "ok": "Gino stayed away from the Pier until nine. Marta kept him kneading, and he kneaded his sulk.",
+        "fallita": "Gino ended up at the Pier with the ferry whistling. Tonight Marta gave him his supper without a word."
+      }
     },
     "teresa": {
-      "testo": "Dear, Nina is leaving and I haven't even said goodbye. Let me meet her before nine. One minute, I swear. I've kept something aside to give her."
+      "testo": "Dear, Nina is leaving and I haven't even said goodbye. Let me meet her before nine. One minute, I swear. I've kept something aside to give her.",
+      "esito": {
+        "ok": "Teresa met Nina before nine. She gave her something she'd kept aside, and called her “dear” once too often.",
+        "fallita": "Teresa didn't meet Nina in time. What she had kept aside stayed in the drawer."
+      }
     }
   },
   "g21": {
     "perline": {
-      "L_teresa": "A letter for Teresa, left in the well",
-      "voto": "A vow of Don Piero's",
-      "anni": "Fourteen years of letters",
-      "livia": "The woman in black's name"
+      "L_teresa": "the letter for Teresa left in the well",
+      "voto": "Don Piero's vow",
+      "anni": "the secret of fourteen years of letters",
+      "livia": "the name of the woman in black"
     },
     "hint": {
       "spinta": "At eight the black thread ousts whoever's at the Lighthouse, seeking Don Piero, then Zeno.",
@@ -220,26 +298,42 @@
     },
     "titolo": "The Open Stitch",
     "zeno": {
-      "testo": "The woman in black is back. Last time I couldn't find the words. This time I want to cross her myself, and tell her something that has waited fourteen years."
+      "testo": "The woman in black is back. Last time I couldn't find the words. This time I want to cross her myself, and tell her something that has waited fourteen years.",
+      "esito": {
+        "ok": "Zeno crossed the woman in black, and this time he found the words.",
+        "fallita": "Zeno didn't cross the woman in black. The words he has kept ready for fourteen years are still there."
+      }
     },
     "piero": {
-      "testo": "There's still a letter for Teresa in the well. I prayed all night: I want to give it back before it's too late. The well, I know, must overflow once more."
+      "testo": "There's still a letter for Teresa in the well. I prayed all night: I want to give it back before it's too late. The well, I know, must overflow once more.",
+      "esito": {
+        "ok": "The well overflowed once more, and the letter reached Teresa. The priest feels as light as an altar boy.",
+        "fallita": "The letter for Teresa stayed in the well. The priest put it back under the cloths, with a sigh."
+      }
     },
     "gino": {
-      "testo": "tonite at 6 zeno lights the lantern and i want to be at the litehouse!!! he promised. i swear on my report"
+      "testo": "tomorow nite at 6 zeno lights the lantern and i want to be at the litehouse!!! he promised. i swear on my report",
+      "esito": {
+        "ok": "At six in the evening Gino was at the Lighthouse when the lantern lit. From outside, but so close it warmed his nose.",
+        "fallita": "At six in the evening Gino wasn't at the Lighthouse. The lantern lit all the same, and he watched it from afar."
+      }
     },
     "marta": {
-      "testo": "Gino is not going to the Lighthouse tonight. With high water and that woman about, I want him home from three. Till evening.",
+      "testo": "Gino is not going to the Lighthouse tomorrow evening. With the high water and that woman about, I want him home from three. Until evening.",
       "r1": "Let him go. Zeno looks on him like a son.",
-      "r2": "All right. He'll stay home, with you."
+      "r2": "All right. He'll stay home, with you.",
+      "esito": {
+        "ok": "Gino stayed home, away from the Lighthouse and the water. Marta baked him a cake, to be forgiven.",
+        "fallita": "Gino ran off to the Lighthouse, against Marta's wishes. She hasn't said anything to me, and her nothing weighs."
+      }
     }
   },
   "g22": {
     "perline": {
-      "fascio": "The remaining bundle, for Livia",
-      "voto": "A vow of Don Piero's",
-      "anni": "Fourteen years of letters",
-      "livia": "The name of the shallows woman"
+      "fascio": "the remaining bundle for Livia",
+      "voto": "Don Piero's vow",
+      "anni": "the secret of fourteen years of letters",
+      "livia": "the name of the woman from the shallows"
     },
     "hint": {
       "spinta": "At three Livia reaches the Lighthouse: whoever's there meets her and goes with the tide.",
@@ -261,7 +355,7 @@
       "teresa": {
         "1": "I was the last to know, dear. Me! The last!",
         "1d": "I was the last to know, miss. Me!",
-        "2": "She's the old lacemaker's daughter. Strange: I don't remember her at all."
+        "2": "She's the old lacemaker's daughter. I feel I've seen her before, and I can't think where."
       },
       "pane": {
         "1": "She ate the bread standing up, like someone who's walked a long way.",
@@ -270,18 +364,38 @@
     },
     "titolo": "Low Water",
     "zeno": {
-      "testo": "Today is the lowest tide of the year. At three she comes on foot, over the sand. The first to meet her must be me. I've owed her that for fourteen years."
+      "testo": "Tomorrow is the lowest tide of the year. At three she comes on foot, over the sand. The first to meet her must be me. I've owed her that for fourteen years.",
+      "esito": {
+        "ok": "Zeno was the first to meet my mother on the sand. They held hands, saying nothing, until the water came back.",
+        "fallita": "Zeno didn't reach the shallows in time. My mother went by, and he watched her from afar, cap in hand.",
+        "lasciato": "I let Zeno's request drop. At the shallows, someone else met my mother."
+      }
     },
     "piero": {
-      "testo": "In the well are the letters I failed to give. They are hers. Let them reach her today, before the tide takes her back."
+      "testo": "In the well are the letters I failed to give. They are your mother's. See that they reach her tomorrow, before the tide takes her back.",
+      "esito": {
+        "ok": "The bundle reached my mother. She held her letters tight to her chest, the way you hold a child.",
+        "fallita": "The bundle never reached my mother. The priest said that the well, sometimes, is a tomb as well."
+      }
     },
     "teresa": {
-      "testo": "Dear, today a woman comes over the shallows and everyone says they know her. I don't. I want to know the moment she sets foot on the island. At once.",
+      "testo": "Dear, tomorrow a woman comes over the shallows and everyone says they know her. I don't. I want to know the moment she sets foot on the island. At once.",
       "r1": "You'll know. But not from me, and not tonight.",
-      "r2": "She's my mother. Her name is Livia, and you don't remember her."
+      "r2": "She's my mother. Her name is Livia, and you don't remember her.",
+      "riconosciuta": {
+        "testo": "I had recognised that woman, dear, and then she slipped away from me like a word. I want to see her again the moment she sets foot on the island."
+      },
+      "esito": {
+        "ok": "Teresa found out who the woman from the shallows is the moment she set foot on the island. She looked at her a long time, like a letter to reread.",
+        "fallita": "Teresa didn't find out in time who the woman from the shallows is. She searched for her with her eyes all along the Fondamenta."
+      }
     },
     "marta": {
-      "testo": "If a stranger comes on foot over the shallows, she'll be hungry. I'll bring her warm bread, with my own hands."
+      "testo": "If a stranger comes on foot over the shallows, she'll be hungry. I'll bring her warm bread, with my own hands.",
+      "esito": {
+        "ok": "Marta reached the stranger with the bread still warm. She said “eat”, and my mother did as she was told.",
+        "fallita": "Marta's bread never reached the stranger. Marta left it on the bakery step, under a napkin, for whoever passes."
+      }
     }
   },
   "g23": {
@@ -331,10 +445,10 @@
       "lazzaretto": "the pest-house boatman"
     },
     "perline": {
-      "peste": "The plague",
-      "quarantena": "The quarantine: stay on this side"
+      "peste": "the plague",
+      "quarantena": "the word of the quarantine: stay on this side"
     },
-    "titolo": "1630. The First Lace",
+    "titolo": "The First Lace",
     "eco": {
       "1": "Stay on this side, all of you. Leave the bread on the doorstep.",
       "2": "And my husband? He's over there, with the sick boatman.",
@@ -347,11 +461,19 @@
       "1": "In 1630 Arianna wove the quarantine: the healthy on this side, the sick on that.",
       "2": "The island was saved. Her name was not. From her: who weaves is not woven."
     },
-    "margine": "“Who weaves is not woven.” And below, in another hand: “I know.”"
+    "margine": "“Who weaves is not woven.” And below, in another hand: “I know.”",
+    "guida": {
+      "nomina": "A single nameless thread among the trades. Who keeps the healthy on this side?",
+      "strappo": "Weave eight and nine again: the healthy on one side, the sick boatman on the other."
+    },
+    "hint": {
+      "spinta": "The nameless thread stands between the healthy and the sick, and holds the word.",
+      "indizio": "The mending is right when at ten every thread is where the recorded row finds it."
+    }
   },
   "arc6": {
     "tutorial": "No crossing here. You plant two occasions, and the threads seek each other out.",
-    "titolo": "Undated. The Open Stitch",
+    "titolo": "The Open Stitch",
     "eco": {
       "1": "“Come, Livia. Let's go and get the bread.”",
       "2": "“No lace pillow today, Clotilde?” “Not today, Don Piero. Today I watch.”",
@@ -382,9 +504,10 @@
         "cassetto": "Teresa gave Nina an embroidered handkerchief, meant for a trip she never took. Seven years in a drawer.",
         "lettera2": "Don Piero gave Teresa back a letter left in the well. She hasn't opened it yet: she's keeping it like a sweet.",
         "medicine": "The medicines for the Pharmacy arrived wet and opened. Teresa swears she only looked at them.",
-        "secca": "Teresa was the last to know who the woman from the shallows is. She says she doesn't remember her at all, and it's true.",
+        "secca": "Teresa was the last to know who the woman from the shallows is. She says she feels she's seen her before, and can't think where.",
         "aspetta": "I wrote to Teresa that she'll know who that woman is, but not from me. For once the postwoman waits for news instead of bringing it.",
-        "liviaSa": "I told Teresa the woman from the shallows is my mother. She doesn't remember her. She cried all the same, without knowing why."
+        "liviaSa": "I told Teresa the woman from the shallows is my mother. She doesn't remember her. She cried all the same, without knowing why.",
+        "medicinePace": "The medicines arrived late and wet. Teresa didn't open them: she says the only one still reading the post now is the water."
       },
       "zeno": {
         "perdono": "Zeno asked my mother's forgiveness, at the edge of the shallows. She had forgiven him fourteen years ago, and never told him.",
@@ -393,7 +516,7 @@
       },
       "nina": {
         "parte": "Nina left on the nine o'clock ferry, with Leopardi in her suitcase. Bepi stayed on the Pier as long as the smoke could be seen.",
-        "resta": "Nina stayed. She says Venice isn't going anywhere and next year is just the same. She says it a few times too often.",
+        "resta": "Nina stayed. She says Venice isn't going anywhere and they'll keep her boarding place until September. She says it a few times too often.",
         "acqua": "Nina stood in the Square with water to her ankles. She says that's how it's done in Venice, and one must practise.",
         "aspetta": "I wrote to Nina that Venice is waiting for her, high water and all. She answered with a line of Leopardi. I think it was a thank-you.",
         "restaQui": "I wrote to Nina that the island needs her. She didn't answer. Nina's silence makes more noise than the wind."
@@ -406,7 +529,8 @@
         "livia": "The woman in black came through the Square during the market. She called Marta by name, and Marta didn't recognise her.",
         "ascolta": "Marta has promised to listen to Teresa, just once. She wrote “then we'll see”, which for Marta is almost a hug.",
         "lanterna": "I asked Marta to let Gino go to the Lighthouse. She said no three times, then “we'll see”. Zeno looks on him like a son, and she knows it.",
-        "casa": "I promised Marta that Gino will stay home. She's afraid of the high water and the woman in black, and I agreed with her. I don't know if I did right."
+        "casa": "I promised Marta that Gino would stay home. She's afraid of the high water and the woman in black, and I agreed with her.",
+        "promessaRotta": "I had promised Marta that Gino would stay home, and Gino ended up at the Lighthouse. Marta hasn't said so, but she knows, and I know she knows."
       },
       "gino": {
         "cinque": "Gino met five people in a single morning. He says he won. Against whom, nobody knows, but he's happy all the same.",
@@ -429,7 +553,7 @@
         "g22": "My mother came over the shallows. Her hands smell of fish and salt, and her voice I already knew from the letters.",
         "g23": "It's the eve. Tonight, under the door, there will be four notes. I can pin only one.",
         "arc5": "Arianna was the first. She saved everyone, and everyone forgot her. Under her words, Grandmother wrote “I know”. Now I know too.",
-        "arc6": "In the trial lace Grandmother had a thread. She crossed no one: she planted two occasions and stood watching. Then she hid it."
+        "arc6": "In the trial lace Grandmother had her first thread. She crossed no one: she planted two occasions and stood watching."
       }
     },
     "domande": {
@@ -456,7 +580,7 @@
         "regola": "Arianna wove the quarantine and saved the island, which forgot her. The rule comes from her: who weaves is not woven."
       },
       "arc6": {
-        "punto": "Grandmother tried the open stitch just once, giving herself an ivory thread. Then she did not have the courage, and hid the lace."
+        "punto": "In the trial lace Grandmother gave herself a thread for the first time, and tried the open stitch. Then she lost her courage, and hid it."
       }
     },
     "lettere": {

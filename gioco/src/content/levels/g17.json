@@ -274,5 +274,14 @@
         }
       }
     ]
-  }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "atto3.g17.margine.nero",
+      "mano": "ada"
+    }
+  ]
 }

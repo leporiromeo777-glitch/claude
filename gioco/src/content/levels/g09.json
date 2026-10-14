@@ -259,5 +259,37 @@
         }
       }
     ]
-  }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "atto2.g09.margine.febbre"
+    },
+    {
+      "k": "pulsa",
+      "target": "fuso",
+      "hour": 7,
+      "thread": "gino"
+    },
+    {
+      "k": "margine",
+      "when": "ora",
+      "hour": 7,
+      "textKey": "atto2.g09.margine.ginoLetto"
+    },
+    {
+      "k": "pulsa",
+      "target": "fuso",
+      "hour": 9,
+      "thread": "lunardi"
+    },
+    {
+      "k": "margine",
+      "when": "evento",
+      "evento": "cura",
+      "textKey": "atto2.g09.margine.cura"
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "g17": {
     "perline": {
-      "livia": "Chi è la donna con lo scialle nero"
+      "livia": "il nome della donna con lo scialle nero"
     },
     "hint": {
       "spinta": "Il filo nero entra dal Faro alle nove: chi è là se ne va. Si muove da solo e cerca Zeno.",
@@ -30,25 +30,47 @@
         "2": "Certi nomi si dicono una volta sola, e bene. Non oggi. Non ancora."
       }
     },
-    "titolo": "Il filo nero",
+    "titolo": "La donna in nero",
     "zeno": {
       "testo": "Domattina, dal mare, arriva qualcuno con lo scialle nero. Non so come lo so: lo so come so il tempo. Fammela incontrare, prima che sparisca un'altra volta.",
       "r1": "Chi è? Dimmelo almeno tu.",
-      "r2": "La incontrerai. Te lo prometto sul tombolo."
+      "r2": "La incontrerai. Te lo prometto sul tombolo.",
+      "esito": {
+        "ok": "Zeno ha incrociato la donna in nero. Si sono guardati come due che si conoscono da prima del mare.",
+        "fallita": "La donna in nero è passata per la Fondamenta senza trovare Zeno. Lui l'ha cercata col cannocchiale fino a sera."
+      }
     },
     "teresa": {
-      "testo": "Cara, gira voce di una forestiera vestita di nero. Nessuno sa chi sia, e a me non piace non sapere. Voglio saperlo io, e per prima. Prima del prete, soprattutto."
+      "testo": "Cara, gira voce di una forestiera vestita di nero. Nessuno sa chi sia, e a me non piace non sapere. Voglio saperlo io, e per prima. Prima del prete, soprattutto.",
+      "esito": {
+        "ok": "Teresa ha saputo chi è la donna in nero, prima di tutti. Stasera parla piano, come chi tiene una cosa in tasca.",
+        "fallita": "Teresa non ha saputo chi è la donna in nero. Ha fatto il giro della Piazza tre volte, invano."
+      }
     },
     "marta": {
-      "testo": "Durante il mercato non voglio forestiere in Piazza. Dalle nove a mezzogiorno. Le donne in nero portano disgrazia, lo diceva mia madre, e mia madre non sbagliava."
+      "testo": "Durante il mercato non voglio forestiere in Piazza. Dalle nove a mezzogiorno. Le donne in nero portano disgrazia, lo diceva mia madre, e mia madre non sbagliava.",
+      "esito": {
+        "ok": "Durante il mercato la forestiera non è passata dalla Piazza. Marta ha venduto tutto il pane, e ha detto «visto?».",
+        "fallita": "La forestiera è passata per la Piazza al mercato. Marta ha toccato ferro, poi il pane, poi di nuovo ferro."
+      }
     },
     "piero": {
-      "testo": "Se è chi penso, che la Teresa non sappia chi è. Non ancora. Ci sono cose che si dicono una volta sola, e bene, e in chiesa. Fiat voluntas."
+      "testo": "Se è chi penso, che la Teresa non sappia chi è. Non ancora. Ci sono cose che si dicono una volta sola, e bene, e in chiesa. Fiat voluntas.",
+      "esito": {
+        "ok": "Teresa non ha saputo chi è la donna in nero. Il prete ha tirato un sospiro lungo come un Vespro.",
+        "fallita": "Teresa ha saputo chi è la donna in nero. Il prete ha detto «sia fatta la volontà di Dio», e anche della postina."
+      }
+    },
+    "sera": {
+      "vuota": "Sotto la porta non c'è niente. Fuori, qualcuno cammina sulla Fondamenta."
+    },
+    "margine": {
+      "nero": "Non l'ho tessuto io. Il filo nero si muove da solo, sempre sopra, e non si tocca."
     }
   },
   "g18": {
     "perline": {
-      "confessione": "La confessione di Teresa: il '36"
+      "confessione": "la confessione di Teresa sul '36"
     },
     "hint": {
       "spinta": "Il segreto scende soltanto, e Marta non passa sotto Teresa: serve qualcuno in mezzo.",
@@ -57,7 +79,8 @@
     "alba": {
       "pace": {
         "1": "Trent'anni, Teresa.",
-        "2": "Trenta. E non era nemmeno colpa mia, si scopre."
+        "2": "Trenta. E non era nemmeno colpa mia, si scopre: me l'ha detto la piccola.",
+        "2d": "Trenta. E non era nemmeno colpa mia, si scopre: me l'ha detto la merlettaia."
       },
       "pane": {
         "1": "Lo so. Siediti, che il pane è caldo.",
@@ -79,7 +102,11 @@
     },
     "titolo": "La pace",
     "teresa": {
-      "testo": "Cara, la mia confessione deve arrivare alla Marta, e a nessun altro: né alla Nina né al dottore. Io non posso darla, lei non mi passa sotto. Falla portare dal Gino."
+      "testo": "Cara, la mia confessione deve arrivare alla Marta, e a nessun altro: né alla Nina né al dottore. Io non posso darla, lei non mi passa sotto. Falla portare dal Gino.",
+      "esito": {
+        "ok": "La confessione di Teresa è arrivata a Marta, e a nessun altro. Dopo trent'anni, sulla soglia del forno, si sono sedute.",
+        "fallita": "La confessione non è arrivata dove doveva. Teresa e Marta restano ognuna dalla sua parte della Fondamenta."
+      }
     },
     "marta": {
       "testo": "Se la Teresa ha qualcosa da dire, lo dica. A me, non al paese, non al prete. Io ascolto. Una volta. Poi si vede.",
@@ -90,15 +117,23 @@
       }
     },
     "gino": {
-      "testo": "oggi voglio correre da TUTTI! da tutti tutti, anche dal dottore e dal prete. 5 persone!!! cosi vinco. vinco cosa non lo so"
+      "testo": "domani voglio correre da TUTTI! da tutti tutti, anche dal dottore e dal prete. 5 persone!!! cosi vinco. vinco cosa non lo so",
+      "esito": {
+        "ok": "Il Gino ha salutato cinque persone, il dottore compreso. Stasera dorme vestito, stanco come un cane da pesca.",
+        "fallita": "Il Gino non è arrivato a cinque. Ha contato sulle dita tutta la cena, sperando di essersi sbagliato."
+      }
     },
     "lunardi": {
-      "testo": "Signorina, mi sento ancora un forestiero. Vorrei incontrare almeno tre persone, domattina, e che una, una sola, mi confidasse qualcosa. Come si fa tra gente dell'isola."
+      "testo": "Signorina, mi sento ancora un forestiero. Vorrei incontrare almeno tre persone, domattina, e che una, una sola, mi confidasse qualcosa. Come si fa tra gente dell'isola.",
+      "esito": {
+        "ok": "Il dottore ha avuto le sue tre visite, e una confidenza. La tiene stretta come una ricetta.",
+        "fallita": "Al dottore nessuno ha confidato niente. Ha cenato da solo in Farmacia, coi vasi di vetro per compagnia."
+      }
     }
   },
   "g19": {
     "perline": {
-      "L_farmacia": "Le medicine per la Farmacia"
+      "L_farmacia": "le medicine per il dottor Lunardi"
     },
     "hint": {
       "spinta": "Dalle dieci all'una Molo e Piazza sono allagati: chi è lì resta fermo, e nessuno passa.",
@@ -124,22 +159,48 @@
       "medicine": {
         "1": "Le medicine sono arrivate bagnate. E aperte, mi pare. Tutte e sei.",
         "2": "Le ho solo guardate, dottore. Per controllare che ci fossero."
+      },
+      "medicinePace": {
+        "1": "Le medicine sono arrivate tardi, e bagnate. Tutte e sei.",
+        "2": "Non le ho aperte, dottore, lo giuro. Ma l'acqua non giura niente."
       }
     },
     "titolo": "Acqua alta",
     "bepi": {
-      "testo": "stanote sale l'aqua. la barca va legata al molo prima delle 10. ci vado io alle 9, se no la perdo. la barca è tutto quello che ho, a parte la nina"
+      "testo": "domani sale l'aqua. la barca va legata al molo prima delle 10. ci vado io alle 9, se no la perdo. la barca è tutto quello che ho, a parte la nina",
+      "esito": {
+        "ok": "Il Bepi ha legato la barca in tempo. Quando l'acqua è salita, lui era già all'osteria a dire che l'aveva previsto.",
+        "fallita": "Il Bepi non è arrivato al Molo in tempo. L'acqua alta si è presa una tavola della barca, e un po' del suo orgoglio."
+      }
     },
     "nina": {
       "testo": "L'acqua alta voglio vederla dalla Piazza, coi piedi a mollo, alle undici. A Venezia la gente la guarda dalle finestre: io voglio starci dentro.",
       "r1": "Venezia ti aspetta. Anche con l'acqua alta, anzi di più.",
-      "r2": "Resta qui. L'isola ha bisogno di te."
+      "r2": "Resta qui. L'isola ha bisogno di te.",
+      "esito": {
+        "ok": "Alle undici la Nina era in Piazza coi piedi nell'acqua. È tornata a casa bagnata fino alle ginocchia, e felice.",
+        "fallita": "La Nina non è arrivata in Piazza con l'acqua alta. L'ha guardata da lontano, come fanno a Venezia, ed era arrabbiata."
+      }
     },
     "teresa": {
-      "testo": "Cara, le medicine per la Farmacia sono nella mia borsa e l'acqua sale alle dieci. Che arrivino al dottore prima, asciutte. Lo so, le leggo per strada."
+      "testo": "Cara, le medicine per la Farmacia sono nella mia borsa e l'acqua sale alle dieci. Che arrivino al dottore prima, asciutte. Lo so, le leggo per strada.",
+      "pace": {
+        "testo": "Cara, le medicine per la Farmacia sono nella mia borsa e l'acqua sale alle dieci. Che arrivino al dottore prima, asciutte. Non le leggo più, ma l'acqua sì."
+      },
+      "esito": {
+        "ok": "Le medicine sono arrivate al dottore prima delle dieci, asciutte. Teresa si è fatta dire grazie due volte.",
+        "fallita": "Le medicine sono arrivate tardi, dopo l'acqua. Il dottore le ha messe ad asciugare sul davanzale, una per una."
+      }
     },
     "lunardi": {
-      "testo": "Durante l'acqua alta la Farmacia resta aperta. Vorrei vedere almeno tre persone: con l'umido la tosse arriva puntuale, come il vaporetto."
+      "testo": "Durante l'acqua alta la Farmacia resta aperta. Vorrei vedere almeno tre persone: con l'umido la tosse arriva puntuale, come il vaporetto.",
+      "esito": {
+        "ok": "Con l'acqua alta il dottore ha visto le sue tre persone. Dice che la tosse, stavolta, è arrivata tardi.",
+        "fallita": "Con l'acqua alta la Farmacia è rimasta vuota. Il dottore ha riordinato i vasi in ordine alfabetico, due volte."
+      }
+    },
+    "margine": {
+      "marea": "L'acqua alta fa l'isola più piccola: dalle dieci all'una, Molo e Piazza stanno fermi."
     }
   },
   "g20": {
@@ -153,7 +214,7 @@
         "2": "Va'. Va'. Il vaporetto non aspetta, e io nemmeno: vado a pescare."
       },
       "resta": {
-        "1": "Il vaporetto è partito senza di me. Ho guardato il fumo fino a Burano.",
+        "1": "Il vaporetto è partito senza di me. Ho guardato il fumo fino a Pellestrina.",
         "2": "Venezia è sempre là, dice il babbo. Anch'io, a quanto pare."
       },
       "saluto": {
@@ -171,26 +232,43 @@
     },
     "titolo": "Nina",
     "nina": {
-      "testo": "Il vaporetto delle nove. Ho la valigia sotto il letto da un mese, e dentro c'è anche Leopardi. Fammi arrivare al Molo in tempo, prima che cambi idea."
+      "testo": "Il vaporetto delle nove. Ho la valigia sotto il letto da un mese, e dentro c'è anche Leopardi. Fammi arrivare al Molo in tempo, prima che cambi idea.",
+      "esito": {
+        "ok": "Alle nove la Nina è salita sul vaporetto. Dal ponte ha alzato la mano una volta sola, per non piangere.",
+        "fallita": "Il vaporetto delle nove è partito senza la Nina. La valigia è tornata sotto il letto, ancora chiusa.",
+        "lasciato": "Ho lasciato cadere la partenza della Nina. Il vaporetto delle nove è partito senza di lei."
+      }
     },
     "bepi": {
-      "testo": "la Nina parte. prima voglio salutarla come si deve, non come l'altra volta. alle 9 è troppo tardi. prima. e non dirlo a lei",
+      "testo": "la nina parte. prima la voglio salutare come si deve, non come l'altra volta. alle 9 è tropo tardi. prima. e non dirlo a lei",
       "r1": "Dille quello che non le hai mai detto. Anche solo due parole.",
-      "r2": "Le basta che tu ci sia. Il resto lo sa già."
+      "r2": "Le basta che tu ci sia. Il resto lo sa già.",
+      "esito": {
+        "ok": "Il Bepi ha salutato la Nina prima delle nove. Non so che cosa le abbia detto: lei aveva gli occhi rossi e rideva.",
+        "fallita": "Il Bepi non ha trovato la Nina in tempo. È rimasto al Molo con le mani in tasca e le parole in gola."
+      }
     },
     "marta": {
-      "testo": "Il Gino vuole seguire la Nina al Molo. Non deve: se sale su quel vaporetto per gioco, non lo riprendo più. Lontano dal Molo fino alle nove."
+      "testo": "Il Gino vuole seguire la Nina al Molo. Non deve: se sale su quel vaporetto per gioco, non lo riprendo più. Lontano dal Molo fino alle nove.",
+      "esito": {
+        "ok": "Il Gino è rimasto lontano dal Molo fino alle nove. Marta l'ha tenuto a impastare, e lui ha impastato il broncio.",
+        "fallita": "Il Gino è finito al Molo col vaporetto che fischiava. Marta stasera gli ha dato la cena senza dire una parola."
+      }
     },
     "teresa": {
-      "testo": "Cara, la Nina parte e io non l'ho nemmeno salutata. Fammela incontrare prima delle nove. Un minuto, giuro. Le devo dare una cosa che tengo da parte."
+      "testo": "Cara, la Nina parte e io non l'ho nemmeno salutata. Fammela incontrare prima delle nove. Un minuto, giuro. Le devo dare una cosa che tengo da parte.",
+      "esito": {
+        "ok": "Teresa ha incontrato la Nina prima delle nove. Le ha dato una cosa tenuta da parte, e le ha detto «cara» una volta di troppo.",
+        "fallita": "Teresa non ha incontrato la Nina in tempo. Quello che teneva da parte è rimasto nel cassetto."
+      }
     }
   },
   "g21": {
     "perline": {
-      "L_teresa": "Una lettera per Teresa, rimasta nel pozzo",
-      "voto": "Un voto di Don Piero",
-      "anni": "Quattordici anni di lettere",
-      "livia": "Chi è la donna in nero"
+      "L_teresa": "la lettera per Teresa rimasta nel pozzo",
+      "voto": "il voto di Don Piero",
+      "anni": "il segreto dei quattordici anni di lettere",
+      "livia": "il nome della donna in nero"
     },
     "hint": {
       "spinta": "Alle otto il filo nero entra dal Faro e cerca Don Piero, poi Zeno. Chi è al Faro esce.",
@@ -220,26 +298,42 @@
     },
     "titolo": "Il punto aperto",
     "zeno": {
-      "testo": "La donna in nero è tornata. L'altra volta non ho trovato le parole. Stavolta voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni."
+      "testo": "La donna in nero è tornata. L'altra volta non ho trovato le parole. Stavolta voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni.",
+      "esito": {
+        "ok": "Zeno ha incrociato la donna in nero, e stavolta le parole le ha trovate.",
+        "fallita": "Zeno non ha incrociato la donna in nero. Le parole che tiene pronte da quattordici anni sono ancora lì."
+      }
     },
     "piero": {
-      "testo": "Nel pozzo c'è ancora una lettera per la Teresa. Ho pregato tutta la notte: voglio restituirla prima che sia tardi. Il pozzo, lo so, deve traboccare un'altra volta."
+      "testo": "Nel pozzo c'è ancora una lettera per la Teresa. Ho pregato tutta la notte: voglio restituirla prima che sia tardi. Il pozzo, lo so, deve traboccare un'altra volta.",
+      "esito": {
+        "ok": "Il pozzo ha traboccato un'altra volta, e la lettera è arrivata a Teresa. Il prete si sente leggero come un chierichetto.",
+        "fallita": "La lettera per Teresa è rimasta nel pozzo. Il prete l'ha rimessa sotto le tovaglie, con un sospiro."
+      }
     },
     "gino": {
-      "testo": "stasera alle 6 lo Zeno accende la lanterna e io voglio essere al faro!!! me l'ha promesso. lo giuro sulla pagella"
+      "testo": "domani sera alle 6 lo Zeno accende la lanterna e io voglio essere al faro!!! me l'ha promesso. lo giuro sulla pagella",
+      "esito": {
+        "ok": "Alle sei di sera il Gino era al Faro quando la lanterna si è accesa. Da fuori, ma così vicino che gli scottava il naso.",
+        "fallita": "Alle sei di sera il Gino non era al Faro. La lanterna si è accesa lo stesso, e lui l'ha guardata da lontano."
+      }
     },
     "marta": {
-      "testo": "Il Gino stasera non va al Faro. Con l'acqua alta e quella donna in giro, dalle tre lo voglio a casa. Fino a sera.",
+      "testo": "Il Gino domani sera non va al Faro. Con l'acqua alta e quella donna in giro, dalle tre lo voglio a casa. Fino a sera.",
       "r1": "Lascialo andare. Zeno lo guarda come un figlio.",
-      "r2": "Va bene. Starà a casa, con te."
+      "r2": "Va bene. Starà a casa, con te.",
+      "esito": {
+        "ok": "Il Gino è stato a casa, lontano dal Faro e dall'acqua. Marta gli ha fatto la torta, per farsi perdonare.",
+        "fallita": "Il Gino è scappato al Faro, contro la volontà di Marta. Lei non mi ha detto niente, e il suo niente pesa."
+      }
     }
   },
   "g22": {
     "perline": {
-      "fascio": "Il fascio rimasto, per Livia",
-      "voto": "Un voto di Don Piero",
-      "anni": "Quattordici anni di lettere",
-      "livia": "Chi è la donna della secca"
+      "fascio": "il fascio rimasto per Livia",
+      "voto": "il voto di Don Piero",
+      "anni": "il segreto dei quattordici anni di lettere",
+      "livia": "il nome della donna della secca"
     },
     "hint": {
       "spinta": "Alle tre, dalla secca, arriva Livia: chi è al Faro le va incontro e se ne va con la marea.",
@@ -261,7 +355,7 @@
       "teresa": {
         "1": "L'ho saputo per ultima, cara. Io! Per ultima!",
         "1d": "L'ho saputo per ultima, signorina. Io!",
-        "2": "È la figlia della vecchia merlettaia. Strano: non me la ricordo per niente."
+        "2": "È la figlia della vecchia merlettaia. Mi pare di averla già vista, e non so più dove."
       },
       "pane": {
         "1": "Ha mangiato il pane in piedi, come chi ha camminato tanto.",
@@ -270,18 +364,38 @@
     },
     "titolo": "La secca",
     "zeno": {
-      "testo": "Oggi c'è la secca più bassa dell'anno. Alle tre lei arriva a piedi, dalla sabbia. Il primo che la incontra devo essere io. Glielo devo da quattordici anni."
+      "testo": "Domani c'è la secca più bassa dell'anno. Alle tre lei arriva a piedi, dalla sabbia. Il primo che la incontra devo essere io. Glielo devo da quattordici anni.",
+      "esito": {
+        "ok": "Zeno è stato il primo a incontrare mia madre sulla sabbia. Si sono tenuti le mani, senza dire niente, finché è tornata l'acqua.",
+        "fallita": "Zeno non è arrivato in tempo alla secca. Mia madre è passata, e lui l'ha vista da lontano, col cappello in mano.",
+        "lasciato": "Ho lasciato cadere la richiesta di Zeno. Alla secca, mia madre l'ha incontrata qualcun altro."
+      }
     },
     "piero": {
-      "testo": "Nel pozzo restano le lettere che non ho saputo dare. Sono sue. Fate che arrivino a lei, oggi, prima che la marea se la riprenda."
+      "testo": "Nel pozzo restano le lettere che non ho saputo dare. Sono di sua madre. Faccia che le arrivino domani, prima che la marea se la riprenda.",
+      "esito": {
+        "ok": "Il fascio è arrivato a mia madre. Ha tenuto le sue lettere strette al petto, come si tiene un bambino.",
+        "fallita": "Il fascio non è arrivato a mia madre. Il prete ha detto che il pozzo, a volte, è anche una tomba."
+      }
     },
     "teresa": {
-      "testo": "Cara, oggi arriva una donna dalla secca e tutti dicono di conoscerla. Io no. Voglio saperlo appena mette piede sull'isola. Subito.",
+      "testo": "Cara, domani arriva una donna dalla secca e tutti dicono di conoscerla. Io no. Voglio saperlo appena mette piede sull'isola. Subito.",
       "r1": "Lo saprai. Ma non da me, e non stasera.",
-      "r2": "È mia madre. Si chiama Livia, e tu non te la ricordi."
+      "r2": "È mia madre. Si chiama Livia, e tu non te la ricordi.",
+      "riconosciuta": {
+        "testo": "Quella donna l'avevo riconosciuta, cara, e poi mi è scappata come una parola. Voglio rivederla appena mette piede sull'isola."
+      },
+      "esito": {
+        "ok": "Teresa ha saputo chi è la donna della secca appena ha messo piede sull'isola. L'ha guardata a lungo, come una lettera da rileggere.",
+        "fallita": "Teresa non ha saputo in tempo chi è la donna della secca. L'ha cercata con gli occhi per tutta la Fondamenta."
+      }
     },
     "marta": {
-      "testo": "Se arriva una forestiera a piedi dalla secca, avrà fame. Il pane caldo glielo porto io, con le mie mani."
+      "testo": "Se arriva una forestiera a piedi dalla secca, avrà fame. Il pane caldo glielo porto io, con le mie mani.",
+      "esito": {
+        "ok": "Marta è arrivata dalla forestiera col pane ancora caldo. Le ha detto «mangi», e mia madre ha obbedito.",
+        "fallita": "Il pane di Marta non è arrivato alla forestiera. Marta l'ha lasciato sulla soglia del forno, sotto un tovagliolo, per chi passa."
+      }
     }
   },
   "g23": {
@@ -331,10 +445,10 @@
       "lazzaretto": "il barcaiolo del lazzaretto"
     },
     "perline": {
-      "peste": "La peste",
-      "quarantena": "La quarantena: restate di qua"
+      "peste": "la peste",
+      "quarantena": "la voce della quarantena: restate di qua"
     },
-    "titolo": "1630. Il primo merletto",
+    "titolo": "Il primo merletto",
     "eco": {
       "1": "Restate di qua, tutti. Il pane lasciatelo sulla soglia.",
       "2": "E mio marito? È di là, col barcaiolo malato.",
@@ -347,14 +461,22 @@
       "1": "Nel 1630 Arianna tessé la quarantena: i sani di qua, i malati di là.",
       "2": "L'isola fu salva. Il suo nome no. Da lei: chi tesse non è tessuto."
     },
-    "margine": "«Chi tesse non è tessuto.» E sotto, d'altra mano: «Lo so.»"
+    "margine": "«Chi tesse non è tessuto.» E sotto, d'altra mano: «Lo so.»",
+    "guida": {
+      "nomina": "Un filo solo senza nome, in mezzo ai mestieri. Chi tiene i sani di qua?",
+      "strappo": "Ritessi le otto e le nove: i sani da una parte, il barcaiolo malato dall'altra."
+    },
+    "hint": {
+      "spinta": "Il filo senza nome si mette in mezzo, fra i sani e il malato, e tiene la voce.",
+      "indizio": "Il rammendo è giusto quando alle dieci ogni filo è dove lo trova la riga registrata."
+    }
   },
   "arc6": {
     "tutorial": "Qui non si incrocia. Si piantano due occasioni, e i fili si cercano da soli.",
-    "titolo": "Senza data. Il punto aperto",
+    "titolo": "Il punto aperto",
     "eco": {
       "1": "«Vieni, Livia. Andiamo a prendere il pane.»",
-      "2": "«Oggi niente tombolo, Clotilde?» «Oggi no, don Piero. Oggi guardo.»",
+      "2": "«Oggi niente tombolo, Clotilde?» «Oggi no, Don Piero. Oggi guardo.»",
       "3": "«Zeno, mi fai vedere la lanterna?» «A mezzogiorno, piccola.»",
       "4": "Livia bambina rideva. Clotilde guardava dalla piazza, con le mani in tasca.",
       "5": "«Zeno, perché giriamo in tondo?» «Perché la lanterna ci aspetta tutti e due.»",
@@ -382,9 +504,10 @@
         "cassetto": "Teresa ha regalato alla Nina un fazzoletto ricamato per un viaggio che non ha mai fatto. Sette anni in un cassetto.",
         "lettera2": "Don Piero ha restituito a Teresa una lettera rimasta nel pozzo. Lei non l'ha ancora aperta: se la tiene come una caramella.",
         "medicine": "Le medicine per la Farmacia sono arrivate bagnate e aperte. Teresa giura che le ha solo guardate.",
-        "secca": "Teresa ha saputo per ultima chi è la donna della secca. Dice che non se la ricorda per niente, ed è vero.",
+        "secca": "Teresa ha saputo per ultima chi è la donna della secca. Dice che le pare di averla già vista, e non sa più dove.",
         "aspetta": "Ho scritto a Teresa che saprà chi è quella donna, ma non da me. Per una volta la postina aspetta una notizia, invece di portarla.",
-        "liviaSa": "Ho detto a Teresa che la donna della secca è mia madre. Non se la ricorda. Ha pianto lo stesso, senza sapere perché."
+        "liviaSa": "Ho detto a Teresa che la donna della secca è mia madre. Non se la ricorda. Ha pianto lo stesso, senza sapere perché.",
+        "medicinePace": "Le medicine sono arrivate tardi e bagnate. Teresa non le ha aperte: dice che adesso a leggere la posta è rimasta solo l'acqua."
       },
       "zeno": {
         "perdono": "Zeno ha chiesto perdono a mia madre, sul bordo della secca. Lei l'aveva perdonato da quattordici anni, e non glielo aveva mai detto.",
@@ -393,7 +516,7 @@
       },
       "nina": {
         "parte": "La Nina è partita col vaporetto delle nove, con Leopardi in valigia. Bepi è rimasto al Molo finché si vedeva il fumo.",
-        "resta": "La Nina è rimasta. Dice che Venezia non scappa e che l'anno prossimo è uguale. Lo dice un po' troppe volte.",
+        "resta": "La Nina è rimasta. Dice che Venezia non scappa e che il posto in convitto glielo tengono fino a settembre. Lo dice un po' troppe volte.",
         "acqua": "La Nina è stata in Piazza con l'acqua alla caviglia. Dice che a Venezia si fa così, e che bisogna allenarsi.",
         "aspetta": "Ho scritto alla Nina che Venezia la aspetta, anche con l'acqua alta. Mi ha risposto con un verso di Leopardi. Credo fosse un grazie.",
         "restaQui": "Ho scritto alla Nina che l'isola ha bisogno di lei. Non mi ha risposto. Il silenzio della Nina fa più rumore del vento."
@@ -406,7 +529,8 @@
         "livia": "La donna in nero è passata per la Piazza durante il mercato. Ha chiamato Marta per nome, e Marta non l'ha riconosciuta.",
         "ascolta": "Marta ha promesso di ascoltare Teresa, una volta sola. Ha scritto «poi si vede», che per Marta è quasi un abbraccio.",
         "lanterna": "Ho chiesto a Marta di lasciar andare il Gino al Faro. Ha detto di no tre volte, poi «vedremo». Zeno lo guarda come un figlio, e lei lo sa.",
-        "casa": "Ho promesso a Marta che il Gino resterà a casa. Ha paura dell'acqua alta e della donna in nero, e io le ho dato ragione. Non so se ho fatto bene."
+        "casa": "Ho promesso a Marta che il Gino sarebbe rimasto a casa. Ha paura dell'acqua alta e della donna in nero, e io le ho dato ragione.",
+        "promessaRotta": "Avevo promesso a Marta il Gino a casa, e il Gino è finito al Faro. Marta non me l'ha detto, ma lo sa, e io so che lo sa."
       },
       "gino": {
         "cinque": "Il Gino ha incontrato cinque persone in una mattina sola. Dice che ha vinto. Contro chi, non si sa, ma è contento lo stesso.",
@@ -429,7 +553,7 @@
         "g22": "Mia madre è arrivata dalla secca. Ha le mani che sanno di pesce e di sale, e una voce che conoscevo già dalle lettere.",
         "g23": "È la vigilia. Stasera, sotto la porta, ci saranno quattro biglietti. Ne potrò appuntare uno solo.",
         "arc5": "Arianna fu la prima. Salvò tutti, e tutti la dimenticarono. Sotto la sua frase, la nonna ha scritto «Lo so». Adesso lo so anch'io.",
-        "arc6": "Nel merletto di prova la nonna aveva un filo. Non ha incrociato nessuno: ha piantato due occasioni ed è rimasta a guardare. Poi lo ha nascosto."
+        "arc6": "Nel merletto di prova la nonna aveva il suo primo filo. Non ha incrociato nessuno: ha piantato due occasioni ed è rimasta a guardare."
       }
     },
     "domande": {
@@ -456,7 +580,7 @@
         "regola": "Arianna tessé la quarantena e salvò l'isola, che la dimenticò. Da lei viene la regola: chi tesse non è tessuto."
       },
       "arc6": {
-        "punto": "La nonna provò il punto aperto una volta sola, dandosi un filo d'avorio. Poi non ebbe il coraggio, e nascose il merletto."
+        "punto": "Nel merletto di prova la nonna si diede un filo per la prima volta, e provò il punto aperto. Poi non ebbe il coraggio, e lo nascose."
       }
     },
     "lettere": {

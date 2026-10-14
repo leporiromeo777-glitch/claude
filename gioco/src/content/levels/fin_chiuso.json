@@ -106,5 +106,6 @@
       "hour": 7,
       "textKey": "finali.chiuso.margine"
     }
-  ]
+  ],
+  "chiusura": "nodo"
 }

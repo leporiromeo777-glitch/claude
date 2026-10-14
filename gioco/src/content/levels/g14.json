@@ -146,30 +146,8 @@
         }
       },
       {
-        "id": "g14.alba.sera",
-        "priority": 100,
-        "background": "dio/stanza/notte",
-        "figures": [
-          {
-            "character": "zeno",
-            "pose": "porge",
-            "x": 0.5
-          }
-        ],
-        "lines": [
-          {
-            "speaker": "zeno",
-            "textKey": "atto2.g14.alba.sera.1"
-          },
-          {
-            "speaker": "zeno",
-            "textKey": "atto2.g14.alba.sera.2"
-          }
-        ]
-      },
-      {
         "id": "g14.alba.ammessa",
-        "priority": 60,
+        "priority": 100,
         "background": "dio/faro/giorno",
         "figures": [
           {
@@ -194,7 +172,7 @@
       },
       {
         "id": "g14.alba.letta",
-        "priority": 80,
+        "priority": 100,
         "background": "dio/piazza/giorno",
         "figures": [
           {
@@ -226,7 +204,7 @@
       },
       {
         "id": "g14.alba.lanterna",
-        "priority": 60,
+        "priority": 100,
         "background": "dio/faro/giorno",
         "figures": [
           {
@@ -254,6 +232,28 @@
         "when": {
           "ok": "g14.gino"
         }
+      },
+      {
+        "id": "g14.alba.sera",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "atto2.g14.alba.sera.1"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "atto2.g14.alba.sera.2"
+          }
+        ]
       }
     ]
   }

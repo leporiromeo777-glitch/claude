@@ -163,7 +163,17 @@
     "section": "domande",
     "textKey": "atto3.diario.domande.desideri.pista",
     "unlock": {
-      "done": "g21"
+      "all": [
+        {
+          "done": "g21"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.desideri.risposta"
+          }
+        }
+      ]
     },
     "opens": [
       "desideri"
@@ -302,7 +312,17 @@
     "section": "domande",
     "textKey": "atto3.diario.domande.secca.pista",
     "unlock": {
-      "done": "g21"
+      "all": [
+        {
+          "knows": "oggetto",
+          "id": "biglietto_livia_5"
+        },
+        {
+          "not": {
+            "done": "g22"
+          }
+        }
+      ]
     },
     "pista": true
   },
@@ -311,7 +331,8 @@
     "section": "persone",
     "textKey": "atto3.diario.persone.ada.nastro",
     "unlock": {
-      "done": "g23"
+      "knows": "oggetto",
+      "id": "nastro_nonna"
     },
     "character": "ada",
     "source": "visto"
@@ -411,7 +432,35 @@
     "section": "persone",
     "textKey": "atto3.diario.persone.teresa.medicine",
     "unlock": {
-      "failed": "g19.teresa"
+      "all": [
+        {
+          "failed": "g19.teresa"
+        },
+        {
+          "not": {
+            "flag": "riconciliate",
+            "eq": true
+          }
+        }
+      ]
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.medicinePace",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.medicinePace",
+    "unlock": {
+      "all": [
+        {
+          "failed": "g19.teresa.pace"
+        },
+        {
+          "flag": "riconciliate",
+          "eq": true
+        }
+      ]
     },
     "character": "teresa",
     "source": "visto"
@@ -471,7 +520,8 @@
     "section": "lettere",
     "textKey": "atto3.diario.lettere.nastro",
     "unlock": {
-      "done": "g23"
+      "knows": "oggetto",
+      "id": "nastro_nonna"
     },
     "source": "visto"
   },
@@ -480,7 +530,17 @@
     "section": "domande",
     "textKey": "atto3.diario.domande.puntoAperto.pista",
     "unlock": {
-      "done": "g18"
+      "all": [
+        {
+          "done": "g18"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.puntoAperto.risposta"
+          }
+        }
+      ]
     },
     "pista": true
   },
@@ -489,7 +549,8 @@
     "section": "lettere",
     "textKey": "atto3.diario.lettere.bigliettiLivia",
     "unlock": {
-      "done": "g17"
+      "knows": "oggetto",
+      "id": "biglietto_livia_1"
     },
     "source": "visto"
   },
@@ -560,6 +621,24 @@
     "unlock": {
       "reply": "g21.marta",
       "is": "R2"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.promessaRotta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.marta.promessaRotta",
+    "unlock": {
+      "all": [
+        {
+          "reply": "g21.marta",
+          "is": "R2"
+        },
+        {
+          "ok": "g21.gino"
+        }
+      ]
     },
     "character": "marta",
     "source": "visto"

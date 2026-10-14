@@ -214,7 +214,8 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.zeno.lettera",
     "unlock": {
-      "done": "g14"
+      "knows": "oggetto",
+      "id": "lettera_clotilde"
     },
     "character": "zeno",
     "source": "sentito"
@@ -276,7 +277,8 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.puntoAperto.pagina",
     "unlock": {
-      "done": "g09"
+      "knows": "oggetto",
+      "id": "pagina_strappata"
     },
     "source": "libro",
     "opens": [
@@ -288,7 +290,17 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.anno1958.cassapanca",
     "unlock": {
-      "done": "g11"
+      "all": [
+        {
+          "done": "g11"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.anno1958.risposta"
+          }
+        }
+      ]
     },
     "opens": [
       "anno1958"
@@ -300,7 +312,17 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.anno1958.notte",
     "unlock": {
-      "done": "g13"
+      "all": [
+        {
+          "done": "g13"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.anno1958.risposta"
+          }
+        }
+      ]
     },
     "opens": [
       "anno1958"
@@ -324,7 +346,8 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.chiL.risposta",
     "unlock": {
-      "done": "g14"
+      "knows": "oggetto",
+      "id": "lettera_clotilde"
     },
     "closes": [
       "chiL"
@@ -335,7 +358,8 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.avorio.lettera",
     "unlock": {
-      "done": "g14"
+      "knows": "oggetto",
+      "id": "lettera_clotilde"
     },
     "closes": [
       "avorio"
@@ -346,7 +370,18 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.madre.apre",
     "unlock": {
-      "done": "g14"
+      "all": [
+        {
+          "knows": "oggetto",
+          "id": "lettera_clotilde"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.madre.risposta"
+          }
+        }
+      ]
     },
     "opens": [
       "madre"
@@ -370,7 +405,18 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.pozzo.pista",
     "unlock": {
-      "done": "g14"
+      "all": [
+        {
+          "knows": "oggetto",
+          "id": "lettera_clotilde"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.pozzo.risposta"
+          }
+        }
+      ]
     },
     "opens": [
       "pozzo"
@@ -382,8 +428,8 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.pozzo.risposta",
     "unlock": {
-      "flag": "lettereLivia",
-      "eq": "liberate"
+      "knows": "oggetto",
+      "id": "fascio_1"
     },
     "closes": [
       "pozzo"
@@ -394,8 +440,18 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.pozzo.sepolte",
     "unlock": {
-      "flag": "lettereLivia",
-      "eq": "sepolte"
+      "all": [
+        {
+          "flag": "lettereLivia",
+          "eq": "sepolte"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.pozzo.risposta"
+          }
+        }
+      ]
     },
     "pista": true
   },
@@ -568,8 +624,8 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.livia.lettere",
     "unlock": {
-      "flag": "lettereLivia",
-      "eq": "liberate"
+      "knows": "oggetto",
+      "id": "fascio_1"
     },
     "character": "livia",
     "source": "visto"
@@ -639,7 +695,8 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.ada.g14",
     "unlock": {
-      "done": "g14"
+      "knows": "oggetto",
+      "id": "lettera_clotilde"
     },
     "character": "ada",
     "source": "visto"
@@ -809,7 +866,8 @@
     "section": "lettere",
     "textKey": "atto2.diario.lettere.bottiglia_nodo_nero",
     "unlock": {
-      "done": "g15"
+      "knows": "oggetto",
+      "id": "bottiglia_nodo_nero"
     },
     "source": "visto"
   },
@@ -818,8 +876,8 @@
     "section": "lettere",
     "textKey": "atto2.diario.lettere.fascio",
     "unlock": {
-      "flag": "lettereLivia",
-      "eq": "liberate"
+      "knows": "oggetto",
+      "id": "fascio_1"
     },
     "source": "visto"
   },
@@ -828,16 +886,39 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.anno1958.pista",
     "unlock": {
-      "done": "g12"
+      "all": [
+        {
+          "done": "g10"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.anno1958.risposta"
+          }
+        }
+      ]
     },
-    "pista": true
+    "pista": true,
+    "opens": [
+      "anno1958"
+    ]
   },
   {
     "id": "domande.madre.pista",
     "section": "domande",
     "textKey": "atto2.diario.domande.madre.pista",
     "unlock": {
-      "done": "g15"
+      "all": [
+        {
+          "done": "g15"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.madre.risposta"
+          }
+        }
+      ]
     },
     "pista": true
   },
@@ -846,7 +927,17 @@
     "section": "domande",
     "textKey": "atto2.diario.domande.filoNero.pista",
     "unlock": {
-      "done": "g15"
+      "all": [
+        {
+          "done": "g15"
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "domande.filoNero.risposta"
+          }
+        }
+      ]
     },
     "pista": true
   },
@@ -855,7 +946,8 @@
     "section": "lettere",
     "textKey": "atto2.diario.lettere.clotilde",
     "unlock": {
-      "done": "g14"
+      "knows": "oggetto",
+      "id": "lettera_clotilde"
     },
     "source": "visto"
   },

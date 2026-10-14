@@ -43,7 +43,11 @@
       {
         "desire": "livia"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g17.zeno.esito.ok",
+      "fallita": "atto3.g17.zeno.esito.fallita"
+    }
   },
   {
     "id": "g17.teresa",
@@ -54,6 +58,10 @@
       "t": "ha",
       "who": "teresa",
       "bead": "segreto:livia"
+    },
+    "esito": {
+      "ok": "atto3.g17.teresa.esito.ok",
+      "fallita": "atto3.g17.teresa.esito.fallita"
     }
   },
   {
@@ -67,6 +75,10 @@
       "place": "piazza",
       "from": 9,
       "to": 12
+    },
+    "esito": {
+      "ok": "atto3.g17.marta.esito.ok",
+      "fallita": "atto3.g17.marta.esito.fallita"
     }
   },
   {
@@ -78,6 +90,10 @@
       "t": "nonHa",
       "who": "teresa",
       "bead": "segreto:livia"
+    },
+    "esito": {
+      "ok": "atto3.g17.piero.esito.ok",
+      "fallita": "atto3.g17.piero.esito.fallita"
     }
   },
   {
@@ -119,7 +135,11 @@
         "question": "martaTeresa",
         "state": "risolta"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g18.teresa.esito.ok",
+      "fallita": "atto3.g18.teresa.esito.fallita"
+    }
   },
   {
     "id": "g18.marta",
@@ -209,6 +229,10 @@
       "t": "incontriAlmeno",
       "who": "gino",
       "n": 5
+    },
+    "esito": {
+      "ok": "atto3.g18.gino.esito.ok",
+      "fallita": "atto3.g18.gino.esito.fallita"
     }
   },
   {
@@ -230,6 +254,10 @@
           "bead": "segreto:confessione"
         }
       ]
+    },
+    "esito": {
+      "ok": "atto3.g18.lunardi.esito.ok",
+      "fallita": "atto3.g18.lunardi.esito.fallita"
     }
   },
   {
@@ -242,6 +270,10 @@
       "who": "bepi",
       "place": "molo",
       "hour": 9
+    },
+    "esito": {
+      "ok": "atto3.g19.bepi.esito.ok",
+      "fallita": "atto3.g19.bepi.esito.fallita"
     }
   },
   {
@@ -282,7 +314,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g19.nina.esito.ok",
+      "fallita": "atto3.g19.nina.esito.fallita"
+    }
   },
   {
     "id": "g19.teresa",
@@ -293,6 +329,35 @@
       "t": "consegnata",
       "bead": "L_farmacia",
       "by": 10
+    },
+    "availableIf": {
+      "not": {
+        "flag": "riconciliate",
+        "eq": true
+      }
+    },
+    "esito": {
+      "ok": "atto3.g19.teresa.esito.ok",
+      "fallita": "atto3.g19.teresa.esito.fallita"
+    }
+  },
+  {
+    "id": "g19.teresa.pace",
+    "day": "g19",
+    "author": "teresa",
+    "textKey": "atto3.g19.teresa.pace.testo",
+    "request": {
+      "t": "consegnata",
+      "bead": "L_farmacia",
+      "by": 10
+    },
+    "availableIf": {
+      "flag": "riconciliate",
+      "eq": true
+    },
+    "esito": {
+      "ok": "atto3.g19.teresa.esito.ok",
+      "fallita": "atto3.g19.teresa.esito.fallita"
     }
   },
   {
@@ -304,6 +369,10 @@
       "t": "incontriAlmeno",
       "who": "lunardi",
       "n": 3
+    },
+    "esito": {
+      "ok": "atto3.g19.lunardi.esito.ok",
+      "fallita": "atto3.g19.lunardi.esito.fallita"
     }
   },
   {
@@ -333,7 +402,12 @@
         "setFlag": "nina",
         "value": "resta"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g20.nina.esito.ok",
+      "fallita": "atto3.g20.nina.esito.fallita",
+      "lasciato": "atto3.g20.nina.esito.lasciato"
+    }
   },
   {
     "id": "g20.bepi",
@@ -376,7 +450,11 @@
       {
         "desire": "bepi"
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g20.bepi.esito.ok",
+      "fallita": "atto3.g20.bepi.esito.fallita"
+    }
   },
   {
     "id": "g20.marta",
@@ -389,6 +467,10 @@
       "place": "molo",
       "from": 7,
       "to": 9
+    },
+    "esito": {
+      "ok": "atto3.g20.marta.esito.ok",
+      "fallita": "atto3.g20.marta.esito.fallita"
     }
   },
   {
@@ -402,6 +484,10 @@
       "b": "nina",
       "from": 7,
       "to": 9
+    },
+    "esito": {
+      "ok": "atto3.g20.teresa.esito.ok",
+      "fallita": "atto3.g20.teresa.esito.fallita"
     }
   },
   {
@@ -413,6 +499,10 @@
       "t": "incontra",
       "a": "zeno",
       "b": "livia"
+    },
+    "esito": {
+      "ok": "atto3.g21.zeno.esito.ok",
+      "fallita": "atto3.g21.zeno.esito.fallita"
     }
   },
   {
@@ -423,6 +513,10 @@
     "request": {
       "t": "consegnata",
       "bead": "L_teresa"
+    },
+    "esito": {
+      "ok": "atto3.g21.piero.esito.ok",
+      "fallita": "atto3.g21.piero.esito.fallita"
     }
   },
   {
@@ -435,6 +529,10 @@
       "who": "gino",
       "place": "faro",
       "hour": 18
+    },
+    "esito": {
+      "ok": "atto3.g21.gino.esito.ok",
+      "fallita": "atto3.g21.gino.esito.fallita"
     }
   },
   {
@@ -476,7 +574,11 @@
           }
         ]
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g21.marta.esito.ok",
+      "fallita": "atto3.g21.marta.esito.fallita"
+    }
   },
   {
     "id": "g22.zeno",
@@ -507,7 +609,12 @@
         "setFlag": "zenoLivia",
         "value": false
       }
-    ]
+    ],
+    "esito": {
+      "ok": "atto3.g22.zeno.esito.ok",
+      "fallita": "atto3.g22.zeno.esito.fallita",
+      "lasciato": "atto3.g22.zeno.esito.lasciato"
+    }
   },
   {
     "id": "g22.piero",
@@ -517,6 +624,10 @@
     "request": {
       "t": "consegnata",
       "bead": "fascio"
+    },
+    "esito": {
+      "ok": "atto3.g22.piero.esito.ok",
+      "fallita": "atto3.g22.piero.esito.fallita"
     }
   },
   {
@@ -557,7 +668,63 @@
           }
         ]
       }
-    ]
+    ],
+    "availableIf": {
+      "not": {
+        "ok": "g17.teresa"
+      }
+    },
+    "esito": {
+      "ok": "atto3.g22.teresa.esito.ok",
+      "fallita": "atto3.g22.teresa.esito.fallita"
+    }
+  },
+  {
+    "id": "g22.teresa.riconosciuta",
+    "day": "g22",
+    "author": "teresa",
+    "textKey": "atto3.g22.teresa.riconosciuta.testo",
+    "request": {
+      "t": "ha",
+      "who": "teresa",
+      "bead": "segreto:livia",
+      "by": 16
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g22.teresa.r1",
+        "effects": [
+          {
+            "setFlag": "teresaLivia",
+            "value": "aspetta"
+          },
+          {
+            "diary": "persone.teresa.aspetta"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g22.teresa.r2",
+        "effects": [
+          {
+            "setFlag": "teresaLivia",
+            "value": "sa"
+          },
+          {
+            "diary": "persone.teresa.liviaSa"
+          }
+        ]
+      }
+    ],
+    "availableIf": {
+      "ok": "g17.teresa"
+    },
+    "esito": {
+      "ok": "atto3.g22.teresa.esito.ok",
+      "fallita": "atto3.g22.teresa.esito.fallita"
+    }
   },
   {
     "id": "g22.marta",
@@ -568,6 +735,10 @@
       "t": "sopra",
       "a": "marta",
       "b": "livia"
+    },
+    "esito": {
+      "ok": "atto3.g22.marta.esito.ok",
+      "fallita": "atto3.g22.marta.esito.fallita"
     }
   },
   {

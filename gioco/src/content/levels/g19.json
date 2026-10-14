@@ -122,6 +122,7 @@
     "g19.bepi",
     "g19.nina",
     "g19.teresa",
+    "g19.teresa.pace",
     "g19.lunardi"
   ],
   "matassa": 10,
@@ -256,9 +257,71 @@
           }
         ],
         "when": {
-          "failed": "g19.teresa"
+          "all": [
+            {
+              "failed": "g19.teresa"
+            },
+            {
+              "not": {
+                "flag": "riconciliate",
+                "eq": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "g19.alba.medicine.pace",
+        "priority": 80,
+        "background": "dio/farmacia/giorno",
+        "figures": [
+          {
+            "character": "lunardi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "lunardi",
+            "textKey": "atto3.g19.alba.medicinePace.1"
+          },
+          {
+            "speaker": "teresa",
+            "textKey": "atto3.g19.alba.medicinePace.2"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "failed": "g19.teresa.pace"
+            },
+            {
+              "flag": "riconciliate",
+              "eq": true
+            }
+          ]
         }
       }
     ]
-  }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "ora",
+      "hour": 9,
+      "textKey": "atto3.g19.margine.marea"
+    },
+    {
+      "k": "pulsa",
+      "target": "marea",
+      "hour": 10
+    }
+  ]
 }

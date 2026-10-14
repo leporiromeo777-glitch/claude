@@ -146,7 +146,8 @@
           },
           {
             "speaker": "teresa",
-            "textKey": "atto3.g18.alba.pace.2"
+            "textKey": "atto3.g18.alba.pace.2",
+            "forgetKey": "atto3.g18.alba.pace.2d"
           }
         ],
         "when": {
@@ -198,7 +199,8 @@
               "ok": "g18.teresa"
             }
           ]
-        }
+        },
+        "dopo": "g18.alba.pace"
       },
       {
         "id": "g18.alba.storta",

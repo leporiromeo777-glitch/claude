@@ -216,5 +216,24 @@
         }
       ]
     }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 8,
+      "textKey": "atto3.arc5.guida.nomina",
+      "mano": "ada"
+    },
+    {
+      "k": "margine",
+      "when": "archivioNomi",
+      "textKey": "atto3.arc5.guida.strappo",
+      "mano": "ada"
+    }
+  ],
+  "hintKeys": {
+    "spinta": "atto3.arc5.hint.spinta",
+    "indizio": "atto3.arc5.hint.indizio"
   }
 }

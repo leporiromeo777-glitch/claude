@@ -131,7 +131,7 @@
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.merlettaia.epilogo.4.0"
+            "textKey": "finali.merlettaia.epilogo.4.nastro"
           },
           {
             "speaker": "narratore",
@@ -3275,12 +3275,12 @@
           {
             "character": "ada",
             "pose": "ferma",
-            "x": 0.35
+            "x": 0.4
           },
           {
             "character": "livia",
             "pose": "ferma",
-            "x": 0.65,
+            "x": 0.6,
             "flip": true
           }
         ],
@@ -3296,35 +3296,102 @@
         ]
       },
       {
-        "id": "finale.aperto.2",
+        "id": "finale.aperto.teresa",
         "priority": 100,
         "background": "dio/piazza/giorno",
         "figures": [
           {
-            "character": "gino",
-            "pose": "saluta",
-            "x": 0.25
-          },
-          {
-            "character": "marta",
+            "character": "teresa",
             "pose": "porge",
             "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "teresa",
+            "textKey": "finali.aperto.epilogo.teresa.1"
           },
           {
-            "character": "teresa",
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.teresa.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.gino",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [
+          {
+            "character": "gino",
+            "pose": "saluta",
+            "x": 0.36
+          },
+          {
+            "character": "zeno",
             "pose": "ferma",
-            "x": 0.75,
+            "x": 0.64,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "gino",
+            "textKey": "finali.aperto.epilogo.gino.1"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "finali.aperto.epilogo.gino.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.lunardi",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "lunardi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "lunardi",
+            "textKey": "finali.aperto.epilogo.lunardi.1"
+          },
+          {
+            "speaker": "lunardi",
+            "textKey": "finali.aperto.epilogo.lunardi.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.nina",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.36
+          },
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.64,
             "flip": true
           }
         ],
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.2.1"
+            "textKey": "finali.aperto.epilogo.nina.1"
           },
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.2.2"
+            "textKey": "finali.aperto.epilogo.nina.2"
           }
         ],
         "when": {
@@ -3335,35 +3402,30 @@
         }
       },
       {
-        "id": "finale.aperto.2.bepi",
+        "id": "finale.aperto.nina.bepi",
         "priority": 100,
-        "background": "dio/piazza/giorno",
+        "background": "dio/molo/giorno",
         "figures": [
           {
-            "character": "gino",
+            "character": "nina",
             "pose": "saluta",
-            "x": 0.25
+            "x": 0.36
           },
           {
-            "character": "marta",
-            "pose": "porge",
-            "x": 0.5
-          },
-          {
-            "character": "teresa",
+            "character": "bepi",
             "pose": "ferma",
-            "x": 0.75,
+            "x": 0.64,
             "flip": true
           }
         ],
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.2bepi.1"
+            "textKey": "finali.aperto.epilogo.nina.1"
           },
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.2bepi.2"
+            "textKey": "finali.aperto.epilogo.ninaBepi.2"
           }
         ],
         "when": {
@@ -3372,18 +3434,58 @@
         }
       },
       {
-        "id": "finale.aperto.3",
+        "id": "finale.aperto.zeno",
+        "priority": 100,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.36
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.64,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "finali.aperto.epilogo.zeno.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "finali.aperto.epilogo.zeno.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.nastro",
         "priority": 100,
         "background": "dio/chiesa/giorno",
-        "figures": [],
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "porge",
+            "x": 0.4
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.6,
+            "flip": true
+          }
+        ],
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.3.1"
+            "textKey": "finali.aperto.epilogo.nastro.1"
           },
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.3.2"
+            "textKey": "finali.aperto.epilogo.nastro.2"
           }
         ]
       },

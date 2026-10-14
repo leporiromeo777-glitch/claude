@@ -261,5 +261,25 @@
         }
       }
     ]
-  }
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "atto2.g11.margine.nodo"
+    },
+    {
+      "k": "pulsa",
+      "target": "fuso",
+      "hour": 7,
+      "thread": "teresa"
+    },
+    {
+      "k": "pulsa",
+      "target": "fuso",
+      "hour": 7,
+      "thread": "marta"
+    }
+  ]
 }
