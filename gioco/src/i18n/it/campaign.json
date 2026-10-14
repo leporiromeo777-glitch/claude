@@ -1,0 +1,300 @@
+{
+  "giornata": {
+    "prologo": "Prologo",
+    "n": "Giornata {n}",
+    "archivio": "Archivio",
+    "finale": "L'ultimo giorno",
+    "altro": "Merletto"
+  },
+  "prologo": {
+    "notte": "Sant'Arianna. La notte in cui morì Clotilde, l'orologio del campanile si fermò alle 5:59.",
+    "tocca": "Tocca per continuare",
+    "stanza": "La sedia della nonna è vuota. Sul tombolo c'è un merletto a metà, e un biglietto appuntato.",
+    "biglietto": "Ada, finisci tu. Il sole aspetta. C.",
+    "tombolo": "Tocca il tombolo"
+  },
+  "nuova": {
+    "titolo": "Una storia nuova?",
+    "corpo": "La storia salvata ricomincia dal prologo e il Taccuino torna vuoto. Record e sblocchi restano.",
+    "ok": "Ricomincia",
+    "annulla": "Annulla"
+  },
+  "sera": {
+    "titolo": "Torna al titolo",
+    "oggettoArriva": "Bussano alla porta. La laguna ha lasciato qualcosa.",
+    "oggettoTocca": "Tocca per prenderlo",
+    "oggettoTitolo": "Alla porta",
+    "oggettoContinua": "Continua",
+    "sottoLaPorta": "{n, plural, one {Sotto la porta è scivolato un bigliettino.} other {Sotto la porta sono scivolati # bigliettini.}}",
+    "nessunBigliettino": "Stasera, sotto la porta, non c'è niente.",
+    "allaMerlettaia": "Alla merlettaia",
+    "appunta": "Appunta ({n, plural, =0 {nessuno spillo} one {# spillo} other {# spilli}})",
+    "togliSpillo": "Togli lo spillo",
+    "rispondi": "Rispondi",
+    "lascia": "Lascia",
+    "appuntato": "Appuntato con uno spillo rosso.",
+    "appuntatoPer": "Appuntato: l'hai attribuito a {nome}.",
+    "haiRisposto": "Hai risposto:",
+    "lasciato": "Lasciato sul tavolo.",
+    "chiLHaScritto": "Chi l'ha scritto?",
+    "scegliRisposta": "Che cosa rispondi?",
+    "segnoAppuntato": "Appuntato",
+    "segnoRisposto": "Risposto",
+    "segnoLasciato": "Lasciato",
+    "alTombolo": "Al tombolo",
+    "alTomboloSpilli": "Al tombolo · spilli {usati}/{totale}",
+    "ripassa": "Ripassa",
+    "cassapanca": "La cassapanca",
+    "telaio": "Il Telaio",
+    "confermaTitolo": "Andare al tombolo?",
+    "confermaCorpo": "Alcuni bigliettini non sono stati decisi: contano come lasciati, e anche lasciarli ha le sue conseguenze.",
+    "confermaOk": "Al tombolo",
+    "confermaNo": "Resto ancora",
+    "errore": {
+      "nessunaSera": "Non è sera.",
+      "sconosciuto": "Questo bigliettino non è di stasera.",
+      "spilli": "Gli spilli rossi di stasera sono finiti: togline uno per appuntare questo.",
+      "chi": "Prima di appuntarlo, scegli chi l'ha scritto.",
+      "senzaRichiesta": "Questo bigliettino non chiede niente da tessere.",
+      "giaRisposto": "Hai già risposto.",
+      "senzaRisposte": "A questo bigliettino non si può rispondere."
+    }
+  },
+  "scelta": {
+    "giornata": "La vigilia",
+    "titolo": "La scelta",
+    "intro": "Quattro biglietti sotto la porta, piegati in quattro. Uno spillo solo.",
+    "unoSpillo": "Uno spillo solo: un biglietto solo.",
+    "appunta": "Appunta questo",
+    "strappato": "Il biglietto è strappato. Manca ancora qualcosa:",
+    "mancaQualcosa": "Strappato",
+    "confermaTitolo": "È la tua scelta?",
+    "conferma": {
+      "merlettaia": "Restare la merlettaia, e lasciare che mia madre se ne vada libera.",
+      "seppia": "Dare il tombolo a mia madre, e prendermi un filo.",
+      "chiuso": "Rimandarla via, come fece la nonna.",
+      "aperto": "Il punto aperto: nessuno comanda più nessuno."
+    },
+    "confermaOk": "Appunta lo spillo",
+    "confermaNo": "Ci penso ancora"
+  },
+  "alba": {
+    "titolo": "Il giorno accade",
+    "delusione": "{autore} aspettava una risposta. Il bigliettino l'avevi attribuito a {indovinato}."
+  },
+  "vignetta": {
+    "tocca": "Tocca per continuare",
+    "salta": "Salta",
+    "avanti": "Avanti",
+    "automatico": "Avanzamento automatico"
+  },
+  "bilancio": {
+    "titolo": "Bilancio",
+    "obiettivi": "Il merletto del giorno",
+    "obiettiviOk": "Il giorno è accaduto come doveva.",
+    "obiettiviKo": "Il giorno non è andato come doveva.",
+    "richieste": "Richieste",
+    "nessunaRichiesta": "Stanotte nessuno spillo rosso.",
+    "stato": {
+      "soddisfatta": "Soddisfatta",
+      "fallita": "Fallita",
+      "lasciataCadere": "Lasciata cadere",
+      "autoreSbagliato": "Autore sbagliato",
+      "lasciato": "Lasciato"
+    },
+    "lasciati": "Bigliettini lasciati",
+    "conseguenza": {
+      "ok": "Per {nome} è andata come sperava.",
+      "fallita": "Per {nome} non è andata come sperava.",
+      "lasciato": "Il bigliettino di {nome} è rimasto senza risposta.",
+      "desiderio": "Ora so che cosa desidera {nome}.",
+      "autoreSbagliato": "Il bigliettino era di {autore}, non di {indovinato}: la richiesta è andata a vuoto."
+    },
+    "memoria": "Chi ricorda Ada",
+    "ricorda": "ricorda ({n}/3)",
+    "dimentica": "comincia a dimenticare ({n}/3)",
+    "dimenticato": "ha dimenticato Ada",
+    "taccuino": "Nel Taccuino",
+    "eleganza": "Eleganza",
+    "incroci": "{n, plural, one {# incrocio} other {# incroci}} (minimo {min})",
+    "incrociSenzaMin": "{n, plural, one {# incrocio} other {# incroci}}",
+    "filoDOro": "Filo d'oro ✦",
+    "filoDOroNuovo": "Filo d'oro ✦ (il primo di questa giornata)",
+    "quiete": "{n, plural, =0 {Nessuna ora di quiete} one {# ora di quiete} other {# ore di quiete}}",
+    "simmetriaSi": "Simmetria ✦",
+    "simmetriaNo": "Senza simmetria",
+    "record": "Record: {incroci} incroci, {quiete} ore di quiete",
+    "nuovoRecord": {
+      "incroci": "Nuovo record: meno incroci",
+      "quiete": "Nuovo record: più ore di quiete",
+      "simmetria": "Prima simmetria",
+      "filoDOro": "Primo filo d'oro"
+    },
+    "sblocchi": "Si apre qualcosa",
+    "riascolta": "Riascolta il merletto",
+    "spartito": "Spartito",
+    "spartitoCopiato": "Spartito copiato: {spartito}",
+    "spartitoNonCopiato": "Non è stato possibile copiare lo spartito.",
+    "continua": "Continua",
+    "rigiocata": "Merletto rigiocato dal Telaio: la storia non cambia."
+  },
+  "sblocchi": {
+    "daily": "Il Merletto del giorno",
+    "libero": "Il Merletto libero, e Ripassa",
+    "gradi": "I gradi del Merletto libero",
+    "tovaglia": "La Tovaglia",
+    "archivio": "Nella cassapanca: {titolo}",
+    "fuso": "Un fuso intagliato (stile {n})"
+  },
+  "destini": {
+    "nina": {
+      "parte": "La Nina partirà per Venezia.",
+      "resta": "La Nina resta sull'isola."
+    },
+    "bepi": {
+      "salvo": "Il Bepi è tornato sano dalla tempesta.",
+      "ferito": "La barca del Bepi ha urtato la secca: è tornato ferito."
+    },
+    "lettereLivia": {
+      "liberate": "Le lettere di mia madre sono di nuovo in viaggio.",
+      "sepolte": "Le lettere di mia madre restano sepolte nel pozzo."
+    },
+    "riconciliate": {
+      "true": "Teresa e Marta si parlano di nuovo.",
+      "false": "Teresa e Marta continuano a non parlarsi."
+    },
+    "zenoLivia": {
+      "true": "Zeno e mia madre si sono incontrati.",
+      "false": "Zeno e mia madre non si sono incontrati."
+    }
+  },
+  "archivio": {
+    "titolo": "La cassapanca",
+    "intro": "I merletti antichi della nonna, arrotolati come lettere.",
+    "nuovoRotolo": "Nella cassapanca c'è un merletto che prima non c'era.",
+    "vuota": "La cassapanca è ancora chiusa.",
+    "stato": {
+      "nuovo": "Da leggere",
+      "nominato": "Fili nominati",
+      "rammendato": "Rammendato"
+    },
+    "apri": "Apri il merletto",
+    "rileggi": "Rileggi",
+    "piuTardi": "Più tardi",
+    "chiudi": "Chiudi la cassapanca",
+    "continua": "Continua",
+    "riprova": "Riprova",
+    "allaCassapanca": "Alla cassapanca",
+    "esito": {
+      "rammendato": "Merletto rammendato: il ricordo torna intero.",
+      "nominato": "I fili hanno un nome, ma lo strappo resta.",
+      "nuovo": "Il merletto resta sbiadito."
+    }
+  },
+  "telaio": {
+    "titolo": "Il Telaio",
+    "intro": "Ogni giornata è un nodo della striscia. Toccalo per rigiocarla, riprenderla o riascoltarla.",
+    "vuoto": "Il Telaio è vuoto: nessuna storia è ancora cominciata.",
+    "rigioca": "Rigioca",
+    "riprendi": "Riprendi da qui",
+    "riascolta": "Riascolta",
+    "indietro": "Indietro",
+    "annulla": "Annulla",
+    "riprendiTitolo": "Riprendere da qui?",
+    "riprendiCorpo": "La storia torna alla sera di questa giornata: quello che è successo dopo non sarà mai successo. Il Taccuino resta.",
+    "riprendiOk": "Riprendi da qui",
+    "epiloghi": "Epiloghi visti",
+    "filoDOro": "Filo d'oro",
+    "richieste": "✓ {ok} · ✗ {ko}"
+  },
+  "finale": {
+    "annodato": "Alle nove il merletto si annoda da solo.",
+    "nonTiene": "Il merletto non tiene",
+    "nonTieneTesto": "Il giorno non accade così. Riprova la notte: il Taccuino ricorda tutto.",
+    "riprova": "Riprova la notte",
+    "fineTitolo": "Fine",
+    "fineTesto": "La storia di quest'inverno è finita. Dal Telaio si può riprendere da qualsiasi sera.",
+    "spartiti": "Copia gli spartiti della partita",
+    "spartitiCopiati": "Spartiti della partita copiati.",
+    "telaio": "Il Telaio",
+    "titolo": "Torna al titolo",
+    "merlettaia": "La merlettaia",
+    "seppia": "Il filo di seppia",
+    "chiuso": "Il merletto chiuso",
+    "aperto": "Il merletto aperto"
+  },
+  "titoli": {
+    "gioco": "TRAMA. Il merletto dei giorni",
+    "ia": "Realizzato con strumenti di intelligenza artificiale.",
+    "font": "Caratteri con licenza SIL Open Font License: Atkinson Hyperlegible, EB Garamond, Caveat.",
+    "strumenti": "Strumenti: Blender, Vite, Capacitor.",
+    "ispirato": "Ispirato alla tradizione del merletto a fuselli di Pellestrina e Burano.",
+    "fine": "Fine"
+  },
+  "taccuino": {
+    "titolo": "Il Taccuino di Ada",
+    "apri": "Taccuino",
+    "schede": {
+      "bigliettini": "Bigliettini",
+      "persone": "Persone",
+      "libro": "Libro",
+      "domande": "Domande",
+      "lettere": "Lettere",
+      "archivio": "Archivio"
+    },
+    "nuova": "Nuova",
+    "fonte": {
+      "visto": "visto",
+      "libro": "dal Libro",
+      "sentito": "sentito",
+      "archivio": "dall'Archivio"
+    },
+    "desiderio": "Desidera:",
+    "memoria": "Ricorda Ada:",
+    "memoriaN": "{n} su 3",
+    "doveGuardare": "Dove guardare",
+    "aperta": "aperta",
+    "risolta": "risolta",
+    "nessunaDomanda": "Nessuna domanda, per ora.",
+    "nessunaLettera": "Nessuna lettera, per ora.",
+    "libroVuoto": "Il Libro dei Punti è ancora chiuso.",
+    "nessunaRichiesta": "Nessuna richiesta stanotte.",
+    "nessunBigliettino": "Nessun bigliettino stasera.",
+    "obiettivi": "Obiettivi: {fatti}/{totale}",
+    "stato": {
+      "soddisfatta": "Soddisfatta",
+      "in_corso": "In corso",
+      "a_rischio": "A rischio",
+      "fallita": "Fallita",
+      "lasciata": "Lasciata cadere"
+    },
+    "lasciaCadere": "Lascia cadere",
+    "lasciaCadereTitolo": "Lasciare cadere lo spillo?",
+    "lasciaCadereCorpo": "La richiesta diventa fallita, con le sue conseguenze.",
+    "annulla": "Annulla"
+  },
+  "motivi": {
+    "righe": "Filo a righe oblique",
+    "puntini": "Filo a puntini",
+    "doppio": "Filo doppio",
+    "onde": "Filo a onde",
+    "zigzag": "Filo a zig-zag",
+    "tratteggio": "Filo tratteggiato",
+    "catenella": "Filo a catenella",
+    "croce": "Filo a punto croce",
+    "lucido": "Filo lucido",
+    "perlato": "Filo perlato",
+    "liscio": "Filo liscio",
+    "nessuno": "Filo di lino"
+  },
+  "stranezze": {
+    "martaNoSotto": "Non passa mai sotto Teresa.",
+    "teresaLegge": "Legge le lettere che porta.",
+    "pieroPozzo": "È un pozzo: riceve tutto e non dà niente.",
+    "pieroTrabocca": "Con tre segreti il pozzo trabocca.",
+    "ginoCorre": "Non sta mai fermo: incrocia ogni ora.",
+    "ninaCuriosa": "Quando sta sopra, si prende anche i segreti.",
+    "zenoFaro": "Non si allontana dal Faro più di due luoghi.",
+    "lunardiCura": "Non si ammala; quando sta sopra, guarisce."
+  }
+}

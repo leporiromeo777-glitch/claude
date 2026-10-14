@@ -1,0 +1,300 @@
+{
+  "giornata": {
+    "prologo": "Prologue",
+    "n": "Day {n}",
+    "archivio": "Archive",
+    "finale": "The last day",
+    "altro": "Lace"
+  },
+  "prologo": {
+    "notte": "Sant'Arianna. On the night Clotilde died, the bell-tower clock stopped at 5:59.",
+    "tocca": "Tap to continue",
+    "stanza": "Grandmother's chair is empty. On the pillow there is a half-finished lace, and a note pinned to it.",
+    "biglietto": "Ada, you finish it. The sun is waiting. C.",
+    "tombolo": "Touch the pillow"
+  },
+  "nuova": {
+    "titolo": "A new story?",
+    "corpo": "The saved story starts again from the prologue and the Notebook is emptied. Records and unlocks stay.",
+    "ok": "Start over",
+    "annulla": "Cancel"
+  },
+  "sera": {
+    "titolo": "Back to the title",
+    "oggettoArriva": "Someone knocks. The lagoon has left something at the door.",
+    "oggettoTocca": "Tap to pick it up",
+    "oggettoTitolo": "At the door",
+    "oggettoContinua": "Continue",
+    "sottoLaPorta": "{n, plural, one {A note has slipped under the door.} other {# notes have slipped under the door.}}",
+    "nessunBigliettino": "Tonight there is nothing under the door.",
+    "allaMerlettaia": "To the lacemaker",
+    "appunta": "Pin it ({n, plural, =0 {no pins} one {# pin} other {# pins}})",
+    "togliSpillo": "Remove the pin",
+    "rispondi": "Reply",
+    "lascia": "Leave it",
+    "appuntato": "Pinned with a red pin.",
+    "appuntatoPer": "Pinned: you thought {nome} wrote it.",
+    "haiRisposto": "You replied:",
+    "lasciato": "Left on the table.",
+    "chiLHaScritto": "Who wrote it?",
+    "scegliRisposta": "What do you reply?",
+    "segnoAppuntato": "Pinned",
+    "segnoRisposto": "Replied",
+    "segnoLasciato": "Left",
+    "alTombolo": "To the pillow",
+    "alTomboloSpilli": "To the pillow · pins {usati}/{totale}",
+    "ripassa": "Retrace",
+    "cassapanca": "The chest",
+    "telaio": "The Loom",
+    "confermaTitolo": "Go to the pillow?",
+    "confermaCorpo": "Some notes are still undecided: they count as left, and leaving them has its consequences too.",
+    "confermaOk": "To the pillow",
+    "confermaNo": "Stay a while",
+    "errore": {
+      "nessunaSera": "It is not evening.",
+      "sconosciuto": "This note is not from tonight.",
+      "spilli": "Tonight's red pins are used up: remove one to pin this note.",
+      "chi": "Before pinning it, choose who wrote it.",
+      "senzaRichiesta": "This note asks for nothing to weave.",
+      "giaRisposto": "You have already replied.",
+      "senzaRisposte": "This note cannot be answered."
+    }
+  },
+  "scelta": {
+    "giornata": "The eve",
+    "titolo": "The choice",
+    "intro": "Four notes under the door, folded in four. Only one pin.",
+    "unoSpillo": "One pin only: one note only.",
+    "appunta": "Pin this one",
+    "strappato": "The note is torn. Something is still missing:",
+    "mancaQualcosa": "Torn",
+    "confermaTitolo": "Is this your choice?",
+    "conferma": {
+      "merlettaia": "Stay the lacemaker, and let my mother leave freely.",
+      "seppia": "Give my mother the pillow, and take a thread for myself.",
+      "chiuso": "Send her away, as grandmother did.",
+      "aperto": "The open stitch: nobody commands anybody any more."
+    },
+    "confermaOk": "Pin it",
+    "confermaNo": "Let me think"
+  },
+  "alba": {
+    "titolo": "The day happens",
+    "delusione": "{autore} was waiting for an answer. You thought the note came from {indovinato}."
+  },
+  "vignetta": {
+    "tocca": "Tap to continue",
+    "salta": "Skip",
+    "avanti": "Next",
+    "automatico": "Auto-advance"
+  },
+  "bilancio": {
+    "titolo": "Reckoning",
+    "obiettivi": "The day's lace",
+    "obiettiviOk": "The day happened as it should.",
+    "obiettiviKo": "The day did not go as it should.",
+    "richieste": "Requests",
+    "nessunaRichiesta": "No red pins tonight.",
+    "stato": {
+      "soddisfatta": "Fulfilled",
+      "fallita": "Failed",
+      "lasciataCadere": "Dropped",
+      "autoreSbagliato": "Wrong author",
+      "lasciato": "Left"
+    },
+    "lasciati": "Notes left",
+    "conseguenza": {
+      "ok": "For {nome} it went as hoped.",
+      "fallita": "For {nome} it did not go as hoped.",
+      "lasciato": "{nome}'s note got no answer.",
+      "desiderio": "Now I know what {nome} wishes for.",
+      "autoreSbagliato": "The note was from {autore}, not {indovinato}: the request came to nothing."
+    },
+    "memoria": "Who remembers Ada",
+    "ricorda": "remembers ({n}/3)",
+    "dimentica": "begins to forget ({n}/3)",
+    "dimenticato": "has forgotten Ada",
+    "taccuino": "In the Notebook",
+    "eleganza": "Elegance",
+    "incroci": "{n, plural, one {# crossing} other {# crossings}} (minimum {min})",
+    "incrociSenzaMin": "{n, plural, one {# crossing} other {# crossings}}",
+    "filoDOro": "Golden thread ✦",
+    "filoDOroNuovo": "Golden thread ✦ (the first for this day)",
+    "quiete": "{n, plural, =0 {No quiet hours} one {# quiet hour} other {# quiet hours}}",
+    "simmetriaSi": "Symmetry ✦",
+    "simmetriaNo": "No symmetry",
+    "record": "Record: {incroci} crossings, {quiete} quiet hours",
+    "nuovoRecord": {
+      "incroci": "New record: fewer crossings",
+      "quiete": "New record: more quiet hours",
+      "simmetria": "First symmetry",
+      "filoDOro": "First golden thread"
+    },
+    "sblocchi": "Something opens",
+    "riascolta": "Listen to the lace again",
+    "spartito": "Score",
+    "spartitoCopiato": "Score copied: {spartito}",
+    "spartitoNonCopiato": "The score could not be copied.",
+    "continua": "Continue",
+    "rigiocata": "Lace replayed from the Loom: the story does not change."
+  },
+  "sblocchi": {
+    "daily": "The Lace of the Day",
+    "libero": "Free Lace, and Retrace",
+    "gradi": "The grades of Free Lace",
+    "tovaglia": "The Tablecloth",
+    "archivio": "In the chest: {titolo}",
+    "fuso": "A carved bobbin (style {n})"
+  },
+  "destini": {
+    "nina": {
+      "parte": "Nina will leave for Venice.",
+      "resta": "Nina stays on the island."
+    },
+    "bepi": {
+      "salvo": "Bepi came back safe from the storm.",
+      "ferito": "Bepi's boat struck the shoal: he came back hurt."
+    },
+    "lettereLivia": {
+      "liberate": "My mother's letters are travelling again.",
+      "sepolte": "My mother's letters stay buried in the well."
+    },
+    "riconciliate": {
+      "true": "Teresa and Marta are speaking again.",
+      "false": "Teresa and Marta still do not speak."
+    },
+    "zenoLivia": {
+      "true": "Zeno and my mother have met.",
+      "false": "Zeno and my mother did not meet."
+    }
+  },
+  "archivio": {
+    "titolo": "The chest",
+    "intro": "Grandmother's old laces, rolled up like letters.",
+    "nuovoRotolo": "There is a lace in the chest that was not there before.",
+    "vuota": "The chest is still closed.",
+    "stato": {
+      "nuovo": "Unread",
+      "nominato": "Threads named",
+      "rammendato": "Mended"
+    },
+    "apri": "Open the lace",
+    "rileggi": "Read again",
+    "piuTardi": "Later",
+    "chiudi": "Close the chest",
+    "continua": "Continue",
+    "riprova": "Try again",
+    "allaCassapanca": "Back to the chest",
+    "esito": {
+      "rammendato": "Lace mended: the memory is whole again.",
+      "nominato": "The threads have names, but the tear remains.",
+      "nuovo": "The lace stays faded."
+    }
+  },
+  "telaio": {
+    "titolo": "The Loom",
+    "intro": "Every day is a knot on the strip. Touch it to replay it, resume from it or listen to it.",
+    "vuoto": "The Loom is empty: no story has started yet.",
+    "rigioca": "Replay",
+    "riprendi": "Resume from here",
+    "riascolta": "Listen",
+    "indietro": "Back",
+    "annulla": "Cancel",
+    "riprendiTitolo": "Resume from here?",
+    "riprendiCorpo": "The story goes back to this day's evening: what happened afterwards will never have happened. The Notebook stays.",
+    "riprendiOk": "Resume from here",
+    "epiloghi": "Epilogues seen",
+    "filoDOro": "Golden thread",
+    "richieste": "✓ {ok} · ✗ {ko}"
+  },
+  "finale": {
+    "annodato": "At nine the lace knots itself.",
+    "nonTiene": "The lace does not hold",
+    "nonTieneTesto": "The day does not happen like this. Weave the night again: the Notebook remembers everything.",
+    "riprova": "Weave the night again",
+    "fineTitolo": "The end",
+    "fineTesto": "This winter's story is over. From the Loom you can resume it from any evening.",
+    "spartiti": "Copy the scores of the whole game",
+    "spartitiCopiati": "Scores of the whole game copied.",
+    "telaio": "The Loom",
+    "titolo": "Back to the title",
+    "merlettaia": "The lacemaker",
+    "seppia": "The sepia thread",
+    "chiuso": "The closed lace",
+    "aperto": "The open lace"
+  },
+  "titoli": {
+    "gioco": "TRAMA. The Lace of Days",
+    "ia": "Made with artificial intelligence tools.",
+    "font": "Typefaces under the SIL Open Font License: Atkinson Hyperlegible, EB Garamond, Caveat.",
+    "strumenti": "Tools: Blender, Vite, Capacitor.",
+    "ispirato": "Inspired by the bobbin-lace tradition of Pellestrina and Burano.",
+    "fine": "End"
+  },
+  "taccuino": {
+    "titolo": "Ada's Notebook",
+    "apri": "Notebook",
+    "schede": {
+      "bigliettini": "Notes",
+      "persone": "People",
+      "libro": "Book",
+      "domande": "Questions",
+      "lettere": "Letters",
+      "archivio": "Archive"
+    },
+    "nuova": "New",
+    "fonte": {
+      "visto": "seen",
+      "libro": "from the Book",
+      "sentito": "heard",
+      "archivio": "from the Archive"
+    },
+    "desiderio": "Wishes for:",
+    "memoria": "Remembers Ada:",
+    "memoriaN": "{n} of 3",
+    "doveGuardare": "Where to look",
+    "aperta": "open",
+    "risolta": "solved",
+    "nessunaDomanda": "No questions, for now.",
+    "nessunaLettera": "No letters, for now.",
+    "libroVuoto": "The Book of Stitches is still closed.",
+    "nessunaRichiesta": "No requests tonight.",
+    "nessunBigliettino": "No notes tonight.",
+    "obiettivi": "Goals: {fatti}/{totale}",
+    "stato": {
+      "soddisfatta": "Fulfilled",
+      "in_corso": "In progress",
+      "a_rischio": "At risk",
+      "fallita": "Failed",
+      "lasciata": "Dropped"
+    },
+    "lasciaCadere": "Drop it",
+    "lasciaCadereTitolo": "Drop the pin?",
+    "lasciaCadereCorpo": "The request becomes failed, with its consequences.",
+    "annulla": "Cancel"
+  },
+  "motivi": {
+    "righe": "Diagonal-striped thread",
+    "puntini": "Dotted thread",
+    "doppio": "Double thread",
+    "onde": "Wavy thread",
+    "zigzag": "Zigzag thread",
+    "tratteggio": "Dashed thread",
+    "catenella": "Chain-stitch thread",
+    "croce": "Cross-stitch thread",
+    "lucido": "Glossy thread",
+    "perlato": "Pearled thread",
+    "liscio": "Plain thread",
+    "nessuno": "Linen thread"
+  },
+  "stranezze": {
+    "martaNoSotto": "Never passes under Teresa.",
+    "teresaLegge": "Reads the letters she carries.",
+    "pieroPozzo": "A well: receives everything, gives nothing.",
+    "pieroTrabocca": "With three secrets the well overflows.",
+    "ginoCorre": "Never stays still: crosses every hour.",
+    "ninaCuriosa": "When she is on top, she takes the secrets too.",
+    "zenoFaro": "Never strays more than two places from the Lighthouse.",
+    "lunardiCura": "Never falls ill; when he is on top, he heals."
+  }
+}

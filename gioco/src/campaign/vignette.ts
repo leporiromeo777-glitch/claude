@@ -293,9 +293,10 @@ export class VignettePlayer {
     } catch {
       /* diorama non pronto: resta il velluto */
     }
-    // Figurine sulla linea di terra.
-    const ground = h * 0.86;
-    const figH = Math.min(h * 0.5, w * 0.42);
+    // Figurine sulla linea di terra, sopra il riquadro del testo.
+    const boxTop = this.box.offsetTop > 0 ? this.box.offsetTop : h * 0.72;
+    const ground = Math.max(h * 0.35, Math.min(h * 0.86, boxTop - 8));
+    const figH = Math.min(h * 0.5, ground * 0.6, w * 0.42);
     for (const f of v.figures) {
       const fr = this.s.assets.frame(figureFrame(f.character, f.pose, !!v.grezza));
       const k = figH / Math.max(1, fr.sh);

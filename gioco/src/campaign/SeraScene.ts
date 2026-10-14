@@ -38,6 +38,8 @@ export class SeraScene implements Scene {
   private soundsDone = new Set<string>();
   private renderQueued = false;
   private active = false;
+  /** Si sta già andando al tombolo (niente doppie partenze con un doppio tocco). */
+  private leaving = false;
 
   constructor(private readonly s: Services) {}
 
@@ -110,12 +112,9 @@ export class SeraScene implements Scene {
     const c = controller.state();
     if (!main || !c) return;
     const focusedTest = (document.activeElement as HTMLElement | null)?.dataset?.test ?? null;
+    // La fase è cambiata (si va al tombolo, alla scelta…): naviga chi l'ha cambiata.
+    if (c.phase !== 'sera' && c.phase !== 'scelta') return;
     clear(main);
-    if (c.phase !== 'sera' && c.phase !== 'scelta') {
-      // La fase è cambiata (per esempio dal debug): si va dove si deve.
-      void controller.route().then((r) => r && controller.go(r));
-      return;
-    }
     if (this.prologueStep) this.renderPrologue(main, c);
     else if (c.phase === 'scelta') this.renderChoice(main, c);
     else this.renderEvening(main, c);
@@ -147,7 +146,7 @@ export class SeraScene implements Scene {
       test: 'cp-prologo-biglietto',
       children: [textOf('campaign.prologo.biglietto', undefined, 'p', { rich: true })],
     });
-    const go = button({ labelKey: 'campaign.prologo.tombolo', kind: 'primario', size: 'grande', onClick: () => controller.toNight(), test: 'cp-prologo-tombolo' });
+    const go = button({ labelKey: 'campaign.prologo.tombolo', kind: 'primario', size: 'grande', onClick: () => this.goNight(), test: 'cp-prologo-tombolo' });
     go.prepend(spriteCanvas(this.s, 'obj/tombolo', 40));
     main.append(
       el('header', { class: 'cp-sera-testa' }, textOf(lab.key, lab.params, 'p', { className: 'cp-sera-giornata' }), textOf('comune.atti.0.sottotitolo', undefined, 'h1', { className: 'cp-sera-titolo' })),
@@ -255,7 +254,7 @@ export class SeraScene implements Scene {
     foot.appendChild(tools);
     const go = el('div', { class: 'cp-sera-vai' });
     if (ripassaAvailable(controller.data())) {
-      go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: () => controller.ripassa(), test: 'cp-ripassa' }));
+      go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: () => this.goNight(true), test: 'cp-ripassa' }));
     }
     const label = total > 0 ? 'campaign.sera.alTomboloSpilli' : 'campaign.sera.alTombolo';
     go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', disabled: objectPending, onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
@@ -263,18 +262,25 @@ export class SeraScene implements Scene {
     return foot;
   }
 
+  private goNight(ripassa = false): void {
+    if (this.leaving || !this.active) return;
+    this.leaving = true;
+    if (ripassa) controller.ripassa();
+    else controller.toNight();
+  }
+
   private toNight(): void {
     const c = controller.state();
-    if (!c) return;
+    if (!c || this.leaving) return;
     const open = undecided(c);
     if (open.length === 0) {
-      controller.toNight();
+      this.goNight();
       return;
     }
     void this.s.ui
       .confirm({ titleKey: 'campaign.sera.confermaTitolo', bodyKey: 'campaign.sera.confermaCorpo', okKey: 'campaign.sera.confermaOk', cancelKey: 'campaign.sera.confermaNo' })
       .then((ok) => {
-        if (ok && this.active) controller.toNight();
+        if (ok) this.goNight();
       });
   }
 
