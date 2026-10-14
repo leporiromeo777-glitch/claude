@@ -1,7 +1,7 @@
 {
   "comune": {
     "indietro": "Indietro",
-    "filiOre": "{fili, plural, one {# filo} other {# fili}} · {ore, plural, one {# ora} other {# ore}}"
+    "filiOre": "{fili, plural, one {# filo} other {# fili}} · {ore, plural, one {# ora} other {# ore}}"
   },
   "titolo": {
     "nome": "TRAMA",
@@ -26,7 +26,7 @@
     },
     "nuovaDomanda": {
       "titolo": "Cominciare una nuova storia?",
-      "corpo": "La storia di adesso si chiude e si riparte dalla prima notte. Quello che hai scoperto nel Taccuino resta solo nella nuova partita se lo riscopri.",
+      "corpo": "La storia di adesso si chiude: si riparte dalla prima notte con il Taccuino vuoto. Record, sblocchi e Merletti del giorno restano.",
       "ok": "Ricomincia",
       "annulla": "Torna indietro"
     },

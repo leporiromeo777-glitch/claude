@@ -4,7 +4,7 @@
  *
  *   state()                    scena, overlay, voci del titolo, ultimi esiti
  *   title()                    voci del menu del titolo (lucchetti compresi)
- *   press(id)                  esegue una voce del titolo ('continua', 'nuova', …)
+ *   press(id)                  esegue una voce del titolo ('continua', 'nuova', …) senza aspettarla
  *   setToday(data | null)      fissa la data del Merletto del giorno (AAAA-MM-GG)
  *   startDaily(resume?)        apre il tombolo con il Merletto del giorno
  *   libero(seed?)              specifica e id del Merletto libero (scelta corrente o seme dato)
@@ -76,17 +76,19 @@ export function registerUiDebug(s: Services): void {
         overlays: (s.ui as { overlays?: () => string[] }).overlays?.() ?? [],
         today: today(),
         title: t ? t.menu() : null,
+        titleArt: t ? t.artGeometry() : null,
         results: Object.fromEntries((['giornaliero', 'libero', 'spartito'] as ModeOrigin[]).map((o) => [o, summary(resultOf(o))])),
         share: lastShareText(),
         libero: liberoChoice(),
       };
     },
     title: () => currentTitle()?.menu() ?? null,
-    press: async (id: TitleItemId) => {
+    press: (id: TitleItemId) => {
       const t = currentTitle();
       if (!t) throw new Error('ui.press: the title is not open');
-      await t.activate(id);
-      return s.scenes.current();
+      // Non si aspetta: la voce può chiedere una conferma (la si risponde con confirm-ok / confirm-annulla).
+      void t.activate(id);
+      return true;
     },
     setToday: (date: string | null) => {
       if (date !== null && !isIsoDate(date)) throw new Error(`ui.setToday: invalid date "${date}"`);

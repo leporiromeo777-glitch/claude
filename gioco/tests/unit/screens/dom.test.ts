@@ -303,3 +303,30 @@ describe('risultati', () => {
     view.destroy();
   });
 });
+
+describe('quadro del titolo', () => {
+  it('il tombolo è il quadrato più grande del palco; il fuso non copre il titolo', async () => {
+    const { titleGeometry } = await import('../../../src/screens/titleArt');
+    const stage = { x: 16, y: 160, w: 358, h: 380 };
+    const g = titleGeometry(stage, 390, 844, false);
+    expect(g.size).toBe(358);
+    expect(g.y).toBeCloseTo(160 + 11);
+    expect(g.showSpindle).toBe(true);
+    // Titolo largo quasi quanto lo schermo: il filo parte da sotto il titolo.
+    const title = { x: 30, y: 20, w: 345, h: 120 };
+    const g2 = titleGeometry(stage, 390, 844, false, title);
+    const half = g2.spindleH * 0.15 + 6;
+    const overlaps = g2.pivotX + half > title.x && g2.pivotX - half < title.x + title.w;
+    expect(!overlaps || g2.pivotY >= title.y + title.h).toBe(true);
+    // Titolo stretto: il fuso resta in alto, a destra del titolo.
+    const g3 = titleGeometry(stage, 390, 844, false, { x: 100, y: 20, w: 190, h: 100 });
+    expect(g3.pivotY).toBeLessThan(0);
+    expect(g3.pivotX - g3.spindleH * 0.15).toBeGreaterThan(290);
+    // Palco minuscolo: niente fuso.
+    expect(titleGeometry({ x: 0, y: 0, w: 120, h: 100 }, 360, 640, false).showSpindle).toBe(false);
+    // Orizzontale con il tombolo a destra: il fuso pende fra menu e tombolo.
+    const g4 = titleGeometry({ x: 560, y: 20, w: 700, h: 680 }, 1280, 720, true);
+    expect(g4.pivotX).toBeLessThan(g4.x + 1);
+    expect(g4.pivotX).toBeGreaterThan(500);
+  });
+});

@@ -262,7 +262,18 @@ export class TitoloScene implements Scene {
       this.measure = false;
       const r = this.stage.getBoundingClientRect();
       const c = host.canvas.getBoundingClientRect();
-      this.art.setStage({ x: r.left - c.left, y: r.top - c.top, w: r.width, h: r.height }, this.landscape);
+      // Il fuso non deve coprire il titolo: unione dei rettangoli del nome, dello smerlo e del sottotitolo.
+      let avoid: { x: number; y: number; w: number; h: number } | null = null;
+      for (const e of this.root?.querySelectorAll<HTMLElement>('.sc-titolo-nome, .sc-smerlo--titolo, .sc-titolo-sotto') ?? []) {
+        const b = e.getBoundingClientRect();
+        if (b.width === 0) continue;
+        const x0 = Math.min(avoid ? avoid.x : b.left - c.left, b.left - c.left);
+        const y0 = Math.min(avoid ? avoid.y : b.top - c.top, b.top - c.top);
+        const x1 = Math.max(avoid ? avoid.x + avoid.w : b.right - c.left, b.right - c.left);
+        const y1 = Math.max(avoid ? avoid.y + avoid.h : b.bottom - c.top, b.bottom - c.top);
+        avoid = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+      }
+      this.art.setStage({ x: r.left - c.left, y: r.top - c.top, w: r.width, h: r.height }, this.landscape, avoid);
     }
     this.art.render(host);
   }

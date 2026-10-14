@@ -48,30 +48,40 @@ export interface TitleGeometry {
   pivotY: number;
   thread: number;
   spindleH: number;
+  /** Il fuso si disegna (non con un palco troppo piccolo). */
+  showSpindle: boolean;
 }
 
 /**
  * Geometria del quadro: il tombolo è il quadrato più grande che sta nel palco;
  * il fuso pende dall'alto dello schermo sul lato destro del palco (o fra palco
- * e colonna dei menu nel layout orizzontale), senza coprire il titolo.
+ * e colonna dei menu nel layout orizzontale), senza coprire il titolo (`avoid`):
+ * se accanto al titolo non c'è posto, il filo parte da sotto il titolo. Con un
+ * palco piccolo (testo grande su un telefono basso) il fuso non c'è.
  */
-export function titleGeometry(stage: Rect, viewW: number, viewH: number, landscape: boolean): TitleGeometry {
+export function titleGeometry(stage: Rect, viewW: number, viewH: number, landscape: boolean, avoid: Rect | null = null): TitleGeometry {
   const size = Math.max(40, Math.min(stage.w, stage.h));
   const x = stage.x + (stage.w - size) / 2;
   const y = stage.y + (stage.h - size) / 2;
   const spindleH = Math.max(70, Math.min(size * 0.34, viewH * 0.24, 210));
+  const half = spindleH * 0.15 + 6;
   let pivotX: number;
+  let pivotY = -8;
   if (landscape) {
     // Fra il menu e il tombolo: dal lato del tombolo rivolto verso il centro dello schermo.
     const stageOnRight = stage.x + stage.w / 2 > viewW / 2;
     pivotX = stageOnRight ? Math.max(spindleH * 0.2, x - size * 0.01) : Math.min(viewW - spindleH * 0.2, x + size * 1.01);
   } else {
-    pivotX = Math.min(viewW - Math.max(18, spindleH * 0.16), Math.max(x + size * 0.93, viewW * 0.86));
+    pivotX = Math.min(viewW - Math.max(14, half), Math.max(x + size * 0.93, viewW * 0.86));
+    if (avoid && pivotX + half > avoid.x && pivotX - half < avoid.x + avoid.w) {
+      const right = avoid.x + avoid.w;
+      if (viewW - right >= half * 2 + 8) pivotX = Math.min(viewW - half, right + (viewW - right) / 2);
+      else pivotY = avoid.y + avoid.h + 4;
+    }
   }
-  const pivotY = -8;
   // Il fuso arriva poco sotto il bordo alto del tombolo, accanto al tamburo.
-  const bottom = y + size * 0.42;
-  const thread = Math.max(24, bottom - spindleH - pivotY);
+  const bottom = Math.max(y + size * 0.42, pivotY + spindleH + 24);
+  const thread = Math.max(16, bottom - spindleH - pivotY);
   return {
     size,
     x,
@@ -83,11 +93,13 @@ export function titleGeometry(stage: Rect, viewW: number, viewH: number, landsca
     pivotY,
     thread,
     spindleH,
+    showSpindle: size >= 170,
   };
 }
 
 export class TitleArt {
   private stage: Rect = { x: 0, y: 0, w: 1, h: 1 };
+  private avoid: Rect | null = null;
   private landscape = false;
   private geo: TitleGeometry | null = null;
   private bg: HTMLCanvasElement | null = null;
@@ -125,15 +137,13 @@ export class TitleArt {
     return this.s.assets.frame('fuso/ada');
   }
 
-  setStage(stage: Rect, landscape: boolean): void {
-    const same =
-      Math.abs(stage.x - this.stage.x) < 0.5 &&
-      Math.abs(stage.y - this.stage.y) < 0.5 &&
-      Math.abs(stage.w - this.stage.w) < 0.5 &&
-      Math.abs(stage.h - this.stage.h) < 0.5 &&
-      landscape === this.landscape;
-    if (same) return;
+  /** Palco del tombolo e (facoltativo) rettangolo del titolo da non coprire, in px CSS. */
+  setStage(stage: Rect, landscape: boolean, avoid: Rect | null = null): void {
+    const near = (a: Rect | null, b: Rect | null): boolean =>
+      a === b || (!!a && !!b && Math.abs(a.x - b.x) < 0.5 && Math.abs(a.y - b.y) < 0.5 && Math.abs(a.w - b.w) < 0.5 && Math.abs(a.h - b.h) < 0.5);
+    if (near(stage, this.stage) && near(avoid, this.avoid) && landscape === this.landscape) return;
     this.stage = { ...stage };
+    this.avoid = avoid ? { ...avoid } : null;
     this.landscape = landscape;
     this.dirty = true;
   }
@@ -199,7 +209,7 @@ export class TitleArt {
     const dpr = host.dpr;
     const W = host.cssW;
     const H = host.cssH;
-    const g = titleGeometry(this.stage, W, H, this.landscape);
+    const g = titleGeometry(this.stage, W, H, this.landscape, this.avoid);
     this.geo = g;
     this.threadColor = this.s.content.characters.get('ada')?.color ?? '#F07C6C';
     const contrast = document.documentElement.dataset.contrast === 'alto';
@@ -340,6 +350,11 @@ export class TitleArt {
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = ease;
     // Fuso che dondola.
+    if (!g.showSpindle) {
+      ctx.restore();
+      if (this.still && this.fade >= 1) this.drawnStill = true;
+      return;
+    }
     const a = this.swing(this.time);
     ctx.translate(g.pivotX, g.pivotY);
     ctx.rotate(a);

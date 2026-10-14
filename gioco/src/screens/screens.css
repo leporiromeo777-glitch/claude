@@ -32,22 +32,25 @@
 .sc-titolo-testa {
   order: 1;
   flex: none;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 100%;
+  /* Il nome si misura sulla larghezza della testata: non va mai a capo né esce. */
+  container-type: inline-size;
 }
 .sc-titolo-nome {
+  width: fit-content;
   font-family: var(--font-libro);
   font-weight: 400;
-  font-size: clamp(2.3rem, 7vmin + 1.2rem, 5.4rem);
+  font-size: min(17cqi, 7vmin + 1.2rem, 5.4rem);
   line-height: 1;
   letter-spacing: 0.34em;
   padding-left: 0.34em;
   color: var(--carta);
   text-shadow: 0 2px 0 rgba(8, 10, 16, 0.55), 0 0 30px rgba(255, 178, 74, 0.22);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .sc-smerlo {
   display: block;
@@ -60,6 +63,8 @@
   margin: var(--spazio-2) 0 var(--spazio-1);
 }
 .sc-titolo-sotto {
+  width: fit-content;
+  max-width: 100%;
   font-family: var(--font-libro);
   font-style: italic;
   font-size: 1.15rem;
@@ -131,7 +136,7 @@
   margin: auto 0 var(--spazio-4);
 }
 .sc-titolo[data-forma='orizzontale'] .sc-titolo-nome {
-  font-size: clamp(2.3rem, 9vmin + 0.6rem, 5.6rem);
+  font-size: min(17cqi, 9vmin + 0.6rem, 5.6rem);
 }
 .sc-titolo[data-forma='orizzontale'] .sc-titolo-menu {
   width: 100%;

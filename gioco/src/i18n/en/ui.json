@@ -1,7 +1,7 @@
 {
   "comune": {
     "indietro": "Back",
-    "filiOre": "{fili, plural, one {# thread} other {# threads}} · {ore, plural, one {# hour} other {# hours}}"
+    "filiOre": "{fili, plural, one {# thread} other {# threads}} · {ore, plural, one {# hour} other {# hours}}"
   },
   "titolo": {
     "nome": "TRAMA",
@@ -26,7 +26,7 @@
     },
     "nuovaDomanda": {
       "titolo": "Start a new story?",
-      "corpo": "The current story ends and you start again from the first night. What you found out in the Notebook stays only if you find it out again.",
+      "corpo": "The current story ends: you start again from the first night with an empty Notebook. Records, unlocked modes and Laces of the day stay.",
       "ok": "Start again",
       "annulla": "Go back"
     },
