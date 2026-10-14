@@ -1,0 +1,254 @@
+{
+  "ui": {
+    "chiudi": "Close",
+    "annulla": "Cancel"
+  },
+  "hud": {
+    "titolo": "The lace pillow",
+    "ora": "{ora} o'clock",
+    "finito": "Lace finished",
+    "matassa": "{usata}/{totale}",
+    "matassaAria": "Thread: {usata} of {totale} lengths used"
+  },
+  "azioni": {
+    "menu": "Menu",
+    "disfa": "Undo",
+    "fissa": "Fix the hour",
+    "chiudi": "Close the lace",
+    "chiuso": "Lace finished",
+    "taccuino": "Notebook",
+    "lasciaAccadere": "Let it happen",
+    "accade": "The day happens…",
+    "riprova": "Try again",
+    "salta": "Skip"
+  },
+  "violazione": {
+    "rifiuto": "“No.” {sotto} won't pass under {sopra}.",
+    "faro": "{chi} won't stray that far from the Lighthouse.",
+    "corre": "{chi} can't keep still! He must cross in this row.",
+    "spillo": "{chi} must be {presso} at {ora}.",
+    "matassa": "The thread has run out: {matassa} lengths in all. You can always undo.",
+    "bloccato": "{chi} is stuck in this row: a knot or high water.",
+    "occupato": "{a} and {b} are already taken by a thread that moves on its own.",
+    "forzato": "These threads move on their own: leave them be.",
+    "disgiunto": "Each thread makes only one crossing per row.",
+    "finita": "The night is over: there are no more rows."
+  },
+  "cond": {
+    "fallita": {
+      "presso": "{chi} wasn't {presso} at {ora}.",
+      "maiPresso": "{chi} went {presso}.",
+      "incontra": "{a} and {b} never met.",
+      "nonIncontra": "{a} met {b}.",
+      "sopra": "{a} never passed over {b}.",
+      "consegnata": "{perlina}: not delivered by {ora}.",
+      "ha": "{chi} didn't get {perlina} by {ora}.",
+      "nonHa": "{chi} got {perlina}.",
+      "parte": "{chi} didn't leave.",
+      "resta": "{chi} left.",
+      "esceCon": "{perlina}: didn't leave the lace at {ora}.",
+      "sano": "{chi} has the fever.",
+      "incontriAlmeno": "{chi} met fewer than {n} people."
+    },
+    "rischio": {
+      "presso": "{chi} may not make it {presso} by {ora}.",
+      "incontra": "{a} and {b} may never meet.",
+      "sopra": "{a} may never pass over {b}.",
+      "consegnata": "{perlina}: may not arrive by {ora}.",
+      "ha": "{chi} may not get {perlina} by {ora}.",
+      "parte": "{chi} may not leave.",
+      "esceCon": "{perlina}: may not leave the lace at {ora}.",
+      "incontriAlmeno": "{chi} may not meet {n} people."
+    }
+  },
+  "stato": {
+    "in_corso": "In progress",
+    "soddisfatta": "Fulfilled",
+    "a_rischio": "At risk",
+    "fallita": "Failed"
+  },
+  "hint": {
+    "lampada": "Hint",
+    "spinta": {
+      "spillo": "Appointments first, dear: {chi} {presso} at {ora}.",
+      "richiesta": "Look closely at the {ora} o'clock row: something is decided there.",
+      "generico": "One thread at a time. Look at the pins, then at who carries what."
+    },
+    "indizio": {
+      "sopra": "At {ora}, {sopra} must pass over {sotto}.",
+      "quiete": "At {ora}, leave the threads alone."
+    },
+    "fantasma": "At {ora}: {sopra} over {sotto}. I've sketched it for you.",
+    "fantasma.quiete": "This row needs no crossing.",
+    "impossibile": "You can't get there from here: undo a few rows.",
+    "gradino": {
+      "spinta": "Nudge",
+      "indizio": "Clue",
+      "fantasma": "Ghost"
+    },
+    "ancora": {
+      "indizio": "Give me a clue",
+      "fantasma": "Show me the crossing"
+    },
+    "fantasmaAvviso": "The ghost costs tonight's golden thread."
+  },
+  "richieste": {
+    "di": "Note from {nome}",
+    "gettone": "{nome}: {stato}",
+    "lascia": "Drop the pin",
+    "lasciata": "Dropped.",
+    "lasciataMsg": "You dropped the red pin.",
+    "statoLasciata": "Dropped",
+    "soddisfatta": "{nome}'s request is fulfilled!",
+    "senzaTesto": "The note can't be read.",
+    "confermaTitolo": "Drop the pin?",
+    "confermaCorpo": "The request will count as failed, with its consequences."
+  },
+  "archivio": {
+    "chiE": "Who is {filo}?",
+    "contatore": "Right names: {giusti}/{servono} to confirm",
+    "confermati": "{n, plural, one {A thread gets its colour back.} other {# threads get their colours back.}}",
+    "daRammendare": "Every thread has a name. Now the mending.",
+    "fatto": "Named and mended: touch the crossings for the echoes.",
+    "nonCoincide": "The mending doesn't match: at {ora} the old lace was different.",
+    "provvisorio": "{nome}?",
+    "registrata": "This row belongs to the old lace: it can't be undone.",
+    "togli": "Remove the name"
+  },
+  "filo": {
+    "avorio": "the ivory thread",
+    "chiunque": "anyone with a name",
+    "lino": "a passer-by",
+    "nero": "the black thread",
+    "sbiaditoN": "faded thread {n}"
+  },
+  "perlina": {
+    "febbre": "the fever",
+    "letta": "the secret of {lettera}",
+    "nome": "Ada's name"
+  },
+  "presso": {
+    "molo": "at the Pier",
+    "forno": "at the Bakery",
+    "piazza": "in the Square",
+    "chiesa": "in Church",
+    "farmacia": "at the Pharmacy",
+    "faro": "at the Lighthouse"
+  },
+  "luogo": {
+    "molo": "Pier",
+    "forno": "Bakery",
+    "piazza": "Square",
+    "chiesa": "Church",
+    "farmacia": "Pharmacy",
+    "faro": "Lighthouse"
+  },
+  "nome": {
+    "appunta": "Pin your name: touch a bobbin.",
+    "appuntato": "Your name is on {nome}.",
+    "prima": "First pin your name to a thread."
+  },
+  "occasioni": {
+    "contatore": "Occasions: {piantate}/{posti}",
+    "nonAmmessa": "You can't plant an occasion here.",
+    "occupata": "This cell already has an occasion.",
+    "troppe": "{posti, plural, one {You can plant only one occasion.} other {You can plant at most # occasions.}}",
+    "nonBasta": "Not everything happened as you hoped. Change the occasions and try again."
+  },
+  "replay": {
+    "righe": "Rows: {fatte}/{totale}",
+    "errore": "The score doesn't fit at {ora}."
+  },
+  "riavvolgi": {
+    "ora": "This is how it was at {ora}.",
+    "qui": "Rewind to here",
+    "annulla": "Cancel"
+  },
+  "scheda": {
+    "stranezze": "Quirks",
+    "nessunaStranezza": "No known quirks.",
+    "desiderio": "Wish",
+    "desiderioIgnoto": "?",
+    "memoria": "Memory of Ada: {n}/3",
+    "tipo": {
+      "lino": "A passer-by: takes no letters and no secrets.",
+      "nero": "The black thread: moves on its own and always stays on top.",
+      "avorio": "The ivory thread: it exists only in the old laces.",
+      "sbiadito": "A faded thread. Who could it be?"
+    }
+  },
+  "stranezza": {
+    "martaNoSotto": "Marta never passes under Teresa.",
+    "teresaLegge": "Teresa reads the letters she carries.",
+    "pieroPozzo": "Don Piero never gives anything away: he is a well.",
+    "pieroTrabocca": "Even wells fill up: with three secrets Don Piero overflows.",
+    "ginoCorre": "Gino never keeps still.",
+    "ninaCuriosa": "When Nina is on top, she takes the secrets too.",
+    "zenoFaro": "Zeno never strays from the Lighthouse.",
+    "lunardiCura": "Lunardi, on top of a sick person, cures them."
+  },
+  "sr": {
+    "vuoto": "",
+    "stato": "{ora} o'clock. {posizioni}.",
+    "fine": "Lace finished at {ora}. {posizioni}.",
+    "anteprima": "Preview: this is how it was at {ora}.",
+    "separatore": ", ",
+    "luogo": {
+      "molo": "{nome} at the Pier",
+      "forno": "{nome} at the Bakery",
+      "piazza": "{nome} in the Square",
+      "chiesa": "{nome} in Church",
+      "farmacia": "{nome} at the Pharmacy",
+      "faro": "{nome} at the Lighthouse"
+    }
+  },
+  "menu": {
+    "riprendi": "Resume",
+    "ricomincia": "Restart the night"
+  },
+  "disfa": {
+    "vietato": "No Undo: only the current row can be undone."
+  },
+  "fine": "The lace is finished.",
+  "errore": {
+    "nessunaNotte": "There is no night to resume.",
+    "livello": "This lace won't open."
+  },
+  "generato": {
+    "giornaliero": "Lace of the day · {data}",
+    "libero": "Free lace · {seme}",
+    "lettera": "A letter",
+    "voce": "A bit of gossip",
+    "segreto": "A confidence",
+    "febbre": "The fever",
+    "marinaio": "the ferry sailor"
+  },
+  "test": {
+    "motivi": "Test of the twelve patterns",
+    "grande": "Large test",
+    "archivio": "Test archive",
+    "occasioni": "Test of occasions",
+    "seppia": "Test of the sepia thread",
+    "nero": "Test of the black thread",
+    "marea": "Test of the tide",
+    "bordi": "Test of the edges",
+    "rancore": "Test of rancour",
+    "trabocca": "Test of the overflow",
+    "L1": "A test letter",
+    "L2": "A second letter",
+    "festa": "Talk of the festival",
+    "debito": "The secret of the debt",
+    "febbre": "The fever",
+    "sciallo": "Talk of the shawl",
+    "rete": "Talk of the net",
+    "pace": "Talk of peace",
+    "fascio": "The bundle of letters",
+    "segretoA": "The first secret",
+    "segretoB": "The second secret",
+    "segretoC": "The third secret",
+    "barcaiolo": "the boatman",
+    "eco": "“The letter passed this way.”",
+    "margine": "“Test.”",
+    "rivela": "The test memory."
+  }
+}

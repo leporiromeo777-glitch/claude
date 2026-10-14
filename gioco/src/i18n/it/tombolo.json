@@ -1,0 +1,254 @@
+{
+  "ui": {
+    "chiudi": "Chiudi",
+    "annulla": "Annulla"
+  },
+  "hud": {
+    "titolo": "Il tombolo",
+    "ora": "Ore {ora}",
+    "finito": "Merletto chiuso",
+    "matassa": "{usata}/{totale}",
+    "matassaAria": "Matassa: {usata} braccia usate su {totale}"
+  },
+  "azioni": {
+    "menu": "Menu",
+    "disfa": "Disfa",
+    "fissa": "Fissa l'ora",
+    "chiudi": "Chiudi il merletto",
+    "chiuso": "Merletto chiuso",
+    "taccuino": "Taccuino",
+    "lasciaAccadere": "Lascia accadere",
+    "accade": "Il giorno accade…",
+    "riprova": "Riprova",
+    "salta": "Salta"
+  },
+  "violazione": {
+    "rifiuto": "«No.» {sotto} non passa sotto {sopra}.",
+    "faro": "{chi} non si allontana tanto dal Faro.",
+    "corre": "{chi} non sta fermo! In questa riga deve incrociare.",
+    "spillo": "{chi} deve essere {presso} alle {ora}.",
+    "matassa": "La matassa è finita: {matassa} braccia in tutto. Puoi sempre disfare.",
+    "bloccato": "{chi} è fermo in questa riga: un nodo o l'acqua alta.",
+    "occupato": "{a} e {b} sono già presi da un filo che si muove da solo.",
+    "forzato": "Questi fili si muovono da soli: non si toccano.",
+    "disgiunto": "Ogni filo fa un solo incrocio per riga.",
+    "finita": "La notte è finita: non ci sono altre righe."
+  },
+  "cond": {
+    "fallita": {
+      "presso": "{chi} non era {presso} alle {ora}.",
+      "maiPresso": "{chi} è passato {presso}.",
+      "incontra": "{a} e {b} non si sono incontrati.",
+      "nonIncontra": "{a} ha incontrato {b}.",
+      "sopra": "{a} non è passato sopra {b}.",
+      "consegnata": "{perlina}: non consegnata entro le {ora}.",
+      "ha": "{chi} non ha avuto {perlina} entro le {ora}.",
+      "nonHa": "{chi} ha avuto {perlina}.",
+      "parte": "{chi} non è partito.",
+      "resta": "{chi} se n'è andato.",
+      "esceCon": "{perlina}: non è uscita dal merletto alle {ora}.",
+      "sano": "{chi} ha la febbre.",
+      "incontriAlmeno": "{chi} ha incontrato meno di {n} persone."
+    },
+    "rischio": {
+      "presso": "{chi} rischia di non arrivare {presso} per le {ora}.",
+      "incontra": "{a} e {b} rischiano di non incontrarsi.",
+      "sopra": "{a} rischia di non passare sopra {b}.",
+      "consegnata": "{perlina}: rischia di non arrivare entro le {ora}.",
+      "ha": "{chi} rischia di non avere {perlina} per le {ora}.",
+      "parte": "{chi} rischia di non partire.",
+      "esceCon": "{perlina}: rischia di non uscire dal merletto alle {ora}.",
+      "incontriAlmeno": "{chi} rischia di non incontrare {n} persone."
+    }
+  },
+  "stato": {
+    "in_corso": "In corso",
+    "soddisfatta": "Soddisfatta",
+    "a_rischio": "A rischio",
+    "fallita": "Fallita"
+  },
+  "hint": {
+    "lampada": "Suggerimento",
+    "spinta": {
+      "spillo": "Prima gli appuntamenti, cara: {chi} {presso} alle {ora}.",
+      "richiesta": "Guarda bene la riga delle {ora}: lì qualcosa si decide.",
+      "generico": "Un filo alla volta. Guarda gli spilli, poi chi porta cosa."
+    },
+    "indizio": {
+      "sopra": "Alle {ora} {sopra} deve passare sopra {sotto}.",
+      "quiete": "Alle {ora} lascia stare i fili."
+    },
+    "fantasma": "Alle {ora}: {sopra} sopra {sotto}. Te l'ho tratteggiato.",
+    "fantasma.quiete": "In questa riga non serve nessun incrocio.",
+    "impossibile": "Da qui non si arriva: disfa qualche riga.",
+    "gradino": {
+      "spinta": "Spinta",
+      "indizio": "Indizio",
+      "fantasma": "Fantasma"
+    },
+    "ancora": {
+      "indizio": "Dammi un indizio",
+      "fantasma": "Mostrami l'incrocio"
+    },
+    "fantasmaAvviso": "Il fantasma toglie il filo d'oro di stanotte."
+  },
+  "richieste": {
+    "di": "Bigliettino di {nome}",
+    "gettone": "{nome}: {stato}",
+    "lascia": "Lascia cadere lo spillo",
+    "lasciata": "Lasciata cadere.",
+    "lasciataMsg": "Hai lasciato cadere lo spillo rosso.",
+    "statoLasciata": "Lasciata cadere",
+    "soddisfatta": "La richiesta di {nome} è soddisfatta!",
+    "senzaTesto": "Il bigliettino è illeggibile.",
+    "confermaTitolo": "Lasciare cadere lo spillo?",
+    "confermaCorpo": "La richiesta conterà come fallita, con le sue conseguenze."
+  },
+  "archivio": {
+    "chiE": "Chi è {filo}?",
+    "contatore": "Nomi giusti: {giusti}/{servono} per confermare",
+    "confermati": "{n, plural, one {Un filo ritrova il suo colore.} other {# fili ritrovano il loro colore.}}",
+    "daRammendare": "Tutti i fili hanno un nome. Ora il rammendo.",
+    "fatto": "Nominato e rammendato: tocca gli incroci per gli echi.",
+    "nonCoincide": "Il rammendo non torna: alle {ora} il merletto antico era diverso.",
+    "provvisorio": "{nome}?",
+    "registrata": "Questa riga è del merletto antico: non si disfa.",
+    "togli": "Togli il nome"
+  },
+  "filo": {
+    "avorio": "il filo d'avorio",
+    "chiunque": "nessuno con un nome",
+    "lino": "un passante",
+    "nero": "il filo nero",
+    "sbiaditoN": "il filo sbiadito {n}"
+  },
+  "perlina": {
+    "febbre": "la febbre",
+    "letta": "il segreto di {lettera}",
+    "nome": "il nome di Ada"
+  },
+  "presso": {
+    "molo": "al Molo",
+    "forno": "al Forno",
+    "piazza": "in Piazza",
+    "chiesa": "in Chiesa",
+    "farmacia": "in Farmacia",
+    "faro": "al Faro"
+  },
+  "luogo": {
+    "molo": "Molo",
+    "forno": "Forno",
+    "piazza": "Piazza",
+    "chiesa": "Chiesa",
+    "farmacia": "Farmacia",
+    "faro": "Faro"
+  },
+  "nome": {
+    "appunta": "Appunta il tuo nome: tocca un fuso.",
+    "appuntato": "Il tuo nome è su {nome}.",
+    "prima": "Prima appunta il tuo nome su un filo."
+  },
+  "occasioni": {
+    "contatore": "Occasioni: {piantate}/{posti}",
+    "nonAmmessa": "Qui non si può piantare un'occasione.",
+    "occupata": "In questa cella c'è già un'occasione.",
+    "troppe": "{posti, plural, one {Si può piantare una sola occasione.} other {Si possono piantare al massimo # occasioni.}}",
+    "nonBasta": "Non tutto è accaduto come speravi. Cambia le occasioni e riprova."
+  },
+  "replay": {
+    "righe": "Righe: {fatte}/{totale}",
+    "errore": "Lo spartito non torna alle {ora}."
+  },
+  "riavvolgi": {
+    "ora": "Così era alle {ora}.",
+    "qui": "Riavvolgi fino a qui",
+    "annulla": "Annulla"
+  },
+  "scheda": {
+    "stranezze": "Stranezze",
+    "nessunaStranezza": "Nessuna stranezza nota.",
+    "desiderio": "Desiderio",
+    "desiderioIgnoto": "?",
+    "memoria": "Memoria di Ada: {n}/3",
+    "tipo": {
+      "lino": "Un passante: non prende lettere né segreti.",
+      "nero": "Il filo nero: si muove da solo e sta sempre sopra.",
+      "avorio": "Il filo d'avorio: esiste solo nei merletti antichi.",
+      "sbiadito": "Un filo sbiadito. Chi sarà?"
+    }
+  },
+  "stranezza": {
+    "martaNoSotto": "Marta non passa mai sotto Teresa.",
+    "teresaLegge": "Teresa legge le lettere che porta.",
+    "pieroPozzo": "Don Piero non dà mai niente: è un pozzo.",
+    "pieroTrabocca": "Anche i pozzi si riempiono: con tre segreti Don Piero trabocca.",
+    "ginoCorre": "Gino non sta mai fermo.",
+    "ninaCuriosa": "Nina, quando sta sopra, si prende anche i segreti.",
+    "zenoFaro": "Zeno non si allontana dal Faro.",
+    "lunardiCura": "Lunardi, sopra un malato, lo guarisce."
+  },
+  "sr": {
+    "vuoto": "",
+    "stato": "Ore {ora}. {posizioni}.",
+    "fine": "Merletto chiuso alle {ora}. {posizioni}.",
+    "anteprima": "Anteprima: così era alle {ora}.",
+    "separatore": ", ",
+    "luogo": {
+      "molo": "{nome} al Molo",
+      "forno": "{nome} al Forno",
+      "piazza": "{nome} in Piazza",
+      "chiesa": "{nome} in Chiesa",
+      "farmacia": "{nome} in Farmacia",
+      "faro": "{nome} al Faro"
+    }
+  },
+  "menu": {
+    "riprendi": "Riprendi",
+    "ricomincia": "Ricomincia la notte"
+  },
+  "disfa": {
+    "vietato": "Senza Disfa: si disfa solo la riga corrente."
+  },
+  "fine": "Il merletto è chiuso.",
+  "errore": {
+    "nessunaNotte": "Non c'è una notte da riprendere.",
+    "livello": "Questo merletto non si apre."
+  },
+  "generato": {
+    "giornaliero": "Merletto del giorno · {data}",
+    "libero": "Merletto libero · {seme}",
+    "lettera": "Una lettera",
+    "voce": "Una chiacchiera",
+    "segreto": "Una confidenza",
+    "febbre": "La febbre",
+    "marinaio": "il marinaio del vaporetto"
+  },
+  "test": {
+    "motivi": "Prova dei dodici motivi",
+    "grande": "Prova grande",
+    "archivio": "Archivio di prova",
+    "occasioni": "Prova delle occasioni",
+    "seppia": "Prova del filo di seppia",
+    "nero": "Prova del filo nero",
+    "marea": "Prova della marea",
+    "bordi": "Prova dei bordi",
+    "rancore": "Prova del rancore",
+    "trabocca": "Prova del trabocco",
+    "L1": "Una lettera di prova",
+    "L2": "Una seconda lettera",
+    "festa": "La voce della festa",
+    "debito": "Il segreto del debito",
+    "febbre": "La febbre",
+    "sciallo": "La voce dello scialle",
+    "rete": "La voce della rete",
+    "pace": "La voce della pace",
+    "fascio": "Il fascio di lettere",
+    "segretoA": "Il primo segreto",
+    "segretoB": "Il secondo segreto",
+    "segretoC": "Il terzo segreto",
+    "barcaiolo": "il barcaiolo",
+    "eco": "«Di qui passò la lettera.»",
+    "margine": "«Prova.»",
+    "rivela": "Il ricordo di prova."
+  }
+}

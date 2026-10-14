@@ -1,0 +1,575 @@
+/*
+ * Tombolo (prefisso tb-): interfaccia DOM sopra il canvas del merletto.
+ * Fasce del telefono (GDD 10.3): barra alta 52 · intestazione 40 · merletto ·
+ * richieste 36 · fusi 128 · azioni 72; le posizioni le scrive layout.ts in px.
+ * Bersagli di almeno 48 px, testo da 15 px in su (scalato da --text-scale),
+ * mai solo colore: forma, icona e testo accompagnano ogni stato.
+ */
+.tb-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--testo);
+}
+
+.tb-root > * {
+  position: absolute;
+}
+
+/* L'attributo hidden vince sui display dei componenti (pulsanti, barre). */
+.tb-root [hidden] {
+  display: none !important;
+}
+
+/* ───────── Barra alta ───────── */
+.tb-hud {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: 0 var(--spazio-3);
+  background: linear-gradient(to bottom, rgba(18, 22, 34, 0.9), rgba(18, 22, 34, 0.55));
+  border-bottom: 1px solid var(--bordo-pannello);
+}
+
+.tb-hud-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-libro);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.1;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.tb-hud-hour {
+  flex: 0 0 auto;
+  max-width: 34%;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--ottone);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.tb-hud-matassa {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 30%;
+  font-size: 0.95rem;
+  color: var(--testo);
+}
+
+.tb-hud-matassa .core-icon {
+  color: var(--legno);
+  flex: 0 0 auto;
+}
+
+.tb-hud-matassa-text {
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.tb-hud-matassa.tb-finita .core-icon {
+  color: var(--errore);
+}
+
+/* ───────── Intestazione delle colonne ───────── */
+.tb-header {
+  pointer-events: none;
+}
+
+.tb-header-cell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: var(--carta-ombra);
+  padding: 0 2px;
+}
+
+.tb-header-label {
+  display: block;
+  width: 100%;
+  font-size: 0.88rem;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ───────── Striscia delle richieste ───────── */
+.tb-requests {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding-left: var(--spazio-2);
+}
+
+.tb-req-tokens {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  height: 100%;
+}
+
+.tb-token {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--inchiostro);
+}
+
+.tb-token-chip {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--carta);
+  border: 3px solid var(--spillo-rosso);
+  box-shadow: 0 0 0 2px var(--tb-token-colore, var(--spillo-rosso)) inset;
+}
+
+.tb-token-state {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--velluto-luce);
+  color: var(--testo);
+  border: 1px solid var(--bordo-pannello);
+}
+
+.tb-token--soddisfatta .tb-token-chip {
+  border-color: var(--spillo-verde);
+}
+.tb-token--soddisfatta .tb-token-state {
+  background: var(--spillo-verde);
+  color: #fff;
+}
+.tb-token--a_rischio .tb-token-chip {
+  border-style: dashed;
+  border-color: var(--ottone);
+}
+.tb-token--a_rischio .tb-token-state {
+  background: var(--ottone);
+  color: var(--primario-testo);
+}
+.tb-token--fallita .tb-token-chip {
+  border-color: var(--errore);
+}
+.tb-token--fallita .tb-token-state {
+  background: var(--errore);
+  color: #fff;
+}
+.tb-token--lasciata {
+  opacity: 0.6;
+}
+.tb-token--lasciata .tb-token-chip {
+  border-style: dotted;
+  border-color: var(--testo-tenue);
+}
+
+.tb-token:focus-visible {
+  outline: 3px solid var(--fuoco);
+  outline-offset: -3px;
+  border-radius: 50%;
+}
+
+.tb-req-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--testo-tenue);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ───────── Barra delle azioni ───────── */
+.tb-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-2);
+  padding: 0 var(--spazio-2);
+  background: linear-gradient(to top, rgba(18, 22, 34, 0.92), rgba(18, 22, 34, 0.5));
+  border-top: 1px solid var(--bordo-pannello);
+}
+
+.tb-actions .tb-act {
+  flex: 0 0 auto;
+}
+
+.tb-act-menu,
+.tb-act-taccuino,
+.tb-act-disfa {
+  color: var(--carta);
+}
+
+.tb-act-fissa {
+  min-width: 120px;
+  max-width: 220px;
+  min-height: 56px;
+  flex: 0 1 auto;
+  padding: 4px 14px;
+}
+
+.tb-act-fissa .core-btn-label {
+  display: block;
+  max-width: 100%;
+  max-height: 2.5em;
+  white-space: normal;
+  line-height: 1.15;
+  text-align: center;
+  overflow: hidden;
+}
+
+.tb-act[disabled] {
+  opacity: 0.5;
+}
+
+.tb-pulsa {
+  animation: tb-pulsa calc(1.2s / max(var(--anim-speed), 0.5)) ease-in-out infinite;
+}
+
+@keyframes tb-pulsa {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 74, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(201, 162, 74, 0);
+    transform: scale(1.04);
+  }
+}
+
+/* ───────── Lampada dei suggerimenti ───────── */
+.tb-lamp {
+  color: var(--testo-tenue);
+  background: rgba(18, 22, 34, 0.7);
+  border-radius: 50%;
+}
+
+.tb-lamp--accesa {
+  color: var(--ottone);
+  background: rgba(201, 162, 74, 0.18);
+  animation: tb-lampada 2s ease-in-out infinite;
+}
+
+@keyframes tb-lampada {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 74, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 14px 4px rgba(201, 162, 74, 0.35);
+  }
+}
+
+/* ───────── Messaggi sul merletto ───────── */
+.tb-explain,
+.tb-prompt {
+  padding: var(--spazio-2) var(--spazio-3);
+  border-radius: var(--raggio);
+  background: rgba(18, 22, 34, 0.94);
+  border: 1px solid var(--bordo-pannello);
+  color: var(--testo);
+  font-size: 1rem;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+  z-index: 3;
+}
+
+.tb-explain {
+  opacity: 0;
+  transition: opacity var(--durata);
+}
+
+.tb-explain.tb-visibile {
+  opacity: 1;
+}
+
+.tb-explain[data-kind='warn'] {
+  border-color: var(--errore);
+}
+
+.tb-explain[data-kind='ok'] {
+  border-color: var(--spillo-verde);
+}
+
+.tb-prompt {
+  border-color: var(--ottone);
+  color: var(--ottone);
+  font-weight: 600;
+}
+
+.tb-margin {
+  z-index: 3;
+  padding: var(--spazio-2) var(--spazio-3);
+  background: var(--carta);
+  color: var(--seppia);
+  font-family: var(--font-mano);
+  font-size: 1.35rem;
+  line-height: 1.15;
+  border-radius: 3px;
+  box-shadow: var(--ombra);
+  transform: rotate(-2.5deg);
+  opacity: 0;
+  transition: opacity var(--durata);
+  overflow-wrap: anywhere;
+}
+
+.tb-margin.tb-visibile {
+  opacity: 1;
+}
+
+.tb-margin-text {
+  margin: 0;
+}
+
+/* ───────── Riavvolgimento ───────── */
+.tb-rewind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-2);
+  padding: 0 var(--spazio-2);
+  background: var(--velluto-luce);
+  border-top: 2px solid var(--ottone);
+  z-index: 4;
+}
+
+.tb-rewind-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  max-height: 100%;
+}
+
+.tb-rewind .core-btn {
+  flex: 0 0 auto;
+}
+
+/* ───────── Schede (popup) ───────── */
+.tb-popup {
+  z-index: 10;
+  padding: var(--spazio-5) var(--spazio-4) var(--spazio-4);
+  border-radius: var(--raggio-grande);
+  background: var(--carta);
+  color: var(--inchiostro);
+  box-shadow: var(--ombra);
+  overflow: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+.tb-popup-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: var(--inchiostro);
+}
+
+.tb-popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  padding-right: 40px;
+}
+
+.tb-popup h2 {
+  font-family: var(--font-libro);
+  font-size: 1.2rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.tb-popup p {
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.tb-note-text {
+  font-family: var(--font-mano);
+  font-size: 1.35rem !important;
+  line-height: 1.2 !important;
+}
+
+.tb-note-status {
+  color: var(--legno-scuro);
+  font-style: italic;
+}
+
+.tb-hint-tier {
+  color: var(--legno-scuro);
+}
+
+.tb-hint-text {
+  font-family: var(--font-libro);
+  font-size: 1.1rem !important;
+}
+
+.tb-hint-warn {
+  color: var(--pericolo);
+  font-size: 0.95rem !important;
+}
+
+.tb-echo {
+  font-family: var(--font-libro);
+  font-style: italic;
+  font-size: 1.15rem !important;
+}
+
+.tb-char-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+}
+
+.tb-char-badge {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--carta-ombra);
+  border: 4px solid var(--tb-char-colore, var(--legno));
+  color: var(--inchiostro);
+}
+
+.tb-char-name {
+  min-width: 0;
+}
+
+.tb-char-role,
+.tb-char-kind {
+  color: var(--legno-scuro);
+}
+
+.tb-char-sub {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--legno-scuro);
+}
+
+.tb-char-memoria {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.tb-char-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.tb-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--legno-scuro);
+}
+
+.tb-dot--pieno {
+  background: var(--perla-nome-alone);
+  border-color: var(--perla-nome-alone);
+}
+
+.tb-names-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--spazio-2);
+}
+
+.tb-names-grid .core-btn {
+  border-left: 6px solid var(--tb-char-colore, var(--legno));
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.tb-names-grid .core-btn-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.tb-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/* ───────── Pannelli del layout largo ───────── */
+.tb-panel {
+  pointer-events: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--spazio-2);
+}
+
+.tb-panel--lampo {
+  animation: tb-lampo 600ms ease-out 1;
+}
+
+@keyframes tb-lampo {
+  0% {
+    box-shadow: 0 0 0 3px var(--ottone) inset;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent inset;
+  }
+}
+
+/* ───────── Alto contrasto ───────── */
+:root[data-contrast='alto'] .tb-hud,
+:root[data-contrast='alto'] .tb-actions {
+  background: var(--velluto);
+}
+
+:root[data-contrast='alto'] .tb-token-chip {
+  border-width: 4px;
+}
+
+:root[data-contrast='alto'] .tb-explain,
+:root[data-contrast='alto'] .tb-prompt {
+  background: #000;
+  border-width: 2px;
+}
