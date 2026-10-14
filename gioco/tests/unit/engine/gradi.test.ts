@@ -95,4 +95,37 @@ describe('gradi che contano (MOT-05)', () => {
     // Con gli stessi gradi il seme #0 (quello del playtest) non passa più.
     expect(r.seedUsed).not.toBe('pm0ozmz#0');
   }, 60_000);
+
+  it('ripiego del Merletto libero (nessun seme passa): i gradi pesano anche nel livello consegnato', () => {
+    // Verifica della revisione 1: pbo3129 piccolo (regola nero) con Spilli velati e Un nodo in più
+    // non ha semi che passano il filtro. Prima il ripiego era il candidato arrivato più avanti
+    // (pbo3129#192), in cui il nodo in più non cambiava niente: i punti del grado senza difficoltà
+    // di P044. Ora è il più avanti fra quelli in cui pesano tutti e due.
+    const spec: GenSpec = { seed: 'pbo3129', columns: 4, rows: 6, rule: 'nero', gradi: ['spilliVelati', 'nodoInPiu'], difficulty: 'piccolo' };
+    const r = generate(spec);
+    expect(r.fromFallback).toBe(true);
+    expect(r.seedUsed).not.toBe('pbo3129#192');
+    const cand = buildCandidate(spec, r.seedUsed);
+    for (const g of spec.gradi) expect(holds(spec, r.seedUsed, cand, g, r.min), g).toBe(true);
+    const [lo, hi] = minRange(spec.columns, effectiveRows(spec));
+    expect(r.min).toBeGreaterThanOrEqual(lo);
+    expect(r.min).toBeLessThanOrEqual(hi);
+    expect(r.level.matassa).toBe(r.min + 1);
+    expect(generate(spec)).toEqual(r);
+  }, 60_000);
+
+  it('Un nodo in più con la regola del rancore su 4 colonne: c\'è una coppia libera e il grado pesa', () => {
+    // Verifica della revisione 1: con tre fili con un nome e il rancore della regola su due di
+    // loro, il nodo in più non trovava una coppia e ogni seme ripiegava su un livello senza nodo
+    // in più (p2dr662#14). Senza il lino i fili con un nome sono quattro.
+    const spec: GenSpec = { seed: 'p2dr662', columns: 4, rows: 6, rule: 'rancore', gradi: ['nodoInPiu'], difficulty: 'piccolo' };
+    const r = generate(spec);
+    expect(r.fromFallback).toBe(false);
+    expect(r.level.rancor?.length).toBe(2);
+    expect(r.level.threads.some((t) => t.kind === 'lino')).toBe(false);
+    expect(r.level.initial.length).toBe(4);
+    expect(holds(spec, r.seedUsed, buildCandidate(spec, r.seedUsed), 'nodoInPiu', r.min)).toBe(true);
+    // Senza il grado (o con un'altra regola) il cast resta con il lino.
+    expect(buildCandidate({ ...spec, gradi: [] }, 'p2dr662#0').level.threads.some((t) => t.kind === 'lino')).toBe(true);
+  }, 60_000);
 });

@@ -21,10 +21,12 @@
  * Se nessun seme passa: per il Merletto del giorno la lista di riserva
  * precalcolata (`data/daily-fallback.json`, indicizzata col giorno dell'anno),
  * altrimenti il candidato risolvibile arrivato più avanti nel filtro (segnalato
- * con `fromFallback`).
+ * con `fromFallback`); con i gradi, il più avanti fra quelli in cui ogni grado
+ * pesa, se ce n'è uno (P044: i gradi valgono punti anche nel ripiego).
  *
  * Gradi (GDD 8.4): matassaEsatta (matassa = minimo), nodoInPiu (una coppia in
- * rancore in più), neroInPiu (un filo nero in più, o un secondo filo da seguire
+ * rancore in più; con la regola del rancore su quattro colonne il cast è di
+ * quattro fili con un nome, senza lino, perché ci sia una coppia libera), neroInPiu (un filo nero in più, o un secondo filo da seguire
  * se c'è già), notteCorta (2 righe in meno). senzaDisfa e spilliVelati sono
  * regole d'interfaccia e non cambiano il livello (ma Spilli velati chiede uno
  * spillo da velare). La regola di Gino è quella del motore (C01).
@@ -146,12 +148,15 @@ export function buildCandidate(spec: GenSpec, seedK: string): Built {
   const required: CharacterId[] = [];
   if (rule === 'segreto') required.push('piero');
   if (rule === 'febbre' && rng() < 0.6) required.push('lunardi');
-  const nLino = 1;
+  // Un nodo in più con la regola del rancore su quattro colonne: senza il lino i fili con un nome
+  // sono quattro, e resta una coppia fuori dal rancore della regola per il nodo in più (con tre
+  // fili il grado non aggiungerebbe niente: MOT-05, P044).
+  const nLino = rule === 'rancore' && spec.gradi.includes('nodoInPiu') && W <= 4 ? 0 : 1;
   const others = shuffle(CAST.filter((c) => !required.includes(c)), rng);
   const cast = [...required, ...others].slice(0, W - nLino);
   const threads: ThreadDef[] = cast.map((c) => ({ id: c, kind: 'persona', character: c }));
-  threads.push({ id: 'lino1', kind: 'lino' });
-  let initial: ThreadId[] = shuffle([...cast, 'lino1'], rng);
+  if (nLino > 0) threads.push({ id: 'lino1', kind: 'lino' });
+  let initial: ThreadId[] = shuffle(nLino > 0 ? [...cast, 'lino1'] : [...cast], rng);
   if (rule === 'molo') {
     // Il lino aspetta il vaporetto al Molo.
     initial = ['lino1', ...initial.filter((t) => t !== 'lino1')];
@@ -493,17 +498,37 @@ export function generate(spec: GenSpec): GenResult {
   // Se nessun seme passa il filtro: il candidato che è arrivato più avanti nel filtro
   // (a parità, il primo trovato), così il ripiego è comunque un buon merletto.
   let best: { built: Built; min: number; count: number; seed: string; stage: number } | null = null;
+  // Candidati con il minimo nell'intervallo fermati prima del controllo dei gradi (stadi 2-4):
+  // servono al ripiego con i gradi (sotto).
+  const unchecked: { seed: string; min: number; count: number; stage: number }[] = [];
   for (let k = 0; k < GEN_TRIES; k++) {
     const seedK = `${spec.seed}#${k}`;
     const built = buildCandidate(spec, seedK);
     const v = qualityCheck(spec, built);
     if (v.ok) return finish(spec, built, v.min, v.optimalCount, k + 1, seedK, false);
     if (v.solvable && (!best || v.stage > best.stage)) best = { built, min: v.min, count: v.optimalCount, seed: seedK, stage: v.stage };
+    if (spec.gradi.length > 0 && v.stage >= 2 && v.stage <= 4) unchecked.push({ seed: seedK, min: v.min, count: v.optimalCount, stage: v.stage });
   }
   const fb = fromFallback(spec, GEN_TRIES);
   if (fb) return fb;
+  const exact = spec.gradi.includes('matassaEsatta') ? 0 : 1;
+  // Ripiego con i gradi (MOT-05, P044): i gradi valgono punti, quindi devono pesare anche nel
+  // ripiego. Il candidato arrivato più avanti può essersi fermato prima del controllo dei gradi
+  // (o non averlo passato): fra quelli con il minimo nell'intervallo si prende il più avanti nel
+  // filtro (a parità il primo) in cui ogni grado cambia il puzzle. Solo se non ce n'è nessuno
+  // resta il candidato arrivato più avanti.
+  if (best && best.stage < 6 && unchecked.length > 0) {
+    const hi = minRange(spec.columns, effectiveRows(spec))[1];
+    const order = [...unchecked].sort((a, b) => b.stage - a.stage);
+    for (const c of order) {
+      const built = buildCandidate(spec, c.seed);
+      if (!spec.gradi.every((g) => gradeMatters(spec, built, g, c.min, hi))) continue;
+      built.level.matassa = c.min + exact;
+      return finish(spec, built, c.min, c.count, GEN_TRIES, c.seed, true);
+    }
+  }
   if (best) {
-    best.built.level.matassa = best.min + (spec.gradi.includes('matassaEsatta') ? 0 : 1);
+    best.built.level.matassa = best.min + exact;
     return finish(spec, best.built, best.min, best.count, GEN_TRIES, best.seed, true);
   }
   throw new Error(`generate: no solvable level for seed "${spec.seed}"`);
