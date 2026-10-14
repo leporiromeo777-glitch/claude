@@ -14,7 +14,7 @@
     {"id": "gino", "kind": "persona", "character": "gino"},
     {"id": "zeno", "kind": "persona", "character": "zeno"}
   ],
-  "initial": ["nina", "marta", "teresa", "piero", "gino", "zeno"],
+  "initial": ["nina", "marta", "teresa", "gino", "piero", "zeno"],
   "beads": [
     {
       "id": "segreto:confessione",
@@ -25,9 +25,13 @@
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
-  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 12}],
+  "pins": [
+    {"thread": "marta", "place": "chiesa", "hour": 8},
+    {"thread": "gino", "place": "forno", "hour": 9},
+    {"thread": "teresa", "place": "piazza", "hour": 13}
+  ],
   "notes": ["g07.teresa", "g07.nina", "g07.zeno"],
-  "matassa": 9,
+  "matassa": 12,
   "dawn": {
     "candidates": [
       {

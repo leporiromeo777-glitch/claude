@@ -618,6 +618,34 @@ describe('solver e file calcolati', () => {
     }
   });
 
+  it('C14 (REVISIONE-1 CA1-04): nessuna violazione dei criteri di qualità in g00-g08, arc1 e arc2', () => {
+    for (const d of [...STORY, 'arc1', 'arc2']) {
+      const c = db.computed.get(d);
+      if (!c) throw new Error(d);
+      expect(c.quality?.violazioni ?? [], d).toEqual([]);
+    }
+    // Le notti vere hanno il rapporto; al più un bigliettino facile per sera, e solo dentro un conflitto voluto.
+    for (const d of STORY.filter((x) => x !== 'g00')) {
+      const c = db.computed.get(d);
+      const q = c?.quality;
+      expect(q, d).toBeDefined();
+      expect(q?.facili.length ?? 0, d).toBeLessThanOrEqual(1);
+      for (const f of q?.facili ?? []) expect(c?.combos.some((x) => x.voluta && x.notes.includes(f)), `${d} ${f}`).toBe(true);
+      // la designata non è mai una combinazione voluta (impossibile)
+      expect(c?.combos.find((x) => x.notes.join('+') === q?.designata)?.voluta ?? false, d).toBe(false);
+    }
+  });
+
+  it('g07 (revisione 1): il peso di Teresa arriva a Don Piero «e a nessun altro», cioè nessun altro filo con nome lo ha', () => {
+    const req = db.notes.get('g07.teresa')?.request;
+    if (!req || req.t !== 'tutti') throw new Error('g07.teresa');
+    const others = level('g07').threads.filter((t) => t.kind === 'persona' && !['piero', 'teresa'].includes(t.character ?? '')).map((t) => t.id);
+    expect(req.of).toContainEqual({ t: 'ha', who: 'piero', bead: 'segreto:confessione' });
+    for (const o of others) expect(req.of, o).toContainEqual({ t: 'nonHa', who: o, bead: 'segreto:confessione' });
+    // la Nina curiosa rende facile il suo bigliettino: è la facile della sera, dentro il conflitto voluto con Teresa
+    expect(db.computed.get('g07')?.quality?.facili).toEqual(['g07.nina']);
+  });
+
   it('GDD 3.6: nel giorno del debutto di una stranezza nessuna richiesta (o coppia) è impossibile per colpa sua', () => {
     const debut: [string, QuirkId][] = [['g01', 'ginoCorre'], ['g05', 'zenoFaro'], ['g06', 'teresaLegge'], ['g07', 'pieroPozzo'], ['g07', 'ninaCuriosa']];
     for (const [d, q] of debut) {

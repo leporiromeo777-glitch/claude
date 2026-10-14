@@ -290,7 +290,9 @@
       "of": [
         {"t": "ha", "who": "piero", "bead": "segreto:confessione"},
         {"t": "nonHa", "who": "nina", "bead": "segreto:confessione"},
-        {"t": "nonHa", "who": "marta", "bead": "segreto:confessione"}
+        {"t": "nonHa", "who": "marta", "bead": "segreto:confessione"},
+        {"t": "nonHa", "who": "gino", "bead": "segreto:confessione"},
+        {"t": "nonHa", "who": "zeno", "bead": "segreto:confessione"}
       ]
     },
     "onOk": [{"setFlag": "teresaConfessata", "value": true}, {"diary": "domande.martaTeresa.confessione"}],
