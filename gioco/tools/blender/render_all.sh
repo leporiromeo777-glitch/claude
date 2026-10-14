@@ -39,7 +39,7 @@ for arg in "$@"; do
     --parallel) PARALLEL=1 ;;
     --pack-only) PACK_ONLY=1 ;;
     --no-tests) TESTS=0 ;;
-    -h|--help) sed -n '2,18p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
     *) echo "render_all: opzione sconosciuta: $arg" >&2; exit 2 ;;
   esac
 done

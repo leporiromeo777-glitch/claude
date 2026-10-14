@@ -141,19 +141,22 @@ sviluppo): la presenza del manifest si legge in `vite.config.ts` all'avvio.
 
 | Passo | sequenziale, 2 thread | Note |
 |---|---|---|
+| controlli geometrici | 11 s | `test_geometria.py` + `verifica_geometria.py` (68 scene, senza render) |
 | fusi (14) | 11 s | ~0,8 s a fuso |
-| figurine (36) | 80 s | ~2 s a figurina (costruzione, render, Freestyle) |
-| oggetti (6) e quadri (4) | 196 s | il tombolo 1024² ~12 s, ogni quadro 35-45 s |
+| figurine (36) | 85 s | ~2 s a figurina (costruzione, render, Freestyle) |
+| oggetti (6) e quadri (4) | 203 s | il tombolo 1024² ~12 s, ogni quadro 35-46 s |
 | icona (2) | 20 s | |
-| diorami (21) | 830 s | 35-45 s a diorama |
+| diorami (21) | 846 s | 37-42 s a diorama |
 | pack, fogli di controllo, test | 9 s | |
 
-Esecuzioni complete partendo da `public/assets` vuota: **1148 s** (19 min) in sequenza
-con `TRAMA_THREADS=2`, **682 s** (11 min) con `--parallel` (due corsie da 2 thread). Il
-valore predefinito (4 thread, in sequenza) non è stato cronometrato qui perché la macchina
-era condivisa; con meno contesa sta sotto i tempi a 2 thread. Le due esecuzioni hanno dato un manifest
-identico byte per byte; i PNG delle pagine dell'atlas e qualche WebP possono cambiare di
-pochi bit fra un'esecuzione e l'altra (rumore del denoiser in parallelo), i rettangoli no.
+Esecuzioni complete: **1187 s** (19,8 min) in sequenza con `TRAMA_THREADS=2` e la macchina
+occupata da altri processi; **682 s** (11 min) con `--parallel` (due corsie da 2 thread, cioè
+la stessa CPU del valore predefinito a 4 thread). Il valore predefinito (4 thread, in
+sequenza) non è stato cronometrato qui perché la macchina era condivisa. Due esecuzioni
+consecutive danno un manifest identico byte per byte; i PNG delle pagine dell'atlas e
+qualche WebP possono cambiare di pochi bit fra un'esecuzione e l'altra (rumore del denoiser
+su più thread), i rettangoli no. Dagli stessi render grezzi, `--pack-only` rigenera una
+`public/assets` cancellata identica byte per byte (in 10 s).
 
 ## Test
 
@@ -164,5 +167,12 @@ python3 tools/atlas/test_assets.py      # oppure $BLENDER_PY tools/atlas/test_as
 Controlla: manifest conforme ad `AssetManifest` con esattamente i nomi L1 (allineati a
 `EXPECTED_FRAMES` / `EXPECTED_IMAGES` di `src/core/assets.ts`), frame dentro le pagine e
 senza sovrapposizioni, estrusione sui pixel, ancore, budget, logo opaco, splash, icone web,
-impaginazione deterministica. Nel gioco, `__GAME__.core.missingAssets()` nella scena di
-avvio deve restituire un elenco vuoto.
+impaginazione deterministica, tinta del filo dei fusi (Δ RGB ≤ 40) e della fascia delle
+figurine (Δ ≤ 60) misurata sui pixel, colori dei fili uguali a `src/content/characters.json`.
+
+```
+$BLENDER_PY tools/blender/test_geometria.py      # pezzi condivisi e controllo delle facce complanari
+$BLENDER_PY tools/blender/verifica_geometria.py  # tutte le scene (o --only dio/stanza,tab)
+```
+
+Nel gioco, `__GAME__.core.missingAssets()` nella scena di avvio deve restituire un elenco vuoto.

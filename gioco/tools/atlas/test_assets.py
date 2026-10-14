@@ -166,8 +166,8 @@ class PaletteTest(unittest.TestCase):
     """Il filo dei fusi e la fascia delle figurine hanno la tinta di GDD 5.4 (misurata sui pixel)."""
 
     #: Distanza RGB massima fra il colore medio misurato e quello nominale.
-    MAX_FUSO = 45.0
-    MAX_FASCIA = 70.0
+    MAX_FUSO = 40.0
+    MAX_FASCIA = 60.0
 
     @classmethod
     def setUpClass(cls) -> None:

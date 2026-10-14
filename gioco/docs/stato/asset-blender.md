@@ -1,6 +1,6 @@
 # Stato del pacchetto: asset-blender
 
-Costruito e verificato.
+Costruito, poi verificato e corretto da un secondo agente (verifica del 14 ottobre 2026).
 
 **Stato:** done
 
@@ -13,23 +13,28 @@ in `tools/atlas/`, prodotti versionati in `public/assets/`, `public/icons/` e `a
 - `tools/blender/common.py`: reset della scena, palette sRGB→lineare, materiali (legno Wave+Noise,
   vernice, ottone, acqua, filo avvolto, velluto, vetro, emissione), primitive `bmesh`, camere
   ortografiche, rig di luci (studio, alba, giorno, notte), Cycles 4 thread (`TRAMA_THREADS` per
-  cambiarli), 24/32 campioni, OIDN, dati persistenti, Standard, PNG RGBA 8 bit, Freestyle con
-  lineset e linestyle espliciti, semi fissi per nome, `--only` / `--out` / `--list`.
+  cambiarli), 24/32 campioni, OIDN, dati persistenti, Standard, PNG RGBA 8 bit, Freestyle 1,2 px
+  `#2B2622` con lineset e linestyle espliciti, semi fissi per nome, `--only` / `--out` / `--list`.
 - `personaggi.py`, `scenografia.py`: personaggi (abiti desaturati, teste con il dettaglio di
-  ognuno) e pezzi di scena (tombolo, oggetti della sera, case, barche, chiesa, faro, interni).
+  ognuno) e pezzi di scena; in `scenografia.py` anche `wall_with_hole` (parete in un pezzo con
+  vano rettangolare o ad arco) e `window_frame` (telaio a croce senza sovrapposizioni).
 - `fusi.py` (14), `figurine.py` (36), `oggetti.py` (6 oggetti + 4 quadri da `quadri.py`),
   `diorami.py` (7 luoghi × 3 luci), `icona.py` (logo opaco e fuso trasparente per gli splash).
-- `render_all.sh` (`npm run assets:render`): ogni script in un sottoprocesso con controllo del
-  codice d'uscita, poi `pack.py`, confronto dei rettangoli con l'esecuzione precedente, fogli di
-  controllo e test. `--parallel` (due corsie bilanciate), `--pack-only`, `--no-tests`.
+- `verifica_geometria.py` (nuovo, verifica): costruisce tutte le 68 scene senza renderizzarle
+  e fallisce se due oggetti hanno facce complanari, rivolte dalla stessa parte, sovrapposte e
+  visibili dalla camera (in Cycles fanno macchie nere). `test_geometria.py` (7 test, `bpy`).
+- `render_all.sh` (`npm run assets:render`): controlli geometrici, ogni script in un
+  sottoprocesso con controllo del codice d'uscita, `pack.py`, confronto dei rettangoli con
+  l'esecuzione precedente, fogli di controllo, test. `--parallel`, `--pack-only`, `--no-tests`.
 - `tools/atlas/pack.py`: atlas a scaffali (con colonne impilate) ≤ 2048², padding 2, estrusione 1;
   WebP qualità 80; `manifest.json`; `assets/logo.png`, `splash.png`, `splash-dark.png`; icone web.
-- `tools/atlas/contact_sheet.py`: 8 fogli in `tools/blender/out/contact_*.png`.
-- `tools/atlas/test_assets.py` (unittest, 17 test) e `tools/atlas/catalogo.py` (nomi e budget).
-- `tools/blender/README.md`: venv, comandi, opzioni, tempi misurati.
+- `tools/atlas/contact_sheet.py`: 8 fogli in `tools/blender/out/contact_*.png` (non pubblicati).
+- `tools/atlas/test_assets.py` (unittest, 20 test) e `tools/atlas/catalogo.py` (nomi e budget).
+- `tools/blender/README.md`: venv, comandi, opzioni, regole di costruzione, tempi misurati.
 
-**Cosa trovano gli altri pacchetti** (nomi esattamente quelli di `EXPECTED_FRAMES` /
-`EXPECTED_IMAGES` di `src/core/assets.ts`):
+**API per gli altri pacchetti** (nomi esattamente quelli di `EXPECTED_FRAMES` /
+`EXPECTED_IMAGES` di `src/core/assets.ts`; manifest `public/assets/manifest.json` nel formato
+`AssetManifest`, percorsi relativi a `public/assets/`, `version: 1`):
 
 | Nome | Misura del frame | Ancora (ax, ay) | Gruppo |
 |---|---|---|---|
@@ -40,70 +45,96 @@ in `tools/atlas/`, prodotti versionati in `public/assets/`, `public/icons/` e `a
 | `dio/<luogo>/<alba\|giorno\|notte>` (7 luoghi) | 1024×768 WebP | area sicura centrale 768×576 | `dio` |
 | `tab/{sedia_vuota,tempesta,secca,sacrestia_lettere}` | 1024×768 WebP | area sicura centrale 768×576 | `tab` |
 
-Numeri finali: 2 pagine d'atlas (1824×1812 e 1824×784) per 1649 KB; 25 WebP per 574 KB (la più
-pesante `tab/tempesta` 76 KB, tutte a qualità 80); `public/assets` 2232 KB in tutto; logo 174 KB,
+Numeri finali: 2 pagine d'atlas (1824×1812 e 1824×784) per 1649 KB; 25 WebP per 546 KB (la più
+pesante `tab/tempesta` 48 KB, tutte a qualità 80); `public/assets` 2205 KB in tutto; logo 174 KB,
 splash 136 KB l'uno, icone 192/512/64.
 
-**Revisione visiva dei fogli di controllo** (ispezionati tutti):
+### Cosa ha trovato e corretto la verifica
+
+1. **Macchie nere nei render** (Cycles, facce complanari sovrapposte fra oggetti diversi: il
+   raggio d'ombra di una faccia colpisce l'altra). Visibili: una fascia nera sulla bocca accesa
+   del forno e sopra il vano della bottega (`dio/forno/*`), quadratini neri agli angoli e al
+   centro delle finestre (`tab/sedia_vuota`, `dio/stanza/*`), al centro del rosone e sugli archi
+   delle finestre laterali (`dio/chiesa/*`), all'incrocio del crocifisso (`tab/sacrestia_lettere`),
+   più casi minori (lancette dell'orologio, libro, nastro del fascio di lettere, cassetta,
+   armadio, pile di lettere, croce sul libretto di Don Piero). Prima della correzione il
+   controllo trovava 17 scene su 68 con facce sovrapposte; ora 0. Il controllo è un passo di
+   `render_all.sh` e ha i suoi test.
+2. **Cuciture sui muri**: le pareti con la finestrella (stanza, sedia vuota, sacrestia) erano
+   fatte a pezzi: Freestyle disegnava le linee fra i pezzi (righe verticali dal davanzale al
+   pavimento) e l'intonaco cambiava a ogni pezzo. Ora sono un pezzo solo con il vano.
+3. **Arco della finestra della sacrestia** tagliato dal bordo alto del quadro: finestra abbassata.
+4. **Cielo granuloso** in `tab/tempesta` (e appena in `tab/secca`): le "nuvole" avevano una
+   scala di 0,08 unità, cioè grana fine; ora sono nuvole di 4 unità. La WebP della tempesta è
+   scesa da 76 a 48 KB (il budget è 90).
+5. **Aderenza alla palette**: sotto la chiave calda dello studio i fili freddi viravano
+   (azzurro di Gino Δ65 verso il verde-grigio, argento di Lunardi Δ71 e avorio di Clotilde Δ65
+   verso il beige; fasce delle figurine fino a Δ121). Ora filo dei fusi e fascia delle figurine
+   hanno un velo di emissione del colore nominale (0,3): filo Δ 5-31, fasce Δ 19-51, verificato
+   da un test. A 40 px argento (Lunardi), avorio (Clotilde) e lino ora si distinguono.
+6. Fogli di controllo: il carattere predefinito di Pillow non ha ², × e Δ (quadratini): ora si
+   usa DejaVu Sans quando c'è. `render_all.sh --help` stampava una riga di troppo.
+7. Test aggiunti: tinta misurata dei fili e delle fasce, colori dei fili della pipeline uguali a
+   `src/content/characters.json`, test della geometria.
+
+**Revisione visiva dei fogli di controllo** (ispezionati tutti dopo la nuova esecuzione):
 - *Fusi*: 14 sagome distinte già dalla testa (berretto da postina, cuffia, saturno, coppola,
   berretto col pompon, trecce, berretto e barba, bombetta e occhiali, scialle, treccia col nastro,
-  crocchia e occhiali, testa liscia; noce con anelli d'ottone e spirale per gli stili). A 40 px di
-  larghezza (tombolo da 8 colonne su 360 px) si distinguono dal colore del filo, che è l'unica
-  parte satura; il dettaglio della testa resta leggibile come sagoma.
+  crocchia e occhiali, testa liscia; noce con anelli d'ottone e spirale per gli stili). A 40 px
+  di larghezza si distinguono dal colore del filo, unica parte satura, e dalla sagoma della testa.
+  Nel tombolo del gioco (Chromium) il filo disegnato in codice e il filo avvolto sul fuso hanno
+  la stessa tinta e il filo parte dall'ancora sulla testa.
 - *Figurine*: leggibili su velluto e su carta grazie al contorno Freestyle; a 72 px restano
   riconoscibili per sagoma (saturno di Don Piero, cuffia bianca di Marta, scialle nero di Livia,
   Gino più basso) e fascia colorata. Abiti desaturati, unica fascia satura in vita; `lino` e Ada
   grezza sono legno nudo senza vernice né occhi.
-- *Palette* (`contact_palette.png`, colore misurato sul filo del fuso e sulla fascia): tinta
-  sempre quella di GDD 5.4; il filo del fuso dista Δ17-49 (RGB) dal colore nominale per 9
-  personaggi su 12, di più per azzurro, argento e avorio (gino Δ65, lunardi Δ71, clotilde Δ65)
-  perché la luce chiave è calda (#FFE2B8, ARCHITETTURA 12); le fasce delle figurine sono più
-  scure (ombra propria della figurina a tre quarti) ma della stessa tinta.
-- *Diorami*: 21 render, soggetto sempre dentro l'area sicura (controllato dallo script); mondo
-  desaturato (intonaci, pietra, laguna), saturi solo cime, nastri e festoni nei colori dei fili
-  (cima arancio di Bepi al molo, nastro viola sul portale, filo rosso dell'insegna del forno,
-  festoni blu/giallo/azzurro in piazza, cima verde petrolio al faro, gomitolo corallo nella
-  stanza). Notte: finestre #FFB24A, lampioni, lanterna del faro.
+- *Palette* (`contact_palette.png`, colore medio misurato sul filo del fuso e sulla fascia):
+  tinta di GDD 5.4 ovunque; filo Δ 5-31, fasce Δ 19-51 (le fasce sono in parte in ombra).
+- *Diorami*: 21 render, soggetto dentro l'area sicura (lo script lo controlla); mondo
+  desaturato, saturi solo cime, nastri e festoni nei colori dei fili. Notte: finestre #FFB24A,
+  lampioni, lanterna del faro, bocca del forno accesa (ora senza la fascia nera).
 - *Quadri*: sedia vuota con lo scialle e le forbici nella luce d'alba; burrasca al faro con
-  pioggia, fascio della lanterna e la barca di Bepi; secca con barene, barche in secco, lingua
-  di sabbia, Livia col suo scialle nero e le impronte; sacrestia con l'armadio delle lettere,
-  il fascio legato di nero e la stola viola.
+  pioggia, nuvole, fascio della lanterna e la barca di Bepi; secca con barene, lingua di sabbia,
+  Livia col suo scialle nero e le impronte; sacrestia con l'armadio delle lettere, il fascio
+  legato di nero, la stola viola e la finestra ad arco intera.
 - *Oggetti, icone*: oggetti nitidi su velluto; logo leggibile anche a 48 px su fondo chiaro e scuro.
 
 ## Decisioni prese
 
 - I frame dell'atlas **non sono ritagliati**: restano alla misura nominale di GDD 12.5 (fusi 96×320,
-  figurine e oggetti 256², tombolo 1024²). Chi disegna un frame alla sua misura nominale (come la
-  scena di avvio, che stira il fuso in un riquadro fisso) non lo deforma, le ancore restano quelle
-  dei documenti e i rettangoli dipendono solo da nomi e misure (determinismo per costruzione).
-- Atlas a scaffali con colonne impilate dentro lo scaffale (first fit, ordinamento per altezza,
-  larghezza, nome): 2 pagine invece di 3.
-- Pagine dell'atlas arrotondate al multiplo di 4 (non a potenze di 2: il gioco disegna con il
-  canvas 2D).
-- Nomi delle pagine: `atlas/atlas_0.png`, `atlas/atlas_1.png`; immagini `dio/<luogo>/<luce>.webp`,
-  `tab/<nome>.webp`; manifest con `version: 1` e senza date (byte per byte identico fra esecuzioni).
+  figurine e oggetti 256², tombolo 1024²); ancore dei documenti; rettangoli che dipendono solo da
+  nomi e misure (determinismo per costruzione).
+- Atlas a scaffali con colonne impilate (first fit, ordinamento per altezza, larghezza, nome):
+  2 pagine; misure arrotondate al multiplo di 4 (il gioco disegna con il canvas 2D).
+- Nomi: `atlas/atlas_<n>.png`, `dio/<luogo>/<luce>.webp`, `tab/<nome>.webp`; manifest senza date.
 - WebP qualità 80 `method=6`; se un'immagine superasse 90 KB la qualità scenderebbe a passi di 4
-  (mai sotto 60) e il riepilogo lo direbbe. Oggi non succede.
-- `assets/logo.png` è RGB senza canale alfa (l'App Store rifiuta le icone con trasparenza): il test
-  lo legge come RGBA e verifica alfa sempre 255. Gli splash hanno il fuso trasparente (900 px)
-  al centro di #1C2233; `splash-dark.png` è uguale perché il fondo è già scuro (GDD 12.5).
-- `favicon.png` 64×64.
-- `pack.py` svuota sempre `public/assets` prima di scrivere (nessun file orfano; un test lo verifica).
-- Thread di Cycles: 4 come da documento, ma `TRAMA_THREADS` li cambia (usato a 2 in questo
-  container condiviso). `--parallel` usa due corsie da 2 thread.
-- Quadri: `quadri.py` è un modulo usato da `oggetti.py` (che già li elencava), così `--only tab/...`
-  funziona come per gli oggetti.
-- Il test degli asset è Python (`unittest`, serve solo Pillow) e confronta anche il catalogo con
-  gli elenchi di `src/core/assets.ts`.
+  (mai sotto 60). Oggi non succede.
+- `assets/logo.png` RGB senza canale alfa (l'App Store rifiuta le icone con trasparenza); splash
+  con il fuso trasparente (900 px) al centro di #1C2233; `splash-dark.png` uguale (fondo già
+  scuro); `favicon.png` 64×64.
+- `pack.py` svuota sempre `public/assets` prima di scrivere (un test verifica che non ci siano
+  file estranei).
+- Thread di Cycles: 4 come da documento; `TRAMA_THREADS` li cambia. `--parallel`: due corsie da 2.
+- Regola di costruzione (verifica): mai facce complanari sovrapposte fra pezzi che si toccano;
+  si usa uno scarto `scenografia.EPS` = 2 mm. Il controllo conta solo le facce rivolte verso la
+  camera ortografica della scena (il fondo appoggiato a terra o il retro murato di una cornice
+  non fanno macchie), così resta severo senza costringere a geometrie innaturali.
+- Velo di emissione 0,3 (`personaggi.THREAD_GLOW`, `BAND_GLOW`) solo su filo dei fusi e fascia
+  delle figurine, gli unici elementi saturi di GDD 12.1: provati 0, 0,25 e 0,5; a 0,5 il filo
+  sembra luminoso e piatto, a 0,3 tiene l'ombreggiatura e la tinta.
+- Prova "da `public/assets` vuota" in un container condiviso: la cartella si cancella solo per il
+  passo di impacchettamento (`--pack-only`, 10 s), non per tutti i 20 minuti di render, perché
+  altri agenti avviano il gioco nel frattempo; `pack.py` svuota comunque la cartella da sé e i
+  render non la leggono, quindi il risultato è lo stesso.
 
 ## Problemi noti
 
-- I PNG delle pagine dell'atlas e qualche WebP cambiano di pochi bit fra due esecuzioni (il denoiser
-  e il campionamento adattivo in parallelo non sono bit-esatti): il manifest e i rettangoli invece
-  sono identici. Rigenerare gli asset quindi produce un diff binario anche senza modifiche.
-- Il tempo del comando predefinito (4 thread, in sequenza) non è stato cronometrato: per regola di
-  questo container ho usato al massimo 2 thread per processo. Misurati: 1148 s in sequenza a 2
-  thread, 682 s con `--parallel`.
+- Il tempo del comando predefinito (4 thread, in sequenza) non è stato cronometrato: nel container
+  condiviso si usano al massimo 2 thread per processo. Misurati: 1187 s (19,8 min) in sequenza a
+  2 thread con la macchina occupata da altri agenti, 682 s con `--parallel` (stessa CPU del
+  predefinito). In sequenza a 2 thread si è vicini al limite di 20 minuti.
+- I PNG delle pagine dell'atlas e le WebP cambiano di pochi bit fra due esecuzioni (denoiser e
+  campionamento adattivo su più thread non sono bit-esatti): manifest e rettangoli identici.
 - Il percorso predefinito di `BLENDER_PY` è il venv di questa sessione: altrove va impostata la
   variabile (il README spiega come ricreare il venv).
 - I quadri `merletto_in_chiesa` e `vaporetto_alba` e gli stili di fuso 3-6 sono del livello L2
@@ -111,10 +142,15 @@ splash 136 KB l'uno, icone 192/512/64.
 
 ## Richieste per altri pacchetti
 
-- **fondamenta**: se volete il favicon renderizzato, collegate `public/icons/favicon.png` in
-  `index.html` (`<link rel="icon" type="image/png" href="./icons/favicon.png">`) e, per un manifest
-  web, `icons/icon-192.png` e `icons/icon-512.png`. `npm run assets:native` (capacitor-assets in
-  modalità semplice) trova `assets/logo.png`, `assets/splash.png` e `assets/splash-dark.png`.
+- **fondamenta**:
+  - nella scena di avvio la riga `core.boot.asset.segnaposto` («Placeholders drawn in code are
+    shown instead.») compare anche quando non manca nessun asset, sotto «No missing assets»:
+    andrebbe mostrata solo con almeno un asset mancante (`src/core/boot.scene.ts`, sezione asset);
+  - `src/core/placeholders.ts`: il segnaposto del fuso ha `ay: 0.05`, il frame vero `0.125`
+    (sommità della testa). Con `0.125` il filo si attacca nello stesso punto con e senza asset;
+  - facoltativo: collegare `public/icons/favicon.png` in `index.html` al posto dello SVG in linea
+    e, per un manifest web, `icons/icon-192.png` e `icons/icon-512.png`. `npm run assets:native`
+    trova `assets/logo.png`, `assets/splash.png` e `assets/splash-dark.png`.
 - **tombolo, interfaccia, campagna**: i frame hanno la misura nominale e l'ancora normalizzata del
   manifest: per un fuso l'ancora è la sommità della testa (il filo parte da lì, l'icona del
   personaggio va disegnata sopra), per una figurina il piede della basetta (ay 0,92), per gli
@@ -126,16 +162,24 @@ splash 136 KB l'uno, icone 192/512/64.
 
 ## Test
 
-- `npm run assets:render -- --parallel` partendo da `public/assets` cancellata → exit 0 in 682 s;
-  pack: atlas 1649 KB, 25 WebP 574 KB, totale 2232 KB; 17 test OK.
-- `TRAMA_THREADS=2 npm run assets:render` subito dopo (in sequenza) → exit 0 in 1148 s (19,1 min);
-  «manifest: stessi rettangoli dell'esecuzione precedente»; `cmp` dei due manifest: identici.
-- `python3 tools/atlas/test_assets.py` → 17 test OK (forma `AssetManifest`, nomi esatti, percorsi e
-  gruppi, frame senza sovrapposizioni, estrusione sui pixel, ancore, budget, nessun file estraneo,
-  logo opaco, splash 2732², icone web, impaginazione deterministica, catalogo = `assets.ts`).
-- Gioco: server di sviluppo (porta 5230) e build di produzione servita con `vite preview` (porta
-  5231), Chromium via Playwright: scena `boot`, `__GAME__.core.missingAssets()` → `[]`, nessuna
-  risposta HTTP ≥ 400, le 2 pagine d'atlas e i 25 WebP si scaricano e si decodificano nel browser
-  con le misure del manifest; nello screenshot la scena di avvio mostra i fusi veri appesi ai fili.
-- Fogli di controllo generati e ispezionati: `contact_fusi`, `contact_figurine`, `contact_oggetti`,
-  `contact_diorami`, `contact_quadri`, `contact_atlas`, `contact_icone`, `contact_palette`.
+- `TRAMA_THREADS=2 bash tools/blender/render_all.sh` (pipeline completa, in sequenza): exit 0 in
+  1187 s; controlli geometrici 0 scene su 68 con facce sovrapposte; «manifest: stessi rettangoli
+  dell'esecuzione precedente»; `cmp` con il manifest dell'esecuzione precedente (quella del
+  costruttore): identico byte per byte; 20 test degli asset OK.
+- `rm -rf public/assets && bash tools/blender/render_all.sh --pack-only`: exit 0 in 10 s;
+  `public/assets`, `public/icons` e `assets/` identici byte per byte a quelli di prima.
+- `python3 tools/atlas/test_assets.py` → 20 test OK (forma `AssetManifest`, nomi esatti, percorsi
+  e gruppi, frame senza sovrapposizioni, estrusione sui pixel, ancore, budget, nessun file
+  estraneo, tinta dei fili e delle fasce, logo opaco, splash 2732², icone web, impaginazione
+  deterministica, catalogo = `assets.ts`, colori dei fili = `characters.json`).
+- `$BLENDER_PY tools/blender/test_geometria.py` → 7 test OK; `verifica_geometria.py` → 0 scene
+  con facce sovrapposte su 68 (prima della correzione: 17).
+- Gioco in Chromium (Playwright): server di sviluppo (porta 5235) e build di produzione in una
+  cartella temporanea servita con `vite preview` (porta 5236, `?debug=1`): scena `boot`,
+  `__GAME__.core.missingAssets()` → `[]`, nessuna risposta HTTP ≥ 400, nessun errore in console,
+  le 2 pagine d'atlas e le 25 WebP si scaricano e si decodificano con le misure del manifest.
+  Scena `tombolo` (`__GAME__.night.start({ level: 'g02' })`): fusi veri appesi ai fili,
+  `missingAssets()` → `[]`.
+- Fogli di controllo rigenerati e ispezionati: `contact_fusi`, `contact_figurine`,
+  `contact_oggetti`, `contact_diorami`, `contact_quadri`, `contact_atlas`, `contact_icone`,
+  `contact_palette`.
