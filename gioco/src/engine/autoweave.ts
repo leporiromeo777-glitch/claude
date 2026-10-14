@@ -22,10 +22,20 @@
  */
 import type { Crossing, LaceState, LevelDef, RunContext } from '../core/types';
 import type { AgentModel, Model } from './model';
-import { INF, K_LINO, fullModel } from './model';
+import { INF as INF_, K_LINO as K_LINO_, fullModel } from './model';
 import type { RowSpec } from './core';
-import { Q_OK, blockedMask, isDelivered, newRow, quirkCheck, rowPush } from './core';
+import { Q_OK as Q_OK_, blockedMask as blockedMask_, isDelivered as isDelivered_, newRow, quirkCheck as quirkCheck_, rowPush as rowPush_ } from './core';
 import { toCompact } from './state';
+
+// Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
+// getter, e queste funzioni girano milioni di volte nel solver. Così si leggono una volta sola.
+const Q_OK = Q_OK_;
+const blockedMask = blockedMask_;
+const isDelivered = isDelivered_;
+const quirkCheck = quirkCheck_;
+const rowPush = rowPush_;
+const INF = INF_;
+const K_LINO = K_LINO_;
 
 interface Scratch {
   colOf: Int8Array;

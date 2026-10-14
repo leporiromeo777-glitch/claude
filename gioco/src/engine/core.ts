@@ -10,8 +10,19 @@
  * annuncio del filo nero.
  */
 import type { EdgeStep, Model } from './model';
-import { B_FEBBRE, B_LETTERA, B_NOME, B_SEGRETO, B_VOCE, K_LINO, TRABOCCO_SOGLIA, ZENO_MAX } from './model';
+import { B_FEBBRE as B_FEBBRE_, B_LETTERA as B_LETTERA_, B_NOME as B_NOME_, B_SEGRETO as B_SEGRETO_, B_VOCE as B_VOCE_, K_LINO as K_LINO_, TRABOCCO_SOGLIA as TRABOCCO_SOGLIA_, ZENO_MAX as ZENO_MAX_ } from './model';
 import type { LaceEvent } from '../core/types';
+
+// Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
+// getter, e queste funzioni girano milioni di volte nel solver. Così si leggono una volta sola.
+const B_FEBBRE = B_FEBBRE_;
+const B_LETTERA = B_LETTERA_;
+const B_NOME = B_NOME_;
+const B_SEGRETO = B_SEGRETO_;
+const B_VOCE = B_VOCE_;
+const K_LINO = K_LINO_;
+const TRABOCCO_SOGLIA = TRABOCCO_SOGLIA_;
+const ZENO_MAX = ZENO_MAX_;
 
 /** Riga di incroci in forma compatta (array riusabili, al massimo 8 incroci). */
 export interface RowSpec {

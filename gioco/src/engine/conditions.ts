@@ -29,11 +29,19 @@
  */
 import type { CondReport, Condition, LaceEvent, LaceState, LevelDef, RunContext } from '../core/types';
 import type { Model } from './model';
-import { B_FEBBRE, B_LETTERA, fullModel, popcount } from './model';
+import { B_FEBBRE as B_FEBBRE_, B_LETTERA as B_LETTERA_, fullModel, popcount as popcount_ } from './model';
 import type { RowInfo } from './core';
-import { colOf, isDelivered, newRowInfo } from './core';
+import { colOf as colOf_, isDelivered as isDelivered_, newRowInfo } from './core';
 import { toCompact } from './state';
 import { conditionKey } from './keys';
+
+// Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
+// getter, e queste funzioni girano milioni di volte nel solver. Così si leggono una volta sola.
+const colOf = colOf_;
+const isDelivered = isDelivered_;
+const B_FEBBRE = B_FEBBRE_;
+const B_LETTERA = B_LETTERA_;
+const popcount = popcount_;
 
 export const S_PENDING = 0;
 export const S_OK = 1;

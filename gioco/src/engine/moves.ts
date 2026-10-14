@@ -5,11 +5,21 @@
  */
 import type { RowMoves } from '../core/types';
 import type { Model } from './model';
-import { B_FEBBRE, B_SEGRETO } from './model';
+import { B_FEBBRE as B_FEBBRE_, B_SEGRETO as B_SEGRETO_ } from './model';
 import type { RowSpec } from './core';
-import { Q_OK, colOf, newRow, quirkCheck, rowPush } from './core';
-import { planAutoCore } from './autoweave';
+import { Q_OK as Q_OK_, colOf as colOf_, newRow, quirkCheck as quirkCheck_, rowPush as rowPush_ } from './core';
+import { planAutoCore as planAutoCore_ } from './autoweave';
 import type { Program } from './conditions';
+
+// Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
+// getter, e queste funzioni girano milioni di volte nel solver. Così si leggono una volta sola.
+const planAutoCore = planAutoCore_;
+const Q_OK = Q_OK_;
+const colOf = colOf_;
+const quirkCheck = quirkCheck_;
+const rowPush = rowPush_;
+const B_FEBBRE = B_FEBBRE_;
+const B_SEGRETO = B_SEGRETO_;
 
 // ───────────── Accoppiamenti ─────────────
 

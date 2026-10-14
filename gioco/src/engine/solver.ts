@@ -25,11 +25,23 @@ import type { Condition, LevelDef, RowMoves, RuleId, RunContext, SolveRequest, S
 import type { Model } from './model';
 import { buildModel } from './model';
 import type { RowInfo, RowSpec } from './core';
-import { blockedMask, ginoFailed, initialCompact, newRow, newRowInfo, nonPlayerMask, rowPush, stepRow } from './core';
+import { blockedMask as blockedMask_, ginoFailed as ginoFailed_, initialCompact, newRow, newRowInfo, nonPlayerMask, rowPush, stepRow as stepRow_ } from './core';
 import { planAutoCore } from './autoweave';
 import type { Program } from './conditions';
-import { compileProgram, conditionBeads, finalizeAtoms, programCanOk, programOk, updateAtoms } from './conditions';
-import { decodeRow, encodeRow, genPool, generateRows, pinBound, pinPlan, pinsOk } from './moves';
+import { compileProgram, conditionBeads, finalizeAtoms, programCanOk as programCanOk_, programOk, updateAtoms as updateAtoms_ } from './conditions';
+import { decodeRow, encodeRow as encodeRow_, genPool, generateRows as generateRows_, pinBound as pinBound_, pinPlan, pinsOk as pinsOk_ } from './moves';
+
+// Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
+// getter, e queste funzioni girano milioni di volte nel solver. Così si leggono una volta sola.
+const encodeRow = encodeRow_;
+const generateRows = generateRows_;
+const pinBound = pinBound_;
+const pinsOk = pinsOk_;
+const programCanOk = programCanOk_;
+const updateAtoms = updateAtoms_;
+const blockedMask = blockedMask_;
+const ginoFailed = ginoFailed_;
+const stepRow = stepRow_;
 
 /** Versione del solver: cambia quando cambiano le regole o i numeri che il solver produce. */
 export const SOLVER_VERSION = 1;
