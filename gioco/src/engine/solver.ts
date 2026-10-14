@@ -7,8 +7,8 @@
  * - Stato compatto: posizioni (codice di Lehmer della permutazione quando i
  *   fili sulla tela non cambiano, altrimenti cifre in base T) più i soli bit
  *   rilevanti: le perline nominate dalle condizioni (e quelle da cui dipendono:
- *   la lettera di una 'letta:…', tutto con il trabocco del pozzo, le lettere
- *   quando ci sono fili autonomi), gli stati delle condizioni, i nodi, il pozzo,
+ *   la lettera di una 'letta:…', tutti i segreti con il trabocco del pozzo, le
+ *   lettere quando ci sono fili autonomi), gli stati delle condizioni, i nodi, il pozzo,
  *   le agende. Chiave numerica esatta se sta in 52 bit, altrimenti hash
  *   numerico con verifica dell'uguaglianza.
  * - Mosse: accoppiamenti della riga che rispettano blocchi e incroci forzati;
@@ -110,7 +110,10 @@ function makeKeyPlan(m: Model, p: Program, withCost: boolean): KeyPlan {
   };
   let rancorAny = false;
   for (let t = 0; t < m.T; t++) if (m.rancor[t]) rancorAny = true;
-  if (rancorAny) add(m.OFF_KNOT, 0, 2 ** m.T);
+  if (rancorAny) {
+    add(m.OFF_KNOT, 0, 2 ** m.T);
+    for (let j = 1; j < m.knotRows; j++) add(m.OFF_KNOTX + j - 1, 0, 2 ** m.T);
+  }
   if (m.trackedLetters.length > 0) add(m.OFF_DELIV, 0, 2 ** (maxLetterOrd(m) + 1));
   if (m.trabocca) {
     add(m.OFF_PN, 0, m.B + 2);
@@ -238,10 +241,26 @@ class Layer {
 
 // ───────────── Solver ─────────────
 
-function trackedBeads(level: LevelDef, ctx: RunContext, goals: readonly Condition[]): 'all' | string[] {
-  if (ctx.quirks.includes('pieroTrabocca')) return 'all';
+/**
+ * Perline da tracciare: quelle nominate dalle condizioni; le lettere se ci sono
+ * fili autonomi (decidono chi sta sopra); con il trabocco del pozzo tutti i
+ * segreti (si contano) e, se Teresa legge, le lettere e i loro segreti di lettura
+ * (nascono segreti che il pozzo può ricevere). Le altre perline non cambiano né
+ * la validità delle righe né le condizioni.
+ */
+function trackedBeads(level: LevelDef, ctx: RunContext, goals: readonly Condition[]): string[] {
   const ids = new Set(conditionBeads(level, goals));
   if (level.nero || level.autoweave) for (const b of level.beads) if (b.type === 'lettera') ids.add(b.id);
+  if (ctx.quirks.includes('pieroTrabocca')) {
+    const legge = ctx.quirks.includes('teresaLegge');
+    for (const b of level.beads) {
+      if (b.type === 'segreto') ids.add(b.id);
+      else if (b.type === 'lettera' && legge) {
+        ids.add(b.id);
+        ids.add(`letta:${b.id}`);
+      }
+    }
+  }
   return [...ids];
 }
 

@@ -50,7 +50,7 @@ export function register(s: Services): void {
         const r = noteOf(id)?.request;
         if (r) goals.push(r);
       }
-      const ctx = createContext(level, opts?.flags ?? {});
+      const ctx = createContext(level, opts?.flags ?? {}, { balance: s.content.balance });
       return solve({
         level,
         ctx,

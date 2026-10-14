@@ -159,10 +159,10 @@ interface ArchiveCheck {
  * esatta anche per strappi lunghi. Con un'autotessitura (A6) il rammendo si fa
  * con le occasioni: lì vale il controllo delle occasioni.
  */
-function checkArchive(level: LevelDef, errors: string[], warnings: string[]): ArchiveCheck | null {
+function checkArchive(level: LevelDef, errors: string[], warnings: string[], balance: ContentDB['balance']): ArchiveCheck | null {
   const a = level.archive;
   if (!a) return null;
-  const ctx = createContext(level, {});
+  const ctx = createContext(level, {}, { balance });
   const where = `levels/${level.id}`;
   if (level.autoweave) {
     warnings.push(`${where}: [archive] autoweave archive: recorded lace not replayed (the mending is done with occasions)`);
@@ -250,7 +250,7 @@ function checkArchive(level: LevelDef, errors: string[], warnings: string[]): Ar
 }
 
 /** Livelli con occasioni: sottoinsiemi di allowedOccasions con al massimo occasionSlots elementi. */
-function checkOccasions(level: LevelDef, goals: Condition[], errors: string[]): { solution?: OccasionDef[]; count?: number; states: number } {
+function checkOccasions(level: LevelDef, goals: Condition[], errors: string[], balance: ContentDB['balance']): { solution?: OccasionDef[]; count?: number; states: number } {
   const aw = level.autoweave;
   if (!aw?.occasionSlots || !aw.allowedOccasions) return { states: 0 };
   const where = `levels/${level.id}`;
@@ -260,7 +260,7 @@ function checkOccasions(level: LevelDef, goals: Condition[], errors: string[]): 
   let states = 0;
   for (let k = 0; k <= Math.min(aw.occasionSlots, allowed.length); k++) {
     for (const sub of subsets(allowed, k)) {
-      const ctx = createContext(level, {}, { occasions: sub });
+      const ctx = createContext(level, {}, { occasions: sub, balance });
       const r = solve({ level, ctx, goals, matassa: Number.MAX_SAFE_INTEGER });
       states += r.states;
       if (r.status === 'ok') {
@@ -281,8 +281,8 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
   const where = `levels/${level.id}`;
   const goals = level.goals ?? [];
   // Livelli con occasioni: la base è la giornata con l'insieme minimo di occasioni.
-  const occ = checkOccasions(level, goals, errors);
-  const ctx = createContext(level, {}, occ.solution ? { occasions: occ.solution } : undefined);
+  const occ = checkOccasions(level, goals, errors, db.balance);
+  const ctx = createContext(level, {}, { occasions: occ.solution, balance: db.balance });
   const W = level.columns.length;
   const rows = level.endHour - level.startHour;
   const cap = rows * Math.floor(W / 2);
@@ -331,7 +331,7 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
   // Archivio (GDD 5.3): la giornata è il merletto registrato; si gioca solo il rammendo degli
   // strappi, con la matassa uguale agli incroci originali. La base è il rammendo più corto e la
   // soluzione di riferimento è il merletto registrato.
-  const arch = checkArchive(level, errors, warnings);
+  const arch = checkArchive(level, errors, warnings, db.balance);
   if (arch) {
     report.base = arch.mendMin;
     report.suggerita = arch.original;

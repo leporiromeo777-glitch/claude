@@ -9,12 +9,14 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import type { AgendaItem, BeadDef, Condition, Crossing, LaceEvent, LaceState, LevelDef, PlaceId, QuirkId, RowMoves, ThreadDef } from '../../../src/core/types';
+import type { AgendaItem, BeadDef, Condition, Crossing, LaceEvent, LaceState, LevelDef, PlaceId, QuirkId, RowMoves, RunContext, ThreadDef } from '../../../src/core/types';
 import { PLACE_ORDER } from '../../../src/core/types';
 import { intBetween, pick, rngFromSeed, shuffle } from '../../../src/core/rng';
 import {
   HINT_KEYS,
   applyRow,
+  blocked,
+  levelSourceHash,
   createContext,
   evaluate,
   generate,
@@ -26,7 +28,7 @@ import {
   solve,
 } from '../../../src/engine/index';
 import { runCheck } from '../../../tools/levels/check';
-import { L, fixture, mk } from './helpers';
+import { L, S, fixture, mk } from './helpers';
 
 // ───────────── Solver contro ricerca esaustiva ─────────────
 
@@ -180,8 +182,7 @@ function randomLevel(seed: string): { level: LevelDef; goals: Condition[] } {
 }
 
 /** Minimo di incroci per ricerca esaustiva con le API pubbliche (null = impossibile entro la matassa). */
-function exhaustive(level: LevelDef, goals: Condition[]): number | null {
-  const ctx = createContext(level, {});
+function exhaustive(level: LevelDef, goals: Condition[], ctx: RunContext): number | null {
   const rows = allRows(level.columns.length);
   let best: number | null = null;
   const timeline: LaceState[] = [initialState(level, ctx)];
@@ -212,8 +213,9 @@ describe('solver contro ricerca esaustiva', () => {
     let solvable = 0;
     for (let i = 0; i < 180; i++) {
       const { level, goals } = randomLevel(`verifica-${i}`);
-      const want = exhaustive(level, goals);
-      const ctx = createContext(level, {});
+      // Un livello su tre con i parametri del bilanciamento cambiati (trabocco a 2, nodi di 2 righe).
+      const ctx = createContext(level, {}, i % 3 === 0 ? { balance: { traboccoSoglia: 2, nodoRighe: 2 } } : undefined);
+      const want = exhaustive(level, goals, ctx);
       const r = solve({ level, ctx, goals });
       const got = r.status === 'ok' ? (r.incroci as number) : null;
       expect(got, `verifica-${i}: ${JSON.stringify({ level, goals })}`).toBe(want);
@@ -224,6 +226,46 @@ describe('solver contro ricerca esaustiva', () => {
     }
     expect(solvable).toBeGreaterThan(50);
   }, 60_000);
+});
+
+// ───────────── Parametri bilanciabili (GDD 3.13) ─────────────
+
+describe('balance.json: soglia del trabocco e durata del nodo', () => {
+  it('soglia del trabocco a 2: il pozzo trabocca con 2 segreti', () => {
+    const level = mk({ initial: ['nina', 'piero'], quirks: ['pieroPozzo', 'pieroTrabocca'], beads: [S('s1', ['nina']), S('s2', ['nina'])] });
+    const std = applyRow(level, initialState(level, createContext(level, {})), [{ pair: 0, over: 'L' }], createContext(level, {}));
+    expect(std.state.pozzo).toEqual({ secrets: 2, overflowing: false });
+    const ctx = createContext(level, {}, { balance: { traboccoSoglia: 2 } });
+    const r = applyRow(level, initialState(level, ctx), [{ pair: 0, over: 'L' }], ctx);
+    expect(r.state.pozzo).toEqual({ secrets: 2, overflowing: true });
+    expect(r.events.some((e) => e.k === 'trabocca')).toBe(true);
+  });
+
+  it('nodo di 2 righe: i due fili restano bloccati per due righe, poi si sciolgono', () => {
+    const level = mk({ initial: ['teresa', 'marta', 'nina'], rancor: [['teresa', 'marta']] });
+    const ctx = createContext(level, {}, { balance: { nodoRighe: 2 } });
+    const s0 = initialState(level, ctx);
+    const r1 = applyRow(level, s0, [{ pair: 0, over: 'R' }], ctx);
+    expect(r1.ok).toBe(true);
+    expect([...r1.state.knotted].sort()).toEqual(['marta', 'teresa']);
+    expect(blocked(level, r1.state, ctx).sort()).toEqual(['marta', 'teresa']);
+    const r2 = applyRow(level, r1.state, [], ctx);
+    expect([...r2.state.knotted].sort()).toEqual(['marta', 'teresa']);
+    expect(applyRow(level, r2.state, [{ pair: 1, over: 'L' }], ctx).violations.map((v) => v.code)).toEqual(['bloccato']);
+    const r3 = applyRow(level, r2.state, [], ctx);
+    expect(r3.state.knotted).toEqual([]);
+    expect(applyRow(level, r3.state, [{ pair: 1, over: 'L' }], ctx).ok).toBe(true);
+    // Con il valore del GDD (1 riga) il nodo si scioglie subito.
+    const one = createContext(level, {});
+    const q1 = applyRow(level, initialState(level, one), [{ pair: 0, over: 'R' }], one);
+    expect(applyRow(level, q1.state, [], one).state.knotted).toEqual([]);
+  });
+
+  it('i valori del GDD non cambiano l\'impronta del sorgente; valori diversi sì', () => {
+    const g00 = fixture('g00');
+    expect(levelSourceHash(g00, { balance: { traboccoSoglia: 3, nodoRighe: 1 } })).toBe(levelSourceHash(g00));
+    expect(levelSourceHash(g00, { balance: { traboccoSoglia: 4, nodoRighe: 1 } })).not.toBe(levelSourceHash(g00));
+  });
 });
 
 // ───────────── Regressioni ─────────────

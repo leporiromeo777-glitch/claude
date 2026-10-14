@@ -10,7 +10,7 @@
  * annuncio del filo nero.
  */
 import type { EdgeStep, Model } from './model';
-import { B_FEBBRE as B_FEBBRE_, B_LETTERA as B_LETTERA_, B_NOME as B_NOME_, B_SEGRETO as B_SEGRETO_, B_VOCE as B_VOCE_, K_LINO as K_LINO_, TRABOCCO_SOGLIA as TRABOCCO_SOGLIA_, ZENO_MAX as ZENO_MAX_ } from './model';
+import { B_FEBBRE as B_FEBBRE_, B_LETTERA as B_LETTERA_, B_NOME as B_NOME_, B_SEGRETO as B_SEGRETO_, B_VOCE as B_VOCE_, K_LINO as K_LINO_, ZENO_MAX as ZENO_MAX_ } from './model';
 import type { LaceEvent } from '../core/types';
 
 // Copie locali dei binding importati: in Node (tsx) ogni lettura di un import passa da un
@@ -21,7 +21,6 @@ const B_NOME = B_NOME_;
 const B_SEGRETO = B_SEGRETO_;
 const B_VOCE = B_VOCE_;
 const K_LINO = K_LINO_;
-const TRABOCCO_SOGLIA = TRABOCCO_SOGLIA_;
 const ZENO_MAX = ZENO_MAX_;
 
 /** Riga di incroci in forma compatta (array riusabili, al massimo 8 incroci). */
@@ -288,7 +287,13 @@ export function stepRow(m: Model, st: Int32Array, out: Int32Array, row: RowSpec,
     out[p] = R;
     out[p + 1] = L;
   }
-  out[m.OFF_KNOT] = knot;
+  // Nodi: quelli nuovi bloccano le prossime `knotRows` righe, i vecchi scalano di una.
+  const KR = m.knotRows;
+  if (KR > 1) {
+    const X = m.OFF_KNOTX;
+    out[m.OFF_KNOT] = (st[X] as number) | knot;
+    for (let j = 1; j < KR; j++) out[X + j - 1] = (j + 1 < KR ? (st[X + j] as number) : 0) | knot;
+  } else out[m.OFF_KNOT] = knot;
 
   // 6. Bordi
   const steps = hour >= 0 && hour <= 24 ? m.edgesAt[hour] : null;
@@ -302,6 +307,7 @@ export function stepRow(m: Model, st: Int32Array, out: Int32Array, row: RowSpec,
       const x = out[s.col] as number;
       out[s.col] = s.enters;
       out[m.OFF_KNOT] = (out[m.OFF_KNOT] as number) & ~(1 << x);
+      for (let j = 1; j < m.knotRows; j++) out[m.OFF_KNOTX + j - 1] = (out[m.OFF_KNOTX + j - 1] as number) & ~(1 << x);
       info.exits[info.nExit] = x;
       info.exitStep[info.nExit] = s;
       info.nExit++;
@@ -338,7 +344,7 @@ export function stepRow(m: Model, st: Int32Array, out: Int32Array, row: RowSpec,
     }
   }
   // Fine riga: trabocco del pozzo
-  if (m.trabocca && out[m.OFF_PO] === 0 && (out[m.OFF_PN] as number) >= TRABOCCO_SOGLIA) {
+  if (m.trabocca && out[m.OFF_PO] === 0 && (out[m.OFF_PN] as number) >= m.traboccoSoglia) {
     out[m.OFF_PO] = 1;
     if (sink) {
       sink({ k: 'trabocca', who: ids[m.pozzo] as string });

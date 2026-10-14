@@ -13,6 +13,8 @@
  *   OFF_DELIV     maschera delle lettere consegnate (bit = ordinale della lettera)
  *   OFF_PN        segreti ricevuti dal pozzo dall'ultimo trabocco
  *   OFF_PO        1 se il pozzo sta traboccando (darà tutto al prossimo incrocio da sopra)
+ *   OFF_KNOTX…    con nodi di più righe (balance.nodoRighe > 1): maschera j = annodati
+ *                 per più di j+1 righe ancora (OFF_KNOT è "più di 0", cioè la riga dopo)
  *   slot perline  lettere: indice del portatore (-1 nessuno); altre: maschera dei portatori
  *   slot agenda   puntatore all'agenda di ogni filo autonomo (filo nero, autotessitura)
  */
@@ -43,8 +45,10 @@ export const B_SEGRETO = 2;
 export const B_FEBBRE = 3;
 export const B_NOME = 4;
 
-/** Soglia del trabocco del pozzo (GDD 3.13, balance.traboccoSoglia). */
+/** Soglia del trabocco del pozzo (GDD 3.13, balance.traboccoSoglia): valore predefinito. */
 export const TRABOCCO_SOGLIA = 3;
+/** Durata del nodo di rancore in righe (GDD 3.13, balance.nodoRighe): valore predefinito. */
+export const NODO_RIGHE = 1;
 /** Distanza massima di Zeno dal Faro (GDD 3.6). */
 export const ZENO_MAX = 2;
 /** Valore "infinito" per i margini dell'autotessitura. */
@@ -128,6 +132,10 @@ export interface Model {
   qZeno: number;
   qLunardi: number;
   faroCol: number;
+  /** Segreti che fanno traboccare il pozzo (ctx.traboccoSoglia, predefinito 3). */
+  traboccoSoglia: number;
+  /** Righe bloccate da un nodo di rancore (ctx.nodoRighe, predefinito 1). */
+  knotRows: number;
   /** Per filo: maschera dei fili con cui è in rancore. */
   rancor: Int32Array;
 
@@ -158,6 +166,8 @@ export interface Model {
   OFF_DELIV: number;
   OFF_PN: number;
   OFF_PO: number;
+  /** Prima delle `knotRows - 1` maschere dei nodi lunghi (-1 se i nodi durano una riga). */
+  OFF_KNOTX: number;
   LEN: number;
 
   // Eventi della giornata, indicizzati per ora (0..24)
@@ -409,6 +419,9 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
   const OFF_PN = W + 2;
   const OFF_PO = W + 3;
   let off = W + 4;
+  const knotRows = Math.max(1, Math.floor(ctx.nodoRighe ?? NODO_RIGHE));
+  const OFF_KNOTX = knotRows > 1 ? off : -1;
+  off += knotRows - 1;
   const slot = new Int16Array(B).fill(-1);
   const trackedLetters: number[] = [];
   const trackedMulti: number[] = [];
@@ -520,6 +533,8 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
     qZeno,
     qLunardi,
     faroCol,
+    traboccoSoglia: Math.max(1, Math.floor(ctx.traboccoSoglia ?? TRABOCCO_SOGLIA)),
+    knotRows,
     rancor,
     B,
     beadIds,
@@ -538,6 +553,7 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
     OFF_DELIV,
     OFF_PN,
     OFF_PO,
+    OFF_KNOTX,
     LEN: off,
     edgesAt,
     tideAt,
@@ -560,7 +576,7 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
 const fullCache = new WeakMap<LevelDef, Map<string, Model>>();
 
 function ctxKey(ctx: RunContext): string {
-  return JSON.stringify([ctx.quirks, ctx.rancor, ctx.nomeOn, ctx.occasions, ctx.rules]);
+  return JSON.stringify([ctx.quirks, ctx.rancor, ctx.nomeOn, ctx.occasions, ctx.rules, ctx.traboccoSoglia ?? null, ctx.nodoRighe ?? null]);
 }
 
 /** Modello con tutte le perline tracciate, condiviso fra le chiamate con lo stesso livello e contesto. */

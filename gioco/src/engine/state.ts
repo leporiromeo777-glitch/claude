@@ -5,6 +5,8 @@
  * Oltre ai campi di `LaceState`, il motore conserva in `agenda` (campo in più,
  * facoltativo, serializzabile) il punto dell'agenda di ogni filo autonomo
  * (filo nero, autotessitura): serve a sapere quale filo il nero sta seguendo.
+ * Con nodi di più righe (`balance.nodoRighe` > 1) `knots` dice per quante righe
+ * ancora ogni filo annodato resta bloccato (`knotted` = bloccati nella riga dopo).
  */
 import type { LaceState, LevelDef, RunContext, ThreadId } from '../core/types';
 import type { Model } from './model';
@@ -13,7 +15,7 @@ import type { RowInfo } from './core';
 import { initialAgendaPointer, initialCompact } from './core';
 
 /** LaceState con il punto delle agende dei fili autonomi. */
-export type EngineLaceState = LaceState & { agenda?: Record<ThreadId, number> };
+export type EngineLaceState = LaceState & { agenda?: Record<ThreadId, number>; knots?: Record<ThreadId, number> };
 
 function metKey(a: string, b: string): string {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
@@ -34,6 +36,19 @@ export function toCompact(m: Model, s: LaceState): Int32Array {
     if (t !== undefined) knot |= 1 << t;
   }
   st[m.OFF_KNOT] = knot;
+  if (m.knotRows > 1) {
+    // Righe di blocco rimaste: la maschera j contiene chi ne ha più di j+1.
+    const knots = (s as EngineLaceState).knots ?? {};
+    for (let j = 1; j < m.knotRows; j++) {
+      let mask = 0;
+      for (const id of s.knotted) {
+        const t = m.idx.get(id);
+        const left = knots[id] ?? 1;
+        if (t !== undefined && left > j) mask |= 1 << t;
+      }
+      st[m.OFF_KNOTX + j - 1] = mask;
+    }
+  }
   let deliv = 0;
   for (const id of s.delivered) {
     const bi = m.beadIdx.get(id);
@@ -146,6 +161,16 @@ export function fromCompact(m: Model, st: Int32Array, prev: LaceState | null, ho
     met,
     metOver,
   };
+  if (m.knotRows > 1 && knotted.length > 0) {
+    const knots: Record<ThreadId, number> = {};
+    for (let t = 0; t < m.T; t++) {
+      if (!(knot & (1 << t))) continue;
+      let left = 1;
+      for (let j = 1; j < m.knotRows; j++) if ((st[m.OFF_KNOTX + j - 1] as number) & (1 << t)) left = j + 1;
+      knots[ids[t] as string] = left;
+    }
+    out.knots = knots;
+  }
   if (m.agents.length > 0) {
     const agenda: Record<ThreadId, number> = {};
     for (const ag of m.agents) agenda[ids[ag.thread] as string] = st[ag.slot] as number;
@@ -184,6 +209,8 @@ function sortedHolders(s: LaceState): string {
 export function stateKey(s: LaceState): string {
   const agenda = (s as EngineLaceState).agenda;
   const ag = agenda ? Object.keys(agenda).sort().map((k) => `${k}:${String(agenda[k])}`).join(',') : '';
+  const knots = (s as EngineLaceState).knots;
+  const kn = knots ? Object.keys(knots).sort().map((k) => `${k}:${String(knots[k])}`).join(',') : '';
   return [
     s.hour,
     s.pos.join(','),
@@ -193,6 +220,7 @@ export function stateKey(s: LaceState): string {
     `${s.pozzo.secrets}${s.pozzo.overflowing ? '!' : ''}`,
     s.offboard.map((o) => o.thread).sort().join(','),
     ag,
+    kn,
   ].join('/');
 }
 

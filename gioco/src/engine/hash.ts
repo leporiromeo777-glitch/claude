@@ -7,7 +7,8 @@
  *   14.1): JSON normalizzato del livello più le richieste dei suoi bigliettini e
  *   il numero di spilli rossi, perché anche quelli cambiano i numeri calcolati.
  */
-import type { Condition, ContentDB, LevelDef, LevelId, NoteId } from '../core/types';
+import type { BalanceDef, Condition, ContentDB, LevelDef, LevelId, NoteId } from '../core/types';
+import { NODO_RIGHE, TRABOCCO_SOGLIA } from './model';
 
 export function fnv1a32(s: string, seed = 0x811c9dc5): number {
   let h = seed >>> 0;
@@ -40,11 +41,19 @@ export interface SourceExtra {
   requests?: Record<NoteId, Condition | null>;
   /** Spilli rossi della sera (combinazioni calcolate). */
   pins?: number;
+  /** Parametri bilanciabili del motore (balance.json): entrano nell'impronta solo se diversi dai valori del GDD. */
+  balance?: Partial<Pick<BalanceDef, 'traboccoSoglia' | 'nodoRighe'>> | null;
 }
 
 export function levelSourceHash(level: LevelDef, extra: SourceExtra = {}): string {
   const requests: [NoteId, Condition | null][] = (level.notes ?? []).map((id) => [id, extra.requests?.[id] ?? null]);
-  return hash64(stableStringify({ level, requests, pins: extra.pins ?? null }));
+  const src: Record<string, unknown> = { level, requests, pins: extra.pins ?? null };
+  const b = extra.balance;
+  // Con i valori del GDD (3 segreti, 1 riga) l'impronta resta quella di sempre.
+  if (b && ((b.traboccoSoglia ?? TRABOCCO_SOGLIA) !== TRABOCCO_SOGLIA || (b.nodoRighe ?? NODO_RIGHE) !== NODO_RIGHE)) {
+    src.balance = { traboccoSoglia: b.traboccoSoglia ?? TRABOCCO_SOGLIA, nodoRighe: b.nodoRighe ?? NODO_RIGHE };
+  }
+  return hash64(stableStringify(src));
 }
 
 /** Spilli rossi di una giornata: campagna, poi bilanciamento dell'atto, poi 2. */
@@ -64,5 +73,5 @@ export function levelSourceHashFromDB(db: ContentDB, levelId: LevelId): string |
   if (!level) return null;
   const requests: Record<NoteId, Condition | null> = {};
   for (const id of level.notes ?? []) requests[id] = db.notes.get(id)?.request ?? null;
-  return levelSourceHash(level, { requests, pins: (level.notes ?? []).length > 0 ? pinsForLevel(db, level) : undefined });
+  return levelSourceHash(level, { requests, pins: (level.notes ?? []).length > 0 ? pinsForLevel(db, level) : undefined, balance: db.balance });
 }

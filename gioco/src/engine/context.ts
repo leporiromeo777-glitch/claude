@@ -4,8 +4,12 @@
  *
  * La riconciliazione (flag `riconciliate`, GDD 5.1 e 3.6) toglie `martaNoSotto`,
  * `teresaLegge` e il rancore fra Teresa e Marta. `pieroTrabocca` resta.
+ *
+ * `opts.balance` porta i parametri bilanciabili del motore (GDD 3.13,
+ * `balance.json`): soglia del trabocco del pozzo e durata del nodo di rancore.
+ * Senza, valgono i valori del GDD (3 segreti, 1 riga).
  */
-import type { FlagId, FlagValue, LevelDef, OccasionDef, QuirkId, RunContext, ThreadDef, ThreadId } from '../core/types';
+import type { BalanceDef, FlagId, FlagValue, LevelDef, OccasionDef, QuirkId, RunContext, ThreadDef, ThreadId } from '../core/types';
 
 /** Un flag "sì": true, 1, o una stringa affermativa ('si', 'sì', 'true', 'yes'). */
 export function flagOn(v: FlagValue | undefined): boolean {
@@ -26,7 +30,7 @@ function characterOfThread(level: LevelDef, id: ThreadId): string {
 export function createContext(
   level: LevelDef,
   flags: Record<FlagId, FlagValue>,
-  opts?: { nomeOn?: ThreadId | null; occasions?: OccasionDef[] },
+  opts?: { nomeOn?: ThreadId | null; occasions?: OccasionDef[]; balance?: Partial<Pick<BalanceDef, 'traboccoSoglia' | 'nodoRighe'>> | null },
 ): RunContext {
   const riconciliate = flagOn(flags['riconciliate']);
   const quirks = level.quirks.filter((q) => !(riconciliate && RICONCILIATE_TOGLIE.includes(q)));
@@ -37,7 +41,7 @@ export function createContext(
     return !((a === 'teresa' && b === 'marta') || (a === 'marta' && b === 'teresa'));
   });
   const occasions: OccasionDef[] = [...(level.autoweave?.presetOccasions ?? []), ...(opts?.occasions ?? [])].map((o) => ({ ...o }));
-  return {
+  const ctx: RunContext = {
     flags: { ...flags },
     quirks: [...quirks],
     rules: [...level.rules],
@@ -45,4 +49,8 @@ export function createContext(
     nomeOn: opts?.nomeOn ?? null,
     occasions,
   };
+  const b = opts?.balance;
+  if (b && typeof b.traboccoSoglia === 'number' && b.traboccoSoglia >= 1) ctx.traboccoSoglia = Math.floor(b.traboccoSoglia);
+  if (b && typeof b.nodoRighe === 'number' && b.nodoRighe >= 1) ctx.nodoRighe = Math.floor(b.nodoRighe);
+  return ctx;
 }

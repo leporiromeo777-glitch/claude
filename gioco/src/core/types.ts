@@ -278,6 +278,9 @@ export interface RunContext {
   rancor: [ThreadId, ThreadId][];  // level.rancor meno quelli tolti dai flag
   nomeOn: ThreadId | null;
   occasions: OccasionDef[];
+  /** Parametri bilanciabili del motore (GDD 3.13, balance.json); assenti = 3 segreti e 1 riga. */
+  traboccoSoglia?: number;
+  nodoRighe?: number;
 }
 export interface LaceMetrics { incroci: number; minIncroci: number | null; quiete: number; simmetria: boolean; filoDOro: boolean }
 export interface SolveRequest {
