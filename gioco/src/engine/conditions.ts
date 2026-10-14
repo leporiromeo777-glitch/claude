@@ -25,7 +25,10 @@
  *
  * Stati per l'interfaccia (`CondReport`): soddisfatta e fallita sono definitive;
  * a_rischio = non ancora decisa ma i limiti (distanze, ore rimaste) dicono che
- * non si può più soddisfare; altrimenti in_corso.
+ * non si può più soddisfare; altrimenti in_corso. I parametri del motivo sono
+ * gli id della condizione (chi, a, b, perlina, luogo, ora, n) e, per
+ * `incontra`/`nonIncontra` con una finestra, `dalle` e `alle`; per `sopra` con
+ * un limite, `alle` (C13).
  */
 import type { CondReport, Condition, LaceEvent, LaceState, LevelDef, RunContext } from '../core/types';
 import type { Model } from './model';
@@ -606,6 +609,12 @@ function reasonParams(a: Atom, m: Model): Record<string, string | number> {
   if (c.t === 'presso' || c.t === 'esceCon' || (c.t === 'parte' && c.hour !== undefined)) out.ora = c.hour as number;
   if (c.t === 'consegnata' || c.t === 'ha') out.ora = a.hour;
   if (c.t === 'incontriAlmeno') out.n = c.n;
+  // C13: la finestra oraria di incontra / nonIncontra (dalle, alle) e il limite di sopra (alle).
+  if ((c.t === 'incontra' || c.t === 'nonIncontra') && (c.from !== undefined || c.to !== undefined)) {
+    out.dalle = a.from;
+    out.alle = a.to;
+  }
+  if (c.t === 'sopra' && c.to !== undefined) out.alle = a.to;
   void m;
   return out;
 }

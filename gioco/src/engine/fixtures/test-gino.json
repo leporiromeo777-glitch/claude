@@ -1,5 +1,5 @@
 {
-  "id": "test-gino", "kind": "test", "act": 1, "titleKey": "tombolo.test.gino",
+  "id": "test-gino", "kind": "test", "act": 1, "titleKey": "tombolo.test.grande",
   "columns": ["molo", "forno", "piazza"],
   "startHour": 6, "endHour": 12,
   "threads": [

@@ -23,7 +23,7 @@ export type { Spartito } from './spartito';
 export { simulate, simulateAndEvaluate } from './simulate';
 export type { Simulation } from './simulate';
 export { levelSourceHash, levelSourceHashFromDB, pinsForLevel, stableStringify, fnv1a32 } from './hash';
-export { engineTextKeys, violationKey, conditionKey, HINT_KEYS, VIOLATION_CODES } from './keys';
+export { engineTextKeys, violationKey, violationTextKey, conditionKey, HINT_KEYS, VIOLATION_CODES, VIOLATION_DETAIL_KEYS } from './keys';
 export { memoriaAfterDay, MEMORIA_MIN, MEMORIA_MAX } from './memoria';
 export { QUALITY, CRITERIA, judgeQuality, qualityExemption, dilemmaRequired, emptyRows, designata } from './quality';
 export type { Criterion, QualityItem, QualityInput, QualityJudgement, QualityExemption } from './quality';

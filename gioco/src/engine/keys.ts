@@ -13,23 +13,45 @@
  *   corre     Gino è stato fermo un'ora e deve incrociare {chi, vicino} (C01)
  *   spillo    spillo d'ottone non rispettato {chi, luogo, ora}
  *   matassa   matassa finita {matassa, usata}
- *   bloccato  filo bloccato (nodo o marea) {chi}
- *   occupato  i fili sono già in un incrocio forzato
- *   forzato   un filo che si muove da solo (filo nero, autotessitura)
+ *   bloccato  filo bloccato {chi, causa: 'nodo' | 'marea'} (C13)
+ *   occupato  i fili sono già in un incrocio forzato {a, b, nero?} (C13: nero = il filo
+ *             nero o autonomo che muove la coppia)
+ *   forzato   un filo che si muove da solo (filo nero, autotessitura) {nero?}
  *   disgiunto due incroci sullo stesso filo, o coppia inesistente {coppia}
  *   finita    la notte è finita, non ci sono più righe
  *
+ * `messageKey` resta la chiave generica del codice; le chiavi di dettaglio
+ * (`tombolo.violazione.bloccato.nodo|marea`, `tombolo.violazione.occupato.nero`)
+ * le sceglie il tombolo dai parametri (REVISIONE-1, sezione 4: senza parametri
+ * si ripiega sulla chiave generica); `violationTextKey` fa questa scelta.
+ *
  * Condizioni (`tombolo.cond.<stato>.<tipo>`, stato = fallita | rischio):
- * parametri chi, a, b, perlina, luogo, ora, n secondo la condizione.
+ * parametri chi, a, b, perlina, luogo, ora, n secondo la condizione; per
+ * `incontra`/`nonIncontra` con una finestra anche dalle e alle, per `sopra` con
+ * un limite alle (C13).
  *
  * Suggerimenti (`tombolo.hint.…`): vedi `HINT_KEYS`.
  */
-import type { Condition } from '../core/types';
+import type { Condition, Violation } from '../core/types';
 
 export const VIOLATION_CODES = ['rifiuto', 'faro', 'corre', 'spillo', 'matassa', 'bloccato', 'occupato', 'forzato', 'disgiunto', 'finita'] as const;
 
 export function violationKey(code: string): string {
   return `tombolo.violazione.${code}`;
+}
+
+/** Chiavi di dettaglio delle violazioni, scelte dai parametri (C13). */
+export const VIOLATION_DETAIL_KEYS = ['tombolo.violazione.bloccato.nodo', 'tombolo.violazione.bloccato.marea', 'tombolo.violazione.occupato.nero'] as const;
+
+/**
+ * Chiave del testo di una violazione (C13): `bloccato` con `causa` → `…bloccato.<causa>`;
+ * `occupato` con `nero` → `…occupato.nero`; altrimenti `messageKey`.
+ */
+export function violationTextKey(v: Pick<Violation, 'code' | 'messageKey' | 'params'>): string {
+  const p = v.params ?? {};
+  if (v.code === 'bloccato' && (p.causa === 'nodo' || p.causa === 'marea') && v.messageKey === violationKey('bloccato')) return `${violationKey('bloccato')}.${p.causa}`;
+  if (v.code === 'occupato' && typeof p.nero === 'string' && p.nero !== '') return `${violationKey('occupato')}.nero`;
+  return v.messageKey;
 }
 
 /** Condizioni foglia: ognuna può fallire con il suo motivo. */
@@ -69,7 +91,7 @@ export const HINT_KEYS = {
 
 /** Tutte le chiavi che il motore può produrre (per i test dei testi del tombolo). */
 export function engineTextKeys(): string[] {
-  const out: string[] = VIOLATION_CODES.map(violationKey);
+  const out: string[] = [...VIOLATION_CODES.map(violationKey), ...VIOLATION_DETAIL_KEYS];
   for (const t of CONDITION_TYPES) out.push(conditionKey('fallita', t));
   for (const t of RISK_TYPES) out.push(conditionKey('rischio', t));
   out.push(...Object.values(HINT_KEYS));

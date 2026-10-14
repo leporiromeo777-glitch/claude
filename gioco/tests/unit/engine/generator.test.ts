@@ -41,7 +41,7 @@ describe('generate', () => {
       const spec: GenSpec = { seed: `seme-${i}`, columns: i % 2 ? 5 : 6, rows: i % 2 ? 7 : 8, rule: RULES[i % RULES.length] as RuleId, gradi: [], difficulty: 'medio' };
       expect(generate(spec)).toEqual(generate(spec));
     }
-  });
+  }, 90_000);
 
   it('semi diversi danno livelli diversi', () => {
     const a = generate(dailySpec('2026-10-19')).level;

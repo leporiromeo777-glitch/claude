@@ -38,6 +38,24 @@ export function computeForced(m: Model, st: Int32Array, hour: number, out: RowSp
   planAutoCore(m, st, hour, -1, 0, out);
 }
 
+/** Il filo autonomo (filo nero per primo, poi gli altri autonomi) fra i due della coppia `p`, o null. */
+function autonomousOf(m: Model, st: Int32Array, p: number): ThreadId | null {
+  const L = st[p] as number;
+  const R = st[p + 1] as number;
+  if (L === m.neroThread || R === m.neroThread) return m.ids[m.neroThread] as string;
+  if ((m.agentOf[L] as number) >= 0) return m.ids[L] as string;
+  if ((m.agentOf[R] as number) >= 0) return m.ids[R] as string;
+  return null;
+}
+
+/**
+ * Causa del blocco di un filo (C13): 'nodo' se è annodato dalla riga prima,
+ * altrimenti 'marea' (colonna allagata in quest'ora).
+ */
+function blockCause(m: Model, st: Int32Array, t: number): 'nodo' | 'marea' {
+  return ((st[m.OFF_KNOT] as number) & (1 << t)) !== 0 ? 'nodo' : 'marea';
+}
+
 /** Controllo di un incrocio del giocatore contro la riga già composta (forzati e altri incroci). */
 function checkOne(m: Model, st: Int32Array, hour: number, row: RowSpec, c: Crossing, np: number, blocked: number): Violation | null | 'eco' {
   const p = c.pair;
@@ -50,21 +68,38 @@ function checkOne(m: Model, st: Int32Array, hour: number, row: RowSpec, c: Cross
     const qc = (1 << q) | (1 << (q + 1));
     if (!(qc & cols)) continue;
     if (row.forced[k]) {
-      if (q === p) return (row.overR[k] as number) === overR ? 'eco' : viol('forzato', { threads });
-      return viol('occupato', { threads: pairThreads(m, st, q) });
+      if (q === p) {
+        if ((row.overR[k] as number) === overR) return 'eco';
+        const nero = autonomousOf(m, st, p);
+        return viol('forzato', nero ? { threads, params: { nero } } : { threads });
+      }
+      // C13: la coppia dell'incrocio forzato (a, b) e il filo nero o autonomo che la muove.
+      const occ = pairThreads(m, st, q);
+      const nero = autonomousOf(m, st, q);
+      const params: Record<string, string> = { a: occ[0] as string, b: occ[1] as string };
+      if (nero) params.nero = nero;
+      return viol('occupato', { threads: occ, params });
     }
     return viol('disgiunto', { threads, params: { coppia: p } });
   }
   const L = st[p] as number;
   const R = st[p + 1] as number;
   if (m.hasAuto) {
-    if (m.controlled < 0 || (L !== m.controlled && R !== m.controlled)) return viol('forzato', { threads });
-  } else if (np & ((1 << L) | (1 << R))) return viol('forzato', { threads });
+    if (m.controlled < 0 || (L !== m.controlled && R !== m.controlled)) {
+      const nero = autonomousOf(m, st, p);
+      return viol('forzato', nero ? { threads, params: { nero } } : { threads });
+    }
+  } else if (np & ((1 << L) | (1 << R))) {
+    const nero = autonomousOf(m, st, p);
+    return viol('forzato', nero ? { threads, params: { nero } } : { threads });
+  }
   if (blocked & ((1 << L) | (1 << R))) {
-    const who: ThreadId[] = [];
-    if (blocked & (1 << L)) who.push(m.ids[L] as string);
-    if (blocked & (1 << R)) who.push(m.ids[R] as string);
-    return viol('bloccato', { threads: who, params: { chi: who[0] ?? '' } });
+    const who: number[] = [];
+    if (blocked & (1 << L)) who.push(L);
+    if (blocked & (1 << R)) who.push(R);
+    const first = who[0] as number;
+    // C13: chi è bloccato e perché (nodo del rancore o acqua alta).
+    return viol('bloccato', { threads: who.map((t) => m.ids[t] as string), params: { chi: m.ids[first] as string, causa: blockCause(m, st, first) } });
   }
   const q = quirkCheck(m, st, p, overR);
   if (q === Q_RIFIUTO) {
