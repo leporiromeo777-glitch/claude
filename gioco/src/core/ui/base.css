@@ -575,7 +575,12 @@ button.core-carta {
   justify-content: flex-end;
   align-items: flex-start;
   gap: var(--spazio-1);
-  padding: 0 0 calc(var(--safe-bottom) + 96px) calc(var(--safe-left) + var(--spazio-3));
+  padding: 0 0 var(--didascalie-basso, calc(var(--safe-bottom) + 96px)) calc(var(--safe-left) + var(--spazio-3));
+}
+/* Le didascalie coprirebbero dei pulsanti in basso: vanno in alto (SCH-10). */
+.core-captions[data-posto='alto'] {
+  justify-content: flex-start;
+  padding-top: calc(var(--safe-top) + 64px);
 }
 .core-caption {
   max-width: min(320px, 70vw);

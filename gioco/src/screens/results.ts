@@ -6,13 +6,18 @@
  *
  * Condividere: testo esatto di GDD 8.3 più lo spartito e il PNG di
  * `renderLacePng` con `platform.share`; dove la condivisione non c'è, il testo
- * si copia e l'immagine si salva.
+ * si copia e l'immagine si salva. Revisione 1 (SCH-11, P050): il PNG porta il
+ * cartiglio (TRAMA, data o seme, incroci e minimo; TOM-21) e nel Merletto
+ * libero c'è «Condividi il seme» (seme, gradi, incroci e spartito).
  */
-import type { CarillonScore, CharacterId, LevelDef, NightOutcome, Playing, Services } from '../core/types';
+import type { CarillonScore, CharacterId, FlagId, FlagValue, GradoId, LevelDef, NightOutcome, Playing, RowMoves, Services } from '../core/types';
 import { el } from '../core/ui/dom';
 import { textOf } from '../core/ui/components';
 import { renderLacePng } from '../tombolo/index';
 import { cosmeticNameKey, hasCosmeticArt, spindlePreview } from './cosmetics';
+import { dateOfDailyId } from './daily';
+import { longDate } from './format';
+import { parseLiberoId } from './libero';
 import { icon } from './icons';
 import type { ResultInfo } from './state';
 import { setLastShare } from './state';
@@ -69,13 +74,52 @@ function download(blob: Blob, name: string): boolean {
   }
 }
 
-export async function lacePng(info: Pick<ResultInfo, 'level' | 'outcome' | 'flags'>): Promise<Blob | null> {
+/** Cartiglio del PNG (TOM-21): titolo, sottotitolo (data o seme), riga con incroci e minimo. */
+export interface LaceCaption {
+  titolo: string;
+  sottotitolo: string;
+  riga: string;
+}
+
+/** Il cartiglio di un risultato, nella lingua del gioco. */
+export function captionOf(s: Pick<Services, 'i18n'>, info: Pick<ResultInfo, 'origin' | 'level' | 'metrics' | 'min'>): LaceCaption {
+  const date = dateOfDailyId(info.level.id);
+  const seed = parseLiberoId(info.level.id)?.seed;
+  const sottotitolo = date
+    ? s.i18n.t('ui.condividi.cartiglio.giornaliero', { data: longDate(date, s.i18n.locale()) })
+    : seed
+      ? s.i18n.t('ui.condividi.cartiglio.libero', { seme: seed })
+      : s.i18n.t('ui.condividi.cartiglio.spartito');
+  const riga =
+    info.min !== null
+      ? s.i18n.t('ui.condividi.cartiglio.riga', { n: info.metrics.incroci, min: info.min })
+      : s.i18n.t('ui.risultato.incrociSolo', { n: info.metrics.incroci });
+  return { titolo: s.i18n.t('ui.condividi.titolo'), sottotitolo, riga };
+}
+
+type RenderWithCaption = (level: LevelDef, rows: RowMoves[], flags?: Record<FlagId, FlagValue>, caption?: LaceCaption) => Promise<Blob>;
+
+export async function lacePng(info: Pick<ResultInfo, 'level' | 'outcome' | 'flags'>, caption?: LaceCaption): Promise<Blob | null> {
   try {
-    return await renderLacePng(info.level, info.outcome.rows, info.flags);
+    // Il quarto argomento (cartiglio) è di TOM-21: un tombolo che non lo conosce ancora lo ignora.
+    const render = renderLacePng as unknown as RenderWithCaption;
+    return await (caption ? render(info.level, info.outcome.rows, info.flags, caption) : render(info.level, info.outcome.rows, info.flags));
   } catch (err) {
     console.warn('[screens] PNG failed', err);
     return null;
   }
+}
+
+/** Nomi dei gradi, uniti con la virgola (o «nessuno»). */
+export function gradiText(s: Pick<Services, 'i18n'>, gradi: readonly GradoId[]): string {
+  return gradi.length ? gradi.map((g) => s.i18n.t(`ui.libero.grado.${g}.nome`)).join(', ') : s.i18n.t('ui.condividi.nessunGrado');
+}
+
+/** Testo di «Condividi il seme» (SCH-11): seme, gradi, incroci e minimo, poi lo spartito. */
+export function seedShareText(s: Pick<Services, 'i18n'>, info: Pick<ResultInfo, 'level' | 'gradi' | 'metrics' | 'min' | 'outcome'>): string {
+  const seed = parseLiberoId(info.level.id)?.seed ?? '';
+  const line = s.i18n.t('ui.condividi.seme', { seme: seed, gradi: gradiText(s, info.gradi), n: info.metrics.incroci, min: info.min ?? info.metrics.incroci });
+  return info.outcome.spartito ? `${line}\n${info.outcome.spartito}` : line;
 }
 
 /** Il sistema ha un foglio di condivisione (Web Share API o app nativa)? */
@@ -91,8 +135,8 @@ export function canShareNatively(s: Pick<Services, 'platform'>): boolean {
  * come chiedono i browser. Se il foglio di condivisione c'era ma non è andato
  * (annullato), il testo si copia soltanto: nessun file scaricato a sorpresa.
  */
-export async function shareResult(s: Services, info: ResultInfo, png?: Promise<Blob | null>): Promise<'condiviso' | 'copiato' | 'fallito'> {
-  const text = info.shareText ?? info.outcome.spartito;
+export async function shareResult(s: Services, info: ResultInfo, png?: Promise<Blob | null>, textOverride?: string): Promise<'condiviso' | 'copiato' | 'fallito'> {
+  const text = textOverride ?? info.shareText ?? info.outcome.spartito;
   setLastShare(text);
   const file = await (png ?? lacePng(info));
   const name = pngName(info.level);
@@ -142,8 +186,8 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
   let destroyed = false;
   let playing: Playing | null = null;
   const imgBox = el('figure', { class: 'sc-merletto', test: 'sc-risultato-immagine', attrs: { 'aria-busy': 'true' } }, textOf('ui.risultato.immagineAttesa', undefined, 'span', { className: 'sc-merletto-attesa' }));
-  // L'immagine si prepara una volta: serve al foglio e alla condivisione.
-  const png = lacePng(info);
+  // L'immagine si prepara una volta: serve al foglio e alla condivisione (con il cartiglio).
+  const png = lacePng(info, captionOf(s, info));
   void png.then((blob) => {
     if (destroyed || !blob) return;
     url = URL.createObjectURL(blob);
@@ -195,6 +239,11 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
     info.origin === 'giornaliero'
       ? wideButton({ icon: 'condividi', labelKey: 'ui.risultato.condividi', kind: 'primario', onClick: () => void shareResult(s, info, png), test: 'sc-risultato-condividi' })
       : null;
+  // Merletto libero: «Condividi il seme» (seme, gradi, incroci e spartito), SCH-11.
+  const seedShare =
+    info.origin === 'libero'
+      ? wideButton({ icon: 'condividi', labelKey: 'ui.risultato.condividiSeme', onClick: () => void shareResult(s, info, png, seedShareText(s, info)), test: 'sc-libero-condividi-seme' })
+      : null;
   const copy = info.outcome.spartito
     ? wideButton({ icon: 'copia', labelKey: 'ui.risultato.copiaSpartito', kind: share ? 'secondario' : 'primario', onClick: () => void copySpartito(s, info.outcome.spartito), test: 'sc-risultato-copia' })
     : null;
@@ -223,7 +272,7 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
   const main = share ?? copy;
   if (main) main.dataset.autofocus = '1';
   const foot = buttonGroup(main ? [main] : [], 'sc-azioni', 'sc-risultato-principali', 'both');
-  const rest = [share ? copy : null, listen, again, fresh, back].filter((b): b is HTMLButtonElement => !!b);
+  const rest = [share ? copy : null, seedShare, listen, again, fresh, back].filter((b): b is HTMLButtonElement => !!b);
   const actions = buttonGroup(rest, 'sc-azioni', 'sc-risultato-azioni', 'vertical');
 
   const titleKey = info.origin === 'giornaliero' ? 'ui.risultato.titoloGiornaliero' : info.origin === 'libero' ? 'ui.risultato.titoloLibero' : 'ui.risultato.titoloSpartito';

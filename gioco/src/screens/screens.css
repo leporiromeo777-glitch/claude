@@ -84,6 +84,40 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
+/* Ombra in fondo al menu quando sotto c'è dell'altro (SCH-10). */
+.sc-titolo-ombra {
+  position: sticky;
+  bottom: 0;
+  flex: none;
+  height: 32px;
+  margin-top: calc(-32px - var(--spazio-2));
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(8, 10, 16, 0), rgba(8, 10, 16, 0.9));
+  opacity: 0;
+  transition: opacity var(--durata-breve);
+}
+.sc-titolo-ombra::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--ottone);
+  border-bottom: 2px solid var(--ottone);
+  transform: translateX(-50%) rotate(45deg);
+}
+.sc-titolo-menu[data-scorre='giu'] .sc-titolo-ombra {
+  opacity: 1;
+}
+/* Stella del finale vero accanto a Telaio (SCH-15). */
+.sc-voce-stella {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--ottone);
+}
 /* Il menu scorre: l'anello del fuoco va dentro il pulsante (non verrebbe tagliato). */
 .sc-titolo-menu :focus-visible {
   outline-offset: -5px;

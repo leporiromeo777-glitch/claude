@@ -6,9 +6,10 @@
  *
  * Ogni voce ha il suo posto: `principale` (Continua, Nuova storia), `modo`
  * (le modalità, in griglia) e `piede` (Impostazioni e Crediti, compatte in fondo).
- * Al primissimo avvio (GDD 9: «Una scritta sola: "Tocca per iniziare"») le
- * modalità ancora chiuse non si mostrano: resta la sola scritta, più le icone
- * di Impostazioni e Crediti.
+ * Al primissimo avvio (GDD 9: «Una scritta sola: "Tocca per iniziare"», o
+ * «Clicca per iniziare» con il mouse) Impostazioni e Crediti sono due icone;
+ * le modalità ancora chiuse si vedono con il lucchetto e la condizione
+ * (revisione 1, D17, P053: chi cerca il Merletto del giorno sa che c'è).
  */
 import type { SaveData } from '../core/types';
 
@@ -24,6 +25,8 @@ export interface TitleItem {
   slot: TitleSlot;
   /** Didascalia sotto l'etichetta (il lucchetto, o un'informazione). */
   subKey?: string;
+  /** Segno del finale vero (la stella accanto a Telaio). */
+  star?: boolean;
 }
 
 export interface TitleMenuContext {
@@ -33,6 +36,10 @@ export interface TitleMenuContext {
   fullGame: boolean;
   /** Il Merletto del giorno di oggi è già tessuto. */
   dailyDoneToday: boolean;
+  /** Si gioca con il mouse (puntatore fine): «Clicca per iniziare» (SCH-12). */
+  mouse?: boolean;
+  /** Il finale vero è stato visto (`unlocks.tovaglia`): la stella accanto a Telaio (SCH-15). */
+  trueEnding?: boolean;
 }
 
 /** Primo avvio: nessuna storia, nessuna notte, nessun merletto. */
@@ -53,14 +60,14 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
   items.push({
     id: 'nuova',
     // Il primissimo avvio ha una scritta sola (GDD 9): «Tocca per iniziare».
-    labelKey: first ? 'ui.titolo.inizia' : 'ui.titolo.nuova',
+    labelKey: first ? (c.mouse ? 'ui.titolo.iniziaClic' : 'ui.titolo.inizia') : 'ui.titolo.nuova',
     icon: story ? 'matita' : 'play',
     primary: !story,
     locked: false,
     slot: 'principale',
   });
   const dailyLocked = !d.unlocks.daily;
-  if (!(first && dailyLocked)) {
+  {
     items.push({
       id: 'giornaliero',
       labelKey: 'ui.titolo.giornaliero',
@@ -72,7 +79,7 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
     });
   }
   const liberoLocked = !d.unlocks.libero || !c.fullGame;
-  if (!(first && liberoLocked)) {
+  {
     items.push({
       id: 'libero',
       labelKey: 'ui.titolo.libero',
@@ -83,7 +90,7 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
       ...(liberoLocked ? { subKey: c.fullGame ? 'ui.titolo.lucchetto.libero' : 'ui.titolo.lucchetto.completo' } : {}),
     });
   }
-  if (c.hasTelaio && !first) {
+  if (c.hasTelaio) {
     const telaioLocked = !hasHistory(d);
     items.push({
       id: 'telaio',
@@ -93,6 +100,7 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
       locked: telaioLocked,
       slot: 'modo',
       ...(telaioLocked ? { subKey: 'ui.titolo.lucchetto.telaio' } : {}),
+      ...(c.trueEnding ? { star: true } : {}),
     });
   }
   items.push({ id: 'impostazioni', labelKey: 'ui.titolo.impostazioni', icon: 'ingranaggio', primary: false, locked: false, slot: 'piede' });

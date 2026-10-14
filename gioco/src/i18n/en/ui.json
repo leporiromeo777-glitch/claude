@@ -10,6 +10,7 @@
     "continua": "Continue",
     "nuova": "New story",
     "inizia": "Tap to begin",
+    "iniziaClic": "Click to begin",
     "giornaliero": "Lace of the day",
     "giornalieroNuovo": "Today: {regola}",
     "giornalieroFatto": "Woven today",
@@ -31,7 +32,8 @@
       "annulla": "Go back"
     },
     "storiaAssente": "The story is not ready in this version yet.",
-    "versione": "v{versione}"
+    "versione": "v{versione}",
+    "finaleVero": "You saw the true ending: the bell rings in tune."
   },
   "pausa": {
     "titoloPannello": "Pause",
@@ -47,6 +49,7 @@
     "ricominciaDomanda": {
       "titolo": "Restart the night?",
       "corpo": "The hours you fixed come undone and the lace starts again from the opening. Pinned requests stay.",
+      "corpoSenzaRichieste": "The hours you fixed come undone and the lace starts again from the opening.",
       "corpoSpartito": "The score is woven again from the start.",
       "ok": "Restart",
       "annulla": "Keep weaving"
@@ -207,6 +210,8 @@
     "data": "{data}",
     "preparazione": "The pillow is getting ready…",
     "pronto": "Today's lace is ready. It is the same for everyone.",
+    "tessutoMinimo": "Woven today: {n, plural, one {# crossing} other {# crossings}}, already the minimum.",
+    "tessutoRecord": "Woven today: {n, plural, one {# crossing} other {# crossings}}. The minimum is {min}: you can do better.",
     "errore": "Today's lace could not be prepared. Try again later.",
     "bloccato": "The Lace of the day opens after day 7 of the story.",
     "regola": "Rule of the day",
@@ -225,6 +230,7 @@
     "totaleValore": "{n}",
     "tessi": "Weave",
     "ritessi": "Weave again for the record",
+    "ritessiAncora": "Weave it again",
     "riprendi": "Resume today's lace",
     "daCapo": "Start over",
     "importa": "Import score"
@@ -330,6 +336,7 @@
     "recordLivello": "Record for this seed",
     "serie": "Streak",
     "condividi": "Share",
+    "condividiSeme": "Share the seed",
     "copiaSpartito": "Copy score",
     "spartitoCopiato": "Score copied.",
     "spartitoAssente": "This lace has no score.",
@@ -346,7 +353,15 @@
     "fatto": "Shared.",
     "copiato": "Text copied: paste it wherever you like.",
     "copiatoImmagine": "Text copied and lace picture saved.",
-    "nonRiuscito": "Sharing is not possible from here."
+    "nonRiuscito": "Sharing is not possible from here.",
+    "seme": "TRAMA · Free lace, seed {seme} · grades: {gradi} · {n, plural, one {# crossing} other {# crossings}} (min {min})",
+    "nessunGrado": "none",
+    "cartiglio": {
+      "giornaliero": "Daily lace · {data}",
+      "libero": "Free lace · seed {seme}",
+      "spartito": "Rewoven score",
+      "riga": "{n, plural, one {# crossing} other {# crossings}} · minimum {min}"
+    }
   },
   "comandi": {
     "titolo": "Controls",

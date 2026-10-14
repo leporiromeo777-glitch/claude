@@ -134,6 +134,48 @@ describe('UiLayer', () => {
     st.remove();
   });
 
+  it('le didascalie non vanno mai sopra un pulsante (SCH-10): sopra i controlli in basso, o in alto', () => {
+    const { ui, bus, store, root } = setup();
+    store.set({ captions: true });
+    const rect = (x: number, y: number, w: number, h: number): DOMRect => new DOMRect(x, y, w, h);
+    root.getBoundingClientRect = () => rect(0, 0, 360, 640);
+    const scene = root.querySelector('.core-scene') as HTMLElement;
+    const caps = root.querySelector('.core-captions') as HTMLElement;
+    const btn = document.createElement('button');
+    scene.appendChild(btn);
+    // Menu in basso: da 470 a 630.
+    btn.getBoundingClientRect = () => rect(16, 470, 328, 160);
+    // La didascalia (alta 30) sta a `bottom` dal fondo, o in alto a 80.
+    const capRect = (): DOMRect => {
+      if (caps.dataset.posto === 'alto') return rect(12, 80, 200, 30);
+      const b = parseFloat(caps.style.getPropertyValue('--didascalie-basso') || '96');
+      return rect(12, 640 - b - 30, 200, 30);
+    };
+    const patch = (): void => {
+      for (const c of Array.from(caps.children) as HTMLElement[]) c.getBoundingClientRect = capRect;
+    };
+    const obs = new MutationObserver(patch);
+    obs.observe(caps, { childList: true });
+    // Il posto di sempre (96 px dal fondo) coprirebbe il menu: va appena sopra (640 - 470 + 8 = 178).
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    patch();
+    // Rifà il calcolo con i rettangoli finti (la prima volta il MutationObserver arriva dopo).
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    expect(caps.dataset.posto).toBe('basso');
+    expect(caps.style.getPropertyValue('--didascalie-basso')).toBe('178px');
+    // Un menu alto quasi tutto lo schermo: le didascalie vanno in alto.
+    btn.getBoundingClientRect = () => rect(16, 200, 328, 430);
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    expect(caps.dataset.posto).toBe('alto');
+    // Nessun pulsante sotto: il posto di sempre.
+    btn.getBoundingClientRect = () => rect(16, 20, 40, 40);
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    expect(caps.dataset.posto).toBe('basso');
+    expect(caps.style.getPropertyValue('--didascalie-basso')).toBe('');
+    obs.disconnect();
+    void ui;
+  });
+
   it('al cambio di lingua i testi si riscrivono', () => {
     const { ui, bus, i18n } = setup();
     ui.toast('core.ui.ok');

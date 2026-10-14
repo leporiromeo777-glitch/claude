@@ -10,6 +10,7 @@
     "continua": "Continua",
     "nuova": "Nuova storia",
     "inizia": "Tocca per iniziare",
+    "iniziaClic": "Clicca per iniziare",
     "giornaliero": "Merletto del giorno",
     "giornalieroNuovo": "Oggi: {regola}",
     "giornalieroFatto": "Tessuto oggi",
@@ -31,7 +32,8 @@
       "annulla": "Torna indietro"
     },
     "storiaAssente": "La storia non è ancora pronta in questa versione.",
-    "versione": "v{versione}"
+    "versione": "v{versione}",
+    "finaleVero": "Hai visto il finale vero: la campana suona intonata."
   },
   "pausa": {
     "titoloPannello": "Pausa",
@@ -47,6 +49,7 @@
     "ricominciaDomanda": {
       "titolo": "Ricominciare la notte?",
       "corpo": "Le ore già fissate si disfano e il merletto riparte dall'apertura. Le richieste appuntate restano.",
+      "corpoSenzaRichieste": "Le ore già fissate si disfano e il merletto riparte dall'apertura.",
       "corpoSpartito": "Lo spartito si ritesse da capo.",
       "ok": "Ricomincia",
       "annulla": "Continua a tessere"
@@ -207,6 +210,8 @@
     "data": "{data}",
     "preparazione": "Il tombolo si prepara…",
     "pronto": "Il merletto di oggi è pronto. È lo stesso per tutti.",
+    "tessutoMinimo": "Tessuto oggi: {n, plural, one {# incrocio} other {# incroci}}, già il minimo.",
+    "tessutoRecord": "Tessuto oggi: {n, plural, one {# incrocio} other {# incroci}}. Il minimo è {min}: si può fare meglio.",
     "errore": "Il merletto di oggi non si è potuto preparare. Riprova più tardi.",
     "bloccato": "Il Merletto del giorno si apre dopo la giornata 7 della storia.",
     "regola": "La regola del giorno",
@@ -225,6 +230,7 @@
     "totaleValore": "{n}",
     "tessi": "Tessi",
     "ritessi": "Ritessi per il record",
+    "ritessiAncora": "Tessilo di nuovo",
     "riprendi": "Riprendi il merletto di oggi",
     "daCapo": "Ricomincia da capo",
     "importa": "Importa spartito"
@@ -330,6 +336,7 @@
     "recordLivello": "Record di questo seme",
     "serie": "Serie",
     "condividi": "Condividi",
+    "condividiSeme": "Condividi il seme",
     "copiaSpartito": "Copia spartito",
     "spartitoCopiato": "Spartito copiato.",
     "spartitoAssente": "Questo merletto non ha uno spartito.",
@@ -346,7 +353,15 @@
     "fatto": "Condiviso.",
     "copiato": "Testo copiato: incollalo dove vuoi.",
     "copiatoImmagine": "Testo copiato e immagine del merletto salvata.",
-    "nonRiuscito": "Non è stato possibile condividere da qui."
+    "nonRiuscito": "Non è stato possibile condividere da qui.",
+    "seme": "TRAMA · Merletto libero, seme {seme} · gradi: {gradi} · {n, plural, one {# incrocio} other {# incroci}} (min {min})",
+    "nessunGrado": "nessuno",
+    "cartiglio": {
+      "giornaliero": "Merletto del giorno · {data}",
+      "libero": "Merletto libero · seme {seme}",
+      "spartito": "Spartito ritessuto",
+      "riga": "{n, plural, one {# incrocio} other {# incroci}} · minimo {min}"
+    }
   },
   "comandi": {
     "titolo": "Comandi",

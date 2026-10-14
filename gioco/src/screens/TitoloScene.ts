@@ -7,8 +7,12 @@
  *   chiede il titolo); Telaio → `scenes.go('telaio')` se la scena esiste.
  * - Merletto del giorno e Merletto libero con i lucchetti di `save.unlocks`;
  *   Impostazioni e Crediti compatti in fondo (azioni rare).
- * - Primissimo avvio (GDD 9): «una scritta sola», «Tocca per iniziare»; le
- *   modalità ancora chiuse non si vedono, Impostazioni e Crediti sono due icone.
+ * - Primissimo avvio (GDD 9): «una scritta sola», «Tocca per iniziare» («Clicca
+ *   per iniziare» con il mouse); le modalità chiuse si vedono con il lucchetto e
+ *   la condizione (D17), Impostazioni e Crediti sono due icone.
+ * - Il menu scorre: un'ombra in fondo dice che sotto c'è dell'altro (SCH-10).
+ * - Dopo il finale vero (`unlocks.tovaglia`): un filo corallo sul tombolo e una
+ *   stella accanto a Telaio (SCH-15, P121).
  * - Musica del titolo (campana intonata dopo il finale vero) e laguna.
  * - Telefono verticale: titolo, tombolo, menu in colonna. Schermi larghi
  *   (rapporto ≥ 1,25 e almeno 640 px): tombolo a sinistra, titolo e menu a destra.
@@ -18,7 +22,7 @@ import { el } from '../core/ui/dom';
 import { arrowNavigation, textOf } from '../core/ui/components';
 import { dailySpec } from '../engine/index';
 import { resumeNight } from '../tombolo/index';
-import { laceEdge } from './icons';
+import { icon, laceEdge } from './icons';
 import { TitleArt } from './titleArt';
 import { isFirstLaunch, titleItems, type TitleItem, type TitleItemId } from './titleMenu';
 import { ruleTitleKey } from './bookPage';
@@ -32,6 +36,20 @@ let current: TitoloScene | null = null;
 /** Il titolo aperto (per il debug e per aggiornare i lucchetti). */
 export function currentTitle(): TitoloScene | null {
   return current;
+}
+
+/** Si gioca con il mouse? Un puntatore fine con il passaggio (e nessun tocco già visto). */
+export function usesMouse(s: Pick<Services, 'input'>): boolean {
+  try {
+    if (s.input.lastDevice() === 'touch') return false;
+  } catch {
+    /* input non pronto */
+  }
+  try {
+    return typeof matchMedia === 'function' && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  } catch {
+    return false;
+  }
 }
 
 export function isLandscapeLayout(vp: Pick<Viewport, 'cssW' | 'cssH'>): boolean {
@@ -50,11 +68,12 @@ export class TitoloScene implements Scene {
   private items: TitleItem[] = [];
   private landscape = false;
   private built = false;
+  private shade: () => void = () => undefined;
 
   constructor(private readonly s: Services) {
     const st = s.settings.get();
     const still = st.reducedMotion || st.animSpeed === 0;
-    this.art = new TitleArt(s, { fadeSeconds: still ? 0 : firstTitle ? 1.8 : 0.6 });
+    this.art = new TitleArt(s, { fadeSeconds: still ? 0 : firstTitle ? 1.8 : 0.6, trueEnding: s.save.data().unlocks.tovaglia === true });
     this.art.setStill(still);
   }
 
@@ -114,6 +133,8 @@ export class TitoloScene implements Scene {
       hasTelaio: this.s.scenes.has('telaio'),
       fullGame: this.s.entitlements.isUnlocked('fullGame'),
       dailyDoneToday: !!d.daily[today()],
+      mouse: usesMouse(this.s),
+      trueEnding: d.unlocks.tovaglia === true,
     };
   }
 
@@ -141,7 +162,14 @@ export class TitoloScene implements Scene {
       el('div', { class: 'sc-titolo-principali' }, ...slots.principale),
       slots.modo.length > 0 ? el('div', { class: 'sc-titolo-griglia', test: 'sc-titolo-modi' }, ...slots.modo) : null,
       el('div', { class: 'sc-titolo-piede', test: 'sc-titolo-piede' }, ...slots.piede),
+      // Ombra in fondo quando il menu scorre e sotto c'è dell'altro (SCH-10, P055).
+      el('div', { class: 'sc-titolo-ombra', test: 'sc-titolo-ombra', attrs: { 'aria-hidden': 'true' } }),
     );
+    const shade = (): void => {
+      nav.dataset.scorre = nav.scrollTop + nav.clientHeight < nav.scrollHeight - 2 ? 'giu' : 'no';
+    };
+    nav.addEventListener('scroll', shade, { passive: true });
+    this.shade = shade;
     // Frecce fra tutte le voci del menu.
     arrowNavigation(nav, 'button', 'both');
     const version = textOf('ui.titolo.versione', { versione: typeof __GAME_VERSION__ === 'string' ? __GAME_VERSION__ : '' }, 'p', { className: 'sc-titolo-versione' });
@@ -160,9 +188,13 @@ export class TitoloScene implements Scene {
     if (typeof ResizeObserver !== 'undefined') {
       this.ro = new ResizeObserver(() => {
         this.measure = true;
+        this.shade();
       });
       this.ro.observe(this.stage);
+      this.ro.observe(nav);
     }
+    shade();
+    requestAnimationFrame(() => this.shade());
     // Fuoco sulla voce di prima (dopo un cambio di lingua) o sulla principale.
     const again = focusedId ? this.root.querySelector<HTMLElement>(`[data-test="${focusedId}"]`) : null;
     (again ?? this.root.querySelector<HTMLElement>('.sc-titolo-principali button'))?.focus({ preventScroll: true });
@@ -195,6 +227,12 @@ export class TitoloScene implements Scene {
       test: `sc-titolo-${it.id}`,
     });
     if (it.primary) b.classList.add('core-btn--grande', 'sc-voce--principale');
+    if (it.star) {
+      // Il finale vero (SCH-15): una stella d'ottone accanto a Telaio.
+      const star = el('span', { class: 'sc-voce-stella', test: `sc-titolo-${it.id}-stella`, attrs: { title: s.i18n.t('ui.titolo.finaleVero') } }, icon('stella', 18));
+      star.appendChild(textOf('ui.titolo.finaleVero', undefined, 'span', { className: 'core-sr-only' }));
+      b.querySelector('.sc-voce-testi')?.after(star);
+    }
     return b;
   }
 

@@ -27,16 +27,22 @@ function save(p: Partial<SaveData> = {}): SaveData {
 describe('menu del titolo', () => {
   const ctx = { hasTelaio: false, fullGame: true, dailyDoneToday: false };
 
-  it('primo avvio: una scritta sola per cominciare (GDD 9), Impostazioni e Crediti in fondo', () => {
+  it('primo avvio: una scritta sola per cominciare (GDD 9), le modalità chiuse col lucchetto e la condizione (D17)', () => {
     const d = save();
     expect(isFirstLaunch(d)).toBe(true);
     const items = titleItems(d, { ...ctx, hasTelaio: true });
-    expect(items.map((i) => i.id)).toEqual(['nuova', 'impostazioni', 'crediti']);
+    expect(items.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'libero', 'telaio', 'impostazioni', 'crediti']);
     expect(items[0]).toMatchObject({ labelKey: 'ui.titolo.inizia', primary: true, slot: 'principale' });
+    expect(items.find((i) => i.id === 'giornaliero')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.giornaliero' });
+    expect(items.find((i) => i.id === 'libero')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.libero' });
+    expect(items.find((i) => i.id === 'telaio')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.telaio' });
     expect(items.filter((i) => i.slot === 'piede').map((i) => i.id)).toEqual(['impostazioni', 'crediti']);
-    // Una modalità già aperta (per esempio da un salvataggio importato) si vede anche al primo avvio.
+    // Con il mouse: «Clicca per iniziare» (SCH-12).
+    expect(titleItems(d, { ...ctx, mouse: true })[0]?.labelKey).toBe('ui.titolo.iniziaClic');
+    // Una modalità già aperta (per esempio da un salvataggio importato) si vede senza lucchetto.
     const open = titleItems(save({ unlocks: { daily: true, libero: false, gradi: false, cosmetics: [], tovaglia: false } }), ctx);
-    expect(open.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'impostazioni', 'crediti']);
+    expect(open.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'libero', 'impostazioni', 'crediti']);
+    expect(open.find((i) => i.id === 'giornaliero')?.locked).toBe(false);
   });
 
   it('dopo il primo avvio le modalità chiuse mostrano il lucchetto', () => {

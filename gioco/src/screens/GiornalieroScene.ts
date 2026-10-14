@@ -109,8 +109,14 @@ export class GiornalieroScene extends ScreenScene {
     const dateLine = textOf('ui.giornaliero.data', { data: longDate(this.date, s.i18n.locale()) }, 'p', { className: 'sc-data' });
     dateLine.dataset.test = 'sc-giornaliero-data';
     const status = el('p', { class: 'sc-stato', test: 'sc-giornaliero-stato', attrs: { 'aria-live': 'polite' } });
+    // Testi secondo lo stato (SCH-12, P051): già tessuto oggi, con il minimo o con il record da battere.
+    const atMin = !!record && record.incroci <= record.min;
     status.appendChild(
-      textOf(this.failed ? 'ui.giornaliero.errore' : this.gen ? 'ui.giornaliero.pronto' : 'ui.giornaliero.preparazione', undefined, 'span'),
+      this.failed
+        ? textOf('ui.giornaliero.errore', undefined, 'span')
+        : record
+          ? textOf(atMin ? 'ui.giornaliero.tessutoMinimo' : 'ui.giornaliero.tessutoRecord', { n: record.incroci, min: record.min }, 'span')
+          : textOf(this.gen ? 'ui.giornaliero.pronto' : 'ui.giornaliero.preparazione', undefined, 'span'),
     );
     status.dataset.stato = this.failed ? 'errore' : this.gen ? 'pronto' : 'attesa';
 
@@ -145,7 +151,7 @@ export class GiornalieroScene extends ScreenScene {
       actions.push(
         wideButton({
           icon: 'play',
-          labelKey: record ? 'ui.giornaliero.ritessi' : 'ui.giornaliero.tessi',
+          labelKey: record ? (atMin ? 'ui.giornaliero.ritessiAncora' : 'ui.giornaliero.ritessi') : 'ui.giornaliero.tessi',
           kind: 'primario',
           onClick: () => void this.weave(false, msg.show),
           test: 'sc-giornaliero-tessi',

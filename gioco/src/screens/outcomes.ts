@@ -14,7 +14,7 @@
 import type { LevelDef, NightOutcome, SceneId, Services } from '../core/types';
 import { metrics } from '../engine/index';
 import { activeNight, resolveLevel } from '../tombolo/index';
-import { dailyRecordOf, dateOfDailyId, isBetterDaily, liveStreak, mergeLaceRecord, nextStreak, shareParams } from './daily';
+import { dailyRecordOf, dateOfDailyId, dateTag, isBetterDaily, liveStreak, mergeLaceRecord, nextStreak, shareParams } from './daily';
 import { dailyCosmetics } from './cosmetics';
 import { parseLiberoId } from './libero';
 import { type ModeOrigin, type ResultInfo, dailyLevel, generatedNow, launchOf, liberoLevel, restoreGuardedNight, setResult, today, track } from './state';
@@ -33,7 +33,7 @@ export function resultsDelayMs(animSpeed: number, reducedMotion: boolean): numbe
 
 /** Testo da condividere: la riga di GDD 8.3 e, sotto, lo spartito. */
 export function shareTextOf(s: Pick<Services, 'i18n'>, r: Parameters<typeof shareParams>[0], spartito: string): string {
-  const line = s.i18n.t('ui.condividi.riga', shareParams(r));
+  const line = s.i18n.t('ui.condividi.riga', shareParams(r, dateTag(s.i18n.locale())));
   return spartito ? `${line}\n${spartito}` : line;
 }
 

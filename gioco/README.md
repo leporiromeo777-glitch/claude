@@ -66,6 +66,21 @@ non si ferma lì.
 già avviato: meglio una build `VITE_E2E=1 npx vite build` servita da `npx vite preview`,
 perché il server di sviluppo ricarica la pagina quando qualcuno modifica i file.
 
+**Build e budget.** `vite build` divide il pacchetto principale in `contenuti` (JSON dei livelli
+e dei dati), `testi` (i18n e testi narrativi) e `motore` (`build.rolldownOptions.output.codeSplitting`
+in `vite.config.ts`): nessun pezzo supera il limite di 600 KB e la build non dà avvisi del
+gioco (un avviso che nomina il codice di un pacchetto in lavorazione è di quel pacchetto).
+Budget CSS: **al massimo 30 KB in gzip in tutto** (oggi circa 18 KB in cinque fogli: core,
+tombolo, campagna, schermate, audio); si misura con `gzip -c dist/assets/*.css | wc -c`.
+
+**Senza rete (service worker).** La build scrive `precache.json` (versione del gioco, un
+identificativo della build, l'elenco dei file: index, chunk, CSS, font `.woff2`, Worker, file di
+`public/` come `assets/manifest.json` con atlanti e diorami, icone) e mette l'identificativo in
+`index.html` (`<meta name="trama-build">`). `src/main.ts` registra `sw.js?v=<versione>-<build>`
+solo sul web e non in sviluppo (`src/core/sw.ts`); `public/sw.js` mette tutto nella cache
+`trama-<versione>-<build>`, cancella le vecchie, risponde solo alla stessa origine: pagine prima
+dalla rete, il resto prima dalla cache. Dopo il primo caricamento si gioca senza rete.
+
 Test end-to-end: il server di prova è `npm run build && vite preview` sulla porta **4173**
 (build con `VITE_E2E=1`, quindi `window.__GAME__` sempre attivo). Variabili utili:
 `E2E_PORT=5201` per usare un'altra porta, `E2E_REUSE=1` per riusare un server già avviato.
@@ -125,7 +140,9 @@ dello stesso cambio che la contiene. `__GAME__.core.time.setSpeed(x)` accelera d
 **Input.** Gesti (`tap`, `longpress`, `dragstart/drag/dragend/dragcancel`, `wheel`) in px CSS
 relativi al canvas; tastiera mappata in `ActionEvent` secondo GDD 11.3 (tabella in
 `src/core/keymap.ts`: Invio → `confirm`, Spazio → `crossL`, Maiusc+Spazio → `crossR`,
-Tab → `notebook`, Esc → `back`, 1-6 → `select` con `index`…). `input.pushLayer(nome)` apre un
+Tab → `notebook`, Esc → `back`, 1-6 → `select` con `index`, Maiusc+Invio → `skipQuiet`, «Salta le
+ore quiete»…). `KEY_HELP` nello stesso file descrive la mappa per la pagina dei comandi
+(`sc-comandi`, dalla Pausa): un test controlla che ogni azione di `mapKey` ci sia. `input.pushLayer(nome)` apre un
 livello modale: ricevono azioni e gesti solo i gestori registrati mentre quel livello è in cima.
 Indietro (Esc, tasto Android): overlay in cima → `scene.onBack()` → nel titolo, su nativo,
 conferma di uscita. L'audio si sblocca al primo `pointerdown`/`pointerup`/`keydown`.
@@ -137,7 +154,16 @@ Indietro; la Promise si risolve alla chiusura; un pannello non registrato mostra
 `toast`, `confirm` (pulsante sicuro a sinistra). Componenti a tema in `src/core/ui/components.ts`
 (`button`, `iconButton`, `panel`, `tabs`, `slider`, `toggle`, `paperCard`, `modal`, `menuList`,
 `textOf`): bersagli ≥ 48 px, fuoco visibile, testi da chiavi i18n che si riscrivono da soli al
-cambio di lingua. Glifi (icone dei personaggi e dei luoghi, icone d'interfaccia) in
+cambio di lingua. **Carta e calligrafia** (C17): `paperCard({ hand })` dà un foglio
+`.core-carta--mano` che si inclina tutto, al massimo ±3° attorno al centro; il testo
+(`.core-carta-testo`) non ruota e non prende i tocchi, quindi i pulsanti vanno fuori dal foglio,
+in un contenitore fratello; `core-carta--scorre` fa scorrere le lettere lunghe dentro il foglio
+(70% dell'altezza). `inkOnPaper(hex, carta = '#EDE4D3')` in `src/core/ui/richtext.ts` scurisce un
+colore (stessa tinta) fino a 4,5:1 sulla carta: lo usa `.core-pers` per il nome (`--pers-ink`), il
+colore pieno resta nella sottolineatura e nell'icona. Gli avvisi brevi (`toast`) non prendono i
+tocchi; le didascalie dei suoni si spostano se coprirebbero un pulsante. I fogli dentro gli
+overlay sono opachi (`--foglio-sovrapposto`, con un colore suo in alto contrasto) e un secondo
+overlay mette un velo pieno su quello sotto. Glifi (icone dei personaggi e dei luoghi, icone d'interfaccia) in
 `src/core/ui/glyphs.ts`, per il DOM (`svgIcon`) e per il canvas (`drawGlyph`). Usare
 `data-test` stabili sugli elementi interattivi. Prefissi CSS: `core-`, `tb-`, `cp-`, `sc-`.
 
@@ -146,7 +172,7 @@ namespace (`src/i18n/<it|en>/<ns>.json`, testi narrativi in `src/content/text/<i
 `{nome}`, `{n, plural, =0 {…} one {# …} other {# …}}`, `{x, select, …}`. Nel testo ricco
 (`richText(key, params)`): `*corsivo*`, `**grassetto**`, `[[teresa]]`, a capo. Mai `innerHTML`.
 
-**Impostazioni.** Dentro il salvataggio. Su `<html>`: `--text-scale`, `data-contrast="alto|normale"`,
+**Impostazioni.** Dentro il salvataggio. Su `<html>`: `--text-scale`, `data-text-scale="grande|normale"` (grande da 130%), `data-contrast="alto|normale"`,
 `data-motion="ridotto|normale"`, `data-anim-speed`, `--anim-speed`, `lang`. Evento `settings:change`.
 
 **Salvataggi.** `save.update(mut, { immediate?, reason? })`: scritture raggruppate (una ogni 2 s),

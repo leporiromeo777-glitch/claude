@@ -40,10 +40,12 @@ export function pausePanel(s: Services, container: HTMLElement, raw?: unknown): 
         icon: 'ricomincia',
         labelKey: replay ? 'ui.pausa.ricominciaSpartito' : 'ui.pausa.ricomincia',
         onClick: () => {
+          // Senza richieste appuntate (Merletti, Archivio) il testo non le cita (SCH-12, P051).
+          const accepted = activeNight()?.params.accepted.length ?? (o.origin === 'campagna' ? 1 : 0);
           void s.ui
             .confirm({
               titleKey: 'ui.pausa.ricominciaDomanda.titolo',
-              bodyKey: replay ? 'ui.pausa.ricominciaDomanda.corpoSpartito' : 'ui.pausa.ricominciaDomanda.corpo',
+              bodyKey: replay ? 'ui.pausa.ricominciaDomanda.corpoSpartito' : accepted > 0 ? 'ui.pausa.ricominciaDomanda.corpo' : 'ui.pausa.ricominciaDomanda.corpoSenzaRichieste',
               okKey: 'ui.pausa.ricominciaDomanda.ok',
               cancelKey: 'ui.pausa.ricominciaDomanda.annulla',
               danger: !replay,

@@ -43,10 +43,39 @@ export function previousDate(date: string): string {
   return localDate(t);
 }
 
-/** «14/10» per il testo da condividere (GDD 8.3). */
-export function shortDate(date: string): string {
+/**
+ * Giorno e mese per il testo da condividere (GDD 8.3): «14/10». Con `tag` (lingua
+ * BCP 47, per esempio 'en-US') nel formato di quella lingua con `Intl` («10/14»).
+ */
+export function shortDate(date: string, tag?: string): string {
   const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(date);
-  return m ? `${m[2]}/${m[1]}` : date;
+  if (!m) return date;
+  if (tag) {
+    try {
+      return new Intl.DateTimeFormat(tag, { day: '2-digit', month: '2-digit' }).format(dateObject(date));
+    } catch {
+      /* lingua non riconosciuta: il formato di sempre */
+    }
+  }
+  return `${m[2]}/${m[1]}`;
+}
+
+/**
+ * Lingua per le date (SCH-11): quella del browser se è della lingua del gioco
+ * (un inglese americano vede «10/18»), altrimenti italiano d'Italia o inglese britannico.
+ */
+export function dateTag(locale: 'it' | 'en', preferred: readonly string[] = browserLanguages()): string {
+  const hit = preferred.find((l) => l.toLowerCase() === locale || l.toLowerCase().startsWith(`${locale}-`));
+  return hit ?? (locale === 'en' ? 'en-GB' : 'it-IT');
+}
+
+function browserLanguages(): readonly string[] {
+  try {
+    if (typeof navigator === 'undefined') return [];
+    return navigator.languages?.length ? navigator.languages : navigator.language ? [navigator.language] : [];
+  } catch {
+    return [];
+  }
 }
 
 /** Riferimento dello spartito in modo G (`AAAAMMGG`) → data. */
@@ -116,9 +145,9 @@ export function mergeLaceRecord(prev: LaceRecord | undefined, m: LaceMetrics, sp
   return { record, improved };
 }
 
-/** Parametri della riga da condividere (chiave `ui.condividi.riga`). */
-export function shareParams(r: Pick<DailyRecord, 'date' | 'incroci' | 'min' | 'quiete' | 'simmetria'>): Record<string, string | number> {
-  return { data: shortDate(r.date), incroci: r.incroci, min: r.min, quiete: r.quiete, simmetria: r.simmetria ? 'si' : 'no' };
+/** Parametri della riga da condividere (chiave `ui.condividi.riga`); `tag`: lingua della data. */
+export function shareParams(r: Pick<DailyRecord, 'date' | 'incroci' | 'min' | 'quiete' | 'simmetria'>, tag?: string): Record<string, string | number> {
+  return { data: shortDate(r.date, tag), incroci: r.incroci, min: r.min, quiete: r.quiete, simmetria: r.simmetria ? 'si' : 'no' };
 }
 
 /** Giorni tessuti in tutto. */

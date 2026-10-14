@@ -82,7 +82,20 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     assetsInlineLimit: 0,
+    // Revisione 1 (SCH-14): il pacchetto principale si divide in contenuti, testi e
+    // motore, così nessun pezzo supera il limite e la build non dà avvisi.
     chunkSizeWarningLimit: 600,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'contenuti', test: /[\\/]src[\\/]content[\\/](?!text[\\/]).*\.json$/ },
+            { name: 'testi', test: /[\\/]src[\\/](i18n|content[\\/]text)[\\/].*\.json$/ },
+            { name: 'motore', test: /[\\/]src[\\/]engine[\\/]/ },
+          ],
+        },
+      },
+    },
   },
   worker: {
     format: 'es',

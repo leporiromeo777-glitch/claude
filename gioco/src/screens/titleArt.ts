@@ -7,7 +7,9 @@
  * - la luce calda di una lampada fuori campo, in alto a sinistra, che tremola;
  * - granelli di polvere che salgono piano nella luce;
  * - il fuso di Ada (o il fuso intagliato scelto) appeso al suo filo corallo che
- *   dondola come un pendolo.
+ *   dondola come un pendolo;
+ * - dopo il finale vero (revisione 1, SCH-15): un filo corallo che attraversa il
+ *   tombolo, fermato da due spilli d'ottone (il merletto di Ada finito).
  *
  * Le parti fisse si compongono una volta in canvas fuori schermo (alla
  * risoluzione del dispositivo); a ogni fotogramma si copiano e si disegnano
@@ -26,6 +28,48 @@ export interface Rect {
 
 const MOTES = 26;
 const LAMP = '#FFB24A';
+
+/**
+ * Il filo corallo del finale vero (SCH-15): una curva morbida che attraversa il
+ * cuscino da sinistra a destra, con un'ombra sottile e due spilli d'ottone alle
+ * estremità. Solo sopra il tombolo (source-atop sui suoi pixel).
+ */
+export function drawCoralThread(ctx: CanvasRenderingContext2D, side: number, color: string): void {
+  const p0 = { x: side * 0.2, y: side * 0.46 };
+  const p1 = { x: side * 0.8, y: side * 0.44 };
+  const c0 = { x: side * 0.38, y: side * 0.56 };
+  const c1 = { x: side * 0.62, y: side * 0.34 };
+  const w = Math.max(1.5, side * 0.011);
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(30, 14, 10, 0.35)';
+  ctx.lineWidth = w * 1.6;
+  ctx.beginPath();
+  ctx.moveTo(p0.x + w * 0.6, p0.y + w);
+  ctx.bezierCurveTo(c0.x + w * 0.6, c0.y + w, c1.x + w * 0.6, c1.y + w, p1.x + w * 0.6, p1.y + w);
+  ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = w;
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.bezierCurveTo(c0.x, c0.y, c1.x, c1.y, p1.x, p1.y);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255, 236, 220, 0.4)';
+  ctx.lineWidth = w * 0.35;
+  ctx.stroke();
+  for (const p of [p0, p1]) {
+    ctx.fillStyle = '#C9A24A';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, w * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255, 245, 210, 0.7)';
+    ctx.beginPath();
+    ctx.arc(p.x - w * 0.5, p.y - w * 0.5, w * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
 
 function makeCanvas(w: number, h: number): HTMLCanvasElement {
   const c = document.createElement('canvas');
@@ -121,12 +165,15 @@ export class TitleArt {
   private threadColor = '#F07C6C';
   private still = false;
   private drawnStill = false;
+  /** Il finale vero è stato visto: il filo corallo sul tombolo. */
+  readonly trueEnding: boolean;
 
   constructor(
     private readonly s: Services,
-    o: { fadeSeconds: number },
+    o: { fadeSeconds: number; trueEnding?: boolean },
   ) {
     this.fadeSeconds = o.fadeSeconds;
+    this.trueEnding = !!o.trueEnding;
     for (let i = 0; i < MOTES; i++) this.spawn(i, true);
   }
 
@@ -267,6 +314,7 @@ export class TitleArt {
       sctx.fillStyle = shade;
       sctx.fillRect(0, 0, side, side);
       sctx.globalCompositeOperation = 'source-over';
+      if (this.trueEnding) drawCoralThread(sctx, side, this.threadColor);
     }
     this.sprite = sp;
 

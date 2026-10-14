@@ -57,6 +57,9 @@ export interface CoreUiLayer extends UiLayer {
   destroy(): void;
 }
 
+/** Elementi che si toccano: le didascalie non ci vanno sopra. */
+const INTERACTIVE = 'button, a[href], input, select, textarea, [role="button"], [role="tab"], [role="switch"], [role="slider"]';
+
 export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
   const { root, input, bus, i18n, settings } = deps;
   const timers = deps.timers ?? {
@@ -107,6 +110,71 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
     entry.popLayer();
     if (entry.previousFocus instanceof HTMLElement && entry.previousFocus.isConnected) entry.previousFocus.focus();
     entry.resolve();
+  }
+
+  /**
+   * Didascalie dei suoni (revisione 1, SCH-10, P055): mai sopra un pulsante. Si prova
+   * il posto di sempre (in basso a sinistra), poi appena sopra i controlli in basso,
+   * poi in alto; vince il primo che non copre niente (o quello che copre meno).
+   */
+  function placeCaptions(): void {
+    const lines = Array.from(captionsEl.children) as HTMLElement[];
+    if (lines.length === 0) return;
+    const rootBox = root.getBoundingClientRect();
+    const controls: DOMRect[] = [];
+    for (const c of Array.from(root.querySelectorAll<HTMLElement>(INTERACTIVE))) {
+      if (captionsEl.contains(c) || toastsEl.contains(c) || fadeEl.contains(c)) continue;
+      const r = c.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) controls.push(r);
+    }
+    if (controls.length === 0) return;
+    const block = (): DOMRect | null => {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const l of lines) {
+        const r = l.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+      }
+      return Number.isFinite(x0) ? new DOMRect(x0, y0, x1 - x0, y1 - y0) : null;
+    };
+    const covered = (): number => {
+      const b = block();
+      if (!b) return 0;
+      let area = 0;
+      for (const r of controls) {
+        const w = Math.min(b.right, r.right) - Math.max(b.left, r.left);
+        const h = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
+        if (w > 0 && h > 0) area += w * h;
+      }
+      return area;
+    };
+    const apply = (posto: 'basso' | 'alto', bottom: number | null): void => {
+      captionsEl.dataset.posto = posto;
+      if (bottom === null) captionsEl.style.removeProperty('--didascalie-basso');
+      else captionsEl.style.setProperty('--didascalie-basso', `${Math.round(bottom)}px`);
+    };
+    apply('basso', null);
+    let best = { posto: 'basso' as 'basso' | 'alto', bottom: null as number | null, area: covered() };
+    if (best.area === 0) return;
+    // Appena sopra i controlli che stanno sotto (e di fianco) alle didascalie.
+    const b = block();
+    if (b) {
+      const below = controls.filter((r) => r.right > b.left && r.left < b.right && r.top >= rootBox.top + rootBox.height * 0.35);
+      if (below.length > 0) {
+        const top = Math.min(...below.map((r) => r.top));
+        const bottom = rootBox.bottom - top + 8;
+        if (bottom + b.height < rootBox.height) {
+          apply('basso', bottom);
+          const area = covered();
+          if (area < best.area) best = { posto: 'basso', bottom, area };
+          if (area === 0) return;
+        }
+      }
+    }
+    apply('alto', null);
+    const area = covered();
+    if (area < best.area) best = { posto: 'alto', bottom: null, area };
+    apply(best.posto, best.bottom);
   }
 
   function showLine(container: HTMLElement, node: HTMLElement, ms: number, max: number): void {
@@ -228,6 +296,7 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
       if (!settings.get().captions) return;
       const node = el('div', { class: 'core-caption', test: 'caption' }, textOf(p.textKey, p.params));
       showLine(captionsEl, node, CAPTION_MS, MAX_CAPTIONS);
+      placeCaptions();
     }),
   );
   cleanups.push(
