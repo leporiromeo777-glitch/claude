@@ -26,7 +26,8 @@
     "lasciaAccadere": "Let it happen",
     "accade": "The day happens…",
     "riprova": "Try again",
-    "salta": "Skip"
+    "salta": "Skip",
+    "saltaQuiete": "Fix until {ora}"
   },
   "violazione": {
     "rifiuto": "“No.” {sotto} won't pass under {sopra}.",
@@ -212,7 +213,9 @@
   "nome": {
     "appunta": "Pin your name: touch a bobbin.",
     "appuntato": "Your name is on {nome}.",
-    "prima": "First pin your name to a thread."
+    "prima": "First pin your name to a thread.",
+    "spostato": "Your name is now on {nome}.",
+    "giaAppuntato": "Your name is already pinned on {nome}: it can only move before the first hour."
   },
   "occasioni": {
     "contatore": "Occasions: {piantate}/{posti}",
@@ -428,5 +431,8 @@
       "marea": "high water begins {luoghi}",
       "mareaFine": "high water ends {luoghi}"
     }
+  },
+  "scorri": {
+    "giu": "↓ {n, plural, one {one more hour} other {# more hours}}"
   }
 }

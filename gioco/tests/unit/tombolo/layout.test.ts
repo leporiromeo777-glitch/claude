@@ -22,8 +22,10 @@ describe('layout del tombolo (GDD 10.2-10.3)', () => {
     expect(l.lace.y).toBe(92);
     expect(l.lace.y + l.lace.h).toBe(l.requests.y);
     expect(l.colW).toBeGreaterThanOrEqual(COL_MIN);
-    expect(l.rowH).toBeGreaterThanOrEqual(40);
+    // D06: righe fra 30 e 56 px perché la notte stia tutta sullo schermo.
+    expect(l.rowH).toBeGreaterThanOrEqual(30);
     expect(l.rowH).toBeLessThanOrEqual(56);
+    expect(l.contentH).toBeLessThanOrEqual(l.lace.h - 16);
     expect(l.left).toBeNull();
     expect(l.right).toBeNull();
   });

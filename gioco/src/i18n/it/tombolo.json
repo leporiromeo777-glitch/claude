@@ -26,7 +26,8 @@
     "lasciaAccadere": "Lascia accadere",
     "accade": "Il giorno accade…",
     "riprova": "Riprova",
-    "salta": "Salta"
+    "salta": "Salta",
+    "saltaQuiete": "Fissa fino alle {ora}"
   },
   "violazione": {
     "rifiuto": "«No.» {sotto} non passa sotto {sopra}.",
@@ -212,7 +213,9 @@
   "nome": {
     "appunta": "Appunta il tuo nome: tocca un fuso.",
     "appuntato": "Il tuo nome è su {nome}.",
-    "prima": "Prima appunta il tuo nome su un filo."
+    "prima": "Prima appunta il tuo nome su un filo.",
+    "spostato": "Il tuo nome ora è su {nome}.",
+    "giaAppuntato": "Il nome è già appuntato su {nome}: si sposta solo prima della prima ora."
   },
   "occasioni": {
     "contatore": "Occasioni: {piantate}/{posti}",
@@ -428,5 +431,8 @@
       "marea": "comincia l'acqua alta {luoghi}",
       "mareaFine": "finisce l'acqua alta {luoghi}"
     }
+  },
+  "scorri": {
+    "giu": "↓ {n, plural, one {ancora un'ora} other {altre # ore}}"
   }
 }

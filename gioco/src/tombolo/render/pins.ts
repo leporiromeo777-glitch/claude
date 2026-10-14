@@ -133,6 +133,25 @@ export class PinSprites {
   }
 }
 
+/**
+ * Slot di un'occasione (TOM-15): al centro della cella, su un fondo pieno così il
+ * filo non copre l'icona del tipo; `ombra` = da piantare (bordo tratteggiato),
+ * altrimenti piantata (spillo verde pieno).
+ */
+export function drawSlot(ctx: CanvasRenderingContext2D, state: PinState, x: number, y: number, r: number, icon: string | null): void {
+  const planted = state !== 'ombra';
+  ctx.fillStyle = planted ? '#2F6B3B' : 'rgba(18,22,34,0.92)';
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.lineWidth = planted ? 2.5 : 2;
+  ctx.strokeStyle = planted ? '#A6DDB0' : 'rgba(166,221,176,0.95)';
+  if (!planted) ctx.setLineDash(DASH);
+  ctx.stroke();
+  ctx.setLineDash(NO_DASH);
+  if (icon) drawGlyph(ctx, icon, x, y, Math.round(r * 1.15), planted ? '#F3EEE4' : '#A6DDB0', 1.8);
+}
+
 const DASH: number[] = [3, 3];
 const NO_DASH: number[] = [];
 const HOUR_FONT = "bold 11px 'Atkinson Hyperlegible', system-ui, sans-serif";

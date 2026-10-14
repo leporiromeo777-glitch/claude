@@ -32,7 +32,7 @@ import { el } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
 import { solveAsync } from '../engine/index';
 import { type Diagnosis, Session } from './session';
-import { BAND, type NotePlacement, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, scrollLimits } from './layout';
+import { BAND, type NotePlacement, SLOT_R, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, rowsBelow, scrollLimits, slotCenter } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
 import { type TextDeps, describeCondition, formatHour, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
 import { LaceRenderer, emptyOverlay, type Overlay, type Palette } from './render/lace';
@@ -45,6 +45,7 @@ import { type GoalsButtonState, RequestStrip, goalCard, noteCard, type RequestTo
 import { ObjectivesList } from './ui/objectives';
 import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
 import { ArchivePanel } from './ui/archivepanel';
+import { shownQuirks } from './quirks';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -61,6 +62,10 @@ export interface TapVia {
 }
 
 const BEAD_EVENTS: ReadonlySet<LaceEvent['k']> = new Set(['passa', 'copia', 'consegna', 'contagio', 'cura']);
+/** Durate delle chiusure speciali a 1× (C11, C12) e della dissolvenza con il movimento ridotto. */
+const ENDING_NODO_S = 2.3;
+const ENDING_APPARIZIONE_S = 2.5;
+const ENDING_FADE_S = 0.6;
 /** Nota a margine: si chiude alla prima azione valida dopo 4 s, da sola dopo 12 s (D04). */
 const NOTE_MIN_S = 4;
 const NOTE_MAX_S = 12;
@@ -130,6 +135,9 @@ export class NightController {
   readonly bubble = new Bubble();
   readonly status = new StatusLine();
   private readonly prompt: HTMLElement;
+  /** «↓ altre N ore» (TOM-11): righe che non stanno nel merletto. */
+  private readonly scrollDown: HTMLButtonElement;
+  private scrollHintN = -1;
   private readonly rewindBar: HTMLElement;
   private readonly leftBox: HTMLElement;
   private readonly rightBox: HTMLElement;
@@ -152,11 +160,13 @@ export class NightController {
     this.tutorial = new Tutorial(params.level.tutorial ?? [], { margin: (k, hand) => this.showMargin(k, hand) });
     this.overlay.quirk = this.quirkOf;
     this.overlay.label = this.labelOf;
+    this.overlay.rancor = this.rancorOf;
     this.interact = new Interaction(this);
     this.vp = s.viewport.get();
 
     // ───────── DOM ─────────
     this.requests = new RequestStrip((id) => this.openRequest(id));
+    this.requests.onSkip = () => this.skipQuiet();
     this.actions = new ActionBar({ menu: () => this.openMenu(), undo: () => this.undo(), main: () => this.mainAction(), notebook: () => this.openNotebook() });
     this.lamp = new HintLamp(() => {
       this.tutorial.interacted('lampada');
@@ -164,6 +174,12 @@ export class NightController {
     });
     this.margin.onTap = () => this.closeNote();
     this.prompt = el('div', { class: 'tb-prompt', role: 'status', test: 'tb-nome-prompt', hidden: true });
+    this.scrollDown = el('button', { type: 'button', class: ['tb-scorri', 'core-solid'], test: 'tb-scorri-giu', hidden: true });
+    this.scrollDown.addEventListener('click', (e) => {
+      if (e.detail > 0) this.scrollDown.blur();
+      this.scrollBy(Math.max(this.layout.rowH, this.layout.lace.h * 0.8));
+      this.updateScrollHint();
+    });
     this.rewindBar = el('div', { class: 'tb-rewind core-solid', test: 'tb-riavvolgi', hidden: true });
     this.leftBox = el('div', { class: 'tb-panel tb-panel-left', test: 'tb-pannello-sinistro', hidden: true });
     this.rightBox = el('div', { class: 'tb-panel tb-panel-right', test: 'tb-pannello-destro', hidden: true });
@@ -182,6 +198,7 @@ export class NightController {
       this.margin.el,
       this.bubble.el,
       this.prompt,
+      this.scrollDown,
       this.rewindBar,
       this.status.el,
     );
@@ -226,6 +243,7 @@ export class NightController {
     this.rememberStatuses();
     this.saveNow(false);
     this.s.canvas?.canvas?.addEventListener('pointermove', this.onHover);
+    if (typeof window !== 'undefined') window.addEventListener('keydown', this.onKeyCapture, true);
     // Le misure delle scritte si rifanno a font caricati (D16).
     try {
       void document.fonts?.ready.then(() => {
@@ -546,7 +564,8 @@ export class NightController {
       titleParams: this.titleParams(),
       hour: formatHour(this.textDeps, s.done ? lv.endHour : s.hour),
       end: formatHour(this.textDeps, lv.endHour),
-      done: s.done,
+      // C11: il merletto chiuso dal nodo non dice «Merletto chiuso».
+      done: s.done && lv.chiusura !== 'nodo',
       matassa: this.showMatassa() ? s.matassa() : null,
       light: this.windowLight(),
     });
@@ -583,6 +602,10 @@ export class NightController {
       };
     });
     this.requests.update(tokens);
+    // Salta le ore quiete (D02.3): «Fissa fino alle N» quando almeno 2 righe si fissano vuote senza eventi.
+    const quiet = this.completed || this.previewRow >= 0 ? { count: 0, until: 0 } : s.quietRun();
+    this.quietUntil = quiet.count >= 2 ? quiet.until : null;
+    this.requests.setSkip(this.quietUntil !== null ? formatHour(this.textDeps, this.quietUntil) : null);
     // Pulsante Obiettivi con il contatore «2/5» (C08): obiettivi, spilli, rancore, fili da nominare.
     this.requests.setGoals(this.goalsButton());
     this.requests.goals.classList.toggle('tb-pulsa', has('obiettivi'));
@@ -690,6 +713,32 @@ export class NightController {
     const o = this.overlay;
     o.time = this.time;
     o.pulse = 0.5 + 0.5 * Math.sin(this.time * 4);
+    const e = this.ending;
+    if (e) {
+      e.t += dt;
+      if (o.ending) o.ending.p = Math.min(1, e.dur > 0 ? e.t / e.dur : 1);
+      if (e.kind === 'apparizione' && this.layout) this.scroll = -(this.layout.rowH + 8);
+      if (e.t >= e.dur) this.endEnding();
+    }
+    this.updateScrollHint();
+  }
+
+  /** Indicatore delle righe nascoste in fondo al merletto (D06: «↓ altre 3 ore»). */
+  updateScrollHint(): void {
+    if (!this.layout) return;
+    const n = rowsBelow(this.layout, this.scroll);
+    if (n === this.scrollHintN) return;
+    this.scrollHintN = n;
+    this.scrollDown.hidden = n === 0;
+    this.scrollDown.dataset.ore = String(n);
+    if (n > 0) {
+      this.scrollDown.replaceChildren(textOf('tombolo.scorri.giu', { n }, 'span'));
+      const l = this.layout;
+      const w = Math.min(220, l.center.w - 32);
+      this.scrollDown.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
+      this.scrollDown.style.width = `${w}px`;
+      this.scrollDown.style.top = `${l.lace.y + l.lace.h - 40}px`;
+    }
   }
 
   render(host: CanvasHost): void {
@@ -715,6 +764,17 @@ export class NightController {
   private handTo = -1;
 
   private readonly quirkOf = (t: ThreadId): boolean => this.quirky.has(t);
+  /** Fili in rancore finché la regola vale (segno del nodo sulla testa del fuso, D06). */
+  private readonly rancorous = new Set<ThreadId>();
+  private readonly rancorOf = (t: ThreadId): boolean => this.rancorous.has(t);
+
+  /** Stranezze da mostrare di un personaggio (TOM-17: modalità extra o regola del Taccuino). */
+  quirksOf(character: CharacterId): QuirkId[] {
+    const ch = this.s.content.characters.get(character);
+    if (!ch) return [];
+    const k = this.s.save.data().knowledge;
+    return shownQuirks(this.params.origin, character, ch.quirks, this.session.ctx.quirks, { quirks: [...this.known], diary: k.diary }, this.s.content);
+  }
   private readonly labelOf = (t: ThreadId): string | null => this.labels.get(t) ?? null;
 
   /** Dati delle sovrapposizioni che non cambiano a ogni fotogramma. */
@@ -724,8 +784,12 @@ export class NightController {
     for (const t of this.model?.hangPos ?? []) {
       const v = this.visuals.get(t);
       if (!v || !v.character || v.faded) continue;
-      const ch = this.s.content.characters.get(v.character);
-      if (ch && ch.quirks.some((q) => this.known.has(q) && s.ctx.quirks.includes(q))) this.quirky.add(t);
+      if (this.quirksOf(v.character).length > 0) this.quirky.add(t);
+    }
+    this.rancorous.clear();
+    for (const [a, b] of s.ctx.rancor) {
+      this.rancorous.add(a);
+      this.rancorous.add(b);
     }
     this.labels.clear();
     const a = s.archive;
@@ -1034,18 +1098,35 @@ export class NightController {
 
   /** Tocco su un fuso: nome di Ada (da g12) o nome di un filo sbiadito (Archivio). */
   tapSpindle(t: ThreadId, via?: TapVia): void {
-    const s = this.session;
-    if (s.needsNome) {
-      this.setNome(t);
-      return;
-    }
+    if (this.nomeTap(t)) return;
     if (this.isFadedThread(t)) this.openNamePicker(t, via);
   }
 
   /** Tasto N: nome di Ada (da g12) o nome di un filo sbiadito (Archivio). */
   nameKey(t: ThreadId): void {
-    if (this.session.needsNome) this.setNome(t);
-    else if (this.isFadedThread(t)) this.openNamePicker(t);
+    if (this.nomeTap(t)) return;
+    if (this.isFadedThread(t)) this.openNamePicker(t);
+  }
+
+  /**
+   * Il nome di Ada (GDD 3.11, TOM-16): si appunta toccando un fuso; finché nessuna
+   * ora è fissata un tocco su un altro fuso lo sposta («Il tuo nome ora è su X»);
+   * dopo, il tocco dice «Il nome è già appuntato». true se il tocco è servito al nome.
+   */
+  private nomeTap(t: ThreadId): boolean {
+    const s = this.session;
+    if (!this.params.needsNome || this.completed) return false;
+    if (s.needsNome) {
+      this.setNome(t);
+      return true;
+    }
+    if (s.nomeOn === t) return false;
+    if (s.rows.length === 0) {
+      this.setNome(t, true);
+      return true;
+    }
+    this.say('tombolo.nome.giaAppuntato', { nome: threadName(this.textDeps, s.nomeOn ?? t) }, 'info', 3000);
+    return true;
   }
 
   /** Un filo sbiadito dell'Archivio (confermato o no). */
@@ -1118,6 +1199,40 @@ export class NightController {
     if (!s.done) this.tutorial.onEvents(s.preview().events);
     this.saveNow(true);
     if (s.done && !(s.archive && this.params.mode === 'archivio') && this.params.mode !== 'occasioni') this.finish();
+  }
+
+  /** Maiusc+Invio (GDD 11.3): il core lo mappa su `confirm`; qui si ricorda il Maiusc. */
+  private shiftEnter = false;
+  private readonly onKeyCapture = (e: KeyboardEvent): void => {
+    this.shiftEnter = e.key === 'Enter' && e.shiftKey;
+  };
+
+  /** L'ultimo `confirm` veniva da Maiusc+Invio? (si legge una volta sola) */
+  consumeShiftEnter(): boolean {
+    const v = this.shiftEnter;
+    this.shiftEnter = false;
+    return v;
+  }
+
+  /** Ultima ora che «Fissa fino alle N» fisserebbe (null = non offerto). */
+  quietUntil: number | null = null;
+
+  /**
+   * Salta le ore quiete (D02.3, Maiusc+Invio): fissa riga per riga le ore vuote e si
+   * ferma al primo evento; Disfa torna indietro di una riga alla volta.
+   */
+  skipQuiet(): number {
+    if (this.completed || this.quietUntil === null) return 0;
+    const s = this.session;
+    const until = this.quietUntil;
+    let n = 0;
+    for (let guard = 0; guard < 32 && s.hour <= until && !s.done; guard++) {
+      if (s.draft.length > 0) break;
+      const res = this.fix();
+      if (!res.ok) break;
+      n++;
+    }
+    return n;
   }
 
   /** Pulsante grande: Fissa l'ora, Chiudi il merletto, Lascia accadere, Riprova, Salta. */
@@ -1271,12 +1386,13 @@ export class NightController {
     return true;
   }
 
-  setNome(thread: ThreadId): void {
+  setNome(thread: ThreadId, moved = false): void {
     const s = this.session;
     if (s.rows.length > 0) return;
     s.setNome(thread);
+    if (s.nomeOn !== thread) return;
     const name = threadName(this.textDeps, thread);
-    this.say('tombolo.nome.appuntato', { nome: name }, 'ok', 3000);
+    this.say(moved ? 'tombolo.nome.spostato' : 'tombolo.nome.appuntato', { nome: name }, 'ok', 3000);
     this.validAction();
     this.tutorial.onNome();
     this.refresh();
@@ -1632,6 +1748,24 @@ export class NightController {
     this.setOccasions(r.list);
   }
 
+  /**
+   * Slot di un'occasione sotto il punto (TOM-15): il cerchio disegnato al centro
+   * della cella (da piantare o già piantato), o null.
+   */
+  occasionSlotAt(x: number, y: number): { col: number; index: number } | null {
+    const l = this.layout;
+    if (!this.model || !l) return null;
+    const r = Math.max(SLOT_R + 4, Math.min(l.rowH, l.colW) * 0.45);
+    let best: { col: number; index: number; d: number } | null = null;
+    for (const p of this.model.pins) {
+      if (p.kind !== 'verde') continue;
+      const c = slotCenter(l, this.scroll, p.col, p.index);
+      const d = Math.hypot(x - c.x, y - c.y);
+      if (d <= r && (!best || d < best.d)) best = { col: p.col, index: p.index, d };
+    }
+    return best ? { col: best.col, index: best.index } : null;
+  }
+
   /** La cella (colonna, riga) ammette un'occasione? (senza elenco: tutte). */
   occasionCellAllowed(col: number, index: number): boolean {
     const lv = this.params.level;
@@ -1745,13 +1879,68 @@ export class NightController {
     // trova la notte già chiusa (anche se cambia scena subito).
     this.completed = s.outcome();
     this.clearSaved();
-    s.complete();
     this.placing = false;
     this.extraVersion++;
+    const lv = this.params.level;
+    const kind = !s.done ? null : lv.chiusura === 'nodo' ? 'nodo' : lv.apparizione && lv.apparizione.hour < lv.startHour ? 'apparizione' : null;
+    if (kind) {
+      this.startEnding(kind);
+      this.refresh();
+      this.updateStatusLine();
+      return this.completed;
+    }
+    s.complete();
     this.explain.show('tombolo.fine', {}, 'ok', 4000);
     this.refresh();
     this.updateStatusLine();
     return this.completed;
+  }
+
+  /**
+   * Chiusure speciali (C11, C12), sempre prima di `night:complete`:
+   * - nodo (finale C): `tombolo:nodo`, il nodo che si chiude su tutti i fili (800 ms) e il
+   *   merletto che si disfa dal basso (1,5 s); niente «Il merletto è chiuso»;
+   * - apparizione (g08, g15): `tombolo:apparizione`, in cima un filo nero entra dal bordo
+   *   all'ora indicata e incrocia da sopra i fili dell'apertura (2,5 s), poi sfuma.
+   * A 1×; con la velocità istantanea tutto subito; con il movimento ridotto una dissolvenza.
+   */
+  private startEnding(kind: 'nodo' | 'apparizione'): void {
+    const lv = this.params.level;
+    this.s.bus.emit(kind === 'nodo' ? 'tombolo:nodo' : 'tombolo:apparizione', { levelId: lv.id });
+    const sp = this.animSpeed();
+    const reduced = this.s.settings.get().reducedMotion;
+    const base = kind === 'nodo' ? ENDING_NODO_S : ENDING_APPARIZIONE_S;
+    const dur = sp <= 0 ? 0 : (reduced ? ENDING_FADE_S : base) / sp;
+    const ap = lv.apparizione;
+    const o = this.overlay;
+    o.ending = { kind, p: 0, fade: reduced, hour: ap ? String(ap.hour) : '', side: ap?.side === 'molo' ? -1 : 1, passi: ap?.passi ?? 1 };
+    this.ending = { kind, t: 0, dur };
+    if (kind === 'apparizione' && this.layout) {
+      // In cima, con un margine sopra la prima riga per l'ora della notte prima.
+      this.manualScroll = true;
+      this.scroll = -(this.layout.rowH + 8);
+    }
+    if (dur <= 0) this.endEnding();
+  }
+
+  private ending: { kind: 'nodo' | 'apparizione'; t: number; dur: number } | null = null;
+
+  /** L'animazione di chiusura è in corso (night:complete non è ancora partito). */
+  endingRunning(): boolean {
+    return this.ending !== null;
+  }
+
+  private endEnding(): void {
+    const e = this.ending;
+    if (!e) return;
+    this.ending = null;
+    if (this.overlay.ending) this.overlay.ending.p = 1;
+    if (e.kind === 'apparizione') {
+      this.overlay.ending = null;
+      this.explain.show('tombolo.fine', {}, 'ok', 4000);
+    }
+    this.session.complete();
+    this.refresh();
   }
 
   /** Autoplay (debug): le righe date, o la soluzione per le richieste accettate. */
@@ -2009,7 +2198,10 @@ export class NightController {
     const def = this.params.level.threads.find((x) => x.id === t);
     const kind: 'persona' | 'lino' | 'nero' | 'avorio' | 'sbiadito' = v.faded ? 'sbiadito' : v.kind === 'persona' ? 'persona' : v.kind;
     const ch = v.character ? this.s.content.characters.get(v.character) : undefined;
-    const quirks = ch ? ch.quirks.filter((q) => this.known.has(q)) : [];
+    const quirks = ch ? this.quirksOf(ch.id) : [];
+    const rancor = this.session.ctx.rancor
+      .filter(([a, b]) => a === t || b === t)
+      .map(([a, b]) => this.s.i18n.t('tombolo.rancore.coppia', { a: threadName(this.textDeps, a), b: threadName(this.textDeps, b) }));
     const memoria = ch && save.campaign ? (save.campaign.memoria[ch.id] ?? null) : null;
     const showMem = memoria !== null && (this.params.needsNome || this.params.level.rules.includes('nome'));
     this.openPopup('tb-popup-scheda', (body) => {
@@ -2022,6 +2214,7 @@ export class NightController {
           icon: v.icon,
           kind: kind === 'persona' && !ch ? (def?.kind === 'avorio' ? 'avorio' : 'persona') : kind,
           quirks,
+          rancor,
           desireKey: ch && save.knowledge.desires.includes(ch.id) ? (ch.desireKey ?? null) : null,
           memoria: showMem ? memoria : null,
         }),
@@ -2247,6 +2440,7 @@ export class NightController {
     }
     this.destroyed = true;
     this.s.canvas?.canvas?.removeEventListener('pointermove', this.onHover);
+    if (typeof window !== 'undefined') window.removeEventListener('keydown', this.onKeyCapture, true);
     this.runner?.stop();
     this.popup?.close();
     this.explain.destroy();

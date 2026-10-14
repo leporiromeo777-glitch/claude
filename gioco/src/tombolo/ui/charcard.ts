@@ -18,6 +18,8 @@ export interface CharCardData {
   icon: string | null;
   kind: 'persona' | 'lino' | 'nero' | 'avorio' | 'sbiadito';
   quirks: QuirkId[];
+  /** Righe del rancore già scritte («Teresa e Marta sono in rancore…»), D06. */
+  rancor?: string[];
   desireKey: string | null;
   memoria: number | null;
 }
@@ -37,6 +39,7 @@ export function charCard(d: CharCardData): HTMLElement {
   body.appendChild(textOf('tombolo.scheda.stranezze', undefined, 'h3', { className: 'tb-char-sub' }));
   if (d.quirks.length === 0) body.appendChild(textOf('tombolo.scheda.nessunaStranezza', undefined, 'p', { className: 'tb-char-line' }));
   for (const q of d.quirks) body.appendChild(textOf(`tombolo.stranezza.${q}`, undefined, 'p', { className: 'tb-char-line' }));
+  for (const r of d.rancor ?? []) body.appendChild(el('p', { class: 'tb-char-line tb-char-rancore', test: 'tb-scheda-rancore', text: r }));
   body.appendChild(textOf('tombolo.scheda.desiderio', undefined, 'h3', { className: 'tb-char-sub' }));
   body.appendChild(d.desireKey ? textOf(d.desireKey, undefined, 'p', { className: 'tb-char-line', rich: true }) : textOf('tombolo.scheda.desiderioIgnoto', undefined, 'p', { className: 'tb-char-line' }));
   if (d.memoria !== null) {

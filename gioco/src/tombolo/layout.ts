@@ -32,13 +32,22 @@ export const NARROW_MAX_LANDSCAPE = 520;
  * Colonna delle etichette delle ore, a sinistra: il numero dell'ora e, accanto,
  * l'icona di un evento sul bordo del Molo (D06: l'icona non sostituisce il numero).
  */
-export const GUTTER = 34;
+export const GUTTER = 36;
 /** A destra, l'icona di un evento sul bordo del Faro. */
-export const RIGHT_PAD = 14;
+export const RIGHT_PAD = 12;
 export const COL_MIN = 52;
 export const COL_MAX = 112;
 export const ROW_MIN = 40;
 export const ROW_MAX = 56;
+/**
+ * D06: l'altezza della riga si adatta perché tutta la notte stia sullo schermo,
+ * `rowH = clamp(spazio / (righe + 0,6), 30, 56)`; sotto i 30 px le righe tornano
+ * a 40 px (ROW_SCROLL) e compare l'indicatore «↓ altre N ore».
+ */
+export const ROW_FIT_MIN = 30;
+export const ROW_SCROLL = 40;
+/** Nel layout largo la fascia dei fusi può scendere fino a 104 px perché le righe stiano tutte (TOM-11). */
+export const SPINDLES_MIN_WIDE = 104;
 /** Altezza della riga d'apertura rispetto a una riga normale. */
 export const OPEN_ROW = 0.6;
 /** Margine fra il merletto e i bordi della sua area. */
@@ -140,13 +149,22 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
   const fixedBands = hudH + BAND.header + BAND.requests + BAND.actions;
   const lace0 = bottom - top - fixedBands - BAND.spindles;
   const laceMin = Math.round(ROW_MIN * (2 + OPEN_ROW) + LACE_PAD * 2);
-  const spindleBand = lace0 >= laceMin ? BAND.spindles : Math.max(SPINDLES_MIN, BAND.spindles - (laceMin - lace0));
+  let spindleBand = lace0 >= laceMin ? BAND.spindles : Math.max(SPINDLES_MIN, BAND.spindles - (laceMin - lace0));
+  const r0 = Math.max(1, rows);
+  const noteBand0 = Math.max(0, Math.round(opts.noteBand ?? 0));
+  if (kind === 'largo') {
+    // Largo: si accorcia la fascia dei fusi (fino a 104 px) se così tutte le righe stanno a 30 px o più.
+    const laceH = bottom - top - fixedBands - spindleBand - noteBand0;
+    const need = Math.ceil(ROW_FIT_MIN * (r0 + OPEN_ROW) + LACE_PAD * 2);
+    const deficit = need - laceH;
+    if (deficit > 0 && deficit <= spindleBand - SPINDLES_MIN_WIDE) spindleBand -= deficit;
+  }
   const hud = rect(center.x, center.y, center.w, hudH);
   const header = rect(center.x, hud.y + hud.h, center.w, BAND.header);
   const actions = rect(center.x, bottom - BAND.actions, center.w, BAND.actions);
   const spindles = rect(center.x, actions.y - spindleBand, center.w, spindleBand);
   const requests = rect(center.x, spindles.y - BAND.requests, center.w, BAND.requests);
-  const noteBand = Math.max(0, Math.round(opts.noteBand ?? 0));
+  const noteBand = noteBand0;
   const laceTop = header.y + header.h + noteBand;
   const lace = rect(center.x, laceTop, center.w, Math.max(0, requests.y - laceTop));
   const lamp = rect(center.x + center.w - 52, requests.y + (requests.h - 48) / 2, 48, 48);
@@ -160,9 +178,9 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
     colX.push(x0 + colW * i);
     colCx.push(x0 + colW * (i + 0.5));
   }
-  const r = Math.max(1, rows);
+  const r = r0;
   const fit = (lace.h - LACE_PAD * 2) / (r + OPEN_ROW);
-  const rowH = Math.round(Math.max(ROW_MIN, Math.min(ROW_MAX, fit)));
+  const rowH = fit >= ROW_FIT_MIN ? Math.floor(Math.min(ROW_MAX, fit)) : ROW_SCROLL;
   const openH = Math.round(rowH * OPEN_ROW);
   const spindleH = spindleBand - 10;
   const spindleW = Math.round((spindleH * 96) / 320);
@@ -288,3 +306,21 @@ export function placeMarginNote(base: TomboloLayout, current: number, obstacles:
   const band = h + NOTE_GAP * 2;
   return { mode: 'fascia', rect: rect(x, base.header.y + base.header.h + NOTE_GAP, w, h), band };
 }
+
+/** Righe sotto il bordo visibile del merletto (per l'indicatore «↓ altre N ore»). */
+export function rowsBelow(l: Pick<TomboloLayout, 'rowH' | 'openH' | 'rows' | 'lace'>, scroll: number): number {
+  let n = 0;
+  for (let i = 1; i <= l.rows; i++) if (rowBottom(l, i) - scroll > l.lace.h + 1) n++;
+  return n;
+}
+
+/**
+ * Centro dello slot di un'occasione (TOM-15): al centro della cella (colonna,
+ * riga), lo stesso punto per il disegno e per il bersaglio del tocco.
+ */
+export function slotCenter(l: Pick<TomboloLayout, 'colCx' | 'rowH' | 'openH' | 'lace'>, scroll: number, col: number, index: number): { x: number; y: number } {
+  return { x: l.colCx[col] ?? 0, y: l.lace.y - scroll + (rowTop(l, index) + rowBottom(l, index)) / 2 };
+}
+
+/** Raggio del cerchio di uno slot (px CSS). */
+export const SLOT_R = 13;

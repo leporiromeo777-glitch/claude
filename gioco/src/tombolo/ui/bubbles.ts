@@ -8,7 +8,7 @@
 import type { AcceptedRequest, Condition, LevelDef, OccasionDef, ThreadId } from '../../core/types';
 import { el } from '../../core/ui/dom';
 import type { Rect, TomboloLayout } from '../layout';
-import { rowBottom, rowTop } from '../layout';
+import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import type { LaceModel } from '../render/model';
 import { edgeX } from '../render/lace';
 import type { SpindleRig } from '../render/spindles';
@@ -90,9 +90,9 @@ export function bubbleTargetAt(sc: BubbleScene, x: number, y: number): BubbleTar
   if (!inLace) return null;
   // Spilli (anche nelle righe future).
   for (const p of m.pins) {
-    if (p.state === 'ombra') continue;
-    const h = pinHead(l, scroll, p.col, p.index);
-    if (near(h.x, h.y)) return { k: 'spillo', kind: p.kind, col: p.col, index: p.index, x: h.x, y: h.y };
+    // Le occasioni (anche quelle da piantare) al centro della cella, gli spilli sulla testa.
+    const h = p.kind === 'verde' ? slotCenter(l, scroll, p.col, p.index) : pinHead(l, scroll, p.col, p.index);
+    if (near(h.x, h.y, p.kind === 'verde' ? SLOT_R + 3 : BUBBLE_HIT)) return { k: 'spillo', kind: p.kind, col: p.col, index: p.index, x: h.x, y: h.y };
   }
   // Barche, bordi, ingresso del filo nero.
   for (const e of m.edges) {
@@ -141,7 +141,10 @@ export function bubbleText(d: BubbleTextDeps, t: BubbleTarget): string {
       const hour = start + t.index;
       const place = lv.columns[t.col] ?? 'molo';
       if (t.kind === 'verde') {
-        const o = d.occasions.find((x) => x.place === place && x.hour === hour) ?? (lv.autoweave?.presetOccasions ?? []).find((x) => x.place === place && x.hour === hour);
+        const o =
+          d.occasions.find((x) => x.place === place && x.hour === hour) ??
+          (lv.autoweave?.presetOccasions ?? []).find((x) => x.place === place && x.hour === hour) ??
+          (lv.autoweave?.allowedOccasions ?? []).find((x) => x.place === place && x.hour === hour);
         out = i18n.t('tombolo.bolla.occasione', { ...P({ luogo: place, ora: hour }), tipo: i18n.t(`tombolo.occasione.${o?.kind ?? 'festa'}`) });
         break;
       }

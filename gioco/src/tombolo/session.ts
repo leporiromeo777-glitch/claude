@@ -711,6 +711,83 @@ export class Session implements NightSession {
     return unreachablePins(this.level, this.state, this._ctx);
   }
 
+  // ───────── Ore quiete (D02.3, TOM-22) ─────────
+
+  /** Ore in cui le condizioni attive scadono o si decidono (scadenze, spilli, finestre). */
+  private conditionHours(): Set<Hour> {
+    const out = new Set<Hour>();
+    const walk = (c: Condition): void => {
+      switch (c.t) {
+        case 'presso':
+        case 'esceCon':
+          out.add(c.hour);
+          break;
+        case 'parte':
+          if (c.hour !== undefined) out.add(c.hour);
+          break;
+        case 'consegnata':
+        case 'ha':
+          if (c.by !== undefined) out.add(c.by);
+          break;
+        case 'maiPresso':
+          out.add(c.from);
+          out.add(c.to);
+          break;
+        case 'incontra':
+        case 'nonIncontra':
+          if (c.from !== undefined) out.add(c.from);
+          if (c.to !== undefined) out.add(c.to);
+          break;
+        case 'sopra':
+          if (c.to !== undefined) out.add(c.to);
+          break;
+        case 'tutti':
+        case 'almeno':
+          for (const x of c.of) walk(x);
+          break;
+        case 'non':
+          walk(c.c);
+          break;
+        default:
+          break;
+      }
+    };
+    for (const c of this.goals()) walk(c);
+    return out;
+  }
+
+  /**
+   * Righe che da qui si possono fissare vuote senza che succeda nulla (D02.3):
+   * niente spilli, bordi, marea, filo nero, scadenze di richieste o obblighi di
+   * Gino, nessun evento. Ci si ferma prima dell'ultima riga (la si chiude a mano).
+   * `count` = quante; `until` = l'ultima ora che si fisserebbe.
+   */
+  quietRun(): { count: number; until: Hour } {
+    const none = { count: 0, until: this.hour - 1 };
+    if (!this.isPlayerRow() || this._draft.length > 0 || this.needsNome) return none;
+    if (this.params.mode !== 'normale') return none;
+    const lv = this.level;
+    const stops = this.conditionHours();
+    for (const p of lv.pins) stops.add(p.hour);
+    for (const e of lv.edges ?? []) stops.add(e.hour);
+    for (const t of lv.tide ?? []) {
+      stops.add(t.from);
+      stops.add(t.to + 1);
+    }
+    if (lv.nero) stops.add(lv.nero.enter.hour);
+    let st = this.state;
+    let n = 0;
+    for (let h = this.hour; h < lv.endHour; h++) {
+      if (stops.has(h)) break;
+      if (forcedCrossings(lv, st, this._ctx).length > 0) break;
+      const r = applyRow(lv, st, [], this._ctx);
+      if (!r.ok || r.events.length > 0) break;
+      st = r.state;
+      n++;
+    }
+    return n > 0 ? { count: n, until: this.hour + n - 1 } : none;
+  }
+
   // ───────── Suggerimenti ─────────
 
   /**

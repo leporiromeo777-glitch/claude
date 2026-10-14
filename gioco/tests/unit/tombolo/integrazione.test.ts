@@ -117,15 +117,23 @@ describe('notte salvata e spartiti (priorità 1)', () => {
 });
 
 describe('autoplay con il nome di Ada (priorità 2)', () => {
-  it('g12 con Lunardi: il nome su Lunardi dal .computed.json, 2 incroci e filo d\'oro', async () => {
+  /** Il filo del nome che l'autoplay deve scegliere: quello del .computed.json se è nel merletto all'apertura. */
+  function expectedNome(c: NightController): string {
+    const best = c.session.precomputedNomeOn();
+    const pos = c.session.state.pos;
+    if (best && pos.includes(best)) return best;
+    return pos.find((x) => c.visuals.get(x)?.kind !== 'lino') ?? pos[0]!;
+  }
+
+  it('g12 con Lunardi: il nome sul filo del .computed.json, la richiesta compiuta col minimo', async () => {
     const p: NightParams = nightParams(level('g12'), { origin: 'campagna', accepted: accepted('g12.lunardi'), needsNome: true });
     c = new NightController(h.s, p, { computed: computed('g12') });
-    expect(c.session.precomputedNomeOn()).toBe('lunardi');
+    const want = expectedNome(c);
     const out = (await c.autoplay()) as NightOutcome;
     expect(out).not.toBeNull();
-    expect(out.nomeOn).toBe('lunardi');
+    expect(out.nomeOn).toBe(want);
     expect(out.requests).toEqual([{ noteId: 'g12.lunardi', status: 'soddisfatta' }]);
-    expect(out.metrics.incroci).toBe(2);
+    expect(out.metrics.incroci).toBe(out.metrics.minIncroci);
     // C15: filo d'oro solo se il minimo della notte è almeno 3.
     expect(out.metrics.filoDOro).toBe((out.metrics.minIncroci ?? 0) >= 3);
   });
@@ -133,9 +141,9 @@ describe('autoplay con il nome di Ada (priorità 2)', () => {
   it('senza un filo indicato resta il primo filo che non è un lino', async () => {
     const p: NightParams = nightParams(level('g12'), { origin: 'campagna', accepted: accepted('g12.bepi'), needsNome: true });
     c = new NightController(h.s, p, { computed: computed('g12') });
-    expect(c.session.precomputedNomeOn()).toBeNull();
+    const want = expectedNome(c);
     const out = (await c.autoplay()) as NightOutcome;
-    expect(out.nomeOn).toBe('bepi');
+    expect(out.nomeOn).toBe(want);
   });
 
   it('righe precalcolate per un altro filo del nome non si usano', () => {

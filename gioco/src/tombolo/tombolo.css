@@ -1076,3 +1076,37 @@
   font-family: var(--font-libro);
   font-style: italic;
 }
+
+/* ───────── «↓ altre N ore» (TOM-11) ───────── */
+.tb-scorri {
+  z-index: 4;
+  height: 36px;
+  pointer-events: auto;
+  border-radius: 999px;
+  border: 1px solid var(--ottone);
+  background: rgba(18, 22, 34, 0.94);
+  color: var(--testo);
+  font: inherit;
+  font-size: max(0.95rem, calc(15px * var(--text-scale)));
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ───────── «Fissa fino alle N» (TOM-22) ───────── */
+.tb-salta {
+  flex: 0 1 auto;
+  margin-left: auto;
+  min-height: 40px;
+  max-width: 132px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ottone);
+  background: rgba(18, 22, 34, 0.92);
+  color: var(--ottone);
+  font: inherit;
+  font-size: max(0.9rem, calc(15px * var(--text-scale)));
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: normal;
+  cursor: pointer;
+}

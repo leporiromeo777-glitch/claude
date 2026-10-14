@@ -137,6 +137,12 @@ export class Interaction {
     const m = c.model;
     const faded = this.fadedAt(i, x, y);
     if (c.placingOccasions()) {
+      // TOM-15: il bersaglio è il cerchio disegnato (stessa funzione del disegno).
+      const slot = c.occasionSlotAt(x, y);
+      if (slot) {
+        c.toggleOccasionCell(slot.col, slot.index);
+        return true;
+      }
       const col = columnAt(l, x);
       // Una cella senza occasione ammessa, ma con un filo sbiadito: si nomina il filo.
       if (faded && col >= 0 && !c.occasionCellAllowed(col, i)) {
@@ -171,10 +177,11 @@ export class Interaction {
     return true;
   }
 
-  /** Pressione lunga sul merletto: un filo sbiadito si nomina anche così. */
+  /** Pressione lunga sul merletto: un filo sbiadito si nomina anche così; su uno slot, la sua etichetta. */
   private longpressLace(x: number, y: number, pointer: 'mouse' | 'touch' | 'pen'): boolean {
     const i = this.rowAt(y);
     if (i < 0) return false;
+    if (this.c.showBubbleAt(x, y)) return true;
     const faded = this.fadedAt(i, x, y);
     if (faded) this.c.openNamePicker(faded, { pointer, y });
     return true;
@@ -331,6 +338,11 @@ export class Interaction {
         c.flipCrossing(this.cursorPair);
         return true;
       case 'confirm':
+        // Maiusc+Invio: «Fissa fino alle N» quando è offerto (D02.3).
+        if (c.consumeShiftEnter() && c.quietUntil !== null) {
+          c.skipQuiet();
+          return true;
+        }
         c.mainAction();
         return true;
       case 'fixHour':

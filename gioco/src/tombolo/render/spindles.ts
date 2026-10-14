@@ -11,6 +11,7 @@ import { drawGlyph } from '../../core/ui/glyphs';
 import type { ThreadVisual } from '../visuals';
 import { visualOf } from '../visuals';
 import { easeInOut } from './curves';
+import { drawKnot } from './threads';
 
 export const SPRING_K = 40;
 export const SPRING_C = 6;
@@ -38,6 +39,8 @@ export interface SpindleState {
 export interface SpindleDrawOptions {
   /** Il filo ha una stranezza nota (icona sul fuso). */
   quirk(thread: ThreadId): boolean;
+  /** Il filo è in rancore: un piccolo nodo sulla testa del fuso (D06). */
+  rancor(thread: ThreadId): boolean;
   /** Etichetta sotto la testa (Archivio: nome provvisorio). */
   label(thread: ThreadId): string | null;
   /** Fusi evidenziati (cursore della tastiera, passaggio del nome). */
@@ -247,6 +250,7 @@ export class SpindleRig {
         ctx.fill();
         drawGlyph(ctx, 'info', w * 0.42, h * (0.24 - ay), 11, '#1A1610', 2);
       }
+      if (o.rancor(s.thread)) drawKnot(ctx, 0, h * (0.12 - ay) - 15);
       if (o.nomeOn === s.thread) {
         ctx.fillStyle = 'rgba(240,124,108,0.5)';
         ctx.beginPath();

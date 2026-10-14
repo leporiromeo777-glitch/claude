@@ -70,7 +70,27 @@ export class RequestStrip {
       if (e.detail > 0) this.goals.blur();
       this.onOpen('obiettivi');
     });
-    this.el = el('div', { class: 'tb-requests', test: 'tb-richieste' }, this.goals, this.tokens, this.info);
+    this.skip = el('button', { type: 'button', class: ['tb-salta', 'core-solid'], test: 'tb-salta-quiete', hidden: true });
+    this.skip.addEventListener('click', (e) => {
+      if (e.detail > 0) this.skip.blur();
+      this.onSkip?.();
+    });
+    this.el = el('div', { class: 'tb-requests', test: 'tb-richieste' }, this.goals, this.tokens, this.info, this.skip);
+  }
+
+  /** «Fissa fino alle N» (Salta le ore quiete, D02.3). */
+  readonly skip: HTMLButtonElement;
+  onSkip: (() => void) | null = null;
+  private lastSkip = '';
+
+  /** Mostra (con l'ora già scritta) o nasconde il pulsante delle ore quiete. */
+  setSkip(until: string | null): void {
+    const k = until ?? '';
+    if (k === this.lastSkip) return;
+    this.lastSkip = k;
+    this.skip.hidden = until === null;
+    this.info.hidden = until !== null;
+    if (until !== null) this.skip.replaceChildren(textOf('tombolo.azioni.saltaQuiete', { ora: until }, 'span'));
   }
 
   /** Pulsante Obiettivi con il contatore; null = niente da elencare. */

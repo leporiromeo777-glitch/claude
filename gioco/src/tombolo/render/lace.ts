@@ -11,13 +11,13 @@
  */
 import type { AssetStore, Side, ThreadId } from '../../core/types';
 import type { TomboloLayout } from '../layout';
-import { rowBottom, rowTop } from '../layout';
+import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import { visualOf } from '../visuals';
 import type { LaceModel, StackView } from './model';
 import { StripCache } from './cache';
-import { type CanvasMaker, defaultCanvasMaker, PinSprites } from './pins';
+import { type CanvasMaker, defaultCanvasMaker, drawSlot, PinSprites } from './pins';
 import { Velvet } from './velvet';
-import { type RowGeom, type RowStyle, drawHanging, drawRow, poolPoly } from './threads';
+import { type RowGeom, type RowStyle, drawHanging, drawKnot, drawRow, poolPoly } from './threads';
 import { drawBead, FlightPool } from './beads';
 import { type SpindleDrawOptions, SpindleRig } from './spindles';
 import { Poly, sampleThread, traceCurve } from './curves';
@@ -68,6 +68,8 @@ export interface Overlay {
   /** Echi da toccare (Archivio). */
   showEchoes: boolean;
   quirk: (thread: ThreadId) => boolean;
+  /** Il filo è in rancore (segno del nodo sulla testa del fuso). */
+  rancor: (thread: ThreadId) => boolean;
   label: (thread: ThreadId) => string | null;
   highlight: Set<ThreadId>;
   nomeOn: ThreadId | null;
@@ -78,6 +80,8 @@ export interface Overlay {
   pulsePinIndex: number;
   /** Tutorial: colonne allagate che pulsano, dalla riga indicata (−1 = no). */
   pulseTideFrom: number;
+  /** Chiusura speciale in corso (C11 nodo, C12 apparizione del filo nero), con il suo avanzamento 0-1. */
+  ending: { kind: 'nodo' | 'apparizione'; p: number; fade: boolean; hour: string; side: -1 | 1; passi: number } | null;
 }
 
 export function emptyOverlay(): Overlay {
@@ -96,6 +100,7 @@ export function emptyOverlay(): Overlay {
     nameStep: false,
     showEchoes: false,
     quirk: () => false,
+    rancor: () => false,
     label: () => null,
     highlight: new Set(),
     nomeOn: null,
@@ -103,10 +108,13 @@ export function emptyOverlay(): Overlay {
     pulsePinCol: -1,
     pulsePinIndex: -1,
     pulseTideFrom: -1,
+    ending: null,
   };
 }
 
 const LABEL_FONT = "13px 'Atkinson Hyperlegible', system-ui, sans-serif";
+/** Durata a 1× del nodo e del riavvolgimento (s), per le fasi del disegno (C11). */
+const ENDING_NODO = 2.3;
 const LABEL_FONT_CUR = "bold 15px 'Atkinson Hyperlegible', system-ui, sans-serif";
 const GHOST_DASH: number[] = [8, 6];
 const NO_DASH: number[] = [];
@@ -123,7 +131,7 @@ export class LaceRenderer {
   private readonly style: RowStyle = { gap: DEFAULT_PALETTE.velluto, time: 0, ghostAlpha: 0.55, marks: true };
   private readonly fixedStyle: RowStyle = { gap: DEFAULT_PALETTE.velluto, time: 0, ghostAlpha: 0.55, marks: true };
   private readonly handPoly = new Poly();
-  private readonly spindleOpts: SpindleDrawOptions = { quirk: () => false, label: () => null, highlight: new Set(), pulse: 0, nomeOn: null };
+  private readonly spindleOpts: SpindleDrawOptions = { quirk: () => false, rancor: () => false, label: () => null, highlight: new Set(), pulse: 0, nomeOn: null };
   private paintModel: LaceModel | null = null;
   private paintLayout: TomboloLayout | null = null;
   /** Tempo del fotogramma (per il tremito delle lettere). */
@@ -345,12 +353,17 @@ export class LaceRenderer {
       ctx.strokeRect(l.center.x + 1, y0, l.center.w - 2, y1 - y0);
       if (o.previewStacks) this.drawStacks(ctx, l, o.previewStacks, y1 + 12, null);
     }
-    // Spilli.
+    // Spilli (le occasioni al centro della cella, TOM-15).
     for (let k = 0; k < m.pins.length; k++) {
       const pin = m.pins[k] as LaceModel['pins'][number];
       const x = g.colCx[pin.col] ?? 0;
       const y = top + rowBottom(l, pin.index);
-      if (y < lace.y - 20 || y > lace.y + lace.h + 20) continue;
+      if (y < lace.y - 20 || y > lace.y + lace.h + 20 + l.rowH) continue;
+      if (pin.kind === 'verde') {
+        const c = slotCenter(l, scroll, pin.col, pin.index);
+        drawSlot(ctx, pin.state, c.x, c.y, SLOT_R, pin.icon);
+        continue;
+      }
       this.pins.draw(ctx, pin.kind, pin.state, x, y, pin.icon, pin.label);
       if (pin.kind === 'ottone' && pin.col === o.pulsePinCol && pin.index === o.pulsePinIndex) pulseRing(ctx, x + 9, y - 11, 14, o.pulse, P.ottone);
     }
@@ -405,12 +418,15 @@ export class LaceRenderer {
     // Fusi.
     const so = this.spindleOpts;
     so.quirk = o.quirk;
+    so.rancor = o.rancor;
     so.label = o.label;
     so.highlight = o.highlight;
     so.pulse = o.pulse;
     so.nomeOn = o.nomeOn;
     rig.draw(ctx, spTop, l.spindleW, l.spindleH, m.visuals, so);
     void assets;
+
+    if (o.ending) this.drawEnding(ctx, l, m, scroll, o);
 
     // Mano fantasma del tutorial: trascina un fuso fantasma da una colonna all'altra,
     // con una freccia (C02: il verso dell'incrocio si vede).
@@ -429,6 +445,103 @@ export class LaceRenderer {
       drawHand(ctx, x, y, this.handPoly);
       ctx.globalAlpha = 1;
     }
+  }
+
+  /** Chiusure speciali: il nodo e il merletto che si disfa (C11), il filo nero che appare (C12). */
+  private drawEnding(ctx: CanvasRenderingContext2D, l: TomboloLayout, m: LaceModel, scroll: number, o: Overlay): void {
+    const e = o.ending;
+    if (!e) return;
+    const P = this.palette;
+    const top = l.lace.y - scroll;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(l.center.x, l.lace.y, l.center.w, l.spindles.y + l.spindles.h - l.lace.y);
+    ctx.clip();
+    if (e.kind === 'nodo') {
+      if (e.fade) {
+        ctx.globalAlpha = e.p;
+        ctx.fillStyle = P.velluto;
+        ctx.fillRect(l.center.x, l.lace.y, l.center.w, l.spindles.y + l.spindles.h - l.lace.y);
+        ctx.restore();
+        return;
+      }
+      const t = e.p * ENDING_NODO;
+      const knot = Math.min(1, t / 0.8);
+      const unravel = Math.max(0, Math.min(1, (t - 0.8) / 1.5));
+      // 1. Il nodo si chiude su tutti i fili: convergono in un punto sotto l'ultima riga.
+      const yTop = top + rowBottom(l, m.rows);
+      const cx = ((l.colCx[0] ?? 0) + (l.colCx[l.cols - 1] ?? 0)) / 2;
+      const ky = yTop + 34 * knot;
+      for (let c = 0; c < m.hangPos.length; c++) {
+        const v = visualOf(m.visuals, m.hangPos[c] as ThreadId);
+        const x0 = l.colCx[c] ?? 0;
+        ctx.strokeStyle = v.color;
+        ctx.lineWidth = v.width;
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        ctx.moveTo(x0, yTop);
+        ctx.quadraticCurveTo(x0, yTop + 20 * knot, x0 + (cx - x0) * knot, ky);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.save();
+      ctx.translate(cx, ky);
+      ctx.scale(1 + knot, 1 + knot);
+      drawKnot(ctx, 0, 0);
+      ctx.restore();
+      // 2. Il merletto si disfa dal basso in alto.
+      if (unravel > 0) {
+        const h = rowBottom(l, m.rows) * unravel;
+        ctx.fillStyle = P.velluto;
+        ctx.globalAlpha = 0.96;
+        ctx.fillRect(l.center.x, yTop - h, l.center.w, h + 8);
+        ctx.globalAlpha = 1;
+      }
+      ctx.restore();
+      return;
+    }
+    // Apparizione: nel margine alto, l'ora della notte prima e il filo nero che entra.
+    const band = l.rowH;
+    const yb = top - band * 0.5;
+    const alpha = e.fade ? Math.sin(Math.PI * e.p) : e.p > 0.7 ? Math.max(0, 1 - (e.p - 0.7) / 0.3) : 1;
+    ctx.globalAlpha = alpha;
+    ctx.font = LABEL_FONT_CUR;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = P.testo;
+    ctx.fillText(e.hour, l.gutterCx, yb);
+    // I fili dell'apertura salgono nel margine.
+    for (let c = 0; c < m.openPos.length; c++) {
+      const v = visualOf(m.visuals, m.openPos[c] as ThreadId);
+      const x = l.colCx[c] ?? 0;
+      ctx.strokeStyle = v.color;
+      ctx.lineWidth = v.width;
+      ctx.beginPath();
+      ctx.moveTo(x, yb - band * 0.45);
+      ctx.lineTo(x, top + 6);
+      ctx.stroke();
+    }
+    // Il filo nero entra dal bordo e avanza di `passi` colonne, sopra i fili che trova.
+    const xEdge = e.side < 0 ? (l.colX[0] ?? 0) - 18 : (l.colX[l.cols - 1] ?? 0) + l.colW + 18;
+    const target = e.side < 0 ? Math.min(l.cols - 1, e.passi - 1) : Math.max(0, l.cols - e.passi);
+    const xEnd = (l.colCx[target] ?? 0) - e.side * l.colW * 0.35;
+    const adv = e.fade ? 1 : Math.min(1, e.p / 0.7);
+    const x1 = xEdge + (xEnd - xEdge) * adv;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#E8DCC4';
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(xEdge, yb - 8);
+    ctx.lineTo(x1, yb + 8 * adv);
+    ctx.stroke();
+    ctx.strokeStyle = '#15110E';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(xEdge, yb - 8);
+    ctx.lineTo(x1, yb + 8 * adv);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
   }
 
   /** Bordo sfrangiato di uno strappo d'Archivio, a tutta larghezza del merletto. */
@@ -476,7 +589,7 @@ export class LaceRenderer {
 
 /** X dell'icona di un evento di bordo (barca, vaporetto, filo nero). */
 export function edgeX(l: Pick<TomboloLayout, 'colX' | 'cols' | 'colW'>, side: number): number {
-  return side < 0 ? (l.colX[0] ?? 0) - 9 : (l.colX[l.cols - 1] ?? 0) + l.colW + 8;
+  return side < 0 ? (l.colX[0] ?? 0) - 9 : (l.colX[l.cols - 1] ?? 0) + l.colW + 5;
 }
 
 /** Anello che pulsa intorno a un elemento (tutorial). */
