@@ -1,0 +1,313 @@
+{
+  "pers": {
+    "teresa": { "nome": "Teresa", "nomeCompleto": "Teresa Bortolato", "ruolo": "la postina, 54 anni", "desiderio": "Una lettera scritta per me." },
+    "marta": { "nome": "Marta", "nomeCompleto": "Marta Zennaro", "ruolo": "la fornaia, 52 anni", "desiderio": "Che Gino non se ne vada come Ernesto." },
+    "piero": { "nome": "Don Piero", "nomeCompleto": "Don Piero Vianello", "ruolo": "il parroco, 64 anni", "desiderio": "Restituire quello che custodisco." },
+    "gino": { "nome": "Gino", "nomeCompleto": "Gino Zennaro", "ruolo": "il figlio di Marta, 11 anni", "desiderio": "Vedere la lanterna del Faro accesa da dentro." },
+    "bepi": { "nome": "Bepi", "nomeCompleto": "Bepi Scarpa", "ruolo": "il pescatore, 48 anni", "desiderio": "Salutare Nina come si deve." },
+    "nina": { "nome": "Nina", "nomeCompleto": "Nina Scarpa", "ruolo": "la figlia di Bepi, 17 anni", "desiderio": "Studiare a Venezia e fare la maestra." },
+    "zeno": { "nome": "Zeno", "nomeCompleto": "Zeno Busetto", "ruolo": "il guardiano del faro, 61 anni", "desiderio": "Chiedere perdono a Livia." },
+    "lunardi": { "nome": "Lunardi", "nomeCompleto": "dottor Ettore Lunardi", "ruolo": "il farmacista, 39 anni", "desiderio": "Che l'isola mi chiami per nome." },
+    "livia": { "nome": "Livia", "nomeCompleto": "Livia Vio", "ruolo": "la donna con lo scialle nero, 38 anni", "desiderio": "Rivedere Ada." },
+    "ada": { "nome": "Ada", "nomeCompleto": "Ada Vio", "ruolo": "la merlettaia, 16 anni", "desiderio": "Avere un filo." },
+    "clotilde": { "nome": "Clotilde", "nomeCompleto": "Clotilde Vio", "ruolo": "la nonna, merlettaia per sessant'anni" },
+    "ernesto": { "nome": "Ernesto", "nomeCompleto": "Ernesto Doria", "ruolo": "marinaio, nel 1936" },
+    "anselmo": { "nome": "Don Anselmo", "nomeCompleto": "Don Anselmo Barbaro", "ruolo": "il parroco, nel 1936" },
+    "aldo": { "nome": "Aldo", "nomeCompleto": "Aldo Rizzo", "ruolo": "il fidanzato di Teresa, nel 1958" },
+    "bortolo": { "nome": "dottor Bortolo", "nomeCompleto": "dottor Bortolo Fabris", "ruolo": "il medico condotto, nel 1958" },
+    "arianna": { "nome": "Arianna", "nomeCompleto": "Arianna", "ruolo": "la prima merlettaia, nel 1630" }
+  },
+
+  "fili": {
+    "lino": "un passante",
+    "passante": "un passante",
+    "marinaio": "il marinaio del vaporetto",
+    "pescatore": "un pescatore",
+    "barcaiolo": "un barcaiolo",
+    "comare": "una comare",
+    "garzone": "il garzone",
+    "forestiero": "un forestiero",
+    "avorio": "il filo d'avorio",
+    "sbiadito": "un filo sbiadito"
+  },
+
+  "luogo": {
+    "molo": { "nome": "Molo", "breve": "Molo", "descrizione": "Pali, barche, il vaporetto della mattina e della sera." },
+    "forno": { "nome": "Forno", "breve": "Forno", "descrizione": "La bocca del forno di Marta. Il pane alle sei." },
+    "piazza": { "nome": "Piazza", "breve": "Piazza", "descrizione": "La vera da pozzo, le panchine, il mercato dalle nove alle undici." },
+    "chiesa": { "nome": "Chiesa", "breve": "Chiesa", "descrizione": "Il sagrato e il campanile, con l'orologio che suona storto." },
+    "farmacia": { "nome": "Farmacia", "breve": "Farm.", "descrizione": "Il bancone e i vasi. Chiusa, finché non arriva qualcuno." },
+    "faro": { "nome": "Faro", "breve": "Faro", "descrizione": "Bianco e rosso sugli scogli. La luce dalle diciotto." },
+    "stanza": { "nome": "La stanza di Ada", "breve": "Stanza", "descrizione": "Il tombolo sul cavalletto, la sedia vuota, la cassapanca." }
+  },
+
+  "atti": {
+    "0": { "titolo": "Prologo", "sottotitolo": "La notte in cui morì Clotilde" },
+    "1": { "titolo": "Atto I. L'ordito", "sottotitolo": "Autunno" },
+    "2": { "titolo": "Atto II. La trama", "sottotitolo": "Inverno" },
+    "3": { "titolo": "Atto III. Il rovescio", "sottotitolo": "Primavera" }
+  },
+
+  "libro": {
+    "titolo": "Il Libro dei Punti",
+    "incrocio": {
+      "titolo": "L'incrocio",
+      "testo": "Due fili che si incontrano si scambiano il posto. Ogni filo incrocia al massimo una volta per ora, e solo il vicino.",
+      "margine": "La Fondamenta è stretta: per passare bisogna parlarsi."
+    },
+    "spillo": {
+      "titolo": "Lo spillo",
+      "testo": "Lo spillo d'ottone è un appuntamento: non si sposta. L'ora non si fissa finché non è rispettato.",
+      "margine": "Il pane alle sei, la messa alle undici. Il resto si può cambiare."
+    },
+    "sopraDa": {
+      "titolo": "Chi sta sopra, dà",
+      "testo": "Una lettera passa da chi sta sopra a chi sta sotto. Arrivata al destinatario, resta sua. Toccando l'incrocio lo si rovescia.",
+      "margine": "Chi sta sopra, dà. Chi sta sotto, riceve. Non è una questione d'onore."
+    },
+    "voce": {
+      "titolo": "La voce",
+      "testo": "Una voce si copia in tutti e due i versi: dopo l'incrocio la sanno entrambi, e non si disimpara.",
+      "margine": "La voce non ha verso."
+    },
+    "matassa": {
+      "titolo": "La matassa",
+      "testo": "Il filo di una notte è contato. Ogni incrocio costa un braccio di matassa; rovesciarlo non costa niente.",
+      "margine": "Chi spreca filo, spreca vite."
+    },
+    "molo": {
+      "titolo": "Il Molo",
+      "testo": "All'ora delle barche chi è nella colonna del bordo esce dal merletto, e chi arriva prende il suo posto.",
+      "margine": "All'ora delle barche, chi è al Molo se ne va."
+    },
+    "segreto": {
+      "titolo": "Il segreto",
+      "testo": "Il segreto passa solo da chi sta sopra a chi sta sotto. Chi lo confida, lo tiene.",
+      "margine": "Il segreto scende soltanto."
+    },
+    "pozzo": {
+      "titolo": "Il pozzo",
+      "testo": "Don Piero riceve tutto e non dà niente: lettere, voci, segreti. Le lettere che non sono per lui restano a lui.",
+      "margine": "Don Piero è un pozzo. Ma anche i pozzi si riempiono."
+    },
+    "febbre": {
+      "titolo": "La febbre",
+      "testo": "Se uno dei due è malato, dopo l'incrocio lo sono entrambi. Il farmacista, quando sta sopra, guarisce.",
+      "margine": "La febbre non chiede permesso."
+    },
+    "nodo": {
+      "titolo": "Il nodo",
+      "testo": "Due fili in rancore che si incrociano non si danno niente: si annodano, e nell'ora dopo restano fermi.",
+      "margine": "Due che si odiano, se si incontrano, restano fermi."
+    },
+    "nome": {
+      "titolo": "Il nome",
+      "testo": "Ogni notte appunto il mio nome su un filo, e passa come una voce. Chi non lo riceve, mi dimentica un poco.",
+      "margine": "Chi ti nomina, ti tiene."
+    },
+    "nero": {
+      "titolo": "Il filo nero",
+      "testo": "Si muove da solo, un passo ogni ora, verso chi cerca. Sta sempre sopra, e lo vedo arrivare un'ora prima.",
+      "margine": "Non l'ho tessuto io."
+    },
+    "marea": {
+      "titolo": "La marea",
+      "testo": "Nelle ore dell'acqua alta i fili delle colonne allagate restano fermi: nessuno entra, nessuno esce.",
+      "margine": "L'acqua alta fa l'isola più piccola."
+    },
+    "puntoAperto": {
+      "titolo": "Il punto aperto",
+      "testo": "Non si incrocia nessuno. Si piantano occasioni, e i fili si incontrano da soli, secondo quello che vogliono.",
+      "margine": "Non ho avuto il coraggio."
+    }
+  },
+
+  "domande": {
+    "avorio": { "titolo": "Di chi è il filo d'avorio?" },
+    "martaTeresa": { "titolo": "Perché Marta e Teresa non si parlano?" },
+    "chiL": { "titolo": "Chi è L.?" },
+    "filoNero": { "titolo": "Chi tesse il filo nero?" },
+    "pozzo": { "titolo": "Che cosa custodisce Don Piero?" },
+    "anno1958": { "titolo": "Che cosa successe nel 1958?" },
+    "madre": { "titolo": "Perché mia madre se n'è andata?" },
+    "puntoAperto": { "titolo": "Cos'è il punto aperto?" },
+    "desideri": { "titolo": "Che cosa vuole ognuno?" }
+  },
+
+  "oggetti": {
+    "merletto_avorio": { "nome": "L'ultimo merletto della nonna", "descrizione": "Un filo d'avorio che non è di nessuno si interrompe alle tre, tagliato netto." },
+    "libro_punti": { "nome": "Il Libro dei Punti", "descrizione": "Cuoio consumato, pagine scritte a mano. Sui margini, la grafia color seppia della nonna." },
+    "bottiglia": { "nome": "Una bottiglia", "descrizione": "La laguna l'ha portata alla porta. Dentro, un foglio arrotolato firmato «L.»." },
+    "fuso_faro": { "nome": "Un fuso intagliato a forma di faro", "descrizione": "L'ha perso Zeno. Dentro, inciso piccolo, c'è un'iniziale: «L.»." },
+    "pagina_strappata": { "nome": "Una pagina strappata", "descrizione": "Viene dal Libro dei Punti. C'è il disegno di un punto che non conosco, e nessuna spiegazione." },
+    "bottiglia_nodo_nero": { "nome": "Una bottiglia vuota", "descrizione": "Niente lettera. Dentro, un nodo di filo nero." },
+    "fascio_lettere": { "nome": "Il fascio delle lettere", "descrizione": "Tre lettere leggibili, e altre centosessantacinque. Una al mese, per quattordici anni." },
+    "nastro_nonna": { "nome": "Il nastro della nonna", "descrizione": "Il filo d'avorio avanzato, arrotolato con cura." }
+  },
+
+  "battute": {
+    "teresa": {
+      "incontro": { "1": "Ah, cara, che giornata! Ho visto tutti, e tutti hanno visto me.", "2": "Due chiacchiere sulla Fondamenta valgono più di una lettera, cara." },
+      "consegna": { "1": "Consegnata a mano, cara. Trent'anni di posta e mai una busta persa.", "2": "La posta arriva sempre. A volte tardi, ma arriva." },
+      "copia": { "1": "Io non dico niente a nessuno, cara. Lo dico solo a chi me lo chiede.", "2": "Una voce, cara, è come il pane: se non la passi, va a male." },
+      "legge": { "1": "Non l'ho letta, cara. L'ho solo… guardata controluce.", "2": "Una busta aperta è una busta che ha voglia di parlare." },
+      "stranezza": { "1": "La Marta mi passa sopra. Sempre. Da trent'anni.", "2": "Guarda come mi scansa, cara. Come se avessi la peste." },
+      "nodo": { "1": "Marta, guardami. No? Va bene. Va bene così.", "2": "Eravamo ferme in mezzo alla Fondamenta come due pali del molo." },
+      "cura": { "1": "Il dottore mi ha messo una mano sulla fronte. Che mani fredde, cara.", "2": "Guarita! E adesso chi mi ascolta, se non tossisco più?" },
+      "riserva": {
+        "1": "Buongiorno, cara! Lo sai che il vaporetto oggi era in ritardo?",
+        "2": "Ada, cara, mangi abbastanza? Sei trasparente come una velina.",
+        "2d": "Signorina cara, mangia abbastanza? È trasparente come una velina.",
+        "3": "Le lettere pesano più di quanto si creda, cara.",
+        "4": "Il campanile è stonato, ma almeno l'ora la dice."
+      }
+    },
+    "marta": {
+      "incontro": { "1": "Buongiorno. Il pane è in forno, non ho tempo.", "2": "Ci siamo visti. Basta così." },
+      "consegna": { "1": "Una lettera. Per me. Non succedeva da anni.", "2": "Data in mano. Come si deve." },
+      "copia": { "1": "Chiacchiere. Io impasto, non ascolto.", "2": "Le voci le porta il vento. Il vento non paga il pane." },
+      "legge": { "1": "Chi legge le lettere degli altri ha le mani sporche. Più delle mie.", "2": "Un'altra busta aperta. Lo so io chi è stata." },
+      "stranezza": { "1": "No. Sotto la Teresa, no.", "2": "Io sotto quella? Neanche morta." },
+      "nodo": { "1": "Neanche il Signore mi fa passare di lì.", "2": "Siamo rimaste lì come due sacchi di farina. Bella figura." },
+      "cura": { "1": "Il dottore ha curato il Gino. Domani gli porto il pane.", "2": "Guarita. Il forno non aspetta." },
+      "riserva": {
+        "1": "Alle sei il forno è acceso. Il resto si vedrà.",
+        "2": "Il Gino? Correva. Come sempre.",
+        "3": "Mangia, Ada. Il pane caldo non si rifiuta.",
+        "3d": "Mangi, signorina. Il pane caldo non si rifiuta.",
+        "4": "Farina, acqua, sale. Il resto sono chiacchiere."
+      }
+    },
+    "piero": {
+      "incontro": { "1": "Pax tecum. Ci si incontra, e il giorno è già meno lungo.", "2": "Ho ascoltato più che parlato. Come sempre." },
+      "consegna": { "1": "Grazie. La metterò al sicuro, con le altre.", "2": "Una lettera. Il Signore sa per chi è. Io la custodisco." },
+      "copia": { "1": "Ho sentito qualcosa. Resterà con me.", "2": "Le voci entrano in chiesa. Uscire, non escono." },
+      "legge": { "1": "Leggere ciò che non è nostro… Deus videt, Teresa.", "2": "Un segreto letto non torna più nella busta." },
+      "stranezza": { "1": "Ricevo tutto. Non restituisco niente. Lo so, lo so.", "2": "Il pozzo non parla. Ma ascolta, eccome." },
+      "nodo": { "1": "Due anime ferme sulla Fondamenta. Preghiamo che si muovano.", "2": "Il rancore è un nodo che si stringe tirando." },
+      "cura": { "1": "Il dottore fa il suo mestiere. Io il mio: ringrazio.", "2": "Sanata. Deo gratias, e grazie al dottore." },
+      "riserva": {
+        "1": "La messa delle undici. Il campanile suona storto, ma suona.",
+        "2": "Ada, figliola, la notte dormi?",
+        "2d": "Signorina, lei la notte dorme?",
+        "3": "Ho un cassetto pieno di buste. Non ricordo di averle messe lì.",
+        "4": "Silentium est aureum. Lo diceva il mio parroco, e taceva."
+      }
+    },
+    "gino": {
+      "incontro": { "1": "Ciao! Ciao! Ho incontrato tutti, li ho contati: sette!", "2": "Sono passato in mezzo, zac! Nessuno mi prende!" },
+      "consegna": { "1": "Ho portato una lettera io! Sono un postino!", "2": "Consegnata! Mi date una caramella?" },
+      "copia": { "1": "Sapete cosa dicono? Non lo posso dire! Però lo dico.", "2": "Tutti parlano piano quando arrivo. Ma io sento lo stesso!" },
+      "legge": { "1": "La Teresa legge le lettere degli altri? Voglio farlo anch'io!", "2": "Un segreto! Un segreto vero! Lo tengo per me. Forse." },
+      "stranezza": { "1": "Fermo? Io? Non ci riesco!", "2": "Mi prudono i piedi se sto fermo!" },
+      "nodo": { "1": "Sono rimasti piantati come due pali! Che ridere!", "2": "La mamma e la Teresa si guardano storto. Perché?" },
+      "cura": { "1": "Il dottore mi ha dato la medicina amara. Bleah! Però sto meglio.", "2": "Non ho più la febbre! Posso correre? Posso?" },
+      "riserva": {
+        "1": "Ho visto un granchio grande così! Giuro!",
+        "2": "Ada! Mi insegni a fare i nodi?",
+        "2d": "Signorina! Mi insegna a fare i nodi?",
+        "3": "La lanterna del Faro gira tutta la notte. Chi la spinge?",
+        "4": "Il campanile ha suonato storto! Lo suono meglio io!"
+      }
+    },
+    "bepi": {
+      "incontro": { "1": "Mh. Buongiorno.", "2": "Ci siamo visti. Il mare aspetta." },
+      "consegna": { "1": "Una lettera. Per me? Chi scrive a un pescatore?", "2": "Data. Adesso vado." },
+      "copia": { "1": "Chiacchiere. Le reti non si rammendano con le chiacchiere.", "2": "Qualcuno parla troppo. Non io." },
+      "legge": { "1": "Le cose scritte sono di chi le scrive. Basta.", "2": "La Teresa ha gli occhi lunghi. Lo sanno anche i pesci." },
+      "stranezza": { "1": "Ognuno ha le sue manie. Io ho la barca.", "2": "Mh. Strana gente, su quest'isola." },
+      "nodo": { "1": "Due che non si parlano. Come me e il mare d'inverno.", "2": "Se litigate, fatelo lontano dal molo." },
+      "cura": { "1": "Il dottore forestiero. Mh. Funziona, però.", "2": "Guarito. Domani esco in barca." },
+      "riserva": {
+        "1": "Il mare oggi è buono. Domani si vedrà.",
+        "2": "La Nina studia. Io pesco. Va bene così.",
+        "3": "Ada. Tieni, un pesce. Per la cena.",
+        "3d": "Signorina. Tenga, un pesce. Per la cena.",
+        "4": "La rete si rompe sempre dove la guardi meno."
+      }
+    },
+    "nina": {
+      "incontro": { "1": "Incontri, incontri. Quest'isola è un romanzo d'appendice.", "2": "Due parole e via. Ho un libro da finire." },
+      "consegna": { "1": "Una lettera per me! Finalmente qualcosa che arriva, invece di partire.", "2": "Consegnata. Il mondo, per una volta, funziona." },
+      "copia": { "1": "Le voci corrono più del vaporetto. E sbagliano più fermate.", "2": "Lo so, lo so. Ormai lo sa tutta l'isola." },
+      "legge": { "1": "Leggere le lettere degli altri. Neanche nei romanzi dell'Ottocento.", "2": "Un segreto! Nei libri è sempre lì che comincia la storia." },
+      "stranezza": { "1": "Io sto sopra e ascolto. Si chiama curiosità, non è un peccato.", "2": "Ognuno ha il suo vizio. Il mio è voler sapere." },
+      "nodo": { "1": "Due donne che non si parlano da trent'anni. Tragedia greca.", "2": "Ferme in mezzo alla strada. Neanche il Manzoni avrebbe osato." },
+      "cura": { "1": "Il dottore ha la valigetta di pelle. A Venezia ce l'hanno tutti.", "2": "Guarita. Il dottore dice che leggo troppo. Ah, sì?" },
+      "riserva": {
+        "1": "Venezia è a un'ora di vaporetto. Un'ora! E sembra la luna.",
+        "2": "Ada, tu leggi? Ti presto un libro, se vuoi.",
+        "2d": "Signorina, lei legge? Le presto un libro, se vuole.",
+        "3": "Il babbo non dice niente. Lo dice col silenzio.",
+        "4": "Da grande farò la maestra. Da piccola faccio la pazienza."
+      }
+    },
+    "zeno": {
+      "incontro": { "1": "Mh. La luce è buona, stamattina.", "2": "Ci si incontra come le barche: piano." },
+      "consegna": { "1": "Una lettera… al Faro non arriva niente, di solito.", "2": "Data. Il mare ne porta tante, di lettere." },
+      "copia": { "1": "Parole. Il vento ne porta e ne toglie.", "2": "Al Faro non arrivano le chiacchiere. Solo il vento." },
+      "legge": { "1": "C'è chi legge le lettere. Io leggo il mare.", "2": "Certe cose scritte è meglio non saperle." },
+      "stranezza": { "1": "Il Faro. Non mi allontano. Non posso.", "2": "Ho quarant'anni di Faro nelle gambe. Non vanno più in là." },
+      "nodo": { "1": "Due che non si parlano. Come la marea e la luna.", "2": "Il nodo si scioglie con l'acqua. Bisogna aspettare." },
+      "cura": { "1": "Il medico. Mh. Le mani ferme, almeno.", "2": "Sto meglio. La lanterna non aspettava." },
+      "riserva": {
+        "1": "Stanotte il mare era liscio. Troppo liscio.",
+        "2": "La lanterna gira. Io guardo. È tutto qui.",
+        "3": "Ada… tua nonna mi chiamava «il guardiano». Solo quello.",
+        "3d": "Signorina… sua nonna mi chiamava «il guardiano». Solo quello.",
+        "4": "La luce si vede da lontano. È fatta per quello."
+      }
+    },
+    "lunardi": {
+      "incontro": { "1": "Buongiorno! Ettore Lunardi, farmacista. Molto piacere, davvero.", "2": "Un incontro cordiale. Ne prendo nota, come da ricetta." },
+      "consegna": { "1": "Posta per me! Dalla città, suppongo. Che emozione.", "2": "Recapitata. Perfetto, come una posologia ben rispettata." },
+      "copia": { "1": "Si mormora, si mormora. In città la chiamano «informazione».", "2": "Le dicerie sono contagiose quanto la febbre, signori." },
+      "legge": { "1": "Violare la corrispondenza è reato, sa? Articolo… non ricordo quale.", "2": "Un segreto letto è come un flacone aperto: evapora." },
+      "stranezza": { "1": "Io non mi ammalo. Questione di igiene, e di fortuna.", "2": "Curo da sopra. Da sotto, mi rincresce, non funziona." },
+      "nodo": { "1": "Un caso di rancore cronico. Prescrivo: un caffè insieme.", "2": "Bloccati entrambi. Clinicamente interessante." },
+      "cura": { "1": "Due gocce, riposo e brodo caldo. La scienza è semplice.", "2": "Guarito! Lo segno sul ricettario. Il quarto, oggi." },
+      "riserva": {
+        "1": "In città mi chiamavano «dottore». Qui «quello della farmacia».",
+        "2": "La signorina Ada, giusto? Ho un'ottima memoria per i nomi.",
+        "2d": "La merlettaia, giusto? Il nome, mi perdoni, mi sfugge.",
+        "3": "L'aria della laguna fa bene ai polmoni. E male all'umore.",
+        "4": "Ho ordinato la china dalla terraferma. Arriverà col vaporetto delle otto."
+      }
+    },
+    "livia": {
+      "incontro": { "1": "Mi hanno guardata come si guarda una forestiera. È giusto.", "2": "Ho incrociato qualcuno che conoscevo. Lui no, non mi conosceva." },
+      "consegna": { "1": "Una lettera arrivata. Delle mie, in quattordici anni, nessuna.", "2": "Le lettere arrivano, a volte. Basta che qualcuno le porti." },
+      "copia": { "1": "Le voci girano come quando ero ragazza. Qui non cambia niente.", "2": "Si parla di una donna in nero. Sono io, e nessuno lo sa." },
+      "legge": { "1": "La Teresa legge ancora le lettere degli altri. Certe cose non invecchiano.", "2": "I segreti, sull'isola, durano meno del pane." },
+      "stranezza": { "1": "Il mio filo va dove deve. Non so più fermarlo.", "2": "Sto sempre sopra. Non per orgoglio: non so stare sotto." },
+      "nodo": { "1": "Due che non si parlano. Anch'io e mia madre, per quattordici anni.", "2": "I nodi si fanno in fretta. Scioglierli è un'altra storia." },
+      "cura": {
+        "1": "Qualcuno guarisce. Almeno questo, il giorno lo concede.",
+        "2": "Una febbre passata. Vedi, Ada mia? Non tutto si tesse.",
+        "2d": "Una febbre passata. Vedi? Non tutto si tesse."
+      },
+      "riserva": {
+        "1": "Ada mia, ti ho vista alla finestra. Non ti ho chiamata.",
+        "1d": "C'era una ragazza alla finestra. Non l'ho chiamata.",
+        "2": "Chioggia è a un'ora di barca. Ci ho messo quattordici anni.",
+        "3": "Il nero di seppia non si vede sul velluto. Era questo il punto.",
+        "4": "Ho imparato a tessere da sola. Male, ma da sola."
+      }
+    }
+  },
+
+  "crediti": {
+    "autore": "Un gioco di [nome dell'autore]",
+    "righe": {
+      "titolo": "TRAMA. Il merletto dei giorni",
+      "ideazione": "Ideazione, design e storia: [nome dell'autore]",
+      "testi": "Testi italiani: [nome dell'autore]",
+      "musica": "Musica e suoni: sintesi procedurale nel browser, nessuna registrazione",
+      "figurine": "Figurine e diorami: modellati e resi con Blender",
+      "font": "Caratteri: Atkinson Hyperlegible, EB Garamond, Caveat (SIL Open Font License)",
+      "strumenti": "Costruito con TypeScript, Vite e Capacitor",
+      "merlettaie": "Alle merlettaie della laguna, che contano i fili da quattro secoli",
+      "grazie": "Grazie di aver tessuto fino a qui."
+    }
+  }
+}

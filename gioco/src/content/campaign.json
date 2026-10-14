@@ -1,0 +1,30 @@
+{
+  "choiceDay": "g23",
+  "finals": { "merlettaia": "fin_merlettaia", "seppia": "fin_seppia", "chiuso": "fin_chiuso", "aperto": "fin_aperto" },
+  "days": [
+    { "id": "g00", "act": 0, "pins": 0, "stonatura": 1, "objectAfter": "merletto_avorio" },
+    { "id": "g01", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "lettera_L1" },
+    { "id": "g02", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "lettera_L2" },
+    { "id": "g03", "act": 1, "pins": 2, "stonatura": 1, "archiveAfter": "arc1", "objectAfter": "lettera_L3" },
+    { "id": "g04", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "lettera_L4" },
+    { "id": "g05", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "fuso_faro" },
+    { "id": "g06", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "lettera_L5" },
+    { "id": "g07", "act": 1, "pins": 2, "stonatura": 1, "archiveAfter": "arc2", "objectAfter": "lettera_L6" },
+    { "id": "g08", "act": 1, "pins": 2, "stonatura": 1, "objectAfter": "lettera_L7" },
+    { "id": "g09", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "pagina_strappata" },
+    { "id": "g10", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "lettera_L8" },
+    { "id": "g11", "act": 2, "pins": 2, "stonatura": 0.6, "archiveAfter": "arc3", "objectAfter": "lettera_L9" },
+    { "id": "g12", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "lettera_L10" },
+    { "id": "g13", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "lettera_L11" },
+    { "id": "g14", "act": 2, "pins": 2, "stonatura": 0.6, "archiveAfter": "arc4", "objectAfter": "lettera_clotilde" },
+    { "id": "g15", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "bottiglia_nodo_nero" },
+    { "id": "g16", "act": 2, "pins": 2, "stonatura": 0.6, "objectAfter": "fascio_lettere" },
+    { "id": "g17", "act": 3, "pins": 3, "stonatura": 0.25, "objectAfter": "biglietto_livia_1" },
+    { "id": "g18", "act": 3, "pins": 3, "stonatura": 0.25, "archiveAfter": "arc5", "objectAfter": "biglietto_livia_2" },
+    { "id": "g19", "act": 3, "pins": 3, "stonatura": 0.25, "objectAfter": "biglietto_livia_3" },
+    { "id": "g20", "act": 3, "pins": 3, "stonatura": 0.25, "archiveAfter": "arc6", "objectAfter": "biglietto_livia_4" },
+    { "id": "g21", "act": 3, "pins": 3, "stonatura": 0.25, "objectAfter": "biglietto_livia_5" },
+    { "id": "g22", "act": 3, "pins": 3, "stonatura": 0.25, "objectAfter": "biglietto_livia_6" },
+    { "id": "g23", "act": 3, "pins": 1, "stonatura": 0.25, "objectAfter": "nastro_nonna" }
+  ]
+}

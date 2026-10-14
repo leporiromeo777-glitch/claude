@@ -1,0 +1,12 @@
+{
+  "acts": {
+    "1": { "pins": 2, "slack": 3, "notes": [3, 3] },
+    "2": { "pins": 2, "slack": 2, "notes": [3, 4] },
+    "3": { "pins": 3, "slack": 1, "notes": [4, 4] }
+  },
+  "memoria": { "start": 3, "startLunardi": 1, "min": 0, "max": 3, "trueEndingCount": 4 },
+  "traboccoSoglia": 3,
+  "nodoRighe": 1,
+  "hint": { "lampSeconds": 60, "undoRepeat": 3 },
+  "anim": { "swapMs": 250, "beadMs": 350, "neroMs": 400, "beatMs": 380 }
+}

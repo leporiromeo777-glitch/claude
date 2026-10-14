@@ -1,0 +1,14 @@
+{
+  "authorKey": "comune.crediti.autore",
+  "lines": [
+    { "key": "comune.crediti.righe.titolo" },
+    { "key": "comune.crediti.righe.ideazione" },
+    { "key": "comune.crediti.righe.testi" },
+    { "key": "comune.crediti.righe.musica" },
+    { "key": "comune.crediti.righe.figurine" },
+    { "key": "comune.crediti.righe.font" },
+    { "key": "comune.crediti.righe.strumenti" },
+    { "key": "comune.crediti.righe.merlettaie" },
+    { "key": "comune.crediti.righe.grazie" }
+  ]
+}

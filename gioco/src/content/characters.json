@@ -1,0 +1,97 @@
+[
+  { "id": "teresa", "nameKey": "comune.pers.teresa.nome", "roleKey": "comune.pers.teresa.ruolo",
+    "color": "#2F5DA8", "pattern": "righe", "icon": "busta", "noteHz": 440.0,
+    "voice": { "pitch": 260, "rate": 11, "formantShift": 0, "noise": 0 },
+    "hand": { "font": "caveat", "ink": "#24407A", "paper": "#DCE6EE", "slantDeg": -2, "sizeScale": 1 },
+    "quirks": ["teresaLegge"], "desireKey": "comune.pers.teresa.desiderio", "likes": ["festa", "messa"] },
+
+  { "id": "marta", "nameKey": "comune.pers.marta.nome", "roleKey": "comune.pers.marta.ruolo",
+    "color": "#C0442C", "pattern": "puntini", "icon": "pagnotta", "noteHz": 293.66,
+    "voice": { "pitch": 220, "rate": 8, "formantShift": 0, "noise": 0 },
+    "hand": { "font": "caveat", "ink": "#3E3A36", "paper": "#D8C3A0", "slantDeg": 0, "sizeScale": 1.15, "caps": true },
+    "quirks": ["martaNoSotto"], "desireKey": "comune.pers.marta.desiderio", "likes": ["messa", "pane"] },
+
+  { "id": "piero", "nameKey": "comune.pers.piero.nome", "roleKey": "comune.pers.piero.ruolo",
+    "color": "#6E3D96", "pattern": "doppio", "icon": "croce", "noteHz": 146.83,
+    "voice": { "pitch": 110, "rate": 5, "formantShift": 0, "noise": 0 },
+    "hand": { "font": "garamond", "ink": "#5B2E80", "paper": "#EFE8D8", "slantDeg": 4, "sizeScale": 1 },
+    "quirks": ["pieroPozzo", "pieroTrabocca"], "desireKey": "comune.pers.piero.desiderio", "likes": ["messa"] },
+
+  { "id": "gino", "nameKey": "comune.pers.gino.nome", "roleKey": "comune.pers.gino.ruolo",
+    "color": "#4FB3E0", "pattern": "onde", "icon": "aquilone", "noteHz": 659.26,
+    "voice": { "pitch": 330, "rate": 12, "formantShift": 0, "noise": 0 },
+    "hand": { "font": "caveat", "ink": "#3B3B44", "paper": "#F2EEE2", "slantDeg": -7, "sizeScale": 1.2 },
+    "quirks": ["ginoCorre"], "desireKey": "comune.pers.gino.desiderio", "likes": ["festa", "pane", "lanterna"] },
+
+  { "id": "bepi", "nameKey": "comune.pers.bepi.nome", "roleKey": "comune.pers.bepi.ruolo",
+    "color": "#E07B24", "pattern": "zigzag", "icon": "pesce", "noteHz": 196.0,
+    "voice": { "pitch": 120, "rate": 7, "formantShift": 0, "noise": 0.2 },
+    "hand": { "font": "caveat", "ink": "#2B2622", "paper": "#CDBFA5", "slantDeg": 8, "sizeScale": 1.1 },
+    "quirks": [], "desireKey": "comune.pers.bepi.desiderio", "likes": ["festa", "vaporetto"] },
+
+  { "id": "nina", "nameKey": "comune.pers.nina.nome", "roleKey": "comune.pers.nina.ruolo",
+    "color": "#E8C12E", "pattern": "tratteggio", "icon": "libro", "noteHz": 493.88,
+    "voice": { "pitch": 280, "rate": 9, "formantShift": 0, "noise": 0 },
+    "hand": { "font": "caveat", "ink": "#1F3550", "paper": "#F4F1E6", "slantDeg": 3, "sizeScale": 0.95 },
+    "quirks": ["ninaCuriosa"], "desireKey": "comune.pers.nina.desiderio", "likes": ["vaporetto", "festa"] },
+
+  { "id": "zeno", "nameKey": "comune.pers.zeno.nome", "roleKey": "comune.pers.zeno.ruolo",
+    "color": "#1F8A78", "pattern": "catenella", "icon": "lanterna", "noteHz": 261.63,
+    "voice": { "pitch": 100, "rate": 4, "formantShift": 0, "noise": 0.3 },
+    "hand": { "font": "caveat", "ink": "#20302C", "paper": "#D8D2C0", "slantDeg": -9, "sizeScale": 1.35 },
+    "quirks": ["zenoFaro"], "desireKey": "comune.pers.zeno.desiderio", "likes": ["lanterna"] },
+
+  { "id": "lunardi", "nameKey": "comune.pers.lunardi.nome", "roleKey": "comune.pers.lunardi.ruolo",
+    "color": "#D9DEE3", "pattern": "croce", "icon": "ampolla", "noteHz": 349.23,
+    "voice": { "pitch": 150, "rate": 7, "formantShift": 0.1, "noise": 0 },
+    "hand": { "font": "garamond", "ink": "#1E1E2A", "paper": "#F7F5EE", "slantDeg": 1, "sizeScale": 0.9 },
+    "quirks": ["lunardiCura"], "desireKey": "comune.pers.lunardi.desiderio", "likes": ["pane", "festa"] },
+
+  { "id": "livia", "nameKey": "comune.pers.livia.nome", "roleKey": "comune.pers.livia.ruolo",
+    "color": "#15110E", "pattern": "lucido", "icon": "scialle", "noteHz": 220.0,
+    "voice": { "pitch": 200, "rate": 6, "formantShift": 0, "noise": 0, "lowpass": 2500 },
+    "hand": { "font": "caveat", "ink": "#3B2F27", "paper": "#E9DFCB", "slantDeg": 5, "sizeScale": 1 },
+    "quirks": [], "desireKey": "comune.pers.livia.desiderio", "likes": [] },
+
+  { "id": "ada", "nameKey": "comune.pers.ada.nome", "roleKey": "comune.pers.ada.ruolo",
+    "color": "#F07C6C", "pattern": "perlato", "icon": "fuso", "noteHz": 587.33,
+    "voice": { "pitch": 240, "rate": 8, "formantShift": 0.05, "noise": 0.05 },
+    "hand": { "font": "caveat", "ink": "#5A5048", "paper": "#EFE6D2", "slantDeg": 2, "sizeScale": 1 },
+    "quirks": [], "desireKey": "comune.pers.ada.desiderio", "likes": [] },
+
+  { "id": "clotilde", "nameKey": "comune.pers.clotilde.nome", "roleKey": "comune.pers.clotilde.ruolo",
+    "color": "#EFE3C8", "pattern": "liscio", "icon": "forbici", "noteHz": 523.25,
+    "voice": null,
+    "hand": { "font": "garamond", "ink": "#704214", "paper": "#EFE3C8", "slantDeg": 6, "sizeScale": 1 },
+    "quirks": [], "likes": [] },
+
+  { "id": "ernesto", "nameKey": "comune.pers.ernesto.nome", "roleKey": "comune.pers.ernesto.ruolo",
+    "color": "#A86B2D", "pattern": "zigzag", "icon": "pesce", "noteHz": 329.63,
+    "voice": { "pitch": 125, "rate": 6, "formantShift": 0, "noise": 0.1 },
+    "hand": { "font": "caveat", "ink": "#2B3A55", "paper": "#E2DCCB", "slantDeg": 7, "sizeScale": 1.05 },
+    "quirks": [], "likes": [], "archiveOnly": true },
+
+  { "id": "anselmo", "nameKey": "comune.pers.anselmo.nome", "roleKey": "comune.pers.anselmo.ruolo",
+    "color": "#8C6BB1", "pattern": "doppio", "icon": "croce", "noteHz": 130.81,
+    "voice": { "pitch": 105, "rate": 5, "formantShift": 0, "noise": 0.05 },
+    "hand": { "font": "garamond", "ink": "#3D2B55", "paper": "#ECE4D2", "slantDeg": 3, "sizeScale": 1 },
+    "quirks": [], "likes": [], "archiveOnly": true },
+
+  { "id": "aldo", "nameKey": "comune.pers.aldo.nome", "roleKey": "comune.pers.aldo.ruolo",
+    "color": "#6E9E3A", "pattern": "righe", "icon": "busta", "noteHz": 392.0,
+    "voice": { "pitch": 135, "rate": 7, "formantShift": 0, "noise": 0.1 },
+    "hand": { "font": "caveat", "ink": "#2E4A2E", "paper": "#E6E1CF", "slantDeg": 4, "sizeScale": 1.05 },
+    "quirks": [], "likes": [], "archiveOnly": true },
+
+  { "id": "bortolo", "nameKey": "comune.pers.bortolo.nome", "roleKey": "comune.pers.bortolo.ruolo",
+    "color": "#8A5A44", "pattern": "croce", "icon": "ampolla", "noteHz": 174.61,
+    "voice": { "pitch": 140, "rate": 6, "formantShift": 0.05, "noise": 0 },
+    "hand": { "font": "garamond", "ink": "#2A2A2A", "paper": "#F1ECDF", "slantDeg": 0, "sizeScale": 0.95 },
+    "quirks": [], "likes": [], "archiveOnly": true },
+
+  { "id": "arianna", "nameKey": "comune.pers.arianna.nome", "roleKey": "comune.pers.arianna.ruolo",
+    "color": "#B8336A", "pattern": "liscio", "icon": "fuso", "noteHz": 587.33,
+    "voice": { "pitch": 230, "rate": 7, "formantShift": 0, "noise": 0.05, "lowpass": 3000 },
+    "hand": { "font": "garamond", "ink": "#5A3A1E", "paper": "#E8DCC0", "slantDeg": 0, "sizeScale": 1.1 },
+    "quirks": [], "likes": [], "archiveOnly": true }
+]

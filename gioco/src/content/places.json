@@ -1,0 +1,8 @@
+[
+  { "id": "molo", "nameKey": "comune.luogo.molo.nome", "shortKey": "comune.luogo.molo.breve", "icon": "bitta", "diorama": "dio/molo" },
+  { "id": "forno", "nameKey": "comune.luogo.forno.nome", "shortKey": "comune.luogo.forno.breve", "icon": "pagnotta", "diorama": "dio/forno" },
+  { "id": "piazza", "nameKey": "comune.luogo.piazza.nome", "shortKey": "comune.luogo.piazza.breve", "icon": "pozzo", "diorama": "dio/piazza" },
+  { "id": "chiesa", "nameKey": "comune.luogo.chiesa.nome", "shortKey": "comune.luogo.chiesa.breve", "icon": "campanile", "diorama": "dio/chiesa" },
+  { "id": "farmacia", "nameKey": "comune.luogo.farmacia.nome", "shortKey": "comune.luogo.farmacia.breve", "icon": "mortaio", "diorama": "dio/farmacia" },
+  { "id": "faro", "nameKey": "comune.luogo.faro.nome", "shortKey": "comune.luogo.faro.breve", "icon": "faro", "diorama": "dio/faro" }
+]
