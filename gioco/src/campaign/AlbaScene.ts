@@ -65,13 +65,14 @@ export class AlbaScene implements Scene {
 
   private done(): void {
     if (this.left) return;
-    // Dopo l'ultima vignetta gli avvisi tenuti da parte (D11), poi l'oggetto dell'alba.
-    controller.flushNotices();
+    // Dopo l'ultima vignetta l'oggetto dell'alba, se c'è; gli avvisi tenuti da parte (D11)
+    // escono subito, o con il bilancio se prima c'è la lettura (non coprono la lettera).
     const c = controller.state();
     if (c && dawnObjectPending(c) && !this.delivery) {
       this.showDelivery(c.report?.dawnItems ?? [], c.report?.dawnBy ?? null);
       return;
     }
+    controller.flushNotices();
     this.left = true;
     controller.toBilancio();
   }

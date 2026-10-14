@@ -537,7 +537,8 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
       if (root.isConnected) render();
     }),
   ];
-  for (const ev of ['night:row', 'night:undo', 'night:complete', 'quirk:discovered'] as const) {
+  // La bozza cambia lo stato «si compie se fissi l'ora» (C07): anche night:cross.
+  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'quirk:discovered'] as const) {
     offs.push(
       s.bus.on(ev, () => {
         if (root.isConnected && current === 'bigliettini') renderBody();
@@ -599,7 +600,17 @@ export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unkn
   };
   render();
   const offs: Unsub[] = [controller.onChange(() => root.isConnected && render())];
-  for (const ev of ['night:row', 'night:undo', 'night:complete', 'scene:enter'] as const) offs.push(s.bus.on(ev, () => root.isConnected && render()));
+  // Lo stato segue anche la bozza (C07): night:cross; il ridisegno è raccolto in un microtask.
+  let queued = false;
+  const later = (): void => {
+    if (queued) return;
+    queued = true;
+    queueMicrotask(() => {
+      queued = false;
+      if (root.isConnected) render();
+    });
+  };
+  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'scene:enter'] as const) offs.push(s.bus.on(ev, later));
   return {
     update: render,
     destroy() {

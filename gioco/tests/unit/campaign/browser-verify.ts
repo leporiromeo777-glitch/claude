@@ -202,10 +202,17 @@ async function prologueAndFirstDay(browser: Browser, url: string): Promise<void>
   const ev = await call<Rec>(page, 'campaign.evening');
   check('sera di g01: oggetto (merletto della nonna e Libro)', JSON.stringify(ev.objects) === '["merletto_avorio","libro_punti"]', JSON.stringify(ev.objects));
   check('sera di g01: 3 bigliettini, 2 spilli', (ev.noteIds as string[]).length === 3 && ev.pinsLeft === 2, JSON.stringify(ev.noteIds));
+  // Revisione 1 (CAM-10): alla prima sera dell'atto c'è il cartello con la stagione.
+  check('sera di g01: cartello dell’Atto I', await page.isVisible('[data-test="cp-atto-cartello"]'));
+  await page.tap('[data-test="cp-atto-cartello"]');
+  check('sera di g01: la porta dice da dove arriva', ((await page.textContent('[data-test="cp-sera-arrivo"]')) ?? '').includes('Sul tombolo'));
   await shot(page, '05-sera-porta');
   await page.tap('[data-test="cp-oggetto"]');
   check('oggetto: si legge', await page.isVisible('[data-test="cp-oggetto-merletto_avorio"]'));
   await page.tap('[data-test="cp-oggetto-continua"]');
+  await page.waitForTimeout(300);
+  // Revisione 1 (C03): le voci nuove si annunciano alla lettura; un altro Continua chiude.
+  if (await page.isVisible('[data-test="cp-lettura-voci"]')) await page.tap('[data-test="cp-oggetto-continua"]');
   await page.waitForTimeout(400);
   check('bigliettini sotto la porta', (await page.locator('[data-test^="cp-bigliettino-"]').count()) === 3);
   await shot(page, '06-sera-bigliettini');
@@ -354,6 +361,9 @@ async function wholeCampaign(browser: Browser, url: string): Promise<void> {
     await waitNight(page);
     const lv = (await call<Rec>(page, 'night.state')).levelId;
     await call(page, 'night.autoplay');
+    // Revisione 1 (D14): il merletto finito resta finché non si tocca «Continua».
+    check(`${ending}: il merletto resta con Continua`, await until(page, 'Continua', () => page.isVisible('[data-test="cp-finale-continua"]'), 20000));
+    await page.click('[data-test="cp-finale-continua"]');
     const reached = await waitScene(page, 'finale', 20000);
     const fin = await call<Rec | null>(page, 'campaign.finale');
     check(`${ending}: epilogo dopo ${String(lv)}`, reached && fin?.mode === 'epilogo' && fin?.ending === ending, JSON.stringify(fin));
@@ -395,6 +405,9 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await call(page, 'campaign.finishDay');
   await waitScene(page, 'sera');
   await page.waitForTimeout(300);
+  // Il cartello dell'Atto I copre la sera (e il Taccuino) finché non si tocca.
+  if (await page.isVisible('[data-test="cp-atto-cartello"]')) await page.click('[data-test="cp-atto-cartello"]');
+  await page.waitForTimeout(200);
   check('largo: Taccuino montato fisso nella sera', await page.isVisible('[data-test="cp-taccuino-fisso"] [data-test="cp-taccuino"]'));
   check('largo: niente overlay', JSON.stringify(await call(page, 'core.overlays')) === '[]');
   await shot(page, '20-largo-sera');
@@ -535,6 +548,8 @@ async function measures(browser: Browser, url: string): Promise<void> {
   await report('prologo');
   await call(page, 'campaign.finishDay');
   await waitScene(page, 'sera');
+  await report('cartello');
+  if (await page.isVisible('[data-test="cp-atto-cartello"]')) await page.tap('[data-test="cp-atto-cartello"]');
   await report('porta');
   await call(page, 'campaign.objectSeen');
   await report('bigliettini');
