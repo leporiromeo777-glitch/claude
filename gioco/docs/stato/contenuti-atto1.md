@@ -1,72 +1,144 @@
 # Stato del pacchetto: contenuti-atto1
 
-**Stato:** done
+**Stato:** done (verificato e corretto)
 
 ## Riepilogo
 
-Dati comuni, Prologo, Atto I (g00-g08) e Archivio A1-A2, solo JSON più il test `tests/unit/content/atto1.test.ts`.
+Dati comuni, Prologo, Atto I (g00-g08) e Archivio A1-A2: solo JSON più il test `tests/unit/content/atto1.test.ts`.
 
-- **Dati comuni** (committati per primi): `characters.json` (16 personaggi con colore, motivo, icona, nota, voce, calligrafia, stranezze, desiderio, gusti; i 5 solo d'Archivio con `archiveOnly`), `places.json`, `book.json` (14 pagine del Libro dei Punti, sblocchi anche per gli Atti II-III), `balance.json` (GDD 3.13), `campaign.json` (g00-g23, finali, giornata della scelta, spilli, `archiveAfter`, `objectAfter`, stonatura 1 / 0,6 / 0,25), `lines.json` (162 battute), `credits.json` (autore segnaposto). Testi in `text/it/comune.json` e `text/en/comune.json` (inglese completo).
-- **Livelli** g00-g08, arc1, arc2 con i `.computed.json` (sourceHash aggiornato, `npm run levels:check` verde per tutti e 11).
-- **Bigliettini** (`notes.atto1.json`): 24, tre per sera da g01 a g08 con testi e condizioni dell'Appendice A, una risposta per sera, conseguenze (flag, Taccuino, desideri).
-- **Taccuino** (`diary.atto1.json`): 72 voci (stranezze, regole dell'Atto I con le parole di Ada, persone, desideri di Nina e Gino, domande con piste, lettere, Archivio).
-- **Lettere di L.** (`lettere.atto1.json`): `lettera_L1` … `lettera_L7` per le sere di g01, g02, g03, g04, g06, g07, g08 (1 e 4 sono gli esempi del GDD 6.5).
-- **Testi** italiani dell'Atto I in `text/it/atto1.json`. Parole italiane: comune 2.798 + atto1 3.392 = **6.190**.
+- **Dati comuni** (committati per primi, usati anche dagli Atti II-III):
+  - `characters.json`: i 16 personaggi con colore, motivo, icona, nota, voce, calligrafia, stranezze, desiderio e gusti; i 5 solo d'Archivio hanno `archiveOnly`. Le note sono quelle della tabella dell'audio.
+  - `places.json`, `book.json` (14 pagine del Libro dei Punti, sblocchi anche per gli Atti II-III), `balance.json` (GDD 3.13).
+  - `campaign.json`: g00-g23, finali, giornata della scelta, spilli, `archiveAfter`, `objectAfter`, stonatura 1 / 0,6 / 0,25.
+  - `lines.json` (162 battute), `credits.json` (autore segnaposto).
+  - Testi in `text/it/comune.json` e `text/en/comune.json` (inglese completo).
+- **Livelli** g00-g08, arc1, arc2 con i `.computed.json` (sourceHash aggiornato; `npm run levels:check` verde per tutti e 11).
+- **Bigliettini** (`notes.atto1.json`): 26 in tutto. Ogni sera ne arrivano 3, con i testi e le condizioni dell'Appendice A. Due sono varianti che sostituiscono il bigliettino base (vedi sotto). Ogni sera ha almeno una risposta e un conflitto voluto.
+- **Taccuino** (`diary.atto1.json`): 80 voci. Coprono stranezze, regole dell'Atto I, persone, i desideri di Nina e Gino, le domande con le piste, le lettere e l'Archivio. Ogni risposta ha la sua voce.
+- **Lettere di L.** (`lettere.atto1.json`): `lettera_L1` … `lettera_L7` per le sere di g01, g02, g03, g04, g06, g07 e g08. La 1 e la 4 sono gli esempi del GDD 6.5.
+- **Testi** italiani dell'Atto I in `text/it/atto1.json`. Parole italiane: comune 2.798 + atto1 3.607 = **6.405**.
 
 | Giornata | Colonne / ore | Min designato | Matassa | Conflitto voluto |
 |---|---|---|---|---|
-| g00 | F P C / 5→9 | 4 | 6 | — (prologo, obiettivo obbligatorio) |
-| g01 | M F P C / 6→11 | 6 | 9 | g01.piero + g01.gino |
-| g02 | M F P C / 6→12 | 7 | 10 | g02.marta + g02.gino |
+| g00 | F P C / 5→9 | 4 (3 soluzioni ottime, GDD 3.15) | 6 | — (prologo, obiettivo obbligatorio) |
+| g01 | M F P C / 6→11 | 6 | 9 | g01.piero + g01.gino (impossibile anche senza `ginoCorre`) |
+| g02 | M F P C / 6→12 | 7 | 10 | g02.marta (o g02.martaDura) + g02.gino |
 | g03 | M F P C / 6→12 | 5 | 8 | g03.nina + g03.marta |
 | g04 | M F P C A / 6→14 | 5 | 8 | g04.bepi + g04.piero |
 | g05 | 6 col / 6→13 | 8 | 11 | g05.zeno + g05.marta |
-| g06 | 6 col / 6→12 | 5 | 8 | g06.nina + g06.zeno (GDD 3.16) |
+| g06 | 6 col / 6→12 | 5 | 8 | g06.nina + g06.zeno (GDD 3.16, tabella riprodotta) |
 | g07 | 6 col / 6→14 | 9 | 12 | g07.teresa + g07.nina |
 | g08 | 6 col / 6→16 | 12 | 15 | g08.marta + g08.nina |
 
-Archivio: arc1 (1936, 5 colonne, 8→12, strappo 10-11, matassa 4) e arc2 (la notte scorsa, 0→5, strappo 1-2, matassa 2): merletto registrato completo, 4 fili sbiaditi, candidati con esca (Clotilde, Livia), echi su ogni incrocio, nota a margine, vignetta di rivelazione, domande chiuse (`martaTeresa`, `avorio`).
+Archivio:
+- arc1 (1936): 5 colonne, 8→12, strappo 10-11, matassa 4.
+- arc2 (la notte scorsa): 0→5, strappo 1-2, matassa 2.
+- Entrambi hanno il merletto registrato completo, 4 fili sbiaditi, candidati con esca (Clotilde, Livia), echi su ogni incrocio, nota a margine, vignetta di rivelazione e domande chiuse (`martaTeresa`, `avorio`).
 
-## Convenzioni dei dati comuni (per contenuti-atti23, campagna, interfaccia)
+## Correzioni della verifica
+
+- **g01, GDD 3.6.** Nel giorno del suo debutto, `ginoCorre` rendeva impossibile la coppia g01.piero + g01.gino: senza la stranezza era risolvibile in 4 incroci. Ho aggiunto lo spillo d'ottone «Teresa al Molo alle 9» (la posta). Ora il conflitto è geometrico e vale anche senza Gino. Minimo designato e matassa non cambiano (6 e 9). Un test verifica la regola per tutti i debutti dell'Atto I: `ginoCorre` g01, `zenoFaro` g05, `teresaLegge` g06, `pieroPozzo` e `ninaCuriosa` g07.
+- **g01, nota a margine del tutorial.** Era `when: 'rifiuto'` alle 7 con il testo su Gino. Il tombolo però la mostra sul rifiuto di Marta (codice `rifiuto`), non su Gino (codice `corre`): con Teresa sopra Marta compariva «Il Gino non sta fermo». Ora il testo vale per tutti e due i rifiuti: «Ognuno ha il suo verso: c'è chi non passa sotto, e chi non sta fermo.» L'ho verificato nel browser.
+- **Varianti dei bigliettini dell'Appendice A**, che prima mancavano:
+  - Se g01.marta fallisce o viene lasciato, il giorno dopo arriva `g02.martaDura` invece di `g02.marta`, più duro.
+  - Con la risposta R1 a g02.teresa, il giorno dopo arriva `g03.teresaFredda` invece di `g03.teresa`, senza «cara».
+  - Il meccanismo è `availableIf` sul flag (`martaDura`, `teresaFredda`), con la stessa richiesta del bigliettino base.
+  - Vignette e voci del Taccuino legate a quelle note accettano tutte e due le varianti.
+- **Risposte senza conseguenze.** Le risposte g01.gino R2, g04.nina R1, g05.marta R2, g06.marta R2, g07.nina R1/R2 e g08.nina R1/R2 non cambiavano niente di visibile. Ora ognuna sblocca una voce del Taccuino. Tutte le risposte hanno anche l'effetto `{ diary }`, oltre alla condizione `{ reply }` della voce.
+- **Testi del Taccuino in contraddizione** con i bigliettini: `persone.teresa.amica` diceva «mi ha chiamata cara tre volte», `persone.teresa.fredda` «non mi chiama più cara». Li ho riscritti.
+- **Pagina `puntoAperto` del Libro.** Si completa dopo arc6, come dice il GDD 5.7: `{ any: [ { done: 'arc6' }, { done: 'g21' } ] }`. Prima diceva `done g20`, quindi si completava prima che arc6 si potesse leggere.
+- **Test nuovi** (34 in tutto):
+  - 3 bigliettini per sera con ogni combinazione dei flag delle varianti;
+  - varianti dei bigliettini;
+  - conseguenze di ogni risposta;
+  - mano del tutorial valida e giornata ancora risolvibile;
+  - regola del debutto delle stranezze;
+  - oggetti della sera;
+  - prologo con 3 soluzioni ottime e la partita della tabella del GDD 3.15;
+  - g06 con la tabella del GDD 3.16 riprodotta riga per riga.
+
+## API e convenzioni per gli altri pacchetti
 
 - `characters.json`: chiavi `comune.pers.<id>.nome|nomeCompleto|ruolo|desiderio|presentazione`.
-- `places.json`: chiavi `comune.luogo.<id>.nome|breve|descrizione`; `diorama` = `dio/<id>` (la luce si aggiunge: `dio/<id>/<alba|giorno|notte>`). C'è anche `comune.luogo.stanza.*` per la stanza di Ada (non è un PlaceId).
-- Etichette dei fili di lino riusabili da tutti i livelli: `comune.fili.<lino|passante|marinaio|pescatore|barcaiolo|comare|garzone|forestiero|avorio|sbiadito>`.
-- `campaign.json`: `pins` 0 / 2 (Atti I-II) / 3 (Atto III) / 1 (g23, la scelta); `archiveAfter` arc1 g03, arc2 g07, arc3 g11, arc4 g14, arc5 g18, arc6 g20.
-- **Oggetti della sera** (`objectAfter`): se l'id coincide con l'id di una `LetterDef`, l'oggetto è quella lettera. Id: `lettera_L1` … `lettera_L11` (L8-L11 in `lettere.atto23.json`, `arrivesAfter` g10, g11, g12, g13), `lettera_clotilde` (g14, firmata `C.`), `biglietto_livia_1` … `biglietto_livia_6` (g17-g22, firmati `L.`). Gli altri oggetti hanno i testi in `comune.oggetti.<id>.nome|descrizione`: `merletto_avorio`, `libro_punti`, `bottiglia`, `fuso_faro`, `pagina_strappata`, `bottiglia_nodo_nero`, `fascio_lettere`, `nastro_nonna`.
-- **Domande del Taccuino** (`QuestionId`, GDD 5.8), testo in `comune.domande.<id>.titolo`: `avorio`, `martaTeresa`, `chiL`, `filoNero`, `pozzo`, `anno1958`, `madre`, `puntoAperto`, `desideri`. L'Atto I apre `avorio`, `martaTeresa`, `chiL`, `filoNero`, `pozzo`, `desideri` e chiude `avorio` (arc2) e `martaTeresa` (arc1). `madre`, `anno1958`, `puntoAperto` restano agli Atti II-III.
-- **Voci del Taccuino**: id con il prefisso della sezione (`persone.`, `libro.`, `domande.`, `lettere.`, `archivio.`) più `desiderio.<personaggio>` (sezione `persone`, sblocco `{ knows: 'desire', id }`); testi in `atto1.diario.<id>`. Le voci che si sbloccano con un Archivio usano `{ done: 'arcN' }` e sono anche nel suo `archive.unlocks`.
-- `book.json`: id `incrocio, spillo, sopraDa, voce, matassa, molo, segreto, pozzo, febbre, nodo, nome, nero, marea, puntoAperto`. La pagina `pozzo` usa `rule: 'segreto'` (il pozzo non è una RuleId). Le note a margine delle pagine `nome` e `nero` sono di Ada (a matita), le altre di Clotilde. Sblocco `{ any: [ { knows: 'rule', id }, { done: <giornata precedente> } ] }`.
-- `lines.json`: 9 personaggi parlanti (gli 8 del cast + Livia) × 7 eventi × 2 + 4 di riserva = 162. Eventi del GDD 5.9 → `LaceEventKind`: incontro → `incontro`, consegna → `consegna`, voce → `copia`, segreto letto → `legge`, rifiuto → `stranezza`, nodo → `nodo`, cura → `cura`; più `riserva`. Chiavi `comune.battute.<pers>.<evento>.<n>`, variante per chi ha dimenticato Ada `…<n>d` (`forgetKey`).
-- Chiavi dei livelli dell'Atto I: `atto1.<giorno>.titolo|perline.*|alba.<nome>[2]|hint.spinta|hint.indizio|margine.*`, bigliettini `atto1.<giorno>.<autore>.testo|r1|r2`, Archivio `atto1.arcN.eco.*|margine|rivela.1|rivela.2`.
+- `places.json`: chiavi `comune.luogo.<id>.nome|breve|descrizione`. `diorama` = `dio/<id>`; la luce si aggiunge, `dio/<id>/<alba|giorno|notte>`. C'è anche `comune.luogo.stanza.*` per la stanza di Ada, che non è un PlaceId.
+- Etichette dei fili di lino riusabili: `comune.fili.<lino|passante|marinaio|pescatore|barcaiolo|comare|garzone|forestiero|avorio|sbiadito>`.
+- `campaign.json`:
+  - `pins`: 0 in g00, 2 negli Atti I-II, 3 nell'Atto III, 1 in g23 (la scelta).
+  - `archiveAfter`: arc1 dopo g03, arc2 dopo g07, arc3 dopo g11, arc4 dopo g14, arc5 dopo g18, arc6 dopo g20.
+- **Oggetti della sera** (`objectAfter`): se l'id coincide con l'id di una `LetterDef`, l'oggetto è quella lettera.
+  - `lettera_L1` … `lettera_L11`: L8-L11 sono in `lettere.atto23.json`, `arrivesAfter` g10, g11, g12, g13.
+  - `lettera_clotilde`: g14, firmata `C.`.
+  - `biglietto_livia_1` … `biglietto_livia_6`: g17-g22, firmati `L.`.
+  - Gli altri oggetti hanno i testi in `comune.oggetti.<id>.nome|descrizione`: `merletto_avorio`, `libro_punti`, `bottiglia`, `fuso_faro`, `pagina_strappata`, `bottiglia_nodo_nero`, `fascio_lettere`, `nastro_nonna`.
+- **Domande del Taccuino** (`QuestionId`, GDD 5.8), testo in `comune.domande.<id>.titolo`: `avorio`, `martaTeresa`, `chiL`, `filoNero`, `pozzo`, `anno1958`, `madre`, `puntoAperto`, `desideri`.
+  - L'Atto I apre `avorio`, `martaTeresa`, `chiL`, `filoNero`, `pozzo`, `desideri`.
+  - L'Atto I chiude `avorio` (arc2) e `martaTeresa` (arc1).
+- **Voci del Taccuino**:
+  - Id con il prefisso della sezione (`persone.`, `libro.`, `domande.`, `lettere.`, `archivio.`), più `desiderio.<personaggio>` (sezione `persone`, sblocco `{ knows: 'desire', id }`).
+  - Testi in `atto1.diario.<id>`.
+  - Le voci sbloccate da un Archivio usano `{ done: 'arcN' }` (Archivio completato) e sono anche nel suo `archive.unlocks`.
+- **Varianti dei bigliettini.** Più `NoteDef` dello stesso autore per la stessa sera, con `availableIf` complementari (`{ flag, eq: true }` e `{ not: … }`).
+  - `level.notes` le elenca tutte; la sera mostra solo quelle con `availableIf` vero, cioè sempre 3.
+  - `levels:check` calcola anche le loro combinazioni.
+  - Gli id delle varianti non seguono lo schema `<giorno>.<autore>`: l'autore è nel campo `author`.
+- `book.json`:
+  - Id: `incrocio, spillo, sopraDa, voce, matassa, molo, segreto, pozzo, febbre, nodo, nome, nero, marea, puntoAperto`.
+  - La pagina `pozzo` usa `rule: 'segreto'`, perché il pozzo non è una RuleId.
+  - Le note a margine delle pagine `nome` e `nero` sono di Ada (a matita); le altre sono di Clotilde.
+  - Sblocco: `{ any: [ { knows: 'rule', id }, { done: <giornata precedente> } ] }`; per `puntoAperto` vedi sopra.
+- `lines.json`:
+  - 9 personaggi (gli 8 del cast più Livia) × 7 eventi × 2, più 4 di riserva = 162 battute.
+  - Eventi del GDD 5.9 → `LaceEventKind`: incontro → `incontro`, consegna → `consegna`, voce → `copia`, segreto letto → `legge`, rifiuto → `stranezza`, nodo → `nodo`, cura → `cura`; più `riserva`.
+  - Chiavi `comune.battute.<pers>.<evento>.<n>`; la variante per chi ha dimenticato Ada è `…<n>d` (`forgetKey`).
+- Chiavi dei livelli dell'Atto I:
+  - `atto1.<giorno>.titolo|perline.*|alba.<nome>[2]|hint.spinta|hint.indizio|margine.*`;
+  - bigliettini `atto1.<giorno>.<autore>.testo|r1|r2`;
+  - Archivio `atto1.arcN.eco.*|margine|rivela.1|rivela.2`.
 - Titoli degli atti: `comune.atti.<0-3>.titolo|sottotitolo`. Crediti: `comune.crediti.*`.
 
-## Decisioni prese
+## Decisioni
 
-- g00 ha la meccanica identica ad ARCHITETTURA 14.1 (verificata: minimo 4, matassa 6). Aggiunte solo le altre due vignette del GDD 9 (Teresa consegna, Don Piero legge), il suggerimento `indizio` e due passi `pulsa` (Disfa alle 8, Taccuino alle 9).
+- g00 ha la meccanica identica ad ARCHITETTURA 14.1: minimo 4, 3 soluzioni ottime, matassa 6. Ho aggiunto solo le altre due vignette del GDD 9, il suggerimento `indizio` e due passi `pulsa` (Disfa alle 8, Taccuino alle 9).
 - g06 è l'esempio del GDD 3.16 alla lettera: N1 5, N1+N2 5, N2+N3 0, N1+N3 impossibile e voluta, matassa 8.
-- Con `ginoCorre` il minimo di una giornata con Gino è almeno il numero di righe: g01 6, g02 7, g07 9, g08 12 superano di 1-2 l'intervallo «Min» del GDD 5.2 (che non può valere con Gino sempre in campo). Matassa sempre = minimo designato + 3.
-- g04: la barca di Bepi rientra alle **11** invece che alle 13: la richiesta dell'Appendice A `presso(bepi, chiesa, 14)` dal Molo alle 13 sarebbe impossibile (tre colonne in una riga). L'uscita di Bepi alle 7 è un obiettivo obbligatorio `parte(bepi, 7)`: uno spillo non basta, perché gli spilli si controllano dopo i bordi (GDD 3.4) e Bepi a quell'ora è già fuori.
-- g08: i 6 fili con nome occupano le 6 colonne, quindi il vaporetto delle 9 porta sempre via qualcuno. Con Nina in Piazza alle 10 e Don Piero in Chiesa alle 11, la domanda d'iscrizione può partire solo con il Gino o con Marta: è il conflitto con la richiesta di Marta. Il destinatario della domanda è un filo di lino `segreteria` che non entra mai nel merletto.
-- I fili sbiaditi dell'Archivio hanno id neutri (`f1` … `f4`) con il `character` della risposta; il padre di Marta (arc1) è un filo con nome senza CharacterId (`labelKey`).
-- Per gli effetti delle risposte si usano flag leggibili (`teresaFredda`, `ninaDillo`, `bepiSaVenezia`, `ginoFaro`, `ninaEsame`…), e le vignette dell'alba li leggono con `{ reply }`, `{ ok }`, `{ failed }`, `{ accepted }`.
-- Le vignette di sola narrazione hanno 0 figure (la figurina `lino` non è un CharacterId).
-- Nota di Gino: 659,25 Hz, come la tabella del pacchetto audio.
+- Con `ginoCorre`, il minimo di una giornata con Gino è almeno il numero di righe in cui Gino è nel merletto. Per questo g01 (6), g02 (7), g07 (9) e g08 (12) superano di 1-2 l'intervallo «Min» del GDD 5.2. La matassa resta sempre il minimo designato più 3.
+- g04, barca di Bepi:
+  - Rientra alle **11** invece che alle 13, perché dal Molo alle 13 la richiesta dell'Appendice A `presso(bepi, chiesa, 14)` sarebbe impossibile (tre colonne in una riga).
+  - L'uscita di Bepi alle 7 è l'obiettivo obbligatorio `parte(bepi, 7)`: gli spilli si controllano dopo i bordi.
+  - Di conseguenza g04.nina (salutarlo alle 7) è sempre soddisfatta: Bepi deve incrociare Nina per arrivare al Molo.
+- g08: i 6 fili con nome occupano le 6 colonne, quindi il vaporetto delle 9 porta sempre via qualcuno. Il destinatario della domanda d'iscrizione è un filo di lino `segreteria`, che non entra mai nel merletto.
+- I fili sbiaditi dell'Archivio hanno id neutri (`f1` … `f4`) con il `character` della risposta. Il padre di Marta (arc1) è un filo `persona` senza CharacterId, con `labelKey`.
+- Le vignette di sola narrazione hanno 0 figure.
 
 ## Problemi noti
 
-- La storia dell'Atto I in inglese (`text/en/atto1.json`, livello L2) non c'è: in inglese l'Atto I ripiega sull'italiano. Il namespace `comune` invece è completo in inglese.
-- `book.json` non ha i `demo` (facoltativi): il disegno animato della pagina va generato dal codice.
+- La storia dell'Atto I in inglese (`text/en/atto1.json`, livello L2, facoltativo) non c'è: in inglese l'Atto I ripiega sull'italiano. Il namespace `comune` invece è completo in inglese.
+- Gli intervalli «Min» del GDD 5.2 non valgono per le giornate con Gino (vedi Decisioni).
 
 ## Richieste per altri pacchetti
 
-- **tombolo**: g04 ha un obiettivo obbligatorio (`goals: parte(bepi, 7)`), da mostrare come quello del prologo. In g08 il filo `segreteria` esiste solo come destinatario e non entra mai. Tutorial: g00 aggiunge `pulsa disfa` (8) e `pulsa taccuino` (9); g01 usa `margine` con `when: 'rifiuto'` (Gino non sta fermo); g02 `margine` con `when: 'primaOra'`.
-- **campagna**: vedi le convenzioni sopra (oggetti = id delle lettere, domande, desideri, voci d'Archivio con `{ done: 'arcN' }`). Le note a margine delle pagine `nome` e `nero` del Libro vanno scritte con la mano di Ada.
-- **contenuti-atti23**: usare gli id e le chiavi comuni sopra; per le lettere 8-11 usare `lettera_L8` … `lettera_L11`; per chiudere le domande aperte dall'Atto I usare gli stessi `QuestionId`.
+- **campagna**:
+  - Filtrare `level.notes` con `availableIf`: in g02 e g03 l'elenco contiene il bigliettino base e la sua variante, e la sera ne mostra 3.
+  - Le altre convenzioni sono quelle sopra (oggetti = id delle lettere, domande, desideri, voci d'Archivio con `{ done: 'arcN' }`).
+  - Le note a margine delle pagine `nome` e `nero` del Libro vanno scritte con la mano di Ada.
+  - `fascio_lettere` (g16) va mostrato solo se le lettere di Livia sono liberate (GDD 5.6).
+  - Dopo g00, oltre a `merletto_avorio`, compare il Libro dei Punti (`comune.oggetti.libro_punti`).
+- **tombolo**:
+  - g04 ha un obiettivo obbligatorio (`goals: parte(bepi, 7)`), da mostrare come quello del prologo.
+  - In g08 il filo `segreteria` esiste solo come destinatario e non entra mai.
+  - Facoltativo: far scattare il margine `when: 'rifiuto'` anche sui rifiuti `corre` e `faro`. Il GDD 3.4 li chiama tutti «riga rifiutata», e il testo di g01 vale per tutti e due i casi.
+  - Un filo `persona` senza `character` (il padre di Marta in arc1) oggi si disegna come un lino. Conviene disegnarlo come un filo con nome neutro, perché riceve lettere e segreti.
+- **contenuti-atti23**:
+  - Usare gli id e le chiavi comuni sopra; per le lettere 8-11 gli id `lettera_L8` … `lettera_L11`.
+  - Chiudere le domande lasciate aperte dall'Atto I (`chiL`, `filoNero`, `pozzo`, `desideri`) con gli stessi `QuestionId`.
 
 ## Test
 
-- `npx vitest run tests/unit/content/atto1.test.ts` → 28 test verdi (validazione senza errori sui file del pacchetto, chiavi italiane, inglese di `comune` completo, 3 bigliettini e una risposta per sera, 3-5 vignette, conflitto voluto per sera, tutorial, righe ≤ 90 e bigliettini ≤ 220, 162 battute, 14 pagine, 24 giornate, lettere, Taccuino, sourceHash, g00 = 4, g06 come GDD 3.16, matassa = designato + 3, soluzioni riprovate col motore, Archivio).
-- `npm run levels:check` → g00-g08, arc1, arc2 tutti ✓ (i livelli degli Atti II-III sono di un altro pacchetto).
-- `npx tsc --noEmit -p .` → nessun errore.
-- `npx vitest run tests/unit/audio tests/unit/content tests/unit/core` → 36 file, 390 test verdi.
+- `npx vitest run tests/unit/content/atto1.test.ts` → 34 test verdi.
+- `npx tsx tools/levels/check.ts --only g00,g01,g02,g03,g04,g05,g06,g07,g08,arc1,arc2` → 11 livelli OK.
+- `npx vitest run tests/unit/content tests/unit/core` → 22 file, 248 test verdi (compreso `atto23.test.ts`).
+- `validateContent` su tutti i contenuti presenti → 0 errori.
+- `npx tsc --noEmit -p .` → nessun errore nei file del pacchetto.
+- Browser (Chromium headless, `__GAME__.night`):
+  - g00, g01, g06, g08, arc1 e arc2 si aprono nel tombolo vero, e l'autoplay soddisfa le richieste accettate;
+  - g06 riproduce la figura del GDD 3.16 (5/8);
+  - le note a margine compaiono: «Chi sta sopra, dà.» in g00 alle 7 con Piero sopra, e la nota del rifiuto in g01 con il «No.» di Marta.
