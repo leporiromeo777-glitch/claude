@@ -183,3 +183,37 @@ splash 136 KB l'uno, icone 192/512/64.
 - Fogli di controllo rigenerati e ispezionati: `contact_fusi`, `contact_figurine`,
   `contact_oggetti`, `contact_diorami`, `contact_quadri`, `contact_atlas`, `contact_icone`,
   `contact_palette`.
+
+## Integrazione
+
+Richieste di `docs/stato/RICHIESTE.md` per questo pacchetto, controllate sul codice attuale (14 ottobre 2026).
+
+| Richiesta | Esito |
+|---|---|
+| (piattaforma-nativa, costruzione e verifica) Grafica in evidenza per Google Play: 1024×500, PNG o JPEG senza trasparenza, con il tombolo e il titolo «Trama»; obbligatoria nella scheda | **Fatto**: `assets/feature-graphic.png` (scheda italiana, predefinita) e `assets/feature-graphic-en.png` (scheda inglese). |
+| (fondamenta) La scena boot chiede esattamente `EXPECTED_FRAMES` / `EXPECTED_IMAGES`; percorsi del manifest relativi a `public/assets/`, gruppi `core` / `dio` / `tab` | Già fatto: `__GAME__.core.missingAssets()` → `[]` nella build di prova; `pack.py` rigenerato in una cartella temporanea dagli stessi render dà `public/assets`, `public/icons`, logo e splash identici byte per byte a quelli versionati. |
+
+**La grafica in evidenza.**
+
+- `tools/blender/grafica.py` (nuovo, Cycles su CPU come gli altri) rende `store/tombolo`: lo stesso tombolo di `obj/tombolo` (`scenografia.tombolo`) con otto fuselli dai colori del cast e il corallo di Ada vicino al centro, 2048×1000 trasparente, 64 campioni, denoiser accurato. Camera ortografica (azimut 26°, elevazione 28°: il merletto sul rullo si vede bene), tombolo alto 1,08 volte l'immagine, centrato al 71% della larghezza. Le gambe del cavalletto escono dal bordo basso, il resto resta dentro, e lo script lo controlla. Un pavimento *shadow catcher* lascia l'ombra a terra nell'alfa. Tempo: 264 s a 3 thread con la macchina occupata da altri agenti.
+- `tools/atlas/grafica.py` (nuovo) compone a 2048×1000 e riduce a 1024×500 PNG RGB, senza alfa, circa 370 KB:
+  - il fondo è velluto disegnato come in `src/screens/backdrop.ts` (due ottave, vignettatura, luce calda della lampada dietro il tombolo);
+  - poi il render;
+  - poi il titolo come nella schermata del titolo: «TRAMA» in EB Garamond color carta, spaziato 0,34 em, con l'ombra e l'alone caldo;
+  - sotto, lo smerlo d'ottone di `laceEdge`, disegnato al doppio della risoluzione per l'antialias;
+  - in fondo il sottotitolo in corsivo ottone: «Il merletto dei giorni» oppure «The Lace of Days».
+- I caratteri vengono da `node_modules/@fontsource/eb-garamond` (licenza OFL, serve `npm install`). Lo script si ferma se il titolo arriva a meno del 3% dell'immagine dal tombolo, misurato sui pixel pieni del render nella fascia del titolo, o se si avvicina ai bordi. Due esecuzioni danno lo stesso file byte per byte.
+- `render_all.sh` lancia `grafica.py` fra i render (in sequenza e nella corsia B di `--parallel`) e `tools/atlas/grafica.py` dopo `pack.py`. Anche `--pack-only` rigenera le due grafiche. I nomi stanno in `catalogo.py`: `STORE_RENDERS`, `FEATURE_GRAPHICS`, `FEATURE_SIZE`, `FEATURE_BUDGET`. Il README spiega tutto.
+- Controllo visivo, sul PNG finale e su ritagli ingranditi: il titolo si legge bene anche ridotto a 384 px di larghezza. Il merletto è nitido, con smerlo, ragni e spilli d'ottone, rosso e verde. I fili colorati arrivano ai fuselli. Nessuna macchia nera né scalettatura visibile. Il blocco del titolo occupa x 0,075-0,435, il tombolo comincia a 0,475 nella stessa fascia.
+- Test nuovi in `tools/atlas/test_assets.py` (classe `FeatureGraphicTest`, i test sono ora 25):
+  - formato di Google Play: 1024×500, PNG, modo RGB senza alfa, ≤ 1 MB;
+  - titolo leggibile sul velluto: contrasto ≥ 7:1 fra lettere e fondo, fondo blu;
+  - fili saturi del tombolo nella metà destra, pochi a sinistra;
+  - le due lingue cambiano solo nel sottotitolo;
+  - composizione deterministica dal render grezzo; se il render manca, il test viene saltato.
+
+  Prova di mutazione: con l'alfa, con il titolo coperto, senza il tombolo e alla misura sbagliata fallisce ogni volta il test giusto.
+
+**Richiesta per piattaforma-nativa** (non è nei file di questo pacchetto): in `docs/STORE.md` 6.5 la riga «Grafica in evidenza | 1024×500, obbligatoria (da preparare)» può diventare `assets/feature-graphic.png` (scheda italiana) e `assets/feature-graphic-en.png` (scheda inglese). In `docs/stato/piattaforma-nativa.md` il problema noto «Manca la grafica in evidenza» non vale più.
+
+Test: `python3 tools/atlas/test_assets.py` → 25 test OK (anche con `$BLENDER_PY`). `bash -n tools/blender/render_all.sh` è OK. `contact_sheet.py` funziona anche con il nuovo render grezzo `store/`. Nel browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5420) `missingAssets()` è vuoto e non ci sono errori in console.

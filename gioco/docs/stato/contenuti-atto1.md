@@ -142,3 +142,21 @@ Archivio:
   - g00, g01, g06, g08, arc1 e arc2 si aprono nel tombolo vero, e l'autoplay soddisfa le richieste accettate;
   - g06 riproduce la figura del GDD 3.16 (5/8);
   - le note a margine compaiono: «Chi sta sopra, dà.» in g00 alle 7 con Piero sopra, e la nota del rifiuto in g01 con il «No.» di Marta.
+
+## Integrazione
+
+Richieste di `docs/stato/RICHIESTE.md` per questo pacchetto, controllate sul codice attuale (14 ottobre 2026).
+
+| Richiesta | Esito |
+|---|---|
+| Crediti con il segnaposto `[nome dell'autore]` (autore, ideazione, testi), visibili nei titoli di coda e nella schermata Crediti | **Fatto.** Formula neutra in italiano e in inglese: «Un'idea nata da una conversazione con Claude» / «An idea born from a conversation with Claude»; «Ideazione, design e storia: Claude (Anthropic)»; «Testi italiani e inglesi: Claude (Anthropic)». Nuovo test: crediti senza segnaposto né parentesi quadre, presenti in tutte e due le lingue. |
+| `text/en/comune.json` con le virgolette dritte (9 coppie) mentre la storia usa “ ” | **Fatto.** Le 9 coppie ora sono tipografiche (“dear”, “my Ada”, “L.”, “the keeper”, “news”, “doctor”, “the pharmacy man”). Il test di `en.test.ts` controlla anche `comune.*`: niente `"` dritte e “ ” bilanciate. |
+| `characters.json`: `noteHz` e `voice` come GDD 13.2/13.5, Clotilde `voice: null`, Lino senza nota | Già fatto: `tests/unit/audio/notes.test.ts` verde. |
+| `campaign.json`: stonatura 1 (g00-g08), 0,6 (g09-g16), 0,25 (g17-g23) | Già fatto (controllato sul file). |
+| Flusso di `levels:check`, `--voluta`, matassa = `matassaSuggerita` | Già fatto: `npx tsx tools/levels/check.ts --no-write` → 34 livelli OK; nessun livello modificato, quindi nessun `.computed.json` da rigenerare. |
+| Se si aggiunge l'inglese della storia dell'Atto I, serve anche per atti 2-3 e finali | Già fatto dal pacchetto traduzione-en (atto1, atto2, atto3, finali). Il problema noto «la storia dell'Atto I in inglese non c'è» non vale più. |
+| `validateContent` (righe giocabili, vignette, archivio, bigliettini, chiavi) e forme del loader | Già fatto: `validateContent` su **tutti** i contenuti → 0 errori. |
+
+**Come citare l'autore.** La riga dell'autore è una sola chiave, `comune.crediti.autore` (in `src/content/text/it/comune.json` e `text/en/comune.json`), puntata da `credits.json` (`authorKey`). Per citare una persona basta cambiare quel testo nelle due lingue, per esempio «Un gioco di Nome Cognome»; le righe `comune.crediti.righe.ideazione` e `.testi` si cambiano allo stesso modo. Il test rifiuta solo i segnaposto tra parentesi quadre.
+
+Test: `npx vitest run tests/unit/content` → 3 file, 111 test verdi (`atto1.test.ts` 35). Browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5420, 390×844 touch): schermata Crediti in italiano e in inglese con la nuova formula e senza parentesi quadre, `missingKeys` vuoto in tutte e due le lingue, nessun errore in console.

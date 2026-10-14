@@ -158,3 +158,13 @@ Nessuno nei file del pacchetto. Le cose che restano aperte sono negli altri pacc
 - `npx tsc --noEmit -p .`: nessun errore, né nei file del pacchetto né nel resto del progetto.
 - Prova di mutazione dei nuovi test: ho inserito «Molo», «cushion» e una «è» nei testi e sono falliti 4 test; poi ho rimesso il file com'era.
 - Playwright sulla build di prova (porta 5315): 43 controlli su 43 passati. Il server è stato chiuso.
+
+## Integrazione
+
+Non ci sono sezioni «Per: traduzione-en» in `docs/stato/RICHIESTE.md`. Le richieste che questo pacchetto aveva fatto agli altri e che toccano i testi sono state chiuse nel gruppo contenuti (14 ottobre 2026):
+
+- **`atto2.diario.persone.zeno.lettera`** in italiano ora dice «per tutto questo tempo», come l'inglese «all this time».
+- **Virgolette di `comune.json`.** Le 9 coppie dritte di `text/en/comune.json` sono diventate “ ”. Nuovo test in `en.test.ts`: nei testi inglesi della storia **e di `comune`** nessuna `"` dritta e “ ” bilanciate (25 test).
+- **Crediti** in inglese senza segnaposto: «An idea born from a conversation with Claude», «Concept, design and story: Claude (Anthropic)», «Italian and English text: Claude (Anthropic)».
+
+Test: `npx vitest run tests/unit/content` → 111 test verdi. Browser (porta 5420, `?lang=en`): Crediti e Taccuino in inglese, nessuna virgoletta dritta nel Taccuino aperto, `missingKeys('en')` vuoto, nessun errore in console.

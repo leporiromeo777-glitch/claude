@@ -40,14 +40,16 @@ non ha un contesto GPU) **né Workbench** (dipende da Mesa): tutti i render sono
    d'ombra che parte da una faccia colpisce subito l'altra). Pochi secondi; poi svuota i render
    grezzi in `tools/blender/out/render/` (ignorata da git);
 2. lancia ogni script in un **sottoprocesso separato** (`fusi`, `figurine`, `oggetti`,
-   `icona`, `diorami`) e ne controlla il codice d'uscita: un crash di Blender non solleva
+   `icona`, `grafica`, `diorami`) e ne controlla il codice d'uscita: un crash di Blender non solleva
    eccezioni Python, quindi conta solo l'exit code. Il log completo di ogni passo è in
    `tools/blender/out/logs/`; a schermo vanno solo le righe `[blender]`. Con `--parallel`
    i passi vanno su due corsie che girano insieme (una fa i diorami di molo, forno, piazza,
-   chiesa e farmacia; l'altra fusi, figurine, oggetti e quadri, icona e i diorami di faro e
-   stanza) e la pipeline fallisce se fallisce una delle due;
+   chiesa e farmacia; l'altra fusi, figurine, oggetti e quadri, icona, grafica e i diorami di
+   faro e stanza) e la pipeline fallisce se fallisce una delle due;
 3. `tools/atlas/pack.py` svuota `public/assets/` e la rigenera: atlas, WebP, manifest; scrive
    anche `assets/logo.png`, `assets/splash.png`, `assets/splash-dark.png` e `public/icons/`;
+   poi `tools/atlas/grafica.py` compone la grafica in evidenza di Google Play
+   (`assets/feature-graphic.png` e `assets/feature-graphic-en.png`);
 4. confronta i rettangoli del nuovo manifest con quelli dell'esecuzione precedente
    (determinismo) e lo scrive a schermo;
 5. `tools/atlas/contact_sheet.py` produce i fogli di controllo `tools/blender/out/contact_*.png`
@@ -68,6 +70,7 @@ Esce con un codice diverso da zero al primo errore (script, budget o test).
 | `quadri.py` | — | i 4 quadri L1: `sedia_vuota`, `tempesta`, `secca`, `sacrestia_lettere` |
 | `diorami.py` | `dio/<luogo>/<luce>` ×21 | 1024×768, camera frontale a 30°, soggetto nell'area sicura 768×576 (lo script fallisce se ne esce), Freestyle; ogni luogo si costruisce una volta e si rende con le tre luci |
 | `icona.py` | `icona/logo`, `icona/fuso` | 1024²: il fuso con il filo corallo su velluto `#1C2233` (opaco) e lo stesso fuso trasparente per gli splash |
+| `grafica.py` | `store/tombolo` | 2048×1000 trasparente con l'ombra a terra (shadow catcher): il tombolo con il merletto e otto fuselli nella metà destra, per la grafica in evidenza di Google Play; nei metadati il riquadro del tombolo |
 | `verifica_geometria.py` | — | controllo delle facce complanari sovrapposte su tutte le scene, senza render (exit 1 se ne trova) |
 | `test_geometria.py` | — | test (`unittest`, serve `bpy`) del controllo e dei pezzi condivisi: parete in un pezzo con vano rettangolare o ad arco, telaio a croce |
 
@@ -131,6 +134,15 @@ si spostano di `scenografia.EPS` (2 mm). Le pareti con una finestra sono un pezz
   icone con trasparenza), `assets/splash.png` e `assets/splash-dark.png` 2732² con il fuso al
   centro su `#1C2233`; `npm run assets:native` ne ricava icone e splash di iOS e Android.
 - **Web**: `public/icons/icon-192.png`, `icon-512.png`, `favicon.png` (64²) dal logo.
+- **Store** (`tools/atlas/grafica.py`): la grafica in evidenza di Google Play, 1024×500 PNG RGB
+  senza alfa, `assets/feature-graphic.png` (scheda italiana) e `assets/feature-graphic-en.png`
+  (scheda inglese). Il render `store/tombolo` va su un velluto disegnato come il fondo delle
+  schermate del gioco (velluto a due ottave, vignettatura, luce calda della lampada); a sinistra
+  il titolo come nella schermata del titolo: «TRAMA» in EB Garamond color carta, spaziato
+  0,34 em, con ombra e alone caldo, lo smerlo d'ottone e il sottotitolo in corsivo («Il merletto
+  dei giorni» / «The Lace of Days»). Si compone a 2048×1000 e si riduce alla fine; i caratteri
+  vengono da `node_modules/@fontsource` (serve `npm install`). Lo script si ferma se il titolo
+  si avvicina al tombolo (pixel pieni del render nella fascia del titolo) o ai bordi.
 - **Budget** controllati (e verificati dai test): atlas ≤ 3 MB, ogni WebP ≤ 90 KB, totale
   ≤ 6 MB. Il riepilogo va in `tools/blender/out/pack_report.json`.
 
@@ -146,6 +158,7 @@ sviluppo): la presenza del manifest si legge in `vite.config.ts` all'avvio.
 | figurine (36) | 85 s | ~2 s a figurina (costruzione, render, Freestyle) |
 | oggetti (6) e quadri (4) | 203 s | il tombolo 1024² ~12 s, ogni quadro 35-46 s |
 | icona (2) | 20 s | |
+| grafica (1) | ~5 min | 2048×1000, 64 campioni, denoiser accurato (misurato a 3 thread) |
 | diorami (21) | 846 s | 37-42 s a diorama |
 | pack, fogli di controllo, test | 9 s | |
 
@@ -168,7 +181,9 @@ Controlla: manifest conforme ad `AssetManifest` con esattamente i nomi L1 (allin
 `EXPECTED_FRAMES` / `EXPECTED_IMAGES` di `src/core/assets.ts`), frame dentro le pagine e
 senza sovrapposizioni, estrusione sui pixel, ancore, budget, logo opaco, splash, icone web,
 impaginazione deterministica, tinta del filo dei fusi (Δ RGB ≤ 40) e della fascia delle
-figurine (Δ ≤ 60) misurata sui pixel, colori dei fili uguali a `src/content/characters.json`.
+figurine (Δ ≤ 60) misurata sui pixel, colori dei fili uguali a `src/content/characters.json`,
+grafica in evidenza (1024×500 RGB senza alfa, titolo con contrasto ≥ 7:1 sul velluto, tombolo
+a destra, lingue diverse solo nel sottotitolo, composizione deterministica).
 
 ```
 $BLENDER_PY tools/blender/test_geometria.py      # pezzi condivisi e controllo delle facce complanari

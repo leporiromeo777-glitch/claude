@@ -189,3 +189,16 @@ In tutte queste prove: nessun errore in console e nessuna chiave italiana mancan
 - fin_seppia, fin_chiuso, fin_aperto (occasioni 1-20, vincenti e no), Archivio A3-A6;
 - `sourceHash`, matassa = designato + margine con le coppie dell'Atto III, nessun conflitto nascosto dalla matassa, g13 a merletto perfetto, soluzioni riprovate col motore;
 - eventi del GDD 5.2, `zenoFaro`, g21, testi chiave e cronologia (1630, 1951, 1958, quattordici anni, centosessantotto lettere).
+
+## Integrazione
+
+Richieste di `docs/stato/RICHIESTE.md` per questo pacchetto, controllate sul codice attuale (14 ottobre 2026).
+
+| Richiesta | Esito |
+|---|---|
+| `text/it/atto2.json`, `diario.persone.zeno.lettera`: «per una notte» contraddice la storia (la lettera gli fu data la notte del prologo, la voce si sblocca con `done: g14`) | **Fatto.** Ora: «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me.», come l'inglese («all this time»). Nuovo test in `atto23.test.ts` (sblocco `done: g14`, «per tutto questo tempo», mai «per una notte»). |
+| Facoltativa (documentazione): `g12.lunardi` non è più `voluta`; le coppie dell'Atto III sono calcolate e segnate; il commento del test di g12 è vecchio | **Fatto.** `levels:check` prova da sé le scelte di `nomeOn`: in `g12.computed.json` le coppie con Lunardi hanno `incroci` e `nomeOn: 'lunardi'` (Lunardi + Teresa 5); l'unico conflitto voluto della sera è Bepi + Teresa. Le coppie dell'Atto III (g17-g22) sono nei `.computed.json` con i conflitti voluti segnati. Il commento del test è corretto. Il problema noto «g12.lunardi è segnato voluta» e la nota nella tabella di g12 qui sopra non valgono più. |
+| Id e chiavi comuni (lettere L8-L11, `QuestionId`, `comune.fili.*`, desideri), varianti con `availableIf` | Già fatto (vedi sopra; `validateContent` → 0 errori su tutti i contenuti). |
+| Regole del motore per occasioni, agende, filo nero, pozzo, `riconciliate` | Già rispettate: `npx tsx tools/levels/check.ts --no-write` → 34 livelli OK; nessun livello modificato, nessun `.computed.json` da rigenerare. |
+
+Test: `npx vitest run tests/unit/content` → 3 file, 111 test verdi (`atto23.test.ts` 51). Browser (build servita da `vite preview` sulla porta 5420): con `campaign.goto('g15')` e la voce sbloccata, il Taccuino mostra «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me…» in italiano e «Zeno kept Grandmother's letter for me all this time…» in inglese; nessun errore in console.

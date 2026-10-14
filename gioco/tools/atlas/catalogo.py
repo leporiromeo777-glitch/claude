@@ -38,6 +38,8 @@ FRAMES: list[str] = (
 IMAGES: list[str] = [f"dio/{p}/{l}" for p in PLACES for l in LIGHTS] + [f"tab/{t}" for t in TABLEAUX]
 #: Render dell'icona (non vanno nel manifest: diventano logo, splash e icone web).
 ICON_RENDERS = ["icona/logo", "icona/fuso"]
+#: Render della grafica in evidenza di Google Play (``tools/blender/grafica.py``).
+STORE_RENDERS = ["store/tombolo"]
 
 
 def group_of(name: str) -> str:
@@ -81,3 +83,7 @@ LOGO_SIZE = 1024
 SPLASH_SIZE = 2732
 SPLASH_BG = "#1C2233"
 WEB_ICONS = {"icon-192.png": 192, "icon-512.png": 512, "favicon.png": 64}
+#: Grafica in evidenza di Google Play (docs/STORE.md 6.5): 1024×500, PNG senza alfa; un file per lingua.
+FEATURE_SIZE = (1024, 500)
+FEATURE_GRAPHICS = {"it": "feature-graphic.png", "en": "feature-graphic-en.png"}
+FEATURE_BUDGET = 1024 * 1024  # Google Play accetta fino a 15 MB; restiamo molto sotto

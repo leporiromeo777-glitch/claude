@@ -7,13 +7,14 @@
 # 2. lancia ogni script Blender in un sottoprocesso separato e ne controlla il codice
 #    d'uscita (un crash di Blender non solleva eccezioni Python);
 # 3. tools/atlas/pack.py: atlas, WebP, manifest, logo, splash, icone (svuota public/assets);
+#    tools/atlas/grafica.py: grafica in evidenza di Google Play (assets/feature-graphic*.png);
 # 4. confronta i rettangoli del manifest con quelli dell'esecuzione precedente;
 # 5. tools/atlas/contact_sheet.py (fogli di controllo) e tools/atlas/test_assets.py.
 #
 # Opzioni:
 #   --parallel    due corsie in parallelo, bilanciate (diorami di molo, forno, piazza,
-#                 chiesa, farmacia | fusi, figurine, oggetti e quadri, icona, diorami di
-#                 faro e stanza), 2 thread di Cycles ciascuna salvo TRAMA_THREADS;
+#                 chiesa, farmacia | fusi, figurine, oggetti e quadri, icona, grafica,
+#                 diorami di faro e stanza), 2 thread di Cycles ciascuna salvo TRAMA_THREADS;
 #   --pack-only   salta i render e riusa quelli già in tools/blender/out/render;
 #   --no-tests    salta fogli di controllo e test.
 # Variabili: BLENDER_PY (interprete con bpy), TRAMA_THREADS (thread di Cycles, 4 di base).
@@ -27,9 +28,9 @@ OUT="$GAME/tools/blender/out"
 RAW="$OUT/render"
 LOGS="$OUT/logs"
 # Passi: "script" oppure "script:nomi per --only" (il log prende il nome del passo).
-SEQUENTIAL=(fusi figurine oggetti icona diorami)
+SEQUENTIAL=(fusi figurine oggetti icona grafica diorami)
 LANE_A=("diorami:dio/molo,dio/forno,dio/piazza,dio/chiesa,dio/farmacia")
-LANE_B=(fusi figurine oggetti icona "diorami:dio/faro,dio/stanza")
+LANE_B=(fusi figurine oggetti icona grafica "diorami:dio/faro,dio/stanza")
 
 PARALLEL=0
 PACK_ONLY=0
@@ -39,7 +40,7 @@ for arg in "$@"; do
     --parallel) PARALLEL=1 ;;
     --pack-only) PACK_ONLY=1 ;;
     --no-tests) TESTS=0 ;;
-    -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
     *) echo "render_all: opzione sconosciuta: $arg" >&2; exit 2 ;;
   esac
 done
@@ -128,6 +129,7 @@ if [ -f "$GAME/public/assets/manifest.json" ]; then
 fi
 
 "$PY" "$GAME/tools/atlas/pack.py" --src "$RAW"
+"$PY" "$GAME/tools/atlas/grafica.py" --src "$RAW"
 
 if [ -f "$PREV" ]; then
   "$PY" - "$PREV" "$GAME/public/assets/manifest.json" <<'EOF'

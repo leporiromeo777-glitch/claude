@@ -179,6 +179,12 @@ describe('traduzione inglese: stringhe', () => {
     expect(bad).toEqual([]);
   });
 
+  it('virgolette tipografiche “ ” anche in comune.json: mai quelle dritte', () => {
+    const keys = [...EN.keys()].filter((k) => isStoryKey(k) || k.startsWith('comune.'));
+    expect(keys.filter((k) => en(k).includes('"'))).toEqual([]);
+    expect(keys.filter((k) => (en(k).match(/“/g) ?? []).length !== (en(k).match(/”/g) ?? []).length)).toEqual([]);
+  });
+
   it('niente virgolette basse né vocali accentate all\'italiana', () => {
     // «fiancé» ha l'accento acuto ed è inglese; le gravi (è, à, ò…) sono solo italiane.
     expect(storyKeys.filter((k) => /[«»àèìòùÀÈÌÒÙ]/.test(en(k)))).toEqual([]);

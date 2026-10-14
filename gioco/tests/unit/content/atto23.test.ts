@@ -285,7 +285,8 @@ describe('bigliettini e vignette', () => {
       solve({ level: lv, ctx: createContext(lv, {}, { nomeOn, balance: db.balance }), goals: [...(lv.goals ?? []), req] }).status === 'ok';
     expect(okWith('lunardi')).toBe(true);
     expect(okWith('marta')).toBe(true);
-    // Con il nome su Lunardi la richiesta è compatibile con quelle di Bepi e di Zeno (non con quella di Teresa, voluta).
+    // Con il nome su Lunardi la richiesta è compatibile con tutte le altre, anche con quella di Teresa (5 incroci):
+    // il conflitto voluto della sera è Bepi + Teresa. levels:check prova da sé le scelte di nomeOn.
     const ctx = createContext(lv, {}, { nomeOn: 'lunardi', balance: db.balance });
     for (const other of ['g12.bepi', 'g12.zeno', 'g12.teresa']) {
       const r = solve({ level: lv, ctx, goals: [...(lv.goals ?? []), req, db.notes.get(other)?.request as Condition] });
@@ -807,5 +808,12 @@ describe('bibbia della verità (GDD 6.1, 6.4)', () => {
     expect(all).toContain('quattordici anni');
     expect(all).toContain('Centosessantotto');
     expect(all).not.toMatch(/quindici anni (di|per) lettere/i);
+  });
+
+  it('la lettera della nonna è rimasta a Zeno dalla notte del prologo fino a g14, non «per una notte»', () => {
+    const entry = [...db.diary.values()].find((d) => d.id === 'persone.zeno.lettera');
+    expect(entry?.unlock).toEqual({ done: 'g14' });
+    expect(t('atto2.diario.persone.zeno.lettera')).toContain('per tutto questo tempo');
+    expect(t('atto2.diario.persone.zeno.lettera')).not.toContain('per una notte');
   });
 });

@@ -405,6 +405,18 @@ describe('Libro dei Punti, campagna e dati comuni', () => {
     expect(p?.unlock).toEqual({ any: [{ done: 'arc6' }, { done: 'g21' }] });
   });
 
+  it('crediti senza segnaposto, in italiano e in inglese (la riga dell\'autore è comune.crediti.autore)', () => {
+    const keys = [db.credits.authorKey, ...db.credits.lines.map((l) => l.key)];
+    expect(db.credits.authorKey).toBe('comune.crediti.autore');
+    for (const k of keys) {
+      for (const [lang, table] of [['it', IT], ['en', EN]] as const) {
+        const v = table.get(k) ?? '';
+        expect(v.trim(), `${lang} ${k}`).not.toBe('');
+        expect(v, `${lang} ${k}`).not.toMatch(/\[[^\]]*\]|nome dell'autore|author's name/i);
+      }
+    }
+  });
+
   it('balance.json come GDD 3.13', () => {
     expect(db.balance.acts['1']).toEqual({ pins: 2, slack: 3, notes: [3, 3] });
     expect(db.balance.acts['2']).toEqual({ pins: 2, slack: 2, notes: [3, 4] });

@@ -433,11 +433,11 @@
     }
   },
   "crediti": {
-    "autore": "Un gioco di [nome dell'autore]",
+    "autore": "Un'idea nata da una conversazione con Claude",
     "righe": {
       "titolo": "TRAMA. Il merletto dei giorni",
-      "ideazione": "Ideazione, design e storia: [nome dell'autore]",
-      "testi": "Testi italiani: [nome dell'autore]",
+      "ideazione": "Ideazione, design e storia: Claude (Anthropic)",
+      "testi": "Testi italiani e inglesi: Claude (Anthropic)",
       "musica": "Musica e suoni: sintesi procedurale nel browser, nessuna registrazione",
       "figurine": "Figurine e diorami: modellati e resi con Blender",
       "font": "Caratteri: Atkinson Hyperlegible, EB Garamond, Caveat (SIL Open Font License)",

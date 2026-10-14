@@ -5,7 +5,7 @@
       "nomeCompleto": "Teresa Bortolato",
       "ruolo": "the postwoman, 54",
       "desiderio": "A letter written for me.",
-      "presentazione": "She has carried the post for thirty years and knows everything about everyone, or nearly. She talks fast, calls everyone \"dear\", and in the evening has no one to tell about her day."
+      "presentazione": "She has carried the post for thirty years and knows everything about everyone, or nearly. She talks fast, calls everyone “dear”, and in the evening has no one to tell about her day."
     },
     "marta": {
       "nome": "Marta",
@@ -61,7 +61,7 @@
       "nomeCompleto": "Livia Vio",
       "ruolo": "the woman in the black shawl, 38",
       "desiderio": "To see Ada again.",
-      "presentazione": "A woman in a black shawl whom nobody recognises. She writes \"my Ada\"; she is warm and sad, and ironic like Nina."
+      "presentazione": "A woman in a black shawl whom nobody recognises. She writes “my Ada”; she is warm and sad, and ironic like Nina."
     },
     "ada": {
       "nome": "Ada",
@@ -221,8 +221,8 @@
   "oggetti": {
     "merletto_avorio": {"nome": "Grandmother's last lace", "descrizione": "An ivory thread that belongs to nobody breaks off at three, cut clean."},
     "libro_punti": {"nome": "The Book of Stitches", "descrizione": "Worn leather, handwritten pages. In the margins, grandmother's sepia hand."},
-    "bottiglia": {"nome": "A bottle", "descrizione": "The lagoon brought it to the door. Inside, a rolled sheet signed \"L.\"."},
-    "fuso_faro": {"nome": "A bobbin carved like a lighthouse", "descrizione": "Zeno lost it. Inside, carved small, there is an initial: \"L.\"."},
+    "bottiglia": {"nome": "A bottle", "descrizione": "The lagoon brought it to the door. Inside, a rolled sheet signed “L.”."},
+    "fuso_faro": {"nome": "A bobbin carved like a lighthouse", "descrizione": "Zeno lost it. Inside, carved small, there is an initial: “L.”."},
     "pagina_strappata": {
       "nome": "A torn page",
       "descrizione": "It comes from the Book of Stitches. It shows a stitch I don't know, and no explanation."
@@ -357,8 +357,8 @@
       "riserva": {
         "1": "Last night the sea was smooth. Too smooth.",
         "2": "The lantern turns. I watch. That's all.",
-        "3": "Ada… your grandmother called me \"the keeper\". Only that.",
-        "3d": "Miss… your grandmother called me \"the keeper\". Only that.",
+        "3": "Ada… your grandmother called me “the keeper”. Only that.",
+        "3d": "Miss… your grandmother called me “the keeper”. Only that.",
         "4": "Light is seen from far away. That's what it's for."
       }
     },
@@ -368,7 +368,7 @@
         "2": "A cordial meeting. I'll make a note of it, as prescribed."
       },
       "consegna": {"1": "Post for me! From the city, I suppose. How exciting.", "2": "Delivered. Perfect, like a dosage properly followed."},
-      "copia": {"1": "People murmur, they murmur. In the city it's called \"news\".", "2": "Hearsay is as contagious as fever, ladies and gentlemen."},
+      "copia": {"1": "People murmur, they murmur. In the city it's called “news”.", "2": "Hearsay is as contagious as fever, ladies and gentlemen."},
       "legge": {
         "1": "Opening other people's post is a crime, you know. Article… I forget which.",
         "2": "A secret once read is like an open bottle: it evaporates."
@@ -377,7 +377,7 @@
       "nodo": {"1": "A case of chronic grudge. I prescribe: a coffee together.", "2": "Both stuck. Clinically fascinating."},
       "cura": {"1": "Two drops, rest and warm broth. Science is simple.", "2": "Healed! I'll note it in the register. The fourth today."},
       "riserva": {
-        "1": "In the city they called me \"doctor\". Here, \"the pharmacy man\".",
+        "1": "In the city they called me “doctor”. Here, “the pharmacy man”.",
         "2": "Miss Ada, isn't it? I have an excellent memory for names.",
         "2d": "The lacemaker, isn't it? Forgive me, the name escapes me.",
         "3": "The lagoon air is good for the lungs. And bad for the mood.",
@@ -418,11 +418,11 @@
     }
   },
   "crediti": {
-    "autore": "A game by [author's name]",
+    "autore": "An idea born from a conversation with Claude",
     "righe": {
       "titolo": "TRAMA. The Lace of Days",
-      "ideazione": "Concept, design and story: [author's name]",
-      "testi": "Italian text: [author's name]",
+      "ideazione": "Concept, design and story: Claude (Anthropic)",
+      "testi": "Italian and English text: Claude (Anthropic)",
       "musica": "Music and sound: procedural synthesis in the browser, no recordings",
       "figurine": "Figurines and dioramas: modelled and rendered with Blender",
       "font": "Typefaces: Atkinson Hyperlegible, EB Garamond, Caveat (SIL Open Font License)",

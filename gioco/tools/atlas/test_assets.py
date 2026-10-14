@@ -9,6 +9,9 @@ Verifica su quello che il gioco riceve (``public/assets``, ``public/icons``, ``a
   estrusione 1 px verificata sui pixel), ancore sensate;
 - budget: pagine ≤ 2048×2048 e ≤ 3 MB in tutto, ogni WebP ≤ 90 KB, totale ≤ 6 MB;
 - ``assets/logo.png`` 1024×1024 senza pixel trasparenti, splash 2732×2732, icone web;
+- grafica in evidenza di Google Play (``assets/feature-graphic.png`` e ``-en``): 1024×500 RGB
+  senza alfa, titolo leggibile sul velluto (contrasto ≥ 7:1), tombolo a destra, lingue diverse
+  solo nel sottotitolo, composizione deterministica;
 - impaginazione deterministica (stessi rettangoli a ogni esecuzione, qualunque sia l'ordine
   dei render) e catalogo allineato a ``EXPECTED_FRAMES`` / ``EXPECTED_IMAGES`` del gioco.
 
@@ -215,6 +218,95 @@ class NativeTest(unittest.TestCase):
         for f, px in K.WEB_ICONS.items():
             with Image.open(os.path.join(K.PUBLIC_ICONS, f)) as im:
                 self.assertEqual(im.size, (px, px), f)
+
+
+def _lum(rgb) -> float:
+    """Luminanza relativa WCAG di un colore sRGB 0-255."""
+
+    def ch(c: float) -> float:
+        c = c / 255.0
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (ch(float(v)) for v in rgb[:3])
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+class FeatureGraphicTest(unittest.TestCase):
+    """Grafica in evidenza di Google Play (docs/STORE.md 6.5): ``tools/atlas/grafica.py``."""
+
+    def open(self, lang: str) -> Image.Image:
+        path = os.path.join(K.NATIVE_ASSETS, K.FEATURE_GRAPHICS[lang])
+        self.assertTrue(os.path.exists(path), path)
+        im = Image.open(path)
+        im.load()
+        return im
+
+    def test_formato_google_play(self) -> None:
+        """1024×500, PNG a 24 bit senza canale alfa (Google Play rifiuta la trasparenza), file leggero."""
+        for lang, fname in K.FEATURE_GRAPHICS.items():
+            im = self.open(lang)
+            self.assertEqual(im.format, "PNG", fname)
+            self.assertEqual(im.size, K.FEATURE_SIZE, fname)
+            self.assertEqual(im.mode, "RGB", f"{fname}: niente alfa né palette")
+            self.assertLessEqual(os.path.getsize(os.path.join(K.NATIVE_ASSETS, fname)), K.FEATURE_BUDGET, fname)
+
+    def test_titolo_leggibile_sul_velluto(self) -> None:
+        """Nella zona del titolo il fondo è velluto scuro e le lettere chiare: contrasto ≥ 7:1."""
+        import numpy as np
+
+        w, h = K.FEATURE_SIZE
+        for lang in K.FEATURE_GRAPHICS:
+            a = np.asarray(self.open(lang), dtype=np.float32)
+            zone = a[int(0.36 * h) : int(0.52 * h), int(0.06 * w) : int(0.45 * w)].reshape(-1, 3)
+            lum = 0.2126 * zone[:, 0] + 0.7152 * zone[:, 1] + 0.0722 * zone[:, 2]
+            order = np.argsort(lum)
+            bg = zone[order[len(order) // 2]]
+            text = zone[order[int(len(order) * 0.995)]]
+            ratio = (_lum(text) + 0.05) / (_lum(bg) + 0.05)
+            self.assertGreaterEqual(ratio, 7.0, f"{lang}: contrasto {ratio:.1f} (fondo {bg}, lettere {text})")
+            self.assertGreater(bg[2], bg[0], f"{lang}: il fondo non è il velluto blu ({bg})")
+
+    def test_tombolo_a_destra_e_titolo_libero(self) -> None:
+        """I fili saturi dei fuselli stanno nella metà destra; a sinistra del tombolo solo velluto e titolo."""
+        import numpy as np
+
+        w, h = K.FEATURE_SIZE
+        for lang in K.FEATURE_GRAPHICS:
+            hsv = np.asarray(self.open(lang).convert("HSV"), dtype=np.float32)
+            vivid = (hsv[..., 1] > 120) & (hsv[..., 2] > 90)
+            right = int(vivid[:, int(0.48 * w) :].sum())
+            left = int(vivid[:, : int(0.44 * w)].sum())
+            self.assertGreater(right, 400, f"{lang}: pochi pixel saturi a destra ({right}): manca il tombolo?")
+            # A sinistra c'è solo l'ottone dello smerlo e del sottotitolo (saturo ma poco).
+            self.assertLess(left, right, f"{lang}: troppi pixel saturi a sinistra ({left} contro {right})")
+
+    def test_lingue_diverse_solo_nel_sottotitolo(self) -> None:
+        """La versione inglese cambia solo il sottotitolo, sotto lo smerlo e a sinistra del tombolo."""
+        import numpy as np
+
+        w, h = K.FEATURE_SIZE
+        it = np.asarray(self.open("it"), dtype=np.int16)
+        en = np.asarray(self.open("en"), dtype=np.int16)
+        diff = np.abs(it - en).max(axis=2) > 8
+        ys, xs = np.nonzero(diff)
+        self.assertGreater(len(xs), 0, "le due lingue sono identiche")
+        self.assertLess(xs.max(), 0.46 * w)
+        self.assertGreater(ys.min(), 0.5 * h)
+
+    def test_composizione_deterministica(self) -> None:
+        """Dallo stesso render, la composizione dà gli stessi pixel (serve il render grezzo)."""
+        import grafica as G
+
+        png = os.path.join(K.RENDER_DIR, *K.STORE_RENDERS[0].split("/")) + ".png"
+        if not os.path.exists(png):
+            self.skipTest(f"manca il render grezzo {png} (tools/blender/grafica.py)")
+        try:
+            a, info = G.compose(K.RENDER_DIR, "it")
+        except G.GraficaError as err:  # caratteri mancanti (node_modules) o titolo troppo vicino
+            self.fail(str(err))
+        b, _ = G.compose(K.RENDER_DIR, "it")
+        self.assertEqual(a.tobytes(), b.tobytes())
+        self.assertLess(info["title_box"][2] + G.TITLE_MARGIN, info["tombolo_left_at_title"] + 1e-9)
 
 
 class LayoutTest(unittest.TestCase):
