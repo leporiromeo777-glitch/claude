@@ -49,9 +49,10 @@
 /* Giornata sopra il titolo: piccola, in maiuscoletto, color testo tenue. */
 .tb-hud-day {
   font-family: var(--font-ui);
-  font-size: 0.68em;
+  /* 15 px a testo 100% (GDD 10.1: testo minimo 15 px). */
+  font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--testo-tenue);
   line-height: 1.1;
@@ -603,7 +604,8 @@
 
 .tb-names-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  /* In rem: con il testo grande le colonne diventano una sola e i nomi non si spezzano. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
   gap: var(--spazio-2);
 }
 
@@ -615,7 +617,9 @@
 
 .tb-names-grid .core-btn-label {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
   text-align: left;
 }
 

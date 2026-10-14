@@ -630,6 +630,28 @@ async function main(): Promise<void> {
     const missingEn = (await core<string[]>(p, 'missingKeys', 'en')).filter((k) => k.startsWith('tombolo.'));
     check('nessuna chiave tombolo mancante in inglese', missingEn.length === 0, missingEn.join(','));
     await p.close();
+
+    // ───── Correzioni della verifica ─────
+    const v = await openPage(browser, url, { viewport: { width: 1280, height: 720 } }, errors);
+    // Archivio con i flag della campagna: il merletto antico si tesse con le regole di allora.
+    await start(v, { level: 'arc1', origin: 'archivio', flags: { riconciliate: true } });
+    const arcStart = await night(v, 'state');
+    await v.screenshot({ path: join(OUT, 'archivio-strappo.png') });
+    const arcOut = await night(v, 'autoplay');
+    check('Archivio con riconciliate (flag della campagna): rammendo accettato', !!arcOut?.archive?.mended, JSON.stringify({ hour: arcStart.hour, out: arcOut?.archive }));
+    const dayArc = await v.locator('.tb-hud-day').textContent();
+    check('barra alta: Archivio e anno', /Archivio/.test(dayArc ?? '') && /1936/.test(dayArc ?? ''), String(dayArc));
+    await start(v, { level: 'g06', origin: 'campagna' });
+    const dayG06 = await v.locator('.tb-hud-day').textContent();
+    check('barra alta: giornata e titolo (GDD 10.3)', dayG06 === 'Giornata 6', String(dayG06));
+    await v.context().close();
+    // Telefono in orizzontale: la riga corrente resta visibile.
+    const w = await openPage(browser, url, { viewport: { width: 844, height: 390 } }, errors);
+    await start(w, { level: 'g13', origin: 'campagna' });
+    const lw = await night(w, 'layout');
+    check('844×390: riga corrente visibile, fascia dei fusi accorciata', !!lw.currentRow && lw.spindleBand.h < 128, JSON.stringify({ lace: lw.lace, band: lw.spindleBand }));
+    await w.screenshot({ path: join(OUT, 'orizzontale.png') });
+    await w.context().close();
   } finally {
     await browser.close();
     stopServer(proc);

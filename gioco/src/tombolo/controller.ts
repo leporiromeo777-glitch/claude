@@ -372,7 +372,9 @@ export class NightController {
     const lv = this.params.level;
     if (lv.archive) {
       const year = (lv.archive.year ?? '').trim();
-      return year ? { key: 'tombolo.hud.archivioAnno', params: { anno: year } } : { key: 'tombolo.hud.archivio', params: {} };
+      // Alcuni titoli hanno già l'anno («1958. La febbre»): non si ripete.
+      const inTitle = year !== '' && this.s.i18n.t(lv.titleKey).includes(year);
+      return year && !inTitle ? { key: 'tombolo.hud.archivioAnno', params: { anno: year } } : { key: 'tombolo.hud.archivio', params: {} };
     }
     if (lv.kind === 'finale') return { key: 'tombolo.hud.finale', params: {} };
     const days = this.s.content.campaign?.days ?? [];
@@ -1431,6 +1433,9 @@ export class NightController {
   /** Ricomincia la notte dall'apertura (stessi parametri, senza ripresa). */
   restart(): void {
     this.popup?.close();
+    // Gli overlay aperti sopra il tombolo (la Pausa da cui si ricomincia) si chiudono.
+    const ui = this.s.ui as UiLayerExtra & { overlays?: () => string[] };
+    for (let guard = 0; guard < 8 && (ui.overlays?.().length ?? 0) > 0; guard++) ui.closeOverlay();
     const p: NightParams = { ...this.params };
     delete p.resume;
     clearNight(this.s);

@@ -199,6 +199,16 @@ describe('regia della notte (DOM, senza canvas)', () => {
     expect(c.lastHint?.tier).toBe('indizio');
   });
 
+  it('Ricomincia la notte chiude la Pausa aperta sopra il tombolo', () => {
+    c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
+    void h.s.ui.openOverlay('pausa', { from: 'tombolo' });
+    const ui = h.s.ui as Services['ui'] & { overlays(): string[] };
+    expect(ui.overlays()).toEqual(['pausa']);
+    c.restart();
+    expect(ui.overlays()).toEqual([]);
+    expect(h.data.night?.resume.rows ?? []).toEqual([]);
+  });
+
   it('All\'ultima riga "Fissa l\'ora" diventa "Chiudi il merletto"', () => {
     c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
     const label = (): string | undefined => document.querySelector<HTMLElement>('[data-test="tb-fissa"] .core-btn-label')?.dataset.i18n;
