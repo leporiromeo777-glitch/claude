@@ -33,7 +33,12 @@ non ha un contesto GPU) **né Workbench** (dipende da Mesa): tutti i render sono
 
 ## Cosa fa `render_all.sh`
 
-1. svuota i render grezzi in `tools/blender/out/render/` (ignorata da git);
+1. controlla la geometria senza renderizzare: `test_geometria.py` (test dei pezzi condivisi e
+   del controllo) e `verifica_geometria.py`, che costruisce ogni scena (fusi, figurine, oggetti,
+   quadri, diorami, icona) e si ferma se due oggetti hanno facce **complanari, rivolte dalla
+   stessa parte, sovrapposte e visibili dalla camera**: in Cycles fanno macchie nere (il raggio
+   d'ombra che parte da una faccia colpisce subito l'altra). Pochi secondi; poi svuota i render
+   grezzi in `tools/blender/out/render/` (ignorata da git);
 2. lancia ogni script in un **sottoprocesso separato** (`fusi`, `figurine`, `oggetti`,
    `icona`, `diorami`) e ne controlla il codice d'uscita: un crash di Blender non solleva
    eccezioni Python, quindi conta solo l'exit code. Il log completo di ogni passo è in
@@ -63,6 +68,8 @@ Esce con un codice diverso da zero al primo errore (script, budget o test).
 | `quadri.py` | — | i 4 quadri L1: `sedia_vuota`, `tempesta`, `secca`, `sacrestia_lettere` |
 | `diorami.py` | `dio/<luogo>/<luce>` ×21 | 1024×768, camera frontale a 30°, soggetto nell'area sicura 768×576 (lo script fallisce se ne esce), Freestyle; ogni luogo si costruisce una volta e si rende con le tre luci |
 | `icona.py` | `icona/logo`, `icona/fuso` | 1024²: il fuso con il filo corallo su velluto `#1C2233` (opaco) e lo stesso fuso trasparente per gli splash |
+| `verifica_geometria.py` | — | controllo delle facce complanari sovrapposte su tutte le scene, senza render (exit 1 se ne trova) |
+| `test_geometria.py` | — | test (`unittest`, serve `bpy`) del controllo e dei pezzi condivisi: parete in un pezzo con vano rettangolare o ad arco, telaio a croce |
 
 Ogni script accetta:
 
@@ -94,7 +101,20 @@ palette escono esatti), PNG RGBA a 8 bit, `film_transparent` per sprite e oggett
 Freestyle 1,2 px `#2B2622` su figurine, diorami e quadri, con lineset e linestyle creati
 esplicitamente (acqua, cielo, pioggia e fasci di luce stanno in una collezione esclusa).
 Semi fissi: `cycles.seed = 0` e `random.seed(nome)` per ogni asset, quindi due esecuzioni
-danno gli stessi render.
+danno la stessa geometria, le stesse inquadrature e lo stesso manifest; i pixel possono
+differire di pochissimo (il denoiser e il campionamento adattivo su più thread non sono
+bit-esatti).
+
+Fili dei fusi e fasce delle figurine (gli unici elementi saturi, GDD 12.1) hanno un velo di
+emissione del loro colore nominale (`personaggi.THREAD_GLOW`, `BAND_GLOW` = 0,3): sotto la
+chiave calda dello studio l'azzurro di Gino, l'argento di Lunardi e l'avorio di Clotilde
+virerebbero al grigio-beige. Con il velo la tinta misurata resta vicina a GDD 5.4
+(`contact_palette.png`, controllata da `test_assets.py`).
+
+Regola di costruzione (vedi `verifica_geometria.py`): due pezzi che si toccano non hanno mai
+facce nello stesso piano rivolte dalla stessa parte; i pezzi si accorciano, si assottigliano o
+si spostano di `scenografia.EPS` (2 mm). Le pareti con una finestra sono un pezzo solo
+(`scenografia.wall_with_hole`): niente cuciture di Freestyle e intonaco continuo.
 
 ## Impacchettamento (`tools/atlas/pack.py`)
 

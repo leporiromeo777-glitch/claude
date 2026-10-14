@@ -205,13 +205,21 @@
 }
 
 .tb-req-info {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
+  margin-left: auto;
   text-align: right;
   font-size: 0.9rem;
-  color: var(--testo-tenue);
+  color: var(--testo);
   white-space: nowrap;
   overflow: hidden;
+}
+
+.tb-req-info:not(:empty) {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(18, 22, 34, 0.88);
+  border: 1px solid var(--bordo-pannello);
 }
 
 /* ───────── Barra delle azioni ───────── */
@@ -229,6 +237,10 @@
   flex: 0 0 auto;
 }
 
+.tb-actions .tb-act-fissa {
+  flex: 0 1 auto;
+}
+
 .tb-act-menu,
 .tb-act-taccuino,
 .tb-act-disfa {
@@ -238,15 +250,16 @@
 .tb-act-fissa {
   min-width: 120px;
   max-width: 220px;
+  height: 56px;
   min-height: 56px;
-  flex: 0 1 auto;
-  padding: 4px 14px;
+  max-height: 56px;
+  padding: 4px 12px;
 }
 
 .tb-act-fissa .core-btn-label {
   display: block;
   max-width: 100%;
-  max-height: 2.5em;
+  max-height: 46px;
   white-space: normal;
   line-height: 1.15;
   text-align: center;

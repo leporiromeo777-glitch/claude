@@ -57,6 +57,12 @@ THREAD = {
 
 
 def font(size: int = 13) -> ImageFont.ImageFont:
+    """DejaVu Sans se c'è (ha ², × e Δ, che il carattere predefinito di Pillow non ha), altrimenti quello predefinito."""
+    for name in ("DejaVuSans.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"):
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            continue
     try:
         return ImageFont.load_default(size=size)
     except TypeError:  # Pillow senza FreeType

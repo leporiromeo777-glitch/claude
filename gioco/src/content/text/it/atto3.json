@@ -158,7 +158,7 @@
       },
       "saluto": {
         "1": "Le ho detto quello che dovevo. Due parole. Erano quelle giuste.",
-        "2": "Le ho dato il fazzoletto della mamma. Lo teneva in tasca da anni."
+        "2": "Le ho dato l'anello della mamma. Lo tenevo in tasca da anni."
       },
       "gino": {
         "1": "Il Gino era al Molo, a correre dietro al vaporetto e a gridare il nome della Nina.",
@@ -174,7 +174,7 @@
       "testo": "Il vaporetto delle nove. Ho la valigia sotto il letto da un mese, e dentro c'è anche Leopardi. Fammi arrivare al Molo in tempo, prima che cambi idea."
     },
     "bepi": {
-      "testo": "la Nina parte. prima voglio salutarla come si deve, non come l'altra volta. alle 9 è tropo tardi. prima. e non dirlo a lei",
+      "testo": "la Nina parte. prima voglio salutarla come si deve, non come l'altra volta. alle 9 è troppo tardi. prima. e non dirlo a lei",
       "r1": "Dille quello che non le hai mai detto, Bepi. Anche solo due parole.",
       "r2": "Le basta che tu ci sia, Bepi. Il resto lo sa già."
     },
@@ -220,7 +220,7 @@
     },
     "titolo": "Il punto aperto",
     "zeno": {
-      "testo": "La donna in nero è tornata. Ieri l'ho persa di vista. Stavolta voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni."
+      "testo": "La donna in nero è tornata. L'altra volta non ho trovato le parole. Stavolta voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni."
     },
     "piero": {
       "testo": "Nel pozzo c'è ancora una lettera per la Teresa. Ho pregato tutta la notte: voglio restituirla prima che sia tardi. Il pozzo, lo so, deve traboccare un'altra volta."

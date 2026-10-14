@@ -162,6 +162,39 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(found, listed)
 
 
+class PaletteTest(unittest.TestCase):
+    """Il filo dei fusi e la fascia delle figurine hanno la tinta di GDD 5.4 (misurata sui pixel)."""
+
+    #: Distanza RGB massima fra il colore medio misurato e quello nominale.
+    MAX_FUSO = 45.0
+    MAX_FASCIA = 70.0
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not os.path.exists(MANIFEST):
+            raise unittest.SkipTest("manca public/assets/manifest.json")
+        import contact_sheet as CS
+
+        cls.CS = CS
+        cls.assets = CS.Assets(K.PUBLIC_ASSETS)
+
+    def test_fili_dei_fusi(self) -> None:
+        CS = self.CS
+        for cid in K.CHARACTERS_FUSO:
+            target = CS.hex_rgb(CS.THREAD[cid])
+            img, _ax, _ay = self.assets.frame(f"fuso/{cid}")
+            col, dist = CS.band_color(img, 42, 54, 80, 200, target)
+            self.assertLessEqual(dist, self.MAX_FUSO, f"fuso/{cid}: filo {col} lontano da {CS.THREAD[cid]}")
+
+    def test_fasce_delle_figurine(self) -> None:
+        CS = self.CS
+        for cid in K.CHARACTERS_FIG:
+            target = CS.hex_rgb(CS.THREAD[cid])
+            img, _ax, _ay = self.assets.frame(f"fig/{cid}/ferma")
+            col, dist = CS.band_color(img, 122, 134, 90, 200, target)
+            self.assertLessEqual(dist, self.MAX_FASCIA, f"fig/{cid}: fascia {col} lontana da {CS.THREAD[cid]}")
+
+
 class NativeTest(unittest.TestCase):
     def test_logo_opaco(self) -> None:
         path = os.path.join(K.NATIVE_ASSETS, "logo.png")
@@ -254,6 +287,26 @@ class CatalogoTest(unittest.TestCase):
         self.assertEqual(arr("LIGHTS"), K.LIGHTS)
         for word in K.OBJECTS + K.TABLEAUX + ["stile_1", "stile_2", "_grezza"]:
             self.assertIn(word, ts)
+
+    def test_colori_dei_fili_allineati(self) -> None:
+        """I colori dei fili della pipeline (``common.py`` e i fogli di controllo) sono quelli del
+        gioco (``src/content/characters.json``, GDD 5.4)."""
+        import contact_sheet as CS
+
+        with open(os.path.join(K.GAME_ROOT, "tools", "blender", "common.py"), encoding="utf-8") as f:
+            src = f.read()
+        block = re.search(r"THREAD = \{(.*?)\}", src, re.S)
+        self.assertIsNotNone(block)
+        pipeline = dict(re.findall(r'"(\w+)": "(#[0-9A-Fa-f]{6})"', block.group(1)))  # type: ignore[union-attr]
+        self.assertEqual(pipeline, CS.THREAD)
+        chars = os.path.join(K.GAME_ROOT, "src", "content", "characters.json")
+        if not os.path.exists(chars):
+            self.skipTest("manca src/content/characters.json")
+        with open(chars, encoding="utf-8") as f:
+            game = {c["id"]: c["color"].upper() for c in json.load(f) if "color" in c}
+        for cid in K.CHARACTERS_FUSO:
+            if cid in game:
+                self.assertEqual(pipeline[cid].upper(), game[cid], cid)
 
 
 if __name__ == "__main__":

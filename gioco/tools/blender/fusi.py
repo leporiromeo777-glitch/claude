@@ -107,7 +107,7 @@ def carved_mats(cid: str) -> P.HeadMats:
 def build_character(cid: str) -> list:
     m = carved_mats(cid)
     body = C.lathe(f"fuso_{cid}", shank_profile(), m.skin, segments=36, sharp_deg=38)
-    barrel = thread_barrel(f"filo_{cid}", P.thread_material(cid), fat=0.62 if cid == "lino" else 1.0)
+    barrel = thread_barrel(f"filo_{cid}", P.thread_material(cid, glow=P.THREAD_GLOW), fat=0.62 if cid == "lino" else 1.0)
     c = Vector((0.0, 0.0, HEAD_Z))
     objs = [body, barrel]
     objs += P.face(f"{cid}_", c, HEAD_R, m, mouth=False)

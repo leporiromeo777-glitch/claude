@@ -87,8 +87,11 @@ def mat_veil(name: str, color: str, strength: float, alpha: float, fade: bool = 
     return mat
 
 
-def mat_sky(name: str, low: str, high: str, clouds: float = 0.0, scale: float = 0.08):
-    """Fondale del cielo: gradiente verticale (coordinate oggetto) con nuvole morbide facoltative."""
+def mat_sky(name: str, low: str, high: str, clouds: float = 0.0, scale: float = 4.0):
+    """Fondale del cielo: gradiente verticale (coordinate oggetto) con nuvole morbide facoltative.
+
+    ``scale`` è la misura delle nuvole in unità della scena (coordinate oggetto del fondale):
+    nuvole di qualche unità, non grana fine (che sporcherebbe il cielo e appesantirebbe la WebP)."""
     mat, nodes, links, bsdf, out = C._new_material(name)
     nodes.remove(bsdf)
     tc = nodes.new("ShaderNodeTexCoord")
@@ -141,22 +144,17 @@ def build_sedia_vuota(nl) -> Tableau:
     tb = Tableau(target=(0.15, 0.6, 1.55), azimuth=14, elevation=16, ortho=7.0)
     wall = C.mat_plaster("q_muro", "#B9AD9A", amount=0.05)
     C.box("pavimento", (12, 8, 0.3), (0, 1.0, -0.15), S.M("assi"))
+    # Fughe delle assi un filo più corte del pavimento (niente teste nello stesso piano dei suoi fianchi).
     for k in range(8):
-        C.box(f"fuga{k}", (12, 0.022, 0.01), (0, -2.6 + k * 0.95, 0.002), C.mat_paint("q_fuga", "#5E5142", rough=0.9))
+        C.box(f"fuga{k}", (12 - 4 * S.EPS, 0.022, 0.01), (0, -2.6 + k * 0.95, 0.002), C.mat_paint("q_fuga", "#5E5142", rough=0.9))
     yb, th = 3.2, 0.3
     wx, wz, ww, wh = -1.55, 2.75, 1.1, 1.3
-    C.box("parete_sx", (6 + wx - ww / 2, th, 5.0), ((-6 + wx - ww / 2) / 2, yb, 2.5), wall)
-    C.box("parete_dx", (6 - wx - ww / 2, th, 5.0), ((6 + wx + ww / 2) / 2, yb, 2.5), wall)
-    C.box("parete_sotto", (ww, th, wz - wh / 2), (wx, yb, (wz - wh / 2) / 2), wall)
-    C.box("parete_sopra", (ww, th, 5.0 - wz - wh / 2), (wx, yb, (5.0 + wz + wh / 2) / 2), wall)
+    # Parete di fondo in un solo pezzo con il vano della finestrella.
+    S.wall_with_hole("parete", -6.0, 6.0, 0.0, 5.0, yb, th, S.rect_hole(wx, wz, ww, wh), wall)
     C.box("battiscopa", (12, 0.05, 0.22), (0, yb - th / 2 - 0.025, 0.11), S.M("legno_scuro"))
-    fr = S.M("legno_scuro")
-    for s in (-1, 1):
-        C.box(f"telaio_v{s}", (0.09, 0.1, wh), (wx + s * (ww / 2 - 0.045), yb - 0.08, wz), fr)
-        C.box(f"telaio_o{s}", (ww, 0.1, 0.09), (wx, yb - 0.08, wz + s * (wh / 2 - 0.045)), fr)
-    C.box("croce_v", (0.05, 0.07, wh), (wx, yb - 0.08, wz), fr)
-    C.box("croce_o", (ww, 0.07, 0.05), (wx, yb - 0.08, wz + 0.08), fr)
-    C.box("davanzale", (ww + 0.3, 0.42, 0.08), (wx, yb - 0.24, wz - wh / 2 - 0.04), S.M("pietra_bianca"))
+    S.window_frame("finestra", wx, yb - 0.08, wz, ww, wh, bar=0.09, depth=0.1, cross=0.05, cross_depth=0.07, cross_dz=0.08, mat=S.M("legno_scuro"))
+    # Davanzale un filo sopra il fondo del vano.
+    C.box("davanzale", (ww + 0.3, 0.42, 0.08), (wx, yb - 0.24, wz - wh / 2 - 0.04 + S.EPS), S.M("pietra_bianca"))
     sky = C.plane("cielo", (5, 5), (wx, yb + 1.2, wz), C.mat_emit("q_cielo_alba", "#E8CDB2", 1.0), rot=(90, 0, 0), coll=nl)
     sky.visible_shadow = False
     # Vasetto sul davanzale con un rametto secco.
@@ -408,27 +406,24 @@ def build_sacrestia(nl) -> Tableau:
     wall = C.mat_plaster("q_muro_sacrestia", "#B4AA9C", amount=0.05)
     C.box("pavimento", (12, 8, 0.3), (0, 1.0, -0.15), C.mat_tiles("q_lastre", "#A39C90", rows=6.0))
     yb, th = 3.0, 0.4
-    # Finestra ad arco a sinistra (vano a pezzi) con il cielo dietro.
-    wx, wz, ww, wh = -2.4, 2.9, 0.9, 1.5
-    C.box("parete_sx", (6 + wx - ww / 2, th, 5.2), ((-6 + wx - ww / 2) / 2, yb, 2.6), wall)
-    C.box("parete_dx", (6 - wx - ww / 2, th, 5.2), ((6 + wx + ww / 2) / 2, yb, 2.6), wall)
-    C.box("parete_sotto", (ww, th, wz - wh / 2), (wx, yb, (wz - wh / 2) / 2), wall)
-    C.box("parete_sopra", (ww, th, 5.2 - wz - wh / 2 - ww / 2), (wx, yb, (5.2 + wz + wh / 2 + ww / 2) / 2), wall)
-    for s in (-1, 1):
-        C.box(f"arco_spalla{s}", (0.06, th, ww / 2), (wx + s * (ww / 2 - 0.03), yb, wz + wh / 2 + ww / 4), wall)
+    # Finestra ad arco a sinistra con il cielo dietro: parete in un solo pezzo con il vano.
+    wx, wz, ww, wh = -2.4, 2.7, 0.9, 1.5
+    S.wall_with_hole("parete", -6.0, 6.0, 0.0, 5.2, yb, th, S.arched_hole(wx, wz, ww, wh, segments=20), wall)
     C.torus("arco", ww / 2, 0.06, (wx, yb - th / 2 - 0.02, wz + wh / 2), S.M("pietra_bianca"), rot=(90, 0, 0), arc_deg=180, seg=20, mseg=6)
+    # Stipiti appena fuori dal vano (la faccia interna non sta nel piano della mazzetta).
     for s in (-1, 1):
-        C.box(f"stipite{s}", (0.12, 0.1, wh), (wx + s * (ww / 2 + 0.06), yb - th / 2 - 0.02, wz), S.M("pietra_bianca"))
+        C.box(f"stipite{s}", (0.12, 0.1, wh), (wx + s * (ww / 2 + 0.06 + S.EPS), yb - th / 2 - 0.02, wz), S.M("pietra_bianca"))
     sky = C.plane("cielo", (4, 5), (wx, yb + 1.0, wz + 0.4), C.mat_emit("q_cielo", "#DCD3C2", 1.0), rot=(90, 0, 0), coll=nl)
     sky.visible_shadow = False
     C.box("zoccolo", (12, 0.05, 0.4), (0, yb - th / 2 - 0.025, 0.2), C.mat_paint("q_zoccolo", "#8E8678", rough=0.8))
     # Crocifisso alla parete.
     C.box("croce_v", (0.08, 0.05, 0.9), (0.2, yb - th / 2 - 0.03, 3.9), S.M("legno_scuro"))
-    C.box("croce_o", (0.5, 0.05, 0.08), (0.2, yb - th / 2 - 0.03, 4.1), S.M("legno_scuro"))
+    C.box("croce_o", (0.5, 0.05 - 2 * S.EPS, 0.08), (0.2, yb - th / 2 - 0.03, 4.1), S.M("legno_scuro"))
     # L'armadio dei paramenti, aperto: scaffali pieni di lettere legate.
     ax, ay, aw, ad, ah = 1.6, 2.35, 2.2, 0.8, 3.2
     wood = S.M("legno_scuro")
-    C.box("armadio_fondo", (aw, 0.06, ah), (ax, ay + ad / 2 - 0.03, ah / 2 + 0.1), wood)
+    # Fondo un filo più stretto e più basso dei fianchi (nessuna faccia nel loro piano).
+    C.box("armadio_fondo", (aw - 2 * S.EPS, 0.06, ah - 2 * S.EPS), (ax, ay + ad / 2 - 0.03, ah / 2 + 0.1), wood)
     for s in (-1, 1):
         C.box(f"armadio_fianco{s}", (0.08, ad, ah), (ax + s * (aw / 2 - 0.04), ay, ah / 2 + 0.1), wood)
     C.box("armadio_cielo", (aw + 0.12, ad + 0.1, 0.12), (ax, ay, ah + 0.16), wood, bevel=0.02)
@@ -447,7 +442,8 @@ def build_sacrestia(nl) -> Tableau:
         x = ax - aw / 2 + 0.38
         while x < ax + aw / 2 - 0.3:
             n = rr.randint(5, 14)
-            tb.main += letter_pile(f"pila{stack_id}_", x, ay - 0.05, zz + 0.025, n, rot=rr.uniform(-8, 8), seed=str(stack_id))
+            # Pile vicine a quote alternate: le buste di due pile accostate non stanno nello stesso piano.
+            tb.main += letter_pile(f"pila{stack_id}_", x, ay - 0.05, zz + 0.025 + S.EPS * (stack_id % 2), n, rot=rr.uniform(-8, 8), seed=str(stack_id))
             if rr.random() < 0.45:
                 C.box(f"pila_spago{stack_id}", (0.04, 0.36, n * 0.022 + 0.01), (x, ay - 0.05, zz + 0.025 + n * 0.011), S.M("spago"))
             stack_id += 1
@@ -460,14 +456,15 @@ def build_sacrestia(nl) -> Tableau:
             C.box(f"tavolo_gamba{sx}{sy}", (0.1, 0.1, tz - 0.05), (tx + sx * 1.18, ty + sy * 0.55, (tz - 0.05) / 2), S.M("legno_scuro"))
     box_c = (tx + 0.35, ty + 0.1, tz + 0.05)
     bw, bd, bh = 0.9, 0.6, 0.36
+    # Cassetta: fianchi fra il davanti e il dietro, fondo dentro le sponde, coperchio più largo.
     case = [
-        C.box("cassetta_fondo", (bw, bd, 0.04), (box_c[0], box_c[1], box_c[2] + 0.02), wood),
-        C.box("cassetta_davanti", (bw, 0.04, bh), (box_c[0], box_c[1] - bd / 2, box_c[2] + bh / 2), wood),
-        C.box("cassetta_dietro", (bw, 0.04, bh), (box_c[0], box_c[1] + bd / 2, box_c[2] + bh / 2), wood),
-        C.box("cassetta_sx", (0.04, bd, bh), (box_c[0] - bw / 2, box_c[1], box_c[2] + bh / 2), wood),
-        C.box("cassetta_dx", (0.04, bd, bh), (box_c[0] + bw / 2, box_c[1], box_c[2] + bh / 2), wood),
+        C.box("cassetta_fondo", (bw - 2 * S.EPS, bd - 2 * S.EPS, 0.04), (box_c[0], box_c[1], box_c[2] + 0.02 + S.EPS), wood),
+        C.box("cassetta_davanti", (bw + 0.04, 0.04, bh), (box_c[0], box_c[1] - bd / 2, box_c[2] + bh / 2), wood),
+        C.box("cassetta_dietro", (bw + 0.04, 0.04, bh), (box_c[0], box_c[1] + bd / 2, box_c[2] + bh / 2), wood),
+        C.box("cassetta_sx", (0.04, bd - 0.04, bh), (box_c[0] - bw / 2, box_c[1], box_c[2] + bh / 2), wood),
+        C.box("cassetta_dx", (0.04, bd - 0.04, bh), (box_c[0] + bw / 2, box_c[1], box_c[2] + bh / 2), wood),
     ]
-    lid = C.box("cassetta_coperchio", (bw + 0.04, bd + 0.04, 0.05), (0, bd / 2, 0), wood)
+    lid = C.box("cassetta_coperchio", (bw + 0.06, bd + 0.04, 0.05), (0, bd / 2, 0), wood)
     C.group("cassetta_cerniera", [lid], loc=(box_c[0], box_c[1] + bd / 2, box_c[2] + bh), rot=(-105, 0, 0))
     tb.main += case + [lid]
     for k in range(9):

@@ -422,6 +422,23 @@ def _new_material(name: str):
     return mat, nodes, links, bsdf, out
 
 
+def _add_glow(nodes, links, out, bsdf, color: str, glow: float) -> None:
+    """Somma alla superficie un'emissione debole del colore nominale (``glow`` = intensità).
+
+    Serve agli unici elementi saturi (fili e fasce, GDD 12.1): sotto la chiave calda dello
+    studio i colori freddi (azzurro, argento) virerebbero verso il grigio-beige; un velo di
+    emissione del colore di GDD 5.4 li riporta vicini alla tinta che il gioco disegna in codice."""
+    if glow <= 0:
+        return
+    em = nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = lin(color)
+    em.inputs["Strength"].default_value = glow
+    add = nodes.new("ShaderNodeAddShader")
+    links.new(bsdf.outputs[0], add.inputs[0])
+    links.new(em.outputs[0], add.inputs[1])
+    links.new(add.outputs[0], out.inputs["Surface"])
+
+
 def _ramp(nodes, stops: Sequence[tuple[float, str]]):
     ramp = nodes.new("ShaderNodeValToRGB")
     els = ramp.color_ramp.elements
@@ -435,9 +452,10 @@ def _ramp(nodes, stops: Sequence[tuple[float, str]]):
     return ramp
 
 
-def mat_paint(name: str, color: str, rough: float = 0.62, coat: float = 0.0, sheen: float = 0.0):
-    """Vernice opaca (figurine, case, oggetti)."""
-    mat, nodes, links, bsdf, _ = _new_material(name)
+def mat_paint(name: str, color: str, rough: float = 0.62, coat: float = 0.0, sheen: float = 0.0, glow: float = 0.0):
+    """Vernice opaca (figurine, case, oggetti); ``glow`` > 0 per le fasce colorate (vedi ``_add_glow``)."""
+    mat, nodes, links, bsdf, out = _new_material(name)
+    _add_glow(nodes, links, out, bsdf, color, glow)
     bsdf.inputs["Base Color"].default_value = lin(color)
     bsdf.inputs["Roughness"].default_value = rough
     bsdf.inputs["Specular IOR Level"].default_value = 0.35
@@ -505,9 +523,11 @@ def mat_wood(
     return mat
 
 
-def mat_thread(name: str, color: str, glossy: bool = False, windings: float = 26.0, sheen_color: str | None = None):
-    """Filo avvolto: bande sottili (le spire) leggermente inclinate, con un velo di lucentezza."""
-    mat, nodes, links, bsdf, _ = _new_material(name)
+def mat_thread(name: str, color: str, glossy: bool = False, windings: float = 26.0, sheen_color: str | None = None, glow: float = 0.0):
+    """Filo avvolto: bande sottili (le spire) leggermente inclinate, con un velo di lucentezza;
+    ``glow`` > 0 aggiunge un velo di emissione del colore nominale (vedi ``_add_glow``)."""
+    mat, nodes, links, bsdf, out = _new_material(name)
+    _add_glow(nodes, links, out, bsdf, color, glow)
     tc = nodes.new("ShaderNodeTexCoord")
     mp = nodes.new("ShaderNodeMapping")
     mp.inputs["Rotation"].default_value = (0.0, math.radians(4.0), 0.0)

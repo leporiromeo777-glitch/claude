@@ -4,6 +4,11 @@ Usato da ``oggetti.py`` (oggetti e quadri), ``diorami.py`` e ``icona.py``.
 Tutto è costruito attorno all'origine e poi raggruppato sotto un vuoto
 (``common.group``) che si piazza nella scena. Mondo desaturato: i soli colori
 saturi sono i fili (e gli spilli), come vuole GDD 12.1.
+
+Regola di costruzione: due pezzi che si toccano non devono avere facce nello stesso
+piano, rivolte dalla stessa parte e sovrapposte (in Cycles fanno macchie nere, vedi
+``verifica_geometria.py``). Per questo molti pezzi sono più sottili, più corti o
+spostati di ``EPS`` rispetto al vicino.
 """
 
 from __future__ import annotations
@@ -11,10 +16,13 @@ from __future__ import annotations
 import math
 
 import common as C  # importa bpy: deve venire prima di numpy/mathutils
+import bmesh
 import numpy as np
 from mathutils import Vector
 
 P = C.PALETTE
+#: Scarto minimo fra due facce che altrimenti sarebbero complanari (2 mm alla scala dei diorami).
+EPS = 0.002
 
 # --------------------------------------------------------------------------
 # Materiali condivisi (cache per nome: una scena = una cache)
@@ -296,10 +304,10 @@ def book(prefix: str = "libro", w: float = 2.0, d: float = 1.5, t: float = 0.42)
     objs.append(C.box(f"{prefix}_piatto_su", (w, d, 0.06), (0, 0, t - 0.03), cuoio, bevel=0.02))
     pages = C.mat_tiles(f"{prefix}_pagine", "#E2D8C4", rows=90.0)
     objs.append(C.box(f"{prefix}_pagine", (w - 0.1, d - 0.12, t - 0.1), (0.04, 0.0, t / 2), pages))
-    objs.append(C.box(f"{prefix}_dorso", (0.1, d, t), (-w / 2 + 0.02, 0, t / 2), cuoio, bevel=0.04))
+    objs.append(C.box(f"{prefix}_dorso", (0.1, d - 2 * EPS, t - 2 * EPS), (-w / 2 + 0.02, 0, t / 2), cuoio, bevel=0.04))
     for i in range(4):
         y = -d / 2 + d * (i + 1) / 5
-        objs.append(C.box(f"{prefix}_nervo{i}", (0.14, 0.05, t + 0.02), (-w / 2 + 0.0, y, t / 2), cuoio, bevel=0.015))
+        objs.append(C.box(f"{prefix}_nervo{i}", (0.14 - 2 * EPS, 0.05, t + 0.02), (-w / 2 - EPS, y, t / 2), cuoio, bevel=0.015))
     ott = C.mat_metal(f"{prefix}_angoli", "#A8956A", rough=0.4)
     for sx in (1,):
         for sy in (-1, 1):
@@ -379,19 +387,19 @@ def letters_bundle(prefix: str = "fascio", n: int = 16, w: float = 1.6, d: float
         L = (w + 0.1) if axis == "y" else (d + 0.1)
         if axis == "x":
             objs.append(C.box(f"{prefix}_nastro_x_su", (rw, d + 0.1, 0.02), (0.15, 0, hgt), ribbon))
-            objs.append(C.box(f"{prefix}_nastro_x_giu", (rw, d + 0.1, 0.02), (0.15, 0, -0.01), ribbon))
+            objs.append(C.box(f"{prefix}_nastro_x_giu", (rw, d + 0.1, 0.02), (0.15, 0, -0.01 - EPS), ribbon))
             for s in (-1, 1):
-                objs.append(C.box(f"{prefix}_nastro_x_lato{s}", (rw, 0.02, hgt + 0.02), (0.15, s * (d / 2 + 0.05), hgt / 2), ribbon))
+                objs.append(C.box(f"{prefix}_nastro_x_lato{s}", (rw - 2 * EPS, 0.02, hgt + 0.02 - 2 * EPS), (0.15, s * (d / 2 + 0.05), hgt / 2), ribbon))
         else:
             objs.append(C.box(f"{prefix}_nastro_y_su", (w + 0.1, rw, 0.02), (0, 0.05, hgt + 0.005), ribbon))
-            objs.append(C.box(f"{prefix}_nastro_y_giu", (w + 0.1, rw, 0.02), (0, 0.05, -0.012), ribbon))
+            objs.append(C.box(f"{prefix}_nastro_y_giu", (w + 0.1, rw, 0.02), (0, 0.05, -0.012 - EPS), ribbon))
             for s in (-1, 1):
-                objs.append(C.box(f"{prefix}_nastro_y_lato{s}", (0.02, rw, hgt + 0.02), (s * (w / 2 + 0.05), 0.05, hgt / 2), ribbon))
+                objs.append(C.box(f"{prefix}_nastro_y_lato{s}", (0.02, rw - 2 * EPS, hgt + 0.02 - 2 * EPS), (s * (w / 2 + 0.05), 0.05, hgt / 2), ribbon))
         del L
     # Fiocco.
     for s in (-1, 1):
         objs.append(C.torus(f"{prefix}_fiocco{s}", 0.13, 0.03, (0.15 + s * 0.14, 0.05, hgt + 0.05), ribbon, rot=(70, 0, s * 25), scale=(1.2, 0.7, 1.0), seg=20, mseg=6))
-        objs.append(C.box(f"{prefix}_coda{s}", (0.06, 0.32, 0.015), (0.15 + s * 0.08, 0.05 - 0.22, hgt + 0.01), ribbon, rot=(0, 0, s * 25)))
+        objs.append(C.box(f"{prefix}_coda{s}", (0.06, 0.32, 0.015), (0.15 + s * 0.08, 0.05 - 0.22, hgt + 0.01 + (s + 1) * EPS), ribbon, rot=(0, 0, s * 25)))
     objs.append(C.sphere(f"{prefix}_nodo", 0.06, (0.15, 0.05, hgt + 0.05), ribbon))
     return objs
 
@@ -501,11 +509,73 @@ def window(name: str, x: float, y_face: float, z: float, ww: float = 0.46, wh: f
         C.box(f"{name}_davanzale", (ww + 0.26, 0.16, 0.06), (x, y_face - 0.07, z - wh / 2 - 0.07), M("pietra_bianca")),
     ]
     if arched:
-        objs.append(C.cylinder(f"{name}_arco", ww / 2 + 0.07, 0.06, (x, y_face - 0.02, z + wh / 2), M("pietra_bianca"), rot=(90, 0, 0), segments=16))
+        objs.append(C.cylinder(f"{name}_arco", ww / 2 + 0.07, 0.06 - 2 * EPS, (x, y_face - 0.02, z + wh / 2), M("pietra_bianca"), rot=(90, 0, 0), segments=16))
         objs.append(C.cylinder(f"{name}_arco_v", ww / 2, 0.07, (x, y_face - 0.05, z + wh / 2), M("finestra_accesa" if lit else "finestra_buia"), rot=(90, 0, 0), segments=16))
     if shutters:
         for s in (-1, 1):
             objs.append(C.box(f"{name}_scuro{s}", (ww * 0.5, 0.05, wh + 0.04), (x + s * (ww * 0.78 + 0.05), y_face - 0.04, z), M("persiane")))
+    return objs
+
+
+def wall_with_hole(name: str, x0: float, x1: float, z0: float, z1: float, y: float, th: float, hole: list[tuple[float, float]], mat, coll=None):
+    """Parete piena (un solo pezzo) da ``x0`` a ``x1`` e da ``z0`` a ``z1``, spessa ``th`` attorno
+    a ``y``, con un vano passante dal contorno ``hole`` [(x, z), …] (in senso antiorario visto
+    dalla camera). Un pezzo solo: niente cuciture di Freestyle fra i pezzi del muro, intonaco
+    continuo (la texture usa le coordinate dell'oggetto) e mazzette nette attorno al vano."""
+    bm = bmesh.new()
+    yf, yr = y - th / 2, y + th / 2
+    outer = [(x0, z0), (x1, z0), (x1, z1), (x0, z1)]
+
+    def ring(pts, yy):
+        return [bm.verts.new((px, yy, pz)) for px, pz in pts]
+
+    of, orr = ring(outer, yf), ring(outer, yr)
+    hf, hr = ring(hole, yf), ring(hole, yr)
+    # Fianchi esterni e mazzette del vano.
+    for a, b in ((of, orr), (hf, hr)):
+        n = len(a)
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((a[i], a[j], b[j], b[i]))
+    # Fronte e retro: triangolazione vincolata della corona fra il contorno e il vano.
+    for a, b in ((of, hf), (orr, hr)):
+        edges = []
+        for loop in (a, b):
+            n = len(loop)
+            for i in range(n):
+                e = bm.edges.get((loop[i], loop[(i + 1) % n])) or bm.edges.new((loop[i], loop[(i + 1) % n]))
+                edges.append(e)
+        bmesh.ops.triangle_fill(bm, use_beauty=True, use_dissolve=False, edges=edges, normal=Vector((0.0, -1.0, 0.0)))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return C._finish(name, bm, mat, smooth=False, sharp_deg=None, coll=coll)
+
+
+def arched_hole(cx: float, cz: float, ww: float, wh: float, segments: int = 16) -> list[tuple[float, float]]:
+    """Contorno di un vano ad arco a tutto sesto: rettangolo ``ww``×``wh`` centrato in (cx, cz) e semicerchio sopra."""
+    pts = [(cx - ww / 2, cz - wh / 2), (cx + ww / 2, cz - wh / 2), (cx + ww / 2, cz + wh / 2)]
+    for k in range(1, segments):
+        a = math.pi * k / segments
+        pts.append((cx + ww / 2 * math.cos(a), cz + wh / 2 + ww / 2 * math.sin(a)))
+    pts.append((cx - ww / 2, cz + wh / 2))
+    return pts
+
+
+def rect_hole(cx: float, cz: float, ww: float, wh: float) -> list[tuple[float, float]]:
+    return [(cx - ww / 2, cz - wh / 2), (cx + ww / 2, cz - wh / 2), (cx + ww / 2, cz + wh / 2), (cx - ww / 2, cz + wh / 2)]
+
+
+def window_frame(prefix: str, cx: float, y: float, cz: float, ww: float, wh: float, bar: float, depth: float, cross: float, cross_depth: float, cross_dz: float, mat) -> list:
+    """Telaio di finestra a croce che riempie un vano ``ww``×``wh`` (centro ``cx``, ``y``, ``cz``).
+
+    I pezzi non si sovrappongono mai con facce nello stesso piano: montanti a tutta altezza,
+    traversi fra i montanti, croce fra i traversi; il braccio orizzontale della croce sta un
+    filo dietro a quello verticale."""
+    objs = []
+    for s in (-1, 1):
+        objs.append(C.box(f"{prefix}_telaio_v{s}", (bar, depth, wh), (cx + s * (ww / 2 - bar / 2), y, cz), mat))
+        objs.append(C.box(f"{prefix}_telaio_o{s}", (ww - 2 * bar, depth, bar), (cx, y, cz + s * (wh / 2 - bar / 2)), mat))
+    objs.append(C.box(f"{prefix}_croce_v", (cross, cross_depth, wh - 2 * bar), (cx, y, cz), mat))
+    objs.append(C.box(f"{prefix}_croce_o", (ww - 2 * bar, cross_depth - 2 * EPS, cross), (cx, y, cz + cross_dz), mat))
     return objs
 
 
@@ -542,7 +612,7 @@ def house(
     objs = [C.box(f"{name}_muro", (w, d, h), (x, y, ground + h / 2), M(wall))]
     rise = rise if rise is not None else min(1.1, d * 0.32)
     objs.append(gable_roof(f"{name}_tetto", w, d, rise, (x, y, ground + h), M(roof)))
-    objs.append(C.box(f"{name}_cornicione", (w + 0.12, d + 0.12, 0.1), (x, y, ground + h - 0.05), M("pietra_bianca")))
+    objs.append(C.box(f"{name}_cornicione", (w + 0.12, d + 0.12, 0.1), (x, y, ground + h - 0.05 - EPS), M("pietra_bianca")))
     yf = y - d / 2
     row0 = 1 if door_at is not None else 0
     for j in range(rows):
@@ -776,7 +846,8 @@ def clock_face(name: str, x: float, y_face: float, z: float, r: float = 0.42, hh
     a_h = 2 * math.pi * ((hh % 12) + mm / 60) / 12
     a_m = 2 * math.pi * mm / 60
     for nm, a, ln, wd in (("ore", a_h, 0.5 * r, 0.05), ("minuti", a_m, 0.78 * r, 0.035)):
-        objs.append(C.box(f"{name}_{nm}", (wd, 0.02, ln), (x + ln / 2 * math.sin(a), y_face - 0.08, z + ln / 2 * math.cos(a)), M("ferro"), rot=(0, math.degrees(a), 0)))
+        dy = 2 * EPS if nm == "minuti" else 0.0
+        objs.append(C.box(f"{name}_{nm}", (wd, 0.02, ln), (x + ln / 2 * math.sin(a), y_face - 0.08 - dy, z + ln / 2 * math.cos(a)), M("ferro"), rot=(0, math.degrees(a), 0)))
     return objs
 
 
@@ -790,11 +861,11 @@ def church(name: str, x: float, y: float, w: float = 5.0, d: float = 6.0, h: flo
     objs.append(C.prism(f"{name}_timpano", [(-w / 2 - 0.15, 0.0), (w / 2 + 0.15, 0.0), (0.0, rise + 0.2)], 0.14, (x, yf - 0.07, ground + h), M("pietra_bianca")))
     objs.append(C.box(f"{name}_cornice", (w + 0.3, 0.2, 0.18), (x, yf - 0.07, ground + h), M("pietra_bianca")))
     for s in (-1, 1):
-        objs.append(C.box(f"{name}_lesena{s}", (0.36, 0.14, h), (x + s * (w / 2 - 0.1), yf - 0.05, ground + h / 2), M("pietra_bianca")))
+        objs.append(C.box(f"{name}_lesena{s}", (0.36, 0.14 - 2 * EPS, h - 2 * EPS), (x + s * (w / 2 - 0.1), yf - 0.05, ground + h / 2 - EPS), M("pietra_bianca")))
     # Portale.
     pw, ph = 1.3, 2.0
     objs.append(C.box(f"{name}_portale_cornice", (pw + 0.36, 0.12, ph + 0.2), (x, yf - 0.05, ground + 0.36 + ph / 2), M("pietra_bianca")))
-    objs.append(C.cylinder(f"{name}_portale_arco", pw / 2 + 0.18, 0.12, (x, yf - 0.05, ground + 0.36 + ph), M("pietra_bianca"), rot=(90, 0, 0), segments=20))
+    objs.append(C.cylinder(f"{name}_portale_arco", pw / 2 + 0.18, 0.12 - 2 * EPS, (x, yf - 0.05, ground + 0.36 + ph), M("pietra_bianca"), rot=(90, 0, 0), segments=20))
     objs.append(C.box(f"{name}_porta", (pw, 0.14, ph), (x, yf - 0.07, ground + 0.36 + ph / 2), M("porta")))
     # Lunetta affrescata: mezzo disco sopra la porta (un disco intero coprirebbe la porta).
     half = [(pw / 2 * math.cos(math.pi * k / 16), pw / 2 * math.sin(math.pi * k / 16)) for k in range(17)]
@@ -803,7 +874,7 @@ def church(name: str, x: float, y: float, w: float = 5.0, d: float = 6.0, h: flo
     objs.append(C.torus(f"{name}_rosone", 0.55, 0.1, (x, yf - 0.08, ground + h - 0.85), M("pietra_bianca"), rot=(90, 0, 0), seg=28, mseg=8))
     objs.append(C.cylinder(f"{name}_rosone_v", 0.5, 0.06, (x, yf - 0.05, ground + h - 0.85), M("finestra_accesa" if lit else "finestra_buia"), rot=(90, 0, 0), segments=24))
     for k in range(4):
-        objs.append(C.box(f"{name}_raggio{k}", (0.05, 0.04, 1.0), (x, yf - 0.1, ground + h - 0.85), M("pietra_bianca"), rot=(0, 45 * k, 0)))
+        objs.append(C.box(f"{name}_raggio{k}", (0.05, 0.04 + 2 * EPS * k, 1.0), (x, yf - 0.1, ground + h - 0.85), M("pietra_bianca"), rot=(0, 45 * k, 0)))
     # Gradini.
     for i in range(3):
         objs.append(C.box(f"{name}_gradino{i}", (2.6 - i * 0.3, 0.42, 0.12), (x, yf - 0.6 + i * 0.2, ground + 0.06 + i * 0.12), M("pietra_bianca")))
@@ -816,7 +887,7 @@ def church(name: str, x: float, y: float, w: float = 5.0, d: float = 6.0, h: flo
 def bell_tower(name: str, x: float, y: float, side: float = 1.5, h: float = 6.2, ground: float = 0.35, clock: bool = True) -> list:
     objs = [C.box(f"{name}_fusto", (side, side, h), (x, y, ground + h / 2), M("intonaco_mattone"))]
     for s in (-1, 1):
-        objs.append(C.box(f"{name}_spigolo{s}", (0.16, side + 0.04, h), (x + s * (side / 2 - 0.06), y, ground + h / 2), M("pietra_bianca")))
+        objs.append(C.box(f"{name}_spigolo{s}", (0.16, side + 0.04, h - 2 * EPS), (x + s * (side / 2 - 0.06), y, ground + h / 2 - EPS), M("pietra_bianca")))
     zc = ground + h
     objs.append(C.box(f"{name}_cella", (side + 0.1, side + 0.1, 1.3), (x, y, zc + 0.65), M("pietra_bianca")))
     for k, (dx, dy, rz) in enumerate(((0, -1, 0), (1, 0, 90))):

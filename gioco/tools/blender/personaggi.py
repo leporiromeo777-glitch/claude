@@ -60,11 +60,18 @@ LOOKS: dict[str, Look] = {
 }
 
 
-def thread_material(cid: str, name: str | None = None, windings: float = 26.0):
+#: Velo di emissione del colore nominale sul filo dei fusi e sulla fascia delle figurine
+#: (``common._add_glow``): con 0,3 la tinta misurata sui render resta entro Δ 40 RGB da GDD 5.4
+#: anche per azzurro, argento e avorio, senza appiattire l'ombreggiatura (provati 0, 0,25, 0,5).
+THREAD_GLOW = 0.3
+BAND_GLOW = 0.3
+
+
+def thread_material(cid: str, name: str | None = None, windings: float = 26.0, glow: float = 0.0):
     col = C.THREAD[cid]
     if cid == "livia":
-        return C.mat_thread(name or f"filo_{cid}", col, glossy=True, windings=windings, sheen_color=C.LIVIA_SHEEN)
-    return C.mat_thread(name or f"filo_{cid}", col, glossy=False, windings=windings)
+        return C.mat_thread(name or f"filo_{cid}", col, glossy=True, windings=windings, sheen_color=C.LIVIA_SHEEN, glow=glow)
+    return C.mat_thread(name or f"filo_{cid}", col, glossy=False, windings=windings, glow=glow)
 
 
 # --------------------------------------------------------------------------

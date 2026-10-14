@@ -326,11 +326,13 @@ async function layoutAudit(page: Page, tag: string): Promise<void> {
     const root = document.querySelector('.tb-root');
     const small: string[] = [];
     const over: string[] = [];
-    if (!root) return { small: ['no root'], over };
+    const out: string[] = [];
+    if (!root) return { small: ['no root'], over, out };
     for (const b of Array.from(root.querySelectorAll<HTMLElement>('button'))) {
       const r = b.getBoundingClientRect();
       if (r.width === 0 && r.height === 0) continue;
       if (r.width < 47.5 || r.height < 47.5) small.push(`${b.dataset.test ?? b.className} ${Math.round(r.width)}×${Math.round(r.height)}`);
+      if (r.left < -0.5 || r.right > window.innerWidth + 0.5 || r.top < -0.5 || r.bottom > window.innerHeight + 0.5) out.push(`${b.dataset.test ?? b.className} x ${Math.round(r.left)}..${Math.round(r.right)} y ${Math.round(r.top)}..${Math.round(r.bottom)}`);
     }
     for (const e of Array.from(root.querySelectorAll<HTMLElement>('*'))) {
       if (e.closest('.core-sr-only') || e.closest('[hidden]')) continue;
@@ -338,8 +340,9 @@ async function layoutAudit(page: Page, tag: string): Promise<void> {
       if (e.clientWidth === 0) continue;
       if (e.scrollWidth > e.clientWidth + 1) over.push(`${e.className || e.tagName}: "${e.textContent.slice(0, 30)}" ${e.scrollWidth}>${e.clientWidth}`);
     }
-    return { small, over };
+    return { small, over, out };
   });
+  check(`[${tag}] pulsanti dentro lo schermo`, audit.out.length === 0, audit.out.join('; '));
   check(`[${tag}] pulsanti ≥ 48 px`, audit.small.length === 0, audit.small.join('; '));
   check(`[${tag}] nessun testo esce dai contenitori`, audit.over.length === 0, audit.over.join('; '));
 }
@@ -437,6 +440,16 @@ async function main(): Promise<void> {
     await night(p, 'autoplay');
     await wait(400);
     await p.screenshot({ path: join(OUT, 'motivi.png') });
+    {
+      // Primo piano a risoluzione doppia: i 12 motivi devono distinguersi.
+      const hd = await openPage(browser, url, { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 }, errors);
+      await start(hd, { fixture: 'test-motivi' });
+      await night(hd, 'autoplay');
+      await wait(4800);
+      const lm = await night(hd, 'layout');
+      await hd.screenshot({ path: join(OUT, 'motivi-hd.png'), clip: { x: lm.center.x, y: lm.lace.y, width: lm.center.w, height: lm.lace.h } });
+      await hd.close();
+    }
     const motivi = await night(p, 'state');
     const seen = new Set<string>();
     for (const st of motivi.timeline as { pos: string[] }[]) for (const t of st.pos) seen.add(t);

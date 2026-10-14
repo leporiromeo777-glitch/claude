@@ -180,14 +180,15 @@ export function rowBottom(l: Pick<TomboloLayout, 'rowH' | 'openH'>, i: number): 
 }
 
 /**
- * Scorrimento che tiene la riga corrente (indice `cur`, 1…rows) in basso nell'area
- * del merletto, con al massimo due righe future sotto: le righe passate salgono.
- * Può essere negativo (merletto corto: scende verso i fusi).
+ * Scorrimento automatico: il merletto parte dall'alto e, quando non ci sta più,
+ * le righe passate salgono così che sotto la riga corrente restino visibili
+ * almeno due righe future (con i loro spilli). A merletto corto si vede tutto.
  */
-export function autoScroll(l: Pick<TomboloLayout, 'rowH' | 'openH' | 'rows' | 'lace'>, cur: number): number {
+export function autoScroll(l: Pick<TomboloLayout, 'rowH' | 'openH' | 'rows' | 'lace' | 'contentH'>, cur: number): number {
   const i = Math.max(1, Math.min(l.rows, cur));
-  const future = Math.min(FUTURE_VISIBLE, l.rows - i);
-  return rowBottom(l, i) + future * l.rowH - (l.lace.h - LACE_PAD);
+  const want = rowBottom(l, i) + FUTURE_VISIBLE * l.rowH - (l.lace.h - LACE_PAD);
+  const max = l.contentH - l.lace.h + LACE_PAD;
+  return Math.max(-LACE_PAD, Math.min(want, max));
 }
 
 /** Limiti dello scorrimento manuale: dall'apertura in alto fino all'ultima riga. */

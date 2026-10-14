@@ -97,7 +97,7 @@ class Mats:
         elif cid == "lino":
             self.band = C.mat_thread("cordino_lino", C.THREAD["lino"], windings=40)
         else:
-            self.band = C.mat_paint(f"fascia_{cid}", C.THREAD[cid], rough=0.35 if cid != "livia" else 0.18, coat=0.3 if cid != "livia" else 0.8)
+            self.band = C.mat_paint(f"fascia_{cid}", C.THREAD[cid], rough=0.35 if cid != "livia" else 0.18, coat=0.3 if cid != "livia" else 0.8, glow=P.BAND_GLOW)
 
 
 def paint(m: Mats, color: str, name: str, rough: float = 0.55):
@@ -121,7 +121,8 @@ def build_prop(kind: str, m: Mats, at: Vector) -> list:
         o.append(C.box(f"{kind}_pagine", (0.3, 0.11, 0.4), (x + 0.02, y - 0.1, z + 0.16), paint(m, "#E6DECF", f"pagine_{kind}"), rot=(0, 0, 25)))
         if kind == "libretto":
             o.append(C.box("croce_v", (0.04, 0.02, 0.18), (x - 0.02, y - 0.17, z + 0.18), paint(m, "#B8AE96", "croce"), rot=(0, 0, 25)))
-            o.append(C.box("croce_o", (0.12, 0.02, 0.04), (x - 0.02, y - 0.17, z + 0.21), paint(m, "#B8AE96", "croce2"), rot=(0, 0, 25)))
+            # Braccio orizzontale un filo più spesso: la sua faccia non sta nel piano di quello verticale.
+            o.append(C.box("croce_o", (0.12, 0.024, 0.04), (x - 0.02, y - 0.17, z + 0.21), paint(m, "#B8AE96", "croce2"), rot=(0, 0, 25)))
     elif kind == "aquilone":
         tela = paint(m, "#C9C1AE", "tela")
         o.append(C.prism("aquilone", [(0, 0.45), (0.26, 0.05), (0, -0.3), (-0.26, 0.05)], 0.03, (x, y - 0.12, z + 0.35), tela, rot=(0, 15, 25)))

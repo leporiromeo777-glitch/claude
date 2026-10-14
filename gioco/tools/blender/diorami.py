@@ -141,14 +141,15 @@ def build_forno(nl) -> Place:
     dark = C.mat_paint("bottega_buio", "#2B2420", rough=0.8)
     # Vano della bottega (fondo scuro appena davanti alla facciata), arco di pietra.
     pl.main.append(C.box("bottega_vano", (aw, 0.04, ah), (x, yf - 0.02, ground + ah / 2), dark))
-    C.cylinder("bottega_vano_arco", aw / 2, 0.04, (x, yf - 0.02, ground + ah), dark, rot=(90, 0, 0), segments=24)
+    # Mezzo disco un filo dietro al vano (il disco intero sovrapposto al vano lo farebbe nero).
+    C.cylinder("bottega_vano_arco", aw / 2, 0.04 - 2 * S.EPS, (x, yf - 0.02, ground + ah), dark, rot=(90, 0, 0), segments=24)
     for s_ in (-1, 1):
         pl.main.append(C.box(f"bottega_stipite{s_}", (0.2, 0.14, ah), (x + s_ * (aw / 2 + 0.1), yf - 0.06, ground + ah / 2), S.M("pietra_bianca")))
     pl.main.append(C.torus("bottega_arco", aw / 2 + 0.1, 0.1, (x, yf - 0.06, ground + ah), S.M("pietra_bianca"), rot=(90, 0, 0), arc_deg=180, seg=24, mseg=6))
     # Dentro: la fronte del forno di mattoni con la bocca accesa.
     C.box("forno_fronte", (1.8, 0.06, 1.6), (x, yf - 0.06, ground + 0.8), S.M("intonaco_mattone"))
-    C.cylinder("forno_volta", 0.9, 0.06, (x, yf - 0.06, ground + 1.6), S.M("intonaco_mattone"), rot=(90, 0, 0), segments=20)
-    C.cylinder("forno_bocca", 0.42, 0.04, (x, yf - 0.1, ground + 1.0), S.M("bocca_forno"), rot=(90, 0, 0), segments=20)
+    C.cylinder("forno_volta", 0.9, 0.06 - 2 * S.EPS, (x, yf - 0.06, ground + 1.6), S.M("intonaco_mattone"), rot=(90, 0, 0), segments=20)
+    C.cylinder("forno_bocca", 0.42, 0.04 - 2 * S.EPS, (x, yf - 0.1, ground + 1.0), S.M("bocca_forno"), rot=(90, 0, 0), segments=20)
     C.box("forno_bocca_b", (0.84, 0.04, 0.42), (x, yf - 0.1, ground + 0.79), S.M("bocca_forno"))
     C.box("forno_soglia", (1.2, 0.2, 0.08), (x, yf - 0.16, ground + 0.56), S.M("pietra_bianca"))
     for s_ in (-1, 1):
@@ -315,27 +316,19 @@ def build_stanza(nl) -> Place:
     wall = C.mat_plaster("muro_stanza", "#B9AD9A", amount=0.05)
     floor = S.M("assi")
     C.box("pavimento", (16, 10, 0.3), (0, 0.5, -0.15), floor)
-    # Fughe delle assi.
+    # Fughe delle assi (un filo più corte del pavimento).
     for k in range(10):
-        C.box(f"fuga{k}", (16, 0.025, 0.01), (0, -4.0 + k * 0.95, 0.002), C.mat_paint("fuga", "#5E5142", rough=0.9))
-    # Parete di fondo con la finestrella (vano costruito a pezzi).
+        C.box(f"fuga{k}", (16 - 4 * S.EPS, 0.025, 0.01), (0, -4.0 + k * 0.95, 0.002), C.mat_paint("fuga", "#5E5142", rough=0.9))
+    # Parete di fondo in un solo pezzo con il vano della finestrella.
     yb, th = 4.8, 0.4
     wx, wz, ww, wh = -2.8, 3.2, 1.4, 1.6
-    C.box("parete_sx", (8 + wx - ww / 2, th, 6.0), ((-8 + wx - ww / 2) / 2, yb, 3.0), wall)
-    C.box("parete_dx", (8 - wx - ww / 2, th, 6.0), ((8 + wx + ww / 2) / 2, yb, 3.0), wall)
-    C.box("parete_sotto", (ww, th, wz - wh / 2), (wx, yb, (wz - wh / 2) / 2), wall)
-    C.box("parete_sopra", (ww, th, 6.0 - wz - wh / 2), (wx, yb, (6.0 + wz + wh / 2) / 2), wall)
+    S.wall_with_hole("parete", -8.0, 8.0, 0.0, 6.0, yb, th, S.rect_hole(wx, wz, ww, wh), wall)
     C.box("parete_lato", (0.4, 10, 6.0), (-8.2, 0.5, 3.0), wall)
     C.box("trave", (16, 0.5, 0.4), (0, 3.6, 6.0), S.M("legno_scuro"))
     C.box("battiscopa", (16, 0.06, 0.25), (0, yb - th / 2 - 0.03, 0.12), S.M("legno_scuro"))
-    # Telaio, croce e davanzale; cielo dietro.
-    fr = S.M("legno_scuro")
-    for s in (-1, 1):
-        C.box(f"telaio_v{s}", (0.1, 0.12, wh), (wx + s * (ww / 2 - 0.05), yb - 0.1, wz), fr)
-        C.box(f"telaio_o{s}", (ww, 0.12, 0.1), (wx, yb - 0.1, wz + s * (wh / 2 - 0.05)), fr)
-    C.box("croce_v", (0.06, 0.08, wh), (wx, yb - 0.1, wz), fr)
-    C.box("croce_o", (ww, 0.08, 0.06), (wx, yb - 0.1, wz + 0.1), fr)
-    C.box("davanzale", (ww + 0.4, 0.5, 0.1), (wx, yb - 0.3, wz - wh / 2 - 0.05), S.M("pietra_bianca"))
+    # Telaio a croce e davanzale (un filo sopra il fondo del vano); cielo dietro.
+    S.window_frame("finestra", wx, yb - 0.1, wz, ww, wh, bar=0.1, depth=0.12, cross=0.06, cross_depth=0.08, cross_dz=0.1, mat=S.M("legno_scuro"))
+    C.box("davanzale", (ww + 0.4, 0.5, 0.1), (wx, yb - 0.3, wz - wh / 2 - 0.05 + S.EPS), S.M("pietra_bianca"))
     sky = C.mat_emit("cielo_finestra", "#D9C3B0", 1.0)
     pl.sky_card = sky
     card = C.plane("cielo", (6, 6), (wx, yb + 1.5, wz), sky, rot=(90, 0, 0), coll=nl)

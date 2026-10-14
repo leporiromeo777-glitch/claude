@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Pipeline completa degli asset (ARCHITETTURA 12): `npm run assets:render`.
 #
-# 1. svuota i render grezzi (tools/blender/out/render);
+# 1. controlla la geometria delle scene senza renderizzarle (tools/blender/test_geometria.py e
+#    tools/blender/verifica_geometria.py: niente facce complanari sovrapposte, che in Cycles
+#    fanno macchie nere) e svuota i render grezzi (tools/blender/out/render);
 # 2. lancia ogni script Blender in un sottoprocesso separato e ne controlla il codice
 #    d'uscita (un crash di Blender non solleva eccezioni Python);
 # 3. tools/atlas/pack.py: atlas, WebP, manifest, logo, splash, icone (svuota public/assets);
@@ -87,6 +89,18 @@ run_lane() {
 }
 
 if [ "$PACK_ONLY" -eq 0 ]; then
+  # Controlli geometrici (pochi secondi): meglio fermarsi prima di 15 minuti di render.
+  if ! "$PY" "$HERE/test_geometria.py" > "$LOGS/test_geometria.log" 2>&1; then
+    tail -n 40 "$LOGS/test_geometria.log" >&2
+    echo "render_all: test della geometria falliti" >&2
+    exit 1
+  fi
+  if ! "$PY" "$HERE/verifica_geometria.py" > "$LOGS/verifica_geometria.log" 2>&1; then
+    grep -E '^\[blender\]|Error' "$LOGS/verifica_geometria.log" >&2 || true
+    echo "render_all: facce complanari sovrapposte (macchie nere in Cycles), vedi $LOGS/verifica_geometria.log" >&2
+    exit 1
+  fi
+  echo "[geometria] $(grep -E 'verifica_geometria:' "$LOGS/verifica_geometria.log" | sed 's/^\[blender\] //')"
   rm -rf "$RAW"
   mkdir -p "$RAW"
   if [ "$PARALLEL" -eq 1 ]; then
