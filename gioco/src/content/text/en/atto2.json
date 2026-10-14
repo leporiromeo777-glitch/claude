@@ -31,7 +31,7 @@
     },
     "titolo": "The Pharmacist",
     "marta": {
-      "testo": "Gino has been burning for three days and won't keep still even with the fever. That stranger doctor is to see him by noon, and tonight he's to be well. I ask nothing else. I'll bring the man his bread."
+      "testo": "Gino has been burning for three days and won't keep still even with the fever. That mainland doctor is to see him by noon, and tonight he's to be well. I ask nothing else. I'll bring the man his bread."
     },
     "teresa": {
       "testo": "Dear, a doctor has come from Padua, one who knows nobody. Keep him away from me: I've the whole island's post in my bag, and some things are not to be touched.",
@@ -453,7 +453,7 @@
         "sa": "I told Teresa those letters are my mother's. She was silent for a whole minute. For Teresa, that's an eternity."
       },
       "bepi": {
-        "dottore": "Bepi won't open the door to the stranger doctor. He treats himself with wine, with silence, and with Nina bringing him broth.",
+        "dottore": "Bepi won't open the door to the mainland doctor. He treats himself with wine, with silence, and with Nina bringing him broth.",
         "debito": "Bepi has a debt in Chioggia, for the good net. If Nina knows, she heard it from the street and not from him.",
         "luce": "In the storm Bepi followed the Lighthouse beam all the way home. Zeno didn't sleep a wink, and neither did Nina.",
         "secca": "In the storm Bepi ran aground, with the Lighthouse dark. His arm will heal; the boat, perhaps. Nina hasn't spoken to him for two days, out of fear.",

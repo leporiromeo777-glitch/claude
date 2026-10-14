@@ -7,7 +7,12 @@
  * - stessi segnaposto `{param}` (anche quelli ICU) e stessi a capo;
  * - nessuna stringa vuota, nessun testo rimasto in italiano (euristica sulle
  *   parole italiane frequenti, frasi latine escluse);
- * - lunghezza inglese ≤ 1,3 × italiano per ogni stringa;
+ * - lunghezza inglese ≤ 1,3 × italiano per ogni stringa; i testi lunghi (≥ 80
+ *   caratteri, quelli che riempiono davvero l'interfaccia) e ogni namespace nel
+ *   suo insieme non crescono più del 20% (specifica del pacchetto);
+ * - niente virgolette o accenti italiani rimasti, stessi marcatori di formattazione;
+ * - la terminologia di `comune.json` e dell'interfaccia (Pier, lace pillow, Book of
+ *   Stitches, Notebook, brass pin, ferry…) e nessuna variante concorrente;
  * - gli stessi limiti dell'interfaccia che valgono per l'italiano: righe di gioco
  *   ≤ 90 caratteri, bigliettini e voci del Taccuino ≤ 220;
  * - le regole di scrittura dei contenuti valgono anche in inglese: bigliettini
@@ -157,9 +162,87 @@ describe('traduzione inglese: stringhe', () => {
     expect(long).toEqual([]);
   });
 
+  it('testi lunghi (≥ 80 caratteri) e namespace interi ≤ 1,2 × italiano', () => {
+    const long = storyKeys
+      .filter((k) => it_(k).length >= 80 && en(k).length > 1.2 * it_(k).length)
+      .map((k) => `${k} (${it_(k).length} → ${en(k).length})`);
+    expect(long).toEqual([]);
+    for (const ns of STORY_NS) {
+      const keys = storyKeys.filter((k) => k.startsWith(`${ns}.`));
+      const sum = (f: (k: string) => string): number => keys.reduce((n, k) => n + f(k).length, 0);
+      expect(sum(en), ns).toBeLessThanOrEqual(1.2 * sum(it_));
+    }
+  });
+
   it('virgolette bilanciate', () => {
     const bad = storyKeys.filter((k) => (en(k).match(/“/g) ?? []).length !== (en(k).match(/”/g) ?? []).length);
     expect(bad).toEqual([]);
+  });
+
+  it('niente virgolette basse né vocali accentate all\'italiana', () => {
+    // «fiancé» ha l'accento acuto ed è inglese; le gravi (è, à, ò…) sono solo italiane.
+    expect(storyKeys.filter((k) => /[«»àèìòùÀÈÌÒÙ]/.test(en(k)))).toEqual([]);
+  });
+
+  it('stessi marcatori di formattazione dell\'italiano', () => {
+    const marks = (s: string): string => [...s].filter((c) => '*_<>[]|~#`'.includes(c)).sort().join('');
+    expect(storyKeys.filter((k) => marks(en(k)) !== marks(it_(k)))).toEqual([]);
+  });
+});
+
+describe('traduzione inglese: terminologia di comune.json e dell\'interfaccia', () => {
+  /** Se l'italiano usa il termine, l'inglese usa quello di comune.json (senza badare alle maiuscole). */
+  const GLOSSARY: readonly [RegExp, RegExp][] = [
+    [/Libro dei Punti/i, /Book of Stitches/i],
+    [/\bTaccuino\b/i, /\bNotebook\b/i],
+    [/\bArchivio\b/i, /\bArchive\b/i],
+    [/\bspill[oi] d'ottone\b/i, /\bbrass pins?\b/i],
+    [/\bfil[oi] d'avorio\b/i, /\bivory (thread|ribbon)\b/i],
+    [/\bnero di seppia\b/i, /\bsepia black\b/i],
+    [/\bpunto aperto\b/i, /\bopen stitch\b/i],
+    [/\btombolo\b/i, /\blace[ -]pillow\b/i],
+    [/\bmatassa\b/i, /\bskein\b/i],
+    [/\bfus[oi]\b/i, /\bbobbins?\b/i],
+    [/\bmerlettai[ae]\b/i, /\blacemakers?\b/i],
+    [/\bbigliettin[oi]\b/i, /\bnotes?\b/i],
+    [/\bcassapanca\b/i, /\bchest\b/i],
+    [/\bvaporett[oi]\b/i, /\bferr(y|ies)\b/i],
+    [/\bacqua alta\b/i, /\bhigh water\b/i],
+    [/\bfebbre\b/i, /\bfever\b/i],
+    [/\bMolo\b/, /\bPier\b/i],
+    [/\bForno\b/, /\bBakery\b/i],
+    [/\bPiazza\b/, /\bSquare\b/i],
+    [/\bChiesa\b/, /\bChurch\b/i],
+    [/\bFarmacia\b/, /\bPharmacy\b/i],
+    [/\bFaro\b/, /\bLighthouse\b/i],
+  ];
+  /** Eccezioni volute, con il motivo. */
+  const EXCEPTIONS: Record<string, string> = {
+    'atto1.g02.gino.testo': 'il Gino scrive «Peer» per Pier: la sua ortografia da bambino',
+    'atto3.g22.hint.spinta': 'la secca è il lato del Faro: il suggerimento dice dove arriva Livia, «the Lighthouse»',
+  };
+
+  it('i termini del gioco sono quelli di comune.json', () => {
+    const bad: string[] = [];
+    for (const k of storyKeys) {
+      if (EXCEPTIONS[k]) continue;
+      for (const [itTerm, enTerm] of GLOSSARY) {
+        if (itTerm.test(it_(k)) && !enTerm.test(en(k))) bad.push(`${k}: ${String(itTerm)} → ${String(enTerm)}`);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it('nessuna variante concorrente dei termini (spindle, cushion, diary…)', () => {
+    const FORBIDDEN = /\b(spindles?|cushions?|Book of Points|diary|journal|wharf|quayside|vaporetto|campanile|Piazza)\b/i;
+    expect(storyKeys.filter((k) => FORBIDDEN.test(en(k))).map((k) => `${k}: ${en(k).match(FORBIDDEN)?.[0]}`)).toEqual([]);
+  });
+
+  it('il gergo dei biglietti del Gino resta da bambino (minuscole ed errori)', () => {
+    const gino = ALL_NOTES.filter((n) => n.author === 'gino' && isStoryKey(n.textKey));
+    expect(gino.length).toBeGreaterThan(5);
+    const MISTAKES = /\b(chirch|Peer|litehouse|teecher|sez|tonite|cofing|preist|eether|im|dont|cant)\b/;
+    expect(gino.filter((n) => !MISTAKES.test(en(n.textKey))).map((n) => n.id)).toEqual([]);
   });
 });
 
