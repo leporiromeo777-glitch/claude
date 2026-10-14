@@ -1,0 +1,99 @@
+/*
+ * Overlay "Tocca per continuare" (pacchetto audio, prefisso au-).
+ * Sopra overlay, conferme e didascalie, sotto la dissolvenza fra le scene.
+ */
+.au-tocca {
+  position: absolute;
+  inset: 0;
+  z-index: 350;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(var(--safe-top), var(--spazio-5)) max(var(--safe-right), var(--spazio-4))
+    max(var(--safe-bottom), var(--spazio-5)) max(var(--safe-left), var(--spazio-4));
+  background: rgba(18, 22, 34, 0.84);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.au-tocca:focus-visible {
+  outline: 3px solid var(--ottone);
+  outline-offset: -8px;
+}
+
+.au-tocca-box {
+  max-width: min(92%, 26rem);
+  text-align: center;
+  color: var(--testo-chiaro);
+}
+
+.au-tocca-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: var(--spazio-4) 0 0;
+}
+
+.au-tocca-testo {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin: var(--spazio-3) 0 0;
+  opacity: 0.85;
+}
+
+/* Tre onde che respirano: l'audio aspetta un tocco. */
+.au-tocca-onde {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+}
+
+.au-tocca-onde span {
+  display: block;
+  width: 6px;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--ottone);
+  transform-origin: bottom;
+  animation: au-respiro 1.6s ease-in-out infinite;
+}
+
+.au-tocca-onde span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.au-tocca-onde span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.au-tocca--premuto .au-tocca-onde span {
+  animation-duration: 0.5s;
+}
+
+@keyframes au-respiro {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+html[data-motion='ridotto'] .au-tocca-onde span,
+html[data-anim-speed='0'] .au-tocca-onde span {
+  animation: none;
+  transform: scaleY(0.7);
+}
+
+html[data-contrast='alto'] .au-tocca {
+  background: rgba(0, 0, 0, 0.94);
+}
+
+html[data-contrast='alto'] .au-tocca-testo {
+  opacity: 1;
+}
