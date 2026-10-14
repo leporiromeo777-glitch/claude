@@ -2,7 +2,10 @@
  * Registrazione del pacchetto motore: API di debug `__GAME__.engine` (ARCHITETTURA 15.1).
  *
  *   level(id)                       LevelDef dei contenuti (o generato/fixture già caricato), null se manca
- *   solve(levelId, noteIds?, opts?) SolveResult con obiettivi + richieste dei bigliettini indicati
+ *   solve(levelId, noteIds?, opts?) SolveResult con obiettivi + richieste dei bigliettini indicati;
+ *                                   opts.nomeOn = filo del nome di Ada; se manca e le condizioni nominano
+ *                                   `nome` (regola 'nome'), si prova ogni filo presente e il risultato
+ *                                   porta anche `nomeOn` (la scelta migliore, come in levels:check)
  *   computed(levelId)               LevelComputed dei contenuti, null se manca
  *   daily(date)                     GenResult del Merletto del giorno (AAAA-MM-GG)
  *   generate(spec)                  GenResult per una GenSpec
@@ -10,8 +13,10 @@
  *   fixture(name)                   carica un livello di prova da src/engine/fixtures (Promise)
  *   version()                       versioni di solver e generatore
  */
-import type { Condition, FlagId, FlagValue, LevelDef, LevelId, NoteDef, NoteId, Services, SolveResult } from '../core/types';
+import type { Condition, FlagId, FlagValue, LevelDef, LevelId, NoteDef, NoteId, Services, SolveResult, ThreadId } from '../core/types';
 import { createContext } from './context';
+import { mentionsNome } from './conditions';
+import { initialState } from './state';
 import { solve, SOLVER_VERSION } from './solver';
 import type { GenResult, GenSpec } from './generator';
 import { GENERATOR_VERSION, generate } from './generator';
@@ -27,6 +32,8 @@ export interface DebugSolveOptions {
   matassa?: number;
   countOptimal?: boolean;
   maxStates?: number;
+  /** Filo su cui è appuntato il nome di Ada (GDD 3.11); null = nessuno. Se manca, vedi sopra. */
+  nomeOn?: ThreadId | null;
 }
 
 export function register(s: Services): void {
@@ -50,16 +57,31 @@ export function register(s: Services): void {
         const r = noteOf(id)?.request;
         if (r) goals.push(r);
       }
-      const ctx = createContext(level, opts?.flags ?? {}, { balance: s.content.balance });
-      return solve({
-        level,
-        ctx,
-        goals,
-        objective: opts?.objective,
-        matassa: opts?.matassa,
-        countOptimal: opts?.countOptimal ?? true,
-        maxStates: opts?.maxStates,
-      });
+      const run = (nomeOn: ThreadId | null): SolveResult =>
+        solve({
+          level,
+          ctx: createContext(level, opts?.flags ?? {}, { balance: s.content.balance, nomeOn }),
+          goals,
+          objective: opts?.objective,
+          matassa: opts?.matassa,
+          countOptimal: opts?.countOptimal ?? true,
+          maxStates: opts?.maxStates,
+        });
+      if (opts?.nomeOn !== undefined || !level.rules.includes('nome') || !goals.some(mentionsNome)) return run(opts?.nomeOn ?? null);
+      // Il nome si appunta su un filo presente all'apertura: si prova ognuno e vale il migliore.
+      const pos = initialState(level, createContext(level, opts?.flags ?? {}, { balance: s.content.balance })).pos;
+      let best: (SolveResult & { nomeOn: ThreadId }) | null = null;
+      let last: SolveResult | null = null;
+      for (const t of new Set(pos)) {
+        const r = run(t);
+        last = r;
+        if (r.status !== 'ok') continue;
+        const better =
+          !best ||
+          (opts?.objective === 'maxQuiete' ? (r.quiete ?? -1) > (best.quiete ?? -1) : (r.incroci ?? Infinity) < (best.incroci ?? Infinity));
+        if (better) best = { ...r, nomeOn: t };
+      }
+      return best ?? last;
     },
     computed: (levelId: string) => s.content.computed.get(levelId) ?? null,
     daily: (date: string): GenResult => remember(generate(dailySpec(date))),

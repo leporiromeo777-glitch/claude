@@ -5,13 +5,20 @@
  * Per ogni livello di `src/content/levels` (o di `--dir <cartella>`):
  * - base (solo obiettivi obbligatori) risolvibile entro la matassa;
  * - ogni bigliettino con richiesta, da solo;
- * - tutte le combinazioni di `pins` bigliettini (spilli rossi della sera:
- *   campaign.json, poi balance.json, poi 2);
+ * - tutte le combinazioni da 2 a `pins` bigliettini (spilli rossi della sera:
+ *   campaign.json, poi balance.json, poi 2): il giocatore può appuntarne anche
+ *   meno di `pins`, quindi nell'Atto III (3 spilli) si calcolano coppie e terne;
+ * - livelli con la regola `nome` (GDD 3.11): per le condizioni che nominano la
+ *   perlina `nome` si prova ogni filo presente all'apertura come filo del nome e
+ *   vale il minimo; la voce del computed porta `nomeOn` (il filo migliore) e non
+ *   le righe, che varrebbero solo con quel filo;
  * - un bigliettino o una combinazione impossibile (o oltre la matassa) è un
  *   errore, salvo che sia marcato `voluta`: il segno vive nel `.computed.json`
  *   (campo `voluta` della combinazione; per un bigliettino da solo, una
  *   combinazione con quel solo bigliettino) e si conserva da un'esecuzione
- *   all'altra; si aggiunge con `--voluta <livello>:<nota>+<nota>`;
+ *   all'altra; si aggiunge con `--voluta <livello>:<nota>+<nota>`. Una
+ *   combinazione che contiene una combinazione più piccola impossibile e voluta
+ *   è voluta anch'essa; il segno su una combinazione diventata possibile si toglie;
  * - matassa ≥ minimo della combinazione designata (la più cara fra le
  *   combinazioni possibili non marcate `voluta`, o il bigliettino più caro, o la base);
  *   `matassaSuggerita` = quel minimo + margine dell'atto (atto 0: 2; atti 1-3: balance.json);
@@ -30,9 +37,9 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Condition, ContentDB, Crossing, LaceState, LevelComputed, LevelDef, NoteId, OccasionDef, RowMoves } from '../../src/core/types';
+import type { Condition, ContentDB, Crossing, LaceState, LevelComputed, LevelDef, NoteId, OccasionDef, RowMoves, RunContext, SolveRequest, SolveResult, ThreadId } from '../../src/core/types';
 import { buildContentDB } from '../../src/content/loader';
-import { SOLVER_VERSION, applyRow, createContext, evaluate, levelSourceHashFromDB, sameLace, simulate, solve, stateKey } from '../../src/engine/index';
+import { SOLVER_VERSION, applyRow, createContext, evaluate, initialState, levelSourceHashFromDB, mentionsNome, pinsForLevel, sameLace, simulate, solve, stateKey } from '../../src/engine/index';
 import type { LevelReportRow } from './report';
 import { formatReport } from './report';
 
@@ -274,6 +281,19 @@ function checkOccasions(level: LevelDef, goals: Condition[], errors: string[], b
   return { solution, count, states };
 }
 
+/** Esito di una risoluzione per levels:check. */
+interface Out {
+  /** Minimo entro la matassa del livello (null se impossibile entro la matassa). */
+  incroci: number | null;
+  /** Minimo senza il limite della matassa (null se impossibile comunque o non verificato). */
+  trueMin: number | null;
+  rows?: RowMoves[];
+  /** Il solver si è fermato al limite di stati (esito non verificato). */
+  limited?: boolean;
+  /** Filo su cui appuntare il nome per ottenere il minimo (solo se le condizioni nominano `nome`). */
+  nomeOn?: ThreadId;
+}
+
 export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, file: string): LevelCheck {
   const t0 = performance.now();
   const errors: string[] = [];
@@ -289,19 +309,65 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
   let states = occ.states;
   let maxStates = 0;
 
-  type Out = { incroci: number | null; trueMin: number | null; rows?: RowMoves[]; limited?: boolean };
-  const solveWith = (extra: Condition[]): Out => {
-    const r = solve({ level, ctx, goals: [...goals, ...extra] });
+  // Regola del nome (GDD 3.11): prima di tessere Ada appunta il nome su un filo a scelta fra quelli
+  // presenti. Per le condizioni che nominano `nome` si provano tutte le scelte e vale la migliore.
+  const nomeChoices: ThreadId[] = level.rules.includes('nome') ? [...new Set(initialState(level, ctx).pos)] : [];
+  const nomeCtx = new Map<ThreadId, RunContext>();
+  const ctxFor = (t: ThreadId): RunContext => {
+    let c = nomeCtx.get(t);
+    if (!c) {
+      c = createContext(level, {}, { nomeOn: t, occasions: occ.solution, balance: db.balance });
+      nomeCtx.set(t, c);
+    }
+    return c;
+  };
+  const limitWarned = new Set<string>();
+  const run = (req: SolveRequest): SolveResult => {
+    const r = solve(req);
     states += r.states;
     maxStates = Math.max(maxStates, r.states);
-    if (r.status === 'limite') warnings.push(`${where}: [solver] state limit reached (${r.states} states)`);
+    return r;
+  };
+
+  const solveOnce = (c: RunContext, conds: Condition[], label: string): Out => {
+    const r = run({ level, ctx: c, goals: conds });
+    if (r.status === 'limite' && !limitWarned.has(label)) {
+      limitWarned.add(label);
+      warnings.push(`${where}: [solver] state limit reached (${r.states} states) for ${label}`);
+    }
     if (r.status === 'ok' && r.incroci !== undefined) return { incroci: r.incroci, trueMin: r.incroci, rows: r.rows };
     if (r.status === 'limite') return { incroci: null, trueMin: null, limited: true };
-    // Impossibile entro la matassa: si cerca il minimo vero (per la matassa suggerita).
-    const r2 = solve({ level, ctx, goals: [...goals, ...extra], matassa: Math.max(cap, level.matassa + 1) });
-    states += r2.states;
-    maxStates = Math.max(maxStates, r2.states);
+    // Impossibile entro la matassa: si cerca il minimo vero (per la matassa suggerita e per i messaggi).
+    const r2 = run({ level, ctx: c, goals: conds, matassa: Math.max(cap, level.matassa + 1) });
     return { incroci: null, trueMin: r2.status === 'ok' && r2.incroci !== undefined ? r2.incroci : null, limited: r2.status === 'limite' };
+  };
+
+  const solveWith = (extra: Condition[], label: string): Out => {
+    const conds = [...goals, ...extra];
+    if (nomeChoices.length === 0 || !conds.some(mentionsNome)) return solveOnce(ctx, conds, label);
+    let best: Out | null = null;
+    let bestFree: Out | null = null;
+    let limited = false;
+    for (const t of nomeChoices) {
+      const r = { ...solveOnce(ctxFor(t), conds, label), nomeOn: t };
+      if (r.limited) limited = true;
+      if (r.incroci !== null && (best === null || r.incroci < (best.incroci as number))) best = r;
+      if (r.trueMin !== null && (bestFree === null || r.trueMin < (bestFree.trueMin as number))) bestFree = r;
+    }
+    if (best) {
+      // Con una scelta ferma al limite di stati il minimo potrebbe essere più basso: lo si dice.
+      if (limited) warnings.push(`${where}: [solver] ${label}: some choices of the name's thread were not verified (state limit)`);
+      return best;
+    }
+    if (bestFree) return { incroci: null, trueMin: bestFree.trueMin, nomeOn: bestFree.nomeOn };
+    return { incroci: null, trueMin: null, limited };
+  };
+
+  /** Voce del computed per un bigliettino o una combinazione: le righe solo se valgono per ogni scelta del nome. */
+  const entryOf = (r: Out): { incroci: number | null; rows?: RowMoves[]; nomeOn?: ThreadId } => {
+    if (r.incroci === null) return { incroci: null };
+    if (r.nomeOn !== undefined) return { incroci: r.incroci, nomeOn: r.nomeOn };
+    return r.rows ? { incroci: r.incroci, rows: r.rows } : { incroci: r.incroci };
   };
 
   const report: LevelReportRow = {
@@ -350,7 +416,7 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
     });
   }
 
-  const base = solveWith([]);
+  const base = solveWith([], 'the base');
   report.base = base.incroci;
   if (base.incroci === null) {
     errors.push(
@@ -372,75 +438,103 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
   const perNote: LevelComputed['perNote'] = {};
   const combos: LevelComputed['combos'] = [];
   let designated = base.incroci;
-  for (const n of withReq) {
-    const r = solveWith([n.request as Condition]);
-    const isVoluta = voluta.has(comboKey([n.id]));
-    perNote[n.id] = r.incroci === null ? { incroci: null } : { incroci: r.incroci, rows: r.rows };
-    report.notes.push({ id: n.id, incroci: r.incroci, voluta: isVoluta });
+
+  /** Bigliettini e combinazioni impossibili già giudicati (per le combinazioni che li contengono). */
+  const impossible: { ids: NoteId[]; voluta: boolean }[] = [];
+  const within = (part: readonly NoteId[], whole: readonly NoteId[]): boolean => part.every((id) => whole.includes(id));
+
+  /**
+   * Un bigliettino o una combinazione: impossibile (o oltre la matassa) → errore, salvo il segno
+   * `voluta`; possibile entro la matassa → conta per la combinazione designata, e un segno `voluta`
+   * rimasto non serve più (si toglie, con un avviso). Una combinazione che contiene un bigliettino o
+   * una combinazione più piccola impossibile e voluta è voluta anch'essa: il conflitto è lo stesso.
+   * Una combinazione voluta che è impossibile solo per la matassa (con più filo si farebbe) è un
+   * conflitto di filo, non di regole: avviso.
+   */
+  const judge = (ids: NoteId[], r: Out, kind: 'notes' | 'combos'): boolean => {
+    const key = comboKey(ids);
+    const name = kind === 'notes' ? `request of "${ids[0] ?? ''}"` : ids.join(' + ');
+    let isVoluta = voluta.has(key);
+    const inner = r.incroci === null ? impossible.filter((x) => within(x.ids, ids)) : [];
     if (r.incroci === null) {
-      if (isVoluta) combos.push({ notes: [n.id], incroci: null, voluta: true });
-      else
-        errors.push(
-          r.trueMin === null
-            ? r.limited
-              ? `${where}: [notes] request of "${n.id}" could not be verified: solver state limit reached`
-              : `${where}: [notes] request of "${n.id}" is impossible (mark it voluta if intended)`
-            : `${where}: [notes] request of "${n.id}" needs ${r.trueMin} crossings, matassa is ${level.matassa}`,
-        );
-    } else if (!isVoluta) designated = Math.max(designated, r.incroci);
-    if (r.trueMin !== null && r.incroci === null && !isVoluta) designated = Math.max(designated, r.trueMin);
+      if (!isVoluta && inner.some((x) => x.voluta)) isVoluta = true;
+      impossible.push({ ids, voluta: isVoluta });
+    }
+    if (r.incroci !== null) {
+      if (isVoluta) {
+        warnings.push(`${where}: [voluta] mark on ${name} removed: it is possible with ${r.incroci} crossings`);
+        voluta.delete(key);
+        isVoluta = false;
+      }
+      designated = Math.max(designated, r.incroci);
+      return false;
+    }
+    if (isVoluta) {
+      if (r.trueMin !== null) warnings.push(`${where}: [voluta] ${name} is impossible only because of the matassa (needs ${r.trueMin} crossings, matassa is ${level.matassa})`);
+      return true;
+    }
+    const what = kind === 'notes' ? `[notes] ${name}` : `[combos] ${name}`;
+    const cause = inner[0] ? ` (it contains ${inner[0].ids.join(' + ')}, also impossible)` : '';
+    errors.push(
+      r.trueMin === null
+        ? r.limited
+          ? `${where}: ${what} could not be verified: solver state limit reached`
+          : `${where}: ${what} is impossible${cause} (mark it voluta if intended)`
+        : `${where}: ${what} needs ${r.trueMin} crossings, matassa is ${level.matassa}${cause} (not marked voluta)`,
+    );
+    if (r.trueMin !== null) designated = Math.max(designated, r.trueMin);
+    return false;
+  };
+
+  for (const n of withReq) {
+    const r = solveWith([n.request as Condition], `"${n.id}"`);
+    perNote[n.id] = entryOf(r);
+    const isVoluta = judge([n.id], r, 'notes');
+    if (isVoluta) combos.push({ notes: [n.id], incroci: null, voluta: true });
+    report.notes.push({ id: n.id, incroci: r.incroci, voluta: isVoluta });
   }
-  const pins = Math.min(withReq.length, Math.max(1, db.campaign.days.find((d) => d.id === level.id)?.pins ?? pinsFallback(db, level)));
-  if (pins >= 2) {
-    for (const sub of subsets(withReq, pins)) {
+  // Gli spilli rossi si possono usare anche non tutti: ogni combinazione da 2 a `pins` bigliettini.
+  const pins = Math.min(withReq.length, Math.max(1, pinsForLevel(db, level)));
+  for (let k = 2; k <= pins; k++) {
+    for (const sub of subsets(withReq, k)) {
       const ids = sub.map((n) => n.id);
-      const isVoluta = voluta.has(comboKey(ids));
-      const r = solveWith(sub.map((n) => n.request as Condition));
-      const entry: LevelComputed['combos'][number] = { notes: ids, incroci: r.incroci };
-      if (r.rows) entry.rows = r.rows;
+      const r = solveWith(
+        sub.map((n) => n.request as Condition),
+        ids.join(' + '),
+      );
+      const isVoluta = judge(ids, r, 'combos');
+      const entry: LevelComputed['combos'][number] = { notes: ids, ...entryOf(r) };
       if (isVoluta) entry.voluta = true;
       combos.push(entry);
       report.combos.push({ notes: ids, incroci: r.incroci, voluta: isVoluta });
-      if (r.incroci === null && !isVoluta) {
-        errors.push(
-          r.trueMin === null
-            ? r.limited
-              ? `${where}: [combos] ${ids.join(' + ')} could not be verified: solver state limit reached`
-              : `${where}: [combos] ${ids.join(' + ')} is impossible and not marked voluta`
-            : `${where}: [combos] ${ids.join(' + ')} needs ${r.trueMin} crossings, matassa is ${level.matassa} (not marked voluta)`,
-        );
-        if (r.trueMin !== null) designated = Math.max(designated, r.trueMin);
-      }
-      if (r.incroci !== null && !isVoluta) designated = Math.max(designated, r.incroci);
     }
   }
   if (level.matassa < designated) errors.push(`${where}: [matassa] matassa ${level.matassa} is below the designated minimum ${designated}`);
   const suggested = designated + slackFor(db, level.act);
   report.suggerita = suggested;
 
-  const q = solve({ level, ctx, goals, objective: 'maxQuiete' });
-  states += q.states;
-  maxStates = Math.max(maxStates, q.states);
-  report.quieteMax = q.quiete ?? null;
+  // Quiete massima con i soli obiettivi (con il nome nella scelta migliore, se gli obiettivi lo nominano).
+  const quietCtxs = nomeChoices.length > 0 && goals.some(mentionsNome) ? nomeChoices.map(ctxFor) : [ctx];
+  let quiete: number | null = null;
+  for (const c of quietCtxs) {
+    const q = run({ level, ctx: c, goals, objective: 'maxQuiete' });
+    if (q.quiete !== undefined && (quiete === null || q.quiete > quiete)) quiete = q.quiete;
+  }
+  report.quieteMax = quiete;
 
   const computed: LevelComputed = {
     levelId: level.id,
     sourceHash: levelSourceHashFromDB(db, level.id) ?? '',
     solverVersion: SOLVER_VERSION,
-    base: { incroci: base.incroci, rows: base.rows ?? [] },
+    base: base.nomeOn !== undefined ? { incroci: base.incroci, rows: base.rows ?? [], nomeOn: base.nomeOn } : { incroci: base.incroci, rows: base.rows ?? [] },
     perNote,
     combos,
     matassaSuggerita: suggested,
-    quieteMax: q.quiete ?? 0,
+    quieteMax: quiete ?? 0,
   };
   if (occ.solution) computed.occasionsSolution = occ.solution;
   if (occ.count !== undefined) computed.occasionsSolutions = occ.count;
   return done(computed);
-}
-
-function pinsFallback(db: ContentDB, level: LevelDef): number {
-  if (level.act === 1 || level.act === 2 || level.act === 3) return db.balance.acts[String(level.act) as '1' | '2' | '3']?.pins ?? 2;
-  return 2;
 }
 
 /** Segni `voluta` già presenti nel computed (combinazioni marcate). */
@@ -486,6 +580,15 @@ export function runCheck(opts: CheckOptions = {}): CheckResult {
       voluta.add(comboKey(notes));
     }
     const res = checkLevel(level, db, voluta, file);
+    // Un segno chiesto da riga di comando che non corrisponde a nessuna combinazione calcolata (nota
+    // sbagliata, o più bigliettini degli spilli) non fa niente: lo si dice.
+    for (const v of cliVoluta) {
+      const [lv, list] = v.includes(':') ? (v.split(':', 2) as [string, string]) : [null, v];
+      if (lv !== id || !res.computed) continue;
+      const key = comboKey(list.split('+').map((s) => s.trim()).filter(Boolean));
+      const known = res.computed.combos.some((x) => comboKey(x.notes) === key) || Object.keys(res.computed.perNote).includes(key);
+      if (!known) res.warnings.push(`levels/${id}: [voluta] --voluta ${v}: no such combination (notes with a request, at most ${pinsForLevel(db, level)} of them)`);
+    }
     levels.push(res);
     for (const w of res.warnings) log(`! ${w}`);
     for (const e of res.errors) log(`✗ ${e}`);

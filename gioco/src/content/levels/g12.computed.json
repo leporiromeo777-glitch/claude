@@ -59,7 +59,8 @@
   },
   "perNote": {
     "g12.lunardi": {
-      "incroci": null
+      "incroci": 2,
+      "nomeOn": "lunardi"
     },
     "g12.bepi": {
       "incroci": 2,
@@ -248,34 +249,27 @@
   "combos": [
     {
       "notes": [
-        "g12.lunardi"
-      ],
-      "incroci": null,
-      "voluta": true
-    },
-    {
-      "notes": [
         "g12.lunardi",
         "g12.bepi"
       ],
-      "incroci": null,
-      "voluta": true
+      "incroci": 2,
+      "nomeOn": "lunardi"
     },
     {
       "notes": [
         "g12.lunardi",
         "g12.zeno"
       ],
-      "incroci": null,
-      "voluta": true
+      "incroci": 3,
+      "nomeOn": "lunardi"
     },
     {
       "notes": [
         "g12.lunardi",
         "g12.teresa"
       ],
-      "incroci": null,
-      "voluta": true
+      "incroci": 5,
+      "nomeOn": "lunardi"
     },
     {
       "notes": [

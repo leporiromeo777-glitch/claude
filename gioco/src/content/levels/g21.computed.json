@@ -559,6 +559,615 @@
     {
       "notes": [
         "g21.zeno",
+        "g21.piero"
+      ],
+      "incroci": 7,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "R",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
+          "crossings": []
+        },
+        {
+          "hour": 16,
+          "crossings": []
+        },
+        {
+          "hour": 17,
+          "crossings": []
+        },
+        {
+          "hour": 18,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g21.zeno",
+        "g21.gino"
+      ],
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "R",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
+          "crossings": []
+        },
+        {
+          "hour": 16,
+          "crossings": []
+        },
+        {
+          "hour": 17,
+          "crossings": []
+        },
+        {
+          "hour": 18,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g21.zeno",
+        "g21.marta"
+      ],
+      "incroci": 10,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
+          "crossings": []
+        },
+        {
+          "hour": 16,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 17,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 18,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g21.piero",
+        "g21.gino"
+      ],
+      "incroci": 7,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "R",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L",
+              "forced": true
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
+          "crossings": []
+        },
+        {
+          "hour": 16,
+          "crossings": []
+        },
+        {
+          "hour": 17,
+          "crossings": []
+        },
+        {
+          "hour": 18,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g21.piero",
+        "g21.marta"
+      ],
+      "incroci": 11,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "R",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L",
+              "forced": true
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
+          "crossings": []
+        },
+        {
+          "hour": 16,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 17,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 18,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g21.gino",
+        "g21.marta"
+      ],
+      "incroci": null,
+      "voluta": true
+    },
+    {
+      "notes": [
+        "g21.zeno",
         "g21.piero",
         "g21.gino"
       ],

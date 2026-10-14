@@ -116,6 +116,26 @@ export function conditionBeads(level: LevelDef, conds: readonly Condition[]): st
   return [...out];
 }
 
+/**
+ * La condizione nomina la perlina del nome di Ada (GDD 3.11)? Allora il risultato dipende dal filo su
+ * cui Ada appunta il nome (`RunContext.nomeOn`), e chi risolve per conto del giocatore prova le scelte.
+ */
+export function mentionsNome(c: Condition): boolean {
+  switch (c.t) {
+    case 'ha':
+    case 'nonHa':
+    case 'esceCon':
+      return c.bead === 'nome';
+    case 'tutti':
+    case 'almeno':
+      return c.of.some(mentionsNome);
+    case 'non':
+      return mentionsNome(c.c);
+    default:
+      return false;
+  }
+}
+
 /** Compila le condizioni sul modello; gli stati degli atomi partono dall'offset `base`. */
 export function compileProgram(m: Model, conds: readonly Condition[], base: number): Program {
   const atoms: Atom[] = [];

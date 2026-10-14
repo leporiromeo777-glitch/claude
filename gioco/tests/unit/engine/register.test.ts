@@ -8,7 +8,7 @@ import type { LevelComputed, LevelDef, Services, SolveResult } from '../../../sr
 import { buildContentDB } from '../../../src/content/loader';
 import { register } from '../../../src/engine/register';
 import type { GenResult, Spartito } from '../../../src/engine/index';
-import { FIXTURES } from './helpers';
+import { FIXTURES, mk } from './helpers';
 
 type Api = Record<string, (...args: never[]) => unknown>;
 
@@ -19,6 +19,9 @@ function setup(): Api {
     './levels/g06.json': read('g06.json'),
     './levels/g06.computed.json': read('g06.computed.json'),
     './notes.fixtures.json': read('notes.fixtures.json'),
+    // Regola del nome (GDD 3.11): Gino deve conoscere il nome di Ada.
+    './levels/nomi.json': mk({ id: 'nomi', initial: ['nina', 'marta', 'piero', 'gino'], rules: ['incrocio', 'nome'], notes: ['nomi.gino'] }),
+    './notes.nomi.json': [{ id: 'nomi.gino', day: 'nomi', author: 'gino', textKey: 'test.nomi', request: { t: 'ha', who: 'gino', bead: 'nome' } }],
   });
   let api: Api | null = null;
   const services = {
@@ -54,6 +57,17 @@ describe('__GAME__.engine', () => {
     expect(call<SolveResult>('solve', 'g06', ['g06.nina', 'g06.marta'])).toMatchObject({ status: 'ok', incroci: 5 });
     expect(call<SolveResult>('solve', 'g06', ['g06.nina', 'g06.zeno']).status).toBe('impossibile');
     expect(call<SolveResult | null>('solve', 'nessuno')).toBeNull();
+  });
+
+  it('solve con la regola del nome: la scelta migliore del filo, o quella indicata', () => {
+    expect(call<SolveResult & { nomeOn?: string }>('solve', 'nomi', ['nomi.gino'])).toMatchObject({ status: 'ok', incroci: 0, nomeOn: 'gino' });
+    const far = call<SolveResult & { nomeOn?: string }>('solve', 'nomi', ['nomi.gino'], { nomeOn: 'nina' });
+    expect(far.status).toBe('ok');
+    expect(far.incroci).toBeGreaterThan(0);
+    expect(far.nomeOn).toBeUndefined();
+    expect(call<SolveResult>('solve', 'nomi', ['nomi.gino'], { nomeOn: null }).status).toBe('impossibile');
+    // Senza il nome nelle condizioni non si prova nulla.
+    expect(call<SolveResult & { nomeOn?: string }>('solve', 'nomi').nomeOn).toBeUndefined();
   });
 
   it('daily e generate', () => {

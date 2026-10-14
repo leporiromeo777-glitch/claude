@@ -298,9 +298,14 @@ export interface SolveResult {
 }
 export interface LevelComputed {
   levelId: LevelId; sourceHash: string; solverVersion: number;
-  base: { incroci: number; rows: RowMoves[] };
-  perNote: Record<NoteId, { incroci: number | null; rows?: RowMoves[] }>;   // null = impossibile
-  combos: { notes: NoteId[]; incroci: number | null; rows?: RowMoves[]; voluta?: boolean }[];
+  /**
+   * `nomeOn` (livelli con la regola 'nome', GDD 3.11): presente solo quando le condizioni nominano
+   * la perlina `nome`; è il filo su cui appuntare il nome per ottenere il minimo. In quel caso le
+   * righe valgono solo con quel filo: per bigliettini e combinazioni `rows` non si salva.
+   */
+  base: { incroci: number; rows: RowMoves[]; nomeOn?: ThreadId };
+  perNote: Record<NoteId, { incroci: number | null; rows?: RowMoves[]; nomeOn?: ThreadId }>;   // null = impossibile
+  combos: { notes: NoteId[]; incroci: number | null; rows?: RowMoves[]; voluta?: boolean; nomeOn?: ThreadId }[];
   matassaSuggerita: number;
   quieteMax: number;
   occasionsSolution?: OccasionDef[];   // livelli con occasioni: un insieme minimo che soddisfa gli obiettivi
