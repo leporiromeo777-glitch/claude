@@ -36,13 +36,29 @@
   min-width: 0;
   height: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   font-family: var(--font-libro);
   font-size: 1.05rem;
   font-weight: 600;
   line-height: 1.1;
   overflow: hidden;
   overflow-wrap: anywhere;
+}
+
+/* Giornata sopra il titolo: piccola, in maiuscoletto, color testo tenue. */
+.tb-hud-day {
+  font-family: var(--font-ui);
+  font-size: 0.68em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--testo-tenue);
+  line-height: 1.1;
+}
+
+.tb-hud-name {
+  line-height: 1.1;
 }
 
 .tb-hud-hour {
@@ -465,6 +481,15 @@
   top: 4px;
   right: 4px;
   color: var(--inchiostro);
+}
+
+/* I pulsanti "testo" del core hanno il colore del testo chiaro: sulla carta
+   delle schede servono l'inchiostro e una sottolineatura. */
+.tb-popup .core-btn--testo {
+  color: var(--inchiostro);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  align-self: flex-start;
 }
 
 .tb-popup-body {

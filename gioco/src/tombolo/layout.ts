@@ -41,6 +41,8 @@ export const OPEN_ROW = 0.6;
 export const LACE_PAD = 8;
 /** Righe future visibili sotto la riga corrente. */
 export const FUTURE_VISIBLE = 2;
+/** Altezza minima della fascia dei fusi sugli schermi molto bassi. */
+export const SPINDLES_MIN = 80;
 
 export interface TomboloLayout {
   cssW: number;
@@ -116,10 +118,16 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
     center = rect(innerX + (innerW - cw) / 2, top, cw, bottom - top);
   }
 
+  // Schermi molto bassi (telefono in orizzontale nel browser): la fascia dei fusi
+  // si accorcia (fino a 80 px) perché il merletto mostri almeno due righe.
+  const fixedBands = BAND.hud + BAND.header + BAND.requests + BAND.actions;
+  const lace0 = bottom - top - fixedBands - BAND.spindles;
+  const laceMin = Math.round(ROW_MIN * (2 + OPEN_ROW) + LACE_PAD * 2);
+  const spindleBand = lace0 >= laceMin ? BAND.spindles : Math.max(SPINDLES_MIN, BAND.spindles - (laceMin - lace0));
   const hud = rect(center.x, center.y, center.w, BAND.hud);
   const header = rect(center.x, hud.y + hud.h, center.w, BAND.header);
   const actions = rect(center.x, bottom - BAND.actions, center.w, BAND.actions);
-  const spindles = rect(center.x, actions.y - BAND.spindles, center.w, BAND.spindles);
+  const spindles = rect(center.x, actions.y - spindleBand, center.w, spindleBand);
   const requests = rect(center.x, spindles.y - BAND.requests, center.w, BAND.requests);
   const laceTop = header.y + header.h;
   const lace = rect(center.x, laceTop, center.w, Math.max(0, requests.y - laceTop));
@@ -138,7 +146,7 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
   const fit = (lace.h - LACE_PAD * 2) / (r + OPEN_ROW);
   const rowH = Math.round(Math.max(ROW_MIN, Math.min(ROW_MAX, fit)));
   const openH = Math.round(rowH * OPEN_ROW);
-  const spindleH = BAND.spindles - 10;
+  const spindleH = spindleBand - 10;
   const spindleW = Math.round((spindleH * 96) / 320);
   return {
     cssW: W,
@@ -186,7 +194,10 @@ export function rowBottom(l: Pick<TomboloLayout, 'rowH' | 'openH'>, i: number): 
  */
 export function autoScroll(l: Pick<TomboloLayout, 'rowH' | 'openH' | 'rows' | 'lace' | 'contentH'>, cur: number): number {
   const i = Math.max(1, Math.min(l.rows, cur));
-  const want = rowBottom(l, i) + FUTURE_VISIBLE * l.rowH - (l.lace.h - LACE_PAD);
+  // Le righe future contano solo se c'è posto: la riga corrente resta sempre visibile.
+  const future = Math.min(FUTURE_VISIBLE, Math.max(0, Math.floor((l.lace.h - LACE_PAD * 2) / Math.max(1, l.rowH)) - 1));
+  let want = rowBottom(l, i) + future * l.rowH - (l.lace.h - LACE_PAD);
+  want = Math.min(want, rowTop(l, i) - LACE_PAD);
   const max = l.contentH - l.lace.h + LACE_PAD;
   return Math.max(-LACE_PAD, Math.min(want, max));
 }

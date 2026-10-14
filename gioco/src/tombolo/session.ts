@@ -66,7 +66,7 @@ import {
   violationKey,
 } from '../engine/index';
 import { crossingsOf } from '../engine/simulate';
-import { ArchiveBook, archiveActive } from './modes/archive';
+import { ARCHIVE_FLAGS, ArchiveBook, archiveActive } from './modes/archive';
 import { occasionProblem, OCCASION_KINDS_ORDER } from './modes/autoweave';
 
 /** API della notte usata dalla scena e dal debug (ARCHITETTURA 5.3). */
@@ -197,7 +197,7 @@ export class Session implements NightSession {
     this.level = params.level;
     this.levelFree = { ...params.level, matassa: Number.MAX_SAFE_INTEGER };
     this.known = new Set(deps.knownQuirks ?? []);
-    this.archive = archiveActive(params) ? new ArchiveBook(params.level) : null;
+    this.archive = archiveActive(params) ? new ArchiveBook(params.level, deps.balance ?? null) : null;
     this._ctx = this.makeCtx();
     this.reset();
     if (params.resume) this.restore(params.resume);
@@ -284,10 +284,18 @@ export class Session implements NightSession {
     return locked ? this.levelFree : this.level;
   }
 
+  /**
+   * Flag con cui si tesse: quelli della notte, tranne per i merletti d'Archivio,
+   * che sono storia e si tessono con le regole di allora (ARCHIVE_FLAGS).
+   */
+  get runFlags(): NightParams['flags'] {
+    return this.level.archive ? ARCHIVE_FLAGS : this.params.flags;
+  }
+
   private makeCtx(): RunContext {
     const opts: Parameters<typeof createContext>[2] = { nomeOn: this._nomeOn, occasions: this._occasions };
     if (this.deps.balance) opts.balance = this.deps.balance;
-    return createContext(this.level, this.params.flags, opts);
+    return createContext(this.level, this.runFlags, opts);
   }
 
   private emit<K extends keyof GameEventMap>(k: K, p: GameEventMap[K]): void {

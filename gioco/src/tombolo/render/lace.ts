@@ -99,6 +99,7 @@ const LABEL_FONT = "13px 'Atkinson Hyperlegible', system-ui, sans-serif";
 const LABEL_FONT_CUR = "bold 15px 'Atkinson Hyperlegible', system-ui, sans-serif";
 const GHOST_DASH: number[] = [6, 5];
 const NO_DASH: number[] = [];
+const TORN_DASH: number[] = [10, 4];
 
 export class LaceRenderer {
   readonly cache: StripCache;
@@ -254,6 +255,19 @@ export class LaceRenderer {
       const y0 = top + rowTop(l, cur);
       drawRow(ctx, m.liveShape, g, y0, y0 + l.rowH, m.visuals, this.style);
     }
+    // Archivio: le righe registrate dopo la riga corrente (il merletto antico,
+    // sotto il velo) e il segno sfrangiato degli strappi da rammendare.
+    for (let k = 0; k < m.recorded.length; k++) {
+      const shape = m.recorded[k] as LaceModel['recorded'][number];
+      const y0 = top + rowTop(l, shape.index);
+      if (y0 > lace.y + lace.h || y0 + l.rowH < lace.y) continue;
+      drawRow(ctx, shape, g, y0, y0 + l.rowH, m.visuals, this.fixedStyle);
+    }
+    for (let k = 0; k < m.torn.length; k++) {
+      const t = m.torn[k] as LaceModel['torn'][number];
+      this.tornEdge(ctx, l, top + rowTop(l, t.from));
+      this.tornEdge(ctx, l, top + rowBottom(l, t.to));
+    }
     // Velo sulle righe future (dopo la riga corrente).
     if (!m.done) {
       const vy = top + rowBottom(l, cur);
@@ -384,6 +398,27 @@ export class LaceRenderer {
       drawHand(ctx, x, y, this.handPoly);
       ctx.globalAlpha = 1;
     }
+  }
+
+  /** Bordo sfrangiato di uno strappo d'Archivio, a tutta larghezza del merletto. */
+  private tornEdge(ctx: CanvasRenderingContext2D, l: TomboloLayout, y: number): void {
+    if (y < l.lace.y - 6 || y > l.lace.y + l.lace.h + 6) return;
+    const x0 = (l.colX[0] ?? l.center.x) - 6;
+    const x1 = (l.colX[l.cols - 1] ?? l.center.x) + l.colW + 6;
+    ctx.strokeStyle = this.palette.testoTenue;
+    ctx.globalAlpha = 0.7;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash(TORN_DASH);
+    ctx.beginPath();
+    let up = true;
+    for (let x = x0; x <= x1; x += 7) {
+      if (x === x0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y + (up ? -3 : 3));
+      up = !up;
+    }
+    ctx.stroke();
+    ctx.setLineDash(NO_DASH);
+    ctx.globalAlpha = 1;
   }
 
   private drawStacks(ctx: CanvasRenderingContext2D, l: TomboloLayout, stacks: readonly StackView[], y0: number, m: LaceModel | null): void {

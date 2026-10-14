@@ -26,6 +26,12 @@ export interface StackBead {
   id: string;
   type: BeadType;
   delivered: boolean;
+  /**
+   * Lettera in viaggio con il destinatario nella colonna accanto: trema verso
+   * di lui (−1 sinistra, 1 destra; GDD 9 «La lettera di Teresa trema verso Don
+   * Piero», 3.15). 0 = ferma.
+   */
+  tremble: -1 | 0 | 1;
 }
 
 export interface StackView {
@@ -62,8 +68,17 @@ export interface LaceModel {
   hourLabels: string[];
   visuals: Map<ThreadId, ThreadVisual>;
   beadTypes: Map<string, BeadType>;
+  /** Destinatari delle lettere (per farle tremare verso di loro). */
+  recipients: Map<string, ThreadId>;
   /** Echi d'Archivio disponibili (coppia, riga). */
   echoes: { index: number; pair: number }[];
+  /**
+   * Archivio: le righe del merletto antico che vengono dopo la riga corrente e
+   * non sono strappate (si vedono sbiadite: sono il bersaglio del rammendo).
+   */
+  recorded: RowShape[];
+  /** Archivio: strappi ancora da rammendare (indici delle righe, estremi inclusi). */
+  torn: { from: number; to: number }[];
 }
 
 export const BEAD_ORDER: Readonly<Record<BeadType, number>> = { lettera: 0, voce: 1, segreto: 2, febbre: 3, nome: 4 };
@@ -74,17 +89,37 @@ export function beadTypesOf(level: LevelDef): Map<string, BeadType> {
   return m;
 }
 
+/** Destinatari delle lettere del livello (id della lettera → filo). */
+export function letterRecipients(level: LevelDef): Map<string, ThreadId> {
+  const m = new Map<string, ThreadId>();
+  for (const b of level.beads) {
+    if (b.type !== 'lettera' || !b.to) continue;
+    // `to` può essere l'id del filo o il personaggio che lo tesse.
+    const t = level.threads.find((x) => x.id === b.to) ?? level.threads.find((x) => x.character === b.to);
+    m.set(b.id, t ? t.id : b.to);
+  }
+  return m;
+}
+
 /** Perline tenute da ogni filo in uno stato, nell'ordine delle colonne. */
-export function stacksOf(state: LaceState, types: ReadonlyMap<string, BeadType>): StackView[] {
+export function stacksOf(state: LaceState, types: ReadonlyMap<string, BeadType>, recipients?: ReadonlyMap<string, ThreadId>): StackView[] {
   const out: StackView[] = state.pos.map((thread, col) => ({ col, thread, beads: [] as StackBead[] }));
   const byThread = new Map<ThreadId, StackView>();
   for (const s of out) byThread.set(s.thread, s);
   for (const [id, holders] of Object.entries(state.holders)) {
     let type = types.get(id);
     if (!type) type = id.startsWith('letta:') ? 'segreto' : id === 'nome' ? 'nome' : id === 'febbre' ? 'febbre' : 'voce';
+    const delivered = state.delivered.includes(id);
+    const to = type === 'lettera' && !delivered ? recipients?.get(id) : undefined;
     for (const h of holders) {
       const s = byThread.get(h);
-      if (s) s.beads.push({ id, type, delivered: state.delivered.includes(id) });
+      if (!s) continue;
+      let tremble: -1 | 0 | 1 = 0;
+      if (to && to !== h) {
+        if (state.pos[s.col - 1] === to) tremble = -1;
+        else if (state.pos[s.col + 1] === to) tremble = 1;
+      }
+      s.beads.push({ id, type, delivered, tremble });
     }
   }
   for (const s of out) s.beads.sort((a, b) => BEAD_ORDER[a.type] - BEAD_ORDER[b.type] || (a.id < b.id ? -1 : 1));
@@ -122,6 +157,7 @@ export function buildLaceModel(inp: ModelInput, prev: LaceModel | null): LaceMod
   const start = level.startHour;
   const rows = level.endHour - start;
   const types = prev && prev.level === level ? prev.beadTypes : beadTypesOf(level);
+  const recipients = prev && prev.level === level ? prev.recipients : letterRecipients(level);
   const fixed = s.rows.length;
   const done = s.done;
   const current = done ? rows + 1 : fixed + 1;
@@ -151,7 +187,7 @@ export function buildLaceModel(inp: ModelInput, prev: LaceModel | null): LaceMod
     hangState = p.state;
     liveShape = buildRowShape(current, s.hour, s.state.pos, s.rowCrossings(), p.state.pos, p.events, s.state.knotted, types, true);
   }
-  const stacks = stacksOf(hangState, types);
+  const stacks = stacksOf(hangState, types, recipients);
 
   // Spilli.
   const pins: PinView[] = [];
@@ -212,6 +248,25 @@ export function buildLaceModel(inp: ModelInput, prev: LaceModel | null): LaceMod
   const hourLabels = prev && prev.level === level ? prev.hourLabels : Array.from({ length: rows + 1 }, (_, i) => String(start + i));
   const echoes = inp.echoesOpen && s.archive ? s.archive.echoes().map((e) => ({ index: e.hour - start, pair: e.pair })) : [];
 
+  // Archivio: il merletto antico è già finito. Dopo la riga corrente si vedono
+  // le righe registrate (non strappate) e il segno degli strappi da rammendare.
+  const recorded: RowShape[] = [];
+  const torn: LaceModel['torn'] = [];
+  const book = s.mode === 'archivio' ? s.archive : null;
+  if (book && !done) {
+    for (let i = current + 1; i <= rows; i++) {
+      if (book.isHoleRow(start + i)) continue;
+      const reuse = prev && prev.level === level ? prev.recorded.find((r) => r.index === i) : undefined;
+      if (reuse) {
+        recorded.push(reuse);
+        continue;
+      }
+      const r = book.recordedRowAt(i);
+      if (r) recorded.push(buildRowShape(i, r.row.hour, r.before.pos, r.row.crossings, r.after.pos, r.events, r.before.knotted, types, false));
+    }
+    for (const h of book.openHoles()) torn.push({ from: h.from - start, to: h.to - start });
+  }
+
   return {
     version: (prev?.version ?? 0) + 1,
     level,
@@ -232,6 +287,9 @@ export function buildLaceModel(inp: ModelInput, prev: LaceModel | null): LaceMod
     hourLabels,
     visuals: inp.visuals,
     beadTypes: types,
+    recipients,
     echoes,
+    recorded,
+    torn,
   };
 }

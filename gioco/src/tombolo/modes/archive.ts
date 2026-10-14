@@ -13,8 +13,16 @@
  *
  * Questo modulo non disegna: tiene i nomi, gli strappi e il merletto registrato.
  */
-import type { CharacterId, Hour, LaceState, LevelDef, NightParams, RowMoves, ThreadId } from '../../core/types';
+import type { BalanceDef, CharacterId, Hour, LaceEvent, LaceState, LevelDef, NightParams, RowMoves, ThreadId } from '../../core/types';
 import { createContext, sameLace, simulate } from '../../engine/index';
+
+/**
+ * Un merletto d'Archivio è storia: si tesse con le regole di allora, non con i
+ * flag della campagna di oggi (per esempio `riconciliate` toglierebbe le
+ * stranezze di Marta e Teresa ad arc1 e il rammendo non coinciderebbe più con
+ * il merletto registrato). Stesse regole di `levels:check`: flag vuoti.
+ */
+export const ARCHIVE_FLAGS: Readonly<Record<string, never>> = Object.freeze({});
 
 /** L'Archivio è attivo per un livello con `archive` in modo archivio (o con le occasioni, per A6). */
 export function archiveActive(params: Pick<NightParams, 'level' | 'mode'>): boolean {
@@ -36,13 +44,22 @@ export class ArchiveBook {
   private readonly mendedHoles = new Set<number>();
   /** Stati registrati: recordedTimeline[i] = stato all'ora startHour + i. */
   private readonly recordedTimeline: LaceState[];
+  /** Eventi delle righe registrate: recordedEventList[i] = riga dell'ora startHour + i + 1. */
+  private readonly recordedEventList: LaceEvent[][];
+  /** Righe registrate come le ha ricostruite il motore (con gli incroci forzati). */
+  private readonly recordedRowList: RowMoves[];
   private readonly holeRows = new Set<Hour>();
 
-  constructor(private readonly level: LevelDef) {
+  constructor(
+    private readonly level: LevelDef,
+    balance?: Pick<BalanceDef, 'traboccoSoglia' | 'nodoRighe'> | null,
+  ) {
     const a = level.archive;
     const free: LevelDef = { ...level, matassa: Number.MAX_SAFE_INTEGER };
-    const sim = a ? simulate(free, createContext(free, {}), a.recorded) : null;
+    const sim = a ? simulate(free, createContext(free, ARCHIVE_FLAGS, { balance: balance ?? null }), a.recorded) : null;
     this.recordedTimeline = sim ? sim.timeline : [];
+    this.recordedEventList = sim ? sim.events : [];
+    this.recordedRowList = sim ? sim.rows : [];
     for (const h of this.holes()) for (let x = h.from; x <= h.to; x++) this.holeRows.add(x);
   }
 
@@ -151,6 +168,24 @@ export class ArchiveBook {
 
   recordedStates(): readonly LaceState[] {
     return this.recordedTimeline;
+  }
+
+  /**
+   * Riga registrata dell'indice `i` (1 = ora startHour + 1) pronta per il disegno:
+   * stato prima e dopo, incroci (con i forzati) ed eventi. null se non c'è.
+   */
+  recordedRowAt(i: number): { before: LaceState; after: LaceState; row: RowMoves; events: LaceEvent[] } | null {
+    const before = this.recordedTimeline[i - 1];
+    const after = this.recordedTimeline[i];
+    const row = this.recordedRowList[i - 1];
+    const events = this.recordedEventList[i - 1];
+    if (!before || !after || !row || !events) return null;
+    return { before, after, row, events };
+  }
+
+  /** Strappi non ancora rammendati (indici nella lista ordinata di `holes()`). */
+  openHoles(): { from: Hour; to: Hour }[] {
+    return this.holes().filter((_, i) => !this.mendedHoles.has(i));
   }
 
   /** Incroci del giocatore nelle righe strappate (la matassa dell'Archivio). */

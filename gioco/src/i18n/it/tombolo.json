@@ -8,7 +8,12 @@
     "ora": "Ore {ora}",
     "finito": "Merletto chiuso",
     "matassa": "{usata}/{totale}",
-    "matassaAria": "Matassa: {usata} braccia usate su {totale}"
+    "matassaAria": "Matassa: {usata} braccia usate su {totale}",
+    "prologo": "Prologo",
+    "giornata": "Giornata {n}",
+    "finale": "Finale",
+    "archivio": "Archivio",
+    "archivioAnno": "Archivio · {anno}"
   },
   "azioni": {
     "menu": "Menu",

@@ -11,6 +11,9 @@ import type { TomboloLayout } from '../layout';
 import { fitText, place } from './popup';
 
 export interface HudState {
+  /** Giornata ("Giornata 6", "Prologo", "Archivio · 1936"): chiave o vuota. */
+  dayKey: string;
+  dayParams: Record<string, string | number>;
   titleKey: string;
   titleParams: Record<string, string | number>;
   hour: number;
@@ -23,6 +26,8 @@ export interface HudState {
 export class Hud {
   readonly el: HTMLElement;
   private readonly title: HTMLElement;
+  private readonly day: HTMLElement;
+  private readonly name: HTMLElement;
   private readonly hour: HTMLElement;
   private readonly matassa: HTMLElement;
   private readonly matassaText: HTMLElement;
@@ -31,7 +36,10 @@ export class Hud {
   private last = '';
 
   constructor() {
-    this.title = textOf('tombolo.hud.titolo', undefined, 'h1', { className: 'tb-hud-title' });
+    // Titolo su due righe: la giornata (piccola) e il nome del merletto (GDD 10.3).
+    this.day = textOf('tombolo.hud.titolo', undefined, 'span', { className: 'tb-hud-day' });
+    this.name = textOf('tombolo.hud.titolo', undefined, 'span', { className: 'tb-hud-name' });
+    this.title = el('h1', { class: 'tb-hud-title', test: 'tb-hud-titolo' }, this.day, this.name);
     this.hour = textOf('tombolo.hud.ora', { ora: 0 }, 'span', { className: 'tb-hud-hour' });
     this.matassaText = textOf('tombolo.hud.matassa', { usata: 0, totale: 0 }, 'span', { className: 'tb-hud-matassa-text' });
     this.matassaAria = textOf('tombolo.hud.matassaAria', { usata: 0, totale: 0 }, 'span', { className: 'core-sr-only' });
@@ -45,8 +53,13 @@ export class Hud {
     const key = JSON.stringify(s);
     if (key === this.last) return;
     this.last = key;
-    this.title.dataset.i18n = s.titleKey;
-    setTextParams(this.title, s.titleParams);
+    this.day.hidden = !s.dayKey;
+    if (s.dayKey) {
+      this.day.dataset.i18n = s.dayKey;
+      setTextParams(this.day, s.dayParams);
+    }
+    this.name.dataset.i18n = s.titleKey;
+    setTextParams(this.name, s.titleParams);
     this.hour.dataset.i18n = s.done ? 'tombolo.hud.finito' : 'tombolo.hud.ora';
     setTextParams(this.hour, { ora: s.hour });
     this.window.hidden = s.light === null;

@@ -8,7 +8,12 @@
     "ora": "{ora} o'clock",
     "finito": "Lace finished",
     "matassa": "{usata}/{totale}",
-    "matassaAria": "Thread: {usata} of {totale} lengths used"
+    "matassaAria": "Thread: {usata} of {totale} lengths used",
+    "prologo": "Prologue",
+    "giornata": "Day {n}",
+    "finale": "Ending",
+    "archivio": "Archive",
+    "archivioAnno": "Archive · {anno}"
   },
   "azioni": {
     "menu": "Menu",

@@ -362,6 +362,25 @@ export class NightController {
     return out;
   }
 
+  /**
+   * Giornata nella barra alta (GDD 10.3 "Giornata e titolo"): «Prologo»,
+   * «Giornata 6», «Finale», «Archivio · 1936». I merletti generati hanno già la
+   * data o il seme nel titolo: niente riga.
+   */
+  private dayLabel(): { key: string; params: Params } {
+    const lv = this.params.level;
+    if (lv.archive) {
+      const year = (lv.archive.year ?? '').trim();
+      return year ? { key: 'tombolo.hud.archivioAnno', params: { anno: year } } : { key: 'tombolo.hud.archivio', params: {} };
+    }
+    if (lv.kind === 'finale') return { key: 'tombolo.hud.finale', params: {} };
+    const days = this.s.content.campaign?.days ?? [];
+    const i = days.findIndex((d) => d.id === lv.id);
+    if (i === 0) return { key: 'tombolo.hud.prologo', params: {} };
+    if (i > 0) return { key: 'tombolo.hud.giornata', params: { n: i } };
+    return { key: '', params: {} };
+  }
+
   private showMatassa(): boolean {
     const lv = this.params.level;
     const m = this.params.mode;
@@ -391,7 +410,10 @@ export class NightController {
     const s = this.session;
     const lv = this.params.level;
     this.updateOverlayData();
+    const day = this.dayLabel();
     this.hud.update({
+      dayKey: day.key,
+      dayParams: day.params,
       titleKey: lv.titleKey,
       titleParams: this.titleParams(),
       hour: s.done ? lv.endHour : s.hour,
