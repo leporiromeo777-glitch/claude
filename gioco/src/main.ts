@@ -6,11 +6,13 @@
  *    dopo che i servizi esistono; può esportare `register(services)` o lavorare al caricamento.
  * 5. Ciclo e prima scena: 'titolo' se registrata, altrimenti 'boot' (diagnostica).
  * 6. Splash nativo nascosto, storage persistente chiesto sul web; `__GAME__.ready` risolta.
+ * 7. Sul web (non in sviluppo) il service worker che tiene il gioco in cache (SCH-08).
  */
 import { fontsReady } from './core/fonts';
 import './core/ui/theme.css';
 import './core/ui/base.css';
-import { createDebug, registerPackages, showFatal, startCore, type CoreRuntime } from './core/bootstrap';
+import { GAME_VERSION, createDebug, registerPackages, showFatal, startCore, type CoreRuntime } from './core/bootstrap';
+import { registerServiceWorker } from './core/sw';
 
 const debug = createDebug();
 
@@ -32,6 +34,14 @@ async function main(): Promise<void> {
       }
     }
     debug.resolveReady();
+    void registerServiceWorker({
+      dev: import.meta.env.DEV,
+      native: rt.platform.native,
+      version: GAME_VERSION,
+      doc: document,
+      nav: typeof navigator !== 'undefined' ? navigator : null,
+      protocol: location.protocol,
+    });
   } catch (err) {
     showFatal(err, rt?.i18n ?? null);
     rt?.platform.hideSplash();
