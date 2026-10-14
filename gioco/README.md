@@ -1,0 +1,146 @@
+# TRAMA. Il merletto dei giorni
+
+Puzzle narrativo a fuselli: TypeScript + Vite per il web, Capacitor per iOS e Android.
+Il progetto vive tutto in questa cartella (`gioco/`); il resto del repository è un altro sito.
+
+- Design, regole e storia: [`docs/GDD.md`](docs/GDD.md)
+- Architettura, tipi condivisi, pipeline: [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md)
+- Ricerca e motivazioni: [`docs/RICERCA.md`](docs/RICERCA.md)
+
+## Requisiti
+
+- Node 22 o successivo, npm 10.
+- Per i test end-to-end: Chromium di Playwright 1.56.1 (nel container è in `/opt/pw-browsers`).
+- Per gli asset 3D: Blender 5.2 come modulo Python (`BLENDER_PY`), vedi `tools/blender/README.md`.
+- Per le app native: Android Studio 2025.2.1+ e/o Xcode 26+ (vedi `docs/STORE.md`).
+
+## Comandi
+
+```bash
+npm install          # dipendenze
+npm run dev          # server di sviluppo (vite --host)
+npm run build        # typecheck (tsc) + build in dist/
+npm test             # test unitari (Vitest)
+npm run test:e2e     # test end-to-end (Playwright, 5 dispositivi)
+npm run ci           # build + test + levels:check + test:e2e
+```
+
+| Script | Comando |
+|---|---|
+| `dev` | `vite --host` |
+| `build` | `tsc --noEmit && vite build` |
+| `preview` | `vite preview --host --port 4173` |
+| `test` | `vitest run` |
+| `test:e2e` | `playwright test` |
+| `levels:check` | `tsx tools/levels/check.ts` (solver: verifica i livelli, scrive i `.computed.json`) |
+| `assets:render` | `bash tools/blender/render_all.sh` (Blender, Cycles su CPU) |
+| `assets:native` | `capacitor-assets generate …` (icone e splash nativi da `assets/`) |
+| `app:sync` | `npm run build && cap sync` |
+| `app:android` / `app:ios` | build, sync e apertura in Android Studio / Xcode |
+| `app:run:android` / `app:run:ios` | build e avvio su dispositivo o emulatore |
+| `android:apk` | APK di debug (`scripts/android-build.sh assembleDebug`) |
+| `release:android` / `release:ios` | pacchetti firmati per gli store |
+| `ci` | verifica completa |
+
+Test end-to-end: il server di prova è `npm run build && vite preview` sulla porta **4173**
+(build con `VITE_E2E=1`, quindi `window.__GAME__` sempre attivo). Variabili utili:
+`E2E_PORT=5201` per usare un'altra porta, `E2E_REUSE=1` per riusare un server già avviato.
+Mai `--use-angle=swiftshader`.
+
+## Struttura
+
+```
+src/main.ts            avvio (ARCHITETTURA 3.1)
+src/core/              servizi condivisi (fondamenta)
+  types.ts             contratto fra i pacchetti (congelato)
+  ids.ts               elenchi a runtime degli identificatori di types.ts
+  services.ts          `services` e `registerAudio`
+  bootstrap.ts         creazione e collegamento dei servizi, API di debug `core`
+  events.ts loop.ts input.ts gestures.ts keymap.ts viewport.ts canvas.ts scenes.ts
+  save/                salvataggi (slot alternati, checksum, migrazioni, export/import)
+  i18n.ts settings.ts platform.ts haptics.ts entitlements.ts assets.ts placeholders.ts
+  rng.ts debug.ts fonts.ts audio-stub.ts boot.scene.ts
+  ui/                  dom.ts, components.ts, richtext.ts, glyphs.ts, layer.ts, theme.css, base.css
+src/content/           contenuti JSON + loader.ts e validate.ts
+src/<pacchetto>/       engine, tombolo, campaign, screens, audio: ognuno con il suo register.ts
+src/i18n/<it|en>/      testi d'interfaccia, un namespace per pacchetto
+tests/unit/<pacchetto> test unitari; tests/e2e/ test end-to-end
+```
+
+## Come si aggancia un pacchetto
+
+Ogni pacchetto ha `src/<pacchetto>/register.ts`. Il core lo carica **dopo** aver creato i
+servizi (glob `./*/register.ts`, in ordine alfabetico) e chiama la funzione esportata:
+
+```ts
+// src/tombolo/register.ts
+import type { Services } from '../core/types';
+import './tombolo.css';
+export function register(s: Services): void {
+  s.scenes.register('tombolo', () => new TomboloScene(s));
+  s.debug.register('night', { state: () => …, fix: () => … });
+}
+```
+
+Si può esportare `register` (o `default`), anche asincrona. `services` (da `src/core/services.ts`)
+si può importare ovunque, ma va usato da `register()` in poi: prima dell'avvio dà un errore chiaro.
+Il pacchetto audio chiama `registerAudio(engine)` per sostituire lo stub.
+
+## Contratti del core in breve
+
+**Scene.** `services.scenes.register(id, factory)` e `go(id, params, { transition: 'fade' | 'none' })`.
+La scena attiva riceve `update(dt)` a passo fisso (1/60 s), `render(alpha, host)` in px CSS,
+`resize(vp)`, `onAction`, `onGesture`, `onBack`. Le scene senza `render` lasciano il canvas di
+velluto. All'avvio si va a `titolo` se registrata, altrimenti alla scena diagnostica `boot`.
+
+**Input.** Gesti (`tap`, `longpress`, `dragstart/drag/dragend/dragcancel`, `wheel`) in px CSS
+relativi al canvas; tastiera mappata in `ActionEvent` secondo GDD 11.3 (tabella in
+`src/core/keymap.ts`: Invio → `confirm`, Spazio → `crossL`, Maiusc+Spazio → `crossR`,
+Tab → `notebook`, Esc → `back`, 1-6 → `select` con `index`…). `input.pushLayer(nome)` apre un
+livello modale: ricevono azioni e gesti solo i gestori registrati mentre quel livello è in cima.
+Indietro (Esc, tasto Android): overlay in cima → `scene.onBack()` → nel titolo, su nativo,
+conferma di uscita. L'audio si sblocca al primo `pointerdown`/`pointerup`/`keydown`.
+
+**Interfaccia.** `#ui-root` sta sopra il canvas e lascia passare i tocchi: ricevono eventi solo
+i controlli e gli elementi con la classe `core-solid`. Le scene mettono il loro DOM in
+`ui.sceneRoot` (o in `ui.root`). `ui.registerPanel`, `mountPanel`, `openOverlay` (si chiude con
+Indietro; la Promise si risolve alla chiusura; un pannello non registrato mostra un segnaposto),
+`toast`, `confirm` (pulsante sicuro a sinistra). Componenti a tema in `src/core/ui/components.ts`
+(`button`, `iconButton`, `panel`, `tabs`, `slider`, `toggle`, `paperCard`, `modal`, `menuList`,
+`textOf`): bersagli ≥ 48 px, fuoco visibile, testi da chiavi i18n che si riscrivono da soli al
+cambio di lingua. Glifi (icone dei personaggi e dei luoghi, icone d'interfaccia) in
+`src/core/ui/glyphs.ts`, per il DOM (`svgIcon`) e per il canvas (`drawGlyph`). Usare
+`data-test` stabili sugli elementi interattivi. Prefissi CSS: `core-`, `tb-`, `cp-`, `sc-`.
+
+**Testi.** Chiave completa `<namespace>.<percorso>`; ogni pacchetto scrive solo il proprio
+namespace (`src/i18n/<it|en>/<ns>.json`, testi narrativi in `src/content/text/<it|en>/`).
+`{nome}`, `{n, plural, =0 {…} one {# …} other {# …}}`, `{x, select, …}`. Nel testo ricco
+(`richText(key, params)`): `*corsivo*`, `**grassetto**`, `[[teresa]]`, a capo. Mai `innerHTML`.
+
+**Impostazioni.** Dentro il salvataggio. Su `<html>`: `--text-scale`, `data-contrast="alto|normale"`,
+`data-motion="ridotto|normale"`, `data-anim-speed`, `--anim-speed`, `lang`. Evento `settings:change`.
+
+**Salvataggi.** `save.update(mut, { immediate?, reason? })`: scritture raggruppate (una ogni 2 s),
+immediate quando serve; slot `trama.v1.a`/`trama.v1.b` con checksum FNV-1a; export
+`TRAMA-SAVE-1:` + base64url.
+
+**Asset.** `public/assets/manifest.json` (formato `AssetManifest`, percorsi relativi a
+`public/assets/`). `assets.frame(nome)` e `assets.image(nome)` danno sempre qualcosa: se
+l'asset manca, un segnaposto disegnato in codice. `assets.missing()` elenca i mancanti.
+Se il manifest non esiste al momento della build, il gioco non lo chiede nemmeno.
+
+**Debug.** `window.__GAME__` (in sviluppo, con `?debug=1`, nelle build `VITE_E2E=1`):
+`ready`, `namespaces()`, `core.*` (ARCHITETTURA 15.1: `scene`, `goto`, `save`, `setSettings`,
+`wipe`, `exportSave`, `importSave`, `viewport`, `events`, `emit`, `perf`, `time.pause/resume/step/setSpeed`,
+`missingAssets`, `missingKeys`, più `validate`, `flush`, `input.tap/drag/action`…).
+Ogni pacchetto registra il suo namespace con `services.debug.register(ns, api)`.
+
+## Convenzioni
+
+TypeScript `strict` con `noUncheckedIndexedAccess`, niente `any`. Nomi di dominio in italiano,
+nomi tecnici in inglese, commenti in italiano. Nessuna stringa visibile nel codice: sempre i18n.
+Nessuna richiesta di rete a runtime (tranne gli asset locali). Il motore non usa `Math.random()`
+né `Date.now()`: usa `src/core/rng.ts`. Nel codice del browser i timer si tipizzano con
+`ReturnType<typeof setTimeout>` (sono presenti anche i tipi di Node).
+
+Font: Atkinson Hyperlegible, EB Garamond, Caveat (SIL Open Font License), inclusi nel bundle.

@@ -1,0 +1,117 @@
+{
+  "app": {
+    "titolo": "TRAMA",
+    "sottotitolo": "Il merletto dei giorni"
+  },
+  "boot": {
+    "titolo": "Diagnostica",
+    "schermo": "Schermo",
+    "viewport": "{w} × {h} px · densità {dpr} · disposizione {layout} · {orientamento}",
+    "safe": "Area sicura: alto {top} · destra {right} · basso {bottom} · sinistra {left}",
+    "dispositivo": "Ultimo comando da: {dispositivo}",
+    "lingua": "Lingua",
+    "versione": "Versione {versione}",
+    "log": {
+      "titolo": "Gesti e azioni",
+      "vuoto": "Tocca, trascina, usa la rotella o la tastiera: qui compare quello che il gioco riceve.",
+      "gesto": "{gesto} · {x}, {y}",
+      "trascina": "{gesto} · {x}, {y} (Δ {dx}, {dy})",
+      "azione": "Tasto · {azione}",
+      "azioneIndice": "Tasto · {azione} {indice}"
+    },
+    "asset": {
+      "titolo": "{n, plural, =0 {Nessun asset mancante} one {# asset mancante} other {# asset mancanti}}",
+      "segnaposto": "Al loro posto si vedono i segnaposto disegnati in codice.",
+      "altri": "…e {n, plural, one {un altro} other {altri #}}"
+    },
+    "contenuti": {
+      "titolo": "Contenuti",
+      "conteggi": "{livelli, plural, =0 {nessun livello} one {# livello} other {# livelli}} · {personaggi, plural, =0 {nessun personaggio} one {# personaggio} other {# personaggi}} · {bigliettini, plural, =0 {nessun bigliettino} one {# bigliettino} other {# bigliettini}}",
+      "validi": "Dati validi.",
+      "errori": "{n, plural, one {# errore nei dati} other {# errori nei dati}} (dettagli in console)."
+    },
+    "scene": "Scene: {elenco}",
+    "pacchetti": "Pacchetti: {elenco}",
+    "nessuno": "nessuno"
+  },
+  "layout": {
+    "stretto": "stretta",
+    "largo": "larga"
+  },
+  "orientamento": {
+    "portrait": "verticale",
+    "landscape": "orizzontale"
+  },
+  "dispositivo": {
+    "mouse": "mouse",
+    "touch": "tocco",
+    "keyboard": "tastiera"
+  },
+  "gesto": {
+    "tap": "Tocco",
+    "longpress": "Pressione lunga",
+    "dragstart": "Inizio trascinamento",
+    "drag": "Trascinamento",
+    "dragend": "Fine trascinamento",
+    "dragcancel": "Trascinamento annullato",
+    "wheel": "Rotella"
+  },
+  "azione": {
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "pause": "Pausa",
+    "undo": "Disfa",
+    "fixHour": "Fissa l'ora",
+    "notebook": "Taccuino",
+    "hint": "Suggerimento",
+    "name": "Appunta il nome",
+    "left": "Sinistra",
+    "right": "Destra",
+    "up": "Su",
+    "down": "Giù",
+    "pageUp": "Pagina su",
+    "pageDown": "Pagina giù",
+    "crossL": "Incrocia, sinistro sopra",
+    "crossR": "Incrocia, destro sopra",
+    "flip": "Rovescia",
+    "select": "Scegli il filo",
+    "skip": "Salta",
+    "auto": "Avanzamento automatico",
+    "tab": "Scheda successiva"
+  },
+  "lingua": {
+    "it": "Italiano",
+    "en": "English"
+  },
+  "ui": {
+    "ok": "Va bene",
+    "annulla": "Annulla",
+    "chiudi": "Chiudi",
+    "indietro": "Indietro",
+    "si": "Sì",
+    "no": "No",
+    "pannello": "Pannello «{id}»",
+    "pannelloAssente": "Questo pannello non è ancora pronto."
+  },
+  "uscita": {
+    "titolo": "Vuoi chiudere Trama?",
+    "corpo": "Il merletto è già salvato.",
+    "ok": "Esci",
+    "annulla": "Resta"
+  },
+  "save": {
+    "memoria": "Non riesco a salvare su questo dispositivo: i progressi restano solo finché il gioco è aperto.",
+    "corrotto": "Un salvataggio era rovinato: ho ripreso quello precedente.",
+    "perso": "I salvataggi erano rovinati: si ricomincia da capo.",
+    "import": {
+      "formato": "Questo testo non è un salvataggio di Trama.",
+      "checksum": "Il salvataggio è incompleto o è stato modificato.",
+      "versione": "Il salvataggio viene da una versione più nuova del gioco.",
+      "ok": "Salvataggio importato."
+    }
+  },
+  "errore": {
+    "avvio": "Qualcosa non è andato: il gioco non è partito.",
+    "ricarica": "Ricarica"
+  }
+}

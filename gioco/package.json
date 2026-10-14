@@ -1,0 +1,55 @@
+{
+  "name": "trama",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TRAMA. Il merletto dei giorni: puzzle narrativo a fuselli (web + Capacitor)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host --port 4173",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "levels:check": "tsx tools/levels/check.ts",
+    "assets:render": "bash tools/blender/render_all.sh",
+    "assets:native": "capacitor-assets generate --ios --android --iconBackgroundColor '#1C2233' --iconBackgroundColorDark '#1C2233' --splashBackgroundColor '#1C2233' --splashBackgroundColorDark '#1C2233'",
+    "app:sync": "npm run build && cap sync",
+    "app:android": "npm run build && cap sync android && cap open android",
+    "app:ios": "npm run build && cap sync ios && cap open ios",
+    "app:run:android": "npm run build && cap run android",
+    "app:run:ios": "npm run build && cap run ios",
+    "android:apk": "npm run app:sync && bash scripts/android-build.sh assembleDebug",
+    "release:android": "bash scripts/release-android.sh",
+    "release:ios": "bash scripts/release-ios.sh",
+    "ci": "npm run build && npm test && npm run levels:check && npm run test:e2e"
+  },
+  "dependencies": {
+    "@capacitor-community/keep-awake": "8.0.1",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.5.3",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/screen-orientation": "8.0.2",
+    "@capacitor/share": "8.0.3",
+    "@capacitor/splash-screen": "8.0.2",
+    "@fontsource/atkinson-hyperlegible": "5.3.0",
+    "@fontsource/caveat": "5.3.0",
+    "@fontsource/eb-garamond": "5.3.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.3",
+    "@playwright/test": "1.56.1",
+    "@types/node": "22.20.5",
+    "happy-dom": "21.0.1",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.4"
+  }
+}

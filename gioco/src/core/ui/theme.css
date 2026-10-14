@@ -1,0 +1,128 @@
+/*
+ * Token della palette "Velluto e filo" (GDD 12.2) e varianti di accessibilità.
+ * Alto contrasto: <html data-contrast="alto">. Movimento ridotto: <html data-motion="ridotto">.
+ * Le classi del core hanno il prefisso core-; gli altri pacchetti usano tb-, cp-, sc-.
+ */
+:root {
+  /* Mondo e interfaccia */
+  --velluto: #1C2233;
+  --velluto-luce: #2A3247;
+  --velluto-ombra: #121622;
+  --legno: #B89B72;
+  --legno-scuro: #6E5539;
+  --carta: #EDE4D3;
+  --carta-ombra: #D8CCB4;
+  --inchiostro: #2B2622;
+  --seppia: #6B4A2F;
+  --laguna: #7F918C;
+  --mattone-spento: #9A6B5A;
+  --ocra-spenta: #B59A6A;
+  --alba: #D9C3B0;
+  --ottone: #C9A24A;
+  --spillo-rosso: #C8372D;
+  --spillo-verde: #4E9A5B;
+  --testo-chiaro: #F3EEE4;
+  --errore: #E0604F;
+
+  /* Fili (GDD 5.4) */
+  --filo-teresa: #2F5DA8;
+  --filo-marta: #C0442C;
+  --filo-piero: #6E3D96;
+  --filo-gino: #4FB3E0;
+  --filo-bepi: #E07B24;
+  --filo-nina: #E8C12E;
+  --filo-zeno: #1F8A78;
+  --filo-lunardi: #D9DEE3;
+  --filo-livia: #15110E;
+  --filo-livia-riflesso: #3B2F27;
+  --filo-ada: #F07C6C;
+  --filo-clotilde: #EFE3C8;
+  --filo-lino: #8E8676;
+  --filo-bordo: transparent;
+
+  /* Perline */
+  --perla-lettera: #F2EBDD;
+  --perla-sigillo: #B3261E;
+  --perla-voce: #FFF4C2;
+  --perla-segreto: #101010;
+  --perla-febbre: #7A9A3A;
+  --perla-nome: #F5EFE6;
+  --perla-nome-alone: #F07C6C;
+
+  /* Caratteri */
+  --font-ui: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-libro: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-mano: 'Caveat', 'EB Garamond', cursive;
+
+  /* Misure */
+  --text-scale: 1;
+  --anim-speed: 1;
+  --tocco: 48px;
+  --tocco-medio: 56px;
+  --tocco-grande: 64px;
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 24px;
+  --spazio-6: 32px;
+  --raggio: 6px;
+  --raggio-grande: 12px;
+  --larghezza-stretta: 520px;
+  --ombra: 0 6px 18px rgba(8, 10, 16, 0.45);
+  --durata-breve: 150ms;
+  --durata: 250ms;
+
+  /* Safe area: la vera (env) o quella iniettata da SystemBars/test (--safe-area-inset-*). */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+
+  /* Ruoli */
+  --sfondo: var(--velluto);
+  --pannello: var(--velluto-luce);
+  --testo: var(--testo-chiaro);
+  --testo-tenue: #B9B3A6;
+  --fuoco: var(--ottone);
+  --primario: var(--ottone);
+  --primario-testo: #1A1610;
+  --pericolo: #B8322A;
+  --bordo-pannello: rgba(201, 162, 74, 0.35);
+  --velo: rgba(12, 14, 22, 0.72);
+}
+
+:root[data-contrast='alto'] {
+  --velluto: #0B0D14;
+  --velluto-luce: #161A26;
+  --velluto-ombra: #050609;
+  --carta: #F7F1E6;
+  --carta-ombra: #CDBF9F;
+  --inchiostro: #000000;
+  --seppia: #4A2E18;
+  --testo-chiaro: #FFFFFF;
+  --testo-tenue: #E2DDD2;
+  --filo-lino: #B5AE9F;
+  --filo-bordo: #F3EEE4;
+  --ottone: #E0B94F;
+  --errore: #FF7A68;
+  --bordo-pannello: rgba(255, 255, 255, 0.75);
+  --velo: rgba(0, 0, 0, 0.85);
+}
+
+:root[data-motion='ridotto'] {
+  --durata-breve: 0ms;
+  --durata: 0ms;
+}
+
+:root[data-motion='ridotto'] *,
+:root[data-motion='ridotto'] *::before,
+:root[data-motion='ridotto'] *::after,
+:root[data-anim-speed='0'] *,
+:root[data-anim-speed='0'] *::before,
+:root[data-anim-speed='0'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

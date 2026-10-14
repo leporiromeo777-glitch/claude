@@ -1,0 +1,117 @@
+{
+  "app": {
+    "titolo": "TRAMA",
+    "sottotitolo": "The lace of days"
+  },
+  "boot": {
+    "titolo": "Diagnostics",
+    "schermo": "Screen",
+    "viewport": "{w} × {h} px · density {dpr} · {layout} layout · {orientamento}",
+    "safe": "Safe area: top {top} · right {right} · bottom {bottom} · left {left}",
+    "dispositivo": "Last input from: {dispositivo}",
+    "lingua": "Language",
+    "versione": "Version {versione}",
+    "log": {
+      "titolo": "Gestures and actions",
+      "vuoto": "Tap, drag, scroll or use the keyboard: what the game receives shows up here.",
+      "gesto": "{gesto} · {x}, {y}",
+      "trascina": "{gesto} · {x}, {y} (Δ {dx}, {dy})",
+      "azione": "Key · {azione}",
+      "azioneIndice": "Key · {azione} {indice}"
+    },
+    "asset": {
+      "titolo": "{n, plural, =0 {No missing assets} one {# missing asset} other {# missing assets}}",
+      "segnaposto": "Placeholders drawn in code are shown instead.",
+      "altri": "…and {n, plural, one {one more} other {# more}}"
+    },
+    "contenuti": {
+      "titolo": "Content",
+      "conteggi": "{livelli, plural, =0 {no levels} one {# level} other {# levels}} · {personaggi, plural, =0 {no characters} one {# character} other {# characters}} · {bigliettini, plural, =0 {no notes} one {# note} other {# notes}}",
+      "validi": "Data is valid.",
+      "errori": "{n, plural, one {# data error} other {# data errors}} (details in the console)."
+    },
+    "scene": "Scenes: {elenco}",
+    "pacchetti": "Packages: {elenco}",
+    "nessuno": "none"
+  },
+  "layout": {
+    "stretto": "narrow",
+    "largo": "wide"
+  },
+  "orientamento": {
+    "portrait": "portrait",
+    "landscape": "landscape"
+  },
+  "dispositivo": {
+    "mouse": "mouse",
+    "touch": "touch",
+    "keyboard": "keyboard"
+  },
+  "gesto": {
+    "tap": "Tap",
+    "longpress": "Long press",
+    "dragstart": "Drag start",
+    "drag": "Drag",
+    "dragend": "Drag end",
+    "dragcancel": "Drag cancelled",
+    "wheel": "Wheel"
+  },
+  "azione": {
+    "confirm": "Confirm",
+    "back": "Back",
+    "pause": "Pause",
+    "undo": "Undo",
+    "fixHour": "Fix the hour",
+    "notebook": "Notebook",
+    "hint": "Hint",
+    "name": "Pin your name",
+    "left": "Left",
+    "right": "Right",
+    "up": "Up",
+    "down": "Down",
+    "pageUp": "Page up",
+    "pageDown": "Page down",
+    "crossL": "Cross, left on top",
+    "crossR": "Cross, right on top",
+    "flip": "Flip",
+    "select": "Pick the thread",
+    "skip": "Skip",
+    "auto": "Auto-advance",
+    "tab": "Next tab"
+  },
+  "lingua": {
+    "it": "Italiano",
+    "en": "English"
+  },
+  "ui": {
+    "ok": "OK",
+    "annulla": "Cancel",
+    "chiudi": "Close",
+    "indietro": "Back",
+    "si": "Yes",
+    "no": "No",
+    "pannello": "Panel “{id}”",
+    "pannelloAssente": "This panel is not ready yet."
+  },
+  "uscita": {
+    "titolo": "Close Trama?",
+    "corpo": "The lace is already saved.",
+    "ok": "Quit",
+    "annulla": "Stay"
+  },
+  "save": {
+    "memoria": "Saving is not possible on this device: progress lasts only while the game is open.",
+    "corrotto": "A save was damaged: the previous one has been restored.",
+    "perso": "The saves were damaged: starting over.",
+    "import": {
+      "formato": "This text is not a Trama save.",
+      "checksum": "The save is incomplete or has been modified.",
+      "versione": "The save comes from a newer version of the game.",
+      "ok": "Save imported."
+    }
+  },
+  "errore": {
+    "avvio": "Something went wrong: the game could not start.",
+    "ricarica": "Reload"
+  }
+}

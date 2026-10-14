@@ -1,0 +1,629 @@
+/*
+ * Base del gioco (ARCHITETTURA 5.1, 7, 8): reset, niente comportamenti da
+ * browser, struttura a strati e componenti del core.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(17px * var(--text-scale));
+  height: 100dvh;
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: var(--font-ui);
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--sfondo);
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+}
+
+/* ───────── Strati ───────── */
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sfondo);
+}
+
+#scene-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+#ui-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Ricevono i tocchi solo i controlli e gli elementi "solidi". */
+#ui-root :is(button, input, select, textarea, a[href], label, [role='button'], [role='switch'], [role='tab'], [role='slider'], .core-solid) {
+  pointer-events: auto;
+}
+
+#safe-probe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+  padding-top: var(--safe-top);
+  padding-right: var(--safe-right);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+}
+
+.core-scene,
+.core-overlays,
+.core-modals,
+.core-toasts,
+.core-captions,
+.core-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.core-scene {
+  z-index: 1;
+}
+.core-overlays {
+  z-index: 100;
+}
+.core-modals {
+  z-index: 200;
+}
+.core-captions {
+  z-index: 250;
+}
+.core-toasts {
+  z-index: 300;
+}
+.core-fade {
+  z-index: 400;
+  background: var(--sfondo);
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease-in-out;
+}
+.core-fade--attiva {
+  pointer-events: auto;
+}
+
+/* Area utile dentro la safe area: le scene possono usarla come contenitore. */
+.core-sicura {
+  position: absolute;
+  top: var(--safe-top);
+  right: var(--safe-right);
+  bottom: var(--safe-bottom);
+  left: var(--safe-left);
+}
+
+/* ───────── Fuoco visibile ───────── */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 3px solid var(--fuoco);
+  outline-offset: 3px;
+  border-radius: var(--raggio);
+}
+
+/* ───────── Pulsanti ───────── */
+.core-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-2);
+  min-width: var(--tocco);
+  min-height: var(--tocco);
+  padding: var(--spazio-2) var(--spazio-4);
+  border: 2px solid transparent;
+  border-radius: var(--raggio);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--durata-breve), transform var(--durata-breve), border-color var(--durata-breve);
+}
+.core-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+.core-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.core-btn--primario {
+  background: var(--primario);
+  color: var(--primario-testo);
+  border-color: color-mix(in srgb, var(--primario) 70%, black);
+}
+.core-btn--secondario {
+  background: var(--velluto-luce);
+  color: var(--testo);
+  border-color: var(--bordo-pannello);
+}
+.core-btn--pericolo {
+  background: var(--pericolo);
+  color: #FFF8F0;
+  border-color: color-mix(in srgb, var(--pericolo) 70%, black);
+}
+.core-btn--testo {
+  background: transparent;
+  color: var(--testo);
+}
+.core-btn--carta {
+  background: var(--carta);
+  color: var(--inchiostro);
+  border-color: var(--carta-ombra);
+}
+.core-btn--grande {
+  min-height: var(--tocco-grande);
+  padding: var(--spazio-3) var(--spazio-5);
+  font-size: 1.1rem;
+}
+.core-btn--blocco {
+  display: flex;
+  width: 100%;
+}
+.core-btn--icona {
+  width: var(--btn-size, var(--tocco));
+  height: var(--btn-size, var(--tocco));
+  min-width: var(--btn-size, var(--tocco));
+  min-height: var(--btn-size, var(--tocco));
+  padding: 0;
+  border-radius: 50%;
+}
+.core-btn-label {
+  overflow-wrap: anywhere;
+}
+.core-icon {
+  flex: none;
+}
+
+/* ───────── Pannelli e carta ───────── */
+.core-panel {
+  border-radius: var(--raggio-grande);
+  padding: var(--spazio-4);
+  box-shadow: var(--ombra);
+}
+.core-panel--carta {
+  background: var(--carta);
+  color: var(--inchiostro);
+  border: 1px solid var(--carta-ombra);
+  font-family: var(--font-libro);
+}
+.core-panel--velluto {
+  background: color-mix(in srgb, var(--velluto-luce) 92%, transparent);
+  color: var(--testo);
+  border: 1px solid var(--bordo-pannello);
+}
+.core-panel-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--spazio-3);
+  overflow-wrap: anywhere;
+}
+.core-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.core-carta {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--carta-colore, var(--carta));
+  color: var(--inchiostro-colore, var(--inchiostro));
+  border: 1px solid var(--carta-ombra);
+  border-radius: 3px;
+  padding: var(--spazio-4) var(--spazio-4) var(--spazio-5);
+  box-shadow: 0 3px 10px rgba(8, 10, 16, 0.35);
+  font-family: var(--font-libro);
+  font-size: 1.05rem;
+}
+button.core-carta {
+  cursor: pointer;
+  min-height: var(--tocco);
+}
+.core-carta--mano .core-carta-testo {
+  font-family: var(--mano-font, var(--font-mano));
+  font-size: calc(1.35rem * var(--mano-scala, 1));
+  line-height: 1.25;
+  text-transform: var(--mano-maiuscole, none);
+  transform: rotate(var(--mano-inclinazione, 0deg));
+  transform-origin: left top;
+}
+:root[data-contrast='alto'] .core-carta {
+  background: var(--carta);
+  color: var(--inchiostro);
+}
+
+/* ───────── Menu, schede, cursori, interruttori ───────── */
+.core-menu {
+  display: flex;
+  gap: var(--spazio-2);
+}
+.core-menu--vertical {
+  flex-direction: column;
+}
+.core-menu--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.core-tabs {
+  display: flex;
+  gap: var(--spazio-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.core-tab {
+  display: inline-flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-1);
+  min-height: var(--tocco);
+  min-width: var(--tocco);
+  padding: var(--spazio-1) var(--spazio-3);
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.core-tab--attiva {
+  border-bottom-color: var(--ottone);
+}
+
+.core-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+.core-slider-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+}
+.core-slider-label {
+  overflow-wrap: anywhere;
+}
+.core-slider-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-tenue);
+}
+.core-slider-input {
+  width: 100%;
+  min-height: var(--tocco);
+  accent-color: var(--ottone);
+  touch-action: pan-y;
+  cursor: pointer;
+}
+
+.core-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  width: 100%;
+  min-height: var(--tocco);
+  padding: var(--spazio-2) 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.core-toggle-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.core-toggle-label {
+  overflow-wrap: anywhere;
+}
+.core-toggle-desc {
+  font-size: 0.9rem;
+  color: var(--testo-tenue);
+}
+.core-toggle-track {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 30px;
+  border-radius: 15px;
+  background: var(--velluto-ombra);
+  border: 2px solid var(--bordo-pannello);
+  transition: background-color var(--durata-breve);
+}
+.core-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--testo-tenue);
+  transition: transform var(--durata-breve), background-color var(--durata-breve);
+}
+.core-toggle[aria-checked='true'] .core-toggle-track {
+  background: color-mix(in srgb, var(--ottone) 45%, var(--velluto-ombra));
+}
+.core-toggle[aria-checked='true'] .core-toggle-knob {
+  transform: translateX(22px);
+  background: var(--ottone);
+}
+
+/* ───────── Overlay, conferme ───────── */
+.core-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--safe-top) + var(--spazio-4)) calc(var(--safe-right) + var(--spazio-4))
+    calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
+  background: var(--velo);
+}
+.core-overlay-box {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.core-overlay-box.core-overlay-full {
+  width: 100%;
+  height: 100%;
+}
+.core-overlay-close {
+  position: absolute;
+  top: calc(var(--safe-top) + var(--spazio-2));
+  right: calc(var(--safe-right) + var(--spazio-2));
+  z-index: 1;
+  background: var(--velluto-luce);
+  border: 2px solid var(--bordo-pannello);
+}
+
+.core-modal-host {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--safe-top) + var(--spazio-4)) calc(var(--safe-right) + var(--spazio-4))
+    calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
+  background: var(--velo);
+}
+.core-modal {
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: var(--spazio-5);
+  border-radius: var(--raggio-grande);
+  background: var(--carta);
+  color: var(--inchiostro);
+  border: 1px solid var(--carta-ombra);
+  box-shadow: var(--ombra);
+}
+.core-modal-title {
+  font-family: var(--font-libro);
+  font-size: 1.35rem;
+  margin-bottom: var(--spazio-3);
+  overflow-wrap: anywhere;
+}
+.core-modal-body {
+  font-family: var(--font-libro);
+  font-size: 1.05rem;
+  margin-bottom: var(--spazio-5);
+  overflow-wrap: anywhere;
+}
+.core-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  justify-content: space-between;
+}
+.core-modal-actions > .core-btn {
+  flex: 1 1 140px;
+}
+
+/* ───────── Avvisi e didascalie ───────── */
+.core-toasts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spazio-2);
+  padding: 0 calc(var(--safe-right) + var(--spazio-4)) calc(var(--safe-bottom) + 96px) calc(var(--safe-left) + var(--spazio-4));
+}
+.core-toast {
+  max-width: min(var(--larghezza-stretta), 100%);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  box-shadow: var(--ombra);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--durata), transform var(--durata);
+}
+.core-toast[data-kind='ok'] {
+  border-left: 6px solid var(--spillo-verde);
+}
+.core-toast[data-kind='warn'] {
+  border-left: 6px solid var(--spillo-rosso);
+}
+.core-toast.core-visibile,
+.core-caption.core-visibile {
+  opacity: 1;
+  transform: none;
+}
+.core-captions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  padding: 0 0 calc(var(--safe-bottom) + 96px) calc(var(--safe-left) + var(--spazio-3));
+}
+.core-caption {
+  max-width: min(320px, 70vw);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+  background: rgba(8, 10, 16, 0.78);
+  color: var(--testo-chiaro);
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity var(--durata);
+}
+
+/* ───────── Testo ricco ───────── */
+.core-pers {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font-weight: 700;
+  color: var(--inchiostro);
+  color: color-mix(in srgb, var(--pers-color) 62%, var(--inchiostro));
+  border-bottom: 3px solid var(--pers-color);
+  white-space: nowrap;
+}
+.core-pers-icon {
+  align-self: center;
+  color: var(--pers-color);
+}
+.core-panel--velluto .core-pers,
+.core-scene .core-pers {
+  color: var(--testo-chiaro);
+  color: color-mix(in srgb, var(--pers-color) 55%, var(--testo-chiaro));
+}
+
+/* Chiavi i18n mancanti (solo in sviluppo). */
+.core-missing-key {
+  outline: 2px solid #FF2B2B;
+  outline-offset: 1px;
+}
+
+/* ───────── Scena di avvio (diagnostica) ───────── */
+.core-boot {
+  position: absolute;
+  top: calc(var(--safe-top) + var(--spazio-3));
+  left: calc(var(--safe-left) + var(--spazio-3));
+  right: calc(var(--safe-right) + var(--spazio-3));
+  bottom: calc(var(--safe-bottom) + 170px);
+  display: flex;
+  justify-content: center;
+}
+.core-boot-panel {
+  width: min(640px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: 0.95rem;
+}
+.core-boot-title {
+  font-family: var(--font-libro);
+  font-size: 2rem;
+  letter-spacing: 0.18em;
+  color: var(--ottone);
+}
+.core-boot-sub {
+  font-family: var(--font-libro);
+  font-style: italic;
+  color: var(--testo-tenue);
+  margin-bottom: var(--spazio-3);
+}
+.core-boot-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-pannello);
+}
+.core-boot-h {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ottone);
+}
+.core-boot-list {
+  margin: 0;
+  padding-left: 1.1em;
+  overflow-wrap: anywhere;
+}
+.core-boot-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.core-boot-muted {
+  color: var(--testo-tenue);
+}

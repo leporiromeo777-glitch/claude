@@ -1,0 +1,46 @@
+# Dipendenze e build
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# Test
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# Build native (i progetti android/ e ios/ sono versionati, i loro prodotti no)
+android/app/build/
+android/build/
+android/.gradle/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+android/app/release/
+*.apk
+*.aab
+ios/App/build/
+ios/App/DerivedData/
+ios/App/Pods/
+ios/App/output/
+*.ipa
+*.xcarchive
+xcuserdata/
+
+# Chiavi di firma: mai nel repository
+*.keystore
+*.jks
+keystore.properties
+*.p12
+*.mobileprovision
+*.p8
+
+# Pipeline Blender: fogli di controllo e prodotti intermedi
+tools/blender/out/
+
+# Varie
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
