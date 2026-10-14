@@ -111,11 +111,20 @@ export async function centerOf(page: Page, selector: string): Promise<Point | nu
   return r ? { x: r.x + r.width / 2, y: r.y + r.height / 2 } : null;
 }
 
-/** Tocca (o clicca) un elemento del DOM per `data-test`. */
-export async function tapTest(page: Page, kind: PointerKind, dataTest: string): Promise<boolean> {
-  const p = await centerOf(page, `[data-test="${dataTest}"]`);
-  if (!p) return false;
-  await tap(page, kind, p);
+/**
+ * Tocca (o clicca) un elemento del DOM per `data-test`, con le attese di Playwright:
+ * l'elemento si porta nella vista e deve ricevere davvero il puntatore (non coperto).
+ * Restituisce false se in 5 s non è toccabile.
+ */
+export async function tapTest(page: Page, kind: PointerKind, dataTest: string, timeout = 5_000): Promise<boolean> {
+  const loc = page.locator(`[data-test="${dataTest}"]`).first();
+  try {
+    if (kind === 'touch') await loc.tap({ timeout });
+    else await loc.click({ timeout });
+  } catch {
+    return false;
+  }
+  await page.waitForTimeout(200);
   return true;
 }
 
