@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { LaceState, RowMoves } from '../../../src/core/types';
-import { HINT_KEYS, createContext, hintFor, initialState, isSymmetric, metrics, simulate } from '../../../src/engine/index';
+import { HINT_KEYS, ORO_MIN_INCROCI, createContext, hintFor, initialState, isSymmetric, metrics, simulate } from '../../../src/engine/index';
 import { fixture, mk, noteRequest } from './helpers';
 
 const g00 = fixture('g00');
@@ -85,6 +85,26 @@ describe('eleganza', () => {
     expect(metrics(g00, sol, 4, true).filoDOro).toBe(false);
     expect(metrics(g00, sol, 3, false).filoDOro).toBe(false);
     expect(metrics(g00, sol, null, false).filoDOro).toBe(false);
+  });
+
+  it('filo d\'oro solo con minimo ≥ 3 (C15)', () => {
+    const empty: RowMoves[] = [{ hour: 7, crossings: [] }, { hour: 8, crossings: [] }];
+    const two: RowMoves[] = [{ hour: 7, crossings: [{ pair: 0, over: 'L' }] }, { hour: 8, crossings: [{ pair: 1, over: 'L' }] }];
+    const three: RowMoves[] = [...two, { hour: 9, crossings: [{ pair: 0, over: 'R' }] }];
+    // Minimo 0 e minimo 2: niente filo d'oro anche a incroci uguali al minimo.
+    expect(metrics(g00, empty, 0, false)).toMatchObject({ incroci: 0, minIncroci: 0, filoDOro: false });
+    expect(metrics(g00, two, 2, false)).toMatchObject({ incroci: 2, minIncroci: 2, filoDOro: false });
+    // Minimo 3: filo d'oro.
+    expect(metrics(g00, three, 3, false).filoDOro).toBe(true);
+    expect(metrics(g00, three, 3, false, { minIncroci: 3 }).filoDOro).toBe(true);
+    // Il fantasma lo toglie sempre.
+    expect(metrics(g00, three, 3, true).filoDOro).toBe(false);
+    expect(metrics(g00, two, 2, true, { minIncroci: 0 }).filoDOro).toBe(false);
+    // balance.oro.minIncroci cambia la soglia; senza vale ORO_MIN_INCROCI.
+    expect(ORO_MIN_INCROCI).toBe(3);
+    expect(metrics(g00, two, 2, false, { minIncroci: 2 }).filoDOro).toBe(true);
+    expect(metrics(g00, three, 3, false, { minIncroci: 4 }).filoDOro).toBe(false);
+    expect(metrics(g00, three, 3, false, null).filoDOro).toBe(true);
   });
 
   it('quiete: righe senza incroci del giocatore (i forzati non contano)', () => {

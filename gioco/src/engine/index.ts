@@ -7,7 +7,7 @@ export { initialState, cloneState, stateKey, sameLace } from './state';
 export type { EngineLaceState } from './state';
 export { blocked, forcedCrossings, checkCrossing, previewRow, applyRow, unreachablePins } from './rules';
 export { evaluate, mentionsNome } from './conditions';
-export { metrics, isSymmetric } from './metrics';
+export { metrics, isSymmetric, ORO_MIN_INCROCI } from './metrics';
 export { solve, SOLVER_VERSION, defaultMaxStates } from './solver';
 export { solveAsync, generateAsync } from './solver-client';
 export { planAutoRow } from './autoweave';
