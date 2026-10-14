@@ -11,7 +11,7 @@
   justify-content: center;
   padding: max(var(--safe-top), var(--spazio-5)) max(var(--safe-right), var(--spazio-4))
     max(var(--safe-bottom), var(--spazio-5)) max(var(--safe-left), var(--spazio-4));
-  background: rgba(18, 22, 34, 0.84);
+  background: rgba(18, 22, 34, 0.93);
   cursor: pointer;
   pointer-events: auto;
   touch-action: manipulation;
@@ -91,7 +91,7 @@ html[data-anim-speed='0'] .au-tocca-onde span {
 }
 
 html[data-contrast='alto'] .au-tocca {
-  background: rgba(0, 0, 0, 0.94);
+  background: rgba(0, 0, 0, 0.97);
 }
 
 html[data-contrast='alto'] .au-tocca-testo {
