@@ -1,0 +1,89 @@
+{
+  "giuria": "produzione",
+  "valutazioni": {
+    "mix-a": {
+      "punteggi": {
+        "originalita": 8,
+        "mondo": 9,
+        "trama": 8,
+        "missioni": 8,
+        "build": 8,
+        "segreti": 8,
+        "divertimento": 7,
+        "fattibilita": 6,
+        "mercato": 8
+      },
+      "punti_forti": [
+        "Fra tutti i sistemi di mappa visti finora, il Catasto è il più sicuro. Ha 36 particelle e 24 capisaldi, e il terreno non cambia mai. Di notte si spostano solo decal e oggetti, con 3 varianti per particella e bordi che restano uguali. La visibilità fra due capisaldi sta in una tabella precalcolata per ora del giorno e in gioco si controlla con un solo raycast. Tutto è deterministico e si può testare in Node.",
+        "Lo shader matita-dipinto lavora sullo stesso albedo e aggiunge solo un canale alla mappa di salute. L'idea più forte del mix costa quindi un post-process, non un secondo set di asset. Entro i 200 m il mondo è sempre dipinto, così il giocatore non arrampica e non plana mai sopra uno schizzo.",
+        "Delle due fattibilità è la più credibile, e recepisce tutte le correzioni della giuria di produzione della base. C'è cilindro.ts con lo spazio srotolato e la luce radiale calcolata per frammento. La Meta è un gobo analitico e il mondo lontano è un solo cilindro con una texture KTX2. L'acqua è una sola funzione h(u, v, t), condivisa da shader e TypeScript, e il riflesso si ottiene intersecando il raggio con il cilindro.",
+        "La testabilità è scritta nel concept. C'è un controllo statico del grafo dei requisiti di ogni missione, con zero pagine e con ogni ramo da solo. Una simulazione deterministica di salti, planate e apnea verifica che il fiato basti. Un test controlla che i triangoli di trama siano visibili alle ore dichiarate. Ci sono 12 screenshot SwiftShader in tre stati della carta e un test di leggibilità da 10 punti fissi. La Fase 0 ha una soglia di go/no-go che comprende anche la matita e un minuto di apnea.",
+        "Edera, Ninfea, Mira fiorita e Castagno usano solo ancore previste, e nessun potere crea geometria in posizioni libere. Il problema segnalato per Sibilla non rientra.",
+        "Gli strumenti si fondono invece di sommarsi: il teodolite fa anche da cannocchiale, il Catasto fa anche da Pianta e il fiato serve anche per l'apnea. Le missioni si costruiscono con 8 kit riusabili, e tutti i tetti sono rispettati: 7 zone, 14 principali, 12 secondarie, 12 coppie e 12 segreti.",
+        "Il concept mette davvero nel conto lo stile scelto: niente pipeline di scansioni, impostori che non si notano, ombre a campiture che reggono a bassa risoluzione."
+      ],
+      "problemi": [
+        "L'acqua non è più un sistema: è diventata uno strato intero. Il Fondo misura 0,6 km², con quaranta relitti, l'interno allagato del Locarno, le condotte, le correnti delle pompe a orario, le sacche d'aria e la marea, più la barca a vela con i venti a orario. Molte vie di build passano sott'acqua: la Ninfea, il Contrappeso sul fondale, le Suole sugli scafi, il rimorchio del Guardiano, e Uè nelle condotte allagate, cioè un compagno che deve trovare la strada sott'acqua. È lo stesso rischio che alla Terza Colonna era costato un 4.",
+        "Ogni voce è al tetto, e della base non è uscito quasi niente di costoso. Restano la Grande Ragna che taglia i costoloni (geometria distrutta, visibile da tutte le valli), l'agenda del Motore Lungo, la Bianca con un disegno di 400 m in tre notti e la teleferica. Resta la Notte del Pardo con un centinaio di sagome, oltre il tetto di 30 dichiarato. C'è una processione dopo ogni missione principale, in tre formati, con circa 40 trasparenti. La stima di 20-21 mesi, uguale a quella della base, è ottimista.",
+        "Il calendario non torna. Un giorno dura 52 minuti, quindi il ciclo della Meta, 29,5 giorni, dura circa 25,6 ore reali, e i Giorni Ciechi tornano più o meno ogni 12,8 ore per circa 2,6 ore. La svolta cade nei Giorni Ciechi verso l'ora 5-6, e il segreto della luce cinerea ne chiede uno prima della svolta: nessuno dei due può arrivare dall'orologio naturale. Il concept non dice che va scriptato.",
+        "Il problema dei traguardi a 1,3 km. Un pilastro di bronzo dall'altra parte del cielo è più piccolo di un pixel. Di notte ci sono i lumi, ma per i traguardi diurni «di sbieco» servono segnali alti e un LOD che tenga conto dello zoom nel reticolo, e nessuno dei due è previsto. In più il Collare «a chiazze» deve essere deterministico per ora, altrimenti la tabella di visibilità precalcolata smette di valere.",
+        "La matrice delle vie è grande: 14 missioni per 4 vie (tre rami e senza pagine), 12 secondarie e 2 incontri, con molte varianti sott'acqua. Il controllo statico la verifica, ma non la costruisce.",
+        "Ci sono una quindicina di interni (Cripta, Archivio, Eremo e cella, serra, Torre dei Bugni, Sala delle Spinte, Fabbriche, eremo di Severino, vigna e grotto, laboratorio dietro la cascata, salone del Locarno, cascina, cappella) più tre gallerie, e non c'è un kit modulare dichiarato.",
+        "Se il kernel del cilindro fallisce non c'è un ripiego. La Fase 0 ferma il progetto, ma non dice che cosa si salva.",
+        "Kokoro ha due sole voci italiane, e devono coprire 6 personaggi doppiati e 52 bollettini. Quasi tutto il lavoro tocca ai filtri."
+      ]
+    },
+    "mix-b": {
+      "punteggi": {
+        "originalita": 9,
+        "mondo": 9,
+        "trama": 9,
+        "missioni": 8,
+        "build": 8,
+        "segreti": 8,
+        "divertimento": 7,
+        "fattibilita": 5,
+        "mercato": 8
+      },
+      "punti_forti": [
+        "Taglia meglio i costi della base. Escono la Grande Ragna, l'agenda del Motore con il finale della Traversata, la Notte del Pardo, la Bianca e tre secondarie. La folla più grande è di 30 sagome, e l'esodo ha 12 figure e 15 vacche.",
+        "Le aggiunte costano poco e rendono molto. Il Fondo è un corridoio di segmenti ripetuti, con la Ruota fatta di una parete che scorre e di un suono. La Tenuta è una prova di ritmo su un manometro diegetico. L'Ombrista è un piano con figure di cartone 2D, nello stile stesso del gioco. Le Finestre smerigliate una notte alla volta sono un parametro di shader che mostra a tutti l'agenda della Madre.",
+        "Le Fade sono lumi istanziati con un comportamento a sciame, e le passerelle notturne sono mesh cinematiche su una linea del tempo. Sono sistemi semplici che fanno sembrare vivo il mondo di notte.",
+        "Il rilievo è locale e rapido: lo squadro su due capisaldi vicini, sotto i trenta secondi dopo i primi dieci rilievi. Non ci sono mire a 1,3 km né tabelle di visibilità.",
+        "C'è un piano B scritto per il mondo curvo: Finestre più strette e le valli sopra la testa come un unico fondale dipinto.",
+        "L'acqua è meno estesa: un lago e immersioni puntuali, senza decine di relitti da esplorare.",
+        "È onesto sui limiti delle voci: due voci italiane di Kokoro, e il dialetto quasi solo scritto."
+      ],
+      "problemi": [
+        "Il sistema della notte cambia la geometria. Le particelle mobili sono 48, con 2-3 varianti ciascuna: circa 120 pezzi di livello, ognuno con collisioni, navmesh e percorsi. Sopra si accumulano livelli che reagiscono fra loro. La Madre riporta a matita metà del lavoro e il G4 lo ripristina. Il velo nero rende benedette le particelle. La Penna di catasto fa costruire scale e passerelle, e la Radice di confine rileva da sola. Lo Squadro d'asse fissa ventagli di nove particelle, la Madre corregge le particelle vicine e le Fade smontano la via sul Sordo. È lo spazio di stati combinatorio che la giuria di produzione aveva segnalato per Sibilla, e qui non ci sono bordi bloccati, ancore dichiarate né un validatore di percorribilità.",
+        "C'è un rischio di blocco: sentieri che spariscono, muri rifatti «dove c'era la sua via», una scala smontata dal basso proprio durante la scalata finale. Nessuna regola garantisce che le vie critiche restino collegate in ogni combinazione, e il finale in due giorni sul Sordo diventa la parte più difficile da testare.",
+        "La fattibilità è scritta a metà. Mancano una stima in mesi, le fasi dopo la Fase 0, un piano di test (grafo delle missioni, simulazioni in Node, screenshot) e un budget dei contenuti.",
+        "Il bianco non è definito. Il concept indica 212 capisaldi e 48 particelle mobili, ma non dice quante particelle copra in tutto la Pianta, né a che distanza il mondo diventa matita. Se anche il mondo vicino non rilevato è uno schizzo, per buona parte del gioco si arrampica e si plana sopra un disegno.",
+        "In alcuni punti i volumi sono più grandi del necessario. La Finestra dei Ponti è densa da un capo all'altro, 3,2 km contro il chilometro di A. Il Fondo è un anello di quasi due chilometri. La Strada delle Fade sta in tre luoghi e cambia disegno dopo la svolta. L'Ombrista ha una variante ogni sera. C'è un incontro maggiore in più, il Campanaro, e il finale del Ritorno ha una scena a Cevio, sulla Terra, in un ambiente costruito solo per quella.",
+        "C'è una contraddizione: la zona del lago promette la «barca a remi e a vela», i tagli dicono che la vela con il vento non entra, e la traversata non nomina la barca.",
+        "Gli orologi sono più numerosi che in A (Meta, marea, giorno e notte, passerelle, smerigliatura), e il problema del calendario è lo stesso: i Giorni Ciechi tornano ogni 12,8 ore reali circa, mentre la svolta deve cadere dentro di essi."
+      ]
+    }
+  },
+  "preferito": "mix-a",
+  "perche": "Per la produzione vince mix-a, anche se mix-b ha fatto tagli migliori. Il rischio di A sta nel volume dei contenuti, cioè il Fondo e le scene costose rimaste dalla base, e si riduce con tagli lineari senza toccare l'idea. Il rischio di B sta in un sistema che gira ogni notte per tutto il gioco: la geometria cambia, e Madre, Penna, G4 e Fade si rispondono a vicenda. È uno spazio di stati che cresce in modo combinatorio, il più difficile da testare senza playtester umani. A ha anche l'unico piano di produzione credibile (terreno fisso, varianti a decal, visibilità precalcolata, ancore previste, controlli in CI e simulazioni in Node) e, con tre innesti da B e il Fondo dimezzato, rientra nei 20-21 mesi che dichiara.",
+  "innesti": [
+    "Sostituire la Grande Ragna che taglia i costoloni con lo smeriglio di B. I Ragni smerigliano la Finestra Cieca una notte alla volta: è un parametro di rugosità e diffusione sul vetro, guidato da un contatore e visibile da tutte le valli. Il grande incontro diventa fermare i Ragni smerigliatori con il kit Ragno che esiste già (spina rossa, Riprogrammare, Contrappeso), senza geometria distrutta. Se il ferro per il Motore di Severino deve restare, i costoloni tagliati sono 4 stati preparati, non un taglio continuo.",
+    "Portare nella Fase 0 il piano B di B per il mondo curvo. Se la soglia non passa, le Finestre si stringono e le valli sopra la testa diventano un unico fondale dipinto con la maschera del Catasto. Il rilievo continua a funzionare, perché la visibilità è già una tabella e non dipende dalla geometria lontana.",
+    "Usare il quadro diegetico della Tenuta di B per il puzzle dei flussi della Linea Piena (missione 6). Si lavora su tre pannelli del Quadro della Linea, con manometri, leve e volantini; la gravità zero e il calore restano solo nel tragitto fra un pannello e l'altro. Il colpo di scena è lo stesso, con un decimo del lavoro di un sistema di flussi in 3D a gravità zero.",
+    "Prendere da B il rilievo locale per il giorno. Di giorno si chiudono triangoli fra capisaldi della stessa valle, a qualche centinaio di metri. I traguardi attraverso il cielo restano per la notte, sui lumi, e per i sei triangoli di trama. Si toglie così la maggior parte del problema della leggibilità a 1,3 km, senza perdere l'immagine di Ottavio che vola con il lume.",
+    "Prendere da B il resoconto del mattino: all'alba il taccuino segna che cosa è cambiato nelle particelle a matita e perché. Poi scrive in chiaro quando arriva la prossima finestra utile (Meta, marea, pompa, vento), così i sei orologi di A non diventano un foglio di calcolo.",
+    "Adottare i tetti di folla di B. L'esodo ha al massimo 12 figure e 15 vacche, che seguono la capobranco su uno spline e non su una navmesh. La folla più grande è di 30 sagome. La Notte del Pardo esce, oppure resta come easter egg con sagome sedute e immobili, renderizzate come impostori."
+  ],
+  "correzioni": [
+    "Dimezzare il Fondo senza perdere lo strato. Dei quaranta relitti, 10-12 si visitano con la loro sacca d'aria; gli altri sono sagome nella nebbia a piani, costruite da 3 scafi base. Il salone del Locarno è l'unico interno allagato, e le condotte si riducono a due tratti brevi. Uè e il Guardiano di condotta non cercano la strada sott'acqua: Uè si ferma all'imbocco e illumina da lì, il Guardiano rimorchia su uno spline. Il passaggio della camera sopra e sotto la superficie è una dissolvenza, come lo stile permette. Il nuoto si convalida nella Fase 0, come già scritto.",
+    "Scriptare l'orologio della Meta. Con giorni di 52 minuti un ciclo dura circa 25,6 ore reali, quindi i Giorni Ciechi devono partire per trama: al massimo due volte per partita, uno nell'Atto I, che apre la luce cinerea e le Finestre libere, e uno alla svolta. Le misure di Ottavio sono dati del suo quaderno, non un'attesa del giocatore. Un test in Node verifica che ogni momento di trama legato al cielo sia raggiungibile.",
+    "Rendere leggibili i traguardi. Ogni caposaldo ha un segnale alto 8-10 m, una palina bianca e rossa o un disco, che si legge al cannocchiale. Nel reticolo del teodolite si caricano cartoline precalcolate per i 24 capisaldi e i lumi, con un LOD che tiene conto dello zoom. Il Collare segue un orario fisso, così la tabella di visibilità resta vera. La lettura nel Dondolio è una finestra di tempo fissa, con un aiuto di accessibilità.",
+    "Ridurre la matrice delle vie. Le quattro vie costruite a mano restano solo in sei missioni-evento: 2, 5, 7, 8, 11 e 14. Nelle altre le abilità generiche agiscono su una sola geometria, più un'alternativa scritta. Il controllo statico in CI resta com'è.",
+    "Mettere un tetto alle processioni. Invece di una dopo ogni missione principale in tre formati, sono sei in tutto, due per formato, con varianti decise da 3-4 flag. I trasparenti, pentimenti compresi, sono al massimo 24. L'epilogo di Teresina ha tre varianti, una per ricordo.",
+    "Costruire gli interni con un solo kit modulare (pietra, ferro del 2121, legno), fino a un massimo di 12 interni. La vigna e il grotto, e il laboratorio dietro la cascata e la Sala delle Spinte, condividono le stesse stanze.",
+    "Ricalcolare la stima. I 20-21 mesi valgono solo con i tagli qui sopra e con gli innesti 1 e 3; senza, la stima onesta è di 24 mesi. La vertical slice resta il prologo gratuito, e in Fase 1 si aggiunge un minuto di Fondo.",
+    "Con la Bianca e la Stazione d'asse, semplificare invece di aggiungere. Il disegno di 400 m della Bianca diventa tre stadi preparati scritti nella mappa di sfalcio, che è a bassa risoluzione. Dalla Stazione d'asse si toglie il «fare il punto anche in planata», che chiede interfaccia e fisica durante il volo.",
+    "Distinguere le voci con un piano preciso. Kokoro ha due voci italiane, quindi i 6 personaggi doppiati hanno ciascuno un filtro diegetico e un intervallo di tono diverso. Le frasi in dialetto, la voce di Giulia e il bollettino letto dal vivo nel finale segreto si fanno registrare da un parlante ticinese in una giornata, se il budget lo permette."
+  ]
+}

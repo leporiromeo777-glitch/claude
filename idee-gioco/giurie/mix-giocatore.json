@@ -1,0 +1,95 @@
+{
+  "giuria": "giocatore",
+  "valutazioni": {
+    "mix-a": {
+      "punteggi": {
+        "originalita": 8,
+        "mondo": 9,
+        "trama": 8,
+        "missioni": 9,
+        "build": 8,
+        "segreti": 9,
+        "divertimento": 8,
+        "fattibilita": 6,
+        "mercato": 8
+      },
+      "punti_forti": [
+        "L'hook visivo più forte dei due e il più facile da vendere: un campanile ticinese con, al posto del cielo, una valle a matita che si colora come un acquerello quando chiudi un triangolo, visibile da tutto il mondo. Come miniatura su Steam si capisce in un secondo.",
+        "Il rilievo è pensato davvero per il cilindro. Di giorno si mira di sbieco perché la Linea acceca, di notte si collima dritto sopra la testa i lumi che Ottavio porta in volo. Visibilità, Collare e ora rendono ogni triangolo un piccolo problema e non una salita a una torre, e la notte ha un uso pratico.",
+        "Aurelio geometra dà al verbo principale una ragione affettiva («lui misurava, io piantavo»). Il libretto con le monografie sbagliate dopo due secoli fa da guida nel non-misurato, il Caposaldo 9 annegato con la capsula per Elvira è il segreto che unisce acqua e carta, e l'ultimo triangolo del gioco è l'ultimo lavoro di lui.",
+        "Il Fondo è un secondo strato da esplorare, non un'area in più: quaranta relitti della Ripulitura, il Locarno capovolto, la lama della Meta che illumina il fondale ogni 51 secondi e le sacche d'aria che restano segnate per sempre. Insieme alla Pina a remi e a vela con i venti a orario, è la cassetta di giocattoli di traversata più ricca dei due mix.",
+        "Le 14 missioni principali hanno tutte una forma diversa, e ognuna scrive una via per ramo più una senza pagine: soccorso nella marea con immersione nel relitto, notte sotto il Bue a rimettere in piedi un caposaldo, sabotaggio della Grande Ragna, Triangolo Zero. Le tre build d'esempio affrontano la stessa notte in modi davvero diversi, e c'è anche la via senza pagine.",
+        "Le secondarie sono giocate col corpo: la corsa del Messo, che è una gara di planata con il nastro di fumo della rivale; l'appostamento ai termini spostati; il pedinamento subacqueo di Togn; il trasloco a tempo con la marea; la Bianca, il cui disegno di 400 m si completa solo se non misuri quella particella. È un dilemma di rilievo bellissimo.",
+        "Il climax è una sintesi di ciò che il giocatore sa: rimettere in piedi i pilastri divelti a 0,15 g, portare un lume all'asse e prendere la lettura quando il Dondolio allinea la Lanterna. Il divieto «non guardare il Sordo» si rilegge come una cancellazione catastale, che è il colpo di scena più elegante dei due mix.",
+        "I costi nel mondo sono leggibili e colpiscono l'abuso: il debito in MWh con Meridiana che comincia a rifiutare, le chiazze morte, i risonatori che tradiscono il Salto d'asse, la «Rettifica G5» che Ilde ti rinfaccia."
+      ],
+      "problemi": [
+        "Non è davvero il misto dei tre che l'utente ha chiesto. Della Terza Colonna prende l'acqua e la leggenda raccontata in più versioni, ma il suo cuore narrativo (qualcuno regge il mondo dal basso, «sei la candidata», le lettere scritte da altri) resta un easter egg. Di Sibilla esclude tutto il folklore. Il risultato è Cielo di Terra con rilievo e immersioni, e l'utente rischia di non ritrovare due dei tre concept nella storia.",
+        "La notte promette più di quanto dà. «Ciò che lasci in bianco cambia» si riduce a tre varianti di decal per particella (prati falciati, cassette spostate, una roggia deviata), e le Falciatrici mietono orti che non sono tuoi. La posta in gioco notturna è debole rispetto alla regola di Sibilla, e non c'è una scelta su come passare la notte.",
+        "Il carico cognitivo è il più alto dei due mix. Triangoli, Nodi, apnea, vela con i venti, planata, gravità zero, cicli delle Finestre, la triangolazione delle tre leggende, il debito in MWh e le guardie arrivano tutti entro le prime 4-5 ore, sopra il vocabolario del cilindro e quello del Catasto.",
+        "Il rilievo è cerimonioso: 3-5 minuti a triangolo per una ventina di triangoli. Chi gioca senza pagine dipende dalla notte e dai lumi di Ottavio per i traguardi in su, e se Ottavio entra negli Osservanti perde il suo canneggiatore. Si rischia l'attesa più che il gioco.",
+        "«La leggenda in tre» (trasparenti, cilindri, Barche dei Lumi ai vertici di un triangolo nel taccuino) è un'idea elegante sulla carta, ma senza una forma giocabile diventa un esercizio di abbinamento di frasi.",
+        "Secondo atto pesante di documenti: l'Archivio con le lettere e il dispaccio, poi lo spettro, poi la cella. Sono quattro rivelazioni di fila che arrivano da carte e dialoghi.",
+        "Il terzo atto è quello della base: il motivo di Severino (il Motore Lungo, la Traversata) e la Grande Ragna sono il pezzo più freddo, con poca presa emotiva sul giocatore rispetto al resto."
+      ]
+    },
+    "mix-b": {
+      "punteggi": {
+        "originalita": 9,
+        "mondo": 9,
+        "trama": 9,
+        "missioni": 8,
+        "build": 8,
+        "segreti": 9,
+        "divertimento": 8,
+        "fattibilita": 6,
+        "mercato": 8
+      },
+      "punti_forti": [
+        "È il misto vero, quello che l'utente ha chiesto. Le Fade (il ballo delle fate) rimettono il mondo in pari con la Carta Madre, e la Pesarina (la Pantafica) è una macchina infermiera. L'Om dal Fond (Colapesce) tiene a mano l'ultima ralla, l'Ombrista (i pupi) cambia la leggenda ogni sera, le lettere sono scritte da un'altra mano e la Strada delle Fade riprende i miraggi percorribili a orario. Ogni pezzo è un impianto del cilindro con una ragione fisica e storica, e l'utente ritrova tutti e tre i concept senza vedere cuciture.",
+        "Hook emotivo dal primo minuto. Sul vetro della capsula c'è una lettera «di Marta, dalla Sorella» con il fiore sbagliato: la speranza della madre e il sospetto della tecnica litigano nello stesso taccuino. La frase «Tienimi la valle, mamma» rima in tutto il gioco (Vi teniamo la valle, Va tegnum la val, Tenuta la luce) fino ai finali.",
+        "La notte diventa metà del gioco. Si sceglie dove passarla: dormire, vegliare un prato, camminare sulla Strada delle Fade finché è stesa o infilarsi nel Guscio. Al mattino si scopre che cosa è cambiato. È il ciclo giorno e notte più forte dei due mix, senza survival e senza timer finti.",
+        "Il rilievo è rapido (meno di 30 secondi dopo i primi dieci), sono necessarie solo 16 particelle e ogni ramo fissa il mondo a modo suo: la Radice di confine, lo Squadro d'asse a ventaglio, la Penna di catasto. La Penna, che scrive una scala che le Fade costruiscono di notte, è il potere di build più bello di tutti i concept, e la Madre che legge le firme G5 e risponde con la sua penna rende la build visibile all'antagonista.",
+        "La scalata finale del Sordo in due giorni, fissando la via prima di ogni notte, è l'esame di tutte le regole del mondo. Le tre build d'esempio la affrontano in modi radicalmente diversi: un castagno che rileva la cengia, ventagli di nove particelle con i salti, una scala scritta da difendere.",
+        "I colpi di scena rileggono ciò che hai fatto. Le missioni di S. erano un addestramento, la Pesarina che ti spiava ti proteggeva, la persona più gentile del gioco (Pina) ha spezzato la catena per lutto, e Battista non è morto pazzo. La figura con la ruota nella scatola dell'Ombrista e l'anello che gira al contrario fuori dalla Finestra sono anticipazioni alla Outer Wilds.",
+        "I finali sono i più forti dei due mix. Nel Velo Elvira scende a tenere la Ruota e il registro chiude con la sua calligrafia. Il Ritorno finisce a Cevio in prima persona: «Bentornata. Te l'abbiamo tenuta.» Nel finale segreto i Sordi rispondono con le campane per i forestieri a cui hanno restituito il nome.",
+        "Le agende avanzano da sole e si vedono: le Finestre si smerigliano una notte alla volta, gli Alpeggi gelano, il Dondolio peggiora quando Severino è in superficie, Ottavio sparisce se nessuno gli ha detto la verità. L'urgenza non è finta."
+      ],
+      "problemi": [
+        "Perdere lavoro può far male. Di notte sparisce il sentiero che non hai rilevato, e alla svolta la Madre cancella metà delle tue particelle. Per chi esplora alla Outer Wilds perdere progressi è il primo motivo di abbandono, e le mitigazioni scritte (la G4 che ne restaura metà, il taccuino che spiega) non bastano a garantire che non diventi rifare la stessa cosa.",
+        "L'acqua è stata svuotata. Rimangono l'immersione della missione 2, la marea e il pedinamento di Togn, e manca un fondale da esplorare. C'è anche una contraddizione: le zone dicono «barca a remi e a vela», i tagli dicono «non entra la vela con il vento». Il pezzo giocabile più riconoscibile della Terza Colonna (nuotare, immergersi, navigare) pesa poco.",
+        "Ci sono troppi orologi insieme: la Meta ogni 51 secondi, la marea ogni 9 minuti, il giorno di 52 minuti, le passerelle che tremano 10 secondi prima di ripiegarsi, gli orari delle Fade e delle stalle, le contromosse notturne della Madre. «Sedersi a respirare» è citato ma non progettato come comando.",
+        "La Tenuta (tenere l'ago nella fascia verde per quattro minuti) rischia di essere un minigioco di ritmo da QTE, introdotto alla nona ora e fuori dal linguaggio del resto del gioco. Il finale del Velo, inoltre, rischia di sembrare «il tuo destino è un minigioco».",
+        "Sono nove rivelazioni, più il meccanismo di Ruota Sorda, ralle e cercastelle, da capire nel terzo atto. C'è rischio di stanchezza e di spiegoni al registro del Fondo, e il volano tenuto a mano è un'ipotesi fisica che il giocatore deve accettare sulla fiducia.",
+        "Le vie per build sono scritte in modo meno sistematico che in mix-a. Le missioni 3, 4, 9, 11 e 13 non dicono come le affronta ogni ramo, e la missione 2 non ha una via senza pagine. Nelle build d'esempio manca il caso senza pagine.",
+        "Le secondarie sono più parlate. Mancano le più fisiche e giocose della base (la corsa del Messo, la Bianca, il fieno che vola), e «La scuola di Corbella» è quasi solo dialogo.",
+        "Ci sono due azioni di mappa e due codici. Il cannocchiale che «appunta» a matita e lo squadro che rileva sono strumenti diversi, e sulla Pianta la matita vuol dire «visto» mentre nel mondo vuol dire «non rilevato». Si aggiungono 212 capisaldi e 48 particelle mobili: il codice va unificato."
+      ]
+    }
+  },
+  "preferito": "mix-b",
+  "perche": "mix-b è il misto che l'utente ha chiesto. La carta che decide il mondo (le Fade e la Pesarina), l'uomo che regge il mondo, le lettere scritte da altri e la leggenda che cambia ogni sera diventano impianti del cilindro; mix-a invece è soprattutto Cielo di Terra con rilievo e immersioni. Per il giocatore, in mix-b la notte diventa metà del gioco, il rilievo è rapido, la Penna di catasto e la Madre che risponde alla penna danno peso alle build, e la lettera falsa di Marta è un aggancio emotivo che regge dal primo minuto fino ai finali, più forti di quelli di mix-a. mix-a resta superiore come giocattolo (il fondale, la vela, le secondarie fisiche, il Triangolo Zero) e nella disciplina delle vie per build, e sono proprio questi i pezzi da trapiantare.",
+  "innesti": [
+    "Il Fondale sotto il Verbanetto come vero strato da esplorare. Il sobbalzo del 2190 (la seconda ralla che si incrina) capovolge anche il piroscafo Locarno durante la Festa del Lago. Il relitto si esplora con sacche d'aria che restano segnate per sempre nel taccuino e con la lama della Meta che illumina il fondale ogni 51 secondi, e il giornale di bordo diventa una prova in più nella cella. Torna il nuoto della Terza Colonna con lo stesso, unico sistema d'acqua.",
+    "Aurelio geometra. È lui ad aver murato i capisaldi d'ottone del 2121, e il suo libretto di monografie, a volte sbagliate dopo due secoli, guida il rilievo. Un caposaldo annegato quando riempirono il lago custodisce la sua capsula per Elvira, ed è il segreto subacqueo di livello 3. Dà al rilievo una ragione affettiva, e Aurelio che rimisura ogni autunno la selva di Cevio entra nel finale segreto.",
+    "Il traguardo notturno attraverso l'asse. Di giorno la Linea acceca chi mira dritto in su; di notte si collimano sopra la testa i lumi che Ottavio porta in volo. In mix-b si incastra da solo, perché è S. ad aver insegnato a Ottavio a misurare: la notte diventa anche il momento in cui si rileva l'altra valle, e non solo quello in cui si perde lavoro.",
+    "La livella che trema di 9 secondi d'arco sul caposaldo della Finestra dei Ponti, come prova fisica che l'asse viene girato. In mix-b il tremito può cambiare ritmo quando Severino lascia i volantini, e diventa l'indizio giocabile del «il mondo trema di più quando lui è qui».",
+    "Il Triangolo Zero come ultimo gesto. In cima al Sordo la porta della Lanterna, cancellata dalla Carta Madre, per Meridiana non esiste («Non vedo nessuna porta, Giardiniera»). Elvira deve rimetterla sulla carta rilevandola nell'istante in cui il Dondolio porta la Lanterna in linea, prima di usare le due chiavi. Il finale diventa la sintesi del verbo principale, non solo chiavi più tempismo.",
+    "Due secondarie fisiche al posto di «La scuola di Corbella» e, se serve restare entro il tetto, di una fra quelle più parlate. La prima è la corsa del Messo: una gara di planata con il nastro di fumo della rivale da imparare, e se Ottavio vince diventa Osservante e smette di portare i lumi. La seconda è la Bianca: una Fada fuori routine traccia sui prati non rilevati un disegno di 400 m con la Sorella, la Perla e una freccia verso il Sordo, e completarlo chiede di non rilevare quella particella.",
+    "La disciplina delle vie. In ogni missione principale va scritta una via per ramo e una senza pagine, con il controllo statico in integrazione continua (ogni missione completabile con zero pagine e con un ramo solo). Fra le build d'esempio va aggiunta la scalata del Sordo senza pagine, lungo la scala dei pellegrini trovata con la meridiana.",
+    "Il pittore dei trasparenti, rifatto per l'Ombrista. Pina non vede più bene e chiede a Elvira di descriverle Cevio e il lago visto da Locarno-Monti per ritagliare un cartone nuovo; il giocatore sceglie quali ricordi raccontare e li ritrova nell'ombra dell'epilogo. Si fonde con «La Partenza, sette volte».",
+    "La luce cinerea come segreto di livello 3. Nei Giorni Ciechi, a lumi spenti, la parte buia della Sorella è illuminata dalla Terra: costa quasi nulla, premia chi guarda e dà un indizio sulla posizione della Terra."
+  ],
+  "correzioni": [
+    "Rendere la perdita di lavoro leggibile e mai punitiva. La mossa della Madre alla svolta va annunciata la sera prima, con una variante dell'Ombrista e una lettera della Madre. Non deve mai toccare l'hub, le vie di trama e i rifugi, e il numero di particelle cancellate ha un tetto (per esempio 8). Una particella già rilevata si rileva di nuovo in 5 secondi («la mano ricorda»), e al mattino la Pianta mostra in rosso che cosa è cambiato e perché. Le Fade non smontano mai qualcosa su cui il giocatore sta, e un sentiero necessario non sparisce senza un'alternativa visibile.",
+    "Ridare peso all'acqua e togliere la contraddizione sulla vela. Si tengono remi e vela, con i venti termici a orario (Tramontana al mattino, Inverna nel pomeriggio: un campo scalare per ora del giorno), e si innesta il Fondale con il Locarno. Senza questo, il pezzo della Terza Colonna che si gioca col corpo si riduce a due missioni.",
+    "Un comando «aspetta fino a» su «sedersi a respirare», con queste voci: prossima Meta, marea, brace, alba, Strada delle Fade stesa. Nel taccuino una riga fissa indica il prossimo evento. Gli orari delle passerelle sono dipinti sui pontili e sui costoloni, mai casuali.",
+    "Fare della Tenuta un sistema leggibile e non un QTE. Il carico arriva quando Meridiana corregge l'asse, con un ritmo legato alla Meta che il giocatore conosce già, e la Ruota cambia tono prima del picco. Ogni ramo ha la sua via, e c'è una via senza pagine: Severino tiene un volantino, tu l'altro. Fallire è contenuto (il Dondolio peggiora, Severino riprende i volantini), non un game over. Nel finale del Velo la Tenuta è una sola scena rituale e non si gioca all'infinito.",
+    "Scrivere le vie per ramo e quella senza pagine nelle missioni 2, 3, 4, 9, 11 e 13, e aggiungere il controllo statico di completabilità con zero pagine e con un ramo solo.",
+    "Impedire che la Penna di catasto domini. Scrive solo elementi di servizio del 2121 su ancore previste (una trentina in tutto il mondo), al massimo uno per notte, e solo in una particella con un caposaldo rilevato. Il costo resta la firma G5 con la contromossa della Madre. Altrimenti diventa la soluzione di ogni arrampicata e svuota il Fuso e l'Innesto.",
+    "Un solo strumento e un solo codice di mappa. Cannocchiale e squadro si fondono come in mix-a: lo strumento a mano appunta a matita, piantato su un caposaldo rileva. Mondo e Pianta usano gli stessi tre stati: bianco per il mai visto, matita per il visto e mobile, inchiostro e colore per il rilevato.",
+    "Mostrare la Ruota Sorda prima di spiegarla. L'anello che gira al contrario si vede dall'Atto I, il rumore di treno sotto il lago si sente con le Radici in ascolto e nelle gallerie, e il tremito cambia quando Severino sale. Nel taccuino basta una sola frase di sintesi («Il Silenzio ha accecato le ralle; da allora qualcuno le tiene a mano»), e due delle nove rivelazioni minori vanno lasciate alle secondarie facoltative.",
+    "Annunciare la sparizione di Ottavio. La lettera S. nella sua borsa si vede già nella missione 4, e una variante dell'Ombrista lo nomina. Dev'essere la conseguenza di un'inazione che il giocatore poteva prevedere, non una trappola nascosta.",
+    "Rimettere almeno una secondaria fisica (la corsa del Messo o la Bianca, vedi innesti) al posto di «La scuola di Corbella», così che le secondarie alternino corpo e parola come le principali."
+  ]
+}

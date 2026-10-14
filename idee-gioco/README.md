@@ -1,5 +1,9 @@
 # Idee per il nuovo gioco (open world in prima persona)
 
+**Concept scelto: «Cielo di Terra. Chi tiene la valle»** (`concept/mix-finale.json`), misto di Cielo di Terra (base), Sibilla e La Terza Colonna.
+Pagina: https://claude.ai/artifact/QKESTkom8fpGj2bkZHdpHb (privata), generata da `pagina/genera_finale.py`.
+Percorso: due versioni del mix (`mix-a`, fedele alla base; `mix-b`, fusione profonda), tre giurie comparative (`giurie/mix-*.json`, 2 a 1 per B), versione definitiva da B con innesti da A.
+
 Fase di ideazione del 14 ottobre 2026: cinque concept in prima persona, open world con trama, missioni, build e segreti.
 Questa cartella contiene solo documenti e bozzetti, nessun codice di gioco. La pagina pubblicata è
 https://claude.ai/artifact/2J1MKBBmexkP1z1ovVxHCy (privata).
