@@ -759,7 +759,7 @@ describe('REVISIONE-1 CA1-03: ogni regola si insegna sul tombolo, la prima volta
   it('pulsano gli elementi della tabella: spillo di Marta e Disfa (g00), fuso del Gino (g01), gomitolo (g02), barche (g03, g04), fuso di Zeno (g05), fuso sbiadito 1 (arc1)', () => {
     const want: [string, string, number, string?][] = [
       ['g00', 'spillo', 6, 'marta'], ['g00', 'disfa', 8], ['g01', 'fuso', 8, 'gino'], ['g02', 'matassa', 8],
-      ['g03', 'bordo', 9], ['g04', 'bordo', 7], ['g05', 'fuso', 8, 'zeno'], ['arc1', 'fuso', 9, 'f1'],
+      ['g03', 'bordo', 9], ['g04', 'bordo', 8], ['g05', 'fuso', 8, 'zeno'], ['arc1', 'fuso', 9, 'f1'],
     ];
     for (const [id, target, hour, thread] of want) {
       expect(pulsesOf(id).some((p) => p.target === target && p.hour === hour && p.thread === thread), `${id} ${target} ${hour}`).toBe(true);

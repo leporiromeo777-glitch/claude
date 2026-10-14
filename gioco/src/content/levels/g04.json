@@ -14,7 +14,7 @@
     {"id": "piero", "kind": "persona", "character": "piero"},
     {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.pescatore"}
   ],
-  "initial": ["nina", "bepi", "teresa", "piero", "marta"],
+  "initial": ["bepi", "nina", "marta", "teresa", "piero"],
   "beads": [
     {
       "id": "voce:rete",
@@ -27,16 +27,16 @@
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
   "pins": [
     {"thread": "teresa", "place": "piazza", "hour": 10},
-    {"thread": "piero", "place": "chiesa", "hour": 11},
-    {"thread": "nina", "place": "forno", "hour": 13}
+    {"thread": "piero", "place": "piazza", "hour": 12},
+    {"thread": "marta", "place": "forno", "hour": 14}
   ],
   "edges": [
-    {"hour": 7, "side": "molo", "kind": "barca", "enters": "lino1"},
+    {"hour": 8, "side": "molo", "kind": "barca", "enters": "lino1"},
     {"hour": 11, "side": "molo", "kind": "barca", "enters": "bepi"}
   ],
-  "goals": [{"t": "parte", "who": "bepi", "hour": 7}],
+  "goals": [{"t": "parte", "who": "bepi", "hour": 8}],
   "notes": ["g04.nina", "g04.bepi", "g04.piero"],
-  "matassa": 8,
+  "matassa": 13,
   "dawn": {
     "candidates": [
       {
@@ -87,6 +87,6 @@
   "musicSeed": "g04",
   "tutorial": [
     {"k": "margine", "when": "primaOra", "textKey": "atto1.g04.margine.barca", "hour": 7},
-    {"k": "pulsa", "target": "bordo", "hour": 7}
+    {"k": "pulsa", "target": "bordo", "hour": 8}
   ]
 }

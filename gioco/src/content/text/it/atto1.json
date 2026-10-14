@@ -187,7 +187,7 @@
       }
     },
     "alba": {
-      "barca": "Alle sette la barca di Bepi scivola fuori dal Molo, nella nebbia.",
+      "barca": "Alle otto la barca di Bepi scivola fuori dal Molo, nella nebbia.",
       "saluto": "Ciao, babbo.",
       "saluto2": "Mh. Studia.",
       "rete": "Hai venduto la rete buona. Per pagarmi l'esame.",
@@ -199,10 +199,10 @@
       "venezia2": "Bepi non dice altro. Ripara la rete fino a sera."
     },
     "hint": {
-      "spinta": "Alle sette Bepi esce in barca: deve trovarsi al Molo. Rientra alle undici.",
+      "spinta": "Alle otto Bepi esce in barca: deve trovarsi al Molo. Rientra alle undici.",
       "indizio": "Dal Molo alla Chiesa ci vogliono tre ore: Bepi deve muoversi appena rientra."
     },
-    "margine": {"barca": "Alle sette chi è al Molo esce in barca. La barca rientra alle undici."}
+    "margine": {"barca": "Alle otto chi è al Molo esce in barca. La barca rientra alle undici."}
   },
   "g05": {
     "titolo": "Il guardiano",

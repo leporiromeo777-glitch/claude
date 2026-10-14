@@ -1,18 +1,13 @@
 {
   "levelId": "g04",
-  "sourceHash": "e636e0b2b7b979e1",
+  "sourceHash": "ade6b12f33e81774",
   "solverVersion": 2,
   "base": {
-    "incroci": 1,
+    "incroci": 4,
     "rows": [
       {
         "hour": 7,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 8,
@@ -20,19 +15,39 @@
       },
       {
         "hour": 9,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 10,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 11,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 12,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 13,
@@ -46,7 +61,7 @@
   },
   "perNote": {
     "g04.nina": {
-      "incroci": 1,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -59,23 +74,48 @@
         },
         {
           "hour": 8,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 9,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 10,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 11,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 12,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 13,
@@ -88,16 +128,11 @@
       ]
     },
     "g04.bepi": {
-      "incroci": 1,
+      "incroci": 7,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
@@ -105,41 +140,70 @@
         },
         {
           "hour": 9,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 10,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 11,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 12,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R"
+            }
+          ]
         },
         {
           "hour": 13,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 14,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         }
       ]
     },
     "g04.piero": {
-      "incroci": 5,
+      "incroci": 8,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
@@ -147,17 +211,27 @@
         },
         {
           "hour": 9,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 10,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 11,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -167,6 +241,10 @@
           "crossings": [
             {
               "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -183,6 +261,10 @@
         {
           "hour": 14,
           "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
             {
               "pair": 2,
               "over": "L"
@@ -198,7 +280,7 @@
         "g04.nina",
         "g04.bepi"
       ],
-      "incroci": 1,
+      "incroci": 9,
       "rows": [
         {
           "hour": 7,
@@ -206,12 +288,25 @@
             {
               "pair": 0,
               "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
             }
           ]
         },
         {
           "hour": 8,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 9,
@@ -223,19 +318,43 @@
         },
         {
           "hour": 11,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 12,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R"
+            }
+          ]
         },
         {
           "hour": 13,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 14,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         }
       ]
     },
@@ -244,7 +363,7 @@
         "g04.nina",
         "g04.piero"
       ],
-      "incroci": 5,
+      "incroci": 10,
       "rows": [
         {
           "hour": 7,
@@ -257,21 +376,36 @@
         },
         {
           "hour": 8,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 9,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 10,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 11,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -281,6 +415,10 @@
           "crossings": [
             {
               "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -297,6 +435,10 @@
         {
           "hour": 14,
           "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
             {
               "pair": 2,
               "over": "L"
@@ -314,75 +456,64 @@
       "voluta": true
     }
   ],
-  "matassaSuggerita": 8,
-  "quieteMax": 7,
+  "matassaSuggerita": 13,
+  "quieteMax": 4,
   "quality": {
     "configs": [
       {
         "config": "base",
-        "min": 1,
+        "min": 4,
         "minSenzaGino": null,
-        "vuoteMax": 7,
-        "vuoteTot": 7,
-        "soluzioniOttime": 1
+        "vuoteMax": 2,
+        "vuoteTot": 4,
+        "soluzioniOttime": 14
       },
       {
         "config": "g04.nina",
-        "min": 1,
+        "min": 6,
         "minSenzaGino": null,
-        "costo": 0,
-        "vuoteMax": 7,
-        "vuoteTot": 7,
+        "costo": 2,
+        "vuoteMax": 2,
+        "vuoteTot": 2,
         "soluzioniOttime": 1
       },
       {
         "config": "g04.bepi",
-        "min": 1,
+        "min": 7,
         "minSenzaGino": null,
-        "costo": 0,
-        "vuoteMax": 7,
-        "vuoteTot": 7,
-        "soluzioniOttime": 1
+        "costo": 3,
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 30
       },
       {
         "config": "g04.piero",
-        "min": 5,
+        "min": 8,
         "minSenzaGino": null,
         "costo": 4,
-        "vuoteMax": 3,
-        "vuoteTot": 3,
-        "soluzioniOttime": 1
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 14
       },
       {
         "config": "g04.nina+g04.bepi",
-        "min": 1,
+        "min": 9,
         "minSenzaGino": null,
-        "vuoteMax": 7,
-        "vuoteTot": 7,
-        "soluzioniOttime": 1
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 30
       },
       {
         "config": "g04.nina+g04.piero",
-        "min": 5,
+        "min": 10,
         "minSenzaGino": null,
-        "vuoteMax": 3,
-        "vuoteTot": 3,
+        "vuoteMax": 0,
+        "vuoteTot": 0,
         "soluzioniOttime": 1
       }
     ],
     "designata": "g04.nina+g04.piero",
     "facili": [],
-    "violazioni": [
-      "K1 g04.nina: 1 crossing, density needs at least 4 (⌈8/2⌉)",
-      "K1 g04.bepi: 1 crossing, density needs at least 4 (⌈8/2⌉)",
-      "K2 g04.nina: costs 0 crossings over the base, needs at least 2",
-      "K2 g04.bepi: costs 0 crossings over the base, needs at least 2",
-      "K4 g04.nina+g04.piero: 3 empty rows in a row in the recorded solution (at most 2)",
-      "K4 g04.nina: 7 empty rows in a row in the recorded solution (at most 2)",
-      "K4 g04.nina: 7 empty rows of 8 in the recorded solution (at most 3)",
-      "K4 g04.bepi: 7 empty rows in a row in the recorded solution (at most 2)",
-      "K4 g04.bepi: 7 empty rows of 8 in the recorded solution (at most 3)",
-      "K4 g04.piero: 3 empty rows in a row in the recorded solution (at most 2)"
-    ]
+    "violazioni": []
   }
 }

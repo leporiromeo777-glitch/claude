@@ -187,7 +187,7 @@
       }
     },
     "alba": {
-      "barca": "At seven Bepi's boat slips out from the Pier, into the fog.",
+      "barca": "At eight Bepi's boat slips out from the Pier, into the fog.",
       "saluto": "Bye, Dad.",
       "saluto2": "Mh. Study.",
       "rete": "You sold the good net. To pay for my exam.",
@@ -199,10 +199,10 @@
       "venezia2": "Bepi says nothing more. He mends the net until evening."
     },
     "hint": {
-      "spinta": "At seven Bepi takes the boat out: he must be at the Pier. He's back at eleven.",
+      "spinta": "At eight Bepi takes the boat out: he must be at the Pier. He's back at eleven.",
       "indizio": "From the Pier to the Church takes three hours: Bepi must move as soon as he's back."
     },
-    "margine": {"barca": "At seven whoever is at the Pier goes out in the boat. It comes back at eleven."}
+    "margine": {"barca": "At eight whoever is at the Pier goes out in the boat. It comes back at eleven."}
   },
   "g05": {
     "titolo": "The Keeper",

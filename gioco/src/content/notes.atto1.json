@@ -161,7 +161,7 @@
     "day": "g04",
     "author": "nina",
     "textKey": "atto1.g04.nina.testo",
-    "request": {"t": "incontra", "a": "nina", "b": "bepi", "from": 6, "to": 7},
+    "request": {"t": "incontra", "a": "nina", "b": "bepi", "from": 6, "to": 8},
     "replies": [
       {
         "id": "R1",
