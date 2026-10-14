@@ -576,38 +576,28 @@ describe('solver e file calcolati', () => {
     expect(sim.timeline[sim.timeline.length - 1]?.pos).toEqual(['teresa', 'marta', 'piero']);
   });
 
-  it('g06 è l\'esempio del GDD 3.16: N1 5, N1+N2 5, N1+N3 impossibile e voluta, matassa 8', () => {
+  it('g06 (revisione 1, C14): la lettera di Nina e la chiacchiera per Zeno si escludono, Marta e Zeno sono la designata', () => {
     const c = db.computed.get('g06');
-    expect(c?.perNote['g06.nina']?.incroci).toBe(5);
     const combo = (a: string, b: string) => c?.combos.find((x) => x.notes.includes(a) && x.notes.includes(b));
-    expect(combo('g06.nina', 'g06.marta')?.incroci).toBe(5);
+    expect(c?.base.incroci).toBe(4);
+    expect([c?.perNote['g06.nina']?.incroci, c?.perNote['g06.marta']?.incroci, c?.perNote['g06.zeno']?.incroci]).toEqual([6, 7, 9]);
+    expect(combo('g06.nina', 'g06.marta')?.incroci).toBe(7);
     expect(combo('g06.nina', 'g06.zeno')?.incroci).toBeNull();
     expect(combo('g06.nina', 'g06.zeno')?.voluta).toBe(true);
-    expect(combo('g06.marta', 'g06.zeno')?.incroci).toBe(0);
-    expect(level('g06').matassa).toBe(8);
-    // La soluzione della tabella del GDD 3.16 vale davvero per N1+N2, con le posizioni della tabella.
+    expect(combo('g06.marta', 'g06.zeno')?.incroci).toBe(12);
+    expect(c?.quality?.designata).toBe('g06.marta+g06.zeno');
+    expect(level('g06').matassa).toBe(15);
+    // Teresa all'alba sta al Faro e alle 11 deve essere al Forno: il divieto di Marta costa davvero.
     const lv = level('g06');
+    expect(lv.initial).toEqual(['lino1', 'nina', 'marta', 'zeno', 'piero', 'teresa']);
+    expect(lv.pins).toContainEqual({ thread: 'teresa', place: 'forno', hour: 11 });
+    // La soluzione registrata di Nina + Marta vale davvero, con le posizioni dell'apertura.
     const ctx = createContext(lv, {}, { balance: db.balance });
-    const sim = simulate(lv, ctx, [
-      { hour: 7, crossings: [] },
-      { hour: 8, crossings: [] },
-      { hour: 9, crossings: [{ pair: 3, over: 'L' }] },
-      { hour: 10, crossings: [{ pair: 0, over: 'R' }, { pair: 2, over: 'L' }] },
-      { hour: 11, crossings: [{ pair: 1, over: 'L' }, { pair: 3, over: 'L' }] },
-      { hour: 12, crossings: [] },
-    ]);
+    const sim = simulate(lv, ctx, combo('g06.nina', 'g06.marta')?.rows ?? []);
     expect(sim.ok).toBe(true);
-    expect(sim.timeline.map((s) => s.pos.join(','))).toEqual([
-      'lino1,marta,teresa,piero,nina,zeno',
-      'lino1,marta,teresa,piero,nina,zeno',
-      'marinaio,marta,teresa,piero,nina,zeno',
-      'marinaio,marta,teresa,nina,piero,zeno',
-      'marta,marinaio,nina,teresa,piero,zeno',
-      'marta,nina,marinaio,piero,teresa,zeno',
-      'marta,nina,marinaio,piero,teresa,zeno',
-    ]);
+    expect(sim.timeline[0]?.pos.join(',')).toBe('lino1,nina,marta,zeno,piero,teresa');
     const reqs = ['g06.nina', 'g06.marta'].map((id) => db.notes.get(id)?.request as Condition);
-    expect(evaluate(lv, sim.timeline, sim.events, reqs, ctx, true).map((r) => r.status)).toEqual(['soddisfatta', 'soddisfatta']);
+    expect(evaluate(lv, sim.timeline, sim.events, [...(lv.goals ?? []), ...reqs], ctx, true).every((r) => r.status === 'soddisfatta')).toBe(true);
   });
 
   it('la matassa di ogni giornata è il minimo della combinazione designata più il margine (+3; prologo +2)', () => {

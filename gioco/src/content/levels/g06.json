@@ -15,7 +15,7 @@
     {"id": "zeno", "kind": "persona", "character": "zeno"},
     {"id": "marinaio", "kind": "lino", "labelKey": "comune.fili.marinaio"}
   ],
-  "initial": ["lino1", "marta", "teresa", "piero", "nina", "zeno"],
+  "initial": ["lino1", "nina", "marta", "zeno", "piero", "teresa"],
   "beads": [
     {"id": "L1", "type": "lettera", "holder": "marinaio", "to": "nina", "labelKey": "atto1.g06.perline.L1"},
     {
@@ -27,10 +27,10 @@
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "zenoFaro"],
-  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 11}],
+  "pins": [{"thread": "teresa", "place": "forno", "hour": 11}, {"thread": "nina", "place": "piazza", "hour": 12}],
   "edges": [{"hour": 8, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g06.nina", "g06.marta", "g06.zeno"],
-  "matassa": 8,
+  "matassa": 15,
   "dawn": {
     "candidates": [
       {
