@@ -115,6 +115,8 @@ export class LaceRenderer {
   private readonly spindleOpts: SpindleDrawOptions = { quirk: () => false, label: () => null, highlight: new Set(), pulse: 0, nomeOn: null };
   private paintModel: LaceModel | null = null;
   private paintLayout: TomboloLayout | null = null;
+  /** Tempo del fotogramma (per il tremito delle lettere). */
+  private frameTime = 0;
 
   constructor(make: CanvasMaker = defaultCanvasMaker) {
     this.cache = new StripCache(make);
@@ -198,6 +200,7 @@ export class LaceRenderer {
     }
     this.style.time = o.time;
     this.fixedStyle.time = 0;
+    this.frameTime = o.time;
     const lace = l.lace;
     const top = lace.y - scroll;
     const g = this.geom as RowGeom;
@@ -434,7 +437,9 @@ export class LaceRenderer {
         if (m && this.flights.flying(st.thread, b.id)) continue;
         // Le perline scendono lungo il filo che pende: x interpolata verso il fuso.
         const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
-        drawBead(ctx, b.type, x0 + (x1 - x0) * f * f, y, 1, b.delivered);
+        // Una lettera col destinatario accanto trema verso di lui (non col movimento ridotto).
+        const shake = b.tremble !== 0 && !this.rig.reduced ? b.tremble * (1.6 + 1.6 * Math.sin(this.frameTime * 24)) : 0;
+        drawBead(ctx, b.type, x0 + (x1 - x0) * f * f + shake, y, 1, b.delivered);
         y += 16;
       }
     }
