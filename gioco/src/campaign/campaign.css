@@ -1134,3 +1134,21 @@
 :root[data-motion='ridotto'] .cp-prologo-tocca {
   animation: none;
 }
+
+/*
+ * Nomi dei personaggi sulla carta (bilancio, Taccuino, bigliettini, vignette, ritratti di
+ * «Chi l'ha scritto?»): inchiostro velato dal colore del personaggio, mentre sottolineatura
+ * e icona portano il colore pieno. La regola del core per le scene (testo chiaro sul velluto)
+ * renderebbe illeggibili sulla carta i colori chiari (il grigio di Lunardi, il giallo di Nina).
+ */
+.cp-scena .cp-foglio .core-pers,
+.cp-scena .cp-taccuino .core-pers,
+.core-scene .cp-taccuino .core-pers,
+.cp-scena .cp-nota .core-pers,
+.cp-nota .core-pers,
+.cp-scena .cp-vignetta-box .core-pers,
+.cp-volto .core-pers,
+.cp-dettaglio .core-carta .core-pers {
+  color: var(--inchiostro);
+  color: color-mix(in srgb, var(--pers-color) 40%, var(--inchiostro));
+}

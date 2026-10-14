@@ -21,8 +21,12 @@ import { VignettePlayer } from './vignette';
 import { animDelay, sceneHost, unloadImages } from './ui';
 import type { VignetteView } from './types';
 
-/** Righe dei titoli di coda della campagna (oltre a quelle di credits.json). */
-export const CREDIT_KEYS = ['campaign.titoli.ia', 'campaign.titoli.font', 'campaign.titoli.strumenti', 'campaign.titoli.ispirato'] as const;
+/**
+ * Righe dei titoli di coda richieste dal GDD 10.3 che credits.json non ha già («realizzato
+ * con strumenti di intelligenza artificiale», la tradizione di Pellestrina e Burano):
+ * caratteri e strumenti sono già nelle righe dei contenuti.
+ */
+export const CREDIT_KEYS = ['campaign.titoli.ia', 'campaign.titoli.ispirato'] as const;
 
 export class FinaleScene implements Scene {
   readonly id = 'finale' as const;
@@ -124,9 +128,18 @@ export class FinaleScene implements Scene {
       if (lv) lines.push(textOf(lv.titleKey, undefined, 'h1', { className: 'cp-titoli-finale' }));
     }
     lines.push(textOf('campaign.titoli.gioco', undefined, 'h2', { className: 'cp-titoli-gioco' }));
-    if (db.credits.authorKey) lines.push(textOf(db.credits.authorKey, undefined, 'p', { className: 'cp-titoli-riga' }));
-    for (const l of db.credits.lines) lines.push(textOf(l.key, undefined, 'p', { className: 'cp-titoli-riga' }));
-    for (const k of CREDIT_KEYS) lines.push(textOf(k, undefined, 'p', { className: 'cp-titoli-riga' }));
+    // Ogni riga una volta sola (il titolo del gioco è anche fra le righe di credits.json).
+    const said = new Set<string>([this.s.i18n.t('campaign.titoli.gioco').trim()]);
+    const add = (key: string): void => {
+      if (!this.s.i18n.has(key)) return;
+      const text = this.s.i18n.t(key).trim();
+      if (said.has(text)) return;
+      said.add(text);
+      lines.push(textOf(key, undefined, 'p', { className: 'cp-titoli-riga', rich: true }));
+    };
+    if (db.credits.authorKey) add(db.credits.authorKey);
+    for (const l of db.credits.lines) add(l.key);
+    for (const k of CREDIT_KEYS) add(k);
     const scroll = el('div', { class: 'cp-titoli-scorrimento', test: 'cp-titoli' }, ...lines);
     const skip = button({ labelKey: 'campaign.titoli.fine', icon: 'avanti', kind: 'secondario', onClick: () => this.endTitles(), test: 'cp-titoli-fine' });
     root.append(el('div', { class: 'cp-titoli' }, scroll), el('div', { class: 'cp-titoli-barra' }, skip));
