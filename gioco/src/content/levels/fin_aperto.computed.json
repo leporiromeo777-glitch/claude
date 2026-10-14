@@ -1,0 +1,195 @@
+{
+  "levelId": "fin_aperto",
+  "sourceHash": "b751624f851a1fea",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 0,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R",
+            "forced": true
+          },
+          {
+            "pair": 3,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R",
+            "forced": true
+          },
+          {
+            "pair": 3,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 4,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 4,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R",
+            "forced": true
+          },
+          {
+            "pair": 3,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 13,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 3,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 14,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 15,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 16,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 17,
+        "crossings": []
+      },
+      {
+        "hour": 18,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 19,
+        "crossings": [
+          {
+            "pair": 4,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 20,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 1,
+  "quieteMax": 14,
+  "occasionsSolution": [
+    {
+      "kind": "vaporetto",
+      "place": "molo",
+      "hour": 9
+    },
+    {
+      "kind": "festa",
+      "place": "piazza",
+      "hour": 17
+    },
+    {
+      "kind": "lanterna",
+      "place": "faro",
+      "hour": 20
+    },
+    {
+      "kind": "festa",
+      "place": "farmacia",
+      "hour": 12
+    }
+  ],
+  "occasionsSolutions": 15
+}

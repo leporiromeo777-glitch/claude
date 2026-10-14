@@ -1,0 +1,220 @@
+{
+  "id": "arc3",
+  "kind": "archivio",
+  "titleKey": "atto2.arc3.titolo",
+  "act": 2,
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 11,
+  "threads": [
+    {
+      "id": "f1",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "f2",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "scuola",
+      "kind": "persona",
+      "labelKey": "atto2.arc3.scuola"
+    },
+    {
+      "id": "f3",
+      "kind": "persona",
+      "character": "bortolo"
+    },
+    {
+      "id": "f4",
+      "kind": "persona",
+      "character": "aldo"
+    },
+    {
+      "id": "f5",
+      "kind": "persona",
+      "character": "bepi"
+    }
+  ],
+  "initial": [
+    "f1",
+    "f2",
+    "scuola",
+    "f3",
+    "f4",
+    "f5"
+  ],
+  "beads": [
+    {
+      "id": "febbre",
+      "type": "febbre",
+      "holders": [
+        "f4"
+      ],
+      "labelKey": "atto2.arc3.perline.febbre"
+    },
+    {
+      "id": "medicina",
+      "type": "lettera",
+      "holder": "f3",
+      "to": "scuola",
+      "labelKey": "atto2.arc3.perline.medicina"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "lettera",
+    "febbre"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge"
+  ],
+  "pins": [],
+  "matassa": 2,
+  "archive": {
+    "year": "1958",
+    "faded": [
+      "f1",
+      "f2",
+      "f3",
+      "f4",
+      "f5"
+    ],
+    "candidates": [
+      "teresa",
+      "marta",
+      "bortolo",
+      "aldo",
+      "bepi",
+      "lunardi"
+    ],
+    "answer": {
+      "f1": "teresa",
+      "f2": "marta",
+      "f3": "bortolo",
+      "f4": "aldo",
+      "f5": "bepi"
+    },
+    "holes": [
+      {
+        "from": 9,
+        "to": 10
+      }
+    ],
+    "recorded": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      }
+    ],
+    "closes": [
+      "anno1958"
+    ],
+    "unlocks": [
+      "archivio.arc3.aldo",
+      "archivio.arc3.scuola"
+    ],
+    "titleKey": "atto2.arc3.titolo",
+    "echoes": [
+      {
+        "hour": 7,
+        "pair": 2,
+        "textKey": "atto2.arc3.eco.1"
+      },
+      {
+        "hour": 8,
+        "pair": 0,
+        "textKey": "atto2.arc3.eco.2"
+      },
+      {
+        "hour": 9,
+        "pair": 1,
+        "textKey": "atto2.arc3.eco.3"
+      },
+      {
+        "hour": 10,
+        "pair": 2,
+        "textKey": "atto2.arc3.eco.4"
+      },
+      {
+        "hour": 11,
+        "pair": 0,
+        "textKey": "atto2.arc3.eco.5"
+      }
+    ],
+    "marginKey": "atto2.arc3.margine",
+    "reveal": {
+      "id": "arc3.rivela",
+      "priority": 100,
+      "background": "dio/farmacia/notte",
+      "figures": [
+        {
+          "character": "teresa",
+          "pose": "ferma",
+          "x": 0.5
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narratore",
+          "textKey": "atto2.arc3.rivela.1"
+        },
+        {
+          "speaker": "narratore",
+          "textKey": "atto2.arc3.rivela.2"
+        }
+      ]
+    }
+  }
+}

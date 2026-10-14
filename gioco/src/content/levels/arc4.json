@@ -1,0 +1,245 @@
+{
+  "id": "arc4",
+  "kind": "archivio",
+  "titleKey": "atto2.arc4.titolo",
+  "act": 2,
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 5,
+  "endHour": 10,
+  "threads": [
+    {
+      "id": "lino1",
+      "kind": "lino",
+      "labelKey": "comune.fili.barcaiolo"
+    },
+    {
+      "id": "f1",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "f2",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "f3",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "f4",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "f5",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "lino2",
+      "kind": "lino",
+      "labelKey": "comune.fili.marinaio"
+    },
+    {
+      "id": "ada",
+      "kind": "persona",
+      "character": "ada"
+    }
+  ],
+  "initial": [
+    "lino1",
+    "f1",
+    "f2",
+    "f3",
+    "f4",
+    "f5"
+  ],
+  "beads": [
+    {
+      "id": "valigia",
+      "type": "lettera",
+      "holder": "f3",
+      "to": "f4",
+      "labelKey": "atto2.arc4.perline.valigia"
+    },
+    {
+      "id": "L_ada",
+      "type": "lettera",
+      "holder": "f4",
+      "to": "ada",
+      "labelKey": "atto2.arc4.perline.L_ada"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "lettera",
+    "molo",
+    "segreto"
+  ],
+  "quirks": [
+    "teresaLegge",
+    "pieroPozzo",
+    "zenoFaro"
+  ],
+  "pins": [],
+  "edges": [
+    {
+      "hour": 9,
+      "side": "molo",
+      "kind": "vaporetto",
+      "enters": "lino2"
+    }
+  ],
+  "matassa": 2,
+  "archive": {
+    "year": "1951",
+    "faded": [
+      "f1",
+      "f2",
+      "f3",
+      "f4",
+      "f5"
+    ],
+    "candidates": [
+      "livia",
+      "zeno",
+      "piero",
+      "teresa",
+      "bepi",
+      "ernesto"
+    ],
+    "answer": {
+      "f1": "teresa",
+      "f2": "piero",
+      "f3": "zeno",
+      "f4": "livia",
+      "f5": "bepi"
+    },
+    "holes": [
+      {
+        "from": 7,
+        "to": 8
+      }
+    ],
+    "recorded": [
+      {
+        "hour": 6,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 4,
+            "over": "L"
+          }
+        ]
+      }
+    ],
+    "closes": [
+      "madre"
+    ],
+    "unlocks": [
+      "archivio.arc4.valigia",
+      "archivio.arc4.lettera"
+    ],
+    "titleKey": "atto2.arc4.titolo",
+    "echoes": [
+      {
+        "hour": 6,
+        "pair": 3,
+        "textKey": "atto2.arc4.eco.1"
+      },
+      {
+        "hour": 7,
+        "pair": 2,
+        "textKey": "atto2.arc4.eco.2"
+      },
+      {
+        "hour": 8,
+        "pair": 1,
+        "textKey": "atto2.arc4.eco.3"
+      },
+      {
+        "hour": 9,
+        "pair": 0,
+        "textKey": "atto2.arc4.eco.4"
+      },
+      {
+        "hour": 10,
+        "pair": 4,
+        "textKey": "atto2.arc4.eco.5"
+      }
+    ],
+    "marginKey": "atto2.arc4.margine",
+    "reveal": {
+      "id": "arc4.rivela",
+      "priority": 100,
+      "background": "dio/molo/alba",
+      "figures": [
+        {
+          "character": "livia",
+          "pose": "saluta",
+          "x": 0.35
+        },
+        {
+          "character": "zeno",
+          "pose": "porge",
+          "x": 0.65,
+          "flip": true
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narratore",
+          "textKey": "atto2.arc4.rivela.1"
+        },
+        {
+          "speaker": "narratore",
+          "textKey": "atto2.arc4.rivela.2"
+        }
+      ]
+    }
+  }
+}

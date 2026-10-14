@@ -1,0 +1,162 @@
+{
+  "id": "fin_merlettaia",
+  "kind": "finale",
+  "act": 3,
+  "titleKey": "finali.merlettaia.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 18,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "lino1",
+      "kind": "lino",
+      "labelKey": "comune.fili.marinaio"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "teresa",
+    "piero",
+    "livia",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    },
+    {
+      "thread": "zeno",
+      "place": "faro",
+      "hour": 18
+    }
+  ],
+  "edges": [
+    {
+      "hour": 18,
+      "side": "molo",
+      "kind": "vaporetto"
+    }
+  ],
+  "goals": [
+    {
+      "t": "almeno",
+      "n": 4,
+      "of": [
+        {
+          "t": "incontra",
+          "a": "livia",
+          "b": "bepi"
+        },
+        {
+          "t": "incontra",
+          "a": "livia",
+          "b": "marta"
+        },
+        {
+          "t": "incontra",
+          "a": "livia",
+          "b": "teresa"
+        },
+        {
+          "t": "incontra",
+          "a": "livia",
+          "b": "piero"
+        },
+        {
+          "t": "incontra",
+          "a": "livia",
+          "b": "zeno"
+        }
+      ]
+    },
+    {
+      "t": "parte",
+      "who": "livia",
+      "hour": 18
+    }
+  ],
+  "matassa": 5,
+  "hintKeys": {
+    "spinta": "finali.merlettaia.hint.spinta",
+    "indizio": "finali.merlettaia.hint.indizio"
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "finali.merlettaia.margine"
+    }
+  ]
+}

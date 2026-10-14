@@ -1,0 +1,257 @@
+{
+  "id": "g13",
+  "kind": "storia",
+  "act": 2,
+  "titleKey": "atto2.g13.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 20,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "lunardi",
+      "kind": "persona",
+      "character": "lunardi"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "gino",
+    "piero",
+    "lunardi",
+    "nina"
+  ],
+  "beads": [
+    {
+      "id": "febbre",
+      "type": "febbre",
+      "holders": [
+        "gino",
+        "bepi",
+        "nina",
+        "piero"
+      ],
+      "labelKey": "atto2.g13.perline.febbre"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "nome"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 19
+    }
+  ],
+  "notes": [
+    "g13.marta",
+    "g13.lunardi",
+    "g13.gino",
+    "g13.nina"
+  ],
+  "matassa": 20,
+  "hintKeys": {
+    "spinta": "atto2.g13.hint.spinta",
+    "indizio": "atto2.g13.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g13.alba.specchio",
+        "priority": 100,
+        "background": "dio/farmacia/notte",
+        "figures": [
+          {
+            "character": "lunardi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "lunardi",
+            "textKey": "atto2.g13.alba.specchio.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "atto2.g13.alba.specchio.2"
+          }
+        ]
+      },
+      {
+        "id": "g13.alba.gino",
+        "priority": 60,
+        "background": "dio/forno/alba",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.35
+          },
+          {
+            "character": "gino",
+            "pose": "saluta",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g13.alba.gino.1"
+          },
+          {
+            "speaker": "gino",
+            "textKey": "atto2.g13.alba.gino.2"
+          }
+        ],
+        "when": {
+          "ok": "g13.marta"
+        }
+      },
+      {
+        "id": "g13.alba.nina",
+        "priority": 60,
+        "background": "dio/farmacia/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "lunardi",
+            "pose": "porge",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g13.alba.nina.1"
+          },
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g13.alba.nina.2"
+          }
+        ],
+        "when": {
+          "ok": "g13.lunardi"
+        }
+      },
+      {
+        "id": "g13.alba.piero",
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g13.alba.piero.1"
+          },
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g13.alba.piero.2"
+          }
+        ],
+        "when": {
+          "ok": "g13.gino"
+        }
+      },
+      {
+        "id": "g13.alba.bepi",
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "nina",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto2.g13.alba.bepi.1"
+          },
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g13.alba.bepi.2"
+          }
+        ],
+        "when": {
+          "failed": "g13.nina"
+        }
+      }
+    ]
+  }
+}

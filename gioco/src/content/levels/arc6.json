@@ -1,0 +1,310 @@
+{
+  "id": "arc6",
+  "kind": "archivio",
+  "titleKey": "atto3.arc6.titolo",
+  "act": 3,
+  "columns": [
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 12,
+  "threads": [
+    {
+      "id": "f1",
+      "kind": "avorio",
+      "character": "clotilde"
+    },
+    {
+      "id": "f2",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "f3",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "f4",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "f2",
+    "f3",
+    "f1",
+    "f4"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "occasioni"
+  ],
+  "quirks": [
+    "zenoFaro"
+  ],
+  "pins": [],
+  "autoweave": {
+    "agents": [
+      {
+        "thread": "f1",
+        "agenda": [],
+        "likes": [
+          "pane",
+          "messa"
+        ]
+      },
+      {
+        "thread": "f2",
+        "agenda": [],
+        "likes": [
+          "messa"
+        ]
+      },
+      {
+        "thread": "f3",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "f4",
+        "agenda": [
+          {
+            "stay": true
+          }
+        ],
+        "likes": [
+          "lanterna"
+        ]
+      }
+    ],
+    "occasionSlots": 2,
+    "allowedOccasions": [
+      {
+        "kind": "festa",
+        "place": "piazza",
+        "hour": 9
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 10
+      },
+      {
+        "kind": "lanterna",
+        "place": "faro",
+        "hour": 12
+      },
+      {
+        "kind": "pane",
+        "place": "piazza",
+        "hour": 8
+      },
+      {
+        "kind": "festa",
+        "place": "farmacia",
+        "hour": 11
+      },
+      {
+        "kind": "lanterna",
+        "place": "farmacia",
+        "hour": 9
+      },
+      {
+        "kind": "festa",
+        "place": "faro",
+        "hour": 10
+      },
+      {
+        "kind": "pane",
+        "place": "chiesa",
+        "hour": 11
+      }
+    ]
+  },
+  "goals": [
+    {
+      "t": "incontra",
+      "a": "f1",
+      "b": "f3"
+    },
+    {
+      "t": "incontra",
+      "a": "f3",
+      "b": "f4"
+    },
+    {
+      "t": "presso",
+      "who": "f2",
+      "place": "chiesa",
+      "hour": 10
+    }
+  ],
+  "matassa": 0,
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "atto3.arc6.tutorial"
+    }
+  ],
+  "archive": {
+    "year": "",
+    "faded": [
+      "f1",
+      "f2",
+      "f3",
+      "f4"
+    ],
+    "candidates": [
+      "clotilde",
+      "piero",
+      "livia",
+      "zeno",
+      "ada"
+    ],
+    "answer": {
+      "f1": "clotilde",
+      "f2": "piero",
+      "f3": "livia",
+      "f4": "zeno"
+    },
+    "holes": [
+      {
+        "from": 7,
+        "to": 12
+      }
+    ],
+    "recorded": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R",
+            "forced": true
+          },
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      }
+    ],
+    "closes": [
+      "puntoAperto"
+    ],
+    "unlocks": [
+      "archivio.arc6.punto"
+    ],
+    "titleKey": "atto3.arc6.titolo",
+    "echoes": [
+      {
+        "hour": 7,
+        "pair": 1,
+        "textKey": "atto3.arc6.eco.1"
+      },
+      {
+        "hour": 8,
+        "pair": 0,
+        "textKey": "atto3.arc6.eco.2"
+      },
+      {
+        "hour": 8,
+        "pair": 2,
+        "textKey": "atto3.arc6.eco.3"
+      },
+      {
+        "hour": 9,
+        "pair": 2,
+        "textKey": "atto3.arc6.eco.4"
+      },
+      {
+        "hour": 10,
+        "pair": 2,
+        "textKey": "atto3.arc6.eco.5"
+      },
+      {
+        "hour": 11,
+        "pair": 2,
+        "textKey": "atto3.arc6.eco.6"
+      }
+    ],
+    "marginKey": "atto3.arc6.margine",
+    "reveal": {
+      "id": "arc6.rivela",
+      "priority": 100,
+      "background": "dio/faro/alba",
+      "figures": [
+        {
+          "character": "livia",
+          "pose": "ferma",
+          "x": 0.5
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narratore",
+          "textKey": "atto3.arc6.rivela.1"
+        },
+        {
+          "speaker": "narratore",
+          "textKey": "atto3.arc6.rivela.2"
+        }
+      ]
+    }
+  }
+}

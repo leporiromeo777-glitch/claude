@@ -1,0 +1,92 @@
+[
+  {
+    "id": "lettera_L8",
+    "arrivesAfter": "g10",
+    "textKey": "atto2.lettere.lettera_L8",
+    "signed": "L."
+  },
+  {
+    "id": "lettera_L9",
+    "arrivesAfter": "g11",
+    "textKey": "atto2.lettere.lettera_L9",
+    "signed": "L."
+  },
+  {
+    "id": "lettera_L10",
+    "arrivesAfter": "g12",
+    "textKey": "atto2.lettere.lettera_L10",
+    "signed": "L."
+  },
+  {
+    "id": "lettera_L11",
+    "arrivesAfter": "g13",
+    "textKey": "atto2.lettere.lettera_L11",
+    "signed": "L."
+  },
+  {
+    "id": "lettera_clotilde",
+    "arrivesAfter": "g14",
+    "textKey": "atto2.lettere.lettera_clotilde",
+    "signed": "C."
+  },
+  {
+    "id": "fascio_1",
+    "arrivesAfter": "g16",
+    "textKey": "atto2.lettere.fascio_1",
+    "signed": "L."
+  },
+  {
+    "id": "fascio_2",
+    "arrivesAfter": "g16",
+    "textKey": "atto2.lettere.fascio_2",
+    "signed": "L."
+  },
+  {
+    "id": "fascio_3",
+    "arrivesAfter": "g16",
+    "textKey": "atto2.lettere.fascio_3",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_1",
+    "arrivesAfter": "g17",
+    "textKey": "atto3.lettere.biglietto_livia_1",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_2",
+    "arrivesAfter": "g18",
+    "textKey": "atto3.lettere.biglietto_livia_2",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_3",
+    "arrivesAfter": "g19",
+    "textKey": "atto3.lettere.biglietto_livia_3",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_4",
+    "arrivesAfter": "g20",
+    "textKey": "atto3.lettere.biglietto_livia_4",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_5",
+    "arrivesAfter": "g21",
+    "textKey": "atto3.lettere.biglietto_livia_5",
+    "signed": "L."
+  },
+  {
+    "id": "biglietto_livia_6",
+    "arrivesAfter": "g22",
+    "textKey": "atto3.lettere.biglietto_livia_6",
+    "signed": "L."
+  },
+  {
+    "id": "nastro_nonna",
+    "arrivesAfter": "g23",
+    "textKey": "atto3.lettere.nastro_nonna",
+    "signed": "C."
+  }
+]

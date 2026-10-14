@@ -1,0 +1,254 @@
+{
+  "id": "g15",
+  "kind": "storia",
+  "act": 2,
+  "titleKey": "atto2.g15.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 20,
+  "threads": [
+    {
+      "id": "lino1",
+      "kind": "lino",
+      "labelKey": "comune.fili.pescatore"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    }
+  ],
+  "initial": [
+    "lino1",
+    "marta",
+    "gino",
+    "piero",
+    "nina",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "nome"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    }
+  ],
+  "edges": [
+    {
+      "hour": 20,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "bepi"
+    }
+  ],
+  "notes": [
+    "g15.nina",
+    "g15.marta",
+    "g15.piero",
+    "g15.gino"
+  ],
+  "matassa": 17,
+  "hintKeys": {
+    "spinta": "atto2.g15.hint.spinta",
+    "indizio": "atto2.g15.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g15.alba.luce",
+        "priority": 100,
+        "background": "tab/tempesta",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto2.g15.alba.luce.1"
+          },
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g15.alba.luce.2"
+          }
+        ],
+        "when": {
+          "flag": "bepi",
+          "eq": "salvo"
+        }
+      },
+      {
+        "id": "g15.alba.secca",
+        "priority": 100,
+        "background": "tab/tempesta",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "lunardi",
+            "pose": "porge",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto2.g15.alba.secca.1"
+          },
+          {
+            "speaker": "lunardi",
+            "textKey": "atto2.g15.alba.secca.2"
+          }
+        ],
+        "when": {
+          "flag": "bepi",
+          "eq": "ferito"
+        }
+      },
+      {
+        "id": "g15.alba.nero",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "atto2.g15.alba.nero.1"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "atto2.g15.alba.nero.2"
+          }
+        ]
+      },
+      {
+        "id": "g15.alba.campane",
+        "priority": 60,
+        "background": "dio/chiesa/notte",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g15.alba.campane.1"
+          },
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g15.alba.campane.2"
+          }
+        ],
+        "when": {
+          "ok": "g15.piero"
+        }
+      },
+      {
+        "id": "g15.alba.molo",
+        "priority": 80,
+        "background": "dio/molo/notte",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g15.alba.molo.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g15.alba.molo.2"
+          }
+        ],
+        "when": {
+          "failed": "g15.marta"
+        }
+      }
+    ]
+  }
+}

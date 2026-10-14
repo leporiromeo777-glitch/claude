@@ -1,0 +1,138 @@
+{
+  "levelId": "fin_seppia",
+  "sourceHash": "07b8e26e5f726bd7",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 9,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          },
+          {
+            "pair": 3,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 13,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 14,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 2,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 15,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          },
+          {
+            "pair": 4,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 16,
+        "crossings": [
+          {
+            "pair": 4,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 17,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 18,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 10,
+  "quieteMax": 3
+}

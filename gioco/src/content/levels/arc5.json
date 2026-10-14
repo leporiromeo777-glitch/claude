@@ -1,0 +1,220 @@
+{
+  "id": "arc5",
+  "kind": "archivio",
+  "titleKey": "atto3.arc5.titolo",
+  "act": 3,
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 11,
+  "threads": [
+    {
+      "id": "barcaiolo",
+      "kind": "persona",
+      "labelKey": "atto3.arc5.fili.barcaiolo"
+    },
+    {
+      "id": "vedova",
+      "kind": "persona",
+      "labelKey": "atto3.arc5.fili.vedova"
+    },
+    {
+      "id": "fornaio",
+      "kind": "persona",
+      "labelKey": "atto3.arc5.fili.fornaio"
+    },
+    {
+      "id": "f1",
+      "kind": "persona",
+      "character": "arianna"
+    },
+    {
+      "id": "prete",
+      "kind": "persona",
+      "labelKey": "atto3.arc5.fili.prete"
+    },
+    {
+      "id": "bambino",
+      "kind": "persona",
+      "labelKey": "atto3.arc5.fili.bambino"
+    },
+    {
+      "id": "lino1",
+      "kind": "lino",
+      "labelKey": "atto3.arc5.fili.lazzaretto"
+    }
+  ],
+  "initial": [
+    "barcaiolo",
+    "vedova",
+    "fornaio",
+    "f1",
+    "prete",
+    "bambino"
+  ],
+  "beads": [
+    {
+      "id": "febbre",
+      "type": "febbre",
+      "holders": [
+        "barcaiolo"
+      ],
+      "labelKey": "atto3.arc5.perline.peste"
+    },
+    {
+      "id": "voce:quarantena",
+      "type": "voce",
+      "holders": [
+        "f1"
+      ],
+      "labelKey": "atto3.arc5.perline.quarantena"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "voce",
+    "molo",
+    "febbre"
+  ],
+  "quirks": [],
+  "pins": [],
+  "edges": [
+    {
+      "hour": 10,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "lino1"
+    }
+  ],
+  "matassa": 3,
+  "archive": {
+    "year": "1630",
+    "faded": [
+      "f1"
+    ],
+    "candidates": [
+      "arianna",
+      "clotilde"
+    ],
+    "answer": {
+      "f1": "arianna"
+    },
+    "holes": [
+      {
+        "from": 8,
+        "to": 9
+      }
+    ],
+    "recorded": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 4,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      }
+    ],
+    "closes": [],
+    "unlocks": [
+      "archivio.arc5.regola"
+    ],
+    "titleKey": "atto3.arc5.titolo",
+    "echoes": [
+      {
+        "hour": 7,
+        "pair": 2,
+        "textKey": "atto3.arc5.eco.1"
+      },
+      {
+        "hour": 8,
+        "pair": 1,
+        "textKey": "atto3.arc5.eco.2"
+      },
+      {
+        "hour": 9,
+        "pair": 1,
+        "textKey": "atto3.arc5.eco.3"
+      },
+      {
+        "hour": 9,
+        "pair": 3,
+        "textKey": "atto3.arc5.eco.4"
+      },
+      {
+        "hour": 10,
+        "pair": 4,
+        "textKey": "atto3.arc5.eco.5"
+      },
+      {
+        "hour": 11,
+        "pair": 2,
+        "textKey": "atto3.arc5.eco.6"
+      }
+    ],
+    "marginKey": "atto3.arc5.margine",
+    "reveal": {
+      "id": "arc5.rivela",
+      "priority": 100,
+      "background": "dio/chiesa/notte",
+      "figures": [],
+      "lines": [
+        {
+          "speaker": "narratore",
+          "textKey": "atto3.arc5.rivela.1"
+        },
+        {
+          "speaker": "narratore",
+          "textKey": "atto3.arc5.rivela.2"
+        }
+      ]
+    }
+  }
+}

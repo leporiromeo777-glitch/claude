@@ -1,0 +1,126 @@
+{
+  "merlettaia": {
+    "titolo": "La merlettaia",
+    "hint": {
+      "spinta": "Quattro saluti, poi il vaporetto delle sei. Mia madre sale da sola, stavolta.",
+      "indizio": "Porta Livia a passare accanto a chi la saluta, e al Molo per le sei di sera."
+    },
+    "margine": "Il mio ultimo merletto da sola. Lo tesso perché lei possa andare.",
+    "epilogo": {
+      "1": {
+        "1": "Alle sei di sera mia madre è salita sul vaporetto. Per scelta, stavolta.",
+        "2": "Ti scrivo, Ada mia. E stavolta le lettere arriveranno."
+      },
+      "2": {
+        "1": "L'ho salutata dalla finestra. Non avevo un filo per scendere al Molo.",
+        "2": "Lei si è voltata tre volte. Alla terza ho chiuso la finestra."
+      },
+      "3": {
+        "1": "Anni dopo, il mio merletto più bello è appeso in chiesa, senza nome.",
+        "2": "I ragazzi dell'isola non sanno chi l'ha fatto."
+      },
+      "4": {
+        "1": "Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.",
+        "0": "Ogni notte, alle cinque e cinquantanove, il merletto era finito."
+      }
+    }
+  },
+  "chiuso": {
+    "titolo": "Il merletto chiuso",
+    "hint": {
+      "spinta": "Livia al Molo alle nove, come nel 1951. Come vorrebbe la nonna.",
+      "indizio": "Tre ore, tre colonne: Livia deve passare sopra a chi incontra, una riga dopo l'altra."
+    },
+    "margine": "Funziona. Ha sempre funzionato.",
+    "epilogo": {
+      "1": {
+        "1": "Alle nove il merletto si è annodato da solo. Un nodo solo, per tutti i fili.",
+        "2": "Mia madre era al Molo, come nel 1951. Il vaporetto aspettava."
+      },
+      "2": {
+        "1": "La campana ha suonato un'ora sbagliata, più stonata del solito.",
+        "2": "Poi il merletto si è disfatto da solo, all'indietro, fino alla sera."
+      },
+      "3": {
+        "1": "Mi sono svegliata alla sera di ieri, con quattro biglietti sotto la porta.",
+        "2": "Il biglietto della nonna era ancora lì, piegato in quattro. Ho deciso di non riaprirlo."
+      },
+      "4": {
+        "1": "Questo merletto l'ho già visto.",
+        "2": "Il punto di Clotilde: chi lo ripete, lo ripete per sempre."
+      }
+    }
+  },
+  "seppia": {
+    "titolo": "Il filo di seppia",
+    "hint": {
+      "spinta": "Muovi solo il tuo filo. Gli altri seguono l'agenda che ha scritto mia madre.",
+      "indizio": "Stai sotto: chi ti passa sopra ti dà qualcosa. Sei persone prima delle sei di sera."
+    },
+    "margine": "Ho un filo corallo. Mia madre tesse, io cammino.",
+    "epilogo": {
+      "1": {
+        "1": "Mia madre ha preso il tombolo. Le sue mani lo conoscevano già.",
+        "2": "Vai, Ada mia. Il filo corallo è tuo."
+      },
+      "2": {
+        "1": "Ho un filo, adesso. E una vita: la scuola, la Nina, la terraferma.",
+        "2": "A settembre ho preso il vaporetto con la Nina. Lei rideva, io no."
+      },
+      "3": {
+        "1": "In un anno l'isola ha dimenticato mia madre.",
+        "2": "Poi, piano piano, ho cominciato anch'io."
+      },
+      "4": {
+        "1": "Mia madre tesse ancora.",
+        "2": "Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe."
+      }
+    }
+  },
+  "aperto": {
+    "titolo": "Il merletto aperto",
+    "perline": {
+      "L_teresa": "Una lettera di Ada, per Teresa",
+      "L_1951": "La lettera del 1951, custodita da Don Piero, per Ada",
+      "ettore": "Il dottore si chiama Ettore"
+    },
+    "hint": {
+      "spinta": "Nessun incrocio: pianta fino a cinque occasioni e lascia accadere. Si può riprovare.",
+      "indizio": "Pane la mattina, festa nel pomeriggio, lanterna la sera: ognuno va dove gli piace."
+    },
+    "margine": "Non comando nessuno. Pianto un'occasione e aspetto.",
+    "epilogo": {
+      "1": {
+        "1": "Mia madre e io abbiamo appuntato solo occasioni: il pane caldo alle sette,",
+        "2": "la festa in Piazza alle cinque, la lanterna alle otto. Il resto l'hanno fatto loro."
+      },
+      "2": {
+        "1": "I fili si sono incrociati da soli, secondo i desideri. Tutti hanno un filo.",
+        "2": "Anch'io. Anche mia madre."
+      },
+      "3": {
+        "1": "Il tombolo è rimasto in chiesa, come una reliquia che nessuno usa più.",
+        "2": "La campana del campanile, finalmente, suona intonata."
+      },
+      "4": {
+        "1": "Per un inverno intero ho imparato a comandare le persone.",
+        "2": "Poi ho imparato a conoscerle."
+      }
+    }
+  },
+  "mancanze": {
+    "lettere": "Le lettere di mia madre sono ancora nel pozzo.",
+    "riconciliate": "Teresa e Marta non si parlano ancora.",
+    "desiderio": {
+      "teresa": "Non so ancora cosa vuole Teresa.",
+      "marta": "Non so ancora cosa vuole Marta.",
+      "piero": "Non so ancora cosa vuole Don Piero.",
+      "gino": "Non so ancora cosa vuole il Gino.",
+      "bepi": "Non so ancora cosa vuole Bepi.",
+      "nina": "Non so ancora cosa vuole la Nina.",
+      "zeno": "Non so ancora cosa vuole Zeno.",
+      "lunardi": "Non so ancora cosa vuole il dottor Lunardi."
+    },
+    "memoria": "Troppi hanno dimenticato il mio nome. Mi servono quattro persone che mi ricordino."
+  }
+}

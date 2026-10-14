@@ -1,0 +1,110 @@
+{
+  "id": "fin_chiuso",
+  "kind": "finale",
+  "act": 3,
+  "titleKey": "finali.chiuso.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 9,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "teresa",
+    "livia",
+    "piero",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    }
+  ],
+  "goals": [
+    {
+      "t": "presso",
+      "who": "livia",
+      "place": "molo",
+      "hour": 9
+    }
+  ],
+  "matassa": 4,
+  "hintKeys": {
+    "spinta": "finali.chiuso.hint.spinta",
+    "indizio": "finali.chiuso.hint.indizio"
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "finali.chiuso.margine"
+    }
+  ]
+}

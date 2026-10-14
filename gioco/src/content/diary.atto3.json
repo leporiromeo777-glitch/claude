@@ -1,0 +1,496 @@
+[
+  {
+    "id": "desiderio.livia",
+    "section": "persone",
+    "textKey": "atto3.diario.desiderio.livia",
+    "unlock": {
+      "knows": "desire",
+      "id": "livia"
+    },
+    "character": "livia",
+    "source": "sentito"
+  },
+  {
+    "id": "persone.livia.nero",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.livia.nero",
+    "unlock": {
+      "done": "g17"
+    },
+    "character": "livia",
+    "source": "visto"
+  },
+  {
+    "id": "persone.livia.secca",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.livia.secca",
+    "unlock": {
+      "done": "g22"
+    },
+    "character": "livia",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.pace",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.pace",
+    "unlock": {
+      "flag": "riconciliate",
+      "eq": true
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.zeno.perdono",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.zeno.perdono",
+    "unlock": {
+      "flag": "zenoLivia",
+      "eq": true
+    },
+    "character": "zeno",
+    "source": "visto"
+  },
+  {
+    "id": "persone.nina.parte",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.nina.parte",
+    "unlock": {
+      "flag": "nina",
+      "eq": "parte"
+    },
+    "character": "nina",
+    "source": "visto"
+  },
+  {
+    "id": "persone.nina.resta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.nina.resta",
+    "unlock": {
+      "flag": "nina",
+      "eq": "resta"
+    },
+    "character": "nina",
+    "source": "visto"
+  },
+  {
+    "id": "persone.lunardi.resta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.lunardi.resta",
+    "unlock": {
+      "any": [
+        {
+          "ok": "g18.lunardi"
+        },
+        {
+          "ok": "g19.lunardi"
+        }
+      ]
+    },
+    "character": "lunardi",
+    "source": "sentito"
+  },
+  {
+    "id": "domande.filoNero.risposta",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.filoNero.risposta",
+    "unlock": {
+      "done": "g17"
+    },
+    "closes": [
+      "filoNero"
+    ]
+  },
+  {
+    "id": "domande.puntoAperto.risposta",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.puntoAperto.risposta",
+    "unlock": {
+      "done": "arc6"
+    },
+    "source": "archivio",
+    "closes": [
+      "puntoAperto"
+    ]
+  },
+  {
+    "id": "domande.desideri.risposta",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.desideri.risposta",
+    "unlock": {
+      "all": [
+        {
+          "knows": "desire",
+          "id": "teresa"
+        },
+        {
+          "knows": "desire",
+          "id": "marta"
+        },
+        {
+          "knows": "desire",
+          "id": "piero"
+        },
+        {
+          "knows": "desire",
+          "id": "gino"
+        },
+        {
+          "knows": "desire",
+          "id": "bepi"
+        },
+        {
+          "knows": "desire",
+          "id": "nina"
+        },
+        {
+          "knows": "desire",
+          "id": "zeno"
+        },
+        {
+          "knows": "desire",
+          "id": "lunardi"
+        }
+      ]
+    },
+    "closes": [
+      "desideri"
+    ]
+  },
+  {
+    "id": "domande.desideri.pista",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.desideri.pista",
+    "unlock": {
+      "done": "g21"
+    },
+    "opens": [
+      "desideri"
+    ],
+    "pista": true
+  },
+  {
+    "id": "domande.chiuso.punto",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.chiuso.punto",
+    "unlock": {
+      "done": "fin_chiuso"
+    }
+  },
+  {
+    "id": "archivio.arc5.regola",
+    "section": "archivio",
+    "textKey": "atto3.diario.archivio.arc5.regola",
+    "unlock": {
+      "done": "arc5"
+    },
+    "source": "archivio"
+  },
+  {
+    "id": "archivio.arc6.punto",
+    "section": "archivio",
+    "textKey": "atto3.diario.archivio.arc6.punto",
+    "unlock": {
+      "done": "arc6"
+    },
+    "character": "clotilde",
+    "source": "archivio"
+  },
+  {
+    "id": "persone.teresa.livia",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.livia",
+    "unlock": {
+      "ok": "g17.teresa"
+    },
+    "character": "teresa",
+    "source": "sentito"
+  },
+  {
+    "id": "persone.marta.livia",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.marta.livia",
+    "unlock": {
+      "failed": "g17.marta"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.gino.cinque",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.gino.cinque",
+    "unlock": {
+      "ok": "g18.gino"
+    },
+    "character": "gino",
+    "source": "visto"
+  },
+  {
+    "id": "persone.bepi.barca",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.bepi.barca",
+    "unlock": {
+      "ok": "g19.bepi"
+    },
+    "character": "bepi",
+    "source": "visto"
+  },
+  {
+    "id": "persone.nina.acqua",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.nina.acqua",
+    "unlock": {
+      "ok": "g19.nina"
+    },
+    "character": "nina",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.cassetto",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.cassetto",
+    "unlock": {
+      "ok": "g20.teresa"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.zeno.lanterna",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.zeno.lanterna",
+    "unlock": {
+      "ok": "g21.gino"
+    },
+    "character": "zeno",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.lettera2",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.lettera2",
+    "unlock": {
+      "ok": "g21.piero"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.piero.fascio",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.piero.fascio",
+    "unlock": {
+      "ok": "g22.piero"
+    },
+    "character": "piero",
+    "source": "visto"
+  },
+  {
+    "id": "persone.livia.pane",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.livia.pane",
+    "unlock": {
+      "ok": "g22.marta"
+    },
+    "character": "livia",
+    "source": "visto"
+  },
+  {
+    "id": "domande.secca.pista",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.secca.pista",
+    "unlock": {
+      "done": "g21"
+    },
+    "pista": true
+  },
+  {
+    "id": "persone.ada.nastro",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.nastro",
+    "unlock": {
+      "done": "g23"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g17",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g17",
+    "unlock": {
+      "done": "g17"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g18",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g18",
+    "unlock": {
+      "done": "g18"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g19",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g19",
+    "unlock": {
+      "done": "g19"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g20",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g20",
+    "unlock": {
+      "done": "g20"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g21",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g21",
+    "unlock": {
+      "done": "g21"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g22",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g22",
+    "unlock": {
+      "done": "g22"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g23",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g23",
+    "unlock": {
+      "done": "g23"
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.piero.livia",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.piero.livia",
+    "unlock": {
+      "ok": "g17.piero"
+    },
+    "character": "piero",
+    "source": "visto"
+  },
+  {
+    "id": "persone.lunardi.confidenza",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.lunardi.confidenza",
+    "unlock": {
+      "ok": "g18.lunardi"
+    },
+    "character": "lunardi",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.medicine",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.medicine",
+    "unlock": {
+      "failed": "g19.teresa"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.gino.vaporetto",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.gino.vaporetto",
+    "unlock": {
+      "failed": "g20.marta"
+    },
+    "character": "gino",
+    "source": "visto"
+  },
+  {
+    "id": "persone.zeno.valigia",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.zeno.valigia",
+    "unlock": {
+      "ok": "g21.zeno"
+    },
+    "character": "zeno",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.secca",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.secca",
+    "unlock": {
+      "failed": "g22.teresa"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.arc5",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.arc5",
+    "unlock": {
+      "done": "arc5"
+    },
+    "character": "ada",
+    "source": "archivio"
+  },
+  {
+    "id": "persone.ada.arc6",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.arc6",
+    "unlock": {
+      "done": "arc6"
+    },
+    "character": "ada",
+    "source": "archivio"
+  },
+  {
+    "id": "lettere.nastro",
+    "section": "lettere",
+    "textKey": "atto3.diario.lettere.nastro",
+    "unlock": {
+      "done": "g23"
+    },
+    "source": "visto"
+  },
+  {
+    "id": "domande.puntoAperto.pista",
+    "section": "domande",
+    "textKey": "atto3.diario.domande.puntoAperto.pista",
+    "unlock": {
+      "done": "g18"
+    },
+    "pista": true
+  },
+  {
+    "id": "lettere.bigliettiLivia",
+    "section": "lettere",
+    "textKey": "atto3.diario.lettere.bigliettiLivia",
+    "unlock": {
+      "done": "g17"
+    },
+    "source": "visto"
+  }
+]

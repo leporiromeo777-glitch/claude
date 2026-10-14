@@ -1,0 +1,290 @@
+{
+  "id": "g16",
+  "kind": "storia",
+  "act": 2,
+  "titleKey": "atto2.g16.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 18,
+  "threads": [
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "nina",
+    "marta",
+    "gino",
+    "teresa",
+    "piero",
+    "zeno"
+  ],
+  "beads": [
+    {
+      "id": "fascio",
+      "type": "lettera",
+      "holder": "piero",
+      "to": "zeno",
+      "labelKey": "atto2.g16.perline.fascio"
+    },
+    {
+      "id": "segreto:confessione",
+      "type": "segreto",
+      "holders": [
+        "piero"
+      ],
+      "labelKey": "atto2.g16.perline.confessione"
+    },
+    {
+      "id": "segreto:nina",
+      "type": "segreto",
+      "holders": [
+        "nina"
+      ],
+      "labelKey": "atto2.g16.perline.segretoNina"
+    },
+    {
+      "id": "segreto:marta",
+      "type": "segreto",
+      "holders": [
+        "marta"
+      ],
+      "labelKey": "atto2.g16.perline.segretoMarta"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "nome"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura",
+    "pieroTrabocca"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    },
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 17
+    },
+    {
+      "thread": "zeno",
+      "place": "faro",
+      "hour": 18
+    }
+  ],
+  "notes": [
+    "g16.zeno",
+    "g16.teresa",
+    "g16.piero",
+    "g16.marta"
+  ],
+  "matassa": 15,
+  "hintKeys": {
+    "spinta": "atto2.g16.hint.spinta",
+    "indizio": "atto2.g16.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g16.alba.trabocco",
+        "priority": 100,
+        "background": "tab/sacrestia_lettere",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g16.alba.trabocco.1"
+          },
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g16.alba.trabocco.2"
+          }
+        ],
+        "when": {
+          "event": "trabocca"
+        }
+      },
+      {
+        "id": "g16.alba.fascio",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "atto2.g16.alba.fascio.1",
+            "forgetKey": "atto2.g16.alba.fascio.1d"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "atto2.g16.alba.fascio.2",
+            "forgetKey": "atto2.g16.alba.fascio.2d"
+          }
+        ],
+        "when": {
+          "ok": "g16.zeno"
+        }
+      },
+      {
+        "id": "g16.alba.sepolte",
+        "priority": 80,
+        "background": "tab/sacrestia_lettere",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g16.alba.sepolte.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "atto2.g16.alba.sepolte.2"
+          }
+        ],
+        "when": {
+          "any": [
+            {
+              "failed": "g16.zeno"
+            },
+            {
+              "ignored": "g16.zeno"
+            }
+          ]
+        }
+      },
+      {
+        "id": "g16.alba.teresa",
+        "priority": 80,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "teresa",
+            "textKey": "atto2.g16.alba.teresa.1",
+            "forgetKey": "atto2.g16.alba.teresa.1d"
+          },
+          {
+            "speaker": "teresa",
+            "textKey": "atto2.g16.alba.teresa.2",
+            "forgetKey": "atto2.g16.alba.teresa.2d"
+          }
+        ],
+        "when": {
+          "failed": "g16.teresa"
+        }
+      },
+      {
+        "id": "g16.alba.marta",
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g16.alba.marta.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g16.alba.marta.2"
+          }
+        ],
+        "when": {
+          "ok": "g16.marta"
+        }
+      }
+    ]
+  }
+}

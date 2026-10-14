@@ -1,0 +1,237 @@
+{
+  "id": "fin_seppia",
+  "kind": "finale",
+  "act": 3,
+  "titleKey": "finali.seppia.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 18,
+  "threads": [
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "ada",
+      "kind": "persona",
+      "character": "ada"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    }
+  ],
+  "initial": [
+    "gino",
+    "marta",
+    "teresa",
+    "ada",
+    "piero",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "occasioni"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [],
+  "edges": [
+    {
+      "hour": 12,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "bepi"
+    }
+  ],
+  "autoweave": {
+    "agents": [
+      {
+        "thread": "gino",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "pane",
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "marta",
+        "agenda": [
+          {
+            "place": "forno",
+            "hour": 7
+          }
+        ],
+        "likes": [
+          "messa",
+          "pane"
+        ]
+      },
+      {
+        "thread": "teresa",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "messa"
+        ]
+      },
+      {
+        "thread": "piero",
+        "agenda": [
+          {
+            "place": "chiesa",
+            "hour": 11
+          }
+        ],
+        "likes": [
+          "messa"
+        ]
+      },
+      {
+        "thread": "zeno",
+        "agenda": [
+          {
+            "stay": true
+          }
+        ],
+        "likes": [
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "bepi",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "vaporetto"
+        ]
+      }
+    ],
+    "controlled": "ada",
+    "presetOccasions": [
+      {
+        "kind": "pane",
+        "place": "forno",
+        "hour": 8
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 11
+      },
+      {
+        "kind": "festa",
+        "place": "piazza",
+        "hour": 16
+      }
+    ]
+  },
+  "goals": [
+    {
+      "t": "almeno",
+      "n": 6,
+      "of": [
+        {
+          "t": "sopra",
+          "a": "gino",
+          "b": "ada",
+          "to": 18
+        },
+        {
+          "t": "sopra",
+          "a": "marta",
+          "b": "ada",
+          "to": 18
+        },
+        {
+          "t": "sopra",
+          "a": "teresa",
+          "b": "ada",
+          "to": 18
+        },
+        {
+          "t": "sopra",
+          "a": "piero",
+          "b": "ada",
+          "to": 18
+        },
+        {
+          "t": "sopra",
+          "a": "zeno",
+          "b": "ada",
+          "to": 18
+        },
+        {
+          "t": "sopra",
+          "a": "bepi",
+          "b": "ada",
+          "to": 18
+        }
+      ]
+    }
+  ],
+  "matassa": 10,
+  "hintKeys": {
+    "spinta": "finali.seppia.hint.spinta",
+    "indizio": "finali.seppia.hint.indizio"
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "finali.seppia.margine"
+    }
+  ]
+}

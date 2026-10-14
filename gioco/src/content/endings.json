@@ -1,0 +1,3287 @@
+[
+  {
+    "id": "merlettaia",
+    "level": "fin_merlettaia",
+    "missing": [],
+    "countsAsEnding": true,
+    "epilogue": [
+      {
+        "id": "finale.merlettaia.1",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "livia",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.1.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "finali.merlettaia.epilogo.1.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.merlettaia.2",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.2.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.2.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.merlettaia.3",
+        "priority": 100,
+        "background": "dio/chiesa/giorno",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.3.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.3.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.merlettaia.4",
+        "priority": 100,
+        "background": "dio/faro/alba",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.4.0"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.4.1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "seppia",
+    "level": "fin_seppia",
+    "missing": [],
+    "countsAsEnding": true,
+    "epilogue": [
+      {
+        "id": "finale.seppia.1",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "livia",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.1.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "finali.seppia.epilogo.1.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.seppia.2",
+        "priority": 100,
+        "background": "dio/molo/alba",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.2.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.2.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.seppia.3",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.3.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.3.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.seppia.4",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.4.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.4.2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chiuso",
+    "level": "fin_chiuso",
+    "missing": [],
+    "countsAsEnding": false,
+    "epilogue": [
+      {
+        "id": "finale.chiuso.1",
+        "priority": 100,
+        "background": "dio/molo/alba",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.1.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.1.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.chiuso.2",
+        "priority": 100,
+        "background": "dio/chiesa/notte",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.2.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.2.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.chiuso.3",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.3.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.3.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.chiuso.4",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.4.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.chiuso.epilogo.4.2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "aperto",
+    "level": "fin_aperto",
+    "requires": {
+      "all": [
+        {
+          "flag": "lettereLivia",
+          "eq": "liberate"
+        },
+        {
+          "flag": "riconciliate",
+          "eq": true
+        },
+        {
+          "knows": "desire",
+          "id": "teresa"
+        },
+        {
+          "knows": "desire",
+          "id": "marta"
+        },
+        {
+          "knows": "desire",
+          "id": "piero"
+        },
+        {
+          "knows": "desire",
+          "id": "gino"
+        },
+        {
+          "knows": "desire",
+          "id": "bepi"
+        },
+        {
+          "knows": "desire",
+          "id": "nina"
+        },
+        {
+          "knows": "desire",
+          "id": "zeno"
+        },
+        {
+          "knows": "desire",
+          "id": "lunardi"
+        },
+        {
+          "any": [
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "missing": [
+      {
+        "cond": {
+          "flag": "lettereLivia",
+          "eq": "liberate"
+        },
+        "textKey": "finali.mancanze.lettere"
+      },
+      {
+        "cond": {
+          "flag": "riconciliate",
+          "eq": true
+        },
+        "textKey": "finali.mancanze.riconciliate"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "teresa"
+        },
+        "textKey": "finali.mancanze.desiderio.teresa"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "marta"
+        },
+        "textKey": "finali.mancanze.desiderio.marta"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "piero"
+        },
+        "textKey": "finali.mancanze.desiderio.piero"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "gino"
+        },
+        "textKey": "finali.mancanze.desiderio.gino"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "bepi"
+        },
+        "textKey": "finali.mancanze.desiderio.bepi"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "nina"
+        },
+        "textKey": "finali.mancanze.desiderio.nina"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "zeno"
+        },
+        "textKey": "finali.mancanze.desiderio.zeno"
+      },
+      {
+        "cond": {
+          "knows": "desire",
+          "id": "lunardi"
+        },
+        "textKey": "finali.mancanze.desiderio.lunardi"
+      },
+      {
+        "cond": {
+          "any": [
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "teresa",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "marta",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "piero",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "gino",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "memoria": "bepi",
+                  "gte": 1
+                },
+                {
+                  "memoria": "nina",
+                  "gte": 1
+                },
+                {
+                  "memoria": "zeno",
+                  "gte": 1
+                },
+                {
+                  "memoria": "lunardi",
+                  "gte": 1
+                }
+              ]
+            }
+          ]
+        },
+        "textKey": "finali.mancanze.memoria"
+      }
+    ],
+    "countsAsEnding": true,
+    "epilogue": [
+      {
+        "id": "finale.aperto.1",
+        "priority": 100,
+        "background": "dio/piazza/alba",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.1.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.1.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.2",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "gino",
+            "pose": "saluta",
+            "x": 0.25
+          },
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.5
+          },
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.75,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.2.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.2.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.3",
+        "priority": 100,
+        "background": "dio/chiesa/giorno",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.3.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.3.2"
+          }
+        ]
+      },
+      {
+        "id": "finale.aperto.4",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.4
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.6,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.4.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.4.2"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,293 @@
+{
+  "id": "g22",
+  "kind": "storia",
+  "act": 3,
+  "titleKey": "atto3.g22.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 20,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "gino",
+    "teresa",
+    "piero",
+    "zeno"
+  ],
+  "beads": [
+    {
+      "id": "fascio",
+      "type": "lettera",
+      "holder": "piero",
+      "to": "livia",
+      "labelKey": "atto3.g22.perline.fascio"
+    },
+    {
+      "id": "segreto:voto",
+      "type": "segreto",
+      "holders": [
+        "piero"
+      ],
+      "labelKey": "atto3.g22.perline.voto"
+    },
+    {
+      "id": "segreto:anni",
+      "type": "segreto",
+      "holders": [
+        "piero"
+      ],
+      "labelKey": "atto3.g22.perline.anni"
+    },
+    {
+      "id": "segreto:livia",
+      "type": "segreto",
+      "holders": [
+        "livia"
+      ],
+      "labelKey": "atto3.g22.perline.livia"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "nome"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "pieroTrabocca",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    }
+  ],
+  "edges": [
+    {
+      "hour": 15,
+      "side": "faro",
+      "kind": "secca",
+      "enters": "livia"
+    }
+  ],
+  "notes": [
+    "g22.zeno",
+    "g22.piero",
+    "g22.teresa",
+    "g22.marta"
+  ],
+  "matassa": 18,
+  "hintKeys": {
+    "spinta": "atto3.g22.hint.spinta",
+    "indizio": "atto3.g22.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g22.alba.secca",
+        "priority": 100,
+        "background": "tab/secca",
+        "figures": [
+          {
+            "character": "livia",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g22.alba.secca.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "atto3.g22.alba.secca.2"
+          }
+        ]
+      },
+      {
+        "id": "g22.alba.perdono",
+        "priority": 100,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "atto3.g22.alba.perdono.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "atto3.g22.alba.perdono.2"
+          }
+        ],
+        "when": {
+          "flag": "zenoLivia",
+          "eq": true
+        }
+      },
+      {
+        "id": "g22.alba.fascio",
+        "priority": 60,
+        "background": "tab/sacrestia_lettere",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "porge",
+            "x": 0.35
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto3.g22.alba.fascio.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "atto3.g22.alba.fascio.2"
+          }
+        ],
+        "when": {
+          "ok": "g22.piero"
+        }
+      },
+      {
+        "id": "g22.alba.teresa",
+        "priority": 80,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "teresa",
+            "textKey": "atto3.g22.alba.teresa.1",
+            "forgetKey": "atto3.g22.alba.teresa.1d"
+          },
+          {
+            "speaker": "teresa",
+            "textKey": "atto3.g22.alba.teresa.2"
+          }
+        ],
+        "when": {
+          "failed": "g22.teresa"
+        }
+      },
+      {
+        "id": "g22.alba.pane",
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto3.g22.alba.pane.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto3.g22.alba.pane.2"
+          }
+        ],
+        "when": {
+          "ok": "g22.marta"
+        }
+      }
+    ]
+  }
+}

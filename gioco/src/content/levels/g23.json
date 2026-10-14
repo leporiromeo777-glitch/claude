@@ -1,0 +1,220 @@
+{
+  "id": "g23",
+  "kind": "storia",
+  "act": 3,
+  "titleKey": "atto3.g23.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 12,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "teresa",
+    "piero",
+    "livia",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "pieroTrabocca",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    }
+  ],
+  "goals": [
+    {
+      "t": "incontra",
+      "a": "livia",
+      "b": "piero",
+      "from": 7,
+      "to": 11
+    },
+    {
+      "t": "incontra",
+      "a": "livia",
+      "b": "marta"
+    }
+  ],
+  "notes": [
+    "g23.zeno",
+    "g23.piero",
+    "g23.livia",
+    "g23.clotilde",
+    "g23.ada"
+  ],
+  "matassa": 5,
+  "hintKeys": {
+    "spinta": "atto3.g23.hint.spinta",
+    "indizio": "atto3.g23.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g23.alba.messa",
+        "priority": 100,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto3.g23.alba.messa.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "atto3.g23.alba.messa.2"
+          }
+        ]
+      },
+      {
+        "id": "g23.alba.vigilia",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g23.alba.vigilia.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g23.alba.vigilia.2"
+          }
+        ]
+      },
+      {
+        "id": "g23.alba.pane",
+        "priority": 10,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto3.g23.alba.pane.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto3.g23.alba.pane.2"
+          }
+        ]
+      },
+      {
+        "id": "g23.alba.zeno",
+        "priority": 10,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "atto3.g23.alba.zeno.1"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "atto3.g23.alba.zeno.2"
+          }
+        ]
+      }
+    ]
+  }
+}

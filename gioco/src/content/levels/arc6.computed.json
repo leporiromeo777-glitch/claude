@@ -1,0 +1,86 @@
+{
+  "levelId": "arc6",
+  "sourceHash": "d72d6aa0e80ce143",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 0,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R",
+            "forced": true
+          },
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 1,
+  "quieteMax": 6,
+  "occasionsSolution": [
+    {
+      "kind": "lanterna",
+      "place": "faro",
+      "hour": 12
+    },
+    {
+      "kind": "pane",
+      "place": "piazza",
+      "hour": 8
+    }
+  ],
+  "occasionsSolutions": 2
+}

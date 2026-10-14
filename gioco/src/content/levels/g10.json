@@ -1,0 +1,254 @@
+{
+  "id": "g10",
+  "kind": "storia",
+  "act": 2,
+  "titleKey": "atto2.g10.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 16,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "lunardi",
+      "kind": "persona",
+      "character": "lunardi"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "gino",
+    "marta",
+    "piero",
+    "lunardi",
+    "nina"
+  ],
+  "beads": [
+    {
+      "id": "febbre",
+      "type": "febbre",
+      "holders": [
+        "gino",
+        "bepi"
+      ],
+      "labelKey": "atto2.g10.perline.febbre"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    },
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 15
+    }
+  ],
+  "notes": [
+    "g10.marta",
+    "g10.marta.senzaArchivio",
+    "g10.lunardi",
+    "g10.piero",
+    "g10.bepi"
+  ],
+  "matassa": 15,
+  "hintKeys": {
+    "spinta": "atto2.g10.hint.spinta",
+    "indizio": "atto2.g10.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g10.alba.quarantena",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "atto2.g10.alba.quarantena.1"
+          },
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g10.alba.quarantena.2"
+          }
+        ]
+      },
+      {
+        "id": "g10.alba.marta",
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g10.alba.marta.1"
+          },
+          {
+            "speaker": "marta",
+            "textKey": "atto2.g10.alba.marta.2"
+          }
+        ],
+        "when": {
+          "any": [
+            {
+              "ok": "g10.marta"
+            },
+            {
+              "ok": "g10.marta.senzaArchivio"
+            }
+          ]
+        }
+      },
+      {
+        "id": "g10.alba.bepi",
+        "priority": 60,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "lunardi",
+            "pose": "porge",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto2.g10.alba.bepi.1"
+          },
+          {
+            "speaker": "bepi",
+            "textKey": "atto2.g10.alba.bepi.2"
+          }
+        ],
+        "when": {
+          "ok": "g10.lunardi"
+        }
+      },
+      {
+        "id": "g10.alba.chiuso",
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "lunardi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "lunardi",
+            "textKey": "atto2.g10.alba.chiuso.1"
+          },
+          {
+            "speaker": "lunardi",
+            "textKey": "atto2.g10.alba.chiuso.2"
+          }
+        ],
+        "when": {
+          "failed": "g10.lunardi"
+        }
+      },
+      {
+        "id": "g10.alba.piero",
+        "priority": 80,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g10.alba.piero.1"
+          },
+          {
+            "speaker": "piero",
+            "textKey": "atto2.g10.alba.piero.2"
+          }
+        ],
+        "when": {
+          "failed": "g10.piero"
+        }
+      }
+    ]
+  }
+}

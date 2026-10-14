@@ -1,0 +1,586 @@
+[
+  {
+    "id": "g17.zeno",
+    "day": "g17",
+    "author": "zeno",
+    "textKey": "atto3.g17.zeno.testo",
+    "request": {
+      "t": "incontra",
+      "a": "zeno",
+      "b": "livia"
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g17.zeno.r1",
+        "effects": [
+          {
+            "desire": "livia"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g17.zeno.r2",
+        "effects": [
+          {
+            "desire": "livia"
+          }
+        ]
+      }
+    ],
+    "onOk": [
+      {
+        "desire": "livia"
+      }
+    ],
+    "onFail": [
+      {
+        "desire": "livia"
+      }
+    ],
+    "onIgnore": [
+      {
+        "desire": "livia"
+      }
+    ]
+  },
+  {
+    "id": "g17.teresa",
+    "day": "g17",
+    "author": "teresa",
+    "textKey": "atto3.g17.teresa.testo",
+    "request": {
+      "t": "ha",
+      "who": "teresa",
+      "bead": "segreto:livia"
+    }
+  },
+  {
+    "id": "g17.marta",
+    "day": "g17",
+    "author": "marta",
+    "textKey": "atto3.g17.marta.testo",
+    "request": {
+      "t": "maiPresso",
+      "who": "livia",
+      "place": "piazza",
+      "from": 9,
+      "to": 12
+    }
+  },
+  {
+    "id": "g17.piero",
+    "day": "g17",
+    "author": "piero",
+    "textKey": "atto3.g17.piero.testo",
+    "request": {
+      "t": "nonHa",
+      "who": "teresa",
+      "bead": "segreto:livia"
+    }
+  },
+  {
+    "id": "g18.teresa",
+    "day": "g18",
+    "author": "teresa",
+    "textKey": "atto3.g18.teresa.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {
+          "t": "ha",
+          "who": "gino",
+          "bead": "segreto:confessione"
+        },
+        {
+          "t": "ha",
+          "who": "marta",
+          "bead": "segreto:confessione"
+        },
+        {
+          "t": "nonHa",
+          "who": "nina",
+          "bead": "segreto:confessione"
+        },
+        {
+          "t": "nonHa",
+          "who": "lunardi",
+          "bead": "segreto:confessione"
+        }
+      ]
+    },
+    "onOk": [
+      {
+        "setFlag": "riconciliate",
+        "value": true
+      },
+      {
+        "question": "martaTeresa",
+        "state": "risolta"
+      }
+    ]
+  },
+  {
+    "id": "g18.marta",
+    "day": "g18",
+    "author": "marta",
+    "textKey": "atto3.g18.marta.testo",
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g18.marta.r1",
+        "effects": [
+          {
+            "setFlag": "martaAscolta",
+            "value": true
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g18.marta.r2",
+        "effects": [
+          {
+            "setFlag": "martaAscolta",
+            "value": true
+          },
+          {
+            "desire": "teresa"
+          }
+        ]
+      }
+    ],
+    "availableIf": {
+      "done": "arc3"
+    }
+  },
+  {
+    "id": "g18.marta.senzaArchivio",
+    "day": "g18",
+    "author": "marta",
+    "textKey": "atto3.g18.marta.testo",
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g18.marta.r1",
+        "effects": [
+          {
+            "setFlag": "martaAscolta",
+            "value": true
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g18.marta.senzaArchivio.r2",
+        "effects": [
+          {
+            "setFlag": "martaAscolta",
+            "value": true
+          }
+        ]
+      }
+    ],
+    "availableIf": {
+      "not": {
+        "done": "arc3"
+      }
+    }
+  },
+  {
+    "id": "g18.gino",
+    "day": "g18",
+    "author": "gino",
+    "textKey": "atto3.g18.gino.testo",
+    "request": {
+      "t": "incontriAlmeno",
+      "who": "gino",
+      "n": 5
+    }
+  },
+  {
+    "id": "g18.lunardi",
+    "day": "g18",
+    "author": "lunardi",
+    "textKey": "atto3.g18.lunardi.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {
+          "t": "incontriAlmeno",
+          "who": "lunardi",
+          "n": 3
+        },
+        {
+          "t": "ha",
+          "who": "lunardi",
+          "bead": "segreto:confessione"
+        }
+      ]
+    }
+  },
+  {
+    "id": "g19.bepi",
+    "day": "g19",
+    "author": "bepi",
+    "textKey": "atto3.g19.bepi.testo",
+    "request": {
+      "t": "presso",
+      "who": "bepi",
+      "place": "molo",
+      "hour": 9
+    }
+  },
+  {
+    "id": "g19.nina",
+    "day": "g19",
+    "author": "nina",
+    "textKey": "atto3.g19.nina.testo",
+    "request": {
+      "t": "presso",
+      "who": "nina",
+      "place": "piazza",
+      "hour": 11
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g19.nina.r1",
+        "effects": [
+          {
+            "setFlag": "ninaVenezia",
+            "value": "va"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g19.nina.r2",
+        "effects": [
+          {
+            "setFlag": "ninaVenezia",
+            "value": "resta"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "g19.teresa",
+    "day": "g19",
+    "author": "teresa",
+    "textKey": "atto3.g19.teresa.testo",
+    "request": {
+      "t": "consegnata",
+      "bead": "L_farmacia",
+      "by": 10
+    }
+  },
+  {
+    "id": "g19.lunardi",
+    "day": "g19",
+    "author": "lunardi",
+    "textKey": "atto3.g19.lunardi.testo",
+    "request": {
+      "t": "incontriAlmeno",
+      "who": "lunardi",
+      "n": 3
+    }
+  },
+  {
+    "id": "g20.nina",
+    "day": "g20",
+    "author": "nina",
+    "textKey": "atto3.g20.nina.testo",
+    "request": {
+      "t": "parte",
+      "who": "nina",
+      "hour": 9
+    },
+    "onOk": [
+      {
+        "setFlag": "nina",
+        "value": "parte"
+      }
+    ],
+    "onFail": [
+      {
+        "setFlag": "nina",
+        "value": "resta"
+      }
+    ],
+    "onIgnore": [
+      {
+        "setFlag": "nina",
+        "value": "resta"
+      }
+    ]
+  },
+  {
+    "id": "g20.bepi",
+    "day": "g20",
+    "author": "bepi",
+    "textKey": "atto3.g20.bepi.testo",
+    "request": {
+      "t": "incontra",
+      "a": "bepi",
+      "b": "nina",
+      "from": 7,
+      "to": 9
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g20.bepi.r1",
+        "effects": [
+          {
+            "desire": "bepi"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g20.bepi.r2",
+        "effects": [
+          {
+            "desire": "bepi"
+          }
+        ]
+      }
+    ],
+    "onOk": [
+      {
+        "desire": "bepi"
+      }
+    ],
+    "onFail": [
+      {
+        "desire": "bepi"
+      }
+    ]
+  },
+  {
+    "id": "g20.marta",
+    "day": "g20",
+    "author": "marta",
+    "textKey": "atto3.g20.marta.testo",
+    "request": {
+      "t": "maiPresso",
+      "who": "gino",
+      "place": "molo",
+      "from": 7,
+      "to": 9
+    }
+  },
+  {
+    "id": "g20.teresa",
+    "day": "g20",
+    "author": "teresa",
+    "textKey": "atto3.g20.teresa.testo",
+    "request": {
+      "t": "incontra",
+      "a": "teresa",
+      "b": "nina",
+      "from": 7,
+      "to": 9
+    }
+  },
+  {
+    "id": "g21.zeno",
+    "day": "g21",
+    "author": "zeno",
+    "textKey": "atto3.g21.zeno.testo",
+    "request": {
+      "t": "incontra",
+      "a": "zeno",
+      "b": "livia"
+    }
+  },
+  {
+    "id": "g21.piero",
+    "day": "g21",
+    "author": "piero",
+    "textKey": "atto3.g21.piero.testo",
+    "request": {
+      "t": "consegnata",
+      "bead": "L_teresa"
+    }
+  },
+  {
+    "id": "g21.gino",
+    "day": "g21",
+    "author": "gino",
+    "textKey": "atto3.g21.gino.testo",
+    "request": {
+      "t": "presso",
+      "who": "gino",
+      "place": "faro",
+      "hour": 18
+    }
+  },
+  {
+    "id": "g21.marta",
+    "day": "g21",
+    "author": "marta",
+    "textKey": "atto3.g21.marta.testo",
+    "request": {
+      "t": "maiPresso",
+      "who": "gino",
+      "place": "faro",
+      "from": 15,
+      "to": 18
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g21.marta.r1",
+        "effects": [
+          {
+            "setFlag": "martaLanterna",
+            "value": "va"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g21.marta.r2",
+        "effects": [
+          {
+            "setFlag": "martaLanterna",
+            "value": "casa"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "g22.zeno",
+    "day": "g22",
+    "author": "zeno",
+    "textKey": "atto3.g22.zeno.testo",
+    "request": {
+      "t": "incontra",
+      "a": "zeno",
+      "b": "livia",
+      "from": 15,
+      "to": 16
+    },
+    "onOk": [
+      {
+        "setFlag": "zenoLivia",
+        "value": true
+      }
+    ],
+    "onFail": [
+      {
+        "setFlag": "zenoLivia",
+        "value": false
+      }
+    ],
+    "onIgnore": [
+      {
+        "setFlag": "zenoLivia",
+        "value": false
+      }
+    ]
+  },
+  {
+    "id": "g22.piero",
+    "day": "g22",
+    "author": "piero",
+    "textKey": "atto3.g22.piero.testo",
+    "request": {
+      "t": "consegnata",
+      "bead": "fascio"
+    }
+  },
+  {
+    "id": "g22.teresa",
+    "day": "g22",
+    "author": "teresa",
+    "textKey": "atto3.g22.teresa.testo",
+    "request": {
+      "t": "ha",
+      "who": "teresa",
+      "bead": "segreto:livia",
+      "by": 16
+    },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto3.g22.teresa.r1",
+        "effects": [
+          {
+            "setFlag": "teresaLivia",
+            "value": "aspetta"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto3.g22.teresa.r2",
+        "effects": [
+          {
+            "setFlag": "teresaLivia",
+            "value": "sa"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "g22.marta",
+    "day": "g22",
+    "author": "marta",
+    "textKey": "atto3.g22.marta.testo",
+    "request": {
+      "t": "sopra",
+      "a": "marta",
+      "b": "livia"
+    }
+  },
+  {
+    "id": "g23.zeno",
+    "day": "g23",
+    "author": "zeno",
+    "textKey": "atto3.g23.zeno.testo",
+    "availableIf": {
+      "memoria": "zeno",
+      "gte": 1
+    },
+    "ending": "merlettaia"
+  },
+  {
+    "id": "g23.piero",
+    "day": "g23",
+    "author": "piero",
+    "textKey": "atto3.g23.zeno.testo",
+    "availableIf": {
+      "memoria": "zeno",
+      "lte": 0
+    },
+    "ending": "merlettaia"
+  },
+  {
+    "id": "g23.livia",
+    "day": "g23",
+    "author": "livia",
+    "textKey": "atto3.g23.livia.testo",
+    "ending": "seppia"
+  },
+  {
+    "id": "g23.clotilde",
+    "day": "g23",
+    "author": "clotilde",
+    "textKey": "atto3.g23.clotilde.testo",
+    "ending": "chiuso"
+  },
+  {
+    "id": "g23.ada",
+    "day": "g23",
+    "author": "ada",
+    "textKey": "atto3.g23.ada.testo",
+    "ending": "aperto"
+  }
+]

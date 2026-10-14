@@ -1,0 +1,336 @@
+{
+  "id": "fin_aperto",
+  "kind": "finale",
+  "act": 3,
+  "titleKey": "finali.aperto.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 20,
+  "threads": [
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "ada",
+      "kind": "persona",
+      "character": "ada"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    }
+  ],
+  "initial": [
+    "nina",
+    "bepi",
+    "gino",
+    "ada",
+    "livia",
+    "zeno"
+  ],
+  "beads": [
+    {
+      "id": "L_teresa",
+      "type": "lettera",
+      "holder": "ada",
+      "to": "teresa",
+      "labelKey": "finali.aperto.perline.L_teresa"
+    },
+    {
+      "id": "L_1951",
+      "type": "lettera",
+      "holder": "livia",
+      "to": "ada",
+      "labelKey": "finali.aperto.perline.L_1951"
+    },
+    {
+      "id": "voce:ettore",
+      "type": "voce",
+      "holders": [
+        "ada"
+      ],
+      "labelKey": "finali.aperto.perline.ettore"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "occasioni"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "pins": [],
+  "edges": [
+    {
+      "hour": 9,
+      "side": "molo",
+      "kind": "vaporetto",
+      "enters": "teresa"
+    }
+  ],
+  "autoweave": {
+    "agents": [
+      {
+        "thread": "nina",
+        "agenda": [],
+        "likes": [
+          "vaporetto",
+          "festa"
+        ]
+      },
+      {
+        "thread": "bepi",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "vaporetto"
+        ]
+      },
+      {
+        "thread": "gino",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "pane",
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "ada",
+        "agenda": [
+          {
+            "follow": "livia"
+          }
+        ],
+        "likes": [],
+        "givesTo": [
+          "teresa"
+        ]
+      },
+      {
+        "thread": "livia",
+        "agenda": [
+          {
+            "follow": "ada"
+          },
+          {
+            "follow": "zeno"
+          }
+        ],
+        "likes": [],
+        "givesTo": [
+          "ada"
+        ]
+      },
+      {
+        "thread": "zeno",
+        "agenda": [
+          {
+            "stay": true
+          }
+        ],
+        "likes": [
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "teresa",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "messa"
+        ]
+      }
+    ],
+    "occasionSlots": 5,
+    "allowedOccasions": [
+      {
+        "kind": "pane",
+        "place": "forno",
+        "hour": 7
+      },
+      {
+        "kind": "vaporetto",
+        "place": "molo",
+        "hour": 9
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 11
+      },
+      {
+        "kind": "festa",
+        "place": "piazza",
+        "hour": 17
+      },
+      {
+        "kind": "lanterna",
+        "place": "faro",
+        "hour": 20
+      },
+      {
+        "kind": "festa",
+        "place": "molo",
+        "hour": 8
+      },
+      {
+        "kind": "pane",
+        "place": "piazza",
+        "hour": 12
+      },
+      {
+        "kind": "lanterna",
+        "place": "farmacia",
+        "hour": 14
+      },
+      {
+        "kind": "festa",
+        "place": "faro",
+        "hour": 16
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 18
+      },
+      {
+        "kind": "pane",
+        "place": "forno",
+        "hour": 19
+      },
+      {
+        "kind": "festa",
+        "place": "farmacia",
+        "hour": 12
+      }
+    ]
+  },
+  "goals": [
+    {
+      "t": "consegnata",
+      "bead": "L_teresa"
+    },
+    {
+      "t": "resta",
+      "who": "gino"
+    },
+    {
+      "t": "consegnata",
+      "bead": "L_1951"
+    },
+    {
+      "t": "presso",
+      "who": "gino",
+      "place": "faro",
+      "hour": 20
+    },
+    {
+      "t": "incontra",
+      "a": "bepi",
+      "b": "nina"
+    },
+    {
+      "t": "parte",
+      "who": "nina",
+      "hour": 9
+    },
+    {
+      "t": "incontra",
+      "a": "zeno",
+      "b": "livia"
+    },
+    {
+      "t": "almeno",
+      "n": 3,
+      "of": [
+        {
+          "t": "ha",
+          "who": "teresa",
+          "bead": "voce:ettore"
+        },
+        {
+          "t": "ha",
+          "who": "gino",
+          "bead": "voce:ettore"
+        },
+        {
+          "t": "ha",
+          "who": "bepi",
+          "bead": "voce:ettore"
+        },
+        {
+          "t": "ha",
+          "who": "nina",
+          "bead": "voce:ettore"
+        },
+        {
+          "t": "ha",
+          "who": "zeno",
+          "bead": "voce:ettore"
+        }
+      ]
+    },
+    {
+      "t": "incontra",
+      "a": "ada",
+      "b": "livia"
+    }
+  ],
+  "matassa": 0,
+  "hintKeys": {
+    "spinta": "finali.aperto.hint.spinta",
+    "indizio": "finali.aperto.hint.indizio"
+  },
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "primaOra",
+      "hour": 7,
+      "textKey": "finali.aperto.margine"
+    }
+  ]
+}

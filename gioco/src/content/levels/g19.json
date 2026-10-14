@@ -1,0 +1,264 @@
+{
+  "id": "g19",
+  "kind": "storia",
+  "act": 3,
+  "titleKey": "atto3.g19.titolo",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 16,
+  "threads": [
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "lunardi",
+      "kind": "persona",
+      "character": "lunardi"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "nina",
+    "marta",
+    "teresa",
+    "bepi",
+    "lunardi",
+    "zeno"
+  ],
+  "beads": [
+    {
+      "id": "L_farmacia",
+      "type": "lettera",
+      "holder": "teresa",
+      "to": "lunardi",
+      "labelKey": "atto3.g19.perline.L_farmacia"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "molo",
+    "segreto",
+    "febbre",
+    "rancore",
+    "nome",
+    "marea"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "pieroTrabocca",
+    "ginoCorre",
+    "ninaCuriosa",
+    "zenoFaro",
+    "lunardiCura"
+  ],
+  "rancor": [
+    [
+      "teresa",
+      "marta"
+    ]
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "lunardi",
+      "place": "farmacia",
+      "hour": 14
+    },
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 15
+    }
+  ],
+  "tide": [
+    {
+      "from": 10,
+      "to": 13,
+      "places": [
+        "molo",
+        "piazza"
+      ]
+    }
+  ],
+  "notes": [
+    "g19.bepi",
+    "g19.nina",
+    "g19.teresa",
+    "g19.lunardi"
+  ],
+  "matassa": 10,
+  "hintKeys": {
+    "spinta": "atto3.g19.hint.spinta",
+    "indizio": "atto3.g19.hint.indizio"
+  },
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g19.alba.acqua",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g19.alba.acqua.1"
+          },
+          {
+            "speaker": "zeno",
+            "textKey": "atto3.g19.alba.acqua.2"
+          }
+        ]
+      },
+      {
+        "id": "g19.alba.barca",
+        "priority": 60,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto3.g19.alba.barca.1"
+          },
+          {
+            "speaker": "bepi",
+            "textKey": "atto3.g19.alba.barca.2"
+          }
+        ],
+        "when": {
+          "ok": "g19.bepi"
+        }
+      },
+      {
+        "id": "g19.alba.tavola",
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto3.g19.alba.tavola.1"
+          },
+          {
+            "speaker": "bepi",
+            "textKey": "atto3.g19.alba.tavola.2"
+          }
+        ],
+        "when": {
+          "failed": "g19.bepi"
+        }
+      },
+      {
+        "id": "g19.alba.nina",
+        "priority": 60,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "nina",
+            "textKey": "atto3.g19.alba.nina.1"
+          },
+          {
+            "speaker": "nina",
+            "textKey": "atto3.g19.alba.nina.2"
+          }
+        ],
+        "when": {
+          "ok": "g19.nina"
+        }
+      },
+      {
+        "id": "g19.alba.medicine",
+        "priority": 80,
+        "background": "dio/farmacia/giorno",
+        "figures": [
+          {
+            "character": "lunardi",
+            "pose": "ferma",
+            "x": 0.35
+          },
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "lunardi",
+            "textKey": "atto3.g19.alba.medicine.1"
+          },
+          {
+            "speaker": "teresa",
+            "textKey": "atto3.g19.alba.medicine.2"
+          }
+        ],
+        "when": {
+          "failed": "g19.teresa"
+        }
+      }
+    ]
+  }
+}
