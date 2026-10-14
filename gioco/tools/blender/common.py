@@ -219,6 +219,17 @@ def run_batch(title: str, names: Sequence[str], render_one: Callable[[str, str],
 # --------------------------------------------------------------------------
 
 
+def render_threads() -> int:
+    """Thread di Cycles: 4 (ARCHITETTURA 12), oppure ``TRAMA_THREADS`` se impostata (1-64)."""
+    raw = os.environ.get("TRAMA_THREADS", "").strip()
+    if raw:
+        try:
+            return max(1, min(64, int(raw)))
+        except ValueError:
+            log(f"TRAMA_THREADS non valido ({raw!r}): uso 4")
+    return 4
+
+
 def reset_scene() -> bpy.types.Scene:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -242,7 +253,7 @@ def setup_render(
     r.pixel_aspect_x = 1
     r.pixel_aspect_y = 1
     r.threads_mode = "FIXED"
-    r.threads = 4
+    r.threads = render_threads()
     r.use_persistent_data = True
     r.film_transparent = transparent
     r.use_border = False
