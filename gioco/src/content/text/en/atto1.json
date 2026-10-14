@@ -1,0 +1,384 @@
+{
+  "g00": {
+    "titolo": "Grandmother's Lace",
+    "perline": {"L1": "A letter for Don Piero"},
+    "alba": {
+      "marta": "The bakery opens at six even if the world ends.",
+      "teresa": "A letter for you, Don Piero. Came in the night, heaven knows how.",
+      "piero": "Don Piero reads the letter and turns grave.",
+      "piero2": "Clotilde thought of everything. Even of who would finish the lace.",
+      "teresa2": "Clotilde. Punctual to the very end."
+    },
+    "hint": {
+      "spinta": "Look at the brass pins: they say where each one must be, and at what hour.",
+      "indizio": "A letter passes only to the one below: Teresa must be on top of Don Piero."
+    },
+    "margine": {"sopraDa": "Who is on top, gives."}
+  },
+  "g01": {
+    "titolo": "First Evening",
+    "perline": {"L_piero": "Don Piero's post"},
+    "marta": {"testo": "Keep Gino away from the Pier after nine. The water is high and he has no sense."},
+    "piero": {"testo": "Dear Miss Ada, may my post reach me before ten, if the Lord and Teresa allow."},
+    "gino": {"testo": "I WANT TO RING THE BELL!!! take me to chirch at 11", "r1": "I promise, Gino.", "r2": "Ask Don Piero first."},
+    "alba": {
+      "bambina": "On the Fondamenta they whisper it: the new lacemaker is just a girl.",
+      "bambina2": "Sixteen, dear. Sixteen! At sixteen I was already carrying the post.",
+      "campana": "At eleven the bell rings out of hours, out of tune and happy.",
+      "campana2": "Ah, Gino. Ego te absolvo, my son. But next time, gently.",
+      "brava": "Well done, lacemaker.",
+      "bagnato": "Gino comes back from the Pier wet to the knees, with a crab in his pocket.",
+      "bagnato2": "Tomorrow I'll write it plainer, lacemaker.",
+      "posta": "Before ten. Thank you, my child. I'll put it with the others.",
+      "brava2": "Marta says it without looking up, her hands in the flour.",
+      "posta2": "The Lord and Teresa allowed it, Don Piero."
+    },
+    "hint": {
+      "spinta": "Gino must cross someone every hour: make him run where he's needed.",
+      "indizio": "A letter can pass from Teresa to Gino, and from Gino to Don Piero."
+    },
+    "margine": {"verso": "Everyone has their way: some won't go under, some won't keep still."}
+  },
+  "g02": {
+    "titolo": "They Say",
+    "perline": {"bambina": "Rumour: “The new lacemaker is a child”"},
+    "marta": {"testo": "Gino is not to hear the gossip."},
+    "martaDura": {"testo": "I wrote to you about the Pier. Now I write this, and only once: Gino is not to hear the gossip."},
+    "teresa": {
+      "testo": "Dear, Don Piero must hear the news before nine o'clock mass. It's only right the parish priest should know.",
+      "r1": "That's not news, it's gossip.",
+      "r2": "All right."
+    },
+    "gino": {"testo": "i want to go all the way round! Peer at 8, chirch at 11"},
+    "alba": {
+      "voce": "The rumour goes round: “the little one weaves worse than the old one”.",
+      "voce2": "I only told those who asked, dear. Which is everyone.",
+      "ginoSa": "Everyone knows! The lacemaker's a kid! Bigger than me, though.",
+      "ginoSa2": "And who told you, Gino? No, don't tell me. I know.",
+      "pieroSa": "A child, says Teresa. So was Clotilde, when she began.",
+      "giro": "All the way round! Pier, Bakery, Square, Church! Tomorrow I'll do it backwards!",
+      "fredda": "Gossip, she says. Fine. That's fine.",
+      "pieroSa2": "Don Piero says it to the empty confessional, and to no one else.",
+      "giro2": "Marta searches the whole Fondamenta for him, still in her apron."
+    },
+    "hint": {
+      "spinta": "A rumour passes both ways: whoever crosses someone who knows it, knows it.",
+      "indizio": "To keep Gino from the rumour, don't let him cross anyone who knows it."
+    },
+    "margine": {"voce": "A rumour has no direction."}
+  },
+  "g03": {
+    "titolo": "The Nine O'Clock Ferry",
+    "nina": {
+      "testo": "Tomorrow I'm taking the nine o'clock ferry for the exam in Venice. Don't tell Dad a thing: he's at sea.",
+      "r1": "Tell your father.",
+      "r2": "Go. It's your life."
+    },
+    "marta": {"testo": "Nobody leaves today. I won't watch anyone go."},
+    "teresa": {"testo": "I collect the post from the ferry. See that I'm at the Pier at ten."},
+    "teresaFredda": {"testo": "Lacemaker. I collect the ferry post. At the Pier at ten. No gossip."},
+    "alba": {
+      "ninaParte": "Venice! If Dad asks, I was at yours, learning lace.",
+      "ninaResta": "The ferry left without me. The exam was today.",
+      "ninaResta2": "Nina stays on the Pier until the smoke is gone.",
+      "nessuno": "Nobody left. The sea remembers who leaves.",
+      "posta": "All the post, dear! And a postcard from Chioggia, unsigned. How odd.",
+      "fredda": "Thank you, lacemaker.",
+      "fredda2": "Teresa counts the post without looking up. At the bottom, a postcard from Chioggia.",
+      "ninaParte2": "From the ferry Nina waves to the island with her book, like a handkerchief.",
+      "nessuno2": "Marta shuts the oven door harder than usual."
+    },
+    "hint": {
+      "spinta": "At nine the ferry takes away whoever is at the Pier.",
+      "indizio": "Whoever must stay can't be at the Pier at nine. Whoever must leave must be."
+    }
+  },
+  "g04": {
+    "titolo": "Bepi's Boat",
+    "perline": {"rete": "Rumour: “Bepi sold his good net”"},
+    "nina": {"testo": "I'd like to say goodbye to Dad before he takes the boat out.", "r1": "Hug him tight.", "r2": "Tell him about Venice."},
+    "bepi": {"testo": "teresa not to go round telling about the net. specialy not my daughter"},
+    "piero": {"testo": "Let Bepi stop at the Church on his way back: he has a candle to light for his wife."},
+    "alba": {
+      "barca": "At seven Bepi's boat slips out from the Pier, into the fog.",
+      "saluto": "Bye, Dad.",
+      "saluto2": "Mh. Study.",
+      "rete": "You sold the good net. To pay for my exam.",
+      "rete2": "Nets can be made again. Daughters can't.",
+      "candela": "A candle for Elvira. Twelve years, today.",
+      "candela2": "Requiem aeternam. Stay as long as you like, Bepi. The church doesn't close.",
+      "venezia": "Venice. Mh. Your mother wanted to see Venice too.",
+      "barca2": "On the Pier a fisherman with no boat stays behind, watching the water.",
+      "venezia2": "Bepi says nothing more. He mends the net until evening."
+    },
+    "hint": {
+      "spinta": "At seven Bepi takes the boat out: he must be at the Pier. He's back at eleven.",
+      "indizio": "From the Pier to the Church takes three hours: Bepi must move as soon as he's back."
+    }
+  },
+  "g05": {
+    "titolo": "The Keeper",
+    "perline": {"L_zeno": "A letter for Zeno, from Chioggia. Signed “L.”"},
+    "zeno": {"testo": "The boy can come and see the lantern at twelve."},
+    "marta": {"testo": "Gino is NOT to go to the Lighthouse. That mad old man is there.", "r1": "Zeno isn't mad. He's lonely.", "r2": "All right, Marta."},
+    "teresa": {"testo": "There's a letter for Zeno. It comes from Chioggia. See it gets there, dear."},
+    "alba": {
+      "guardiano": "Zeno climbs the Lighthouse stairs counting the steps, as every morning for forty years.",
+      "calligrafia": "This handwriting… no. It can't be.",
+      "lanterna": "From inside, the lantern is a sun! A sun that spins!",
+      "vetri": "The boy didn't come. I'd cleaned the glass specially.",
+      "lontano": "Away from that old man. It's for his own good.",
+      "guardiano2": "Hundred and fourteen. As yesterday.",
+      "calligrafia2": "Zeno folds the letter in four and puts it in his jacket, on the side of his heart.",
+      "lanterna2": "Mh. Now you know why I don't sleep.",
+      "vetri2": "The lantern turns all the same, for no one.",
+      "lontano2": "But Mum, the Lighthouse! The lantern!"
+    },
+    "hint": {
+      "spinta": "Zeno never strays more than two places from the Lighthouse.",
+      "indizio": "Gino can carry the letter to Zeno: he must be below when he receives it."
+    }
+  },
+  "g06": {
+    "titolo": "The Letter from Venice",
+    "perline": {"L1": "The letter from Venice for Nina: her exam result", "ninaParte": "Rumour: “Nina wants to leave”"},
+    "nina": {"testo": "The letter from Venice must reach me by 11. And the postwoman must not read it."},
+    "marta": {"testo": "Today I don't want to see Teresa.", "r1": "Why, Marta?", "r2": "As you wish."},
+    "zeno": {"testo": "The priest mustn't hear gossip about Nina: he'd tell her father."},
+    "alba": {
+      "busta": "The eight o'clock ferry brings an envelope with a Venice postmark.",
+      "promossa": "I passed! And nobody read it before me. Nobody!",
+      "tuttiSanno": "Everyone knew before I did. Even the mark.",
+      "tuttiSanno2": "Eight in Latin, dear! Well done! Oh… wasn't I meant to say?",
+      "respiro": "I didn't see her today. Easier to breathe.",
+      "prete": "Bepi, sit down. I've heard something about Nina, and I cannot keep it quiet.",
+      "prete2": "Venice. Mh. I've known since she learned to read.",
+      "busta2": "The sailor holds it like something too hot to touch.",
+      "promossa2": "Nina reads it ten times over, sitting on the wellhead.",
+      "respiro2": "Marta kneads in silence. For once the silence is light."
+    },
+    "hint": {
+      "spinta": "The letter comes on the eight o'clock ferry: the sailor carries it.",
+      "indizio": "If Teresa holds a letter not hers at the end of an hour, she reads it."
+    }
+  },
+  "g07": {
+    "titolo": "The Well",
+    "perline": {"confessione": "Secret: “I read Marta's letter, in '36”"},
+    "teresa": {"testo": "I want to confess. Let my burden reach Don Piero, and no one else."},
+    "nina": {
+      "testo": "What is Teresa hiding? I want to know. I'm seventeen, not seven.",
+      "r1": "Some things are better not known.",
+      "r2": "You're right: you're not a child."
+    },
+    "zeno": {"testo": "The boy should come by the Lighthouse at one. I promised him the lantern."},
+    "alba": {
+      "cassetto": "There are more and more envelopes in the drawer. I don't remember putting them there.",
+      "confessione": "Thirty years ago I read one of Marta's letters. In the Square. Out loud.",
+      "confessione2": "Ego te absolvo. But I'm not the one you should go to, Teresa.",
+      "sempreSaputo": "I know what you did, Teresa. I always knew.",
+      "ninaSa": "Teresa read one of Marta's letters, back in thirty-six. So that's why!",
+      "lume": "Zeno let me light the little lamp! Me! All by myself!",
+      "cassetto2": "Don Piero shuts the drawer. It barely closes.",
+      "sempreSaputo2": "Then why did you never tell me, Marta?",
+      "ninaSa2": "Nina writes it in her lined exercise book, then rubs it out.",
+      "lume2": "Mh. Put it out the way you lit it: gently."
+    },
+    "hint": {
+      "spinta": "A secret only goes down: from the one on top to the one below.",
+      "indizio": "When Nina is on top, she also takes the secrets of whoever passes under her."
+    }
+  },
+  "g08": {
+    "titolo": "Black Thread",
+    "fili": {"segreteria": "the school office, in Venice"},
+    "perline": {"L_iscrizione": "Nina's enrolment form, for Venice"},
+    "marta": {"testo": "Tomorrow is my father's anniversary. Before eleven o'clock mass I want to speak to Don Piero, and I want Gino with me."},
+    "nina": {
+      "testo": "My enrolment form for Venice must go on the nine o'clock ferry. Give it to whoever boards.",
+      "r1": "Does your dad know?",
+      "r2": "It'll go."
+    },
+    "zeno": {"testo": "I didn't sleep last night. From three on I want to see no one."},
+    "alba": {
+      "filoNero": "At three in the night, at the lace's edge, a black thread crosses Zeno at the Lighthouse.",
+      "filoNero2": "I did not weave it.",
+      "anniversario": "Twenty years today. Gino, cap off in front of Don Piero.",
+      "partita": "It's gone! The form has gone! Now it's real.",
+      "scaduta": "The ferry has gone and the form is still here. The deadline was today.",
+      "insonne": "I didn't sleep. Last night there was a light on the sea. A black one.",
+      "anniversario2": "Requiem aeternam. A stern man, your father. But he wanted you here.",
+      "partita2": "Nina runs along the Fondamenta without greeting anyone, so as not to cry.",
+      "scaduta2": "Nina puts the envelope back in her book, like a bookmark.",
+      "insonne2": "Zeno looks at the sea towards Chioggia, and says nothing more."
+    },
+    "hint": {
+      "spinta": "The nine o'clock ferry takes whoever is at the Pier, with all they carry.",
+      "indizio": "Whoever boards the ferry must have the form: Nina hands it over from on top."
+    }
+  },
+  "arc1": {
+    "titolo": "Marta's Letter",
+    "fili": {"padre": "Marta's father"},
+    "perline": {"L_ernesto": "A badly sealed letter"},
+    "eco": {
+      "ernesto": "For Marta. Put it in her hand, Teresa. Hers alone.",
+      "padre": "Good morning, Don Anselmo. There's a stranger in the Square, have you seen him?",
+      "quale": "“Did you get my letter?” “What letter, Ernesto?”",
+      "letta": "“Come away with me, on the noon ferry.” That's what it says, I swear.",
+      "nessunaParte": "Here. Half the island has read it already. You're not going anywhere.",
+      "anselmo": "Teresa. What have you done, my child?"
+    },
+    "margine": "So she would stay.",
+    "rivela": {
+      "1": "In '36 Grandmother sent Ernesto's letter through Teresa's hands, at market time.",
+      "2": "Ernesto left alone, on the noon ferry. Marta stayed."
+    },
+    "hint": {
+      "spinta": "Who is always in Church at eleven? Who leaves on the ferry? Who lights up?",
+      "indizio": "A letter passes to the one below. The father must know it before eleven."
+    }
+  },
+  "arc2": {
+    "titolo": "The Last Lace",
+    "perline": {"L_livia": "An envelope from Chioggia", "L_ada": "A sealed envelope, no name"},
+    "eco": {
+      "busta": "Another envelope from Chioggia, Don Piero. You give it to Clotilde yourself.",
+      "perLei": "For the child. When the time comes, Zeno. Not before.",
+      "campana": "Three o'clock. I thought I heard the bell. It was the wind.",
+      "onda": "Did you see an old woman, out on the shallows? No? Then I dreamt her."
+    },
+    "margine": "Just once, inside.",
+    "rivela": {
+      "1": "The ivory thread was Grandmother: the only night she wove herself into the lace.",
+      "2": "Me? At two I was asleep. I don't know what thread you mean."
+    },
+    "hint": {
+      "spinta": "The thread that breaks off at three belongs to none of the living.",
+      "indizio": "At two the ivory thread passes over the thread by the Lighthouse, and gives it something."
+    }
+  },
+  "diario": {
+    "persone": {
+      "marta": {
+        "noSotto": "Marta never passes under Teresa. She told me with a “No.” that made the lace pillow shake.",
+        "partenze": "Marta watched the ferry leave and went back into the bakery without a word. Departures hurt her.",
+        "padre": "It was the anniversary of Marta's father. In Church, before mass, she held Gino by the hand.",
+        "ernesto": "In 1936 Marta wanted to leave with a sailor, Ernesto. Only he left.",
+        "chi": "Marta, the baker. At Grandmother's funeral she didn't cry: she left two loaves on the doorstep and went away.",
+        "zeno": "I wrote to Marta that Zeno isn't mad, he's lonely. She didn't answer. Maybe tomorrow.",
+        "faro": "I wrote to Marta “All right”. I don't know if I promised to keep Gino from the Lighthouse, or only that I'd heard her.",
+        "comeVuoi": "I wrote to Marta “As you wish”. I didn't ask her why. Perhaps that was just what she wanted."
+      },
+      "teresa": {
+        "luce": "Teresa lit up. What did she see?",
+        "legge": "If Teresa holds a letter that isn't hers at the end of an hour, she reads it. Not out of spite: letters keep her company.",
+        "cartolina": "In the ferry post there was a postcard from Chioggia, unsigned. Teresa looked at it for a long time.",
+        "chi": "Teresa, the postwoman. On the day of the funeral she brought me bread and told me the whole island while she was at it.",
+        "fredda": "I wrote to Teresa that her news was gossip. Her next note was as cold as winter post.",
+        "amica": "I said yes to Teresa. Now, when she passes under my window, she waves with her whole bag."
+      },
+      "piero": {
+        "pozzo": "Don Piero takes everything and gives nothing. Letters not meant for him stay with him.",
+        "buste": "Don Piero keeps everything, even empty envelopes. He has a drawer that won't close any more.",
+        "ascolta": "Don Piero heard the rumour and repeated it to no one. Rumours stop with him.",
+        "bepi": "Don Piero found out Nina wants to leave, and told Bepi. Don Piero never lies.",
+        "chi": "Don Piero said mass for Grandmother in the voice of a man sleepy for forty years. He calls me “my child”."
+      },
+      "gino": {
+        "corre": "Gino never keeps still. Every hour he must cross someone, if he possibly can.",
+        "bagnato": "Gino came back from the Pier wet to the knees. Marta wouldn't look me in the face.",
+        "chiacchiere": "Gino told everyone the lacemaker is a child. He added, on his own account: “A good one, though”.",
+        "chi": "Gino is Marta's son. He's eleven and can't keep still even in church.",
+        "campana": "At eleven Gino rang the bell. Out of tune, out of hours, happy. Don Piero laughed.",
+        "promessa": "I promised Gino the bell. Now it's a promise, and promises weigh more than notes.",
+        "giro": "Gino went all the way round: Pier, Bakery, Square, Church. Tomorrow, he says, he'll do it backwards.",
+        "lume": "Zeno let Gino light the little lamp at the Lighthouse. Gino talks of nothing else.",
+        "chiede": "I told Gino to ask Don Piero first. He answered with a drawing: a laughing bell."
+      },
+      "zeno": {
+        "faro": "Zeno never strays more than two places from the Lighthouse. Like a dog on a chain, but with no chain.",
+        "insonne": "Zeno hasn't slept for days. He says that at night, out on the sea, there's a black light.",
+        "nega": "I asked Zeno about the night Grandmother died. He says at two he was asleep. He didn't look at me.",
+        "chi": "Zeno, the lighthouse keeper. Grandmother called him “the keeper”, and nothing else. He called her “madam”.",
+        "riposo": "Zeno spent the afternoon alone. He says he slept an hour, the first in days."
+      },
+      "nina": {
+        "curiosa": "When Nina is on top, she takes as well as gives: the secrets of whoever passes under her.",
+        "esamePerso": "Nina missed the nine o'clock ferry, and the exam with it. There's another one in spring.",
+        "tuttiSanno": "The whole island knew Nina's exam result before she did. Teresa had read the letter.",
+        "iscrizione": "Nina's enrolment form didn't go. Today was the deadline. Nina says it doesn't matter. It matters.",
+        "chi": "Nina, Bepi's daughter. She reads as she walks and never trips. She wants to go to Venice.",
+        "partita": "Nina took the nine o'clock ferry for the exam. Bepi was at sea and knows nothing.",
+        "dillo": "I told Nina to tell her father. She didn't answer: Nina only answers when she's right.",
+        "vai": "I wrote to Nina: “Go. It's your life.” I wrote it, but it sounded like someone else's line.",
+        "promossa": "Nina passed, and she was the first to know. She read the letter ten times over, in the Square.",
+        "iscritta": "Nina's form went on the nine o'clock ferry. Now Venice knows Nina exists.",
+        "abbraccio": "I told Nina to hug her dad tight. She says Bepi won't let anyone hug him. He does, but he won't say so.",
+        "delusa": "I told Nina some things are better not known. She answered with two words of Latin: “Sapere aude.”",
+        "grande": "I told Nina she isn't a child. She underlined the sentence twice and sent it back to me.",
+        "babbo": "I asked Nina if her dad knows. She answered: “The sea knows. Dad, not yet.”",
+        "partira": "I wrote to Nina: “It'll go.” She copied it onto the first page of her exercise book, in capitals."
+      },
+      "bepi": {
+        "rete": "Bepi sold his good net to pay for Nina's exam. Now Nina knows.",
+        "candela": "Bepi lights a candle for his wife, Elvira. He says nothing. No need.",
+        "chi": "Bepi, the fisherman. He greeted me with a nod, without a word. They say he's like that with everyone."
+      }
+    },
+    "desiderio": {
+      "nina": "Nina wants to study in Venice and become a teacher. She says it the way you say a thing already done.",
+      "gino": "Gino wants to see the lantern lit from inside. He's written it three times, with three different mistakes."
+    },
+    "libro": {
+      "incrocio": "Two threads that meet swap places. On the lace pillow as on the Fondamenta.",
+      "spillo": "Brass pins are not up for discussion. Until they're kept, the hour can't be fixed.",
+      "sopraDa": "“Who is on top, gives.” If the letter doesn't pass, I tap the crossing and flip it.",
+      "voce": "Rumours pass both ways. Once spoken, they don't come back.",
+      "matassa": "The skein is counted: each crossing, one arm's length of thread. Flipping costs nothing.",
+      "molo": "At boat time whoever is at the Pier goes away, with all they carry. Whoever arrives takes their place.",
+      "segreto": "Secrets only go down, from the one on top to the one below. Whoever confides them keeps them."
+    },
+    "domande": {
+      "avorio": {
+        "apre": "On the lace pillow is Grandmother's last lace. An ivory thread belongs to nobody, and at three it is cut. Where to look: the chest, when it opens.",
+        "indizio1": "The ivory thread passed over Zeno at two. It gave him something.",
+        "risposta": "The ivory thread was Grandmother: the only time she wove herself into the lace."
+      },
+      "martaTeresa": {
+        "apre": "Marta and Teresa haven't spoken in thirty years, Gino says. Nobody can say why, or nobody will.",
+        "chiedilo": "I asked Marta why she won't see Teresa. She answered: “Ask your grandmother.” Where to look: the Archive.",
+        "confessione": "Teresa has confessed: thirty years ago she read one of Marta's letters, in the Square.",
+        "nina": "Nina found out Teresa's burden: in '36 she read one of Marta's letters out loud.",
+        "risposta": "It was Grandmother who sent Ernesto's letter through Teresa, at market time. So that Marta would stay."
+      },
+      "chiL": {
+        "apre": "The lagoon brought a bottle. Inside, a sheet: “My dear…” and a signature, L. Where to look: the bottles, every evening.",
+        "seppia": "L. weaves on her own, in sepia black, because it doesn't show on blue velvet. Who taught her?",
+        "zeno": "Zeno received a letter signed “L.”. He said: “It can't be.”",
+        "fuso": "In the lighthouse-shaped bobbin Zeno lost, there is a carved initial: L."
+      },
+      "pozzo": {"apre": "Don Piero keeps everything. But what is in that drawer that won't close any more?"},
+      "desideri": {"apre": "Everyone wants something, and writes me only half of it. If I knew what everyone wants…"},
+      "filoNero": {"apre": "At three in the night, on the edge of the lace, a black thread crossed Zeno at the Lighthouse. I did not weave it."}
+    },
+    "lettere": {
+      "bottiglie": "The bottles come to the door in the evening, with the tide. The letters inside all begin “My dear”.",
+      "disordine": "L.'s letters arrive out of order: one has been at sea ten years, another a month."
+    },
+    "archivio": {
+      "cassapanca": "Grandmother's chest has opened. Inside, old laces rolled up, each with a ribbon and a date. Where to look: the Archive.",
+      "arc1": "1936. Grandmother sent Ernesto's letter through Teresa, at market time. In the margin: “So she would stay.”",
+      "arc2": "Last night. The ivory thread breaks off at three. In the margin: “Just once, inside.”"
+    }
+  },
+  "lettere": {
+    "L1": "My dear, today in Chioggia there was a wind that would have made you laugh. I bought a lined exercise book, the kind I loved as a little girl. I don't know if the bottles arrive. The letters, for certain, don't. L.",
+    "L2": "My dear, today on the quay a little girl was counting the boats out loud, and she always went wrong at the same one: the red one. I thought that you, too, perhaps count things. I count the months. I don't tell you this for pity: it's just that numbers, from far away, are the only thing you can hold in your hand. I send you a hug in the shape of a bottle, which is the shape hugs come in here. L.",
+    "L3": "My dear, I work in a net factory. We knot from morning to night, and the hands learn by themselves. Sometimes, without meaning to, I tie a knot my mother taught me, and the forewoman looks at me sideways: she says that knot won't hold. It holds, though. It has always held, even when you'd rather it didn't. I hope someone has taught you to tie knots, and to untie them too. The second is harder. L.",
+    "L4": "My dear, I have learned to weave on my own. I don't know if that's the word: to weave without having the right. I use sepia black, because it doesn't show on blue velvet. Nobody taught me. L.",
+    "L5": "My dear, today is your birthday, I think. I've lost count of the calendars, not of the birthdays. I bought a small cake and ate it on the quay, looking towards the island. You can't see it from here: there's always fog, or perhaps it's the distance. They'll have baked you sweet bread at the bakery. I remember it well: it was good even burnt, especially burnt. Happy birthday, from far away. L.",
+    "L6": "My dear, last night I dreamt of the Lighthouse. There was a man on the stairs counting the steps, as he always did, and when he reached the top he started again from the bottom. I won't write his name: the sea opens the bottles, and the sea gossips. If you meet him, tell him I still remember the lighthouse-shaped bobbin. No, don't tell him anything. He wouldn't know who you meant. L.",
+    "L7": "My dear, in Chioggia they say that when the sea gives back a bottle, whoever wrote it is about to return. I've thrown hundreds: I should have come back a hundred times. Instead I'm here, at the window, writing. Tonight the sea is as black as my thread, and there's a wind blowing from your side. Don't be afraid of black. It's only a colour you can't see at night. L."
+  }
+}
