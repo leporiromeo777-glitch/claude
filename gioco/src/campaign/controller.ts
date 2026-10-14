@@ -28,6 +28,7 @@ import { services } from '../core/services';
 import { defaultKnowledge } from '../core/save/defaults';
 import { activeNight, resumeParams } from '../tombolo/index';
 import * as flow from './flow';
+import { rewindTo } from './rewind';
 import { refreshDiary } from './diary';
 import { precomputedRows, simulateNight } from './simulate';
 import { campaignDays, campaignNightParams, dayIndexOf } from './evening';
@@ -151,8 +152,20 @@ export class CampaignControllerImpl implements CampaignController {
         console.error('[campaign] night:complete failed', err);
       }
     });
+    bus.on('night:exit', ({ origin }) => {
+      try {
+        this.onNightExit(origin);
+      } catch (err) {
+        console.error('[campaign] night:exit failed', err);
+      }
+    });
     bus.on('quirk:discovered', ({ quirk }) => {
       try {
+        // Il Taccuino è la conoscenza della storia: le stranezze viste nel Merletto del
+        // giorno o in quello libero non entrano (svelerebbero personaggi non ancora incontrati).
+        // (Una notte ripresa riemette le scoperte mentre si costruisce, prima di essere attiva.)
+        const origin = activeNight()?.params.origin ?? this.data().night?.origin;
+        if (origin && !(flow.CAMPAIGN_ORIGINS as readonly string[]).includes(origin)) return;
         const k = this.knowledge();
         if (k.quirks.includes(quirk) && !this.state()) return;
         let fresh: string[] = [];
@@ -186,6 +199,25 @@ export class CampaignControllerImpl implements CampaignController {
       const params: BilancioParams = { telaio: { levelId: outcome.levelId, metrics: outcome.metrics, record: rec, spartito: outcome.spartito, rows: outcome.rows } };
       this.afterNight(outcome, () => this.go({ scene: 'bilancio', params }));
     }
+  }
+
+  /**
+   * Il giocatore lascia una notte a metà (Pausa → Torna al titolo). Le notti della storia
+   * restano salvate e "Continua" le riprende; una notte facoltativa (Rigioca o Ripassa dal
+   * Telaio, un merletto d'Archivio aperto dalla cassapanca fuori dalla fase d'Archivio)
+   * lasciata così si abbandona: altrimenti "Continua" la riaprirebbe ogni volta al posto
+   * della storia. Se l'app viene chiusa senza uscire dalla notte, si riprende anche quella.
+   */
+  private onNightExit(origin: NightParams['origin']): void {
+    const phase = this.state()?.phase;
+    const optional = origin === 'telaio' || (origin === 'archivio' && phase !== 'archivio');
+    if (!optional || this.data().night?.origin !== origin) return;
+    this.s.save.update(
+      (d) => {
+        if (d.night?.origin === origin) d.night = null;
+      },
+      { immediate: true, reason: 'notte lasciata' },
+    );
   }
 
   private closeDay(outcome: NightOutcome): DayReport {
@@ -262,7 +294,7 @@ export class CampaignControllerImpl implements CampaignController {
 
   /** Apre il tombolo con i parametri della notte (musica e ambiente della notte). */
   startNightScene(p: NightParams): void {
-    this.sound('notte', p.level.id);
+    this.sound(p.origin === 'archivio' ? 'archivio' : 'notte', p.level.id);
     this.nav('tombolo', p);
   }
 
@@ -353,11 +385,15 @@ export class CampaignControllerImpl implements CampaignController {
     return { scene: 'sera' };
   }
 
-  /** Una notte del Telaio rimasta a metà ha la precedenza su "Continua". */
+  /**
+   * Una notte del Telaio, o un merletto d'Archivio aperto dalla cassapanca durante la
+   * sera, rimasti a metà hanno la precedenza su "Continua" (si riprendono alla stessa riga).
+   */
   private async savedSideNight(): Promise<NightParams | null> {
     const saved = this.data().night;
-    if (!saved || saved.origin !== 'telaio') return null;
-    return resumeParams(this.s);
+    if (!saved || (saved.origin !== 'telaio' && saved.origin !== 'archivio')) return null;
+    const p = await resumeParams(this.s);
+    return p && (p.origin === 'telaio' || p.origin === 'archivio') ? p : null;
   }
 
   /**
@@ -370,7 +406,7 @@ export class CampaignControllerImpl implements CampaignController {
       return { scene: 'sera' };
     }
     if (cmd.cmd === 'riprendi' && cmd.levelId) {
-      const ok = this.mutate((d) => flow.rewindTo(d, this.s.content, cmd.levelId as LevelId), 'riprendi');
+      const ok = this.mutate((d) => rewindTo(d, this.s.content, cmd.levelId as LevelId), 'riprendi');
       if (!ok) return this.route();
       return { scene: 'sera' };
     }
@@ -400,7 +436,7 @@ export class CampaignControllerImpl implements CampaignController {
   }
 
   async resumeFrom(levelId: LevelId): Promise<void> {
-    const ok = this.mutate((d) => flow.rewindTo(d, this.s.content, levelId), 'riprendi');
+    const ok = this.mutate((d) => rewindTo(d, this.s.content, levelId), 'riprendi');
     if (ok) this.go({ scene: 'sera' });
   }
 

@@ -12,12 +12,12 @@
  * - Il borbottio (`audio.babble`) accompagna ogni riga detta da un personaggio; il
  *   narratore è muto ma tiene il tempo della riga.
  */
-import type { ActionEvent, CharacterId, Playing, Services, SfxId } from '../core/types';
+import type { ActionEvent, CharacterId, Playing, Services, SfxId, SpriteFrame } from '../core/types';
 import { el, clear } from '../core/ui/dom';
 import { button, iconButton, textOf } from '../core/ui/components';
 import { plainText } from '../core/ui/richtext';
 import { FIGURINE_IDS } from './dawn';
-import { charChip, charName, loadImages } from './ui';
+import { charChip, charColor, charName, loadImages } from './ui';
 import type { VignetteView } from './types';
 
 /** Durata massima di una vignetta in avanzamento automatico (GDD 3.13). */
@@ -38,6 +38,27 @@ export function figureFrame(character: CharacterId, pose: string, grezza: boolea
   if (character === 'ada' && grezza) return `fig/ada/${pose}_grezza`;
   if (FIGURINE_IDS.includes(character)) return `fig/${character}/${pose}`;
   return `fig/lino/${pose}`;
+}
+
+/** Chi non ha una figurina propria usa quella anonima, tinta del suo colore (asset-blender). */
+export function needsTint(character: CharacterId): boolean {
+  return !FIGURINE_IDS.includes(character);
+}
+
+/** La figurina anonima (lino) tinta del colore del personaggio, in un canvas a parte. */
+function tintedFigure(fr: SpriteFrame, color: string, w: number, h: number): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w));
+  c.height = Math.max(1, Math.round(h));
+  const g = c.getContext('2d');
+  if (!g) return null;
+  g.drawImage(fr.source, fr.sx, fr.sy, fr.sw, fr.sh, 0, 0, c.width, c.height);
+  g.globalCompositeOperation = 'source-atop';
+  g.globalAlpha = 0.45;
+  g.fillStyle = color;
+  g.fillRect(0, 0, c.width, c.height);
+  return c;
 }
 
 /** Durata di lettura di una riga (ms) a velocità 1. */
@@ -352,7 +373,9 @@ export class VignettePlayer {
       ctx.translate(x, ground);
       if (f.flip) ctx.scale(-1, 1);
       try {
-        ctx.drawImage(fr.source, fr.sx, fr.sy, fr.sw, fr.sh, -fr.ax * dw, -fr.ay * dh, dw, dh);
+        const tinted = needsTint(f.character) ? tintedFigure(fr, charColor(this.s, f.character), dw * dpr, dh * dpr) : null;
+        if (tinted) ctx.drawImage(tinted, -fr.ax * dw, -fr.ay * dh, dw, dh);
+        else ctx.drawImage(fr.source, fr.sx, fr.sy, fr.sw, fr.sh, -fr.ax * dw, -fr.ay * dh, dw, dh);
       } catch {
         /* figurina non pronta */
       }

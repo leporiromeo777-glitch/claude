@@ -123,9 +123,14 @@ export function snapshotOf(c: CampaignStateX): CampaignCore {
   };
 }
 
-/** Nuova storia: campagna e Taccuino da capo (record, sblocchi e statistiche restano). */
+/**
+ * Nuova storia: campagna e Taccuino da capo. Record, sblocchi, statistiche e gli
+ * epiloghi già visti restano (GDD 7: gli epiloghi nel Telaio sono uno sblocco).
+ */
 export function newCampaign(d: SaveData, db: Db): CampaignStateX {
+  const seen = [...((d.campaign as CampaignStateX | null)?.endingsSeen ?? [])];
   d.campaign = freshCampaign(db);
+  d.campaign.endingsSeen = seen;
   d.knowledge = defaultKnowledge();
   if (d.night && (CAMPAIGN_ORIGINS as readonly string[]).includes(d.night.origin)) d.night = null;
   beginEvening(d, db);

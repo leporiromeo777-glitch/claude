@@ -13,10 +13,12 @@ import { defaultSettings } from '../../../src/core/settings';
 import { createI18n, loadI18nSources } from '../../../src/core/i18n';
 import { installServices } from '../../../src/core/services';
 import { SideNotebook } from '../../../src/campaign/frame';
-import { taccuinoPanel, visibleTabs } from '../../../src/campaign/taccuino/panel';
+import { bigliettiniPanel, taccuinoPanel, visibleTabs } from '../../../src/campaign/taccuino/panel';
 import { VignettePlayer, figureFrame } from '../../../src/campaign/vignette';
 import { notePaper } from '../../../src/campaign/notes';
 import { newCampaign, startNight, completeDay, finishDawn, finishBilancio } from '../../../src/campaign/flow';
+import { pinNote } from '../../../src/campaign/evening';
+import { refreshDiary } from '../../../src/campaign/diary';
 import type { CampaignStateX, VignetteView } from '../../../src/campaign/types';
 import { db, emptySave, playNight } from './helpers';
 
@@ -233,5 +235,79 @@ describe('bigliettini', () => {
     const signed = notePaper(s, note, c);
     expect(signed.dataset.anonimo).toBeUndefined();
     expect(signed.querySelector('[data-character="marta"]')).not.toBeNull();
+  });
+});
+
+describe('verifica: pannelli durante la notte e voci lette', () => {
+  it('Bigliettini all’inizio della notte (prima che il tombolo la renda attiva): le richieste appuntate, in corso', () => {
+    const { s, d } = setup('largo');
+    toFirstEvening(d);
+    const c = d.campaign as CampaignStateX;
+    expect(pinNote(c, db(), 'g01.marta')).toBeNull();
+    expect(pinNote(c, db(), 'g01.piero')).toBeNull();
+    startNight(d, db());
+    const box = document.createElement('div');
+    document.body.appendChild(box);
+    const h = bigliettiniPanel(s, box, { from: 'tombolo', origin: 'campagna', levelId: 'g01', accepted: ['g01.marta', 'g01.piero'] });
+    expect(box.textContent).not.toContain('Nessuna richiesta stanotte');
+    expect(box.querySelector('[data-test="cp-richiesta-g01.marta"]')).not.toBeNull();
+    expect(box.querySelector('[data-test="cp-richiesta-g01.piero"] [data-stato="in_corso"]')).not.toBeNull();
+    // Quando la scena del tombolo è entrata, il pannello si ridisegna.
+    s.bus.emit('scene:enter', { id: 'tombolo' });
+    expect(box.querySelectorAll('[data-test^="cp-richiesta-"]').length).toBe(2);
+    // Una notte del Telaio non mostra le richieste della sera della campagna.
+    const other = document.createElement('div');
+    const h2 = bigliettiniPanel(s, other, { from: 'tombolo', origin: 'telaio', levelId: 'g01', accepted: [] });
+    expect(other.querySelector('[data-test^="cp-richiesta-"]')).toBeNull();
+    h.destroy();
+    h2.destroy();
+  });
+
+  it('Taccuino fisso (layout largo): le voci nuove diventano lette quando la scena lo smonta; l’overlay quando si apre', () => {
+    const { s, d } = setup('largo');
+    toFirstEvening(d);
+    const c = d.campaign as CampaignStateX;
+    c.diarySeen = 0;
+    const total = d.knowledge.diary.length;
+    expect(total).toBeGreaterThan(3);
+    const box = document.createElement('div');
+    const h = taccuinoPanel(s, box, { fixed: true, tab: 'persone' });
+    expect(c.diarySeen).toBe(0);
+    expect(box.querySelectorAll('.cp-voce--nuova').length).toBeGreaterThan(0);
+    h.destroy();
+    expect((d.campaign as CampaignStateX).diarySeen).toBe(total);
+    const again = document.createElement('div');
+    const h2 = taccuinoPanel(s, again, { fixed: true, tab: 'persone' });
+    expect(again.querySelectorAll('.cp-voce--nuova').length).toBe(0);
+    expect(again.querySelectorAll('.cp-voce--letta').length).toBeGreaterThan(0);
+    h2.destroy();
+    // L'overlay segna lette le voci appena si apre (e le mostra ancora come nuove).
+    (d.campaign as CampaignStateX).diarySeen = 0;
+    const ov = document.createElement('div');
+    const h3 = taccuinoPanel(s, ov, { tab: 'persone' });
+    expect(ov.querySelectorAll('.cp-voce--nuova').length).toBeGreaterThan(0);
+    expect((d.campaign as CampaignStateX).diarySeen).toBe(total);
+    h3.destroy();
+  });
+
+  it('Persone: una stranezza si scrive per esteso solo quando i contenuti l’hanno spiegata', () => {
+    const { s, d } = setup('stretto');
+    newCampaign(d, db());
+    const c = d.campaign as CampaignStateX;
+    // Prologo: Teresa «si è accesa» (teresaLegge scoperta), ma che legga si capisce dopo g05.
+    d.knowledge.quirks.push('teresaLegge', 'martaNoSotto');
+    refreshDiary(c, d.knowledge, db());
+    expect(d.knowledge.diary).toContain('persone.teresa.luce');
+    expect(d.knowledge.diary).not.toContain('persone.teresa.legge');
+    const box = document.createElement('div');
+    const h = taccuinoPanel(s, box, { tab: 'persone' });
+    expect(box.querySelector('[data-test="cp-stranezza-teresaLegge"]')).toBeNull();
+    expect(box.querySelector('[data-test="cp-stranezza-martaNoSotto"]')).not.toBeNull();
+    h.destroy();
+    d.knowledge.diary.push('persone.teresa.legge');
+    const box2 = document.createElement('div');
+    const h2 = taccuinoPanel(s, box2, { tab: 'persone' });
+    expect(box2.querySelector('[data-test="cp-stranezza-teresaLegge"]')).not.toBeNull();
+    h2.destroy();
   });
 });

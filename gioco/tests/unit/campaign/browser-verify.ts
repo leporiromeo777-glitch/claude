@@ -195,7 +195,7 @@ async function prologueAndFirstDay(browser: Browser, url: string): Promise<void>
   check('Salta → bilancio', await waitScene(page, 'bilancio'));
   check('bilancio: obiettivo del prologo soddisfatto', await page.isVisible('[data-test="cp-bilancio-obiettivi"] .cp-ok'));
   check('bilancio: voci nuove del Taccuino', (await page.locator('[data-test^="cp-bilancio-voce-"]').count()) > 0);
-  check('bilancio: eleganza e filo d’oro', await page.isVisible('[data-test="cp-bilancio-oro"]'));
+  check('bilancio del prologo: eleganza non ancora (GDD 7: da g02)', !(await page.isVisible('[data-test="cp-bilancio-eleganza"]')));
   await shot(page, '04-bilancio');
   await page.tap('[data-test="cp-bilancio-continua"]');
   check('bilancio → sera di g01', (await waitScene(page, 'sera')) && (await call<Rec>(page, 'campaign.state')).levelId === 'g01');
@@ -404,6 +404,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await waitNight(page);
   await page.waitForTimeout(300);
   check('largo: Bigliettini e Taccuino nel tombolo', (await page.isVisible('[data-test="cp-pannello-bigliettini"]')) && (await page.isVisible('[data-test="tb-pannello-destro"] [data-test="cp-taccuino"]')));
+  check('largo: all’inizio della notte i Bigliettini mostrano la richiesta appuntata', await page.isVisible('[data-test="cp-pannello-bigliettini"] [data-test="cp-richiesta-g01.marta"]'));
   await shot(page, '21-largo-notte');
   await call(page, 'night.autoplay');
   await waitScene(page, 'alba');
@@ -433,6 +434,20 @@ async function extras(browser: Browser, url: string): Promise<void> {
   check('arc1 rammendato: done(arc1), domanda chiusa', (k.archive as Rec).arc1 === 'rammendato' && (k.questions as Rec).martaTeresa === 'risolta');
   await page.click('[data-test="cp-archivio-continua"]');
   check('Archivio → sera di g04', (await waitScene(page, 'sera')) && (await call<Rec>(page, 'campaign.state')).levelId === 'g04');
+
+  // Un merletto d'Archivio aperto dalla cassapanca durante la sera: ricaricando si
+  // riprende; lasciato a metà (Torna al titolo) si abbandona e "Continua" torna alla sera.
+  await call(page, 'campaign.archive', 'arc1');
+  await waitNight(page);
+  await call(page, 'core.flush');
+  await page.reload();
+  await page.evaluate(() => (window as unknown as { __GAME__: { ready: Promise<void> } }).__GAME__.ready);
+  await call(page, 'core.goto', 'sera', { cmd: 'continua' });
+  check('cassapanca: dopo il ricaricamento si riprende il merletto d’Archivio', (await waitNight(page)) && (await call<Rec>(page, 'night.state')).origin === 'archivio');
+  await call(page, 'core.goto', 'titolo');
+  await waitScene(page, 'titolo');
+  await call(page, 'core.goto', 'sera', { cmd: 'continua' });
+  check('cassapanca: lasciato a metà, Continua torna alla sera', (await waitScene(page, 'sera')) && (await phase(page)) === 'sera' && (await call<Rec>(page, 'core.save')).night === null);
 
   // Bigliettino anonimo con l'autore sbagliato (g13).
   await call(page, 'campaign.goto', 'g13', 'sera');
@@ -488,7 +503,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   check('Rigioca non cambia la storia', JSON.stringify(Object.keys((await call<Rec>(page, 'campaign.state')).history as Rec)) === '["g00"]');
   // Ripassa dal Telaio (dopo g08): la notte rigioca da sola il merletto già trovato.
   await call(page, 'campaign.unlockAll');
-  await call(page, 'core.goto', 'telaio');
+  await call(page, 'core.goto', 'telaio', { back: 'sera' });
   await page.click('[data-test="cp-nodo-apri-g00"]');
   await page.click('[data-test="cp-ripassa-g00"]');
   await waitNight(page);
@@ -498,6 +513,8 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await page.click('[data-test="cp-bilancio-continua"]');
   await waitScene(page, 'telaio');
   check('Ripassa non cambia la storia', JSON.stringify(Object.keys((await call<Rec>(page, 'campaign.state')).history as Rec)) === '["g00"]');
+  await page.click('[data-test="cp-telaio-indietro"]');
+  check('Telaio dopo Ripassa: Indietro torna alla sera da cui si era entrati', await waitScene(page, 'sera'));
   check('nessun errore in console (extra)', errors.length === 0, errors.slice(0, 3).join(' | '));
   await ctx.close();
 }
@@ -530,7 +547,11 @@ async function measures(browser: Browser, url: string): Promise<void> {
   await call(page, 'core.closeOverlay');
   await call(page, 'campaign.goto', 'g02', 'bilancio');
   await waitScene(page, 'bilancio');
+  check('bilancio di g02: eleganza e record', await page.isVisible('[data-test="cp-bilancio-eleganza"]'));
   await report('bilancio');
+  // "Continua" resta a portata anche con molte voci nuove (azioni nel terzo basso).
+  const cont = await page.locator('[data-test="cp-bilancio-continua"]').boundingBox();
+  check('bilancio: Continua visibile senza scorrere', !!cont && cont.y + cont.height <= 640 && cont.y > 640 / 3, JSON.stringify(cont));
   await call(page, 'core.goto', 'telaio');
   await report('telaio');
   await ctx.close();

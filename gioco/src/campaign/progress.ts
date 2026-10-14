@@ -12,7 +12,7 @@
  * - finale vero → Tovaglia (`unlocks.tovaglia`) e campana intonata nel titolo.
  * Un filo d'oro conta una volta per livello (il primo merletto col minimo).
  */
-import type { LaceMetrics, LaceRecord, LevelId, SaveData, Unlocks } from '../core/types';
+import type { LaceMetrics, LaceRecord, LevelDef, LevelId, SaveData, Unlocks } from '../core/types';
 
 export const DAY_UNLOCKS: Readonly<Record<string, 'daily' | 'libero' | 'gradi'>> = { g07: 'daily', g08: 'libero', g16: 'gradi' };
 export const GOLD_COSMETICS: readonly { at: number; id: string }[] = [
@@ -108,4 +108,14 @@ export function unlockEverything(u: Unlocks): void {
   u.gradi = true;
   u.tovaglia = true;
   for (const g of GOLD_COSMETICS) if (!u.cosmetics.includes(g.id)) u.cosmetics.push(g.id);
+}
+
+/**
+ * L'eleganza (incroci, filo d'oro, quiete, simmetria, record) compare nel bilancio da
+ * quando la matassa è visibile (GDD 7: g02, la giornata che introduce la regola
+ * `matassa`); prima il prologo e la prima giornata parlano solo della storia.
+ */
+export function showsElegance(level: Pick<LevelDef, 'rules' | 'kind'> | undefined): boolean {
+  if (!level) return true;
+  return level.kind !== 'storia' || level.rules.includes('matassa');
 }

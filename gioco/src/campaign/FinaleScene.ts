@@ -102,7 +102,7 @@ export class FinaleScene implements Scene {
   private epilogue(): void {
     const views = this.epilogueViews(this.ending);
     this.playVignettes(views, () => {
-      if (this.mode === 'rivedi') void this.s.scenes.go('telaio');
+      if (this.mode === 'rivedi') void this.s.scenes.go('telaio', { ritorno: true });
       else this.credits();
     });
   }

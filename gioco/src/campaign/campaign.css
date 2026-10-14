@@ -590,6 +590,17 @@
   justify-content: flex-end;
   font-family: var(--font-ui);
 }
+/* Bilancio lungo (molte voci nuove): "Continua" resta nel terzo basso dello schermo (GDD 10.1). */
+.cp-bilancio .cp-foglio-continua {
+  position: sticky;
+  /* Fino al bordo dello schermo: copre anche il margine basso del contenitore che scorre. */
+  bottom: calc(-1 * (var(--safe-bottom) + var(--spazio-4)));
+  z-index: 1;
+  margin: 0 calc(-1 * var(--spazio-4)) calc(-1 * var(--spazio-3));
+  padding: var(--spazio-3) var(--spazio-4) calc(var(--safe-bottom) + var(--spazio-4) + var(--spazio-3));
+  background: var(--carta);
+  border-top: 1px solid var(--carta-ombra);
+}
 .cp-lista,
 .cp-mancanze,
 .cp-striscia {

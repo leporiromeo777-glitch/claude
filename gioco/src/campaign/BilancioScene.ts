@@ -16,7 +16,7 @@ import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
 import { charChip, sceneHost } from './ui';
 import type { DayReport } from './types';
-import type { RecordField } from './progress';
+import { showsElegance, type RecordField } from './progress';
 
 function dots(n: number, max = 3): string {
   return '●'.repeat(Math.max(0, Math.min(max, n))) + '○'.repeat(Math.max(0, max - Math.max(0, n)));
@@ -142,7 +142,8 @@ export class BilancioScene implements Scene {
       parts.push(this.section('campaign.bilancio.taccuino', 'cp-bilancio-voci', list));
     }
 
-    parts.push(this.elegance(r.metrics, r.record.after, r.record.improved, r.goldThread));
+    // Eleganza e record da quando la matassa è visibile (GDD 7: g02).
+    if (showsElegance(s.content.levels.get(r.levelId))) parts.push(this.elegance(r.metrics, r.record.after, r.record.improved, r.goldThread));
 
     if (r.unlocked.length > 0) {
       const list = el('ul', { class: 'cp-lista' });
@@ -150,7 +151,7 @@ export class BilancioScene implements Scene {
       parts.push(this.section('campaign.bilancio.sblocchi', 'cp-bilancio-sblocchi', list));
     }
 
-    parts.push(this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
+    parts.push(...this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
     return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
   }
 
@@ -176,7 +177,12 @@ export class BilancioScene implements Scene {
     return this.section('campaign.bilancio.eleganza', 'cp-bilancio-eleganza', ...rows);
   }
 
-  private actions(levelId: string, rows: DayReport['rows'], spartito: string, onContinue: () => void): HTMLElement {
+  /**
+   * Pulsanti in fondo al foglio: "Riascolta il merletto", "Spartito" e il Taccuino in una
+   * riga; "Continua" in una riga sua che resta attaccata al bordo basso mentre si scorre
+   * (GDD 10.1: l'azione principale nel terzo inferiore, anche con molte voci nuove).
+   */
+  private actions(levelId: string, rows: DayReport['rows'], spartito: string, onContinue: () => void): HTMLElement[] {
     const s = this.s;
     const replay = button({
       labelKey: 'campaign.bilancio.riascolta',
@@ -205,7 +211,7 @@ export class BilancioScene implements Scene {
       test: 'cp-bilancio-spartito',
     });
     const cont = button({ labelKey: 'campaign.bilancio.continua', icon: 'avanti', kind: 'primario', size: 'grande', onClick: onContinue, test: 'cp-bilancio-continua' });
-    return el('footer', { class: 'cp-foglio-azioni' }, replay, copy, this.side?.button() ?? null, cont);
+    return [el('div', { class: 'cp-foglio-azioni' }, replay, copy, this.side?.button() ?? null), el('footer', { class: 'cp-foglio-azioni cp-foglio-continua' }, cont)];
   }
 
   private buildTelaio(): HTMLElement {
@@ -218,7 +224,7 @@ export class BilancioScene implements Scene {
       for (const u of t.record.unlocked) list.appendChild(el('li', { class: 'cp-riga cp-sblocco' }, svgIcon('stella', { size: 18 }), this.unlockText(u)));
       parts.push(this.section('campaign.bilancio.sblocchi', 'cp-bilancio-sblocchi', list));
     }
-    parts.push(this.actions(t.levelId, t.rows, t.spartito, () => void this.s.scenes.go('telaio')));
+    parts.push(...this.actions(t.levelId, t.rows, t.spartito, () => void this.s.scenes.go('telaio', { ritorno: true })));
     return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
   }
 
@@ -249,7 +255,7 @@ export class BilancioScene implements Scene {
 
   onBack(): boolean {
     if (this.telaio) {
-      void this.s.scenes.go('telaio');
+      void this.s.scenes.go('telaio', { ritorno: true });
       return true;
     }
     void this.s.scenes.go(this.s.scenes.has('titolo') ? 'titolo' : 'boot');

@@ -6,7 +6,7 @@
  * riavvolgimento (sono conoscenza). Si ricontrollano a ogni passaggio importante: fine
  * della notte, stranezza scoperta, oggetto letto, risposta, Archivio, finale.
  */
-import type { BookPageDef, CampaignState, ContentDB, DiaryEntryDef, DiaryEntryId, Knowledge, QuestionId } from '../core/types';
+import type { BookPageDef, CampaignState, CharacterId, ContentDB, DiaryEntryDef, DiaryEntryId, Knowledge, QuestionId, QuirkId, StoryCond } from '../core/types';
 import { addDiary, evalStory, emptyLog, type EffectLog } from './story';
 
 type Db = Pick<ContentDB, 'diary' | 'levels' | 'balance' | 'book'>;
@@ -90,4 +90,28 @@ export function bookPages(s: CampaignState, k: Knowledge, db: Db): BookPageDef[]
 /** Le pagine scritte da Ada stessa, a matita (GDD 5.7): il nome e il filo nero. */
 export function bookPageByAda(p: BookPageDef): boolean {
   return p.rule === 'nome' || p.rule === 'nero';
+}
+
+/** La condizione chiede di conoscere la stranezza `q` (non dentro una negazione). */
+function mentionsQuirk(c: StoryCond, q: string): boolean {
+  if ('all' in c) return c.all.some((x) => mentionsQuirk(x, q));
+  if ('any' in c) return c.any.some((x) => mentionsQuirk(x, q));
+  if ('not' in c) return false;
+  return 'knows' in c && c.knows === 'quirk' && c.id === q;
+}
+
+/**
+ * La stranezza si può scrivere per esteso nella scheda della persona (GDD 5.8): è
+ * conosciuta e sono già nel Taccuino tutte le voci su quella persona che la nominano.
+ * Così una stranezza che i contenuti svelano più tardi (Teresa «si è accesa» nel
+ * prologo, ma che legga le lettere lo si capisce solo dopo g05) non si rivela prima.
+ */
+export function quirkRevealed(q: QuirkId, character: CharacterId, k: Pick<Knowledge, 'quirks' | 'diary'>, db: Pick<ContentDB, 'diary'>): boolean {
+  if (!k.quirks.includes(q)) return false;
+  for (const def of db.diary.values()) {
+    if (def.section !== 'persone' || def.character !== character) continue;
+    if (!mentionsQuirk(def.unlock, q)) continue;
+    if (!k.diary.includes(def.id)) return false;
+  }
+  return true;
 }

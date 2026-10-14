@@ -17,6 +17,17 @@ import { replayRipassaParams } from './flow';
 import { sceneHost } from './ui';
 import type { DayResultX } from './types';
 
+/** Parametri della scena 'telaio'. */
+export interface TelaioParams {
+  /** Scena a cui torna "Indietro" (per esempio 'sera'). */
+  back?: SceneId;
+  /** Si torna da una notte del Telaio (Rigioca, Ripassa, epilogo rivisto): vale il `back` di prima. */
+  ritorno?: boolean;
+}
+
+/** Da dove si era entrati nel Telaio: resta valido dopo un Rigioca, un Ripassa o un epilogo. */
+let telaioBack: SceneId | null = null;
+
 export class TelaioScene implements Scene {
   readonly id = 'telaio' as const;
   private root: HTMLElement | null = null;
@@ -29,8 +40,10 @@ export class TelaioScene implements Scene {
   constructor(private readonly s: Services) {}
 
   enter(params?: unknown): void {
-    const p = (params ?? {}) as { back?: SceneId };
-    this.back = p.back ?? null;
+    const p = (params ?? {}) as TelaioParams;
+    if (p.back) telaioBack = p.back;
+    else if (!p.ritorno) telaioBack = null;
+    this.back = telaioBack;
     this.root = el('div', { class: 'cp-scena cp-telaio', test: 'cp-telaio' });
     this.main = el('div', { class: 'cp-centro' });
     this.side = new SideNotebook(this.s, { from: 'telaio' });

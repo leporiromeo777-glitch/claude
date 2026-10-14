@@ -72,3 +72,16 @@ describe('sblocchi (GDD 7)', () => {
     expect(e.unlocks.cosmetics).toHaveLength(4);
   });
 });
+
+describe('eleganza nel bilancio (GDD 7: records da g02)', () => {
+  it('nascosta nel prologo e in g01, visibile da g02, sempre negli Archivi', async () => {
+    const { showsElegance } = await import('../../../src/campaign/progress');
+    const { db } = await import('./helpers');
+    const lv = (id: string) => db().levels.get(id);
+    expect(showsElegance(lv('g00'))).toBe(false);
+    expect(showsElegance(lv('g01'))).toBe(false);
+    expect(showsElegance(lv('g02'))).toBe(true);
+    expect(showsElegance(lv('g23'))).toBe(true);
+    expect(showsElegance(lv('arc1'))).toBe(true);
+  });
+});

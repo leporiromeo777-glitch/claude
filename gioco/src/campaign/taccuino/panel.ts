@@ -19,7 +19,7 @@ import { button, paperCard, tabs, textOf, type TabsHandle } from '../../core/ui/
 import { svgIcon } from '../../core/ui/glyphs';
 import { activeNight } from '../../tombolo/index';
 import { controller } from '../controller';
-import { bookPageByAda, bookPages, currentPista, questionOf } from '../diary';
+import { bookPageByAda, bookPages, currentPista, questionOf, quirkRevealed } from '../diary';
 import { dayIndexOf } from '../evening';
 import { notePaper, noteMarks } from '../notes';
 import { memoriaInPlay } from '../memoria';
@@ -72,7 +72,7 @@ function entryView(s: Services, def: DiaryEntryDef, isNew: boolean, highlight: b
   const src = def.source ? textOf(`campaign.taccuino.fonte.${def.source}`, undefined, 'span', { className: 'cp-voce-fonte' }) : null;
   const b = el(
     'button',
-    { type: 'button', class: ['cp-voce', isNew ? 'cp-voce--nuova' : 'cp-voce--letta', highlight ? 'cp-voce--evidenziata' : null], test: `cp-voce-${def.id}`, attrs: { 'aria-expanded': isNew ? 'true' : 'false' } },
+    { type: 'button', class: ['cp-voce', isNew ? 'cp-voce--nuova' : highlight ? null : 'cp-voce--letta', highlight ? 'cp-voce--evidenziata' : null], test: `cp-voce-${def.id}`, attrs: { 'aria-expanded': isNew || highlight ? 'true' : 'false' } },
     isNew ? textOf('campaign.taccuino.nuova', undefined, 'span', { className: 'cp-voce-nuova-segno' }) : null,
     text,
     src,
@@ -137,6 +137,19 @@ export function renderBigliettini(s: Services, box: HTMLElement, o: TaccuinoOpts
   }
   if (!c) {
     box.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
+    return;
+  }
+  if (c.phase === 'notte' && c.evening && o.from === 'tombolo' && (o.origin === undefined || o.origin === 'campagna')) {
+    // Il tombolo monta i pannelli prima di rendere attiva la notte: finché non c'è,
+    // le richieste appuntate stasera sono "in corso" (poi arriva lo stato dal vivo).
+    const list = el('div', { class: 'cp-taccuino-lista', test: 'cp-bigliettini-notte' });
+    for (const a of c.evening.accepted) {
+      const note = s.content.notes.get(a.noteId);
+      if (!note || (o.noteId && o.noteId !== a.noteId)) continue;
+      list.appendChild(el('div', { class: 'cp-richiesta-notte', test: `cp-richiesta-${a.noteId}` }, notePaper(s, note, c, { full: !!o.noteId }), reportStatus(s, null, false)));
+    }
+    if (list.childElementCount === 0) list.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
+    box.appendChild(list);
     return;
   }
   if (c.evening && (c.phase === 'sera' || c.phase === 'scelta')) {
@@ -205,7 +218,7 @@ function renderPersone(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
       el('div', null, charChip(s, id), textOf(def.roleKey, undefined, 'p', { className: 'cp-tenue' }), textOf(`campaign.motivi.${def.pattern}`, undefined, 'p', { className: 'cp-persona-motivo' })),
     );
     card.appendChild(head);
-    const quirks = def.quirks.filter((q) => k.quirks.includes(q));
+    const quirks = def.quirks.filter((q) => quirkRevealed(q, id, k, s.content));
     for (const q of quirks) card.appendChild(el('p', { class: 'cp-persona-stranezza', test: `cp-stranezza-${q}` }, svgIcon('info', { size: 16 }), textOf(`campaign.stranezze.${q}`, undefined, 'span'), textOf('campaign.taccuino.fonte.visto', undefined, 'span', { className: 'cp-voce-fonte' })));
     const knowsDesire = k.desires.includes(id);
     card.appendChild(
@@ -396,13 +409,18 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
   };
 
   render();
-  // Le voci viste adesso non sono più nuove alla prossima apertura.
-  if (c0 && (c0.diarySeen ?? 0) < k0.diary.length && !o.fixed) {
+  // Le voci viste adesso non sono più nuove alla prossima apertura (GDD 5.8: le già lette
+  // si riassumono in una riga). L'overlay le segna lette appena si apre; il pannello fisso
+  // del layout largo, che resta sempre aperto, quando la scena lo smonta.
+  const markSeen = (): void => {
+    const c = controller.state();
+    if (!c || (c.diarySeen ?? 0) >= controller.knowledge().diary.length) return;
     controller.mutate((d) => {
-      const c = d.campaign as CampaignStateX | null;
-      if (c) c.diarySeen = d.knowledge.diary.length;
+      const cc = d.campaign as CampaignStateX | null;
+      if (cc) cc.diarySeen = d.knowledge.diary.length;
     }, 'taccuino', false);
-  }
+  };
+  if (c0 && (c0.diarySeen ?? 0) < k0.diary.length && !o.fixed) markSeen();
   const offs: Unsub[] = [
     controller.onChange(() => {
       if (root.isConnected) render();
@@ -415,11 +433,25 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
       }),
     );
   }
+  // Il tombolo monta i pannelli prima che la notte sia attiva: quando la scena è entrata
+  // le schede (Bigliettini durante una notte con richieste) e lo stato dal vivo cambiano.
+  offs.push(
+    s.bus.on('scene:enter', () => {
+      if (root.isConnected) render();
+    }),
+  );
   return {
     update: render,
     destroy() {
       for (const off of offs.splice(0)) off();
       root.remove();
+      if (o.fixed) {
+        try {
+          markSeen();
+        } catch (err) {
+          console.warn('[campaign] notebook mark failed', err);
+        }
+      }
     },
   };
 }
@@ -437,7 +469,7 @@ export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unkn
   };
   render();
   const offs: Unsub[] = [controller.onChange(() => root.isConnected && render())];
-  for (const ev of ['night:row', 'night:undo', 'night:complete'] as const) offs.push(s.bus.on(ev, () => root.isConnected && render()));
+  for (const ev of ['night:row', 'night:undo', 'night:complete', 'scene:enter'] as const) offs.push(s.bus.on(ev, () => root.isConnected && render()));
   return {
     update: render,
     destroy() {

@@ -311,3 +311,21 @@ describe('Ripassa (GDD 8.2)', () => {
     expect(camp(d).phase).toBe('notte');
   });
 });
+
+describe('Nuova storia (verifica)', () => {
+  it('la storia e il Taccuino ricominciano, gli epiloghi visti restano (GDD 7)', () => {
+    const d = emptySave();
+    newCampaign(d, db());
+    camp(d).endingsSeen.push('merlettaia');
+    d.knowledge.desires.push('nina');
+    d.unlocks.daily = true;
+    const c = newCampaign(d, db());
+    expect(c.endingsSeen).toEqual(['merlettaia']);
+    expect(c.dayIndex).toBe(0);
+    expect(c.history).toEqual({});
+    expect(d.knowledge.desires).toEqual([]);
+    expect(d.unlocks.daily).toBe(true);
+    // Lo snapshot del prologo li porta con sé: "Riprendi da qui" non li perde.
+    expect(c.snapshots['g00']?.endingsSeen).toEqual(['merlettaia']);
+  });
+});

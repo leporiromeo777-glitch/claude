@@ -235,10 +235,10 @@ export class SeraScene implements Scene {
     } else if (!door) {
       main.appendChild(textOf('campaign.sera.nessunBigliettino', undefined, 'p', { className: 'cp-sera-intro' }));
     }
-    main.appendChild(this.footer(c, !!door));
+    main.appendChild(this.footer(c));
   }
 
-  private footer(c: CampaignStateX, objectPending: boolean): HTMLElement {
+  private footer(c: CampaignStateX): HTMLElement {
     const s = this.s;
     const total = pinsOf(s.content, c.dayIndex);
     const used = total - pinsLeft(c, s.content);
@@ -257,7 +257,9 @@ export class SeraScene implements Scene {
       go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: () => this.goNight(true), test: 'cp-ripassa' }));
     }
     const label = total > 0 ? 'campaign.sera.alTomboloSpilli' : 'campaign.sera.alTombolo';
-    go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', disabled: objectPending, onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
+    // "Al tombolo" è attivo sempre (GDD 10.3): l'oggetto non letto finisce comunque nel
+    // Taccuino, i bigliettini non decisi contano come lasciati (con una conferma).
+    go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
     foot.appendChild(go);
     return foot;
   }
