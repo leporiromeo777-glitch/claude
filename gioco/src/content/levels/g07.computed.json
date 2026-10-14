@@ -1,78 +1,58 @@
 {
   "levelId": "g07",
-  "sourceHash": "704be661ecc3c020",
-  "solverVersion": 1,
+  "sourceHash": "7ee10d441d369059",
+  "solverVersion": 2,
   "base": {
-    "incroci": 8,
+    "incroci": 4,
     "rows": [
       {
         "hour": 7,
-        "crossings": [
-          {
-            "pair": 3,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 8,
         "crossings": [
           {
-            "pair": 2,
+            "pair": 3,
             "over": "L"
           }
         ]
       },
       {
         "hour": 9,
-        "crossings": [
-          {
-            "pair": 1,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 10,
         "crossings": [
           {
-            "pair": 1,
+            "pair": 3,
             "over": "L"
           }
         ]
       },
       {
         "hour": 11,
-        "crossings": [
-          {
-            "pair": 2,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 12,
         "crossings": [
           {
-            "pair": 3,
+            "pair": 4,
             "over": "L"
           }
         ]
       },
       {
         "hour": 13,
-        "crossings": [
-          {
-            "pair": 3,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 14,
         "crossings": [
           {
-            "pair": 2,
+            "pair": 4,
             "over": "L"
           }
         ]
@@ -81,135 +61,43 @@
   },
   "perNote": {
     "g07.teresa": {
-      "incroci": 8,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 10,
           "crossings": [
             {
-              "pair": 1,
-              "over": "R"
-            }
-          ]
-        },
-        {
-          "hour": 11,
-          "crossings": [
-            {
               "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 13,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 14,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        }
-      ]
-    },
-    "g07.nina": {
-      "incroci": 9,
-      "rows": [
-        {
-          "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 8,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 10,
-          "crossings": [
-            {
-              "pair": 0,
               "over": "L"
             }
           ]
         },
         {
           "hour": 11,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 12,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             },
             {
@@ -220,12 +108,68 @@
         },
         {
           "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        }
+      ]
+    },
+    "g07.nina": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 3,
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": []
         },
         {
           "hour": 14,
@@ -239,55 +183,27 @@
       ]
     },
     "g07.zeno": {
-      "incroci": 8,
+      "incroci": 4,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 11,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
               "pair": 3,
@@ -296,13 +212,21 @@
           ]
         },
         {
-          "hour": 13,
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
           "crossings": [
             {
               "pair": 4,
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 13,
+          "crossings": []
         },
         {
           "hour": 14,
@@ -330,55 +254,27 @@
         "g07.teresa",
         "g07.zeno"
       ],
-      "incroci": 8,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "R"
-            }
-          ]
-        },
-        {
-          "hour": 11,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
               "pair": 3,
@@ -387,7 +283,11 @@
           ]
         },
         {
-          "hour": 13,
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
           "crossings": [
             {
               "pair": 4,
@@ -396,8 +296,16 @@
           ]
         },
         {
+          "hour": 13,
+          "crossings": []
+        },
+        {
           "hour": 14,
           "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
             {
               "pair": 4,
               "over": "L"
@@ -411,55 +319,27 @@
         "g07.nina",
         "g07.zeno"
       ],
-      "incroci": 9,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 11,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
               "pair": 3,
@@ -468,8 +348,16 @@
           ]
         },
         {
-          "hour": 13,
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
           "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
             {
               "pair": 4,
               "over": "L"
@@ -477,10 +365,14 @@
           ]
         },
         {
+          "hour": 13,
+          "crossings": []
+        },
+        {
           "hour": 14,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             },
             {
@@ -492,6 +384,77 @@
       ]
     }
   ],
-  "matassaSuggerita": 12,
-  "quieteMax": 0
+  "matassaSuggerita": 9,
+  "quieteMax": 4,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 4,
+        "minSenzaGino": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 10
+      },
+      {
+        "config": "g07.teresa",
+        "min": 5,
+        "minSenzaGino": 1,
+        "costo": 1,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g07.nina",
+        "min": 5,
+        "minSenzaGino": 2,
+        "costo": 1,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g07.zeno",
+        "min": 4,
+        "minSenzaGino": 1,
+        "costo": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 2
+      },
+      {
+        "config": "g07.teresa+g07.zeno",
+        "min": 5,
+        "minSenzaGino": 2,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g07.nina+g07.zeno",
+        "min": 6,
+        "minSenzaGino": 3,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 50
+      }
+    ],
+    "designata": "g07.nina+g07.zeno",
+    "facili": [],
+    "violazioni": [
+      "K2 g07.teresa: costs 1 crossing over the base, needs at least 2",
+      "K2 g07.nina: costs 1 crossing over the base, needs at least 2",
+      "K2 g07.zeno: costs 0 crossings over the base, needs at least 2",
+      "K3 g07.nina+g07.zeno: Gino makes 3 of 6 crossings (at most 2, 40%)",
+      "K4 g07.nina+g07.zeno: 4 empty rows of 8 in the recorded solution (at most 3)",
+      "K3 g07.teresa: Gino makes 4 of 5 crossings (at most 2, 40%)",
+      "K4 g07.teresa: 4 empty rows of 8 in the recorded solution (at most 3)",
+      "K3 g07.nina: Gino makes 3 of 5 crossings (at most 2, 40%)",
+      "K4 g07.nina: 4 empty rows of 8 in the recorded solution (at most 3)",
+      "K3 g07.zeno: Gino makes 3 of 4 crossings (at most 1, 40%)",
+      "K4 g07.zeno: 4 empty rows of 8 in the recorded solution (at most 3)",
+      "K5 g07.nina+g07.zeno: at least 50 optimal solutions (at most 20)"
+    ]
+  }
 }

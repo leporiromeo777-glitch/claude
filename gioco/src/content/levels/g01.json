@@ -13,9 +13,7 @@
     {"id": "piero", "kind": "persona", "character": "piero"}
   ],
   "initial": ["teresa", "marta", "gino", "piero"],
-  "beads": [
-    {"id": "L_piero", "type": "lettera", "holder": "teresa", "to": "piero", "labelKey": "atto1.g01.perline.L_piero"}
-  ],
+  "beads": [{"id": "L_piero", "type": "lettera", "holder": "teresa", "to": "piero", "labelKey": "atto1.g01.perline.L_piero"}],
   "rules": ["incrocio", "spillo", "lettera"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
   "pins": [
@@ -31,10 +29,7 @@
         "id": "g01.alba.bambina",
         "priority": 100,
         "background": "dio/piazza/giorno",
-        "figures": [
-          {"character": "teresa", "pose": "ferma", "x": 0.4},
-          {"character": "marta", "pose": "ferma", "x": 0.65, "flip": true}
-        ],
+        "figures": [{"character": "teresa", "pose": "ferma", "x": 0.4}, {"character": "marta", "pose": "ferma", "x": 0.65, "flip": true}],
         "lines": [
           {"speaker": "narratore", "textKey": "atto1.g01.alba.bambina"},
           {"speaker": "teresa", "textKey": "atto1.g01.alba.bambina2"}
@@ -45,10 +40,7 @@
         "when": {"ok": "g01.gino"},
         "priority": 60,
         "background": "dio/chiesa/giorno",
-        "figures": [
-          {"character": "gino", "pose": "saluta", "x": 0.35},
-          {"character": "piero", "pose": "ferma", "x": 0.68, "flip": true}
-        ],
+        "figures": [{"character": "gino", "pose": "saluta", "x": 0.35}, {"character": "piero", "pose": "ferma", "x": 0.68, "flip": true}],
         "lines": [
           {"speaker": "narratore", "textKey": "atto1.g01.alba.campana"},
           {"speaker": "piero", "textKey": "atto1.g01.alba.campana2"}
@@ -60,20 +52,14 @@
         "priority": 60,
         "background": "dio/forno/giorno",
         "figures": [{"character": "marta", "pose": "porge", "x": 0.5}],
-        "lines": [
-          {"speaker": "marta", "textKey": "atto1.g01.alba.brava"},
-          {"speaker": "narratore", "textKey": "atto1.g01.alba.brava2"}
-        ]
+        "lines": [{"speaker": "marta", "textKey": "atto1.g01.alba.brava"}, {"speaker": "narratore", "textKey": "atto1.g01.alba.brava2"}]
       },
       {
         "id": "g01.alba.bagnato",
         "when": {"failed": "g01.marta"},
         "priority": 80,
         "background": "dio/molo/giorno",
-        "figures": [
-          {"character": "gino", "pose": "ferma", "x": 0.38},
-          {"character": "marta", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
+        "figures": [{"character": "gino", "pose": "ferma", "x": 0.38}, {"character": "marta", "pose": "ferma", "x": 0.66, "flip": true}],
         "lines": [
           {"speaker": "narratore", "textKey": "atto1.g01.alba.bagnato"},
           {"speaker": "marta", "textKey": "atto1.g01.alba.bagnato2"}
@@ -84,22 +70,19 @@
         "when": {"ok": "g01.piero"},
         "priority": 60,
         "background": "dio/chiesa/giorno",
-        "figures": [
-          {"character": "teresa", "pose": "porge", "x": 0.35},
-          {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "piero", "textKey": "atto1.g01.alba.posta"},
-          {"speaker": "teresa", "textKey": "atto1.g01.alba.posta2"}
-        ]
+        "figures": [{"character": "teresa", "pose": "porge", "x": 0.35}, {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}],
+        "lines": [{"speaker": "piero", "textKey": "atto1.g01.alba.posta"}, {"speaker": "teresa", "textKey": "atto1.g01.alba.posta2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g01.hint.spinta", "indizio": "atto1.g01.hint.indizio"},
   "tutorial": [
     {"k": "mano", "hour": 7, "pair": 1, "over": "R"},
-    {"k": "margine", "when": "rifiuto", "textKey": "atto1.g01.margine.verso"},
-    {"k": "pulsa", "target": "taccuino", "hour": 7}
+    {"k": "pulsa", "target": "taccuino", "hour": 7},
+    {"k": "margine", "when": "rifiuto", "codice": "rifiuto", "textKey": "atto1.g01.margine.verso"},
+    {"k": "margine", "when": "rifiuto", "codice": "corre", "textKey": "atto1.g01.margine.gino"},
+    {"k": "margine", "when": "ora", "textKey": "atto1.g01.margine.gino", "hour": 8},
+    {"k": "pulsa", "target": "fuso", "hour": 8, "thread": "gino"}
   ],
   "musicSeed": "g01"
 }

@@ -17,15 +17,7 @@
     {"id": "segreteria", "kind": "lino", "labelKey": "atto1.g08.fili.segreteria"}
   ],
   "initial": ["teresa", "marta", "nina", "gino", "piero", "zeno"],
-  "beads": [
-    {
-      "id": "L_iscrizione",
-      "type": "lettera",
-      "holder": "nina",
-      "to": "segreteria",
-      "labelKey": "atto1.g08.perline.L_iscrizione"
-    }
-  ],
+  "beads": [{"id": "L_iscrizione", "type": "lettera", "holder": "nina", "to": "segreteria", "labelKey": "atto1.g08.perline.L_iscrizione"}],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
   "pins": [
@@ -35,7 +27,7 @@
   ],
   "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g08.marta", "g08.nina", "g08.zeno"],
-  "matassa": 15,
+  "matassa": 10,
   "dawn": {
     "candidates": [
       {
@@ -54,10 +46,7 @@
         "when": {"ok": "g08.marta"},
         "priority": 60,
         "background": "dio/chiesa/giorno",
-        "figures": [
-          {"character": "marta", "pose": "ferma", "x": 0.36},
-          {"character": "gino", "pose": "ferma", "x": 0.66}
-        ],
+        "figures": [{"character": "marta", "pose": "ferma", "x": 0.36}, {"character": "gino", "pose": "ferma", "x": 0.66}],
         "lines": [
           {"speaker": "marta", "textKey": "atto1.g08.alba.anniversario"},
           {"speaker": "piero", "textKey": "atto1.g08.alba.anniversario2"}
@@ -69,10 +58,7 @@
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "nina", "pose": "saluta", "x": 0.5}],
-        "lines": [
-          {"speaker": "nina", "textKey": "atto1.g08.alba.partita"},
-          {"speaker": "narratore", "textKey": "atto1.g08.alba.partita2"}
-        ]
+        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.partita"}, {"speaker": "narratore", "textKey": "atto1.g08.alba.partita2"}]
       },
       {
         "id": "g08.alba.scaduta",
@@ -80,10 +66,7 @@
         "priority": 80,
         "background": "dio/molo/giorno",
         "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "nina", "textKey": "atto1.g08.alba.scaduta"},
-          {"speaker": "narratore", "textKey": "atto1.g08.alba.scaduta2"}
-        ]
+        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.scaduta"}, {"speaker": "narratore", "textKey": "atto1.g08.alba.scaduta2"}]
       },
       {
         "id": "g08.alba.insonne",
@@ -91,13 +74,11 @@
         "priority": 80,
         "background": "dio/faro/giorno",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "zeno", "textKey": "atto1.g08.alba.insonne"},
-          {"speaker": "narratore", "textKey": "atto1.g08.alba.insonne2"}
-        ]
+        "lines": [{"speaker": "zeno", "textKey": "atto1.g08.alba.insonne"}, {"speaker": "narratore", "textKey": "atto1.g08.alba.insonne2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g08.hint.spinta", "indizio": "atto1.g08.hint.indizio"},
-  "musicSeed": "g08"
+  "musicSeed": "g08",
+  "apparizione": {"hour": 3, "side": "faro", "passi": 1}
 }

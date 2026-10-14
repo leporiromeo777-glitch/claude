@@ -268,9 +268,12 @@ describe('giornate dell\'Atto I', () => {
         expect(rest.status, `${d} mano ${t.hour}: la giornata resta risolvibile`).toBe('ok');
       }
     }
-    // In g01 la nota del rifiuto vale sia per il «No.» di Marta sia per il Gino che non sta fermo.
-    const g01 = (level('g01').tutorial ?? []).find((t) => t.k === 'margine');
-    expect(g01 && g01.k === 'margine' ? g01.when : null).toBe('rifiuto');
+    // In g01 il «No.» di Marta e il Gino che non sta fermo hanno ciascuno la sua nota (codice del rifiuto, C02).
+    const g01 = (level('g01').tutorial ?? []).filter((t) => t.k === 'margine' && t.when === 'rifiuto');
+    expect(g01.map((t) => (t.k === 'margine' ? [t.codice, t.textKey] : null))).toEqual([
+      ['rifiuto', 'atto1.g01.margine.verso'],
+      ['corre', 'atto1.g01.margine.gino'],
+    ]);
   });
 
   it('almeno 3 vignette candidate per giornata, con al massimo 3 figure e 2 righe', () => {
@@ -663,7 +666,7 @@ describe('solver e file calcolati', () => {
 });
 
 describe('Archivio A1-A2', () => {
-  it('arc1 (1936) e arc2 (la notte scorsa): fili sbiaditi, esca, strappi, echi, margine, rivelazione, domande chiuse', () => {
+  it('arc1 (1936) e arc2 (1965, la notte in cui morì la nonna): fili sbiaditi, esca, strappi, echi, margine, rivelazione, domande chiuse', () => {
     const want = { arc1: { year: '1936', esca: 'clotilde', closes: ['martaTeresa'] }, arc2: { year: '1965', esca: 'livia', closes: ['avorio'] } };
     for (const id of ARCHIVES) {
       const lv = level(id);
@@ -688,7 +691,412 @@ describe('Archivio A1-A2', () => {
       );
       expect(lv.matassa).toBe(original);
     }
-    expect(it_('atto1.arc1.margine')).toBe('Perché restasse.');
-    expect(it_('atto1.arc2.margine')).toBe('Una volta sola, dentro.');
+    expect(level('arc1').archive?.marginKey).toBe('atto1.arc1.margine.clotilde');
+    expect(level('arc2').archive?.marginKey).toBe('atto1.arc2.margine.clotilde');
+    expect(it_('atto1.arc1.margine.clotilde')).toBe('Perché restasse.');
+    // REVISIONE-1 D13: arc2 è l'ultima volta in cui la nonna si tessé dentro (la prima è arc6).
+    expect(it_('atto1.arc2.margine.clotilde')).toBe('Un\'ultima volta, dentro.');
+    expect(it_('atto1.arc2.rivela.1')).toContain('l\'ultima volta');
+    expect(it_('atto1.diario.archivio.arc2').startsWith('1965. La notte in cui morì la nonna.')).toBe(true);
+  });
+});
+
+// ───────────────────────── Revisione 1 ─────────────────────────
+
+type TutStep = NonNullable<LevelDef['tutorial']>[number];
+type MarginStep = Extract<TutStep, { k: 'margine' }>;
+type PulseStep = Extract<TutStep, { k: 'pulsa' }>;
+const marginsOf = (id: string): MarginStep[] => (level(id).tutorial ?? []).filter((t): t is MarginStep => t.k === 'margine');
+const pulsesOf = (id: string): PulseStep[] => (level(id).tutorial ?? []).filter((t): t is PulseStep => t.k === 'pulsa');
+/** Tutti i testi italiani di un namespace (chiave → testo). */
+const textsOf = (prefix: string): [string, string][] => [...IT.entries()].filter(([k]) => k.startsWith(prefix));
+
+describe('REVISIONE-1 CA1-03: ogni regola si insegna sul tombolo, la prima volta (D03, C02)', () => {
+  it('ogni novità della tabella delle prime volte ha la sua nota a margine, con l\'innesco giusto, in italiano e in inglese', () => {
+    const want: [string, string, Partial<Record<'when' | 'hour' | 'codice' | 'evento' | 'chi', string | number>>][] = [
+      ['g00', 'atto1.g00.margine.spillo', { when: 'incrocio', hour: 6 }],
+      ['g00', 'atto1.g00.margine.sopraDa', { when: 'incrocio', hour: 7 }],
+      ['g00', 'atto1.g00.margine.disfa', { when: 'ora', hour: 8 }],
+      ['g01', 'atto1.g01.margine.gino', { when: 'rifiuto', codice: 'corre' }],
+      ['g01', 'atto1.g01.margine.gino', { when: 'ora', hour: 8 }],
+      ['g02', 'atto1.g02.margine.voce', { when: 'primaOra' }],
+      ['g02', 'atto1.g02.margine.matassa', { when: 'ora', hour: 8 }],
+      ['g03', 'atto1.g03.margine.molo', { when: 'ora', hour: 8 }],
+      ['g04', 'atto1.g04.margine.barca', { when: 'primaOra', hour: 7 }],
+      ['g05', 'atto1.g05.margine.faro', { when: 'rifiuto', codice: 'faro' }],
+      ['g05', 'atto1.g05.margine.faro', { when: 'ora', hour: 8 }],
+      ['g06', 'atto1.g06.margine.segreto', { when: 'evento', evento: 'legge' }],
+      ['g07', 'atto1.g07.margine.pozzo', { when: 'evento', evento: 'copia', chi: 'piero' }],
+      ['g07', 'atto1.g07.margine.curiosa', { when: 'evento', evento: 'copia', chi: 'nina' }],
+      ['arc1', 'atto1.arc1.margine.nomina', { when: 'primaOra' }],
+      ['arc1', 'atto1.arc1.margine.rammenda', { when: 'archivioNomi' }],
+      ['arc1', 'atto1.arc1.margine.eco', { when: 'archivioRammendo' }],
+    ];
+    for (const [id, key, m] of want) {
+      const hit = marginsOf(id).some((t) => t.textKey === key && Object.entries(m).every(([k, v]) => (t as unknown as Record<string, unknown>)[k] === v));
+      expect(hit, `${id} ${key} ${JSON.stringify(m)}`).toBe(true);
+      expect(it_(key).length, key).toBeGreaterThan(0);
+      expect(EN.get(key)?.length ?? 0, `en ${key}`).toBeGreaterThan(0);
+    }
+    // Il prologo dice «Chi sta sopra, dà» al primo incrocio delle 7, qualunque sia il verso (D03).
+    expect(it_('atto1.g00.margine.sopraDa')).toBe('Chi sta sopra, dà.');
+    expect(it_('atto1.arc1.margine.nomina')).toBe('Chi è questo filo? Toccalo e dagli un nome.');
+    expect(it_('atto1.arc1.margine.rammenda')).toBe('Ora ritessi le ore strappate, com\'erano.');
+    expect(it_('atto1.arc1.margine.eco')).toBe('Tocca gli incroci: si ricordano.');
+  });
+
+  it('ogni regola, stranezza o bordo che compare per la prima volta in una notte ha almeno una nota a margine in quella notte', () => {
+    const seen = new Set<string>();
+    for (const id of STORY) {
+      const lv = level(id);
+      const items = [...lv.rules.map((r) => `regola:${r}`), ...lv.quirks.map((q) => `stranezza:${q}`), ...(lv.edges ?? []).map((e) => `bordo:${e.kind}`)];
+      const fresh = items.filter((x) => !seen.has(x));
+      for (const x of items) seen.add(x);
+      if (fresh.length > 0) expect(marginsOf(id).length, `${id}: ${fresh.join(', ')}`).toBeGreaterThan(0);
+    }
+  });
+
+  it('pulsano gli elementi della tabella: spillo di Marta e Disfa (g00), fuso del Gino (g01), gomitolo (g02), barche (g03, g04), fuso di Zeno (g05), fuso sbiadito 1 (arc1)', () => {
+    const want: [string, string, number, string?][] = [
+      ['g00', 'spillo', 6, 'marta'], ['g00', 'disfa', 8], ['g01', 'fuso', 8, 'gino'], ['g02', 'matassa', 8],
+      ['g03', 'bordo', 9], ['g04', 'bordo', 7], ['g05', 'fuso', 8, 'zeno'], ['arc1', 'fuso', 9, 'f1'],
+    ];
+    for (const [id, target, hour, thread] of want) {
+      expect(pulsesOf(id).some((p) => p.target === target && p.hour === hour && p.thread === thread), `${id} ${target} ${hour}`).toBe(true);
+      // Una barca pulsa solo nella riga che ha davvero un evento di bordo.
+      if (target === 'bordo') expect((level(id).edges ?? []).some((e) => e.hour === hour), `${id} bordo ${hour}`).toBe(true);
+    }
+  });
+
+  it('i testi del Gino e i suggerimenti seguono la regola nuova: non sta fermo due ore di fila', () => {
+    for (const k of ['atto1.diario.persone.gino.corre', 'atto1.g01.hint.spinta', 'atto1.g01.margine.gino']) {
+      expect(it_(k), k).not.toMatch(/ogni ora/i);
+    }
+    expect(it_('atto1.diario.persone.gino.corre')).toContain('due ore di fila');
+  });
+
+  it('i suggerimenti degli Archivi 1 e 2 aiutano a nominare i fili (abitudini, esca)', () => {
+    expect(it_('atto1.arc1.hint.spinta')).toMatch(/Chiesa alle undici/);
+    expect(it_('atto1.arc1.hint.indizio')).toMatch(/merlettaia non ha un filo/);
+    expect(it_('atto1.arc2.hint.spinta')).toMatch(/Faro/);
+  });
+});
+
+describe('REVISIONE-1 CA1-01 e CA1-07: continuità dell\'Atto I (D13)', () => {
+  it('in g05 il Gino trova la lanterna spenta: nessun testo prima del finale dice che l\'ha vista accesa da dentro', () => {
+    expect(it_('atto1.g05.alba.lanterna')).toBe('È tutta vetri e ottone, ma spenta!');
+    expect(it_('atto1.g05.alba.lanterna2')).toBe('Si accende alle sei. Da dentro, un giorno.');
+    const story = [...textsOf('atto1.'), ...textsOf('atto2.'), ...textsOf('atto3.'), ...textsOf('comune.')];
+    const seen = story.filter(([, v]) => /è un sole|sole che gira|adesso sai perché non dormo/i.test(v)).map(([k]) => k);
+    expect(seen).toEqual([]);
+    // In Atto I e nei dati comuni la lanterna «accesa» compare solo come desiderio.
+    const lit = [...textsOf('atto1.'), ...textsOf('comune.')].filter(([, v]) => /lanterna[^.!?]*accesa/i.test(v) && !/vedere/i.test(v));
+    expect(lit.map(([k]) => k)).toEqual([]);
+  });
+
+  it('«entro» come la regola: Don Piero entro le dieci (g01), Teresa entro le nove (g02)', () => {
+    const piero = db.notes.get('g01.piero')?.request as Condition & { by?: number };
+    const teresa = db.notes.get('g02.teresa')?.request as Condition & { by?: number };
+    expect(piero.by).toBe(10);
+    expect(teresa.by).toBe(9);
+    expect(it_('atto1.g01.piero.testo')).toContain('entro le dieci');
+    expect(it_('atto1.g02.teresa.testo')).toContain('entro le nove');
+    expect(it_('atto1.g02.teresa.testo')).not.toContain('messa delle nove');
+    for (const [, v] of textsOf('atto1.g0')) expect(v).not.toMatch(/prima delle (nove|dieci)\b/);
+  });
+
+  it('i bigliettini si leggono la sera e parlano di domani (deissi)', () => {
+    for (const d of DAYS) for (const n of notesOf(d)) expect(it_(n.textKey), n.id).not.toMatch(/\bOggi\b/);
+    expect(it_('atto1.g03.marta.testo').startsWith('Domani')).toBe(true);
+    expect(it_('atto1.g06.marta.testo').startsWith('Domani')).toBe(true);
+    expect(it_('atto1.g08.zeno.testo')).toContain('Domani');
+  });
+
+  it('Teresa a sedici anni impastava il pane; al Molo resta solo la rete di Bepi', () => {
+    expect(it_('atto1.g01.alba.bambina2')).toContain('impastavo già il pane per mia madre');
+    expect(it_('atto1.g04.alba.barca2').startsWith('Al Molo resta solo la sua rete')).toBe(true);
+  });
+
+  it('il segreto di Teresa: aveva aperto la lettera prima; il pozzo non riferisce, la voce la porta chi l\'ha data', () => {
+    expect(it_('atto1.g07.alba.confessione')).toContain('aperta prima');
+    expect(it_('atto1.diario.domande.martaTeresa.confessione')).toContain('aperta prima');
+    expect(it_('atto1.diario.domande.martaTeresa.nina')).toContain('aperto la lettera');
+    for (const [k, v] of textsOf('atto1.')) {
+      expect(v, k).not.toMatch(/sempre saputo|non me l'hai mai detto|non so più perché/i);
+    }
+    const prete = level('g06').dawn?.candidates.find((v) => v.id === 'g06.alba.prete');
+    expect(prete?.lines.map((l) => l.speaker)).toEqual(['teresa', 'bepi']);
+    expect(it_('atto1.diario.persone.piero.bepi')).toContain('non l\'ha detto a nessuno');
+  });
+
+  it('Don Piero dà del lei', () => {
+    expect(it_('atto1.g04.alba.candela2')).toContain('Resti quanto vuole');
+    expect(it_('atto1.g07.alba.confessione2')).toContain('deve andare');
+    expect(it_('atto1.g08.alba.anniversario2')).toContain('la voleva qui');
+    expect(it_('comune.battute.piero.riserva.2')).toContain('lei la notte dorme');
+  });
+
+  it('l\'eco dell\'una in arc2 è un ricordo, al passato', () => {
+    expect(it_('atto1.arc2.eco.busta')).toMatch(/^Quella notte/);
+  });
+
+  it('g08: alla chiusura il filo nero appare sul bordo alto, alle 3, dal Faro, e incrocia Zeno (C12)', () => {
+    const lv = level('g08') as LevelDef & { apparizione?: { hour: number; side: string; passi: number } };
+    expect(lv.apparizione).toEqual({ hour: 3, side: 'faro', passi: 1 });
+    expect(lv.columns[lv.columns.length - 1]).toBe('faro');
+    expect(lv.initial[lv.initial.length - 1]).toBe('zeno');
+    expect(it_('atto1.g08.alba.filoNero')).toMatch(/tre di notte.*filo nero.*Zeno al Faro/);
+    expect(it_('atto1.diario.domande.filoNero.apre')).toMatch(/tre di notte.*filo nero.*Zeno al Faro/);
+  });
+});
+
+describe('REVISIONE-1 CA1-06: esiti dei bigliettini (C05)', () => {
+  const notes = DAYS.flatMap((d) => notesOf(d)).filter((n) => n.request && !n.ending);
+  type WithEsito = NoteDef & { esito?: { ok?: string; fallita?: string; lasciato?: string } };
+  const diaryTexts = [...db.diary.values()].filter((d) => ATTO1_DIARY.has(d.id)).map((d) => it_(d.textKey));
+  const words = (s: string): string[] => s.toLowerCase().replace(/[«»“”.,:;!?]/g, ' ').split(/\s+/).filter(Boolean);
+  const shingles = (s: string, n = 5): Set<string> => {
+    const w = words(s);
+    const out = new Set<string>();
+    for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(' '));
+    return out;
+  };
+
+  it('ogni bigliettino con richiesta ha esito.ok ed esito.fallita, in italiano e in inglese; lasciato se lasciarlo ha conseguenze', () => {
+    expect(notes.length).toBe(26);
+    for (const n of notes as WithEsito[]) {
+      for (const st of ['ok', 'fallita'] as const) {
+        const k = n.esito?.[st];
+        expect(k, `${n.id} ${st}`).toBeDefined();
+        expect(it_(k as string).length, `${n.id} ${st}`).toBeGreaterThan(20);
+        expect(EN.get(k as string)?.length ?? 0, `en ${n.id} ${st}`).toBeGreaterThan(20);
+      }
+      if ((n.onIgnore ?? []).length > 0) expect(n.esito?.lasciato, `${n.id} lasciato`).toBeDefined();
+    }
+  });
+
+  it('gli esiti sono specifici: niente frase generica, diversi fra loro, e non ripetono una voce del Taccuino', () => {
+    const byKey = new Map<string, string>();
+    for (const n of notes as WithEsito[]) {
+      for (const k of Object.values(n.esito ?? {})) {
+        const text = it_(k);
+        expect(text, k).not.toMatch(/è andata come sperava/);
+        expect(text.length, k).toBeLessThanOrEqual(140);
+        byKey.set(k, text);
+        expect(diaryTexts, k).not.toContain(text);
+        const sh = shingles(text);
+        for (const d of diaryTexts) for (const s of shingles(d)) expect(sh.has(s), `${k} ripete «${s}» di una voce del Taccuino`).toBe(false);
+      }
+    }
+    // Le varianti (Marta più dura, Teresa più fredda) usano gli esiti del bigliettino base: per il resto, tutti diversi.
+    const texts = [...byKey.values()];
+    expect(new Set(texts).size).toBe(texts.length);
+  });
+});
+
+describe('REVISIONE-1 CA1-05: il Taccuino ricorda, non anticipa (D10, C03)', () => {
+  // Campagna simulata per passi: sera di gNN = 2·i, fine della notte di gNN = 2·i + 1.
+  const idx = (d: string): number => (STORY as readonly string[]).indexOf(d);
+  const evening = (d: string): number => 2 * idx(d);
+  const night = (d: string): number => 2 * idx(d) + 1;
+  const objStep = new Map<string, number>();
+  STORY.forEach((d, i) => {
+    const o = db.campaign.days.find((x) => x.id === d)?.objectAfter;
+    const next = STORY[i + 1];
+    if (!o || !next) return;
+    objStep.set(o, evening(next));
+    if (o === 'merletto_avorio') objStep.set('libro_punti', evening(next));
+  });
+  const arcStep = (a: string): number => {
+    const after = db.campaign.days.find((x) => x.archiveAfter === a)?.id;
+    const next = after ? STORY[idx(after) + 1] : undefined;
+    return next ? evening(next) : Infinity;
+  };
+  const noteDay = (id: string): string => db.notes.get(id)?.day ?? 'g99';
+  const firstLevel = (pred: (lv: LevelDef) => boolean): number => {
+    const d = STORY.find((x) => pred(level(x)));
+    return d ? night(d) : Infinity;
+  };
+  const effectSteps = (pred: (e: Record<string, unknown>) => boolean): number => {
+    let best = Infinity;
+    for (const d of DAYS)
+      for (const n of notesOf(d)) {
+        for (const r of n.replies ?? []) if (r.effects.some((e) => pred(e as Record<string, unknown>))) best = Math.min(best, evening(d));
+        for (const list of [n.onOk, n.onFail, n.onIgnore]) if ((list ?? []).some((e) => pred(e as Record<string, unknown>))) best = Math.min(best, night(d));
+      }
+    return best;
+  };
+  const memo = new Map<string, number>();
+  function earliest(c: StoryCond): number {
+    if ('all' in c) return Math.max(0, ...c.all.map(earliest));
+    if ('any' in c) return Math.min(...c.any.map(earliest));
+    if ('not' in c) return 0;
+    if ('done' in c) return /^arc/.test(c.done) ? arcStep(c.done) : idx(c.done) >= 0 ? night(c.done) : Infinity;
+    if ('ok' in c) return night(noteDay(c.ok));
+    if ('failed' in c) return night(noteDay(c.failed));
+    if ('reply' in c) return evening(noteDay(c.reply));
+    if ('accepted' in c) return evening(noteDay(c.accepted));
+    if ('ignored' in c) return evening(noteDay(c.ignored));
+    if ('knows' in c) {
+      const k = c as { knows: string; id: string };
+      if (k.knows === 'oggetto') return objStep.get(k.id) ?? Infinity;
+      if (k.knows === 'quirk') return firstLevel((lv) => (lv.quirks as string[]).includes(k.id));
+      if (k.knows === 'rule') return firstLevel((lv) => (lv.rules as string[]).includes(k.id));
+      if (k.knows === 'desire') return effectSteps((e) => e.desire === k.id);
+      if (k.knows === 'diary') return entryStep(k.id);
+      if (k.knows === 'archive') return arcStep(k.id);
+    }
+    return 0;
+  }
+  function entryStep(id: string): number {
+    const m = memo.get(id);
+    if (m !== undefined) return m;
+    memo.set(id, Infinity);
+    const def = db.diary.get(id);
+    let best = def ? earliest(def.unlock) : Infinity;
+    best = Math.min(best, effectSteps((e) => e.diary === id));
+    for (const a of ARCHIVES) if ((level(a).archive?.unlocks ?? []).includes(id)) best = Math.min(best, arcStep(a));
+    memo.set(id, best);
+    return best;
+  }
+
+  it('nessuna voce cita un oggetto o una lettera prima che Ada li abbia letti', () => {
+    const MENTIONS: [RegExp, string][] = [
+      [/filo d'avorio|ultimo merletto della nonna/i, 'merletto_avorio'],
+      [/bottigli|Cara mia|\bL\./, 'lettera_L1'],
+      [/seppia/i, 'lettera_L4'],
+      [/fuso a forma di faro/i, 'fuso_faro'],
+    ];
+    const early: string[] = [];
+    for (const id of ATTO1_DIARY) {
+      const text = it_(db.diary.get(id)?.textKey ?? '');
+      for (const [re, obj] of MENTIONS) {
+        const need = objStep.get(obj) ?? Infinity;
+        if (re.test(text) && entryStep(id) < need) early.push(`${id} (passo ${entryStep(id)}) cita ${obj} (letto al passo ${need})`);
+      }
+    }
+    expect(early).toEqual([]);
+    // Le voci sugli oggetti si sbloccano alla lettura (C03).
+    for (const [id, obj] of [['domande.avorio.apre', 'merletto_avorio'], ['domande.chiL.apre', 'lettera_L1'], ['lettere.bottiglie', 'lettera_L1'], ['domande.chiL.seppia', 'lettera_L4'], ['domande.chiL.fuso', 'fuso_faro']] as const) {
+      expect(db.diary.get(id)?.unlock, id).toEqual({ knows: 'oggetto', id: obj });
+    }
+  });
+
+  it('le persone si presentano nel Taccuino solo quando compaiono (la Nina con g03, Bepi con g04, Zeno con g05)', () => {
+    const first = (c: string): number => {
+      const d = STORY.find((x) => level(x).threads.some((t) => t.character === c) || (level(x).notes ?? []).some((n) => db.notes.get(n)?.author === c));
+      return d ? evening(d) : Infinity;
+    };
+    for (const c of ['teresa', 'marta', 'piero', 'gino', 'nina', 'bepi', 'zeno']) {
+      const id = `persone.${c}.chi`;
+      expect(entryStep(id), id).toBeGreaterThanOrEqual(first(c));
+      if (db.diary.has(`desiderio.${c}`)) expect(entryStep(`desiderio.${c}`), `desiderio.${c}`).toBeGreaterThanOrEqual(first(c));
+    }
+    expect(db.diary.get('persone.nina.chi')?.unlock).toEqual({ done: 'g03' });
+    // Il prologo non nomina chi non c'è: nessuna voce sbloccata a fine g00 cita il Gino.
+    for (const id of ATTO1_DIARY) if (entryStep(id) <= night('g00')) expect(it_(db.diary.get(id)?.textKey ?? ''), id).not.toMatch(/\bGino\b/);
+  });
+
+  it('la risposta a Marta in g06 rimanda all\'Archivio solo se arc1 non è ancora rammendato, e le due voci si escludono', () => {
+    const holds = (c: StoryCond, s: { reply: boolean; arc1: boolean; diary: Set<string> }): boolean => {
+      if ('all' in c) return c.all.every((x) => holds(x, s));
+      if ('any' in c) return c.any.some((x) => holds(x, s));
+      if ('not' in c) return !holds(c.not, s);
+      if ('reply' in c) return s.reply && c.reply === 'g06.marta' && c.is === 'R1';
+      if ('done' in c) return c.done === 'arc1' && s.arc1;
+      if ('knows' in c && c.knows === 'diary') return s.diary.has(c.id);
+      throw new Error(`condizione non prevista: ${JSON.stringify(c)}`);
+    };
+    const pista = db.diary.get('domande.martaTeresa.chiedilo');
+    const dopo = db.diary.get('domande.martaTeresa.chiediloDopo');
+    if (!pista || !dopo) throw new Error('voci assenti');
+    expect(it_(pista.textKey)).toContain('Dove guardare: l\'Archivio');
+    expect(it_(dopo.textKey)).not.toMatch(/Dove guardare|Archivio/);
+    expect(dopo.pista).toBeUndefined();
+    // Risposta prima del rammendo: la pista; dopo il rammendo non arriva anche l'altra.
+    const before = { reply: true, arc1: false, diary: new Set<string>() };
+    expect([holds(pista.unlock, before), holds(dopo.unlock, before)]).toEqual([true, false]);
+    const later = { reply: true, arc1: true, diary: new Set(['domande.martaTeresa.chiedilo']) };
+    expect(holds(dopo.unlock, later)).toBe(false);
+    // Risposta con arc1 già rammendato: niente rimando.
+    const after = { reply: true, arc1: true, diary: new Set<string>() };
+    expect([holds(pista.unlock, after), holds(dopo.unlock, after)]).toEqual([false, true]);
+    // La risposta non sblocca più la voce per effetto diretto: decidono le condizioni.
+    const r1 = db.notes.get('g06.marta')?.replies?.find((r) => r.id === 'R1');
+    expect(r1?.effects.some((e) => 'diary' in e)).toBe(false);
+  });
+
+  it('arc1 non ripete tre volte la stessa frase: rivelazione, risposta e voce d\'Archivio dicono cose diverse', () => {
+    const a = it_('atto1.arc1.rivela.1');
+    const b = it_('atto1.diario.domande.martaTeresa.risposta');
+    const c = it_('atto1.diario.archivio.arc1');
+    expect(new Set([a, b, c]).size).toBe(3);
+    expect(c).not.toContain('lettera di Ernesto');
+    expect(b).not.toContain('all\'ora del mercato');
+  });
+});
+
+describe('REVISIONE-1 CA1-08: etichette, voci e battute (C16, D08)', () => {
+  const NAMES = [...db.characters.keys()].map((c) => it_(`comune.pers.${c}.nome`)).filter(Boolean);
+
+  it('le etichette delle perline sono sintagmi in minuscolo con l\'articolo (salvo i nomi propri)', () => {
+    for (const id of MINE)
+      for (const b of level(id).beads) {
+        const label = it_(b.labelKey ?? '');
+        expect(label.length, `${id} ${b.id}`).toBeGreaterThan(0);
+        const proper = NAMES.some((n) => label.startsWith(n));
+        expect(proper || /^[a-zàèéìòù]/.test(label), `${id} ${b.id}: «${label}»`).toBe(true);
+        expect(label, `${id} ${b.id}`).not.toMatch(/^(Voce|Segreto):/);
+      }
+  });
+
+  it('ogni lettera nomina il destinatario (nei giorni col nome, negli Archivi col ruolo)', () => {
+    for (const id of MINE) {
+      const lv = level(id);
+      for (const b of lv.beads) {
+        if (b.type !== 'lettera') continue;
+        const label = it_(b.labelKey ?? '');
+        expect(label, `${id} ${b.id}`).toMatch(/\bper /);
+        const to = lv.threads.find((t) => t.id === b.to);
+        if (lv.kind !== 'archivio' && to?.character) expect(label, `${id} ${b.id}`).toContain(it_(`comune.pers.${to.character}.nome`));
+      }
+    }
+  });
+
+  it('il Gino scrive con gli errori fin da g01; Bepi senza doppie e in minuscolo («la nina»)', () => {
+    const atto1Notes = DAYS.flatMap((d) => notesOf(d));
+    const gino = atto1Notes.filter((n) => n.author === 'gino');
+    expect(gino.length).toBeGreaterThanOrEqual(2);
+    for (const n of gino) expect(it_(n.textKey), n.id).toMatch(/canpana|cuesta|\bce\b|\ba dato\b|\bcosi\b/i);
+    const bepi = atto1Notes.filter((n) => n.author === 'bepi');
+    expect(bepi.length).toBeGreaterThanOrEqual(1);
+    for (const n of bepi) {
+      const t = it_(n.textKey);
+      expect(t, n.id).toBe(t.toLowerCase());
+      expect(t, n.id).not.toMatch(/([bcdfglmnprstvz])\1/i);
+      if (/nina/i.test(t)) expect(t, n.id).toContain('la nina');
+    }
+  });
+
+  it('le battute che citano fatti hanno una condizione che li rende veri (D11)', () => {
+    expect(it_('comune.battute.gino.incontro.1')).not.toMatch(/sette|\d/);
+    expect(it_('comune.battute.lunardi.cura.2')).not.toMatch(/quarto|\d/);
+    for (const l of db.lines) {
+      const t = it_(l.textKey);
+      if (l.event === 'consegna' && /\bper me\b/i.test(t)) expect(l.when, l.id).toEqual({ event: 'consegna', a: l.character });
+    }
+    for (const id of ['gino.consegna.1', 'teresa.consegna.1']) expect(db.lines.find((l) => l.id === id)?.when, id).toEqual({ not: { event: 'consegna', a: id.split('.')[0] } });
+    expect(db.lines.find((l) => l.id === 'marta.riserva.2')?.when).toEqual({ event: 'incontro', a: 'gino' });
+  });
+
+  it('Ada narratrice dice «la Nina» e «il Gino» nel Taccuino dell\'Atto I', () => {
+    for (const id of ATTO1_DIARY) {
+      const t = it_(db.diary.get(id)?.textKey ?? '');
+      // Esclusi i discorsi riportati fra «».
+      const narr = t.replace(/«[^»]*»/g, '');
+      const bare = [...narr.matchAll(/(\S+)\s+(Nina|Gino)\b/g)].filter((m) => !/^(la|il|alla|al|della|del|dalla|dal|per la|sulla)$/i.test(m[1] ?? ''));
+      const atStart = /^(Nina|Gino)\b/.test(narr);
+      expect(bare.length === 0 && !atStart, `${id}: ${t}`).toBe(true);
+    }
   });
 });

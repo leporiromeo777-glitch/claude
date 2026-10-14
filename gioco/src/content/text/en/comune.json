@@ -223,15 +223,9 @@
     "libro_punti": {"nome": "The Book of Stitches", "descrizione": "Worn leather, handwritten pages. In the margins, grandmother's sepia hand."},
     "bottiglia": {"nome": "A bottle", "descrizione": "The lagoon brought it to the door. Inside, a rolled sheet signed “L.”."},
     "fuso_faro": {"nome": "A bobbin carved like a lighthouse", "descrizione": "Zeno lost it. Inside, carved small, there is an initial: “L.”."},
-    "pagina_strappata": {
-      "nome": "A torn page",
-      "descrizione": "It comes from the Book of Stitches. It shows a stitch I don't know, and no explanation."
-    },
+    "pagina_strappata": {"nome": "A torn page", "descrizione": "It comes from the Book of Stitches. It shows a stitch I don't know, and no explanation."},
     "bottiglia_nodo_nero": {"nome": "An empty bottle", "descrizione": "No letter. Inside, a knot of black thread."},
-    "fascio_lettere": {
-      "nome": "The bundle of letters",
-      "descrizione": "Three readable letters, and a hundred and sixty-five more. One a month, for fourteen years."
-    },
+    "fascio_lettere": {"nome": "The bundle of letters", "descrizione": "Three readable letters, and a hundred and sixty-five more. One a month, for fourteen years."},
     "nastro_nonna": {"nome": "Grandmother's ribbon", "descrizione": "The leftover ivory thread, carefully wound."},
     "lettera_clotilde": {"nome": "Grandmother's letter", "descrizione": "Zeno kept it all this time. On the envelope, in sepia, a single letter: “C.”."},
     "fascio_1": {"nome": "The first letter in the bundle", "descrizione": "In this one I'm two and a half. She is in Chioggia, in a room that smells of nets."},
@@ -246,22 +240,13 @@
   },
   "battute": {
     "teresa": {
-      "incontro": {
-        "1": "Oh, dear, what a day! I saw everyone, and everyone saw me.",
-        "2": "A chat on the Fondamenta is worth more than a letter, dear."
-      },
-      "consegna": {
-        "1": "Delivered by hand, dear. Thirty years of post and never a lost envelope.",
-        "2": "The post always arrives. Sometimes late, but it arrives."
-      },
+      "incontro": {"1": "Oh, dear, what a day! I saw everyone, and everyone saw me.", "2": "A chat on the Fondamenta is worth more than a letter, dear."},
+      "consegna": {"1": "Delivered by hand, dear. Thirty years of post and never a lost envelope.", "2": "The post always arrives. Sometimes late, but it arrives."},
       "copia": {"1": "I never tell anyone, dear. Only those who ask.", "2": "A rumour, dear, is like bread: if you don't pass it on, it goes stale."},
       "legge": {"1": "I didn't read it, dear. I just… held it up to the light.", "2": "An open envelope is an envelope that wants to talk."},
       "stranezza": {"1": "Marta always goes over me. Always. For thirty years.", "2": "Look how she avoids me, dear. As if I had the plague."},
       "nodo": {"1": "Marta, look at me. No? Fine. That's fine.", "2": "We stood in the middle of the Fondamenta like two mooring posts."},
-      "cura": {
-        "1": "The doctor put a hand on my forehead. Such cold hands, dear.",
-        "2": "Healed! And now who'll listen to me, if I don't cough any more?"
-      },
+      "cura": {"1": "The doctor put a hand on my forehead. Such cold hands, dear.", "2": "Healed! And now who'll listen to me, if I don't cough any more?"},
       "riserva": {
         "1": "Good morning, dear! Did you know the ferry was late today?",
         "2": "Ada, dear, are you eating enough? You're thin as tissue paper.",
@@ -277,7 +262,7 @@
       "legge": {"1": "Whoever reads other people's letters has dirty hands. Dirtier than mine.", "2": "Another envelope opened. I know who did it."},
       "stranezza": {"1": "No. Not under Teresa. No.", "2": "Me, under her? Not even dead."},
       "nodo": {"1": "Not even the Lord can make me pass that way.", "2": "We stood there like two sacks of flour. What a show."},
-      "cura": {"1": "The doctor cured Gino. Tomorrow I'll bring him bread.", "2": "Healed. The oven won't wait."},
+      "cura": {"1": "The doctor got me back on my feet. Tomorrow I'll bring him bread.", "2": "Healed. The oven won't wait."},
       "riserva": {
         "1": "At six the oven is lit. The rest, we'll see.",
         "2": "Gino? Running. As always.",
@@ -303,7 +288,7 @@
       }
     },
     "gino": {
-      "incontro": {"1": "Hi! Hi! I met everyone, I counted them: seven!", "2": "I went right through, zoom! Nobody can catch me!"},
+      "incontro": {"1": "Hi! Hi! I met everyone, I counted them! Then I lost count.", "2": "I went right through, zoom! Nobody can catch me!"},
       "consegna": {"1": "I carried a letter! I'm a postman!", "2": "Delivered! Do I get a sweet?"},
       "copia": {"1": "Know what they're saying? I can't tell! But I'll tell.", "2": "Everyone whispers when I come. But I hear anyway!"},
       "legge": {"1": "Teresa reads other people's letters? I want to do it too!", "2": "A secret! A real secret! I'll keep it. Maybe."},
@@ -338,15 +323,9 @@
       "incontro": {"1": "Meetings, meetings. This island is a penny serial.", "2": "Two words and off. I have a book to finish."},
       "consegna": {"1": "A letter for me! At last something arrives instead of leaving.", "2": "Delivered. For once, the world works."},
       "copia": {"1": "Rumours run faster than the ferry. And miss more stops.", "2": "I know, I know. The whole island knows by now."},
-      "legge": {
-        "1": "Reading other people's letters. Not even in nineteenth-century novels.",
-        "2": "A secret! In books, that's always where the story starts."
-      },
+      "legge": {"1": "Reading other people's letters. Not even in nineteenth-century novels.", "2": "A secret! In books, that's always where the story starts."},
       "stranezza": {"1": "I stay on top and listen. It's called curiosity, not a sin.", "2": "Everyone has a vice. Mine is wanting to know."},
-      "nodo": {
-        "1": "Two women who haven't spoken in thirty years. Greek tragedy.",
-        "2": "Stuck in the middle of the street. Not even Manzoni would dare."
-      },
+      "nodo": {"1": "Two women who haven't spoken in thirty years. Greek tragedy.", "2": "Stuck in the middle of the street. Not even Manzoni would dare."},
       "cura": {"1": "The doctor has a leather bag. In Venice they all have one.", "2": "Healed. The doctor says I read too much. Oh, really?"},
       "riserva": {
         "1": "Venice is an hour away by ferry. An hour! And it feels like the moon.",
@@ -373,19 +352,13 @@
       }
     },
     "lunardi": {
-      "incontro": {
-        "1": "Good morning! Ettore Lunardi, pharmacist. A real pleasure.",
-        "2": "A cordial meeting. I'll make a note of it, as prescribed."
-      },
+      "incontro": {"1": "Good morning! Ettore Lunardi, pharmacist. A real pleasure.", "2": "A cordial meeting. I'll make a note of it, as prescribed."},
       "consegna": {"1": "Post for me! From the city, I suppose. How exciting.", "2": "Delivered. Perfect, like a dosage properly followed."},
       "copia": {"1": "People murmur, they murmur. In the city it's called “news”.", "2": "Hearsay is as contagious as fever, ladies and gentlemen."},
-      "legge": {
-        "1": "Opening other people's post is a crime, you know. Article… I forget which.",
-        "2": "A secret once read is like an open bottle: it evaporates."
-      },
+      "legge": {"1": "Opening other people's post is a crime, you know. Article… I forget which.", "2": "A secret once read is like an open bottle: it evaporates."},
       "stranezza": {"1": "I never fall ill. A matter of hygiene, and luck.", "2": "I heal from on top. From below, I'm afraid, it doesn't work."},
       "nodo": {"1": "A case of chronic grudge. I prescribe: a coffee together.", "2": "Both stuck. Clinically fascinating."},
-      "cura": {"1": "Two drops, rest and warm broth. Science is simple.", "2": "Healed! I'll note it in the register. The fourth today."},
+      "cura": {"1": "Two drops, rest and warm broth. Science is simple.", "2": "Another recovery! I'll note it in the register, with the date."},
       "riserva": {
         "1": "In the city they called me “doctor”. Here, “the pharmacy man”.",
         "2": "Miss Ada, isn't it? I have an excellent memory for names.",
@@ -395,24 +368,12 @@
       }
     },
     "livia": {
-      "incontro": {"1": "They looked at me the way you look at a stranger. That's fair.", "2": "I crossed someone I used to know. He didn't know me."},
-      "consegna": {
-        "1": "A letter arrived. Of mine, in fourteen years, not one.",
-        "2": "Letters do arrive, sometimes. Someone just has to carry them."
-      },
-      "copia": {
-        "1": "Rumours go round like when I was a girl. Nothing changes here.",
-        "2": "They talk of a woman in black. It's me, and nobody knows."
-      },
+      "incontro": {"1": "They looked at me the way you look at a stranger. That's fair.", "2": "I crossed someone I used to know. They didn't recognise me."},
+      "consegna": {"1": "A letter arrived. Of mine, in fourteen years, not one.", "2": "Letters do arrive, sometimes. Someone just has to carry them."},
+      "copia": {"1": "Rumours go round like when I was a girl. Nothing changes here.", "2": "They talk of a woman in black. It's me, and nobody knows."},
       "legge": {"1": "Teresa still reads other people's letters. Some things don't age.", "2": "On the island, secrets last less than bread."},
-      "stranezza": {
-        "1": "My thread goes where it must. I can't stop it any more.",
-        "2": "I'm always on top. Not out of pride: I don't know how to be below."
-      },
-      "nodo": {
-        "1": "Two who don't speak. Like my mother and me, for fourteen years.",
-        "2": "Knots are tied in a hurry. Untying them is another story."
-      },
+      "stranezza": {"1": "My thread goes where it must. I can't stop it any more.", "2": "I'm always on top. Not out of pride: I don't know how to be below."},
+      "nodo": {"1": "Two who don't speak. Like my mother and me, for fourteen years.", "2": "Knots are tied in a hurry. Untying them is another story."},
       "cura": {
         "1": "Someone gets better. The day allows that much, at least.",
         "2": "A fever gone. You see, my Ada? Not everything is woven.",

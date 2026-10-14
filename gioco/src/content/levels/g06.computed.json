@@ -1,7 +1,7 @@
 {
   "levelId": "g06",
-  "sourceHash": "8c247aa185dc41ce",
-  "solverVersion": 1,
+  "sourceHash": "a71499c3e3452480",
+  "solverVersion": 2,
   "base": {
     "incroci": 0,
     "rows": [
@@ -243,5 +243,75 @@
     }
   ],
   "matassaSuggerita": 8,
-  "quieteMax": 6
+  "quieteMax": 6,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g06.nina",
+        "min": 5,
+        "minSenzaGino": null,
+        "costo": 5,
+        "vuoteMax": 2,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g06.marta",
+        "min": 0,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g06.zeno",
+        "min": 0,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g06.nina+g06.marta",
+        "min": 5,
+        "minSenzaGino": null,
+        "vuoteMax": 2,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g06.marta+g06.zeno",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "g06.nina+g06.marta",
+    "facili": [],
+    "violazioni": [
+      "K1 g06.marta: 0 crossings, density needs at least 3 (⌈6/2⌉)",
+      "K1 g06.zeno: 0 crossings, density needs at least 3 (⌈6/2⌉)",
+      "K2 g06.marta: costs 0 crossings over the base, needs at least 2",
+      "K2 g06.zeno: costs 0 crossings over the base, needs at least 2",
+      "K4 g06.nina+g06.marta: 3 empty rows of 6 in the recorded solution (at most 2)",
+      "K4 g06.nina: 3 empty rows of 6 in the recorded solution (at most 2)",
+      "K4 g06.marta: 6 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g06.marta: 6 empty rows of 6 in the recorded solution (at most 2)",
+      "K4 g06.zeno: 6 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g06.zeno: 6 empty rows of 6 in the recorded solution (at most 2)",
+      "K5 g06.nina+g06.marta: at least 50 optimal solutions (at most 20)"
+    ]
+  }
 }

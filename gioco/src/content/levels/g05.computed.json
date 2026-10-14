@@ -1,9 +1,9 @@
 {
   "levelId": "g05",
-  "sourceHash": "84b2d5542bc1ee7d",
-  "solverVersion": 1,
+  "sourceHash": "a06332463a0bca1f",
+  "solverVersion": 2,
   "base": {
-    "incroci": 7,
+    "incroci": 4,
     "rows": [
       {
         "hour": 7,
@@ -16,12 +16,7 @@
       },
       {
         "hour": 8,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 9,
@@ -34,12 +29,7 @@
       },
       {
         "hour": 10,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 11,
@@ -52,12 +42,7 @@
       },
       {
         "hour": 12,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 13,
@@ -72,7 +57,7 @@
   },
   "perNote": {
     "g05.zeno": {
-      "incroci": 7,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -130,17 +115,12 @@
         },
         {
           "hour": 13,
-          "crossings": [
-            {
-              "pair": 4,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
     "g05.marta": {
-      "incroci": 7,
+      "incroci": 4,
       "rows": [
         {
           "hour": 7,
@@ -153,12 +133,7 @@
         },
         {
           "hour": 8,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 9,
@@ -171,12 +146,7 @@
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 11,
@@ -189,12 +159,7 @@
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 13,
@@ -208,7 +173,7 @@
       ]
     },
     "g05.teresa": {
-      "incroci": 7,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -221,6 +186,10 @@
         },
         {
           "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
           "crossings": [
             {
               "pair": 0,
@@ -229,7 +198,11 @@
           ]
         },
         {
-          "hour": 9,
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
           "crossings": [
             {
               "pair": 1,
@@ -238,26 +211,12 @@
           ]
         },
         {
-          "hour": 10,
+          "hour": 12,
           "crossings": [
             {
               "pair": 2,
               "over": "R"
-            }
-          ]
-        },
-        {
-          "hour": 11,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
-          "crossings": [
+            },
             {
               "pair": 4,
               "over": "L"
@@ -268,7 +227,7 @@
           "hour": 13,
           "crossings": [
             {
-              "pair": 4,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -290,7 +249,7 @@
         "g05.zeno",
         "g05.teresa"
       ],
-      "incroci": 7,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -348,12 +307,7 @@
         },
         {
           "hour": 13,
-          "crossings": [
-            {
-              "pair": 4,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
@@ -362,7 +316,7 @@
         "g05.marta",
         "g05.teresa"
       ],
-      "incroci": 8,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -375,12 +329,7 @@
         },
         {
           "hour": 8,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 9,
@@ -393,12 +342,7 @@
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 11,
@@ -434,6 +378,68 @@
       ]
     }
   ],
-  "matassaSuggerita": 11,
-  "quieteMax": 0
+  "matassaSuggerita": 9,
+  "quieteMax": 3,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 4,
+        "minSenzaGino": 1,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 12
+      },
+      {
+        "config": "g05.zeno",
+        "min": 6,
+        "minSenzaGino": 6,
+        "costo": 2,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g05.marta",
+        "min": 4,
+        "minSenzaGino": 1,
+        "costo": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 12
+      },
+      {
+        "config": "g05.teresa",
+        "min": 6,
+        "minSenzaGino": 4,
+        "costo": 2,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g05.zeno+g05.teresa",
+        "min": 6,
+        "minSenzaGino": 6,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 2
+      },
+      {
+        "config": "g05.marta+g05.teresa",
+        "min": 6,
+        "minSenzaGino": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 50
+      }
+    ],
+    "designata": "g05.zeno+g05.teresa",
+    "facili": [],
+    "violazioni": [
+      "K2 g05.marta: costs 0 crossings over the base, needs at least 2",
+      "K3 g05.marta: Gino makes 3 of 4 crossings (at most 1, 40%)",
+      "K4 g05.marta: 3 empty rows of 7 in the recorded solution (at most 2)"
+    ]
+  }
 }

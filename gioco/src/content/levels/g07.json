@@ -16,13 +16,18 @@
   ],
   "initial": ["nina", "marta", "teresa", "piero", "gino", "zeno"],
   "beads": [
-    {"id": "segreto:confessione", "type": "segreto", "holders": ["teresa"], "labelKey": "atto1.g07.perline.confessione"}
+    {
+      "id": "segreto:confessione",
+      "type": "segreto",
+      "holders": ["teresa"],
+      "labelKey": "atto1.g07.perline.confessione"
+    }
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
   "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 12}],
   "notes": ["g07.teresa", "g07.nina", "g07.zeno"],
-  "matassa": 12,
+  "matassa": 9,
   "dawn": {
     "candidates": [
       {
@@ -40,10 +45,7 @@
         "when": {"ok": "g07.teresa"},
         "priority": 60,
         "background": "dio/chiesa/giorno",
-        "figures": [
-          {"character": "teresa", "pose": "ferma", "x": 0.36},
-          {"character": "piero", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
+        "figures": [{"character": "teresa", "pose": "ferma", "x": 0.36}, {"character": "piero", "pose": "ferma", "x": 0.66, "flip": true}],
         "lines": [
           {"speaker": "teresa", "textKey": "atto1.g07.alba.confessione"},
           {"speaker": "piero", "textKey": "atto1.g07.alba.confessione2"}
@@ -54,13 +56,10 @@
         "when": {"failed": "g07.teresa"},
         "priority": 80,
         "background": "dio/forno/giorno",
-        "figures": [
-          {"character": "marta", "pose": "ferma", "x": 0.36},
-          {"character": "teresa", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
+        "figures": [{"character": "teresa", "pose": "ferma", "x": 0.5}],
         "lines": [
-          {"speaker": "marta", "textKey": "atto1.g07.alba.sempreSaputo"},
-          {"speaker": "teresa", "textKey": "atto1.g07.alba.sempreSaputo2"}
+          {"speaker": "teresa", "textKey": "atto1.g07.alba.sempreSaputo"},
+          {"speaker": "narratore", "textKey": "atto1.g07.alba.sempreSaputo2"}
         ]
       },
       {
@@ -69,27 +68,22 @@
         "priority": 60,
         "background": "dio/piazza/giorno",
         "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "nina", "textKey": "atto1.g07.alba.ninaSa"},
-          {"speaker": "narratore", "textKey": "atto1.g07.alba.ninaSa2"}
-        ]
+        "lines": [{"speaker": "nina", "textKey": "atto1.g07.alba.ninaSa"}, {"speaker": "narratore", "textKey": "atto1.g07.alba.ninaSa2"}]
       },
       {
         "id": "g07.alba.lume",
         "when": {"ok": "g07.zeno"},
         "priority": 60,
         "background": "dio/faro/giorno",
-        "figures": [
-          {"character": "gino", "pose": "saluta", "x": 0.36},
-          {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "gino", "textKey": "atto1.g07.alba.lume"},
-          {"speaker": "zeno", "textKey": "atto1.g07.alba.lume2"}
-        ]
+        "figures": [{"character": "gino", "pose": "saluta", "x": 0.36}, {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}],
+        "lines": [{"speaker": "gino", "textKey": "atto1.g07.alba.lume"}, {"speaker": "zeno", "textKey": "atto1.g07.alba.lume2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g07.hint.spinta", "indizio": "atto1.g07.hint.indizio"},
-  "musicSeed": "g07"
+  "musicSeed": "g07",
+  "tutorial": [
+    {"k": "margine", "when": "evento", "evento": "copia", "chi": "piero", "textKey": "atto1.g07.margine.pozzo"},
+    {"k": "margine", "when": "evento", "evento": "copia", "chi": "nina", "textKey": "atto1.g07.margine.curiosa"}
+  ]
 }

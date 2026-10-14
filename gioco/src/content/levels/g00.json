@@ -35,32 +35,27 @@
         "id": "g00.alba.teresa",
         "priority": 100,
         "background": "dio/chiesa/alba",
-        "figures": [
-          {"character": "teresa", "pose": "porge", "x": 0.35},
-          {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "teresa", "textKey": "atto1.g00.alba.teresa"},
-          {"speaker": "piero", "textKey": "atto1.g00.alba.teresa2"}
-        ]
+        "figures": [{"character": "teresa", "pose": "porge", "x": 0.35}, {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}],
+        "lines": [{"speaker": "teresa", "textKey": "atto1.g00.alba.teresa"}, {"speaker": "piero", "textKey": "atto1.g00.alba.teresa2"}]
       },
       {
         "id": "g00.alba.piero",
         "priority": 90,
         "background": "dio/chiesa/giorno",
         "figures": [{"character": "piero", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "narratore", "textKey": "atto1.g00.alba.piero"},
-          {"speaker": "piero", "textKey": "atto1.g00.alba.piero2"}
-        ]
+        "lines": [{"speaker": "narratore", "textKey": "atto1.g00.alba.piero"}, {"speaker": "piero", "textKey": "atto1.g00.alba.piero2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g00.hint.spinta", "indizio": "atto1.g00.hint.indizio"},
   "tutorial": [
     {"k": "mano", "hour": 6, "pair": 0, "over": "R"},
+    {"k": "pulsa", "target": "spillo", "hour": 6, "thread": "marta"},
+    {"k": "margine", "when": "incrocio", "textKey": "atto1.g00.margine.spillo", "hour": 6},
     {"k": "pulsa", "target": "fissa", "hour": 6},
+    {"k": "margine", "when": "incrocio", "textKey": "atto1.g00.margine.sopraDa", "hour": 7},
     {"k": "margine", "when": "versoSbagliato", "textKey": "atto1.g00.margine.sopraDa", "hour": 7},
+    {"k": "margine", "when": "ora", "textKey": "atto1.g00.margine.disfa", "hour": 8},
     {"k": "pulsa", "target": "disfa", "hour": 8},
     {"k": "pulsa", "target": "taccuino", "hour": 9}
   ]

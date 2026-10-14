@@ -70,13 +70,11 @@
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "teresa", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "teresa", "textKey": "atto1.g03.alba.fredda"},
-          {"speaker": "narratore", "textKey": "atto1.g03.alba.fredda2"}
-        ]
+        "lines": [{"speaker": "teresa", "textKey": "atto1.g03.alba.fredda"}, {"speaker": "narratore", "textKey": "atto1.g03.alba.fredda2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g03.hint.spinta", "indizio": "atto1.g03.hint.indizio"},
-  "musicSeed": "g03"
+  "musicSeed": "g03",
+  "tutorial": [{"k": "margine", "when": "ora", "textKey": "atto1.g03.margine.molo", "hour": 8}, {"k": "pulsa", "target": "bordo", "hour": 9}]
 }

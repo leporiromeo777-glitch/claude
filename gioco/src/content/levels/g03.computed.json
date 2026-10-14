@@ -1,7 +1,7 @@
 {
   "levelId": "g03",
-  "sourceHash": "9ccccfa0f0d43607",
-  "solverVersion": 1,
+  "sourceHash": "a592f1a32423579c",
+  "solverVersion": 2,
   "base": {
     "incroci": 0,
     "rows": [
@@ -490,5 +490,102 @@
     }
   ],
   "matassaSuggerita": 8,
-  "quieteMax": 6
+  "quieteMax": 6,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.nina",
+        "min": 3,
+        "minSenzaGino": null,
+        "costo": 3,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 2
+      },
+      {
+        "config": "g03.marta",
+        "min": 0,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.teresa",
+        "min": 4,
+        "minSenzaGino": null,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.teresaFredda",
+        "min": 4,
+        "minSenzaGino": null,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.nina+g03.teresa",
+        "min": 4,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.nina+g03.teresaFredda",
+        "min": 4,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.marta+g03.teresa",
+        "min": 5,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.marta+g03.teresaFredda",
+        "min": 5,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g03.teresa+g03.teresaFredda",
+        "min": 4,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "g03.marta+g03.teresa",
+    "facili": [],
+    "violazioni": [
+      "K1 g03.marta: 0 crossings, density needs at least 3 (⌈6/2⌉)",
+      "K2 g03.marta: costs 0 crossings over the base, needs at least 2",
+      "K4 g03.nina: 3 empty rows of 6 in the recorded solution (at most 2)",
+      "K4 g03.marta: 6 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g03.marta: 6 empty rows of 6 in the recorded solution (at most 2)"
+    ]
+  }
 }

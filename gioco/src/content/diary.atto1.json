@@ -21,7 +21,9 @@
     "character": "teresa",
     "textKey": "atto1.diario.persone.teresa.legge",
     "source": "visto",
-    "unlock": {"all": [{"knows": "quirk", "id": "teresaLegge"}, {"done": "g05"}]}
+    "unlock": {
+      "all": [{"knows": "quirk", "id": "teresaLegge"}, {"done": "g05"}]
+    }
   },
   {
     "id": "persone.piero.pozzo",
@@ -77,7 +79,9 @@
     "character": "gino",
     "textKey": "atto1.diario.persone.gino.chiacchiere",
     "source": "sentito",
-    "unlock": {"any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]}
+    "unlock": {
+      "any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]
+    }
   },
   {
     "id": "persone.piero.ascolta",
@@ -109,7 +113,9 @@
     "character": "teresa",
     "textKey": "atto1.diario.persone.teresa.cartolina",
     "source": "sentito",
-    "unlock": {"any": [{"ok": "g03.teresa"}, {"ok": "g03.teresaFredda"}]}
+    "unlock": {
+      "any": [{"ok": "g03.teresa"}, {"ok": "g03.teresaFredda"}]
+    }
   },
   {
     "id": "persone.bepi.rete",
@@ -213,7 +219,7 @@
     "character": "gino",
     "textKey": "atto1.diario.persone.gino.chi",
     "source": "visto",
-    "unlock": {"done": "g00"}
+    "unlock": {"done": "g01"}
   },
   {
     "id": "persone.nina.chi",
@@ -221,7 +227,7 @@
     "character": "nina",
     "textKey": "atto1.diario.persone.nina.chi",
     "source": "visto",
-    "unlock": {"done": "g02"}
+    "unlock": {"done": "g03"}
   },
   {
     "id": "persone.bepi.chi",
@@ -229,7 +235,7 @@
     "character": "bepi",
     "textKey": "atto1.diario.persone.bepi.chi",
     "source": "visto",
-    "unlock": {"done": "g03"}
+    "unlock": {"done": "g04"}
   },
   {
     "id": "persone.zeno.chi",
@@ -237,7 +243,7 @@
     "character": "zeno",
     "textKey": "atto1.diario.persone.zeno.chi",
     "source": "visto",
-    "unlock": {"done": "g04"}
+    "unlock": {"done": "g05"}
   },
   {
     "id": "persone.gino.campana",
@@ -462,7 +468,7 @@
     "id": "domande.avorio.apre",
     "section": "domande",
     "textKey": "atto1.diario.domande.avorio.apre",
-    "unlock": {"done": "g00"},
+    "unlock": {"knows": "oggetto", "id": "merletto_avorio"},
     "opens": ["avorio"],
     "pista": true
   },
@@ -486,7 +492,9 @@
     "section": "domande",
     "character": "marta",
     "textKey": "atto1.diario.domande.martaTeresa.apre",
-    "unlock": {"any": [{"knows": "quirk", "id": "martaNoSotto"}, {"done": "g00"}]},
+    "unlock": {
+      "any": [{"knows": "quirk", "id": "martaNoSotto"}, {"done": "g00"}]
+    },
     "opens": ["martaTeresa"]
   },
   {
@@ -495,8 +503,31 @@
     "character": "marta",
     "textKey": "atto1.diario.domande.martaTeresa.chiedilo",
     "source": "sentito",
-    "unlock": {"reply": "g06.marta", "is": "R1"},
+    "unlock": {
+      "all": [
+        {"reply": "g06.marta", "is": "R1"},
+        {
+          "not": {"done": "arc1"}
+        }
+      ]
+    },
     "pista": true
+  },
+  {
+    "id": "domande.martaTeresa.chiediloDopo",
+    "section": "domande",
+    "character": "marta",
+    "textKey": "atto1.diario.domande.martaTeresa.chiediloDopo",
+    "source": "sentito",
+    "unlock": {
+      "all": [
+        {"reply": "g06.marta", "is": "R1"},
+        {"done": "arc1"},
+        {
+          "not": {"knows": "diary", "id": "domande.martaTeresa.chiedilo"}
+        }
+      ]
+    }
   },
   {
     "id": "domande.martaTeresa.confessione",
@@ -526,7 +557,7 @@
     "id": "domande.chiL.apre",
     "section": "domande",
     "textKey": "atto1.diario.domande.chiL.apre",
-    "unlock": {"done": "g01"},
+    "unlock": {"knows": "oggetto", "id": "lettera_L1"},
     "opens": ["chiL"],
     "pista": true
   },
@@ -534,7 +565,7 @@
     "id": "domande.chiL.seppia",
     "section": "domande",
     "textKey": "atto1.diario.domande.chiL.seppia",
-    "unlock": {"done": "g04"}
+    "unlock": {"knows": "oggetto", "id": "lettera_L4"}
   },
   {
     "id": "domande.chiL.zeno",
@@ -550,21 +581,25 @@
     "character": "zeno",
     "textKey": "atto1.diario.domande.chiL.fuso",
     "source": "visto",
-    "unlock": {"done": "g05"}
+    "unlock": {"knows": "oggetto", "id": "fuso_faro"}
   },
   {
     "id": "domande.pozzo.apre",
     "section": "domande",
     "character": "piero",
     "textKey": "atto1.diario.domande.pozzo.apre",
-    "unlock": {"all": [{"knows": "quirk", "id": "pieroPozzo"}, {"done": "g06"}]},
+    "unlock": {
+      "all": [{"knows": "quirk", "id": "pieroPozzo"}, {"done": "g06"}]
+    },
     "opens": ["pozzo"]
   },
   {
     "id": "domande.desideri.apre",
     "section": "domande",
     "textKey": "atto1.diario.domande.desideri.apre",
-    "unlock": {"any": [{"knows": "desire", "id": "nina"}, {"done": "g03"}]},
+    "unlock": {
+      "any": [{"knows": "desire", "id": "nina"}, {"done": "g03"}]
+    },
     "opens": ["desideri"]
   },
   {
@@ -579,13 +614,13 @@
     "id": "lettere.bottiglie",
     "section": "lettere",
     "textKey": "atto1.diario.lettere.bottiglie",
-    "unlock": {"done": "g01"}
+    "unlock": {"knows": "oggetto", "id": "lettera_L1"}
   },
   {
     "id": "lettere.disordine",
     "section": "lettere",
     "textKey": "atto1.diario.lettere.disordine",
-    "unlock": {"done": "g06"}
+    "unlock": {"knows": "oggetto", "id": "lettera_L5"}
   },
   {
     "id": "archivio.cassapanca",

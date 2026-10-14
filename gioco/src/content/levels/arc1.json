@@ -15,9 +15,7 @@
     {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.marinaio"}
   ],
   "initial": ["f1", "f2", "f3", "f4", "padre"],
-  "beads": [
-    {"id": "L_ernesto", "type": "lettera", "holder": "f3", "to": "f1", "labelKey": "atto1.arc1.perline.L_ernesto"}
-  ],
+  "beads": [{"id": "L_ernesto", "type": "lettera", "holder": "f3", "to": "f1", "labelKey": "atto1.arc1.perline.L_ernesto"}],
   "rules": ["incrocio", "spillo", "lettera", "molo", "segreto"],
   "quirks": ["teresaLegge"],
   "pins": [{"thread": "f1", "place": "forno", "hour": 10}, {"thread": "f4", "place": "chiesa", "hour": 11}],
@@ -37,10 +35,22 @@
     "answer": {"f1": "marta", "f2": "teresa", "f3": "ernesto", "f4": "anselmo"},
     "holes": [{"from": 10, "to": 11}],
     "recorded": [
-      {"hour": 9, "crossings": [{"pair": 1, "over": "R"}, {"pair": 3, "over": "R"}]},
-      {"hour": 10, "crossings": [{"pair": 0, "over": "L"}, {"pair": 2, "over": "L"}]},
-      {"hour": 11, "crossings": [{"pair": 1, "over": "R"}, {"pair": 3, "over": "R"}]},
-      {"hour": 12, "crossings": []}
+      {
+        "hour": 9,
+        "crossings": [{"pair": 1, "over": "R"}, {"pair": 3, "over": "R"}]
+      },
+      {
+        "hour": 10,
+        "crossings": [{"pair": 0, "over": "L"}, {"pair": 2, "over": "L"}]
+      },
+      {
+        "hour": 11,
+        "crossings": [{"pair": 1, "over": "R"}, {"pair": 3, "over": "R"}]
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      }
     ],
     "echoes": [
       {"hour": 9, "pair": 1, "textKey": "atto1.arc1.eco.ernesto"},
@@ -50,21 +60,21 @@
       {"hour": 11, "pair": 1, "textKey": "atto1.arc1.eco.nessunaParte"},
       {"hour": 11, "pair": 3, "textKey": "atto1.arc1.eco.anselmo"}
     ],
-    "marginKey": "atto1.arc1.margine",
+    "marginKey": "atto1.arc1.margine.clotilde",
     "reveal": {
       "id": "arc1.rivela",
       "priority": 100,
       "background": "dio/piazza/giorno",
-      "figures": [
-        {"character": "marta", "pose": "ferma", "x": 0.33},
-        {"character": "teresa", "pose": "porge", "x": 0.66, "flip": true}
-      ],
-      "lines": [
-        {"speaker": "narratore", "textKey": "atto1.arc1.rivela.1"},
-        {"speaker": "narratore", "textKey": "atto1.arc1.rivela.2"}
-      ]
+      "figures": [{"character": "marta", "pose": "ferma", "x": 0.33}, {"character": "teresa", "pose": "porge", "x": 0.66, "flip": true}],
+      "lines": [{"speaker": "narratore", "textKey": "atto1.arc1.rivela.1"}, {"speaker": "narratore", "textKey": "atto1.arc1.rivela.2"}]
     },
     "closes": ["martaTeresa"],
     "unlocks": ["domande.martaTeresa.risposta", "persone.marta.ernesto", "archivio.arc1"]
-  }
+  },
+  "tutorial": [
+    {"k": "margine", "when": "primaOra", "textKey": "atto1.arc1.margine.nomina", "hour": 9},
+    {"k": "pulsa", "target": "fuso", "hour": 9, "thread": "f1"},
+    {"k": "margine", "when": "archivioNomi", "textKey": "atto1.arc1.margine.rammenda"},
+    {"k": "margine", "when": "archivioRammendo", "textKey": "atto1.arc1.margine.eco"}
+  ]
 }

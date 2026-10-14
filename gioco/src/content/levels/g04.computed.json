@@ -1,7 +1,7 @@
 {
   "levelId": "g04",
-  "sourceHash": "07eb4458866c7d6f",
-  "solverVersion": 1,
+  "sourceHash": "e636e0b2b7b979e1",
+  "solverVersion": 2,
   "base": {
     "incroci": 1,
     "rows": [
@@ -315,5 +315,74 @@
     }
   ],
   "matassaSuggerita": 8,
-  "quieteMax": 7
+  "quieteMax": 7,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 1,
+        "minSenzaGino": null,
+        "vuoteMax": 7,
+        "vuoteTot": 7,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g04.nina",
+        "min": 1,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 7,
+        "vuoteTot": 7,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g04.bepi",
+        "min": 1,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 7,
+        "vuoteTot": 7,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g04.piero",
+        "min": 5,
+        "minSenzaGino": null,
+        "costo": 4,
+        "vuoteMax": 3,
+        "vuoteTot": 3,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g04.nina+g04.bepi",
+        "min": 1,
+        "minSenzaGino": null,
+        "vuoteMax": 7,
+        "vuoteTot": 7,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g04.nina+g04.piero",
+        "min": 5,
+        "minSenzaGino": null,
+        "vuoteMax": 3,
+        "vuoteTot": 3,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "g04.nina+g04.piero",
+    "facili": [],
+    "violazioni": [
+      "K1 g04.nina: 1 crossing, density needs at least 4 (⌈8/2⌉)",
+      "K1 g04.bepi: 1 crossing, density needs at least 4 (⌈8/2⌉)",
+      "K2 g04.nina: costs 0 crossings over the base, needs at least 2",
+      "K2 g04.bepi: costs 0 crossings over the base, needs at least 2",
+      "K4 g04.nina+g04.piero: 3 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g04.nina: 7 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g04.nina: 7 empty rows of 8 in the recorded solution (at most 3)",
+      "K4 g04.bepi: 7 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g04.bepi: 7 empty rows of 8 in the recorded solution (at most 3)",
+      "K4 g04.piero: 3 empty rows in a row in the recorded solution (at most 2)"
+    ]
+  }
 }

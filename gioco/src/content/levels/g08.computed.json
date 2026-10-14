@@ -1,7 +1,7 @@
 {
   "levelId": "g08",
-  "sourceHash": "43179376d6234765",
-  "solverVersion": 1,
+  "sourceHash": "4cd21036b01d0b0f",
+  "solverVersion": 2,
   "base": {
     "incroci": 5,
     "rows": [
@@ -73,32 +73,14 @@
   },
   "perNote": {
     "g08.marta": {
-      "incroci": 12,
+      "incroci": 7,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            },
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 9,
           "crossings": [
             {
               "pair": 2,
@@ -107,10 +89,19 @@
           ]
         },
         {
-          "hour": 10,
+          "hour": 9,
           "crossings": [
             {
               "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -130,12 +121,7 @@
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 13,
@@ -148,12 +134,7 @@
         },
         {
           "hour": 14,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 15,
@@ -166,12 +147,7 @@
         },
         {
           "hour": 16,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
@@ -328,32 +304,14 @@
         "g08.marta",
         "g08.zeno"
       ],
-      "incroci": 12,
+      "incroci": 7,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 8,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            },
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 9,
           "crossings": [
             {
               "pair": 2,
@@ -362,10 +320,19 @@
           ]
         },
         {
-          "hour": 10,
+          "hour": 9,
           "crossings": [
             {
               "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -385,12 +352,7 @@
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 13,
@@ -403,12 +365,7 @@
         },
         {
           "hour": 14,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 15,
@@ -421,12 +378,7 @@
         },
         {
           "hour": 16,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
@@ -504,6 +456,74 @@
       ]
     }
   ],
-  "matassaSuggerita": 15,
-  "quieteMax": 6
+  "matassaSuggerita": 10,
+  "quieteMax": 6,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 5,
+        "minSenzaGino": 1,
+        "vuoteMax": 5,
+        "vuoteTot": 6,
+        "soluzioniOttime": 39
+      },
+      {
+        "config": "g08.marta",
+        "min": 7,
+        "minSenzaGino": 4,
+        "costo": 2,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 12
+      },
+      {
+        "config": "g08.nina",
+        "min": 5,
+        "minSenzaGino": 5,
+        "costo": 0,
+        "vuoteMax": 5,
+        "vuoteTot": 6,
+        "soluzioniOttime": 6
+      },
+      {
+        "config": "g08.zeno",
+        "min": 5,
+        "minSenzaGino": 1,
+        "costo": 0,
+        "vuoteMax": 5,
+        "vuoteTot": 6,
+        "soluzioniOttime": 27
+      },
+      {
+        "config": "g08.marta+g08.zeno",
+        "min": 7,
+        "minSenzaGino": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 12
+      },
+      {
+        "config": "g08.nina+g08.zeno",
+        "min": 5,
+        "minSenzaGino": 5,
+        "vuoteMax": 5,
+        "vuoteTot": 6,
+        "soluzioniOttime": 6
+      }
+    ],
+    "designata": "g08.marta+g08.zeno",
+    "facili": [],
+    "violazioni": [
+      "K2 g08.nina: costs 0 crossings over the base, needs at least 2",
+      "K2 g08.zeno: costs 0 crossings over the base, needs at least 2",
+      "K3 g08.marta+g08.zeno: Gino makes 3 of 7 crossings (at most 2, 40%)",
+      "K3 g08.marta: Gino makes 3 of 7 crossings (at most 2, 40%)",
+      "K4 g08.nina: 5 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g08.nina: 6 empty rows of 10 in the recorded solution (at most 4)",
+      "K3 g08.zeno: Gino makes 4 of 5 crossings (at most 2, 40%)",
+      "K4 g08.zeno: 5 empty rows in a row in the recorded solution (at most 2)",
+      "K4 g08.zeno: 6 empty rows of 10 in the recorded solution (at most 4)"
+    ]
+  }
 }

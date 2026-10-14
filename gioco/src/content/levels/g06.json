@@ -18,7 +18,12 @@
   "initial": ["lino1", "marta", "teresa", "piero", "nina", "zeno"],
   "beads": [
     {"id": "L1", "type": "lettera", "holder": "marinaio", "to": "nina", "labelKey": "atto1.g06.perline.L1"},
-    {"id": "voce:ninaParte", "type": "voce", "holders": ["teresa"], "labelKey": "atto1.g06.perline.ninaParte"}
+    {
+      "id": "voce:ninaParte",
+      "type": "voce",
+      "holders": ["teresa"],
+      "labelKey": "atto1.g06.perline.ninaParte"
+    }
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "zenoFaro"],
@@ -54,10 +59,7 @@
         "when": {"failed": "g06.nina"},
         "priority": 80,
         "background": "dio/piazza/giorno",
-        "figures": [
-          {"character": "nina", "pose": "ferma", "x": 0.38},
-          {"character": "teresa", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
+        "figures": [{"character": "nina", "pose": "ferma", "x": 0.38}, {"character": "teresa", "pose": "ferma", "x": 0.66, "flip": true}],
         "lines": [
           {"speaker": "nina", "textKey": "atto1.g06.alba.tuttiSanno"},
           {"speaker": "teresa", "textKey": "atto1.g06.alba.tuttiSanno2"}
@@ -78,18 +80,13 @@
         "id": "g06.alba.prete",
         "when": {"failed": "g06.zeno"},
         "priority": 80,
-        "background": "dio/chiesa/giorno",
-        "figures": [
-          {"character": "piero", "pose": "ferma", "x": 0.38},
-          {"character": "bepi", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "piero", "textKey": "atto1.g06.alba.prete"},
-          {"speaker": "bepi", "textKey": "atto1.g06.alba.prete2"}
-        ]
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "teresa", "pose": "porge", "x": 0.36}, {"character": "bepi", "pose": "ferma", "x": 0.64, "flip": true}],
+        "lines": [{"speaker": "teresa", "textKey": "atto1.g06.alba.prete"}, {"speaker": "bepi", "textKey": "atto1.g06.alba.prete2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g06.hint.spinta", "indizio": "atto1.g06.hint.indizio"},
-  "musicSeed": "g06"
+  "musicSeed": "g06",
+  "tutorial": [{"k": "margine", "when": "evento", "evento": "legge", "textKey": "atto1.g06.margine.segreto"}]
 }

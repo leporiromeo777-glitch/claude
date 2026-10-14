@@ -38,11 +38,26 @@
     "answer": {"f1": "teresa", "f2": "piero", "f3": "clotilde", "f4": "zeno"},
     "holes": [{"from": 1, "to": 2}],
     "recorded": [
-      {"hour": 1, "crossings": [{"pair": 1, "over": "L"}]},
-      {"hour": 2, "crossings": [{"pair": 3, "over": "L"}]},
-      {"hour": 3, "crossings": [{"pair": 1, "over": "L"}]},
-      {"hour": 4, "crossings": [{"pair": 3, "over": "L"}]},
-      {"hour": 5, "crossings": []}
+      {
+        "hour": 1,
+        "crossings": [{"pair": 1, "over": "L"}]
+      },
+      {
+        "hour": 2,
+        "crossings": [{"pair": 3, "over": "L"}]
+      },
+      {
+        "hour": 3,
+        "crossings": [{"pair": 1, "over": "L"}]
+      },
+      {
+        "hour": 4,
+        "crossings": [{"pair": 3, "over": "L"}]
+      },
+      {
+        "hour": 5,
+        "crossings": []
+      }
     ],
     "echoes": [
       {"hour": 1, "pair": 1, "textKey": "atto1.arc2.eco.busta"},
@@ -50,16 +65,13 @@
       {"hour": 3, "pair": 1, "textKey": "atto1.arc2.eco.campana"},
       {"hour": 4, "pair": 3, "textKey": "atto1.arc2.eco.onda"}
     ],
-    "marginKey": "atto1.arc2.margine",
+    "marginKey": "atto1.arc2.margine.clotilde",
     "reveal": {
       "id": "arc2.rivela",
       "priority": 100,
       "background": "dio/faro/notte",
       "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-      "lines": [
-        {"speaker": "narratore", "textKey": "atto1.arc2.rivela.1"},
-        {"speaker": "zeno", "textKey": "atto1.arc2.rivela.2"}
-      ]
+      "lines": [{"speaker": "narratore", "textKey": "atto1.arc2.rivela.1"}, {"speaker": "zeno", "textKey": "atto1.arc2.rivela.2"}]
     },
     "closes": ["avorio"],
     "unlocks": ["domande.avorio.indizio1", "domande.avorio.risposta", "persone.zeno.nega", "archivio.arc2"]

@@ -13,12 +13,19 @@
     {"id": "piero", "kind": "persona", "character": "piero"}
   ],
   "initial": ["gino", "marta", "teresa", "piero"],
-  "beads": [{"id": "voce:bambina", "type": "voce", "holders": ["teresa"], "labelKey": "atto1.g02.perline.bambina"}],
+  "beads": [
+    {
+      "id": "voce:bambina",
+      "type": "voce",
+      "holders": ["teresa"],
+      "labelKey": "atto1.g02.perline.bambina"
+    }
+  ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
   "pins": [{"thread": "piero", "place": "chiesa", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 8}],
   "notes": ["g02.marta", "g02.martaDura", "g02.teresa", "g02.gino"],
-  "matassa": 10,
+  "matassa": 9,
   "dawn": {
     "candidates": [
       {
@@ -26,24 +33,17 @@
         "priority": 100,
         "background": "dio/piazza/giorno",
         "figures": [{"character": "teresa", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "narratore", "textKey": "atto1.g02.alba.voce"},
-          {"speaker": "teresa", "textKey": "atto1.g02.alba.voce2"}
-        ]
+        "lines": [{"speaker": "narratore", "textKey": "atto1.g02.alba.voce"}, {"speaker": "teresa", "textKey": "atto1.g02.alba.voce2"}]
       },
       {
         "id": "g02.alba.ginoSa",
-        "when": {"any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]},
+        "when": {
+          "any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]
+        },
         "priority": 80,
         "background": "dio/forno/giorno",
-        "figures": [
-          {"character": "gino", "pose": "saluta", "x": 0.36},
-          {"character": "marta", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "gino", "textKey": "atto1.g02.alba.ginoSa"},
-          {"speaker": "marta", "textKey": "atto1.g02.alba.ginoSa2"}
-        ]
+        "figures": [{"character": "gino", "pose": "saluta", "x": 0.36}, {"character": "marta", "pose": "ferma", "x": 0.66, "flip": true}],
+        "lines": [{"speaker": "gino", "textKey": "atto1.g02.alba.ginoSa"}, {"speaker": "marta", "textKey": "atto1.g02.alba.ginoSa2"}]
       },
       {
         "id": "g02.alba.pieroSa",
@@ -62,10 +62,7 @@
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "gino", "pose": "saluta", "x": 0.5}],
-        "lines": [
-          {"speaker": "gino", "textKey": "atto1.g02.alba.giro"},
-          {"speaker": "narratore", "textKey": "atto1.g02.alba.giro2"}
-        ]
+        "lines": [{"speaker": "gino", "textKey": "atto1.g02.alba.giro"}, {"speaker": "narratore", "textKey": "atto1.g02.alba.giro2"}]
       },
       {
         "id": "g02.alba.fredda",
@@ -81,7 +78,8 @@
   "tutorial": [
     {"k": "mano", "hour": 7, "pair": 0, "over": "L"},
     {"k": "margine", "when": "primaOra", "textKey": "atto1.g02.margine.voce", "hour": 7},
-    {"k": "pulsa", "target": "disfa", "hour": 8}
+    {"k": "margine", "when": "ora", "textKey": "atto1.g02.margine.matassa", "hour": 8},
+    {"k": "pulsa", "target": "matassa", "hour": 8}
   ],
   "musicSeed": "g02"
 }

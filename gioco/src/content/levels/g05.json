@@ -15,14 +15,12 @@
     {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.passante"}
   ],
   "initial": ["marta", "gino", "teresa", "piero", "lino1", "zeno"],
-  "beads": [
-    {"id": "L_zeno", "type": "lettera", "holder": "teresa", "to": "zeno", "labelKey": "atto1.g05.perline.L_zeno"}
-  ],
+  "beads": [{"id": "L_zeno", "type": "lettera", "holder": "teresa", "to": "zeno", "labelKey": "atto1.g05.perline.L_zeno"}],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro"],
   "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 9}],
   "notes": ["g05.zeno", "g05.marta", "g05.teresa"],
-  "matassa": 11,
+  "matassa": 9,
   "dawn": {
     "candidates": [
       {
@@ -51,14 +49,8 @@
         "when": {"ok": "g05.zeno"},
         "priority": 60,
         "background": "dio/faro/giorno",
-        "figures": [
-          {"character": "gino", "pose": "saluta", "x": 0.35},
-          {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "gino", "textKey": "atto1.g05.alba.lanterna"},
-          {"speaker": "zeno", "textKey": "atto1.g05.alba.lanterna2"}
-        ]
+        "figures": [{"character": "gino", "pose": "saluta", "x": 0.35}, {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}],
+        "lines": [{"speaker": "gino", "textKey": "atto1.g05.alba.lanterna"}, {"speaker": "zeno", "textKey": "atto1.g05.alba.lanterna2"}]
       },
       {
         "id": "g05.alba.vetri",
@@ -66,27 +58,23 @@
         "priority": 80,
         "background": "dio/faro/giorno",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-        "lines": [
-          {"speaker": "zeno", "textKey": "atto1.g05.alba.vetri"},
-          {"speaker": "narratore", "textKey": "atto1.g05.alba.vetri2"}
-        ]
+        "lines": [{"speaker": "zeno", "textKey": "atto1.g05.alba.vetri"}, {"speaker": "narratore", "textKey": "atto1.g05.alba.vetri2"}]
       },
       {
         "id": "g05.alba.lontano",
         "when": {"ok": "g05.marta"},
         "priority": 60,
         "background": "dio/forno/giorno",
-        "figures": [
-          {"character": "marta", "pose": "ferma", "x": 0.4},
-          {"character": "gino", "pose": "ferma", "x": 0.66, "flip": true}
-        ],
-        "lines": [
-          {"speaker": "marta", "textKey": "atto1.g05.alba.lontano"},
-          {"speaker": "gino", "textKey": "atto1.g05.alba.lontano2"}
-        ]
+        "figures": [{"character": "marta", "pose": "ferma", "x": 0.4}, {"character": "gino", "pose": "ferma", "x": 0.66, "flip": true}],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g05.alba.lontano"}, {"speaker": "gino", "textKey": "atto1.g05.alba.lontano2"}]
       }
     ]
   },
   "hintKeys": {"spinta": "atto1.g05.hint.spinta", "indizio": "atto1.g05.hint.indizio"},
-  "musicSeed": "g05"
+  "musicSeed": "g05",
+  "tutorial": [
+    {"k": "margine", "when": "rifiuto", "codice": "faro", "textKey": "atto1.g05.margine.faro"},
+    {"k": "margine", "when": "ora", "textKey": "atto1.g05.margine.faro", "hour": 8},
+    {"k": "pulsa", "target": "fuso", "hour": 8, "thread": "zeno"}
+  ]
 }
