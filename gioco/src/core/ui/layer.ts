@@ -191,8 +191,9 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
             finish(false);
             return true;
           }
-          // Le altre azioni non arrivano alla scena sotto.
-          return true;
+          // Tab resta libero per spostare il fuoco fra i pulsanti; le altre azioni
+          // non arrivano comunque alla scena sotto (il livello in cima è questo).
+          return a.action !== 'notebook' && a.action !== 'tab';
         });
         // Pulsante sicuro a sinistra (GDD 10.3), con il fuoco.
         const cancel = button({ labelKey: o.cancelKey, kind: 'secondario', onClick: () => finish(false), test: 'confirm-annulla' });

@@ -13,7 +13,14 @@ import { createSceneManager, FADE_MS, type CoreSceneManager } from './scenes';
 import { createStorageBackend } from './save/backends';
 import { createSaveService, type CoreSaveService } from './save/save';
 import { defaultSaveData } from './save/defaults';
-import { createSettingsStore, defaultSettings, detectLocale, prefersReducedMotion, type CoreSettingsStore } from './settings';
+import {
+  applySettingsToDocument,
+  createSettingsStore,
+  defaultSettings,
+  detectLocale,
+  prefersReducedMotion,
+  type CoreSettingsStore,
+} from './settings';
 import { createI18n, loadI18nSources, type CoreI18n } from './i18n';
 import { createPlatform, type CorePlatform } from './platform';
 import { createHaptics } from './haptics';
@@ -115,6 +122,8 @@ export async function startCore(debug: CoreDebugRegistry): Promise<CoreRuntime> 
       save.data().settings.locale = lang as Locale;
     }
   }
+  // Impostazioni salvate applicate subito a <html> (testo, contrasto, movimento, lingua).
+  applySettingsToDocument(settings.get(), doc.documentElement);
 
   // Testi. Il cambio di lingua passa prima di tutti gli altri ascoltatori di settings:change.
   const i18n = createI18n({ sources: loadI18nSources(), locale: settings.get().locale, dev: import.meta.env.DEV });

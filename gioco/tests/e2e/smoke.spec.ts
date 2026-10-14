@@ -137,3 +137,22 @@ test('gesti e tasti arrivano alla scena boot', async ({ page, isMobile }) => {
   await page.keyboard.press('h');
   await expect(page.locator('[data-test="boot-log"] li').first()).toContainText(/Suggerimento|Hint/);
 });
+
+test('le impostazioni salvate si riapplicano a <html> dopo una ricarica', async ({ page }) => {
+  await boot(page);
+  await page.evaluate(async () => {
+    const c = window.__GAME__!.core as { setSettings(p: object): unknown; flush(): Promise<void> };
+    c.setSettings({ highContrast: true, textScale: 1.2, reducedMotion: true });
+    await c.flush();
+  });
+  await page.reload();
+  await page.waitForFunction(() => !!window.__GAME__);
+  await page.evaluate(() => window.__GAME__!.ready);
+  const attrs = await page.evaluate(() => ({
+    contrast: document.documentElement.dataset.contrast,
+    motion: document.documentElement.dataset.motion,
+    scale: document.documentElement.style.getPropertyValue('--text-scale'),
+    lang: document.documentElement.lang,
+  }));
+  expect(attrs).toEqual({ contrast: 'alto', motion: 'ridotto', scale: '1.2', lang: 'it' });
+});
