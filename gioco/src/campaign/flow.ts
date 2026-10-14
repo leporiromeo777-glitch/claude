@@ -616,6 +616,21 @@ export function replayParams(d: SaveData, db: Db, levelId: LevelId): NightParams
   };
 }
 
+/** Ripassa dal Telaio: la soluzione già trovata per le richieste di quella giornata (GDD 8.2). */
+export function replayRipassaParams(d: SaveData, db: Db, levelId: LevelId): NightParams | null {
+  const c = d.campaign as CampaignStateX | null;
+  if (!c || !d.unlocks.libero) return null;
+  const hist = c.history[levelId] as DayResultX | undefined;
+  const notes = (hist?.accepted ?? []).map((a) => a.noteId);
+  const sol = knownSolution(c, levelId, notes);
+  if (!sol) return null;
+  const p = replayParams(d, db, levelId);
+  p.mode = 'replay';
+  p.replay = clone(sol.rows);
+  p.resume = { levelId, rows: [], draft: [], dropped: [], nomeOn: sol.nomeOn ?? null, hintsUsed: 0, fantasmaUsed: false };
+  return p;
+}
+
 /** Esito di una notte del Telaio: solo record e statistiche. */
 export function completeReplay(d: SaveData, outcome: NightOutcome): ReturnType<typeof recordNight> {
   return recordNight(d, outcome.levelId, outcome.metrics, outcome.spartito);

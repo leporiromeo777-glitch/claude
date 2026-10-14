@@ -56,6 +56,10 @@ export class VignettePlayer {
   private vi = 0;
   private li = 0;
   private playing: Playing | null = null;
+  /** Riga mostrata (contatore): le promesse della voce di righe vecchie si ignorano. */
+  private lineSeq = 0;
+  private voiceDone = true;
+  private waitingVoice = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private auto: boolean;
   private finished = false;
@@ -162,14 +166,36 @@ export class VignettePlayer {
     this.text.classList.toggle('cp-vignetta-testo--narratore', line.speaker === 'narratore');
     if (line.speaker !== 'narratore') this.who.appendChild(charChip(this.s, line.speaker, { test: 'cp-vignetta-chi' }));
     const plain = plainText(this.s.i18n.t(line.textKey, params), (id) => charName(this.s, id));
+    this.lineSeq += 1;
+    this.voiceDone = true;
     if (line.speaker !== 'narratore') {
       try {
-        this.playing = this.s.audio.babble(line.speaker, plain);
+        const p = this.s.audio.babble(line.speaker, plain);
+        this.playing = p;
+        this.voiceDone = false;
+        const seq = this.lineSeq;
+        void p.done.then(
+          () => this.voiceFinished(seq),
+          () => this.voiceFinished(seq),
+        );
       } catch {
         this.playing = null;
+        this.voiceDone = true;
       }
     }
     this.scheduleAuto(plain);
+  }
+
+  /** Il borbottio della riga `seq` è finito: se l'automatico aspettava solo la voce, si va avanti. */
+  private voiceFinished(seq: number): void {
+    if (seq !== this.lineSeq) return;
+    this.voiceDone = true;
+    if (this.waitingVoice) {
+      this.waitingVoice = false;
+      if (this.timer) clearTimeout(this.timer);
+      this.timer = null;
+      if (this.auto && !this.destroyed) this.next();
+    }
   }
 
   private sfx(id: SfxId): void {
@@ -180,17 +206,35 @@ export class VignettePlayer {
     }
   }
 
+  /**
+   * Avanzamento automatico: dopo il tempo di lettura e, se la voce sta ancora
+   * borbottando, quando finisce (al massimo 8 s per vignetta: le righe si dividono il tempo).
+   */
   private scheduleAuto(text: string): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.waitingVoice = false;
     if (!this.auto) return;
     const speed = this.s.settings.get().animSpeed || 4;
     const v = this.current();
     const lines = v?.lines.length ?? 1;
-    // Al massimo 8 s per vignetta: le righe si dividono il tempo.
-    const budget = VIGNETTE_MAX_MS / lines;
-    const ms = Math.min(budget, readingMs(text)) / speed;
-    this.timer = setTimeout(() => this.next(), ms);
+    const budget = VIGNETTE_MAX_MS / lines / speed;
+    const ms = Math.min(budget, readingMs(text) / speed);
+    const seq = this.lineSeq;
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      if (seq !== this.lineSeq || !this.auto || this.destroyed) return;
+      if (this.voiceDone) {
+        this.next();
+        return;
+      }
+      this.waitingVoice = true;
+      this.timer = setTimeout(() => {
+        this.timer = null;
+        this.waitingVoice = false;
+        if (seq === this.lineSeq && this.auto && !this.destroyed) this.next();
+      }, Math.max(0, budget - ms));
+    }, ms);
   }
 
   private stopVoice(): void {
@@ -225,9 +269,10 @@ export class VignettePlayer {
     if (this.auto) {
       const line = this.current()?.lines[this.li];
       this.scheduleAuto(line ? this.s.i18n.t(line.textKey, line.params) : '');
-    } else if (this.timer) {
-      clearTimeout(this.timer);
+    } else {
+      if (this.timer) clearTimeout(this.timer);
       this.timer = null;
+      this.waitingVoice = false;
     }
   }
 

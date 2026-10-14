@@ -141,6 +141,9 @@ export class CampaignControllerImpl implements CampaignController {
     if (this.installed) return;
     this.installed = true;
     const bus = this.s.bus;
+    bus.on('scene:enter', ({ id }) => {
+      if (this.pendingNav?.scene === id) this.pendingNav = null;
+    });
     bus.on('night:complete', ({ outcome }) => {
       try {
         this.onNightComplete(outcome);
@@ -200,6 +203,17 @@ export class CampaignControllerImpl implements CampaignController {
     return r;
   }
 
+  /** Annulla il passaggio automatico dopo la notte (quando qualcun altro decide dove andare). */
+  cancelPending(): void {
+    if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    this.pendingTimer = null;
+  }
+
+  /** Stato della navigazione (debug). */
+  navInfo(): { suppressNav: number; pending: boolean } {
+    return { suppressNav: this.suppressNav, pending: this.pendingTimer !== null };
+  }
+
   lastFinalResult(): FinalResult | null {
     return this.lastFinal;
   }
@@ -229,13 +243,27 @@ export class CampaignControllerImpl implements CampaignController {
       this.startNightScene(r.night);
       return;
     }
-    void this.s.scenes.go(r.scene, r.params);
+    this.nav(r.scene, r.params);
   }
+
+  /**
+   * Cambio di scena senza doppioni: se c'è già un cambio verso la stessa scena in fila
+   * (per esempio la sera che, entrando, trova la notte già avviata), non se ne accoda
+   * un secondo. Il segno si toglie quando la scena entra (o dopo 5 s).
+   */
+  nav(scene: SceneId, params?: unknown): void {
+    const now = Date.now();
+    if (this.pendingNav && this.pendingNav.scene === scene && now - this.pendingNav.at < 5000) return;
+    this.pendingNav = { scene, at: now };
+    void this.s.scenes.go(scene, params);
+  }
+
+  private pendingNav: { scene: SceneId; at: number } | null = null;
 
   /** Apre il tombolo con i parametri della notte (musica e ambiente della notte). */
   startNightScene(p: NightParams): void {
     this.sound('notte', p.level.id);
-    void this.s.scenes.go('tombolo', p);
+    this.nav('tombolo', p);
   }
 
   /** Musica e ambiente per una fase. */
@@ -368,7 +396,7 @@ export class CampaignControllerImpl implements CampaignController {
     }
     const r = await this.route();
     if (r) this.go(r);
-    else void this.s.scenes.go(this.s.scenes.has('titolo') ? 'titolo' : 'boot');
+    else this.nav(this.s.scenes.has('titolo') ? 'titolo' : 'boot');
   }
 
   async resumeFrom(levelId: LevelId): Promise<void> {
@@ -429,7 +457,7 @@ export class CampaignControllerImpl implements CampaignController {
       if (c && c.phase === 'archivio') c.archiveOpen = id;
     });
     this.sound('archivio', id);
-    void this.s.scenes.go('tombolo', p);
+    this.nav('tombolo', p);
     return p;
   }
 
@@ -472,6 +500,7 @@ export class CampaignControllerImpl implements CampaignController {
   async finishDay(): Promise<CampaignStateX | null> {
     const c0 = this.state();
     if (!c0) return null;
+    this.cancelPending();
     this.suppressNav++;
     try {
       if (c0.phase === 'sera') this.mutate((d) => flow.startNight(d, this.s.content), 'notte');
@@ -506,6 +535,7 @@ export class CampaignControllerImpl implements CampaignController {
   /** Salta direttamente a una giornata e a una fase (debug). */
   async goto(levelId: LevelId, phase: string = 'sera'): Promise<CampaignStateX | null> {
     const db = this.s.content;
+    this.cancelPending();
     if (!this.state()) this.mutate((d) => flow.newCampaign(d, db), 'nuova');
     const level = db.levels.get(levelId);
     if (!level) throw new Error(`campaign: unknown level ${levelId}`);

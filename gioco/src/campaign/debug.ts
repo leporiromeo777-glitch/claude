@@ -64,6 +64,7 @@ export function registerCampaignDebug(s: Services): void {
     knowledge: () => controller.knowledge(),
     phase: () => controller.state()?.phase ?? null,
     scene: () => s.scenes.current(),
+    nav: () => controller.navInfo(),
     newGame: async () => {
       await controller.newGame();
       return controller.state();

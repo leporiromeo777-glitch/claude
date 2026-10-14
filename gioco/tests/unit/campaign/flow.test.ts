@@ -21,6 +21,9 @@ import {
   startNight,
   archiveParams,
   completeArchive,
+  replayRipassaParams,
+  ripassaAvailable,
+  ripassaParams,
 } from '../../../src/campaign/flow';
 import { eveningItems, pinNote, pinsLeft, replyNote, leaveNote, undecided, eveningNotes } from '../../../src/campaign/evening';
 import { endingRequirements, choiceCards } from '../../../src/campaign/endings';
@@ -274,5 +277,37 @@ describe('Archivio', () => {
     // Con arc1 rammendato, g10 sceglie la variante del bigliettino di Marta legata all'Archivio.
     const g10 = db().levels.get('g10')!;
     expect(eveningNotes(g10, camp(d), d.knowledge, db()).map((n) => n.id)).toContain('g10.marta');
+  });
+});
+
+describe('Ripassa (GDD 8.2)', () => {
+  it('dopo g08 si ripassa un merletto già trovato con le stesse richieste', () => {
+    const d = emptySave();
+    newCampaign(d, db());
+    while (camp(d).levelId !== 'g08' || camp(d).phase !== 'sera') playDay(d);
+    // Prima di g08 chiusa: niente Merletto libero, niente Ripassa.
+    expect(d.unlocks.libero).toBe(false);
+    expect(ripassaAvailable(d)).toBe(false);
+    expect(replayRipassaParams(d, db(), 'g07')).toBeNull();
+    playDay(d);
+    expect(d.unlocks.libero).toBe(true);
+    expect(camp(d).levelId).toBe('g09');
+    // La notte di g09 non è ancora stata trovata: niente Ripassa.
+    expect(ripassaAvailable(d)).toBe(false);
+    expect(ripassaParams(d, db())).toBeNull();
+    // Dal Telaio: g07 è stata chiusa senza bigliettini, la soluzione è nota.
+    const t = replayRipassaParams(d, db(), 'g07');
+    expect(t?.origin).toBe('telaio');
+    expect(t?.mode).toBe('replay');
+    expect(t?.replay?.length).toBeGreaterThan(0);
+    // Riprendi da g08: stesse richieste (nessuna) → la sera offre Ripassa.
+    expect(rewindTo(d, db(), 'g08')).toBe(true);
+    expect(ripassaAvailable(d)).toBe(true);
+    const sol = camp(d).solutions?.['g08']?.[0];
+    const p = ripassaParams(d, db());
+    expect(p?.mode).toBe('replay');
+    expect(p?.origin).toBe('campagna');
+    expect(p?.replay).toEqual(sol?.rows);
+    expect(camp(d).phase).toBe('notte');
   });
 });

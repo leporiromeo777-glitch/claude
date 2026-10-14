@@ -56,6 +56,8 @@ export function currentPista(k: Knowledge, db: Pick<ContentDB, 'diary'>): DiaryE
     if (!def?.pista) continue;
     const q = questionOf(def);
     if (q && k.questions[q] === 'risolta') continue;
+    // Una pista sull'Archivio vale finché nella cassapanca c'è un merletto da rammendare.
+    if (!q && def.section === 'archivio' && !Object.values(k.archive).some((st) => st !== 'rammendato')) continue;
     return id;
   }
   return null;

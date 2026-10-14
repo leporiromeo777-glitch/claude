@@ -13,6 +13,7 @@ import { decodeSpartito, spartitoRows } from '../engine/index';
 import { controller, type FinaleParams } from './controller';
 import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
+import { replayRipassaParams } from './flow';
 import { sceneHost } from './ui';
 import type { DayResultX } from './types';
 
@@ -134,6 +135,8 @@ export class TelaioScene implements Scene {
         test: `cp-riprendi-${id}`,
       }),
     );
+    const ripassa = replayRipassaParams(controller.data(), s.content, id);
+    if (ripassa) box.appendChild(button({ labelKey: 'campaign.telaio.ripassa', icon: 'play', kind: 'secondario', onClick: () => controller.startNightScene(ripassa), test: `cp-ripassa-${id}` }));
     const rows = this.rowsOf(id);
     box.appendChild(
       button({
