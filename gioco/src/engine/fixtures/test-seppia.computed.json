@@ -66,5 +66,20 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 5,
-  "quieteMax": 2
+  "quieteMax": 2,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 4,
+        "minSenzaGino": null,
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 15
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  }
 }

@@ -58,5 +58,22 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 7,
-  "quieteMax": 2
+  "quieteMax": 2,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 5,
+        "minSenzaGino": 5,
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 27
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": [
+      "K5 base: 27 optimal solutions (at most 20)"
+    ]
+  }
 }

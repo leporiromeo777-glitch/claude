@@ -49,5 +49,23 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 6,
-  "quieteMax": 3
+  "quieteMax": 3,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 3,
+        "minSenzaGino": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 16
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": [
+      "K3 base: Gino makes 3 of 3 crossings (at most 1, 40%)",
+      "K4 base: 3 empty rows of 6 in the recorded solution (at most 2)"
+    ]
+  }
 }

@@ -42,5 +42,24 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 1,
-  "quieteMax": 8
+  "quieteMax": 8,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 8,
+        "vuoteTot": 8,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": [
+      "K1 base: 0 crossings, density needs at least 4 (⌈8/2⌉)",
+      "K4 base: 8 empty rows in a row in the recorded solution (at most 2)",
+      "K4 base: 8 empty rows of 8 in the recorded solution (at most 3)"
+    ]
+  }
 }

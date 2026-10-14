@@ -26,6 +26,8 @@ afterAll(() => {
 });
 
 const quiet = { log: () => undefined };
+/** Avvisi senza quelli dei criteri di qualità (C14, provati in quality.test.ts). */
+const notQuality = (w: readonly string[] | undefined): string[] => (w ?? []).filter((x) => !x.includes('[quality]'));
 
 /** Cartella di contenuti in miniatura: `levels/` con i livelli, bigliettini e campagna accanto (come src/content). */
 function contentDir(levels: LevelDef[], notes: NoteDef[], days: CampaignDef['days']): string {
@@ -217,7 +219,7 @@ describe('levels:check: nome di Ada (GDD 3.11)', () => {
     expect(c.combos.filter((x) => x.voluta).map((x) => x.notes)).toEqual([['nomi.ninaNo', 'nomi.due']]);
     const again = runCheck({ dir, ...quiet });
     expect(again.errors).toBe(0);
-    expect(again.levels[0]?.warnings).toEqual([]);
+    expect(notQuality(again.levels[0]?.warnings)).toEqual([]);
     expect(readComputed(dir, 'nomi')).toEqual(c);
   });
 });
@@ -271,6 +273,6 @@ describe('levels:check: combinazioni con meno bigliettini degli spilli', () => {
     const dir = contentDir([base], notes, days);
     const res = runCheck({ dir, voluta: ['terne:terne.forno+terne.molo', 'terne:terne.forno+terne.nessuna'], write: false, ...quiet });
     expect(res.errors).toBe(0);
-    expect(res.levels[0]?.warnings).toEqual(['levels/terne: [voluta] --voluta terne:terne.forno+terne.nessuna: no such combination (notes with a request, at most 3 of them)']);
+    expect(notQuality(res.levels[0]?.warnings)).toEqual(['levels/terne: [voluta] --voluta terne:terne.forno+terne.nessuna: no such combination (notes with a request, at most 3 of them)']);
   });
 });

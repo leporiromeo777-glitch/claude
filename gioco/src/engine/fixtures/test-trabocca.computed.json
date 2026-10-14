@@ -62,5 +62,24 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 7,
-  "quieteMax": 3
+  "quieteMax": 3,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 5,
+        "minSenzaGino": null,
+        "vuoteMax": 3,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": [
+      "K4 base: 3 empty rows in a row in the recorded solution (at most 2)",
+      "K4 base: 3 empty rows of 7 in the recorded solution (at most 2)",
+      "K5 base: at least 50 optimal solutions (at most 20)"
+    ]
+  }
 }

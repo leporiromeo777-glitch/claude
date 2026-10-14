@@ -53,6 +53,21 @@
   "combos": [],
   "matassaSuggerita": 1,
   "quieteMax": 6,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  },
   "occasionsSolution": [
     {
       "kind": "festa",

@@ -45,5 +45,20 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 3,
-  "quieteMax": 1
+  "quieteMax": 1,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 3,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 4
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  }
 }

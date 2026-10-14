@@ -1,7 +1,10 @@
 /**
  * Tabella riassuntiva di `npm run levels:check -- --report` (in inglese, come
- * tutti i messaggi per chi scrive i dati).
+ * tutti i messaggi per chi scrive i dati). Le colonne K1…K6 sono i criteri di
+ * qualità (C14): ✓ rispettato, ✗n violazioni, – non si applica (esenzione).
  */
+import type { Criterion } from '../../src/engine/quality';
+import { CRITERIA } from '../../src/engine/quality';
 
 export interface LevelReportRow {
   id: string;
@@ -18,10 +21,18 @@ export interface LevelReportRow {
   ms: number;
   errors: number;
   warnings: number;
+  /** Violazioni per criterio di qualità (null = non si applica); null se non calcolati. */
+  quality: Record<Criterion, number | null> | null;
 }
 
 function cell(v: number | null | undefined): string {
   return v === null || v === undefined ? '—' : String(v);
+}
+
+function kcell(q: LevelReportRow['quality'], k: Criterion): string {
+  const v = q ? q[k] : null;
+  if (v === null || v === undefined) return '–';
+  return v === 0 ? '✓' : `✗${v}`;
 }
 
 function at(nomeOn: string | undefined): string {
@@ -37,7 +48,7 @@ function short(id: string, level: string): string {
 }
 
 export function formatReport(rows: LevelReportRow[]): string {
-  const head = ['level', 'base', 'notes', 'combos', 'matassa', 'suggested', 'quiet', 'occasions', 'states', 'max states', 'ms', 'result'];
+  const head = ['level', 'base', 'notes', 'combos', 'matassa', 'suggested', 'quiet', 'occasions', ...CRITERIA, 'states', 'max states', 'ms', 'result'];
   const body = rows.map((r) => [
     r.id,
     cell(r.base),
@@ -47,6 +58,7 @@ export function formatReport(rows: LevelReportRow[]): string {
     cell(r.suggerita),
     cell(r.quieteMax),
     cell(r.occasions),
+    ...CRITERIA.map((k) => kcell(r.quality, k)),
     String(r.states),
     String(r.maxStates),
     String(Math.round(r.ms)),
@@ -55,5 +67,12 @@ export function formatReport(rows: LevelReportRow[]): string {
   const widths = head.map((h, i) => Math.max(h.length, ...body.map((b) => (b[i] ?? '').length)));
   const line = (cols: string[]): string => cols.map((c, i) => pad(c, widths[i] ?? 0)).join(' │ ');
   const sep = widths.map((w) => '─'.repeat(w)).join('─┼─');
-  return [line(head), sep, ...body.map(line), '', '* = impossible by design (voluta); @thread = where Ada pins her name to reach that minimum'].join('\n');
+  return [
+    line(head),
+    sep,
+    ...body.map(line),
+    '',
+    '* = impossible by design (voluta); @thread = where Ada pins her name to reach that minimum',
+    'K1 density, K2 cost, K3 Gino, K4 rhythm, K5 ambiguity, K6 dilemma (C14): ✓ ok, ✗n violations, – exempt',
+  ].join('\n');
 }

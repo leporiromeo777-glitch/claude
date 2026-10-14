@@ -49,5 +49,22 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 5,
-  "quieteMax": 3
+  "quieteMax": 3,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 3,
+        "minSenzaGino": null,
+        "vuoteMax": 2,
+        "vuoteTot": 3,
+        "soluzioniOttime": 10
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": [
+      "K4 base: 3 empty rows of 6 in the recorded solution (at most 2)"
+    ]
+  }
 }
