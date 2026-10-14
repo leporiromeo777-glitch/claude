@@ -24,6 +24,7 @@
     "android:apk": "npm run app:sync && bash scripts/android-build.sh assembleDebug",
     "release:android": "bash scripts/release-android.sh",
     "release:ios": "bash scripts/release-ios.sh",
+    "native:check": "node scripts/check-native.mjs",
     "ci": "npm run build && npm test && npm run levels:check && npm run test:e2e"
   },
   "dependencies": {

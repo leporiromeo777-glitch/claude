@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#1C2233</color>
+    <!-- Velluto della notte: fondo di splash, WebView e icona (GDD 12). -->
+    <color name="trama_velluto">#1C2233</color>
+</resources>
