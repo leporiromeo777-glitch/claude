@@ -746,7 +746,7 @@ describe('REVISIONE-1 CA1-03: ogni regola si insegna sul tombolo, la prima volta
       ['g06', 'atto1.g06.margine.segreto', { when: 'evento', evento: 'legge' }],
       ['g07', 'atto1.g07.margine.pozzo', { when: 'evento', evento: 'copia', chi: 'piero' }],
       ['g07', 'atto1.g07.margine.curiosa', { when: 'evento', evento: 'copia', chi: 'nina' }],
-      ['arc1', 'atto1.arc1.margine.nomina', { when: 'primaOra' }],
+      ['arc1', 'atto1.arc1.margine.nomina', { when: 'ora', hour: 10 }],
       ['arc1', 'atto1.arc1.margine.rammenda', { when: 'archivioNomi' }],
       ['arc1', 'atto1.arc1.margine.eco', { when: 'archivioRammendo' }],
     ];
@@ -777,12 +777,23 @@ describe('REVISIONE-1 CA1-03: ogni regola si insegna sul tombolo, la prima volta
   it('pulsano gli elementi della tabella: spillo di Marta e Disfa (g00), fuso del Gino (g01), gomitolo (g02), barche (g03, g04), fuso di Zeno (g05), fuso sbiadito 1 (arc1)', () => {
     const want: [string, string, number, string?][] = [
       ['g00', 'spillo', 6, 'marta'], ['g00', 'disfa', 8], ['g01', 'fuso', 8, 'gino'], ['g02', 'matassa', 8],
-      ['g03', 'bordo', 9], ['g04', 'bordo', 8], ['g05', 'fuso', 8, 'zeno'], ['arc1', 'fuso', 9, 'f1'],
+      ['g03', 'bordo', 9], ['g04', 'bordo', 8], ['g05', 'fuso', 8, 'zeno'], ['arc1', 'fuso', 10, 'f1'],
     ];
     for (const [id, target, hour, thread] of want) {
       expect(pulsesOf(id).some((p) => p.target === target && p.hour === hour && p.thread === thread), `${id} ${target} ${hour}`).toBe(true);
       // Una barca pulsa solo nella riga che ha davvero un evento di bordo.
       if (target === 'bordo') expect((level(id).edges ?? []).some((e) => e.hour === hour), `${id} bordo ${hour}`).toBe(true);
+    }
+  });
+
+  it('negli Archivi le note e le pulsazioni con un\'ora cadono in una riga strappata (il tombolo parte dal primo strappo)', () => {
+    for (const id of ['arc1', 'arc2']) {
+      const lv = level(id);
+      const holes = lv.archive?.holes ?? [];
+      for (const st of lv.tutorial ?? []) {
+        if (!('hour' in st) || st.hour === undefined) continue;
+        expect(holes.some((h) => st.hour !== undefined && st.hour >= h.from && st.hour <= h.to), `${id} ${st.k} ${st.hour}`).toBe(true);
+      }
     }
   });
 

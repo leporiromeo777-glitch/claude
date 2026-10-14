@@ -72,8 +72,8 @@
     "unlocks": ["domande.martaTeresa.risposta", "persone.marta.ernesto", "archivio.arc1"]
   },
   "tutorial": [
-    {"k": "margine", "when": "primaOra", "textKey": "atto1.arc1.margine.nomina", "hour": 9},
-    {"k": "pulsa", "target": "fuso", "hour": 9, "thread": "f1"},
+    {"k": "margine", "when": "ora", "hour": 10, "textKey": "atto1.arc1.margine.nomina"},
+    {"k": "pulsa", "target": "fuso", "hour": 10, "thread": "f1"},
     {"k": "margine", "when": "archivioNomi", "textKey": "atto1.arc1.margine.rammenda"},
     {"k": "margine", "when": "archivioRammendo", "textKey": "atto1.arc1.margine.eco"}
   ]
