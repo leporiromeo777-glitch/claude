@@ -18,7 +18,7 @@
     "quirks": ["pieroPozzo", "pieroTrabocca"], "desireKey": "comune.pers.piero.desiderio", "likes": ["messa"] },
 
   { "id": "gino", "nameKey": "comune.pers.gino.nome", "roleKey": "comune.pers.gino.ruolo",
-    "color": "#4FB3E0", "pattern": "onde", "icon": "aquilone", "noteHz": 659.26,
+    "color": "#4FB3E0", "pattern": "onde", "icon": "aquilone", "noteHz": 659.25,
     "voice": { "pitch": 330, "rate": 12, "formantShift": 0, "noise": 0 },
     "hand": { "font": "caveat", "ink": "#3B3B44", "paper": "#F2EEE2", "slantDeg": -7, "sizeScale": 1.2 },
     "quirks": ["ginoCorre"], "desireKey": "comune.pers.gino.desiderio", "likes": ["festa", "pane", "lanterna"] },
