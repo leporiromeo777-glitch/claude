@@ -798,13 +798,15 @@ export class Session implements NightSession {
     this.reset();
   }
 
-  /** Obiettivi e richieste soddisfatti a merletto finito (occasioni; rammendo con occasioni). */
+  /**
+   * Obiettivi e richieste soddisfatti a merletto finito (occasioni). Nell'Archivio
+   * con le occasioni (A6) gli strappi coprono la giornata e il rammendo è scritto
+   * negli obiettivi del livello: il merletto registrato non si ritesse uguale.
+   */
   succeeded(): boolean {
     if (!this.done) return false;
     const reports = evaluate(this.level, this._timeline, this._events, this.goals(), this._ctx, true);
-    if (!reports.every((r) => r.status === 'soddisfatta')) return false;
-    if (this.archive && this.params.mode === 'occasioni') return this.archive.matchesRecorded(this._timeline);
-    return true;
+    return reports.every((r) => r.status === 'soddisfatta');
   }
 
   /** Mossa del filo controllato (fin_seppia): -1 sinistra, 0 fermo, +1 destra. */

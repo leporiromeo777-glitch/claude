@@ -251,5 +251,28 @@
     "eco": "«Di qui passò la lettera.»",
     "margine": "«Prova.»",
     "rivela": "Il ricordo di prova."
+  },
+  "obiettivo": {
+    "presso": "{chi} {presso} alle {ora}",
+    "maiPresso": "{chi} mai {presso} fra le {da} e le {a}",
+    "incontra": "{a} incontra {b}",
+    "nonIncontra": "{a} non incontra {b}",
+    "sopra": "{a} passa sopra {b}",
+    "consegnata": "{perlina}: consegnata entro le {ora}",
+    "ha": "{chi} ha {perlina} entro le {ora}",
+    "nonHa": "{chi} non ha mai {perlina}",
+    "parte": "{chi} parte",
+    "parteOra": "{chi} parte alle {ora}",
+    "resta": "{chi} resta",
+    "esceCon": "{perlina} esce dal merletto alle {ora}",
+    "sano": "{chi} senza febbre a fine giornata",
+    "incontriAlmeno": "{chi} incontra almeno {n} persone",
+    "tutti": "{parti}",
+    "almeno": "Almeno {n} fra: {parti}",
+    "non": "Non: {parti}",
+    "separatore": " · ",
+    "titolo": "Obiettivo",
+    "gettone": "Obiettivo: {testo} ({stato})",
+    "riassunto": "Obiettivi: {fatti}/{totale} raggiunti"
   }
 }

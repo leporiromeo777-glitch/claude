@@ -15,7 +15,9 @@ import type { TomboloLayout } from '../layout';
 import { fitText, place, type Params } from './popup';
 
 export interface RequestToken {
+  /** Id del bigliettino, oppure `obiettivo:<n>` per gli obiettivi obbligatori. */
   noteId: NoteId;
+  goal?: boolean;
   icon: string;
   color: string;
   status: CondStatus;
@@ -56,11 +58,11 @@ export class RequestStrip {
         'button',
         {
           type: 'button',
-          class: ['tb-token', 'core-solid', `tb-token--${st}`],
+          class: ['tb-token', 'core-solid', `tb-token--${st}`, it.goal && 'tb-token--obiettivo'],
           role: 'listitem',
           label: it.label,
           title: it.label,
-          test: `tb-richiesta-${it.noteId}`,
+          test: it.goal ? `tb-${it.noteId.replace(':', '-')}` : `tb-richiesta-${it.noteId}`,
           data: { stato: st },
           style: { '--tb-token-colore': it.color },
         },
@@ -121,4 +123,15 @@ export function noteCard(d: NoteCardData, onDrop: () => void, onAll?: () => void
 export function setStatus(node: HTMLElement, key: string, params: Params): void {
   node.dataset.i18n = key;
   setTextParams(node, params);
+}
+
+/** Contenuto della scheda di un obiettivo obbligatorio. */
+export function goalCard(text: string, statusKey: string, statusParams: Params): HTMLElement {
+  const body = el('div', { class: 'tb-note tb-goal', test: 'tb-obiettivo' });
+  body.appendChild(textOf('tombolo.obiettivo.titolo', undefined, 'h2', { className: 'tb-note-author' }));
+  body.appendChild(el('p', { class: 'tb-goal-text', text: text }));
+  const status = el('p', { class: 'tb-note-status', test: 'tb-obiettivo-stato' });
+  status.appendChild(textOf(statusKey, statusParams, 'span'));
+  body.appendChild(status);
+  return body;
 }

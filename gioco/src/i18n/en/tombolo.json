@@ -251,5 +251,28 @@
     "eco": "“The letter passed this way.”",
     "margine": "“Test.”",
     "rivela": "The test memory."
+  },
+  "obiettivo": {
+    "presso": "{chi} {presso} at {ora}",
+    "maiPresso": "{chi} never {presso} between {da} and {a}",
+    "incontra": "{a} meets {b}",
+    "nonIncontra": "{a} doesn't meet {b}",
+    "sopra": "{a} passes over {b}",
+    "consegnata": "{perlina}: delivered by {ora}",
+    "ha": "{chi} has {perlina} by {ora}",
+    "nonHa": "{chi} never has {perlina}",
+    "parte": "{chi} leaves",
+    "parteOra": "{chi} leaves at {ora}",
+    "resta": "{chi} stays",
+    "esceCon": "{perlina} leaves the lace at {ora}",
+    "sano": "{chi} free of fever at the end of the day",
+    "incontriAlmeno": "{chi} meets at least {n} people",
+    "tutti": "{parti}",
+    "almeno": "At least {n} of: {parti}",
+    "non": "Not: {parti}",
+    "separatore": " · ",
+    "titolo": "Goal",
+    "gettone": "Goal: {testo} ({stato})",
+    "riassunto": "Goals: {fatti}/{totale} reached"
   }
 }

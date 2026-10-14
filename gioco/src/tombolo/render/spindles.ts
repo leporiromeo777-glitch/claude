@@ -15,6 +15,7 @@ import { easeInOut } from './curves';
 export const SPRING_K = 40;
 export const SPRING_C = 6;
 const MAX_ANGLE = 0.6;
+const MAX_VEL = 2.5;
 
 export interface SpindleState {
   thread: ThreadId;
@@ -171,6 +172,9 @@ export class SpindleRig {
       // Pendolo con molla smorzata: θ'' = −k θ − c θ'.
       const acc = -SPRING_K * s.angle - SPRING_C * s.vel;
       s.vel += acc * dt;
+      // Spinte che si sommano (righe automatiche in fila): il dondolio resta misurato.
+      if (s.vel > MAX_VEL) s.vel = MAX_VEL;
+      else if (s.vel < -MAX_VEL) s.vel = -MAX_VEL;
       s.angle += s.vel * dt;
       if (s.angle > MAX_ANGLE) s.angle = MAX_ANGLE;
       else if (s.angle < -MAX_ANGLE) s.angle = -MAX_ANGLE;

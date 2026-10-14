@@ -591,6 +591,24 @@ async function main(): Promise<void> {
     check('Spartito importato: il merletto si ritesse identico', s.completed && JSON.stringify(s.outcome?.rows) === prologueRows && s.outcome?.spartito === spartito, spartito);
 
     await start(p, { fixture: 'g00' });
+    {
+      const tok = p.locator('[data-test="tb-obiettivo-0"]');
+      const hasTok = await tok.isVisible();
+      if (hasTok) await tok.click();
+      await wait(200);
+      const txt = (await p.locator('[data-test="tb-obiettivo"]').textContent()) ?? '';
+      check('obiettivo del livello: gettone d\'ottone e scheda con la descrizione', hasTok && /consegnata entro le 9/.test(txt), txt);
+      await p.keyboard.press('Escape');
+      await start(p, { fixture: 'test-grande' });
+      const summary = await p.locator('[data-test="tb-obiettivi"]').getAttribute('aria-label');
+      check('più di due obiettivi: un gettone solo che li riassume', /Obiettivi: 0\/6/.test(summary ?? ''), String(summary));
+      await start(p, { level: 'day-2026-10-14', origin: 'giornaliero' });
+      await night(p, 'autoplay');
+      const d = await night(p, 'state');
+      check('Merletto del giorno (livello generato): si apre e si completa', d.completed && d.levelId === 'day-2026-10-14' && /^TRAMA1-G20261014-/.test(d.outcome?.spartito ?? ''), `${d.levelId} ${d.outcome?.spartito}`);
+      await p.screenshot({ path: join(OUT, 'giornaliero.png') });
+      await start(p, { fixture: 'g00' });
+    }
     await night(p, 'cross', 0, 'R');
     await night(p, 'undo');
     await night(p, 'cross', 0, 'R');

@@ -198,6 +198,17 @@
   border-color: var(--testo-tenue);
 }
 
+.tb-token--obiettivo .tb-token-chip {
+  border-radius: 8px;
+  border-color: var(--ottone);
+  background: var(--carta-ombra);
+}
+
+.tb-goal-text {
+  font-family: var(--font-libro);
+  font-size: 1.15rem !important;
+}
+
 .tb-token:focus-visible {
   outline: 3px solid var(--fuoco);
   outline-offset: -3px;
@@ -284,6 +295,45 @@
     box-shadow: 0 0 0 8px rgba(201, 162, 74, 0);
     transform: scale(1.04);
   }
+}
+
+.tb-trema {
+  animation: tb-trema calc(360ms / max(var(--anim-speed), 0.5)) ease-in-out 1;
+}
+
+@keyframes tb-trema {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* ───────── Finestrella della stanza (prologo e ultima giornata) ───────── */
+.tb-finestra {
+  flex: 0 0 auto;
+  position: relative;
+  width: 22px;
+  height: 28px;
+  border: 3px solid var(--legno);
+  border-radius: 11px 11px 2px 2px;
+  background: var(--velluto-ombra);
+  overflow: hidden;
+}
+
+.tb-finestra-luce {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--alba), #f6d9a8);
+  opacity: var(--tb-luce, 0);
+  transition: opacity calc(var(--durata) * 3);
 }
 
 /* ───────── Lampada dei suggerimenti ───────── */

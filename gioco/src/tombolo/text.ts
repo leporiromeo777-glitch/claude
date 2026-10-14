@@ -4,7 +4,7 @@
  * `sotto`, `a`, `b` sono id di fili, `luogo` un PlaceId, `perlina` un BeadId).
  * Nessuna stringa visibile nel codice: tutto passa da i18n.
  */
-import type { CondReport, ContentDB, I18n, LevelDef, PlaceId, ThreadId, Violation } from '../core/types';
+import type { Condition, CondReport, ContentDB, I18n, LevelDef, PlaceId, ThreadId, Violation } from '../core/types';
 
 export type Params = Record<string, string | number>;
 
@@ -104,4 +104,45 @@ export function violationText(d: TextDeps, v: Violation): string {
 export function reportText(d: TextDeps, r: CondReport): string {
   if (r.reasonKey) return d.i18n.t(r.reasonKey, nameParams(d, r.params));
   return d.i18n.t(`tombolo.stato.${r.status}`);
+}
+
+/** Descrizione leggibile di una condizione (obiettivi obbligatori del livello). */
+export function describeCondition(d: TextDeps, c: Condition): string {
+  const t = (k: string, p: Params): string => d.i18n.t(`tombolo.obiettivo.${k}`, nameParams(d, p));
+  const end = d.level.endHour;
+  switch (c.t) {
+    case 'presso':
+      return t('presso', { chi: c.who, luogo: c.place, ora: c.hour });
+    case 'maiPresso':
+      return t('maiPresso', { chi: c.who, luogo: c.place, da: c.from, a: c.to });
+    case 'incontra':
+      return t('incontra', { a: c.a, b: c.b });
+    case 'nonIncontra':
+      return t('nonIncontra', { a: c.a, b: c.b });
+    case 'sopra':
+      return t('sopra', { a: c.a, b: c.b });
+    case 'consegnata':
+      return t('consegnata', { perlina: c.bead, ora: c.by ?? end });
+    case 'ha':
+      return t('ha', { chi: c.who, perlina: c.bead, ora: c.by ?? end });
+    case 'nonHa':
+      return t('nonHa', { chi: c.who, perlina: c.bead });
+    case 'parte':
+      return c.hour === undefined ? t('parte', { chi: c.who }) : t('parteOra', { chi: c.who, ora: c.hour });
+    case 'resta':
+      return t('resta', { chi: c.who });
+    case 'esceCon':
+      return t('esceCon', { perlina: c.bead, ora: c.hour });
+    case 'sano':
+      return t('sano', { chi: c.who });
+    case 'incontriAlmeno':
+      return t('incontriAlmeno', { chi: c.who, n: c.n });
+    case 'tutti':
+    case 'almeno': {
+      const parti = c.of.map((x) => describeCondition(d, x)).join(d.i18n.t('tombolo.obiettivo.separatore'));
+      return c.t === 'tutti' ? d.i18n.t('tombolo.obiettivo.tutti', { parti }) : d.i18n.t('tombolo.obiettivo.almeno', { n: c.n, parti });
+    }
+    case 'non':
+      return d.i18n.t('tombolo.obiettivo.non', { parti: describeCondition(d, c.c) });
+  }
 }

@@ -16,6 +16,8 @@ export interface HudState {
   hour: number;
   done: boolean;
   matassa: { used: number; total: number } | null;
+  /** Luce della finestrella (0-1): cresce di un passo a ogni ora fissata; null = nascosta. */
+  light: number | null;
 }
 
 export class Hud {
@@ -25,6 +27,7 @@ export class Hud {
   private readonly matassa: HTMLElement;
   private readonly matassaText: HTMLElement;
   private readonly matassaAria: HTMLElement;
+  private readonly window: HTMLElement;
   private last = '';
 
   constructor() {
@@ -34,7 +37,8 @@ export class Hud {
     this.matassaAria = textOf('tombolo.hud.matassaAria', { usata: 0, totale: 0 }, 'span', { className: 'core-sr-only' });
     this.matassaText.setAttribute('aria-hidden', 'true');
     this.matassa = el('div', { class: 'tb-hud-matassa', test: 'tb-matassa' }, svgIcon('gomitolo', { size: 22 }), this.matassaText, this.matassaAria);
-    this.el = el('header', { class: 'tb-hud', test: 'tb-hud' }, this.title, this.hour, this.matassa);
+    this.window = el('span', { class: 'tb-finestra', test: 'tb-finestra', attrs: { 'aria-hidden': 'true' } }, el('span', { class: 'tb-finestra-luce' }));
+    this.el = el('header', { class: 'tb-hud', test: 'tb-hud' }, this.title, this.window, this.hour, this.matassa);
   }
 
   update(s: HudState): void {
@@ -45,6 +49,8 @@ export class Hud {
     setTextParams(this.title, s.titleParams);
     this.hour.dataset.i18n = s.done ? 'tombolo.hud.finito' : 'tombolo.hud.ora';
     setTextParams(this.hour, { ora: s.hour });
+    this.window.hidden = s.light === null;
+    if (s.light !== null) this.window.style.setProperty('--tb-luce', String(Math.max(0, Math.min(1, s.light))));
     if (s.matassa) {
       this.matassa.hidden = false;
       setTextParams(this.matassaText, { usata: s.matassa.used, totale: s.matassa.total });

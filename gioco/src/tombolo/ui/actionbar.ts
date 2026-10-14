@@ -68,6 +68,13 @@ export class ActionBar {
     this.notebook.classList.toggle('tb-pulsa', s.pulse === 'taccuino');
   }
 
+  /** Riga non valida: "Fissa l'ora" trema (oltre alla vibrazione). */
+  shake(): void {
+    this.main.classList.remove('tb-trema');
+    void this.main.offsetWidth;
+    this.main.classList.add('tb-trema');
+  }
+
   layout(l: TomboloLayout): void {
     place(this.el, l.actions);
     const label = this.main.querySelector<HTMLElement>('.core-btn-label');

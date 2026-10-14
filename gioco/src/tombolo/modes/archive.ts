@@ -182,16 +182,6 @@ export class ArchiveBook {
     this.mendedHoles.clear();
   }
 
-  /** A merletto ritessuto (occasioni): ogni strappo finisce come quello registrato. */
-  matchesRecorded(timeline: readonly LaceState[]): boolean {
-    for (const h of this.holes()) {
-      const got = timeline[h.to - this.level.startHour];
-      const want = this.expectedAt(h.to);
-      if (!got || !want || !sameLace(got, want)) return false;
-    }
-    return true;
-  }
-
   /** Eco dell'incrocio (ora, coppia), se c'è. */
   echoAt(hour: Hour, pair: number): string | null {
     return this.level.archive?.echoes.find((e) => e.hour === hour && e.pair === pair)?.textKey ?? null;

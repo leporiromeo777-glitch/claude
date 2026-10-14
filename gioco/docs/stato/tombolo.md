@@ -1,0 +1,73 @@
+# Stato del pacchetto: tombolo
+
+**Stato:** done
+
+## Riepilogo
+
+La scena `tombolo` (src/tombolo/) riceve `NightParams` ed emette `night:cross`, `night:violation`, `night:row`, `night:undo`, `night:complete`, `night:exit` (più `quirk:discovered` la prima volta che una stranezza si vede). Tutti i 34 livelli dei contenuti (g00-g23, arc1-arc6, i quattro finali), il Merletto del giorno generato e le fixture del motore si aprono e si completano.
+
+File:
+- `session.ts`: `NightSession` (interfaccia di ARCHITETTURA 5.3) e la classe `Session`, solo motore: timeline, bozza, Disfa (toglie l'ultimo incrocio o riapre la riga), riavvolgimento, richieste lasciate cadere, stato in tempo reale (con la riga in anteprima), suggerimenti (`solveAsync` con 1,5 s di tempo, ripiego sulla soluzione precalcolata, poi suggerimento generico; mai il solver sincrono sul thread principale), esito, `toResume()`. Modalità `normale`, `archivio`, `controllato`, `occasioni`, `replay`.
+- `layout.ts`: fasce 52/40/merletto/36/128/72 nella safe area; largo con Bigliettini 300 a sinistra, tombolo ≤ 640, Taccuino 320 a destra (si chiude sotto 480 px di centro); stretto centrato (720 in verticale, 520 in orizzontale). Colonne ≥ 52 px, righe 40-56 px.
+- `render/`: `velvet.ts` (rumore a due ottave 256×256 + vignettatura, un drawImage a fotogramma), `curves.ts` (Bézier campionate in polilinee preallocate), `patterns.ts` (i 12 motivi), `threads.ts` (righe: incroci a S con interruzione del filo sotto e ombra, nodo, uscite e ingressi dai bordi, segni delle perline passate, fantasma tratteggiato del filo nero), `beads.ts` (5 forme, voli da 350 ms lungo l'incrocio), `pins.ts` (ottone, rosso, verde; acceso, fatto, fallito, irraggiungibile barrato con "!" e l'ora; celle ammesse delle occasioni), `spindles.ts` (fusi dall'atlas, pendolo k 40 / c 6, scambio 250 ms, rimbalzo 200 ms), `cache.ts` (strisce da 8 righe, firme a catena, ridisegno incrementale), `model.ts` (modello ricalcolato solo quando la notte cambia), `lace.ts` (composizione del fotogramma senza allocazioni).
+- `interact.ts`: trascinamento (soglia 8 px del core, incrocio oltre il 50% della colonna vicina, isteresi al 32% per ripensarci, rimbalzo e riga di spiegazione sul rifiuto), tocco per rovesciare, trascinare un incrocio fuori dalla riga, scorrimento (trascinamento verticale, rotella, ↑ ↓ PagSu PagGiù), tocco su una riga passata → anteprima con "Riavvolgi fino a qui / Annulla", pressione lunga o tasto destro → scheda, tastiera completa di GDD 11.3, nome di Ada (tocco o N), nomi d'Archivio (tocco o N), occasioni (tocco o Spazio sulla cella).
+- `tutorial.ts`: mano fantasma, note a margine di Clotilde (`versoSbagliato`, `rifiuto`, `primaOra`, `spillo`; con `audio.babble('clotilde', …)`), pulsazione dei pulsanti.
+- `modes/archive.ts` (`ArchiveBook`: nomi provvisori, conferma automatica a 3 giusti o a tutti se ne restano meno, strappi, stato registrato, echi), `modes/autoweave.ts` (regole delle occasioni, `AutoRunner` che fa uscire una riga per passo al ritmo dell'animazione), `modes/replay.ts` (spartito e Ripassa).
+- `ui/`: barra alta (titolo, ora, gomitolo, finestrella del prologo e dell'ultima giornata), intestazione delle colonne, striscia delle richieste (gettoni da 48 px con stato e forma; obiettivi del livello come gettoni d'ottone, riassunti in uno solo se sono più di due), barra delle azioni, lampada, schede (bigliettino con "Lascia cadere", obiettivo, personaggio, nomina, eco, suggerimento, menu minimo), riga di spiegazione, nota a margine, riga di stato per gli screen reader (`core-sr-only`).
+- `controller.ts` (regia), `TomboloScene.ts`, `resume.ts` (autosalvataggio e ripresa), `export.ts` (`renderLacePng`), `debug.ts` (`__GAME__.night`), `register.ts`, `index.ts` (API pubblica), `text.ts`, `visuals.ts`, `tombolo.css`.
+- `src/i18n/{it,en}/tombolo.json`: tutti i testi del tombolo, le chiavi del motore (`engineTextKeys()`, `GEN_KEYS`) e quelle delle fixture (`tombolo.test.*`), stesse chiavi in italiano e inglese.
+
+### API pubbliche (src/tombolo/index.ts)
+
+- `renderLacePng(level, rows): Promise<Blob>` (anche `drawLaceImage`, `laceImageSize`).
+- `resumeParams(services)` → `NightParams` della notte salvata (livello ritrovato) o null; `resumeNight(services)` → apre il tombolo alla riga salvata.
+- `resolveLevel(services, id)`, `resolveComputed(services, id)`, `registerLevelResolver(fn)` (per i livelli che il tombolo non sa ricostruire, come il Merletto libero), `rememberLevel(level)`, `paramsForSave(params)`.
+- `replayParams(level, rows, { origin?, flags?, speedMs? })` (Ripassa), `spartitoParams(str, level, opts)` (spartito importato; null se non valido o di un altro livello), `replayStepMs`, `RIPASSA_TOTAL_MS`.
+- `activeNight()` → la regia della notte in corso (`drop(noteId)`, `restart()`, `finish()`, `session`…), `isNightParams(v)`.
+
+### `__GAME__.night`
+
+`state()`, `layout()` (rettangoli in px CSS: fasce, colonne, righe visibili con il tipo, fusi con centro, pulsanti, gettoni, pannelli), `cross(pair, over)`, `flip`, `remove`, `fix`, `undo`, `rewind(hour)`, `setNome`, `drop`, `autoplay(rows?, msPerRow?)`, `hint(tier?)`, `name(thread, character)`, `occasions(list)`, `run()`, `move(dir)`; in più `start(opts)` (`{ level | fixture, mode?, origin?, accepted?: id dei bigliettini, flags?, needsNome?, gradi?, replay?: righe o stringa dello spartito, replaySpeedMs? }`), `resume()`, `main()`, `previewRewind(hour)`, `echo(hour, pair)`, `close()`, `skip()`, `retry()`, `outcome()`, `png(levelId?, rows?)`.
+
+## Decisioni prese
+
+- **Spilli e fusi dopo la bozza.** I fusi stanno nelle posizioni dopo la bozza: trascinare un fuso dentro un incrocio verso il suo compagno scioglie l'incrocio; verso un altro vicino è un incrocio disgiunto (rifiuto con messaggio). Il fuso trascinato passa sopra.
+- **Scorrimento.** Il merletto parte in alto; quando non ci sta più, le righe passate salgono in modo che sotto la riga corrente restino visibili almeno due righe future (con i loro spilli). A merletto corto si vede tutto e i fili pendono lunghi fino ai fusi.
+- **Riavvolgi fino a qui** sulla riga dell'ora h: si torna allo stato dopo la riga h, la riga corrente diventa h+1. Disfa con la bozza vuota riapre la riga precedente con i suoi incroci nella bozza.
+- **Fissa l'ora** emette solo la prima violazione (`night:violation`) e la mostra in una riga; il pulsante trema e il telefono vibra. Le righe rifiutate non emettono `night:row`.
+- **Archivio.** Le righe registrate si riapplicano da sole (senza campana, senza `night:row`) e non si disfano; si tessono le righe strappate; alla fine di ogni strappo lo stato deve coincidere con quello registrato (`sameLace`), altrimenti la riga si rifiuta con `tombolo.archivio.nonCoincide` (codice `bloccato`). La matassa conta solo gli incroci dei rammendi. I nomi provvisori si scrivono a matita sotto il fuso; la conferma scatta da sola con 3 giusti (o tutti se ne restano meno). Gli echi si toccano a merletto nominato e rammendato. `night:complete` parte quando il giocatore preme "Chiudi il merletto" (così può leggere gli echi prima); l'esito porta `archive: { named, mended }`.
+- **Archivio con le occasioni (A6, modo `occasioni`)**: gli strappi coprono la giornata e il rammendo è scritto negli obiettivi del livello (come dice il rapporto di contenuti-atti23): riuscita = obiettivi soddisfatti.
+- **Occasioni.** "Lascia accadere" riparte dall'apertura e tesse una riga per passo (beatMs × 1,6 / velocità); se gli obiettivi non sono tutti soddisfatti compare "Riprova" (le occasioni restano). `night:complete` solo a riuscita.
+- **Filo controllato.** Si trascina solo il filo controllato (gli altri rifiutano con `forzato`); `move(dir)` del debug muove e fissa.
+- **Spartito / Ripassa.** Una riga per passo (`replaySpeedMs`, o 5 s divisi per le righe, fra 120 e 900 ms); `night:cross` e `night:row` escono una riga alla volta; "Salta" finisce subito. Le notti `replay` non si salvano in `SaveData.night`.
+- **Autosalvataggio.** `SaveData.night` si aggiorna a ogni ora fissata (immediato), a ogni cambio della bozza o delle richieste (raggruppato) e su `app:pause` (immediato: pagina nascosta, pagehide, pausa nativa); si toglie a notte finita. Uscendo a metà notte resta, e la scena emette `night:exit`.
+- **Lampada.** Nascosta finché non si accende (60 s di gioco senza fissare un'ora, o 3 Disfa di fila sulla stessa riga, da balance.json); H funziona sempre. Ogni tocco dà il gradino successivo della riga (spinta → indizio → fantasma); il fantasma toglie il filo d'oro.
+- **Gettoni.** Bersagli da 48 px centrati sulla striscia da 36 px (sporgono di 6 px sopra e sotto, per scelta). Gli obiettivi obbligatori sono gettoni d'ottone; con più di due obiettivi un gettone solo che apre l'elenco.
+- **Matassa** visibile se il livello ha la regola `matassa`, per i livelli non di storia e nell'Archivio; mai con le occasioni e gli spartiti.
+- **Finestrella** (GDD 9, 12.4): solo nel primo giorno della campagna e nel giorno della scelta (`campaign.choiceDay`), la luce cresce di un passo a ogni ora fissata.
+- **Menu.** Apre l'overlay `pausa` se registrato; altrimenti una scheda minima (Riprendi, Ricomincia la notte).
+- **Pannelli.** Largo: `mountPanel('bigliettini')` e `mountPanel('taccuino')` con `{ from: 'tombolo', levelId, origin, accepted }`. Stretto: il Taccuino si apre con `openOverlay('taccuino')`, i Bigliettini dalla scheda di un gettone (`openOverlay('bigliettini', { from, levelId, noteId })`). Non registrati: il segnaposto del core.
+- **Fili d'Archivio** non ancora nominati si chiamano «il filo sbiadito N» in tutti i messaggi (niente nomi rivelati).
+- **Testi composti**: i parametri del motore si traducono (`chi`, `sopra`, `sotto`, `a`, `b` → nomi; `luogo` → nome e `presso` = «al Forno», «in Chiesa»…; `perlina` → etichetta, anche `letta:` e `nome`). La riga di stato usa `tombolo.sr.luogo.<luogo>` e `tombolo.sr.separatore`.
+
+## Problemi noti
+
+- Le anteprime al passaggio del mouse (GDD 11.2, facoltative) e la navigazione completa del tombolo con lo screen reader (L2) non ci sono; c'è la riga di stato aggiornata a ogni ora.
+- Le statistiche (`stats.nights`, fili d'oro) e i record (`records`) non li aggiorna il tombolo: l'esito (`NightOutcome`) li porta a chi chiude la giornata (campagna, schermate).
+- Se il giocatore esce dall'Archivio a metà senza premere "Chiudi il merletto", i nomi confermati restano solo in `SaveData.night.resume.archiveNames`.
+- Il Merletto libero (`lib-…`) si riprende dopo un ricaricamento solo se le schermate registrano un risolutore (`registerLevelResolver`): l'id non contiene dimensioni e difficoltà.
+- La verifica nel browser gira nel container (Chromium headless); le prestazioni sui telefoni veri vanno misurate a parte.
+
+## Richieste per altri pacchetti
+
+- **campagna**: avviare le notti con `scenes.go('tombolo', NightParams)` (mode: `archivio` per arc1-arc5, `occasioni` per arc6 e fin_aperto, `controllato` per fin_seppia, `normale` per il resto; `needsNome: true` da g12); per "Continua" a metà notte usare `resumeParams`/`resumeNight` di `src/tombolo/index.ts` (scene:enter riceve così i parametri completi, che servono all'audio). Ascoltare `night:complete` (in Archivio arriva a "Chiudi il merletto") e `night:exit`. Nei pannelli `bigliettini`/`taccuino` montati durante la notte, `activeNight()?.drop(noteId)` lascia cadere una richiesta e `activeNight()?.session.requestStatus()` dà lo stato in tempo reale.
+- **interfaccia**: registrare l'overlay `pausa` (il tombolo lo apre con `{ from: 'tombolo', origin, levelId }`); "Ricomincia la notte" = `activeNight()?.restart()`; "Torna al titolo" = `scenes.go('titolo')` (il tombolo salva ed emette `night:exit`). Per il Merletto libero registrare `registerLevelResolver(id → LevelDef)` per gli id `lib-…`. Import dello spartito: `spartitoParams(str, level)` → `scenes.go('tombolo', params)`. Condivisione: `renderLacePng(level, outcome.rows)`.
+- **piattaforma-qa**: `__GAME__.night.start({ fixture: 'g00' })` apre la fixture del motore anche se i contenuti hanno lo stesso id; `layout()` dà i centri dei fusi (`spindles[i].cx/cy`), la riga corrente e i pulsanti. Per il tocco Chromium genera eventi pointer `touch` con `Input.dispatchTouchEvent` (CDP). Il controllo dei testi deve saltare `.core-sr-only`; i gettoni della striscia sono alti 48 px su una fascia di 36 per scelta. `tests/unit/tombolo/browser-verify.ts` (63 controlli) è un riferimento funzionante: `TOMBOLO_VERIFY_PORT` / `TOMBOLO_VERIFY_URL`.
+- **fondamenta** (facoltativo): uno script `"tombolo:verify": "tsx tests/unit/tombolo/browser-verify.ts"` in package.json.
+
+## Test
+
+- `npx tsc --noEmit -p .`: nessun errore nei file del tombolo.
+- `npx vitest run tests/unit/tombolo`: 6 file, 73 test verdi (sessione e modalità, layout, testi it/en e chiavi del motore e delle fixture, nessun testo nel codice, forme delle righe, i 12 motivi con tracce diverse, cache incrementale, pendolo, voli, modello degli spilli, regia nel DOM con autosalvataggio, eventi e lampada).
+- `npx tsx tests/unit/tombolo/browser-verify.ts` (server di sviluppo 5240 e anteprima della build 5242): 63/63. Prologo con il mouse, con eventi pointer touch e solo da tastiera (rifiuto di Marta con rimbalzo e messaggio, nota «Chi sta sopra, dà», incroci 4 in `night:complete`); prima violazione in una riga (spillo, corre, matassa); ripresa dopo il ricaricamento senza salvataggio esplicito; layout a 360×640, 390×844 (anche testo 140% in inglese), 1280×720 con tre pannelli, ridimensionamento 390×844 → 1180×820 senza ricaricare; prestazioni su 6×14 con 3 s di trascinamento: p95 0,6-0,9 ms; Archivio (conferma solo a 3 giusti, rammendo solo se coincide, eco, chiusura); occasioni (tocco su una cella, `occasionsSolution` + Lascia accadere); spartito che si ritesse identico; lampada dopo 3 Disfa; fantasma; PNG; scheda, riavvolgimento, nome, filo controllato, menu; obiettivi; Merletto del giorno; nessun errore in console.
+- Tutti i livelli dei contenuti in autoplay nel browser: 34/34 completati.

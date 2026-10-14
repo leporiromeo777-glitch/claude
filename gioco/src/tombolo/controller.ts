@@ -7,6 +7,8 @@
 import type {
   CanvasHost,
   CharacterId,
+  CondReport,
+  CondStatus,
   Crossing,
   Hint,
   HintTier,
@@ -31,14 +33,14 @@ import { solveAsync } from '../engine/index';
 import { Session } from './session';
 import { type TomboloLayout, autoScroll, computeTomboloLayout, rowBottom, rowTop, scrollLimits } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
-import { type TextDeps, nameParams, reportText, threadName, violationParams } from './text';
+import { type TextDeps, describeCondition, nameParams, reportText, threadName, violationParams } from './text';
 import { LaceRenderer, emptyOverlay, type Overlay, type Palette } from './render/lace';
 import { type LaceModel, buildLaceModel, stacksOf } from './render/model';
 import { Tutorial } from './tutorial';
 import { Interaction } from './interact';
 import { ActionBar } from './ui/actionbar';
 import { ColumnHeader, Hud } from './ui/hud';
-import { RequestStrip, noteCard, type RequestToken } from './ui/requests';
+import { RequestStrip, goalCard, noteCard, type RequestToken } from './ui/requests';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -395,6 +397,7 @@ export class NightController {
       hour: s.done ? lv.endHour : s.hour,
       done: s.done,
       matassa: this.showMatassa() ? s.matassa() : null,
+      light: this.windowLight(),
     });
     const main = this.mainKey();
     const pulse = this.completed ? null : this.tutorial.pulse(s.hour, s.draft.length === 0, s.needsNome);
@@ -421,7 +424,23 @@ export class NightController {
         label: this.s.i18n.t('tombolo.richieste.gettone', { nome: name, stato: this.s.i18n.t(statusKey) }),
       };
     });
-    this.requests.update(tokens);
+    // Obiettivi obbligatori del livello: gettoni d'ottone prima delle richieste
+    // (con più di due obiettivi, un gettone solo che li elenca tutti).
+    const reports = s.goalStatus();
+    const goalTokens: RequestToken[] = reports.length > 2 ? [this.goalSummaryToken(reports)] : reports.map((r, i) => {
+      const c = this.params.goals[i];
+      const text = c ? describeCondition(this.textDeps, c) : '';
+      return {
+        noteId: `obiettivo:${i}`,
+        goal: true,
+        icon: 'stella',
+        color: '#C9A24A',
+        status: r.status,
+        dropped: false,
+        label: this.s.i18n.t('tombolo.obiettivo.gettone', { testo: text, stato: this.s.i18n.t(`tombolo.stato.${r.status}`) }),
+      };
+    });
+    this.requests.update([...goalTokens, ...tokens]);
     const a = s.archive;
     if (a) {
       const c = a.counter();
@@ -449,6 +468,20 @@ export class NightController {
       }
     }
     this.root.dataset.fatto = this.completed ? '1' : '0';
+  }
+
+  /**
+   * Finestrella della stanza (GDD 9, 12.4): solo nel prologo e nell'ultima giornata,
+   * la luce cresce di un passo a ogni ora fissata.
+   */
+  private windowLight(): number | null {
+    const lv = this.params.level;
+    const days = this.s.content.campaign?.days ?? [];
+    const first = days[0]?.id ?? 'g00';
+    const last = this.s.content.campaign?.choiceDay ?? days[days.length - 1]?.id ?? 'g23';
+    if (lv.id !== first && lv.id !== last) return null;
+    const rows = Math.max(1, lv.endHour - lv.startHour);
+    return Math.min(1, this.session.rows.length / rows);
   }
 
   private lampLit(): boolean {
@@ -660,6 +693,13 @@ export class NightController {
     const xL = l.colCx[pair] ?? 0;
     const xR = l.colCx[pair + 1] ?? 0;
     const dur = this.animS(this.s.content.balance?.anim.beadMs ?? 350);
+    // Ogni perlina atterra nel suo posto della pila di chi la riceve.
+    const stacks = stacksOf(p.state, this.model.beadTypes);
+    const slot = (to: ThreadId, bead: string): number => {
+      const st = stacks.find((x) => x.thread === to);
+      const i = st ? st.beads.findIndex((b) => b.id === bead) : -1;
+      return Math.max(0, Math.min(4, i));
+    };
     let any = false;
     for (const e of p.events) {
       if (!BEAD_EVENTS.has(e.k)) continue;
@@ -687,7 +727,7 @@ export class NightController {
       const type = this.model.beadTypes.get(bead) ?? (bead.startsWith('letta:') ? 'segreto' : bead === 'nome' ? 'nome' : bead === 'febbre' ? 'febbre' : 'voce');
       const fromX = from === L ? xL : xR;
       // Chi riceve finisce nella colonna da cui è partito chi dà.
-      this.renderer.flights.launch(type, bead, to, e.k === 'consegna', fromX, y0, fromX, y1, dur, (xL + xR) / 2);
+      this.renderer.flights.launch(type, bead, to, e.k === 'consegna', fromX, y0, fromX, y1 + 16 * slot(to, bead), dur, (xL + xR) / 2);
       any = true;
     }
     if (any) this.s.haptics.play('medio');
@@ -742,6 +782,7 @@ export class NightController {
     if (!res.ok) {
       const v = res.violations[0];
       if (v) this.onViolation(v);
+      this.actions.shake();
       this.refresh();
       return { ok: false, violations: res.violations };
     }
@@ -1128,6 +1169,12 @@ export class NightController {
       return this.completed;
     }
     if (m === 'occasioni') {
+      if (s.archive) {
+        for (const t of s.archive.faded()) {
+          const ans = this.params.level.archive?.answer[t];
+          if (ans) this.name(t, ans);
+        }
+      }
       const sol = rows ? null : this.computedOccasions();
       if (sol) this.setOccasions(sol);
       this.run();
@@ -1203,6 +1250,14 @@ export class NightController {
   }
 
   openRequest(noteId: NoteId): void {
+    if (noteId === 'obiettivi') {
+      this.openGoals();
+      return;
+    }
+    if (noteId.startsWith('obiettivo:')) {
+      this.openGoal(Number(noteId.slice(10)));
+      return;
+    }
     const acc = this.params.accepted.find((a) => a.noteId === noteId);
     if (!acc) return;
     const st = this.session.requestStatusFull().find((x) => x.noteId === noteId);
@@ -1242,6 +1297,46 @@ export class NightController {
             : undefined,
         ),
       );
+    });
+  }
+
+  private goalSummaryToken(reports: CondReport[]): RequestToken {
+    const order: CondStatus[] = ['fallita', 'a_rischio', 'in_corso', 'soddisfatta'];
+    const worst = order.find((st) => reports.some((r) => r.status === st)) ?? 'in_corso';
+    const done = reports.filter((r) => r.status === 'soddisfatta').length;
+    return {
+      noteId: 'obiettivi',
+      goal: true,
+      icon: 'stella',
+      color: '#C9A24A',
+      status: worst,
+      dropped: false,
+      label: this.s.i18n.t('tombolo.obiettivo.riassunto', { fatti: done, totale: reports.length }),
+    };
+  }
+
+  /** Elenco degli obiettivi obbligatori con il loro stato. */
+  openGoals(): void {
+    const reports = this.session.goalStatus();
+    this.openPopup('tb-popup-obiettivi', (body) => {
+      reports.forEach((r, i) => {
+        const c = this.params.goals[i];
+        if (!c) return;
+        const statusKey = r.reasonKey ?? `tombolo.stato.${r.status}`;
+        body.appendChild(goalCard(describeCondition(this.textDeps, c), statusKey, r.reasonKey ? nameParams(this.textDeps, r.params) : {}));
+      });
+    });
+  }
+
+  /** Scheda di un obiettivo obbligatorio: descrizione e stato in tempo reale. */
+  openGoal(i: number): void {
+    const c = this.params.goals[i];
+    if (!c) return;
+    const r = this.session.goalStatus()[i] ?? { status: 'in_corso' as const };
+    const statusKey = r.reasonKey ?? `tombolo.stato.${r.status}`;
+    const statusParams = r.reasonKey ? nameParams(this.textDeps, r.params) : {};
+    this.openPopup('tb-popup-obiettivo', (body) => {
+      body.appendChild(goalCard(describeCondition(this.textDeps, c), statusKey, statusParams));
     });
   }
 
