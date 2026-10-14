@@ -129,4 +129,54 @@ test.describe('prologo con gesti veri', () => {
     await page.keyboard.press('Escape');
     game.expectClean();
   });
+
+  test('il prologo con la sola tastiera (GDD 11.3)', async ({ game }, testInfo) => {
+    onlyProjects(testInfo, 'desktop');
+    const { page } = game;
+    const k = page.keyboard;
+    // Dal titolo: il fuoco parte da «Tocca per iniziare».
+    await expect.poll(() => page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset?.test ?? null)).toBe('sc-titolo-nuova');
+    await k.press('Enter');
+    expect(await waitScene(page, 'sera')).toBe(true);
+    await expect(page.locator('[data-test="cp-prologo-buio"]')).toBeVisible();
+    await page.locator('[data-test="cp-prologo-buio"]').focus();
+    await k.press('Enter');
+    await expect(page.locator('[data-test="cp-prologo-tombolo"]')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset?.test ?? null)).toBe('cp-prologo-tombolo');
+    await k.press('Enter');
+    expect(await waitNight(page)).toBe(true);
+    await page.waitForTimeout(300);
+    // Invio senza incroci: lo spillo di Marta non è rispettato.
+    await k.press('Enter');
+    let s = await nightState(page);
+    expect(s.message?.key).toBe('tombolo.violazione.spillo');
+    // 1 = primo fuso; Maiusc+Spazio = incrocio con il destro sopra (Marta su Teresa).
+    await k.press('1');
+    await k.press('Shift+Space');
+    await k.press('Enter');
+    await k.press('ArrowRight');
+    await k.press('Shift+Space');
+    s = await nightState(page);
+    expect(s.margin.current, 'ore 7: verso sbagliato → nota a margine').toBe('atto1.g00.margine.sopraDa');
+    await k.press('f');
+    s = await nightState(page);
+    expect(s.draft, 'F rovescia').toEqual([{ pair: 1, over: 'L' }]);
+    await k.press('Enter');
+    await k.press('Space');
+    await k.press('Backspace');
+    expect((await nightState(page)).draft, 'Backspace disfa').toEqual([]);
+    await k.press('Space');
+    await k.press('Enter');
+    await k.press('ArrowLeft');
+    await k.press('Shift+Space');
+    s = await nightState(page);
+    expect([s.lastViolation?.code, s.draft.length], 'ore 9: Teresa su Marta → «No.»').toEqual(['rifiuto', 0]);
+    await k.press('Space');
+    await k.press('Enter');
+    await expect.poll(async () => (await nightState(page)).completed).toBe(true);
+    expect((await nightState(page)).outcome?.metrics?.incroci).toBe(4);
+    const sr = await page.locator('[data-test="tb-stato"]').textContent();
+    expect(sr ?? '', 'riga di stato per gli screen reader').toMatch(/Teresa/);
+    game.expectClean();
+  });
 });

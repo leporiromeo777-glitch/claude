@@ -29,6 +29,13 @@ interface Variant {
   safe?: { top: number; bottom: number };
 }
 
+/**
+ * Nel repository restano tutte le tappe della variante base e, per le altre varianti,
+ * le schermate più dense di testo e di comandi (le altre si allegano solo al rapporto,
+ * per non riempire il repository di immagini).
+ */
+const KEY_STEPS = new Set(['titolo-primo-avvio', 'sera-bigliettini', 'tombolo-notte', 'alba-atto2', 'bilancio', 'taccuino', 'scelta', 'impostazioni', 'giornaliero-risultato']);
+
 const VARIANTS: Variant[] = [
   { id: 'base', settings: {} },
   { id: 'testo-140', settings: { textScale: 1.4 } },
@@ -60,7 +67,7 @@ test.describe('layout: tutte le schermate', () => {
       for (const step of TOUR) {
         await test.step(step.id, async () => {
           await step.run(page);
-          await shot(page, testInfo, `layout/${testInfo.project.name}/${v.id}/${step.id}`);
+          await shot(page, testInfo, `layout/${testInfo.project.name}/${v.id}/${step.id}`, { reference: v.id === 'base' || KEY_STEPS.has(step.id) });
           problems[step.id] = await auditLayout(page, v.safe ? { safeTop: v.safe.top, safeBottom: v.safe.bottom } : {});
         });
       }
@@ -151,6 +158,7 @@ test.describe('layout: daltonismo', () => {
     onlyProjects(testInfo, 'desktop');
     const chars = new Map((JSON.parse(readFileSync(join(CONTENT, 'characters.json'), 'utf8')) as { id: string; color: string; pattern: string; icon: string }[]).map((c) => [c.id, c]));
     const problems: string[] = [];
+    const twins: string[] = [];
     const report: string[] = [];
     for (const f of readdirSync(join(CONTENT, 'levels')).filter((x) => x.endsWith('.json') && !x.endsWith('.computed.json')).sort()) {
       const lv = JSON.parse(readFileSync(join(CONTENT, 'levels', f), 'utf8')) as { id: string; threads: { id: string; character?: string }[] };
@@ -159,16 +167,19 @@ test.describe('layout: daltonismo', () => {
         for (let j = i + 1; j < cs.length; j++) {
           const a = chars.get(cs[i]!)!;
           const b = chars.get(cs[j]!)!;
+          const same = [a.pattern === b.pattern ? `motivo «${a.pattern}»` : '', a.icon === b.icon ? `icona «${a.icon}»` : ''].filter(Boolean);
+          if (same.length === 2) twins.push(`${lv.id}: ${a.id} e ${b.id} hanno lo stesso motivo «${a.pattern}» e la stessa icona «${a.icon}» (resta solo il colore)`);
           for (const [sim, m] of [...Object.entries(CVD), ['monocromia', null] as const]) {
             const d = m === null ? Math.abs(toLab(simulateColor(hex(a.color), null))[0] - toLab(simulateColor(hex(b.color), null))[0]) : deltaE(a.color, b.color, m);
             if (d >= CONFUSABLE_DE) continue;
-            const same = [a.pattern === b.pattern ? `motivo «${a.pattern}»` : '', a.icon === b.icon ? `icona «${a.icon}»` : ''].filter(Boolean);
             report.push(`${lv.id} ${a.id}/${b.id} ${sim} ΔE ${d.toFixed(1)}${same.length ? ` stesso ${same.join(' e ')}` : ''}`);
-            if (same.length) problems.push(`${lv.id}: ${a.id} e ${b.id} si confondono con ${sim} (ΔE ${d.toFixed(1)}) e hanno lo stesso ${same.join(' e la stessa ')}`);
+            // GDD 14 nomina deuteranopia, protanopia e tritanopia; la monocromia è solo nel rapporto.
+            if (same.length && m !== null) problems.push(`${lv.id}: ${a.id} e ${b.id} si confondono con ${sim} (ΔE ${d.toFixed(1)}) e hanno lo stesso ${same.join(' e la stessa ')}`);
           }
         }
       }
     }
+    expect.soft(twins, 'GDD 14: nello stesso merletto due fili non hanno mai lo stesso motivo e la stessa icona').toEqual([]);
     await testInfo.attach('coppie-confondibili.txt', { body: report.join('\n'), contentType: 'text/plain' });
     expect(problems, 'GDD 14: ogni filo si distingue per colore, motivo e icona').toEqual([]);
   });
@@ -273,50 +284,76 @@ test.describe('layout: schermate per gli store', () => {
       onlyProjects(testInfo, 'desktop');
       test.setTimeout(5 * 60_000);
       const { page, errors, external } = await storePage(browser, baseURL, d);
-      const snap = async (name: string): Promise<void> => {
+      const snap = async (name: string): Promise<void> => test.step(`schermata ${name}`, async () => {
         await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        // Niente avvisi di passaggio nelle schermate delle schede.
+        await expect(page.locator('[data-test="toast"]')).toHaveCount(0, { timeout: 10_000 });
         await page.waitForTimeout(700);
         const body = await page.screenshot({ type: 'jpeg', quality: 90, scale: 'device', animations: 'disabled', caret: 'hide' });
         await keepImage(testInfo, `store/${d.id}/${name}.jpg`, body, 'image/jpeg');
-      };
+      });
       try {
         // 1. Il titolo al primo avvio.
         await waitScene(page, 'titolo');
         await page.waitForTimeout(1500);
         await snap('1-titolo');
-        // 2. Il tombolo a metà notte, con le perline in viaggio (g06, «La lettera da Venezia»).
+        // 3. Una partita vera fino a g06: l'alba con una vignetta e i personaggi.
         await call(page, 'core.setSettings', { animSpeed: 0 });
         await call(page, 'campaign.newGame');
         await waitScene(page, 'sera');
-        // 3 e 4. Una partita vera fino a g08, per un Taccuino pieno di voci.
-        await playGolden(page, { untilLevel: 'g06' });
+        await test.step('partita fino a g06', () => playGolden(page, { untilLevel: 'g06' }));
         await call(page, 'campaign.objectSeen');
         await call(page, 'campaign.accept', ['g06.nina', 'g06.marta']);
         await call(page, 'campaign.toNight');
         expect(await waitNight(page)).toBe(true);
-        const sol = await call<{ rows: { crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[] }[] }>(page, 'engine.solve', 'g06', ['g06.nina', 'g06.marta']);
-        const half = Math.ceil(sol.rows.length / 2);
-        for (const r of sol.rows.slice(0, half)) {
-          for (const c of r.crossings) if (!c.forced) await call(page, 'night.cross', c.pair, c.over);
-          await call(page, 'night.fix');
-        }
-        await page.waitForTimeout(3200); // gli avvisi spariscono
-        await call(page, 'core.setSettings', { animSpeed: 1 });
-        await snap('2-tombolo-notte');
-        await call(page, 'core.setSettings', { animSpeed: 0 });
         await call(page, 'night.autoplay');
         expect(await waitScene(page, 'alba', 20_000)).toBe(true);
         await call(page, 'core.setSettings', { animSpeed: 1 });
-        await page.locator('[data-test="cp-vignetta-salta"]').waitFor({ state: 'visible' });
-        await page.waitForTimeout(1500);
+        // La prima vignetta di quest'alba con i personaggi (le figure sono disegnate sul canvas).
+        const g06 = JSON.parse(readFileSync(join(CONTENT, 'levels', 'g06.json'), 'utf8')) as { dawn?: { candidates: { id: string; figures: unknown[] }[] } };
+        const withFigures = new Set((g06.dawn?.candidates ?? []).filter((c) => c.figures.length > 0).map((c) => c.id));
+        const dawnInfo = await call<{ report: string[] }>(page, 'campaign.dawn');
+        const target = Math.max(0, dawnInfo.report.findIndex((id) => withFigures.has(id)));
+        const next = page.locator('[data-test="cp-vignetta-avanti"]');
+        await next.waitFor({ state: 'visible' });
+        for (let i = 0; i < 12; i++) {
+          const pos = (await call<{ position: { vignette: number } | null }>(page, 'campaign.dawn')).position;
+          if (!pos || pos.vignette >= target) break;
+          await next.click({ timeout: 3_000 });
+          await page.waitForTimeout(500);
+        }
+        await page.waitForTimeout(1200);
         await snap('3-alba-vignetta');
+        // 4. Il Taccuino dopo otto giornate.
         await call(page, 'core.setSettings', { animSpeed: 0 });
-        await playGolden(page, { untilLevel: 'g09' });
+        await test.step('partita fino a g09', () => playGolden(page, { untilLevel: 'g09' }));
         await waitScene(page, 'sera');
         await call(page, 'core.openOverlay', 'taccuino', { from: 'sera' });
         await page.locator('[data-test="cp-taccuino"]').first().waitFor({ state: 'visible' });
         await snap('4-taccuino');
         await call(page, 'core.closeOverlay');
+        // 2. Il tombolo a metà notte, con le lettere del fascio in viaggio (g16).
+        await call(page, 'campaign.goto', 'g16', 'sera');
+        await waitScene(page, 'sera');
+        await call(page, 'campaign.objectSeen');
+        const notes = ['g16.zeno', 'g16.teresa'];
+        await call(page, 'campaign.accept', notes);
+        await call(page, 'campaign.toNight');
+        expect(await waitNight(page)).toBe(true);
+        const sol = await call<{ nomeOn?: string; rows: { crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[] }[] }>(page, 'engine.solve', 'g16', notes, { flags: (await call<{ flags: Record<string, unknown> }>(page, 'campaign.state')).flags });
+        // g16 ha la regola del nome: prima si appunta il nome di Ada (dove dice la soluzione, o sul primo filo).
+        await call(page, 'night.setNome', sol.nomeOn ?? (await nightState(page)).positions[0]);
+        for (const r of sol.rows.slice(0, Math.ceil(sol.rows.length * 0.6))) {
+          for (const c of r.crossings) if (!c.forced) await call(page, 'night.cross', c.pair, c.over);
+          expect((await call<{ ok: boolean }>(page, 'night.fix')).ok, 'riga della soluzione accettata').toBe(true);
+        }
+        await call(page, 'core.setSettings', { animSpeed: 1 });
+        await snap('2-tombolo-notte');
+        // La notte si finisce (niente notte a metà che chieda conferma al Merletto del giorno).
+        await call(page, 'core.setSettings', { animSpeed: 0 });
+        await call(page, 'night.autoplay');
+        await until(page, async () => (await call<string | null>(page, 'campaign.phase')) !== 'notte');
+        await call(page, 'core.goto', 'titolo');
         // 5. Il Merletto del giorno: il foglio dei risultati con il merletto.
         await call(page, 'ui.setToday', TOUR_DAY);
         await call(page, 'ui.startDaily');

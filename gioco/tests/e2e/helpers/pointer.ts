@@ -147,8 +147,12 @@ export async function tapCrossing(page: Page, kind: PointerKind, pair: number): 
   await tap(page, kind, { x: (a.cx + b.cx) / 2, y: r.y + r.h / 2 });
 }
 
-/** «Fissa l'ora» con il puntatore. */
+/**
+ * «Fissa l'ora» con il puntatore, al centro del pulsante come farebbe una persona
+ * (il pulsante può pulsare per il tutorial: niente attese di «stabilità»).
+ */
 export async function pressFix(page: Page, kind: PointerKind): Promise<void> {
-  const ok = await tapTest(page, kind, 'tb-fissa');
-  if (!ok) throw new Error('pulsante tb-fissa non visibile');
+  const p = await centerOf(page, '[data-test="tb-fissa"]');
+  if (!p) throw new Error('pulsante tb-fissa non visibile');
+  await tap(page, kind, p);
 }

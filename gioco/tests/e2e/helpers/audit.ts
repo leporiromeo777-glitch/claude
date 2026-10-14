@@ -128,7 +128,7 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
           const top = o.safeTop ?? 0;
           const bottom = vh - (o.safeBottom ?? 0);
           // Un'area di tocco alta come lo schermo (lo schermo nero del prologo) non è un controllo da spostare.
-          const fullScreen = r.width >= vw * 0.5 && r.height >= vh * 0.9;
+          const fullScreen = r.width >= 200 && r.height >= vh * 0.9;
           if (!fullScreen && (vis.top < top - 0.5 || vis.bottom > bottom + 0.5)) {
             const sc = scroller(e);
             if (sc) scrollers.add(sc);

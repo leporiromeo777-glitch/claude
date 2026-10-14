@@ -23,6 +23,8 @@ export interface ShotOptions {
   /** 'css' (un pixel per pixel CSS, file piccoli) o 'device' (risoluzione piena). */
   scale?: 'css' | 'device';
   fullPage?: boolean;
+  /** false: lo screenshot si allega al rapporto ma non diventa un riferimento nel repository. */
+  reference?: boolean;
 }
 
 /** I riferimenti si riscrivono solo se mancano o se lo si chiede. */
@@ -35,9 +37,9 @@ export function shouldWrite(testInfo: TestInfo, path: string): boolean {
 }
 
 /** Scrive un'immagine fra i riferimenti (se serve) e la allega al rapporto. */
-export async function keepImage(testInfo: TestInfo, relPath: string, body: Buffer, contentType: string): Promise<string> {
+export async function keepImage(testInfo: TestInfo, relPath: string, body: Buffer, contentType: string, reference = true): Promise<string> {
   const path = join(SHOTS_DIR, relPath);
-  if (shouldWrite(testInfo, path)) {
+  if (reference && shouldWrite(testInfo, path)) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, body);
   }
@@ -53,12 +55,12 @@ export async function shot(page: Page, testInfo: TestInfo, relPath: string, opts
   const type = opts.type ?? 'jpeg';
   const body = await page.screenshot({
     type,
-    ...(type === 'jpeg' ? { quality: opts.quality ?? 72 } : {}),
+    ...(type === 'jpeg' ? { quality: opts.quality ?? 65 } : {}),
     scale: opts.scale ?? 'css',
     fullPage: opts.fullPage ?? false,
     animations: 'disabled',
     caret: 'hide',
   });
-  await keepImage(testInfo, `${relPath}.${type === 'jpeg' ? 'jpg' : 'png'}`, body, type === 'jpeg' ? 'image/jpeg' : 'image/png');
+  await keepImage(testInfo, `${relPath}.${type === 'jpeg' ? 'jpg' : 'png'}`, body, type === 'jpeg' ? 'image/jpeg' : 'image/png', opts.reference !== false);
   return body;
 }
