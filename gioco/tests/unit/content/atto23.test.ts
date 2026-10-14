@@ -721,6 +721,19 @@ describe('giornate: eventi della tabella del GDD 5.2', () => {
     expect(level('g21').nero).toBeDefined();
   });
 
+  it('debutto delle stranezze (GDD 3.6): in g09 (lunardiCura) e g16 (pieroTrabocca) nessuna richiesta fallisce per colpa loro', () => {
+    for (const [d, quirk] of [['g09', 'lunardiCura'], ['g16', 'pieroTrabocca']] as const) {
+      const lv = level(d);
+      const withQ = createContext(lv, {}, { balance: db.balance });
+      const noQ = { ...withQ, quirks: withQ.quirks.filter((q) => q !== quirk) };
+      for (const combo of [[], ...combosOf(d, 1), ...combosOf(d, 2)]) {
+        const goals = [...(lv.goals ?? []), ...combo.map((n) => n.request as Condition)];
+        if (solve({ level: lv, ctx: noQ, goals }).status !== 'ok') continue;
+        expect(solve({ level: lv, ctx: withQ, goals }).status, `${d} ${combo.map((n) => n.id).join('+')}`).toBe('ok');
+      }
+    }
+  }, 120_000);
+
   it('zenoFaro (GDD 3.6): Zeno è a due luoghi al massimo dal Faro già all\'alba e in ogni soluzione calcolata', () => {
     for (const id of [...STORY, ...FINALS, ...ARCHIVES]) {
       const lv = level(id);
