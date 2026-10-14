@@ -6,7 +6,7 @@
  *   righe       tratti obliqui a 45° ogni 6 px          (Teresa)
  *   puntini     puntini ogni 9 px                        (Marta)
  *   doppio      due linee da 2,5 px                      (Don Piero)
- *   onde        sinusoide di ampiezza 1,5 px             (Gino)
+ *   onde        sinusoide lunga (16 px, ampiezza 1,9 px)  (Gino)
  *   zigzag      zig-zag                                  (Bepi)
  *   tratteggio  tratteggio lungo                         (Nina)
  *   catenella   piccole ellissi                          (Zeno)
@@ -31,7 +31,7 @@ export const PATTERN_STEP: Readonly<Record<ThreadPattern, number>> = {
   puntini: 9,
   doppio: 0,
   onde: 2,
-  zigzag: 4,
+  zigzag: 5,
   tratteggio: 12,
   catenella: 7,
   croce: 8,
@@ -120,7 +120,8 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
       let first = true;
       for (let s = 0; s <= total; s += 2) {
         pointAt(p, s, P);
-        const a = Math.sin(((s + phase) / 8) * Math.PI * 2) * 1.5;
+        // Onda morbida e lunga (16 px): non si confonde con lo zig-zag.
+        const a = Math.sin(((s + phase) / 16) * Math.PI * 2) * 1.9;
         const x = P.x + P.ty * a;
         const y = P.y - P.tx * a;
         if (first) ctx.moveTo(x, y);
@@ -131,13 +132,14 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
       return;
     }
     case 'zigzag': {
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.4;
+      ctx.lineJoin = 'miter';
       ctx.beginPath();
-      let k = Math.floor(phase / 4);
+      let k = Math.floor(phase / 5);
       let first = true;
-      for (let s = 0; s <= total; s += 4) {
+      for (let s = 0; s <= total; s += 5) {
         pointAt(p, s, P);
-        const a = (k++ & 1 ? 1 : -1) * half * 0.75;
+        const a = (k++ & 1 ? 1 : -1) * half * 0.9;
         const x = P.x + P.ty * a;
         const y = P.y - P.tx * a;
         if (first) ctx.moveTo(x, y);
@@ -145,6 +147,7 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
         first = false;
       }
       ctx.stroke();
+      ctx.lineJoin = 'round';
       return;
     }
     case 'tratteggio': {

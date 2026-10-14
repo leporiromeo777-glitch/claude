@@ -91,7 +91,9 @@ function core<T = Json>(page: Page, fn: string, ...args: unknown[]): Promise<T> 
   return page.evaluate(
     async ([f, a]) => {
       const api = (window as unknown as { __GAME__: Record<string, Record<string, (...x: unknown[]) => unknown>> }).__GAME__.core;
-      return (await (api[f as string] as (...x: unknown[]) => unknown)(...(a as unknown[]))) as T;
+      const target = api?.[f as string];
+      if (typeof target !== 'function') throw new Error(`__GAME__.core.${String(f)} missing`);
+      return (await target(...(a as unknown[]))) as T;
     },
     [fn, args] as const,
   ) as Promise<T>;
@@ -305,7 +307,7 @@ async function resumeAfterReload(page: Page): Promise<void> {
   await night(page, 'cross', 3, 'L');
   await night(page, 'drop', 'g06.marta');
   const before = await night(page, 'state');
-  await core(page, 'flush');
+  // Nessun salvataggio esplicito: conta l'autosalvataggio (bozza, pagehide).
   await page.reload();
   await page.evaluate(() => (window as unknown as { __GAME__: { ready: Promise<void> } }).__GAME__.ready);
   const ok = await night<boolean>(page, 'resume');
@@ -386,6 +388,62 @@ async function main(): Promise<void> {
     }
     await resumeAfterReload(desk);
     await desk.close();
+
+    // ───── Altri gesti: scheda, riavvolgimento, nome, filo controllato, menu ─────
+    {
+      const g = await openPage(browser, url, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true }, errors);
+      await start(g, { fixture: 'g00' });
+      let l = await night(g, 'layout');
+      const cdp = await g.context().newCDPSession(g);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: l.spindles[1].cx, y: l.spindles[1].cy }] });
+      await wait(700);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await cdp.detach();
+      await wait(250);
+      const card = await g.locator('[data-test="tb-scheda"]').getAttribute('data-filo');
+      check('pressione lunga su un fuso → scheda del personaggio', card === 'marta', String(card));
+      await g.screenshot({ path: join(OUT, 'scheda.png') });
+      await g.keyboard.press('Escape');
+      await wait(150);
+      await night(g, 'cross', 0, 'R');
+      await night(g, 'fix');
+      await night(g, 'cross', 1, 'L');
+      await night(g, 'fix');
+      l = await night(g, 'layout');
+      const past = (l.rows as Json[]).find((r) => r.index === 1);
+      await touchTap(g, { x: l.columns[2].cx, y: past.y + past.h / 2 });
+      const bar = await g.locator('[data-test="tb-riavvolgi"]').isVisible();
+      await g.screenshot({ path: join(OUT, 'riavvolgi.png') });
+      const qui = await center(g, '[data-test="tb-riavvolgi-qui"]');
+      if (qui) await touchTap(g, qui);
+      let st = await night(g, 'state');
+      check('tocco su una riga passata → anteprima e "Riavvolgi fino a qui"', bar && st.hour === 7 && st.rows.length === 1, `barra=${bar} ora=${st.hour}`);
+      await start(g, { fixture: 'g00', needsNome: true });
+      const prompt = await g.locator('[data-test="tb-nome-prompt"]').isVisible();
+      const blocked = await night(g, 'cross', 0, 'R');
+      l = await night(g, 'layout');
+      await touchTap(g, { x: l.spindles[2].cx, y: l.spindles[2].cy });
+      st = await night(g, 'state');
+      check('"Appunta il tuo nome": prima niente incroci, poi un tocco su un fuso', prompt && blocked?.messageKey === 'tombolo.nome.prima' && st.nomeOn === 'piero', `prompt=${prompt} nome=${st.nomeOn}`);
+      const menu = await center(g, '[data-test="tb-menu"]');
+      if (menu) await touchTap(g, menu);
+      const overlays = await core<string[]>(g, 'overlays');
+      const fallback = await g.locator('[data-test="tb-popup-menu"]').isVisible();
+      check('Menu apre l\'overlay "pausa" se registrato, altrimenti la scheda minima', overlays.includes('pausa') || fallback, `overlay=${overlays.join(',')} scheda=${fallback}`);
+      await g.keyboard.press('Escape');
+      await start(g, { fixture: 'test-seppia', mode: 'controllato' });
+      l = await night(g, 'layout');
+      const forced = (await night(g, 'state')).forced.length;
+      const ada = (l.spindles as Json[]).find((x) => x.thread === 'ada');
+      const other = (l.spindles as Json[]).find((x) => x.thread === 'teresa');
+      await touchDrag(g, { x: other.cx, y: other.cy }, { x: ada.cx, y: other.cy });
+      st = await night(g, 'state');
+      const refused = st.lastViolation?.code === 'forzato' && st.draft.length === 0;
+      for (const d of [0, 0, 1, 1, 1, 1]) await night(g, 'move', d);
+      st = await night(g, 'state');
+      check('filo controllato: solo Ada si muove, gli altri da soli', forced > 0 && refused && st.completed && st.outcome?.goals?.[0]?.status === 'soddisfatta', `forzati=${forced} rifiuto=${refused} esito=${JSON.stringify(st.outcome?.goals)}`);
+      await g.close();
+    }
 
     // ───── Prologo solo da tastiera ─────
     const kb = await openPage(browser, url, { viewport: { width: 1280, height: 720 } }, errors);
@@ -493,6 +551,17 @@ async function main(): Promise<void> {
     check('Archivio: Chiudi il merletto → night:complete con nominato e rammendato', s.completed && s.outcome?.archive?.named && s.outcome?.archive?.mended, JSON.stringify(s.outcome?.archive));
 
     await start(p, { fixture: 'test-occasioni', mode: 'occasioni' });
+    {
+      const lo = await night(p, 'layout');
+      const row9 = (lo.rows as Json[]).find((r) => r.hour === 9);
+      await p.mouse.click(lo.columns[2].cx, row9.y + row9.h - 2);
+      await wait(200);
+      const one = (await night(p, 'state')).occasions;
+      await p.mouse.click(lo.columns[2].cx, row9.y + row9.h - 2);
+      await wait(200);
+      const none = (await night(p, 'state')).occasions;
+      check('Occasioni: un tocco su una cella ammessa pianta lo spillo verde, un altro lo toglie', one.length === 1 && one[0].kind === 'festa' && none.length === 0, `${JSON.stringify(one)} → ${JSON.stringify(none)}`);
+    }
     const sol = await p.evaluate(async () => (await (window as unknown as { __GAME__: { engine: { computed(id: string): unknown } } }).__GAME__.engine.computed('test-occasioni')) as unknown);
     void sol;
     const placed = await night(p, 'occasions', [

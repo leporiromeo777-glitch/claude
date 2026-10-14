@@ -102,7 +102,8 @@
     "soddisfatta": "{nome}'s request is fulfilled!",
     "senzaTesto": "The note can't be read.",
     "confermaTitolo": "Drop the pin?",
-    "confermaCorpo": "The request will count as failed, with its consequences."
+    "confermaCorpo": "The request will count as failed, with its consequences.",
+    "tutti": "All the notes"
   },
   "archivio": {
     "chiE": "Who is {filo}?",

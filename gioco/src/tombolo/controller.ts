@@ -128,6 +128,8 @@ export class NightController {
     this.visuals = this.makeVisuals();
     this.renderer = new LaceRenderer();
     this.tutorial = new Tutorial(params.level.tutorial ?? [], { margin: (k) => this.showMargin(k) });
+    this.overlay.quirk = this.quirkOf;
+    this.overlay.label = this.labelOf;
     this.interact = new Interaction(this);
     this.vp = s.viewport.get();
 
@@ -360,7 +362,10 @@ export class NightController {
 
   private showMatassa(): boolean {
     const lv = this.params.level;
-    return lv.rules.includes('matassa') || lv.kind !== 'storia' || this.params.mode === 'archivio';
+    const m = this.params.mode;
+    // Occasioni e spartiti non hanno incroci del giocatore: niente gomitolo.
+    if (m === 'occasioni' || m === 'replay') return false;
+    return lv.rules.includes('matassa') || lv.kind !== 'storia' || m === 'archivio';
   }
 
   private mainKey(): { key: string; enabled: boolean } {
@@ -383,6 +388,7 @@ export class NightController {
   private updateUi(): void {
     const s = this.session;
     const lv = this.params.level;
+    this.updateOverlayData();
     this.hud.update({
       titleKey: lv.titleKey,
       titleParams: this.titleParams(),
@@ -500,9 +506,9 @@ export class NightController {
     if (this.destroyed || !this.model) return;
     const o = this.overlay;
     const s = this.session;
-    const hand = this.completed ? null : this.tutorial.hand(s.hour, s.draft.length === 0);
-    o.handFrom = hand && !this.interact.dragging() ? hand.from : -1;
-    o.handTo = hand && !this.interact.dragging() ? hand.to : -1;
+    const dragging = this.interact.dragging() !== null;
+    o.handFrom = dragging ? -1 : this.handFrom;
+    o.handTo = dragging ? -1 : this.handTo;
     o.cursorPair = this.keyboard && !this.placing ? this.interact.cursorPair : -1;
     o.nameStep = s.needsNome;
     o.previewRow = this.previewRow;
@@ -511,21 +517,43 @@ export class NightController {
     this.renderer.draw(host.ctx, host.cssW, host.cssH, host.dpr, this.layout, this.model, this.scroll, o, this.s.assets);
   }
 
-  private readonly quirkOf = (t: ThreadId): boolean => {
-    const v = this.visuals.get(t);
-    if (!v || !v.character || v.faded) return false;
-    const ch = this.s.content.characters.get(v.character);
-    return !!ch && ch.quirks.some((q) => this.known.has(q) && this.session.ctx.quirks.includes(q));
-  };
+  /** Fili con una stranezza nota (icona sul fuso), ricalcolati quando la notte cambia. */
+  private readonly quirky = new Set<ThreadId>();
+  /** Nomi provvisori dei fili sbiaditi (Archivio), ricalcolati quando cambiano. */
+  private readonly labels = new Map<ThreadId, string>();
+  private handFrom = -1;
+  private handTo = -1;
 
-  private readonly labelOf = (t: ThreadId): string | null => {
-    const a = this.session.archive;
-    if (!a || !a.isFaded(t)) return null;
-    const g = a.tentativeOf(t);
-    if (!g) return null;
-    const ch = this.s.content.characters.get(g);
-    return this.s.i18n.t('tombolo.archivio.provvisorio', { nome: ch ? this.s.i18n.t(ch.nameKey) : g });
-  };
+  private readonly quirkOf = (t: ThreadId): boolean => this.quirky.has(t);
+  private readonly labelOf = (t: ThreadId): string | null => this.labels.get(t) ?? null;
+
+  /** Dati delle sovrapposizioni che non cambiano a ogni fotogramma. */
+  private updateOverlayData(): void {
+    const s = this.session;
+    this.quirky.clear();
+    for (const t of this.model?.hangPos ?? []) {
+      const v = this.visuals.get(t);
+      if (!v || !v.character || v.faded) continue;
+      const ch = this.s.content.characters.get(v.character);
+      if (ch && ch.quirks.some((q) => this.known.has(q) && s.ctx.quirks.includes(q))) this.quirky.add(t);
+    }
+    this.labels.clear();
+    const a = s.archive;
+    if (a) {
+      for (const t of a.faded()) {
+        const g = a.isFaded(t) ? a.tentativeOf(t) : null;
+        if (!g) continue;
+        const ch = this.s.content.characters.get(g);
+        this.labels.set(t, this.s.i18n.t('tombolo.archivio.provvisorio', { nome: ch ? this.s.i18n.t(ch.nameKey) : g }));
+      }
+    }
+    const hand = this.completed ? null : this.tutorial.hand(s.hour, s.draft.length === 0);
+    this.handFrom = hand ? hand.from : -1;
+    this.handTo = hand ? hand.to : -1;
+    const hl = this.overlay.highlight;
+    hl.clear();
+    if (s.needsNome && !this.completed) for (const t of s.state.pos) hl.add(t);
+  }
 
   // ───────── Scorrimento ─────────
 
@@ -1205,6 +1233,13 @@ export class NightController {
                 this.drop(noteId);
               });
           },
+          // Layout stretto: il pannello dei Bigliettini si apre sopra il tombolo.
+          this.layout.kind === 'stretto'
+            ? () => {
+                this.popup?.close();
+                void this.s.ui.openOverlay('bigliettini', { from: 'tombolo', levelId: this.params.level.id, noteId });
+              }
+            : undefined,
         ),
       );
     });

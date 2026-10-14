@@ -80,7 +80,11 @@ export class Velvet {
   private tile: AnyCanvas | null = null;
   private tileColor = '';
   private bg: AnyCanvas | null = null;
-  private key = '';
+  private kw = -1;
+  private kh = -1;
+  private kdpr = -1;
+  private kbase = '';
+  private kshadow = '';
   private readonly noise: Float32Array;
 
   constructor(private readonly make: CanvasMaker = defaultCanvasMaker) {
@@ -89,8 +93,8 @@ export class Velvet {
 
   /** Fondo intero (w×h px CSS a risoluzione dpr). Ricreato solo se cambia qualcosa. */
   background(w: number, h: number, dpr: number, base: string, shadow: string): AnyCanvas | null {
-    const key = `${w}x${h}@${dpr}|${base}|${shadow}`;
-    if (this.bg && key === this.key) return this.bg;
+    // Confronto campo per campo: nessuna stringa costruita a ogni fotogramma.
+    if (this.bg && w === this.kw && h === this.kh && dpr === this.kdpr && base === this.kbase && shadow === this.kshadow) return this.bg;
     if (!this.tile || this.tileColor !== base) {
       this.tile = makeVelvetTile(base, this.make, this.noise);
       this.tileColor = base;
@@ -116,7 +120,11 @@ export class Velvet {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     this.bg = cv;
-    this.key = key;
+    this.kw = w;
+    this.kh = h;
+    this.kdpr = dpr;
+    this.kbase = base;
+    this.kshadow = shadow;
     return cv;
   }
 }

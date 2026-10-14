@@ -102,7 +102,8 @@
     "soddisfatta": "La richiesta di {nome} è soddisfatta!",
     "senzaTesto": "Il bigliettino è illeggibile.",
     "confermaTitolo": "Lasciare cadere lo spillo?",
-    "confermaCorpo": "La richiesta conterà come fallita, con le sue conseguenze."
+    "confermaCorpo": "La richiesta conterà come fallita, con le sue conseguenze.",
+    "tutti": "Tutti i bigliettini"
   },
   "archivio": {
     "chiE": "Chi è {filo}?",
