@@ -83,15 +83,30 @@ async function shareWithPlugin(o: ShareRequest): Promise<'condiviso' | 'no' | 'a
     const uri = await writeShareFile(o.file, o.fileName);
     if (uri) opts.files = [uri];
   }
-  try {
-    await plugin.Share.share(opts);
-    return 'condiviso';
-  } catch (err) {
-    // Annullato dal giocatore ("Share canceled") o non riuscito: il chiamante copia il testo.
-    const msg = err instanceof Error ? err.message : String(err);
-    if (/not implemented|unimplemented/i.test(msg)) return 'assente';
-    return 'no';
+  const attempt = async (): Promise<'condiviso' | 'annullato' | 'assente' | 'errore'> => {
+    try {
+      await plugin.Share.share(opts);
+      return 'condiviso';
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const code = (err as { code?: unknown } | null)?.code;
+      if (code === 'UNIMPLEMENTED' || /not implemented|unimplemented/i.test(msg)) return 'assente';
+      // Annullato dal giocatore ("Share canceled") o un'altra condivisione già aperta.
+      if (/cancel|in progress/i.test(msg)) return 'annullato';
+      return 'errore';
+    }
+  };
+  let r = await attempt();
+  if (r === 'errore' && opts.files) {
+    // Il file non è passato (per esempio il FileProvider di Android lo rifiuta):
+    // si condivide almeno il testo, invece di arrendersi.
+    console.warn('[platform] share with file failed, retrying with text only');
+    delete opts.files;
+    r = await attempt();
   }
+  if (r === 'condiviso' || r === 'assente') return r;
+  // Annullato o non riuscito: il chiamante copia il testo.
+  return 'no';
 }
 
 function list<T>(): { add(fn: T): Unsub; all(): T[] } {

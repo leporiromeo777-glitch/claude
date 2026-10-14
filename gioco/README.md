@@ -160,8 +160,12 @@ un'aggiunta compatibile a `types.ts`: chi chiama `setAmbience(id)` non cambia nu
 
 **Condivisione.** `platform.share({ text, title?, file?, fileName? })`: sul web la Web Share API
 (con il PNG se il browser lo accetta); in nativo il plugin Share, con il PNG scritto nella cache
-dell'app da `@capacitor/filesystem` (il plugin Share vuole un file su disco). Dopo aver aggiunto
-un plugin Capacitor serve `npx cap sync` (gli script `app:*` e `release:*` lo fanno da soli).
+dell'app da `@capacitor/filesystem` (il plugin Share vuole un file su disco). Se il file non
+passa, si riprova con il solo testo; se il giocatore annulla, `share()` dà `false` e il foglio
+dei risultati copia il testo. Dopo aver aggiunto un plugin Capacitor serve `npx cap sync` (gli
+script `app:*` e `release:*` lo fanno da soli). `@capacitor/filesystem` su iOS chiede anche, in
+`ios/App/App/PrivacyInfo.xcprivacy`, la voce `NSPrivacyAccessedAPICategoryFileTimestamp` con il
+motivo `C617.1` (lo dice il README del plugin; senza, App Store Connect la segnala).
 
 **Asset.** `public/assets/manifest.json` (formato `AssetManifest`, percorsi relativi a
 `public/assets/`). `assets.frame(nome)` e `assets.image(nome)` danno sempre qualcosa: se

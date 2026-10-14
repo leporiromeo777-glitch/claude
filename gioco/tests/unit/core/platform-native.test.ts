@@ -11,6 +11,9 @@ const h = vi.hoisted(() => ({
   written: [] as { path: string; data: string; directory: string; recursive?: boolean }[],
   removed: [] as string[],
   shareError: null as Error | null,
+  /** Errore solo quando la richiesta porta file (il FileProvider di Android che rifiuta il percorso). */
+  fileShareError: null as Error | null,
+  attempts: 0,
   writeError: null as Error | null,
 }));
 
@@ -24,7 +27,9 @@ vi.mock('@capacitor/screen-orientation', () => ({ ScreenOrientation: { lock: asy
 vi.mock('@capacitor/share', () => ({
   Share: {
     share: async (o: Record<string, unknown>) => {
+      h.attempts++;
       if (h.shareError) throw h.shareError;
+      if (h.fileShareError && Array.isArray(o.files) && o.files.length > 0) throw h.fileShareError;
       h.shared.push(o);
       return {};
     },
@@ -53,6 +58,8 @@ beforeEach(() => {
   h.written.length = 0;
   h.removed.length = 0;
   h.shareError = null;
+  h.fileShareError = null;
+  h.attempts = 0;
   h.writeError = null;
   // La WebView di Android non ha la Web Share API.
   Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
@@ -97,10 +104,29 @@ describe('condivisione in nativo', () => {
     p.destroy();
   });
 
-  it('annullato dal giocatore → false (il chiamante copia il testo)', async () => {
+  it('annullato dal giocatore → false (il chiamante copia il testo), senza riaprire il foglio', async () => {
     const p = await createPlatform(window);
     h.shareError = new Error('Share canceled');
     await expect(p.share({ text: 'x', file: new Blob([PNG]) })).resolves.toBe(false);
+    expect(h.attempts).toBe(1);
+    h.shareError = new Error("Can't share while sharing is in progress");
+    await expect(p.share({ text: 'x', file: new Blob([PNG]) })).resolves.toBe(false);
+    expect(h.attempts).toBe(2);
+    p.destroy();
+  });
+
+  it('il file non passa (FileProvider) → si riprova con il solo testo', async () => {
+    const p = await createPlatform(window);
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    h.fileShareError = new Error('Failed to find configured root that contains /data/data/x/cache/condivisi/t.png');
+    await expect(p.share({ text: 'TRAMA', title: 'Trama', file: new Blob([PNG], { type: 'image/png' }), fileName: 't.png' })).resolves.toBe(true);
+    expect(h.attempts).toBe(2);
+    expect(h.shared).toEqual([{ text: 'TRAMA', title: 'Trama', dialogTitle: 'Trama' }]);
+    // Anche il secondo tentativo non riesce: false, e basta (niente terzo tentativo).
+    h.shareError = new Error('boom');
+    h.attempts = 0;
+    await expect(p.share({ text: 'TRAMA', file: new Blob([PNG]) })).resolves.toBe(false);
+    expect(h.attempts).toBe(2);
     p.destroy();
   });
 
@@ -111,6 +137,13 @@ describe('condivisione in nativo', () => {
     Object.defineProperty(navigator, 'share', { value: share, configurable: true });
     await expect(p.share({ text: 'y' })).resolves.toBe(true);
     expect(share).toHaveBeenCalledWith({ text: 'y' });
+    // Riconosciuto anche dal codice dell'eccezione di Capacitor, qualunque sia il messaggio.
+    h.shareError = Object.assign(new Error('missing'), { code: 'UNIMPLEMENTED' });
+    await expect(p.share({ text: 'z' })).resolves.toBe(true);
+    expect(share).toHaveBeenLastCalledWith({ text: 'z' });
+    // Senza Web Share API nella WebView: false (il chiamante copia il testo).
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    await expect(p.share({ text: 'w' })).resolves.toBe(false);
     p.destroy();
   });
 });

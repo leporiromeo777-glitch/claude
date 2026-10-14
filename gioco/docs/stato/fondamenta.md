@@ -104,3 +104,18 @@ Richieste di docs/stato/RICHIESTE.md per **fondamenta** e **tutti**, controllate
 **Nota sui progetti nativi.** I file generati da Capacitor in android/ e ios/ (capacitor.settings.gradle, capacitor.build.gradle, CapApp-SPM/Package.swift) non elencano ancora Filesystem: non sono di questo gruppo e non li ho toccati. Tutti gli script che compilano l'app (`app:*`, `android:apk`, `release:*`) fanno `cap sync` prima, quindi il plugin entra da solo; finché non succede, la condivisione nativa ripiega sul solo testo. Va fatto `npx cap sync` e il commit di quei file (richiesta a piattaforma-nativa).
 
 **Test.** `npx tsc --noEmit -p .`: nessun errore. `npx vitest run`: 74 file, 1002 test verdi (di questo gruppo: core 22 file, audio 15, schermate 6, 433 test, compresi i nuovi). `npm run native:check`: 40/40; `npm run native:test`: 59/59 in 9 s. Build `VITE_E2E=1` servita da `vite preview` sulla porta 5400: `E2E_REUSE=1 E2E_PORT=5400 npx playwright test tests/e2e/smoke.spec.ts` 35/35 (avvio pulito, solo richieste locali, con il manifest); sonda Playwright (scratchpad/integ-core/probe.mjs) 13/13: favicon PNG, manifest e icone 192/512 servite con 200, nessun errore in console, nessuna risposta ≥ 400, scena boot senza la riga dei segnaposto con tutti gli asset. Confronto visivo fuso segnaposto / fuso vero sul server di sviluppo (porta 5401, chiuso subito): stessa ancora, stessa altezza.
+
+## Verifica dell'integrazione
+
+Controllate sul codice e con prove tutte le voci «Fatto» e «Già fatto» delle sezioni Integrazione di fondamenta, audio e interfaccia (14 ottobre 2026). Erano corrette; due aggiunte:
+
+- **Condivisione in nativo più robusta.** Se il plugin Share rifiuta la richiesta con il file per un motivo che non è l'annullamento (per esempio il FileProvider di Android che non trova il percorso), `share()` riprova subito con il solo testo invece di arrendersi. Annullato o «sharing in progress» → `false` senza riaprire il foglio. Il plugin assente si riconosce anche dal codice `UNIMPLEMENTED` dell'eccezione di Capacitor, non solo dal messaggio. Test nuovi in tests/unit/core/platform-native.test.ts; falliscono sul codice di prima.
+- **README.** Il paragrafo Condivisione dice cosa succede quando il file non passa o il giocatore annulla. Ricorda anche che `@capacitor/filesystem` su iOS chiede la voce `NSPrivacyAccessedAPICategoryFileTimestamp` con motivo `C617.1` in `ios/App/App/PrivacyInfo.xcprivacy`, che oggi dichiara solo UserDefaults. La richiesta è passata a piattaforma-nativa.
+
+**Prove.** `npx tsc --noEmit -p .` senza errori. `npx vitest run`: 74 file, 1006 test verdi. `npm run native:check` 40/40, `npm run native:test` 59/59. Build `VITE_E2E=1` servita da `vite preview` sulla porta 5405:
+- `screens:verify` 81/81;
+- `audio:verify` 23/23;
+- `smoke.spec.ts` 35/35 sui 5 dispositivi;
+- sonda del verificatore 20/20. Controlla le dimensioni reali di favicon e icone del manifest e lo `start_url`. Nel titolo c'è laguna con l'orologio, prima e dopo lo sblocco. Nel silenzio con l'orologio le sorgenti dell'ambiente compaiono circa una volta al secondo (4 fronti in 4 s) e senza l'orologio sono zero. La laguna con `clock: false` e quella di serie non hanno l'orologio. Nel prologo la notte ha l'orologio fermo, con la didascalia `notteFerma`. Nella sera di g01 l'orologio della notte ticchetta di nuovo. Il titolo con una storia in corso ha laguna e orologio. Nella scena boot la riga dei segnaposto è nascosta (altezza 0). In console non ci sono errori e nessuna risposta è ≥ 400.
+
+Nota: il Merletto del giorno e il Merletto libero non cambiano ambiente, quindi tengono quello del titolo, che ora ha anche l'orologio. Prima tenevano la sola laguna.
