@@ -350,8 +350,11 @@ export class AudioAutomation implements GameAudioContext {
       bus.on('night:complete', (p) =>
         this.guard(() => {
           const o = p.outcome;
-          const ok = (o.requests ?? []).every((r) => r.status === 'soddisfatta') && (o.goals ?? []).every((g) => g.status === 'soddisfatta');
-          this.deps.engine.sfx(ok ? 'successo' : 'fallimento');
+          // Uno spartito che si ritesse non ha esito: ha già suonato il suo carillon.
+          if (!this.night?.replay) {
+            const ok = (o.requests ?? []).every((r) => r.status === 'soddisfatta') && (o.goals ?? []).every((g) => g.status === 'soddisfatta');
+            this.deps.engine.sfx(ok ? 'successo' : 'fallimento');
+          }
           this.draft.clear();
           this.draftHour = null;
         }),
