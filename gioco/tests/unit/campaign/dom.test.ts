@@ -14,7 +14,7 @@ import { createI18n, loadI18nSources } from '../../../src/core/i18n';
 import { installServices } from '../../../src/core/services';
 import { SideNotebook } from '../../../src/campaign/frame';
 import { bigliettiniPanel, taccuinoPanel, visibleTabs } from '../../../src/campaign/taccuino/panel';
-import { VignettePlayer, figureFrame } from '../../../src/campaign/vignette';
+import { VignettePlayer, figureFrame, needsTint } from '../../../src/campaign/vignette';
 import { notePaper } from '../../../src/campaign/notes';
 import { newCampaign, startNight, completeDay, finishDawn, finishBilancio } from '../../../src/campaign/flow';
 import { pinNote } from '../../../src/campaign/evening';
@@ -216,6 +216,11 @@ describe('vignette', () => {
     expect(figureFrame('ada', 'ferma', false)).toBe('fig/ada/ferma');
     expect(figureFrame('clotilde', 'saluta', false)).toBe('fig/lino/saluta');
     expect(figureFrame('ernesto', 'porge', false)).toBe('fig/lino/porge');
+    // La figura anonima si tinge del colore di chi non ha una figurina propria.
+    expect(needsTint('clotilde')).toBe(true);
+    expect(needsTint('ernesto')).toBe(true);
+    expect(needsTint('marta')).toBe(false);
+    expect(needsTint('ada')).toBe(false);
   });
 });
 
