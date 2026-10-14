@@ -6,12 +6,12 @@
  * file .computed.json aggiornati e matassa = minimo designato + margine.
  */
 import { describe, expect, it } from 'vitest';
-import type { Condition, LevelDef, LineDef, NoteDef, StoryCond } from '../../../src/core/types';
+import type { Condition, LevelDef, LineDef, NoteDef, QuirkId, StoryCond } from '../../../src/core/types';
 import { loadContent } from '../../../src/content/loader';
 import { validateContent } from '../../../src/content/validate';
 import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
 import { CHARACTER_IDS } from '../../../src/core/ids';
-import { SOLVER_VERSION, applyRow, createContext, levelSourceHashFromDB, simulate, solve } from '../../../src/engine/index';
+import { SOLVER_VERSION, applyRow, createContext, evaluate, levelSourceHashFromDB, simulate, solve } from '../../../src/engine/index';
 import diarioAtto1 from '../../../src/content/diary.atto1.json';
 
 const db = loadContent();
@@ -382,6 +382,29 @@ describe('Libro dei Punti, campagna e dati comuni', () => {
     expect(arch).toEqual({ arc1: 'g03', arc2: 'g07', arc3: 'g11', arc4: 'g14', arc5: 'g18', arc6: 'g20' });
   });
 
+  it('ogni oggetto della sera è una lettera (LetterDef) o un oggetto con i testi in comune.oggetti (GDD 5.6)', () => {
+    const letters = new Set(db.letters.map((l) => l.id));
+    // Le lettere degli Atti II-III le scrive contenuti-atti23: qui basta che l'id segua la convenzione.
+    const laterLetter = /^(lettera_L(8|9|10|11)|lettera_clotilde|biglietto_livia_[1-6])$/;
+    for (const d of db.campaign.days) {
+      const o = d.objectAfter as string;
+      const ok = letters.has(o) || (IT.has(`comune.oggetti.${o}.nome`) && IT.has(`comune.oggetti.${o}.descrizione`)) || laterLetter.test(o);
+      expect(ok, `${d.id} ${o}`).toBe(true);
+    }
+    const byDay = Object.fromEntries(db.campaign.days.map((d) => [d.id, d.objectAfter]));
+    expect([byDay.g05, byDay.g09, byDay.g14, byDay.g15, byDay.g16, byDay.g23]).toEqual([
+      'fuso_faro', 'pagina_strappata', 'lettera_clotilde', 'bottiglia_nodo_nero', 'fascio_lettere', 'nastro_nonna',
+    ]);
+    // 11 lettere di L. dopo g01-g13 tranne g05 e g09.
+    const lDays = db.campaign.days.filter((d) => /^lettera_L\d+$/.test(d.objectAfter ?? '')).map((d) => d.id);
+    expect(lDays).toEqual(['g01', 'g02', 'g03', 'g04', 'g06', 'g07', 'g08', 'g10', 'g11', 'g12', 'g13']);
+  });
+
+  it('la pagina del punto aperto si completa dopo arc6 (o comunque dopo g21)', () => {
+    const p = db.book.find((b) => b.id === 'puntoAperto');
+    expect(p?.unlock).toEqual({ any: [{ done: 'arc6' }, { done: 'g21' }] });
+  });
+
   it('balance.json come GDD 3.13', () => {
     expect(db.balance.acts['1']).toEqual({ pins: 2, slack: 3, notes: [3, 3] });
     expect(db.balance.acts['2']).toEqual({ pins: 2, slack: 2, notes: [3, 4] });
@@ -434,8 +457,21 @@ describe('solver e file calcolati', () => {
     expect(db.computed.get('g00')?.base.incroci).toBe(4);
     expect(level('g00').matassa).toBe(6);
     const lv = level('g00');
-    const r = solve({ level: lv, ctx: createContext(lv, {}), goals: lv.goals ?? [] });
+    const r = solve({ level: lv, ctx: createContext(lv, {}), goals: lv.goals ?? [], countOptimal: true });
     expect(r.incroci).toBe(4);
+    // GDD 3.15: tre soluzioni ottime, che differiscono solo per il verso di un incrocio.
+    expect(r.optimalCount).toBe(3);
+    // La partita della tabella del GDD 3.15: Marta/Teresa, Teresa/Piero, Piero/Teresa, Marta/Teresa.
+    const rows = [
+      { hour: 6, crossings: [{ pair: 0, over: 'R' as const }] },
+      { hour: 7, crossings: [{ pair: 1, over: 'L' as const }] },
+      { hour: 8, crossings: [{ pair: 1, over: 'L' as const }] },
+      { hour: 9, crossings: [{ pair: 0, over: 'L' as const }] },
+    ];
+    const sim = simulate(lv, createContext(lv, {}), rows);
+    expect(sim.ok).toBe(true);
+    expect(sim.timeline[1]?.holders['letta:L1']).toEqual(['teresa']);
+    expect(sim.timeline[sim.timeline.length - 1]?.pos).toEqual(['teresa', 'marta', 'piero']);
   });
 
   it('g06 è l\'esempio del GDD 3.16: N1 5, N1+N2 5, N1+N3 impossibile e voluta, matassa 8', () => {
@@ -447,6 +483,29 @@ describe('solver e file calcolati', () => {
     expect(combo('g06.nina', 'g06.zeno')?.voluta).toBe(true);
     expect(combo('g06.marta', 'g06.zeno')?.incroci).toBe(0);
     expect(level('g06').matassa).toBe(8);
+    // La soluzione della tabella del GDD 3.16 vale davvero per N1+N2, con le posizioni della tabella.
+    const lv = level('g06');
+    const ctx = createContext(lv, {}, { balance: db.balance });
+    const sim = simulate(lv, ctx, [
+      { hour: 7, crossings: [] },
+      { hour: 8, crossings: [] },
+      { hour: 9, crossings: [{ pair: 3, over: 'L' }] },
+      { hour: 10, crossings: [{ pair: 0, over: 'R' }, { pair: 2, over: 'L' }] },
+      { hour: 11, crossings: [{ pair: 1, over: 'L' }, { pair: 3, over: 'L' }] },
+      { hour: 12, crossings: [] },
+    ]);
+    expect(sim.ok).toBe(true);
+    expect(sim.timeline.map((s) => s.pos.join(','))).toEqual([
+      'lino1,marta,teresa,piero,nina,zeno',
+      'lino1,marta,teresa,piero,nina,zeno',
+      'marinaio,marta,teresa,piero,nina,zeno',
+      'marinaio,marta,teresa,nina,piero,zeno',
+      'marta,marinaio,nina,teresa,piero,zeno',
+      'marta,nina,marinaio,piero,teresa,zeno',
+      'marta,nina,marinaio,piero,teresa,zeno',
+    ]);
+    const reqs = ['g06.nina', 'g06.marta'].map((id) => db.notes.get(id)?.request as Condition);
+    expect(evaluate(lv, sim.timeline, sim.events, reqs, ctx, true).map((r) => r.status)).toEqual(['soddisfatta', 'soddisfatta']);
   });
 
   it('la matassa di ogni giornata è il minimo della combinazione designata più il margine (+3; prologo +2)', () => {
@@ -464,6 +523,24 @@ describe('solver e file calcolati', () => {
       // Le combinazioni non volute stanno nella matassa; ogni bigliettino da solo è risolvibile.
       for (const x of c.combos) if (!x.voluta) expect(x.incroci, `${d} ${x.notes.join('+')}`).not.toBeNull();
       for (const [id, p] of Object.entries(c.perNote)) expect(p.incroci, id).not.toBeNull();
+    }
+  });
+
+  it('GDD 3.6: nel giorno del debutto di una stranezza nessuna richiesta (o coppia) è impossibile per colpa sua', () => {
+    const debut: [string, QuirkId][] = [['g01', 'ginoCorre'], ['g05', 'zenoFaro'], ['g06', 'teresaLegge'], ['g07', 'pieroPozzo'], ['g07', 'ninaCuriosa']];
+    for (const [d, q] of debut) {
+      const lv = level(d);
+      expect(lv.quirks, d).toContain(q);
+      const without: LevelDef = { ...lv, quirks: lv.quirks.filter((x) => x !== q) };
+      const ns = notesOf(d);
+      const sets: NoteDef[][] = ns.map((n) => [n]);
+      for (let i = 0; i < ns.length; i++) for (let j = i + 1; j < ns.length; j++) if (ns[i]?.author !== ns[j]?.author) sets.push([ns[i] as NoteDef, ns[j] as NoteDef]);
+      for (const s of sets) {
+        const goals = [...(lv.goals ?? []), ...s.map((n) => n.request as Condition)];
+        const withQ = solve({ level: lv, ctx: createContext(lv, {}, { balance: db.balance }), goals, matassa: 99 }).status;
+        const withoutQ = solve({ level: without, ctx: createContext(without, {}, { balance: db.balance }), goals, matassa: 99 }).status;
+        if (withoutQ === 'ok') expect(withQ, `${d} ${q} ${s.map((n) => n.id).join('+')}`).toBe('ok');
+      }
     }
   });
 

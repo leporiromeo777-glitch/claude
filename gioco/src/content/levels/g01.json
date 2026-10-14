@@ -18,7 +18,11 @@
   ],
   "rules": ["incrocio", "spillo", "lettera"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
-  "pins": [{"thread": "piero", "place": "chiesa", "hour": 7}, {"thread": "piero", "place": "piazza", "hour": 11}],
+  "pins": [
+    {"thread": "piero", "place": "chiesa", "hour": 7},
+    {"thread": "teresa", "place": "molo", "hour": 9},
+    {"thread": "piero", "place": "piazza", "hour": 11}
+  ],
   "notes": ["g01.marta", "g01.piero", "g01.gino"],
   "matassa": 9,
   "dawn": {

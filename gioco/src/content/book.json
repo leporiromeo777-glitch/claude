@@ -40,5 +40,5 @@
     "unlock": { "any": [ { "knows": "rule", "id": "marea" }, { "done": "g18" } ] } },
   { "id": "puntoAperto", "rule": "puntoAperto",
     "titleKey": "comune.libro.puntoAperto.titolo", "textKey": "comune.libro.puntoAperto.testo", "marginKey": "comune.libro.puntoAperto.margine",
-    "unlock": { "any": [ { "knows": "archive", "id": "arc6" }, { "done": "g20" } ] } }
+    "unlock": { "any": [ { "done": "arc6" }, { "done": "g21" } ] } }
 ]
