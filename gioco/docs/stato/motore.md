@@ -54,6 +54,15 @@ TypeScript puro: importa solo ../core/types, ../core/rng, moduli propri e JSON. 
 
 Numeri verificati: prologo 4 incroci e 3 soluzioni ottime; g06 base 0, N1 5, N1+N2 5, N2+N3 0, N1+N3 impossibile (marcata voluta), matassa 8; caso 6×14 a matassa minimo+2 in circa 0,35 s (14-33 mila stati) in Node, 0,65 s nel Worker in sviluppo; Merletto del giorno su 460 date consecutive: al massimo 435 ms, 2 volte la lista di riserva (regola segreto); worker del solver 55 KB minificato, 20 KB gzip.
 
+## Integrazione
+
+Richieste di docs/stato/RICHIESTE.md («Per: motore») controllate sul codice attuale: sono tutte già soddisfatte, nessun cambiamento al motore né agli strumenti.
+
+- `src/core/rng.ts` (`rngFromSeed`, `shuffle` che restituisce una copia): il generatore lo usa già; tools/levels importa `node:fs` con i tipi di Node del tsconfig.
+- levels:check con ogni scelta di `nomeOn` sui livelli con la regola `nome` (g12.lunardi non è più `voluta`, 2 incroci con il nome su Lunardi) e combinazioni da 2 a `pins` bigliettini (coppie dell'Atto III controllate contro la matassa): fatto nell'intervento precedente (vedi sopra), `SOLVER_VERSION` e impronte invariate.
+- Verifica di oggi: `npm run levels:check` → 34 livelli OK, nessun `.computed.json` cambiato; `npx vitest run tests/unit/engine` → 12 file, 292 test verdi.
+- Il `nomeOn` del computed ora lo usa anche l'autoplay del tombolo (richiesta della verifica del motore al tombolo, fatta: vedi docs/stato/tombolo.md, «Integrazione»). Il tombolo calcola l'eleganza dell'Archivio sulle sole righe rammendate, coerente con `base.incroci` = somma dei rammendi più corti di levels:check: nessun cambiamento a `metrics`.
+
 ## Decisioni prese
 
 - (Costruttore, confermate) Gino: "incrocio possibile" = non bloccato e un vicino libero (non bloccato, non in un incrocio forzato, almeno un verso ammesso dalle stranezze), la matassa non conta: a matassa finita la riga di Gino si rifiuta e si disfa. Così più matassa non obbliga mai a più incroci e la programmazione dinamica resta esatta. Un vicino usato dal giocatore in un altro incrocio resta "libero".

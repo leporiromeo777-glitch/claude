@@ -399,6 +399,8 @@ export class NightController {
     if (m === 'replay') return { key: 'tombolo.azioni.salta', enabled: true };
     if (m === 'occasioni') {
       if (this.runner?.running()) return { key: 'tombolo.azioni.accade', enabled: false };
+      // Archivio con le occasioni (A6) riuscito: si chiude a mano, dopo gli echi.
+      if (s.done && s.archive && s.succeeded()) return { key: 'tombolo.azioni.chiudi', enabled: true };
       if (s.done) return { key: 'tombolo.azioni.riprova', enabled: true };
       return { key: 'tombolo.azioni.lasciaAccadere', enabled: true };
     }
@@ -469,8 +471,10 @@ export class NightController {
     const a = s.archive;
     if (a) {
       const c = a.counter();
-      if (!a.allNamed()) this.requests.setInfo('tombolo.archivio.contatore', { giusti: c.correct, servono: c.needed });
-      else if (!this.echoesOpen()) this.requests.setInfo('tombolo.archivio.daRammendare', {});
+      // Archivio con le occasioni (A6): oltre ai nomi, quante occasioni restano da piantare.
+      const occ = this.params.mode === 'occasioni' ? { piantate: s.occasions.length, posti: occasionSlots(lv) } : null;
+      if (!a.allNamed()) this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.contatore', { giusti: c.correct, servono: c.needed, ...(occ ?? {}) });
+      else if (!this.echoesOpen()) this.requests.setInfo(occ ? 'tombolo.occasioni.contatore' : 'tombolo.archivio.daRammendare', occ ?? {});
       else this.requests.setInfo('tombolo.archivio.fatto', {});
     } else if (this.params.mode === 'occasioni') {
       this.requests.setInfo('tombolo.occasioni.contatore', { piantate: s.occasions.length, posti: occasionSlots(lv) });
@@ -853,7 +857,8 @@ export class NightController {
       return;
     }
     if (m === 'occasioni') {
-      if (this.session.done) this.retry();
+      if (this.session.done && this.session.archive && this.session.succeeded()) this.finish();
+      else if (this.session.done) this.retry();
       else this.run();
       return;
     }
@@ -1124,6 +1129,15 @@ export class NightController {
       return;
     }
     if (s.succeeded()) {
+      // Nell'Archivio (A6) la notte si chiude con "Chiudi il merletto", come gli
+      // altri Archivi: prima si possono leggere gli echi.
+      if (s.archive) {
+        this.s.haptics.play('successo');
+        // Con tutti i nomi la striscia dice già «tocca gli incroci per gli echi».
+        if (!s.archive.allNamed()) this.explain.show('tombolo.archivio.rammendato', {}, 'ok', 4000);
+        this.refresh();
+        return;
+      }
       this.finish();
       return;
     }
@@ -1137,6 +1151,8 @@ export class NightController {
     if (this.params.mode !== 'occasioni' || this.completed || !this.runner) return;
     if (this.session.done || this.session.rows.length > 0) this.session.retry();
     this.placing = false;
+    // La nota di Clotilde (come si piantano le occasioni) non copre la giornata che accade.
+    this.margin.hide();
     this.extraVersion++;
     this.runner.start();
     this.refresh();
@@ -1180,8 +1196,11 @@ export class NightController {
     if (this.completed) return this.completed;
     const s = this.session;
     this.runner?.stop();
-    this.completed = s.complete();
-    clearNight(this.s);
+    // Prima l'esito e il salvataggio, poi l'annuncio: chi ascolta night:complete
+    // trova la notte già chiusa (anche se cambia scena subito).
+    this.completed = s.outcome();
+    this.clearSaved();
+    s.complete();
     this.placing = false;
     this.extraVersion++;
     this.explain.show('tombolo.fine', {}, 'ok', 4000);
@@ -1210,6 +1229,7 @@ export class NightController {
       if (sol) this.setOccasions(sol);
       this.run();
       this.runner?.finish();
+      if (s.archive && s.succeeded()) this.finish();
       return this.completed;
     }
     if (s.archive) {
@@ -1219,7 +1239,10 @@ export class NightController {
       }
     }
     if (s.needsNome) {
-      const t = s.state.pos.find((x) => this.visuals.get(x)?.kind !== 'lino') ?? s.state.pos[0];
+      // Il filo del minimo dal .computed.json (g12 con Lunardi: il nome su Lunardi,
+      // 2 incroci); senza indicazione, il primo filo che non è un lino.
+      const best = s.precomputedNomeOn();
+      const t = (best && s.state.pos.includes(best) ? best : null) ?? s.state.pos.find((x) => this.visuals.get(x)?.kind !== 'lino') ?? s.state.pos[0];
       if (t) this.setNome(t);
     }
     let sol = rows ?? null;
@@ -1438,7 +1461,7 @@ export class NightController {
     for (let guard = 0; guard < 8 && (ui.overlays?.().length ?? 0) > 0; guard++) ui.closeOverlay();
     const p: NightParams = { ...this.params };
     delete p.resume;
-    clearNight(this.s);
+    this.clearSaved();
     this.restarted = true;
     void this.s.scenes.go('tombolo', p, { transition: 'none' });
   }
@@ -1507,6 +1530,17 @@ export class NightController {
     if (this.params.mode === 'replay') return;
     this.lastSaveVersion = this.session.version;
     saveNight(this.s, this.params, this.session.toResume(), immediate);
+  }
+
+  /**
+   * Notte finita o ricominciata: si toglie il suo salvataggio. Le notti 'replay'
+   * (spartito, Ripassa) non si salvano mai, quindi non toccano `SaveData.night`:
+   * lì può esserci la notte di storia o del merletto lasciata a metà. Anche negli
+   * altri modi si toglie solo un salvataggio di questo livello.
+   */
+  private clearSaved(): void {
+    if (this.params.mode === 'replay') return;
+    clearNight(this.s, this.params.level.id);
   }
 
   // ───────── Fine della scena ─────────

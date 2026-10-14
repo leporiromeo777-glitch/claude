@@ -9,7 +9,7 @@
  * Il passo della riga automatica è `Session.stepAuto()`; qui ci sono le regole
  * delle occasioni e il temporizzatore dell'animazione (`AutoRunner`).
  */
-import type { LevelDef, OccasionDef, OccasionKind, RowResult } from '../../core/types';
+import type { LevelDef, NightParams, OccasionDef, OccasionKind, RowResult } from '../../core/types';
 
 export const OCCASION_KINDS_ORDER: readonly OccasionKind[] = ['pane', 'festa', 'messa', 'lanterna', 'vaporetto'];
 
@@ -25,6 +25,28 @@ export const OCCASION_GLYPH: Readonly<Record<OccasionKind, string>> = {
 /** Quante occasioni si possono piantare (0 = la modalità non le prevede). */
 export function occasionSlots(level: LevelDef): number {
   return Math.max(0, level.autoweave?.occasionSlots ?? 0);
+}
+
+/**
+ * Modo della notte di un livello, come lo sceglie la campagna: Archivio
+ * (l'Archivio con le occasioni, A6, si tesse con le occasioni), filo controllato,
+ * occasioni, normale.
+ */
+export function defaultMode(level: LevelDef): NightParams['mode'] {
+  if (level.archive) return occasionSlots(level) > 0 ? 'occasioni' : 'archivio';
+  if (level.autoweave?.controlled) return 'controllato';
+  if (occasionSlots(level) > 0) return 'occasioni';
+  return 'normale';
+}
+
+/**
+ * Modo richiesto, corretto quando non può funzionare: un Archivio con le occasioni
+ * (arc6) aperto in modo 'archivio' passa a 'occasioni' (gli strappi coprono la
+ * giornata, non ci sono incroci da rammendare e "Lascia accadere" non farebbe nulla).
+ */
+export function fitMode(level: LevelDef, mode: NightParams['mode']): NightParams['mode'] {
+  if (mode === 'archivio' && level.archive && occasionSlots(level) > 0) return 'occasioni';
+  return mode;
 }
 
 /** Occasioni fisse (l'agenda di Livia in fin_seppia): si vedono ma non si toccano. */

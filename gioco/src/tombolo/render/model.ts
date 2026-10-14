@@ -133,6 +133,21 @@ export function pressoOf(c: Condition, out: { who: ThreadId; place: string; hour
   return out;
 }
 
+/**
+ * Celle di un obiettivo obbligatorio: `presso` (chi, luogo, ora) e `parte` con
+ * l'ora (chi deve trovarsi nella colonna di bordo quando la barca parte: g04
+ * Bepi al Molo alle 7, g12 alle 9). Gli altri obiettivi restano nel gettone.
+ */
+export function goalCellsOf(level: LevelDef, c: Condition, out: { who: ThreadId; place: string; hour: number }[] = []): { who: ThreadId; place: string; hour: number }[] {
+  if (c.t === 'presso') out.push({ who: c.who, place: c.place, hour: c.hour });
+  else if (c.t === 'parte' && c.hour !== undefined) {
+    const e = (level.edges ?? []).find((x) => x.hour === c.hour);
+    const place = e ? (e.side === 'molo' ? level.columns[0] : level.columns[level.columns.length - 1]) : undefined;
+    if (place) out.push({ who: c.who, place, hour: c.hour });
+  } else if (c.t === 'tutti') for (const x of c.of) goalCellsOf(level, x, out);
+  return out;
+}
+
 export interface ModelInput {
   session: Session;
   visuals: Map<ThreadId, ThreadVisual>;
@@ -204,6 +219,24 @@ export function buildLaceModel(inp: ModelInput, prev: LaceModel | null): LaceMod
     if (index > fixed && unreachable.some((u) => u.thread === pin.thread && u.place === pin.place && u.hour === pin.hour)) state = 'irraggiungibile';
     const v = visualOf(inp.visuals, pin.thread);
     pins.push({ kind: 'ottone', state, col, index, icon: v.faded ? null : v.icon, label: state === 'irraggiungibile' ? String(pin.hour) : null });
+  }
+  // Obiettivi obbligatori con un posto e un'ora (presso; parte all'ora di una
+  // barca): spilli d'ottone con lo stato dell'obiettivo, come le richieste.
+  if (s.params.goals.length > 0) {
+    const reports = s.goalStatus();
+    s.params.goals.forEach((g, gi) => {
+      const rep = reports[gi];
+      if (!rep) return;
+      const state: PinState = rep.status === 'soddisfatta' ? 'fatto' : rep.status === 'fallita' ? 'fallito' : 'normale';
+      for (const c of goalCellsOf(level, g)) {
+        const col = level.columns.indexOf(c.place as never);
+        const index = c.hour - start;
+        if (col < 0 || index < 1 || index > rows) continue;
+        if (pins.some((p) => p.kind === 'ottone' && p.col === col && p.index === index)) continue;
+        const v = visualOf(inp.visuals, c.who);
+        pins.push({ kind: 'ottone', state, col, index, icon: v.faded ? null : v.icon, label: state === 'fallito' ? String(c.hour) : null });
+      }
+    });
   }
   const status = s.requestStatusFull();
   s.params.accepted.forEach((a) => {

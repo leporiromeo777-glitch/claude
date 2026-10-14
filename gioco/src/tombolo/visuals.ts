@@ -118,6 +118,34 @@ function linoVisual(id: ThreadId, hc: boolean, cosmetic: string | null | undefin
   };
 }
 
+/**
+ * Persona senza personaggio (il padre di Marta in arc1, la scuola in arc3, i
+ * paesani di arc5): un filo pieno come quello delle persone, non sottile come il
+ * lino, perché riceve lettere e segreti; colore neutro, liscio, senza icona.
+ * Anche un filo d'avorio o nero senza personaggio ha qui il suo colore.
+ */
+export const NEUTRO_COLOR = '#BCA37C';
+export const NEUTRO_COLOR_HC = '#D6C29E';
+
+function neutralVisual(id: ThreadId, kind: ThreadKind, hc: boolean): ThreadVisual {
+  const color = kind === 'avorio' ? '#EFE3C8' : kind === 'nero' ? '#2B2622' : hc ? NEUTRO_COLOR_HC : NEUTRO_COLOR;
+  return {
+    id,
+    kind,
+    character: null,
+    color,
+    light: kind === 'nero' ? NERO_RIFLESSO : shade(color, 0.32),
+    dark: shade(color, -0.45),
+    ink: kind === 'nero' ? '#6B5A4C' : shade(color, -0.5),
+    pattern: 'liscio',
+    width: 6,
+    icon: null,
+    spindle: 'fuso/lino',
+    faded: false,
+    edge: hc ? '#F3EEE4' : null,
+  };
+}
+
 function fadedVisual(id: ThreadId, kind: ThreadKind, hc: boolean): ThreadVisual {
   const color = hc ? '#A39E93' : FADED_COLOR;
   return {
@@ -156,7 +184,7 @@ export function buildVisuals(level: LevelDef, characters: ReadonlyMap<CharacterI
       out.set(t.id, characterVisual(t.id, t.kind, characters.get(chId), chId, hc));
       continue;
     }
-    out.set(t.id, linoVisual(t.id, hc, o.cosmetic));
+    out.set(t.id, neutralVisual(t.id, t.kind, hc));
   }
   return out;
 }

@@ -19,6 +19,7 @@ import type { AcceptedRequest, CharacterId, Condition, GradoId, HintTier, LevelD
 import { activeNight } from './active';
 import { resolveLevel, resumeNight } from './resume';
 import { spartitoParams } from './modes/replay';
+import { defaultMode } from './modes/autoweave';
 import { renderLacePng } from './export';
 import { rowBottom, rowTop } from './layout';
 import { threadName } from './text';
@@ -88,7 +89,7 @@ export async function buildParams(s: Services, o: StartOptions): Promise<NightPa
   }
   const p: NightParams = {
     origin: o.origin ?? (level.kind === 'archivio' ? 'archivio' : level.kind === 'giornaliero' ? 'giornaliero' : 'libero'),
-    mode: o.mode ?? (o.replay ? 'replay' : level.archive ? 'archivio' : level.autoweave?.controlled ? 'controllato' : level.autoweave?.occasionSlots ? 'occasioni' : 'normale'),
+    mode: o.mode ?? (o.replay ? 'replay' : defaultMode(level)),
     level,
     flags: o.flags ?? {},
     accepted,

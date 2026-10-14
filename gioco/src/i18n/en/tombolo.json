@@ -113,9 +113,11 @@
   "archivio": {
     "chiE": "Who is {filo}?",
     "contatore": "Right names: {giusti}/{servono} to confirm",
+    "contatoreOccasioni": "Right names {giusti}/{servono} · Occasions {piantate}/{posti}",
     "confermati": "{n, plural, one {A thread gets its colour back.} other {# threads get their colours back.}}",
     "daRammendare": "Every thread has a name. Now the mending.",
     "fatto": "Named and mended: touch the crossings for the echoes.",
+    "rammendato": "Mended. The names are still missing: touch the faded threads.",
     "nonCoincide": "The mending doesn't match: at {ora} the old lace was different.",
     "provvisorio": "{nome}?",
     "registrata": "This row belongs to the old lace: it can't be undone.",

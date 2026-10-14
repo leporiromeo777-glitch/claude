@@ -13,6 +13,7 @@ import type { ActionEvent, CanvasHost, Gesture, NightParams, Scene, Services, Vi
 import { NightController } from './controller';
 import { setActiveNight } from './active';
 import { rememberLevel, resolveComputed, resumeParams } from './resume';
+import { fitMode } from './modes/autoweave';
 
 export function isNightParams(v: unknown): v is NightParams {
   if (!v || typeof v !== 'object') return false;
@@ -34,6 +35,7 @@ export function isNightParams(v: unknown): v is NightParams {
 function normalize(p: NightParams): NightParams {
   return {
     ...p,
+    mode: fitMode(p.level, p.mode),
     flags: p.flags ?? {},
     accepted: Array.isArray(p.accepted) ? p.accepted : [],
     goals: Array.isArray(p.goals) ? p.goals : [...(p.level.goals ?? [])],

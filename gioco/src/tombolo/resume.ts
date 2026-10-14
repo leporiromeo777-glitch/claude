@@ -112,7 +112,16 @@ export function saveNight(s: Pick<Services, 'save'>, p: NightParams, resume: Nig
   );
 }
 
-export function clearNight(s: Pick<Services, 'save'>): void {
+/**
+ * Toglie la notte salvata. Con `levelId` la toglie solo se è di quel livello:
+ * una notte finita non cancella quella di un altro livello lasciata a metà
+ * (per esempio la storia sospesa mentre si ripassa un merletto).
+ */
+export function clearNight(s: Pick<Services, 'save'>, levelId?: LevelId): void {
+  if (levelId !== undefined) {
+    const n = s.save.data().night;
+    if (!n || n.params?.levelId !== levelId) return;
+  }
   s.save.update(
     (d) => {
       d.night = null;

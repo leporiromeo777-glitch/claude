@@ -10,6 +10,9 @@
 import type { Hour, TutorialStep, Violation } from '../core/types';
 import type { PulseTarget } from './ui/actionbar';
 
+/** Violazioni che il tutorial chiama 'rifiuto' (stranezze dei personaggi). */
+const REFUSALS: ReadonlySet<Violation['code']> = new Set<Violation['code']>(['rifiuto', 'corre', 'faro']);
+
 export interface TutorialHooks {
   /** Mostra la nota a margine (una volta per notte). */
   margin(textKey: string): void;
@@ -50,8 +53,14 @@ export class Tutorial {
     if (wrongSide) this.marginFor('versoSbagliato', hour);
   }
 
+  /**
+   * Una riga o un incrocio rifiutato. Per GDD 3.4 sono «righe rifiutate» tutte le
+   * violazioni di una stranezza: Marta che non passa sotto (`rifiuto`), Gino che
+   * non sta fermo (`corre`), Zeno che non lascia il Faro (`faro`). La nota di g01
+   * («c'è chi non passa sotto, e chi non sta fermo») parte con ognuna.
+   */
   onViolation(v: Violation, hour: Hour): void {
-    if (v.code === 'rifiuto') this.marginFor('rifiuto', hour);
+    if (REFUSALS.has(v.code)) this.marginFor('rifiuto', hour);
     if (v.code === 'spillo') this.marginFor('spillo', hour);
   }
 

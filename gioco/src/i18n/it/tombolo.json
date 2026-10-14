@@ -113,9 +113,11 @@
   "archivio": {
     "chiE": "Chi è {filo}?",
     "contatore": "Nomi giusti: {giusti}/{servono} per confermare",
+    "contatoreOccasioni": "Nomi giusti {giusti}/{servono} · Occasioni {piantate}/{posti}",
     "confermati": "{n, plural, one {Un filo ritrova il suo colore.} other {# fili ritrovano il loro colore.}}",
     "daRammendare": "Tutti i fili hanno un nome. Ora il rammendo.",
     "fatto": "Nominato e rammendato: tocca gli incroci per gli echi.",
+    "rammendato": "Rammendato. Mancano ancora i nomi: tocca i fili sbiaditi.",
     "nonCoincide": "Il rammendo non torna: alle {ora} il merletto antico era diverso.",
     "provvisorio": "{nome}?",
     "registrata": "Questa riga è del merletto antico: non si disfa.",

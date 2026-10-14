@@ -48,8 +48,10 @@ import type {
 import {
   applyRow,
   checkCrossing,
+  conditionKey,
   createContext,
   encodeSpartito,
+  engineTextKeys,
   evaluate,
   forcedCrossings,
   hintFor,
@@ -136,6 +138,9 @@ export const NO_UNDO_KEY = 'tombolo.disfa.vietato';
 
 const QUIRK_OF_CODE: Partial<Record<Violation['code'], QuirkId>> = { rifiuto: 'martaNoSotto', faro: 'zenoFaro', corre: 'ginoCorre' };
 
+/** Motivi «a rischio» che il motore sa scrivere (non tutte le condizioni ne hanno uno). */
+const RISK_KEYS: ReadonlySet<string> = new Set(engineTextKeys().filter((k) => k.startsWith('tombolo.cond.rischio.')));
+
 function sameCrossings(a: readonly Crossing[], b: readonly Crossing[]): boolean {
   const k = (list: readonly Crossing[]): string =>
     list
@@ -185,6 +190,7 @@ export class Session implements NightSession {
   version = 0;
   private previewCache: { v: number; r: RowResult } | null = null;
   private statusCache: { v: number; r: RequestStatus[] } | null = null;
+  private goalCache: { v: number; r: CondReport[] } | null = null;
   private replayIndex = 0;
   private outcomeCache: NightOutcome | null = null;
   readonly archive: ArchiveBook | null;
@@ -307,6 +313,7 @@ export class Session implements NightSession {
     this.version++;
     this.previewCache = null;
     this.statusCache = null;
+    this.goalCache = null;
     this.outcomeCache = null;
   }
 
@@ -374,9 +381,13 @@ export class Session implements NightSession {
     let changed = false;
     while (!this.done && !book.isHoleRow(this.hour)) {
       const rec = book.recordedRow(this.hour);
+      const used = this.state.usedMatassa;
       const res = applyRow(this.levelFree, this.state, rec ? rec.crossings.filter((c) => !c.forced) : [], this._ctx);
       if (!res.ok) break;
-      this.commit(res, rec ? rec.crossings : [], true);
+      // Le righe registrate non consumano matassa: conta solo il rammendo (anche
+      // dopo l'ultimo strappo, dove prima il gomitolo segnava "3/2" in arc3).
+      const kept: RowResult = res.state.usedMatassa === used ? res : { ...res, state: { ...res.state, usedMatassa: used } };
+      this.commit(kept, rec ? rec.crossings : [], true);
       changed = true;
       this.lockedRows = this._rows.length;
     }
@@ -631,11 +642,32 @@ export class Session implements NightSession {
     return this.requestStatusFull().map((s) => ({ noteId: s.noteId, report: s.report }));
   }
 
+  /**
+   * Stato in tempo reale di condizioni: sulle righe fissate più la riga corrente
+   * in anteprima. Una condizione che fallirebbe solo per la riga non ancora
+   * fissata è «a rischio», non «fallita»: all'apertura di g04 Bepi deve ancora
+   * prendere la barca delle 7, non ha già perso.
+   */
+  private liveReports(conds: Condition[]): CondReport[] {
+    if (conds.length === 0) return [];
+    const { timeline, events } = this.liveTimeline();
+    const live = evaluate(this.level, timeline, events, conds, this._ctx, this.done);
+    if (this.done || !live.some((r) => r.status === 'fallita')) return live;
+    const fixed = evaluate(this.level, this._timeline, this._events, conds, this._ctx, false);
+    return live.map((r, i) => {
+      const f = fixed[i];
+      if (r.status !== 'fallita' || !f || f.status === 'fallita') return r;
+      const c = conds[i] as Condition;
+      const key = conditionKey('rischio', c.t);
+      if (RISK_KEYS.has(key) && r.params) return { status: 'a_rischio', reasonKey: key, params: r.params };
+      return f.status === 'a_rischio' ? f : { status: 'a_rischio' };
+    });
+  }
+
   requestStatusFull(): RequestStatus[] {
     if (this.statusCache && this.statusCache.v === this.version) return this.statusCache.r;
     const live = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId));
-    const { timeline, events } = this.liveTimeline();
-    const reports = live.length > 0 ? evaluate(this.level, timeline, events, live.map((a) => a.request), this._ctx, this.done) : [];
+    const reports = this.liveReports(live.map((a) => a.request));
     const out: RequestStatus[] = this.params.accepted.map((a) => {
       if (this._dropped.includes(a.noteId)) return { noteId: a.noteId, report: { status: 'fallita', reasonKey: DROPPED_KEY }, dropped: true };
       const i = live.findIndex((x) => x.noteId === a.noteId);
@@ -647,9 +679,10 @@ export class Session implements NightSession {
 
   /** Stato degli obiettivi obbligatori (in tempo reale). */
   goalStatus(): CondReport[] {
-    if (this.params.goals.length === 0) return [];
-    const { timeline, events } = this.liveTimeline();
-    return evaluate(this.level, timeline, events, this.params.goals, this._ctx, this.done);
+    if (this.goalCache && this.goalCache.v === this.version) return this.goalCache.r;
+    const r = this.liveReports(this.params.goals);
+    this.goalCache = { v: this.version, r };
+    return r;
   }
 
   /** Spilli d'ottone ormai irraggiungibili dallo stato corrente. */
@@ -659,16 +692,36 @@ export class Session implements NightSession {
 
   // ───────── Suggerimenti ─────────
 
-  /** Soluzione precalcolata per l'insieme di richieste attive, se c'è. */
-  precomputed(): RowMoves[] | null {
-    if (this.archive) return this.level.archive?.recorded ?? null;
+  /**
+   * Voce del `.computed.json` per l'insieme di richieste attive (base, bigliettino
+   * o combinazione), o null se non c'è.
+   */
+  private computedEntry(): { incroci: number | null; rows?: RowMoves[]; nomeOn?: ThreadId } | null {
     const c = this.deps.computed;
     if (!c) return null;
     const ids = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId)).map((a) => a.noteId).sort();
-    if (ids.length === 0) return c.base.rows ?? null;
-    if (ids.length === 1) return c.perNote[ids[0] as string]?.rows ?? null;
-    const combo = c.combos.find((x) => [...x.notes].sort().join('|') === ids.join('|'));
-    return combo?.rows ?? null;
+    if (ids.length === 0) return c.base;
+    if (ids.length === 1) return c.perNote[ids[0] as string] ?? null;
+    return c.combos.find((x) => [...x.notes].sort().join('|') === ids.join('|')) ?? null;
+  }
+
+  /** Soluzione precalcolata per l'insieme di richieste attive, se c'è. */
+  precomputed(): RowMoves[] | null {
+    if (this.archive) return this.level.archive?.recorded ?? null;
+    const e = this.computedEntry();
+    if (!e || !e.rows) return null;
+    // Righe calcolate con il nome su un altro filo: con la scelta del giocatore non valgono.
+    if (e.nomeOn !== undefined && this._nomeOn !== null && e.nomeOn !== this._nomeOn) return null;
+    return e.rows;
+  }
+
+  /**
+   * Filo su cui appuntare il nome di Ada per il minimo dell'insieme di richieste
+   * attive (GDD 3.11), dal `.computed.json`; null se il minimo non dipende dal nome.
+   */
+  precomputedNomeOn(): ThreadId | null {
+    if (this.archive) return null;
+    return this.computedEntry()?.nomeOn ?? null;
   }
 
   /** Incroci minimi per le richieste attive (filo d'oro). */
@@ -676,11 +729,7 @@ export class Session implements NightSession {
     const c = this.deps.computed;
     if (!c) return null;
     if (this.archive) return c.base.incroci;
-    const ids = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId)).map((a) => a.noteId).sort();
-    if (ids.length === 0) return c.base.incroci;
-    if (ids.length === 1) return c.perNote[ids[0] as string]?.incroci ?? null;
-    const combo = c.combos.find((x) => [...x.notes].sort().join('|') === ids.join('|'));
-    return combo ? combo.incroci : null;
+    return this.computedEntry()?.incroci ?? null;
   }
 
   private matchesPrefix(sol: readonly RowMoves[]): boolean {
@@ -830,7 +879,31 @@ export class Session implements NightSession {
 
   // ───────── Esito ─────────
 
+  /**
+   * Righe che contano per l'eleganza: nell'Archivio solo quelle rammendate (le
+   * righe registrate sono il merletto di allora, e il minimo del filo d'oro è la
+   * somma dei rammendi più corti); altrimenti tutte.
+   */
+  private scoredRows(): RowMoves[] {
+    const book = this.archive;
+    if (!book || this.params.mode !== 'archivio') return this._rows;
+    return this._rows.filter((r) => book.isHoleRow(r.hour));
+  }
+
+  /** Chiamato dopo l'ultima riga: esito ed evento `night:complete` (una volta per esito). */
   complete(): NightOutcome {
+    const outcome = this.outcome();
+    if (this.announced !== outcome) {
+      this.announced = outcome;
+      this.emit('night:complete', { outcome });
+    }
+    return outcome;
+  }
+
+  private announced: NightOutcome | null = null;
+
+  /** Esito della notte senza annunciarlo (il controllore lo legge prima di `complete`). */
+  outcome(): NightOutcome {
     if (this.outcomeCache) return this.outcomeCache;
     const level = this.level;
     const goals = evaluate(level, this._timeline, this._events, this.params.goals, this._ctx, this.done);
@@ -850,7 +923,7 @@ export class Session implements NightSession {
       goals,
       requests,
       dropped: [...this._dropped],
-      metrics: metrics(level, this._rows, this.minIncroci(), this.fantasmaUsed),
+      metrics: metrics(level, this.scoredRows(), this.minIncroci(), this.fantasmaUsed),
       spartito: this.spartito(),
       hintsUsed: this.hintsUsed,
       fantasmaUsed: this.fantasmaUsed,
@@ -863,7 +936,6 @@ export class Session implements NightSession {
     }
     if (this.params.mode === 'occasioni' || this._occasions.length > 0) outcome.occasions = this._occasions.map((o) => ({ ...o }));
     this.outcomeCache = outcome;
-    this.emit('night:complete', { outcome });
     return outcome;
   }
 
