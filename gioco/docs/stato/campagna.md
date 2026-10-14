@@ -1,66 +1,144 @@
 # Stato del pacchetto: campagna
 
-**Stato:** done
+**Stato:** done (costruito, poi verificato e corretto)
+
+La campagna si gioca nel browser dall'inizio alla fine:
+- prologo;
+- sere, notti, albe, bilanci, Archivi;
+- la scelta di g23 e i quattro finali, con i titoli di coda;
+- salvataggi a ogni passaggio di fase, e ripresa anche a metà notte.
+
+Il prologo e la prima giornata sono stati giocati in Chromium con trascinamenti e tocchi veri, nel layout stretto (390×844) e in quello largo (1280×720). Il resto della campagna è stato giocato con l'API di debug e con l'autoplay vero del tombolo.
 
 ## Riepilogo
 
-Il pacchetto `campagna` (src/campaign/, src/i18n/{it,en}/campaign.json, tests/unit/campaign/) fa girare la storia: la macchina a stati delle giornate (sera → notte → alba → bilancio → [archivio] → sera …; dopo g23 scelta → finale → titoli), le scene `sera`, `alba`, `bilancio`, `archivio`, `telaio`, `finale`, i pannelli `taccuino` e `bigliettini` (più `cp-nota` e `cp-oggetto`), il Taccuino come conoscenza, la memoria del nome, gli sblocchi del GDD 7 e il debug `__GAME__.campaign`.
+File: `src/campaign/`, `src/i18n/{it,en}/campaign.json`, `tests/unit/campaign/`.
 
-### Logica pura (senza DOM, testata in Node)
+### API pubbliche (per gli altri pacchetti)
 
-- `story.ts`: `evalStory(cond, state, knowledge, o?)` per tutte le varianti di `StoryCond` (flag con uguaglianza e `gte`/`lte` numerici, `ok`/`failed`/`accepted`/`ignored`/`reply`, `event` sugli eventi dell'ultima notte con fili distinti, `knows` per stranezze/voci/desideri/regole/Archivio, `memoria`, `done`), `applyEffects(effects, state, knowledge, o?, log)` per tutti gli `Effect` (flag, voci del Taccuino che aprono e chiudono domande, desideri, stranezze, lettere, oggetti, memoria). Una domanda risolta non si riapre.
-- `memoria.ts`: memoria del nome (GDD 3.11): +1 a chi tiene il nome a fine notte, −1 a chi era nel merletto senza, invariata per gli assenti, fra 0 e 3; si parte da 3, Lunardi da 1; si aggiorna solo nei livelli con la regola `nome` (da g12). Con memoria 0 il bigliettino arriva anonimo.
-- `evening.ts`: bigliettini della sera (filtrati con `availableIf`, 3 per sera; nella fase `scelta` quelli di g23 con `ending`), oggetti della laguna (dopo g00 il merletto d'avorio e il Libro dei Punti; il fascio di lettere e `fascio_1..3` solo se `lettereLivia == 'liberate'`), spilli contati da `campaign.json`, Appunta / Togli spillo / Rispondi (R1, R2: effetti subito, una volta) / Lascia, l'autore da indovinare per gli anonimi, i parametri della notte (`needsNome` da g12, flag, richieste).
-- `dawn.ts`: selezione dell'alba (GDD 5.9): priorità, mai lo stesso personaggio due volte di fila, niente ripetizioni negli ultimi 3 giorni salvo priorità ≥ 80, al massimo 3; candidate dal livello (`when`), dalle righe di lines.json legate agli eventi della notte e di riserva, quadro della delusione (priorità 80) per l'autore sbagliato; Ada grezza (`_grezza`) finché non ha un nome.
-- `diary.ts`: voci sbloccate a ogni passaggio (fino a stabilità), pista del momento (la voce `pista` più recente con la domanda non risolta), pagine del Libro.
-- `endings.ts`: carte della scelta (A, B, C, D), requisiti del finale vero con i testi di `EndingDef.missing` quando la condizione è falsa, epiloghi filtrati per `when` nell'ordine del file.
-- `progress.ts`: record di eleganza, fili d'oro (una volta per livello), fusi intagliati `stile_1..4` a 3, 8, 15, 22 fili d'oro (tutti e quattro al primo finale che conta), g07 → `unlocks.daily`, g08 → `unlocks.libero` (e Ripassa), g16 → `unlocks.gradi`, finale aperto → `unlocks.tovaglia`.
-- `simulate.ts`, `score.ts`: notti simulate con le soluzioni precalcolate (debug, test) e il carillon dell'intera partita (un battito per giornata chiusa).
-- `flow.ts`: macchina a stati su `SaveData` (pura): `newCampaign`, `beginEvening`, `startNight`, `completeDay` (esiti, conseguenze, nuove voci, memoria, record, alba, rapporto del bilancio), `finishDawn`, `finishBilancio`, Archivio (`archiveParams`, `completeArchive`), scelta (`choose`, `finalParams`, `completeFinal`: C registra `fin_chiuso` e torna alla sera di g23 senza contare come finale; un finale con obiettivi falliti si ritenta), `rewindTo` (Riprendi da qui), `replayParams` (Rigioca), `ripassaParams` / `replayRipassaParams` (Ripassa), snapshot a ogni sera.
+- **`controller.ts`**: `controller` / `campaign` implementano `CampaignController` (ARCHITETTURA 5.4): `newGame()`, `continueGame()`, `resumeFrom(levelId)`, `replay(levelId)`, `state()`, `knowledge()`.
+- **Contratto con le schermate** (navigazione per scena):
+  - `scenes.go('sera', { cmd: 'nuova', confirmed? })`: senza `confirmed` e con una storia salvata la sera chiede conferma;
+  - `{ cmd: 'continua' }`: riprende la fase salvata, anche a metà notte;
+  - `{ cmd: 'riprendi', levelId }`: Riprendi da qui;
+  - `scenes.go('telaio', { back?: SceneId })`.
+- **Scene**: `sera` (prologo, sera, scelta), `alba`, `bilancio`, `archivio`, `telaio`, `finale`.
+- **Pannelli in UiLayer**:
+  - `taccuino`: sei schede; opzioni `{ from, levelId, origin, accepted, tab?, entry?, noteId?, fixed? }`;
+  - `bigliettini`: richieste della notte con lo stato dal vivo e «Lascia cadere»;
+  - interni: `cp-nota`, `cp-oggetto`.
+- **Bus**:
+  - `night:complete` con origine `campagna`, `archivio` o `telaio`;
+  - `night:exit`: una notte facoltativa lasciata a metà si abbandona;
+  - `quirk:discovered`: solo dalle notti della storia.
+- **Logica pura** (testata in Node):
+  - `story.ts`: `evalStory`, `applyEffects`;
+  - `memoria.ts`: `memoriaAfterNight`, `initialMemoria`, `ensureMemoria`;
+  - `dawn.ts`: `selectDawn`, `buildDawn`;
+  - `evening.ts`: `eveningNotes`, `pinNote`, `replyNote`, `leaveNote`, `pinsLeft`, `campaignNightParams`;
+  - `endings.ts`: `endingRequirements`, `choiceCards`, `epilogueOf`;
+  - `progress.ts`: `recordNight`, `dayUnlocks`, `endingUnlocks`, `goldUnlocks`, `showsElegance`;
+  - `diary.ts`: `refreshDiary`, `currentPista`, `quirkRevealed`;
+  - `rewind.ts`: `rewindTo` (Riprendi da qui);
+  - `flow.ts`: la macchina a stati su `SaveData`.
+- **`__GAME__.campaign`** (ARCHITETTURA 15.1): `state`, `knowledge`, `newGame`, `goto(levelId, phase?)`, `accept(noteIds, guesses?)`, `reply(noteId, 'R1'|'R2')`, `toNight`, `skipDawn`, `finishDay`, `setFlag`, `setMemoria`, `learn(kind, id)`, `choose(ending)`, `unlockAll`. In più: `phase`, `scene`, `nav`, `continue`, `evening`, `unpin`, `leave`, `objectSeen`, `ripassa`, `dawn`, `report`, `next`, `cards`, `requirements`, `resumeFrom`, `replay`, `archive`, `finale`.
 
-### Controller e scene
+### Che cosa fa (in breve)
 
-- `controller.ts` (`controller`, `campaign`): implementa `CampaignController` (`newGame`, `continueGame`, `resumeFrom`, `replay`, `state`, `knowledge`). Comandi della scena `sera`: `{ cmd: 'nuova', confirmed? }`, `{ cmd: 'continua' }`, `{ cmd: 'riprendi', levelId }`. Ascolta `night:complete` per le origini `campagna`, `archivio`, `telaio` (navigazione dopo 1,6 s, ridotta con la velocità delle animazioni, solo se il giocatore è ancora davanti a quel merletto), `quirk:discovered` (voce nel Taccuino e avviso). Salva subito a ogni cambio di fase; «Continua» a metà notte riprende con `resumeParams` del tombolo alla stessa riga. Musica e ambiente per fase (`sera` con seme e personaggi della giornata, `alba`, `archivio`, `finale`; laguna, notte, pioggia nell'atto II, vento e tempesta in g15).
-- `SeraScene.ts`: prologo (schermo nero, stanza con la sedia vuota, il biglietto di Clotilde, «Tocca il tombolo»); sera con la porta e l'oggetto della laguna (`sfx('bottiglia')`), i bigliettini (`sfx('carta')`), il dettaglio con Appunta / Rispondi / Lascia e «Chi l'ha scritto?» per gli anonimi, il piede con Taccuino, cassapanca (Archivio), Telaio, Ripassa, «Al tombolo · spilli x/y» (conferma se restano bigliettini non decisi); scelta di g23 (carta strappata D con l'elenco di ciò che manca).
-- `AlbaScene.ts` + `vignette.ts`: vignette con diorama e figurine su canvas, testo ricco, borbottio per chi parla (non per il narratore), tocco / Invio / Spazio avanza, S salta, A automatico (aspetta la fine del borbottio, al massimo 8 s per vignetta), «Salta» sempre visibile.
-- `BilancioScene.ts`: richieste soddisfatte e fallite con le conseguenze, nuove voci del Taccuino, eleganza e record, filo d'oro, sblocchi, spartito, «Riascolta» (carillon).
-- `ArchivioScene.ts`: la cassapanca con i rotoli dell'Archivio (nuovo, nominato, rammendato) e l'apertura della notte d'Archivio.
-- `TelaioScene.ts`: la striscia delle giornate; per ciascuna Rigioca, Riprendi da qui (con conferma: torna lo snapshot, il Taccuino resta), Ripassa (dopo g08), Riascolta; epiloghi visti.
-- `FinaleScene.ts`: epiloghi, titoli di coda con il carillon dell'intera partita, ritorno alla sera di g23 per il finale chiuso.
-- `taccuino/panel.ts`: pannello `taccuino` con sei schede (Bigliettini dal giorno 1 o di notte con richieste; Persone; Libro; Domande con la pista «Dove guardare»; Lettere da g06 o con 5 lettere; Archivio se c'è un merletto nella cassapanca); voci nuove intere, lette in una riga; pannello `bigliettini` con lo stato dal vivo e «Lascia cadere» durante la notte. Nel layout largo il Taccuino è montato fisso accanto alla scena (`SideNotebook`), nello stretto è un overlay che si chiude con Indietro.
+- **Sera**:
+  - l'oggetto della laguna (dopo g00 anche il Libro dei Punti; il fascio di lettere e `fascio_1..3` solo se `lettereLivia == 'liberate'`);
+  - i bigliettini filtrati con `availableIf`, con Appunta / Rispondi / Lascia e gli spilli contati da campaign.json;
+  - per gli anonimi (memoria 0), «Chi l'ha scritto?» prima di appuntare;
+  - «Al tombolo» sempre attivo, con una conferma se restano bigliettini non decisi;
+  - Ripassa quando le richieste coincidono con una soluzione già trovata.
+- **Notte**: `NightParams` con `needsNome` solo nei livelli con la regola `nome`; modi `archivio`, `occasioni`, `controllato` e `normale`.
+- **Alba**: selezione GDD 5.9; vignette con diorama, figurine (Ada grezza; chi non ha una figurina usa quella anonima tinta del suo colore), borbottio, Salta e avanzamento automatico (al massimo 8 s per vignetta).
+- **Bilancio**:
+  - esiti e conseguenze, bigliettini lasciati, memoria, voci nuove;
+  - eleganza e record da g02 (GDD 7), filo d'oro, sblocchi;
+  - Riascolta, Spartito; «Continua» resta attaccato al bordo basso.
+- **Archivio**: la cassapanca, il merletto nel tombolo, la rivelazione, la nota a margine con la penna di Clotilde, le voci nuove.
+- **Telaio**: Rigioca, Riprendi da qui (con conferma), Ripassa, Riascolta, epiloghi visti. Dopo una notte del Telaio, Indietro torna dove si era entrati.
+- **Scelta e finali**: D strappato con le mancanze, C che torna alla sera di g23, epiloghi filtrati per `when`, titoli di coda col carillon dell'intera partita.
 
-### `__GAME__.campaign`
+## Correzioni della verifica
 
-`state()`, `knowledge()`, `newGame()`, `goto(levelId, phase?)` (giornate con `sera` / `notte` / `alba` / `bilancio` / `scelta`, Archivi, finali), `accept(noteIds, guesses?)`, `reply(noteId, 'R1' | 'R2')`, `toNight()`, `skipDawn()`, `finishDay()` (sera → notte → alba → bilancio → giornata dopo; di notte usa `activeNight().autoplay()`), `setFlag(k, v)`, `setMemoria(c, n)`, `learn(kind, id, state?)`, `choose(ending)`, `unlockAll()`. In più: `phase()`, `scene()`, `nav()`, `continue()`, `evening()`, `unpin(noteId)`, `leave(noteId)`, `objectSeen()`, `ripassa()`, `dawn()`, `report()`, `next()`, `cards()`, `requirements(ending?)`, `resumeFrom(levelId)`, `replay(levelId)`, `archive(levelId)`, `finale()`.
+1. **Bigliettini all'inizio della notte.** Nel layout largo il pannello Bigliettini del tombolo diceva «Nessuna richiesta stanotte» fino alla prima ora fissata. Il tombolo monta i pannelli prima di rendere attiva la notte. Ora:
+   - i pannelli si ridisegnano a `scene:enter`;
+   - prima di allora mostrano le richieste appuntate come «in corso».
+2. **Notti facoltative lasciate a metà.** Un Rigioca, o un merletto d'Archivio aperto dalla cassapanca, lasciato con «Torna al titolo» si riapriva a ogni «Continua» al posto della storia. Ora:
+   - chi esce da una notte facoltativa la abbandona;
+   - se l'app viene chiusa a metà, la notte si riprende alla stessa riga;
+   - un merletto d'Archivio aperto dalla cassapanca durante la sera prima non si riprendeva affatto.
+3. **Stranezze fuori dalla storia.** Le stranezze scoperte nel Merletto del giorno o in quello libero entravano nel Taccuino della storia, anticipando personaggi e voci (per esempio Lunardi prima dell'Atto II). Ora entrano solo quelle delle notti della storia.
+4. **Nuova storia.** Cancellava gli epiloghi visti, che il GDD 7 elenca fra gli sblocchi (il rapporto diceva il contrario). Ora restano.
+5. **«Al tombolo» sempre attivo** (GDD 10.3). Prima era disabilitato finché non si leggeva l'oggetto.
+6. **Eleganza e record dal bilancio di g02** (GDD 7: «g02: matassa visibile, records di eleganza»). Prima comparivano già nel prologo.
+7. **Voci lette nel Taccuino fisso.** Nel layout largo il Taccuino è sempre aperto e non segnava mai le voci come lette: restavano tutte «Nuova», per esteso. Ora diventano lette quando la scena smonta il pannello; una voce evidenziata resta aperta.
+8. **Stranezze senza anticipazioni.** La scheda della persona scriveva subito «Legge le lettere che porta» quando Teresa «si accende» nel prologo, mentre i contenuti lo spiegano solo dopo g05. Ora una stranezza si scrive per esteso solo quando tutte le voci di quella persona che la nominano sono nel Taccuino.
+9. **«Continua» a portata nel bilancio.** Con molte voci nuove finiva sotto la piega. Ora è in una riga attaccata al bordo basso (GDD 10.1).
+10. **Nomi leggibili sulla carta.** Il grigio chiaro di Lunardi era illeggibile sui fogli: ora i nomi sono in inchiostro velato dal colore, e sottolineatura e icona portano il colore pieno.
+11. **Titoli di coda senza doppioni.** Il titolo del gioco, i caratteri e gli strumenti comparivano due volte. Ora ogni riga compare una volta sola. Restano le righe del GDD 10.3 che credits.json non ha (intelligenza artificiale, Pellestrina e Burano).
+12. **Musica dell'Archivio** anche quando si riprende una notte d'Archivio. È stato aggiunto `rewind.ts` (ARCHITETTURA 5.4).
 
 ## Decisioni prese
 
-- **Bigliettini ignorati**: sono quelli non appuntati quando si va al tombolo (anche se si è risposto); «Lascia» li segna come lasciati subito. Valgono `onIgnore`.
-- **Autore sbagliato** di un anonimo: la richiesta fallisce (`onFail`) e all'alba c'è il quadro della delusione.
-- **Esiti per bigliettino** nella storia (`history[levelId]`: accettati, ignorati, risposte, esiti), non come flag `ok:`/`risposta:`.
-- **Memoria** prima di g12: 3 per tutti, Lunardi 1; per la scelta di g23 vale quella di fine g22.
-- **`done(arcN)`** = Archivio rammendato (anche arc6 con le occasioni); **`done(fin_chiuso)`** registrato nella storia con righe vuote.
-- **Nuova storia** azzera la conoscenza (Taccuino); i record, gli sblocchi e gli epiloghi visti restano.
-- **Snapshot** a ogni sera (senza l'esito dell'ultima notte); Riprendi da qui ricalcola i bigliettini della sera con la conoscenza attuale e tiene epiloghi visti e soluzioni trovate.
-- **Ripassa** solo con `unlocks.libero` (dopo g08) e solo se c'è già una soluzione per le stesse richieste: nella sera e nel Telaio.
-- **Finale** con obiettivi falliti: si ritenta la notte (fase `scelta` invariata).
-- **Velocità del testo** delle vignette: si usa la velocità delle animazioni (non c'è un'impostazione a parte).
-- **Navigazione**: un solo passaggio di scena in volo verso la stessa scena (5 s), cancellato a ogni `scene:enter`.
+- **Bigliettini ignorati.** Sono quelli non appuntati quando si va al tombolo, anche se si è risposto. «Lascia» li segna come lasciati subito, e valgono `onIgnore`. I destini legati a una richiesta (Bepi, Nina, lettere) seguono così la richiesta non tentata.
+- **Autore sbagliato di un anonimo.** La richiesta fallisce (`onFail`) e all'alba c'è il quadro della delusione (priorità 80). È la lettura più semplice di «la richiesta vale per la persona sbagliata».
+- **Esiti per bigliettino** in `history[levelId]` (accettati, ignorati, risposte, esiti), non come flag `ok:` / `risposta:`. I contenuti non usano quei flag.
+- **Memoria.**
+  - Prima di g12 vale 3 per tutti e 1 per Lunardi.
+  - Cambia solo nei livelli con la regola `nome`.
+  - La scelta di g23 usa la memoria di fine g22.
+- **`done(arcN)`** vuol dire Archivio rammendato (anche arc6, con le occasioni). **`done(fin_chiuso)`** è registrato in `history` con righe vuote; C non conta come finale.
+- **Nuova storia** azzera la storia e il Taccuino. Record, sblocchi, statistiche ed epiloghi visti restano.
+- **Snapshot.** Se ne salva uno a ogni sera. Riprendi da qui ricalcola i bigliettini con la conoscenza attuale e tiene epiloghi visti e soluzioni trovate.
+- **Ripassa** solo con `unlocks.libero` (dopo g08) e con una soluzione per le stesse richieste.
+- **Notti facoltative.**
+  - Un Rigioca o un Ripassa dal Telaio, o un Archivio aperto dalla cassapanca fuori dalla fase d'Archivio, si abbandonano uscendo.
+  - Si riprendono solo dopo una chiusura brusca.
+  - Le notti della storia e quelle della fase d'Archivio restano sempre da riprendere.
+- **Schede del Taccuino.** Lettere da g06 o con 5 lettere; Archivio quando c'è un rotolo; Bigliettini dal giorno 1, o di notte con richieste.
+- **Fusi a fili d'oro** `stile_1..4` a 3, 8, 15 e 22 fili d'oro; il primo finale che conta li dà tutti («fusi intagliati extra», GDD 7).
+- **Finale con obiettivi falliti**: si ritenta la notte.
+- **Navigazione dopo la notte.** Un solo passaggio di scena verso la stessa scena alla volta. Dopo `night:complete` si aspettano 1,6 s (scalati con la velocità delle animazioni), e si va avanti solo se il giocatore è ancora davanti a quel merletto.
 
 ## Problemi noti
 
-- I fusi intagliati `stile_5` e `stile_6` (serie del Merletto del giorno) non li assegna la campagna.
-- In L1 ci sono solo gli asset `fuso/stile_1` e `fuso/stile_2`: `stile_3` e `stile_4` finiscono in `unlocks.cosmetics` (GDD 7: 3, 8, 15, 22 fili d'oro) ma il titolo li mostra solo quando l'asset esiste.
-- Le figurine di chi non ha un modello (Clotilde, Ernesto…) usano la figura anonima `fig/lino/<posa>`.
+- **Velocità delle vignette.** Non c'è un'impostazione separata per la velocità del testo: `Settings` non ha il campo. L'avanzamento automatico usa la velocità delle animazioni.
+- **Fusi della serie del giorno.** `stile_5` e `stile_6` (7 giorni di fila, 30 in totale) non li assegna la campagna: sono del pacchetto interfaccia.
+- **Asset dei fusi.** In L1 esistono solo gli asset `fuso/stile_1` e `fuso/stile_2`: `stile_3` e `stile_4` sono scritti in `unlocks.cosmetics`, e il titolo li mostra quando l'asset esiste.
+- **Avviso sulle vignette.** L'avviso di una stranezza scoperta all'ultima riga (2,8 s) copre per circa un secondo il riquadro della prima vignetta dell'alba. È un toast del core, ed è transitorio.
 
 ## Richieste per altri pacchetti
 
-- **piattaforma-qa**: usare `__GAME__.campaign` (sopra); prima di `night.autoplay()` aspettare `night.state().active`; per le prove lunghe usare la build con `vite preview` (il server di sviluppo ricarica la pagina quando altri pacchetti cambiano file). Riferimento funzionante: `tests/unit/campaign/browser-verify.ts`.
-- **interfaccia**: già allineata (Continua → `{ cmd: 'continua' }`, Nuova storia → `{ cmd: 'nuova', confirmed: true }`, Pausa → overlay `taccuino`). Restano a lei i fusi della serie del giorno.
-- **tombolo**: `night:complete` arriva prima che `NightController.completed` sia impostato; la campagna lo gestisce (controlla dopo un tick), nessuna modifica necessaria.
+- **tombolo** (facoltativo):
+  - Montare i pannelli `bigliettini` e `taccuino` dopo aver reso attiva la notte. Oggi la campagna rimedia ridisegnandoli a `scene:enter`.
+  - Passare `fixed: true` al Taccuino montato a destra nel layout largo, così le voci nuove restano «Nuova» per tutta la notte e diventano lette quando la notte finisce.
+  - Nel prologo, giocato con il mouse in Playwright, il primo trascinamento dopo «Fissa l'ora» delle 6 a volte non viene preso per 1-2 s (l'animazione della riga?): è servito ripeterlo fino a tre volte.
+- **contenuti-atto1**: in `comune.crediti` restano i segnaposto «[nome dell'autore]», visibili nei titoli di coda della campagna e nei crediti.
+- **interfaccia**: già allineata (Continua → `{ cmd: 'continua' }`, Nuova storia → `{ cmd: 'nuova', confirmed: true }`, Pausa → overlay `taccuino`). Restano a lei i fusi `stile_5` e `stile_6`.
+- **piattaforma-qa**: usare `__GAME__.campaign` e aspettare `night.state().active` prima di `night.autoplay()`. Usare la build con `vite preview`. Riferimento funzionante: `tests/unit/campaign/browser-verify.ts`.
+  - Variabili: `CAMPAIGN_VERIFY_PORT`, `CAMPAIGN_VERIFY_URL`, `CAMPAIGN_VERIFY_OUT`.
+  - Notti facoltative: dopo un ricaricamento «Continua» le riprende; dopo «Torna al titolo» non più.
 
 ## Test
 
-- `npx vitest run tests/unit/campaign`: 7 file, 48 test (story, memoria, alba, flusso con i contenuti veri fino ai quattro finali, Archivio, Riprendi da qui, Ripassa, progressione e sblocchi, testi it/en, DOM con happy-dom: Taccuino fisso / overlay, schede e pista, vignette, bigliettini anonimi).
-- `npx tsc --noEmit -p .`: nessun errore.
-- `npx tsx tests/unit/campaign/browser-verify.ts` (build + `vite preview` sulla porta 5281, Chromium di Playwright): prologo e primo giorno giocati a mano (tocchi), ricarica in ogni fase e a metà notte, tutta la campagna fino a g23 con l'autoplay del tombolo, i finali A, B, C, D, layout largo e stretto, Archivio, Telaio (Riprendi, Rigioca, Ripassa), misure a 360×640 con il testo al 140%, nessun errore in console: 93/93 controlli superati.
+- **`npx vitest run tests/unit/campaign`**: 8 file, 57 test, tutti verdi.
+  - story, memoria, alba, flusso con i contenuti veri fino ai quattro finali, Archivio, Riprendi da qui, Ripassa, progressione e sblocchi, testi it/en;
+  - DOM con happy-dom: Taccuino fisso e overlay, voci lette, stranezze non anticipate, Bigliettini all'inizio della notte, vignette e figurine tinte, anonimi;
+  - controller sul bus: notti facoltative lasciate a metà, «Continua» che riprende l'Archivio, stranezze solo dalla storia.
+- **`npx tsc --noEmit -p .`**: nessun errore.
+- **`CAMPAIGN_VERIFY_PORT=5285 npx tsx tests/unit/campaign/browser-verify.ts`** (build e `vite preview`, Chromium): 99 controlli superati, nessun errore in console.
+  - prologo e prima giornata a tocchi;
+  - ricarica in ogni fase e a metà notte;
+  - tutta la campagna fino a g23 con l'autoplay del tombolo, e i finali A, B, C, D;
+  - layout largo con i Bigliettini dal vivo;
+  - Archivio dalla fase e dalla cassapanca (ripresa e abbandono);
+  - anonimo con l'autore sbagliato;
+  - Telaio: Riprendi, Rigioca, Ripassa e ritorno alla sera;
+  - eleganza da g02 e «Continua» visibile;
+  - misure a 360×640 con il testo al 140%.
+- **Esplorazione a mano con Playwright**: screenshot guardati uno per uno.
+  - Prologo trascinando davvero i fusi, alba toccando le vignette, bilancio, oggetto, bigliettini, risposta, spilli, Taccuino, notte di g01; in stretto e in largo, in italiano.
+  - g12 (nome e memoria nel bilancio e nel Taccuino), la scelta, fin_seppia, l'epilogo, i titoli, la fine.
