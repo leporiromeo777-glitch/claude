@@ -1,0 +1,328 @@
+{
+  "comune": {
+    "indietro": "Indietro",
+    "filiOre": "{fili, plural, one {# filo} other {# fili}} · {ore, plural, one {# ora} other {# ore}}"
+  },
+  "titolo": {
+    "nome": "TRAMA",
+    "sottotitolo": "Il merletto dei giorni",
+    "menu": "Menu principale",
+    "continua": "Continua",
+    "nuova": "Nuova storia",
+    "inizia": "Tocca per iniziare",
+    "giornaliero": "Merletto del giorno",
+    "giornalieroNuovo": "Oggi: {regola}",
+    "giornalieroFatto": "Tessuto oggi",
+    "libero": "Merletto libero",
+    "telaio": "Telaio",
+    "impostazioni": "Impostazioni",
+    "crediti": "Crediti",
+    "bloccato": "Non ancora.",
+    "lucchetto": {
+      "giornaliero": "Dopo la giornata 7",
+      "libero": "Dopo la giornata 8",
+      "telaio": "Dopo la prima giornata",
+      "completo": "Nella versione completa"
+    },
+    "nuovaDomanda": {
+      "titolo": "Cominciare una nuova storia?",
+      "corpo": "La storia di adesso si chiude e si riparte dalla prima notte. Quello che hai scoperto nel Taccuino resta solo nella nuova partita se lo riscopri.",
+      "ok": "Ricomincia",
+      "annulla": "Torna indietro"
+    },
+    "storiaAssente": "La storia non è ancora pronta in questa versione.",
+    "versione": "v{versione}"
+  },
+  "pausa": {
+    "titoloPannello": "Pausa",
+    "salvato": "Tutto è già salvato.",
+    "riprendi": "Riprendi",
+    "ricomincia": "Ricomincia la notte",
+    "ricominciaSpartito": "Ritessi lo spartito",
+    "taccuino": "Taccuino",
+    "impostazioni": "Impostazioni",
+    "titolo": "Torna al titolo",
+    "ricominciaDomanda": {
+      "titolo": "Ricominciare la notte?",
+      "corpo": "Le ore già fissate si disfano e il merletto riparte dall'apertura. Le richieste appuntate restano.",
+      "corpoSpartito": "Lo spartito si ritesse da capo.",
+      "ok": "Ricomincia",
+      "annulla": "Continua a tessere"
+    }
+  },
+  "impostazioni": {
+    "titolo": "Impostazioni",
+    "sezioni": {
+      "suono": "Suono",
+      "vista": "Testo e immagini",
+      "gioco": "Gioco",
+      "lingua": "Lingua",
+      "salvataggi": "Salvataggi"
+    },
+    "volume": {
+      "master": "Volume generale",
+      "music": "Musica",
+      "sfx": "Effetti",
+      "voice": "Voci"
+    },
+    "percento": "{n}%",
+    "testo": "Dimensione del testo",
+    "contrasto": "Alto contrasto",
+    "contrastoDesc": "Velluto più scuro, testi più chiari, fili con il bordo.",
+    "movimento": "Movimento ridotto",
+    "movimentoDesc": "Niente dondolii, niente voli delle perline: le cose compaiono.",
+    "velocita": {
+      "etichetta": "Velocità delle animazioni",
+      "lenta": "0,5×",
+      "normale": "1×",
+      "veloce": "2×",
+      "istantanea": "Istantanea"
+    },
+    "haptics": "Vibrazione",
+    "hapticsDesc": "Un tocco leggero agli incroci e ai rifiuti.",
+    "captions": "Didascalie dei suoni",
+    "captionsDesc": "Scritte in basso a sinistra per campane, voci e rumori.",
+    "autoAdvance": "Avanzamento automatico",
+    "autoAdvanceDesc": "Le vignette dell'alba vanno avanti da sole.",
+    "lingua": "Lingua del gioco",
+    "lingue": {
+      "it": "Italiano",
+      "en": "English"
+    },
+    "salvatoSempre": "Il gioco salva da solo a ogni ora fissata. Qui puoi portare i progressi su un altro dispositivo.",
+    "esporta": "Esporta",
+    "esportaDesc": "Copia il salvataggio come testo",
+    "esportaCampo": "Salvataggio esportato",
+    "esportato": "Salvataggio copiato. Incollalo dove vuoi conservarlo.",
+    "esportatoNonCopiato": "Ecco il salvataggio: selezionalo e copialo.",
+    "importa": "Importa",
+    "importaDesc": "Incolla un salvataggio esportato",
+    "importaCampo": "Salvataggio da importare",
+    "importaSegnaposto": "TRAMA-SAVE-1:…",
+    "importaConferma": "Importa questo salvataggio",
+    "importaVuoto": "Incolla prima il testo del salvataggio.",
+    "importaDomanda": {
+      "titolo": "Sostituire i progressi?",
+      "corpo": "I progressi di adesso diventano quelli del salvataggio incollato.",
+      "ok": "Importa",
+      "annulla": "Annulla"
+    },
+    "cancella": "Cancella tutto",
+    "cancellaDesc": "Storia, merletti, record e impostazioni",
+    "cancellaDomanda1": {
+      "titolo": "Cancellare tutto?",
+      "corpo": "Si perdono la storia, il Taccuino, i record e i Merletti del giorno.",
+      "ok": "Sì, cancella",
+      "annulla": "No"
+    },
+    "cancellaDomanda2": {
+      "titolo": "Proprio tutto?",
+      "corpo": "Non si può tornare indietro. Se vuoi tenere una copia, esporta prima il salvataggio.",
+      "ok": "Cancella per sempre",
+      "annulla": "Ci ho ripensato"
+    },
+    "cancellato": "Tutto cancellato. Il tombolo è vuoto."
+  },
+  "crediti": {
+    "titolo": "Crediti",
+    "realizzazione": "Realizzazione",
+    "ia": "Realizzato con strumenti di intelligenza artificiale.",
+    "caratteri": "Caratteri",
+    "font": {
+      "atkinson": "Atkinson Hyperlegible, del Braille Institute of America",
+      "garamond": "EB Garamond, di Georg Duffner e Octavio Pardo",
+      "caveat": "Caveat, di Pablo Impallari"
+    },
+    "ofl": "I tre caratteri sono distribuiti con la SIL Open Font License 1.1: liberi da usare, modificare e ridistribuire, non da vendere da soli.",
+    "strumenti": "Strumenti e licenze",
+    "strumento": {
+      "blender": "Blender (GNU GPL): figurine, fusi e diorami",
+      "typescript": "TypeScript (Apache 2.0)",
+      "vite": "Vite (MIT)",
+      "capacitor": "Capacitor (MIT): le app per iOS e Android",
+      "fontsource": "Fontsource (MIT): i caratteri dentro il gioco",
+      "vitest": "Vitest (MIT)",
+      "playwright": "Playwright (Apache 2.0)"
+    },
+    "ispirazione": "Ispirato alla tradizione del merletto a fuselli di Pellestrina e Burano",
+    "versione": "Versione {versione}"
+  },
+  "libro": {
+    "etichetta": "Libro dei Punti",
+    "nuova": "Regola nuova"
+  },
+  "regola": {
+    "voce": {
+      "titolo": "La voce",
+      "testo": "Una voce si copia in tutti e due i versi: dopo l'incrocio la sanno entrambi."
+    },
+    "segreto": {
+      "titolo": "Il segreto",
+      "testo": "Il segreto passa solo da chi sta sopra a chi sta sotto. Chi lo confida, lo tiene."
+    },
+    "molo": {
+      "titolo": "Il Molo",
+      "testo": "All'ora delle barche chi è nella colonna del bordo esce dal merletto, e chi arriva prende il suo posto."
+    },
+    "febbre": {
+      "titolo": "La febbre",
+      "testo": "Se uno dei due è malato, dopo l'incrocio lo sono entrambi. Il farmacista, quando sta sopra, guarisce."
+    },
+    "rancore": {
+      "titolo": "Il nodo",
+      "testo": "Due fili in rancore che si incrociano non si danno niente: si annodano, e nell'ora dopo restano fermi."
+    },
+    "marea": {
+      "titolo": "La marea",
+      "testo": "Nelle ore dell'acqua alta i fili delle colonne allagate restano fermi: nessuno entra, nessuno esce."
+    },
+    "nero": {
+      "titolo": "Il filo nero",
+      "testo": "Si muove da solo, un passo ogni ora, e sta sempre sopra. Lo vedi arrivare un'ora prima."
+    }
+  },
+  "notteInCorso": {
+    "titolo": "C'è una notte a metà",
+    "corpo": "Hai lasciato un merletto a metà sul tombolo. Se ne cominci un altro, quelle ore si disfano (la storia resta).",
+    "ok": "Comincia lo stesso",
+    "annulla": "Lascialo com'è",
+    "rinuncia": "Il merletto a metà è rimasto com'era."
+  },
+  "giornaliero": {
+    "titolo": "Merletto del giorno",
+    "data": "{data}",
+    "preparazione": "Il tombolo si prepara…",
+    "pronto": "Il merletto di oggi è pronto. È lo stesso per tutti.",
+    "errore": "Il merletto di oggi non si è potuto preparare. Riprova più tardi.",
+    "bloccato": "Il Merletto del giorno si apre dopo la giornata 7 della storia.",
+    "regola": "La regola del giorno",
+    "merletto": "Il merletto",
+    "dimensioni": "Fili e ore",
+    "matassa": "Matassa",
+    "matassaRegola": "il minimo più uno",
+    "matassaValore": "{n, plural, one {# incrocio} other {# incroci}} (minimo {min})",
+    "record": "Record e serie",
+    "recordOggi": "Oggi",
+    "recordValore": "{n, plural, one {# incrocio} other {# incroci}} (min {min})",
+    "nessunRecord": "ancora da tessere",
+    "serie": "Serie",
+    "serieValore": "{n, plural, =0 {nessun giorno} one {# giorno} other {# giorni di fila}}",
+    "totale": "Giorni tessuti",
+    "totaleValore": "{n}",
+    "tessi": "Tessi",
+    "ritessi": "Ritessi per il record",
+    "riprendi": "Riprendi il merletto di oggi",
+    "daCapo": "Ricomincia da capo",
+    "importa": "Importa spartito"
+  },
+  "libero": {
+    "titolo": "Merletto libero",
+    "bloccato": "Il Merletto libero si apre alla fine della giornata 8 della storia.",
+    "seme": "Seme",
+    "semeAiuto": "Lettere e cifre. La prima lettera dice la dimensione (p, m, g). Lo stesso seme dà lo stesso merletto, anche a un'amica.",
+    "semeCasuale": "Seme a caso",
+    "semeNonValido": "Il seme può avere solo lettere senza accenti e cifre.",
+    "semeVuoto": "Scrivi un seme, o tirane uno a caso.",
+    "dimensione": "Dimensione",
+    "dimensioni": {
+      "piccolo": "Piccolo",
+      "medio": "Medio",
+      "grande": "Grande"
+    },
+    "regola": "La regola",
+    "gradi": "Gradi",
+    "gradiBloccati": "I gradi si aprono alla fine della giornata 16 della storia.",
+    "grado": {
+      "matassaEsatta": {
+        "nome": "Matassa esatta",
+        "desc": "Nemmeno un incrocio in più del minimo."
+      },
+      "senzaDisfa": {
+        "nome": "Senza Disfa",
+        "desc": "Si disfa solo nella riga che stai tessendo."
+      },
+      "spilliVelati": {
+        "nome": "Spilli velati",
+        "desc": "Gli spilli d'ottone si vedono solo due ore prima."
+      },
+      "nodoInPiu": {
+        "nome": "Un nodo in più",
+        "desc": "Una coppia di fili in rancore."
+      },
+      "neroInPiu": {
+        "nome": "Filo nero in più",
+        "desc": "Un filo nero che si muove da solo."
+      },
+      "notteCorta": {
+        "nome": "Notte corta",
+        "desc": "Due ore in meno per fare tutto."
+      }
+    },
+    "punti": "Gradi scelti",
+    "puntiValore": "{n, plural, =0 {nessun punto} one {# punto} other {# punti}}",
+    "record": "Record",
+    "recordSeme": "Questo seme",
+    "nessunRecord": "ancora da tessere",
+    "gradoMigliore": "Grado più alto finito",
+    "tessi": "Tessi",
+    "preparazione": "Il tombolo si prepara…",
+    "riprendi": "Riprendi il merletto {seme}",
+    "importa": "Importa spartito",
+    "errore": "Questo merletto non si è potuto preparare. Prova un altro seme."
+  },
+  "spartito": {
+    "titolo": "Importa spartito",
+    "aiuto": "Incolla uno spartito (comincia con TRAMA1-): il tombolo lo ritesse da solo e il carillon lo suona.",
+    "campo": "Spartito",
+    "tessi": "Ritessi lo spartito",
+    "caricamento": "Leggo lo spartito…",
+    "errore": {
+      "vuoto": "Incolla prima uno spartito.",
+      "formato": "Questo non è uno spartito di Trama, o un carattere è sbagliato.",
+      "righe": "Lo spartito non ha il numero di ore giusto per il suo merletto.",
+      "seme": "Il seme di questo spartito non è valido.",
+      "livello": "Non trovo il merletto di questo spartito.",
+      "nonTessuto": "Questo spartito è di una giornata che non hai ancora tessuto.",
+      "nonValido": "Le righe di questo spartito non si possono tessere: forse è stato modificato."
+    },
+    "segnaposto": "TRAMA1-…"
+  },
+  "risultato": {
+    "titoloGiornaliero": "Il merletto di oggi",
+    "titoloLibero": "Il merletto libero",
+    "titoloSpartito": "Lo spartito ritessuto",
+    "immagineAttesa": "Il merletto si stende…",
+    "immagineAlt": "Il merletto tessuto, ora per ora",
+    "incroci": "Incroci",
+    "incrociValore": "{n} (minimo {min})",
+    "incrociSolo": "{n, plural, one {# incrocio} other {# incroci}}",
+    "quiete": "Ore di quiete",
+    "quieteValore": "{n}",
+    "simmetria": "Simmetria",
+    "simmetriaSi": "sì ✦",
+    "filoDOro": "Filo d'oro",
+    "filoDOroSi": "sì, con il minimo",
+    "no": "no",
+    "nuovoRecord": "Nuovo record",
+    "recordGiorno": "Record di oggi",
+    "recordLivello": "Record di questo seme",
+    "serie": "Serie",
+    "condividi": "Condividi",
+    "copiaSpartito": "Copia spartito",
+    "spartitoCopiato": "Spartito copiato.",
+    "spartitoAssente": "Questo merletto non ha uno spartito.",
+    "riascolta": "Riascolta il merletto",
+    "ritessi": "Ritessi",
+    "ritessiSpartito": "Ritessi lo spartito",
+    "nuovo": "Un altro merletto",
+    "torna": "Torna al titolo"
+  },
+  "condividi": {
+    "titolo": "TRAMA",
+    "riga": "TRAMA {data} · {incroci, plural, one {# incrocio} other {# incroci}} (min {min}) · {quiete, plural, one {# ora di quiete} other {# ore di quiete}}{simmetria, select, si { · simmetria ✦} other {}}",
+    "fatto": "Condiviso.",
+    "copiato": "Testo copiato: incollalo dove vuoi.",
+    "copiatoImmagine": "Testo copiato e immagine del merletto salvata.",
+    "nonRiuscito": "Non è stato possibile condividere da qui."
+  }
+}

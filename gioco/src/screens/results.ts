@@ -116,6 +116,8 @@ export interface ResultsHandlers {
 
 export interface ResultsView {
   el: HTMLElement;
+  /** Azioni principali, da mettere nel piede del foglio. */
+  foot: HTMLElement;
   destroy(): void;
 }
 
@@ -190,7 +192,12 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
   });
   const fresh = h.onNew ? wideButton({ icon: 'dado', labelKey: 'ui.risultato.nuovo', onClick: () => h.onNew?.(), test: 'sc-risultato-nuovo-merletto' }) : null;
   const back = wideButton({ icon: 'casa', labelKey: 'ui.risultato.torna', onClick: () => h.onBack(), test: 'sc-risultato-torna' });
-  const actions = buttonGroup([share, copy, listen, again, fresh, back].filter((b): b is HTMLButtonElement => !!b), 'sc-azioni', 'sc-risultato-azioni', 'vertical');
+  // Nel piede (sempre visibili): condividere e copiare lo spartito; nel foglio, il resto.
+  const main = share ?? copy;
+  if (main) main.dataset.autofocus = '1';
+  const foot = buttonGroup(main ? [main] : [], 'sc-azioni', 'sc-risultato-principali', 'both');
+  const rest = [share ? copy : null, listen, again, fresh, back].filter((b): b is HTMLButtonElement => !!b);
+  const actions = buttonGroup(rest, 'sc-azioni', 'sc-risultato-azioni', 'vertical');
 
   const titleKey = info.origin === 'giornaliero' ? 'ui.risultato.titoloGiornaliero' : info.origin === 'libero' ? 'ui.risultato.titoloLibero' : 'ui.risultato.titoloSpartito';
   const root = el(
@@ -206,6 +213,7 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
   );
   return {
     el: root,
+    foot,
     destroy() {
       destroyed = true;
       playing?.stop();

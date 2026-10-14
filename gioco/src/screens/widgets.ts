@@ -32,6 +32,8 @@ export interface Frame {
   root: HTMLElement;
   sheet: HTMLElement;
   body: HTMLElement;
+  /** Piede fisso del foglio (azioni principali sempre a portata di pollice). */
+  foot: HTMLElement;
   title: HTMLElement;
   back: HTMLButtonElement;
 }
@@ -50,14 +52,16 @@ export function screenFrame(o: FrameOpts): Frame {
   const title = textOf(o.titleKey, o.titleParams, 'h1', { className: 'sc-testata-titolo' });
   const head = el('header', { class: 'sc-testata' }, back, title);
   const body = el('div', { class: 'sc-corpo' });
+  const foot = el('footer', { class: 'sc-piede' });
   const sheet = el(
     'section',
     { class: ['sc-foglio', 'core-solid', `sc-foglio--${o.variant ?? 'velluto'}`, o.wide && 'sc-foglio--largo'], test: `sc-${o.id}-foglio` },
     head,
     body,
+    foot,
   );
   const root = el('div', { class: ['sc-schermo', `sc-schermo--${o.id}`], test: `sc-${o.id}` }, sheet);
-  return { root, sheet, body, title, back };
+  return { root, sheet, body, foot, title, back };
 }
 
 /** Titoletto di una sezione. */
@@ -94,11 +98,13 @@ export function segmented<T extends string | number>(o: {
   onChange: (v: T) => void;
   test: string;
   disabled?: boolean;
+  /** Etichetta solo per gli screen reader (quando un titolo di sezione la ripete già). */
+  hideLabel?: boolean;
 }): SegmentedHandle<T> {
   let value = o.value;
   let disabled = !!o.disabled;
   const labelId = uid('sc-seg');
-  const label = textOf(o.labelKey, undefined, 'span', { className: 'sc-segmenti-etichetta' });
+  const label = textOf(o.labelKey, undefined, 'span', { className: o.hideLabel ? 'core-sr-only' : 'sc-segmenti-etichetta' });
   label.id = labelId;
   const group = el('div', { class: 'sc-segmenti-gruppo', role: 'radiogroup', attrs: { 'aria-labelledby': labelId }, test: o.test });
   const buttons = new Map<T, HTMLButtonElement>();
@@ -185,10 +191,10 @@ export function wideButton(o: {
     attrs: { 'aria-disabled': o.locked ? 'true' : null },
     data: { bloccato: o.locked ? '1' : null },
   });
-  b.appendChild(icon(o.locked ? 'lucchetto' : o.icon, 22, 'sc-voce-icona'));
   const text = el('span', { class: 'sc-voce-testi' }, textOf(o.labelKey, o.labelParams, 'span', { className: 'sc-voce-etichetta' }));
   if (o.subKey) text.appendChild(textOf(o.subKey, o.subParams, 'span', { className: 'sc-voce-sotto' }));
-  b.appendChild(text);
+  // Contenitore interno: in un riquadro stretto l'icona va sopra il testo (container query).
+  b.appendChild(el('span', { class: 'sc-voce-dentro' }, icon(o.locked ? 'lucchetto' : o.icon, 22, 'sc-voce-icona'), text));
   b.addEventListener('click', () => {
     if (b.disabled) return;
     o.onClick();

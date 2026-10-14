@@ -1,0 +1,328 @@
+{
+  "comune": {
+    "indietro": "Back",
+    "filiOre": "{fili, plural, one {# thread} other {# threads}} · {ore, plural, one {# hour} other {# hours}}"
+  },
+  "titolo": {
+    "nome": "TRAMA",
+    "sottotitolo": "The Lace of Days",
+    "menu": "Main menu",
+    "continua": "Continue",
+    "nuova": "New story",
+    "inizia": "Tap to begin",
+    "giornaliero": "Lace of the day",
+    "giornalieroNuovo": "Today: {regola}",
+    "giornalieroFatto": "Woven today",
+    "libero": "Free lace",
+    "telaio": "Loom",
+    "impostazioni": "Settings",
+    "crediti": "Credits",
+    "bloccato": "Not yet.",
+    "lucchetto": {
+      "giornaliero": "After day 7",
+      "libero": "After day 8",
+      "telaio": "After the first day",
+      "completo": "In the full version"
+    },
+    "nuovaDomanda": {
+      "titolo": "Start a new story?",
+      "corpo": "The current story ends and you start again from the first night. What you found out in the Notebook stays only if you find it out again.",
+      "ok": "Start again",
+      "annulla": "Go back"
+    },
+    "storiaAssente": "The story is not ready in this version yet.",
+    "versione": "v{versione}"
+  },
+  "pausa": {
+    "titoloPannello": "Pause",
+    "salvato": "Everything is already saved.",
+    "riprendi": "Resume",
+    "ricomincia": "Restart the night",
+    "ricominciaSpartito": "Weave the score again",
+    "taccuino": "Notebook",
+    "impostazioni": "Settings",
+    "titolo": "Back to the title",
+    "ricominciaDomanda": {
+      "titolo": "Restart the night?",
+      "corpo": "The hours you fixed come undone and the lace starts again from the opening. Pinned requests stay.",
+      "corpoSpartito": "The score is woven again from the start.",
+      "ok": "Restart",
+      "annulla": "Keep weaving"
+    }
+  },
+  "impostazioni": {
+    "titolo": "Settings",
+    "sezioni": {
+      "suono": "Sound",
+      "vista": "Text and display",
+      "gioco": "Game",
+      "lingua": "Language",
+      "salvataggi": "Saves"
+    },
+    "volume": {
+      "master": "Master volume",
+      "music": "Music",
+      "sfx": "Effects",
+      "voice": "Voices"
+    },
+    "percento": "{n}%",
+    "testo": "Text size",
+    "contrasto": "High contrast",
+    "contrastoDesc": "Darker velvet, brighter text, outlined threads.",
+    "movimento": "Reduced motion",
+    "movimentoDesc": "No swinging, no flying beads: things simply appear.",
+    "velocita": {
+      "etichetta": "Animation speed",
+      "lenta": "0.5×",
+      "normale": "1×",
+      "veloce": "2×",
+      "istantanea": "Instant"
+    },
+    "haptics": "Vibration",
+    "hapticsDesc": "A light tap on crossings and refusals.",
+    "captions": "Sound captions",
+    "captionsDesc": "Captions at the bottom left for bells, voices and noises.",
+    "autoAdvance": "Auto-advance",
+    "autoAdvanceDesc": "Dawn vignettes move on by themselves.",
+    "lingua": "Game language",
+    "lingue": {
+      "it": "Italiano",
+      "en": "English"
+    },
+    "salvatoSempre": "The game saves by itself every time you fix an hour. Here you can carry your progress to another device.",
+    "esporta": "Export",
+    "esportaDesc": "Copy the save as text",
+    "esportaCampo": "Exported save",
+    "esportato": "Save copied. Paste it wherever you want to keep it.",
+    "esportatoNonCopiato": "Here is the save: select it and copy it.",
+    "importa": "Import",
+    "importaDesc": "Paste an exported save",
+    "importaCampo": "Save to import",
+    "importaSegnaposto": "TRAMA-SAVE-1:…",
+    "importaConferma": "Import this save",
+    "importaVuoto": "Paste the save text first.",
+    "importaDomanda": {
+      "titolo": "Replace your progress?",
+      "corpo": "Your current progress becomes the one in the pasted save.",
+      "ok": "Import",
+      "annulla": "Cancel"
+    },
+    "cancella": "Erase everything",
+    "cancellaDesc": "Story, laces, records and settings",
+    "cancellaDomanda1": {
+      "titolo": "Erase everything?",
+      "corpo": "You lose the story, the Notebook, your records and your Laces of the day.",
+      "ok": "Yes, erase",
+      "annulla": "No"
+    },
+    "cancellaDomanda2": {
+      "titolo": "Really everything?",
+      "corpo": "There is no going back. If you want a copy, export the save first.",
+      "ok": "Erase for good",
+      "annulla": "I changed my mind"
+    },
+    "cancellato": "Everything erased. The pillow is empty."
+  },
+  "crediti": {
+    "titolo": "Credits",
+    "realizzazione": "Making of",
+    "ia": "Made with artificial intelligence tools.",
+    "caratteri": "Typefaces",
+    "font": {
+      "atkinson": "Atkinson Hyperlegible, by the Braille Institute of America",
+      "garamond": "EB Garamond, by Georg Duffner and Octavio Pardo",
+      "caveat": "Caveat, by Pablo Impallari"
+    },
+    "ofl": "All three typefaces are released under the SIL Open Font License 1.1: free to use, modify and redistribute, not to sell on their own.",
+    "strumenti": "Tools and licences",
+    "strumento": {
+      "blender": "Blender (GNU GPL): figurines, bobbins and dioramas",
+      "typescript": "TypeScript (Apache 2.0)",
+      "vite": "Vite (MIT)",
+      "capacitor": "Capacitor (MIT): the iOS and Android apps",
+      "fontsource": "Fontsource (MIT): the typefaces inside the game",
+      "vitest": "Vitest (MIT)",
+      "playwright": "Playwright (Apache 2.0)"
+    },
+    "ispirazione": "Inspired by the bobbin lace tradition of Pellestrina and Burano",
+    "versione": "Version {versione}"
+  },
+  "libro": {
+    "etichetta": "Book of Stitches",
+    "nuova": "New rule"
+  },
+  "regola": {
+    "voce": {
+      "titolo": "The rumour",
+      "testo": "A rumour copies both ways: after the crossing both of them know it."
+    },
+    "segreto": {
+      "titolo": "The secret",
+      "testo": "A secret passes only from the thread on top to the one below. Whoever confides it, keeps it."
+    },
+    "molo": {
+      "titolo": "The Pier",
+      "testo": "At boat time whoever is in the edge column leaves the lace, and whoever arrives takes their place."
+    },
+    "febbre": {
+      "titolo": "The fever",
+      "testo": "If one of the two is ill, after the crossing both are. The pharmacist, when he is on top, heals."
+    },
+    "rancore": {
+      "titolo": "The knot",
+      "testo": "Two threads holding a grudge give each other nothing when they cross: they knot, and stay still the next hour."
+    },
+    "marea": {
+      "titolo": "The tide",
+      "testo": "During high water the threads in flooded columns stay still: nobody gets in, nobody gets out."
+    },
+    "nero": {
+      "titolo": "The black thread",
+      "testo": "It moves by itself, one step an hour, and is always on top. You see it coming an hour early."
+    }
+  },
+  "notteInCorso": {
+    "titolo": "A night is half woven",
+    "corpo": "You left a lace half done on the pillow. If you start another one, those hours come undone (the story stays).",
+    "ok": "Start anyway",
+    "annulla": "Leave it as it is",
+    "rinuncia": "The half-woven lace was left as it was."
+  },
+  "giornaliero": {
+    "titolo": "Lace of the day",
+    "data": "{data}",
+    "preparazione": "The pillow is getting ready…",
+    "pronto": "Today's lace is ready. It is the same for everyone.",
+    "errore": "Today's lace could not be prepared. Try again later.",
+    "bloccato": "The Lace of the day opens after day 7 of the story.",
+    "regola": "Rule of the day",
+    "merletto": "The lace",
+    "dimensioni": "Threads and hours",
+    "matassa": "Skein",
+    "matassaRegola": "the minimum plus one",
+    "matassaValore": "{n, plural, one {# crossing} other {# crossings}} (minimum {min})",
+    "record": "Records and streak",
+    "recordOggi": "Today",
+    "recordValore": "{n, plural, one {# crossing} other {# crossings}} (min {min})",
+    "nessunRecord": "not woven yet",
+    "serie": "Streak",
+    "serieValore": "{n, plural, =0 {no days} one {# day} other {# days in a row}}",
+    "totale": "Days woven",
+    "totaleValore": "{n}",
+    "tessi": "Weave",
+    "ritessi": "Weave again for the record",
+    "riprendi": "Resume today's lace",
+    "daCapo": "Start over",
+    "importa": "Import score"
+  },
+  "libero": {
+    "titolo": "Free lace",
+    "bloccato": "The Free lace opens at the end of day 8 of the story.",
+    "seme": "Seed",
+    "semeAiuto": "Letters and digits. The first letter sets the size (p, m, g). The same seed gives the same lace, even to a friend.",
+    "semeCasuale": "Random seed",
+    "semeNonValido": "A seed can only hold plain letters and digits.",
+    "semeVuoto": "Type a seed, or draw a random one.",
+    "dimensione": "Size",
+    "dimensioni": {
+      "piccolo": "Small",
+      "medio": "Medium",
+      "grande": "Large"
+    },
+    "regola": "The rule",
+    "gradi": "Grades",
+    "gradiBloccati": "Grades open at the end of day 16 of the story.",
+    "grado": {
+      "matassaEsatta": {
+        "nome": "Exact skein",
+        "desc": "Not one crossing more than the minimum."
+      },
+      "senzaDisfa": {
+        "nome": "No Undo",
+        "desc": "You can only undo within the row you are weaving."
+      },
+      "spilliVelati": {
+        "nome": "Veiled pins",
+        "desc": "Brass pins show up only two hours ahead."
+      },
+      "nodoInPiu": {
+        "nome": "One more knot",
+        "desc": "A pair of threads holding a grudge."
+      },
+      "neroInPiu": {
+        "nome": "One more black thread",
+        "desc": "A black thread that moves by itself."
+      },
+      "notteCorta": {
+        "nome": "Short night",
+        "desc": "Two hours fewer to get everything done."
+      }
+    },
+    "punti": "Grades chosen",
+    "puntiValore": "{n, plural, =0 {no points} one {# point} other {# points}}",
+    "record": "Records",
+    "recordSeme": "This seed",
+    "nessunRecord": "not woven yet",
+    "gradoMigliore": "Highest grade finished",
+    "tessi": "Weave",
+    "preparazione": "The pillow is getting ready…",
+    "riprendi": "Resume lace {seme}",
+    "importa": "Import score",
+    "errore": "This lace could not be prepared. Try another seed."
+  },
+  "spartito": {
+    "titolo": "Import score",
+    "aiuto": "Paste a score (it starts with TRAMA1-): the pillow weaves it by itself while the music box plays it.",
+    "campo": "Score",
+    "tessi": "Weave the score",
+    "caricamento": "Reading the score…",
+    "errore": {
+      "vuoto": "Paste a score first.",
+      "formato": "This is not a Trama score, or a character is wrong.",
+      "righe": "This score does not have the right number of hours for its lace.",
+      "seme": "The seed in this score is not valid.",
+      "livello": "I cannot find the lace of this score.",
+      "nonTessuto": "This score belongs to a day you have not woven yet.",
+      "nonValido": "The rows of this score cannot be woven: maybe it was changed."
+    },
+    "segnaposto": "TRAMA1-…"
+  },
+  "risultato": {
+    "titoloGiornaliero": "Today's lace",
+    "titoloLibero": "The free lace",
+    "titoloSpartito": "The score, woven again",
+    "immagineAttesa": "The lace is being laid out…",
+    "immagineAlt": "The woven lace, hour by hour",
+    "incroci": "Crossings",
+    "incrociValore": "{n} (minimum {min})",
+    "incrociSolo": "{n, plural, one {# crossing} other {# crossings}}",
+    "quiete": "Quiet hours",
+    "quieteValore": "{n}",
+    "simmetria": "Symmetry",
+    "simmetriaSi": "yes ✦",
+    "filoDOro": "Golden thread",
+    "filoDOroSi": "yes, at the minimum",
+    "no": "no",
+    "nuovoRecord": "New record",
+    "recordGiorno": "Today's record",
+    "recordLivello": "Record for this seed",
+    "serie": "Streak",
+    "condividi": "Share",
+    "copiaSpartito": "Copy score",
+    "spartitoCopiato": "Score copied.",
+    "spartitoAssente": "This lace has no score.",
+    "riascolta": "Listen to the lace again",
+    "ritessi": "Weave again",
+    "ritessiSpartito": "Weave the score again",
+    "nuovo": "Another lace",
+    "torna": "Back to the title"
+  },
+  "condividi": {
+    "titolo": "TRAMA",
+    "riga": "TRAMA {data} · {incroci, plural, one {# crossing} other {# crossings}} (min {min}) · {quiete, plural, one {# quiet hour} other {# quiet hours}}{simmetria, select, si { · symmetry ✦} other {}}",
+    "fatto": "Shared.",
+    "copiato": "Text copied: paste it wherever you like.",
+    "copiatoImmagine": "Text copied and lace picture saved.",
+    "nonRiuscito": "Sharing is not possible from here."
+  }
+}

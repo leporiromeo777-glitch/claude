@@ -61,8 +61,13 @@ export function titleGeometry(stage: Rect, viewW: number, viewH: number, landsca
   const y = stage.y + (stage.h - size) / 2;
   const spindleH = Math.max(70, Math.min(size * 0.34, viewH * 0.24, 210));
   let pivotX: number;
-  if (landscape) pivotX = Math.min(viewW - spindleH * 0.25, x + size * 1.02);
-  else pivotX = Math.min(viewW - Math.max(18, spindleH * 0.16), Math.max(x + size * 0.93, viewW * 0.86));
+  if (landscape) {
+    // Fra il menu e il tombolo: dal lato del tombolo rivolto verso il centro dello schermo.
+    const stageOnRight = stage.x + stage.w / 2 > viewW / 2;
+    pivotX = stageOnRight ? Math.max(spindleH * 0.2, x - size * 0.01) : Math.min(viewW - spindleH * 0.2, x + size * 1.01);
+  } else {
+    pivotX = Math.min(viewW - Math.max(18, spindleH * 0.16), Math.max(x + size * 0.93, viewW * 0.86));
+  }
   const pivotY = -8;
   // Il fuso arriva poco sotto il bordo alto del tombolo, accanto al tamburo.
   const bottom = y + size * 0.42;
@@ -322,7 +327,7 @@ export class TitleArt {
     // Polvere nella luce.
     if (!this.still) {
       ctx.fillStyle = '#FFE2B8';
-      const R = g.lampR * 0.75;
+      const R = g.lampR * 0.55;
       for (let i = 0; i < MOTES; i++) {
         const tw = 0.5 + 0.5 * Math.sin(this.time * 1.7 + (this.mp[i] as number) * 3);
         ctx.globalAlpha = ease * (0.12 + 0.45 * tw) * this.flicker(this.time);

@@ -12,7 +12,7 @@
  * Dopo una breve pausa (il giocatore vede il merletto chiuso) si passa ai risultati.
  */
 import type { LevelDef, NightOutcome, SceneId, Services } from '../core/types';
-import { dailySpec, generateAsync, metrics } from '../engine/index';
+import { metrics } from '../engine/index';
 import { activeNight, resolveLevel } from '../tombolo/index';
 import { dailyRecordOf, dateOfDailyId, isBetterDaily, liveStreak, mergeLaceRecord, nextStreak, shareParams } from './daily';
 import { parseLiberoId } from './libero';
@@ -54,12 +54,12 @@ async function levelFor(s: Services, outcome: NightOutcome, origin: ModeOrigin):
   const now = generatedNow(outcome.levelId);
   if (now) return now.level;
   const date = dateOfDailyId(outcome.levelId);
-  if (date) {
-    try {
-      return (await generateAsync(dailySpec(date))).level;
-    } catch {
-      return null;
-    }
+  try {
+    if (date) return (await dailyLevel(date)).level;
+    const lib = parseLiberoId(outcome.levelId);
+    if (lib) return (await liberoLevel(lib.seed, lib.gradi)).level;
+  } catch {
+    return null;
   }
   return resolveLevel(s, outcome.levelId);
 }
