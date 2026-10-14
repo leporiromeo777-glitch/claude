@@ -174,7 +174,7 @@ Da lanciare nel Terminale, nella cartella `gioco/`. In breve, dopo aver installa
 | `npm run release:android` | App Bundle firmato per Google Play (`bash scripts/release-android.sh`) | Mac/PC |
 | `npm run release:ios` | pacchetto firmato per l'App Store (`bash scripts/release-ios.sh`) | Mac |
 | `npm run assets:native` | rigenera icone e schermate d'avvio native da `assets/` | ovunque |
-| `npm run native:check` | controlla le impostazioni native (orientamento, privacy, icone, appId) | ovunque |
+| `npm run native:check` | controlla le impostazioni native (orientamento, privacy, icone, appId) e che ogni plugin di `package.json` sia nei progetti nativi | ovunque |
 | `npm run native:test` | prova gli script nativi con strumenti finti, senza compilare nulla (`bash scripts/test-native.sh`) | ovunque |
 
 Il comando completo di `assets:native` è:
@@ -229,8 +229,19 @@ Attenzione: su Google Play un'app pubblicata gratuita **non può più diventare 
 
 Il gioco non raccoglie nulla: nessun account, nessuna pubblicità, nessuna statistica, nessuna richiesta di rete. I salvataggi restano sul telefono. Quindi:
 
-- **App Store**, scheda «Privacy dell'app»: rispondi **No, non raccogliamo dati da questa app**. La scheda mostrerà **«Dati non raccolti»**. Il file `ios/App/App/PrivacyInfo.xcprivacy` lo dichiara già ad Apple: nessun tracciamento (`NSPrivacyTracking` = false), nessun dominio di tracciamento, e l'uso di UserDefaults (dove stanno salvataggi e impostazioni) con il motivo `CA92.1` («dati letti e scritti solo dall'app»).
+- **App Store**, scheda «Privacy dell'app»: rispondi **No, non raccogliamo dati da questa app**. La scheda mostrerà **«Dati non raccolti»**.
 - **Google Play**, modulo «Sicurezza dei dati»: alla domanda «La tua app raccoglie o condivide dati utente?» rispondi **No**. La pagina mostrerà «Nessun dato raccolto» e «Nessun dato condiviso con terze parti».
+
+Quando si condivide il risultato di una notte, il gioco prepara l'immagine sul telefono, la scrive nella cache dell'app (ne resta al massimo una, quella dell'ultima condivisione) e la passa al foglio di condivisione del telefono. Non è un dato raccolto: dal telefono esce solo se il giocatore sceglie dove mandarla. Su Android questo non richiede nessun permesso.
+
+**Il manifest della privacy per Apple** (`ios/App/App/PrivacyInfo.xcprivacy`) è già pronto e non va toccato. Dichiara: nessun tracciamento (`NSPrivacyTracking` = false), nessun dominio di tracciamento, nessun dato raccolto, e le due «API con motivo dichiarato» che l'app contiene:
+
+| API | Motivo | Chi la usa e perché |
+|---|---|---|
+| UserDefaults (`NSPrivacyAccessedAPICategoryUserDefaults`) | `CA92.1`: dati letti e scritti solo dall'app | `@capacitor/preferences`: salvataggi e impostazioni |
+| Marcatura temporale dei file (`NSPrivacyAccessedAPICategoryFileTimestamp`) | `C617.1`: data e altre informazioni di file che stanno dentro il contenitore dell'app | `@capacitor/filesystem`: il gioco lo usa solo per scrivere nella cache l'immagine da condividere; il plugin contiene anche le funzioni che leggono le date dei file, e Apple le trova nel pacchetto |
+
+Se una di queste voci mancasse, al caricamento App Store Connect manderebbe l'email «ITMS-91053: Missing API declaration» e la build non si potrebbe inviare alla revisione. `npm run native:check` controlla le due voci. Se in futuro si aggiunge un plugin di Capacitor, la pagina <https://capacitorjs.com/docs/ios/privacy-manifest> dice quali voci chiede.
 
 Entrambi gli store chiedono comunque l'**indirizzo di una pagina web con l'informativa sulla privacy**. Basta una pagina semplice, per esempio sul sito dell'azienda. Testo di partenza (da adattare con il nome del titolare e un contatto):
 
@@ -242,24 +253,54 @@ Entrambi gli store chiedono comunque l'**indirizzo di una pagina web con l'infor
 
 Il gioco non ha violenza né linguaggio volgare, ma parla di lutto, malattia e temi familiari. La classificazione prevista è **PEGI 7 / 9+** (GDD 0). I questionari si compilano negli store (sezioni 7.2 e 8.2): rispondi con sincerità, «temi maturi o suggestivi: rari/lievi» se lo chiede, «no» a violenza, sesso, droghe, gioco d'azzardo, contenuti generati dagli utenti, chat e acquisti con denaro reale (finché lo sblocco non c'è). La classificazione la calcolano gli store dalle risposte.
 
-### 6.4 Testi della scheda (proposta)
+### 6.4 Immagini delle schede: già pronte
+
+Tutte le immagini da caricare negli store esistono già nel repository: non c'è niente da disegnare.
+
+**Grafica in evidenza di Google Play.** È obbligatoria in ogni scheda: 1024×500, PNG a 24 bit senza trasparenza. Ce n'è una per lingua:
+
+| Scheda di Google Play | File |
+|---|---|
+| italiano (lingua predefinita) | `assets/feature-graphic.png` |
+| inglese | `assets/feature-graphic-en.png` |
+
+![Grafica in evidenza della scheda italiana: il tombolo con i fusi colorati e la scritta «TRAMA. Il merletto dei giorni»](../assets/feature-graphic.png)
+
+![Grafica in evidenza della scheda inglese: la stessa immagine con la scritta «TRAMA. The Lace of Days»](../assets/feature-graphic-en.png)
+
+Le produce la pipeline di Blender (`npm run assets:render`, passo `tools/atlas/grafica.py`), insieme a icone e schermate d'avvio. Si rifanno solo se cambia la grafica del gioco.
+
+**Schermate.** Le fa la suite `layout` dei test end-to-end, in italiano, alle misure richieste. In ogni cartella ci sono cinque JPEG, già nell'ordine in cui caricarli: `1-titolo.jpg`, `2-tombolo-notte.jpg`, `3-alba-vignetta.jpg`, `4-taccuino.jpg`, `5-merletto-del-giorno.jpg`. Entrambi gli store accettano il JPEG.
+
+| Store e dispositivo | Misura | Cartella |
+|---|---|---|
+| App Store, iPhone 6,9" (obbligatorie) | 1290×2796 | `tests/e2e/__screenshots__/store/iphone-6.9-1290x2796/` |
+| App Store, iPad 13" (obbligatorie, perché l'app gira su iPad) | 2064×2752 | `tests/e2e/__screenshots__/store/ipad-13-2064x2752/` |
+| Google Play, telefono (da 2 a 8) | 1080×1920 | `tests/e2e/__screenshots__/store/android-1080x1920/` |
+| Google Play, tablet 7" e 10" (consigliate) | 2064×2752 | le stesse dell'iPad: rientrano nei limiti di Google (lato fra 320 e 3840 px, lato lungo al massimo il doppio del corto) |
+
+Le schermate di oggi sono state fatte prima della revisione 1 del gioco. Prima di pubblicare rifalle sulla versione definitiva (il comando compila il gioco, lo gioca da solo per qualche giornata e fotografa titolo, tombolo, alba, Taccuino e Merletto del giorno: ci vuole qualche minuto):
+
+```bash
+E2E_SHOTS=1 npx playwright test tests/e2e/layout.spec.ts -g "schermate per gli store" --project=desktop
+```
+
+Nella scheda inglese si possono caricare le stesse schermate (il gioco vi appare in italiano), oppure farne di nuove in inglese dal simulatore iOS (File > Save Screen, oppure Cmd+S) e dall'emulatore Android (pulsante della fotocamera nella barra laterale), con la lingua del dispositivo impostata in inglese.
+
+**Icona.**
+
+| Store | Icona |
+|---|---|
+| Google Play | 512×512, `public/icons/icon-512.png`. Google chiede un PNG a 32 bit con trasparenza; il file è a 24 bit. Se la Play Console lo rifiuta, aprilo con Anteprima > File > Esporta, formato PNG, spunta **Alfa** e carica il file esportato. |
+| App Store | presa dal progetto Xcode (`ios/App/App/Assets.xcassets/AppIcon.appiconset`): non si carica a parte |
+
+### 6.5 Testi della scheda (proposta)
 
 - **Nome**: Trama. Se sull'App Store è già preso, usa «Trama: il merletto dei giorni».
 - **Sottotitolo** (App Store, 30 caratteri): «Quello che tessi accade domani».
 - **Descrizione breve** (Google Play, 80 caratteri): «Un puzzle di fili e persone: quello che tessi stanotte accade domani.»
 - **Categoria**: Giochi > Rompicapo (secondaria: Avventura).
 - **Lingue**: italiano (principale) e inglese.
-
-### 6.5 Immagini
-
-| Immagine | Google Play | App Store |
-|---|---|---|
-| Icona | 512×512 PNG (`public/icons/icon-512.png`) | presa dal progetto, non si carica a parte |
-| Grafica in evidenza | 1024×500, obbligatoria (da preparare) | - |
-| Schermate telefono | da 2 a 8, verticali | iPhone 6,9": 1320×2868 o 1290×2796 |
-| Schermate tablet | consigliate (7" e 10") | iPad 13": 2064×2752 o 2048×2732, obbligatorie perché l'app gira su iPad |
-
-Le schermate si fanno dal simulatore iOS (File > Save Screen, oppure Cmd+S) e dall'emulatore Android (pulsante della fotocamera nella barra laterale). Anche la suite automatica `layout` dei test end-to-end (`npm run test:e2e`) salva screenshot di tutte le schermate in varie misure: sono utili per scegliere quali mostrare.
 
 ---
 
@@ -292,7 +333,7 @@ Con «Firma dell'app di Google Play» (attiva di default) la chiave definitiva d
    - **Destinatari**: fasce d'età **13 anni e più** (scegliere fasce sotto i 13 anni aggiunge i requisiti del programma Famiglie).
    - **Sicurezza dei dati**: nessun dato raccolto né condiviso (6.2).
    - **App governative**, **funzionalità finanziarie**, **salute**: No.
-   - **Scheda dello store**: descrizioni, icona, grafica in evidenza, schermate (6.4 e 6.5).
+   - **Scheda dello store**: icona, grafica in evidenza e schermate (6.4, già pronte), descrizioni (6.5). La grafica in evidenza e le descrizioni vanno caricate per ogni lingua: italiano e inglese.
 
 ### 7.3 Preparare il pacchetto firmato
 
@@ -338,7 +379,7 @@ Per gli account personali nuovi è obbligatorio prima della produzione.
 - **Informazioni sull'app**: categoria Giochi > Rompicapo (secondaria Avventura); **Classificazione per età**: compila il questionario (6.3); diritti sui contenuti: l'app non contiene contenuti di terzi (i caratteri tipografici usati hanno licenza libera SIL OFL).
 - **Privacy dell'app**: indirizzo dell'informativa (6.2) e «Non raccogliamo dati» → «Dati non raccolti».
 - **Prezzi e disponibilità**: prezzo (6.1) e Paesi.
-- **Pagina della versione**: schermate iPhone 6,9" e iPad 13" (6.5), testo promozionale, descrizione, parole chiave, URL di supporto (anche una pagina del sito con un indirizzo email), note per la revisione (per esempio: «Gioco offline, nessun account; il prologo dura circa 5 minuti»).
+- **Pagina della versione**: schermate iPhone 6,9" e iPad 13" (6.4, già pronte), testo promozionale, descrizione, parole chiave, URL di supporto (anche una pagina del sito con un indirizzo email), note per la revisione (per esempio: «Gioco offline, nessun account; il prologo dura circa 5 minuti»).
 - **Crittografia**: non serve rispondere a ogni caricamento, perché `Info.plist` dichiara già `ITSAppUsesNonExemptEncryption = false` (l'app non usa crittografia propria).
 
 ### 8.3 Preparare e caricare il pacchetto
@@ -379,6 +420,8 @@ Ogni volta che il gioco cambia:
 
 Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm run native:check` e `npm run native:test`: se qualche impostazione fatta a mano fosse sparita o uno script non si comportasse più come previsto, i controlli lo dicono.
 
+Lo stesso quando si aggiunge o si toglie un plugin di Capacitor in `package.json`: `npm run app:sync` lo registra nei progetti nativi (`android/capacitor.settings.gradle`, `android/app/capacitor.build.gradle`, `ios/App/CapApp-SPM/Package.swift`, file che non si modificano a mano), e `npm run native:check` segnala un plugin dimenticato o una voce che manca nel manifest della privacy (6.2). Poi commit di `android/` e `ios/`.
+
 ---
 
 ## 10. Checklist per gli store
@@ -388,8 +431,9 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm 
 | Voce | Come si controlla | Stato |
 |---|---|---|
 | `npm run app:sync` senza errori; `android/` e `ios/` aggiornati nel repository | `npm run app:sync`, poi `git status`: nessuna modifica dimenticata in `android/` e `ios/` | fatto |
-| APK di debug compilato nel container (`npm run android:apk`) | il file `android/app/build/outputs/apk/debug/app-debug.apk` esiste (circa 8,5 MB) | fatto |
-| Icone e splash generati; `appCategory="game"`; telefoni bloccati in verticale; privacy manifest presente | `npm run native:check` | fatto |
+| APK di debug compilato nel container (`npm run android:apk`) | il file `android/app/build/outputs/apk/debug/app-debug.apk` esiste (circa 12 MB) | fatto |
+| Icone e splash generati; `appCategory="game"`; telefoni bloccati in verticale; privacy manifest con UserDefaults (`CA92.1`) e marcatura temporale dei file (`C617.1`); tutti i plugin registrati nei due progetti | `npm run native:check` | fatto |
+| Grafica in evidenza di Google Play e schermate alle misure degli store | sezione 6.4 | fatto (le schermate si rifanno sulla versione definitiva) |
 | Nessun comportamento da browser: niente selezione del testo, zoom, menu del tocco prolungato, rimbalzo dello scroll | prova a mano su telefono (sezione 3.3) | da provare sui telefoni |
 | `docs/STORE.md` con i passi sul Mac e sulle console degli store | questo documento | fatto |
 
@@ -409,7 +453,7 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm 
 - [ ] Chiave di caricamento creata, fuori dal repository, con copia di sicurezza.
 - [ ] Informativa sulla privacy online.
 - [ ] Accesso all'app, annunci (no), classificazione, destinatari (13+), sicurezza dei dati (nessun dato), app governative/finanziarie/salute (no).
-- [ ] Scheda: nome, descrizioni, icona 512×512, grafica 1024×500, almeno 2 schermate telefono.
+- [ ] Scheda, in italiano e in inglese: nome, descrizioni, icona 512×512, grafica in evidenza 1024×500 (`assets/feature-graphic.png` e `assets/feature-graphic-en.png`), almeno 2 schermate telefono (`tests/e2e/__screenshots__/store/android-1080x1920/`).
 - [ ] Dichiarazione di commerciante UE (se vendi).
 - [ ] Test chiuso con almeno 12 tester per 14 giorni (account personali nuovi), poi richiesta di accesso alla produzione.
 - [ ] Release di produzione con `.aab` firmato, inviata per la revisione.
@@ -421,7 +465,7 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm 
 - [ ] App creata in App Store Connect con Bundle ID `it.trama.merletto`.
 - [ ] Privacy dell'app: «Dati non raccolti»; informativa online; URL di supporto.
 - [ ] Classificazione per età compilata.
-- [ ] Schermate iPhone 6,9" e iPad 13".
+- [ ] Schermate iPhone 6,9" e iPad 13" (`tests/e2e/__screenshots__/store/`, sezione 6.4), rifatte sulla versione definitiva.
 - [ ] Contratto per le app a pagamento (se vendi) e dichiarazione di commerciante UE.
 - [ ] Build caricata (Xcode > Archive oppure `npm run release:ios` + Transporter), provata con TestFlight.
 - [ ] Inviata per la revisione.
@@ -447,6 +491,8 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm 
 | `cap open android` non apre Android Studio | Controlla che sia in Applicazioni; altrimenti `export CAPACITOR_ANDROID_STUDIO_PATH="/percorso/Android Studio.app"`. |
 | Il telefono Android non compare in Android Studio | Riattiva il Debug USB, prova un altro cavo, conferma l'autorizzazione sul telefono. |
 | Dopo un aggiornamento di Capacitor qualcosa è cambiato | `npm run native:check` dice quale impostazione manca; le impostazioni sono descritte in `docs/ARCHITETTURA.md`, sezione 13. |
+| `native:check`: «plugin di package.json registrati … mancano @capacitor/…» (o «nel Package.swift») | Il plugin è in `package.json` ma non nei progetti nativi: lancia `npm run app:sync` e fai commit di `android/` e `ios/`. |
+| Email di Apple «ITMS-91053: Missing API declaration» | Nel manifest della privacy manca un'API con motivo dichiarato (6.2). L'email dice quale: aggiungi la voce in `ios/App/App/PrivacyInfo.xcprivacy` con il motivo indicato da <https://capacitorjs.com/docs/ios/privacy-manifest>, poi carica una build nuova. |
 
 ---
 
@@ -459,8 +505,10 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm 
 | `android/app/build.gradle` | identificativo, versione, firma di rilascio letta dalle variabili d'ambiente |
 | `ios/App/App.xcodeproj` | progetto Xcode (Swift Package Manager, nessun CocoaPods) |
 | `ios/App/App/Info.plist` | iPhone solo verticale, iPad tutte e quattro le orientazioni, barra di stato nascosta, niente `UIRequiresFullScreen`, nessuna crittografia propria |
-| `ios/App/App/PrivacyInfo.xcprivacy` | manifest della privacy (nessun tracciamento, UserDefaults con motivo CA92.1), incluso nelle risorse dell'app |
-| `assets/` | immagini di partenza per icone e schermate d'avvio |
+| `ios/App/App/PrivacyInfo.xcprivacy` | manifest della privacy (nessun tracciamento, nessun dato raccolto, UserDefaults con motivo CA92.1, marcatura temporale dei file con motivo C617.1), incluso nelle risorse dell'app |
+| `android/capacitor.settings.gradle`, `android/app/capacitor.build.gradle`, `ios/App/CapApp-SPM/Package.swift` | i plugin di Capacitor registrati nei progetti nativi; li scrive `npm run app:sync` (`cap sync`), non si modificano a mano |
+| `assets/` | immagini di partenza per icone e schermate d'avvio; grafica in evidenza di Google Play (`feature-graphic.png`, `feature-graphic-en.png`) |
+| `tests/e2e/__screenshots__/store/` | schermate per le schede degli store (iPhone 6,9", iPad 13", telefono Android) |
 | `scripts/android-build.sh` | Gradle con 5 tentativi e attesa crescente |
 | `scripts/release-android.sh` | App Bundle firmato per Google Play |
 | `scripts/release-ios.sh` | pacchetto firmato per l'App Store |

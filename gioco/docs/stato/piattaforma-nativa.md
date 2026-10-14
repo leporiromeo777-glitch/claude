@@ -147,7 +147,7 @@ Progetti nativi generati con `npx cap add android` e `npx cap add ios` (Capacito
   - versione XML dell'SDK più nuova dei cmdline-tools;
   - `appCategory` vale da API 26 in su (con minSdk 24 viene ignorato sotto la 26).
 - **Acquisti nativi ancora assenti.** Lo sblocco unico è L2: in nativo tutto è sbloccato. STORE.md 6.1 spiega cosa comporta per il prezzo.
-- **Schede degli store incomplete.** Mancano la grafica in evidenza 1024×500 di Google Play e le schermate alle misure degli store (vedi le richieste).
+- **Schede degli store incomplete.** Mancano la grafica in evidenza 1024×500 di Google Play e le schermate alle misure degli store (vedi le richieste). Superato nella revisione 1: vedi sotto.
 
 ## Richieste ad altri pacchetti
 
@@ -160,3 +160,73 @@ Progetti nativi generati con `npx cap add android` e `npx cap add ios` (Capacito
   - iPad 13": 2064×2752;
   - telefono Android: circa 1080×1920.
 - **fondamenta**: aggiungere `npm run native:check && npm run native:test` allo script `ci` (non richiedono SDK né rete), o almeno citarli nel README insieme a `docs/STORE.md`. Il README dice anche «Xcode 26+»: va bene, ma conviene rimandare a STORE.md 2.3 per la scelta tra Xcode 27 (macOS Tahoe 26.6+) e Xcode 26.3 (macOS Sequoia).
+
+## Revisione 1 (14/10/2026)
+
+Gruppo «nativa», compiti NAT-01 e NAT-02 di `docs/REVISIONE-1.md` (decisione D18). Nessun contratto fra gruppi riguarda questo gruppo; nessun file fuori da `android/`, `ios/`, `scripts/`, `docs/STORE.md` e questo rapporto.
+
+### NAT-01 [P1] Privacy manifest e plugin sincronizzati: fatto
+
+- `ios/App/App/PrivacyInfo.xcprivacy`: nuova voce `NSPrivacyAccessedAPICategoryFileTimestamp` con motivo `C617.1`, accanto a UserDefaults `CA92.1`. Il gioco usa `@capacitor/filesystem` solo per scrivere nella cache il PNG da condividere (`src/core/platform.ts`, `writeShareFile`), ma il plugin contiene le funzioni che leggono le date dei file (`stat`: ctime e mtime) e Apple le trova nel binario: senza la voce, App Store Connect rifiuta il caricamento (ITMS-91053).
+- `npx cap sync` (Android e iOS): 8 plugin per piattaforma. Cambiati solo i tre file generati:
+  - `android/capacitor.settings.gradle`: `include ':capacitor-filesystem'` con il percorso in node_modules;
+  - `android/app/capacitor.build.gradle`: `implementation project(':capacitor-filesystem')` (anche questo mancava, oltre a quanto detto in D18);
+  - `ios/App/CapApp-SPM/Package.swift`: pacchetto `CapacitorFilesystem` e suo prodotto.
+- `scripts/check-native.mjs` (`npm run native:check`), da 40 a 47 controlli. Nuovi:
+  - `package.json: plugin di Capacitor trovati`;
+  - `Android: plugin di package.json registrati in capacitor.settings.gradle e capacitor.build.gradle (npx cap sync)` e il controllo inverso (nessun plugin registrato che non è più in `package.json`);
+  - `iOS: plugin di package.json nel Package.swift (npx cap sync)` e il controllo inverso;
+  - `PrivacyInfo: FileTimestamp con motivo C617.1 (@capacitor/filesystem)`, da una tabella plugin → API con motivo (oggi una riga; si allunga se arriva un plugin che ne chiede altre);
+  - `AndroidManifest: FileProvider con la cache dell'app (condivisione dell'immagine)`: il PNG scritto in `Directory.Cache` esce verso le altre app solo se `res/xml/file_paths.xml` espone `cache-path`. Oggi c'è (modello di Capacitor); il controllo evita che sparisca.
+
+  Plugin = dipendenza di `package.json` con «capacitor» nel nome, tranne core, android, ios, cli e assets; le piattaforme vengono dal campo `capacitor` del suo `package.json` in node_modules. Senza node_modules (la copia di prova di `native:test`) si assumono entrambe. Sui file di prima del sync il controllo dava 3 errori (Android, iOS, privacy): provato su una copia.
+- `scripts/test-native.sh` (`npm run native:test`), da 59 a 68 prove. Nuove mutazioni, tutte segnalate da check-native con il messaggio giusto:
+  - voce FileTimestamp tolta; motivo sbagliato (`0A2A.1`);
+  - filesystem tolto da `capacitor.settings.gradle`, da `app/capacitor.build.gradle`, dal `Package.swift` (pacchetto e prodotto) e solo dai prodotti del `Package.swift`;
+  - `cache-path` tolto da `file_paths.xml`;
+  - plugin tolto da `package.json` ma rimasto nei progetti (Android e iOS).
+
+### NAT-02 [P2] STORE.md: fatto
+
+- **6.2 Privacy**: tabella delle due API con motivo dichiarato (UserDefaults `CA92.1`, marcatura temporale dei file `C617.1`) con chi le usa; cosa fa la condivisione (un solo PNG nella cache, nessun permesso Android); l'email ITMS-91053 e dove trovare i motivi per un plugin nuovo.
+- **6.4 Immagini delle schede: già pronte** (prima erano «6.5 Immagini», con la grafica «da preparare»). In cima la grafica in evidenza di Google Play, con i due file (`assets/feature-graphic.png` per la scheda italiana, `assets/feature-graphic-en.png` per l'inglese, 1024×500, PNG RGB senza alfa: controllato) e le due anteprime. Poi le schermate: tabella con le tre cartelle di `tests/e2e/__screenshots__/store/` (iPhone 6,9" 1290×2796, iPad 13" 2064×2752, Android 1080×1920; 5 JPEG ciascuna, misure controllate), le iPad anche come tablet di Google Play, e il comando per rifarle sulla versione definitiva. Infine l'icona.
+- **6.5 Testi della scheda**: invariata, solo rinumerata. Riferimenti aggiornati in 7.2, 8.2, 10.1, 10.3, 10.4.
+- **4, 9, 11, 12**: `native:check` controlla anche i plugin; cosa fare quando si aggiunge un plugin; due righe nuove nei problemi comuni (plugin non sincronizzato, ITMS-91053); file generati da `cap sync`, grafica in evidenza e cartella delle schermate nell'elenco del repository.
+- Nessun «da preparare» rimasto.
+
+### Verifiche
+
+- `npm run native:check`: 47/47. `npm run native:test`: 68/68, 0 fallite, in circa 9 s.
+- `npm run android:apk`: oggi si ferma al primo passo, `tsc --noEmit` di `npm run build`, per un errore di tipo in un file del tombolo in lavorazione (`src/tombolo/tutorial.ts(84,7)`, `PulseTarget`). Non è un file nativo. Ho quindi lanciato gli stessi passi senza il typecheck: `npx vite build && npx cap sync && bash scripts/android-build.sh assembleDebug`.
+  - Tentativo 1: Maven Central risponde `429 Too Many Requests` su `kotlinx-coroutines-core:1.10.2`, una dipendenza nuova del plugin filesystem. È l'errore di rete documentato in STORE.md 4 e 11; lo script ha ritentato da solo dopo 15 s.
+  - Tentativo 2: BUILD SUCCESSFUL. `app-debug.apk` pesa 12 183 196 byte (11,6 MB; prima 8,5 MB). La differenza viene dalle librerie Kotlin e coroutine del plugin, non minimizzate nella build di debug, e dal bundle web più grande.
+  - aapt2: `it.trama.merletto`, versionName 1.0.0, targetSdk 36. Permessi: INTERNET (modello di Capacitor) e VIBRATE (haptics). Il plugin filesystem non ne aggiunge.
+  - `assets/capacitor.plugins.json` nell'APK elenca `com.capacitorjs.plugins.filesystem.FilesystemPlugin`.
+  - Un secondo `cap sync` non cambia nessun file versionato.
+- Bundle web dell'APK (`android/app/src/main/assets/public`) servito su 127.0.0.1:5620 e aperto in Chromium come Pixel 7 e iPad Pro 11 in orizzontale:
+  - titolo disegnato (screenshot controllati);
+  - nessun errore in console e nessuna richiesta esterna;
+  - `user-select: none` e `overscroll-behavior: none`.
+  - `__GAME__` è assente, come deve: è una build senza `VITE_E2E`.
+
+  Server chiuso.
+- STORE.md trasformato in HTML con Python-Markdown e aperto in Chromium: le due anteprime della grafica si caricano (1024×500) e la sezione 6.4 si legge bene (screenshot controllato).
+
+### Decisioni
+
+- **Il controllo dei plugin è generico.** Non cerca solo `@capacitor/filesystem`: confronta ogni plugin di `package.json` con i tre file generati, nei due versi. Così segnala anche il prossimo plugin dimenticato, e uno tolto senza risincronizzare.
+- **La voce di privacy si richiede solo se il plugin c'è.** Se un giorno `@capacitor/filesystem` uscisse da `package.json`, la voce FileTimestamp resterebbe innocua e il controllo non la chiederebbe più. UserDefaults resta obbligatoria come prima.
+- **Icona di Google Play.** Google chiede un PNG a 32 bit con alfa, mentre `public/icons/icon-512.png` è RGB a 24 bit. Non è un file di questo gruppo: STORE.md spiega come esportarlo con l'alfa da Anteprima se la Play Console lo rifiuta.
+- **Schermate per la scheda inglese.** Non esistono: la suite le fa solo in italiano. STORE.md dice che si possono caricare quelle italiane, oppure farle dal simulatore con il dispositivo in inglese.
+
+### Problemi aperti
+
+- iOS ancora non compilato (serve un Mac). Il `Package.swift` è quello scritto da Capacitor. Il plugin filesystem aggiunge la dipendenza Swift `ion-ios-filesystem` (GitHub), che Xcode scarica alla prima apertura.
+- Le schermate in `tests/e2e/__screenshots__/store/` sono state fatte prima della revisione 1: vanno rifatte sulla versione definitiva, con il comando di STORE.md 6.4. Rifarle tocca `tests/e2e/`, che in questa revisione non ha un gruppo (D19).
+- `npm run android:apk` torna verde da solo quando il typecheck globale torna verde.
+
+### Richieste ad altri
+
+- **asset-blender** (facoltativa): un'icona per Google Play a 32 bit con canale alfa (512×512 RGBA, per esempio `public/icons/icon-512-play.png`), così non serve la conversione a mano descritta in STORE.md 6.4.
+- **QA, prima del playtest 2**: rifare le schermate per gli store (`E2E_SHOTS=1 npx playwright test tests/e2e/layout.spec.ts -g "schermate per gli store" --project=desktop`). Se possibile, anche in inglese, per la scheda inglese.
+

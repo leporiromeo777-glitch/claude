@@ -144,6 +144,13 @@ if (manifest !== null) {
   const activity = /<activity\b[^>]*android:name="\.MainActivity"[^>]*>/.exec(manifest)?.[0] ?? '';
   check('AndroidManifest: android:appCategory="game" su <application>', /android:appCategory="game"/.test(application));
   check('AndroidManifest: android:screenOrientation="fullUser" su MainActivity', /android:screenOrientation="fullUser"/.test(activity));
+  // Condivisione del PNG: il gioco lo scrive nella cache (@capacitor/filesystem, Directory.Cache)
+  // e @capacitor/share lo passa alle altre app con il FileProvider del modello di Capacitor,
+  // che deve esporre la cartella della cache (cache-path in res/xml/file_paths.xml).
+  const provider = /<provider\b[^>]*androidx\.core\.content\.FileProvider[\s\S]*?<\/provider>/.exec(manifest)?.[0] ?? '';
+  const providerPaths = /android:resource="@xml\/([A-Za-z0-9_]+)"/.exec(provider)?.[1];
+  const pathsXml = providerPaths ? read(`android/app/src/main/res/xml/${providerPaths}.xml`) ?? '' : '';
+  check('AndroidManifest: FileProvider con la cache dell\'app (condivisione dell\'immagine)', /\$\{applicationId\}\.fileprovider/.test(provider) && /<cache-path\b[^>]*path="\."/.test(pathsXml), providerPaths ? `res/xml/${providerPaths}.xml senza <cache-path path=".">` : 'FileProvider assente');
 }
 const variables = read('android/variables.gradle') ?? '';
 const gradleNum = (name) => Number(new RegExp(`${name}\\s*=\\s*(\\d+)`).exec(variables)?.[1]);

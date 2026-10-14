@@ -146,6 +146,8 @@ mutate "filesystem assente dal Package.swift (cap sync non fatto)" ios/App/CapAp
   's/[^\n]*"CapacitorFilesystem"[^\n]*\n//g' 'iOS: plugin di package.json nel Package.swift.*mancano @capacitor/filesystem'
 mutate "filesystem solo nell'elenco dei pacchetti Swift, non fra i prodotti" ios/App/CapApp-SPM/Package.swift \
   's/[^\n]*\.product\(name: "CapacitorFilesystem"[^\n]*\n//' 'iOS: plugin di package.json nel Package.swift'
+mutate "FileProvider senza la cache: l'immagine da condividere non esce" android/app/src/main/res/xml/file_paths.xml \
+  's/\s*<cache-path[^>]*>//' 'FileProvider con la cache'
 mutate "plugin tolto da package.json ma rimasto su Android" package.json \
   's/\s*"\@capacitor\/haptics": "[^"]*",//' 'Android: nessun plugin registrato che non è più in package.json.*@capacitor/haptics'
 mutate "plugin tolto da package.json ma rimasto su iOS" package.json \
