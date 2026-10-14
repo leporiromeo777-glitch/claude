@@ -126,8 +126,6 @@ export async function openGame(page: Page, opts: BootOptions = {}): Promise<void
   }
 }
 
-export const sleep = (page: Page, ms: number): Promise<void> => page.waitForTimeout(ms);
-
 /** Ripete `fn` finché restituisce true (o scade il tempo). */
 export async function until(page: Page, fn: () => Promise<boolean>, ms = 15_000, every = 80): Promise<boolean> {
   const t0 = Date.now();
