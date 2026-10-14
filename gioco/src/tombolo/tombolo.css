@@ -975,3 +975,104 @@
 .tb-hint .core-btn {
   white-space: normal;
 }
+
+/* ───────── Pannello dell'Archivio (C09) ───────── */
+.tb-archivio-pannello {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.tb-archivio-pannello .tb-obiettivi {
+  padding: 0;
+  background: transparent;
+}
+
+.tb-ap-anno {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--legno-scuro);
+}
+
+.tb-ap-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.tb-ap-sezione {
+  margin-top: var(--spazio-2);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--legno-scuro);
+}
+
+.tb-ap-nota {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--legno-scuro);
+}
+
+.tb-ap-candidati {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tb-ap-cand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--legno-scuro);
+  font-size: 0.95rem;
+}
+
+.tb-ap-cand--confermato {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.tb-ap-cand-filo {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--legno-scuro);
+}
+
+.tb-ap-echi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.tb-ap-eco {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tb-ap-eco-chi,
+.tb-echo-chi {
+  font-weight: 700;
+  color: var(--legno-scuro);
+}
+
+.tb-ap-eco-testo {
+  font-family: var(--font-libro);
+  font-style: italic;
+}

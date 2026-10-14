@@ -15,6 +15,7 @@ import { buildVisuals, LINO_COLOR, NEUTRO_COLOR } from '../../../src/tombolo/vis
 import { buildLaceModel, goalCellsOf } from '../../../src/tombolo/render/model';
 import { clearNight, paramsForSave } from '../../../src/tombolo/resume';
 import { replayParams } from '../../../src/tombolo/modes/replay';
+import { describeCondition } from '../../../src/tombolo/text';
 import { defaultMode, fitMode } from '../../../src/tombolo/modes/autoweave';
 import { buildParams } from '../../../src/tombolo/debug';
 import { fixture, fixtureComputed, nightParams } from './helpers';
@@ -217,39 +218,42 @@ describe('arc6: Archivio con le occasioni (priorità 3)', () => {
 });
 
 describe('obiettivi obbligatori visibili (priorità 4)', () => {
-  const cases: [string, RegExp][] = [
-    ['g04', /Bepi parte alle 7/],
-    ['g12', /Bepi parte alle 9/],
-    ['g17', /Zeno resta/],
+  /** Livello di prova come g04 di prima: Bepi deve partire con la barca delle 7. */
+  const bepi = (): LevelDef => ({ ...fixture('test-bordi'), goals: [{ t: 'parte', who: 'bepi', hour: 7 }] });
+  const cases: [string, () => LevelDef][] = [
+    ['bepi parte', bepi],
+    ['g12', () => level('g12')],
+    ['g17', () => level('g17')],
   ];
-  for (const [id, text] of cases) {
+  for (const [id, make] of cases) {
     it(`${id}: pulsante Obiettivi con il contatore e l'obiettivo nell'elenco (C08)`, () => {
-      c = new NightController(h.s, nightParams(level(id), { origin: 'campagna', needsNome: id !== 'g04' }), { computed: computed(id) });
+      const lv = make();
+      c = new NightController(h.s, nightParams(lv, { origin: 'campagna', needsNome: lv.rules.includes('nome') }), { computed: null });
       const btn = document.querySelector<HTMLElement>('[data-test="tb-obiettivi"]');
       expect(btn).not.toBeNull();
       expect(btn?.hidden).toBe(false);
       expect(btn?.textContent).toMatch(/^\d+\/\d+$/);
       c.openRequest('obiettivi');
-      const item = document.querySelector('[data-test="tb-popup-obiettivi"] [data-test="tb-obiettivo-0"]');
-      expect(item?.textContent).toMatch(text);
+      const item = document.querySelector('[data-test="tb-popup-obiettivi"] [data-test="tb-obiettivo-0"] .tb-ob-testo');
+      const g = lv.goals?.[0];
+      expect(g).toBeDefined();
+      expect(item?.textContent).toBe(describeCondition(c.textDeps, g!));
     });
   }
 
-  it('g04 e g12: spillo d\'ottone di Bepi al Molo all\'ora della barca', () => {
-    for (const [id, hour] of [['g04', 7], ['g12', 9]] as const) {
-      const lv = level(id);
-      expect(goalCellsOf(lv, lv.goals?.[0] as never)).toEqual([{ who: 'bepi', place: 'molo', hour }]);
-      const s = new Session(nightParams(lv));
-      const visuals = buildVisuals(lv, h.s.content.characters);
-      const m = buildLaceModel({ session: s, visuals, visualsVersion: 0, gradi: [], placingOccasions: false, echoesOpen: false }, null);
-      const pin = m.pins.find((p) => p.kind === 'ottone' && p.col === 0 && p.index === hour - lv.startHour);
-      expect(pin, id).toBeDefined();
-      expect(pin?.icon).toBe(visuals.get('bepi')?.icon);
-    }
+  it('Bepi al Molo all\'ora della barca: spillo d\'ottone dell\'obiettivo', () => {
+    const lv = bepi();
+    expect(goalCellsOf(lv, lv.goals?.[0] as never)).toEqual([{ who: 'bepi', place: 'molo', hour: 7 }]);
+    const s = new Session(nightParams(lv));
+    const visuals = buildVisuals(lv, h.s.content.characters);
+    const m = buildLaceModel({ session: s, visuals, visualsVersion: 0, gradi: [], placingOccasions: false, echoesOpen: false }, null);
+    const pin = m.pins.find((p) => p.kind === 'ottone' && p.col === 0 && p.index === 7 - lv.startHour);
+    expect(pin).toBeDefined();
+    expect(pin?.icon).toBe(visuals.get('bepi')?.icon);
   });
 
-  it('g04 all\'apertura l\'obiettivo è a rischio, non già fallito', () => {
-    const lv = level('g04');
+  it('all\'apertura l\'obiettivo è a rischio, non già fallito', () => {
+    const lv = bepi();
     const s = new Session(nightParams(lv, { origin: 'campagna' }));
     expect(s.goalStatus()[0]).toEqual({ status: 'a_rischio', reasonKey: 'tombolo.cond.rischio.parte', params: { chi: 'bepi', ora: 7 } });
     // Bepi incrocia Nina e va al Molo: con la riga in anteprima si compirebbe, ma

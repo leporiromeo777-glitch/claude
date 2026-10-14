@@ -170,7 +170,16 @@
       "rammendoOra": "Manca il rammendo dell'ora {ora}.",
       "righe": "Il merletto non è finito: tocca alla riga delle {ora}.",
       "giornata": "La giornata non è ancora andata come allora: pianta le occasioni e lasciala accadere."
-    }
+    },
+    "pannello": {
+      "fili": "Fili da nominare",
+      "candidati": "Candidati",
+      "strappi": "Strappi",
+      "obiettivi": "Come andò quel giorno",
+      "echi": "Echi: {letti} di {totale}"
+    },
+    "ecoChi": "{sopra} → {sotto}, alle {ora}",
+    "nomiDatiBreve": "Nomi dati: {dati} di {totale}"
   },
   "filo": {
     "avorio": "il filo d'avorio",

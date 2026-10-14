@@ -165,7 +165,7 @@ describe('TOM-02: nomi alla Obra Dinn (P003)', () => {
     c = new NightController(h.s, archiveParams(lv), { computed: null });
     c.name('f1', 'marta');
     c.name('f2', 'nina');
-    expect(document.querySelector('[data-test="tb-req-info"]')?.textContent).toBe('Nomi dati: 2 di 4 · si confermano a gruppi di tre giusti');
+    expect(document.querySelector('[data-test="tb-req-info"]')?.textContent).toBe('Nomi dati: 2 di 4');
     c.openNamePicker('f3');
     expect(document.querySelector('[data-test="tb-nomina-dati"]')?.textContent).toBe('Nomi dati: 2 di 4 · si confermano a gruppi di tre giusti');
     // Il nome provvisorio di un altro filo si vede sul candidato: toccandolo si sposta.

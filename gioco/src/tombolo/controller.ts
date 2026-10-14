@@ -44,6 +44,7 @@ import { ColumnHeader, Hud } from './ui/hud';
 import { type GoalsButtonState, RequestStrip, goalCard, noteCard, type RequestToken } from './ui/requests';
 import { ObjectivesList } from './ui/objectives';
 import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
+import { ArchivePanel } from './ui/archivepanel';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -397,9 +398,32 @@ export class NightController {
     this.leftBox.hidden = !l.left;
     this.rightBox.hidden = !l.right;
     const opts = { from: 'tombolo', levelId: this.params.level.id, origin: this.params.origin, accepted: this.params.accepted.map((a) => a.noteId) };
-    if (l.left) this.panelLeft = this.s.ui.mountPanel('bigliettini', this.leftBox, opts);
+    this.archivePanel = null;
+    if (l.left && this.session.archive) {
+      // Archivio (C09): a sinistra il pannello del tombolo, non i Bigliettini.
+      const panel = new ArchivePanel(this);
+      this.archivePanel = panel;
+      this.leftBox.replaceChildren(panel.el);
+      this.panelLeft = { destroy: () => panel.el.remove() };
+    } else if (l.left) this.panelLeft = this.s.ui.mountPanel('bigliettini', this.leftBox, opts);
     // Il Taccuino a destra è fisso: non apre la scheda dei Bigliettini (sono già a sinistra).
     if (l.right) this.panelRight = this.s.ui.mountPanel('taccuino', this.rightBox, { ...opts, fixed: true });
+  }
+
+  /** Pannello dell'Archivio nel layout largo (C09), se montato. */
+  private archivePanel: ArchivePanel | null = null;
+  /** Echi letti stanotte (registro del pannello dell'Archivio). */
+  private readonly heard: { hour: number; pair: number }[] = [];
+
+  heardEchoes(): readonly { hour: number; pair: number }[] {
+    return this.heard;
+  }
+
+  /** «Teresa → Aldo, alle 9»: chi stava sopra e chi sotto nel crocevia di un eco. */
+  echoNames(hour: number, pair: number): string {
+    const t = this.session.archive?.echoThreads(hour, pair);
+    if (!t) return formatHour(this.textDeps, hour);
+    return this.s.i18n.t('tombolo.archivio.ecoChi', { sopra: threadName(this.textDeps, t.over), sotto: threadName(this.textDeps, t.under), ora: formatHour(this.textDeps, hour) });
   }
 
   /** La notte è attiva (`setActiveNight`): si montano i pannelli del layout largo. */
@@ -436,9 +460,10 @@ export class NightController {
     }
     this.updateUi();
     this.updateLists();
+    this.archivePanel?.update();
   }
 
-  private echoesOpen(): boolean {
+  echoesOpen(): boolean {
     const a = this.session.archive;
     if (!a) return false;
     return a.allNamed() && (this.params.mode === 'occasioni' ? this.session.succeeded() : a.allMended() && this.session.done);
@@ -567,7 +592,8 @@ export class NightController {
       const occ = this.params.mode === 'occasioni' ? { piantate: s.occasions.length, posti: occasionSlots(lv) } : null;
       if (!a.allNamed()) {
         const pr = a.progress();
-        this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.nomiDati', { dati: pr.given, totale: pr.total, ...(occ ?? {}) });
+        // Nella striscia la forma breve (la regola dei gruppi di tre la dice il selettore).
+        this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.nomiDatiBreve', { dati: pr.given, totale: pr.total, ...(occ ?? {}) });
       }
       else if (!this.echoesOpen()) this.requests.setInfo(occ ? 'tombolo.occasioni.contatore' : 'tombolo.archivio.daRammendare', occ ?? {});
       else this.requests.setInfo('tombolo.archivio.fatto', {});
@@ -1187,7 +1213,7 @@ export class NightController {
     if (a && this.model.echoes.length > 0 && pair >= 0) {
       const key = a.echoAt(this.params.level.startHour + index, pair);
       if (key) {
-        this.showEcho(key);
+        this.showEcho(key, this.params.level.startHour + index, pair);
         return;
       }
     }
@@ -1568,8 +1594,12 @@ export class NightController {
     );
   }
 
-  private showEcho(key: string): void {
+  /** Eco di un incrocio: i due nomi del crocevia e la voce di allora (D05.8). */
+  private showEcho(key: string, hour: number, pair: number): void {
+    if (!this.heard.some((h) => h.hour === hour && h.pair === pair)) this.heard.push({ hour, pair });
+    this.archivePanel?.update();
     this.openPopup('tb-popup-eco', (body) => {
+      body.appendChild(el('p', { class: 'tb-echo-chi', test: 'tb-eco-chi', text: this.echoNames(hour, pair) }));
       const p = el('p', { class: 'tb-echo', test: 'tb-eco', data: { chiave: key } });
       p.textContent = this.s.i18n.t(key);
       body.appendChild(p);
@@ -1580,7 +1610,7 @@ export class NightController {
   echo(hour: number, pair: number): string | null {
     if (this.model.echoes.length === 0) return null;
     const key = this.session.archive?.echoAt(hour, pair) ?? null;
-    if (key) this.showEcho(key);
+    if (key) this.showEcho(key, hour, pair);
     return key;
   }
 

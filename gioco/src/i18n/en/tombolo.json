@@ -170,7 +170,16 @@
       "rammendoOra": "The {ora} hour still needs mending.",
       "righe": "The lace isn't finished: the {ora} row is next.",
       "giornata": "The day hasn't gone as it did back then: plant the occasions and let it happen."
-    }
+    },
+    "pannello": {
+      "fili": "Threads to name",
+      "candidati": "Candidates",
+      "strappi": "Tears",
+      "obiettivi": "How that day went",
+      "echi": "Echoes: {letti} of {totale}"
+    },
+    "ecoChi": "{sopra} → {sotto}, at {ora}",
+    "nomiDatiBreve": "Names given: {dati} of {totale}"
   },
   "filo": {
     "avorio": "the ivory thread",
