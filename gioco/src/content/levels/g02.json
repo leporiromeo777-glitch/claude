@@ -12,7 +12,7 @@
     {"id": "teresa", "kind": "persona", "character": "teresa"},
     {"id": "piero", "kind": "persona", "character": "piero"}
   ],
-  "initial": ["gino", "marta", "teresa", "piero"],
+  "initial": ["teresa", "gino", "marta", "piero"],
   "beads": [
     {
       "id": "voce:bambina",
@@ -23,9 +23,9 @@
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
-  "pins": [{"thread": "piero", "place": "chiesa", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 8}],
+  "pins": [{"thread": "marta", "place": "forno", "hour": 12}, {"thread": "teresa", "place": "piazza", "hour": 12}],
   "notes": ["g02.marta", "g02.martaDura", "g02.teresa", "g02.gino"],
-  "matassa": 9,
+  "matassa": 10,
   "dawn": {
     "candidates": [
       {

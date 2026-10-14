@@ -13,14 +13,14 @@
     {"id": "piero", "kind": "persona", "character": "piero"},
     {"id": "marinaio", "kind": "lino", "labelKey": "comune.fili.marinaio"}
   ],
-  "initial": ["teresa", "marta", "nina", "piero"],
+  "initial": ["piero", "teresa", "marta", "nina"],
   "beads": [],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
-  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 11}],
+  "pins": [{"thread": "piero", "place": "chiesa", "hour": 10}, {"thread": "piero", "place": "piazza", "hour": 12}],
   "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g03.nina", "g03.marta", "g03.teresa", "g03.teresaFredda"],
-  "matassa": 8,
+  "matassa": 10,
   "dawn": {
     "candidates": [
       {
