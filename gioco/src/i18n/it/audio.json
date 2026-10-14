@@ -44,6 +44,8 @@
     "tuono": "[un tuono]",
     "ambiente": {
       "laguna": "[la laguna: onde e gabbiani]",
+      "lagunaOrologio": "[la laguna: onde e gabbiani; un orologio ticchetta]",
+      "orologio": "[un orologio ticchetta piano]",
       "notte": "[l'acqua lambisce le rive, un orologio ticchetta]",
       "notteFerma": "[l'acqua lambisce le rive; l'orologio è fermo]",
       "pioggia": "[pioggia]",

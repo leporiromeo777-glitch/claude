@@ -44,6 +44,8 @@
     "tuono": "[thunder]",
     "ambiente": {
       "laguna": "[the lagoon: waves and seagulls]",
+      "lagunaOrologio": "[the lagoon: waves and seagulls; a clock ticking]",
+      "orologio": "[a clock ticking softly]",
       "notte": "[water lapping the shore, a clock ticking]",
       "notteFerma": "[water lapping the shore; the clock has stopped]",
       "pioggia": "[rain]",

@@ -55,6 +55,12 @@ export const AMBIENCE_CAPTIONS: Readonly<Record<AmbienceId, string | null>> = {
   tempesta: captionKey('ambiente.tempesta'),
 };
 
+/** Didascalie degli ambienti con l'orologio chiesto apposta (`clock: true`). */
+export const AMBIENCE_CLOCK_CAPTIONS: Readonly<Partial<Record<AmbienceId, string>>> = {
+  silenzio: captionKey('ambiente.orologio'),
+  laguna: captionKey('ambiente.lagunaOrologio'),
+};
+
 /** Didascalie con parametri, usate dal motore e dai suoni automatici. */
 export const CAPTIONS = {
   campana: captionKey('campana'), // {ora}
@@ -79,10 +85,28 @@ export const CAPTIONS = {
   notteFerma: captionKey('ambiente.notteFerma'),
 } as const;
 
+/**
+ * Didascalia di un cambio d'ambiente. La notte dice se l'orologio è fermo (prologo,
+ * o `clock: false`); con `clock: true` la laguna e il silenzio nominano l'orologio.
+ */
+export function ambienceCaptionKey(a: AmbienceId, clock: boolean | undefined, clockStopped: boolean): string | null {
+  if (a === 'notte') {
+    const ticks = clock === true || (clock === undefined && !clockStopped);
+    return ticks ? AMBIENCE_CAPTIONS.notte : CAPTIONS.notteFerma;
+  }
+  if (clock === true) return AMBIENCE_CLOCK_CAPTIONS[a] ?? AMBIENCE_CAPTIONS[a];
+  return AMBIENCE_CAPTIONS[a];
+}
+
 /** Tutte le chiavi di didascalia che il pacchetto può emettere (per i test). */
 export const ALL_CAPTION_KEYS: readonly string[] = [
   ...new Set(
-    [...Object.values(SFX_CAPTIONS), ...Object.values(AMBIENCE_CAPTIONS), ...Object.values(CAPTIONS)].filter(
+    [
+      ...Object.values(SFX_CAPTIONS),
+      ...Object.values(AMBIENCE_CAPTIONS),
+      ...Object.values(AMBIENCE_CLOCK_CAPTIONS),
+      ...Object.values(CAPTIONS),
+    ].filter(
       (k): k is string => typeof k === 'string',
     ),
   ),

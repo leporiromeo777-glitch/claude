@@ -34,9 +34,9 @@ import { MAX_VOICES, VoiceLimiter, type VoiceKind } from './voices';
 import { NOTE_GAIN, Player } from './player';
 import { Clock, type ClockTimers } from './scheduler';
 import { MusicTrack, type MusicOpts } from './music';
-import { AmbienceTrack } from './ambience';
+import { AmbienceTrack, clockModeFor, clockTicks } from './ambience';
 import { CARILLON_NOTE_GAIN, CARILLON_TICK_GAIN, CarillonTrack, carillonEvents, carillonSeconds } from './carillon';
-import { AMBIENCE_CAPTIONS, CAPTIONS, Captioner, SFX_CAPTIONS, type CaptionRecord } from './captions';
+import { CAPTIONS, Captioner, SFX_CAPTIONS, ambienceCaptionKey, type CaptionRecord } from './captions';
 import type { Rand } from './synth/dsp';
 import { type CharacterLookup, noteHzFor } from './synth/musicbox';
 import { STONATURE } from './synth/bell';
@@ -168,7 +168,7 @@ export class WebAudioEngine implements AudioEngine {
   private volumes: Settings['volume'] = { ...DEFAULT_VOLUMES };
   private explicitDuck = false;
   private speaking = 0;
-  private desiredAmbience: { id: AmbienceId; fadeMs?: number } = { id: 'silenzio' };
+  private desiredAmbience: { id: AmbienceId; fadeMs?: number; clock?: boolean } = { id: 'silenzio' };
   private desiredMusic: { state: MusicState; opts: MusicOpts } = { state: 'off', opts: {} };
   private readonly ring: LogEntry[] = [];
   private readonly captioner: Captioner;
@@ -334,7 +334,7 @@ export class WebAudioEngine implements AudioEngine {
     if (typeof ctx.addEventListener === 'function') ctx.addEventListener('statechange', onChange);
     else ctx.onstatechange = onChange;
     // Ambiente, musica e ducking chiesti prima dello sblocco partono adesso.
-    ambience.set(this.desiredAmbience.id, this.desiredAmbience.fadeMs);
+    ambience.set(this.desiredAmbience.id, this.desiredAmbience.fadeMs, this.desiredAmbience.clock);
     music.set(this.desiredMusic.state, this.desiredMusic.opts);
     clock.add(ambience);
     clock.add(music);
@@ -739,18 +739,25 @@ export class WebAudioEngine implements AudioEngine {
     return { stop: stopNow, done };
   }
 
-  setAmbience(a: AmbienceId, fadeMs?: number): void {
+  /**
+   * Ambiente (GDD 13.3). `o.clock` aggiunge (true) o toglie (false) l'orologio che
+   * ticchetta; senza, c'è solo nella notte (fermo nel prologo). Il titolo chiede
+   * `setAmbience('laguna', undefined, { clock: true })`: laguna e orologio (GDD 9).
+   */
+  setAmbience(a: AmbienceId, fadeMs?: number, o?: { clock?: boolean }): void {
     this.guard('setAmbience', () => {
-      this.record('ambiente', a);
-      const changed = a !== this.desiredAmbience.id;
-      this.desiredAmbience = fadeMs === undefined ? { id: a } : { id: a, fadeMs };
-      if (changed) {
-        const key = a === 'notte' && this.game.clockStopped() ? CAPTIONS.notteFerma : AMBIENCE_CAPTIONS[a];
-        this.captioner.say(key);
-      }
+      const clock = o?.clock;
+      this.record('ambiente', clock === undefined ? a : `${a} ${clock ? '+' : '-'}orologio`);
+      const prev = this.desiredAmbience;
+      const changed = a !== prev.id || clock !== prev.clock;
+      const next: { id: AmbienceId; fadeMs?: number; clock?: boolean } = { id: a };
+      if (fadeMs !== undefined) next.fadeMs = fadeMs;
+      if (clock !== undefined) next.clock = clock;
+      this.desiredAmbience = next;
+      if (changed) this.captioner.say(ambienceCaptionKey(a, clock, this.game.clockStopped()));
       const rt = this.rt;
       if (!rt) return;
-      rt.ambience.set(a, fadeMs);
+      rt.ambience.set(a, fadeMs, clock);
       if (!rt.clock.has(rt.ambience)) rt.clock.add(rt.ambience);
     });
   }
@@ -804,6 +811,8 @@ export class WebAudioEngine implements AudioEngine {
     blocked: boolean;
     music: MusicState;
     ambience: AmbienceId;
+    /** L'orologio dell'ambiente ticchetta adesso (prima dello sblocco: quello chiesto). */
+    clock: boolean;
     prerender: PrerenderStats;
   } {
     const rt = this.rt;
@@ -821,6 +830,9 @@ export class WebAudioEngine implements AudioEngine {
       blocked: this.blocked,
       music: this.desiredMusic.state,
       ambience: this.desiredAmbience.id,
+      clock: rt
+        ? rt.ambience.ticking()
+        : clockTicks(clockModeFor(this.desiredAmbience.id, this.desiredAmbience.clock), this.game.clockStopped()),
       prerender: { ...this.prerender },
     };
   }

@@ -8,6 +8,11 @@
  * - pioggia: granulare (200 grani al secondo, passa-alto 2 kHz) più un letto passa-basso;
  * - vento: rumore marrone passa-banda 300-800 Hz con LFO lento;
  * - tempesta: vento + pioggia + tuoni (rumore marrone di 2,5 s, passa-basso 800 → 120 Hz).
+ *
+ * L'orologio è indipendente dall'ambiente: di serie c'è solo nella notte (e lì si ferma
+ * nel prologo); con `clock: true` ticchetta in qualunque ambiente, anche nel silenzio,
+ * e non si ferma mai (il titolo: «laguna e orologio che ticchetta», GDD 9); con
+ * `clock: false` non c'è. Cambiare solo l'orologio non ricostruisce l'ambiente.
  */
 import type { AmbienceId } from '../core/types';
 import { FADE_TC } from './graph';
@@ -19,6 +24,26 @@ export const AMBIENCE_IDS: readonly AmbienceId[] = ['silenzio', 'laguna', 'notte
 export const GULL_EVERY = [8, 20] as const;
 export const THUNDER_EVERY = [9, 22] as const;
 export const CLOCK_GAIN = 0.16;
+/** Primo tic dopo l'accensione dell'orologio (s). */
+export const CLOCK_FIRST_TICK = 0.6;
+
+/**
+ * Orologio: 'auto' è quello della notte (fermo nel prologo), 'on' ticchetta sempre,
+ * 'off' non c'è.
+ */
+export type ClockMode = 'auto' | 'on' | 'off';
+
+/** Orologio di un ambiente: di serie solo nella notte; `clock` lo forza. */
+export function clockModeFor(a: AmbienceId, clock?: boolean): ClockMode {
+  if (clock === true) return 'on';
+  if (clock === false) return 'off';
+  return a === 'notte' ? 'auto' : 'off';
+}
+
+/** L'orologio suona? 'auto' tace quando il gioco lo dice fermo (prologo). */
+export function clockTicks(mode: ClockMode, stopped: boolean): boolean {
+  return mode === 'on' || (mode === 'auto' && !stopped);
+}
 
 export interface AmbienceDeps {
   player: Player;
@@ -44,12 +69,23 @@ export class AmbienceTrack implements Track {
   private nextGull = Infinity;
   private nextTick = Infinity;
   private tickOdd = false;
+  private clock: ClockMode = 'off';
   private nextThunder = Infinity;
 
   constructor(private readonly deps: AmbienceDeps) {}
 
   id(): AmbienceId {
     return this.current;
+  }
+
+  /** Stato dell'orologio dell'ambiente corrente. */
+  clockMode(): ClockMode {
+    return this.clock;
+  }
+
+  /** L'orologio suona adesso? ('auto' tace quando il gioco lo dice fermo.) */
+  ticking(): boolean {
+    return clockTicks(this.clock, this.deps.clockStopped());
   }
 
   private get ctx(): BaseAudioContext {
@@ -60,8 +96,14 @@ export class AmbienceTrack implements Track {
     return a + (b - a) * this.deps.rand();
   }
 
-  set(a: AmbienceId, fadeMs?: number): void {
-    if (a === this.current && (this.group || a === 'silenzio')) return;
+  set(a: AmbienceId, fadeMs?: number, clock?: boolean): void {
+    const mode = clockModeFor(a, clock);
+    // Il silenzio non ha nodi, a meno che non ci sia l'orologio.
+    const needsGroup = a !== 'silenzio' || mode !== 'off';
+    if (a === this.current && (this.group !== null) === needsGroup) {
+      if (mode !== this.clock) this.setClock(mode);
+      return;
+    }
     const now = this.ctx.currentTime;
     const tc = fadeMs !== undefined && Number.isFinite(fadeMs) ? Math.max(0.005, fadeMs / 1000 / 3) : FADE_TC;
     if (this.group) {
@@ -74,9 +116,19 @@ export class AmbienceTrack implements Track {
       this.fading.push(g);
     }
     this.current = a;
+    this.clock = mode;
     this.nextGull = this.nextTick = this.nextThunder = Infinity;
-    if (a === 'silenzio') return;
+    if (!needsGroup) return;
     this.group = this.build(a, now, tc);
+    if (mode !== 'off') this.nextTick = now + CLOCK_FIRST_TICK;
+  }
+
+  /** Accende o spegne l'orologio senza toccare il resto dell'ambiente. */
+  private setClock(mode: ClockMode): void {
+    const wasOff = this.clock === 'off';
+    this.clock = mode;
+    if (mode === 'off') this.nextTick = Infinity;
+    else if (wasOff) this.nextTick = this.ctx.currentTime + CLOCK_FIRST_TICK;
   }
 
   private build(a: AmbienceId, now: number, tc: number): Group {
@@ -147,7 +199,6 @@ export class AmbienceTrack implements Track {
         lfo(0.3, 0.4, am.gain);
         const lp = biquad('lowpass', 400, 0.7, am);
         loop(bank.noise('rosa'), lp, 0.9);
-        this.nextTick = now + 0.6;
         break;
       }
       case 'pioggia':
@@ -185,7 +236,7 @@ export class AmbienceTrack implements Track {
       }
       if (this.nextTick < from - 1) this.nextTick = from;
       while (this.nextTick < to) {
-        if (!this.deps.clockStopped()) {
+        if (this.ticking()) {
           p.play(p.bank.sfx(this.tickOdd ? 'toc' : 'tic'), { bus: 'ambiente', kind: 'ambience', when: this.nextTick, dest: g.out, gain: CLOCK_GAIN, pan: 0.25 });
         }
         this.tickOdd = !this.tickOdd;
