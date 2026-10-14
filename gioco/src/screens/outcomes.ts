@@ -15,8 +15,9 @@ import type { LevelDef, NightOutcome, SceneId, Services } from '../core/types';
 import { metrics } from '../engine/index';
 import { activeNight, resolveLevel } from '../tombolo/index';
 import { dailyRecordOf, dateOfDailyId, isBetterDaily, liveStreak, mergeLaceRecord, nextStreak, shareParams } from './daily';
+import { dailyCosmetics } from './cosmetics';
 import { parseLiberoId } from './libero';
-import { type ModeOrigin, type ResultInfo, dailyLevel, generatedNow, launchOf, liberoLevel, setResult, today, track } from './state';
+import { type ModeOrigin, type ResultInfo, dailyLevel, generatedNow, launchOf, liberoLevel, restoreGuardedNight, setResult, today, track } from './state';
 
 export const MODE_ORIGINS: readonly ModeOrigin[] = ['giornaliero', 'libero', 'spartito'];
 
@@ -99,11 +100,16 @@ export async function processOutcome(s: Services, outcome: NightOutcome): Promis
         info.record = lr.record;
         info.improved = lr.improved;
         d.stats.nights += 1;
+        // Fusi intagliati del Merletto del giorno (GDD 7: 7 giorni di fila, 30 in tutto).
+        const fusi = dailyCosmetics(d);
+        if (fusi.length > 0) info.cosmetics = fusi;
       },
       { immediate: true, reason: 'giornaliero' },
     );
     info.streak = liveStreak(s.save.data().stats, date);
     info.shareText = shareTextOf(s, rec, outcome.spartito);
+  } else if (origin === 'spartito') {
+    restoreGuardedNight(s);
   } else if (origin === 'libero') {
     s.save.update(
       (d) => {
@@ -120,27 +126,46 @@ export async function processOutcome(s: Services, outcome: NightOutcome): Promis
   return info;
 }
 
+function openOverlays(s: Services): number {
+  const ui = s.ui as { overlays?: () => string[] };
+  return typeof ui.overlays === 'function' ? ui.overlays().length : 0;
+}
+
 /**
  * Ascolta `night:complete` e, dopo la pausa, porta ai risultati (se il
- * giocatore è ancora davanti a quel merletto chiuso).
+ * giocatore è ancora davanti a quel merletto chiuso). Se nel frattempo ha
+ * aperto un pannello (la Pausa, il Taccuino) si aspetta che lo chiuda: i
+ * risultati non si aprono mai sotto un overlay.
  */
-export function installOutcomeListener(s: Services, o: { delay?: (ms: number) => Promise<void> } = {}): () => void {
+export function installOutcomeListener(s: Services, o: { delay?: (ms: number) => Promise<void>; pollMs?: number } = {}): () => void {
   const delay = o.delay ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
-  return s.bus.on('night:complete', ({ outcome }) => {
-    if (!isModeOrigin(outcome.origin)) return;
-    const origin = outcome.origin;
-    const processing = track(processOutcome(s, outcome));
-    void processing
-      .then(async (info) => {
-        if (!info) return;
-        const st = s.settings.get();
-        await delay(resultsDelayMs(st.animSpeed, st.reducedMotion));
+  const pollMs = o.pollMs ?? 200;
+  const offs = [
+    s.bus.on('night:complete', ({ outcome }) => {
+      if (!isModeOrigin(outcome.origin)) return;
+      const origin = outcome.origin;
+      const still = (): boolean => {
         const night = activeNight();
-        const still =
-          s.scenes.current() === 'tombolo' && !!night?.completed && night.params.level.id === outcome.levelId && night.params.origin === origin;
-        if (!still) return;
-        void s.scenes.go(info.returnTo, { risultato: origin });
-      })
-      .catch((err: unknown) => console.error('[screens] outcome failed', err));
-  });
+        return s.scenes.current() === 'tombolo' && !!night?.completed && night.params.level.id === outcome.levelId && night.params.origin === origin;
+      };
+      const processing = track(processOutcome(s, outcome));
+      void processing
+        .then(async (info) => {
+          if (!info) return;
+          const st = s.settings.get();
+          await delay(resultsDelayMs(st.animSpeed, st.reducedMotion));
+          while (still() && openOverlays(s) > 0) await delay(pollMs);
+          if (!still()) return;
+          void s.scenes.go(info.returnTo, { risultato: origin });
+        })
+        .catch((err: unknown) => console.error('[screens] outcome failed', err));
+    }),
+    // Uno spartito ritessuto non deve portarsi via la notte lasciata a metà (vedi state.ts).
+    s.bus.on('scene:enter', ({ id }) => {
+      if (id !== 'tombolo') restoreGuardedNight(s);
+    }),
+  ];
+  return () => {
+    for (const off of offs) off();
+  };
 }

@@ -269,7 +269,11 @@ async function main(): Promise<void> {
       await wait(2200);
       await snap(page, 'titolo-iphone');
       const title = await api<Json[]>(page, 'ui', 'title');
-      check('titolo: primo avvio con «Tocca per iniziare» e modalità chiuse', title[0]?.labelKey === 'ui.titolo.inizia' && title.some((i: Json) => i.id === 'giornaliero' && i.locked) && title.some((i: Json) => i.id === 'libero' && i.locked), JSON.stringify(title.map((i: Json) => `${i.id}${i.locked ? '🔒' : ''}`)));
+      check(
+        'titolo: primo avvio con una scritta sola («Tocca per iniziare»), Impostazioni e Crediti in fondo (GDD 9)',
+        title[0]?.labelKey === 'ui.titolo.inizia' && title.map((i: Json) => i.id).join() === 'nuova,impostazioni,crediti' && (await page.locator(sel('sc-titolo-modi')).count()) === 0,
+        JSON.stringify(title.map((i: Json) => `${i.id}${i.locked ? '🔒' : ''}`)),
+      );
       const music = await api<Json>(page, 'audio', 'stats').catch(() => null);
       check('titolo: musica del titolo e laguna', !music || (music.music === 'titolo' && music.ambience === 'laguna'), music ? `${music.music}/${music.ambience}` : 'audio assente');
       // Il quadro su canvas: il centro del tombolo non è velluto vuoto.
@@ -283,6 +287,13 @@ async function main(): Promise<void> {
         return [d[0], d[1], d[2]];
       });
       check('titolo: il tombolo è disegnato nel palco', !!px && (px[0] as number) + (px[1] as number) + (px[2] as number) > 60 && !(Math.abs((px[0] as number) - 28) < 10 && Math.abs((px[2] as number) - 51) < 10), JSON.stringify(px));
+      // Dopo il primo avvio (una storia cominciata) le modalità chiuse hanno il lucchetto.
+      await api(page, 'campaign', 'newGame');
+      await wait(400);
+      await api(page, 'ui', 'open', 'titolo');
+      await wait(500);
+      const after = await api<Json[]>(page, 'ui', 'title');
+      check('titolo: con una storia, Continua e le modalità con il lucchetto', after[0]?.id === 'continua' && after.some((i: Json) => i.id === 'giornaliero' && i.locked) && after.some((i: Json) => i.id === 'libero' && i.locked), JSON.stringify(after.map((i: Json) => `${i.id}${i.locked ? '🔒' : ''}`)));
       // Lucchetto: tocco → avviso, nessun cambio di scena.
       await page.tap(sel('sc-titolo-giornaliero'), { force: true });
       await wait(300);

@@ -17,7 +17,7 @@ import { dailySpec } from '../engine/index';
 import { resumeNight } from '../tombolo/index';
 import { laceEdge } from './icons';
 import { TitleArt } from './titleArt';
-import { titleItems, type TitleItem, type TitleItemId } from './titleMenu';
+import { isFirstLaunch, titleItems, type TitleItem, type TitleItemId } from './titleMenu';
 import { ruleTitleKey } from './bookPage';
 import { today } from './state';
 import { sceneRoot, wideButton } from './widgets';
@@ -128,17 +128,15 @@ export class TitoloScene implements Scene {
       textOf('ui.titolo.sottotitolo', undefined, 'p', { className: 'sc-titolo-sotto' }),
     );
     this.stage = el('div', { class: 'sc-titolo-palco', attrs: { 'aria-hidden': 'true' }, test: 'sc-titolo-palco' });
-    const primary: HTMLElement[] = [];
-    const rest: HTMLElement[] = [];
-    for (const it of this.items) {
-      const b = this.button(it);
-      (it.primary || it.id === 'nuova' || it.id === 'continua' ? primary : rest).push(b);
-    }
+    const first = isFirstLaunch(s.save.data());
+    const slots: Record<TitleItem['slot'], HTMLElement[]> = { principale: [], modo: [], piede: [] };
+    for (const it of this.items) slots[it.slot].push(this.button(it, first));
     const nav = el(
       'nav',
       { class: 'sc-titolo-menu core-solid', attrs: { 'aria-label': s.i18n.t('ui.titolo.menu') }, test: 'sc-titolo-menu' },
-      el('div', { class: 'sc-titolo-principali' }, ...primary),
-      el('div', { class: 'sc-titolo-griglia' }, ...rest),
+      el('div', { class: 'sc-titolo-principali' }, ...slots.principale),
+      slots.modo.length > 0 ? el('div', { class: 'sc-titolo-griglia', test: 'sc-titolo-modi' }, ...slots.modo) : null,
+      el('div', { class: 'sc-titolo-piede', test: 'sc-titolo-piede' }, ...slots.piede),
     );
     // Frecce fra tutte le voci del menu.
     arrowNavigation(nav, 'button', 'both');
@@ -147,7 +145,7 @@ export class TitoloScene implements Scene {
     const side = el('div', { class: 'sc-titolo-lato' }, head, nav, version);
     this.root = el(
       'div',
-      { class: ['sc-titolo', !this.built && 'sc-titolo--entra'], test: 'sc-titolo', data: { forma: this.landscape ? 'orizzontale' : 'verticale' } },
+      { class: ['sc-titolo', !this.built && 'sc-titolo--entra', first && 'sc-titolo--primo'], test: 'sc-titolo', data: { forma: this.landscape ? 'orizzontale' : 'verticale' } },
       this.stage,
       side,
     );
@@ -166,8 +164,14 @@ export class TitoloScene implements Scene {
     (again ?? this.root.querySelector<HTMLElement>('.sc-titolo-principali button'))?.focus({ preventScroll: true });
   }
 
-  private button(it: TitleItem): HTMLButtonElement {
+  private button(it: TitleItem, first: boolean): HTMLButtonElement {
     const s = this.s;
+    if (it.slot === 'piede') {
+      // Impostazioni e Crediti: compatti in fondo; al primo avvio solo l'icona (una scritta sola, GDD 9).
+      const b = wideButton({ icon: it.icon, labelKey: it.labelKey, kind: 'testo', onClick: () => void this.activate(it.id), test: `sc-titolo-${it.id}`, iconOnly: first, className: 'sc-voce--piede' });
+      if (first) b.title = s.i18n.t(it.labelKey);
+      return b;
+    }
     let subParams: Record<string, string> | undefined;
     if (it.id === 'giornaliero' && !it.locked) {
       try {

@@ -6,8 +6,26 @@ import { hasGlyph, svgIcon } from '../core/ui/glyphs';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+/** Ingranaggio a 8 denti (Impostazioni), distinto dal sole del Merletto del giorno. */
+function gearPath(teeth = 8, outer = 9.8, root = 7.3, hole = 3): string {
+  const pt = (deg: number, r: number): string => {
+    const a = (deg * Math.PI) / 180;
+    return `${(12 + r * Math.cos(a)).toFixed(2)} ${(12 + r * Math.sin(a)).toFixed(2)}`;
+  };
+  const step = 360 / teeth;
+  let d = '';
+  for (let i = 0; i < teeth; i++) {
+    const a = i * step - 90;
+    d += `${i === 0 ? 'M' : 'L'}${pt(a - 11, root)} L${pt(a - 6.5, outer)} L${pt(a + 6.5, outer)} L${pt(a + 11, root)} `;
+  }
+  d += 'Z';
+  d += ` M${12 - hole} 12a${hole} ${hole} 0 1 0 ${hole * 2} 0a${hole} ${hole} 0 1 0 ${-hole * 2} 0z`;
+  return d;
+}
+
 /** Tracciati propri (viewBox 24×24). */
 export const SC_ICONS: Readonly<Record<string, string>> = {
+  ingranaggio: gearPath(),
   dado: 'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8.5 8.5h.01 M15.5 8.5h.01 M12 12h.01 M8.5 15.5h.01 M15.5 15.5h.01',
   ricomincia: 'M4 12a8 8 0 1 0 2.4-5.7 M4 4v4h4',
   casa: 'M4 11l8-7 8 7 M6 9.5V20h12V9.5 M10 20v-5h4v5',

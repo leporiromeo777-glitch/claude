@@ -12,6 +12,7 @@ import type { CarillonScore, CharacterId, LevelDef, NightOutcome, Playing, Servi
 import { el } from '../core/ui/dom';
 import { textOf } from '../core/ui/components';
 import { renderLacePng } from '../tombolo/index';
+import { cosmeticNameKey, hasCosmeticArt, spindlePreview } from './cosmetics';
 import { icon } from './icons';
 import type { ResultInfo } from './state';
 import { setLastShare } from './state';
@@ -77,19 +78,32 @@ export async function lacePng(info: Pick<ResultInfo, 'level' | 'outcome' | 'flag
   }
 }
 
-/** Condivide testo (+ spartito) e immagine; dove non si può, copia il testo e salva l'immagine. */
-export async function shareResult(s: Services, info: ResultInfo): Promise<'condiviso' | 'copiato' | 'fallito'> {
+/** Il sistema ha un foglio di condivisione (Web Share API o app nativa)? */
+export function canShareNatively(s: Pick<Services, 'platform'>): boolean {
+  if (s.platform.native) return true;
+  return typeof navigator !== 'undefined' && typeof (navigator as Navigator & { share?: unknown }).share === 'function';
+}
+
+/**
+ * Condivide testo (+ spartito) e immagine; dove non si può, copia il testo e
+ * salva l'immagine. `png` è l'immagine già pronta (il foglio dei risultati la
+ * prepara subito): così la condivisione parte dentro il gesto del giocatore,
+ * come chiedono i browser. Se il foglio di condivisione c'era ma non è andato
+ * (annullato), il testo si copia soltanto: nessun file scaricato a sorpresa.
+ */
+export async function shareResult(s: Services, info: ResultInfo, png?: Promise<Blob | null>): Promise<'condiviso' | 'copiato' | 'fallito'> {
   const text = info.shareText ?? info.outcome.spartito;
   setLastShare(text);
-  const file = await lacePng(info);
+  const file = await (png ?? lacePng(info));
   const name = pngName(info.level);
-  const shared = await s.platform.share(file ? { text, title: s.i18n.t('ui.condividi.titolo'), file, fileName: name } : { text, title: s.i18n.t('ui.condividi.titolo') });
+  const sheet = canShareNatively(s);
+  const shared = sheet ? await s.platform.share(file ? { text, title: s.i18n.t('ui.condividi.titolo'), file, fileName: name } : { text, title: s.i18n.t('ui.condividi.titolo') }) : false;
   if (shared) {
     s.ui.toast('ui.condividi.fatto', undefined, 'ok');
     return 'condiviso';
   }
   const copied = await s.platform.copy(text);
-  const saved = !s.platform.native && file ? download(file, name) : false;
+  const saved = !sheet && file ? download(file, name) : false;
   if (copied) {
     s.ui.toast(saved ? 'ui.condividi.copiatoImmagine' : 'ui.condividi.copiato', undefined, 'ok');
     return 'copiato';
@@ -128,7 +142,9 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
   let destroyed = false;
   let playing: Playing | null = null;
   const imgBox = el('figure', { class: 'sc-merletto', test: 'sc-risultato-immagine', attrs: { 'aria-busy': 'true' } }, textOf('ui.risultato.immagineAttesa', undefined, 'span', { className: 'sc-merletto-attesa' }));
-  void lacePng(info).then((blob) => {
+  // L'immagine si prepara una volta: serve al foglio e alla condivisione.
+  const png = lacePng(info);
+  void png.then((blob) => {
     if (destroyed || !blob) return;
     url = URL.createObjectURL(blob);
     const img = el('img', { attrs: { src: url, alt: s.i18n.t('ui.risultato.immagineAlt'), draggable: 'false' } });
@@ -164,9 +180,20 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
       ? el('p', { class: 'sc-nuovo-record', test: 'sc-risultato-nuovo' }, icon('stella', 18), textOf('ui.risultato.nuovoRecord', undefined, 'span'))
       : null;
 
+  // Fusi intagliati appena sbloccati (solo quelli già disegnati: gli altri arrivano con L2).
+  const fusi = (info.cosmetics ?? []).filter((id) => hasCosmeticArt(s, id));
+  const fusiNodes = fusi.map((id) =>
+    el(
+      'p',
+      { class: 'sc-nuovo-fuso', test: `sc-risultato-fuso-${id}` },
+      spindlePreview(s, `fuso/${id}`, 40),
+      textOf('ui.risultato.fusoNuovo', { nome: s.i18n.t(cosmeticNameKey(id)) }, 'span'),
+    ),
+  );
+
   const share =
     info.origin === 'giornaliero'
-      ? wideButton({ icon: 'condividi', labelKey: 'ui.risultato.condividi', kind: 'primario', onClick: () => void shareResult(s, info), test: 'sc-risultato-condividi' })
+      ? wideButton({ icon: 'condividi', labelKey: 'ui.risultato.condividi', kind: 'primario', onClick: () => void shareResult(s, info, png), test: 'sc-risultato-condividi' })
       : null;
   const copy = info.outcome.spartito
     ? wideButton({ icon: 'copia', labelKey: 'ui.risultato.copiaSpartito', kind: share ? 'secondario' : 'primario', onClick: () => void copySpartito(s, info.outcome.spartito), test: 'sc-risultato-copia' })
@@ -205,6 +232,7 @@ export function resultsSheet(s: Services, info: ResultInfo, h: ResultsHandlers):
     { class: 'sc-risultato', test: `sc-risultato-${info.origin}` },
     textOf(titleKey, undefined, 'h2', { className: 'sc-risultato-titolo' }),
     badge,
+    ...fusiNodes,
     imgBox,
     stats,
     extra.childElementCount > 0 ? extra : null,

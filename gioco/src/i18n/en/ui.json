@@ -56,6 +56,7 @@
       "suono": "Sound",
       "vista": "Text and display",
       "gioco": "Game",
+      "fuso": "Carved bobbin",
       "lingua": "Language",
       "salvataggi": "Saves"
     },
@@ -121,7 +122,18 @@
       "ok": "Erase for good",
       "annulla": "I changed my mind"
     },
-    "cancellato": "Everything erased. The pillow is empty."
+    "cancellato": "Everything erased. The pillow is empty.",
+    "fuso": {
+      "etichetta": "Ada's bobbin on the title screen and the linen bobbins",
+      "desc": "Earned with golden threads and the Lace of the Day. They only change the look.",
+      "ada": "Ada's bobbin",
+      "stile_1": "Smooth",
+      "stile_2": "Spiral",
+      "stile_3": "Pine cone",
+      "stile_4": "Lighthouse",
+      "stile_5": "Boat",
+      "stile_6": "Ivory"
+    }
   },
   "crediti": {
     "titolo": "Credits",
@@ -315,7 +327,8 @@
     "ritessi": "Weave again",
     "ritessiSpartito": "Weave the score again",
     "nuovo": "Another lace",
-    "torna": "Back to the title"
+    "torna": "Back to the title",
+    "fusoNuovo": "A new carved bobbin: “{nome}”. Choose it in Settings."
   },
   "condividi": {
     "titolo": "TRAMA",

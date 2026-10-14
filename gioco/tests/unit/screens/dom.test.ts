@@ -27,14 +27,28 @@ function save(p: Partial<SaveData> = {}): SaveData {
 describe('menu del titolo', () => {
   const ctx = { hasTelaio: false, fullGame: true, dailyDoneToday: false };
 
-  it('primo avvio: una scritta sola per cominciare, modalità con il lucchetto', () => {
+  it('primo avvio: una scritta sola per cominciare (GDD 9), Impostazioni e Crediti in fondo', () => {
     const d = save();
     expect(isFirstLaunch(d)).toBe(true);
-    const items = titleItems(d, ctx);
-    expect(items.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'libero', 'impostazioni', 'crediti']);
-    expect(items[0]).toMatchObject({ labelKey: 'ui.titolo.inizia', primary: true });
-    expect(items.find((i) => i.id === 'giornaliero')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.giornaliero' });
+    const items = titleItems(d, { ...ctx, hasTelaio: true });
+    expect(items.map((i) => i.id)).toEqual(['nuova', 'impostazioni', 'crediti']);
+    expect(items[0]).toMatchObject({ labelKey: 'ui.titolo.inizia', primary: true, slot: 'principale' });
+    expect(items.filter((i) => i.slot === 'piede').map((i) => i.id)).toEqual(['impostazioni', 'crediti']);
+    // Una modalità già aperta (per esempio da un salvataggio importato) si vede anche al primo avvio.
+    const open = titleItems(save({ unlocks: { daily: true, libero: false, gradi: false, cosmetics: [], tovaglia: false } }), ctx);
+    expect(open.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'impostazioni', 'crediti']);
+  });
+
+  it('dopo il primo avvio le modalità chiuse mostrano il lucchetto', () => {
+    const d = save({ stats: { playMs: 1, nights: 1, goldThreads: 0, dailyStreak: 0 } });
+    expect(isFirstLaunch(d)).toBe(false);
+    const items = titleItems(d, { ...ctx, hasTelaio: true });
+    expect(items.map((i) => i.id)).toEqual(['nuova', 'giornaliero', 'libero', 'telaio', 'impostazioni', 'crediti']);
+    expect(items[0]).toMatchObject({ labelKey: 'ui.titolo.nuova', primary: true });
+    expect(items.find((i) => i.id === 'giornaliero')).toMatchObject({ locked: true, slot: 'modo', subKey: 'ui.titolo.lucchetto.giornaliero' });
     expect(items.find((i) => i.id === 'libero')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.libero' });
+    expect(items.find((i) => i.id === 'telaio')).toMatchObject({ locked: true, subKey: 'ui.titolo.lucchetto.telaio' });
+    expect(items.find((i) => i.id === 'impostazioni')).toMatchObject({ icon: 'ingranaggio', slot: 'piede' });
   });
 
   it('con una storia: Continua è la voce principale; Telaio solo se la scena esiste', () => {
@@ -49,7 +63,7 @@ describe('menu del titolo', () => {
   });
 
   it('lucchetti secondo save.unlocks e la versione completa', () => {
-    const d = save({ unlocks: { daily: true, libero: true, gradi: false, cosmetics: [], tovaglia: false } });
+    const d = save({ unlocks: { daily: true, libero: true, gradi: false, cosmetics: [], tovaglia: false }, stats: { playMs: 1, nights: 1, goldThreads: 0, dailyStreak: 0 } });
     const items = titleItems(d, { ...ctx, dailyDoneToday: true });
     expect(items.find((i) => i.id === 'giornaliero')).toMatchObject({ locked: false, subKey: 'ui.titolo.giornalieroFatto' });
     expect(items.find((i) => i.id === 'libero')?.locked).toBe(false);

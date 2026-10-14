@@ -12,6 +12,7 @@
 import type { Locale, Services, Settings } from '../core/types';
 import { el } from '../core/ui/dom';
 import { slider, textOf, toggle, type SliderHandle, type ToggleHandle } from '../core/ui/components';
+import { availableCosmetics, cosmeticNameKey, selectCosmetic, spindlePreview, type CosmeticId } from './cosmetics';
 import { messageLine, section, segmented, wideButton, type SegmentedHandle } from './widgets';
 
 export interface SettingsPanelOptions {
@@ -120,6 +121,31 @@ export function buildSettingsPanel(s: Services, o: SettingsPanelOptions): Settin
       test: `sc-impostazioni-${k}`,
     }),
   ]);
+
+  // ───── Fuso intagliato (GDD 7): solo nella schermata, se ce n'è almeno uno ─────
+  type FusoChoice = CosmeticId | 'ada';
+  const fusi = o.overlay ? [] : availableCosmetics(s);
+  let fuso: SegmentedHandle<FusoChoice> | null = null;
+  const currentFuso = (): FusoChoice => {
+    const sel = s.save.data().unlocks.selectedCosmetic;
+    return sel && (fusi as string[]).includes(sel) ? (sel as CosmeticId) : 'ada';
+  };
+  if (fusi.length > 0) {
+    const choices: FusoChoice[] = ['ada', ...fusi];
+    fuso = segmented<FusoChoice>({
+      labelKey: 'ui.impostazioni.fuso.etichetta',
+      options: choices.map((id) => ({ value: id, labelKey: cosmeticNameKey(id) })),
+      value: currentFuso(),
+      onChange: (v) => selectCosmetic(s, v === 'ada' ? null : v),
+      test: 'sc-impostazioni-fuso',
+    });
+    for (const id of choices) {
+      const b = fuso.el.querySelector<HTMLElement>(`[data-test="sc-impostazioni-fuso-${id}"]`);
+      const prev = spindlePreview(s, id === 'ada' ? 'fuso/ada' : `fuso/${id}`);
+      if (b && prev) b.prepend(prev);
+    }
+    fuso.el.classList.add('sc-fusi');
+  }
 
   // ───── Lingua ─────
   const lang: SegmentedHandle<Locale> = segmented({
@@ -251,6 +277,7 @@ export function buildSettingsPanel(s: Services, o: SettingsPanelOptions): Settin
     section('ui.impostazioni.sezioni.suono', 'suono', 'sc-impostazioni-suono', ...[...volumes.values()].map((v) => v.el)),
     section('ui.impostazioni.sezioni.vista', 'occhio', 'sc-impostazioni-vista', textScale.el, contrast.el, motion.el, speed.el),
     section('ui.impostazioni.sezioni.gioco', 'mano', 'sc-impostazioni-gioco', ...toggles.map(([, t]) => t.el)),
+    fuso ? section('ui.impostazioni.sezioni.fuso', 'stella', 'sc-impostazioni-fusi', fuso.el, textOf('ui.impostazioni.fuso.desc', undefined, 'p', { className: 'sc-nota' })) : null,
     section('ui.impostazioni.sezioni.lingua', 'lingua', 'sc-impostazioni-lingue', lang.el),
     section('ui.impostazioni.sezioni.salvataggi', 'salva', 'sc-impostazioni-salvataggi', textOf('ui.impostazioni.salvatoSempre', undefined, 'p', { className: 'sc-nota' }), ...saveItems),
   );
@@ -264,6 +291,7 @@ export function buildSettingsPanel(s: Services, o: SettingsPanelOptions): Settin
     speed.set(st.animSpeed);
     for (const [k, t] of toggles) t.set(st[k]);
     lang.set(st.locale);
+    fuso?.set(currentFuso());
     if (importField) importField.placeholder = s.i18n.t('ui.impostazioni.importaSegnaposto');
   }
   // Impostazioni cambiate altrove (debug, import): i controlli seguono.

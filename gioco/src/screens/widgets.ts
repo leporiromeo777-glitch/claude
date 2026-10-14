@@ -177,21 +177,25 @@ export function wideButton(o: {
   labelParams?: Params;
   subKey?: string;
   subParams?: Params;
-  kind?: 'primario' | 'secondario' | 'carta' | 'pericolo';
+  kind?: 'primario' | 'secondario' | 'carta' | 'pericolo' | 'testo';
   onClick: () => void;
   test: string;
   locked?: boolean;
   disabled?: boolean;
+  /** Solo l'icona a vista: l'etichetta resta per gli screen reader. */
+  iconOnly?: boolean;
+  className?: string;
 }): HTMLButtonElement {
   const b = el('button', {
     type: 'button',
-    class: ['core-btn', `core-btn--${o.kind ?? 'secondario'}`, 'sc-voce', o.locked && 'sc-voce--chiusa'],
+    class: ['core-btn', `core-btn--${o.kind ?? 'secondario'}`, 'sc-voce', o.locked && 'sc-voce--chiusa', o.iconOnly && 'sc-voce--icona', o.className],
     test: o.test,
     disabled: !!o.disabled,
     attrs: { 'aria-disabled': o.locked ? 'true' : null },
     data: { bloccato: o.locked ? '1' : null },
   });
-  const text = el('span', { class: 'sc-voce-testi' }, textOf(o.labelKey, o.labelParams, 'span', { className: 'sc-voce-etichetta' }));
+  const label = textOf(o.labelKey, o.labelParams, 'span', { className: o.iconOnly ? 'sc-voce-etichetta core-sr-only' : 'sc-voce-etichetta' });
+  const text = el('span', { class: 'sc-voce-testi' }, label);
   if (o.subKey) text.appendChild(textOf(o.subKey, o.subParams, 'span', { className: 'sc-voce-sotto' }));
   // Contenitore interno: in un riquadro stretto l'icona va sopra il testo (container query).
   b.appendChild(el('span', { class: 'sc-voce-dentro' }, icon(o.locked ? 'lucchetto' : o.icon, 22, 'sc-voce-icona'), text));

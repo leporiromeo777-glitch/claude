@@ -3,7 +3,7 @@
  * livelli generati in cache, ultimo esito di ogni modalità, ultimo testo da
  * condividere, data forzata dal debug, lavori in corso da aspettare nei test.
  */
-import type { DailyRecord, FlagId, FlagValue, GradoId, LaceMetrics, LaceRecord, LevelDef, LevelId, NightOutcome, SceneId } from '../core/types';
+import type { DailyRecord, FlagId, FlagValue, GradoId, LaceMetrics, LaceRecord, LevelDef, LevelId, NightOutcome, SaveData, SceneId, Services } from '../core/types';
 import type { GenResult } from '../engine/index';
 import { dailySpec, generateAsync } from '../engine/index';
 import { localDate } from './daily';
@@ -27,6 +27,8 @@ export interface ResultInfo {
   streak?: number;
   /** Testo da condividere (giornaliero: riga di GDD 8.3 + spartito). */
   shareText?: string;
+  /** Fusi intagliati sbloccati da questo merletto (giornaliero: 7 di fila, 30 in tutto). */
+  cosmetics?: string[];
   gradi: GradoId[];
   /** Scena a cui tornare dopo i risultati. */
   returnTo: SceneId;
@@ -48,6 +50,37 @@ const results: Partial<Record<ModeOrigin, ResultInfo>> = {};
 let lastShare: string | null = null;
 let todayOverride: string | null = null;
 const pending = new Set<Promise<unknown>>();
+/** Notte lasciata a metà quando è partito uno spartito (vedi `guardNight`). */
+let guarded: SaveData['night'] = null;
+
+/**
+ * Uno spartito si ritesse in modo 'replay', che non salva la notte ma, a fine
+ * merletto o con «Ricomincia», toglie lo slot `SaveData.night`: la notte della
+ * storia (o di un Merletto) lasciata a metà andrebbe persa. Prima di aprire il
+ * tombolo se ne tiene una copia; tornati a un'altra scena (o finito lo
+ * spartito) la si rimette, se lo slot è rimasto vuoto.
+ */
+export function guardNight(night: SaveData['night']): void {
+  guarded = night ? (JSON.parse(JSON.stringify(night)) as NonNullable<SaveData['night']>) : null;
+}
+
+/** Rimette la notte custodita se lo slot è vuoto; in ogni caso la custodia finisce. */
+export function restoreGuardedNight(s: Pick<Services, 'save'>): boolean {
+  const g = guarded;
+  guarded = null;
+  if (!g || s.save.data().night !== null) return false;
+  s.save.update(
+    (d) => {
+      d.night = g;
+    },
+    { immediate: true, reason: 'night:ripristino' },
+  );
+  return true;
+}
+
+export function guardedNight(): SaveData['night'] {
+  return guarded;
+}
 
 /** Data di oggi (o quella forzata dal debug). */
 export function today(): string {
@@ -136,5 +169,6 @@ export function resetScreensState(): void {
   for (const k of Object.keys(results) as ModeOrigin[]) delete results[k];
   lastShare = null;
   todayOverride = null;
+  guarded = null;
   pending.clear();
 }

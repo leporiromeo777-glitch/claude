@@ -69,7 +69,7 @@ export function pausePanel(s: Services, container: HTMLElement, raw?: unknown): 
   }
   items.push(
     wideButton({
-      icon: 'impostazioni',
+      icon: 'ingranaggio',
       labelKey: 'ui.pausa.impostazioni',
       onClick: () => void s.ui.openOverlay('impostazioni', { from: 'pausa' }),
       test: 'sc-pausa-impostazioni',

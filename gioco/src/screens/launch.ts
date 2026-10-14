@@ -8,7 +8,7 @@ import { createContext, decodeSpartito, simulate, spartitoRows } from '../engine
 import { resumeNight, spartitoParams } from '../tombolo/index';
 import { dateFromRef } from './daily';
 import { isSeed, liberoLevelId, normalizeGradi } from './libero';
-import { dailyLevel, liberoLevel, rememberLaunch, today, track } from './state';
+import { dailyLevel, guardNight, liberoLevel, rememberLaunch, today, track } from './state';
 
 export type LaunchResult = { ok: true } | { ok: false; errorKey: string };
 
@@ -147,6 +147,7 @@ export async function launchSpartito(s: Services, raw: string, returnTo: SceneId
   const r = await track(resolveSpartito(s, raw));
   if (!r.ok) return r;
   rememberLaunch({ level: r.level, min: r.min, origin: 'spartito', gradi: r.params.gradi ?? [], flags: r.flags, returnTo });
+  guardNight(s.save.data().night);
   void s.scenes.go('tombolo', r.params);
   return { ok: true };
 }

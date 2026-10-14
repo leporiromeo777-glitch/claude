@@ -102,6 +102,47 @@
 .sc-titolo-griglia > :last-child:nth-child(odd) {
   grid-column: 1 / -1;
 }
+/* Impostazioni e Crediti: compatti, in fondo al menu (azioni rare). */
+.sc-titolo-piede {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+.sc-voce--piede {
+  flex: 1 1 0;
+  width: auto;
+  min-width: min(9rem, 100%);
+  min-height: var(--tocco);
+  padding: var(--spazio-1) var(--spazio-3);
+  color: var(--testo-tenue);
+  border-color: transparent;
+}
+.sc-voce--piede .sc-voce-dentro {
+  justify-content: center;
+}
+.sc-voce--piede:hover:not(:disabled),
+.sc-voce--piede:focus-visible {
+  color: var(--testo);
+  border-color: var(--bordo-pannello);
+}
+/* Primo avvio: una scritta sola (GDD 9); Impostazioni e Crediti sono due icone tonde. */
+.sc-voce--icona {
+  flex: none;
+  min-width: var(--tocco);
+  width: var(--tocco);
+  padding: 0;
+  border-radius: 50%;
+}
+.sc-titolo--primo .sc-titolo-piede {
+  gap: var(--spazio-4);
+}
+.sc-titolo--primo .sc-titolo-principali .sc-voce--principale {
+  justify-content: center;
+}
+.sc-titolo--primo .sc-titolo-principali .sc-voce-dentro {
+  justify-content: center;
+}
 .sc-titolo-versione {
   order: 4;
   flex: none;
@@ -129,11 +170,51 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--spazio-3);
   padding-bottom: var(--spazio-2);
 }
 .sc-titolo[data-forma='orizzontale'] .sc-titolo-testa {
-  margin: auto 0 var(--spazio-4);
+  margin: 0 0 var(--spazio-4);
+}
+.sc-titolo[data-forma='orizzontale'] .sc-titolo-versione {
+  margin-top: auto;
+}
+.sc-titolo[data-forma='orizzontale'] .sc-titolo-lato::before {
+  content: '';
+  flex: 0 1 auto;
+  margin-top: auto;
+}
+/* Schermi grandi (monitor HD e oltre): la colonna del titolo cresce con lo schermo. */
+@media (min-width: 1500px) and (min-height: 900px) {
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-lato {
+    zoom: 1.22;
+  }
+}
+@media (min-width: 2200px) and (min-height: 1200px) {
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-lato {
+    zoom: 1.5;
+  }
+}
+/* Telefoni bassi: testata più compatta, così il tombolo resta visibile. */
+@media (max-height: 700px) {
+  .sc-titolo[data-forma='verticale'] {
+    gap: var(--spazio-1);
+    padding-top: calc(var(--safe-top) + var(--spazio-2));
+  }
+  .sc-titolo[data-forma='verticale'] .sc-titolo-nome {
+    font-size: min(14cqi, 6vmin + 1rem, 4.4rem);
+  }
+  .sc-titolo[data-forma='verticale'] .sc-smerlo--titolo {
+    margin: var(--spazio-1) 0 2px;
+    width: min(12rem, 60vw);
+  }
+  .sc-titolo[data-forma='verticale'] .sc-titolo-sotto {
+    font-size: 1rem;
+  }
+  .sc-titolo[data-forma='verticale'] .sc-titolo-versione {
+    display: none;
+  }
 }
 .sc-titolo[data-forma='orizzontale'] .sc-titolo-nome {
   font-size: min(17cqi, 9vmin + 0.6rem, 5.6rem);
@@ -460,6 +541,26 @@
   font-size: 0.78rem;
   font-weight: 400;
   opacity: 0.85;
+}
+
+/* Fusi intagliati: anteprima sopra il nome */
+.sc-fusi .sc-segmento {
+  flex: 1 1 6rem;
+  gap: 2px;
+  padding-top: var(--spazio-2);
+}
+.sc-fuso-anteprima {
+  display: block;
+  flex: none;
+}
+.sc-nuovo-fuso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-2);
+  text-align: center;
+  color: var(--legno-scuro);
+  overflow-wrap: anywhere;
 }
 
 /* Statistiche e record */

@@ -218,3 +218,19 @@ Pass NightParams (level, flags, mode) in scenes.go('tombolo'). Add data-audio-si
 
 ### Per: fondamenta
 - Aggiungere `npm run native:check && npm run native:test` allo script ci; nel README rimandare a docs/STORE.md (sezione 2.3 sulla scelta di Xcode).
+
+## Aggiunte dopo traduzione-en
+
+### Per: campagna
+- Finestra «Alla porta»: a 390×844 la lettera di Clotilde (~150 parole) esce dal foglio inclinato ed è tagliata a sinistra e in basso (it e en). Serve un foglio scorrevole in verticale, rotazione solo sul foglio, testo contenuto.
+- All'alba gli avvisi delle nuove voci del Taccuino coprono il testo della prima vignetta per qualche secondo (prologo, g14). Mostrarli dopo le vignette o spostarli in alto durante l'alba.
+- src/i18n/en/campaign.json usa «bell-tower clock», comune.json usa «bell tower»: uniformare.
+
+### Per: contenuti-atti23
+- src/content/text/it/atto2.json, diario.persone.zeno.lettera: «per una notte» → «per tutto questo tempo» (la lettera gli fu data la notte del prologo, consegnata in g14).
+
+### Per: contenuti-atto1
+- src/content/text/en/comune.json: virgolette dritte "…" in 9 coppie → tipografiche “…” come nel resto della storia inglese.
+
+### Per: piattaforma-qa
+- Nella suite layout in inglese, screenshot dell'alba e della sera di una giornata dell'Atto II (g12, g14) e della scelta di g23 (testi inglesi fino al 30% più lunghi).

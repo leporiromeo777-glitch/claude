@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { flatten } from '../../../src/core/i18n';
 import { GRADI_ORDER, DIMENSIONI_ORDER, LIBERO_RULES } from '../../../src/screens/libero';
 import { TOOLS } from '../../../src/screens/CreditiScene';
+import { COSMETIC_IDS } from '../../../src/screens/cosmetics';
 import { ROOT, makeServices } from './helpers';
 
 function table(locale: string): Map<string, string> {
@@ -35,6 +36,7 @@ const EXPANSIONS: Record<string, readonly string[]> = {
   'ui.regola.${rule}.titolo': LIBERO_RULES,
   'ui.regola.${rule}.testo': LIBERO_RULES,
   'ui.crediti.strumento.${t}': TOOLS,
+  'ui.impostazioni.fuso.${id}': COSMETIC_IDS,
 };
 
 function usedKeys(): string[] {

@@ -72,6 +72,9 @@ export class LiberoScene extends ScreenScene {
   private busy = false;
   private prepTimer: ReturnType<typeof setTimeout> | null = null;
   private dynamic: HTMLElement | null = null;
+  /** Il testo nel campo del seme non è un seme valido (Tessi non deve partire con il seme di prima). */
+  private seedInvalid = false;
+  private seedField: HTMLInputElement | null = null;
 
   constructor(s: Services) {
     super(s, { glow: { x: 0.85, y: 0.04, r: 0.7, alpha: 0.13 } });
@@ -95,6 +98,8 @@ export class LiberoScene extends ScreenScene {
   }
 
   protected override beforeExit(): void {
+    this.seedField = null;
+    this.seedInvalid = false;
     if (this.prepTimer !== null) clearTimeout(this.prepTimer);
     this.prepTimer = null;
     this.results?.destroy();
@@ -186,6 +191,8 @@ export class LiberoScene extends ScreenScene {
       onClick: () => {
         setLiberoChoice({ seed: randomSeed(liberoChoice().size) });
         seedInput.value = liberoChoice().seed;
+        this.seedInvalid = false;
+        seedInput.removeAttribute('aria-invalid');
         msg.show(null);
         this.updateDynamic();
         this.prepare(200);
@@ -196,12 +203,18 @@ export class LiberoScene extends ScreenScene {
       test: 'sc-libero-casuale',
     });
     dice.replaceChildren(icon('dado', 24));
+    this.seedField = seedInput;
+    this.seedInvalid = false;
     seedInput.addEventListener('input', () => {
       const n = normalizeSeed(seedInput.value, liberoChoice().size);
       if (!n) {
+        this.seedInvalid = true;
+        seedInput.setAttribute('aria-invalid', 'true');
         msg.show(seedInput.value.trim() ? 'ui.libero.semeNonValido' : 'ui.libero.semeVuoto', undefined, 'errore');
         return;
       }
+      this.seedInvalid = false;
+      seedInput.removeAttribute('aria-invalid');
       msg.show(null);
       const prevSize = liberoChoice().size;
       setLiberoChoice({ seed: n });
@@ -210,7 +223,8 @@ export class LiberoScene extends ScreenScene {
       this.prepare(400);
     });
     seedInput.addEventListener('blur', () => {
-      seedInput.value = liberoChoice().seed;
+      // Un seme non valido resta scritto (con l'errore) finché il giocatore non lo corregge.
+      if (!this.seedInvalid) seedInput.value = liberoChoice().seed;
     });
     seedInput.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
@@ -230,6 +244,9 @@ export class LiberoScene extends ScreenScene {
       onChange: (v) => {
         setLiberoChoice({ size: v });
         seedInput.value = liberoChoice().seed;
+        this.seedInvalid = false;
+        seedInput.removeAttribute('aria-invalid');
+        msg.show(null);
         this.updateDynamic();
         this.prepare(200);
       },
@@ -339,8 +356,9 @@ export class LiberoScene extends ScreenScene {
   async weave(_resume: boolean, show?: (key: string | null, params?: Record<string, string | number>, kind?: 'errore' | 'info' | 'ok') => void): Promise<boolean> {
     if (this.busy) return false;
     const c = liberoChoice();
-    if (!isSeed(c.seed)) {
-      show?.('ui.libero.semeNonValido', undefined, 'errore');
+    if (this.seedInvalid || !isSeed(c.seed)) {
+      show?.(this.seedField && !this.seedField.value.trim() ? 'ui.libero.semeVuoto' : 'ui.libero.semeNonValido', undefined, 'errore');
+      this.seedField?.focus();
       return false;
     }
     this.busy = true;

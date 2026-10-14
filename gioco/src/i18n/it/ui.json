@@ -56,6 +56,7 @@
       "suono": "Suono",
       "vista": "Testo e immagini",
       "gioco": "Gioco",
+      "fuso": "Fuso intagliato",
       "lingua": "Lingua",
       "salvataggi": "Salvataggi"
     },
@@ -121,7 +122,18 @@
       "ok": "Cancella per sempre",
       "annulla": "Ci ho ripensato"
     },
-    "cancellato": "Tutto cancellato. Il tombolo è vuoto."
+    "cancellato": "Tutto cancellato. Il tombolo è vuoto.",
+    "fuso": {
+      "etichetta": "Il fuso di Ada nel titolo e i fusi di lino",
+      "desc": "Si ottengono con i fili d'oro e con il Merletto del giorno. Cambiano solo l'aspetto.",
+      "ada": "Il fuso di Ada",
+      "stile_1": "Liscio",
+      "stile_2": "A spirale",
+      "stile_3": "A pigna",
+      "stile_4": "Col faro",
+      "stile_5": "Con la barca",
+      "stile_6": "D'avorio"
+    }
   },
   "crediti": {
     "titolo": "Crediti",
@@ -315,7 +327,8 @@
     "ritessi": "Ritessi",
     "ritessiSpartito": "Ritessi lo spartito",
     "nuovo": "Un altro merletto",
-    "torna": "Torna al titolo"
+    "torna": "Torna al titolo",
+    "fusoNuovo": "Un fuso intagliato nuovo: «{nome}». Lo scegli nelle Impostazioni."
   },
   "condividi": {
     "titolo": "TRAMA",
