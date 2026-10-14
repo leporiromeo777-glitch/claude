@@ -121,13 +121,15 @@ export function registerUiDebug(s: Services): void {
       await idle();
       return summary(resultOf(origin ?? 'giornaliero'));
     },
-    unlock: (kind?: 'daily' | 'libero' | 'gradi' | 'all') => {
+    unlock: (kind?: 'daily' | 'libero' | 'gradi' | 'all' | 'tovaglia' | 'nessunaTovaglia') => {
       const k = kind ?? 'all';
       s.save.update(
         (d) => {
           if (k === 'daily' || k === 'all') d.unlocks.daily = true;
           if (k === 'libero' || k === 'all') d.unlocks.libero = true;
           if (k === 'gradi' || k === 'all') d.unlocks.gradi = true;
+          // Il finale vero (revisione 1, SCH-15): non fa parte di 'all'.
+          if (k === 'tovaglia' || k === 'nessunaTovaglia') d.unlocks.tovaglia = k === 'tovaglia';
         },
         { immediate: true, reason: 'debug:unlock' },
       );
