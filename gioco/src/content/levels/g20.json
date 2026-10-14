@@ -142,8 +142,15 @@
           }
         ],
         "when": {
-          "flag": "nina",
-          "eq": "parte"
+          "any": [
+            {
+              "flag": "nina",
+              "eq": "parte"
+            },
+            {
+              "ok": "g20.nina"
+            }
+          ]
         }
       },
       {
@@ -168,8 +175,18 @@
           }
         ],
         "when": {
-          "flag": "nina",
-          "eq": "resta"
+          "any": [
+            {
+              "flag": "nina",
+              "eq": "resta"
+            },
+            {
+              "failed": "g20.nina"
+            },
+            {
+              "ignored": "g20.nina"
+            }
+          ]
         }
       },
       {

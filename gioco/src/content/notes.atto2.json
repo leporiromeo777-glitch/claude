@@ -50,6 +50,9 @@
           {
             "setFlag": "teresaDottore",
             "value": "fiducia"
+          },
+          {
+            "diary": "persone.teresa.dottoreFiducia"
           }
         ]
       },
@@ -60,6 +63,9 @@
           {
             "setFlag": "teresaDottore",
             "value": "sospetto"
+          },
+          {
+            "diary": "persone.teresa.dottoreSospetto"
           }
         ]
       }
@@ -102,6 +108,9 @@
           {
             "setFlag": "martaForno",
             "value": "chiuso"
+          },
+          {
+            "diary": "persone.marta.fornoChiuso"
           }
         ]
       },
@@ -139,6 +148,9 @@
           {
             "setFlag": "martaForno",
             "value": "chiuso"
+          },
+          {
+            "diary": "persone.marta.fornoChiuso"
           }
         ]
       },
@@ -149,6 +161,9 @@
           {
             "setFlag": "martaPromessa",
             "value": true
+          },
+          {
+            "diary": "persone.marta.promessa"
           }
         ]
       }
@@ -209,6 +224,9 @@
           {
             "setFlag": "bepiDottore",
             "value": "apre"
+          },
+          {
+            "diary": "persone.bepi.apre"
           }
         ]
       },
@@ -259,6 +277,9 @@
           {
             "setFlag": "martaPerche",
             "value": true
+          },
+          {
+            "diary": "persone.marta.perche"
           }
         ]
       },
@@ -269,6 +290,9 @@
           {
             "setFlag": "martaLargo",
             "value": true
+          },
+          {
+            "diary": "persone.marta.largo"
           }
         ]
       }
@@ -329,6 +353,9 @@
           {
             "setFlag": "bepiDebito",
             "value": "tacere"
+          },
+          {
+            "diary": "persone.bepi.tacere"
           }
         ]
       }
@@ -402,6 +429,9 @@
           {
             "setFlag": "lunardiChiamato",
             "value": "dottore"
+          },
+          {
+            "diary": "persone.lunardi.dottore"
           }
         ]
       },
@@ -677,6 +707,9 @@
           {
             "setFlag": "ginoTempesta",
             "value": "casa"
+          },
+          {
+            "diary": "persone.gino.casa"
           }
         ]
       },
@@ -687,6 +720,9 @@
           {
             "setFlag": "ginoTempesta",
             "value": "finestra"
+          },
+          {
+            "diary": "persone.gino.finestra"
           }
         ]
       }
@@ -742,6 +778,9 @@
           {
             "setFlag": "teresaPromessa",
             "value": true
+          },
+          {
+            "diary": "persone.teresa.promessa"
           }
         ]
       },
@@ -752,6 +791,9 @@
           {
             "setFlag": "teresaSa",
             "value": true
+          },
+          {
+            "diary": "persone.teresa.sa"
           }
         ]
       }
@@ -777,6 +819,26 @@
         }
       ]
     },
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto2.g16.piero.r1",
+        "effects": [
+          {
+            "desire": "piero"
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto2.g16.piero.r2",
+        "effects": [
+          {
+            "desire": "piero"
+          }
+        ]
+      }
+    ],
     "onOk": [
       {
         "desire": "piero"

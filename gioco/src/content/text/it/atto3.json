@@ -33,8 +33,8 @@
     "titolo": "Il filo nero",
     "zeno": {
       "testo": "Domattina, dal mare, arriva qualcuno con lo scialle nero. Non so come lo so: lo so come so il tempo. Fammela incontrare, prima che sparisca un'altra volta.",
-      "r1": "Chi è, Zeno? Dimmelo almeno tu.",
-      "r2": "La incontrerai, Zeno. Te lo prometto sul tombolo."
+      "r1": "Chi è? Dimmelo almeno tu.",
+      "r2": "La incontrerai. Te lo prometto sul tombolo."
     },
     "teresa": {
       "testo": "Cara, gira voce di una forestiera vestita di nero. Nessuno sa chi sia, e a me non piace non sapere. Voglio saperlo io, e per prima. Prima del prete, soprattutto."
@@ -83,10 +83,10 @@
     },
     "marta": {
       "testo": "Se la Teresa ha qualcosa da dire, lo dica. A me, non al paese, non al prete. Io ascolto. Una volta. Poi si vede.",
-      "r1": "Ascoltala, Marta. Ha aspettato anche lei, trent'anni.",
+      "r1": "Ascoltala. Ha aspettato anche lei, trent'anni.",
       "r2": "Anche Teresa ha perso qualcuno, nel '58. Nessuno le ha mai scritto.",
       "senzaArchivio": {
-        "r2": "Te lo dirà stanotte, Marta. Lasciala parlare fino in fondo."
+        "r2": "Te lo dirà stanotte. Lasciala parlare fino in fondo."
       }
     },
     "gino": {
@@ -132,8 +132,8 @@
     },
     "nina": {
       "testo": "L'acqua alta voglio vederla dalla Piazza, coi piedi a mollo, alle undici. A Venezia la gente la guarda dalle finestre: io voglio starci dentro.",
-      "r1": "Venezia ti aspetta, Nina. Anche con l'acqua alta, anzi di più.",
-      "r2": "Resta qui, Nina. L'isola ha bisogno di te."
+      "r1": "Venezia ti aspetta. Anche con l'acqua alta, anzi di più.",
+      "r2": "Resta qui. L'isola ha bisogno di te."
     },
     "teresa": {
       "testo": "Cara, le medicine per la Farmacia sono nella mia borsa e l'acqua sale alle dieci. Che arrivino al dottore prima, asciutte. Lo so, le leggo per strada."
@@ -175,8 +175,8 @@
     },
     "bepi": {
       "testo": "la Nina parte. prima voglio salutarla come si deve, non come l'altra volta. alle 9 è troppo tardi. prima. e non dirlo a lei",
-      "r1": "Dille quello che non le hai mai detto, Bepi. Anche solo due parole.",
-      "r2": "Le basta che tu ci sia, Bepi. Il resto lo sa già."
+      "r1": "Dille quello che non le hai mai detto. Anche solo due parole.",
+      "r2": "Le basta che tu ci sia. Il resto lo sa già."
     },
     "marta": {
       "testo": "Il Gino vuole seguire la Nina al Molo. Non deve: se sale su quel vaporetto per gioco, non lo riprendo più. Lontano dal Molo fino alle nove."
@@ -193,7 +193,7 @@
       "livia": "Chi è la donna in nero"
     },
     "hint": {
-      "spinta": "Il filo nero cerca Don Piero, poi Zeno. Dall'una alle tre l'acqua blocca Molo e Piazza.",
+      "spinta": "Alle otto il filo nero entra dal Faro e cerca Don Piero, poi Zeno. Chi è al Faro esce.",
       "indizio": "Il pozzo ha già due segreti: il terzo glielo porta chi sta sempre sopra."
     },
     "alba": {
@@ -230,7 +230,7 @@
     },
     "marta": {
       "testo": "Il Gino stasera non va al Faro. Con l'acqua alta e quella donna in giro, dalle tre lo voglio a casa. Fino a sera.",
-      "r1": "Lascialo andare, Marta. Zeno lo guarda come un figlio.",
+      "r1": "Lascialo andare. Zeno lo guarda come un figlio.",
       "r2": "Va bene. Starà a casa, con te."
     }
   },
@@ -277,8 +277,8 @@
     },
     "teresa": {
       "testo": "Cara, oggi arriva una donna dalla secca e tutti dicono di conoscerla. Io no. Voglio saperlo appena mette piede sull'isola. Subito.",
-      "r1": "Lo saprai, Teresa. Ma non da me, e non stasera.",
-      "r2": "È mia madre, Teresa. Si chiama Livia, e tu non te la ricordi."
+      "r1": "Lo saprai. Ma non da me, e non stasera.",
+      "r2": "È mia madre. Si chiama Livia, e tu non te la ricordi."
     },
     "marta": {
       "testo": "Se arriva una forestiera a piedi dalla secca, avrà fame. Il pane caldo glielo porto io, con le mie mani."
@@ -382,7 +382,9 @@
         "cassetto": "Teresa ha regalato alla Nina un fazzoletto ricamato per un viaggio che non ha mai fatto. Sette anni in un cassetto.",
         "lettera2": "Don Piero ha restituito a Teresa una lettera rimasta nel pozzo. Lei non l'ha ancora aperta: se la tiene come una caramella.",
         "medicine": "Le medicine per la Farmacia sono arrivate bagnate e aperte. Teresa giura che le ha solo guardate.",
-        "secca": "Teresa ha saputo per ultima chi è la donna della secca. Dice che non se la ricorda per niente, ed è vero."
+        "secca": "Teresa ha saputo per ultima chi è la donna della secca. Dice che non se la ricorda per niente, ed è vero.",
+        "aspetta": "Ho scritto a Teresa che saprà chi è quella donna, ma non da me. Per una volta la postina aspetta una notizia, invece di portarla.",
+        "liviaSa": "Ho detto a Teresa che la donna della secca è mia madre. Non se la ricorda. Ha pianto lo stesso, senza sapere perché."
       },
       "zeno": {
         "perdono": "Zeno ha chiesto perdono a mia madre, sul bordo della secca. Lei l'aveva perdonato da quattordici anni, e non glielo aveva mai detto.",
@@ -392,14 +394,19 @@
       "nina": {
         "parte": "La Nina è partita col vaporetto delle nove, con Leopardi in valigia. Bepi è rimasto al Molo finché si vedeva il fumo.",
         "resta": "La Nina è rimasta. Dice che Venezia non scappa e che l'anno prossimo è uguale. Lo dice un po' troppe volte.",
-        "acqua": "La Nina è stata in Piazza con l'acqua alla caviglia. Dice che a Venezia si fa così, e che bisogna allenarsi."
+        "acqua": "La Nina è stata in Piazza con l'acqua alla caviglia. Dice che a Venezia si fa così, e che bisogna allenarsi.",
+        "aspetta": "Ho scritto alla Nina che Venezia la aspetta, anche con l'acqua alta. Mi ha risposto con un verso di Leopardi. Credo fosse un grazie.",
+        "restaQui": "Ho scritto alla Nina che l'isola ha bisogno di lei. Non mi ha risposto. Il silenzio della Nina fa più rumore del vento."
       },
       "lunardi": {
         "resta": "Il dottor Lunardi comincia a pensare di restare. Ha comprato una pentola, che per un uomo di Padova è quasi un giuramento.",
         "confidenza": "Al dottor Lunardi hanno confidato una cosa del '36. Non la ripeterà mai, dice. Si sente un po' meno di Padova."
       },
       "marta": {
-        "livia": "La donna in nero è passata per la Piazza durante il mercato. Ha chiamato Marta per nome, e Marta non l'ha riconosciuta."
+        "livia": "La donna in nero è passata per la Piazza durante il mercato. Ha chiamato Marta per nome, e Marta non l'ha riconosciuta.",
+        "ascolta": "Marta ha promesso di ascoltare Teresa, una volta sola. Ha scritto «poi si vede», che per Marta è quasi un abbraccio.",
+        "lanterna": "Ho chiesto a Marta di lasciar andare il Gino al Faro. Ha detto di no tre volte, poi «vedremo». Zeno lo guarda come un figlio, e lei lo sa.",
+        "casa": "Ho promesso a Marta che il Gino resterà a casa. Ha paura dell'acqua alta e della donna in nero, e io le ho dato ragione. Non so se ho fatto bene."
       },
       "gino": {
         "cinque": "Il Gino ha incontrato cinque persone in una mattina sola. Dice che ha vinto. Contro chi, non si sa, ma è contento lo stesso.",
@@ -413,14 +420,14 @@
         "livia": "Don Piero ha riconosciuto la donna in nero e ha chiuso gli occhi. Certi nomi, dice, si dicono una volta sola."
       },
       "ada": {
-        "nastro": "Sul tavolo c'è il nastro della nonna: il filo d'avorio avanzato, che non è di nessuno. Domani sera devo scegliere.",
+        "nastro": "Sul tavolo c'è il nastro della nonna: il filo d'avorio avanzato, che non è di nessuno. Stasera devo scegliere.",
         "g17": "Mia madre cammina sulla Fondamenta e nessuno la riconosce. Io la vedo dal tombolo: un filo nero che non posso toccare.",
         "g18": "Le regole del tombolo non si aggiungono soltanto: si possono anche togliere. A volte basta che due persone si parlino.",
         "g19": "Con l'acqua alta l'isola è più piccola e io tesso più in fretta. Il mare non chiede permesso, come la febbre.",
         "g20": "Un vaporetto, una valigia, un padre al Molo. Ho tessuto una partenza, o una non partenza. Non so quale pesi di più.",
         "g21": "Nella cassapanca c'era il punto aperto. La nonna l'ha provato e nascosto. Io l'ho trovato, e non smetto di pensarci.",
         "g22": "Mia madre è arrivata dalla secca. Ha le mani che sanno di pesce e di sale, e una voce che conoscevo già dalle lettere.",
-        "g23": "È la vigilia. Domani sera, sotto la porta, ci saranno quattro biglietti. Ne potrò appuntare uno solo.",
+        "g23": "È la vigilia. Stasera, sotto la porta, ci saranno quattro biglietti. Ne potrò appuntare uno solo.",
         "arc5": "Arianna fu la prima. Salvò tutti, e tutti la dimenticarono. Sotto la sua frase, la nonna ha scritto «Lo so». Adesso lo so anch'io.",
         "arc6": "Nel merletto di prova la nonna aveva un filo. Non ha incrociato nessuno: ha piantato due occasioni ed è rimasta a guardare. Poi lo ha nascosto."
       }
@@ -458,7 +465,7 @@
     }
   },
   "lettere": {
-    "biglietto_livia_1": "Ada mia, sono sull'isola e nessuno mi riconosce. Ho comprato il pane al forno e la fornaia mi ha dato il resto giusto, come a una forestiera. Non importa. Sto arrivando, un filo alla volta. L.",
+    "biglietto_livia_1": "Ada mia, oggi ho rimesso piede sull'isola. Ho comprato il pane al forno e la fornaia mi ha dato il resto giusto, come a una forestiera. Stasera torno a Chioggia. Sto arrivando, un filo alla volta. L.",
     "biglietto_livia_2": "Ada mia, ho camminato sulla Fondamenta da un capo all'altro, dal Molo al Faro. È più corta di come la ricordavo, o forse sono io che ho le gambe più lunghe. Sto arrivando. L.",
     "biglietto_livia_3": "Ada mia, l'acqua alta mi ha tenuta ferma tre ore sul Molo. Ho contato le finestre della Fondamenta: una è la tua, quella con la luce accesa di notte. Sto arrivando. L.",
     "biglietto_livia_4": "Ada mia, oggi una ragazza è partita col vaporetto, o forse no: avevo il sole negli occhi. A sedici anni volevo andarmene e restare insieme. Adesso vorrei soltanto restare. Sto arrivando. L.",

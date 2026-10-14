@@ -5,7 +5,7 @@
       "spinta": "Quattro saluti, poi il vaporetto delle sei. Mia madre sale da sola, stavolta.",
       "indizio": "Porta Livia a passare accanto a chi la saluta, e al Molo per le sei di sera."
     },
-    "margine": "Il mio ultimo merletto da sola. Lo tesso perché lei possa andare.",
+    "margine": "Un merletto per lasciarla andare. Gli altri li tesserò da sola.",
     "epilogo": {
       "1": {
         "1": "Alle sei di sera mia madre è salita sul vaporetto. Per scelta, stavolta.",
@@ -22,6 +22,14 @@
       "4": {
         "1": "Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.",
         "0": "Ogni notte, alle cinque e cinquantanove, il merletto era finito."
+      },
+      "2zeno": {
+        "1": "L'ho salutata dalla finestra. Non avevo un filo per scendere al Molo.",
+        "2": "Zeno le ha portato la valigia fino al vaporetto. Stavolta lei sapeva dove andava."
+      },
+      "3nina": {
+        "1": "Anni dopo, il mio merletto più bello è appeso in chiesa, senza nome.",
+        "2": "La Nina, che ci insegna, porta i suoi scolari a vederlo. Nessuno sa chi l'ha fatto."
       }
     }
   },
@@ -29,7 +37,7 @@
     "titolo": "Il merletto chiuso",
     "hint": {
       "spinta": "Livia al Molo alle nove, come nel 1951. Come vorrebbe la nonna.",
-      "indizio": "Tre ore, tre colonne: Livia deve passare sopra a chi incontra, una riga dopo l'altra."
+      "indizio": "Tre ore, tre colonne: a ogni ora Livia deve fare un passo verso il Molo."
     },
     "margine": "Funziona. Ha sempre funzionato.",
     "epilogo": {
@@ -74,6 +82,10 @@
       "4": {
         "1": "Mia madre tesse ancora.",
         "2": "Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe."
+      },
+      "2nina": {
+        "1": "Ho un filo, adesso. E una vita: la scuola, la Nina, la terraferma.",
+        "2": "A settembre la Nina mi aspettava al pontile di Venezia, coi libri sotto il braccio."
       }
     }
   },
@@ -105,6 +117,10 @@
       "4": {
         "1": "Per un inverno intero ho imparato a comandare le persone.",
         "2": "Poi ho imparato a conoscerle."
+      },
+      "2bepi": {
+        "1": "I fili si sono incrociati da soli, secondo i desideri. Tutti hanno un filo.",
+        "2": "Anch'io. Anche mia madre. Il Bepi saluta la Nina col braccio buono."
       }
     }
   },

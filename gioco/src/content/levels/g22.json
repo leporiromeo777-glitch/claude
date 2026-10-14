@@ -202,8 +202,15 @@
           }
         ],
         "when": {
-          "flag": "zenoLivia",
-          "eq": true
+          "any": [
+            {
+              "flag": "zenoLivia",
+              "eq": true
+            },
+            {
+              "ok": "g22.zeno"
+            }
+          ]
         }
       },
       {

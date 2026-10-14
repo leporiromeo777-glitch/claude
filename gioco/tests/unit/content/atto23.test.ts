@@ -81,6 +81,39 @@ const STATES: Story[] = [
 ];
 const available = (day: string, s: Story): NoteDef[] => notesOf(day).filter((n) => !n.availableIf || holds(n.availableIf, s));
 
+/** Combinazioni di k bigliettini con richiesta (mai due varianti dello stesso autore insieme). */
+function combosOf(day: string, k: number): NoteDef[][] {
+  const withReq = notesOf(day).filter((n) => n.request !== undefined);
+  const out: NoteDef[][] = [];
+  const rec = (start: number, acc: NoteDef[]): void => {
+    if (acc.length === k) {
+      if (new Set(acc.map((n) => n.author)).size === k) out.push([...acc]);
+      return;
+    }
+    for (let i = start; i < withReq.length; i++) rec(i + 1, [...acc, withReq[i] as NoteDef]);
+  };
+  rec(0, []);
+  return out;
+}
+const costCache = new Map<string, number | null>();
+/** Minimo di incroci per gli obiettivi più le richieste, entro la matassa del livello (null se impossibile). */
+function pairCost(day: string, combo: NoteDef[]): number | null {
+  const ids = combo.map((n) => n.id).sort();
+  const key = `${day}:${ids.join('+')}`;
+  if (costCache.has(key)) return costCache.get(key) ?? null;
+  const c = db.computed.get(day);
+  let v: number | null | undefined;
+  if (ids.length === 1) v = c?.perNote[ids[0] as string]?.incroci;
+  else v = c?.combos.find((x) => [...x.notes].sort().join('+') === ids.join('+'))?.incroci;
+  if (v === undefined) {
+    const lv = level(day);
+    const r = solve({ level: lv, ctx: createContext(lv, {}, { balance: db.balance }), goals: [...(lv.goals ?? []), ...combo.map((n) => n.request as Condition)] });
+    v = r.status === 'ok' ? (r.incroci ?? null) : null;
+  }
+  costCache.set(key, v);
+  return v;
+}
+
 /** Un errore di validazione riguarda i file di questo pacchetto? */
 function isMine(err: string): boolean {
   const where = err.slice(0, err.indexOf(':'));
@@ -300,6 +333,41 @@ describe('storia: destini, desideri, Taccuino, lettere', () => {
     }
   });
 
+  it('ogni desiderio degli Atti II-III si può scoprire con una risposta (senza spendere uno spillo)', () => {
+    for (const c of ['teresa', 'marta', 'piero', 'bepi', 'zeno', 'lunardi', 'gino']) {
+      const viaReply = MY_NOTES.some((n) => (n.replies ?? []).some((r) => r.effects.some((e) => 'desire' in e && e.desire === c)));
+      expect(viaReply, c).toBe(true);
+    }
+    // Don Piero (GDD 5.4: lettera di Clotilde in g14, poi g16): entrambe le risposte di g16.piero lo rivelano.
+    for (const r of db.notes.get('g16.piero')?.replies ?? []) expect(r.effects, r.id).toContainEqual({ desire: 'piero' });
+  });
+
+  it('ogni risposta ha una conseguenza visibile (desiderio o voce del Taccuino, GDD 4.2)', () => {
+    const diary = [...db.diary.values()];
+    for (const n of MY_NOTES) {
+      for (const r of n.replies ?? []) {
+        const direct = r.effects.some((e) => 'desire' in e || 'diary' in e);
+        const viaCond = diary.some((d) => JSON.stringify(d.unlock).includes(JSON.stringify({ reply: n.id, is: r.id })));
+        expect(direct || viaCond, `${n.id} ${r.id}`).toBe(true);
+        for (const e of r.effects) if ('diary' in e) expect(db.diary.has(e.diary), `${n.id} ${r.id} → ${e.diary}`).toBe(true);
+      }
+    }
+  });
+
+  it('bigliettini anonimi (da g13 la memoria può essere 0): né il testo né le risposte nominano l\'autore', () => {
+    const NAMES: Partial<Record<CharacterId, RegExp>> = {
+      teresa: /\bTeresa\b/, marta: /\bMarta\b/, piero: /\bPiero\b/, gino: /\bGino\b/,
+      bepi: /\bBepi\b/, nina: /\bNina\b/, zeno: /\bZeno\b/, lunardi: /\bLunardi\b/,
+    };
+    for (const n of MY_NOTES) {
+      if (Number(n.day.slice(1)) < 13 || n.ending) continue;
+      const re = NAMES[n.author];
+      if (!re) continue;
+      expect(re.test(t(n.textKey)), `${n.id} testo`).toBe(false);
+      for (const r of n.replies ?? []) expect(re.test(t(r.textKey)), `${n.id} ${r.id}`).toBe(false);
+    }
+  });
+
   it('il Taccuino apre e chiude le domande degli Atti II-III, con le piste', () => {
     const mine = [...db.diary.values()].filter((d) => MY_DIARY.has(d.id));
     const opened = new Set(mine.flatMap((d) => d.opens ?? []));
@@ -346,20 +414,49 @@ describe('finali (GDD 6.6)', () => {
     return e;
   };
 
-  it('quattro finali: livelli, epiloghi di 3-4 vignette, chiuso non conta come finale', () => {
+  // Destini che cambiano gli epiloghi (GDD 5.1): nina, bepi, zenoLivia. Tutte le 8 combinazioni.
+  const FATE_STATES: Story[] = [];
+  for (const nina of ['parte', 'resta']) for (const bepi of ['salvo', 'ferito']) for (const zenoLivia of [true, false]) {
+    FATE_STATES.push({ done: new Set(), memoria: {}, flags: { nina, bepi, zenoLivia }, desires: new Set() });
+  }
+  const visibleEpilogue = (id: string, s: Story) => ending(id).epilogue.filter((v) => !v.when || holds(v.when, s));
+
+  it('quattro finali: livelli, epiloghi di 3-4 vignette per ogni combinazione di destini, chiuso non conta come finale', () => {
     expect([...db.endings.keys()].sort()).toEqual(['aperto', 'chiuso', 'merlettaia', 'seppia']);
     for (const [id, e] of db.endings) {
       expect(e.level).toBe(db.campaign.finals[id]);
-      expect(e.epilogue.length, id).toBeGreaterThanOrEqual(3);
-      expect(e.epilogue.length, id).toBeLessThanOrEqual(4);
       expect(e.countsAsEnding, id).toBe(id !== 'chiuso');
+      for (const s of FATE_STATES) {
+        const vis = visibleEpilogue(id, s);
+        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeGreaterThanOrEqual(3);
+        expect(vis.length, `${id} ${JSON.stringify(s.flags)}`).toBeLessThanOrEqual(4);
+      }
     }
-    const last = (id: string) => ending(id).epilogue.at(-1)?.lines.map((l) => t(l.textKey)).join(' ');
-    // L'ultima riga di ogni epilogo è quella del GDD 6.6.
-    expect(last('merlettaia')?.endsWith('Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.')).toBe(true);
-    expect(last('seppia')?.endsWith('Mia madre tesse ancora. Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe.')).toBe(true);
-    expect(last('aperto')?.endsWith('Per un inverno intero ho imparato a comandare le persone. Poi ho imparato a conoscerle.')).toBe(true);
-    expect(last('chiuso')).toContain('Il punto di Clotilde: chi lo ripete, lo ripete per sempre.');
+    // L'ultima riga di ogni epilogo è quella del GDD 6.6, qualunque siano i destini.
+    const lastLines: Record<string, string> = {
+      merlettaia: 'Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.',
+      seppia: 'Mia madre tesse ancora. Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe.',
+      aperto: 'Per un inverno intero ho imparato a comandare le persone. Poi ho imparato a conoscerle.',
+      chiuso: 'Il punto di Clotilde: chi lo ripete, lo ripete per sempre.',
+    };
+    for (const s of FATE_STATES) {
+      for (const [id, line] of Object.entries(lastLines)) {
+        const last = visibleEpilogue(id, s).at(-1)?.lines.map((l) => t(l.textKey)).join(' ') ?? '';
+        expect(last.endsWith(line), `${id} ${JSON.stringify(s.flags)}`).toBe(true);
+      }
+    }
+  });
+
+  it('gli epiloghi cambiano con i destini nina, bepi e zenoLivia (GDD 5.1)', () => {
+    const text = (id: string, s: Story) => visibleEpilogue(id, s).flatMap((v) => v.lines.map((l) => t(l.textKey))).join('\n');
+    const pick = (flags: Story['flags']) => FATE_STATES.find((s) => JSON.stringify(s.flags) === JSON.stringify({ nina: 'parte', bepi: 'salvo', zenoLivia: true, ...flags })) as Story;
+    expect(text('merlettaia', pick({ zenoLivia: true }))).not.toBe(text('merlettaia', pick({ zenoLivia: false })));
+    expect(text('merlettaia', pick({ nina: 'parte' }))).not.toBe(text('merlettaia', pick({ nina: 'resta' })));
+    expect(text('seppia', pick({ nina: 'parte' }))).not.toBe(text('seppia', pick({ nina: 'resta' })));
+    expect(text('aperto', pick({ bepi: 'salvo' }))).not.toBe(text('aperto', pick({ bepi: 'ferito' })));
+    // Se la Nina è rimasta, nessun epilogo la fa già maestra a Venezia; se è partita, il seppia non la fa partire a settembre con Ada.
+    expect(text('seppia', pick({ nina: 'parte' }))).not.toContain('ho preso il vaporetto con la Nina');
+    expect(text('merlettaia', pick({ nina: 'resta' }))).not.toContain('ci insegna');
   });
 
   it('i requisiti del finale vero sono esattamente quelli di GDD 6.6', () => {
@@ -508,14 +605,43 @@ describe('solver e file calcolati', () => {
   });
 
   it('matassa = minimo della combinazione designata + margine dell\'atto (Atto II +2, Atto III +1; g13 +0)', () => {
-    for (const d of [...STORY, 'fin_merlettaia', 'fin_seppia', 'fin_chiuso']) {
+    for (const d of ['fin_merlettaia', 'fin_seppia', 'fin_chiuso']) {
+      expect(level(d).matassa, d).toBe(db.computed.get(d)?.matassaSuggerita);
+    }
+    // Giornate: la combinazione designata è la più cara fra quelle possibili con al massimo `pins` spilli
+    // (levels:check calcola solo quelle con esattamente `pins` bigliettini: le coppie dell'Atto III si calcolano qui).
+    for (const d of STORY) {
       const lv = level(d);
-      const c = db.computed.get(d);
+      const c = db.computed.get(d) as NonNullable<ReturnType<typeof db.computed.get>>;
       const slack = db.balance.acts[String(lv.act) as '2' | '3'].slack;
       expect(slack, d).toBe(lv.act === 2 ? 2 : 1);
-      expect(lv.matassa, d).toBe(d === 'g13' ? (c?.matassaSuggerita ?? 0) - slack : c?.matassaSuggerita);
+      let designated = c.base.incroci;
+      for (const p of Object.values(c.perNote)) if (p.incroci !== null) designated = Math.max(designated, p.incroci);
+      for (const x of c.combos) if (x.incroci !== null && !x.voluta) designated = Math.max(designated, x.incroci);
+      for (const pair of combosOf(d, 2)) {
+        const r = pairCost(d, pair);
+        if (r !== null) designated = Math.max(designated, r);
+      }
+      expect(lv.matassa, d).toBe(designated + (d === 'g13' ? 0 : slack));
     }
-  });
+  }, 120_000);
+
+  it('nessun conflitto nascosto dalla matassa: ogni combinazione possibile senza limite sta anche nella matassa', () => {
+    for (const d of DAYS) {
+      if (d === 'g12') continue; // la richiesta di Lunardi dipende dal nome appuntato: vedi il test di g12
+      const pins = db.campaign.days.find((x) => x.id === d)?.pins ?? 2;
+      for (let k = 1; k <= pins; k++) {
+        for (const combo of combosOf(d, k)) {
+          if (pairCost(d, combo) !== null) continue;
+          // Impossibile entro la matassa: deve esserlo anche senza limite (conflitto di regole, non di filo).
+          const lv = level(d);
+          const goals = [...(lv.goals ?? []), ...combo.map((n) => n.request as Condition)];
+          const free = solve({ level: lv, ctx: createContext(lv, {}, { balance: db.balance }), goals, matassa: 99 });
+          expect(free.status, `${d} ${combo.map((n) => n.id).join('+')}`).toBe('impossibile');
+        }
+      }
+    }
+  }, 300_000);
 
   it('g13: con la matassa esatta, un merletto perfetto cura tutti e quattro i malati', () => {
     const lv = level('g13');
@@ -593,6 +719,54 @@ describe('giornate: eventi della tabella del GDD 5.2', () => {
     expect(level('g19').tide).toEqual([{ from: 10, to: 13, places: ['molo', 'piazza'] }]);
     expect(level('g21').tide?.length).toBe(1);
     expect(level('g21').nero).toBeDefined();
+  });
+
+  it('zenoFaro (GDD 3.6): Zeno è a due luoghi al massimo dal Faro già all\'alba e in ogni soluzione calcolata', () => {
+    for (const id of [...STORY, ...FINALS, ...ARCHIVES]) {
+      const lv = level(id);
+      const z = lv.threads.find((x) => x.character === 'zeno');
+      if (!z || !lv.quirks.includes('zenoFaro')) continue;
+      const faro = lv.columns.includes('faro') ? lv.columns.indexOf('faro') : lv.columns.length - 1;
+      expect(Math.abs(lv.initial.indexOf(z.id) - faro), `${id} all'alba`).toBeLessThanOrEqual(2);
+      const c = db.computed.get(id);
+      const ctx = createContext(lv, {}, { balance: db.balance, occasions: c?.occasionsSolution });
+      const sols = [c?.base.rows ?? [], ...(c?.combos ?? []).flatMap((x) => (x.rows ? [x.rows] : []))];
+      for (const rows of sols) {
+        const sim = simulate({ ...lv, matassa: 999 }, ctx, rows);
+        for (const st of sim.timeline) {
+          const col = st.pos.indexOf(z.id);
+          if (col >= 0) expect(Math.abs(col - faro), `${id} alle ${st.hour}`).toBeLessThanOrEqual(2);
+        }
+      }
+    }
+  });
+
+  it('g21: Zeno è al Faro all\'alba e deve spostarsi prima delle 8, quando entra il filo nero', () => {
+    const lv = level('g21');
+    expect(lv.initial[lv.columns.indexOf('faro')]).toBe('zeno');
+    expect(lv.nero).toMatchObject({ enter: { hour: 8, side: 'faro' }, agenda: [{ follow: 'piero' }, { follow: 'zeno' }] });
+    const req = db.notes.get('g21.zeno')?.request as Condition;
+    const r = solve({ level: lv, ctx: createContext(lv, {}, { balance: db.balance }), goals: [...(lv.goals ?? []), req] });
+    expect(r.status).toBe('ok');
+    const sim = simulate(lv, createContext(lv, {}, { balance: db.balance }), r.rows ?? []);
+    expect(sim.timeline.find((s) => s.hour === 8)?.pos.at(-1)).toBe('livia');
+    expect(sim.timeline.every((s) => s.offboard.every((o) => o.thread !== 'zeno'))).toBe(true);
+  });
+
+  it('vignette dei destini: valgono sia col flag sia con l\'esito del bigliettino che lo decide', () => {
+    const when = (d: string, id: string): string => JSON.stringify(level(d).dawn?.candidates.find((v) => v.id === id)?.when ?? null);
+    const cases: [string, string, string, string][] = [
+      ['g15', 'g15.alba.luce', '"flag":"bepi","eq":"salvo"', '{"ok":"g15.nina"}'],
+      ['g15', 'g15.alba.secca', '"flag":"bepi","eq":"ferito"', '{"failed":"g15.nina"}'],
+      ['g18', 'g18.alba.pace', '"flag":"riconciliate","eq":true', '{"ok":"g18.teresa"}'],
+      ['g20', 'g20.alba.parte', '"flag":"nina","eq":"parte"', '{"ok":"g20.nina"}'],
+      ['g20', 'g20.alba.resta', '"flag":"nina","eq":"resta"', '{"failed":"g20.nina"}'],
+      ['g22', 'g22.alba.perdono', '"flag":"zenoLivia","eq":true', '{"ok":"g22.zeno"}'],
+    ];
+    for (const [d, id, flag, outcome] of cases) {
+      expect(when(d, id), id).toContain(flag);
+      expect(when(d, id), id).toContain(outcome);
+    }
   });
 });
 

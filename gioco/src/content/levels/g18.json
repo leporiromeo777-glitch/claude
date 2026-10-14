@@ -115,7 +115,7 @@
     "g18.gino",
     "g18.lunardi"
   ],
-  "matassa": 13,
+  "matassa": 15,
   "hintKeys": {
     "spinta": "atto3.g18.hint.spinta",
     "indizio": "atto3.g18.hint.indizio"
@@ -150,8 +150,15 @@
           }
         ],
         "when": {
-          "flag": "riconciliate",
-          "eq": true
+          "any": [
+            {
+              "flag": "riconciliate",
+              "eq": true
+            },
+            {
+              "ok": "g18.teresa"
+            }
+          ]
         }
       },
       {
@@ -182,8 +189,15 @@
           }
         ],
         "when": {
-          "flag": "riconciliate",
-          "eq": true
+          "any": [
+            {
+              "flag": "riconciliate",
+              "eq": true
+            },
+            {
+              "ok": "g18.teresa"
+            }
+          ]
         }
       },
       {

@@ -141,8 +141,15 @@
           }
         ],
         "when": {
-          "flag": "bepi",
-          "eq": "salvo"
+          "any": [
+            {
+              "flag": "bepi",
+              "eq": "salvo"
+            },
+            {
+              "ok": "g15.nina"
+            }
+          ]
         }
       },
       {
@@ -173,8 +180,18 @@
           }
         ],
         "when": {
-          "flag": "bepi",
-          "eq": "ferito"
+          "any": [
+            {
+              "flag": "bepi",
+              "eq": "ferito"
+            },
+            {
+              "failed": "g15.nina"
+            },
+            {
+              "ignored": "g15.nina"
+            }
+          ]
         }
       },
       {

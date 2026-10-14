@@ -47,7 +47,39 @@
             "speaker": "narratore",
             "textKey": "finali.merlettaia.epilogo.2.2"
           }
-        ]
+        ],
+        "when": {
+          "not": {
+            "flag": "zenoLivia",
+            "eq": true
+          }
+        }
+      },
+      {
+        "id": "finale.merlettaia.2.zeno",
+        "priority": 100,
+        "background": "dio/stanza/notte",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.2zeno.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.2zeno.2"
+          }
+        ],
+        "when": {
+          "flag": "zenoLivia",
+          "eq": true
+        }
       },
       {
         "id": "finale.merlettaia.3",
@@ -63,7 +95,33 @@
             "speaker": "narratore",
             "textKey": "finali.merlettaia.epilogo.3.2"
           }
-        ]
+        ],
+        "when": {
+          "not": {
+            "flag": "nina",
+            "eq": "parte"
+          }
+        }
+      },
+      {
+        "id": "finale.merlettaia.3.nina",
+        "priority": 100,
+        "background": "dio/chiesa/giorno",
+        "figures": [],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.3nina.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.merlettaia.epilogo.3nina.2"
+          }
+        ],
+        "when": {
+          "flag": "nina",
+          "eq": "parte"
+        }
       },
       {
         "id": "finale.merlettaia.4",
@@ -131,7 +189,39 @@
             "speaker": "narratore",
             "textKey": "finali.seppia.epilogo.2.2"
           }
-        ]
+        ],
+        "when": {
+          "not": {
+            "flag": "nina",
+            "eq": "parte"
+          }
+        }
+      },
+      {
+        "id": "finale.seppia.2.nina",
+        "priority": 100,
+        "background": "dio/molo/alba",
+        "figures": [
+          {
+            "character": "ada",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.2nina.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.seppia.epilogo.2nina.2"
+          }
+        ],
+        "when": {
+          "flag": "nina",
+          "eq": "parte"
+        }
       },
       {
         "id": "finale.seppia.3",
@@ -3236,7 +3326,50 @@
             "speaker": "narratore",
             "textKey": "finali.aperto.epilogo.2.2"
           }
-        ]
+        ],
+        "when": {
+          "not": {
+            "flag": "bepi",
+            "eq": "ferito"
+          }
+        }
+      },
+      {
+        "id": "finale.aperto.2.bepi",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {
+            "character": "gino",
+            "pose": "saluta",
+            "x": 0.25
+          },
+          {
+            "character": "marta",
+            "pose": "porge",
+            "x": 0.5
+          },
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.75,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.2bepi.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.2bepi.2"
+          }
+        ],
+        "when": {
+          "flag": "bepi",
+          "eq": "ferito"
+        }
       },
       {
         "id": "finale.aperto.3",

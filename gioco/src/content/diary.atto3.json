@@ -492,5 +492,98 @@
       "done": "g17"
     },
     "source": "visto"
+  },
+  {
+    "id": "persone.marta.ascolta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.marta.ascolta",
+    "unlock": {
+      "any": [
+        {
+          "reply": "g18.marta",
+          "is": "R1"
+        },
+        {
+          "reply": "g18.marta",
+          "is": "R2"
+        },
+        {
+          "reply": "g18.marta.senzaArchivio",
+          "is": "R1"
+        },
+        {
+          "reply": "g18.marta.senzaArchivio",
+          "is": "R2"
+        }
+      ]
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.nina.aspetta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.nina.aspetta",
+    "unlock": {
+      "reply": "g19.nina",
+      "is": "R1"
+    },
+    "character": "nina",
+    "source": "visto"
+  },
+  {
+    "id": "persone.nina.restaQui",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.nina.restaQui",
+    "unlock": {
+      "reply": "g19.nina",
+      "is": "R2"
+    },
+    "character": "nina",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.lanterna",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.marta.lanterna",
+    "unlock": {
+      "reply": "g21.marta",
+      "is": "R1"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.casa",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.marta.casa",
+    "unlock": {
+      "reply": "g21.marta",
+      "is": "R2"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.aspetta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.aspetta",
+    "unlock": {
+      "reply": "g22.teresa",
+      "is": "R1"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.liviaSa",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.teresa.liviaSa",
+    "unlock": {
+      "reply": "g22.teresa",
+      "is": "R2"
+    },
+    "character": "teresa",
+    "source": "visto"
   }
 ]

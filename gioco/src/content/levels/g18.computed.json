@@ -1,6 +1,6 @@
 {
   "levelId": "g18",
-  "sourceHash": "6a7947d1fb90b582",
+  "sourceHash": "8176e62bb3ab91dc",
   "solverVersion": 1,
   "base": {
     "incroci": 11,
@@ -309,33 +309,6 @@
             {
               "pair": 2,
               "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 8,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 9,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 10,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
             },
             {
               "pair": 4,
@@ -344,10 +317,37 @@
           ]
         },
         {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "R"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
           "hour": 11,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
@@ -374,7 +374,7 @@
           "hour": 14,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
               "over": "L"
             },
             {
@@ -387,7 +387,7 @@
           "hour": 15,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 0,
               "over": "L"
             }
           ]
@@ -396,7 +396,7 @@
           "hour": 16,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 0,
               "over": "L"
             }
           ]

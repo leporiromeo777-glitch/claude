@@ -858,5 +858,156 @@
       "done": "g14"
     },
     "source": "visto"
+  },
+  {
+    "id": "persone.teresa.dottoreFiducia",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.teresa.dottoreFiducia",
+    "unlock": {
+      "reply": "g09.teresa",
+      "is": "R1"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.dottoreSospetto",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.teresa.dottoreSospetto",
+    "unlock": {
+      "reply": "g09.teresa",
+      "is": "R2"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.fornoChiuso",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.marta.fornoChiuso",
+    "unlock": {
+      "any": [
+        {
+          "reply": "g10.marta",
+          "is": "R1"
+        },
+        {
+          "reply": "g10.marta.senzaArchivio",
+          "is": "R1"
+        }
+      ]
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.promessa",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.marta.promessa",
+    "unlock": {
+      "reply": "g10.marta.senzaArchivio",
+      "is": "R2"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.perche",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.marta.perche",
+    "unlock": {
+      "reply": "g11.marta",
+      "is": "R1"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.marta.largo",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.marta.largo",
+    "unlock": {
+      "reply": "g11.marta",
+      "is": "R2"
+    },
+    "character": "marta",
+    "source": "visto"
+  },
+  {
+    "id": "persone.gino.casa",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.gino.casa",
+    "unlock": {
+      "reply": "g15.gino",
+      "is": "R1"
+    },
+    "character": "gino",
+    "source": "visto"
+  },
+  {
+    "id": "persone.gino.finestra",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.gino.finestra",
+    "unlock": {
+      "reply": "g15.gino",
+      "is": "R2"
+    },
+    "character": "gino",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.promessa",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.teresa.promessa",
+    "unlock": {
+      "reply": "g16.teresa",
+      "is": "R1"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.teresa.sa",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.teresa.sa",
+    "unlock": {
+      "reply": "g16.teresa",
+      "is": "R2"
+    },
+    "character": "teresa",
+    "source": "visto"
+  },
+  {
+    "id": "persone.bepi.apre",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.bepi.apre",
+    "unlock": {
+      "reply": "g10.bepi",
+      "is": "R1"
+    },
+    "character": "bepi",
+    "source": "visto"
+  },
+  {
+    "id": "persone.bepi.tacere",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.bepi.tacere",
+    "unlock": {
+      "reply": "g12.bepi",
+      "is": "R2"
+    },
+    "character": "bepi",
+    "source": "visto"
+  },
+  {
+    "id": "persone.lunardi.dottore",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.lunardi.dottore",
+    "unlock": {
+      "reply": "g13.lunardi",
+      "is": "R1"
+    },
+    "character": "lunardi",
+    "source": "visto"
   }
 ]

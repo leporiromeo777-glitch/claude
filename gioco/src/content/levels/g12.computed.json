@@ -1,9 +1,9 @@
 {
   "levelId": "g12",
-  "sourceHash": "fbed64ca54ed134d",
+  "sourceHash": "5e0b150c61008c93",
   "solverVersion": 1,
   "base": {
-    "incroci": 1,
+    "incroci": 2,
     "rows": [
       {
         "hour": 7,
@@ -27,13 +27,18 @@
       },
       {
         "hour": 12,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 13,
         "crossings": [
           {
-            "pair": 4,
+            "pair": 3,
             "over": "L"
           }
         ]
@@ -57,7 +62,7 @@
       "incroci": null
     },
     "g12.bepi": {
-      "incroci": 1,
+      "incroci": 2,
       "rows": [
         {
           "hour": 7,
@@ -81,13 +86,18 @@
         },
         {
           "hour": 12,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 13,
           "crossings": [
             {
-              "pair": 4,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -107,7 +117,7 @@
       ]
     },
     "g12.zeno": {
-      "incroci": 4,
+      "incroci": 3,
       "rows": [
         {
           "hour": 7,
@@ -131,10 +141,6 @@
         },
         {
           "hour": 12,
-          "crossings": []
-        },
-        {
-          "hour": 13,
           "crossings": [
             {
               "pair": 2,
@@ -147,7 +153,7 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 13,
           "crossings": [
             {
               "pair": 3,
@@ -156,13 +162,12 @@
           ]
         },
         {
+          "hour": 14,
+          "crossings": []
+        },
+        {
           "hour": 15,
-          "crossings": [
-            {
-              "pair": 4,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 16,
@@ -171,7 +176,7 @@
       ]
     },
     "g12.teresa": {
-      "incroci": 4,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
@@ -192,10 +197,6 @@
             {
               "pair": 0,
               "over": "L"
-            },
-            {
-              "pair": 4,
-              "over": "L"
             }
           ]
         },
@@ -209,20 +210,29 @@
         },
         {
           "hour": 12,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 13,
-          "crossings": []
-        },
-        {
-          "hour": 14,
           "crossings": [
             {
               "pair": 0,
               "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
             }
           ]
+        },
+        {
+          "hour": 14,
+          "crossings": []
         },
         {
           "hour": 15,
@@ -272,7 +282,7 @@
         "g12.bepi",
         "g12.zeno"
       ],
-      "incroci": 4,
+      "incroci": 3,
       "rows": [
         {
           "hour": 7,
@@ -296,10 +306,6 @@
         },
         {
           "hour": 12,
-          "crossings": []
-        },
-        {
-          "hour": 13,
           "crossings": [
             {
               "pair": 2,
@@ -312,7 +318,7 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 13,
           "crossings": [
             {
               "pair": 3,
@@ -321,13 +327,12 @@
           ]
         },
         {
+          "hour": 14,
+          "crossings": []
+        },
+        {
           "hour": 15,
-          "crossings": [
-            {
-              "pair": 4,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 16,
@@ -360,24 +365,18 @@
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 10,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
           "crossings": [
             {
               "pair": 0,
@@ -394,18 +393,23 @@
           ]
         },
         {
-          "hour": 12,
-          "crossings": []
-        },
-        {
           "hour": 13,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 14,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -422,5 +426,5 @@
     }
   ],
   "matassaSuggerita": 8,
-  "quieteMax": 9
+  "quieteMax": 8
 }
