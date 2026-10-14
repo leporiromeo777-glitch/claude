@@ -64,6 +64,19 @@ export function charChip(s: Services, id: CharacterId | string, opts: { test?: s
   );
 }
 
+/**
+ * I nomi dentro un foglio con una carta propria (la calligrafia di un bigliettino o di
+ * una lettera): l'inchiostro si scurisce fino a 4,5:1 su quella carta (C17), non su
+ * quella predefinita. Vale per le etichette (`charChip`) e per i nomi nel testo.
+ */
+export function inkNamesOn(root: HTMLElement, paper: string | null | undefined): void {
+  if (!paper) return;
+  for (const n of root.querySelectorAll<HTMLElement>('.core-pers')) {
+    const color = n.style.getPropertyValue('--pers-color').trim();
+    if (color) n.style.setProperty('--pers-ink', inkOnPaper(color, paper));
+  }
+}
+
 /** Calligrafia "a matita" dei bigliettini anonimi (GDD 3.11: alla merlettaia, senza firma). */
 export const PENCIL_HAND: Handwriting = { font: 'caveat', ink: '#55504A', paper: '#E9E3D6', slantDeg: 1, sizeScale: 1 };
 

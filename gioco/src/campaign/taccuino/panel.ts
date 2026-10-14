@@ -32,7 +32,7 @@ import { bookPageByAda, bookPages, currentPista, markBookSeen, newBookPages, que
 import { dayIndexOf } from '../evening';
 import { notePaper, noteMarks } from '../notes';
 import { memoriaInPlay } from '../memoria';
-import { ADA_PENCIL_HAND, charChip, handOf, spriteCanvas } from '../ui';
+import { ADA_PENCIL_HAND, charChip, handOf, inkNamesOn, spriteCanvas } from '../ui';
 import type { CampaignStateX, DayResultX } from '../types';
 
 export type TabId = 'bigliettini' | 'persone' | 'libro' | 'domande' | 'lettere' | 'archivio';
@@ -393,7 +393,10 @@ function renderLettere(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
   const known = s.content.letters.filter((l) => k.letters.includes(l.id));
   for (const l of known) {
     const signer: CharacterId = l.signed === 'C.' ? 'clotilde' : 'livia';
-    list.appendChild(paperCard({ hand: handOf(s, signer), className: 'cp-lettera', test: `cp-lettera-${l.id}`, children: [textOf(l.textKey, undefined, 'p', { rich: true, className: 'cp-lettera-testo' })] }));
+    const hand = handOf(s, signer);
+    const sheet = paperCard({ hand, className: 'cp-lettera', test: `cp-lettera-${l.id}`, children: [textOf(l.textKey, undefined, 'p', { rich: true, className: 'cp-lettera-testo' })] });
+    inkNamesOn(sheet, hand?.paper);
+    list.appendChild(sheet);
   }
   if (known.length === 0) list.appendChild(textOf('campaign.taccuino.nessunaLettera', undefined, 'p', { className: 'cp-tenue' }));
   for (const eid of k.diary) {
@@ -451,6 +454,25 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
   const barBox = el('div', { class: 'cp-taccuino-schede' });
   root.append(title, body, barBox);
   container.appendChild(root);
+  // L'overlay appena aperto mette il fuoco sul primo pulsante; se il corpo della scheda
+  // non ne ha (Domande vuote, Libro senza voci, Lettere) sarebbe la prima scheda, e la
+  // riga delle schede seguirebbe il fuoco cambiando scheda. All'apertura il fuoco va
+  // invece sulla scheda scelta (`tab`, la pagina del Libro, la voce).
+  let opening = true;
+  setTimeout(() => {
+    opening = false;
+  }, 0);
+  root.addEventListener(
+    'focusin',
+    (e) => {
+      if (!opening || !bar) return;
+      const t = e.target as HTMLElement | null;
+      if (!t || !barBox.contains(t) || t.getAttribute('aria-selected') === 'true') return;
+      e.stopPropagation();
+      barBox.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus({ preventScroll: true });
+    },
+    true,
+  );
   let tabsKey = '';
 
   const render = (): void => {

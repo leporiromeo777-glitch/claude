@@ -1157,7 +1157,8 @@
 .cp-volto .core-pers,
 .cp-dettaglio .core-carta .core-pers {
   color: var(--inchiostro);
-  color: color-mix(in srgb, var(--pers-color) 40%, var(--inchiostro));
+  /* C17: l'inchiostro scurito fino a 4,5:1 (inkOnPaper); il miscuglio solo se manca. */
+  color: var(--pers-ink, color-mix(in srgb, var(--pers-color) 40%, var(--inchiostro)));
 }
 
 /* ───────── Revisione 1 ───────── */

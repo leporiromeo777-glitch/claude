@@ -20,7 +20,7 @@ import { controller } from './controller';
 import { arrivalOf, eveningItems, guessCandidates, isAnonymous, pinNote, pinsLeft, replyNote, leaveNote, unpinNote, type EveningItem } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf } from './flow';
-import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, charName, handOf, spriteCanvas } from './ui';
+import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, charName, handOf, inkNamesOn, spriteCanvas } from './ui';
 import type { CampaignStateX } from './types';
 import { emptyLog } from './story';
 
@@ -35,6 +35,8 @@ export function notePaper(s: Services, note: NoteDef, c: CampaignStateX | null, 
   const card = paperCard({ hand, children: [head, body], test: opts.test, className: ['cp-nota', anon ? 'cp-nota--anonima' : '', opts.full ? 'core-carta--scorre' : ''].join(' ').trim() });
   card.dataset.note = note.id;
   if (anon) card.dataset.anonimo = '1';
+  // I nomi sulla carta di questa calligrafia, a 4,5:1 (C17).
+  inkNamesOn(card, hand?.paper);
   return card;
 }
 
@@ -273,14 +275,15 @@ export function itemsSheet(s: Services, items: readonly EveningItem[]): HTMLElem
     if (it.image) box.appendChild(spriteCanvas(s, it.image, 112, { className: 'cp-oggetto-figura' }));
     if (it.kind === 'lettera' && it.letter) {
       const signer: CharacterId = it.letter.signed === 'C.' ? 'clotilde' : 'livia';
-      box.appendChild(
-        paperCard({
-          hand: handOf(s, signer),
-          className: 'cp-lettera core-carta--scorre',
-          test: `cp-lettera-${it.id}`,
-          children: [textOf(it.letter.textKey, undefined, 'p', { rich: true, className: 'cp-lettera-testo' })],
-        }),
-      );
+      const hand = handOf(s, signer);
+      const sheet = paperCard({
+        hand,
+        className: 'cp-lettera core-carta--scorre',
+        test: `cp-lettera-${it.id}`,
+        children: [textOf(it.letter.textKey, undefined, 'p', { rich: true, className: 'cp-lettera-testo' })],
+      });
+      inkNamesOn(sheet, hand?.paper);
+      box.appendChild(sheet);
     } else {
       box.appendChild(textOf(`comune.oggetti.${it.id}.nome`, undefined, 'h3', { className: 'cp-oggetto-nome' }));
       box.appendChild(textOf(`comune.oggetti.${it.id}.descrizione`, undefined, 'p', { rich: true, className: 'cp-oggetto-descrizione' }));
