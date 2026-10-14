@@ -192,6 +192,12 @@ async function layoutTour(browser: Browser, url: string, tag: string, opts: Brow
   await look('titolo-primo');
   await api(page, 'ui', 'unlock', 'all');
   await look('titolo-sbloccato');
+  // Con una storia: Continua, Nuova storia, le tre modalità (Telaio compreso) e il piede.
+  await api(page, 'campaign', 'newGame').catch(() => null);
+  await wait(300);
+  await api(page, 'ui', 'open', 'titolo');
+  await waitScene(page, 'titolo');
+  await look('titolo-storia');
   await api(page, 'ui', 'open', 'giornaliero');
   await waitScene(page, 'giornaliero');
   await wait(900);
@@ -553,6 +559,7 @@ async function main(): Promise<void> {
     await layoutTour(browser, url, 'desktop', { viewport: { width: 1280, height: 720 } }, 1, 'it');
     await layoutTour(browser, url, 'ipad', { viewport: { width: 1180, height: 820 }, deviceScaleFactor: 2, hasTouch: true }, 1, 'it');
     await layoutTour(browser, url, 'desktop-hd', { viewport: { width: 1920, height: 1080 } }, 1, 'en');
+    await layoutTour(browser, url, 'telefono-orizzontale', { viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true }, 1, 'it');
   } finally {
     await browser.close();
     stopServer(proc);

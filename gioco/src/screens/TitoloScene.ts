@@ -5,7 +5,10 @@
  * - Continua → `scenes.go('sera', { cmd: 'continua' })`; Nuova storia →
  *   `{ cmd: 'nuova', confirmed: true }` (la conferma, se c'è già una storia, la
  *   chiede il titolo); Telaio → `scenes.go('telaio')` se la scena esiste.
- * - Merletto del giorno e Merletto libero con i lucchetti di `save.unlocks`.
+ * - Merletto del giorno e Merletto libero con i lucchetti di `save.unlocks`;
+ *   Impostazioni e Crediti compatti in fondo (azioni rare).
+ * - Primissimo avvio (GDD 9): «una scritta sola», «Tocca per iniziare»; le
+ *   modalità ancora chiuse non si vedono, Impostazioni e Crediti sono due icone.
  * - Musica del titolo (campana intonata dopo il finale vero) e laguna.
  * - Telefono verticale: titolo, tombolo, menu in colonna. Schermi larghi
  *   (rapporto ≥ 1,25 e almeno 640 px): tombolo a sinistra, titolo e menu a destra.

@@ -109,7 +109,7 @@
   flex-wrap: wrap;
   gap: var(--spazio-2);
 }
-.sc-voce--piede {
+.sc-voce.sc-voce--piede {
   flex: 1 1 0;
   width: auto;
   min-width: min(9rem, 100%);
@@ -127,10 +127,12 @@
   border-color: var(--bordo-pannello);
 }
 /* Primo avvio: una scritta sola (GDD 9); Impostazioni e Crediti sono due icone tonde. */
-.sc-voce--icona {
+.sc-voce.sc-voce--icona {
   flex: none;
   min-width: var(--tocco);
   width: var(--tocco);
+  min-height: var(--tocco);
+  height: var(--tocco);
   padding: 0;
   border-radius: 50%;
 }
@@ -196,6 +198,28 @@
     zoom: 1.5;
   }
 }
+/* Telefono in orizzontale (sul web): testata compatta, così il menu ha più posto. */
+@media (max-height: 500px) {
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-testa {
+    margin-bottom: var(--spazio-1);
+  }
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-nome {
+    font-size: min(13cqi, 9vh + 0.4rem, 3.6rem);
+  }
+  .sc-titolo[data-forma='orizzontale'] .sc-smerlo--titolo {
+    margin: var(--spazio-1) 0 2px;
+    width: min(11rem, 40vw);
+  }
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-sotto {
+    font-size: 0.95rem;
+  }
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-lato {
+    gap: var(--spazio-2);
+  }
+  .sc-titolo[data-forma='orizzontale'] .sc-titolo-versione {
+    display: none;
+  }
+}
 /* Telefoni bassi: testata più compatta, così il tombolo resta visibile. */
 @media (max-height: 700px) {
   .sc-titolo[data-forma='verticale'] {
@@ -249,6 +273,17 @@
   }
   .sc-voce-testi {
     align-items: center;
+  }
+  /* Impostazioni e Crediti in fondo al titolo: restano su una riga finché ci stanno. */
+  .sc-voce--piede .sc-voce-dentro {
+    flex-direction: row;
+    gap: var(--spazio-2);
+  }
+}
+@container (max-width: 8.5rem) {
+  .sc-voce--piede .sc-voce-dentro {
+    flex-direction: column;
+    gap: 2px;
   }
 }
 .sc-voce.core-btn--secondario {

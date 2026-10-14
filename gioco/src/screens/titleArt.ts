@@ -93,7 +93,7 @@ export function titleGeometry(stage: Rect, viewW: number, viewH: number, landsca
     pivotY,
     thread,
     spindleH,
-    showSpindle: size >= 170,
+    showSpindle: size >= 150,
   };
 }
 
