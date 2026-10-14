@@ -3,7 +3,8 @@
  *
  * - Passo fisso di 1/60 s; il dt di un fotogramma è limitato a 250 ms (dopo una
  *   ripresa) e si eseguono al massimo 5 passi per fotogramma: oltre, si azzera
- *   l'accumulatore (niente spirale della morte).
+ *   l'accumulatore (niente spirale della morte). Con la velocità di debug x > 1
+ *   (setSpeed) il tetto diventa 5 × ⌈x⌉, altrimenti 8× varrebbe solo 5× a 60 Hz.
  * - Pausa automatica quando la pagina si nasconde (visibilitychange); alla ripresa
  *   l'orologio è riallineato, così il dt non salta.
  * - Debug: pause/resume/step(ms)/setSpeed(x). `step` esegue gli update a passi di
@@ -95,13 +96,16 @@ export function createLoop(
     if (isPaused()) return;
     const t0 = now();
     acc += dt * speed;
+    // Il tetto di passi cresce con la velocità di debug (setSpeed(8) vale davvero 8×);
+    // a velocità 1 resta MAX_STEPS.
+    const maxSteps = MAX_STEPS * Math.max(1, Math.ceil(speed));
     let steps = 0;
-    while (acc >= STEP && steps < MAX_STEPS) {
+    while (acc >= STEP && steps < maxSteps) {
       update(STEP);
       acc -= STEP;
       steps++;
     }
-    if (steps === MAX_STEPS) acc = 0; // niente spirale della morte
+    if (steps === maxSteps) acc = 0; // niente spirale della morte
     onRender(acc / STEP);
     const t1 = now();
     work[perfHead] = t1 - t0;

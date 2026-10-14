@@ -92,6 +92,10 @@ Il pacchetto audio chiama `registerAudio(engine)` per sostituire lo stub.
 La scena attiva riceve `update(dt)` a passo fisso (1/60 s), `render(alpha, host)` in px CSS,
 `resize(vp)`, `onAction`, `onGesture`, `onBack`. Le scene senza `render` lasciano il canvas di
 velluto. All'avvio si va a `titolo` se registrata, altrimenti alla scena diagnostica `boot`.
+I cambi di scena sono in fila: dentro `enter()` di una scena si può chiedere un'altra scena
+(`void scenes.go('tombolo', …)`), ma **non attenderla** con `await`, perché aspetterebbe la fine
+dello stesso cambio che la contiene. `__GAME__.core.time.setSpeed(x)` accelera davvero di x volte
+(il tetto di passi per fotogramma cresce con x).
 
 **Input.** Gesti (`tap`, `longpress`, `dragstart/drag/dragend/dragcancel`, `wheel`) in px CSS
 relativi al canvas; tastiera mappata in `ActionEvent` secondo GDD 11.3 (tabella in

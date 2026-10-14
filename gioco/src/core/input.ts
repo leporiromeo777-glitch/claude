@@ -99,7 +99,8 @@ export function createInput(deps: InputDeps = {}): CoreInput {
   } catch {
     /* matchMedia non disponibile */
   }
-  let unlockedNotified = false;
+  /** Motore audio per cui si è già notificato lo sblocco: lo stub e poi quello vero contano a parte. */
+  let unlockedFor: AudioEngine | null = null;
   const cleanups: (() => void)[] = [];
 
   const top = (): { id: number; name: string } => stack[stack.length - 1] ?? { id: 0, name: 'base' };
@@ -156,20 +157,24 @@ export function createInput(deps: InputDeps = {}): CoreInput {
     dispatchGesture(g);
   });
 
-  /** Sblocco audio sincrono dentro il gestore dell'evento utente. */
+  /**
+   * Sblocco audio sincrono dentro il gestore dell'evento utente. 'audio:unlocked' parte
+   * una volta per ogni motore: se il primo tocco arriva mentre c'è ancora lo stub e il
+   * motore vero si registra dopo, il motore vero ha comunque il suo sblocco e il suo evento.
+   */
   function tryUnlockAudio(): void {
     if (!deps.audio) return;
     let audio: AudioEngine;
     try {
       audio = deps.audio();
-      if (audio.state() === 'running') return;
-      audio.unlock();
+      // Finché non è 'running' (anche dopo una sospensione) si riprova a ogni gesto.
+      if (audio.state() !== 'running') audio.unlock();
     } catch (err) {
       console.error('[input] audio unlock failed', err);
       return;
     }
-    if (!unlockedNotified && audio.state() === 'running') {
-      unlockedNotified = true;
+    if (unlockedFor !== audio && audio.state() === 'running') {
+      unlockedFor = audio;
       deps.onAudioUnlocked?.();
     }
   }
@@ -230,15 +235,21 @@ export function createInput(deps: InputDeps = {}): CoreInput {
     const onContextMenu = (e: Event): void => {
       if (focusContextOf(e.target) !== 'text') e.preventDefault();
     };
+    // Safari su iOS ignora user-scalable=no: il pizzico si ferma sull'evento proprietario gesturestart.
+    const onGestureStart = (e: Event): void => {
+      e.preventDefault();
+    };
     win.addEventListener('keydown', onKeyDown);
     win.addEventListener('pointerdown', onPointerDownAny, { capture: true });
     win.addEventListener('pointerup', onPointerUpAny, { capture: true });
     win.addEventListener('contextmenu', onContextMenu);
+    win.addEventListener('gesturestart', onGestureStart, { passive: false });
     cleanups.push(() => {
       win.removeEventListener('keydown', onKeyDown);
       win.removeEventListener('pointerdown', onPointerDownAny, { capture: true });
       win.removeEventListener('pointerup', onPointerUpAny, { capture: true });
       win.removeEventListener('contextmenu', onContextMenu);
+      win.removeEventListener('gesturestart', onGestureStart);
     });
   }
 

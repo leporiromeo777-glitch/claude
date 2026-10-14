@@ -209,11 +209,17 @@ export function createSaveService(deps: SaveServiceDeps): CoreSaveService {
   const service: CoreSaveService = {
     async load() {
       await chain;
-      const [ra, rb, ru] = await Promise.all([
-        backend.get(SAVE_KEYS.a),
-        backend.get(SAVE_KEYS.b),
-        backend.get(SAVE_KEYS.ultimo),
-      ]);
+      // Un backend che lancia in lettura (plugin nativo assente o rotto) non deve
+      // impedire l'avvio: quella chiave vale come assente.
+      const read = async (key: string): Promise<string | null> => {
+        try {
+          return await backend.get(key);
+        } catch (err) {
+          console.warn('[save] read failed', key, err);
+          return null;
+        }
+      };
+      const [ra, rb, ru] = await Promise.all([read(SAVE_KEYS.a), read(SAVE_KEYS.b), read(SAVE_KEYS.ultimo)]);
       const ultimo: Slot | null = ru === 'a' || ru === 'b' ? ru : null;
       const found: { slot: Slot; data: SaveData }[] = [];
       let corrupted = 0;

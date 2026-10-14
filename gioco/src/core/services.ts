@@ -52,7 +52,7 @@ export function registerAudio(a: AudioEngine): void {
   for (const fn of audioListeners.slice()) fn(a);
 }
 
-/** Notifica quando l'audio viene sostituito (il core la usa per il debug). */
+/** Notifica quando l'audio viene sostituito (per chi tiene un riferimento al motore). */
 export function onAudioRegistered(fn: (a: AudioEngine) => void): () => void {
   audioListeners.push(fn);
   return () => {

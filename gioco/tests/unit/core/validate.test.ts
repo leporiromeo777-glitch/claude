@@ -132,6 +132,94 @@ describe('validateContent', () => {
     expect(errs.some((e) => e.includes('[effetto]'))).toBe(true);
   });
 
+  it('gli esempi normativi di ARCHITETTURA 14 sono validi (nessun falso positivo)', () => {
+    // 14.1: il prologo, alla lettera.
+    const g00 = {
+      id: 'g00', kind: 'storia', act: 0, titleKey: 'atto1.g00.titolo',
+      columns: ['forno', 'piazza', 'chiesa'], startHour: 5, endHour: 9,
+      threads: [
+        { id: 'teresa', kind: 'persona', character: 'teresa' },
+        { id: 'marta', kind: 'persona', character: 'marta' },
+        { id: 'piero', kind: 'persona', character: 'piero' },
+      ],
+      initial: ['teresa', 'marta', 'piero'],
+      beads: [{ id: 'L1', type: 'lettera', holder: 'teresa', to: 'piero', labelKey: 'atto1.g00.perline.L1' }],
+      rules: ['incrocio', 'spillo', 'lettera'],
+      quirks: ['martaNoSotto', 'teresaLegge', 'pieroPozzo'],
+      pins: [
+        { thread: 'marta', place: 'forno', hour: 6 },
+        { thread: 'teresa', place: 'forno', hour: 9 },
+        { thread: 'piero', place: 'chiesa', hour: 9 },
+      ],
+      goals: [{ t: 'consegnata', bead: 'L1', by: 9 }],
+      matassa: 6,
+      dawn: { candidates: [
+        { id: 'g00.alba.marta', priority: 100, background: 'dio/forno/alba',
+          figures: [{ character: 'marta', pose: 'porge', x: 0.5 }],
+          lines: [{ speaker: 'marta', textKey: 'atto1.g00.alba.marta' }] },
+      ] },
+      hintKeys: { spinta: 'atto1.g00.hint.spinta' },
+      tutorial: [
+        { k: 'mano', hour: 6, pair: 0, over: 'R' },
+        { k: 'pulsa', target: 'fissa', hour: 6 },
+        { k: 'margine', when: 'versoSbagliato', textKey: 'atto1.g00.margine.sopraDa', hour: 7 },
+      ],
+    };
+    // Un g03 minimo che ospita il bigliettino di 14.2.
+    const g03 = {
+      ...g00, id: 'g03', titleKey: 'atto1.g03.titolo', columns: ['molo', 'forno', 'piazza', 'chiesa'],
+      threads: [...g00.threads, { id: 'nina', kind: 'persona', character: 'nina' }],
+      initial: ['nina', 'teresa', 'marta', 'piero'], notes: ['g03.nina'], dawn: undefined, tutorial: undefined,
+    };
+    // 14.2
+    const nota = {
+      id: 'g03.nina', day: 'g03', author: 'nina', textKey: 'atto1.g03.nina.testo',
+      request: { t: 'parte', who: 'nina', hour: 9 },
+      replies: [
+        { id: 'R1', textKey: 'atto1.g03.nina.r1', effects: [{ setFlag: 'ninaDillo', value: true }] },
+        { id: 'R2', textKey: 'atto1.g03.nina.r2', effects: [{ setFlag: 'ninaVai', value: true }] },
+      ],
+      onOk: [{ setFlag: 'ninaEsame', value: true }, { desire: 'nina' }],
+      onFail: [{ diary: 'persone.nina.esamePerso' }],
+      onIgnore: [{ desire: 'nina' }],
+    };
+    // 14.3
+    const diario = [
+      { id: 'persone.marta.noSotto', section: 'persone', character: 'marta', textKey: 'atto1.diario.marta.noSotto', source: 'visto', unlock: { knows: 'quirk', id: 'martaNoSotto' } },
+      { id: 'persone.nina.esamePerso', section: 'persone', character: 'nina', textKey: 'atto1.diario.nina.esamePerso', unlock: { failed: 'g03.nina' } },
+    ];
+    const battute = [
+      { id: 'marta.nodo.teresa.1', character: 'marta', event: 'nodo', with: 'teresa', textKey: 'comune.battute.marta.nodo.1', forgetKey: 'comune.battute.marta.nodo.1d', priority: 10 },
+    ];
+    // 14.4 (stessi campi per i quattro personaggi usati)
+    const personaggi = ['teresa', 'marta', 'piero', 'nina'].map((id) => ({
+      id, nameKey: `comune.pers.${id}.nome`, roleKey: `comune.pers.${id}.ruolo`,
+      color: '#2F5DA8', pattern: 'righe', icon: 'busta', noteHz: 440.0,
+      voice: { pitch: 260, rate: 11, formantShift: 0, noise: 0 },
+      hand: { font: 'caveat', ink: '#24407A', paper: '#DCE6EE', slantDeg: -2, sizeScale: 1 },
+      quirks: [], desireKey: `comune.pers.${id}.desiderio`, likes: ['festa', 'messa'],
+    }));
+    // 14.5 (finali che puntano a livelli esistenti in questo mondo minimo)
+    const campagna = {
+      choiceDay: 'g03',
+      finals: { merlettaia: 'g00', seppia: 'g00', chiuso: 'g00', aperto: 'g00' },
+      days: [
+        { id: 'g00', act: 0, pins: 0, stonatura: 1, objectAfter: 'merletto_avorio' },
+        { id: 'g03', act: 1, pins: 2, stonatura: 1, objectAfter: 'lettera_L3' },
+      ],
+    };
+    const { db } = buildContentDB({
+      './levels/g00.json': g00,
+      './levels/g03.json': JSON.parse(JSON.stringify(g03)) as unknown,
+      './notes.atto1.json': [nota],
+      './diary.atto1.json': diario,
+      './lines.json': battute,
+      './characters.json': personaggi,
+      './campaign.json': campagna,
+    });
+    expect(validateContent(db)).toEqual([]);
+  });
+
   it('i contenuti reali presenti nel repository si caricano', () => {
     const db = loadContent();
     expect(db.balance.memoria.max).toBe(3);

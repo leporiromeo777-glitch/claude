@@ -105,13 +105,20 @@ export async function startCore(debug: CoreDebugRegistry): Promise<CoreRuntime> 
   // Salvataggio (con le impostazioni dentro).
   const backend = await createStorageBackend(platform.native, () => warn('core.save.memoria'));
   let settingsRef: CoreSettingsStore | null = null;
+  /** Tempo di gioco non ancora scritto in stats.playMs (si somma a ogni scrittura). */
+  let playMs = 0;
   const save = createSaveService({
     backend,
     bus,
     gameVersion: GAME_VERSION,
     defaults: () => defaultSaveData(GAME_VERSION, defaultSettings(detectLocale(), prefersReducedMotion())),
     onWarn: warn,
-    onReplaced: () => settingsRef?.reapply(),
+    onReplaced: () => {
+      // Dati sostituiti in blocco (caricamento, import, cancellazione): il tempo giocato
+      // prima non appartiene al nuovo salvataggio, così export → import resta identico.
+      playMs = 0;
+      settingsRef?.reapply();
+    },
   });
   await save.load();
   const settings = createSettingsStore({ save, bus, root: doc.documentElement });
@@ -207,7 +214,6 @@ export async function startCore(debug: CoreDebugRegistry): Promise<CoreRuntime> 
   scenesRef = scenes;
 
   // Ciclo a passo fisso, con il tempo di gioco per le statistiche.
-  let playMs = 0;
   const loop = createLoop(
     (dt) => {
       playMs += dt * 1000;
@@ -232,11 +238,17 @@ export async function startCore(debug: CoreDebugRegistry): Promise<CoreRuntime> 
     scenes.invalidate();
     viewport.refresh();
   });
+  // Pausa dell'app (pagina nascosta, pagehide, evento pause di Capacitor): il ciclo si
+  // ferma, chi ascolta 'app:pause' aggiorna i dati e poi si salva subito.
   platform.onPause(() => {
+    loop.setSystemPaused(true);
     bus.emit('app:pause', {});
     save.request(true);
   });
-  platform.onResume(() => bus.emit('app:resume', {}));
+  platform.onResume(() => {
+    if (doc.visibilityState !== 'hidden') loop.setSystemPaused(false);
+    bus.emit('app:resume', {});
+  });
   platform.onBack(() => {
     bus.emit('app:back', {});
     input.dispatchAction({ action: 'back', repeat: false, source: 'keyboard' });

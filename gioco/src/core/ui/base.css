@@ -20,6 +20,8 @@ html {
   text-size-adjust: 100%;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  /* Niente pizzico né doppio tocco per ingrandire (GDD 11.1): solo lo scorrimento. */
+  touch-action: pan-x pan-y;
 }
 
 body {
@@ -33,6 +35,7 @@ body {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-x pan-y;
 }
 
 input,

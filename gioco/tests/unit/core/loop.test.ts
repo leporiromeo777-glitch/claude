@@ -103,6 +103,20 @@ describe('ciclo a passo fisso', () => {
     expect(loop.speed()).toBe(1);
   });
 
+  it('setSpeed(8) a 60 Hz vale davvero 8 passi per fotogramma (i test accelerano le animazioni)', () => {
+    const { loop, updates } = setup();
+    loop.setSpeed(8);
+    loop.frame(0);
+    for (let i = 1; i <= 60; i++) loop.frame(i * (1000 / 60) + 0.001);
+    // 60 fotogrammi da 1/60 s a 8× = 480 passi (con tolleranza per l'arrotondamento)
+    expect(updates.length).toBeGreaterThanOrEqual(478);
+    expect(updates.length).toBeLessThanOrEqual(480);
+    // Dopo una lunga pausa del browser il tetto resta finito: 250 ms × 8 = 120 passi al massimo.
+    const before = updates.length;
+    loop.frame(60 * (1000 / 60) + 5000);
+    expect(updates.length - before).toBeLessThanOrEqual(MAX_STEPS * 8);
+  });
+
   it('pausa di sistema indipendente da quella di debug', () => {
     const { loop } = setup();
     loop.setSystemPaused(true);

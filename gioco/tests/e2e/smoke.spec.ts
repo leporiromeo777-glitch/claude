@@ -138,6 +138,31 @@ test('gesti e tasti arrivano alla scena boot', async ({ page, isMobile }) => {
   await expect(page.locator('[data-test="boot-log"] li').first()).toContainText(/Suggerimento|Hint/);
 });
 
+test('esporta e importa ripristinano un salvataggio identico (tranne writtenAt)', async ({ page }) => {
+  await boot(page);
+  const r = await page.evaluate(async () => {
+    const c = window.__GAME__!.core as {
+      save(): Record<string, unknown>;
+      exportSave(): string;
+      importSave(s: string): { ok: boolean };
+      flush(): Promise<void>;
+      setSettings(p: object): unknown;
+    };
+    c.setSettings({ textScale: 1.1 });
+    await c.flush();
+    // Un po' di tempo di gioco che non è ancora stato scritto.
+    await new Promise((res) => setTimeout(res, 400));
+    const before = c.save();
+    const s = c.exportSave();
+    const res = c.importSave(s);
+    await c.flush();
+    const after = c.save();
+    const strip = (d: Record<string, unknown>) => JSON.stringify({ ...d, writtenAt: '' });
+    return { ok: res.ok, same: strip(before) === strip(after) };
+  });
+  expect(r).toEqual({ ok: true, same: true });
+});
+
 test('le impostazioni salvate si riapplicano a <html> dopo una ricarica', async ({ page }) => {
   await boot(page);
   await page.evaluate(async () => {

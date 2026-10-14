@@ -122,6 +122,24 @@ describe('slot alternati', () => {
     expect(warn).toHaveBeenCalledWith('core.save.perso');
   });
 
+  it('un backend che lancia in lettura non blocca l’avvio: la chiave vale come assente', async () => {
+    const good = makeService();
+    await good.svc.load();
+    good.svc.update((d) => (d.stats.nights = 4), { immediate: true });
+    await good.svc.flush(); // slot a
+    const flaky = new MemoryBackend();
+    for (const [k, v] of good.backend.map) flaky.map.set(k, v);
+    const origGet = flaky.get.bind(flaky);
+    flaky.get = async (key: string) => {
+      if (key === SAVE_KEYS.b || key === SAVE_KEYS.ultimo) throw new Error('plugin non disponibile');
+      return origGet(key);
+    };
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { svc } = makeService(flaky);
+    expect((await svc.load()).stats.nights).toBe(4);
+    expect(svc.loadedFrom()).toBe('a');
+  });
+
   it('le scritture normali sono raggruppate: al massimo una ogni 2 s', async () => {
     const { svc, bus } = makeService(new MemoryBackend(), { now: () => Date.now() });
     let writes = 0;
