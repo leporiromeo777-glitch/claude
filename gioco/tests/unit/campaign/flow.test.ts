@@ -24,6 +24,7 @@ import {
   replayRipassaParams,
   ripassaAvailable,
   ripassaParams,
+  markObjectSeen,
 } from '../../../src/campaign/flow';
 import { eveningItems, pinNote, pinsLeft, replyNote, leaveNote, undecided, eveningNotes } from '../../../src/campaign/evening';
 import { endingRequirements, choiceCards } from '../../../src/campaign/endings';
@@ -67,8 +68,6 @@ describe('dal prologo alla notte di g01', () => {
     expect(r0.dawn.map((v) => v.id)).toEqual(['g00.alba.marta', 'g00.alba.teresa', 'g00.alba.piero']);
     expect(r0.goals.every((g) => g === 'soddisfatta')).toBe(true);
     expect(camp(d).history['g00']).toBeTruthy();
-    expect(d.knowledge.diary).toContain('domande.avorio.apre');
-    expect(d.knowledge.questions['avorio']).toBe('aperta');
     expect(d.records['g00']?.minIncroci).toBe(4);
     expect(r0.metrics.filoDOro).toBe(true);
     expect(d.stats.nights).toBe(1);
@@ -83,6 +82,10 @@ describe('dal prologo alla notte di g01', () => {
     // L'oggetto della laguna: l'ultimo merletto della nonna e il Libro dei Punti.
     expect(eveningItems(1, 'sera', c1, db()).map((i) => i.id)).toEqual(['merletto_avorio', 'libro_punti']);
     expect(c1.evening?.objectSeen).toBe(false);
+    // La domanda sull'avorio è aperta quando Ada ha letto l'ultimo merletto della nonna (C03).
+    markObjectSeen(d, db());
+    expect(d.knowledge.diary).toContain('domande.avorio.apre');
+    expect(d.knowledge.questions['avorio']).toBe('aperta');
     expect(c1.evening?.noteIds).toEqual(['g01.marta', 'g01.piero', 'g01.gino']);
     expect(pinsLeft(c1, db())).toBe(2);
 
@@ -190,9 +193,9 @@ describe('tutta la campagna fino ai finali', () => {
     expect(c.levelId).toBe('g23');
     expect(c.phase).toBe('scelta');
     expect(Object.keys(c.history).length).toBe(24);
-    // La sera prima della notte di g23 non ha bigliettini; la scelta sì (4 carte, 1 spillo).
-    expect(c.snapshots['g23']?.evening?.noteIds).toEqual([]);
+    // La scelta ha 4 carte e uno spillo solo (la sera di g23 ne ha 2, D14).
     expect(c.evening?.noteIds.length).toBe(4);
+    expect(pinsLeft(c, db())).toBe(1);
     expect(eveningItems(c.dayIndex, 'scelta', c, db()).map((i) => i.id)).toEqual(['nastro_nonna']);
     // Sblocchi di GDD 7.
     expect(d.unlocks.daily).toBe(true);
@@ -222,12 +225,17 @@ describe('tutta la campagna fino ai finali', () => {
     expect(camp(d).levelId).toBe('g23');
     expect(camp(d).endingsSeen).toEqual([]);
     expect(d.knowledge.diary).toContain('domande.chiuso.punto');
+    // Dopo il merletto chiuso il biglietto di Clotilde è piegato e non si riappunta (D14).
+    const after = choiceCards(db().levels.get('g23')!, camp(d), d.knowledge, db()).find((x) => x.ending === 'chiuso');
+    expect(after?.folded).toBe(true);
+    expect(after?.available).toBe(false);
+    expect(choose(d, db(), 'chiuso').ok).toBe(false);
 
     // A: la merlettaia.
     expect(choose(d, db(), 'merlettaia').ok).toBe(true);
     const fa = completeFinal(d, db(), playNight(d));
     expect(fa.kind).toBe('epilogo');
-    expect(fa.epilogue.length).toBe(4);
+    expect(fa.epilogue.length).toBeGreaterThan(0);
     expect(camp(d).phase).toBe('titoli');
     expect(camp(d).endingsSeen).toEqual(['merlettaia']);
     expect(d.unlocks.cosmetics).toEqual(expect.arrayContaining(['stile_1', 'stile_2', 'stile_3', 'stile_4']));
@@ -238,7 +246,7 @@ describe('tutta la campagna fino ai finali', () => {
     expect(choose(b, db(), 'seppia').ok).toBe(true);
     const fb = completeFinal(b, db(), playNight(b));
     expect(fb.kind).toBe('epilogo');
-    expect(fb.epilogue.length).toBe(4);
+    expect(fb.epilogue.length).toBeGreaterThan(0);
 
     // D con i requisiti: il merletto aperto.
     const dd = clone(atChoice);

@@ -11,7 +11,11 @@ import { addDiary, evalStory, emptyLog, type EffectLog } from './story';
 
 type Db = Pick<ContentDB, 'diary' | 'levels' | 'balance' | 'book'>;
 
-/** Sblocca tutte le voci la cui condizione è vera (fino a stabilità). Restituisce le nuove, in ordine. */
+/**
+ * Sblocca tutte le voci la cui condizione è vera (fino a stabilità). Restituisce le nuove,
+ * in ordine. Le piste arrivano prima delle risposte (D10): una pista di una domanda già
+ * risolta non si sblocca più.
+ */
 export function refreshDiary(s: CampaignState, k: Knowledge, db: Db, log: EffectLog = emptyLog()): DiaryEntryId[] {
   const added: DiaryEntryId[] = [];
   const o = { db };
@@ -19,6 +23,7 @@ export function refreshDiary(s: CampaignState, k: Knowledge, db: Db, log: Effect
     let changed = false;
     for (const def of db.diary.values()) {
       if (k.diary.includes(def.id)) continue;
+      if (def.pista && pistaClosed(def, k)) continue;
       let ok = false;
       try {
         ok = evalStory(def.unlock, s, k, o);
@@ -33,6 +38,12 @@ export function refreshDiary(s: CampaignState, k: Knowledge, db: Db, log: Effect
     if (!changed) break;
   }
   return added;
+}
+
+/** La pista è superata: la sua domanda è già risolta. */
+export function pistaClosed(def: DiaryEntryDef, k: Pick<Knowledge, 'questions'>): boolean {
+  const q = questionOf(def);
+  return !!q && k.questions[q] === 'risolta';
 }
 
 /** Domanda a cui si riferisce una voce: la prima che apre o chiude, oppure quella del suo id. */
@@ -85,6 +96,27 @@ export function bookPages(s: CampaignState, k: Knowledge, db: Db): BookPageDef[]
       return false;
     }
   });
+}
+
+/**
+ * Pagine del Libro sbloccate e non ancora viste (D03, `knowledge.bookSeen`): sono «Nuova»
+ * e la prima apertura del Taccuino nella notte va lì.
+ */
+export function newBookPages(s: CampaignState, k: Knowledge, db: Db): BookPageDef[] {
+  const seen = new Set(k.bookSeen ?? []);
+  return bookPages(s, k, db).filter((p) => !seen.has(p.id));
+}
+
+/** Segna viste le pagine del Libro (restituisce true se è cambiato qualcosa). */
+export function markBookSeen(k: Knowledge, ids: readonly string[]): boolean {
+  const list = (k.bookSeen ??= []);
+  let changed = false;
+  for (const id of ids) {
+    if (list.includes(id)) continue;
+    list.push(id);
+    changed = true;
+  }
+  return changed;
 }
 
 /** Le pagine scritte da Ada stessa, a matita (GDD 5.7): il nome e il filo nero. */

@@ -13,13 +13,20 @@
  *   "Ripassa" quando le richieste coincidono con una soluzione già trovata.
  * - Scelta (sera di g23): quattro biglietti e uno spillo; il punto aperto è strappato
  *   finché mancano i requisiti.
+ *
+ * Revisione 1: la porta dice da dove arriva l'oggetto (C04: laguna, mano, porta, casa;
+ * `cp-sera-arrivo`) o che stasera non arriva niente; alla prima sera di ogni atto un
+ * cartello con titolo e stagione (`cp-atto-cartello`); gli spilli si mostrano solo se ci
+ * sono bigliettini da appuntare; Esc e Indietro senza pannelli chiedono conferma prima
+ * di tornare al titolo (`cp-sera-esci-conferma`); il prologo è raccolto (niente Taccuino
+ * sul buio, titolo su una fascia scura, il biglietto appuntato sul tombolo).
  */
 import type { ActionEvent, Scene, Services, Viewport } from '../core/types';
 import { el, clear } from '../core/ui/dom';
 import { button, iconButton, paperCard, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
 import { controller, type SeraCommand } from './controller';
-import { eveningItems, pinsLeft, pinsOf, undecided } from './evening';
+import { arrivalOf, dayAt, emptyDoorKey, eveningItems, pinsLeft, pinsOf, undecided } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf, ripassaAvailable } from './flow';
 import { Backdrop, dayLabel, SideNotebook } from './frame';
@@ -35,6 +42,8 @@ export class SeraScene implements Scene {
   private backdrop: Backdrop | null = null;
   private off: (() => void) | null = null;
   private prologueStep: 'buio' | 'stanza' | null = null;
+  /** Cartello d'atto da mostrare prima della sera (CAM-10). */
+  private actCard = false;
   private soundsDone = new Set<string>();
   private renderQueued = false;
   private active = false;
@@ -82,6 +91,7 @@ export class SeraScene implements Scene {
     }
     const c = controller.state();
     if (c && c.dayIndex === 0 && c.phase === 'sera') this.prologueStep = c.prologueSeen ? 'stanza' : 'buio';
+    this.actCard = !!c && c.phase === 'sera' && this.firstOfAct(c) && c.actCardSeen !== c.dayIndex;
     controller.sound('sera');
     this.off = controller.onChange(() => this.queueRender());
     this.side.sync();
@@ -115,7 +125,10 @@ export class SeraScene implements Scene {
     // La fase è cambiata (si va al tombolo, alla scelta…): naviga chi l'ha cambiata.
     if (c.phase !== 'sera' && c.phase !== 'scelta') return;
     clear(main);
+    // Niente Taccuino sul buio del prologo né sul cartello d'atto (CAM-10).
+    if (this.side) this.side.column.classList.toggle('cp-lato--nascosto', this.prologueStep === 'buio' || this.actCard);
     if (this.prologueStep) this.renderPrologue(main, c);
+    else if (this.actCard) this.renderActCard(main, c);
     else if (c.phase === 'scelta') this.renderChoice(main, c);
     else this.renderEvening(main, c);
     this.side?.update();
@@ -146,14 +159,52 @@ export class SeraScene implements Scene {
       test: 'cp-prologo-biglietto',
       children: [textOf('campaign.prologo.biglietto', undefined, 'p', { rich: true })],
     });
+    // Il biglietto appuntato sul tombolo (CAM-10): il tombolo al centro, lo spillo sul foglio.
+    const pin = el('span', { class: 'cp-biglietto-spillo', attrs: { 'aria-hidden': 'true' } }, svgIcon('spillo', { size: 22 }));
+    const table = el('div', { class: 'cp-prologo-tombolo' }, spriteCanvas(this.s, 'obj/tombolo', 220, { className: 'cp-prologo-tombolo-figura' }), el('div', { class: 'cp-prologo-biglietto' }, pin, note));
     const go = button({ labelKey: 'campaign.prologo.tombolo', kind: 'primario', size: 'grande', onClick: () => this.goNight(), test: 'cp-prologo-tombolo' });
     go.prepend(spriteCanvas(this.s, 'obj/tombolo', 40));
     main.append(
-      el('header', { class: 'cp-sera-testa' }, textOf(lab.key, lab.params, 'p', { className: 'cp-sera-giornata' }), textOf('comune.atti.0.sottotitolo', undefined, 'h1', { className: 'cp-sera-titolo' })),
-      textOf('campaign.prologo.stanza', undefined, 'p', { className: 'cp-sera-intro' }),
-      note,
+      el('header', { class: 'cp-sera-testa cp-fascia', test: 'cp-prologo-titolo' }, el('div', { class: 'cp-sera-intestazione' }, textOf(lab.key, lab.params, 'p', { className: 'cp-sera-giornata' }), textOf('comune.atti.0.sottotitolo', undefined, 'h1', { className: 'cp-sera-titolo' }))),
+      el('p', { class: 'cp-sera-intro cp-fascia' }, textOf('campaign.prologo.stanza', undefined, 'span')),
+      table,
       el('div', { class: 'cp-sera-piede' }, go),
     );
+  }
+
+  // ───────── Cartello d'atto (CAM-10) ─────────
+
+  /** Prima sera di un atto (g01, g09, g17): l'atto della giornata è diverso da quello di prima. */
+  private firstOfAct(c: CampaignStateX): boolean {
+    if (c.dayIndex <= 0) return false;
+    const day = dayAt(this.s.content, c.dayIndex);
+    const prev = dayAt(this.s.content, c.dayIndex - 1);
+    return !!day && !!prev && day.act !== prev.act && day.act > 0;
+  }
+
+  private renderActCard(main: HTMLElement, c: CampaignStateX): void {
+    this.backdrop?.show('');
+    const act = dayAt(this.s.content, c.dayIndex)?.act ?? 1;
+    const card = el(
+      'button',
+      { type: 'button', class: 'cp-prologo-buio cp-atto-cartello', test: 'cp-atto-cartello', data: { atto: String(act) } },
+      textOf(`comune.atti.${act}.sottotitolo`, undefined, 'p', { className: 'cp-atto-stagione' }),
+      textOf(`comune.atti.${act}.titolo`, undefined, 'h1', { className: 'cp-prologo-riga cp-atto-titolo' }),
+      textOf('campaign.prologo.tocca', undefined, 'p', { className: 'cp-prologo-tocca' }),
+    );
+    card.addEventListener('click', () => this.closeActCard());
+    main.appendChild(card);
+    card.focus({ preventScroll: true });
+  }
+
+  private closeActCard(): void {
+    if (!this.actCard) return;
+    this.actCard = false;
+    controller.mutate((d) => {
+      const cc = d.campaign as CampaignStateX | null;
+      if (cc) cc.actCardSeen = cc.dayIndex;
+    }, 'atto', false);
+    this.refresh();
   }
 
   private advancePrologue(): void {
@@ -185,17 +236,24 @@ export class SeraScene implements Scene {
     if (!ev || ev.objectSeen) return null;
     const items = eveningItems(c.dayIndex, eveningMode(c), c, this.s.content);
     if (items.length === 0) return null;
-    this.once(`bottiglia:${c.levelId}:${c.phase}`, () => this.s.audio.sfx('bottiglia'));
+    const arrival = arrivalOf(this.s.content, items);
+    if (arrival.from === 'laguna') this.once(`bottiglia:${c.levelId}:${c.phase}`, () => this.s.audio.sfx('bottiglia'));
+    else this.once(`porta:${c.levelId}:${c.phase}`, () => this.s.audio.sfx('carta'));
     const first = items[0];
+    // La frase d'arrivo dice da dove viene l'oggetto (C04).
     const door = el(
       'button',
-      { type: 'button', class: 'cp-porta core-solid', test: 'cp-oggetto' },
+      { type: 'button', class: 'cp-porta core-solid', test: 'cp-oggetto', data: { da: arrival.from } },
       first?.image ? spriteCanvas(this.s, first.image, 72) : svgIcon('nota', { size: 40 }),
-      el('span', { class: 'cp-porta-testo' }, textOf('campaign.sera.oggettoArriva', undefined, 'span', { className: 'cp-porta-titolo' }), textOf('campaign.sera.oggettoTocca', undefined, 'span', { className: 'cp-tenue' })),
+      el('span', { class: 'cp-porta-testo' }, el('span', { class: 'cp-porta-titolo', test: 'cp-sera-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })), textOf('campaign.sera.oggettoTocca', undefined, 'span', { className: 'cp-tenue' })),
     );
     door.addEventListener('click', () => {
       void this.s.ui.openOverlay('cp-oggetto', { from: 'sera' }).then(() => {
-        if (this.active) controller.objectSeen();
+        // Chiuso senza «Continua» (Indietro): l'oggetto è letto lo stesso (C03).
+        if (!this.active || controller.state()?.evening?.objectSeen) return;
+        const fresh = controller.objectSeen();
+        const first = fresh.map((id) => this.s.content.diary.get(id)).find((x) => !!x);
+        if (first) this.s.ui.toast(first.textKey, undefined, 'info');
       });
     });
     return door;
@@ -221,6 +279,10 @@ export class SeraScene implements Scene {
     const door = this.objectDoor(c);
     if (door) {
       main.appendChild(door);
+    } else {
+      // Stasera alla porta non arriva niente (C04): la frase della giornata.
+      const empty = ev?.objectSeen && !this.itemsArrived(c) ? emptyDoorKey(c.dayIndex, eveningMode(c), c, this.s.content) : null;
+      if (empty) main.appendChild(el('p', { class: 'cp-sera-intro cp-porta-vuota', test: 'cp-sera-arrivo', data: { da: 'niente' } }, textOf(empty, undefined, 'span', { rich: true })));
     }
     const ids = ev?.noteIds ?? [];
     if (!door && ids.length > 0) {
@@ -236,6 +298,11 @@ export class SeraScene implements Scene {
       main.appendChild(textOf('campaign.sera.nessunBigliettino', undefined, 'p', { className: 'cp-sera-intro' }));
     }
     main.appendChild(this.footer(c));
+  }
+
+  /** Stasera alla porta è arrivato un oggetto (già letto o no). */
+  private itemsArrived(c: CampaignStateX): boolean {
+    return eveningItems(c.dayIndex, eveningMode(c), c, this.s.content).length > 0;
   }
 
   private footer(c: CampaignStateX): HTMLElement {
@@ -256,7 +323,9 @@ export class SeraScene implements Scene {
     if (ripassaAvailable(controller.data())) {
       go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: () => this.goNight(true), test: 'cp-ripassa' }));
     }
-    const label = total > 0 ? 'campaign.sera.alTomboloSpilli' : 'campaign.sera.alTombolo';
+    // Gli spilli si contano solo se stasera c'è un bigliettino da appuntare (CAM-09).
+    const pinnable = (c.evening?.noteIds ?? []).some((id) => !!s.content.notes.get(id)?.request);
+    const label = total > 0 && pinnable ? 'campaign.sera.alTomboloSpilli' : 'campaign.sera.alTombolo';
     // "Al tombolo" è attivo sempre (GDD 10.3): l'oggetto non letto finisce comunque nel
     // Taccuino, i bigliettini non decisi contano come lasciati (con una conferma).
     go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
@@ -301,8 +370,10 @@ export class SeraScene implements Scene {
       const grid = el('div', { class: 'cp-bigliettini cp-scelta', role: 'list', test: 'cp-scelta' });
       for (const card of choiceCards(levelOf(this.s.content, c.levelId), c, controller.knowledge(), this.s.content)) {
         const paper = notePaper(this.s, card.note, c);
-        if (!card.available) paper.classList.add('cp-nota--strappata');
-        const b = el('button', { type: 'button', class: ['cp-bigliettino', card.available ? null : 'cp-strappato'], test: `cp-carta-${card.ending}`, data: { ending: card.ending, disponibile: card.available ? '1' : '0' } }, paper, card.available ? null : textOf('campaign.scelta.mancaQualcosa', undefined, 'span', { className: 'cp-segno' }));
+        if (card.folded) paper.classList.add('cp-nota--piegata');
+        else if (!card.available) paper.classList.add('cp-nota--strappata');
+        const sign = card.folded ? 'campaign.scelta.segnoPiegato' : card.available ? null : 'campaign.scelta.mancaQualcosa';
+        const b = el('button', { type: 'button', class: ['cp-bigliettino', card.folded ? 'cp-piegato' : card.available ? null : 'cp-strappato'], test: `cp-carta-${card.ending}`, data: { ending: card.ending, disponibile: card.available ? '1' : '0', stato: card.folded ? 'piegato' : card.available ? 'libero' : 'strappato' } }, paper, sign ? textOf(sign, undefined, 'span', { className: 'cp-segno' }) : null);
         b.addEventListener('click', () => void this.s.ui.openOverlay('cp-nota', { noteId: card.note.id, from: 'scelta' }));
         grid.appendChild(el('div', { role: 'listitem' }, b));
       }
@@ -345,11 +416,26 @@ export class SeraScene implements Scene {
       this.advancePrologue();
       return true;
     }
+    if (this.actCard && (a.action === 'confirm' || a.action === 'crossL' || a.action === 'select' || a.action === 'skip')) {
+      this.closeActCard();
+      return true;
+    }
     return false;
   }
 
+  /** Esc o Indietro senza pannelli aperti: si chiede prima di uscire (CAM-09, P116). */
   onBack(): boolean {
-    this.toTitle();
+    if (this.exitAsked) return true;
+    this.exitAsked = true;
+    const ask = this.s.ui.confirm({ titleKey: 'campaign.sera.esciTitolo', bodyKey: 'campaign.sera.esciCorpo', okKey: 'campaign.sera.esciOk', cancelKey: 'campaign.sera.esciNo' });
+    const host = [...this.s.ui.root.querySelectorAll<HTMLElement>('[data-test="confirm"]')].pop()?.parentElement;
+    if (host) host.dataset.test = 'cp-sera-esci-conferma';
+    void ask.then((ok) => {
+      this.exitAsked = false;
+      if (ok && this.active) this.toTitle();
+    });
     return true;
   }
+
+  private exitAsked = false;
 }

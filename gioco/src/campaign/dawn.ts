@@ -8,11 +8,17 @@
  *   quelle "di riserva" dei personaggi presenti;
  * - il quadro del fallimento per un bigliettino anonimo attribuito alla persona sbagliata.
  *
- * Selezione (normativa): candidate valide ordinate per priorità (storia 100, richiesta
- * fallita 80, soddisfatta 60, stranezza 50, generica 10; a parità prima le scritte, poi
- * le battute sugli eventi, poi quelle di riserva, poi l'ordine dei dati); si scarta una
- * vignetta dello stesso personaggio della precedente e una già mostrata negli ultimi
- * 3 giorni (salvo priorità ≥ 80). Se ne mostrano al massimo 3.
+ * Selezione (normativa, GDD 5.9 rivisto con D11 e C06):
+ * 1. le vignette scritte di priorità ≥ 100 (culmini) escono tutte, nell'ordine dei dati,
+ *    anche se parla lo stesso personaggio di seguito; il massimo sale a 4 solo per loro;
+ * 2. una vignetta con `dopo: <id>` esce subito dopo quella (se anche la sua `when` è vera);
+ *    se quella non è fra le candidate, esce come le altre;
+ * 3. poi le altre vignette scritte (80, 60, 50…) per priorità, con le regole di sempre:
+ *    niente stesso personaggio di seguito, niente vignette mostrate negli ultimi 3 giorni
+ *    (salvo priorità ≥ 80);
+ * 4. le battute generiche (eventi e riserva) solo se le scritte sono meno di 2, e mai in
+ *    una giornata con un culmine; quelle di riserva solo se non c'è nessuna scritta.
+ * Se ne mostrano al massimo 3 (4 con i culmini).
  */
 import type {
   CampaignState,
@@ -33,6 +39,10 @@ import { hasForgotten } from './memoria';
 import type { VignetteView } from './types';
 
 export const DAWN_MAX = 3;
+/** Con i culmini l'alba può arrivare a 4 vignette (D11). */
+export const DAWN_MAX_CULMINI = 4;
+/** Priorità da cui una vignetta scritta è un culmine (C06). */
+export const PRIORITY_CULMINE = 100;
 export const DAWN_RECENT_DAYS = 3;
 export const DAWN_KEEP_PRIORITY = 80;
 /** Priorità del quadro del fallimento costruito dalla campagna (autore sbagliato). */
@@ -62,25 +72,84 @@ export function toView(v: VignetteDef): VignetteView {
 }
 
 /**
- * Selezione dell'alba (funzione pura). `shown` sono le vignette già mostrate con il
+ * Selezione dell'alba (funzione pura, D11). `shown` sono le vignette già mostrate con il
  * giorno (indice della giornata) in cui sono comparse; `day` è la giornata di oggi.
+ * Le candidate con `rank` 0 sono le vignette scritte (e il quadro della delusione),
+ * 1 le battute sugli eventi, 2 quelle di riserva.
  */
 export function selectDawn(cands: readonly DawnCandidate[], shown: readonly { id: string; day: number }[], day: number, max = DAWN_MAX): VignetteView[] {
-  const sorted = [...cands].sort((a, b) => b.priority - a.priority || a.rank - b.rank || a.order - b.order);
+  const written = cands.filter((c) => c.rank === 0);
+  const followers = new Map<string, DawnCandidate[]>();
+  for (const c of [...written].sort((a, b) => a.order - b.order)) {
+    const anchor = c.view.dopo;
+    if (!anchor || anchor === c.view.id) continue;
+    const list = followers.get(anchor) ?? [];
+    list.push(c);
+    followers.set(anchor, list);
+  }
+  const free = (c: DawnCandidate): boolean => !c.view.dopo || !written.some((w) => w.view.id === c.view.dopo);
+  const culmini = written.filter((c) => c.priority >= PRIORITY_CULMINE && free(c)).sort((a, b) => a.order - b.order);
+  const chain = (c: DawnCandidate, seen: Set<string>): number => {
+    if (seen.has(c.view.id)) return 0;
+    seen.add(c.view.id);
+    let n = 1;
+    for (const f of followers.get(c.view.id) ?? []) n += chain(f, seen);
+    return n;
+  };
+  const counted = new Set<string>();
+  const needed = culmini.reduce((n, c) => n + chain(c, counted), 0);
+  const cap = Math.max(max, Math.min(DAWN_MAX_CULMINI, needed));
   const out: VignetteView[] = [];
   const ids = new Set<string>();
   let lastWho: CharacterId | null = null;
-  for (const c of sorted) {
-    if (out.length >= max) break;
-    const v = c.view;
-    if (ids.has(v.id)) continue;
-    if (c.priority < DAWN_KEEP_PRIORITY && shown.some((x) => x.id === v.id && day - x.day <= DAWN_RECENT_DAYS)) continue;
-    const who = v.who === undefined ? vignetteWho(v) : v.who;
+  const whoOf = (v: VignetteView): CharacterId | null => (v.who === undefined ? vignetteWho(v) : v.who);
+  const place = (c: DawnCandidate, limit: number): void => {
+    if (out.length >= limit || ids.has(c.view.id)) return;
+    out.push(c.view);
+    ids.add(c.view.id);
+    lastWho = whoOf(c.view);
+    for (const f of followers.get(c.view.id) ?? []) place(f, limit);
+  };
+  const recent = (c: DawnCandidate): boolean => c.priority < DAWN_KEEP_PRIORITY && shown.some((x) => x.id === c.view.id && day - x.day <= DAWN_RECENT_DAYS);
+  const byPriority = (a: DawnCandidate, b: DawnCandidate): number => b.priority - a.priority || a.rank - b.rank || a.order - b.order;
+  // 1-2. I culmini, tutti, nell'ordine dei dati (con le vignette legate da `dopo`).
+  for (const c of culmini) place(c, cap);
+  // 3. Le altre vignette scritte, con le regole di sempre.
+  for (const c of written.filter((x) => x.priority < PRIORITY_CULMINE && free(x)).sort(byPriority)) {
+    if (out.length >= cap) break;
+    if (ids.has(c.view.id) || recent(c)) continue;
+    const who = whoOf(c.view);
     if (who !== null && who === lastWho) continue;
-    out.push(v);
-    ids.add(v.id);
-    lastWho = who;
+    place(c, cap);
   }
+  // 4. Le battute generiche: solo con meno di 2 scritte e mai con un culmine.
+  const writtenShown = out.length;
+  if (culmini.length > 0 || writtenShown >= 2) return out;
+  const pool = cands.filter((c) => c.rank === 1 || (c.rank >= 2 && writtenShown === 0)).sort(byPriority);
+  for (const c of pool) {
+    if (out.length >= max) break;
+    if (ids.has(c.view.id) || recent(c)) continue;
+    const who = whoOf(c.view);
+    if (who !== null && who === lastWho) continue;
+    place(c, max);
+  }
+  return out;
+}
+
+/**
+ * Con un oggetto da consegnare all'alba (C04) la vignetta della consegna, cioè l'ultimo
+ * culmine in cui compare chi consegna, chiude l'alba: subito dopo si legge l'oggetto.
+ */
+export function deliveryLast(views: readonly VignetteView[], by: CharacterId | null | undefined): VignetteView[] {
+  if (!by) return [...views];
+  let idx = -1;
+  views.forEach((v, i) => {
+    if (v.priority >= PRIORITY_CULMINE && features(v, by)) idx = i;
+  });
+  if (idx < 0 || idx === views.length - 1) return [...views];
+  const out = views.filter((_, i) => i !== idx);
+  const v = views[idx];
+  if (v) out.push(v);
   return out;
 }
 
@@ -207,6 +276,8 @@ export interface DawnInput {
   db: Db;
   /** Bigliettini anonimi attribuiti alla persona sbagliata: il vero autore resta deluso. */
   wrongGuesses?: { noteId: string; author: CharacterId; guess: CharacterId }[];
+  /** Chi consegna l'oggetto dell'alba (C04): la sua vignetta chiude l'alba. */
+  deliveredBy?: CharacterId | null;
 }
 
 /** Tutte le candidate valide della giornata. */
@@ -282,8 +353,33 @@ export function resolveForgotten(v: VignetteView, state: Pick<CampaignState, 'me
   return { ...v, lines, grezza };
 }
 
-/** Le vignette dell'alba di oggi (al massimo 3), già con le varianti di chi ha dimenticato. */
+/**
+ * Le vignette dell'alba di oggi (al massimo 3, 4 con i culmini), già con le varianti di
+ * chi ha dimenticato. Con `deliveredBy` la vignetta della consegna va in fondo (C04).
+ */
 export function buildDawn(input: DawnInput, day: number): VignetteView[] {
-  const picked = selectDawn(dawnCandidates(input), input.state.shownLines ?? [], day);
+  const cands = dawnCandidates(input);
+  const picked = deliveryLast(ensureDelivery(selectDawn(cands, input.state.shownLines ?? [], day), cands, input.deliveredBy), input.deliveredBy);
   return picked.map((v) => resolveForgotten(v, input.state, input.db));
+}
+
+/** Chi consegna l'oggetto compare nella vignetta (parla o è una figura). */
+function features(v: Pick<VignetteView, 'lines' | 'figures'>, by: CharacterId): boolean {
+  return v.lines.some((l) => l.speaker === by) || v.figures.some((f) => f.character === by);
+}
+
+/**
+ * La vignetta della consegna è obbligatoria (C06): se la selezione l'ha lasciata fuori
+ * (troppi culmini), prende il posto dell'ultima scelta.
+ */
+export function ensureDelivery(picked: readonly VignetteView[], cands: readonly DawnCandidate[], by: CharacterId | null | undefined): VignetteView[] {
+  if (!by) return [...picked];
+  if (picked.some((v) => v.priority >= PRIORITY_CULMINE && features(v, by))) return [...picked];
+  const all = cands.filter((c) => c.rank === 0 && c.priority >= PRIORITY_CULMINE && features(c.view, by)).sort((a, b) => a.order - b.order);
+  const last = all[all.length - 1];
+  if (!last) return [...picked];
+  const out = [...picked];
+  if (out.length >= DAWN_MAX_CULMINI) out.pop();
+  out.push(last.view);
+  return out;
 }

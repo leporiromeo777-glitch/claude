@@ -7,6 +7,7 @@ import type { AssetStore, CharacterId, Handwriting, Services, UiLayer } from '..
 import { el } from '../core/ui/dom';
 import { svgIcon } from '../core/ui/glyphs';
 import { CHARACTER_COLORS } from '../core/placeholders';
+import { inkOnPaper } from '../core/ui/richtext';
 
 /** Contenitore del DOM delle scene (CoreUiLayer.sceneRoot), o la radice dell'interfaccia. */
 export function sceneHost(s: Services): HTMLElement {
@@ -48,11 +49,16 @@ export function charIcon(s: Services, id: CharacterId | string): string {
   return s.content.characters.get(id as CharacterId)?.icon ?? 'fuso';
 }
 
-/** Etichetta di un personaggio: icona, colore e nome (mai solo colore). */
+/**
+ * Etichetta di un personaggio: icona, colore e nome (mai solo colore). Sulla carta il
+ * nome è in un inchiostro scurito fino a 4,5:1 (C17, `inkOnPaper`); il colore pieno resta
+ * nella sottolineatura e nell'icona.
+ */
 export function charChip(s: Services, id: CharacterId | string, opts: { test?: string } = {}): HTMLElement {
+  const color = charColor(s, id);
   return el(
     'span',
-    { class: 'core-pers cp-pers', style: { '--pers-color': charColor(s, id) }, data: { character: id }, test: opts.test },
+    { class: 'core-pers cp-pers', style: { '--pers-color': color, '--pers-ink': inkOnPaper(color) }, data: { character: id }, test: opts.test },
     svgIcon(charIcon(s, id), { size: 16, className: 'core-pers-icon' }),
     charName(s, id),
   );

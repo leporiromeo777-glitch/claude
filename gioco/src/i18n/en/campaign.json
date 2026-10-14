@@ -28,7 +28,7 @@
     "sottoLaPorta": "{n, plural, one {A note has slipped under the door.} other {# notes have slipped under the door.}}",
     "nessunBigliettino": "Tonight there is nothing under the door.",
     "allaMerlettaia": "To the lacemaker",
-    "appunta": "Pin it ({n, plural, =0 {no pins} one {# pin} other {# pins}})",
+    "appunta": "Pin it · {n, plural, =0 {no pins left} one {# pin left} other {# pins left}}",
     "togliSpillo": "Remove the pin",
     "rispondi": "Reply",
     "lascia": "Leave it",
@@ -58,7 +58,20 @@
       "senzaRichiesta": "This note asks for nothing to weave.",
       "giaRisposto": "You have already replied.",
       "senzaRisposte": "This note cannot be answered."
-    }
+    },
+    "arrivo": {
+      "laguna": "Someone knocks. The lagoon has left something at the door.",
+      "mano": "{nome} knocks at the door. There is something for you.",
+      "porta": "Under the door, a note.",
+      "casa": "On the pillow, something of grandmother's is still waiting for you.",
+      "niente": "Tonight nobody knocks at the door."
+    },
+    "spilliFiniti": "Tonight's pins are used up. To pin this note, take the pin off another one:",
+    "vaiAlBigliettino": "{nome}'s note",
+    "esciTitolo": "Back to the title?",
+    "esciCorpo": "Everything is saved.",
+    "esciOk": "Back to the title",
+    "esciNo": "Stay"
   },
   "scelta": {
     "giornata": "The eve",
@@ -76,11 +89,15 @@
       "aperto": "The open stitch: nobody commands anybody any more."
     },
     "confermaOk": "Pin it",
-    "confermaNo": "Let me think"
+    "confermaNo": "Let me think",
+    "piegato": "The note stays folded: you have already repeated that stitch once, and whoever repeats it repeats it forever.",
+    "puntoClotilde": "Clotilde's stitch",
+    "segnoPiegato": "Folded"
   },
   "alba": {
     "titolo": "The day happens",
-    "delusione": "{autore} was waiting for an answer. You thought the note came from {indovinato}."
+    "delusione": "{autore} was waiting for an answer. You thought the note came from {indovinato}.",
+    "consegna": "Before leaving…"
   },
   "vignetta": {
     "tocca": "Tap to continue",
@@ -90,7 +107,7 @@
   },
   "bilancio": {
     "titolo": "Reckoning",
-    "obiettivi": "The day's lace",
+    "obiettivi": "How it was meant to go",
     "obiettiviOk": "The day happened as it should.",
     "obiettiviKo": "The day did not go as it should.",
     "richieste": "Requests",
@@ -123,7 +140,7 @@
     "quiete": "{n, plural, =0 {No quiet hours} one {# quiet hour} other {# quiet hours}}",
     "simmetriaSi": "Symmetry ✦",
     "simmetriaNo": "No symmetry",
-    "record": "Record: {incroci} crossings, {quiete} quiet hours",
+    "record": "Record: {incroci, plural, one {# crossing} other {# crossings}}, {quiete, plural, =0 {no quiet hours} one {# quiet hour} other {# quiet hours}}",
     "nuovoRecord": {
       "incroci": "New record: fewer crossings",
       "quiete": "New record: more quiet hours",
@@ -189,7 +206,8 @@
       "rammendato": "Lace mended: the memory is whole again.",
       "nominato": "The threads have names, but the tear remains.",
       "nuovo": "The lace stays faded."
-    }
+    },
+    "rifai": "Weave it again"
   },
   "telaio": {
     "titolo": "The Loom",
@@ -214,7 +232,7 @@
     "nonTieneTesto": "The day does not happen like this. Weave the night again: the Notebook remembers everything.",
     "riprova": "Weave the night again",
     "fineTitolo": "The end",
-    "fineTesto": "This winter's story is over. From the Loom you can resume it from any evening.",
+    "fineTesto": "That year's story is over. From the Loom you can resume it from any evening.",
     "spartiti": "Copy the scores of the whole game",
     "spartitiCopiati": "Scores of the whole game copied.",
     "telaio": "The Loom",
@@ -222,7 +240,9 @@
     "merlettaia": "The lacemaker",
     "seppia": "The sepia thread",
     "chiuso": "The closed lace",
-    "aperto": "The open lace"
+    "aperto": "The open lace",
+    "continua": "Continue",
+    "fineVero": "The bell rings in tune. You found the open stitch."
   },
   "titoli": {
     "gioco": "TRAMA. The Lace of Days",
@@ -265,12 +285,16 @@
       "in_corso": "In progress",
       "a_rischio": "At risk",
       "fallita": "Failed",
-      "lasciata": "Dropped"
+      "lasciata": "Dropped",
+      "inArrivo": "Comes true if you set the hour"
     },
     "lasciaCadere": "Drop it",
     "lasciaCadereTitolo": "Drop the pin?",
     "lasciaCadereCorpo": "The request becomes failed, with its consequences.",
-    "annulla": "Cancel"
+    "annulla": "Cancel",
+    "pistaFinita": "There is nothing left to look for. The answers are all in the lace.",
+    "paginaNuova": "New page in the Book: {titolo}",
+    "obiettiviTitolo": "Goals"
   },
   "motivi": {
     "righe": "Diagonal-striped thread",
@@ -291,9 +315,34 @@
     "teresaLegge": "Reads the letters she carries.",
     "pieroPozzo": "A well: receives everything, gives nothing.",
     "pieroTrabocca": "With three secrets the well overflows.",
-    "ginoCorre": "Never stays still: crosses every hour.",
+    "ginoCorre": "Never stays still two hours in a row. With a fever he stays in bed.",
     "ninaCuriosa": "When she is on top, she takes the secrets too.",
     "zenoFaro": "Never strays more than two places from the Lighthouse.",
     "lunardiCura": "Never falls ill; when he is on top, he heals."
+  },
+  "occasione": {
+    "pane": "the bread {presso} {ora}",
+    "festa": "the party {presso} {ora}",
+    "messa": "the mass {ora}",
+    "lanterna": "the lantern {ora}",
+    "vaporetto": "the {delle} ferry",
+    "ora": {
+      "h": "{h12} {ampm}",
+      "mezzogiorno": "noon",
+      "alle": "at {h}",
+      "aMezzogiorno": "at noon",
+      "delle": "{h}",
+      "diMezzogiorno": "noon"
+    },
+    "virgola": ", ",
+    "e": " and "
+  },
+  "presso": {
+    "molo": "at the Pier",
+    "forno": "at the Bakery",
+    "piazza": "in the Square",
+    "chiesa": "in Church",
+    "farmacia": "at the Pharmacy",
+    "faro": "at the Lighthouse"
   }
 }

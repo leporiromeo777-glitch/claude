@@ -16,7 +16,7 @@ import { SideNotebook } from '../../../src/campaign/frame';
 import { bigliettiniPanel, taccuinoPanel, visibleTabs } from '../../../src/campaign/taccuino/panel';
 import { VignettePlayer, figureFrame, needsTint } from '../../../src/campaign/vignette';
 import { notePaper } from '../../../src/campaign/notes';
-import { newCampaign, startNight, completeDay, finishDawn, finishBilancio } from '../../../src/campaign/flow';
+import { newCampaign, startNight, completeDay, finishDawn, finishBilancio, markObjectSeen } from '../../../src/campaign/flow';
 import { pinNote } from '../../../src/campaign/evening';
 import { refreshDiary } from '../../../src/campaign/diary';
 import type { CampaignStateX, VignetteView } from '../../../src/campaign/types';
@@ -123,8 +123,11 @@ describe('Taccuino', () => {
     finishBilancio(d, db());
     const c1 = d.campaign as CampaignStateX;
     expect(visibleTabs(s, c1, d.knowledge, {})).toEqual(['bigliettini', 'persone', 'libro', 'domande']);
+    // L'ultimo merletto della nonna letto: la domanda sull'avorio e la sua pista (C03).
+    markObjectSeen(d, db());
     d.knowledge.archive.arc1 = 'nuovo';
-    for (const l of ['lettera_L1', 'lettera_L2', 'lettera_L3', 'lettera_L4', 'lettera_L5']) d.knowledge.letters.push(l);
+    // La scheda Lettere c'è dalla prima lettera ricevuta (D10).
+    d.knowledge.letters.push('lettera_L1');
     expect(visibleTabs(s, c1, d.knowledge, {})).toEqual(['bigliettini', 'persone', 'libro', 'domande', 'lettere', 'archivio']);
     const box = document.createElement('div');
     const h = taccuinoPanel(s, box, { tab: 'domande' });

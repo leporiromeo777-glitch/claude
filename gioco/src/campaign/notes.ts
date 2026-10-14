@@ -5,13 +5,19 @@
  * le carte della scelta (con il biglietto D strappato e le mancanze), l'oggetto della
  * laguna. Il dettaglio e l'oggetto sono pannelli aperti come overlay ('cp-nota',
  * 'cp-oggetto'): si chiudono con Indietro.
+ *
+ * Revisione 1 (C17): nessun pulsante dentro `.core-carta`; i pulsanti stanno in un
+ * contenitore fratello, dopo il foglio, in un livello sopra. I fogli lunghi (bigliettini
+ * per intero, lettere) scorrono dentro sé stessi (`core-carta--scorre`). L'oggetto alla
+ * porta e quello consegnato all'alba usano lo stesso foglio (`itemsSheet`); alla lettura
+ * le voci nuove del Taccuino si annunciano lì (C03).
  */
-import type { CharacterId, NoteDef, PanelHandle, Services } from '../core/types';
+import type { CharacterId, DiaryEntryId, NoteDef, PanelHandle, Services } from '../core/types';
 import { el, clear } from '../core/ui/dom';
 import { button, paperCard, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
 import { controller } from './controller';
-import { eveningItems, guessCandidates, isAnonymous, pinNote, pinsLeft, replyNote, leaveNote, unpinNote } from './evening';
+import { arrivalOf, eveningItems, guessCandidates, isAnonymous, pinNote, pinsLeft, replyNote, leaveNote, unpinNote, type EveningItem } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf } from './flow';
 import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, handOf, spriteCanvas } from './ui';
@@ -26,7 +32,7 @@ export function notePaper(s: Services, note: NoteDef, c: CampaignStateX | null, 
     ? textOf('campaign.sera.allaMerlettaia', undefined, 'p', { className: 'cp-nota-a' })
     : el('p', { class: 'cp-nota-a' }, charChip(s, note.author));
   const body = textOf(note.textKey, undefined, 'p', { rich: true, className: ['cp-nota-testo', opts.full ? '' : 'cp-nota-testo--breve'].join(' ').trim() });
-  const card = paperCard({ hand, children: [head, body], test: opts.test, className: ['cp-nota', anon ? 'cp-nota--anonima' : ''].join(' ').trim() });
+  const card = paperCard({ hand, children: [head, body], test: opts.test, className: ['cp-nota', anon ? 'cp-nota--anonima' : '', opts.full ? 'core-carta--scorre' : ''].join(' ').trim() });
   card.dataset.note = note.id;
   if (anon) card.dataset.anonimo = '1';
   return card;
@@ -99,7 +105,7 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
     if (replying && note.replies?.length && !m.reply) {
       const list = el('div', { class: 'cp-risposte', role: 'group', test: 'cp-nota-risposte' }, textOf('campaign.sera.scegliRisposta', undefined, 'p', { className: 'cp-tenue' }));
       for (const r of note.replies) {
-        const b = el('button', { type: 'button', class: 'cp-risposta core-carta', test: `cp-risposta-${r.id}` }, textOf(r.textKey, undefined, 'span', { rich: true }));
+        const b = el('button', { type: 'button', class: 'cp-risposta', test: `cp-risposta-${r.id}` }, textOf(r.textKey, undefined, 'span', { rich: true }));
         b.addEventListener('click', () => {
           const log = emptyLog();
           const err = controller.mutate((d) => replyNote(d.campaign as CampaignStateX, d.knowledge, s.content, noteId, r.id, log), 'risposta');
@@ -176,15 +182,47 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
       );
     }
     root.appendChild(actions);
+    // Spilli finiti (CAM-09): come liberarne uno, con il collegamento ai bigliettini appuntati.
+    if (!m.pinned && note.request && left <= 0) {
+      const free = el('div', { class: 'cp-spilli-finiti', test: 'cp-spilli-finiti' }, textOf('campaign.sera.spilliFiniti', undefined, 'p', { className: 'cp-tenue' }));
+      for (const a of c.evening?.accepted ?? []) {
+        const other = s.content.notes.get(a.noteId);
+        if (!other) continue;
+        free.appendChild(
+          button({
+            labelKey: 'campaign.sera.vaiAlBigliettino',
+            params: { nome: `[[${other.author}]]` },
+            kind: 'testo',
+            onClick: () => {
+              s.ui.closeOverlay();
+              void s.ui.openOverlay('cp-nota', { noteId: other.id, from: 'sera' });
+            },
+            test: `cp-vai-${other.id}`,
+          }),
+        );
+      }
+      root.appendChild(free);
+    }
   };
 
   const renderChoice = (c: CampaignStateX, note: NoteDef): void => {
     const cards = choiceCards(levelOf(s.content, c.levelId), c, controller.knowledge(), s.content);
     const card = cards.find((x) => x.note.id === note.id);
-    const torn = !!card && !card.available;
+    const folded = !!card && card.folded;
+    const torn = !!card && !card.available && !folded;
     const paper = notePaper(s, note, c, { full: true, test: `cp-nota-carta-${noteId}` });
     if (torn) paper.classList.add('cp-nota--strappata');
+    if (folded) paper.classList.add('cp-nota--piegata');
     root.appendChild(paper);
+    if (folded) {
+      // Il biglietto di Clotilde, dopo il merletto chiuso, resta piegato (D14).
+      const entry = 'domande.chiuso.punto';
+      const box = el('div', { class: 'cp-strappo', test: 'cp-nota-piegata' }, textOf('campaign.scelta.piegato', undefined, 'p', { className: 'cp-tenue' }));
+      if (controller.knowledge().diary.includes(entry)) {
+        box.appendChild(button({ labelKey: 'campaign.scelta.puntoClotilde', icon: 'taccuino', kind: 'testo', onClick: () => void s.ui.openOverlay('taccuino', { from: 'scelta', entry }), test: 'cp-nota-punto' }));
+      }
+      root.appendChild(box);
+    }
     if (torn && card) {
       const list = el('ul', { class: 'cp-mancanze', test: 'cp-mancanze' });
       for (const k of card.missing) list.appendChild(el('li', null, textOf(k, undefined, 'span', { rich: true })));
@@ -196,7 +234,7 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
         labelKey: 'campaign.scelta.appunta',
         icon: 'spillo',
         kind: 'primario',
-        disabled: torn || !card,
+        disabled: torn || folded || !card,
         onClick: () => {
           if (!card) return;
           void s.ui.confirm({ titleKey: 'campaign.scelta.confermaTitolo', bodyKey: `campaign.scelta.conferma.${card.ending}`, okKey: 'campaign.scelta.confermaOk', cancelKey: 'campaign.scelta.confermaNo' }).then((ok) => {
@@ -224,14 +262,12 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
   };
 }
 
-/** L'oggetto (o gli oggetti) della laguna (overlay 'cp-oggetto'). */
-export function objectPanel(s: Services, container: HTMLElement): PanelHandle {
-  const c = controller.state();
-  const root = el('div', { class: 'cp-dettaglio cp-oggetti core-solid', test: 'cp-oggetto-dettaglio' });
-  container.appendChild(root);
-  if (!c) return { destroy: () => root.remove() };
-  const items = eveningItems(c.dayIndex, eveningMode(c), c, s.content);
-  root.appendChild(textOf('campaign.sera.oggettoTitolo', undefined, 'h2', { className: 'cp-dettaglio-titolo' }));
+/**
+ * Il foglio degli oggetti (lettere e oggetti), lo stesso alla porta e all'alba (C04, C17):
+ * le lettere con la calligrafia di chi firma, in un foglio che scorre se è lunga.
+ */
+export function itemsSheet(s: Services, items: readonly EveningItem[]): HTMLElement[] {
+  const out: HTMLElement[] = [];
   for (const it of items) {
     const box = el('section', { class: 'cp-oggetto', test: `cp-oggetto-${it.id}` });
     if (it.image) box.appendChild(spriteCanvas(s, it.image, 112, { className: 'cp-oggetto-figura' }));
@@ -240,7 +276,7 @@ export function objectPanel(s: Services, container: HTMLElement): PanelHandle {
       box.appendChild(
         paperCard({
           hand: handOf(s, signer),
-          className: 'cp-lettera',
+          className: 'cp-lettera core-carta--scorre',
           test: `cp-lettera-${it.id}`,
           children: [textOf(it.letter.textKey, undefined, 'p', { rich: true, className: 'cp-lettera-testo' })],
         }),
@@ -249,8 +285,58 @@ export function objectPanel(s: Services, container: HTMLElement): PanelHandle {
       box.appendChild(textOf(`comune.oggetti.${it.id}.nome`, undefined, 'h3', { className: 'cp-oggetto-nome' }));
       box.appendChild(textOf(`comune.oggetti.${it.id}.descrizione`, undefined, 'p', { rich: true, className: 'cp-oggetto-descrizione' }));
     }
-    root.appendChild(box);
+    out.push(box);
   }
-  root.appendChild(el('div', { class: 'cp-dettaglio-azioni' }, button({ labelKey: 'campaign.sera.oggettoContinua', icon: 'avanti', kind: 'primario', onClick: () => s.ui.closeOverlay(), test: 'cp-oggetto-continua' })));
+  return out;
+}
+
+/** Le voci nuove del Taccuino dopo una lettura (C03): toccandole si apre il Taccuino. */
+export function newEntriesBox(s: Services, ids: readonly DiaryEntryId[], from: string): HTMLElement | null {
+  const defs = ids.map((id) => s.content.diary.get(id)).filter((d): d is NonNullable<typeof d> => !!d);
+  if (defs.length === 0) return null;
+  const list = el('ul', { class: 'cp-lista' });
+  for (const def of defs) {
+    const b = el('button', { type: 'button', class: 'cp-voce-nuova', test: `cp-lettura-voce-${def.id}` }, svgIcon('taccuino', { size: 18 }), textOf(def.textKey, undefined, 'span', { rich: true }));
+    b.addEventListener('click', () => void s.ui.openOverlay('taccuino', { from, entry: def.id }));
+    list.appendChild(el('li', null, b));
+  }
+  return el('section', { class: 'cp-foglio-sezione cp-lettura-voci', test: 'cp-lettura-voci' }, textOf('campaign.bilancio.taccuino', undefined, 'h2', { className: 'cp-foglio-h' }), list);
+}
+
+/** L'oggetto (o gli oggetti) arrivati stasera (overlay 'cp-oggetto'). */
+export function objectPanel(s: Services, container: HTMLElement): PanelHandle {
+  const c = controller.state();
+  const root = el('div', { class: 'cp-dettaglio cp-oggetti core-solid', test: 'cp-oggetto-dettaglio' });
+  container.appendChild(root);
+  if (!c) return { destroy: () => root.remove() };
+  const items = eveningItems(c.dayIndex, eveningMode(c), c, s.content);
+  const arrival = arrivalOf(s.content, items);
+  root.appendChild(el('h2', { class: 'cp-dettaglio-titolo', test: 'cp-oggetto-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })));
+  root.append(...itemsSheet(s, items));
+  const actions = el('div', { class: 'cp-dettaglio-azioni' });
+  let read = false;
+  const cont = button({
+    labelKey: 'campaign.sera.oggettoContinua',
+    icon: 'avanti',
+    kind: 'primario',
+    onClick: () => {
+      if (read) {
+        s.ui.closeOverlay();
+        return;
+      }
+      read = true;
+      // Letto: il Taccuino si aggiorna subito e le voci nuove si annunciano qui (C03).
+      const box = newEntriesBox(s, controller.objectSeen(), 'sera');
+      if (!box) {
+        s.ui.closeOverlay();
+        return;
+      }
+      actions.before(box);
+      box.scrollIntoView?.({ block: 'nearest' });
+    },
+    test: 'cp-oggetto-continua',
+  });
+  actions.appendChild(cont);
+  root.appendChild(actions);
   return { destroy: () => root.remove() };
 }

@@ -9,17 +9,26 @@
  * Opzioni: `{ from, levelId, origin, accepted, tab?, entry?, noteId?, fixed? }`.
  *
  * Schede visibili (GDD 7): Persone, Domande e Libro dal prologo; Bigliettini dalla
- * prima sera (o durante una notte con richieste); Lettere di L. dalla giornata 6 (o se
- * se ne conoscono già cinque); Archivio quando la cassapanca ha un merletto.
+ * prima sera (o durante una notte con richieste); Lettere dalla prima lettera ricevuta
+ * (D10); Archivio quando la cassapanca ha un merletto. Le schede stanno in una riga
+ * sola che scorre (D10).
+ *
+ * Revisione 1: nelle Domande le piste stanno sopra la risposta e spariscono a domanda
+ * risolta; dopo la scelta di g23 niente «Dove guardare» ma una frase di chiusura. Le
+ * pagine del Libro non ancora viste sono «Nuova» (`knowledge.bookSeen`): nella notte che
+ * introduce una regola la prima apertura del Taccuino va sulla sua pagina. Durante la
+ * notte i Bigliettini mostrano lo stato «si compie se fissi l'ora» (C07) e, sotto le
+ * richieste, l'elenco degli obiettivi del tombolo (C08).
  */
-import type { CharacterId, CondReport, DiaryEntryDef, DiaryEntryId, Knowledge, PanelHandle, Services, Unsub } from '../../core/types';
+import type { CharacterId, CondReport, CondStatus, DiaryEntryDef, DiaryEntryId, Knowledge, PanelHandle, Services, Unsub } from '../../core/types';
 import { CAST_IDS } from '../../core/ids';
 import { el, clear } from '../../core/ui/dom';
 import { button, paperCard, tabs, textOf, type TabsHandle } from '../../core/ui/components';
 import { svgIcon } from '../../core/ui/glyphs';
+import * as tombolo from '../../tombolo/index';
 import { activeNight } from '../../tombolo/index';
-import { controller } from '../controller';
-import { bookPageByAda, bookPages, currentPista, questionOf, quirkRevealed } from '../diary';
+import { controller, nightRulePage } from '../controller';
+import { bookPageByAda, bookPages, currentPista, markBookSeen, newBookPages, questionOf, quirkRevealed } from '../diary';
 import { dayIndexOf } from '../evening';
 import { notePaper, noteMarks } from '../notes';
 import { memoriaInPlay } from '../memoria';
@@ -39,6 +48,8 @@ export interface TaccuinoOpts {
   entry?: DiaryEntryId;
   noteId?: string;
   fixed?: boolean;
+  /** Pagina del Libro da mostrare (l'avviso «Nuova pagina nel Libro»). */
+  page?: string;
 }
 
 let lastTab: TabId = 'persone';
@@ -61,7 +72,7 @@ export function visibleTabs(s: Services, c: CampaignStateX | null, k: Knowledge,
   const day = maxDayIndex(s, c);
   if (day >= 1 || (o.from === 'tombolo' && (night?.params.accepted.length ?? 0) > 0)) out.push('bigliettini');
   out.push('persone', 'libro', 'domande');
-  if (day >= dayIndexOf(s.content, 'g06') || k.letters.length >= 5) out.push('lettere');
+  if (k.letters.length >= 1) out.push('lettere');
   if (Object.keys(k.archive).length > 0) out.push('archivio');
   return out;
 }
@@ -85,30 +96,69 @@ function entryView(s: Services, def: DiaryEntryDef, isNew: boolean, highlight: b
   return b;
 }
 
-function reportStatus(s: Services, r: CondReport | null, dropped: boolean): HTMLElement {
-  const st = dropped ? 'lasciata' : (r?.status ?? 'in_corso');
-  return el('span', { class: ['cp-stato-richiesta', `cp-stato--${st}`], data: { stato: st } }, svgIcon(st === 'soddisfatta' ? 'spunta' : st === 'fallita' || st === 'lasciata' ? 'chiudi' : st === 'a_rischio' ? 'info' : 'gomitolo', { size: 16 }), textOf(`campaign.taccuino.stato.${st}`, undefined, 'span'));
+/**
+ * Stato di una richiesta. «Soddisfatta» solo sulle righe fissate (C07): se la sola
+ * bozza la compirebbe, lo stato è «si compie se fissi l'ora» (spunta tratteggiata).
+ */
+function reportStatus(s: Services, r: CondReport | null, dropped: boolean, anteprima?: CondStatus): HTMLElement {
+  let st: string = dropped ? 'lasciata' : (r?.status ?? 'in_corso');
+  if (!dropped && anteprima === 'soddisfatta' && st !== 'soddisfatta') st = 'inArrivo';
+  const icon = st === 'soddisfatta' || st === 'inArrivo' ? 'spunta' : st === 'fallita' || st === 'lasciata' ? 'chiudi' : st === 'a_rischio' ? 'info' : 'gomitolo';
+  return el('span', { class: ['cp-stato-richiesta', `cp-stato--${st}`], data: { stato: st } }, svgIcon(icon, { size: 16 }), textOf(`campaign.taccuino.stato.${st}`, undefined, 'span'));
+}
+
+/** Stato delle richieste dalla notte: `requestStatusFull()` (C07) se c'è, con l'anteprima. */
+type LiveStatus = { noteId: string; report: CondReport; anteprima?: CondStatus; dropped?: boolean };
+function liveStatuses(session: unknown): LiveStatus[] {
+  const sx = session as { requestStatusFull?: () => LiveStatus[]; requestStatus: () => LiveStatus[] };
+  try {
+    return typeof sx.requestStatusFull === 'function' ? sx.requestStatusFull() : sx.requestStatus();
+  } catch {
+    return [];
+  }
+}
+
+/** Elenco degli obiettivi del tombolo (C08), uno per pannello e per notte. */
+export interface ObjectivesCache {
+  night: unknown;
+  el: HTMLElement | null;
+}
+function objectivesFor(cache: ObjectivesCache | undefined, night: unknown): HTMLElement | null {
+  const make = (tombolo as unknown as { objectivesElement?: (o?: { compact?: boolean }) => HTMLElement | null }).objectivesElement;
+  if (typeof make !== 'function') return null;
+  if (cache && cache.night === night) return cache.el;
+  let node: HTMLElement | null = null;
+  try {
+    node = make({ compact: true });
+  } catch (err) {
+    console.warn('[campaign] objectives element failed', err);
+    node = null;
+  }
+  if (cache) {
+    cache.night = night;
+    cache.el = node;
+  }
+  return node;
 }
 
 /** Contenuto dei Bigliettini: la notte in corso (stato in tempo reale), la sera, o la giornata appena chiusa. */
-export function renderBigliettini(s: Services, box: HTMLElement, o: TaccuinoOpts): void {
+export function renderBigliettini(s: Services, box: HTMLElement, o: TaccuinoOpts, cache?: ObjectivesCache): void {
   const c = controller.state();
   const night = activeNight();
-  const k = controller.knowledge();
-  void k;
   if (night && (o.from === 'tombolo' || s.scenes.current() === 'tombolo')) {
     const p = night.params;
-    const statuses = night.session.requestStatus();
+    const statuses = liveStatuses(night.session);
     const dropped = night.session.dropped;
     const list = el('div', { class: 'cp-taccuino-lista', test: 'cp-bigliettini-notte' });
     const only = o.noteId ? p.accepted.filter((a) => a.noteId === o.noteId) : p.accepted;
     for (const a of only) {
       const note = s.content.notes.get(a.noteId);
-      const r = statuses.find((x) => x.noteId === a.noteId)?.report ?? null;
+      const st = statuses.find((x) => x.noteId === a.noteId);
+      const r = st?.report ?? null;
       const isDropped = dropped.includes(a.noteId);
       const item = el('div', { class: 'cp-richiesta-notte', test: `cp-richiesta-${a.noteId}` });
       if (note) item.appendChild(notePaper(s, note, c, { full: !!o.noteId }));
-      item.appendChild(reportStatus(s, r, isDropped));
+      item.appendChild(reportStatus(s, r, isDropped, st?.anteprima));
       if (a.authorGuess) item.appendChild(textOf('campaign.sera.appuntatoPer', { nome: `[[${a.authorGuess}]]` }, 'p', { rich: true, className: 'cp-tenue' }));
       if (!isDropped && !night.completed) {
         item.appendChild(
@@ -126,12 +176,20 @@ export function renderBigliettini(s: Services, box: HTMLElement, o: TaccuinoOpts
       }
       list.appendChild(item);
     }
-    if (p.goals.length > 0 && !o.noteId) {
-      const goals = night.session.goalStatus();
-      const ok = goals.filter((g) => g.status === 'soddisfatta').length;
-      list.appendChild(el('p', { class: 'cp-obiettivi', test: 'cp-obiettivi-notte' }, svgIcon('stella', { size: 16 }), textOf('campaign.taccuino.obiettivi', { fatti: ok, totale: goals.length }, 'span')));
+    // Sotto le richieste, l'elenco completo degli obiettivi del tombolo (C08); se il
+    // tombolo non lo offre, il conteggio di prima.
+    let objectives: HTMLElement | null = null;
+    if (!o.noteId) {
+      objectives = objectivesFor(cache, night);
+      if (!objectives && p.goals.length > 0) {
+        const goals = night.session.goalStatus();
+        const ok = goals.filter((g) => g.status === 'soddisfatta').length;
+        objectives = el('p', { class: 'cp-obiettivi', test: 'cp-obiettivi-notte' }, svgIcon('stella', { size: 16 }), textOf('campaign.taccuino.obiettivi', { fatti: ok, totale: goals.length }, 'span'));
+      }
     }
-    if (list.childElementCount === 0) list.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
+    // Nelle notti senza bigliettini niente «Nessuna richiesta» se ci sono gli obiettivi.
+    if (list.childElementCount === 0 && (!objectives || p.origin === 'campagna')) list.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
+    if (objectives) list.appendChild(el('div', { class: 'cp-obiettivi-lista', test: 'cp-obiettivi-notte-lista' }, objectives));
     box.appendChild(list);
     return;
   }
@@ -243,13 +301,20 @@ function renderPersone(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
   box.appendChild(list);
 }
 
-function renderLibro(s: Services, box: HTMLElement, k: Knowledge, seenMark: number, highlight: string | null): void {
+function renderLibro(s: Services, box: HTMLElement, k: Knowledge, seenMark: number, highlight: string | null, fresh: ReadonlySet<string> = new Set(), pageFocus: string | null = null): string[] {
   const c = controller.state();
   const list = el('div', { class: 'cp-taccuino-lista', test: 'cp-taccuino-libro' });
   const pages = c ? bookPages(c, k, s.content) : [];
   for (const p of pages) {
     const byAda = bookPageByAda(p);
-    const page = el('article', { class: 'cp-pagina', test: `cp-pagina-${p.id}` }, textOf(p.titleKey, undefined, 'h3', { className: 'cp-pagina-titolo' }), textOf(p.textKey, undefined, 'p', { rich: true, className: 'cp-pagina-testo' }));
+    const isNew = fresh.has(p.id);
+    const page = el(
+      'article',
+      { class: ['cp-pagina', isNew ? 'cp-pagina--nuova' : null, pageFocus === p.id ? 'cp-pagina--evidenziata' : null], test: `cp-pagina-${p.id}`, data: { nuova: isNew ? '1' : '0' } },
+      isNew ? el('span', { class: 'cp-voce-nuova-segno', test: 'cp-taccuino-libro-nuova' }, textOf('campaign.taccuino.nuova', undefined, 'span')) : null,
+      textOf(p.titleKey, undefined, 'h3', { className: 'cp-pagina-titolo' }),
+      textOf(p.textKey, undefined, 'p', { rich: true, className: 'cp-pagina-testo' }),
+    );
     if (p.marginKey) {
       page.appendChild(
         byAda
@@ -265,13 +330,22 @@ function renderLibro(s: Services, box: HTMLElement, k: Knowledge, seenMark: numb
     if (e?.section === 'libro') list.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid));
   }
   box.appendChild(list);
+  return pages.map((p) => p.id);
+}
+
+/** Dopo la scelta di g23 non c'è più una pista da seguire (D10). */
+export function storyClosed(c: CampaignStateX | null): boolean {
+  return !!c && (c.phase === 'finale' || c.phase === 'titoli' || c.phase === 'fine');
 }
 
 function renderDomande(s: Services, box: HTMLElement, k: Knowledge, seenMark: number, highlight: string | null): void {
   const list = el('div', { class: 'cp-taccuino-lista', test: 'cp-taccuino-domande' });
-  const pista = currentPista(k, s.content);
+  const closed = storyClosed(controller.state());
+  const pista = closed ? null : currentPista(k, s.content);
   const pistaDef = pista ? s.content.diary.get(pista) : undefined;
-  if (pistaDef) {
+  if (closed) {
+    list.appendChild(el('aside', { class: 'cp-pista cp-pista--finita', test: 'cp-pista-finita' }, textOf('campaign.taccuino.pistaFinita', undefined, 'p', { rich: true })));
+  } else if (pistaDef) {
     list.appendChild(el('aside', { class: 'cp-pista', test: 'cp-pista', data: { voce: pistaDef.id } }, textOf('campaign.taccuino.doveGuardare', undefined, 'p', { className: 'cp-pista-titolo' }), textOf(pistaDef.textKey, undefined, 'p', { rich: true })));
   }
   const pistaQ = pistaDef ? questionOf(pistaDef) : null;
@@ -288,17 +362,27 @@ function renderDomande(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
     const solved = k.questions[q] === 'risolta';
     const sec = el('section', { class: ['cp-domanda', solved ? 'cp-domanda--risolta' : null, q === pistaQ ? 'cp-domanda--pista' : null], test: `cp-domanda-${q}`, data: { stato: k.questions[q] ?? 'aperta' } });
     sec.appendChild(el('h3', { class: 'cp-domanda-titolo' }, svgIcon(solved ? 'spunta' : 'info', { size: 18 }), textOf(`comune.domande.${q}.titolo`, undefined, 'span'), textOf(solved ? 'campaign.taccuino.risolta' : 'campaign.taccuino.aperta', undefined, 'span', { className: 'cp-tenue' })));
+    // Le piste prima delle risposte; a domanda risolta (o a storia chiusa) le piste spariscono.
+    const entries: DiaryEntryDef[] = [];
     for (const eid of k.diary) {
       const e = s.content.diary.get(eid);
       if (!e || e.section !== 'domande' || questionOf(e) !== q) continue;
       used.add(eid);
-      sec.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid));
+      entries.push(e);
+    }
+    const piste = solved || closed ? [] : entries.filter((e) => e.pista);
+    for (const e of [...piste, ...entries.filter((x) => !x.pista)]) {
+      const v = entryView(s, e, k.diary.indexOf(e.id) >= seenMark, highlight === e.id);
+      if (e.pista) v.classList.add('cp-voce--pista');
+      sec.appendChild(v);
     }
     list.appendChild(sec);
   }
   for (const eid of k.diary) {
     const e = s.content.diary.get(eid);
-    if (e && e.section === 'domande' && !used.has(eid)) list.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid));
+    if (!e || e.section !== 'domande' || used.has(eid)) continue;
+    if (e.pista && closed) continue;
+    list.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid));
   }
   if (qs.length === 0) list.appendChild(textOf('campaign.taccuino.nessunaDomanda', undefined, 'p', { className: 'cp-tenue' }));
   box.appendChild(list);
@@ -341,10 +425,18 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
   const seenMark = Math.min(c0?.diarySeen ?? 0, k0.diary.length);
   let highlight: string | null = o.entry ?? null;
   let current: TabId = o.tab ?? lastTab;
+  // Pagine del Libro non ancora viste (D03): «Nuova» finché il pannello resta aperto. Nella
+  // notte che introduce una regola la prima apertura del Taccuino va sulla sua pagina.
+  const freshPages = new Set(c0 ? newBookPages(c0, k0, s.content).map((p) => p.id) : []);
+  const viewedPages = new Set<string>();
+  const objectives: ObjectivesCache = { night: null, el: null };
+  let pageFocus: string | null = o.page ?? null;
+  if (!pageFocus && !o.tab && !o.entry && !o.noteId && o.from === 'tombolo') pageFocus = nightRulePage(s, c0, k0)?.id ?? null;
   if (o.entry) {
     const def = s.content.diary.get(o.entry);
     if (def) current = sectionTab(def);
-  } else if (o.noteId || (o.from === 'tombolo' && !o.tab && (activeNight()?.params.accepted.length ?? 0) > 0 && !o.fixed)) current = 'bigliettini';
+  } else if (pageFocus) current = 'libro';
+  else if (o.noteId || (o.from === 'tombolo' && !o.tab && (activeNight()?.params.accepted.length ?? 0) > 0 && !o.fixed)) current = 'bigliettini';
   const root = el('section', { class: ['cp-taccuino', 'core-solid', o.fixed ? 'cp-taccuino--fisso' : null], test: 'cp-taccuino', attrs: { 'aria-label': s.i18n.t('campaign.taccuino.titolo') } });
   const title = textOf('campaign.taccuino.titolo', undefined, 'h2', { className: 'cp-taccuino-titolo' });
   const body = el('div', { class: 'cp-taccuino-corpo', test: 'cp-taccuino-corpo' });
@@ -370,6 +462,7 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
           current = id as TabId;
           lastTab = current;
           highlight = null;
+          pageFocus = null;
           renderBody();
         },
         test: 'cp-taccuino-scheda',
@@ -386,13 +479,13 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
     clear(body);
     switch (current) {
       case 'bigliettini':
-        renderBigliettini(s, body, o);
+        renderBigliettini(s, body, o, objectives);
         break;
       case 'persone':
         renderPersone(s, body, k, seenMark, highlight);
         break;
       case 'libro':
-        renderLibro(s, body, k, seenMark, highlight);
+        for (const id of renderLibro(s, body, k, seenMark, highlight, freshPages, pageFocus)) viewedPages.add(id);
         break;
       case 'domande':
         renderDomande(s, body, k, seenMark, highlight);
@@ -405,6 +498,7 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
         break;
     }
     if (highlight) body.querySelector<HTMLElement>(`[data-test="cp-voce-${CSS.escape(highlight)}"]`)?.scrollIntoView?.({ block: 'center' });
+    else if (pageFocus && current === 'libro') body.querySelector<HTMLElement>(`[data-test="cp-pagina-${CSS.escape(pageFocus)}"]`)?.scrollIntoView?.({ block: 'start' });
     else body.scrollTop = scroll;
   };
 
@@ -445,27 +539,46 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
     destroy() {
       for (const off of offs.splice(0)) off();
       root.remove();
-      if (o.fixed) {
-        try {
-          markSeen();
-        } catch (err) {
-          console.warn('[campaign] notebook mark failed', err);
-        }
+      try {
+        if (o.fixed) markSeen();
+        // Le pagine nuove del Libro viste in questo pannello non sono più «Nuova».
+        const seen = [...viewedPages].filter((id) => freshPages.has(id));
+        if (seen.length > 0 && controller.state()) controller.mutate((d) => void markBookSeen(d.knowledge, seen), 'libro', false);
+      } catch (err) {
+        console.warn('[campaign] notebook mark failed', err);
       }
     },
   };
 }
 
+
 /** Pannello 'bigliettini': le richieste della notte (o della sera) con il loro stato. */
 export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unknown): PanelHandle {
   const o = (raw ?? {}) as TaccuinoOpts;
-  const root = el('section', { class: 'cp-taccuino cp-pannello-bigliettini core-solid', test: 'cp-pannello-bigliettini' }, textOf('campaign.taccuino.schede.bigliettini', undefined, 'h2', { className: 'cp-taccuino-titolo' }));
+  // Nelle notti senza bigliettini (Merletto del giorno, libero, spartiti) il pannello
+  // elenca solo gli obiettivi: il titolo lo dice.
+  const titleKey = (): string => {
+    const n = activeNight();
+    const origin = n?.params.origin ?? o.origin;
+    return origin && origin !== 'campagna' && (n?.params.accepted.length ?? 0) === 0 ? 'campaign.taccuino.obiettiviTitolo' : 'campaign.taccuino.schede.bigliettini';
+  };
+  let title = textOf(titleKey(), undefined, 'h2', { className: 'cp-taccuino-titolo' });
+  const root = el('section', { class: 'cp-taccuino cp-pannello-bigliettini core-solid', test: 'cp-pannello-bigliettini' }, title);
   const body = el('div', { class: 'cp-taccuino-corpo' });
   root.appendChild(body);
   container.appendChild(root);
+  const cache: ObjectivesCache = { night: null, el: null };
+  let titleNow = titleKey();
   const render = (): void => {
+    const t = titleKey();
+    if (t !== titleNow) {
+      titleNow = t;
+      const next = textOf(t, undefined, 'h2', { className: 'cp-taccuino-titolo' });
+      title.replaceWith(next);
+      title = next;
+    }
     clear(body);
-    renderBigliettini(s, body, { ...o, from: o.from ?? 'tombolo' });
+    renderBigliettini(s, body, { ...o, from: o.from ?? 'tombolo' }, cache);
   };
   render();
   const offs: Unsub[] = [controller.onChange(() => root.isConnected && render())];

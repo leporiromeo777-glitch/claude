@@ -6,6 +6,14 @@
  *
  * Dopo il bilancio di una giornata con `archiveAfter` (fase 'archivio') il rotolo nuovo
  * è in evidenza, con "Apri" e "Più tardi"; dalla sera la cassapanca si sfoglia e basta.
+ *
+ * Revisione 1:
+ * - `{ cmd: 'lascia', levelId }` (C10, «Lascia per ora» dalla Pausa): la notte d'Archivio
+ *   salvata si toglie, l'Archivio resta com'era e si torna alla cassapanca con «Apri» e
+ *   «Più tardi» (che, nella fase d'Archivio, porta alla sera dopo);
+ * - un rotolo rammendato ha «Rileggi» (il merletto rammendato in sola lettura, con i
+ *   nomi e i colori) e «Rifai» (lo si ritesse da capo);
+ * - la vignetta di rivelazione occupa tutta l'area, come le vignette dell'alba (CAM-11).
  */
 import type { ActionEvent, LevelId, Scene, SceneId, Services, Viewport } from '../core/types';
 import { el, clear } from '../core/ui/dom';
@@ -24,6 +32,7 @@ export class ArchivioScene implements Scene {
   private side: SideNotebook | null = null;
   private backdrop: Backdrop | null = null;
   private player: VignettePlayer | null = null;
+  private reveal: HTMLElement | null = null;
   private back: SceneId | null = null;
 
   constructor(private readonly s: Services) {}
@@ -39,7 +48,8 @@ export class ArchivioScene implements Scene {
     sceneHost(this.s).appendChild(this.root);
     this.backdrop.show('dio/stanza/notte');
     this.side.sync();
-    controller.sound('archivio', p.result?.levelId);
+    controller.sound('archivio', p.result?.levelId ?? p.levelId);
+    if (p.cmd === 'lascia' && p.levelId) controller.leaveArchive(p.levelId);
     if (p.result) this.showResult(p.result);
     else this.showChest();
   }
@@ -62,13 +72,21 @@ export class ArchivioScene implements Scene {
       const lv = this.s.content.levels.get(id);
       if (!lv?.archive) continue;
       const st = k.archive[id] ?? 'nuovo';
+      const mended = st === 'rammendato';
+      // Rammendato: «Rileggi» lo mostra finito in sola lettura, «Rifai» lo ritesse da capo.
+      const actions = el(
+        'div',
+        { class: 'cp-rotolo-azioni' },
+        button({ labelKey: mended ? 'campaign.archivio.rileggi' : 'campaign.archivio.apri', icon: 'libro', kind: id === fresh ? 'primario' : 'secondario', onClick: () => (mended ? this.reread(id) : this.open(id)), test: `cp-apri-${id}` }),
+        mended ? button({ labelKey: 'campaign.archivio.rifai', icon: 'disfa', kind: 'testo', onClick: () => this.open(id), test: `cp-rifai-${id}` }) : null,
+      );
       const roll = el(
         'article',
         { class: ['cp-rotolo', 'core-solid', id === fresh ? 'cp-rotolo--nuovo' : null], role: 'listitem', test: `cp-rotolo-${id}`, data: { stato: st } },
         el('p', { class: 'cp-rotolo-anno', text: lv.archive.year }),
         textOf(lv.archive.titleKey, undefined, 'h2', { className: 'cp-rotolo-titolo' }),
         textOf(`campaign.archivio.stato.${st}`, undefined, 'p', { className: 'cp-tenue' }),
-        button({ labelKey: st === 'rammendato' ? 'campaign.archivio.rileggi' : 'campaign.archivio.apri', icon: 'libro', kind: id === fresh ? 'primario' : 'secondario', onClick: () => this.open(id), test: `cp-apri-${id}` }),
+        actions,
       );
       list.appendChild(roll);
     }
@@ -90,13 +108,25 @@ export class ArchivioScene implements Scene {
     controller.openArchive(id);
   }
 
+  private reread(id: LevelId): void {
+    controller.rereadArchive(id);
+  }
+
   private showResult(r: ArchiveResult): void {
     const main = this.main;
     if (!main) return;
     clear(main);
-    if (r.reveal) {
+    if (r.reveal && this.root) {
+      // La rivelazione nello stesso contenitore delle vignette dell'alba (CAM-11): tutta l'area.
+      const lv = this.s.content.levels.get(r.levelId);
       this.player = new VignettePlayer(this.s, { vignettes: [r.reveal], onDone: () => this.showSummary(r), test: 'cp-archivio-rivelazione' });
-      main.appendChild(this.player.el);
+      this.reveal = el(
+        'div',
+        { class: 'cp-scena cp-alba cp-rivelazione', test: 'cp-archivio-rivelazione-area' },
+        el('header', { class: 'cp-alba-testa core-sicura-top' }, el('span', { class: 'cp-alba-titolo', text: lv?.archive?.year ?? '' }), lv?.archive ? textOf(lv.archive.titleKey, undefined, 'span') : null),
+        this.player.el,
+      );
+      this.root.appendChild(this.reveal);
       this.player.start();
       return;
     }
@@ -106,6 +136,8 @@ export class ArchivioScene implements Scene {
   private showSummary(r: ArchiveResult): void {
     this.player?.destroy();
     this.player = null;
+    this.reveal?.remove();
+    this.reveal = null;
     const main = this.main;
     if (!main) return;
     clear(main);
@@ -159,6 +191,8 @@ export class ArchivioScene implements Scene {
   exit(): void {
     this.player?.destroy();
     this.player = null;
+    this.reveal?.remove();
+    this.reveal = null;
     this.side?.destroy();
     this.side = null;
     this.backdrop?.destroy();

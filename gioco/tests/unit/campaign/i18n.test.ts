@@ -7,7 +7,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { flatten } from '../../../src/core/i18n';
-import { QUIRK_IDS, THREAD_PATTERNS, ENDING_IDS } from '../../../src/core/ids';
+import { QUIRK_IDS, THREAD_PATTERNS, ENDING_IDS, OBJECT_FROM, OCCASION_KINDS } from '../../../src/core/ids';
+import { PLACE_ORDER } from '../../../src/core/types';
 import { DESTINY_FLAGS } from '../../../src/campaign/flow';
 import { TAB_IDS } from '../../../src/campaign/taccuino/panel';
 import { CREDIT_KEYS } from '../../../src/campaign/FinaleScene';
@@ -49,7 +50,12 @@ const DYNAMIC: string[] = [
   ...QUIRK_IDS.map((x) => `campaign.stranezze.${x}`),
   ...['visto', 'libro', 'sentito', 'archivio'].map((x) => `campaign.taccuino.fonte.${x}`),
   ...TAB_IDS.map((x) => `campaign.taccuino.schede.${x}`),
-  ...['soddisfatta', 'in_corso', 'a_rischio', 'fallita', 'lasciata'].map((x) => `campaign.taccuino.stato.${x}`),
+  ...['soddisfatta', 'in_corso', 'a_rischio', 'fallita', 'lasciata', 'inArrivo'].map((x) => `campaign.taccuino.stato.${x}`),
+  // Revisione 1: frasi d'arrivo (C04), occasioni negli epiloghi (C04), luoghi.
+  ...[...OBJECT_FROM, 'niente'].map((x) => `campaign.sera.arrivo.${x}`),
+  ...OCCASION_KINDS.map((x) => `campaign.occasione.${x}`),
+  ...['h', 'mezzogiorno', 'alle', 'aMezzogiorno', 'delle', 'diMezzogiorno'].map((x) => `campaign.occasione.ora.${x}`),
+  ...PLACE_ORDER.map((x) => `campaign.presso.${x}`),
   ...Object.entries(DESTINY_FLAGS).flatMap(([f, vs]) => vs.map((v) => `campaign.destini.${f}.${v}`)),
   ...CREDIT_KEYS,
 ];
@@ -80,7 +86,9 @@ describe('campaign.json', () => {
 
   it('i plurali e i parametri sono gli stessi nelle due lingue', () => {
     const params = (s: string): string[] => [...s.matchAll(/\{(\w+)\s*[},]/g)].map((m) => m[1] ?? '').sort();
-    for (const [k, v] of IT) expect(params(EN.get(k) ?? ''), k).toEqual(params(v));
+    // L'ora in inglese si scrive «9 am» (D08): stessa chiave, parametri diversi per lingua.
+    const LOCALE_FORMAT = new Set(['campaign.occasione.ora.h']);
+    for (const [k, v] of IT) if (!LOCALE_FORMAT.has(k)) expect(params(EN.get(k) ?? ''), k).toEqual(params(v));
   });
 
   it('nessun testo italiano visibile scritto nel codice', () => {

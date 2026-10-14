@@ -6,7 +6,8 @@
  *   setMemoria(c, n) learn(kind, id) choose(ending) unlockAll()
  * In più: phase(), evening(), report(), cards(), requirements(), next(), continue(),
  *   resumeFrom(levelId), replay(levelId), archive(levelId), objectSeen(), leave(noteId),
- *   unpin(noteId), dawn(), scene(), ripassa().
+ *   unpin(noteId), dawn(), scene(), ripassa(); revisione 1: dawnObjectSeen(),
+ *   leaveArchive(levelId), reread(levelId).
  */
 import type { CharacterId, EndingId, FlagValue, LevelId, QuestionId, QuirkId, RuleId, Services } from '../core/types';
 import { activeNight } from '../tombolo/index';
@@ -116,6 +117,9 @@ export function registerCampaignDebug(s: Services): void {
         const scene = (s.scenes as Services['scenes'] & { scene?: () => unknown }).scene?.() as AlbaScene | null | undefined;
         if (scene && typeof scene.skip === 'function') {
           scene.skip();
+          // Con l'oggetto dell'alba (C04) il primo salto apre la consegna: si salta anche quella.
+          if (controller.state()?.phase === 'alba') scene.skip();
+          if (controller.state()?.phase === 'alba') controller.toBilancio();
           return 'bilancio';
         }
       }
@@ -124,7 +128,20 @@ export function registerCampaignDebug(s: Services): void {
     },
     dawn: () => {
       const scene = (s.scenes as Services['scenes'] & { scene?: () => unknown }).scene?.() as AlbaScene | null | undefined;
-      return { report: controller.state()?.report?.dawn.map((v) => v.id) ?? [], position: s.scenes.current() === 'alba' && scene ? scene.position() : null };
+      const c = controller.state();
+      return {
+        report: c?.report?.dawn.map((v) => v.id) ?? [],
+        position: s.scenes.current() === 'alba' && scene ? scene.position() : null,
+        object: c?.report?.dawnItems ?? [],
+        objectRead: !!c?.dawnRead,
+        delivery: s.scenes.current() === 'alba' && scene && typeof scene.deliveryShown === 'function' ? scene.deliveryShown() : false,
+      };
+    },
+    dawnObjectSeen: () => controller.dawnObjectSeen(),
+    leaveArchive: (levelId: LevelId) => controller.leaveArchive(levelId),
+    reread: (levelId: LevelId) => {
+      const p = controller.rereadArchive(levelId);
+      return { levelId: p.level.id, mode: p.mode };
     },
     report: () => controller.state()?.report ?? null,
     next: () => {

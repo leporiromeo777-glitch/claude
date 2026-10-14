@@ -7,7 +7,12 @@
  * - I bigliettini della sera sono `level.notes` filtrati con `availableIf` (le varianti
  *   si escludono a vicenda); nella fase 'scelta' di g23 solo quelli con `ending`, nella
  *   sera normale solo quelli senza.
- * - Spilli rossi: `pins` della giornata in campaign.json (g00: 0; g23: 1, la scelta).
+ * - Spilli rossi: `pins` della giornata in campaign.json (g00: 0); la scelta di g23 ne
+ *   usa sempre uno solo.
+ * - Oggetti (C04): quello della giornata precedente (`objectAfter`) alla porta, con la
+ *   frase della sua provenienza (laguna, mano, porta, casa); quello dell'alba
+ *   (`dawnObject`) consegnato a mano dopo le vignette; la frase vuota della porta
+ *   (`eveningEmptyKey`) quando non arriva niente.
  * - Rispondere non costa spilli e si fa una volta sola: gli effetti valgono subito.
  * - Un bigliettino non appuntato è "lasciato" quando si va al tombolo (anche se ha avuto
  *   una risposta): vale `onIgnore`. I destini che dipendono da una richiesta (Bepi,
@@ -19,6 +24,7 @@
 import type {
   AcceptedRequest,
   CampaignDay,
+  ObjectMeta,
   CampaignState,
   CharacterId,
   ContentDB,
@@ -50,8 +56,9 @@ export function dayIndexOf(db: Pick<ContentDB, 'campaign'>, id: string): number 
   return db.campaign.days.findIndex((d) => d.id === id);
 }
 
-/** Spilli rossi della sera. */
-export function pinsOf(db: Pick<ContentDB, 'campaign'>, index: number): number {
+/** Spilli rossi della sera; la scelta di g23 ne usa sempre uno solo (CAM-09). */
+export function pinsOf(db: Pick<ContentDB, 'campaign'>, index: number, mode: EveningMode = 'sera'): number {
+  if (mode === 'scelta') return 1;
   return Math.max(0, dayAt(db, index)?.pins ?? 0);
 }
 
@@ -116,7 +123,7 @@ export function imageOf(id: string): string | null {
   return null;
 }
 
-function itemOf(id: string, db: Pick<ContentDB, 'letters'>): EveningItem {
+export function itemOf(id: string, db: Pick<ContentDB, 'letters'>): EveningItem {
   const letter = db.letters.find((l) => l.id === id);
   if (letter) return { kind: 'lettera', id, letter, image: imageOf(id) };
   return { kind: 'oggetto', id, image: imageOf(id) };
@@ -139,6 +146,46 @@ export function eveningItems(dayIndex: number, mode: EveningMode, s: Pick<Campai
     return out;
   }
   return [itemOf(id, db)];
+}
+
+/**
+ * Oggetto consegnato a mano alla fine dell'alba (C04, `dawnObject` della giornata):
+ * la lettera di Clotilde in g14; in g16 il fascio delle lettere di Livia con
+ * `fascio_1..3`, solo se le lettere sono state liberate (come prima la sera).
+ */
+export function dawnItems(dayIndex: number, s: Pick<CampaignState, 'flags'>, db: Pick<ContentDB, 'letters' | 'campaign'>): EveningItem[] {
+  const id = dayAt(db, dayIndex)?.dawnObject;
+  if (!id) return [];
+  if (id === 'fascio_lettere') {
+    if (s.flags['lettereLivia'] !== 'liberate') return [];
+    const out = [itemOf('fascio_lettere', db)];
+    for (const l of db.letters) if (/^fascio_\d+$/.test(l.id)) out.push(itemOf(l.id, db));
+    return out;
+  }
+  return [itemOf(id, db)];
+}
+
+/** Provenienza di un oggetto (C04): quella di `objects` in campaign.json, altrimenti la laguna. */
+export function objectMeta(db: Pick<ContentDB, 'campaign'>, id: string): ObjectMeta {
+  return db.campaign.objects?.[id] ?? { from: 'laguna' };
+}
+
+/** Frase d'arrivo alla porta per gli oggetti della sera (C04): dipende dal primo oggetto. */
+export function arrivalOf(db: Pick<ContentDB, 'campaign'>, items: readonly EveningItem[]): { key: string; params?: Record<string, string>; from: ObjectMeta['from'] } {
+  const first = items[0];
+  const meta = first ? objectMeta(db, first.id) : { from: 'laguna' as const };
+  if (meta.from === 'mano') return { key: 'campaign.sera.arrivo.mano', params: { nome: `[[${meta.by ?? 'zeno'}]]` }, from: 'mano' };
+  return { key: `campaign.sera.arrivo.${meta.from}`, from: meta.from };
+}
+
+/**
+ * Frase della porta quando stasera non arriva niente (C04): `eveningEmptyKey` della
+ * giornata, o quella predefinita. Null nel prologo e quando un oggetto arriva.
+ */
+export function emptyDoorKey(dayIndex: number, mode: EveningMode, s: Pick<CampaignState, 'flags'>, db: Pick<ContentDB, 'letters' | 'campaign'>): string | null {
+  if (mode === 'scelta' || dayIndex <= 0) return null;
+  if (eveningItems(dayIndex, mode, s, db).length > 0) return null;
+  return dayAt(db, dayIndex)?.eveningEmptyKey ?? 'campaign.sera.arrivo.niente';
 }
 
 /** L'oggetto è stato letto: le lettere vanno nel Taccuino (Lettere), gli oggetti fra gli oggetti. */
@@ -166,7 +213,7 @@ function markDecided(s: CampaignStateX, id: NoteId): void {
 /** Spilli ancora liberi stasera. */
 export function pinsLeft(s: CampaignState, db: Pick<ContentDB, 'campaign'>): number {
   const ev = evening(s);
-  return Math.max(0, pinsOf(db, s.dayIndex) - (ev?.accepted.length ?? 0));
+  return Math.max(0, pinsOf(db, s.dayIndex, s.phase === 'scelta' ? 'scelta' : 'sera') - (ev?.accepted.length ?? 0));
 }
 
 /** Appunta un bigliettino con uno spillo rosso. */

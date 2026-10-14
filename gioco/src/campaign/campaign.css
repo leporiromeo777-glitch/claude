@@ -64,15 +64,20 @@
   color: var(--testo-tenue);
 }
 
-/* I nomi dei personaggi sulla carta restano scuri (il core li schiarisce sul velluto). */
+/*
+ * I nomi dei personaggi sulla carta restano scuri (il core li schiarisce sul velluto):
+ * inchiostro scurito fino a 4,5:1 (C17, inkOnPaper); il colore pieno resta nella
+ * sottolineatura e nell'icona.
+ */
 .cp-scena .core-carta .core-pers,
 .cp-vignetta-box .core-pers,
 .cp-foglio .core-pers,
 .cp-taccuino .core-pers,
 .cp-dettaglio .core-carta .core-pers,
+.cp-volto .core-pers,
 .core-overlay .cp-foglio .core-pers {
   color: var(--inchiostro);
-  color: color-mix(in srgb, var(--pers-color) 62%, var(--inchiostro));
+  color: var(--pers-ink, color-mix(in srgb, var(--pers-color) 62%, var(--inchiostro)));
 }
 .cp-pers {
   white-space: normal;
@@ -157,6 +162,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
   gap: var(--spazio-3);
+  /* CAM-02: in fondo un margine pari ai pulsanti fissi del piede più 16 px. */
+  margin-bottom: calc(56px + 16px);
 }
 .cp-bigliettino {
   position: relative;
@@ -1151,4 +1158,240 @@
 .cp-dettaglio .core-carta .core-pers {
   color: var(--inchiostro);
   color: color-mix(in srgb, var(--pers-color) 40%, var(--inchiostro));
+}
+
+/* ───────── Revisione 1 ───────── */
+
+/* C17: i pulsanti stanno fuori dal foglio, in un livello sopra; il testo non prende i tocchi. */
+.cp-dettaglio-azioni,
+.cp-spilli-finiti,
+.cp-risposte,
+.cp-chi {
+  position: relative;
+  z-index: 2;
+}
+.cp-dettaglio .core-carta-testo,
+.cp-bigliettino .core-carta-testo {
+  pointer-events: none;
+}
+.cp-dettaglio .core-carta--scorre {
+  max-height: 52vh;
+  max-height: 52dvh;
+}
+.cp-risposta {
+  display: block;
+  width: 100%;
+  padding: var(--spazio-3) var(--spazio-4);
+  border: 1px solid var(--carta-ombra);
+  border-radius: 3px;
+  background: var(--carta);
+  color: var(--inchiostro);
+  box-shadow: 0 3px 10px rgba(8, 10, 16, 0.35);
+  font-size: 1.05rem;
+}
+.cp-spilli-finiti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1) var(--spazio-2);
+  justify-content: flex-end;
+}
+.cp-spilli-finiti > p {
+  flex: 1 1 100%;
+  text-align: right;
+}
+
+/* Segni sopra il bigliettino (CAM-02: «Risposto» si vede senza scorrere). */
+.cp-bigliettino > .cp-segni {
+  order: -1;
+  min-height: 0;
+}
+
+/* La porta: da dove arriva l'oggetto, o niente (C04). */
+.cp-porta-vuota {
+  font-family: var(--font-libro);
+  font-style: italic;
+}
+
+/* Prologo raccolto (CAM-10): titolo su una fascia scura, il biglietto sul tombolo. */
+.cp-lato--nascosto {
+  display: none;
+}
+.cp-fascia {
+  align-self: stretch;
+  padding: var(--spazio-3) var(--spazio-4);
+  border-radius: var(--raggio);
+  background: rgba(10, 12, 18, 0.82);
+  color: var(--testo-chiaro);
+}
+.cp-prologo-tombolo {
+  position: relative;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 420px);
+  padding-top: var(--spazio-2);
+}
+.cp-prologo-tombolo-figura {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+}
+.cp-prologo-biglietto {
+  position: relative;
+  width: min(92%, 360px);
+  margin-top: -120px;
+}
+.cp-prologo-biglietto .cp-biglietto-nonna {
+  max-width: none;
+}
+.cp-biglietto-spillo {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  color: var(--spillo-rosso);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+}
+
+/* Cartello d'atto (CAM-10). */
+.cp-atto-cartello {
+  gap: var(--spazio-3);
+}
+.cp-atto-stagione {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ottone);
+  animation: cp-appare 1200ms ease-out 1 both;
+}
+.cp-atto-titolo {
+  font-size: 1.8rem;
+}
+
+/* Cassapanca: Rileggi e Rifai (CAM-01). */
+.cp-rotolo-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+
+/* Rivelazione dell'Archivio a tutta area, come le albe (CAM-11). */
+.cp-rivelazione {
+  z-index: 3;
+  background: var(--velluto-ombra);
+}
+
+/* Consegna dell'oggetto dell'alba (C04). */
+.cp-alba-consegna {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  padding: calc(var(--safe-top) + var(--spazio-4)) calc(var(--safe-right) + var(--spazio-4)) calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
+  background: var(--velluto-ombra);
+}
+.cp-alba-consegna .cp-dettaglio {
+  width: min(100%, 720px);
+}
+.cp-consegna-testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+}
+.cp-lettura-voci {
+  border-top: 1px dashed var(--bordo-pannello);
+  padding-top: var(--spazio-3);
+}
+
+/* Biglietto piegato del merletto chiuso (D14). */
+.cp-nota--piegata {
+  clip-path: polygon(0 0, 100% 0, 100% 46%, 0 54%);
+  opacity: 0.8;
+}
+.cp-piegato .cp-segno {
+  color: var(--testo-tenue);
+}
+
+/* Taccuino: schede in una riga sola che scorre (D10). */
+.cp-taccuino-schede .core-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.cp-taccuino-schede .core-tab {
+  flex: 1 0 auto;
+  min-width: 60px;
+}
+.cp-pagina--nuova {
+  border-left: 3px solid var(--ottone);
+  padding-left: var(--spazio-2);
+}
+.cp-pagina--evidenziata {
+  background: rgba(201, 162, 74, 0.18);
+}
+.cp-pista--finita {
+  border-style: dashed;
+  font-style: italic;
+}
+.cp-voce--pista {
+  border-left-style: dashed;
+}
+
+/* Richiesta che si compie se si fissa l'ora (C07): spunta tratteggiata. */
+.cp-stato--inArrivo .core-icon {
+  outline: 2px dashed currentColor;
+  outline-offset: 1px;
+  border-radius: 50%;
+}
+.cp-obiettivi-lista {
+  border-top: 1px solid var(--carta-ombra);
+  padding-top: var(--spazio-2);
+}
+
+/* Sopra il tombolo: «Continua» dei finali, «Alla cassapanca» dopo Rileggi, avviso del Libro. */
+.cp-notte-barra {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 96px);
+  z-index: 20;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  animation: cp-appare 400ms ease-out 1 both;
+}
+.cp-notte-barra .core-btn {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.cp-notte-avviso {
+  position: absolute;
+  top: calc(var(--safe-top) + 64px);
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  max-width: min(92vw, 520px);
+  min-height: var(--tocco);
+  padding: var(--spazio-2) var(--spazio-4);
+  border: 2px solid var(--ottone);
+  border-radius: var(--raggio-grande);
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--font-libro);
+  box-shadow: var(--ombra);
+  cursor: pointer;
+  pointer-events: auto;
+  animation: cp-appare 400ms ease-out 1 both;
+}
+
+/* Fine del finale vero (D14). */
+.cp-fine-vero {
+  font-family: var(--font-libro);
 }

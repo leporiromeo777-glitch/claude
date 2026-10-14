@@ -10,16 +10,22 @@
  *   coda con il carillon dell'intera partita (un battito per giornata).
  * - 'fine': la storia è finita (Telaio, titolo, spartiti della partita).
  * - 'rivedi': un epilogo già visto, dal Telaio.
+ *
+ * Revisione 1: ogni riga d'epilogo riceve `{occasioni}`, le occasioni piantate nella
+ * notte del finale (C04); il merletto chiuso non risuona la campana se il tombolo l'ha già
+ * annodata (C11, `chiusura: 'nodo'`); la Fine del finale vero ha la riga «La campana
+ * suona intonata. Hai trovato il punto aperto.» (D14).
  */
 import type { ActionEvent, EndingId, Playing, Scene, Services, Viewport } from '../core/types';
 import { el, clear } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
+import { svgIcon } from '../core/ui/glyphs';
 import { controller, type FinaleParams } from './controller';
-import { epilogueOf } from './endings';
+import { epilogueOf, formatOccasions, withOccasions } from './endings';
 import { gameScore } from './score';
 import { VignettePlayer } from './vignette';
 import { animDelay, sceneHost, unloadImages } from './ui';
-import type { VignetteView } from './types';
+import type { DayResultX, VignetteView } from './types';
 
 /**
  * Righe dei titoli di coda richieste dal GDD 10.3 che credits.json non ha già («realizzato
@@ -67,10 +73,15 @@ export class FinaleScene implements Scene {
 
   private epilogueViews(ending: EndingId | null): VignetteView[] {
     const last = controller.lastFinalResult();
-    if (last && last.ending === ending && last.epilogue.length > 0) return last.epilogue;
     const c = controller.state();
-    if (!ending || !c) return [];
-    return epilogueOf(ending, c, controller.knowledge(), this.s.content);
+    let views: VignetteView[] = [];
+    if (last && last.ending === ending && last.epilogue.length > 0) views = last.epilogue;
+    else if (ending && c) views = epilogueOf(ending, c, controller.knowledge(), this.s.content);
+    if (!ending) return views;
+    // {occasioni}: quelle piantate nella notte del finale (anche per un epilogo rivisto).
+    const levelId = this.s.content.campaign.finals[ending];
+    const occ = last && last.ending === ending && last.occasions.length > 0 ? last.occasions : ((c?.history[levelId] as DayResultX | undefined)?.occasions ?? []);
+    return withOccasions(views, formatOccasions(occ, (k, p) => this.s.i18n.t(k, p)));
   }
 
   /** Il merletto chiuso: buio, campana stonata a un'ora sbagliata, poi le vignette. */
@@ -80,10 +91,14 @@ export class FinaleScene implements Scene {
     this.step = 'buio';
     clear(root);
     root.appendChild(el('div', { class: 'cp-buio', test: 'cp-finale-buio' }, textOf('campaign.finale.annodato', undefined, 'p', { className: 'cp-prologo-riga' })));
-    try {
-      this.s.audio.bell({ hour: 3, stonatura: 1 });
-    } catch {
-      /* audio non pronto */
+    // Con la chiusura a nodo (C11) la campana stonata l'ha già suonata l'audio a tombolo:nodo.
+    const lv = this.s.content.levels.get(this.s.content.campaign.finals.chiuso);
+    if (lv?.chiusura !== 'nodo') {
+      try {
+        this.s.audio.bell({ hour: 3, stonatura: 1 });
+      } catch {
+        /* audio non pronto */
+      }
     }
     this.timers.push(setTimeout(() => this.playVignettes(this.epilogueViews('chiuso'), () => this.backToChoice()), animDelay(this.s, 2200)));
   }
@@ -175,7 +190,9 @@ export class FinaleScene implements Scene {
     clear(root);
     const c = controller.state();
     const s = this.s;
-    const card = el('article', { class: 'cp-foglio cp-fine core-solid', test: 'cp-finale-fine' }, textOf('campaign.finale.fineTitolo', undefined, 'h1', { className: 'cp-foglio-titolo' }), textOf('campaign.finale.fineTesto', undefined, 'p', { rich: true }));
+    const card = el('article', { class: 'cp-foglio cp-fine core-solid', test: 'cp-finale-fine', data: { finale: this.ending ?? '' } }, textOf('campaign.finale.fineTitolo', undefined, 'h1', { className: 'cp-foglio-titolo' }), textOf('campaign.finale.fineTesto', undefined, 'p', { rich: true }));
+    // Il finale vero si riconosce (D14).
+    if (this.ending === 'aperto') card.appendChild(el('p', { class: 'cp-riga cp-oro cp-fine-vero', test: 'cp-finale-vero' }, svgIcon('stella', { size: 18 }), textOf('campaign.finale.fineVero', undefined, 'span')));
     const actions = el('footer', { class: 'cp-foglio-azioni' });
     if (c && Object.keys(c.history).length > 0) {
       actions.appendChild(

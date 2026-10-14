@@ -12,6 +12,7 @@
  */
 import type {
   AmbienceId,
+  BookPageDef,
   CampaignState,
   CharacterId,
   EndingId,
@@ -35,6 +36,8 @@ import { campaignDays, campaignNightParams, dayIndexOf } from './evening';
 import type { ArchiveResult, FinalResult } from './flow';
 import type { CampaignStateX, DayReport } from './types';
 import { animDelay } from './ui';
+import { clearNightBars, showNightBar, showNightNotice } from './nightbar';
+import { newBookPages } from './diary';
 
 export interface CampaignController {
   newGame(): Promise<void>;
@@ -59,6 +62,9 @@ export interface ArchivioParams {
   result?: ArchiveResult;
   browse?: boolean;
   back?: SceneId;
+  /** «Lascia per ora» dalla Pausa di una notte d'Archivio (C10). */
+  cmd?: 'lascia';
+  levelId?: LevelId;
 }
 export interface BilancioParams {
   telaio?: { levelId: LevelId; metrics: NightOutcome['metrics']; record: ReturnType<typeof flow.completeReplay>; spartito: string; rows: NightOutcome['rows'] };
@@ -76,6 +82,8 @@ export class CampaignControllerImpl implements CampaignController {
   private lastFinal: FinalResult | null = null;
   private lastArchive: ArchiveResult | null = null;
   private pendingTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Avvisi del Taccuino tenuti da parte durante l'alba (D11): escono dopo l'ultima vignetta. */
+  private held: { key: string; params?: Record<string, string | number> }[] = [];
 
   constructor(private readonly svc: () => Services = () => services) {}
 
@@ -144,6 +152,12 @@ export class CampaignControllerImpl implements CampaignController {
     const bus = this.s.bus;
     bus.on('scene:enter', ({ id }) => {
       if (this.pendingNav?.scene === id) this.pendingNav = null;
+      try {
+        if (id === 'tombolo') this.nightStarted();
+        else if (id !== 'alba') this.flushNotices();
+      } catch (err) {
+        console.error('[campaign] scene:enter failed', err);
+      }
     });
     bus.on('night:complete', ({ outcome }) => {
       try {
@@ -174,9 +188,10 @@ export class CampaignControllerImpl implements CampaignController {
           if (d.campaign) fresh = refreshDiary(d.campaign, d.knowledge, this.s.content);
         }, 'stranezza', false);
         this.announceDiary(fresh);
-        // Il Taccuino "si apre un attimo" (GDD 9): la voce nuova in un avviso.
+        // Il Taccuino "si apre un attimo" (GDD 9): la voce nuova in un avviso. Se la notte
+        // è appena finita l'avviso aspetta la fine dell'alba (D11): non copre le vignette.
         const first = fresh.map((id) => this.s.content.diary.get(id)).find((x) => !!x);
-        if (first) this.s.ui.toast(first.textKey, undefined, 'info');
+        if (first) setTimeout(() => this.notice(first.textKey), 0);
       } catch (err) {
         console.error('[campaign] quirk:discovered failed', err);
       }
@@ -189,6 +204,12 @@ export class CampaignControllerImpl implements CampaignController {
       if (!c || outcome.levelId !== c.levelId) return;
       if (c.phase === 'notte') this.closeDay(outcome);
       else if (c.phase === 'finale') this.closeFinal(outcome);
+    } else if (outcome.origin === 'archivio' && activeNight()?.params.mode === 'replay') {
+      // «Rileggi»: il merletto rammendato resta da guardare (e da toccare negli echi);
+      // nessun record e nessun cambio d'Archivio. Si torna alla cassapanca col pulsante.
+      this.afterNight(outcome, () => {
+        showNightBar(this.s, { labelKey: 'campaign.archivio.allaCassapanca', icon: 'libro', test: 'cp-rileggi-chiudi', onClick: () => this.nav('archivio', { browse: true } satisfies ArchivioParams) });
+      }, 0);
     } else if (outcome.origin === 'archivio') {
       const r = this.mutate((d) => flow.completeArchive(d, this.s.content, outcome), 'archivio');
       this.lastArchive = r;
@@ -227,18 +248,61 @@ export class CampaignControllerImpl implements CampaignController {
     return report;
   }
 
+  /**
+   * Fine della notte di un finale (D14, C11). Il merletto chiuso (C) passa subito al
+   * cartello nero (il tombolo ha già mostrato il nodo); negli altri finali il merletto
+   * finito resta sullo schermo con «Continua» (`cp-finale-continua`).
+   */
   private closeFinal(outcome: NightOutcome): FinalResult {
     const r = this.mutate((d) => flow.completeFinal(d, this.s.content, outcome), 'finale');
     this.lastFinal = r;
     this.announceDiary(r.newDiary);
-    this.afterNight(outcome, () => this.go({ scene: 'finale', params: { mode: r.kind, ending: r.ending } satisfies FinaleParams }), r.kind === 'chiuso' ? 300 : NIGHT_TO_DAWN_MS);
+    const toFinale = (): void => this.go({ scene: 'finale', params: { mode: r.kind, ending: r.ending } satisfies FinaleParams });
+    if (r.kind === 'chiuso') this.afterNight(outcome, toFinale, 0);
+    else if (r.kind === 'epilogo') this.afterNight(outcome, () => void showNightBar(this.s, { labelKey: 'campaign.finale.continua', test: 'cp-finale-continua', onClick: toFinale }), 0);
+    else this.afterNight(outcome, toFinale, NIGHT_TO_DAWN_MS);
     return r;
+  }
+
+  // ───────── Avvisi ─────────
+
+  /** Un avviso del Taccuino: subito, oppure dopo l'alba se la notte è appena finita. */
+  notice(key: string, params?: Record<string, string | number>): void {
+    const night = activeNight();
+    const ending = !!night && (!!night.completed || !!(night.session as { done?: boolean }).done);
+    const scene = this.s.scenes.current();
+    if (scene === 'alba' || (scene === 'tombolo' && ending && night?.params.origin === 'campagna')) {
+      this.held.push(params ? { key, params } : { key });
+      return;
+    }
+    this.s.ui.toast(key, params, 'info');
+  }
+
+  /** Mostra gli avvisi tenuti da parte (alla fine dell'alba o fuori dal tombolo). */
+  flushNotices(): void {
+    const list = this.held.splice(0);
+    for (const n of list) this.s.ui.toast(n.key, n.params, 'info');
+  }
+
+  /** Inizio di una notte: l'avviso «Nuova pagina nel Libro» della regola nuova (D03). */
+  private nightStarted(): void {
+    const night = activeNight();
+    if (!night || night.params.origin !== 'campagna') return;
+    const page = nightRulePage(this.s, this.state(), this.knowledge());
+    if (!page) return;
+    showNightNotice(this.s, {
+      textKey: 'campaign.taccuino.paginaNuova',
+      params: { titolo: this.s.i18n.t(page.titleKey) },
+      test: 'cp-libro-avviso',
+      onClick: () => void this.s.ui.openOverlay('taccuino', { from: 'tombolo', tab: 'libro', page: page.id, levelId: night.params.level.id, origin: night.params.origin }),
+    });
   }
 
   /** Annulla il passaggio automatico dopo la notte (quando qualcun altro decide dove andare). */
   cancelPending(): void {
     if (this.pendingTimer) clearTimeout(this.pendingTimer);
     this.pendingTimer = null;
+    clearNightBars();
   }
 
   /** Stato della navigazione (debug). */
@@ -467,9 +531,17 @@ export class CampaignControllerImpl implements CampaignController {
     return fresh;
   }
 
+  /** L'oggetto consegnato all'alba è stato letto (C03, C04): voci nuove annunciate lì. */
+  dawnObjectSeen(): string[] {
+    const fresh = this.mutate((d) => flow.readDawnObject(d, this.s.content), 'oggetto');
+    this.announceDiary(fresh);
+    return fresh;
+  }
+
   /** Dall'alba al bilancio. */
   toBilancio(): void {
-    this.mutate((d) => flow.finishDawn(d), 'bilancio');
+    const fresh = this.mutate((d) => flow.finishDawn(d, this.s.content), 'bilancio');
+    this.announceDiary(fresh);
     this.go({ scene: 'bilancio' });
   }
 
@@ -495,6 +567,27 @@ export class CampaignControllerImpl implements CampaignController {
     this.sound('archivio', id);
     this.nav('tombolo', p);
     return p;
+  }
+
+  /** «Rileggi» un merletto rammendato: in sola lettura, si ritesse da solo (CAM-01). */
+  rereadArchive(id: LevelId): NightParams {
+    const p = flow.rereadParams(this.s.content, id);
+    this.sound('archivio', id);
+    this.nav('tombolo', p);
+    return p;
+  }
+
+  /** «Lascia per ora» (C10): la notte d'Archivio salvata si toglie, l'Archivio resta com'era. */
+  leaveArchive(levelId: LevelId): boolean {
+    let left = false;
+    this.s.save.update(
+      (d) => {
+        left = flow.leaveArchiveNight(d, levelId);
+      },
+      { immediate: true, reason: 'archivio lasciato' },
+    );
+    this.changed();
+    return left;
   }
 
   /** Sceglie un finale (sera di g23) e apre la sua notte. */
@@ -555,7 +648,7 @@ export class CampaignControllerImpl implements CampaignController {
         }
       }
       c = this.state();
-      if (c?.phase === 'alba') this.mutate((d) => flow.finishDawn(d), 'bilancio');
+      if (c?.phase === 'alba') this.announceDiary(this.mutate((d) => flow.finishDawn(d, this.s.content), 'bilancio'));
       c = this.state();
       if (c?.phase === 'bilancio') this.mutate((d) => flow.finishBilancio(d, this.s.content), 'sera');
       c = this.state();
@@ -617,7 +710,7 @@ export class CampaignControllerImpl implements CampaignController {
         this.mutate((d) => flow.startNight(d, db), 'notte');
         const o = this.simulateCurrentNight();
         if (o) this.onNightComplete({ ...o, origin: 'campagna' });
-        if (phase === 'bilancio') this.mutate((d) => flow.finishDawn(d));
+        if (phase === 'bilancio') this.mutate((d) => flow.finishDawn(d, db));
       } finally {
         this.suppressNav--;
       }
@@ -632,6 +725,17 @@ export class CampaignControllerImpl implements CampaignController {
   days(): ReturnType<typeof campaignDays> {
     return campaignDays(this.s.content);
   }
+}
+
+/**
+ * Pagina del Libro della regola nuova di stanotte (D03): non ancora vista, e di una regola
+ * del livello della notte in corso (o di una stranezza scoperta). Null se non c'è.
+ */
+export function nightRulePage(s: Services, c: CampaignStateX | null, k: Knowledge): BookPageDef | null {
+  const night = activeNight();
+  if (!c || !night || !k.objects.includes('libro_punti')) return null;
+  const rules = new Set<string>(night.params.level.rules);
+  return newBookPages(c, k, s.content).find((p) => rules.has(p.rule)) ?? null;
 }
 
 export const controller = new CampaignControllerImpl();

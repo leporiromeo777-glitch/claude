@@ -15,6 +15,8 @@
  *   fili o personaggi coinvolti nell'evento.
  * - `{memoria}`: la memoria di Ada del personaggio; prima di g12 (memoria non ancora
  *   in gioco) vale quella iniziale di balance.json (3, Lunardi 1).
+ * - `{knows: 'oggetto', id}` (C03): l'oggetto o la lettera `id` è stato letto
+ *   (`knowledge.objects` o `knowledge.letters`).
  * - `{done}`: la giornata (o il finale) è stata chiusa in questa linea del tempo,
  *   oppure il merletto d'Archivio è rammendato.
  */
@@ -191,6 +193,9 @@ export function evalStory(cond: StoryCond, s: CampaignState, k: Knowledge, o?: S
         return (k.rules as string[]).includes(cond.id);
       case 'archive':
         return k.archive[cond.id] !== undefined;
+      case 'oggetto':
+        // C03: un oggetto (o una lettera) è conosciuto quando Ada l'ha letto.
+        return k.objects.includes(cond.id) || k.letters.includes(cond.id);
     }
     return false;
   }

@@ -24,7 +24,9 @@ import type {
   LevelId,
   NightOutcome,
   NightParams,
+  NoteDef,
   NoteId,
+  OccasionDef,
   RowMoves,
   SaveData,
 } from '../core/types';
@@ -35,12 +37,15 @@ import { refreshDiary } from './diary';
 import { buildDawn, DAWN_RECENT_DAYS, resolveForgotten, toView } from './dawn';
 import {
   campaignNightParams,
+  dawnItems,
   dayAt,
   dayIndexOf,
   eveningItems,
   eveningNotes,
+  itemOf,
   learnItems,
   nightModeFor,
+  objectMeta,
   type EveningMode,
 } from './evening';
 import { choiceCards, countsAsEnding, endingOfLevel, epilogueOf, finalLevelId } from './endings';
@@ -105,6 +110,7 @@ export function freshCampaign(db: Pick<ContentDB, 'campaign'>): CampaignStateX {
     archiveOpen: null,
     diarySeen: 0,
     prologueSeen: false,
+    diaryAnnounced: [],
   };
 }
 
@@ -155,6 +161,8 @@ export function beginEvening(d: SaveData, db: Db): void {
   c.choice = null;
   c.archiveOpen = null;
   c.diaryAtEvening = d.knowledge.diary.length;
+  c.diaryAnnounced = [];
+  c.dawnRead = false;
   c.snapshots[day.id] = snapshotOf(c);
   refreshDiary(c, d.knowledge, db);
 }
@@ -181,14 +189,43 @@ export function eveningMode(c: CampaignStateX): EveningMode {
   return c.phase === 'scelta' ? 'scelta' : 'sera';
 }
 
-/** L'oggetto della sera è stato letto. Restituisce le voci nuove del Taccuino. */
+/**
+ * L'oggetto della sera è stato letto (C03): si impara e il Taccuino si aggiorna subito.
+ * Restituisce le voci nuove, che si annunciano lì e non tornano nel bilancio.
+ */
 export function markObjectSeen(d: SaveData, db: Db): DiaryEntryId[] {
   const c = camp(d);
   if (!c.evening) return [];
   const items = eveningItems(c.dayIndex, eveningMode(c), c, db);
   learnItems(items, d.knowledge);
   c.evening.objectSeen = true;
-  return refreshDiary(c, d.knowledge, db);
+  const fresh = refreshDiary(c, d.knowledge, db);
+  announced(c, fresh);
+  return fresh;
+}
+
+function announced(c: CampaignStateX, ids: readonly DiaryEntryId[]): void {
+  const list = (c.diaryAnnounced ??= []);
+  for (const id of ids) if (!list.includes(id)) list.push(id);
+}
+
+/** L'oggetto dell'alba di oggi (C04) è ancora da leggere. */
+export function dawnObjectPending(c: CampaignStateX): boolean {
+  return (c.report?.dawnItems?.length ?? 0) > 0 && !c.dawnRead;
+}
+
+/**
+ * L'oggetto consegnato all'alba è stato letto (C03, C04): si impara, il Taccuino si
+ * aggiorna e le voci nuove si annunciano lì (il bilancio della giornata non le ripete).
+ */
+export function readDawnObject(d: SaveData, db: Db): DiaryEntryId[] {
+  const c = camp(d);
+  if (!dawnObjectPending(c)) return [];
+  learnItems((c.report?.dawnItems ?? []).map((id) => itemOf(id, db)), d.knowledge);
+  c.dawnRead = true;
+  const fresh = refreshDiary(c, d.knowledge, db);
+  announced(c, fresh);
+  return fresh;
 }
 
 /** Si va al tombolo: i bigliettini non appuntati sono lasciati. Restituisce i parametri della notte. */
@@ -223,15 +260,31 @@ interface Consequence {
   consequenceDiary?: DiaryEntryId;
 }
 
-/** La conseguenza di un bigliettino in una riga (destino, desiderio, voce del Taccuino, frase generica). */
-export function consequenceOf(effects: readonly Effect[] | undefined, author: CharacterId, kind: 'ok' | 'fallita' | 'lasciato', db: Pick<ContentDB, 'diary'>): Consequence {
+export interface ConsequenceOpts {
+  /** Righe scritte del bigliettino (C05): `esito.<stato>` ha la precedenza su tutto. */
+  esito?: NoteDef['esito'];
+  /** Desideri scoperti adesso: «Ora so che cosa desidera X» solo la prima volta. */
+  newDesires?: readonly CharacterId[];
+}
+
+/**
+ * La conseguenza di un bigliettino in una riga (C05), in quest'ordine: `esito.<stato>`
+ * del bigliettino, destino, desiderio (solo se nuovo), voce del Taccuino, frase generica.
+ */
+export function consequenceOf(effects: readonly Effect[] | undefined, author: CharacterId, kind: 'ok' | 'fallita' | 'lasciato', db: Pick<ContentDB, 'diary'>, opts: ConsequenceOpts = {}): Consequence {
+  const written = opts.esito?.[kind];
+  if (written) return { consequenceKey: written };
   const list = effects ?? [];
   for (const e of list) {
     if ('setFlag' in e && DESTINY_FLAGS[e.setFlag]?.includes(String(e.value))) {
       return { consequenceKey: `campaign.destini.${e.setFlag}.${String(e.value)}` };
     }
   }
-  for (const e of list) if ('desire' in e) return { consequenceKey: 'campaign.bilancio.conseguenza.desiderio', consequenceParams: { nome: `[[${e.desire}]]` } };
+  for (const e of list) {
+    if ('desire' in e && (!opts.newDesires || opts.newDesires.includes(e.desire))) {
+      return { consequenceKey: 'campaign.bilancio.conseguenza.desiderio', consequenceParams: { nome: `[[${e.desire}]]` } };
+    }
+  }
   for (const e of list) {
     if ('diary' in e) {
       const def = db.diary.get(e.diary);
@@ -245,6 +298,16 @@ export function consequenceOf(effects: readonly Effect[] | undefined, author: Ch
 export function compactOutcome(o: NightOutcome): NightOutcome {
   const last = o.timeline[o.timeline.length - 1];
   return { ...clone({ ...o, timeline: [] }), timeline: last ? [clone(last)] : [] };
+}
+
+function mergeLog(into: ReturnType<typeof emptyLog>, from: ReturnType<typeof emptyLog>): void {
+  into.diary.push(...from.diary);
+  into.desires.push(...from.desires);
+  into.questions.push(...from.questions);
+  into.unlocks.push(...from.unlocks);
+  into.objects.push(...from.objects);
+  into.memoria.push(...from.memoria);
+  into.flags.push(...from.flags);
 }
 
 function addSolution(c: CampaignStateX, levelId: LevelId, notes: NoteId[], rows: RowMoves[], nomeOn: string | null): void {
@@ -290,10 +353,11 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
     const status = wrongGuess ? 'fallita' : (res?.status ?? 'fallita');
     histReqs.push({ noteId: a.noteId, status });
     const effects = status === 'soddisfatta' ? note.onOk : note.onFail;
-    applyEffects(effects, c, k, o, log);
+    const nlog = applyEffects(effects, c, k, o, emptyLog());
+    mergeLog(log, nlog);
     const cons = wrongGuess
       ? { consequenceKey: 'campaign.bilancio.conseguenza.autoreSbagliato', consequenceParams: { autore: `[[${note.author}]]`, indovinato: `[[${a.authorGuess as string}]]` } }
-      : consequenceOf(effects, note.author, status === 'soddisfatta' ? 'ok' : 'fallita', db);
+      : consequenceOf(effects, note.author, status === 'soddisfatta' ? 'ok' : 'fallita', db, { esito: note.esito, newDesires: nlog.desires });
     const r: ReportRequest = { noteId: a.noteId, author: note.author, status, dropped: outcome.dropped.includes(a.noteId), wrongGuess, ...cons };
     if (a.authorGuess) r.guess = a.authorGuess;
     requests.push(r);
@@ -304,8 +368,9 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
   for (const id of ev.ignored) {
     const note = db.notes.get(id);
     if (!note) continue;
-    applyEffects(note.onIgnore, c, k, o, log);
-    if (note.onIgnore?.length) ignored.push({ noteId: id, author: note.author, ...consequenceOf(note.onIgnore, note.author, 'lasciato', db) });
+    const nlog = applyEffects(note.onIgnore, c, k, o, emptyLog());
+    mergeLog(log, nlog);
+    if (note.onIgnore?.length || note.esito?.lasciato) ignored.push({ noteId: id, author: note.author, ...consequenceOf(note.onIgnore, note.author, 'lasciato', db, { esito: note.esito, newDesires: nlog.desires }) });
   }
 
   // Storia della giornata.
@@ -345,16 +410,24 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
   refreshDiary(c, k, db, log);
   c.evening = null;
 
-  // Alba.
-  const dawn = buildDawn({ level, outcome, state: c, knowledge: k, db, wrongGuesses: wrong }, c.dayIndex);
+  // Alba. L'oggetto dell'alba (C04) si legge dopo l'ultima vignetta, prima del bilancio;
+  // la vignetta di chi lo consegna chiude l'alba.
+  const dawnObj = dawnItems(c.dayIndex, c, db);
+  const dawnBy = dawnObj.length > 0 && day?.dawnObject ? (objectMeta(db, day.dawnObject).by ?? null) : null;
+  const dawn = buildDawn({ level, outcome, state: c, knowledge: k, db, wrongGuesses: wrong, deliveredBy: dawnBy }, c.dayIndex);
   for (const v of dawn) {
     c.shownLines.push({ id: v.id, day: c.dayIndex });
     if (!k.seenVignettes.includes(v.id)) k.seenVignettes.push(v.id);
   }
   c.shownLines = c.shownLines.filter((x) => c.dayIndex - x.day <= DAWN_RECENT_DAYS);
 
+  // «Nel Taccuino»: le voci nuove della giornata, senza quelle già annunciate alla
+  // lettura di un oggetto (C03) e senza quelle usate come conseguenza (D12).
   const mark = c.diaryAtEvening;
-  const newDiary = typeof mark === 'number' && mark <= k.diary.length ? k.diary.slice(mark) : [...new Set(log.diary)];
+  const shown = new Set<string>([...(c.diaryAnnounced ?? [])]);
+  for (const r of requests) if (r.consequenceDiary) shown.add(r.consequenceDiary);
+  for (const r of ignored) if (r.consequenceDiary) shown.add(r.consequenceDiary);
+  const newDiary = (typeof mark === 'number' && mark <= k.diary.length ? k.diary.slice(mark) : [...new Set(log.diary)]).filter((id) => !shown.has(id));
   const report: DayReport = {
     levelId: level.id,
     dayIndex: c.dayIndex,
@@ -373,17 +446,28 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
     rows: clone(outcome.rows),
     dawn,
   };
+  if (dawnObj.length > 0) {
+    report.dawnItems = dawnObj.map((it) => it.id);
+    report.dawnBy = dawnBy;
+  }
   c.report = report;
+  c.dawnRead = dawnObj.length === 0;
   c.phase = 'alba';
   c.decided = [];
   c.left = [];
   return report;
 }
 
-/** Dall'alba al bilancio. */
-export function finishDawn(d: SaveData): void {
+/**
+ * Dall'alba al bilancio. Se l'oggetto dell'alba non è stato letto (debug, salto) lo si
+ * impara comunque: la storia non perde la lettera. Restituisce le voci nuove.
+ */
+export function finishDawn(d: SaveData, db?: Db): DiaryEntryId[] {
   const c = camp(d);
+  let fresh: DiaryEntryId[] = [];
+  if (c.phase === 'alba' && db && dawnObjectPending(c)) fresh = readDawnObject(d, db);
   if (c.phase === 'alba') c.phase = 'bilancio';
+  return fresh;
 }
 
 /** Dal bilancio: la scelta (g23), l'Archivio appena sbloccato, o la sera dopo. */
@@ -431,6 +515,39 @@ export function archiveParams(d: SaveData, db: Db, id: LevelId): NightParams {
   if (!level.archive) throw new CampaignError(`archivio:${id}`);
   if (d.knowledge.archive[id] === undefined) d.knowledge.archive[id] = 'nuovo';
   return { origin: 'archivio', mode: nightModeFor(level), level, flags: {}, accepted: [], goals: [...(level.goals ?? [])], needsNome: false };
+}
+
+/**
+ * «Lascia per ora» dalla Pausa di una notte d'Archivio (C10): si toglie la notte salvata
+ * di quel merletto; l'Archivio (`knowledge.archive`) non cambia. true se l'ha tolta.
+ */
+export function leaveArchiveNight(d: SaveData, levelId: LevelId): boolean {
+  const n = d.night;
+  if (!n || n.origin !== 'archivio' || n.params.levelId !== levelId) return false;
+  d.night = null;
+  return true;
+}
+
+/**
+ * «Rileggi» (CAM-01): il merletto rammendato in sola lettura. Si ritesse da solo il
+ * merletto registrato (modo 'replay') con i nomi giusti sui fili sbiaditi; non cambia
+ * l'Archivio né i record.
+ */
+export function rereadParams(db: Pick<ContentDB, 'levels'>, id: LevelId): NightParams {
+  const level = levelOf(db, id);
+  if (!level.archive) throw new CampaignError(`archivio:${id}`);
+  const rows = level.archive.recorded.map((r) => ({ hour: r.hour, crossings: r.crossings.filter((c) => !c.forced).map((c) => ({ pair: c.pair, over: c.over })) }));
+  return {
+    origin: 'archivio',
+    mode: 'replay',
+    level,
+    flags: {},
+    accepted: [],
+    goals: [],
+    needsNome: false,
+    replay: rows,
+    resume: { levelId: id, rows: [], draft: [], dropped: [], nomeOn: null, hintsUsed: 0, fantasmaUsed: false, archiveNames: { ...level.archive.answer } },
+  };
 }
 
 const ARCHIVE_RANK = { nuovo: 0, nominato: 1, rammendato: 2 } as const;
@@ -511,6 +628,8 @@ export interface FinalResult {
   epilogue: VignetteView[];
   newDiary: DiaryEntryId[];
   unlocked: string[];
+  /** Occasioni piantate nella notte del finale (per `{occasioni}` negli epiloghi, C04). */
+  occasions: OccasionDef[];
 }
 
 /** Esito della notte di un finale. */
@@ -528,12 +647,15 @@ export function completeFinal(d: SaveData, db: Db, outcome: NightOutcome, now: s
     const epilogue = ending ? epilogueOf(ending, c, k, db) : [];
     for (const v of epilogue) if (!k.seenVignettes.includes(v.id)) k.seenVignettes.push(v.id);
     beginChoice(d, db, true);
-    return { kind: 'chiuso', ending, epilogue, newDiary: k.diary.slice(before), unlocked: [] };
+    return { kind: 'chiuso', ending, epilogue, newDiary: k.diary.slice(before), unlocked: [], occasions: [] };
   }
   if (!outcome.goals.every((g) => g.status === 'soddisfatta')) {
-    return { kind: 'riprova', ending, epilogue: [], newDiary: [], unlocked: [] };
+    return { kind: 'riprova', ending, epilogue: [], newDiary: [], unlocked: [], occasions: [] };
   }
-  c.history[outcome.levelId] = { levelId: outcome.levelId, rows: clone(outcome.rows), requests: [], metrics: { ...outcome.metrics }, spartito: outcome.spartito, at: now };
+  const occasions = clone(outcome.occasions ?? []);
+  const hist: DayResultX = { levelId: outcome.levelId, rows: clone(outcome.rows), requests: [], metrics: { ...outcome.metrics }, spartito: outcome.spartito, at: now };
+  if (occasions.length > 0) hist.occasions = occasions;
+  c.history[outcome.levelId] = hist;
   c.lastOutcome = compactOutcome(outcome);
   if (!c.endingsSeen.includes(ending)) c.endingsSeen.push(ending);
   const unlocked = endingUnlocks(d.unlocks, ending, true);
@@ -543,7 +665,7 @@ export function completeFinal(d: SaveData, db: Db, outcome: NightOutcome, now: s
   c.phase = 'titoli';
   const epilogue = epilogueOf(ending, c, k, db);
   for (const v of epilogue) if (!k.seenVignettes.includes(v.id)) k.seenVignettes.push(v.id);
-  return { kind: 'epilogo', ending, epilogue, newDiary: k.diary.slice(before), unlocked };
+  return { kind: 'epilogo', ending, epilogue, newDiary: k.diary.slice(before), unlocked, occasions };
 }
 
 /** Titoli di coda finiti. */

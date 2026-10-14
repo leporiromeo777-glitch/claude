@@ -28,7 +28,7 @@
     "sottoLaPorta": "{n, plural, one {Sotto la porta è scivolato un bigliettino.} other {Sotto la porta sono scivolati # bigliettini.}}",
     "nessunBigliettino": "Stasera, sotto la porta, non c'è niente.",
     "allaMerlettaia": "Alla merlettaia",
-    "appunta": "Appunta ({n, plural, =0 {nessuno spillo} one {# spillo} other {# spilli}})",
+    "appunta": "Appunta · {n, plural, =0 {nessuno spillo} one {resta # spillo} other {restano # spilli}}",
     "togliSpillo": "Togli lo spillo",
     "rispondi": "Rispondi",
     "lascia": "Lascia",
@@ -58,7 +58,20 @@
       "senzaRichiesta": "Questo bigliettino non chiede niente da tessere.",
       "giaRisposto": "Hai già risposto.",
       "senzaRisposte": "A questo bigliettino non si può rispondere."
-    }
+    },
+    "arrivo": {
+      "laguna": "Bussano alla porta. La laguna ha lasciato qualcosa.",
+      "mano": "{nome} bussa alla porta. Ha qualcosa per te.",
+      "porta": "Sotto la porta, un biglietto.",
+      "casa": "Sul tombolo ti aspetta ancora qualcosa della nonna.",
+      "niente": "Stasera alla porta non bussa nessuno."
+    },
+    "spilliFiniti": "Gli spilli di stasera sono finiti. Per appuntare questo bigliettino togli lo spillo da un altro:",
+    "vaiAlBigliettino": "Il bigliettino di {nome}",
+    "esciTitolo": "Tornare al titolo?",
+    "esciCorpo": "È tutto salvato.",
+    "esciOk": "Torna al titolo",
+    "esciNo": "Resta"
   },
   "scelta": {
     "giornata": "La vigilia",
@@ -76,11 +89,15 @@
       "aperto": "Il punto aperto: nessuno comanda più nessuno."
     },
     "confermaOk": "Appunta lo spillo",
-    "confermaNo": "Ci penso ancora"
+    "confermaNo": "Ci penso ancora",
+    "piegato": "Il biglietto resta piegato: quel punto l'hai già ripetuto una volta, e chi lo ripete lo ripete per sempre.",
+    "puntoClotilde": "Il punto di Clotilde",
+    "segnoPiegato": "Piegato"
   },
   "alba": {
     "titolo": "Il giorno accade",
-    "delusione": "{autore} aspettava una risposta. Il bigliettino l'avevi attribuito a {indovinato}."
+    "delusione": "{autore} aspettava una risposta. Il bigliettino l'avevi attribuito a {indovinato}.",
+    "consegna": "Prima di andare via…"
   },
   "vignetta": {
     "tocca": "Tocca per continuare",
@@ -90,7 +107,7 @@
   },
   "bilancio": {
     "titolo": "Bilancio",
-    "obiettivi": "Il merletto del giorno",
+    "obiettivi": "Come doveva andare",
     "obiettiviOk": "Il giorno è accaduto come doveva.",
     "obiettiviKo": "Il giorno non è andato come doveva.",
     "richieste": "Richieste",
@@ -123,7 +140,7 @@
     "quiete": "{n, plural, =0 {Nessuna ora di quiete} one {# ora di quiete} other {# ore di quiete}}",
     "simmetriaSi": "Simmetria ✦",
     "simmetriaNo": "Senza simmetria",
-    "record": "Record: {incroci} incroci, {quiete} ore di quiete",
+    "record": "Record: {incroci, plural, one {# incrocio} other {# incroci}}, {quiete, plural, =0 {nessuna ora di quiete} one {# ora di quiete} other {# ore di quiete}}",
     "nuovoRecord": {
       "incroci": "Nuovo record: meno incroci",
       "quiete": "Nuovo record: più ore di quiete",
@@ -189,7 +206,8 @@
       "rammendato": "Merletto rammendato: il ricordo torna intero.",
       "nominato": "I fili hanno un nome, ma lo strappo resta.",
       "nuovo": "Il merletto resta sbiadito."
-    }
+    },
+    "rifai": "Rifai"
   },
   "telaio": {
     "titolo": "Il Telaio",
@@ -214,7 +232,7 @@
     "nonTieneTesto": "Il giorno non accade così. Riprova la notte: il Taccuino ricorda tutto.",
     "riprova": "Riprova la notte",
     "fineTitolo": "Fine",
-    "fineTesto": "La storia di quest'inverno è finita. Dal Telaio si può riprendere da qualsiasi sera.",
+    "fineTesto": "La storia di quell'anno è finita. Dal Telaio si può riprendere da qualsiasi sera.",
     "spartiti": "Copia gli spartiti della partita",
     "spartitiCopiati": "Spartiti della partita copiati.",
     "telaio": "Il Telaio",
@@ -222,7 +240,9 @@
     "merlettaia": "La merlettaia",
     "seppia": "Il filo di seppia",
     "chiuso": "Il merletto chiuso",
-    "aperto": "Il merletto aperto"
+    "aperto": "Il merletto aperto",
+    "continua": "Continua",
+    "fineVero": "La campana suona intonata. Hai trovato il punto aperto."
   },
   "titoli": {
     "gioco": "TRAMA. Il merletto dei giorni",
@@ -265,12 +285,16 @@
       "in_corso": "In corso",
       "a_rischio": "A rischio",
       "fallita": "Fallita",
-      "lasciata": "Lasciata cadere"
+      "lasciata": "Lasciata cadere",
+      "inArrivo": "Si compie se fissi l'ora"
     },
     "lasciaCadere": "Lascia cadere",
     "lasciaCadereTitolo": "Lasciare cadere lo spillo?",
     "lasciaCadereCorpo": "La richiesta diventa fallita, con le sue conseguenze.",
-    "annulla": "Annulla"
+    "annulla": "Annulla",
+    "pistaFinita": "Non resta niente da cercare. Le risposte sono tutte nel merletto.",
+    "paginaNuova": "Nuova pagina nel Libro: {titolo}",
+    "obiettiviTitolo": "Obiettivi"
   },
   "motivi": {
     "righe": "Filo a righe oblique",
@@ -291,9 +315,34 @@
     "teresaLegge": "Legge le lettere che porta.",
     "pieroPozzo": "È un pozzo: riceve tutto e non dà niente.",
     "pieroTrabocca": "Con tre segreti il pozzo trabocca.",
-    "ginoCorre": "Non sta mai fermo: incrocia ogni ora.",
+    "ginoCorre": "Non sta fermo due ore di fila. Con la febbre resta a letto.",
     "ninaCuriosa": "Quando sta sopra, si prende anche i segreti.",
     "zenoFaro": "Non si allontana dal Faro più di due luoghi.",
     "lunardiCura": "Non si ammala; quando sta sopra, guarisce."
+  },
+  "occasione": {
+    "pane": "il pane {presso} {ora}",
+    "festa": "la festa {presso} {ora}",
+    "messa": "la messa {ora}",
+    "lanterna": "la lanterna {ora}",
+    "vaporetto": "il vaporetto {delle}",
+    "ora": {
+      "h": "{h}",
+      "mezzogiorno": "mezzogiorno",
+      "alle": "alle {h}",
+      "aMezzogiorno": "a mezzogiorno",
+      "delle": "delle {h}",
+      "diMezzogiorno": "di mezzogiorno"
+    },
+    "virgola": ", ",
+    "e": " e "
+  },
+  "presso": {
+    "molo": "al Molo",
+    "forno": "al Forno",
+    "piazza": "in Piazza",
+    "chiesa": "in Chiesa",
+    "farmacia": "in Farmacia",
+    "faro": "al Faro"
   }
 }

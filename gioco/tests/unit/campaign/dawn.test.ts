@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { CharacterId, NightOutcome } from '../../../src/core/types';
-import { buildDawn, dawnCandidates, resolveForgotten, selectDawn, type DawnCandidate } from '../../../src/campaign/dawn';
+import { buildDawn, dawnCandidates, deliveryLast, ensureDelivery, resolveForgotten, selectDawn, type DawnCandidate } from '../../../src/campaign/dawn';
 import type { VignetteView } from '../../../src/campaign/types';
 import { db, emptyKnowledge, emptyState } from './helpers';
 
@@ -31,8 +31,9 @@ describe("selezione dell'alba", () => {
   });
 
   it('a parità di priorità: prima le scritte, poi gli eventi, poi la riserva, poi l\'ordine', () => {
-    const c = [cand('riserva', 'gino', 10, 2), cand('evento', 'nina', 10, 1), cand('scritta', 'zeno', 10, 0), cand('scritta2', 'bepi', 10, 0)];
-    expect(ids(selectDawn(c, [], 5))).toEqual(['scritta', 'scritta2', 'evento']);
+    // Con una sola scritta entrano le battute sugli eventi; la riserva no (D11).
+    const c = [cand('riserva', 'gino', 10, 2), cand('evento', 'nina', 10, 1), cand('scritta', 'zeno', 10, 0), cand('evento2', 'bepi', 10, 1)];
+    expect(ids(selectDawn(c, [], 5))).toEqual(['scritta', 'evento', 'evento2']);
   });
 
   it('niente stesso personaggio due volte di seguito', () => {
@@ -91,10 +92,11 @@ describe('alba con i contenuti veri', () => {
     expect(all).toContain('line:gino.incontro.1');
     expect(all).toContain('line:marta.incontro.1');
     expect(all.some((x) => x.startsWith('line:') && x.includes('riserva'))).toBe(true);
-    // Le battute generiche non entrano finché ci sono vignette scritte più importanti.
+    // Con un culmine le battute generiche non entrano mai (D11).
     const pick = selectDawn(cands, [], 1);
     expect(pick[0]?.id).toBe('g01.alba.bambina');
-    expect(pick.length).toBe(3);
+    expect(pick.some((v) => v.id.startsWith('line:'))).toBe(false);
+    expect(pick.length).toBeGreaterThanOrEqual(2);
   });
 
   it('chi ha dimenticato Ada: variante del testo e Ada di legno grezzo', () => {
@@ -109,5 +111,77 @@ describe('alba con i contenuti veri', () => {
     const remembers = resolveForgotten(v, emptyState({ memoria: { lunardi: 2 } }));
     expect(remembers.grezza).toBe(false);
     expect(remembers.lines.map((l) => l.textKey)).toEqual(['a', 'b']);
+  });
+});
+
+describe("alba che rispetta i culmini (D11, C06)", () => {
+  function v(id: string, who: CharacterId | null, priority: number, rank = 0, dopo?: string): DawnCandidate {
+    const c = cand(id, who, priority, rank);
+    if (dopo) c.view.dopo = dopo;
+    return c;
+  }
+
+  it('i culmini escono tutti, nell’ordine dei dati, anche con lo stesso personaggio di seguito', () => {
+    const c = [v('pace', 'marta', 100), v('pane', 'marta', 100), v('storta', 'teresa', 80)];
+    expect(ids(selectDawn(c, [], 5))).toEqual(['pace', 'pane', 'storta']);
+  });
+
+  it('`dopo` lega una vignetta a un’altra: esce subito dopo, e non da sola', () => {
+    const c = [v('pane', 'marta', 100, 0, 'pace'), v('gino', 'gino', 60), v('pace', 'teresa', 100)];
+    expect(ids(selectDawn(c, [], 5))).toEqual(['pace', 'pane', 'gino']);
+    // Senza la vignetta a cui è legata, una vignetta `dopo` esce come le altre.
+    const solo = [v('pane', 'marta', 100, 0, 'pace'), v('gino', 'gino', 60)];
+    expect(ids(selectDawn(solo, [], 5))).toEqual(['pane', 'gino']);
+  });
+
+  it('il massimo sale a 4 solo per i culmini', () => {
+    const c = [v('a', 'marta', 100), v('b', 'teresa', 100), v('c', 'gino', 100), v('d', 'nina', 100), v('e', 'zeno', 100), v('f', 'bepi', 80)];
+    expect(ids(selectDawn(c, [], 5))).toEqual(['a', 'b', 'c', 'd']);
+    const due = [v('a', 'marta', 100), v('b', 'teresa', 100), v('x', 'gino', 80), v('y', 'nina', 60)];
+    expect(ids(selectDawn(due, [], 5))).toEqual(['a', 'b', 'x']);
+  });
+
+  it('g18 con la pace: pace e poi pane, senza battute generiche', () => {
+    const level = db().levels.get('g18');
+    if (!level) throw new Error('g18');
+    const state = emptyState({ dayIndex: 18, flags: { riconciliate: true } });
+    const cands = dawnCandidates({ level, outcome: null, state, knowledge: emptyKnowledge(), db: db() });
+    const pick = ids(selectDawn(cands, [], 18));
+    expect(pick.slice(0, 2)).toEqual(['g18.alba.pace', 'g18.alba.pane']);
+    expect(pick.some((x) => x.startsWith('line:'))).toBe(false);
+  });
+
+  it('nessuna battuta generica in un giorno con un culmine, e niente riserva con una scritta', () => {
+    const conCulmine = [v('nodo', 'teresa', 100), v('ev', 'gino', 10, 1), v('ris', 'nina', 10, 2)];
+    expect(ids(selectDawn(conCulmine, [], 5))).toEqual(['nodo']);
+    const unaScritta = [v('s', 'bepi', 60), v('ev', 'gino', 10, 1), v('ris', 'nina', 10, 2)];
+    expect(ids(selectDawn(unaScritta, [], 5))).toEqual(['s', 'ev']);
+    const dueScritte = [v('s1', 'bepi', 60), v('s2', 'gino', 50), v('ev', 'nina', 10, 1)];
+    expect(ids(selectDawn(dueScritte, [], 5))).toEqual(['s1', 's2']);
+  });
+
+  it('una giornata senza vignette scritte usa la riserva', () => {
+    const c = [v('ris1', 'nina', 10, 2), v('ris2', 'gino', 10, 2), v('ev', 'zeno', 10, 1)];
+    expect(ids(selectDawn(c, [], 5))).toEqual(['ev', 'ris1', 'ris2']);
+  });
+
+  it('g11 col nodo: nessuna riserva', () => {
+    const level = db().levels.get('g11');
+    if (!level) throw new Error('g11');
+    const nodo = level.dawn?.candidates.find((x) => x.id === 'g11.alba.nodo');
+    if (!nodo) throw new Error('g11.alba.nodo');
+    const cands = [{ view: { ...nodo, who: 'teresa' as CharacterId }, priority: nodo.priority, rank: 0, order: 0 }, v('ris', 'nina', 10, 2), v('ev', 'gino', 10, 1)];
+    const pick = ids(selectDawn(cands as DawnCandidate[], [], 11));
+    expect(pick).toContain('g11.alba.nodo');
+    expect(pick.some((x) => x === 'ris' || x === 'ev')).toBe(false);
+  });
+
+  it('la consegna chiude l’alba e non resta mai fuori', () => {
+    const views = [cand('consegna', 'zeno', 100).view, cand('altra', 'nina', 100).view];
+    expect(ids(deliveryLast(views, 'zeno'))).toEqual(['altra', 'consegna']);
+    expect(ids(deliveryLast(views, null))).toEqual(['consegna', 'altra']);
+    const full = [cand('a', 'marta', 100).view, cand('b', 'teresa', 100).view, cand('c', 'gino', 100).view, cand('d', 'nina', 100).view];
+    const all = [...full.map((x, i) => ({ view: x, priority: 100, rank: 0, order: i })), { view: cand('z', 'zeno', 100).view, priority: 100, rank: 0, order: 9 }];
+    expect(ids(ensureDelivery(full, all, 'zeno'))).toEqual(['a', 'b', 'c', 'z']);
   });
 });

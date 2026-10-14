@@ -14,7 +14,10 @@
  * - `choice`: il finale scelto la sera di g23;
  * - `archiveOpen`: il merletto d'Archivio in lettura (fase 'archivio');
  * - `diarySeen`: quante voci del Taccuino erano già state viste (le altre sono "nuove");
- * - `prologueSeen`: l'apertura del prologo è già stata mostrata.
+ * - `prologueSeen`: l'apertura del prologo è già stata mostrata;
+ * - `diaryAnnounced`: voci annunciate alla lettura di un oggetto (non tornano nel bilancio);
+ * - `dawnRead`: l'oggetto consegnato all'alba è stato letto;
+ * - `actCardSeen`: il cartello d'atto di quella giornata è già stato mostrato.
  *
  * `history` contiene `DayResultX`: un `DayResult` con quello che è successo la sera
  * (risposte, bigliettini lasciati, autori indovinati). Le condizioni `{ok}`, `{failed}`,
@@ -32,6 +35,7 @@ import type {
   LaceRecord,
   LevelId,
   NoteId,
+  OccasionDef,
   QuirkId,
   RowMoves,
   VignetteDef,
@@ -98,6 +102,10 @@ export interface DayReport {
   rows: RowMoves[];
   /** Vignette dell'alba già scelte. */
   dawn: VignetteView[];
+  /** Oggetto consegnato a mano dopo l'alba (C04): gli id da leggere (lettera e allegati). */
+  dawnItems?: string[];
+  /** Chi lo consegna (figura della consegna). */
+  dawnBy?: CharacterId | null;
 }
 
 export interface SolutionEntry {
@@ -117,9 +125,20 @@ export interface CampaignExtra {
   /** Voci del Taccuino all'inizio della sera (quelle dopo sono le nuove della giornata). */
   diaryAtEvening?: number;
   prologueSeen?: boolean;
+  /**
+   * Voci del Taccuino già annunciate durante la giornata, alla lettura di un oggetto
+   * (C03): il bilancio non le ripete in «Nel Taccuino».
+   */
+  diaryAnnounced?: DiaryEntryId[];
+  /** L'oggetto dell'alba della giornata chiusa è stato letto (C04). */
+  dawnRead?: boolean;
+  /** Ultima sera in cui si è visto il cartello d'atto (CAM-10). */
+  actCardSeen?: number;
 }
 
 export interface DayResultX extends DayResult {
+  /** Occasioni piantate nella notte di un finale (C04, `{occasioni}` degli epiloghi). */
+  occasions?: OccasionDef[];
   accepted?: { noteId: NoteId; authorGuess?: CharacterId }[];
   ignored?: NoteId[];
   replies?: Record<NoteId, 'R1' | 'R2'>;
