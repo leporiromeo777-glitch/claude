@@ -16,7 +16,8 @@
  * Matassa = minimo + 1 (minimo esatto con il grado "Matassa esatta").
  * Se nessun seme passa: per il Merletto del giorno la lista di riserva
  * precalcolata (`data/daily-fallback.json`, indicizzata col giorno dell'anno),
- * altrimenti il primo livello risolvibile trovato (segnalato con `fromFallback`).
+ * altrimenti il candidato risolvibile arrivato più avanti nel filtro (segnalato
+ * con `fromFallback`).
  *
  * Gradi (GDD 8.4): matassaEsatta (matassa = minimo), nodoInPiu (una coppia in
  * rancore in più), neroInPiu (un filo nero in più, o un secondo filo da seguire
@@ -337,6 +338,12 @@ interface Verdict {
   solvable: boolean;
   min: number;
   optimalCount: number;
+  /**
+   * Fin dove è arrivato il filtro: 0 irrisolvibile, 1 minimo fuori dall'intervallo,
+   * 2 troppe soluzioni ottime, 3 il giocatore avido ce la fa, 4 la regola non serve,
+   * 5 superato. Serve a scegliere il candidato migliore se nessuno passa.
+   */
+  stage: number;
 }
 
 /** Filtro di qualità (GDD 8.3). Imposta la matassa del livello se passa. */
@@ -345,23 +352,24 @@ export function qualityCheck(spec: GenSpec, built: Built): Verdict {
   const ctx = createContext(level, {});
   const [lo, hi] = minRange(spec.columns, effectiveRows(spec));
   const r = solveInternal({ level, ctx, goals, matassa: hi, countOptimal: true, maxStates: GEN_MAX_STATES });
-  if (r.status !== 'ok' || r.incroci === undefined) return { ok: false, solvable: false, min: -1, optimalCount: 0 };
+  if (r.status !== 'ok' || r.incroci === undefined) return { ok: false, solvable: false, min: -1, optimalCount: 0, stage: 0 };
   const min = r.incroci;
   const count = r.optimalCount ?? 0;
-  const fail: Verdict = { ok: false, solvable: true, min, optimalCount: count };
-  if (min < lo || count > MAX_OPTIMAL) return fail;
+  const fail = (stage: number): Verdict => ({ ok: false, solvable: true, min, optimalCount: count, stage });
+  if (min < lo) return fail(1);
+  if (count > MAX_OPTIMAL) return fail(2);
   const matassa = min + (spec.gradi.includes('matassaEsatta') ? 0 : 1);
-  if (greedyPlay(level, ctx, goals, matassa).solved) return fail;
+  if (greedyPlay(level, ctx, goals, matassa).solved) return fail(3);
   // La regola del giorno serve davvero?
   const without = solveInternal({ level, ctx, goals, matassa: hi, maxStates: GEN_MAX_STATES }, { disable: [spec.rule] });
-  if (without.status === 'limite') return fail;
+  if (without.status === 'limite') return fail(4);
   if (without.status === 'ok' && without.rows) {
     const check: LevelDef = { ...level, matassa: hi };
     const sim = simulateAndEvaluate(check, ctx, without.rows, goals);
-    if (sim.allOk && (without.incroci ?? 0) >= min) return fail;
+    if (sim.allOk && (without.incroci ?? 0) >= min) return fail(4);
   }
   level.matassa = matassa;
-  return { ok: true, solvable: true, min, optimalCount: count };
+  return { ok: true, solvable: true, min, optimalCount: count, stage: 5 };
 }
 
 interface FallbackEntry {
@@ -403,19 +411,21 @@ function finish(spec: GenSpec, built: Built, min: number, optimalCount: number, 
 
 /** Genera il livello per la specifica (deterministico). */
 export function generate(spec: GenSpec): GenResult {
-  let firstSolvable: { built: Built; min: number; count: number; seed: string } | null = null;
+  // Se nessun seme passa il filtro: il candidato che è arrivato più avanti nel filtro
+  // (a parità, il primo trovato), così il ripiego è comunque un buon merletto.
+  let best: { built: Built; min: number; count: number; seed: string; stage: number } | null = null;
   for (let k = 0; k < GEN_TRIES; k++) {
     const seedK = `${spec.seed}#${k}`;
     const built = buildCandidate(spec, seedK);
     const v = qualityCheck(spec, built);
     if (v.ok) return finish(spec, built, v.min, v.optimalCount, k + 1, seedK, false);
-    if (v.solvable && !firstSolvable) firstSolvable = { built, min: v.min, count: v.optimalCount, seed: seedK };
+    if (v.solvable && (!best || v.stage > best.stage)) best = { built, min: v.min, count: v.optimalCount, seed: seedK, stage: v.stage };
   }
   const fb = fromFallback(spec, GEN_TRIES);
   if (fb) return fb;
-  if (firstSolvable) {
-    firstSolvable.built.level.matassa = firstSolvable.min + (spec.gradi.includes('matassaEsatta') ? 0 : 1);
-    return finish(spec, firstSolvable.built, firstSolvable.min, firstSolvable.count, GEN_TRIES, firstSolvable.seed, true);
+  if (best) {
+    best.built.level.matassa = best.min + (spec.gradi.includes('matassaEsatta') ? 0 : 1);
+    return finish(spec, best.built, best.min, best.count, GEN_TRIES, best.seed, true);
   }
   throw new Error(`generate: no solvable level for seed "${spec.seed}"`);
 }

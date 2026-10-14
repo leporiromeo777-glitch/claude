@@ -8,8 +8,9 @@
  *
  * `solution` sono le righe di una soluzione completa (dalla prima ora). Se non
  * c'è, o se non comincia con le righe già fissate, si risolve dallo stato
- * corrente con il solver sincrono e un limite di stati da browser; se nemmeno
- * così si trova, il suggerimento dice che da qui non si arriva.
+ * corrente con il solver sincrono e un limite di stati da browser; se da qui
+ * non si arriva il suggerimento lo dice, se il solver si ferma al limite di
+ * stati si dà il suggerimento generico.
  */
 import type { Condition, Crossing, Hint, HintTier, LaceState, LevelDef, RowMoves, RunContext } from '../core/types';
 import { solve } from './solver';
@@ -41,14 +42,20 @@ function samePlayerRow(a: RowMoves | undefined, b: RowMoves | undefined): boolea
   return k(a) === k(b);
 }
 
-/** Una soluzione valida dallo stato corrente (righe complete dalla prima ora), o null. */
-export function solutionFrom(args: Omit<HintArgs, 'tier'>): RowMoves[] | null {
+/**
+ * Una soluzione valida dallo stato corrente (righe complete dalla prima ora), o
+ * null. Con `why` si sa se manca perché da qui non si arriva ('impossibile') o
+ * perché il solver si è fermato al limite di stati ('limite').
+ */
+export function solutionFrom(args: Omit<HintArgs, 'tier'>, why?: { status: 'impossibile' | 'limite' }): RowMoves[] | null {
   const { level, rows, solution } = args;
   if (solution && solution.length === level.endHour - level.startHour && rows.every((r, i) => samePlayerRow(r, solution[i]))) return solution;
   const state = args.timeline[args.timeline.length - 1];
   if (!state) return null;
   const res = solve({ level, ctx: args.ctx, goals: args.goals, from: { state, rowsDone: rows }, maxStates: HINT_MAX_STATES });
-  return res.status === 'ok' && res.rows ? res.rows : null;
+  if (res.status === 'ok' && res.rows) return res.rows;
+  if (why) why.status = res.status === 'limite' ? 'limite' : 'impossibile';
+  return null;
 }
 
 function threadsOf(state: LaceState, c: Crossing): { sopra: string; sotto: string } {
@@ -117,10 +124,13 @@ export function hintFor(args: HintArgs): Hint {
   const row = (state?.hour ?? args.level.startHour) + 1;
   if (!state || row > args.level.endHour) return { tier: args.tier, textKey: HINT_KEYS.spintaGenerico };
   if (args.tier === 'spinta') return spinta(args, state);
-  const sol = solutionFrom(args);
+  const why: { status: 'impossibile' | 'limite' } = { status: 'impossibile' };
+  const sol = solutionFrom(args, why);
   if (!sol) {
-    const key = args.tier === 'indizio' && args.level.hintKeys?.indizio ? args.level.hintKeys.indizio : HINT_KEYS.impossibile;
-    return { tier: args.tier, textKey: key };
+    if (args.tier === 'indizio' && args.level.hintKeys?.indizio) return { tier: args.tier, textKey: args.level.hintKeys.indizio };
+    // Limite di stati: non si sa se da qui si arriva, quindi il suggerimento generico (ARCHITETTURA 5.2).
+    if (why.status === 'limite') return { tier: args.tier, textKey: args.level.hintKeys?.spinta ?? HINT_KEYS.spintaGenerico, highlight: { hour: row } };
+    return { tier: args.tier, textKey: HINT_KEYS.impossibile };
   }
   const idx = row - args.level.startHour - 1;
   if (args.tier === 'fantasma') {

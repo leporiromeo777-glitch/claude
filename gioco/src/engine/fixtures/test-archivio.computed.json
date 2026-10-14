@@ -3,19 +3,38 @@
   "sourceHash": "4ae501f75e354290",
   "solverVersion": 1,
   "base": {
-    "incroci": 0,
+    "incroci": 3,
     "rows": [
       {
         "hour": 7,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 8,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          }
+        ]
       },
       {
         "hour": 9,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 2,
+            "over": "R"
+          }
+        ]
       },
       {
         "hour": 10,
@@ -26,5 +45,5 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 3,
-  "quieteMax": 4
+  "quieteMax": 1
 }

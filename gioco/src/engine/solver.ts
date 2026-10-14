@@ -299,6 +299,9 @@ export function solveInternal(req: SolveRequest, opts: SolveInternalOptions = {}
   const np = nonPlayerMask(m);
   const done = req.from?.rowsDone ?? [];
   const start = replayFrom(m, prog, done, stride);
+  // Matassa già usata: quella dello stato di partenza (di solito la somma delle righe fatte;
+  // nel rammendo d'Archivio il tombolo la riparte da zero all'inizio dello strappo).
+  if (req.from) start.cost = Math.max(0, req.from.state.usedMatassa | 0);
   const startHour = m.startHour + done.length;
   const prefix = start.moves;
 

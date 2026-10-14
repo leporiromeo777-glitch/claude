@@ -32,7 +32,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Condition, ContentDB, Crossing, LaceState, LevelComputed, LevelDef, NoteId, OccasionDef, RowMoves } from '../../src/core/types';
 import { buildContentDB } from '../../src/content/loader';
-import { SOLVER_VERSION, applyRow, createContext, levelSourceHashFromDB, sameLace, simulate, solve } from '../../src/engine/index';
+import { SOLVER_VERSION, applyRow, createContext, evaluate, levelSourceHashFromDB, sameLace, simulate, solve, stateKey } from '../../src/engine/index';
 import type { LevelReportRow } from './report';
 import { formatReport } from './report';
 
@@ -139,50 +139,114 @@ function allRows(W: number): Crossing[][] {
   return out;
 }
 
-/** Archivio: riapplica il merletto registrato e conta i rammendi possibili di ogni strappo. */
-function checkArchive(level: LevelDef, errors: string[], warnings: string[]): void {
+/** Esito del controllo di un merletto d'Archivio (rammendo, GDD 5.3). */
+interface ArchiveCheck {
+  /** Il merletto registrato, con gli incroci forzati ricalcolati (la soluzione di riferimento). */
+  rows: RowMoves[];
+  /** Somma, sugli strappi, del minimo di incroci per rammendarli (null se uno non si rammenda). */
+  mendMin: number | null;
+  /** Incroci originali negli strappi: la matassa del rammendo (GDD 5.3). */
+  original: number;
+  /** Ore di quiete al massimo: righe fuori dagli strappi come registrate, più le migliori dentro. */
+  quieteMax: number;
+}
+
+/**
+ * Archivio: riapplica il merletto registrato e, per ogni strappo, cerca tutti i
+ * rammendi (righe valide con i normali controlli, dallo stato prima dello
+ * strappo con la matassa da zero) che arrivano allo stato registrato dopo lo
+ * strappo. Ricerca a strati con gli stati uguali fusi (`stateKey`), quindi
+ * esatta anche per strappi lunghi. Con un'autotessitura (A6) il rammendo si fa
+ * con le occasioni: lì vale il controllo delle occasioni.
+ */
+function checkArchive(level: LevelDef, errors: string[], warnings: string[]): ArchiveCheck | null {
   const a = level.archive;
-  if (!a) return;
+  if (!a) return null;
   const ctx = createContext(level, {});
   const where = `levels/${level.id}`;
   if (level.autoweave) {
     warnings.push(`${where}: [archive] autoweave archive: recorded lace not replayed (the mending is done with occasions)`);
-    return;
+    return null;
   }
   // Il merletto originale non ha il limite della matassa del rammendo.
-  const sim = simulate({ ...level, matassa: Number.MAX_SAFE_INTEGER }, ctx, a.recorded);
+  const free: LevelDef = { ...level, matassa: Number.MAX_SAFE_INTEGER };
+  const sim = simulate(free, ctx, a.recorded);
+  const rowsTotal = level.endHour - level.startHour;
   if (!sim.ok) {
     const f = sim.failedAt;
     errors.push(`${where}: [archive] recorded lace refused at hour ${f?.hour ?? '?'}: ${(f?.violations ?? []).map((v) => v.code).join(', ')}`);
-    return;
+    return { rows: [], mendMin: null, original: 0, quieteMax: 0 };
   }
+  if (sim.rows.length !== rowsTotal) errors.push(`${where}: [archive] recorded lace has ${sim.rows.length} rows, the day has ${rowsTotal}`);
+  const goals = level.goals ?? [];
+  if (goals.length > 0) {
+    const rep = evaluate(level, sim.timeline, sim.events, goals, ctx, sim.rows.length === rowsTotal);
+    rep.forEach((r, i) => {
+      if (r.status !== 'soddisfatta') errors.push(`${where}: [archive] goal ${i + 1} (${(goals[i] as Condition).t}) is not met by the recorded lace`);
+    });
+  }
+  const playerIn = (r: RowMoves): number => r.crossings.filter((c) => !c.forced).length;
+  const inHole = (h: number): boolean => a.holes.some((x) => h >= x.from && h <= x.to);
+  let quieteMax = sim.rows.filter((r) => !inHole(r.hour) && playerIn(r) === 0).length;
+  let mendMin: number | null = 0;
+  let original = 0;
+  const rows = allRows(level.columns.length);
   for (const hole of a.holes) {
     const i0 = hole.from - level.startHour - 1;
     const i1 = hole.to - level.startHour - 1;
-    const before = sim.timeline[i0] as LaceState;
-    const target = sim.timeline[i1 + 1] as LaceState;
-    if (!before || !target) {
+    const before = sim.timeline[i0];
+    const target = sim.timeline[i1 + 1];
+    if (hole.to < hole.from || i0 < 0 || !before || !target) {
       errors.push(`${where}: [archive] hole ${hole.from}-${hole.to} outside the day`);
+      mendMin = null;
       continue;
     }
-    const original = a.recorded.slice(i0, i1 + 1).reduce((n, r) => n + r.crossings.filter((c) => !c.forced).length, 0);
-    const rows = allRows(level.columns.length);
-    let found = 0;
-    const walk = (s: LaceState, depth: number): void => {
-      if (found > 999) return;
-      if (s.hour === hole.to) {
-        if (sameLace(s, target)) found++;
-        return;
+    original += a.recorded.slice(i0, i1 + 1).reduce((n, r) => n + playerIn(r), 0);
+    // Strato per strato: stato → (incroci minimi, quiete massima).
+    let layer = new Map<string, { s: LaceState; used: number; quiet: number }>();
+    const s0: LaceState = { ...before, usedMatassa: 0 };
+    layer.set(stateKey(s0), { s: s0, used: 0, quiet: 0 });
+    for (let h = hole.from; h <= hole.to; h++) {
+      const next = new Map<string, { s: LaceState; used: number; quiet: number }>();
+      for (const { s, used, quiet } of layer.values()) {
+        for (const r of rows) {
+          const res = applyRow(free, s, r, ctx);
+          if (!res.ok) continue;
+          const n = res.state.usedMatassa - s.usedMatassa;
+          const k = stateKey(res.state);
+          const cur = next.get(k);
+          const u = used + n;
+          const q = quiet + (n === 0 ? 1 : 0);
+          if (!cur) next.set(k, { s: res.state, used: u, quiet: q });
+          else {
+            if (u < cur.used) {
+              cur.used = u;
+              cur.s = res.state;
+            }
+            cur.quiet = Math.max(cur.quiet, q);
+          }
+        }
       }
-      for (const r of rows) {
-        const res = applyRow(level, s, r, ctx);
-        if (res.ok) walk(res.state, depth + 1);
-      }
-    };
-    walk({ ...before, usedMatassa: 0 }, 0);
-    if (found === 0) errors.push(`${where}: [archive] hole ${hole.from}-${hole.to} cannot be mended`);
-    if (level.matassa < original) warnings.push(`${where}: [archive] matassa ${level.matassa} is less than the original crossings in the hole (${original})`);
+      layer = next;
+    }
+    let best: number | null = null;
+    let bestQuiet = 0;
+    for (const { s, used, quiet } of layer.values()) {
+      if (!sameLace(s, target)) continue;
+      best = best === null ? used : Math.min(best, used);
+      bestQuiet = Math.max(bestQuiet, quiet);
+    }
+    if (best === null) {
+      errors.push(`${where}: [archive] hole ${hole.from}-${hole.to} cannot be mended`);
+      mendMin = null;
+      continue;
+    }
+    if (mendMin !== null) mendMin += best;
+    quieteMax += bestQuiet;
   }
+  if (mendMin !== null && level.matassa < mendMin) errors.push(`${where}: [archive] mending the holes needs ${mendMin} crossings, matassa is ${level.matassa}`);
+  else if (level.matassa !== original) warnings.push(`${where}: [archive] matassa ${level.matassa} differs from the original crossings in the holes (${original}, GDD 5.3)`);
+  return { rows: sim.rows, mendMin, original, quieteMax };
 }
 
 /** Livelli con occasioni: sottoinsiemi di allowedOccasions con al massimo occasionSlots elementi. */
@@ -225,18 +289,19 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
   let states = occ.states;
   let maxStates = 0;
 
-  type Out = { incroci: number | null; trueMin: number | null; rows?: RowMoves[] };
+  type Out = { incroci: number | null; trueMin: number | null; rows?: RowMoves[]; limited?: boolean };
   const solveWith = (extra: Condition[]): Out => {
     const r = solve({ level, ctx, goals: [...goals, ...extra] });
     states += r.states;
     maxStates = Math.max(maxStates, r.states);
     if (r.status === 'limite') warnings.push(`${where}: [solver] state limit reached (${r.states} states)`);
     if (r.status === 'ok' && r.incroci !== undefined) return { incroci: r.incroci, trueMin: r.incroci, rows: r.rows };
+    if (r.status === 'limite') return { incroci: null, trueMin: null, limited: true };
     // Impossibile entro la matassa: si cerca il minimo vero (per la matassa suggerita).
     const r2 = solve({ level, ctx, goals: [...goals, ...extra], matassa: Math.max(cap, level.matassa + 1) });
     states += r2.states;
     maxStates = Math.max(maxStates, r2.states);
-    return { incroci: null, trueMin: r2.status === 'ok' && r2.incroci !== undefined ? r2.incroci : null };
+    return { incroci: null, trueMin: r2.status === 'ok' && r2.incroci !== undefined ? r2.incroci : null, limited: r2.status === 'limite' };
   };
 
   const report: LevelReportRow = {
@@ -263,18 +328,41 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
     return { id: level.id, file, computed, errors, warnings, row: report };
   };
 
+  // Archivio (GDD 5.3): la giornata è il merletto registrato; si gioca solo il rammendo degli
+  // strappi, con la matassa uguale agli incroci originali. La base è il rammendo più corto e la
+  // soluzione di riferimento è il merletto registrato.
+  const arch = checkArchive(level, errors, warnings);
+  if (arch) {
+    report.base = arch.mendMin;
+    report.suggerita = arch.original;
+    report.quieteMax = arch.quieteMax;
+    if (arch.mendMin === null) return done(null);
+    for (const id of level.notes ?? []) warnings.push(`${where}: [archive] note "${id}" ignored: an archive has no requests`);
+    return done({
+      levelId: level.id,
+      sourceHash: levelSourceHashFromDB(db, level.id) ?? '',
+      solverVersion: SOLVER_VERSION,
+      base: { incroci: arch.mendMin, rows: arch.rows },
+      perNote: {},
+      combos: [],
+      matassaSuggerita: arch.original,
+      quieteMax: arch.quieteMax,
+    });
+  }
+
   const base = solveWith([]);
   report.base = base.incroci;
   if (base.incroci === null) {
     errors.push(
       base.trueMin === null
-        ? `${where}: [base] the day cannot be solved even without requests`
+        ? base.limited
+          ? `${where}: [base] could not be verified: solver state limit reached`
+          : `${where}: [base] the day cannot be solved even without requests`
         : `${where}: [base] the day needs ${base.trueMin} crossings but matassa is ${level.matassa}`,
     );
     return done(null);
   }
 
-  checkArchive(level, errors, warnings);
   report.occasions = occ.count ?? null;
 
   // Bigliettini con richiesta.
@@ -294,7 +382,9 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
       else
         errors.push(
           r.trueMin === null
-            ? `${where}: [notes] request of "${n.id}" is impossible (mark it voluta if intended)`
+            ? r.limited
+              ? `${where}: [notes] request of "${n.id}" could not be verified: solver state limit reached`
+              : `${where}: [notes] request of "${n.id}" is impossible (mark it voluta if intended)`
             : `${where}: [notes] request of "${n.id}" needs ${r.trueMin} crossings, matassa is ${level.matassa}`,
         );
     } else if (!isVoluta) designated = Math.max(designated, r.incroci);
@@ -314,7 +404,9 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
       if (r.incroci === null && !isVoluta) {
         errors.push(
           r.trueMin === null
-            ? `${where}: [combos] ${ids.join(' + ')} is impossible and not marked voluta`
+            ? r.limited
+              ? `${where}: [combos] ${ids.join(' + ')} could not be verified: solver state limit reached`
+              : `${where}: [combos] ${ids.join(' + ')} is impossible and not marked voluta`
             : `${where}: [combos] ${ids.join(' + ')} needs ${r.trueMin} crossings, matassa is ${level.matassa} (not marked voluta)`,
         );
         if (r.trueMin !== null) designated = Math.max(designated, r.trueMin);

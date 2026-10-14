@@ -361,6 +361,17 @@ function canMeet(m: Model, S: Int32Array, a: number, b: number, cur: number, by:
   return true;
 }
 
+/**
+ * Una perlina 'letta:<lettera>' può ancora nascere? (Teresa legge una lettera in
+ * viaggio che tiene a fine riga, GDD 3.6.) Allora Teresa è una portatrice possibile.
+ */
+function lettaCanAppear(m: Model, S: Int32Array, bead: number): boolean {
+  const letter = m.lettaLetter[bead] as number;
+  if (letter < 0 || m.qLegge < 0 || m.inert[bead]) return false;
+  if ((m.slot[letter] as number) < 0 || isDelivered(m, S, letter)) return false;
+  return m.beadTo[letter] !== m.qLegge;
+}
+
 /** Un atomo in sospeso si può ancora soddisfare? (limite ottimistico: vero se non si sa). */
 export function atomCanOk(a: Atom, m: Model, S: Int32Array, cur: number): boolean {
   const s = S[a.slot] as number;
@@ -395,6 +406,8 @@ export function atomCanOk(a: Atom, m: Model, S: Int32Array, cur: number): boolea
       }
       const mask = S[sl] as number;
       for (let t = 0; t < m.T; t++) if ((mask & (1 << t)) && canMeet(m, S, t, a.a, cur, a.hour)) return true;
+      // Il segreto di lettura nasce a fine riga in mano a Teresa.
+      if (lettaCanAppear(m, S, a.bead) && a.hour > cur) return a.a === m.qLegge || canMeet(m, S, m.qLegge, a.a, cur, a.hour);
       return false;
     }
     case 'parte': {
@@ -420,6 +433,8 @@ export function atomCanOk(a: Atom, m: Model, S: Int32Array, cur: number): boolea
         if (!(mask & (1 << t))) continue;
         for (const st of steps) if (reachFrom(m, S, t, cur, a.hour, st.col)) return true;
       }
+      // Il segreto di lettura può ancora nascere in mano a Teresa (e passare ad altri).
+      if (lettaCanAppear(m, S, a.bead) && a.hour > cur) return true;
       return false;
     }
     case 'incontriAlmeno': {
