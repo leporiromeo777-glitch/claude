@@ -32,7 +32,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Condition, ContentDB, Crossing, LaceState, LevelComputed, LevelDef, NoteId, OccasionDef, RowMoves } from '../../src/core/types';
 import { buildContentDB } from '../../src/content/loader';
-import { SOLVER_VERSION, applyRow, createContext, initialState, levelSourceHashFromDB, sameLace, simulate, solve } from '../../src/engine/index';
+import { SOLVER_VERSION, applyRow, createContext, levelSourceHashFromDB, sameLace, simulate, solve } from '../../src/engine/index';
 import type { LevelReportRow } from './report';
 import { formatReport } from './report';
 
@@ -368,8 +368,9 @@ export function runCheck(opts: CheckOptions = {}): CheckResult {
   const log = opts.log ?? ((s: string) => console.log(s));
   const dir = resolve(opts.dir ?? DEFAULT_DIR);
   if (!existsSync(dir)) {
-    log(`levels:check: directory not found: ${dir}`);
-    return { levels: [], errors: 1, report: '' };
+    // Senza --dir e senza ancora contenuti non c'è niente da verificare; una cartella indicata e assente è un errore.
+    log(opts.dir ? `levels:check: directory not found: ${dir}` : `levels:check: no levels yet (${dir} does not exist)`);
+    return { levels: [], errors: opts.dir ? 1 : 0, report: '' };
   }
   const { db, files, problems } = loadDir(dir);
   let errors = 0;

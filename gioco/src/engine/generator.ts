@@ -114,10 +114,6 @@ interface Built {
   goals: Condition[];
 }
 
-function col(level: { columns: PlaceId[] }, p: PlaceId): number {
-  return level.columns.indexOf(p);
-}
-
 /** Costruisce un livello candidato dal generatore casuale (nessun controllo di qualità). */
 export function buildCandidate(spec: GenSpec, seedK: string): Built {
   const rng: Rng = rngFromSeed(seedK);

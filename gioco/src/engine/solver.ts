@@ -233,6 +233,11 @@ function trackedBeads(level: LevelDef, ctx: RunContext, goals: readonly Conditio
   return [...ids];
 }
 
+/**
+ * Riapplica le righe già fissate (ripartenza da metà notte). Gli incroci
+ * forzati si ricalcolano sempre, come fa `applyRow`: delle righe date contano
+ * solo gli incroci del giocatore (in autotessitura, quello del filo controllato).
+ */
 function replayFrom(m: Model, p: Program, rowsDone: readonly RowMoves[], stride: number): { S: Int32Array; cost: number; quiete: number; moves: number[] } {
   const S = new Int32Array(stride);
   S.set(initialCompact(m));
@@ -240,24 +245,22 @@ function replayFrom(m: Model, p: Program, rowsDone: readonly RowMoves[], stride:
   const tmp = new Int32Array(stride);
   const info = newRowInfo();
   const row = newRow();
-  const forced = newRow();
   let cost = 0;
   let quiete = 0;
   const moves: number[] = [];
   for (let i = 0; i < rowsDone.length; i++) {
     const h = m.startHour + 1 + i;
-    const rm = rowsDone[i] as RowMoves;
-    row.n = 0;
-    const hasForced = rm.crossings.some((c) => c.forced);
-    if (!hasForced && m.agents.length > 0 && !m.hasAuto) {
-      planAutoCore(m, S, h, -1, 0, forced);
-      for (let k = 0; k < forced.n; k++) rowPush(row, forced.pair[k] as number, forced.overR[k] as number, 1);
+    const mine = (rowsDone[i] as RowMoves).crossings.filter((c) => !c.forced);
+    if (m.hasAuto) {
+      const ctrl = mine.find((c) => S[c.pair] === m.controlled || S[c.pair + 1] === m.controlled) ?? null;
+      planAutoCore(m, S, h, ctrl ? ctrl.pair : -1, ctrl && ctrl.over === 'R' ? 1 : 0, row);
+    } else {
+      row.n = 0;
+      if (m.agents.length > 0) planAutoCore(m, S, h, -1, 0, row);
+      for (const c of mine) rowPush(row, c.pair, c.over === 'R' ? 1 : 0, 0);
     }
     let player = 0;
-    for (const c of rm.crossings) {
-      rowPush(row, c.pair, c.over === 'R' ? 1 : 0, c.forced ? 1 : 0);
-      if (!c.forced) player++;
-    }
+    for (let k = 0; k < row.n; k++) if (!row.forced[k]) player++;
     stepRow(m, S, tmp, row, h, info, null);
     updateAtoms(p, m, tmp, h, info);
     S.set(tmp);
@@ -322,7 +325,7 @@ export function solveInternal(req: SolveRequest, opts: SolveInternalOptions = {}
         stepRow(m, S, tmp, row, h, info, null);
         // Spilli d'ottone di quest'ora e Gino.
         if (!pinsOk(m, tmp, h)) continue;
-        if (m.qGino >= 0 && ginoFailed(m, S, row, blocked, left)) continue;
+        if (m.qGino >= 0 && ginoFailed(m, S, row, blocked)) continue;
         updateAtoms(prog, m, tmp, h, info);
         if (!programCanOk(prog, m, tmp, h)) continue;
         const lb = pinBound(m, pp, tmp, h);

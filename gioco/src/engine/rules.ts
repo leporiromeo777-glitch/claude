@@ -16,7 +16,7 @@ import type { Crossing, LaceEvent, LaceState, LevelDef, PinDef, RowResult, RunCo
 import type { Model } from './model';
 import { fullModel } from './model';
 import type { RowSpec } from './core';
-import { Q_FARO, Q_OK, Q_RIFIUTO, blockedMask, colOf, ginoFailed, newRow, newRowInfo, nonPlayerMask, quirkCheck, rowPush, stepRow } from './core';
+import { Q_FARO, Q_RIFIUTO, blockedMask, colOf, ginoFailed, newRow, newRowInfo, nonPlayerMask, quirkCheck, rowPush, stepRow } from './core';
 import { planAutoCore, rowToCrossings } from './autoweave';
 import { fromCompact, toCompact } from './state';
 import { violationKey } from './keys';
@@ -200,7 +200,7 @@ function runRow(level: LevelDef, state: LaceState, draft: Crossing[], ctx: RunCo
         violations.push(viol('spillo', { pin: { ...p.def }, threads: [p.def.thread], params: { chi: p.def.thread, luogo: p.def.place, ora: p.def.hour } }));
       }
     }
-    if (ginoFailed(m, st, asm.row, blockedMask(m, st, hour), level.matassa - state.usedMatassa)) {
+    if (ginoFailed(m, st, asm.row, blockedMask(m, st, hour))) {
       violations.push(viol('corre', { threads: [m.ids[m.qGino] as string], quirk: 'ginoCorre' }));
     }
     if (violations.length > 0) return { ok: false, state, events: [], violations };
@@ -257,4 +257,3 @@ export function unreachablePins(level: LevelDef, state: LaceState, ctx: RunConte
   return out;
 }
 
-export { Q_OK };

@@ -19,7 +19,8 @@
  *   disgiunto due incroci sullo stesso filo, o coppia inesistente {coppia}
  *   finita    la notte è finita, non ci sono più righe
  *
- * Condizioni (`tombolo.cond.<stato>.<tipo>`, stato = fallita | rischio).
+ * Condizioni (`tombolo.cond.<stato>.<tipo>`, stato = fallita | rischio):
+ * parametri chi, a, b, perlina, luogo, ora, n secondo la condizione.
  *
  * Suggerimenti (`tombolo.hint.…`): vedi `HINT_KEYS`.
  */
@@ -31,10 +32,14 @@ export function violationKey(code: string): string {
   return `tombolo.violazione.${code}`;
 }
 
+/** Condizioni foglia: ognuna può fallire con il suo motivo. */
 export const CONDITION_TYPES: readonly Condition['t'][] = [
   'presso', 'maiPresso', 'incontra', 'nonIncontra', 'sopra', 'consegnata', 'ha', 'nonHa',
-  'parte', 'resta', 'esceCon', 'sano', 'incontriAlmeno', 'tutti', 'almeno', 'non',
+  'parte', 'resta', 'esceCon', 'sano', 'incontriAlmeno',
 ];
+
+/** Condizioni che possono essere "a rischio" (hanno un limite di distanza o di tempo). */
+export const RISK_TYPES: readonly Condition['t'][] = ['presso', 'incontra', 'sopra', 'consegnata', 'ha', 'parte', 'esceCon', 'incontriAlmeno'];
 
 export function conditionKey(state: 'fallita' | 'rischio', t: Condition['t']): string {
   return `tombolo.cond.${state}.${t}`;
@@ -46,7 +51,6 @@ export function conditionKey(state: 'fallita' | 'rischio', t: Condition['t']): s
  *   spinta.richiesta  richiesta più a rischio {ora}
  *   spinta.generico   frase generica della nonna
  *   indizio.sopra     «Alle {ora} {sopra} deve passare sopra {sotto}»
- *   indizio.incontro  «Alle {ora} {a} e {b} devono incontrarsi»
  *   indizio.quiete    «Alle {ora} lascia stare i fili»
  *   fantasma          incrocio giusto della riga corrente {ora, sopra, sotto}
  *   fantasma.quiete   in questa riga non serve nessun incrocio {ora}
@@ -57,7 +61,6 @@ export const HINT_KEYS = {
   spintaRichiesta: 'tombolo.hint.spinta.richiesta',
   spintaGenerico: 'tombolo.hint.spinta.generico',
   indizioSopra: 'tombolo.hint.indizio.sopra',
-  indizioIncontro: 'tombolo.hint.indizio.incontro',
   indizioQuiete: 'tombolo.hint.indizio.quiete',
   fantasma: 'tombolo.hint.fantasma',
   fantasmaQuiete: 'tombolo.hint.fantasma.quiete',
@@ -67,9 +70,8 @@ export const HINT_KEYS = {
 /** Tutte le chiavi che il motore può produrre (per i test dei testi del tombolo). */
 export function engineTextKeys(): string[] {
   const out: string[] = VIOLATION_CODES.map(violationKey);
-  for (const t of CONDITION_TYPES) {
-    out.push(conditionKey('fallita', t), conditionKey('rischio', t));
-  }
+  for (const t of CONDITION_TYPES) out.push(conditionKey('fallita', t));
+  for (const t of RISK_TYPES) out.push(conditionKey('rischio', t));
   out.push(...Object.values(HINT_KEYS));
   return out;
 }

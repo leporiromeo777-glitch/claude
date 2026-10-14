@@ -10,7 +10,7 @@
  * annuncio del filo nero.
  */
 import type { EdgeStep, Model } from './model';
-import { B_FEBBRE, B_LETTERA, B_NOME, B_SEGRETO, B_VOCE, K_LINO, TRABOCCO_SOGLIA, ZENO_MAX, bit } from './model';
+import { B_FEBBRE, B_LETTERA, B_NOME, B_SEGRETO, B_VOCE, K_LINO, TRABOCCO_SOGLIA, ZENO_MAX } from './model';
 import type { LaceEvent } from '../core/types';
 
 /** Riga di incroci in forma compatta (array riusabili, al massimo 8 incroci). */
@@ -117,9 +117,12 @@ export function nonPlayerMask(m: Model): number {
 
 /**
  * Gino non sta fermo (GDD 3.6): vero se Gino aveva almeno un incrocio possibile
- * (non bloccato, un vicino libero, matassa non finita) e la riga non lo fa incrociare.
+ * (non è bloccato e almeno un vicino è libero: non bloccato, non in un incrocio
+ * forzato, e con almeno un verso ammesso dalle stranezze) e la riga non lo fa
+ * incrociare. La matassa non conta: a matassa finita la riga di Gino non si
+ * fissa e si disfa (GDD 3.7), così più matassa non obbliga mai a più incroci.
  */
-export function ginoFailed(m: Model, st: Int32Array, row: RowSpec, blocked: number, matassaLeft: number): boolean {
+export function ginoFailed(m: Model, st: Int32Array, row: RowSpec, blocked: number): boolean {
   const g = m.qGino;
   if (g < 0 || m.hasAuto) return false;
   const c = colOf(st, m.W, g);
@@ -131,7 +134,6 @@ export function ginoFailed(m: Model, st: Int32Array, row: RowSpec, blocked: numb
     if (row.forced[k]) forcedMask |= (1 << (st[p] as number)) | (1 << (st[p + 1] as number));
   }
   if (blocked & (1 << g)) return false;
-  if (matassaLeft <= 0) return false;
   const np = nonPlayerMask(m);
   for (let p = c - 1; p <= c; p++) {
     if (p < 0 || p > m.W - 2) continue;
@@ -438,4 +440,3 @@ export function isDelivered(m: Model, st: Int32Array, bi: number): boolean {
   return o >= 0 && ((st[m.OFF_DELIV] as number) & (1 << o)) !== 0;
 }
 
-export { bit, ZENO_MAX };
