@@ -30,7 +30,10 @@
         "priority": 100,
         "background": "dio/faro/alba",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.55}],
-        "lines": [{"speaker": "narratore", "textKey": "atto1.g05.alba.guardiano"}]
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g05.alba.guardiano"},
+          {"speaker": "zeno", "textKey": "atto1.g05.alba.guardiano2"}
+        ]
       },
       {
         "id": "g05.alba.calligrafia",
@@ -38,7 +41,10 @@
         "priority": 100,
         "background": "dio/faro/giorno",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "zeno", "textKey": "atto1.g05.alba.calligrafia"}]
+        "lines": [
+          {"speaker": "zeno", "textKey": "atto1.g05.alba.calligrafia"},
+          {"speaker": "narratore", "textKey": "atto1.g05.alba.calligrafia2"}
+        ]
       },
       {
         "id": "g05.alba.lanterna",
@@ -49,7 +55,10 @@
           {"character": "gino", "pose": "saluta", "x": 0.35},
           {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
         ],
-        "lines": [{"speaker": "gino", "textKey": "atto1.g05.alba.lanterna"}]
+        "lines": [
+          {"speaker": "gino", "textKey": "atto1.g05.alba.lanterna"},
+          {"speaker": "zeno", "textKey": "atto1.g05.alba.lanterna2"}
+        ]
       },
       {
         "id": "g05.alba.vetri",
@@ -57,7 +66,10 @@
         "priority": 80,
         "background": "dio/faro/giorno",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "zeno", "textKey": "atto1.g05.alba.vetri"}]
+        "lines": [
+          {"speaker": "zeno", "textKey": "atto1.g05.alba.vetri"},
+          {"speaker": "narratore", "textKey": "atto1.g05.alba.vetri2"}
+        ]
       },
       {
         "id": "g05.alba.lontano",
@@ -68,7 +80,10 @@
           {"character": "marta", "pose": "ferma", "x": 0.4},
           {"character": "gino", "pose": "ferma", "x": 0.66, "flip": true}
         ],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g05.alba.lontano"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g05.alba.lontano"},
+          {"speaker": "gino", "textKey": "atto1.g05.alba.lontano2"}
+        ]
       }
     ]
   },

@@ -58,7 +58,10 @@
           {"character": "marta", "pose": "ferma", "x": 0.36},
           {"character": "gino", "pose": "ferma", "x": 0.66}
         ],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g08.alba.anniversario"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g08.alba.anniversario"},
+          {"speaker": "piero", "textKey": "atto1.g08.alba.anniversario2"}
+        ]
       },
       {
         "id": "g08.alba.partita",
@@ -66,7 +69,10 @@
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "nina", "pose": "saluta", "x": 0.5}],
-        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.partita"}]
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g08.alba.partita"},
+          {"speaker": "narratore", "textKey": "atto1.g08.alba.partita2"}
+        ]
       },
       {
         "id": "g08.alba.scaduta",
@@ -74,7 +80,10 @@
         "priority": 80,
         "background": "dio/molo/giorno",
         "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.scaduta"}]
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g08.alba.scaduta"},
+          {"speaker": "narratore", "textKey": "atto1.g08.alba.scaduta2"}
+        ]
       },
       {
         "id": "g08.alba.insonne",
@@ -82,7 +91,10 @@
         "priority": 80,
         "background": "dio/faro/giorno",
         "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "zeno", "textKey": "atto1.g08.alba.insonne"}]
+        "lines": [
+          {"speaker": "zeno", "textKey": "atto1.g08.alba.insonne"},
+          {"speaker": "narratore", "textKey": "atto1.g08.alba.insonne2"}
+        ]
       }
     ]
   },

@@ -39,7 +39,10 @@
           {"character": "teresa", "pose": "porge", "x": 0.35},
           {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}
         ],
-        "lines": [{"speaker": "teresa", "textKey": "atto1.g00.alba.teresa"}]
+        "lines": [
+          {"speaker": "teresa", "textKey": "atto1.g00.alba.teresa"},
+          {"speaker": "piero", "textKey": "atto1.g00.alba.teresa2"}
+        ]
       },
       {
         "id": "g00.alba.piero",

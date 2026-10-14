@@ -30,7 +30,10 @@
         "priority": 100,
         "background": "dio/chiesa/notte",
         "figures": [{"character": "piero", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "piero", "textKey": "atto1.g07.alba.cassetto"}]
+        "lines": [
+          {"speaker": "piero", "textKey": "atto1.g07.alba.cassetto"},
+          {"speaker": "narratore", "textKey": "atto1.g07.alba.cassetto2"}
+        ]
       },
       {
         "id": "g07.alba.confessione",
@@ -55,7 +58,10 @@
           {"character": "marta", "pose": "ferma", "x": 0.36},
           {"character": "teresa", "pose": "ferma", "x": 0.66, "flip": true}
         ],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g07.alba.sempreSaputo"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g07.alba.sempreSaputo"},
+          {"speaker": "teresa", "textKey": "atto1.g07.alba.sempreSaputo2"}
+        ]
       },
       {
         "id": "g07.alba.ninaSa",
@@ -63,7 +69,10 @@
         "priority": 60,
         "background": "dio/piazza/giorno",
         "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "nina", "textKey": "atto1.g07.alba.ninaSa"}]
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g07.alba.ninaSa"},
+          {"speaker": "narratore", "textKey": "atto1.g07.alba.ninaSa2"}
+        ]
       },
       {
         "id": "g07.alba.lume",
@@ -74,7 +83,10 @@
           {"character": "gino", "pose": "saluta", "x": 0.36},
           {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
         ],
-        "lines": [{"speaker": "gino", "textKey": "atto1.g07.alba.lume"}]
+        "lines": [
+          {"speaker": "gino", "textKey": "atto1.g07.alba.lume"},
+          {"speaker": "zeno", "textKey": "atto1.g07.alba.lume2"}
+        ]
       }
     ]
   },

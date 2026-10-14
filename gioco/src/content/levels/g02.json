@@ -51,7 +51,10 @@
         "priority": 60,
         "background": "dio/chiesa/giorno",
         "figures": [{"character": "piero", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "piero", "textKey": "atto1.g02.alba.pieroSa"}]
+        "lines": [
+          {"speaker": "piero", "textKey": "atto1.g02.alba.pieroSa"},
+          {"speaker": "narratore", "textKey": "atto1.g02.alba.pieroSa2"}
+        ]
       },
       {
         "id": "g02.alba.giro",
@@ -59,7 +62,10 @@
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "gino", "pose": "saluta", "x": 0.5}],
-        "lines": [{"speaker": "gino", "textKey": "atto1.g02.alba.giro"}]
+        "lines": [
+          {"speaker": "gino", "textKey": "atto1.g02.alba.giro"},
+          {"speaker": "narratore", "textKey": "atto1.g02.alba.giro2"}
+        ]
       },
       {
         "id": "g02.alba.fredda",

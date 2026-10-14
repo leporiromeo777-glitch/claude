@@ -1,0 +1,373 @@
+{
+  "g00": {
+    "titolo": "Il merletto della nonna",
+    "perline": {"L1": "Una lettera per Don Piero"},
+    "alba": {
+      "marta": "Il forno apre alle sei anche se finisce il mondo.",
+      "teresa": "Una lettera per lei, Don Piero. Arrivata stanotte, chissà come.",
+      "piero": "Don Piero legge la lettera e si fa serio.",
+      "piero2": "Clotilde aveva pensato a tutto. Anche a chi avrebbe finito il merletto.",
+      "teresa2": "La Clotilde. Puntuale fino all'ultimo."
+    },
+    "hint": {
+      "spinta": "Guarda gli spilli d'ottone: dicono dove deve trovarsi ognuno, e a che ora.",
+      "indizio": "La lettera passa solo a chi sta sotto: Teresa deve stare sopra Don Piero."
+    },
+    "margine": {"sopraDa": "Chi sta sopra, dà."}
+  },
+  "g01": {
+    "titolo": "La prima sera",
+    "perline": {"L_piero": "La posta di Don Piero"},
+    "marta": {"testo": "Il Gino stia lontano dal Molo dopo le nove. L'acqua è alta e lui non ha giudizio."},
+    "piero": {"testo": "Gentile signorina Ada, la posta mi arrivi prima delle dieci, se il Signore e la Teresa lo consentono."},
+    "gino": {"testo": "VOGLIO SUONARE LA CAMPANA!!! portami in chiesa alle 11", "r1": "Te lo prometto, Gino.", "r2": "Prima chiedilo a Don Piero."},
+    "alba": {
+      "bambina": "Sulla Fondamenta si dice a bassa voce: la merlettaia nuova è una ragazzina.",
+      "bambina2": "Sedici anni, cara. Sedici! Io a sedici anni portavo già la posta.",
+      "campana": "Alle undici la campana suona fuori orario, stonata e felice.",
+      "campana2": "Ah, il Gino. Ego te absolvo, figliolo. Ma la prossima volta, piano.",
+      "brava": "Brava, merlettaia.",
+      "bagnato": "Il Gino torna dal Molo bagnato fino alle ginocchia, con un granchio in tasca.",
+      "bagnato2": "Domani te lo scrivo più chiaro, merlettaia.",
+      "posta": "Prima delle dieci. Grazie, figliola. La metto con le altre.",
+      "brava2": "Marta lo dice senza alzare gli occhi, con le mani nella farina.",
+      "posta2": "Il Signore e la Teresa l'hanno consentito, Don Piero."
+    },
+    "hint": {
+      "spinta": "Il Gino deve incrociare qualcuno ogni ora: fallo correre dove serve.",
+      "indizio": "Una lettera può passare da Teresa al Gino, e dal Gino a Don Piero."
+    },
+    "margine": {"gino": "Il Gino non sta fermo. Non c'è mai stato."}
+  },
+  "g02": {
+    "titolo": "Si dice",
+    "perline": {"bambina": "Voce: «La merlettaia nuova è una bambina»"},
+    "marta": {"testo": "Che il Gino non senta le chiacchiere."},
+    "teresa": {
+      "testo": "Cara, Don Piero deve sapere la novità prima della messa delle nove. È giusto che il parroco sappia.",
+      "r1": "Non è una novità, è una chiacchiera.",
+      "r2": "Va bene."
+    },
+    "gino": {"testo": "voglio fare il giro! Molo alle 8, chiesa alle 11"},
+    "alba": {
+      "voce": "La voce gira: «la piccola tesse peggio della vecchia».",
+      "voce2": "Io l'ho detto solo a chi me l'ha chiesto, cara. Cioè a tutti.",
+      "ginoSa": "Lo sanno tutti! La merlettaia è una bambina! Però più grande di me.",
+      "ginoSa2": "E chi te l'ha detto, Gino? No, non dirmelo. Lo so.",
+      "pieroSa": "Una bambina, dice la Teresa. Anche Clotilde lo era, quando cominciò.",
+      "giro": "Il giro! Molo, Forno, Piazza, Chiesa! Domani lo faccio al contrario!",
+      "fredda": "Una chiacchiera, dice lei. Va bene. Va bene così.",
+      "pieroSa2": "Don Piero lo dice al confessionale vuoto, e a nessun altro.",
+      "giro2": "Marta lo cerca per tutta la Fondamenta, con il grembiule ancora addosso."
+    },
+    "hint": {
+      "spinta": "Una voce passa in tutti e due i versi: chi incrocia chi la sa, la sa.",
+      "indizio": "Per tenere il Gino lontano dalla voce, non fargli incrociare chi la conosce."
+    },
+    "margine": {"voce": "La voce non ha verso."}
+  },
+  "g03": {
+    "titolo": "Il vaporetto delle nove",
+    "nina": {
+      "testo": "Domani prendo il vaporetto delle nove per l'esame a Venezia. Al babbo non dire niente: lui è in mare.",
+      "r1": "Diglielo, a tuo padre.",
+      "r2": "Vai. È la tua vita."
+    },
+    "marta": {"testo": "Oggi nessuno parta. Non voglio vedere partenze."},
+    "teresa": {"testo": "La posta dal vaporetto la prendo io. Fa' che io sia al Molo alle dieci."},
+    "alba": {
+      "ninaParte": "Venezia! Se il babbo chiede, ero da te a imparare il merletto.",
+      "ninaResta": "Il vaporetto è partito senza di me. L'esame era oggi.",
+      "ninaResta2": "Nina resta sul Molo finché il fumo non sparisce.",
+      "nessuno": "Nessuno è partito. Il mare se lo ricorda, chi parte.",
+      "posta": "Tutta la posta, cara! E una cartolina da Chioggia, senza firma. Che strano.",
+      "fredda": "Grazie, merlettaia.",
+      "ninaParte2": "Dal vaporetto Nina saluta l'isola con il libro, come con un fazzoletto.",
+      "nessuno2": "Marta chiude la porta del forno più forte del solito."
+    },
+    "hint": {
+      "spinta": "Alle nove il vaporetto porta via chi si trova al Molo.",
+      "indizio": "Chi deve restare, alle nove non deve stare al Molo. Chi deve partire, sì."
+    }
+  },
+  "g04": {
+    "titolo": "La barca di Bepi",
+    "perline": {"rete": "Voce: «Bepi ha venduto la rete buona»"},
+    "nina": {"testo": "Vorrei salutare il babbo prima che esca in barca.", "r1": "Abbraccialo forte.", "r2": "Digli di Venezia."},
+    "bepi": {"testo": "la teresa non vada a dire in giro della rete. specie a mia figlia"},
+    "piero": {"testo": "Bepi passi in Chiesa al ritorno: ha una candela da accendere per sua moglie."},
+    "alba": {
+      "barca": "Alle sette la barca di Bepi scivola fuori dal Molo, nella nebbia.",
+      "saluto": "Ciao, babbo.",
+      "saluto2": "Mh. Studia.",
+      "rete": "Hai venduto la rete buona. Per pagarmi l'esame.",
+      "rete2": "Le reti si rifanno. Le figlie no.",
+      "candela": "Una candela per l'Elvira. Dodici anni, oggi.",
+      "candela2": "Requiem aeternam. Resta quanto vuoi, Bepi. La chiesa non chiude.",
+      "venezia": "Venezia. Mh. Anche tua madre voleva vedere Venezia.",
+      "barca2": "Al Molo resta un pescatore senza barca, a guardare l'acqua.",
+      "venezia2": "Bepi non dice altro. Ripara la rete fino a sera."
+    },
+    "hint": {
+      "spinta": "Alle sette Bepi esce in barca: deve trovarsi al Molo. Rientra alle undici.",
+      "indizio": "Dal Molo alla Chiesa ci vogliono tre ore: Bepi deve muoversi appena rientra."
+    }
+  },
+  "g05": {
+    "titolo": "Il guardiano",
+    "perline": {"L_zeno": "Una lettera per Zeno, da Chioggia. Firmata «L.»"},
+    "zeno": {"testo": "Il ragazzo venga a vedere la lanterna alle dodici."},
+    "marta": {"testo": "Il Gino NON vada al Faro. Là c'è quel vecchio matto.", "r1": "Zeno non è matto. È solo.", "r2": "Va bene, Marta."},
+    "teresa": {"testo": "C'è una lettera per Zeno. Viene da Chioggia. Fa' che arrivi, cara."},
+    "alba": {
+      "guardiano": "Zeno sale le scale del Faro contando i gradini, come ogni mattina da quarant'anni.",
+      "calligrafia": "Questa calligrafia… no. Non può essere.",
+      "lanterna": "Da dentro la lanterna è un sole! Un sole che gira!",
+      "vetri": "Il ragazzo non è venuto. Avevo pulito i vetri apposta.",
+      "lontano": "Lontano da quel vecchio. Lo dico per il suo bene.",
+      "guardiano2": "Centoquattordici. Come ieri.",
+      "calligrafia2": "Zeno piega la lettera in quattro e la mette nella giacca, dalla parte del cuore.",
+      "lanterna2": "Mh. Adesso sai perché non dormo.",
+      "vetri2": "La lanterna gira lo stesso, per nessuno.",
+      "lontano2": "Ma mamma, il Faro! La lanterna!"
+    },
+    "hint": {
+      "spinta": "Zeno non si allontana dal Faro più di due luoghi.",
+      "indizio": "Il Gino può portare la lettera a Zeno: deve stare sotto quando la riceve."
+    }
+  },
+  "g06": {
+    "titolo": "La lettera da Venezia",
+    "perline": {"L1": "La lettera da Venezia per Nina: l'esito dell'esame", "ninaParte": "Voce: «Nina vuole partire»"},
+    "nina": {"testo": "La lettera da Venezia arrivi a me entro le 11. E la postina non la deve leggere."},
+    "marta": {"testo": "Oggi non voglio vedere la Teresa.", "r1": "Perché, Marta?", "r2": "Come vuoi."},
+    "zeno": {"testo": "Che il prete non senta chiacchiere su Nina: lo direbbe a suo padre."},
+    "alba": {
+      "busta": "Il vaporetto delle otto porta una busta col timbro di Venezia.",
+      "promossa": "Promossa! E nessuno l'ha letta prima di me. Nessuno!",
+      "tuttiSanno": "Lo sapevano tutti prima di me. Anche il voto.",
+      "tuttiSanno2": "Otto in latino, cara! Brava! Ah… non dovevo dirlo io?",
+      "respiro": "Oggi non l'ho vista. Si respira meglio.",
+      "prete": "Bepi, siediti. Ho sentito una cosa su Nina, e non posso tacerla.",
+      "prete2": "Venezia. Mh. Lo sapevo da quando ha imparato a leggere.",
+      "busta2": "Il marinaio la tiene in mano come una cosa che scotta.",
+      "promossa2": "Nina la rilegge dieci volte, seduta sulla vera da pozzo.",
+      "respiro2": "Marta impasta in silenzio. Per una volta il silenzio è leggero."
+    },
+    "hint": {
+      "spinta": "La lettera arriva col vaporetto delle otto: la porta il marinaio.",
+      "indizio": "Se alla fine di un'ora Teresa tiene una lettera non sua, la legge."
+    }
+  },
+  "g07": {
+    "titolo": "Il pozzo",
+    "perline": {"confessione": "Segreto: «Ho letto la lettera di Marta, nel '36»"},
+    "teresa": {"testo": "Voglio confessarmi. Che il mio peso arrivi a Don Piero, e a nessun altro."},
+    "nina": {
+      "testo": "Cosa nasconde la Teresa? Voglio saperlo. Ho diciassette anni, non sette.",
+      "r1": "Certe cose è meglio non saperle.",
+      "r2": "Hai ragione: non sei una bambina."
+    },
+    "zeno": {"testo": "Il ragazzo passi dal Faro alle tredici. Gli ho promesso la lanterna."},
+    "alba": {
+      "cassetto": "Le buste nel cassetto sono sempre di più. Non ricordo di averle messe lì.",
+      "confessione": "Trent'anni fa ho letto una lettera di Marta. In Piazza. Ad alta voce.",
+      "confessione2": "Ego te absolvo. Ma non è da me che devi andare, Teresa.",
+      "sempreSaputo": "Lo so cosa hai fatto, Teresa. L'ho sempre saputo.",
+      "ninaSa": "La Teresa lesse una lettera della Marta, nel trentasei. Ecco perché!",
+      "lume": "Zeno mi ha fatto accendere il lume piccolo! Io! Da solo!",
+      "cassetto2": "Don Piero chiude il cassetto. Si chiude a fatica.",
+      "sempreSaputo2": "E allora perché non me l'hai mai detto, Marta?",
+      "ninaSa2": "Nina lo scrive sul quaderno a righe, poi lo cancella.",
+      "lume2": "Mh. Lo spegni come l'hai acceso: piano."
+    },
+    "hint": {
+      "spinta": "Il segreto scende soltanto: da chi sta sopra a chi sta sotto.",
+      "indizio": "Quando Nina sta sopra, prende anche i segreti di chi le passa sotto."
+    }
+  },
+  "g08": {
+    "titolo": "Il filo nero",
+    "fili": {"segreteria": "la segreteria della scuola, a Venezia"},
+    "perline": {"L_iscrizione": "La domanda d'iscrizione di Nina, per Venezia"},
+    "marta": {"testo": "Domani è l'anniversario di mio padre. Prima della messa delle undici voglio parlare con Don Piero, e voglio il Gino con me."},
+    "nina": {
+      "testo": "La domanda d'iscrizione per Venezia deve partire col vaporetto delle nove. Dalla a chiunque salga.",
+      "r1": "Il babbo lo sa?",
+      "r2": "Partirà."
+    },
+    "zeno": {"testo": "Stanotte non ho dormito. Dalle tre in poi non voglio vedere nessuno."},
+    "alba": {
+      "filoNero": "Alle tre di notte, sul bordo del merletto, un filo nero incrocia Zeno al Faro.",
+      "filoNero2": "Non l'ho tessuto io.",
+      "anniversario": "Vent'anni oggi. Gino, togliti il berretto davanti a Don Piero.",
+      "partita": "È partita! La domanda è partita! Adesso è vero.",
+      "scaduta": "Il vaporetto è partito e la domanda è ancora qui. Scadeva oggi.",
+      "insonne": "Non ho dormito. Stanotte sul mare c'era una luce. Nera.",
+      "anniversario2": "Requiem aeternam. Era un uomo severo, il tuo papà. Ma ti voleva qui.",
+      "partita2": "Nina corre lungo la Fondamenta senza salutare nessuno, per non piangere.",
+      "scaduta2": "Nina rimette la busta nel libro, come un segnalibro.",
+      "insonne2": "Zeno guarda il mare dalla parte di Chioggia, e non dice altro."
+    },
+    "hint": {
+      "spinta": "Il vaporetto delle nove porta via chi è al Molo, con tutto quello che ha.",
+      "indizio": "Chi sale sul vaporetto deve avere la domanda: Nina gliela dà stando sopra."
+    }
+  },
+  "arc1": {
+    "titolo": "La lettera di Marta",
+    "fili": {"padre": "il padre di Marta"},
+    "perline": {"L_ernesto": "Una lettera sigillata male"},
+    "eco": {
+      "ernesto": "Per la Marta. Gliela dia in mano, Teresa. Solo a lei.",
+      "padre": "Buongiorno, Don Anselmo. C'è un forestiero in Piazza, l'ha visto?",
+      "quale": "«Hai avuto la mia lettera?» «Quale lettera, Ernesto?»",
+      "letta": "«Vieni via con me, col vaporetto di mezzogiorno.» C'è scritto così, giuro.",
+      "nessunaParte": "Tieni. L'ha già letta mezza isola. Tu non vai da nessuna parte.",
+      "anselmo": "Teresa. Che cosa hai fatto, figliola?"
+    },
+    "margine": "Perché restasse.",
+    "rivela": {
+      "1": "Nel '36 la nonna fece passare la lettera di Ernesto da Teresa, all'ora del mercato.",
+      "2": "Ernesto partì solo, col vaporetto di mezzogiorno. Marta restò."
+    },
+    "hint": {
+      "spinta": "Chi è sempre in Chiesa alle undici? Chi esce col vaporetto? Chi si accende?",
+      "indizio": "La lettera passa a chi sta sotto. Il padre deve saperla prima delle undici."
+    }
+  },
+  "arc2": {
+    "titolo": "L'ultimo merletto",
+    "perline": {"L_livia": "Una busta da Chioggia", "L_ada": "Una busta chiusa, senza nome"},
+    "eco": {
+      "busta": "Un'altra busta da Chioggia, Don Piero. La dia lei alla signora Clotilde.",
+      "perLei": "Per la bambina. Quando sarà il momento, Zeno. Non prima.",
+      "campana": "Le tre. Mi è parso di sentire la campana. Era il vento.",
+      "onda": "Hai visto una vecchia, sulla secca? No? Allora l'ho sognata."
+    },
+    "margine": "Una volta sola, dentro.",
+    "rivela": {
+      "1": "Il filo d'avorio era la nonna: l'unica notte in cui si tessé dentro il merletto.",
+      "2": "Io? Alle due dormivo. Non so di che filo parli."
+    },
+    "hint": {
+      "spinta": "Il filo che si interrompe alle tre non è di nessuno dei vivi.",
+      "indizio": "Alle due il filo d'avorio passa sopra il filo vicino al Faro, e gli dà qualcosa."
+    }
+  },
+  "diario": {
+    "persone": {
+      "marta": {
+        "noSotto": "Marta non passa mai sotto Teresa. Me l'ha detto con un «No.» che ha fatto tremare il tombolo.",
+        "partenze": "Marta ha visto partire il vaporetto ed è rientrata nel forno senza dire niente. Le partenze le fanno male.",
+        "padre": "Era l'anniversario del padre di Marta. In Chiesa, prima della messa, teneva il Gino per mano.",
+        "ernesto": "Nel 1936 Marta voleva partire con un marinaio, Ernesto. Partì solo lui.",
+        "chi": "Marta, la fornaia. Al funerale della nonna non ha pianto: ha lasciato due pagnotte sulla porta e se n'è andata.",
+        "zeno": "Ho scritto a Marta che Zeno non è matto, è solo. Non ha risposto. Forse domani."
+      },
+      "teresa": {
+        "luce": "Teresa si è accesa. Che cosa ha visto?",
+        "legge": "Se alla fine di un'ora Teresa tiene una lettera che non è sua, la legge. Non per cattiveria: le lettere le fanno compagnia.",
+        "cartolina": "Nella posta del vaporetto c'era una cartolina da Chioggia, senza firma. Teresa l'ha guardata a lungo.",
+        "chi": "Teresa, la postina. Il giorno del funerale mi ha portato il pane e intanto mi ha raccontato tutta l'isola.",
+        "fredda": "Ho scritto a Teresa che la sua novità era una chiacchiera. Da allora non mi chiama più «cara».",
+        "amica": "Ho detto di sì a Teresa. Nel biglietto dopo mi ha chiamata «cara» tre volte."
+      },
+      "piero": {
+        "pozzo": "Don Piero prende tutto e non dà niente. Le lettere che non sono per lui restano a lui.",
+        "buste": "Don Piero mette via tutto, anche le buste vuote. Ha un cassetto che non si chiude più.",
+        "ascolta": "Don Piero ha saputo la voce e non l'ha ripetuta a nessuno. Le voci, da lui, si fermano.",
+        "bepi": "Don Piero ha saputo che Nina vuole partire, e l'ha detto a Bepi. Don Piero non mente mai.",
+        "chi": "Don Piero ha detto la messa per la nonna con la voce di chi ha sonno da quarant'anni. Mi chiama figliola."
+      },
+      "gino": {
+        "corre": "Gino non sta fermo. Ogni ora deve incrociare qualcuno, se appena può.",
+        "bagnato": "Il Gino è tornato dal Molo bagnato fino alle ginocchia. Marta non mi ha guardata in faccia.",
+        "chiacchiere": "Gino ha ripetuto a tutti che la merlettaia è una bambina. Ha aggiunto di suo: «Però brava».",
+        "chi": "Il Gino è il figlio di Marta. Ha undici anni e non sta fermo nemmeno in chiesa.",
+        "campana": "Alle undici il Gino ha suonato la campana. Stonata, fuori orario, felice. Don Piero ha riso.",
+        "promessa": "Ho promesso la campana al Gino. Adesso è una promessa, e le promesse pesano più dei bigliettini.",
+        "giro": "Il Gino ha fatto il giro: Molo, Forno, Piazza, Chiesa. Domani, dice, lo fa al contrario.",
+        "lume": "Zeno ha fatto accendere al Gino il lume piccolo del Faro. Il Gino non parla d'altro."
+      },
+      "zeno": {
+        "faro": "Zeno non si allontana dal Faro più di due luoghi. Come un cane alla catena, ma senza catena.",
+        "insonne": "Zeno non dorme da giorni. Dice che di notte, sul mare, c'è una luce nera.",
+        "nega": "Ho chiesto a Zeno della notte in cui è morta la nonna. Dice che alle due dormiva. Non mi ha guardata.",
+        "chi": "Zeno, il guardiano del faro. La nonna lo chiamava «il guardiano», e basta. Lui la chiamava «signora».",
+        "riposo": "Zeno ha passato il pomeriggio da solo. Dice che ha dormito un'ora, la prima da giorni."
+      },
+      "nina": {
+        "curiosa": "Quando Nina sta sopra, oltre a dare prende: i segreti di chi le passa sotto.",
+        "esamePerso": "Nina ha perso il vaporetto delle nove, e con lui l'esame. Ne fanno un altro in primavera.",
+        "tuttiSanno": "L'esito dell'esame di Nina l'ha saputo tutta l'isola prima di lei. Teresa aveva letto la lettera.",
+        "iscrizione": "La domanda d'iscrizione di Nina non è partita. Scadeva oggi. Nina dice che non importa. Importa.",
+        "chi": "Nina, la figlia di Bepi. Legge camminando e non inciampa mai. Vuole andare a Venezia.",
+        "partita": "Nina ha preso il vaporetto delle nove per l'esame. Bepi era in mare e non sa niente.",
+        "dillo": "Ho scritto a Nina di dirlo a suo padre. Non mi ha risposto: Nina risponde solo quando ha ragione.",
+        "vai": "Ho scritto a Nina: «Vai. È la tua vita.» L'ho scritto io, ma sembrava la frase di qualcun altro.",
+        "promossa": "Nina è stata promossa e l'ha saputo per prima. Ha riletto la lettera dieci volte, in Piazza.",
+        "iscritta": "La domanda di Nina è partita col vaporetto delle nove. Adesso Venezia sa che Nina esiste."
+      },
+      "bepi": {
+        "rete": "Bepi ha venduto la rete buona per pagare a Nina l'esame. Adesso Nina lo sa.",
+        "candela": "Bepi accende una candela per sua moglie, l'Elvira. Non dice niente. Non serve.",
+        "chi": "Bepi, il pescatore. Mi ha salutata con la testa, senza una parola. Dicono che sia così con tutti."
+      }
+    },
+    "desiderio": {
+      "nina": "Nina vuole studiare a Venezia e diventare maestra. Lo dice come si dice una cosa già fatta.",
+      "gino": "Gino vuole vedere la lanterna accesa da dentro. Lo ha scritto tre volte, con tre errori diversi."
+    },
+    "libro": {
+      "incrocio": "Due fili che si incontrano si scambiano il posto. Sul tombolo come sulla Fondamenta.",
+      "spillo": "Gli spilli d'ottone non si discutono. Finché non sono rispettati, l'ora non si fissa.",
+      "sopraDa": "«Chi sta sopra, dà.» Se la lettera non passa, tocco l'incrocio e lo rovescio.",
+      "voce": "Le voci passano in tutti e due i versi. Una volta dette, non tornano indietro.",
+      "matassa": "La matassa è contata: ogni incrocio un braccio di filo. Rovesciare non costa niente.",
+      "molo": "All'ora delle barche chi è al Molo se ne va, con tutto quello che ha. Chi arriva prende il suo posto.",
+      "segreto": "I segreti scendono soltanto, da chi sta sopra a chi sta sotto. Chi li confida li tiene."
+    },
+    "domande": {
+      "avorio": {
+        "apre": "Sul tombolo c'è l'ultimo merletto della nonna. Un filo d'avorio non è di nessuno, e alle tre è tagliato. Dove guardare: la cassapanca, quando si aprirà.",
+        "indizio1": "Il filo d'avorio è passato sopra Zeno alle due. Gli ha dato qualcosa.",
+        "risposta": "Il filo d'avorio era la nonna: l'unica volta che si è tessuta dentro il merletto."
+      },
+      "martaTeresa": {
+        "apre": "Marta e Teresa non si parlano da trent'anni, dice il Gino. Nessuno sa dire perché, o nessuno vuole.",
+        "chiedilo": "Ho chiesto a Marta perché non vuole vedere Teresa. Mi ha risposto: «Chiedilo a tua nonna.» Dove guardare: l'Archivio.",
+        "confessione": "Teresa si è confessata: trent'anni fa lesse una lettera di Marta, in Piazza.",
+        "nina": "Nina ha scoperto il peso di Teresa: nel '36 lesse ad alta voce una lettera di Marta.",
+        "risposta": "Fu la nonna a far passare la lettera di Ernesto da Teresa, all'ora del mercato. Perché Marta restasse."
+      },
+      "chiL": {
+        "apre": "La laguna ha portato una bottiglia. Dentro, un foglio: «Cara mia…» e una firma, L. Dove guardare: le bottiglie, ogni sera.",
+        "seppia": "L. tesse da sola, col nero di seppia, perché sul velluto blu non si vede. Chi le ha insegnato?",
+        "zeno": "Zeno ha ricevuto una lettera firmata «L.». Ha detto: «Non può essere.»",
+        "fuso": "Nel fuso a forma di faro che Zeno ha perso c'è un'iniziale incisa: L."
+      },
+      "pozzo": {"apre": "Don Piero tiene tutto. Ma che cosa c'è in quel cassetto che non si chiude più?"},
+      "desideri": {"apre": "Ognuno vuole qualcosa, e me lo scrive solo a metà. Se sapessi che cosa vuole ognuno…"},
+      "filoNero": {"apre": "Alle tre di notte, sul bordo del merletto, un filo nero ha incrociato Zeno al Faro. Non l'ho tessuto io."}
+    },
+    "lettere": {
+      "bottiglie": "Le bottiglie arrivano alla porta la sera, con la marea. Le lettere dentro cominciano tutte con «Cara mia».",
+      "disordine": "Le lettere di L. arrivano in disordine: una è stata in mare dieci anni, un'altra un mese."
+    },
+    "archivio": {
+      "cassapanca": "La cassapanca della nonna si è aperta. Dentro, merletti vecchi arrotolati, ognuno con un nastro e una data. Dove guardare: l'Archivio.",
+      "arc1": "1936. La nonna fece passare la lettera di Ernesto da Teresa, all'ora del mercato. Sul margine: «Perché restasse.»",
+      "arc2": "La notte scorsa. Il filo d'avorio si interrompe alle tre. Sul margine: «Una volta sola, dentro.»"
+    }
+  },
+  "lettere": {
+    "L1": "Cara mia, oggi a Chioggia c'era un vento che ti avrebbe fatto ridere. Ho comprato un quaderno a righe, di quelli che piacevano a me da piccola. Non so se le bottiglie arrivano. Le lettere, di sicuro, no. L.",
+    "L2": "Cara mia, oggi sul molo c'era una bambina che contava le barche ad alta voce, e sbagliava sempre alla stessa: quella rossa. Ho pensato che anche tu, forse, conti le cose. Io conto i mesi. Non te lo dico per farti pena: è che i numeri, da lontano, sono l'unica cosa che si può tenere in mano. Ti mando un abbraccio a forma di bottiglia, che è la forma che hanno qui gli abbracci. L.",
+    "L3": "Cara mia, lavoro in una fabbrica di reti. Annodiamo dalla mattina alla sera, e le mani imparano da sole. A volte, senza volerlo, faccio un punto che mi ha insegnato mia madre, e la caposquadra mi guarda storto: dice che quel nodo non tiene. Tiene, invece. Tiene da sempre, anche quando non vorresti. Spero che qualcuno ti abbia insegnato a fare i nodi, e anche a scioglierli. La seconda cosa è più difficile. L.",
+    "L4": "Cara mia, ho imparato a tessere da sola. Non so se si dice così: a tessere senza avere il diritto. Uso il nero di seppia, perché sul velluto blu non si vede. Nessuno mi ha insegnato. L.",
+    "L5": "Cara mia, oggi è il tuo compleanno, credo. Ho perso il conto dei calendari, non dei compleanni. Ho comprato una torta piccola e l'ho mangiata sul molo, guardando dalla parte dell'isola. Da qui non si vede: c'è sempre la nebbia, o forse è la distanza. Ti avranno fatto il pane dolce, al forno. Me lo ricordo bene: era buono anche bruciato, soprattutto bruciato. Tanti auguri, da lontano. L.",
+    "L6": "Cara mia, stanotte ho sognato il Faro. C'era un uomo sulla scala che contava i gradini, come faceva sempre, e arrivato in cima ricominciava da capo. Non scrivo il suo nome: le bottiglie le apre il mare, e il mare chiacchiera. Se lo incontri, digli che mi ricordo ancora il fuso a forma di faro. No, non dirgli niente. Non saprebbe di chi parli. L.",
+    "L7": "Cara mia, a Chioggia si dice che quando il mare restituisce una bottiglia, chi l'ha scritta sta per tornare. Ne ho buttate centinaia: dovrei essere tornata cento volte. Invece sono qui, alla finestra, e scrivo. Stasera il mare è nero come il mio filo, e c'è un vento che viene dalla tua parte. Non avere paura del nero. È solo un colore che di notte non si vede. L."
+  }
+}

@@ -32,8 +32,11 @@
         "id": "g06.alba.busta",
         "priority": 100,
         "background": "dio/molo/giorno",
-        "figures": [{"character": "lino", "pose": "porge", "x": 0.5}],
-        "lines": [{"speaker": "narratore", "textKey": "atto1.g06.alba.busta"}]
+        "figures": [],
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g06.alba.busta"},
+          {"speaker": "narratore", "textKey": "atto1.g06.alba.busta2"}
+        ]
       },
       {
         "id": "g06.alba.promossa",
@@ -41,7 +44,10 @@
         "priority": 60,
         "background": "dio/piazza/giorno",
         "figures": [{"character": "nina", "pose": "saluta", "x": 0.5}],
-        "lines": [{"speaker": "nina", "textKey": "atto1.g06.alba.promossa"}]
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g06.alba.promossa"},
+          {"speaker": "narratore", "textKey": "atto1.g06.alba.promossa2"}
+        ]
       },
       {
         "id": "g06.alba.tuttiSanno",
@@ -63,7 +69,10 @@
         "priority": 60,
         "background": "dio/forno/giorno",
         "figures": [{"character": "marta", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g06.alba.respiro"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g06.alba.respiro"},
+          {"speaker": "narratore", "textKey": "atto1.g06.alba.respiro2"}
+        ]
       },
       {
         "id": "g06.alba.prete",

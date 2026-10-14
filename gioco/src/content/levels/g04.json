@@ -37,7 +37,10 @@
         "priority": 100,
         "background": "dio/molo/alba",
         "figures": [{"character": "bepi", "pose": "ferma", "x": 0.55}],
-        "lines": [{"speaker": "narratore", "textKey": "atto1.g04.alba.barca"}]
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g04.alba.barca"},
+          {"speaker": "narratore", "textKey": "atto1.g04.alba.barca2"}
+        ]
       },
       {
         "id": "g04.alba.saluto",
@@ -87,7 +90,10 @@
         "priority": 55,
         "background": "dio/molo/giorno",
         "figures": [{"character": "bepi", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "bepi", "textKey": "atto1.g04.alba.venezia"}]
+        "lines": [
+          {"speaker": "bepi", "textKey": "atto1.g04.alba.venezia"},
+          {"speaker": "narratore", "textKey": "atto1.g04.alba.venezia2"}
+        ]
       }
     ]
   },

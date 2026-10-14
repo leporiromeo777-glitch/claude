@@ -24,19 +24,15 @@
   "dawn": {
     "candidates": [
       {
-        "id": "g03.alba.vaporetto",
-        "priority": 100,
-        "background": "dio/molo/alba",
-        "figures": [{"character": "lino", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "narratore", "textKey": "atto1.g03.alba.vaporetto"}]
-      },
-      {
         "id": "g03.alba.ninaParte",
         "when": {"ok": "g03.nina"},
         "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "nina", "pose": "saluta", "x": 0.45}],
-        "lines": [{"speaker": "nina", "textKey": "atto1.g03.alba.ninaParte"}]
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g03.alba.ninaParte"},
+          {"speaker": "narratore", "textKey": "atto1.g03.alba.ninaParte2"}
+        ]
       },
       {
         "id": "g03.alba.ninaResta",
@@ -55,7 +51,10 @@
         "priority": 60,
         "background": "dio/forno/giorno",
         "figures": [{"character": "marta", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g03.alba.nessuno"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g03.alba.nessuno"},
+          {"speaker": "narratore", "textKey": "atto1.g03.alba.nessuno2"}
+        ]
       },
       {
         "id": "g03.alba.posta",

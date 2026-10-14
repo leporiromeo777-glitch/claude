@@ -1,23 +1,112 @@
 {
   "pers": {
-    "teresa": { "nome": "Teresa", "nomeCompleto": "Teresa Bortolato", "ruolo": "the postwoman, 54", "desiderio": "A letter written for me." },
-    "marta": { "nome": "Marta", "nomeCompleto": "Marta Zennaro", "ruolo": "the baker, 52", "desiderio": "That Gino doesn't leave the way Ernesto did." },
-    "piero": { "nome": "Don Piero", "nomeCompleto": "Don Piero Vianello", "ruolo": "the parish priest, 64", "desiderio": "To give back what I keep." },
-    "gino": { "nome": "Gino", "nomeCompleto": "Gino Zennaro", "ruolo": "Marta's son, 11", "desiderio": "To see the lighthouse lantern lit from inside." },
-    "bepi": { "nome": "Bepi", "nomeCompleto": "Bepi Scarpa", "ruolo": "the fisherman, 48", "desiderio": "To say goodbye to Nina properly." },
-    "nina": { "nome": "Nina", "nomeCompleto": "Nina Scarpa", "ruolo": "Bepi's daughter, 17", "desiderio": "To study in Venice and become a teacher." },
-    "zeno": { "nome": "Zeno", "nomeCompleto": "Zeno Busetto", "ruolo": "the lighthouse keeper, 61", "desiderio": "To ask Livia's forgiveness." },
-    "lunardi": { "nome": "Lunardi", "nomeCompleto": "Dr Ettore Lunardi", "ruolo": "the pharmacist, 39", "desiderio": "That the island calls me by my name." },
-    "livia": { "nome": "Livia", "nomeCompleto": "Livia Vio", "ruolo": "the woman in the black shawl, 38", "desiderio": "To see Ada again." },
-    "ada": { "nome": "Ada", "nomeCompleto": "Ada Vio", "ruolo": "the lacemaker, 16", "desiderio": "To have a thread." },
-    "clotilde": { "nome": "Clotilde", "nomeCompleto": "Clotilde Vio", "ruolo": "the grandmother, lacemaker for sixty years" },
-    "ernesto": { "nome": "Ernesto", "nomeCompleto": "Ernesto Doria", "ruolo": "a sailor, in 1936" },
-    "anselmo": { "nome": "Don Anselmo", "nomeCompleto": "Don Anselmo Barbaro", "ruolo": "the parish priest, in 1936" },
-    "aldo": { "nome": "Aldo", "nomeCompleto": "Aldo Rizzo", "ruolo": "Teresa's fiancé, in 1958" },
-    "bortolo": { "nome": "Dr Bortolo", "nomeCompleto": "Dr Bortolo Fabris", "ruolo": "the town doctor, in 1958" },
-    "arianna": { "nome": "Arianna", "nomeCompleto": "Arianna", "ruolo": "the first lacemaker, in 1630" }
+    "teresa": {
+      "nome": "Teresa",
+      "nomeCompleto": "Teresa Bortolato",
+      "ruolo": "the postwoman, 54",
+      "desiderio": "A letter written for me.",
+      "presentazione": "She has carried the post for thirty years and knows everything about everyone, or nearly. She talks fast, calls everyone \"dear\", and in the evening has no one to tell about her day."
+    },
+    "marta": {
+      "nome": "Marta",
+      "nomeCompleto": "Marta Zennaro",
+      "ruolo": "the baker, 52",
+      "desiderio": "That Gino doesn't leave the way Ernesto did.",
+      "presentazione": "The bakery is hers, and the bread is ready at six even if the world ends. Short sentences, hands in the flour, a son who never keeps still."
+    },
+    "piero": {
+      "nome": "Don Piero",
+      "nomeCompleto": "Don Piero Vianello",
+      "ruolo": "the parish priest, 64",
+      "desiderio": "To give back what I keep.",
+      "presentazione": "The parish priest: slow, kind, full of silences. He never lies, but he keeps a lot to himself. In the sacristy drawer the envelopes are past counting."
+    },
+    "gino": {
+      "nome": "Gino",
+      "nomeCompleto": "Gino Zennaro",
+      "ruolo": "Marta's son, 11",
+      "desiderio": "To see the lighthouse lantern lit from inside.",
+      "presentazione": "Marta's son, eleven, with two grazed knees. He runs everywhere, writes with mistakes and draws kites in the margins."
+    },
+    "bepi": {
+      "nome": "Bepi",
+      "nomeCompleto": "Bepi Scarpa",
+      "ruolo": "the fisherman, 48",
+      "desiderio": "To say goodbye to Nina properly.",
+      "presentazione": "Fisherman, gruff, widowed. He writes very little and gets his double letters wrong. He loves his daughter with gestures, hardly ever with words."
+    },
+    "nina": {
+      "nome": "Nina",
+      "nomeCompleto": "Nina Scarpa",
+      "ruolo": "Bepi's daughter, 17",
+      "desiderio": "To study in Venice and become a teacher.",
+      "presentazione": "Bepi's daughter, seventeen, always a book in her pocket. She wants Venice, the exam, the school. Impatient, ironic, and she quotes books."
+    },
+    "zeno": {
+      "nome": "Zeno",
+      "nomeCompleto": "Zeno Busetto",
+      "ruolo": "the lighthouse keeper, 61",
+      "desiderio": "To ask Livia's forgiveness.",
+      "presentazione": "The lighthouse keeper. Few words, nearly all about the sea and the light. He never strays from the lighthouse, and at night he doesn't sleep."
+    },
+    "lunardi": {
+      "nome": "Lunardi",
+      "nomeCompleto": "Dr Ettore Lunardi",
+      "ruolo": "the pharmacist, 39",
+      "desiderio": "That the island calls me by my name.",
+      "presentazione": "The pharmacist who came from the city: polite, precise, a little ridiculous. He speaks bookish Italian and wants the island to call him by his name."
+    },
+    "livia": {
+      "nome": "Livia",
+      "nomeCompleto": "Livia Vio",
+      "ruolo": "the woman in the black shawl, 38",
+      "desiderio": "To see Ada again.",
+      "presentazione": "A woman in a black shawl whom nobody recognises. She writes \"my Ada\"; she is warm and sad, and ironic like Nina."
+    },
+    "ada": {
+      "nome": "Ada",
+      "nomeCompleto": "Ada Vio",
+      "ruolo": "the lacemaker, 16",
+      "desiderio": "To have a thread.",
+      "presentazione": "Sixteen, the lacemaker. She inherited the lace pillow the night her grandmother died, and with it the whole island."
+    },
+    "clotilde": {
+      "nome": "Clotilde",
+      "nomeCompleto": "Clotilde Vio",
+      "ruolo": "the grandmother, lacemaker for sixty years",
+      "presentazione": "The grandmother. For sixty years she wove everyone's day. What is left of her is the sepia handwriting in the margins of the Book of Stitches."
+    },
+    "ernesto": {
+      "nome": "Ernesto",
+      "nomeCompleto": "Ernesto Doria",
+      "ruolo": "a sailor, in 1936",
+      "presentazione": "A sailor from elsewhere, in the summer of 1936. He had a boat, a letter, and a question for Marta."
+    },
+    "anselmo": {
+      "nome": "Don Anselmo",
+      "nomeCompleto": "Don Anselmo Barbaro",
+      "ruolo": "the parish priest, in 1936",
+      "presentazione": "The priest of Sant'Arianna in 1936. Always in church at eleven, like the one who came after him."
+    },
+    "aldo": {
+      "nome": "Aldo",
+      "nomeCompleto": "Aldo Rizzo",
+      "ruolo": "Teresa's fiancé, in 1958",
+      "presentazione": "Teresa's fiancé in 1958. He wanted to take her to the mainland the following summer."
+    },
+    "bortolo": {
+      "nome": "Dr Bortolo",
+      "nomeCompleto": "Dr Bortolo Fabris",
+      "ruolo": "the town doctor, in 1958",
+      "presentazione": "The island's old town doctor, in the winter of the 1958 fever."
+    },
+    "arianna": {
+      "nome": "Arianna",
+      "nomeCompleto": "Arianna",
+      "ruolo": "the first lacemaker, in 1630",
+      "presentazione": "The first lacemaker, in 1630. The island bears her name and no longer knows why."
+    }
   },
-
   "fili": {
     "lino": "a passer-by",
     "passante": "a passer-by",
@@ -30,24 +119,21 @@
     "avorio": "the ivory thread",
     "sbiadito": "a faded thread"
   },
-
   "luogo": {
-    "molo": { "nome": "Pier", "breve": "Pier", "descrizione": "Mooring posts, boats, the morning and evening ferry." },
-    "forno": { "nome": "Bakery", "breve": "Bakery", "descrizione": "The mouth of Marta's oven. Bread at six." },
-    "piazza": { "nome": "Square", "breve": "Square", "descrizione": "The wellhead, the benches, the market from nine to eleven." },
-    "chiesa": { "nome": "Church", "breve": "Church", "descrizione": "The churchyard and the bell tower, whose clock strikes out of tune." },
-    "farmacia": { "nome": "Pharmacy", "breve": "Pharm.", "descrizione": "The counter and the jars. Closed, until someone comes." },
-    "faro": { "nome": "Lighthouse", "breve": "Light", "descrizione": "White and red on the rocks. The light from six in the evening." },
-    "stanza": { "nome": "Ada's room", "breve": "Room", "descrizione": "The lace pillow on its stand, the empty chair, the chest." }
+    "molo": {"nome": "Pier", "breve": "Pier", "descrizione": "Mooring posts, boats, the morning and evening ferry."},
+    "forno": {"nome": "Bakery", "breve": "Bakery", "descrizione": "The mouth of Marta's oven. Bread at six."},
+    "piazza": {"nome": "Square", "breve": "Square", "descrizione": "The wellhead, the benches, the market from nine to eleven."},
+    "chiesa": {"nome": "Church", "breve": "Church", "descrizione": "The churchyard and the bell tower, whose clock strikes out of tune."},
+    "farmacia": {"nome": "Pharmacy", "breve": "Pharm.", "descrizione": "The counter and the jars. Closed, until someone comes."},
+    "faro": {"nome": "Lighthouse", "breve": "Light", "descrizione": "White and red on the rocks. The light from six in the evening."},
+    "stanza": {"nome": "Ada's room", "breve": "Room", "descrizione": "The lace pillow on its stand, the empty chair, the chest."}
   },
-
   "atti": {
-    "0": { "titolo": "Prologue", "sottotitolo": "The night Clotilde died" },
-    "1": { "titolo": "Act I. The Warp", "sottotitolo": "Autumn" },
-    "2": { "titolo": "Act II. The Weft", "sottotitolo": "Winter" },
-    "3": { "titolo": "Act III. The Reverse", "sottotitolo": "Spring" }
+    "0": {"titolo": "Prologue", "sottotitolo": "The night Clotilde died"},
+    "1": {"titolo": "Act I. The Warp", "sottotitolo": "Autumn"},
+    "2": {"titolo": "Act II. The Weft", "sottotitolo": "Winter"},
+    "3": {"titolo": "Act III. The Reverse", "sottotitolo": "Spring"}
   },
-
   "libro": {
     "titolo": "The Book of Stitches",
     "incrocio": {
@@ -121,39 +207,51 @@
       "margine": "I did not have the courage."
     }
   },
-
   "domande": {
-    "avorio": { "titolo": "Whose is the ivory thread?" },
-    "martaTeresa": { "titolo": "Why don't Marta and Teresa speak to each other?" },
-    "chiL": { "titolo": "Who is L.?" },
-    "filoNero": { "titolo": "Who weaves the black thread?" },
-    "pozzo": { "titolo": "What is Don Piero keeping?" },
-    "anno1958": { "titolo": "What happened in 1958?" },
-    "madre": { "titolo": "Why did my mother leave?" },
-    "puntoAperto": { "titolo": "What is the open stitch?" },
-    "desideri": { "titolo": "What does everyone want?" }
+    "avorio": {"titolo": "Whose is the ivory thread?"},
+    "martaTeresa": {"titolo": "Why don't Marta and Teresa speak to each other?"},
+    "chiL": {"titolo": "Who is L.?"},
+    "filoNero": {"titolo": "Who weaves the black thread?"},
+    "pozzo": {"titolo": "What is Don Piero keeping?"},
+    "anno1958": {"titolo": "What happened in 1958?"},
+    "madre": {"titolo": "Why did my mother leave?"},
+    "puntoAperto": {"titolo": "What is the open stitch?"},
+    "desideri": {"titolo": "What does everyone want?"}
   },
-
   "oggetti": {
-    "merletto_avorio": { "nome": "Grandmother's last lace", "descrizione": "An ivory thread that belongs to nobody breaks off at three, cut clean." },
-    "libro_punti": { "nome": "The Book of Stitches", "descrizione": "Worn leather, handwritten pages. In the margins, grandmother's sepia hand." },
-    "bottiglia": { "nome": "A bottle", "descrizione": "The lagoon brought it to the door. Inside, a rolled sheet signed \"L.\"." },
-    "fuso_faro": { "nome": "A bobbin carved like a lighthouse", "descrizione": "Zeno lost it. Inside, carved small, there is an initial: \"L.\"." },
-    "pagina_strappata": { "nome": "A torn page", "descrizione": "It comes from the Book of Stitches. It shows a stitch I don't know, and no explanation." },
-    "bottiglia_nodo_nero": { "nome": "An empty bottle", "descrizione": "No letter. Inside, a knot of black thread." },
-    "fascio_lettere": { "nome": "The bundle of letters", "descrizione": "Three readable letters, and a hundred and sixty-five more. One a month, for fourteen years." },
-    "nastro_nonna": { "nome": "Grandmother's ribbon", "descrizione": "The leftover ivory thread, carefully wound." }
+    "merletto_avorio": {"nome": "Grandmother's last lace", "descrizione": "An ivory thread that belongs to nobody breaks off at three, cut clean."},
+    "libro_punti": {"nome": "The Book of Stitches", "descrizione": "Worn leather, handwritten pages. In the margins, grandmother's sepia hand."},
+    "bottiglia": {"nome": "A bottle", "descrizione": "The lagoon brought it to the door. Inside, a rolled sheet signed \"L.\"."},
+    "fuso_faro": {"nome": "A bobbin carved like a lighthouse", "descrizione": "Zeno lost it. Inside, carved small, there is an initial: \"L.\"."},
+    "pagina_strappata": {
+      "nome": "A torn page",
+      "descrizione": "It comes from the Book of Stitches. It shows a stitch I don't know, and no explanation."
+    },
+    "bottiglia_nodo_nero": {"nome": "An empty bottle", "descrizione": "No letter. Inside, a knot of black thread."},
+    "fascio_lettere": {
+      "nome": "The bundle of letters",
+      "descrizione": "Three readable letters, and a hundred and sixty-five more. One a month, for fourteen years."
+    },
+    "nastro_nonna": {"nome": "Grandmother's ribbon", "descrizione": "The leftover ivory thread, carefully wound."}
   },
-
   "battute": {
     "teresa": {
-      "incontro": { "1": "Oh, dear, what a day! I saw everyone, and everyone saw me.", "2": "A chat on the Fondamenta is worth more than a letter, dear." },
-      "consegna": { "1": "Delivered by hand, dear. Thirty years of post and never a lost envelope.", "2": "The post always arrives. Sometimes late, but it arrives." },
-      "copia": { "1": "I never tell anyone, dear. Only those who ask.", "2": "A rumour, dear, is like bread: if you don't pass it on, it goes stale." },
-      "legge": { "1": "I didn't read it, dear. I just… held it up to the light.", "2": "An open envelope is an envelope that wants to talk." },
-      "stranezza": { "1": "Marta always goes over me. Always. For thirty years.", "2": "Look how she avoids me, dear. As if I had the plague." },
-      "nodo": { "1": "Marta, look at me. No? Fine. That's fine.", "2": "We stood in the middle of the Fondamenta like two mooring posts." },
-      "cura": { "1": "The doctor put a hand on my forehead. Such cold hands, dear.", "2": "Healed! And now who'll listen to me, if I don't cough any more?" },
+      "incontro": {
+        "1": "Oh, dear, what a day! I saw everyone, and everyone saw me.",
+        "2": "A chat on the Fondamenta is worth more than a letter, dear."
+      },
+      "consegna": {
+        "1": "Delivered by hand, dear. Thirty years of post and never a lost envelope.",
+        "2": "The post always arrives. Sometimes late, but it arrives."
+      },
+      "copia": {"1": "I never tell anyone, dear. Only those who ask.", "2": "A rumour, dear, is like bread: if you don't pass it on, it goes stale."},
+      "legge": {"1": "I didn't read it, dear. I just… held it up to the light.", "2": "An open envelope is an envelope that wants to talk."},
+      "stranezza": {"1": "Marta always goes over me. Always. For thirty years.", "2": "Look how she avoids me, dear. As if I had the plague."},
+      "nodo": {"1": "Marta, look at me. No? Fine. That's fine.", "2": "We stood in the middle of the Fondamenta like two mooring posts."},
+      "cura": {
+        "1": "The doctor put a hand on my forehead. Such cold hands, dear.",
+        "2": "Healed! And now who'll listen to me, if I don't cough any more?"
+      },
       "riserva": {
         "1": "Good morning, dear! Did you know the ferry was late today?",
         "2": "Ada, dear, are you eating enough? You're thin as tissue paper.",
@@ -163,13 +261,13 @@
       }
     },
     "marta": {
-      "incontro": { "1": "Morning. The bread is in. I've no time.", "2": "We've seen each other. That's enough." },
-      "consegna": { "1": "A letter. For me. Hasn't happened in years.", "2": "Put in the hand. As it should be." },
-      "copia": { "1": "Gossip. I knead, I don't listen.", "2": "The wind carries rumours. The wind doesn't pay for bread." },
-      "legge": { "1": "Whoever reads other people's letters has dirty hands. Dirtier than mine.", "2": "Another envelope opened. I know who did it." },
-      "stranezza": { "1": "No. Not under Teresa. No.", "2": "Me, under her? Not even dead." },
-      "nodo": { "1": "Not even the Lord can make me pass that way.", "2": "We stood there like two sacks of flour. What a show." },
-      "cura": { "1": "The doctor cured Gino. Tomorrow I'll bring him bread.", "2": "Healed. The oven won't wait." },
+      "incontro": {"1": "Morning. The bread is in. I've no time.", "2": "We've seen each other. That's enough."},
+      "consegna": {"1": "A letter. For me. Hasn't happened in years.", "2": "Put in the hand. As it should be."},
+      "copia": {"1": "Gossip. I knead, I don't listen.", "2": "The wind carries rumours. The wind doesn't pay for bread."},
+      "legge": {"1": "Whoever reads other people's letters has dirty hands. Dirtier than mine.", "2": "Another envelope opened. I know who did it."},
+      "stranezza": {"1": "No. Not under Teresa. No.", "2": "Me, under her? Not even dead."},
+      "nodo": {"1": "Not even the Lord can make me pass that way.", "2": "We stood there like two sacks of flour. What a show."},
+      "cura": {"1": "The doctor cured Gino. Tomorrow I'll bring him bread.", "2": "Healed. The oven won't wait."},
       "riserva": {
         "1": "At six the oven is lit. The rest, we'll see.",
         "2": "Gino? Running. As always.",
@@ -179,13 +277,13 @@
       }
     },
     "piero": {
-      "incontro": { "1": "Pax tecum. We meet, and the day is already shorter.", "2": "I listened more than I spoke. As always." },
-      "consegna": { "1": "Thank you. I'll put it somewhere safe, with the others.", "2": "A letter. The Lord knows who it's for. I'll keep it." },
-      "copia": { "1": "I heard something. It will stay with me.", "2": "Rumours come into the church. They don't come out." },
-      "legge": { "1": "Reading what is not ours… Deus videt, Teresa.", "2": "A secret once read never goes back in the envelope." },
-      "stranezza": { "1": "I receive everything. I give nothing back. I know, I know.", "2": "The well doesn't speak. But it listens, oh yes." },
-      "nodo": { "1": "Two souls stuck on the Fondamenta. Let us pray they move.", "2": "A grudge is a knot that tightens when you pull." },
-      "cura": { "1": "The doctor does his job. I do mine: I give thanks.", "2": "Healed. Deo gratias, and thanks to the doctor." },
+      "incontro": {"1": "Pax tecum. We meet, and the day is already shorter.", "2": "I listened more than I spoke. As always."},
+      "consegna": {"1": "Thank you. I'll put it somewhere safe, with the others.", "2": "A letter. The Lord knows who it's for. I'll keep it."},
+      "copia": {"1": "I heard something. It will stay with me.", "2": "Rumours come into the church. They don't come out."},
+      "legge": {"1": "Reading what is not ours… Deus videt, Teresa.", "2": "A secret once read never goes back in the envelope."},
+      "stranezza": {"1": "I receive everything. I give nothing back. I know, I know.", "2": "The well doesn't speak. But it listens, oh yes."},
+      "nodo": {"1": "Two souls stuck on the Fondamenta. Let us pray they move.", "2": "A grudge is a knot that tightens when you pull."},
+      "cura": {"1": "The doctor does his job. I do mine: I give thanks.", "2": "Healed. Deo gratias, and thanks to the doctor."},
       "riserva": {
         "1": "Mass at eleven. The bell rings crooked, but it rings.",
         "2": "Ada, my child, do you sleep at night?",
@@ -195,13 +293,13 @@
       }
     },
     "gino": {
-      "incontro": { "1": "Hi! Hi! I met everyone, I counted them: seven!", "2": "I went right through, zoom! Nobody can catch me!" },
-      "consegna": { "1": "I carried a letter! I'm a postman!", "2": "Delivered! Do I get a sweet?" },
-      "copia": { "1": "Know what they're saying? I can't tell! But I'll tell.", "2": "Everyone whispers when I come. But I hear anyway!" },
-      "legge": { "1": "Teresa reads other people's letters? I want to do it too!", "2": "A secret! A real secret! I'll keep it. Maybe." },
-      "stranezza": { "1": "Stand still? Me? I can't!", "2": "My feet itch if I stand still!" },
-      "nodo": { "1": "They got stuck like two posts! So funny!", "2": "Mum and Teresa look at each other funny. Why?" },
-      "cura": { "1": "The doctor gave me bitter medicine. Yuck! But I feel better.", "2": "No more fever! Can I run? Can I?" },
+      "incontro": {"1": "Hi! Hi! I met everyone, I counted them: seven!", "2": "I went right through, zoom! Nobody can catch me!"},
+      "consegna": {"1": "I carried a letter! I'm a postman!", "2": "Delivered! Do I get a sweet?"},
+      "copia": {"1": "Know what they're saying? I can't tell! But I'll tell.", "2": "Everyone whispers when I come. But I hear anyway!"},
+      "legge": {"1": "Teresa reads other people's letters? I want to do it too!", "2": "A secret! A real secret! I'll keep it. Maybe."},
+      "stranezza": {"1": "Stand still? Me? I can't!", "2": "My feet itch if I stand still!"},
+      "nodo": {"1": "They got stuck like two posts! So funny!", "2": "Mum and Teresa look at each other funny. Why?"},
+      "cura": {"1": "The doctor gave me bitter medicine. Yuck! But I feel better.", "2": "No more fever! Can I run? Can I?"},
       "riserva": {
         "1": "I saw a crab this big! I swear!",
         "2": "Ada! Will you teach me to tie knots?",
@@ -211,13 +309,13 @@
       }
     },
     "bepi": {
-      "incontro": { "1": "Mh. Morning.", "2": "We've seen each other. The sea's waiting." },
-      "consegna": { "1": "A letter. For me? Who writes to a fisherman?", "2": "Given. Now I'm off." },
-      "copia": { "1": "Gossip. You don't mend nets with gossip.", "2": "Somebody talks too much. Not me." },
-      "legge": { "1": "Written things belong to whoever wrote them. That's all.", "2": "Teresa has long eyes. Even the fish know." },
-      "stranezza": { "1": "Everyone has their quirks. I have my boat.", "2": "Mh. Strange folk, on this island." },
-      "nodo": { "1": "Two who don't speak. Like me and the sea in winter.", "2": "If you want to quarrel, do it away from the pier." },
-      "cura": { "1": "The foreign doctor. Mh. It works, though.", "2": "Better. Tomorrow I take the boat out." },
+      "incontro": {"1": "Mh. Morning.", "2": "We've seen each other. The sea's waiting."},
+      "consegna": {"1": "A letter. For me? Who writes to a fisherman?", "2": "Given. Now I'm off."},
+      "copia": {"1": "Gossip. You don't mend nets with gossip.", "2": "Somebody talks too much. Not me."},
+      "legge": {"1": "Written things belong to whoever wrote them. That's all.", "2": "Teresa has long eyes. Even the fish know."},
+      "stranezza": {"1": "Everyone has their quirks. I have my boat.", "2": "Mh. Strange folk, on this island."},
+      "nodo": {"1": "Two who don't speak. Like me and the sea in winter.", "2": "If you want to quarrel, do it away from the pier."},
+      "cura": {"1": "The foreign doctor. Mh. It works, though.", "2": "Better. Tomorrow I take the boat out."},
       "riserva": {
         "1": "The sea's good today. Tomorrow, we'll see.",
         "2": "Nina studies. I fish. That's how it is.",
@@ -227,13 +325,19 @@
       }
     },
     "nina": {
-      "incontro": { "1": "Meetings, meetings. This island is a penny serial.", "2": "Two words and off. I have a book to finish." },
-      "consegna": { "1": "A letter for me! At last something arrives instead of leaving.", "2": "Delivered. For once, the world works." },
-      "copia": { "1": "Rumours run faster than the ferry. And miss more stops.", "2": "I know, I know. The whole island knows by now." },
-      "legge": { "1": "Reading other people's letters. Not even in nineteenth-century novels.", "2": "A secret! In books, that's always where the story starts." },
-      "stranezza": { "1": "I stay on top and listen. It's called curiosity, not a sin.", "2": "Everyone has a vice. Mine is wanting to know." },
-      "nodo": { "1": "Two women who haven't spoken in thirty years. Greek tragedy.", "2": "Stuck in the middle of the street. Not even Manzoni would dare." },
-      "cura": { "1": "The doctor has a leather bag. In Venice they all have one.", "2": "Healed. The doctor says I read too much. Oh, really?" },
+      "incontro": {"1": "Meetings, meetings. This island is a penny serial.", "2": "Two words and off. I have a book to finish."},
+      "consegna": {"1": "A letter for me! At last something arrives instead of leaving.", "2": "Delivered. For once, the world works."},
+      "copia": {"1": "Rumours run faster than the ferry. And miss more stops.", "2": "I know, I know. The whole island knows by now."},
+      "legge": {
+        "1": "Reading other people's letters. Not even in nineteenth-century novels.",
+        "2": "A secret! In books, that's always where the story starts."
+      },
+      "stranezza": {"1": "I stay on top and listen. It's called curiosity, not a sin.", "2": "Everyone has a vice. Mine is wanting to know."},
+      "nodo": {
+        "1": "Two women who haven't spoken in thirty years. Greek tragedy.",
+        "2": "Stuck in the middle of the street. Not even Manzoni would dare."
+      },
+      "cura": {"1": "The doctor has a leather bag. In Venice they all have one.", "2": "Healed. The doctor says I read too much. Oh, really?"},
       "riserva": {
         "1": "Venice is an hour away by ferry. An hour! And it feels like the moon.",
         "2": "Ada, do you read? I'll lend you a book, if you like.",
@@ -243,13 +347,13 @@
       }
     },
     "zeno": {
-      "incontro": { "1": "Mh. The light is good this morning.", "2": "We meet like boats do: slowly." },
-      "consegna": { "1": "A letter… nothing comes to the lighthouse, usually.", "2": "Given. The sea brings plenty of letters." },
-      "copia": { "1": "Words. The wind brings some and takes some.", "2": "Gossip doesn't reach the lighthouse. Only the wind." },
-      "legge": { "1": "Some people read letters. I read the sea.", "2": "Some written things are better not known." },
-      "stranezza": { "1": "The lighthouse. I don't stray. I can't.", "2": "I have forty years of lighthouse in my legs. They won't go further." },
-      "nodo": { "1": "Two who don't speak. Like the tide and the moon.", "2": "Water loosens knots. You have to wait." },
-      "cura": { "1": "The doctor. Mh. Steady hands, at least.", "2": "I'm better. The lantern wasn't going to wait." },
+      "incontro": {"1": "Mh. The light is good this morning.", "2": "We meet like boats do: slowly."},
+      "consegna": {"1": "A letter… nothing comes to the lighthouse, usually.", "2": "Given. The sea brings plenty of letters."},
+      "copia": {"1": "Words. The wind brings some and takes some.", "2": "Gossip doesn't reach the lighthouse. Only the wind."},
+      "legge": {"1": "Some people read letters. I read the sea.", "2": "Some written things are better not known."},
+      "stranezza": {"1": "The lighthouse. I don't stray. I can't.", "2": "I have forty years of lighthouse in my legs. They won't go further."},
+      "nodo": {"1": "Two who don't speak. Like the tide and the moon.", "2": "Water loosens knots. You have to wait."},
+      "cura": {"1": "The doctor. Mh. Steady hands, at least.", "2": "I'm better. The lantern wasn't going to wait."},
       "riserva": {
         "1": "Last night the sea was smooth. Too smooth.",
         "2": "The lantern turns. I watch. That's all.",
@@ -259,13 +363,19 @@
       }
     },
     "lunardi": {
-      "incontro": { "1": "Good morning! Ettore Lunardi, pharmacist. A real pleasure.", "2": "A cordial meeting. I'll make a note of it, as prescribed." },
-      "consegna": { "1": "Post for me! From the city, I suppose. How exciting.", "2": "Delivered. Perfect, like a dosage properly followed." },
-      "copia": { "1": "People murmur, they murmur. In the city it's called \"news\".", "2": "Hearsay is as contagious as fever, ladies and gentlemen." },
-      "legge": { "1": "Opening other people's post is a crime, you know. Article… I forget which.", "2": "A secret once read is like an open bottle: it evaporates." },
-      "stranezza": { "1": "I never fall ill. A matter of hygiene, and luck.", "2": "I heal from on top. From below, I'm afraid, it doesn't work." },
-      "nodo": { "1": "A case of chronic grudge. I prescribe: a coffee together.", "2": "Both stuck. Clinically fascinating." },
-      "cura": { "1": "Two drops, rest and warm broth. Science is simple.", "2": "Healed! I'll note it in the register. The fourth today." },
+      "incontro": {
+        "1": "Good morning! Ettore Lunardi, pharmacist. A real pleasure.",
+        "2": "A cordial meeting. I'll make a note of it, as prescribed."
+      },
+      "consegna": {"1": "Post for me! From the city, I suppose. How exciting.", "2": "Delivered. Perfect, like a dosage properly followed."},
+      "copia": {"1": "People murmur, they murmur. In the city it's called \"news\".", "2": "Hearsay is as contagious as fever, ladies and gentlemen."},
+      "legge": {
+        "1": "Opening other people's post is a crime, you know. Article… I forget which.",
+        "2": "A secret once read is like an open bottle: it evaporates."
+      },
+      "stranezza": {"1": "I never fall ill. A matter of hygiene, and luck.", "2": "I heal from on top. From below, I'm afraid, it doesn't work."},
+      "nodo": {"1": "A case of chronic grudge. I prescribe: a coffee together.", "2": "Both stuck. Clinically fascinating."},
+      "cura": {"1": "Two drops, rest and warm broth. Science is simple.", "2": "Healed! I'll note it in the register. The fourth today."},
       "riserva": {
         "1": "In the city they called me \"doctor\". Here, \"the pharmacy man\".",
         "2": "Miss Ada, isn't it? I have an excellent memory for names.",
@@ -275,12 +385,24 @@
       }
     },
     "livia": {
-      "incontro": { "1": "They looked at me the way you look at a stranger. That's fair.", "2": "I crossed someone I used to know. He didn't know me." },
-      "consegna": { "1": "A letter arrived. Of mine, in fourteen years, not one.", "2": "Letters do arrive, sometimes. Someone just has to carry them." },
-      "copia": { "1": "Rumours go round like when I was a girl. Nothing changes here.", "2": "They talk of a woman in black. It's me, and nobody knows." },
-      "legge": { "1": "Teresa still reads other people's letters. Some things don't age.", "2": "On the island, secrets last less than bread." },
-      "stranezza": { "1": "My thread goes where it must. I can't stop it any more.", "2": "I'm always on top. Not out of pride: I don't know how to be below." },
-      "nodo": { "1": "Two who don't speak. Like my mother and me, for fourteen years.", "2": "Knots are tied in a hurry. Untying them is another story." },
+      "incontro": {"1": "They looked at me the way you look at a stranger. That's fair.", "2": "I crossed someone I used to know. He didn't know me."},
+      "consegna": {
+        "1": "A letter arrived. Of mine, in fourteen years, not one.",
+        "2": "Letters do arrive, sometimes. Someone just has to carry them."
+      },
+      "copia": {
+        "1": "Rumours go round like when I was a girl. Nothing changes here.",
+        "2": "They talk of a woman in black. It's me, and nobody knows."
+      },
+      "legge": {"1": "Teresa still reads other people's letters. Some things don't age.", "2": "On the island, secrets last less than bread."},
+      "stranezza": {
+        "1": "My thread goes where it must. I can't stop it any more.",
+        "2": "I'm always on top. Not out of pride: I don't know how to be below."
+      },
+      "nodo": {
+        "1": "Two who don't speak. Like my mother and me, for fourteen years.",
+        "2": "Knots are tied in a hurry. Untying them is another story."
+      },
       "cura": {
         "1": "Someone gets better. The day allows that much, at least.",
         "2": "A fever gone. You see, my Ada? Not everything is woven.",
@@ -295,7 +417,6 @@
       }
     }
   },
-
   "crediti": {
     "autore": "A game by [author's name]",
     "righe": {

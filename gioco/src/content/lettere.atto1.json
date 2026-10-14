@@ -1,0 +1,9 @@
+[
+  {"id": "lettera_L1", "arrivesAfter": "g01", "textKey": "atto1.lettere.L1", "signed": "L."},
+  {"id": "lettera_L2", "arrivesAfter": "g02", "textKey": "atto1.lettere.L2", "signed": "L."},
+  {"id": "lettera_L3", "arrivesAfter": "g03", "textKey": "atto1.lettere.L3", "signed": "L."},
+  {"id": "lettera_L4", "arrivesAfter": "g04", "textKey": "atto1.lettere.L4", "signed": "L."},
+  {"id": "lettera_L5", "arrivesAfter": "g06", "textKey": "atto1.lettere.L5", "signed": "L."},
+  {"id": "lettera_L6", "arrivesAfter": "g07", "textKey": "atto1.lettere.L6", "signed": "L."},
+  {"id": "lettera_L7", "arrivesAfter": "g08", "textKey": "atto1.lettere.L7", "signed": "L."}
+]

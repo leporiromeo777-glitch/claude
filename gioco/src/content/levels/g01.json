@@ -56,7 +56,10 @@
         "priority": 60,
         "background": "dio/forno/giorno",
         "figures": [{"character": "marta", "pose": "porge", "x": 0.5}],
-        "lines": [{"speaker": "marta", "textKey": "atto1.g01.alba.brava"}]
+        "lines": [
+          {"speaker": "marta", "textKey": "atto1.g01.alba.brava"},
+          {"speaker": "narratore", "textKey": "atto1.g01.alba.brava2"}
+        ]
       },
       {
         "id": "g01.alba.bagnato",
@@ -81,7 +84,10 @@
           {"character": "teresa", "pose": "porge", "x": 0.35},
           {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}
         ],
-        "lines": [{"speaker": "piero", "textKey": "atto1.g01.alba.posta"}]
+        "lines": [
+          {"speaker": "piero", "textKey": "atto1.g01.alba.posta"},
+          {"speaker": "teresa", "textKey": "atto1.g01.alba.posta2"}
+        ]
       }
     ]
   },
