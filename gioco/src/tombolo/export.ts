@@ -4,7 +4,7 @@
  * su velluto, con le icone dei luoghi in alto, le ore a sinistra e gli spilli
  * d'ottone. Nessun testo dentro l'immagine oltre ai numeri delle ore.
  */
-import type { BeadType, CharacterDef, CharacterId, LevelDef, RowMoves, ThreadId } from '../core/types';
+import type { BeadType, CharacterDef, CharacterId, FlagId, FlagValue, LevelDef, RowMoves, ThreadId } from '../core/types';
 import { hasService, services } from '../core/services';
 import { drawGlyph } from '../core/ui/glyphs';
 import { createContext, simulate } from '../engine/index';
@@ -38,8 +38,13 @@ export function laceImageSize(level: LevelDef): { w: number; h: number } {
   return { w: GUTTER + level.columns.length * EXPORT_COL_W + PAD * 2, h: HEADER + Math.round(EXPORT_ROW_H * 0.6) + rows * EXPORT_ROW_H + PAD * 2 };
 }
 
-/** Disegna il merletto su un contesto (coordinate CSS, già scalato). */
-export function drawLaceImage(ctx: Ctx2D, level: LevelDef, rows: readonly RowMoves[], make = defaultCanvasMaker): void {
+/**
+ * Disegna il merletto su un contesto (coordinate CSS, già scalato). `flags` sono
+ * quelli della notte (per esempio `riconciliate` toglie il rifiuto di Marta):
+ * senza, una riga valida quel giorno potrebbe essere rifiutata e il disegno si
+ * fermerebbe lì. I merletti d'Archivio si ritessono sempre con le regole di allora.
+ */
+export function drawLaceImage(ctx: Ctx2D, level: LevelDef, rows: readonly RowMoves[], make = defaultCanvasMaker, flags: Record<FlagId, FlagValue> = {}): void {
   const { w, h } = laceImageSize(level);
   const velvet = new Velvet(make);
   const bg = velvet.background(w, h, 1, '#1C2233', '#121622');
@@ -54,8 +59,10 @@ export function drawLaceImage(ctx: Ctx2D, level: LevelDef, rows: readonly RowMov
   for (let i = 0; i < W; i++) colCx.push(x0 + EXPORT_COL_W * (i + 0.5));
   // Intestazione: icone dei luoghi.
   level.columns.forEach((p, i) => drawGlyph(ctx, placeIcon(p), colCx[i] ?? 0, PAD + HEADER / 2, 22, '#D8CCB4', 1.8));
-  const ctxRun = createContext(level, {});
-  const sim = simulate(level, ctxRun, rows);
+  // Le righe sono già state fissate: la matassa non conta più.
+  const free: LevelDef = { ...level, matassa: Number.MAX_SAFE_INTEGER };
+  const ctxRun = createContext(free, level.archive ? {} : flags);
+  const sim = simulate(free, ctxRun, rows);
   const chars: ReadonlyMap<CharacterId, CharacterDef> = hasService('content') ? services.content.characters : new Map();
   const visuals = buildVisuals(level, chars, {});
   const types: Map<string, BeadType> = beadTypesOf(level);
@@ -112,13 +119,13 @@ function toBlob(cv: AnyCanvas): Promise<Blob> {
   });
 }
 
-/** PNG del merletto (ARCHITETTURA 5.5): `rows` sono le righe fissate (RowMoves). */
-export async function renderLacePng(level: LevelDef, rows: RowMoves[]): Promise<Blob> {
+/** PNG del merletto (ARCHITETTURA 5.5): `rows` sono le righe fissate (RowMoves); `flags` quelli della notte, se ci sono. */
+export async function renderLacePng(level: LevelDef, rows: RowMoves[], flags: Record<FlagId, FlagValue> = {}): Promise<Blob> {
   const { w, h } = laceImageSize(level);
   const cv = defaultCanvasMaker(w * SCALE, h * SCALE);
   const ctx = cv.getContext('2d') as Ctx2D | null;
   if (!ctx) throw new Error('Canvas 2D not available');
   ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
-  drawLaceImage(ctx, level, rows);
+  drawLaceImage(ctx, level, rows, defaultCanvasMaker, flags);
   return toBlob(cv);
 }

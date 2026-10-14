@@ -8,7 +8,7 @@
  * - fitText: riduce il carattere finché il testo sta nel suo contenitore.
  * Tutti i testi da chiavi i18n; i nomi già tradotti arrivano come parametri.
  */
-import type { InputRouter, Unsub } from '../../core/types';
+import type { ActionId, InputRouter, Unsub } from '../../core/types';
 import { el, clear } from '../../core/ui/dom';
 import { iconButton, textOf, setTextParams } from '../../core/ui/components';
 import type { Rect } from '../layout';
@@ -47,11 +47,14 @@ export class Popup {
   readonly body: HTMLElement;
   private popLayer: Unsub | null = null;
   private closed = false;
+  /** Tasti che la scheda gira a chi l'ha aperta (per esempio H sulla scheda del suggerimento). */
+  private readonly keys: Partial<Record<ActionId, () => void>>;
 
   constructor(
     private readonly deps: PopupDeps,
-    o: { test: string; className?: string; labelKey?: string },
+    o: { test: string; className?: string; labelKey?: string; keys?: Partial<Record<ActionId, () => void>> },
   ) {
+    this.keys = o.keys ?? {};
     this.body = el('div', { class: 'tb-popup-body' });
     const close = iconButton({ icon: 'chiudi', labelKey: 'tombolo.ui.chiudi', onClick: () => this.close(), className: 'tb-popup-close', test: `${o.test}-chiudi` });
     close.dataset.audioSilent = '1';
@@ -70,12 +73,28 @@ export class Popup {
         this.close();
         return true;
       }
+      // Tab e Maiusc+Tab spostano il fuoco solo fra i pulsanti della scheda.
+      if (a.action === 'notebook' || a.action === 'tab') {
+        this.cycleFocus(a.action === 'tab');
+        return true;
+      }
+      const fn = this.keys[a.action];
+      if (fn) fn();
       // Le altre azioni non arrivano al merletto finché la scheda è aperta.
-      return a.action !== 'notebook' && a.action !== 'tab';
+      return true;
     });
     const first = this.body.querySelector<HTMLElement>('button:not([disabled])') ?? this.el.querySelector<HTMLElement>('button');
     first?.focus({ preventScroll: true });
     return this;
+  }
+
+  private cycleFocus(backwards: boolean): void {
+    const list = Array.from(this.el.querySelectorAll<HTMLElement>('button:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter((e) => e.getClientRects().length > 0);
+    if (list.length === 0) return;
+    const active = document.activeElement as HTMLElement | null;
+    const i = active ? list.indexOf(active) : -1;
+    const next = backwards ? (i <= 0 ? list.length - 1 : i - 1) : i < 0 || i >= list.length - 1 ? 0 : i + 1;
+    list[next]?.focus({ preventScroll: true });
   }
 
   /** Centrata in orizzontale sull'area del tombolo, sopra la barra delle azioni. */

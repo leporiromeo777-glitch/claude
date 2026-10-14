@@ -97,7 +97,7 @@ export function emptyOverlay(): Overlay {
 
 const LABEL_FONT = "13px 'Atkinson Hyperlegible', system-ui, sans-serif";
 const LABEL_FONT_CUR = "bold 15px 'Atkinson Hyperlegible', system-ui, sans-serif";
-const GHOST_DASH: number[] = [6, 5];
+const GHOST_DASH: number[] = [8, 6];
 const NO_DASH: number[] = [];
 const TORN_DASH: number[] = [10, 4];
 
@@ -294,6 +294,7 @@ export class LaceRenderer {
       const xa = g.colCx[o.ghostPair] ?? 0;
       const xb = g.colCx[o.ghostPair + 1] ?? 0;
       const p = poolPoly(2);
+      ctx.lineCap = 'butt';
       ctx.setLineDash(GHOST_DASH);
       ctx.lineWidth = 4;
       ctx.strokeStyle = P.ottone;
@@ -310,6 +311,7 @@ export class LaceRenderer {
       traceCurve(ctx, p);
       ctx.stroke();
       ctx.setLineDash(NO_DASH);
+      ctx.lineCap = 'round';
       ctx.globalAlpha = 1;
     }
     // Anteprima del riavvolgimento: si spegne tutto quello che viene dopo.

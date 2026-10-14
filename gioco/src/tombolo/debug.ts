@@ -293,7 +293,7 @@ export function registerNightDebug(s: Services): void {
       const c = need();
       const level = levelId ? await resolveLevel(s, levelId) : (c?.session.level ?? null);
       if (!level) return null;
-      const blob = await renderLacePng(level, rows ?? c?.session.rows ?? []);
+      const blob = await renderLacePng(level, rows ?? c?.session.rows ?? [], c && c.session.level.id === level.id ? c.session.runFlags : {});
       return { type: blob.type, bytes: blob.size };
     },
   });

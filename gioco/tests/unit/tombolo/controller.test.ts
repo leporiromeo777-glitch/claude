@@ -165,6 +165,40 @@ describe('regia della notte (DOM, senza canvas)', () => {
     expect(lamp.hidden).toBe(false);
   });
 
+  it('barra alta: giornata e titolo (GDD 10.3)', () => {
+    c = new NightController(h.s, nightParams(fixture('g06'), { origin: 'campagna' }), { computed: null });
+    expect(document.querySelector('.tb-hud-day')?.textContent).toBe('Giornata 6');
+    c.destroy();
+    c = new NightController(h.s, nightParams(fixture('g00'), { origin: 'campagna' }), { computed: null });
+    expect(document.querySelector('.tb-hud-day')?.textContent).toBe('Prologo');
+    c.destroy();
+    c = new NightController(h.s, nightParams(fixture('test-grande')), { computed: null });
+    expect(document.querySelector<HTMLElement>('.tb-hud-day')?.hidden).toBe(true);
+  });
+
+  it('vibrazione media al passaggio di una perlina anche con il movimento ridotto', () => {
+    h.data.settings.reducedMotion = true;
+    h.data.settings.animSpeed = 0;
+    c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
+    c.autoplay([{ hour: 6, crossings: [{ pair: 0, over: 'R' }] }]);
+    h.haptics.length = 0;
+    // Alle 7 Teresa sopra Don Piero: la lettera passa.
+    expect(c.cross(1, 'L', 'debug')).toBeNull();
+    expect(h.haptics).toContain('medio');
+  });
+
+  it('scheda del suggerimento: H dà il gradino successivo, Tab resta nella scheda', async () => {
+    c = new NightController(h.s, nightParams(fixture('g00')), { computed: fixtureComputed('g00') });
+    const first = await c.nextHint();
+    expect(first?.tier).toBe('spinta');
+    expect(document.querySelector('[data-test="tb-popup-hint"]')).not.toBeNull();
+    h.s.input.simulate.action('notebook');
+    expect(document.activeElement?.closest('.tb-popup')).not.toBeNull();
+    h.s.input.simulate.action('hint');
+    for (let i = 0; i < 20 && c.lastHint?.tier !== 'indizio'; i++) await new Promise((r) => setTimeout(r, 10));
+    expect(c.lastHint?.tier).toBe('indizio');
+  });
+
   it('All\'ultima riga "Fissa l\'ora" diventa "Chiudi il merletto"', () => {
     c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
     const label = (): string | undefined => document.querySelector<HTMLElement>('[data-test="tb-fissa"] .core-btn-label')?.dataset.i18n;

@@ -5,6 +5,7 @@
  * debug (`__GAME__.night`) chiama gli stessi metodi dei gesti e dei tasti.
  */
 import type {
+  ActionId,
   CanvasHost,
   CharacterId,
   CondReport,
@@ -439,7 +440,7 @@ export class NightController {
       const statusKey = st.dropped ? 'tombolo.richieste.statoLasciata' : `tombolo.stato.${st.report.status}`;
       return {
         noteId: st.noteId,
-        icon: ch?.icon ?? 'nota',
+        icon: ch?.icon ?? 'busta',
         color: ch?.color ?? '#C8372D',
         status: st.report.status,
         dropped: st.dropped,
@@ -515,7 +516,7 @@ export class NightController {
 
   private updateStatusLine(): void {
     const s = this.session;
-    const st = s.done ? s.state : s.state;
+    const st = s.state;
     const parts: string[] = [];
     st.pos.forEach((t, col) => {
       const place = this.params.level.columns[col] ?? 'molo';
@@ -693,7 +694,6 @@ export class NightController {
       this.refresh();
       return v;
     }
-    this.idle = Math.min(this.idle, this.idle);
     if (this.lastHint?.ghost && this.lastHint.ghost.pair === pair) this.clearHintMarks();
     this.launchFlights(pair);
     this.tutorial.onCross(hour, s.wrongSide(pair));
@@ -705,7 +705,8 @@ export class NightController {
     const s = this.session;
     const l = this.layout;
     const speed = this.animSpeed();
-    if (speed <= 0 || this.s.settings.get().reducedMotion) return;
+    // Il volo si vede solo con le animazioni; la vibrazione del passaggio c'è sempre (GDD 11.1).
+    const animate = speed > 0 && !this.s.settings.get().reducedMotion;
     const p = s.preview();
     const L = s.state.pos[pair];
     const R = s.state.pos[pair + 1];
@@ -747,10 +748,11 @@ export class NightController {
       }
       if (!from || !to || !((from === L && to === R) || (from === R && to === L))) continue;
       const type = this.model.beadTypes.get(bead) ?? (bead.startsWith('letta:') ? 'segreto' : bead === 'nome' ? 'nome' : bead === 'febbre' ? 'febbre' : 'voce');
+      any = true;
+      if (!animate) continue;
       const fromX = from === L ? xL : xR;
       // Chi riceve finisce nella colonna da cui è partito chi dà.
       this.renderer.flights.launch(type, bead, to, e.k === 'consegna', fromX, y0, fromX, y1 + 16 * slot(to, bead), dur, (xL + xR) / 2);
-      any = true;
     }
     if (any) this.s.haptics.play('medio');
   }
@@ -889,7 +891,7 @@ export class NightController {
       }
     }
     const hour = this.params.level.startHour + index;
-    if (!s.canRewindTo(hour) || index >= this.model.current - 0) {
+    if (!s.canRewindTo(hour) || index >= this.model.current) {
       if (a && this.params.mode === 'archivio') this.explain.show('tombolo.archivio.registrata', {}, 'info', 3000);
       return;
     }
@@ -999,9 +1001,14 @@ export class NightController {
     o.ghostOver = h.ghost?.over ?? 'L';
     if (o.hintRow >= 1) this.revealRow(o.hintRow);
     const next = this.hintStep < TIERS.length ? (TIERS[this.hintStep] as HintTier) : null;
-    this.openPopup('tb-popup-hint', (body) => {
-      body.appendChild(hintCard({ tier: h.tier, textKey: h.textKey, params: nameParams(this.textDeps, h.params), next }, (t) => void this.hint(t)));
-    });
+    this.openPopup(
+      'tb-popup-hint',
+      (body) => {
+        body.appendChild(hintCard({ tier: h.tier, textKey: h.textKey, params: nameParams(this.textDeps, h.params), next }, (t) => void this.hint(t)));
+      },
+      // H con la scheda aperta: il gradino successivo (come un altro tocco sulla lampada).
+      { hint: () => void this.nextHint() },
+    );
     this.updateUi();
     this.saveNow(false);
     return h;
@@ -1260,11 +1267,11 @@ export class NightController {
 
   // ───────── Pannelli, menu, schede ─────────
 
-  private openPopup(test: string, fill: (body: HTMLElement) => void): Popup {
+  private openPopup(test: string, fill: (body: HTMLElement) => void, keys?: Partial<Record<ActionId, () => void>>): Popup {
     this.popup?.close();
     const p = new Popup({ input: this.s.input, host: this.root, onClose: () => {
       if (this.popup === p) this.popup = null;
-    } }, { test });
+    } }, keys ? { test, keys } : { test });
     fill(p.body);
     this.popup = p;
     p.open(this.popupAnchor());

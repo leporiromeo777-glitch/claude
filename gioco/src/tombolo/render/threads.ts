@@ -182,7 +182,7 @@ export interface RowStyle {
 }
 
 const POOL: Poly[] = Array.from({ length: 8 }, () => new Poly());
-const GHOST_DASH: number[] = [5, 4];
+const GHOST_DASH: number[] = [7, 5];
 const NO_DASH: number[] = [];
 
 function segPoly(p: Poly, s: SegShape, g: RowGeom, y0: number, y1: number, hour: number): Poly {
@@ -266,6 +266,8 @@ export function drawRow(ctx: CanvasRenderingContext2D, shape: RowShape, g: RowGe
   for (let k = 0; k < shape.segs.length; k++) if ((shape.segs[k] as SegShape).ghost) anyGhost = true;
   if (anyGhost) {
     ctx.globalAlpha = style.ghostAlpha;
+    // Estremi piatti: con quelli tondi i tratti si toccano e il tratteggio sparisce.
+    ctx.lineCap = 'butt';
     ctx.setLineDash(GHOST_DASH);
     for (let pass = 0; pass < 2; pass++) {
       for (let k = 0; k < shape.segs.length; k++) {
@@ -281,6 +283,7 @@ export function drawRow(ctx: CanvasRenderingContext2D, shape: RowShape, g: RowGe
       }
     }
     ctx.setLineDash(NO_DASH);
+    ctx.lineCap = 'round';
     ctx.globalAlpha = 1;
   }
   // 4. Nodi del rancore e segni delle perline passate.

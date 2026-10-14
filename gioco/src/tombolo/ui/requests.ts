@@ -116,7 +116,7 @@ export function noteCard(d: NoteCardData, onDrop: () => void, onAll?: () => void
     const b = button({ labelKey: 'tombolo.richieste.lascia', kind: 'secondario', icon: 'chiudi', onClick: onDrop, test: 'tb-lascia-cadere' });
     body.appendChild(b);
   }
-  if (onAll) body.appendChild(button({ labelKey: 'tombolo.richieste.tutti', kind: 'testo', icon: 'nota', onClick: onAll, test: 'tb-bigliettini' }));
+  if (onAll) body.appendChild(button({ labelKey: 'tombolo.richieste.tutti', kind: 'testo', icon: 'busta', onClick: onAll, test: 'tb-bigliettini' }));
   return body;
 }
 
