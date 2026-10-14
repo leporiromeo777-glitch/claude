@@ -181,7 +181,7 @@
       "vetri": "The boy didn't come. I'd cleaned the glass specially.",
       "lontano": "Away from that old man. It's for his own good.",
       "guardiano2": "Hundred and fourteen. As yesterday.",
-      "calligrafia2": "Zeno folds the letter in four and puts it in his jacket, on the side of his heart.",
+      "calligrafia2": "Zeno folds the letter in four and tucks it into his jacket, over his heart.",
       "lanterna2": "Mh. Now you know why I don't sleep.",
       "vetri2": "The lantern turns all the same, for no one.",
       "lontano2": "But Mum, the Lighthouse! The lantern!"
@@ -212,7 +212,7 @@
       "busta": "The eight o'clock ferry brings an envelope with a Venice postmark.",
       "promossa": "I passed! And nobody read it before me. Nobody!",
       "tuttiSanno": "Everyone knew before I did. Even the mark.",
-      "tuttiSanno2": "Eight in Latin, dear! Well done! Oh… wasn't I meant to say?",
+      "tuttiSanno2": "An eight in Latin, dear! Well done! Oh… wasn't I meant to say?",
       "respiro": "I didn't see her today. Easier to breathe.",
       "prete": "Bepi, sit down. I've heard something about Nina, and I cannot keep it quiet.",
       "prete2": "Venice. Mh. I've known since she learned to read.",
@@ -278,7 +278,7 @@
       "testo": "I didn't sleep last night. From three on I want to see no one."
     },
     "alba": {
-      "filoNero": "At three in the night, at the lace's edge, a black thread crosses Zeno at the Lighthouse.",
+      "filoNero": "At three in the morning a black thread crosses Zeno at the Lighthouse, on the lace's edge.",
       "filoNero2": "I did not weave it.",
       "anniversario": "Twenty years today. Gino, cap off in front of Don Piero.",
       "partita": "It's gone! The form has gone! Now it's real.",
@@ -449,7 +449,7 @@
         "apre": "Everyone wants something, and writes me only half of it. If I knew what everyone wants…"
       },
       "filoNero": {
-        "apre": "At three in the night, on the edge of the lace, a black thread crossed Zeno at the Lighthouse. I did not weave it."
+        "apre": "At three in the morning, on the edge of the lace, a black thread crossed Zeno at the Lighthouse. I did not weave it."
       }
     },
     "lettere": {
