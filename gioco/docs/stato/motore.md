@@ -6,7 +6,7 @@ Costruito, verificato e aggiornato con un intervento mirato su `levels:check` (r
 
 ## Revisione 1
 
-Compiti di docs/REVISIONE-1.md, sezione 3.1, tutti chiusi con test. Commit: e68d0b0 (MOT-01), ee03d16 (MOT-03), 34f4aca (MOT-02), e9b27fe (MOT-04), db5fa00 (MOT-05), più quello di questo rapporto.
+Compiti di docs/REVISIONE-1.md, sezione 3.1, tutti chiusi con test. Commit: e68d0b0 (MOT-01), ee03d16 (MOT-03), 34f4aca (MOT-02), e9b27fe (MOT-04), db5fa00 (MOT-05), 86a4e74 (Gino controllato prima di applicare la riga; test dei tempi sul tempo di CPU), più quelli di questo rapporto.
 
 ### MOT-01. Gino non sta fermo due ore di fila; con la febbre resta a letto (C01) · P015, P091, P094
 
@@ -75,7 +75,7 @@ Nel filtro di qualità c'è un passo 6: ogni grado deve cambiare il puzzle, altr
 - `neroInPiu`: senza il nero aggiunto (o senza il filo in più da seguire, se il nero c'era già per la regola del giorno) la soluzione ottima non regge col nero, oppure costa di meno;
 - `notteCorta`, `matassaEsatta`, `senzaDisfa`: sempre.
 
-`buildCandidate` dice che cosa hanno aggiunto i gradi (`grades.rancor`, `grades.nero`); un grado che non ha potuto aggiungere niente non conta. Un limite di stati (30 000, `GEN_MAX_STATES`) vale come "non conta". La regola di Gino nuova vale anche qui (stesso solver). Il seme del playtest `pm0ozmz` (piccolo, regola molo) con Spilli velati e Un nodo in più ora dà `pm0ozmz#100`: spillo di Don Piero al Faro alle 12 (apertura 8), Zeno e Gino in rancore, ed entrambi i gradi pesano. Tempi del generatore con la regola nuova simili a prima (20 semi del test di determinismo: 10 s contro 8 s).
+`buildCandidate` dice che cosa hanno aggiunto i gradi (`grades.rancor`, `grades.nero`); un grado che non ha potuto aggiungere niente non conta. Un limite di stati (30 000, `GEN_MAX_STATES`) vale come "non conta". La regola di Gino nuova vale anche qui (stesso solver). Il seme del playtest `pm0ozmz` (piccolo, regola molo) con Spilli velati e Un nodo in più ora dà `pm0ozmz#100`: spillo di Don Piero al Faro alle 12 (apertura 8), Zeno e Gino in rancore, ed entrambi i gradi pesano. Tempi del generatore con la regola nuova: per i Merletti del giorno dal 14/10 al 12/11 il giorno più lento costa 330-400 ms di CPU (prima 260-280 ms), in tutto 2,3-2,6 s contro 2,0-2,2 s; con Gino lo spazio degli stati è più grande (sulle stesse 230 candidate del 7/11: 55 000 stati contro 23 000) e servono più semi, perché i minimi scendono. I test dei tempi ora misurano il tempo di CPU del processo: con la macchina carica (carico medio 20 su 4 processori, altri gruppi al lavoro) il tempo di orologio arrivava a 2,7 s e i test fallivano senza colpa del codice.
 
 ### Prove nel browser
 
