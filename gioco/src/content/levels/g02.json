@@ -17,7 +17,7 @@
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
   "pins": [{"thread": "piero", "place": "chiesa", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 8}],
-  "notes": ["g02.marta", "g02.teresa", "g02.gino"],
+  "notes": ["g02.marta", "g02.martaDura", "g02.teresa", "g02.gino"],
   "matassa": 10,
   "dawn": {
     "candidates": [
@@ -33,7 +33,7 @@
       },
       {
         "id": "g02.alba.ginoSa",
-        "when": {"failed": "g02.marta"},
+        "when": {"any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]},
         "priority": 80,
         "background": "dio/forno/giorno",
         "figures": [

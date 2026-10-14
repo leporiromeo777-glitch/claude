@@ -77,7 +77,7 @@
     "character": "gino",
     "textKey": "atto1.diario.persone.gino.chiacchiere",
     "source": "sentito",
-    "unlock": {"failed": "g02.marta"}
+    "unlock": {"any": [{"failed": "g02.marta"}, {"failed": "g02.martaDura"}]}
   },
   {
     "id": "persone.piero.ascolta",
@@ -109,7 +109,7 @@
     "character": "teresa",
     "textKey": "atto1.diario.persone.teresa.cartolina",
     "source": "sentito",
-    "unlock": {"ok": "g03.teresa"}
+    "unlock": {"any": [{"ok": "g03.teresa"}, {"ok": "g03.teresaFredda"}]}
   },
   {
     "id": "persone.bepi.rete",
@@ -304,6 +304,62 @@
     "character": "marta",
     "textKey": "atto1.diario.persone.marta.zeno",
     "unlock": {"reply": "g05.marta", "is": "R1"}
+  },
+  {
+    "id": "persone.gino.chiede",
+    "section": "persone",
+    "character": "gino",
+    "textKey": "atto1.diario.persone.gino.chiede",
+    "unlock": {"reply": "g01.gino", "is": "R2"}
+  },
+  {
+    "id": "persone.nina.abbraccio",
+    "section": "persone",
+    "character": "nina",
+    "textKey": "atto1.diario.persone.nina.abbraccio",
+    "unlock": {"reply": "g04.nina", "is": "R1"}
+  },
+  {
+    "id": "persone.marta.faro",
+    "section": "persone",
+    "character": "marta",
+    "textKey": "atto1.diario.persone.marta.faro",
+    "unlock": {"reply": "g05.marta", "is": "R2"}
+  },
+  {
+    "id": "persone.marta.comeVuoi",
+    "section": "persone",
+    "character": "marta",
+    "textKey": "atto1.diario.persone.marta.comeVuoi",
+    "unlock": {"reply": "g06.marta", "is": "R2"}
+  },
+  {
+    "id": "persone.nina.delusa",
+    "section": "persone",
+    "character": "nina",
+    "textKey": "atto1.diario.persone.nina.delusa",
+    "unlock": {"reply": "g07.nina", "is": "R1"}
+  },
+  {
+    "id": "persone.nina.grande",
+    "section": "persone",
+    "character": "nina",
+    "textKey": "atto1.diario.persone.nina.grande",
+    "unlock": {"reply": "g07.nina", "is": "R2"}
+  },
+  {
+    "id": "persone.nina.babbo",
+    "section": "persone",
+    "character": "nina",
+    "textKey": "atto1.diario.persone.nina.babbo",
+    "unlock": {"reply": "g08.nina", "is": "R1"}
+  },
+  {
+    "id": "persone.nina.partira",
+    "section": "persone",
+    "character": "nina",
+    "textKey": "atto1.diario.persone.nina.partira",
+    "unlock": {"reply": "g08.nina", "is": "R2"}
   },
   {
     "id": "persone.nina.promossa",

@@ -94,7 +94,7 @@
   "hintKeys": {"spinta": "atto1.g01.hint.spinta", "indizio": "atto1.g01.hint.indizio"},
   "tutorial": [
     {"k": "mano", "hour": 7, "pair": 1, "over": "R"},
-    {"k": "margine", "when": "rifiuto", "textKey": "atto1.g01.margine.gino", "hour": 7},
+    {"k": "margine", "when": "rifiuto", "textKey": "atto1.g01.margine.verso"},
     {"k": "pulsa", "target": "taccuino", "hour": 7}
   ],
   "musicSeed": "g01"

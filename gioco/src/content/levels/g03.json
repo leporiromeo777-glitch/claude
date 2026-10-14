@@ -19,7 +19,7 @@
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
   "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 11}],
   "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
-  "notes": ["g03.nina", "g03.marta", "g03.teresa"],
+  "notes": ["g03.nina", "g03.marta", "g03.teresa", "g03.teresaFredda"],
   "matassa": 8,
   "dawn": {
     "candidates": [
@@ -66,11 +66,14 @@
       },
       {
         "id": "g03.alba.fredda",
-        "when": {"all": [{"reply": "g02.teresa", "is": "R1"}, {"accepted": "g03.teresa"}]},
-        "priority": 55,
+        "when": {"ok": "g03.teresaFredda"},
+        "priority": 60,
         "background": "dio/molo/giorno",
         "figures": [{"character": "teresa", "pose": "ferma", "x": 0.5}],
-        "lines": [{"speaker": "teresa", "textKey": "atto1.g03.alba.fredda"}]
+        "lines": [
+          {"speaker": "teresa", "textKey": "atto1.g03.alba.fredda"},
+          {"speaker": "narratore", "textKey": "atto1.g03.alba.fredda2"}
+        ]
       }
     ]
   },

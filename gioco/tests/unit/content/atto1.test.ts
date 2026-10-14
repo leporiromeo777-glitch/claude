@@ -6,12 +6,12 @@
  * file .computed.json aggiornati e matassa = minimo designato + margine.
  */
 import { describe, expect, it } from 'vitest';
-import type { Condition, LevelDef, LineDef, NoteDef } from '../../../src/core/types';
+import type { Condition, LevelDef, LineDef, NoteDef, StoryCond } from '../../../src/core/types';
 import { loadContent } from '../../../src/content/loader';
 import { validateContent } from '../../../src/content/validate';
 import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
 import { CHARACTER_IDS } from '../../../src/core/ids';
-import { SOLVER_VERSION, createContext, levelSourceHashFromDB, simulate, solve } from '../../../src/engine/index';
+import { SOLVER_VERSION, applyRow, createContext, levelSourceHashFromDB, simulate, solve } from '../../../src/engine/index';
 import diarioAtto1 from '../../../src/content/diary.atto1.json';
 
 const db = loadContent();
@@ -34,6 +34,24 @@ function level(id: string): LevelDef {
   const lv = db.levels.get(id);
   if (!lv) throw new Error(`livello ${id} assente`);
   return lv;
+}
+/** Flag letti da una condizione di disponibilità (le varianti dei bigliettini usano solo flag e non). */
+function flagsIn(c: StoryCond): string[] {
+  if ('flag' in c) return [c.flag];
+  if ('not' in c) return flagsIn(c.not);
+  if ('all' in c) return c.all.flatMap(flagsIn);
+  if ('any' in c) return c.any.flatMap(flagsIn);
+  return [];
+}
+function holds(c: StoryCond, on: ReadonlySet<string>): boolean {
+  if ('flag' in c) return on.has(c.flag) === (c.eq === undefined ? true : c.eq === true);
+  if ('not' in c) return !holds(c.not, on);
+  if ('all' in c) return c.all.every((x) => holds(x, on));
+  if ('any' in c) return c.any.some((x) => holds(x, on));
+  throw new Error(`condizione di disponibilità non prevista: ${JSON.stringify(c)}`);
+}
+function available(n: NoteDef, on: ReadonlySet<string>): boolean {
+  return n.availableIf === undefined || holds(n.availableIf, on);
 }
 function notesOf(day: string): NoteDef[] {
   return (level(day).notes ?? []).map((id) => {
@@ -129,22 +147,91 @@ describe('validazione dei contenuti dell\'Atto I e dei dati comuni', () => {
 });
 
 describe('giornate dell\'Atto I', () => {
-  it('3 bigliettini per giornata da g01 a g08, con almeno una risposta per giornata', () => {
+  it('3 bigliettini per sera da g01 a g08 (con ogni combinazione dei flag delle varianti), almeno una risposta per sera', () => {
     for (const d of DAYS) {
       const notes = notesOf(d);
-      expect(notes, d).toHaveLength(3);
       for (const n of notes) {
         expect(n.day).toBe(d);
         expect(n.request, n.id).toBeDefined();
       }
-      expect(notes.some((n) => (n.replies ?? []).length === 2), d).toBe(true);
+      const flags = [...new Set(notes.flatMap((n) => (n.availableIf ? flagsIn(n.availableIf) : [])))];
+      for (let mask = 0; mask < 1 << flags.length; mask++) {
+        const on = new Set(flags.filter((_, i) => mask & (1 << i)));
+        const evening = notes.filter((n) => available(n, on));
+        expect(evening.length, `${d} ${[...on].join(',')}`).toBe(3);
+        expect(new Set(evening.map((n) => n.author)).size, d).toBe(3);
+        expect(evening.some((n) => (n.replies ?? []).length === 2), d).toBe(true);
+      }
     }
+  });
+
+  it('le varianti dei bigliettini (Appendice A): Marta più dura in g02, Teresa più fredda in g03', () => {
+    const pairs: [string, string, string][] = [
+      ['g02.marta', 'g02.martaDura', 'martaDura'],
+      ['g03.teresa', 'g03.teresaFredda', 'teresaFredda'],
+    ];
+    for (const [base, variant, flag] of pairs) {
+      const b = db.notes.get(base) as NoteDef;
+      const v = db.notes.get(variant) as NoteDef;
+      expect(v.author).toBe(b.author);
+      expect(v.request).toEqual(b.request);
+      expect(available(b, new Set())).toBe(true);
+      expect(available(v, new Set())).toBe(false);
+      expect(available(b, new Set([flag]))).toBe(false);
+      expect(available(v, new Set([flag]))).toBe(true);
+      expect(it_(v.textKey)).not.toBe(it_(b.textKey));
+    }
+    // Il flag che le attiva nasce dai bigliettini della sera prima.
+    const g01marta = db.notes.get('g01.marta') as NoteDef;
+    expect(JSON.stringify([...(g01marta.onFail ?? []), ...(g01marta.onIgnore ?? [])])).toContain('"martaDura"');
+    const g02teresa = db.notes.get('g02.teresa') as NoteDef;
+    expect(JSON.stringify(g02teresa.replies?.find((r) => r.id === 'R1')?.effects)).toContain('"teresaFredda"');
+    expect(it_('atto1.g03.teresaFredda.testo')).not.toContain('cara');
+  });
+
+  it('ogni risposta ha una conseguenza visibile (Taccuino, desiderio, vignetta o bigliettino dei giorni dopo)', () => {
+    const conds: string[] = [];
+    for (const lv of db.levels.values()) for (const v of lv.dawn?.candidates ?? []) if (v.when) conds.push(JSON.stringify(v.when));
+    for (const d of db.diary.values()) conds.push(JSON.stringify(d.unlock));
+    for (const n of db.notes.values()) if (n.availableIf) conds.push(JSON.stringify(n.availableIf));
+    const all = conds.join('\n');
+    for (const d of DAYS)
+      for (const n of notesOf(d))
+        for (const r of n.replies ?? []) {
+          const direct = r.effects.some((e) => 'diary' in e || 'desire' in e);
+          const byReply = all.includes(JSON.stringify({ reply: n.id, is: r.id }));
+          const byFlag = r.effects.some((e) => 'setFlag' in e && all.includes(`"flag":"${e.setFlag}"`));
+          expect(direct || byReply || byFlag, `${n.id} ${r.id}`).toBe(true);
+          for (const e of r.effects) if ('diary' in e) expect(db.diary.has(e.diary), e.diary).toBe(true);
+        }
   });
 
   it('ogni bigliettino citato da un livello esiste, e ogni bigliettino dell\'Atto I è citato dal suo giorno', () => {
     const atto1Notes = [...db.notes.values()].filter((n) => (STORY as readonly string[]).includes(n.day));
-    expect(atto1Notes).toHaveLength(24);
+    expect(atto1Notes).toHaveLength(26);
     for (const n of atto1Notes) expect(level(n.day).notes).toContain(n.id);
+  });
+
+  it('le note a margine del tutorial hanno un innesco che il tombolo riconosce, e la mano mostra una mossa valida', () => {
+    for (const d of ['g00', 'g01', 'g02']) {
+      const lv = level(d);
+      const ctx = createContext(lv, {}, { balance: db.balance });
+      const base = db.computed.get(d)?.base.rows ?? [];
+      for (const t of lv.tutorial ?? []) {
+        if (t.k === 'margine' && t.hour !== undefined) expect(t.hour, `${d} margine`).toBeGreaterThan(lv.startHour);
+        if (t.k !== 'mano') continue;
+        const before = simulate(lv, ctx, base.filter((r) => r.hour < t.hour));
+        const st = before.timeline[before.timeline.length - 1];
+        if (!st) throw new Error(d);
+        const row = applyRow(lv, st, [{ pair: t.pair, over: t.over }], ctx);
+        expect(row.ok, `${d} mano ${t.hour}`).toBe(true);
+        const rest = solve({ level: lv, ctx, goals: lv.goals ?? [], from: { state: row.state, rowsDone: [...base.filter((r) => r.hour < t.hour), { hour: t.hour, crossings: [{ pair: t.pair, over: t.over }] }] } });
+        expect(rest.status, `${d} mano ${t.hour}: la giornata resta risolvibile`).toBe('ok');
+      }
+    }
+    // In g01 la nota del rifiuto vale sia per il «No.» di Marta sia per il Gino che non sta fermo.
+    const g01 = (level('g01').tutorial ?? []).find((t) => t.k === 'margine');
+    expect(g01 && g01.k === 'margine' ? g01.when : null).toBe('rifiuto');
   });
 
   it('almeno 3 vignette candidate per giornata, con al massimo 3 figure e 2 righe', () => {
@@ -158,7 +245,7 @@ describe('giornate dell\'Atto I', () => {
         expect(v.lines.length).toBeLessThanOrEqual(2);
       }
       // Ogni richiesta fallita ha la sua vignetta solo se porta un'informazione nuova: almeno una per giornata.
-      if (d !== 'g00') expect(c.some((v) => v.when && 'failed' in v.when), d).toBe(true);
+      if (d !== 'g00') expect(c.some((v) => v.when && JSON.stringify(v.when).includes('"failed"')), d).toBe(true);
     }
   });
 
@@ -393,7 +480,8 @@ describe('solver e file calcolati', () => {
         expect(used).toBeLessThanOrEqual(lv.matassa);
       }
       const reqs = notesOf(d).map((n) => n.request as Condition);
-      expect(reqs.length).toBe(3);
+      expect(reqs.length).toBeGreaterThanOrEqual(3);
+      expect(Object.keys(c?.perNote ?? {}).sort()).toEqual(notesOf(d).map((n) => n.id).sort());
     }
   });
 });

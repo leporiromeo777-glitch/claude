@@ -1,6 +1,6 @@
 {
   "levelId": "g03",
-  "sourceHash": "5e865b1f9f5a0fc2",
+  "sourceHash": "9ccccfa0f0d43607",
   "solverVersion": 1,
   "base": {
     "incroci": 0,
@@ -153,6 +153,55 @@
           "crossings": []
         }
       ]
+    },
+    "g03.teresaFredda": {
+      "incroci": 4,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
     }
   },
   "combos": [
@@ -219,6 +268,59 @@
     },
     {
       "notes": [
+        "g03.nina",
+        "g03.teresaFredda"
+      ],
+      "incroci": 4,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
         "g03.marta",
         "g03.teresa"
       ],
@@ -232,6 +334,117 @@
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g03.marta",
+        "g03.teresaFredda"
+      ],
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g03.teresa",
+        "g03.teresaFredda"
+      ],
+      "incroci": 4,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
         },
         {
           "hour": 8,

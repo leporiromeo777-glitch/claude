@@ -37,12 +37,13 @@
       "spinta": "Il Gino deve incrociare qualcuno ogni ora: fallo correre dove serve.",
       "indizio": "Una lettera può passare da Teresa al Gino, e dal Gino a Don Piero."
     },
-    "margine": {"gino": "Il Gino non sta fermo. Non c'è mai stato."}
+    "margine": {"verso": "Ognuno ha il suo verso: c'è chi non passa sotto, e chi non sta fermo."}
   },
   "g02": {
     "titolo": "Si dice",
     "perline": {"bambina": "Voce: «La merlettaia nuova è una bambina»"},
     "marta": {"testo": "Che il Gino non senta le chiacchiere."},
+    "martaDura": {"testo": "Del Molo te l'avevo scritto. Adesso scrivo questo, e una volta sola: il Gino non senta le chiacchiere."},
     "teresa": {
       "testo": "Cara, Don Piero deve sapere la novità prima della messa delle nove. È giusto che il parroco sappia.",
       "r1": "Non è una novità, è una chiacchiera.",
@@ -75,6 +76,7 @@
     },
     "marta": {"testo": "Oggi nessuno parta. Non voglio vedere partenze."},
     "teresa": {"testo": "La posta dal vaporetto la prendo io. Fa' che io sia al Molo alle dieci."},
+    "teresaFredda": {"testo": "Merlettaia. La posta del vaporetto la prendo io. Al Molo alle dieci. Senza chiacchiere."},
     "alba": {
       "ninaParte": "Venezia! Se il babbo chiede, ero da te a imparare il merletto.",
       "ninaResta": "Il vaporetto è partito senza di me. L'esame era oggi.",
@@ -82,6 +84,7 @@
       "nessuno": "Nessuno è partito. Il mare se lo ricorda, chi parte.",
       "posta": "Tutta la posta, cara! E una cartolina da Chioggia, senza firma. Che strano.",
       "fredda": "Grazie, merlettaia.",
+      "fredda2": "Teresa conta la posta senza alzare gli occhi. In fondo, una cartolina da Chioggia.",
       "ninaParte2": "Dal vaporetto Nina saluta l'isola con il libro, come con un fazzoletto.",
       "nessuno2": "Marta chiude la porta del forno più forte del solito."
     },
@@ -263,15 +266,17 @@
         "padre": "Era l'anniversario del padre di Marta. In Chiesa, prima della messa, teneva il Gino per mano.",
         "ernesto": "Nel 1936 Marta voleva partire con un marinaio, Ernesto. Partì solo lui.",
         "chi": "Marta, la fornaia. Al funerale della nonna non ha pianto: ha lasciato due pagnotte sulla porta e se n'è andata.",
-        "zeno": "Ho scritto a Marta che Zeno non è matto, è solo. Non ha risposto. Forse domani."
+        "zeno": "Ho scritto a Marta che Zeno non è matto, è solo. Non ha risposto. Forse domani.",
+        "faro": "Ho scritto a Marta «Va bene». Non so se le ho promesso di tenere il Gino lontano dal Faro, o solo di averla ascoltata.",
+        "comeVuoi": "A Marta ho scritto «Come vuoi». Non le ho chiesto perché. Forse era proprio questo che voleva."
       },
       "teresa": {
         "luce": "Teresa si è accesa. Che cosa ha visto?",
         "legge": "Se alla fine di un'ora Teresa tiene una lettera che non è sua, la legge. Non per cattiveria: le lettere le fanno compagnia.",
         "cartolina": "Nella posta del vaporetto c'era una cartolina da Chioggia, senza firma. Teresa l'ha guardata a lungo.",
         "chi": "Teresa, la postina. Il giorno del funerale mi ha portato il pane e intanto mi ha raccontato tutta l'isola.",
-        "fredda": "Ho scritto a Teresa che la sua novità era una chiacchiera. Da allora non mi chiama più «cara».",
-        "amica": "Ho detto di sì a Teresa. Nel biglietto dopo mi ha chiamata «cara» tre volte."
+        "fredda": "Ho scritto a Teresa che la sua novità era una chiacchiera. Il suo biglietto dopo era freddo come la posta d'inverno.",
+        "amica": "Ho detto di sì a Teresa. Adesso, quando passa sotto la finestra, mi saluta con tutta la borsa."
       },
       "piero": {
         "pozzo": "Don Piero prende tutto e non dà niente. Le lettere che non sono per lui restano a lui.",
@@ -288,7 +293,8 @@
         "campana": "Alle undici il Gino ha suonato la campana. Stonata, fuori orario, felice. Don Piero ha riso.",
         "promessa": "Ho promesso la campana al Gino. Adesso è una promessa, e le promesse pesano più dei bigliettini.",
         "giro": "Il Gino ha fatto il giro: Molo, Forno, Piazza, Chiesa. Domani, dice, lo fa al contrario.",
-        "lume": "Zeno ha fatto accendere al Gino il lume piccolo del Faro. Il Gino non parla d'altro."
+        "lume": "Zeno ha fatto accendere al Gino il lume piccolo del Faro. Il Gino non parla d'altro.",
+        "chiede": "Ho scritto al Gino di chiederlo prima a Don Piero. Mi ha risposto con un disegno: una campana che ride."
       },
       "zeno": {
         "faro": "Zeno non si allontana dal Faro più di due luoghi. Come un cane alla catena, ma senza catena.",
@@ -307,7 +313,12 @@
         "dillo": "Ho scritto a Nina di dirlo a suo padre. Non mi ha risposto: Nina risponde solo quando ha ragione.",
         "vai": "Ho scritto a Nina: «Vai. È la tua vita.» L'ho scritto io, ma sembrava la frase di qualcun altro.",
         "promossa": "Nina è stata promossa e l'ha saputo per prima. Ha riletto la lettera dieci volte, in Piazza.",
-        "iscritta": "La domanda di Nina è partita col vaporetto delle nove. Adesso Venezia sa che Nina esiste."
+        "iscritta": "La domanda di Nina è partita col vaporetto delle nove. Adesso Venezia sa che Nina esiste.",
+        "abbraccio": "Ho scritto a Nina di abbracciare forte il babbo. Dice che Bepi non si lascia abbracciare. Si lascia, ma non lo dice.",
+        "delusa": "Ho scritto a Nina che certe cose è meglio non saperle. Mi ha risposto con due parole di latino: «Sapere aude.»",
+        "grande": "Ho scritto a Nina che non è una bambina. Ha sottolineato la frase due volte e me l'ha rimandata indietro.",
+        "babbo": "Ho chiesto a Nina se il babbo lo sa. Ha risposto: «Lo sa il mare. Il babbo, non ancora.»",
+        "partira": "Ho scritto a Nina: «Partirà.» L'ha copiato sulla prima pagina del quaderno, in stampatello."
       },
       "bepi": {
         "rete": "Bepi ha venduto la rete buona per pagare a Nina l'esame. Adesso Nina lo sa.",
