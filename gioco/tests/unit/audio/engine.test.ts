@@ -204,6 +204,54 @@ describe('sblocco e ciclo di vita', () => {
     expect(hidden.blocked).toEqual([]);
   });
 
+  it('un tocco sull\'overlay che non basta: l\'overlay sparisce e non torna finché l\'audio non riparte', () => {
+    const ctx = new FakeAudioContext();
+    const { engine, blocked, tick } = make({ ctx });
+    engine.unlock();
+    ctx.interrupt();
+    ctx.canResume = false;
+    tick(BLOCKED_CHECK_MS + 10);
+    expect(blocked).toEqual([true]);
+    engine.retryFromOverlay();
+    tick(BLOCKED_CHECK_MS + 10);
+    // Il gioco non resta bloccato dietro l'overlay.
+    expect(blocked).toEqual([true, false]);
+    engine.resume();
+    tick(BLOCKED_CHECK_MS + 10);
+    expect(blocked).toEqual([true, false]);
+    // Più tardi un gesto qualsiasi riprende l'audio; un'interruzione nuova rimostra l'overlay.
+    ctx.canResume = true;
+    engine.unlock();
+    expect(engine.state()).toBe('running');
+    ctx.interrupt();
+    tick(BLOCKED_CHECK_MS + 10);
+    expect(blocked).toEqual([true, false, true]);
+    engine.retryFromOverlay();
+    expect(engine.state()).toBe('running');
+    expect(blocked).toEqual([true, false, true, false]);
+  });
+
+  it('contesto chiuso dal sistema: il gesto successivo ne crea uno nuovo, con musica e ambiente', () => {
+    const { engine, ctxs, runIdle } = make();
+    engine.setMusic('notte', { seed: 'g01' });
+    engine.setAmbience('notte');
+    engine.unlock();
+    runIdle();
+    expect(engine.stats().prerender.done).toBe(true);
+    void ctxs[0]!.close();
+    expect(engine.state()).toBe('suspended');
+    engine.unlock();
+    expect(ctxs).toHaveLength(2);
+    expect(engine.state()).toBe('running');
+    const fresh = ctxs[1]!;
+    expect(fresh.sources.filter((x) => x instanceof FakeOscillator).length).toBeGreaterThan(0);
+    expect(fresh.sources.some((x) => 'loop' in x && (x as { loop: boolean }).loop)).toBe(true);
+    // Il pre-render riparte per il contesto nuovo.
+    expect(engine.stats().prerender.started).toBe(true);
+    runIdle();
+    expect(engine.stats().prerender.done).toBe(true);
+  });
+
   it('i suoni non si accumulano mentre il contesto è sospeso', () => {
     const ctx = new FakeAudioContext();
     const { engine } = make({ ctx });

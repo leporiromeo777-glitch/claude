@@ -158,6 +158,12 @@ export class WebAudioEngine implements AudioEngine {
   private wasRunning = false;
   private blocked = false;
   private blockTimer: unknown = null;
+  /**
+   * Un tocco su "Tocca per continuare" non è bastato: l'overlay non ricompare finché
+   * l'audio non torna 'running' (ci riprova da solo ogni gesto, tramite unlock()).
+   */
+  private gaveUp = false;
+  private retryTimer: unknown = null;
   private muted = false;
   private volumes: Settings['volume'] = { ...DEFAULT_VOLUMES };
   private explicitDuck = false;
@@ -197,6 +203,8 @@ export class WebAudioEngine implements AudioEngine {
     if (this.closed) return;
     try {
       this.appSuspended = false;
+      // Un contesto chiuso dal sistema non riparte più: se ne crea uno nuovo.
+      if (this.rt && this.rt.ctx.state === 'closed') this.discardRuntime();
       if (!this.rt && !this.create()) return;
       const rt = this.rt;
       if (!rt) return;
@@ -239,15 +247,43 @@ export class WebAudioEngine implements AudioEngine {
     this.scheduleBlockedCheck();
   }
 
+  /**
+   * Tocco sull'overlay "Tocca per continuare", dentro il gesto: riprende il contesto. Se
+   * nemmeno così l'audio riparte (contesto rotto, telefonata in corso), l'overlay sparisce
+   * lo stesso: il gioco resta giocabile (ogni suono ha un equivalente visivo) e ogni
+   * gesto successivo riprova con unlock().
+   */
+  retryFromOverlay(): void {
+    this.unlock();
+    this.resume();
+    if (this.retryTimer !== null) this.timers.clear(this.retryTimer);
+    this.retryTimer = this.timers.set(() => {
+      this.retryTimer = null;
+      if (this.state() !== 'running') {
+        this.gaveUp = true;
+        this.setBlocked(false);
+      }
+    }, BLOCKED_CHECK_MS);
+  }
+
   /** Chiude il contesto (test, ricarica). Dopo, ogni chiamata è innocua. */
   close(): void {
     this.closed = true;
     for (const stop of [...this.playings]) stop();
+    if (this.blockTimer !== null) this.timers.clear(this.blockTimer);
+    if (this.retryTimer !== null) this.timers.clear(this.retryTimer);
+    this.blockTimer = this.retryTimer = null;
+    this.discardRuntime();
+  }
+
+  /** Lascia il contesto attuale (chiuso dal sistema o dal gioco); il prossimo unlock() ne crea uno nuovo. */
+  private discardRuntime(): void {
     const rt = this.rt;
     this.rt = null;
-    if (this.blockTimer !== null) this.timers.clear(this.blockTimer);
     if (!rt) return;
     rt.clock.stop();
+    Object.assign(this.prerender, { started: false, done: false, jobs: 0, completed: 0, cpuMs: 0, slices: 0 });
+    if (rt.ctx.state === 'closed') return;
     try {
       void Promise.resolve(rt.ctx.close()).catch(() => undefined);
     } catch {
@@ -338,6 +374,7 @@ export class WebAudioEngine implements AudioEngine {
     rt.clock.setRunning(running);
     if (running) {
       this.wasRunning = true;
+      this.gaveUp = false;
       this.setBlocked(false);
       this.startPrerender();
     } else if (!this.appSuspended && this.wasRunning && rt.ctx.state !== 'closed') {
@@ -359,7 +396,7 @@ export class WebAudioEngine implements AudioEngine {
     this.blockTimer = this.timers.set(() => {
       this.blockTimer = null;
       const rt = this.rt;
-      const stuck = !!rt && this.wasRunning && !this.appSuspended && !this.closed && this.visible() && this.state() !== 'running';
+      const stuck = !!rt && this.wasRunning && !this.gaveUp && !this.appSuspended && !this.closed && this.visible() && this.state() !== 'running';
       this.setBlocked(stuck);
     }, BLOCKED_CHECK_MS);
   }

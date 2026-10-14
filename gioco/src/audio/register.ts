@@ -73,10 +73,7 @@ export function register(s: Services): WebAudioEngine {
     input: s.input,
     t: (k) => s.i18n.t(k),
     // Dentro il gesto: crea o riprende il contesto in modo sincrono.
-    onTap: () => {
-      engine.unlock();
-      engine.resume();
-    },
+    onTap: () => engine.retryFromOverlay(),
   });
 
   registerAudio(engine);

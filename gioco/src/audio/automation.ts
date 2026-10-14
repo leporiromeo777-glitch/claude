@@ -9,7 +9,8 @@
  * | night:violation               | rifiuto («No.» di Marta) o tonfo per le altre violazioni     |
  * | night:row (ok)                | ora_fissata, campana con la stonatura del giorno, poi i     |
  * |                               | suoni del merletto: gli incroci non ancora sentiti (fili    |
- * |                               | che si muovono da soli, filo nero), lettera, voce, segreto, |
+ * |                               | che si muovono da soli, filo nero; l'annuncio del filo nero |
+ * |                               | della riga dopo è muto), lettera, voce, segreto,            |
  * |                               | febbre, cura, nodo, trabocco, vaporetto/barca/secca, filo   |
  * |                               | nero; marea se nella riga dopo c'è l'acqua alta             |
  * | night:row in modo 'replay'    | il carillon: un bicordo per incrocio (o un tic), niente     |
@@ -46,6 +47,7 @@ import type {
   Violation,
 } from '../core/types';
 import { CHARACTER_IDS } from '../core/ids';
+import { createContext } from '../engine/context';
 import { CAPTIONS, SFX_CAPTIONS } from './captions';
 import type { GameAudioContext } from './engine';
 import { STONATURE } from './synth/bell';
@@ -93,10 +95,6 @@ export const ROW_SOUND_STEP = 0.18;
 
 const CHAR_SET: ReadonlySet<string> = new Set<string>(CHARACTER_IDS);
 
-function truthy(v: FlagValue | undefined): boolean {
-  return v === true || v === 1 || v === 'si' || v === 'sì' || v === 'true';
-}
-
 /** Chi suona un filo: il personaggio del filo, 'lino' per i passanti. */
 export function threadWho(thread: ThreadId, level: LevelDef | null): CharacterId | 'lino' {
   const def = level?.threads?.find((t) => t.id === thread);
@@ -111,11 +109,17 @@ function samePair(a: ThreadId, b: ThreadId, x: ThreadId, y: ThreadId): boolean {
   return (a === x && b === y) || (a === y && b === x);
 }
 
-/** Coppie in rancore attive: quelle del livello, meno Teresa-Marta se si sono riconciliate. */
+/**
+ * Coppie in rancore attive, come le calcola il motore (createContext): quelle del
+ * livello, meno Teresa-Marta dopo la riconciliazione.
+ */
 export function activeRancor(level: LevelDef | null, flags: Readonly<Record<string, FlagValue>> | null): [ThreadId, ThreadId][] {
-  const list = level?.rancor ?? [];
-  const reconciled = truthy(flags?.['riconciliate']);
-  return list.filter(([a, b]) => !(reconciled && samePair(a, b, 'teresa', 'marta')));
+  if (!level?.rancor?.length) return [];
+  try {
+    return createContext(level, { ...(flags ?? {}) }).rancor;
+  } catch {
+    return level.rancor.map(([a, b]) => [a, b] as [ThreadId, ThreadId]);
+  }
 }
 
 /** Panoramica di una colonna (o del punto fra due colonne): da -0,6 a +0,6. */
@@ -273,16 +277,14 @@ export function eventSounds(events: readonly LaceEvent[], o: EventSoundOpts): Ev
         sfx(id, { key: id === 'secca' ? CAPTIONS.secca : (SFX_CAPTIONS[id] ?? '') }, pan);
         break;
       }
-      case 'nero': {
-        if (o.unannounced && !o.unannounced(e.pair)) break;
-        const a = pos[e.pair];
-        const b = pos[e.pair + 1];
-        const other = a === e.thread ? b : a;
-        if (other !== undefined) crossing(e.thread, other, e.pair);
-        break;
-      }
       case 'incontro':
+        // Gli incroci forzati (filo nero, autotessitura) arrivano qui, nella riga in cui
+        // avvengono.
         if (o.unannounced?.(e.pair)) crossing(e.over, e.over === e.a ? e.b : e.a, e.pair);
+        break;
+      case 'nero':
+        // Solo l'annuncio dell'incrocio della riga dopo (anteprima tratteggiata): l'incrocio
+        // vero suona con la sua riga, come 'incontro'.
         break;
       case 'stranezza':
         break;

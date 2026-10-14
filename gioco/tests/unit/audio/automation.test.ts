@@ -172,6 +172,21 @@ describe('funzioni pure', () => {
     expect(activeRancor(G11, {})).toEqual([['teresa', 'marta']]);
     expect(activeRancor(G11, { riconciliate: true })).toEqual([]);
     expect(activeRancor(G00, {})).toEqual([]);
+    // Come il motore: fili con id diversi dal personaggio, flag "sì" in ogni forma.
+    const other = level({
+      id: 'gx',
+      threads: [
+        { id: 't', kind: 'persona', character: 'teresa' },
+        { id: 'm', kind: 'persona', character: 'marta' },
+        { id: 'piero', kind: 'persona', character: 'piero' },
+      ],
+      initial: ['t', 'm', 'piero'],
+      rancor: [['t', 'm'], ['t', 'piero']],
+    });
+    expect(activeRancor(other, {})).toEqual([['t', 'm'], ['t', 'piero']]);
+    expect(activeRancor(other, { riconciliate: 1 })).toEqual([['t', 'piero']]);
+    expect(activeRancor(other, { riconciliate: 'yes' })).toEqual([['t', 'piero']]);
+    expect(activeRancor(other, { riconciliate: false })).toHaveLength(2);
   });
 
   it('panoramica delle colonne', () => {
@@ -242,12 +257,17 @@ describe('funzioni pure', () => {
     expect(febbre.k === 'sfx' && febbre.caption?.params).toEqual({ nome: 'Nina' });
   });
 
-  it('il filo nero incrocia: bicordo di Livia sopra l\'altro', () => {
+  it('l\'annuncio del filo nero (incrocio della riga dopo) è muto; il suo incrocio suona nella sua riga', () => {
     const pos = ['marta', 'nero', 'zeno', 'teresa', 'gino', 'nina'];
-    const s = eventSounds([{ k: 'nero', thread: 'nero', pair: 0 }], { level: G11, pos, nameOf });
-    expect(s).toEqual([{ k: 'crossing', over: 'livia', under: 'marta', pan: columnPan(0.5, 6), pair: 0 }]);
-    // Se l'incrocio del filo nero si è già sentito con night:cross, la riga non lo ripete.
-    expect(eventSounds([{ k: 'nero', thread: 'nero', pair: 0 }], { level: G11, pos, nameOf, unannounced: () => false })).toEqual([]);
+    const announce: LaceEvent[] = [{ k: 'nero', thread: 'nero', pair: 0 }];
+    expect(eventSounds(announce, { level: G11, pos, nameOf })).toEqual([]);
+    expect(eventSounds(announce, { level: G11, pos, nameOf, unannounced: () => true })).toEqual([]);
+    // Riga dopo: l'incrocio forzato è un 'incontro' che il giocatore non ha fatto.
+    const next: LaceEvent[] = [{ k: 'incontro', a: 'marta', b: 'nero', over: 'nero', pair: 0 }];
+    const after = ['nero', 'marta', 'zeno', 'teresa', 'gino', 'nina'];
+    expect(eventSounds(next, { level: G11, pos: after, nameOf, unannounced: () => true })).toEqual([
+      { k: 'crossing', over: 'livia', under: 'marta', pan: columnPan(0.5, 6), pair: 0 },
+    ]);
   });
 
   it('il filo nero si riconosce anche da level.nero', () => {
