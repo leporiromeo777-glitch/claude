@@ -13,6 +13,7 @@ import {
   AudioAutomation,
   ROW_SOUND_START,
   ROW_SOUND_STEP,
+  VIOLATION_GAP_MS,
   activeRancor,
   columnPan,
   eventSounds,
@@ -360,12 +361,25 @@ describe('ascolto del bus', () => {
   });
 
   it('night:violation → «No.» di Marta o tonfo', () => {
-    const { bus, engine } = ctx;
+    const { bus, engine, advance } = ctx;
     bus.emit('night:violation', { v: { code: 'rifiuto', quirk: 'martaNoSotto', threads: ['teresa', 'marta'], messageKey: 'x' } });
+    advance(1000);
     bus.emit('night:violation', { v: { code: 'spillo', messageKey: 'x' } });
     expect(engine.fns()).toEqual(['sfx:rifiuto', 'play:tonfo']);
     expect(engine.calls[1]!.args[2]).toEqual({ key: 'audio.didascalie.tonfo' });
     expect(engine.calls[1]!.args[3]).toBe('rifiuto');
+  });
+
+  it('più violazioni della stessa riga: un solo tonfo', () => {
+    const { bus, engine, advance } = ctx;
+    bus.emit('night:violation', { v: { code: 'spillo', messageKey: 'x' } });
+    bus.emit('night:violation', { v: { code: 'matassa', messageKey: 'x' } });
+    bus.emit('night:violation', { v: { code: 'corre', quirk: 'ginoCorre', messageKey: 'x' } });
+    expect(engine.fns()).toEqual(['play:tonfo']);
+    advance(VIOLATION_GAP_MS + 1);
+    bus.emit('night:violation', { v: { code: 'spillo', messageKey: 'x' } });
+    bus.emit('night:violation', { v: { code: 'rifiuto', quirk: 'martaNoSotto', messageKey: 'x' } });
+    expect(engine.fns()).toEqual(['play:tonfo', 'play:tonfo', 'sfx:rifiuto']);
   });
 
   it('night:row → ora fissata, campana con la stonatura del giorno, poi i suoni del merletto', () => {

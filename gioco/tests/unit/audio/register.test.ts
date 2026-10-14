@@ -5,7 +5,7 @@
  * del core, `__GAME__.audio` risponde anche prima dello sblocco, gli eventi della
  * notte e dell'app arrivano al motore, le didascalie compaiono nell'interfaccia.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createBus } from '../../../src/core/events';
 import { createI18n } from '../../../src/core/i18n';
 import { createInput } from '../../../src/core/input';
@@ -165,6 +165,41 @@ describe('register()', () => {
     const cap = root.querySelector('[data-test="caption"]');
     expect(cap?.textContent).toBe('[la campana stonata, ore 9]');
     expect(api.captions().map((c) => c.textKey)).toEqual(['audio.didascalie.campanaStonata']);
+  });
+
+  it('"Tocca per continuare" nell\'interfaccia: compare dopo un\'interruzione, il tocco riprende; se non basta sparisce', () => {
+    vi.useFakeTimers();
+    try {
+      const { api, root } = boot();
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'h' }));
+      const ctx = created[created.length - 1]!;
+      expect(api.state()).toBe('running');
+      // Interruzione che si risolve al tocco.
+      ctx.interrupt();
+      vi.advanceTimersByTime(500);
+      const overlay = (): HTMLElement | null => root.querySelector('[data-test="audio-tocca"]');
+      expect(overlay()).not.toBeNull();
+      overlay()!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(api.state()).toBe('running');
+      expect(overlay()).toBeNull();
+      // Interruzione che il tocco non risolve (telefonata in corso): il gioco non resta bloccato.
+      ctx.interrupt();
+      ctx.canResume = false;
+      vi.advanceTimersByTime(500);
+      expect(overlay()).not.toBeNull();
+      overlay()!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      vi.advanceTimersByTime(500);
+      expect(overlay()).toBeNull();
+      expect(api.state()).toBe('suspended');
+      // A chiamata finita il primo gesto qualsiasi riprende l'audio.
+      ctx.canResume = true;
+      window.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch' }));
+      expect(api.state()).toBe('running');
+      // Nessun ui_tap per il tocco sull'overlay.
+      expect(api.log().some((e) => e.id === 'ui_tap')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('limitatore, silenzio e statistiche dal debug', () => {

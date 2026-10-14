@@ -257,6 +257,8 @@ export class WebAudioEngine implements AudioEngine {
     this.unlock();
     this.resume();
     if (this.retryTimer !== null) this.timers.clear(this.retryTimer);
+    this.retryTimer = null;
+    if (this.state() === 'running') return;
     this.retryTimer = this.timers.set(() => {
       this.retryTimer = null;
       if (this.state() !== 'running') {
@@ -375,6 +377,11 @@ export class WebAudioEngine implements AudioEngine {
     if (running) {
       this.wasRunning = true;
       this.gaveUp = false;
+      // Il tocco sull'overlay ha funzionato: niente verdetto in sospeso.
+      if (this.retryTimer !== null) {
+        this.timers.clear(this.retryTimer);
+        this.retryTimer = null;
+      }
       this.setBlocked(false);
       this.startPrerender();
     } else if (!this.appSuspended && this.wasRunning && rt.ctx.state !== 'closed') {

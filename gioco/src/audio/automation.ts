@@ -92,6 +92,8 @@ export const MAX_ROW_SOUNDS = 6;
 /** Primo suono del merletto dopo la campana, e passo fra i suoni (a velocità 1×). */
 export const ROW_SOUND_START = 0.15;
 export const ROW_SOUND_STEP = 0.18;
+/** Violazioni ravvicinate (la stessa riga rifiutata): un solo tonfo. */
+export const VIOLATION_GAP_MS = 150;
 
 const CHAR_SET: ReadonlySet<string> = new Set<string>(CHARACTER_IDS);
 
@@ -325,6 +327,7 @@ export class AudioAutomation implements GameAudioContext {
   /** Disfa ha riaperto la riga precedente: la sua bozza (già sentita) non è nota. */
   private draftUnknown = false;
   private lastPage = -Infinity;
+  private lastViolation = -Infinity;
   private replayRows = 0;
   private lastVolumes: Settings['volume'] | null = null;
   private lastPreview = -Infinity;
@@ -499,7 +502,13 @@ export class AudioAutomation implements GameAudioContext {
   }
 
   private onViolation(v: Violation): void {
-    if (v.code === 'rifiuto' && (!v.quirk || v.quirk === 'martaNoSotto')) {
+    const marta = v.code === 'rifiuto' && (!v.quirk || v.quirk === 'martaNoSotto');
+    // Una riga rifiutata può portare più violazioni insieme: un solo tonfo (il «No.» di
+    // Marta passa sempre).
+    const t = this.now();
+    if (!marta && t - this.lastViolation < VIOLATION_GAP_MS) return;
+    this.lastViolation = t;
+    if (marta) {
       this.deps.engine.sfx('rifiuto');
       return;
     }
