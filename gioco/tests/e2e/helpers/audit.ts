@@ -149,10 +149,17 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
         return null;
       };
       /** Lo strato modale più vicino (finestra, overlay, scheda) che contiene un elemento. */
-      const MODAL = '[aria-modal="true"], [role="dialog"], [role="alertdialog"], .core-overlay';
+      const MODAL = '[aria-modal="true"], [role="dialog"], [role="alertdialog"], .core-overlay, .core-modal-host';
       const underModal = (e: Element, hit: Element): boolean => {
         const layer = hit.closest(MODAL);
-        return !!layer && !layer.contains(e);
+        if (layer && !layer.contains(e)) return true;
+        // Un velo a tutto schermo (lo sfondo di una finestra) copre apposta quello che c'è sotto.
+        for (let p: Element | null = hit; p && p !== root && p !== document.body; p = p.parentElement) {
+          if (p.contains(e)) return false;
+          const r = p.getBoundingClientRect();
+          if (r.width >= vw * 0.95 && r.height >= vh * 0.95) return true;
+        }
+        return false;
       };
       const transient = (hit: Element): boolean => !!hit.closest('.core-toasts, .core-captions, [data-test="toast"], [data-test="caption"]');
       const ellipsis = (e: Element, until: Element | null): boolean => {
@@ -162,8 +169,17 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
         }
         return false;
       };
-      const scrollsY = (p: Element): boolean => ['auto', 'scroll'].includes(getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight + 1;
-      const scrollsX = (p: Element): boolean => ['auto', 'scroll'].includes(getComputedStyle(p).overflowX) && p.scrollWidth > p.clientWidth + 1;
+      /** Fra `e` e il suo foglio (compreso) c'è un contenitore che scorre su quell'asse (anche da script). */
+      const scrollsBetween = (e: Element, sheet: Element, axis: 'x' | 'y'): boolean => {
+        for (let p = e.parentElement; p; p = p.parentElement) {
+          const cs = getComputedStyle(p);
+          const ov = axis === 'y' ? cs.overflowY : cs.overflowX;
+          const more = axis === 'y' ? p.scrollHeight > p.clientHeight + 1 : p.scrollWidth > p.clientWidth + 1;
+          if (ov !== 'visible' && more && (p === sheet || sheet.contains(p))) return true;
+          if (p === sheet) return false;
+        }
+        return false;
+      };
       /** Il pulsante che riceve il tocco in quel punto (null se è un testo o nulla). */
       const buttonAt = (x: number, y: number): Element | null => {
         if (x < 0 || y < 0 || x >= vw || y >= vh) return null;
@@ -178,7 +194,13 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
         return hit;
       };
       const coveredText = (e: Element): { by: Element; rect: DOMRect } | null => {
-        const rects = textRects(e);
+        // Solo le righe che si vedono (non quelle tagliate da un riassunto a tre righe).
+        const v = clipped(e);
+        if (!v) return null;
+        const rects = textRects(e).filter((q) => {
+          const cy = q.top + q.height / 2;
+          return cy >= v.top && cy <= v.bottom && q.right > v.left && q.left < v.right;
+        });
         if (rects.length === 0) return null;
         const last = rects[rects.length - 1]!;
         for (const q of [rects[0]!, last]) {
@@ -233,8 +255,8 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
             for (const q of rects) {
               const tolY = 2 + q.width * sin;
               const dx = Math.max(sr.left - q.left - tolX, q.right - sr.right - tolX, 0);
-              const dy = scrollsY(sheet) ? 0 : Math.max(sr.top - q.top - tolY, q.bottom - sr.bottom - tolY, 0);
-              const d = Math.max(scrollsX(sheet) ? 0 : dx, dy);
+              const dy = scrollsBetween(e, sheet, 'y') ? 0 : Math.max(sr.top - q.top - tolY, q.bottom - sr.bottom - tolY, 0);
+              const d = Math.max(scrollsBetween(e, sheet, 'x') ? 0 : dx, dy);
               if (d > worst) {
                 worst = d;
                 where = `${Math.round(q.left)},${Math.round(q.top)}..${Math.round(q.right)},${Math.round(q.bottom)} nel foglio ${Math.round(sr.left)},${Math.round(sr.top)}..${Math.round(sr.right)},${Math.round(sr.bottom)}`;
@@ -250,7 +272,8 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
               const rg = document.createRange();
               rg.setStart(n, m.index ?? 0);
               rg.setEnd(n, (m.index ?? 0) + m[0].length);
-              const qs = Array.from(rg.getClientRects()).filter((q) => q.width > 0.5);
+              // Solo le parti che si vedono (non le righe nascoste da un riassunto a tre righe).
+              const qs = Array.from(rg.getClientRects()).filter((q) => q.width > 0.5 && !!vis && q.top + q.height / 2 >= vis.top && q.top + q.height / 2 <= vis.bottom);
               const tops = qs.map((q) => q.top);
               // Su due righe: la seconda parte sta almeno mezza riga più in basso (con la
               // calligrafia inclinata una parola intera può dare due rettangoli quasi sovrapposti).
