@@ -5,7 +5,7 @@
     },
     "hint": {
       "spinta": "Il dottore scende al Molo alle otto. All'una deve aprire la Farmacia.",
-      "indizio": "Lunardi guarisce chi gli sta sotto. Il Gino non si ferma: mandalo incontro al vaporetto."
+      "indizio": "Lunardi guarisce chi gli sta sotto. Il Gino a letto non si muove: è il dottore che deve arrivare da lui."
     },
     "alba": {
       "arrivo": {
@@ -31,7 +31,7 @@
     },
     "titolo": "Il farmacista",
     "marta": {
-      "testo": "Il Gino scotta da tre giorni e non sta fermo nemmeno con la febbre. Quel dottore forestiero lo prenda entro mezzogiorno, e domani sera sia guarito. Non chiedo altro. Il pane glielo porto io.",
+      "testo": "Il Gino scotta da tre giorni, e per la prima volta in vita sua sta fermo nel letto. Quel dottore forestiero lo prenda entro mezzogiorno, e domani sera sia guarito. Il pane glielo porto io.",
       "esito": {
         "ok": "Il dottore ha preso il Gino prima di mezzogiorno. Guarito, il Gino ha ricominciato a correre: Marta dice che preferiva la febbre.",
         "fallita": "Il Gino scotta ancora. Marta ha messo il pane del dottore in fondo alla cesta, sotto quello di ieri."
@@ -192,7 +192,7 @@
       "nome": "Chi ti nomina, ti tiene. Prima di tessere, appunto il mio nome su un filo."
     },
     "hint": {
-      "spinta": "Bepi parte col vaporetto delle nove, che riporta la Nina. Il nome lo appunti tu.",
+      "spinta": "Bepi parte col vaporetto delle nove, che riporta il dottore. Il nome lo appunti tu.",
       "indizio": "Il nome passa come una voce. Chi sa del debito non deve incrociare la Nina."
     },
     "alba": {
@@ -221,14 +221,14 @@
     },
     "titolo": "Il nome",
     "lunardi": {
-      "testo": "Mi scusi la domanda, è una settimana che me lo chiedo: come si chiama, la merlettaia? Tutti dicono «la piccola», come se fosse un nome. Io vorrei saperlo per bene.",
+      "testo": "Mi scusi la domanda, è una settimana che me lo chiedo: come si chiama, la merlettaia? Domani torno col vaporetto delle nove, e lo chiederò ad almeno tre persone. Una lo saprà.",
       "esito": {
         "ok": "Il dottore ha saputo come mi chiamo. Mi ha salutata per nome tre volte, come uno che prova una parola nuova.",
         "fallita": "Il dottore non ha saputo il mio nome. Mi ha salutata con un inchino, «signorina», come si saluta un'estranea."
       }
     },
     "bepi": {
-      "testo": "vado a chiogia col vaporetto a sistemare una cosa. la nina torna domatina. del debito non deve saper niente. niente. ci penso io",
+      "testo": "domatina vado a chiogia col vaporetto delle 9 a sistemare una cosa. del debito la nina non deve saper niente. niente. ci penso io",
       "r1": "Prima o poi lo saprà, Bepi. Meglio da te che dalla strada.",
       "r2": "Da me non lo saprà, Bepi. Ma l'isola è piccola, e la Teresa è lunga.",
       "esito": {
@@ -237,7 +237,7 @@
       }
     },
     "zeno": {
-      "testo": "Dopo le tre il Faro è mio. Nessuno salga. Ho da pensare a una calligrafia.",
+      "testo": "Domattina scendo alla messa delle undici, a parlare col prete. Dopo le tre il Faro è mio: nessuno salga. Ho da pensare a una calligrafia.",
       "esito": {
         "ok": "Zeno è rimasto solo sul Faro, dopo le tre. Quando è sceso aveva gli occhi di chi ha riletto una lettera vecchia.",
         "fallita": "Zeno non ha avuto il Faro tutto per sé. Ha borbottato col vento fino a sera."
@@ -622,7 +622,7 @@
       },
       "gino": {
         "pagella": "La maestra ha scritto BRAVO sulla pagella del Gino. In italiano. In aritmetica, meno: lì c'è scritto «si impegni», che è un altro modo di dire.",
-        "febbre": "Il Gino con la febbre corre lo stesso, e la attacca a chi incrocia. La febbre non chiede permesso, e lui nemmeno.",
+        "febbre": "Il Gino con la febbre resta a letto: per una volta non corre. Chi gli passa accanto, però, se la prende.",
         "tempesta": "Nella tempesta il Gino è scappato al Molo a guardare le onde. Marta l'ha asciugato in silenzio, che è peggio di una sgridata.",
         "guarito": "Il Gino è guarito nella notte più lunga. Ha mangiato due pagnotte e ha ricominciato a correre prima di colazione.",
         "faro": "Il Gino ha visto la lanterna di giorno, spenta. Zeno gli ha detto di tornare una sera, quando la luce lavora.",

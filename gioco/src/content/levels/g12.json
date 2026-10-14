@@ -51,12 +51,12 @@
     }
   ],
   "initial": [
-    "bepi",
     "marta",
-    "lunardi",
     "piero",
+    "bepi",
+    "teresa",
     "zeno",
-    "teresa"
+    "nina"
   ],
   "beads": [
     {
@@ -108,9 +108,14 @@
       "hour": 11
     },
     {
-      "thread": "lunardi",
-      "place": "farmacia",
-      "hour": 13
+      "thread": "teresa",
+      "place": "piazza",
+      "hour": 12
+    },
+    {
+      "thread": "marta",
+      "place": "piazza",
+      "hour": 14
     }
   ],
   "edges": [
@@ -118,7 +123,7 @@
       "hour": 9,
       "side": "molo",
       "kind": "vaporetto",
-      "enters": "nina"
+      "enters": "lunardi"
     }
   ],
   "goals": [
@@ -134,7 +139,7 @@
     "g12.zeno",
     "g12.teresa"
   ],
-  "matassa": 8,
+  "matassa": 16,
   "tutorial": [
     {
       "k": "pulsa",

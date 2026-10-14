@@ -1,9 +1,9 @@
 {
   "levelId": "g23",
-  "sourceHash": "48dc3a664615a139",
-  "solverVersion": 1,
+  "sourceHash": "52c39959b8c9fa02",
+  "solverVersion": 2,
   "base": {
-    "incroci": 4,
+    "incroci": 2,
     "rows": [
       {
         "hour": 7,
@@ -15,15 +15,14 @@
       },
       {
         "hour": 9,
-        "crossings": [
-          {
-            "pair": 3,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
         "crossings": [
           {
             "pair": 2,
@@ -32,26 +31,246 @@
         ]
       },
       {
-        "hour": 11,
+        "hour": 12,
         "crossings": [
           {
             "pair": 1,
             "over": "L"
-          },
-          {
-            "pair": 3,
-            "over": "L"
           }
         ]
-      },
-      {
-        "hour": 12,
-        "crossings": []
       }
     ]
   },
-  "perNote": {},
-  "combos": [],
-  "matassaSuggerita": 5,
-  "quieteMax": 3
+  "perNote": {
+    "g23.teresa": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    "g23.bepi": {
+      "incroci": 6,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    }
+  },
+  "combos": [
+    {
+      "notes": [
+        "g23.teresa",
+        "g23.bepi"
+      ],
+      "incroci": 9,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "matassaSuggerita": 10,
+  "quieteMax": 4,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 2,
+        "minSenzaGino": null,
+        "vuoteMax": 4,
+        "vuoteTot": 4,
+        "soluzioniOttime": 15
+      },
+      {
+        "config": "g23.teresa",
+        "min": 5,
+        "minSenzaGino": null,
+        "costo": 3,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 6
+      },
+      {
+        "config": "g23.bepi",
+        "min": 6,
+        "minSenzaGino": null,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 7
+      },
+      {
+        "config": "g23.teresa+g23.bepi",
+        "min": 9,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 4
+      }
+    ],
+    "designata": "g23.teresa+g23.bepi",
+    "facili": [],
+    "violazioni": []
+  }
 }

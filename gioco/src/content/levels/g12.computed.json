@@ -1,32 +1,48 @@
 {
   "levelId": "g12",
-  "sourceHash": "5e0b150c61008c93",
-  "solverVersion": 1,
+  "sourceHash": "cdbf555c4bdeb067",
+  "solverVersion": 2,
   "base": {
-    "incroci": 2,
+    "incroci": 6,
     "rows": [
       {
         "hour": 7,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 8,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 9,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 10,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 11,
-        "crossings": []
-      },
-      {
-        "hour": 12,
         "crossings": [
           {
             "pair": 2,
@@ -35,17 +51,21 @@
         ]
       },
       {
+        "hour": 12,
+        "crossings": []
+      },
+      {
         "hour": 13,
-        "crossings": [
-          {
-            "pair": 3,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 14,
-        "crossings": []
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
       },
       {
         "hour": 15,
@@ -59,34 +79,50 @@
   },
   "perNote": {
     "g12.lunardi": {
-      "incroci": 2,
-      "nomeOn": "lunardi"
+      "incroci": 11,
+      "nomeOn": "marta"
     },
     "g12.bepi": {
-      "incroci": 2,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 8,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 9,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 10,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 11,
-          "crossings": []
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
               "pair": 2,
@@ -95,17 +131,21 @@
           ]
         },
         {
+          "hour": 12,
+          "crossings": []
+        },
+        {
           "hour": 13,
-          "crossings": [
-            {
-              "pair": 3,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 14,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 15,
@@ -118,43 +158,55 @@
       ]
     },
     "g12.zeno": {
-      "incroci": 3,
+      "incroci": 9,
       "rows": [
         {
           "hour": 7,
-          "crossings": []
-        },
-        {
-          "hour": 8,
-          "crossings": []
-        },
-        {
-          "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
-          "crossings": []
-        },
-        {
-          "hour": 11,
-          "crossings": []
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
-              "pair": 2,
-              "over": "L"
-            },
-            {
-              "pair": 4,
+              "pair": 0,
               "over": "L"
             }
           ]
         },
         {
-          "hour": 13,
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
           "crossings": [
             {
               "pair": 3,
@@ -163,12 +215,30 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 13,
           "crossings": []
         },
         {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
           "hour": 15,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 16,
@@ -177,49 +247,28 @@
       ]
     },
     "g12.teresa": {
-      "incroci": 5,
+      "incroci": 9,
       "rows": [
         {
           "hour": 7,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 8,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 10,
-          "crossings": []
-        },
-        {
-          "hour": 11,
-          "crossings": []
-        },
-        {
-          "hour": 12,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 13,
           "crossings": [
             {
               "pair": 0,
@@ -232,8 +281,47 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
           "crossings": []
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 15,
@@ -252,67 +340,79 @@
         "g12.lunardi",
         "g12.bepi"
       ],
-      "incroci": 2,
-      "nomeOn": "lunardi"
+      "incroci": 11,
+      "nomeOn": "marta"
     },
     {
       "notes": [
         "g12.lunardi",
         "g12.zeno"
       ],
-      "incroci": 3,
-      "nomeOn": "lunardi"
+      "incroci": 14,
+      "nomeOn": "marta"
     },
     {
       "notes": [
         "g12.lunardi",
         "g12.teresa"
       ],
-      "incroci": 5,
-      "nomeOn": "lunardi"
+      "incroci": 14,
+      "nomeOn": "marta"
     },
     {
       "notes": [
         "g12.bepi",
         "g12.zeno"
       ],
-      "incroci": 3,
+      "incroci": 9,
       "rows": [
         {
           "hour": 7,
-          "crossings": []
-        },
-        {
-          "hour": 8,
-          "crossings": []
-        },
-        {
-          "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
-          "crossings": []
-        },
-        {
-          "hour": 11,
-          "crossings": []
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
-              "pair": 2,
-              "over": "L"
-            },
-            {
-              "pair": 4,
+              "pair": 0,
               "over": "L"
             }
           ]
         },
         {
-          "hour": 13,
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
           "crossings": [
             {
               "pair": 3,
@@ -321,12 +421,30 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 13,
           "crossings": []
         },
         {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
           "hour": 15,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 16,
@@ -347,47 +465,41 @@
         "g12.zeno",
         "g12.teresa"
       ],
-      "incroci": 6,
+      "incroci": 11,
       "rows": [
         {
           "hour": 7,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 8,
-          "crossings": []
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
         },
         {
           "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
-          "crossings": []
-        },
-        {
-          "hour": 11,
-          "crossings": []
-        },
-        {
-          "hour": 12,
           "crossings": [
             {
               "pair": 0,
               "over": "L"
             },
             {
-              "pair": 2,
-              "over": "L"
-            },
-            {
-              "pair": 4,
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
-          "hour": 13,
+          "hour": 10,
           "crossings": [
             {
               "pair": 1,
@@ -400,10 +512,41 @@
           ]
         },
         {
-          "hour": 14,
+          "hour": 11,
           "crossings": [
             {
               "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -419,6 +562,99 @@
       ]
     }
   ],
-  "matassaSuggerita": 8,
-  "quieteMax": 8
+  "matassaSuggerita": 16,
+  "quieteMax": 4,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 6,
+        "minSenzaGino": null,
+        "vuoteMax": 2,
+        "vuoteTot": 4,
+        "soluzioniOttime": 2
+      },
+      {
+        "config": "g12.lunardi",
+        "min": 11,
+        "minSenzaGino": null,
+        "costo": 5,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g12.bepi",
+        "min": 6,
+        "minSenzaGino": null,
+        "costo": 0,
+        "vuoteMax": 2,
+        "vuoteTot": 4,
+        "soluzioniOttime": 2
+      },
+      {
+        "config": "g12.zeno",
+        "min": 9,
+        "minSenzaGino": null,
+        "costo": 3,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 6
+      },
+      {
+        "config": "g12.teresa",
+        "min": 9,
+        "minSenzaGino": null,
+        "costo": 3,
+        "vuoteMax": 2,
+        "vuoteTot": 4,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g12.lunardi+g12.bepi",
+        "min": 11,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 1
+      },
+      {
+        "config": "g12.lunardi+g12.zeno",
+        "min": 14,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 3
+      },
+      {
+        "config": "g12.lunardi+g12.teresa",
+        "min": 14,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g12.bepi+g12.zeno",
+        "min": 9,
+        "minSenzaGino": null,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 6
+      },
+      {
+        "config": "g12.zeno+g12.teresa",
+        "min": 11,
+        "minSenzaGino": null,
+        "vuoteMax": 2,
+        "vuoteTot": 2,
+        "soluzioniOttime": 12
+      }
+    ],
+    "designata": "g12.lunardi+g12.zeno",
+    "facili": [
+      "g12.bepi"
+    ],
+    "violazioni": []
+  }
 }

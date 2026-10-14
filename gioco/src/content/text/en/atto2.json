@@ -5,7 +5,7 @@
     },
     "hint": {
       "spinta": "The doctor steps off at the Pier at eight. At one he must open the Pharmacy.",
-      "indizio": "Lunardi cures whoever is below him. Gino won't stop: send him to meet the ferry."
+      "indizio": "Lunardi cures whoever is beneath him. Gino in bed doesn't move: the doctor has to get to him."
     },
     "alba": {
       "arrivo": {
@@ -31,7 +31,7 @@
     },
     "titolo": "The Pharmacist",
     "marta": {
-      "testo": "Gino has been burning for three days and won't keep still even with the fever. That mainland doctor is to see him by noon, and by tomorrow evening he's to be well. I ask nothing else. I'll bring the man his bread.",
+      "testo": "Gino has been burning for three days, and for the first time in his life he lies still in bed. That mainland doctor is to see him by noon, and by tomorrow evening he's to be well. I'll bring the man his bread.",
       "esito": {
         "ok": "The doctor saw to Gino before noon. Cured, Gino started running again: Marta says she preferred the fever.",
         "fallita": "Gino is still burning. Marta put the doctor's bread at the bottom of the basket, under yesterday's."
@@ -192,7 +192,7 @@
       "nome": "Who names you, keeps you. Before weaving, I pin my name on a thread."
     },
     "hint": {
-      "spinta": "Bepi leaves on the nine o'clock ferry, which brings Nina back. You pin the name.",
+      "spinta": "Bepi leaves on the nine o'clock ferry, which brings the doctor back. You pin the name yourself.",
       "indizio": "The name passes like a rumour. Whoever knows of the debt mustn't cross Nina."
     },
     "alba": {
@@ -221,14 +221,14 @@
     },
     "titolo": "The Name",
     "lunardi": {
-      "testo": "Forgive the question, I have wondered for a week: what is the lacemaker's name? Everyone says “the little one”, as if it were a name. I should like to know it properly.",
+      "testo": "Forgive the question, I have wondered for a week: what is the lacemaker's name? Tomorrow I come back on the nine o'clock ferry, and I shall ask at least three people. One will know.",
       "esito": {
         "ok": "The doctor learned my name. He greeted me by it three times, like someone trying out a new word.",
         "fallita": "The doctor never learned my name. He greeted me with a bow, “miss”, the way one greets a stranger."
       }
     },
     "bepi": {
-      "testo": "going to chiogia on the ferry to setle a thing. nina comes back tomoro morning. she mustnt know about the debt. nothing. I wil see to it",
+      "testo": "tomoro morning I go to chiogia on the 9 ferry to setle a thing. nina mustnt know about the debt. nothing. I wil see to it",
       "r1": "Sooner or later she'll know, Bepi. Better from you than from the street.",
       "r2": "She won't hear it from me, Bepi. But the island is small, and Teresa's tongue is long.",
       "esito": {
@@ -237,7 +237,7 @@
       }
     },
     "zeno": {
-      "testo": "After three the Lighthouse is mine. Nobody comes up. I have some handwriting to think about.",
+      "testo": "Tomorrow morning I'll come down to eleven o'clock mass, to talk to the priest. After three the Lighthouse is mine: nobody climb up. I have a handwriting to think about.",
       "esito": {
         "ok": "Zeno stayed alone on the Lighthouse after three. When he came down he had the eyes of a man who has reread an old letter.",
         "fallita": "Zeno didn't have the Lighthouse to himself. He grumbled at the wind until evening."
@@ -622,7 +622,7 @@
       },
       "gino": {
         "pagella": "The teacher wrote WELL DONE on Gino's report. In Italian. In arithmetic, less so: there it says “must try harder”, which is another way of putting it.",
-        "febbre": "Gino runs even with a fever, and passes it to whoever he crosses. Fever doesn't ask permission, and neither does he.",
+        "febbre": "Gino with a fever stays in bed: for once he doesn't run. Anyone who crosses him, though, catches it.",
         "tempesta": "In the storm Gino ran off to the Pier to watch the waves. Marta dried him in silence, which is worse than a scolding.",
         "guarito": "Gino got well on the longest night. He ate two loaves and was running again before breakfast.",
         "faro": "Gino saw the lantern by day, unlit. Zeno told him to come back one evening, when the light is working.",

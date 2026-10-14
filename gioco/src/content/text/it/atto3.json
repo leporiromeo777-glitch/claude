@@ -419,6 +419,10 @@
       "zeno": {
         "1": "Domani è un altro giorno, dicono. Qui lo dice la merlettaia.",
         "2": "Stanotte la lanterna l'ho accesa un'ora prima. Così, per abitudine."
+      },
+      "candele": {
+        "1": "Due candele. Una per la mamma della Nina, e una per la Nina.",
+        "2": "Il Bepi in chiesa non parla. Accende, guarda, e se ne va col berretto in mano."
       }
     },
     "titolo": "La vigilia",
@@ -433,6 +437,20 @@
     },
     "ada": {
       "testo": "Il punto aperto."
+    },
+    "teresa": {
+      "testo": "Cara, domani la forestiera la voglio salutare anch'io, prima delle dieci. Di persona, non per sentito dire.",
+      "esito": {
+        "ok": "Teresa ha salutato la forestiera prima delle dieci. Le ha detto «cara», e mia madre ha sorriso come chi se lo ricorda.",
+        "fallita": "Teresa non è arrivata dalla forestiera prima delle dieci. Le ha lasciato il saluto in Piazza, a chi passava."
+      }
+    },
+    "bepi": {
+      "testo": "domatina vado in chiesa dal prete, prima delle 11. una candela per mia moglie, e una per la nina.",
+      "esito": {
+        "ok": "Il Bepi è stato in chiesa prima della messa. Due candele, e il prete che faceva finta di non vederlo piangere.",
+        "fallita": "Il Bepi non è arrivato in chiesa prima delle undici. Le candele le ha accese la sera, da solo."
+      }
     }
   },
   "arc5": {

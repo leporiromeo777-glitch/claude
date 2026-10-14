@@ -48,10 +48,10 @@
   "initial": [
     "bepi",
     "marta",
-    "teresa",
     "piero",
     "livia",
-    "zeno"
+    "zeno",
+    "teresa"
   ],
   "beads": [],
   "rules": [
@@ -108,13 +108,15 @@
     }
   ],
   "notes": [
+    "g23.teresa",
+    "g23.bepi",
     "g23.zeno",
     "g23.piero",
     "g23.livia",
     "g23.clotilde",
     "g23.ada"
   ],
-  "matassa": 5,
+  "matassa": 10,
   "hintKeys": {
     "spinta": "atto3.g23.hint.spinta",
     "indizio": "atto3.g23.hint.indizio"
@@ -170,6 +172,31 @@
             "textKey": "atto3.g23.alba.vigilia.2"
           }
         ]
+      },
+      {
+        "id": "g23.alba.candele",
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "bepi",
+            "textKey": "atto3.g23.alba.candele.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g23.alba.candele.2"
+          }
+        ],
+        "when": {
+          "ok": "g23.bepi"
+        }
       },
       {
         "id": "g23.alba.pane",

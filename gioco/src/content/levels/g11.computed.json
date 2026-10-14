@@ -1,30 +1,12 @@
 {
   "levelId": "g11",
-  "sourceHash": "036d5cab843d9b68",
-  "solverVersion": 1,
+  "sourceHash": "0338653c5212fe51",
+  "solverVersion": 2,
   "base": {
-    "incroci": 10,
+    "incroci": 7,
     "rows": [
       {
         "hour": 7,
-        "crossings": [
-          {
-            "pair": 2,
-            "over": "L"
-          }
-        ]
-      },
-      {
-        "hour": 8,
-        "crossings": [
-          {
-            "pair": 2,
-            "over": "L"
-          }
-        ]
-      },
-      {
-        "hour": 9,
         "crossings": [
           {
             "pair": 1,
@@ -33,10 +15,27 @@
         ]
       },
       {
-        "hour": 10,
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
         "crossings": [
           {
             "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 1,
             "over": "L"
           }
         ]
@@ -45,37 +44,27 @@
         "hour": 11,
         "crossings": [
           {
-            "pair": 0,
+            "pair": 2,
             "over": "L"
           }
         ]
       },
       {
         "hour": 12,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 13,
         "crossings": [
           {
-            "pair": 0,
+            "pair": 1,
             "over": "L"
           }
         ]
       },
       {
         "hour": 14,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       },
       {
         "hour": 15,
@@ -88,12 +77,7 @@
       },
       {
         "hour": 16,
-        "crossings": [
-          {
-            "pair": 0,
-            "over": "L"
-          }
-        ]
+        "crossings": []
       }
     ]
   },
@@ -105,25 +89,24 @@
           "hour": 7,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 1,
               "over": "L"
             }
           ]
         },
         {
           "hour": 8,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 9,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
@@ -132,7 +115,7 @@
           "hour": 10,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
@@ -141,41 +124,43 @@
           "hour": 11,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 13,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
               "over": "L"
             }
           ]
         },
         {
           "hour": 14,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 15,
           "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
             {
               "pair": 2,
               "over": "L"
@@ -186,11 +171,7 @@
           "hour": 16,
           "crossings": [
             {
-              "pair": 0,
-              "over": "R"
-            },
-            {
-              "pair": 2,
+              "pair": 1,
               "over": "L"
             }
           ]
@@ -198,28 +179,10 @@
       ]
     },
     "g11.marta": {
-      "incroci": 10,
+      "incroci": 7,
       "rows": [
         {
           "hour": 7,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 8,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 9,
           "crossings": [
             {
               "pair": 1,
@@ -228,10 +191,27 @@
           ]
         },
         {
-          "hour": 10,
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
           "crossings": [
             {
               "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
               "over": "L"
             }
           ]
@@ -240,37 +220,27 @@
           "hour": 11,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 13,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
         },
         {
           "hour": 14,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 15,
@@ -283,23 +253,22 @@
         },
         {
           "hour": 16,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
     "g11.gino": {
-      "incroci": 10,
+      "incroci": 11,
       "rows": [
         {
           "hour": 7,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -308,7 +277,7 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -317,8 +286,12 @@
           "hour": 9,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
               "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "R"
             }
           ]
         },
@@ -326,7 +299,11 @@
           "hour": 10,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -337,35 +314,29 @@
             {
               "pair": 0,
               "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
-          "crossings": [
+            },
             {
-              "pair": 0,
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
+          "hour": 12,
+          "crossings": []
+        },
+        {
           "hour": 13,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "R"
             }
           ]
         },
         {
           "hour": 14,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 15,
@@ -378,12 +349,7 @@
         },
         {
           "hour": 16,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     }
@@ -408,7 +374,11 @@
           "hour": 7,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -417,7 +387,7 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 3,
               "over": "L"
             }
           ]
@@ -426,8 +396,12 @@
           "hour": 9,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
               "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "R"
             }
           ]
         },
@@ -435,7 +409,11 @@
           "hour": 10,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -446,29 +424,32 @@
             {
               "pair": 0,
               "over": "L"
-            }
-          ]
-        },
-        {
-          "hour": 12,
-          "crossings": [
+            },
             {
-              "pair": 0,
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
+          "hour": 12,
+          "crossings": []
+        },
+        {
           "hour": 13,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "R"
             }
           ]
         },
         {
           "hour": 14,
+          "crossings": []
+        },
+        {
+          "hour": 15,
           "crossings": [
             {
               "pair": 1,
@@ -477,26 +458,8 @@
           ]
         },
         {
-          "hour": 15,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
-        },
-        {
           "hour": 16,
-          "crossings": [
-            {
-              "pair": 0,
-              "over": "R"
-            },
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
@@ -505,13 +468,13 @@
         "g11.marta",
         "g11.gino"
       ],
-      "incroci": 10,
+      "incroci": 11,
       "rows": [
         {
           "hour": 7,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 1,
               "over": "L"
             }
           ]
@@ -520,7 +483,11 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 2,
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -531,6 +498,10 @@
             {
               "pair": 1,
               "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
             }
           ]
         },
@@ -538,7 +509,11 @@
           "hour": 10,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
               "over": "L"
             }
           ]
@@ -547,22 +522,26 @@
           "hour": 11,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
         },
         {
           "hour": 12,
+          "crossings": []
+        },
+        {
+          "hour": 13,
           "crossings": [
             {
-              "pair": 0,
+              "pair": 1,
               "over": "L"
             }
           ]
         },
         {
-          "hour": 13,
+          "hour": 14,
           "crossings": [
             {
               "pair": 0,
@@ -571,22 +550,8 @@
           ]
         },
         {
-          "hour": 14,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
-        },
-        {
           "hour": 15,
-          "crossings": [
-            {
-              "pair": 1,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         },
         {
           "hour": 16,
@@ -601,5 +566,65 @@
     }
   ],
   "matassaSuggerita": 13,
-  "quieteMax": 0
+  "quieteMax": 4,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 7,
+        "minSenzaGino": 5,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 5
+      },
+      {
+        "config": "g11.teresa",
+        "min": 11,
+        "minSenzaGino": 9,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g11.marta",
+        "min": 7,
+        "minSenzaGino": 5,
+        "costo": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 4,
+        "soluzioniOttime": 5
+      },
+      {
+        "config": "g11.gino",
+        "min": 11,
+        "minSenzaGino": 10,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      },
+      {
+        "config": "g11.teresa+g11.gino",
+        "min": 11,
+        "minSenzaGino": 11,
+        "vuoteMax": 1,
+        "vuoteTot": 3,
+        "soluzioniOttime": 16
+      },
+      {
+        "config": "g11.marta+g11.gino",
+        "min": 11,
+        "minSenzaGino": 10,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 50
+      }
+    ],
+    "designata": "g11.teresa+g11.gino",
+    "facili": [
+      "g11.marta"
+    ],
+    "violazioni": []
+  }
 }

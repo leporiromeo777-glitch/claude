@@ -46,12 +46,12 @@
     }
   ],
   "initial": [
-    "teresa",
-    "marta",
-    "gino",
     "piero",
+    "gino",
+    "marta",
+    "nina",
     "lunardi",
-    "nina"
+    "teresa"
   ],
   "beads": [
     {
@@ -103,6 +103,11 @@
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 15
     }
   ],
   "notes": [

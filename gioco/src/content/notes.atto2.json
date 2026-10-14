@@ -359,9 +359,19 @@
     "author": "lunardi",
     "textKey": "atto2.g12.lunardi.testo",
     "request": {
-      "t": "ha",
-      "who": "lunardi",
-      "bead": "nome"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "ha",
+          "who": "lunardi",
+          "bead": "nome"
+        },
+        {
+          "t": "incontriAlmeno",
+          "who": "lunardi",
+          "n": 3
+        }
+      ]
     },
     "onOk": [
       {
@@ -421,6 +431,13 @@
     "request": {
       "t": "tutti",
       "of": [
+        {
+          "t": "incontra",
+          "a": "zeno",
+          "b": "piero",
+          "from": 10,
+          "to": 12
+        },
         {
           "t": "presso",
           "who": "zeno",

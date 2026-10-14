@@ -742,6 +742,40 @@
     }
   },
   {
+    "id": "g23.teresa",
+    "day": "g23",
+    "author": "teresa",
+    "textKey": "atto3.g23.teresa.testo",
+    "request": {
+      "t": "incontra",
+      "a": "teresa",
+      "b": "livia",
+      "from": 7,
+      "to": 10
+    },
+    "esito": {
+      "ok": "atto3.g23.teresa.esito.ok",
+      "fallita": "atto3.g23.teresa.esito.fallita"
+    }
+  },
+  {
+    "id": "g23.bepi",
+    "day": "g23",
+    "author": "bepi",
+    "textKey": "atto3.g23.bepi.testo",
+    "request": {
+      "t": "incontra",
+      "a": "bepi",
+      "b": "piero",
+      "from": 7,
+      "to": 11
+    },
+    "esito": {
+      "ok": "atto3.g23.bepi.esito.ok",
+      "fallita": "atto3.g23.bepi.esito.fallita"
+    }
+  },
+  {
     "id": "g23.zeno",
     "day": "g23",
     "author": "zeno",

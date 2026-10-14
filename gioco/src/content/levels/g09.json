@@ -52,10 +52,10 @@
   ],
   "initial": [
     "lino1",
-    "marta",
-    "gino",
     "teresa",
+    "marta",
     "piero",
+    "gino",
     "nina"
   ],
   "beads": [
@@ -96,12 +96,22 @@
     {
       "thread": "piero",
       "place": "chiesa",
+      "hour": 9
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
       "hour": 11
     },
     {
       "thread": "lunardi",
       "place": "farmacia",
       "hour": 13
+    },
+    {
+      "thread": "piero",
+      "place": "forno",
+      "hour": 14
     }
   ],
   "edges": [
@@ -117,7 +127,7 @@
     "g09.teresa",
     "g09.nina"
   ],
-  "matassa": 15,
+  "matassa": 12,
   "hintKeys": {
     "spinta": "atto2.g09.hint.spinta",
     "indizio": "atto2.g09.hint.indizio"

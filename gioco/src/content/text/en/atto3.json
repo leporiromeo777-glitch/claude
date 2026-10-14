@@ -419,6 +419,10 @@
       "zeno": {
         "1": "Tomorrow is another day, they say. Here, the lacemaker says so.",
         "2": "Last night I lit the lantern an hour early. Just like that, out of habit."
+      },
+      "candele": {
+        "1": "Two candles. One for Nina's mother, and one for Nina.",
+        "2": "Bepi doesn't talk in church. He lights, looks, and leaves with his cap in his hand."
       }
     },
     "titolo": "The Eve",
@@ -433,6 +437,20 @@
     },
     "ada": {
       "testo": "The open stitch."
+    },
+    "teresa": {
+      "testo": "Dear, tomorrow I want to greet the stranger too, before ten. In person, not by hearsay.",
+      "esito": {
+        "ok": "Teresa greeted the stranger before ten. She called her “dear”, and my mother smiled like someone who remembers.",
+        "fallita": "Teresa didn't reach the stranger before ten. She left her greeting in the Square, with whoever passed."
+      }
+    },
+    "bepi": {
+      "testo": "tomoro morning I go to church to the priest, before 11. a candel for my wife, and one for nina.",
+      "esito": {
+        "ok": "Bepi went to church before mass. Two candles, and the priest pretending not to see him cry.",
+        "fallita": "Bepi didn't get to church before eleven. He lit the candles in the evening, alone."
+      }
     }
   },
   "arc5": {
