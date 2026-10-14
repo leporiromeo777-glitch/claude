@@ -1,6 +1,81 @@
 # Stato del pacchetto: contenuti-atto1
 
-**Stato:** done (verificato e corretto)
+**Stato:** done (verificato e corretto; revisione 1 fatta, vedi sotto)
+
+## Revisione 1
+
+Compiti CA1-01 … CA1-08 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: JSON dei contenuti, testi `atto1` e `comune` in it/en, livelli g00-g08, arc1, arc2 con i `.computed.json`, `tests/unit/content/atto1.test.ts`.
+
+**Accettazione di CA1-04:** `npm run levels:check -- --only g00,g01,g02,g03,g04,g05,g06,g07,g08,arc1,arc2 --qualita` esce con **0** (11 livelli OK, nessuna violazione C14; restano 3 avvisi K7, vedi sotto). Il test «C14 (REVISIONE-1 CA1-04)» controlla `quality.violazioni` vuoto per tutti e 11, al più un bigliettino facile per sera e solo dentro un conflitto voluto.
+
+| Compito | Esito | Commit | Cosa |
+|---|---|---|---|
+| CA1-01 [P0] lanterna di g05 | fatto | f12882c | All'alba di g05 il Gino trova la lanterna **spenta** («È tutta vetri e ottone, ma spenta!» / «Si accende alle sei. Da dentro, un giorno.»). Test: nessun testo di `atto1` o `comune` prima del finale dice che l'ha vista accesa da dentro. |
+| CA1-02 [P0] dati comuni dei contratti | fatto | dd22351 | `campaign.json` come C04 (`objects`, `dawnObject` di g14 e g16, `eveningEmptyKey` di g15 e g17, g23 con 2 spilli); `balance.oro.minIncroci` 3 (C15); Marta `hand` atkinson, maiuscolo, 1,05; Aldo con motivo `catenella` e icona `campana`, che in arc3 non usa nessun altro; `comune.oggetti.*` per tutti gli oggetti (lettera di Clotilde, fasci 1-3, biglietti di Livia 1-6). Test: provenienza di ogni oggetto, Aldo distinto. |
+| CA1-03 [P1] tutorial | fatto | f12882c, 15a88e9 | Passi D03/C02: g00 spillo alle 6, «Chi sta sopra, dà» al primo incrocio delle 7 qualunque sia il verso, Disfa alle 8; g01 la regola nuova del Gino (all'inizio delle 8 o al primo rifiuto `corre`); g02 matassa; g03 Molo; g04 barca; g05 Faro; g06 segreto; g07 pozzo e Nina curiosa; arc1 nomi, rammendo, echi. `hintKeys` di arc1 e arc2 rivisti per i nomi. Test: ogni regola della colonna «Novità» del GDD 5.2 ha una nota a margine nella sua prima notte. |
+| CA1-04 [P1] ridisegno g01-g08 | fatto | 68094ee, 5f0e8ff, 61275dc, 4638532, feb4759, 9314053, 490a741 | Tutte le notti rispettano C14 (tabella sotto). Intenzioni dell'Appendice A e conflitti voluti invariati. |
+| CA1-05 [P1] Taccuino | fatto | f12882c | Voci su bottiglie, fuso, merletto d'avorio, Libro e lettere con `{knows:'oggetto'}`; persone sbloccate quando compaiono (Gino g01, Nina g03, Bepi g04, Zeno g05); la risposta R1 a Marta in g06 rimanda all'Archivio solo se arc1 non è rammendato, altrimenti `domande.martaTeresa.chiediloDopo`. Test con la campagna simulata. |
+| CA1-06 [P1] esiti | fatto | f12882c | `esito.ok` / `esito.fallita` (e `lasciato` dove serve) per tutti i 26 bigliettini, specifici, ≤ 140 caratteri, senza frasi in comune con le voci del Taccuino della stessa giornata (test C05); le tre frasi ripetute di arc1 sono una voce sola. |
+| CA1-07 [P1] continuità | fatto | f12882c, 490a741 | «entro le dieci» / «entro le nove», Teresa che a sedici anni impastava il pane, Don Piero che dà del lei, «1965. La notte in cui morì la nonna…», segreto di Teresa (aperta prima), deissi di g03 e g06, «resta solo la sua rete», eco di arc2, «Un'ultima volta, dentro.», testi del filo nero, `apparizione` di g08 (C12). Inglese allineato. |
+| CA1-08 [P2] voci, etichette, battute | fatto | f12882c | Etichette delle perline in minuscolo, con articolo e destinatario delle lettere (C16); il Gino scrive con gli errori da g01, Bepi senza doppie e in minuscolo; `lines.json` con condizioni vere (consegna, incontro; la battuta «sette!» è riscritta). |
+
+### Misure C14 per notte (dopo il ridisegno)
+
+Costo = minimo con il solo bigliettino meno il minimo della base. Vuote = righe vuote consecutive / totali nella soluzione registrata della designata. Soluzioni = soluzioni ottime della designata (K5, al massimo 20).
+
+| Notte | Base | Designata (min) | Matassa | Costo dei bigliettini | Conflitto voluto | Facile | Vuote | Soluzioni |
+|---|---|---|---|---|---|---|---|---|
+| g00 | 4 | base 4 | 6 | — | — | — | 0/0 | 3 |
+| g01 | 5 | marta+piero 6 | 9 | marta +0, piero +1, gino +0 (g01 è esente da K2) | piero+gino | — | 0/0 | 16 |
+| g02 | 4 | marta+martaDura 7 | 10 | marta +3, martaDura +3, teresa +2, gino +3 | marta+gino, martaDura+gino | — | 0/0 | 7 |
+| g03 | 4 | nina+teresa 7 | 10 | nina +2, marta +0, teresa +2, teresaFredda +2 | nina+marta | g03.marta | 1/1 | 4 |
+| g04 | 4 | nina+piero 10 | 13 | nina +2, bepi +3, piero +4 | bepi+piero | — | 0/0 | 1 |
+| g05 | 5 | zeno+teresa 8 | 11 | zeno +3, marta +0, teresa +3 | zeno+marta | g05.marta | 1/1 | 12 |
+| g06 | 4 | marta+zeno 12 | 15 | nina +2, marta +3, zeno +5 | nina+zeno | — | 0/0 | 1 |
+| g07 | 5 | teresa+zeno 9 | 12 | teresa +2, nina +0, zeno +3 | teresa+nina | g07.nina | 1/1 | 20 |
+| g08 | 7 | marta+zeno 13 | 16 | marta +5, nina +2, zeno +2 | marta+nina | — | 1/1 | 12 |
+| arc1 | 4 | base 4 | 4 | — | — | — | 1/1 | 2 |
+| arc2 | 2 | base 2 | 2 | — | — | — | 1/1 | 2 |
+
+(In g02 la «designata» `marta+martaDura` è la coppia tecnica delle due varianti, che non arrivano mai insieme: la calcola così `levels:check`.)
+
+### Le notti ridisegnate
+
+- **g01**: Teresa al Forno alle 8 e al Molo alle 9, Don Piero in Piazza alle 11; regola nuova del Gino.
+- **g02**: apertura Teresa, Gino, Marta, Piero; Marta al Forno e Teresa in Piazza alle 12.
+- **g03**: apertura Piero, Teresa, Marta, Nina; Don Piero in Chiesa alle 10 e in Piazza alle 12; il divieto di Marta è la facile della sera.
+- **g04**: la barca di Bepi esce alle **8** (obiettivo `parte(bepi, 8)`) e rientra alle 11; Teresa in Piazza alle 10, Don Piero in Piazza alle 12, Marta al Forno alle 14.
+- **g05**: apertura Gino, Marta, Teresa, lino, Piero, Zeno; Teresa al Molo alle 8 e in Piazza alle 13, la lettera per Zeno passa dal Gino; il divieto di Marta è la facile, nel conflitto voluto con Zeno.
+- **g06**: apertura lino, Nina, Marta, Zeno, Piero, Teresa; Teresa al Forno alle 11, Nina in Piazza alle 12. Teresa parte dal Faro e deve attraversare il paese: il divieto di Marta («Domani non voglio vedere la Teresa») costa 3.
+- **g07**: apertura Nina, Marta, Teresa, Gino, Piero, Zeno; Marta a messa alle 8, il Gino al Forno alle 9, Teresa in Piazza alle 13. La corsa del Gino serve al puzzle: per arrivare al Forno alle 9 passa sopra Teresa, che deve stare sotto per non dargli il suo peso.
+- **g08**: apertura Teresa, Nina, Marta, Gino, Piero, Zeno; Marta al Forno alle 7 e alle 15, Nina in Chiesa alle 12, il Gino alla Farmacia alle 14 e al Faro alle 16 (la lanterna promessa), mentre Zeno non vuole vedere nessuno.
+
+### Decisioni e interpretazioni dei contratti
+
+- **g07.teresa** («Che il mio peso arrivi a Don Piero, e a nessun altro»): la condizione ora esclude tutti i fili con nome, non solo Nina e Marta (`nonHa` anche per Gino e Zeno). È la stessa intenzione, presa alla lettera; così ogni incrocio con Teresa ha un verso solo e la designata ha 20 soluzioni ottime invece di 50 e più.
+- **g08.zeno**: la finestra è `nonIncontra(zeno, *, 14, 16)`, «dalle due in poi» invece che «dalle tre» (it ed en). Con le tre il bigliettino costava al più 1 (K2).
+- **Facili** (`--facile`): g03.marta, g05.marta, g07.nina. Uno per sera, ognuno dentro il conflitto voluto della sera. g07.nina è facile per la stranezza di Nina («con `ninaCuriosa` è più facile di quanto sembri», Appendice A).
+- **arc1**: la nota «Chi è questo filo?» è `ora 10`, non `primaOra`. Il tombolo apre l'Archivio dal primo strappo (10) con la riga delle 9 già registrata, quindi `primaOra` non scatta mai (`rows.length` è 1); anche il fuso che pulsa è alle 10. Un test controlla che negli Archivi ogni passo con un'ora cada in una riga strappata.
+- **GDD 5.2, colonna «Min»**: va aggiornata per g04 (ora 10, prima 5-7), g06 (12, prima 5) e g08 (13, prima 8-10): `levels:check` lo segnala come avviso K7. Con la regola del Gino e i criteri K1-K2 (densità e costo dei bigliettini) i vecchi minimi non bastano più. Le altre notti stanno nell'intervallo ±1. Nella stessa tabella: g04 «Bepi esce alle 7, rientra alle 13» diventa «esce alle 8, rientra alle 11»; g06 non è più l'esempio del GDD 3.16 (la tabella del 3.16 va rifatta con la nuova g06, oppure tenuta come esempio astratto).
+- **eveningEmptyKey** di g15 e g17 (`atto2.g15.sera.vuota`, `atto3.g17.sera.vuota`): le chiavi sono di contenuti-atti23; `campaign.json` le punta e basta.
+
+### Problemi noti e richieste
+
+- **tombolo** (facoltativo): `primaOra` negli Archivi non scatta mai, perché la notte apre con una riga già registrata. Si può far valere `primaOra` alla prima riga giocabile; i contenuti dell'Atto I non ne dipendono più.
+- `tests/unit/content/en.test.ts` ha 2 test rossi su chiavi di `atto2` e `finali` (lunghezze di `atto2.g12.zeno.testo`, `finali.merlettaia.hint.*`, `atto2.g09.hint.indizio`, `atto2.g12.hint.spinta`): sono testi di contenuti-atti23, non di questo gruppo.
+- g06 e g08 sono più dense di prima (designata 12 e 13): la curva di difficoltà dell'Atto I sale più in fretta. Da guardare nel playtest 2.
+
+### Test e verifiche della revisione 1
+
+- `npx vitest run tests/unit/content/atto1.test.ts` → 66 test verdi.
+- `npm run levels:check -- --only g00,g01,g02,g03,g04,g05,g06,g07,g08,arc1,arc2 --qualita` → exit 0.
+- `npx tsc --noEmit -p .` → nessun errore in `atto1.test.ts` né in `en.test.ts`.
+- Browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5660, Chromium 390×844 touch, lingua it), 14/14:
+  - note a margine: g00 alle 6 (spillo), alle 7 («Chi sta sopra, dà» col verso giusto), alle 8 (Disfa); g01 alle 8 (Gino); g02 alle 8 (matassa, dopo quella della voce); g03 alle 8 (Molo); g05 alle 8 (Faro); arc1 alle 10 («Chi è questo filo?»);
+  - g04, g06, g07, g08: la soluzione registrata della designata, giocata nel tombolo vero, soddisfa tutte e due le richieste;
+  - sera di g01: oggetti dell'alba (merletto d'avorio, Libro dei Punti) e bigliettino di Don Piero «entro le dieci»;
+  - nessun errore in console.
+
 
 ## Riepilogo
 
@@ -17,6 +92,8 @@ Dati comuni, Prologo, Atto I (g00-g08) e Archivio A1-A2: solo JSON più il test 
 - **Taccuino** (`diary.atto1.json`): 80 voci. Coprono stranezze, regole dell'Atto I, persone, i desideri di Nina e Gino, le domande con le piste, le lettere e l'Archivio. Ogni risposta ha la sua voce.
 - **Lettere di L.** (`lettere.atto1.json`): `lettera_L1` … `lettera_L7` per le sere di g01, g02, g03, g04, g06, g07 e g08. La 1 e la 4 sono gli esempi del GDD 6.5.
 - **Testi** italiani dell'Atto I in `text/it/atto1.json`. Parole italiane: comune 2.798 + atto1 3.607 = **6.405**.
+
+Valori prima della revisione 1 (quelli nuovi sono nella tabella delle misure C14 qui sopra):
 
 | Giornata | Colonne / ore | Min designato | Matassa | Conflitto voluto |
 |---|---|---|---|---|
@@ -99,7 +176,7 @@ Archivio:
 ## Decisioni
 
 - g00 ha la meccanica identica ad ARCHITETTURA 14.1: minimo 4, 3 soluzioni ottime, matassa 6. Ho aggiunto solo le altre due vignette del GDD 9, il suggerimento `indizio` e due passi `pulsa` (Disfa alle 8, Taccuino alle 9).
-- g06 è l'esempio del GDD 3.16 alla lettera: N1 5, N1+N2 5, N2+N3 0, N1+N3 impossibile e voluta, matassa 8.
+- g06 era l'esempio del GDD 3.16 alla lettera (N1 5, N1+N2 5, N2+N3 0, N1+N3 impossibile e voluta, matassa 8). Con la revisione 1 non lo è più: vedi «Decisioni e interpretazioni dei contratti».
 - Con `ginoCorre`, il minimo di una giornata con Gino è almeno il numero di righe in cui Gino è nel merletto. Per questo g01 (6), g02 (7), g07 (9) e g08 (12) superano di 1-2 l'intervallo «Min» del GDD 5.2. La matassa resta sempre il minimo designato più 3.
 - g04, barca di Bepi:
   - Rientra alle **11** invece che alle 13, perché dal Molo alle 13 la richiesta dell'Appendice A `presso(bepi, chiesa, 14)` sarebbe impossibile (tre colonne in una riga).
