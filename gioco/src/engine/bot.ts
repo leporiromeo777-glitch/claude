@@ -99,7 +99,7 @@ function score(m: Model, p: Program, S: Int32Array, h: number, player: number): 
 /** Gioca la notte con la strategia avida; `solved` se arriva in fondo con tutte le condizioni soddisfatte. */
 export function greedyPlay(level: LevelDef, ctx: RunContext, goals: readonly Condition[], matassa = level.matassa): BotResult {
   const tracked = new Set(conditionBeads(level, goals));
-  for (const b of level.beads) if (b.type === 'lettera') tracked.add(b.id);
+  for (const b of level.beads) if (b.type === 'lettera' || (b.type === 'febbre' && ctx.quirks.includes('ginoCorre'))) tracked.add(b.id);
   const m = buildModel(level, ctx, { track: ctx.quirks.includes('pieroTrabocca') ? 'all' : tracked });
   const p = compileProgram(m, goals, m.LEN);
   const pp = pinPlan(m);

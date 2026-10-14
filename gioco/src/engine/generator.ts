@@ -71,7 +71,7 @@ export interface GenResult {
 }
 
 /** Versione del generatore: cambia quando cambia il modo di costruire i livelli. */
-export const GENERATOR_VERSION = 1;
+export const GENERATOR_VERSION = 2;
 export const GEN_TRIES = 500;
 const GEN_MAX_STATES = 30_000;
 const MAX_OPTIMAL = 12;

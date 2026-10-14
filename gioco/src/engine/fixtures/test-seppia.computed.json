@@ -1,7 +1,7 @@
 {
   "levelId": "test-seppia",
   "sourceHash": "ff60dd96d79f37e9",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 4,
     "rows": [

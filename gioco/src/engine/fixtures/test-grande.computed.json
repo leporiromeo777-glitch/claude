@@ -1,7 +1,7 @@
 {
   "levelId": "test-grande",
   "sourceHash": "31ef7d7630714ced",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 12,
     "rows": [

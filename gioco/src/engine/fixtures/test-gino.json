@@ -1,0 +1,17 @@
+{
+  "id": "test-gino", "kind": "test", "act": 1, "titleKey": "tombolo.test.gino",
+  "columns": ["molo", "forno", "piazza"],
+  "startHour": 6, "endHour": 12,
+  "threads": [
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "gino", "kind": "persona", "character": "gino" },
+    { "id": "piero", "kind": "persona", "character": "piero" }
+  ],
+  "initial": ["marta", "gino", "piero"],
+  "beads": [],
+  "rules": ["incrocio"],
+  "quirks": ["ginoCorre"],
+  "pins": [],
+  "goals": [],
+  "matassa": 6
+}

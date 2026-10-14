@@ -1,7 +1,7 @@
 {
   "levelId": "test-rancore",
   "sourceHash": "11afbbc92a36542e",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 3,
     "rows": [

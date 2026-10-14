@@ -14,7 +14,7 @@ import { B_LETTERA, fullModel } from './model';
 import type { RowInfo } from './core';
 import { initialAgendaPointer, initialCompact } from './core';
 
-/** LaceState con il punto delle agende dei fili autonomi. */
+/** LaceState con il punto delle agende dei fili autonomi e i nodi lunghi. */
 export type EngineLaceState = LaceState & { agenda?: Record<ThreadId, number>; knots?: Record<ThreadId, number> };
 
 function metKey(a: string, b: string): string {
@@ -57,6 +57,7 @@ export function toCompact(m: Model, s: LaceState): Int32Array {
   st[m.OFF_DELIV] = deliv;
   st[m.OFF_PN] = s.pozzo.secrets;
   st[m.OFF_PO] = s.pozzo.overflowing ? 1 : 0;
+  st[m.OFF_GF] = m.qGino >= 0 && s.ginoFermo === 1 ? 1 : 0;
   for (let bi = 0; bi < m.B; bi++) {
     const sl = m.slot[bi] as number;
     if (sl < 0) continue;
@@ -161,6 +162,7 @@ export function fromCompact(m: Model, st: Int32Array, prev: LaceState | null, ho
     met,
     metOver,
   };
+  if (m.qGino >= 0 && st[m.OFF_GF] === 1) out.ginoFermo = 1;
   if (m.knotRows > 1 && knotted.length > 0) {
     const knots: Record<ThreadId, number> = {};
     for (let t = 0; t < m.T; t++) {
@@ -203,7 +205,7 @@ function sortedHolders(s: LaceState): string {
 
 /**
  * Chiave del merletto "come si vede": posizioni, perline, lettere consegnate,
- * nodi, pozzo e fili fuori dalla tela. Non contiene la storia (matassa usata,
+ * nodi, pozzo, fili fuori dalla tela e Gino fermo. Non contiene la storia (matassa usata,
  * incontri): due stati con la stessa chiave hanno lo stesso futuro.
  */
 export function stateKey(s: LaceState): string {
@@ -221,6 +223,7 @@ export function stateKey(s: LaceState): string {
     s.offboard.map((o) => o.thread).sort().join(','),
     ag,
     kn,
+    s.ginoFermo === 1 ? 'gf' : '',
   ].join('/');
 }
 

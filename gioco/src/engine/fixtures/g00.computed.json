@@ -1,7 +1,7 @@
 {
   "levelId": "g00",
   "sourceHash": "0e275106a7276177",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 4,
     "rows": [

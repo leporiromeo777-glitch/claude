@@ -6,7 +6,7 @@
  * solver (con le sole perline rilevanti e senza eventi). Ordine normativo di
  * una riga (GDD 3.4): blocchi → incroci forzati → validità → passaggi (tutti
  * calcolati dallo stato all'inizio della riga) → scambio → bordi → fine riga
- * (Teresa legge, trabocco del pozzo; spilli e Gino li controlla chi chiama) →
+ * (Teresa legge, trabocco del pozzo, Gino fermo; spilli e Gino li controlla chi chiama) →
  * annuncio del filo nero.
  */
 import type { EdgeStep, Model } from './model';
@@ -125,33 +125,71 @@ export function nonPlayerMask(m: Model): number {
   return mask;
 }
 
-/**
- * Gino non sta fermo (GDD 3.6): vero se Gino aveva almeno un incrocio possibile
- * (non è bloccato e almeno un vicino è libero: non bloccato, non in un incrocio
- * forzato, e con almeno un verso ammesso dalle stranezze) e la riga non lo fa
- * incrociare. La matassa non conta: a matassa finita la riga di Gino non si
- * fissa e si disfa (GDD 3.7), così più matassa non obbliga mai a più incroci.
- */
-export function ginoFailed(m: Model, st: Int32Array, row: RowSpec, blocked: number): boolean {
+/** Gino ha la febbre nello stato `st`? (Solo perline febbre attive e tracciate: con la febbre resta a letto.) */
+export function ginoFever(m: Model, st: Int32Array): boolean {
   const g = m.qGino;
-  if (g < 0 || m.hasAuto) return false;
+  if (g < 0) return false;
+  const fs = m.feverSlots;
+  for (let i = 0; i < fs.length; i++) if (((st[fs[i] as number] as number) & (1 << g)) !== 0) return true;
+  return false;
+}
+
+/**
+ * Gino non sta fermo due ore di fila (GDD 3.6, contratto C01). Restituisce il
+ * primo vicino libero da sinistra (indice del filo) se la riga va rifiutata,
+ * altrimenti -1. La riga è rifiutata se e solo se: Gino è sulla tela e non è
+ * bloccato; all'inizio della riga non ha la febbre; è stato fermo nella riga
+ * precedente (`OFF_GF`); ha un incrocio possibile (un vicino non bloccato, non
+ * in un incrocio forzato, non autonomo, con almeno un verso ammesso dalle
+ * stranezze); la riga non lo fa incrociare. Un vicino impegnato dal giocatore
+ * in un altro incrocio conta come libero: Gino ha la precedenza. La matassa non
+ * conta: a matassa finita la riga di Gino non si fissa e si disfa (GDD 3.7).
+ */
+export function ginoVicino(m: Model, st: Int32Array, row: RowSpec, blocked: number): number {
+  const g = m.qGino;
+  if (g < 0 || m.hasAuto) return -1;
+  if ((st[m.OFF_GF] as number) !== 1) return -1;
   const c = colOf(st, m.W, g);
-  if (c < 0) return false;
+  if (c < 0) return -1;
   let forcedMask = 0;
   for (let k = 0; k < row.n; k++) {
     const p = row.pair[k] as number;
-    if (p === c || p === c - 1) return false; // Gino incrocia (anche un incrocio forzato vale)
+    if (p === c || p === c - 1) return -1; // Gino incrocia (anche un incrocio forzato vale)
     if (row.forced[k]) forcedMask |= (1 << (st[p] as number)) | (1 << (st[p + 1] as number));
   }
-  if (blocked & (1 << g)) return false;
+  if (blocked & (1 << g)) return -1;
+  if (ginoFever(m, st)) return -1;
   const np = nonPlayerMask(m);
   for (let p = c - 1; p <= c; p++) {
     if (p < 0 || p > m.W - 2) continue;
     const other = st[p === c ? c + 1 : c - 1] as number;
     if ((blocked | forcedMask | np) & (1 << other)) continue;
-    if (quirkCheck(m, st, p, 0) === Q_OK || quirkCheck(m, st, p, 1) === Q_OK) return true;
+    if (quirkCheck(m, st, p, 0) === Q_OK || quirkCheck(m, st, p, 1) === Q_OK) return other;
   }
-  return false;
+  return -1;
+}
+
+/** La riga va rifiutata per Gino? (Vedi `ginoVicino`.) */
+export function ginoFailed(m: Model, st: Int32Array, row: RowSpec, blocked: number): boolean {
+  return ginoVicino(m, st, row, blocked) >= 0;
+}
+
+/**
+ * Stato di Gino dopo la riga (C01): 1 se Gino è sulla tela a fine riga, c'era
+ * già all'inizio (chi entra da un bordo parte da 0), non ha incrociato (anche
+ * un incrocio forzato del filo nero vale come incrocio) e all'inizio della riga
+ * non aveva la febbre. Una riga in cui è bloccato (nodo, marea) conta come ferma.
+ */
+function ginoStill(m: Model, st: Int32Array, out: Int32Array, row: RowSpec): number {
+  const g = m.qGino;
+  if (g < 0 || m.hasAuto) return 0;
+  const c = colOf(st, m.W, g);
+  if (c < 0 || colOf(out, m.W, g) < 0) return 0;
+  for (let k = 0; k < row.n; k++) {
+    const p = row.pair[k] as number;
+    if (p === c || p === c - 1) return 0;
+  }
+  return ginoFever(m, st) ? 0 : 1;
 }
 
 /** Passaggi di un incrocio (GDD 3.5): A sopra, B sotto. Legge da `st` (inizio riga), scrive in `out`. */
@@ -343,6 +381,8 @@ export function stepRow(m: Model, st: Int32Array, out: Int32Array, row: RowSpec,
       }
     }
   }
+  // Fine riga: Gino fermo in questa riga? (C01; il controllo della riga lo fa chi chiama.)
+  if (m.qGino >= 0) out[m.OFF_GF] = ginoStill(m, st, out, row);
   // Fine riga: trabocco del pozzo
   if (m.trabocca && out[m.OFF_PO] === 0 && (out[m.OFF_PN] as number) >= m.traboccoSoglia) {
     out[m.OFF_PO] = 1;

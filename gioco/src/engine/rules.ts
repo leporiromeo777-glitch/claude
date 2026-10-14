@@ -16,7 +16,7 @@ import type { Crossing, LaceEvent, LaceState, LevelDef, PinDef, RowResult, RunCo
 import type { Model } from './model';
 import { fullModel } from './model';
 import type { RowSpec } from './core';
-import { Q_FARO, Q_RIFIUTO, blockedMask, colOf, ginoFailed, newRow, newRowInfo, nonPlayerMask, quirkCheck, rowPush, stepRow } from './core';
+import { Q_FARO, Q_RIFIUTO, blockedMask, colOf, ginoVicino, newRow, newRowInfo, nonPlayerMask, quirkCheck, rowPush, stepRow } from './core';
 import { planAutoCore, rowToCrossings } from './autoweave';
 import { fromCompact, toCompact } from './state';
 import { violationKey } from './keys';
@@ -200,8 +200,10 @@ function runRow(level: LevelDef, state: LaceState, draft: Crossing[], ctx: RunCo
         violations.push(viol('spillo', { pin: { ...p.def }, threads: [p.def.thread], params: { chi: p.def.thread, luogo: p.def.place, ora: p.def.hour } }));
       }
     }
-    if (ginoFailed(m, st, asm.row, blockedMask(m, st, hour))) {
-      violations.push(viol('corre', { threads: [m.ids[m.qGino] as string], quirk: 'ginoCorre' }));
+    const vicino = ginoVicino(m, st, asm.row, blockedMask(m, st, hour));
+    if (vicino >= 0) {
+      const chi = m.ids[m.qGino] as string;
+      violations.push(viol('corre', { threads: [chi], quirk: 'ginoCorre', params: { chi, vicino: m.ids[vicino] as string } }));
     }
     if (violations.length > 0) return { ok: false, state, events: [], violations };
   }

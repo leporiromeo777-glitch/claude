@@ -13,6 +13,7 @@
  *   OFF_DELIV     maschera delle lettere consegnate (bit = ordinale della lettera)
  *   OFF_PN        segreti ricevuti dal pozzo dall'ultimo trabocco
  *   OFF_PO        1 se il pozzo sta traboccando (darà tutto al prossimo incrocio da sopra)
+ *   OFF_GF        1 se Gino è stato fermo nella riga appena fissata (GDD 3.6, `ginoCorre`)
  *   OFF_KNOTX…    con nodi di più righe (balance.nodoRighe > 1): maschera j = annodati
  *                 per più di j+1 righe ancora (OFF_KNOT è "più di 0", cioè la riga dopo)
  *   slot perline  lettere: indice del portatore (-1 nessuno); altre: maschera dei portatori
@@ -166,6 +167,10 @@ export interface Model {
   OFF_DELIV: number;
   OFF_PN: number;
   OFF_PO: number;
+  /** Gino fermo nella riga precedente (C01): 1 = la prossima riga deve farlo incrociare, se può. */
+  OFF_GF: number;
+  /** Offset delle perline febbre attive e tracciate: con la febbre Gino resta a letto (GDD 3.6). */
+  feverSlots: number[];
   /** Prima delle `knotRows - 1` maschere dei nodi lunghi (-1 se i nodi durano una riga). */
   OFF_KNOTX: number;
   LEN: number;
@@ -418,18 +423,21 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
   const OFF_DELIV = W + 1;
   const OFF_PN = W + 2;
   const OFF_PO = W + 3;
-  let off = W + 4;
+  const OFF_GF = W + 4;
+  let off = W + 5;
   const knotRows = Math.max(1, Math.floor(ctx.nodoRighe ?? NODO_RIGHE));
   const OFF_KNOTX = knotRows > 1 ? off : -1;
   off += knotRows - 1;
   const slot = new Int16Array(B).fill(-1);
   const trackedLetters: number[] = [];
   const trackedMulti: number[] = [];
+  const feverSlots: number[] = [];
   for (let i = 0; i < B; i++) {
     if (!tracked[i]) continue;
     slot[i] = off++;
     if (beadType[i] === B_LETTERA) trackedLetters.push(i);
     else trackedMulti.push(i);
+    if (beadType[i] === B_FEBBRE && !inert[i]) feverSlots.push(slot[i] as number);
   }
 
   // ───── Bordi, marea, spilli ─────
@@ -553,6 +561,8 @@ export function buildModel(level: LevelDef, ctx: RunContext, opts: ModelOptions)
     OFF_DELIV,
     OFF_PN,
     OFF_PO,
+    OFF_GF,
+    feverSlots,
     OFF_KNOTX,
     LEN: off,
     edgesAt,

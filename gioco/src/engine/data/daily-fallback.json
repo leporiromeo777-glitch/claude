@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatorVersion": 1,
+  "generatorVersion": 2,
   "entries": [
     {
       "rule": "nero",
@@ -12,19 +12,19 @@
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-1#110"
+      "seed": "riserva-nero-1#28"
     },
     {
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-2#60"
+      "seed": "riserva-nero-2#25"
     },
     {
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-3#125"
+      "seed": "riserva-nero-3#23"
     },
     {
       "rule": "nero",
@@ -36,19 +36,19 @@
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-5#225"
+      "seed": "riserva-nero-5#97"
     },
     {
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-6#45"
+      "seed": "riserva-nero-6#70"
     },
     {
       "rule": "nero",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-nero-7#17"
+      "seed": "riserva-nero-7#78"
     },
     {
       "rule": "nero",
@@ -60,19 +60,19 @@
       "rule": "voce",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-voce-0#116"
+      "seed": "riserva-voce-0#21"
     },
     {
       "rule": "voce",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-voce-1#99"
+      "seed": "riserva-voce-1#7"
     },
     {
       "rule": "voce",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-voce-2#16"
+      "seed": "riserva-voce-2#64"
     },
     {
       "rule": "voce",
@@ -90,7 +90,7 @@
       "rule": "voce",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-voce-5#34"
+      "seed": "riserva-voce-5#43"
     },
     {
       "rule": "voce",
@@ -108,7 +108,7 @@
       "rule": "voce",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-voce-8#55"
+      "seed": "riserva-voce-8#2"
     },
     {
       "rule": "segreto",
@@ -120,13 +120,13 @@
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-1#194"
+      "seed": "riserva-segreto-1#65"
     },
     {
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-2#179"
+      "seed": "riserva-segreto-2#18"
     },
     {
       "rule": "segreto",
@@ -138,25 +138,25 @@
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-4#178"
+      "seed": "riserva-segreto-4#117"
     },
     {
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-5#394"
+      "seed": "riserva-segreto-5#300"
     },
     {
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-6#80"
+      "seed": "riserva-segreto-6#4"
     },
     {
       "rule": "segreto",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-segreto-7#144"
+      "seed": "riserva-segreto-7#88"
     },
     {
       "rule": "segreto",
@@ -168,7 +168,7 @@
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-0#63"
+      "seed": "riserva-molo-0#10"
     },
     {
       "rule": "molo",
@@ -180,31 +180,31 @@
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-2#79"
+      "seed": "riserva-molo-2#4"
     },
     {
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-3#9"
+      "seed": "riserva-molo-3#8"
     },
     {
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-4#19"
+      "seed": "riserva-molo-4#5"
     },
     {
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-5#32"
+      "seed": "riserva-molo-5#1"
     },
     {
       "rule": "molo",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-molo-6#24"
+      "seed": "riserva-molo-6#14"
     },
     {
       "rule": "molo",
@@ -228,19 +228,19 @@
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-1#26"
+      "seed": "riserva-febbre-1#28"
     },
     {
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-2#50"
+      "seed": "riserva-febbre-2#1"
     },
     {
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-3#25"
+      "seed": "riserva-febbre-3#7"
     },
     {
       "rule": "febbre",
@@ -252,19 +252,19 @@
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-5#7"
+      "seed": "riserva-febbre-5#31"
     },
     {
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-6#137"
+      "seed": "riserva-febbre-6#77"
     },
     {
       "rule": "febbre",
       "columns": 5,
       "rows": 7,
-      "seed": "riserva-febbre-7#29"
+      "seed": "riserva-febbre-7#17"
     },
     {
       "rule": "rancore",
@@ -276,25 +276,25 @@
       "rule": "rancore",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-rancore-1#226"
+      "seed": "riserva-rancore-1#47"
     },
     {
       "rule": "rancore",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-rancore-2#27"
+      "seed": "riserva-rancore-2#43"
     },
     {
       "rule": "rancore",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-rancore-3#102"
+      "seed": "riserva-rancore-3#92"
     },
     {
       "rule": "rancore",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-rancore-4#59"
+      "seed": "riserva-rancore-4#54"
     },
     {
       "rule": "rancore",
@@ -318,25 +318,25 @@
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-0#62"
+      "seed": "riserva-marea-0#189"
     },
     {
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-1#19"
+      "seed": "riserva-marea-1#33"
     },
     {
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-2#188"
+      "seed": "riserva-marea-2#16"
     },
     {
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-3#170"
+      "seed": "riserva-marea-3#79"
     },
     {
       "rule": "marea",
@@ -348,19 +348,19 @@
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-6#204"
+      "seed": "riserva-marea-6#36"
     },
     {
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-7#11"
+      "seed": "riserva-marea-7#0"
     },
     {
       "rule": "marea",
       "columns": 6,
       "rows": 8,
-      "seed": "riserva-marea-8#97"
+      "seed": "riserva-marea-8#107"
     }
   ]
 }

@@ -53,11 +53,11 @@ describe('levels:check', () => {
     const d = copyFixtures(true);
     for (const f of readdirSync(d)) if (f.endsWith('.computed.json') && f !== 'g06.computed.json') rmSync(join(d, f));
     const r = cli(['--dir', d, '--report']);
-    expect(r.out).toContain('levels:check: 13 levels OK');
+    expect(r.out).toContain('levels:check: 14 levels OK');
     expect(r.out).toContain('states');
     expect(r.status).toBe(0);
     const files = readdirSync(d).filter((f) => f.endsWith('.computed.json'));
-    expect(files).toHaveLength(13);
+    expect(files).toHaveLength(14);
     const g00 = JSON.parse(readFileSync(join(d, 'g00.computed.json'), 'utf8')) as LevelComputed;
     expect(g00).toMatchObject({ levelId: 'g00', solverVersion: SOLVER_VERSION, base: { incroci: 4 }, quieteMax: 0, matassaSuggerita: 6 });
     expect(g00.sourceHash).toMatch(/^[0-9a-f]{16}$/);

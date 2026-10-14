@@ -8,6 +8,9 @@ import { applyRow, createContext, initialState, memoriaAfterDay } from '../../..
 import { F, L, N, S, V, ev, mk } from './helpers';
 
 const c = (pair: number, over: 'L' | 'R'): Crossing => ({ pair, over });
+/** Gino fermo nella riga prima (C01): stato con `ginoFermo` a 1. */
+const gf1 = (s: LaceState): LaceState => ({ ...s, ginoFermo: 1 });
+const gfOf = (s: LaceState): number => s.ginoFermo ?? 0;
 
 interface Expect {
   ok?: boolean;
@@ -102,7 +105,8 @@ const CASES: Case[] = [
   },
   {
     name: '3.4.3 validità: prima lo spillo, poi Gino',
-    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], pins: [{ thread: 'piero', place: 'molo', hour: 9 }, { thread: 'marta', place: 'molo', hour: 7 }] }),
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], pins: [{ thread: 'piero', place: 'molo', hour: 9 }, { thread: 'marta', place: 'molo', hour: 8 }] }),
+    setup: [[]],
     draft: [],
     expect: { ok: false, violations: ['spillo', 'corre'] },
   },
@@ -369,35 +373,144 @@ const CASES: Case[] = [
       events: ['passa:L1:piero>zeno', 'consegna:L1>zeno', 'copia:s1:piero>zeno'],
     },
   },
+  // ───── 3.6 ginoCorre (revisione 1, C01): Gino non sta fermo due ore di fila ─────
   {
-    name: '3.6 ginoCorre: se può incrociare deve farlo («Gino non sta fermo!»)',
+    name: '3.6 ginoCorre: la prima riga è libera (all\'apertura conta come appena mosso)',
     level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
     draft: [],
-    expect: { ok: false, violations: ['corre'], quirk: 'ginoCorre' },
+    expect: { ok: true, pos: ['gino', 'marta', 'piero'] },
+    check: (r) => expect(gfOf(r.state)).toBe(1),
   },
   {
-    name: '3.6 ginoCorre: anche con un solo vicino libero',
+    name: '3.6 ginoCorre: seconda riga ferma, rifiutata, con il primo vicino libero',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
+    draft: [],
+    expect: { ok: false, violations: ['corre'], quirk: 'ginoCorre', unchanged: true },
+    check: (r) => expect(r.violations[0]?.params).toEqual({ chi: 'gino', vicino: 'marta' }),
+  },
+  {
+    name: '3.6 ginoCorre: il vicino libero si cerca da sinistra',
     level: mk({ initial: ['marta', 'gino', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
+    draft: [],
+    expect: { ok: false, violations: ['corre'] },
+    check: (r) => expect(r.violations[0]?.params).toEqual({ chi: 'gino', vicino: 'marta' }),
+  },
+  {
+    name: '3.6 ginoCorre: con il vicino di sinistra bloccato si nomina quello di destra',
+    level: mk({ initial: ['marta', 'gino', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
     state: (s) => ({ ...s, knotted: ['marta'] }),
     draft: [],
     expect: { ok: false, violations: ['corre'] },
+    check: (r) => expect(r.violations[0]?.params).toEqual({ chi: 'gino', vicino: 'piero' }),
   },
   {
-    name: '3.6 ginoCorre: anche se il giocatore usa il suo unico vicino in un altro incrocio',
+    name: '3.6 ginoCorre: la riga dopo un incrocio è libera',
     level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[], [c(0, 'L')]],
+    draft: [],
+    expect: { ok: true, pos: ['marta', 'gino', 'piero'] },
+    check: (r) => expect(gfOf(r.state)).toBe(1),
+  },
+  {
+    name: '3.6 ginoCorre: dopo un incrocio lo stato torna a zero',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
+    draft: [c(0, 'L')],
+    expect: { ok: true, pos: ['marta', 'gino', 'piero'] },
+    check: (r, before) => {
+      expect(gfOf(before)).toBe(1);
+      expect(gfOf(r.state)).toBe(0);
+      expect('ginoFermo' in r.state).toBe(false);
+    },
+  },
+  {
+    name: '3.6 ginoCorre: il vicino impegnato dal giocatore in un altro incrocio conta come libero',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
     draft: [c(1, 'L')],
     expect: { ok: false, violations: ['corre'] },
+    check: (r) => expect(r.violations[0]?.params).toEqual({ chi: 'gino', vicino: 'marta' }),
   },
   {
-    name: '3.6 ginoCorre: bloccato da un nodo non deve correre',
+    name: '3.6 ginoCorre: con la febbre a inizio riga non deve incrociare',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], rules: ['incrocio', 'febbre'], beads: [F(['gino'])] }),
+    state: gf1,
+    draft: [],
+    expect: { ok: true },
+  },
+  {
+    name: '3.6 ginoCorre: una riga ferma con la febbre non si accumula',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], rules: ['incrocio', 'febbre'], beads: [F(['gino'])] }),
+    setup: [[], []],
+    draft: [],
+    expect: { ok: true },
+    check: (r) => expect(gfOf(r.state)).toBe(0),
+  },
+  {
+    name: '3.6 ginoCorre: si ammala incrociando: la riga dopo, a letto, non conta',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], rules: ['incrocio', 'febbre'], beads: [F(['marta'])] }),
+    setup: [[], [c(0, 'L')], []],
+    draft: [],
+    expect: { ok: true, holders: { febbre: ['gino', 'marta'] } },
+    check: (r) => expect(gfOf(r.state)).toBe(0),
+  },
+  {
+    name: '3.6 ginoCorre: guarito da Lunardi, torna a correre (la riga della cura è un incrocio)',
+    level: mk({ initial: ['lunardi', 'gino', 'marta'], quirks: ['ginoCorre', 'lunardiCura'], rules: ['incrocio', 'febbre'], beads: [F(['gino'])] }),
+    setup: [[c(0, 'L')], []],
+    draft: [],
+    expect: { ok: false, violations: ['corre'] },
+    check: (r) => expect(r.violations[0]?.params).toEqual({ chi: 'gino', vicino: 'lunardi' }),
+  },
+  {
+    name: '3.6 ginoCorre: chi entra da un bordo parte da zero',
+    level: mk({ initial: ['lino1', 'marta', 'piero'], extra: ['gino'], quirks: ['ginoCorre'], edges: [{ hour: 7, side: 'molo', kind: 'barca', enters: 'gino' }] }),
+    setup: [[]],
+    draft: [],
+    expect: { ok: true, pos: ['gino', 'marta', 'piero'] },
+    check: (r, before) => {
+      expect(gfOf(before)).toBe(0);
+      expect(gfOf(r.state)).toBe(1);
+    },
+  },
+  {
+    name: '3.6 ginoCorre: chi esce dal merletto non resta fermo',
+    level: mk({ initial: ['gino', 'marta', 'piero'], extra: ['lino1'], quirks: ['ginoCorre'], edges: [{ hour: 7, side: 'molo', kind: 'vaporetto' }] }),
+    draft: [],
+    expect: { ok: true, offboard: ['gino'] },
+    check: (r) => expect(gfOf(r.state)).toBe(0),
+  },
+  {
+    name: '3.6 ginoCorre: una riga bloccato da un nodo conta come ferma',
     level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    state: (s) => ({ ...s, knotted: ['gino'] }),
+    draft: [],
+    expect: { ok: true },
+    check: (r) => expect(gfOf(r.state)).toBe(1),
+  },
+  {
+    name: '3.6 ginoCorre: bloccato da un nodo non deve correre (anche se era fermo)',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
     state: (s) => ({ ...s, knotted: ['gino'] }),
     draft: [],
     expect: { ok: true },
   },
   {
+    name: '3.6 ginoCorre: una riga di marea conta come ferma',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], tide: [{ from: 7, to: 7, places: ['molo'] }] }),
+    setup: [[]],
+    draft: [],
+    expect: { ok: false, violations: ['corre'] },
+    check: (_r, before) => expect(gfOf(before)).toBe(1),
+  },
+  {
     name: '3.6 ginoCorre: con tutti e due i vicini bloccati non deve correre',
     level: mk({ initial: ['marta', 'gino', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
     state: (s) => ({ ...s, knotted: ['marta', 'piero'] }),
     draft: [],
     expect: { ok: true },
@@ -405,12 +518,22 @@ const CASES: Case[] = [
   {
     name: '3.6 ginoCorre: l\'incrocio forzato del filo nero vale',
     level: mk({ initial: ['livia', 'gino', 'marta'], kinds: { livia: 'nero' }, quirks: ['ginoCorre'], ...nero(['marta']) }),
+    state: gf1,
+    draft: [],
+    expect: { ok: true, pos: ['gino', 'livia', 'marta'] },
+    check: (r) => expect(gfOf(r.state)).toBe(0),
+  },
+  {
+    name: '3.6 ginoCorre: il vicino in un incrocio forzato non è libero',
+    level: mk({ initial: ['gino', 'marta', 'livia'], kinds: { livia: 'nero' }, quirks: ['ginoCorre'], ...nero(['gino']) }),
+    state: gf1,
     draft: [],
     expect: { ok: true, pos: ['gino', 'livia', 'marta'] },
   },
   {
     name: '3.6 ginoCorre: la matassa finita non lo ferma (la riga non si fissa: si disfa)',
     level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], matassa: 2 }),
+    setup: [[]],
     state: (s) => ({ ...s, usedMatassa: 2 }),
     draft: [],
     expect: { ok: false, violations: ['corre'] },
@@ -418,8 +541,16 @@ const CASES: Case[] = [
   {
     name: '3.6 ginoCorre: incrociando va bene',
     level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'] }),
+    setup: [[]],
     draft: [c(0, 'L')],
     expect: { ok: true, pos: ['marta', 'gino', 'piero'] },
+  },
+  {
+    name: '3.6 ginoCorre: in autotessitura non vale',
+    level: mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], autoweave: { agents: [{ thread: 'marta', agenda: [{ stay: true }], likes: [] }] } }),
+    state: gf1,
+    draft: [],
+    expect: { ok: true },
   },
   {
     name: '3.6 ninaCuriosa: da sopra prende anche i segreti di chi sta sotto',

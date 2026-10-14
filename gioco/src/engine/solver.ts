@@ -44,7 +44,7 @@ const ginoFailed = ginoFailed_;
 const stepRow = stepRow_;
 
 /** Versione del solver: cambia quando cambiano le regole o i numeri che il solver produce. */
-export const SOLVER_VERSION = 1;
+export const SOLVER_VERSION = 2;
 
 const COUNT_CAP = 50;
 
@@ -115,6 +115,7 @@ function makeKeyPlan(m: Model, p: Program, withCost: boolean): KeyPlan {
     for (let j = 1; j < m.knotRows; j++) add(m.OFF_KNOTX + j - 1, 0, 2 ** m.T);
   }
   if (m.trackedLetters.length > 0) add(m.OFF_DELIV, 0, 2 ** (maxLetterOrd(m) + 1));
+  if (m.qGino >= 0 && !m.hasAuto) add(m.OFF_GF, 0, 2);
   if (m.trabocca) {
     add(m.OFF_PN, 0, m.B + 2);
     add(m.OFF_PO, 0, 2);
@@ -245,11 +246,13 @@ class Layer {
  * Perline da tracciare: quelle nominate dalle condizioni; le lettere se ci sono
  * fili autonomi (decidono chi sta sopra); con il trabocco del pozzo tutti i
  * segreti (si contano) e, se Teresa legge, le lettere e i loro segreti di lettura
- * (nascono segreti che il pozzo può ricevere). Le altre perline non cambiano né
- * la validità delle righe né le condizioni.
+ * (nascono segreti che il pozzo può ricevere); con Gino la febbre (con la febbre
+ * resta a letto, C01). Le altre perline non cambiano né la validità delle righe
+ * né le condizioni.
  */
-function trackedBeads(level: LevelDef, ctx: RunContext, goals: readonly Condition[]): string[] {
+export function trackedBeads(level: LevelDef, ctx: RunContext, goals: readonly Condition[]): string[] {
   const ids = new Set(conditionBeads(level, goals));
+  if (ctx.quirks.includes('ginoCorre')) for (const b of level.beads) if (b.type === 'febbre') ids.add(b.id);
   if (level.nero || level.autoweave) for (const b of level.beads) if (b.type === 'lettera') ids.add(b.id);
   if (ctx.quirks.includes('pieroTrabocca')) {
     const legge = ctx.quirks.includes('teresaLegge');

@@ -10,7 +10,7 @@
  * Violazioni (`tombolo.violazione.<codice>`):
  *   rifiuto   Marta non passa sotto Teresa («No.»)
  *   faro      Zeno si allontanerebbe troppo dal Faro
- *   corre     Gino non sta fermo
+ *   corre     Gino è stato fermo un'ora e deve incrociare {chi, vicino} (C01)
  *   spillo    spillo d'ottone non rispettato {chi, luogo, ora}
  *   matassa   matassa finita {matassa, usata}
  *   bloccato  filo bloccato (nodo o marea) {chi}

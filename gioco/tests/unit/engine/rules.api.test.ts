@@ -52,9 +52,10 @@ describe('checkCrossing', () => {
 
 describe('previewRow', () => {
   it('applica la bozza senza spilli e Gino, segnala gli incroci non validi', () => {
-    const level = mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], pins: [{ thread: 'piero', place: 'molo', hour: 7 }] });
+    const level = mk({ initial: ['gino', 'marta', 'piero'], quirks: ['ginoCorre'], pins: [{ thread: 'piero', place: 'molo', hour: 8 }] });
     const ctx = createContext(level, {});
-    const s = initialState(level, ctx);
+    // Prima riga ferma (C01: Gino non sta fermo due ore di fila).
+    const s = applyRow(level, initialState(level, ctx), [], ctx).state;
     const p = previewRow(level, s, [c(1, 'L')], ctx);
     expect(p.ok).toBe(true);
     expect(p.state.pos).toEqual(['gino', 'piero', 'marta']);

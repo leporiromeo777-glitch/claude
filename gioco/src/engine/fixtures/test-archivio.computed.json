@@ -1,7 +1,7 @@
 {
   "levelId": "test-archivio",
   "sourceHash": "4ae501f75e354290",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 3,
     "rows": [

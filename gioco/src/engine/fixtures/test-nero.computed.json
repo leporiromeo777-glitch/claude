@@ -1,7 +1,7 @@
 {
   "levelId": "test-nero",
   "sourceHash": "df3f8f11133a62f6",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 3,
     "rows": [

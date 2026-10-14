@@ -4,9 +4,10 @@
  * ripartenza da metà notte, limiti di stati, validità delle soluzioni.
  */
 import { describe, expect, it } from 'vitest';
-import type { Condition, LevelDef, RowMoves } from '../../../src/core/types';
-import { createContext, simulate, simulateAndEvaluate, solve, solveAsync } from '../../../src/engine/index';
-import { fixture, noteRequest } from './helpers';
+import type { Condition, Crossing, LaceState, LevelDef, RowMoves } from '../../../src/core/types';
+import { applyRow, createContext, initialState, simulate, simulateAndEvaluate, solve, solveAsync } from '../../../src/engine/index';
+import { solveInternal } from '../../../src/engine/solver';
+import { F, fixture, noteRequest } from './helpers';
 
 const g00 = fixture('g00');
 const g06 = fixture('g06');
@@ -197,6 +198,62 @@ describe('solver: opzioni', () => {
       expect(res.allOk, id).toBe(true);
       expect(playerCrossings(res.sim.rows), id).toBe(r.incroci);
     }
+  });
+});
+
+describe('Gino non sta fermo due ore di fila (C01)', () => {
+  const gino = fixture('test-gino');
+
+  it('6 righe con Gino e nessun altro vincolo: minimo 3, 3 ore di quiete', () => {
+    const r = run(gino);
+    expect(r.status).toBe('ok');
+    expect(r.incroci).toBe(3);
+    expect(r.quiete).toBe(3);
+    const res = simulateAndEvaluate(gino, createContext(gino, {}), r.rows ?? [], []);
+    expect(res.allOk).toBe(true);
+  });
+
+  it('minimo e soluzioni ottime coincidono con la ricerca esaustiva su applyRow', () => {
+    const ctx = createContext(gino, {});
+    const options: Crossing[][] = [[], [{ pair: 0, over: 'L' }], [{ pair: 1, over: 'L' }]];
+    let best = Number.POSITIVE_INFINITY;
+    let count = 0;
+    const walk = (s: LaceState, depth: number, cost: number): void => {
+      if (depth === 6) {
+        if (cost < best) {
+          best = cost;
+          count = 1;
+        } else if (cost === best) count++;
+        return;
+      }
+      for (const o of options) {
+        const res = applyRow(gino, s, o, ctx);
+        if (res.ok) walk(res.state, depth + 1, cost + o.length);
+      }
+    };
+    walk(initialState(gino, ctx), 0, 0);
+    const r = run(gino);
+    expect(best).toBe(3);
+    expect(r.incroci).toBe(best);
+    expect(r.optimalCount).toBe(Math.min(50, count));
+  });
+
+  it('con la febbre tutta la notte Gino resta a letto: minimo 0', () => {
+    const level: LevelDef = { ...gino, id: 'gino-febbre', rules: ['incrocio', 'febbre'], beads: [F(['gino'])] };
+    expect(run(level).incroci).toBe(0);
+    // Con la regola della febbre spenta (generatore) la febbre non lo ferma.
+    const off = solveInternal({ level, ctx: createContext(level, {}), goals: [] }, { disable: ['febbre'] });
+    expect(off.incroci).toBe(3);
+  });
+
+  it('ripartenza da metà notte: lo stato di Gino fermo conta', () => {
+    const ctx = createContext(gino, {});
+    const first = applyRow(gino, initialState(gino, ctx), [], ctx);
+    expect(first.ok).toBe(true);
+    const r = solve({ level: gino, ctx, goals: [], from: { state: first.state, rowsDone: [{ hour: 7, crossings: [] }] } });
+    expect(r.status).toBe('ok');
+    expect(r.incroci).toBe(3);
+    expect(r.rows?.[1]?.crossings.length).toBe(1);
   });
 });
 

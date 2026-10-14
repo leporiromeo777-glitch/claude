@@ -1,7 +1,7 @@
 {
   "levelId": "test-occasioni",
   "sourceHash": "e6f549a549b124ae",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 0,
     "rows": [

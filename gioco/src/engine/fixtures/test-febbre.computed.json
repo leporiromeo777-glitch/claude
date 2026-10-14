@@ -1,12 +1,20 @@
 {
   "levelId": "test-febbre",
   "sourceHash": "fb8ecb7a8ec2162d",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
-    "incroci": 8,
+    "incroci": 5,
     "rows": [
       {
         "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
         "crossings": [
           {
             "pair": 0,
@@ -19,28 +27,10 @@
         ]
       },
       {
-        "hour": 8,
-        "crossings": [
-          {
-            "pair": 1,
-            "over": "R"
-          }
-        ]
-      },
-      {
-        "hour": 9,
-        "crossings": [
-          {
-            "pair": 2,
-            "over": "L"
-          }
-        ]
-      },
-      {
         "hour": 10,
         "crossings": [
           {
-            "pair": 3,
+            "pair": 1,
             "over": "L"
           }
         ]
@@ -50,10 +40,6 @@
         "crossings": [
           {
             "pair": 1,
-            "over": "L"
-          },
-          {
-            "pair": 3,
             "over": "L"
           }
         ]
@@ -71,6 +57,6 @@
   },
   "perNote": {},
   "combos": [],
-  "matassaSuggerita": 10,
-  "quieteMax": 0
+  "matassaSuggerita": 7,
+  "quieteMax": 2
 }

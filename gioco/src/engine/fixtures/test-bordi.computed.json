@@ -1,7 +1,7 @@
 {
   "levelId": "test-bordi",
   "sourceHash": "0ebbbf8e0c86e95d",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 3,
     "rows": [
