@@ -459,6 +459,14 @@ button.core-carta {
     calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
   background: var(--velo);
 }
+/* Un overlay sopra un altro (Impostazioni sopra la Pausa): sotto non si legge niente. */
+.core-overlay ~ .core-overlay {
+  background: var(--velo-pieno);
+}
+/* I pannelli di velluto negli overlay sono opachi (SCH-05). */
+.core-overlay .core-panel--velluto {
+  background: var(--foglio-sovrapposto);
+}
 .core-overlay-box {
   position: relative;
   width: min(720px, 100%);
@@ -530,6 +538,12 @@ button.core-carta {
   justify-content: flex-end;
   gap: var(--spazio-2);
   padding: 0 calc(var(--safe-right) + var(--spazio-4)) calc(var(--safe-bottom) + 96px) calc(var(--safe-left) + var(--spazio-4));
+}
+/* Gli avvisi brevi non prendono i tocchi (SCH-09): il tocco arriva all'elemento sotto. */
+#ui-root .core-toast,
+#ui-root .core-toast *,
+#ui-root .core-caption {
+  pointer-events: none;
 }
 .core-toast {
   max-width: min(var(--larghezza-stretta), 100%);

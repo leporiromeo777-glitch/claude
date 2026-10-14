@@ -387,7 +387,7 @@
   width: min(760px, 100%);
 }
 .sc-foglio--velluto {
-  background: rgba(42, 50, 71, 0.94);
+  background: var(--foglio-sovrapposto);
   border: 1px solid var(--bordo-pannello);
   color: var(--testo);
 }
@@ -567,10 +567,22 @@
   opacity: 0.5;
   cursor: default;
 }
+/* Mai una parola spezzata a metà (P047): va a capo solo fra parole. */
 .sc-segmento-testo,
 .sc-segmento-desc {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: manual;
   max-width: 100%;
+}
+/* Testo dal 130% in su: i segmenti in colonna, ognuno su tutta la larghezza. */
+:root[data-text-scale='grande'] .sc-segmenti-gruppo {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+:root[data-text-scale='grande'] .sc-segmento {
+  flex: 0 0 auto;
+  width: 100%;
 }
 .sc-segmento-desc {
   font-size: 0.78rem;
@@ -999,6 +1011,58 @@
 }
 .sc-impostazioni-overlay .core-panel-title {
   font-family: var(--font-libro);
+}
+
+/* Chi c'è stanotte (revisione 1, SCH-07) */
+.sc-chi-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.sc-chi-persona {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-3);
+}
+.sc-chi-icona {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--pers-color, var(--filo-lino));
+  color: var(--testo);
+  background: var(--velluto-ombra);
+}
+.sc-chi-persona--nero .sc-chi-icona {
+  border-style: dashed;
+}
+.sc-chi-testo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sc-chi-nome {
+  font-weight: 700;
+  overflow-wrap: break-word;
+}
+.sc-chi-stranezza {
+  color: var(--testo-tenue);
+  overflow-wrap: break-word;
+}
+.sc-chi-rancore {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+  margin: var(--spazio-2) 0 0;
+  color: var(--testo);
+  overflow-wrap: break-word;
 }
 
 /* Comandi (revisione 1, C10): tasti e gesti di GDD 11. */

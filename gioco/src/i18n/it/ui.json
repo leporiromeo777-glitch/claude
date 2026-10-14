@@ -437,5 +437,14 @@
         "cosa": "Chiude il pannello aperto o apre la Pausa"
       }
     }
+  },
+  "chi": {
+    "titolo": "Chi c'è stanotte",
+    "attesa": "Il tombolo si prepara…",
+    "nero": "Filo nero: si muove da solo, e chi incontra lo incrocia da sopra.",
+    "stranezzaRiserva": "Ha una stranezza: la scopri tessendo.",
+    "nessunaStranezza": "Nessuna stranezza.",
+    "passanti": "{n, plural, one {E un passante, che cede sempre.} other {E # passanti, che cedono sempre.}}",
+    "rancore": "{a} e {b} sono in rancore: se si incrociano, si annodano."
   }
 }

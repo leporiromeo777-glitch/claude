@@ -6,13 +6,15 @@
  *
  * Il livello si genera appena si entra (`dailySpec` + `generateAsync`, nel
  * Worker), così «Tessi» parte subito. Se c'è una notte salvata a metà per oggi
- * si offre «Riprendi».
+ * si offre «Riprendi». «Chi c'è stanotte» (SCH-07) elenca personaggi, stranezze
+ * attive e coppie in rancore del merletto generato.
  */
 import type { Services } from '../core/types';
 import { el } from '../core/ui/dom';
 import { textOf } from '../core/ui/components';
 import { dailySpec, type GenResult } from '../engine/index';
 import { bookPage } from './bookPage';
+import { chiSection } from './chi';
 import { dailyCount, liveStreak } from './daily';
 import { longDate } from './format';
 import { icon } from './icons';
@@ -165,6 +167,7 @@ export class GiornalieroScene extends ScreenScene {
       dateLine,
       status,
       section('ui.giornaliero.regola', 'nota', 'sc-giornaliero-regola', bookPage(s, spec.rule, 'sc-giornaliero-libro')),
+      chiSection(s, this.gen?.level ?? null, 'sc-giornaliero-chi'),
       section('ui.giornaliero.merletto', 'gomitolo', 'sc-giornaliero-merletto', info),
       section('ui.giornaliero.record', 'stella', 'sc-giornaliero-records', records),
     );

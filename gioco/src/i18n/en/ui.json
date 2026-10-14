@@ -437,5 +437,14 @@
         "cosa": "Close the open panel or open Pause"
       }
     }
+  },
+  "chi": {
+    "titolo": "Who is here tonight",
+    "attesa": "The pillow is getting ready…",
+    "nero": "Black thread: it moves on its own, and crosses over whoever it meets.",
+    "stranezzaRiserva": "Has a quirk: you will find it while weaving.",
+    "nessunaStranezza": "No quirks.",
+    "passanti": "{n, plural, one {And a passer-by, who always gives way.} other {And # passers-by, who always give way.}}",
+    "rancore": "{a} and {b} hold a grudge: if they cross, they knot."
   }
 }

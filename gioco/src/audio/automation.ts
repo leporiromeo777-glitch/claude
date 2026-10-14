@@ -17,7 +17,11 @@
  * |                               | campana né incroci da night:cross (spartito, Ripassa)       |
  * | night:undo                    | disfa                                                       |
  * | night:complete                | successo (tutto soddisfatto, Archivio rammendato) o         |
- * |                               | fallimento                                                  |
+ * |                               | fallimento; niente con la chiusura 'nodo' (finale C, C11)   |
+ * | tombolo:nodo                  | nodo e la campana dell'ora 3 con stonatura 1 (C11)          |
+ * | tombolo:apparizione           | nero: il filo nero che appare a merletto chiuso (C12)       |
+ * | scene:enter tombolo, notti    | musica 'notte' con il seme del livello e i personaggi       |
+ * | giornaliero/libero/spartito   | presenti (SCH-06; la campagna la chiede da sé)              |
  * | diary:new, quirk:discovered   | pagina                                                      |
  * | clic sui pulsanti di #ui-root | ui_tap (ui_indietro su chiudi/annulla/indietro)             |
  * | app:back                      | ui_indietro                                                 |
@@ -36,6 +40,8 @@ import type {
   Hour,
   LaceEvent,
   LevelDef,
+  MusicState,
+  NightOrigin,
   NightOutcome,
   SaveData,
   SceneId,
@@ -69,6 +75,8 @@ export interface AutomationTarget {
    * note riprende quelli della giornata giusta. Facoltativo.
    */
   refreshContext?(): void;
+  /** Musica (facoltativo: la usano le notti delle modalità extra, SCH-06). */
+  setMusic?(s: MusicState, o?: { seed?: string; notes?: (CharacterId | 'lino')[]; stonatura?: number }): void;
   dyad(over: CharacterId | 'lino' | null, under: CharacterId | 'lino' | null, o?: { delay?: number; pan?: number }): void;
   caption(textKey: string, params?: Record<string, string | number>): void;
   suspend(): void;
@@ -136,6 +144,8 @@ export function columnPan(column: number, columns: number): number {
  * quella della giornata di campagna raggiunta, o per atto (I: 1, II: 0,6, III: 0,25).
  */
 export function resolveStonatura(levelId: string | null, level: LevelDef | null, content: ContentDB | null, save: SaveData | null): number {
+  // Il finale C stona sempre, anche dopo il finale vero (C11).
+  if (levelId && content?.campaign && levelId === content.campaign.finals.chiuso) return 1;
   const trueEnding = !!save && (save.unlocks?.tovaglia === true || !!save.campaign?.endingsSeen?.includes('aperto'));
   if (trueEnding) return 0;
   const campaign = content?.campaign;
@@ -295,6 +305,12 @@ export function eventSounds(events: readonly LaceEvent[], o: EventSoundOpts): Ev
   return out;
 }
 
+/** Le notti delle modalità extra: la musica della notte la chiede l'automazione (SCH-06). */
+export const MODE_NIGHT_ORIGINS: readonly NightOrigin[] = ['giornaliero', 'libero', 'spartito'];
+
+/** Ora della campana del nodo del finale C (C11). */
+export const NODO_BELL_HOUR = 3;
+
 /**
  * Esito della notte per il suono finale: richieste e obiettivi soddisfatti e, in un
  * merletto d'Archivio, il rammendo riuscito.
@@ -411,10 +427,19 @@ export class AudioAutomation implements GameAudioContext {
         this.guard(() => {
           const o = p.outcome;
           // Uno spartito che si ritesse non ha esito: ha già suonato il suo carillon.
-          if (!this.night?.replay) this.deps.engine.sfx(outcomeOk(o) ? 'successo' : 'fallimento');
+          // La chiusura 'nodo' (finale C) ha già suonato il suo nodo: niente successo (C11).
+          const nodo = this.night?.level.chiusura === 'nodo' && this.night.level.id === o.levelId;
+          if (!this.night?.replay && !nodo) this.deps.engine.sfx(outcomeOk(o) ? 'successo' : 'fallimento');
           this.resetDraft(null);
         }),
       ),
+      bus.on('tombolo:nodo', () =>
+        this.guard(() => {
+          this.deps.engine.sfx('nodo');
+          this.deps.engine.bell({ hour: NODO_BELL_HOUR, stonatura: 1 });
+        }),
+      ),
+      bus.on('tombolo:apparizione', () => this.guard(() => this.deps.engine.sfx('nero'))),
       bus.on('diary:new', () => this.guard(() => this.page())),
       bus.on('quirk:discovered', () => this.guard(() => this.page())),
       bus.on('app:back', () => this.guard(() => this.deps.engine.sfx('ui_indietro'))),
@@ -444,10 +469,20 @@ export class AudioAutomation implements GameAudioContext {
   private onScene(id: SceneId, params: unknown): void {
     this.scene = id;
     if (id === 'tombolo') {
-      const p = params as { level?: unknown; flags?: Record<string, FlagValue>; mode?: unknown } | undefined;
+      const p = params as { level?: unknown; flags?: Record<string, FlagValue>; mode?: unknown; origin?: unknown } | undefined;
       if (p && isLevel(p.level)) this.night = { level: p.level, flags: p.flags ?? {}, replay: p.mode === 'replay' };
       this.replayRows = 0;
       this.resetDraft(null);
+      // SCH-06: le notti del giorno, del libero e degli spartiti hanno la musica della notte.
+      if (p && isLevel(p.level) && (MODE_NIGHT_ORIGINS as readonly unknown[]).includes(p.origin)) {
+        const lvl = p.level;
+        const notes: (CharacterId | 'lino')[] = [];
+        for (const t of lvl.threads) {
+          const w = threadWho(t.id, lvl);
+          if (!notes.includes(w)) notes.push(w);
+        }
+        this.deps.engine.setMusic?.('notte', { seed: lvl.musicSeed ?? lvl.id, notes });
+      }
     }
     // 'scene:enter' arriva dopo enter() della scena: se la scena ha chiesto la musica senza
     // seme o note, adesso il contesto (giornata, personaggi) è quello giusto.

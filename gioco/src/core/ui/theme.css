@@ -90,6 +90,9 @@
   --pericolo: #B8322A;
   --bordo-pannello: rgba(201, 162, 74, 0.35);
   --velo: rgba(12, 14, 22, 0.72);
+  /* Revisione 1 (SCH-05): fogli sovrapposti opachi; velo pieno sotto un secondo overlay. */
+  --foglio-sovrapposto: #2A3247;
+  --velo-pieno: rgba(12, 14, 22, 0.97);
 }
 
 :root[data-contrast='alto'] {
@@ -108,6 +111,8 @@
   --errore: #FF7A68;
   --bordo-pannello: rgba(255, 255, 255, 0.75);
   --velo: rgba(0, 0, 0, 0.85);
+  --foglio-sovrapposto: #10131C;
+  --velo-pieno: #000000;
 }
 
 :root[data-motion='ridotto'] {

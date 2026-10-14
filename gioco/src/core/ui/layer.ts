@@ -170,7 +170,8 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
     },
     overlays: () => stack.map((e) => e.id),
     toast(textKey, params, kind = 'info') {
-      const node = el('div', { class: ['core-toast', 'core-solid'], data: { kind }, test: 'toast' }, textOf(textKey, params, 'span', { rich: true }));
+      // Revisione 1 (SCH-09): l'avviso non prende i tocchi (niente core-solid), passano all'elemento sotto.
+      const node = el('div', { class: ['core-toast'], data: { kind }, test: 'toast' }, textOf(textKey, params, 'span', { rich: true }));
       showLine(toastsEl, node, TOAST_MS, MAX_TOASTS);
     },
     confirm(o) {

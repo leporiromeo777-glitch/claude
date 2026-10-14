@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GameEventMap, Settings } from '../../../src/core/types';
 import { createUiLayer } from '../../../src/core/ui/layer';
@@ -114,6 +116,22 @@ describe('UiLayer', () => {
     store.set({ captions: true });
     bus.emit('audio:caption', { textKey: 'core.ui.ok' });
     expect(document.querySelector('.core-caption')?.textContent).toBe('Va bene');
+  });
+
+  it('gli avvisi brevi non prendono i tocchi (SCH-09): niente core-solid, pointer-events none', () => {
+    const { ui, root } = setup();
+    root.id = 'ui-root';
+    const st = document.createElement('style');
+    st.textContent = readFileSync(resolve(__dirname, '../../../src/core/ui/base.css'), 'utf8');
+    document.head.appendChild(st);
+    ui.toast('core.prova.ciao', undefined, 'warn');
+    const t = document.querySelector('.core-toast') as HTMLElement;
+    expect(t.classList.contains('core-solid')).toBe(false);
+    expect(getComputedStyle(t).pointerEvents).toBe('none');
+    expect(getComputedStyle(t.firstElementChild as HTMLElement).pointerEvents).toBe('none');
+    // Un pulsante sotto l'avviso riceve il tocco: l'avviso non intercetta niente.
+    expect(t.closest('.core-solid')).toBeNull();
+    st.remove();
   });
 
   it('al cambio di lingua i testi si riscrivono', () => {

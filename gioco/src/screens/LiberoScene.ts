@@ -18,6 +18,7 @@ import type { GradoId, Services } from '../core/types';
 import { el } from '../core/ui/dom';
 import { iconButton, textOf, toggle, type ToggleHandle } from '../core/ui/components';
 import { bookPage } from './bookPage';
+import { chiSection } from './chi';
 import { icon } from './icons';
 import { launchLibero, launchSpartito } from './launch';
 import {
@@ -39,7 +40,7 @@ import {
 } from './libero';
 import { resultsSheet, type ResultsView } from './results';
 import { ScreenScene } from './ScreenScene';
-import { liberoLevel, resultOf, type ModeOrigin } from './state';
+import { generatedNow, liberoLevel, resultOf, type ModeOrigin } from './state';
 import { buttonGroup, messageLine, screenFrame, section, segmented, statRow, wideButton } from './widgets';
 
 /** Ultima scelta (resta fra un ingresso e l'altro nella stessa sessione). */
@@ -402,10 +403,23 @@ export class LiberoScene extends ScreenScene {
     const c = liberoChoice();
     const gradi = this.allowedGradi(c.gradi);
     const rule = ruleOfSeed(c.seed);
-    const rec = s.save.data().records[liberoLevelId(c.seed, gradi)];
+    const levelId = liberoLevelId(c.seed, gradi);
+    const rec = s.save.data().records[levelId];
     const best = bestGradiPoints(s.save.data().records);
+    // «Chi c'è stanotte» (SCH-07): dal livello generato; se non è pronto, appena lo è.
+    const gen = generatedNow(levelId);
+    if (!gen) {
+      void liberoLevel(c.seed, gradi).then(
+        () => {
+          const now = liberoChoice();
+          if (this.dynamic === host && host.isConnected && liberoLevelId(now.seed, this.allowedGradi(now.gradi)) === levelId) this.updateDynamic();
+        },
+        () => undefined,
+      );
+    }
     host.replaceChildren(
       section('ui.libero.regola', 'nota', 'sc-libero-regola', bookPage(s, rule, 'sc-libero-libro')),
+      chiSection(s, gen?.level ?? null, 'sc-libero-chi'),
       section(
         'ui.libero.record',
         'stella',

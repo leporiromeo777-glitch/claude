@@ -13,7 +13,8 @@ import { makeServices } from './helpers';
 import type { SaveData } from '../../../src/core/types';
 import { LiberoScene, setLiberoChoice } from '../../../src/screens/LiberoScene';
 import { liberoLevelId, parseLiberoId } from '../../../src/screens/libero';
-import { liberoLevel, resetScreensState } from '../../../src/screens/state';
+import { liberoLevel, resetScreensState, setTodayOverride } from '../../../src/screens/state';
+import { GiornalieroScene } from '../../../src/screens/GiornalieroScene';
 import { registerLevelResolver } from '../../../src/tombolo/index';
 
 const q = <T extends HTMLElement = HTMLElement>(root: ParentNode, test: string): T | null => root.querySelector<T>(`[data-test="${test}"]`);
@@ -216,6 +217,76 @@ describe('Merletto libero con una notte a metà (SCH-04, P036)', () => {
     expect(q(document.body, 'sc-libero-tessi')).not.toBeNull();
     expect(q(document.body, 'sc-libero-riprendi')).toBeNull();
     expect((q(document.body, 'sc-libero-cima') as HTMLElement).hidden).toBe(true);
+    scene.exit();
+  });
+});
+
+// ───────────── SCH-07: «Chi c'è stanotte» ─────────────
+async function waitFor(fn: () => boolean, ms = 3000): Promise<void> {
+  const t0 = Date.now();
+  while (!fn() && Date.now() - t0 < ms) await tick(10);
+}
+
+describe("«Chi c'è stanotte» (SCH-07, P041, P045)", () => {
+  beforeEach(() => {
+    resetScreensState();
+    document.body.replaceChildren();
+  });
+
+  it('Merletto del giorno del 15/10: Lunardi cura, Gino non sta fermo, Marta e Bepi senza stranezze, un passante', async () => {
+    const h = makeServices({ save: UNLOCKED });
+    setTodayOverride('2026-10-15');
+    const scene = new GiornalieroScene(h.s);
+    scene.enter();
+    await waitFor(() => !!q(document.body, 'sc-giornaliero-chi-lunardi'));
+    const chi = q(document.body, 'sc-giornaliero-chi') as HTMLElement;
+    expect(chi.textContent).toContain("Chi c'è stanotte");
+    expect(q(chi, 'sc-giornaliero-chi-lunardi')?.dataset.quirks).toBe('lunardiCura');
+    expect(q(chi, 'sc-giornaliero-chi-lunardi')?.textContent).toContain(h.s.i18n.t('tombolo.stranezza.lunardiCura'));
+    expect(q(chi, 'sc-giornaliero-chi-gino')?.textContent).toContain(h.s.i18n.t('tombolo.stranezza.ginoCorre'));
+    expect(q(chi, 'sc-giornaliero-chi-marta')?.textContent).toContain('Nessuna stranezza');
+    expect(q(chi, 'sc-giornaliero-chi-bepi')).not.toBeNull();
+    expect(chi.querySelector('.sc-chi-passanti')?.textContent).toContain('un passante');
+    // La regola del giorno con la pagina del Libro, subito sopra.
+    expect(q(document.body, 'sc-giornaliero-libro')).not.toBeNull();
+    expect(chi.previousElementSibling?.getAttribute('data-test')).toBe('sc-giornaliero-regola');
+    scene.exit();
+  });
+
+  it('Merletto del giorno del 18/10: Teresa legge, Don Piero è un pozzo, il filo nero di Livia', async () => {
+    const h = makeServices({ save: UNLOCKED });
+    setTodayOverride('2026-10-18');
+    const scene = new GiornalieroScene(h.s);
+    scene.enter();
+    await waitFor(() => !!q(document.body, 'sc-giornaliero-chi-teresa'));
+    const chi = q(document.body, 'sc-giornaliero-chi') as HTMLElement;
+    expect(q(chi, 'sc-giornaliero-chi-teresa')?.dataset.quirks).toBe('teresaLegge');
+    expect(q(chi, 'sc-giornaliero-chi-piero')?.dataset.quirks).toBe('pieroPozzo');
+    expect(q(chi, 'sc-giornaliero-chi-gino')?.dataset.quirks).toBe('ginoCorre');
+    const livia = q(chi, 'sc-giornaliero-chi-livia') as HTMLElement;
+    expect(livia.classList.contains('sc-chi-persona--nero')).toBe(true);
+    expect(livia.textContent).toContain('Filo nero');
+    scene.exit();
+  });
+
+  it('libero gdjm8dc: la coppia in rancore Teresa e Marta, e le stranezze di chi c\'è', async () => {
+    const h = makeServices({ save: UNLOCKED });
+    setLiberoChoice({ seed: 'gdjm8dc', gradi: [] });
+    const scene = new LiberoScene(h.s);
+    scene.enter();
+    await waitFor(() => !!q(document.body, 'sc-libero-chi-marta'));
+    const chi = q(document.body, 'sc-libero-chi') as HTMLElement;
+    const r = q(chi, 'sc-libero-chi-rancore-teresa-marta');
+    expect(r?.textContent).toMatch(/Teresa e Marta sono in rancore/);
+    expect(q(chi, 'sc-libero-chi-marta')?.dataset.quirks).toBe('martaNoSotto');
+    expect(q(chi, 'sc-libero-chi-teresa')?.dataset.quirks).toBe('teresaLegge');
+    expect(q(document.body, 'sc-libero-libro')).not.toBeNull();
+    // Cambiando seme la sezione si rifà per il merletto nuovo.
+    const field = q<HTMLInputElement>(document.body, 'sc-libero-seme')!;
+    field.value = 'pm0ozmz';
+    field.dispatchEvent(new Event('input'));
+    await waitFor(() => !!q(document.body, 'sc-libero-chi-piero'));
+    expect(q(document.body, 'sc-libero-chi-rancore-teresa-marta')).toBeNull();
     scene.exit();
   });
 });
