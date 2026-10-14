@@ -14,13 +14,13 @@
     {"id": "zeno", "kind": "persona", "character": "zeno"},
     {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.passante"}
   ],
-  "initial": ["marta", "gino", "teresa", "piero", "lino1", "zeno"],
+  "initial": ["gino", "marta", "teresa", "lino1", "piero", "zeno"],
   "beads": [{"id": "L_zeno", "type": "lettera", "holder": "teresa", "to": "zeno", "labelKey": "atto1.g05.perline.L_zeno"}],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro"],
-  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 9}],
+  "pins": [{"thread": "teresa", "place": "molo", "hour": 8}, {"thread": "teresa", "place": "piazza", "hour": 13}],
   "notes": ["g05.zeno", "g05.marta", "g05.teresa"],
-  "matassa": 9,
+  "matassa": 11,
   "dawn": {
     "candidates": [
       {
