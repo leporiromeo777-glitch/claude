@@ -12,12 +12,17 @@ import type {
   GradoId,
   HapticKind,
   LaceEventKind,
+  MarginWhen,
+  ObjectMeta,
   OccasionKind,
+  PulseTarget,
   QuirkId,
   RuleId,
   SceneId,
+  StoryCond,
   ThreadKind,
   ThreadPattern,
+  Violation,
 } from './types';
 
 type Exhaustive<All, Listed> = [Exclude<All, Listed>] extends [never] ? true : false;
@@ -89,6 +94,36 @@ assertExhaustive<Exhaustive<ActionId, (typeof ACTION_IDS)[number]>>(true);
 
 export const HAPTIC_KINDS = ['leggero', 'medio', 'successo', 'rifiuto'] as const satisfies readonly HapticKind[];
 assertExhaustive<Exhaustive<HapticKind, (typeof HAPTIC_KINDS)[number]>>(true);
+
+// ───────────── Revisione 1 (C00) ─────────────
+type KnowsKind = Extract<StoryCond, { knows: unknown }>['knows'];
+/** Tipi della condizione di storia `{ knows, id }`. */
+export const KNOWS_KINDS = ['quirk', 'diary', 'desire', 'rule', 'archive', 'oggetto'] as const satisfies readonly KnowsKind[];
+assertExhaustive<Exhaustive<KnowsKind, (typeof KNOWS_KINDS)[number]>>(true);
+
+/** Quando parte una nota a margine del tutorial (C02). */
+export const MARGIN_WHEN = [
+  'primaOra', 'ora', 'incrocio', 'versoSbagliato', 'rifiuto', 'spillo', 'evento',
+  'nome', 'archivioNomi', 'archivioRammendo',
+] as const satisfies readonly MarginWhen[];
+assertExhaustive<Exhaustive<MarginWhen, (typeof MARGIN_WHEN)[number]>>(true);
+
+/** Elementi del tombolo che un passo `pulsa` può evidenziare (C02). */
+export const PULSE_TARGETS = [
+  'fissa', 'taccuino', 'nome', 'disfa',
+  'lampada', 'obiettivi', 'matassa', 'bordo', 'spillo', 'fuso', 'marea',
+] as const satisfies readonly PulseTarget[];
+assertExhaustive<Exhaustive<PulseTarget, (typeof PULSE_TARGETS)[number]>>(true);
+
+/** Provenienza degli oggetti della campagna (C04). */
+export const OBJECT_FROM = ['laguna', 'mano', 'porta', 'casa'] as const satisfies readonly ObjectMeta['from'][];
+assertExhaustive<Exhaustive<ObjectMeta['from'], (typeof OBJECT_FROM)[number]>>(true);
+
+/** Codici delle violazioni del motore (per `margine.codice`). */
+export const VIOLATION_CODES = [
+  'rifiuto', 'faro', 'corre', 'spillo', 'matassa', 'bloccato', 'occupato', 'forzato', 'disgiunto',
+] as const satisfies readonly Violation['code'][];
+assertExhaustive<Exhaustive<Violation['code'], (typeof VIOLATION_CODES)[number]>>(true);
 
 export function isOneOf<T extends string>(list: readonly T[], v: unknown): v is T {
   return typeof v === 'string' && (list as readonly string[]).includes(v);

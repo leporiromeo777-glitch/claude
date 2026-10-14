@@ -82,6 +82,19 @@ export function normalizeSave(raw: unknown, base: SaveData): SaveData {
     dailyStreak: Math.max(0, num(s.dailyStreak, 0)),
   };
   if (typeof s.lastDaily === 'string') stats.lastDaily = s.lastDaily;
+  const knowledge: Knowledge = {
+    quirks: strArr(k.quirks) as Knowledge['quirks'],
+    rules: strArr(k.rules) as Knowledge['rules'],
+    diary: strArr(k.diary),
+    desires: strArr(k.desires) as Knowledge['desires'],
+    questions: strRecord(k.questions, ['aperta', 'risolta'] as const),
+    archive: strRecord(k.archive, ['nuovo', 'nominato', 'rammendato'] as const),
+    letters: strArr(k.letters),
+    objects: strArr(k.objects),
+    seenVignettes: strArr(k.seenVignettes),
+  };
+  // Revisione 1 (C00): pagine del Libro già viste; facoltativo, si conserva se c'è.
+  if (Array.isArray(k.bookSeen)) knowledge.bookSeen = strArr(k.bookSeen);
   return {
     schema: 1,
     app: 'trama',
@@ -89,17 +102,7 @@ export function normalizeSave(raw: unknown, base: SaveData): SaveData {
     gameVersion: typeof r.gameVersion === 'string' ? r.gameVersion : base.gameVersion,
     settings: sanitizeSettings(r.settings, base.settings),
     campaign: isObj(r.campaign) ? (r.campaign as unknown as SaveData['campaign']) : null,
-    knowledge: {
-      quirks: strArr(k.quirks) as Knowledge['quirks'],
-      rules: strArr(k.rules) as Knowledge['rules'],
-      diary: strArr(k.diary),
-      desires: strArr(k.desires) as Knowledge['desires'],
-      questions: strRecord(k.questions, ['aperta', 'risolta'] as const),
-      archive: strRecord(k.archive, ['nuovo', 'nominato', 'rammendato'] as const),
-      letters: strArr(k.letters),
-      objects: strArr(k.objects),
-      seenVignettes: strArr(k.seenVignettes),
-    },
+    knowledge,
     night: isObj(r.night) ? (r.night as unknown as SaveData['night']) : null,
     records: objRecord(r.records),
     daily: objRecord(r.daily),

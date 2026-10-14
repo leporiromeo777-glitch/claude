@@ -13,6 +13,12 @@
  * - ore dentro la giornata (righe startHour+1 … endHour, al massimo 14);
  * - fili e perline citati nelle condizioni (obiettivi e richieste dei bigliettini);
  * - chiavi i18n: ogni textKey/labelKey/titleKey… esiste in italiano (se si passa `hasKey`).
+ * Revisione 1 (contratto C00): `knows: 'oggetto'`, passi di tutorial nuovi
+ * (`when`, `evento`, `codice`, `chi`, `mano`, `target`, `thread`), `dawnObject`,
+ * `eveningEmptyKey`, `objects`, `esito`, `dopo`, `apparizione`, `chiusura`.
+ * Un oggetto esiste se c'è `comune.oggetti.<id>.nome` (o `comune.oggetti.<id>`)
+ * in italiano oppure se è una lettera (`LetterDef.id`); senza `hasKey` si
+ * controllano solo le lettere e gli oggetti non si possono verificare.
  * Un database vuoto è valido: i pacchetti di contenuto arrivano dopo.
  */
 import type {
@@ -33,12 +39,17 @@ import {
   BEAD_TYPES,
   CHARACTER_IDS,
   ENDING_IDS,
+  KNOWS_KINDS,
   LACE_EVENT_KINDS,
+  MARGIN_WHEN,
+  OBJECT_FROM,
   OCCASION_KINDS,
+  PULSE_TARGETS,
   QUIRK_IDS,
   RULE_IDS,
   THREAD_KINDS,
   THREAD_PATTERNS,
+  VIOLATION_CODES,
   isOneOf,
 } from '../core/ids';
 import { loaderProblems } from './loader';
@@ -65,7 +76,7 @@ const VIGNETTE_POSES = ['ferma', 'porge', 'saluta'] as const;
 const DIARY_SECTIONS = ['persone', 'libro', 'domande', 'lettere', 'archivio'] as const;
 const DIARY_SOURCES = ['visto', 'libro', 'sentito', 'archivio'] as const;
 const LEVEL_KINDS = ['storia', 'archivio', 'finale', 'giornaliero', 'libero', 'esercizio', 'test'] as const;
-const KNOWS_KINDS = ['quirk', 'diary', 'desire', 'rule', 'archive'] as const;
+const MARGIN_HANDS = ['clotilde', 'ada'] as const;
 const UNLOCK_KINDS = ['archive', 'mode', 'cosmetic'] as const;
 
 interface Scope {
@@ -106,6 +117,21 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
   const levelExists = (id: unknown): boolean => typeof id === 'string' && db.levels.has(id);
   const noteExists = (id: unknown): boolean => typeof id === 'string' && db.notes.has(id);
   const diaryExists = (id: unknown): boolean => typeof id === 'string' && db.diary.has(id);
+  const letterIdSet = new Set(db.letters.map((l) => l?.id).filter((x): x is string => typeof x === 'string'));
+  /**
+   * Oggetto o lettera esistente (C00). `true`/`false`, oppure `null` quando non si può
+   * verificare (non è una lettera e mancano le chiavi i18n).
+   */
+  const objectExists = (id: unknown): boolean | null => {
+    if (typeof id !== 'string' || !id) return false;
+    if (letterIdSet.has(id)) return true;
+    if (!opts.hasKey) return null;
+    return opts.hasKey(`comune.oggetti.${id}.nome`) || opts.hasKey(`comune.oggetti.${id}`);
+  };
+  const objectRef = (where: string, id: unknown, field: string): void => {
+    if (typeof id !== 'string' || !id) err(where, 'forma', `${field} must be a non-empty string`);
+    else if (objectExists(id) === false) err(where, 'ref', `${field} "${id}" is neither an object (comune.oggetti.${id}) nor a letter`);
+  };
 
   // ───────── Condizioni sul merletto ─────────
   function hourIn(s: Scope, h: unknown, field: string, optional = true, from?: number): void {
@@ -255,6 +281,7 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
       else if (x.knows === 'desire' && !charExists(x.id)) err(where, 'ref', `unknown character "${x.id}"`);
       else if (x.knows === 'diary' && db.diary.size > 0 && !diaryExists(x.id)) err(where, 'ref', `unknown diary entry "${x.id}"`);
       else if (x.knows === 'archive' && db.levels.size > 0 && !levelExists(x.id)) err(where, 'ref', `unknown archive level "${x.id}"`);
+      else if (x.knows === 'oggetto' && objectExists(x.id) === false) err(where, 'ref', `unknown object or letter "${String(x.id)}"`);
     } else if ('memoria' in x) {
       if (!charExists(x.memoria)) err(where, 'ref', `unknown character "${String(x.memoria)}"`);
     } else if ('done' in x) {
@@ -314,6 +341,7 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
     if (typeof v.priority !== 'number') err(w, 'forma', 'vignette without numeric priority');
     if (typeof v.background !== 'string' || !v.background) err(w, 'forma', 'vignette without background');
     if (v.when !== undefined) story(w, v.when);
+    if (v.dopo !== undefined && (typeof v.dopo !== 'string' || !v.dopo)) err(w, 'forma', 'dopo must be a vignette id');
     if (!Array.isArray(v.figures)) err(w, 'forma', 'figures must be an array');
     else {
       if (v.figures.length > 3) err(w, 'forma', 'at most 3 figures per vignette');
@@ -333,6 +361,16 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
       }
     }
     void s;
+  }
+
+  /** `dopo` (C06): un'altra vignetta della stessa giornata (stesso elenco). */
+  function vignetteLinks(where: string, list: readonly VignetteDef[]): void {
+    const ids = new Set(list.filter(isObj).map((v) => v.id));
+    for (const v of list) {
+      if (!isObj(v) || typeof v.dopo !== 'string' || !v.dopo) continue;
+      if (v.dopo === v.id) err(`${where}/${String(v.id)}`, 'ref', 'dopo cites the vignette itself');
+      else if (!ids.has(v.dopo)) err(`${where}/${String(v.id)}`, 'ref', `dopo cites "${v.dopo}", not a vignette of the same day`);
+    }
   }
 
   function agenda(s: Scope, list: unknown, field: string): void {
@@ -411,6 +449,7 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
         key(w, e.textKey, 'archive.echoes.textKey');
       }
     vignette(`${w}/reveal`, a.reveal, s);
+    if (isObj(a.reveal) && a.reveal.dopo !== undefined) err(`${w}/reveal`, 'ref', 'the archive reveal has no other vignette to follow (dopo)');
     if (Array.isArray(a.unlocks) && db.diary.size > 0) for (const d of a.unlocks) if (!diaryExists(d)) err(w, 'ref', `archive unlocks unknown diary entry "${d}"`);
   }
 
@@ -576,6 +615,7 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
           seen.add(v.id);
           vignette(`${where}/dawn`, v, s);
         }
+        vignetteLinks(`${where}/dawn`, lv.dawn.candidates);
       }
     }
     if (lv.archive) archive(s, lv.archive);
@@ -594,10 +634,32 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
         if (t.over !== 'L' && t.over !== 'R') err(where, 'tipo', 'tutorial.mano.over must be L or R');
       } else if (t.k === 'margine') {
         key(where, t.textKey, 'tutorial.margine.textKey');
-        hourIn(s, t.hour, 'tutorial.margine.hour', true, start + 1);
+        if (!isOneOf(MARGIN_WHEN, t.when)) err(where, 'tipo', `unknown tutorial.margine.when "${String(t.when)}"`);
+        hourIn(s, t.hour, 'tutorial.margine.hour', t.when !== 'ora', start + 1);
+        if (t.when === 'evento' && t.evento === undefined) err(where, 'forma', "tutorial.margine with when 'evento' needs evento");
+        if (t.evento !== undefined && !isOneOf(LACE_EVENT_KINDS, t.evento)) err(where, 'tipo', `unknown tutorial.margine.evento "${String(t.evento)}"`);
+        if (t.codice !== undefined && !isOneOf(VIOLATION_CODES, t.codice)) err(where, 'tipo', `unknown tutorial.margine.codice "${String(t.codice)}"`);
+        if (t.chi !== undefined && (typeof t.chi !== 'string' || !threads.has(t.chi))) err(where, 'ref', `tutorial.margine.chi "${String(t.chi)}" is not a thread of the level`);
+        if (t.mano !== undefined && !isOneOf(MARGIN_HANDS, t.mano)) err(where, 'tipo', `tutorial.margine.mano "${String(t.mano)}" must be clotilde or ada`);
       } else if (t.k === 'pulsa') {
+        if (!isOneOf(PULSE_TARGETS, t.target)) err(where, 'tipo', `unknown tutorial.pulsa.target "${String(t.target)}"`);
         hourIn(s, t.hour, 'tutorial.pulsa.hour', false, start + 1);
+        if (t.thread !== undefined && (typeof t.thread !== 'string' || !threads.has(t.thread))) err(where, 'ref', `tutorial.pulsa.thread "${String(t.thread)}" is not a thread of the level`);
+        else if (t.thread === undefined && (t.target === 'fuso' || t.target === 'spillo')) err(where, 'forma', `tutorial.pulsa target "${t.target}" needs thread`);
       } else err(where, 'tipo', `unknown tutorial step "${String((t as { k: unknown }).k)}"`);
+    }
+
+    // Revisione 1: chiusura (C11) e apparizione del filo nero (C12)
+    if (lv.chiusura !== undefined && lv.chiusura !== 'nodo') err(where, 'tipo', `chiusura "${String(lv.chiusura)}" (only "nodo")`);
+    if (lv.apparizione !== undefined) {
+      const a = lv.apparizione;
+      if (!isObj(a)) err(where, 'forma', 'apparizione must be an object');
+      else {
+        if (!isHour(a.hour)) err(where, 'ore', 'apparizione.hour must be an hour between 0 and 24');
+        else if (isHour(lv.startHour) && a.hour >= lv.startHour) err(where, 'ore', `apparizione.hour ${a.hour} must be before startHour ${lv.startHour}`);
+        if (a.side !== 'molo' && a.side !== 'faro') err(where, 'tipo', 'apparizione.side must be molo or faro');
+        if (!isInt(a.passi) || a.passi < 1 || a.passi > columns.length) err(where, 'colonne', `apparizione.passi must be between 1 and ${columns.length}`);
+      }
     }
   }
 
@@ -652,6 +714,14 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
     effects(where, n.onIgnore);
     if (n.availableIf !== undefined) story(where, n.availableIf);
     if (n.ending !== undefined && !isOneOf(ENDING_IDS, n.ending)) err(where, 'tipo', `unknown ending "${String(n.ending)}"`);
+    if (n.esito !== undefined) {
+      if (!isObj(n.esito)) err(where, 'forma', 'esito must be an object');
+      else
+        for (const [k, v] of Object.entries(n.esito)) {
+          if (k !== 'ok' && k !== 'fallita' && k !== 'lasciato') err(where, 'forma', `esito.${k} (allowed: ok, fallita, lasciato)`);
+          else key(where, v, `esito.${k}`);
+        }
+    }
   }
 
   // ───────── Taccuino, battute, lettere, Libro ─────────
@@ -712,7 +782,23 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
       }
       if (![0, 1, 2, 3].includes(d.act)) err(where, 'tipo', 'act must be 0, 1, 2 or 3');
       if (typeof d.stonatura !== 'number' || d.stonatura < 0 || d.stonatura > 1) err(where, 'forma', 'stonatura must be between 0 and 1');
+      if (d.dawnObject !== undefined) objectRef(where, d.dawnObject, 'dawnObject');
+      key(where, d.eveningEmptyKey, 'eveningEmptyKey', true);
     }
+  if (camp.objects !== undefined) {
+    if (!isObj(camp.objects)) err('campaign', 'forma', 'objects must be an object');
+    else
+      for (const [id, m] of Object.entries(camp.objects)) {
+        const where = `campaign/objects/${id}`;
+        if (objectExists(id) === false) err(where, 'ref', `"${id}" is neither an object (comune.oggetti.${id}) nor a letter`);
+        if (!isObj(m)) {
+          err(where, 'forma', 'object meta must be an object');
+          continue;
+        }
+        if (!isOneOf(OBJECT_FROM, m.from)) err(where, 'tipo', `from "${String(m.from)}" must be one of ${OBJECT_FROM.join(', ')}`);
+        if (m.by !== undefined && !charExists(m.by)) err(where, 'ref', `by "${String(m.by)}" is not a character`);
+      }
+  }
   if (camp.days.length > 0 && !dayIds.has(camp.choiceDay)) err('campaign', 'ref', `choiceDay "${camp.choiceDay}" is not a campaign day`);
   if (db.levels.size > 0 && camp.days.length > 0) {
     for (const e of ENDING_IDS) {
@@ -730,6 +816,7 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
       key(where, m.textKey, 'missing.textKey');
     }
     for (const v of e.epilogue ?? []) vignette(`${where}/epilogue`, v, null);
+    if (Array.isArray(e.epilogue)) vignetteLinks(`${where}/epilogue`, e.epilogue);
   }
   if (db.credits.authorKey) key('credits', db.credits.authorKey, 'authorKey');
   for (const l of db.credits.lines ?? []) key('credits', l.key, 'lines.key');

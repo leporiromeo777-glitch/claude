@@ -346,4 +346,9 @@ describe('normalizeSave', () => {
     expect(d.unlocks.daily).toBe(false);
     expect(d.campaign).toBeNull();
   });
+
+  it('conserva knowledge.bookSeen (revisione 1) solo se c\'è', () => {
+    expect(normalizeSave({ knowledge: { bookSeen: ['matassa', 4] } }, defaults()).knowledge.bookSeen).toEqual(['matassa']);
+    expect('bookSeen' in normalizeSave({ knowledge: {} }, defaults()).knowledge).toBe(false);
+  });
 });

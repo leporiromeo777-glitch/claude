@@ -40,6 +40,7 @@ export const DEFAULT_BALANCE: BalanceDef = {
   nodoRighe: 1,
   hint: { lampSeconds: 60, undoRepeat: 3 },
   anim: { swapMs: 250, beadMs: 350, neroMs: 400, beatMs: 380 },
+  oro: { minIncroci: 3 },
 };
 
 export const DEFAULT_CAMPAIGN: CampaignDef = {

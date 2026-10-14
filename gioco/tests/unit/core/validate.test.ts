@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { LevelDef, NoteDef } from '../../../src/core/types';
 import { buildContentDB, loadContent } from '../../../src/content/loader';
 import { errorClass, validateContent } from '../../../src/content/validate';
-import { VALID_KEYS, validFiles } from './fixtures/content';
+import { R1_KEYS, VALID_KEYS, validFiles } from './fixtures/content';
 
 const hasKey = (k: string): boolean => VALID_KEYS.has(k);
 
@@ -224,5 +224,156 @@ describe('validateContent', () => {
     const db = loadContent();
     expect(db.balance.memoria.max).toBe(3);
     expect(Array.isArray(db.lines)).toBe(true);
+  });
+});
+
+// ───────────── Revisione 1: forme nuove del contratto C00 ─────────────
+describe('validateContent: forme della revisione 1 (C00)', () => {
+  const hasR1 = (k: string): boolean => R1_KEYS.has(k);
+  type Files = Record<string, unknown>;
+  type Camp = { days: Record<string, unknown>[]; objects?: Record<string, unknown> };
+  const camp = (f: Files): Camp => f['./campaign.json'] as Camp;
+  const note = (f: Files): NoteDef => (f['./notes.atto1.json'] as NoteDef[])[0]!;
+  const diary = (f: Files): Record<string, unknown>[] => f['./diary.atto1.json'] as Record<string, unknown>[];
+
+  /** Il mondo di prova con tutte le forme nuove, valide. */
+  function r1Valid(f: Files): void {
+    const g00 = level(f);
+    g00.tutorial = [
+      { k: 'mano', hour: 6, pair: 0, over: 'R' },
+      { k: 'margine', when: 'incrocio', textKey: 'atto1.g00.margine.spillo', hour: 6 },
+      { k: 'margine', when: 'ora', textKey: 'atto1.g00.margine.disfa', hour: 8 },
+      { k: 'margine', when: 'evento', evento: 'passa', chi: 'piero', textKey: 'atto1.g00.margine.passa' },
+      { k: 'margine', when: 'rifiuto', codice: 'corre', mano: 'ada', textKey: 'atto1.g00.margine.corre' },
+      { k: 'margine', when: 'versoSbagliato', textKey: 'atto1.g00.margine.sopraDa', hour: 7, mano: 'clotilde' },
+      { k: 'margine', when: 'archivioNomi', textKey: 'atto1.g00.margine.spillo' },
+      { k: 'pulsa', target: 'spillo', hour: 6, thread: 'marta' },
+      { k: 'pulsa', target: 'fuso', hour: 7, thread: 'teresa' },
+      { k: 'pulsa', target: 'disfa', hour: 8 },
+      { k: 'pulsa', target: 'lampada', hour: 8 },
+      { k: 'pulsa', target: 'matassa', hour: 8 },
+      { k: 'pulsa', target: 'obiettivi', hour: 9 },
+      { k: 'pulsa', target: 'bordo', hour: 9 },
+      { k: 'pulsa', target: 'marea', hour: 9 },
+    ];
+    g00.chiusura = 'nodo';
+    g00.apparizione = { hour: 3, side: 'faro', passi: 2 };
+    g00.dawn!.candidates.push({
+      id: 'g00.alba.dopo', priority: 10, dopo: 'g00.alba.marta', background: 'dio/forno/alba',
+      figures: [], lines: [{ speaker: 'narratore', textKey: 'atto1.g00.alba.dopo' }],
+    });
+    note(f).esito = { ok: 'atto1.g00.marta.esito.ok', fallita: 'atto1.g00.marta.esito.fallita', lasciato: 'atto1.g00.marta.esito.lasciato' };
+    const c = camp(f);
+    c.days[0]!.dawnObject = 'merletto_avorio';
+    c.days[0]!.eveningEmptyKey = 'atto1.g00.sera.vuota';
+    c.objects = { merletto_avorio: { from: 'casa' }, 'L.1': { from: 'mano', by: 'marta' } };
+    diary(f).push({
+      id: 'lettere.l1', section: 'lettere', textKey: 'atto1.lettere.1',
+      unlock: { any: [{ knows: 'oggetto', id: 'L.1' }, { knows: 'oggetto', id: 'merletto_avorio' }] },
+    });
+  }
+  function runR1(mutate?: (f: Files) => void, withKeys = true): string[] {
+    const files = validFiles();
+    r1Valid(files);
+    mutate?.(files);
+    const { db } = buildContentDB(files);
+    return validateContent(db, withKeys ? { hasKey: hasR1 } : {});
+  }
+  const only = (errs: string[], cls: string, text: string): boolean => errs.some((e) => e.includes(`[${cls}]`) && e.includes(text));
+
+  it('tutte le forme nuove, valide, non danno errori (con e senza chiavi i18n)', () => {
+    expect(runR1()).toEqual([]);
+    expect(runR1(undefined, false)).toEqual([]);
+  });
+
+  it('i passi di tutorial di prima restano validi', () => {
+    expect(run()).toEqual([]);
+  });
+
+  it("knows 'oggetto': oggetto o lettera esistenti", () => {
+    const errs = runR1((f) => {
+      diary(f).push({ id: 'x', section: 'lettere', textKey: 'atto1.lettere.1', unlock: { knows: 'oggetto', id: 'sasso_magico' } });
+    });
+    expect(errs).toEqual(['diary/x: [ref] unknown object or letter "sasso_magico"']);
+    // Senza chiavi i18n un oggetto non si può verificare: niente falsi positivi.
+    expect(runR1((f) => diary(f).push({ id: 'x', section: 'lettere', textKey: 't', unlock: { knows: 'oggetto', id: 'sasso_magico' } }), false)).toEqual([]);
+    expect(runR1((f) => diary(f).push({ id: 'x', section: 'lettere', textKey: 't', unlock: { knows: 'oggetti', id: 'L.1' } }))).toEqual(
+      expect.arrayContaining(['diary/x: [storia] unknown knows kind "oggetti"']),
+    );
+  });
+
+  it("margine: when sconosciuto, 'ora' senza hour, evento e codice sconosciuti, chi non del livello, mano sbagliata", () => {
+    const m = (extra: Record<string, unknown>): string[] =>
+      runR1((f) => level(f).tutorial!.push({ k: 'margine', textKey: 'atto1.g00.margine.disfa', ...extra } as never));
+    expect(only(m({ when: 'mezzanotte' }), 'tipo', 'when "mezzanotte"')).toBe(true);
+    expect(only(m({ when: 'ora' }), 'ore', 'tutorial.margine.hour')).toBe(true);
+    expect(m({ when: 'ora', hour: 7 })).toEqual([]);
+    expect(only(m({ when: 'ora', hour: 12 }), 'ore', 'tutorial.margine.hour 12')).toBe(true);
+    expect(only(m({ when: 'evento', evento: 'balla' }), 'tipo', 'evento "balla"')).toBe(true);
+    expect(only(m({ when: 'evento' }), 'forma', 'needs evento')).toBe(true);
+    expect(only(m({ when: 'rifiuto', codice: 'stanco' }), 'tipo', 'codice "stanco"')).toBe(true);
+    expect(only(m({ when: 'evento', evento: 'cura', chi: 'gino' }), 'ref', 'chi "gino"')).toBe(true);
+    expect(only(m({ when: 'primaOra', mano: 'livia' }), 'tipo', 'mano "livia"')).toBe(true);
+    expect(only(m({ when: 'primaOra', textKey: 'atto1.g00.margine.manca' }), 'i18n', 'atto1.g00.margine.manca')).toBe(true);
+  });
+
+  it('pulsa: bersaglio sconosciuto, thread non del livello, fuso e spillo senza thread', () => {
+    const p = (extra: Record<string, unknown>): string[] => runR1((f) => level(f).tutorial!.push({ k: 'pulsa', hour: 7, ...extra } as never));
+    expect(only(p({ target: 'campana' }), 'tipo', 'target "campana"')).toBe(true);
+    expect(only(p({ target: 'fuso', thread: 'zeno' }), 'ref', 'thread "zeno"')).toBe(true);
+    expect(only(p({ target: 'fuso' }), 'forma', 'needs thread')).toBe(true);
+    expect(only(p({ target: 'spillo' }), 'forma', 'needs thread')).toBe(true);
+    expect(only(p({ target: 'lampada', hour: 3 }), 'ore', 'tutorial.pulsa.hour')).toBe(true);
+  });
+
+  it('dawnObject: oggetto o lettera esistente', () => {
+    expect(runR1((f) => (camp(f).days[0]!.dawnObject = 'L.1'))).toEqual([]);
+    expect(runR1((f) => (camp(f).days[0]!.dawnObject = 'scatola'))).toEqual([
+      'campaign/g00: [ref] dawnObject "scatola" is neither an object (comune.oggetti.scatola) nor a letter',
+    ]);
+    expect(only(runR1((f) => (camp(f).days[0]!.dawnObject = 3)), 'forma', 'dawnObject')).toBe(true);
+  });
+
+  it('objects: provenienza, by e id', () => {
+    expect(only(runR1((f) => (camp(f).objects = { merletto_avorio: { from: 'cielo' } })), 'tipo', 'from "cielo"')).toBe(true);
+    expect(only(runR1((f) => (camp(f).objects = { merletto_avorio: { from: 'mano', by: 'pippo' } })), 'ref', 'by "pippo"')).toBe(true);
+    expect(only(runR1((f) => (camp(f).objects = { scatola: { from: 'porta' } })), 'ref', '"scatola" is neither')).toBe(true);
+    expect(only(runR1((f) => (camp(f).objects = [] as never)), 'forma', 'objects must be an object')).toBe(true);
+  });
+
+  it('eveningEmptyKey ed esito: chiavi esistenti in italiano', () => {
+    expect(runR1((f) => (camp(f).days[0]!.eveningEmptyKey = 'atto1.g00.sera.manca'))).toEqual([
+      'campaign/g00: [i18n] eveningEmptyKey "atto1.g00.sera.manca" missing in Italian',
+    ]);
+    expect(runR1((f) => (note(f).esito = { ok: 'atto1.g00.marta.esito.ok', fallita: 'atto1.g00.marta.esito.manca' }))).toEqual([
+      'notes/g00.marta: [i18n] esito.fallita "atto1.g00.marta.esito.manca" missing in Italian',
+    ]);
+    expect(only(runR1((f) => (note(f).esito = { bene: 'atto1.g00.marta.esito.ok' } as never)), 'forma', 'esito.bene')).toBe(true);
+    expect(only(runR1((f) => (note(f).esito = 'ok' as never)), 'forma', 'esito must be an object')).toBe(true);
+  });
+
+  it('dopo: una vignetta della stessa giornata', () => {
+    const errs = runR1((f) => (level(f).dawn!.candidates[1]!.dopo = 'g18.alba.pace'));
+    expect(errs).toEqual(['levels/g00/dawn/g00.alba.dopo: [ref] dopo cites "g18.alba.pace", not a vignette of the same day']);
+    expect(only(runR1((f) => (level(f).dawn!.candidates[1]!.dopo = 'g00.alba.dopo')), 'ref', 'itself')).toBe(true);
+    expect(only(runR1((f) => (level(f).dawn!.candidates[1]!.dopo = 7 as never)), 'forma', 'dopo must be a vignette id')).toBe(true);
+  });
+
+  it('apparizione: ora prima dell\'apertura, lato, passi fra 1 e W', () => {
+    expect(only(runR1((f) => (level(f).apparizione = { hour: 5, side: 'faro', passi: 1 })), 'ore', 'before startHour 5')).toBe(true);
+    expect(only(runR1((f) => (level(f).apparizione = { hour: 3, side: 'chiesa' as never, passi: 1 })), 'tipo', 'apparizione.side')).toBe(true);
+    expect(only(runR1((f) => (level(f).apparizione = { hour: 3, side: 'molo', passi: 0 })), 'colonne', 'between 1 and 3')).toBe(true);
+    expect(only(runR1((f) => (level(f).apparizione = { hour: 3, side: 'molo', passi: 4 })), 'colonne', 'between 1 and 3')).toBe(true);
+    expect(runR1((f) => (level(f).apparizione = { hour: 0, side: 'molo', passi: 3 }))).toEqual([]);
+  });
+
+  it("chiusura: solo 'nodo'", () => {
+    expect(runR1((f) => (level(f).chiusura = 'fiocco' as never))).toEqual(['levels/g00: [tipo] chiusura "fiocco" (only "nodo")']);
+  });
+
+  it('i contenuti reali passano la validazione nelle parti nuove', () => {
+    const db = loadContent();
+    const errs = validateContent(db).filter((e) => /tutorial|dopo|apparizione|chiusura|dawnObject|eveningEmptyKey|objects|esito|object or letter/.test(e));
+    expect(errs).toEqual([]);
   });
 });

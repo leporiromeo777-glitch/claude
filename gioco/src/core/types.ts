@@ -81,6 +81,8 @@ export interface VignetteDef {
   figures: VignetteFigure[];
   lines: VignetteLine[];             // max 2 righe da 90 caratteri
   sfx?: SfxId[];
+  /** Revisione 1 (C06): id di un'altra vignetta della stessa giornata; questa esce subito dopo, se anche la sua `when` è vera. */
+  dopo?: string;
 }
 export interface ArchiveDef {
   year: string; titleKey: string;
@@ -121,11 +123,23 @@ export interface LevelDef {
   hintKeys?: { spinta?: string; indizio?: string };
   tutorial?: TutorialStep[];         // prologo, g01, g12: guida senza testo
   musicSeed?: string;
+  /** Revisione 1 (C11): chiusura speciale dell'ultima riga (finale C). */
+  chiusura?: 'nodo';
+  /** Revisione 1 (C12): il filo nero che appare a merletto chiuso, prima dell'apertura (`hour < startHour`). */
+  apparizione?: { hour: Hour; side: EdgeSide; passi: number };
 }
+// Tutorial (revisione 1, C00/C02: sostituisce TutorialStep; le forme di prima restano valide)
+export type MarginWhen =
+  | 'primaOra' | 'ora' | 'incrocio' | 'versoSbagliato' | 'rifiuto' | 'spillo' | 'evento'
+  | 'nome' | 'archivioNomi' | 'archivioRammendo';
+export type PulseTarget =
+  | 'fissa' | 'taccuino' | 'nome' | 'disfa'
+  | 'lampada' | 'obiettivi' | 'matassa' | 'bordo' | 'spillo' | 'fuso' | 'marea';
 export type TutorialStep =
   | { k: 'mano'; hour: Hour; pair: number; over: Side }                       // mano fantasma che mostra l'incrocio
-  | { k: 'margine'; when: 'versoSbagliato' | 'rifiuto' | 'primaOra' | 'spillo'; textKey: string; hour?: Hour }  // nota a margine di Clotilde
-  | { k: 'pulsa'; target: 'fissa' | 'taccuino' | 'nome' | 'disfa'; hour: Hour };
+  | { k: 'margine'; when: MarginWhen; textKey: string; hour?: Hour;
+      codice?: Violation['code']; evento?: LaceEventKind; chi?: ThreadId; mano?: 'clotilde' | 'ada' }  // nota a margine (Clotilde o Ada)
+  | { k: 'pulsa'; target: PulseTarget; hour: Hour; thread?: ThreadId };
 
 // ───────────── Condizioni sul merletto (GDD 3.12) ─────────────
 export type Condition =
@@ -154,7 +168,7 @@ export type StoryCond =
   | { ok: NoteId } | { failed: NoteId } | { accepted: NoteId } | { ignored: NoteId }
   | { reply: NoteId; is: 'R1' | 'R2' }
   | { event: LaceEventKind; a?: ThreadId; b?: ThreadId; quirk?: QuirkId }  // nell'ultima notte giocata
-  | { knows: 'quirk' | 'diary' | 'desire' | 'rule' | 'archive'; id: string }
+  | { knows: 'quirk' | 'diary' | 'desire' | 'rule' | 'archive' | 'oggetto'; id: string }   // 'oggetto' (C03): oggetto o lettera conosciuti
   | { memoria: CharacterId; gte?: number; lte?: number }
   | { done: LevelId }
   | { all: StoryCond[] } | { any: StoryCond[] } | { not: StoryCond };
@@ -190,6 +204,8 @@ export interface NoteDef {
   onOk?: Effect[]; onFail?: Effect[]; onIgnore?: Effect[];
   availableIf?: StoryCond;
   ending?: EndingId;                       // solo i biglietti della scelta (g23)
+  /** Revisione 1 (C05): righe di conseguenza (chiavi di testo) per stato della richiesta. */
+  esito?: { ok?: string; fallita?: string; lasciato?: string };
 }
 export interface DiaryEntryDef {
   id: DiaryEntryId; section: 'persone' | 'libro' | 'domande' | 'lettere' | 'archivio';
@@ -203,8 +219,14 @@ export interface LineDef {
 }
 export interface LetterDef { id: string; arrivesAfter: LevelId; textKey: string; signed: 'L.' | 'C.' | string }
 export interface BookPageDef { id: string; rule: RuleId | 'puntoAperto'; titleKey: string; textKey: string; marginKey?: string; demo?: LevelDef; unlock: StoryCond }
-export interface CampaignDay { id: LevelId; act: 0 | 1 | 2 | 3; pins: number; archiveAfter?: LevelId; objectAfter?: string; stonatura: number }
-export interface CampaignDef { days: CampaignDay[]; finals: Record<EndingId, LevelId>; choiceDay: LevelId }
+// Oggetti della campagna (revisione 1, C04): provenienza; un oggetto senza voce in `objects` viene dalla laguna.
+export interface ObjectMeta { from: 'laguna' | 'mano' | 'porta' | 'casa'; by?: CharacterId }
+export interface CampaignDay {
+  id: LevelId; act: 0 | 1 | 2 | 3; pins: number; archiveAfter?: LevelId; objectAfter?: string; stonatura: number;
+  dawnObject?: string;               // C04: oggetto consegnato a mano alla fine dell'alba
+  eveningEmptyKey?: string;          // C04: frase della porta quando quella sera non arriva niente
+}
+export interface CampaignDef { days: CampaignDay[]; finals: Record<EndingId, LevelId>; choiceDay: LevelId; objects?: Record<string, ObjectMeta> }
 export interface EndingDef {
   id: EndingId; level: LevelId; requires?: StoryCond;
   missing: { cond: StoryCond; textKey: string }[];
@@ -216,6 +238,8 @@ export interface BalanceDef {
   traboccoSoglia: number; nodoRighe: number;
   hint: { lampSeconds: number; undoRepeat: number };
   anim: { swapMs: number; beadMs: number; neroMs: number; beatMs: number };
+  /** Revisione 1 (C15): filo d'oro solo se il minimo della notte è almeno `minIncroci` (assente = 3). */
+  oro?: { minIncroci: number };
 }
 export interface ContentDB {
   levels: Map<LevelId, LevelDef>;
@@ -247,6 +271,8 @@ export interface LaceState {
   usedMatassa: number;
   met: string[];                                     // 'a|b' con a<b, coppie incontrate finora
   metOver: string[];                                 // 'a>b': a è passato sopra b
+  /** Revisione 1 (C01): 1 se Gino è stato fermo nell'ultima riga; si scrive solo quando vale 1. */
+  ginoFermo?: 0 | 1;
 }
 export type LaceEventKind =
   | 'incontro' | 'passa' | 'copia' | 'consegna' | 'legge' | 'contagio' | 'cura'
@@ -310,7 +336,19 @@ export interface LevelComputed {
   quieteMax: number;
   occasionsSolution?: OccasionDef[];   // livelli con occasioni: un insieme minimo che soddisfa gli obiettivi
   occasionsSolutions?: number;         // quanti insiemi validi esistono fra quelli ammessi
+  quality?: QualityReport;             // revisione 1 (C14): criteri di qualità calcolati da levels:check
 }
+// Criteri di qualità dei livelli (revisione 1, C14)
+export interface QualityConfig {
+  config: string;                 // 'base' | '<noteId>' | '<noteId>+<noteId>[+<noteId>]'
+  min: number | null;             // minimo incroci (null = impossibile)
+  minSenzaGino: number | null;    // minimo togliendo 'ginoCorre' (null se Gino non c'è)
+  costo?: number;                 // solo bigliettini singoli: min(base+nota) − min(base)
+  vuoteMax: number;               // righe consecutive senza incroci del giocatore nella soluzione registrata
+  vuoteTot: number;
+  soluzioniOttime: number;        // countOptimal (fino a 50)
+}
+export interface QualityReport { configs: QualityConfig[]; designata: string; facili: NoteId[]; violazioni: string[] }
 export type HintTier = 'spinta' | 'indizio' | 'fantasma';
 export interface Hint { tier: HintTier; textKey: string; params?: Record<string, string | number>; highlight?: { hour?: Hour; column?: number; pin?: PinDef }; ghost?: Crossing }
 
@@ -389,6 +427,7 @@ export interface Knowledge {
   questions: Record<QuestionId, 'aperta' | 'risolta'>;
   archive: Record<LevelId, 'nuovo' | 'nominato' | 'rammendato'>;
   letters: string[]; objects: string[]; seenVignettes: string[];
+  bookSeen?: string[];          // revisione 1 (D03): pagine del Libro già viste (le altre sono «Nuova»)
 }
 export interface LaceRecord { minIncroci: number | null; maxQuiete: number | null; simmetria: boolean; filoDOro: boolean; bestSpartito?: string }
 export interface DailyRecord { date: string; incroci: number; min: number; quiete: number; simmetria: boolean; spartito: string }
@@ -425,6 +464,9 @@ export interface GameEventMap {
   'toast': { textKey: string; params?: Record<string, string | number>; kind?: 'info' | 'ok' | 'warn' };
   'audio:caption': { textKey: string; params?: Record<string, string | number> };
   'audio:unlocked': {};
+  // Revisione 1 (C11, C12)
+  'tombolo:nodo': { levelId: LevelId };
+  'tombolo:apparizione': { levelId: LevelId };
 }
 export interface EventBus<M> {
   on<K extends keyof M>(k: K, fn: (p: M[K]) => void): Unsub;

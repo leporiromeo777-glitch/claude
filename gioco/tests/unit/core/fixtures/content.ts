@@ -107,3 +107,12 @@ export const VALID_KEYS = new Set([
   'atto1.lettere.1', 'comune.libro.incrocio.titolo', 'comune.libro.incrocio.testo',
   'comune.crediti.autore', 'comune.crediti.riga1',
 ]);
+
+/** Chiavi in più per le forme della revisione 1 (C00): un oggetto, una sera vuota, gli esiti, note a margine. */
+export const R1_KEYS = new Set([
+  ...VALID_KEYS,
+  'comune.oggetti.merletto_avorio.nome', 'comune.oggetti.merletto_avorio.descrizione',
+  'atto1.g00.sera.vuota', 'atto1.g00.marta.esito.ok', 'atto1.g00.marta.esito.fallita', 'atto1.g00.marta.esito.lasciato',
+  'atto1.g00.margine.spillo', 'atto1.g00.margine.disfa', 'atto1.g00.margine.passa', 'atto1.g00.margine.corre',
+  'atto1.g00.alba.dopo',
+]);
