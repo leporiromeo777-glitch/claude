@@ -121,4 +121,29 @@ describe('SceneManager', () => {
     await Promise.all([a, b]);
     expect(log.filter((l) => l.startsWith('enter') || l.startsWith('exit'))).toEqual(['enter:titolo', 'exit:titolo', 'enter:boot:null']);
   });
+
+  it('niente update né render prima che enter() sia finita; un enter che fallisce lascia senza scena', async () => {
+    const { scenes } = setup();
+    const got: string[] = [];
+    let release: () => void = () => undefined;
+    scenes.register('sera', () =>
+      recScene('sera', got, {
+        enter: () => new Promise<void>((r) => (release = r)),
+        update: () => got.push('update'),
+        render: () => got.push('render'),
+      }),
+    );
+    scenes.register('alba', () => ({ ...recScene('alba', got), enter: () => Promise.reject(new Error('rotto')) }));
+    const p = scenes.go('sera', undefined, { transition: 'none' });
+    await Promise.resolve();
+    scenes.update(1 / 60);
+    scenes.render(0);
+    expect(got).toEqual([]);
+    release();
+    await p;
+    scenes.update(1 / 60);
+    expect(got).toContain('update');
+    await expect(scenes.go('alba')).rejects.toThrow('rotto');
+    expect(scenes.current()).toBeNull();
+  });
 });

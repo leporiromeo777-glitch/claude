@@ -220,6 +220,7 @@ export async function startCore(debug: CoreDebugRegistry): Promise<CoreRuntime> 
     } catch (err) {
       console.error('[core] setVolumes failed', err);
     }
+    scenes.invalidate();
     viewport.refresh();
   });
   platform.onPause(() => {
@@ -307,7 +308,12 @@ function registerCoreDebug(rt: CoreRuntime): void {
     packages: () => rt.packages.slice(),
     version: () => GAME_VERSION,
     overlays: () => ui.overlays(),
+    openOverlay: (id: string, opts?: unknown) => {
+      void ui.openOverlay(id, opts);
+      return ui.overlays();
+    },
     closeOverlay: () => ui.closeOverlay(),
+    toast: (textKey: string, params?: Record<string, string | number>) => ui.toast(textKey, params),
     input: {
       tap: (x: number, y: number, pointer?: 'mouse' | 'touch') => input.simulate.tap(x, y, pointer),
       drag: (x0: number, y0: number, x1: number, y1: number, steps?: number, pointer?: 'mouse' | 'touch') =>

@@ -132,7 +132,8 @@ Se il manifest non esiste al momento della build, il gioco non lo chiede nemmeno
 **Debug.** `window.__GAME__` (in sviluppo, con `?debug=1`, nelle build `VITE_E2E=1`):
 `ready`, `namespaces()`, `core.*` (ARCHITETTURA 15.1: `scene`, `goto`, `save`, `setSettings`,
 `wipe`, `exportSave`, `importSave`, `viewport`, `events`, `emit`, `perf`, `time.pause/resume/step/setSpeed`,
-`missingAssets`, `missingKeys`, più `validate`, `flush`, `input.tap/drag/action`…).
+`missingAssets`, `missingKeys`, più `validate`, `flush`, `openOverlay`, `closeOverlay`, `overlays`,
+`toast`, `scenes`, `packages`, `version`, `time.now/ticks`, `input.tap/drag/action/layers`).
 Ogni pacchetto registra il suo namespace con `services.debug.register(ns, api)`.
 
 ## Convenzioni

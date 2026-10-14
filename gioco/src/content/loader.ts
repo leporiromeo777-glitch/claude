@@ -61,7 +61,7 @@ export function emptyContentDB(): ContentDB {
     book: [],
     campaign: { ...DEFAULT_CAMPAIGN, days: [], finals: { ...DEFAULT_CAMPAIGN.finals } },
     endings: new Map(),
-    balance: structuredClone(DEFAULT_BALANCE),
+    balance: JSON.parse(JSON.stringify(DEFAULT_BALANCE)) as BalanceDef,
     credits: { authorKey: '', lines: [] },
   };
 }

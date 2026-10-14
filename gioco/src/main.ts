@@ -7,7 +7,7 @@
  * 5. Ciclo e prima scena: 'titolo' se registrata, altrimenti 'boot' (diagnostica).
  * 6. Splash nativo nascosto, storage persistente chiesto sul web; `__GAME__.ready` risolta.
  */
-import './core/fonts';
+import { fontsReady } from './core/fonts';
 import './core/ui/theme.css';
 import './core/ui/base.css';
 import { createDebug, registerPackages, showFatal, startCore, type CoreRuntime } from './core/bootstrap';
@@ -18,7 +18,8 @@ async function main(): Promise<void> {
   let rt: CoreRuntime | null = null;
   try {
     rt = await startCore(debug);
-    await registerPackages(rt, import.meta.glob('./*/register.ts'));
+    // I font locali si caricano mentre si registrano i pacchetti (niente salti di testo all'apertura).
+    await Promise.all([registerPackages(rt, import.meta.glob('./*/register.ts')), fontsReady()]);
     rt.viewport.refresh();
     rt.loop.start();
     await rt.scenes.go(rt.scenes.has('titolo') ? 'titolo' : 'boot', undefined, { transition: 'none' });

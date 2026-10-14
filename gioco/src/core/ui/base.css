@@ -10,6 +10,7 @@
 
 html {
   font-size: calc(17px * var(--text-scale));
+  height: 100%;
   height: 100dvh;
   background: var(--sfondo);
   color: var(--testo);
@@ -23,6 +24,7 @@ html {
 
 body {
   margin: 0;
+  height: 100%;
   height: 100dvh;
   overflow: hidden;
   background: var(--sfondo);
@@ -197,6 +199,7 @@ canvas {
 .core-btn--primario {
   background: var(--primario);
   color: var(--primario-testo);
+  border-color: var(--legno-scuro);
   border-color: color-mix(in srgb, var(--primario) 70%, black);
 }
 .core-btn--secondario {
@@ -207,6 +210,7 @@ canvas {
 .core-btn--pericolo {
   background: var(--pericolo);
   color: #FFF8F0;
+  border-color: #6E1A14;
   border-color: color-mix(in srgb, var(--pericolo) 70%, black);
 }
 .core-btn--testo {
@@ -255,6 +259,7 @@ canvas {
   font-family: var(--font-libro);
 }
 .core-panel--velluto {
+  background: var(--velluto-luce);
   background: color-mix(in srgb, var(--velluto-luce) 92%, transparent);
   color: var(--testo);
   border: 1px solid var(--bordo-pannello);
@@ -412,6 +417,7 @@ button.core-carta {
   transition: transform var(--durata-breve), background-color var(--durata-breve);
 }
 .core-toggle[aria-checked='true'] .core-toggle-track {
+  background: var(--legno-scuro);
   background: color-mix(in srgb, var(--ottone) 45%, var(--velluto-ombra));
 }
 .core-toggle[aria-checked='true'] .core-toggle-knob {
@@ -626,4 +632,18 @@ button.core-carta {
 }
 .core-boot-muted {
   color: var(--testo-tenue);
+}
+
+/* Testo solo per gli screen reader (per esempio la riga di stato del tombolo). */
+.core-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

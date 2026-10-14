@@ -40,6 +40,8 @@ export interface CoreSceneManager extends SceneManager {
   back(): boolean;
   registered(): SceneId[];
   transitioning(): boolean;
+  /** Il fondo del canvas va ridipinto (per esempio dopo un cambio di contrasto). */
+  invalidate(): void;
   scene(): Scene | null;
 }
 
@@ -49,6 +51,8 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
   let busy = false;
   let queue: Promise<void> = Promise.resolve();
   let needsClear = true;
+  /** La scena attiva ha finito enter(): solo allora riceve update, render e resize. */
+  let entered = false;
   const wait = deps.wait ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
   function setFade(opacity: number, ms: number): void {
@@ -97,6 +101,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
     if (!factory) throw new Error(`scenes: scene "${id}" is not registered`);
     const ms = transition === 'fade' ? Math.max(0, deps.fadeMs?.() ?? FADE_MS) : 0;
     busy = true;
+    let ok = false;
     try {
       if (ms > 0 && active) {
         setFade(1, ms / 2);
@@ -105,6 +110,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
       const old = active;
       if (old) {
         active = null;
+        entered = false;
         try {
           old.exit();
         } catch (err) {
@@ -114,10 +120,18 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
       }
       const next = factory();
       active = next;
+      entered = false;
       needsClear = true;
-      await next.enter(params);
+      try {
+        await next.enter(params);
+      } catch (err) {
+        active = null;
+        throw err;
+      }
+      entered = true;
       next.resize?.(deps.viewport());
       deps.bus.emit('scene:enter', params === undefined ? { id } : { id, params });
+      ok = true;
       if (ms > 0) {
         setFade(0, ms / 2);
         await wait(ms / 2);
@@ -125,6 +139,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
         setFade(0, 0);
       }
     } finally {
+      if (!ok) setFade(0, 0);
       busy = false;
     }
   }
@@ -143,7 +158,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
     current: () => active?.id ?? null,
     has: (id) => factories.has(id),
     update(dt) {
-      if (!active) return;
+      if (!active || !entered) return;
       try {
         active.update?.(dt);
       } catch (err) {
@@ -151,7 +166,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
       }
     },
     render(alpha) {
-      const s = active;
+      const s = entered ? active : null;
       if (s?.render) {
         try {
           s.render(alpha, deps.canvas);
@@ -170,7 +185,7 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
     resize(vp) {
       needsClear = true;
       try {
-        active?.resize?.(vp);
+        if (entered) active?.resize?.(vp);
       } catch (err) {
         console.error(`[scenes] resize of "${active?.id}" failed`, err);
       }
@@ -178,6 +193,9 @@ export function createSceneManager(deps: SceneDeps): CoreSceneManager {
     back: () => backChain({ action: 'back', repeat: false, source: 'ui' }),
     registered: () => [...factories.keys()],
     transitioning: () => busy,
+    invalidate() {
+      needsClear = true;
+    },
     scene: () => active,
   };
   return mgr;

@@ -457,7 +457,10 @@ export function validateContent(db: ContentDB, opts: ValidateOptions = {}): stri
         threads.add(t.id);
         if (!isOneOf(THREAD_KINDS, t.kind)) err(where, 'tipo', `thread "${t.id}" has unknown kind "${String(t.kind)}"`);
         if (t.kind !== 'lino') {
-          if (t.character === undefined && !isOneOf(CHARACTER_IDS, t.id)) err(where, 'ref', `thread "${t.id}" (${t.kind}) needs a character`);
+          // Un filo con nome senza personaggio (per esempio "il fornaio" dell'Archivio) deve avere almeno un'etichetta.
+          if (t.character === undefined && !isOneOf(CHARACTER_IDS, t.id) && t.labelKey === undefined) {
+            err(where, 'ref', `thread "${t.id}" (${t.kind}) needs a character or a labelKey`);
+          }
           if (t.character !== undefined && !charExists(t.character)) err(where, 'ref', `thread "${t.id}" cites unknown character "${t.character}"`);
         }
         key(where, t.labelKey, `thread ${t.id} labelKey`, true);

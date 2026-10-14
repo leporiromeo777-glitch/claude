@@ -109,7 +109,10 @@ export class BootScene implements Scene {
   private root: HTMLElement | null = null;
   private velvet: CanvasPattern | null = null;
   private velvetBase = '';
-  private log: { key: string; params: Record<string, string | number> }[] = [];
+  /** Voci del registro: i nomi (gesto, azione) si traducono al momento di mostrarle. */
+  private log: { key: string; name: { param: string; key: string }; params: Record<string, string | number> }[] = [];
+  private offSettings: (() => void) | null = null;
+  private locale = '';
   private logEl: HTMLElement | null = null;
   private vpText: HTMLElement | null = null;
   private safeText: HTMLElement | null = null;
@@ -131,11 +134,20 @@ export class BootScene implements Scene {
     for (const i of EXPECTED_IMAGES) this.s.assets.image(i);
     this.build();
     this.refreshTimer = setInterval(() => this.refreshMissing(), 1000);
+    // Al cambio di lingua si ricostruisce tutto (anche i nomi dentro i parametri).
+    this.locale = this.s.i18n.locale();
+    this.offSettings = this.s.bus.on('settings:change', (st) => {
+      if (st.locale === this.locale) return;
+      this.locale = st.locale;
+      this.rebuild();
+    });
   }
 
   exit(): void {
     if (this.refreshTimer !== null) clearInterval(this.refreshTimer);
     this.refreshTimer = null;
+    this.offSettings?.();
+    this.offSettings = null;
     this.root?.remove();
     this.root = null;
   }
@@ -158,10 +170,7 @@ export class BootScene implements Scene {
       button({
         labelKey: `core.lingua.${l}`,
         kind: s.i18n.locale() === l ? 'primario' : 'secondario',
-        onClick: () => {
-          s.settings.set({ locale: l });
-          this.rebuild();
-        },
+        onClick: () => s.settings.set({ locale: l }),
         test: `boot-lingua-${l}`,
       }),
     );
@@ -227,8 +236,8 @@ export class BootScene implements Scene {
     if (missing.length > MISSING_SHOWN) this.missingList.appendChild(el('li', null, textOf('core.boot.asset.altri', { n: missing.length - MISSING_SHOWN })));
   }
 
-  private pushLog(key: string, params: Record<string, string | number>): void {
-    this.log.push({ key, params });
+  private pushLog(key: string, name: { param: string; key: string }, params: Record<string, string | number>): void {
+    this.log.push({ key, name, params });
     if (this.log.length > LOG_SIZE) this.log.shift();
     this.renderLog();
     if (this.deviceText) setTextParams(this.deviceText, { dispositivo: this.s.i18n.t(`core.dispositivo.${this.s.input.lastDevice()}`) });
@@ -241,27 +250,30 @@ export class BootScene implements Scene {
       this.logEl.appendChild(el('li', { class: 'core-boot-muted' }, textOf('core.boot.log.vuoto')));
       return;
     }
-    for (const e of [...this.log].reverse()) this.logEl.appendChild(el('li', null, textOf(e.key, e.params)));
+    for (const e of [...this.log].reverse()) {
+      const params = { ...e.params, [e.name.param]: this.s.i18n.t(e.name.key) };
+      this.logEl.appendChild(el('li', null, textOf(e.key, params)));
+    }
   }
 
   onGesture(g: Gesture): boolean {
-    const gesto = this.s.i18n.t(`core.gesto.${g.k}`);
+    const gesto = { param: 'gesto', key: `core.gesto.${g.k}` };
     const r = (v: number): number => Math.round(v);
     if (g.k === 'dragstart' || g.k === 'drag' || g.k === 'dragend' || g.k === 'dragcancel') {
       // Durante il trascinamento si registra solo l'inizio e la fine.
       if (g.k === 'drag') return true;
-      this.pushLog('core.boot.log.trascina', { gesto, x: r(g.x), y: r(g.y), dx: r(g.dx), dy: r(g.dy) });
+      this.pushLog('core.boot.log.trascina', gesto, { x: r(g.x), y: r(g.y), dx: r(g.dx), dy: r(g.dy) });
     } else {
-      this.pushLog('core.boot.log.gesto', { gesto, x: r(g.x), y: r(g.y) });
+      this.pushLog('core.boot.log.gesto', gesto, { x: r(g.x), y: r(g.y) });
     }
     return true;
   }
 
   onAction(a: ActionEvent): boolean {
     if (a.action === 'back') return false;
-    const azione = this.s.i18n.t(`core.azione.${a.action}`);
-    if (a.index !== undefined) this.pushLog('core.boot.log.azioneIndice', { azione, indice: a.index + 1 });
-    else this.pushLog('core.boot.log.azione', { azione });
+    const azione = { param: 'azione', key: `core.azione.${a.action}` };
+    if (a.index !== undefined) this.pushLog('core.boot.log.azioneIndice', azione, { indice: a.index + 1 });
+    else this.pushLog('core.boot.log.azione', azione, {});
     // Tab, Invio e Spazio restano disponibili per muoversi fra i pulsanti.
     return !(a.action === 'notebook' || a.action === 'tab' || a.action === 'confirm' || a.action === 'crossL' || a.action === 'crossR');
   }
