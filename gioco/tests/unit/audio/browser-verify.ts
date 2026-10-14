@@ -35,10 +35,12 @@ function check(name: string, ok: boolean, detail = ''): void {
 
 async function startServer(): Promise<{ url: string; proc: ChildProcess | null }> {
   if (EXTERNAL_URL) return { url: EXTERNAL_URL, proc: null };
+  // Gruppo di processi a parte: alla fine si ferma anche il vite figlio di npx.
   const proc = spawn('npx', ['vite', '--host', '127.0.0.1', '--port', String(PORT), '--strictPort'], {
     cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'ignore', 'ignore'],
     env: { ...process.env, BROWSER: 'none' },
+    detached: true,
   });
   const url = `http://127.0.0.1:${PORT}/`;
   const t0 = Date.now();
@@ -53,6 +55,15 @@ async function startServer(): Promise<{ url: string; proc: ChildProcess | null }
     await new Promise((r) => setTimeout(r, 300));
   }
   return { url, proc };
+}
+
+function stopServer(proc: ChildProcess | null): void {
+  if (!proc?.pid) return;
+  try {
+    process.kill(-proc.pid, 'SIGTERM');
+  } catch {
+    proc.kill('SIGTERM');
+  }
 }
 
 type AudioApi = Record<string, (...args: unknown[]) => unknown>;
@@ -92,7 +103,10 @@ async function setHidden(page: Page, hidden: boolean): Promise<void> {
 
 async function main(): Promise<void> {
   const { url, proc } = await startServer();
-  const browser = await chromium.launch();
+  const browser = await chromium.launch().catch((err: unknown) => {
+    stopServer(proc);
+    throw err;
+  });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'it-IT' });
     const errors: string[] = [];
@@ -187,6 +201,25 @@ async function main(): Promise<void> {
     const stress2 = await audio<{ peak: number; active: number }>(page, 'stress', 200);
     check('200 effetti con musica e tempesta: mai più di 48', stress2.peak <= 48, `picco ${stress2.peak}`);
 
+    // ── Suoni automatici dal bus: la prima riga del prologo ──
+    await page.evaluate(`(() => {
+      const core = window.__GAME__.core;
+      const level = { id: 'g00', kind: 'storia', act: 0, titleKey: 'x', columns: ['forno', 'piazza', 'chiesa'], startHour: 5, endHour: 9,
+        threads: [{ id: 'teresa', kind: 'persona', character: 'teresa' }, { id: 'marta', kind: 'persona', character: 'marta' }, { id: 'piero', kind: 'persona', character: 'piero' }],
+        initial: ['teresa', 'marta', 'piero'], beads: [], rules: [], quirks: [], pins: [], matassa: 7 };
+      core.emit('scene:enter', { id: 'tombolo', params: { mode: 'normale', level, flags: {} } });
+      core.emit('night:violation', { v: { code: 'rifiuto', quirk: 'martaNoSotto', messageKey: 'x' } });
+      core.emit('night:cross', { hour: 6, crossing: { pair: 0, over: 'R' }, over: 'marta', under: 'teresa' });
+      core.emit('night:row', { hour: 6, result: { ok: true, events: [], violations: [],
+        state: { hour: 6, pos: ['marta', 'teresa', 'piero'], offboard: [], holders: {}, delivered: [], knotted: [], pozzo: { secrets: 0, overflowing: false }, usedMatassa: 1, met: [], metOver: [] } } });
+    })()`);
+    const rowLog = (await audio<{ id: string; detail?: string }[]>(page, 'log')).slice(-4).map((e) => `${e.id}${e.detail ? `(${e.detail})` : ''}`);
+    check(
+      'prima riga del prologo: rifiuto, incrocio, ora fissata, campana stonata',
+      rowLog.join(' ') === 'rifiuto incrocio(marta/teresa) ora_fissata campana(ore 6 s=1)',
+      rowLog.join(' '),
+    );
+
     // ── Didascalie ──
     await page.evaluate(() =>
       (window as unknown as { __GAME__: { core: { setSettings(p: unknown): unknown } } }).__GAME__.core.setSettings({ captions: true }),
@@ -249,7 +282,7 @@ async function main(): Promise<void> {
     if (errors.length) console.log(`     (altri messaggi in console, di altri pacchetti: ${errors.length})`);
   } finally {
     await browser.close();
-    proc?.kill('SIGTERM');
+    stopServer(proc);
   }
   const failed = checks.filter((c) => !c.ok);
   console.log(`\n${checks.length - failed.length}/${checks.length} controlli superati`);
@@ -260,3 +293,5 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
+process.on('SIGINT', () => process.exit(130));

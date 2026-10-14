@@ -50,6 +50,16 @@ export interface RecipeDeps {
   liviaHz?: number | null;
 }
 
+/**
+ * Ricette pre-renderizzate in idle dopo lo sblocco: quelle che rispondono a un gesto e
+ * non devono avere nemmeno qualche millisecondo di ritardo. Le altre (vaporetto, tuono,
+ * gabbiani…) si rendono al primo uso.
+ */
+export const WARM_RECIPES: readonly RecipeId[] = [
+  'fuso_presa', 'fuso_rilascio', 'incrocio', 'rovescia', 'disfa', 'ora_fissata', 'rifiuto', 'tonfo',
+  'lettera', 'voce', 'segreto', 'pagina', 'ui_tap', 'ui_indietro', 'tic', 'toc',
+];
+
 /** T60 "infinito": sinusoide che non decade (il resto lo fa l'inviluppo). */
 const SUSTAIN = 1e4;
 
@@ -243,13 +253,16 @@ function gabbiano(sr: number, rand: Rand): Float32Array {
     const len = Math.round(callDur * sr);
     let pc = 0;
     let pm = 0;
+    // Glissando esponenziale 1800 → 1300 Hz in 250 ms: un fattore costante per campione.
+    const glideN = Math.round(0.25 * sr);
+    const step = Math.pow(1300 / 1800, 1 / glideN);
+    let fc = 1800 * k;
+    const w = (2 * Math.PI) / sr;
     for (let i = 0; i < len && n0 + i < out.length; i++) {
       const tt = i / sr;
-      const g = Math.min(1, tt / 0.25);
-      const fc = 1800 * k * Math.pow(1300 / 1800, g);
-      const fm = fc / 2;
-      pc += (2 * Math.PI * fc) / sr;
-      pm += (2 * Math.PI * fm) / sr;
+      pc += w * fc;
+      pm += w * fc * 0.5;
+      if (i < glideN) fc *= step;
       const env = tt < 0.02 ? tt / 0.02 : Math.max(0, 1 - (tt - 0.02) / (callDur - 0.02));
       out[n0 + i] = out[n0 + i]! + Math.sin(pc + 3 * Math.sin(pm)) * env * env;
     }
@@ -304,12 +317,18 @@ function trabocco(sr: number, rand: Rand): Float32Array {
     const n0 = Math.round(start * sr);
     const len = Math.round(0.08 * sr);
     let ph = 0;
+    // Glissando 300 → 900 Hz in 60 ms (fattore costante), decadimento esponenziale.
+    const glideN = Math.round(0.06 * sr);
+    const step = Math.pow(3, 1 / glideN);
+    const attackN = Math.max(1, Math.round(0.003 * sr));
+    const decay = Math.exp(-1 / (0.022 * sr));
+    let f = 300 * k;
+    let env = 0;
+    const w = (2 * Math.PI) / sr;
     for (let i = 0; i < len && n0 + i < out.length; i++) {
-      const t = i / sr;
-      const g = Math.min(1, t / 0.06);
-      const f = 300 * k * Math.pow(3, g);
-      ph += (2 * Math.PI * f) / sr;
-      const env = t < 0.003 ? t / 0.003 : Math.exp(-(t - 0.003) / 0.022);
+      ph += w * f;
+      if (i < glideN) f *= step;
+      env = i < attackN ? i / attackN : i === attackN ? 1 : env * decay;
       out[n0 + i] = out[n0 + i]! + Math.sin(ph) * env * amp;
     }
   }

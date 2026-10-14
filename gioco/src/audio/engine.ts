@@ -8,7 +8,8 @@
  * - Grafo: sorgenti → bus (musica, effetti, voci, ambiente) → master → compressore.
  * - Limitatore a 48 sorgenti (voices.ts).
  * - Pre-render in idle, a piccoli lotti: 3 colpi di campana per ogni stonatura, i
- *   rumori di base in loop, le note dei personaggi, le varianti degli effetti.
+ *   rumori di base in loop, le note dei personaggi, i colpi di legno e una variante degli
+ *   effetti che rispondono ai gesti (gli altri si rendono al primo uso).
  * - suspend()/resume() dalla pausa dell'app; se dopo resume() lo stato non torna
  *   'running' (anche 'interrupted' su iOS) si chiede l'overlay "Tocca per continuare".
  * - Nessun file audio: tutto è sintetizzato.
@@ -34,13 +35,13 @@ import { NOTE_GAIN, Player } from './player';
 import { Clock, type ClockTimers } from './scheduler';
 import { MusicTrack, type MusicOpts } from './music';
 import { AmbienceTrack } from './ambience';
-import { CarillonTrack, carillonEvents, carillonSeconds } from './carillon';
+import { CARILLON_NOTE_GAIN, CARILLON_TICK_GAIN, CarillonTrack, carillonEvents, carillonSeconds } from './carillon';
 import { AMBIENCE_CAPTIONS, CAPTIONS, Captioner, SFX_CAPTIONS, type CaptionRecord } from './captions';
 import type { Rand } from './synth/dsp';
 import { type CharacterLookup, noteHzFor } from './synth/musicbox';
 import { STONATURE } from './synth/bell';
 import { type VoiceLookup, penSeconds, planBabble, styleFor, voiceFor } from './synth/babble';
-import { EXTRA_SOUND_IDS, type RecipeId, SFX_IDS } from './synth/sfx';
+import { type RecipeId, SFX_IDS, WARM_RECIPES } from './synth/sfx';
 
 export const LOG_SIZE = 200;
 /** Attesa prima di decidere che il contesto non è ripartito (overlay). */
@@ -428,8 +429,7 @@ export class WebAudioEngine implements AudioEngine {
     } catch {
       stonature = [...STONATURE];
     }
-    const recipes: RecipeId[] = [...SFX_IDS, ...EXTRA_SOUND_IDS];
-    const jobs = rt.bank.prerenderJobs(stonature, freqs, recipes);
+    const jobs = rt.bank.prerenderJobs(stonature, freqs, WARM_RECIPES);
     this.prerender.jobs = jobs.length;
     const idle = this.deps.idle ?? defaultIdle;
     const slice = (remaining: () => number): void => {
@@ -554,6 +554,31 @@ export class WebAudioEngine implements AudioEngine {
       }
       rt.player.crossing(rt.bank.noteHz(over), rt.bank.noteHz(under), opts);
     });
+  }
+
+  /**
+   * Bicordo di carillon senza legno (sopra, poi sotto 30 ms dopo): la riga di un merletto
+   * che si ritesse da uno spartito. Senza note (riga vuota) un tic leggero.
+   */
+  dyad(over: CharacterId | 'lino' | null, under: CharacterId | 'lino' | null, o: { delay?: number; pan?: number } = {}): void {
+    this.guard('dyad', () => {
+      this.record('nota', over && under ? `${over}/${under}` : 'tic');
+      const rt = this.live();
+      if (!rt) return;
+      const when = rt.ctx.currentTime + (o.delay ?? 0);
+      if (!over || !under) {
+        rt.player.sfx('tic', { when, gain: CARILLON_TICK_GAIN, kind: 'music' });
+        return;
+      }
+      const opts: { when: number; pan?: number; gain: number; wood: boolean } = { when, gain: CARILLON_NOTE_GAIN / NOTE_GAIN, wood: false };
+      if (o.pan !== undefined) opts.pan = o.pan;
+      rt.player.crossing(rt.bank.noteHz(over), rt.bank.noteHz(under), opts);
+    });
+  }
+
+  /** Didascalia senza suono (per esempio il carillon di uno spartito che si ritesse). */
+  caption(textKey: string, params?: Record<string, string | number>): void {
+    this.captioner.say(textKey, params);
   }
 
   bell(o: { hour: Hour; stonatura: number }): void {

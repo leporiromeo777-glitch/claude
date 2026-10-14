@@ -90,17 +90,25 @@ export function renderBell(sr: number, s: number, rand: Rand, o: BellOpts = {}):
     const prime = o.prime ?? BELL_PRIME;
     const f1 = new Biquad('bandpass', prime * 1.02, 6, sr);
     const f2 = new Biquad('bandpass', prime * 2.03, 8, sr);
-    const r = t60ToRadius(3, sr);
+    const humT60 = 3;
+    const r = t60ToRadius(humT60, sr);
     let g = 1;
-    const modHz = 6.7;
     // Il rumore filtrato così stretto ha un'ampiezza bassa: la si riporta a ~1 di picco
     // (la banda passante, relativa a Nyquist, cresce quando sr scende).
     const norm = 7.5 * Math.sqrt(sr / 44100);
-    for (let i = 0; i < out.length; i++) {
+    // Modulazione a 6,7 Hz con un oscillatore ricorsivo (niente Math.sin per campione).
+    const wm = (2 * Math.PI * 6.7) / sr;
+    const cm = 2 * Math.cos(wm);
+    let s1 = Math.sin(-wm);
+    let s2 = Math.sin(-2 * wm);
+    const end = Math.min(out.length, Math.ceil(humT60 * sr));
+    for (let i = 0; i < end; i++) {
+      const sm = cm * s1 - s2;
+      s2 = s1;
+      s1 = sm;
       const x = rand() * 2 - 1;
-      const m = 0.55 + 0.45 * Math.sin((2 * Math.PI * modHz * i) / sr);
       const h = (f1.tick(x) + 0.6 * f2.tick(x)) * norm;
-      out[i] = out[i]! + hum * h * m * g;
+      out[i] = out[i]! + hum * h * (0.55 + 0.45 * sm) * g;
       g *= r;
     }
   }

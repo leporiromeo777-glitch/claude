@@ -9,7 +9,10 @@
  * | night:violation               | rifiuto («No.» di Marta) o tonfo per le altre violazioni     |
  * | night:row (ok)                | ora_fissata, campana con la stonatura del giorno, poi i     |
  * |                               | suoni del merletto: lettera, voce, segreto, febbre, cura,   |
- * |                               | nodo, trabocco, vaporetto/barca/marea, filo nero             |
+ * |                               | nodo, trabocco, vaporetto/barca/marea, filo nero; marea     |
+ * |                               | se nella riga dopo c'è l'acqua alta                         |
+ * | night:row in modo 'replay'    | il carillon: un bicordo per incrocio (o un tic), niente     |
+ * |                               | campana (spartito importato, Ripassa)                       |
  * | night:undo                    | disfa                                                       |
  * | night:complete                | successo (tutto soddisfatto) o fallimento                   |
  * | diary:new, quirk:discovered   | pagina                                                      |
@@ -56,6 +59,8 @@ export interface AutomationTarget {
   play(id: RecipeId, o?: { pan?: number; gain?: number; detune?: number; delay?: number }, caption?: CaptionRef | null, logId?: string): void;
   crossing(over: CharacterId | 'lino', under: CharacterId | 'lino', o?: { rancor?: boolean; pan?: number; delay?: number; gain?: number; flip?: boolean }): void;
   bell(o: { hour: Hour; stonatura: number }): void;
+  dyad(over: CharacterId | 'lino' | null, under: CharacterId | 'lino' | null, o?: { delay?: number; pan?: number }): void;
+  caption(textKey: string, params?: Record<string, string | number>): void;
   suspend(): void;
   resume(): void;
 }
@@ -142,6 +147,11 @@ export function beadTypeOf(bead: string, level: LevelDef | null): BeadType | nul
   if (bead === 'febbre') return 'febbre';
   if (bead === 'nome') return 'nome';
   return null;
+}
+
+/** La marea sale nella riga dopo quella fissata (TideDef: righe bloccate da `from` a `to`). */
+export function tideRises(level: LevelDef | null, hour: Hour): boolean {
+  return !!level?.tide?.some((t) => t.from === hour + 1);
 }
 
 export type EventSound =
@@ -242,6 +252,8 @@ export function eventSounds(
 interface NightInfo {
   level: LevelDef;
   flags: Record<string, FlagValue>;
+  /** Spartito o Ripassa: le righe suonano come un carillon, senza campana. */
+  replay: boolean;
 }
 
 function isLevel(x: unknown): x is LevelDef {
@@ -256,6 +268,7 @@ export class AudioAutomation implements GameAudioContext {
   private readonly draft = new Map<number, Side>();
   private readonly stack: number[] = [];
   private lastPage = -Infinity;
+  private replayRows = 0;
   private lastVolumes: Settings['volume'] | null = null;
   private lastPreview = -Infinity;
   private readonly now: () => number;
@@ -372,8 +385,9 @@ export class AudioAutomation implements GameAudioContext {
   private onScene(id: SceneId, params: unknown): void {
     this.scene = id;
     if (id !== 'tombolo') return;
-    const p = params as { level?: unknown; flags?: Record<string, FlagValue> } | undefined;
-    if (p && isLevel(p.level)) this.night = { level: p.level, flags: p.flags ?? {} };
+    const p = params as { level?: unknown; flags?: Record<string, FlagValue>; mode?: unknown } | undefined;
+    if (p && isLevel(p.level)) this.night = { level: p.level, flags: p.flags ?? {}, replay: p.mode === 'replay' };
+    this.replayRows = 0;
     this.draft.clear();
     this.stack.length = 0;
     this.draftHour = null;
@@ -434,13 +448,36 @@ export class AudioAutomation implements GameAudioContext {
     return speed > 0 ? ROW_SOUND_STEP / speed : 0.04;
   }
 
+  /** Spartito che si ritesse: ogni riga è un battito del carillon (bicordi degli incroci). */
+  private onReplayRow(events: readonly LaceEvent[]): void {
+    const e = this.deps.engine;
+    const lvl = this.night?.level ?? null;
+    if (this.replayRows++ === 0) e.caption(CAPTIONS.carillon);
+    const meets = (events ?? []).filter((x): x is Extract<LaceEvent, { k: 'incontro' }> => x.k === 'incontro');
+    if (meets.length === 0) {
+      e.dyad(null, null);
+      return;
+    }
+    const cols = lvl?.columns.length ?? 0;
+    meets.forEach((m, i) => {
+      const under = m.over === m.a ? m.b : m.a;
+      e.dyad(threadWho(m.over, lvl), threadWho(under, lvl), { delay: i * 0.012, pan: columnPan(m.pair + 0.5, cols) });
+    });
+  }
+
   private onRow(hour: Hour, ok: boolean, events: readonly LaceEvent[], pos: readonly ThreadId[]): void {
     if (!ok) return;
+    if (this.night?.replay) {
+      this.onReplayRow(events);
+      return;
+    }
     const e = this.deps.engine;
     e.sfx('ora_fissata');
     e.bell({ hour, stonatura: this.stonatura() });
     const lvl = this.night?.level ?? null;
-    const sounds = eventSounds(events ?? [], { level: lvl, pos: pos ?? [], nameOf: this.deps.nameOf }).slice(0, MAX_ROW_SOUNDS);
+    const sounds = eventSounds(events ?? [], { level: lvl, pos: pos ?? [], nameOf: this.deps.nameOf });
+    if (tideRises(lvl, hour)) sounds.push({ k: 'sfx', id: 'marea', caption: { key: SFX_CAPTIONS.marea ?? '' } });
+    sounds.splice(MAX_ROW_SOUNDS);
     const step = this.animStep();
     sounds.forEach((s, i) => {
       const delay = ROW_SOUND_START + i * step;

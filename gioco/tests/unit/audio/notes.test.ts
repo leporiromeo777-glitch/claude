@@ -1,6 +1,7 @@
 /**
  * Note dei personaggi (GDD 13.2) e timbro di carillon.
  */
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_NOTE_HZ,
@@ -100,5 +101,43 @@ describe('timbro di carillon', () => {
     expect(20 * Math.log10(mid / head)).toBeLessThan(-25);
     expect(20 * Math.log10(mid / head)).toBeGreaterThan(-35);
     expect(20 * Math.log10(tail / head)).toBeLessThan(-50);
+  });
+});
+
+// Contratto con i contenuti: se characters.json esiste, note e voci seguono il GDD.
+const CHARS_URL = new URL('../../../src/content/characters.json', import.meta.url);
+const hasCharacters = existsSync(CHARS_URL);
+
+describe.skipIf(!hasCharacters)('characters.json coerente con GDD 13.2 e 13.5', () => {
+  const chars = hasCharacters ? (JSON.parse(readFileSync(CHARS_URL, 'utf8')) as CharacterDef[]) : [];
+  const byId = new Map(chars.map((c) => [c.id, c]));
+
+  it('note dei personaggi', () => {
+    for (const [who, , hz] of GDD_NOTES) {
+      const c = byId.get(who);
+      if (c) expect(c.noteHz, who).toBeCloseTo(hz, 2);
+    }
+  });
+
+  it('altezza e ritmo delle voci della tabella', () => {
+    const table: [CharacterId, number, number][] = [
+      ['teresa', 260, 11],
+      ['marta', 220, 8],
+      ['piero', 110, 5],
+      ['gino', 330, 12],
+      ['bepi', 120, 7],
+      ['nina', 280, 9],
+      ['zeno', 100, 4],
+      ['lunardi', 150, 7],
+      ['livia', 200, 6],
+    ];
+    for (const [who, pitch, rate] of table) {
+      const v = byId.get(who)?.voice;
+      if (!v) continue;
+      expect(v.pitch, who).toBe(pitch);
+      expect(v.rate, who).toBe(rate);
+    }
+    const clotilde = byId.get('clotilde');
+    if (clotilde) expect(clotilde.voice, 'clotilde').toBeNull();
   });
 });
