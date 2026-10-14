@@ -22,6 +22,7 @@ import type {
   BalanceDef,
   Condition,
   CondReport,
+  CondStatus,
   Crossing,
   GameEventMap,
   Hint,
@@ -108,7 +109,7 @@ export interface SessionDeps {
   /** Uscita degli eventi `night:*` e `quirk:discovered` (il bus nel gioco). */
   emit?: Emit;
   /** Parametri bilanciabili (soglia del trabocco, durata del nodo, lampada). */
-  balance?: Pick<BalanceDef, 'traboccoSoglia' | 'nodoRighe'> | null;
+  balance?: (Pick<BalanceDef, 'traboccoSoglia' | 'nodoRighe'> & Partial<Pick<BalanceDef, 'oro'>>) | null;
   /** Soluzioni precalcolate del livello (`.computed.json`). */
   computed?: LevelComputed | null;
   /** Solver asincrono (Worker nel browser); iniettabile nei test. */
@@ -121,9 +122,18 @@ export interface SessionDeps {
 
 export interface RequestStatus {
   noteId: NoteId;
+  /** Stato sulle righe FISSATE (C07); «a_rischio» anche quando la sola bozza la farebbe fallire. */
   report: CondReport;
+  /** Stato con la riga corrente in bozza (spunta tratteggiata: «si compie se fissi l'ora»). */
+  anteprima: CondStatus;
   dropped: boolean;
 }
+
+/** Diagnosi delle richieste che non stanno insieme (D07.5). */
+export type Diagnosis =
+  | { k: 'incompatibili'; notes: NoteId[] }
+  | { k: 'tardi'; note: NoteId; hour: Hour | null }
+  | { k: 'obiettivi'; hour: Hour | null };
 
 /** Messaggio di una richiesta lasciata cadere (stato fallita per scelta). */
 export const DROPPED_KEY = 'tombolo.richieste.lasciata';
@@ -190,7 +200,7 @@ export class Session implements NightSession {
   version = 0;
   private previewCache: { v: number; r: RowResult } | null = null;
   private statusCache: { v: number; r: RequestStatus[] } | null = null;
-  private goalCache: { v: number; r: CondReport[] } | null = null;
+  private goalCache: { v: number; r: { report: CondReport; anteprima: CondStatus }[] } | null = null;
   private replayIndex = 0;
   private outcomeCache: NightOutcome | null = null;
   readonly archive: ArchiveBook | null;
@@ -643,46 +653,57 @@ export class Session implements NightSession {
   }
 
   /**
-   * Stato in tempo reale di condizioni: sulle righe fissate più la riga corrente
-   * in anteprima. Una condizione che fallirebbe solo per la riga non ancora
-   * fissata è «a rischio», non «fallita»: all'apertura di g04 Bepi deve ancora
-   * prendere la barca delle 7, non ha già perso.
+   * Stato delle condizioni (C07): `report` sulle righe FISSATE, `anteprima` con
+   * la riga corrente in bozza. «Soddisfatta» solo a ora fissata; se la sola bozza
+   * la farebbe fallire, il report è «a rischio» (all'apertura di g04 Bepi deve
+   * ancora prendere la barca delle 7: non ha già perso).
    */
-  private liveReports(conds: Condition[]): CondReport[] {
+  private statusReports(conds: Condition[]): { report: CondReport; anteprima: CondStatus }[] {
     if (conds.length === 0) return [];
+    const fixed = evaluate(this.level, this._timeline, this._events, conds, this._ctx, this.done);
+    if (this.done) return fixed.map((r) => ({ report: r, anteprima: r.status }));
     const { timeline, events } = this.liveTimeline();
-    const live = evaluate(this.level, timeline, events, conds, this._ctx, this.done);
-    if (this.done || !live.some((r) => r.status === 'fallita')) return live;
-    const fixed = evaluate(this.level, this._timeline, this._events, conds, this._ctx, false);
-    return live.map((r, i) => {
-      const f = fixed[i];
-      if (r.status !== 'fallita' || !f || f.status === 'fallita') return r;
+    const live = evaluate(this.level, timeline, events, conds, this._ctx, false);
+    return fixed.map((f, i) => {
+      const l = live[i] ?? f;
+      if (l.status !== 'fallita' || f.status === 'fallita' || f.status === 'soddisfatta') return { report: f, anteprima: l.status };
+      // La bozza la farebbe fallire: a rischio, con il motivo del rischio se il motore lo sa dire.
       const c = conds[i] as Condition;
       const key = conditionKey('rischio', c.t);
-      if (RISK_KEYS.has(key) && r.params) return { status: 'a_rischio', reasonKey: key, params: r.params };
-      return f.status === 'a_rischio' ? f : { status: 'a_rischio' };
+      if (RISK_KEYS.has(key) && l.params) return { report: { status: 'a_rischio', reasonKey: key, params: l.params }, anteprima: l.status };
+      return { report: f.status === 'a_rischio' ? f : { status: 'a_rischio' }, anteprima: l.status };
     });
   }
 
   requestStatusFull(): RequestStatus[] {
     if (this.statusCache && this.statusCache.v === this.version) return this.statusCache.r;
     const live = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId));
-    const reports = this.liveReports(live.map((a) => a.request));
+    const reports = this.statusReports(live.map((a) => a.request));
     const out: RequestStatus[] = this.params.accepted.map((a) => {
-      if (this._dropped.includes(a.noteId)) return { noteId: a.noteId, report: { status: 'fallita', reasonKey: DROPPED_KEY }, dropped: true };
+      if (this._dropped.includes(a.noteId)) return { noteId: a.noteId, report: { status: 'fallita', reasonKey: DROPPED_KEY }, anteprima: 'fallita', dropped: true };
       const i = live.findIndex((x) => x.noteId === a.noteId);
-      return { noteId: a.noteId, report: reports[i] ?? { status: 'in_corso' }, dropped: false };
+      const r = reports[i];
+      return { noteId: a.noteId, report: r?.report ?? { status: 'in_corso' }, anteprima: r?.anteprima ?? 'in_corso', dropped: false };
     });
     this.statusCache = { v: this.version, r: out };
     return out;
   }
 
-  /** Stato degli obiettivi obbligatori (in tempo reale). */
-  goalStatus(): CondReport[] {
+  private goalReports(): { report: CondReport; anteprima: CondStatus }[] {
     if (this.goalCache && this.goalCache.v === this.version) return this.goalCache.r;
-    const r = this.liveReports(this.params.goals);
+    const r = this.statusReports(this.params.goals);
     this.goalCache = { v: this.version, r };
     return r;
+  }
+
+  /** Stato degli obiettivi obbligatori sulle righe fissate (C07). */
+  goalStatus(): CondReport[] {
+    return this.goalReports().map((x) => x.report);
+  }
+
+  /** Stato degli obiettivi obbligatori con la riga corrente in bozza (C07). */
+  goalPreview(): CondStatus[] {
+    return this.goalReports().map((x) => x.anteprima);
   }
 
   /** Spilli d'ottone ormai irraggiungibili dallo stato corrente. */
@@ -740,7 +761,11 @@ export class Session implements NightSession {
     });
   }
 
-  private async solveFrom(goals: Condition[]): Promise<{ status: SolveResult['status'] | 'timeout'; rows?: RowMoves[] }> {
+  /**
+   * Soluzione dalla riga fissata `index` (0 = apertura; predefinito: lo stato
+   * corrente) con le condizioni date, entro il tempo dei suggerimenti.
+   */
+  private async solveFrom(goals: Condition[], index = this._rows.length): Promise<{ status: SolveResult['status'] | 'timeout'; rows?: RowMoves[] }> {
     const solver = this.deps.solveAsync ?? engineSolveAsync;
     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
     const ms = this.deps.hintTimeoutMs ?? 1500;
@@ -751,7 +776,9 @@ export class Session implements NightSession {
         resolve({ status: 'timeout' });
       }, ms);
     });
-    const req: SolveRequest = { level: this.level, ctx: this._ctx, goals, from: { state: this.state, rowsDone: this._rows } };
+    const i = Math.max(0, Math.min(this._rows.length, index));
+    const state = this._timeline[i] as LaceState;
+    const req: SolveRequest = { level: this.level, ctx: this._ctx, goals, from: { state, rowsDone: this._rows.slice(0, i) } };
     try {
       const res = await Promise.race([solver(req, ctl?.signal).then((r) => ({ status: r.status, rows: r.rows })), timeout]);
       return res;
@@ -762,18 +789,112 @@ export class Session implements NightSession {
     }
   }
 
+  /** Suggerimento calcolato e contato (il fantasma con un incrocio toglie il filo d'oro). */
   async hint(tier: HintTier): Promise<Hint> {
+    const h = await this.computeHint(tier);
+    this.useHint(h);
+    return h;
+  }
+
+  /**
+   * Il suggerimento è stato mostrato: si conta, e il fantasma toglie il filo d'oro
+   * solo se mostra un incrocio (D07.4: il fantasma di una riga di quiete è gratuito).
+   */
+  useHint(h: Hint): void {
     this.hintsUsed++;
-    if (tier === 'fantasma') this.fantasmaUsed = true;
+    if (h.tier === 'fantasma' && h.ghost) this.fantasmaUsed = true;
     this.touch();
+  }
+
+  /** Il filo d'oro di stanotte è ancora possibile? (per chiedere conferma prima del fantasma) */
+  goldPossible(oroMin = 3): boolean {
+    if (this.fantasmaUsed) return false;
+    const min = this.minIncroci();
+    return min !== null && min >= oroMin;
+  }
+
+  /** Righe della soluzione da seguire per i suggerimenti (le richieste attive, o quelle rimaste dopo una diagnosi). */
+  private hintGoals: Condition[] | null = null;
+
+  /**
+   * Diagnosi delle richieste (D07.5), quando con le richieste accettate il solver
+   * dice «impossibile»:
+   * - `tardi`: una richiesta da sola non si compie più da qui; `hour` è l'ultima
+   *   ora fissata da cui tornerebbe possibile (null se nemmeno dall'apertura);
+   * - `incompatibili`: ognuna da sola sì, insieme no; `notes` sono quelle che,
+   *   lasciate cadere, rendono possibili le altre;
+   * - `obiettivi`: nemmeno gli obiettivi obbligatori si compiono più da qui.
+   * null se tutto è possibile, o se il solver non risponde in tempo.
+   */
+  async diagnose(): Promise<Diagnosis | null> {
+    this.hintGoals = null;
+    if (!this.isPlayerRow() || this.archive) return null;
     const goals = this.goals();
+    if (goals.length === 0) return null;
+    const all = await this.solveFrom(goals);
+    if (all.status !== 'impossibile') return null;
+    const live = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId));
+    const base = await this.solveFrom(this.params.goals);
+    if (base.status === 'impossibile' || live.length === 0) {
+      return { k: 'obiettivi', hour: await this.lastFeasibleHour(this.params.goals) };
+    }
+    // Una richiesta che da sola (con gli obiettivi) non si compie più da qui.
+    for (const a of live) {
+      const one = await this.solveFrom([...this.params.goals, a.request]);
+      if (one.status !== 'impossibile') continue;
+      const hour = await this.lastFeasibleHour([...this.params.goals, a.request]);
+      this.hintGoals = [...this.params.goals, ...live.filter((x) => x.noteId !== a.noteId).map((x) => x.request)];
+      return { k: 'tardi', note: a.noteId, hour };
+    }
+    // Ognuna da sola sì: quali, lasciate cadere, rendono possibili le altre?
+    const notes: NoteId[] = [];
+    for (const a of live) {
+      const rest = [...this.params.goals, ...live.filter((x) => x.noteId !== a.noteId).map((x) => x.request)];
+      const r = await this.solveFrom(rest);
+      if (r.status === 'ok') {
+        notes.push(a.noteId);
+        if (!this.hintGoals) this.hintGoals = rest;
+      }
+    }
+    if (notes.length === 0) return null;
+    return { k: 'incompatibili', notes };
+  }
+
+  /**
+   * Ultima ora fissata da cui le condizioni tornano possibili (ricerca binaria:
+   * se si può da una riga, si può anche da tutte quelle prima), o null.
+   */
+  private async lastFeasibleHour(goals: Condition[]): Promise<Hour | null> {
+    let lo = 0;
+    let hi = this._rows.length - 1;
+    let best = -1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      const r = await this.solveFrom(goals, mid);
+      if (r.status === 'ok') {
+        best = mid;
+        lo = mid + 1;
+      } else if (r.status === 'impossibile') hi = mid - 1;
+      else return null;
+    }
+    return best < 0 ? null : this.level.startHour + best;
+  }
+
+  /** Suggerimento del gradino `tier`, senza contarlo (vedi `useHint`). */
+  async computeHint(tier: HintTier): Promise<Hint> {
+    const goals = this.hintGoals ?? this.goals();
     const base = { level: this.level, ctx: this._ctx, timeline: this._timeline, rows: this._rows };
     if (this.done) return { tier, textKey: HINT_KEYS.spintaGenerico };
     if (!this.isPlayerRow()) return { tier, textKey: this.level.hintKeys?.spinta ?? HINT_KEYS.spintaGenerico, highlight: { hour: this.hour } };
     if (tier === 'spinta') return hintFor({ ...base, goals, tier });
     let solution: RowMoves[] | null = null;
     const pre = this.precomputed();
-    if (pre && this.matchesPrefix(pre)) solution = pre;
+    if (this.archive) {
+      // Il rammendo segue la soluzione calcolata del livello, o il merletto registrato.
+      const base = this.deps.computed?.base.rows;
+      if (base && this.matchesPrefix(base)) solution = base;
+    }
+    if (!solution && pre && this.matchesPrefix(pre) && !this.hintGoals) solution = pre;
     if (!solution) {
       const res = await this.solveFrom(goals);
       if (res.status === 'ok' && res.rows) solution = res.rows;
@@ -923,7 +1044,7 @@ export class Session implements NightSession {
       goals,
       requests,
       dropped: [...this._dropped],
-      metrics: metrics(level, this.scoredRows(), this.minIncroci(), this.fantasmaUsed),
+      metrics: metrics(level, this.scoredRows(), this.minIncroci(), this.fantasmaUsed, this.deps.balance?.oro),
       spartito: this.spartito(),
       hintsUsed: this.hintsUsed,
       fantasmaUsed: this.fantasmaUsed,

@@ -95,6 +95,8 @@ describe('testi del tombolo (tombolo.json)', () => {
     expect(i18n.t('tombolo.violazione.spillo', { chi: 'Marta', presso: 'al Forno', ora: 6 })).toBe('Marta deve essere al Forno alle 6.');
     i18n.setLocale('en');
     expect(i18n.t('tombolo.occasioni.troppe', { posti: 1 })).toBe('You can plant only one occasion.');
-    expect(i18n.t('tombolo.hud.ora', { ora: 9 })).toBe("9 o'clock");
+    expect(i18n.t('tombolo.ora.fmt', { h: 20, h12: 8, ampm: 'pm' })).toBe('8 pm');
+    expect(i18n.t('tombolo.ora.fmt', { h: 12, h12: 12, ampm: 'pm' })).toBe('noon');
+    expect(i18n.t('tombolo.hud.fino', { fine: '8 pm' })).toBe('until 8 pm');
   });
 });

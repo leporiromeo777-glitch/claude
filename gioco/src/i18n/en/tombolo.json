@@ -5,7 +5,7 @@
   },
   "hud": {
     "titolo": "The lace pillow",
-    "ora": "{ora} o'clock",
+    "ora": "{ora}",
     "finito": "Lace finished",
     "matassa": "{usata}/{totale}",
     "matassaAria": "Thread: {usata} of {totale} lengths used",
@@ -13,7 +13,8 @@
     "giornata": "Day {n}",
     "finale": "Ending",
     "archivio": "Archive",
-    "archivioAnno": "Archive · {anno}"
+    "archivioAnno": "Archive · {anno}",
+    "fino": "until {fine}"
   },
   "azioni": {
     "menu": "Menu",
@@ -30,47 +31,72 @@
   "violazione": {
     "rifiuto": "“No.” {sotto} won't pass under {sopra}.",
     "faro": "{chi} won't stray that far from the Lighthouse.",
-    "corre": "{chi} can't keep still! He must cross in this row.",
+    "corre": "{chi} has kept still for an hour: now he must cross (he can with {vicino}).",
     "spillo": "{chi} must be {presso} at {ora}.",
     "matassa": "The thread has run out: {matassa} lengths in all. You can always undo.",
     "bloccato": "{chi} is stuck in this row: a knot or high water.",
     "occupato": "{a} and {b} are already taken by a thread that moves on its own.",
     "forzato": "These threads move on their own: leave them be.",
     "disgiunto": "Each thread makes only one crossing per row.",
-    "finita": "The night is over: there are no more rows."
+    "finita": "The night is over: there are no more rows.",
+    "correSolo": "{chi} has kept still for an hour: now he must cross.",
+    "bloccato.nodo": "{chi}'s thread is knotted: it won't move this hour.",
+    "bloccato.marea": "With the high water, {chi}'s thread won't move.",
+    "occupato.nero": "{nero} moves on its own: it can't be crossed."
   },
   "cond": {
     "fallita": {
       "presso": "{chi} wasn't {presso} at {ora}.",
-      "maiPresso": "{chi} went {presso}.",
-      "incontra": "{a} and {b} never met.",
+      "maiPresso": "{chi} set foot {presso}.",
+      "incontra": "{a} never met {b}.",
       "nonIncontra": "{a} met {b}.",
-      "sopra": "{a} never passed over {b}.",
+      "sopra": "{a} over {b}: it never happened.",
       "consegnata": "{perlina}: not delivered by {ora}.",
       "ha": "{chi} didn't get {perlina} by {ora}.",
       "nonHa": "{chi} got {perlina}.",
-      "parte": "{chi} didn't leave.",
-      "resta": "{chi} left.",
+      "parte": "{chi} didn't leave the island.",
+      "resta": "{chi} left the island.",
       "esceCon": "{perlina}: didn't leave the lace at {ora}.",
       "sano": "{chi} has the fever.",
-      "incontriAlmeno": "{chi} met fewer than {n} people."
+      "incontriAlmeno": "{chi} met fewer than {n} people.",
+      "incontraFinestra": "{a} didn't meet {b} by {alle}.",
+      "nonIncontraFinestra": "{a} met {b} between {dalle} and {alle}.",
+      "sopraEntro": "{a} over {b}: it didn't happen by {alle}.",
+      "ha.lettera": "{chi} didn't receive {perlina} by {ora}.",
+      "ha.voce": "{chi} didn't hear {perlina} by {ora}.",
+      "ha.segreto": "{chi} didn't find out {perlina} by {ora}.",
+      "ha.nome": "{chi} doesn't remember Ada's name.",
+      "ha.febbre": "{chi} didn't catch the fever by {ora}.",
+      "nonHa.lettera": "{chi} touched {perlina}.",
+      "nonHa.voce": "{chi} heard {perlina}.",
+      "nonHa.segreto": "{chi} found out {perlina}.",
+      "nonHa.nome": "{chi} heard Ada's name.",
+      "nonHa.febbre": "{chi} caught the fever."
     },
     "rischio": {
       "presso": "{chi} may not make it {presso} by {ora}.",
-      "incontra": "{a} and {b} may never meet.",
-      "sopra": "{a} may never pass over {b}.",
+      "incontra": "{a} may never meet {b}.",
+      "sopra": "{a} over {b}: it may never happen.",
       "consegnata": "{perlina}: may not arrive by {ora}.",
       "ha": "{chi} may not get {perlina} by {ora}.",
-      "parte": "{chi} may not leave.",
+      "parte": "{chi} may not leave the island.",
       "esceCon": "{perlina}: may not leave the lace at {ora}.",
-      "incontriAlmeno": "{chi} may not meet {n} people."
+      "incontriAlmeno": "{chi} may not meet {n} people.",
+      "incontraFinestra": "{a} may not meet {b} by {alle}.",
+      "sopraEntro": "{a} over {b}: it may not happen by {alle}.",
+      "ha.lettera": "{chi} may not receive {perlina} by {ora}.",
+      "ha.voce": "{chi} may not hear {perlina} by {ora}.",
+      "ha.segreto": "{chi} may not find out {perlina} by {ora}.",
+      "ha.nome": "{chi} may not remember Ada's name.",
+      "ha.febbre": "{chi} may not catch the fever by {ora}."
     }
   },
   "stato": {
     "in_corso": "In progress",
     "soddisfatta": "Fulfilled",
     "a_rischio": "At risk",
-    "fallita": "Failed"
+    "fallita": "Failed",
+    "inArrivo": "Happens if you fix the hour"
   },
   "hint": {
     "lampada": "Hint",
@@ -95,7 +121,20 @@
       "indizio": "Give me a clue",
       "fantasma": "Show me the crossing"
     },
-    "fantasmaAvviso": "The ghost costs tonight's golden thread."
+    "fantasmaAvviso": "The ghost costs tonight's golden thread.",
+    "incompatibili": "Tonight {richieste} can't both be kept: one has to be let go.",
+    "richiesteDue": "{a}'s request and {b}'s",
+    "richiesteMolte": "the requests of {elenco}",
+    "tardi": "From here {nome}'s request can no longer be kept: undo back to {ora}, or let it go.",
+    "tardiSempre": "{nome}'s request can't be kept tonight: let it go.",
+    "obiettiviTardi": "From here the lace won't close as it should: undo back to {ora}.",
+    "lascia": "Let go of {nome}'s pin",
+    "disfaFino": "Undo back to {ora}",
+    "fantasmaConferma": "The ghost shows you the right crossing, but no golden thread tonight.",
+    "fantasmaSi": "Yes, show me (lose the golden thread)",
+    "fantasmaNo": "No, I'll try on my own",
+    "archivio.spinta": "Look at who leaves, who arrives, who carries what: the names are written in the lace.",
+    "archivio.indizio": "Who leaves on the ferry, who passes to whom: one thread at a time, and try three names together."
   },
   "richieste": {
     "di": "Note from {nome}",
@@ -112,8 +151,7 @@
   },
   "archivio": {
     "chiE": "Who is {filo}?",
-    "contatore": "Right names: {giusti}/{servono} to confirm",
-    "contatoreOccasioni": "Right names {giusti}/{servono} · Occasions {piantate}/{posti}",
+    "contatoreOccasioni": "Names given {dati} of {totale} · Occasions {piantate}/{posti}",
     "confermati": "{n, plural, one {A thread gets its colour back.} other {# threads get their colours back.}}",
     "daRammendare": "Every thread has a name. Now the mending.",
     "fatto": "Named and mended: touch the crossings for the echoes.",
@@ -121,7 +159,18 @@
     "nonCoincide": "The mending doesn't match: at {ora} the old lace was different.",
     "provvisorio": "{nome}?",
     "registrata": "This row belongs to the old lace: it can't be undone.",
-    "togli": "Remove the name"
+    "togli": "Remove the name",
+    "nomiDati": "Names given: {dati} of {totale} · confirmed in groups of three correct",
+    "nonAncora": "{n, select, 1 {The right name isn't there yet.} 2 {Two right names aren't there yet.} other {Three right names aren't there yet.}}",
+    "spostato": "{nome} is now on thread {n}.",
+    "suFilo": "on thread {n}",
+    "manca": {
+      "nomi": "{n, plural, one {Faded thread {fili} still needs a name.} other {Faded threads {fili} still need names.}}",
+      "rammendo": "The hours {da}–{a} still need mending.",
+      "rammendoOra": "The {ora} hour still needs mending.",
+      "righe": "The lace isn't finished: the {ora} row is next.",
+      "giornata": "The day hasn't gone as it did back then: plant the occasions and let it happen."
+    }
   },
   "filo": {
     "avorio": "the ivory thread",
@@ -132,7 +181,7 @@
   },
   "perlina": {
     "febbre": "the fever",
-    "letta": "the secret of {lettera}",
+    "letta": "the secret in {lettera}",
     "nome": "Ada's name"
   },
   "presso": {
@@ -190,7 +239,7 @@
     "teresaLegge": "Teresa reads the letters she carries.",
     "pieroPozzo": "Don Piero never gives anything away: he is a well.",
     "pieroTrabocca": "Even wells fill up: with three secrets Don Piero overflows.",
-    "ginoCorre": "Gino never keeps still.",
+    "ginoCorre": "He never keeps still two hours in a row. With the fever he stays in bed.",
     "ninaCuriosa": "When Nina is on top, she takes the secrets too.",
     "zenoFaro": "Zeno never strays from the Lighthouse.",
     "lunardiCura": "Lunardi, on top of a sick person, cures them."
@@ -225,11 +274,13 @@
   "generato": {
     "giornaliero": "Lace of the day · {data}",
     "libero": "Free lace · {seme}",
-    "lettera": "A letter",
-    "voce": "A bit of gossip",
-    "segreto": "A confidence",
-    "febbre": "The fever",
-    "marinaio": "the ferry sailor"
+    "lettera": "the letter",
+    "voce": "the gossip",
+    "segreto": "the confidence",
+    "febbre": "the fever",
+    "marinaio": "the ferry sailor",
+    "letteraPer": "the letter for {to}",
+    "letteraPerN": "{n, select, 1 {the first letter for {to}} 2 {the second letter for {to}} 3 {the third letter for {to}} other {letter {n} for {to}}}"
   },
   "test": {
     "motivi": "Test of the twelve patterns",
@@ -280,6 +331,93 @@
     "separatore": " · ",
     "titolo": "Goal",
     "gettone": "Goal: {testo} ({stato})",
-    "riassunto": "Goals: {fatti}/{totale} reached"
+    "riassunto": "Goals: {fatti}/{totale} reached",
+    "incontraFinestra": "{a} meets {b} between {dalle} and {alle}",
+    "nonIncontraFinestra": "{a} doesn't meet {b} between {dalle} and {alle}",
+    "sopraEntro": "{a} passes over {b} by {alle}",
+    "ha.lettera": "{chi} receives {perlina} by {ora}",
+    "ha.voce": "{chi} hears {perlina} by {ora}",
+    "ha.segreto": "{chi} learns {perlina} by {ora}",
+    "ha.nome": "{chi} remembers Ada's name by {ora}",
+    "ha.febbre": "{chi} has the fever by {ora}",
+    "nonHa.lettera": "{chi} never touches {perlina}",
+    "nonHa.voce": "{chi} never hears {perlina}",
+    "nonHa.segreto": "{chi} never finds out {perlina}",
+    "nonHa.nome": "{chi} never hears Ada's name",
+    "nonHa.febbre": "{chi} never falls ill",
+    "almenoStesso": "At least {n} of {elenco} {azione}",
+    "azione.ha.lettera": "receive {perlina} (by {ora})",
+    "azione.ha.voce": "hear {perlina} (by {ora})",
+    "azione.ha.segreto": "know {perlina} (by {ora})",
+    "azione.ha.nome": "remember Ada's name (by {ora})",
+    "azione.ha.febbre": "have the fever (by {ora})",
+    "azione.incontra": "meet {b}",
+    "azione.incontraFinestra": "meet {b} between {dalle} and {alle}",
+    "azione.presso": "are {presso} at {ora}",
+    "azione.sano": "are free of fever at the end of the day"
+  },
+  "ora": {
+    "fmt": "{h, select, 12 {noon} 0 {midnight} 24 {midnight} other {{h12} {ampm}}}"
+  },
+  "elenco": {
+    "separatore": ", ",
+    "ultimo": " and "
+  },
+  "rancore": {
+    "coppia": "{a} and {b} bear a grudge: if they cross, they knot."
+  },
+  "obiettivi": {
+    "pulsante": "Goals: {fatti} of {totale}",
+    "spillo": "{chi} {presso} at {ora}",
+    "nascosto": "further down the lace",
+    "sbiadito": "Faded thread {n}: no name",
+    "sbiaditoProvvisorio": "Faded thread {n}: {nome}?",
+    "sbiaditoNominato": "Faded thread {n}: {nome}",
+    "strappo": "Tear in the hours {da}–{a}",
+    "strappoOra": "Tear in the {ora} hour",
+    "stato": {
+      "rispettato": "Kept",
+      "futuro": "Fixed appointment",
+      "irraggiungibile": "Out of reach now: undo a few rows",
+      "nominato": "Name confirmed",
+      "daNominare": "Tap to give it a name",
+      "rammendato": "Mended",
+      "daRammendare": "Still to mend"
+    }
+  },
+  "occasione": {
+    "pane": "the bread",
+    "festa": "the feast",
+    "messa": "the mass",
+    "lanterna": "the lantern",
+    "vaporetto": "the ferry"
+  },
+  "bolla": {
+    "spillo": "{chi} {presso} at {ora}: a fixed appointment.",
+    "spilloObiettivo": "{chi} {presso} at {ora}: tonight asks for it.",
+    "spilloRosso": "{chi} {presso} at {ora}: {autore} asks for it.",
+    "occasione": "{tipo} {presso} at {ora}.",
+    "perlina": "{perlina}: carried by {chi}.",
+    "perlinaConsegnata": "{perlina}: delivered to {chi}.",
+    "ora": "At {ora}: {eventi}.",
+    "oraVuota": "Nothing special happens at {ora}.",
+    "nero": "The black thread will pass over {chi}: it moves on its own.",
+    "entra": "{chi} comes in.",
+    "entraCon": "{chi} comes in with {perline}.",
+    "bordo": {
+      "vaporetto": "At {ora} the ferry: whoever is {presso} leaves.",
+      "barca": "At {ora} the boat: whoever is {presso} leaves.",
+      "secca": "At {ora} the low tide: whoever is {presso} leaves.",
+      "nero": "At {ora} the black thread comes in, {presso}."
+    },
+    "evento": {
+      "vaporetto": "the ferry {presso}",
+      "barca": "the boat {presso}",
+      "secca": "the low tide {presso}",
+      "nero": "the black thread comes in",
+      "spillo": "{chi} must be {presso}",
+      "marea": "high water begins {luoghi}",
+      "mareaFine": "high water ends {luoghi}"
+    }
   }
 }

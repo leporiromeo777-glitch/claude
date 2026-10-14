@@ -2,10 +2,13 @@
  * Modalità Archivio (GDD 5.3, ARCHITETTURA 5.3): un merletto antico già finito,
  * con i fili sbiaditi e 1-2 righe strappate.
  *
- * - Nominare: si assegna a ogni filo sbiadito un nome fra i candidati. Il
- *   contatore dice quanti nomi provvisori sono giusti; la conferma scatta da
- *   sola quando i giusti sono 3 (o tutti quelli che restano, se sono meno di 3):
- *   quei fili si ricolorano.
+ * - Nominare (alla maniera di Obra Dinn, revisione 1 D05.2-3): si assegna a
+ *   ogni filo sbiadito un nome fra i candidati. Nessun contatore dei giusti: il
+ *   giocatore vede solo quanti nomi ha dato. La conferma scatta da sola quando
+ *   fra i nomi provvisori ce ne sono almeno 3 giusti (o tutti quelli che
+ *   restano, se sono meno di 3): quei fili si ricolorano. Un nome già dato a un
+ *   altro filo si sposta sul filo nuovo (niente doppioni); un nome confermato
+ *   non si dà a nessun altro.
  * - Rammendare: le righe strappate si ritessono con i controlli normali; alla
  *   fine di ogni strappo lo stato (posizioni e perline) deve coincidere con
  *   quello registrato (`sameLace`). La matassa conta solo gli incroci dei rammendi.
@@ -32,10 +35,16 @@ export function archiveActive(params: Pick<NightParams, 'level' | 'mode'>): bool
 export interface NameResult {
   /** Fili confermati da questo nome (vuoto se la conferma non è scattata). */
   confirmed: ThreadId[];
-  /** Nomi provvisori giusti fra i fili non ancora confermati. */
+  /** Nomi provvisori giusti fra i fili non ancora confermati (solo per il debug: il giocatore non lo vede). */
   correct: number;
   /** Quanti giusti servono per confermare. */
   needed: number;
+  /** Il nome c'era già su un altro filo e si è spostato: quel filo (o null). */
+  moved: ThreadId | null;
+  /** Tutti i fili aperti hanno un nome provvisorio ma la conferma non è scattata («non ancora»). */
+  waiting: boolean;
+  /** Nome rifiutato: fuori dai candidati, già confermato su un altro filo, o filo già confermato. */
+  refused: boolean;
 }
 
 export class ArchiveBook {
@@ -114,15 +123,50 @@ export class ArchiveBook {
     return { correct, needed: Math.min(3, open.length), remaining: open.length };
   }
 
-  /** Assegna (o toglie, con null) un nome provvisorio; la conferma scatta da sola. */
+  /** Nomi dati (provvisori o confermati) su quanti fili sbiaditi (D05.2: «Nomi dati: 2 di 4»). */
+  progress(): { given: number; total: number; confirmed: number } {
+    const all = this.faded();
+    const given = all.filter((t) => this.confirmedSet.has(t) || this.tentative.has(t)).length;
+    return { given, total: all.length, confirmed: this.confirmedList().length };
+  }
+
+  /** Il filo che porta già questo nome (provvisorio o confermato), o null. */
+  holderOf(character: CharacterId | string): ThreadId | null {
+    for (const t of this.faded()) if (this.tentative.get(t) === character) return t;
+    return null;
+  }
+
+  /** Fili sbiaditi ancora senza nome confermato. */
+  missing(): ThreadId[] {
+    return this.faded().filter((t) => !this.confirmedSet.has(t));
+  }
+
+  /**
+   * Assegna (o toglie, con null) un nome provvisorio; la conferma scatta da sola.
+   * Un nome già provvisorio su un altro filo si sposta qui (`moved`); un nome
+   * confermato su un altro filo non si dà (`refused`).
+   */
   name(thread: ThreadId, character: CharacterId | string | null): NameResult {
     const a = this.level.archive;
-    if (!a || !this.faded().includes(thread) || this.confirmedSet.has(thread)) {
+    const result = (confirmed: ThreadId[], moved: ThreadId | null, refused: boolean): NameResult => {
       const c = this.counter();
-      return { confirmed: [], correct: c.correct, needed: c.needed };
-    }
+      const open = this.missing();
+      const waiting = !refused && confirmed.length === 0 && open.length > 0 && open.every((t) => this.tentative.has(t));
+      return { confirmed, correct: c.correct, needed: c.needed, moved, waiting, refused };
+    };
+    if (!a || !this.faded().includes(thread) || this.confirmedSet.has(thread)) return result([], null, true);
+    let moved: ThreadId | null = null;
     if (character === null) this.tentative.delete(thread);
-    else if ((a.candidates as string[]).includes(character)) this.tentative.set(thread, character as CharacterId);
+    else {
+      if (!(a.candidates as string[]).includes(character)) return result([], null, true);
+      const other = this.holderOf(character);
+      if (other && other !== thread) {
+        if (this.confirmedSet.has(other)) return result([], null, true);
+        this.tentative.delete(other);
+        moved = other;
+      }
+      this.tentative.set(thread, character as CharacterId);
+    }
     const c = this.counter();
     const confirmed: ThreadId[] = [];
     if (c.remaining > 0 && c.correct >= c.needed) {
@@ -134,8 +178,24 @@ export class ArchiveBook {
         }
       }
     }
-    const after = this.counter();
-    return { confirmed, correct: after.correct, needed: after.needed };
+    return result(confirmed, moved, false);
+  }
+
+  /**
+   * Rimette i nomi confermati (Ricomincia la notte, ripresa): i fili tornano
+   * confermati con la risposta giusta, senza passare dalla conferma a gruppi.
+   */
+  restoreConfirmed(threads: readonly ThreadId[]): void {
+    const a = this.level.archive;
+    if (!a) return;
+    for (const t of threads) {
+      const ans = a.answer[t];
+      if (!ans || !this.faded().includes(t)) continue;
+      const other = this.holderOf(ans);
+      if (other && other !== t) this.tentative.delete(other);
+      this.tentative.set(t, ans);
+      this.confirmedSet.add(t);
+    }
   }
 
   allNamed(): boolean {
@@ -224,5 +284,21 @@ export class ArchiveBook {
 
   echoes(): { hour: Hour; pair: number; textKey: string }[] {
     return [...(this.level.archive?.echoes ?? [])];
+  }
+
+  /** Fili del crocevia di un eco nel merletto registrato: chi sta sopra e chi sotto. */
+  echoThreads(hour: Hour, pair: number): { over: ThreadId; under: ThreadId } | null {
+    const r = this.recordedRowAt(hour - this.level.startHour);
+    if (!r) return null;
+    const L = r.before.pos[pair];
+    const R = r.before.pos[pair + 1];
+    if (!L || !R) return null;
+    const c = r.row.crossings.find((x) => x.pair === pair);
+    return c && c.over === 'R' ? { over: R, under: L } : { over: L, under: R };
+  }
+
+  /** Filo nella colonna `col` del merletto registrato, all'ora `hour` (stato dopo quella riga). */
+  recordedThreadAt(hour: Hour, col: number): ThreadId | null {
+    return this.recordedTimeline[hour - this.level.startHour]?.pos[col] ?? null;
   }
 }

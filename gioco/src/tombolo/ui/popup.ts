@@ -12,8 +12,28 @@ import type { ActionId, InputRouter, Unsub } from '../../core/types';
 import { el, clear } from '../../core/ui/dom';
 import { iconButton, textOf, setTextParams } from '../../core/ui/components';
 import type { Rect } from '../layout';
+import { capitalizeFirst } from '../text';
 
 export type Params = Record<string, string | number>;
+
+/** Maiuscola alla prima lettera del primo testo di un nodo (frasi composte che cominciano con un parametro). */
+export function capitalizeNode(node: Node, locale = 'it'): void {
+  const walker = node.ownerDocument?.createTreeWalker(node, 4 /* NodeFilter.SHOW_TEXT */);
+  if (!walker) return;
+  for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+    const v = t.nodeValue ?? '';
+    if (!/\p{L}/u.test(v)) continue;
+    t.nodeValue = capitalizeFirst(v, locale);
+    return;
+  }
+}
+
+/** Dimensione minima del testo (D16: 15 px × scala del testo). */
+export function minTextPx(): number {
+  if (typeof document === 'undefined') return 15;
+  const v = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--text-scale'));
+  return 15 * (Number.isFinite(v) && v > 0 ? v : 1);
+}
 
 /** Riduce il carattere (fino a `min` px) finché il testo non esce dal contenitore. */
 export function fitText(node: HTMLElement, min = 11): void {
@@ -41,6 +61,25 @@ export interface PopupDeps {
   onClose?: () => void;
 }
 
+/**
+ * Dove si apre una scheda: `y` è la distanza dal fondo dello schermo (scheda
+ * appoggiata sopra la barra delle azioni) oppure, con `top`, la distanza dall'alto
+ * (scheda in cima al merletto, lontano dai fusi e dal dito che li ha toccati).
+ */
+export interface PopupAnchor extends Rect {
+  top?: boolean;
+}
+
+/**
+ * Tocchi ignorati subito dopo l'apertura (TOM-01, D05.5): su un telefono il
+ * «click di compatibilità» arriva qualche millisecondo dopo il pointerup che ha
+ * aperto la scheda e cadrebbe sul pulsante che ora sta sotto il dito.
+ */
+export const POPUP_GUARD_MS = 350;
+
+/** Orologio delle schede (sostituibile nei test). */
+export const popupClock = { now: (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now()) };
+
 /** Scheda modale del tombolo (una sola alla volta). */
 export class Popup {
   readonly el: HTMLElement;
@@ -49,12 +88,16 @@ export class Popup {
   private closed = false;
   /** Tasti che la scheda gira a chi l'ha aperta (per esempio H sulla scheda del suggerimento). */
   private readonly keys: Partial<Record<ActionId, () => void>>;
+  private readonly guardMs: number;
+  /** Fino a quando (orologio delle schede) i clic dentro la scheda si ignorano. */
+  armedAt = 0;
 
   constructor(
     private readonly deps: PopupDeps,
-    o: { test: string; className?: string; labelKey?: string; keys?: Partial<Record<ActionId, () => void>> },
+    o: { test: string; className?: string; labelKey?: string; keys?: Partial<Record<ActionId, () => void>>; guardMs?: number },
   ) {
     this.keys = o.keys ?? {};
+    this.guardMs = o.guardMs ?? POPUP_GUARD_MS;
     this.body = el('div', { class: 'tb-popup-body' });
     const close = iconButton({ icon: 'chiudi', labelKey: 'tombolo.ui.chiudi', onClick: () => this.close(), className: 'tb-popup-close', test: `${o.test}-chiudi` });
     close.dataset.audioSilent = '1';
@@ -62,9 +105,25 @@ export class Popup {
     if (o.labelKey) {
       this.el.dataset.i18nLabel = o.labelKey;
     }
+    // Il clic fantasma del tocco che ha aperto la scheda non arriva ai pulsanti.
+    this.el.addEventListener(
+      'click',
+      (e) => {
+        if (popupClock.now() >= this.armedAt) return;
+        e.stopPropagation();
+        e.preventDefault();
+      },
+      true,
+    );
   }
 
-  open(anchor: Rect): this {
+  /** La scheda accetta già i tocchi (passato il tempo di guardia)? */
+  armed(): boolean {
+    return popupClock.now() >= this.armedAt;
+  }
+
+  open(anchor: PopupAnchor): this {
+    this.armedAt = popupClock.now() + this.guardMs;
     this.position(anchor);
     this.deps.host.appendChild(this.el);
     this.popLayer = this.deps.input.pushLayer('tb-popup');
@@ -97,12 +156,19 @@ export class Popup {
     list[next]?.focus({ preventScroll: true });
   }
 
-  /** Centrata in orizzontale sull'area del tombolo, sopra la barra delle azioni. */
-  position(anchor: Rect): void {
+  /** Centrata in orizzontale sull'area del tombolo, sopra la barra delle azioni (o in cima al merletto). */
+  position(anchor: PopupAnchor): void {
     const w = Math.min(anchor.w - 16, 440);
     this.el.style.left = `${anchor.x + (anchor.w - w) / 2}px`;
     this.el.style.width = `${w}px`;
-    this.el.style.bottom = `${anchor.y}px`;
+    if (anchor.top) {
+      this.el.style.top = `${anchor.y}px`;
+      this.el.style.bottom = '';
+    } else {
+      this.el.style.top = '';
+      this.el.style.bottom = `${anchor.y}px`;
+    }
+    this.el.dataset.posto = anchor.top ? 'alto' : 'basso';
     this.el.style.maxHeight = `${Math.max(160, anchor.h)}px`;
   }
 
@@ -137,7 +203,9 @@ export class ExplainLine {
     this.key = key;
     this.params = params;
     clear(this.text);
-    this.text.appendChild(textOf(key, params, 'span', { rich: true }));
+    const t = textOf(key, params, 'span', { rich: true });
+    capitalizeNode(t);
+    this.text.appendChild(t);
     this.el.dataset.kind = kind;
     this.el.hidden = false;
     this.el.classList.remove('tb-visibile');
@@ -160,27 +228,109 @@ export class ExplainLine {
   }
 }
 
-/** Nota a margine di Clotilde (GDD 9): scritta a mano, color seppia, sul bordo del merletto. */
+/**
+ * Riga di motivo sotto il merletto, sopra «Fissa l'ora» (D04: un solo messaggio
+ * per violazione; TOM-03: perché «Chiudi il merletto» non chiude). Non prende i
+ * tocchi e sparisce da sola.
+ */
+export class ReasonLine {
+  readonly el: HTMLElement;
+  private readonly text: HTMLElement;
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  key = '';
+  params: Params = {};
+
+  constructor(test: string) {
+    this.text = el('span', { class: 'tb-motivo-text' });
+    this.el = el('div', { class: 'tb-motivo', role: 'status', attrs: { 'aria-live': 'assertive' }, test, hidden: true }, this.text);
+  }
+
+  show(key: string, params: Params, ms = 5000): void {
+    this.key = key;
+    this.params = params;
+    clear(this.text);
+    const t = textOf(key, params, 'span', { rich: true });
+    capitalizeNode(t);
+    this.text.appendChild(t);
+    this.el.hidden = false;
+    this.el.classList.remove('tb-visibile');
+    void this.el.offsetWidth;
+    this.el.classList.add('tb-visibile');
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.hide(), ms);
+  }
+
+  visible(): boolean {
+    return !this.el.hidden;
+  }
+
+  hide(): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    this.el.classList.remove('tb-visibile');
+    this.el.hidden = true;
+    this.key = '';
+  }
+
+  destroy(): void {
+    if (this.timer) clearTimeout(this.timer);
+  }
+}
+
+/**
+ * Nota a margine (GDD 9, D04): di Clotilde (seppia) o di Ada (matita), scritta a
+ * mano. Un tocco la chiude e non passa sotto (`pointer-events: auto`); la regia
+ * decide dove metterla (mai sulla riga corrente, sugli spilli, sui fusi) e quando
+ * chiuderla (prima azione valida dopo 4 s, oppure 12 s; una alla volta).
+ */
 export class MarginNote {
   readonly el: HTMLElement;
   private readonly text: HTMLElement;
   shown: string[] = [];
   current = '';
+  /** Tocco sulla nota (la regia la chiude). */
+  onTap: (() => void) | null = null;
 
   constructor() {
-    this.text = el('p', { class: 'tb-margin-text' });
+    this.text = el('p', { class: 'tb-margin-text', test: 'tb-nota-margine' });
     this.el = el('aside', { class: 'tb-margin', role: 'note', test: 'tb-margine', hidden: true }, this.text);
+    const stop = (e: Event): void => {
+      e.stopPropagation();
+    };
+    this.el.addEventListener('pointerdown', stop);
+    this.el.addEventListener('pointerup', stop);
+    this.el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.onTap?.();
+    });
   }
 
-  show(key: string): void {
+  show(key: string, hand: 'clotilde' | 'ada' = 'clotilde'): void {
     if (!this.shown.includes(key)) this.shown.push(key);
     this.current = key;
+    this.el.classList.toggle('tb-margin--ada', hand === 'ada');
+    this.el.dataset.mano = hand;
     clear(this.text);
     this.text.appendChild(textOf(key, undefined, 'span', { rich: true }));
     this.el.hidden = false;
     this.el.classList.remove('tb-visibile');
     void this.el.offsetWidth;
     this.el.classList.add('tb-visibile');
+  }
+
+  visible(): boolean {
+    return !this.el.hidden && this.current !== '';
+  }
+
+  /** Altezza della nota alla larghezza data (stima se il browser non misura, come nei test). */
+  measure(width: number): number {
+    this.el.style.width = `${width}px`;
+    const h = this.el.offsetHeight;
+    if (h > 0) return h;
+    const chars = (this.text.textContent ?? '').length;
+    const perLine = Math.max(10, Math.floor(width / 11));
+    return Math.max(44, Math.ceil(chars / perLine) * 26 + 18);
   }
 
   hide(): void {

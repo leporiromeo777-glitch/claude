@@ -21,6 +21,8 @@ export interface RequestToken {
   icon: string;
   color: string;
   status: CondStatus;
+  /** Si compirebbe fissando l'ora (spunta tratteggiata, C07). */
+  preview?: boolean;
   dropped: boolean;
   /** Etichetta accessibile già tradotta (autore e stato). */
   label: string;
@@ -34,17 +36,55 @@ const STATUS_GLYPH: Record<CondStatus | 'lasciata', string> = {
   lasciata: 'chiudi',
 };
 
+/** Pulsante Obiettivi: contatore «2/5» e stato peggiore (C08, D06). */
+export interface GoalsButtonState {
+  done: number;
+  total: number;
+  status: CondStatus;
+  /** Etichetta accessibile già tradotta. */
+  label: string;
+}
+
 export class RequestStrip {
   readonly el: HTMLElement;
+  /** Pulsante Obiettivi (apre l'elenco completo). */
+  readonly goals: HTMLButtonElement;
+  private readonly goalsCount: HTMLElement;
   private readonly tokens: HTMLElement;
   private readonly info: HTMLElement;
   private last = '';
+  private lastGoals = '';
   private infoKey = '';
 
   constructor(private readonly onOpen: (noteId: NoteId) => void) {
     this.tokens = el('div', { class: 'tb-req-tokens', role: 'list' });
     this.info = el('span', { class: 'tb-req-info', test: 'tb-req-info' });
-    this.el = el('div', { class: 'tb-requests', test: 'tb-richieste' }, this.tokens, this.info);
+    this.goalsCount = el('span', { class: 'tb-obiettivi-conto' });
+    this.goals = el(
+      'button',
+      { type: 'button', class: ['tb-obiettivi-btn', 'core-solid'], test: 'tb-obiettivi', hidden: true },
+      el('span', { class: 'tb-token-chip' }, svgIcon('stella', { size: 16 })),
+      this.goalsCount,
+    );
+    this.goals.addEventListener('click', (e) => {
+      if (e.detail > 0) this.goals.blur();
+      this.onOpen('obiettivi');
+    });
+    this.el = el('div', { class: 'tb-requests', test: 'tb-richieste' }, this.goals, this.tokens, this.info);
+  }
+
+  /** Pulsante Obiettivi con il contatore; null = niente da elencare. */
+  setGoals(g: GoalsButtonState | null): void {
+    const k = JSON.stringify(g);
+    if (k === this.lastGoals) return;
+    this.lastGoals = k;
+    this.goals.hidden = !g;
+    if (!g) return;
+    this.goalsCount.textContent = `${g.done}/${g.total}`;
+    this.goals.setAttribute('aria-label', g.label);
+    this.goals.title = g.label;
+    this.goals.dataset.stato = g.status;
+    for (const st of ['in_corso', 'soddisfatta', 'a_rischio', 'fallita']) this.goals.classList.toggle(`tb-token--${st}`, g.status === st);
   }
 
   update(items: RequestToken[]): void {
@@ -54,19 +94,20 @@ export class RequestStrip {
     clear(this.tokens);
     for (const it of items) {
       const st = it.dropped ? 'lasciata' : it.status;
+      const glyph = it.preview ? 'spunta' : STATUS_GLYPH[st];
       const b = el(
         'button',
         {
           type: 'button',
-          class: ['tb-token', 'core-solid', `tb-token--${st}`, it.goal && 'tb-token--obiettivo'],
+          class: ['tb-token', 'core-solid', `tb-token--${st}`, it.goal && 'tb-token--obiettivo', it.preview && 'tb-token--anteprima'],
           role: 'listitem',
           label: it.label,
           title: it.label,
           test: it.goal ? `tb-${it.noteId.replace(':', '-')}` : `tb-richiesta-${it.noteId}`,
-          data: { stato: st },
+          data: { stato: st, anteprima: it.preview ? '1' : '0' },
           style: { '--tb-token-colore': it.color },
         },
-        el('span', { class: 'tb-token-chip' }, svgIcon(it.icon, { size: 16 }), el('span', { class: 'tb-token-state' }, svgIcon(STATUS_GLYPH[st], { size: 12 }))),
+        el('span', { class: 'tb-token-chip' }, svgIcon(it.icon, { size: 16 }), el('span', { class: 'tb-token-state' }, svgIcon(glyph, { size: 12 }))),
       );
       b.addEventListener('click', (e) => {
         if (e.detail > 0) b.blur();

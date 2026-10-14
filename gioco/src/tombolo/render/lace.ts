@@ -71,6 +71,13 @@ export interface Overlay {
   label: (thread: ThreadId) => string | null;
   highlight: Set<ThreadId>;
   nomeOn: ThreadId | null;
+  /** Tutorial (C02): barca della riga che pulsa (−1 = nessuna). */
+  pulseEdge: number;
+  /** Tutorial: spillo d'ottone che pulsa (colonna e riga, −1 = nessuno). */
+  pulsePinCol: number;
+  pulsePinIndex: number;
+  /** Tutorial: colonne allagate che pulsano, dalla riga indicata (−1 = no). */
+  pulseTideFrom: number;
 }
 
 export function emptyOverlay(): Overlay {
@@ -92,6 +99,10 @@ export function emptyOverlay(): Overlay {
     label: () => null,
     highlight: new Set(),
     nomeOn: null,
+    pulseEdge: -1,
+    pulsePinCol: -1,
+    pulsePinIndex: -1,
+    pulseTideFrom: -1,
   };
 }
 
@@ -246,12 +257,21 @@ export class LaceRenderer {
         ctx.quadraticCurveTo(x + (3 * l.colW) / 4, yy + 3, x + l.colW - 6, yy);
       }
       ctx.stroke();
+      // Tutorial (C02): le colonne allagate pulsano dalla riga indicata.
+      if (o.pulseTideFrom >= 0 && t.to >= o.pulseTideFrom) {
+        ctx.strokeStyle = P.ottone;
+        ctx.globalAlpha = 0.35 + 0.55 * o.pulse;
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(x + 2, y0, l.colW - 4, y1 - y0);
+        ctx.globalAlpha = 1;
+      }
     }
     for (let k = 0; k < m.edges.length; k++) {
       const e = m.edges[k] as LaceModel['edges'][number];
       const y = top + rowBottom(l, e.index) - l.rowH * 0.25;
-      const x = e.side < 0 ? (l.colX[0] ?? 0) - 10 : (l.colX[l.cols - 1] ?? 0) + l.colW + 10;
+      const x = edgeX(l, e.side);
       drawBoat(ctx, x, y, e.kind, e.side, P);
+      if (o.pulseEdge >= 0 && e.index === o.pulseEdge) pulseRing(ctx, x, y, 13, o.pulse, P.ottone);
     }
     // Riga corrente: bozza, forzati, fantasma del filo nero.
     if (!m.done && m.liveShape) {
@@ -332,6 +352,7 @@ export class LaceRenderer {
       const y = top + rowBottom(l, pin.index);
       if (y < lace.y - 20 || y > lace.y + lace.h + 20) continue;
       this.pins.draw(ctx, pin.kind, pin.state, x, y, pin.icon, pin.label);
+      if (pin.kind === 'ottone' && pin.col === o.pulsePinCol && pin.index === o.pulsePinIndex) pulseRing(ctx, x + 9, y - 11, 14, o.pulse, P.ottone);
     }
     // Echi d'Archivio.
     if (o.showEchoes) {
@@ -391,7 +412,8 @@ export class LaceRenderer {
     rig.draw(ctx, spTop, l.spindleW, l.spindleH, m.visuals, so);
     void assets;
 
-    // Mano fantasma del tutorial: trascina il fuso da una colonna all'altra.
+    // Mano fantasma del tutorial: trascina un fuso fantasma da una colonna all'altra,
+    // con una freccia (C02: il verso dell'incrocio si vede).
     if (o.handFrom >= 0 && o.handTo >= 0) {
       const xa = g.colCx[o.handFrom] ?? 0;
       const xb = g.colCx[o.handTo] ?? 0;
@@ -399,7 +421,11 @@ export class LaceRenderer {
       const t = k < 0.15 ? 0 : k > 0.75 ? 1 : (k - 0.15) / 0.6;
       const x = xa + (xb - xa) * (t * t * (3 - 2 * t));
       const y = l.spindles.y + l.spindles.h * 0.42;
-      ctx.globalAlpha = k > 0.85 ? (1 - k) / 0.15 : 0.85;
+      const fade = k > 0.85 ? (1 - k) / 0.15 : 1;
+      const ghost = m.hangPos[o.handFrom];
+      if (ghost) rig.drawGhost(ctx, ghost, x, spTop, l.spindleW, l.spindleH, m.visuals, 0.5 * fade);
+      drawArrow(ctx, xa, xb, l.spindles.y - 6, P.ottone, 0.9 * fade);
+      ctx.globalAlpha = 0.85 * fade;
       drawHand(ctx, x, y, this.handPoly);
       ctx.globalAlpha = 1;
     }
@@ -448,6 +474,44 @@ export class LaceRenderer {
   }
 }
 
+/** X dell'icona di un evento di bordo (barca, vaporetto, filo nero). */
+export function edgeX(l: Pick<TomboloLayout, 'colX' | 'cols' | 'colW'>, side: number): number {
+  return side < 0 ? (l.colX[0] ?? 0) - 9 : (l.colX[l.cols - 1] ?? 0) + l.colW + 8;
+}
+
+/** Anello che pulsa intorno a un elemento (tutorial). */
+function pulseRing(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, pulse: number, color: string): void {
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.35 + 0.6 * pulse;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(x, y, r + 3 * pulse, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+/** Freccia orizzontale da xa a xb (verso del trascinamento del tutorial). */
+function drawArrow(ctx: CanvasRenderingContext2D, xa: number, xb: number, y: number, color: string, alpha: number): void {
+  const dir = xb >= xa ? 1 : -1;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(xa, y);
+  ctx.lineTo(xb - dir * 8, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(xb, y);
+  ctx.lineTo(xb - dir * 10, y - 6);
+  ctx.lineTo(xb - dir * 10, y + 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
 /** Barca, vaporetto, secca o arrivo del filo nero sul bordo. */
 function drawBoat(ctx: CanvasRenderingContext2D, x: number, y: number, kind: string, side: number, P: Palette): void {
   ctx.lineWidth = 1.4;
@@ -486,8 +550,8 @@ function drawBoat(ctx: CanvasRenderingContext2D, x: number, y: number, kind: str
   }
   ctx.strokeStyle = 'rgba(200,220,215,0.6)';
   ctx.beginPath();
-  ctx.moveTo(x - 10 * side, y + 7);
-  ctx.lineTo(x + 10 * side, y + 7);
+  ctx.moveTo(x - 8 * side, y + 7);
+  ctx.lineTo(x + 8 * side, y + 7);
   ctx.stroke();
 }
 

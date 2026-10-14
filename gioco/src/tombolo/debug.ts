@@ -141,7 +141,13 @@ export function registerNightDebug(s: Services): void {
       fantasmaUsed: se.fantasmaUsed,
       discoveredQuirks: se.discoveredQuirks,
       lastViolation: c.lastViolation,
-      message: c.explain.key ? { key: c.explain.key, text: s.i18n.t(c.explain.key, c.explain.params) } : null,
+      message: c.explain.key
+        ? { key: c.explain.key, text: s.i18n.t(c.explain.key, c.explain.params) }
+        : c.closeReason.key
+          ? { key: c.closeReason.key, text: s.i18n.t(c.closeReason.key, c.closeReason.params) }
+          : c.suppressed
+            ? { key: c.suppressed.key, text: s.i18n.t(c.suppressed.key, c.suppressed.params), nota: true }
+            : null,
       margin: { current: c.margin.current, shown: c.margin.shown },
       status: c.status.value,
       lastHint: c.lastHint,

@@ -63,6 +63,8 @@ export class Interaction {
   onGesture(g: Gesture): boolean {
     const c = this.c;
     const l = c.layout;
+    // La bolla del tocco si chiude al tocco successivo (che fa anche quello che deve).
+    if (g.k !== 'drag' && g.k !== 'wheel') c.hideBubble();
     if (c.isBusy()) return true;
     switch (g.k) {
       case 'wheel':
@@ -72,13 +74,15 @@ export class Interaction {
         if (g.y >= l.spindles.y && g.y < l.spindles.y + l.spindles.h) {
           const col = columnAt(l, g.x);
           const t = col >= 0 ? c.threadAtColumn(col) : null;
-          if (t) c.openCharCard(t);
+          // Un filo sbiadito non ha scheda: la pressione lunga apre la scelta del nome (D05.4).
+          if (t && c.isFadedThread(t) && !c.session.archive?.isConfirmed(t)) c.openNamePicker(t, { pointer: g.pointer, y: g.y });
+          else if (t) c.openCharCard(t);
           return true;
         }
-        return false;
+        return this.longpressLace(g.x, g.y, g.pointer);
       }
       case 'tap':
-        return this.tap(g.x, g.y, g.button);
+        return this.tap(g.x, g.y, g.button, g.pointer);
       case 'dragstart':
         return this.dragStart(g.startX, g.startY, g.x, g.y);
       case 'drag':
@@ -89,33 +93,74 @@ export class Interaction {
     }
   }
 
-  private tap(x: number, y: number, button: number): boolean {
+  /** Metà bassa della riga `i` sotto la y? (per sapere quale filo passa nella cella) */
+  private lowerHalf(i: number, y: number): boolean {
+    const l = this.c.layout;
+    const cy = y - l.lace.y + this.c.scroll;
+    return cy >= (rowTop(l, i) + rowBottom(l, i)) / 2;
+  }
+
+  /**
+   * Archivio: il filo sbiadito che passa nella cella toccata (anche dopo che è
+   * uscito dal merletto, D05.4), o null.
+   */
+  private fadedAt(i: number, x: number, y: number): ThreadId | null {
+    const c = this.c;
+    if (!c.session.archive) return null;
+    const col = columnAt(c.layout, x);
+    if (col < 0) return null;
+    const t = c.threadInCell(i, col, this.lowerHalf(i, y));
+    return t && c.isFadedThread(t) && !c.session.archive.isConfirmed(t) ? t : null;
+  }
+
+  private tap(x: number, y: number, button: number, pointer: 'mouse' | 'touch' | 'pen' = 'mouse'): boolean {
     const c = this.c;
     const l = c.layout;
+    // Il tocco spiega (TOM-12): spilli, barche, perline, ore, filo nero; fuori dalla fascia dei fusi.
+    if (button === 0 && !c.placingOccasions() && (y < l.spindles.y || y >= l.spindles.y + l.spindles.h) && c.showBubbleAt(x, y)) return true;
     if (y >= l.spindles.y && y < l.spindles.y + l.spindles.h) {
       const col = columnAt(l, x);
       const t = col >= 0 ? c.threadAtColumn(col) : null;
       if (!t) return true;
       if (button === 2) {
-        c.openCharCard(t);
+        if (c.isFadedThread(t) && !c.session.archive?.isConfirmed(t)) c.openNamePicker(t, { pointer, y });
+        else c.openCharCard(t);
         return true;
       }
       this.cursorThread = col;
       this.cursorPair = Math.min(col, l.cols - 2);
-      c.tapSpindle(t);
+      c.tapSpindle(t, { pointer, y });
       return true;
     }
     const i = this.rowAt(y);
     if (i < 0) return false;
     const m = c.model;
+    const faded = this.fadedAt(i, x, y);
     if (c.placingOccasions()) {
       const col = columnAt(l, x);
+      // Una cella senza occasione ammessa, ma con un filo sbiadito: si nomina il filo.
+      if (faded && col >= 0 && !c.occasionCellAllowed(col, i)) {
+        c.openNamePicker(faded, { pointer, y });
+        return true;
+      }
       if (col >= 0 && i >= 1) c.toggleOccasionCell(col, i);
       return true;
     }
     if (i === m.current && !m.done) {
       const p = pairAt(l, x);
+      if (p >= 0 && c.session.draft.some((d) => d.pair === p)) {
+        c.tapCurrentPair(p);
+        return true;
+      }
+      if (faded) {
+        c.openNamePicker(faded, { pointer, y });
+        return true;
+      }
       if (p >= 0) c.tapCurrentPair(p);
+      return true;
+    }
+    if (faded) {
+      c.openNamePicker(faded, { pointer, y });
       return true;
     }
     if (i < m.current) {
@@ -123,6 +168,15 @@ export class Interaction {
       c.tapPastRow(i, p);
       return true;
     }
+    return true;
+  }
+
+  /** Pressione lunga sul merletto: un filo sbiadito si nomina anche così. */
+  private longpressLace(x: number, y: number, pointer: 'mouse' | 'touch' | 'pen'): boolean {
+    const i = this.rowAt(y);
+    if (i < 0) return false;
+    const faded = this.fadedAt(i, x, y);
+    if (faded) this.c.openNamePicker(faded, { pointer, y });
     return true;
   }
 

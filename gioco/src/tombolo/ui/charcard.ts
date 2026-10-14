@@ -3,7 +3,7 @@
  * nome e ruolo, stranezze note, desiderio ("?" finché non è scoperto), memoria
  * di Ada (tre puntini, da g12). Per i lino e i fili sbiaditi una riga sola.
  * Nell'Archivio la stessa scheda serve a nominare i fili sbiaditi: la fila dei
- * candidati (con l'esca) e il contatore "Nomi giusti: 1/3 per confermare".
+ * candidati (con l'esca) e «Nomi dati: 2 di 4» (mai quanti sono giusti).
  */
 import type { CharacterId, QuirkId } from '../../core/types';
 import { el } from '../../core/ui/dom';
@@ -50,29 +50,59 @@ export function charCard(d: CharCardData): HTMLElement {
   return body;
 }
 
+export interface NamePickerCandidate {
+  id: CharacterId;
+  name: string;
+  icon: string;
+  color: string;
+  /** Il nome è già provvisorio su un altro filo: «sul filo 2» (toccandolo si sposta qui). */
+  usedOn: string | null;
+  /** Il nome è confermato su un altro filo: non si può dare. */
+  locked: boolean;
+}
+
 export interface NamePickerData {
   thread: string;
   /** Etichetta del filo ("il filo sbiadito 2"). */
   threadText: string;
-  candidates: { id: CharacterId; name: string; icon: string; color: string }[];
+  candidates: NamePickerCandidate[];
   current: CharacterId | null;
-  correct: number;
-  needed: number;
+  /** Nomi dati (provvisori o confermati) e fili sbiaditi in tutto (D05.2). */
+  given: number;
+  total: number;
 }
 
-/** Scelta del nome di un filo sbiadito (Archivio). */
+/**
+ * Scelta del nome di un filo sbiadito (Archivio, D05.2-5). Nessun contatore dei
+ * giusti: «Nomi dati: 2 di 4 · si confermano a gruppi di tre giusti». Altezza
+ * fissa: i candidati sono sempre gli stessi e «Togli il nome» c'è sempre
+ * (disattivato se il filo non ha un nome), così un tocco non trova un pulsante
+ * diverso da quello che il dito si aspetta.
+ */
 export function namePicker(d: NamePickerData, onPick: (c: CharacterId | null) => void): HTMLElement {
   const body = el('div', { class: 'tb-names', test: 'tb-nomina', data: { filo: d.thread } });
   body.appendChild(textOf('tombolo.archivio.chiE', { filo: d.threadText }, 'h2', { className: 'tb-names-title' }));
-  body.appendChild(textOf('tombolo.archivio.contatore', { giusti: d.correct, servono: d.needed }, 'p', { className: 'tb-names-count' }));
+  const count = textOf('tombolo.archivio.nomiDati', { dati: d.given, totale: d.total }, 'p', { className: 'tb-names-count' });
+  count.dataset.test = 'tb-nomina-dati';
+  body.appendChild(count);
   const grid = el('div', { class: 'tb-names-grid', role: 'group' });
   for (const c of d.candidates) {
     const b = button({ label: c.name, kind: c.id === d.current ? 'primario' : 'carta', icon: c.icon, onClick: () => onPick(c.id), test: `tb-nomina-${c.id}` });
     b.style.setProperty('--tb-char-colore', c.color);
     b.setAttribute('aria-pressed', c.id === d.current ? 'true' : 'false');
+    if (c.locked) {
+      b.disabled = true;
+      b.classList.add('tb-names-locked');
+    }
+    if (c.usedOn && c.id !== d.current) {
+      const note = el('span', { class: 'tb-names-used', text: c.usedOn });
+      b.appendChild(note);
+    }
     grid.appendChild(b);
   }
   body.appendChild(grid);
-  if (d.current) body.appendChild(button({ labelKey: 'tombolo.archivio.togli', kind: 'testo', onClick: () => onPick(null), test: 'tb-nomina-togli' }));
+  const off = button({ labelKey: 'tombolo.archivio.togli', kind: 'testo', onClick: () => onPick(null), test: 'tb-nomina-togli' });
+  off.disabled = !d.current;
+  body.appendChild(off);
   return body;
 }

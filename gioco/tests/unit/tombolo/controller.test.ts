@@ -81,10 +81,11 @@ describe('regia della notte (DOM, senza canvas)', () => {
     expect(h.data.night?.resume.dropped).toEqual(['g06.marta']);
   });
 
-  it('lampada: si accende dopo 3 Disfa di fila sulla stessa riga', () => {
+  it('lampada: sempre visibile, si accende dopo 3 Disfa di fila sulla stessa riga', () => {
     c = new NightController(h.s, nightParams(fixture('g00')), { computed: fixtureComputed('g00') });
     const lamp = document.querySelector<HTMLElement>('[data-test="tb-lampada"]')!;
-    expect(lamp.hidden).toBe(true);
+    expect(lamp.hidden).toBe(false);
+    expect(lamp.classList.contains('tb-lamp--accesa')).toBe(false);
     for (let i = 0; i < 3; i++) {
       c.cross(0, 'R', 'debug');
       c.undo();
@@ -97,9 +98,10 @@ describe('regia della notte (DOM, senza canvas)', () => {
     c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
     const lamp = document.querySelector<HTMLElement>('[data-test="tb-lampada"]')!;
     for (let i = 0; i < 59 * 60; i++) c.update(1 / 60);
-    expect(lamp.hidden).toBe(true);
-    for (let i = 0; i < 2 * 60; i++) c.update(1 / 60);
     expect(lamp.hidden).toBe(false);
+    expect(lamp.classList.contains('tb-lamp--accesa')).toBe(false);
+    for (let i = 0; i < 2 * 60; i++) c.update(1 / 60);
+    expect(lamp.classList.contains('tb-lamp--accesa')).toBe(true);
   });
 
   it('barra alta: giornata e titolo (GDD 10.3)', () => {

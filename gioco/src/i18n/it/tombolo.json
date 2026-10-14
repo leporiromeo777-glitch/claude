@@ -13,7 +13,8 @@
     "giornata": "Giornata {n}",
     "finale": "Finale",
     "archivio": "Archivio",
-    "archivioAnno": "Archivio · {anno}"
+    "archivioAnno": "Archivio · {anno}",
+    "fino": "fino alle {fine}"
   },
   "azioni": {
     "menu": "Menu",
@@ -30,47 +31,72 @@
   "violazione": {
     "rifiuto": "«No.» {sotto} non passa sotto {sopra}.",
     "faro": "{chi} non si allontana tanto dal Faro.",
-    "corre": "{chi} non sta fermo! In questa riga deve incrociare.",
+    "corre": "{chi} è stato fermo un'ora: adesso deve incrociare (può con {vicino}).",
     "spillo": "{chi} deve essere {presso} alle {ora}.",
     "matassa": "La matassa è finita: {matassa} braccia in tutto. Puoi sempre disfare.",
     "bloccato": "{chi} è fermo in questa riga: un nodo o l'acqua alta.",
     "occupato": "{a} e {b} sono già presi da un filo che si muove da solo.",
     "forzato": "Questi fili si muovono da soli: non si toccano.",
     "disgiunto": "Ogni filo fa un solo incrocio per riga.",
-    "finita": "La notte è finita: non ci sono altre righe."
+    "finita": "La notte è finita: non ci sono altre righe.",
+    "correSolo": "{chi} è stato fermo un'ora: adesso deve incrociare.",
+    "bloccato.nodo": "Il filo di {chi} è annodato: in quest'ora non si muove.",
+    "bloccato.marea": "Con l'acqua alta, il filo di {chi} non si muove.",
+    "occupato.nero": "{nero} si muove da solo: non si può incrociare."
   },
   "cond": {
     "fallita": {
       "presso": "{chi} non era {presso} alle {ora}.",
-      "maiPresso": "{chi} è passato {presso}.",
-      "incontra": "{a} e {b} non si sono incontrati.",
+      "maiPresso": "{chi} ha messo piede {presso}.",
+      "incontra": "{a} non ha mai incontrato {b}.",
       "nonIncontra": "{a} ha incontrato {b}.",
-      "sopra": "{a} non è passato sopra {b}.",
+      "sopra": "{a} sopra {b}: non è successo.",
       "consegnata": "{perlina}: non consegnata entro le {ora}.",
       "ha": "{chi} non ha avuto {perlina} entro le {ora}.",
       "nonHa": "{chi} ha avuto {perlina}.",
-      "parte": "{chi} non è partito.",
-      "resta": "{chi} se n'è andato.",
-      "esceCon": "{perlina}: non è uscita dal merletto alle {ora}.",
+      "parte": "{chi} non ha lasciato l'isola.",
+      "resta": "{chi} ha lasciato l'isola.",
+      "esceCon": "{perlina}: non ha lasciato il merletto alle {ora}.",
       "sano": "{chi} ha la febbre.",
-      "incontriAlmeno": "{chi} ha incontrato meno di {n} persone."
+      "incontriAlmeno": "{chi} ha incontrato meno di {n} persone.",
+      "incontraFinestra": "{a} non ha incontrato {b} entro le {alle}.",
+      "nonIncontraFinestra": "{a} ha incontrato {b} fra le {dalle} e le {alle}.",
+      "sopraEntro": "{a} sopra {b}: non è successo entro le {alle}.",
+      "ha.lettera": "{chi} non ha ricevuto {perlina} entro le {ora}.",
+      "ha.voce": "{chi} non ha sentito {perlina} entro le {ora}.",
+      "ha.segreto": "{chi} non ha scoperto {perlina} entro le {ora}.",
+      "ha.nome": "{chi} non ricorda il nome di Ada.",
+      "ha.febbre": "{chi} non ha preso la febbre entro le {ora}.",
+      "nonHa.lettera": "{chi} ha toccato {perlina}.",
+      "nonHa.voce": "{chi} ha sentito {perlina}.",
+      "nonHa.segreto": "{chi} ha scoperto {perlina}.",
+      "nonHa.nome": "{chi} ha sentito il nome di Ada.",
+      "nonHa.febbre": "{chi} ha preso la febbre."
     },
     "rischio": {
       "presso": "{chi} rischia di non arrivare {presso} per le {ora}.",
-      "incontra": "{a} e {b} rischiano di non incontrarsi.",
-      "sopra": "{a} rischia di non passare sopra {b}.",
+      "incontra": "{a} rischia di non incontrare {b}.",
+      "sopra": "{a} sopra {b}: rischia di non succedere.",
       "consegnata": "{perlina}: rischia di non arrivare entro le {ora}.",
       "ha": "{chi} rischia di non avere {perlina} per le {ora}.",
-      "parte": "{chi} rischia di non partire.",
-      "esceCon": "{perlina}: rischia di non uscire dal merletto alle {ora}.",
-      "incontriAlmeno": "{chi} rischia di non incontrare {n} persone."
+      "parte": "{chi} rischia di non lasciare l'isola.",
+      "esceCon": "{perlina}: rischia di non lasciare il merletto alle {ora}.",
+      "incontriAlmeno": "{chi} rischia di non incontrare {n} persone.",
+      "incontraFinestra": "{a} rischia di non incontrare {b} entro le {alle}.",
+      "sopraEntro": "{a} sopra {b}: rischia di non succedere entro le {alle}.",
+      "ha.lettera": "{chi} rischia di non ricevere {perlina} entro le {ora}.",
+      "ha.voce": "{chi} rischia di non sentire {perlina} entro le {ora}.",
+      "ha.segreto": "{chi} rischia di non scoprire {perlina} entro le {ora}.",
+      "ha.nome": "{chi} rischia di non ricordare il nome di Ada.",
+      "ha.febbre": "{chi} rischia di non prendere la febbre entro le {ora}."
     }
   },
   "stato": {
     "in_corso": "In corso",
     "soddisfatta": "Soddisfatta",
     "a_rischio": "A rischio",
-    "fallita": "Fallita"
+    "fallita": "Fallita",
+    "inArrivo": "Si compie se fissi l'ora"
   },
   "hint": {
     "lampada": "Suggerimento",
@@ -95,7 +121,20 @@
       "indizio": "Dammi un indizio",
       "fantasma": "Mostrami l'incrocio"
     },
-    "fantasmaAvviso": "Il fantasma toglie il filo d'oro di stanotte."
+    "fantasmaAvviso": "Il fantasma toglie il filo d'oro di stanotte.",
+    "incompatibili": "Stanotte {richieste} non stanno insieme: una va lasciata cadere.",
+    "richiesteDue": "la richiesta di {a} e quella di {b}",
+    "richiesteMolte": "le richieste di {elenco}",
+    "tardi": "Da qui la richiesta di {nome} non si compie più: disfa fino alle {ora}, o lasciala cadere.",
+    "tardiSempre": "La richiesta di {nome} stanotte non si può compiere: lasciala cadere.",
+    "obiettiviTardi": "Da qui il merletto non si chiude come deve: disfa fino alle {ora}.",
+    "lascia": "Lascia cadere lo spillo di {nome}",
+    "disfaFino": "Disfa fino alle {ora}",
+    "fantasmaConferma": "Il fantasma ti mostra l'incrocio giusto, ma stanotte niente filo d'oro.",
+    "fantasmaSi": "Sì, mostramelo (perdi il filo d'oro)",
+    "fantasmaNo": "No, ci provo da sola",
+    "archivio.spinta": "Guarda chi esce, chi entra, chi porta che cosa: i nomi sono scritti nel merletto.",
+    "archivio.indizio": "Chi parte col vaporetto, chi passa da chi: un filo alla volta, e prova tre nomi insieme."
   },
   "richieste": {
     "di": "Bigliettino di {nome}",
@@ -112,8 +151,7 @@
   },
   "archivio": {
     "chiE": "Chi è {filo}?",
-    "contatore": "Nomi giusti: {giusti}/{servono} per confermare",
-    "contatoreOccasioni": "Nomi giusti {giusti}/{servono} · Occasioni {piantate}/{posti}",
+    "contatoreOccasioni": "Nomi dati {dati} di {totale} · Occasioni {piantate}/{posti}",
     "confermati": "{n, plural, one {Un filo ritrova il suo colore.} other {# fili ritrovano il loro colore.}}",
     "daRammendare": "Tutti i fili hanno un nome. Ora il rammendo.",
     "fatto": "Nominato e rammendato: tocca gli incroci per gli echi.",
@@ -121,7 +159,18 @@
     "nonCoincide": "Il rammendo non torna: alle {ora} il merletto antico era diverso.",
     "provvisorio": "{nome}?",
     "registrata": "Questa riga è del merletto antico: non si disfa.",
-    "togli": "Togli il nome"
+    "togli": "Togli il nome",
+    "nomiDati": "Nomi dati: {dati} di {totale} · si confermano a gruppi di tre giusti",
+    "nonAncora": "{n, select, 1 {Il nome giusto non c'è ancora.} 2 {Due nomi giusti non ci sono ancora.} other {Tre nomi giusti non ci sono ancora.}}",
+    "spostato": "{nome} ora è sul filo {n}.",
+    "suFilo": "sul filo {n}",
+    "manca": {
+      "nomi": "{n, plural, one {Manca il nome del filo sbiadito {fili}.} other {Mancano i nomi dei fili sbiaditi {fili}.}}",
+      "rammendo": "Manca il rammendo delle ore {da}-{a}.",
+      "rammendoOra": "Manca il rammendo dell'ora {ora}.",
+      "righe": "Il merletto non è finito: tocca alla riga delle {ora}.",
+      "giornata": "La giornata non è ancora andata come allora: pianta le occasioni e lasciala accadere."
+    }
   },
   "filo": {
     "avorio": "il filo d'avorio",
@@ -132,7 +181,7 @@
   },
   "perlina": {
     "febbre": "la febbre",
-    "letta": "il segreto di {lettera}",
+    "letta": "il segreto {della}",
     "nome": "il nome di Ada"
   },
   "presso": {
@@ -190,7 +239,7 @@
     "teresaLegge": "Teresa legge le lettere che porta.",
     "pieroPozzo": "Don Piero non dà mai niente: è un pozzo.",
     "pieroTrabocca": "Anche i pozzi si riempiono: con tre segreti Don Piero trabocca.",
-    "ginoCorre": "Gino non sta mai fermo.",
+    "ginoCorre": "Non sta fermo due ore di fila. Con la febbre resta a letto.",
     "ninaCuriosa": "Nina, quando sta sopra, si prende anche i segreti.",
     "zenoFaro": "Zeno non si allontana dal Faro.",
     "lunardiCura": "Lunardi, sopra un malato, lo guarisce."
@@ -225,11 +274,13 @@
   "generato": {
     "giornaliero": "Merletto del giorno · {data}",
     "libero": "Merletto libero · {seme}",
-    "lettera": "Una lettera",
-    "voce": "Una chiacchiera",
-    "segreto": "Una confidenza",
-    "febbre": "La febbre",
-    "marinaio": "il marinaio del vaporetto"
+    "lettera": "la lettera",
+    "voce": "la chiacchiera",
+    "segreto": "la confidenza",
+    "febbre": "la febbre",
+    "marinaio": "il marinaio del vaporetto",
+    "letteraPer": "la lettera per {to}",
+    "letteraPerN": "{n, select, 1 {la prima lettera per {to}} 2 {la seconda lettera per {to}} 3 {la terza lettera per {to}} other {la lettera {n} per {to}}}"
   },
   "test": {
     "motivi": "Prova dei dodici motivi",
@@ -280,6 +331,93 @@
     "separatore": " · ",
     "titolo": "Obiettivo",
     "gettone": "Obiettivo: {testo} ({stato})",
-    "riassunto": "Obiettivi: {fatti}/{totale} raggiunti"
+    "riassunto": "Obiettivi: {fatti}/{totale} raggiunti",
+    "incontraFinestra": "{a} incontra {b} fra le {dalle} e le {alle}",
+    "nonIncontraFinestra": "{a} non incontra {b} fra le {dalle} e le {alle}",
+    "sopraEntro": "{a} passa sopra {b} entro le {alle}",
+    "ha.lettera": "{chi} riceve {perlina} entro le {ora}",
+    "ha.voce": "{chi} sente {perlina} entro le {ora}",
+    "ha.segreto": "{chi} conosce {perlina} entro le {ora}",
+    "ha.nome": "{chi} ricorda il nome di Ada entro le {ora}",
+    "ha.febbre": "{chi} ha la febbre entro le {ora}",
+    "nonHa.lettera": "{chi} non tocca mai {perlina}",
+    "nonHa.voce": "{chi} non sente mai {perlina}",
+    "nonHa.segreto": "{chi} non scopre mai {perlina}",
+    "nonHa.nome": "{chi} non sente mai il nome di Ada",
+    "nonHa.febbre": "{chi} non si ammala mai",
+    "almenoStesso": "Almeno {n} fra {elenco} {azione}",
+    "azione.ha.lettera": "ricevono {perlina} (entro le {ora})",
+    "azione.ha.voce": "sentono {perlina} (entro le {ora})",
+    "azione.ha.segreto": "conoscono {perlina} (entro le {ora})",
+    "azione.ha.nome": "ricordano il nome di Ada (entro le {ora})",
+    "azione.ha.febbre": "hanno la febbre (entro le {ora})",
+    "azione.incontra": "incontrano {b}",
+    "azione.incontraFinestra": "incontrano {b} fra le {dalle} e le {alle}",
+    "azione.presso": "sono {presso} alle {ora}",
+    "azione.sano": "sono senza febbre a fine giornata"
+  },
+  "ora": {
+    "fmt": "{h}"
+  },
+  "elenco": {
+    "separatore": ", ",
+    "ultimo": " e "
+  },
+  "rancore": {
+    "coppia": "{a} e {b} sono in rancore: se si incrociano, si annodano."
+  },
+  "obiettivi": {
+    "pulsante": "Obiettivi: {fatti} su {totale}",
+    "spillo": "{chi} {presso} alle {ora}",
+    "nascosto": "più giù nel merletto",
+    "sbiadito": "Filo sbiadito {n}: senza nome",
+    "sbiaditoProvvisorio": "Filo sbiadito {n}: {nome}?",
+    "sbiaditoNominato": "Filo sbiadito {n}: {nome}",
+    "strappo": "Strappo delle ore {da}-{a}",
+    "strappoOra": "Strappo dell'ora {ora}",
+    "stato": {
+      "rispettato": "Rispettato",
+      "futuro": "Appuntamento fisso",
+      "irraggiungibile": "Non ci arriva più: disfa qualche riga",
+      "nominato": "Nome confermato",
+      "daNominare": "Tocca per dargli un nome",
+      "rammendato": "Rammendato",
+      "daRammendare": "Da rammendare"
+    }
+  },
+  "occasione": {
+    "pane": "il pane",
+    "festa": "la festa",
+    "messa": "la messa",
+    "lanterna": "la lanterna",
+    "vaporetto": "il vaporetto"
+  },
+  "bolla": {
+    "spillo": "{chi} {presso} alle {ora}: appuntamento fisso.",
+    "spilloObiettivo": "{chi} {presso} alle {ora}: lo chiede la notte.",
+    "spilloRosso": "{chi} {presso} alle {ora}: lo chiede {autore}.",
+    "occasione": "{tipo} {presso} alle {ora}.",
+    "perlina": "{perlina}: la porta {chi}.",
+    "perlinaConsegnata": "{perlina}: consegnata a {chi}.",
+    "ora": "Alle {ora}: {eventi}.",
+    "oraVuota": "Alle {ora} non succede niente di speciale.",
+    "nero": "Il filo nero passerà sopra {chi}: si muove da solo.",
+    "entra": "Entra {chi}.",
+    "entraCon": "Entra {chi} con {perline}.",
+    "bordo": {
+      "vaporetto": "Alle {ora} il vaporetto: chi è {presso} esce.",
+      "barca": "Alle {ora} la barca: chi è {presso} esce.",
+      "secca": "Alle {ora} la secca: chi è {presso} esce.",
+      "nero": "Alle {ora} entra il filo nero, {presso}."
+    },
+    "evento": {
+      "vaporetto": "il vaporetto {presso}",
+      "barca": "la barca {presso}",
+      "secca": "la secca {presso}",
+      "nero": "entra il filo nero",
+      "spillo": "{chi} deve essere {presso}",
+      "marea": "comincia l'acqua alta {luoghi}",
+      "mareaFine": "finisce l'acqua alta {luoghi}"
+    }
   }
 }

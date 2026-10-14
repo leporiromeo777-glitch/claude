@@ -8,9 +8,10 @@
 import { el } from '../../core/ui/dom';
 import { button, iconButton, setTextParams } from '../../core/ui/components';
 import type { TomboloLayout } from '../layout';
-import { fitText, place } from './popup';
+import { fitText, minTextPx, place } from './popup';
 
-export type PulseTarget = 'fissa' | 'taccuino' | 'nome' | 'disfa' | null;
+/** Pulsanti della barra che possono pulsare (tutorial, C02). */
+export type BarPulse = 'fissa' | 'taccuino' | 'disfa';
 
 export interface ActionBarHandlers {
   menu(): void;
@@ -24,7 +25,8 @@ export interface ActionBarState {
   mainEnabled: boolean;
   undoEnabled: boolean;
   undoVisible: boolean;
-  pulse: PulseTarget;
+  /** Pulsanti che pulsano (tutorial). */
+  pulse: readonly BarPulse[];
 }
 
 /** Dopo un clic del mouse il fuoco lascia il pulsante, così Spazio e Invio restano al merletto. */
@@ -58,14 +60,14 @@ export class ActionBar {
     if (label && label.dataset.i18n !== s.mainKey) {
       label.dataset.i18n = s.mainKey;
       setTextParams(label, {});
-      fitText(label, 12);
+      fitText(label, minTextPx());
     }
     this.main.disabled = !s.mainEnabled;
     this.undo.disabled = !s.undoEnabled;
     this.undo.hidden = !s.undoVisible;
-    this.main.classList.toggle('tb-pulsa', s.pulse === 'fissa');
-    this.undo.classList.toggle('tb-pulsa', s.pulse === 'disfa');
-    this.notebook.classList.toggle('tb-pulsa', s.pulse === 'taccuino');
+    this.main.classList.toggle('tb-pulsa', s.pulse.includes('fissa'));
+    this.undo.classList.toggle('tb-pulsa', s.pulse.includes('disfa'));
+    this.notebook.classList.toggle('tb-pulsa', s.pulse.includes('taccuino'));
   }
 
   /** Riga non valida: "Fissa l'ora" trema (oltre alla vibrazione). */
@@ -78,6 +80,6 @@ export class ActionBar {
   layout(l: TomboloLayout): void {
     place(this.el, l.actions);
     const label = this.main.querySelector<HTMLElement>('.core-btn-label');
-    if (label) fitText(label, 12);
+    if (label) fitText(label, minTextPx());
   }
 }

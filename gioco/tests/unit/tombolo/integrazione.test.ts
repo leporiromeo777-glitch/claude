@@ -125,7 +125,8 @@ describe('autoplay con il nome di Ada (priorità 2)', () => {
     expect(out.nomeOn).toBe('lunardi');
     expect(out.requests).toEqual([{ noteId: 'g12.lunardi', status: 'soddisfatta' }]);
     expect(out.metrics.incroci).toBe(2);
-    expect(out.metrics.filoDOro).toBe(true);
+    // C15: filo d'oro solo se il minimo della notte è almeno 3.
+    expect(out.metrics.filoDOro).toBe((out.metrics.minIncroci ?? 0) >= 3);
   });
 
   it('senza un filo indicato resta il primo filo che non è un lino', async () => {
@@ -222,14 +223,15 @@ describe('obiettivi obbligatori visibili (priorità 4)', () => {
     ['g17', /Zeno resta/],
   ];
   for (const [id, text] of cases) {
-    it(`${id}: gettone d'ottone con il testo dell'obiettivo`, () => {
+    it(`${id}: pulsante Obiettivi con il contatore e l'obiettivo nell'elenco (C08)`, () => {
       c = new NightController(h.s, nightParams(level(id), { origin: 'campagna', needsNome: id !== 'g04' }), { computed: computed(id) });
-      const tok = document.querySelector<HTMLElement>('[data-test="tb-obiettivo-0"]');
-      expect(tok).not.toBeNull();
-      expect(tok?.getAttribute('aria-label')).toMatch(text);
-      expect(tok?.classList.contains('tb-token--obiettivo')).toBe(true);
-      c.openRequest('obiettivo:0');
-      expect(document.querySelector('[data-test="tb-obiettivo"]')?.textContent).toMatch(text);
+      const btn = document.querySelector<HTMLElement>('[data-test="tb-obiettivi"]');
+      expect(btn).not.toBeNull();
+      expect(btn?.hidden).toBe(false);
+      expect(btn?.textContent).toMatch(/^\d+\/\d+$/);
+      c.openRequest('obiettivi');
+      const item = document.querySelector('[data-test="tb-popup-obiettivi"] [data-test="tb-obiettivo-0"]');
+      expect(item?.textContent).toMatch(text);
     });
   }
 
@@ -250,9 +252,11 @@ describe('obiettivi obbligatori visibili (priorità 4)', () => {
     const lv = level('g04');
     const s = new Session(nightParams(lv, { origin: 'campagna' }));
     expect(s.goalStatus()[0]).toEqual({ status: 'a_rischio', reasonKey: 'tombolo.cond.rischio.parte', params: { chi: 'bepi', ora: 7 } });
-    // Bepi incrocia Nina e va al Molo: con la riga in anteprima è fatta.
+    // Bepi incrocia Nina e va al Molo: con la riga in anteprima si compirebbe, ma
+    // «soddisfatta» solo a ora fissata (C07): il report resta aperto, l'anteprima sì.
     expect(s.propose({ pair: 0, over: 'R' })).toBeNull();
-    expect(s.goalStatus()[0]?.status).toBe('soddisfatta');
+    expect(s.goalStatus()[0]?.status).toBe('in_corso');
+    expect(s.goalPreview()[0]).toBe('soddisfatta');
     s.remove(0);
     // Fissata senza Bepi al Molo: ora sì, fallita.
     expect(s.fix().ok).toBe(true);
@@ -288,7 +292,8 @@ describe('Archivio: matassa ed eleganza contano solo il rammendo (priorità 5)',
     expect(out.archive).toEqual({ named: true, mended: true });
     expect(out.metrics.incroci).toBe(2);
     expect(out.metrics.minIncroci).toBe(2);
-    expect(out.metrics.filoDOro).toBe(true);
+    // C15: con un minimo di 2 non c'è filo d'oro (nemmeno nell'Archivio).
+    expect(out.metrics.filoDOro).toBe(false);
     // Lo spartito ha tutto il merletto (per Ripassa), non solo il rammendo.
     expect(out.rows).toHaveLength(level('arc3').endHour - level('arc3').startHour);
   });
@@ -306,7 +311,7 @@ describe('Archivio: matassa ed eleganza contano solo il rammendo (priorità 5)',
       expect(s.done, id).toBe(true);
       const o = s.outcome();
       expect(o.metrics.incroci, id).toBe(computed(id)?.base.incroci);
-      expect(o.metrics.filoDOro, id).toBe(true);
+      expect(o.metrics.filoDOro, id).toBe((computed(id)?.base.incroci ?? 0) >= 3);
     }
   });
 });
@@ -327,14 +332,20 @@ describe('note a margine sui rifiuti (priorità 6)', () => {
     expect(shown).toEqual([]);
   });
 
-  it('g01: la nota di Clotilde compare quando Gino non sta fermo', () => {
-    const lv = level('g01');
-    c = new NightController(h.s, nightParams(lv, { origin: 'campagna' }), { computed: computed('g01') });
-    // Riga vuota: Gino (al centro, con vicini liberi) deve incrociare.
+  it('la nota di Clotilde compare quando Gino non sta fermo (regola nuova, C01)', () => {
+    const lv: LevelDef = { ...fixture('test-gino'), tutorial: [{ k: 'margine', when: 'rifiuto', codice: 'corre', textKey: 'tombolo.test.margine' }] };
+    c = new NightController(h.s, nightParams(lv), { computed: null });
+    // All'apertura Gino conta come appena mosso: la prima riga vuota passa,
+    // la seconda riga ferma (con vicini liberi) è rifiutata, con il vicino nel messaggio.
+    expect(c.fix().ok).toBe(true);
     const res = c.fix();
     expect(res.ok).toBe(false);
     expect(res.violations[0]?.code).toBe('corre');
-    expect(c.margin.current).toBe('atto1.g01.margine.verso');
+    expect(c.margin.current).toBe('tombolo.test.margine');
+    // Un solo messaggio (D04): con la nota del tutorial la riga di motivo non c'è.
+    expect(c.explain.key).toBe('');
+    expect(c.suppressed?.key).toBe('tombolo.violazione.corre');
+    expect(String(c.suppressed?.params.vicino ?? '')).not.toBe('');
   });
 });
 

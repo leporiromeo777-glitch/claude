@@ -29,27 +29,40 @@ import type {
   Violation,
 } from '../core/types';
 import { el } from '../core/ui/dom';
-import { button } from '../core/ui/components';
+import { button, textOf } from '../core/ui/components';
 import { solveAsync } from '../engine/index';
-import { Session } from './session';
-import { type TomboloLayout, autoScroll, computeTomboloLayout, rowBottom, rowTop, scrollLimits } from './layout';
+import { type Diagnosis, Session } from './session';
+import { BAND, type NotePlacement, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, scrollLimits } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
-import { type TextDeps, describeCondition, nameParams, reportText, threadName, violationParams } from './text';
+import { type TextDeps, describeCondition, formatHour, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
 import { LaceRenderer, emptyOverlay, type Overlay, type Palette } from './render/lace';
 import { type LaceModel, buildLaceModel, stacksOf } from './render/model';
-import { Tutorial } from './tutorial';
+import { type ActivePulse, type MarginHand, Tutorial } from './tutorial';
 import { Interaction } from './interact';
 import { ActionBar } from './ui/actionbar';
 import { ColumnHeader, Hud } from './ui/hud';
-import { RequestStrip, goalCard, noteCard, type RequestToken } from './ui/requests';
+import { type GoalsButtonState, RequestStrip, goalCard, noteCard, type RequestToken } from './ui/requests';
+import { ObjectivesList } from './ui/objectives';
+import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
-import { ExplainLine, MarginNote, Popup, StatusLine, fitText, place, type Params } from './ui/popup';
-import { AutoRunner, allowedAt, occasionSlots, toggleOccasion } from './modes/autoweave';
+import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
+import { AutoRunner, allowedAt, allowedCells, occasionSlots, toggleOccasion } from './modes/autoweave';
 import { replayStepMs } from './modes/replay';
 import { saveNight, clearNight } from './resume';
+import type { NameResult } from './modes/archive';
+
+/** Come è arrivato un tocco (per aprire le schede lontano dal dito e dopo il click di compatibilità). */
+export interface TapVia {
+  pointer?: 'mouse' | 'touch' | 'pen';
+  /** Y del tocco sullo schermo (px CSS). */
+  y?: number;
+}
 
 const BEAD_EVENTS: ReadonlySet<LaceEvent['k']> = new Set(['passa', 'copia', 'consegna', 'contagio', 'cura']);
+/** Nota a margine: si chiude alla prima azione valida dopo 4 s, da sola dopo 12 s (D04). */
+const NOTE_MIN_S = 4;
+const NOTE_MAX_S = 12;
 
 export interface ControllerOptions {
   computed: LevelComputed | null;
@@ -82,7 +95,6 @@ export class NightController {
   private time = 0;
   private idle = 0;
   private hintRowHour = -1;
-  private hintStep = 0;
   lastHint: Hint | null = null;
   lastViolation: Violation | null = null;
   previewRow = -1;
@@ -93,7 +105,7 @@ export class NightController {
   private destroyed = false;
   private lastStatus: Record<NoteId, string> = {};
   private vp: Viewport;
-  private readonly textDeps: TextDeps;
+  readonly textDeps: TextDeps;
   private lastRowHour = -1;
   private panelLeft: { destroy(): void } | null = null;
   private panelRight: { destroy(): void } | null = null;
@@ -110,7 +122,11 @@ export class NightController {
   private readonly actions: ActionBar;
   private readonly lamp: HintLamp;
   readonly explain = new ExplainLine();
+  /** Perché «Chiudi il merletto» non chiude l'Archivio (TOM-03). */
+  readonly closeReason = new ReasonLine('tb-archivio-chiudi-motivo');
   readonly margin = new MarginNote();
+  /** Bolla del tocco che spiega (TOM-12). */
+  readonly bubble = new Bubble();
   readonly status = new StatusLine();
   private readonly prompt: HTMLElement;
   private readonly rewindBar: HTMLElement;
@@ -132,7 +148,7 @@ export class NightController {
     this.textDeps = { i18n: s.i18n, content: s.content, level: params.level, override: (id) => this.fadedName(id) };
     this.visuals = this.makeVisuals();
     this.renderer = new LaceRenderer();
-    this.tutorial = new Tutorial(params.level.tutorial ?? [], { margin: (k) => this.showMargin(k) });
+    this.tutorial = new Tutorial(params.level.tutorial ?? [], { margin: (k, hand) => this.showMargin(k, hand) });
     this.overlay.quirk = this.quirkOf;
     this.overlay.label = this.labelOf;
     this.interact = new Interaction(this);
@@ -141,7 +157,11 @@ export class NightController {
     // ───────── DOM ─────────
     this.requests = new RequestStrip((id) => this.openRequest(id));
     this.actions = new ActionBar({ menu: () => this.openMenu(), undo: () => this.undo(), main: () => this.mainAction(), notebook: () => this.openNotebook() });
-    this.lamp = new HintLamp(() => void this.nextHint());
+    this.lamp = new HintLamp(() => {
+      this.tutorial.interacted('lampada');
+      void this.lampTap();
+    });
+    this.margin.onTap = () => this.closeNote();
     this.prompt = el('div', { class: 'tb-prompt', role: 'status', test: 'tb-nome-prompt', hidden: true });
     this.rewindBar = el('div', { class: 'tb-rewind core-solid', test: 'tb-riavvolgi', hidden: true });
     this.leftBox = el('div', { class: 'tb-panel tb-panel-left', test: 'tb-pannello-sinistro', hidden: true });
@@ -157,7 +177,9 @@ export class NightController {
       this.actions.el,
       this.lamp.el,
       this.explain.el,
+      this.closeReason.el,
       this.margin.el,
+      this.bubble.el,
       this.prompt,
       this.rewindBar,
       this.status.el,
@@ -167,6 +189,7 @@ export class NightController {
         const pl = s.content.places.get(p);
         return { place: p, icon: pl?.icon ?? 'info', shortKey: pl?.shortKey ?? `tombolo.luogo.${p}`, nameKey: pl?.nameKey ?? `tombolo.luogo.${p}` };
       }),
+      (k) => s.i18n.t(k),
     );
     const host = (s.ui as UiLayerExtra).sceneRoot ?? s.ui.root;
     host.appendChild(this.root);
@@ -196,10 +219,20 @@ export class NightController {
     this.onSettings();
     this.resize(this.vp);
     this.tutorial.onRowStart(this.session.hour, this.session.rows.length === 0);
+    if (!this.session.done) this.tutorial.onEvents(this.session.preview().events);
     this.updateStatusLine();
     this.lastRowHour = this.session.hour;
     this.rememberStatuses();
     this.saveNow(false);
+    this.s.canvas?.canvas?.addEventListener('pointermove', this.onHover);
+    // Le misure delle scritte si rifanno a font caricati (D16).
+    try {
+      void document.fonts?.ready.then(() => {
+        if (!this.destroyed) this.resize(this.vp);
+      });
+    } catch {
+      /* niente FontFaceSet */
+    }
     // Ultima cosa: se la notte non parte (costruttore interrotto) la classe non resta appesa.
     nightOpened(s.ui.root);
   }
@@ -264,7 +297,7 @@ export class NightController {
   resize(vp: Viewport): void {
     this.vp = vp;
     const lv = this.params.level;
-    this.layout = computeTomboloLayout(vp, lv.columns.length, lv.endHour - lv.startHour);
+    this.layout = computeTomboloLayout(vp, lv.columns.length, lv.endHour - lv.startHour, { noteBand: this.noteBand, hud: this.hudH });
     this.renderer.configure(this.layout, vp.dpr);
     this.extraVersion++;
     this.refresh(true);
@@ -272,34 +305,77 @@ export class NightController {
     this.scroll = this.scrollTarget;
   }
 
+  /** Altezza della barra alta con le scritte a capo (0 = la sua altezza normale). */
+  private hudH = 0;
+
+  private relayouts = 0;
+  private overlayWasOpen = false;
+
+  /** La barra alta ha cambiato scritte: se ha cambiato altezza, si ridispone il tombolo. */
+  private checkHudHeight(): void {
+    const natural = this.hud.naturalHeight();
+    const want = natural > BAND.hud ? natural : 0;
+    if (natural > 0 && want !== this.hudH && this.relayouts < 4) {
+      this.relayouts++;
+      this.hudH = want;
+      this.resize(this.vp);
+      this.relayouts--;
+    }
+  }
+
   private layoutDom(): void {
     const l = this.layout;
     this.hud.layout(l);
+    // Le scritte della barra alta vanno a capo invece di rimpicciolirsi (D16): se
+    // non stanno nei 52 px la barra cresce e il tombolo si ridispone.
+    const natural = this.hud.naturalHeight();
+    const want = natural > BAND.hud ? natural : 0;
+    if (natural > 0 && want !== this.hudH && this.relayouts < 4) {
+      this.hudH = want;
+      this.relayouts++;
+      this.resize(this.vp);
+      this.relayouts--;
+      return;
+    }
     this.header.layout(l);
     this.requests.layout(l);
     this.actions.layout(l);
     this.lamp.layout(l);
     const laceTop = l.lace.y + 6;
     const w = Math.min(l.center.w - 24, 460);
-    for (const node of [this.explain.el, this.prompt]) {
-      node.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
-      node.style.top = `${laceTop}px`;
-      node.style.width = `${w}px`;
-    }
-    this.margin.el.style.right = `${l.cssW - (l.center.x + l.center.w) + 8}px`;
-    this.margin.el.style.top = `${laceTop + 52}px`;
-    this.margin.el.style.maxWidth = `${Math.min(260, l.center.w * 0.62)}px`;
+    // «Appunta il tuo nome»: in cima al merletto (prima della prima riga non c'è niente sotto).
+    this.prompt.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
+    this.prompt.style.top = `${laceTop}px`;
+    this.prompt.style.width = `${w}px`;
+    // Un solo messaggio, sopra «Fissa l'ora» (D04): mai sulla riga corrente.
+    this.placeReason(this.explain.el);
+    this.applyNoteRect();
     place(this.rewindBar, l.actions);
-    this.popup?.position(this.popupAnchor());
+    this.placeReason(this.closeReason.el);
+    this.popup?.position(this.popupAnchor(this.popupTop));
     // Gli avvisi brevi del core (una voce del Taccuino, una stranezza) salgono sopra
     // la striscia delle richieste: in basso coprirebbero i fusi (vedi tombolo.css).
     this.s.ui.root?.style?.setProperty(TOAST_BOTTOM_VAR, `${Math.max(0, Math.round(l.cssH - l.requests.y + 8))}px`);
     this.mountPanels();
   }
 
-  private popupAnchor(): { x: number; y: number; w: number; h: number } {
+  /** Posto delle schede: sopra la barra delle azioni o, con `top`, in cima al merletto. */
+  private popupAnchor(top = false): PopupAnchor {
     const l = this.layout;
+    if (top) return { x: l.center.x, y: l.lace.y + 4, w: l.center.w, h: l.actions.y - l.lace.y - 12, top: true };
     return { x: l.center.x, y: l.cssH - l.actions.y + 8, w: l.center.w, h: l.actions.y - l.lace.y - 16 };
+  }
+
+  private popupTop = false;
+
+  /** Riga di motivo: sopra la barra delle azioni, centrata sul pulsante grande. */
+  private placeReason(node: HTMLElement): void {
+    const l = this.layout;
+    const w = Math.min(l.center.w - 16, 420);
+    node.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
+    node.style.width = `${w}px`;
+    node.style.bottom = `${l.cssH - l.actions.y + 4}px`;
+    node.style.top = '';
   }
 
   /**
@@ -356,8 +432,10 @@ export class NightController {
         this.manualScroll = false;
       }
       if (s.version !== this.lastSaveVersion && this.lastSaveVersion >= 0) this.saveNow(false);
+      if (this.margin.visible()) this.positionNote();
     }
     this.updateUi();
+    this.updateLists();
   }
 
   private echoesOpen(): boolean {
@@ -436,64 +514,61 @@ export class NightController {
     const lv = this.params.level;
     this.updateOverlayData();
     const day = this.dayLabel();
-    this.hud.update({
+    const hudChanged = this.hud.update({
       dayKey: day.key,
       dayParams: day.params,
       titleKey: lv.titleKey,
       titleParams: this.titleParams(),
-      hour: s.done ? lv.endHour : s.hour,
+      hour: formatHour(this.textDeps, s.done ? lv.endHour : s.hour),
+      end: formatHour(this.textDeps, lv.endHour),
       done: s.done,
       matassa: this.showMatassa() ? s.matassa() : null,
       light: this.windowLight(),
     });
+    if (hudChanged && this.layout) this.checkHudHeight();
     const main = this.mainKey();
-    const pulse = this.completed ? null : this.tutorial.pulse(s.hour, s.draft.length === 0, s.needsNome);
+    const pulses = this.activePulses();
+    const has = (t: string): boolean => pulses.some((p) => p.target === t);
     this.actions.update({
       mainKey: main.key,
       mainEnabled: main.enabled,
       undoEnabled: !this.completed && s.canUndo(),
       undoVisible: this.params.mode !== 'replay' && this.params.mode !== 'occasioni',
-      pulse: pulse === 'nome' ? null : pulse,
+      pulse: (['fissa', 'disfa', 'taccuino'] as const).filter((t) => has(t)),
     });
+    this.lamp.el.classList.toggle('tb-pulsa', has('lampada'));
+    this.hud.setPulse(has('matassa'));
     // Richieste.
     const tokens: RequestToken[] = s.requestStatusFull().map((st) => {
       const acc = this.params.accepted.find((a) => a.noteId === st.noteId);
       const who = (acc?.authorGuess ?? acc?.author ?? 'teresa') as CharacterId;
       const ch = this.s.content.characters.get(who);
       const name = ch ? this.s.i18n.t(ch.nameKey) : who;
-      const statusKey = st.dropped ? 'tombolo.richieste.statoLasciata' : `tombolo.stato.${st.report.status}`;
+      // Spunta tratteggiata: si compirebbe fissando l'ora (C07); «soddisfatta» solo a ora fissata.
+      const preview = !st.dropped && st.anteprima === 'soddisfatta' && st.report.status !== 'soddisfatta';
+      const statusKey = st.dropped ? 'tombolo.richieste.statoLasciata' : preview ? 'tombolo.stato.inArrivo' : `tombolo.stato.${st.report.status}`;
       return {
         noteId: st.noteId,
         icon: ch?.icon ?? 'busta',
         color: ch?.color ?? '#C8372D',
         status: st.report.status,
+        preview,
         dropped: st.dropped,
         label: this.s.i18n.t('tombolo.richieste.gettone', { nome: name, stato: this.s.i18n.t(statusKey) }),
       };
     });
-    // Obiettivi obbligatori del livello: gettoni d'ottone prima delle richieste
-    // (con più di due obiettivi, un gettone solo che li elenca tutti).
-    const reports = s.goalStatus();
-    const goalTokens: RequestToken[] = reports.length > 2 ? [this.goalSummaryToken(reports)] : reports.map((r, i) => {
-      const c = this.params.goals[i];
-      const text = c ? describeCondition(this.textDeps, c) : '';
-      return {
-        noteId: `obiettivo:${i}`,
-        goal: true,
-        icon: 'stella',
-        color: '#C9A24A',
-        status: r.status,
-        dropped: false,
-        label: this.s.i18n.t('tombolo.obiettivo.gettone', { testo: text, stato: this.s.i18n.t(`tombolo.stato.${r.status}`) }),
-      };
-    });
-    this.requests.update([...goalTokens, ...tokens]);
+    this.requests.update(tokens);
+    // Pulsante Obiettivi con il contatore «2/5» (C08): obiettivi, spilli, rancore, fili da nominare.
+    this.requests.setGoals(this.goalsButton());
+    this.requests.goals.classList.toggle('tb-pulsa', has('obiettivi'));
     const a = s.archive;
     if (a) {
-      const c = a.counter();
       // Archivio con le occasioni (A6): oltre ai nomi, quante occasioni restano da piantare.
       const occ = this.params.mode === 'occasioni' ? { piantate: s.occasions.length, posti: occasionSlots(lv) } : null;
-      if (!a.allNamed()) this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.contatore', { giusti: c.correct, servono: c.needed, ...(occ ?? {}) });
+      if (!a.allNamed()) {
+        const pr = a.progress();
+        this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.nomiDati', { dati: pr.given, totale: pr.total, ...(occ ?? {}) });
+      }
       else if (!this.echoesOpen()) this.requests.setInfo(occ ? 'tombolo.occasioni.contatore' : 'tombolo.archivio.daRammendare', occ ?? {});
       else this.requests.setInfo('tombolo.archivio.fatto', {});
     } else if (this.params.mode === 'occasioni') {
@@ -501,10 +576,10 @@ export class NightController {
     } else if (this.params.mode === 'replay') {
       this.requests.setInfo('tombolo.replay.righe', { fatte: s.rows.length, totale: lv.endHour - lv.startHour });
     } else this.requests.setInfo('', {});
-    // Lampada.
-    const playerRow = s.isPlayerRow() && !this.completed;
-    const lit = playerRow && this.lampLit();
-    this.lamp.setLit(lit, playerRow && (lit || this.hintRowHour === s.hour));
+    // Lampada (D07.1): sempre visibile, tenue; accesa dopo 60 s senza fissare o 3 Disfa
+    // sulla stessa riga, e accesa per tutta la notte dopo il primo suggerimento.
+    const avail = this.lampAvailable();
+    this.lamp.setLit(avail && (this.lampLit() || this.hintsShown > 0), avail);
     // Passaggio del nome.
     const needsNome = s.needsNome && !this.completed;
     if (needsNome !== !this.prompt.hidden) {
@@ -567,6 +642,13 @@ export class NightController {
     this.renderer.flights.update(speed <= 0 ? 1 : dt * speed);
     this.runner?.update(dt);
     const s = this.session;
+    // Le misure si rifanno a sovrapposizioni chiuse (D16: impostazioni cambiate dalla Pausa).
+    const ui = this.s.ui as UiLayerExtra & { overlays?: () => string[] };
+    const overlayOpen = (ui.overlays?.().length ?? 0) > 0;
+    if (this.overlayWasOpen && !overlayOpen) this.resize(this.vp);
+    this.overlayWasOpen = overlayOpen;
+    // Nota a margine: 12 s, se l'avanzamento automatico è acceso (D04).
+    if (this.margin.visible() && this.s.settings.get().autoAdvance && this.time - this.noteAt >= NOTE_MAX_S) this.closeNote();
     if (s.isPlayerRow() && !this.completed && !this.popup?.isOpen() && !s.needsNome) {
       const before = this.lampLit();
       this.idle += dt;
@@ -635,7 +717,89 @@ export class NightController {
     const hl = this.overlay.highlight;
     hl.clear();
     if (s.needsNome && !this.completed) for (const t of s.state.pos) hl.add(t);
+    // Pulsazioni del tutorial sul merletto (C02): fuso, spillo, bordo, marea.
+    const o = this.overlay;
+    o.pulseEdge = -1;
+    o.pulsePinCol = -1;
+    o.pulsePinIndex = -1;
+    o.pulseTideFrom = -1;
+    const lv = this.params.level;
+    const start = lv.startHour;
+    for (const p of this.activePulses()) {
+      if (p.target === 'fuso' && p.thread) hl.add(p.thread);
+      else if (p.target === 'bordo') o.pulseEdge = p.hour - start;
+      else if (p.target === 'marea') o.pulseTideFrom = p.hour - start;
+      else if (p.target === 'spillo' && p.thread) {
+        let best: { col: number; index: number; d: number } | null = null;
+        for (const pin of lv.pins) {
+          if (pin.thread !== p.thread) continue;
+          const col = lv.columns.indexOf(pin.place);
+          const d = Math.abs(pin.hour - p.hour);
+          if (col >= 0 && (!best || d < best.d)) best = { col, index: pin.hour - start, d };
+        }
+        if (best) {
+          o.pulsePinCol = best.col;
+          o.pulsePinIndex = best.index;
+        }
+      }
+    }
   }
+
+  /** Pulsazioni del tutorial attive adesso. */
+  private activePulses(): ActivePulse[] {
+    const s = this.session;
+    if (this.completed) return [];
+    return this.tutorial.pulses(s.hour, s.draft.length === 0, s.needsNome);
+  }
+
+  // ───────── Il tocco spiega ─────────
+
+  /** Bersaglio di una bolla sotto il punto (spillo, bordo, perlina, ora, filo nero), o null. */
+  bubbleTargetAt(x: number, y: number): BubbleTarget | null {
+    if (!this.model || !this.layout) return null;
+    return bubbleTargetAt({ layout: this.layout, model: this.model, scroll: this.scroll, rig: this.renderer.rig, previewing: this.previewRow >= 0 }, x, y);
+  }
+
+  /** Apre la bolla del bersaglio sotto il punto; false se lì non c'è niente da spiegare. */
+  showBubbleAt(x: number, y: number, hover = false): boolean {
+    const t = this.bubbleTargetAt(x, y);
+    if (!t) {
+      if (hover && this.bubbleByHover) this.hideBubble();
+      return false;
+    }
+    const text = bubbleText(
+      { text: this.textDeps, level: this.params.level, session: this.session, accepted: this.params.accepted, occasions: this.session.occasions, locale: this.s.i18n.locale() },
+      t,
+    );
+    if (!text) return false;
+    const l = this.layout;
+    this.bubble.show(text, t.x, t.y, { x: l.center.x, y: l.hud.y + l.hud.h, w: l.center.w, h: l.actions.y - l.hud.y - l.hud.h });
+    this.bubble.el.dataset.tipo = t.k;
+    this.bubbleByHover = hover;
+    if (!hover) {
+      if (t.k === 'spillo') this.tutorial.interacted('spillo');
+      if (t.k === 'bordo') this.tutorial.interacted('bordo');
+    }
+    return true;
+  }
+
+  private bubbleByHover = false;
+
+  hideBubble(): void {
+    if (this.bubble.visible()) this.bubble.hide();
+    this.bubbleByHover = false;
+  }
+
+  /** Passaggio del mouse (GDD 11.2): la stessa bolla del tocco, solo come anteprima. */
+  private readonly onHover = (e: PointerEvent): void => {
+    if (e.pointerType !== 'mouse' || e.buttons !== 0 || this.destroyed) return;
+    if (this.bubble.visible() && !this.bubbleByHover) return;
+    if (this.popup?.isOpen()) return;
+    const cv = this.s.canvas?.canvas;
+    if (!cv) return;
+    const r = cv.getBoundingClientRect();
+    this.showBubbleAt(e.clientX - r.left, e.clientY - r.top, true);
+  };
 
   // ───────── Scorrimento ─────────
 
@@ -695,14 +859,34 @@ export class NightController {
   // ───────── Azioni ─────────
 
   private textOfViolation(v: Violation): { key: string; params: Params } {
-    return { key: v.messageKey, params: violationParams(this.textDeps, v) };
+    return { key: violationMessageKey(this.textDeps, v), params: violationParams(this.textDeps, v) };
   }
 
+  /**
+   * Una violazione produce un solo messaggio (D04): la riga di motivo sopra «Fissa
+   * l'ora», oppure la nota del tutorial se ne parte una. Mai un avviso a banner.
+   */
   private onViolation(v: Violation): void {
     this.lastViolation = v;
     const t = this.textOfViolation(v);
-    this.explain.show(t.key, t.params, 'warn', 4500);
-    this.tutorial.onViolation(v, this.session.hour);
+    this.closeReason.hide();
+    const noted = this.tutorial.onViolation(v, this.session.hour);
+    if (noted) {
+      this.explain.hide();
+      this.suppressed = t;
+    } else {
+      this.suppressed = null;
+      this.explain.show(t.key, t.params, 'warn', 4500);
+    }
+  }
+
+  /** Messaggio di una violazione sostituito da una nota del tutorial (per il debug). */
+  suppressed: { key: string; params: Params } | null = null;
+
+  /** Un messaggio nella riga in basso (al posto di quello che c'era). */
+  private say(key: string, params: Params, kind: 'info' | 'warn' | 'ok', ms: number): void {
+    this.closeReason.hide();
+    this.explain.show(key, params, kind, ms);
   }
 
   cross(pair: number, over: Side, source: 'drag' | 'key' | 'debug'): Violation | null {
@@ -722,9 +906,18 @@ export class NightController {
     }
     if (this.lastHint?.ghost && this.lastHint.ghost.pair === pair) this.clearHintMarks();
     this.launchFlights(pair);
+    this.validAction();
     this.tutorial.onCross(hour, s.wrongSide(pair));
+    this.tutorial.onEvents(s.preview().events);
     this.refresh();
     return null;
+  }
+
+  /** Un'azione accettata: i messaggi di un rifiuto passato non valgono più; la nota può chiudersi. */
+  private validAction(): void {
+    this.suppressed = null;
+    if (this.explain.key.startsWith('tombolo.violazione.')) this.explain.hide();
+    this.noteAction();
   }
 
   private launchFlights(pair: number): void {
@@ -789,7 +982,9 @@ export class NightController {
     if (v) this.onViolation(v);
     else {
       this.launchFlights(pair);
+      this.validAction();
       this.tutorial.onCross(this.session.hour, this.session.wrongSide(pair));
+      this.tutorial.onEvents(this.session.preview().events);
     }
     this.refresh();
     return v;
@@ -798,6 +993,7 @@ export class NightController {
   removeCrossing(pair: number): void {
     if (this.completed) return;
     this.session.remove(pair);
+    this.validAction();
     this.refresh();
   }
 
@@ -807,22 +1003,46 @@ export class NightController {
       this.flipCrossing(p);
       return;
     }
-    if (s.forced().some((f) => f.pair === p)) this.explain.show('tombolo.violazione.forzato', nameParams(this.textDeps, { a: s.state.pos[p] ?? '', b: s.state.pos[p + 1] ?? '' }), 'info', 3500);
+    if (s.forced().some((f) => f.pair === p)) this.say('tombolo.violazione.forzato', nameParams(this.textDeps, { a: s.state.pos[p] ?? '', b: s.state.pos[p + 1] ?? '' }), 'info', 3500);
   }
 
-  tapSpindle(t: ThreadId): void {
+  /** Tocco su un fuso: nome di Ada (da g12) o nome di un filo sbiadito (Archivio). */
+  tapSpindle(t: ThreadId, via?: TapVia): void {
     const s = this.session;
     if (s.needsNome) {
       this.setNome(t);
       return;
     }
-    if (s.archive && this.params.level.archive?.faded.includes(t)) this.openNamePicker(t);
+    if (this.isFadedThread(t)) this.openNamePicker(t, via);
   }
 
   /** Tasto N: nome di Ada (da g12) o nome di un filo sbiadito (Archivio). */
   nameKey(t: ThreadId): void {
     if (this.session.needsNome) this.setNome(t);
-    else if (this.session.archive && this.params.level.archive?.faded.includes(t)) this.openNamePicker(t);
+    else if (this.isFadedThread(t)) this.openNamePicker(t);
+  }
+
+  /** Un filo sbiadito dell'Archivio (confermato o no). */
+  isFadedThread(t: ThreadId | null): t is ThreadId {
+    return !!t && !!this.session.archive && !!this.params.level.archive?.faded.includes(t);
+  }
+
+  /**
+   * Filo che passa nella cella (riga `index`, colonna `col`): nella metà alta
+   * quello di prima della riga, nella metà bassa quello di dopo. Le righe non
+   * ancora tessute dell'Archivio si leggono dal merletto registrato.
+   */
+  threadInCell(index: number, col: number, lower: boolean): ThreadId | null {
+    const s = this.session;
+    const start = this.params.level.startHour;
+    const at = (i: number): ThreadId | null => {
+      if (i < 0) return null;
+      const st = s.timeline[i];
+      if (st && i <= s.rows.length) return st.pos[col] ?? null;
+      return s.archive ? s.archive.recordedThreadAt(start + i, col) : null;
+    };
+    if (index <= 0) return at(0);
+    return at(lower ? index : index - 1) ?? at(index - 1);
   }
 
   fix(): { ok: boolean; violations: Violation[] } {
@@ -846,7 +1066,8 @@ export class NightController {
     this.idle = 0;
     this.clearHintMarks();
     this.explain.hide();
-    this.margin.hide();
+    this.closeReason.hide();
+    this.validAction();
     this.cancelPreview();
     this.refresh();
     this.updateStatusLine();
@@ -855,11 +1076,20 @@ export class NightController {
         this.s.haptics.play('successo');
         const acc = this.params.accepted.find((a) => a.noteId === st.noteId);
         const ch = acc ? this.s.content.characters.get(acc.authorGuess ?? acc.author) : undefined;
-        this.explain.show('tombolo.richieste.soddisfatta', { nome: ch ? this.s.i18n.t(ch.nameKey) : '' }, 'ok', 3000);
+        this.say('tombolo.richieste.soddisfatta', { nome: ch ? this.s.i18n.t(ch.nameKey) : '' }, 'ok', 3000);
       }
     }
     this.rememberStatuses();
+    this.tutorial.interacted('fissa');
+    const lastEvents = s.events[s.events.length - 1];
+    if (lastEvents) this.tutorial.onEvents(lastEvents);
+    const a = s.archive;
+    if (a && this.params.mode === 'archivio' && a.allMended() && !this.mendAnnounced) {
+      this.mendAnnounced = true;
+      this.tutorial.onArchive('rammendo');
+    }
     this.tutorial.onRowStart(s.hour, false);
+    if (!s.done) this.tutorial.onEvents(s.preview().events);
     this.saveNow(true);
     if (s.done && !(s.archive && this.params.mode === 'archivio') && this.params.mode !== 'occasioni') this.finish();
   }
@@ -877,16 +1107,58 @@ export class NightController {
       return;
     }
     if (m === 'occasioni') {
-      if (this.session.done && this.session.archive && this.session.succeeded()) this.finish();
+      if (this.session.done && this.session.archive && this.session.succeeded()) this.closeArchive();
       else if (this.session.done) this.retry();
       else this.run();
       return;
     }
     if (this.session.archive && m === 'archivio' && this.session.done) {
-      this.finish();
+      this.closeArchive();
       return;
     }
     this.fix();
+  }
+
+  /**
+   * Che cosa manca per chiudere un merletto d'Archivio (TOM-03, D05.6): i nomi
+   * dei fili sbiaditi, il rammendo di uno strappo, o null se si può chiudere.
+   */
+  archiveCloseProblem(): { key: string; params: Params } | null {
+    const s = this.session;
+    const a = s.archive;
+    if (!a) return null;
+    const faded = this.params.level.archive?.faded ?? [];
+    const miss = a.missing();
+    if (miss.length > 0) {
+      const nums = miss.map((t) => String(faded.indexOf(t) + 1));
+      return { key: 'tombolo.archivio.manca.nomi', params: { n: nums.length, fili: this.joinList(nums) } };
+    }
+    if (this.params.mode === 'occasioni') return s.done && s.succeeded() ? null : { key: 'tombolo.archivio.manca.giornata', params: {} };
+    const open = a.openHoles()[0];
+    if (open) return open.from === open.to ? { key: 'tombolo.archivio.manca.rammendoOra', params: { ora: open.from } } : { key: 'tombolo.archivio.manca.rammendo', params: { da: open.from, a: open.to } };
+    if (!s.done) return { key: 'tombolo.archivio.manca.righe', params: { ora: s.hour } };
+    return null;
+  }
+
+  /** «Chiudi il merletto» nell'Archivio: chiude, oppure dice che cosa manca. */
+  private closeArchive(): void {
+    const p = this.archiveCloseProblem();
+    if (!p) {
+      this.closeReason.hide();
+      this.finish();
+      return;
+    }
+    this.closeReason.show(p.key, p.params, 6000);
+    this.actions.shake();
+    this.s.haptics.play('rifiuto');
+  }
+
+  /** «1, 2 e 3» nella lingua corrente. */
+  joinList(items: readonly string[]): string {
+    if (items.length <= 1) return items[0] ?? '';
+    const sep = this.s.i18n.t('tombolo.elenco.separatore');
+    const last = this.s.i18n.t('tombolo.elenco.ultimo');
+    return `${items.slice(0, -1).join(sep)}${last}${items[items.length - 1]}`;
   }
 
   undo(): void {
@@ -899,6 +1171,8 @@ export class NightController {
     }
     const hourBefore = s.hour;
     s.undo();
+    this.validAction();
+    this.tutorial.interacted('disfa');
     if (s.hour !== hourBefore) {
       this.updateStatusLine();
       this.clearHintMarks();
@@ -976,7 +1250,9 @@ export class NightController {
     if (s.rows.length > 0) return;
     s.setNome(thread);
     const name = threadName(this.textDeps, thread);
-    this.explain.show('tombolo.nome.appuntato', { nome: name }, 'ok', 3000);
+    this.say('tombolo.nome.appuntato', { nome: name }, 'ok', 3000);
+    this.validAction();
+    this.tutorial.onNome();
     this.refresh();
     this.updateStatusLine();
     this.saveNow(true);
@@ -999,26 +1275,112 @@ export class NightController {
     if (this.popup?.el.dataset.test === 'tb-popup-hint') this.popup.close();
   }
 
-  async nextHint(): Promise<Hint | null> {
-    const s = this.session;
-    if (!s.isPlayerRow() || this.completed) return null;
-    if (this.hintRowHour !== s.hour) {
-      this.hintRowHour = s.hour;
-      this.hintStep = 0;
-    }
-    const tier = TIERS[Math.min(this.hintStep, TIERS.length - 1)] as HintTier;
-    return this.hint(tier);
+  private resetHintRow(): void {
+    const h = this.session.done ? -2 : this.session.hour;
+    if (this.hintRowHour === h) return;
+    this.hintRowHour = h;
+    this.hintMax = -1;
+    this.rowHints.clear();
+    this.pendingGhost = null;
   }
 
+  /** Nell'Archivio, a righe finite o fra uno strappo e l'altro: suggerimenti sui nomi. */
+  private namingHints(): boolean {
+    const a = this.session.archive;
+    return !!a && !a.allNamed() && !this.session.isPlayerRow() && !this.completed;
+  }
+
+  /** La lampada si può toccare (sempre visibile, D07.1). */
+  lampAvailable(): boolean {
+    if (this.completed) return false;
+    return this.session.isPlayerRow() || this.namingHints();
+  }
+
+  /**
+   * Tocco sulla lampada (D07.2): riapre il gradino più alto già mostrato in questa
+   * riga, o la Spinta. Non sale mai da solo: si sale con i pulsanti della scheda.
+   */
+  async lampTap(): Promise<Hint | null> {
+    if (!this.lampAvailable()) return null;
+    this.resetHintRow();
+    const tier = this.hintMax >= 0 ? (TIERS[this.hintMax] as HintTier) : 'spinta';
+    return this.showHint(tier);
+  }
+
+  /** Tasto H: come la lampada; con la scheda del suggerimento aperta, il gradino successivo. */
+  async nextHint(): Promise<Hint | null> {
+    return this.lampTap();
+  }
+
+  /** Gradino successivo a quello più alto mostrato (pulsante della scheda, H con la scheda aperta). */
+  private async advanceHint(): Promise<Hint | null> {
+    this.resetHintRow();
+    const max = this.namingHints() ? 1 : TIERS.length - 1;
+    const i = Math.min(max, this.hintMax + 1);
+    return this.showHint(TIERS[i] as HintTier);
+  }
+
+  /** Suggerimento di un gradino (debug e test: il fantasma senza conferma). */
   async hint(tier: HintTier): Promise<Hint> {
+    return this.showHint(tier, true);
+  }
+
+  private hintMax = -1;
+  private readonly rowHints = new Map<HintTier, Hint>();
+  /** Fantasma calcolato in attesa di conferma (D07.3). */
+  private pendingGhost: Hint | null = null;
+  /** Ultima Spinta letta stanotte (D07.2: una identica si salta). */
+  private lastSpinta = '';
+  /** Suggerimenti mostrati stanotte: dopo il primo la lampada resta accesa (D07.1). */
+  private hintsShown = 0;
+  /** Diagnosi delle richieste dell'ultima Spinta (D07.5). */
+  diagnosis: Diagnosis | null = null;
+
+  private hintKey(h: Hint): string {
+    return `${h.textKey}|${JSON.stringify(h.params ?? {})}`;
+  }
+
+  /** Suggerimento sui nomi dell'Archivio (spinta e indizio del livello). */
+  private namingHint(tier: HintTier): Hint {
+    const keys = this.params.level.hintKeys ?? {};
+    if (tier === 'spinta') return { tier, textKey: keys.spinta ?? 'tombolo.hint.archivio.spinta' };
+    return { tier: 'indizio', textKey: keys.indizio ?? 'tombolo.hint.archivio.indizio' };
+  }
+
+  private async showHint(tier: HintTier, confirmed = false): Promise<Hint> {
     const s = this.session;
-    if (this.hintRowHour !== s.hour) {
-      this.hintRowHour = s.hour;
-      this.hintStep = 0;
+    this.resetHintRow();
+    let h = this.rowHints.get(tier) ?? null;
+    if (!h) {
+      if (this.namingHints()) h = this.namingHint(tier);
+      else if (tier === 'spinta') {
+        const d = await s.diagnose();
+        if (this.destroyed) return { tier, textKey: 'tombolo.hint.spinta.generico' };
+        this.diagnosis = d;
+        if (d) h = this.diagnosisHint(d);
+        else {
+          h = await s.computeHint('spinta');
+          // Una Spinta identica all'ultima già letta stanotte si salta: si va all'Indizio.
+          if (this.hintKey(h) === this.lastSpinta && this.hintMax < 0) h = this.rowHints.get('indizio') ?? (await s.computeHint('indizio'));
+        }
+      } else if (tier === 'fantasma' && this.pendingGhost && confirmed) h = this.pendingGhost;
+      else h = await s.computeHint(tier);
+      if (this.destroyed) return h;
+      // Il fantasma con un incrocio costa il filo d'oro: prima si chiede (D07.3).
+      if (h.tier === 'fantasma' && h.ghost && !confirmed && s.goldPossible(this.s.content.balance?.oro?.minIncroci ?? 3)) {
+        this.pendingGhost = h;
+        this.openGhostConfirm();
+        return h;
+      }
+      if (!this.rowHints.has(h.tier)) {
+        s.useHint(h);
+        this.rowHints.set(h.tier, h);
+      }
+      if (h.tier === 'spinta' && !this.diagnosis) this.lastSpinta = this.hintKey(h);
     }
-    this.hintStep = Math.max(this.hintStep, TIERS.indexOf(tier) + 1);
-    const h = await s.hint(tier);
-    if (this.destroyed) return h;
+    this.pendingGhost = null;
+    this.hintMax = Math.max(this.hintMax, TIERS.indexOf(h.tier));
+    this.hintsShown++;
     this.lastHint = h;
     const o = this.overlay;
     const start = this.params.level.startHour;
@@ -1027,31 +1389,100 @@ export class NightController {
     o.ghostPair = h.ghost ? h.ghost.pair : -1;
     o.ghostOver = h.ghost?.over ?? 'L';
     if (o.hintRow >= 1) this.revealRow(o.hintRow);
-    const next = this.hintStep < TIERS.length ? (TIERS[this.hintStep] as HintTier) : null;
+    const maxTier = this.namingHints() ? 1 : TIERS.length - 1;
+    const next = this.hintMax < maxTier ? (TIERS[this.hintMax + 1] as HintTier) : null;
+    const hint = h;
     this.openPopup(
       'tb-popup-hint',
       (body) => {
-        body.appendChild(hintCard({ tier: h.tier, textKey: h.textKey, params: nameParams(this.textDeps, h.params), next }, (t) => void this.hint(t)));
+        const card = hintCard({ tier: hint.tier, textKey: hint.textKey, params: nameParams(this.textDeps, hint.params), next }, () => void this.advanceHint());
+        if (hint.tier === 'spinta' && this.diagnosis) this.appendDiagnosisActions(card, this.diagnosis);
+        body.appendChild(card);
       },
-      // H con la scheda aperta: il gradino successivo (come un altro tocco sulla lampada).
-      { hint: () => void this.nextHint() },
+      // H con la scheda aperta: il gradino successivo (come il pulsante della scheda).
+      { hint: () => void this.advanceHint() },
     );
     this.updateUi();
     this.saveNow(false);
     return h;
   }
 
+  /** Testo della Spinta quando le richieste non stanno insieme (D07.5). */
+  private diagnosisHint(d: Diagnosis): Hint {
+    const who = (id: NoteId): string => {
+      const acc = this.params.accepted.find((a) => a.noteId === id);
+      const ch = acc ? this.s.content.characters.get(acc.authorGuess ?? acc.author) : undefined;
+      return ch ? this.s.i18n.t(ch.nameKey) : id;
+    };
+    if (d.k === 'tardi') {
+      return d.hour === null
+        ? { tier: 'spinta', textKey: 'tombolo.hint.tardiSempre', params: { nome: who(d.note) } }
+        : { tier: 'spinta', textKey: 'tombolo.hint.tardi', params: { nome: who(d.note), ora: d.hour } };
+    }
+    if (d.k === 'incompatibili') {
+      const names = this.params.accepted.filter((a) => !this.session.dropped.includes(a.noteId)).map((a) => who(a.noteId));
+      const richieste = names.length === 2 ? this.s.i18n.t('tombolo.hint.richiesteDue', { a: names[0] ?? '', b: names[1] ?? '' }) : this.s.i18n.t('tombolo.hint.richiesteMolte', { elenco: this.joinList(names) });
+      return { tier: 'spinta', textKey: 'tombolo.hint.incompatibili', params: { richieste } };
+    }
+    return d.hour === null ? { tier: 'spinta', textKey: 'tombolo.hint.impossibile' } : { tier: 'spinta', textKey: 'tombolo.hint.obiettiviTardi', params: { ora: d.hour } };
+  }
+
+  /** Pulsanti della diagnosi: lascia cadere lo spillo di …, disfa fino alle … */
+  private appendDiagnosisActions(card: HTMLElement, d: Diagnosis): void {
+    const box = el('div', { class: 'tb-hint-actions' });
+    const notes = d.k === 'incompatibili' ? d.notes : d.k === 'tardi' ? [d.note] : [];
+    for (const id of notes) {
+      const acc = this.params.accepted.find((a) => a.noteId === id);
+      const ch = acc ? this.s.content.characters.get(acc.authorGuess ?? acc.author) : undefined;
+      const b = button({ labelKey: 'tombolo.hint.lascia', params: { nome: ch ? this.s.i18n.t(ch.nameKey) : id }, kind: 'secondario', icon: 'chiudi', onClick: () => {
+        this.popup?.close();
+        this.drop(id);
+      }, test: `tb-suggerimento-lascia-${id}` });
+      box.appendChild(b);
+    }
+    const hour = d.k === 'incompatibili' ? null : d.hour;
+    if (hour !== null && this.session.canRewindTo(hour)) {
+      box.appendChild(button({ labelKey: 'tombolo.hint.disfaFino', params: { ora: hour }, kind: 'secondario', icon: 'disfa', onClick: () => {
+        this.popup?.close();
+        this.rewind(hour);
+      }, test: 'tb-suggerimento-riavvolgi' }));
+    }
+    const next = card.querySelector('[data-test="tb-suggerimento-ancora"]');
+    if (next) card.insertBefore(box, next);
+    else card.appendChild(box);
+  }
+
+  /** Conferma del fantasma quando il filo d'oro è ancora possibile (D07.3). */
+  private openGhostConfirm(): void {
+    this.openPopup('tb-popup-hint', (body) => {
+      const card = el('div', { class: 'tb-hint', test: 'tb-suggerimento', data: { gradino: 'conferma' } });
+      card.appendChild(textOf('tombolo.hint.gradino.fantasma', undefined, 'h2', { className: 'tb-hint-tier' }));
+      card.appendChild(textOf('tombolo.hint.fantasmaConferma', undefined, 'p', { className: 'tb-hint-text' }));
+      card.appendChild(button({ labelKey: 'tombolo.hint.fantasmaSi', kind: 'primario', icon: 'lampada', onClick: () => void this.showHint('fantasma', true), test: 'tb-fantasma-conferma' }));
+      card.appendChild(button({ labelKey: 'tombolo.hint.fantasmaNo', kind: 'testo', onClick: () => this.popup?.close(), test: 'tb-fantasma-annulla' }));
+      body.appendChild(card);
+    });
+  }
+
   // ───────── Archivio ─────────
 
-  name(thread: ThreadId, character: CharacterId | null): { confirmed: ThreadId[]; correct: number; needed: number } | null {
+  name(thread: ThreadId, character: CharacterId | null): NameResult | null {
     const a = this.session.archive;
     if (!a) return null;
     const r = a.name(thread, character);
+    const faded = this.params.level.archive?.faded ?? [];
     if (r.confirmed.length > 0) {
       this.visuals = this.makeVisuals();
       this.visualsVersion++;
       this.s.haptics.play('successo');
       this.explain.show('tombolo.archivio.confermati', { n: r.confirmed.length }, 'ok', 3500);
+      this.closeReason.hide();
+      if (a.allNamed()) this.tutorial.onArchive('nomi');
+    } else if (r.waiting) {
+      this.explain.show('tombolo.archivio.nonAncora', { n: a.counter().needed }, 'info', 4000);
+    } else if (r.moved && character) {
+      const ch = this.s.content.characters.get(character);
+      this.explain.show('tombolo.archivio.spostato', { nome: ch ? this.s.i18n.t(ch.nameKey) : character, n: faded.indexOf(thread) + 1 }, 'info', 3500);
     }
     this.extraVersion++;
     this.session.version++;
@@ -1060,26 +1491,81 @@ export class NightController {
     return r;
   }
 
-  private openNamePicker(t: ThreadId): void {
+  /**
+   * Scelta del nome di un filo sbiadito (D05.4-5). Con il tocco si apre al «click»
+   * di compatibilità e non al pointerup (che la farebbe trovare sotto il dito al
+   * click), e comunque lontano dal punto toccato; i primi 350 ms la scheda ignora
+   * i tocchi (Popup). Dall'elenco dei fili si apre in cima al merletto.
+   */
+  openNamePicker(t: ThreadId, via?: TapVia): void {
+    const a = this.session.archive;
+    if (!a || this.completed) return;
+    const l = this.layout;
+    // Lontano dal dito: un tocco nella metà bassa (fusi, righe in basso) apre in cima.
+    const top = via?.y === undefined ? true : via.y > l.lace.y + l.lace.h / 2;
+    if (via?.pointer === 'touch' || via?.pointer === 'pen') {
+      this.afterCompatClick(() => this.showNamePicker(t, top));
+      return;
+    }
+    this.showNamePicker(t, top);
+  }
+
+  /** Esegue `fn` dopo il click di compatibilità di un tocco (o dopo 400 ms se non arriva). */
+  private afterCompatClick(fn: () => void): void {
+    if (typeof window === 'undefined') {
+      fn();
+      return;
+    }
+    let done = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const go = (): void => {
+      if (done) return;
+      done = true;
+      window.removeEventListener('click', onClick, true);
+      if (timer) clearTimeout(timer);
+      if (!this.destroyed) fn();
+    };
+    const onClick = (): void => {
+      setTimeout(go, 0);
+    };
+    window.addEventListener('click', onClick, true);
+    timer = setTimeout(go, 400);
+  }
+
+  private showNamePicker(t: ThreadId, top: boolean): void {
     const a = this.session.archive;
     if (!a) return;
     if (a.isConfirmed(t)) {
       this.openCharCard(t);
       return;
     }
+    const faded = this.params.level.archive?.faded ?? [];
     const cands = a.candidates().map((id) => {
       const ch = this.s.content.characters.get(id);
-      return { id, name: ch ? this.s.i18n.t(ch.nameKey) : id, icon: ch?.icon ?? 'info', color: ch?.color ?? '#8E8676' };
+      const holder = a.holderOf(id);
+      return {
+        id,
+        name: ch ? this.s.i18n.t(ch.nameKey) : id,
+        icon: ch?.icon ?? 'info',
+        color: ch?.color ?? '#8E8676',
+        usedOn: holder && holder !== t && !a.isConfirmed(holder) ? this.s.i18n.t('tombolo.archivio.suFilo', { n: faded.indexOf(holder) + 1 }) : null,
+        locked: !!holder && holder !== t && a.isConfirmed(holder),
+      };
     });
-    const c = a.counter();
-    this.openPopup('tb-popup-nomina', (body) => {
-      body.appendChild(
-        namePicker({ thread: t, threadText: threadName(this.textDeps, t), candidates: cands, current: a.tentativeOf(t), correct: c.correct, needed: c.needed }, (ch) => {
-          this.popup?.close();
-          this.name(t, ch);
-        }),
-      );
-    });
+    const pr = a.progress();
+    this.openPopup(
+      'tb-popup-nomina',
+      (body) => {
+        body.appendChild(
+          namePicker({ thread: t, threadText: threadName(this.textDeps, t), candidates: cands, current: a.tentativeOf(t), given: pr.given, total: pr.total }, (ch) => {
+            this.popup?.close();
+            this.name(t, ch);
+          }),
+        );
+      },
+      undefined,
+      top,
+    );
   }
 
   private showEcho(key: string): void {
@@ -1114,6 +1600,15 @@ export class NightController {
       return;
     }
     this.setOccasions(r.list);
+  }
+
+  /** La cella (colonna, riga) ammette un'occasione? (senza elenco: tutte). */
+  occasionCellAllowed(col: number, index: number): boolean {
+    const lv = this.params.level;
+    const place = lv.columns[col];
+    if (!place) return false;
+    if (allowedCells(lv).length === 0) return true;
+    return !!allowedAt(lv, place, lv.startHour + index);
   }
 
   setOccasions(list: readonly OccasionDef[]): OccasionDef[] {
@@ -1312,14 +1807,20 @@ export class NightController {
 
   // ───────── Pannelli, menu, schede ─────────
 
-  private openPopup(test: string, fill: (body: HTMLElement) => void, keys?: Partial<Record<ActionId, () => void>>): Popup {
+  private openPopup(test: string, fill: (body: HTMLElement) => void, keys?: Partial<Record<ActionId, () => void>>, top = false): Popup {
     this.popup?.close();
     const p = new Popup({ input: this.s.input, host: this.root, onClose: () => {
       if (this.popup === p) this.popup = null;
+      const pl = this.popupList;
+      if (pl && !pl.el.isConnected) {
+        this.dropList(pl);
+        this.popupList = null;
+      }
     } }, keys ? { test, keys } : { test });
     fill(p.body);
     this.popup = p;
-    p.open(this.popupAnchor());
+    this.popupTop = top;
+    p.open(this.popupAnchor(top));
     return p;
   }
 
@@ -1374,31 +1875,89 @@ export class NightController {
     });
   }
 
-  private goalSummaryToken(reports: CondReport[]): RequestToken {
+  /** Stato del pulsante Obiettivi, o null se non c'è niente da elencare. */
+  private goalsButton(): GoalsButtonState | null {
+    if (!ObjectivesList.hasItems(this)) return null;
+    const count = ObjectivesList.count(this);
+    const reports = this.session.goalStatus();
     const order: CondStatus[] = ['fallita', 'a_rischio', 'in_corso', 'soddisfatta'];
-    const worst = order.find((st) => reports.some((r) => r.status === st)) ?? 'in_corso';
-    const done = reports.filter((r) => r.status === 'soddisfatta').length;
-    return {
-      noteId: 'obiettivi',
-      goal: true,
-      icon: 'stella',
-      color: '#C9A24A',
-      status: worst,
-      dropped: false,
-      label: this.s.i18n.t('tombolo.obiettivo.riassunto', { fatti: done, totale: reports.length }),
-    };
+    const worst = order.find((st) => reports.some((r) => r.status === st)) ?? (this.session.unreachable().length > 0 ? 'a_rischio' : 'in_corso');
+    const done = count?.done ?? 0;
+    const total = count?.total ?? 0;
+    return { done, total, status: worst, label: this.s.i18n.t('tombolo.obiettivi.pulsante', { fatti: done, totale: total }) };
   }
 
-  /** Elenco degli obiettivi obbligatori con il loro stato. */
+  /** Elenchi degli obiettivi aperti (popup, pannelli della campagna e dell'Archivio). */
+  private readonly objectiveLists = new Set<ObjectivesList>();
+
+  /**
+   * Elenco degli obiettivi (C08) per il pannello della campagna: si aggiorna da
+   * solo con la notte e si smonta quando la notte finisce (scena chiusa).
+   */
+  objectivesElement(opts: { compact?: boolean } = {}): HTMLElement {
+    const list = new ObjectivesList(this, opts);
+    this.objectiveLists.add(list);
+    const off = [
+      this.s.bus.on('night:row', () => list.update()),
+      this.s.bus.on('night:undo', () => list.update()),
+      this.s.bus.on('night:cross', () => list.update()),
+    ];
+    this.listUnsubs.set(list, off);
+    return list.el;
+  }
+
+  private readonly listUnsubs = new Map<ObjectivesList, Unsub[]>();
+
+  private dropList(list: ObjectivesList): void {
+    for (const u of this.listUnsubs.get(list) ?? []) u();
+    this.listUnsubs.delete(list);
+    this.objectiveLists.delete(list);
+  }
+
+  /** Aggiorna gli elenchi aperti (e toglie quelli non più nel documento). */
+  private updateLists(): void {
+    for (const l of [...this.objectiveLists]) {
+      if (!l.el.isConnected && l !== this.popupList) {
+        this.dropList(l);
+        continue;
+      }
+      l.update();
+    }
+  }
+
+  private popupList: ObjectivesList | null = null;
+
+  /** ObjectivesHost: uno spillo dell'ora `hour` sta fuori dalle righe visibili? */
+  pinHidden(hour: number): boolean {
+    const l = this.layout;
+    if (!l) return false;
+    const i = hour - this.params.level.startHour;
+    const y = rowBottom(l, i) - this.scrollTarget;
+    return y < 0 || y > l.lace.h;
+  }
+
+  /** ObjectivesHost: il giocatore ha toccato una voce dell'elenco. */
+  touched(): void {
+    this.tutorial.interacted('obiettivi');
+  }
+
+  /** Popup del pulsante Obiettivi (D06): l'elenco completo, con l'ombra se scorre. */
   openGoals(): void {
-    const reports = this.session.goalStatus();
+    this.tutorial.interacted('obiettivi');
+    const list = new ObjectivesList(this);
+    this.objectiveLists.add(list);
+    this.popupList = list;
     this.openPopup('tb-popup-obiettivi', (body) => {
-      reports.forEach((r, i) => {
-        const c = this.params.goals[i];
-        if (!c) return;
-        const statusKey = r.reasonKey ?? `tombolo.stato.${r.status}`;
-        body.appendChild(goalCard(describeCondition(this.textDeps, c), statusKey, r.reasonKey ? nameParams(this.textDeps, r.params) : {}));
-      });
+      const wrap = el('div', { class: 'tb-obiettivi-scorre', test: 'tb-obiettivi-scorre' }, list.el);
+      const shade = (): void => {
+        const more = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight > 2;
+        wrap.dataset.ombra = more ? '1' : '0';
+        wrap.classList.toggle('tb-ombra-giu', more);
+      };
+      wrap.addEventListener('scroll', shade, { passive: true });
+      body.appendChild(wrap);
+      requestAnimationFrame?.(shade);
+      shade();
     });
   }
 
@@ -1441,6 +2000,7 @@ export class NightController {
   }
 
   openNotebook(): void {
+    this.tutorial.interacted('taccuino');
     const l = this.layout;
     if (l.kind === 'largo' && l.right && !this.rightBox.hidden) {
       const f = this.rightBox.querySelector<HTMLElement>('button, [tabindex]');
@@ -1481,12 +2041,25 @@ export class NightController {
     for (let guard = 0; guard < 8 && (ui.overlays?.().length ?? 0) > 0; guard++) ui.closeOverlay();
     const p: NightParams = { ...this.params };
     delete p.resume;
+    // Nell'Archivio i nomi già confermati restano (D05.6): si riparte con quelli.
+    const a = this.session.archive;
+    const confirmed = a ? a.confirmedList() : [];
+    if (a && confirmed.length > 0) {
+      const names: Record<ThreadId, CharacterId> = {};
+      for (const t of confirmed) {
+        const ch = a.confirmedAs(t);
+        if (ch) names[t] = ch;
+      }
+      p.resume = { levelId: this.params.level.id, rows: [], draft: [], dropped: [], nomeOn: null, hintsUsed: 0, fantasmaUsed: false, archiveNames: names };
+    }
     this.clearSaved();
     this.restarted = true;
     void this.s.scenes.go('tombolo', p, { transition: 'none' });
   }
 
   restarted = false;
+  /** Il tutorial «rammendo fatto» è già partito stanotte. */
+  private mendAnnounced = false;
 
   back(): boolean {
     if (this.popup?.isOpen()) {
@@ -1534,13 +2107,84 @@ export class NightController {
 
   // ───────── Note a margine ─────────
 
-  private showMargin(key: string): void {
-    this.margin.show(key);
+  /** Nota a margine del tutorial: una alla volta, le altre in coda (D04). */
+  private showMargin(key: string, hand: MarginHand = 'clotilde'): void {
+    if (this.margin.visible()) {
+      if (this.margin.current !== key && !this.noteQueue.some((q) => q.key === key)) this.noteQueue.push({ key, hand });
+      return;
+    }
+    this.displayNote(key, hand);
+  }
+
+  private readonly noteQueue: { key: string; hand: MarginHand }[] = [];
+  private noteAt = -1;
+  private noteBand = 0;
+  private notePlace: NotePlacement | null = null;
+
+  private displayNote(key: string, hand: MarginHand): void {
+    this.margin.show(key, hand);
+    this.noteAt = this.time;
+    // Con una nota del tutorial il messaggio in basso non serve (un solo messaggio).
+    this.explain.hide();
+    this.positionNote();
     try {
-      this.s.audio.babble('clotilde', this.s.i18n.t(key));
+      this.s.audio.babble(hand === 'ada' ? 'ada' : 'clotilde', this.s.i18n.t(key));
     } catch {
       /* audio non pronto */
     }
+  }
+
+  /** Chiude la nota a margine e mostra la prossima in coda. */
+  closeNote(): void {
+    if (!this.margin.visible()) return;
+    this.margin.hide();
+    this.noteAt = -1;
+    const next = this.noteQueue.shift();
+    if (next) this.displayNote(next.key, next.hand);
+    else this.positionNote();
+  }
+
+  /** Un'azione valida del giocatore: la nota si chiude se è lì da almeno 4 s (D04). */
+  private noteAction(): void {
+    if (this.margin.visible() && this.time - this.noteAt >= NOTE_MIN_S) this.closeNote();
+  }
+
+  /** Dove sta la nota (D04): pannello di sinistra, sopra le righe fissate, o in una fascia. */
+  private positionNote(): void {
+    if (!this.layout || !this.model) return;
+    if (!this.margin.visible()) {
+      this.notePlace = null;
+      if (this.noteBand !== 0) {
+        this.noteBand = 0;
+        this.resize(this.vp);
+      }
+      return;
+    }
+    const lv = this.params.level;
+    const base = computeTomboloLayout(this.vp, lv.columns.length, lv.endHour - lv.startHour, { hud: this.hudH });
+    const w = base.kind === 'largo' && base.left ? base.left.w - 16 : Math.min(base.center.w - 24, 380);
+    const h = this.margin.measure(w);
+    const obstacles = this.model.pins.map((p) => p.index);
+    const pl = placeMarginNote(base, this.model.current, obstacles, w, h);
+    this.notePlace = pl;
+    if (pl.band !== this.noteBand) {
+      this.noteBand = pl.band;
+      this.resize(this.vp);
+      return;
+    }
+    this.applyNoteRect();
+  }
+
+  private applyNoteRect(): void {
+    const pl = this.notePlace;
+    const node = this.margin.el;
+    if (!pl) return;
+    node.style.left = `${pl.rect.x}px`;
+    node.style.top = `${pl.rect.y}px`;
+    node.style.width = `${pl.rect.w}px`;
+    node.style.right = '';
+    node.style.maxWidth = '';
+    node.dataset.posto = pl.mode;
   }
 
   // ───────── Salvataggio ─────────
@@ -1572,6 +2216,7 @@ export class NightController {
       this.s.bus.emit('night:exit', { origin: this.params.origin });
     }
     this.destroyed = true;
+    this.s.canvas?.canvas?.removeEventListener('pointermove', this.onHover);
     this.runner?.stop();
     this.popup?.close();
     this.explain.destroy();

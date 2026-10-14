@@ -189,6 +189,29 @@ export class SpindleRig {
     return s.x;
   }
 
+  /**
+   * Fuso fantasma (tutorial, C02): una copia semitrasparente del fuso di `thread`
+   * nella posizione `x`, che segue la mano fantasma da colonna a colonna.
+   */
+  drawGhost(ctx: CanvasRenderingContext2D, thread: ThreadId, x: number, top: number, w: number, h: number, visuals: Map<ThreadId, ThreadVisual>, alpha: number): void {
+    const s = this.map.get(thread);
+    const v = visualOf(visuals, thread);
+    const f = s?.frame ?? null;
+    const ax = f ? f.ax : 0.5;
+    const ay = f ? f.ay : 0.05;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, top);
+    if (f && f.sw > 0 && f.sh > 0) ctx.drawImage(f.source, f.sx, f.sy, f.sw, f.sh, -w * ax, -h * ay, w, h);
+    else {
+      ctx.fillStyle = '#B89B72';
+      ctx.fillRect(-w * 0.2, 0, w * 0.4, h * 0.9);
+    }
+    ctx.fillStyle = v.color;
+    ctx.fillRect(-w * 0.22, h * (0.3 - ay), w * 0.44, 3);
+    ctx.restore();
+  }
+
   draw(ctx: CanvasRenderingContext2D, top: number, w: number, h: number, visuals: Map<ThreadId, ThreadVisual>, o: SpindleDrawOptions): void {
     for (let i = 0; i < this.order.length; i++) {
       const s = this.order[i] as SpindleState;

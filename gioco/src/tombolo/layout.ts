@@ -28,9 +28,13 @@ export const CENTER_MAX = 640;
 export const CENTER_MIN_WITH_RIGHT = 480;
 export const NARROW_MAX_PORTRAIT = 720;
 export const NARROW_MAX_LANDSCAPE = 520;
-/** Colonna delle etichette delle ore, a sinistra. */
-export const GUTTER = 28;
-export const RIGHT_PAD = 6;
+/**
+ * Colonna delle etichette delle ore, a sinistra: il numero dell'ora e, accanto,
+ * l'icona di un evento sul bordo del Molo (D06: l'icona non sostituisce il numero).
+ */
+export const GUTTER = 34;
+/** A destra, l'icona di un evento sul bordo del Faro. */
+export const RIGHT_PAD = 14;
 export const COL_MIN = 52;
 export const COL_MAX = 112;
 export const ROW_MIN = 40;
@@ -76,13 +80,25 @@ export interface TomboloLayout {
   /** Altezza del fuso disegnato (il fotogramma 96×320 è scalato). */
   spindleH: number;
   spindleW: number;
+  /** Fascia della nota a margine sopra il merletto (0 se non c'è). */
+  noteBand: number;
 }
 
 function rect(x: number, y: number, w: number, h: number): Rect {
   return { x: Math.round(x), y: Math.round(y), w: Math.max(0, Math.round(w)), h: Math.max(0, Math.round(h)) };
 }
 
-export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe' | 'layout' | 'orientation'>, cols: number, rows: number): TomboloLayout {
+export interface LayoutOptions {
+  /**
+   * Fascia per la nota a margine fra l'intestazione delle colonne e il merletto
+   * (D04): il merletto scende di tanto per farle posto. 0 = nessuna.
+   */
+  noteBand?: number;
+  /** Altezza della barra alta quando le scritte vanno a capo (D16; minimo 52). */
+  hud?: number;
+}
+
+export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe' | 'layout' | 'orientation'>, cols: number, rows: number, opts: LayoutOptions = {}): TomboloLayout {
   const W = Math.max(1, vp.cssW);
   const H = Math.max(1, vp.cssH);
   const safe = vp.safe;
@@ -120,16 +136,18 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
 
   // Schermi molto bassi (telefono in orizzontale nel browser): la fascia dei fusi
   // si accorcia (fino a 80 px) perché il merletto mostri almeno due righe.
-  const fixedBands = BAND.hud + BAND.header + BAND.requests + BAND.actions;
+  const hudH = Math.max(BAND.hud, Math.round(opts.hud ?? 0));
+  const fixedBands = hudH + BAND.header + BAND.requests + BAND.actions;
   const lace0 = bottom - top - fixedBands - BAND.spindles;
   const laceMin = Math.round(ROW_MIN * (2 + OPEN_ROW) + LACE_PAD * 2);
   const spindleBand = lace0 >= laceMin ? BAND.spindles : Math.max(SPINDLES_MIN, BAND.spindles - (laceMin - lace0));
-  const hud = rect(center.x, center.y, center.w, BAND.hud);
+  const hud = rect(center.x, center.y, center.w, hudH);
   const header = rect(center.x, hud.y + hud.h, center.w, BAND.header);
   const actions = rect(center.x, bottom - BAND.actions, center.w, BAND.actions);
   const spindles = rect(center.x, actions.y - spindleBand, center.w, spindleBand);
   const requests = rect(center.x, spindles.y - BAND.requests, center.w, BAND.requests);
-  const laceTop = header.y + header.h;
+  const noteBand = Math.max(0, Math.round(opts.noteBand ?? 0));
+  const laceTop = header.y + header.h + noteBand;
   const lace = rect(center.x, laceTop, center.w, Math.max(0, requests.y - laceTop));
   const lamp = rect(center.x + center.w - 52, requests.y + (requests.h - 48) / 2, 48, 48);
 
@@ -167,13 +185,14 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
     colW,
     colX,
     colCx,
-    gutterCx: center.x + GUTTER / 2 + 2,
+    gutterCx: center.x + 10,
     rows: r,
     rowH,
     openH,
     contentH: openH + r * rowH,
     spindleH,
     spindleW,
+    noteBand,
   };
 }
 
@@ -224,4 +243,48 @@ export function pairAt(l: Pick<TomboloLayout, 'colX' | 'colW' | 'cols'>, x: numb
 
 export function inside(r: Rect, x: number, y: number): boolean {
   return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
+}
+
+export interface NotePlacement {
+  /** pannello: in cima al pannello di sinistra (largo); righe: sopra le righe fissate; fascia: fra intestazione e merletto. */
+  mode: 'pannello' | 'righe' | 'fascia';
+  rect: Rect;
+  /** Altezza della fascia da aprire sopra il merletto (solo in modo `fascia`). */
+  band: number;
+}
+
+/** Margine fra la nota e quello che non deve coprire. */
+export const NOTE_GAP = 6;
+
+/**
+ * Posto della nota a margine (D04). `base` è la disposizione SENZA fascia della
+ * nota; `current` la riga corrente; `obstacles` le righe fissate con uno spillo o
+ * uno slot (indici). Nel layout largo la nota va in cima al pannello di sinistra.
+ * Nello stretto va sopra le righe già fissate se lì c'è posto senza toccare spilli
+ * e slot; altrimenti in una fascia fra l'intestazione e il merletto, che scende.
+ * Mai sulla riga corrente, sulle righe future, sui fusi, sulle richieste o sulle azioni.
+ */
+export function placeMarginNote(base: TomboloLayout, current: number, obstacles: readonly number[], noteW: number, noteH: number): NotePlacement {
+  const h = Math.max(1, Math.round(noteH));
+  if (base.kind === 'largo' && base.left) {
+    const r = base.left;
+    return { mode: 'pannello', rect: rect(r.x + 8, r.y + 8, r.w - 16, h), band: 0 };
+  }
+  const w = Math.max(1, Math.min(Math.round(noteW), base.center.w - 16));
+  const x = base.center.x + (base.center.w - w) / 2;
+  const scroll = autoScroll(base, current);
+  const top = base.lace.y + NOTE_GAP;
+  const bottom = base.lace.y - scroll + rowTop(base, Math.max(1, current)) - NOTE_GAP;
+  // Spilli e slot delle righe fissate: la testa sta ~11 px sopra il fondo della riga.
+  const blocked = obstacles
+    .filter((i) => i >= 0 && i < current)
+    .map((i) => {
+      const y = base.lace.y - scroll + rowBottom(base, i);
+      return { y0: y - 22, y1: y + 4 };
+    });
+  for (let y = top; y + h <= bottom; y += 4) {
+    if (blocked.every((b) => y + h <= b.y0 || y >= b.y1)) return { mode: 'righe', rect: rect(x, y, w, h), band: 0 };
+  }
+  const band = h + NOTE_GAP * 2;
+  return { mode: 'fascia', rect: rect(x, base.header.y + base.header.h + NOTE_GAP, w, h), band };
 }
