@@ -1,0 +1,1128 @@
+{
+ "decisions": [
+  {
+   "title": "D01 Gino non sta fermo due ore di fila; con la febbre resta a letto",
+   "decision": "La regola ginoCorre cambia. Una riga è rifiutata se Gino:\n- non incrocia;\n- aveva un incrocio possibile (definizione invariata: non bloccato, un vicino non bloccato, non forzato, con un verso ammesso);\n- e non aveva incrociato nemmeno nella riga precedente.\n\nAll'apertura, e quando rientra da un bordo, conta come appena mosso. Una riga in cui è bloccato (nodo, marea) conta come ferma. Se all'inizio della riga Gino ha la febbre, quella riga non lo obbliga e non conta come ferma. Un vicino impegnato in un altro incrocio conta come libero (Gino ha la precedenza) e il messaggio lo nomina.\n\nMisurato col solver vero su una copia del motore fuori dal repository:\n- base g02 da 6 a 4, g10 da 10 a 5, g13 da 14 a 7, g15 da 14 a 7;\n- designata g10 da 13 a 9, g22 da 17 a 13.\n\nLa regola da sola non basta: in g10 i 5 incroci rimasti sono ancora tutti di Gino e le richieste costano 0. Per questo va insieme a D02. g16 con la regola nuova supera i 400 000 stati: il limite del controllo va alzato.",
+   "findings": [
+    "P015",
+    "P022",
+    "P091",
+    "P094",
+    "P045"
+   ]
+  },
+  {
+   "title": "D02 Criteri misurabili di qualità e ridisegno delle notti",
+   "decision": "levels:check calcola per ogni notte di storia e per fin_merlettaia sette criteri (C14):\n- K1 densità: minimo ≥ ⌈righe/2⌉;\n- K2 costo: ogni bigliettino ≥ base+2 nell'Atto I, ≥ base+3 negli Atti II-III, con al massimo un bigliettino 'facile' per sera, in conflitto voluto;\n- K3 Gino: al massimo il 40% del minimo;\n- K4 ritmo: al massimo 2 righe vuote di fila e al massimo il 40% di righe vuote;\n- K5 ambiguità: al massimo 20 soluzioni ottime;\n- K6 dilemma: almeno un conflitto voluto per sera;\n- K7 intervallo Min del GDD, solo avviso.\n\nCon --qualita i criteri sono bloccanti. Le notti che non li rispettano si ridisegnano conservando cast, intenzioni dei bigliettini e conflitti voluti.\n\nIl filo d'oro richiede un minimo di almeno 3 (balance.oro.minIncroci). «Salta le ore quiete» è un pulsante esplicito, non un avanzamento automatico. Il finale A diventa un vero ultimo puzzle.",
+   "findings": [
+    "P015",
+    "P022",
+    "P091",
+    "P115"
+   ]
+  },
+  {
+   "title": "D03 Onboarding: ogni regola si insegna sul tombolo la prima volta",
+   "decision": "Il modello di g12 diventa la regola. Ogni regola o stranezza nuova ha, nella sua prima notte:\n- una nota a margine al momento giusto (inizio dell'ora o primo evento);\n- una pulsazione sull'elemento che la riguarda (matassa, barca, spillo, fuso, lampada, colonne della marea);\n- la pagina del Libro segnata «Nuova», su cui il Taccuino si apre.\n\nIl prologo insegna davvero:\n- un fuso fantasma segue la mano;\n- lo spillo di Marta pulsa e al primo incrocio arriva la nota sullo spillo;\n- «Chi sta sopra, dà» compare al primo incrocio delle 7, qualunque sia il verso;\n- alle 8 la nota sul Disfa.\n\nTabella delle prime volte (g00-g19 e Archivi) in REVISIONE-1.md D03. Tutto passa da trigger e bersagli nuovi dei passi esistenti (C02), senza nuovi tipi di passo.",
+   "findings": [
+    "P002",
+    "P005",
+    "P013",
+    "P014",
+    "P088"
+   ]
+  },
+  {
+   "title": "D04 Le note a margine non coprono il gioco",
+   "decision": "La nota non interseca mai:\n- la riga corrente e le due future visibili;\n- spilli, slot, icone di bordo e incroci in bozza;\n- fusi, striscia delle richieste e barra delle azioni.\n\nVa sopra le righe fissate; se non c'è spazio, in una fascia sotto l'intestazione che sposta il merletto in giù; nel layout largo, nel pannello di sinistra.\n\nUn tocco la chiude e non passa sotto. Si chiude alla prima azione valida dopo 4 s, altrimenti dopo 12 s (con l'avanzamento automatico spento resta fino all'azione). Una nota alla volta, ogni testo una volta per notte. Per una violazione c'è un solo messaggio: il pulsante vibra e compare la riga di motivo, a meno che parta una nota; mai un banner.",
+   "findings": [
+    "P004",
+    "P107"
+   ]
+  },
+  {
+   "title": "D05 Archivio senza vicoli ciechi",
+   "decision": "- «Lascia per ora» nella Pausa (C10).\n- Nomi alla maniera di Obra Dinn: nessun contatore dei giusti («Nomi dati: 2 di 4»); conferma automatica quando almeno 3 nomi provvisori sono giusti; «Tre nomi giusti non ci sono ancora» se tutti hanno un nome e la conferma non scatta.\n- Niente doppioni: un nome già usato si sposta, con un messaggio.\n- Ogni filo sbiadito si nomina dal fuso (tocco o pressione lunga), da un tratto del suo filo anche dopo che è uscito, o dall'elenco «Fili da nominare».\n- Il selettore si apre al click, ignora i tocchi per 350 ms, ha altezza fissa e si apre lontano dal dito.\n- «Chiudi il merletto» dice sempre che cosa manca. «Ricomincia la notte» conserva i nomi confermati.\n- Tutorial di arc1.\n- Pannello dell'Archivio nel layout largo; echi con i due nomi; lampada anche qui.\n- «Rileggi» in sola lettura.",
+   "findings": [
+    "P001",
+    "P002",
+    "P003",
+    "P019",
+    "P032",
+    "P070",
+    "P086",
+    "P099"
+   ]
+  },
+  {
+   "title": "D06 Sul tombolo tutto quello che conta si vede, e il tocco spiega",
+   "decision": "- HUD: «Ore 7 · fino alle 20».\n- Righe adattive: clamp(spazio/(righe+0,6), 30, 56); sotto i 30 px, righe da 40 px con l'indicatore «↓ altre N ore».\n- Bolle al tocco e al passaggio del mouse su spilli, barche e bordi, perline, etichette d'ora, nero. Ora e icona affiancate.\n- Obiettivi completi (con spilli d'ottone, finestre orarie, coppie in rancore) nel popup con contatore e nel pannello di sinistra (C08).\n- Le lettere generate nominano il destinatario.\n- Segno del rancore sulla testa dei due fusi.\n- Nelle modalità extra la scheda del fuso elenca tutte le stranezze attive; nella campagna segue la regola di quirkRevealed.\n- «Soddisfatta» solo sulle righe fissate; l'anteprima dà «si compie se fissi l'ora» (C07).\n- Slot delle occasioni leggibili, con il bersaglio del tocco allineato al disegno.\n- Desktop: centro fino a 960 px, filo nero sempre col bordo chiaro, motivi di Gino e Teresa più marcati (colori invariati).",
+   "findings": [
+    "P013",
+    "P017",
+    "P025",
+    "P031",
+    "P034",
+    "P037",
+    "P038",
+    "P041",
+    "P042",
+    "P045",
+    "P046",
+    "P049",
+    "P054",
+    "P070",
+    "P071",
+    "P072",
+    "P087",
+    "P100",
+    "P102",
+    "P104",
+    "P105"
+   ]
+  },
+  {
+   "title": "D07 I suggerimenti dicono la verità e non rubano il filo d'oro",
+   "decision": "- La lampada è sempre visibile, tenue. Si accende dopo 60 s o 3 Disfa sulla stessa riga; dopo il primo uso resta accesa per tutta la notte.\n- Il tocco riapre il gradino più alto già visto in quella riga e non sale mai da solo. Una Spinta identica a quella già letta si salta.\n- Il Fantasma chiede conferma se il filo d'oro è ancora possibile. Il Fantasma su una riga di quiete è gratuito.\n- Con richieste incompatibili la lampada lo dice e offre «Lascia cadere lo spillo di …».\n- Con una richiesta non più possibile da quel punto: «disfa fino alle N, o lasciala cadere».\n- Pagina «Comandi» nella Pausa; le frecce raggiungono tutte le colonne anche nell'Archivio.",
+   "findings": [
+    "P020",
+    "P026",
+    "P101",
+    "P103"
+   ]
+  },
+  {
+   "title": "D08 Testi generati grammaticali",
+   "decision": "- Le etichette delle perline sono sintagmi in minuscolo con l'articolo; le lettere nominano il destinatario.\n- Il tombolo mette la maiuscola a inizio frase.\n- Un modello per tipo di perlina: riceve, sente, conosce, ricorda il nome di Ada, ha la febbre.\n- Finestre orarie esplicite.\n- almeno() compattato quando le parti sono dello stesso tipo.\n- Ore inglesi in «8 pm».\n- Violazioni distinte per nodo, marea e filo nero, senza accordi di genere sbagliati.",
+   "findings": [
+    "P006",
+    "P012",
+    "P029",
+    "P048",
+    "P082",
+    "P093",
+    "P112",
+    "P118"
+   ]
+  },
+  {
+   "title": "D09 La rivelazione di g14 è una scena; gli oggetti arrivano da dove arrivano",
+   "decision": "Oggetto dell'alba (dawnObject): dopo l'ultima vignetta dell'alba e prima del bilancio:\n1. vignetta obbligatoria di Zeno («Me l'ha data lei, alle due»);\n2. lettura a tutto schermo;\n3. poi il Taccuino;\n4. poi il bilancio;\n5. poi la cassapanca con arc4.\n\nSi usa in g14 (lettera di Clotilde) e in g16 (fascio, se liberate).\n\nProvenienza scritta nei dati, ognuna con la sua frase d'arrivo: laguna, mano, porta, casa. Due sere senza oggetto per una ragione: la sera di g15 (tempesta) e quella di g17 (cartello dell'Atto III).",
+   "findings": [
+    "P009",
+    "P056",
+    "P074"
+   ]
+  },
+  {
+   "title": "D10 Il Taccuino ricorda, non anticipa",
+   "decision": "- Le voci su oggetti e lettere si sbloccano con {knows:'oggetto', id} quando Ada li legge, e la campagna aggiorna il Taccuino subito dopo la lettura. Le persone si sbloccano quando compaiono.\n- Le piste arrivano prima delle risposte e spariscono a domanda risolta. Dopo la scelta di g23, nessuna pista.\n- La scheda Lettere esiste dalla prima bottiglia.\n- Le schede del Taccuino stanno in una sola riga che scorre.",
+   "findings": [
+    "P007",
+    "P008",
+    "P016",
+    "P023",
+    "P064",
+    "P090",
+    "P120"
+   ]
+  },
+  {
+   "title": "D11 L'alba rispetta i culmini",
+   "decision": "Il difetto in selectDawn è verificato: in g18 la vignetta del pane si scarta perché parla la stessa persona della pace. Nuova selezione:\n1. Le vignette di priorità ≥ 100 escono tutte, nell'ordine dei dati, anche con lo stesso personaggio di seguito. Il campo 'dopo' lega le coppie. Il massimo sale a 4 solo per i culmini.\n2. Poi le altre vignette scritte con le regole di oggi.\n3. Le battute generiche si aggiungono solo con meno di 2 vignette scritte e mai in una giornata con un culmine; la riserva solo senza nessuna vignetta scritta.\n4. Gli avvisi del Taccuino compaiono dopo l'ultima vignetta.",
+   "findings": [
+    "P067",
+    "P117"
+   ]
+  },
+  {
+   "title": "D12 Il bilancio racconta conseguenze vere, una volta sola",
+   "decision": "- NoteDef.esito ok, fallita e lasciato, scritto per ogni bigliettino; un test vieta la frase generica.\n- Una voce del Taccuino usata come conseguenza non si ripete in «Nel Taccuino».\n- «Ora so che cosa desidera X» solo la prima volta.\n- Plurali ICU nel record.\n- La sezione si chiama «Come doveva andare».",
+   "findings": [
+    "P018",
+    "P027",
+    "P028",
+    "P068",
+    "P078",
+    "P098"
+   ]
+  },
+  {
+   "title": "D13 Continuità: versioni canoniche",
+   "decision": "- g05: Gino trova la lanterna spenta.\n- g22: variante di Teresa che riconosce Livia e poi la dimentica (la regola dell'isola).\n- g19: varianti con riconciliate (Teresa non legge più).\n- Filo d'avorio: arc6 è la prima volta, arc2 l'ultima; nota a margine «Un'ultima volta, dentro»; la lettera dice «ha tenuto fino alle tre».\n- Filo nero visibile in g08 e g15 (apparizione C12).\n- Nina: ammessa con un posto in convitto da Pasqua.\n- Il segreto di Teresa è aver aperto la lettera prima.\n- Deissi «domani» nei bigliettini.\n- Correzioni di età, messa, geografia, voci, titoli (g17 «La donna in nero», arc3 senza anno) e stagioni.\n\n«Domani è la vigilia» è corretto così: la sera precede la giornata.",
+   "findings": [
+    "P059",
+    "P060",
+    "P061",
+    "P062",
+    "P063",
+    "P065",
+    "P066",
+    "P069",
+    "P075",
+    "P076",
+    "P077",
+    "P079",
+    "P080",
+    "P081",
+    "P092",
+    "P095",
+    "P097",
+    "P113",
+    "P114",
+    "P119"
+   ]
+  },
+  {
+   "title": "D14 Finali all'altezza",
+   "decision": "- A: saluti che danno (almeno 4 su 6, con un conflitto, base ≥ 8, criteri K3 e K4), il nastro; cade il filtro sulla memoria.\n- C: nodo e riavvolgimento visibili (chiusura 'nodo'), nessun jingle di successo, campana stonata anche dopo D, biglietto di Clotilde piegato e non riappuntabile.\n- D: epilogo con {occasioni} davvero piantate; almeno 3 vignette che chiudono i desideri; il nastro per due fili.\n- Il merletto finito resta sullo schermo con «Continua».\n- Riconoscimento del finale vero nella schermata Fine e nel titolo, senza Tovaglia (che è L3).\n- g23: 2 bigliettini e 2 spilli; la scelta usa sempre 1 spillo; spilli mostrati solo con bigliettini.",
+   "findings": [
+    "P073",
+    "P085",
+    "P106",
+    "P108",
+    "P109",
+    "P110",
+    "P111",
+    "P114",
+    "P115",
+    "P121"
+   ]
+  },
+  {
+   "title": "D15 Calligrafia: il foglio si inclina, il testo resta nel foglio",
+   "decision": "Si ruota il foglio intero (.core-carta--mano), con un limite di ±3°. Il testo non ha trasformazioni e ha pointer-events none. Il foglio delle lettere lunghe scorre. I pulsanti stanno fuori dal foglio.\n\nMarta scrive in stampatello netto (font atkinson): la L non si legge più come C. Il nome dei personaggi su carta usa un inchiostro con contrasto ≥ 4,5:1 (inkOnPaper).",
+   "findings": [
+    "P007",
+    "P021",
+    "P033",
+    "P057",
+    "P058",
+    "P084",
+    "P096",
+    "P011"
+   ]
+  },
+  {
+   "title": "D16 Interfaccia e accessibilità",
+   "decision": "- HUD del tombolo mai sotto 15 px × scala del testo: va a capo, usa il nome breve o solo l'icona sotto i 44 px; il calcolo si rifà a sovrapposizioni chiuse e font caricati.\n- Impostazioni opache, con un colore in alto contrasto.\n- Merletto libero: con una notte a metà il pulsante dice «Riprendi»; «Tessi da capo» chiede conferma.\n- Musica della notte nelle modalità extra.\n- Offline vero con un service worker.\n- Gli avvisi brevi non prendono i tocchi.\n- Esc nella sera chiede conferma.\n- Prologo raccolto.\n- Didascalie dei suoni che non coprono i pulsanti.",
+   "findings": [
+    "P036",
+    "P039",
+    "P040",
+    "P043",
+    "P047",
+    "P055",
+    "P083",
+    "P116"
+   ]
+  },
+  {
+   "title": "D17 Modalità extra che si capiscono",
+   "decision": "- «Chi c'è stanotte» nella scheda del giorno e del libero: stranezze attive e coppie in rancore.\n- Il generatore scarta i gradi che non cambiano il puzzle.\n- Condivisione: data con Intl, PNG con cartiglio, «Condividi il seme» nel libero.\n- Al primo avvio le modalità bloccate si vedono col lucchetto.\n- Testi coerenti con lo stato e la modalità.",
+   "findings": [
+    "P041",
+    "P044",
+    "P045",
+    "P050",
+    "P051",
+    "P053"
+   ]
+  },
+  {
+   "title": "D18 Nativo pronto per gli store",
+   "decision": "- PrivacyInfo.xcprivacy dichiara FileTimestamp con motivo C617.1.\n- npx cap sync registra @capacitor/filesystem in Android e iOS: oggi manca in entrambi, verificato.\n- native:check controlla le due cose.\n- STORE.md mette in evidenza la grafica di Google Play già pronta (assets/feature-graphic.png e -en.png) e aggiorna la privacy.",
+   "findings": [
+    "QA:nativo"
+   ]
+  },
+  {
+   "title": "D19 Proprietà, e2e e rigenerazione",
+   "decision": "- loader.ts, validate.ts, vite.config.ts, README.md, tsconfig.json e public/sw.js vanno a schermi.\n- tests/e2e non ha un gruppo: nessuno lo tocca, e ogni gruppo mantiene stabili i data-test esistenti. L'allineamento è il primo compito del giro di QA.\n- Ogni gruppo di contenuto rigenera solo i propri .computed.json, con levels:check --only.",
+   "findings": []
+  },
+  {
+   "title": "D20 Ordine dei lavori",
+   "decision": "- Ondata 0: SCH-01 (tipi e validazione).\n- Ondata 1: MOT-01..04 e CA1-02.\n- Poi tutto in parallelo.\n- Ondata 2: il ridisegno dei livelli (CA1-04, CA23-03), dopo MOT-01 e MOT-03.\n\nI testi, i tutorial, gli esiti e la continuità possono partire subito.",
+   "findings": []
+  }
+ ],
+ "contracts": [
+  "C00 Aggiunte a src/core/types.ts (le scrive solo schermi, SCH-01; solo campi opzionali o varianti nuove).\n- StoryCond.knows accetta anche 'oggetto'.\n- MarginWhen = 'primaOra'|'ora'|'incrocio'|'versoSbagliato'|'rifiuto'|'spillo'|'evento'|'nome'|'archivioNomi'|'archivioRammendo'.\n- PulseTarget = 'fissa'|'taccuino'|'nome'|'disfa'|'lampada'|'obiettivi'|'matassa'|'bordo'|'spillo'|'fuso'|'marea'.\n- TutorialStep = {k:'mano';hour;pair;over} | {k:'margine';when:MarginWhen;textKey;hour?;codice?:Violation['code'];evento?:LaceEventKind;chi?:ThreadId;mano?:'clotilde'|'ada'} | {k:'pulsa';target:PulseTarget;hour;thread?:ThreadId}.\n- ObjectMeta {from:'laguna'|'mano'|'porta'|'casa'; by?:CharacterId}.\n- CampaignDay + dawnObject?:string, eveningEmptyKey?:string. CampaignDef + objects?:Record<string,ObjectMeta>.\n- NoteDef + esito?:{ok?;fallita?;lasciato?} (chiavi di testo).\n- VignetteDef + dopo?:string.\n- LevelDef + chiusura?:'nodo', apparizione?:{hour;side:EdgeSide;passi:number}.\n- LaceState + ginoFermo?:0|1. BalanceDef + oro?:{minIncroci:number}.\n- QualityConfig {config;min:number|null;minSenzaGino:number|null;costo?;vuoteMax;vuoteTot;soluzioniOttime}; QualityReport {configs;designata;facili:NoteId[];violazioni:string[]}; LevelComputed + quality?:QualityReport.\n- Knowledge + bookSeen?:string[].\n- GameEventMap + 'tombolo:nodo':{levelId}, 'tombolo:apparizione':{levelId}.\n\nsrc/core/ids.ts: KNOWS_KINDS con 'oggetto'; nuove liste MARGIN_WHEN, PULSE_TARGETS, OBJECT_FROM.\n\nsrc/content/validate.ts controlla:\n- knows 'oggetto': id di un oggetto (comune.oggetti.<id>) o di una lettera;\n- when 'ora' richiede hour; evento in LACE_EVENT_KINDS; codice in Violation; chi e thread fili del livello;\n- dawnObject: oggetto o lettera esistente; objects[*].from in OBJECT_FROM e by CharacterId;\n- eveningEmptyKey ed esito.*: chiavi esistenti in it;\n- dopo: vignetta della stessa giornata;\n- apparizione.hour < startHour, passi fra 1 e W; chiusura solo 'nodo'.",
+  "C01 Regola di Gino (implementa il motore; la usano solver, bot, generatore, rules e simulate).\n- ginoFermo dopo la riga r vale 1 se e solo se Gino è nel merletto a fine riga, non ha incrociato in r (anche un incrocio forzato del nero vale) e all'inizio di r non aveva la febbre (con la regola febbre). Altrimenti 0. Vale 0 all'apertura e all'ingresso da un bordo.\n- Violazione 'corre' in r se e solo se: Gino è nel merletto e non è bloccato; non ha la febbre a inizio r; ha un incrocio possibile (un vicino non bloccato, non forzato, non autonomo, con un verso ammesso dalle stranezze; un vicino impegnato dal giocatore in un altro incrocio conta come libero); ginoFermo(r−1)=1; la riga non lo fa incrociare.\n- Parametri {chi:'gino', vicino:<primo vicino libero da sinistra>}; messageKey tombolo.violazione.corre.\n- Slot compatto OFF_GF, nella chiave del solver solo con ginoCorre. LaceState.ginoFermo scritto solo se 1 e incluso in stateKey.\n- SOLVER_VERSION+1: tutti i .computed.json si rigenerano.",
+  "C02 Passi del tutorial (contenuti scrivono, tombolo esegue).\n- margine primaOra: all'inizio della prima riga.\n- margine ora: all'inizio della riga hour.\n- margine incrocio: al primo incrocio in bozza nella riga hour (in qualunque riga se hour manca), qualunque sia il verso.\n- margine versoSbagliato: com'è oggi.\n- margine rifiuto: a una riga o un incrocio rifiutato per stranezza; filtrato da codice (rifiuto|corre|faro|bloccato|occupato).\n- margine spillo: a una violazione di spillo.\n- margine evento: alla prima comparsa di evento nell'anteprima o in una riga fissata; chi filtra il filo coinvolto (passa/copia: chi riceve; cura: chi guarisce; contagio: chi si ammala).\n- margine nome: dopo che il nome è appuntato.\n- margine archivioNomi: tutti i fili confermati. archivioRammendo: tutti gli strappi rammendati.\n- mano: 'clotilde' (seppia, predefinita) o 'ada' (matita).\n- pulsa evidenzia finché non c'è interazione o fino al fissare di hour. bordo = icona dell'evento della riga hour; spillo e fuso usano thread; marea = colonne allagate dalla riga hour.\n- mano fantasma: il tombolo disegna anche un fuso semitrasparente che segue la mano, con una freccia.\n- Ogni textKey si mostra una volta per notte; i passi con la stessa chiave contano come uno. Una nota visibile alla volta.",
+  "C03 Condizione {knows:'oggetto', id}: vera se id sta in knowledge.objects o in knowledge.letters. La campagna chiama refreshDiary subito dopo learnItems, quando il giocatore chiude un oggetto alla porta o all'alba, e annuncia lì le voci nuove, non nel bilancio. I contenuti spostano su questa condizione ogni voce del Taccuino che parla di un oggetto o di una lettera.",
+  "C04 Oggetti (contenuti-atto1 scrive campaign.json; la campagna legge).\n- g14: dawnObject 'lettera_clotilde', senza objectAfter. g15: eveningEmptyKey 'atto2.g15.sera.vuota', objectAfter 'bottiglia_nodo_nero'. g16: dawnObject 'fascio_lettere', senza objectAfter. g17: eveningEmptyKey 'atto3.g17.sera.vuota', objectAfter 'biglietto_livia_1'. g23: pins 2.\n- objects: merletto_avorio, libro_punti e nastro_nonna da casa; lettera_clotilde e fascio_lettere da mano, by zeno; biglietto_livia_1..6 da porta. Senza voce, la provenienza è laguna.\n- fascio_lettere all'alba porta fascio_1..3 solo se lettereLivia=liberate.\n- L'oggetto dell'alba si mostra dopo l'ultima vignetta e prima del bilancio, con il titolo campaign.alba.consegna, la figura di by e la lettura a tutto schermo; poi learnItems, refreshDiary, bilancio; poi archiveAfter come oggi.\n- eveningEmptyKey è la frase della porta quando manca l'objectAfter della giornata precedente.\n- Frasi d'arrivo: campaign.sera.arrivo.laguna «Bussano alla porta. La laguna ha lasciato qualcosa.», .mano «{nome} bussa alla porta. Ha qualcosa per te.», .porta «Sotto la porta, un biglietto.», .casa «Sul tombolo ti aspetta ancora qualcosa della nonna.», .niente (predefinita).\n- Epiloghi: la campagna passa a ogni riga il parametro {occasioni}, cioè le occasioni piantate nella notte del finale ordinate per ora, formattate con campaign.occasione.<kind> ({presso},{ora}) e unite con virgole ed «e». Vuoto se non ce ne sono.",
+  "C05 NoteDef.esito {ok?, fallita?, lasciato?}: chiavi di testo dei contenuti, una riga di conseguenza. La campagna usa nell'ordine:\n1. esito.<stato>;\n2. destino;\n3. desiderio, solo se nuovo;\n4. voce del Taccuino, che allora non si ripete in «Nel Taccuino»;\n5. frase generica.\n\nI test di contenuto chiedono esito.ok ed esito.fallita per ogni bigliettino con request, tranne i biglietti 'ending' di g23.",
+  "C06 Vignette dell'alba. priority ≥ 100 = culmine. dopo:'<id>' fa uscire la vignetta subito dopo l'altra, se la sua when è vera.\n\nSelezione:\n1. tutti i culmini nell'ordine dei dati, anche con lo stesso personaggio di seguito; massimo 4 solo per i culmini;\n2. le altre vignette scritte con le regole di oggi, fino a 3;\n3. battute generiche solo con meno di 2 vignette scritte e mai con un culmine; riserva solo senza vignette scritte;\n4. avvisi del Taccuino dopo l'ultima vignetta.\n\nDati: g18.alba.pane con dopo 'g18.alba.pace'; g14.alba.sera diventa la consegna dell'oggetto dell'alba (priorità 100, senza when).",
+  "C07 Stato delle richieste. activeNight().session.requestStatusFull() restituisce {noteId; report:CondReport valutato sulle righe FISSATE ('a_rischio' anche quando la sola bozza farebbe fallire); anteprima:CondStatus con la riga in bozza; dropped}.\n- Avviso «soddisfatta», vibrazione di successo e spunta piena solo con report.status==='soddisfatta'.\n- Con anteprima==='soddisfatta' e report diverso: spunta tratteggiata sul gettone; il pannello della campagna mostra campaign.taccuino.stato.inArrivo «Si compie se fissi l'ora».\n- goalStatus() segue la stessa regola; goalPreview():CondStatus[] dà l'anteprima.",
+  "C08 src/tombolo/index.ts esporta objectivesElement(opts?:{compact?:boolean}):HTMLElement|null (null senza notte attiva).\n- Contiene: obiettivi obbligatori (testo e stato); spilli d'ottone (chi, dove, quando, stato: rispettato, futuro, irraggiungibile); coppie in rancore; nelle modalità extra gli obiettivi generati; nell'Archivio i fili da nominare.\n- Si aggiorna su night:row, night:undo e night:cross.\n- data-test: tb-obiettivi-lista, tb-obiettivo-<i>, tb-spillo-<thread>-<ora>, tb-rancore-<a>-<b>, tb-sbiadito-<thread>.\n- Il pannello 'bigliettini' della campagna lo mostra sotto le richieste, al posto di «Obiettivi: n/m», anche nelle notti non di campagna.",
+  "C09 In modalità archivio (e occasioni con archive), nel layout largo, il tombolo non monta 'bigliettini' ma il proprio pannello tb-archivio-pannello: fili da nominare, candidati, strappi, echi. La campagna non cambia nulla.",
+  "C10 Pausa.\n- Con opts.origin==='archivio' il pannello Pausa di schermi mostra sc-pausa-lascia (ui.pausa.lascia «Lascia per ora»). Al tocco: services.ui.closeOverlay(); poi void services.scenes.go('archivio',{cmd:'lascia', levelId}).\n- La scena archivio della campagna, con cmd 'lascia', svuota SaveData.night se è d'Archivio per quel livello, non tocca knowledge.archive, mostra la cassapanca con «Apri» e «Più tardi»; «Più tardi» in fase archivio porta alla sera seguente. Il tombolo salva all'uscita come oggi.\n- sc-pausa-comandi (ui.pausa.comandi) apre la pagina sc-comandi con tasti e gesti di GDD 11, dalla mappa dei tasti del core (ui.comandi.*).",
+  "C11 Chiusura 'nodo'. fin_chiuso.json ha \"chiusura\":\"nodo\".\n- Fissata l'ultima riga, il tombolo emette tombolo:nodo {levelId}; anima il nodo su tutti i fili (800 ms) e il disfarsi dal basso (1,5 s) a 1× (dissolvenza con velocità 0 o movimento ridotto); non mostra «Merletto chiuso»; poi night:complete.\n- L'audio di schermi, su tombolo:nodo, suona sfx 'nodo' e la campana dell'ora 3 con s=1. Niente 'successo' su night:complete di un livello con chiusura 'nodo'. resolveStonatura dà 1 per fin_chiuso anche dopo il finale vero.\n- La campagna passa subito al cartello nero.",
+  "C12 Apparizione del filo nero: LevelDef.apparizione {hour < startHour, side, passi}.\n- Alla chiusura del merletto, prima di night:complete, il tombolo scorre in cima, disegna nel margine alto l'etichetta dell'ora, fa entrare dal bordo side un filo nero che avanza di 'passi' colonne incrociando da sopra i fili lì all'apertura (2,5 s a 1×), poi lo sfuma.\n- All'inizio emette tombolo:apparizione {levelId} (l'audio suona 'nero').\n- Dati: g08 {hour:3, side:'faro', passi:1} (incrocia Zeno); g15 {hour:3, side:'faro', passi:2}.",
+  "C13 Parametri del motore per il tombolo.\n- bloccato {chi, causa:'nodo'|'marea'} → tombolo.violazione.bloccato.nodo «Il filo di {chi} è annodato: in quest'ora non si muove.», .marea «Con l'acqua alta, il filo di {chi} non si muove.».\n- occupato {a, b, nero?:id del filo nero o autonomo} → con nero: tombolo.violazione.occupato.nero «{nero} si muove da solo: non si può incrociare.».\n- corre {chi, vicino} → tombolo.violazione.corre «{chi} è stato fermo un'ora: adesso deve incrociare (può con {vicino}).».\n- I rapporti di incontra, nonIncontra e sopra con finestra hanno i parametri dalle e alle.\n- Senza i parametri nuovi il tombolo ripiega sulla chiave di oggi.",
+  "C14 Criteri di qualità (levels:check).\n- Configurazioni: base, ogni bigliettino, ogni combinazione possibile non voluta di 2 (e di 3 negli atti con 3 spilli). Designata = la combinazione possibile più cara.\n- K1: min ≥ ⌈righe/2⌉ per la designata e per i bigliettini non facili.\n- K2: min(base+nota) − min(base) ≥ 2 nell'Atto I, ≥ 3 negli Atti II-III. Al massimo un bigliettino 'facile' per sera (--facile liv:nota, il segno resta nel computed), solo se è in un conflitto voluto.\n- K3: min − minSenzaGino ≤ 0,4·min, se Gino c'è con ginoCorre.\n- K4: vuoteMax ≤ 2 e vuoteTot ≤ ⌊0,4·righe⌋ nella soluzione registrata (designata e bigliettini).\n- K5: soluzioniOttime della designata ≤ 20.\n- K6: almeno una combinazione voluta per sera (g03-g22).\n- K7: designata nell'intervallo Min di GDD 5.2 ±1 (avviso).\n- Esenti: g00; g01 solo per K2; Archivi; fin_chiuso; fin_aperto e fin_seppia (valgono le regole delle occasioni). fin_merlettaia: min(base) ≥ 8 più K3 e K4.\n- quality si scrive sempre nel computed; le violazioni sono avvisi, errori con --qualita.\n- --max-states <n>, predefinito 1 500 000 per levels:check. Colonne K1..K6 in --report.\n- atto1.test.ts e atto23.test.ts chiedono quality.violazioni vuoto.",
+  "C15 balance.json: oro {minIncroci:3}. metrics(): filoDOro = !fantasmaUsed && minIncroci!==null && minIncroci ≥ oro.minIncroci && incroci===minIncroci. Se oro manca vale 3. Un fantasma su una riga di quiete non imposta fantasmaUsed. hint invariato (lampSeconds 60, undoRepeat 3); la lampada resta accesa dopo il primo uso per regola.",
+  "C16 Testi generati.\n- labelKey delle perline: sintagma nominale con articolo, minuscolo salvo i nomi propri, leggibile dopo «riceve/sente/conosce»; le lettere includono il destinatario; voci e segreti dicono di che cosa parlano.\n- Lettere generate (labelKey 'tombolo.generato.lettera' con to): tombolo.generato.letteraPer «la lettera per {to}» e letteraPerN numerata se più d'una per lo stesso destinatario.\n- Modelli per tipo (lettera|voce|segreto|nome|febbre; letta:* vale segreto): tombolo.obiettivo.ha.<tipo>, tombolo.obiettivo.nonHa.<tipo>, tombolo.cond.fallita.ha.<tipo>, tombolo.cond.rischio.ha.<tipo>, tombolo.cond.fallita.nonHa.<tipo>.\n- Finestre: tombolo.obiettivo.incontraFinestra «{a} incontra {b} fra le {dalle} e le {alle}», nonIncontraFinestra, sopraEntro; tombolo.cond.fallita.incontraFinestra «{a} e {b} non si sono incontrati entro le {alle}.».\n- tombolo.obiettivo.almenoStesso «Almeno {n} fra {elenco} {azione}».\n- tombolo.ora.fmt: it «{h}», en «8 pm» o «noon».\n- Il tombolo mette la maiuscola iniziale.\n- Chiavi lette anche da schermi: tombolo.rancore.coppia «{a} e {b} sono in rancore: se si incrociano, si annodano.» e tombolo.stranezza.ginoCorre «Non sta fermo due ore di fila. Con la febbre resta a letto.».",
+  "C17 Calligrafia.\n- In src/core/ui/base.css la rotazione si applica a .core-carta--mano (il foglio intero): clamp(-3deg, var(--mano-inclinazione), 3deg), transform-origin center.\n- .core-carta-testo non ha transform e ha pointer-events none.\n- La classe core-carta--scorre dà max-height 70% dell'altezza disponibile e overflow-y auto (il foglio riceve gli eventi per scorrere).\n- Regola per la campagna: nessun pulsante dentro .core-carta; i pulsanti stanno in un contenitore fratello, in un livello superiore.\n- src/core/ui/richtext.ts esporta inkOnPaper(hex, paper='#EDE4D3'): scurisce fino a contrasto ≥ 4,5:1. Lo usano .core-pers, e la campagna per .cp-pers e per le intestazioni dei bigliettini.",
+  "C18 data-test e chiavi fra gruppi.\n- Tombolo, nuovi: tb-obiettivi-lista, tb-obiettivo-<i>, tb-spillo-<thread>-<ora>, tb-rancore-<a>-<b>, tb-sbiadito-<thread>, tb-archivio-pannello, tb-archivio-chiudi-motivo, tb-bolla, tb-scorri-giu, tb-salta-quiete, tb-fantasma-conferma, tb-suggerimento-lascia-<noteId>.\n- Tombolo, invariati: tb-lampada, tb-nomina, tb-nomina-<id>, tb-nomina-togli, tb-scheda, tb-suggerimento, tb-suggerimento-ancora.\n- Campagna: cp-alba-oggetto, cp-sera-arrivo, cp-finale-continua, cp-sera-esci-conferma, cp-atto-cartello, cp-taccuino-libro-nuova.\n- Schermi: sc-pausa-lascia, sc-pausa-comandi, sc-comandi, sc-libero-riprendi, sc-libero-dacapo, sc-giornaliero-chi, sc-libero-chi, sc-libero-condividi-seme.\n- Chiavi scritte da un gruppo e lette da altri: ui.pausa.lascia, ui.pausa.comandi e ui.comandi.* (schermi); campaign.sera.arrivo.*, campaign.alba.consegna e campaign.occasione.* (campagna); tombolo.stranezza.* e tombolo.rancore.coppia (lette da schermi).\n- Ogni chiave esiste in it e in en.",
+  "C19 Chiavi di testo dei contenuti richieste da altri gruppi.\n- contenuti-atto1: comune.oggetti.<id> per ogni oggetto in objects; atto1.g00.margine.spillo, atto1.g00.margine.disfa, atto1.g01.margine.gino, atto1.g02.margine.matassa, atto1.g03.margine.molo, atto1.g04.margine.barca, atto1.g05.margine.faro, atto1.g06.margine.segreto, atto1.g07.margine.pozzo, atto1.arc1.margine.nomina, atto1.arc1.margine.rammenda, atto1.arc1.margine.eco.\n- contenuti-atti23: atto2.g09.margine.febbre, atto2.g09.margine.cura, atto2.g09.margine.ginoLetto, atto2.g11.margine.nodo, atto2.g16.margine.trabocco, atto3.g17.margine.nero (mano 'ada'), atto3.g19.margine.marea, atto2.g15.sera.vuota, atto3.g17.sera.vuota, hintKeys di arc3, arc4 e arc5.\n- I nomi esatti possono cambiare purché livello e testo coincidano (lo controlla validate.ts).\n\nProprietà e rigenerazione: loader.ts, validate.ts, vite.config.ts, README.md, tsconfig.json e public/sw.js sono di schermi. tests/e2e non è di nessun gruppo. Ogni gruppo di contenuto rigenera solo i propri computed con npm run levels:check -- --only <id,…>."
+ ],
+ "groups": [
+  {
+   "id": "motore",
+   "tasks": [
+    {
+     "id": "MOT-01",
+     "priority": "P1",
+     "title": "Regola di Gino nuova (ondata 1)",
+     "spec": "Implementare C01 in:\n- core.ts (ginoFailed, stepRow);\n- model.ts (slot OFF_GF);\n- state.ts (toCompact, fromCompact, stateKey);\n- solver.ts (campo della chiave solo con ginoCorre);\n- rules.ts, bot.ts, generator.ts.\n\nParametri della violazione {chi, vicino}. SOLVER_VERSION+1. Rigenerare i computed delle fixture e data/daily-fallback.json. LaceState.ginoFermo arriva da SCH-01; nel frattempo EngineLaceState.\n\nAccettazione: test a tabella su questi casi:\n- prima riga libera;\n- seconda riga ferma: rifiuto;\n- riga dopo un incrocio: libera;\n- vicino impegnato in un altro incrocio: rifiuto con il parametro vicino;\n- febbre a inizio riga: nessun obbligo e nessun accumulo;\n- rientro dal bordo: azzera;\n- nodo e marea: contano come fermo;\n- incrocio forzato del nero: vale.\n\nFixture di 6 righe con Gino e nessun altro vincolo: minimo 3. npm test verde.",
+     "findings": [
+      "P015",
+      "P091",
+      "P094"
+     ]
+    },
+    {
+     "id": "MOT-02",
+     "priority": "P1",
+     "title": "Parametri di violazioni e rapporti (ondata 1)",
+     "spec": "C13: bloccato.causa ('nodo'|'marea'), occupato.nero (id del filo nero o autonomo coinvolto), corre.vicino. Rapporti di incontra, nonIncontra e sopra con dalle e alle quando la condizione ha una finestra. engineTextKeys() con le chiavi nuove.\n\nAccettazione: un test unitario per ogni caso. Dopo TOM-14, l'i18n.test del tombolo non trova chiavi mancanti.",
+     "findings": [
+      "P038",
+      "P045",
+      "P093",
+      "P094",
+      "P118"
+     ]
+    },
+    {
+     "id": "MOT-03",
+     "priority": "P1",
+     "title": "Metriche di qualità in levels:check (ondata 1)",
+     "spec": "C14 completo:\n- calcolo di minSenzaGino (contesto senza ginoCorre), costo, vuoteMax, vuoteTot, soluzioniOttime (countOptimal);\n- designata, facili, violazioni K1-K7 con le esenzioni;\n- opzioni --facile liv:nota, --qualita (errori) e --max-states (predefinito 1 500 000);\n- colonne K1..K6 in --report;\n- quality scritto nel computed.\n\nAccettazione:\n- con il contenuto di oggi --report elenca violazioni almeno per g04, g06 e g10;\n- g16 si verifica senza superare il limite;\n- test su fixture con i valori attesi di ogni criterio;\n- npm test verde.",
+     "findings": [
+      "P022"
+     ]
+    },
+    {
+     "id": "MOT-04",
+     "priority": "P1",
+     "title": "Filo d'oro solo con minimo ≥ 3",
+     "spec": "C15 in metrics(): filoDOro solo con minIncroci ≥ balance.oro.minIncroci (predefinito 3), incroci uguali al minimo e senza fantasma con incrocio.\n\nAccettazione: test con minimo 0 e minimo 2 (niente filo d'oro anche a incroci = minimo), minimo 3 (filo d'oro), fantasma (lo toglie sempre).",
+     "findings": [
+      "P022"
+     ]
+    },
+    {
+     "id": "MOT-05",
+     "priority": "P1",
+     "title": "Generatore: gradi che contano",
+     "spec": "Nel filtro di qualità del generatore un grado vale solo se cambia il puzzle; altrimenti si prova il seme #k successivo:\n- spilliVelati: almeno uno spillo a un'ora ≥ start+3;\n- nodoInPiu: la soluzione ottima senza rancore fa incrociare la coppia, oppure col rancore il minimo cresce;\n- neroInPiu: la soluzione ottima senza nero non è valida col nero, oppure costa di più;\n- notteCorta: il controllo di oggi;\n- matassaEsatta e senzaDisfa: valgono sempre.\n\nNel generatore si applica la regola di Gino nuova.\n\nAccettazione: test su 200 semi per ogni combinazione di gradi, in cui ogni livello accettato rispetta la condizione dei suoi gradi; il seme pm0ozmz piccolo con Spilli velati e Un nodo in più produce un livello dove entrambi pesano.",
+     "findings": [
+      "P044"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tombolo",
+   "tasks": [
+    {
+     "id": "TOM-01",
+     "priority": "P0",
+     "title": "Archivio su touch: niente click fantasma",
+     "spec": "Il selettore dei nomi si apre al click e non al pointerup. Ignora i tocchi sui pulsanti per 350 ms dopo l'apertura. Ha altezza fissa («Togli il nome» c'è sempre, disattivato se non serve) e si apre lontano dal punto toccato.\n\nAccettazione: test con pointer touch più click di compatibilità: un tocco sul fuso apre il selettore e nessun nome viene assegnato. Il caso di archivio.spec.ts su iphone, android e ipad non si riproduce con lo script del tombolo.",
+     "findings": [
+      "P086"
+     ]
+    },
+    {
+     "id": "TOM-02",
+     "priority": "P0",
+     "title": "Archivio: nomi alla Obra Dinn, senza doppioni",
+     "spec": "D05.2-3:\n- il contatore mostra «Nomi dati: n di N · si confermano a gruppi di tre giusti», non quanti sono giusti;\n- conferma automatica quando almeno 3 nomi provvisori sono giusti (o tutti quelli rimasti, se sono meno di 3);\n- un nome già usato si sposta sul filo nuovo, con il messaggio tombolo.archivio.spostato;\n- con tutti i fili nominati e la conferma non scattata: tombolo.archivio.nonAncora.\n\nAccettazione: test di ArchiveBook su nome sbagliato (nessun segnale), 3 giusti (conferma), doppione (spostato), 4 fili nominati con 2 giusti («non ancora»).",
+     "findings": [
+      "P003"
+     ]
+    },
+    {
+     "id": "TOM-03",
+     "priority": "P0",
+     "title": "Archivio: fili usciti nominabili, Chiudi che spiega, Ricomincia che conserva",
+     "spec": "Un filo sbiadito si nomina:\n- dal fuso, con tocco o pressione lunga (la pressione lunga non apre più la scheda vuota);\n- da qualunque tratto del suo filo, anche dopo che è uscito dal merletto;\n- dall'elenco dei fili da nominare (C08, C09).\n\n«Chiudi il merletto» resta attivo e mostra il motivo (tb-archivio-chiudi-motivo): «Manca il nome del filo sbiadito 3» oppure «Manca il rammendo delle ore 9-10». «Ricomincia la notte» conserva i nomi confermati.\n\nAccettazione: riproduzione di P019 (arc1 tessuto prima di nominare, filo 3 uscito alle 12): il filo 3 si nomina dal tratto e dall'elenco; Chiudi spiega; Ricomincia lascia i confermati.",
+     "findings": [
+      "P019"
+     ]
+    },
+    {
+     "id": "TOM-04",
+     "priority": "P1",
+     "title": "Archivio: pannello largo, lampada, echi con i nomi, tutorial",
+     "spec": "- C09: pannello tb-archivio-pannello con fili, candidati, strappi e registro degli echi.\n- Lampada e suggerimenti anche nell'Archivio: il rammendo usa computed.base.rows.\n- Gli echi mostrano i due nomi del crocevia («Teresa → Aldo, alle 9»).\n- Trigger archivioNomi e archivioRammendo (C02), da usare nel tutorial di arc1.\n- Il tombolo emette solo night:exit per «Lascia per ora»: il pulsante è di schermi (C10).\n\nAccettazione: arc3 a 1180×820 con il pannello pieno; echi con i nomi; lampada presente; test di layout del tombolo verdi.",
+     "findings": [
+      "P002",
+      "P070",
+      "P099"
+     ]
+    },
+    {
+     "id": "TOM-05",
+     "priority": "P0",
+     "title": "HUD e testo grande",
+     "spec": "Le scritte dell'HUD non scendono mai sotto 15 px × textScale: si va a capo invece di troncare. Le colonne usano il nome breve, e sotto i 44 px solo l'icona con nome accessibile. Il calcolo si rifà dopo document.fonts.ready e a sovrapposizioni chiuse, anche su settings:change.\n\nAccettazione: test di layout a 360×640, testo 140%, alto contrasto, it ed en, con le impostazioni cambiate dalla Pausa:\n- nessuna scritta dell'HUD sotto 21 px;\n- nessun troncamento con i puntini;\n- nomi delle colonne interi, oppure solo icona;\n- misure identiche prima e dopo una ricarica.",
+     "findings": [
+      "P039"
+     ]
+    },
+    {
+     "id": "TOM-06",
+     "priority": "P0",
+     "title": "Lettere col destinatario e finestre orarie",
+     "spec": "- C16 per le lettere generate («la lettera per Zeno», numerate se più d'una per la stessa persona).\n- Tocco sulla busta: bolla con il destinatario.\n- Gli avvisi di rischio nominano la lettera.\n- Obiettivi e fallimenti di incontra con la finestra: incontraFinestra e fallita.incontraFinestra con {dalle, alle} (C13).\n\nAccettazione: Merletto del giorno del 14/10 e libero gdjm8dc: ogni lettera ha il destinatario, due lettere per la stessa persona sono distinte, «Bepi incontra Lunardi fra le 7 e le 10», e il fallimento dice «entro le 10».",
+     "findings": [
+      "P037",
+      "P038"
+     ]
+    },
+    {
+     "id": "TOM-07",
+     "priority": "P1",
+     "title": "Note a margine che non coprono il gioco",
+     "spec": "D04:\n- posizione esclusa dalla riga corrente, dalle due future, da spilli, slot, bordi, incroci in bozza, fusi, richieste e azioni;\n- sopra le righe fissate, oppure in una fascia che sposta il merletto; nel layout largo, nel pannello di sinistra;\n- chiusura al tocco senza propagare il tocco; alla prima azione valida dopo 4 s, oppure dopo 12 s;\n- una nota alla volta;\n- un solo messaggio per violazione e nessun banner per le righe rifiutate.\n\nAccettazione: test di layout su g01 alle 7, g02 alle 7, finale D e finale B senza intersezioni; un tocco sulla nota non rovescia l'incrocio sotto; una riga rifiutata produce un solo messaggio.",
+     "findings": [
+      "P004",
+      "P107"
+     ]
+    },
+    {
+     "id": "TOM-08",
+     "priority": "P1",
+     "title": "Tutorial: trigger, bersagli e fuso fantasma",
+     "spec": "C02 completo in:\n- tutorial.ts: when ora, incrocio, rifiuto con codice, evento con chi, nome, archivioNomi, archivioRammendo; mano clotilde o ada;\n- ui/actionbar.ts, ui/hud.ts e render: pulsazioni lampada, obiettivi, matassa, bordo, spillo, fuso, marea;\n- un fuso fantasma semitrasparente che segue la mano, con una freccia.\n\nAccettazione: test unitari di Tutorial per ogni when e ogni target. Nel prologo alle 6 la mano trascina un fuso visibile dalla colonna 1 alla 0; alle 7, con il verso giusto, compare «Chi sta sopra, dà».",
+     "findings": [
+      "P005",
+      "P088"
+     ]
+    },
+    {
+     "id": "TOM-09",
+     "priority": "P1",
+     "title": "«Soddisfatta» solo sulle righe fissate",
+     "spec": "C07:\n- requestStatusFull() con report valutato sulle righe fissate più anteprima;\n- goalPreview();\n- avviso, vibrazione e spunta piena solo da report;\n- spunta tratteggiata per l'anteprima.\n\nAccettazione: riproduzione di P102 (g21 con Zeno, Piero e Gino, e il finale D): nessun avviso prima di fissare l'ora; due obiettivi del finale D non risultano soddisfatti all'apertura per la sola anteprima.",
+     "findings": [
+      "P025",
+      "P102"
+     ]
+    },
+    {
+     "id": "TOM-10",
+     "priority": "P1",
+     "title": "Suggerimenti che dicono la verità",
+     "spec": "D07:\n- lampada visibile dall'inizio della notte e accesa dopo il primo uso;\n- il tocco riapre il gradino massimo già visto e non avanza mai;\n- tb-fantasma-conferma quando il filo d'oro è ancora possibile;\n- Fantasma gratuito su una riga di quiete;\n- Spinta ripetuta saltata;\n- diagnosi con solveAsync: togliere una richiesta alla volta (chiave tombolo.hint.incompatibili, pulsanti tb-suggerimento-lascia-<noteId>) e cercare l'ultima ora da cui una richiesta torna possibile (tombolo.hint.tardi).\n\nAccettazione: g06 con Nina e Zeno: la Spinta dice che non stanno insieme e offre di lasciarne cadere una; una riga di quiete non toglie il filo d'oro; tre tocchi sulla lampada non chiamano il Fantasma; la lampada resta accesa alle ore seguenti.",
+     "findings": [
+      "P020",
+      "P026",
+      "P101",
+      "P103"
+     ]
+    },
+    {
+     "id": "TOM-11",
+     "priority": "P1",
+     "title": "Righe visibili e ora di fine",
+     "spec": "- HUD «Ore 7 · fino alle 20».\n- rowH = clamp(spazio/(righe+0,6), 30, 56); sotto i 30 px righe da 40 e indicatore tb-scorri-giu «↓ altre N ore» (tocco per scorrere).\n- La fascia dei fusi può scendere a 104 px nel layout largo.\n- Spilli e slot futuri nascosti negli obiettivi.\n\nAccettazione: g13 a 1180×820 e 390×844, finale D a 1280×800: tutte le righe visibili oppure indicatore con il numero corretto; l'HUD mostra l'ora di fine.",
+     "findings": [
+      "P072",
+      "P087",
+      "P105"
+     ]
+    },
+    {
+     "id": "TOM-12",
+     "priority": "P1",
+     "title": "Il tocco spiega",
+     "spec": "Bolla tb-bolla per tocco e passaggio del mouse su:\n- spillo d'ottone («Teresa al Forno alle 9: appuntamento fisso»);\n- barca o bordo (chi esce, chi entra, che cosa porta);\n- perlina (etichetta e portatore);\n- etichetta d'ora (eventi dell'ora);\n- incrocio annunciato del nero.\n\nIcona dell'evento accanto al numero dell'ora, non al suo posto. Il tocco sulle righe future non è più ignorato.\n\nAccettazione: test d'interazione su prologo (spillo Forno 9) e g06 (barca delle 8 con il marinaio e la lettera per Nina); il numero dell'ora resta visibile accanto all'icona.",
+     "findings": [
+      "P013",
+      "P014",
+      "P031",
+      "P042",
+      "P049",
+      "P100"
+     ]
+    },
+    {
+     "id": "TOM-13",
+     "priority": "P1",
+     "title": "Obiettivi: popup e componente per il pannello",
+     "spec": "C08: objectivesElement.\n\nPopup:\n- contatore «n/N» visibile sul pulsante;\n- elenco con gli spilli d'ottone e le coppie in rancore;\n- senza il titolo «Obiettivo» ripetuto;\n- ombra di scorrimento.\n\nAccettazione: libero grande con 5 obiettivi a 360×640: contatore visibile, 5 voci leggibili scorrendo, ombra presente; test DOM di objectivesElement.",
+     "findings": [
+      "P042",
+      "P046",
+      "P054",
+      "P070"
+     ]
+    },
+    {
+     "id": "TOM-14",
+     "priority": "P2",
+     "title": "Testi generati grammaticali",
+     "spec": "C16 e C13 lato testi:\n- capitalizeFirst;\n- modelli per tipo di perlina;\n- almenoStesso;\n- ore inglesi;\n- violazioni bloccato.nodo e .marea, occupato.nero, corre con il vicino;\n- nel popup del gettone di una richiesta, la riga con la condizione esatta («Lettera per Don Piero: consegnata entro le 10»).\n\nAccettazione: test di describeCondition e reportText su tutti i tipi in it ed en. I casi di P012, P048, P082, P093, P112 e P118 danno le frasi attese. i18n.test verde.",
+     "findings": [
+      "P006",
+      "P012",
+      "P029",
+      "P048",
+      "P082",
+      "P093",
+      "P094",
+      "P112",
+      "P118"
+     ]
+    },
+    {
+     "id": "TOM-15",
+     "priority": "P1",
+     "title": "Occasioni leggibili e precise",
+     "spec": "- Slot disegnati al centro della riga, con la stessa funzione per disegno e bersaglio.\n- Icona del tipo sopra il filo, su fondo pieno.\n- Etichetta di tipo e ora al passaggio del mouse e alla pressione lunga.\n- Il chip «Occasioni n/5» fuori dalla griglia.\n- «Riprova» azzera gli obiettivi.\n\nAccettazione: un clic al centro di ogni cerchio di arc6 e del finale D pianta esattamente quell'occasione; il chip non copre celle; dopo Riprova il contatore è a zero.",
+     "findings": [
+      "P071",
+      "P072",
+      "P104"
+     ]
+    },
+    {
+     "id": "TOM-16",
+     "priority": "P1",
+     "title": "Il nome di Ada si sposta prima della prima ora",
+     "spec": "Finché nessuna riga è fissata, un tocco su un altro fuso sposta il nome, con l'avviso «Il tuo nome ora è su X». Dopo, il tocco mostra «Il nome è già appuntato».\n\nAccettazione: in g12 Piero → Zeno → Piero funziona; dopo la prima ora fissata compare il messaggio.",
+     "findings": [
+      "P089"
+     ]
+    },
+    {
+     "id": "TOM-17",
+     "priority": "P1",
+     "title": "Rancore visibile, stranezze nelle modalità extra, scheda coerente col Taccuino",
+     "spec": "- Segno del nodo sulla testa dei due fusi in rancore, finché la regola vale.\n- Riga nella scheda del personaggio e negli obiettivi (tombolo.rancore.coppia).\n- Con origine giornaliero, libero o spartito la scheda elenca tutte le stranezze attive del livello.\n- Nella campagna una stranezza si mostra solo se quirkRevealed è vera: copia nel tombolo con un test di equivalenza sui dati veri.\n\nAccettazione: libero pm0ozmz con Un nodo in più mostra il segno; giorno 18/10 con Gino che ha la sua stranezza nella scheda; nel prologo la scheda di Teresa non svela che legge le lettere.",
+     "findings": [
+      "P017",
+      "P041",
+      "P045"
+     ]
+    },
+    {
+     "id": "TOM-18",
+     "priority": "P2",
+     "title": "Desktop grande, filo nero leggibile, motivi distinguibili",
+     "spec": "- Centro fino a 960 px con scala di perline, spilli ed etichette.\n- Filo nero con un bordo chiaro sempre.\n- Motivo a onde di Gino più ampio e righe di Teresa più contrastate, colori invariati.\n\nAccettazione: a 1920×1080 centro ≥ 900 px, spilli ≥ 20 px, ore ≥ 15 px; in g05 alle 9 Gino e Teresa distinguibili anche in bianco e nero.",
+     "findings": [
+      "P034",
+      "P046"
+     ]
+    },
+    {
+     "id": "TOM-19",
+     "priority": "P2",
+     "title": "Tastiera e lettore di schermo",
+     "spec": "Mentre si nomina nell'Archivio, il cursore delle frecce raggiunge tutte le colonne. La riga di stato per lettore di schermo si rigenera al cambio di lingua.\n\nAccettazione: test d'input sull'ultima colonna dell'Archivio; dopo il cambio di lingua la riga di stato è tutta nella lingua nuova.",
+     "findings": [
+      "P026",
+      "P052"
+     ]
+    },
+    {
+     "id": "TOM-20",
+     "priority": "P1",
+     "title": "Chiusura «nodo» e apparizione del filo nero",
+     "spec": "C11 (animazione del nodo e del riavvolgimento, evento tombolo:nodo, niente «Merletto chiuso») e C12 (apparizione nel margine alto, evento tombolo:apparizione), sempre prima di night:complete.\n\nAccettazione: test della scena: ogni evento parte una volta; night:complete arriva dopo l'animazione; con animSpeed 0 tutto è istantaneo.",
+     "findings": [
+      "P063",
+      "P109"
+     ]
+    },
+    {
+     "id": "TOM-21",
+     "priority": "P2",
+     "title": "PNG condivisibile con cartiglio",
+     "spec": "renderLacePng(level, rows, flags, caption?) con caption {titolo, sottotitolo, riga}, disegnato in un cartiglio in basso.\n\nAccettazione: test d'esportazione con e senza cartiglio (dimensioni e area del cartiglio).",
+     "findings": [
+      "P050"
+     ]
+    },
+    {
+     "id": "TOM-22",
+     "priority": "P2",
+     "title": "«Salta le ore quiete»",
+     "spec": "Pulsante tb-salta-quiete «Fissa fino alle N» (Maiusc+Invio). Compare quando la bozza è vuota e almeno 2 righe si fissano vuote senza spilli, bordi, marea, nero, scadenze di richieste o obblighi di Gino. Fissa riga per riga e si ferma al primo evento. Disfa torna indietro di una riga alla volta.\n\nAccettazione: test sulle condizioni di comparsa e di arresto; il finale A di oggi offre il salto nelle ore vuote.",
+     "findings": [
+      "P022",
+      "P115"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "campagna",
+   "tasks": [
+    {
+     "id": "CAM-01",
+     "priority": "P0",
+     "title": "Archivio facoltativo davvero; Rileggi in sola lettura",
+     "spec": "- C10 lato scena archivio ({cmd:'lascia'}: svuota la notte salvata d'Archivio, cassapanca con Apri e Più tardi).\n- «Rileggi» apre il merletto rammendato in sola lettura (mode replay con le righe registrate e i nomi confermati) e permette di toccare gli echi.\n- Il pulsante che lo rifà da capo si chiama «Rifai».\n\nAccettazione: test di flusso: arc1 aperto in fase archivio → Lascia → Più tardi → sera di g04, con arc1 ancora da fare; Rileggi su arc1 rammendato mostra nomi e colori.",
+     "findings": [
+      "P001",
+      "P032"
+     ]
+    },
+    {
+     "id": "CAM-02",
+     "priority": "P0",
+     "title": "Bigliettini e lettere sul foglio giusto",
+     "spec": "- C17 lato campagna: pulsanti fuori da .core-carta, foglio core-carta--scorre per lettere e bigliettini lunghi.\n- La lista dei bigliettini ha in fondo un margine pari ai pulsanti fissi più 16 px.\n- Scheda Lettere del Taccuino dalla prima lettera ricevuta.\n\nAccettazione:\n- test DOM: elementFromPoint al centro di Appunta, Lascia e Rispondi restituisce il pulsante, per Bepi (8°), Gino (−7°) e Zeno (−9°), a 390×844 e 1440×900;\n- la lettera di Clotilde e quella di g03 hanno ogni riga dentro il foglio, firma compresa;\n- «Risposto» si vede senza scorrere.",
+     "findings": [
+      "P007",
+      "P011",
+      "P021",
+      "P057",
+      "P058"
+     ]
+    },
+    {
+     "id": "CAM-03",
+     "priority": "P0",
+     "title": "Rivelazione di g14 e oggetti consegnati a mano",
+     "spec": "- C03: refreshDiary subito dopo learnItems, con gli avvisi lì.\n- C04: dawnObject dopo l'ultima vignetta con il titolo campaign.alba.consegna e la figura di by (cp-alba-oggetto); objects e frasi d'arrivo campaign.sera.arrivo.* (cp-sera-arrivo); eveningEmptyKey.\n\nAccettazione: test di flusso su g14: alba → vignetta di Zeno → lettera → bilancio senza voci sbloccate prima della lettura → cassapanca con arc4. Inoltre g01 «Sul tombolo ti aspetta…», g18 «Sotto la porta, un biglietto», sera di g15 con la frase vuota.",
+     "findings": [
+      "P009",
+      "P056",
+      "P074"
+     ]
+    },
+    {
+     "id": "CAM-04",
+     "priority": "P1",
+     "title": "Alba che rispetta i culmini",
+     "spec": "D11 e C06 in dawn.ts:\n- culmini tutti, anche con lo stesso personaggio di seguito;\n- campo dopo;\n- massimo 4 solo per i culmini;\n- battute generiche solo con meno di 2 vignette scritte e mai con un culmine;\n- riserva solo senza vignette scritte;\n- avvisi del Taccuino dopo l'ultima vignetta.\n\nAccettazione: test puri di selectDawn: g18 con la pace mostra pace e poi pane, senza battute generiche; g11 col nodo nessuna riserva; una giornata senza vignette scritte usa la riserva.",
+     "findings": [
+      "P067",
+      "P117"
+     ]
+    },
+    {
+     "id": "CAM-05",
+     "priority": "P1",
+     "title": "Bilancio con conseguenze vere",
+     "spec": "- C05 in consequenceOf (prima esito.<stato>).\n- Nessuna voce di «Nel Taccuino» identica alla conseguenza mostrata.\n- Desiderio solo se nuovo.\n- bilancio.record con plurali ICU per incroci e ore.\n- La sezione obiettivi si chiama «Come doveva andare».\n\nAccettazione: test di consequenceOf con esito; nessuna riga ripetuta nella stessa pagina; «1 incrocio, 1 ora di quiete».",
+     "findings": [
+      "P018",
+      "P027",
+      "P028",
+      "P068",
+      "P078",
+      "P098"
+     ]
+    },
+    {
+     "id": "CAM-06",
+     "priority": "P1",
+     "title": "Taccuino: piste, pagina nuova, schede",
+     "spec": "- Piste sopra la risposta e nascoste a domanda risolta.\n- Dopo la scelta di g23 nessuna pista, al suo posto campaign.taccuino.pistaFinita.\n- knowledge.bookSeen: la prima apertura del Taccuino in una notte con una pagina nuova va su quella (cp-taccuino-libro-nuova); avviso toccabile «Nuova pagina nel Libro: …» all'inizio della notte.\n- Schede in una riga scorrevole.\n\nAccettazione: in g09 il Libro si apre su «La febbre» con il segno «Nuova»; dopo la scelta niente «Dove guardare»; 6 schede in una riga a 390 px.",
+     "findings": [
+      "P016",
+      "P064",
+      "P088",
+      "P120"
+     ]
+    },
+    {
+     "id": "CAM-07",
+     "priority": "P1",
+     "title": "Pannello dei bigliettini durante la notte",
+     "spec": "Il pannello 'bigliettini' monta objectivesElement (C08) sotto le richieste, anche nelle notti extra, e mostra campaign.taccuino.stato.inArrivo secondo C07.\n\nAccettazione: prologo nel layout largo con il testo dell'obiettivo e il suo stato; Merletto del giorno a 1920×1080 con l'elenco completo; g05 alle 12 con la bozza: pannello e gettone concordano.",
+     "findings": [
+      "P025",
+      "P046",
+      "P070"
+     ]
+    },
+    {
+     "id": "CAM-08",
+     "priority": "P1",
+     "title": "Finali",
+     "spec": "- Nei finali A, B e D, dopo night:complete il merletto resta con il pulsante cp-finale-continua invece del passaggio dopo 1,6 s.\n- C11: per chiuso, cartello nero subito.\n- Dopo done('fin_chiuso') il biglietto di Clotilde è piegato e non appuntabile, con il richiamo alla voce «Il punto di Clotilde».\n- La Fine del finale vero ha la riga «La campana suona intonata. Hai trovato il punto aperto.».\n- fineTesto: «La storia di quell'anno è finita».\n\nAccettazione: test di flusso dei quattro finali per ogni punto.",
+     "findings": [
+      "P077",
+      "P108",
+      "P109",
+      "P111",
+      "P121"
+     ]
+    },
+    {
+     "id": "CAM-09",
+     "priority": "P1",
+     "title": "Sera: spilli chiari, g23, Esc",
+     "spec": "- sera.appunta «Appunta · {n, plural, one {resta # spillo} other {restano # spilli}}».\n- Con gli spilli finiti, sotto il pulsante, come liberarne uno (con il collegamento).\n- Spilli mostrati solo se ci sono bigliettini; la scelta di g23 usa sempre 1 spillo.\n- Esc e Indietro nella sera senza pannelli chiedono «Tornare al titolo? È tutto salvato.» (cp-sera-esci-conferma).\n\nAccettazione: test DOM e di flusso per ogni punto.",
+     "findings": [
+      "P010",
+      "P024",
+      "P114",
+      "P116"
+     ]
+    },
+    {
+     "id": "CAM-10",
+     "priority": "P2",
+     "title": "Cartelli d'atto e prologo raccolto",
+     "spec": "- Alla prima sera di ogni atto, cp-atto-cartello con il titolo e la stagione (comune.atti.N.sottotitolo).\n- Prologo: niente Taccuino sullo schermo nero, titolo su una fascia scura, il biglietto appuntato sul tombolo.\n\nAccettazione: screenshot a 1440×900 e 390×844 rivisti; il cartello c'è in g01, g09 e g17.",
+     "findings": [
+      "P077",
+      "P083"
+     ]
+    },
+    {
+     "id": "CAM-11",
+     "priority": "P2",
+     "title": "Vignetta di rivelazione e inchiostro dei nomi",
+     "spec": "La vignetta di rivelazione dell'Archivio usa il contenitore delle vignette dell'alba. inkOnPaper (C17) per .cp-pers e per le intestazioni dei bigliettini.\n\nAccettazione: contrasto del nome di Lunardi ≥ 4,5:1 (calcolo WCAG in un test); la vignetta di arc1 occupa tutta l'area come le albe.",
+     "findings": [
+      "P035",
+      "P096"
+     ]
+    },
+    {
+     "id": "CAM-12",
+     "priority": "P2",
+     "title": "{occasioni} negli epiloghi",
+     "spec": "C04: parametro {occasioni} per ogni riga degli epiloghi, dalle occasioni piantate nella notte del finale, con campaign.occasione.<kind>.\n\nAccettazione: test con l'insieme di occasionsSolution di fin_aperto: «il vaporetto delle 9, la festa in Farmacia a mezzogiorno, la festa in Piazza alle 17 e la lanterna alle 20», e l'equivalente in en.",
+     "findings": [
+      "P073",
+      "P106"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "schermi",
+   "tasks": [
+    {
+     "id": "SCH-01",
+     "priority": "P0",
+     "title": "Tipi e validazione dei contratti (ondata 0)",
+     "spec": "C00 alla lettera in src/core/types.ts, src/core/ids.ts e src/content/validate.ts, più i test di validate per ogni forma nuova, valida e non valida.\n\nAccettazione: npm run build verde con i contenuti di oggi; test nuovi verdi; nessun file di altri gruppi toccato.",
+     "findings": []
+    },
+    {
+     "id": "SCH-02",
+     "priority": "P0",
+     "title": "Calligrafia: il foglio si inclina, il testo resta dentro",
+     "spec": "C17 lato core:\n- rotazione su .core-carta--mano con il limite ±3° e transform-origin center;\n- .core-carta-testo senza transform e con pointer-events none;\n- classe core-carta--scorre;\n- inkOnPaper in richtext.ts e uso in .core-pers.\n\nAccettazione: test sugli stili calcolati; pagina di prova con le grafie di tutti i personaggi e un testo di 150 parole: nessun carattere fuori dal foglio.",
+     "findings": [
+      "P007",
+      "P021",
+      "P057",
+      "P058"
+     ]
+    },
+    {
+     "id": "SCH-03",
+     "priority": "P0",
+     "title": "Pausa: «Lascia per ora» e «Comandi»",
+     "spec": "C10 lato pannello: sc-pausa-lascia solo con origine archivio, che chiude la Pausa e chiama scenes.go('archivio',{cmd:'lascia',levelId}). Pagina sc-comandi con tutti i gesti e i tasti di GDD 11, compresi H, N, Maiusc+Invio e il clic destro.\n\nAccettazione: test DOM per i due pulsanti; la pagina dei comandi elenca ogni azione della mappa dei tasti.",
+     "findings": [
+      "P001",
+      "P026"
+     ]
+    },
+    {
+     "id": "SCH-04",
+     "priority": "P0",
+     "title": "Merletto libero: «Tessi» non cancella",
+     "spec": "Con save.night attivo per lo stesso seme e gli stessi gradi, il pulsante fisso diventa «Riprendi il merletto» (sc-libero-riprendi), anche in cima alla pagina, e «Tessi da capo» (sc-libero-dacapo) chiede conferma.\n\nAccettazione: test con una notte libera a metà: il pulsante fisso riprende; annullando la conferma il salvataggio resta intatto.",
+     "findings": [
+      "P036"
+     ]
+    },
+    {
+     "id": "SCH-05",
+     "priority": "P1",
+     "title": "Impostazioni opache e segmenti a testo grande",
+     "spec": "Fondo opaco per i fogli sovrapposti, con un colore dedicato in alto contrasto. Segmenti in colonna con testo ≥ 130%, senza word-break a metà parola.\n\nAccettazione: a 360×640, 140%, in it «Istantanea» è intera; dietro le Impostazioni la Pausa non si legge.",
+     "findings": [
+      "P043",
+      "P047"
+     ]
+    },
+    {
+     "id": "SCH-06",
+     "priority": "P1",
+     "title": "Musica della notte nelle modalità extra",
+     "spec": "All'avvio delle notti giornaliero, libero e spartito: audio.setMusic('notte', {seed: level.musicSeed ?? level.id, notes: personaggi presenti}). Ai risultati e al titolo torna la musica del titolo.\n\nAccettazione: test audio: stats().music vale 'notte' durante la notte del giorno e del libero.",
+     "findings": [
+      "P040"
+     ]
+    },
+    {
+     "id": "SCH-07",
+     "priority": "P1",
+     "title": "«Chi c'è stanotte» nelle schede del giorno e del libero",
+     "spec": "Sezioni sc-giornaliero-chi e sc-libero-chi con:\n- icona, nome e stranezze attive di ogni personaggio (tombolo.stranezza.*);\n- coppie in rancore (tombolo.rancore.coppia);\n- regola del giorno con la pagina del Libro.\n\nAccettazione: test DOM sui giorni 15/10 e 18/10 e sul libero gdjm8dc.",
+     "findings": [
+      "P041",
+      "P045"
+     ]
+    },
+    {
+     "id": "SCH-08",
+     "priority": "P1",
+     "title": "Offline dopo il primo caricamento",
+     "spec": "- public/sw.js: cache con versione gameVersion; precache di index, chunk, font, assets/manifest.json e dei file elencati; rete come ripiego.\n- Registrato in main.ts solo sul web e non in dev.\n- Nessuna richiesta esterna.\n\nAccettazione: con il server fermo dopo il primo caricamento, il prologo arriva fino all'alba con diorami e font; missingAssets() vuoto; nessun errore di rete in console (rete.spec.ts «senza rete»).",
+     "findings": [
+      "QA:offline"
+     ]
+    },
+    {
+     "id": "SCH-09",
+     "priority": "P1",
+     "title": "Gli avvisi brevi non prendono i tocchi",
+     "spec": ".core-toast con pointer-events none e senza core-solid.\n\nAccettazione: test del layer: un tocco su un avviso arriva all'elemento sotto, anche sopra le schede del Taccuino a 360×640.",
+     "findings": [
+      "QA:toast"
+     ]
+    },
+    {
+     "id": "SCH-10",
+     "priority": "P2",
+     "title": "Titolo al primo avvio e didascalie",
+     "spec": "Al primo avvio le modalità bloccate si vedono col lucchetto e la condizione («dopo la giornata 7»). Le didascalie dei suoni stanno sopra il piede, mai sopra i pulsanti. Il menu del titolo ha un'ombra di scorrimento.\n\nAccettazione: primo avvio con le voci bloccate visibili; a 360×640, 140%, nessuna didascalia sopra i pulsanti; in en «Credits» raggiungibile, con l'ombra.",
+     "findings": [
+      "P053",
+      "P055"
+     ]
+    },
+    {
+     "id": "SCH-11",
+     "priority": "P2",
+     "title": "Condivisione",
+     "spec": "Data con Intl.DateTimeFormat della lingua. PNG con il cartiglio (TOM-21). Nel libero «Condividi il seme» (sc-libero-condividi-seme), con seme, gradi e spartito.\n\nAccettazione: in en-US la data è «10/18»; il PNG ha il cartiglio; il libero condivide.",
+     "findings": [
+      "P050"
+     ]
+    },
+    {
+     "id": "SCH-12",
+     "priority": "P2",
+     "title": "Testi per stato e modalità",
+     "spec": "- Scheda del giorno già tessuto: «Tessuto oggi: N incroci, già il minimo», oppure con il record da battere.\n- Il ricomincio senza richieste non le cita.\n- «Clicca per iniziare» col mouse.\n- Varianti in ui.json, in it ed en.\n\nAccettazione: test DOM sui tre casi.",
+     "findings": [
+      "P051"
+     ]
+    },
+    {
+     "id": "SCH-13",
+     "priority": "P2",
+     "title": "Audio del finale C",
+     "spec": "C11 lato audio: tombolo:nodo suona sfx nodo e la campana dell'ora 3 con s=1; niente successo per un livello con chiusura 'nodo'; resolveStonatura dà 1 per fin_chiuso anche dopo il finale vero. tombolo:apparizione suona nero.\n\nAccettazione: test di automazione: il registro audio di fin_chiuso dopo il finale vero contiene la campana con s=1 e nessun successo.",
+     "findings": [
+      "P110"
+     ]
+    },
+    {
+     "id": "SCH-14",
+     "priority": "P2",
+     "title": "Inchiostro dei nomi e avviso della build",
+     "spec": "inkOnPaper esposto e documentato (C17). In vite.config.ts, divisione dei chunk oppure limite a 700 KB. Nota sul budget CSS in gzip nel README.\n\nAccettazione: build senza avvisi; test di inkOnPaper (Lunardi ≥ 4,5:1 su #EDE4D3).",
+     "findings": [
+      "P096"
+     ]
+    },
+    {
+     "id": "SCH-15",
+     "priority": "P2",
+     "title": "Il titolo ricorda il finale vero",
+     "spec": "Con unlocks.tovaglia (nome storico del flag) il titolo mostra un filo corallo sul tombolo e una stella accanto a Telaio; la campana è intonata come oggi.\n\nAccettazione: screenshot del titolo con il flag acceso e spento.",
+     "findings": [
+      "P121"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "contenuti-atto1",
+   "tasks": [
+    {
+     "id": "CA1-01",
+     "priority": "P0",
+     "title": "La lanterna di Gino in g05",
+     "spec": "In g05.alba.lanterna e .lanterna2 Gino trova la lanterna spenta («È tutta vetri e ottone, ma spenta!»; Zeno: «Si accende alle sei. Da dentro, un giorno.»). Il desiderio resta aperto. In it ed en.\n\nAccettazione: un test di atto1 verifica che nessun testo prima del finale dica che Gino ha visto la lanterna accesa da dentro.",
+     "findings": [
+      "P059"
+     ]
+    },
+    {
+     "id": "CA1-02",
+     "priority": "P0",
+     "title": "Dati comuni dei contratti (ondata 1)",
+     "spec": "- campaign.json come C04: dawnObject di g14 e g16, objects, eveningEmptyKey di g15 e g17, g23 con 2 spilli.\n- balance.json: oro {minIncroci:3}.\n- characters.json: Marta hand.font 'atkinson', caps, sizeScale 1.05; Aldo con motivo e icona che nessun altro usa in arc3 (glifo esistente).\n- comune.oggetti.* per tutti gli oggetti.\n\nAccettazione: validate verde dopo SCH-01; un test di atto1 verifica la provenienza di ogni oggetto e Aldo distinto per motivo e icona.",
+     "findings": [
+      "P009",
+      "P033",
+      "P056",
+      "P074",
+      "P084",
+      "P114"
+     ]
+    },
+    {
+     "id": "CA1-03",
+     "priority": "P1",
+     "title": "Prologo e tutorial dell'Atto I e degli Archivi 1-2",
+     "spec": "Passi secondo D03 e C02, con le chiavi di C19 in it ed en:\n- g00: spillo alle 6 (incrocio), «Chi sta sopra, dà» con incrocio alle 7, Disfa con testo alle 8;\n- g01: Gino con la regola nuova (rifiuto codice corre, altrimenti ora 8);\n- g02 matassa, g03 Molo, g04 barca, g05 Faro, g06 segreto (evento legge), g07 pozzo;\n- arc1: nomina, rammenda, eco;\n- hintKeys di arc1 e arc2 rivisti.\n\nAccettazione: validate verde; un test di atto1 verifica che ogni novità di GDD 5.2 abbia un passo margine nella sua prima notte.",
+     "findings": [
+      "P002",
+      "P005",
+      "P013",
+      "P014"
+     ]
+    },
+    {
+     "id": "CA1-04",
+     "priority": "P1",
+     "title": "Ridisegno delle notti g01-g08 (ondata 2)",
+     "spec": "Dopo MOT-01 e MOT-03, ridisegnare le notti che violano C14 (sicuramente g02, g03, g04, g06, g08). Restano invariati le intenzioni dei bigliettini dell'Appendice A e i conflitti voluti (g01 piero+gino, g02 marta+gino, g03 nina+marta, g04 bepi+piero, g05 zeno+marta, g06 nina+zeno, g07 teresa+nina, g08 marta+nina). Linee guida:\n- la corsa di Gino deve servire;\n- spilli che costringono a passare dove si rischia;\n- partenze all'ora giusta.\n\nRigenerare solo con --only. Riportare le misure nel proprio rapporto di stato.\n\nAccettazione: npm run levels:check -- --only g00,g01,g02,g03,g04,g05,g06,g07,g08,arc1,arc2 --qualita esce con 0; atto1.test chiede quality.violazioni vuoto.",
+     "findings": [
+      "P015",
+      "P022"
+     ]
+    },
+    {
+     "id": "CA1-05",
+     "priority": "P1",
+     "title": "Taccuino dell'Atto I che non anticipa",
+     "spec": "- Voci su bottiglie, fuso, merletto d'avorio, Libro e lettere con {knows:'oggetto'}.\n- Persone sbloccate quando compaiono (Nina con g03).\n- Variante della risposta a Marta in g06 quando arc1 è rammendato, senza rimando all'Archivio.\n\nAccettazione: un test di atto1 con la campagna simulata verifica che nessuna voce citi un oggetto non ancora letto e che il rimando non compaia con arc1 rammendato.",
+     "findings": [
+      "P008",
+      "P023",
+      "P030",
+      "P064"
+     ]
+    },
+    {
+     "id": "CA1-06",
+     "priority": "P1",
+     "title": "Esiti dei bigliettini dell'Atto I",
+     "spec": "esito.ok ed esito.fallita (e lasciato dove serve) per ogni bigliettino di g01-g08, specifici e non ripetuti in una voce del Taccuino della stessa giornata. Le tre frasi ripetute di arc1 diventano una voce sola. In it ed en.\n\nAccettazione: il test C05 è verde per g01-g08.",
+     "findings": [
+      "P018",
+      "P028"
+     ]
+    },
+    {
+     "id": "CA1-07",
+     "priority": "P1",
+     "title": "Testi e continuità dell'Atto I",
+     "spec": "D13, righe di atto1.json e comune.json:\n- «entro le dieci» in g01.piero, «entro le nove» in g02.teresa;\n- Teresa a sedici anni «impastavo il pane»;\n- «1965. La notte in cui morì la nonna.»;\n- segreto di Teresa (aveva aperto la lettera prima) in g07, e g06.alba.prete a chi ha dato la voce;\n- deissi «domani» in g03 e g06 di Marta;\n- g04 «resta solo la sua rete»;\n- eco di arc2 come ricordo;\n- arc2 «l'ultima volta» con la nota «Un'ultima volta, dentro.»;\n- testi del filo nero in g08 coerenti con l'apparizione, e apparizione {hour:3, side:'faro', passi:1} nel livello g08.\n\nInglese allineato.\n\nAccettazione: validate, atto1.test ed en.test verdi; ogni testo citato nelle segnalazioni ha la versione nuova.",
+     "findings": [
+      "P006",
+      "P062",
+      "P063",
+      "P065",
+      "P069",
+      "P075",
+      "P076",
+      "P081"
+     ]
+    },
+    {
+     "id": "CA1-08",
+     "priority": "P2",
+     "title": "Voci, etichette delle perline, battute contestuali",
+     "spec": "- Etichette delle perline di g00-g08, arc1 e arc2 secondo C16: minuscolo, articolo, destinatario delle lettere.\n- Gino con gli errori da g01; Bepi senza doppie e minuscolo («la nina»).\n- Battute di lines.json con condizioni vere: la battuta «sette!» solo con almeno 7 incontri, oppure riscritta.\n- Inglese allineato.\n\nAccettazione: atto1.test verifica che le etichette inizino in minuscolo salvo i nomi propri e che ogni lettera abbia il destinatario.",
+     "findings": [
+      "P012",
+      "P029",
+      "P067",
+      "P079",
+      "P082"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "contenuti-atti23",
+   "tasks": [
+    {
+     "id": "CA23-01",
+     "priority": "P0",
+     "title": "Rivelazione di g14, fascio di g16, piste",
+     "spec": "- g14.alba.sera diventa la vignetta di consegna di Zeno, priorità 100 senza when (C06).\n- Le voci chiL.risposta, persone.ada.g14, madre.apre e diario.lettere.clotilde passano a {knows:'oggetto', id:'lettera_clotilde'}.\n- Le voci sul fascio a {knows:'oggetto', id:'fascio_1'}; quelle della bottiglia col nodo nero alla lettura.\n- domande.anno1958.pista con {done:'g10'}; la pista del 1951 prima di arc4, oppure tolta.\n- Chiavi atto2.g15.sera.vuota e atto3.g17.sera.vuota.\n\nAccettazione: atto23.test con la campagna simulata: fra la fine di g14 e il bilancio nessuna voce nomina Livia madre prima della lettura; nessuna pista si sblocca dopo che la sua domanda è risolta.",
+     "findings": [
+      "P056",
+      "P064",
+      "P090"
+     ]
+    },
+    {
+     "id": "CA23-02",
+     "priority": "P1",
+     "title": "Tutorial degli Atti II-III e degli Archivi 3-5",
+     "spec": "Passi di D03 e C02, con le chiavi di C19:\n- g09: febbre, cura (evento cura) e Gino a letto (fuso di Gino);\n- g11: nodo (fusi di Teresa e Marta);\n- g16: trabocco (evento trabocca);\n- g17: nero, con mano 'ada';\n- g19: marea (ora prima dell'acqua alta, pulsa marea);\n- arc3-arc5: note dell'Archivio e hintKeys.\n\nAccettazione: atto23.test verifica una nota per ogni regola nuova nella sua prima notte; validate verde.",
+     "findings": [
+      "P070",
+      "P088"
+     ]
+    },
+    {
+     "id": "CA23-03",
+     "priority": "P1",
+     "title": "Ridisegno delle notti g09-g23 (ondata 2)",
+     "spec": "Come CA1-04, con le intenzioni dell'Appendice B e i conflitti voluti di oggi:\n- g13 resta la notte del dilemma della cura, con Gino a letto finché è malato;\n- g21 senza più di 2 ore vuote di fila;\n- g16 entro il limite di stati.\n\nRigenerare solo con --only.\n\nAccettazione: npm run levels:check -- --only g09,…,g23,fin_merlettaia,fin_seppia,fin_chiuso,fin_aperto,arc3,arc4,arc5,arc6 --qualita esce con 0; atto23.test chiede quality.violazioni vuoto.",
+     "findings": [
+      "P022",
+      "P091",
+      "P115"
+     ]
+    },
+    {
+     "id": "CA23-04",
+     "priority": "P1",
+     "title": "Finali A, C, D",
+     "spec": "- fin_merlettaia ridisegnato: saluti che danno (chi saluta passa sopra a Livia e le consegna qualcosa), almeno 4 su 6 con un conflitto voluto, base ≥ 8, K3 e K4.\n- fin_chiuso con \"chiusura\":\"nodo\".\n- Epilogo D: prima vignetta con {occasioni} in una frase sola; almeno 3 vignette che chiudono i desideri (Teresa riceve una lettera per sé, Gino nella lanterna accesa, Lunardi chiamato per nome, Nina, Zeno e Livia); il nastro «abbastanza lungo per due fili».\n- Epilogo A con il nastro.\n- Nessuna frase spezzata su due vignette. In it ed en.\n\nAccettazione: levels:check --qualita verde per fin_merlettaia; atto23.test verifica che nessuna riga d'epilogo finisca con la virgola e che l'epilogo D non citi occasioni fisse.",
+     "findings": [
+      "P073",
+      "P085",
+      "P106",
+      "P109",
+      "P115"
+     ]
+    },
+    {
+     "id": "CA23-05",
+     "priority": "P1",
+     "title": "Continuità degli Atti II-III",
+     "spec": "D13 per atto2, atto3 e finali:\n- g22.teresa con una variante availableIf su ok:g17.teresa;\n- g19.teresa e la sua alba con varianti su riconciliate;\n- arc6: prima volta (si toglie «dandosi un filo… una volta sola»), lettera di Clotilde «fino alle tre» e «una per una, per quattordici anni»;\n- diario della lettera con «biglietto appuntato al tombolo»;\n- Nina: ammessa con un posto in convitto da Pasqua (g13 senza l'esame, g14, g20);\n- g11 senza «non so più perché»; g18 «me l'ha detto la piccola»;\n- testi di g10 (Lunardi senza ordine) e g13 (Nina «Curalo, ti prego»);\n- esito neutro di g12.teresa;\n- etichetta della lettera del 1951 «riavuta dal pozzo»;\n- voci contraddittorie di g10, g13 e g21 riscritte.\n\nAccettazione: atto23.test verifica che le varianti si escludano e coprano tutti i casi; ogni testo citato ha la versione nuova.",
+     "findings": [
+      "P060",
+      "P061",
+      "P062",
+      "P066",
+      "P068",
+      "P069",
+      "P080",
+      "P092",
+      "P095",
+      "P113"
+     ]
+    },
+    {
+     "id": "CA23-06",
+     "priority": "P1",
+     "title": "Esiti e albe degli Atti II-III",
+     "spec": "esito.ok ed esito.fallita (C05) per ogni bigliettino di g09-g23, con un esito proprio per g11.teresa (si sono trovate faccia a faccia senza parlarsi). C06: dopo in g18 (pane dopo pace) e in g16. Albe di g11, g14, g16, g18 e g20 riviste per i culmini.\n\nAccettazione: test C05 verde; con la selezione nuova (CAM-04) le albe di g11, g14, g16, g18 e g20 nei casi delle segnalazioni non hanno battute generiche.",
+     "findings": [
+      "P067",
+      "P068",
+      "P117"
+     ]
+    },
+    {
+     "id": "CA23-07",
+     "priority": "P2",
+     "title": "Testi minori degli Atti II-III",
+     "spec": "- Deissi: g09 «arriva un dottore», g13 «un giorno intero», g22.\n- g15: «più vicino dell'altra volta» e apparizione {hour:3, side:'faro', passi:2}.\n- «fino a Pellestrina»; arc6 «Don Piero», giovane cappellano.\n- Titoli: arc3 senza anno, g17 «La donna in nero».\n- Voci di Bepi, Don Piero (del lei) e Lunardi («A lei, signorina, intendo.»).\n- Etichetta del nome del dottore secondo C16.\n- «Per un autunno e un inverno» nell'epilogo aperto.\n- Due bigliettini semplici per g23.\n- Inglese allineato.\n\nAccettazione: validate e atto23.test verdi.",
+     "findings": [
+      "P063",
+      "P065",
+      "P077",
+      "P079",
+      "P081",
+      "P097",
+      "P112",
+      "P114",
+      "P119"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "nativa",
+   "tasks": [
+    {
+     "id": "NAT-01",
+     "priority": "P1",
+     "title": "Privacy manifest e plugin sincronizzati",
+     "spec": "- NSPrivacyAccessedAPICategoryFileTimestamp con motivo C617.1 in ios/App/App/PrivacyInfo.xcprivacy.\n- npx cap sync su Android e iOS: @capacitor/filesystem in android/capacitor.settings.gradle e nel Package.swift.\n- check-native.mjs controlla entrambe le cose; native:test aggiornato.\n\nAccettazione: npm run native:check e native:test verdi; android:apk produce l'APK, oppure l'errore di rete documentato.",
+     "findings": [
+      "QA:nativo"
+     ]
+    },
+    {
+     "id": "NAT-02",
+     "priority": "P2",
+     "title": "STORE.md aggiornato",
+     "spec": "- Grafica in evidenza di Google Play indicata con i file pronti (assets/feature-graphic.png e assets/feature-graphic-en.png, 1024×500), in cima alla sezione delle schede.\n- Privacy aggiornata: UserDefaults CA92.1 e marcatura temporale dei file C617.1.\n- Percorsi delle schermate per gli store (tests/e2e/__screenshots__/store/).\n\nAccettazione: nessun «da preparare» per elementi che esistono.",
+     "findings": [
+      "QA:nativo"
+     ]
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "finding": "P003 (proposta: pulsante «Conferma questi 3»)",
+   "reason": "Si sceglie la conferma automatica a gruppi di tre di Obra Dinn, senza contatore dei giusti: toglie l'informazione gratuita senza aggiungere un passaggio. La segnalazione resta coperta da TOM-02."
+  },
+  {
+   "finding": "P094 (proposta: un vicino impegnato in un altro incrocio non conta come libero)",
+   "reason": "Con quella lettura basterebbe occupare i vicini di Gino per fermarlo, e la regola perderebbe senso. Si tiene «Gino ha la precedenza» e lo si scrive nel messaggio (C13); con la regola nuova (D01) l'obbligo diventa raro."
+  },
+  {
+   "finding": "P091 (proposta: togliere Gino da alcune notti)",
+   "reason": "Gino è il personaggio più vivo dell'isola. Si cambia la regola (D01) e si chiede che la sua corsa serva al puzzle (criterio K3)."
+  },
+  {
+   "finding": "P062 (proposta: togliere il filo d'avorio da arc6)",
+   "reason": "Nei dati arc6 ha davvero il filo di Clotilde, e l'eco «Oggi guardo» funziona solo così. Si corregge arc2: arc6 è la prima volta, arc2 l'ultima (D13)."
+  },
+  {
+   "finding": "P063 (proposta: raccontare il filo nero come visto dalla finestra)",
+   "reason": "Il GDD vuole che lo si veda sul merletto, ed è il gancio di fine Atto I. Si implementa l'apparizione (C12, TOM-20)."
+  },
+  {
+   "finding": "P092 (proposta: aggiungere le condizioni d'ordine e d'orario)",
+   "reason": "Complicherebbe due notti già lunghe. Si riscrive il testo dei bigliettini (CA23-05)."
+  },
+  {
+   "finding": "P114, prima parte («Domani è la vigilia» incoerente con il titolo della giornata)",
+   "reason": "È coerente: le sere aprono la giornata (GDD 4.2), quindi la sera di g23 precede la giornata della vigilia; lo stesso vale per «domani c'è la secca» di biglietto_livia_5. Si correggono solo gli spilli senza bigliettini (CAM-09, CA1-02)."
+  },
+  {
+   "finding": "P121 (proposta: rendere visibile la Tovaglia)",
+   "reason": "La Tovaglia è L3 e non esiste. Si toglie dal GDD come premio del finale vero e si danno riconoscimenti che esistono (CAM-08, SCH-15)."
+  },
+  {
+   "finding": "P050 (condivisione del seme del libero tramite un servizio)",
+   "reason": "Nessun server (GDD 0): si condivide il seme come testo (SCH-11)."
+  },
+  {
+   "finding": "P046 (proposta: scalare il merletto con tutto lo spazio)",
+   "reason": "Oltre 960 px il merletto perde la leggibilità d'insieme: il centro cresce fino a 960 px e oltre si allarga il velluto (TOM-18)."
+  },
+  {
+   "finding": "P022 (proposta: avanzamento automatico delle ore vuote)",
+   "reason": "Il giocatore deve vedere ogni ora che fissa: si sceglie un pulsante esplicito, «Salta le ore quiete» (TOM-22), e il ridisegno riduce le ore vuote (K4)."
+  },
+  {
+   "finding": "P044 (proposta: togliere i punti ai gradi che non pesano)",
+   "reason": "Il generatore non deve produrre mai gradi inutili (MOT-05): il punteggio resta onesto e più semplice da spiegare."
+  },
+  {
+   "finding": "QA: sezione README sui test end-to-end; allineamento di tests/e2e",
+   "reason": "Rimandati al giro di QA che precede il playtest 2: tests/e2e non ha un gruppo in questa revisione (D19), e ogni gruppo mantiene stabili i data-test esistenti."
+  }
+ ]
+}
