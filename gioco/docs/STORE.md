@@ -29,7 +29,7 @@ I progetti nativi sono già pronti nel repository (`gioco/android/` e `gioco/ios
 
 | Cosa | Per quale store | Costo |
 |---|---|---|
-| Un Mac con macOS Sequoia 15.6 o successivo | entrambi (per iOS è obbligatorio) | - |
+| Un Mac con macOS Tahoe 26.6 o successivo (con macOS Sequoia 15.6 si può ancora usare Xcode 26.3, vedi 2.3) | entrambi (per iOS è obbligatorio) | - |
 | Node.js 22 o successivo | entrambi | gratis |
 | Xcode 26 o successivo | App Store | gratis |
 | Android Studio 2025.2.1 o successivo | Google Play | gratis |
@@ -38,7 +38,7 @@ I progetti nativi sono già pronti nel repository (`gioco/android/` e `gioco/ios
 | Un sito dove pubblicare la pagina della privacy | entrambi | - |
 | Un iPhone e un telefono Android di fascia media per la prova finale | entrambi | - |
 
-Dal 28 aprile 2026 Apple accetta solo app compilate con Xcode 26 o successivo. Per Google Play, se l'account è personale e nuovo, prima della pubblicazione serve un **test chiuso con almeno 12 persone per 14 giorni di fila**: conviene organizzarlo presto (vedi sezione 7.4).
+Dal 28 aprile 2026 Apple accetta solo app compilate con Xcode 26 o successivo. Dal 31 agosto 2026 Google Play accetta solo app per Android 16 (`targetSdk` 36): il progetto è già impostato così. Per Google Play, se l'account è personale e nuovo, prima della pubblicazione serve un **test chiuso con almeno 12 persone per 14 giorni di fila**: conviene organizzarlo presto (vedi sezione 7.4).
 
 ---
 
@@ -62,7 +62,7 @@ Il Terminale è l'app in cui si scrivono i comandi: Finder > Applicazioni > Util
 
 ### 2.3 Xcode (per iPhone e iPad)
 
-1. Apri l'App Store del Mac, cerca **Xcode** e installalo (è grande: 10-15 GB).
+1. Apri l'App Store del Mac, cerca **Xcode** e installalo (è grande: 10-15 GB). La versione dell'App Store oggi è Xcode 27, che richiede **macOS Tahoe 26.6 o successivo**: se l'App Store dice che il Mac è troppo vecchio, prima aggiorna macOS (Impostazioni di Sistema > Generali > Aggiornamento Software). Se il Mac non può passare a Tahoe ma ha almeno macOS Sequoia 15.6, scarica invece **Xcode 26.3** da <https://developer.apple.com/download/all/> (accedi con l'Apple ID, cerca «Xcode 26.3», scarica il file `.xip`, aprilo con un doppio clic e trascina Xcode in Applicazioni): va bene lo stesso, perché Apple chiede Xcode 26 o successivo.
 2. Aprilo una volta: accetta la licenza e lascia che installi i componenti aggiuntivi. Quando chiede quali piattaforme scaricare, scegli **iOS**.
 3. In Xcode > Settings (Impostazioni) > Accounts premi **+** e accedi con il tuo Apple ID.
 4. Nel Terminale:
@@ -70,7 +70,7 @@ Il Terminale è l'app in cui si scrivono i comandi: Finder > Applicazioni > Util
    sudo xcode-select -s /Applications/Xcode.app
    xcodebuild -version
    ```
-   La seconda riga deve rispondere `Xcode 26` o un numero più alto.
+   La seconda riga deve rispondere `Xcode 26` o un numero più alto (per esempio `Xcode 27.0`).
 
 Non serve installare CocoaPods: il progetto iOS usa Swift Package Manager, che è già dentro Xcode.
 
@@ -175,6 +175,7 @@ Da lanciare nel Terminale, nella cartella `gioco/`. In breve, dopo aver installa
 | `npm run release:ios` | pacchetto firmato per l'App Store (`bash scripts/release-ios.sh`) | Mac |
 | `npm run assets:native` | rigenera icone e schermate d'avvio native da `assets/` | ovunque |
 | `npm run native:check` | controlla le impostazioni native (orientamento, privacy, icone, appId) | ovunque |
+| `npm run native:test` | prova gli script nativi con strumenti finti, senza compilare nulla (`bash scripts/test-native.sh`) | ovunque |
 
 Il comando completo di `assets:native` è:
 
@@ -266,7 +267,7 @@ Le schermate si fanno dal simulatore iOS (File > Save Screen, oppure Cmd+S) e da
 
 ### 7.1 La chiave di firma Android
 
-Google Play accetta solo pacchetti firmati. La firma si fa con una **chiave di caricamento** che crei tu una volta sola e che **non va mai nel repository** (il `.gitignore` esclude già `*.jks` e `*.keystore`, e `npm run native:check` controlla che non ce ne siano).
+Google Play accetta solo pacchetti firmati. La firma si fa con una **chiave di caricamento** che crei tu una volta sola e che **non va mai nel repository** (il `.gitignore` esclude già `*.jks` e `*.keystore`, `npm run native:check` controlla che non ce ne siano e `npm run release:android` rifiuta un keystore che stia in una qualsiasi cartella del repository).
 
 1. Crea una cartella fuori dal progetto e la chiave (il comando chiede una password: sceglila lunga e annotala nel portachiavi o in un gestore di password):
    ```bash
@@ -303,9 +304,9 @@ npm run release:android
 
 Lo script compila il gioco, lo copia nel progetto Android, scrive il numero di versione e produce `android/app/release/trama-<versione>-<build>.aab` firmato (circa 7 MB), poi stampa l'impronta SHA-256 del certificato (la stessa che Play Console mostra per la chiave di caricamento). Variabili facoltative: `KEY_ALIAS` (predefinito `upload`), `KEY_PASS` (predefinita uguale a `KEYSTORE_PASS`), `APP_VERSION` (predefinita la `version` di `package.json`), `BUILD_NUMBER`.
 
-Il numero di build (`versionCode`) **cresce da solo**: sono i minuti passati dal 1° gennaio 2026, così ogni caricamento ha un numero più alto del precedente, come Google richiede. Lo script lo scrive in `android/app/build.gradle`: dopo ogni rilascio fai commit di quel file.
+Il numero di build (`versionCode`) **cresce da solo**: sono i minuti passati dal 1° gennaio 2026, così ogni caricamento ha un numero più alto del precedente, come Google richiede. Lo script lo scrive in `android/app/build.gradle`: dopo ogni rilascio fai commit di quel file. Se passi a mano un `BUILD_NUMBER` più basso di quello scritto lì, lo script si ferma prima di compilare (Google lo rifiuterebbe). La versione (`APP_VERSION`) può contenere solo cifre, lettere, punti e trattini.
 
-La firma la fa Gradle leggendo la chiave dalle variabili d'ambiente (`android/app/build.gradle`, `signingConfigs.release`); le password non compaiono mai nei file del progetto né sulla riga di comando di Gradle. In alternativa ci si può affidare ad Android Studio (Build > Generate Signed App Bundle or APK), ma in quel caso il numero di build va aumentato a mano in `android/app/build.gradle`.
+La firma la fa Gradle leggendo la chiave dalle variabili d'ambiente (`android/app/build.gradle`, `signingConfigs.release`); le password non compaiono mai nei file del progetto né sulla riga di comando di Gradle. `docs/ARCHITETTURA.md` (sezione 13) prevedeva `cap build android --androidreleasetype AAB` firmato con `$KEYSTORE_PATH`, `$KEYSTORE_PASS` e alias `upload`: le variabili sono le stesse, ma `cap build android` firma con l'algoritmo SHA1withRSA, che le versioni recenti di Java considerano debole, quindi lo script lascia firmare a Gradle (SHA-256). In alternativa ci si può affidare ad Android Studio (Build > Generate Signed App Bundle or APK), ma in quel caso il numero di build va aumentato a mano in `android/app/build.gradle`.
 
 ### 7.4 Test chiuso: 12 tester per 14 giorni
 
@@ -357,7 +358,7 @@ export APPLE_TEAM_ID=ABCDE12345
 npm run release:ios
 ```
 
-Lo script controlla di essere su un Mac con Xcode 26 o successivo, compila il gioco, lo copia nel progetto iOS, scrive versione e numero di build (che cresce da solo, come per Android) nel progetto Xcode, e lancia `npx cap build ios --xcode-team-id $APPLE_TEAM_ID --xcode-export-method app-store-connect`. Il risultato è `ios/App/output/trama-<versione>-<build>.ipa`. Per caricarlo: app **Transporter** (gratuita, dal Mac App Store), accedi con l'Apple ID, trascina il file `.ipa` e premi **Consegna**. Dopo ogni rilascio fai commit di `ios/App/App.xcodeproj/project.pbxproj`. La prima volta conviene comunque aver aperto il progetto in Xcode e scelto il Team (8.1), altrimenti la firma automatica non trova il profilo.
+Lo script controlla di essere su un Mac con Xcode 26 o successivo, compila il gioco, lo copia nel progetto iOS, scrive versione e numero di build (che cresce da solo, come per Android) nel progetto Xcode, e lancia `npx cap build ios --xcode-team-id $APPLE_TEAM_ID --xcode-export-method app-store-connect`. Il risultato è `ios/App/output/trama-<versione>-<build>.ipa` (i `.ipa` dei rilasci precedenti restano nella stessa cartella). La versione deve essere fatta di uno, due o tre numeri separati da punti (per esempio `1.0.1`: l'App Store non accetta `1.0.1-beta`), e un `BUILD_NUMBER` passato a mano non può essere più basso di quello già scritto nel progetto. Per caricarlo: app **Transporter** (gratuita, dal Mac App Store), accedi con l'Apple ID, trascina il file `.ipa` e premi **Consegna**. Dopo ogni rilascio fai commit di `ios/App/App.xcodeproj/project.pbxproj`. La prima volta conviene comunque aver aperto il progetto in Xcode e scelto il Team (8.1), altrimenti la firma automatica non trova il profilo.
 
 ### 8.4 TestFlight e revisione
 
@@ -376,7 +377,7 @@ Ogni volta che il gioco cambia:
 3. `npm run release:android` e/o `npm run release:ios` (oppure Xcode > Archive), poi carica come nelle sezioni 7.5 e 8.3.
 4. Fai commit di `android/` e `ios/`: devono restare allineati al gioco (`npm run app:sync` li aggiorna; le copie del gioco web dentro i progetti non vanno nel repository).
 
-Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm run native:check`: se qualche impostazione fatta a mano fosse sparita, il controllo lo dice.
+Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync`, poi `npm run native:check` e `npm run native:test`: se qualche impostazione fatta a mano fosse sparita o uno script non si comportasse più come previsto, i controlli lo dicono.
 
 ---
 
@@ -388,14 +389,14 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm
 |---|---|---|
 | `npm run app:sync` senza errori; `android/` e `ios/` aggiornati nel repository | `npm run app:sync`, poi `git status`: nessuna modifica dimenticata in `android/` e `ios/` | fatto |
 | APK di debug compilato nel container (`npm run android:apk`) | il file `android/app/build/outputs/apk/debug/app-debug.apk` esiste (circa 8,5 MB) | fatto |
-| Icone e splash generati; `appCategory="game"`; telefoni bloccati in verticale; privacy manifest presente | `npm run native:check` (36 controlli) | fatto |
+| Icone e splash generati; `appCategory="game"`; telefoni bloccati in verticale; privacy manifest presente | `npm run native:check` | fatto |
 | Nessun comportamento da browser: niente selezione del testo, zoom, menu del tocco prolungato, rimbalzo dello scroll | prova a mano su telefono (sezione 3.3) | da provare sui telefoni |
 | `docs/STORE.md` con i passi sul Mac e sulle console degli store | questo documento | fatto |
 
 ### 10.2 Prima di ogni invio
 
 - [ ] `npm run build`, `npm test` e `npm run levels:check` verdi; `npm run test:e2e` verde.
-- [ ] `npm run native:check` verde.
+- [ ] `npm run native:check` e `npm run native:test` verdi.
 - [ ] Prova su un **iPhone vero** e su un **Android di fascia media**: avvio, prologo con il dito, uscita e ripresa, rotazione (bloccata sul telefono), audio dopo il primo tocco, tasto Indietro su Android.
 - [ ] Prova su un **iPad** in orizzontale e in verticale (Apple prova l'app anche su iPad).
 - [ ] Numero di build più alto del precedente (gli script lo fanno da soli).
@@ -416,7 +417,7 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm
 ### 10.4 App Store
 
 - [ ] Apple Developer Program attivo (99 USD/anno) e Team ID annotato.
-- [ ] Xcode 26 o successivo.
+- [ ] Xcode 26 o successivo (Xcode 27 dall'App Store su macOS Tahoe 26.6+, oppure Xcode 26.3 su macOS Sequoia 15.6+).
 - [ ] App creata in App Store Connect con Bundle ID `it.trama.merletto`.
 - [ ] Privacy dell'app: «Dati non raccolti»; informativa online; URL di supporto.
 - [ ] Classificazione per età compilata.
@@ -432,6 +433,7 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm
 | Messaggio o problema | Cosa fare |
 |---|---|
 | `SDK Android non trovato` | Apri Android Studio una volta (installa l'SDK), poi ripeti la sezione 2.4, punto 4. |
+| `Java non risponde` (o «Unable to locate a Java Runtime») | Sul Mac manca un Java vero: installa Android Studio (sezione 2.4), che lo contiene; gli script lo trovano da soli. |
 | `serve Java 21 o successivo` | Usa il Java di Android Studio: `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`. |
 | Gradle si ferma con `429` o `Could not GET` | È la rete o Maven Central: lo script ritenta da solo 5 volte. Se fallisce ancora, aspetta qualche minuto e rilancia. |
 | `il gioco non è ancora stato copiato nel progetto Android` | Lancia `npm run app:sync` prima di `scripts/android-build.sh`. |
@@ -440,6 +442,8 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm
 | Xcode: «No account for team» o «No profiles for 'it.trama.merletto'» | Xcode > Settings > Accounts: accedi con l'Apple ID; poi nel target App > Signing & Capabilities scegli il Team. |
 | Xcode: «Failed to resolve package dependencies» | Controlla la connessione, poi in Xcode File > Packages > Reset Package Caches. Se hai spostato la cartella, rilancia `npm ci` e `npm run app:sync`. |
 | App Store Connect: «The bundle version must be higher» | Aumenta Build in Xcode (General) oppure rilancia `npm run release:ios`. |
+| Android Studio propone di aggiornare il plugin Android Gradle («Android Gradle Plugin Upgrade Assistant» o «AGP upgrade») | Rispondi **Don't remind me again for this project**: le versioni del progetto sono quelle di Capacitor 8 e si aggiornano insieme a Capacitor, non da Android Studio. |
+| App Store: «Xcode richiede una versione più recente di macOS» | Aggiorna macOS a Tahoe 26.6 o successivo, oppure usa Xcode 26.3 (sezione 2.3). |
 | `cap open android` non apre Android Studio | Controlla che sia in Applicazioni; altrimenti `export CAPACITOR_ANDROID_STUDIO_PATH="/percorso/Android Studio.app"`. |
 | Il telefono Android non compare in Android Studio | Riattiva il Debug USB, prova un altro cavo, conferma l'autorizzazione sul telefono. |
 | Dopo un aggiornamento di Capacitor qualcosa è cambiato | `npm run native:check` dice quale impostazione manca; le impostazioni sono descritte in `docs/ARCHITETTURA.md`, sezione 13. |
@@ -461,5 +465,7 @@ Quando si aggiorna Capacitor, dopo `npm ci` lancia `npm run app:sync` e poi `npm
 | `scripts/release-android.sh` | App Bundle firmato per Google Play |
 | `scripts/release-ios.sh` | pacchetto firmato per l'App Store |
 | `scripts/check-native.mjs` | i controlli di `npm run native:check` |
+| `scripts/test-native.sh` | le prove automatiche degli script (`npm run native:test`) |
+| `android/app/src/test/` e `android/app/src/androidTest/` | test Android: il manifest (sul computer) e l'identificativo e la categoria dell'app installata (su telefono o emulatore), da Android Studio |
 
 Non entrano mai nel repository: chiavi e certificati (`*.jks`, `*.keystore`, `*.p12`, `*.p8`, `*.mobileprovision`), i pacchetti prodotti (`*.apk`, `*.aab`, `*.ipa`), le cartelle di build e la copia del gioco web dentro i progetti nativi (`android/app/src/main/assets/public`, `ios/App/App/public`), che `npm run app:sync` rigenera.

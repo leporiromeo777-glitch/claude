@@ -5,7 +5,7 @@
 //
 // Serve soprattutto dopo un aggiornamento di Capacitor o dopo aver rigenerato i
 // progetti con "npx cap add": verifica che le impostazioni fatte a mano ci siano ancora.
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -95,6 +95,7 @@ function pngInfo(rel) {
 // --- appId da capacitor.config.ts ---
 const capConfig = read('capacitor.config.ts') ?? '';
 const appId = /appId:\s*'([^']+)'/.exec(capConfig)?.[1];
+const appName = /appName:\s*'([^']+)'/.exec(capConfig)?.[1];
 check('capacitor.config.ts: appId it.trama.merletto', appId === 'it.trama.merletto', appId ?? 'appId non trovato');
 
 // --- Android ---
@@ -110,6 +111,7 @@ const variables = read('android/variables.gradle') ?? '';
 const gradleNum = (name) => Number(new RegExp(`${name}\\s*=\\s*(\\d+)`).exec(variables)?.[1]);
 check('variables.gradle: minSdk 24', gradleNum('minSdkVersion') === 24, String(gradleNum('minSdkVersion')));
 check('variables.gradle: compileSdk 36', gradleNum('compileSdkVersion') === 36, String(gradleNum('compileSdkVersion')));
+// Google Play: dal 31 agosto 2026 app nuove e aggiornamenti devono avere targetSdk 36 o più.
 check('variables.gradle: targetSdk 36', gradleNum('targetSdkVersion') === 36, String(gradleNum('targetSdkVersion')));
 const appGradle = read('android/app/build.gradle') ?? '';
 const applicationId = /applicationId\s+"([^"]+)"/.exec(appGradle)?.[1];
@@ -117,6 +119,28 @@ check('app/build.gradle: applicationId uguale ad appId', applicationId === appId
 check('app/build.gradle: firma di rilascio solo da variabili d\'ambiente', /environmentVariable\('KEYSTORE_PATH'\)/.test(appGradle) && !/storePassword\s+["']/.test(appGradle));
 
 const res = 'android/app/src/main/res';
+const androidName = /<string name="app_name">([^<]*)<\/string>/.exec(read(`${res}/values/strings.xml`) ?? '')?.[1];
+check('Android: nome dell\'app uguale ad appName', androidName !== undefined && androidName === appName, `${androidName} / ${appName}`);
+// Il modello di Capacitor usa com.getcapacitor.app / com.getcapacitor.myapp: nessun residuo
+// (per esempio un test che si aspetta ancora il vecchio identificativo).
+const leftovers = [];
+function scanTemplate(dir) {
+  const abs = join(ROOT, dir);
+  if (!existsSync(abs)) return;
+  for (const name of readdirSync(abs)) {
+    const rel = `${dir}/${name}`;
+    const st = lstatSync(join(ROOT, rel));
+    if (st.isDirectory()) {
+      if (name === 'assets' || name === 'build') continue;
+      if (name === 'getcapacitor') leftovers.push(rel);
+      scanTemplate(rel);
+    } else if (/\.(java|kt|xml|gradle)$/.test(name) && /com\.getcapacitor\.(my)?app\b/.test(read(rel) ?? '')) {
+      leftovers.push(rel);
+    }
+  }
+}
+scanTemplate('android/app/src');
+check('Android: nessun identificativo del modello di Capacitor', leftovers.length === 0, leftovers.join(', '));
 for (const density of ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']) {
   const icon = pngInfo(`${res}/mipmap-${density}/ic_launcher.png`);
   const fg = pngInfo(`${res}/mipmap-${density}/ic_launcher_foreground.png`);
@@ -146,6 +170,7 @@ if (infoXml !== null) {
   check('Info.plist: UIStatusBarHidden = true', info.UIStatusBarHidden === true);
   check('Info.plist: nessun UIRequiresFullScreen', !('UIRequiresFullScreen' in info));
   check('Info.plist: ITSAppUsesNonExemptEncryption = false', info.ITSAppUsesNonExemptEncryption === false);
+  check('Info.plist: nome visibile uguale ad appName', info.CFBundleDisplayName === appName, `${info.CFBundleDisplayName} / ${appName}`);
 }
 const privacyXml = read('ios/App/App/PrivacyInfo.xcprivacy');
 check('PrivacyInfo.xcprivacy: presente', privacyXml !== null);
@@ -189,13 +214,17 @@ function scan(dir) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name === '.git' || name === 'build' || name === '.gradle' || name === 'dist') continue;
     const abs = join(dir, name);
-    const st = statSync(abs);
+    const st = lstatSync(abs);
     if (st.isDirectory()) scan(abs);
     else if (/\.(jks|keystore|p12|p8|mobileprovision)$/i.test(name)) keyFiles.push(relative(ROOT, abs));
   }
 }
 scan(ROOT);
 check('Nessun keystore o certificato dentro gioco/', keyFiles.length === 0, keyFiles.join(', '));
+const ignore = (read('.gitignore') ?? '').split(/\r?\n/).map((l) => l.trim());
+const keyPatterns = ['*.jks', '*.keystore', '*.p12', '*.p8', '*.mobileprovision'];
+const missingPatterns = keyPatterns.filter((p) => !ignore.includes(p));
+check('.gitignore: chiavi e certificati esclusi dal repository', missingPatterns.length === 0, `mancano ${missingPatterns.join(', ')}`);
 
 // --- Rapporto ---
 let failed = 0;

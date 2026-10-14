@@ -25,6 +25,7 @@
     "release:android": "bash scripts/release-android.sh",
     "release:ios": "bash scripts/release-ios.sh",
     "native:check": "node scripts/check-native.mjs",
+    "native:test": "bash scripts/test-native.sh",
     "ci": "npm run build && npm test && npm run levels:check && npm run test:e2e"
   },
   "dependencies": {

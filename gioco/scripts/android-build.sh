@@ -22,9 +22,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANDROID_DIR="$ROOT/android"
 
-TASKS=("$@")
-if [ ${#TASKS[@]} -eq 0 ]; then
+# (senza espandere un array vuoto: con set -u la bash 3.2 del Mac lo considera un errore)
+if [ $# -eq 0 ]; then
   TASKS=(assembleDebug)
+else
+  TASKS=("$@")
 fi
 
 TRIES="${GRADLE_TRIES:-5}"
@@ -85,8 +87,12 @@ fi
 JAVA_BIN="java"
 [ -n "${JAVA_HOME:-}" ] && JAVA_BIN="$JAVA_HOME/bin/java"
 command -v "$JAVA_BIN" >/dev/null 2>&1 || fail "Java non trovato. Installa Android Studio (contiene il JDK) oppure un JDK 21 e imposta JAVA_HOME."
-JAVA_MAJOR="$("$JAVA_BIN" -version 2>&1 | sed -n 's/.*version "\([0-9]*\).*/\1/p' | head -n 1)"
-if [ -n "$JAVA_MAJOR" ] && [ "$JAVA_MAJOR" -lt 21 ]; then
+JAVA_MAJOR="$("$JAVA_BIN" -version 2>&1 | sed -n 's/.*version "\([0-9]*\).*/\1/p' | head -n 1 || true)"
+# Sul Mac /usr/bin/java esiste anche senza un JDK installato: risponde «Unable to
+# locate a Java Runtime» e non dice nessuna versione.
+[ -n "$JAVA_MAJOR" ] || fail "Java non risponde ($JAVA_BIN). Installa Android Studio (contiene il JDK) oppure un JDK 21 e imposta JAVA_HOME:
+  export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\""
+if [ "$JAVA_MAJOR" -lt 21 ]; then
   fail "serve Java 21 o successivo (trovato Java $JAVA_MAJOR). Usa il JDK di Android Studio:
   export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\""
 fi
@@ -99,7 +105,7 @@ trap 'rm -rf "$LOG_DIR"' EXIT
 NETWORK_ERRORS='429|Too Many Requests|Could not GET|Could not HEAD|Could not download|Could not resolve|Could not get resource|Connection reset|Connection refused|connect timed out|Read timed out|Remote host terminated|Premature end of Content-Length|SSLException|SocketException|SocketTimeoutException|Received status code 5[0-9][0-9]|status code 5[0-9][0-9]|Unable to tunnel through proxy|Exception in thread "main" java.net'
 
 say "SDK: $ANDROID_HOME"
-say "Java: $("$JAVA_BIN" -version 2>&1 | grep -m 1 ' version ')"
+say "Java: $("$JAVA_BIN" -version 2>&1 | grep -m 1 ' version ' || true)"
 say "Task: ${TASKS[*]} (fino a $TRIES tentativi, $WORKERS worker)"
 
 attempt=1
