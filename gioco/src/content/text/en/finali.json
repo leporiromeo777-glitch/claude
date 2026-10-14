@@ -1,0 +1,142 @@
+{
+  "merlettaia": {
+    "titolo": "The Lacemaker",
+    "hint": {
+      "spinta": "Four goodbyes, then the six o'clock ferry. My mother boards alone, this time.",
+      "indizio": "Take Livia past those who'll say goodbye, and to the Pier by six in the evening."
+    },
+    "margine": "One lace to let her go. The others I'll weave alone.",
+    "epilogo": {
+      "1": {
+        "1": "At six in the evening my mother boarded the ferry. By choice, this time.",
+        "2": "I'll write to you, my Ada. And this time the letters will arrive."
+      },
+      "2": {
+        "1": "I waved goodbye from the window. I had no thread to go down to the Pier.",
+        "2": "She turned round three times. At the third, I closed the window."
+      },
+      "3": {
+        "1": "Years later, my finest lace hangs in the church, without a name.",
+        "2": "The island children don't know who made it."
+      },
+      "4": {
+        "1": "The sun rose every day. Nobody ever knew why.",
+        "0": "Every night, at one minute to six, the lace was finished."
+      },
+      "2zeno": {
+        "1": "I waved goodbye from the window. I had no thread to go down to the Pier.",
+        "2": "Zeno carried her suitcase to the ferry. This time she knew where she was going."
+      },
+      "3nina": {
+        "1": "Years later, my finest lace hangs in the church, without a name.",
+        "2": "Nina, who teaches here, brings her pupils to see it. Nobody knows who made it."
+      }
+    }
+  },
+  "chiuso": {
+    "titolo": "The Closed Lace",
+    "hint": {
+      "spinta": "Livia at the Pier at nine, as in 1951. As Grandmother would want.",
+      "indizio": "Three hours, three columns: each hour Livia must take one step towards the Pier."
+    },
+    "margine": "It works. It always has.",
+    "epilogo": {
+      "1": {
+        "1": "At nine the lace knotted itself. A single knot, for every thread.",
+        "2": "My mother was at the Pier, as in 1951. The ferry was waiting."
+      },
+      "2": {
+        "1": "The bell struck a wrong hour, more out of tune than ever.",
+        "2": "Then the lace undid itself, backwards, all the way to the evening."
+      },
+      "3": {
+        "1": "I woke up on yesterday evening, with four notes under the door.",
+        "2": "Grandmother's note was still there, folded in four. I decided not to open it again."
+      },
+      "4": {
+        "1": "I have seen this lace before.",
+        "2": "Clotilde's stitch: whoever repeats it, repeats it for ever."
+      }
+    }
+  },
+  "seppia": {
+    "titolo": "The Sepia Thread",
+    "hint": {
+      "spinta": "Move only your own thread. The others follow the plan my mother wrote.",
+      "indizio": "Stay below: whoever passes over you gives you something. Six people before six p.m."
+    },
+    "margine": "I have a coral thread. My mother weaves, I walk.",
+    "epilogo": {
+      "1": {
+        "1": "My mother took the lace pillow. Her hands already knew it.",
+        "2": "Go, my Ada. The coral thread is yours."
+      },
+      "2": {
+        "1": "I have a thread, now. And a life: school, Nina, the mainland.",
+        "2": "In September I took the ferry with Nina. She was laughing; I wasn't."
+      },
+      "3": {
+        "1": "Within a year the island had forgotten my mother.",
+        "2": "Then, little by little, I began to forget her too."
+      },
+      "4": {
+        "1": "My mother still weaves.",
+        "2": "I know because now and then the day is kinder than it should be."
+      },
+      "2nina": {
+        "1": "I have a thread, now. And a life: school, Nina, the mainland.",
+        "2": "In September Nina was waiting for me at the landing in Venice, books under her arm."
+      }
+    }
+  },
+  "aperto": {
+    "titolo": "The Open Lace",
+    "perline": {
+      "L_teresa": "A letter from Ada, for Teresa",
+      "L_1951": "The 1951 letter, kept by Don Piero, for Ada",
+      "ettore": "The doctor's name is Ettore"
+    },
+    "hint": {
+      "spinta": "No crossings: plant up to five occasions and let it happen. You can try again.",
+      "indizio": "Morning bread, afternoon festival, evening lantern: each goes where they please."
+    },
+    "margine": "I command no one. I plant an occasion and wait.",
+    "epilogo": {
+      "1": {
+        "1": "My mother and I pinned only occasions: warm bread at seven,",
+        "2": "the festival in the Square at five, the lantern at eight. They did the rest."
+      },
+      "2": {
+        "1": "The threads crossed by themselves, as each one wished. Everyone has a thread.",
+        "2": "Me too. My mother too."
+      },
+      "3": {
+        "1": "The lace pillow stayed in the church, like a relic nobody uses any more.",
+        "2": "The bell in the bell tower, at last, rings in tune."
+      },
+      "4": {
+        "1": "For a whole winter I learned to command people.",
+        "2": "Then I learned to know them."
+      },
+      "2bepi": {
+        "1": "The threads crossed by themselves, as each one wished. Everyone has a thread.",
+        "2": "Me too. My mother too. Bepi waves to Nina with his good arm."
+      }
+    }
+  },
+  "mancanze": {
+    "lettere": "My mother's letters are still in the well.",
+    "riconciliate": "Teresa and Marta still aren't speaking.",
+    "desiderio": {
+      "teresa": "I don't know yet what Teresa wants.",
+      "marta": "I don't know yet what Marta wants.",
+      "piero": "I don't know yet what Don Piero wants.",
+      "gino": "I don't know yet what Gino wants.",
+      "bepi": "I don't know yet what Bepi wants.",
+      "nina": "I don't know yet what Nina wants.",
+      "zeno": "I don't know yet what Zeno wants.",
+      "lunardi": "I don't know yet what Dr Lunardi wants."
+    },
+    "memoria": "Too many have forgotten my name. I need four people who remember me."
+  }
+}
