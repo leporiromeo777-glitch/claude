@@ -91,7 +91,8 @@ export class TitoloScene implements Scene {
     try {
       const tovaglia = this.s.save.data().unlocks.tovaglia;
       this.s.audio.setMusic('titolo', tovaglia ? { stonatura: 0 } : {});
-      this.s.audio.setAmbience('laguna');
+      // GDD 9: «Laguna e orologio che ticchetta» (il ticchettio si ferma nel prologo).
+      this.s.audio.setAmbience('laguna', undefined, { clock: true });
     } catch {
       /* audio non pronto */
     }

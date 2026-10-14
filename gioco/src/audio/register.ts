@@ -10,7 +10,7 @@
  *   stats()            sorgenti attive e picco, pre-render (cpuMs), musica, ambiente…
  *   captions()         ultime didascalie emesse
  *   sfx(id) · bell(ora, s?) · note(chi) · crossing(sopra, sotto, rancore?) · babble(chi, testo)
- *   music(stato, seme?) · ambience(id) · duck(on)
+ *   music(stato, seme?) · ambience(id, orologio?) · duck(on)
  *   stress(n)          n effetti di fila (limitatore: picco ≤ 48)
  *   verify(secondi?)   rendering offline di ogni SfxId: RMS, NaN, picco
  *   blocked()          l'overlay "Tocca per continuare" è richiesto?
@@ -109,8 +109,8 @@ export function register(s: Services): WebAudioEngine {
       engine.setMusic(state, seed ? { seed } : {});
       return state;
     },
-    ambience: (id: AmbienceId) => {
-      engine.setAmbience(id);
+    ambience: (id: AmbienceId, clock?: boolean) => {
+      engine.setAmbience(id, undefined, clock === undefined ? undefined : { clock });
       return id;
     },
     duck: (on?: boolean) => {
