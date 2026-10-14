@@ -6,7 +6,7 @@ gioco non ha bisogno di Blender. Si rigenerano solo quando cambiano gli script.
 
 ```
 npm run assets:render            # tutto, in sequenza (Cycles a 4 thread)
-bash tools/blender/render_all.sh --parallel    # due corsie in parallelo, 2 thread ciascuna
+npm run assets:render -- --parallel            # due corsie bilanciate in parallelo, 2 thread ciascuna
 bash tools/blender/render_all.sh --pack-only   # solo impacchettamento, test e fogli di controllo
 ```
 
@@ -36,8 +36,11 @@ non ha un contesto GPU) **né Workbench** (dipende da Mesa): tutti i render sono
 1. svuota i render grezzi in `tools/blender/out/render/` (ignorata da git);
 2. lancia ogni script in un **sottoprocesso separato** (`fusi`, `figurine`, `oggetti`,
    `icona`, `diorami`) e ne controlla il codice d'uscita: un crash di Blender non solleva
-   eccezioni Python, quindi conta solo l'exit code. Il log completo di ogni script è in
-   `tools/blender/out/logs/<script>.log`; a schermo vanno solo le righe `[blender]`;
+   eccezioni Python, quindi conta solo l'exit code. Il log completo di ogni passo è in
+   `tools/blender/out/logs/`; a schermo vanno solo le righe `[blender]`. Con `--parallel`
+   i passi vanno su due corsie che girano insieme (una fa i diorami di molo, forno, piazza,
+   chiesa e farmacia; l'altra fusi, figurine, oggetti e quadri, icona e i diorami di faro e
+   stanza) e la pipeline fallisce se fallisce una delle due;
 3. `tools/atlas/pack.py` svuota `public/assets/` e la rigenera: atlas, WebP, manifest; scrive
    anche `assets/logo.png`, `assets/splash.png`, `assets/splash-dark.png` e `public/icons/`;
 4. confronta i rettangoli del nuovo manifest con quelli dell'esecuzione precedente
@@ -114,20 +117,23 @@ danno gli stessi render.
 Dopo aver rigenerato il manifest va rifatta la build del gioco (o riavviato il server di
 sviluppo): la presenza del manifest si legge in `vite.config.ts` all'avvio.
 
-## Tempi (misurati nel container, 4 CPU condivise)
+## Tempi (misurati nel container, 4 CPU condivise con altri processi)
 
-| Passo | 2 thread | Note |
+| Passo | sequenziale, 2 thread | Note |
 |---|---|---|
-| fusi (14) | ~11 s | ~0,8 s a fuso |
-| figurine (36) | ~80 s | ~2 s a figurina (costruzione + render + Freestyle) |
-| oggetti (6) | ~27 s | il tombolo 1024² pesa metà del tempo |
-| quadri (4) | ~45-85 s ciascuno | 1024×768, 32 campioni, Freestyle |
-| icona (2) | ~21 s | |
-| diorami (21) | ~35-42 s ciascuno | ~13 minuti in tutto |
-| pack + fogli + test | ~40 s | WebP `method=6` e PNG ottimizzati |
+| fusi (14) | 11 s | ~0,8 s a fuso |
+| figurine (36) | 80 s | ~2 s a figurina (costruzione, render, Freestyle) |
+| oggetti (6) e quadri (4) | 196 s | il tombolo 1024² ~12 s, ogni quadro 35-45 s |
+| icona (2) | 20 s | |
+| diorami (21) | 830 s | 35-45 s a diorama |
+| pack, fogli di controllo, test | 9 s | |
 
-In sequenza a 2 thread la pipeline intera sta intorno ai 19 minuti; con `--parallel` (due
-corsie da 2 thread) o a 4 thread sta sotto i 12-14 minuti.
+Esecuzioni complete partendo da `public/assets` vuota: **1148 s** (19 min) in sequenza
+con `TRAMA_THREADS=2`, **682 s** (11 min) con `--parallel` (due corsie da 2 thread). Il
+valore predefinito (4 thread, in sequenza) non è stato cronometrato qui perché la macchina
+era condivisa; con meno contesa sta sotto i tempi a 2 thread. Le due esecuzioni hanno dato un manifest
+identico byte per byte; i PNG delle pagine dell'atlas e qualche WebP possono cambiare di
+pochi bit fra un'esecuzione e l'altra (rumore del denoiser in parallelo), i rettangoli no.
 
 ## Test
 

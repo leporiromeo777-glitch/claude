@@ -1,0 +1,619 @@
+{
+ "atlases": [
+  {
+   "frames": {
+    "fig/ada/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1531,
+     "y": 3
+    },
+    "fig/ada/ferma_grezza": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1531,
+     "y": 263
+    },
+    "fig/ada/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1531,
+     "y": 523
+    },
+    "fig/ada/porge_grezza": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 1031
+    },
+    "fig/ada/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 1031
+    },
+    "fig/ada/saluta_grezza": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 1031
+    },
+    "fig/bepi/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 783,
+     "y": 1031
+    },
+    "fig/bepi/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1043,
+     "y": 1031
+    },
+    "fig/bepi/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1303,
+     "y": 1031
+    },
+    "fig/gino/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1563,
+     "y": 1031
+    },
+    "fig/gino/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 1291
+    },
+    "fig/gino/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 1291
+    },
+    "fig/lino/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 1291
+    },
+    "fig/lino/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 783,
+     "y": 1291
+    },
+    "fig/lino/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1043,
+     "y": 1291
+    },
+    "fig/livia/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1303,
+     "y": 1291
+    },
+    "fig/livia/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1563,
+     "y": 1291
+    },
+    "fig/livia/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 1551
+    },
+    "fig/lunardi/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 1551
+    },
+    "fig/lunardi/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 1551
+    },
+    "fig/lunardi/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 783,
+     "y": 1551
+    },
+    "fig/marta/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1043,
+     "y": 1551
+    },
+    "fig/marta/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1303,
+     "y": 1551
+    },
+    "fig/marta/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1563,
+     "y": 1551
+    },
+    "fuso/ada": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1031,
+     "y": 3
+    },
+    "fuso/bepi": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1031,
+     "y": 327
+    },
+    "fuso/clotilde": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1031,
+     "y": 651
+    },
+    "fuso/gino": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1131,
+     "y": 3
+    },
+    "fuso/lino": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1131,
+     "y": 327
+    },
+    "fuso/livia": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1131,
+     "y": 651
+    },
+    "fuso/lunardi": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1231,
+     "y": 3
+    },
+    "fuso/marta": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1231,
+     "y": 327
+    },
+    "fuso/nina": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1231,
+     "y": 651
+    },
+    "fuso/piero": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1331,
+     "y": 3
+    },
+    "fuso/stile_1": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1331,
+     "y": 327
+    },
+    "fuso/stile_2": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1331,
+     "y": 651
+    },
+    "fuso/teresa": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1431,
+     "y": 3
+    },
+    "fuso/zeno": {
+     "ax": 0.5,
+     "ay": 0.1254,
+     "h": 320,
+     "w": 96,
+     "x": 1431,
+     "y": 327
+    },
+    "obj/tombolo": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 1024,
+     "w": 1024,
+     "x": 3,
+     "y": 3
+    }
+   },
+   "height": 1812,
+   "image": "atlas/atlas_0.png",
+   "width": 1824
+  },
+  {
+   "frames": {
+    "fig/nina/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 3
+    },
+    "fig/nina/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 3
+    },
+    "fig/nina/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 3
+    },
+    "fig/piero/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 783,
+     "y": 3
+    },
+    "fig/piero/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1043,
+     "y": 3
+    },
+    "fig/piero/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1303,
+     "y": 3
+    },
+    "fig/teresa/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1563,
+     "y": 3
+    },
+    "fig/teresa/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 263
+    },
+    "fig/teresa/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 263
+    },
+    "fig/zeno/ferma": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 263
+    },
+    "fig/zeno/porge": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 783,
+     "y": 263
+    },
+    "fig/zeno/saluta": {
+     "ax": 0.5,
+     "ay": 0.92,
+     "h": 256,
+     "w": 256,
+     "x": 1043,
+     "y": 263
+    },
+    "obj/bottiglia": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 256,
+     "w": 256,
+     "x": 1303,
+     "y": 263
+    },
+    "obj/fascio_lettere": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 256,
+     "w": 256,
+     "x": 1563,
+     "y": 263
+    },
+    "obj/forbici": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 256,
+     "w": 256,
+     "x": 3,
+     "y": 523
+    },
+    "obj/fuso_faro": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 256,
+     "w": 256,
+     "x": 263,
+     "y": 523
+    },
+    "obj/libro": {
+     "ax": 0.5,
+     "ay": 0.5,
+     "h": 256,
+     "w": 256,
+     "x": 523,
+     "y": 523
+    }
+   },
+   "height": 784,
+   "image": "atlas/atlas_1.png",
+   "width": 1824
+  }
+ ],
+ "images": {
+  "dio/chiesa/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/chiesa/alba.webp",
+   "w": 1024
+  },
+  "dio/chiesa/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/chiesa/giorno.webp",
+   "w": 1024
+  },
+  "dio/chiesa/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/chiesa/notte.webp",
+   "w": 1024
+  },
+  "dio/farmacia/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/farmacia/alba.webp",
+   "w": 1024
+  },
+  "dio/farmacia/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/farmacia/giorno.webp",
+   "w": 1024
+  },
+  "dio/farmacia/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/farmacia/notte.webp",
+   "w": 1024
+  },
+  "dio/faro/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/faro/alba.webp",
+   "w": 1024
+  },
+  "dio/faro/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/faro/giorno.webp",
+   "w": 1024
+  },
+  "dio/faro/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/faro/notte.webp",
+   "w": 1024
+  },
+  "dio/forno/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/forno/alba.webp",
+   "w": 1024
+  },
+  "dio/forno/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/forno/giorno.webp",
+   "w": 1024
+  },
+  "dio/forno/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/forno/notte.webp",
+   "w": 1024
+  },
+  "dio/molo/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/molo/alba.webp",
+   "w": 1024
+  },
+  "dio/molo/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/molo/giorno.webp",
+   "w": 1024
+  },
+  "dio/molo/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/molo/notte.webp",
+   "w": 1024
+  },
+  "dio/piazza/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/piazza/alba.webp",
+   "w": 1024
+  },
+  "dio/piazza/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/piazza/giorno.webp",
+   "w": 1024
+  },
+  "dio/piazza/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/piazza/notte.webp",
+   "w": 1024
+  },
+  "dio/stanza/alba": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/stanza/alba.webp",
+   "w": 1024
+  },
+  "dio/stanza/giorno": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/stanza/giorno.webp",
+   "w": 1024
+  },
+  "dio/stanza/notte": {
+   "group": "dio",
+   "h": 768,
+   "src": "dio/stanza/notte.webp",
+   "w": 1024
+  },
+  "tab/sacrestia_lettere": {
+   "group": "tab",
+   "h": 768,
+   "src": "tab/sacrestia_lettere.webp",
+   "w": 1024
+  },
+  "tab/secca": {
+   "group": "tab",
+   "h": 768,
+   "src": "tab/secca.webp",
+   "w": 1024
+  },
+  "tab/sedia_vuota": {
+   "group": "tab",
+   "h": 768,
+   "src": "tab/sedia_vuota.webp",
+   "w": 1024
+  },
+  "tab/tempesta": {
+   "group": "tab",
+   "h": 768,
+   "src": "tab/tempesta.webp",
+   "w": 1024
+  }
+ },
+ "version": 1
+}

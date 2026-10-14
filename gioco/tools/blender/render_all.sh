@@ -9,8 +9,9 @@
 # 5. tools/atlas/contact_sheet.py (fogli di controllo) e tools/atlas/test_assets.py.
 #
 # Opzioni:
-#   --parallel    due corsie in parallelo (diorami | fusi, figurine, oggetti, icona),
-#                 2 thread di Cycles ciascuna salvo TRAMA_THREADS;
+#   --parallel    due corsie in parallelo, bilanciate (diorami di molo, forno, piazza,
+#                 chiesa, farmacia | fusi, figurine, oggetti e quadri, icona, diorami di
+#                 faro e stanza), 2 thread di Cycles ciascuna salvo TRAMA_THREADS;
 #   --pack-only   salta i render e riusa quelli già in tools/blender/out/render;
 #   --no-tests    salta fogli di controllo e test.
 # Variabili: BLENDER_PY (interprete con bpy), TRAMA_THREADS (thread di Cycles, 4 di base).
@@ -23,8 +24,10 @@ PY="${BLENDER_PY:-$DEFAULT_PY}"
 OUT="$GAME/tools/blender/out"
 RAW="$OUT/render"
 LOGS="$OUT/logs"
-SCRIPTS_B=(fusi figurine oggetti icona)
-SCRIPTS_A=(diorami)
+# Passi: "script" oppure "script:nomi per --only" (il log prende il nome del passo).
+SEQUENTIAL=(fusi figurine oggetti icona diorami)
+LANE_A=("diorami:dio/molo,dio/forno,dio/piazza,dio/chiesa,dio/farmacia")
+LANE_B=(fusi figurine oggetti icona "diorami:dio/faro,dio/stanza")
 
 PARALLEL=0
 PACK_ONLY=0
@@ -34,7 +37,7 @@ for arg in "$@"; do
     --parallel) PARALLEL=1 ;;
     --pack-only) PACK_ONLY=1 ;;
     --no-tests) TESTS=0 ;;
-    -h|--help) sed -n '2,17p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,18p' "$0"; exit 0 ;;
     *) echo "render_all: opzione sconosciuta: $arg" >&2; exit 2 ;;
   esac
 done
@@ -52,20 +55,28 @@ fi
 T0=$(date +%s)
 mkdir -p "$OUT" "$LOGS"
 
-# Esegue uno script Blender: log completo in out/logs, a schermo solo le righe [blender].
+# Esegue un passo (uno script Blender in un sottoprocesso): log completo in out/logs,
+# a schermo solo le righe [blender]; conta il codice d'uscita del processo Python.
 run_script() {
-  local name="$1" t rc
+  local step="$1" name only tag t rc
+  name="${step%%:*}"
+  only=()
+  tag="$name"
+  if [ "$step" != "$name" ]; then
+    only=(--only "${step#*:}")
+    tag="$name-$(printf '%s' "${step#*:}" | cut -d, -f1 | tr '/' '_')"
+  fi
   t=$(date +%s)
   set +e
-  "$PY" "$HERE/$name.py" --out "$RAW" 2>&1 | tee "$LOGS/$name.log" | grep --line-buffered -E '^\[blender\]|^Traceback|^[A-Za-z]*Error:' | sed -u "s/^/[$name] /"
+  "$PY" "$HERE/$name.py" --out "$RAW" ${only[@]+"${only[@]}"} 2>&1 | tee "$LOGS/$tag.log" | grep --line-buffered -E '^\[blender\]|^Traceback|^[A-Za-z]*Error:' | sed -u "s/^/[$tag] /"
   rc=${PIPESTATUS[0]}
   set -e
   if [ "$rc" -ne 0 ]; then
-    echo "render_all: $name.py è uscito con $rc (log: $LOGS/$name.log)" >&2
-    tail -n 30 "$LOGS/$name.log" >&2 || true
+    echo "render_all: $name.py è uscito con $rc (log: $LOGS/$tag.log)" >&2
+    tail -n 30 "$LOGS/$tag.log" >&2 || true
     return "$rc"
   fi
-  echo "[$name] fatto in $(( $(date +%s) - t )) s"
+  echo "[$tag] fatto in $(( $(date +%s) - t )) s"
 }
 
 run_lane() {
@@ -80,8 +91,8 @@ if [ "$PACK_ONLY" -eq 0 ]; then
   mkdir -p "$RAW"
   if [ "$PARALLEL" -eq 1 ]; then
     export TRAMA_THREADS="${TRAMA_THREADS:-2}"
-    run_lane "${SCRIPTS_A[@]}" & PID_A=$!
-    run_lane "${SCRIPTS_B[@]}" & PID_B=$!
+    run_lane "${LANE_A[@]}" & PID_A=$!
+    run_lane "${LANE_B[@]}" & PID_B=$!
     RC=0
     wait "$PID_A" || RC=1
     wait "$PID_B" || RC=1
@@ -90,7 +101,7 @@ if [ "$PACK_ONLY" -eq 0 ]; then
       exit 1
     fi
   else
-    run_lane "${SCRIPTS_B[@]}" "${SCRIPTS_A[@]}"
+    run_lane "${SEQUENTIAL[@]}"
   fi
 fi
 T_RENDER=$(date +%s)

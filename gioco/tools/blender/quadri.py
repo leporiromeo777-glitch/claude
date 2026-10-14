@@ -368,14 +368,16 @@ def build_secca(nl) -> Tableau:
         side = 0.13 if k % 2 else -0.13
         C.sphere(f"impronta{k}", 0.07, (px + side, py, 0.215), prints, scale=(0.8, 1.4, 0.15))
     # Quinta lontana a sinistra.
+    # Quinta lontana: il profilo basso di un'isola sull'orizzonte, a sinistra del Faro.
     rr = C.rng("secca/quinta")
     far = C.mat_paint("q_lontano", "#8F9898", rough=0.9)
-    xx = -16.0
-    while xx < -4.0:
-        bw, bh = rr.uniform(0.8, 1.5), rr.uniform(0.5, 1.1)
-        C.box(f"quinta{int(xx * 10)}", (bw, 0.6, bh), (xx + bw / 2, 13.0, bh / 2), far)
+    xx = -6.0
+    while xx < 1.5:
+        bw, bh = rr.uniform(0.6, 1.2), rr.uniform(0.35, 0.8)
+        C.box(f"quinta{int((xx + 10) * 10)}", (bw, 0.5, bh), (xx + bw / 2, 17.0, bh / 2 - 0.05), far)
         xx += bw
-    C.box("quinta_campanile", (0.35, 0.35, 2.2), (-9.0, 13.0, 1.1), far)
+    C.box("quinta_campanile", (0.28, 0.28, 1.7), (-2.4, 17.0, 0.85), far)
+    C.cylinder("quinta_cuspide", 0.24, 0.45, (-2.4, 17.0, 1.92), far, r2=0.0, segments=4)
     sky_card("cielo", nl, (0, 30, 4), (90, 30), "#D9C3B0", "#C9D0D2", clouds=0.18)
     return tb
 

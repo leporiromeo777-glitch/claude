@@ -796,7 +796,9 @@ def church(name: str, x: float, y: float, w: float = 5.0, d: float = 6.0, h: flo
     objs.append(C.box(f"{name}_portale_cornice", (pw + 0.36, 0.12, ph + 0.2), (x, yf - 0.05, ground + 0.36 + ph / 2), M("pietra_bianca")))
     objs.append(C.cylinder(f"{name}_portale_arco", pw / 2 + 0.18, 0.12, (x, yf - 0.05, ground + 0.36 + ph), M("pietra_bianca"), rot=(90, 0, 0), segments=20))
     objs.append(C.box(f"{name}_porta", (pw, 0.14, ph), (x, yf - 0.07, ground + 0.36 + ph / 2), M("porta")))
-    objs.append(C.cylinder(f"{name}_lunetta", pw / 2, 0.14, (x, yf - 0.07, ground + 0.36 + ph), C.mat_paint(f"{name}_affresco", "#8E8676", rough=0.8), rot=(90, 0, 0), segments=20))
+    # Lunetta affrescata: mezzo disco sopra la porta (un disco intero coprirebbe la porta).
+    half = [(pw / 2 * math.cos(math.pi * k / 16), pw / 2 * math.sin(math.pi * k / 16)) for k in range(17)]
+    objs.append(C.prism(f"{name}_lunetta", half, 0.14, (x, yf - 0.07, ground + 0.36 + ph), C.mat_paint(f"{name}_affresco", "#8E8676", rough=0.8)))
     # Rosone.
     objs.append(C.torus(f"{name}_rosone", 0.55, 0.1, (x, yf - 0.08, ground + h - 0.85), M("pietra_bianca"), rot=(90, 0, 0), seg=28, mseg=8))
     objs.append(C.cylinder(f"{name}_rosone_v", 0.5, 0.06, (x, yf - 0.05, ground + h - 0.85), M("finestra_accesa" if lit else "finestra_buia"), rot=(90, 0, 0), segments=24))
