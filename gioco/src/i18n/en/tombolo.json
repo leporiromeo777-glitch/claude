@@ -261,6 +261,7 @@
     "stato": "{ora} o'clock. {posizioni}.",
     "fine": "Lace finished at {ora}. {posizioni}.",
     "anteprima": "Preview: this is how it was at {ora}.",
+    "cursore": "Cursor: {posto}.",
     "separatore": ", ",
     "luogo": {
       "molo": "{nome} at the Pier",

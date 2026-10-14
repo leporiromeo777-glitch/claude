@@ -23,6 +23,8 @@ import type {
   RowMoves,
   Services,
   Side,
+  SolveRequest,
+  SolveResult,
   ThreadId,
   Unsub,
   Viewport,
@@ -34,7 +36,7 @@ import { solveAsync } from '../engine/index';
 import { type Diagnosis, Session } from './session';
 import { BAND, type NotePlacement, SLOT_R, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, rowsBelow, scrollLimits, slotCenter } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
-import { type TextDeps, describeCondition, formatHour, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
+import { type TextDeps, capitalizeFirst, describeCondition, formatHour, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
 import { LaceRenderer, emptyOverlay, type Overlay, type Palette } from './render/lace';
 import { type LaceModel, buildLaceModel, stacksOf } from './render/model';
 import { type ActivePulse, type MarginHand, Tutorial } from './tutorial';
@@ -72,6 +74,8 @@ const NOTE_MAX_S = 12;
 
 export interface ControllerOptions {
   computed: LevelComputed | null;
+  /** Solver dei suggerimenti e della diagnosi (il Worker; iniettabile nei test). */
+  solveAsync?: (req: SolveRequest, signal?: AbortSignal) => Promise<SolveResult>;
 }
 
 type UiLayerExtra = Services['ui'] & { sceneRoot?: HTMLElement; hasPanel?: (id: string) => boolean };
@@ -151,7 +155,7 @@ export class NightController {
       emit: (k, p) => s.bus.emit(k, p),
       balance: s.content.balance ?? null,
       computed: o.computed,
-      solveAsync: (req, signal) => solveAsync(req, signal),
+      solveAsync: o.solveAsync ?? ((req, signal) => solveAsync(req, signal)),
       knownQuirks: save.knowledge.quirks,
     });
     this.textDeps = { i18n: s.i18n, content: s.content, level: params.level, override: (id) => this.fadedName(id) };
@@ -298,6 +302,8 @@ export class NightController {
     this.extraVersion++;
     this.refresh();
     if (this.layout) this.layoutDom();
+    // TOM-19: la riga di stato si riscrive tutta nella lingua nuova (i nomi dei luoghi sono nei parametri).
+    this.updateStatusLine();
   }
 
   /** Velocità delle animazioni (0 = istantanea). */
@@ -748,7 +754,9 @@ export class NightController {
     const dragging = this.interact.dragging() !== null;
     o.handFrom = dragging ? -1 : this.handFrom;
     o.handTo = dragging ? -1 : this.handTo;
-    o.cursorPair = this.keyboard && !this.placing ? this.interact.cursorPair : -1;
+    const naming = this.keyboard && !this.placing && this.namingByKeyboard();
+    o.cursorPair = this.keyboard && !this.placing && !(naming && (s.needsNome || !s.isPlayerRow())) ? this.interact.cursorPair : -1;
+    o.cursorCol = naming ? this.interact.cursorThread : -1;
     o.nameStep = s.needsNome;
     o.previewRow = this.previewRow;
     o.showEchoes = this.model.echoes.length > 0;
@@ -944,6 +952,28 @@ export class NightController {
 
   keyboardCursor(): void {
     this.keyboard = true;
+  }
+
+  /**
+   * Si nomina con la tastiera (TOM-19): il nome di Ada da appuntare o un filo
+   * sbiadito dell'Archivio ancora da confermare. Allora le frecce raggiungono
+   * tutte le colonne (anche l'ultima, che nessuna coppia ha a sinistra).
+   */
+  namingByKeyboard(): boolean {
+    const s = this.session;
+    if (this.completed) return false;
+    if (s.needsNome) return true;
+    const a = s.archive;
+    return !!a && a.faded().some((t) => !a.isConfirmed(t));
+  }
+
+  /** Il cursore delle frecce è sulla colonna `col` mentre si nomina: la riga di stato dice chi c'è. */
+  cursorMoved(col: number): void {
+    if (!this.namingByKeyboard()) return;
+    const t = this.threadAtColumn(col);
+    const place = this.params.level.columns[col];
+    if (!t || !place) return;
+    this.status.set('tombolo.sr.cursore', { posto: this.s.i18n.t(`tombolo.sr.luogo.${place}`, { nome: threadName(this.textDeps, t) }) });
   }
 
   // ───────── Azioni ─────────
@@ -1755,7 +1785,7 @@ export class NightController {
   occasionSlotAt(x: number, y: number): { col: number; index: number } | null {
     const l = this.layout;
     if (!this.model || !l) return null;
-    const r = Math.max(SLOT_R + 4, Math.min(l.rowH, l.colW) * 0.45);
+    const r = Math.max(SLOT_R * (l.scale ?? 1) + 4, Math.min(l.rowH, l.colW) * 0.45);
     let best: { col: number; index: number; d: number } | null = null;
     for (const p of this.model.pins) {
       if (p.kind !== 'verde') continue;
@@ -2069,7 +2099,8 @@ export class NightController {
             textKey: note?.textKey ?? 'tombolo.richieste.senzaTesto',
             statusKey,
             statusParams,
-            statusText: st ? reportText(this.textDeps, st.report) : '',
+            statusText: st ? reportText(this.textDeps, st.report, acc.request) : '',
+            condition: capitalizeFirst(describeCondition(this.textDeps, acc.request), this.s.i18n.locale()),
             dropped: !!st?.dropped,
             canDrop: !this.completed,
           },
@@ -2446,6 +2477,11 @@ export class NightController {
     this.explain.destroy();
     this.panelLeft?.destroy();
     this.panelRight?.destroy();
+    // C08: gli elenchi degli obiettivi montati dalla campagna si smontano con la notte.
+    for (const l of [...this.objectiveLists]) {
+      this.dropList(l);
+      l.el.remove();
+    }
     for (const u of this.unsubs.splice(0)) u();
     this.root.remove();
     nightClosed(this.s.ui.root);

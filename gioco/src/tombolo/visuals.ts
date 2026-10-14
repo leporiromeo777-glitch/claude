@@ -34,6 +34,11 @@ export const LINO_COLOR = '#8E8676';
 export const LINO_COLOR_HC = '#B5AE9F';
 export const FADED_COLOR = '#77736B';
 export const NERO_RIFLESSO = '#3B2F27';
+/**
+ * Bordo chiaro del filo nero (D06): sul velluto scuro il filo nero si vede sempre,
+ * anche senza alto contrasto.
+ */
+export const NERO_BORDO = '#A89F90';
 
 function clamp255(v: number): number {
   return Math.max(0, Math.min(255, Math.round(v)));
@@ -95,7 +100,7 @@ function characterVisual(id: ThreadId, kind: ThreadKind, ch: CharacterDef | unde
     icon: ch?.icon ?? null,
     spindle: `fuso/${chId === 'ernesto' || chId === 'anselmo' || chId === 'aldo' || chId === 'bortolo' || chId === 'arianna' ? 'lino' : chId}`,
     faded: false,
-    edge: hc ? '#F3EEE4' : null,
+    edge: hc ? '#F3EEE4' : kind === 'nero' || chId === 'livia' ? NERO_BORDO : null,
   };
 }
 
@@ -142,7 +147,7 @@ function neutralVisual(id: ThreadId, kind: ThreadKind, hc: boolean): ThreadVisua
     icon: null,
     spindle: 'fuso/lino',
     faded: false,
-    edge: hc ? '#F3EEE4' : null,
+    edge: hc ? '#F3EEE4' : kind === 'nero' ? NERO_BORDO : null,
   };
 }
 

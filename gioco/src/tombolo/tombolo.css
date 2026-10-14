@@ -587,6 +587,13 @@
   line-height: 1.2 !important;
 }
 
+.tb-note-condizione {
+  margin: 0.4rem 0 0;
+  padding-top: 0.35rem;
+  border-top: 1px dashed currentColor;
+  font-weight: 600;
+}
+
 .tb-note-status {
   color: var(--legno-scuro);
   font-style: italic;

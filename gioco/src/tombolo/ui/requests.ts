@@ -161,6 +161,8 @@ export interface NoteCardData {
   statusKey: string;
   statusParams: Params;
   statusText: string;
+  /** La condizione esatta, sotto il testo del bigliettino (TOM-14): «La lettera per Don Piero: consegnata entro le 10». */
+  condition?: string;
   dropped: boolean;
   canDrop: boolean;
 }
@@ -170,6 +172,7 @@ export function noteCard(d: NoteCardData, onDrop: () => void, onAll?: () => void
   const body = el('div', { class: 'tb-note', test: `tb-bigliettino-${d.noteId}` });
   body.appendChild(textOf('tombolo.richieste.di', { nome: d.authorName }, 'h2', { className: 'tb-note-author' }));
   body.appendChild(textOf(d.textKey, undefined, 'p', { className: 'tb-note-text', rich: true }));
+  if (d.condition) body.appendChild(el('p', { class: 'tb-note-condizione', test: 'tb-bigliettino-condizione', text: d.condition }));
   const status = el('p', { class: 'tb-note-status', test: 'tb-bigliettino-stato' });
   status.appendChild(textOf(d.statusKey, d.statusParams, 'span'));
   body.appendChild(status);

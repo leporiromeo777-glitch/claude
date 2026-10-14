@@ -43,12 +43,12 @@ describe('layout del tombolo (GDD 10.2-10.3)', () => {
     expect(l.actions.y + l.actions.h).toBe(844 - 34);
   });
 
-  it('largo 1280×720: Bigliettini 300, tombolo ≤ 640 al centro, Taccuino 320', () => {
+  it('largo 1280×720: Bigliettini 300, tombolo al centro (fino a 960), Taccuino 320', () => {
     const l = computeTomboloLayout(vp(1280, 720), 6, 14);
     expect(l.kind).toBe('largo');
     expect(l.left).toEqual({ x: 0, y: 0, w: 300, h: 720 });
     expect(l.right).toEqual({ x: 960, y: 0, w: 320, h: 720 });
-    expect(l.center.w).toBeLessThanOrEqual(640);
+    expect(l.center.w).toBeLessThanOrEqual(960);
     expect(l.center.x).toBeGreaterThanOrEqual(300);
     expect(l.center.x + l.center.w).toBeLessThanOrEqual(960);
   });

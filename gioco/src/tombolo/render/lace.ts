@@ -15,7 +15,7 @@ import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import { visualOf } from '../visuals';
 import type { LaceModel, StackView } from './model';
 import { StripCache } from './cache';
-import { type CanvasMaker, defaultCanvasMaker, drawSlot, PinSprites } from './pins';
+import { type CanvasMaker, defaultCanvasMaker, drawSlot, pinHeadOffset, PinSprites } from './pins';
 import { Velvet } from './velvet';
 import { type RowGeom, type RowStyle, drawHanging, drawKnot, drawRow, poolPoly } from './threads';
 import { drawBead, FlightPool } from './beads';
@@ -60,6 +60,8 @@ export interface Overlay {
   previewStacks: StackView[] | null;
   /** Cursore della tastiera (coppia), −1 = nascosto. */
   cursorPair: number;
+  /** Cursore della tastiera su un fuso quando si nomina (TOM-19), −1 = nascosto. */
+  cursorCol: number;
   /** Mano fantasma del tutorial: da colonna a colonna (−1 = nascosta). */
   handFrom: number;
   handTo: number;
@@ -95,6 +97,7 @@ export function emptyOverlay(): Overlay {
     previewRow: -1,
     previewStacks: null,
     cursorPair: -1,
+    cursorCol: -1,
     handFrom: -1,
     handTo: -1,
     nameStep: false,
@@ -112,10 +115,15 @@ export function emptyOverlay(): Overlay {
   };
 }
 
-const LABEL_FONT = "13px 'Atkinson Hyperlegible', system-ui, sans-serif";
+/** Corpo dei numeri delle ore (13 px, 15 px quello corrente), scalato sul desktop grande (D06). */
+export function hourLabelPx(k: number, current: boolean): number {
+  return Math.round((current ? 15 : 13) * k);
+}
+function labelFont(k: number, current: boolean): string {
+  return `${current ? 'bold ' : ''}${hourLabelPx(k, current)}px 'Atkinson Hyperlegible', system-ui, sans-serif`;
+}
 /** Durata a 1× del nodo e del riavvolgimento (s), per le fasi del disegno (C11). */
 const ENDING_NODO = 2.3;
-const LABEL_FONT_CUR = "bold 15px 'Atkinson Hyperlegible', system-ui, sans-serif";
 const GHOST_DASH: number[] = [8, 6];
 const NO_DASH: number[] = [];
 const TORN_DASH: number[] = [10, 4];
@@ -202,7 +210,7 @@ export class LaceRenderer {
   private hourLabel(ctx: CanvasRenderingContext2D, l: TomboloLayout, m: LaceModel, i: number, y0: number, y1: number, current: boolean): void {
     const s = m.hourLabels[i];
     if (!s) return;
-    ctx.font = current ? LABEL_FONT_CUR : LABEL_FONT;
+    ctx.font = labelFont(l.scale ?? 1, current);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = current ? this.palette.ottone : this.palette.testoTenue;
@@ -354,6 +362,7 @@ export class LaceRenderer {
       if (o.previewStacks) this.drawStacks(ctx, l, o.previewStacks, y1 + 12, null);
     }
     // Spilli (le occasioni al centro della cella, TOM-15).
+    const ks = l.scale ?? 1;
     for (let k = 0; k < m.pins.length; k++) {
       const pin = m.pins[k] as LaceModel['pins'][number];
       const x = g.colCx[pin.col] ?? 0;
@@ -361,11 +370,14 @@ export class LaceRenderer {
       if (y < lace.y - 20 || y > lace.y + lace.h + 20 + l.rowH) continue;
       if (pin.kind === 'verde') {
         const c = slotCenter(l, scroll, pin.col, pin.index);
-        drawSlot(ctx, pin.state, c.x, c.y, SLOT_R, pin.icon);
+        drawSlot(ctx, pin.state, c.x, c.y, SLOT_R * ks, pin.icon);
         continue;
       }
-      this.pins.draw(ctx, pin.kind, pin.state, x, y, pin.icon, pin.label);
-      if (pin.kind === 'ottone' && pin.col === o.pulsePinCol && pin.index === o.pulsePinIndex) pulseRing(ctx, x + 9, y - 11, 14, o.pulse, P.ottone);
+      this.pins.draw(ctx, pin.kind, pin.state, x, y, pin.icon, pin.label, ks);
+      if (pin.kind === 'ottone' && pin.col === o.pulsePinCol && pin.index === o.pulsePinIndex) {
+        const h = pinHeadOffset(x, y, ks);
+        pulseRing(ctx, h.x, h.y, 14 * ks, o.pulse, P.ottone);
+      }
     }
     // Echi d'Archivio.
     if (o.showEchoes) {
@@ -425,6 +437,15 @@ export class LaceRenderer {
     so.nomeOn = o.nomeOn;
     rig.draw(ctx, spTop, l.spindleW, l.spindleH, m.visuals, so);
     void assets;
+    // Cursore della tastiera su un fuso (si nomina: tutte le colonne, TOM-19).
+    if (o.cursorCol >= 0) {
+      const x = l.colX[o.cursorCol] ?? 0;
+      ctx.strokeStyle = P.ottone;
+      ctx.lineWidth = 2;
+      ctx.setLineDash(GHOST_DASH);
+      ctx.strokeRect(x + 3, l.spindles.y + 2, l.colW - 6, l.spindles.h - 4);
+      ctx.setLineDash(NO_DASH);
+    }
 
     if (o.ending) this.drawEnding(ctx, l, m, scroll, o);
 
@@ -505,7 +526,7 @@ export class LaceRenderer {
     const yb = top - band * 0.5;
     const alpha = e.fade ? Math.sin(Math.PI * e.p) : e.p > 0.7 ? Math.max(0, 1 - (e.p - 0.7) / 0.3) : 1;
     ctx.globalAlpha = alpha;
-    ctx.font = LABEL_FONT_CUR;
+    ctx.font = labelFont(l.scale ?? 1, true);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = P.testo;
@@ -567,6 +588,7 @@ export class LaceRenderer {
 
   private drawStacks(ctx: CanvasRenderingContext2D, l: TomboloLayout, stacks: readonly StackView[], y0: number, m: LaceModel | null): void {
     const g = this.geom;
+    const k = l.scale ?? 1;
     for (let i = 0; i < stacks.length; i++) {
       const st = stacks[i] as StackView;
       const s = this.rig.get(st.thread);
@@ -580,12 +602,15 @@ export class LaceRenderer {
         const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
         // Una lettera col destinatario accanto trema verso di lui (non col movimento ridotto).
         const shake = b.tremble !== 0 && !this.rig.reduced ? b.tremble * (1.6 + 1.6 * Math.sin(this.frameTime * 24)) : 0;
-        drawBead(ctx, b.type, x0 + (x1 - x0) * f * f + shake, y, 1, b.delivered);
-        y += 16;
+        drawBead(ctx, b.type, x0 + (x1 - x0) * f * f + shake, y, k, b.delivered);
+        y += BEAD_STEP * k;
       }
     }
   }
 }
+
+/** Passo verticale fra le perline di una pila (px CSS a scala 1). */
+export const BEAD_STEP = 16;
 
 /** X dell'icona di un evento di bordo (barca, vaporetto, filo nero). */
 export function edgeX(l: Pick<TomboloLayout, 'colX' | 'cols' | 'colW'>, side: number): number {

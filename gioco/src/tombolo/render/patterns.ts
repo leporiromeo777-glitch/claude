@@ -3,10 +3,13 @@
  * motivo e icona. Il motivo si disegna lungo la polilinea del filo, a passi di
  * lunghezza d'arco, con il colore `ink` del filo.
  *
- *   righe       tratti obliqui a 45° ogni 6 px          (Teresa)
+ *   righe       tratti obliqui a 45° ogni 6 px, marcati  (Teresa)
  *   puntini     puntini ogni 9 px                        (Marta)
  *   doppio      due linee da 2,5 px                      (Don Piero)
- *   onde        sinusoide lunga (16 px, ampiezza 1,9 px)  (Gino)
+ *   onde        sinusoide lunga (16 px, ampiezza 2,6 px)  (Gino)
+ *
+ * Righe e onde sono più marcate (D06, P034): Gino e Teresa vicini si distinguono
+ * anche in bianco e nero, senza cambiare i colori, che sono del personaggio.
  *   zigzag      zig-zag                                  (Bepi)
  *   tratteggio  tratteggio lungo                         (Nina)
  *   catenella   piccole ellissi                          (Zeno)
@@ -40,6 +43,11 @@ export const PATTERN_STEP: Readonly<Record<ThreadPattern, number>> = {
   liscio: 0,
   nessuno: 0,
 };
+
+/** Spessore dei tratti obliqui di Teresa e dell'onda di Gino, e ampiezza dell'onda (D06). */
+export const RIGHE_W = 2;
+export const ONDE_W = 1.8;
+export const ONDE_A = 2.6;
 
 const DASH_LONG: number[] = [7, 5];
 const NO_DASH: number[] = [];
@@ -91,7 +99,7 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
   ctx.fillStyle = v.ink;
   switch (v.pattern) {
     case 'righe': {
-      ctx.lineWidth = 1.3;
+      ctx.lineWidth = RIGHE_W;
       ctx.beginPath();
       for (let s = (6 - (phase % 6)) % 6; s <= total; s += 6) {
         pointAt(p, s, P);
@@ -115,13 +123,13 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
       return;
     }
     case 'onde': {
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = ONDE_W;
       ctx.beginPath();
       let first = true;
       for (let s = 0; s <= total; s += 2) {
         pointAt(p, s, P);
         // Onda morbida e lunga (16 px): non si confonde con lo zig-zag.
-        const a = Math.sin(((s + phase) / 16) * Math.PI * 2) * 1.9;
+        const a = Math.sin(((s + phase) / 16) * Math.PI * 2) * ONDE_A;
         const x = P.x + P.ty * a;
         const y = P.y - P.tx * a;
         if (first) ctx.moveTo(x, y);

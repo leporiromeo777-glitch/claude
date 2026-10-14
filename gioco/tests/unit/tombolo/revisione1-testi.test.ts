@@ -186,3 +186,58 @@ describe('preposizione articolata (il segreto della lettera)', () => {
     expect(articolata('di', 'le voci')).toBe('delle voci');
   });
 });
+
+describe('TOM-14: ogni tipo di perlina e ogni rapporto, in it e en', () => {
+  /** Il livello delle lettere con anche un segreto. */
+  function all(): LevelDef {
+    const lv = letters();
+    return { ...lv, beads: [...lv.beads, { id: 'S1', type: 'segreto', holders: ['marta'], labelKey: 'tombolo.generato.segreto' }] };
+  }
+  const beads = ['Lr', 'L1', 'voce:chiacchiera', 'S1', 'febbre', 'nome', 'letta:L1'];
+  const clean = (s: string, what: string): void => {
+    expect(s.length, what).toBeGreaterThan(0);
+    expect(s, what).not.toMatch(/[{}]/);
+    expect(s, what).not.toContain('tombolo.');
+    expect(s.charAt(0), what).toBe(s.charAt(0).toLocaleUpperCase());
+  };
+
+  for (const locale of ['it', 'en'] as const) {
+    it(`describeCondition e reportText per ogni perlina (${locale})`, () => {
+      const lv = all();
+      const d = deps(lv, locale);
+      for (const b of beads) {
+        const conds: Condition[] = [
+          { t: 'ha', who: 'bepi', bead: b, by: 10 },
+          { t: 'nonHa', who: 'bepi', bead: b },
+        ];
+        if (b.startsWith('L')) conds.push({ t: 'consegnata', bead: b, by: 10 });
+        for (const c of conds) {
+          clean(describeCondition(d, c), `${locale} ${JSON.stringify(c)}`);
+          for (const st of ['fallita', 'rischio'] as const) {
+            const key = `tombolo.cond.${st}.${c.t}`;
+            if (!d.i18n.has?.(key) && d.i18n.t(key) === key) continue;
+            const r = { status: st === 'fallita' ? ('fallita' as const) : ('a_rischio' as const), reasonKey: key, params: { chi: 'bepi', perlina: b, ora: 10 } };
+            clean(reportText(d, r, c), `${locale} ${st} ${JSON.stringify(c)}`);
+          }
+        }
+      }
+    });
+
+    it(`ogni chiave dei rapporti si compone senza segnaposto (${locale})`, () => {
+      const lv = all();
+      const d = deps(lv, locale);
+      const src = JSON.parse(readFileSync(resolve(ROOT, `src/i18n/${locale}/tombolo.json`), 'utf8')) as { cond: Record<string, unknown> };
+      const keys: string[] = [];
+      const walk = (o: Record<string, unknown>, p: string): void => {
+        for (const [k, v] of Object.entries(o)) {
+          if (typeof v === 'string') keys.push(`${p}${k}`);
+          else if (v && typeof v === 'object') walk(v as Record<string, unknown>, `${p}${k}.`);
+        }
+      };
+      walk(src.cond, 'tombolo.cond.');
+      expect(keys.length).toBeGreaterThan(30);
+      const params = { chi: 'bepi', a: 'marta', b: 'nina', perlina: 'L1', ora: 10, dalle: 7, alle: 10, n: 3, luogo: 'forno' };
+      for (const key of keys) clean(reportText(d, { status: 'fallita', reasonKey: key, params }), `${locale} ${key}`);
+    });
+  }
+});

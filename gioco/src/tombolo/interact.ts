@@ -302,13 +302,16 @@ export class Interaction {
       case 'left':
       case 'right': {
         const d = a.action === 'left' ? -1 : 1;
-        if (placing) {
+        if (placing || c.namingByKeyboard()) {
+          // Occasioni e nomi (TOM-19): il cursore va su ogni colonna, anche l'ultima.
           this.cursorThread = Math.max(0, Math.min(W - 1, this.cursorThread + d));
+          this.cursorPair = Math.max(0, Math.min(W - 2, this.cursorThread));
         } else {
           this.cursorPair = Math.max(0, Math.min(W - 2, this.cursorPair + d));
           this.cursorThread = this.cursorPair;
         }
         c.keyboardCursor();
+        if (!placing) c.cursorMoved(this.cursorThread);
         return true;
       }
       case 'select': {
@@ -316,6 +319,7 @@ export class Interaction {
         this.cursorThread = n;
         this.cursorPair = Math.min(n, W - 2);
         c.keyboardCursor();
+        if (!placing) c.cursorMoved(n);
         return true;
       }
       case 'crossL':

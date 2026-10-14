@@ -10,7 +10,8 @@ import { el } from '../../core/ui/dom';
 import type { Rect, TomboloLayout } from '../layout';
 import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import type { LaceModel } from '../render/model';
-import { edgeX } from '../render/lace';
+import { BEAD_STEP, edgeX } from '../render/lace';
+import { pinHeadOffset } from '../render/pins';
 import type { SpindleRig } from '../render/spindles';
 import type { Session } from '../session';
 import { type TextDeps, beadName, capitalizeFirst, formatHour, joinNames, nameParams, threadName } from '../text';
@@ -36,9 +37,7 @@ export interface BubbleScene {
 
 /** Centro della testa di uno spillo (come in render/pins.ts). */
 export function pinHead(l: TomboloLayout, scroll: number, col: number, index: number): { x: number; y: number } {
-  const x = (l.colCx[col] ?? 0) + 9;
-  const y = l.lace.y - scroll + rowBottom(l, index) - 11;
-  return { x, y };
+  return pinHeadOffset(l.colCx[col] ?? 0, l.lace.y - scroll + rowBottom(l, index), l.scale ?? 1);
 }
 
 /** Centro dell'icona di un evento di bordo (come in render/lace.ts). */
@@ -64,7 +63,7 @@ export function beadSpots(sc: BubbleScene): { thread: ThreadId; bead: string; de
       if (!b) continue;
       const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
       out.push({ thread: st.thread, bead: b.id, delivered: b.delivered, x: x0 + (x1 - x0) * f * f, y });
-      y += 16;
+      y += BEAD_STEP * (l.scale ?? 1);
     }
   }
   return out;
@@ -85,14 +84,15 @@ export function bubbleTargetAt(sc: BubbleScene, x: number, y: number): BubbleTar
   const { layout: l, model: m, scroll } = sc;
   const near = (ax: number, ay: number, r = BUBBLE_HIT): boolean => (x - ax) * (x - ax) + (y - ay) * (y - ay) <= r * r;
   // Perline (sotto la riga corrente, sui fili che pendono).
-  for (const b of beadSpots(sc)) if (near(b.x, b.y, 10)) return { k: 'perlina', thread: b.thread, bead: b.bead, delivered: b.delivered, x: b.x, y: b.y };
+  const k = l.scale ?? 1;
+  for (const b of beadSpots(sc)) if (near(b.x, b.y, 10 * k)) return { k: 'perlina', thread: b.thread, bead: b.bead, delivered: b.delivered, x: b.x, y: b.y };
   const inLace = y >= l.lace.y && y < l.lace.y + l.lace.h;
   if (!inLace) return null;
   // Spilli (anche nelle righe future).
   for (const p of m.pins) {
     // Le occasioni (anche quelle da piantare) al centro della cella, gli spilli sulla testa.
     const h = p.kind === 'verde' ? slotCenter(l, scroll, p.col, p.index) : pinHead(l, scroll, p.col, p.index);
-    if (near(h.x, h.y, p.kind === 'verde' ? SLOT_R + 3 : BUBBLE_HIT)) return { k: 'spillo', kind: p.kind, col: p.col, index: p.index, x: h.x, y: h.y };
+    if (near(h.x, h.y, p.kind === 'verde' ? SLOT_R * k + 3 : BUBBLE_HIT * k)) return { k: 'spillo', kind: p.kind, col: p.col, index: p.index, x: h.x, y: h.y };
   }
   // Barche, bordi, ingresso del filo nero.
   for (const e of m.edges) {

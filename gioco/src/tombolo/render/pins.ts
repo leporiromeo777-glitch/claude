@@ -19,7 +19,8 @@ export const ERRORE = '#E0604F';
 
 /** Raggio della testa dello spillo (px CSS). */
 export const PIN_R = 8;
-const SPRITE_SCALE = 2;
+/** Le teste si disegnano a 3× così restano nitide anche scalate sul desktop grande (D06). */
+const SPRITE_SCALE = 3;
 
 export type CanvasMaker = (w: number, h: number) => HTMLCanvasElement | OffscreenCanvas;
 
@@ -66,71 +67,86 @@ export class PinSprites {
 
   /**
    * Spillo nella cella: (x, y) è il punto dove il filo deve passare; la testa sta
-   * appena sopra a destra, il gambo scende al punto.
+   * appena sopra a destra, il gambo scende al punto. `k` è la scala del layout
+   * (desktop grande, D06): testa, gambo, icona e ora crescono insieme.
    */
-  draw(ctx: CanvasRenderingContext2D, kind: PinKind, state: PinState, x: number, y: number, icon: string | null, hourLabel: string | null): void {
-    const hx = x + 9;
-    const hy = y - 11;
+  draw(ctx: CanvasRenderingContext2D, kind: PinKind, state: PinState, x: number, y: number, icon: string | null, hourLabel: string | null, k = 1): void {
+    const { x: hx, y: hy } = pinHeadOffset(x, y, k);
+    const R = PIN_R * k;
     const c = PIN_COLORS[kind];
     if (state === 'ombra') {
       ctx.strokeStyle = 'rgba(78,154,91,0.75)';
       ctx.setLineDash(DASH);
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(x, y, PIN_R + 2, 0, Math.PI * 2);
+      ctx.arc(x, y, R + 2, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash(NO_DASH);
-      if (icon) drawGlyph(ctx, icon, x, y, 11, 'rgba(166,221,176,0.9)', 1.4);
+      if (icon) drawGlyph(ctx, icon, x, y, 11 * k, 'rgba(166,221,176,0.9)', 1.4);
       return;
     }
     if (state === 'acceso' || state === 'fatto') {
       ctx.fillStyle = kind === 'ottone' ? 'rgba(244,222,154,0.35)' : kind === 'verde' ? 'rgba(166,221,176,0.35)' : 'rgba(244,154,142,0.35)';
       ctx.beginPath();
-      ctx.arc(hx, hy, PIN_R + 6, 0, Math.PI * 2);
+      ctx.arc(hx, hy, R + 6 * k, 0, Math.PI * 2);
       ctx.fill();
     }
     // Gambo.
     ctx.strokeStyle = '#D9D2C2';
-    ctx.lineWidth = 1.6;
+    ctx.lineWidth = 1.6 * k;
     ctx.beginPath();
     ctx.moveTo(hx, hy);
     ctx.lineTo(x + 1, y);
     ctx.stroke();
     const head = this.heads.get(kind);
-    const size = PIN_R * 2 + 4;
+    const size = pinHeadSize(k);
     if (head) ctx.drawImage(head, hx - size / 2, hy - size / 2, size, size);
     else {
       ctx.fillStyle = c.base;
       ctx.beginPath();
-      ctx.arc(hx, hy, PIN_R, 0, Math.PI * 2);
+      ctx.arc(hx, hy, R, 0, Math.PI * 2);
       ctx.fill();
     }
-    if (icon) drawGlyph(ctx, icon, hx, hy, 10, '#1A1610', 1.7);
+    if (icon) drawGlyph(ctx, icon, hx, hy, 10 * k, '#1A1610', 1.7);
     if (state === 'fatto') {
-      drawGlyph(ctx, 'spunta', hx + 10, hy - 6, 10, '#A6DDB0', 2.2);
+      drawGlyph(ctx, 'spunta', hx + 10 * k, hy - 6 * k, 10 * k, '#A6DDB0', 2.2);
     }
     if (state === 'irraggiungibile' || state === 'fallito') {
       ctx.strokeStyle = ERRORE;
       ctx.lineWidth = 2.4;
       ctx.beginPath();
-      ctx.moveTo(hx - PIN_R - 2, hy + PIN_R + 2);
-      ctx.lineTo(hx + PIN_R + 2, hy - PIN_R - 2);
+      ctx.moveTo(hx - R - 2, hy + R + 2);
+      ctx.lineTo(hx + R + 2, hy - R - 2);
       ctx.stroke();
       // "!" disegnato (niente testo).
-      const bx = hx + PIN_R + 6;
+      const bx = hx + R + 6;
       ctx.fillStyle = ERRORE;
       ctx.fillRect(bx - 1.2, hy - 8, 2.4, 7);
       ctx.beginPath();
       ctx.arc(bx, hy + 2.5, 1.5, 0, Math.PI * 2);
       ctx.fill();
       if (hourLabel) {
-        ctx.font = HOUR_FONT;
+        ctx.font = hourFont(k);
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(hourLabel, bx + 4, hy - 2);
       }
     }
   }
+}
+
+/** Centro della testa di uno spillo il cui filo passa in (x, y), alla scala `k`. */
+export function pinHeadOffset(x: number, y: number, k = 1): { x: number; y: number } {
+  return { x: x + 9 * k, y: y - 11 * k };
+}
+
+/** Lato della testa disegnata (px CSS) alla scala `k`: 20 px a 1×, 30 px a 1,5×. */
+export function pinHeadSize(k = 1): number {
+  return (PIN_R * 2 + 4) * k;
+}
+
+function hourFont(k: number): string {
+  return `bold ${Math.round(11 * k)}px 'Atkinson Hyperlegible', system-ui, sans-serif`;
 }
 
 /**
@@ -154,4 +170,3 @@ export function drawSlot(ctx: CanvasRenderingContext2D, state: PinState, x: numb
 
 const DASH: number[] = [3, 3];
 const NO_DASH: number[] = [];
-const HOUR_FONT = "bold 11px 'Atkinson Hyperlegible', system-ui, sans-serif";

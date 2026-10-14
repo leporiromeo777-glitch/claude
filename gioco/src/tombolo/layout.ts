@@ -6,8 +6,9 @@
  *   barra alta 52 · intestazione 40 · merletto (il resto) · richieste 36 ·
  *   fusi 128 · azioni 72.
  * Largo (≥ 900 px e rapporto ≥ 1,15): Bigliettini a sinistra (300), tombolo al
- * centro (massimo 640), Taccuino a destra (320); se al centro restano meno di
- * 480 px il pannello di destra si chiude (si apre come sovrapposizione).
+ * centro (massimo 960, D06), Taccuino a destra (320); se al centro restano meno di
+ * 480 px il pannello di destra si chiude (si apre come sovrapposizione). Oltre i
+ * 640 px il centro scala perline, spilli e numeri delle ore (`scale`, fino a 1,5).
  * Stretto: centrato con larghezza massima 720 (verticale) o 520 (orizzontale).
  *
  * Colonne larghe almeno 52 px (a 360 px con 6 colonne: 54); righe alte 40-56 px.
@@ -24,7 +25,12 @@ export interface Rect {
 export const BAND = { hud: 52, header: 40, requests: 36, spindles: 128, actions: 72 } as const;
 export const PANEL_LEFT = 300;
 export const PANEL_RIGHT = 320;
-export const CENTER_MAX = 640;
+/** Larghezza massima del centro nel layout largo (D06: oltre cresce il velluto, non il merletto). */
+export const CENTER_MAX = 960;
+/** Larghezza del centro a cui perline, spilli e ore hanno la misura base (scala 1). */
+export const CENTER_BASE = 640;
+/** Scala massima di perline, spilli e numeri delle ore (desktop grande). */
+export const SCALE_MAX = 1.5;
 export const CENTER_MIN_WITH_RIGHT = 480;
 export const NARROW_MAX_PORTRAIT = 720;
 export const NARROW_MAX_LANDSCAPE = 520;
@@ -91,6 +97,11 @@ export interface TomboloLayout {
   spindleW: number;
   /** Fascia della nota a margine sopra il merletto (0 se non c'è). */
   noteBand: number;
+  /**
+   * Scala di perline, spilli, slot e numeri delle ore (D06, desktop grande):
+   * 1 nello stretto e fino a 640 px di centro, poi cresce col centro fino a 1,5.
+   */
+  scale: number;
 }
 
 function rect(x: number, y: number, w: number, h: number): Rect {
@@ -169,9 +180,12 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
   const lace = rect(center.x, laceTop, center.w, Math.max(0, requests.y - laceTop));
   const lamp = rect(center.x + center.w - 52, requests.y + (requests.h - 48) / 2, 48, 48);
 
-  const avail = Math.max(1, center.w - GUTTER - RIGHT_PAD);
+  const scale = kind === 'largo' ? Math.max(1, Math.min(SCALE_MAX, Math.round((center.w / CENTER_BASE) * 100) / 100)) : 1;
+  // La colonna delle ore cresce con la scala, perché il numero e l'icona del bordo restino affiancati.
+  const gutter = Math.round(GUTTER * scale);
+  const avail = Math.max(1, center.w - gutter - RIGHT_PAD);
   const colW = Math.max(1, Math.min(COL_MAX, Math.floor((avail / n) * 100) / 100));
-  const x0 = center.x + GUTTER + (avail - colW * n) / 2;
+  const x0 = center.x + gutter + (avail - colW * n) / 2;
   const colX: number[] = [];
   const colCx: number[] = [];
   for (let i = 0; i < n; i++) {
@@ -203,7 +217,7 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
     colW,
     colX,
     colCx,
-    gutterCx: center.x + 10,
+    gutterCx: center.x + Math.round(10 * scale),
     rows: r,
     rowH,
     openH,
@@ -211,6 +225,7 @@ export function computeTomboloLayout(vp: Pick<Viewport, 'cssW' | 'cssH' | 'safe'
     spindleH,
     spindleW,
     noteBand,
+    scale,
   };
 }
 

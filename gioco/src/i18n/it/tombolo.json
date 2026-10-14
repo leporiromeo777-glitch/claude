@@ -261,6 +261,7 @@
     "stato": "Ore {ora}. {posizioni}.",
     "fine": "Merletto chiuso alle {ora}. {posizioni}.",
     "anteprima": "Anteprima: così era alle {ora}.",
+    "cursore": "Cursore: {posto}.",
     "separatore": ", ",
     "luogo": {
       "molo": "{nome} al Molo",
