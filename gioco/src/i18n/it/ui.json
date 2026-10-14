@@ -39,7 +39,9 @@
     "riprendi": "Riprendi",
     "ricomincia": "Ricomincia la notte",
     "ricominciaSpartito": "Ritessi lo spartito",
+    "lascia": "Lascia per ora",
     "taccuino": "Taccuino",
+    "comandi": "Comandi",
     "impostazioni": "Impostazioni",
     "titolo": "Torna al titolo",
     "ricominciaDomanda": {
@@ -279,6 +281,14 @@
     "tessi": "Tessi",
     "preparazione": "Il tombolo si prepara…",
     "riprendi": "Riprendi il merletto {seme}",
+    "riprendiQui": "Riprendi il merletto",
+    "daCapo": "Tessi da capo",
+    "daCapoDomanda": {
+      "titolo": "Tessere da capo?",
+      "corpo": "Questo merletto è a metà sul tombolo. Se lo ricominci, le ore già fissate si disfano.",
+      "ok": "Tessi da capo",
+      "annulla": "Lascialo com'è"
+    },
     "importa": "Importa spartito",
     "errore": "Questo merletto non si è potuto preparare. Prova un altro seme."
   },
@@ -337,5 +347,95 @@
     "copiato": "Testo copiato: incollalo dove vuoi.",
     "copiatoImmagine": "Testo copiato e immagine del merletto salvata.",
     "nonRiuscito": "Non è stato possibile condividere da qui."
+  },
+  "comandi": {
+    "titolo": "Comandi",
+    "intro": "Un gesto solo: trascinare un fuso. Tutto il resto si può fare anche con la tastiera.",
+    "sezione": {
+      "tocco": "Tocco e mouse",
+      "tastiera": "Tastiera"
+    },
+    "contesto": {
+      "vignetta": " (nelle vignette)",
+      "pannelli": " (nei pannelli a schede)",
+      "ovunque": " (ovunque)"
+    },
+    "tasto": {
+      "maiusc": "Maiusc",
+      "ctrl": "Ctrl",
+      "spazio": "Spazio",
+      "invio": "Invio",
+      "backspace": "Backspace",
+      "tab": "Tab",
+      "esc": "Esc",
+      "pagSu": "PagSu",
+      "pagGiu": "PagGiù"
+    },
+    "azione": {
+      "cursore": "Sposta il cursore fra le coppie di colonne (nell'Archivio, mentre nomini, fra tutte le colonne)",
+      "filo": "Porta il cursore sul filo di quella colonna",
+      "incrociaSinistra": "Incrocia la coppia, con il filo di sinistra sopra",
+      "incrociaDestra": "Incrocia la coppia, con il filo di destra sopra",
+      "rovescia": "Rovescia l'incrocio sotto il cursore",
+      "fissa": "Fissa l'ora",
+      "quiete": "Salta le ore quiete (quando il tombolo lo offre)",
+      "disfa": "Disfa",
+      "scorri": "Scorre le ore",
+      "taccuino": "Apre il Taccuino",
+      "suggerimento": "Chiede un suggerimento alla lampada",
+      "nome": "Appunta il nome di Ada sul filo del cursore",
+      "indietro": "Pausa, o chiude il pannello aperto",
+      "pausa": "Pausa",
+      "schedaSeguente": "Passa alla scheda seguente",
+      "avanza": "Avanza",
+      "salta": "Salta la vignetta",
+      "auto": "Avanzamento automatico"
+    },
+    "gesto": {
+      "trascina": {
+        "come": "Trascina un fuso oltre metà della colonna vicina",
+        "cosa": "Incrocia: il fuso che trascini passa sopra"
+      },
+      "rilascia": {
+        "come": "Lascialo prima della metà",
+        "cosa": "Ci ripensi: il fuso torna al suo posto"
+      },
+      "toccaIncrocio": {
+        "come": "Tocca o clicca un incrocio dell'ora corrente",
+        "cosa": "Rovescia chi sta sopra e chi sotto"
+      },
+      "trascinaFuori": {
+        "come": "Trascina un incrocio fuori dalla riga, o premi Disfa",
+        "cosa": "Toglie l'incrocio"
+      },
+      "pressioneLunga": {
+        "come": "Tieni premuto un fuso",
+        "cosa": "Scheda del personaggio; nell'Archivio, la scelta del nome"
+      },
+      "clicDestro": {
+        "come": "Clic destro su un fuso",
+        "cosa": "Scheda del personaggio, come la pressione lunga"
+      },
+      "toccaSpillo": {
+        "come": "Tocca uno spillo, una barca, una perlina o un'ora",
+        "cosa": "Una bolla spiega chi, dove, quando e che cosa porta"
+      },
+      "scorri": {
+        "come": "Trascina in verticale sul merletto, o usa la rotella",
+        "cosa": "Scorre le ore"
+      },
+      "rigaPassata": {
+        "come": "Tocca un'ora già fissata",
+        "cosa": "Anteprima, e se vuoi torni indietro fin lì"
+      },
+      "appuntaNome": {
+        "come": "Tocca un fuso quando appunti il tuo nome",
+        "cosa": "Il nome di Ada va su quel filo"
+      },
+      "indietroAndroid": {
+        "come": "Tasto Indietro di Android",
+        "cosa": "Chiude il pannello aperto o apre la Pausa"
+      }
+    }
   }
 }

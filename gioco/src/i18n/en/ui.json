@@ -39,7 +39,9 @@
     "riprendi": "Resume",
     "ricomincia": "Restart the night",
     "ricominciaSpartito": "Weave the score again",
+    "lascia": "Leave it for now",
     "taccuino": "Notebook",
+    "comandi": "Controls",
     "impostazioni": "Settings",
     "titolo": "Back to the title",
     "ricominciaDomanda": {
@@ -279,6 +281,14 @@
     "tessi": "Weave",
     "preparazione": "The pillow is getting ready…",
     "riprendi": "Resume lace {seme}",
+    "riprendiQui": "Resume the lace",
+    "daCapo": "Weave from the start",
+    "daCapoDomanda": {
+      "titolo": "Weave it from the start?",
+      "corpo": "This lace is half done on the pillow. If you start again, the hours already set come undone.",
+      "ok": "Weave from the start",
+      "annulla": "Leave it as it is"
+    },
     "importa": "Import score",
     "errore": "This lace could not be prepared. Try another seed."
   },
@@ -337,5 +347,95 @@
     "copiato": "Text copied: paste it wherever you like.",
     "copiatoImmagine": "Text copied and lace picture saved.",
     "nonRiuscito": "Sharing is not possible from here."
+  },
+  "comandi": {
+    "titolo": "Controls",
+    "intro": "One gesture: drag a bobbin. Everything else works from the keyboard too.",
+    "sezione": {
+      "tocco": "Touch and mouse",
+      "tastiera": "Keyboard"
+    },
+    "contesto": {
+      "vignetta": " (in vignettes)",
+      "pannelli": " (in tabbed panels)",
+      "ovunque": " (anywhere)"
+    },
+    "tasto": {
+      "maiusc": "Shift",
+      "ctrl": "Ctrl",
+      "spazio": "Space",
+      "invio": "Enter",
+      "backspace": "Backspace",
+      "tab": "Tab",
+      "esc": "Esc",
+      "pagSu": "PgUp",
+      "pagGiu": "PgDn"
+    },
+    "azione": {
+      "cursore": "Move the cursor between pairs of columns (in the Archive, while naming, across all columns)",
+      "filo": "Put the cursor on the thread in that column",
+      "incrociaSinistra": "Cross the pair, left thread on top",
+      "incrociaDestra": "Cross the pair, right thread on top",
+      "rovescia": "Flip the crossing under the cursor",
+      "fissa": "Set the hour",
+      "quiete": "Skip the quiet hours (when the pillow offers it)",
+      "disfa": "Undo",
+      "scorri": "Scroll the hours",
+      "taccuino": "Open the Notebook",
+      "suggerimento": "Ask the lamp for a hint",
+      "nome": "Pin Ada's name on the thread under the cursor",
+      "indietro": "Pause, or close the open panel",
+      "pausa": "Pause",
+      "schedaSeguente": "Go to the next tab",
+      "avanza": "Advance",
+      "salta": "Skip the vignette",
+      "auto": "Auto-advance"
+    },
+    "gesto": {
+      "trascina": {
+        "come": "Drag a bobbin past the middle of the next column",
+        "cosa": "Cross: the bobbin you drag goes on top"
+      },
+      "rilascia": {
+        "come": "Let go before the middle",
+        "cosa": "Change your mind: the bobbin goes back"
+      },
+      "toccaIncrocio": {
+        "come": "Tap or click a crossing in the current hour",
+        "cosa": "Flip who is on top and who is below"
+      },
+      "trascinaFuori": {
+        "come": "Drag a crossing off the row, or press Undo",
+        "cosa": "Remove the crossing"
+      },
+      "pressioneLunga": {
+        "come": "Press and hold a bobbin",
+        "cosa": "Character card; in the Archive, choose the name"
+      },
+      "clicDestro": {
+        "come": "Right-click a bobbin",
+        "cosa": "Character card, like press and hold"
+      },
+      "toccaSpillo": {
+        "come": "Tap a pin, a boat, a bead or an hour",
+        "cosa": "A bubble explains who, where, when and what it carries"
+      },
+      "scorri": {
+        "come": "Drag up and down on the lace, or use the wheel",
+        "cosa": "Scroll the hours"
+      },
+      "rigaPassata": {
+        "come": "Tap an hour already set",
+        "cosa": "Preview it, and go back to it if you like"
+      },
+      "appuntaNome": {
+        "come": "Tap a bobbin while pinning your name",
+        "cosa": "Ada's name goes on that thread"
+      },
+      "indietroAndroid": {
+        "come": "Android Back button",
+        "cosa": "Close the open panel or open Pause"
+      }
+    }
   }
 }

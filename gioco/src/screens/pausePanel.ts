@@ -3,9 +3,10 @@
  * UiLayer. Il tombolo lo apre con `{ from: 'tombolo', origin, levelId }` (anche
  * con il tasto Indietro di Android ed Esc).
  *
- * Riprendi · Ricomincia la notte · Taccuino (se il pannello esiste) ·
- * Impostazioni (overlay sopra la pausa) · Torna al titolo. Tutto è già salvato:
- * il tombolo salva la notte a ogni ora fissata e quando la scena si chiude.
+ * Riprendi · Ricomincia la notte · Lascia per ora (solo nell'Archivio, C10) ·
+ * Taccuino (se il pannello esiste) · Comandi (C10) · Impostazioni (overlay sopra
+ * la pausa) · Torna al titolo. Tutto è già salvato: il tombolo salva la notte a
+ * ogni ora fissata e quando la scena si chiude.
  */
 import type { NightOrigin, PanelHandle, Services } from '../core/types';
 import type { CoreUiLayer } from '../core/ui/layer';
@@ -57,6 +58,20 @@ export function pausePanel(s: Services, container: HTMLElement, raw?: unknown): 
       }),
     );
   }
+  // C10: dall'Archivio si torna alla cassapanca senza perdere i nomi confermati.
+  if (o.origin === 'archivio') {
+    items.push(
+      wideButton({
+        icon: 'cassapanca',
+        labelKey: 'ui.pausa.lascia',
+        onClick: () => {
+          s.ui.closeOverlay();
+          void s.scenes.go('archivio', { cmd: 'lascia', levelId: o.levelId });
+        },
+        test: 'sc-pausa-lascia',
+      }),
+    );
+  }
   if (hasPanel(s, 'taccuino')) {
     items.push(
       wideButton({
@@ -68,6 +83,12 @@ export function pausePanel(s: Services, container: HTMLElement, raw?: unknown): 
     );
   }
   items.push(
+    wideButton({
+      icon: 'tastiera',
+      labelKey: 'ui.pausa.comandi',
+      onClick: () => void s.ui.openOverlay('comandi', { from: 'pausa' }),
+      test: 'sc-pausa-comandi',
+    }),
     wideButton({
       icon: 'ingranaggio',
       labelKey: 'ui.pausa.impostazioni',

@@ -501,7 +501,8 @@ export interface SceneManager {
 export type ActionId =
   | 'confirm' | 'back' | 'pause' | 'undo' | 'fixHour' | 'notebook' | 'hint' | 'name'
   | 'left' | 'right' | 'up' | 'down' | 'pageUp' | 'pageDown'
-  | 'crossL' | 'crossR' | 'flip' | 'select' | 'skip' | 'auto' | 'tab';
+  | 'crossL' | 'crossR' | 'flip' | 'select' | 'skip' | 'auto' | 'tab'
+  | 'skipQuiet';   // revisione 1: Maiusc+Invio, «Salta le ore quiete» (GDD 11.3, TOM-22)
 export interface ActionEvent { action: ActionId; index?: number; repeat: boolean; source: 'keyboard' | 'ui' | 'debug' }
 export type Gesture =
   | { k: 'tap'; x: number; y: number; pointer: 'mouse' | 'touch' | 'pen'; button: number }

@@ -90,6 +90,8 @@ export function sanitizeSettings(p: unknown, base: Settings): Settings {
 export function applySettingsToDocument(s: Settings, root: HTMLElement | null): void {
   if (!root) return;
   root.style.setProperty('--text-scale', String(s.textScale));
+  // Revisione 1 (SCH-05): da 130% in su i controlli a segmenti vanno in colonna.
+  root.dataset.textScale = s.textScale >= 1.3 ? 'grande' : 'normale';
   root.style.setProperty('--anim-speed', String(s.animSpeed));
   root.dataset.contrast = s.highContrast ? 'alto' : 'normale';
   root.dataset.motion = s.reducedMotion ? 'ridotto' : 'normale';

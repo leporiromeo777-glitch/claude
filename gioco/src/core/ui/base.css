@@ -296,13 +296,33 @@ button.core-carta {
   cursor: pointer;
   min-height: var(--tocco);
 }
+/*
+ * Calligrafia (revisione 1, C17): si inclina il FOGLIO intero, al massimo ±3°,
+ * attorno al centro; il testo non ha trasformazioni proprie e non prende i tocchi,
+ * così non esce dal foglio e non copre i pulsanti (che stanno fuori dal foglio).
+ */
+.core-carta--mano {
+  transform: rotate(clamp(-3deg, var(--mano-inclinazione, 0deg), 3deg));
+  transform-origin: center;
+}
+.core-carta-testo {
+  transform: none;
+  pointer-events: none;
+  overflow-wrap: break-word;
+}
 .core-carta--mano .core-carta-testo {
   font-family: var(--mano-font, var(--font-mano));
   font-size: calc(1.35rem * var(--mano-scala, 1));
   line-height: 1.25;
   text-transform: var(--mano-maiuscole, none);
-  transform: rotate(var(--mano-inclinazione, 0deg));
-  transform-origin: left top;
+}
+/* Lettere lunghe: il foglio scorre dentro sé stesso. */
+.core-carta--scorre {
+  max-height: 70vh;
+  max-height: 70dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
 }
 :root[data-contrast='alto'] .core-carta {
   background: var(--carta);
@@ -560,8 +580,8 @@ button.core-carta {
   align-items: baseline;
   gap: 0.2em;
   font-weight: 700;
-  color: var(--inchiostro);
-  color: color-mix(in srgb, var(--pers-color) 62%, var(--inchiostro));
+  /* C17: inchiostro scurito fino a 4,5:1 sulla carta (inkOnPaper); il colore pieno resta in sottolineatura e icona. */
+  color: var(--pers-ink, var(--inchiostro));
   border-bottom: 3px solid var(--pers-color);
   white-space: nowrap;
 }

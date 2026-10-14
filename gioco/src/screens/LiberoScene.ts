@@ -4,6 +4,13 @@
  * `unlocks.gradi` è falso), «Tessi»; più «Importa spartito».
  * Dopo la notte (`{ risultato: 'libero' | 'spartito' }`): i risultati.
  *
+ * Revisione 1 (SCH-04, P036): con una notte libera a metà sullo stesso seme e
+ * gli stessi gradi il pulsante fisso è «Riprendi il merletto»
+ * (`sc-libero-riprendi`) e «Tessi da capo» (`sc-libero-dacapo`, in cima)
+ * chiede conferma; con una notte a metà di un altro seme «Riprendi il merletto
+ * <seme>» sta in cima alla pagina. Al primo ingresso dopo un ricaricamento la
+ * scelta riparte dal seme della notte a metà.
+ *
  * Il livello si prepara in background (Worker) a ogni cambio di seme,
  * dimensione o gradi, così «Tessi» parte subito.
  */
@@ -72,6 +79,10 @@ export class LiberoScene extends ScreenScene {
   private busy = false;
   private prepTimer: ReturnType<typeof setTimeout> | null = null;
   private dynamic: HTMLElement | null = null;
+  /** Pulsanti che dipendono dalla notte a metà: in cima alla pagina e nel piede. */
+  private topActions: HTMLElement | null = null;
+  private footActions: HTMLElement | null = null;
+  private show: ((key: string | null, params?: Record<string, string | number>, kind?: 'errore' | 'info' | 'ok') => void) | null = null;
   /** Il testo nel campo del seme non è un seme valido (Tessi non deve partire con il seme di prima). */
   private seedInvalid = false;
   private seedField: HTMLInputElement | null = null;
@@ -84,8 +95,30 @@ export class LiberoScene extends ScreenScene {
     const p = params && typeof params === 'object' ? (params as { risultato?: unknown }) : {};
     const r = p.risultato === 'libero' || p.risultato === 'spartito' ? p.risultato : null;
     this.resultOrigin = r && resultOf(r) ? r : null;
+    // Nessuna scelta ancora (primo ingresso dopo un ricaricamento): si parte dalla notte a metà.
+    if (!choice.seed) {
+      const half = this.savedLibero();
+      if (half) setLiberoChoice({ seed: half.seed, gradi: half.gradi });
+    }
     liberoChoice();
     super.enter(params);
+  }
+
+  /** La notte libera salvata a metà (seme e gradi), se c'è. */
+  private savedLibero(): { seed: string; gradi: GradoId[]; levelId: string } | null {
+    const n = this.s.save.data().night;
+    if (!n || n.origin !== 'libero') return null;
+    const p = parseLiberoId(n.params.levelId);
+    if (!p) return null;
+    return { seed: p.seed, gradi: n.params.gradi ?? p.gradi, levelId: n.params.levelId };
+  }
+
+  /** La notte a metà è proprio quella della scelta corrente (stesso seme, stessi gradi)? */
+  private savedIsChoice(): boolean {
+    const half = this.savedLibero();
+    if (!half) return false;
+    const c = liberoChoice();
+    return half.levelId === liberoLevelId(c.seed, this.allowedGradi(c.gradi));
   }
 
   protected override afterEnter(): void {
@@ -229,7 +262,8 @@ export class LiberoScene extends ScreenScene {
     seedInput.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        void this.weave(false, msg.show);
+        if (this.savedIsChoice()) void this.resumeSaved(msg.show);
+        else void this.weave(false, msg.show);
       }
     });
     const seedRow = el('div', { class: 'sc-seme' }, seedInput, dice);
@@ -283,38 +317,85 @@ export class LiberoScene extends ScreenScene {
 
     this.dynamic = el('div', { class: 'sc-libero-dinamico', test: 'sc-libero-dinamico' });
 
-    const weave = wideButton({ icon: 'play', labelKey: 'ui.libero.tessi', kind: 'primario', onClick: () => void this.weave(false, msg.show), test: 'sc-libero-tessi' });
-    weave.dataset.autofocus = '1';
-    const actions: HTMLButtonElement[] = [weave];
-    const saved = s.save.data().night;
-    if (saved && saved.origin === 'libero') {
-      actions.push(
-        wideButton({
-          icon: 'ricomincia',
-          labelKey: 'ui.libero.riprendi',
-          labelParams: { seme: parseLiberoId(saved.params.levelId)?.seed ?? '' },
-          onClick: () => void this.resumeSaved(msg.show),
-          test: 'sc-libero-riprendi',
-        }),
-      );
-    }
-    actions.push(wideButton({ icon: 'importa', labelKey: 'ui.libero.importa', onClick: () => void s.ui.openOverlay('spartito', { returnTo: 'libero' }), test: 'sc-libero-importa' }));
+    this.show = msg.show;
+    this.topActions = el('div', { class: 'sc-libero-cima', test: 'sc-libero-cima' });
+    this.footActions = el('div', { class: 'sc-libero-piede' });
+    const others = [wideButton({ icon: 'importa', labelKey: 'ui.libero.importa', onClick: () => void s.ui.openOverlay('spartito', { returnTo: 'libero' }), test: 'sc-libero-importa' })];
 
     f.body.append(
+      this.topActions,
       section('ui.libero.seme', 'dado', 'sc-libero-sezione-seme', seedRow, seedHelp),
       section('ui.libero.dimensione', 'gomitolo', 'sc-libero-sezione-dimensione', size.el),
       this.dynamic,
       section('ui.libero.gradi', 'stella', 'sc-libero-sezione-gradi', gradiNote, el('div', { class: 'sc-gradi', test: 'sc-libero-gradi' }, ...toggles.map(([, t]) => t.el))),
     );
-    const [first, ...others] = actions;
-    if (others.length > 0) f.body.appendChild(buttonGroup(others, 'sc-azioni', 'sc-libero-altre', 'vertical'));
-    f.foot.append(msg.el, buttonGroup(first ? [first] : [], 'sc-azioni', 'sc-libero-azioni', 'vertical'));
+    f.body.appendChild(buttonGroup(others, 'sc-azioni', 'sc-libero-altre', 'vertical'));
+    f.foot.append(msg.el, this.footActions);
     this.updateDynamic();
     return f.root;
   }
 
+  /**
+   * Pulsanti legati alla notte a metà (SCH-04): nel piede «Tessi» o, se la notte a
+   * metà è di questa scelta, «Riprendi il merletto»; in cima «Tessi da capo» (con
+   * conferma) o il «Riprendi» di una notte a metà di un altro seme.
+   */
+  private updateActions(): void {
+    const top = this.topActions;
+    const foot = this.footActions;
+    if (!top || !foot) return;
+    const show = this.show ?? undefined;
+    const half = this.savedLibero();
+    const same = this.savedIsChoice();
+    const hadFocus = foot.contains(document.activeElement) || top.contains(document.activeElement);
+    let primary: HTMLButtonElement;
+    const topButtons: HTMLButtonElement[] = [];
+    if (same) {
+      primary = wideButton({ icon: 'play', labelKey: 'ui.libero.riprendiQui', kind: 'primario', onClick: () => void this.resumeSaved(show), test: 'sc-libero-riprendi' });
+      topButtons.push(wideButton({ icon: 'ricomincia', labelKey: 'ui.libero.daCapo', onClick: () => void this.weaveFromScratch(show), test: 'sc-libero-dacapo' }));
+    } else {
+      primary = wideButton({ icon: 'play', labelKey: 'ui.libero.tessi', kind: 'primario', onClick: () => void this.weave(false, show), test: 'sc-libero-tessi' });
+      if (half) {
+        topButtons.push(
+          wideButton({
+            icon: 'ricomincia',
+            labelKey: 'ui.libero.riprendi',
+            labelParams: { seme: half.seed },
+            onClick: () => void this.resumeSaved(show),
+            test: 'sc-libero-riprendi',
+          }),
+        );
+      }
+    }
+    primary.dataset.autofocus = '1';
+    foot.replaceChildren(buttonGroup([primary], 'sc-azioni', 'sc-libero-azioni', 'vertical'));
+    top.replaceChildren(...(topButtons.length ? [buttonGroup(topButtons, 'sc-azioni', 'sc-libero-cima-azioni', 'vertical')] : []));
+    top.hidden = topButtons.length === 0;
+    if (hadFocus) primary.focus({ preventScroll: true });
+  }
+
+  /** «Tessi da capo» sulla stessa scelta della notte a metà: chiede prima di disfarla. */
+  async weaveFromScratch(show?: (key: string | null, params?: Record<string, string | number>, kind?: 'errore' | 'info' | 'ok') => void): Promise<boolean> {
+    if (this.busy) return false;
+    if (this.savedIsChoice()) {
+      const ok = await this.s.ui.confirm({
+        titleKey: 'ui.libero.daCapoDomanda.titolo',
+        bodyKey: 'ui.libero.daCapoDomanda.corpo',
+        okKey: 'ui.libero.daCapoDomanda.ok',
+        cancelKey: 'ui.libero.daCapoDomanda.annulla',
+        danger: true,
+      });
+      if (!ok) {
+        show?.('ui.notteInCorso.rinuncia', undefined, 'info');
+        return false;
+      }
+    }
+    return this.weave(false, show);
+  }
+
   /** Regola, punti dei gradi e record della scelta corrente. */
   private updateDynamic(): void {
+    this.updateActions();
     const host = this.dynamic;
     if (!host) return;
     const s = this.s;
@@ -344,12 +425,13 @@ export class LiberoScene extends ScreenScene {
     );
   }
 
-  private async resumeSaved(show: (key: string | null, params?: Record<string, string | number>, kind?: 'errore' | 'info' | 'ok') => void): Promise<void> {
-    const saved = this.s.save.data().night;
-    const p = saved ? parseLiberoId(saved.params.levelId) : null;
-    if (!p) return;
-    const r = await launchLibero(this.s, p.seed, saved?.params.gradi ?? p.gradi, { resume: true });
-    if (!r.ok) show(r.errorKey === 'ui.notteInCorso.rinuncia' ? null : r.errorKey, undefined, 'errore');
+  async resumeSaved(show?: (key: string | null, params?: Record<string, string | number>, kind?: 'errore' | 'info' | 'ok') => void): Promise<void> {
+    const half = this.savedLibero();
+    if (!half || this.busy) return;
+    this.busy = true;
+    const r = await launchLibero(this.s, half.seed, half.gradi, { resume: true });
+    this.busy = false;
+    if (!r.ok) show?.(r.errorKey === 'ui.notteInCorso.rinuncia' ? null : r.errorKey, undefined, 'errore');
   }
 
   /** Tessi con la scelta corrente. */

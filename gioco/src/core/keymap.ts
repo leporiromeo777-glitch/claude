@@ -10,6 +10,7 @@
  * | Spazio / Maiusc+Spazio   | crossL / crossR                |
  * | F                        | flip                           |
  * | Invio                    | confirm (nel tombolo: Fissa l'ora; in vignetta: avanza) |
+ * | Maiusc+Invio             | skipQuiet (Salta le ore quiete, quando è offerto) |
  * | Backspace, Z, Ctrl+Z     | undo                           |
  * | Tab                      | notebook (Taccuino)            |
  * | Maiusc+Tab               | tab (scheda successiva nei pannelli a schede) |
@@ -87,7 +88,7 @@ export function mapKey(k: KeyInfo, focus: FocusContext = 'none'): KeyAction | nu
     case 'PageDown': action = 'pageDown'; break;
     case ' ':
     case 'Spacebar': action = k.shiftKey ? 'crossR' : 'crossL'; break;
-    case 'Enter': action = 'confirm'; break;
+    case 'Enter': action = k.shiftKey ? 'skipQuiet' : 'confirm'; break;
     case 'Backspace': action = 'undo'; break;
     case 'Tab': action = k.shiftKey ? 'tab' : 'notebook'; break;
     case 'Escape': action = 'back'; break;
@@ -113,4 +114,62 @@ export function mapKey(k: KeyInfo, focus: FocusContext = 'none'): KeyAction | nu
   if (!action) return null;
   if (repeat && !REPEATABLE.has(action)) return null;
   return index === undefined ? { action, repeat } : { action, index, repeat };
+}
+
+// ───────── Pagina dei comandi (revisione 1, C10: `sc-comandi`) ─────────
+
+/**
+ * Una riga della pagina dei comandi: i tasti (descritti come KeyInfo, gli stessi
+ * che `mapKey` riceve) e le azioni che producono. La pagina si genera da qui e un
+ * test controlla che ogni azione di `mapKey` ci sia, e che ogni tasto elencato
+ * produca davvero le sue azioni. `id` dà il testo (`ui.comandi.azione.<id>`).
+ */
+export interface KeyHelp {
+  id: string;
+  keys: KeyInfo[];
+  actions: ActionId[];
+  /** Dove vale, se non è il tombolo. */
+  context?: 'vignetta' | 'pannelli' | 'ovunque';
+  /** I tasti sono gli estremi di un intervallo («1–6»). */
+  range?: boolean;
+}
+
+export const KEY_HELP: readonly KeyHelp[] = [
+  { id: 'cursore', keys: [{ key: 'ArrowLeft' }, { key: 'ArrowRight' }], actions: ['left', 'right'] },
+  { id: 'filo', keys: [{ key: '1', code: 'Digit1' }, { key: '6', code: 'Digit6' }], actions: ['select'], range: true },
+  { id: 'incrociaSinistra', keys: [{ key: ' ' }], actions: ['crossL'] },
+  { id: 'incrociaDestra', keys: [{ key: ' ', shiftKey: true }], actions: ['crossR'] },
+  { id: 'rovescia', keys: [{ key: 'f' }], actions: ['flip'] },
+  { id: 'fissa', keys: [{ key: 'Enter' }], actions: ['confirm'] },
+  { id: 'quiete', keys: [{ key: 'Enter', shiftKey: true }], actions: ['skipQuiet'] },
+  { id: 'disfa', keys: [{ key: 'Backspace' }, { key: 'z' }, { key: 'z', ctrlKey: true }], actions: ['undo'] },
+  { id: 'scorri', keys: [{ key: 'ArrowUp' }, { key: 'ArrowDown' }, { key: 'PageUp' }, { key: 'PageDown' }], actions: ['up', 'down', 'pageUp', 'pageDown'] },
+  { id: 'taccuino', keys: [{ key: 'Tab' }], actions: ['notebook'] },
+  { id: 'suggerimento', keys: [{ key: 'h' }], actions: ['hint'] },
+  { id: 'nome', keys: [{ key: 'n' }], actions: ['name'] },
+  { id: 'indietro', keys: [{ key: 'Escape' }], actions: ['back'], context: 'ovunque' },
+  { id: 'pausa', keys: [{ key: 'p' }], actions: ['pause'] },
+  { id: 'schedaSeguente', keys: [{ key: 'Tab', shiftKey: true }], actions: ['tab'], context: 'pannelli' },
+  { id: 'avanza', keys: [{ key: ' ' }, { key: 'Enter' }], actions: ['crossL', 'confirm'], context: 'vignetta' },
+  { id: 'salta', keys: [{ key: 's' }], actions: ['skip'], context: 'vignetta' },
+  { id: 'auto', keys: [{ key: 'a' }], actions: ['auto'], context: 'vignetta' },
+];
+
+/**
+ * Pezzi dell'etichetta di un tasto: modificatori e nome. Il nome è una chiave
+ * `ui.comandi.tasto.<nome>` per i tasti con un nome (Invio, Spazio…), altrimenti
+ * il carattere da mostrare così com'è (lettere maiuscole, cifre, frecce).
+ */
+export function keyLabelParts(k: KeyInfo): { mods: ('ctrl' | 'maiusc')[]; name: string; named: boolean } {
+  const mods: ('ctrl' | 'maiusc')[] = [];
+  if (k.ctrlKey || k.metaKey) mods.push('ctrl');
+  if (k.shiftKey) mods.push('maiusc');
+  const NAMED: Record<string, string> = {
+    ' ': 'spazio', Spacebar: 'spazio', Enter: 'invio', Backspace: 'backspace', Tab: 'tab', Escape: 'esc',
+    PageUp: 'pagSu', PageDown: 'pagGiu',
+  };
+  const ARROWS: Record<string, string> = { ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓' };
+  const named = NAMED[k.key];
+  if (named) return { mods, name: named, named: true };
+  return { mods, name: ARROWS[k.key] ?? k.key.toUpperCase(), named: false };
 }

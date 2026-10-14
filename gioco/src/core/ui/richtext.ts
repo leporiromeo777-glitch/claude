@@ -22,6 +22,55 @@ export interface RichTextDeps {
   markMissing?: boolean;
 }
 
+// ───────── Inchiostro su carta (revisione 1, C17) ─────────
+/** Carta predefinita del gioco (`--carta`). */
+export const PAPER_DEFAULT = '#EDE4D3';
+/** Contrasto minimo del testo sulla carta (WCAG AA). */
+export const INK_MIN_CONTRAST = 4.5;
+
+function parseHex(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m || !m[1]) return null;
+  const h = m[1].length === 3 ? [...m[1]].map((c) => c + c).join('') : m[1];
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+function toHex(rgb: readonly number[]): string {
+  return '#' + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+function luminance(rgb: readonly number[]): number {
+  const lin = rgb.map((v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * (lin[0] ?? 0) + 0.7152 * (lin[1] ?? 0) + 0.0722 * (lin[2] ?? 0);
+}
+/** Rapporto di contrasto WCAG fra due colori `#RRGGBB` (1..21). */
+export function contrastRatio(a: string, b: string): number {
+  const x = parseHex(a);
+  const y = parseHex(b);
+  if (!x || !y) return 1;
+  const la = luminance(x);
+  const lb = luminance(y);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/**
+ * Inchiostro leggibile sulla carta (C17): scurisce `hex` (stessa tinta, verso il
+ * nero) fino a un contrasto ≥ 4,5:1 su `paper` (`#EDE4D3` se manca). Un colore
+ * che basta già resta com'è (in `#RRGGBB` maiuscolo); un colore non valido dà
+ * l'inchiostro del gioco.
+ */
+export function inkOnPaper(hex: string, paper: string = PAPER_DEFAULT): string {
+  const rgb = parseHex(hex);
+  if (!rgb) return '#2B2622';
+  const bg = parseHex(paper) ? paper : PAPER_DEFAULT;
+  for (let k = 1; k >= 0; k -= 0.01) {
+    const c = toHex(rgb.map((v) => v * k));
+    if (contrastRatio(c, bg) >= INK_MIN_CONTRAST) return c;
+  }
+  return '#000000';
+}
+
 export type RichNode =
   | { k: 'text'; v: string }
   | { k: 'br' }
@@ -136,7 +185,9 @@ function build(nodes: RichNode[], parent: Node, deps: RichTextDeps): void {
         const span = document.createElement('span');
         span.className = 'core-pers';
         span.dataset.character = n.id;
-        span.style.setProperty('--pers-color', info?.color ?? CHARACTER_COLORS.lino);
+        const color = info?.color ?? CHARACTER_COLORS.lino;
+        span.style.setProperty('--pers-color', color);
+        span.style.setProperty('--pers-ink', inkOnPaper(color));
         if (info?.icon) span.appendChild(svgIcon(info.icon, { size: 16, className: 'core-pers-icon' }));
         span.appendChild(document.createTextNode(info?.name ?? n.id));
         parent.appendChild(span);

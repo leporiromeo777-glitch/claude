@@ -48,6 +48,9 @@ describe('impostazioni', () => {
     expect(root.dataset.motion).toBe('ridotto');
     expect(root.dataset.animSpeed).toBe('0');
     expect(root.lang).toBe('en');
+    expect(root.dataset.textScale).toBe('grande');
+    applySettingsToDocument({ ...s, textScale: 1.2 }, root);
+    expect(root.dataset.textScale).toBe('normale');
     expect(animDurationFactor(s)).toBe(0);
     expect(animDurationFactor({ ...s, animSpeed: 2 })).toBe(0.5);
   });

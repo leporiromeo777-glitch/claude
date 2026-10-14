@@ -2,7 +2,7 @@
  * Registrazione del pacchetto schermate (ARCHITETTURA 3.1, 5.5): scene
  * 'titolo', 'giornaliero', 'libero', 'impostazioni', 'crediti'; overlay
  * 'pausa' (il tombolo lo apre con Indietro, Esc o ≡), 'impostazioni' (sopra
- * la pausa) e 'spartito' (importa); risolutore dei livelli `lib-…` per
+ * la pausa), 'comandi' (tasti e gesti, dalla pausa) e 'spartito' (importa); risolutore dei livelli `lib-…` per
  * riprendere un Merletto libero dopo un ricaricamento; esiti delle notti delle
  * modalità; debug `__GAME__.ui`; CSS.
  */
@@ -20,6 +20,7 @@ import { registerUiDebug } from './debug';
 import { parseLiberoId } from './libero';
 import { installOutcomeListener } from './outcomes';
 import { pausePanel } from './pausePanel';
+import { comandiPanel } from './comandiPanel';
 import { buildSettingsPanel } from './settingsPanel';
 import { spartitoPanel } from './spartitoPanel';
 import { liberoLevel } from './state';
@@ -49,6 +50,7 @@ export function register(s: Services): void {
   s.ui.registerPanel('pausa', (c, o) => pausePanel(s, c, o));
   s.ui.registerPanel('impostazioni', (c) => settingsOverlay(s, c));
   s.ui.registerPanel('spartito', (c, o) => spartitoPanel(s, c, o));
+  s.ui.registerPanel('comandi', (c) => comandiPanel(s, c));
 
   // Merletto libero: l'id non contiene dimensione e regola, ma il seme sì (prima lettera e hash).
   registerLevelResolver(async (id) => {

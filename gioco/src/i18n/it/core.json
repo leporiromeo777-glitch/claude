@@ -77,7 +77,8 @@
     "select": "Scegli il filo",
     "skip": "Salta",
     "auto": "Avanzamento automatico",
-    "tab": "Scheda successiva"
+    "tab": "Scheda successiva",
+    "skipQuiet": "Salta le ore quiete"
   },
   "lingua": {
     "it": "Italiano",

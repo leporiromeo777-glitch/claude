@@ -10,6 +10,8 @@ import { flatten } from '../../../src/core/i18n';
 import { GRADI_ORDER, DIMENSIONI_ORDER, LIBERO_RULES } from '../../../src/screens/libero';
 import { TOOLS } from '../../../src/screens/CreditiScene';
 import { COSMETIC_IDS } from '../../../src/screens/cosmetics';
+import { GESTURE_HELP } from '../../../src/screens/comandiPanel';
+import { KEY_HELP, keyLabelParts } from '../../../src/core/keymap';
 import { ROOT, makeServices } from './helpers';
 
 function table(locale: string): Map<string, string> {
@@ -37,6 +39,13 @@ const EXPANSIONS: Record<string, readonly string[]> = {
   'ui.regola.${rule}.testo': LIBERO_RULES,
   'ui.crediti.strumento.${t}': TOOLS,
   'ui.impostazioni.fuso.${id}': COSMETIC_IDS,
+  // Revisione 1: pagina dei comandi.
+  'ui.comandi.tasto.${m}': ['maiusc', 'ctrl'],
+  'ui.comandi.tasto.${name}': [...new Set(KEY_HELP.flatMap((h) => h.keys.map(keyLabelParts)).filter((p) => p.named).map((p) => p.name))],
+  'ui.comandi.azione.${id}': KEY_HELP.map((h) => h.id),
+  'ui.comandi.contesto.${ctx}': [...new Set(KEY_HELP.flatMap((h) => (h.context ? [h.context] : [])))],
+  'ui.comandi.gesto.${g}.come': GESTURE_HELP,
+  'ui.comandi.gesto.${g}.cosa': GESTURE_HELP,
 };
 
 function usedKeys(): string[] {

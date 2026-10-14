@@ -89,6 +89,7 @@ export const ACTION_IDS = [
   'confirm', 'back', 'pause', 'undo', 'fixHour', 'notebook', 'hint', 'name',
   'left', 'right', 'up', 'down', 'pageUp', 'pageDown',
   'crossL', 'crossR', 'flip', 'select', 'skip', 'auto', 'tab',
+  'skipQuiet',
 ] as const satisfies readonly ActionId[];
 assertExhaustive<Exhaustive<ActionId, (typeof ACTION_IDS)[number]>>(true);
 

@@ -77,7 +77,8 @@
     "select": "Pick the thread",
     "skip": "Skip",
     "auto": "Auto-advance",
-    "tab": "Next tab"
+    "tab": "Next tab",
+    "skipQuiet": "Skip the quiet hours"
   },
   "lingua": {
     "it": "Italiano",
