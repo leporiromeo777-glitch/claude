@@ -494,14 +494,16 @@ async function main(): Promise<void> {
 
     // ───── Motivi, Archivio, occasioni, spartito, lampada ─────
     const p = await openPage(browser, url, { viewport: { width: 1280, height: 720 } }, errors);
-    await start(p, { fixture: 'test-motivi' });
+    // Origine 'campagna' (senza una storia in corso nessuno la raccoglie): con 'libero'
+    // le schermate portano ai risultati poco dopo night:complete e il merletto sparisce.
+    await start(p, { fixture: 'test-motivi', origin: 'campagna' });
     await night(p, 'autoplay');
     await wait(400);
     await p.screenshot({ path: join(OUT, 'motivi.png') });
     {
       // Primo piano a risoluzione doppia: i 12 motivi devono distinguersi.
       const hd = await openPage(browser, url, { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 }, errors);
-      await start(hd, { fixture: 'test-motivi' });
+      await start(hd, { fixture: 'test-motivi', origin: 'campagna' });
       await night(hd, 'autoplay');
       await wait(4800);
       const lm = await night(hd, 'layout');
@@ -513,7 +515,8 @@ async function main(): Promise<void> {
     for (const st of motivi.timeline as { pos: string[] }[]) for (const t of st.pos) seen.add(t);
     check('test-motivi: i 12 fili (12 motivi) compaiono nel merletto', seen.size === 12, [...seen].join(','));
 
-    await start(p, { fixture: 'test-archivio', mode: 'archivio' });
+    // Origine 'campagna': con 'archivio' la campagna prova a registrare l'esito di una fixture che non conosce.
+    await start(p, { fixture: 'test-archivio', mode: 'archivio', origin: 'campagna' });
     let s = await night(p, 'state');
     const l0 = await night(p, 'layout');
     const f1 = (l0.spindles as Json[]).find((x) => x.thread === 'f1');

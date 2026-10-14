@@ -12,6 +12,19 @@
   color: var(--testo);
 }
 
+/*
+ * Avvisi brevi del core durante la notte (una voce del Taccuino, «Teresa si è
+ * accesa…» alle 6 del prologo): in basso cadrebbero sui fusi e, solidi, ne
+ * ruberebbero il trascinamento per quasi 3 s. Salgono sopra la striscia delle
+ * richieste (variabile scritta dalla regia) e si lasciano attraversare dai tocchi.
+ */
+#ui-root.tb-notte .core-toasts {
+  padding-bottom: var(--tb-avvisi-basso, calc(var(--safe-bottom) + 96px));
+}
+#ui-root.tb-notte .core-toast {
+  pointer-events: none;
+}
+
 .tb-root > * {
   position: absolute;
 }

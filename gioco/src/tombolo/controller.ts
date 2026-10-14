@@ -98,6 +98,8 @@ export class NightController {
   private panelLeft: { destroy(): void } | null = null;
   private panelRight: { destroy(): void } | null = null;
   private panelMode = '';
+  /** I pannelli del layout largo si montano solo a notte attiva (`activeNight()`), vedi `startPanels`. */
+  private panelsLive = false;
   private lastSaveVersion = -1;
 
   // DOM
@@ -198,6 +200,8 @@ export class NightController {
     this.lastRowHour = this.session.hour;
     this.rememberStatuses();
     this.saveNow(false);
+    // Ultima cosa: se la notte non parte (costruttore interrotto) la classe non resta appesa.
+    nightOpened(s.ui.root);
   }
 
   // ───────── Aspetto ─────────
@@ -287,6 +291,9 @@ export class NightController {
     this.margin.el.style.maxWidth = `${Math.min(260, l.center.w * 0.62)}px`;
     place(this.rewindBar, l.actions);
     this.popup?.position(this.popupAnchor());
+    // Gli avvisi brevi del core (una voce del Taccuino, una stranezza) salgono sopra
+    // la striscia delle richieste: in basso coprirebbero i fusi (vedi tombolo.css).
+    this.s.ui.root?.style?.setProperty(TOAST_BOTTOM_VAR, `${Math.max(0, Math.round(l.cssH - l.requests.y + 8))}px`);
     this.mountPanels();
   }
 
@@ -295,12 +302,17 @@ export class NightController {
     return { x: l.center.x, y: l.cssH - l.actions.y + 8, w: l.center.w, h: l.actions.y - l.lace.y - 16 };
   }
 
-  /** Largo: Bigliettini a sinistra e Taccuino a destra come pannelli fissi; stretto: niente. */
+  /**
+   * Largo: Bigliettini a sinistra e Taccuino a destra come pannelli fissi; stretto: niente.
+   * Si montano solo dopo `startPanels()`, cioè con la notte già attiva: i pannelli leggono
+   * `activeNight()` (stato dal vivo delle richieste, schede da mostrare).
+   */
   private mountPanels(): void {
     const l = this.layout;
     const mode = l.kind === 'largo' ? `largo${l.rightCollapsed ? '-' : '+'}` : 'stretto';
     if (l.left) place(this.leftBox, l.left);
     if (l.right) place(this.rightBox, l.right);
+    if (!this.panelsLive || this.destroyed) return;
     if (mode === this.panelMode) return;
     this.panelMode = mode;
     this.panelLeft?.destroy();
@@ -310,7 +322,15 @@ export class NightController {
     this.rightBox.hidden = !l.right;
     const opts = { from: 'tombolo', levelId: this.params.level.id, origin: this.params.origin, accepted: this.params.accepted.map((a) => a.noteId) };
     if (l.left) this.panelLeft = this.s.ui.mountPanel('bigliettini', this.leftBox, opts);
-    if (l.right) this.panelRight = this.s.ui.mountPanel('taccuino', this.rightBox, opts);
+    // Il Taccuino a destra è fisso: non apre la scheda dei Bigliettini (sono già a sinistra).
+    if (l.right) this.panelRight = this.s.ui.mountPanel('taccuino', this.rightBox, { ...opts, fixed: true });
+  }
+
+  /** La notte è attiva (`setActiveNight`): si montano i pannelli del layout largo. */
+  startPanels(): void {
+    if (this.panelsLive) return;
+    this.panelsLive = true;
+    this.mountPanels();
   }
 
   // ───────── Modello e interfaccia ─────────
@@ -1559,5 +1579,26 @@ export class NightController {
     this.panelRight?.destroy();
     for (const u of this.unsubs.splice(0)) u();
     this.root.remove();
+    nightClosed(this.s.ui.root);
   }
+}
+
+// ───────── Avvisi del core durante la notte ─────────
+
+/** Distanza dal fondo degli avvisi brevi durante la notte (sopra la striscia delle richieste). */
+const TOAST_BOTTOM_VAR = '--tb-avvisi-basso';
+/** Classe sulla radice dell'interfaccia mentre c'è un tombolo (anche fra due notti di fila). */
+const NIGHT_CLASS = 'tb-notte';
+let openNights = 0;
+
+function nightOpened(root: HTMLElement | undefined): void {
+  openNights++;
+  root?.classList?.add(NIGHT_CLASS);
+}
+
+function nightClosed(root: HTMLElement | undefined): void {
+  openNights = Math.max(0, openNights - 1);
+  if (openNights > 0) return;
+  root?.classList?.remove(NIGHT_CLASS);
+  root?.style?.removeProperty(TOAST_BOTTOM_VAR);
 }

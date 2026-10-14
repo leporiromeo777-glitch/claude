@@ -65,6 +65,8 @@ export class TomboloScene implements Scene {
       ctl.computedRef = computed;
       this.ctl = ctl;
       setActiveNight(ctl);
+      // Bigliettini e Taccuino (layout largo) dopo setActiveNight: leggono la notte attiva.
+      ctl.startPanels();
     } catch (err) {
       console.error('[tombolo] night failed to start', err);
       this.s.ui.toast('tombolo.errore.livello', undefined, 'warn');
