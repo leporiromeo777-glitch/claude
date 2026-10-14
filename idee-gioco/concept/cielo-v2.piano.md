@@ -1,0 +1,15 @@
+# Piano di rifinitura: cielo-v2
+
+1. Elvira capisce il "dove" a fine Atto I (M4: Mare della Tranquillità sulla "Sorella", la Luna). L'Atto II chiede "la Terra è viva?": Ilde ha falsificato la Terra morta; M9 diventa la prova del "red edge". (Critica 1; giocatore)
+2. Terra della svolta: falce scura nelle tre Finestre, rinominata "la Perla"; luci solo al telescopio. (Critica 2; giocatore)
+3. Astronomia vera a L5: Sorella, ciclo di 29,5 giorni, Giorni Ciechi, zona di rispetto. (Critica 3)
+4. Niente telegrafi: biglietto senza firma, codice G3, falsa morte della Santa Giardiniera. (Critica 4)
+5. Severino vuole l'asse libero per il Motore: la svolta è una manipolazione. (Critica 5)
+6. Fili chiusi: capsule 1-2, Verbano II, Giardinieri lasciati dormire nel 2122. (Critica 6)
+7. Finale onesto: una valle intera lampeggia nel telescopio; megawatt e 384.000 km; castagni di Cevio e giglio di Marta. (Critica 7-8)
+8. 14 secondarie con svolte diverse; 18 Nodi in 6 famiglie, a somma zero. (Critica 9; giocatore)
+9. Velo con un'origine, Bianca dopo la svolta, cifrario funzionante, finale segreto legato all'ora. (Critica 10)
+10. Fattibilità: Fase 0 con go/no-go, luce radiale e Meta analitica, mondo lontano unico, acqua analitica, figure in VAT, guida del branco, 5 macchine, stazioni, 7 kit, 6 voci, 2D senza IA. (Produzione)
+11. Comfort, segnali di cielo, cannocchiale, verbo "sedersi e respirare", nicchie. (Giocatore; produzione)
+12. Build: 12 coppie, 30 Germogli, traguardi, costi più giusti, Velo personalizzabile. (Giocatore; produzione)
+13. Gergo a dosi, cera invece di diapositive, segreti variati, Marta protetta, tensione dal Protocollo. (Giocatore)

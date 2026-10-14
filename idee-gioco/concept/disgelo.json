@@ -1,0 +1,384 @@
+{
+  "key": "disgelo",
+  "titolo": "DISGELO",
+  "sottotitolo": "Ciò che la Vedretta restituisce",
+  "frase": "Estate 1991: un ghiacciaio di confine comincia a restituire i suoi morti, e tu sei la topografa che deve ridisegnare la frontiera che ognuno di loro ha cercato di attraversare.",
+  "ambientazione": "Val Bregàna, valle immaginaria che sale dalla Valtellina verso nord fino al confine con la Svizzera italiana (versante grigionese-ticinese, Val Sorna). Dal 1° luglio al 19 settembre 1991, l'estate in cui la polvere del Sahara caduta a marzo ha tinto di rosa la neve e il caldo ha fatto il resto: la Vedretta di Mezzaluna, ghiacciaio a forma di falce che fa da spartiacque e quindi da confine di Stato, si ritira di 40 metri a settimana. Il landmark visibile da ovunque è il Pizzo Sentinella (3.412 m) con il Dente, una lama di roccia che da lontano sembra una sentinella col fucile in spalla; di notte si vede da tutta la valle la lampada della Capanna Sentinella, e di giorno i piloni rossi e bianchi della funivia estiva in costruzione, che ogni settimana sono uno di più. Mondo continuo e compatto di circa 6 km² (3 x 2 km) ma con 1.700 metri di dislivello, dal villaggio di Sorèc (1.720 m) alla vetta: il mondo è verticale più che largo, e ogni quota ha un clima, una luce e una regola diverse. Il mondo cambia fisicamente per atti: la fronte del ghiacciaio arretra in tre stati scolpiti a mano (luglio, agosto dopo la Rotta, settembre), aprendo zone, chiudendone altre (ponti di neve che crollano, laghi che si svuotano) e spostando letteralmente la linea di confine. Atmosfera: Buzzati e Rigoni Stern, attesa, silenzio, radio gracchianti, campanacci lontani, il ronzio dell'elicottero Lama della ditta, il ghiaccio che di notte schiocca come un fucile.",
+  "zone": [
+    {
+      "nome": "Sorèc e l'Alpe Bregàna (1.700-2.100 m)",
+      "descrizione": "Il villaggio italiano: chiesa di San Bernardo con l'ex voto dei soccorritori, il Monumento ai Caduti con il nome di Giacomo Bertolatti, la Casermetta della Guardia di Finanza, il Bar Alpino con il telefono a gettoni e il juke-box, il capannone della recuperante Lucia Fèr pieno di bossoli d'ottone, la stazione a valle della funivia della Società Alti Ghiacci. Sopra, pascoli, lariceti, il torrente Bregàna color latte, le baite d'alpeggio con i casari visti da lontano.",
+      "novita": "Il verbo dell'ascoltare: qui si raccolgono le piste da telefonate, bacheche, registri parrocchiali, radio. Nessun pericolo fisico, ma ogni domanda fatta in paese cambia chi ti parla e chi smette di farlo."
+    },
+    {
+      "nome": "La Morena e la Baracca del Genio (2.100-2.500 m)",
+      "descrizione": "Le morene grigie dell'ultimo secolo, il Lago Nero proglaciale, le trincee e le teleferiche arrugginite della Grande Guerra, i cippi di confine 41A-41C. Qui c'è la base di Marta: una baracca militare del 1916 restaurata, con il tavolo da disegno, la camera oscura, il teodolite, il registratore a cassette e la radio.",
+      "novita": "Il verbo del misurare: teodolite, stazioni trigonometriche, triangolazione. Pericolo: frane di morena instabile, sassi che cadono nel pomeriggio."
+    },
+    {
+      "nome": "La Lingua (2.400-2.800 m)",
+      "descrizione": "La fronte e la lingua del ghiacciaio: crepacci, bédières (torrenti che corrono sul ghiaccio), mulini glaciali che scendono nel buio, la porta glaciale da cui esce il torrente, strati di polvere scura che segnano gli anni come anelli di un albero.",
+      "novita": "Ramponi, corda, crepacci nascosti; il carotatore e i primi echi. Regola nuova: il ghiaccio cambia nel corso del giorno, i ponti di neve che reggono all'alba cedono alle tre del pomeriggio."
+    },
+    {
+      "nome": "La Bocchetta dei Passatori (2.900-3.100 m)",
+      "descrizione": "Il valico dei contrabbandieri, con il bivacco di lamiera, il libro del passo in una cassetta di latta, il cippo 42 e il Posto di Guardia 41 delle guardie di confine svizzere; dall'altra parte, la Val Sorna e il Ticino.",
+      "novita": "Il confine come regola di gioco: pattuglie svizzere e italiane con orari, binocoli e cani; essere visti significa essere rimandati indietro (non morire). Nebbia e notte diventano alleati."
+    },
+    {
+      "nome": "La Conca di Mezzaluna (2.700-3.000 m)",
+      "descrizione": "Il bacino alto del ghiacciaio con il lago epiglaciale turchese, il relitto del Piper caduto nel 1968 che affiora dal ghiaccio, il cantiere della stazione a monte della funivia. Dopo la Rotta il lago si svuota e apre un canyon di ghiaccio blu e grotte in cui la luce passa attraverso il ghiaccio.",
+      "novita": "Prima della svolta: ghiaccio sottile sul lago e acqua gelida (si nuota per pochi secondi). Dopo: grotte di ghiaccio, luce interna, eco acustica che deforma le voci; la zona passa sotto un altro Stato e la Società la presidia."
+    },
+    {
+      "nome": "I Seracchi del Sentinella (3.000-3.412 m)",
+      "descrizione": "La seraccata che precipita dal Pizzo, la parete nord, la cresta con le cornici di neve, la vetta con la croce e la stazione trigonometrica del 1890. Da qui si vede tutto il mondo di gioco, e si decolla in parapendio.",
+      "novita": "Il tempo come avversario: seracchi che crollano a orario quando il sole li colpisce, vento in quota, cornici che si staccano. La planata come verbo: tutta la valle diventa raggiungibile dall'alto."
+    },
+    {
+      "nome": "Il Bosco Vecchio (2.600 m, sotto il ghiaccio)",
+      "descrizione": "Si apre solo nell'ultimo atto, quando il ghiaccio della Conca si ritira oltre una soglia: centinaia di ceppi di larice e cembro di 7.000 anni fa, in piedi, scuri, nel fango glaciale; in mezzo, una lastra con 41 coppelle incise e il luogo dove il cacciatore neolitico si è fermato.",
+      "novita": "Il silenzio: niente radio (il ghiaccio la scherma), niente confine, niente pattuglie. È l'unico luogo dove gli echi si muovono invece di restare immobili."
+    }
+  ],
+  "direzione_artistica": "Realismo stilizzato d'alta quota, luce dura e trasparente come nelle foto di Vittorio Sella ma a colori. Palette: bianco sporco e grigio morena, il rosa della neve sahariana (il colore-firma del gioco), l'azzurro profondo del ghiaccio vecchio, il verde scuro dei larici, la ruggine delle reti e delle lamiere 1916; gli unici colori saturi sono umani e del 1991: la giacca viola e turchese di Marta, la corda arancione, il casco rosso, il nastro fluorescente dei paletti della Società. Luce: ciclo giorno-notte compresso (un giorno di gioco = circa 40 minuti), enrosadira al tramonto, nebbia che sale dalla valle alle 14 e copre la Lingua, temporali di calore, stellate nitide. Materiali: roccia e ghiaia scansionate CC0 (Poly Haven, ambientCG), ghiaccio con finta dispersione sottosuperficiale e strati di polvere procedurali, neve con normal map e brillantini, lamiera, legno, ottone. Gli echi sono figure di brina e ghiaccio traslucido, ferme a metà gesto: il volto è sempre coperto di galaverna, quindi nessun volto realistico per scelta poetica, non per limite. Le persone vive sono quasi sempre lontane, sotto passamontagna, occhiali da ghiacciaio, cappucci, caschi; le conosciamo dalle voci alla radio (filtro radio che nasconde gli artefatti della sintesi vocale), dalle lettere, dalle cassette, dalle foto in bianco e nero. È fattibile perché il gioco è fatto al 90% di terreno, roccia, ghiaccio, cielo e meteo, esattamente ciò che three.js fa bene, e perché la valle è stretta: la vista è chiusa dalle montagne, quindi pochi chilometri reali e molto cielo.",
+  "protagonista": "Marta Calgari, 31 anni, di Airolo, topografa dell'Ufficio federale di topografia di Wabern, alpinista con il brevetto di guida mancato per un esame di troppo. Sale da sola a Mezzaluna al posto del collega Ruedi Jenny, che si è rotto una gamba, per ritracciare il confine sul ghiacciaio: per la convenzione italo-svizzera il confine segue lo spartiacque, e se il ghiaccio si scioglie lo spartiacque si sposta. Ha un teodolite Wild T2, una Leica a pellicola, un registratore a cassette, una radio portatile, il carotatore prestato dal Politecnico di Zurigo e un libretto di campagna. Non la vediamo mai: siamo lei. La sentiamo nei pensieri registrati sul nastro (il diario del gioco è la sua voce) e alla radio. Ha un carattere preciso, ironico, testardo; non crede ai fantasmi, crede alle misure. Non è una prescelta: è l'unica persona con il mestiere, gli strumenti e il mandato per dire dove passa una linea. Alla fine del gioco dovrà firmare il verbale del confine, e quella firma è la scelta finale.",
+  "personaggi": [
+    {
+      "nome": "Ottavio \"Tavio\" Rusca",
+      "ruolo": "68 anni, guardiano della Capanna Sentinella sul versante svizzero e volontario del soccorso alpino. È la voce alla radio, canale 3: guida Marta, le racconta la valle, scherza, la rimprovera quando sale col brutto tempo. È il compagno di tutta l'avventura.",
+      "segreto": "Nel 1943 era passatore e portò in salvo una famiglia ebrea; nel 1956 era spallone e, preso dalla Finanza, vendette la data del passaggio del suo migliore amico Tita Fogliani. Nel 1968 fu il primo a raggiungere il Piper caduto e nascose il rullino della fotografa, che mostrava il corpo di Tita in un crepaccio. Aiuta Marta perché vuole essere scoperto senza doverlo dire.",
+      "come_appare": "Una voce roca alla radio con il fruscio della valle dietro; una sagoma con il cappello e il binocolo sul crinale opposto; la lampada della capanna che si accende alle 21 in punto; le sue cartine disegnate a matita lasciate nei bivacchi."
+    },
+    {
+      "nome": "Lucia Fèr, detta la Ferrina",
+      "ruolo": "54 anni, recuperante: raccoglie ottone, rame e filo spinato della Grande Guerra e li vende a peso. Conosce ogni crepaccio. Diffidente, poi alleata, insegna a Marta la corda e il metal detector.",
+      "segreto": "È la nipote dell'alpino Giacomo Bertolatti, l'eroe del monumento. In casa conserva una lettera che dimostra che il nonno disertò. Due estati fa ha trovato il suo corpo e lo ha ricoperto di ghiaia per non sporcare il nome sul monumento. Intanto vende i reperti del Neolitico alla Società.",
+      "come_appare": "Sempre di spalle o lontana, china sul ghiaccio con il passamontagna e una maschera da saldatore alzata; la sentiamo sul walkie-talkie e leggiamo i biglietti che lascia legati ai sacchi di ottone."
+    },
+    {
+      "nome": "Brigadiere Saverio Pinna",
+      "ruolo": "Guardia di Finanza della Casermetta di Sorèc, sardo, nostalgico del mare, onesto e stanco. Controlla chi passa e cerca di chiudere il fascicolo Fogliani, aperto dal 1956.",
+      "segreto": "Nel fascicolo c'è la denuncia del 1956 firmata da \"fonte confidenziale R.\"; sa che il suo predecessore, il maresciallo Deiana, quella notte sparò. Non sa chi sia R. e vuole saperlo prima di andare in pensione.",
+      "come_appare": "Una mantella grigioverde sul crinale con il binocolo; la sua voce sul canale della Finanza, che Marta può intercettare con la radio; i rapporti battuti a macchina con la lettera e che salta."
+    },
+    {
+      "nome": "Appuntato Reto Gisep",
+      "ruolo": "Guardia di confine svizzera al Posto 41, engadinese, parla un italiano lento. Ornitologo per passione: annota ogni volo dei gipeti appena reintrodotti e ogni volo dell'elicottero della Società.",
+      "segreto": "Da agosto lascia passare di notte un ragazzo albanese, Arben, fuggito dallo stadio di Bari dopo lo sbarco della Vlora; se lo scoprono perde il posto.",
+      "come_appare": "Uniforme, occhiali scuri, il cannocchiale da birdwatching sempre puntato; il suo quaderno di osservazioni, preciso al minuto, è uno degli strumenti d'indagine più utili del gioco."
+    },
+    {
+      "nome": "Ing. Fausto Corbellini",
+      "ruolo": "Direttore della Società Alti Ghiacci, che costruisce la funivia estiva Sentinella 3000 per lo sci d'estate. Antagonista: il suo piano avanza da solo, settimana dopo settimana.",
+      "segreto": "La concessione della funivia è italiana: se il confine si sposta allo spartiacque vero, la stazione a monte finisce in Svizzera e il progetto muore. Suo padre fece spostare i cippi 41A-41C nel 1970. Ha promesso il cacciatore neolitico a un collezionista di Zurigo per due miliardi di lire, che servono a salvare la Società.",
+      "come_appare": "Una voce al megafono e alla radio della Società; l'elicottero Lama rosso che porta il suo nome sulla fiancata; le dettature su microcassetta che Marta trova nel cantiere; una sagoma con il casco bianco sempre circondata da operai."
+    },
+    {
+      "nome": "Ruedi Jenny",
+      "ruolo": "Il collega di Marta, a casa con la gamba ingessata. Le dà consigli tecnici al telefono del Bar Alpino, con umorismo bernese.",
+      "segreto": "Nel 1990 ha accettato denaro dalla Società per firmare una linea provvisoria favorevole; ha mandato Marta convinto che avrebbe solo confermato i suoi dati.",
+      "come_appare": "Solo voce al telefono, con la televisione accesa dietro; le sue vecchie misure nel libretto, con una calligrafia che a un certo punto cambia."
+    },
+    {
+      "nome": "Arben",
+      "ruolo": "19 anni, di Durazzo, arrivato a Bari l'8 agosto 1991 sulla Vlora; vuole raggiungere lo zio a Lucerna attraverso il ghiacciaio, con le scarpe da ginnastica. È il presente che ripete il passato.",
+      "segreto": "Ha imparato l'italiano dalla televisione e crede che la Svizzera sia oltre la prima cresta. Ha visto un eco e lo crede un santo.",
+      "come_appare": "Una tuta Fila troppo grande nella nebbia, impronte di scarpe da tennis sulla neve, una voce che mescola albanese e frasi della pubblicità."
+    },
+    {
+      "nome": "I restituiti",
+      "ruolo": "I morti che il ghiaccio riconsegna: il cacciatore neolitico (3300 a.C. circa); l'alpino Giacomo Bertolatti (novembre 1916); Aldo Sacerdoti, profugo milanese (dicembre 1943); lo spallone Battista \"Tita\" Fogliani (febbraio 1956); la fotogrammetrista Lisa Moor e il pilota Elio Zanetti del Piper HB-OTZ (agosto 1968).",
+      "segreto": "Ognuno ha attraversato lo stesso confine, e quasi nessuno nella direzione in cui la valle crede.",
+      "come_appare": "Corpi coperti da teli, mai mostrati in volto; e soprattutto i loro echi, figure di brina immobili a metà gesto, con oggetti veri in mano (una piccozza, una bricolla, una macchina fotografica aerea)."
+    }
+  ],
+  "verita_nascosta": "1) Circa 5000 a.C., optimum climatico: a Mezzaluna non c'è ghiaccio. La Conca è un bosco di larici e cembri fino a 2.600 m; i cacciatori d'estate vi incidono una lastra con 41 coppelle che riproduce le cime intorno: la prima carta della valle. 2) Circa 3300 a.C.: il ghiaccio torna ad avanzare. Un cacciatore attraversa il passo in autunno con ascia di rame, arco, braci in un contenitore di corteccia e una borsa di semi di larice; nella tempesta si ferma e si volta verso valle con il fuoco alzato per guidare chi lo segue. Muore così, girato all'indietro. Il ghiaccio lo copre e copre il bosco. 3) 1916: Giacomo Bertolatti, alpino di Sorèc al fronte dell'Ortles, diserta e attraversa la Vedretta verso la Svizzera neutrale; a metà ghiacciaio legge nella lettera della moglie che le famiglie dei disertori perdono il sussidio e vengono svergognate; torna indietro verso l'Italia e cade in un crepaccio. Il paese lo dichiara caduto in combattimento e ne scolpisce il nome sul monumento. 4) Dicembre 1943: Tavio Rusca, 20 anni, guida la famiglia Sacerdoti alla Bocchetta. Le guardie svizzere accolgono la moglie Elena e i figli Bruno e Silvia, respingono il padre Aldo. Aldo ritenta da solo per i Seracchi e muore. Tavio vede tutto dalle rocce. 5) Febbraio 1956: Tavio, ora spallone, viene preso dalla Finanza con 40 kg di sigarette; il maresciallo Deiana gli offre un patto e lui firma come \"fonte R.\" la data del passaggio della colonna di Tita Fogliani, suo migliore amico. All'agguato Tita, invece di scappare verso l'Italia o la Svizzera, torna su verso il ghiaccio per attirare il fuoco e dare tempo agli altri sei della colonna di fuggire; Deiana spara un colpo, Tita cade in un crepaccio con la bricolla in cui c'è anche una culla di cembro intagliata per il figlio appena nato di Tavio. Il paese crede che Tita sia scappato con i soldi. 6) Agosto 1968: Lisa Moor, fotogrammetrista dell'Ufficio federale, sorvola la Vedretta con il pilota Elio Zanetti sul Piper HB-OTZ; vede una macchia scura in un crepaccio a quota 2.840, chiede di scendere, una corrente discendente li butta nella Conca. Elio muore subito; Lisa passa la notte viva. Tavio arriva all'alba, la tiene finché muore, e si porta via il rullino: avrebbe riaperto il caso Fogliani. Lo mura nella capanna. 7) 1970: la Società Alti Ghiacci di Corbellini padre ottiene la concessione italiana e, dopo una frana, fa ricollocare i cippi 41A-41C sessanta metri più a nord. Senza le foto di Lisa, nessuno se ne accorge: la bugia di Tavio ha reso possibile quella di Corbellini. 8) 1990: Ruedi Jenny accetta denaro per una linea provvisoria favorevole. 9) Marzo 1991: la polvere del Sahara scurisce la neve; l'estate è torrida. Lucia trova il cacciatore e lo dice a Corbellini figlio, che lo promette a un collezionista. 10) Luglio 1991: arriva Marta. Tavio sa che il ghiaccio restituirà Tita, Lisa e il rullino. Decide di aiutarla a trovare tutto. 11) Gli echi: nessuno sa davvero cosa siano. Il ghiaccio intrappola aria degli anni in cui si è formato; quando Marta la libera con il carotatore, l'aria porta con sé l'ultimo istante di qualcuno che stava morendo o scegliendo. La leggenda alpina delle anime che scontano la pena nei ghiacciai è la versione popolare della stessa cosa. Il gioco non lo spiega mai del tutto.",
+  "trama": {
+    "premessa": "1° luglio 1991. Marta sale alla Baracca del Genio con il teodolite e un incarico burocratico: verificare la linea provvisoria di confine misurata l'anno prima da Ruedi e firmare il verbale entro l'autunno. La prima notte il ghiaccio schiocca, la mattina la fronte è arretrata di sei metri e dalla parete di una bédière sporge uno scarpone chiodato del 1916. Marta lo carota per datare lo strato: l'aria che esce si condensa in una figura di brina, un alpino immobile a metà passo. Dura novanta secondi, poi si scioglie. Alla radio Tavio ride e dice che il ghiacciaio fa scherzi a chi dorme poco; poi, dopo un silenzio troppo lungo, le chiede in che direzione guardava l'alpino.",
+    "atto1": "Luglio. Il mandato (misurare il confine) e il mistero (chi sono gli echi) si intrecciano: ogni stazione trigonometrica che Marta piazza apre un pezzo di carta, e ogni pezzo di carta mostra qualcosa che il ghiaccio sta restituendo. Quattro piste parallele, affrontabili in qualsiasi ordine. PISTA DELL'ALPINO (Lingua e trincee): lo scarpone, la piastrina graffiata, il nome di Giacomo Bertolatti sul monumento di Sorèc, Lucia la Ferrina che lavora sempre nello stesso punto e non vuole testimoni. PISTA DELLO SPALLONE (Bocchetta): una cinghia di bricolla nel ghiaccio, il libro del passo con l'ultima firma B.F. 1956, il brigadiere Pinna che vuole chiudere il fascicolo Fogliani e intercetta Marta alla Casermetta. PISTA DEL PIPER (Conca): la coda del Piper HB-OTZ che affiora dal lago epiglaciale, il libretto di campagna di Lisa Moor, collega di Marta morta nel 1968, con l'ultima riga 'macchia scura, quota 2.840, forse un uomo'; la macchina fotografica aerea c'è, il rullino no. PISTA DEL CACCIATORE (Seracchi e cantiere): schegge di selce sulla morena, Lucia che vende 'roba antica' alla Società, l'elicottero di Corbellini che a sera porta via casse da sotto i Seracchi; le dettature dell'ingegnere parlano di 'un signore di Zurigo' e di 'due miliardi'. Ogni pista risolta dà un nome e apre una domanda che porta in un'altra zona. Intanto il piano della Società avanza: un pilone nuovo a settimana, i paletti fluorescenti che si spostano, la linea di Ruedi che non torna con le misure di Marta per sessanta metri.",
+    "svolta_centrale": "LA ROTTA, notte del 1° agosto 1991, settecentesimo della Confederazione: su ogni cima svizzera ardono i falò e scoppiano i fuochi d'artificio. Sotto copertura del rumore la Società fa brillare cariche nella Conca per tagliare il blocco di ghiaccio con il cacciatore. Lo sbarramento di ghiaccio del lago epiglaciale cede: in quaranta minuti due milioni di metri cubi d'acqua scendono per la Lingua. Il giocatore vive la Rotta in diretta (fuga dalla Baracca, poi soccorso a due casari dell'Alpe con Tavio che dirige alla radio). Il mondo cambia davvero: la Baracca del Genio è distrutta e Marta si trasferisce alla Capanna Sentinella, mentre Tavio, con le costole rotte, finisce all'ospedale di Sondalo e da lì le parla per radio; la Lingua si spacca in due e il ponte di neve principale sparisce; la Conca svuotata rivela un canyon di ghiaccio blu e grotte interne; lo spartiacque si sposta, l'acqua della Conca ora scorre verso nord e la Conca diventa di fatto svizzera, con le guardie che chiudono la Bocchetta, la Società che recinta il cantiere con guardiani e cani e la Finanza che blocca il lato italiano. Il blocco col cacciatore è sparito nelle grotte, trascinato dall'acqua: tutti ora lo cercano.",
+    "atto2": "Agosto. Il mondo è più aperto in verticale (grotte, canyon) e più chiuso in orizzontale (pattuglie di tre corpi diversi, ciascuno con i suoi orari). L'8 agosto la Vlora attracca a Bari e pochi giorni dopo Arben compare nella nebbia della Bocchetta: il confine non è più storia, è adesso. Nelle grotte gli echi sono più numerosi e più antichi: Marta ricostruisce il dicembre 1943 (la famiglia Sacerdoti divisa alla Bocchetta, Aldo respinto) e trova, misurando con il teodolite l'azimut di ogni passo, la prima grande verità: gli echi non fuggivano. Giacomo tornava verso l'Italia, Aldo ritentava, Tita risaliva verso il ghiaccio invece di scappare. Corbellini cambia strategia: manda a Berna la linea di Ruedi con una firma imitata di Marta e offre a Lucia di cancellare il nome di suo nonno dal monumento se non collabora. Pinna scopre che la fonte del 1956 si firmava 'R.' e sospetta di Ruedi, poi di Reto. Il quaderno di Reto, i rapporti di Pinna e i biglietti di Lucia diventano gli strumenti per anticipare la Società. L'atto si chiude quando Marta completa l'eco del febbraio 1956: sette figure di brina, sei spalloni in fuga e Tita voltato, più un'ottava sagoma vuota, un incavo nella brina sulle rocce sopra la scena, dove qualcuno stava guardando.",
+    "atto3": "Settembre. Le prime nevi in quota, giornate corte, il ghiaccio della Conca che si ritira oltre la soglia e apre il Bosco Vecchio. Tutte le piste convergono: la sagoma vuota del 1956 ha l'altezza, il cappello e il binocolo di Tavio; nella capanna dove Marta dorme da un mese c'è, murato dietro la stufa, il rullino del 1968. Sviluppato in camera oscura mostra Tita nel crepaccio e i cippi 41A-41C nella loro posizione originale, sessanta metri più a sud. Tavio torna su dalla valle per l'ultima settimana e confessa alla radio, una notte, senza che Marta glielo chieda. Intanto Corbellini prepara il colpo finale: il 18 settembre, nella finestra di bel tempo prima della perturbazione d'equinozio, l'elicottero porterà via il cacciatore ritrovato in fondo alle grotte. La missione finale è una sintesi: arrivare al cacciatore prima dell'elicottero con la propria build, ricostruire nel Bosco Vecchio l'ultimo eco (l'unico che si muove), capire che il cacciatore era voltato per guidare gli altri col fuoco, e poi, il 19 settembre all'alba, sulla vetta del Sentinella, tracciare e firmare la linea.",
+    "colpi_di_scena": [
+      "Gli echi non fuggivano. Per tutto l'Atto I il gioco ti fa leggere ogni morto come qualcuno che scappava verso la Svizzera; quando impari a misurare l'azimut dei passi negli echi scopri che l'alpino tornava indietro per la famiglia, il profugo ritentava dopo essere stato respinto, lo spallone risaliva per salvare la colonna. Il gioco intero si rilegge: la valle non è una via di fuga, è un luogo dove si torna.",
+      "La voce alla radio è il colpevole. Tavio, che ti guida da settanta ore e che ti ha salvato durante la Rotta, è la 'fonte R.' (Rusca) che vendette Tita, ed è lui che nel 1968 nascose il rullino. Rileggendo il diario si capisce che ogni consiglio di Tavio ti portava verso la sua colpa, mai lontano: voleva essere trovato.",
+      "La linea che dovevi solo confermare è comprata. Ruedi ha preso soldi, i cippi sono stati spostati nel 1970, e la prova che li smaschera esiste solo perché un uomo ha nascosto un rullino per coprire un'altra colpa: la bugia di Tavio ha reso possibile quella di Corbellini, e la sua confessione le distrugge entrambe.",
+      "Il 'qualcosa di più antico' non è un mostro né un dio: è il bosco. Sotto il ghiaccio c'è una foresta di 7.000 anni fa e una lastra con 41 coppelle che è la prima carta della valle. Il cacciatore non è stato ucciso (la punta di freccia è sua, spezzata nella faretra): si era voltato con il fuoco in mano per guidare chi veniva dopo. Il primo soccorritore della valle, settemila anni prima di Tavio.",
+      "Le due disgrazie sono una storia sola: il Piper è caduto perché Lisa Moor aveva visto Tita nel crepaccio e aveva chiesto di scendere."
+    ],
+    "finali": [
+      "LO SPARTIACQUE. Marta firma la linea vera, quella dell'acqua: la Conca passa alla Svizzera, la funivia muore, Corbellini va a processo per i cippi, il cacciatore va al museo, i morti vengono restituiti con il loro nome e la loro direzione. Se Marta rende pubblica la confessione, Tavio scende in paese e Sorèc gli volta le spalle; il nome di Tita viene inciso sotto quello di Giacomo. Finale onesto e duro.",
+      "LA LINEA VECCHIA. Marta firma la linea dei cippi spostati in cambio della consegna del cacciatore allo Stato e della verità sui morti, ma non sui vivi: la funivia si fa, la valle ha lavoro, il segreto di Tavio resta fra lei e la radio. L'epilogo mostra il pilone in vetta nel 2005 e il ghiacciaio ridotto a una macchia grigia: il compromesso regge, il ghiaccio no.",
+      "LA LINEA CHE SI MUOVE. Se Marta ha attribuito tutti e cinque i morti e misurato la deriva dello spartiacque in tutti e tre gli stati del ghiacciaio, può rifiutarsi di firmare una linea fissa e scrivere la proposta di un confine mobile che segue il ghiaccio, come Italia e Svizzera faranno davvero anni dopo. Nessuno vince la Conca; i morti appartengono alla valle intera. Variabili in tutti i finali: se Arben ha passato il confine, se Lucia ha tenuto il nome del nonno, se il nome di Tita torna pulito, se Ruedi viene denunciato."
+    ]
+  },
+  "come_si_gioca": {
+    "verbi": "Misurare (teodolite: stazioni, distanze, quote, azimut), carotare (liberare gli echi dal ghiaccio), fotografare e sviluppare (la pellicola in camera oscura mostra dettagli che l'occhio non vede), ascoltare e registrare (radio a più canali, cassette, telefono a gettoni), arrampicare e assicurarsi (corda, piccozza, ramponi, viti da ghiaccio), calarsi, planare (parapendio), nascondersi e attendere (pattuglie, nebbia, notte), attribuire (libretto di campagna: nome, data, direzione, destino).",
+    "loop_minuto": "Leggere il ghiaccio (strati di polvere scura = anni, colore blu = ghiaccio vecchio, neve rosa = 1991), scegliere un punto, piantare una vite e assicurarsi, calarsi nella bédière, carotare: l'aria esce con un sibilo e l'eco si forma in pochi secondi. Poi novanta secondi di tempo reale per girare intorno alla scena, fotografare, misurare l'azimut, registrare i quattro secondi di suono che l'eco contiene. Poi la risalita, spesso più difficile della discesa.",
+    "loop_sessione": "Sessioni da 30-40 minuti, cioè un giorno di gioco. All'alba Tavio legge alla radio il bollettino meteo svizzero; Marta sceglie una pista dal diario e una via in base al tempo e all'ora (i ponti di neve reggono solo fino alle 14). Sale, misura, trova un eco o un corpo, compila parzialmente il libretto. La sera torna alla base: sviluppa le foto, telefona a Ruedi o a un parente, ascolta la radio. Ogni attribuzione confermata (a gruppi di tre, come in Obra Dinn, per impedire di tirare a indovinare) dà una pagina del libretto, la valuta della build, e una domanda nuova legata a un luogo nuovo.",
+    "traversata": "Arrampicata a presa assistita su superfici leggibili: la roccia con licheni arancioni tiene, la roccia bagnata e nera no, il ghiaccio blu richiede i ramponi, la neve marcia di pomeriggio cede. Corda come sistema: ancoraggi su spit, viti da ghiaccio o piccozza piantata, calate nei crepacci e nei mulini, traversi tirolesi sui vecchi cavi della Grande Guerra riattivabili con una carrucola. Parapendio dalle creste esposte al vento: la direzione del vento si legge dal fumo dei comignoli dell'Alpe e dal volo dei gipeti; le termiche del pomeriggio danno quota, i temporali la tolgono. Il freddo non è una barra di sopravvivenza: si vede come brina ai bordi dell'immagine e mani che tremano, che rendono più lente le manovre di corda e meno precise le misure; si recupera al sole, in capanna, nei bivacchi. Niente fame, niente crafting.",
+    "sfida_e_combattimento": "Nessuna arma e nessun combattimento: l'avversario è la montagna, e gli uomini sono ostacoli da evitare. Pericoli sistemici: crepacci nascosti (si sondano con la piccozza), seracchi che crollano quando il sole li scalda (orario prevedibile), frane di morena, temporali in cui la piccozza comincia a ronzare prima del fulmine, white-out, acqua gelida dopo la Rotta. Pattuglie della Finanza, delle guardie svizzere e dei guardiani della Società con i cani: se ti prendono non muori, ti riaccompagnano a valle, ti sequestrano un oggetto o un rullino e perdi il giorno. Cadere in un crepaccio avvia un autosoccorso giocato o, se fallisce, un soccorso di Tavio via radio che costa giorni e fiducia. Il fallimento è contenuto: un eco sciolto prima di averlo misurato è perso, ma lascia tracce indirette (un oggetto, una macchia sulla foto) che aprono un'altra via di indagine.",
+    "navigazione_e_diario": "Nessuna minimappa e nessuna icona. La carta 1:25.000 è quella che Marta disegna: ogni stazione trigonometrica che piazza (ovunque, purché veda almeno due punti già noti) traccia le curve di livello della zona misurata, con errori visibili se la misura è fatta male. Non è una torre che rivela la mappa: è un mestiere, rivela solo quello che misuri. Le indicazioni nel diario sono scritte come le darebbe un alpinista: quota più azimut da un landmark ('2.840, sotto il Dente, dove la morena fa una S'). Strumenti: bussola, altimetro, binocolo. Il diario è la voce di Marta sulle cassette: ogni pista è una domanda ('Chi ha firmato B.F. nel libro del passo?'), con indizi collegati a fili come su una lavagna. Il segnalino di posizione esiste come opzione di accessibilità, spento di default."
+  },
+  "build": {
+    "sistema": "Le pagine del libretto di campagna: ogni attribuzione confermata ne dà una, circa 22 in tutto il gioco, contro 34 abilità disponibili, quindi a fine partita si ha circa il 60% dell'albero. Le abilità si imparano da persone del mondo (Lucia, Tavio, Reto, Pinna, Arben, Ruedi al telefono) e aggiungono opzioni, mai numeri: nessuna abilità aumenta danni o resistenza. A ogni uscita si sceglie anche cosa mettere nel sacco (15 kg), ma l'equipaggiamento si cambia liberamente in base: la build vera sono le abilità. Nessun level scaling, nessun materiale bloccato per regione.",
+    "rami": [
+      {
+        "nome": "Cordata",
+        "filosofia": "La montagna si attraversa dritta: il terreno impossibile è solo terreno non ancora salito. Insegnato da Lucia e da Tavio.",
+        "abilita": [
+          "Doppia piccozza: salire ghiaccio verticale e seracchi",
+          "Autosoccorso dal crepaccio: risalire senza chiamare nessuno",
+          "Calata nel mulino: scendere nei pozzi glaciali dove stanno gli echi più profondi",
+          "Tirolese di guerra: riattivare e percorrere i cavi della Grande Guerra",
+          "Bivacco in parete: fermarsi la notte in quota e ripartire all'alba",
+          "Parapendio di Tavio: la vela del 1985, planata lunga dalle creste",
+          "Lettura delle cornici: camminare sulle creste di neve sapendo dove reggono",
+          "Sondaggio rapido: trovare i crepacci nascosti senza fermarsi"
+        ]
+      },
+      {
+        "nome": "Contrabbando",
+        "filosofia": "La montagna è fatta di persone: sentieri, favori, orari, silenzi. Insegnato dagli spalloni vecchi, da Reto e da Arben.",
+        "abilita": [
+          "Segni dei passatori: vedere i segni incisi sulle rocce che indicano le vie segrete",
+          "Passo di notte: muoversi al buio senza frontale, guidati dalla luna e dal suono del torrente",
+          "Orari delle pattuglie: memorizzare i giri e vederli segnati sulla carta",
+          "Brina, la cagna da valanga: trova corpi ed echi sotto la neve",
+          "La rete dell'Alpe: i casari ti nascondono, ti danno passaggi, ti raccontano voci",
+          "Bricolla: portare 25 kg senza rallentare (più strumenti, più rullini)",
+          "Lasciapassare: documenti che aprono un cancello a scelta (Finanza o Società)",
+          "Nebbia amica: nella nebbia le pattuglie non ti vedono oltre 15 metri"
+        ]
+      },
+      {
+        "nome": "Strumento",
+        "filosofia": "Capire prima di muoversi: con la misura giusta non serve salire dove gli altri salgono. È il mestiere di Marta, insegnato da Ruedi e dai libretti di Lisa Moor.",
+        "abilita": [
+          "Triangolazione rapida: piazzare stazioni in metà tempo, misurare da lontano dove sarà un eco",
+          "Carotaggio profondo: raggiungere ghiaccio più vecchio, echi più antichi e più lunghi",
+          "Carotaggio obliquo: liberare l'aria di un eco da un punto diverso, facendolo apparire fuori da un recinto",
+          "Doppia esposizione: in camera oscura sovrapporre due foto e vedere ciò che manca in un eco",
+          "Radio a scansione: intercettare i canali di Finanza, guardie e Società",
+          "Lettura del ghiaccio: prevedere l'ora del crollo di un seracco e la tenuta di un ponte",
+          "Registratore binaurale: sentire un eco attraverso il ghiaccio prima di trovarlo",
+          "Archivio: telefonare a Berna per ottenere carte e foto storiche di un luogo"
+        ]
+      }
+    ],
+    "scelte_esclusive": "Quattro bivi, come le capsule di Deus Ex, in cui si prende una cosa e si perde l'altra per sempre. 1) Ramponi a 12 punte (ghiaccio verticale) oppure ciaspole e ramponi leggeri (neve marcia, ponti di neve, velocità). 2) Parapendio di Tavio oppure carrucola dei recuperanti (planata libera ma dipendente dal vento, oppure tirolesi ovunque ci sia un cavo). 3) Radio a scansione oppure registratore binaurale (sentire gli uomini oppure sentire il ghiaccio). 4) Il patto di metà gioco: lasciapassare della Società, permesso della Finanza o fiducia degli spalloni; ognuno apre un'area e una fonte e ne chiude un'altra (chi ha il lasciapassare della Società non riceve più i biglietti di Lucia).",
+    "costo_nel_mondo": "Il carotaggio profondo scioglie il ghiaccio intorno: ogni carota profonda lascia un pozzo che diventa un mulino, apre una via ma può far crollare un ponte di neve e cancellare echi vicini non ancora trovati; e ogni eco si libera una volta sola. L'esplosivo di Lucia (vecchia gelatina della Grande Guerra) apre passaggi ma provoca crolli, fa arrivare le pattuglie e fa dire in paese che Marta lavora per la Società. Brina trova tutto ma abbaia. Trasmettere sui canali intercettati permette di depistare, ma la Finanza triangola il segnale e ti trova. Rispecializzazione limitata: una volta per atto si può disimparare un'abilità lasciando il suo oggetto come ex voto nella chiesa di San Bernardo, dove resta visibile per sempre; la pagina torna disponibile.",
+    "tre_build_esempio": [
+      "LA GUIDA (Cordata pura: doppia piccozza, parapendio, calata nel mulino, autosoccorso). Situazione: dopo la Rotta l'eco del Piper è sotto le fondazioni della stazione a monte, nel cantiere recintato e sorvegliato. La Guida sale all'alba dai Seracchi, attraversa la cresta sopra il cantiere, si cala in corda doppia nel canyon di ghiaccio dietro la recinzione e risale la parete blu fino alla bolla dell'eco. Fuori dal recinto in planata, prima che arrivi il caldo.",
+      "LA PASSATRICE (Contrabbando: segni dei passatori, Brina, orari delle pattuglie, fiducia degli spalloni). Stessa situazione: entra di notte dalla vecchia via degli spalloni che passa sotto la Bocchetta, con la nebbia e con gli orari dei guardiani copiati dal quaderno di Reto; Brina trova sotto la neve l'ingresso di una grotta che porta sotto le fondazioni. Se il cane abbaia, i casari dell'Alpe fanno partire una mandria come diversivo.",
+      "LA GEOMETRA (Strumento: triangolazione rapida, carotaggio obliquo, radio a scansione, lettura del ghiaccio). Stessa situazione: non entra affatto. Ascolta alla radio quando l'elicottero decolla e i guardiani scendono a cena, triangola la posizione dell'eco da due altri echi già misurati, poi pianta il carotatore fuori dalla recinzione con un'inclinazione di 30 gradi: la bolla d'aria esce in un crepaccio pubblico e l'eco si forma lì, fuori dal cantiere, dove nessuno la guarda."
+    ]
+  },
+  "missioni_principali": [
+    {
+      "nome": "1. Sei metri",
+      "tipo": "Tutorial di misura e primo eco (Baracca del Genio, Lingua)",
+      "descrizione": "Marta monta il teodolite, piazza la prima stazione sul cippo 41B e misura la fronte: sei metri in una notte. Seguendo un torrente sul ghiaccio trova lo scarpone chiodato, si assicura con la prima vite, si cala nella bédière e carota lo strato per datarlo. Nasce il primo eco: un alpino di brina a metà passo. Novanta secondi per girargli intorno e fotografarlo. Insegna arrampicata, corda, carotaggio, libretto. Svolta: alla radio Tavio chiede in che direzione guardava, e la bussola dice sud, verso l'Italia, non verso la Svizzera. Domanda nuova: chi era, e perché in paese c'è un monumento con un nome del suo reggimento?"
+    },
+    {
+      "nome": "2. Il nome sul monumento",
+      "tipo": "Indagine in paese e pedinamento a distanza (Sorèc, trincee della Lingua)",
+      "descrizione": "Pista dell'alpino. In paese Marta confronta il numero di matricola sullo scarpone con il registro dei caduti in sacrestia e con il monumento: Giacomo Bertolatti, 'caduto sul Gran Zebrù'. Ma il Gran Zebrù è a quaranta chilometri. Lucia la Ferrina, sua nipote, nega tutto; Marta la segue a distanza col binocolo fino a un punto della morena dove la ghiaia è stata smossa a mano. Sotto c'è il corpo, ricoperto da qualcuno. Svolta: Lucia la sorprende e, invece di minacciarla, le chiede di aspettare prima di dirlo in paese. In cambio le insegna la corda dei recuperanti e le rivela che 'roba molto più vecchia' viene venduta alla Società."
+    },
+    {
+      "nome": "3. B.F. 1956",
+      "tipo": "Infiltrazione notturna fra due pattuglie (Bocchetta dei Passatori)",
+      "descrizione": "Pista dello spallone. Il libro del passo è nel bivacco della Bocchetta, ma di giorno le guardie svizzere e la Finanza ci passano a turno. Marta ci va di notte, studiando dalle rocce gli orari delle due pattuglie e usando la nebbia che sale alle 22. Nel libro l'ultima firma prima di un lungo vuoto è 'B.F., 14 febbraio 1956, 6+1'. Poco sotto, nel ghiaccio, una cinghia di bricolla. Al ritorno il brigadiere Pinna la ferma con la torcia e invece di multarla le racconta il caso Fogliani: lo spallone sparito con i soldi della colonna. Svolta: nel libro la pagina successiva è stata strappata con cura, e il '+1' vuol dire che quella notte la colonna aveva un uomo in più che non ha firmato."
+    },
+    {
+      "nome": "4. Quota 2.840",
+      "tipo": "Recupero in acqua gelida e lettura di documenti (Conca di Mezzaluna, lago epiglaciale)",
+      "descrizione": "Pista del Piper. La coda dell'HB-OTZ affiora dal lago turchese sopra la Conca. Il ghiaccio sottile non regge: Marta deve nuotare per pochi secondi alla volta, fra un lastrone e l'altro, per raggiungere la carlinga ed estrarre la cassetta di Lisa Moor. Dentro, il libretto di campagna con l'ultima riga 'macchia scura, quota 2.840, forse un uomo' e la macchina fotografica aerea Wild RC8. Ruedi al telefono le racconta la leggenda di Lisa in ufficio. Svolta: la macchina è intatta ma il magazzino del rullino non c'è, e i suoi ganci sono stati aperti a mano, non rotti dall'urto. Qualcuno è arrivato al Piper prima dei soccorsi ufficiali."
+    },
+    {
+      "nome": "5. Il signore di Zurigo",
+      "tipo": "Sorveglianza col binocolo e scalata a tempo sotto i seracchi (Seracchi del Sentinella, cantiere)",
+      "descrizione": "Pista del cacciatore. Dal crinale Marta osserva per un giorno intero l'elicottero di Corbellini e annota i suoi voli; nella baracca del cantiere trova una microcassetta con le dettature dell'ingegnere ('il signore di Zurigo paga alla consegna, due miliardi'). Poi deve raggiungere il punto sotto i seracchi dove gli operai hanno segnato il ghiaccio con la vernice, tra le 7 e le 10 del mattino, prima che il sole faccia crollare i blocchi. Vie: la Cordata sale la seraccata, la Passatrice segue i segni degli operai di notte, la Geometra calcola con la lettura del ghiaccio quali seracchi resteranno in piedi. Svolta: nel ghiaccio c'è una mano con un contenitore di corteccia di betulla, e la Società ha già piazzato le cariche."
+    },
+    {
+      "nome": "6. La notte dei fuochi",
+      "tipo": "Fuga e soccorso in tempo reale (dalla Conca all'Alpe, notte del 1° agosto)",
+      "descrizione": "Su ogni cima svizzera ardono i falò del settecentesimo. Marta sente le cariche sotto i fuochi d'artificio e capisce prima di tutti: il lago sta per rompersi. Deve correre giù per la Lingua mentre l'acqua apre il ghiaccio dietro di lei, poi, alla radio con Tavio che dirige dalla capanna, avvertire due casari dell'Alpe e portarli fuori dal greto prima dell'onda. Vie: per cresta in planata, per la vecchia via degli spalloni, oppure calcolando dalla carta il punto dove l'onda si allargherà. Svolta: la Baracca del Genio è distrutta, Tavio si rompe le costole scendendo ad aiutare e viene portato a valle. All'alba la Conca è vuota, lo spartiacque si è spostato e il cacciatore è sparito nelle grotte."
+    },
+    {
+      "nome": "7. Ospite in capanna",
+      "tipo": "Cartografia del mondo nuovo (Capanna Sentinella, Lingua spaccata, Conca svuotata)",
+      "descrizione": "Tutte le stazioni di Marta sono state spazzate via o spostate. Dalla Capanna Sentinella, con Tavio che le parla dall'ospedale di Sondalo, deve ritriangolare la valle cambiata: tre punti nuovi da scegliere liberamente fra creste e rocce. Mentre la carta si ridisegna appaiono il canyon di ghiaccio, le grotte e i recinti della Società, mentre le guardie svizzere salgono a presidiare la Conca. Svolta: confrontando le sue misure con i cippi, Marta trova che il 41A, il 41B e il 41C sono sessanta metri troppo a nord rispetto a ogni carta precedente al 1970. Qualcuno ha spostato il confine molto prima di lei."
+    },
+    {
+      "nome": "8. Dicembre 1943",
+      "tipo": "Ricostruzione di un tableau multiplo e telefonate (grotte della Conca, Bar Alpino)",
+      "descrizione": "Nelle grotte appena aperte il carotaggio libera l'eco più grande trovato finora: sei figure su un ponte di ghiaccio, una guida giovane, una donna con due bambini, un uomo, due guardie con le mantelle. Come in Obra Dinn, Marta deve attribuire nomi e destini a gruppi di tre, usando le foto, il registro dei profughi della Val Sorna e una telefonata a Bruno Sacerdoti, oggi a Lugano, che era il bambino. Svolta: misurando l'azimut di ogni figura Marta scopre che il padre, Aldo, non fuggiva: era stato respinto e stava tornando indietro. Riguardando i vecchi echi con lo stesso metodo capisce che anche l'alpino tornava. Il gioco intero cambia lettura. La guida giovane ha un cappello che Marta ha già visto: lo porta una sagoma sul crinale opposto."
+    },
+    {
+      "nome": "9. Le scarpe da tennis",
+      "tipo": "Guida via radio, ruoli rovesciati (Bocchetta, notte di nebbia)",
+      "descrizione": "Reto chiama Marta di nascosto: un ragazzo albanese, Arben, è bloccato sulla Bocchetta con le scarpe da ginnastica, e lui non può muoversi senza farsi scoprire. Questa volta la voce alla radio è Marta: dalla capanna, con la carta che ha disegnato e il binocolo, deve guidare Arben passo dopo passo con indicazioni rispetto ai landmark ('vedi il Dente? tienilo a sinistra'), evitando i crepacci che conosce e le pattuglie della Società. Svolta: arrivato al sicuro, Arben racconta di aver visto nelle grotte 'un santo nel ghiaccio con il fuoco in mano'. È il cacciatore, e Arben sa dove."
+    },
+    {
+      "nome": "10. Fonte R.",
+      "tipo": "Deduzione documentale incrociata (Casermetta, Posto 41, telefono, cantiere)",
+      "descrizione": "Pinna mostra a Marta il fascicolo Fogliani: la denuncia del 1956 è firmata 'fonte confidenziale R.'. Intanto Berna telefona per ringraziarla della linea inviata, che lei non ha mai inviato. Marta incrocia quattro archivi: i rapporti di Pinna, il quaderno di Reto con gli orari dell'elicottero, le microcassette di Corbellini e le vecchie misure di Ruedi con la calligrafia che cambia. Svolta doppia: la sua firma è stata imitata dalla Società e Ruedi ha preso soldi per la linea del 1990. Ma 'R.' non può essere Ruedi, che nel 1956 aveva un anno, né Reto. Resta un'altra R. nella valle, e Marta preferisce non pensarci."
+    },
+    {
+      "nome": "11. Sette e una",
+      "tipo": "Discesa verticale in un mulino glaciale e scelta della carota (Lingua, quota 2.840)",
+      "descrizione": "La quota del libretto di Lisa porta a un mulino glaciale profondo trenta metri. Marta deve calarsi nel buio con l'acqua che scorre, scegliere fra quattro strati quello del febbraio 1956 (sbagliare significa liberare l'eco sbagliato e perdere per sempre quello giusto) e carotarlo. Vie: Cordata con la calata nel mulino, Passatrice con Brina che fiuta lo strato giusto dall'alto, Geometra con il registratore binaurale o il carotaggio obliquo da una galleria laterale. L'eco è il più bello del gioco: sei spalloni che fuggono, Tita voltato verso l'alto con le braccia aperte per attirare il colpo, il lampo dello sparo congelato. Svolta: sopra la scena, sulle rocce, c'è un'ottava forma, un vuoto nella brina dove qualcuno stava a guardare, con un cappello e un binocolo."
+    },
+    {
+      "nome": "12. Dietro la stufa",
+      "tipo": "Ricerca ambientale, camera oscura e confessione alla radio (Capanna Sentinella)",
+      "descrizione": "Tavio torna in capanna per l'ultima settimana e Marta lo vede per la prima volta da vicino, ma sempre di spalle, davanti alla stufa, con la radio accesa. Lui va a dormire al bivacco e la lascia sola. Marta cerca nella capanna: un mattone smosso dietro la stufa, il magazzino del rullino di Lisa avvolto in carta oleata. Lo sviluppa in camera oscura con la doppia esposizione o con il metodo che ha: Tita nel crepaccio nel 1968, e i cippi 41A-41C nella loro posizione originale. Svolta: quella notte, alla radio, senza che Marta chieda niente, Tavio parla. Racconta il 1943, il patto con Deiana nel 1956, Lisa morta all'alba fra le sue braccia, il rullino. Poi dice: adesso sai dove passa la linea, decidi tu."
+    },
+    {
+      "nome": "13. La finestra del 18",
+      "tipo": "Corsa contro il piano dell'antagonista (grotte profonde, cantiere, cielo)",
+      "descrizione": "La perturbazione d'equinozio arriva il 19; il 18 c'è una sola finestra di bel tempo e Corbellini la usa per estrarre il cacciatore con l'elicottero. Marta ha una mattina per arrivare prima. Ogni build ha la sua via: la Guida scende in corda nel pozzo dove il blocco è incastrato e lo assicura alla roccia, la Passatrice convince gli spalloni vecchi e i casari a bloccare la pista del cantiere con le mandrie, la Geometra trasmette sul canale della Società un falso bollettino di vento a 80 nodi che tiene a terra il Lama. Gli alleati che si è guadagnata contano: Lucia, Pinna, Reto possono intervenire o no in base a quello che Marta ha fatto per loro. Svolta: liberato il blocco, il ghiaccio dietro di esso cede e apre un passaggio verso il basso, nel fango, dove la luce cambia colore. Profuma di resina."
+    },
+    {
+      "nome": "14. La prima carta",
+      "tipo": "Esplorazione silenziosa, ultimo eco e sintesi cartografica (Bosco Vecchio, vetta del Sentinella)",
+      "descrizione": "Il Bosco Vecchio: centinaia di ceppi di larice di 7.000 anni fa, niente radio, niente confini. L'ultimo eco è l'unico che si muove: il cacciatore si volta verso valle e alza il fuoco per chi viene dietro, mentre il vento muove i larici che non esistono più. La lastra con 41 coppelle, letta con il teodolite, riproduce le cime intorno: è la prima carta della valle. Poi l'ultima salita, la notte fra il 18 e il 19 settembre, fino alla vetta del Sentinella, dove Marta piazza l'ultima stazione e traccia la linea usando tutto ciò che sa: lo spartiacque misurato, i cippi spostati, i morti con i loro nomi e la loro direzione. La firma sul verbale decide il finale. All'alba la radio di Tavio gracchia la notizia di un uomo trovato nel ghiaccio, molto lontano da lì."
+    }
+  ],
+  "missioni_secondarie": [
+    {
+      "nome": "Il ghiaccio cammina",
+      "tipo": "Osservazione e misura ripetuta nel tempo",
+      "descrizione": "I paletti fluorescenti della Società si spostano di notte, sempre verso valle. Pinna sospetta sabotaggi, Corbellini accusa gli spalloni, Lucia ride. Marta li misura ogni settimana con il teodolite e raccoglie i dati in una tabella.",
+      "svolta": "Nessuno li tocca: è il ghiacciaio che scorre, trenta centimetri al giorno. Risoluzione: con la velocità misurata Marta calcola dove usciranno dal ghiaccio gli oggetti che vede in profondità, e il diario si riempie di appuntamenti futuri con il ghiaccio, uno dei quali porta a un eco opzionale."
+    },
+    {
+      "nome": "La processione al contrario",
+      "tipo": "Rito notturno e accompagnamento",
+      "descrizione": "Una luce si muove ogni notte sulla morena e i casari parlano del 'diavolo della Bregàna'. Marta la segue: è don Ermes, il parroco di 82 anni, che da solo con una lanterna rinnova il voto che il paese fece nel 1678 per fermare l'avanzata del ghiacciaio.",
+      "svolta": "Don Ermes non prega più perché il ghiaccio si fermi: prega perché torni. Ha capito che sta morendo. Risoluzione: Marta può accompagnarlo per tutta la processione con le lanterne, e il percorso antico del voto passa esattamente sopra tre echi che non si trovano in altro modo."
+    },
+    {
+      "nome": "Le lastre del 1911",
+      "tipo": "Rifotografia comparata",
+      "descrizione": "Nell'archivio del Politecnico ci sono sei lastre fotografiche della Vedretta scattate nel 1911 dal fotografo Augusto Pedrazzini. Marta deve ritrovare i punti esatti da cui furono scattate, usando il profilo delle montagne, e rifotografarle: una tecnica vera dei glaciologi.",
+      "svolta": "Nella quinta lastra, sul ghiaccio, c'è un ometto di pietre che oggi non esiste più. Nella rifotografia del 1991 nello stesso punto c'è una macchia scura nel ghiaccio. Risoluzione: è un deposito di spalloni dell'Ottocento, con dentro un libro del passo più antico, che collega la storia della valle ai contrabbandieri del secolo prima."
+    },
+    {
+      "nome": "La gara delle bricolle",
+      "tipo": "Gara di traversata a tempo",
+      "descrizione": "A Ferragosto Sorèc organizza la gara degli spalloni: si sale con una bricolla di 20 kg sulla vecchia via fino all'Alpe. Marta può partecipare con la sua build (la Cordata taglia per le rocce, la Passatrice conosce le scorciatoie, la Geometra calcola la linea più breve sulla carta).",
+      "svolta": "All'arrivo gli spalloni vecchi brindano e uno di loro, Giuàn, 81 anni, era nella colonna del 1956. Racconta che Tita non scappò: tornò su per loro. Risoluzione: la versione del paese su Tita comincia a cambiare, e Giuàn diventa un alleato per la missione finale."
+    },
+    {
+      "nome": "Il tedesco della parete nord",
+      "tipo": "Soccorso via radio e corda",
+      "descrizione": "Un alpinista tedesco è bloccato sulla parete nord del Sentinella con un temporale in arrivo. Tavio coordina dalla capanna, Marta deve raggiungerlo e calarlo per tre tiri di corda.",
+      "svolta": "Non è un turista: è un giornalista di una rivista di Amburgo, avvisato da una fuga di notizie sul 'signore di Zurigo', e nello zaino ha foto del cacciatore scattate dal cantiere. Risoluzione: Marta può dargli la storia, tenerla per sé o usarla come arma contro Corbellini; nel finale la stampa reagisce di conseguenza."
+    },
+    {
+      "nome": "L'ossario del gipeto",
+      "tipo": "Appostamento naturalistico",
+      "descrizione": "Reto vuole trovare il nido di uno dei gipeti appena liberati nel Parco Nazionale, che sorvola la valle. Marta deve seguirne il volo con il binocolo per giorni e capire, dalle ore e dai venti, dove rompe le ossa lasciandole cadere sulle rocce.",
+      "svolta": "Sulla cengia dove il gipeto rompe le ossa ce n'è una umana, con un orologio d'aviatore. È di Elio Zanetti, il pilota del Piper, mai ritrovato. Risoluzione: Marta lo restituisce alla sorella di Elio, a Locarno, che da ventitré anni lascia accesa la luce del portico."
+    },
+    {
+      "nome": "La teleferica del Genio",
+      "tipo": "Riparazione di una macchina come puzzle di sistema",
+      "descrizione": "Lucia vuole calare a valle mezza tonnellata di ottone con la vecchia teleferica militare del 1916. Marta deve rimettere in tensione i cavi, liberare le pulegge dal ghiaccio e bilanciare i contrappesi sulle tre stazioni.",
+      "svolta": "Nella stazione a monte, in una cassetta di munizioni, ci sono le lettere mai partite di un reparto del 1916, fra cui una della moglie di Giacomo: 'se scappi ci tolgono tutto'. È il motivo per cui l'alpino tornò. Risoluzione: Marta sceglie se darla a Lucia o al museo; Lucia, se la riceve, smette di nascondere il corpo del nonno."
+    },
+    {
+      "nome": "L'orologio di Lisa",
+      "tipo": "Corrispondenza e confronto di documenti",
+      "descrizione": "Margrit Moor, sorella di Lisa, scrive all'ufficio di Marta: vorrebbe l'orologio della sorella, che non le fu mai restituito. Marta lo trova nel Piper e confronta il rapporto ufficiale del 1968 con le lettere di Margrit e con le foto dell'incidente.",
+      "svolta": "L'orologio si è fermato alle 5.40 del mattino, sei ore dopo l'incidente: Lisa non morì nell'impatto come dice il rapporto. Qualcuno era con lei all'alba. Risoluzione: Marta può dirlo a Margrit subito o aspettare di sapere chi; la risposta arriverà nella missione 12."
+    },
+    {
+      "nome": "La culla di cembro",
+      "tipo": "Indagine artigianale oltre confine",
+      "descrizione": "Nella bricolla di Tita, emersa dal ghiaccio dopo la Rotta, c'è una piccola culla di cembro intagliata con il marchio di un falegname. Marta attraversa la Bocchetta fino alla Val Sorna per trovare la bottega, ancora aperta.",
+      "svolta": "Il falegname, oggi novantenne, ricorda l'ordine: Tita la fece fare per il figlio appena nato del suo socio, 'il piccolo di Rusca'. Se la missione si fa prima della 11 l'informazione resta un nome fra tanti; dopo, pesa come un macigno. Risoluzione: Marta decide se portare la culla a Tavio, al figlio di Tavio a Chiavenna, o lasciarla sulla tomba vuota di Tita."
+    },
+    {
+      "nome": "La radio dei casari",
+      "tipo": "Ascolto e decifrazione di un codice",
+      "descrizione": "Con la radio a scansione o il telefono del bar, Marta capta i casari dell'Alpe che si parlano usando nomi di mucche ('la Bionda è scesa', 'la Stella ha il vitello') come facevano gli spalloni negli anni Cinquanta per avvisarsi delle pattuglie.",
+      "svolta": "Il codice è lo stesso del 1956, ma nel 1991 non passano sigarette: passano i reperti neolitici che Lucia scava e la Società porta in Svizzera. Risoluzione: Marta sceglie se avvisare Pinna, avvisare Lucia o usare il codice per far arrivare un messaggio falso alla Società; ognuna delle tre scelte cambia chi la aiuterà nella missione 13."
+    }
+  ],
+  "segreti": [
+    {
+      "livello": 1,
+      "descrizione": "La sentinella sul Dente: dalla prima mattina, all'alba, da ogni punto della valle si vede in cima al Dente una figura immobile che sembra una sentinella. Irraggiungibile fino all'ultimo atto (serve la doppia piccozza, oppure un atterraggio in parapendio su una cengia larga tre metri con il vento da sud, oppure i segni dei passatori su una via dimenticata). È un eco del 1890: il topografo federale che piazzò la prima stazione trigonometrica sul Sentinella, con il suo segnale di legno. Il primo collega di Marta."
+    },
+    {
+      "livello": 1,
+      "descrizione": "La luce sulla parete nord: alcune notti si vede un lumino a metà della parete nord, dove non può esserci nessuno. È il bivacco fisso del 1932, sepolto e riemerso; dentro c'è il libro di vetta con firme dal 1890 al 1975, compresa quella di Lisa Moor nel 1966 ('torno a fotografarti dall'alto')."
+    },
+    {
+      "livello": 2,
+      "descrizione": "La foto del Bar Alpino: sopra il juke-box, visibile dalla prima ora, c'è una foto di gruppo degli spalloni del 1955. Sono sette; un volto è stato grattato via con un'unghia. Non vuol dire niente fino alla missione 11; dopo, chi torna a guardarla nota che l'uomo grattato tiene in mano un binocolo."
+    },
+    {
+      "livello": 2,
+      "descrizione": "Il retro del cippo 41B: la prima stazione del gioco è piazzata su un cippo che, sul retro, ha inciso una piccola croce e le lettere T.F. Era il segno con cui Tita indicava agli altri spalloni il passaggio sicuro. Il giocatore ci passa accanto nel tutorial."
+    },
+    {
+      "livello": 2,
+      "descrizione": "La lampada delle 21: ogni sera la lampada della Capanna Sentinella si accende alle 21 in punto, ma non è fissa: lampeggia per pochi secondi prima di stabilizzarsi. Sembra un difetto del generatore."
+    },
+    {
+      "livello": 3,
+      "descrizione": "La ghiacciaia di Sorèc: sotto il Bar Alpino c'è la vecchia ghiacciaia del paese, con blocchi di ghiaccio tagliati dalla Vedretta negli anni Venti e mai usati. Nessuno ti dice che il carotatore funziona anche lì. Se lo provi, nasce un eco senza morti: la festa di nozze del 1925 della vedova di Giacomo, con il paese intero che balla, l'unico tableau di gioia del gioco."
+    },
+    {
+      "livello": 3,
+      "descrizione": "Brina nel Bosco Vecchio: se la Passatrice porta la cagna nel Bosco Vecchio, Brina si siede e non si muove davanti a un ceppo. Carotando lì si trova l'eco di un cane neolitico accucciato ai piedi del cacciatore: non era solo. Chi non ha Brina può arrivarci con il registratore binaurale, sentendo un guaito di settemila anni fa."
+    },
+    {
+      "livello": 3,
+      "descrizione": "L'eco portato altrove: con il carotaggio obliquo si può far uscire l'aria di un eco in un punto diverso. Se Marta libera l'eco di Lisa Moor dentro la cabina del Piper invece che sul ghiaccio, Lisa appare seduta al suo posto con la macchina fotografica puntata verso il crepaccio di Tita: l'unica conferma visiva di cosa stava guardando quando caddero."
+    },
+    {
+      "livello": 4,
+      "descrizione": "Il messaggio di Tavio: il lampeggio delle 21 è codice Morse, e cambia ogni sera. Dalla terrazza del Bar Alpino, annotando le sere da luglio a settembre, si ricompone una lettera di Tavio a Tita, cominciata nel 1956 e mai finita, in 42 frasi; una sera mancata è una frase persa, quindi la lettera intera si ottiene solo confrontando partite diverse, in community. L'ultima frase indica dove Tavio ha nascosto la piastrina di Tita."
+    },
+    {
+      "livello": 4,
+      "descrizione": "Le 41 coppelle: la lastra del Bosco Vecchio riproduce le cime intorno, ma tre coppelle non corrispondono a nessuna vetta. Sovrapponendo la lastra alla carta disegnata dal giocatore (in gioco con la carta da lucido, oppure fuori dal gioco con i propri appunti) le tre coppelle diventano tre punti di stazione: chi ci piazza il teodolite e misura gli angoli fra loro ottiene una quota e un azimut che portano al luogo del finale segreto."
+    }
+  ],
+  "finale_segreto": "LA VALLE VERDE. Si sblocca attribuendo tutti gli echi, anche quelli opzionali, e risolvendo le 41 coppelle. Il 19 settembre all'alba, invece di salire in vetta a firmare, Marta va nel punto indicato dalle coppelle, nel fondo della Conca, e carota il ghiaccio di fondo, il più vecchio della valle. Non nasce un eco di morte o di scelta: per tre minuti la valle intera diventa una mattina d'estate di settemila anni fa, verde, con il lago e i larici, fumo di un fuoco, bambini che pescano; è l'unico tableau che si muove con il suono pieno, e il giocatore può camminarci dentro fino a che l'aria finisce. Poi tutto torna grigio. Alla radio Tavio, che ha ascoltato la descrizione, dice soltanto: 'Allora il ghiaccio era un ospite.' Marta firma una linea che passa sulle tre coppelle mancanti, che nessuno capirà. L'epilogo salta al settembre 2091: il ghiaccio non c'è più, sulla morena crescono i primi larici giovani, e sulla lastra delle coppelle qualcuno ha fissato una targa con i nomi dei restituiti, compreso quello di Ottavio Rusca, 'che li aspettava'. Ultima inquadratura: alla radio di un escursionista, la notizia che sul Similaun hanno trovato un uomo, il 19 settembre di cento anni prima.",
+  "easter_egg": [
+    "Ötzi: il gioco finisce il 19 settembre 1991 e la radio dà la notizia di due escursionisti tedeschi che hanno trovato un uomo nel ghiaccio all'Hauslabjoch; il Piper caduto ha la marca HB-OTZ; il cacciatore porta le braci in un contenitore di corteccia di betulla come l'Uomo del Similaun; Tavio, sentendo la notizia, commenta 'quello non è dei nostri'.",
+    "Buzzati: il Bosco Vecchio prende il nome dal suo romanzo, e lì il vento parla alla radio come nel 'Segreto del Bosco Vecchio'; l'appuntato Reto legge 'Il deserto dei Tartari' al Posto 41 e il Dente, che sembra una sentinella in attesa, è la sua Fortezza Bastiani; nella baracca c'è una copia del 'Libro delle pipe'.",
+    "Rigoni Stern: nel bivacco della Bocchetta c'è una copia consumata di 'Storia di Tönle', il romanzo del pastore-contrabbandiere che attraversa i confini; un eco di alpino del 1916 contiene, nei suoi quattro secondi di suono, la frase 'ghe rivarem a baita?'.",
+    "TRAMA: tra le cose di Lisa Moor nel Piper c'è un fazzoletto di merletto di Sant'Arianna con una falce di luna sopra una montagna, lavorato con il punto di Ada, e una lettera mai spedita firmata 'L.', che comincia 'Cara A., ho visto il tuo merletto diventare vero'. Chi ha giocato TRAMA capisce chi era L.",
+    "Le carte svizzere: i cartografi federali hanno davvero nascosto per decenni piccoli disegni nelle carte nazionali (una marmotta, un ragno, un pesce). Nella missione finale Marta può nascondere nella sua carta un disegno a scelta, e l'epilogo mostra la carta stampata del 1993 con il disegno al suo posto.",
+    "Cinema: sullo scaffale VHS del Bar Alpino ci sono 'Höhenfeuer' di Fredi Murer e 'La cosa' di Carpenter; la cassa in cui la Società vuole spedire il cacciatore ha lo stencil 'Outpost 31'.",
+    "Videogiochi: al bivacco si può arrostire una castagna sul fornelletto finché brucia, come il marshmallow di Outer Wilds; la vela del parapendio di Tavio ha i colori del paravela di Zelda; il libretto di campagna conferma le attribuzioni a gruppi di tre e ha una pagina intestata 'Memento' come in Obra Dinn; il canale radio di Tavio è il 3, e una sera lui chiede se lassù c'è una tartaruga, come in Firewatch.",
+    "Cultura del luogo: il voto di Fiesch del 1678 contro l'avanzata del ghiacciaio, che il parroco rovescia (è successo davvero, nel 2010); la leggenda vallesana delle anime dannate che scontano la pena nei ghiacciai; i falò del 1° agosto 1991 per i 700 anni della Confederazione; i pizzoccheri del Bar Alpino; Radio Monte Ceneri che dà le notizie della Vlora; 'La Montanara' suonata dal juke-box ogni sera alle 21."
+  ],
+  "durata": "Trama principale 11-13 ore (Atto I 4-5 ore con le quattro piste in qualsiasi ordine, Atto II 4 ore, Atto III 3-4 ore). Completamento con secondarie, tutti gli echi opzionali e i segreti di livello 3: 22-25 ore. Il segreto del Morse e le 41 coppelle sono pensati per la community e possono richiedere più partite. Sessioni da 30-40 minuti, cioè un giorno di gioco, con salvataggio automatico al rientro in base.",
+  "fattibilita": "Il gioco è fatto al 90% di ciò che three.js fa bene: terreno, roccia, ghiaccio, neve, cielo, nebbia, meteo. Mondo: un'unica heightmap a 16 bit di 3 x 2 km generata con erosione offline, divisa in chunk con LOD; il ghiacciaio è una mesh separata con tre stati scolpiti (luglio, dopo la Rotta, settembre) caricati per atto, quindi il mondo cambia senza deformazioni in tempo reale. Ghiaccio: shader TSL con finta dispersione sottosuperficiale, strati di polvere procedurali e fessure in parallax. Rocce, baracche, piloni, relitto del Piper, trincee: generati in Blender via codice e cotti con luce Cycles; larici e cembri con ez-tree e impostori. Persone: quasi nessuna da vicino. Gli echi sono pose statiche (clip Quaternius congelate su un fotogramma) con uno shader di brina che copre il volto: nessuna animazione, nessun lip-sync, e il limite tecnico diventa il cuore poetico del gioco. I vivi sono sagome lontane, col passamontagna, il casco, gli occhiali da ghiacciaio; le voci sono generate con Kokoro e passate in un filtro radio o telefonico che nasconde gli artefatti. Animali (gipeti, mucche, la cagna Brina, camosci) con animazione procedurale. I punti costosi sono tre: il sistema di corda (corda a particelle Verlet agganciata a Rapier, con ancoraggi a scatto e presa assistita), il parapendio (modello di volo semplice con termiche dipinte su una mappa), e la camera oscura (post-processing sulle foto fatte dal giocatore, che si possono generare dai render reali della scena). Prestazioni: la valle chiusa limita l'orizzonte, la nebbia del pomeriggio aiuta il budget, una zona per volta in streaming. Prologo gratuito nel browser: la missione 1 e la pista dell'alpino, circa 50 minuti.",
+  "perche_funziona": [
+    "Un luogo sotto-servito e vero: le Alpi italo-svizzere non hanno un gioco narrativo in prima persona, e l'utente vive in Ticino. Ogni dettaglio storico è reale (la polvere del Sahara del marzo 1991, Ötzi, i 700 anni della Confederazione, la Vlora, i gipeti reintrodotti, i passatori del 1943, gli spalloni, i cippi e il confine mobile), quindi la valle sembra esistere.",
+    "Il limite tecnico diventa stile: niente volti realistici perché i morti sono figure di brina e i vivi sono lontani, mascherati, alla radio. Il gioco parla proprio di persone che non si possono più guardare in faccia.",
+    "Il mistero è il motivo per esplorare: ogni eco si trova solo andando dove il ghiaccio si ritira, e ogni risposta indica una quota e un azimut nuovi. Nessuna urgenza finta: l'unica scadenza è il calendario dell'estate, ed è dichiarato dall'inizio.",
+    "Il mondo cambia davvero: tre stati del ghiacciaio, una catastrofe a metà gioco che sposta il confine e cambia chi presidia cosa, nuove zone che si aprono in verticale.",
+    "Il verbo del protagonista è il tema: misurare. La mappa si disegna da sé misurando, l'azimut dei passi rivela il colpo di scena principale, la firma del verbale è il finale. Gameplay e storia dicono la stessa cosa.",
+    "Le build cambiano davvero il modo di giocare (salire, passare inosservati, capire da lontano) e il colpo di scena su Tavio funziona alla Firewatch: la voce che ti ha tenuto compagnia per tutto il gioco è la verità che cercavi."
+  ],
+  "rischi": [
+    "Arrampicata e corda in prima persona possono essere frustranti o dare nausea: servono presa assistita generosa, superfici leggibili, opzioni di comfort (FOV, oscillazione, vignettatura) e prototipo del sistema di corda prima di tutto il resto.",
+    "La deduzione alla Obra Dinn in un open world può bloccare: ogni attribuzione deve avere almeno tre vie per arrivarci, e il sistema a gruppi di tre deve dare conferme frequenti.",
+    "Temi pesanti (profughi ebrei respinti, disertori, migranti del 1991): vanno trattati con sobrietà e consulenza storica, senza trasformare il dolore in enigma da risolvere a colpi di prova ed errore.",
+    "Il ghiaccio è difficile da rendere bene in WebGL2 su GPU integrate: lo shader va prototipato subito, con un preset basso credibile.",
+    "Tre stati del ghiacciaio moltiplicano il contenuto da costruire e testare: vanno limitati alle zone centrali (Lingua e Conca), mentre villaggio, morena e Bocchetta cambiano solo con oggetti e personaggi.",
+    "Un mondo di 6 km² con 1.700 metri di dislivello può sembrare piccolo a chi cerca un open world classico: va comunicato come mondo verticale e denso, e ogni zona deve avere un verbo nuovo.",
+    "La fiducia dei giocatori verso giochi fatti con l'AI: puntare su asset procedurali scritti in codice e su materiali CC0 dichiarati, niente testi o texture generati che si notino."
+  ]
+}

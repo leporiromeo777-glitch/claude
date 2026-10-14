@@ -1,0 +1,376 @@
+{
+  "key": "libero",
+  "titolo": "TIMAVO",
+  "sottotitolo": "Il fiume di sotto",
+  "frase": "Carso, novembre 1911: un fiume entra nella terra a San Canziano e riesce in mare quaranta chilometri più in là, nessuno sa per dove passi, e il telefono da campo dell'abisso in cui sono morti sette uomini ha ricominciato a squillare.",
+  "ambientazione": "Il Carso triestino nel Litorale austro-ungarico, da novembre 1911 a marzo 1912: tre anni prima che diventi il fronte dell'Isonzo, che il giocatore conosce e i personaggi no. È un altopiano di calcare senza una goccia d'acqua in superficie: doline, muretti a secco, pini neri piantati dagli austriaci, sommaco che in autunno colora tutto di rosso. Le donne portano il latte a Trieste a piedi e i villaggi bevono da stagni d'argilla (i kal). Sotto scorre il Timavo, il fiume che a San Canziano sparisce nella roccia e riemerge alle Bocche di San Giovanni di Duino, e del cui percorso intermedio nel 1911 si conosce quasi niente. La città ha sete e un Consorzio vuole catturare il fiume. Il mondo è un'unica mappa continua di circa 6 km² in superficie, con sotto una seconda mappa di circa 1,5 km² di grotte su tre livelli di profondità: due mondi sovrapposti, collegati da una trentina di ingressi, molti dei quali vanno scoperti. In superficie si vede da ogni punto il castelletto d'acciaio del Consorzio sopra l'Abisso dei Sette, con una lampada rossa accesa tutta la notte e il pennacchio di vapore delle pompe. Dai punti alti si vede anche il Monte Nevoso, l'orologio del gioco: quando la sua cima si copre, sei ore dopo il fiume sotterraneo cresce. Sottoterra il punto di riferimento è il fiume stesso, che si sente ovunque e cambia voce a seconda della distanza e della portata. Il mondo è un villaggio-hub, Gabròvia (in sloveno Gabrovje), più cinque zone. Ognuna ha una superficie e un sottosuolo propri e ognuna introduce una regola nuova.",
+  "zone": [
+    {
+      "nome": "Gabròvia / Gabrovje (hub)",
+      "descrizione": "Villaggio bilingue di cento anime, costruito attorno al kal, lo stagno d'argilla da cui bevono uomini e bestie. C'è l'osmiza di Mama Zefa, l'osteria che apre solo quando una frasca di rami pende all'incrocio. Poi la chiesa con la campana incrinata, il casello della Ferrovia Meridionale con due fermate verso la costa e la baracca del telefono usata dalla spedizione. In fondo al paese la dolina della ghiacciaia, dove nel 1893 la piena è salita dal sottosuolo e ha ucciso quattro persone. Alle quattro del mattino la fila delle lattaie parte verso Trieste con i bidoni in testa.",
+      "novita": "L'ascolto: con il geofono (un cono di legno e uno stetoscopio) si sente il fiume attraverso la roccia, con direzione e distanza. E le frasche: i rami appesi agli incroci sono la segnaletica del gioco."
+    },
+    {
+      "nome": "Le Doline Rosse",
+      "descrizione": "Mille ettari di doline una accanto all'altra, rosse di sommaco a novembre e ocra d'inverno. Ci sono ghiacciaie scavate nella roccia, stagni abbandonati, ripari di pastori, il vecchio osservatorio dell'astronomo viennese dentro la Grotta Grande e la scuderia dei cavalli bianchi di Lipizza al margine est. Ogni dolina può essere un tappo sopra una grotta.",
+      "novita": "Il respiro delle grotte: le correnti d'aria che escono dalle fessure fanno tremare la fiamma della lampada e muovono il fumo. Seguendole si trovano gli ingressi. Dopo la svolta centrale, nel freddo dell'inverno, le stesse correnti diventano pennacchi di vapore visibili da lontano."
+    },
+    {
+      "nome": "La Gola di San Canziano",
+      "descrizione": "Il canyon dove il fiume Recca entra nella montagna. Pareti di cento metri, un ponte naturale, il villaggio aggrappato al ciglione e le scale scavate nella roccia dalle guide del club tedesco nel 1890. All'ingresso del buio le tacche delle piene sono incise e datate sulla parete: 1826, 1851, 1893.",
+      "novita": "La piena come orologio: il livello del fiume sale e scende secondo il meteo sul Monte Nevoso. L'acqua chiude dei passaggi e ne apre altri: con la piena si può galleggiare fino a gallerie altrimenti irraggiungibili."
+    },
+    {
+      "nome": "L'Abisso dei Sette e il Cantiere",
+      "descrizione": "La voragine sigillata da una grata dove a settembre è scesa la spedizione. Attorno c'è il cantiere del Consorzio Acque del Timavo: il castelletto con l'argano a vapore, le baracche degli operai, il deposito di dinamite in una dolina e il vagone-salone dell'ingegner Weiss su un binario morto. Su tutto passano i fili del telefono, che collegano ogni baracca a un centralino.",
+      "novita": "Le macchine e la sorveglianza: argani, pompe, ascensori di cantiere e linee telefoniche si possono usare e sabotare. Le guardie fanno turni regolati dalla sirena del cantiere."
+    },
+    {
+      "nome": "Le Grotte di Mezzo",
+      "descrizione": "Il cuore sotterraneo. Comprende il Lago di Mezzo, grande come una piazza e nero come l'inchiostro, la Sala degli Asciutti con il bivacco della spedizione, il Sifone Nero, la Galleria dei Proteiche dove vivono i protei bianchi e ciechi che Valvasor nel 1689 chiamò cuccioli di drago, e il Pozzo delle Spade: novanta metri verticali con il fondo coperto di spade ed elmi di bronzo gettati come offerta al fiume tremila anni fa.",
+      "novita": "Il buio e il suono: fuori dalla luce della lampada non si vede nulla. Ci si orienta con l'eco, con la voce del fiume, con le candele lasciate come briciole e con i lampi di magnesio, che fanno vedere un'intera sala per un secondo."
+    },
+    {
+      "nome": "Le Bocche e la Costa",
+      "descrizione": "Le risorgive del Timavo a San Giovanni di Duino con la chiesa sull'acqua, la grotta del Mitreo romano, il castello sul ciglione e il sentiero sulle falesie dove d'inverno la bora soffia a 150 km/h. Sotto, le vedette del tonno del villaggio di pescatori e il mare: qua e là la superficie resta liscia e più fredda, perché l'acqua dolce sale dal fondo.",
+      "novita": "La bora: le raffiche spingono il corpo, si cammina chini, ci si ripara dietro i muretti. Il vento copre il rumore dei passi e delle esplosioni e porta via le voci. Si aggiunge l'immersione in apnea nelle risorgive."
+    }
+  ],
+  "direzione_artistica": "Realismo stilizzato con la palette del Carso. In autunno: calcare grigio-bianco, sommaco cremisi, erba ocra, pini quasi neri, cielo basso e luce radente delle quattro del pomeriggio. In inverno la bora chiara: cielo cobalto, aria tersa con visibilità fino alle Alpi Giulie, brina sulle pietre, mare bianco di spruzzi. Sottoterra c'è solo la fiamma ambra della lampada a carburo contro il nero assoluto. L'unico colore saturo e freddo di tutto il gioco è il verde della fluoresceina, il colorante che si versa nel fiume: quando appare in un luogo, il giocatore sa che l'acqua è passata di lì. Le sostanze sono roccia scolpita dall'acqua (scannellature, colate di calcite, argilla bagnata), ferro e legno del cantiere, lana e lino bagnati. Il meteo alterna nebbia nelle doline al mattino, bora chiara e bora scura con pioggia gelata, neve rara e la pioggia lontana sul Monte Nevoso, che si vede come un muro grigio all'orizzonte. Un filtro opzionale imita le lastre fotografiche del 1911: grana, bianchi bruciati, vignettatura. È fattibile per tre ragioni. Pietra, vegetazione e acqua sono le categorie in cui i materiali CC0 scansionati e la generazione procedurale rendono meglio. Le grotte chiudono la vista da sole, quindi pochi oggetti a schermo e una sola luce dinamica. La superficie è fatta di forme semplici e ripetibili (doline, muretti, pini) che stanno bene come istanze.",
+  "protagonista": "Vida Sedmak, 24 anni, nata a Gabròvia, centralinista alla Centrale telefonica di Trieste. Parla sloveno, italiano, tedesco e triestino. In città la chiamano la carsolina, al villaggio quella che è andata via. A settembre era l'operatrice del telefono di superficie della Spedizione dei Sette: per due giorni ha ascoltato le loro voci salire dal filo, poi più nulla. Il Consorzio l'ha licenziata e il giornale ha scritto che era una ragazza suggestionabile che confondeva il fruscio con le voci. Non è una prescelta e non ha poteri: ha un orecchio allenato a riconoscere duecento voci al centralino e una conoscenza delle grotte che viene dall'infanzia, quando si scendeva nelle ghiacciaie a prendere il ghiaccio. Non la vediamo mai. La sentiamo nelle annotazioni del suo taccuino, scritto in tre lingue che si mescolano, e nelle poche frasi che dice al telefono. Il suo verbo è ascoltare: il gioco intero è imparare a sentire un fiume che nessuno ha visto.",
+  "personaggi": [
+    {
+      "nome": "Guido Furlani",
+      "ruolo": "Capo della Spedizione dei Sette, speleologo triestino del club italiano, ufficialmente morto il 20 settembre 1911.",
+      "segreto": "È vivo: dal settembre 1911 resta sepolto nella Sala degli Asciutti con una gamba rotta, e il villaggio lo nutre di nascosto. Nel 1909, pieno di debiti, aveva venduto al Consorzio il primo rilievo dell'abisso, che indicava il punto debole del Sifone Nero. È lui l'origine del pericolo da cui ora vuole salvare il villaggio.",
+      "come_appare": "Una voce nel buio con la lampada spenta per risparmiare carburo. Al lampo di magnesio si vedono una sagoma avvolta in una coperta militare, le mani fasciate e il riflesso degli occhiali. Durante il trasporto è un fagotto legato a una barella."
+    },
+    {
+      "nome": "Ing. Konrad Weiss",
+      "ruolo": "Direttore del Consorzio Acque del Timavo, idraulico viennese.",
+      "segreto": "Non è cinico: sua figlia è morta di tifo a Trieste nel 1908 per l'acqua cattiva, e lui crede davvero di salvare la città. Ma il Consorzio è finanziato in segreto dalla Marina di Pola, che vuole acqua sicura per l'arsenale, e i suoi ordini sono di fatto ordini militari.",
+      "come_appare": "Una sagoma dietro il vetro smerigliato del suo vagone-salone e la brace del sigaro. Parla solo al telefono, anche quando è a dieci metri: è l'uomo che non apre mai la porta."
+    },
+    {
+      "nome": "Max Ribarič",
+      "ruolo": "Geometra del Consorzio, settimo uomo della spedizione, ufficialmente annegato.",
+      "segreto": "Nella notte della piena è risalito da solo dalla stazione intermedia e non ha chiesto soccorso per gli altri. Il Consorzio lo ha cancellato dalla lista dei vivi e lo ha nascosto a Vienna. Ora è tornato. È lui la voce che al telefono si spaccia per Furlani e guida Vida, per farle trovare il punto esatto dove piazzare la Mina Grande. Anche lui è un figlio di Gabròvia che è andato via.",
+      "come_appare": "Una voce filtrata dal telefono, roca e paziente. Da lontano è un uomo in impermeabile dietro un teodolite sul ciglio di una dolina, sempre di spalle."
+    },
+    {
+      "nome": "Mama Zefa (Jožefa Kocjan)",
+      "ruolo": "Padrona dell'osmiza di Gabròvia e voce del consiglio del villaggio.",
+      "segreto": "Ha inventato lei le offerte al drago, pane e lardo calati nelle buche, per coprire il cibo mandato a Furlani. Suo marito è morto nella piena del 1893 nella dolina della ghiacciaia: sa meglio di chiunque cosa succede se il fiume risale.",
+      "come_appare": "Sempre girata verso il focolare: mani che tagliano il pane, un fazzoletto nero, la voce. Nel consiglio notturno è un'ombra fra le ombre proiettate dal fuoco sulle pareti dell'osmiza."
+    },
+    {
+      "nome": "Stanko Kocjan",
+      "ruolo": "Guida di 15 anni della spedizione, nipote di Zefa, ufficialmente morto.",
+      "segreto": "È uscito da solo dopo undici giorni risalendo il Pozzo delle Spade, seguendo il respiro della grotta. Non parla più. Si nasconde in mezzo alle lattaie travestito da donna, con scialle e bidone in testa. Ha visto Ribarič risalire la scala senza voltarsi.",
+      "come_appare": "Una lattaia più bassa delle altre nella fila dell'alba, il viso coperto dallo scialle. Comunica solo con disegni a carboncino su un quaderno di scuola."
+    },
+    {
+      "nome": "Brigadiere Alois Petermandl",
+      "ruolo": "Comandante della stazione di gendarmeria imperiale di Sesana, incaricato di sorvegliare l'altopiano.",
+      "segreto": "È stanco, onesto e non ama il Consorzio. Se gli si portano prove vere (le lastre, il rilievo, la testimonianza di Stanko) può scegliere di non vedere, oppure di arrestare Weiss.",
+      "come_appare": "Il cappello con le piume di gallo nero, la lanterna, la mantella. Il personaggio che vediamo meglio è il suo cane Hektor, un grosso cane da pastore carsolino."
+    },
+    {
+      "nome": "Dott. Emil Wagenknecht",
+      "ruolo": "Astronomo dell'Osservatorio di Vienna: misura con un pendolo orizzontale le maree della crosta terrestre dentro la Grotta Grande.",
+      "segreto": "I suoi dati contengono, senza che lui lo sappia, il battito delle piene sotterranee. Bastano per prevedere al minuto la piena di marzo.",
+      "come_appare": "Non esce mai dalla camera del pendolo, sigillata per tenere costante la temperatura. Gli si parla attraverso un tubo acustico di ottone: una voce metallica e gentile."
+    },
+    {
+      "nome": "Marija Sedmak",
+      "ruolo": "Madre di Vida, lattaia.",
+      "segreto": "Sapeva fin da ottobre che Furlani era vivo e lo ha nascosto alla figlia, perché Vida lavorava per la linea del Consorzio. Non è una santa: ha mentito per proteggere il villaggio prima ancora che la figlia.",
+      "come_appare": "Una delle sagome nella fila delle lattaie. Di notte è una voce dietro la porta di casa, chiusa a chiave, che non si apre finché Vida non ha capito."
+    }
+  ],
+  "verita_nascosta": "1) Intorno al 1000 a.C. le genti del Carso conoscono una via asciutta fino al Lago di Mezzo. Gettano spade ed elmi di bronzo nel Pozzo delle Spade come offerta al fiume e incidono sulla roccia, accanto alle offerte, le tacche delle piene più alte. 2) In età romana il Timavo esce in mare da molte bocche: Virgilio, nell'Eneide (I, 245), scrive che esce per nove bocche con un vasto rimbombo del monte. Sopra le risorgive c'è un santuario di Diomede dove si allevano cavalli bianchi, e una grotta è dedicata a Mitra. 3) Nel 1348 il grande terremoto di Villaco fa franare la costa e seppellisce sei delle nove bocche. Da allora, quando il fiume è in piena, l'acqua non trova abbastanza uscite e risale nelle doline. 4) Nel 1689 Valvasor scrive che le piene portano fuori dalle grotte dei cuccioli di drago: sono i protei. Sul Carso nasce la leggenda del drago che respira dalle buche prima di uscire. 5) Marzo 1893: la piena risale fino alla dolina della ghiacciaia di Gabròvia e muoiono quattro persone, fra cui il marito di Zefa. 6) 1906-1909: Trieste ha sete. Nasce il Consorzio Acque del Timavo, con capitali viennesi e triestini e, in segreto, un finanziamento della Marina imperiale di Pola. Ottiene una concessione a una condizione: dimostrare entro il 31 dicembre 1911 di aver raggiunto il fiume sotto l'altopiano. 7) 1909: Guido Furlani, speleologo indebitato, vende all'ing. Weiss il primo rilievo dell'Abisso di Lèse, poi chiamato Abisso dei Sette. Nel rilievo c'è una nota a margine: un diaframma di roccia sottile, il Sifone Nero, separa il Lago di Mezzo da un ramo alto che finisce sotto la ghiacciaia di Gabròvia. Weiss archivia la nota. Nei sondaggi del 1909 i trivellatori del Consorzio trovano anche tracce di tre bocche sepolte sulla costa, ma il Consorzio le tace: riaprirle ridurrebbe la portata da catturare. 8) Agosto 1911: una squadra del Consorzio taglia di notte il fondo d'argilla del kal di Gabròvia per un sondaggio. Lo stagno perde acqua e il villaggio dà la colpa al drago. 9) 18 settembre 1911: scende la Spedizione dei Sette. Ne fanno parte Furlani, il geologo dottor Moos, il fotografo Arrigo Pozzar, le guide Pepi e Tone Žerjal, il quindicenne Stanko Kocjan e il geometra del Consorzio Max Ribarič. Vida Sedmak sta al telefono di superficie. 10) 19 settembre: arrivano al Lago di Mezzo. Furlani versa la fluoresceina per il tracciamento, misura il Sifone Nero e telefona a Weiss: la galleria di captazione non si può fare lì. Weiss risponde: «Risalite. Nessuno parli». 11) 20 settembre: una pioggia sul Monte Nevoso porta una piena improvvisa. Ribarič, alla stazione intermedia a meno 180 metri, sente le richieste di aiuto, risale da solo e non dà l'allarme fino all'alba. Il Consorzio decide di non mandare soccorsi dentro la piena: troppo pericoloso, e il rilievo di Furlani affonderebbe la concessione. Sigilla l'abisso, dichiara morti tutti e sette e manda Ribarič a Vienna con un nuovo contratto. Annegano Moos, Pozzar e i fratelli Žerjal. Furlani, con una gamba rotta, e Stanko si salvano nella Sala degli Asciutti. 12) 1 ottobre: Stanko segue le correnti d'aria, risale il Pozzo delle Spade ed esce in una dolina vicino a Gabròvia. Zefa lo nasconde e il villaggio decide di tacere: teme che il Consorzio e i gendarmi diano la colpa alle guide del paese. Furlani non può risalire il pozzo con la gamba rotta. Il villaggio lo nutre ogni notte calando cibo con le offerte al drago e coordina i turni con un codice di frasche agli incroci: ramo capovolto per i gendarmi, nodi sullo spago per i giorni. Furlani chiede silenzio finché non avrà finito il rilievo completo: senza prove, la sua parola di uomo comprato non vale niente. 13) Da ottobre il telefono della baracca squilla da solo: il fiume, crescendo, fa girare la manovella del magnete dell'apparecchio della stazione inferiore, rimasto appeso al cavo. Il villaggio crede che chiamino i morti. 14) Novembre 1911, inizio del gioco: al Consorzio mancano sei settimane alla scadenza e la vecchia via è chiusa dai detriti della piena. Ribarič torna di nascosto al cantiere, collega il centralino alla linea dell'abisso e chiama Vida imitando la voce di Furlani, resa roca dal filo, per farle trovare la via e la posizione esatta del Lago di Mezzo. 15) Notte del 30 dicembre: Vida suona la terza campana sul Lago di Mezzo. I geofoni del Consorzio triangolano il suono e la Mina Grande apre la galleria di captazione: concessione salva, Sifone Nero incrinato. 16) Gennaio-marzo 1912: per aumentare la portata il Consorzio prepara una seconda carica, la Mina di Marzo. Furlani calcola che la seconda esplosione romperà il Sifone Nero e che la prima piena di primavera salirà dalla dolina della ghiacciaia dentro Gabròvia. L'unico sfogo possibile sono le bocche sepolte di Virgilio.",
+  "trama": {
+    "premessa": "Novembre 1911. Vida torna a Gabròvia senza lavoro. Il villaggio la guarda storto e il Consorzio ha sigillato l'abisso. All'alba del primo giorno il telefono nella baracca della spedizione squilla. Vida risponde e sente una voce roca, sepolta nel fruscio: «Vida. Sono Furlani. Il fiume è più alto. Non scendete da qui. Cercate il verde». Poi la linea muore. Tutti i Sette sono stati dichiarati morti da due mesi.",
+    "atto1": "Autunno, con il sommaco rosso. Quattro piste parallele da seguire in qualsiasi ordine, ognuna con un verbo diverso, nel taccuino di Vida. IL VERDE: dove è uscita la fluoresceina versata da Furlani il 19 settembre? Tre testimoni (una lattaia, il registro della stazione di pompaggio di Aurisina, la lettera di un pescatore di Duino) danno tre punti, e il terzo è uno stagno in mezzo alle Doline Rosse dove nessun fiume dovrebbe arrivare. LA LATTAIA MUTA: nella fila dell'alba c'è una figura che scappa quando la si guarda. IL RESPIRO DEL DRAGO: Zefa dice che il drago respira di nuovo e che le buche soffiano dove prima non soffiavano. LE LASTRE: la cassetta di Pozzar è stata portata dal fiume fino alle Bocche, con cinque negativi di vetro di luoghi che bisogna ritrovare. Ogni pista porta a un luogo nuovo, e tre piste su quattro bastano per scendere nella Gola di San Canziano a fiume basso ed entrare nel mondo di sotto. Al telefono, nelle buche dove passa il cavo, la voce di Furlani torna sempre più spesso e guida Vida verso il Lago di Mezzo. Le chiede di portargli tre campane da mucca, perché è cieco e può orientarsi solo con il suono. Intanto il Consorzio avanza a ogni missione completata: nuove trivellazioni, operai in più, la notizia sul giornale che la concessione scade il 31 dicembre.",
+    "svolta_centrale": "La notte del 30 dicembre Vida attraversa il Lago di Mezzo con la barca di tela della spedizione e suona la terza campana. La voce al telefono, per la prima volta senza fruscio, dice: «Grazie, signorina Sedmak. Ha fatto quello che sette uomini non hanno saputo fare». Venti secondi dopo esplode la Mina Grande. Non era Furlani: era Ribarič, ufficialmente morto, che dal centralino del cantiere usava Vida per triangolare il lago. La galleria si apre, la piena del crollo insegue Vida per le gallerie, e lei esce in un mondo diverso. È inverno e soffia la bora. Il lago è sceso di dodici metri: vecchie vie allagate, nuove gallerie asciutte. Il kal di Gabròvia si è svuotato in una notte, le Bocche sono torbide, e nel freddo dalle buche escono pennacchi di vapore che mostrano ingressi prima invisibili. I gendarmi dichiarano l'altopiano zona riservata: posti di blocco, ronde con i cani, coprifuoco, e Vida ricercata per sabotaggio.",
+    "atto2": "Inverno 1912. Vida è complice e ricercata. Entra nel centralino del Consorzio e scopre chi era la voce, il contratto con la Marina e la seconda carica prevista per marzo. Dalla vedetta sopra il villaggio legge i fumi della bora e trova, sotto uno dei pennacchi, il pane delle offerte al drago, ancora caldo. Un consiglio notturno all'osmiza, con le prove sul tavolo, fa crollare il silenzio del villaggio: Furlani è vivo, lo nutrono da tre mesi e le frasche che Vida ha seguito per tutto il gioco sono il loro codice. Con il quaderno di Stanko scende nel Pozzo delle Spade e trova Furlani, che le confessa di aver venduto lui il primo rilievo. Il suo rilievo completo dice che la Mina di Marzo romperà il Sifone Nero e che la piena di primavera salirà in paese. Vida riporta Furlani in superficie per la via bagnata, fra i cani dei gendarmi. La sola via d'uscita per l'acqua sono le sei bocche sepolte nel 1348.",
+    "atto3": "Fine inverno. Tutto converge sulla costa e sul telefono. Vida cerca le bocche perdute incrociando Virgilio, l'iscrizione del Mitreo, la mappa della scuderia di Lipizza e il colorante che le fa brillare di verde. Poi, nella notte della Mina di Marzo, si siede al centralino del Consorzio e fa la cosa che sa fare meglio: decide chi parla con chi. Weiss, la Marina di Pola, il Luogotenente a Trieste, il brigadiere Petermandl, il villaggio attraverso le frasche, e Ribarič, che può ancora cambiare parte. All'alba la piena di marzo arriva dal Monte Nevoso, e Vida scende un'ultima volta per aprire le bocche, fermare la mina o accompagnare il paese fuori dalla dolina, a seconda di quello che ha costruito.",
+    "colpi_di_scena": [
+      "Il telefono che squilla da solo non lo fanno suonare i morti, ma il fiume. Quando il fiume cresce gira la manovella del magnete dell'apparecchio rimasto appeso là sotto: ogni squillo è una piena. Rilettura: tutti gli squilli dell'atto I, che il villaggio contava come presagi, erano un idrometro, e chi li ha annotati nel taccuino può ricostruire il calendario delle piene.",
+      "La voce che guidava Vida non era Furlani ma Ribarič, il settimo uomo, ufficialmente morto. Rilettura: la voce misurava le distanze in Klafter, l'unità austriaca, mentre nelle lettere Furlani scriveva sempre in metri. Conosceva i numeri delle trivellazioni del cantiere. Non ha mai nominato Stanko. Ogni campana appesa era un punto di triangolazione per la mina.",
+      "Le offerte al drago erano pane per un vivo. Il villaggio, madre di Vida compresa, nutre Furlani da tre mesi. Rilettura: le frasche usate come segnaletica fin dal primo minuto sono un codice, la lattaia muta è Stanko travestito, e lo stagno tagliato non l'ha bucato il drago ma il Consorzio.",
+      "L'eroe da salvare ha venduto il pericolo. Furlani nel 1909 ha consegnato a Weiss il rilievo del Sifone Nero per pagare i debiti, e il Consorzio è finanziato dalla Marina. Rilettura: la mina non è l'avidità di un ingegnere ma un ordine militare che nessun tribunale fermerà, quindi va fermata con l'acqua, con la verità o con una telefonata."
+    ],
+    "finali": [
+      "TRIESTE BEVE: Vida lascia esplodere la Mina di Marzo. Se ha avvertito il villaggio con le frasche, Gabròvia si salva sulle alture ma la dolina e metà delle case finiscono sott'acqua; se no, la piena trova le case abitate. Trieste ha l'acqua nel 1913. L'epilogo mostra il sentiero delle lattaie vuoto.",
+      "IL CARSO TACE: al centralino Vida fa ascoltare la verità al Luogotenente e alla stampa. La concessione viene sospesa, la Marina copre tutto, l'abisso viene murato e Furlani passa da salvato a imputato. Il villaggio è salvo, Trieste resta assetata, e l'epilogo ricorda che l'acqua del Timavo arriverà in città solo nel 1929, con l'acquedotto del Randaccio.",
+      "NOVE BOCCHE (finale pieno): Vida ha riaperto le bocche, ha convinto Weiss con il rilievo di Furlani e i dati del pendolo e ha portato Ribarič dalla sua parte. La Mina di Marzo viene spostata alle Bocche. Dall'alto delle falesie si vede la piena uscire in mare da sei bocche nuove, verdi di fluoresceina. Il paese è salvo e la città avrà acqua diciassette anni prima della Storia."
+    ]
+  },
+  "come_si_gioca": {
+    "verbi": "Ascoltare (il geofono sulla roccia, la voce del fiume, l'eco, il telefono). Seguire l'aria (fiamma, fumo, vapore). Leggere il tempo (il Monte Nevoso, il barometro, gli squilli). Tracciare (fluoresceina, spore di licopodio, sale). Calarsi e risalire (scale di corda con pioli di legno, corde, argani). Telefonare (collegarsi alle linee, ascoltare di nascosto, deviare chiamate, dare ordini con la voce di qualcun altro). Illuminare (lampada a carburo, candele come briciole, lampi di magnesio). Nuotare e trattenere il fiato (risorgive, sifoni). Lasciare frasche (dopo la svolta, mandare messaggi al villaggio).",
+    "loop_minuto": "Vida si ferma su una dolina e appoggia il geofono: il fiume è a sud-ovest, lontano. La fiamma della lampada si piega verso una fessura fra due massi e lì c'è aria. Si decide come entrare: scala di corda, spostare il masso, aspettare che la bora copra il rumore di una piccola carica. Si scende, si contano i passi, si lascia una candela al bivio. Se il fiume cambia voce e diventa più acuto vuol dire che la piena sta arrivando, e si risale.",
+    "loop_sessione": "Una sessione dura 20-40 minuti. Si sceglie una pista dal taccuino, si raggiunge la zona seguendo frasche e punti di riferimento, si esplora un sistema di grotte fino al fondo, dove c'è un barattolo con le firme degli esploratori, e si torna all'osmiza. Lì si telefona, si ascoltano le voci del paese dalle lattaie, si spendono i Fondi e si sceglie se aspettare il bel tempo o la piena. Ogni missione principale completata fa avanzare di un passo i piani del Consorzio e dei gendarmi: il mondo non va avanti con l'orologio ma con le azioni del giocatore, quindi non c'è urgenza finta.",
+    "traversata": "In superficie si va a piedi, sui muretti e sui sentieri, con la bora che spinge e i muretti che riparano. Il carro del latte all'alba collega i villaggi e il treno della Ferrovia Meridionale fa due fermate fino alla costa: sono i viaggi veloci, disponibili solo dove esistono davvero. Sottoterra si scende con corde e scale (presa generosa sugli appigli segnati da colate chiare), si passa in strettoie, si nuota, e con la piena si sale galleggiando lungo i pozzi allagati fino alle gallerie alte. La barca di tela pieghevole serve per il Lago di Mezzo e, nei momenti di piena, per scendere il fiume a grande velocità.",
+    "sfida_e_combattimento": "Non ci sono armi e non si combatte. I pericoli sono l'acqua (piene, correnti, sifoni), il freddo, le cadute, il buio, il gas di carburo nei vani chiusi, le frane dopo le esplosioni, la bora sulle falesie. Dopo la svolta ci sono anche le ronde dei gendarmi con i cani. Essere catturati non significa morire: si finisce nella cella di Sesana, e da lì si evade o si viene liberati dal villaggio, con conseguenze. Ci sono tre prove-chiave che fanno da boss: la fuga dalla piena della Mina Grande, il cane Hektor nel trasporto di Furlani e la piena di marzo. Ognuna si supera in tre modi diversi, uno per ramo della build.",
+    "navigazione_e_diario": "Non ci sono icone sulla mappa. Il taccuino di Vida raccoglie piste, domande aperte, testimonianze, schizzi delle grotte e indicazioni scritte rispetto ai punti di riferimento («dalla frasca dell'incrocio di Gabròvia, verso il castelletto rosso, la terza dolina dove i muretti fanno angolo»). La carta del club tedesco del 1890 è sbagliata in tre punti, e Vida la corregge a matita. Ci sono una bussola, gli squilli annotati con l'ora e, sottoterra, le candele lasciate come segni e il segno a gesso che si traccia sulle pareti. Si possono attivare un indicatore discreto di direzione e opzioni di comfort: campo visivo, oscillazione della testa, scuotimenti, sottotitoli."
+  },
+  "build": {
+    "sistema": "Ogni cavità ha un fondo, e sul fondo c'è un barattolo di latta con le firme di chi ci è arrivato: firmarlo vale un Fondo. Nel mondo ce ne sono 44 e la via principale ne fa raccogliere circa 22. Le tecniche costano da 1 a 3 Fondi: con tutti i Fondi se ne compra circa il 60%. I Fondi sono la reputazione di Vida fra gli speleologi, e con più firme i vecchi del club insegnano tecniche e prestano attrezzi (per lettera, al telefono o lasciando pacchi alla stazione). Fin dall'inizio Vida ha tutti i verbi di base: geofono semplice, lampada a carburo, 30 metri di corda, telefono da campo portatile, taccuino. Le tecniche aggiungono opzioni, non numeri: niente danni, niente punti vita, niente scaling. Ogni missione principale si può risolvere con ciascun ramo.",
+    "rami": [
+      {
+        "nome": "L'ORECCHIO (la centralinista)",
+        "filosofia": "Sapere prima di toccare. L'informazione, la voce e il suono sostituiscono la forza: si passa ingannando le persone e capendo il fiume.",
+        "abilita": [
+          "Geofono fine: dà direzione e distanza del fiume e dei passi umani attraverso 30 metri di roccia.",
+          "Commutatrice portatile: aggancia qualsiasi filo del telefono e ascolta tutte le conversazioni della linea.",
+          "Voce d'ufficio (esclusiva con Squillo a distanza): al telefono Vida si spaccia per il centralino o per un capo e dà ordini.",
+          "Squillo a distanza (esclusiva con Voce d'ufficio): fa suonare a comando un apparecchio lontano per spostare guardie e cani.",
+          "Eco: un battito di mani disegna per tre secondi la sagoma di una sala buia.",
+          "Orecchio del fiume: dal tono della voce dell'acqua si capisce quanti minuti mancano alla piena."
+        ]
+      },
+      {
+        "nome": "LA CORDA (la speleologa)",
+        "filosofia": "Passare dove nessuno passa. Il corpo e l'attrezzatura verticale aprono vie alternative: sopra, sotto, attraverso.",
+        "abilita": [
+          "Scala leggera: si porta una seconda scala di corda da 20 metri.",
+          "Pendolo (esclusiva con Teleferica): ci si dondola sulla corda per attraversare pozzi e raggiungere cenge laterali.",
+          "Teleferica (esclusiva con Pendolo): si tende una corda fra due punti, attraverso canyon e sale, per scivolarci sopra e anche trasportare carichi.",
+          "Camino: si sale in opposizione fra due pareti strette, schiena contro una e piedi contro l'altra.",
+          "Apnea lunga: il tempo sott'acqua passa da 35 a 70 secondi, e si attraversano i sifoni brevi.",
+          "Mani di calcare: si arrampica senza corda sulle pareti asciutte con le scannellature."
+        ]
+      },
+      {
+        "nome": "LA POLVERE (la minatrice)",
+        "filosofia": "Cambiare il mondo invece di aggirarlo. La chimica del 1911 apre, chiude, illumina e fa scorrere l'acqua dove serve, a un prezzo.",
+        "abilita": [
+          "Polvere nera (esclusiva con Sacco d'argilla): piccole cariche aprono frane e strettoie, oppure le chiudono alle spalle.",
+          "Sacco d'argilla (esclusiva con Polvere nera): si chiude una fessura per deviare l'acqua e alzare o abbassare il livello di una sala.",
+          "Lampo di magnesio: per un istante illumina una sala intera, che resta impressa come una fotografia, e acceca i cani.",
+          "Fluoresceina doppia: si versa colorante in due punti insieme per vedere quale ramo arriva prima.",
+          "Fiamma di acetilene: si accende il gas di carburo raccolto in una vescica per fare luce in una grande sala per due minuti, o per far sciogliere il ghiaccio.",
+          "Calce viva: asciuga gli appigli bagnati e fa fumo bianco per coprire una fuga."
+        ]
+      }
+    ],
+    "scelte_esclusive": "Tre coppie si escludono: Voce d'ufficio o Squillo a distanza, Pendolo o Teleferica, Polvere nera o Sacco d'argilla. Una regola trasversale: chi impara l'Apnea lunga non può portare la vescica di acetilene, perché il peso e il freddo non stanno insieme, e viceversa. Le scelte si fanno davanti a un maestro e si vedono nell'attrezzatura (il pacco che arriva alla stazione è diverso), così la build si riconosce nel mondo. Rispecializzazione limitata: una volta per atto si può restituire un attrezzo alla cooperativa di Gabròvia e riavere i Fondi meno uno.",
+    "costo_nel_mondo": "Polvere nera: ogni esplosione si sente su tutto l'altopiano (meno con la bora), alza l'allerta dei gendarmi, cambia il respiro delle grotte vicine e fa perdere fiducia al villaggio, perché chi fa saltare il Carso è come il Consorzio. Le frane sono permanenti. Voce d'ufficio: ogni inganno fa salire il sospetto del centralino. Alla terza volta il Consorzio passa a una linea cifrata, alcune intercettazioni si chiudono e Ribarič capisce dov'è Vida. Lampo di magnesio: i protei della Galleria dei Proteiche fuggono dalla luce e una missione secondaria cambia esito. Apnea e acqua fredda: il freddo si accumula e si scioglie solo riposando all'osmiza, il che fa passare il tempo e il meteo cambia.",
+    "tre_build_esempio": [
+      "LA CENTRALINISTA (Orecchio pieno più Eco): davanti al cantiere sorvegliato di notte, Vida aggancia la commutatrice al palo della linea, con la Voce d'ufficio chiama la baracca della guardia come «centralino» e la manda al deposito di dinamite. Con il geofono segue i passi di Hektor ed entra dalla porta principale. Nessuna traccia lasciata.",
+      "LA ROCCIATRICE (Corda più Apnea lunga): Vida scende la parete della dolina dietro il cantiere con la scala leggera, attraversa il pozzo aperto con il Pendolo e sale in camino dal pozzo di ventilazione fino al tetto della baracca del centralino. Il cane non la sente perché non tocca mai terra.",
+      "LA MINATRICE (Polvere nera più Lampo più Calce): Vida aspetta una raffica di bora, fa saltare il vecchio ingresso franato di un pozzo di servizio, acceca il cane con il magnesio e copre la ritirata con il fumo della calce. È rapida, ma l'allerta dei gendarmi sale di un grado e Zefa la saluta più fredda il giorno dopo."
+    ]
+  },
+  "missioni_principali": [
+    {
+      "nome": "1. Il filo morto",
+      "tipo": "Prologo, indagine sul posto e prima discesa",
+      "descrizione": "Dopo lo squillo dell'alba, Vida segue il cavo del telefono dalla baracca fino alla grata dell'Abisso dei Sette, sorvegliata da un solo operaio. Impara il geofono, la lampada e la scala di corda scendendo il pozzo di servizio del 1909 fino al primo terrazzo, a meno 40 metri. Lì trova il cavo intatto: nessuno l'ha mai tagliato. Svolta: sul terrazzo c'è un barattolo del fondo con le sette firme del 18 settembre, e la firma di Ribarič è stata cancellata con il coltello. Domanda nuova: perché togliere il nome di un morto? Si aprono le quattro piste dell'atto I."
+    },
+    {
+      "nome": "2. Acqua verde",
+      "tipo": "Triangolazione di testimonianze scritte e orali",
+      "descrizione": "Vida raccoglie tre testimonianze sul giorno in cui l'acqua divenne verde: una lattaia che l'ha vista nel pozzo di Prosecco, il registro della stazione di pompaggio di Aurisina con l'ora esatta, e la lettera di un pescatore di Duino. Disegna le tre linee sulla carta del 1890 e il punto d'incrocio cade su un kal abbandonato nelle Doline Rosse. Svolta: il fondo d'argilla dello stagno è tagliato con attrezzi da trivella, non da un drago, e sotto c'è un buco che soffia. Per tutte le build è un lavoro di lettura e conversazione: l'Orecchio intercetta un'ulteriore testimonianza al telefono, la Corda raggiunge il pozzo di Prosecco dall'interno, la Polvere riconosce i segni di una carica sul fondo."
+    },
+    {
+      "nome": "3. Le lattaie dell'alba",
+      "tipo": "Pedinamento all'alba con mimetizzazione sociale",
+      "descrizione": "Alle quattro del mattino Vida si mette in fila con le lattaie, con scialle e bidone in testa, per scoprire chi è la figura che scappa. Bisogna stare al passo, non farsi notare dai carrettieri e seguire la figura quando si stacca verso la Gola. Svolta: la figura lascia cadere una pagina di quaderno di scuola con un disegno a carboncino, un pozzo pieno di spade e una scala che sale, e scompare in una dolina dove la frasca è appesa capovolta. Le build: l'Orecchio la segue con il geofono senza vederla, la Corda la taglia dall'alto lungo il ciglione, la Polvere la perde ma trova le sue impronte nella calce sparsa sul sentiero."
+    },
+    {
+      "nome": "4. Il respiro del drago",
+      "tipo": "Esperimento sistemico con aria e fuoco",
+      "descrizione": "Zefa dice che il drago respira dove prima non respirava. Vida mappa le correnti d'aria delle Doline Rosse con candele, fumo e fiamma, in un pomeriggio senza vento, e trova un soffio nuovo e caldo. Dentro c'è una trivellazione segreta del Consorzio a meno 60 metri, con il registro dei fori. Svolta: i numeri del registro sono gli stessi che la voce al telefono ha recitato a Vida. Come fa Furlani a conoscerli? Le build: l'Orecchio sente la trivella spenta vibrare, la Corda arriva dal camino del soffio, la Polvere allarga la strettoia (e il soffio cambia per sempre)."
+    },
+    {
+      "nome": "5. Le lastre di Pozzar",
+      "tipo": "Riconoscimento fotografico di luoghi in negativo",
+      "descrizione": "La cassetta del fotografo, trovata fra i detriti delle Bocche, contiene cinque negativi di vetro. Tenuti controluce mostrano i luoghi in bianco e nero invertito, e Vida deve ritrovare il punto esatto da cui sono state scattate: il ponte naturale della Gola, la scala tedesca, una colata di calcite a forma di organo, il bivacco della spedizione. Svolta: il quinto negativo mostra una sala piena di spade di bronzo che nessuno conosce, la stessa del disegno della lattaia. Il fotografo non ci è mai passato: la lastra l'ha scattata qualcun altro, dopo la piena. Ogni lastra ha punti di vista raggiungibili in tre modi (in alto con la corda, attraverso il ponte di una frana con la polvere, in un passaggio stretto trovato con l'eco)."
+    },
+    {
+      "nome": "6. La Gola di San Canziano",
+      "tipo": "Traversata a tempo con la piena come orologio",
+      "descrizione": "Con le piste dell'atto I Vida sa da dove passare. Aspetta che il Monte Nevoso sia sereno, scende le scale del 1890 nella Gola, attraversa il ponte del fiume ed entra nel buio. Lungo il percorso vanno lette le tacche delle piene incise sulla parete. A metà strada le nuvole coprono il Nevoso: sei ore di gioco dopo il fiume sale e Vida deve trovare le gallerie alte prima che l'acqua chiuda l'ingresso. Svolta: nella galleria alta trova l'apparecchio inferiore del telefono, appeso al cavo, con la manovella che gira nella corrente. Ogni squillo era il fiume. Ma allora la voce chi era? Le build: l'Orecchio prevede le ondate di piena, la Corda risale la galleria in camino, la Polvere chiude con l'argilla una fessura e abbassa il ramo."
+    },
+    {
+      "nome": "7. Tre campane per un cieco",
+      "tipo": "Navigazione acustica, attraversamento in barca e fuga (svolta centrale)",
+      "descrizione": "La voce di Furlani chiede a Vida tre campane da mucca da appendere sulla riva del Lago di Mezzo, perché è cieco e si orienta solo con il suono. Vida monta la barca di tela, attraversa il lago nel buio totale guidata dall'eco, appende le campane in tre punti e suona l'ultima la notte del 30 dicembre. La voce la ringrazia per nome e la Mina Grande esplode. Svolta: era Ribarič. La seconda metà della missione è una fuga dalla piena del crollo, in gallerie che si riempiono e cambiano forma, fino all'uscita in un mondo ormai invernale. Le build: l'Orecchio sente le sacche d'aria, la Corda sale sopra il livello dell'acqua, la Polvere apre un sifone secco con una carica."
+    },
+    {
+      "nome": "8. Il centralino del Consorzio",
+      "tipo": "Infiltrazione con molte vie",
+      "descrizione": "Ricercata, Vida deve entrare nel cantiere sorvegliato e raggiungere la baracca del centralino, dove ci sono le registrazioni delle linee e il diario delle chiamate. Le sirene dei turni, il cane Hektor e il vagone-salone di Weiss con la luce sempre accesa rendono il cantiere un piccolo labirinto di regole. Svolta: nel diario ci sono le chiamate notturne di Ribarič, ufficialmente morto, il contratto del Consorzio con la Marina di Pola e il piano della Mina di Marzo, già con la data. Le tre build entrano in tre modi descritti nelle build di esempio, e ognuna può uscirne senza essere scoperta o con una fuga."
+    },
+    {
+      "nome": "9. I fumi della bora",
+      "tipo": "Osservazione da un punto di riferimento in condizioni meteo estreme",
+      "descrizione": "La mattina più fredda dell'inverno, con la bora chiara, l'altopiano fuma: dalle buche esce il vapore caldo delle grotte. Vida sale sulla vedetta sopra Gabròvia, segna sul taccuino i pennacchi rispetto al castelletto, alla chiesa e al Nevoso, poi li raggiunge prima che il sole li sciolga, alle undici. Svolta: sotto il pennacchio più vicino al paese c'è un cesto calato con una fune: pane ancora caldo, lardo, una bottiglia di vino dell'osmiza di Zefa. Le offerte al drago hanno qualcuno che le mangia. Le build: l'Orecchio usa il geofono per sentire la fune che vibra, la Corda raggiunge i pennacchi lungo le pareti delle doline, la Polvere prende i fumi più lontani con l'acetilene per sciogliere il ghiaccio negli ingressi."
+    },
+    {
+      "nome": "10. La frasca capovolta",
+      "tipo": "Deduzione e confronto con il consiglio del villaggio",
+      "descrizione": "Di notte, nell'osmiza chiusa, il consiglio del paese siede attorno al fuoco. Vida deve mettere sul tavolo le prove nel giusto ordine: il fondo dello stagno tagliato, la pagina del quaderno, il cesto, le frasche capovolte segnate sul taccuino. Le prove sbagliate fanno chiudere i presenti, quelle giuste aprono altre domande. Se il villaggio si fida poco (troppe esplosioni) servono più prove. Svolta: Zefa ammette che Furlani è vivo, la lattaia muta toglie lo scialle ed è Stanko, e dalla porta chiusa la madre di Vida dice che sapeva. Le frasche diventano un sistema attivo: Vida può lasciare messaggi al villaggio. Fallire non blocca: se il confronto va male, Stanko la segue di nascosto e le lascia il quaderno sulla soglia."
+    },
+    {
+      "nome": "11. Il Pozzo delle Spade",
+      "tipo": "Discesa verticale con ricostruzione archeologica di una scena",
+      "descrizione": "Con il quaderno di Stanko, che segna gli appigli e le soste, Vida scende i novanta metri del pozzo dove riposano tremila anni di offerte. A ogni sosta un lampo di magnesio, una candela o l'eco rivela un pezzo della parete: le tacche delle piene incise dagli antichi, una più alta di tutte, all'altezza della ghiacciaia di Gabròvia. Sul fondo, nella Sala degli Asciutti, c'è Furlani, vivo. Svolta: le racconta di aver venduto lui, nel 1909, il primo rilievo al Consorzio, e le mostra il rilievo completo. La Mina di Marzo romperà il Sifone Nero e la piena di primavera salirà in paese; l'unico sfogo sono le bocche sepolte nel 1348. Le build: la Corda fa la parete libera, l'Orecchio trova le soste con l'eco, la Polvere illumina le tacche con il magnesio."
+    },
+    {
+      "nome": "12. Il trasporto",
+      "tipo": "Scorta con rivelazione",
+      "descrizione": "Furlani non può risalire il pozzo, e va portato fuori per la via bagnata: il fiume basso d'inverno, nella finestra fra due piogge sul Nevoso, legato a una barella-barca. Vida decide il ritmo, le soste per il freddo, i passaggi. All'uscita nelle Doline Rosse ci sono la ronda di Petermandl e il cane Hektor. Svolta: a metà strada la linea del telefono gracchia ed è Ribarič, che stavolta parla con la sua voce. Ha rifatto i calcoli, sa che la Mina di Marzo annegherà il paese e offre la mappa delle bocche trovate dai trivellatori nel 1909. Fidarsi o no cambia l'atto III. Le build con Hektor: l'Orecchio fa squillare un apparecchio lontano, la Corda porta la barella su una teleferica sopra la dolina, la Polvere acceca il cane con il magnesio (e Petermandl se lo ricorderà)."
+    },
+    {
+      "nome": "13. Per ora novem",
+      "tipo": "Enigma testuale e ricerca sulla costa nella bora",
+      "descrizione": "Le bocche sepolte si trovano solo incrociando le fonti antiche e il terreno. Sono i versi di Virgilio, l'iscrizione rovinata del Mitreo, il diario della scuderia di Lipizza (i cavalli bianchi bevevano a una fonte che non c'è più), la mappa di Ribarič se ci si è fidati e il colorante: versato nel fiume prima di una piena, fa uscire un filo verde dalle crepe della falesia. Vida percorre il sentiero sulle falesie con la bora a 150 km/h, si ripara dietro i muretti, scende in apnea nelle risorgive. Svolta: ci sono tre bocche obbligatorie e tre facoltative, e trovandole si scopre che sotto il mare c'è una nona bocca che nessuno ha mai visto. Le build: la Corda si cala dalle falesie, la Polvere libera le bocche con piccole cariche (o con l'argilla devia l'acqua per scoprirle), l'Orecchio sente l'acqua dietro la roccia."
+    },
+    {
+      "nome": "14. La linea comune e la piena di marzo",
+      "tipo": "Regia telefonica seguita dal finale di sintesi",
+      "descrizione": "Prima metà: nella notte della Mina di Marzo Vida si siede al centralino del Consorzio (entrando con il metodo scelto) e mette in comunicazione chi vuole: Weiss, il comando della Marina di Pola, il Luogotenente a Trieste, il brigadiere Petermandl, il villaggio (tramite il telefono della baracca e le frasche), Ribarič. Sceglie chi ascolta chi, quando aprire una linea, quando far sentire una prova (il rilievo di Furlani, i dati del pendolo, la testimonianza di Stanko). Seconda metà: all'alba arriva la piena dal Monte Nevoso, e Vida scende un'ultima volta. Usa tutto quello che ha imparato: la voce del fiume per sapere quanto tempo resta, il colorante per mostrare la via all'acqua, le corde, le frasche per far salire il paese. Apre le bocche, ferma la mina o accompagna il paese fuori dalla dolina, a seconda di quello che ha costruito. Ogni build ha una via completa."
+    }
+  ],
+  "missioni_secondarie": [
+    {
+      "nome": "Il cavallo che beveva",
+      "tipo": "Indagine con animale",
+      "descrizione": "Introduzione: una cavalla bianca della scuderia di Lipizza scappa ogni notte e la si ritrova all'alba in una dolina secca. Sviluppo: Vida la segue di notte e scopre che la cavalla annusa l'acqua sotto la terra.",
+      "svolta": "Sotto la dolina c'è una sorgente nuova, aperta dalla Mina Grande, e il capo stalliere la tiene nascosta per venderla al Consorzio. Risoluzione: Vida sceglie fra dirlo al villaggio assetato (che avrà acqua ma litigherà con la scuderia) o al Consorzio (che ne farà una prova a suo favore). La cavalla torna nel finale Nove Bocche."
+    },
+    {
+      "nome": "La ghiacciaia del disertore",
+      "tipo": "Protezione o denuncia, con dilemma",
+      "descrizione": "Introduzione: il ghiaccio della ghiacciaia del mercante di Basovizza si scioglie a gennaio. Sviluppo: Vida trova una corrente calda dal sottosuolo e un fuoco nascosto in fondo al pozzo.",
+      "svolta": "Ci vive un coscritto ungherese di 19 anni scappato dalla caserma di Opicina, che scalda il pozzo per non morire. Risoluzione: Vida lo può consegnare a Petermandl (la fiducia dei gendarmi sale), nasconderlo al villaggio (rischio di perquisizioni) o fargli attraversare le grotte fino al mare (serve aver trovato il passaggio del Mitreo)."
+    },
+    {
+      "nome": "La campana del 1797",
+      "tipo": "Ricerca sonora in un pozzo",
+      "descrizione": "Introduzione: il parroco di Gabròvia vuole la campana originale, gettata in un pozzo nel 1797 per nasconderla ai soldati di Napoleone. Sviluppo: con il geofono e battendo sulla roccia Vida trova il pozzo che suona.",
+      "svolta": "La campana sul fondo non è quella della chiesa: è un bronzo romano con l'iscrizione di Timavus, del santuario delle Bocche, che i contadini del 1797 avevano preso per la loro. Risoluzione: tenerla in fondo o portarla su. Se è in paese, nel finale suona per chiamare tutti fuori dalla dolina."
+    },
+    {
+      "nome": "Il bidone in più",
+      "tipo": "Osservazione e conteggio",
+      "descrizione": "Introduzione: una lattaia conta i bidoni ogni mattina e ce n'è sempre uno in più, che nessuno reclama. Sviluppo: Vida segna i numeri, le ore e i percorsi sul taccuino.",
+      "svolta": "Prima della missione 10 è un indizio: il bidone in più è il latte per un uomo sottoterra. Dopo, la lattaia, ormai sicura di Vida, le chiede di sostituirla per una notte nella consegna al pozzo. Risoluzione: la consegna diventa una piccola missione notturna fra le ronde, e la madre di Vida ringrazia per la prima volta."
+    },
+    {
+      "nome": "Lettere dal fondo",
+      "tipo": "Corrispondenza a catena nei barattoli",
+      "descrizione": "Introduzione: in sei barattoli del fondo ci sono lettere fra un esploratore del club italiano e un rivale del club tedesco, degli anni 1884-1893, piene di sfide e insulti. Sviluppo: leggerle in ordine richiede di scendere in sei grotte diverse.",
+      "svolta": "I due rivali erano la stessa persona, una guida slovena di Gabròvia che scriveva con due nomi per far litigare i club e farsi pagare da entrambi. Risoluzione: l'ultima lettera indica la sua cavità segreta, con l'attrezzatura migliore del 1890, e un Fondo doppio."
+    },
+    {
+      "nome": "Il pendolo dell'astronomo",
+      "tipo": "Lettura di dati scientifici",
+      "descrizione": "Introduzione: il dottor Wagenknecht, chiuso nella camera del pendolo dentro la Grotta Grande, dice attraverso il tubo acustico che il suo strumento oscilla male e gli guasta le misure delle maree. Sviluppo: Vida confronta i suoi grafici con gli squilli annotati nel taccuino.",
+      "svolta": "Il disturbo non è un guasto: è il battito delle piene, che piega la roccia. I suoi dati permettono di prevedere la piena di marzo al minuto. Risoluzione: portare i grafici al centralino nella missione 14 è una delle prove che convincono Weiss."
+    },
+    {
+      "nome": "La camera oscura",
+      "tipo": "Sviluppo fotografico sotto luce rossa",
+      "descrizione": "Introduzione: nel laboratorio di Pozzar a Opicina ci sono ancora lastre esposte e non sviluppate. Sviluppo: Vida deve rispettare tempi, bagni e temperatura alla luce rossa. Sbagliando, l'immagine si brucia ma resta parzialmente leggibile.",
+      "svolta": "Una lastra, scattata la notte del 20 settembre dalla bocca dell'abisso, mostra la sagoma del cappello piumato di un gendarme e un uomo in impermeabile che esce dalla grata: Ribarič vivo, e la gendarmeria che sapeva. Risoluzione: la prova può andare a Petermandl, che si vergogna e cambia parte, oppure al giornale."
+    },
+    {
+      "nome": "L'Argo sotto il Carso",
+      "tipo": "Caccia al tesoro con un visionario",
+      "descrizione": "Introduzione: un maestro di scuola in pensione è convinto che gli Argonauti abbiano portato la nave Argo attraverso il Timavo, e manda Vida a cercare le prove. Sviluppo: le prime prove sono falsi evidenti.",
+      "svolta": "Le incisioni di navi che Vida trova all'inizio sono scherzi degli speleologi del 1890 per prenderlo in giro. Ma una sala in fondo alla Galleria dei Proteiche ha una nave incisa vera, dell'età del ferro. Risoluzione: Vida sceglie se dirgli dello scherzo, della verità o di tutte e due. Il maestro le regala la sua traduzione dell'Eneide, utile nella missione 13."
+    },
+    {
+      "nome": "Le vedette del tonno",
+      "tipo": "Osservazione dal ciglione e intercettazione",
+      "descrizione": "Introduzione: le vedette del tonno di Santa Croce vedono sul mare chiazze lisce che si spostano. Sviluppo: Vida passa un giorno sulla vedetta e segna chiazze, ore e direzioni.",
+      "svolta": "Una chiazza ferma è acqua dolce che sale (la nona bocca), ma quella che si muove è il periscopio di un sommergibile della Marina di Pola in prova segreta. Risoluzione: la notizia può finire alla Marina, che diventa più prudente al tavolo della missione 14, o al Luogotenente, che ottiene un argomento contro di lei."
+    },
+    {
+      "nome": "Il treno assetato",
+      "tipo": "Riparazione di un sistema idraulico",
+      "descrizione": "Introduzione: dopo la Mina Grande la stazione di pompaggio della ferrovia non riesce più a riempire i serbatoi, e i treni si fermano a Gabròvia. Sviluppo: Vida risale il tubo di aspirazione fino alla presa e capisce valvole e pompe.",
+      "svolta": "Il tubo non prende acqua dal fiume: dal 1857 pesca di nascosto dal fondo del kal di Gabròvia. Il paese ha sempre avuto sete per far bere i treni. Risoluzione: Vida può chiudere la presa (il kal risale, i treni si fermano per una settimana e il viaggio veloce sparisce) o lasciarla e dirlo a Zefa, con un patto."
+    }
+  ],
+  "segreti": [
+    {
+      "livello": 1,
+      "descrizione": "La finestra di luna. Nelle notti di luna piena una luce bianca si accende a metà della falesia sotto il castello di Duino, dove nessuna corda arriva. È la luna che entra da un'apertura e si riflette su una cortina di calcite. Si raggiunge solo dal fiume, nella traversata del finale segreto: dentro c'è un elmo di bronzo con nove fori."
+    },
+    {
+      "livello": 1,
+      "descrizione": "Lo scoglio di Diomede. Davanti alle Bocche, uno scoglio con una colonna romana spezzata si vede da tutta la costa. Con la bora le onde lo rendono irraggiungibile. Ci si arriva solo in una giornata di calma piatta dell'atto III, in apnea, passando sotto per una bocca sommersa: alla base della colonna c'è una delle pietre con le lettere mancanti del Mitreo."
+    },
+    {
+      "livello": 2,
+      "descrizione": "Martel 1893. Sulla parete della Gola, dove passano tutti, c'è la firma incisa «E.A. Martel 1893» con una freccia. Chi la legge come un simbolo di rilievo speleologico (la freccia indica la pendenza, non la direzione) trova una cavità nascosta con un barattolo, una pagina annotata di «Les Abîmes» e un Fondo doppio."
+    },
+    {
+      "livello": 2,
+      "descrizione": "La canzone delle lattaie. Dalla missione 3 in poi le lattaie cantano ogni alba una canzone slovena, tradotta nel taccuino. Le sue strofe nominano, in ordine, le doline dove nel 1893 la piena è uscita dalla terra: è la mappa di cinque grotte che nessuna carta riporta."
+    },
+    {
+      "livello": 2,
+      "descrizione": "I nodi delle frasche. Ogni frasca ha uno spago con dei nodi. Letti nell'ordine dei sette incroci, dalla stazione alla chiesa, i nodi danno la combinazione del lucchetto della cantina di Zefa, che porta in una vecchia grotta dei contrabbandieri di vino con un Fondo e la bottiglia del 1893."
+    },
+    {
+      "livello": 3,
+      "descrizione": "La Sala dei Draghi. Durante una piena grande, chi si lascia sollevare dall'acqua lungo il pozzo della ghiacciaia sale di 40 metri fino a una galleria che a fiume basso è irraggiungibile: dentro vivono centinaia di protei, e uno, lungo quasi un metro, ha forse cent'anni. Non c'è nessun indizio scritto: lo si trova solo sapendo che la piena solleva."
+    },
+    {
+      "livello": 3,
+      "descrizione": "La linea dimenticata. Un vecchio cavo del 1896 corre ancora dalla Gola alla scuderia di Lipizza. Collegandoci il telefono portatile e girando la manovella del magnete, suona la campana della torre delle stalle: i cavalli bianchi si radunano e indicano la fonte romana dimenticata (una delle bocche)."
+    },
+    {
+      "livello": 3,
+      "descrizione": "Calce nella bora. Gettata dal ciglione nella bora, la calce viva traccia nel vento delle linee bianche. Una di queste sale invece di scendere: è il soffio di una grotta nella parete. Lo stesso trucco funziona anche con la farina presa all'osmiza, quindi non dipende dalla build."
+    },
+    {
+      "livello": 4,
+      "descrizione": "Nona sub undis. Le pietre romane sparse nel mondo, nove frammenti fra il Mitreo, lo scoglio, la campana del 1797 e altri luoghi, hanno lettere mancanti. Ricomponendole con il verso di Virgilio si legge un'indicazione in passi romani dall'altare del Mitreo verso il mare. Da sola non basta: serve la direzione, che si ricava dai fori dell'elmo di bronzo letti come una rosa dei venti. Pensato per essere risolto con appunti, o in comunità."
+    },
+    {
+      "livello": 4,
+      "descrizione": "I numeri in Klafter. I numeri che la falsa voce di Furlani recita al telefono nell'atto I sono distanze in Klafter (1,8965 metri) dal cippo di confine della stazione. Convertiti in metri e riportati sulla carta del 1890 con il goniometro del taccuino, indicano la settima e l'ottava bocca, che il Consorzio aveva trovato nel 1909 e taciuto. Nessuna missione lo dice: lo si capisce solo rileggendo le telefonate dopo la svolta centrale."
+    }
+  ],
+  "finale_segreto": "FONS TIMAVI, la traversata. Dopo uno dei tre finali, nell'epilogo di primavera, chi ha trovato tutte e nove le bocche (sei con le missioni, la settima e l'ottava con i numeri in Klafter, la nona con la pietra di Virgilio e l'elmo) può entrare nella Gola di San Canziano e seguire il fiume per tutto il suo corso nascosto, in un'unica discesa continua di circa 45 minuti. Passa per i luoghi già visti, che ora si collegano, e per gallerie che non si erano mai potute raggiungere: la Sala dei Draghi, la finestra di luna, una galleria con le orme di chi passava tremila anni fa. Non ci sono pericoli nuovi, solo il fiume, e la fluoresceina che Vida versa all'inizio la precede di qualche minuto, così da seguire il verde fino in fondo. Alla fine sale dalla nona bocca, sotto il mare, ed emerge all'alba in un cerchio d'acqua dolce e liscia in mezzo al mare bianco di bora. Sulla falesia un uomo con il mantello, l'ospite del castello, la guarda e scrive qualcosa. Ultima riga del taccuino: «Quaranta chilometri. Adesso c'è qualcuno che li ha visti». Cartello finale: «Il percorso sotterraneo del Timavo fra San Canziano e le Bocche è ancora oggi in gran parte sconosciuto».",
+  "easter_egg": [
+    "Virgilio: l'iscrizione del Mitreo e la traduzione del maestro riportano «unde per ora novem vasto cum murmure montis» (Eneide I, 245), che è la chiave delle nove bocche.",
+    "Rilke a Duino: nel gennaio 1912, nelle giornate di bora, una figura con il mantello cammina sul sentiero delle falesie e grida al vento. In un ginepro c'è un foglio strappato: «Wer, wenn ich schriee, hörte mich denn aus der Engel Ordnungen?». Il taccuino di Vida annota: «Un signore del castello grida al vento. Il vento non gli risponde. Il fiume sì».",
+    "Joyce a Trieste: alla fermata del tram di Opicina c'è un quaderno di esercizi della Berlitz School con le iniziali J.A.J., e a margine una parola sola, «riverrun».",
+    "Svevo: nel vagone-salone di Weiss c'è un pacchetto di sigarette con scritto a matita «U.S. 30.12.1911», l'ultima sigaretta di Zeno.",
+    "Jules Verne: nel bivacco di Furlani c'è una copia di «Mathias Sandorf» (1885), con sottolineata la fuga sul fiume che sparisce nella voragine di Pisino. A margine, con la grafia di Furlani: «Romanziere. I fiumi non fanno così. Fanno peggio».",
+    "Cinema: alla stazione di Gabròvia c'è il manifesto de «L'Inferno» della Milano Films (1911), il primo lungometraggio italiano. Vida ci scrive sopra a matita: «Io ci scendo gratis».",
+    "Valvasor e i draghi: nell'osmiza di Zefa è appesa l'incisione del 1689 con il cucciolo di drago portato fuori dalla piena. Sotto, un proteo vivo in un catino.",
+    "Kugy e la Scabiosa trenta: in un barattolo del fondo c'è un fiore secco con l'etichetta «Scabiosa trenta?» e la firma di un alpinista triestino che la cercava da anni. Il fiore, ovviamente, è un altro.",
+    "Videogiochi: in un barattolo del fondo, accanto a una candela nuova, c'è un biglietto: «È pericoloso andare da soli! Prendi questo». L'astronomo, invece, segnala nei suoi grafici «un'oscillazione che torna ogni ventidue minuti, e non è la luna».",
+    "TRAMA: nella merceria di Opicina c'è un merletto a tombolo «di Sant'Arianna» con un disegno mai visto, un fiume che si apre in nove bocche. Nel cassetto c'è una lettera firmata «L.», indirizzata alla «signorina Clotilde, Sant'Arianna, laguna», febbraio 1912: «Le mando un filo di quel verde che il Timavo porta al mare. Se un giorno lo vedrà arrivare in laguna, saprà che sono passato». Nella missione 2 un pescatore racconta di aver visto l'acqua verde «fino alle isole della laguna»."
+  ],
+  "durata": "Trama principale di 12-13 ore: atto I circa 4,5 ore (prologo più quattro piste), atto II circa 4,5 ore, atto III circa 3,5 ore. Il completamento arriva a 22-25 ore, con 10 missioni secondarie, 44 Fondi, 10 segreti, le nove bocche e il finale segreto. Le due cifre di livello 4 possono richiedere qualche ora in più di appunti o di comunità. Le sessioni sono pensate da 20-40 minuti, con salvataggio automatico a ogni barattolo firmato e a ogni ritorno all'osmiza.",
+  "fattibilita": "PERSONE: in tutto il gioco c'è al massimo mezza dozzina di figure umane visibili alla volta, e mai da vicino. Le persone sono voci al telefono (il filtro del 1911, banda 300-3400 Hz con fruscio e crepitii, trasforma i difetti della sintesi vocale Kokoro in stile), sagome nella bora con scialli e mantelle, la fila delle lattaie in controluce all'alba, i cappelli piumati dei gendarmi con le lanterne, la brace di un sigaro dietro un vetro smerigliato, mani nella luce del fuoco. Sottoterra le persone sono luci: chi porta la lampada a carburo sul cappello ha il viso nascosto dal controluce. ANIMAZIONI: clip CC0 di Quaternius per le camminate lontane, animazione procedurale per cani (Hektor), pipistrelli (stormi), protei (nuoto ondulato semplice) e cavalli (soprattutto fermi o a distanza). GROTTE: generate in Blender da script (volumi, rimodellazione a voxel, spostamento con rumore, poi decimazione), con occlusione ambientale e lightmap cotte, materiali di calcare CC0, un kit di 25-30 tronchi di grotta. La visibilità è chiusa per natura, con una sola luce dinamica (la lampada) più poche fisse: è lo scenario ideale per le GPU integrate. SUPERFICIE: heightmap a pezzi con doline procedurali (depressioni circolari), muretti a secco generati lungo curve, pini neri e querce con ez-tree, sommaco e erba istanziati, cielo fisico, nebbia d'altezza. ACQUA: la piena è un piano d'acqua che sale con uno shader di flusso e schiuma (economico e spettacolare); sott'acqua nebbia colorata e caustiche; il verde della fluoresceina è un colore che si diffonde nello shader dell'acqua. BORA: un vento comune ai vertici della vegetazione, particelle, audio e impulsi al controller del personaggio Rapier. AUDIO: Web Audio con HRTF e riverbero a convoluzione per sala, perché il suono è metà del gioco. Il fiume ha la sua voce, calcolata in base alla distanza lungo la rete di grotte (non in linea d'aria). COSTO: hub più 5 zone; il lavoro più grosso è il sistema dell'acqua (livelli, piene, colorante) e il kit delle grotte; poi circa 45.000 parole di testo (lettere, telefonate, taccuino), tutte in italiano. Lo sloveno e il tedesco compaiono solo come frasi brevi scritte o cantate. La logica di missioni e reazioni si basa su flag di stato, testabile in Node con Rapier senza browser. È un prologo giocabile nel browser di 45 minuti (missione 1 più una pista) e la versione completa su desktop.",
+  "perche_funziona": [
+    "L'aggancio è un fatto vero: il Timavo entra davvero nella terra a San Canziano ed esce a Duino, e il suo percorso è ancora oggi in buona parte sconosciuto. È il «Carso strano» che risponde alla «Gran Bretagna strana» di Atomfall, in un luogo che nessun gioco ha mai usato.",
+    "Il mondo di sotto è unico fra le proposte ed è anche la scelta tecnicamente più sicura. Le grotte nascondono i limiti del motore, limitano la vista, mettono in primo piano luce, acqua e suono (dove three.js rende bene) e danno al mondo un secondo strato da scoprire, come la luna quantistica di Outer Wilds o le profondità di Zelda.",
+    "Il limite dei volti diventa tema: in un gioco sull'ascolto le persone sono voci al telefono, luci nel buio e sagome nella bora. La protagonista è una centralinista, quindi la telefonata è la sua arma e il mezzo con cui il giocatore incontra quasi tutti.",
+    "La piena è un orologio alla Outer Wilds senza loop temporale: il tempo sul Monte Nevoso decide cosa è aperto sottoterra, quindi il mondo si muove da solo e il giocatore impara a leggerlo.",
+    "I colpi di scena rileggono la meccanica stessa: lo squillo era un idrometro, le frasche usate come segnaletica erano un codice, la voce che guidava era il nemico. Il giocatore scopre di aver letto il mondo nel modo sbagliato fin dal primo minuto.",
+    "Le build cambiano il modo di stare nel mondo (ingannare, arrampicarsi, trasformare), e ogni potere forte ha un prezzo visibile nel villaggio: niente numeri gonfiati.",
+    "Dilemma vero e senza buoni puri: la città ha bisogno di acqua per non morire di tifo, il villaggio rischia di annegare, l'eroe da salvare ha venduto il rilievo. Il finale pieno richiede di capire, non di scegliere il lato giusto.",
+    "Legame naturale con TRAMA: lo stesso mare del Nord Adriatico, un'acqua verde che arriva fino alla laguna di Sant'Arianna e una lettera di «L.» a Clotilde, la nonna di Ada da giovane."
+  ],
+  "rischi": [
+    "Disorientamento e claustrofobia nelle grotte: vanno mitigati con la voce del fiume come bussola, il gesso sulle pareti, le candele, i rientri in superficie ogni 15-20 minuti e un indicatore di direzione attivabile.",
+    "Sensibilità storica: il Carso del Novecento ha pagine molto dolorose. Ambientare nel 1911 le tiene fuori campo, ma servono rispetto e bilinguismo veri per le comunità slovena e italiana, e una revisione da parte di chi conosce il luogo.",
+    "Le voci sintetiche non coprono sloveno e tedesco: queste lingue vanno limitate a canti, scritte e frasi brevi, e i dialoghi lunghi restano in italiano e triestino.",
+    "Il sistema delle piene, con livelli d'acqua per sala, flussi, colorante e accessi che cambiano, è il cuore del gioco e anche il pezzo più complesso: va prototipato per primo, sul percorso della Gola.",
+    "Generare grotte proceduralmente rischia di produrre gallerie tutte uguali: ogni sala importante deve avere una forma, un suono e un oggetto riconoscibili, fatti a mano.",
+    "Il ritmo dopo la svolta: con la zona riservata e i gendarmi, le ronde non devono trasformare l'atto II in un gioco stealth puro. La cattura deve restare un contenuto narrativo, non una punizione.",
+    "Il Rilke riconoscibile, e il cartello finale che lega il gioco a fatti veri, vanno tenuti con misura: sono personaggi storici visti da lontano, mai con battute inventate attribuite a loro oltre ai versi pubblicati."
+  ]
+}

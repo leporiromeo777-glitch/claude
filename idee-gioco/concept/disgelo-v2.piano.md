@@ -1,0 +1,18 @@
+# DISGELO v2 - piano delle modifiche
+
+1. Tavio: niente "fonte R." (la denuncia è firmata "Camoscio", sospetti su Giuàn, Pinna padre, Ruedi), niente cappello in M8, foto col binocolo solo dopo M11. Rivelazione a fine Atto II (sagoma vuota); Atto III con Tavio che sa di essere scoperto; confessione provocata da Marta con 3 approcci. Sorpresa vera: la culla, nome solo nell'ultima frase. [critica 1, giocatore 7]
+2. Prova: carte pre-1970 col confine "approssimato" a tratteggio; solo le coppie stereo di Lisa danno i cippi al decimetro. [critica 2]
+3. Glaciologia: Conca e Bocchetta ghiaccio freddo e fermo; la Lingua scorre e ruota; correggere la rotazione produce il colpo di scena dell'azimut. [critica 3]
+4. "Tornavano" per tutti: Aldo torna per far entrare la famiglia, Lisa inverte la rotta; Elio eccezione dichiarata. [critica 4]
+5. Meno colpe: Ruedi in buona fede; Lucia non vende, vende il socio Bortolo; due secondarie estranee ai morti. [critica 5]
+6. Dettagli: lettera mai spedita di Giacomo; rullino in ghiacciaia; regola "solo il carotatore crea echi"; leggenda citata da Tavio; frase dialettale nuova. [critica 6]
+7. Tempo: calendario a settimane che avanza per progresso; le penalità costano ore e finestre, mai giorni. Morse registrato in automatico + bobina a camme. [critica 7, produzione, giocatore]
+8. Corbellini con un argomento vero (Sorèc muore); via la firma imitata, arriva un ricorso. [critica 8]
+9. La cacciatrice: donna con semi di larice e braci in pietra ollare; Ötzi citato una sola volta. [critica 9]
+10. Iniziativa a Marta in M6 (prevede la Rotta, sceglie chi avvisare), M9 (deduce lei), M12. [critica 10]
+11. Arben pastore di Theth che insegna "Passo di notte". [critica 11]
+12. Build: bivi solo di equipaggiamento, vela base per tutti, 26 abilità, pagine anche da misure ed echi minori, via base garantita, set piece per la Geometra. [critica 14, giocatore, produzione]
+13. Fotogrammetria degli echi; echi critici indistruttibili; il carotaggio profondo sposta, non cancella. [giocatore, produzione]
+14. 30 echi minori e viaggio rapido nel mondo. [giocatore]
+15. Produzione: corda a stati, ghiacciaio a strati, piano voci, stealth leggero, niente nuoto, Valle Verde ridotta, musica di pubblico dominio, tagli e gate. [produzione]
+16. Secondarie con doppio dialogo prima/dopo i colpi di scena. [critica 13]
