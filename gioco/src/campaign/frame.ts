@@ -41,6 +41,7 @@ export class SideNotebook {
       return;
     }
     this.mode = mode;
+    this.column.parentElement?.toggleAttribute('data-largo', wide);
     this.handle?.destroy();
     this.handle = null;
     this.column.hidden = !wide;
