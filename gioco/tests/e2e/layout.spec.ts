@@ -16,8 +16,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Browser, Page, TestInfo } from '@playwright/test';
-import { describeProblems, auditLayout, type AuditProblem } from './helpers/audit';
-import { playGolden } from './helpers/campaign';
+import { auditLayout, describeProblems, INFO_KINDS, type AuditProblem } from './helpers/audit';
+import { campaignDays, playGolden } from './helpers/campaign';
 import { call, captureErrors, expect, guardNetwork, nightState, onlyProjects, openGame, test, until, waitNight, waitScene } from './helpers/game';
 import { nightLayout } from './helpers/pointer';
 import { keepImage, shot } from './helpers/shots';
@@ -34,7 +34,21 @@ interface Variant {
  * le schermate più dense di testo e di comandi (le altre si allegano solo al rapporto,
  * per non riempire il repository di immagini).
  */
-const KEY_STEPS = new Set(['titolo-primo-avvio', 'sera-bigliettini', 'tombolo-notte', 'alba-atto2', 'bilancio', 'taccuino', 'scelta', 'impostazioni', 'giornaliero-risultato']);
+const KEY_STEPS = new Set([
+  'titolo-primo-avvio',
+  'sera-bigliettini',
+  'tombolo-notte',
+  // Atto II: sera, bigliettino anonimo e alba, dove i testi inglesi sono più lunghi (traduzione-en).
+  'sera-atto2',
+  'sera-anonimo',
+  'alba-atto2',
+  'bilancio',
+  'taccuino',
+  'taccuino-lettere',
+  'scelta',
+  'impostazioni',
+  'giornaliero-risultato',
+]);
 
 const VARIANTS: Variant[] = [
   { id: 'base', settings: {} },
@@ -64,16 +78,23 @@ test.describe('layout: tutte le schermate', () => {
           .toEqual(v.safe);
       }
       const problems: Record<string, AuditProblem[]> = {};
+      const info: string[] = [];
       for (const step of TOUR) {
         await test.step(step.id, async () => {
           await step.run(page);
           await shot(page, testInfo, `layout/${testInfo.project.name}/${v.id}/${step.id}`, { reference: v.id === 'base' || KEY_STEPS.has(step.id) });
-          problems[step.id] = await auditLayout(page, v.safe ? { safeTop: v.safe.top, safeBottom: v.safe.bottom } : {});
+          const safe = v.safe ? { safeTop: v.safe.top, safeBottom: v.safe.bottom } : {};
+          const found = await auditLayout(page, safe);
+          problems[step.id] = found.filter((p) => !INFO_KINDS.has(p.kind));
+          for (const p of found) if (INFO_KINDS.has(p.kind)) info.push(`${step.id}: ${p.kind} ${p.what} ${p.detail}`);
+          // GDD 10.1 e 17 chiedono 48 px: sotto i 48 (ma sopra i 44 della soglia dei test) si annota.
+          for (const p of await auditLayout(page, { ...safe, minTarget: 48 })) if (p.kind === 'piccolo') info.push(`${step.id}: sotto 48 px ${p.what} ${p.detail}`);
         });
       }
       for (const [id, list] of Object.entries(problems)) {
         expect.soft(list, `${testInfo.project.name} · ${v.id} · ${id}:\n${describeProblems(list)}`).toEqual([]);
       }
+      await testInfo.attach('note-informative.txt', { body: [...new Set(info)].join('\n') || 'nessuna', contentType: 'text/plain' });
       // Nessuna chiave chiesta e mancante nella lingua del giro.
       const locale = (v.settings.locale as string | undefined) ?? 'it';
       const missing = await call<string[]>(page, 'core.missingKeys', locale);
@@ -100,13 +121,128 @@ test.describe('layout: tutte le schermate', () => {
       const low = document.createElement('button');
       low.textContent = 'basso';
       low.style.cssText = 'position:fixed;bottom:2px;left:100px;width:60px;height:48px';
-      box.append(t, b, k, low);
+      // Un foglio con la calligrafia inclinata che esce dalla carta (come una lettera lunga).
+      const sheet = document.createElement('div');
+      sheet.style.cssText = 'position:absolute;top:160px;left:300px;width:160px;padding:8px;background:#efe4c8';
+      const hand = document.createElement('p');
+      hand.style.cssText = 'transform:rotate(4deg);transform-origin:left top;font-size:20px;margin:0';
+      hand.textContent = 'Cara mia, oggi sul molo c’era un vento che ti avrebbe fatto ridere, e poi ancora vento e vento.';
+      sheet.append(hand);
+      // Un pulsante coperto da un testo posato sopra.
+      const btn = document.createElement('button');
+      btn.textContent = 'Appunta';
+      btn.style.cssText = 'position:absolute;top:400px;left:300px;width:120px;height:56px';
+      const over = document.createElement('div');
+      over.textContent = 'testo che copre';
+      over.style.cssText = 'position:absolute;top:390px;left:290px;width:160px;height:80px;pointer-events:auto';
+      // Una parola spezzata a metà riga.
+      const narrow = document.createElement('p');
+      narrow.style.cssText = 'position:absolute;top:500px;left:300px;width:60px;word-break:break-all;font-size:17px';
+      narrow.textContent = 'Istantanea';
+      // Un testo che finisce sotto un pulsante rotondo.
+      const under = document.createElement('p');
+      under.style.cssText = 'position:absolute;top:580px;left:500px;width:200px;font-size:17px';
+      under.textContent = 'Risposto';
+      const round = document.createElement('button');
+      round.textContent = '≡';
+      round.style.cssText = 'position:absolute;top:570px;left:490px;width:56px;height:56px;border-radius:50%';
+      box.append(t, b, k, low, sheet, btn, over, narrow, under, round);
       document.getElementById('ui-root')?.appendChild(box);
     });
     const found = await auditLayout(page, { safeTop: 47, safeBottom: 34 });
-    const kinds = new Set(found.filter((p) => p.what.includes('qa-sonda') || p.what.startsWith('p') || p.what.startsWith('button') || p.what.startsWith('span')).map((p) => p.kind));
-    expect([...kinds].sort()).toEqual(expect.arrayContaining(['chiave', 'overflow', 'piccolo', 'safe-area']));
+    const kinds = new Set(found.map((p) => p.kind));
+    expect([...kinds].sort(), describeProblems(found, 30)).toEqual(
+      expect.arrayContaining(['chiave', 'overflow', 'piccolo', 'safe-area', 'fuori-foglio', 'coperto', 'testo-coperto', 'parola-spezzata']),
+    );
   });
+});
+
+// ───────── Tutta la carta della storia ─────────
+
+/**
+ * Il giro delle schermate mostra un bigliettino e un oggetto; la calligrafia però cambia
+ * da personaggio a personaggio (font, inclinazione, scala) e i testi da giornata a
+ * giornata. Qui si aprono, sera per sera, l'oggetto o la lettera della laguna, ogni
+ * bigliettino e le sue risposte, e si controlla ogni foglio con lo stesso controllo del
+ * DOM: il testo inclinato che esce dalla carta o copre i pulsanti si vede solo così.
+ */
+const PAPER_VARIANTS: { id: string; settings: Record<string, unknown>; projects: string[] }[] = [
+  { id: 'base', settings: {}, projects: ['desktop', 'iphone', 'android-piccolo', 'ipad-orizzontale'] },
+  { id: 'testo-140', settings: { textScale: 1.4 }, projects: ['desktop', 'android-piccolo'] },
+  { id: 'inglese', settings: { locale: 'en' }, projects: ['desktop', 'android-piccolo'] },
+];
+
+test.describe('layout: tutta la carta della storia', () => {
+  for (const v of PAPER_VARIANTS) {
+    test(`oggetti, lettere, bigliettini e risposte di ogni sera (${v.id})`, async ({ game }, testInfo) => {
+      onlyProjects(testInfo, ...v.projects);
+      test.setTimeout(8 * 60_000);
+      const { page } = game;
+      await call(page, 'core.setSettings', { animSpeed: 0, ...v.settings });
+      await call(page, 'campaign.newGame');
+      const problems: string[] = [];
+      let sheets = 0;
+      const check = async (label: string): Promise<void> => {
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        await page.waitForTimeout(120);
+        sheets++;
+        const found = (await auditLayout(page)).filter((p) => !INFO_KINDS.has(p.kind));
+        if (found.length === 0) return;
+        problems.push(...found.map((p) => `${label}: ${p.kind} ${p.what} ${p.detail}`));
+        await testInfo.attach(`${label}.jpg`, { body: await page.screenshot({ type: 'jpeg', quality: 70 }), contentType: 'image/jpeg' });
+      };
+      const closeAll = async (): Promise<void> => {
+        for (let i = 0; i < 4 && (await call<string[]>(page, 'core.overlays')).length > 0; i++) await call(page, 'core.closeOverlay');
+      };
+      for (const day of campaignDays().map((d) => d.id).filter((id) => id !== 'g00')) {
+        await test.step(day, async () => {
+          await call(page, 'campaign.goto', day, 'sera');
+          expect(await waitScene(page, 'sera'), `sera di ${day}`).toBe(true);
+          // L'oggetto (o la lettera) della laguna, se c'è.
+          const door = page.locator('[data-test="cp-oggetto"]');
+          if (await door.isVisible().catch(() => false)) {
+            await door.click();
+            await page.locator('[data-test="cp-oggetto-dettaglio"]').waitFor({ state: 'visible', timeout: 5_000 });
+            await check(`${day}-oggetto`);
+            await page.locator('[data-test="cp-oggetto-continua"]').click();
+          } else {
+            await call(page, 'campaign.objectSeen');
+          }
+          await closeAll();
+          const ev = await call<{ noteIds: string[] } | null>(page, 'campaign.evening');
+          await page.locator('[data-test^="cp-bigliettino-"]').first().waitFor({ state: 'visible', timeout: 5_000 }).catch(() => undefined);
+          await check(`${day}-sera`);
+          for (const id of ev?.noteIds ?? []) {
+            const card = page.locator(`[data-test="cp-bigliettino-${id}"]`);
+            if (!(await card.isVisible().catch(() => false))) continue;
+            // Un bigliettino che non si apre con un clic al centro è coperto da qualcosa.
+            const opened = await card.click({ timeout: 3_000 }).then(() => true, () => false);
+            if (!opened) {
+              problems.push(`${day}-${id}: il bigliettino non si apre con un clic (coperto da un altro elemento)`);
+              await testInfo.attach(`${day}-${id}-coperto.jpg`, { body: await page.screenshot({ type: 'jpeg', quality: 70 }), contentType: 'image/jpeg' });
+              await card.click({ force: true });
+            }
+            await page.locator('[data-test="cp-nota-dettaglio"]').waitFor({ state: 'visible', timeout: 5_000 });
+            await check(`${day}-${id}`);
+            const reply = page.locator('[data-test="cp-rispondi"]');
+            if (await reply.isVisible().catch(() => false)) {
+              if (!(await reply.click({ timeout: 3_000 }).then(() => true, () => false))) {
+                problems.push(`${day}-${id}: «Rispondi» non si tocca (coperto da un altro elemento)`);
+                await reply.click({ force: true });
+              }
+              await page.locator('[data-test="cp-nota-risposte"]').waitFor({ state: 'visible', timeout: 3_000 }).catch(() => undefined);
+              await check(`${day}-${id}-risposte`);
+            }
+            await closeAll();
+          }
+        });
+      }
+      await testInfo.attach('fogli-controllati.txt', { body: `${sheets} fogli\n${problems.join('\n')}`, contentType: 'text/plain' });
+      expect(sheets, 'fogli controllati').toBeGreaterThan(60);
+      expect(problems, `${testInfo.project.name} · ${v.id}: fogli con problemi`).toEqual([]);
+      game.expectClean();
+    });
+  }
 });
 
 // ───────── Daltonismo ─────────

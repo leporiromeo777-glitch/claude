@@ -73,6 +73,8 @@ test.describe('Archivio: nominare, rammendare, eco', () => {
     s = await nightState(page);
     expect(s.archive?.counter.correct, 'due nomi giusti').toBe(2);
     expect(s.archive?.confirmed, 'con 2 giusti e 1 sbagliato nessuna conferma').toEqual([]);
+    // Il contatore si legge nella striscia (GDD 10.3: «Nomi giusti: 1/3 per confermare»).
+    await expect(page.locator('[data-test="tb-req-info"]'), 'contatore dei nomi giusti visibile').toContainText('2/3');
     await call(page, 'night.name', f2, a.answer[f2]);
     s = await nightState(page);
     expect(s.archive?.confirmed.length, 'con 3 giusti la conferma scatta').toBe(3);
@@ -125,8 +127,13 @@ test.describe('Archivio: nominare, rammendare, eco', () => {
     expect(await call(page, 'night.echo', echo.hour, echo.pair)).toBe(echo.textKey);
     await page.keyboard.press('Escape');
 
-    // ── Chiudi il merletto → rivelazione e conoscenza ──
-    await call(page, 'night.main');
+    // ── Chiudi il merletto (il pulsante grande, GDD 10.3) → rivelazione e conoscenza ──
+    if ((await call<string[]>(page, 'core.overlays')).length > 0) await call(page, 'core.closeOverlay');
+    await expect(page.locator('[data-test="tb-eco"]')).toHaveCount(0);
+    const main = page.locator('[data-test="tb-fissa"]');
+    await expect(main, '«Fissa l’ora» diventa «Chiudi il merletto»').toContainText('Chiudi il merletto');
+    if (kind === 'touch') await main.tap();
+    else await main.click();
     expect(await until(page, async () => !!(await nightState(page)).completed || (await call<string>(page, 'core.scene')) === 'archivio')).toBe(true);
     expect(await waitScene(page, 'archivio', 20_000)).toBe(true);
     const k = await call<{ archive: Record<string, string>; questions: Record<string, string> }>(page, 'campaign.knowledge');
