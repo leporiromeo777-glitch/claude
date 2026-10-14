@@ -189,7 +189,7 @@ Gruppo «nativa», compiti NAT-01 e NAT-02 di `docs/REVISIONE-1.md` (decisione D
 ### NAT-02 [P2] STORE.md: fatto
 
 - **6.2 Privacy**: tabella delle due API con motivo dichiarato (UserDefaults `CA92.1`, marcatura temporale dei file `C617.1`) con chi le usa; cosa fa la condivisione (un solo PNG nella cache, nessun permesso Android); l'email ITMS-91053 e dove trovare i motivi per un plugin nuovo.
-- **6.4 Immagini delle schede: già pronte** (prima erano «6.5 Immagini», con la grafica «da preparare»). In cima la grafica in evidenza di Google Play, con i due file (`assets/feature-graphic.png` per la scheda italiana, `assets/feature-graphic-en.png` per l'inglese, 1024×500, PNG RGB senza alfa: controllato) e le due anteprime. Poi le schermate: tabella con le tre cartelle di `tests/e2e/__screenshots__/store/` (iPhone 6,9" 1290×2796, iPad 13" 2064×2752, Android 1080×1920; 5 JPEG ciascuna, misure controllate), le iPad anche come tablet di Google Play, e il comando per rifarle sulla versione definitiva. Infine l'icona.
+- **6.4 Immagini delle schede: già pronte** (prima erano «6.5 Immagini», con la grafica «da preparare»). In cima la grafica in evidenza di Google Play, con i due file (`assets/feature-graphic.png` per la scheda italiana, `assets/feature-graphic-en.png` per l'inglese, 1024×500, PNG RGB senza alfa: controllato) e le due anteprime. Poi le schermate: tabella con le tre cartelle di `tests/e2e/__screenshots__/store/` (iPhone 6,9" 1290×2796, iPad 13" 2064×2752, Android 1080×1920; 5 JPEG ciascuna, misure controllate), e il comando per rifarle sulla versione definitiva. Infine l'icona.
 - **6.5 Testi della scheda**: invariata, solo rinumerata. Riferimenti aggiornati in 7.2, 8.2, 10.1, 10.3, 10.4.
 - **4, 9, 11, 12**: `native:check` controlla anche i plugin; cosa fare quando si aggiunge un plugin; due righe nuove nei problemi comuni (plugin non sincronizzato, ITMS-91053); file generati da `cap sync`, grafica in evidenza e cartella delle schermate nell'elenco del repository.
 - Nessun «da preparare» rimasto.
@@ -199,7 +199,7 @@ Gruppo «nativa», compiti NAT-01 e NAT-02 di `docs/REVISIONE-1.md` (decisione D
 - `npm run native:check`: 47/47. `npm run native:test`: 68/68, 0 fallite, in circa 9 s.
 - `npm run android:apk`: oggi si ferma al primo passo, `tsc --noEmit` di `npm run build`, per un errore di tipo in un file del tombolo in lavorazione (`src/tombolo/tutorial.ts(84,7)`, `PulseTarget`). Non è un file nativo. Ho quindi lanciato gli stessi passi senza il typecheck: `npx vite build && npx cap sync && bash scripts/android-build.sh assembleDebug`.
   - Tentativo 1: Maven Central risponde `429 Too Many Requests` su `kotlinx-coroutines-core:1.10.2`, una dipendenza nuova del plugin filesystem. È l'errore di rete documentato in STORE.md 4 e 11; lo script ha ritentato da solo dopo 15 s.
-  - Tentativo 2: BUILD SUCCESSFUL. `app-debug.apk` pesa 12 183 196 byte (11,6 MB; prima 8,5 MB). La differenza viene dalle librerie Kotlin e coroutine del plugin, non minimizzate nella build di debug, e dal bundle web più grande.
+  - Tentativo 2: BUILD SUCCESSFUL. `app-debug.apk` pesa 12 183 196 byte (11,6 MB; prima 8,5 MB). *Correzione della verifica: la crescita non viene dal plugin. Una compilazione pulita, su una copia del progetto, dà 9 031 070 byte (8,6 MB) con lo stesso contenuto; i 12 MB sono un effetto dell'impacchettamento incrementale sulla cartella `build/` già esistente.*
   - aapt2: `it.trama.merletto`, versionName 1.0.0, targetSdk 36. Permessi: INTERNET (modello di Capacitor) e VIBRATE (haptics). Il plugin filesystem non ne aggiunge.
   - `assets/capacitor.plugins.json` nell'APK elenca `com.capacitorjs.plugins.filesystem.FilesystemPlugin`.
   - Un secondo `cap sync` non cambia nessun file versionato.
@@ -229,4 +229,34 @@ Gruppo «nativa», compiti NAT-01 e NAT-02 di `docs/REVISIONE-1.md` (decisione D
 
 - **asset-blender** (facoltativa): un'icona per Google Play a 32 bit con canale alfa (512×512 RGBA, per esempio `public/icons/icon-512-play.png`), così non serve la conversione a mano descritta in STORE.md 6.4.
 - **QA, prima del playtest 2**: rifare le schermate per gli store (`E2E_SHOTS=1 npx playwright test tests/e2e/layout.spec.ts -g "schermate per gli store" --project=desktop`). Se possibile, anche in inglese, per la scheda inglese.
+
+### Verifica della revisione 1 (verificatore)
+
+Controllato tutto da capo, con prove vere, e corretto quello che mancava.
+
+**NAT-01: confermato.**
+- `PrivacyInfo.xcprivacy` letto con `plistlib`: UserDefaults `CA92.1` e FileTimestamp `C617.1`. Le API con motivo nei sorgenti iOS dei plugin: `@capacitor/preferences` (UserDefaults) e `@capacitor/filesystem` (`attributesOfItem`, date dei file). Anche la libreria `ion-ios-filesystem` (clonata da GitHub) usa solo le date dei file, niente spazio su disco: le due voci bastano. Gli altri plugin non ne usano.
+- Prova della segnalazione originale: su una copia del progetto con i file di prima del sync (`8bca12c`) `check-native` esce con 1 e segnala Android, iOS e FileTimestamp.
+- `npx cap sync` lanciato su una copia del progetto: 8 plugin per piattaforma, `capacitor.build.gradle` identico a quello versionato. `capacitor.settings.gradle` e `Package.swift` cambiano solo nel percorso prima di `node_modules/` (nella copia `node_modules` era un collegamento, e cap sync scrive il percorso della cartella vera). Con quei file `check-native` dava 2 falsi errori.
+- APK: sulla copia, `vite build` + `cap sync` + `scripts/android-build.sh assembleDebug` danno BUILD SUCCESSFUL al primo tentativo: 9 031 070 byte. aapt2: `it.trama.merletto`, targetSdk 36, permessi INTERNET e VIBRATE (più quello interno di androidx), FileProvider `it.trama.merletto.fileprovider` con `cache-path`. `capacitor.plugins.json` dell'APK elenca `FilesystemPlugin`.
+- **`npm run android:apk` vero, dall'inizio alla fine**: alla fine della verifica il typecheck globale era tornato verde, quindi il comando è passato tutto (`tsc`, `vite build`, `cap sync`, Gradle): BUILD SUCCESSFUL al primo tentativo, `app-debug.apk` di 12 183 519 byte (cartella `build/` incrementale), 8 plugin in `capacitor.plugins.json`, filesystem compreso. Dopo il `cap sync` sul progetto vero nessun file versionato di `android/` e `ios/` è cambiato. Demone di Gradle fermato.
+- Bundle web dell'APK servito su 127.0.0.1:5625 e aperto come Pixel 7 e iPad Pro 11 in orizzontale, con un tocco vero: titolo disegnato (screenshot guardato), nessun errore in console, nessuna richiesta esterna. Server chiuso.
+
+**NAT-02: confermato, con una correzione.**
+- I due file della grafica in evidenza esistono, 1024×500 RGB senza alfa, e le scritte sono giuste («Il merletto dei giorni», «The Lace of Days»). Le tre cartelle delle schermate hanno 5 JPEG ciascuna alle misure dichiarate. Il comando per rifarle esiste (`E2E_SHOTS=1`, test «schermate per gli store», progetto `desktop`). Nessun «da preparare».
+- STORE.md trasformato in HTML con `marked` e aperto in Chromium: le due anteprime si caricano (1024×500), sezione 6.4 guardata.
+- **Correzione**: la guida diceva di usare le schermate dell'iPad (3:4) anche come tablet di Google Play. La pagina di Google («Add preview assets») chiede per i tablet almeno 4 schermate in 16:9 o 9:16, con il lato fra 1080 e 7680 px. Ora la riga dice che le schermate per tablet sono facoltative e che quelle dell'iPad non vanno usate. Le schermate del telefono (1080×1920) sono già in 9:16, il formato che Google chiede per mettere i giochi nelle vetrine.
+- La riga dell'APK nella checklist 10.1 dice «circa 9 MB».
+
+**Corretto in più (file del gruppo).**
+- **«Salva immagine» su iPhone.** Il gioco condivide un PNG come file. Nel foglio di condivisione di iOS c'è «Salva immagine», e senza `NSPhotoLibraryAddUsageDescription` in `Info.plist` l'app si chiude quando il giocatore la sceglie (nelle versioni recenti di iOS, invece, la voce non compare). Aggiunta la frase, in italiano e in inglese nella stessa stringa: localizzarla con `InfoPlist.strings` richiede modifiche al progetto Xcode che qui non si possono provare. `check-native` la controlla quando `@capacitor/share` è fra i plugin (48 controlli). STORE.md 6.2 e 12 lo spiegano.
+- **Percorso di `node_modules`.** `check-native` riconosce il plugin da quello che segue `node_modules/`, qualunque sia il percorso prima. Prima voleva `../node_modules/` alla lettera.
+- `native:test`: 70 prove, 2 nuove: la frase per «Salva immagine» tolta deve dare errore; i file generati con un altro percorso di `node_modules` devono restare verdi.
+
+**Regressioni.**
+- `npm run native:check` 48/48, `npm run native:test` 70/70.
+- `npx vitest run`: 1070 test passati e 27 falliti, in 10 file di altri gruppi in lavorazione (campaign, content atto1 e atto23, engine generator, tombolo). Nessuno tocca i file nativi.
+- `npx tsc --noEmit -p .`: a metà verifica dava errori in `src/tombolo/controller.ts` e `src/tombolo/session.ts` (altro gruppo, in lavorazione); alla fine è verde.
+
+**Da sapere per gli altri.** `docs/ARCHITETTURA.md` 13, che elenca le impostazioni native, non cita ancora `NSPhotoLibraryAddUsageDescription`: va aggiunto dalla regia.
 
