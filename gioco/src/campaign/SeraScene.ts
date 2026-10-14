@@ -26,7 +26,7 @@ import { el, clear } from '../core/ui/dom';
 import { button, iconButton, paperCard, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
 import { controller, type SeraCommand } from './controller';
-import { arrivalOf, dayAt, emptyDoorKey, eveningItems, pinsLeft, pinsOf, undecided } from './evening';
+import { arrivalOf, dayAt, emptyDoorKey, eveningItems, firstEveningOfAct, pinsLeft, pinsOf, undecided } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf, ripassaAvailable } from './flow';
 import { Backdrop, dayLabel, SideNotebook } from './frame';
@@ -174,12 +174,9 @@ export class SeraScene implements Scene {
 
   // ───────── Cartello d'atto (CAM-10) ─────────
 
-  /** Prima sera di un atto (g01, g09, g17): l'atto della giornata è diverso da quello di prima. */
+  /** Prima sera di un atto (g01, g09, g17). */
   private firstOfAct(c: CampaignStateX): boolean {
-    if (c.dayIndex <= 0) return false;
-    const day = dayAt(this.s.content, c.dayIndex);
-    const prev = dayAt(this.s.content, c.dayIndex - 1);
-    return !!day && !!prev && day.act !== prev.act && day.act > 0;
+    return firstEveningOfAct(this.s.content, c.dayIndex);
   }
 
   private renderActCard(main: HTMLElement, c: CampaignStateX): void {

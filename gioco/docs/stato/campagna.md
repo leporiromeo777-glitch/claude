@@ -142,3 +142,107 @@ File: `src/campaign/`, `src/i18n/{it,en}/campaign.json`, `tests/unit/campaign/`.
 - **Esplorazione a mano con Playwright**: screenshot guardati uno per uno.
   - Prologo trascinando davvero i fusi, alba toccando le vignette, bilancio, oggetto, bigliettini, risposta, spilli, Taccuino, notte di g01; in stretto e in largo, in italiano.
   - g12 (nome e memoria nel bilancio e nel Taccuino), la scelta, fin_seppia, l'epilogo, i titoli, la fine.
+
+## Revisione 1
+
+Tutte le dodici attività del gruppo (CAM-01 … CAM-12) sono chiuse, ciascuna con il suo criterio d'accettazione verificato da test unitari e nel browser. I contratti sono quelli di `docs/REVISIONE-1.md` (C03, C04, C05, C06, C07, C08, C10, C11, C17, C18); i tipi nuovi (SCH-01) e i dati comuni (CA1-02) sono già nel repository.
+
+### Che cosa è cambiato
+
+- **CAM-01, Archivio facoltativo.**
+  - La scena `archivio` riceve `{ cmd: 'lascia', levelId }` (C10). Toglie `SaveData.night` solo se è la notte d'Archivio di quel livello, non tocca `knowledge.archive` e mostra la cassapanca con «Apri» e «Più tardi». Nella fase d'Archivio «Più tardi» porta alla sera dopo.
+  - Un rotolo rammendato ha due pulsanti. «Rileggi» (`cp-apri-<id>`) apre il merletto registrato in modo `replay`, con `resume.archiveNames` uguale ai nomi giusti. Non registra record e non cambia l'Archivio; a merletto finito resta sullo schermo con «Alla cassapanca» (`cp-rileggi-chiudi`). «Rifai» (`cp-rifai-<id>`) lo ritesse da capo.
+- **CAM-02, il foglio giusto (C17).**
+  - Nessun pulsante dentro `.core-carta`: le risposte non sono più fogli-pulsante e i pulsanti stanno in un livello sopra il foglio.
+  - I bigliettini interi e le lettere hanno `core-carta--scorre`.
+  - I segni («Appuntato», «Risposto», «Lasciato») stanno sopra il foglio, così «Risposto» si vede senza scorrere. La lista ha in fondo 56 + 16 px.
+  - La scheda Lettere c'è dalla prima lettera.
+- **CAM-03, oggetti (C03, C04).**
+  - `{knows: 'oggetto'}` è vera con l'oggetto o la lettera letti.
+  - L'oggetto della porta ha la frase della sua provenienza (`campaign.sera.arrivo.<from>`, `cp-sera-arrivo`). La sera senza oggetto mostra `eveningEmptyKey` (o `campaign.sera.arrivo.niente`).
+  - L'oggetto dell'alba (`dawnObject`) si calcola a fine notte (`report.dawnItems`, `report.dawnBy`). Dopo l'ultima vignetta c'è la consegna (`cp-alba-oggetto`): «Prima di andare via…», la figura di chi consegna, la lettura nello stesso foglio della sera. Poi `learnItems` e `refreshDiary`; le voci nuove si annunciano lì, sotto la lettera (`cp-lettura-voci`), e non tornano nel bilancio. Poi il bilancio e la cassapanca. Anche alla porta le voci nuove compaiono sotto l'oggetto prima di chiuderlo.
+  - Nel g14 la vignetta di chi consegna (Zeno) è sempre l'ultima dell'alba e non resta mai fuori, anche con 4 culmini.
+- **CAM-04, alba (D11, C06).** `selectDawn` riscritta:
+  - i culmini (≥ 100) escono tutti, nell'ordine dei dati;
+  - `dopo` lega una vignetta alla sua;
+  - il massimo sale a 4 solo per i culmini;
+  - le battute generiche entrano solo con meno di 2 scritte e mai con un culmine; la riserva solo senza scritte.
+
+  Gli avvisi del Taccuino arrivati a fine notte (una stranezza scoperta nelle ultime righe) non coprono più la prima vignetta: si tolgono all'inizio dell'alba ed escono dopo l'ultima, o col bilancio se prima c'è una lettura.
+- **CAM-05, bilancio (C05).** `consequenceOf` usa nell'ordine:
+  1. `esito.<stato>`;
+  2. destino;
+  3. desiderio, solo se scoperto adesso;
+  4. voce del Taccuino;
+  5. frase generica.
+
+  Le voci usate come conseguenza e quelle già annunciate alla lettura non si ripetono in «Nel Taccuino». `bilancio.record` è al plurale («Record: 1 incrocio, 1 ora di quiete») e la sezione degli obiettivi si chiama «Come doveva andare».
+- **CAM-06, Taccuino.**
+  - Una pista di una domanda già risolta non si sblocca più. Nelle Domande le piste stanno sopra le risposte e spariscono a domanda risolta. Dopo la scelta di g23 (fasi finale, titoli, fine) «Dove guardare» lascia il posto a `campaign.taccuino.pistaFinita` (`cp-pista-finita`).
+  - Pagine del Libro «Nuova» (`knowledge.bookSeen`, `cp-taccuino-libro-nuova`): si segnano viste quando il pannello che le ha mostrate si chiude. Nella prima notte di una regola, la prima apertura del Taccuino va sulla sua pagina. Nel layout stretto compare l'avviso toccabile «Nuova pagina nel Libro: La febbre» (`cp-libro-avviso`), che apre il Taccuino su quella pagina.
+  - Le schede stanno in una riga che scorre, sfumata dal lato dove ce ne sono altre.
+- **CAM-07, pannello dei bigliettini.**
+  - Lo stato viene da `requestStatusFull()`: con `anteprima === 'soddisfatta'` e il rapporto non ancora soddisfatto, «Si compie se fissi l'ora» con la spunta tratteggiata (C07). Il pannello si ridisegna anche a `night:cross`, quindi segue la bozza.
+  - Sotto le richieste c'è `objectivesElement({ compact: true })` del tombolo (C08), uno per pannello e per notte. Se il tombolo non lo offre, resta il conteggio di prima.
+  - Nelle notti senza bigliettini il pannello si intitola «Obiettivi» e non dice «Nessuna richiesta».
+- **CAM-08, finali.**
+  - A, B e D: il merletto finito resta con «Continua» (`cp-finale-continua`, sopra il pulsante principale spento del tombolo).
+  - C passa subito al cartello nero. Non risuona la campana se il livello ha `chiusura: 'nodo'`, perché la suona l'audio a `tombolo:nodo`.
+  - Dopo `fin_chiuso` il biglietto di Clotilde è piegato (`ChoiceCard.folded`, `data-stato="piegato"`), non si appunta e rimanda a «Il punto di Clotilde».
+  - La Fine del finale vero ha la riga `cp-finale-vero`; `fineTesto` dice «La storia di quell'anno è finita».
+- **CAM-09, sera.**
+  - «Appunta · restano 2 spilli».
+  - Con gli spilli finiti, sotto i pulsanti c'è come liberarne uno, con i collegamenti ai bigliettini appuntati (`cp-spilli-finiti`, `cp-vai-<id>`).
+  - Gli spilli si contano solo se c'è un bigliettino da appuntare; la scelta di g23 usa sempre 1 spillo (`pinsOf(…, 'scelta')`).
+  - Esc o Indietro senza pannelli chiedono «Tornare al titolo? È tutto salvato.» (`cp-sera-esci-conferma` sull'ospite del dialogo).
+- **CAM-10, cartelli d'atto e prologo.**
+  - Alla prima sera di g01, g09 e g17 c'è un cartello nero con la stagione e il titolo (`cp-atto-cartello`, una volta per sera).
+  - Nel prologo niente Taccuino sul buio. Lo schermo nero copre tutta la finestra anche nel layout largo, il titolo sta su una fascia scura e il biglietto è appuntato sul tombolo.
+- **CAM-11.** La rivelazione dell'Archivio occupa tutta l'area come le vignette dell'alba. Il nome dei personaggi sulla carta usa `inkOnPaper` (`--pers-ink`): Lunardi ≥ 4,5:1.
+- **CAM-12.** Ogni riga d'epilogo riceve `{occasioni}`: le occasioni piantate nella notte del finale (`history[fin].occasions`, anche per un epilogo rivisto dal Telaio), ordinate per ora. Esempio: «il vaporetto delle 9, la festa in Farmacia a mezzogiorno, la festa in Piazza alle 17 e la lanterna alle 20»; in inglese «the 9 am ferry, …».
+- **Altro.** La stranezza di Gino nel Taccuino dice la regola nuova (D01). L'API di debug ha `dawnObjectSeen()`, `leaveArchive(id)`, `reread(id)`, e `dawn()` riporta anche l'oggetto. `skipDawn()` salta anche la consegna (la lettera si impara lo stesso).
+
+### Come ho letto i contratti
+
+- **C03, avvisi.** «Le voci nuove si annunciano lì, non nel bilancio»: alla lettura (porta o alba) compare l'elenco «Nel Taccuino» sotto l'oggetto, e quelle voci (`diaryAnnounced`) restano fuori da «Nel Taccuino» del bilancio. Se l'oggetto si chiude con Indietro, un avviso mostra la prima.
+- **C04, porta e oggetti.** La frase vuota della porta vale solo nelle sere senza oggetto, cioè dove la giornata prima non ha `objectAfter`. Per la provenienza conta il primo oggetto della sera, quindi merletto e Libro dicono «casa».
+- **C06, `dopo`.** Una vignetta con `dopo` esce subito dopo la sua. Se quella non è fra le candidate, esce come le altre.
+- **C08.** Il componente si chiede al tombolo una volta per pannello e per notte, e il pannello lo riattacca a ogni ridisegno.
+- **C10, nomi.** I nomi confermati prima di «Lascia per ora» non si conservano, perché il contratto dice solo di svuotare la notte salvata. D05.1 dice che «restano nel Taccuino»; se servirà, si può tenere `resume.archiveNames` in un campo della campagna e ripassarlo all'apertura.
+- **CAM-01, Rileggi.** Il modo `replay` mostra nomi e colori perché il tombolo, senza ArchiveBook, disegna i fili col loro personaggio. Gli echi toccabili in sola lettura dipendono dal tombolo (sotto).
+- **CAM-06, avviso.** Vale solo per una regola che compare per la prima volta in quella giornata (g02 voce e matassa, g03 molo, g06 segreto, g09 febbre, g11 nodo, g12 nome, g17 nero, g19 marea), dopo che Ada ha il Libro dei Punti. Nel layout largo non c'è, perché il Taccuino fisso si apre già sulla pagina.
+
+### Richieste per altri gruppi
+
+- **tombolo:**
+  - con «Rileggi» (`mode: 'replay'` su un livello d'Archivio, origine `archivio`) servono gli echi toccabili, che oggi richiedono l'ArchiveBook;
+  - con «Rileggi» non dovrebbe partire il tutorial: in arc1 compare «Chi è questo filo?…»;
+  - nel layout largo la nota a margine (D04, «nel pannello di sinistra, in cima») copre l'inizio del pannello dei Bigliettini: si può riservarle spazio, o la campagna può lasciare un margine in cima se il tombolo lo segnala con una classe.
+- **piattaforma-qa:**
+  - i flussi da aggiornare nelle e2e sono:
+    - il cartello d'atto alla prima sera di g01, g09 e g17 (`cp-atto-cartello`, si tocca);
+    - il secondo «Continua» dell'oggetto quando compaiono le voci (`cp-lettura-voci`);
+    - la consegna all'alba di g14 e g16 (`cp-alba-oggetto-continua`);
+    - «Continua» sul merletto finito dei finali (`cp-finale-continua`);
+  - `tests/unit/campaign/browser-verify.ts` è già allineato.
+
+### Test
+
+- `npx vitest run tests/unit/campaign`: 10 file, 97 test, tutti verdi. Sono nuovi `revisione1.test.ts` (logica pura con i contenuti veri) e `revisione1.dom.test.ts` (happy-dom), più casi in `dawn.test.ts` e `controller.test.ts`.
+- `npx tsc --noEmit -p .`: nessun errore nei file della campagna. Gli errori rimasti sono di altri gruppi, in corso.
+- Nel browser, con la build `VITE_E2E=1` servita con `vite preview` sulla porta 5700, ho guardato gli screenshot uno per uno:
+  - `browser-verify.ts`: 105/105;
+  - sonde mirate:
+    - bigliettini di Gino, Bepi e Zeno a 390×844 e 1440×900, con `elementFromPoint` al centro di Appunta, Lascia e Rispondi;
+    - lettere dentro il foglio, «Risposto» visibile, spilli finiti, Esc;
+    - g14 dalla notte alla cassapanca, e g15 con la sera vuota;
+    - arc1 con Lascia, Più tardi, rivelazione a tutta area, Rileggi e Rifai;
+    - i quattro finali con «Continua», `{occasioni}`, Fine e biglietto piegato;
+    - g09 con l'avviso e il Libro;
+    - pannello dei bigliettini nel prologo largo, nel Merletto del giorno a 1920×1080 e in g05 con la bozza (gettone e pannello concordano);
+    - 360×640 col testo al 140% in italiano e in inglese.
+
+### Problemi noti
+
+- Le voci annunciate alla lettura possono essere molte (7 per la lettera di Clotilde). L'elenco scorre e «Continua» resta attaccato in fondo.
+- I nomi dati nell'Archivio prima di «Lascia per ora» si perdono (vedi C10 sopra).

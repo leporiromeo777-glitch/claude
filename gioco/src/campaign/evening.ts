@@ -56,6 +56,14 @@ export function dayIndexOf(db: Pick<ContentDB, 'campaign'>, id: string): number 
   return db.campaign.days.findIndex((d) => d.id === id);
 }
 
+/** Prima sera di un atto (CAM-10: g01, g09, g17): l'atto è diverso da quello del giorno prima. */
+export function firstEveningOfAct(db: Pick<ContentDB, 'campaign'>, index: number): boolean {
+  if (index <= 0) return false;
+  const day = dayAt(db, index);
+  const prev = dayAt(db, index - 1);
+  return !!day && !!prev && day.act !== prev.act && day.act > 0;
+}
+
 /** Spilli rossi della sera; la scelta di g23 ne usa sempre uno solo (CAM-09). */
 export function pinsOf(db: Pick<ContentDB, 'campaign'>, index: number, mode: EveningMode = 'sera'): number {
   if (mode === 'scelta') return 1;

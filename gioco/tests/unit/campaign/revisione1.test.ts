@@ -33,7 +33,7 @@ import {
   beginEvening,
   choose,
 } from '../../../src/campaign/flow';
-import { arrivalOf, dawnItems, dayIndexOf, emptyDoorKey, eveningItems, objectMeta, pinsLeft, pinsOf } from '../../../src/campaign/evening';
+import { arrivalOf, dawnItems, dayIndexOf, emptyDoorKey, eveningItems, firstEveningOfAct, objectMeta, pinsLeft, pinsOf } from '../../../src/campaign/evening';
 import { formatOccasions, occasionHour, withOccasions } from '../../../src/campaign/endings';
 import { evalStory } from '../../../src/campaign/story';
 import { markBookSeen, newBookPages, refreshDiary } from '../../../src/campaign/diary';
@@ -289,6 +289,13 @@ describe('CAM-09: spilli', () => {
     const d = eveningAt('g23');
     beginChoice(d, db());
     expect(pinsLeft(camp(d), db())).toBe(1);
+  });
+});
+
+describe('CAM-10: cartelli d’atto', () => {
+  it('alla prima sera di ogni atto: g01, g09 e g17', () => {
+    const firsts = db().campaign.days.map((d, i) => (firstEveningOfAct(db(), i) ? d.id : null)).filter((x) => x);
+    expect(firsts).toEqual(['g01', 'g09', 'g17']);
   });
 });
 
