@@ -1,9 +1,9 @@
 {
   "levelId": "g01",
-  "sourceHash": "43494d71d5c0ab4e",
+  "sourceHash": "b65ac736132938b1",
   "solverVersion": 2,
   "base": {
-    "incroci": 3,
+    "incroci": 5,
     "rows": [
       {
         "hour": 7,
@@ -13,17 +13,17 @@
         "hour": 8,
         "crossings": [
           {
-            "pair": 1,
+            "pair": 0,
+            "over": "R"
+          },
+          {
+            "pair": 2,
             "over": "L"
           }
         ]
       },
       {
         "hour": 9,
-        "crossings": []
-      },
-      {
-        "hour": 10,
         "crossings": [
           {
             "pair": 0,
@@ -36,14 +36,23 @@
         ]
       },
       {
-        "hour": 11,
+        "hour": 10,
         "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
       }
     ]
   },
   "perNote": {
     "g01.marta": {
-      "incroci": 3,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
@@ -53,23 +62,31 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 10,
+          "crossings": []
         },
         {
           "hour": 11,
@@ -137,7 +154,7 @@
       ]
     },
     "g01.gino": {
-      "incroci": 3,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
@@ -147,23 +164,31 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 10,
+          "crossings": []
         },
         {
           "hour": 11,
@@ -241,7 +266,7 @@
         "g01.marta",
         "g01.gino"
       ],
-      "incroci": 3,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
@@ -251,23 +276,31 @@
           "hour": 8,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
         },
         {
           "hour": 9,
-          "crossings": []
-        },
-        {
-          "hour": 10,
           "crossings": [
             {
-              "pair": 1,
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
               "over": "L"
             }
           ]
+        },
+        {
+          "hour": 10,
+          "crossings": []
         },
         {
           "hour": 11,
@@ -290,43 +323,43 @@
     }
   ],
   "matassaSuggerita": 9,
-  "quieteMax": 3,
+  "quieteMax": 2,
   "quality": {
     "configs": [
       {
         "config": "base",
-        "min": 3,
-        "minSenzaGino": 1,
+        "min": 5,
+        "minSenzaGino": 3,
         "vuoteMax": 1,
-        "vuoteTot": 3,
-        "soluzioniOttime": 12
+        "vuoteTot": 2,
+        "soluzioniOttime": 21
       },
       {
         "config": "g01.marta",
-        "min": 3,
-        "minSenzaGino": 1,
+        "min": 5,
+        "minSenzaGino": 3,
         "costo": 0,
         "vuoteMax": 1,
         "vuoteTot": 2,
-        "soluzioniOttime": 9
+        "soluzioniOttime": 13
       },
       {
         "config": "g01.piero",
         "min": 6,
         "minSenzaGino": 6,
-        "costo": 3,
+        "costo": 1,
         "vuoteMax": 0,
         "vuoteTot": 0,
         "soluzioniOttime": 16
       },
       {
         "config": "g01.gino",
-        "min": 3,
-        "minSenzaGino": 1,
+        "min": 5,
+        "minSenzaGino": 3,
         "costo": 0,
         "vuoteMax": 1,
         "vuoteTot": 2,
-        "soluzioniOttime": 9
+        "soluzioniOttime": 13
       },
       {
         "config": "g01.marta+g01.piero",
@@ -338,18 +371,15 @@
       },
       {
         "config": "g01.marta+g01.gino",
-        "min": 3,
-        "minSenzaGino": 1,
+        "min": 5,
+        "minSenzaGino": 3,
         "vuoteMax": 1,
         "vuoteTot": 2,
-        "soluzioniOttime": 9
+        "soluzioniOttime": 13
       }
     ],
     "designata": "g01.marta+g01.piero",
     "facili": [],
-    "violazioni": [
-      "K3 g01.marta: Gino makes 2 of 3 crossings (at most 1, 40%)",
-      "K3 g01.gino: Gino makes 2 of 3 crossings (at most 1, 40%)"
-    ]
+    "violazioni": []
   }
 }
