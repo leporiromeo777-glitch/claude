@@ -146,12 +146,29 @@ mutate "filesystem assente dal Package.swift (cap sync non fatto)" ios/App/CapAp
   's/[^\n]*"CapacitorFilesystem"[^\n]*\n//g' 'iOS: plugin di package.json nel Package.swift.*mancano @capacitor/filesystem'
 mutate "filesystem solo nell'elenco dei pacchetti Swift, non fra i prodotti" ios/App/CapApp-SPM/Package.swift \
   's/[^\n]*\.product\(name: "CapacitorFilesystem"[^\n]*\n//' 'iOS: plugin di package.json nel Package.swift'
+mutate "Info.plist senza la frase per «Salva immagine» (l'app si chiuderebbe)" ios/App/App/Info.plist \
+  's|\s*<key>NSPhotoLibraryAddUsageDescription</key>\s*<string>[^<]*</string>||' 'NSPhotoLibraryAddUsageDescription'
 mutate "FileProvider senza la cache: l'immagine da condividere non esce" android/app/src/main/res/xml/file_paths.xml \
   's/\s*<cache-path[^>]*>//' 'FileProvider con la cache'
 mutate "plugin tolto da package.json ma rimasto su Android" package.json \
   's/\s*"\@capacitor\/haptics": "[^"]*",//' 'Android: nessun plugin registrato che non è più in package.json.*@capacitor/haptics'
 mutate "plugin tolto da package.json ma rimasto su iOS" package.json \
   's/\s*"\@capacitor\/haptics": "[^"]*",//' 'iOS: nessun plugin nel Package.swift che non è più in package.json.*@capacitor/haptics'
+# Se node_modules è un collegamento, cap sync scrive il percorso della cartella vera:
+# i plugin restano riconosciuti (conta il pacchetto dopo node_modules/, non il percorso).
+SETTINGS="$P/android/capacitor.settings.gradle"
+SPM="$P/ios/App/CapApp-SPM/Package.swift"
+cp "$SETTINGS" "$SETTINGS.orig"
+cp "$SPM" "$SPM.orig"
+perl -0pi -e "s|new File\('\.\./node_modules/|new File('../../../altrove/gioco/node_modules/|g" "$SETTINGS"
+perl -0pi -e 's|path: "(?:\.\./)+node_modules/|path: "../../../../../altrove/gioco/node_modules/|g' "$SPM"
+if cmp -s "$SETTINGS" "$SETTINGS.orig" || cmp -s "$SPM" "$SPM.orig"; then
+  ko "node_modules da un altro percorso (la modifica di prova non ha cambiato i file)"
+else
+  expect_ok "node_modules da un altro percorso (collegamento): ancora verde" node "$P/scripts/check-native.mjs"
+fi
+mv "$SETTINGS.orig" "$SETTINGS"
+mv "$SPM.orig" "$SPM"
 
 mkdir -p "$P/android/app/src/test/java/com/getcapacitor/myapp"
 printf 'package com.getcapacitor.myapp;\n' >"$P/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java"

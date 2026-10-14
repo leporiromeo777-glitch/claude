@@ -234,6 +234,8 @@ Il gioco non raccoglie nulla: nessun account, nessuna pubblicità, nessuna stati
 
 Quando si condivide il risultato di una notte, il gioco prepara l'immagine sul telefono, la scrive nella cache dell'app (ne resta al massimo una, quella dell'ultima condivisione) e la passa al foglio di condivisione del telefono. Non è un dato raccolto: dal telefono esce solo se il giocatore sceglie dove mandarla. Su Android questo non richiede nessun permesso.
 
+Su iPhone e iPad il foglio di condivisione offre anche «Salva immagine». La prima volta che il giocatore la sceglie, iOS chiede il permesso di aggiungere l'immagine alle Foto, con la frase scritta in `ios/App/App/Info.plist` (`NSPhotoLibraryAddUsageDescription`, in italiano e in inglese). È un permesso di sola aggiunta: il gioco non vede le foto del telefono. Senza quella frase l'app si chiuderebbe proprio su «Salva immagine»: `npm run native:check` controlla che ci sia.
+
 **Il manifest della privacy per Apple** (`ios/App/App/PrivacyInfo.xcprivacy`) è già pronto e non va toccato. Dichiara: nessun tracciamento (`NSPrivacyTracking` = false), nessun dominio di tracciamento, nessun dato raccolto, e le due «API con motivo dichiarato» che l'app contiene:
 
 | API | Motivo | Chi la usa e perché |
@@ -276,8 +278,8 @@ Le produce la pipeline di Blender (`npm run assets:render`, passo `tools/atlas/g
 |---|---|---|
 | App Store, iPhone 6,9" (obbligatorie) | 1290×2796 | `tests/e2e/__screenshots__/store/iphone-6.9-1290x2796/` |
 | App Store, iPad 13" (obbligatorie, perché l'app gira su iPad) | 2064×2752 | `tests/e2e/__screenshots__/store/ipad-13-2064x2752/` |
-| Google Play, telefono (da 2 a 8) | 1080×1920 | `tests/e2e/__screenshots__/store/android-1080x1920/` |
-| Google Play, tablet 7" e 10" (consigliate) | 2064×2752 | le stesse dell'iPad: rientrano nei limiti di Google (lato fra 320 e 3840 px, lato lungo al massimo il doppio del corto) |
+| Google Play, telefono (da 2 a 8; sono in 9:16, il formato che Google chiede per mostrare i giochi nelle sue vetrine) | 1080×1920 | `tests/e2e/__screenshots__/store/android-1080x1920/` |
+| Google Play, tablet 7" e 10" (facoltative: si possono lasciare vuote) | - | non usare quelle dell'iPad: per i tablet Google chiede almeno 4 schermate in 16:9 o 9:16 con il lato fra 1080 e 7680 px, e quelle dell'iPad sono in 3:4 |
 
 Le schermate di oggi sono state fatte prima della revisione 1 del gioco. Prima di pubblicare rifalle sulla versione definitiva (il comando compila il gioco, lo gioca da solo per qualche giornata e fotografa titolo, tombolo, alba, Taccuino e Merletto del giorno: ci vuole qualche minuto):
 
@@ -431,7 +433,7 @@ Lo stesso quando si aggiunge o si toglie un plugin di Capacitor in `package.json
 | Voce | Come si controlla | Stato |
 |---|---|---|
 | `npm run app:sync` senza errori; `android/` e `ios/` aggiornati nel repository | `npm run app:sync`, poi `git status`: nessuna modifica dimenticata in `android/` e `ios/` | fatto |
-| APK di debug compilato nel container (`npm run android:apk`) | il file `android/app/build/outputs/apk/debug/app-debug.apk` esiste (circa 12 MB) | fatto |
+| APK di debug compilato nel container (`npm run android:apk`) | il file `android/app/build/outputs/apk/debug/app-debug.apk` esiste (circa 9 MB; una compilazione incrementale può lasciarlo più grande) | fatto |
 | Icone e splash generati; `appCategory="game"`; telefoni bloccati in verticale; privacy manifest con UserDefaults (`CA92.1`) e marcatura temporale dei file (`C617.1`); tutti i plugin registrati nei due progetti | `npm run native:check` | fatto |
 | Grafica in evidenza di Google Play e schermate alle misure degli store | sezione 6.4 | fatto (le schermate si rifanno sulla versione definitiva) |
 | Nessun comportamento da browser: niente selezione del testo, zoom, menu del tocco prolungato, rimbalzo dello scroll | prova a mano su telefono (sezione 3.3) | da provare sui telefoni |
@@ -504,7 +506,7 @@ Lo stesso quando si aggiunge o si toglie un plugin di Capacitor in `package.json
 | `android/` | progetto Android Studio (minSdk 24, target e compile 36); `AndroidManifest.xml` con `android:appCategory="game"` e `android:screenOrientation="fullUser"` (i telefoni si bloccano in verticale dal gioco, `src/core/platform.ts`) |
 | `android/app/build.gradle` | identificativo, versione, firma di rilascio letta dalle variabili d'ambiente |
 | `ios/App/App.xcodeproj` | progetto Xcode (Swift Package Manager, nessun CocoaPods) |
-| `ios/App/App/Info.plist` | iPhone solo verticale, iPad tutte e quattro le orientazioni, barra di stato nascosta, niente `UIRequiresFullScreen`, nessuna crittografia propria |
+| `ios/App/App/Info.plist` | iPhone solo verticale, iPad tutte e quattro le orientazioni, barra di stato nascosta, niente `UIRequiresFullScreen`, nessuna crittografia propria, frase per «Salva immagine» dal foglio di condivisione (`NSPhotoLibraryAddUsageDescription`) |
 | `ios/App/App/PrivacyInfo.xcprivacy` | manifest della privacy (nessun tracciamento, nessun dato raccolto, UserDefaults con motivo CA92.1, marcatura temporale dei file con motivo C617.1), incluso nelle risorse dell'app |
 | `android/capacitor.settings.gradle`, `android/app/capacitor.build.gradle`, `ios/App/CapApp-SPM/Package.swift` | i plugin di Capacitor registrati nei progetti nativi; li scrive `npm run app:sync` (`cap sync`), non si modificano a mano |
 | `assets/` | immagini di partenza per icone e schermate d'avvio; grafica in evidenza di Google Play (`feature-graphic.png`, `feature-graphic-en.png`) |

@@ -166,10 +166,12 @@ check('app/build.gradle: firma di rilascio solo da variabili d\'ambiente', /envi
 // Plugin registrati da "npx cap sync": in capacitor.settings.gradle una riga
 //   project(':capacitor-xxx').projectDir = new File('../node_modules/<pacchetto>/android')
 // più include ':capacitor-xxx', e in app/capacitor.build.gradle implementation project(':capacitor-xxx').
+// Il percorso prima di node_modules può cambiare (cap sync scrive il percorso relativo
+// alla cartella vera di node_modules, anche se è un collegamento): conta solo il pacchetto.
 const capSettings = read('android/capacitor.settings.gradle') ?? '';
 const capBuild = read('android/app/capacitor.build.gradle') ?? '';
 const androidModules = new Map(
-  [...capSettings.matchAll(/project\(':([^']+)'\)\.projectDir\s*=\s*new File\('\.\.\/node_modules\/(.+?)\/android'\)/g)].map((m) => [m[2], m[1]]),
+  [...capSettings.matchAll(/project\(':([^']+)'\)\.projectDir\s*=\s*new File\('(?:[^']*\/)?node_modules\/(.+?)\/android'\)/g)].map((m) => [m[2], m[1]]),
 );
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const androidMissing = nativePlugins
@@ -238,6 +240,13 @@ if (infoXml !== null) {
   check('Info.plist: nessun UIRequiresFullScreen', !('UIRequiresFullScreen' in info));
   check('Info.plist: ITSAppUsesNonExemptEncryption = false', info.ITSAppUsesNonExemptEncryption === false);
   check('Info.plist: nome visibile uguale ad appName', info.CFBundleDisplayName === appName, `${info.CFBundleDisplayName} / ${appName}`);
+  // Il gioco condivide un PNG (@capacitor/share): nel foglio di condivisione di iOS c'è
+  // «Salva immagine», e senza questa frase l'app si chiude (o la voce non compare)
+  // quando il giocatore la sceglie.
+  if (nativePlugins.some((p) => p.name === '@capacitor/share' && p.ios)) {
+    const photoAdd = info.NSPhotoLibraryAddUsageDescription;
+    check('Info.plist: NSPhotoLibraryAddUsageDescription («Salva immagine» dalla condivisione)', typeof photoAdd === 'string' && photoAdd.trim().length >= 20, JSON.stringify(photoAdd ?? null));
+  }
 }
 const privacyXml = read('ios/App/App/PrivacyInfo.xcprivacy');
 check('PrivacyInfo.xcprivacy: presente', privacyXml !== null);
@@ -275,9 +284,10 @@ check('Xcode: Swift Package Manager (niente CocoaPods)', /XCLocalSwiftPackageRef
 
 // Plugin nel Package.swift scritto da "npx cap sync":
 //   .package(name: "Nome", path: "../../../node_modules/<pacchetto>")  e  .product(name: ..., package: "Nome")
+// (anche qui conta solo il pacchetto dopo node_modules/, non il percorso che lo precede).
 const spm = read('ios/App/CapApp-SPM/Package.swift') ?? '';
 const iosPackages = new Map(
-  [...spm.matchAll(/\.package\(\s*name:\s*"([^"]+)",\s*path:\s*"(?:\.\.\/)+node_modules\/([^"]+)"\s*\)/g)].map((m) => [m[2], m[1]]),
+  [...spm.matchAll(/\.package\(\s*name:\s*"([^"]+)",\s*path:\s*"(?:[^"]*\/)?node_modules\/([^"]+)"\s*\)/g)].map((m) => [m[2], m[1]]),
 );
 const iosMissing = nativePlugins
   .filter((p) => p.ios)

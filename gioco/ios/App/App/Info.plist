@@ -73,5 +73,7 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Salva nelle Foto l'immagine della partita, solo se lo scegli tu dal foglio di condivisione. / Saves the game picture to Photos, only if you choose it from the share sheet.</string>
 </dict>
 </plist>
