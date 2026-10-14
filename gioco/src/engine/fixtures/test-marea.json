@@ -1,0 +1,21 @@
+{
+  "id": "test-marea", "kind": "test", "act": 3, "titleKey": "tombolo.test.marea",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6, "endHour": 13,
+  "threads": [
+    { "id": "bepi", "kind": "persona", "character": "bepi" },
+    { "id": "nina", "kind": "persona", "character": "nina" },
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "lino1", "kind": "lino" },
+    { "id": "lunardi", "kind": "persona", "character": "lunardi" },
+    { "id": "zeno", "kind": "persona", "character": "zeno" }
+  ],
+  "initial": ["bepi", "nina", "marta", "lino1", "lunardi", "zeno"],
+  "beads": [ { "id": "L1", "type": "lettera", "holder": "bepi", "to": "lunardi", "labelKey": "tombolo.test.L1" } ],
+  "rules": ["incrocio", "spillo", "lettera", "marea"],
+  "quirks": ["zenoFaro"],
+  "pins": [ { "thread": "nina", "place": "forno", "hour": 13 } ],
+  "tide": [ { "from": 8, "to": 10, "places": ["piazza", "chiesa"] } ],
+  "goals": [ { "t": "consegnata", "bead": "L1", "by": 13 } ],
+  "matassa": 10
+}

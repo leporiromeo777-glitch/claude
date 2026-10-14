@@ -1,0 +1,53 @@
+{
+  "levelId": "test-rancore",
+  "sourceHash": "11afbbc92a36542e",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 3,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 5,
+  "quieteMax": 3
+}

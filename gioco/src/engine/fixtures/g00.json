@@ -1,0 +1,32 @@
+{
+  "id": "g00", "kind": "storia", "act": 0, "titleKey": "atto1.g00.titolo",
+  "columns": ["forno", "piazza", "chiesa"],
+  "startHour": 5, "endHour": 9,
+  "threads": [
+    { "id": "teresa", "kind": "persona", "character": "teresa" },
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "piero", "kind": "persona", "character": "piero" }
+  ],
+  "initial": ["teresa", "marta", "piero"],
+  "beads": [ { "id": "L1", "type": "lettera", "holder": "teresa", "to": "piero", "labelKey": "atto1.g00.perline.L1" } ],
+  "rules": ["incrocio", "spillo", "lettera"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
+  "pins": [
+    { "thread": "marta", "place": "forno", "hour": 6 },
+    { "thread": "teresa", "place": "forno", "hour": 9 },
+    { "thread": "piero", "place": "chiesa", "hour": 9 }
+  ],
+  "goals": [ { "t": "consegnata", "bead": "L1", "by": 9 } ],
+  "matassa": 6,
+  "dawn": { "candidates": [
+    { "id": "g00.alba.marta", "priority": 100, "background": "dio/forno/alba",
+      "figures": [ { "character": "marta", "pose": "porge", "x": 0.5 } ],
+      "lines": [ { "speaker": "marta", "textKey": "atto1.g00.alba.marta" } ] }
+  ] },
+  "hintKeys": { "spinta": "atto1.g00.hint.spinta" },
+  "tutorial": [
+    { "k": "mano", "hour": 6, "pair": 0, "over": "R" },
+    { "k": "pulsa", "target": "fissa", "hour": 6 },
+    { "k": "margine", "when": "versoSbagliato", "textKey": "atto1.g00.margine.sopraDa", "hour": 7 }
+  ]
+}

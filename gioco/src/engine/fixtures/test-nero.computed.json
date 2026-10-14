@@ -1,0 +1,78 @@
+{
+  "levelId": "test-nero",
+  "sourceHash": "df3f8f11133a62f6",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 3,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          },
+          {
+            "pair": 4,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      },
+      {
+        "hour": 13,
+        "crossings": []
+      },
+      {
+        "hour": 14,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 4,
+  "quieteMax": 5
+}

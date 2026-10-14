@@ -1,0 +1,8 @@
+[
+  { "id": "g06.nina", "day": "g06", "author": "nina", "textKey": "atto1.g06.nina.testo",
+    "request": { "t": "tutti", "of": [ { "t": "consegnata", "bead": "L1", "by": 11 }, { "t": "nonHa", "who": "teresa", "bead": "letta:L1" } ] } },
+  { "id": "g06.marta", "day": "g06", "author": "marta", "textKey": "atto1.g06.marta.testo",
+    "request": { "t": "nonIncontra", "a": "marta", "b": "teresa" } },
+  { "id": "g06.zeno", "day": "g06", "author": "zeno", "textKey": "atto1.g06.zeno.testo",
+    "request": { "t": "nonHa", "who": "piero", "bead": "voce:ninaParte" } }
+]

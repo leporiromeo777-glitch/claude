@@ -1,0 +1,161 @@
+{
+  "id": "test-occasioni",
+  "kind": "test",
+  "act": 3,
+  "titleKey": "tombolo.test.occasioni",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 12,
+  "threads": [
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "marta",
+    "nina",
+    "bepi",
+    "gino",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "occasioni"
+  ],
+  "quirks": [],
+  "pins": [],
+  "autoweave": {
+    "agents": [
+      {
+        "thread": "marta",
+        "agenda": [],
+        "likes": [
+          "messa",
+          "pane"
+        ]
+      },
+      {
+        "thread": "nina",
+        "agenda": [],
+        "likes": [
+          "vaporetto",
+          "festa"
+        ]
+      },
+      {
+        "thread": "bepi",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "vaporetto"
+        ]
+      },
+      {
+        "thread": "gino",
+        "agenda": [],
+        "likes": [
+          "festa",
+          "pane",
+          "lanterna"
+        ]
+      },
+      {
+        "thread": "zeno",
+        "agenda": [
+          {
+            "stay": true
+          }
+        ],
+        "likes": [
+          "lanterna"
+        ]
+      }
+    ],
+    "occasionSlots": 2,
+    "allowedOccasions": [
+      {
+        "kind": "pane",
+        "place": "forno",
+        "hour": 8
+      },
+      {
+        "kind": "festa",
+        "place": "piazza",
+        "hour": 9
+      },
+      {
+        "kind": "lanterna",
+        "place": "faro",
+        "hour": 10
+      },
+      {
+        "kind": "vaporetto",
+        "place": "molo",
+        "hour": 11
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 9
+      },
+      {
+        "kind": "festa",
+        "place": "molo",
+        "hour": 8
+      },
+      {
+        "kind": "lanterna",
+        "place": "chiesa",
+        "hour": 11
+      },
+      {
+        "kind": "pane",
+        "place": "piazza",
+        "hour": 10
+      }
+    ]
+  },
+  "goals": [
+    {
+      "t": "presso",
+      "who": "gino",
+      "place": "faro",
+      "hour": 10
+    },
+    {
+      "t": "incontra",
+      "a": "nina",
+      "b": "bepi"
+    }
+  ],
+  "matassa": 0
+}

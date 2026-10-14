@@ -1,0 +1,121 @@
+{
+  "id": "test-bordi",
+  "kind": "test",
+  "act": 1,
+  "titleKey": "tombolo.test.bordi",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia"
+  ],
+  "startHour": 6,
+  "endHour": 14,
+  "threads": [
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "lino1",
+      "kind": "lino",
+      "labelKey": "tombolo.test.barcaiolo"
+    }
+  ],
+  "initial": [
+    "nina",
+    "bepi",
+    "marta",
+    "teresa",
+    "piero"
+  ],
+  "beads": [
+    {
+      "id": "voce:rete",
+      "type": "voce",
+      "holders": [
+        "bepi"
+      ],
+      "labelKey": "tombolo.test.rete"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "voce",
+    "molo"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo"
+  ],
+  "pins": [
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    }
+  ],
+  "edges": [
+    {
+      "hour": 7,
+      "side": "molo",
+      "kind": "barca"
+    },
+    {
+      "hour": 13,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "bepi"
+    }
+  ],
+  "goals": [
+    {
+      "t": "incontra",
+      "a": "nina",
+      "b": "bepi",
+      "from": 7,
+      "to": 7
+    },
+    {
+      "t": "parte",
+      "who": "bepi",
+      "hour": 7
+    },
+    {
+      "t": "presso",
+      "who": "bepi",
+      "place": "forno",
+      "hour": 14
+    },
+    {
+      "t": "nonHa",
+      "who": "teresa",
+      "bead": "voce:rete"
+    }
+  ],
+  "matassa": 8
+}

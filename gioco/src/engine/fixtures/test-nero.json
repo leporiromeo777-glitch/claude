@@ -1,0 +1,29 @@
+{
+  "id": "test-nero", "kind": "test", "act": 3, "titleKey": "tombolo.test.nero",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6, "endHour": 14,
+  "threads": [
+    { "id": "nina", "kind": "persona", "character": "nina" },
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "teresa", "kind": "persona", "character": "teresa" },
+    { "id": "piero", "kind": "persona", "character": "piero" },
+    { "id": "zeno", "kind": "persona", "character": "zeno" },
+    { "id": "lino1", "kind": "lino" },
+    { "id": "livia", "kind": "nero", "character": "livia" }
+  ],
+  "initial": ["nina", "marta", "teresa", "piero", "zeno", "lino1"],
+  "beads": [
+    { "id": "L1", "type": "lettera", "holder": "nina", "to": "piero", "labelKey": "tombolo.test.L1" },
+    { "id": "voce:sciallo", "type": "voce", "holders": ["livia"], "labelKey": "tombolo.test.sciallo" }
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "nero"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "zenoFaro"],
+  "pins": [ { "thread": "piero", "place": "chiesa", "hour": 11 } ],
+  "nero": { "thread": "livia", "enter": { "hour": 8, "side": "faro" }, "agenda": [ { "follow": "zeno" }, { "place": "piazza", "hour": 13 } ] },
+  "goals": [
+    { "t": "consegnata", "bead": "L1", "by": 12 },
+    { "t": "ha", "who": "zeno", "bead": "voce:sciallo", "by": 11 },
+    { "t": "nonHa", "who": "teresa", "bead": "voce:sciallo" }
+  ],
+  "matassa": 8
+}

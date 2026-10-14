@@ -1,0 +1,30 @@
+{
+  "levelId": "test-archivio",
+  "sourceHash": "4ae501f75e354290",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 0,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 3,
+  "quieteMax": 4
+}

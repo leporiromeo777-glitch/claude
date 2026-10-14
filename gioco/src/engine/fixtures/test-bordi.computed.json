@@ -1,0 +1,60 @@
+{
+  "levelId": "test-bordi",
+  "sourceHash": "0ebbbf8e0c86e95d",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 3,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": []
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      },
+      {
+        "hour": 13,
+        "crossings": []
+      },
+      {
+        "hour": 14,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 6,
+  "quieteMax": 6
+}

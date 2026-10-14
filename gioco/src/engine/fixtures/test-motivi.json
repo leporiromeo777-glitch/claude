@@ -1,0 +1,169 @@
+{
+  "id": "test-motivi",
+  "kind": "test",
+  "act": 3,
+  "titleKey": "tombolo.test.motivi",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 14,
+  "threads": [
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "gino",
+      "kind": "persona",
+      "character": "gino"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    },
+    {
+      "id": "lunardi",
+      "kind": "persona",
+      "character": "lunardi"
+    },
+    {
+      "id": "livia",
+      "kind": "persona",
+      "character": "livia"
+    },
+    {
+      "id": "ada",
+      "kind": "persona",
+      "character": "ada"
+    },
+    {
+      "id": "clotilde",
+      "kind": "avorio",
+      "character": "clotilde"
+    },
+    {
+      "id": "lino1",
+      "kind": "lino"
+    }
+  ],
+  "initial": [
+    "teresa",
+    "marta",
+    "piero",
+    "gino",
+    "bepi",
+    "nina"
+  ],
+  "beads": [
+    {
+      "id": "L1",
+      "type": "lettera",
+      "holder": "teresa",
+      "to": "nina",
+      "labelKey": "tombolo.test.L1"
+    },
+    {
+      "id": "voce:festa",
+      "type": "voce",
+      "holders": [
+        "marta"
+      ],
+      "labelKey": "tombolo.test.festa"
+    },
+    {
+      "id": "segreto:debito",
+      "type": "segreto",
+      "holders": [
+        "bepi"
+      ],
+      "labelKey": "tombolo.test.debito"
+    },
+    {
+      "id": "febbre",
+      "type": "febbre",
+      "holders": [
+        "gino"
+      ],
+      "labelKey": "tombolo.test.febbre"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "segreto",
+    "febbre",
+    "molo"
+  ],
+  "quirks": [],
+  "pins": [],
+  "edges": [
+    {
+      "hour": 7,
+      "side": "molo",
+      "kind": "vaporetto",
+      "enters": "zeno"
+    },
+    {
+      "hour": 8,
+      "side": "faro",
+      "kind": "secca",
+      "enters": "lunardi"
+    },
+    {
+      "hour": 9,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "livia"
+    },
+    {
+      "hour": 10,
+      "side": "faro",
+      "kind": "secca",
+      "enters": "ada"
+    },
+    {
+      "hour": 11,
+      "side": "molo",
+      "kind": "vaporetto",
+      "enters": "clotilde"
+    },
+    {
+      "hour": 12,
+      "side": "faro",
+      "kind": "secca",
+      "enters": "lino1"
+    }
+  ],
+  "goals": [],
+  "matassa": 6
+}

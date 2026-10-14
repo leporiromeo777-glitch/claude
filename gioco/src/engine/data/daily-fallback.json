@@ -1,0 +1,366 @@
+{
+  "version": 1,
+  "generatorVersion": 1,
+  "entries": [
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-0#97"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-1#110"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-2#60"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-3#125"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-4#18"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-5#225"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-6#45"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-7#17"
+    },
+    {
+      "rule": "nero",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-nero-8#7"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-0#116"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-1#99"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-2#16"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-3#8"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-4#66"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-5#34"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-6#107"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-7#2"
+    },
+    {
+      "rule": "voce",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-voce-8#55"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-0#88"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-1#194"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-2#179"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-3#28"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-4#178"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-5#394"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-6#80"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-7#144"
+    },
+    {
+      "rule": "segreto",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-segreto-8#10"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-0#63"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-1#13"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-2#79"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-3#9"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-4#19"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-5#32"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-6#24"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-7#29"
+    },
+    {
+      "rule": "molo",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-molo-8#15"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-0#0"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-1#26"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-2#50"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-3#25"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-4#16"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-5#7"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-6#137"
+    },
+    {
+      "rule": "febbre",
+      "columns": 5,
+      "rows": 7,
+      "seed": "riserva-febbre-7#29"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-0#46"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-1#226"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-2#27"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-3#102"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-4#59"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-5#21"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-6#41"
+    },
+    {
+      "rule": "rancore",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-rancore-7#34"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-0#62"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-1#19"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-2#188"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-3#170"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-5#48"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-6#204"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-7#11"
+    },
+    {
+      "rule": "marea",
+      "columns": 6,
+      "rows": 8,
+      "seed": "riserva-marea-8#97"
+    }
+  ]
+}

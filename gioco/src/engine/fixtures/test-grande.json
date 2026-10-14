@@ -1,0 +1,157 @@
+{
+  "id": "test-grande",
+  "kind": "test",
+  "act": 2,
+  "titleKey": "tombolo.test.grande",
+  "columns": [
+    "molo",
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 20,
+  "threads": [
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "nina",
+      "kind": "persona",
+      "character": "nina"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "bepi",
+    "marta",
+    "teresa",
+    "piero",
+    "nina",
+    "zeno"
+  ],
+  "beads": [
+    {
+      "id": "L1",
+      "type": "lettera",
+      "holder": "bepi",
+      "to": "zeno",
+      "labelKey": "tombolo.test.L1"
+    },
+    {
+      "id": "L2",
+      "type": "lettera",
+      "holder": "zeno",
+      "to": "marta",
+      "labelKey": "tombolo.test.L2"
+    },
+    {
+      "id": "voce:festa",
+      "type": "voce",
+      "holders": [
+        "nina"
+      ],
+      "labelKey": "tombolo.test.festa"
+    },
+    {
+      "id": "segreto:debito",
+      "type": "segreto",
+      "holders": [
+        "bepi"
+      ],
+      "labelKey": "tombolo.test.debito"
+    }
+  ],
+  "rules": [
+    "incrocio",
+    "spillo",
+    "lettera",
+    "voce",
+    "matassa",
+    "segreto"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "teresaLegge",
+    "pieroPozzo",
+    "zenoFaro"
+  ],
+  "pins": [
+    {
+      "thread": "marta",
+      "place": "forno",
+      "hour": 7
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 11
+    },
+    {
+      "thread": "zeno",
+      "place": "faro",
+      "hour": 20
+    }
+  ],
+  "goals": [
+    {
+      "t": "consegnata",
+      "bead": "L1",
+      "by": 13
+    },
+    {
+      "t": "consegnata",
+      "bead": "L2",
+      "by": 19
+    },
+    {
+      "t": "ha",
+      "who": "piero",
+      "bead": "voce:festa",
+      "by": 17
+    },
+    {
+      "t": "nonHa",
+      "who": "teresa",
+      "bead": "segreto:debito"
+    },
+    {
+      "t": "incontra",
+      "a": "marta",
+      "b": "piero",
+      "from": 9,
+      "to": 12
+    },
+    {
+      "t": "incontra",
+      "a": "nina",
+      "b": "bepi",
+      "from": 14,
+      "to": 20
+    }
+  ],
+  "matassa": 14
+}

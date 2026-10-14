@@ -1,0 +1,8 @@
+{
+  "choiceDay": "g23",
+  "finals": { "merlettaia": "fin_merlettaia", "seppia": "fin_seppia", "chiuso": "fin_chiuso", "aperto": "fin_aperto" },
+  "days": [
+    { "id": "g00", "act": 0, "pins": 0, "stonatura": 1 },
+    { "id": "g06", "act": 1, "pins": 2, "stonatura": 1 }
+  ]
+}

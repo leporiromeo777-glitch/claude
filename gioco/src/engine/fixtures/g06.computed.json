@@ -1,0 +1,247 @@
+{
+  "levelId": "g06",
+  "sourceHash": "57992941c38f64f6",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 0,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": []
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {
+    "g06.nina": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    "g06.marta": {
+      "incroci": 0,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    "g06.zeno": {
+      "incroci": 0,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    }
+  },
+  "combos": [
+    {
+      "notes": [
+        "g06.nina",
+        "g06.marta"
+      ],
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g06.nina",
+        "g06.zeno"
+      ],
+      "incroci": null,
+      "voluta": true
+    },
+    {
+      "notes": [
+        "g06.marta",
+        "g06.zeno"
+      ],
+      "incroci": 0,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": []
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        }
+      ]
+    }
+  ],
+  "matassaSuggerita": 8,
+  "quieteMax": 6
+}

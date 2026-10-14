@@ -1,0 +1,19 @@
+{
+  "id": "test-rancore", "kind": "test", "act": 2, "titleKey": "tombolo.test.rancore",
+  "columns": ["forno", "piazza", "chiesa", "farmacia"],
+  "startHour": 6, "endHour": 12,
+  "threads": [
+    { "id": "teresa", "kind": "persona", "character": "teresa" },
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "piero", "kind": "persona", "character": "piero" },
+    { "id": "lino1", "kind": "lino" }
+  ],
+  "initial": ["teresa", "marta", "piero", "lino1"],
+  "beads": [ { "id": "voce:pace", "type": "voce", "holders": ["teresa"], "labelKey": "tombolo.test.pace" } ],
+  "rules": ["incrocio", "spillo", "voce", "rancore"],
+  "quirks": ["martaNoSotto", "teresaLegge"],
+  "rancor": [ ["teresa", "marta"] ],
+  "pins": [],
+  "goals": [ { "t": "ha", "who": "marta", "bead": "voce:pace", "by": 12 } ],
+  "matassa": 8
+}

@@ -1,0 +1,23 @@
+{
+  "id": "test-trabocca", "kind": "test", "act": 2, "titleKey": "tombolo.test.trabocca",
+  "columns": ["piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6, "endHour": 13,
+  "threads": [
+    { "id": "teresa", "kind": "persona", "character": "teresa" },
+    { "id": "piero", "kind": "persona", "character": "piero" },
+    { "id": "nina", "kind": "persona", "character": "nina" },
+    { "id": "zeno", "kind": "persona", "character": "zeno" }
+  ],
+  "initial": ["teresa", "piero", "nina", "zeno"],
+  "beads": [
+    { "id": "fascio", "type": "lettera", "holder": "piero", "to": "zeno", "labelKey": "tombolo.test.fascio" },
+    { "id": "segreto:a", "type": "segreto", "holders": ["teresa"], "labelKey": "tombolo.test.segretoA" },
+    { "id": "segreto:b", "type": "segreto", "holders": ["nina"], "labelKey": "tombolo.test.segretoB" },
+    { "id": "segreto:c", "type": "segreto", "holders": ["zeno"], "labelKey": "tombolo.test.segretoC" }
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "segreto"],
+  "quirks": ["pieroPozzo", "pieroTrabocca", "zenoFaro"],
+  "pins": [],
+  "goals": [ { "t": "consegnata", "bead": "fascio", "by": 13 } ],
+  "matassa": 12
+}

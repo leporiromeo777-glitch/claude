@@ -1,0 +1,19 @@
+{
+  "id": "test-febbre", "kind": "test", "act": 2, "titleKey": "tombolo.test.febbre",
+  "columns": ["forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6, "endHour": 12,
+  "threads": [
+    { "id": "gino", "kind": "persona", "character": "gino" },
+    { "id": "marta", "kind": "persona", "character": "marta" },
+    { "id": "nina", "kind": "persona", "character": "nina" },
+    { "id": "lunardi", "kind": "persona", "character": "lunardi" },
+    { "id": "zeno", "kind": "persona", "character": "zeno" }
+  ],
+  "initial": ["gino", "marta", "nina", "lunardi", "zeno"],
+  "beads": [ { "id": "febbre", "type": "febbre", "holders": ["gino"], "labelKey": "tombolo.test.febbre" } ],
+  "rules": ["incrocio", "spillo", "febbre"],
+  "quirks": ["ginoCorre", "ninaCuriosa", "zenoFaro", "lunardiCura"],
+  "pins": [ { "thread": "lunardi", "place": "farmacia", "hour": 12 } ],
+  "goals": [ { "t": "sano", "who": "gino" }, { "t": "nonHa", "who": "nina", "bead": "febbre" } ],
+  "matassa": 12
+}

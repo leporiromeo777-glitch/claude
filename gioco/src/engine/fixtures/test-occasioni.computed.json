@@ -1,0 +1,69 @@
+{
+  "levelId": "test-occasioni",
+  "sourceHash": "e6f549a549b124ae",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 0,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "R",
+            "forced": true
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": []
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 1,
+  "quieteMax": 6,
+  "occasionsSolution": [
+    {
+      "kind": "festa",
+      "place": "piazza",
+      "hour": 9
+    },
+    {
+      "kind": "lanterna",
+      "place": "chiesa",
+      "hour": 11
+    }
+  ],
+  "occasionsSolutions": 2
+}

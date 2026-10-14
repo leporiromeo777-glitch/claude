@@ -1,0 +1,123 @@
+{
+  "id": "test-seppia",
+  "kind": "test",
+  "act": 3,
+  "titleKey": "tombolo.test.seppia",
+  "columns": [
+    "forno",
+    "piazza",
+    "chiesa",
+    "farmacia",
+    "faro"
+  ],
+  "startHour": 6,
+  "endHour": 12,
+  "threads": [
+    {
+      "id": "ada",
+      "kind": "persona",
+      "character": "ada"
+    },
+    {
+      "id": "teresa",
+      "kind": "persona",
+      "character": "teresa"
+    },
+    {
+      "id": "marta",
+      "kind": "persona",
+      "character": "marta"
+    },
+    {
+      "id": "piero",
+      "kind": "persona",
+      "character": "piero"
+    },
+    {
+      "id": "zeno",
+      "kind": "persona",
+      "character": "zeno"
+    }
+  ],
+  "initial": [
+    "ada",
+    "teresa",
+    "marta",
+    "piero",
+    "zeno"
+  ],
+  "beads": [],
+  "rules": [
+    "incrocio",
+    "occasioni"
+  ],
+  "quirks": [
+    "martaNoSotto",
+    "zenoFaro"
+  ],
+  "pins": [],
+  "autoweave": {
+    "agents": [
+      {
+        "thread": "teresa",
+        "agenda": [
+          {
+            "place": "chiesa",
+            "hour": 9
+          }
+        ],
+        "likes": [
+          "festa",
+          "messa"
+        ]
+      },
+      {
+        "thread": "marta",
+        "agenda": [],
+        "likes": [
+          "messa",
+          "pane"
+        ]
+      },
+      {
+        "thread": "piero",
+        "agenda": [
+          {
+            "place": "piazza",
+            "hour": 10
+          }
+        ],
+        "likes": [
+          "messa"
+        ]
+      },
+      {
+        "thread": "zeno",
+        "agenda": [
+          {
+            "stay": true
+          }
+        ],
+        "likes": [
+          "lanterna"
+        ]
+      }
+    ],
+    "controlled": "ada",
+    "presetOccasions": [
+      {
+        "kind": "festa",
+        "place": "forno",
+        "hour": 11
+      }
+    ]
+  },
+  "goals": [
+    {
+      "t": "incontriAlmeno",
+      "who": "ada",
+      "n": 4
+    }
+  ],
+  "matassa": 6
+}

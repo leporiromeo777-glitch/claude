@@ -1,0 +1,125 @@
+{
+  "levelId": "test-grande",
+  "sourceHash": "31ef7d7630714ced",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 12,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          },
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "R"
+          },
+          {
+            "pair": 4,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 13,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 14,
+        "crossings": []
+      },
+      {
+        "hour": 15,
+        "crossings": []
+      },
+      {
+        "hour": 16,
+        "crossings": []
+      },
+      {
+        "hour": 17,
+        "crossings": []
+      },
+      {
+        "hour": 18,
+        "crossings": []
+      },
+      {
+        "hour": 19,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 20,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 4,
+            "over": "R"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 14,
+  "quieteMax": 7
+}

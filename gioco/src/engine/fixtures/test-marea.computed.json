@@ -1,0 +1,65 @@
+{
+  "levelId": "test-marea",
+  "sourceHash": "40de08a0af2256b9",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 5,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": []
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "R"
+          }
+        ]
+      },
+      {
+        "hour": 12,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "R"
+          },
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 13,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          },
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 6,
+  "quieteMax": 4
+}
