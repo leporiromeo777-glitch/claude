@@ -143,3 +143,24 @@ Extra helpers: stats().prerender.cpuMs, stress(200).peak, verify(), and interrup
   - sim/sim.ts: engine fixtures run through the automation.
 - Screenshots checked with Read: 02-tocca-it.png, 02-tocca-en2.png, 03-after-failed-tap.png.
 - All servers on 5225–5229 are stopped.
+
+## Integrazione
+
+Richieste di docs/stato/RICHIESTE.md per **audio** e **tutti**, controllate sul codice attuale (14 ottobre 2026).
+
+| Richiesta | Esito |
+|---|---|
+| fondamenta: `register(services)` con `registerAudio(engine)`; `unlock()` idempotente che riprende un contesto sospeso; `audio:unlocked` lo emette il core; didascalie mostrate dal core | **Già fatto** (costruttore e verificatore): src/audio/register.ts, `WebAudioEngine.unlock()`, test in tests/unit/audio/engine.test.ts e tests/unit/core/audio-unlock.test.ts. |
+| interfaccia (verifica): nel titolo «laguna e orologio che ticchetta» (GDD 9) | **Fatto.** Vedi sotto. |
+| tutti: indicazioni generali del core | Già seguite. |
+
+**L'orologio.** `setAmbience(a, fadeMs?, o?: { clock?: boolean })` (aggiunta compatibile a `AudioEngine` in src/core/types.ts, applicata da fondamenta):
+- senza `clock` tutto come prima: l'orologio c'è solo nella notte e si ferma nel prologo (`clockStopped()`);
+- `clock: true` aggiunge l'orologio a qualunque ambiente, anche al silenzio, e ticchetta sempre (anche se la storia salvata è nel prologo): è quello del titolo, `setAmbience('laguna', undefined, { clock: true })`;
+- `clock: false` lo toglie (anche dalla notte).
+
+In src/audio/ambience.ts l'orologio ha tre stati (`ClockMode`: `'auto'` quello della notte, `'on'`, `'off'`, con `clockModeFor` e `clockTicks`); cambiare solo l'orologio dello stesso ambiente non ricostruisce i loop (niente dissolvenza, niente nodi nuovi): il primo tic arriva dopo 0,6 s, poi uno al secondo, tic e toc alternati come nella notte (guadagno 0,16, pan 0,25). Il motore ricorda l'opzione anche prima dello sblocco e la applica allo sblocco o alla ricreazione del contesto. Didascalie nuove: `audio.didascalie.ambiente.lagunaOrologio` («[la laguna: onde e gabbiani; un orologio ticchetta]») e `ambiente.orologio` (silenzio con l'orologio); la notte senza orologio usa `ambiente.notteFerma`; la didascalia si ripete se cambia solo l'orologio. Nel registro la voce `ambiente` ha il dettaglio `laguna +orologio` (o `-orologio`) quando l'opzione c'è. `stats().clock` dice se l'orologio suona adesso; il debug `ambience(id, orologio?)` accetta l'opzione.
+
+Effetto nel gioco: il titolo ticchetta; con «Tocca per iniziare» la sera del prologo passa alla notte con l'orologio fermo, cioè «il ticchettio si ferma» (GDD 9, 0:15); tornando al titolo l'orologio riparte. La campagna e le altre scene che chiamano `setAmbience(id)` non cambiano.
+
+**Test.** Nuovi in tests/unit/audio/ambience.test.ts (stati dell'orologio; laguna con l'orologio a un tic al secondo anche con il prologo fermo; laguna senza orologio muta; acceso e spento senza ricostruire l'ambiente; notte con `clock: false`; silenzio con l'orologio e `stop()`) e in tests/unit/audio/engine.test.ts (richiesta prima dello sblocco, didascalie, registro, `stats().clock`, notte del prologo). `npx vitest run tests/unit/audio`: 15 file, 195 test verdi (i 2 test su characters.json non sono più saltati). Nel browser, build `VITE_E2E=1` servita da `vite preview` sulla porta 5400: `AUDIO_VERIFY_URL=http://127.0.0.1:5400/ npm run audio:verify` 23/23; sonda Playwright: prima del tocco `titolo/laguna clock=true` (bloccato), dopo il tocco `running`, registro `laguna +orologio`, didascalia `lagunaOrologio`, 4 sorgenti d'ambiente attive; prologo `notte clock=false`; di nuovo al titolo `laguna clock=true`.

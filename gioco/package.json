@@ -14,6 +14,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "levels:check": "tsx tools/levels/check.ts",
+    "audio:verify": "tsx tests/unit/audio/browser-verify.ts",
+    "tombolo:verify": "tsx tests/unit/tombolo/browser-verify.ts",
+    "screens:verify": "tsx tests/unit/screens/browser-verify.ts",
+    "campaign:verify": "tsx tests/unit/campaign/browser-verify.ts",
     "assets:render": "bash tools/blender/render_all.sh",
     "assets:native": "capacitor-assets generate --ios --android --iconBackgroundColor '#1C2233' --iconBackgroundColorDark '#1C2233' --splashBackgroundColor '#1C2233' --splashBackgroundColorDark '#1C2233'",
     "app:sync": "npm run build && cap sync",
@@ -26,13 +30,14 @@
     "release:ios": "bash scripts/release-ios.sh",
     "native:check": "node scripts/check-native.mjs",
     "native:test": "bash scripts/test-native.sh",
-    "ci": "npm run build && npm test && npm run levels:check && npm run test:e2e"
+    "ci": "npm run build && npm test && npm run levels:check && npm run native:check && npm run native:test && npm run test:e2e"
   },
   "dependencies": {
     "@capacitor-community/keep-awake": "8.0.1",
     "@capacitor/android": "8.5.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.4",
     "@capacitor/haptics": "8.0.2",
     "@capacitor/ios": "8.5.3",
     "@capacitor/preferences": "8.0.1",

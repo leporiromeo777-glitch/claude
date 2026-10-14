@@ -309,6 +309,35 @@ describe('stato ricordato, pre-render, volumi', () => {
     expect(ctx.sources.some((x) => 'loop' in x && (x as { loop: boolean }).loop)).toBe(true);
   });
 
+  it("titolo: laguna e orologio (GDD 9), chiesti prima dello sblocco, con la didascalia dell'orologio", () => {
+    let prologo = true;
+    const { engine, captions } = make({ game: { clockStopped: () => prologo } });
+    engine.setAmbience('laguna', undefined, { clock: true });
+    expect(captions.map((c) => c.textKey)).toContain('audio.didascalie.ambiente.lagunaOrologio');
+    // L'orologio chiesto apposta ticchetta anche se la campagna salvata è nel prologo.
+    expect(engine.stats().clock).toBe(true);
+    engine.unlock();
+    const track = (engine as unknown as { rt: { ambience: { clockMode(): string; id(): string } } }).rt.ambience;
+    expect(track.id()).toBe('laguna');
+    expect(track.clockMode()).toBe('on');
+    expect(engine.stats()).toMatchObject({ ambience: 'laguna', clock: true });
+    expect(engine.log().filter((e) => e.id === 'ambiente').map((e) => e.detail)).toEqual(['laguna +orologio']);
+    // Il prologo: la notte con l'orologio fermo («il ticchettio si ferma»).
+    engine.setAmbience('notte');
+    expect(captions.at(-1)?.textKey).toBe('audio.didascalie.ambiente.notteFerma');
+    expect(engine.stats().clock).toBe(false);
+    prologo = false;
+    expect(engine.stats().clock).toBe(true);
+    // Solo l'orologio cambia: nuova didascalia, stesso ambiente.
+    engine.setAmbience('notte', undefined, { clock: false });
+    expect(captions.at(-1)?.textKey).toBe('audio.didascalie.ambiente.notteFerma');
+    expect(track.clockMode()).toBe('off');
+    for (const k of ['audio.didascalie.ambiente.lagunaOrologio', 'audio.didascalie.ambiente.orologio']) {
+      expect(IT.has(k), k).toBe(true);
+      expect(EN.has(k), k).toBe(true);
+    }
+  });
+
   it('pre-render in idle dopo lo sblocco: campane, rumori, note, effetti', () => {
     const { engine, runIdle } = make();
     expect(engine.stats().prerender.started).toBe(false);

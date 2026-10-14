@@ -3,7 +3,7 @@
  * orologio della notte (fermo nel prologo), tuoni nella tempesta, dissolvenze.
  */
 import { describe, expect, it } from 'vitest';
-import { AmbienceTrack, GULL_EVERY, THUNDER_EVERY } from '../../../src/audio/ambience';
+import { AmbienceTrack, CLOCK_FIRST_TICK, GULL_EVERY, THUNDER_EVERY, clockModeFor } from '../../../src/audio/ambience';
 import { FADE_TC, createGraph } from '../../../src/audio/graph';
 import { SoundBank } from '../../../src/audio/bank';
 import { VoiceLimiter } from '../../../src/audio/voices';
@@ -107,5 +107,86 @@ describe('ambienti', () => {
     expect(first.length).toBeGreaterThan(0);
     // fadeMs 3000 → costante 1 s → fine a 7 × 1 + 0,05.
     for (const s of first) expect(s.stopAt!).toBeCloseTo(7.05, 6);
+  });
+
+  describe("l'orologio (GDD 9: nel titolo «laguna e orologio che ticchetta»)", () => {
+    /** I tic cadono a CLOCK_FIRST_TICK + k secondi esatti; i gabbiani a tempi casuali. */
+    const tickTimes = (all: { t: number }[]): number[] =>
+      all
+        .map((x) => x.t)
+        .filter((t) => {
+          const frac = (((t - CLOCK_FIRST_TICK) % 1) + 1) % 1;
+          return frac < 1e-9 || frac > 1 - 1e-9;
+        });
+
+    it('di serie solo nella notte; clock lo forza o lo toglie', () => {
+      expect(clockModeFor('notte')).toBe('auto');
+      expect(clockModeFor('laguna')).toBe('off');
+      expect(clockModeFor('laguna', true)).toBe('on');
+      expect(clockModeFor('notte', false)).toBe('off');
+      expect(clockModeFor('silenzio', true)).toBe('on');
+    });
+
+    it('laguna con orologio: gabbiani e un tic al secondo, anche quando il prologo ferma quello della notte', () => {
+      const { track, shots } = setup({ clockStopped: true });
+      track.set('laguna', undefined, true);
+      expect(track.clockMode()).toBe('on');
+      expect(track.ticking()).toBe(true);
+      track.schedule(0, 20);
+      const all = shots();
+      const ticks = tickTimes(all);
+      expect(ticks).toHaveLength(20);
+      expect(ticks[0]!).toBeCloseTo(CLOCK_FIRST_TICK, 10);
+      // Restano anche i gabbiani della laguna.
+      expect(all.length).toBeGreaterThan(ticks.length);
+    });
+
+    it('la laguna senza orologio non ticchetta', () => {
+      const { track, shots } = setup();
+      track.set('laguna');
+      expect(track.ticking()).toBe(false);
+      track.schedule(0, 20);
+      expect(tickTimes(shots())).toHaveLength(0);
+    });
+
+    it("accendere e spegnere solo l'orologio non ricostruisce l'ambiente", () => {
+      const { ctx, track, shots } = setup();
+      track.set('laguna');
+      const n = ctx.sources.length;
+      track.set('laguna', undefined, true);
+      expect(ctx.sources.length).toBe(n);
+      expect(ctx.sources.every((x) => x.stopAt === null)).toBe(true);
+      track.schedule(0, 5);
+      expect(tickTimes(shots())).toHaveLength(5);
+      // Di nuovo senza: nessun tic dopo, la laguna resta.
+      track.set('laguna');
+      expect(track.clockMode()).toBe('off');
+      ctx.advance(5);
+      track.schedule(5, 15);
+      expect(tickTimes(shots(5))).toHaveLength(0);
+      expect(ctx.sources.every((x) => x.stopAt === null)).toBe(true);
+    });
+
+    it('notte con clock false: acqua senza orologio', () => {
+      const { track, shots } = setup();
+      track.set('notte', undefined, false);
+      track.schedule(0, 10);
+      expect(shots()).toHaveLength(0);
+    });
+
+    it('silenzio con orologio: solo il tic; stop() spegne anche quello', () => {
+      const { ctx, track, shots } = setup();
+      track.set('silenzio', undefined, true);
+      expect(track.active()).toBe(true);
+      expect(ctx.sources.filter((x) => x instanceof FakeBufferSource && x.loop)).toHaveLength(0);
+      track.schedule(0, 4);
+      expect(shots()).toHaveLength(4);
+      track.stop();
+      expect(track.clockMode()).toBe('off');
+      ctx.advance(4);
+      track.schedule(4, 10);
+      expect(shots(4)).toHaveLength(0);
+      expect(track.active()).toBe(false);
+    });
   });
 });

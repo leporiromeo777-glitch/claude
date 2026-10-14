@@ -1,6 +1,8 @@
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { createAssetStore, EXPECTED_FRAMES, EXPECTED_IMAGES, parseManifest } from '../../../src/core/assets';
-import { placeholderSpec, type PlaceholderCanvas } from '../../../src/core/placeholders';
+import { drawPlaceholder, placeholderSpec, type PlaceholderCanvas } from '../../../src/core/placeholders';
+import type { AssetManifest } from '../../../src/core/types';
 
 /** Canvas finto: registra le chiamate di disegno senza DOM. */
 function fakeCanvas(w: number, h: number): PlaceholderCanvas & { calls: string[] } {
@@ -121,5 +123,33 @@ describe('AssetStore', () => {
     expect(EXPECTED_IMAGES.filter((n) => n.startsWith('tab/'))).toHaveLength(4);
     expect(placeholderSpec('fig/marta/ferma')).toMatchObject({ w: 256, h: 256, ay: 0.92 });
     expect(placeholderSpec('dio/molo/notte')).toMatchObject({ w: 1024, h: 768 });
+  });
+
+  it('fuso segnaposto: ancora in cima alla testa come nei fusi veri (il filo si attacca nello stesso punto)', () => {
+    const spec = placeholderSpec('fuso/teresa');
+    expect(spec).toMatchObject({ w: 96, h: 320, ax: 0.5, ay: 0.125 });
+    // Il disegno: la testa (il primo cerchio) comincia appena sopra l'ancora.
+    const arcs: { y: number; r: number }[] = [];
+    const noop = (): void => undefined;
+    const ctx = new Proxy(
+      { arc: (_x: number, y: number, r: number) => arcs.push({ y, r }) } as Record<string, unknown>,
+      { get: (t, k) => (k in t ? t[k as string] : noop), set: () => true },
+    );
+    drawPlaceholder({ width: spec.w, height: spec.h, getContext: () => ctx }, 'fuso/teresa');
+    const head = arcs[0]!;
+    const anchor = spec.ay * spec.h;
+    expect(head.y - head.r).toBeLessThanOrEqual(anchor);
+    expect(anchor - (head.y - head.r)).toBeLessThan(8);
+    // Il pomolo in fondo resta dentro il fotogramma.
+    const knob = arcs.at(-1)!;
+    expect(knob.y + knob.r).toBeLessThanOrEqual(spec.h);
+    // E coincide con l'ancora dei fusi veri, se gli asset ci sono.
+    const path = new URL('../../../public/assets/manifest.json', import.meta.url);
+    if (existsSync(path)) {
+      const m = JSON.parse(readFileSync(path, 'utf8')) as AssetManifest;
+      const real = m.atlases.flatMap((a) => Object.entries(a.frames)).filter(([n]) => n.startsWith('fuso/'));
+      expect(real.length).toBeGreaterThan(0);
+      for (const [n, f] of real) expect(Math.abs(f.ay - spec.ay), n).toBeLessThan(0.01);
+    }
   });
 });

@@ -12,7 +12,10 @@ Il progetto vive tutto in questa cartella (`gioco/`); il resto del repository è
 - Node 22 o successivo, npm 10.
 - Per i test end-to-end: Chromium di Playwright 1.56.1 (nel container è in `/opt/pw-browsers`).
 - Per gli asset 3D: Blender 5.2 come modulo Python (`BLENDER_PY`), vedi `tools/blender/README.md`.
-- Per le app native: Android Studio 2025.2.1+ e/o Xcode 26+ (vedi `docs/STORE.md`).
+- Per le app native: Android Studio 2025.2.1+ e/o Xcode 26+. Guida completa agli store, dal
+  Mac nuovo alla pubblicazione: [`docs/STORE.md`](docs/STORE.md). Per Xcode (sezione 2.3): la
+  versione dell'App Store è Xcode 27 e vuole macOS Tahoe 26.6 o successivo; su macOS Sequoia
+  15.6+ si usa Xcode 26.3 (dal sito Apple Developer), che basta perché Apple chiede Xcode 26.
 
 ## Comandi
 
@@ -22,7 +25,7 @@ npm run dev          # server di sviluppo (vite --host)
 npm run build        # typecheck (tsc) + build in dist/
 npm test             # test unitari (Vitest)
 npm run test:e2e     # test end-to-end (Playwright, 5 dispositivi)
-npm run ci           # build + test + levels:check + test:e2e
+npm run ci           # build + test + levels:check + native:check + native:test + test:e2e
 ```
 
 | Script | Comando |
@@ -33,6 +36,10 @@ npm run ci           # build + test + levels:check + test:e2e
 | `test` | `vitest run` |
 | `test:e2e` | `playwright test` |
 | `levels:check` | `tsx tools/levels/check.ts` (solver: verifica i livelli, scrive i `.computed.json`) |
+| `audio:verify` | `tsx tests/unit/audio/browser-verify.ts` (prova dell'audio in Chromium) |
+| `tombolo:verify` | `tsx tests/unit/tombolo/browser-verify.ts` (prova del tombolo in Chromium) |
+| `screens:verify` | `tsx tests/unit/screens/browser-verify.ts` (prova delle schermate in Chromium) |
+| `campaign:verify` | `tsx tests/unit/campaign/browser-verify.ts` (prova della campagna in Chromium) |
 | `assets:render` | `bash tools/blender/render_all.sh` (Blender, Cycles su CPU) |
 | `assets:native` | `capacitor-assets generate …` (icone e splash nativi da `assets/`) |
 | `app:sync` | `npm run build && cap sync` |
@@ -40,7 +47,24 @@ npm run ci           # build + test + levels:check + test:e2e
 | `app:run:android` / `app:run:ios` | build e avvio su dispositivo o emulatore |
 | `android:apk` | APK di debug (`scripts/android-build.sh assembleDebug`) |
 | `release:android` / `release:ios` | pacchetti firmati per gli store |
-| `ci` | verifica completa |
+| `native:check` | `node scripts/check-native.mjs` (impostazioni dei progetti nativi; né SDK né rete) |
+| `native:test` | `bash scripts/test-native.sh` (script nativi con strumenti finti, meno di un minuto) |
+| `ci` | verifica completa: `build`, `test`, `levels:check`, `native:check`, `native:test`, `test:e2e` |
+
+**`levels:check`.** Opzioni: `npm run levels:check -- --dir <cartella> --report --only <id,id>
+--no-write --voluta <livello>:<nota>+<nota>` (`--voluta` si ripete). Funziona anche
+`npm run levels:check --dir X` (npm passa la cartella come `npm_config_dir`). Si calcolano
+tutte le combinazioni di bigliettini da 2 fino al numero di spilli, coppie comprese; nel
+`--report` il filo del nome si vede con `@filo`. Una `--voluta` su una coppia vale anche per
+le combinazioni più grandi che la contengono. Senza contenuti esce con 0, quindi `npm run ci`
+non si ferma lì.
+
+**Prove nel browser (`*:verify`).** Non sono test Vitest: aprono Chromium di Playwright
+(1.56.1, in `/opt/pw-browsers` nel container) e avviano da sé un server sulla loro porta
+(audio 5220, tombolo 5241, schermate 5271, campagna 5281: si cambiano con
+`<PACCHETTO>_VERIFY_PORT`). Con `<PACCHETTO>_VERIFY_URL=http://127.0.0.1:4173/` usano un server
+già avviato: meglio una build `VITE_E2E=1 npx vite build` servita da `npx vite preview`,
+perché il server di sviluppo ricarica la pagina quando qualcuno modifica i file.
 
 Test end-to-end: il server di prova è `npm run build && vite preview` sulla porta **4173**
 (build con `VITE_E2E=1`, quindi `window.__GAME__` sempre attivo). Variabili utili:
@@ -64,6 +88,7 @@ src/core/              servizi condivisi (fondamenta)
 src/content/           contenuti JSON + loader.ts e validate.ts
 src/<pacchetto>/       engine, tombolo, campaign, screens, audio: ognuno con il suo register.ts
 src/i18n/<it|en>/      testi d'interfaccia, un namespace per pacchetto
+public/                icons/ (favicon, 192, 512), manifest.webmanifest, assets/ (pipeline Blender)
 tests/unit/<pacchetto> test unitari; tests/e2e/ test end-to-end
 ```
 
@@ -128,6 +153,16 @@ namespace (`src/i18n/<it|en>/<ns>.json`, testi narrativi in `src/content/text/<i
 immediate quando serve; slot `trama.v1.a`/`trama.v1.b` con checksum FNV-1a; export
 `TRAMA-SAVE-1:` + base64url.
 
+**Audio.** `setAmbience(id, fadeMs?, { clock? })`: l'orologio che ticchetta c'è di serie solo
+nella notte (fermo nel prologo); `clock: true` lo aggiunge a qualunque ambiente (il titolo usa
+`setAmbience('laguna', undefined, { clock: true })`, GDD 9), `clock: false` lo toglie. È
+un'aggiunta compatibile a `types.ts`: chi chiama `setAmbience(id)` non cambia nulla.
+
+**Condivisione.** `platform.share({ text, title?, file?, fileName? })`: sul web la Web Share API
+(con il PNG se il browser lo accetta); in nativo il plugin Share, con il PNG scritto nella cache
+dell'app da `@capacitor/filesystem` (il plugin Share vuole un file su disco). Dopo aver aggiunto
+un plugin Capacitor serve `npx cap sync` (gli script `app:*` e `release:*` lo fanno da soli).
+
 **Asset.** `public/assets/manifest.json` (formato `AssetManifest`, percorsi relativi a
 `public/assets/`). `assets.frame(nome)` e `assets.image(nome)` danno sempre qualcosa: se
 l'asset manca, un segnaposto disegnato in codice. `assets.missing()` elenca i mancanti.
@@ -139,6 +174,17 @@ Se il manifest non esiste al momento della build, il gioco non lo chiede nemmeno
 `missingAssets`, `missingKeys`, più `validate`, `flush`, `openOverlay`, `closeOverlay`, `overlays`,
 `toast`, `scenes`, `packages`, `version`, `time.now/ticks`, `input.tap/drag/action/layers`).
 Ogni pacchetto registra il suo namespace con `services.debug.register(ns, api)`.
+
+`__GAME__.audio` (dettagli in testa a `src/audio/register.ts`): `state()`, `log()` (ultimi 200
+suoni `{ id, t, detail? }`, anche prima dello sblocco), `mute(on)`, `stats()` (sorgenti attive e
+picco, pre-render con `cpuMs`, musica, ambiente, `clock` dell'orologio), `captions()`, `sfx(id)`,
+`bell(ora, s?)`, `note(chi)`, `crossing(sopra, sotto, rancore?)`, `babble(chi, testo)`,
+`music(stato, seme?)`, `ambience(id, orologio?)`, `duck(on)`, `stress(n)` (limitatore: picco ≤ 48),
+`verify(secondi?)` (rendering offline di ogni `SfxId`), `blocked()`, `interrupt()` (poi
+`[data-test="audio-tocca"]` per «Tocca per continuare»), `stonatura()`.
+
+Gli altri namespace: `engine` (motore), `night` (tombolo), `campaign` (campagna, vedi
+`docs/stato/campagna.md`), `ui` (schermate, vedi `docs/stato/interfaccia.md`).
 
 ## Convenzioni
 

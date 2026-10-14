@@ -281,7 +281,11 @@ async function main(): Promise<void> {
         JSON.stringify(title.map((i: Json) => `${i.id}${i.locked ? '🔒' : ''}`)),
       );
       const music = await api<Json>(page, 'audio', 'stats').catch(() => null);
-      check('titolo: musica del titolo e laguna', !music || (music.music === 'titolo' && music.ambience === 'laguna'), music ? `${music.music}/${music.ambience}` : 'audio assente');
+      check(
+        "titolo: musica del titolo, laguna e orologio che ticchetta (GDD 9)",
+        !music || (music.music === 'titolo' && music.ambience === 'laguna' && music.clock === true),
+        music ? `${music.music}/${music.ambience}${music.clock ? '+orologio' : ''}` : 'audio assente',
+      );
       // Il quadro su canvas: il centro del tombolo non è velluto vuoto.
       const px = await page.evaluate(() => {
         const c = document.getElementById('scene-canvas') as HTMLCanvasElement;

@@ -119,6 +119,8 @@ export class BootScene implements Scene {
   private deviceText: HTMLElement | null = null;
   private missingTitle: HTMLElement | null = null;
   private missingList: HTMLElement | null = null;
+  /** «Al loro posto si vedono segnaposto…»: solo se manca almeno un asset. */
+  private missingNote: HTMLElement | null = null;
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
   private colors: BootColors | null = null;
   private colorsFor = '';
@@ -163,6 +165,8 @@ export class BootScene implements Scene {
     this.logEl = el('ul', { class: 'core-boot-log', test: 'boot-log', attrs: { 'aria-live': 'polite' } });
     this.missingTitle = textOf('core.boot.asset.titolo', { n: 0 }, 'h3', { className: 'core-boot-h' });
     this.missingList = el('ul', { class: 'core-boot-list', test: 'boot-missing' });
+    this.missingNote = textOf('core.boot.asset.segnaposto', undefined, 'p', { className: 'core-boot-muted' });
+    this.missingNote.dataset.test = 'boot-segnaposto';
 
     const db = s.content;
     const errors = info.contentErrors();
@@ -186,7 +190,7 @@ export class BootScene implements Scene {
         'section',
         { class: 'core-boot-section' },
         this.missingTitle,
-        textOf('core.boot.asset.segnaposto', undefined, 'p', { className: 'core-boot-muted' }),
+        this.missingNote,
         this.missingList,
       ),
       el(
@@ -231,6 +235,7 @@ export class BootScene implements Scene {
     if (!this.missingTitle || !this.missingList) return;
     const missing = this.s.assets.missing();
     setTextParams(this.missingTitle, { n: missing.length });
+    if (this.missingNote) this.missingNote.hidden = missing.length === 0;
     clear(this.missingList);
     for (const m of missing.slice(0, MISSING_SHOWN)) this.missingList.appendChild(el('li', { text: m }));
     if (missing.length > MISSING_SHOWN) this.missingList.appendChild(el('li', null, textOf('core.boot.asset.altri', { n: missing.length - MISSING_SHOWN })));

@@ -62,12 +62,23 @@ export interface PlaceholderSpec {
   ay: number;
 }
 
+/** Ancora dei fusi (ARCHITETTURA 12, asset veri): la cima della testa, dove parte il filo. */
+export const FUSO_ANCHOR_Y = 0.125;
+/**
+ * Il disegno del segnaposto occupa la stessa altezza del fuso vero (dalla testa a
+ * circa 0,11 fino al pomolo a circa 0,97 del fotogramma): le frazioni del disegno
+ * (0…1) si portano in quella fascia, così il filo si attacca nello stesso punto.
+ */
+const FUSO_TOP = 0.06;
+const FUSO_SPAN = 0.925;
+
 /** Dimensioni e ancore dei segnaposto (ARCHITETTURA 12: fusi 96×320, figurine 256 con ay 0,92…). */
 export function placeholderSpec(name: string): PlaceholderSpec {
   const [group, id] = name.split('/');
   switch (group) {
     case 'fuso':
-      return { w: 96, h: 320, ax: 0.5, ay: 0.05 };
+      // Come i fusi veri: l'ancora è in cima alla testa, dove parte il filo.
+      return { w: 96, h: 320, ax: 0.5, ay: FUSO_ANCHOR_Y };
     case 'fig':
       return { w: 256, h: 256, ax: 0.5, ay: 0.92 };
     case 'obj':
@@ -102,20 +113,21 @@ function shade(hex: string, f: number): string {
 
 function drawFuso(ctx: CanvasRenderingContext2D, w: number, h: number, color: string): void {
   const cx = w / 2;
+  const y = (f: number): number => h * (FUSO_TOP + f * FUSO_SPAN);
   ctx.lineWidth = 2;
   ctx.strokeStyle = PALETTE.inchiostro;
   // Testa intagliata
   ctx.fillStyle = PALETTE.legno;
   ctx.beginPath();
-  ctx.arc(cx, h * 0.12, w * 0.19, 0, Math.PI * 2);
+  ctx.arc(cx, y(0.12), w * 0.19, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
   // Collo
-  ctx.fillRect(cx - w * 0.08, h * 0.17, w * 0.16, h * 0.08);
-  ctx.strokeRect(cx - w * 0.08, h * 0.17, w * 0.16, h * 0.08);
+  ctx.fillRect(cx - w * 0.08, y(0.17), w * 0.16, y(0.25) - y(0.17));
+  ctx.strokeRect(cx - w * 0.08, y(0.17), w * 0.16, y(0.25) - y(0.17));
   // Filo avvolto
-  const top = h * 0.25;
-  const bottom = h * 0.6;
+  const top = y(0.25);
+  const bottom = y(0.6);
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(cx - w * 0.2, top);
@@ -141,14 +153,14 @@ function drawFuso(ctx: CanvasRenderingContext2D, w: number, h: number, color: st
   ctx.beginPath();
   ctx.moveTo(cx - w * 0.15, bottom);
   ctx.lineTo(cx + w * 0.15, bottom);
-  ctx.lineTo(cx + w * 0.07, h * 0.94);
-  ctx.lineTo(cx - w * 0.07, h * 0.94);
+  ctx.lineTo(cx + w * 0.07, y(0.94));
+  ctx.lineTo(cx - w * 0.07, y(0.94));
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = PALETTE.legnoScuro;
   ctx.beginPath();
-  ctx.arc(cx, h * 0.955, w * 0.09, 0, Math.PI * 2);
+  ctx.arc(cx, y(0.955), w * 0.09, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 }

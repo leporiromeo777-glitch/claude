@@ -6,6 +6,10 @@
  * schermo sempre acceso, blocco verticale sui telefoni Android (lato corto < 600 dp).
  * I plugin nativi si importano dinamicamente solo in nativo: sul web nessuno di
  * quei moduli viene scaricato.
+ *
+ * Condivisione (GDD 8.3): sul web la Web Share API (testo e, se il browser lo
+ * accetta, il PNG); in nativo il plugin Share, che vuole i file su disco: il PNG
+ * si scrive nella cache dell'app con il plugin Filesystem e si passa il suo URI.
  */
 import { Capacitor } from '@capacitor/core';
 import type { Platform, Unsub } from './types';
@@ -20,6 +24,75 @@ export interface CorePlatform extends Platform {
 
 /** Lato corto sotto il quale un dispositivo Android è un telefono (dp). */
 export const PHONE_SHORT_SIDE_DP = 600;
+/** Cartella (nella cache dell'app) dei file da condividere in nativo. */
+export const SHARE_DIR = 'condivisi';
+
+/** Contenuto di un Blob in base64 (il plugin Filesystem in nativo non accetta Blob). */
+export async function blobToBase64(blob: Blob): Promise<string> {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let bin = '';
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) bin += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  return btoa(bin);
+}
+
+/** Nome di file sicuro per la cache (niente cartelle, niente caratteri strani). */
+export function shareFileName(name: string | undefined): string {
+  const clean = (name ?? '').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^[.-]+/, '');
+  return clean || 'trama.png';
+}
+
+/**
+ * Scrive il file da condividere nella cache dell'app (solo nativo) e ne dà l'URI
+ * file://. I file delle condivisioni precedenti si cancellano prima: nella cache
+ * ne resta al massimo uno. null se il plugin manca o la scrittura non riesce
+ * (si condivide allora solo il testo).
+ */
+export async function writeShareFile(blob: Blob, name: string | undefined): Promise<string | null> {
+  try {
+    const { Filesystem, Directory } = await import('@capacitor/filesystem');
+    const data = await blobToBase64(blob);
+    await Filesystem.rmdir({ path: SHARE_DIR, directory: Directory.Cache, recursive: true }).catch(() => undefined);
+    const res = await Filesystem.writeFile({ path: `${SHARE_DIR}/${shareFileName(name)}`, data, directory: Directory.Cache, recursive: true });
+    return res.uri || null;
+  } catch (err) {
+    console.warn('[platform] share file unavailable', err);
+    return null;
+  }
+}
+
+type ShareRequest = Parameters<Platform['share']>[0];
+
+/**
+ * Foglio di condivisione nativo (plugin Share), con il PNG come file.
+ * 'assente' se il plugin non c'è: si prova allora la Web Share API della WebView.
+ */
+async function shareWithPlugin(o: ShareRequest): Promise<'condiviso' | 'no' | 'assente'> {
+  let plugin: typeof import('@capacitor/share');
+  try {
+    plugin = await import('@capacitor/share');
+  } catch {
+    return 'assente';
+  }
+  const opts: import('@capacitor/share').ShareOptions = { text: o.text };
+  if (o.title) {
+    opts.title = o.title;
+    opts.dialogTitle = o.title;
+  }
+  if (o.file) {
+    const uri = await writeShareFile(o.file, o.fileName);
+    if (uri) opts.files = [uri];
+  }
+  try {
+    await plugin.Share.share(opts);
+    return 'condiviso';
+  } catch (err) {
+    // Annullato dal giocatore ("Share canceled") o non riuscito: il chiamante copia il testo.
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/not implemented|unimplemented/i.test(msg)) return 'assente';
+    return 'no';
+  }
+}
 
 function list<T>(): { add(fn: T): Unsub; all(): T[] } {
   const fns: T[] = [];
@@ -165,6 +238,10 @@ export async function createPlatform(win: Window | null): Promise<CorePlatform> 
       }
     },
     async share(o) {
+      if (native) {
+        const r = await shareWithPlugin(o);
+        if (r !== 'assente') return r === 'condiviso';
+      }
       const nav = win?.navigator;
       if (nav && typeof nav.share === 'function') {
         const data: ShareData = { text: o.text };
@@ -180,21 +257,8 @@ export async function createPlatform(win: Window | null): Promise<CorePlatform> 
         try {
           await nav.share(data);
           return true;
-        } catch (err) {
-          if (err instanceof Error && err.name === 'AbortError') return false;
-        }
-      }
-      if (native) {
-        try {
-          const { Share } = await import('@capacitor/share');
-          const opts: { text: string; title?: string; dialogTitle?: string } = { text: o.text };
-          if (o.title) {
-            opts.title = o.title;
-            opts.dialogTitle = o.title;
-          }
-          await Share.share(opts);
-          return true;
         } catch {
+          // Annullato (AbortError) o rifiutato: il chiamante copia il testo.
           return false;
         }
       }
