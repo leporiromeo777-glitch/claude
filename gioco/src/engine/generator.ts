@@ -12,7 +12,11 @@
  *   3. al massimo 12 soluzioni ottime distinte;
  *   4. il giocatore avido (bot.ts) non lo risolve con la matassa della giornata;
  *   5. la regola serve davvero: la soluzione ottima calcolata senza la regola
- *      non è valida con la regola (o senza la regola non c'è soluzione).
+ *      non è valida con la regola (o senza la regola non c'è soluzione);
+ *   6. ogni grado cambia il puzzle (`gradeMatters`, revisione 1): Spilli velati
+ *      solo con uno spillo dopo le prime tre ore, Un nodo in più solo se la
+ *      coppia si incrocerebbe o il minimo cresce, Un nero in più solo se la
+ *      soluzione senza non regge o costa meno; altrimenti si prova il seme dopo.
  * Matassa = minimo + 1 (minimo esatto con il grado "Matassa esatta").
  * Se nessun seme passa: per il Merletto del giorno la lista di riserva
  * precalcolata (`data/daily-fallback.json`, indicizzata col giorno dell'anno),
@@ -22,7 +26,8 @@
  * Gradi (GDD 8.4): matassaEsatta (matassa = minimo), nodoInPiu (una coppia in
  * rancore in più), neroInPiu (un filo nero in più, o un secondo filo da seguire
  * se c'è già), notteCorta (2 righe in meno). senzaDisfa e spilliVelati sono
- * regole d'interfaccia e non cambiano il livello.
+ * regole d'interfaccia e non cambiano il livello (ma Spilli velati chiede uno
+ * spillo da velare). La regola di Gino è quella del motore (C01).
  *
  * Deterministico: stesso seme e stessa versione danno lo stesso livello (niente
  * tempo né Math.random; i limiti del solver sono in stati, non in millisecondi).
@@ -48,7 +53,7 @@ import { intBetween, pick, rngFromSeed, shuffle } from '../core/rng';
 import { createContext } from './context';
 import { solveInternal } from './solver';
 import { greedyPlay } from './bot';
-import { simulateAndEvaluate } from './simulate';
+import { simulate, simulateAndEvaluate } from './simulate';
 import { dayOfYear, isDateSeed } from './daily';
 import fallbackData from './data/daily-fallback.json';
 
@@ -73,7 +78,7 @@ export interface GenResult {
 /** Versione del generatore: cambia quando cambia il modo di costruire i livelli. */
 export const GENERATOR_VERSION = 2;
 export const GEN_TRIES = 500;
-const GEN_MAX_STATES = 30_000;
+export const GEN_MAX_STATES = 30_000;
 const MAX_OPTIMAL = 12;
 
 const CAST: readonly CharacterId[] = ['teresa', 'marta', 'piero', 'gino', 'bepi', 'nina', 'zeno', 'lunardi'];
@@ -113,6 +118,13 @@ export function effectiveRows(spec: GenSpec): number {
 interface Built {
   level: LevelDef;
   goals: Condition[];
+  /** Che cosa hanno aggiunto i gradi che cambiano il livello (per il filtro: il grado conta?). */
+  grades?: {
+    /** Nodo in più: la coppia in rancore aggiunta. */
+    rancor?: [ThreadId, ThreadId];
+    /** Nero in più: un filo nero nuovo ('filo') o un filo in più da seguire ('segui'). */
+    nero?: 'filo' | 'segui';
+  };
 }
 
 /** Costruisce un livello candidato dal generatore casuale (nessun controllo di qualità). */
@@ -309,6 +321,7 @@ export function buildCandidate(spec: GenSpec, seedK: string): Built {
   level.beads = beads;
 
   // ───── Gradi ─────
+  const grades: NonNullable<Built['grades']> = {};
   if (spec.gradi.includes('nodoInPiu')) {
     const used = new Set((level.rancor ?? []).flat());
     const list = named().filter((t) => !used.has(t));
@@ -317,6 +330,7 @@ export function buildCandidate(spec: GenSpec, seedK: string): Built {
       const b = list[1] as ThreadId;
       level.rancor = [...(level.rancor ?? []), [a, b]];
       if (!level.rules.includes('rancore')) level.rules.push('rancore');
+      grades.rancor = [a, b];
     }
   }
   if (spec.gradi.includes('neroInPiu')) {
@@ -324,13 +338,76 @@ export function buildCandidate(spec: GenSpec, seedK: string): Built {
       level.threads.push({ id: 'livia', kind: 'nero', character: 'livia' });
       level.nero = { thread: 'livia', enter: { hour: Math.min(endHour - 1, startHour + 2), side: 'faro' }, agenda: [{ follow: pick(named(), rng) }] };
       if (!level.rules.includes('nero')) level.rules.push('nero');
+      grades.nero = 'filo';
     } else {
       const next = named().find((t) => !level.nero?.agenda.some((a) => 'follow' in a && a.follow === t));
-      if (next) level.nero.agenda.push({ follow: next });
+      if (next) {
+        level.nero.agenda.push({ follow: next });
+        grades.nero = 'segui';
+      }
     }
   }
   level.goals = goals;
-  return { level, goals };
+  return { level, goals, grades };
+}
+
+/** Il livello senza quello che ha aggiunto il grado (nodo in più o nero in più). */
+function withoutGrade(built: Built, g: 'nodoInPiu' | 'neroInPiu'): LevelDef | null {
+  const level = built.level;
+  const add = built.grades ?? {};
+  if (g === 'nodoInPiu') {
+    const pair = add.rancor;
+    if (!pair) return null;
+    return { ...level, rancor: (level.rancor ?? []).filter((p) => !(p[0] === pair[0] && p[1] === pair[1])) };
+  }
+  if (!add.nero || !level.nero) return null;
+  if (add.nero === 'segui') return { ...level, nero: { ...level.nero, agenda: level.nero.agenda.slice(0, -1) } };
+  const { nero: _nero, ...rest } = level;
+  void _nero;
+  return { ...rest, threads: level.threads.filter((t) => t.id !== level.nero?.thread), rules: level.rules.filter((r) => r !== 'nero') };
+}
+
+/**
+ * Il grado cambia il puzzle? (revisione 1, MOT-05)
+ * - spilliVelati: almeno uno spillo d'ottone a un'ora ≥ apertura + 3 (altrimenti il velo non nasconde nulla);
+ * - nodoInPiu: la soluzione ottima senza la coppia in rancore la fa incrociare, oppure con il rancore il minimo cresce;
+ * - neroInPiu: la soluzione ottima senza il nero (o senza il filo in più da seguire) non è valida col nero, oppure costa di più;
+ * - notteCorta, matassaEsatta, senzaDisfa: valgono sempre (la notte corta sposta già l'intervallo del minimo).
+ * Un limite di stati vale come "non conta": si passa al seme dopo.
+ */
+export function gradeMatters(spec: GenSpec, built: Built, g: GradoId, min: number, hi: number): boolean {
+  const { level, goals } = built;
+  switch (g) {
+    case 'spilliVelati':
+      return level.pins.some((p) => p.hour >= level.startHour + 3);
+    case 'nodoInPiu': {
+      const lv0 = withoutGrade(built, 'nodoInPiu');
+      const pair = built.grades?.rancor;
+      if (!lv0 || !pair) return false;
+      const ctx0 = createContext(lv0, {});
+      const r = solveInternal({ level: lv0, ctx: ctx0, goals, matassa: hi, maxStates: GEN_MAX_STATES });
+      if (r.status === 'limite') return false;
+      if (r.status !== 'ok' || !r.rows || r.incroci === undefined) return true;
+      if (min > r.incroci) return true;
+      const sim = simulate({ ...lv0, matassa: hi }, ctx0, r.rows);
+      const last = sim.timeline[sim.timeline.length - 1];
+      const key = pair[0] < pair[1] ? `${pair[0]}|${pair[1]}` : `${pair[1]}|${pair[0]}`;
+      return !!last && last.met.includes(key);
+    }
+    case 'neroInPiu': {
+      const lv0 = withoutGrade(built, 'neroInPiu');
+      if (!lv0) return false;
+      const r = solveInternal({ level: lv0, ctx: createContext(lv0, {}), goals, matassa: hi, maxStates: GEN_MAX_STATES });
+      if (r.status === 'limite') return false;
+      if (r.status !== 'ok' || !r.rows || r.incroci === undefined) return true;
+      if (min > r.incroci) return true;
+      const sim = simulateAndEvaluate({ ...level, matassa: hi }, createContext(level, {}), r.rows, goals);
+      return !sim.allOk;
+    }
+    default:
+      void spec;
+      return true;
+  }
 }
 
 interface Verdict {
@@ -341,7 +418,7 @@ interface Verdict {
   /**
    * Fin dove è arrivato il filtro: 0 irrisolvibile, 1 minimo fuori dall'intervallo,
    * 2 troppe soluzioni ottime, 3 il giocatore avido ce la fa, 4 la regola non serve,
-   * 5 superato. Serve a scegliere il candidato migliore se nessuno passa.
+   * 5 un grado non conta, 6 superato. Serve a scegliere il candidato migliore se nessuno passa.
    */
   stage: number;
 }
@@ -368,8 +445,10 @@ export function qualityCheck(spec: GenSpec, built: Built): Verdict {
     const sim = simulateAndEvaluate(check, ctx, without.rows, goals);
     if (sim.allOk && (without.incroci ?? 0) >= min) return fail(4);
   }
+  // Ogni grado deve cambiare il puzzle (MOT-05).
+  for (const g of spec.gradi) if (!gradeMatters(spec, built, g, min, hi)) return fail(5);
   level.matassa = matassa;
-  return { ok: true, solvable: true, min, optimalCount: count, stage: 5 };
+  return { ok: true, solvable: true, min, optimalCount: count, stage: 6 };
 }
 
 interface FallbackEntry {
