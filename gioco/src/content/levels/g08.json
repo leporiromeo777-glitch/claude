@@ -16,18 +16,20 @@
     {"id": "marinaio", "kind": "lino", "labelKey": "comune.fili.marinaio"},
     {"id": "segreteria", "kind": "lino", "labelKey": "atto1.g08.fili.segreteria"}
   ],
-  "initial": ["teresa", "marta", "nina", "gino", "piero", "zeno"],
+  "initial": ["teresa", "nina", "marta", "gino", "piero", "zeno"],
   "beads": [{"id": "L_iscrizione", "type": "lettera", "holder": "nina", "to": "segreteria", "labelKey": "atto1.g08.perline.L_iscrizione"}],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
   "pins": [
     {"thread": "marta", "place": "forno", "hour": 7},
-    {"thread": "nina", "place": "piazza", "hour": 10},
-    {"thread": "piero", "place": "chiesa", "hour": 11}
+    {"thread": "nina", "place": "chiesa", "hour": 12},
+    {"thread": "gino", "place": "farmacia", "hour": 14},
+    {"thread": "marta", "place": "forno", "hour": 15},
+    {"thread": "gino", "place": "faro", "hour": 16}
   ],
   "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g08.marta", "g08.nina", "g08.zeno"],
-  "matassa": 10,
+  "matassa": 16,
   "dawn": {
     "candidates": [
       {

@@ -366,7 +366,7 @@
     "day": "g08",
     "author": "zeno",
     "textKey": "atto1.g08.zeno.testo",
-    "request": {"t": "nonIncontra", "a": "zeno", "b": "*", "from": 15, "to": 16},
+    "request": {"t": "nonIncontra", "a": "zeno", "b": "*", "from": 14, "to": 16},
     "onOk": [{"setFlag": "zenoRiposo", "value": true}],
     "onFail": [{"diary": "persone.zeno.insonne"}],
     "esito": {"ok": "atto1.g08.zeno.esito.ok", "fallita": "atto1.g08.zeno.esito.fallita"}

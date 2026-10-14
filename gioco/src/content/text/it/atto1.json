@@ -360,9 +360,9 @@
       }
     },
     "zeno": {
-      "testo": "Non dormo da giorni. Domani, dalle tre in poi, non voglio vedere nessuno.",
+      "testo": "Non dormo da giorni. Domani, dalle due in poi, non voglio vedere nessuno.",
       "esito": {
-        "ok": "Dalle tre in poi nessuno ha disturbato Zeno. Il Faro è stato zitto tutto il pomeriggio.",
+        "ok": "Dalle due in poi nessuno ha disturbato Zeno. Il Faro è stato zitto tutto il pomeriggio.",
         "fallita": "Qualcuno è passato dal Faro nel pomeriggio. Zeno non ha chiuso occhio nemmeno oggi."
       }
     },

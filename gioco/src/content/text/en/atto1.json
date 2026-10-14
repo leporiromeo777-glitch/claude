@@ -360,9 +360,9 @@
       }
     },
     "zeno": {
-      "testo": "I haven't slept for days. Tomorrow, from three on, I want to see no one.",
+      "testo": "I haven't slept for days. Tomorrow, from two on, I want to see no one.",
       "esito": {
-        "ok": "From three on nobody disturbed Zeno. The Lighthouse was silent all afternoon.",
+        "ok": "From two on nobody disturbed Zeno. The Lighthouse was silent all afternoon.",
         "fallita": "Someone came by the Lighthouse in the afternoon. Zeno didn't sleep a wink today either."
       }
     },
