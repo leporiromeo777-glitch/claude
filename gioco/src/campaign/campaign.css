@@ -1,0 +1,1115 @@
+/*
+ * Campagna (prefisso cp-): sera, alba, bilancio, Archivio, Telaio, finali, Taccuino.
+ * Carta, ottone e velluto (GDD 10.1, 12.2); bersagli ≥ 48 px; dentro la safe area.
+ */
+
+.cp-scena {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  color: var(--testo);
+  font-family: var(--font-ui);
+  pointer-events: none;
+}
+.cp-scena [hidden] {
+  display: none !important;
+}
+
+.cp-fondo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+.cp-centro {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  max-width: 760px;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  padding: calc(var(--safe-top) + var(--spazio-4)) calc(var(--safe-right) + var(--spazio-4)) calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
+}
+
+.cp-centro-foglio {
+  display: flex;
+  justify-content: center;
+}
+
+/* Taccuino fisso a destra nel layout largo (GDD 10.2). */
+.cp-lato {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 320px;
+  width: 320px;
+  height: 100%;
+  pointer-events: auto;
+  padding: calc(var(--safe-top) + var(--spazio-3)) calc(var(--safe-right) + var(--spazio-3)) calc(var(--safe-bottom) + var(--spazio-3)) var(--spazio-3);
+  border-left: 1px solid var(--bordo-pannello);
+  background: var(--velluto-ombra);
+  background: color-mix(in srgb, var(--velluto-ombra) 88%, transparent);
+}
+
+.cp-tenue {
+  color: var(--testo-tenue);
+}
+
+/* I nomi dei personaggi sulla carta restano scuri (il core li schiarisce sul velluto). */
+.cp-scena .core-carta .core-pers,
+.cp-foglio .core-pers,
+.cp-taccuino .core-pers,
+.cp-dettaglio .core-carta .core-pers,
+.core-overlay .cp-foglio .core-pers {
+  color: var(--inchiostro);
+  color: color-mix(in srgb, var(--pers-color) 62%, var(--inchiostro));
+}
+.cp-pers {
+  white-space: normal;
+}
+
+/* ───────── Sera ───────── */
+.cp-sera-testa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-3);
+}
+.cp-sera-menu {
+  flex: none;
+}
+.cp-sera-intestazione {
+  min-width: 0;
+}
+.cp-sera-giornata {
+  color: var(--ottone);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+}
+.cp-sera-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.7rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.cp-sera-atto {
+  color: var(--testo-tenue);
+  font-size: 0.9rem;
+}
+.cp-sera-intro {
+  font-family: var(--font-libro);
+  font-size: 1.1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cp-porta {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-4);
+  width: 100%;
+  min-height: 96px;
+  padding: var(--spazio-3) var(--spazio-4);
+  border: 2px dashed var(--ottone);
+  border-radius: var(--raggio-grande);
+  background: var(--velluto-luce);
+  background: color-mix(in srgb, var(--velluto-luce) 90%, transparent);
+  color: var(--testo);
+  text-align: left;
+  cursor: pointer;
+  animation: cp-arriva 700ms ease-out 1;
+}
+.cp-porta-testo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+.cp-porta-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.2rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+@keyframes cp-arriva {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cp-bigliettini {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  gap: var(--spazio-3);
+}
+.cp-bigliettino {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  width: 100%;
+  min-height: var(--tocco);
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: cp-scivola 600ms ease-out 1 both;
+}
+.cp-bigliettini > :nth-child(2) .cp-bigliettino {
+  animation-delay: 120ms;
+}
+.cp-bigliettini > :nth-child(3) .cp-bigliettino {
+  animation-delay: 240ms;
+}
+.cp-bigliettini > :nth-child(4) .cp-bigliettino {
+  animation-delay: 360ms;
+}
+@keyframes cp-scivola {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cp-bigliettino .core-carta {
+  min-height: 120px;
+  transition: transform var(--durata-breve);
+}
+.cp-bigliettino:hover .core-carta,
+.cp-bigliettino:focus-visible .core-carta {
+  transform: translateY(-2px);
+}
+.cp-bigliettino.cp-appuntato .core-carta {
+  box-shadow: 0 0 0 3px var(--spillo-rosso), 0 3px 10px rgba(8, 10, 16, 0.35);
+}
+.cp-bigliettino.cp-lasciato .core-carta {
+  opacity: 0.72;
+}
+.cp-nota-a {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  margin-bottom: var(--spazio-2);
+  transform: none;
+}
+.core-carta--mano .cp-nota-a {
+  font-family: var(--font-ui);
+}
+.cp-nota-testo {
+  overflow-wrap: anywhere;
+}
+.cp-nota-testo--breve {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cp-nota--anonima {
+  background-image: repeating-linear-gradient(0deg, transparent 0 26px, rgba(80, 80, 80, 0.12) 26px 27px);
+}
+.cp-nota--strappata {
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 92% 78%, 84% 70%, 74% 80%, 62% 72%, 50% 82%, 38% 72%, 26% 80%, 14% 70%, 6% 78%, 0 72%);
+  opacity: 0.85;
+}
+.cp-segni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  min-height: 24px;
+}
+.cp-segno {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--testo);
+  overflow-wrap: anywhere;
+}
+.cp-segno--spillo {
+  color: var(--spillo-rosso);
+  color: color-mix(in srgb, var(--spillo-rosso) 70%, var(--testo));
+}
+.cp-dettaglio .cp-segno,
+.cp-taccuino .cp-segno {
+  color: var(--inchiostro);
+}
+
+.cp-sera-piede {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) 0 0;
+  background: linear-gradient(to bottom, transparent, var(--velluto) 30%);
+}
+.cp-sera-strumenti {
+  display: flex;
+  gap: var(--spazio-2);
+}
+.cp-sera-vai {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  justify-content: flex-end;
+  margin-left: auto;
+}
+.cp-scena[data-largo] .cp-btn-taccuino {
+  display: none;
+}
+
+/* Prologo */
+.cp-prologo-buio {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-5);
+  padding: var(--spazio-6);
+  border: none;
+  background: #050609;
+  color: var(--testo-chiaro);
+  cursor: pointer;
+}
+.cp-prologo-riga {
+  max-width: 34ch;
+  font-family: var(--font-libro);
+  font-size: 1.45rem;
+  line-height: 1.35;
+  text-align: center;
+  animation: cp-appare 1600ms ease-out 1 both;
+}
+.cp-prologo-tocca {
+  color: var(--testo-tenue);
+  font-size: 0.95rem;
+  animation: cp-appare 1600ms ease-out 1200ms 1 both;
+}
+@keyframes cp-appare {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.cp-biglietto-nonna {
+  max-width: 420px;
+  align-self: center;
+  transform: rotate(-1.5deg);
+}
+
+/* Dettaglio di un bigliettino e oggetto della laguna (overlay) */
+.cp-dettaglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  padding: var(--spazio-5) var(--spazio-4) var(--spazio-4);
+  border-radius: var(--raggio-grande);
+  background: var(--velluto-luce);
+  color: var(--testo);
+}
+.cp-dettaglio .core-carta {
+  font-size: 1.15rem;
+}
+.cp-dettaglio-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.3rem;
+  padding-right: var(--tocco);
+}
+.cp-dettaglio-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  justify-content: flex-end;
+}
+.cp-risposte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-risposta {
+  min-height: var(--tocco);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-libro);
+}
+.cp-risposta-data {
+  border-left: 3px solid var(--ottone);
+  padding-left: var(--spazio-3);
+}
+.cp-risposta-testo {
+  font-family: var(--font-libro);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+.cp-chi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-chi-domanda {
+  font-weight: 700;
+}
+.cp-chi-volti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+.cp-volto {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 72px;
+  min-height: var(--tocco);
+  padding: var(--spazio-1) var(--spazio-2);
+  border: 2px solid var(--bordo-pannello);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  cursor: pointer;
+}
+.cp-volto.cp-attivo {
+  border-color: var(--ottone);
+  box-shadow: 0 0 0 2px var(--ottone);
+}
+.cp-errore {
+  color: var(--errore);
+  font-weight: 700;
+}
+.cp-strappo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-mancanze {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  font-family: var(--font-mano);
+  font-size: 1.3rem;
+  color: var(--carta);
+}
+.cp-oggetti .cp-oggetto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-3);
+}
+.cp-oggetto-nome {
+  font-family: var(--font-libro);
+  font-size: 1.25rem;
+  text-align: center;
+}
+.cp-oggetto-descrizione {
+  font-family: var(--font-libro);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.cp-lettera-testo {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+/* ───────── Vignette ───────── */
+.cp-alba,
+.cp-finale {
+  flex-direction: column;
+}
+.cp-alba-testa {
+  position: absolute;
+  top: calc(var(--safe-top) + var(--spazio-3));
+  left: calc(var(--safe-left) + var(--spazio-4));
+  right: calc(var(--safe-right) + var(--spazio-4));
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  color: var(--testo-chiaro);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.cp-alba-titolo {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ottone);
+}
+.cp-vignetta {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  background: var(--velluto-ombra);
+}
+.cp-vignetta-quadro {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.cp-vignetta-box {
+  position: absolute;
+  left: calc(var(--safe-left) + var(--spazio-4));
+  right: calc(var(--safe-right) + var(--spazio-4));
+  bottom: calc(var(--safe-bottom) + 84px);
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-radius: var(--raggio-grande);
+  background: var(--carta);
+  color: var(--inchiostro);
+  box-shadow: var(--ombra);
+}
+.cp-vignetta-chi {
+  min-height: 1.2em;
+  font-size: 0.95rem;
+}
+.cp-vignetta-chi:empty {
+  display: none;
+}
+.cp-vignetta-testo {
+  font-family: var(--font-libro);
+  font-size: 1.2rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.cp-vignetta-testo--narratore {
+  font-style: italic;
+}
+.cp-vignetta-suggerimento {
+  font-size: 0.8rem;
+  color: var(--legno-scuro);
+  text-align: right;
+}
+.cp-vignetta-barra {
+  position: absolute;
+  left: calc(var(--safe-left) + var(--spazio-4));
+  right: calc(var(--safe-right) + var(--spazio-4));
+  bottom: calc(var(--safe-bottom) + var(--spazio-3));
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+}
+.cp-vignetta-salta {
+  margin-right: auto;
+}
+.cp-vignetta-autobtn.cp-attivo {
+  background: var(--ottone);
+  color: var(--primario-testo);
+}
+
+/* ───────── Fogli: bilancio, Archivio, finale ───────── */
+.cp-foglio {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  padding: var(--spazio-5) var(--spazio-4);
+  border-radius: 4px;
+  background: var(--carta);
+  color: var(--inchiostro);
+  border: 1px solid var(--carta-ombra);
+  box-shadow: var(--ombra);
+  font-family: var(--font-libro);
+  align-self: center;
+}
+.cp-bilancio .cp-centro,
+.cp-archivio .cp-centro,
+.cp-telaio .cp-centro {
+  align-items: stretch;
+}
+.cp-foglio-titolo {
+  font-size: 1.6rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.cp-foglio-sotto {
+  color: var(--legno-scuro);
+  overflow-wrap: anywhere;
+}
+.cp-foglio-sezione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-foglio-h {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--legno-scuro);
+}
+.cp-foglio .cp-tenue,
+.cp-taccuino .cp-tenue,
+.cp-dettaglio .core-carta .cp-tenue {
+  color: var(--legno-scuro);
+}
+.cp-foglio-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  justify-content: flex-end;
+  font-family: var(--font-ui);
+}
+.cp-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-riga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  overflow-wrap: anywhere;
+}
+.cp-richiesta {
+  display: flex;
+  gap: var(--spazio-3);
+  align-items: flex-start;
+}
+.cp-esito {
+  flex: none;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.cp-ok .cp-esito,
+.cp-ok > .core-icon {
+  color: #2E6B3A;
+}
+.cp-ko .cp-esito,
+.cp-ko > .core-icon {
+  color: #A3322A;
+}
+.cp-richiesta-corpo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+.cp-richiesta-testa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: baseline;
+}
+.cp-stato {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.cp-conseguenza {
+  overflow-wrap: anywhere;
+}
+.cp-punti {
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: var(--filo-ada);
+}
+.cp-voce-nuova {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: flex-start;
+  width: 100%;
+  min-height: var(--tocco);
+  padding: var(--spazio-2);
+  border: 1px solid var(--carta-ombra);
+  border-radius: var(--raggio);
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--inchiostro);
+  font-family: var(--font-libro);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.cp-oro {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  color: #9A7414;
+  font-weight: 700;
+}
+.cp-nuovo-record {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: #7A5A12;
+}
+.cp-sblocco {
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+.cp-margine {
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+.cp-margine--nonna {
+  color: var(--seppia);
+  font-family: var(--font-mano);
+  font-size: 1.3rem;
+  border-left: 2px solid var(--seppia);
+  padding-left: var(--spazio-3);
+}
+
+/* ───────── Archivio ───────── */
+.cp-rotoli {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: var(--spazio-3);
+}
+.cp-rotolo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-4);
+  border-radius: 999px 999px var(--raggio) var(--raggio) / 32px 32px var(--raggio) var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  border: 1px solid var(--carta-ombra);
+  box-shadow: var(--ombra);
+}
+.cp-rotolo .cp-tenue {
+  color: var(--legno-scuro);
+}
+.cp-rotolo--nuovo {
+  box-shadow: 0 0 0 3px var(--ottone), var(--ombra);
+}
+.cp-rotolo-anno {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--seppia);
+}
+.cp-rotolo-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+.cp-rotolo-riga {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+/* ───────── Telaio ───────── */
+.cp-striscia {
+  list-style: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding-left: var(--spazio-5);
+}
+.cp-striscia::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: repeating-linear-gradient(180deg, var(--legno) 0 10px, transparent 10px 16px);
+}
+.cp-nodo {
+  position: relative;
+}
+.cp-nodo-testa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  min-height: var(--tocco);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-pannello);
+  border-radius: var(--raggio);
+  background: var(--velluto-luce);
+  color: var(--testo);
+  text-align: left;
+  cursor: pointer;
+}
+.cp-nodo-testa:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cp-nodo-punto {
+  position: absolute;
+  left: -19px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--legno);
+  background: var(--velluto);
+}
+.cp-nodo--fatto .cp-nodo-punto {
+  background: var(--legno);
+}
+.cp-nodo--oggi .cp-nodo-punto {
+  background: var(--ottone);
+  box-shadow: 0 0 0 3px rgba(201, 162, 74, 0.35);
+}
+.cp-nodo-giornata {
+  color: var(--ottone);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.cp-nodo-titolo {
+  font-family: var(--font-libro);
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+.cp-nodo-esiti {
+  margin-left: auto;
+  font-size: 0.85rem;
+}
+.cp-nodo-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) 0 var(--spazio-2) var(--spazio-3);
+}
+.cp-epiloghi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+.cp-epiloghi .cp-foglio-h {
+  width: 100%;
+  color: var(--testo-tenue);
+}
+
+/* ───────── Finale ───────── */
+.cp-buio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spazio-6);
+  background: #000;
+  color: var(--testo-chiaro);
+  pointer-events: auto;
+}
+.cp-finale .cp-centro-foglio {
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  padding: calc(var(--safe-top) + var(--spazio-4)) calc(var(--safe-right) + var(--spazio-4)) calc(var(--safe-bottom) + var(--spazio-4)) calc(var(--safe-left) + var(--spazio-4));
+  pointer-events: auto;
+  overflow-y: auto;
+}
+.cp-titoli {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #07080c;
+  pointer-events: auto;
+}
+.cp-titoli-scorrimento {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-4);
+  padding: calc(var(--safe-top) + var(--spazio-6)) var(--spazio-5) 30vh;
+  text-align: center;
+  color: var(--testo-chiaro);
+  font-family: var(--font-libro);
+}
+.cp-titoli-scorre {
+  animation: cp-scorri var(--cp-titoli-durata, 30s) linear 1 both;
+  padding-top: 100vh;
+}
+@keyframes cp-scorri {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+.cp-titoli-finale {
+  font-size: 2rem;
+  color: var(--ottone);
+}
+.cp-titoli-gioco {
+  font-size: 1.3rem;
+}
+.cp-titoli-riga {
+  max-width: 36ch;
+  overflow-wrap: anywhere;
+}
+.cp-titoli-barra {
+  position: absolute;
+  right: calc(var(--safe-right) + var(--spazio-4));
+  bottom: calc(var(--safe-bottom) + var(--spazio-4));
+  pointer-events: auto;
+}
+
+/* ───────── Taccuino ───────── */
+.cp-taccuino {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 2 * var(--spazio-4));
+  border-radius: 4px;
+  background: var(--carta);
+  color: var(--inchiostro);
+  border: 1px solid var(--carta-ombra);
+  box-shadow: var(--ombra);
+  font-family: var(--font-libro);
+  overflow: hidden;
+}
+.core-overlay .cp-taccuino {
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 2 * var(--spazio-4));
+}
+.cp-taccuino-titolo {
+  padding: var(--spazio-3) calc(var(--tocco) + var(--spazio-2)) var(--spazio-2) var(--spazio-4);
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--carta-ombra);
+}
+.cp-taccuino--fisso .cp-taccuino-titolo {
+  padding-right: var(--spazio-4);
+}
+.cp-taccuino-corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spazio-3) var(--spazio-4);
+}
+.cp-taccuino-schede .core-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  overflow: visible;
+  border-top: 1px solid var(--carta-ombra);
+  font-family: var(--font-ui);
+}
+.cp-taccuino-schede .core-tab {
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-1);
+  font-size: 0.78rem;
+  min-width: 0;
+}
+.cp-taccuino-schede .core-tab-label {
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.cp-taccuino-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+.cp-voce {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-2);
+  align-items: baseline;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--spazio-2);
+  border: none;
+  border-left: 3px solid var(--carta-ombra);
+  background: transparent;
+  color: var(--inchiostro);
+  font-family: var(--font-libro);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+.cp-voce-testo {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  flex: 1 1 100%;
+}
+.cp-voce--letta .cp-voce-testo {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cp-voce--nuova {
+  border-left-color: var(--ottone);
+}
+.cp-voce--evidenziata {
+  background: rgba(201, 162, 74, 0.18);
+  border-left-color: var(--ottone);
+}
+.cp-voce-nuova-segno {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #7A5A12;
+}
+.cp-voce-fonte {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--legno-scuro);
+}
+.cp-persona {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-left: 6px solid var(--pers-color);
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: var(--raggio);
+}
+.cp-persona-testa {
+  display: flex;
+  gap: var(--spazio-3);
+  align-items: center;
+}
+.cp-persona-motivo {
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+  color: var(--legno-scuro);
+}
+.cp-persona-stranezza,
+.cp-persona-desiderio,
+.cp-persona-memoria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  overflow-wrap: anywhere;
+}
+.cp-ignoto {
+  font-family: var(--font-mano);
+  font-size: 1.4rem;
+}
+.cp-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding-bottom: var(--spazio-3);
+  border-bottom: 1px dashed var(--carta-ombra);
+}
+.cp-pagina-titolo {
+  font-size: 1.15rem;
+}
+.cp-pagina-testo {
+  overflow-wrap: anywhere;
+}
+.cp-margine--ada {
+  font-size: 1rem;
+  padding: var(--spazio-2) var(--spazio-3);
+}
+.cp-pista {
+  padding: var(--spazio-3);
+  border: 2px solid var(--ottone);
+  border-radius: var(--raggio);
+  background: rgba(201, 162, 74, 0.14);
+}
+.cp-pista-titolo {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #7A5A12;
+}
+.cp-domanda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+.cp-domanda-titolo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: center;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.cp-domanda--risolta .cp-domanda-titolo {
+  opacity: 0.75;
+}
+.cp-richiesta-notte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+.cp-stato-richiesta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.cp-stato--soddisfatta {
+  color: #2E6B3A;
+}
+.cp-stato--fallita,
+.cp-stato--lasciata {
+  color: #A3322A;
+}
+.cp-stato--a_rischio {
+  color: #8A5A10;
+}
+.cp-obiettivi {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  font-family: var(--font-ui);
+}
+.cp-taccuino .core-btn--testo {
+  color: var(--inchiostro);
+}
+.cp-taccuino .core-tab {
+  color: var(--inchiostro);
+}
+
+:root[data-contrast='alto'] .cp-porta,
+:root[data-contrast='alto'] .cp-nodo-testa {
+  border-width: 2px;
+}
+:root[data-motion='ridotto'] .cp-porta,
+:root[data-motion='ridotto'] .cp-bigliettino,
+:root[data-motion='ridotto'] .cp-prologo-riga,
+:root[data-motion='ridotto'] .cp-prologo-tocca {
+  animation: none;
+}

@@ -114,6 +114,8 @@ export interface CampaignExtra {
   choice?: EndingId | null;
   archiveOpen?: LevelId | null;
   diarySeen?: number;
+  /** Voci del Taccuino all'inizio della sera (quelle dopo sono le nuove della giornata). */
+  diaryAtEvening?: number;
   prologueSeen?: boolean;
 }
 

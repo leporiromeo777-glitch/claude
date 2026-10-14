@@ -39,10 +39,11 @@ export function defaultNomeThread(level: LevelDef): ThreadId | null {
 
 /** Esito di una notte giocata con righe date (null se le righe non sono valide). */
 export function simulateNight(params: NightParams, rows: readonly RowMoves[], computed?: LevelComputed | null, balance?: { traboccoSoglia: number; nodoRighe: number } | null): NightOutcome | null {
-  const level = params.level;
+  // Nell'Archivio il merletto registrato non consuma matassa (conta solo il rammendo).
+  const level = params.level.archive ? { ...params.level, matassa: Number.MAX_SAFE_INTEGER } : params.level;
   const nomeOn = params.needsNome ? defaultNomeThread(level) : null;
   const occasions = params.mode === 'occasioni' ? (computed?.occasionsSolution ?? []) : [];
-  const ctx = createContext(level, params.flags, { nomeOn, occasions, balance: balance ?? null });
+  const ctx = createContext(level, level.archive ? {} : params.flags, { nomeOn, occasions, balance: balance ?? null });
   const total = level.endHour - level.startHour;
   // Autotessitura: le righe le decide il motore (incroci forzati); si passano righe vuote.
   const input: RowMoves[] =
