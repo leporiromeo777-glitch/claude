@@ -10,7 +10,7 @@ Dati comuni, Prologo, Atto I (g00-g08) e Archivio A1-A2: solo JSON più il test 
   - `characters.json`: i 16 personaggi con colore, motivo, icona, nota, voce, calligrafia, stranezze, desiderio e gusti; i 5 solo d'Archivio hanno `archiveOnly`. Le note sono quelle della tabella dell'audio.
   - `places.json`, `book.json` (14 pagine del Libro dei Punti, sblocchi anche per gli Atti II-III), `balance.json` (GDD 3.13).
   - `campaign.json`: g00-g23, finali, giornata della scelta, spilli, `archiveAfter`, `objectAfter`, stonatura 1 / 0,6 / 0,25.
-  - `lines.json` (162 battute), `credits.json` (autore segnaposto).
+  - `lines.json` (162 battute), `credits.json` (la riga dell'autore è `comune.crediti.autore`: formula neutra, vedi Integrazione).
   - Testi in `text/it/comune.json` e `text/en/comune.json` (inglese completo).
 - **Livelli** g00-g08, arc1, arc2 con i `.computed.json` (sourceHash aggiornato; `npm run levels:check` verde per tutti e 11).
 - **Bigliettini** (`notes.atto1.json`): 26 in tutto. Ogni sera ne arrivano 3, con i testi e le condizioni dell'Appendice A. Due sono varianti che sostituiscono il bigliettino base (vedi sotto). Ogni sera ha almeno una risposta e un conflitto voluto.
@@ -111,7 +111,7 @@ Archivio:
 
 ## Problemi noti
 
-- La storia dell'Atto I in inglese (`text/en/atto1.json`, livello L2, facoltativo) non c'è: in inglese l'Atto I ripiega sull'italiano. Il namespace `comune` invece è completo in inglese.
+- ~~La storia dell'Atto I in inglese non c'è~~ **Risolto**: il pacchetto traduzione-en ha tradotto atto1, atto2, atto3 e finali (vedi Integrazione).
 - Gli intervalli «Min» del GDD 5.2 non valgono per le giornate con Gino (vedi Decisioni).
 
 ## Richieste per altri pacchetti

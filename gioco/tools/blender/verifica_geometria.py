@@ -8,7 +8,7 @@ primitiva). Nei render sono quadratini neri agli incroci, difficili da vedere ne
 controllo ridotti.
 
 Lo script costruisce ogni scena come farebbe lo script di gruppo (fusi, figurine, oggetti e
-quadri, diorami, icona), senza renderizzarla, e cerca coppie di facce di oggetti diversi che:
+quadri, diorami, icona, grafica in evidenza), senza renderizzarla, e cerca coppie di facce di oggetti diversi che:
 
 - hanno la stessa normale (prodotto scalare > 0,9999) e lo stesso piano (distanza < 2e-5);
 - sono rivolte verso la camera ortografica della scena (le facce che la camera non vede,
@@ -37,6 +37,7 @@ from mathutils import Vector  # noqa: E402
 
 import diorami as D  # noqa: E402
 import figurine as Fg  # noqa: E402
+import grafica as Gr  # noqa: E402
 import fusi as F  # noqa: E402
 import icona as I  # noqa: E402
 import oggetti as O  # noqa: E402
@@ -56,6 +57,7 @@ SCENES: list[str] = (
     + [f"tab/{t}" for t in Q.TABLEAUX]
     + [f"dio/{p}" for p in D.PLACES]
     + ["icona/logo"]
+    + list(Gr.NAMES)
 )
 
 
@@ -87,6 +89,9 @@ def build(name: str) -> Vector:
         I.build_spindle()
         I.velvet_backdrop()
         az, el = 0.0, 0.0
+    elif group == "store":
+        Gr.build()
+        az, el = Gr.AZIMUTH, Gr.ELEVATION
     else:
         raise ValueError(name)
     bpy.context.view_layer.update()

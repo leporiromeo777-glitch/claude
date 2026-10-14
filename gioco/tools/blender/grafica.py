@@ -47,6 +47,15 @@ def shadow_floor() -> None:
     floor.is_shadow_catcher = True
 
 
+def build() -> list:
+    """La geometria della scena (anche per ``verifica_geometria.py``): tombolo e pavimento d'ombra.
+
+    Restituisce le mesh del tombolo (il pavimento non conta per l'inquadratura)."""
+    objs = S.tombolo("tombolo", threads=THREADS)
+    shadow_floor()
+    return [o for o in objs if o.type in {"MESH", "CURVE"}]
+
+
 def render_one(name: str, out: str) -> None:
     C.rng(name)
     scene = C.reset_scene()
@@ -55,9 +64,7 @@ def render_one(name: str, out: str) -> None:
     # Immagine di vetrina: denoiser accurato e soglia adattiva fine anche se è grande.
     scene.cycles.denoising_prefilter = "ACCURATE"
     scene.cycles.adaptive_threshold = 0.015
-    objs = S.tombolo("tombolo", threads=THREADS)
-    meshes = [o for o in objs if o.type in {"MESH", "CURVE"}]
-    shadow_floor()
+    meshes = build()
     C.rig_studio(scene, warm=3.2, fill=0.9, rim=2.2, world=0.3)
     lo, hi = C.world_bbox(meshes)
     center = (lo + hi) / 2

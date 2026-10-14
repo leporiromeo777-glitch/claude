@@ -142,11 +142,11 @@ Nessuno nei file del pacchetto. Le cose che restano aperte sono negli altri pacc
 
 ## Richieste per altri pacchetti
 
-- **contenuti-atti23.** In `src/content/text/it/atto2.json`, `diario.persone.zeno.lettera` dice «Zeno ha tenuto per una notte la lettera della nonna per me». È in contraddizione con la storia: la voce si sblocca con `done: g14`, e la lettera gli fu data la notte del prologo. Proposta: «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me.» L'inglese dice già «all this time».
+- **contenuti-atti23** (soddisfatta: vedi Integrazione). In `src/content/text/it/atto2.json`, `diario.persone.zeno.lettera` diceva «Zeno ha tenuto per una notte la lettera della nonna per me». È in contraddizione con la storia: la voce si sblocca con `done: g14`, e la lettera gli fu data la notte del prologo. Proposta: «Zeno ha tenuto per tutto questo tempo la lettera della nonna per me.» L'inglese dice già «all this time».
 - **campagna.**
   - **Finestra «At the door».** A 390×844 la lettera di Clotilde (circa 150 parole) esce dal foglio inclinato ed è tagliata a sinistra e in basso. Lo si vede nello screenshot `en-20-g15-lettera-clotilde.png`. Serve un foglio che scorre in verticale, con il testo contenuto e la rotazione solo sul foglio.
   - **Alba.** I toast delle voci nuove del Taccuino («Teresa lit up. What did she see?», «When Nina is on top…») compaiono sopra il riquadro della prima vignetta e ne coprono il testo per qualche secondo (`en-15-g14-alba-0.png`, `en-03-prologo-alba-0.png`). Non dipende dalla lingua. Meglio annunciare le voci dopo le vignette, o spostare i toast in alto durante l'alba.
-- **contenuti-atto1.** `src/content/text/en/comune.json` usa le virgolette dritte `"…"` in 9 coppie («calls everyone "dear"», «"the keeper"»…). La storia inglese usa le tipografiche “…”. Per coerenza conviene passare anche `comune.json` alle “ ”.
+- **contenuti-atto1** (soddisfatta: vedi Integrazione). `src/content/text/en/comune.json` usava le virgolette dritte `"…"` in 9 coppie («calls everyone "dear"», «"the keeper"»…). La storia inglese usa le tipografiche “…”. Per coerenza conviene passare anche `comune.json` alle “ ”.
 - **piattaforma-qa.** Nella suite `layout` in inglese conviene aggiungere gli screenshot dell'alba e della sera di una giornata dell'Atto II (per esempio g14) e della scelta di g23. In alcune righe i testi inglesi sono fino al 30% più lunghi.
 
 ## Test

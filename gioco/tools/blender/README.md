@@ -153,7 +153,7 @@ sviluppo): la presenza del manifest si legge in `vite.config.ts` all'avvio.
 
 | Passo | sequenziale, 2 thread | Note |
 |---|---|---|
-| controlli geometrici | 11 s | `test_geometria.py` + `verifica_geometria.py` (68 scene, senza render) |
+| controlli geometrici | 11 s | `test_geometria.py` + `verifica_geometria.py` (69 scene con la grafica in evidenza, senza render) |
 | fusi (14) | 11 s | ~0,8 s a fuso |
 | figurine (36) | 85 s | ~2 s a figurina (costruzione, render, Freestyle) |
 | oggetti (6) e quadri (4) | 203 s | il tombolo 1024² ~12 s, ogni quadro 35-46 s |

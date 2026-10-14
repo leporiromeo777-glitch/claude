@@ -217,3 +217,9 @@ Richieste di `docs/stato/RICHIESTE.md` per questo pacchetto, controllate sul cod
 **Richiesta per piattaforma-nativa** (non è nei file di questo pacchetto): in `docs/STORE.md` 6.5 la riga «Grafica in evidenza | 1024×500, obbligatoria (da preparare)» può diventare `assets/feature-graphic.png` (scheda italiana) e `assets/feature-graphic-en.png` (scheda inglese). In `docs/stato/piattaforma-nativa.md` il problema noto «Manca la grafica in evidenza» non vale più.
 
 Test: `python3 tools/atlas/test_assets.py` → 25 test OK (anche con `$BLENDER_PY`). `bash -n tools/blender/render_all.sh` è OK. `contact_sheet.py` funziona anche con il nuovo render grezzo `store/`. Nel browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5420) `missingAssets()` è vuoto e non ci sono errori in console.
+
+**Verifica dell'integrazione** (14 ottobre 2026).
+
+- Le due grafiche rifatte da `tools/atlas/grafica.py` (con `$BLENDER_PY` e con il Python di sistema) dal render grezzo in `tools/blender/out/render` (ignorato da git) sono identiche byte per byte a quelle in `assets/`. `pack.py` rigenerato in una cartella temporanea dà ancora `public/assets`, `public/icons`, logo e splash identici. `@capacitor/assets` legge solo i suoi nomi fissi (`logo`, `splash`, `icon-*`…), quindi i due `feature-graphic*.png` in `assets/` non disturbano `npm run assets:native`.
+- `tools/blender/grafica.py` ha ora una funzione `build()` (tombolo con gli otto fili e pavimento d'ombra) usata dal render e da `verifica_geometria.py`, che controlla anche `store/tombolo`: 69 scene, nessuna faccia complanare sovrapposta. Il render di anteprima (`TRAMA_ANTEPRIMA=1`) prima e dopo il cambio ha gli stessi pixel e lo stesso riquadro nei metadati.
+- `test_geometria.py` 7 OK, `test_assets.py` 25 OK.

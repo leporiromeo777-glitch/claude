@@ -87,7 +87,7 @@ Atto II (g09-g16), Atto III (g17-g23), le quattro giornate finali, l'Archivio A3
 - **Testi italiani**: `text/it/atto2.json` (298 testi, 5.338 parole), `atto3.json` (232, 3.555) e `finali.json` (70, 708).
   - In tutto **9.601 parole** italiane (atteso 9.000-12.000).
   - Righe ≤ 90 caratteri, bigliettini ≤ 220.
-  - Nessun testo inglese: L2 è facoltativo, come per l'Atto I.
+  - Testi inglesi: li ha scritti poi il pacchetto traduzione-en (`text/en/atto2.json`, `atto3.json`, `finali.json`, stesse chiavi).
 
 ### Giornate
 
@@ -98,7 +98,7 @@ Atto II (g09-g16), Atto III (g17-g23), le quattro giornate finali, l'Archivio A3
 | g09 | 6→14 | 11 | 13 | 15 | teresa + nina |
 | g10 | 6→16 | 10 | 13 | 15 | lunardi + bepi |
 | g11 | 6→16 | 10 | 11 | 13 | teresa + marta (il nodo) |
-| g12 | 6→16 | 2 | 6 | 8 | bepi + teresa (le combinazioni con g12.lunardi sono `voluta` solo per il check, vedi Problemi noti) |
+| g12 | 6→16 | 2 | 6 | 8 | bepi + teresa (`levels:check` prova da sé il nome su Lunardi: le coppie con g12.lunardi hanno un minimo, Lunardi + Teresa 5) |
 | g13 | 6→20 | 14 | 20 | **20** (+0) | nessuno: le 4 cure insieme costano 20, il merletto perfetto |
 | g14 | 6→16 | 10 | 13 | 15 | nina + gino |
 | g15 | 6→20 | 14 | 15 | 17 | nina + gino (un solo filo al Faro alle 19) |
@@ -150,13 +150,13 @@ In tutte queste prove: nessun errore in console e nessuna chiave italiana mancan
 
 ## Problemi noti
 
-- **g12.lunardi è segnato `voluta` in `levels:check`.** Il check gira con `nomeOn: null`, quindi `ha(lunardi, nome)` vi risulta impossibile. Nel gioco è risolvibile: il test lo verifica col nome su Lunardi e su Marta, e ogni coppia sta nella matassa. Le combinazioni con Lunardi in `g12.computed.json` hanno `incroci: null`, quindi per loro il filo d'oro non ha un minimo.
-- **Testi inglesi assenti** per atto2, atto3 e finali, come per l'Atto I: in inglese la storia ricade sull'italiano.
+- ~~g12.lunardi segnato `voluta` in `levels:check`~~ **Risolto**: il check prova le scelte di `nomeOn`, e in `g12.computed.json` le coppie con Lunardi hanno `incroci` e `nomeOn: 'lunardi'` (vedi Integrazione).
+- ~~Testi inglesi assenti~~ **Risolto**: il pacchetto traduzione-en ha tradotto atto2, atto3 e finali.
 - **Le lettere del fascio non hanno condizioni.** `LetterDef` non ha un campo di condizione, quindi `fascio_1`…`fascio_3` vanno filtrate dalla campagna (vedi richieste).
 
 ## Richieste per altri pacchetti
 
-- **motore**: `levels:check` dovrebbe provare le scelte di `nomeOn` nei livelli con la regola `nome` (g12.lunardi), e calcolare anche le combinazioni con meno di `pins` bigliettini. Nell'Atto III oggi le coppie non sono calcolate; il caso di g18 l'ho trovato col test.
+- **motore** (soddisfatta: vedi Integrazione): `levels:check` dovrebbe provare le scelte di `nomeOn` nei livelli con la regola `nome` (g12.lunardi), e calcolare anche le combinazioni con meno di `pins` bigliettini. Nell'Atto III oggi le coppie non sono calcolate; il caso di g18 l'ho trovato col test.
 - **campagna**:
   - Aggiornare la memoria solo nelle giornate con la regola `nome`, e chiedere il nome (`needsNome`) solo lì. g23 e i finali non ce l'hanno, e il finale vero guarda la memoria di fine g22.
   - I biglietti con `ending` (g23) vanno nella fase `scelta`, dopo la notte di g23, filtrati con `availableIf`. La sera prima della notte di g23 non ha bigliettini.
