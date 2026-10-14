@@ -52,7 +52,6 @@ export function showNightBar(s: Services, o: NightBarOpts): () => void {
     labelKey: o.labelKey,
     icon: o.icon ?? 'avanti',
     kind: 'primario',
-    size: 'grande',
     onClick: () => {
       if (done) return;
       done = true;
@@ -86,6 +85,6 @@ export function showNightNotice(s: Services, o: { textKey: string; params?: Reco
   });
   sceneHost(s).appendChild(node);
   live.add(node);
-  timer = setTimeout(remove, o.ms ?? 8000);
+  timer = setTimeout(remove, o.ms ?? 7000);
   return remove;
 }

@@ -4,13 +4,16 @@
  * lasciate a metà, notti da riprendere con "Continua", stranezze scoperte fuori dalla
  * storia, comandi della scena 'sera'.
  */
-import { describe, expect, it, vi } from 'vitest';
-import type { GameEventMap, NightParams, SaveData, Services } from '../../../src/core/types';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { GameEventMap, NightOutcome, NightParams, SaveData, Services } from '../../../src/core/types';
 import { createBus } from '../../../src/core/events';
 import { CampaignControllerImpl } from '../../../src/campaign/controller';
-import { newCampaign } from '../../../src/campaign/flow';
+import { finalParams, newCampaign, rereadParams } from '../../../src/campaign/flow';
 import type { CampaignStateX } from '../../../src/campaign/types';
-import { db, emptySave } from './helpers';
+import { setActiveNight } from '../../../src/tombolo/active';
+import { db, emptySave, playNight } from './helpers';
+
+const flowFinalParams = (d: SaveData): NightParams => finalParams(d, db());
 
 function setup(): { ctl: CampaignControllerImpl; d: SaveData; bus: ReturnType<typeof createBus<GameEventMap>>; go: ReturnType<typeof vi.fn> } {
   const d = emptySave();
@@ -87,5 +90,104 @@ describe('controller: stranezze scoperte', () => {
     bus.emit('quirk:discovered', { quirk: 'martaNoSotto', thread: 'marta' });
     expect(d.knowledge.quirks).toContain('martaNoSotto');
     expect(d.knowledge.diary).toContain('persone.marta.noSotto');
+  });
+});
+
+describe('revisione 1: controller', () => {
+  function setup2(scene = 'tombolo') {
+    const d = emptySave();
+    const bus = createBus<GameEventMap>();
+    const go = vi.fn(async () => undefined);
+    const toast = vi.fn();
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    let current = scene;
+    const s = {
+      bus,
+      content: db(),
+      save: { data: () => d, update: (mut: (x: SaveData) => void) => mut(d) },
+      scenes: { go, current: () => current, has: () => true },
+      audio: { setMusic: vi.fn(), setAmbience: vi.fn() },
+      ui: { toast, root },
+      i18n: { t: (k: string) => k },
+      settings: { get: () => ({ animSpeed: 0 }) },
+      viewport: { get: () => ({ layout: 'stretto' }) },
+    } as unknown as Services;
+    const ctl = new CampaignControllerImpl(() => s);
+    ctl.install();
+    return { ctl, d, bus, go, toast, root, setScene: (id: string) => (current = id) };
+  }
+
+  afterEach(() => {
+    setActiveNight(null);
+    vi.useRealTimers();
+  });
+
+  it('«Lascia per ora» (C10): la notte d’Archivio salvata si toglie, l’Archivio resta', () => {
+    const { ctl, d } = setup2();
+    newCampaign(d, db());
+    d.knowledge.archive['arc1'] = 'nuovo';
+    savedNight(d, 'archivio', 'arc1', 'archivio');
+    expect(ctl.leaveArchive('arc2')).toBe(false);
+    expect(d.night?.origin).toBe('archivio');
+    expect(ctl.leaveArchive('arc1')).toBe(true);
+    expect(d.night).toBeNull();
+    expect(d.knowledge.archive['arc1']).toBe('nuovo');
+  });
+
+  it('Rileggi: il merletto finito resta con «Alla cassapanca», niente record né cambi d’Archivio', async () => {
+    vi.useFakeTimers();
+    const { d, bus, root, go } = setup2();
+    newCampaign(d, db());
+    d.knowledge.archive['arc1'] = 'rammendato';
+    const p = rereadParams(db(), 'arc1');
+    const outcome = { origin: 'archivio', levelId: 'arc1', rows: [], timeline: [], events: [], goals: [], requests: [], dropped: [], metrics: { incroci: 3, minIncroci: 3, quiete: 0, simmetria: false, filoDOro: true }, spartito: '', hintsUsed: 0, fantasmaUsed: false, discoveredQuirks: [], nomeOn: null } as NightOutcome;
+    setActiveNight({ params: p, completed: outcome } as never);
+    bus.emit('night:complete', { outcome });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(d.records['arc1']).toBeUndefined();
+    expect(d.knowledge.archive['arc1']).toBe('rammendato');
+    const b = root.querySelector<HTMLButtonElement>('[data-test="cp-rileggi-chiudi"]');
+    expect(b).not.toBeNull();
+    b?.click();
+    expect(go).toHaveBeenCalledWith('archivio', { browse: true });
+  });
+
+  it('finali: A, B e D restano con «Continua»; C passa subito al cartello nero', async () => {
+    vi.useFakeTimers();
+    const { ctl, d, bus, root, go } = setup2();
+    newCampaign(d, db());
+    await ctl.goto('fin_merlettaia').catch(() => undefined);
+    const p = flowFinalParams(d);
+    const o = playNight(d);
+    setActiveNight({ params: p, completed: o } as never);
+    go.mockClear();
+    bus.emit('night:complete', { outcome: { ...o, origin: 'campagna' } });
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(go).not.toHaveBeenCalledWith('finale', expect.anything());
+    const cont = root.querySelector<HTMLButtonElement>('[data-test="cp-finale-continua"]');
+    expect(cont).not.toBeNull();
+    cont?.click();
+    expect(go).toHaveBeenCalledWith('finale', { mode: 'epilogo', ending: 'merlettaia' });
+
+    await ctl.goto('fin_chiuso').catch(() => undefined);
+    const pc = flowFinalParams(d);
+    const oc = playNight(d);
+    setActiveNight({ params: pc, completed: oc } as never);
+    go.mockClear();
+    bus.emit('night:complete', { outcome: { ...oc, origin: 'campagna' } });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(go).toHaveBeenCalledWith('finale', { mode: 'chiuso', ending: 'chiuso' });
+  });
+
+  it('gli avvisi del Taccuino aspettano la fine dell’alba (D11)', async () => {
+    vi.useFakeTimers();
+    const { ctl, d, toast, setScene } = setup2('alba');
+    newCampaign(d, db());
+    ctl.notice('x.voce');
+    expect(toast).not.toHaveBeenCalled();
+    setScene('bilancio');
+    ctl.flushNotices();
+    expect(toast).toHaveBeenCalledWith('x.voce', undefined, 'info');
   });
 });

@@ -293,11 +293,11 @@
   display: none;
 }
 
-/* Prologo */
+/* Prologo (e cartello d'atto): schermo nero intero, anche nel layout largo. */
 .cp-prologo-buio {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1308,10 +1308,23 @@
   padding-top: var(--spazio-3);
 }
 
-/* Biglietto piegato del merletto chiuso (D14). */
-.cp-nota--piegata {
-  clip-path: polygon(0 0, 100% 0, 100% 46%, 0 54%);
-  opacity: 0.8;
+/* Biglietto piegato del merletto chiuso (D14): se ne vede solo la prima piega. */
+.cp-nota--piegata,
+.cp-dettaglio .cp-nota--piegata {
+  position: relative;
+  max-height: 5.2em;
+  overflow: hidden;
+  opacity: 0.82;
+}
+.cp-nota--piegata::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.6em;
+  background: linear-gradient(to bottom, transparent, rgba(60, 48, 30, 0.35));
+  border-bottom: 2px solid rgba(60, 48, 30, 0.45);
 }
 .cp-piegato .cp-segno {
   color: var(--testo-tenue);
@@ -1327,7 +1340,24 @@
 }
 .cp-taccuino-schede .core-tab {
   flex: 1 0 auto;
-  min-width: 60px;
+  min-width: 52px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.cp-taccuino-schede .core-tab-label {
+  white-space: nowrap;
+}
+.cp-taccuino-schede .core-tabs.cp-schede--dopo {
+  -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+  mask-image: linear-gradient(to right, #000 82%, transparent);
+}
+.cp-taccuino-schede .core-tabs.cp-schede--prima {
+  -webkit-mask-image: linear-gradient(to left, #000 82%, transparent);
+  mask-image: linear-gradient(to left, #000 82%, transparent);
+}
+.cp-taccuino-schede .core-tabs.cp-schede--prima.cp-schede--dopo {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
 }
 .cp-pagina--nuova {
   border-left: 3px solid var(--ottone);
@@ -1359,18 +1389,23 @@
 .cp-notte-barra {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--safe-bottom) + 96px);
+  /* Sopra il pulsante principale del tombolo (spento a merletto finito): menu e Taccuino restano liberi. */
+  bottom: calc(var(--safe-bottom) + 10px);
+  min-width: 176px;
+  max-width: min(60vw, 280px);
   z-index: 20;
   transform: translateX(-50%);
   pointer-events: auto;
   animation: cp-appare 400ms ease-out 1 both;
 }
 .cp-notte-barra .core-btn {
+  width: 100%;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
 }
 .cp-notte-avviso {
   position: absolute;
-  top: calc(var(--safe-top) + 64px);
+  /* Sopra l'intestazione del tombolo, per pochi secondi: non copre righe né note a margine. */
+  top: calc(var(--safe-top) + 4px);
   left: 50%;
   z-index: 20;
   transform: translateX(-50%);
@@ -1394,4 +1429,17 @@
 /* Fine del finale vero (D14). */
 .cp-fine-vero {
   font-family: var(--font-libro);
+}
+
+/* Le voci annunciate alla lettura possono essere molte: «Continua» resta in vista. */
+.cp-oggetti > .cp-dettaglio-azioni {
+  position: sticky;
+  bottom: calc(-1 * var(--spazio-4));
+  margin: 0 calc(-1 * var(--spazio-4)) calc(-1 * var(--spazio-4));
+  padding: var(--spazio-3) var(--spazio-4) var(--spazio-4);
+  background: linear-gradient(to bottom, transparent, var(--velluto-luce) 35%);
+}
+.cp-alba-consegna .core-carta--scorre {
+  max-height: 62vh;
+  max-height: 62dvh;
 }

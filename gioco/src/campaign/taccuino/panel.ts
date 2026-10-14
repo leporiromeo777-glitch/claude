@@ -417,6 +417,13 @@ function renderArchivio(s: Services, box: HTMLElement, k: Knowledge, seenMark: n
   box.appendChild(list);
 }
 
+/** La riga delle schede scorre: sfuma il lato dove ci sono altre schede. */
+function syncStrip(strip: HTMLElement): void {
+  const more = strip.scrollWidth > strip.clientWidth + 1;
+  strip.classList.toggle('cp-schede--prima', more && strip.scrollLeft > 1);
+  strip.classList.toggle('cp-schede--dopo', more && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 1);
+}
+
 /** Pannello 'taccuino'. */
 export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown): PanelHandle {
   const o = (raw ?? {}) as TaccuinoOpts;
@@ -468,8 +475,18 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
         test: 'cp-taccuino-scheda',
       });
       barBox.appendChild(bar.el);
+      const strip = bar.el;
+      strip.addEventListener('scroll', () => syncStrip(strip), { passive: true });
     }
     bar?.select(current);
+    if (bar) {
+      const strip = bar.el;
+      // La scheda scelta resta in vista nella riga che scorre (D10).
+      requestAnimationFrame(() => {
+        strip.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
+        syncStrip(strip);
+      });
+    }
     renderBody();
   };
 

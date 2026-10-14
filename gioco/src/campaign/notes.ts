@@ -20,7 +20,7 @@ import { controller } from './controller';
 import { arrivalOf, eveningItems, guessCandidates, isAnonymous, pinNote, pinsLeft, replyNote, leaveNote, unpinNote, type EveningItem } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf } from './flow';
-import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, handOf, spriteCanvas } from './ui';
+import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, charName, handOf, spriteCanvas } from './ui';
 import type { CampaignStateX } from './types';
 import { emptyLog } from './story';
 
@@ -190,8 +190,8 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
         if (!other) continue;
         free.appendChild(
           button({
-            labelKey: 'campaign.sera.vaiAlBigliettino',
-            params: { nome: `[[${other.author}]]` },
+            labelKey: isAnonymous(other, c, s.content) ? 'campaign.sera.vaiAlBigliettinoAnonimo' : 'campaign.sera.vaiAlBigliettino',
+            params: { nome: charName(s, other.author) },
             kind: 'testo',
             onClick: () => {
               s.ui.closeOverlay();

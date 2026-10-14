@@ -35,7 +35,8 @@ import { precomputedRows, simulateNight } from './simulate';
 import { campaignDays, campaignNightParams, dayIndexOf } from './evening';
 import type { ArchiveResult, FinalResult } from './flow';
 import type { CampaignStateX, DayReport } from './types';
-import { animDelay } from './ui';
+import { animDelay, charName, isWide } from './ui';
+import { plainText } from '../core/ui/richtext';
 import { clearNightBars, showNightBar, showNightNotice } from './nightbar';
 import { newBookPages } from './diary';
 
@@ -84,6 +85,8 @@ export class CampaignControllerImpl implements CampaignController {
   private pendingTimer: ReturnType<typeof setTimeout> | null = null;
   /** Avvisi del Taccuino tenuti da parte durante l'alba (D11): escono dopo l'ultima vignetta. */
   private held: { key: string; params?: Record<string, string | number> }[] = [];
+  /** Avvisi appena mostrati (per toglierli se l'alba arriva mentre sono ancora sullo schermo). */
+  private recent: { key: string; params?: Record<string, string | number>; at: number }[] = [];
 
   constructor(private readonly svc: () => Services = () => services) {}
 
@@ -276,6 +279,23 @@ export class CampaignControllerImpl implements CampaignController {
       return;
     }
     this.s.ui.toast(key, params, 'info');
+    this.recent.push(params ? { key, params, at: Date.now() } : { key, at: Date.now() });
+    if (this.recent.length > 6) this.recent.shift();
+  }
+
+  /**
+   * L'alba comincia: gli avvisi della campagna ancora sullo schermo (una stranezza scoperta
+   * nelle ultime righe) si tolgono e tornano dopo l'ultima vignetta (D11).
+   */
+  deferRecentNotices(ms = 3500): void {
+    const now = Date.now();
+    const keep = this.recent.filter((n) => now - n.at < ms);
+    this.recent = [];
+    if (keep.length === 0) return;
+    for (const n of keep) this.held.push(n.params ? { key: n.key, params: n.params } : { key: n.key });
+    const norm = (x: string): string => x.replace(/\s+/g, ' ').trim();
+    const texts = new Set(keep.map((n) => norm(plainText(this.s.i18n.t(n.key, n.params), (id) => charName(this.s, id)))));
+    for (const t of this.s.ui.root.querySelectorAll<HTMLElement>('.core-toast')) if (texts.has(norm(t.textContent ?? ''))) t.remove();
   }
 
   /** Mostra gli avvisi tenuti da parte (alla fine dell'alba o fuori dal tombolo). */
@@ -284,10 +304,13 @@ export class CampaignControllerImpl implements CampaignController {
     for (const n of list) this.s.ui.toast(n.key, n.params, 'info');
   }
 
-  /** Inizio di una notte: l'avviso «Nuova pagina nel Libro» della regola nuova (D03). */
+  /**
+   * Inizio di una notte: l'avviso «Nuova pagina nel Libro» della regola nuova (D03). Nel
+   * layout largo il Taccuino fisso si apre già su quella pagina: niente avviso.
+   */
   private nightStarted(): void {
     const night = activeNight();
-    if (!night || night.params.origin !== 'campagna') return;
+    if (!night || night.params.origin !== 'campagna' || isWide(this.s)) return;
     const page = nightRulePage(this.s, this.state(), this.knowledge());
     if (!page) return;
     showNightNotice(this.s, {
@@ -728,14 +751,20 @@ export class CampaignControllerImpl implements CampaignController {
 }
 
 /**
- * Pagina del Libro della regola nuova di stanotte (D03): non ancora vista, e di una regola
- * del livello della notte in corso (o di una stranezza scoperta). Null se non c'è.
+ * Pagina del Libro della regola nuova di stanotte (D03): non ancora vista, di una regola
+ * che nella storia compare per la prima volta in questa giornata. Null se non c'è (o se
+ * Ada non ha ancora il Libro dei Punti).
  */
 export function nightRulePage(s: Services, c: CampaignStateX | null, k: Knowledge): BookPageDef | null {
   const night = activeNight();
-  if (!c || !night || !k.objects.includes('libro_punti')) return null;
-  const rules = new Set<string>(night.params.level.rules);
-  return newBookPages(c, k, s.content).find((p) => rules.has(p.rule)) ?? null;
+  if (!c || !night || night.params.origin !== 'campagna' || !k.objects.includes('libro_punti')) return null;
+  const days = s.content.campaign.days;
+  const idx = days.findIndex((d) => d.id === night.params.level.id);
+  if (idx < 0) return null;
+  const before = new Set<string>();
+  for (const d of days.slice(0, idx)) for (const r of s.content.levels.get(d.id)?.rules ?? []) before.add(r);
+  const fresh = new Set<string>(night.params.level.rules.filter((r) => !before.has(r)));
+  return newBookPages(c, k, s.content).find((p) => fresh.has(p.rule)) ?? null;
 }
 
 export const controller = new CampaignControllerImpl();

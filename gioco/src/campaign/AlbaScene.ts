@@ -40,6 +40,7 @@ export class AlbaScene implements Scene {
       return;
     }
     controller.sound('alba', report.levelId);
+    controller.deferRecentNotices();
     const level = this.s.content.levels.get(report.levelId);
     const title = level ? textOf(level.titleKey, undefined, 'span') : null;
     this.root = el(
