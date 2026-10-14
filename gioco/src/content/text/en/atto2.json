@@ -219,7 +219,7 @@
     },
     "titolo": "The Longest Night",
     "marta": {
-      "testo": "Gino is raving and calls for the grandmother. Yours. Says she told him to keep still. Let him be well by tomorrow evening. I'm asking you please, and I never ask."
+      "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let him be well by tomorrow evening. I'm asking you please, and I never ask."
     },
     "lunardi": {
       "testo": "Miss Lacemaker, I have medicine for all but legs for one. The Scarpa girl has an exam to prepare: let her be cured. I put myself in her hands. In yours, miss, I mean.",
@@ -245,7 +245,7 @@
     },
     "alba": {
       "prete": {
-        "1": "Father, I have something to give back. And someone who isn't here to ask forgiveness of.",
+        "1": "Father, I must give something back. And ask forgiveness of someone who isn't here.",
         "2": "Then this evening, Zeno. Before dark. At night some things weigh more."
       },
       "sera": {
@@ -329,7 +329,7 @@
   },
   "g16": {
     "perline": {
-      "fascio": "The bundle of L.'s letters, for Ada, via the Lighthouse",
+      "fascio": "The bundle of L.'s letters, for Ada, care of the Lighthouse",
       "confessione": "Teresa's confession, in the well",
       "segretoNina": "Nina's suitcase is already packed",
       "segretoMarta": "Marta still keeps Ernesto's letter"
@@ -347,7 +347,7 @@
         "1": "They're yours, little one. A hundred and sixty-eight. One a month, for fourteen years.",
         "1d": "They're yours, miss. A hundred and sixty-eight. One a month, for fourteen years.",
         "2": "Read them slowly. I'll wait outside, with the sea.",
-        "2d": "Read them slowly, miss. I'll wait outside, by the sea."
+        "2d": "Read them slowly, miss. I'll wait outside with the sea."
       },
       "sepolte": {
         "1": "A bundle of letters? Under the altar cloths. I don't know whose they are.",
