@@ -515,7 +515,10 @@ export interface AudioEngine {
   bell(o: { hour: Hour; stonatura: number }): void;
   carillon(score: CarillonScore): Playing;
   babble(who: CharacterId, text: string, o?: { rate?: number }): Playing;
-  setAmbience(a: AmbienceId, fadeMs?: number): void;
+  // Aggiunta compatibile (integrazione): `o.clock` è l'orologio che ticchetta piano.
+  // Di serie c'è solo in 'notte' (fermo nel prologo); true lo aggiunge a qualunque
+  // ambiente e ticchetta sempre (titolo: «laguna e orologio», GDD 9), false lo toglie.
+  setAmbience(a: AmbienceId, fadeMs?: number, o?: { clock?: boolean }): void;
   setMusic(s: MusicState, o?: { seed?: string; notes?: (CharacterId | 'lino')[]; stonatura?: number }): void;
   duck(on: boolean): void;
 }

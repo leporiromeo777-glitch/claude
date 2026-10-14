@@ -233,3 +233,16 @@ Pass NightParams (level, flags, mode) in scenes.go('tombolo'). Add data-audio-si
 
 - (da build:fondamenta) Ogni src/<pacchetto>/register.ts va caricato dopo i servizi: esportare register(services) (o default) oppure lavorare al caricamento; usare services solo da lì in poi. Nei test unitari popolare i servizi con installServices({...}) (vedi tests/unit/core/helpers.ts). Nel DOM: #ui-root lascia passare i tocchi, quindi i contenitori che devono ricevere eventi vanno marcati con la classe core-solid (i controlli nativi li ricevono già); mettere il DOM delle scene in services.ui.sceneRoot (CoreUiLayer) o in ui.root; usare data-test stabili e i componenti di src/core/ui/components.ts (textOf si ritraduce da solo al cambio di lingua). Icone di personaggi e luoghi: src/core/ui/glyphs.ts (svgIcon per il DOM, drawGlyph/glyphPath per il canvas). Elenchi degli identificatori a runtime: src/core/ids.ts.
 - (da verifica:fondamenta) Do not `await services.scenes.go(...)` inside a scene's enter(): changes are queued and it would block forever. Use `void scenes.go(...)`. In e2e tests, __GAME__.core.time.setSpeed(8) now really runs at 8×.
+
+## Aggiunte dopo la verifica della campagna
+
+### Per: contenuti-atto1
+- comune.crediti contiene ancora i segnaposto '[nome dell'autore]' (autore, ideazione, testi), visibili nei titoli di coda e nella schermata Crediti. Finché l'utente non indica come vuole essere citato, usare una formula neutra senza segnaposto (es. «Un'idea nata da una conversazione con Claude» / ideazione e realizzazione: Claude, Anthropic) e lasciare la riga dell'autore facilmente modificabile.
+
+### Per: tombolo (facoltative)
+- Emettere night:complete dopo aver impostato NightController.completed (o mantenere stabile l'ordine attuale).
+- Montare i pannelli 'bigliettini' e 'taccuino' dopo setActiveNight; passare fixed: true al Taccuino fisso nel layout largo.
+- Nel prologo con il mouse (Playwright) il primo trascinamento dopo 'Fissa l'ora' alle 6 a volte viene ignorato per 1-2 s (animazione della riga?): serviva fino a 3 tentativi. DA INDAGARE: per un giocatore umano è un difetto serio.
+
+### Per: piattaforma-qa
+- Usare __GAME__.campaign (docs/stato/campagna.md), attendere night.state().active prima di night.autoplay(); per le corse lunghe usare una build con vite preview; riferimento tests/unit/campaign/browser-verify.ts.
