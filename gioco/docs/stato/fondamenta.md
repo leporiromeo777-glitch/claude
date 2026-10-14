@@ -119,3 +119,14 @@ Controllate sul codice e con prove tutte le voci «Fatto» e «Già fatto» dell
 - sonda del verificatore 20/20. Controlla le dimensioni reali di favicon e icone del manifest e lo `start_url`. Nel titolo c'è laguna con l'orologio, prima e dopo lo sblocco. Nel silenzio con l'orologio le sorgenti dell'ambiente compaiono circa una volta al secondo (4 fronti in 4 s) e senza l'orologio sono zero. La laguna con `clock: false` e quella di serie non hanno l'orologio. Nel prologo la notte ha l'orologio fermo, con la didascalia `notteFerma`. Nella sera di g01 l'orologio della notte ticchetta di nuovo. Il titolo con una storia in corso ha laguna e orologio. Nella scena boot la riga dei segnaposto è nascosta (altezza 0). In console non ci sono errori e nessuna risposta è ≥ 400.
 
 Nota: il Merletto del giorno e il Merletto libero non cambiano ambiente, quindi tengono quello del titolo, che ora ha anche l'orologio. Prima tenevano la sola laguna.
+
+## Revisione 1 (gruppo schermi)
+
+In questa revisione il core (`src/core/`), `src/main.ts`, `src/content/loader.ts` e `validate.ts`, `vite.config.ts`, `index.html`, `public/sw.js` e il README sono del gruppo **schermi**. Il rapporto completo, con le interpretazioni dei contratti, è in docs/stato/interfaccia.md («Revisione 1»). In breve, per il core:
+
+- **C00 (SCH-01)**: tipi nuovi in `types.ts` (solo aggiunte), liste in `ids.ts` (`KNOWS_KINDS`, `MARGIN_WHEN`, `PULSE_TARGETS`, `OBJECT_FROM`, `VIOLATION_CODES`), controlli in `validate.ts`; `knowledge.bookSeen` conservato da `normalizeSave`; `oro` nel bilanciamento predefinito del loader.
+- **Carta (C17)**: la rotazione è sul foglio, ±3°; il testo non ruota e non prende i tocchi; `core-carta--scorre`; `inkOnPaper` in `richtext.ts` per `.core-pers`.
+- **Interfaccia**: avvisi senza tocchi; didascalie che non coprono i pulsanti; overlay opachi (`--foglio-sovrapposto`, `--velo-pieno`); `data-text-scale` su `<html>`.
+- **Tastiera**: Maiusc+Invio → azione nuova `skipQuiet`; `KEY_HELP` descrive la mappa per la pagina dei comandi.
+- **Offline**: `src/core/sw.ts` registra `public/sw.js` solo sul web e non in sviluppo; la build scrive `precache.json`.
+- **Build**: pacchetto diviso in `contenuti`, `testi`, `motore` (nessun avviso di dimensione).

@@ -276,8 +276,10 @@ async function main(): Promise<void> {
       await snap(page, 'titolo-iphone');
       const title = await api<Json[]>(page, 'ui', 'title');
       check(
-        'titolo: primo avvio con una scritta sola («Tocca per iniziare»), Impostazioni e Crediti in fondo (GDD 9)',
-        title[0]?.labelKey === 'ui.titolo.inizia' && title.map((i: Json) => i.id).join() === 'nuova,impostazioni,crediti' && (await page.locator(sel('sc-titolo-modi')).count()) === 0,
+        'titolo: primo avvio con una scritta sola («Tocca per iniziare»), le modalità chiuse col lucchetto (D17), Impostazioni e Crediti in fondo (GDD 9)',
+        title[0]?.labelKey === 'ui.titolo.inizia' &&
+          title.map((i: Json) => i.id).join() === 'nuova,giornaliero,libero,telaio,impostazioni,crediti' &&
+          title.filter((i: Json) => i.slot === 'modo').every((i: Json) => i.locked && typeof i.subKey === 'string'),
         JSON.stringify(title.map((i: Json) => `${i.id}${i.locked ? '🔒' : ''}`)),
       );
       const music = await api<Json>(page, 'audio', 'stats').catch(() => null);
@@ -530,13 +532,14 @@ async function main(): Promise<void> {
       await api(page, 'ui', 'startLibero', { seed: 'g2k9x', gradi: ['notteCorta', 'spilliVelati'] });
       await waitScene(page, 'tombolo');
       const s0 = await api<Json>(page, 'night', 'state');
-      // Una riga qualsiasi che si possa fissare (vuota, o con un incrocio).
-      for (let pair = -1; pair < s0.positions.length - 1; pair++) {
-        if (pair >= 0) await api(page, 'night', 'cross', pair, 'L');
-        const r = await api<Json>(page, 'night', 'fix');
-        if (r?.ok) break;
-        await api(page, 'night', 'undo');
-      }
+      // La prima riga della soluzione (con la matassa stretta una riga qualsiasi può
+      // rendere la notte impossibile, e allora l'autoplay non la chiude).
+      const info = await api<Json>(page, 'ui', 'libero', 'g2k9x', ['notteCorta', 'spilliVelati']);
+      await api(page, 'engine', 'generate', info.spec);
+      const sol = await api<Json>(page, 'engine', 'solve', info.levelId);
+      const first = (sol?.rows?.[0]?.crossings ?? []) as { pair: number; over: 'L' | 'R'; forced?: boolean }[];
+      for (const c of first) if (!c.forced) await api(page, 'night', 'cross', c.pair, c.over);
+      await api(page, 'night', 'fix');
       await api(page, 'core', 'flush');
       await reload(page);
       await api(page, 'night', 'resume');
