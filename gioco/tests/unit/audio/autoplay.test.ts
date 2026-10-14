@@ -83,6 +83,34 @@ describe('overlay "Tocca per continuare"', () => {
     expect(scene).toBe(1);
   });
 
+  it('hide() toglie anche i gestori dell\'input (nessun accumulo a ogni interruzione)', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    let live = 0;
+    const sub = (): (() => void) => {
+      live++;
+      let on = true;
+      return () => {
+        if (on) live--;
+        on = false;
+      };
+    };
+    const fake = {
+      pushLayer: sub,
+      onAction: sub,
+      onGesture: sub,
+      lastDevice: () => 'mouse' as const,
+      simulate: { tap() {}, async drag() {}, action() {} },
+    };
+    const overlay = new AutoplayOverlay({ root, input: fake, t: (k) => k, onTap: () => undefined });
+    for (let i = 0; i < 5; i++) {
+      overlay.show();
+      expect(live).toBe(3);
+      overlay.hide();
+      expect(live).toBe(0);
+    }
+  });
+
   it('hide() toglie il nodo', () => {
     const { root, overlay } = setup();
     overlay.show();

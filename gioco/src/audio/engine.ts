@@ -40,7 +40,7 @@ import { AMBIENCE_CAPTIONS, CAPTIONS, Captioner, SFX_CAPTIONS, type CaptionRecor
 import type { Rand } from './synth/dsp';
 import { type CharacterLookup, noteHzFor } from './synth/musicbox';
 import { STONATURE } from './synth/bell';
-import { type VoiceLookup, penSeconds, planBabble, styleFor, voiceFor } from './synth/babble';
+import { FALLBACK_VOICE, type VoiceLookup, penSeconds, planBabble, styleFor, voiceFor } from './synth/babble';
 import { type RecipeId, SFX_IDS, WARM_RECIPES } from './synth/sfx';
 
 export const LOG_SIZE = 200;
@@ -132,6 +132,7 @@ function defaultIdle(fn: (remaining: () => number) => void): void {
 }
 
 const SFX_SET: ReadonlySet<string> = new Set<string>(SFX_IDS);
+const CHARACTER_SET: ReadonlySet<string> = new Set<string>(CHARACTER_IDS);
 const DEFAULT_VOLUMES: Settings['volume'] = { master: 0.8, music: 0.6, sfx: 0.8, voice: 0.7 };
 
 interface Runtime {
@@ -294,11 +295,12 @@ export class WebAudioEngine implements AudioEngine {
     const onChange = (): void => this.onStateChange();
     if (typeof ctx.addEventListener === 'function') ctx.addEventListener('statechange', onChange);
     else ctx.onstatechange = onChange;
-    // Ambiente e musica chiesti prima dello sblocco partono adesso.
+    // Ambiente, musica e ducking chiesti prima dello sblocco partono adesso.
     ambience.set(this.desiredAmbience.id, this.desiredAmbience.fadeMs);
     music.set(this.desiredMusic.state, this.desiredMusic.opts);
     clock.add(ambience);
     clock.add(music);
+    if (this.explicitDuck || this.speaking > 0) applyDuck(graph, true);
     return true;
   }
 
@@ -619,6 +621,12 @@ export class WebAudioEngine implements AudioEngine {
     try {
       this.record('borbottio', who);
       const str = typeof text === 'string' ? text : '';
+      if (!CHARACTER_SET.has(who)) {
+        // Chi non è un personaggio (per esempio il narratore) non ha voce: niente suono e
+        // niente didascalia, ma la battuta dura quanto durerebbe, per l'avanzamento automatico.
+        const plan = planBabble(str, FALLBACK_VOICE, o.rate !== undefined ? { rand: this.rand, rate: o.rate } : { rand: this.rand });
+        return plan.syllables.length > 0 ? this.playing(plan.duration, () => undefined) : silentPlaying();
+      }
       const voice = voiceFor(who, this.characters());
       const rt = this.live();
       if (voice === null) {
@@ -700,6 +708,19 @@ export class WebAudioEngine implements AudioEngine {
       if (!rt) return;
       rt.ambience.set(a, fadeMs);
       if (!rt.clock.has(rt.ambience)) rt.clock.add(rt.ambience);
+    });
+  }
+
+  /**
+   * Il contesto del gioco è cambiato (scena nuova): la musica chiesta senza seme o note
+   * riprende quelli della giornata giusta. Senza cambiamenti non succede nulla.
+   */
+  refreshContext(): void {
+    this.guard('refreshContext', () => {
+      const rt = this.rt;
+      if (!rt) return;
+      rt.music.set(this.desiredMusic.state, this.desiredMusic.opts);
+      if (!rt.clock.has(rt.music)) rt.clock.add(rt.music);
     });
   }
 

@@ -24,7 +24,8 @@ export interface AutoplayDeps {
 
 export class AutoplayOverlay {
   private node: HTMLElement | null = null;
-  private popLayer: Unsub | null = null;
+  /** Chiude il livello modale dell'input e toglie i suoi gestori. */
+  private offs: Unsub[] = [];
   private previousFocus: Element | null = null;
 
   constructor(private readonly deps: AutoplayDeps) {}
@@ -74,16 +75,17 @@ export class AutoplayOverlay {
     this.deps.root.appendChild(node);
     const input = this.deps.input;
     if (input) {
-      this.popLayer = input.pushLayer('audio:tocca');
+      const pop = input.pushLayer('audio:tocca');
       // Qualsiasi azione (Invio, Spazio, Esc…) riprende l'audio.
-      input.onAction(() => {
+      const offAction = input.onAction(() => {
         tap();
         return true;
       });
-      input.onGesture((g) => {
+      const offGesture = input.onGesture((g) => {
         if (g.k === 'tap') tap();
         return true;
       });
+      this.offs = [offAction, offGesture, pop];
     }
     try {
       node.focus({ preventScroll: true });
@@ -97,8 +99,13 @@ export class AutoplayOverlay {
     if (!node) return;
     this.node = null;
     node.remove();
-    this.popLayer?.();
-    this.popLayer = null;
+    for (const off of this.offs.splice(0)) {
+      try {
+        off();
+      } catch {
+        /* già tolto */
+      }
+    }
     const prev = this.previousFocus;
     this.previousFocus = null;
     if (prev instanceof HTMLElement && prev.isConnected) {

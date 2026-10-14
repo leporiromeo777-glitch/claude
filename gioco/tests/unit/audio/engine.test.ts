@@ -336,6 +336,56 @@ describe('ducking', () => {
   });
 });
 
+describe('contesto del gioco', () => {
+  it('duck(true) chiesto prima dello sblocco vale allo sblocco', () => {
+    const { engine } = make();
+    engine.duck(true);
+    engine.unlock();
+    expect(graphOf(engine).musicDuck.gain.value).toBeCloseTo(DUCK_GAIN, 6);
+  });
+
+  it('refreshContext(): la musica chiesta senza seme prende quello della scena nuova', () => {
+    let seed = 'g03';
+    let notes: ('teresa' | 'marta' | 'gino')[] = ['teresa', 'marta'];
+    const { engine } = make({ game: { musicSeed: () => seed, presentCharacters: () => notes } });
+    engine.unlock();
+    engine.setMusic('notte');
+    const key = (): string => (engine as unknown as { rt: { music: { key: string } } }).rt.music.key;
+    expect(key()).toContain('|g03|');
+    seed = 'day-2026-10-14';
+    notes = ['gino'];
+    engine.refreshContext();
+    expect(key()).toContain('|day-2026-10-14|');
+    expect(key()).toContain('659.25');
+    // Con seme e note esplicite il cambio di scena non tocca la musica.
+    engine.setMusic('alba', { seed: 'g07', notes: ['marta'] });
+    seed = 'altro';
+    engine.refreshContext();
+    expect(key()).toContain('|g07|');
+    expect(engine.log().filter((e) => e.id === 'musica')).toHaveLength(2);
+  });
+
+  it('chi non è un personaggio (il narratore) non borbotta, ma la battuta dura lo stesso', async () => {
+    const ctx = new FakeAudioContext();
+    const { engine, captions, tick } = make({ ctx });
+    engine.unlock();
+    const before = ctx.sources.length;
+    const p = engine.babble('narratore' as never, 'Quella notte la laguna era ferma.');
+    expect(ctx.sources.length).toBe(before);
+    expect(captions.filter((c) => c.textKey.endsWith('borbottio'))).toHaveLength(0);
+    expect(engine.stats().ducked).toBe(false);
+    let done = false;
+    void p.done.then(() => (done = true));
+    tick(200);
+    await Promise.resolve();
+    expect(done).toBe(false);
+    tick(6000);
+    await Promise.resolve();
+    expect(done).toBe(true);
+    expect(engine.log().at(-1)).toMatchObject({ id: 'borbottio', detail: 'narratore' });
+  });
+});
+
 describe('didascalie', () => {
   it('i suoni significativi emettono una didascalia con chiave esistente in it e en', () => {
     const { engine, captions } = make();

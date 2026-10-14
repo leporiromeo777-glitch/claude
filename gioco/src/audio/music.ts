@@ -173,7 +173,8 @@ interface Drone {
   out: GainNode;
   trem: GainNode;
   filter: BiquadFilterNode;
-  oscs: PlayHandle[];
+  /** Oscillatori con la nota dell'accordo che suonano (tonica o quinta). */
+  oscs: { h: PlayHandle; role: 'root' | 'fifth' }[];
   lfo: PlayHandle | null;
   chord: number;
   origin: number;
@@ -256,11 +257,11 @@ export class MusicTrack implements Track {
     filter.Q.value = 0.7;
     filter.connect(trem);
     const chord = DRONE_CHORDS[0]!;
-    const oscs: PlayHandle[] = [];
-    for (const f of [chord.root, chord.fifth]) {
+    const oscs: Drone['oscs'] = [];
+    for (const role of ['root', 'fifth'] as const) {
       for (const c of [-DRONE.detuneCents, DRONE.detuneCents]) {
-        const h = this.deps.player.oscillator('triangle', f, { out: filter, detuneCents: c, gain: 0.25 });
-        if (h) oscs.push(h);
+        const h = this.deps.player.oscillator('triangle', chord[role], { out: filter, detuneCents: c, gain: 0.25 });
+        if (h) oscs.push({ h, role });
       }
     }
     // Tremolo lento: l'LFO si somma al guadagno (base 1) del nodo trem.
@@ -278,7 +279,7 @@ export class MusicTrack implements Track {
     d.out.gain.cancelScheduledValues(now);
     d.out.gain.setTargetAtTime(0, now, FADE_TC);
     const until = now + FADE_TC * 7;
-    for (const h of d.oscs) h.stop(until);
+    for (const o of d.oscs) o.h.stop(until);
     d.lfo?.stop(until);
     this.fading.push({ drone: d, until });
   }
@@ -294,11 +295,7 @@ export class MusicTrack implements Track {
         const k = Math.floor((to - d.origin) / CHORD_SECONDS);
         const at = Math.max(from, d.origin + k * CHORD_SECONDS);
         const chord = DRONE_CHORDS[idx]!;
-        const freqs = [chord.root, chord.root, chord.fifth, chord.fifth];
-        d.oscs.forEach((h, i) => {
-          const osc = h.source as OscillatorNode;
-          osc.frequency.setTargetAtTime(freqs[i] ?? chord.root, at, 0.25);
-        });
+        for (const o of d.oscs) (o.h.source as OscillatorNode).frequency.setTargetAtTime(chord[o.role], at, 0.25);
       }
     }
     // Arpeggio.

@@ -75,6 +75,7 @@ export const CAPTIONS = {
   penna: captionKey('penna'),
   carillon: captionKey('carillon'),
   tuono: captionKey('tuono'),
+  secca: captionKey('secca'),
   notteFerma: captionKey('ambiente.notteFerma'),
 } as const;
 

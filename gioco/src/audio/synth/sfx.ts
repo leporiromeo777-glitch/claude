@@ -3,9 +3,10 @@
  * in riproduzione ogni effetto è una sola sorgente (con guadagno e panoramica propri).
  * I picchi restano sotto 0,7: la somma passa poi dal compressore del master.
  *
- * Oltre agli SfxId del contratto ci sono quattro suoni interni: 'tonfo' (il rifiuto
+ * Oltre agli SfxId del contratto ci sono cinque suoni interni: 'tonfo' (il rifiuto
  * senza la voce di Marta, per le altre violazioni), 'tic' e 'toc' (l'orologio della
- * notte) e 'tuono' (la tempesta).
+ * notte), 'tuono' (la tempesta) e 'secca' (la secca al Faro dell'Atto III: la marea al
+ * contrario, l'acqua che si ritira).
  */
 import type { SfxId, VoiceProfile } from '../../core/types';
 import {
@@ -38,7 +39,7 @@ type Exhaustive<All, Listed> = [Exclude<All, Listed>] extends [never] ? true : f
 const sfxExhaustive: Exhaustive<SfxId, (typeof SFX_IDS)[number]> = true;
 void sfxExhaustive;
 
-export const EXTRA_SOUND_IDS = ['tonfo', 'tic', 'toc', 'tuono'] as const;
+export const EXTRA_SOUND_IDS = ['tonfo', 'tic', 'toc', 'tuono', 'secca'] as const;
 export type ExtraSoundId = (typeof EXTRA_SOUND_IDS)[number];
 export type RecipeId = SfxId | ExtraSoundId;
 
@@ -64,7 +65,7 @@ export const WARM_RECIPES: readonly RecipeId[] = [
 const SUSTAIN = 1e4;
 
 /** Ricette solo gravi: si rendono a frequenza di campionamento ridotta. */
-const LOW_BAND: ReadonlySet<RecipeId> = new Set<RecipeId>(['vaporetto', 'barca', 'febbre', 'nero', 'marea', 'tuono', 'nodo']);
+const LOW_BAND: ReadonlySet<RecipeId> = new Set<RecipeId>(['vaporetto', 'barca', 'febbre', 'nero', 'marea', 'secca', 'tuono', 'nodo']);
 
 /** 'lo' = basta metà della frequenza di campionamento (contenuto sotto ~3 kHz). */
 export function recipeBand(id: RecipeId): 'lo' | 'hi' {
@@ -347,6 +348,14 @@ function marea(sr: number, rand: Rand): Float32Array {
   return normalizePeak(out, 0.5);
 }
 
+/** Secca: la marea al contrario, rumore rosa con passa-basso che scende da 800 a 200 Hz in 2 s. */
+function secca(sr: number, rand: Rand): Float32Array {
+  const out = pinkNoise(Math.round(2 * sr), rand);
+  sweep(out, sr, 'lowpass', { f0: 800, f1: 200, t0: 0, t1: 2, q: 0.8 });
+  fadeEdges(out, sr, 0.15, 0.6);
+  return normalizePeak(out, 0.45);
+}
+
 /** Filo nero: bordone La1 (55 Hz) con tremolo lento, 2 s, sotto la nota di Livia. */
 function nero(sr: number, d: RecipeDeps): Float32Array {
   const out = makeBuffer(2, sr);
@@ -481,6 +490,8 @@ export function renderRecipe(id: RecipeId, sr: number, d: RecipeDeps): Float32Ar
       return trabocco(sr, rand);
     case 'marea':
       return marea(sr, rand);
+    case 'secca':
+      return secca(sr, rand);
     case 'nero':
       return nero(sr, d);
     case 'ui_tap':

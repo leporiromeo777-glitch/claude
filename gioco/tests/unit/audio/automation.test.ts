@@ -16,6 +16,8 @@ import {
   activeRancor,
   columnPan,
   eventSounds,
+  isNeroThread,
+  outcomeOk,
   resolveStonatura,
   threadWho,
   type AutomationTarget,
@@ -243,7 +245,67 @@ describe('funzioni pure', () => {
   it('il filo nero incrocia: bicordo di Livia sopra l\'altro', () => {
     const pos = ['marta', 'nero', 'zeno', 'teresa', 'gino', 'nina'];
     const s = eventSounds([{ k: 'nero', thread: 'nero', pair: 0 }], { level: G11, pos, nameOf });
-    expect(s).toEqual([{ k: 'crossing', over: 'livia', under: 'marta', pan: columnPan(0.5, 6) }]);
+    expect(s).toEqual([{ k: 'crossing', over: 'livia', under: 'marta', pan: columnPan(0.5, 6), pair: 0 }]);
+    // Se l'incrocio del filo nero si è già sentito con night:cross, la riga non lo ripete.
+    expect(eventSounds([{ k: 'nero', thread: 'nero', pair: 0 }], { level: G11, pos, nameOf, unannounced: () => false })).toEqual([]);
+  });
+
+  it('il filo nero si riconosce anche da level.nero', () => {
+    const lvl = { ...G11, threads: G11.threads.map((t) => (t.id === 'nero' ? { ...t, kind: 'persona' as const } : t)), nero: { thread: 'nero', enter: { hour: 8, side: 'faro' as const }, agenda: [] } };
+    expect(isNeroThread('nero', lvl)).toBe(true);
+    expect(isNeroThread('nero', G11)).toBe(true);
+    expect(isNeroThread('marta', G11)).toBe(false);
+    expect(isNeroThread('nero', null)).toBe(false);
+  });
+
+  it('bordi: la secca è l\'acqua che si ritira; il filo nero che entra copre chi esce da quel lato', () => {
+    const pos = ['lino1', 'marta', 'teresa', 'piero', 'gino', 'lino3'];
+    const secca: LaceEvent[] = [
+      { k: 'esce', thread: 'nina', side: 'faro', kind: 'secca' },
+      { k: 'entra', thread: 'lino3', side: 'faro', kind: 'secca' },
+    ];
+    const s1 = eventSounds(secca, { level: G11, pos, nameOf });
+    expect(s1).toEqual([{ k: 'sfx', id: 'secca', caption: { key: 'audio.didascalie.secca' }, pan: 0.6 }]);
+    const nero: LaceEvent[] = [
+      { k: 'esce', thread: 'nina', side: 'faro', kind: 'secca' },
+      { k: 'entra', thread: 'nero', side: 'faro', kind: 'secca' },
+    ];
+    const s2 = eventSounds(nero, { level: G11, pos: [...pos.slice(0, 5), 'nero'], nameOf });
+    expect(s2.map((x) => (x.k === 'sfx' ? x.id : x.k))).toEqual(['nero']);
+    // Il vaporetto dall'altro lato suona lo stesso.
+    const both: LaceEvent[] = [{ k: 'esce', thread: 'lino1', side: 'molo', kind: 'vaporetto' }, ...nero];
+    expect(eventSounds(both, { level: G11, pos, nameOf }).map((x) => (x.k === 'sfx' ? x.id : x.k))).toEqual(['vaporetto', 'nero']);
+  });
+
+  it('incontri non sentiti (fili che si muovono da soli): un incrocio per coppia, col rancore', () => {
+    const pos = ['lino1', 'teresa', 'marta', 'piero', 'gino', 'nina'];
+    const ev: LaceEvent[] = [
+      { k: 'incontro', a: 'lino1', b: 'marta', over: 'marta', pair: 0 },
+      { k: 'incontro', a: 'teresa', b: 'piero', over: 'teresa', pair: 2 },
+      { k: 'incontro', a: 'gino', b: 'nina', over: 'nina', pair: 4 },
+    ];
+    // Senza `unannounced` gli incontri non suonano (li ha già suonati la bozza).
+    expect(eventSounds(ev, { level: G11, pos, nameOf })).toEqual([]);
+    const s = eventSounds(ev, {
+      level: G11,
+      pos,
+      nameOf,
+      unannounced: (pair) => pair !== 2,
+      rancor: (a, b) => (a === 'marta' && b === 'lino1') || (a === 'lino1' && b === 'marta'),
+    });
+    expect(s).toEqual([
+      { k: 'crossing', over: 'marta', under: 'lino', pan: columnPan(0.5, 6), pair: 0, rancor: true },
+      { k: 'crossing', over: 'nina', under: 'gino', pan: columnPan(4.5, 6), pair: 4 },
+    ]);
+  });
+
+  it('esito della notte: richieste, obiettivi e rammendo dell\'Archivio', () => {
+    const base = { requests: [{ noteId: 'n', status: 'soddisfatta' }], goals: [{ status: 'soddisfatta' }] };
+    expect(outcomeOk(base as unknown as NightOutcome)).toBe(true);
+    expect(outcomeOk({ ...base, goals: [{ status: 'fallita' }] } as unknown as NightOutcome)).toBe(false);
+    expect(outcomeOk({ ...base, archive: { named: true, mended: true } } as unknown as NightOutcome)).toBe(true);
+    expect(outcomeOk({ ...base, archive: { named: true, mended: false } } as unknown as NightOutcome)).toBe(false);
+    expect(outcomeOk({} as unknown as NightOutcome)).toBe(true);
   });
 });
 
@@ -289,6 +351,8 @@ describe('ascolto del bus', () => {
   it('night:row → ora fissata, campana con la stonatura del giorno, poi i suoni del merletto', () => {
     const { bus, engine } = ctx;
     enterNight(bus, G00);
+    bus.emit('night:cross', { hour: 7, crossing: { pair: 1, over: 'L' }, over: 'teresa', under: 'piero' });
+    engine.calls.length = 0;
     const events: LaceEvent[] = [
       { k: 'incontro', a: 'teresa', b: 'piero', over: 'teresa', pair: 1 },
       { k: 'passa', bead: 'L1', from: 'teresa', to: 'piero' },
@@ -309,6 +373,8 @@ describe('ascolto del bus', () => {
   it('spartito che si ritesse: ogni riga suona come il carillon, senza campana', () => {
     const { bus, engine } = ctx;
     enterNight(bus, G00, {}, 'replay');
+    // Gli incroci rigiocati non suonano due volte: il bicordo arriva con la riga.
+    bus.emit('night:cross', { hour: 6, crossing: { pair: 0, over: 'R' }, over: 'marta', under: 'teresa' });
     bus.emit('night:row', {
       hour: 6,
       result: { ok: true, state: state(['marta', 'teresa', 'piero']), events: [{ k: 'incontro', a: 'teresa', b: 'marta', over: 'marta', pair: 0 }], violations: [] },
@@ -318,6 +384,60 @@ describe('ascolto del bus', () => {
     expect(engine.calls[0]!.args[0]).toBe('audio.didascalie.carillon');
     expect(engine.calls[1]!.args.slice(0, 2)).toEqual(['marta', 'teresa']);
     expect(engine.calls[2]!.args).toEqual([null, null]);
+  });
+
+  it('fili che si muovono da soli: gli incroci non sentiti suonano con la riga, prima delle perline', () => {
+    const { bus, engine } = ctx;
+    enterNight(bus, G11, {}, 'occasioni');
+    const events: LaceEvent[] = [
+      { k: 'incontro', a: 'marta', b: 'teresa', over: 'marta', pair: 1 },
+      { k: 'nodo', a: 'marta', b: 'teresa' },
+      { k: 'incontro', a: 'gino', b: 'nina', over: 'gino', pair: 4 },
+      { k: 'contagio', from: 'gino', to: 'nina' },
+    ];
+    bus.emit('night:row', { hour: 8, result: { ok: true, state: state(['lino1', 'teresa', 'marta', 'piero', 'nina', 'gino']), events, violations: [] } });
+    expect(engine.fns()).toEqual(['sfx:ora_fissata', 'bell', 'crossing', 'play:nodo', 'crossing', 'play:febbre']);
+    const crossings = engine.calls.filter((c) => c.fn === 'crossing');
+    expect(crossings[0]!.args.slice(0, 2)).toEqual(['marta', 'teresa']);
+    expect(crossings[0]!.args[2]).toMatchObject({ rancor: true, delay: ROW_SOUND_START });
+    expect(crossings[1]!.args.slice(0, 2)).toEqual(['gino', 'nina']);
+    expect(crossings[1]!.args[2]).toMatchObject({ rancor: false });
+  });
+
+  it('il giocatore incrocia una coppia, il filo nero un\'altra: alla riga suona solo quella del filo nero', () => {
+    const { bus, engine } = ctx;
+    enterNight(bus, G11);
+    bus.emit('night:cross', { hour: 9, crossing: { pair: 2, over: 'L' }, over: 'teresa', under: 'piero' });
+    engine.calls.length = 0;
+    const events: LaceEvent[] = [
+      { k: 'incontro', a: 'teresa', b: 'piero', over: 'teresa', pair: 2 },
+      { k: 'incontro', a: 'nina', b: 'nero', over: 'nero', pair: 4 },
+      { k: 'nero', thread: 'nero', pair: 4 },
+    ];
+    bus.emit('night:row', { hour: 9, result: { ok: true, state: state(['lino1', 'marta', 'piero', 'teresa', 'nero', 'nina']), events, violations: [] } });
+    expect(engine.fns()).toEqual(['sfx:ora_fissata', 'bell', 'crossing']);
+    expect(engine.calls[2]!.args.slice(0, 2)).toEqual(['livia', 'nina']);
+  });
+
+  it('Disfa che riapre la riga precedente: rifissandola i suoi incroci non si ripetono', () => {
+    const { bus, engine } = ctx;
+    enterNight(bus, G00);
+    bus.emit('night:cross', { hour: 6, crossing: { pair: 0, over: 'R' }, over: 'marta', under: 'teresa' });
+    bus.emit('night:row', { hour: 6, result: { ok: true, state: state(['marta', 'teresa', 'piero']), events: [{ k: 'incontro', a: 'teresa', b: 'marta', over: 'marta', pair: 0 }], violations: [] } });
+    // Bozza dell'ora 7 vuota: Disfa riapre la riga delle 6.
+    bus.emit('night:undo', { hour: 6 });
+    engine.calls.length = 0;
+    bus.emit('night:row', { hour: 6, result: { ok: true, state: state(['marta', 'teresa', 'piero']), events: [{ k: 'incontro', a: 'teresa', b: 'marta', over: 'marta', pair: 0 }], violations: [] } });
+    expect(engine.fns()).toEqual(['sfx:ora_fissata', 'bell']);
+  });
+
+  it('ogni scena nuova aggiorna il contesto della musica', () => {
+    const { bus, engine } = ctx;
+    let refreshed = 0;
+    (engine as SpyEngine & { refreshContext(): void }).refreshContext = () => refreshed++;
+    bus.emit('scene:enter', { id: 'sera' });
+    enterNight(bus, G11);
+    expect(refreshed).toBe(2);
   });
 
   it('la marea che sale suona alla riga prima dell\'acqua alta', () => {
@@ -347,6 +467,14 @@ describe('ascolto del bus', () => {
     fast.bus.emit('night:row', { hour: 7, result: { ok: true, state: state(G11.initial), events, violations: [] } });
     const delays = fast.engine.calls.filter((c) => c.fn === 'play').map((c) => (c.args[1] as { delay: number }).delay);
     expect(delays[1]! - delays[0]!).toBeLessThan(0.05);
+  });
+
+  it('Archivio non rammendato: fallimento', () => {
+    const { bus, engine } = ctx;
+    enterNight(bus, level({ id: 'arc1', kind: 'archivio' }), {}, 'archivio');
+    const outcome = { requests: [], goals: [], archive: { named: true, mended: false } } as unknown as NightOutcome;
+    bus.emit('night:complete', { outcome });
+    expect(engine.fns()).toEqual(['sfx:fallimento']);
   });
 
   it('disfa, fine della notte, pagina del Taccuino', () => {

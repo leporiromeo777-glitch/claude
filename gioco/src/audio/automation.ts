@@ -8,13 +8,15 @@
  * |                               | se la stessa coppia cambia verso: rovescia                   |
  * | night:violation               | rifiuto («No.» di Marta) o tonfo per le altre violazioni     |
  * | night:row (ok)                | ora_fissata, campana con la stonatura del giorno, poi i     |
- * |                               | suoni del merletto: lettera, voce, segreto, febbre, cura,   |
- * |                               | nodo, trabocco, vaporetto/barca/marea, filo nero; marea     |
- * |                               | se nella riga dopo c'è l'acqua alta                         |
+ * |                               | suoni del merletto: gli incroci non ancora sentiti (fili    |
+ * |                               | che si muovono da soli, filo nero), lettera, voce, segreto, |
+ * |                               | febbre, cura, nodo, trabocco, vaporetto/barca/secca, filo   |
+ * |                               | nero; marea se nella riga dopo c'è l'acqua alta             |
  * | night:row in modo 'replay'    | il carillon: un bicordo per incrocio (o un tic), niente     |
- * |                               | campana (spartito importato, Ripassa)                       |
+ * |                               | campana né incroci da night:cross (spartito, Ripassa)       |
  * | night:undo                    | disfa                                                       |
- * | night:complete                | successo (tutto soddisfatto) o fallimento                   |
+ * | night:complete                | successo (tutto soddisfatto, Archivio rammendato) o         |
+ * |                               | fallimento                                                  |
  * | diary:new, quirk:discovered   | pagina                                                      |
  * | clic sui pulsanti di #ui-root | ui_tap (ui_indietro su chiudi/annulla/indietro)             |
  * | app:back                      | ui_indietro                                                 |
@@ -33,6 +35,7 @@ import type {
   Hour,
   LaceEvent,
   LevelDef,
+  NightOutcome,
   SaveData,
   SceneId,
   Settings,
@@ -59,6 +62,11 @@ export interface AutomationTarget {
   play(id: RecipeId, o?: { pan?: number; gain?: number; detune?: number; delay?: number }, caption?: CaptionRef | null, logId?: string): void;
   crossing(over: CharacterId | 'lino', under: CharacterId | 'lino', o?: { rancor?: boolean; pan?: number; delay?: number; gain?: number; flip?: boolean }): void;
   bell(o: { hour: Hour; stonatura: number }): void;
+  /**
+   * Il contesto del gioco è cambiato (scena nuova): la musica chiesta senza seme o
+   * note riprende quelli della giornata giusta. Facoltativo.
+   */
+  refreshContext?(): void;
   dyad(over: CharacterId | 'lino' | null, under: CharacterId | 'lino' | null, o?: { delay?: number; pan?: number }): void;
   caption(textKey: string, params?: Record<string, string | number>): void;
   suspend(): void;
@@ -156,16 +164,34 @@ export function tideRises(level: LevelDef | null, hour: Hour): boolean {
 
 export type EventSound =
   | { k: 'sfx'; id: RecipeId; pan?: number; caption: CaptionRef | null }
-  | { k: 'crossing'; over: CharacterId | 'lino'; under: CharacterId | 'lino'; pan?: number };
+  | { k: 'crossing'; over: CharacterId | 'lino'; under: CharacterId | 'lino'; pan?: number; pair?: number; rancor?: boolean };
+
+/** Il filo nero della giornata (ThreadDef di tipo 'nero', o quello indicato in level.nero). */
+export function isNeroThread(thread: ThreadId, level: LevelDef | null): boolean {
+  if (!level) return false;
+  if (level.nero?.thread === thread) return true;
+  return level.threads?.some((t) => t.id === thread && t.kind === 'nero') ?? false;
+}
+
+export interface EventSoundOpts {
+  level: LevelDef | null;
+  /** Ordine dei fili dopo la riga (per la panoramica). */
+  pos: readonly ThreadId[];
+  nameOf: (who: CharacterId | 'lino') => string;
+  /**
+   * Coppie (indice della colonna di sinistra) il cui incrocio non si è ancora sentito
+   * con night:cross: fili che si muovono da soli (autotessitura, filo nero). Senza
+   * questa funzione gli incontri non suonano (li ha già suonati la bozza).
+   */
+  unannounced?: (pair: number) => boolean;
+  /** La coppia è in rancore (la nota sotto stona). */
+  rancor?: (a: ThreadId, b: ThreadId) => boolean;
+}
 
 /**
  * Suoni degli eventi di una riga fissata, in ordine, senza doppioni (funzione pura).
- * `pos` è l'ordine dei fili dopo la riga (per la panoramica).
  */
-export function eventSounds(
-  events: readonly LaceEvent[],
-  o: { level: LevelDef | null; pos: readonly ThreadId[]; nameOf: (who: CharacterId | 'lino') => string },
-): EventSound[] {
+export function eventSounds(events: readonly LaceEvent[], o: EventSoundOpts): EventSound[] {
   const { level, pos } = o;
   const cols = level?.columns?.length ?? pos.length;
   const panOf = (t: ThreadId): number => {
@@ -174,16 +200,30 @@ export function eventSounds(
   };
   const name = (t: ThreadId): string => o.nameOf(threadWho(t, level));
   const delivered = new Set(events.filter((e) => e.k === 'consegna').map((e) => (e as { bead: string }).bead));
+  // Il filo nero che entra da un bordo ha il suo suono: chi esce da quel lato non suona.
+  const neroSides = new Set(
+    events.filter((e): e is Extract<LaceEvent, { k: 'entra' }> => e.k === 'entra' && isNeroThread(e.thread, level)).map((e) => e.side),
+  );
   const out: EventSound[] = [];
   const seen = new Set<string>();
   const push = (s: EventSound): void => {
-    const key = s.k === 'sfx' ? `${s.id}|${s.caption?.key ?? ''}|${JSON.stringify(s.caption?.params ?? {})}` : `x|${s.over}|${s.under}`;
+    const key =
+      s.k === 'sfx'
+        ? `${s.id}|${s.caption?.key ?? ''}|${JSON.stringify(s.caption?.params ?? {})}`
+        : s.pair !== undefined
+          ? `x|${s.pair}`
+          : `x|${s.over}|${s.under}`;
     if (seen.has(key)) return;
     seen.add(key);
     out.push(s);
   };
   const sfx = (id: RecipeId, caption: CaptionRef | null, pan?: number): void => {
     push(pan === undefined ? { k: 'sfx', id, caption } : { k: 'sfx', id, caption, pan });
+  };
+  const crossing = (over: ThreadId, under: ThreadId, pair: number): void => {
+    const s: EventSound = { k: 'crossing', over: threadWho(over, level), under: threadWho(under, level), pan: columnPan(pair + 0.5, cols), pair };
+    if (o.rancor?.(over, under)) s.rancor = true;
+    push(s);
   };
   const edgeDone = new Set<string>();
   for (const e of events) {
@@ -221,32 +261,45 @@ export function eventSounds(
       case 'esce':
       case 'entra': {
         const pan = e.side === 'molo' ? -0.6 : 0.6;
-        const def = level?.threads?.find((t) => t.id === e.thread);
-        if (e.k === 'entra' && def?.kind === 'nero') {
+        if (e.k === 'entra' && isNeroThread(e.thread, level)) {
           sfx('nero', { key: SFX_CAPTIONS.nero ?? '' }, pan);
           break;
         }
-        const id: SfxId = e.kind === 'vaporetto' ? 'vaporetto' : e.kind === 'barca' ? 'barca' : 'marea';
+        if (neroSides.has(e.side)) break;
+        // La secca (Atto III, lato del Faro) è l'acqua che si ritira, non la marea che sale.
+        const id: RecipeId = e.kind === 'vaporetto' ? 'vaporetto' : e.kind === 'barca' ? 'barca' : 'secca';
         if (edgeDone.has(id)) break;
         edgeDone.add(id);
-        sfx(id, { key: SFX_CAPTIONS[id] ?? '' }, pan);
+        sfx(id, { key: id === 'secca' ? CAPTIONS.secca : (SFX_CAPTIONS[id] ?? '') }, pan);
         break;
       }
       case 'nero': {
+        if (o.unannounced && !o.unannounced(e.pair)) break;
         const a = pos[e.pair];
         const b = pos[e.pair + 1];
         const other = a === e.thread ? b : a;
-        if (other !== undefined) {
-          push({ k: 'crossing', over: threadWho(e.thread, level), under: threadWho(other, level), pan: columnPan(e.pair + 0.5, cols) });
-        }
+        if (other !== undefined) crossing(e.thread, other, e.pair);
         break;
       }
       case 'incontro':
+        if (o.unannounced?.(e.pair)) crossing(e.over, e.over === e.a ? e.b : e.a, e.pair);
+        break;
       case 'stranezza':
         break;
     }
   }
   return out;
+}
+
+/**
+ * Esito della notte per il suono finale: richieste e obiettivi soddisfatti e, in un
+ * merletto d'Archivio, il rammendo riuscito.
+ */
+export function outcomeOk(o: NightOutcome): boolean {
+  const requests = (o.requests ?? []).every((r) => r.status === 'soddisfatta');
+  const goals = (o.goals ?? []).every((g) => g.status === 'soddisfatta');
+  const mended = !o.archive || o.archive.mended !== false;
+  return requests && goals && mended;
 }
 
 interface NightInfo {
@@ -267,6 +320,8 @@ export class AudioAutomation implements GameAudioContext {
   private draftHour: Hour | null = null;
   private readonly draft = new Map<number, Side>();
   private readonly stack: number[] = [];
+  /** Disfa ha riaperto la riga precedente: la sua bozza (già sentita) non è nota. */
+  private draftUnknown = false;
   private lastPage = -Infinity;
   private replayRows = 0;
   private lastVolumes: Settings['volume'] | null = null;
@@ -351,12 +406,8 @@ export class AudioAutomation implements GameAudioContext {
         this.guard(() => {
           const o = p.outcome;
           // Uno spartito che si ritesse non ha esito: ha già suonato il suo carillon.
-          if (!this.night?.replay) {
-            const ok = (o.requests ?? []).every((r) => r.status === 'soddisfatta') && (o.goals ?? []).every((g) => g.status === 'soddisfatta');
-            this.deps.engine.sfx(ok ? 'successo' : 'fallimento');
-          }
-          this.draft.clear();
-          this.draftHour = null;
+          if (!this.night?.replay) this.deps.engine.sfx(outcomeOk(o) ? 'successo' : 'fallimento');
+          this.resetDraft(null);
         }),
       ),
       bus.on('diary:new', () => this.guard(() => this.page())),
@@ -387,13 +438,22 @@ export class AudioAutomation implements GameAudioContext {
 
   private onScene(id: SceneId, params: unknown): void {
     this.scene = id;
-    if (id !== 'tombolo') return;
-    const p = params as { level?: unknown; flags?: Record<string, FlagValue>; mode?: unknown } | undefined;
-    if (p && isLevel(p.level)) this.night = { level: p.level, flags: p.flags ?? {}, replay: p.mode === 'replay' };
-    this.replayRows = 0;
+    if (id === 'tombolo') {
+      const p = params as { level?: unknown; flags?: Record<string, FlagValue>; mode?: unknown } | undefined;
+      if (p && isLevel(p.level)) this.night = { level: p.level, flags: p.flags ?? {}, replay: p.mode === 'replay' };
+      this.replayRows = 0;
+      this.resetDraft(null);
+    }
+    // 'scene:enter' arriva dopo enter() della scena: se la scena ha chiesto la musica senza
+    // seme o note, adesso il contesto (giornata, personaggi) è quello giusto.
+    this.deps.engine.refreshContext?.();
+  }
+
+  private resetDraft(hour: Hour | null): void {
     this.draft.clear();
     this.stack.length = 0;
-    this.draftHour = null;
+    this.draftHour = hour;
+    this.draftUnknown = false;
   }
 
   private isRancor(a: ThreadId, b: ThreadId): boolean {
@@ -408,11 +468,9 @@ export class AudioAutomation implements GameAudioContext {
   }
 
   private onCross(hour: Hour, pair: number, side: Side, over: ThreadId, under: ThreadId): void {
-    if (this.draftHour !== hour) {
-      this.draft.clear();
-      this.stack.length = 0;
-      this.draftHour = hour;
-    }
+    // Uno spartito che si ritesse suona le sue righe come un carillon (onReplayRow).
+    if (this.night?.replay) return;
+    if (this.draftHour !== hour) this.resetDraft(hour);
     const prev = this.draft.get(pair);
     const flip = prev !== undefined && prev !== side;
     this.draft.set(pair, side);
@@ -431,10 +489,10 @@ export class AudioAutomation implements GameAudioContext {
       const pair = this.stack.pop()!;
       this.draft.delete(pair);
     } else {
-      // Si è riaperta la riga precedente: la sua bozza non è nota, si riparte da zero.
-      this.draft.clear();
-      this.stack.length = 0;
-      this.draftHour = hour;
+      // Si è riaperta la riga precedente: la sua bozza non è nota (i suoi incroci si sono
+      // già sentiti), si riparte da zero.
+      this.resetDraft(hour);
+      this.draftUnknown = true;
     }
   }
 
@@ -478,7 +536,17 @@ export class AudioAutomation implements GameAudioContext {
     e.sfx('ora_fissata');
     e.bell({ hour, stonatura: this.stonatura() });
     const lvl = this.night?.level ?? null;
-    const sounds = eventSounds(events ?? [], { level: lvl, pos: pos ?? [], nameOf: this.deps.nameOf });
+    // Gli incroci della bozza si sono già sentiti (night:cross); quelli dei fili che si
+    // muovono da soli (autotessitura, filo nero) suonano adesso.
+    const announced = new Set(this.draft.keys());
+    const unknown = this.draftUnknown;
+    const sounds = eventSounds(events ?? [], {
+      level: lvl,
+      pos: pos ?? [],
+      nameOf: this.deps.nameOf,
+      unannounced: (pair) => !unknown && !announced.has(pair),
+      rancor: (a, b) => this.isRancor(a, b),
+    });
     if (tideRises(lvl, hour)) sounds.push({ k: 'sfx', id: 'marea', caption: { key: SFX_CAPTIONS.marea ?? '' } });
     sounds.splice(MAX_ROW_SOUNDS);
     const step = this.animStep();
@@ -489,14 +557,12 @@ export class AudioAutomation implements GameAudioContext {
         if (s.pan !== undefined) o.pan = s.pan;
         e.play(s.id, o, s.caption, s.id);
       } else {
-        const o: { pan?: number; delay: number; gain: number; rancor: boolean } = { delay, gain: 0.8, rancor: false };
+        const o: { pan?: number; delay: number; gain: number; rancor: boolean } = { delay, gain: 0.8, rancor: !!s.rancor };
         if (s.pan !== undefined) o.pan = s.pan;
         e.crossing(s.over, s.under, o);
       }
     });
-    this.draft.clear();
-    this.stack.length = 0;
-    this.draftHour = null;
+    this.resetDraft(null);
   }
 
   private page(): void {
