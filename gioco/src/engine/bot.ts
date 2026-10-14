@@ -125,9 +125,9 @@ export function greedyPlay(level: LevelDef, ctx: RunContext, goals: readonly Con
       let k = 0;
       for (let j = 0; j < row.n; j++) if (!row.forced[j]) k++;
       if (k > left) continue;
+      if (ginoFailed(m, S, row, blocked)) continue;
       stepRow(m, S, tmp, row, h, info, null);
       if (!pinsOk(m, tmp, h)) continue;
-      if (ginoFailed(m, S, row, blocked)) continue;
       updateAtoms(p, m, tmp, h, info);
       let sc = score(m, p, tmp, h, k);
       if (!programCanOk(p, m, tmp, h)) sc -= 1_000_000;

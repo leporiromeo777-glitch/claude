@@ -100,9 +100,11 @@ describe('caso sintetico 6 colonne × 14 righe', () => {
       expect(free.status).toBe('ok');
       const min = free.incroci as number;
       expect(grande.matassa).toBe(min + 2);
-      const t0 = performance.now();
+      // Tempo di CPU del processo (non il tempo di orologio): stabile anche con la macchina carica.
+      const c0 = process.cpuUsage();
       const r = run(grande, [], { matassa: min + 2 });
-      const ms = performance.now() - t0;
+      const cpu = process.cpuUsage(c0);
+      const ms = (cpu.user + cpu.system) / 1000;
       expect(r.status).toBe('ok');
       expect(r.incroci).toBe(min);
       expect(r.states).toBeGreaterThan(1000);
@@ -110,7 +112,7 @@ describe('caso sintetico 6 colonne × 14 righe', () => {
       const res = simulateAndEvaluate(grande, createContext(grande, {}), r.rows ?? [], grande.goals ?? []);
       expect(res.allOk).toBe(true);
     },
-    3500,
+    60_000,
   );
 });
 

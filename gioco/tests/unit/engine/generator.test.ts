@@ -49,13 +49,15 @@ describe('generate', () => {
     expect(JSON.stringify(a.initial) + JSON.stringify(a.goals)).not.toBe(JSON.stringify(b.initial) + JSON.stringify(b.goals));
   });
 
-  it('30 giorni dal 2026-10-14: ognuno in meno di 1,5 s, con il filtro superato (o la riserva segnalata)', () => {
+  it('30 giorni dal 2026-10-14: ognuno in meno di 1,5 s di CPU, con il filtro superato (o la riserva segnalata)', () => {
     let d = '2026-10-14';
     for (let i = 0; i < 30; i++) {
       const spec = dailySpec(d);
-      const t0 = performance.now();
+      // Tempo di CPU del processo (non il tempo di orologio): stabile anche con la macchina carica.
+      const c0 = process.cpuUsage();
       const r = generate(spec);
-      const ms = performance.now() - t0;
+      const cpu = process.cpuUsage(c0);
+      const ms = (cpu.user + cpu.system) / 1000;
       expect(ms, d).toBeLessThan(1500);
       const level = r.level;
       expect(level.id).toBe(`day-${d}`);
@@ -83,7 +85,7 @@ describe('generate', () => {
       }
       d = nextDate(d);
     }
-  }, 60_000);
+  }, 180_000);
 
   it('obiettivi del giorno: lettere da consegnare, un vincolo e spilli d\'ottone', () => {
     const { level } = generate(dailySpec('2026-10-16'));

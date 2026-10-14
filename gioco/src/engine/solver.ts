@@ -346,6 +346,7 @@ export function solveInternal(req: SolveRequest, opts: SolveInternalOptions = {}
   const info: RowInfo = newRowInfo();
   const gen = genPool();
 
+  const gino = m.qGino >= 0 && !m.hasAuto;
   for (let h = startHour + 1; h <= m.endHour; h++) {
     const next = new Layer(stride, Math.max(1024, cur.n * 2));
     for (let i = 0; i < cur.n; i++) {
@@ -359,10 +360,11 @@ export function solveInternal(req: SolveRequest, opts: SolveInternalOptions = {}
         let k = 0;
         for (let j = 0; j < row.n; j++) if (!row.forced[j]) k++;
         if (k > left) continue;
+        // Gino (dipende solo dallo stato a inizio riga): prima di applicare la riga.
+        if (gino && ginoFailed(m, S, row, blocked)) continue;
         stepRow(m, S, tmp, row, h, info, null);
-        // Spilli d'ottone di quest'ora e Gino.
+        // Spilli d'ottone di quest'ora.
         if (!pinsOk(m, tmp, h)) continue;
-        if (m.qGino >= 0 && ginoFailed(m, S, row, blocked)) continue;
         updateAtoms(prog, m, tmp, h, info);
         if (!programCanOk(prog, m, tmp, h)) continue;
         const lb = pinBound(m, pp, tmp, h);
