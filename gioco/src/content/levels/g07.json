@@ -1,0 +1,83 @@
+{
+  "id": "g07",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g07.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6,
+  "endHour": 14,
+  "threads": [
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"},
+    {"id": "nina", "kind": "persona", "character": "nina"},
+    {"id": "gino", "kind": "persona", "character": "gino"},
+    {"id": "zeno", "kind": "persona", "character": "zeno"}
+  ],
+  "initial": ["nina", "marta", "teresa", "piero", "gino", "zeno"],
+  "beads": [
+    {"id": "segreto:confessione", "type": "segreto", "holders": ["teresa"], "labelKey": "atto1.g07.perline.confessione"}
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "segreto"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
+  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 12}],
+  "notes": ["g07.teresa", "g07.nina", "g07.zeno"],
+  "matassa": 12,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g07.alba.cassetto",
+        "priority": 100,
+        "background": "dio/chiesa/notte",
+        "figures": [{"character": "piero", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "piero", "textKey": "atto1.g07.alba.cassetto"}]
+      },
+      {
+        "id": "g07.alba.confessione",
+        "when": {"ok": "g07.teresa"},
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {"character": "teresa", "pose": "ferma", "x": 0.36},
+          {"character": "piero", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "teresa", "textKey": "atto1.g07.alba.confessione"},
+          {"speaker": "piero", "textKey": "atto1.g07.alba.confessione2"}
+        ]
+      },
+      {
+        "id": "g07.alba.sempreSaputo",
+        "when": {"failed": "g07.teresa"},
+        "priority": 80,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {"character": "marta", "pose": "ferma", "x": 0.36},
+          {"character": "teresa", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g07.alba.sempreSaputo"}]
+      },
+      {
+        "id": "g07.alba.ninaSa",
+        "when": {"ok": "g07.nina"},
+        "priority": 60,
+        "background": "dio/piazza/giorno",
+        "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "nina", "textKey": "atto1.g07.alba.ninaSa"}]
+      },
+      {
+        "id": "g07.alba.lume",
+        "when": {"ok": "g07.zeno"},
+        "priority": 60,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {"character": "gino", "pose": "saluta", "x": 0.36},
+          {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [{"speaker": "gino", "textKey": "atto1.g07.alba.lume"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g07.hint.spinta", "indizio": "atto1.g07.hint.indizio"},
+  "musicSeed": "g07"
+}

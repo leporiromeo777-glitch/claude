@@ -1,0 +1,95 @@
+{
+  "id": "g01",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g01.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa"],
+  "startHour": 6,
+  "endHour": 11,
+  "threads": [
+    {"id": "gino", "kind": "persona", "character": "gino"},
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"}
+  ],
+  "initial": ["teresa", "marta", "gino", "piero"],
+  "beads": [
+    {"id": "L_piero", "type": "lettera", "holder": "teresa", "to": "piero", "labelKey": "atto1.g01.perline.L_piero"}
+  ],
+  "rules": ["incrocio", "spillo", "lettera"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre"],
+  "pins": [{"thread": "piero", "place": "chiesa", "hour": 7}, {"thread": "piero", "place": "piazza", "hour": 11}],
+  "notes": ["g01.marta", "g01.piero", "g01.gino"],
+  "matassa": 9,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g01.alba.bambina",
+        "priority": 100,
+        "background": "dio/piazza/giorno",
+        "figures": [
+          {"character": "teresa", "pose": "ferma", "x": 0.4},
+          {"character": "marta", "pose": "ferma", "x": 0.65, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g01.alba.bambina"},
+          {"speaker": "teresa", "textKey": "atto1.g01.alba.bambina2"}
+        ]
+      },
+      {
+        "id": "g01.alba.campana",
+        "when": {"ok": "g01.gino"},
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {"character": "gino", "pose": "saluta", "x": 0.35},
+          {"character": "piero", "pose": "ferma", "x": 0.68, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g01.alba.campana"},
+          {"speaker": "piero", "textKey": "atto1.g01.alba.campana2"}
+        ]
+      },
+      {
+        "id": "g01.alba.brava",
+        "when": {"ok": "g01.marta"},
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [{"character": "marta", "pose": "porge", "x": 0.5}],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g01.alba.brava"}]
+      },
+      {
+        "id": "g01.alba.bagnato",
+        "when": {"failed": "g01.marta"},
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {"character": "gino", "pose": "ferma", "x": 0.38},
+          {"character": "marta", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g01.alba.bagnato"},
+          {"speaker": "marta", "textKey": "atto1.g01.alba.bagnato2"}
+        ]
+      },
+      {
+        "id": "g01.alba.posta",
+        "when": {"ok": "g01.piero"},
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {"character": "teresa", "pose": "porge", "x": 0.35},
+          {"character": "piero", "pose": "ferma", "x": 0.65, "flip": true}
+        ],
+        "lines": [{"speaker": "piero", "textKey": "atto1.g01.alba.posta"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g01.hint.spinta", "indizio": "atto1.g01.hint.indizio"},
+  "tutorial": [
+    {"k": "mano", "hour": 7, "pair": 1, "over": "R"},
+    {"k": "margine", "when": "rifiuto", "textKey": "atto1.g01.margine.gino", "hour": 7},
+    {"k": "pulsa", "target": "taccuino", "hour": 7}
+  ],
+  "musicSeed": "g01"
+}

@@ -1,0 +1,91 @@
+{
+  "id": "g08",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g08.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6,
+  "endHour": 16,
+  "threads": [
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"},
+    {"id": "nina", "kind": "persona", "character": "nina"},
+    {"id": "gino", "kind": "persona", "character": "gino"},
+    {"id": "zeno", "kind": "persona", "character": "zeno"},
+    {"id": "marinaio", "kind": "lino", "labelKey": "comune.fili.marinaio"},
+    {"id": "segreteria", "kind": "lino", "labelKey": "atto1.g08.fili.segreteria"}
+  ],
+  "initial": ["teresa", "marta", "nina", "gino", "piero", "zeno"],
+  "beads": [
+    {
+      "id": "L_iscrizione",
+      "type": "lettera",
+      "holder": "nina",
+      "to": "segreteria",
+      "labelKey": "atto1.g08.perline.L_iscrizione"
+    }
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
+  "pins": [
+    {"thread": "marta", "place": "forno", "hour": 7},
+    {"thread": "nina", "place": "piazza", "hour": 10},
+    {"thread": "piero", "place": "chiesa", "hour": 11}
+  ],
+  "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
+  "notes": ["g08.marta", "g08.nina", "g08.zeno"],
+  "matassa": 15,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g08.alba.filoNero",
+        "priority": 100,
+        "background": "dio/faro/notte",
+        "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
+        "lines": [
+          {"speaker": "narratore", "textKey": "atto1.g08.alba.filoNero"},
+          {"speaker": "ada", "textKey": "atto1.g08.alba.filoNero2"}
+        ],
+        "sfx": ["nero"]
+      },
+      {
+        "id": "g08.alba.anniversario",
+        "when": {"ok": "g08.marta"},
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {"character": "marta", "pose": "ferma", "x": 0.36},
+          {"character": "gino", "pose": "ferma", "x": 0.66}
+        ],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g08.alba.anniversario"}]
+      },
+      {
+        "id": "g08.alba.partita",
+        "when": {"ok": "g08.nina"},
+        "priority": 60,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "nina", "pose": "saluta", "x": 0.5}],
+        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.partita"}]
+      },
+      {
+        "id": "g08.alba.scaduta",
+        "when": {"failed": "g08.nina"},
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "nina", "textKey": "atto1.g08.alba.scaduta"}]
+      },
+      {
+        "id": "g08.alba.insonne",
+        "when": {"failed": "g08.zeno"},
+        "priority": 80,
+        "background": "dio/faro/giorno",
+        "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "zeno", "textKey": "atto1.g08.alba.insonne"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g08.hint.spinta", "indizio": "atto1.g08.hint.indizio"},
+  "musicSeed": "g08"
+}

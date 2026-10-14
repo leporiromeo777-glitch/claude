@@ -1,0 +1,54 @@
+{
+  "levelId": "arc2",
+  "sourceHash": "d380988540f9f46a",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 2,
+    "rows": [
+      {
+        "hour": 1,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 2,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 3,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 4,
+        "crossings": [
+          {
+            "pair": 3,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 5,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {},
+  "combos": [],
+  "matassaSuggerita": 2,
+  "quieteMax": 2
+}

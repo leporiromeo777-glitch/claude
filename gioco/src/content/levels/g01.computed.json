@@ -1,0 +1,335 @@
+{
+  "levelId": "g01",
+  "sourceHash": "4c31157e00c168ff",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 5,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 9,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 10,
+        "crossings": [
+          {
+            "pair": 1,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 11,
+        "crossings": [
+          {
+            "pair": 2,
+            "over": "L"
+          }
+        ]
+      }
+    ]
+  },
+  "perNote": {
+    "g01.marta": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    "g01.piero": {
+      "incroci": 6,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    "g01.gino": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "combos": [
+    {
+      "notes": [
+        "g01.marta",
+        "g01.piero"
+      ],
+      "incroci": 6,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "R"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g01.marta",
+        "g01.gino"
+      ],
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g01.piero",
+        "g01.gino"
+      ],
+      "incroci": null,
+      "voluta": true
+    }
+  ],
+  "matassaSuggerita": 9,
+  "quieteMax": 0
+}

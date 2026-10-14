@@ -1,0 +1,67 @@
+{
+  "id": "arc2",
+  "kind": "archivio",
+  "act": 1,
+  "titleKey": "atto1.arc2.titolo",
+  "columns": ["molo", "forno", "chiesa", "farmacia", "faro"],
+  "startHour": 0,
+  "endHour": 5,
+  "threads": [
+    {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.pescatore"},
+    {"id": "f1", "kind": "persona", "character": "teresa"},
+    {"id": "f2", "kind": "persona", "character": "piero"},
+    {"id": "f3", "kind": "avorio", "character": "clotilde"},
+    {"id": "f4", "kind": "persona", "character": "zeno"},
+    {"id": "lino2", "kind": "lino", "labelKey": "comune.fili.lino"}
+  ],
+  "initial": ["lino1", "f1", "f2", "f3", "f4"],
+  "beads": [
+    {"id": "L_livia", "type": "lettera", "holder": "f1", "to": "f3", "labelKey": "atto1.arc2.perline.L_livia"},
+    {"id": "L_ada", "type": "lettera", "holder": "f3", "to": "f4", "labelKey": "atto1.arc2.perline.L_ada"}
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "molo", "segreto"],
+  "quirks": ["teresaLegge", "pieroPozzo", "zenoFaro"],
+  "pins": [{"thread": "f2", "place": "chiesa", "hour": 5}],
+  "edges": [{"hour": 3, "side": "faro", "kind": "barca", "enters": "lino2"}],
+  "goals": [
+    {"t": "consegnata", "bead": "L_ada", "by": 2},
+    {"t": "nonHa", "who": "f1", "bead": "letta:L_livia"},
+    {"t": "parte", "who": "f3", "hour": 3}
+  ],
+  "matassa": 2,
+  "hintKeys": {"spinta": "atto1.arc2.hint.spinta", "indizio": "atto1.arc2.hint.indizio"},
+  "archive": {
+    "year": "1965",
+    "titleKey": "atto1.arc2.titolo",
+    "faded": ["f1", "f2", "f3", "f4"],
+    "candidates": ["zeno", "piero", "teresa", "clotilde", "livia"],
+    "answer": {"f1": "teresa", "f2": "piero", "f3": "clotilde", "f4": "zeno"},
+    "holes": [{"from": 1, "to": 2}],
+    "recorded": [
+      {"hour": 1, "crossings": [{"pair": 1, "over": "L"}]},
+      {"hour": 2, "crossings": [{"pair": 3, "over": "L"}]},
+      {"hour": 3, "crossings": [{"pair": 1, "over": "L"}]},
+      {"hour": 4, "crossings": [{"pair": 3, "over": "L"}]},
+      {"hour": 5, "crossings": []}
+    ],
+    "echoes": [
+      {"hour": 1, "pair": 1, "textKey": "atto1.arc2.eco.busta"},
+      {"hour": 2, "pair": 3, "textKey": "atto1.arc2.eco.perLei"},
+      {"hour": 3, "pair": 1, "textKey": "atto1.arc2.eco.campana"},
+      {"hour": 4, "pair": 3, "textKey": "atto1.arc2.eco.onda"}
+    ],
+    "marginKey": "atto1.arc2.margine",
+    "reveal": {
+      "id": "arc2.rivela",
+      "priority": 100,
+      "background": "dio/faro/notte",
+      "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
+      "lines": [
+        {"speaker": "narratore", "textKey": "atto1.arc2.rivela.1"},
+        {"speaker": "zeno", "textKey": "atto1.arc2.rivela.2"}
+      ]
+    },
+    "closes": ["avorio"],
+    "unlocks": ["domande.avorio.indizio1", "domande.avorio.risposta", "persone.zeno.nega", "archivio.arc2"]
+  }
+}

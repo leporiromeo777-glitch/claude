@@ -1,0 +1,319 @@
+{
+  "levelId": "g04",
+  "sourceHash": "93afaf711a7b8c62",
+  "solverVersion": 1,
+  "base": {
+    "incroci": 1,
+    "rows": [
+      {
+        "hour": 7,
+        "crossings": [
+          {
+            "pair": 0,
+            "over": "L"
+          }
+        ]
+      },
+      {
+        "hour": 8,
+        "crossings": []
+      },
+      {
+        "hour": 9,
+        "crossings": []
+      },
+      {
+        "hour": 10,
+        "crossings": []
+      },
+      {
+        "hour": 11,
+        "crossings": []
+      },
+      {
+        "hour": 12,
+        "crossings": []
+      },
+      {
+        "hour": 13,
+        "crossings": []
+      },
+      {
+        "hour": 14,
+        "crossings": []
+      }
+    ]
+  },
+  "perNote": {
+    "g04.nina": {
+      "incroci": 1,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        }
+      ]
+    },
+    "g04.bepi": {
+      "incroci": 1,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        }
+      ]
+    },
+    "g04.piero": {
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "combos": [
+    {
+      "notes": [
+        "g04.nina",
+        "g04.bepi"
+      ],
+      "incroci": 1,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": []
+        },
+        {
+          "hour": 12,
+          "crossings": []
+        },
+        {
+          "hour": 13,
+          "crossings": []
+        },
+        {
+          "hour": 14,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g04.nina",
+        "g04.piero"
+      ],
+      "incroci": 5,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": []
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": []
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g04.bepi",
+        "g04.piero"
+      ],
+      "incroci": null,
+      "voluta": true
+    }
+  ],
+  "matassaSuggerita": 8,
+  "quieteMax": 7
+}

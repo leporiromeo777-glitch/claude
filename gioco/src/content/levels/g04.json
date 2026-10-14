@@ -1,0 +1,96 @@
+{
+  "id": "g04",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g04.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia"],
+  "startHour": 6,
+  "endHour": 14,
+  "threads": [
+    {"id": "bepi", "kind": "persona", "character": "bepi"},
+    {"id": "nina", "kind": "persona", "character": "nina"},
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"},
+    {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.pescatore"}
+  ],
+  "initial": ["nina", "bepi", "teresa", "piero", "marta"],
+  "beads": [{"id": "voce:rete", "type": "voce", "holders": ["teresa"], "labelKey": "atto1.g04.perline.rete"}],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
+  "pins": [
+    {"thread": "teresa", "place": "piazza", "hour": 10},
+    {"thread": "piero", "place": "chiesa", "hour": 11},
+    {"thread": "nina", "place": "forno", "hour": 13}
+  ],
+  "edges": [
+    {"hour": 7, "side": "molo", "kind": "barca", "enters": "lino1"},
+    {"hour": 11, "side": "molo", "kind": "barca", "enters": "bepi"}
+  ],
+  "goals": [{"t": "parte", "who": "bepi", "hour": 7}],
+  "notes": ["g04.nina", "g04.bepi", "g04.piero"],
+  "matassa": 8,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g04.alba.barca",
+        "priority": 100,
+        "background": "dio/molo/alba",
+        "figures": [{"character": "bepi", "pose": "ferma", "x": 0.55}],
+        "lines": [{"speaker": "narratore", "textKey": "atto1.g04.alba.barca"}]
+      },
+      {
+        "id": "g04.alba.saluto",
+        "when": {"ok": "g04.nina"},
+        "priority": 60,
+        "background": "dio/molo/alba",
+        "figures": [
+          {"character": "nina", "pose": "saluta", "x": 0.35},
+          {"character": "bepi", "pose": "saluta", "x": 0.66, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g04.alba.saluto"},
+          {"speaker": "bepi", "textKey": "atto1.g04.alba.saluto2"}
+        ]
+      },
+      {
+        "id": "g04.alba.rete",
+        "when": {"failed": "g04.bepi"},
+        "priority": 80,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {"character": "nina", "pose": "ferma", "x": 0.35},
+          {"character": "bepi", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g04.alba.rete"},
+          {"speaker": "bepi", "textKey": "atto1.g04.alba.rete2"}
+        ]
+      },
+      {
+        "id": "g04.alba.candela",
+        "when": {"ok": "g04.piero"},
+        "priority": 60,
+        "background": "dio/chiesa/giorno",
+        "figures": [
+          {"character": "bepi", "pose": "ferma", "x": 0.4},
+          {"character": "piero", "pose": "ferma", "x": 0.68, "flip": true}
+        ],
+        "lines": [
+          {"speaker": "bepi", "textKey": "atto1.g04.alba.candela"},
+          {"speaker": "piero", "textKey": "atto1.g04.alba.candela2"}
+        ]
+      },
+      {
+        "id": "g04.alba.venezia",
+        "when": {"reply": "g04.nina", "is": "R2"},
+        "priority": 55,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "bepi", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "bepi", "textKey": "atto1.g04.alba.venezia"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g04.hint.spinta", "indizio": "atto1.g04.hint.indizio"},
+  "musicSeed": "g04"
+}

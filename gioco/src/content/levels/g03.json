@@ -1,0 +1,80 @@
+{
+  "id": "g03",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g03.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa"],
+  "startHour": 6,
+  "endHour": 12,
+  "threads": [
+    {"id": "nina", "kind": "persona", "character": "nina"},
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"},
+    {"id": "marinaio", "kind": "lino", "labelKey": "comune.fili.marinaio"}
+  ],
+  "initial": ["teresa", "marta", "nina", "piero"],
+  "beads": [],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo"],
+  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "marta", "place": "forno", "hour": 11}],
+  "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
+  "notes": ["g03.nina", "g03.marta", "g03.teresa"],
+  "matassa": 8,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g03.alba.vaporetto",
+        "priority": 100,
+        "background": "dio/molo/alba",
+        "figures": [{"character": "lino", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "narratore", "textKey": "atto1.g03.alba.vaporetto"}]
+      },
+      {
+        "id": "g03.alba.ninaParte",
+        "when": {"ok": "g03.nina"},
+        "priority": 60,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "nina", "pose": "saluta", "x": 0.45}],
+        "lines": [{"speaker": "nina", "textKey": "atto1.g03.alba.ninaParte"}]
+      },
+      {
+        "id": "g03.alba.ninaResta",
+        "when": {"failed": "g03.nina"},
+        "priority": 80,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "nina", "pose": "ferma", "x": 0.5}],
+        "lines": [
+          {"speaker": "nina", "textKey": "atto1.g03.alba.ninaResta"},
+          {"speaker": "narratore", "textKey": "atto1.g03.alba.ninaResta2"}
+        ]
+      },
+      {
+        "id": "g03.alba.nessuno",
+        "when": {"ok": "g03.marta"},
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [{"character": "marta", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g03.alba.nessuno"}]
+      },
+      {
+        "id": "g03.alba.posta",
+        "when": {"ok": "g03.teresa"},
+        "priority": 60,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "teresa", "pose": "porge", "x": 0.5}],
+        "lines": [{"speaker": "teresa", "textKey": "atto1.g03.alba.posta"}]
+      },
+      {
+        "id": "g03.alba.fredda",
+        "when": {"all": [{"reply": "g02.teresa", "is": "R1"}, {"accepted": "g03.teresa"}]},
+        "priority": 55,
+        "background": "dio/molo/giorno",
+        "figures": [{"character": "teresa", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "teresa", "textKey": "atto1.g03.alba.fredda"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g03.hint.spinta", "indizio": "atto1.g03.hint.indizio"},
+  "musicSeed": "g03"
+}

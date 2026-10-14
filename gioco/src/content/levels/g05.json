@@ -1,0 +1,77 @@
+{
+  "id": "g05",
+  "kind": "storia",
+  "act": 1,
+  "titleKey": "atto1.g05.titolo",
+  "columns": ["molo", "forno", "piazza", "chiesa", "farmacia", "faro"],
+  "startHour": 6,
+  "endHour": 13,
+  "threads": [
+    {"id": "gino", "kind": "persona", "character": "gino"},
+    {"id": "marta", "kind": "persona", "character": "marta"},
+    {"id": "teresa", "kind": "persona", "character": "teresa"},
+    {"id": "piero", "kind": "persona", "character": "piero"},
+    {"id": "zeno", "kind": "persona", "character": "zeno"},
+    {"id": "lino1", "kind": "lino", "labelKey": "comune.fili.passante"}
+  ],
+  "initial": ["marta", "gino", "teresa", "piero", "lino1", "zeno"],
+  "beads": [
+    {"id": "L_zeno", "type": "lettera", "holder": "teresa", "to": "zeno", "labelKey": "atto1.g05.perline.L_zeno"}
+  ],
+  "rules": ["incrocio", "spillo", "lettera", "voce", "matassa"],
+  "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro"],
+  "pins": [{"thread": "marta", "place": "forno", "hour": 7}, {"thread": "piero", "place": "chiesa", "hour": 9}],
+  "notes": ["g05.zeno", "g05.marta", "g05.teresa"],
+  "matassa": 11,
+  "dawn": {
+    "candidates": [
+      {
+        "id": "g05.alba.guardiano",
+        "priority": 100,
+        "background": "dio/faro/alba",
+        "figures": [{"character": "zeno", "pose": "ferma", "x": 0.55}],
+        "lines": [{"speaker": "narratore", "textKey": "atto1.g05.alba.guardiano"}]
+      },
+      {
+        "id": "g05.alba.calligrafia",
+        "when": {"ok": "g05.teresa"},
+        "priority": 100,
+        "background": "dio/faro/giorno",
+        "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "zeno", "textKey": "atto1.g05.alba.calligrafia"}]
+      },
+      {
+        "id": "g05.alba.lanterna",
+        "when": {"ok": "g05.zeno"},
+        "priority": 60,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {"character": "gino", "pose": "saluta", "x": 0.35},
+          {"character": "zeno", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [{"speaker": "gino", "textKey": "atto1.g05.alba.lanterna"}]
+      },
+      {
+        "id": "g05.alba.vetri",
+        "when": {"failed": "g05.zeno"},
+        "priority": 80,
+        "background": "dio/faro/giorno",
+        "figures": [{"character": "zeno", "pose": "ferma", "x": 0.5}],
+        "lines": [{"speaker": "zeno", "textKey": "atto1.g05.alba.vetri"}]
+      },
+      {
+        "id": "g05.alba.lontano",
+        "when": {"ok": "g05.marta"},
+        "priority": 60,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {"character": "marta", "pose": "ferma", "x": 0.4},
+          {"character": "gino", "pose": "ferma", "x": 0.66, "flip": true}
+        ],
+        "lines": [{"speaker": "marta", "textKey": "atto1.g05.alba.lontano"}]
+      }
+    ]
+  },
+  "hintKeys": {"spinta": "atto1.g05.hint.spinta", "indizio": "atto1.g05.hint.indizio"},
+  "musicSeed": "g05"
+}

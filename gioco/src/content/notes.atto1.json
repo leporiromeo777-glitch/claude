@@ -1,0 +1,272 @@
+[
+  {
+    "id": "g01.marta",
+    "day": "g01",
+    "author": "marta",
+    "textKey": "atto1.g01.marta.testo",
+    "request": {"t": "maiPresso", "who": "gino", "place": "molo", "from": 9, "to": 11},
+    "onOk": [{"setFlag": "martaContenta", "value": true}],
+    "onFail": [{"setFlag": "martaDura", "value": true}, {"diary": "persone.gino.bagnato"}],
+    "onIgnore": [{"setFlag": "martaDura", "value": true}]
+  },
+  {
+    "id": "g01.piero",
+    "day": "g01",
+    "author": "piero",
+    "textKey": "atto1.g01.piero.testo",
+    "request": {"t": "consegnata", "bead": "L_piero", "by": 10},
+    "onOk": [{"diary": "persone.piero.buste"}],
+    "onFail": [{"setFlag": "postaPieroTardi", "value": true}]
+  },
+  {
+    "id": "g01.gino",
+    "day": "g01",
+    "author": "gino",
+    "textKey": "atto1.g01.gino.testo",
+    "request": {"t": "presso", "who": "gino", "place": "chiesa", "hour": 11},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g01.gino.r1", "effects": [{"setFlag": "ginoPromessa", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g01.gino.r2", "effects": [{"setFlag": "ginoChiede", "value": true}]}
+    ],
+    "onOk": [{"setFlag": "campanaGino", "value": true}],
+    "onFail": [{"setFlag": "ginoDeluso", "value": true}]
+  },
+  {
+    "id": "g02.marta",
+    "day": "g02",
+    "author": "marta",
+    "textKey": "atto1.g02.marta.testo",
+    "request": {"t": "nonHa", "who": "gino", "bead": "voce:bambina"},
+    "onOk": [{"setFlag": "ginoNonSa", "value": true}],
+    "onFail": [{"diary": "persone.gino.chiacchiere"}]
+  },
+  {
+    "id": "g02.teresa",
+    "day": "g02",
+    "author": "teresa",
+    "textKey": "atto1.g02.teresa.testo",
+    "request": {"t": "ha", "who": "piero", "bead": "voce:bambina", "by": 9},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g02.teresa.r1", "effects": [{"setFlag": "teresaFredda", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g02.teresa.r2", "effects": [{"setFlag": "teresaAmica", "value": true}]}
+    ],
+    "onOk": [{"diary": "persone.piero.ascolta"}]
+  },
+  {
+    "id": "g02.gino",
+    "day": "g02",
+    "author": "gino",
+    "textKey": "atto1.g02.gino.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {"t": "presso", "who": "gino", "place": "molo", "hour": 8},
+        {"t": "presso", "who": "gino", "place": "chiesa", "hour": 11}
+      ]
+    },
+    "onOk": [{"setFlag": "ginoGiro", "value": true}]
+  },
+  {
+    "id": "g03.nina",
+    "day": "g03",
+    "author": "nina",
+    "textKey": "atto1.g03.nina.testo",
+    "request": {"t": "parte", "who": "nina", "hour": 9},
+    "replies": [
+      {
+        "id": "R1",
+        "textKey": "atto1.g03.nina.r1",
+        "effects": [{"setFlag": "ninaDillo", "value": true}, {"desire": "nina"}]
+      },
+      {
+        "id": "R2",
+        "textKey": "atto1.g03.nina.r2",
+        "effects": [{"setFlag": "ninaVai", "value": true}, {"desire": "nina"}]
+      }
+    ],
+    "onOk": [{"setFlag": "ninaEsame", "value": true}, {"desire": "nina"}],
+    "onFail": [{"diary": "persone.nina.esamePerso"}, {"desire": "nina"}],
+    "onIgnore": [{"desire": "nina"}]
+  },
+  {
+    "id": "g03.marta",
+    "day": "g03",
+    "author": "marta",
+    "textKey": "atto1.g03.marta.testo",
+    "request": {"t": "resta", "who": "nina"},
+    "onOk": [{"setFlag": "ninaRestata", "value": true}],
+    "onFail": [{"diary": "persone.marta.partenze"}]
+  },
+  {
+    "id": "g03.teresa",
+    "day": "g03",
+    "author": "teresa",
+    "textKey": "atto1.g03.teresa.testo",
+    "request": {"t": "presso", "who": "teresa", "place": "molo", "hour": 10},
+    "onOk": [{"diary": "persone.teresa.cartolina"}],
+    "onFail": [{"setFlag": "postaInRitardo", "value": true}]
+  },
+  {
+    "id": "g04.nina",
+    "day": "g04",
+    "author": "nina",
+    "textKey": "atto1.g04.nina.testo",
+    "request": {"t": "incontra", "a": "nina", "b": "bepi", "from": 6, "to": 7},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g04.nina.r1", "effects": [{"setFlag": "ninaAbbraccio", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g04.nina.r2", "effects": [{"setFlag": "bepiSaVenezia", "value": true}]}
+    ],
+    "onOk": [{"setFlag": "ninaSaluto", "value": true}]
+  },
+  {
+    "id": "g04.bepi",
+    "day": "g04",
+    "author": "bepi",
+    "textKey": "atto1.g04.bepi.testo",
+    "request": {"t": "nonHa", "who": "nina", "bead": "voce:rete"},
+    "onOk": [{"setFlag": "reteSegreta", "value": true}],
+    "onFail": [{"diary": "persone.bepi.rete"}]
+  },
+  {
+    "id": "g04.piero",
+    "day": "g04",
+    "author": "piero",
+    "textKey": "atto1.g04.piero.testo",
+    "request": {"t": "presso", "who": "bepi", "place": "chiesa", "hour": 14},
+    "onOk": [{"diary": "persone.bepi.candela"}]
+  },
+  {
+    "id": "g05.zeno",
+    "day": "g05",
+    "author": "zeno",
+    "textKey": "atto1.g05.zeno.testo",
+    "request": {"t": "presso", "who": "gino", "place": "faro", "hour": 12},
+    "onOk": [{"setFlag": "ginoFaro", "value": true}, {"desire": "gino"}]
+  },
+  {
+    "id": "g05.marta",
+    "day": "g05",
+    "author": "marta",
+    "textKey": "atto1.g05.marta.testo",
+    "request": {"t": "maiPresso", "who": "gino", "place": "faro", "from": 6, "to": 13},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g05.marta.r1", "effects": [{"setFlag": "martaZeno", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g05.marta.r2", "effects": []}
+    ],
+    "onOk": [{"setFlag": "ginoLontanoFaro", "value": true}]
+  },
+  {
+    "id": "g05.teresa",
+    "day": "g05",
+    "author": "teresa",
+    "textKey": "atto1.g05.teresa.testo",
+    "request": {"t": "consegnata", "bead": "L_zeno", "by": 13},
+    "onOk": [{"diary": "domande.chiL.zeno"}],
+    "onFail": [{"setFlag": "letteraZenoPersa", "value": true}]
+  },
+  {
+    "id": "g06.nina",
+    "day": "g06",
+    "author": "nina",
+    "textKey": "atto1.g06.nina.testo",
+    "request": {
+      "t": "tutti",
+      "of": [{"t": "consegnata", "bead": "L1", "by": 11}, {"t": "nonHa", "who": "teresa", "bead": "letta:L1"}]
+    },
+    "onOk": [{"setFlag": "ninaPromossa", "value": true}],
+    "onFail": [{"setFlag": "ninaPromossa", "value": true}, {"diary": "persone.nina.tuttiSanno"}]
+  },
+  {
+    "id": "g06.marta",
+    "day": "g06",
+    "author": "marta",
+    "textKey": "atto1.g06.marta.testo",
+    "request": {"t": "nonIncontra", "a": "marta", "b": "teresa"},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g06.marta.r1", "effects": [{"diary": "domande.martaTeresa.chiedilo"}]},
+      {"id": "R2", "textKey": "atto1.g06.marta.r2", "effects": []}
+    ],
+    "onOk": [{"setFlag": "martaRespiro", "value": true}]
+  },
+  {
+    "id": "g06.zeno",
+    "day": "g06",
+    "author": "zeno",
+    "textKey": "atto1.g06.zeno.testo",
+    "request": {"t": "nonHa", "who": "piero", "bead": "voce:ninaParte"},
+    "onOk": [{"setFlag": "bepiNonSa", "value": true}],
+    "onFail": [{"setFlag": "bepiSaVenezia", "value": true}, {"diary": "persone.piero.bepi"}]
+  },
+  {
+    "id": "g07.teresa",
+    "day": "g07",
+    "author": "teresa",
+    "textKey": "atto1.g07.teresa.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {"t": "ha", "who": "piero", "bead": "segreto:confessione"},
+        {"t": "nonHa", "who": "nina", "bead": "segreto:confessione"},
+        {"t": "nonHa", "who": "marta", "bead": "segreto:confessione"}
+      ]
+    },
+    "onOk": [{"setFlag": "teresaConfessata", "value": true}, {"diary": "domande.martaTeresa.confessione"}],
+    "onFail": [{"setFlag": "confessioneSparsa", "value": true}]
+  },
+  {
+    "id": "g07.nina",
+    "day": "g07",
+    "author": "nina",
+    "textKey": "atto1.g07.nina.testo",
+    "request": {"t": "ha", "who": "nina", "bead": "segreto:confessione"},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g07.nina.r1", "effects": [{"setFlag": "ninaDelusa", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g07.nina.r2", "effects": [{"setFlag": "ninaGrande", "value": true}]}
+    ],
+    "onOk": [{"diary": "domande.martaTeresa.nina"}]
+  },
+  {
+    "id": "g07.zeno",
+    "day": "g07",
+    "author": "zeno",
+    "textKey": "atto1.g07.zeno.testo",
+    "request": {"t": "presso", "who": "gino", "place": "faro", "hour": 13},
+    "onOk": [{"setFlag": "ginoFaro", "value": true}, {"desire": "gino"}]
+  },
+  {
+    "id": "g08.marta",
+    "day": "g08",
+    "author": "marta",
+    "textKey": "atto1.g08.marta.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {"t": "incontra", "a": "marta", "b": "piero", "from": 9, "to": 11},
+        {"t": "incontra", "a": "marta", "b": "gino", "from": 9, "to": 11}
+      ]
+    },
+    "onOk": [{"diary": "persone.marta.padre"}]
+  },
+  {
+    "id": "g08.nina",
+    "day": "g08",
+    "author": "nina",
+    "textKey": "atto1.g08.nina.testo",
+    "request": {"t": "esceCon", "bead": "L_iscrizione", "hour": 9},
+    "replies": [
+      {"id": "R1", "textKey": "atto1.g08.nina.r1", "effects": [{"setFlag": "ninaBabbo", "value": true}]},
+      {"id": "R2", "textKey": "atto1.g08.nina.r2", "effects": [{"setFlag": "ninaPartira", "value": true}]}
+    ],
+    "onOk": [{"setFlag": "ninaIscritta", "value": true}],
+    "onFail": [{"diary": "persone.nina.iscrizione"}]
+  },
+  {
+    "id": "g08.zeno",
+    "day": "g08",
+    "author": "zeno",
+    "textKey": "atto1.g08.zeno.testo",
+    "request": {"t": "nonIncontra", "a": "zeno", "b": "*", "from": 15, "to": 16},
+    "onOk": [{"setFlag": "zenoRiposo", "value": true}],
+    "onFail": [{"diary": "persone.zeno.insonne"}]
+  }
+]
