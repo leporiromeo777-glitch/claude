@@ -396,7 +396,9 @@
   @media (max-width: 900px) {
     .nav ul { display: none; }
     .hero .wrap { grid-template-columns: 1fr; }
-    .hero-visual { max-width: 260px; order: -1; justify-self: start; }
+    .hero-visual { max-width: 300px; order: -1; justify-self: start; }
+    /* margine attorno al cerchio, così la scritta che gira non esce dallo schermo */
+    .hero-badge { width: 74%; margin: 13%; }
     .why-grid, .info-grid { grid-template-columns: 1fr; }
     .why-grid { gap: 40px; }
     .services { grid-template-columns: repeat(2, 1fr); }
@@ -407,7 +409,7 @@
     .nav .btn { display: none; }
     .mobile-book { display: block; }
     footer { padding-bottom: 100px; }
-    .hero-visual { max-width: 180px; }
+    .hero-visual { max-width: 230px; margin-left: -4px; }
     .info-card { padding: 24px; }
     .hero-cta .btn { flex: 1 1 100%; }
     /* Servizi a carosello */
@@ -418,11 +420,26 @@
     .services::-webkit-scrollbar { display: none; }
     .svc { flex: 0 0 82%; scroll-snap-align: center; }
     .dots { display: flex; }
+    /* Scorrendo verso il basso il listino scorre verso destra (vedi JS) */
+    .hs-on #servizi { padding: 0; }
+    .hs-on .hs-sticky {
+      position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center; padding: 64px 0 96px;
+    }
+    .hs-on .services { overflow: visible; scroll-snap-type: none; transform: translate3d(var(--hx, 0px), 0, 0); will-change: transform; }
+    .hs-on .section-head { margin-bottom: 24px; }
+    .hs-on .services-hint { margin-top: 14px; }
+    .hs-on .svc-img { aspect-ratio: auto; height: clamp(150px, 32svh, 300px); }
     .chile { height: 480px; }
     .chile img { object-position: 8% 50%; }
     .summary { bottom: 16px; padding: 10px 10px 10px 18px; gap: 10px; }
     .summary .btn { padding: 12px 18px; }
     .summary-tot { font-size: 18px; gap: 10px; }
+  }
+  /* Telefoni bassi: si toglie il superfluo così il listino sta in uno schermo */
+  @media (max-width: 600px) and (max-height: 760px) {
+    .hs-on .section-head p, .hs-on .services-hint { display: none; }
+    .hs-on .section-head { margin-bottom: 18px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
@@ -509,6 +526,7 @@
 
   <!-- SERVIZI -->
   <section class="block" id="servizi">
+    <div class="hs-outer" id="hs-outer"><div class="hs-sticky" id="hs-sticky">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
@@ -521,6 +539,7 @@
       <div class="dots" id="dots"></div>
       <p class="services-hint reveal">Ogni servizio include accoglienza e consulenza.</p>
     </div>
+    </div></div>
   </section>
 
   <!-- PERCHÉ -->
@@ -730,16 +749,53 @@
     renderSummary();
   });
 
-  // Puntini del carosello (mobile)
+  // ---------- Listino su telefono ----------
+  // Scorrendo verso il basso la sezione resta ferma e le card scorrono verso destra,
+  // 1 pixel in verticale = 1 pixel in orizzontale; finite le card, la pagina riprende a scendere.
   const servicesEl = $("#services"), dots = $$("#dots i");
-  function updateDots() {
-    const cards = servicesEl.children, mid = servicesEl.scrollLeft + servicesEl.clientWidth / 2;
-    let best = 0, bestD = Infinity;
-    [...cards].forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bestD) { bestD = d; best = i; } });
-    dots.forEach((d, i) => d.classList.toggle("on", i === best));
+  const hsOuter = $("#hs-outer"), hsSticky = $("#hs-sticky");
+  const mobileMQ = matchMedia("(max-width: 600px)");
+  let hsActive = false, hsShift = 0;
+
+  function setDot(i) { dots.forEach((d, k) => d.classList.toggle("on", k === i)); }
+
+  function layoutHS() {
+    document.documentElement.classList.remove("hs-on");
+    hsOuter.style.height = "";
+    servicesEl.style.removeProperty("--hx");
+    hsActive = false;
+    if (!mobileMQ.matches || reduced) return;
+    document.documentElement.classList.add("hs-on");
+    const last = servicesEl.lastElementChild;
+    hsShift = Math.max(0, last.offsetLeft + last.offsetWidth + 16 - servicesEl.clientWidth);
+    const content = hsSticky.firstElementChild.offsetHeight + 160;
+    // Se lo schermo è troppo basso per contenere la sezione, resta il carosello normale
+    if (!hsShift || content > hsSticky.offsetHeight) { document.documentElement.classList.remove("hs-on"); return; }
+    hsOuter.style.height = hsSticky.offsetHeight + hsShift + "px";
+    hsActive = true;
+    updateHS();
   }
-  servicesEl.addEventListener("scroll", updateDots, { passive: true });
-  updateDots();
+
+  function updateHS() {
+    if (!hsActive) return;
+    const top = hsOuter.getBoundingClientRect().top;
+    const k = Math.min(1, Math.max(0, -top / hsShift));
+    servicesEl.style.setProperty("--hx", (-k * hsShift).toFixed(1) + "px");
+    setDot(Math.round(k * (SERVICES.length - 1)));
+  }
+
+  // Carosello normale (schermi bassi): puntini dalla posizione di scorrimento
+  servicesEl.addEventListener("scroll", () => {
+    if (hsActive) return;
+    const mid = servicesEl.scrollLeft + servicesEl.clientWidth / 2;
+    let best = 0, bestD = Infinity;
+    [...servicesEl.children].forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bestD) { bestD = d; best = i; } });
+    setDot(best);
+  }, { passive: true });
+  setDot(0);
+  layoutHS();
+  addEventListener("resize", layoutHS);
+  addEventListener("load", layoutHS);
 
   // La barra "Prenota" su mobile compare dopo l'hero, e sparisce quando c'è il riepilogo
   function updateMobileBook() {
@@ -775,6 +831,7 @@
       el.style.setProperty("--py", (-off).toFixed(1) + "px");
     });
     litWords();
+    updateHS();
     updateMobileBook();
     ticking = false;
   }
