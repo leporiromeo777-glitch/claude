@@ -207,3 +207,14 @@ Pass NightParams (level, flags, mode) in scenes.go('tombolo'). Add data-audio-si
 
 ### Per: fondamenta (facoltativo)
 - README: levels:check calcola tutte le combinazioni da 2 a pins; il report mostra il filo del nome con @filo; --voluta su una coppia copre le combinazioni più grandi che la contengono.
+
+## Aggiunte dopo piattaforma-nativa
+
+### Per: asset-blender
+- Grafica in evidenza per Google Play: assets/feature-graphic.png, 1024×500, PNG/JPEG senza trasparenza, con il tombolo e il titolo «Trama» (obbligatoria nella scheda dello store).
+
+### Per: piattaforma-qa
+- Nella suite layout, salvare anche schermate alle misure degli store (iPhone 6,9" 1320×2868 o 1290×2796, iPad 13" 2064×2752, Android ~1080×1920) in una cartella dedicata.
+
+### Per: fondamenta
+- Aggiungere `npm run native:check && npm run native:test` allo script ci; nel README rimandare a docs/STORE.md (sezione 2.3 sulla scelta di Xcode).
