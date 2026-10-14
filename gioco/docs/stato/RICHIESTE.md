@@ -196,3 +196,14 @@ Pass NightParams (level, flags, mode) in scenes.go('tombolo'). Add data-audio-si
 
 - (da build:fondamenta) Ogni src/<pacchetto>/register.ts va caricato dopo i servizi: esportare register(services) (o default) oppure lavorare al caricamento; usare services solo da lì in poi. Nei test unitari popolare i servizi con installServices({...}) (vedi tests/unit/core/helpers.ts). Nel DOM: #ui-root lascia passare i tocchi, quindi i contenitori che devono ricevere eventi vanno marcati con la classe core-solid (i controlli nativi li ricevono già); mettere il DOM delle scene in services.ui.sceneRoot (CoreUiLayer) o in ui.root; usare data-test stabili e i componenti di src/core/ui/components.ts (textOf si ritraduce da solo al cambio di lingua). Icone di personaggi e luoghi: src/core/ui/glyphs.ts (svgIcon per il DOM, drawGlyph/glyphPath per il canvas). Elenchi degli identificatori a runtime: src/core/ids.ts.
 - (da verifica:fondamenta) Do not `await services.scenes.go(...)` inside a scene's enter(): changes are queued and it would block forever. Use `void scenes.go(...)`. In e2e tests, __GAME__.core.time.setSpeed(8) now really runs at 8×.
+
+## Aggiunte dopo l'intervento sul motore (levels:check con nomeOn e coppie)
+
+### Per: tombolo
+- (da verifica:motore, intervento 2) In controller.autoplay(), quando session.needsNome è vero, usa il `nomeOn` dell'entrata calcolata per l'insieme accettato (`perNote[id].nomeOn`, `combos[i].nomeOn`, `base.nomeOn`) se esiste, invece del primo filo non-lino. Le entrate con `nomeOn` non hanno `rows`: precomputed() restituisce già null e il solver gira con la scelta reale del giocatore.
+
+### Per: contenuti-atti23 (solo documentazione)
+- docs/stato/contenuti-atti23.md: il problema noto su g12.lunardi 'voluta' è risolto; il commento in tests/unit/content/atto23.test.ts su lunardi+teresa è superato (ora costa 5).
+
+### Per: fondamenta (facoltativo)
+- README: levels:check calcola tutte le combinazioni da 2 a pins; il report mostra il filo del nome con @filo; --voluta su una coppia copre le combinazioni più grandi che la contengono.
