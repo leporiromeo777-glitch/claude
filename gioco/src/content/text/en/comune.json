@@ -232,7 +232,17 @@
       "nome": "The bundle of letters",
       "descrizione": "Three readable letters, and a hundred and sixty-five more. One a month, for fourteen years."
     },
-    "nastro_nonna": {"nome": "Grandmother's ribbon", "descrizione": "The leftover ivory thread, carefully wound."}
+    "nastro_nonna": {"nome": "Grandmother's ribbon", "descrizione": "The leftover ivory thread, carefully wound."},
+    "lettera_clotilde": {"nome": "Grandmother's letter", "descrizione": "Zeno kept it all this time. On the envelope, in sepia, a single letter: “C.”."},
+    "fascio_1": {"nome": "The first letter in the bundle", "descrizione": "In this one I'm two and a half. She is in Chioggia, in a room that smells of nets."},
+    "fascio_2": {"nome": "A letter from the bundle", "descrizione": "In this one I'm nine, and there is fever on the island."},
+    "fascio_3": {"nome": "The last readable letter in the bundle", "descrizione": "In this one I'm fifteen. It speaks of a black thread kept ready."},
+    "biglietto_livia_1": {"nome": "A note under the door", "descrizione": "Paper folded in four, my mother's handwriting. She brought it here on foot."},
+    "biglietto_livia_2": {"nome": "Another note under the door", "descrizione": "The same paper folded in four, the same “L.”."},
+    "biglietto_livia_3": {"nome": "Another note under the door", "descrizione": "A little damp: the high water reached the doorstep."},
+    "biglietto_livia_4": {"nome": "Another note under the door", "descrizione": "Folded in four, like the others. This one smells of sun."},
+    "biglietto_livia_5": {"nome": "Another note under the door", "descrizione": "Written in a hurry, with a blunt pencil."},
+    "biglietto_livia_6": {"nome": "The last note under the door", "descrizione": "Folded in four, like the others. The handwriting shakes a little."}
   },
   "battute": {
     "teresa": {

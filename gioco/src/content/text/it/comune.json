@@ -238,7 +238,17 @@
       "nome": "Il fascio delle lettere",
       "descrizione": "Tre lettere leggibili, e altre centosessantacinque. Una al mese, per quattordici anni."
     },
-    "nastro_nonna": {"nome": "Il nastro della nonna", "descrizione": "Il filo d'avorio avanzato, arrotolato con cura."}
+    "nastro_nonna": {"nome": "Il nastro della nonna", "descrizione": "Il filo d'avorio avanzato, arrotolato con cura."},
+    "lettera_clotilde": {"nome": "La lettera della nonna", "descrizione": "Zeno l'ha tenuta per tutto questo tempo. Sulla busta, in seppia, una sola lettera: «C.»."},
+    "fascio_1": {"nome": "La prima lettera del fascio", "descrizione": "In questa ho due anni e mezzo. Lei è a Chioggia, in una stanza che sa di reti."},
+    "fascio_2": {"nome": "Una lettera del fascio", "descrizione": "In questa ho nove anni, e sull'isola c'è la febbre."},
+    "fascio_3": {"nome": "L'ultima lettera leggibile del fascio", "descrizione": "In questa ho quindici anni. Parla di un filo nero tenuto pronto."},
+    "biglietto_livia_1": {"nome": "Un biglietto sotto la porta", "descrizione": "Carta piegata in quattro, la grafia di mia madre. L'ha portato fin qui a piedi."},
+    "biglietto_livia_2": {"nome": "Un altro biglietto sotto la porta", "descrizione": "La stessa carta piegata in quattro, la stessa «L.»."},
+    "biglietto_livia_3": {"nome": "Un altro biglietto sotto la porta", "descrizione": "Un po' umido: l'acqua alta è arrivata fin sulla soglia."},
+    "biglietto_livia_4": {"nome": "Un altro biglietto sotto la porta", "descrizione": "Piegato in quattro, come gli altri. Questo sa di sole."},
+    "biglietto_livia_5": {"nome": "Un altro biglietto sotto la porta", "descrizione": "Scritto in fretta, con la matita spuntata."},
+    "biglietto_livia_6": {"nome": "L'ultimo biglietto sotto la porta", "descrizione": "Piegato in quattro, come gli altri. La grafia trema un poco."}
   },
   "battute": {
     "teresa": {

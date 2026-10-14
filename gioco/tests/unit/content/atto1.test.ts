@@ -6,7 +6,8 @@
  * file .computed.json aggiornati e matassa = minimo designato + margine.
  */
 import { describe, expect, it } from 'vitest';
-import type { Condition, LevelDef, LineDef, NoteDef, QuirkId, StoryCond } from '../../../src/core/types';
+import type { CampaignDay, Condition, LevelDef, LineDef, NoteDef, QuirkId, StoryCond } from '../../../src/core/types';
+import { hasGlyph } from '../../../src/core/ui/glyphs';
 import { loadContent } from '../../../src/content/loader';
 import { validateContent } from '../../../src/content/validate';
 import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
@@ -15,6 +16,11 @@ import { SOLVER_VERSION, applyRow, createContext, evaluate, levelSourceHashFromD
 import diarioAtto1 from '../../../src/content/diary.atto1.json';
 
 const db = loadContent();
+/** Campi della campagna introdotti dalla REVISIONE-1 (C04): letti in forma locale, validi anche prima di SCH-01. */
+type DayR1 = CampaignDay & { dawnObject?: string; eveningEmptyKey?: string };
+const days = (): DayR1[] => db.campaign.days as DayR1[];
+const campaignObjects = (): Record<string, { from: string; by?: string }> =>
+  (db.campaign as typeof db.campaign & { objects?: Record<string, { from: string; by?: string }> }).objects ?? {};
 const catalogs = buildCatalogs(loadI18nSources());
 const IT = catalogs.tables.it;
 const EN = catalogs.tables.en;
@@ -76,6 +82,8 @@ function isMine(err: string): boolean {
   if (where.startsWith('campaign')) {
     // I livelli degli Atti II-III e dei finali li scrive un altro pacchetto: la loro assenza non è un errore di questo.
     if (/day without level|final ".*" cites unknown level|archiveAfter cites unknown level/.test(err)) return false;
+    // Le frasi delle sere vuote (atto2.g15, atto3.g17) sono testi di contenuti-atti23 (C19).
+    if (/\[i18n\] eveningEmptyKey "atto[23]\./.test(err)) return false;
     return true;
   }
   return false;
@@ -142,6 +150,37 @@ describe('validazione dei contenuti dell\'Atto I e dei dati comuni', () => {
       expect(c?.color.toUpperCase()).toBe(color);
       expect(c?.pattern).toBe(pattern);
       expect(c?.quirks).toEqual(quirks);
+    }
+  });
+});
+
+describe('calligrafie e fili distinguibili (REVISIONE-1 CA1-02)', () => {
+  it('Marta scrive in stampatello netto: atkinson, maiuscolo, scala 1,05 (la L non sembra una C)', () => {
+    expect(db.characters.get('marta')?.hand).toMatchObject({ font: 'atkinson', caps: true, sizeScale: 1.05 });
+  });
+
+  it('in arc3 Aldo ha un motivo e un\'icona che nessun altro filo usa (non solo il colore)', () => {
+    const aldo = db.characters.get('aldo');
+    expect(aldo).toBeDefined();
+    const others = level('arc3').threads.map((t) => t.character).filter((c): c is NonNullable<typeof c> => !!c && c !== 'aldo');
+    expect(others.length).toBeGreaterThanOrEqual(4);
+    for (const c of others) {
+      const o = db.characters.get(c);
+      expect(o?.pattern, c).not.toBe(aldo?.pattern);
+      expect(o?.icon, c).not.toBe(aldo?.icon);
+    }
+    expect(hasGlyph(aldo?.icon ?? '')).toBe(true);
+  });
+
+  it('nessun livello dell\'Atto I e dei suoi Archivi ha due fili con lo stesso motivo e la stessa icona', () => {
+    for (const id of MINE) {
+      const cs = [...new Set(level(id).threads.map((t) => t.character).filter((c): c is NonNullable<typeof c> => !!c))].map((c) => db.characters.get(c));
+      for (let i = 0; i < cs.length; i++)
+        for (let j = i + 1; j < cs.length; j++) {
+          const a = cs[i];
+          const b = cs[j];
+          expect(a?.pattern === b?.pattern && a?.icon === b?.icon, `${id} ${a?.id} ${b?.id}`).toBe(false);
+        }
     }
   });
 });
@@ -375,8 +414,11 @@ describe('Libro dei Punti, campagna e dati comuni', () => {
       const act = n === 0 ? 0 : n <= 8 ? 1 : n <= 16 ? 2 : 3;
       expect(d.act, d.id).toBe(act);
       expect(d.stonatura, d.id).toBe(act <= 1 ? 1 : act === 2 ? 0.6 : 0.25);
-      expect(d.pins, d.id).toBe(n === 0 ? 0 : n === 23 ? 1 : act === 3 ? 3 : 2);
-      expect(d.objectAfter, d.id).toBeDefined();
+      // REVISIONE-1 C04: la sera della scelta ha 2 spilli (due bigliettini semplici; la scelta ne usa uno).
+      expect(d.pins, d.id).toBe(n === 0 ? 0 : act === 3 ? (n === 23 ? 2 : 3) : 2);
+      // g14 e g16 consegnano l'oggetto all'alba (dawnObject) e non lasciano niente per la sera dopo.
+      if (d.id === 'g14' || d.id === 'g16') expect(d.objectAfter, d.id).toBeUndefined();
+      else expect(d.objectAfter, d.id).toBeDefined();
     }
     const arch = Object.fromEntries(db.campaign.days.filter((d) => d.archiveAfter).map((d) => [d.archiveAfter, d.id]));
     expect(arch).toEqual({ arc1: 'g03', arc2: 'g07', arc3: 'g11', arc4: 'g14', arc5: 'g18', arc6: 'g20' });
@@ -386,18 +428,61 @@ describe('Libro dei Punti, campagna e dati comuni', () => {
     const letters = new Set(db.letters.map((l) => l.id));
     // Le lettere degli Atti II-III le scrive contenuti-atti23: qui basta che l'id segua la convenzione.
     const laterLetter = /^(lettera_L(8|9|10|11)|lettera_clotilde|biglietto_livia_[1-6])$/;
-    for (const d of db.campaign.days) {
-      const o = d.objectAfter as string;
-      const ok = letters.has(o) || (IT.has(`comune.oggetti.${o}.nome`) && IT.has(`comune.oggetti.${o}.descrizione`)) || laterLetter.test(o);
-      expect(ok, `${d.id} ${o}`).toBe(true);
+    for (const d of days()) {
+      for (const o of [d.objectAfter, d.dawnObject]) {
+        if (o === undefined) continue;
+        const ok = letters.has(o) || (IT.has(`comune.oggetti.${o}.nome`) && IT.has(`comune.oggetti.${o}.descrizione`)) || laterLetter.test(o);
+        expect(ok, `${d.id} ${o}`).toBe(true);
+      }
     }
-    const byDay = Object.fromEntries(db.campaign.days.map((d) => [d.id, d.objectAfter]));
-    expect([byDay.g05, byDay.g09, byDay.g14, byDay.g15, byDay.g16, byDay.g23]).toEqual([
-      'fuso_faro', 'pagina_strappata', 'lettera_clotilde', 'bottiglia_nodo_nero', 'fascio_lettere', 'nastro_nonna',
-    ]);
+    const byDay = Object.fromEntries(days().map((d) => [d.id, d.objectAfter]));
+    expect([byDay.g05, byDay.g09, byDay.g15, byDay.g23]).toEqual(['fuso_faro', 'pagina_strappata', 'bottiglia_nodo_nero', 'nastro_nonna']);
     // 11 lettere di L. dopo g01-g13 tranne g05 e g09.
     const lDays = db.campaign.days.filter((d) => /^lettera_L\d+$/.test(d.objectAfter ?? '')).map((d) => d.id);
     expect(lDays).toEqual(['g01', 'g02', 'g03', 'g04', 'g06', 'g07', 'g08', 'g10', 'g11', 'g12', 'g13']);
+  });
+
+  it('C04: oggetti dell\'alba, sere vuote e provenienza di ogni oggetto (laguna, mano, porta, casa)', () => {
+    const byId = Object.fromEntries(days().map((d) => [d.id, d]));
+    expect([byId.g14?.dawnObject, byId.g16?.dawnObject]).toEqual(['lettera_clotilde', 'fascio_lettere']);
+    expect(days().filter((d) => d.dawnObject).map((d) => d.id)).toEqual(['g14', 'g16']);
+    expect([byId.g15?.eveningEmptyKey, byId.g17?.eveningEmptyKey]).toEqual(['atto2.g15.sera.vuota', 'atto3.g17.sera.vuota']);
+    expect(days().filter((d) => d.eveningEmptyKey).map((d) => d.id)).toEqual(['g15', 'g17']);
+    // La frase della sera vuota vale solo se la giornata precedente non lascia un oggetto.
+    for (const d of days()) {
+      if (!d.eveningEmptyKey) continue;
+      const prev = days()[days().indexOf(d) - 1];
+      expect(prev?.objectAfter, d.id).toBeUndefined();
+    }
+    const objects = campaignObjects();
+    const want: Record<string, { from: string; by?: string }> = {
+      merletto_avorio: { from: 'casa' },
+      libro_punti: { from: 'casa' },
+      nastro_nonna: { from: 'casa' },
+      lettera_clotilde: { from: 'mano', by: 'zeno' },
+      fascio_lettere: { from: 'mano', by: 'zeno' },
+    };
+    for (let i = 1; i <= 3; i++) want[`fascio_${i}`] = { from: 'mano', by: 'zeno' };
+    for (let i = 1; i <= 6; i++) want[`biglietto_livia_${i}`] = { from: 'porta' };
+    expect(objects).toEqual(want);
+    // Tutti gli altri oggetti della campagna vengono dalla laguna: bottiglie, fuso del faro, pagina strappata.
+    const provenance = (id: string): string => objects[id]?.from ?? 'laguna';
+    const all = [...new Set(days().flatMap((d) => [d.objectAfter, d.dawnObject]).filter((x): x is string => !!x))];
+    const laguna = all.filter((id) => provenance(id) === 'laguna').sort();
+    expect(laguna).toEqual(
+      ['bottiglia_nodo_nero', 'fuso_faro', 'pagina_strappata', ...Array.from({ length: 11 }, (_, i) => `lettera_L${i + 1}`)].sort(),
+    );
+    for (const o of Object.values(objects)) {
+      expect(['laguna', 'mano', 'porta', 'casa']).toContain(o.from);
+      if (o.by !== undefined) expect(db.characters.has(o.by as never), o.by).toBe(true);
+    }
+    // comune.oggetti.<id> per ogni oggetto citato in objects (C19), in italiano e in inglese.
+    for (const id of [...Object.keys(objects), 'bottiglia', 'fuso_faro', 'pagina_strappata', 'bottiglia_nodo_nero']) {
+      for (const f of ['nome', 'descrizione']) {
+        expect(IT.has(`comune.oggetti.${id}.${f}`), `it ${id}.${f}`).toBe(true);
+        expect(EN.has(`comune.oggetti.${id}.${f}`), `en ${id}.${f}`).toBe(true);
+      }
+    }
   });
 
   it('la pagina del punto aperto si completa dopo arc6 (o comunque dopo g21)', () => {
@@ -423,6 +508,8 @@ describe('Libro dei Punti, campagna e dati comuni', () => {
     expect(db.balance.acts['3']).toEqual({ pins: 3, slack: 1, notes: [4, 4] });
     expect(db.balance.memoria).toEqual({ start: 3, startLunardi: 1, min: 0, max: 3, trueEndingCount: 4 });
     expect([db.balance.traboccoSoglia, db.balance.nodoRighe]).toEqual([3, 1]);
+    // REVISIONE-1 C15: filo d'oro solo se il minimo della notte è almeno 3.
+    expect((db.balance as typeof db.balance & { oro?: { minIncroci: number } }).oro).toEqual({ minIncroci: 3 });
   });
 
   it('lettere di L. dalla 1 alla 7, per le sere di g01-g04 e g06-g08, con gli esempi del GDD 6.5', () => {

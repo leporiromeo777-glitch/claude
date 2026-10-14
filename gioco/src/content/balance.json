@@ -7,6 +7,7 @@
   "memoria": { "start": 3, "startLunardi": 1, "min": 0, "max": 3, "trueEndingCount": 4 },
   "traboccoSoglia": 3,
   "nodoRighe": 1,
+  "oro": { "minIncroci": 3 },
   "hint": { "lampSeconds": 60, "undoRepeat": 3 },
   "anim": { "swapMs": 250, "beadMs": 350, "neroMs": 400, "beatMs": 380 }
 }

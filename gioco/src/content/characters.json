@@ -8,7 +8,7 @@
   { "id": "marta", "nameKey": "comune.pers.marta.nome", "roleKey": "comune.pers.marta.ruolo",
     "color": "#C0442C", "pattern": "puntini", "icon": "pagnotta", "noteHz": 293.66,
     "voice": { "pitch": 220, "rate": 8, "formantShift": 0, "noise": 0 },
-    "hand": { "font": "caveat", "ink": "#3E3A36", "paper": "#D8C3A0", "slantDeg": 0, "sizeScale": 1.15, "caps": true },
+    "hand": { "font": "atkinson", "ink": "#3E3A36", "paper": "#D8C3A0", "slantDeg": 0, "sizeScale": 1.05, "caps": true },
     "quirks": ["martaNoSotto"], "desireKey": "comune.pers.marta.desiderio", "likes": ["messa", "pane"] },
 
   { "id": "piero", "nameKey": "comune.pers.piero.nome", "roleKey": "comune.pers.piero.ruolo",
@@ -78,7 +78,7 @@
     "quirks": [], "likes": [], "archiveOnly": true },
 
   { "id": "aldo", "nameKey": "comune.pers.aldo.nome", "roleKey": "comune.pers.aldo.ruolo",
-    "color": "#6E9E3A", "pattern": "righe", "icon": "busta", "noteHz": 392.0,
+    "color": "#6E9E3A", "pattern": "catenella", "icon": "campana", "noteHz": 392.0,
     "voice": { "pitch": 135, "rate": 7, "formantShift": 0, "noise": 0.1 },
     "hand": { "font": "caveat", "ink": "#2E4A2E", "paper": "#E6E1CF", "slantDeg": 4, "sizeScale": 1.05 },
     "quirks": [], "likes": [], "archiveOnly": true },
