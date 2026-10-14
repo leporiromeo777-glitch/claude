@@ -491,7 +491,7 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
     perNote[n.id] = entryOf(r);
     const isVoluta = judge([n.id], r, 'notes');
     if (isVoluta) combos.push({ notes: [n.id], incroci: null, voluta: true });
-    report.notes.push({ id: n.id, incroci: r.incroci, voluta: isVoluta });
+    report.notes.push(r.incroci !== null && r.nomeOn !== undefined ? { id: n.id, incroci: r.incroci, voluta: isVoluta, nomeOn: r.nomeOn } : { id: n.id, incroci: r.incroci, voluta: isVoluta });
   }
   // Gli spilli rossi si possono usare anche non tutti: ogni combinazione da 2 a `pins` bigliettini.
   const pins = Math.min(withReq.length, Math.max(1, pinsForLevel(db, level)));
@@ -506,7 +506,7 @@ export function checkLevel(level: LevelDef, db: ContentDB, voluta: Set<string>, 
       const entry: LevelComputed['combos'][number] = { notes: ids, ...entryOf(r) };
       if (isVoluta) entry.voluta = true;
       combos.push(entry);
-      report.combos.push({ notes: ids, incroci: r.incroci, voluta: isVoluta });
+      report.combos.push(r.incroci !== null && r.nomeOn !== undefined ? { notes: ids, incroci: r.incroci, voluta: isVoluta, nomeOn: r.nomeOn } : { notes: ids, incroci: r.incroci, voluta: isVoluta });
     }
   }
   if (level.matassa < designated) errors.push(`${where}: [matassa] matassa ${level.matassa} is below the designated minimum ${designated}`);

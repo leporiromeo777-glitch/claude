@@ -6,8 +6,9 @@
 export interface LevelReportRow {
   id: string;
   base: number | null;
-  notes: { id: string; incroci: number | null; voluta: boolean }[];
-  combos: { notes: string[]; incroci: number | null; voluta: boolean }[];
+  /** `nomeOn`: filo del nome di Ada che dà il minimo (solo se le condizioni nominano `nome`). */
+  notes: { id: string; incroci: number | null; voluta: boolean; nomeOn?: string }[];
+  combos: { notes: string[]; incroci: number | null; voluta: boolean; nomeOn?: string }[];
   matassa: number;
   suggerita: number | null;
   quieteMax: number | null;
@@ -23,6 +24,10 @@ function cell(v: number | null | undefined): string {
   return v === null || v === undefined ? '—' : String(v);
 }
 
+function at(nomeOn: string | undefined): string {
+  return nomeOn ? `@${nomeOn}` : '';
+}
+
 function pad(s: string, n: number): string {
   return s.length >= n ? s : s + ' '.repeat(n - s.length);
 }
@@ -36,8 +41,8 @@ export function formatReport(rows: LevelReportRow[]): string {
   const body = rows.map((r) => [
     r.id,
     cell(r.base),
-    r.notes.map((n) => `${short(n.id, r.id)}=${cell(n.incroci)}${n.voluta ? '*' : ''}`).join(' ') || '—',
-    r.combos.map((c) => `${c.notes.map((n) => short(n, r.id)).join('+')}=${cell(c.incroci)}${c.voluta ? '*' : ''}`).join(' ') || '—',
+    r.notes.map((n) => `${short(n.id, r.id)}=${cell(n.incroci)}${at(n.nomeOn)}${n.voluta ? '*' : ''}`).join(' ') || '—',
+    r.combos.map((c) => `${c.notes.map((n) => short(n, r.id)).join('+')}=${cell(c.incroci)}${at(c.nomeOn)}${c.voluta ? '*' : ''}`).join(' ') || '—',
     String(r.matassa),
     cell(r.suggerita),
     cell(r.quieteMax),
@@ -50,5 +55,5 @@ export function formatReport(rows: LevelReportRow[]): string {
   const widths = head.map((h, i) => Math.max(h.length, ...body.map((b) => (b[i] ?? '').length)));
   const line = (cols: string[]): string => cols.map((c, i) => pad(c, widths[i] ?? 0)).join(' │ ');
   const sep = widths.map((w) => '─'.repeat(w)).join('─┼─');
-  return [line(head), sep, ...body.map(line), '', '* = impossible by design (voluta)'].join('\n');
+  return [line(head), sep, ...body.map(line), '', '* = impossible by design (voluta); @thread = where Ada pins her name to reach that minimum'].join('\n');
 }
