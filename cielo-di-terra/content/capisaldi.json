@@ -1,5 +1,5 @@
 {
- "_nota": "Rete di rilievo di Corbella per la Fase 1 e pilastri lontani visti di notte. Coordinate (z, theta, altezza); altezza = quota sopra il fondo verso l'asse (r = 646 - altezza), già comprensiva del terreno. visibile_da: capisaldi da cui questo si può collimare di giorno. Il ventaglio di un lato contiene le particelle il cui centro dista al massimo 60 m dal segmento.",
+ "_nota": "Rete di rilievo di Corbella per la Fase 1 e pilastri lontani visti di notte. Coordinate (z, theta, altezza); altezza = quota sopra il fondo verso l'asse (r = 646 - altezza), già comprensiva del terreno. visibile_da: capisaldi da cui questo si può collimare di giorno. Il ventaglio di un lato contiene le particelle il cui centro dista al massimo 60 m dal segmento. I ventagli dei lati sono ritagliati all'area della Fase 1 (iz 19-30, itheta 1-19): le particelle di Valle 1 che la regola dei 60 m includerebbe ma che stanno fuori area sono in particelle_fuori_area di ogni lato (per esempio 2708, 2804, 2900 per i lati del Pilastro 6) e vanno aggiunte a particelle quando l'area dei contenuti si allarga. Il Collare: collare_ore elenca gli intervalli in cui il segnale è coperto (lista vuota = mai); collare resta come testo leggibile. sempre_bianco: il caposaldo si appunta ma resta bianco sulla Pianta (solo il Caposaldo Zero).",
  "versione": 1,
  "regole": {
   "lato_min_m": 40,
@@ -7,7 +7,7 @@
   "buffer_ventaglio_m": 60.0,
   "abbagliamento_asse_m": 150,
   "giorno": "solo lati nella stessa valle",
-  "notte": "lati attraverso il cielo sui lumi (dalla Fase 3)"
+  "notte": "di notte un lato si chiude solo mirando un segnale illuminato (un pilastro con il lume acceso); i lati fra due chiodi si chiudono di giorno e alla brace; attraverso il cielo solo i triangoli e la stazione libera (dalla Fase 3)"
  },
  "rete_corbella": [
   {
@@ -41,7 +41,12 @@
    ],
    "monografia": "libretto.cs_1",
    "note": "Il caposaldo principale di Corbella. Palina bianca e rossa di 8 m, leggibile da tutto il cielo. Dal sagrato (chiodo 2) è coperto dal tasso.",
-   "stato_iniziale": "gia_rilevato_G4"
+   "stato_iniziale": "gia_rilevato_G4",
+   "lume": "Ottavio",
+   "lume_descrizione": "nessun lume proprio: di notte si vede solo con il lume di mira che Ottavio porta sulla palina (dalla Fase 3)",
+   "ore": "21:00-05:00",
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_2",
@@ -65,7 +70,12 @@
    ],
    "monografia": "libretto.cs_2",
    "note": "Il libretto dice «da qui vedi il Pilastro 1, se il tasso non è cresciuto». Il tasso è cresciuto: il lato 2-1 non si chiude. Vede ancora il Pilastro 6 attraverso la valle.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_3",
@@ -88,7 +98,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_3",
    "note": "Il chiodo del primo rilievo. Vede il Pilastro 1 sopra i tetti.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_4",
@@ -109,7 +124,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_4",
    "note": "Disco bianco e rosso su un'asta di 6 m. Bersaglio della mossa A1 della Madre (Atto I, fuori dalla Fase 1).",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "Ottavio",
+   "lume_descrizione": "nessun lume proprio: di notte si vede solo con il lume di mira che Ottavio porta sulla palina (dalla Fase 3)",
+   "ore": "21:00-05:00",
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_5",
@@ -134,7 +154,12 @@
    ],
    "monografia": "libretto.cs_5",
    "note": "Dal gradino la cella del campanile è coperta dalla tettoia del lavatoio, che nel 2121 non c'era. Vede il Pilastro 6 e la Terrazza Pedrazzini.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_6",
@@ -156,7 +181,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_6",
    "note": "Sulla cresta a Mane, sopra la Finestra dei Ponti. Palina bianca e rossa.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "Ottavio",
+   "lume_descrizione": "nessun lume proprio: di notte si vede solo con il lume di mira che Ottavio porta sulla palina (dalla Fase 3)",
+   "ore": "21:00-05:00",
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_7",
@@ -176,7 +206,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_7",
    "note": "Uno dei due chiodi della passerella del Messo.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_8",
@@ -198,7 +233,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_8",
    "note": "Sul masso accanto al fienile. L'altro chiodo della passerella del Messo.",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_11",
@@ -219,7 +259,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_11",
    "note": "Graffi freschi sull'ottone. Il lato 11-1 risulta già rilevato nel Catasto, con la firma G4 e la data 2291.",
-   "stato_iniziale": "gia_rilevato_G4"
+   "stato_iniziale": "gia_rilevato_G4",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   },
   {
    "id": "cs_37",
@@ -239,7 +284,12 @@
    "non_visibile_da": [],
    "monografia": "libretto.cs_37",
    "note": "Murato nell'angolo della grà. Il libretto: «guarda il Pilastro 4 a Mont e il chiodo 3 a Mane; il castagno accanto non c'è più» (è diventato la legnaia).",
-   "stato_iniziale": "mai_usato"
+   "stato_iniziale": "mai_usato",
+   "lume": "nessuno",
+   "lume_descrizione": "chiodo d'ottone a terra, senza segnale: di notte non si vede",
+   "ore": null,
+   "collare": "mai coperto",
+   "collare_ore": []
   }
  ],
  "lati": [
@@ -249,7 +299,7 @@
    "b": "cs_3",
    "lunghezza": 192.4,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Il primo rilievo della missione 1: dalla Terrazza Pedrazzini sopra i tetti fino al campanile.",
    "particelle": [
     2117,
@@ -273,7 +323,11 @@
     2601,
     2602
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_1"
+   ]
   },
   {
    "id": "1-2",
@@ -293,7 +347,8 @@
     2507,
     2601,
     2602
-   ]
+   ],
+   "particelle_fuori_area": []
   },
   {
    "id": "1-11",
@@ -301,7 +356,7 @@
    "b": "cs_11",
    "lunghezza": 134.0,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Già rilevato nel 2291 con il codice G4 (striscia seppia della Cripta).",
    "particelle": [
     2409,
@@ -320,7 +375,11 @@
     2695,
     2696
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_1"
+   ]
   },
   {
    "id": "1-6",
@@ -328,7 +387,7 @@
    "b": "cs_6",
    "lunghezza": 434.7,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Attraverso la valle, sopra il riale.",
    "particelle": [
     2409,
@@ -368,7 +427,16 @@
     2898,
     2899
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [
+    2708,
+    2804,
+    2900
+   ],
+   "notte_mira": [
+    "cs_1",
+    "cs_6"
+   ]
   },
   {
    "id": "1-7",
@@ -376,7 +444,7 @@
    "b": "cs_7",
    "lunghezza": 178.4,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Dal mulino al campanile.",
    "particelle": [
     2409,
@@ -397,7 +465,11 @@
     2702,
     2797
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_1"
+   ]
   },
   {
    "id": "1-8",
@@ -405,7 +477,7 @@
    "b": "cs_8",
    "lunghezza": 253.8,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Dal Sass dal Messo al campanile: passa sopra i Ronchi.",
    "particelle": [
     2409,
@@ -434,7 +506,11 @@
     2894,
     2895
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_1"
+   ]
   },
   {
    "id": "1-4",
@@ -442,7 +518,7 @@
    "b": "cs_4",
    "lunghezza": 413.0,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Dalle Selve alte al campanile, sopra le terrazze.",
    "particelle": [
     1825,
@@ -482,7 +558,12 @@
     2601,
     2602
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_1",
+    "cs_4"
+   ]
   },
   {
    "id": "1-5",
@@ -502,7 +583,8 @@
     2507,
     2601,
     2602
-   ]
+   ],
+   "particelle_fuori_area": []
   },
   {
    "id": "8-11",
@@ -510,7 +592,7 @@
    "b": "cs_11",
    "lunghezza": 354.3,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace (di notte un chiodo d'ottone senza segnale non si vede)",
    "nota": "Dal Sass dal Messo alla Cripta, sopra i tetti dei Ronchi.",
    "particelle": [
     2502,
@@ -546,7 +628,9 @@
     2894,
     2895
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": []
   },
   {
    "id": "3-5",
@@ -554,7 +638,7 @@
    "b": "cs_5",
    "lunghezza": 203.5,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace (di notte un chiodo d'ottone senza segnale non si vede)",
    "nota": "Dal lavatoio alla terrazza.",
    "particelle": [
     2117,
@@ -579,7 +663,9 @@
     2506,
     2507
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": []
   },
   {
    "id": "3-37",
@@ -587,7 +673,7 @@
    "b": "cs_37",
    "lunghezza": 91.3,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace (di notte un chiodo d'ottone senza segnale non si vede)",
    "nota": "Lungo le Selve basse.",
    "particelle": [
     2019,
@@ -604,7 +690,9 @@
     2309,
     2310
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": []
   },
   {
    "id": "3-4",
@@ -612,7 +700,7 @@
    "b": "cs_4",
    "lunghezza": 222.6,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Su per le terrazze fino al Pian dei Ricci.",
    "particelle": [
     1825,
@@ -637,7 +725,11 @@
     2309,
     2310
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_4"
+   ]
   },
   {
    "id": "3-11",
@@ -645,7 +737,7 @@
    "b": "cs_11",
    "lunghezza": 167.0,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace (di notte un chiodo d'ottone senza segnale non si vede)",
    "nota": "Fra la terrazza e la Cripta.",
    "particelle": [
     2117,
@@ -667,7 +759,9 @@
     2694,
     2695
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": []
   },
   {
    "id": "4-37",
@@ -675,7 +769,7 @@
    "b": "cs_37",
    "lunghezza": 142.8,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Selve alte.",
    "particelle": [
     1825,
@@ -694,7 +788,11 @@
     2117,
     2212
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": [
+    "cs_4"
+   ]
   },
   {
    "id": "5-6",
@@ -702,7 +800,7 @@
    "b": "cs_6",
    "lunghezza": 416.9,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Attraverso la valle, sopra il riale.",
    "particelle": [
     2409,
@@ -739,7 +837,15 @@
     2898,
     2899
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [
+    2708,
+    2804,
+    2900
+   ],
+   "notte_mira": [
+    "cs_6"
+   ]
   },
   {
    "id": "2-6",
@@ -747,7 +853,7 @@
    "b": "cs_6",
    "lunghezza": 412.4,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Dal sagrato il Pilastro 6 si vede bene, sopra il tasso.",
    "particelle": [
     2409,
@@ -784,7 +890,15 @@
     2898,
     2899
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [
+    2708,
+    2804,
+    2900
+   ],
+   "notte_mira": [
+    "cs_6"
+   ]
   },
   {
    "id": "6-8",
@@ -792,7 +906,7 @@
    "b": "cs_8",
    "lunghezza": 194.7,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace; di notte solo mirando il pilastro con il suo lume acceso (lumi di Ottavio, dalla Fase 3)",
    "nota": "Dal fienile alla cresta a Mane.",
    "particelle": [
     2702,
@@ -814,7 +928,15 @@
     2898,
     2899
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [
+    2708,
+    2804,
+    2900
+   ],
+   "notte_mira": [
+    "cs_6"
+   ]
   },
   {
    "id": "7-8",
@@ -822,7 +944,7 @@
    "b": "cs_8",
    "lunghezza": 79.8,
    "chiudibile": true,
-   "quando": "giorno, brace e notte",
+   "quando": "giorno e brace (di notte un chiodo d'ottone senza segnale non si vede)",
    "nota": "Il lato della passerella del Messo (missione 1).",
    "particelle": [
     2604,
@@ -839,7 +961,9 @@
     2894,
     2895
    ],
-   "particelle_se_fosse_chiudibile": []
+   "particelle_se_fosse_chiudibile": [],
+   "particelle_fuori_area": [],
+   "notte_mira": []
   }
  ],
  "lontani_di_notte": [
@@ -861,7 +985,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "si può appuntare (diventa matita sulla Pianta e una nota nel Taccuino), non rilevare",
-   "note": "Non è attraverso l'asse: è il pilastro della Finestra accanto. Vertice del triangolo T1 (missione 4)."
+   "note": "Non è attraverso l'asse: è il pilastro della Finestra accanto. Vertice del triangolo T1 (missione 4).",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_14",
@@ -882,7 +1008,14 @@
    "collare": "coperto dal Collare fra le 01:00 e le 01:40",
    "attivo_fase1": false,
    "in_fase1": "si può appuntare (diventa matita sulla Pianta e una nota nel Taccuino), non rilevare",
-   "note": "Vertice di T1 e T5. Nella Fase 1 si può appuntare, non rilevare."
+   "note": "Vertice di T1 e T5. Nella Fase 1 si può appuntare, non rilevare.",
+   "sempre_bianco": false,
+   "collare_ore": [
+    [
+     "01:00",
+     "01:40"
+    ]
+   ]
   },
   {
    "id": "cs_15",
@@ -902,7 +1035,14 @@
    "collare": "coperto dal Collare fra le 03:00 e le 03:30",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": "Vertice di T2 e T6."
+   "note": "Vertice di T2 e T6.",
+   "sempre_bianco": false,
+   "collare_ore": [
+    [
+     "03:00",
+     "03:30"
+    ]
+   ]
   },
   {
    "id": "cs_17",
@@ -923,7 +1063,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "si può appuntare (diventa matita sulla Pianta e una nota nel Taccuino), non rilevare",
-   "note": "Il lume lontano più facile da vedere dalla finestrella del fienile."
+   "note": "Il lume lontano più facile da vedere dalla finestrella del fienile.",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_19",
@@ -942,7 +1084,14 @@
    "collare": "coperto dal Collare fra le 23:00 e le 23:40",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": "Vertice di T3."
+   "note": "Vertice di T3.",
+   "sempre_bianco": false,
+   "collare_ore": [
+    [
+     "23:00",
+     "23:40"
+    ]
+   ]
   },
   {
    "id": "cs_21",
@@ -962,7 +1111,14 @@
    "collare": "dentro il Collare dalle 02:00 alle 02:40",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": "Vertice di T3."
+   "note": "Vertice di T3.",
+   "sempre_bianco": false,
+   "collare_ore": [
+    [
+     "02:00",
+     "02:40"
+    ]
+   ]
   },
   {
    "id": "cs_23",
@@ -983,7 +1139,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "si può appuntare (diventa matita sulla Pianta e una nota nel Taccuino), non rilevare",
-   "note": "Vertice di T6."
+   "note": "Vertice di T6.",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_26",
@@ -1003,7 +1161,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": "Vertice di T4."
+   "note": "Vertice di T4.",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_28",
@@ -1023,7 +1183,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": "Vertice di T2."
+   "note": "Vertice di T2.",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_35",
@@ -1044,7 +1206,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "si può appuntare (diventa matita sulla Pianta e una nota nel Taccuino), non rilevare",
-   "note": "Il lume che si muove: chi lo appunta nella Fase 1 trova la prima traccia della secondaria «La vedova della Finestra»."
+   "note": "Il lume che si muove: chi lo appunta nella Fase 1 trova la prima traccia della secondaria «La vedova della Finestra».",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_48",
@@ -1064,7 +1228,9 @@
    "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "buio: si vede solo con il lume di Ottavio (Fase 3)",
-   "note": ""
+   "note": "",
+   "sempre_bianco": false,
+   "collare_ore": []
   },
   {
    "id": "cs_0",
@@ -1078,10 +1244,12 @@
    "lume_descrizione": "cancellato dalla Carta nel 2265",
    "visibile_da": [],
    "ore": "mai",
-   "collare": "sempre bianco",
+   "collare": "mai coperto",
    "attivo_fase1": false,
    "in_fase1": "si appunta come «disco bianco»",
-   "note": "Si appunta ma resta bianco sulla Pianta: «Il disco non si appunta». Si rimette sulla Carta solo nella missione 14."
+   "note": "Si appunta ma resta bianco sulla Pianta: «Il disco non si appunta». Si rimette sulla Carta solo nella missione 14.",
+   "sempre_bianco": true,
+   "collare_ore": []
   }
  ]
 }

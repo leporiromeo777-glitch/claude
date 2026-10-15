@@ -80,7 +80,7 @@
    "ordine": 4,
    "nome": "Eccezioni fisse",
    "regola": "Mai l'hub, le vie di trama, i rifugi; mai la particella dove si trova Elvira all'ora del passaggio (le Fade le girano attorno e tornano all'alba nelle bocche); mai un sentiero necessario senza un'alternativa visibile.",
-   "fase1": "Hub = particelle di tipo abitato e piazza. Rifugi: il fienile di Ottavio e la Cripta. Alternative: il guado del Sass per E1, la mulattiera delle Terrazze per E4."
+   "fase1": "Hub = le particelle con hub: true (case, chiesa e piazza del nucleo di Corbella, esclusi i suoi quattro elementi mobili, che hanno sempre hub: false anche se sono di tipo abitato). Rifugi: il fienile di Ottavio e la Cripta. Alternative: il guado del Sass per E1, la mulattiera delle Terrazze per E4."
   }
  ],
  "orari": {
@@ -133,7 +133,13 @@
    ],
    "via_necessaria": true,
    "alternativa": "guado_sass",
-   "note": "Il «sentiero sparito» della missione 1. Il lato 7-8 lo chiude."
+   "note": "Il «sentiero sparito» della missione 1. Il lato 7-8 lo chiude.",
+   "hub": false,
+   "genere": "f",
+   "motivi": {
+    "Abitata>Carta": "Passerella del Messo: non misurata, tornata alla Carta.",
+    "rimasta": "Passerella del Messo: misurata, è rimasta."
+   }
   },
   {
    "id": "E2",
@@ -183,7 +189,13 @@
     }
    ],
    "via_necessaria": false,
-   "note": "Ogni notte perde un muro (avanza di uno stadio verso la Carta). Secondaria «La casa che non c'è»: poggia sul pozzo d'aria dell'Archivio. La chiudono i lati 1-8 e 8-11."
+   "note": "Ogni notte perde un muro (avanza di uno stadio verso la Carta). Secondaria «La casa che non c'è»: poggia sul pozzo d'aria dell'Archivio. La chiudono i lati 1-8 e 8-11.",
+   "hub": false,
+   "genere": "f",
+   "motivi": {
+    "Abitata>Smontata": "Casa di Nando: non misurata, un muro in meno.",
+    "rimasta": "Casa di Nando: misurata, è rimasta intera."
+   }
   },
   {
    "id": "E3",
@@ -221,7 +233,13 @@
    ],
    "via_necessaria": false,
    "legato_a": "E2",
-   "note": "Le stesse pietre vanno di giorno nella casa e di notte nel muro. Se il muro è rilevato, le Fade lasciano le pietre della casa in un mucchio al margine della particella. Chiuso dai lati 1-6, 1-7, 1-8 e 8-11."
+   "note": "Le stesse pietre vanno di giorno nella casa e di notte nel muro. Se il muro è rilevato, le Fade lasciano le pietre della casa in un mucchio al margine della particella. Chiuso dai lati 1-6, 1-7, 1-8 e 8-11.",
+   "hub": false,
+   "genere": "m",
+   "motivi": {
+    "Abitata>Carta": "Muro di Ronco: non misurato, le pietre rimesse nel muro.",
+    "rimasta": "Muro di Ronco: misurato, è rimasto con la sua breccia."
+   }
   },
   {
    "id": "E4",
@@ -261,7 +279,13 @@
    ],
    "via_necessaria": true,
    "alternativa": "mulattiera_terrazze",
-   "note": "Il lato 1-3 (primo rilievo) la chiude."
+   "note": "Il lato 1-3 (primo rilievo) la chiude.",
+   "hub": false,
+   "genere": "f",
+   "motivi": {
+    "Abitata>Carta": "Scorciatoia delle Terrazze: non misurata, tornata alla Carta.",
+    "rimasta": "Scorciatoia delle Terrazze: misurata, è rimasta."
+   }
   }
  ],
  "giro_corbella": [
@@ -383,7 +407,9 @@
     "ora": "03:10",
     "dove": "il letto o il rifugio dove dorme Elvira",
     "effetto": "Il Taccuino viene aperto su un'altra pagina (la pagina «Parole»). Elvira si sveglia con un peso sul petto che svanisce.",
-    "flag": "taccuino_spostato"
+    "flag": "taccuino_spostato",
+    "se_elvira_veglia": "Alle 03:10 la Pesarina passa comunque dove si trova Elvira. Se Elvira è sveglia, non si avvicina: si ferma a una decina di metri, una sagoma bianca nel buio, resta un minuto e se ne va. Il Taccuino non si sposta e taccuino_spostato resta spento (la domanda q_pesarina arriverà con la secondaria della Fase 5).",
+    "solo_se": "Elvira dorme"
    },
    "variante_se_elvira_veglia_su_E1": "Se Elvira passa la notte sulla passerella (o nel prato di Ronco sopra la particella del sentiero), le Fade arrivano alle 23:20, girano attorno a lei e se ne vanno: la passerella resta. Al mattino Ottavio: «Ci hai dormito sopra? Le Fade non toccano chi c'è.» La lezione arriva comunque dalla scorciatoia delle Terrazze e dalla casa di Nando."
   },
@@ -469,10 +495,11 @@
    "rilevata_rimasta": "{nome}: misurata, è rimasta."
   },
   "prossima_finestra": "Riga in fondo: il prossimo evento utile (in Fase 1: «Bortolo rimette i gradini alle 07:00», «Nando ricostruisce alle 08:30», «Ottavio rimette la passerella alla brace»).",
-  "colore": "Le particelle cambiate sono segnate in rosso sulla Pianta per tutto il mattino (fino alle 12:00)."
+  "colore": "Le particelle cambiate sono segnate in rosso sulla Pianta per tutto il mattino (fino alle 12:00).",
+  "nota": "Per ogni elemento le righe complete (con il genere giusto) sono in elementi_mobili[].motivi, con chiave «da>a» o «rimasta»; i modelli di righe valgono solo se manca la riga dell'elemento."
  },
  "inventario_corbella": {
-  "descrizione": "Le particelle del nucleo di Corbella (iz 22-29, itheta 5-16) che la rete della Fase 1 può rilevare. Quando sono tutte a colore, Meridiana rende il primo servizio: le campane di San Vigilio tornano a segnare l'ora (un rintocco per ora, dalle 06:00 alle 21:00).",
+  "descrizione": "Le particelle del nucleo di Corbella (iz 22-29, itheta 5-16) che la rete della Fase 1 può rilevare. Quando sono tutte a colore, Meridiana rende il primo servizio: le campane di San Vigilio tornano a segnare l'ora (un rintocco per ora, dalle 06:00 alle 21:00). Contano le particelle a colore rilevate da chiunque, anche le 15 seppia del G4 (con i soli lati di Elvira si coprono comunque tutte e 63).",
   "particelle": [
    2117,
    2118,
