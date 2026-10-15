@@ -8,7 +8,7 @@
  */
 import * as THREE from 'three';
 import { Costruttore, mat, mescola } from '../costruttore';
-import { geoBoxC, geoLastra, geoMasso, geoPiano } from '../forme';
+import { geoBoxC, geoCiuffo, geoLastra, geoPiano } from '../forme';
 import { PALETTE } from '../palette';
 import type { Rng } from '../rng';
 
@@ -66,8 +66,8 @@ export function finestra(b: Costruttore, f: THREE.Matrix4, u: number, v: number,
       b.aggiungi(geoBoxC(0.025, h, 0.025), { matrice: inF(f, u - w / 2 + (i * w) / n, v + h / 2, 0.05), colore: PALETTE.ferro, piatto: true });
     }
   } else {
-    b.aggiungi(geoBoxC(0.05, h, 0.04), { matrice: inF(f, u, v + h / 2, 0.04), colore: PALETTE.legnoScuro, piatto: true });
-    b.aggiungi(geoBoxC(w, 0.05, 0.04), { matrice: inF(f, u, v + h * 0.58, 0.04), colore: PALETTE.legnoScuro, piatto: true });
+    b.aggiungi(geoPiano(0.05, h), { matrice: inF(f, u, v + h / 2, 0.03), colore: PALETTE.legnoScuro, piatto: true });
+    b.aggiungi(geoPiano(w, 0.05), { matrice: inF(f, u, v + h * 0.58, 0.032), colore: PALETTE.legnoScuro, piatto: true });
   }
   // architrave e davanzale in pietra
   b.aggiungi(geoLastra(w + 0.36, 0.17, 0.14, rng.intero(0, 1e6), 0.1), {
@@ -93,9 +93,9 @@ export function finestra(b: Costruttore, f: THREE.Matrix4, u: number, v: number,
         gradiente: { basso: 0.85, alto: 1.05, y0: v, y1: v + h },
         piatto: true,
       });
-      // traversa scura sull'anta
-      b.aggiungi(geoBoxC(w / 2 - 0.04, 0.05, 0.015), {
-        matrice: inF(f, u + s * (w / 2 + w / 4 + 0.03), v + h * 0.3, 0.055),
+      // traversa scura sull'anta (dipinta, 2 triangoli)
+      b.aggiungi(geoPiano(w / 2 - 0.04, 0.05), {
+        matrice: inF(f, u + s * (w / 2 + w / 4 + 0.03), v + h * 0.3, 0.051),
         colore: mescola(c, 0x000000, 0.35),
         piatto: true,
       });
@@ -117,7 +117,7 @@ export function gerani(b: Costruttore, f: THREE.Matrix4, u: number, v: number, l
   const nf = Math.max(2, Math.round(l / 0.3));
   for (let i = 0; i < nf; i++) {
     const x = u - l / 2 + ((i + 0.5) * l) / nf;
-    b.aggiungi(geoMasso(0.13, rng.intero(0, 1e6), 0.3, 0, 0.7), {
+    b.aggiungi(geoCiuffo(0.13, rng.intero(0, 1e6), 0.7), {
       matrice: inF(f, x, v + 0.2, 0.24),
       colore: PALETTE.fogliaGeranio,
       variazione: 0.12,
@@ -129,7 +129,7 @@ export function gerani(b: Costruttore, f: THREE.Matrix4, u: number, v: number, l
   const tinta = rng.prob(0.7) ? PALETTE.geranio : PALETTE.geranioRosa;
   for (let i = 0; i < nfiori; i++) {
     const x = u - l / 2 + 0.06 + rng.next() * (l - 0.12);
-    b.aggiungi(geoMasso(0.075 + rng.next() * 0.03, rng.intero(0, 1e6), 0.25, 0, 0.9), {
+    b.aggiungi(geoCiuffo(0.075 + rng.next() * 0.03, rng.intero(0, 1e6), 0.9), {
       matrice: inF(f, x, v + 0.29 + rng.next() * 0.08, 0.2 + rng.next() * 0.12),
       colore: tinta,
       variazione: 0.12,

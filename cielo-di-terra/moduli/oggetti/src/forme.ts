@@ -51,6 +51,22 @@ export function geoMasso(raggio: number, seme: number, irregolarita = 0.3, detta
   return g;
 }
 
+/** Ciuffo minimo (ottaedro deformato, 8 triangoli): fiori, foglie, amenti, ricci. */
+export function geoCiuffo(raggio: number, seme: number, schiaccia = 1): THREE.BufferGeometry {
+  const g = new THREE.OctahedronGeometry(raggio, 0);
+  g.deleteAttribute('uv');
+  g.deleteAttribute('normal');
+  const pos = g.getAttribute('position') as THREE.BufferAttribute;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    v.multiplyScalar(1 + (hashPosizione(v.x, v.y, v.z, seme) - 0.5) * 0.5);
+    v.y *= schiaccia;
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  return g;
+}
+
 /**
  * Massa tondeggiante di fogliame: icosaedro suddiviso, gonfiato in modo irregolare, normali morbide.
  * `dettaglio` 1 = 80 triangoli, 2 = 320.

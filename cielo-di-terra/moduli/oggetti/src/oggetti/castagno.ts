@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
-import { geoBoxC, geoCilindro, geoLastra, geoMassa, geoMasso, geoSfera, geoToro, geoTubo } from '../forme';
+import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMassa, geoMasso, geoSfera, geoToro, geoTubo } from '../forme';
 import { PALETTE } from '../palette';
 import { hashPosizione, Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
@@ -175,7 +175,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
 
   // amenti a ciuffi sulla chioma in fioritura
   if (stagione === 'fioritura' && det === 'alto') {
-    const ciuffo = geoMasso(0.16, seme, 0.2, 0, 1);
+    const ciuffo = geoCiuffo(0.17, seme, 1);
     ciuffo.scale(0.8, 2.2, 0.8);
     for (let k = 0; k < 40; k++) {
       const m = centri[k % centri.length] as { c: THREE.Vector3; r: number };
@@ -195,7 +195,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     for (let k = 0; k < 9; k++) {
       const a = rng.next() * Math.PI * 2;
       const d = rTronco * 2 + rng.next() * rx * 0.9;
-      b.aggiungi(geoMasso(0.07, rng.intero(0, 1e6), 0.5, 0, 1), {
+      b.aggiungi(geoCiuffo(0.07, rng.intero(0, 1e6), 0.8), {
         matrice: mat([Math.cos(a) * d, 0.04, Math.sin(a) * d]),
         colore: rng.prob(0.5) ? 0x9a8a3a : 0x7a5530,
         piatto: true,

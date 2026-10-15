@@ -411,13 +411,14 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   tela.name = 'velo-tela:sottile';
   tela.userData['canale'] = 'sottile';
   tela.frustumCulled = false;
-  // punti a croce lungo l'orlo vicino agli occhi
-  const bc = new Costruttore(rng.derivato('croci'));
-  for (let i = 0; i < 26; i++) {
-    const x = -1.5 + i * 0.12;
-    for (const s of [-1, 1]) bc.aggiungi(geoBoxC(0.05, 0.004, 0.006), { matrice: mat([x, 0, 0], [0, 0, s * 0.7]), colore: PALETTE.cucitura });
+  // punti a croce lungo l'orlo vicino agli occhi (l'ultima fila della tela non si muove: si uniscono al telaio)
+  {
+    const orlo = base[nz * (nx + 1) + Math.floor(nx / 2)] as THREE.Vector3;
+    for (let i = 0; i < 26; i++) {
+      const x = -1.5 + i * 0.12;
+      for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.05, 0.004, 0.006), { matrice: mat([x, orlo.y - 0.015, orlo.z - 0.01], [0, 0, s * 0.7]), colore: PALETTE.cucitura });
+    }
   }
-  const croci = bc.mesh('velo-croci', 'opaco', false);
 
   // nappina: cordino, perlina di legno, frange (pendolo)
   const bn = new Costruttore(rng.derivato('nappina'));
@@ -442,18 +443,20 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   const presa = (x: number, sx: number) => mat([x, yT, zT]).multiply(mat([0, 0, 0], [0, 0, -Math.PI / 2])).multiply(mat([0, 0, 0], [sx > 0 ? -2.3 : 2.3, 0, 0], [1, sx, 1]));
   const polsoD = manoPresa(bm, presa(0.24, 1), 0.026);
   const polsoS = manoPresa(bm, presa(-0.24, -1), 0.026, { anello: true });
+  // le maniche qui sono ferme rispetto alla traversa: si cuociono con le mani (una draw call)
+  for (const [polso, gomito] of [[polsoD, v(0.42, -0.95, 0.0)], [polsoS, v(-0.42, -0.95, 0.0)]] as const) {
+    const manica = creaManica(rng, 'velo-manica');
+    manica.orienta(polso, gomito);
+    manica.mesh.updateMatrix();
+    bm.aggiungi(manica.mesh.geometry, { matrice: manica.mesh.matrix, colore: 'geometria' });
+  }
   const mani = bm.costruisci('velo-mani', false);
-  const manicaD = creaManica(rng, 'velo-manica-destra');
-  const manicaS = creaManica(rng, 'velo-manica-sinistra');
-  manicaD.orienta(polsoD, v(0.42, -0.95, 0.0));
-  manicaS.orienta(polsoS, v(-0.42, -0.95, 0.0));
 
   const telaio = b.costruisci('velo-telaio', false);
   const gruppo = new THREE.Group();
   gruppo.name = 'velo-prima-persona';
   const assetto = new THREE.Group();
-  assetto.add(telaio, tela, pernoNappina, mani, manicaD.mesh, manicaS.mesh);
-  if (croci) assetto.add(croci);
+  assetto.add(telaio, tela, pernoNappina, mani);
   gruppo.add(assetto);
   assetto.traverse((o) => ((o as THREE.Mesh).isMesh ? (o.renderOrder = 5) : null));
 
@@ -486,10 +489,6 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
     for (let i = 0; i < n.count; i++) {
       nor.fromBufferAttribute(n, i).negate();
       n.setXYZ(i, nor.x, nor.y, nor.z);
-    }
-    if (croci) {
-      const p = base[nz * (nx + 1) + Math.floor(nx / 2)] as THREE.Vector3;
-      croci.position.set(0, p.y - 0.015, p.z - 0.01);
     }
     // nappina: pendolo smorzato, pende dalla parte della deriva
     const deriva = stato?.deriva ?? 0;

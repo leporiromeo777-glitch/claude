@@ -54,8 +54,9 @@ export function numero(b: Costruttore, testo: string, m: THREE.Matrix4, h: numbe
     const ox = (i - (n - 1) / 2) * passo;
     for (const nome of segs) {
       for (const [cx, cy, orizz] of SEGMENTI[nome] ?? []) {
-        const g = orizz ? geoBoxC(w, s, spessore) : geoBoxC(s, h / 2 + s * 0.4, spessore);
-        b.aggiungi(g, { matrice: m.clone().multiply(mat([ox + cx * w, (cy * h) / 2, spessore / 2])), colore, piatto: true, canale });
+        // segmento piatto appena sollevato dalla superficie (2 triangoli)
+        const g = orizz ? new THREE.PlaneGeometry(w, s) : new THREE.PlaneGeometry(s, h / 2 + s * 0.4);
+        b.aggiungi(g, { matrice: m.clone().multiply(mat([ox + cx * w, (cy * h) / 2, spessore])), colore, piatto: true, canale });
       }
     }
   }

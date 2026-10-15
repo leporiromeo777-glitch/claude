@@ -42,11 +42,11 @@ function costruisciParti(rng: Rng, scala = 1): PartiFada {
       new THREE.Vector2(0.2 * s, 0.47 * s),
       new THREE.Vector2(0.001, 0.5 * s),
     ],
-    16,
+    12,
   );
   cappello.deleteAttribute('uv');
   corpo.aggiungi(cappello, { colore: PALETTE.smaltoVerde, gradiente: { basso: 0.7, alto: 1.15, y0: 0.44 * s, y1: 0.62 * s } });
-  corpo.aggiungi(geoToro(0.36 * s, 0.014 * s, 4, 20), { matrice: mat([0, 0.445 * s, 0], [Math.PI / 2, 0, 0]), colore: PALETTE.ottone });
+  corpo.aggiungi(geoToro(0.36 * s, 0.014 * s, 3, 16), { matrice: mat([0, 0.445 * s, 0], [Math.PI / 2, 0, 0]), colore: PALETTE.ottone });
   // pomolo e anello in cima
   corpo.aggiungi(geoSfera(0.03 * s, 6, 4), { matrice: mat([0, 0.63 * s, 0]), colore: PALETTE.ottone });
   corpo.aggiungi(geoToro(0.035 * s, 0.007 * s, 4, 8), { matrice: mat([0, 0.68 * s, 0]), colore: PALETTE.ottoneScuro });
@@ -61,15 +61,15 @@ function costruisciParti(rng: Rng, scala = 1): PartiFada {
       piatto: true,
     });
   }
-  corpo.aggiungi(geoCilindro(0.1 * s, 0.09 * s, 0.03 * s, 10), { matrice: mat([0, 0.38 * s, 0]), colore: PALETTE.rame });
+  corpo.aggiungi(geoCilindro(0.1 * s, 0.09 * s, 0.03 * s, 8), { matrice: mat([0, 0.38 * s, 0]), colore: PALETTE.rame });
   // vetro luminoso e lume
-  corpo.aggiungi(geoCilindro(0.075 * s, 0.075 * s, 0.22 * s, 10), { matrice: mat([0, 0.155 * s, 0]), colore: PALETTE.lumeCaldo, canale: 'lume', gradiente: { basso: 0.85, alto: 1.05, y0: 0.15 * s, y1: 0.37 * s } });
+  corpo.aggiungi(geoCilindro(0.075 * s, 0.075 * s, 0.22 * s, 8), { matrice: mat([0, 0.155 * s, 0]), colore: PALETTE.lumeCaldo, canale: 'lume', gradiente: { basso: 0.85, alto: 1.05, y0: 0.15 * s, y1: 0.37 * s } });
   const fiamma = geoSfera(0.035 * s, 6, 4);
   fiamma.scale(1, 1.5, 1);
   corpo.aggiungi(fiamma, { matrice: mat([0, 0.26 * s, 0]), colore: PALETTE.lumeFiamma, canale: 'lume' });
   // base di rame con il serbatoio e i perni delle griffe
-  corpo.aggiungi(geoCilindro(0.11 * s, 0.07 * s, 0.07 * s, 10), { matrice: mat([0, 0.09 * s, 0]), colore: PALETTE.rame, gradiente: { basso: 0.8, alto: 1.1, y0: 0.09 * s, y1: 0.16 * s } });
-  corpo.aggiungi(geoCono(0.07 * s, 0.07 * s, 10), { matrice: mat([0, 0.09 * s, 0], [Math.PI, 0, 0]), colore: PALETTE.rameScuro });
+  corpo.aggiungi(geoCilindro(0.11 * s, 0.07 * s, 0.07 * s, 8), { matrice: mat([0, 0.09 * s, 0]), colore: PALETTE.rame, gradiente: { basso: 0.8, alto: 1.1, y0: 0.09 * s, y1: 0.16 * s } });
+  corpo.aggiungi(geoCono(0.07 * s, 0.07 * s, 8), { matrice: mat([0, 0.09 * s, 0], [Math.PI, 0, 0]), colore: PALETTE.rameScuro });
   // due piccole antenne-sensori (smalto)
   for (const sx of [-1, 1]) {
     corpo.aggiungi(geoCilindro(0.006 * s, 0.006 * s, 0.12 * s, 3), { matrice: mat([sx * 0.06 * s, 0.6 * s, 0.05 * s], [0.4, 0, sx * 0.4]), colore: PALETTE.ottoneScuro });
@@ -571,12 +571,12 @@ export function creaSciameApi(opz: OpzioniSciameApi = {}): OggettoProcedurale<St
     colore: (pp, _n, out) => out.set(Math.sin((pp.z / d) * 28) > 0 ? PALETTE.rame : PALETTE.ottoneScuro),
     piatto: true,
   });
-  bc.aggiungi(geoMasso(d * 0.22, 5, 0.05, 0, 1), { matrice: mat([0, 0, d * 0.12]), colore: PALETTE.rameScuro, piatto: true });
-  bc.aggiungi(geoMasso(d * 0.15, 9, 0.05, 0, 1), { matrice: mat([0, 0, d * 0.36]), colore: PALETTE.ottone, piatto: true });
+  bc.aggiungi(new THREE.OctahedronGeometry(d * 0.22, 0), { matrice: mat([0, 0, d * 0.12]), colore: PALETTE.rameScuro, piatto: true });
+  bc.aggiungi(new THREE.OctahedronGeometry(d * 0.15, 0), { matrice: mat([0, 0, d * 0.36]), colore: PALETTE.ottone, piatto: true });
   const gCorpo = bc.geometria('opaco') as THREE.BufferGeometry;
   const ba = new Costruttore(rng.derivato('ali'));
   for (const s of [-1, 1]) {
-    const ala = new THREE.CircleGeometry(d * 0.42, 6);
+    const ala = new THREE.CircleGeometry(d * 0.42, 4);
     ala.rotateX(-Math.PI / 2);
     ala.scale(0.55, 1, 1);
     ba.aggiungi(ala, { matrice: mat([s * d * 0.32, d * 0.12, d * 0.05], [0, s * 0.5, s * 0.15]), colore: PALETTE.ottoneChiaro, canale: 'sottile' });
