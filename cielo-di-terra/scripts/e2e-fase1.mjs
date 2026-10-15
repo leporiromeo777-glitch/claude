@@ -339,6 +339,17 @@ async function main() {
 
     log('— P0.6 Le campane');
     await avanzaFinche('dialogo:d_meridiana_1 iniziato', 10);
+    // Il salvataggio automatico scatta spesso a dialogo aperto: «Continua» deve riaprirlo
+    // (prima restava aperto senza finestra e la storia si fermava qui).
+    await R(() => window.__GAME__.regia.salva());
+    await page.reload();
+    await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 300000 });
+    await R(() => window.__GAME__.stopLoop());
+    await page.getByRole('button', { name: 'Continua' }).click();
+    await avanza(3);
+    s = await stato();
+    if (!s.modali.dialogo || s.dialogo?.dialogo !== 'd_meridiana_1') throw new Error(`dopo «Continua» il dialogo delle campane non si è riaperto: ${JSON.stringify({ dialogo: s.dialogo, modali: s.modali })}`);
+    log('  ✓ salvato a dialogo aperto, «Continua» lo riapre');
     await foto('05-meridiana', () => mira([1062, 37.2, 60]));
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await verifica('missione:prologo completata e missione:m01_castagno_vuoto attiva', 'prologo completato');

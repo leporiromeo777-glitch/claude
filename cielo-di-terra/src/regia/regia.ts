@@ -325,6 +325,14 @@ export class Regia implements SistemaGioco {
       }
       this.partitaIniziata = true;
       this.fase = 'gioco';
+      // Un salvataggio fatto a dialogo aperto (il salvataggio automatico scatta al cambio di
+      // passo, spesso mentre parte un dialogo automatico come quello delle campane) lo
+      // ricaricherebbe «aperto» senza finestra: la storia resterebbe ferma. Lo si interrompe,
+      // così un dialogo automatico si riapre da capo e gli altri si riprendono parlando.
+      if (this.narrativa.dialoghi.aperto()) {
+        this.narrativa.dialoghi.interrompi();
+        this.narrativa.tick(0);
+      }
       this.ui.indicazioni.show();
       this.riallinea();
       this.velatura.dalNero(1.2);
