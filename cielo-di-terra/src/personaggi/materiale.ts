@@ -19,7 +19,8 @@
  *   pencilColor(uv, N, V, tone, hgt, dist, blank, steep, inked)   resa a matita
  *   tangentUV(P, N), brushStrokes(uv, dist), vnoise3(p), cylUp(P), cylThetaDeg(P)   (uR è un uniform)
  * Se il rifacimento grafico cambia una di queste firme o l'ordine dei pezzi, va adattato solo
- * FRAMMENTO qui sotto (il corpo segue quello della variante 'object' di worldMaterial.ts).
+ * `sorgenteFrammento` qui sotto (il corpo segue quello della variante 'object' di worldMaterial.ts);
+ * tools/personaggi/compila.html prova a compilarlo nel browser con i pezzi di un altro ramo.
  *
  * Senza gli uniform del mondo (pagina di prova, banco in Node) si usa un toon a tre campiture con le
  * luci della scena, come gli abitanti procedurali.
@@ -60,8 +61,13 @@ void main() {
 }
 `;
 
-const FRAMMENTO = /* glsl */ `
-${WORLD_UNIFORMS_GLSL}
+/**
+ * Il frammento, costruito dai pezzi comuni: così si può provare (e adattare) con un'altra versione di
+ * common.ts senza toccare il resto (vedi tools/personaggi/compila.html).
+ */
+export function sorgenteFrammento(uniformMondo: string = WORLD_UNIFORMS_GLSL, pezzi: readonly string[] = PEZZI_COMUNI): string {
+  return /* glsl */ `
+${uniformMondo}
 uniform float uBrush;
 uniform sampler2D uMappa;
 uniform vec3 uTinta;
@@ -69,7 +75,7 @@ uniform vec2 uRiempimento;
 varying vec3 vWorldPos;
 varying vec3 vNormalW;
 varying vec2 vUv;
-${PEZZI_COMUNI.join('\n')}
+${pezzi.join('\n')}
 void main() {
   vec3 P = vWorldPos;
   vec3 N = normalize(vNormalW);
@@ -114,6 +120,10 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }
 `;
+}
+
+/** Il vertice (skinning di three, ondeggio dell'orlo), per le prove di compilazione. */
+export const SORGENTE_VERTICE = VERTICE;
 
 export interface OpzioniMaterialePersonaggio {
   /** la texture del colore del GLB (già con colorSpace giusto) */
@@ -158,7 +168,7 @@ export function creaMaterialeMondo(u: WorldUniforms, opz: OpzioniMaterialePerson
     // gli uniform del mondo per riferimento: lo spread copia gli oggetti { value }, non i valori
     uniforms: { ...u, ...propri },
     vertexShader: VERTICE,
-    fragmentShader: FRAMMENTO,
+    fragmentShader: sorgenteFrammento(),
     defines,
   });
   m.userData['personaggio'] = 'mondo';

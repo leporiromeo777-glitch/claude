@@ -135,12 +135,22 @@ async function scatta(nome, fotogrammi = 3) {
 
 try {
   const t0 = Date.now();
-  await page.goto(`http://127.0.0.1:${porta}/?nuova`);
-  await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 600000 });
-  console.log(`gioco pronto in ${Math.round((Date.now() - t0) / 1000)} s`);
-  // fuori dalla capsula, in piazza
-  await page.evaluate(() => window.__GAME__.regia.vai('piazza_ore'));
-  const esito = await page.evaluate(`(${installa.toString()})()`);
+  // al primo avvio Vite può rifare l'ottimizzazione delle dipendenze mentre la pagina importa il
+  // modulo dei personaggi (errore 504 «Outdated Optimize Dep»): si ricarica e si riprova una volta
+  let esito = null;
+  for (let tentativo = 1; !esito; tentativo++) {
+    await page.goto(`http://127.0.0.1:${porta}/?nuova`);
+    await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 600000 });
+    console.log(`gioco pronto in ${Math.round((Date.now() - t0) / 1000)} s`);
+    // fuori dalla capsula, in piazza
+    await page.evaluate(() => window.__GAME__.regia.vai('piazza_ore'));
+    try {
+      esito = await page.evaluate(`(${installa.toString()})()`);
+    } catch (e) {
+      if (tentativo >= 2) throw e;
+      console.error(`nuovo tentativo dopo: ${String(e).split('\n')[0]}`);
+    }
+  }
   console.log('modelli:', JSON.stringify(esito));
   // il punto di lavoro: un po' a sud del centro della piazza (spazio libero)
   const BASE = await page.evaluate(() => {
@@ -252,8 +262,8 @@ try {
           X.metti('vecchio:togna', T, B, 0, 1.4, 180, { modo: 'fermo' });
           X.metti('togna', T, B, 0, 0, 180, { modo: 'fermo' });
           X.metti('nando', N, B, 0.2, -1.3, 180, { modo: 'cammina', velocita: 1.1 });
-          // da lontano la camera sale un poco (la piazza è più alta del prato che la circonda)
-          X.camera(B, -d, 0, d > 30 ? d * 0.12 : 1.6, 0, d > 30 ? -6 : -1.5);
+          // a 130 m la camera sale (la piazza è più alta del prato che la circonda)
+          X.camera(B, -d, 0, d > 100 ? 14 : 1.6, 0, d > 100 ? -5.5 : -1.5);
           X.passi(60);
         },
         [BASE, TOGNA, NANDO, d],

@@ -142,11 +142,6 @@ Luce calda principale e riempimento freddo dal cielo, un controluce tenue; «vec
 10. **File**: la geometria pesa più della texture (480 KB contro 70-120 KB): quantizzazione con gltf-transform (-35%). Il LOD1 a 2000 triangoli regge benissimo anche a 5 m ([`pilota/sera-lod1-sfondo.jpg`](pilota/sera-lod1-sfondo.jpg)).
 11. **I lati non visti**: il generatore inventa il retro; sul grembiule di Togna qualche tocco grigio-azzurro di lato. Alla distanza di gioco non disturba; si può ritoccare la texture a mano se serve.
 
-## Come si collega al gioco (passo successivo, non fatto nel pilota)
+## Come si collega al gioco
 
-In parallelo il rifacimento grafico tocca `src/popolamento/**` e `src/oggetti/**`: l'aggancio va fatto dopo, in un punto solo e piccolo.
-- In `src/popolamento/abitanti.ts`, `crea()`: per gli id con un GLB pronto, `caricaPersonaggio('./personaggi/<id>.glb', { colore: 'grezzo', gonna, apertura })` al posto di `creaAbitante(aspetto)`; la figura si aggiunge quando la promessa si risolve (la procedurale fa da segnaposto fino ad allora). Lo `stato` è lo stesso (`modo`, `velocita`, `guarda`, `gesto`, `indica`); `postura` diventa `curvo` / `braccia`.
-- `accessori()` attacca gli oggetti alle ossa per nome: i nomi sono gli stessi (`bacino`, `avambraccioD`…), ma per le mani ora c'è `manoD`/`manoS` (la pietra di Nando va su `manoD` con un offset di pochi centimetri invece di -0,32 m).
-- Il materiale: per ora toon con la mappa di gradiente propria; quando il rifacimento grafico avrà la pennellata e la luce nuove nello shader del mondo, conviene passare loro la texture e lo skinning (oppure usare `stile: 'lambert'` e lasciare il lavoro alla post-produzione).
-- Altezze: quelle della Bibbia sono nel GLB (scala 1 = metri).
-- Il collider dei personaggi (cilindro) resta quello di oggi.
+Il modulo di gioco (precaricamento, fabbrica con l'interfaccia di `creaAbitante`, materiale del mondo con skinning, livelli di dettaglio, pose seduto e chino) e le quattro modifiche per collegarlo al popolamento sono in [MODULO.md](MODULO.md).
