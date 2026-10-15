@@ -223,9 +223,10 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
   if (l < 1e-3) return 0;
   dx /= l;
   dy /= l;
-  // normale della faccia (destra del verso): (-dy, dx) in (x est, y nord)? con X=est, Z=nord: n = (-dz, dx)
-  let nx = -dy;
-  let ny = dx;
+  // Nel riferimento della libreria con yaw 0: X locale = OVEST, Z locale = nord. La faccia del muro
+  // guarda a destra del verso nel riferimento della libreria: in (est, nord) è (dy, -dx).
+  let nx = dy;
+  let ny = -dx;
   const pm = locale(r, m[0], m[1]);
   const qa = suolo(...xy(locale(r, m[0] + nx * 1.5, m[1] + ny * 1.5)));
   const qb = suolo(...xy(locale(r, m[0] - nx * 1.5, m[1] - ny * 1.5)));
@@ -244,7 +245,8 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
   const alto = Math.min(testa - piede, 4.2);
   if (alto < (opz.altezzaMin ?? 1.4)) return 0;
   const origine = locale(r, pezzo[0]![0], pezzo[0]![1]);
-  const percorso: Array<[number, number]> = pezzo.map(([x, y]) => [(x - pezzo[0]![0]), (y - pezzo[0]![1])]);
+  // coordinate della libreria: X = ovest, Z = nord
+  const percorso: Array<[number, number]> = pezzo.map(([x, y]) => [-(x - pezzo[0]![0]), y - pezzo[0]![1]]);
   const dettaglio = opz.dettaglio?.(pm.z, pm.theta) ?? 'basso';
   const muro = creaMuroSecco({
     seme: Math.floor(pm.z * 31 + pm.theta * 977),
