@@ -247,3 +247,38 @@ export function ostacoloFra(stazione: string | null, mira: string): string | nul
   const chi = (n.motivo.split(/\s+copre\b/)[0] ?? '').split(',')[0]?.trim() ?? '';
   return chi ? chi.charAt(0).toLowerCase() + chi.slice(1) : 'qualcosa';
 }
+
+// --------------------------------------------------------------- indicazioni delle missioni
+
+/** Il luogo che è la cella del campanile (una scena della regia, come la Cripta). */
+const LUOGO_CELLA = 'cella_campanaria';
+
+/**
+ * In quale «dentro» della regia sta un luogo: la Cripta (i luoghi di tipo `interno` di
+ * luoghi.json) o la cella del campanile; null se è fuori, nel paese.
+ */
+export function internoDelLuogo(id: string): 'cripta' | 'cella' | null {
+  if (id === LUOGO_CELLA) return 'cella';
+  return luogo(id)?.tipo === 'interno' ? 'cripta' : null;
+}
+
+/** Il «dentro» di un caposaldo (il Pilastro 1 è nella cella), dal suo luogo. */
+export function internoDelCaposaldo(id: string): 'cripta' | 'cella' | null {
+  const l = caposaldo(id)?.luogo;
+  return l ? internoDelLuogo(l) : null;
+}
+
+/**
+ * Luoghi con un punto vero nel paese (i punti del popolamento, `scena.punto`), più precisi del
+ * centro del luogo per il segnalino: il muretto, non il mezzo del belvedere.
+ */
+export const PUNTI_DEI_LUOGHI: Readonly<Record<string, string>> = {
+  belvedere_muretto: 'muretto',
+  castagno_cartellino: 'cartellino',
+  castagno_morto: 'castagno_morto',
+  bacheca_ore: 'bacheca',
+  telo_ombrista: 'telo',
+  botola: 'botola',
+  fienile_ottavio: 'fienile',
+  campanile: 'porta_campanile',
+};

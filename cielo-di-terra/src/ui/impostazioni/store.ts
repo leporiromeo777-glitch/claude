@@ -84,6 +84,11 @@ export interface Impostazioni {
   arcoLancio: boolean;
   /** Avviso della sera: prima di dormire, ciò che non è misurato. */
   avvisoSera: boolean;
+  /**
+   * Pannello dell'obiettivo in alto a sinistra e segnalino sulla meta (per richiesta dell'utente,
+   * di serie): «complete», «obiettivo» (il pannello senza segnalino), «nessuna» (come nel GDD).
+   */
+  indicazioniMissioni: 'complete' | 'obiettivo' | 'nessuna';
 }
 
 export type ChiaveImpostazione = keyof Impostazioni;
@@ -158,6 +163,7 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     piuTempo: false,
     arcoLancio: false,
     avvisoSera: false,
+    indicazioniMissioni: 'complete',
   };
 }
 
@@ -188,6 +194,7 @@ const VALORI_AMMESSI: Partial<Record<ChiaveImpostazione, readonly string[]>> = {
   qualitaGrafica: ['automatica', 'bassa', 'media', 'alta'],
   capovolgimento: ['rollio', 'dissolvenza'],
   dondolio: ['visivo', 'suono'],
+  indicazioniMissioni: ['complete', 'obiettivo', 'nessuna'],
 };
 
 /** Corregge un valore: tipo giusto, dentro i limiti; altrimenti restituisce `undefined`. */

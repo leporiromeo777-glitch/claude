@@ -8,6 +8,7 @@
    {
     "id": "pr_vetro",
     "obiettivo_taccuino": "Chi ha scritto «Non fidarti delle campane» sul mio vetro?",
+    "indicazione": "Con {guarda} guarda la scritta sul vetro, sopra il tuo viso.",
     "luogo": "cripta_capsula_5",
     "attiva_quando": "inizio",
     "completa_quando": "flag:guardato_vetro",
@@ -24,7 +25,12 @@
    {
     "id": "pr_cripta",
     "obiettivo_taccuino": "Dove sono gli altri sei?",
+    "indicazione": "Prendi la busta sul vetro della tua capsula ({usa}) e apri l'armadietto n. 5 ({usa}).",
     "luogo": "cripta_sala",
+    "tappe": [
+     { "punto": "busta_5", "quando": "!oggetto:lettera_marta" },
+     { "punto": "armadietto_5", "quando": "!flag:armadietto_aperto" }
+    ],
     "attiva_quando": "passo:pr_vetro completato",
     "completa_quando": "oggetto:lettera_marta e flag:armadietto_aperto",
     "effetti_attivazione": [
@@ -91,6 +97,7 @@
    {
     "id": "pr_botola_scala",
     "obiettivo_taccuino": "C'è una scala. E sopra, luce.",
+    "indicazione": "Sali la scala in fondo al corridoio ({usa}, poi {sali}) e spingi la botola ({usa}).",
     "luogo": "cripta_scala",
     "attiva_quando": "passo:pr_cripta completato",
     "completa_quando": "luogo:botola raggiunto",
@@ -106,6 +113,7 @@
    {
     "id": "pr_guarda_su",
     "obiettivo_taccuino": "Che cosa c'è al posto del cielo?",
+    "indicazione": "Con {guarda} alza lo sguardo, dritto sopra la testa.",
     "luogo": "botola",
     "attiva_quando": "passo:pr_botola_scala completato",
     "completa_quando": "flag:guardato_in_su",
@@ -135,6 +143,7 @@
    {
     "id": "pr_camminare",
     "obiettivo_taccuino": "Le gambe. Due secoli. Piano.",
+    "indicazione": "Cammina piano verso il muretto del belvedere e siediti (tieni {siedi}): lì, o dove ti manca il fiato.",
     "luogo": "belvedere_muretto",
     "attiva_quando": "passo:pr_guarda_su completato",
     "completa_quando": "flag:seduta",
@@ -157,6 +166,8 @@
    {
     "id": "pr_lettera",
     "obiettivo_taccuino": "«Per la mamma.» La busta che era sul mio vetro.",
+    "indicazione": "Leggi fino in fondo la lettera di Marta: da seduta (tieni {siedi}) si apre da sola, o premi {usa}.",
+    "segnalino": false,
     "luogo": "belvedere_muretto",
     "attiva_quando": "passo:pr_camminare completato",
     "completa_quando": "flag:lettera_letta",
@@ -179,6 +190,8 @@
    {
     "id": "pr_campane",
     "obiettivo_taccuino": "Le campane parlano.",
+    "indicazione": "Ascolta la voce che viene dalle campane.",
+    "segnalino": false,
     "luogo": "belvedere_muretto",
     "attiva_quando": "passo:pr_lettera completato",
     "completa_quando": "dialogo:d_meridiana_1 finito",
@@ -224,6 +237,7 @@
    {
     "id": "m1_lente",
     "obiettivo_taccuino": "Il mio castagno. Che cos'ha?",
+    "indicazione": "Al castagno morto prendi la lente ({lente}): esamina i ricci a terra, gli amenti e la corteccia.",
     "luogo": "castagno_morto",
     "attiva_quando": "passo:pr_campane completato",
     "completa_quando": "flag:lente:ricci e flag:lente:amenti e flag:lente:corteccia",
@@ -261,6 +275,7 @@
    {
     "id": "m1_marza",
     "obiettivo_taccuino": "Una marza dal ramo vivo, prima che muoia anche lui.",
+    "indicazione": "Taglia una marza dal ramo vivo, quello basso e verde: guardalo e tieni premuto {usa}.",
     "luogo": "castagno_morto",
     "attiva_quando": "passo:m1_lente completato",
     "completa_quando": "oggetto:marza_pedrazzini",
@@ -278,6 +293,7 @@
    {
     "id": "m1_cartellino",
     "obiettivo_taccuino": "Dove l'ho piantato, il primo innesto di casa?",
+    "indicazione": "Sali alla Terrazza Pedrazzini (è sulla Pianta, {pianta}) e leggi il cartellino del castagno ({usa}).",
     "luogo": "castagno_cartellino",
     "attiva_quando": "passo:m1_marza completato",
     "completa_quando": "luogo:castagno_cartellino raggiunto e flag:cartellino_letto",
@@ -291,6 +307,7 @@
    {
     "id": "m1_innesto",
     "obiettivo_taccuino": "Rimettere casa sul castagno del cartellino.",
+    "indicazione": "Innesta la marza sul castagno del cartellino: taglia, inserisci, lega (tieni {usa} per ogni gesto).",
     "luogo": "castagno_cartellino",
     "attiva_quando": "passo:m1_cartellino completato",
     "completa_quando": "flag:innesto_fatto",
@@ -318,7 +335,14 @@
    {
     "id": "m1_velo",
     "obiettivo_taccuino": "In paese senza fare tutti i tornanti.",
+    "indicazione": "Salta dalla Ripa di San Vigilio, il muro alto sopra la piazza ({salta}), e apri il Velo ({velo}) fino alla Piazza delle Ore.",
+    "indicazione_se": [
+     { "quando": "flag:planata_fatta", "indicazione": "Ora scendi alla Piazza delle Ore, sotto la Ripa." }
+    ],
     "luogo": "piazza_ore",
+    "tappe": [
+     { "luogo": "ripa_san_vigilio", "quando": "!flag:planata_fatta" }
+    ],
     "attiva_quando": "passo:m1_innesto completato",
     "completa_quando": "flag:planata_fatta e luogo:piazza_ore raggiunto",
     "effetti_attivazione": [
@@ -346,6 +370,7 @@
    {
     "id": "m1_velati",
     "obiettivo_taccuino": "Che cosa sanno, quelli velati?",
+    "indicazione": "Parla con tre abitanti ({usa}): una velata al lavatoio dalle 7; dalle 8 il campanaro sul sagrato e due bambini in piazza. I velati della folla non rispondono.",
     "luogo": "piazza_ore",
     "attiva_quando": "passo:m1_velo completato",
     "completa_quando": "contatore:velati>=3",
@@ -356,6 +381,7 @@
    {
     "id": "m1_ottavio",
     "obiettivo_taccuino": "Chi vola sopra la piazza?",
+    "indicazione": "Resta in piazza: chi vola sopra la piazza sta per scendere.",
     "luogo": "piazza_ore",
     "attiva_quando": "passo:m1_velati completato",
     "completa_quando": "dialogo:d_ottavio_incontro finito",
@@ -372,6 +398,7 @@
    {
     "id": "m1_brace",
     "obiettivo_taccuino": "Aspettare la brace.",
+    "indicazione": "Siediti (tieni {siedi}) e aspetta fino alla brace ({aspetta}).",
     "luogo": "piazza_ore",
     "attiva_quando": "passo:m1_ottavio completato",
     "completa_quando": "ora:>=19:30",
@@ -386,6 +413,7 @@
    {
     "id": "m1_ombrista",
     "obiettivo_taccuino": "La Pina racconta la Partenza.",
+    "indicazione": "Dalle 19:45, davanti al telo dell'Ombrista in piazza, siediti a guardare il racconto ({usa}).",
     "luogo": "telo_ombrista",
     "attiva_quando": "passo:m1_brace completato",
     "completa_quando": "ora:>=20:30 o flag:ombrista_1_vista",
@@ -399,6 +427,7 @@
    {
     "id": "m1_fienile",
     "obiettivo_taccuino": "Il fienile del Messo, di là dal riale.",
+    "indicazione": "Segui Ottavio fino al suo fienile, di là dal riale.",
     "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_ombrista completato",
     "completa_quando": "luogo:fienile_ottavio raggiunto",
@@ -419,6 +448,11 @@
    {
     "id": "m1_notte",
     "obiettivo_taccuino": "Dormire o guardare.",
+    "indicazione": "Nel fienile scegli con Ottavio: dormire fino al mattino o vegliare.",
+    "indicazione_se": [
+     { "quando": "flag:scelta_vegliare e !flag:fade_viste", "indicazione": "Vegli: guarda le Fade dalla finestrella del fienile; poi, da seduta ({siedi}), aspetta l'alba ({aspetta})." },
+     { "quando": "flag:scelta_vegliare", "indicazione": "Le hai viste. Da seduta ({siedi}) aspetta l'alba ({aspetta})." }
+    ],
     "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_fienile completato",
     "completa_quando": "giorno:2 e ora:>=05:30",
@@ -444,6 +478,7 @@
    {
     "id": "m1_mattino",
     "obiettivo_taccuino": "Dov'è finita la passerella?",
+    "indicazione": "Leggi il resoconto della notte sulla Pianta ({pianta}) e parla con Ottavio.",
     "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_notte completato",
     "completa_quando": "(dialogo:d_ottavio_mattino finito o dialogo:d_ottavio_mattino_salvata finito) e flag:pianta_aperta",
@@ -470,6 +505,7 @@
    {
     "id": "m1_ritorno",
     "obiettivo_taccuino": "Tornare in paese dal guado.",
+    "indicazione": "Torna alla Piazza delle Ore passando dal guado del Sass, le pietre piatte sul riale.",
     "luogo": "guado_sass",
     "attiva_quando": "passo:m1_mattino completato",
     "completa_quando": "luogo:piazza_ore raggiunto",
@@ -482,6 +518,7 @@
    {
     "id": "m1_dono",
     "obiettivo_taccuino": "Una novizia aspetta alla Bacheca. Per me?",
+    "indicazione": "Vai alla Bacheca delle Ore, in piazza: dalle 7 una novizia ti aspetta lì.",
     "luogo": "bacheca_ore",
     "attiva_quando": "passo:m1_mattino completato",
     "completa_quando": "dialogo:d_clelia_dono finito o dialogo:d_ottavio_pacco finito",
@@ -494,7 +531,14 @@
    {
     "id": "m1_campanile",
     "obiettivo_taccuino": "Perché sul campanile c'è un pilastro del Catasto?",
+    "indicazione": "Le chiavi le ha il campanaro, sul sagrato dalle 8: parlagli ({usa}), poi sali sul campanile e leggi la targa del Pilastro 1 ({usa}).",
+    "indicazione_se": [
+     { "quando": "flag:campanile_aperto", "indicazione": "Il campanile è aperto: sali e leggi la targa del Pilastro 1 ({usa})." }
+    ],
     "luogo": "cella_campanaria",
+    "tappe": [
+     { "persona": "bortolo", "luogo": "sagrato", "quando": "!flag:campanile_aperto" }
+    ],
     "attiva_quando": "passo:m1_ritorno completato",
     "completa_quando": "flag:campanile_aperto e luogo:cella_campanaria raggiunto e flag:targa_p1_letta",
     "effetti": [
@@ -507,6 +551,8 @@
    {
     "id": "m1_libretto",
     "obiettivo_taccuino": "Che cosa dice Aurelio del suo Pilastro 1?",
+    "indicazione": "Apri il libretto di Aurelio ({libretto}) e leggi la pagina del segnalibro.",
+    "segnalino": false,
     "luogo": "cella_campanaria",
     "attiva_quando": "passo:m1_campanile completato",
     "completa_quando": "flag:libretto_cs1_letto",
@@ -523,6 +569,7 @@
    {
     "id": "m1_chiodo2",
     "obiettivo_taccuino": "Il chiodo 2, sul sagrato.",
+    "indicazione": "Sul sagrato pianta lo squadro sul chiodo 2 (tieni {usa}), livella ({livella}) e mira il campanile ({mira}).",
     "luogo": "sagrato",
     "attiva_quando": "passo:m1_libretto completato",
     "completa_quando": "flag:tentato_lato:2-1 o cella:2214 rilevata",
@@ -539,6 +586,7 @@
    {
     "id": "m1_primo_rilievo",
     "obiettivo_taccuino": "Dalla Terrazza Pedrazzini si vede il campanile?",
+    "indicazione": "Al chiodo 3, sulla Terrazza Pedrazzini: pianta, livella e tieni la croce sulla palina del campanile ({mira}).",
     "luogo": "terrazza_pedrazzini",
     "attiva_quando": "passo:m1_chiodo2 completato",
     "completa_quando": "cella:2214 rilevata",
@@ -559,12 +607,20 @@
    {
     "id": "m1_strada",
     "obiettivo_taccuino": "Se misuro la passerella del Messo, la notte la lascia stare?",
+    "indicazione": "Parla con Ottavio ({usa}; se vola, fischia: {chiama}) per rimettere la passerella, poi misurala dal chiodo 7 al chiodo 8.",
+    "indicazione_se": [
+     { "quando": "variante:E1=Abitata", "indicazione": "La passerella c'è: misurala. Pianta lo squadro sul chiodo 7, alla soglia del mulino ({usa}), e mira il chiodo 8 sul Sass dal Messo ({mira})." }
+    ],
     "luogo": "passerella_messo",
+    "tappe": [
+     { "persona": "ottavio", "quando": "!variante:E1=Abitata e !dialogo:d_ottavio_strada finito" }
+    ],
     "attiva_quando": "passo:m1_primo_rilievo completato",
     "completa_quando": "cella:2797 rilevata e cella:2798 rilevata",
     "eventi": [
      {
       "quando": "dialogo:d_ottavio_strada finito",
+      "tappa": false,
       "effetti": [
        "suggerimento:cerca_nel_libretto"
       ]
@@ -580,6 +636,8 @@
    {
     "id": "m1_seconda_notte",
     "obiettivo_taccuino": "Aspettare il mattino.",
+    "indicazione": "Dopo le 20:30 dormi nel fienile di Ottavio ({usa} sulla porta), o da seduta ({siedi}) aspetta il mattino ({aspetta}).",
+    "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_strada completato",
     "completa_quando": "giorno:3 e ora:>=05:30",
     "effetti": [
@@ -591,6 +649,7 @@
    {
     "id": "m1_prova",
     "obiettivo_taccuino": "La passerella c'è ancora?",
+    "indicazione": "Torna alla passerella del Messo, sul riale: Ottavio ti aspetta.",
     "luogo": "passerella_messo",
     "attiva_quando": "passo:m1_seconda_notte completato",
     "completa_quando": "dialogo:d_ottavio_prova finito",
@@ -600,6 +659,7 @@
    {
     "id": "m1_gancio",
     "obiettivo_taccuino": "Il Messo ha una lettera per me.",
+    "indicazione": "Ascolta Ottavio e leggi fino in fondo la lettera che ti porta.",
     "luogo": "passerella_messo",
     "attiva_quando": "passo:m1_prova completato",
     "completa_quando": "flag:lettera_rosa_letta",
@@ -626,7 +686,15 @@
    {
     "id": "m2_aggancio",
     "obiettivo_taccuino": "Trecento api morte, ai Bugni. Perché?",
+    "indicazione": "Raggiungi i Bugni, sul lago appeso: dal Balcone dei Messi lasciati cadere nell'altra valle.",
+    "indicazione_se": [
+     { "quando": "flag:atterrata_altra_valle e !luogo:porta_bugni raggiunto", "indicazione": "Sei nell'altra valle: cerca la Porta dei Bugni, sul lago appeso." },
+     { "quando": "luogo:porta_bugni raggiunto", "indicazione": "La porta dei Bugni è chiusa, con un biglietto: per ora qui non c'è altro da fare." }
+    ],
     "luogo": "porta_bugni",
+    "tappe": [
+     { "luogo": "balcone_messi", "quando": "!flag:atterrata_altra_valle e !luogo:porta_bugni raggiunto" }
+    ],
     "attiva_quando": "passo:m1_gancio completato",
     "completa_quando": "flag:fase2_disponibile",
     "eventi": [
@@ -759,6 +827,7 @@
    {
     "id": "lc_inventario",
     "obiettivo_taccuino": "Quanto manca perché Corbella sia tutta a china?",
+    "indicazione": "Chiudi con lo squadro i lati fra i chiodi del paese: la Pianta ({pianta}) mostra che cosa manca.",
     "attiva_quando": "flag:gioco_libero",
     "completa_quando": "flag:corbella_a_colori",
     "effetti": [
@@ -777,6 +846,7 @@
    {
     "id": "lb_salita",
     "obiettivo_taccuino": "Il Balcone dei Messi: su per le Selve, seguendo i nastri verdi.",
+    "indicazione": "Sali al Balcone dei Messi: dal Pian dei Ricci segui i nastri verdi sui castagni.",
     "luogo": "balcone_messi",
     "attiva_quando": "flag:gioco_libero",
     "completa_quando": "luogo:balcone_messi raggiunto",
@@ -787,6 +857,8 @@
    {
     "id": "lb_volo",
     "obiettivo_taccuino": "Quando la nappina pende, il cielo ti prende.",
+    "indicazione": "Dal Balcone salta ({salta}) e, quando la nappina pende, apri il Velo ({velo}) verso l'altra valle.",
+    "segnalino": false,
     "luogo": "balcone_messi",
     "attiva_quando": "passo:lb_salita completato",
     "completa_quando": "flag:atterrata_altra_valle",
@@ -799,6 +871,7 @@
    {
     "id": "lb_ritorno",
     "obiettivo_taccuino": "Tornare a Corbella.",
+    "indicazione": "Torna alla Piazza delle Ore, a Corbella.",
     "luogo": "piazza_ore",
     "attiva_quando": "passo:lb_volo completato",
     "completa_quando": "luogo:piazza_ore raggiunto",
@@ -815,6 +888,7 @@
    {
     "id": "ll_appunta",
     "obiettivo_taccuino": "Che cosa brilla, di notte, sopra la testa?",
+    "indicazione": "Di notte appunta con lo squadro ({squadro}, poi {mira}) tre lumi lontani sopra la testa.",
     "attiva_quando": "flag:gioco_libero",
     "completa_quando": "contatore:lumi_appuntati>=3",
     "effetti": [
@@ -852,6 +926,7 @@
    {
     "id": "ld_appunta",
     "obiettivo_taccuino": "Che cos'è il disco grigio sull'asse, a Lag?",
+    "indicazione": "Appunta con lo squadro ({squadro}, poi {mira}) il disco grigio sull'asse, in fondo alla valle.",
     "attiva_quando": "oggetto:squadro",
     "completa_quando": "flag:appuntato_lanterna",
     "effetti": [

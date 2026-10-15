@@ -14,6 +14,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verificaContenuti, type ContenutiVerifica } from '../verifica';
+// i segnaposto dei comandi che il gioco sa riempire (le indicazioni dei passi, i suggerimenti)
+import { TASTI } from '../../regia/tasti';
 
 const argomenti = process.argv.slice(2);
 const markdown = argomenti.includes('--md');
@@ -99,6 +101,7 @@ const contenuti: ContenutiVerifica = {
   testi: leggi(file.testi),
   ...(celle ? { celle } : {}),
   ...(elementi ? { elementi } : {}),
+  tasti: Object.keys(TASTI),
 };
 
 const r = verificaContenuti(contenuti);

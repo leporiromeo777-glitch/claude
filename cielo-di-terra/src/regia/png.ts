@@ -132,6 +132,31 @@ export class Abitanti {
     return p ? surfaceDistance(p.z, p.theta, z, theta) : Infinity;
   }
 
+  /** L'osso «testa» di ogni figura, cercato una volta (null: la figura non ce l'ha). */
+  private readonly teste = new WeakMap<Object3D, Object3D | null>();
+
+  /**
+   * Dove sta adesso la testa di una figura presente (anche in volo), in `out`: l'osso «testa»
+   * della figura, che segue la posa (seduta sulla soglia, china); senza osso, l'altezza della
+   * testa di un adulto o di un bambino sopra i piedi. Per il segnalino delle indicazioni.
+   */
+  testa(id: string, out: Vector3): Vector3 | null {
+    const n = this.npc(id);
+    if (!n?.presente) return null;
+    const f = n.figura;
+    if (f) {
+      let t = this.teste.get(f);
+      if (t === undefined) {
+        t = f.getObjectByName('testa') ?? null;
+        this.teste.set(f, t);
+      }
+      if (t) return t.getWorldPosition(out);
+    }
+    const p = n.posizione();
+    if (!p) return null;
+    return cylToWorld(p.z, p.theta, p.h + (id === 'bambini' || id === 'lisa' || id === 'gioanin' ? 1.0 : 1.45), out);
+  }
+
   /** Il punto dove si parla a un personaggio dei dialoghi (la testa; «bambini» = Lisa). */
   puntoDialogo(personaggio: string): Vector3 | null {
     if (!this.presente(personaggio)) return null;

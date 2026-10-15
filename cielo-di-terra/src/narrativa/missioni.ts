@@ -30,7 +30,7 @@ export type StatoPasso = 'bloccato' | 'attivo' | 'completato';
 
 export interface EventiMissioni {
   missioneAvviata: { missione: string; titolo: string };
-  passoAttivato: { missione: string; passo: string; obiettivo?: string; luogo?: string };
+  passoAttivato: { missione: string; passo: string; obiettivo?: string; indicazione?: string; luogo?: string };
   passoCompletato: { missione: string; passo: string };
   missioneCompletata: { missione: string; titolo: string };
   missioneFallita: { missione: string; titolo: string };
@@ -66,6 +66,8 @@ export interface PassoAttivo {
   missione: string;
   passo: string;
   obiettivo?: string;
+  /** Indicazione pratica (che cosa fare, dove, con quale tasto) per il pannello dell'obiettivo. */
+  indicazione?: string;
   luogo?: string;
 }
 
@@ -149,6 +151,7 @@ export class Missioni {
             missione: m.id,
             passo: p.id,
             ...(p.obiettivo !== undefined ? { obiettivo: p.obiettivo } : {}),
+            ...(p.indicazione !== undefined ? { indicazione: p.indicazione } : {}),
             ...(p.luogo !== undefined ? { luogo: p.luogo } : {}),
           });
         }
@@ -316,6 +319,7 @@ export class Missioni {
       missione: d.id,
       passo: p.id,
       ...(p.obiettivo !== undefined ? { obiettivo: p.obiettivo } : {}),
+      ...(p.indicazione !== undefined ? { indicazione: p.indicazione } : {}),
       ...(p.luogo !== undefined ? { luogo: p.luogo } : {}),
     });
     if (p.effettiAttivazione.length) this.deps.applicaEffetti(p.effettiAttivazione, `missione ${d.id}, attivazione di ${p.id}`);
