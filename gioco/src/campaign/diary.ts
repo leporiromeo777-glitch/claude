@@ -150,6 +150,17 @@ export function quirkRevealed(q: QuirkId, character: CharacterId, k: Pick<Knowle
 }
 
 /**
+ * La voce del Taccuino su una persona descrive una sua stranezza che la storia ha sciolto
+ * (Q056, verifica R2): la voce si sblocca conoscendo quella stranezza della persona e la
+ * stranezza non vale più. Il testo resta com'è (è un ricordo), con il segno «non più».
+ */
+export function entryDissolved(def: Pick<DiaryEntryDef, 'section' | 'character' | 'unlock'>, flags: Record<string, FlagValue>, db: Pick<ContentDB, 'characters'>): boolean {
+  if (def.section !== 'persone' || !def.character) return false;
+  const quirks = db.characters.get(def.character)?.quirks ?? [];
+  return quirks.some((q) => mentionsQuirk(def.unlock, q) && quirkDissolved(q, flags));
+}
+
+/**
  * La stranezza non vale più per via della storia (Q056): i flag la tolgono dal contesto
  * delle notti (oggi solo la pace di g18, `riconciliate`, scioglie «Non passa mai sotto
  * Teresa» e «Legge le lettere che porta»). Si chiede al motore, che decide quali restano.

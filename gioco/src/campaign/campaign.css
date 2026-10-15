@@ -281,6 +281,13 @@
   margin-bottom: calc(-1 * (var(--safe-bottom) + var(--spazio-4)));
   padding: var(--spazio-5) var(--spazio-4) calc(var(--safe-bottom) + var(--spazio-4));
   background: linear-gradient(to bottom, rgba(18, 22, 34, 0), rgba(18, 22, 34, 0.88) 45%);
+  /* Verifica R2 (Q035): la sfumatura del piede non si prende i tocchi; un bigliettino o una
+     giornata del Telaio che si vede sotto la sfumatura risponde. Solo i pulsanti del piede
+     (e i loro gruppi) restano toccabili. */
+  pointer-events: none;
+}
+.cp-sera-piede > * {
+  pointer-events: auto;
 }
 .cp-sera-strumenti {
   display: flex;
@@ -1557,6 +1564,16 @@
 /* Q056: una stranezza sciolta dalla storia si legge al passato. */
 .cp-persona-stranezza--sciolta s {
   text-decoration-thickness: 2px;
+}
+/* Verifica R2 (Q056): la voce che descrive una stranezza sciolta resta, segnata «non più». */
+.cp-voce-sciolta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--legno-scuro);
 }
 
 /* Q012: «Torna alla sera» prima della prima ora. */

@@ -28,7 +28,7 @@ import { svgIcon } from '../../core/ui/glyphs';
 import * as tombolo from '../../tombolo/index';
 import { activeNight } from '../../tombolo/index';
 import { controller, nightRulePage } from '../controller';
-import { bookPageByAda, bookPages, currentPista, markBookSeen, newBookPages, questionOf, quirkDissolved, quirkRevealed } from '../diary';
+import { bookPageByAda, bookPages, currentPista, entryDissolved, markBookSeen, newBookPages, questionOf, quirkDissolved, quirkRevealed } from '../diary';
 import { dayIndexOf } from '../evening';
 import { notePaper, noteMarks } from '../notes';
 import { memoriaInPlay } from '../memoria';
@@ -78,14 +78,17 @@ export function visibleTabs(s: Services, c: CampaignStateX | null, k: Knowledge,
 }
 
 /** Una voce del Taccuino: le già lette in una riga, le nuove intere. */
-function entryView(s: Services, def: DiaryEntryDef, isNew: boolean, highlight: boolean): HTMLElement {
+function entryView(s: Services, def: DiaryEntryDef, isNew: boolean, highlight: boolean, dissolved = false): HTMLElement {
   const text = textOf(def.textKey, undefined, 'span', { rich: true, className: 'cp-voce-testo' });
   const src = def.source ? textOf(`campaign.taccuino.fonte.${def.source}`, undefined, 'span', { className: 'cp-voce-fonte' }) : null;
+  // La stranezza descritta dalla voce è sciolta (Q056): il ricordo resta, con «non più: sciolta».
+  const gone = dissolved ? el('span', { class: 'cp-voce-sciolta', test: `cp-voce-sciolta-${def.id}` }, svgIcon('spunta', { size: 14 }), textOf('campaign.taccuino.stranezzaSciolta', undefined, 'span')) : null;
   const b = el(
     'button',
-    { type: 'button', class: ['cp-voce', isNew ? 'cp-voce--nuova' : highlight ? null : 'cp-voce--letta', highlight ? 'cp-voce--evidenziata' : null], test: `cp-voce-${def.id}`, attrs: { 'aria-expanded': isNew || highlight ? 'true' : 'false' } },
+    { type: 'button', class: ['cp-voce', isNew ? 'cp-voce--nuova' : highlight ? null : 'cp-voce--letta', highlight ? 'cp-voce--evidenziata' : null, dissolved ? 'cp-voce--sciolta' : null], test: `cp-voce-${def.id}`, attrs: { 'aria-expanded': isNew || highlight ? 'true' : 'false' } },
     isNew ? textOf('campaign.taccuino.nuova', undefined, 'span', { className: 'cp-voce-nuova-segno' }) : null,
     text,
+    gone,
     src,
   );
   b.addEventListener('click', () => {
@@ -315,7 +318,7 @@ function renderPersone(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
     for (const eid of k.diary) {
       const e = s.content.diary.get(eid);
       if (!e || e.section !== 'persone' || e.character !== id) continue;
-      card.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid));
+      card.appendChild(entryView(s, e, k.diary.indexOf(eid) >= seenMark, highlight === eid, !!c && entryDissolved(e, c.flags, s.content)));
     }
     list.appendChild(card);
   }

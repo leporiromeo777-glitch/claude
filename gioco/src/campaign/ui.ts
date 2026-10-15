@@ -200,19 +200,22 @@ export function emptyBottle(f: Frame): HTMLCanvasElement | null {
       todo = rest;
     }
     ctx.putImageData(img, 0, 0);
-    // Il nodo di filo nero, dove stava il foglio.
+    // Il nodo di filo nero, dove stava il foglio: due anelli intrecciati e i due capi lungo
+    // la bottiglia, abbastanza spessi da leggersi anche alla porta (72 px, verifica R2).
     ctx.save();
     ctx.scale(1 / k, 1 / k);
     ctx.strokeStyle = '#120e0e';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.ellipse(160, 149, 9, 8, -0.5, 0, Math.PI * 2);
-    ctx.moveTo(128, 170);
-    ctx.quadraticCurveTo(140, 158, 152, 152);
-    ctx.moveTo(167, 153);
-    ctx.quadraticCurveTo(178, 162, 192, 166);
+    ctx.ellipse(153, 146, 11, 8, 0.7, 0, Math.PI * 2);
+    ctx.moveTo(176, 155);
+    ctx.ellipse(166, 155, 10, 7, -0.2, 0, Math.PI * 2);
+    ctx.moveTo(126, 128);
+    ctx.quadraticCurveTo(136, 132, 144, 140);
+    ctx.moveTo(174, 160);
+    ctx.quadraticCurveTo(186, 170, 200, 172);
     ctx.stroke();
     ctx.restore();
     derived.set(f.source, c);

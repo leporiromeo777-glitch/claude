@@ -13,8 +13,8 @@ import type { LaceMetrics, NightOutcome, SaveData } from '../../../src/core/type
 import { outcomeCounts, recordNight, requestSetKey, type LaceRecordX } from '../../../src/campaign/progress';
 import { beginEvening, camp, completeDay, completeReplay, newCampaign, startNight } from '../../../src/campaign/flow';
 import { dayIndexOf, isAnonymous, movePin, pinNote } from '../../../src/campaign/evening';
-import { quirkDissolved } from '../../../src/campaign/diary';
-import { hasTovaglia, tovagliaTiles } from '../../../src/campaign/tovaglia';
+import { entryDissolved, quirkDissolved } from '../../../src/campaign/diary';
+import { hasTovaglia, tovagliaShown, tovagliaTiles } from '../../../src/campaign/tovaglia';
 import { db, emptySave, playNight } from './helpers';
 
 const m = (incroci: number, quiete: number, extra: Partial<LaceMetrics> = {}): LaceMetrics => ({ incroci, minIncroci: 3, quiete, simmetria: false, filoDOro: incroci === 3, ...extra });
@@ -174,6 +174,16 @@ describe('Q056: stranezze sciolte dalla pace', () => {
     expect(quirkDissolved('martaNoSotto', {})).toBe(false);
     expect(quirkDissolved('martaNoSotto', { riconciliate: false })).toBe(false);
   });
+
+  it('le voci del Taccuino che descrivono una stranezza sciolta si riconoscono (verifica R2)', () => {
+    const def = (id: string) => db().diary.get(id)!;
+    expect(entryDissolved(def('persone.marta.noSotto'), { riconciliate: true }, db())).toBe(true);
+    expect(entryDissolved(def('persone.teresa.legge'), { riconciliate: true }, db())).toBe(true);
+    expect(entryDissolved(def('persone.marta.noSotto'), {}, db())).toBe(false);
+    // Le voci che non parlano di una stranezza sciolta restano come sono.
+    const others = [...db().diary.values()].filter((e) => e.section !== 'persone' || !['marta', 'teresa'].includes(e.character ?? ''));
+    expect(others.filter((e) => entryDissolved(e, { riconciliate: true }, db()))).toEqual([]);
+  });
 });
 
 describe('R2-D5: la Tovaglia', () => {
@@ -192,5 +202,9 @@ describe('R2-D5: la Tovaglia', () => {
     d.unlocks.tovaglia = false;
     c.endingsSeen = ['aperto'];
     expect(hasTovaglia(d)).toBe(true);
+    // Nel Telaio si mostra con la storia che ha tessuto il finale vero (verifica R2).
+    expect(tovagliaShown(d, db())).toBe(true);
+    delete c.history['fin_aperto'];
+    expect(tovagliaShown(d, db())).toBe(false);
   });
 });

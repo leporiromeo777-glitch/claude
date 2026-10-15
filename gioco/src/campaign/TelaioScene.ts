@@ -18,7 +18,7 @@ import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
 import { replayRipassaParams } from './flow';
 import { sceneHost, tapKey } from './ui';
-import { hasTovaglia, tovagliaSection } from './tovaglia';
+import { tovagliaSection, tovagliaShown } from './tovaglia';
 import type { DayResultX } from './types';
 
 /** Parametri della scena 'telaio'. */
@@ -66,7 +66,7 @@ export class TelaioScene implements Scene {
     }
     this.open = controller.state()?.levelId ?? null;
     const c = controller.state();
-    if (c && hasTovaglia(controller.data())) this.tovaglia = tovagliaSection(this.s, c);
+    if (c && tovagliaShown(controller.data(), this.s.content)) this.tovaglia = tovagliaSection(this.s, c);
     this.refresh();
   }
 

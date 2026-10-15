@@ -15,6 +15,7 @@ import type {
   BookPageDef,
   CampaignState,
   CharacterId,
+  DiaryEntryId,
   EndingId,
   Knowledge,
   LevelId,
@@ -70,7 +71,15 @@ export interface ArchivioParams {
   levelId?: LevelId;
 }
 export interface BilancioParams {
-  telaio?: { levelId: LevelId; metrics: NightOutcome['metrics']; record: ReturnType<typeof flow.completeReplay>; spartito: string; rows: NightOutcome['rows'] };
+  telaio?: {
+    levelId: LevelId;
+    metrics: NightOutcome['metrics'];
+    record: ReturnType<typeof flow.completeReplay>;
+    spartito: string;
+    rows: NightOutcome['rows'];
+    /** Voci del Taccuino scoperte nel merletto rigiocato: nel bilancio, non in avvisi sopra i pulsanti (verifica R2). */
+    newDiary?: DiaryEntryId[];
+  };
 }
 
 const NIGHT_TO_DAWN_MS = 1600;
@@ -239,10 +248,13 @@ export class CampaignControllerImpl implements CampaignController {
       this.afterNight(outcome, () => this.go({ scene: 'archivio', params: { result: r } satisfies ArchivioParams }), 0);
     } else if (outcome.origin === 'telaio') {
       const rec = this.mutate((d) => flow.completeReplay(d, outcome), 'telaio');
-      const params: BilancioParams = { telaio: { levelId: outcome.levelId, metrics: outcome.metrics, record: rec, spartito: outcome.spartito, rows: outcome.rows } };
+      const telaio: NonNullable<BilancioParams['telaio']> = { levelId: outcome.levelId, metrics: outcome.metrics, record: rec, spartito: outcome.spartito, rows: outcome.rows };
+      // Le stranezze scoperte rigiocando vanno nel bilancio («Nel Taccuino»), non in avvisi
+      // impilati sopra «Continua» (verifica R2): si prendono quando si lascia il merletto.
+      const toBilancio = (): void => this.go({ scene: 'bilancio', params: { telaio: { ...telaio, newDiary: this.takeHeldDiary() } } satisfies BilancioParams });
       // Un Ripassa (modo 'replay') si è già goduto ritessendosi; un Rigioca resta sul merletto (R2-D5).
-      if (activeNight()?.params.mode === 'replay') this.afterNight(outcome, () => this.go({ scene: 'bilancio', params }));
-      else this.holdLace(outcome, () => this.go({ scene: 'bilancio', params }), { labelKey: 'campaign.notte.continua', test: 'cp-notte-continua' });
+      if (activeNight()?.params.mode === 'replay') this.afterNight(outcome, toBilancio);
+      else this.holdLace(outcome, toBilancio, { labelKey: 'campaign.notte.continua', test: 'cp-notte-continua' });
     }
   }
 
@@ -342,6 +354,23 @@ export class CampaignControllerImpl implements CampaignController {
     const norm = (x: string): string => x.replace(/\s+/g, ' ').trim();
     const texts = new Set(keep.map((n) => norm(plainText(this.s.i18n.t(n.key, n.params), (id) => charName(this.s, id)))));
     for (const t of this.s.ui.root.querySelectorAll<HTMLElement>('.core-toast')) if (texts.has(norm(t.textContent ?? ''))) t.remove();
+  }
+
+  /**
+   * Le voci del Taccuino tenute da parte durante il merletto (gli avvisi delle stranezze
+   * scoperte): si tolgono dagli avvisi e si restituiscono, per il bilancio del Telaio.
+   */
+  private takeHeldDiary(): DiaryEntryId[] {
+    const out: DiaryEntryId[] = [];
+    const keep: { key: string; params?: Record<string, string | number> }[] = [];
+    for (const n of this.held) {
+      const def = n.params ? undefined : [...this.s.content.diary.values()].find((x) => x.textKey === n.key);
+      if (def) {
+        if (!out.includes(def.id)) out.push(def.id);
+      } else keep.push(n);
+    }
+    this.held = keep;
+    return out;
   }
 
   /** Mostra gli avvisi tenuti da parte (alla fine dell'alba o fuori dal tombolo). */

@@ -7,7 +7,7 @@
  * Con `{ telaio }` mostra il merletto rigiocato dal Telaio (solo eleganza e record) e
  * torna al Telaio.
  */
-import type { ActionEvent, CharacterId, LaceMetrics, Playing, Scene, Services, Viewport } from '../core/types';
+import type { ActionEvent, CharacterId, DiaryEntryId, LaceMetrics, Playing, Scene, Services, Viewport } from '../core/types';
 import { el } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
@@ -133,17 +133,8 @@ export class BilancioScene implements Scene {
     }
 
     // Voci nuove del Taccuino (toccabili).
-    if (r.newDiary.length > 0) {
-      const list = el('ul', { class: 'cp-lista' });
-      for (const id of r.newDiary) {
-        const def = s.content.diary.get(id);
-        if (!def) continue;
-        const b = el('button', { type: 'button', class: 'cp-voce-nuova', test: `cp-bilancio-voce-${id}` }, svgIcon('taccuino', { size: 18 }), textOf(def.textKey, undefined, 'span', { rich: true }));
-        b.addEventListener('click', () => this.side?.open({ entry: id }));
-        list.appendChild(el('li', null, b));
-      }
-      parts.push(this.section('campaign.bilancio.taccuino', 'cp-bilancio-voci', list));
-    }
+    const voci = this.diarySection(r.newDiary);
+    if (voci) parts.push(voci);
 
     // Eleganza e record da quando la matassa è visibile (GDD 7: g02).
     if (showsElegance(s.content.levels.get(r.levelId))) parts.push(this.elegance(r.metrics, r.record, r.goldThread));
@@ -153,6 +144,21 @@ export class BilancioScene implements Scene {
 
     parts.push(...this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
     return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
+  }
+
+  /** «Nel Taccuino»: le voci nuove, toccabili (aprono il Taccuino su quella voce). */
+  private diarySection(ids: readonly DiaryEntryId[]): HTMLElement | null {
+    if (ids.length === 0) return null;
+    const list = el('ul', { class: 'cp-lista' });
+    for (const id of ids) {
+      const def = this.s.content.diary.get(id);
+      if (!def) continue;
+      const b = el('button', { type: 'button', class: 'cp-voce-nuova', test: `cp-bilancio-voce-${id}` }, svgIcon('taccuino', { size: 18 }), textOf(def.textKey, undefined, 'span', { rich: true }));
+      b.addEventListener('click', () => this.side?.open({ entry: id }));
+      list.appendChild(el('li', null, b));
+    }
+    if (list.childElementCount === 0) return null;
+    return this.section('campaign.bilancio.taccuino', 'cp-bilancio-voci', list);
   }
 
   /**
@@ -247,6 +253,9 @@ export class BilancioScene implements Scene {
     const t = this.telaio;
     if (!t) return el('article');
     const parts: HTMLElement[] = [this.header(t.levelId), textOf('campaign.bilancio.rigiocata', undefined, 'p', { className: 'cp-tenue' })];
+    // Le stranezze scoperte rigiocando (verifica R2): qui, non in avvisi sopra i pulsanti.
+    const voci = this.diarySection(t.newDiary ?? []);
+    if (voci) parts.push(voci);
     parts.push(this.elegance(t.metrics, t.record, t.record.goldThread));
     const unlocks = this.unlocksSection(t.record.unlocked, false);
     if (unlocks) parts.push(unlocks);

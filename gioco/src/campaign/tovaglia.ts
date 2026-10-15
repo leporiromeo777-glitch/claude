@@ -27,6 +27,18 @@ export function hasTovaglia(d: Pick<SaveData, 'unlocks' | 'campaign'>): boolean 
   return d.unlocks.tovaglia === true || !!c?.endingsSeen?.includes('aperto');
 }
 
+/**
+ * La Tovaglia si mostra nel Telaio della storia che ha tessuto il finale vero (verifica R2):
+ * dopo una storia nuova il Telaio non mostra una «Tovaglia» fatta solo dei merletti nuovi
+ * (il testo dice «tutti i merletti di quell'anno»); torna quando si ritesse il finale vero.
+ */
+export function tovagliaShown(d: Pick<SaveData, 'unlocks' | 'campaign'>, db: Pick<ContentDB, 'campaign' | 'levels'>): boolean {
+  const c = d.campaign as CampaignStateX | null;
+  if (!c || !hasTovaglia(d)) return false;
+  const vero = db.campaign.finals.aperto;
+  return !!vero && tovagliaTiles(c, db).some((t) => t.levelId === vero);
+}
+
 /** I merletti della Tovaglia: le giornate tessute, poi il finale, nell'ordine della storia. */
 export function tovagliaTiles(c: CampaignStateX, db: Pick<ContentDB, 'campaign' | 'levels'>): TovagliaTile[] {
   const ids = [...db.campaign.days.map((d) => d.id), ...Object.values(db.campaign.finals)];

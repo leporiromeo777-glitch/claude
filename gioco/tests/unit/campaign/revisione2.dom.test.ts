@@ -37,8 +37,8 @@ import { imageOf, itemOf, dayIndexOf, pinNote } from '../../../src/campaign/even
 import { BilancioScene } from '../../../src/campaign/BilancioScene';
 import { SeraScene } from '../../../src/campaign/SeraScene';
 import { TelaioScene } from '../../../src/campaign/TelaioScene';
-import { CampaignControllerImpl, LACE_HOLD_MS, controller } from '../../../src/campaign/controller';
-import { beginEvening, camp, completeDay, newCampaign, startNight } from '../../../src/campaign/flow';
+import { CampaignControllerImpl, LACE_HOLD_MS, controller, type BilancioParams } from '../../../src/campaign/controller';
+import { beginEvening, camp, completeDay, newCampaign, replayParams, startNight } from '../../../src/campaign/flow';
 import { refreshDiary } from '../../../src/campaign/diary';
 import type { CampaignStateX } from '../../../src/campaign/types';
 import { db, emptySave, playNight } from './helpers';
@@ -123,6 +123,23 @@ describe('bilancio (R2-D2, Q055, Q010, Q058)', () => {
     expect(el?.querySelector('[data-test="cp-bilancio-oro"]')).toBeNull();
     expect(el?.querySelector('[data-test="cp-bilancio-record-escluso"]')?.textContent).toContain('non entra nei record');
     scene.exit();
+  });
+
+  it('il bilancio del Telaio mostra «Nel Taccuino» con le stranezze scoperte rigiocando (verifica R2)', () => {
+    const { s, d } = setup();
+    newCampaign(d, db());
+    const metrics = { incroci: 4, minIncroci: 4, quiete: 2, simmetria: false, filoDOro: false };
+    const record = { before: null, after: { minIncroci: 4, maxQuiete: 2, simmetria: false }, counted: true, improved: [], goldThread: false, firstGold: false, unlocked: [] };
+    const scene = new BilancioScene(s);
+    scene.enter({ telaio: { levelId: 'g02', metrics, record, spartito: '', rows: [], newDiary: ['persone.gino.corre'] } } satisfies BilancioParams);
+    const voci = document.querySelector('[data-test="cp-bilancio-voci"]');
+    expect(voci).not.toBeNull();
+    expect(voci?.querySelector('[data-test="cp-bilancio-voce-persone.gino.corre"]')).not.toBeNull();
+    scene.exit();
+    const scene2 = new BilancioScene(s);
+    scene2.enter({ telaio: { levelId: 'g02', metrics, record, spartito: '', rows: [] } } satisfies BilancioParams);
+    expect(document.querySelector('[data-test="cp-bilancio-voci"]')).toBeNull();
+    scene2.exit();
   });
 
   it('il primo filo d’oro: una riga sola, «Il tuo primo filo d’oro» (Q016, Q054)', () => {
@@ -326,6 +343,24 @@ describe('Taccuino (Q008, Q020, Q037, Q056)', () => {
     expect(marta?.textContent).toContain('non più');
     const piero = document.querySelector('[data-test="cp-stranezza-pieroPozzo"]');
     expect(piero?.getAttribute('data-sciolta')).toBe('0');
+    // Verifica R2: anche la voce del Taccuino che descrive la stranezza sciolta lo dice.
+    expect(d.knowledge.diary).toContain('persone.marta.noSotto');
+    const voce = document.querySelector('[data-test="cp-voce-persone.marta.noSotto"]');
+    expect(voce?.classList.contains('cp-voce--sciolta')).toBe(true);
+    expect(voce?.querySelector('[data-test="cp-voce-sciolta-persone.marta.noSotto"]')?.textContent).toContain('non più');
+  });
+
+  it('senza la pace la voce sulla stranezza non ha il segno «non più» (Q056)', async () => {
+    const { ui, d } = setup();
+    const c = eveningAt(d, 'g19');
+    d.knowledge.quirks.push('martaNoSotto');
+    refreshDiary(c, d.knowledge, db());
+    void ui.openOverlay('taccuino', { from: 'sera', tab: 'persone' });
+    await tick();
+    const voce = document.querySelector('[data-test="cp-voce-persone.marta.noSotto"]');
+    expect(voce).not.toBeNull();
+    expect(voce?.classList.contains('cp-voce--sciolta')).toBe(false);
+    expect(voce?.querySelector('.cp-voce-sciolta')).toBeNull();
   });
 });
 
@@ -392,6 +427,14 @@ describe('sera (Q067, Q004, Q006)', () => {
     await tick();
     expect(document.querySelector('[data-test="confirm"]')).not.toBeNull();
     scene.exit();
+  });
+});
+
+describe('piede fisso (Q035, verifica R2)', () => {
+  it('la sfumatura del piede lascia passare i tocchi; i suoi pulsanti no', () => {
+    const css = readFileSync(resolve(ROOT, 'src/campaign/campaign.css'), 'utf8');
+    expect(css).toMatch(/\.cp-sera-piede\s*\{[^}]*pointer-events:\s*none/);
+    expect(css).toMatch(/\.cp-sera-piede > \*\s*\{[^}]*pointer-events:\s*auto/);
   });
 });
 
@@ -473,12 +516,19 @@ describe('Telaio (R2-D5, Q035)', () => {
     scene.enter({});
     expect(document.querySelector('[data-test="cp-tovaglia"]')).toBeNull();
     scene.exit();
+    // Sbloccata da una storia di prima ma non in questa (storia nuova): niente Tovaglia
+    // fatta dei soli merletti nuovi (verifica R2).
     d.unlocks.tovaglia = true;
+    const scene1 = new TelaioScene(s);
+    scene1.enter({});
+    expect(document.querySelector('[data-test="cp-tovaglia"]')).toBeNull();
+    scene1.exit();
+    c.history['fin_aperto'] = { levelId: 'fin_aperto', rows: [{ hour: 6, crossings: [] }], requests: [], metrics: { incroci: 0, minIncroci: 0, quiete: 1, simmetria: false, filoDOro: false }, spartito: '', at: '' };
     const scene2 = new TelaioScene(s);
     scene2.enter({});
     const tov = document.querySelector('[data-test="cp-tovaglia"]');
     expect(tov?.textContent).toContain('La Tovaglia');
-    expect(tov?.querySelectorAll('.cp-tovaglia-merletto').length).toBe(1);
+    expect(tov?.querySelectorAll('.cp-tovaglia-merletto').length).toBe(2);
     tov?.querySelector<HTMLButtonElement>('[data-test="cp-tovaglia-ascolta"]')?.click();
     expect(audio.carillon).toHaveBeenCalled();
     scene2.exit();
@@ -596,6 +646,33 @@ describe('controller: fine della notte (R2-D5) e avvisi (Q069, Q075)', () => {
     const playing = carillon.mock.results[0]?.value;
     expect(ctl.adoptLaceCarillon('g05')).toBe(playing);
     expect(ctl.adoptLaceCarillon('g05')).toBeNull();
+  });
+
+  it('rigiocando dal Telaio, la stranezza scoperta va nel bilancio («Nel Taccuino»), non in avvisi sopra «Continua» (verifica R2)', async () => {
+    vi.useFakeTimers();
+    const { d, bus, go, toast, root, setScene } = setupCtl();
+    const { o } = nightOf(d, 'g01');
+    completeDay(d, db(), o);
+    // La regola di Gino non era ancora venuta fuori (nessun rifiuto la prima volta).
+    d.knowledge.quirks = d.knowledge.quirks.filter((q) => q !== 'ginoCorre');
+    d.knowledge.diary = d.knowledge.diary.filter((id) => id !== 'persone.gino.corre');
+    const p = replayParams(d, db(), 'g01');
+    expect(p.origin).toBe('telaio');
+    setActiveNight({ params: p, completed: null, session: { rows: [], dropped: [], done: false } } as never);
+    bus.emit('quirk:discovered', { quirk: 'ginoCorre', thread: 'gino' });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(d.knowledge.diary).toContain('persone.gino.corre');
+    expect(toast).not.toHaveBeenCalled();
+    const out: NightOutcome = { ...o, origin: 'telaio' };
+    setActiveNight({ params: p, completed: out, session: { rows: out.rows, dropped: [] } } as never);
+    bus.emit('night:complete', { outcome: out });
+    await vi.advanceTimersByTimeAsync(LACE_HOLD_MS + 50);
+    root.querySelector<HTMLButtonElement>('[data-test="cp-notte-continua"]')?.click();
+    const toBil = go.mock.calls.find((c) => c[0] === 'bilancio');
+    expect(((toBil as unknown[] | undefined)?.[1] as BilancioParams | undefined)?.telaio?.newDiary).toEqual(['persone.gino.corre']);
+    setScene('bilancio');
+    bus.emit('scene:enter', { id: 'bilancio' } as never);
+    expect(toast).not.toHaveBeenCalled();
   });
 
   it('una stranezza scoperta di notte (anche da un rifiuto) non fa un avviso sopra il merletto (Q069, Q075)', async () => {
