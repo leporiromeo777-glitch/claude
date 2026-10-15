@@ -478,7 +478,7 @@ export function notte(stato: StatoCatasto, regole: RegoleCatasto, input: InputNo
 
 /** Che cosa farebbe la notte senza farlo (l'«avviso della sera», GDD §10). */
 export function previsioneNotte(stato: StatoCatasto, regole: RegoleCatasto, input: InputNotte = {}): Resoconto {
-  return notte(stato.notteInCorso ? { ...stato } : stato, regole, input).resoconto;
+  return notte(stato, regole, input).resoconto;
 }
 
 // ───────────────────────────── di giorno ─────────────────────────────

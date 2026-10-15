@@ -260,6 +260,22 @@ describe('Fase 1: il percorso del catasto', () => {
     expect(r4.resoconto.particelleCambiate).toEqual([]);
   });
 
+  it('quali lati salvano ogni elemento mobile (e la nota di m1_strada su 1-7)', () => {
+    const interi = (el: string) =>
+      [...regole.lati.values()].filter((l) => l.chiudibile && regole.elementi.get(el)!.particelle.every((c) => l.particelle.includes(c))).map((l) => l.id).sort();
+    expect(interi('E1')).toEqual(['1-8', '7-8', '8-11']);
+    expect(interi('E2')).toEqual(['1-8', '8-11']); // FASE1 §7.1, fade_fase1.json E2.note
+    expect(interi('E3')).toEqual(['1-6', '1-7', '1-8', '8-11']); // FASE1 §7.1, E3.note
+    expect(interi('E4')).toEqual(['1-3', '1-4', '3-11', '3-5']);
+    // missioni.json → m1_strada.note dice «vanno bene anche 1-7, 1-8 o 8-11»: il lato 1-7 però copre
+    // solo la passerella (2797), non il sentiero nel prato (2798). Da solo non completa il passo
+    // (cella:2797 rilevata e cella:2798 rilevata) e la notte riporta la passerella alla Carta. Vedi README.
+    const solo17 = rileva(tappe.brace1!, regole, { stazione: 'cs_1', mira: 'cs_7', ora: 10 }).stato;
+    expect(cellaRilevataDaElvira(solo17, 2797)).toBe(true);
+    expect(cellaRilevataDaElvira(solo17, 2798)).toBe(false);
+    expect(varianteDi(notte(solo17, regole, {}).nuovoStato, 'E1')).toBe('Carta');
+  });
+
   it('le condizioni «cella:N rilevata» di missioni.json sono tutte raggiungibili con la rete di Corbella', () => {
     const missioni = leggiJson<unknown>('missioni.json');
     const testo = JSON.stringify(missioni);

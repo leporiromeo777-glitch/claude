@@ -7,8 +7,13 @@ import type { Collider } from '../../../src/world/colliders';
 import { impostaIntensitaLumi } from '../../oggetti/src/materiali';
 import type { VoceCollider } from './cantiere';
 import { Contesto } from './contesto';
+import { costruisciCasaPina, costruisciCasaVelo, costruisciCase } from './luoghi/case';
 import { costruisciPiazza } from './luoghi/piazza';
-import { costruisciCampanile } from './luoghi/sanVigilio';
+import { costruisciCampanile, costruisciChiesa } from './luoghi/sanVigilio';
+import { costruisciSentieri } from './luoghi/sentieriCorbella';
+import { costruisciMuriTerrazze } from './terrazzi';
+import { distanza, suolo } from './terreno';
+import { luogo } from './contenuti';
 import { materialiMotore } from './materiali';
 import { dentroCorbella, liberaCastagni, rimuoviSegnaposto, type RisultatoSegnaposto } from './segnaposto';
 import type { GiocoCorbella, PuntoInterazione } from './tipi';
@@ -27,6 +32,8 @@ export interface StatisticheCorbella {
   lumi: number;
   punti: number;
   castagniTolti: number;
+  case: number;
+  muriMetri: number;
   segnaposto: RisultatoSegnaposto | null;
   msCostruzione: number;
 }
@@ -54,8 +61,23 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const mat = materialiMotore(game);
   const ctx = new Contesto();
 
+  // 1. luoghi con un nome (impronte prima delle case generiche) e sentieri
+  costruisciSentieri(ctx);
   costruisciPiazza(ctx);
   costruisciCampanile(ctx);
+  costruisciChiesa(ctx);
+  costruisciCasaPina(ctx);
+  costruisciCasaVelo(ctx);
+  // 2. rustici sulle particelle abitate
+  const case_ = costruisciCase(ctx);
+  // 3. muri delle terrazze lungo le alzate dei gradoni
+  const piazza = luogo('piazza_ore');
+  const muri = costruisciMuriTerrazze(ctx, {
+    regione: { z0: 1060, theta0: 35, xMin: -112, xMax: 150, yMin: -122, yMax: 150, passo: 1.5 },
+    prefissoZona: 'terrazze',
+    escludi: (z, th) => distanza({ z, theta: th }, piazza) < piazza.raggio + 3 || suolo(z, th) < 9,
+    dettaglio: (z, th) => (distanza({ z, theta: th }, piazza) < 70 ? 'alto' : 'basso'),
+  });
 
   // cottura delle zone
   const radice = new Group();
@@ -89,6 +111,8 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     lumi: lumi.length,
     punti: ctx.punti.size,
     castagniTolti,
+    case: case_.length,
+    muriMetri: Math.round(muri.metri),
     segnaposto: seg,
     msCostruzione: 0,
   };
