@@ -13,18 +13,24 @@
   padding: clamp(14px, 3vh, 36px) 16px clamp(12px, 2.5vh, 26px);
 }
 .ui-cr-foglio {
+  position: relative;
   flex: 1;
   min-height: 0;
   width: min(640px, 100%);
+  display: flex;
+}
+.ui-cr-scorri {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--matita-chiara) transparent;
   padding: 0 52px;
-  mask-image: linear-gradient(180deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 91%, transparent 100%);
 }
-.ui-cr-foglio:focus-visible {
-  outline: 2.5px solid #f3e7c6;
-  outline-offset: 4px;
+.ui-cr-scorri:focus-visible {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: -8px;
 }
 .ui-cr-contenuto {
   padding: 48px 0 30vh;
@@ -110,5 +116,7 @@
   color: #2a2633;
 }
 .ui-cr-chiudi {
+  position: relative;
+  flex: none;
   background: rgba(240, 231, 209, 0.92);
 }

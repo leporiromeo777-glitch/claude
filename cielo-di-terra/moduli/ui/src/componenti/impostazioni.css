@@ -32,13 +32,13 @@
 .ui-imp-schede {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 6px;
+  gap: 4px 2px;
   border-bottom: 1.5px solid var(--inchiostro-2);
 }
 .ui-imp-scheda {
   position: relative;
   margin-bottom: -1.5px;
-  padding: 0.35em 0.9em 0.3em;
+  padding: 0.35em 0.75em 0.3em;
   border: 1.5px solid transparent;
   border-bottom: 0;
   border-radius: 6px 9px 0 0;
@@ -63,6 +63,7 @@
 }
 
 .ui-imp-corpo {
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 8px 44px 16px;
@@ -75,7 +76,7 @@
 }
 .ui-imp-riga {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  grid-template-columns: minmax(220px, 1fr) auto;
   align-items: center;
   gap: 8px 28px;
   padding: 14px 0 13px;
@@ -115,8 +116,8 @@
   --riempito: 50%;
   appearance: none;
   -webkit-appearance: none;
-  flex: 1;
-  min-width: 0;
+  flex: none;
+  width: clamp(180px, 22vw, 260px);
   height: 30px;
   margin: 0;
   background: transparent;
@@ -218,7 +219,7 @@
 /* Scelta fra poche opzioni: quella scelta è cerchiata a matita. */
 .ui-scelta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   gap: 2px 4px;
 }
@@ -278,6 +279,9 @@
   }
   .ui-imp-riga {
     grid-template-columns: 1fr;
+  }
+  .ui-scelta {
+    flex-wrap: wrap;
   }
   .ui-imp-controllo {
     justify-content: flex-start;

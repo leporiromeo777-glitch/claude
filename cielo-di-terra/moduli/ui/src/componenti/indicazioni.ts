@@ -331,9 +331,9 @@ function reticolo(ingrandimento: SVGTextElement): SVGSVGElement {
   // Tacche stadimetriche.
   for (const y of [-120, 120]) filo(-34, y, 34, y);
   for (const x of [-60, -120, -180, 60, 120, 180]) filo(x, -7, x, 7);
-  svg.append(fili, s('circle', { r: 2.2, class: 'ui-sq-centro' }));
-  ingrandimento.setAttribute('x', String(R - 52));
-  ingrandimento.setAttribute('y', '-14');
+  svg.append(fili, s('circle', { r: 3.4, class: 'ui-sq-centro' }));
+  ingrandimento.setAttribute('x', String(R - 70));
+  ingrandimento.setAttribute('y', '-18');
   svg.append(ingrandimento);
   return svg;
 }

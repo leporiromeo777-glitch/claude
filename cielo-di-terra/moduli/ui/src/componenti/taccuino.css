@@ -25,7 +25,7 @@
 .ui-tc-quaderno {
   position: relative;
   width: min(1260px, 100%);
-  height: min(800px, 100%);
+  flex: 0 1 800px;
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -320,6 +320,8 @@
 }
 
 .ui-tc-aiuto {
+  position: relative;
+  flex: none;
   margin: 0;
   display: flex;
   flex-wrap: wrap;

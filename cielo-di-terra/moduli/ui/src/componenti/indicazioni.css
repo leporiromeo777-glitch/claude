@@ -379,12 +379,12 @@
   stroke-width: 1.4;
 }
 .ui-sq-filo {
-  stroke: rgba(16, 12, 8, 0.85);
-  stroke-width: 1.4;
+  stroke: rgba(16, 12, 8, 0.9);
+  stroke-width: 1.8;
 }
 .ui-sq-filo-chiaro {
-  stroke: rgba(247, 240, 220, 0.5);
-  stroke-width: 3.4;
+  stroke: rgba(247, 240, 220, 0.55);
+  stroke-width: 4.4;
 }
 .ui-sq-centro {
   fill: var(--vermiglio);
@@ -398,23 +398,33 @@
 }
 .ui-sq-x {
   font-family: var(--f-maiuscoletto);
-  font-size: 26px;
+  font-size: 34px;
   fill: #e2c58a;
   paint-order: stroke;
   stroke: rgba(10, 7, 4, 0.8);
   stroke-width: 4px;
 }
 
-/* Targhetta d'ottone in alto, incisa con il caposaldo traguardato. */
+/* Targhetta d'ottone a sinistra del campo, incisa con il caposaldo traguardato. */
 .ui-sq-testa {
   position: absolute;
-  left: 50%;
-  top: calc(50% - 38vmin - 18px);
-  transform: translate(-50%, -100%);
+  right: calc(50% + 38vmin + 44px);
+  top: calc(50% - 26vmin);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: calc(50% - 38vmin - 60px);
+}
+@media (max-aspect-ratio: 5/4) {
+  .ui-sq-testa {
+    right: auto;
+    left: 50%;
+    top: calc(50% - 38vmin - 18px);
+    transform: translate(-50%, -100%);
+    align-items: center;
+    max-width: none;
+  }
 }
 .ui-sq-targa {
   min-width: 190px;
@@ -434,8 +444,10 @@
 }
 .ui-sq-dettaglio {
   min-height: 1.3em;
+  max-width: 16em;
   font-size: calc(19px * var(--ui-scala));
   font-style: italic;
+  text-align: right;
   color: #e9dfc6;
   text-shadow: 0 1px 2px #000;
 }

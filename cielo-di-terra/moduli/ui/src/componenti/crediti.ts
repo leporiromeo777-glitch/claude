@@ -55,6 +55,7 @@ export const CREDITI_PREDEFINITI: DatiCrediti = {
 /** Crediti: un foglio lungo che scorre piano (fermo se i movimenti sono ridotti o se lo si scorre a mano). */
 export class Crediti extends Componente<EventiCrediti> {
   private readonly rotolo: HTMLDivElement;
+  private readonly foglio: HTMLDivElement;
   private readonly contenuto: HTMLDivElement;
   private raf = 0;
   private automatico = true;
@@ -64,14 +65,15 @@ export class Crediti extends Componente<EventiCrediti> {
   constructor() {
     super({ classe: 'ui-modale ui-crediti', modale: true, ruolo: 'dialog', etichetta: 'Crediti' });
     this.contenuto = h('div', { class: 'ui-cr-contenuto' });
-    this.rotolo = h('div', { class: 'ui-carta ui-cr-foglio', tabindex: 0, role: 'document', 'aria-label': 'Crediti' }, this.contenuto);
+    this.rotolo = h('div', { class: 'ui-cr-scorri', tabindex: 0, role: 'document', 'aria-label': 'Crediti' }, this.contenuto);
+    this.foglio = h('div', { class: 'ui-carta ui-cr-foglio' }, this.rotolo);
     const bChiudi = h(
       'button',
       { class: 'ui-bottone ui-cr-chiudi', type: 'button', onclick: () => this.emit('chiudi') },
       h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, 'Esc'),
       'Indietro',
     );
-    this.el.append(h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }), h('div', { class: 'ui-cr-cornice' }, this.rotolo, bChiudi));
+    this.el.append(h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }), h('div', { class: 'ui-cr-cornice' }, this.foglio, bChiudi));
     const ferma = (): void => {
       this.automatico = false;
     };
