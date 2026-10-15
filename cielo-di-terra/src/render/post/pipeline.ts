@@ -70,6 +70,9 @@ export interface ParametriPost {
   ombreNotte: [number, number, number];
   /** Bagliore: forza, soglia di giorno e di notte, ginocchio della soglia. */
   bloom: number;
+  /** Tinta del bagliore di giorno e di notte (moltiplica): l'alone caldo della Linea. */
+  tintaBagliore: [number, number, number];
+  tintaBaglioreNotte: [number, number, number];
   sogliaGiorno: number;
   sogliaNotte: number;
   ginocchioSoglia: number;
@@ -120,6 +123,8 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
   luciNotte: [1.05, 1.0, 0.93],
   ombreNotte: [0.97, 0.97, 1.07],
   bloom: 0.5,
+  tintaBagliore: [1.0, 0.88, 0.7],
+  tintaBaglioreNotte: [1.0, 0.96, 0.9],
   sogliaGiorno: 1.0,
   sogliaNotte: 0.7,
   ginocchioSoglia: 0.3,
@@ -224,6 +229,7 @@ export class PostProduzione {
     uOverlay: { value: 0 },
     uFxaa: { value: 0 },
     uBloom: { value: 0.5 },
+    uTintaBagliore: { value: new Vector3(1, 1, 1) },
     uContorni: { value: new Vector2() },
     uOrientata: { value: 0 },
     uCarta: { value: new Vector3() },
@@ -527,6 +533,7 @@ export class PostProduzione {
     u.uOverlay!.value = overlay;
     u.uFxaa!.value = p.fxaa ? 1 : 0;
     u.uBloom!.value = this.bloom.length ? P.bloom : 0;
+    (u.uTintaBagliore!.value as Vector3).set(...mix3(P.tintaBagliore, P.tintaBaglioreNotte, stato.notte));
     (u.uContorni!.value as Vector2).set(p.contorni ? P.contorni : 0, p.contorni ? P.contorniPrimoPiano : 0);
     u.uOrientata!.value = this.tensoreA ? 1 : 0;
     (u.uCarta!.value as Vector3).set(p.pennellata ? P.pennellata : 0, P.grana * (p.pennellata ? 1 : 0.6), P.macchie);

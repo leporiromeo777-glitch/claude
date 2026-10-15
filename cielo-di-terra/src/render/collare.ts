@@ -150,11 +150,12 @@ void main() {
   col *= 0.95 + pen * 0.1;
   // di notte: sagome blu-viola appena più chiare dell'aria (come nel bozzetto della notte), con la
   // cima che prende la brace della Linea e la pancia un filo dei lumi dei paesi
-  vec3 notturna = uHazeColor * mix(1.0, 1.45, lit) + vec3(0.012, 0.016, 0.045) + argento * esterno * 0.04;
+  vec3 notturna = uHazeColor * mix(0.98, 1.28, lit) + vec3(0.01, 0.012, 0.035) + argento * esterno * 0.035;
   notturna += uLampColor * 0.02 * (1.0 - smoothstep(-0.8, 0.2, hRel));
   col = mix(col, notturna, smoothstep(0.2, 0.9, notte));
   col = applyHaze(col, P, dist);
-  gl_FragColor = vec4(col, alpha * 0.94);
+  // di notte più velate: si confondono con l'aria invece di stagliarsi
+  gl_FragColor = vec4(col, alpha * mix(0.94, 0.8, notte));
 }
 `;
 
@@ -229,7 +230,7 @@ export function createCollare(world: WorldUniforms): Group {
       if (cov < 1 - C.coverage * 0.75) continue;
       // cumulo: una base larga di sbuffi bassi, poi torri tonde più in alto (verso l'asse);
       // dove la copertura è piena i cumuli crescono
-      const size = (0.85 + rnd() * 0.6) * (1 + Math.max(0, cov - 0.75) * 1.6);
+      const size = (1.0 + rnd() * 0.65) * (1 + Math.max(0, cov - 0.75) * 1.6);
       const lungo = (44 + rnd() * 50) * size;
       const largo = (28 + rnd() * 24) * size;
       const nBase = 6 + Math.floor(rnd() * 5);

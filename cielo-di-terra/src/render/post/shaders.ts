@@ -275,8 +275,9 @@ void main() {
 `;
 
 /**
- * Passata finale: contorni colorati, bagliore, mappatura dei toni, correzione colore, pennellata,
- * grana della carta, vignettatura e un filo di dithering. Scrive sul canvas.
+ * Passata finale: tremolio della mano (i bordi ondeggiano appena), pittura del filtro, contorni
+ * colorati, bagliore caldo, mappatura dei toni, correzione colore, pennellata (anche di tono, calda
+ * e fredda), grana della carta, vignettatura e un filo di dithering. Scrive sul canvas.
  */
 export const FRAG_FINALE = /* glsl */ `
 ${COMUNE}
@@ -294,6 +295,7 @@ uniform vec2 uRisoluzione;   // pixel d'uscita
 uniform float uOverlay;
 uniform float uFxaa;
 uniform float uBloom;
+uniform vec3 uTintaBagliore;  // tinta del bagliore (calda di giorno: l'alone della Linea)
 uniform vec2 uContorni;      // x mondo, y prima persona
 uniform float uOrientata;    // 1: pennellata lungo il tensore di struttura
 uniform vec3 uCarta;         // x pennellata, y grana, z macchie
@@ -466,7 +468,7 @@ void main() {
   float inkK = clamp(max(e, ppBordo * 2.0 * uContorni.y), 0.0, 1.0);
   col = mix(col, inchiostro(col), inkK);
 
-  col += texture2D(tBloom, uv).rgb * uBloom;
+  col += texture2D(tBloom, uv).rgb * uBloom * uTintaBagliore;
   col = mappaToni(col);
   col = correggi(col);
 

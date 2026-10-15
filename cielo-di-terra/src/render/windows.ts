@@ -137,7 +137,7 @@ void main() {
   // verso le rive (dove il vetro è più spesso e la brina comincia), più cupe al centro
   float velo = vnoise2(vec2(P.z * 0.004 + th * 0.06, th * 0.3 - P.z * 0.0012));
   float riva = 1.0 - smoothstep(10.0, 70.0, edgeDist);
-  float riflesso = clamp(fres * mix(0.55, 0.92, giorno) + (0.05 + 0.16 * smoothstep(0.35, 0.9, velo) + 0.12 * riva) * (0.35 + 0.65 * giorno), 0.0, 0.94);
+  float riflesso = clamp(fres * mix(0.55, 0.92, giorno) + (0.06 + 0.16 * smoothstep(0.35, 0.9, velo) + 0.12 * riva) * (0.35 + 0.65 * giorno) + 0.08 * giorno, 0.0, 0.94);
   col = mix(col, interno, riflesso);
   col += uLineaGlow * filo * (0.25 + 0.75 * fres) * mix(1.1, 0.35, uNight) * (0.6 + 0.4 * vnoise2(vec2(P.z * 0.02, th * 4.0)));
   col = mix(col, vec3(0.6, 0.67, 0.8) * (0.4 + 0.6 * uSunIntensity), clamp(frost, 0.0, 1.0) * 0.38);
@@ -282,7 +282,7 @@ function addCurvedBeam(pos: number[], nor: number[], col: number[], z: number, t
       const z1 = za + 0.18 + ((zb - za - 0.36) * (k + 1)) / boards - 0.03;
       const v = ((s * 7 + k * 3) % 5) / 5;
       // legno stagionato e scuro, della luminosità del vetro (da lontano non deve rigarlo)
-      const plank: [number, number, number] = [0.26 + v * 0.05, 0.22 + v * 0.035, 0.2 + v * 0.03];
+      const plank: [number, number, number] = [0.31 + v * 0.05, 0.25 + v * 0.035, 0.21 + v * 0.03];
       pushQuad(pos, nor, col, cylToWorld(z0, ta, height + 0.02), cylToWorld(z0, tb, height + 0.02), cylToWorld(z1, tb, height + 0.02), cylToWorld(z1, ta, height + 0.02), up, plank);
     }
     pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, [0.2, 0.19, 0.2]);
