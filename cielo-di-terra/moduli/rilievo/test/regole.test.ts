@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CATALOGO_ELEMENTI, MOSSE_GDD, PILASTRI_GDD, TETTO_MOSSE_PER_ATTO, TRIANGOLI_GDD } from '../src/catalogoGdd';
 import { lunghezzaLato } from '../src/griglia';
 import { latoFra, regoleDaContenuti } from '../src/regole';
-import { visibilitaDaTabella } from '../src/visibilita';
+import { puntoDi, visibilitaDaTabella } from '../src/visibilita';
 import { contenutoSintetico, regoleCon, regoleFase1 } from './aiuti';
 
 describe('regole dai contenuti della Fase 1', () => {
@@ -44,8 +44,8 @@ describe('regole dai contenuti della Fase 1', () => {
     for (const l of r.lati.values()) {
       const a = r.capisaldi.get(l.a)!;
       const b = r.capisaldi.get(l.b)!;
-      const ab = vis({ id: a.id, ...a }, { id: b.id, ...b }, { scopo: 'lato', ora: 600 });
-      const ba = vis({ id: b.id, ...b }, { id: a.id, ...a }, { scopo: 'lato', ora: 600 });
+      const ab = vis(puntoDi(a), puntoDi(b), { scopo: 'lato', ora: 600 });
+      const ba = vis(puntoDi(b), puntoDi(a), { scopo: 'lato', ora: 600 });
       expect(ab, l.id).toEqual(ba);
       if (l.chiudibile) expect(ab).toBe(true);
       else expect(typeof ab === 'object' && ab.motivo).toBeTruthy();
