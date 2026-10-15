@@ -159,7 +159,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       const dy = (p.y - cChioma.y) / (ry * 1.2);
       const dz = (p.z - cChioma.z) / rx;
       const esterno = THREE.MathUtils.smoothstep(Math.sqrt(dx * dx + dy * dy + dz * dz), 0.45, 1.05);
-      const t = THREE.MathUtils.clamp(n.y * 0.3 + 0.2 + altezza * 0.35 + esterno * 0.3 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.14, 0, 1);
+      const t = THREE.MathUtils.clamp(n.y * 0.3 + 0.2 + altezza * 0.35 + esterno * 0.3 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.05, 0, 1);
       if (t < 0.5) out.copy(cScuro).lerp(cMedio, t / 0.5);
       else out.copy(cMedio).lerp(cChiaro, (t - 0.5) / 0.5);
       out.multiplyScalar(0.72 + 0.28 * esterno);
@@ -168,7 +168,8 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       out.b *= 1 - tintaMassa;
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
-    const g = geoMassa(r, seme + i * 31, 0.2, det === 'alto' && r > rx * 0.38 ? 2 : 1, 0.84, 0.65);
+    const dettaglioMassa = det === 'alto' ? (r > rx * 0.42 ? 3 : 2) : 1;
+    const g = geoMassa(r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
     b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn });
   }
 
@@ -413,6 +414,9 @@ export function creaBotolaCripta(opz: OpzioniBotola = {}): OggettoProcedurale<St
     [0, lc / 2, lc, 0.08],
   ] as const) {
     bc.aggiungi(geoBoxC(w, 0.04, d), { matrice: mat([x, 0.17, z]), colore: PALETTE.ferro, gradiente: { basso: 1, alto: 1, y0: 0, y1: 1 }, piatto: true });
+  }
+  for (const z of [0.25, lc - 0.25]) {
+    bc.aggiungi(geoBoxC(lc - 0.1, 0.03, 0.08), { matrice: mat([0, -0.012, z]), colore: PALETTE.ferro, piatto: true });
   }
   for (let i = 0; i < 6; i++) {
     for (const z of [0.04, lc - 0.04]) {

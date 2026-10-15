@@ -601,7 +601,7 @@ export function creaSciameApi(opz: OpzioniSciameApi = {}): OggettoProcedurale<St
   const matS = new THREE.PointsMaterial({
     map: materiali().alone.map,
     vertexColors: true,
-    size: d * 4,
+    size: d * 2.6,
     sizeAttenuation: true,
     transparent: true,
     depthWrite: false,
@@ -664,9 +664,9 @@ export function creaSciameApi(opz: OpzioniSciameApi = {}): OggettoProcedurale<St
       posS[i * 3 + 1] = p.y;
       posS[i * 3 + 2] = p.z;
       const luccica = Math.max(0, Math.sin(t * 3.1 + a.ph * 7)) ** 6;
-      colS[i * 3] = rame.r * (0.25 + luccica);
-      colS[i * 3 + 1] = rame.g * (0.25 + luccica);
-      colS[i * 3 + 2] = rame.b * (0.25 + luccica);
+      colS[i * 3] = rame.r * (0.12 + luccica);
+      colS[i * 3 + 1] = rame.g * (0.12 + luccica);
+      colS[i * 3 + 2] = rame.b * (0.12 + luccica);
     }
     mCorpi.instanceMatrix.needsUpdate = true;
     mAli.instanceMatrix.needsUpdate = true;

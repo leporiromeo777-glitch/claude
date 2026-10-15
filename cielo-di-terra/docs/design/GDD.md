@@ -154,7 +154,7 @@ Le tre valli condividono i due Tappi. Il Tappo Sud (z 0-620) sale a conca in tre
 |---|---|---|
 | Piazza delle Ore | (1046, 37,0, 38,5) | selciato a meridiana (36 m), Bacheca delle Ore, telo dell'Ombrista |
 | San Vigilio e Pilastro 1 | campanile (1062, 37,2, 38,5); cella e pilastro h 62,5; palina fino a h 70,5 | landmark di tutto il cielo |
-| Cripta dei Giardinieri | botola (1112, 27,0, 48) sotto il castagno morto; sale delle capsule a h −4 | inizio del gioco |
+| Cripta dei Giardinieri | botola (1112, 27,0, 42) sotto il castagno morto; sala delle capsule a h −4,5 | inizio del gioco |
 | Terrazza Pedrazzini | (948, 23,0, 56) | il castagno del cartellino di zinco, primo innesto, chiodo 3 |
 | Mulino sul riale | (1130, 51,0, 7,5) | ruota, chiodo 7 |
 | Fienile di Ottavio | (1176, 58,5, 11,7) | rifugio, chiodo 8 sul Sass dal Messo |
@@ -162,14 +162,14 @@ Le tre valli condividono i due Tappi. Il Tappo Sud (z 0-620) sale a conca in tre
 | Sass Grand e Pilastro 6 | (1190, 74,0, 42) | belvedere sulla Finestra dei Ponti |
 | Grà di Pian | (890, 17,5, 34) | essiccatoio con fumo, chiodo 37 |
 | Pian dei Ricci e Pilastro 4 | (800, 9,0, 90) | Selve alte |
-| Balcone dei Messi e Pilastro 42 | (110, 30, 452) | 0,3 g: da qui si «cade» nell'altra valle |
+| Balcone dei Messi e Pilastro 42 | (110, 30, 450) | 0,3 g: da qui si «cade» nell'altra valle |
 | Cartiera | (1320, 49, 4) | carta di castagno con la filigrana (secondaria 7) |
 | Bocca delle Fade e Pilastro 44 | (1520, 70, 18) | botola d'ingresso alla Galleria della Carta |
 | Piana di Sant'Anna e Pilastro 40 | (2000, 45, 20) | orti benedetti, frutteti |
 | San Rocco dei Pellegrini | (2645, 44, 9) | partenza della scala dei pellegrini, tolta dalla Carta nel 2265 |
 | Scala Coperta | cancello (2650, 30, 10) | galleria scavata della Confraternita verso l'Eremo |
 
-**Particelle mobili** (elementi con varianti notturne): 9 in tutta la valle, 4 nel nucleo di Corbella (la passerella del Messo, la scorciatoia delle Terrazze, la casa di Nando, il muro di Ronco). **Segnali di cielo**: il campanile bianco con la palina, il fumo delle grà, i lumi della Piazza alla brace.
+**Elementi mobili** (con varianti notturne): 12 in tutta la valle, 4 nel nucleo di Corbella (la passerella del Messo, la scorciatoia delle Terrazze, la casa di Nando, il muro di Ronco). **Segnali di cielo**: il campanile bianco con la palina, il fumo delle grà, i lumi della Piazza alla brace.
 
 #### Z2. Il Verbanetto e il Fondale (Valle 2, θ 120-210)
 
