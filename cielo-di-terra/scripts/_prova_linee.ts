@@ -46,3 +46,16 @@ for (const [x, y] of [['cs_1', 'cs_4'], ['cs_3', 'cs_4'], ['cs_3', 'cs_11'], ['c
   }
   console.log(x, '->', y, 'dist', d.toFixed(0), 'max sotto il suolo', peggio.toFixed(1), 'm a', dove.toFixed(0), 'm');
 }
+import { dentroCollisore } from '../src/regia/catasto';
+{
+  const a = def('cs_3'), b = def('cs_37');
+  const o = pos.occhio({ id: a.id, z: a.z, theta: a.theta, altezza: a.altezza });
+  const s = pos.segnale({ id: b.id, z: b.z, theta: b.theta, altezza: b.altezza });
+  const d = o.distanceTo(s);
+  for (let t = 3.5; t < d - 3.5; t += 1) {
+    const p = new Vector3().lerpVectors(o, s, t / d);
+    const c = worldToCyl(p);
+    for (const col of w.colliders.query(c.z, c.theta, 3)) if (dentroCollisore(col, p)) console.log('t', t.toFixed(1), 'di', d.toFixed(1), col.tag, col.id, 'dist dal segnale', p.distanceTo(s).toFixed(1), c.z.toFixed(1), c.theta.toFixed(2), c.h.toFixed(1));
+  }
+  console.log('segnale', JSON.stringify(worldToCyl(s)), 'chiodo37', JSON.stringify(worldToCyl(sp.punto('chiodo_cs_37')!)));
+}

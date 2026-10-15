@@ -96,6 +96,14 @@ export function creaLineaLibera(
     const s = bersaglio(a);
     const dist = o.distanceTo(s);
     _d.subVectors(s, o).normalize();
+    // i collisori che reggono la stazione o il segnale (il muro del chiodo, il campanile) non coprono
+    const propri = new Set<number>();
+    if (colliders) {
+      for (const q of [o, s]) {
+        const c = worldToCyl(q);
+        for (const col of colliders.query(c.z, c.theta, 4, cols)) if (dentroCollisore(col, q, -1.2)) propri.add(col.id);
+      }
+    }
     for (let t = 3.5; t < dist - 3.5; t += passo) {
       _p.copy(o).addScaledVector(_d, t);
       const c = worldToCyl(_p);
@@ -103,7 +111,7 @@ export function creaLineaLibera(
       if (!colliders) continue;
       colliders.query(c.z, c.theta, 3, cols);
       for (const col of cols) {
-        if (dentroCollisore(col, _p)) return { libera: false, motivo: MOTIVI_TAG[col.tag ?? ''] ?? 'Qualcosa copre la mira.' };
+        if (!propri.has(col.id) && dentroCollisore(col, _p)) return { libera: false, motivo: MOTIVI_TAG[col.tag ?? ''] ?? 'Qualcosa copre la mira.' };
       }
     }
     return true;
