@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:21:13.591Z",
+  "date": "2026-10-15T07:26:45.215Z",
   "size": [
     1280,
     720
@@ -16,10 +16,10 @@
       "file": "01-paese-mezzogiorno.png",
       "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
       "frames": 4,
-      "frameMs": 1,
+      "frameMs": 8,
       "stats": {
         "drawCalls": 72,
-        "triangles": 440138,
+        "triangles": 451304,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -28,14 +28,14 @@
           69
         ],
         "terrainTriangles": 238168,
-        "trees": 5442,
+        "trees": 5759,
         "treesByLod": [
-          7,
-          1478,
-          3957
+          12,
+          1572,
+          4175
         ],
-        "colliders": 6156,
-        "lamps": 116,
+        "colliders": 6523,
+        "lamps": 228,
         "fps": 0,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
@@ -74,8 +74,8 @@
       "frames": 4,
       "frameMs": 2,
       "stats": {
-        "drawCalls": 112,
-        "triangles": 446018,
+        "drawCalls": 115,
+        "triangles": 455400,
         "terrainChunks": 126,
         "terrainByLod": [
           5,
@@ -84,14 +84,14 @@
           75
         ],
         "terrainTriangles": 291480,
-        "trees": 5442,
+        "trees": 5759,
         "treesByLod": [
-          10,
-          687,
-          4745
+          9,
+          743,
+          5007
         ],
-        "colliders": 6156,
-        "lamps": 116,
+        "colliders": 6523,
+        "lamps": 228,
         "fps": 0,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
@@ -126,12 +126,12 @@
     {
       "n": 3,
       "file": "03-planata-alta.png",
-      "title": "In planata alta, vicino all'asse, attraversando il cielo",
+      "title": "In planata alta, a 50 m dall'asse, verso il lago dall'altra parte del cielo",
       "frames": 50,
       "frameMs": 1,
       "stats": {
-        "drawCalls": 3,
-        "triangles": 616,
+        "drawCalls": 70,
+        "triangles": 294872,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
@@ -140,41 +140,41 @@
           49
         ],
         "terrainTriangles": 180472,
-        "trees": 5442,
+        "trees": 5759,
         "treesByLod": [
           0,
           0,
-          5442
+          5759
         ],
-        "colliders": 6156,
-        "lamps": 116,
+        "colliders": 6523,
+        "lamps": 228,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
-        "z": 1355.4722059451224,
-        "theta": 201.42904781183952,
-        "h": 589.2386066709643,
-        "r": 56.761393329035755,
-        "groundH": 68.42016336153144,
-        "heightAboveGround": 520.8184433094328,
-        "gravity": 0.8615340213951792,
-        "gravityG": 0.08785202096487375,
+        "z": 1355.8043185718964,
+        "theta": 199.13483421514536,
+        "h": 591.9323849497206,
+        "r": 54.06761505027939,
+        "groundH": 65.0110111393765,
+        "heightAboveGround": 526.9213738103441,
+        "gravity": 0.8206473993950679,
+        "gravityG": 0.08368274583013241,
         "velocity": [
-          1.9416768697420617,
-          0.9584010550283041,
-          6.175797301156932
+          -0.8536380368061047,
+          0.42743480366679676,
+          6.7456608409883465
         ],
-        "speed": 6.544395614092101,
+        "speed": 6.812880344678854,
         "grounded": false,
         "mode": "glide",
         "veloOpen": true,
         "coriolisFactor": 1,
         "freeCamera": false,
         "camera": {
-          "z": 1355.4722059451224,
-          "theta": 201.42904781183952,
-          "h": 590.8586066709643
+          "z": 1355.8043185718964,
+          "theta": 199.13483421514536,
+          "h": 593.5523849497206
         },
         "hours": 11
       }
@@ -182,55 +182,55 @@
     {
       "n": 4,
       "file": "04-finestra-stelle.png",
-      "title": "Sul vetro della Finestra dei Ponti: le stelle girano sotto i piedi",
+      "title": "A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro",
       "frames": 2,
       "frameMs": 1,
       "stats": {
-        "drawCalls": 3,
-        "triangles": 616,
+        "drawCalls": 17,
+        "triangles": 291042,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
           9,
-          36,
-          81
+          35,
+          82
         ],
-        "terrainTriangles": 163800,
-        "trees": 5442,
+        "terrainTriangles": 162584,
+        "trees": 5759,
         "treesByLod": [
           0,
-          660,
-          4782
+          798,
+          4961
         ],
-        "colliders": 6156,
-        "lamps": 116,
+        "colliders": 6523,
+        "lamps": 228,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
-        "z": 1218,
-        "theta": 106.00000000000003,
-        "h": 0,
-        "r": 646,
-        "groundH": 0,
-        "heightAboveGround": 0,
-        "gravity": 9.805097182781585,
-        "gravityG": 0.9998416567106592,
+        "z": 1200,
+        "theta": 102,
+        "h": 0.9999999999998863,
+        "r": 645.0000000000001,
+        "groundH": 1,
+        "heightAboveGround": -1.1368683772161603e-13,
+        "gravity": 9.789919013767992,
+        "gravityG": 0.9982939142080112,
         "velocity": [
-          4.628306711500165e-35,
-          -1.3271455933991975e-35,
+          -1.2797843134482046e-18,
+          -6.020911814686635e-18,
           0
         ],
-        "speed": 4.814824860968089e-35,
+        "speed": 6.155422566256617e-18,
         "grounded": true,
         "mode": "walk",
         "veloOpen": false,
         "coriolisFactor": 0.4,
         "freeCamera": false,
         "camera": {
-          "z": 1218,
-          "theta": 106.00000000000003,
-          "h": 1.6200000000000045
+          "z": 1200,
+          "theta": 102,
+          "h": 2.6200000000000045
         },
         "hours": 12
       }
@@ -238,55 +238,55 @@
     {
       "n": 5,
       "file": "05-notte-paese.png",
-      "title": "Notte in paese: la Linea è una brace blu, i lumi caldi",
+      "title": "Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo",
       "frames": 4,
       "frameMs": 1,
       "stats": {
-        "drawCalls": 3,
-        "triangles": 616,
+        "drawCalls": 105,
+        "triangles": 453748,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
           8,
-          47,
-          68
+          45,
+          70
         ],
-        "terrainTriangles": 239384,
-        "trees": 5442,
+        "terrainTriangles": 236952,
+        "trees": 5759,
         "treesByLod": [
-          7,
-          1478,
-          3957
+          10,
+          1621,
+          4128
         ],
-        "colliders": 6156,
-        "lamps": 116,
+        "colliders": 6523,
+        "lamps": 228,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
-        "z": 1028,
-        "theta": 36.6,
-        "h": 38.57578660673494,
-        "r": 607.4242133932651,
-        "groundH": 38.5757866067349,
+        "z": 1047,
+        "theta": 37.4,
+        "h": 38.49753742552366,
+        "r": 607.5024625744763,
+        "groundH": 38.497537425523625,
         "heightAboveGround": 3.552713678800501e-14,
-        "gravity": 9.219587373832233,
-        "gravityG": 0.9401362722063329,
+        "gravity": 9.220775053129834,
+        "gravityG": 0.940257381789891,
         "velocity": [
-          2.834235061553832e-17,
-          5.296598114011388e-17,
+          0,
+          0,
           0
         ],
-        "speed": 6.007232304937943e-17,
+        "speed": 0,
         "grounded": true,
         "mode": "walk",
         "veloOpen": false,
         "coriolisFactor": 0.4,
         "freeCamera": false,
         "camera": {
-          "z": 1028,
-          "theta": 36.6,
-          "h": 40.19578660673483
+          "z": 1047,
+          "theta": 37.4,
+          "h": 40.117537425523665
         },
         "hours": 23.200000000000003
       }
@@ -294,57 +294,57 @@
     {
       "n": 6,
       "file": "06-matita-rivelazione.png",
-      "title": "Confine matita/colore con una rivelazione in corso",
-      "frames": 66,
+      "title": "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
+      "frames": 24,
       "frameMs": 1,
       "stats": {
-        "drawCalls": 64,
-        "triangles": 466306,
+        "drawCalls": 32,
+        "triangles": 508046,
         "terrainChunks": 126,
         "terrainByLod": [
-          4,
-          7,
-          45,
-          70
+          3,
+          8,
+          39,
+          76
         ],
-        "terrainTriangles": 253912,
-        "trees": 5442,
+        "terrainTriangles": 229656,
+        "trees": 5759,
         "treesByLod": [
-          56,
-          1424,
-          3962
+          228,
+          1126,
+          4405
         ],
-        "colliders": 6156,
-        "lamps": 116,
-        "fps": 7.2,
+        "colliders": 6523,
+        "lamps": 228,
+        "fps": 16.363636363636363,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
-        "z": 1028,
-        "theta": 36.6,
-        "h": 38.57578660673494,
-        "r": 607.4242133932651,
-        "groundH": 38.5757866067349,
-        "heightAboveGround": 3.552713678800501e-14,
-        "gravity": 9.219587373832233,
-        "gravityG": 0.9401362722063329,
+        "z": 1452,
+        "theta": 19.499999999999986,
+        "h": 76.55429977790845,
+        "r": 569.4457002220915,
+        "groundH": 76.55429977790831,
+        "heightAboveGround": 1.4210854715202004e-13,
+        "gravity": 8.643143082035165,
+        "gravityG": 0.8813553131839278,
         "velocity": [
-          2.834235061553832e-17,
-          5.296598114011388e-17,
+          4.443205243752122e-16,
+          1.2512308866641489e-15,
           0
         ],
-        "speed": 6.007232304937943e-17,
+        "speed": 1.3277798989755102e-15,
         "grounded": true,
         "mode": "walk",
         "veloOpen": false,
         "coriolisFactor": 0.4,
-        "freeCamera": true,
+        "freeCamera": false,
         "camera": {
-          "z": 1225,
-          "theta": 29.999999999999993,
-          "h": 95
+          "z": 1452,
+          "theta": 19.499999999999986,
+          "h": 78.17429977790835
         },
-        "hours": 11.5
+        "hours": 11.200000000000003
       }
     }
   ]

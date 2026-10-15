@@ -52,8 +52,11 @@ export interface OggettoProcedurale<S = undefined> {
   ingombro: Ingombro;
   /** punti notevoli in coordinate locali (porta, chiodo del caposaldo, cima della palina, lume…) */
   punti: Record<string, THREE.Vector3>;
-  /** animazione procedurale (solo per gli oggetti animati) */
-  update?: (dt: number, stato?: S) => void;
+  /**
+   * animazione procedurale (solo per gli oggetti animati). Dichiarata come metodo così che un
+   * OggettoProcedurale<StatoX> si possa mettere in una lista di OggettoProcedurale<unknown>.
+   */
+  update?(dt: number, stato?: S): void;
   /** libera geometrie (i materiali sono condivisi e non vengono liberati) */
-  dispose: () => void;
+  dispose(): void;
 }

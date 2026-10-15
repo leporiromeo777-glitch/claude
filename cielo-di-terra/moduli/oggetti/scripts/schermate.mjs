@@ -63,8 +63,13 @@ try {
     await apri('vista=misure&fermo=1');
     const misure = await pagina.evaluate(() => window.__misure());
     await writeFile(join(cartella, 'misure.json'), JSON.stringify(misure, null, 2));
-    const righe = ['| oggetto | triangoli | draw call | mesh | note |', '|---|---:|---:|---:|---|'];
-    for (const m of misure) righe.push(`| ${m.nome} | ${m.triangoli} | ${m.drawCall} | ${m.mesh} | ${m.note ?? ''} |`);
+    const righe = [
+      '| oggetto | triangoli (GPU) | draw call (GPU) | stima triangoli | stima draw call | collider | note |',
+      '|---|---:|---:|---:|---:|---:|---|',
+    ];
+    for (const m of misure) {
+      righe.push(`| ${m.nome} | ${m.triangoli} | ${m.drawCall} | ${m.stimaTriangoli} | ${m.stimaDrawCall} | ${m.collider} | ${m.note ?? ''} |`);
+    }
     await writeFile(join(cartella, 'misure.md'), righe.join('\n') + '\n');
     console.log(righe.join('\n'));
   }

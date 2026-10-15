@@ -7,7 +7,7 @@ Documento normativo per la prima versione giocabile. Le regole generali sono nel
 | File | Contenuto |
 |---|---|
 | `luoghi.json` | 47 luoghi con (z, θ, altezza), raggio d'arrivo, tipo, zona, cella |
-| `capisaldi.json` | la rete di Corbella (10 capisaldi), i 18 lati con il loro ventaglio di particelle, 12 pilastri lontani visti di notte |
+| `capisaldi.json` | la rete di Corbella (10 capisaldi), i 18 lati con il loro ventaglio di particelle, 12 capisaldi lontani visti di notte (11 pilastri e il Caposaldo Zero) |
 | `personaggi.json` | chi c'è, come appare, che voce ha, dove sta a ogni ora |
 | `dialoghi.json` | tutti i dialoghi della Fase 1, con condizioni ed effetti |
 | `missioni.json` | prologo, missione 1, tre segreti, l'easter egg e il gioco libero, passo per passo |
