@@ -147,11 +147,14 @@ solo motore (senza regia, per gli screenshot del motore); `?debug` statistiche; 
 
 ## Prove
 
-- `npm test`: RISULTATI_TEST. I test della regia (`tests/regia/`, 41) coprono orologio,
+- `npm test`: 41 file, 569 test verdi (narrativa, audio, oggetti, interfaccia, rilievo, popolamento,
+  regia e motore). I test della regia (`tests/regia/`, 46) coprono orologio,
   luoghi, contenuti, interazioni (tenute, «premi»), sguardi, corpo (fiato, planate), «linea
-  libera?» (terreno e collisori), le tappe del tempo del catasto (notte dormita, notte vegliata,
-  resoconto), rilievo e salvataggio, gli orari degli abitanti e Ottavio che viene incontro.
-- `npm run e2e:fase1`: RISULTATI_E2E. Fa la build E2E, apre Chromium (SwiftShader), clicca
+  libera?» (terreno e collisori), la quota d'appoggio sui ripiani, le tappe del tempo del catasto
+  (notte dormita, notte vegliata, resoconto), rilievo e salvataggio, gli orari degli abitanti e,
+  sulle figure vere del popolamento, Ottavio (vola, scende, viene incontro), Clelia dopo il dono e
+  chi guarda Elvira. `npm run verifica-contenuti`: 0 errori, 0 avvisi.
+- `npm run e2e:fase1`: verde, «prova ok in 164 s», nel paese vero. Fa la build E2E, apre Chromium (SwiftShader), clicca
   «Nuova partita» e gioca: P0.1-P0.6 (vetro, alzarsi, capsule, armadietto, scala, botola,
   primo sguardo in su, muretto, lettera, Meta, Meridiana) e M1.1-M1.22 (lente, ramo vivo,
   Pianta, cartellino, innesto, planata, i velati, Ottavio, la brace, l'Ombrista, il fienile, la
@@ -186,6 +189,18 @@ Doppioni risolti:
 - **Figure**: tolte quelle della regia; si usano le maniglie `npc(id)` del popolamento (con
   animazione, pose sedute, collider), vedi `png.ts`. Le Fade e la lanterna di Tecla sono quelle di
   `corbella.notte`.
+
+Modifiche fatte alla copia in `src/popolamento` (da riportare nel modulo): in `abitanti.ts` la
+quota d'appoggio delle figure guarda i ripiani fino a 8 m sopra il terreno (prima 4 m: Annunciata,
+seduta sulla panca del ripiano della chiesa a 4,3 m, finiva dentro il ripiano).
+
+Punti del popolamento usati dalla regia: chiodi e segnali, `apri:botola`, `apri:porta_campanile`,
+`scendi:campanile`, `leggi:targa_p1`, `parla:meridiana`, i punti della lente, `taglia:ramo_vivo`,
+`innesta:castagno_cartellino`, `leggi:cartellino_castagno`, `siediti:belvedere`, `entra:fienile_ottavio`,
+`guarda:telo_ombrista`, `guarda:scatola_pina` e i `leggi:*` con un testo (il motto del Balcone dei
+Messi, la casa di Nando). Non ancora collegati, perché la Fase 1 non ci mette niente: i portoni
+(`apri:porta_san_vigilio`, `apri:casa_del_velo`, `apri:porta_mulino`), le panche `siediti:*` (ci si
+siede comunque con C), i punti `lancio_velo:*`, `esamina:*`, `guarda:*` e `attraversa:*`.
 
 Teletrasporti della regia (uscita dalla botola, alzarsi, staccare lo squadro, caricare, debug):
 atterrano sulla «quota d'appoggio» (`quotaAppoggio`: il ripiano o il gradino del popolamento sotto

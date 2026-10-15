@@ -5,7 +5,7 @@ sale ai lati e prosegue sopra la testa, la Linea lungo l'asse fa da sole, salend
 verso l'asse si pesa meno e con il Velo si può "cadere" nella valle opposta.
 
 Questa cartella contiene il motore (fase 1A, il "kernel del cilindro"), i moduli
-integrati nella fase 1C (storia, catasto, interfaccia, audio, oggetti) con la regia
+integrati nella fase 1C (storia, catasto, interfaccia, audio, oggetti, il paese di Corbella) con la regia
 che li tiene insieme, e, in cartelle curate da altri agenti, design (`docs/design/`),
 contenuti (`content/`), moduli in lavorazione (`moduli/`) e strumenti (`strumenti/`).
 Stato: `docs/stato/fase1a.md` (motore), `docs/stato/fase1c.md` (integrazione: prologo e
@@ -87,6 +87,7 @@ src/
   ui/                interfaccia DOM: titolo, pausa, impostazioni, dialoghi, carte, Taccuino, Pianta
   audio/             motore audio: musica, campane, ambienti, passi
   oggetti/           libreria di oggetti procedurali (abitanti, castagni, capisaldi, squadro…)
+  popolamento/       Corbella vera: case, muri a secco, chiodi, elementi mobili, personaggi, Fade
   regia/             la regia della Fase 1: collega tutto al motore (vedi docs/stato/fase1c.md)
     scena/           segnaposto di cripta, cella campanaria e luoghi della Missione 1
 tests/               test Vitest (Node; tests/ui con happy-dom)
