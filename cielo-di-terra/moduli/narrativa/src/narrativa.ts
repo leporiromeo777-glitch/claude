@@ -109,6 +109,8 @@ export interface EventiNarrativa extends EventiMissioni, EventiDialoghi {
   apriDialogo: { dialogo: string; origine?: string; automatico?: boolean };
   /** Problemi dei contenuti scoperti durante il gioco (condizioni o effetti malformati, id inesistenti). */
   errore: { messaggio: string; origine?: string };
+  /** Una scena di testi.json è stata conclusa (dopo i suoi effetti finali). */
+  scenaConclusa: { scena: string; gruppo: string };
 }
 
 export interface StatoNarrativo {
@@ -119,6 +121,8 @@ export interface StatoNarrativo {
   inventario: Record<string, number>;
   /** Luoghi raggiunti durante ciascun passo attivo («missione/passo» → id). */
   luoghiPasso?: Record<string, string[]>;
+  /** Scene di testi.json già concluse. */
+  scene?: string[];
 }
 
 /** La notte del GDD (§2.3): dalle 21:00 alle 05:30. */
@@ -150,6 +154,7 @@ export function missioniOrfane(c: ContenutiNormalizzati): string[] {
       for (const a of p.aiuti) guarda(a.effetti);
     }
   }
+  for (const s of c.scene) guarda(s.effettiFine);
   for (const d of Object.values(c.dialoghi)) {
     guarda(d.effettiFine);
     for (const n of d.nodi) {
@@ -185,6 +190,8 @@ export class Narrativa {
   private readonly luoghiDelPasso = new Map<string, string[]>();
   /** Il passo nel cui ambito si sta valutando una condizione. */
   private ambito: string | null = null;
+  /** Scene di testi.json già concluse. */
+  private readonly sceneConcluse = new Set<string>();
 
   constructor(
     contenuti: ContenutiNarrativa | ContenutiNormalizzati,
@@ -430,6 +437,39 @@ export class Narrativa {
     return id ? this.dialoghi.avvia(id) : null;
   }
 
+  // --- Scene (testi.json) ---------------------------------------------------
+
+  /**
+   * La prima scena del gruppo (per esempio «leggende», le sere dell'Ombrista)
+   * con la condizione vera e non ancora conclusa, nell'ordine del file; null
+   * se non ce n'è. Il gioco la recita e poi chiama `concludiScena`.
+   */
+  scenaDisponibile(gruppo = 'leggende'): string | null {
+    for (const s of this.contenuti.scene) {
+      if (s.gruppo !== gruppo || this.sceneConcluse.has(s.id)) continue;
+      if (s.condizione === undefined || this.valuta(s.condizione, `scena ${s.id}`)) return s.id;
+    }
+    return null;
+  }
+
+  /** Dichiara conclusa una scena: applica i suoi effetti `alla_fine` (una volta sola). */
+  concludiScena(id: string): boolean {
+    const s = this.contenuti.scene.find((x) => x.id === id);
+    if (!s) {
+      this.segnala(`Scena inesistente «${id}»`);
+      return false;
+    }
+    if (this.sceneConcluse.has(id)) return false;
+    this.sceneConcluse.add(id);
+    this.eventi.emit('scenaConclusa', { scena: id, gruppo: s.gruppo });
+    this.applicaEffetti(s.effettiFine, `scena ${id}`);
+    return true;
+  }
+
+  scenaConclusa(id: string): boolean {
+    return this.sceneConcluse.has(id);
+  }
+
   /** Apre il dialogo legato a un oggetto del mondo («si_apre: interagendo con …»), o null. */
   interagisci(oggetto: string): VistaNodo | null {
     const id = this.dialoghi.perInterazione(oggetto);
@@ -446,6 +486,7 @@ export class Narrativa {
       taccuino: this.taccuino.esporta(),
       inventario: this.inventario.esporta(),
       luoghiPasso: Object.fromEntries([...this.luoghiPasso].map(([k, v]) => [k, [...v]])),
+      scene: [...this.sceneConcluse],
     };
   }
 
@@ -457,6 +498,8 @@ export class Narrativa {
     this.dialoghi.importa(stato.dialoghi ?? { finiti: [], iniziati: [], corrente: null });
     this.taccuino.importa(stato.taccuino ?? { voci: [], rigaCielo: null, obiettivi: [] });
     this.inventario.importa(stato.inventario ?? {});
+    this.sceneConcluse.clear();
+    for (const id of stato.scene ?? []) if (typeof id === 'string') this.sceneConcluse.add(id);
     this.luoghiPasso.clear();
     for (const [k, v] of Object.entries(stato.luoghiPasso ?? {})) {
       if (Array.isArray(v)) this.luoghiPasso.set(k, new Set(v.filter((x): x is string => typeof x === 'string')));
@@ -636,6 +679,10 @@ export class Narrativa {
       cond(v.chiudiQuando, `taccuino ${v.id}`);
     }
     for (const r of this.contenuti.rigaCielo) cond(r.quando, `riga del cielo ${r.id}`);
+    for (const s of this.contenuti.scene) {
+      cond(s.condizione, `scena ${s.id}`);
+      eff(s.effettiFine, `scena ${s.id}`);
+    }
     for (const m of this.contenuti.missioni) {
       for (const p of m.passi) {
         p.eventi.forEach((e, k) => {

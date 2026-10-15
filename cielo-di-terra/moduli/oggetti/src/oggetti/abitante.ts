@@ -347,21 +347,35 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     }
     case 'apicoltore': {
       // cappello a tesa larga e velo a rete color rame (canale sottile, aperto)
-      const tesa = geoCilindro(rT * 2.6, rT * 2.6, 0.02, 14);
+      const tesa = geoCilindro(rT * 2.75, rT * 2.75, 0.02, 14);
       b.aggiungi(tesa, { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa });
       b.aggiungi(geoCilindro(rT * 1.0, rT * 1.15, rT * 0.8, 12), { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa });
       b.aggiungi(geoCilindro(rT * 1.16, rT * 1.16, rT * 0.18, 12, true), { matrice: mat([0, yC + rT * 0.72, 0]), colore: PALETTE.vermiglio, osso: O.testa });
       // testa scura dentro la rete
       b.aggiungi(geoSfera(rT, 8, 6), { matrice: mat(cT), colore: 0x2b2420, osso: O.testa });
-      const rete = geoCilindro(rT * 2.2, rT * 2.4, rT * 2.6 + 0.06 * H, 14, true);
-      const cR1 = mescola(PALETTE.rame, PALETTE.canapaScura, 0.45);
-      const cR2 = mescola(PALETTE.rameScuro, 0x2b2420, 0.45);
+      // velo a rete: dalla tesa si stringe verso il collo, dove è legato (forma a campana rovesciata)
+      const yTesa = yC + rT * 0.7;
+      const yCollo = 1.4 * H;
+      const rete = new THREE.LatheGeometry(
+        [
+          new THREE.Vector2(rT * 1.25, yCollo),
+          new THREE.Vector2(rT * 1.55, yCollo + (yTesa - yCollo) * 0.3),
+          new THREE.Vector2(rT * 2.05, yCollo + (yTesa - yCollo) * 0.7),
+          new THREE.Vector2(rT * 2.35, yTesa),
+        ],
+        14,
+      );
+      rete.deleteAttribute('uv');
+      const cR1 = mescola(PALETTE.rame, 0x2b2420, 0.35);
+      const cR2 = mescola(PALETTE.rameScuro, 0x1c1714, 0.6);
       b.aggiungi(rete, {
-        matrice: mat([0, yC + rT * 0.7 - (rT * 2.6 + 0.06 * H), 0], [0, 0, 0], [1, 1, 0.85]),
-        colore: (p, _n, out) => out.copy(cR2).lerp(cR1, Math.sin(Math.atan2(p.x, p.z) * 16) * 0.5 + 0.5),
+        matrice: mat([0, 0, 0], [0, 0, 0], [1, 1, 0.9]),
+        colore: (p, _n, out) => out.copy(cR2).lerp(cR1, (Math.sin(Math.atan2(p.x, p.z) * 18) * 0.5 + 0.5) * 0.6 + (p.y > yTesa - 0.05 ? 0.4 : 0)),
         canale: 'sottile',
-        pesi: (p) => (p.y > 1.45 * H ? [O.testa, 1, O.petto, 0] : [O.testa, 0.4, O.petto, 0.6]),
+        pesi: (p) => (p.y > 1.47 * H ? [O.testa, 1, O.petto, 0] : [O.testa, 0.5, O.petto, 0.5]),
       });
+      // laccio al collo
+      b.aggiungi(new THREE.TorusGeometry(rT * 1.27, 0.012, 3, 12).rotateX(Math.PI / 2), { matrice: mat([0, yCollo + 0.01, 0]), colore: PALETTE.canapa, osso: O.petto });
       break;
     }
     case 'cappuccio': {

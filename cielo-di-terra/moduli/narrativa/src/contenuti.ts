@@ -157,6 +157,20 @@ export interface VoceDef {
   dati: Record<string, unknown>;
 }
 
+/**
+ * Una scena di testi.json con una condizione o degli effetti finali (per
+ * esempio le varianti dell'Ombrista in `leggende`): il gioco chiede quale
+ * scena del gruppo è disponibile, la recita e poi la dichiara conclusa.
+ */
+export interface ScenaDef {
+  id: string;
+  /** Sezione di testi.json («leggende»…). */
+  gruppo: string;
+  condizione?: CondizioneGrezza;
+  effettiFine: string[];
+  dati: Record<string, unknown>;
+}
+
 /** Una candidata per la «riga del cielo»: vince la più alta `priorita` fra quelle con `quando` vera. */
 export interface RigaCieloDef {
   id: string;
@@ -172,6 +186,8 @@ export interface ContenutiNormalizzati {
   taccuino: VoceDef[];
   /** Candidate della riga del cielo (`taccuino.json` → `riga_del_cielo`). */
   rigaCielo: RigaCieloDef[];
+  /** Scene con condizione o effetti finali (`testi.json`, per esempio le leggende dell'Ombrista). */
+  scene: ScenaDef[];
   avvisi: string[];
 }
 
@@ -180,6 +196,8 @@ export interface ContenutiNarrativa {
   missioni?: unknown;
   dialoghi?: unknown;
   taccuino?: unknown;
+  /** testi.json (facoltativo): se ne leggono solo le scene con `condizione` o `alla_fine`. */
+  testi?: unknown;
 }
 
 // ---------------------------------------------------------------------------
@@ -521,6 +539,30 @@ export function riempiSegnaposto(testo: string, valori: Record<string, string | 
   return testo.replace(/\{(\w+)\}/g, (m, k: string) => (k in valori ? String(valori[k]) : m));
 }
 
+/** Scene di testi.json: le voci (di qualunque sezione) che hanno `condizione` o `alla_fine`. */
+export function normalizzaScene(x: unknown, avvisi: string[] = []): ScenaDef[] {
+  if (!oggetto(x)) return [];
+  const out: ScenaDef[] = [];
+  for (const [gruppo, sezione] of Object.entries(x)) {
+    if (gruppo.startsWith('_') || gruppo.startsWith('$')) continue;
+    if (!oggetto(sezione) && !Array.isArray(sezione)) continue;
+    for (const [id, v] of voci(sezione, `testi.${gruppo}`, [], [])) {
+      if (!id) continue;
+      const cond = condizione(v, 'condizione', 'quando_vale');
+      const effettiFine = listaEffetti(primo(v, 'alla_fine', 'effetti_fine'));
+      if (cond === undefined && effettiFine.length === 0) continue;
+      if (typeof v.quando === 'string' && cond === undefined && effettiFine.length === 0) continue;
+      out.push({ id, gruppo, ...(cond !== undefined ? { condizione: cond } : {}), effettiFine, dati: v });
+    }
+  }
+  const visti = new Set<string>();
+  for (const s of out) {
+    if (visti.has(s.id)) avvisi.push(`testi: scena duplicata «${s.id}»`);
+    visti.add(s.id);
+  }
+  return out;
+}
+
 /** Normalizza tutti i contenuti narrativi. */
 export function normalizzaContenuti(c: ContenutiNarrativa): ContenutiNormalizzati {
   const avvisi: string[] = [];
@@ -529,6 +571,7 @@ export function normalizzaContenuti(c: ContenutiNarrativa): ContenutiNormalizzat
     dialoghi: normalizzaDialoghi(c.dialoghi, avvisi),
     taccuino: normalizzaTaccuino(c.taccuino, avvisi),
     rigaCielo: normalizzaRigaCielo(c.taccuino, avvisi),
+    scene: normalizzaScene(c.testi, avvisi),
     avvisi,
   };
 }

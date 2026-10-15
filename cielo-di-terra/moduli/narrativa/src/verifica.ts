@@ -113,6 +113,7 @@ type Sorgente =
   | { tipo: 'passo'; missione: string; passo: string }
   | { tipo: 'eventoPasso'; missione: string; passo: string; indice: number }
   | { tipo: 'aiuto'; missione: string; passo: string; indice: number }
+  | { tipo: 'scena'; scena: string }
   | { tipo: 'missione'; missione: string };
 
 function descriviSorgente(s: Sorgente): string {
@@ -129,6 +130,8 @@ function descriviSorgente(s: Sorgente): string {
       return `missione ${s.missione}, passo ${s.passo}, evento ${s.indice + 1}`;
     case 'aiuto':
       return `missione ${s.missione}, passo ${s.passo}, aiuto ${s.indice + 1}`;
+    case 'scena':
+      return `scena ${s.scena} (testi.json)`;
     case 'missione':
       return `missione ${s.missione}`;
   }
@@ -177,6 +180,7 @@ function* condizioniDi(c: ContenutiNormalizzati): Generator<[CondizioneGrezza, s
     if (v.chiudiQuando !== undefined) yield [v.chiudiQuando, `taccuino ${v.id} (chiusura)`];
   }
   for (const r of c.rigaCielo) if (r.quando !== undefined) yield [r.quando, `riga del cielo ${r.id}`];
+  for (const s of c.scene) if (s.condizione !== undefined) yield [s.condizione, `scena ${s.id} (testi.json)`];
 }
 
 /** Ogni lista di effetti dei contenuti con la sua sorgente. */
@@ -194,6 +198,7 @@ function* effettiDi(c: ContenutiNormalizzati): Generator<[string, Sorgente]> {
     }
     for (const e of m.effetti) yield [e, { tipo: 'missione', missione: m.id }];
   }
+  for (const s of c.scene) for (const e of s.effettiFine) yield [e, { tipo: 'scena', scena: s.id }];
   for (const d of Object.values(c.dialoghi)) {
     for (const e of d.effettiFine) yield [e, { tipo: 'fine', dialogo: d.id }];
     for (const n of d.nodi) {
@@ -800,6 +805,17 @@ class Simulatore {
         }
         return riuscito() ? null : 'non basta';
       }
+      case 'scena': {
+        if (this.n.scenaConclusa(s.scena)) return riuscito() ? null : `la scena ${s.scena} è già stata recitata`;
+        const def = this.c.scene.find((x) => x.id === s.scena)!;
+        if (def.condizione !== undefined) {
+          const m = this.soddisfa(def.condizione, prof + 1);
+          if (m) return `scena ${s.scena}: ${m}`;
+        }
+        this.log(`  (il gioco recita la scena ${s.scena})`);
+        this.n.concludiScena(s.scena);
+        return riuscito() ? null : 'non basta';
+      }
       case 'missione':
         return riuscito() ? null : `serve completare la missione ${s.missione}`;
     }
@@ -942,7 +958,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
   const errori: string[] = [];
   const avvisi: string[] = [];
   const parser = new ParserCondizioni(opzioni.parser);
-  const c = normalizzaContenuti({ missioni: grezzi.missioni, dialoghi: grezzi.dialoghi, taccuino: grezzi.taccuino });
+  const c = normalizzaContenuti({ missioni: grezzi.missioni, dialoghi: grezzi.dialoghi, taccuino: grezzi.taccuino, testi: grezzi.testi });
   for (const a of c.avvisi) avvisi.push(`forma: ${a}`);
 
   const luoghi = grezzi.luoghi !== undefined ? idDa(grezzi.luoghi) : null;
@@ -1173,6 +1189,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       nodi: nNodi,
       vociTaccuino: c.taccuino.length,
       righeCielo: c.rigaCielo.length,
+      scene: c.scene.length,
       condizioni: nCondizioni,
       effetti: nEffetti,
     },

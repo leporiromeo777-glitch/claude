@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:33:36.216Z",
+  "date": "2026-10-15T07:34:40.361Z",
   "size": [
     1280,
     720
@@ -10,6 +10,7 @@
     "--ignore-gpu-blocklist"
   ],
   "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "startupSeconds": 1.46,
   "shots": [
     {
       "n": 4,
@@ -19,7 +20,7 @@
       "frameMs": 1,
       "stats": {
         "drawCalls": 39,
-        "triangles": 342122,
+        "triangles": 380714,
         "terrainChunks": 126,
         "terrainByLod": [
           1,
@@ -66,118 +67,45 @@
         },
         "hours": 12
       }
-    },
-    {
-      "n": 5,
-      "file": "05-notte-paese.png",
-      "title": "Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo",
-      "frames": 4,
-      "frameMs": 2,
-      "stats": {
-        "drawCalls": 51,
-        "triangles": 468514,
-        "terrainChunks": 126,
-        "terrainByLod": [
-          4,
-          7,
-          47,
-          68
-        ],
-        "terrainTriangles": 256344,
-        "trees": 5143,
-        "treesByLod": [
-          24,
-          1416,
-          3703
-        ],
-        "colliders": 5907,
-        "lamps": 228,
-        "fps": 0,
-        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
-      },
-      "player": {
-        "z": 1012,
-        "theta": 30.5,
-        "h": 45.49999845238847,
-        "r": 600.5000015476115,
-        "groundH": 45.49999845238852,
-        "heightAboveGround": -4.973799150320701e-14,
-        "gravity": 9.114490516152976,
-        "gravityG": 0.9294193752354756,
-        "velocity": [
-          1.336314528162333e-16,
-          2.609426212329883e-16,
-          0
-        ],
-        "speed": 2.9316960408221034e-16,
-        "grounded": true,
-        "mode": "walk",
-        "veloOpen": false,
-        "coriolisFactor": 0.4,
-        "freeCamera": false,
-        "camera": {
-          "z": 1012,
-          "theta": 30.499999999999993,
-          "h": 47.11999845238847
-        },
-        "hours": 23.200000000000003
-      }
-    },
-    {
-      "n": 6,
-      "file": "06-matita-rivelazione.png",
-      "title": "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
-      "frames": 30,
-      "frameMs": 1,
-      "stats": {
-        "drawCalls": 50,
-        "triangles": 539410,
-        "terrainChunks": 126,
-        "terrainByLod": [
-          3,
-          7,
-          42,
-          74
-        ],
-        "terrainTriangles": 227640,
-        "trees": 5143,
-        "treesByLod": [
-          233,
-          1201,
-          3709
-        ],
-        "colliders": 5907,
-        "lamps": 228,
-        "fps": 10.18867924528302,
-        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
-      },
-      "player": {
-        "z": 1012,
-        "theta": 30.5,
-        "h": 45.49999845238847,
-        "r": 600.5000015476115,
-        "groundH": 45.49999845238852,
-        "heightAboveGround": -4.973799150320701e-14,
-        "gravity": 9.114490516152976,
-        "gravityG": 0.9294193752354756,
-        "velocity": [
-          1.336314528162333e-16,
-          2.609426212329883e-16,
-          0
-        ],
-        "speed": 2.9316960408221034e-16,
-        "grounded": true,
-        "mode": "walk",
-        "veloOpen": false,
-        "coriolisFactor": 0.4,
-        "freeCamera": true,
-        "camera": {
-          "z": 1500,
-          "theta": 21,
-          "h": 96.62108164410324
-        },
-        "hours": 11.200000000000003
-      }
     }
-  ]
+  ],
+  "checks": {
+    "walk2s": {
+      "dz": 8.21,
+      "grounded": true,
+      "mode": "walk"
+    },
+    "jumpHeight": 1.31,
+    "glide10s": {
+      "drop": 21.4,
+      "dz": 116.9,
+      "speed": 11.8,
+      "mode": "glide",
+      "ratio": 5.5
+    },
+    "updateMsPerStep": 0.009,
+    "renderCpuMs": 12.3,
+    "stats": {
+      "drawCalls": 84,
+      "triangles": 499578,
+      "terrainChunks": 126,
+      "terrainByLod": [
+        3,
+        8,
+        46,
+        69
+      ],
+      "terrainTriangles": 238168,
+      "trees": 5143,
+      "treesByLod": [
+        10,
+        1583,
+        3550
+      ],
+      "colliders": 5907,
+      "lamps": 228,
+      "fps": 2.770700636942675,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    }
+  }
 }
