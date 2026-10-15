@@ -35,7 +35,14 @@ function cellaAllOra(e: ElviraNotte, t: number): number | null {
   return c;
 }
 
-function giocaPartita(seme: number, controlli: boolean): { stato: StatoCatasto; violazioni: string[]; notti: number } {
+interface Statistiche {
+  cambiamenti: number;
+  salvateDaElvira: number;
+  salvateDalRilievo: number;
+  latiChiusi: number;
+}
+
+function giocaPartita(seme: number, controlli: boolean, stat?: Statistiche): { stato: StatoCatasto; violazioni: string[]; notti: number } {
   const rnd = generatore(seme);
   const pesca = <T>(xs: readonly T[]): T => xs[Math.floor(rnd() * xs.length)]!;
   const violazioni: string[] = [];
@@ -63,10 +70,19 @@ function giocaPartita(seme: number, controlli: boolean): { stato: StatoCatasto; 
       for (let k = 0; k < 3; k++) elvira.percorso.push({ ora: pesca(['21:30', '22:15', '22:25', '23:10', '23:30', '00:20', '00:40', '02:00']), cella: pesca(posti) });
     }
     const prima = s;
+    const fotografia = controlli ? JSON.stringify(prima) : '';
     const n = notte(s, r, { elvira, seme });
     s = n.nuovoStato;
     notti++;
     if (!controlli) continue;
+    if (JSON.stringify(prima) !== fotografia) violazioni.push(`notte ${notti}: lo stato di partenza è stato modificato`);
+    if (stat) {
+      stat.cambiamenti += n.resoconto.cambiamenti.length;
+      const prot = Object.values(s.ultimaNotte?.protette ?? {});
+      stat.salvateDaElvira += prot.filter((m) => m === 'elvira').length;
+      stat.salvateDalRilievo += prot.filter((m) => m === 'rilevato').length;
+      stat.latiChiusi = Math.max(stat.latiChiusi, Object.values(s.lati).filter((l) => l.firma === 'G5').length);
+    }
 
     const rosse = new Set(n.resoconto.righe.filter((x) => x.colore === 'rosso').flatMap((x) => x.particelle));
     for (const c of n.resoconto.particelleCambiate) {
@@ -110,13 +126,19 @@ describe('il simulatore della notte', () => {
   it('1.000 partite casuali delle prime tre notti non violano le regole', () => {
     const tutte: string[] = [];
     let notti = 0;
+    const stat: Statistiche = { cambiamenti: 0, salvateDaElvira: 0, salvateDalRilievo: 0, latiChiusi: 0 };
     for (let seme = 1; seme <= 1000; seme++) {
-      const g = giocaPartita(seme, true);
+      const g = giocaPartita(seme, true, stat);
       notti += g.notti;
       tutte.push(...g.violazioni.map((v) => `partita ${seme}, ${v}`));
     }
     expect(notti).toBe(3000);
     expect(tutte.slice(0, 20)).toEqual([]);
+    // il simulatore esercita davvero le regole: cambi, salvataggi per presenza e per rilievo
+    expect(stat.cambiamenti).toBeGreaterThan(3000);
+    expect(stat.salvateDaElvira).toBeGreaterThan(100);
+    expect(stat.salvateDalRilievo).toBeGreaterThan(100);
+    expect(stat.latiChiusi).toBeGreaterThan(5);
   });
 
   it('la stessa partita con lo stesso seme è identica', () => {
