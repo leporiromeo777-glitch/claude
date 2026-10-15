@@ -28,22 +28,17 @@ export interface Fumo {
 }
 
 export function costruisciGraDiPian(ctx: Contesto): THREE.Object3D {
-  const g = luogo('gra_di_pian');
+  const g0 = luogo('gra_di_pian');
   const cs37 = RETE.find((c) => c.id === 'cs_37')!;
-  const yaw = yawValle(g.z, g.theta);
-  const fp = impronta(g.z, g.theta, yaw, 5.0, 5.6);
-  const gra = creaGra('gra-di-pian', false);
-  const base = fp.min - 0.05;
-  const pg = ctx.posa('selve', gra, g.z, g.theta, yaw, { h: base, luogo: 'gra_di_pian', tag: (t) => t ?? 'muro' });
-  ctx.occupa({ nome: 'gra_di_pian', z: g.z, theta: g.theta, yaw, larghezza: 6, profondita: 7 });
-  // chiodo 37 murato nell'angolo: lo spigolo da cui si vedono il chiodo 3 (a Mane) e il Pilastro 4 (a Mont)
-  void pg;
+  const yaw = yawValle(g0.z, g0.theta);
+  // chiodo 37 murato nell'angolo: lo spigolo da cui si vedono il chiodo 3 (a Mane) e il Pilastro 4
+  // (a Mont); la grà si sposta in modo che quello spigolo cada sul punto dei contenuti
   const cs3 = RETE.find((c) => c.id === 'cs_3')!;
   const cs4 = RETE.find((c) => c.id === 'cs_4')!;
-  const b3 = yawVerso(g, cs3);
-  const b4 = yawVerso(g, cs4);
-  // direzione dello spigolo: perpendicolare alla bisettrice dei due bersagli (quasi opposti)
-  const bis = Math.atan2(Math.sin((b3 * Math.PI) / 180) + Math.sin((b4 * Math.PI) / 180), Math.cos((b3 * Math.PI) / 180) + Math.cos((b4 * Math.PI) / 180)) * (180 / Math.PI);
+  const rad = Math.PI / 180;
+  const b3 = yawVerso(cs37, cs3);
+  const b4 = yawVerso(cs37, cs4);
+  const bis = Math.atan2(Math.sin(b3 * rad) + Math.sin(b4 * rad), Math.cos(b3 * rad) + Math.cos(b4 * rad)) / rad;
   const voluta = bis + 90;
   let migliore = { sx: 1, sz: 1, d: 1e9 };
   for (const sx of [1, -1]) {
@@ -51,13 +46,21 @@ export function costruisciGraDiPian(ctx: Contesto): THREE.Object3D {
       // spigolo (X = sinistra: bussola yaw - 90; Z = avanti: bussola yaw)
       const bx = sx > 0 ? yaw - 90 : yaw + 90;
       const bz = sz > 0 ? yaw : yaw + 180;
-      const dir = Math.atan2(Math.sin((bx * Math.PI) / 180) + Math.sin((bz * Math.PI) / 180), Math.cos((bx * Math.PI) / 180) + Math.cos((bz * Math.PI) / 180)) * (180 / Math.PI);
+      const dir = Math.atan2(Math.sin(bx * rad) + Math.sin(bz * rad), Math.cos(bx * rad) + Math.cos(bz * rad)) / rad;
       const d = Math.min(Math.abs(((dir - voluta + 540) % 360) - 180), Math.abs(((dir - voluta - 180 + 540) % 360) - 180));
       if (d < migliore.d) migliore = { sx, sz, d };
     }
   }
-  const mG = matriceSuperficie(g.z, g.theta, base, yaw);
   const pAng = new THREE.Vector3(migliore.sx * 2.21, 1.1, migliore.sz * 2.52);
+  // centro = chiodo − spigolo (X sinistra = bussola yaw − 90)
+  const q = spostaYaw(cs37.z, cs37.theta, yaw, -pAng.z, 100);
+  const g = spostaYaw(q.z, q.theta, yaw - 90, -pAng.x, 100);
+  const fp = impronta(g.z, g.theta, yaw, 5.0, 5.6);
+  const gra = creaGra('gra-di-pian', false);
+  const base = fp.min - 0.05;
+  ctx.posa('selve', gra, g.z, g.theta, yaw, { h: base, luogo: 'gra_di_pian', tag: (t) => t ?? 'muro' });
+  ctx.occupa({ nome: 'gra_di_pian', z: g.z, theta: g.theta, yaw, larghezza: 6, profondita: 7 });
+  const mG = matriceSuperficie(g.z, g.theta, base, yaw);
   const m = mG.clone().multiply(new THREE.Matrix4().makeTranslation(pAng.x, pAng.y, pAng.z)).multiply(new THREE.Matrix4().makeRotationX((migliore.sz * Math.PI) / 2));
   const ch = creaCaposaldo({ numero: 37, supporto: 'nessuno', segno: true });
   ctx.zona('selve').oggetto(ch, m, { tag: () => 'chiodo', luogo: 'gra_di_pian' });
