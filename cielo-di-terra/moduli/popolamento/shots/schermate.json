@@ -1,13 +1,13 @@
 {
   "statistiche": {
     "zone": 54,
-    "triangoli": 571208,
-    "collider": 2870,
-    "lumi": 338,
+    "triangoli": 551682,
+    "collider": 2838,
+    "lumi": 320,
     "punti": 102,
     "case": 58,
-    "muriMetri": 2832,
-    "personaggi": 32,
+    "muriMetri": 2785,
+    "personaggi": 33,
     "castagniTolti": 3,
     "segnaposto": {
       "meshTolte": [
@@ -17,9 +17,27 @@
       "colliderTolti": 691,
       "lumiTolti": 83
     },
-    "msCostruzione": 2808
+    "msCostruzione": 2929
   },
   "schermate": [
+    {
+      "file": "piazza-campanile.png",
+      "titolo": "Piazza delle Ore con il campanile bianco di San Vigilio e il Pilastro 1, a metà mattina",
+      "drawCalls": 160,
+      "triangoli": 840888
+    },
+    {
+      "file": "castagno-morto-botola.png",
+      "titolo": "Il castagno morto e la botola della Cripta fra le radici, la mattina",
+      "drawCalls": 107,
+      "triangoli": 841155
+    },
+    {
+      "file": "terrazza-pedrazzini.png",
+      "titolo": "La Terrazza Pedrazzini: castagni da frutto, erba alta, il castagno del cartellino",
+      "drawCalls": 164,
+      "triangoli": 848753
+    },
     {
       "file": "fienile-ottavio.png",
       "titolo": "Il fienile di Ottavio oltre il riale, il Sass dal Messo e la passerella",
@@ -27,28 +45,64 @@
       "triangoli": 552003
     },
     {
+      "file": "chiodo-3-squadro.png",
+      "titolo": "Il chiodo 3 sulla copertina del muro della Terrazza: dove si pianta lo squadro per collimare il Pilastro 1",
+      "drawCalls": 97,
+      "triangoli": 822689
+    },
+    {
+      "file": "abitanti-piazza.png",
+      "titolo": "Gli abitanti velati in piazza: Ottavio, i bambini, Pina sulla soglia, i velati",
+      "drawCalls": 98,
+      "triangoli": 796904
+    },
+    {
       "file": "notte-paese.png",
       "titolo": "Corbella di notte: finestre accese, lampioni, le Fade sui Ronchi, la casa di Nando",
-      "drawCalls": 110,
-      "triangoli": 895515
+      "drawCalls": 114,
+      "triangoli": 907237
     },
     {
       "file": "fade-ronchi.png",
       "titolo": "Le Fade alle 00:40 sui Ronchi: lumi caldi in cerchio sopra la casa di Nando",
-      "drawCalls": 97,
-      "triangoli": 884494
+      "drawCalls": 101,
+      "triangoli": 870526
     },
     {
       "file": "cripta-interno.png",
       "titolo": "La Cripta dei Giardinieri sotto la botola: sette capsule, luci color miele",
       "drawCalls": 57,
-      "triangoli": 538409
+      "triangoli": 536047
+    },
+    {
+      "file": "mobili-varianti.png",
+      "titolo": "Elementi mobili: la passerella del Messo (Abitata), la casa di Nando (Smontata), il muro di Ronco con la breccia",
+      "drawCalls": 65,
+      "triangoli": 558991
     },
     {
       "file": "muri-del-velo.png",
       "titolo": "I tre muri del Velo dalla Terrazza: il Muretto, il Muraglione della Grà, la Ripa sopra la piazza",
       "drawCalls": 135,
-      "triangoli": 924520
+      "triangoli": 902248
+    },
+    {
+      "file": "panorama-paese.png",
+      "titolo": "Corbella dall'alto delle terrazze, a Mont e a Sera del paese",
+      "drawCalls": 132,
+      "triangoli": 890561
+    },
+    {
+      "file": "chiesa-sagrato.png",
+      "titolo": "San Vigilio, il sagrato a gradini e il tasso",
+      "drawCalls": 114,
+      "triangoli": 863470
+    },
+    {
+      "file": "debug-pianta.png",
+      "titolo": "Pianta di Corbella vista dall'alto (controllo del piazzamento)",
+      "drawCalls": 98,
+      "triangoli": 690904
     }
   ]
 }
