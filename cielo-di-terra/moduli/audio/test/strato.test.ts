@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ATTESA_SONNO, Strato, puntoAttorno, type Ascoltatore, type ContestoStrato } from '../src/ambienti/strato';
-import type { ParametriAmbiente } from '../src/mappature';
 import { posizioneCilindrica, suVersoAsse, coordinateCilindriche } from '../src/mappature';
 import { creaRng, distanza, punto } from '../src/util';
 
@@ -49,12 +48,6 @@ describe('sonno degli strati', () => {
     expect(s.uscitaFinta.collegamenti).toBe(1);
     s.passo(0.3, ATTESA_SONNO + 7); // nessun doppio collegamento
     expect(s.uscitaFinta.collegamenti).toBe(1);
-  });
-
-  it('il parametro inutilizzato non serve: aggiorna accetta parametri qualsiasi', () => {
-    const s = new StratoDiProva();
-    expect(() => s.aggiorna()).not.toThrow();
-    void ({} as ParametriAmbiente);
   });
 });
 

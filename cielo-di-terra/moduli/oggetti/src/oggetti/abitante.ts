@@ -445,11 +445,13 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     }
     (ossa[i] as THREE.Bone).position.copy(pos);
   }
-  const scheletro = new THREE.Skeleton(ossa);
   const gruppo = new THREE.Group();
   gruppo.name = 'abitante';
   const radice = ossa[0] as THREE.Bone;
   gruppo.add(radice);
+  // le matrici mondo delle ossa devono essere aggiornate PRIMA di calcolare le inverse di legame
+  gruppo.updateMatrixWorld(true);
+  const scheletro = new THREE.Skeleton(ossa);
   const mesh: THREE.SkinnedMesh[] = [];
   for (const canale of ['opaco', 'sottile'] as const) {
     const g = b.geometria(canale);
