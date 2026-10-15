@@ -1,8 +1,102 @@
 # Stato del pacchetto: piattaforma-qa (parte 2, suite end-to-end)
 
-**Stato:** done, verificato. Tutte le suite di ARCHITETTURA 15.2 (tranne `smoke`, di fondamenta) sono scritte e girano sui cinque progetti di Playwright. La verifica ha allargato il giro delle schermate, ha reso il controllo del layout capace di vedere i difetti trovati dal primo playtest (calligrafia fuori dal foglio, pulsanti coperti, parole spezzate), ha aggiunto il controllo di tutta la carta della storia e il comportamento da app di GDD 17. I test che falliscono lo fanno per difetti di altri pacchetti, descritti qui sotto con i passi per riprodurli.
+**Stato:** done, allineato alla revisione 1 (vedi «Dopo la revisione 1» qui sotto: suite su `HEAD` 116e167, 280 test, 172 superati, 10 falliti per 5 difetti di altri gruppi, 98 saltati per progetto). Tutte le suite di ARCHITETTURA 15.2 (tranne `smoke`, di fondamenta) sono scritte e girano sui cinque progetti di Playwright. La verifica ha allargato il giro delle schermate, ha reso il controllo del layout capace di vedere i difetti trovati dal primo playtest (calligrafia fuori dal foglio, pulsanti coperti, parole spezzate), ha aggiunto il controllo di tutta la carta della storia e il comportamento da app di GDD 17. I test che falliscono lo fanno per difetti di altri pacchetti, descritti qui sotto con i passi per riprodurli.
 
 La parte 1 (nativo: `android/`, `ios/`, `scripts/`, `docs/STORE.md`) è del pacchetto piattaforma-nativa e non è stata toccata.
+
+## Dopo la revisione 1 (15/10/2026)
+
+Primo giro di QA dopo la revisione 1 (docs/REVISIONE-1.md, D19: «l'allineamento delle suite e2e è il primo compito del giro di QA che precede il playtest 2»). Il codice del gioco non è stato toccato: solo `tests/e2e/` e questo rapporto.
+
+### Come si è lanciata
+
+- Build statica di `HEAD` 116e167: `VITE_E2E=1 npx vite build --outDir <scratchpad>/qa-r2/dist --emptyOutDir`, servita da `vite preview` sulla 5900.
+- `E2E_PORT=5900 E2E_REUSE=1 E2E_DIST=<scratchpad>/qa-r2/dist npx playwright test --workers=2` (tutti i progetti). Il test offline accende un server suo sulla prima porta libera fra `E2E_PORT+1` e `E2E_PORT+9` (qui 5901-5909) e lo spegne a metà.
+- Macchina condivisa con gli agenti di playtest: carico medio 9-17 su 4 CPU.
+- Screenshot di riferimento e per gli store rigenerati nel giro finale con `E2E_SHOTS=1`.
+
+### Primo giro: la suite com'era
+
+220 test in 27,9 min: **133 superati, 9 falliti, 78 saltati** (progetti esclusi apposta).
+
+| Progetto | Superati | Falliti | Saltati |
+|---|---|---|---|
+| desktop | 43 | 1 | 0 |
+| desktop-hd | 12 | 0 | 32 |
+| iphone | 29 | 1 | 14 |
+| android-piccolo | 25 | 4 | 15 |
+| ipad-orizzontale | 24 | 3 | 17 |
+
+Dei 9: 2 «Test not found» su `rete.spec.ts` (Android, iPad: l'ho riscritto mentre il giro girava), 2 «TRAMA» spezzata nei Crediti, 2 «L'ANNIVERSA/RIO», 3 gesti persi sotto carico (prologo su iPad, audio su Android, scelta dei nomi su iPad). Nessun test esistente falliva per una scelta voluta della revisione: le attese superate (contatore «Nomi dati», «Continua» dei finali, soluzioni precalcolate) erano già state corrette nel giro precedente. Due test però erano **diventati ciechi** senza fallire: vedi sotto.
+
+### Test aggiornati e perché
+
+| Test | Decisione | Che cosa è cambiato |
+|---|---|---|
+| `layout.spec.ts` «tutta la carta della storia» | CAM-10, D13 riga «Stagioni» (P077): cartello d'atto alla prima sera di ogni atto | Alle sere di g01, g09 e g17 la sera si apre con il cartello («Autunno · Atto I. L'ordito · Tocca per continuare») e i bigliettini compaiono solo dopo il tocco. Il test saltava in silenzio i bigliettini che non vedeva (`continue`): era verde ma non controllava quelle tre sere. Ora controlla anche il cartello, lo tocca (`dismissActCard`, helpers/campaign.ts) e segnala come problema un bigliettino della sera che non si vede. Fogli controllati per giro: 153 (prima 88-90). |
+| `rete.spec.ts` «senza rete» | D16 «Offline dopo il primo caricamento», SCH-08 (service worker) | `context.setOffline` di Playwright vale per la pagina ma non per le richieste del service worker: con la rete «tolta» una `fetch` di un indirizzo nuovo tornava 200 dal server. Il test non poteva più fallire. Ora la build si serve da un server del test (API `preview` di Vite) che **si ferma davvero** al titolo; una sonda prova che un indirizzo nuovo fallisce; si gioca nella stessa pagina (prologo, alba, g01), poi **si ricarica senza server** (la pagina viene dal worker, `fromServiceWorker()`), «Continua», la notte di g02, Merletto del giorno (Worker) e libero, Impostazioni, Crediti; nessun asset o font mancante, nessuna richiesta fallita, nessun errore. |
+| `helpers/tour.ts` | C10 e D07.6, C08 e TOM-13, CAM-10, D09 e C04 | Giro da 41 a **45 tappe**: `pausa-comandi` (la pagina «Comandi» della Pausa), `tombolo-obiettivi` (il popup degli obiettivi col contatore), `atto-cartello` (prima sera dell'Atto II), `alba-oggetto` (la lettera di Clotilde consegnata da Zeno all'alba di g14, che scorre nel foglio). `alba-oggetto` e `pausa-comandi` anche fra le tappe dense delle varianti. Le schede del tombolo si chiudono anche quando è aperto il popup degli obiettivi. |
+| `helpers/game.ts` | D07 | `NightState` ha `hintsUsed` e `fantasmaUsed`. |
+
+### Test nuovi
+
+`tests/e2e/revisione1.spec.ts` (11 test; gesti del progetto: mouse o tocco del protocollo DevTools):
+
+| Test | Decisioni | Progetti |
+|---|---|---|
+| «Lascia per ora» torna alla cassapanca, «Più tardi» alla sera dopo; «Rileggi» in sola lettura | D05.1, C10, CAM-01 | 4 da gioco |
+| nessun avviso dice chi è un filo sbiadito prima che lo si nomini | D05.2 | desktop, iphone |
+| la scelta dei nomi non tradisce il dito e non ammette nomi doppi (nessun nome dal tocco che apre, clic nei primi 350 ms ignorato, scelta lontana dal punto toccato, «Nomi dati: 0 di 4», «Togli il nome» sempre presente e disattivato, altezza fissa, nome doppio che si sposta) | D05.2-5, TOM-01, TOM-02 | 4 da gioco |
+| regola di Gino: ore 7 ferma lecita, ore 8 ferma rifiutata (`corre`, vicino `marta` anche se impegnata con Teresa), ore 9 ferma dopo un incrocio lecita, ore 10 rifiutata con «Don Piero»; nota a margine; nessun avviso a banner | D01, C01, C13, D04 | desktop, iphone |
+| prologo: alle 7 «Chi sta sopra, dà» compare anche col verso giusto | D03, TOM-08 | desktop, iphone |
+| la lampada: si vede subito, tre tocchi danno sempre la Spinta, il tocco riapre l'Indizio già visto, il Fantasma chiede conferma («perdi il filo d'oro»), dopo il primo uso resta accesa alle ore dopo | D07.1-3, TOM-10 | 4 da gioco |
+| HUD «Ore N · fino alle N» (prologo «fino alle 9», g13 «fino alle 20»), lettere intere, non sotto 15 px × scala, lampada visibile; al 100% e al 140% | D06, D16, TOM-05, TOM-11 | 4 da gioco (×2) |
+| la nota a margine non copre la riga corrente e le due dopo, gli spilli, la fascia dei fusi e la barra delle azioni; un tocco la chiude senza toccare l'incrocio in bozza (g01 alle 8) | D04, TOM-07 | 4 da gioco |
+| un tocco sullo spillo del Forno alle 9 nel prologo apre la bolla «Teresa al Forno alle 9…», il tocco dopo la chiude, il merletto non cambia | D06, TOM-12 | 4 da gioco |
+| calligrafia: per Gino (−7°), Bepi (8°) e Zeno (−9°) il foglio intero si inclina al più di ±3° nel verso della mano, il testo non ha trasformazioni e non prende i tocchi, i glifi restano nel foglio, «Appunta», «Rispondi» e «Lascia» stanno fuori dal foglio e ricevono il tocco al centro; «Rispondi» apre le risposte (anche a 1440×900 sul desktop) | D15, C17, CAM-02 | 4 da gioco |
+| Esc nella sera senza pannelli chiede «Tornare al titolo?», «Annulla» resta nella sera | D16, P116, CAM-09 | 4 da gioco |
+
+Nota per chi scrive test: `campaign.goto('arcN', 'archivio')` mette la fase d'Archivio sulla giornata corrente (dopo `newGame` è g00, e «Più tardi» porta a g01). Per la fase d'Archivio vera si passa dal bilancio: `campaign.goto('g03', 'bilancio')` e `campaign.next()`.
+
+### Difetti reali (il gioco non si tocca: passi e gruppo)
+
+1. **[medio] campagna (con tombolo per D04) · una riga rifiutata per Gino produce anche un avviso a banner.** In g01 alle 8 compaiono insieme la riga di motivo («Gino è stato fermo un'ora: adesso deve incrociare (può con Marta).»), la nota a margine e un avviso «Il Gino non sta fermo due ore di fila: dopo un'ora senza incroci, nella successiva deve incrociare qualcuno, se appena può.» sopra il merletto. D04: «Un solo messaggio per violazione… I rifiuti di riga non producono mai un avviso a banner» (P004, P107).
+   - Causa: la stranezza `ginoCorre` si scopre con la violazione; `src/campaign/controller.ts` su `quirk:discovered` annuncia la voce del Taccuino con `notice()`.
+   - Passi: `campaign.newGame()`, `campaign.goto('g01','notte')`, `night.fix()` (ore 7, lecita), `night.cross(0,'R')`, `night.fix()` → `{ok:false}` con `corre`; entro 400 ms `[data-test="toast"]` con il testo sopra.
+   - Test: revisione1 «regola di Gino…» (desktop, iphone). Proposta: di notte una stranezza scoperta da un rifiuto va solo nel Taccuino (segno «Nuova»), oppure l'avviso aspetta la prossima azione valida.
+2. **[medio] tombolo (con campagna) · all'apertura di arc1 un avviso dice che un filo sbiadito è Teresa.** Le righe registrate si ritessono da sole, il filo sbiadito 2 legge la lettera e parte `quirk:discovered {quirk:'teresaLegge', thread:'f2'}`: avviso «Teresa si è accesa. Che cosa ha visto?» e voce «Nuova» nel Taccuino, prima che il giocatore abbia dato un nome. Toglie il gioco dei nomi alla Obra Dinn (D05.2) e fa imparare dal merletto del 1936 una cosa sulla Teresa di oggi.
+   - Passi: `campaign.newGame()`, `campaign.goto('g03','bilancio')`, `campaign.next()`, tocco su `cp-apri-arc1`; entro 2 s l'avviso; `core.events()` contiene `quirk:discovered` con `thread: 'f2'`; `night.state().archive.labels.f2` = «il filo sbiadito 2».
+   - Test: revisione1 «nessun avviso dice chi è un filo sbiadito…» (desktop, iphone). Proposta: nelle notti `archivio` e `occasioni` nessun `quirk:discovered` per i fili sbiaditi (o per nessun filo: l'Archivio non è il presente).
+3. **[minore] schermi (ex interfaccia) · Crediti al 140% sui telefoni: «TRAMA» va a capo a metà parola** (`p.sc-crediti-nome`, «TRAM» / «A»). Era il difetto 4 del giro precedente. Passi: 360×640 o 390×844, `core.setSettings({ textScale: 1.4 })`, `ui.open('crediti')`. Test: layout «giro delle schermate (testo-140)» su iphone e android-piccolo.
+4. **[minore] campagna (bigliettini) e schermi (`.core-carta-testo` con `overflow-wrap: break-word`) · bigliettino di Marta di g08 al 140%: «L'ANNIVERSA / RIO».** Era il difetto 5. Con lo stampatello maiuscolo di Marta (D15, `atkinson`, `sizeScale` 1,05) la parola è ancora più larga della carta da 200 px. Passi: `core.setSettings({ textScale: 1.4 })`, `campaign.goto('g08','sera')`, `campaign.objectSeen()`: la carta `cp-bigliettino-g08.marta` (e il dettaglio) spezza la parola. Test: layout «tutta la carta della storia (testo-140)» su desktop e android-piccolo.
+5. **[medio, intermittente] schermi (`src/core/input.ts`, ex fondamenta, non toccato dalla revisione) · i gesti si misurano con l'ora di elaborazione: se il thread principale si ferma subito dopo la pressione, un trascinamento diventa una pressione lunga.** Era il difetto 6; ora c'è una riproduzione deterministica.
+   - Passi: 1280×720, `campaign.newGame()`, `campaign.goto('g00','notte')`; mouse giù sul fuso 1; nella pagina `setTimeout(() => { busy 700 ms }, 0)`; 14 movimenti di 16 ms fino al fuso 0; mouse su → `draft` vuoto e `tb-scheda` aperta (3 volte su 3); senza il blocco → `[{pair:0, over:'R'}]`.
+   - Nella suite (con la CPU condivisa): giro 1 prologo su iPad (ore 8) e audio su Android; giro finale prologo su desktop (ore 9, «si è aperta la scheda del personaggio») e audio su desktop; una volta su due la scelta dei nomi su iPad non si apre al primo tocco (causa non isolata). Riprovati da soli prologo, audio e Archivio su desktop, Android e iPad: 19 su 19 verdi.
+   - Proposta (invariata): `t: e.timeStamp` nei campioni e, allo scadere del timer della pressione lunga, ricontrollo dopo aver lasciato passare gli eventi in coda.
+
+Difetti del giro precedente: **corretti** il 1 (nota «Chi sta sopra, dà» alle 7: prologo verde e test nuovo), il 2 (nota a margine sopra l'eco dell'Archivio su Android: Archivio verde sui quattro progetti) e il 3 (`tb-scorri-giu` sotto i 44 px e «Piazza» fuori colonna nell'Archivio al 140%: nessun bersaglio piccolo nei giri). **Restano** il 4, il 5 e il 6 (qui 3, 4 e 5).
+
+Osservazioni senza test che falliscono (per chi decide):
+- campagna: nell'alba la testata «IL GIORNO ACCADE · La lettera da Venezia» è oro sul diorama chiaro (si vede nelle schermate per gli store a 360 e 430 px): poco contrasto. Il prologo ha avuto la fascia scura (D16); l'alba no.
+- Gli avvisi delle stranezze scoperte durano qualche secondo e restano sopra la Pausa e la pagina dei Comandi (giro delle schermate): non prendono i tocchi (SCH-09), ma coprono il testo.
+
+### Giro finale
+
+280 test in 27,6 min con 2 worker: **172 superati, 10 falliti, 98 saltati** (progetti esclusi apposta).
+
+| Progetto | Superati | Falliti | Saltati | Test che falliscono |
+|---|---|---|---|---|
+| desktop | 51 | 5 | 0 | Gino (1), arc1 e Teresa (2), «L'ANNIVERSARIO» (4), prologo e audio (5, intermittenti) |
+| desktop-hd | 12 | 0 | 44 | – |
+| iphone | 39 | 3 | 14 | Gino (1), arc1 e Teresa (2), Crediti (3) |
+| android-piccolo | 35 | 2 | 19 | Crediti (3), «L'ANNIVERSARIO» (4) |
+| ipad-orizzontale | 35 | 0 | 21 | – |
+
+Misure (CPU condivisa): trascinamento su 6 colonne p95 1,5 ms (p50 0,4); heap JS dopo 10 giornate 8,8 MB; build JavaScript 390,7 KB gzip (budget 450), worker 19,8 KB, CSS 17,8 KB gzip, font 222 KB, asset 2,15 MB, atlas 1,61 MB; percorso d'oro 24 giornate, 48 richieste appuntate e tutte soddisfatte, 6 Archivi rammendati, requisiti del finale vero raggiunti giocando, C/D/A/B fino alla fine (desktop e iphone); carta della storia 153 fogli per giro.
+
+### Screenshot
+
+`tests/e2e/__screenshots__/`: 540 file, 32 MB (prima 480), tutti riscritti nel giro finale. Le 4 tappe nuove su tutti i progetti; `alba-oggetto` e `pausa-comandi` anche nelle varianti. Guardati: le 15 schermate per gli store (iPhone 6,9", iPad 13", Android: titolo, g16 a metà notte con la nota «Il pozzo ha restituito tutto», alba di g06 con la Nina al pozzo, Taccuino a g09, risultati del giorno con il cartiglio), i Comandi, il popup degli obiettivi, il cartello dell'Atto II e la lettera di Clotilde all'alba (desktop e Android 100% e 140%), l'Archivio su Android e su iPad (pannello «Fili da nominare»), «Rileggi» di arc1 con i nomi e i colori. Le schermate per gli store sono pulite (nessun avviso, nessun testo tagliato).
 
 ## Riepilogo
 
@@ -20,18 +114,19 @@ File (tutti in `tests/e2e/`):
 | `audio.spec.ts` | `locked` prima di un gesto, `running` dopo il primo tocco o clic, `suspended` con la pagina nascosta e di nuovo `running`; log della prima riga del prologo vero giocata col puntatore: incrocio (marta/teresa) → ora fissata → campana (ore 6 s=1) → segreto; «Tocca per continuare» dopo un'interruzione; `mute(on)`; didascalia della campana tradotta; nessun file audio scaricato. | 4 da gioco |
 | `prestazioni.spec.ts` | Trascinamento continuo di 4,5 s (più dei 3 richiesti, così i 240 campioni di `perf()` sono tutti di trascinamento) su 6 colonne × 14 righe: p95 < 8 ms; heap JS < 150 MB dopo 10 giornate in autoplay (dopo la raccolta dei rifiuti, dal protocollo DevTools); budget della build di ARCHITETTURA 16 (JS e worker gzip, CSS, font, asset, atlas). | desktop |
 | `i18n.spec.ts` | In inglese nessuna chiave L1 mancante (core, ui, tombolo, campaign, audio, comune), storia inglese controllata a parte; italiano completo; giro di tutte le schermate in italiano e in inglese senza chiavi chieste e mancanti né chiavi visibili; `<html lang>`. | desktop |
-| `rete.spec.ts` | Percorso completo (tutte le schermate, una partita fino all'Archivio di g03, Merletto libero) con la rete sorvegliata: tutte le richieste sono dell'origine del gioco. Dopo il primo caricamento, senza rete: prologo, sera, notte, Merletto del giorno (Worker) e libero, Impostazioni, Crediti. | desktop, iphone |
+| `rete.spec.ts` | Percorso completo (tutte le schermate, una partita fino all'Archivio di g03, Merletto libero) con la rete sorvegliata: tutte le richieste sono dell'origine del gioco. Dopo il primo caricamento, con il server fermato davvero (service worker): prologo, sera, notte, poi ricarica della pagina e ancora sera, notte, Merletto del giorno (Worker) e libero, Impostazioni, Crediti. | desktop, iphone |
+| `revisione1.spec.ts` | Le correzioni principali della revisione 1 (vedi «Dopo la revisione 1»). | 4 da gioco (alcuni desktop e iphone) |
 
 ### API dei file di aiuto (`tests/e2e/helpers/`, riusabili da chiunque scriva un test end-to-end)
 
 - `game.ts`: `test` (con la fixture `game`: rete sorvegliata dal primo istante, richieste fuori da localhost bloccate e registrate, errori di console raccolti, gioco aperto da un salvataggio vuoto; opzioni `fresh`, `lang`), `game.expectClean()`, `call(page, 'ns.fn', ...args)` per `window.__GAME__`, `ready`, `reload`, `openGame`, `until`, `scene`, `phase`, `waitScene`, `waitPhase`, `waitNight` (tombolo aperto e notte attiva), `nightState` (tipo `NightState`), `onlyProjects`, `PLAY_PROJECTS`, `guardNetwork`, `captureErrors`.
 - `pointer.ts`: `pointerOf(testInfo)` ('mouse' o 'touch'), `drag`, `tap`, `longPress` (mouse o `Input.dispatchTouchEvent`), `nightLayout`, `dragSpindle(page, kind, da, a)`, `tapCrossing`, `pressFix`, `centerOf`, `tapTest(page, kind, dataTest)` (con le attese di Playwright).
-- `campaign.ts`: `contentNotes()`, `campaignDays()`, `CAST`, `planEvening`, `playNight`, `playArchive`, `playGolden(page, { untilLevel?, maxDays?, onDay? })`, `precomputed(page, livello, bigliettini)` e `solutionRows(page, livello, bigliettini, flags?)` (soluzione dal `.computed.json`, poi dal solver nel browser, che sui livelli grandi può fermarsi al limite), `toFinale(page)` (dopo la notte di un finale preme «Continua» sotto il merletto e aspetta la scena del finale).
+- `campaign.ts`: `dismissActCard(page)` (il cartello d'atto della revisione 1), `contentNotes()`, `campaignDays()`, `CAST`, `planEvening`, `playNight`, `playArchive`, `playGolden(page, { untilLevel?, maxDays?, onDay? })`, `precomputed(page, livello, bigliettini)` e `solutionRows(page, livello, bigliettini, flags?)` (soluzione dal `.computed.json`, poi dal solver nel browser, che sui livelli grandi può fermarsi al limite), `toFinale(page)` (dopo la notte di un finale preme «Continua» sotto il merletto e aspetta la scena del finale).
 - `audit.ts`: `auditLayout(page, { safeTop?, safeBottom?, minTarget? })` → problemi `overflow`, `fuori-pulsante`, `fuori-schermo`, `piccolo`, `chiave`, `safe-area`, `fuori-foglio`, `coperto`, `testo-coperto`, `parola-spezzata`, `testo-piccolo` (solo informativo, in `INFO_KINDS`); `describeProblems`.
-- `tour.ts`: `TOUR` (41 tappe, da un salvataggio vuoto, nell'ordine), `TOUR_DAY`.
+- `tour.ts`: `TOUR` (45 tappe dalla revisione 1, da un salvataggio vuoto, nell'ordine), `TOUR_DAY`.
 - `shots.ts`: `shot`, `keepImage` (riferimenti in `__screenshots__/` scritti solo se mancano o con `--update-snapshots` / `E2E_SHOTS=1`).
 
-### Il giro delle schermate (41 tappe)
+### Il giro delle schermate (41 tappe, 45 dalla revisione 1)
 
 Titolo al primo avvio; prologo (schermo nero, biglietto); tombolo del prologo; Pausa; alba; bilancio; sera con l'oggetto; bigliettini; bigliettino con le risposte; Taccuino; **conferma di «Al tombolo» con bigliettini non decisi**; notte con richieste; **scheda del suggerimento (Indizio)**; **barra «Riavvolgi fino a qui / Annulla»**; **scheda del personaggio** (tasto destro sul fuso); sera dell'Atto II (g14); **bigliettino anonimo con «Chi l'ha scritto?»**; **le cinque schede del Taccuino pieno** (Persone, Libro, Domande, Lettere, Archivio); alba dell'Atto II; **«Appunta il tuo nome» (g12)**; cassapanca e merletto d'Archivio; Telaio e **un nodo aperto (Rigioca, Riprendi da qui, Riascolta)**; scelta di g23 e carta strappata; epilogo; titoli di coda; Merletto del giorno, spartito, risultati; Merletto libero; Impostazioni; Crediti; **«Tocca per continuare»**; titolo con una storia. In grassetto le tappe aggiunte dalla verifica (GDD 10.3).
 
