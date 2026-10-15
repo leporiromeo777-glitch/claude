@@ -179,15 +179,49 @@ vec3 applyHaze(vec3 col, vec3 P, float dist) {
 }
 `;
 
-/** Pennellata in spazio mondo su due coordinate di superficie (metri). */
+/** Pennellata in spazio mondo, proiezione triplanare nella terna del cilindro. */
 export const BRUSH_GLSL = /* glsl */ `
 float brushStrokes(vec2 uv, float dist) {
-  float s1 = vnoise2(uv * vec2(0.42, 2.1));
-  float s2 = vnoise2(uv * vec2(0.1, 0.5) + 17.0);
+  float s1 = vnoise2(uv * vec2(0.42, 1.6));
+  float s2 = vnoise2(uv * vec2(0.11, 0.38) + 17.0);
   float s3 = vnoise2(uv * vec2(0.03, 0.06) + 41.0);
   float fNear = 1.0 - smoothstep(15.0, 60.0, dist);
   float fMid = 1.0 - smoothstep(150.0, 600.0, dist);
   return (s1 - 0.5) * fNear * 0.55 + (s2 - 0.5) * fMid * 0.75 + (s3 - 0.5) * 0.55;
+}
+
+// coordinate locali del cilindro: arco sul fondo, z, quota (metri)
+vec3 cylLocal(vec3 P) {
+  return vec3(cylThetaDeg(P) * uR * PI / 180.0, P.z, uR - length(P.xy));
+}
+
+// pesi triplanari nella terna locale (est, nord, su)
+vec3 cylTriWeights(vec3 P, vec3 N) {
+  vec3 up = cylUp(P);
+  vec3 east = vec3(-up.y, up.x, 0.0);
+  vec3 w = abs(vec3(dot(N, up), dot(N, vec3(0.0, 0.0, 1.0)), dot(N, east)));
+  w = pow(w, vec3(4.0));
+  return w / max(w.x + w.y + w.z, 1e-4);
+}
+
+// pennellata triplanare: non si stira sui fianchi ripidi
+float brushTri(vec3 P, vec3 N, float dist) {
+  vec3 c = cylLocal(P);
+  vec3 w = cylTriWeights(P, N);
+  float b = 0.0;
+  if (w.x > 0.02) b += w.x * brushStrokes(c.xy, dist);
+  if (w.y > 0.02) b += w.y * brushStrokes(vec2(c.x, c.z * 1.0), dist);
+  if (w.z > 0.02) b += w.z * brushStrokes(vec2(c.y, c.z), dist);
+  return b;
+}
+
+// coordinate per il tratteggio: la proiezione dominante (cambi di direzione come in uno schizzo)
+vec2 cylDominantUV(vec3 P, vec3 N) {
+  vec3 c = cylLocal(P);
+  vec3 w = cylTriWeights(P, N);
+  if (w.x >= w.y && w.x >= w.z) return c.xy;
+  if (w.y >= w.z) return vec2(c.x, c.z) + 31.0;
+  return vec2(c.y, c.z) + 57.0;
 }
 
 // coordinate di superficie per oggetti qualsiasi (piano tangente alla normale)
@@ -207,12 +241,20 @@ vec2 cylUV(vec3 P) {
 
 /** Stato delle celle e resa a matita. */
 export const PENCIL_GLSL = /* glsl */ `
-// legge una cella: restituisce (dipinto, bianco) per la cella e la linea d'inchiostro del fronte
+struct PaintInfo {
+  float paint;  // 0 matita, 1 dipinto
+  float blank;  // 1 foglio bianco (mai visto)
+  float ink;    // linea d'inchiostro sul fronte
+  float wet;    // bordo bagnato dietro il fronte (pigmento che si raccoglie)
+  float bleed;  // acquerello che sborda oltre il fronte
+};
+
 vec2 cellValue(float st) {
   return st > 1.5 ? vec2(1.0, 0.0) : (st > 0.5 ? vec2(0.0, 0.0) : vec2(0.0, 1.0));
 }
 
-vec3 cellSample(vec2 idx, vec3 P, float thetaDeg, float edgeNoise) {
+// una cella: xy = (dipinto, bianco); z = distanza dal fronte (m, + dentro); w = animazione in corso (1 - avanzamento)
+vec4 cellSample(vec2 idx, vec3 P, float thetaDeg, float edgeNoise) {
   float nZ = uCellGrid.x;
   float nT = uCellGrid.y;
   idx.x = clamp(idx.x, 0.0, nZ - 1.0);
@@ -225,45 +267,56 @@ vec3 cellSample(vec2 idx, vec3 P, float thetaDeg, float edgeNoise) {
   float prv = floor(rem - cur * 3.0);
   vec2 vc = cellValue(cur);
   float p = clamp((uTime - t.g) / uPencil.w, 0.0, 1.0);
-  if (p >= 1.0) return vec3(vc, 0.0);
+  if (p >= 1.0) return vec4(vc, 0.0, 0.0);
   vec2 vp = cellValue(prv);
   float radius = q * 10.0 + 12.0;
-  float ease = 1.0 - pow(1.0 - p, 2.2);
+  float ease = 1.0 - pow(1.0 - p, 1.8);
   float front = radius * ease;
   float dth = mod(thetaDeg - t.a + 540.0, 360.0) - 180.0;
   float ds = radians(dth) * uR;
   float dz = P.z - t.b;
   float d = length(vec2(dz, ds));
-  float edge = front - d + edgeNoise * 14.0 * (0.4 + 0.6 * ease);
-  float k = smoothstep(-3.0, 3.0, edge);
-  float ink = (1.0 - smoothstep(0.0, 3.5, abs(edge - 1.5))) * (1.0 - smoothstep(0.75, 1.0, p));
-  return vec3(mix(vp, vc, k), ink);
+  float edge = front - d + edgeNoise * 16.0 * (0.4 + 0.6 * ease);
+  float k = smoothstep(-2.5, 2.5, edge);
+  return vec4(mix(vp, vc, k), edge, 1.0 - p);
 }
 
-// quantità di colore (x), di bianco (y) e d'inchiostro (z) nel frammento
-vec3 paintState(vec3 P, float thetaDeg, float dist) {
+PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
   vec2 cc = vec2(P.z / uCellGrid.z, thetaDeg / uCellGrid.w);
   // bordi organici: leggera distorsione del dominio
   vec2 warp = vec2(vnoise3(P * 0.021), vnoise3(P * 0.021 + 7.3)) - 0.5;
   cc += warp * 0.55;
-  float en = vnoise3(P * 0.06) * 0.7 + vnoise3(P * 0.19) * 0.3 - 0.5;
+  float en = vnoise3(P * 0.06) * 0.55 + vnoise3(P * 0.19) * 0.3 + vnoise3(P * 0.7) * 0.15 - 0.5;
   vec2 base = floor(cc - 0.5);
   vec2 f = cc - 0.5 - base;
-  vec3 a = cellSample(base, P, thetaDeg, en);
-  vec3 b = cellSample(base + vec2(1.0, 0.0), P, thetaDeg, en);
-  vec3 c = cellSample(base + vec2(0.0, 1.0), P, thetaDeg, en);
-  vec3 d = cellSample(base + vec2(1.0, 1.0), P, thetaDeg, en);
-  vec3 s = mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  vec4 a = cellSample(base, P, thetaDeg, en);
+  vec4 b = cellSample(base + vec2(1.0, 0.0), P, thetaDeg, en);
+  vec4 c = cellSample(base + vec2(0.0, 1.0), P, thetaDeg, en);
+  vec4 d = cellSample(base + vec2(1.0, 1.0), P, thetaDeg, en);
+  vec4 wts = vec4((1.0 - f.x) * (1.0 - f.y), f.x * (1.0 - f.y), (1.0 - f.x) * f.y, f.x * f.y);
+  vec2 s = a.xy * wts.x + b.xy * wts.y + c.xy * wts.z + d.xy * wts.w;
+  // fronte: media pesata solo sulle celle che si stanno animando
+  vec4 an = vec4(a.w, b.w, c.w, d.w) * wts;
+  float anW = an.x + an.y + an.z + an.w;
+  float edge = anW > 1e-4 ? (a.z * an.x + b.z * an.y + c.z * an.z + d.z * an.w) / anW : 0.0;
+  float anim = anW > 1e-4 ? anW / max(dot(step(vec4(1e-4), vec4(a.w, b.w, c.w, d.w)), wts), 1e-4) : 0.0;
+  anim = clamp(anim, 0.0, 1.0) * step(1e-4, anW);
   // bordo netto ma frastagliato, come acquerello che si allarga
   float wob = (vnoise3(P * 0.045) - 0.5) * 0.55 + (vnoise3(P * 0.3) - 0.5) * 0.12;
-  float paint = smoothstep(0.42, 0.58, s.x + wob);
-  float blank = smoothstep(0.42, 0.58, s.y + wob);
+  if (anim > 0.0) wob *= 0.25; // durante la rivelazione comanda il fronte
+  PaintInfo pi;
+  pi.paint = smoothstep(0.42, 0.58, s.x + wob);
+  pi.blank = smoothstep(0.42, 0.58, s.y + wob);
+  pi.ink = anim * (1.0 - smoothstep(0.0, 2.8, abs(edge - 1.0))) * smoothstep(0.0, 0.25, anim);
+  pi.wet = anim * step(0.0, edge) * (1.0 - smoothstep(0.0, 18.0, edge));
+  pi.bleed = anim * step(edge, 0.0) * (1.0 - smoothstep(0.0, 24.0, -edge));
   // il mondo vicino è sempre dipinto (ci sei dentro)
   float nearP = 1.0 - smoothstep(uPencil.x, uPencil.y, dist);
-  paint = max(paint, nearP);
-  blank *= 1.0 - nearP;
-  paint *= 1.0 - uPencil.z;
-  return vec3(paint, blank, s.z);
+  pi.paint = max(pi.paint, nearP);
+  pi.blank *= 1.0 - nearP;
+  pi.bleed *= 1.0 - nearP;
+  pi.paint *= 1.0 - uPencil.z;
+  return pi;
 }
 
 // linee parallele antialias in spazio mondo; spacing in metri, w in pixel
@@ -285,39 +338,48 @@ float hatchTone(vec2 uv, float tone, float spacing, float pix, float jitter) {
   return h;
 }
 
-// resa a matita: carta avorio, tratteggio, curve di livello, contorni tremanti
-vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, float blank) {
+/**
+ * Resa a matita: carta avorio, sfumato di grafite, tratteggio a macchie, curve
+ * di livello, contorni che tremano. 'steep' (0..1) = parete ripida (più tratteggio,
+ * meno curve di livello); 'inked' (0..1) = le linee si ripassano a inchiostro.
+ */
+vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, float blank, float steep, float inked) {
   vec3 paper = vec3(0.965, 0.918, 0.815);
   vec3 graphite = vec3(0.40, 0.385, 0.40);
+  vec3 inkC = vec3(0.20, 0.17, 0.24);
   float pix = max(dist, 0.5) * uPixelAngle;
   float grain = (vnoise2(uv * 2.7) - 0.5) * 0.05 + (vnoise2(uv * 0.21) - 0.5) * 0.04;
   // il tratto "trema" piano: rumore che cambia a scatti (6 al secondo)
   float tq = floor(uTime * 6.0);
   float jitter = (hash12(vec2(tq, 3.1)) - 0.5) * 0.04;
   vec2 juv = uv + (vec2(vnoise2(uv * 0.08 + tq * 1.7), vnoise2(uv * 0.08 - tq * 1.3)) - 0.5) * 0.6;
+  float t = clamp(tone - steep * 0.3, 0.0, 1.2);
   // spaziatura del tratteggio in ottave di metri, stabile con la distanza
   float level = log2(max(pix * 10.0, 0.45));
   float l0 = floor(level);
   float lf = level - l0;
-  float h0 = hatchTone(juv, tone, exp2(l0), pix, jitter);
-  float h1 = hatchTone(juv, tone, exp2(l0 + 1.0), pix, jitter);
+  float h0 = hatchTone(juv, t, exp2(l0), pix, jitter);
+  float h1 = hatchTone(juv, t, exp2(l0 + 1.0), pix, jitter);
   float hatch = mix(h0, h1, smoothstep(0.2, 0.8, lf));
   // tratteggio a macchie, come in uno schizzo: non uniforme
   float patchy = smoothstep(0.32, 0.68, vnoise2(uv * 0.018 + 3.7) * 0.7 + vnoise2(uv * 0.07) * 0.3);
-  hatch *= 0.25 + 0.75 * patchy;
-  // curve di livello dalla quota (passo che raddoppia con la distanza)
+  hatch *= mix(0.25 + 0.75 * patchy, 1.0, steep * 0.6);
+  // curve di livello dalla quota (passo che raddoppia con la distanza), deboli sulle pareti
   float cstep = 6.0 * exp2(floor(clamp(log2(max(pix * 40.0 / 6.0, 1.0)), 0.0, 5.0)));
   float fh = hgt / cstep;
   float fw = max(fwidth(fh), 1e-4);
-  float contour = 1.0 - smoothstep(0.6, 1.4, abs(fract(fh + 0.5) - 0.5) / fw);
+  float contour = (1.0 - smoothstep(0.6, 1.4, abs(fract(fh + 0.5) - 0.5) / fw)) * (1.0 - steep * 0.85);
   // contorno: dove la superficie è vista di taglio
   float ndv = abs(dot(N, V));
   float wob = (vnoise2(uv * 0.35 + tq * 0.9) - 0.5) * 0.12;
   float rim = 1.0 - smoothstep(0.1 + wob, 0.26 + wob, ndv);
-  float ink = hatch * 0.4 + contour * 0.3 + rim * 0.6;
+  float ink = hatch * 0.42 + contour * 0.3 + rim * 0.62;
   ink *= mix(1.0, 0.22, blank);
-  vec3 col = paper * (1.0 + grain) ;
-  col = mix(col, graphite, clamp(ink, 0.0, 0.9));
+  // sfumato di grafite: la forma si legge anche senza tratteggio
+  float smudge = mix(1.0, mix(0.8, 1.02, clamp(t, 0.0, 1.0)), 1.0 - blank * 0.8);
+  vec3 col = paper * (1.0 + grain) * smudge;
+  vec3 lineC = mix(graphite, inkC, inked);
+  col = mix(col, lineC, clamp(ink * (1.0 + inked * 0.6), 0.0, 0.92));
   return col;
 }
 `;

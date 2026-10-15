@@ -163,7 +163,7 @@ describe('facciata Narrativa', () => {
     expect(ev.apriDialogo).toHaveBeenCalledWith({ dialogo: 'o', origine: 'prova' });
     expect(ev.flag).toHaveBeenCalledTimes(5);
     expect(ev.oggetto).toHaveBeenCalledTimes(2);
-    expect(ev.taccuino).toHaveBeenCalledTimes(4); // aggiunta d, chiusa d, aggiunta w, barrata w
+    expect(ev.taccuino).toHaveBeenCalledTimes(3); // aggiunta d, chiusa d, aggiunta w (le parole nascono barrate)
     expect(ev.rigaCielo).toHaveBeenCalledTimes(1);
     n.applicaEffetti(['cielo:']);
     expect(n.taccuino.rigaCielo()).toBeNull();

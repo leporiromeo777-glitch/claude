@@ -72,15 +72,16 @@ void main() {
   vec3 V = toCam / max(dist, 1e-4);
 #ifdef TERRAIN
   if (vColor.a > 0.5) discard;
-  vec2 suv = cylUV(P);
+  vec2 suv = cylDominantUV(P, N);
+  float br = brushTri(P, N, dist);
 #else
   vec2 suv = tangentUV(P, N);
+  float br = brushStrokes(suv, dist);
 #endif
   vec3 albedo = vColor.rgb;
   // variazione pittorica a bassa frequenza e pennellata
   float big = vnoise3(P * 0.0045) - 0.5;
   albedo *= 1.0 + big * 0.14;
-  float br = brushStrokes(suv, dist);
   albedo *= 1.0 + br * 0.16 * uBrush;
   // leggero viraggio caldo/freddo
   albedo = mix(albedo, albedo * vec3(1.05, 0.98, 0.9), clamp(big * 2.0 + 0.5, 0.0, 1.0) * 0.35);
@@ -105,15 +106,19 @@ void main() {
   float hazeK = 1.0;
 #ifndef NO_PENCIL
   float th = cylThetaDeg(P);
-  vec3 ps = paintState(P, th, dist);
-  hazeK = mix(0.5, 1.0, ps.x);
-  if (ps.x < 0.999) {
+  PaintInfo pi = paintState(P, th, dist);
+  hazeK = mix(0.5, 1.0, pi.paint);
+  if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
-    vec3 pc = pencilColor(suv, N, V, tone, hgt, dist, ps.y);
-    col = mix(pc, col, ps.x);
+    float steep = 1.0 - smoothstep(0.35, 0.8, abs(dot(N, cylUp(P))));
+    vec3 pc = pencilColor(suv, N, V, tone, hgt, dist, pi.blank, steep, pi.wet + pi.bleed * 0.6);
+    // acquerello che sborda oltre il fronte: velatura diluita sul foglio
+    pc = mix(pc, mix(col, vec3(0.965, 0.918, 0.815), 0.4), pi.bleed * 0.55);
+    col = mix(pc, col, pi.paint);
   }
-  // linea d'inchiostro sul fronte della rivelazione
-  col = mix(col, vec3(0.17, 0.14, 0.22), clamp(ps.z, 0.0, 1.0) * 0.8);
+  // pigmento che si raccoglie sul bordo bagnato, poi la linea d'inchiostro del fronte
+  col *= 1.0 - pi.wet * 0.2 * pi.paint;
+  col = mix(col, vec3(0.17, 0.14, 0.22), clamp(pi.ink, 0.0, 1.0) * 0.85);
 #endif
 #ifdef OBJECT
   // finestre illuminate di notte (segnali vivi: restano a colori anche a matita)

@@ -444,7 +444,14 @@ export class PiantaVerbano extends Componente<EventiPianta> {
 
 /** Rosa dei venti locale: Mane in alto (verso della rotazione), Sera in basso, i Tappi ai lati, «in su» al centro. */
 function rosaDeiVenti(): SVGSVGElement {
-  const svg = s('svg', { viewBox: '-110 -96 220 192', width: 210, height: 184, role: 'img', 'aria-label': 'Rosa dei venti: Mane in alto, Sera in basso, Tappo Sud a sinistra, Tappo Nord a destra, in su verso l’asse' });
+  // Unità del viewBox = pixel: le scritte restano di almeno 16 px.
+  const svg = s('svg', {
+    viewBox: '-130 -100 260 200',
+    width: 260,
+    height: 200,
+    role: 'img',
+    'aria-label': 'Rosa dei venti: Mane in alto, Sera in basso, a Mont il Tappo Sud a sinistra, a Lag il Tappo Nord a destra, «in su» verso l\u2019asse',
+  });
   const punta = (ang: number, lung: number, larg: number, scura: boolean): SVGElement => {
     const g = s('g', { transform: `rotate(${ang})` });
     g.append(
@@ -454,26 +461,26 @@ function rosaDeiVenti(): SVGSVGElement {
     return g;
   };
   svg.append(
-    s('circle', { r: 44, class: 'ui-rosa-anello' }),
-    s('circle', { r: 40, class: 'ui-rosa-anello-fine' }),
-    punta(45, 30, 7, false),
-    punta(135, 30, 7, false),
-    punta(225, 30, 7, false),
-    punta(315, 30, 7, false),
-    punta(0, 62, 11, true),
-    punta(90, 52, 10, true),
-    punta(180, 52, 10, true),
-    punta(270, 52, 10, true),
+    s('circle', { r: 34, class: 'ui-rosa-anello' }),
+    s('circle', { r: 30.5, class: 'ui-rosa-anello-fine' }),
+    punta(45, 24, 6, false),
+    punta(135, 24, 6, false),
+    punta(225, 24, 6, false),
+    punta(315, 24, 6, false),
+    punta(0, 56, 9, true),
+    punta(90, 46, 8, true),
+    punta(180, 46, 8, true),
+    punta(270, 46, 8, true),
     // «In su»: verso l'asse, cioè fuori dal foglio, verso chi guarda.
-    s('circle', { r: 10, class: 'ui-rosa-insu' }),
-    s('circle', { r: 2.6, class: 'ui-rosa-insu-punto' }),
-    s('text', { x: 0, y: -70, class: 'ui-rosa-testo', 'text-anchor': 'middle' }, 'Mane'),
-    s('text', { x: 0, y: 78, class: 'ui-rosa-testo', 'text-anchor': 'middle', 'dominant-baseline': 'hanging' }, 'Sera'),
-    s('text', { x: -58, y: 5, class: 'ui-rosa-testo', 'text-anchor': 'end' }, 'Mont'),
-    s('text', { x: -58, y: 21, class: 'ui-rosa-sotto', 'text-anchor': 'end' }, 'Tappo Sud'),
-    s('text', { x: 58, y: 5, class: 'ui-rosa-testo', 'text-anchor': 'start' }, 'Lag'),
-    s('text', { x: 58, y: 21, class: 'ui-rosa-sotto', 'text-anchor': 'start' }, 'Tappo Nord'),
-    s('text', { x: 15, y: -14, class: 'ui-rosa-insu-testo', 'text-anchor': 'start' }, 'in su'),
+    s('circle', { r: 8, class: 'ui-rosa-insu' }),
+    s('circle', { r: 2.4, class: 'ui-rosa-insu-punto' }),
+    s('text', { x: 0, y: -64, class: 'ui-rosa-testo', 'text-anchor': 'middle' }, 'Mane'),
+    s('text', { x: 0, y: 66, class: 'ui-rosa-testo', 'text-anchor': 'middle', 'dominant-baseline': 'hanging' }, 'Sera'),
+    s('text', { x: -54, y: 0, class: 'ui-rosa-testo', 'text-anchor': 'end' }, 'Mont'),
+    s('text', { x: -54, y: 18, class: 'ui-rosa-sotto', 'text-anchor': 'end' }, 'Tappo Sud'),
+    s('text', { x: 54, y: 0, class: 'ui-rosa-testo', 'text-anchor': 'start' }, 'Lag'),
+    s('text', { x: 54, y: 18, class: 'ui-rosa-sotto', 'text-anchor': 'start' }, 'Tappo Nord'),
+    s('text', { x: 13, y: -13, class: 'ui-rosa-insu-testo', 'text-anchor': 'start' }, 'in su'),
   );
   return svg;
 }

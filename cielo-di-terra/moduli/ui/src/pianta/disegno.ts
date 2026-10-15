@@ -548,7 +548,8 @@ export class PittorePianta {
     const { ctx } = this;
     ctx.save();
     for (const p of lista) {
-      if (p.stato === 'bianco' && p.id !== evidenzia) continue;
+      // Il contorno di una particella con nome si ripassa solo sotto il mouse o se è cambiata stanotte.
+      if (p.id !== evidenzia && !p.cambiata) continue;
       const amp = p.contorno ? 0 : ampiezza(p.theta0, p.theta1);
       const base = p.contorno ? p.contorno[0]![1] : p.theta0;
       const ampVis = p.contorno ? 360 : amp;

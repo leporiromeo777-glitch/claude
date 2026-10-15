@@ -59,13 +59,26 @@ describe('taccuino', () => {
     expect(u.domandeChiuse().map((v) => v.id)).toEqual(['api']);
   });
 
-  it('parole barrate', () => {
-    const t = new Taccuino(VOCI);
+  it('parole: si scrivono già barrate; sostituisce toglie la voce sostituita', () => {
+    const t = new Taccuino([
+      ...VOCI,
+      ...normalizzaTaccuino({
+        parole: [
+          { id: 'fade_dubbio', tecnica: '?', locale: 'le Fade?' },
+          { id: 'fade', tecnica: 'macchine di manutenzione', locale: 'le Fade', sostituisce: 'fade_dubbio', nota: 'Di notte.' },
+        ],
+      }),
+    ]);
     t.aggiungi('meta');
-    expect(t.parole()[0]).toMatchObject({ tecnica: 'Meta', locale: 'Sole', barrata: false });
-    t.barra('meta');
-    expect(t.parole()[0]!.barrata).toBe(true);
+    expect(t.parole()[0]).toMatchObject({ tecnica: 'Meta', locale: 'Sole', barrata: true });
     expect(t.barra('meta')).toBe(false);
+    t.aggiungi('fade_dubbio');
+    t.aggiungi('fade');
+    expect(t.parole().map((v) => v.id)).toEqual(['meta', 'fade']);
+    expect(t.voce('fade')?.commento).toBe('Di notte.');
+    // una nota qualunque si può barrare a mano
+    t.aggiungi('api');
+    expect(t.barra('api')).toBe(true);
   });
 
   it('voci sconosciute: scritte con l’id come testo', () => {
@@ -108,6 +121,9 @@ describe('taccuino', () => {
     flag.add('y');
     expect(t.aggiorna(valuta)).toBe(true);
     expect(t.ha('auto')).toBe(true);
+    expect(t.ha('auto_chiusa')).toBe(false); // si chiude solo se è già scritta
+    t.aggiungi('auto_chiusa');
+    expect(t.aggiorna(valuta)).toBe(true);
     expect(t.stato('auto_chiusa')?.chiusa).toBe(true);
     expect(t.aggiorna(valuta)).toBe(false);
   });

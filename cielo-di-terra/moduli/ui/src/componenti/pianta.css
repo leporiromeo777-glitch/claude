@@ -169,14 +169,14 @@
 /* Rosa dei venti nell'angolo del disegno, dentro la cornice e accanto al Tappo Nord. */
 .ui-pt-rosa {
   position: absolute;
-  right: 150px;
-  bottom: 56px;
+  right: 120px;
+  bottom: 52px;
   pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(241, 232, 210, 0.9));
 }
 .ui-pt-rosa svg {
-  width: clamp(120px, 10vw, 180px);
-  height: auto;
+  display: block;
+  overflow: visible;
 }
 .ui-pt-rosa[hidden] {
   display: none;
@@ -209,7 +209,7 @@
 }
 .ui-rosa-testo {
   font-family: var(--f-maiuscoletto);
-  font-size: 19px;
+  font-size: 18px;
   fill: var(--inchiostro);
   paint-order: stroke;
   stroke: #f1e8d2;
@@ -218,7 +218,7 @@
 .ui-rosa-sotto {
   font-family: var(--f-testo);
   font-style: italic;
-  font-size: 15px;
+  font-size: 16px;
   fill: var(--inchiostro-2);
   paint-order: stroke;
   stroke: #f1e8d2;
@@ -227,7 +227,7 @@
 .ui-rosa-insu-testo {
   font-family: var(--f-mano);
   font-weight: 600;
-  font-size: 19px;
+  font-size: 18px;
   fill: var(--vermiglio);
   paint-order: stroke;
   stroke: #f6efde;

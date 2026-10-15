@@ -63,13 +63,15 @@ void main() {
   float fres = pow(1.0 - max(dot(V, N), 0.0), 4.0);
   col = mix(col, uHazeColor * 1.08, fres * 0.6);
   float th = cylThetaDeg(P);
-  vec3 ps = paintState(P, th, dist);
-  if (ps.x < 0.999) {
-    vec3 pc = pencilColor(suv, N, V, 0.8, 0.0, dist, ps.y);
-    col = mix(pc, col, ps.x);
+  PaintInfo pi = paintState(P, th, dist);
+  if (pi.paint < 0.999) {
+    vec3 pc = pencilColor(suv, N, V, 0.8, 0.0, dist, pi.blank, 0.0, pi.wet);
+    pc = mix(pc, mix(col, vec3(0.965, 0.918, 0.815), 0.4), pi.bleed * 0.55);
+    col = mix(pc, col, pi.paint);
   }
-  col = mix(col, vec3(0.17, 0.14, 0.22), clamp(ps.z, 0.0, 1.0) * 0.8);
-  col = applyHazeK(col, P, dist, mix(0.5, 1.0, ps.x));
+  col *= 1.0 - pi.wet * 0.2 * pi.paint;
+  col = mix(col, vec3(0.17, 0.14, 0.22), clamp(pi.ink, 0.0, 1.0) * 0.8);
+  col = applyHazeK(col, P, dist, mix(0.5, 1.0, pi.paint));
   gl_FragColor = vec4(col, 1.0);
 }
 `;
