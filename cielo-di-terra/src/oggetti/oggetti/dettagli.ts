@@ -622,6 +622,20 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
       superficie: supBase,
       occlusione: 0.12,
     });
+    // assito di larice sotto la falda: dalla strada, sotto le gronde, si vede il legno e non la pietra
+    if (o.travi ?? corsi > 0) {
+      const cAss = colmo.clone().addScaledVector(dir, lFalda / 2 + 0.01).addScaledVector(nrm, -0.012);
+      cAss.z = zc;
+      // una sola faccia, rivolta in giù (dentro casa non si vede)
+      b.aggiungi(new THREE.PlaneGeometry(lFalda - 0.04, dTot - 0.04), {
+        matrice: mat(cAss, [0, 0, rotZ]).multiply(mat([0, 0, 0], [Math.PI / 2, 0, 0])),
+        colore: PALETTE.assito,
+        variazione: 0.05,
+        piatto: true,
+        superficie: legnoOrizzontale(rng.next()),
+        occlusione: 0.22,
+      });
+    }
     if (corsi <= 0) continue;
     // corsi di lastre sovrapposte, spesse, con il bordo inferiore irregolare
     const passo = lFalda / corsi;
@@ -647,7 +661,7 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
         centro.z = z + lz / 2;
         centro.y -= imbarca(centro.z);
         const tono = rng.next();
-        const colore = tono < 0.18 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.5 + rng.next() * 0.5) : mescola(PALETTE.piode, tono < 0.55 ? PALETTE.piodeChiare : PALETTE.piodeScure, rng.next() * 0.7);
+        const colore = tono < 0.06 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.4 + rng.next() * 0.4) : mescola(PALETTE.piode, tono < 0.55 ? PALETTE.piodeChiare : PALETTE.piodeScure, rng.next() * 0.7);
         b.aggiungi(geoLastra(lungo, spessore, lz + 0.03, rng.intero(0, 1e6), 0.14), {
           matrice: mat(centro.clone().addScaledVector(nrm, -spessore / 2), [rng.centrato(0.02), rng.centrato(0.015), rotZ + s * 0.035 + rng.centrato(0.012)]),
           colore,

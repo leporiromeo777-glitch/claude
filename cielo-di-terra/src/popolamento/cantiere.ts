@@ -310,11 +310,14 @@ export class Cantiere {
       g.n.add(nn);
       g.k++;
     }
-    for (const g of gruppi) {
+    // al più due bagliori per casa (le finestre più grandi): i bagliori del motore non si nascondono
+    // dietro i muri, e tante finestre sui fianchi diventavano puntini attorno alla casa
+    gruppi.sort((a, b) => b.k - a.k);
+    for (const g of gruppi.slice(0, 2)) {
       const p = g.s.multiplyScalar(1 / g.k);
       if (g.n.lengthSq() > 1e-6) p.addScaledVector(g.n.normalize(), 0.25);
       // alone piccolo: la finestra si deve leggere come una finestra, non come una lanterna
-      this.lume(p, 0.36);
+      this.lume(p, 0.3);
     }
   }
 

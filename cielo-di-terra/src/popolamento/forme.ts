@@ -75,6 +75,130 @@ export interface OpzioniMantello {
 /**
  * Nastro sul suolo lungo una spezzata (sentieri, selciati stretti): larghezza `l`, segmenti ogni `passo` m.
  */
+/**
+ * Corona sul suolo (fra `r0` e `r1`): come `discoSulSuolo`, ma la superficie dipinta e il colore si
+ * scelgono per triangolo (al baricentro), così le zone diverse (selciato, terra battuta, prato
+ * calpestato) non si mescolano dentro un triangolo. `zona(x, y, r)` restituisce
+ * `[superficie, colore]` oppure null (niente triangolo: si vede il suolo).
+ */
+export function coronaSulSuolo(
+  c: Cantiere,
+  z0: number,
+  th0: number,
+  r0: number,
+  r1: number,
+  passo: number,
+  sopra: number,
+  zona: (x: number, y: number, r: number) => [number, RGB] | null,
+  occlusione: (x: number, y: number, r: number) => number = () => 0,
+): void {
+  const anelli = Math.max(1, Math.ceil((r1 - r0) / passo));
+  const settori = Math.max(24, Math.ceil((2 * Math.PI * r1) / passo));
+  const pos: number[] = [];
+  const col: number[] = [];
+  const sup: number[] = [];
+  const h0 = groundHeight(z0, th0);
+  const kdeg = metriPerGrado(h0);
+  const v = new Vector3();
+  const vertice = (x: number, y: number, cc: RGB, s: number) => {
+    const z = z0 + y;
+    const th = th0 + x / kdeg;
+    cylToWorld(z, th, groundHeight(z, th) + sopra, v);
+    pos.push(v.x, v.y, v.z);
+    col.push(cc[0], cc[1], cc[2], 0);
+    const r = Math.hypot(x, y);
+    sup.push(s, occlusione(x, y, r));
+  };
+  const tri = (a: number[], b: number[], d: number[]) => {
+    const cx = (a[0]! + b[0]! + d[0]!) / 3;
+    const cy = (a[1]! + b[1]! + d[1]!) / 3;
+    const z = zona(cx, cy, Math.hypot(cx, cy));
+    if (!z) return;
+    vertice(a[0]!, a[1]!, z[1], z[0]);
+    vertice(b[0]!, b[1]!, z[1], z[0]);
+    vertice(d[0]!, d[1]!, z[1], z[0]);
+  };
+  for (let i = 0; i < anelli; i++) {
+    const ra = r0 + ((r1 - r0) * i) / anelli;
+    const rb = r0 + ((r1 - r0) * (i + 1)) / anelli;
+    for (let s2 = 0; s2 < settori; s2++) {
+      const a0 = (s2 / settori) * Math.PI * 2;
+      const a1 = ((s2 + 1) / settori) * Math.PI * 2;
+      const p00 = [Math.cos(a0) * ra, Math.sin(a0) * ra];
+      const p01 = [Math.cos(a1) * ra, Math.sin(a1) * ra];
+      const p10 = [Math.cos(a0) * rb, Math.sin(a0) * rb];
+      const p11 = [Math.cos(a1) * rb, Math.sin(a1) * rb];
+      tri(p00, p11, p10);
+      tri(p00, p01, p11);
+    }
+  }
+  if (!pos.length) return;
+  // orienta e calcola le normali come il mantello (poi rimette la superficie per vertice)
+  const n = pos.length / 3;
+  const P = new Float32Array(pos);
+  const C = new Float32Array(col);
+  const S = new Float32Array(sup);
+  const N = new Float32Array(n * 3);
+  const a = new Vector3();
+  const b = new Vector3();
+  const d = new Vector3();
+  for (let t = 0; t < n / 3; t++) {
+    const o = t * 9;
+    a.set(P[o + 3]! - P[o]!, P[o + 4]! - P[o + 1]!, P[o + 5]! - P[o + 2]!);
+    b.set(P[o + 6]! - P[o]!, P[o + 7]! - P[o + 1]!, P[o + 8]! - P[o + 2]!);
+    d.crossVectors(a, b);
+    const cx = (P[o]! + P[o + 3]! + P[o + 6]!) / 3;
+    const cy = (P[o + 1]! + P[o + 4]! + P[o + 7]!) / 3;
+    if (d.x * -cx + d.y * -cy < 0) {
+      for (let k = 0; k < 3; k++) {
+        const tmp = P[o + 3 + k]!;
+        P[o + 3 + k] = P[o + 6 + k]!;
+        P[o + 6 + k] = tmp;
+      }
+      for (let k = 0; k < 2; k++) {
+        const i1 = (t * 3 + 1) * 2 + k;
+        const i2 = (t * 3 + 2) * 2 + k;
+        const tmp = S[i1]!;
+        S[i1] = S[i2]!;
+        S[i2] = tmp;
+      }
+      for (let k = 0; k < 4; k++) {
+        const i1 = (t * 3 + 1) * 4 + k;
+        const i2 = (t * 3 + 2) * 4 + k;
+        const tmp = C[i1]!;
+        C[i1] = C[i2]!;
+        C[i2] = tmp;
+      }
+    }
+  }
+  // normali morbide (media delle facce che toccano il vertice): seguono i gradoni del suolo, e i
+  // motivi restano continui da un triangolo all'altro
+  const somma = new Map<string, [number, number, number]>();
+  const chiave = (i: number) => `${Math.round(P[i * 3]! * 200)},${Math.round(P[i * 3 + 1]! * 200)},${Math.round(P[i * 3 + 2]! * 200)}`;
+  for (let t = 0; t < n / 3; t++) {
+    const o = t * 9;
+    a.set(P[o + 3]! - P[o]!, P[o + 4]! - P[o + 1]!, P[o + 5]! - P[o + 2]!);
+    b.set(P[o + 6]! - P[o]!, P[o + 7]! - P[o + 1]!, P[o + 8]! - P[o + 2]!);
+    d.crossVectors(a, b).normalize();
+    for (let k = 0; k < 3; k++) {
+      const key = chiave(t * 3 + k);
+      const v2 = somma.get(key) ?? [0, 0, 0];
+      v2[0] += d.x;
+      v2[1] += d.y;
+      v2[2] += d.z;
+      somma.set(key, v2);
+    }
+  }
+  for (let i = 0; i < n; i++) {
+    const v2 = somma.get(chiave(i))!;
+    const l = Math.hypot(v2[0], v2[1], v2[2]) || 1;
+    N[i * 3] = v2[0] / l;
+    N[i * 3 + 1] = v2[1] / l;
+    N[i * 3 + 2] = v2[2] / l;
+  }
+  c.grezzo(P, N, C, 'singolo', S);
+}
+
 export function nastroSulSuolo(
   c: Cantiere,
   punti: Array<{ z: number; theta: number }>,
@@ -246,7 +370,7 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   const hT = (W / 2 + 0.45) * Math.tan(pend);
   t.makeTranslation(0, hMuri - 0.02, 0).scale(new Vector3(W + 0.9, hT, D + 0.8));
   // tetto di piode grigio medio (come le piode vicine)
-  const piode: RGB = [0.39 + hash2(seme, 6) * 0.05, 0.38 + hash2(seme, 6) * 0.04, 0.38 + hash2(seme, 7) * 0.03];
+  const piode: RGB = [0.43 + hash2(seme, 6) * 0.05, 0.42 + hash2(seme, 6) * 0.04, 0.42 + hash2(seme, 7) * 0.03];
   c.forma(timpanoUnitario(), m.clone().multiply(t), piode, 0, 'singolo', undefined, [SUPERFICIE.PIODE + hash2(seme, 8) * 0.9, 0.08]);
   // finestre (accese di notte) sulle due facciate lunghe e sul fronte
   const q = new THREE_PLANE(0.7, 0.85);

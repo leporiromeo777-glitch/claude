@@ -13,10 +13,12 @@ export const PALETTE = {
   gneissCaldo: 0xb0a491,
   muschio: 0x6f7a46,
   // piode di gneiss: grigio medio caldo (nei bozzetti i tetti prendono il cielo, non sono neri)
-  piode: 0x625f62,
-  piodeChiare: 0x807b78,
-  piodeScure: 0x4a494f,
-  piodeMuschio: 0x6b6a4e,
+  piode: 0x6f6c6d,
+  piodeChiare: 0x8f8a85,
+  piodeScure: 0x56555a,
+  piodeMuschio: 0x707058,
+  /** assito sotto le gronde (larice ingrigito) */
+  assito: 0x7a6250,
   calce: 0xf1ebde,
   calceOmbra: 0xd8d0c0,
   intonacoVecchio: 0xd9cfba,

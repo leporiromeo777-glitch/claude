@@ -288,7 +288,15 @@ export function creaTelo(seme: Seme = 'telo-ombrista'): OggettoProcedurale {
   const tela = geoPiano(W, 2.5, 8, 4);
   const pos = tela.getAttribute('position');
   for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin((pos.getX(i) / W) * Math.PI) * 0.06 * (0.6 + 0.4 * Math.sin(pos.getY(i) * 2)));
-  b.aggiungi(tela, { matrice: mat([0, 1.95, 0]), colore: 0xf3ede0, canale: 'sottile', superficie: SUP.TESSUTO });
+  // tela di lino grezzo, con l'orlo cucito e due rattoppi
+  b.aggiungi(tela, { matrice: mat([0, 1.95, 0]), colore: 0xe0d4ba, canale: 'sottile', superficie: SUP.TESSUTO });
+  for (const y of [0.72, 3.18]) b.aggiungi(geoBoxC(W + 0.04, 0.07, 0.03), { matrice: mat([0, y, 0.02]), colore: 0xc9b896, piatto: true, superficie: SUP.TESSUTO });
+  for (const [x, y, w, h] of [
+    [-1.2, 2.4, 0.5, 0.42],
+    [1.35, 1.35, 0.38, 0.5],
+  ] as const) {
+    b.aggiungi(geoPiano(w, h), { matrice: mat([x, y, Math.sin((x / W) * Math.PI) * 0.05 + 0.012]), colore: 0xd2c4a2, canale: 'sottile', superficie: SUP.TESSUTO });
+  }
   b.aggiungi(geoCilindro(0.03, 0.03, W + 0.4, 5), { matrice: mat([-(W + 0.4) / 2, 3.25, 0], [0, 0, -Math.PI / 2]), colore: PALETTE.legnoGrigio });
   // tiranti
   for (const x of [-W / 2 - 0.1, W / 2 + 0.1]) b.aggiungi(geoCilindro(0.01, 0.01, 2.2, 3), { matrice: mat([x, Hp - 0.1, 0], [0.6, 0, 0]), colore: 0x8a7a5a });
@@ -330,30 +338,31 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
     const p1 = new THREE.Vector3(Math.cos(a) * 1.1, 3.4, Math.sin(a) * 1.1);
     b.aggiungi(geoTubo([p0, p1], [0.24, 0.14], 6), { colore: 0x6e3f2c, superficie: SUP.CORTECCIA, occlusione: 0.4 });
   }
-  // chioma: tante masse scure a ciuffi, colonnare e irregolare (la sagoma non è un pallone)
-  const verdi = [0x2e5233, 0x3a6338, 0x45703c, 0x2a4a30, 0x527a40];
-  const raggioMax = Math.min(H * 0.3, 4.6);
-  const n = 26;
+  // chioma: tante masse a ciuffi, colonnare e appuntita come una fiamma (i tassi e i cipressi dei
+  // sagrati nei bozzetti): verde scuro che prende la luce sui fianchi, mai una macchia nera
+  const verdi = [0x34603a, 0x3f6c40, 0x4b7a46, 0x2f5636, 0x5a874c];
+  const raggioMax = Math.min(H * 0.24, 3.4);
+  const n = 46;
   for (let k = 0; k < n; k++) {
-    const t = Math.pow(rng.next(), 0.85);
-    const inv = 1 - t * 0.72;
-    const r = (0.42 + rng.next() * 0.3) * raggioMax * (0.55 + inv * 0.45);
+    const t = Math.pow(rng.next(), 0.8);
+    // profilo a fiamma: largo poco sopra il tronco, stretto in punta
+    const prof = Math.sin(Math.PI * Math.min(1, 0.18 + t * 0.95)) * (1 - t * 0.35);
+    const r = (0.3 + rng.next() * 0.22) * raggioMax * (0.5 + prof * 0.6);
     const a = rng.next() * Math.PI * 2;
-    const d = inv * raggioMax * (0.25 + rng.next() * 0.5);
-    const y = 2.4 + t * (H - 3.0);
-    b.aggiungi(geoMassa(r, rng.intero(0, 1e6), 0.3, 1, 0.82, 0.7), {
+    const d = prof * raggioMax * (0.35 + rng.next() * 0.45);
+    const y = 2.2 + t * (H - 2.6);
+    b.aggiungi(geoMassa(r, rng.intero(0, 1e6), 0.32, 1, 1.15, 0.7), {
       matrice: mat([Math.cos(a) * d, y, Math.sin(a) * d], [rng.centrato(0.3), rng.next() * 6, rng.centrato(0.3)]),
       colore: rng.scegli(verdi),
       variazione: 0.1,
-      gradiente: { basso: 0.65, alto: 1.12, y0: 1.5, y1: H },
+      gradiente: { basso: 0.75, alto: 1.12, y0: 1.5, y1: H },
       superficie: sup(SUP.FOGLIAME, rng.next()),
-      // dentro e sotto la chioma è buio
-      occlusione: (p) => Math.min(0.55, Math.max(0, 0.5 - (p.y - 2.0) / (H * 1.4)) + Math.max(0, 0.35 - Math.hypot(p.x, p.z) / raggioMax) * 0.6),
+      occlusione: (p) => Math.min(0.32, Math.max(0, 0.3 - (p.y - 2.0) / (H * 1.6)) + Math.max(0, 0.28 - Math.hypot(p.x, p.z) / raggioMax) * 0.5),
     });
   }
   // la punta che sfugge in alto
-  b.aggiungi(geoMassa(raggioMax * 0.32, rng.intero(0, 1e6), 0.35, 1, 1.4, 0.7), {
-    matrice: mat([rng.centrato(0.4), H - 0.6, rng.centrato(0.4)]),
+  b.aggiungi(geoMassa(raggioMax * 0.28, rng.intero(0, 1e6), 0.35, 1, 1.8, 0.7), {
+    matrice: mat([rng.centrato(0.3), H - 0.5, rng.centrato(0.3)]),
     colore: verdi[2]!,
     variazione: 0.08,
     superficie: sup(SUP.FOGLIAME, rng.next()),
