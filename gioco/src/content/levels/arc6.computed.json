@@ -1,7 +1,7 @@
 {
   "levelId": "arc6",
   "sourceHash": "d72d6aa0e80ce143",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 0,
     "rows": [
@@ -70,6 +70,21 @@
   "combos": [],
   "matassaSuggerita": 1,
   "quieteMax": 6,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": null,
+        "vuoteMax": 6,
+        "vuoteTot": 6,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  },
   "occasionsSolution": [
     {
       "kind": "lanterna",

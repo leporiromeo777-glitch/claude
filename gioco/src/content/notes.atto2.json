@@ -746,6 +746,12 @@
           "who": "zeno",
           "place": "faro",
           "hour": 20
+        },
+        {
+          "t": "presso",
+          "who": "nina",
+          "place": "molo",
+          "hour": 19
         }
       ]
     },
@@ -779,11 +785,10 @@
     "author": "marta",
     "textKey": "atto2.g15.marta.testo",
     "request": {
-      "t": "maiPresso",
+      "t": "presso",
       "who": "gino",
-      "place": "molo",
-      "from": 15,
-      "to": 20
+      "place": "forno",
+      "hour": 19
     },
     "esito": {
       "ok": "atto2.g15.marta.esito.ok",

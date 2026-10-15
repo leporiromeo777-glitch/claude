@@ -1,7 +1,7 @@
 {
   "levelId": "fin_chiuso",
-  "sourceHash": "6f0b41042284151f",
-  "solverVersion": 1,
+  "sourceHash": "52e1c9288748749f",
+  "solverVersion": 2,
   "base": {
     "incroci": 3,
     "rows": [
@@ -37,5 +37,20 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 4,
-  "quieteMax": 0
+  "quieteMax": 0,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 3,
+        "minSenzaGino": null,
+        "vuoteMax": 0,
+        "vuoteTot": 0,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  }
 }

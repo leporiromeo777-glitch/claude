@@ -719,8 +719,9 @@ describe('giornate: eventi della tabella del GDD 5.2', () => {
     expect(level('g09').pins).toContainEqual({ thread: 'lunardi', place: 'farmacia', hour: 13 });
     expect(level('g15').edges).toEqual([{ hour: 20, side: 'molo', kind: 'barca', enters: 'bepi' }]);
     expect(level('g15').initial).not.toContain('bepi');
+    // Revisione 1 (CA23-03): la Nina aspetta il babbo al Molo alle 19 (la barca delle 20 porta via chi è al Molo).
     expect(db.notes.get('g15.nina')?.request).toEqual({
-      t: 'tutti', of: [18, 19, 20].map((hour) => ({ t: 'presso', who: 'zeno', place: 'faro', hour })),
+      t: 'tutti', of: [...[18, 19, 20].map((hour) => ({ t: 'presso', who: 'zeno', place: 'faro', hour })), { t: 'presso', who: 'nina', place: 'molo', hour: 19 }],
     });
     expect(level('g22').edges).toEqual([{ hour: 15, side: 'faro', kind: 'secca', enters: 'livia' }]);
     expect(level('g20').edges).toContainEqual({ hour: 9, side: 'molo', kind: 'vaporetto' });

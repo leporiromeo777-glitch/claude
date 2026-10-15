@@ -1,7 +1,7 @@
 {
   "levelId": "arc3",
-  "sourceHash": "1714cc04be29ebc5",
-  "solverVersion": 1,
+  "sourceHash": "74811788de631d69",
+  "solverVersion": 2,
   "base": {
     "incroci": 2,
     "rows": [
@@ -55,5 +55,20 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 2,
-  "quieteMax": 0
+  "quieteMax": 0,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 2,
+        "minSenzaGino": null,
+        "vuoteMax": 0,
+        "vuoteTot": 0,
+        "soluzioniOttime": 4
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  }
 }

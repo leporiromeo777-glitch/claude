@@ -1,7 +1,7 @@
 {
   "levelId": "fin_aperto",
   "sourceHash": "b751624f851a1fea",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 0,
     "rows": [
@@ -169,6 +169,21 @@
   "combos": [],
   "matassaSuggerita": 1,
   "quieteMax": 14,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 0,
+        "minSenzaGino": 0,
+        "vuoteMax": 14,
+        "vuoteTot": 14,
+        "soluzioniOttime": 1
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  },
   "occasionsSolution": [
     {
       "kind": "vaporetto",

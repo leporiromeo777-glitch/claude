@@ -5,7 +5,7 @@
     },
     "hint": {
       "spinta": "Il dottore scende al Molo alle otto. All'una deve aprire la Farmacia.",
-      "indizio": "Lunardi guarisce chi gli sta sotto. Il Gino a letto non si muove: è il dottore che deve arrivare da lui."
+      "indizio": "Lunardi guarisce chi gli sta sotto. Il Gino a letto non si muove: il dottore va da lui."
     },
     "alba": {
       "arrivo": {
@@ -399,24 +399,24 @@
         "2": "Il Signore e i pescatori hanno sentito. Speriamo nell'ordine giusto."
       },
       "molo": {
-        "1": "Il Gino è scappato al Molo a guardare le onde, con la tempesta che urlava.",
+        "1": "Alle sette il Gino non era a casa. È scappato a guardare le onde, con la tempesta che urlava.",
         "2": "Me l'ha riportato un pescatore, fradicio. L'ho asciugato davanti al forno, zitta."
       }
     },
     "titolo": "La tempesta",
     "nina": {
-      "testo": "Il babbo è uscito a pescare e il mare si è girato. Zeno stia al Faro con la luce accesa dalle sei alle otto di sera, tutto il tempo. Ti prego. Ti prego. Ti prego.",
+      "testo": "Il babbo è uscito a pescare e il mare si è girato. Zeno stia al Faro con la luce accesa dalle sei alle otto di sera, tutto il tempo. E alle sette portami al Molo, ad aspettarlo. Ti prego. Ti prego.",
       "esito": {
-        "ok": "La luce del Faro è rimasta accesa fino alle otto. Il Bepi è tornato a casa intero, e la Nina ha dormito.",
-        "fallita": "Senza la luce del Faro, la barca del Bepi ha preso la secca. Stanotte la Nina non mi ha scritto niente.",
+        "ok": "La luce del Faro è rimasta accesa fino alle otto, e la Nina era al Molo ad aspettarlo. Il Bepi è tornato a casa intero, e la Nina ha dormito.",
+        "fallita": "Qualcosa è mancato, la luce del Faro o la Nina al Molo, e la barca del Bepi ha preso la secca. Stanotte la Nina non mi ha scritto niente.",
         "lasciato": "Ho lasciato cadere la richiesta della Nina. Nessuno ha tenuto la luce del Faro per il Bepi."
       }
     },
     "marta": {
-      "testo": "Con questo vento il Gino non esce. Dalle tre in poi lontano dal Molo, che l'acqua se lo porta e io non ho un altro figlio.",
+      "testo": "Con questo vento il Gino non esce. Alle sette di sera lo voglio a casa, al forno, con me: l'acqua se lo porta, e io non ho un altro figlio.",
       "esito": {
-        "ok": "Il Gino è rimasto lontano dal Molo per tutta la tempesta. Marta ha fatto il pane due volte, per avere le mani occupate.",
-        "fallita": "Il Gino è finito al Molo con la tempesta addosso. Marta stasera non ha parlato con nessuno, nemmeno col forno."
+        "ok": "Alle sette il Gino era a casa, al forno. Marta ha fatto il pane due volte, per avere le mani occupate.",
+        "fallita": "Alle sette il Gino non era a casa: era fuori, con la tempesta addosso. Marta stasera non ha parlato con nessuno, nemmeno col forno."
       }
     },
     "piero": {
@@ -623,7 +623,7 @@
       "gino": {
         "pagella": "La maestra ha scritto BRAVO sulla pagella del Gino. In italiano. In aritmetica, meno: lì c'è scritto «si impegni», che è un altro modo di dire.",
         "febbre": "Il Gino con la febbre resta a letto: per una volta non corre. Chi gli passa accanto, però, se la prende.",
-        "tempesta": "Nella tempesta il Gino è scappato al Molo a guardare le onde. Marta l'ha asciugato in silenzio, che è peggio di una sgridata.",
+        "tempesta": "Nella tempesta il Gino è scappato a guardare le onde invece di stare a casa. Marta l'ha asciugato in silenzio, che è peggio di una sgridata.",
         "guarito": "Il Gino è guarito nella notte più lunga. Ha mangiato due pagnotte e ha ricominciato a correre prima di colazione.",
         "faro": "Il Gino ha visto la lanterna di giorno, spenta. Zeno gli ha detto di tornare una sera, quando la luce lavora.",
         "casa": "Ho scritto al Gino che stasera il Faro è di Zeno e della luce. Mi ha risposto con un faro disegnato, arrabbiato, con gli occhi.",

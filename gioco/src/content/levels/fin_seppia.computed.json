@@ -1,7 +1,7 @@
 {
   "levelId": "fin_seppia",
   "sourceHash": "07b8e26e5f726bd7",
-  "solverVersion": 1,
+  "solverVersion": 2,
   "base": {
     "incroci": 9,
     "rows": [
@@ -134,5 +134,20 @@
   "perNote": {},
   "combos": [],
   "matassaSuggerita": 10,
-  "quieteMax": 3
+  "quieteMax": 3,
+  "quality": {
+    "configs": [
+      {
+        "config": "base",
+        "min": 9,
+        "minSenzaGino": 9,
+        "vuoteMax": 2,
+        "vuoteTot": 3,
+        "soluzioniOttime": 50
+      }
+    ],
+    "designata": "base",
+    "facili": [],
+    "violazioni": []
+  }
 }

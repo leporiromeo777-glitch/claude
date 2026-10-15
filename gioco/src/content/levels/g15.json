@@ -52,11 +52,11 @@
   ],
   "initial": [
     "lino1",
+    "piero",
     "marta",
     "gino",
-    "piero",
-    "nina",
-    "zeno"
+    "zeno",
+    "nina"
   ],
   "beads": [],
   "rules": [
@@ -87,9 +87,29 @@
       "hour": 7
     },
     {
+      "thread": "gino",
+      "place": "piazza",
+      "hour": 9
+    },
+    {
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "gino",
+      "place": "piazza",
+      "hour": 14
+    },
+    {
+      "thread": "piero",
+      "place": "molo",
+      "hour": 14
+    },
+    {
+      "thread": "zeno",
+      "place": "chiesa",
+      "hour": 14
     }
   ],
   "edges": [
@@ -106,7 +126,7 @@
     "g15.piero",
     "g15.gino"
   ],
-  "matassa": 17,
+  "matassa": 21,
   "hintKeys": {
     "spinta": "atto2.g15.hint.spinta",
     "indizio": "atto2.g15.hint.indizio"

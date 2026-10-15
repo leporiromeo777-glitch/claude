@@ -5,7 +5,7 @@
     },
     "hint": {
       "spinta": "The doctor steps off at the Pier at eight. At one he must open the Pharmacy.",
-      "indizio": "Lunardi cures whoever is beneath him. Gino in bed doesn't move: the doctor has to get to him."
+      "indizio": "Lunardi cures whoever is beneath him. Gino in bed won't move: the doctor must reach him."
     },
     "alba": {
       "arrivo": {
@@ -192,7 +192,7 @@
       "nome": "Who names you, keeps you. Before weaving, I pin my name on a thread."
     },
     "hint": {
-      "spinta": "Bepi leaves on the nine o'clock ferry, which brings the doctor back. You pin the name yourself.",
+      "spinta": "Bepi leaves on the nine o'clock ferry that brings the doctor back. You pin the name.",
       "indizio": "The name passes like a rumour. Whoever knows of the debt mustn't cross Nina."
     },
     "alba": {
@@ -237,7 +237,7 @@
       }
     },
     "zeno": {
-      "testo": "Tomorrow morning I'll come down to eleven o'clock mass, to talk to the priest. After three the Lighthouse is mine: nobody climb up. I have a handwriting to think about.",
+      "testo": "Tomorrow I'm coming down for eleven o'clock mass, to talk to the priest. From three the Lighthouse is mine: no visitors. I have a handwriting to ponder.",
       "esito": {
         "ok": "Zeno stayed alone on the Lighthouse after three. When he came down he had the eyes of a man who has reread an old letter.",
         "fallita": "Zeno didn't have the Lighthouse to himself. He grumbled at the wind until evening."
@@ -399,24 +399,24 @@
         "2": "The Lord and the fishermen heard. Let us hope in the right order."
       },
       "molo": {
-        "1": "Gino ran off to the Pier to watch the waves, with the storm howling.",
+        "1": "At seven Gino wasn't home. He ran off to watch the waves, with the storm howling.",
         "2": "A fisherman brought him back, soaked. I dried him by the oven, without a word."
       }
     },
     "titolo": "The Storm",
     "nina": {
-      "testo": "Dad went out fishing and the sea has turned. Let Zeno stay at the Lighthouse with the light on from six to eight in the evening, the whole time. Please. Please. Please.",
+      "testo": "Dad went out fishing and the sea has turned. Let Zeno stay at the Lighthouse with the light on from six to eight in the evening, the whole time. And at seven take me to the Pier, to wait for him. Please. Please.",
       "esito": {
-        "ok": "The Lighthouse light stayed lit until eight. Bepi came home whole, and Nina slept.",
-        "fallita": "Without the Lighthouse light, Bepi's boat hit the shallows. Tonight Nina hasn't written me a word.",
+        "ok": "The Lighthouse light stayed lit until eight, and Nina was at the Pier waiting. Bepi came home whole, and Nina slept.",
+        "fallita": "Something was missing, the Lighthouse light or Nina at the Pier, and Bepi's boat hit the shallows. Tonight Nina hasn't written me a word.",
         "lasciato": "I let Nina's request drop. Nobody kept the Lighthouse light for Bepi."
       }
     },
     "marta": {
-      "testo": "In this wind Gino doesn't go out. From three on, away from the Pier, or the water takes him and I haven't another son.",
+      "testo": "In this wind Gino doesn't go out. At seven in the evening I want him home, at the bakery, with me: the water takes boys, and I haven't another son.",
       "esito": {
-        "ok": "Gino stayed away from the Pier the whole storm. Marta baked bread twice, to keep her hands busy.",
-        "fallita": "Gino ended up at the Pier with the storm on top of him. Marta hasn't spoken to anyone tonight, not even to the oven."
+        "ok": "At seven Gino was home, at the bakery. Marta baked bread twice, to keep her hands busy.",
+        "fallita": "At seven Gino wasn't home: he was out, with the storm on top of him. Marta hasn't spoken to anyone tonight, not even to the oven."
       }
     },
     "piero": {
@@ -623,7 +623,7 @@
       "gino": {
         "pagella": "The teacher wrote WELL DONE on Gino's report. In Italian. In arithmetic, less so: there it says “must try harder”, which is another way of putting it.",
         "febbre": "Gino with a fever stays in bed: for once he doesn't run. Anyone who crosses him, though, catches it.",
-        "tempesta": "In the storm Gino ran off to the Pier to watch the waves. Marta dried him in silence, which is worse than a scolding.",
+        "tempesta": "In the storm Gino ran off to watch the waves instead of staying home. Marta dried him in silence, which is worse than a scolding.",
         "guarito": "Gino got well on the longest night. He ate two loaves and was running again before breakfast.",
         "faro": "Gino saw the lantern by day, unlit. Zeno told him to come back one evening, when the light is working.",
         "casa": "I told Gino that tonight the Lighthouse belongs to Zeno and the light. He answered with a drawing of a lighthouse, angry, with eyes.",
