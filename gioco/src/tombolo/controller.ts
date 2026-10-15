@@ -47,7 +47,7 @@ import { type GoalsButtonState, RequestStrip, goalCard, noteCard, type RequestTo
 import { ObjectivesList } from './ui/objectives';
 import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
 import { ArchivePanel } from './ui/archivepanel';
-import { extraMode, shownQuirks } from './quirks';
+import { dormantQuirks, extraMode, shownQuirks } from './quirks';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -853,6 +853,13 @@ export class NightController {
     if (!ch) return [];
     const k = this.s.save.data().knowledge;
     return shownQuirks(this.params.origin, character, ch.quirks, this.session.ctx.quirks, { quirks: [...this.known], diary: k.diary }, this.s.content);
+  }
+  /** Stranezze note del personaggio che stanotte non contano (Q022 nella scheda). */
+  dormantOf(character: CharacterId): QuirkId[] {
+    const ch = this.s.content.characters.get(character);
+    if (!ch) return [];
+    const k = this.s.save.data().knowledge;
+    return dormantQuirks(this.params.origin, character, ch.quirks, this.session.ctx.quirks, { quirks: [...this.known], diary: k.diary }, this.s.content);
   }
   private readonly labelOf = (t: ThreadId): string | null => this.labels.get(t) ?? null;
 
@@ -2511,6 +2518,7 @@ export class NightController {
     const kind: 'persona' | 'lino' | 'nero' | 'avorio' | 'sbiadito' = v.faded ? 'sbiadito' : v.kind === 'persona' ? 'persona' : v.kind;
     const ch = v.character ? this.s.content.characters.get(v.character) : undefined;
     const quirks = ch ? this.quirksOf(ch.id) : [];
+    const dormant = ch && !v.faded ? this.dormantOf(ch.id).length : 0;
     const rancor = this.session.ctx.rancor
       .filter(([a, b]) => a === t || b === t)
       .map(([a, b]) => this.s.i18n.t('tombolo.rancore.coppia', { a: threadName(this.textDeps, a), b: threadName(this.textDeps, b) }));
@@ -2527,6 +2535,7 @@ export class NightController {
           icon: v.icon,
           kind: kind === 'persona' && !ch ? (def?.kind === 'avorio' ? 'avorio' : 'persona') : kind,
           quirks,
+          dormant,
           rancor,
           desireKey: ch && save.knowledge.desires.includes(ch.id) ? (ch.desireKey ?? null) : null,
           memoria: showMem ? memoria : null,

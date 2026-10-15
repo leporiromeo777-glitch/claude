@@ -8,7 +8,7 @@
     "ora": "Ore {ora}",
     "finito": "Merletto chiuso",
     "matassa": "{usata}/{totale}",
-    "matassaAria": "Matassa: {usata} braccia usate su {totale}",
+    "matassaAria": "Matassa: {usata, plural, one {# braccio usato} other {# braccia usate}} su {totale}",
     "prologo": "Prologo",
     "giornata": "Giornata {n}",
     "finale": "Finale",
@@ -276,6 +276,7 @@
   "scheda": {
     "stranezze": "Stranezze",
     "nessunaStranezza": "Nessuna stranezza nota.",
+    "nessunaStranezzaStanotte": "Nessuna stranezza nota che conti stanotte.",
     "desiderio": "Desiderio",
     "desiderioIgnoto": "?",
     "memoria": "Memoria di Ada: {n}/3",

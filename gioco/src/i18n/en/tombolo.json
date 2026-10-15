@@ -276,6 +276,7 @@
   "scheda": {
     "stranezze": "Quirks",
     "nessunaStranezza": "No known quirks.",
+    "nessunaStranezzaStanotte": "No known quirk that matters tonight.",
     "desiderio": "Wish",
     "desiderioIgnoto": "?",
     "memoria": "Memory of Ada: {n}/3",

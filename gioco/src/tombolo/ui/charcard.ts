@@ -18,6 +18,11 @@ export interface CharCardData {
   icon: string | null;
   kind: 'persona' | 'lino' | 'nero' | 'avorio' | 'sbiadito';
   quirks: QuirkId[];
+  /**
+   * Stranezze note del personaggio che stanotte non contano (Q022): senza
+   * stranezze attive la scheda dice «Nessuna stranezza nota che conti stanotte.».
+   */
+  dormant?: number;
   /** Righe del rancore già scritte («Teresa e Marta sono in rancore…»), D06. */
   rancor?: string[];
   desireKey: string | null;
@@ -48,7 +53,10 @@ export function charCard(d: CharCardData): HTMLElement {
     return body;
   }
   body.appendChild(textOf('tombolo.scheda.stranezze', undefined, 'h3', { className: 'tb-char-sub' }));
-  if (d.quirks.length === 0) body.appendChild(textOf('tombolo.scheda.nessunaStranezza', undefined, 'p', { className: 'tb-char-line' }));
+  if (d.quirks.length === 0) {
+    const key = (d.dormant ?? 0) > 0 ? 'tombolo.scheda.nessunaStranezzaStanotte' : 'tombolo.scheda.nessunaStranezza';
+    body.appendChild(el('p', { class: 'tb-char-line', test: 'tb-scheda-nessuna', data: { stanotte: (d.dormant ?? 0) > 0 ? '1' : '0' } }, textOf(key, undefined, 'span')));
+  }
   for (const q of d.quirks) body.appendChild(textOf(`tombolo.stranezza.${q}`, undefined, 'p', { className: 'tb-char-line' }));
   for (const r of d.rancor ?? []) body.appendChild(el('p', { class: 'tb-char-line tb-char-rancore', test: 'tb-scheda-rancore', text: r }));
   body.appendChild(textOf('tombolo.scheda.desiderio', undefined, 'h3', { className: 'tb-char-sub' }));

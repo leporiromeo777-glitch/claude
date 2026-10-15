@@ -50,3 +50,23 @@ export function shownQuirks(
   if (extraMode(origin)) return characterQuirks.filter((q) => active.includes(q));
   return characterQuirks.filter((q) => active.includes(q) && quirkRevealed(q, character, known, db));
 }
+
+/**
+ * Stranezze del personaggio che il giocatore conosce ma che stanotte non contano
+ * (Q022 anche nella scheda): con queste la scheda non dice «Nessuna stranezza
+ * nota.» ma «Nessuna stranezza nota che conti stanotte.». Nelle modalità extra
+ * sono tutte quelle del personaggio non attive; nella storia solo quelle già
+ * scritte nel Taccuino (le altre non si svelano).
+ */
+export function dormantQuirks(
+  origin: NightOrigin,
+  character: CharacterId,
+  characterQuirks: readonly QuirkId[],
+  active: readonly QuirkId[],
+  known: Pick<Knowledge, 'quirks' | 'diary'>,
+  db: Pick<ContentDB, 'diary'>,
+): QuirkId[] {
+  const asleep = characterQuirks.filter((q) => !active.includes(q));
+  if (extraMode(origin)) return asleep;
+  return asleep.filter((q) => quirkRevealed(q, character, known, db));
+}
