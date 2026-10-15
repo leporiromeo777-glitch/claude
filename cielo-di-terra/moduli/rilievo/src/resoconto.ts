@@ -89,7 +89,9 @@ export function prossimeFinestre(stato: StatoCatasto, regole: RegoleCatasto, ele
     const k = `${v.chi}@${v.ora}`;
     if (viste.has(k)) continue;
     viste.add(k);
-    const testo = v.testo.charAt(0).toLowerCase() + v.testo.slice(1);
+    // dopo i due punti la minuscola, ma non per i nomi propri («Nando», «Ottavio»)
+    const articolo = /^(Il|Lo|La|I|Gli|Le|L'|Un|Uno|Una|Un')\b/.test(v.testo);
+    const testo = articolo ? v.testo.charAt(0).toLowerCase() + v.testo.slice(1) : v.testo;
     out.push(riempi(regole.testi.prossimaFinestra, { ora: formattaOra(v.ora), testo }));
   }
   return out;
