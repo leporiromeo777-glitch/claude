@@ -61,7 +61,7 @@
     "i_forzata",
     "i_apertura_manuale",
     "i_riferisce",
-    "i_g4"
+    "i_clausola"
    ],
    "chiusa_quando": null
   },
@@ -118,8 +118,7 @@
    "indizi": [
     "i_ricci_vuoti",
     "i_amenti",
-    "i_nodo_1",
-    "i_lettera_rosa"
+    "i_nodo_1"
    ],
    "chiusa_quando": null
   },
@@ -134,7 +133,13 @@
     "i_muro_ronco",
     "i_benedetta",
     "pv_misura",
-    "pv_strada"
+    "pv_strada",
+    "i_proverbio_togna",
+    "i_casa_nando",
+    "i_ballo_fade",
+    "i_casa_nando_rimasta",
+    "i_legge_1",
+    "i_carta_madre"
    ],
    "chiusa_quando": "flag:legge_1",
    "risposta": "i_legge_1"

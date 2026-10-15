@@ -11,8 +11,16 @@
   },
   "voce": "Doppiata. Sintetizzata e filtrata dal respiratore: un soffio metallico sulle consonanti. Commenta poco, battute di tre-sei parole, mai per spiegare. Parla alle piante a voce alta.",
   "posizioni": [
-   {"fase": "prologo", "luogo": "cripta_capsula_5", "dalle": "05:38", "alle": "05:39"},
-   {"fase": "libera", "luogo": "dove la porta il giocatore"}
+   {
+    "fase": "prologo",
+    "luogo": "cripta_capsula_5",
+    "dalle": "05:38",
+    "alle": "05:39"
+   },
+   {
+    "fase": "libera",
+    "luogo": "dove la porta il giocatore"
+   }
   ]
  },
  {
@@ -27,7 +35,11 @@
   },
   "voce": "Doppiata. Femminile, calma, filtrata dal bronzo delle campane. Numeri impeccabili scanditi per intero («zero virgola quarantuno»); i nomi in dialetto li pronuncia male, con l'accento sbagliato.",
   "posizioni": [
-   {"fase": "sempre", "luogo": "cella_campanaria", "nota": "altoparlante legato al ceppo della campana grande; si sente in tutta Corbella"}
+   {
+    "fase": "sempre",
+    "luogo": "cella_campanaria",
+    "nota": "altoparlante legato al ceppo della campana grande; si sente in tutta Corbella"
+   }
   ]
  },
  {
@@ -42,19 +54,88 @@
   },
   "voce": "Doppiata. Filtro di vento (aria che passa). Parla in fretta, con la voce rotta dell'età; ride spesso.",
   "posizioni": [
-   {"fase": "giorno 1", "luogo": "in volo sopra la valle (segnale di cielo: Velo verde)", "dalle": "05:40", "alle": "arrivo in piazza (passo m1_ottavio)"},
-   {"fase": "giorno 1", "luogo": "piazza_ore", "dalle": "passo m1_ottavio", "alle": "20:30"},
-   {"fase": "giorno 1", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "05:30"},
-   {"fase": "giorno 2", "luogo": "fienile_ottavio", "dalle": "05:30", "alle": "07:00"},
-   {"fase": "giorno 2", "luogo": "in volo con le lettere", "dalle": "07:00", "alle": "14:00"},
-   {"fase": "giorno 2", "luogo": "prato_ronco", "dalle": "14:00", "alle": "19:30", "nota": "se Elvira lo chiama prima delle 14:00 scende dal cielo"},
-   {"fase": "giorno 2", "luogo": "bacheca_ore", "dalle": "19:30", "alle": "20:30", "nota": "appende le notizie"},
-   {"fase": "giorno 2", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "05:30"},
-   {"fase": "giorno 3", "luogo": "passerella_messo", "dalle": "05:30", "alle": "fine della missione 1", "nota": "seduto sulle assi, i piedi nell'acqua"},
-   {"fase": "dal giorno 4", "luogo": "balcone_messi", "dalle": "06:30", "alle": "09:00", "nota": "aspetta Elvira per la lezione di volo"},
-   {"fase": "dal giorno 4", "luogo": "in volo", "dalle": "09:00", "alle": "19:30"},
-   {"fase": "dal giorno 4", "luogo": "bacheca_ore", "dalle": "19:30", "alle": "20:30"},
-   {"fase": "dal giorno 4", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "06:00"}
+   {
+    "fase": "giorno 1",
+    "luogo": "in volo sopra la valle (segnale di cielo: Velo verde)",
+    "dalle": "05:40",
+    "alle": "arrivo in piazza (passo m1_ottavio)"
+   },
+   {
+    "fase": "giorno 1",
+    "luogo": "piazza_ore",
+    "dalle": "passo m1_ottavio",
+    "alle": "20:30"
+   },
+   {
+    "fase": "giorno 1",
+    "luogo": "fienile_ottavio",
+    "dalle": "20:40",
+    "alle": "05:30"
+   },
+   {
+    "fase": "giorno 2",
+    "luogo": "fienile_ottavio",
+    "dalle": "05:30",
+    "alle": "07:00"
+   },
+   {
+    "fase": "giorno 2",
+    "luogo": "in volo con le lettere",
+    "dalle": "07:00",
+    "alle": "14:00"
+   },
+   {
+    "fase": "giorno 2",
+    "luogo": "prato_ronco",
+    "dalle": "14:00",
+    "alle": "19:30",
+    "nota": "se Elvira lo chiama prima delle 14:00 scende dal cielo"
+   },
+   {
+    "fase": "giorno 2",
+    "luogo": "bacheca_ore",
+    "dalle": "19:30",
+    "alle": "20:30",
+    "nota": "appende le notizie"
+   },
+   {
+    "fase": "giorno 2",
+    "luogo": "fienile_ottavio",
+    "dalle": "20:40",
+    "alle": "05:30"
+   },
+   {
+    "fase": "giorno 3",
+    "luogo": "passerella_messo",
+    "dalle": "05:30",
+    "alle": "fine della missione 1",
+    "nota": "seduto sulle assi, i piedi nell'acqua"
+   },
+   {
+    "fase": "dal giorno 4",
+    "luogo": "balcone_messi",
+    "dalle": "06:30",
+    "alle": "09:00",
+    "nota": "aspetta Elvira per la lezione di volo"
+   },
+   {
+    "fase": "dal giorno 4",
+    "luogo": "in volo",
+    "dalle": "09:00",
+    "alle": "19:30"
+   },
+   {
+    "fase": "dal giorno 4",
+    "luogo": "bacheca_ore",
+    "dalle": "19:30",
+    "alle": "20:30"
+   },
+   {
+    "fase": "dal giorno 4",
+    "luogo": "fienile_ottavio",
+    "dalle": "20:40",
+    "alle": "06:00"
+   }
   ]
  },
  {
@@ -69,9 +150,24 @@
   },
   "voce": "Testo con un mormorio. Voce bassa e lenta; dietro il telo diventa un'altra, più giovane.",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "soglia_pina", "dalle": "08:00", "alle": "18:00"},
-   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30"},
-   {"fase": "notte", "luogo": "casa (fuori scena)", "dalle": "20:30", "alle": "08:00"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "soglia_pina",
+    "dalle": "08:00",
+    "alle": "18:00"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "telo_ombrista",
+    "dalle": "19:45",
+    "alle": "20:30"
+   },
+   {
+    "fase": "notte",
+    "luogo": "casa (fuori scena)",
+    "dalle": "20:30",
+    "alle": "08:00"
+   }
   ]
  },
  {
@@ -86,8 +182,19 @@
   },
   "voce": "Testo con un mormorio. Parla per proverbi, mezza in dialetto.",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "lavatoio", "dalle": "07:00", "alle": "12:00"},
-   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "19:45", "alle": "20:30", "nota": "fra il pubblico dell'Ombrista"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "lavatoio",
+    "dalle": "07:00",
+    "alle": "12:00"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "19:45",
+    "alle": "20:30",
+    "nota": "fra il pubblico dell'Ombrista"
+   }
   ]
  },
  {
@@ -102,10 +209,33 @@
   },
   "voce": "Testo con un mormorio. Bonario, parla piano, si fa il segno della Linea (una mano che sale dal petto alla fronte).",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "campanile", "dalle": "05:50", "alle": "06:10", "nota": "suona il mattutino"},
-   {"fase": "ogni giorno", "luogo": "scorciatoia_terrazze", "dalle": "07:00", "alle": "07:40", "nota": "rimette i gradini (E4)"},
-   {"fase": "ogni giorno", "luogo": "sagrato", "dalle": "08:00", "alle": "18:00", "nota": "alle 13:00 e alle 20:00 sale a suonare la mezza luce e la brace"},
-   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "19:45", "alle": "20:30"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "campanile",
+    "dalle": "05:50",
+    "alle": "06:10",
+    "nota": "suona il mattutino"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "scorciatoia_terrazze",
+    "dalle": "07:00",
+    "alle": "07:40",
+    "nota": "rimette i gradini (E4)"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "sagrato",
+    "dalle": "08:00",
+    "alle": "18:00",
+    "nota": "alle 13:00 e alle 20:00 sale a suonare la mezza luce e la brace"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "19:45",
+    "alle": "20:30"
+   }
   ]
  },
  {
@@ -120,7 +250,13 @@
   },
   "voce": "Testo con un mormorio. Gentile, un po' ironica.",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "san_vigilio", "dalle": "09:00", "alle": "17:00", "nota": "sulla panca davanti al portale (1066, 39,5)"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "san_vigilio",
+    "dalle": "09:00",
+    "alle": "17:00",
+    "nota": "sulla panca davanti al portale (1066, 39,5)"
+   }
   ]
  },
  {
@@ -135,9 +271,25 @@
   },
   "voce": "Testo con un mormorio. Asciutto, ride di sé.",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "muro_ronco", "dalle": "08:30", "alle": "09:30", "nota": "prende le pietre e rifà la casa (cicli di E2 ed E3)"},
-   {"fase": "ogni giorno", "luogo": "casa_nando", "dalle": "09:30", "alle": "18:00"},
-   {"fase": "notte", "luogo": "casa_nando (dentro)", "dalle": "20:00", "alle": "08:30"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "muro_ronco",
+    "dalle": "08:30",
+    "alle": "09:30",
+    "nota": "prende le pietre e rifà la casa (cicli di E2 ed E3)"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "casa_nando",
+    "dalle": "09:30",
+    "alle": "18:00"
+   },
+   {
+    "fase": "notte",
+    "luogo": "casa_nando (dentro)",
+    "dalle": "20:00",
+    "alle": "08:30"
+   }
   ]
  },
  {
@@ -152,8 +304,19 @@
   },
   "voce": "Testo con un mormorio. Formale, a frasi brevi.",
   "posizioni": [
-   {"fase": "giorno 2", "luogo": "bacheca_ore", "dalle": "07:00", "alle": "19:00", "condizione": "!dialogo:d_clelia_dono finito"},
-   {"fase": "dal giorno 2", "luogo": "casa_del_velo", "dalle": "07:00", "alle": "21:00"}
+   {
+    "fase": "giorno 2",
+    "luogo": "bacheca_ore",
+    "dalle": "07:00",
+    "alle": "19:00",
+    "condizione": "!dialogo:d_clelia_dono finito"
+   },
+   {
+    "fase": "dal giorno 2",
+    "luogo": "casa_del_velo",
+    "dalle": "07:00",
+    "alle": "21:00"
+   }
   ]
  },
  {
@@ -168,9 +331,77 @@
   },
   "voce": "Testo con un mormorio di voci acute.",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "08:00", "alle": "19:30"},
-   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30", "nota": "in prima fila"}
-  ]
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "08:00",
+    "alle": "19:30"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "telo_ombrista",
+    "dalle": "19:45",
+    "alle": "20:30",
+    "nota": "in prima fila"
+   }
+  ],
+  "note": "Nei dialoghi i due bambini parlano anche separatamente: vedi le voci lisa e gioanin."
+ },
+ {
+  "id": "lisa",
+  "nome": "Lisa",
+  "ruolo": "Bambina di Corbella, nove anni. Parla per tutti e due e chiama Elvira «la Svegliata».",
+  "come_appare": {
+   "velo": "garza bianca da bambini, corta, annodata storta",
+   "maschera": "nessuna",
+   "postura": "sta davanti al fratello, mani sui fianchi, indica le cose con tutto il braccio",
+   "colori": "bianco, ginocchia sbucciate, un nastro rosso al polso"
+  },
+  "voce": "Testo con un mormorio acuto, sicuro di sé.",
+  "posizioni": [
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "08:00",
+    "alle": "19:30"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "telo_ombrista",
+    "dalle": "19:45",
+    "alle": "20:30",
+    "nota": "in prima fila"
+   }
+  ],
+  "gruppo": "bambini"
+ },
+ {
+  "id": "gioanin",
+  "nome": "Gioanin",
+  "ruolo": "Il fratello minore di Lisa, sei anni. Ha paura della Svegliata e sa che correndo a Sera si pesa meno.",
+  "come_appare": {
+   "velo": "garza bianca da bambini, troppo lunga",
+   "maschera": "nessuna",
+   "postura": "si nasconde dietro la sorella e sbuca solo per dire le cose che sa",
+   "colori": "bianco, zoccoli di legno"
+  },
+  "voce": "Testo con un mormorio piccolo, a scatti.",
+  "posizioni": [
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "08:00",
+    "alle": "19:30"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "telo_ombrista",
+    "dalle": "19:45",
+    "alle": "20:30",
+    "nota": "in prima fila, accanto a Lisa"
+   }
+  ],
+  "gruppo": "bambini"
  },
  {
   "id": "velati_corbella",
@@ -184,9 +415,26 @@
   },
   "voce": "Mormorii; qualche frase udita al passaggio («La Svegliata», «Ha dormito con la Santa»).",
   "posizioni": [
-   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "05:30", "alle": "06:30", "nota": "guardano la Linea che si accende"},
-   {"fase": "ogni giorno", "luogo": "corbella (orti, botteghe, grà)", "dalle": "06:30", "alle": "19:30"},
-   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30", "nota": "trenta sagome sedute sui gradini"}
+   {
+    "fase": "ogni giorno",
+    "luogo": "piazza_ore",
+    "dalle": "05:30",
+    "alle": "06:30",
+    "nota": "guardano la Linea che si accende"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "corbella (orti, botteghe, grà)",
+    "dalle": "06:30",
+    "alle": "19:30"
+   },
+   {
+    "fase": "ogni giorno",
+    "luogo": "telo_ombrista",
+    "dalle": "19:45",
+    "alle": "20:30",
+    "nota": "trenta sagome sedute sui gradini"
+   }
   ]
  },
  {
@@ -201,7 +449,10 @@
   },
   "voce": "Doppiata (dalla Fase 3). Filtro di garza: vicina e attutita. Nella Fase 1 solo calligrafia ordinata su carta grezza.",
   "posizioni": [
-   {"fase": "Fase 1", "luogo": "Eremo della Linea (fuori scena, (2785, 30, 320))"}
+   {
+    "fase": "Fase 1",
+    "luogo": "Eremo della Linea (fuori scena, (2785, 30, 320))"
+   }
   ]
  },
  {
@@ -216,7 +467,10 @@
   },
   "voce": "Nessuna nella Fase 1.",
   "posizioni": [
-   {"fase": "Fase 1", "luogo": "nessuno (tracce: cripta_capsula_5, cippo_cripta)"}
+   {
+    "fase": "Fase 1",
+    "luogo": "nessuno (tracce: cripta_capsula_5, cippo_cripta)"
+   }
   ]
  },
  {
@@ -231,7 +485,11 @@
   },
   "voce": "Testo con un mormorio (dalla Fase 2).",
   "posizioni": [
-   {"fase": "Fase 1", "luogo": "porta_bugni", "nota": "porta chiusa con un biglietto; la casa è a matita"}
+   {
+    "fase": "Fase 1",
+    "luogo": "porta_bugni",
+    "nota": "porta chiusa con un biglietto; la casa è a matita"
+   }
   ]
  },
  {
@@ -246,7 +504,10 @@
   },
   "voce": "Nessuna. Solo testo.",
   "posizioni": [
-   {"fase": "sempre", "luogo": "il libretto, nella borsa di Elvira"}
+   {
+    "fase": "sempre",
+    "luogo": "il libretto, nella borsa di Elvira"
+   }
   ]
  },
  {
@@ -261,7 +522,10 @@
   },
   "voce": "Nessuna nella Fase 1.",
   "posizioni": [
-   {"fase": "sempre", "luogo": "la lettera, in tasca a Elvira"}
+   {
+    "fase": "sempre",
+    "luogo": "la lettera, in tasca a Elvira"
+   }
   ]
  },
  {
@@ -276,7 +540,12 @@
   },
   "voce": "Nessuna. Tintinnio d'ottone e un frullo leggero.",
   "posizioni": [
-   {"fase": "ogni notte", "luogo": "giro_corbella in fade_fase1.json", "dalle": "22:05", "alle": "04:30"}
+   {
+    "fase": "ogni notte",
+    "luogo": "giro_corbella in fade_fase1.json",
+    "dalle": "22:05",
+    "alle": "04:30"
+   }
   ]
  },
  {
@@ -291,7 +560,12 @@
   },
   "voce": "Nessuna.",
   "posizioni": [
-   {"fase": "ogni notte", "luogo": "dove dorme Elvira", "dalle": "03:10", "alle": "03:20"}
+   {
+    "fase": "ogni notte",
+    "luogo": "dove dorme Elvira",
+    "dalle": "03:10",
+    "alle": "03:20"
+   }
   ]
  },
  {
@@ -306,7 +580,12 @@
   },
   "voce": "Nessuna nella Fase 1.",
   "posizioni": [
-   {"fase": "ogni notte", "luogo": "Finestra delle Vedove, attorno a (1300, 345)", "dalle": "23:00", "alle": "02:00"}
+   {
+    "fase": "ogni notte",
+    "luogo": "Finestra delle Vedove, attorno a (1300, 345)",
+    "dalle": "23:00",
+    "alle": "02:00"
+   }
   ]
  }
 ]
