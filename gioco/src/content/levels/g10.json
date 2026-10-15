@@ -47,11 +47,11 @@
   ],
   "initial": [
     "bepi",
-    "gino",
+    "nina",
     "marta",
     "piero",
-    "lunardi",
-    "nina"
+    "gino",
+    "lunardi"
   ],
   "beads": [
     {
@@ -90,9 +90,19 @@
       "hour": 7
     },
     {
+      "thread": "nina",
+      "place": "molo",
+      "hour": 9
+    },
+    {
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "piero",
+      "place": "molo",
+      "hour": 14
     },
     {
       "thread": "marta",
@@ -107,7 +117,7 @@
     "g10.piero",
     "g10.bepi"
   ],
-  "matassa": 15,
+  "matassa": 19,
   "hintKeys": {
     "spinta": "atto2.g10.hint.spinta",
     "indizio": "atto2.g10.hint.indizio"

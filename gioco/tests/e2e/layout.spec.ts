@@ -109,6 +109,8 @@ test.describe('layout: tutte le schermate', () => {
     await page.evaluate(() => {
       const box = document.createElement('div');
       box.dataset.test = 'qa-sonda';
+      // Come i contenitori del gioco: #ui-root lascia passare i tocchi, core-solid li riceve.
+      box.className = 'core-solid';
       box.style.cssText = 'position:absolute;top:100px;left:10px';
       const t = document.createElement('p');
       t.style.cssText = 'width:40px;overflow:hidden;white-space:nowrap';

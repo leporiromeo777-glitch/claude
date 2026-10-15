@@ -48,10 +48,10 @@
   "initial": [
     "nina",
     "marta",
-    "gino",
-    "teresa",
     "piero",
-    "zeno"
+    "teresa",
+    "zeno",
+    "gino"
   ],
   "beads": [
     {
@@ -99,6 +99,16 @@
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "nina",
+      "place": "faro",
+      "hour": 15
+    },
+    {
+      "thread": "piero",
+      "place": "chiesa",
+      "hour": 16
     }
   ],
   "notes": [
@@ -107,7 +117,7 @@
     "g14.nina",
     "g14.gino"
   ],
-  "matassa": 15,
+  "matassa": 18,
   "hintKeys": {
     "spinta": "atto2.g14.hint.spinta",
     "indizio": "atto2.g14.hint.indizio"

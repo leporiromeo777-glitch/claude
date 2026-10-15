@@ -15,11 +15,6 @@
   "endHour": 18,
   "threads": [
     {
-      "id": "bepi",
-      "kind": "persona",
-      "character": "bepi"
-    },
-    {
       "id": "marta",
       "kind": "persona",
       "character": "marta"
@@ -45,18 +40,23 @@
       "character": "zeno"
     },
     {
-      "id": "lino1",
-      "kind": "lino",
-      "labelKey": "comune.fili.marinaio"
+      "id": "lunardi",
+      "kind": "persona",
+      "character": "lunardi"
+    },
+    {
+      "id": "bepi",
+      "kind": "persona",
+      "character": "bepi"
     }
   ],
   "initial": [
-    "bepi",
     "marta",
-    "teresa",
     "piero",
     "livia",
-    "zeno"
+    "zeno",
+    "lunardi",
+    "teresa"
   ],
   "beads": [],
   "rules": [
@@ -73,8 +73,6 @@
   "quirks": [
     "martaNoSotto",
     "teresaLegge",
-    "ginoCorre",
-    "ninaCuriosa",
     "zenoFaro",
     "lunardiCura"
   ],
@@ -91,9 +89,19 @@
       "hour": 7
     },
     {
+      "thread": "lunardi",
+      "place": "farmacia",
+      "hour": 10
+    },
+    {
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "teresa",
+      "place": "molo",
+      "hour": 16
     },
     {
       "thread": "zeno",
@@ -102,6 +110,12 @@
     }
   ],
   "edges": [
+    {
+      "hour": 13,
+      "side": "molo",
+      "kind": "barca",
+      "enters": "bepi"
+    },
     {
       "hour": 18,
       "side": "molo",
@@ -114,29 +128,40 @@
       "n": 4,
       "of": [
         {
-          "t": "incontra",
-          "a": "livia",
-          "b": "bepi"
+          "t": "sopra",
+          "a": "marta",
+          "b": "livia",
+          "to": 9
         },
         {
-          "t": "incontra",
-          "a": "livia",
-          "b": "marta"
+          "t": "sopra",
+          "a": "piero",
+          "b": "livia",
+          "to": 12
         },
         {
-          "t": "incontra",
-          "a": "livia",
-          "b": "teresa"
+          "t": "sopra",
+          "a": "bepi",
+          "b": "livia",
+          "to": 15
         },
         {
-          "t": "incontra",
-          "a": "livia",
-          "b": "piero"
+          "t": "sopra",
+          "a": "zeno",
+          "b": "livia",
+          "to": 15
         },
         {
-          "t": "incontra",
-          "a": "livia",
-          "b": "zeno"
+          "t": "sopra",
+          "a": "teresa",
+          "b": "livia",
+          "to": 16
+        },
+        {
+          "t": "sopra",
+          "a": "lunardi",
+          "b": "livia",
+          "to": 17
         }
       ]
     },
@@ -146,7 +171,7 @@
       "hour": 18
     }
   ],
-  "matassa": 5,
+  "matassa": 14,
   "hintKeys": {
     "spinta": "finali.merlettaia.hint.spinta",
     "indizio": "finali.merlettaia.hint.indizio"

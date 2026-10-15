@@ -513,6 +513,27 @@ describe('finali (GDD 6.6)', () => {
     expect(JSON.stringify(lv.goals)).toContain('"t":"almeno","n":4');
   });
 
+  it('fin_merlettaia (D14): i saluti si fanno dando, almeno 4 su 6, conflitto voluto agli estremi della Fondamenta, base ≥ 8', () => {
+    const lv = level('fin_merlettaia');
+    const almeno = (lv.goals ?? []).find((g) => g.t === 'almeno') as Extract<Condition, { t: 'almeno' }>;
+    expect(almeno.n).toBe(4);
+    expect(almeno.of.length).toBe(6);
+    // Chi saluta passa sopra a Livia (chi sta sopra dà), entro un'ora.
+    for (const g of almeno.of) expect(g).toMatchObject({ t: 'sopra', b: 'livia' });
+    const entro = Object.fromEntries(almeno.of.map((g) => [(g as { a: string }).a, (g as { to: number }).to]));
+    expect(Object.keys(entro).sort()).toEqual(['bepi', 'lunardi', 'marta', 'piero', 'teresa', 'zeno']);
+    // Il Bepi dal Molo e Zeno dal Faro, alla stessa ora: tutti e due non si può.
+    expect(entro.bepi).toBe(entro.zeno);
+    expect(lv.edges).toContainEqual({ hour: 13, side: 'molo', kind: 'barca', enters: 'bepi' });
+    expect(lv.pins).toContainEqual({ thread: 'zeno', place: 'faro', hour: 18 });
+    const ctx = createContext(lv, {}, { balance: db.balance });
+    const both = [almeno.of.find((g) => (g as { a: string }).a === 'bepi'), almeno.of.find((g) => (g as { a: string }).a === 'zeno'), { t: 'parte', who: 'livia', hour: 18 }] as Condition[];
+    expect(solve({ level: lv, ctx, goals: both, matassa: 99 }).status).toBe('impossibile');
+    const c = db.computed.get('fin_merlettaia');
+    expect(c?.base.incroci ?? 0).toBeGreaterThanOrEqual(8);
+    expect(c?.quality?.violazioni ?? []).toEqual([]);
+  }, 60_000);
+
   it('fin_seppia: autotessitura con il filo di Ada controllato e l\'agenda di Livia; soluzione in base.rows', () => {
     const lv = level('fin_seppia');
     expect(lv.autoweave?.controlled).toBe('ada');

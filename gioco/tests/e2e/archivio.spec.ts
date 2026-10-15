@@ -73,8 +73,9 @@ test.describe('Archivio: nominare, rammendare, eco', () => {
     s = await nightState(page);
     expect(s.archive?.counter.correct, 'due nomi giusti').toBe(2);
     expect(s.archive?.confirmed, 'con 2 giusti e 1 sbagliato nessuna conferma').toEqual([]);
-    // Il contatore si legge nella striscia (GDD 10.3: «Nomi giusti: 1/3 per confermare»).
-    await expect(page.locator('[data-test="tb-req-info"]'), 'contatore dei nomi giusti visibile').toContainText('2/3');
+    // Il contatore si legge nella striscia (GDD 10.3). Dalla revisione 1 dice i nomi dati
+    // («Nomi dati: 3 di 4») invece dei giusti, per non svelare subito quale è sbagliato.
+    await expect(page.locator('[data-test="tb-req-info"]'), 'contatore dei nomi nella striscia').toHaveText(/\d+\s*(\/|di|of)\s*\d+/);
     await call(page, 'night.name', f2, a.answer[f2]);
     s = await nightState(page);
     expect(s.archive?.confirmed.length, 'con 3 giusti la conferma scatta').toBe(3);
