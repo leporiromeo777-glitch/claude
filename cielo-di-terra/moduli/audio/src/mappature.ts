@@ -216,7 +216,7 @@ export function parametriLinea(ora: number, altezza = 0): ParametriLinea {
   return {
     luce,
     brace: 1 - luce,
-    guadagno: (0.025 + 0.03 * luce) * (1 + 1.2 * vicinanza),
+    guadagno: (0.02 + 0.022 * luce) * (1 + 1.2 * vicinanza),
     frequenza: mescola(49, 55, luce),
     taglio: mescola(170, 650, luce) + 300 * vicinanza,
     respiro: mescola(0.35, 0.08, luce),

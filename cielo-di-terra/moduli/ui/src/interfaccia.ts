@@ -176,17 +176,18 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   /** Apre `figlio` al posto di `padre`, ricordando dove tornare. */
   private apriDa(padre: ComponenteQualsiasi, apri: () => void, figlio: ComponenteQualsiasi): void {
     this.ritorni.set(figlio, padre);
-    padre.hide();
+    // Prima si apre il figlio e poi si chiude il padre: la pila non resta mai vuota (niente sfarfallio di «catturaInput»).
     apri();
+    padre.hide();
   }
 
   /** Chiude `figlio` e riapre il componente da cui era stato aperto (se c'è). */
   private indietro(figlio: ComponenteQualsiasi): void {
     const padre = this.ritorni.get(figlio);
     this.ritorni.delete(figlio);
-    figlio.hide();
     if (padre === (this.pausa as unknown as ComponenteQualsiasi)) this.pausa.show(this.opz.datiPausa?.() ?? {});
     else if (padre === (this.titolo as unknown as ComponenteQualsiasi)) this.titolo.show();
+    figlio.hide();
   }
 
   private collegaNavigazione(): void {

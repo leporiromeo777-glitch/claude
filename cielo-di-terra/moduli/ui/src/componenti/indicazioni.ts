@@ -160,7 +160,7 @@ export class Indicazioni extends Componente<EventiIndicazioni> {
       h('span', { class: 'ui-tasto ui-hud-tasto' }, a.tasto),
       h('span', { class: 'ui-hud-azione-sep', 'aria-hidden': 'true' }, '—'),
       h('span', { class: 'ui-hud-azione-testo' }, a.testo),
-      prog !== undefined ? h('span', { class: 'ui-hud-progresso', style: `--p:${Math.max(0, Math.min(1, prog))}`, 'aria-hidden': 'true' }) : null,
+      ...(prog !== undefined ? [h('span', { class: 'ui-hud-progresso', style: `--p:${Math.max(0, Math.min(1, prog))}`, 'aria-hidden': 'true' })] : []),
     );
     this.azioneEl.setAttribute('aria-label', `${a.tasto}: ${a.testo}`);
     this.azioneEl.hidden = false;

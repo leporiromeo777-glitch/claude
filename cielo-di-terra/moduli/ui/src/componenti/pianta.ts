@@ -296,7 +296,8 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     this.vista = limitaVista({ ...this.vista, tc: tc - giri * 360 }, this.pittore.larghezzaRegione, this.pittore.larghezzaUtile);
   }
 
-  private ridisegna(): void {
+  /** Ridisegna la Pianta al prossimo fotogramma (es. dopo un cambio di impostazioni). */
+  ridisegna(): void {
     if (this.richiesta) return;
     this.richiesta = requestAnimationFrame(() => {
       this.richiesta = 0;

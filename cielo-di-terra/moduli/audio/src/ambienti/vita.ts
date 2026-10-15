@@ -187,7 +187,7 @@ export class StratoFauna extends Strato {
       const pan = this.c.panner(pos, PROFILO_UCCELLO);
       const mandata = kit.guadagno(0.12);
       pan.connect(mandata).connect(this.c.riverbero);
-      const fine = canto(kit, pan, te, noteCanto(specie, r), (lontano ? 0.5 : 0.28) * tra(r, 0.6, 1));
+      const fine = canto(kit, pan, te, noteCanto(specie, r), (lontano ? 0.55 : 0.35) * tra(r, 0.6, 1));
       pulisciA(kit, fine, [pan, mandata]);
     }
     for (const te of this.pGrilli.eventi(da, a, 0.35 * p.fauna.grilli)) {

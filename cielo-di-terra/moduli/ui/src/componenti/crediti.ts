@@ -103,7 +103,7 @@ export class Crediti extends Componente<EventiCrediti> {
           ),
         ),
       ),
-      dati.dedica ? h('p', { class: 'ui-cr-dedica' }, dati.dedica) : null,
+      ...(dati.dedica ? [h('p', { class: 'ui-cr-dedica' }, dati.dedica)] : []),
     );
     this.rotolo.scrollTop = 0;
     this.posizione = 0;

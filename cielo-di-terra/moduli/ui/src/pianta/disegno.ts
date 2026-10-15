@@ -85,9 +85,9 @@ export class PittorePianta {
   private dati: DatiPianta = { capisaldi: [] };
   private fasce: readonly FasciaPianta[] = FASCE_VERBANO;
   private maschere: { matita: HTMLCanvasElement; colore: HTMLCanvasElement; cambiate: HTMLCanvasElement } | null = null;
-  private contornoMatita = new Float32Array(0);
-  private contornoInchiostro = new Float32Array(0);
-  private contornoCambiate = new Float32Array(0);
+  private contornoMatita: Float32Array = new Float32Array(0);
+  private contornoInchiostro: Float32Array = new Float32Array(0);
+  private contornoCambiate: Float32Array = new Float32Array(0);
   private strato: HTMLCanvasElement = nuovoCanvas(1, 1);
   private readonly motivi: { carta: CanvasPattern | null; tratteggio: CanvasPattern | null; rosso: CanvasPattern | null; tappo: CanvasPattern | null; grana: CanvasPattern | null };
   private dpr = 1;
