@@ -58,7 +58,7 @@ export function costruisciCella(materiale: Material, colliders: ColliderWorld): 
       // u lungo la parete, v verso l'esterno (v = mezzo − sp/2)
       return [u * Math.cos(r) + v * Math.sin(r), -u * Math.sin(r) + v * Math.cos(r)];
     };
-    const v = mezzo - sp / 2;
+    const v = mezzo - sp / 2 - 0.03;
     for (const [u0, u1] of pezzi) {
       const [e, n] = lungo((u0 + u1) / 2, v);
       A.scatola(b, e, n, y0, u1 - u0, yTetto - y0 + 0.2, sp, CALCE, 0, ruota + 0);
