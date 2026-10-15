@@ -195,7 +195,20 @@ async function foto(nome, prepara) {
     g.ensureLoaded();
     g.render();
   });
-  await attendi(450); // transizioni dell'interfaccia (carte, lente, velature)
+  // transizioni dell'interfaccia (carte, dialoghi, lente, velature): si aspetta che finiscano
+  await attendi(150);
+  await page
+    .waitForFunction(
+      () =>
+        document.getAnimations().every((a) => {
+          const it = a.effect?.getTiming().iterations;
+          return a.playState !== 'running' || it === Infinity;
+        }),
+      null,
+      { timeout: 3000, polling: 100 },
+    )
+    .catch(() => log(`  (animazioni ancora in corso per ${nome})`));
+  await attendi(200);
   await page.screenshot({ path: join(cartellaFoto, `${nome}.png`) });
   log(`  📷 ${nome}.png`);
 }
@@ -437,7 +450,8 @@ async function main() {
     await vai('passerella_messo');
     await avanza(1.5);
     await verifica('variante:E1=Abitata', 'Ottavio ha buttato le assi sul riale');
-    await vai('fienile_ottavio');
+    // al fienile dalla parte della porta (il centro del luogo è dentro il fienile)
+    await avvicina('fienile', 1.2);
     await avanza(1);
     await verifica('passo:m1_fienile completato', 'al fienile');
 
