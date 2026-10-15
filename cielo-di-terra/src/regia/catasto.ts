@@ -22,6 +22,7 @@ import {
   sincronizzaMondo,
   type Bersaglio as BersaglioCatasto,
   type DatiPiantaCatasto,
+  type EventoCatasto,
   type EsitoVisibilita,
   type FunzioneVisibilita,
   type OggettiVarianti,
@@ -110,6 +111,8 @@ export class CatastoGioco {
   readonly regole: RegoleCatasto;
   catasto: Catasto;
   private stacca: (() => void) | null = null;
+  private staccaEventi: (() => void) | null = null;
+  private ascoltatori: ((e: EventoCatasto) => void)[] = [];
   private ultimaCella = -1;
   private ultimoMinutoNotte = -1;
   private mosseAnnunciate = -1;
@@ -137,16 +140,24 @@ export class CatastoGioco {
     this.collega();
   }
 
+  /** Ascolta gli eventi del catasto (resta valido anche quando il catasto si ricrea o si carica). */
+  onEvento(fn: (e: EventoCatasto) => void): () => void {
+    this.ascoltatori.push(fn);
+    return () => (this.ascoltatori = this.ascoltatori.filter((f) => f !== fn));
+  }
+
   private collega(): void {
     this.stacca?.();
+    this.staccaEventi?.();
+    this.staccaEventi = this.catasto.on('*', (e) => {
+      for (const f of this.ascoltatori) f(e);
+    });
     this.stacca = collegaAlMondo(this.catasto, { setCellState: (id, s) => this.world.setCellState(id, s), revealCells: (ids, o) => this.world.revealCells(ids, o) }, this.oggetti);
     sincronizzaMondo(this.catasto.stato, { setCellState: (id, s) => this.world.setCellState(id, s), revealCells: () => {} });
     for (const e of this.regole.elementi.keys()) this.oggetti.mostraVariante(e, this.catasto.variante(e) ?? 'Carta', { mostra: [], nascondi: [] });
     this.ultimaCella = -1;
     this.ultimoMinutoNotte = -1;
   }
-
-  on: Catasto['on'] = ((tipo: string, fn: (e: never) => void) => this.catasto.on(tipo as never, fn as never)) as Catasto['on'];
 
   private dopo(r: RisultatoCatasto | { effetti: string[] }): void {
     if (r.effetti.length) this.effetti(r.effetti);

@@ -12,6 +12,6 @@ export { Luoghi, quotaLuogo, dentroLuogo, posizioneLuogo } from './luoghi';
 export { Interazioni, punteggio, type Bersaglio, type StatoInterazione } from './interazioni';
 export { Sguardi, guardaPunto, elevazione, type ControlloSguardo } from './sguardo';
 export { Corpo, SOGLIA_FIATO, type EventoCorpo, type PassoCorpo } from './corpo';
-export { RilievoProvvisorio, notteDi } from './provvisori/rilievo';
-export type { PortaRilievo, PortaPopolamento, EsitoCollimazione, Resoconto, SegnaleNotte, StatoCella, CambioCelle, CambioVariante } from './porte';
+export { CatastoGioco, creaLineaLibera, dentroCollisore, posizioniCapisaldi, type ContestoTempo } from './catasto';
+export type { PortaPopolamento } from './porte';
 export { installaDebugRegia, type DebugRegia } from './debug';

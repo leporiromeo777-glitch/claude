@@ -76,7 +76,7 @@ export class Segnaposto implements PortaPopolamento {
     return [...this.punti.keys()];
   }
 
-  mostraVariante(elemento: string, variante: string): void {
+  mostraVariante(elemento: string, variante: string, _pezzi?: { mostra: string[]; nascondi: string[] }): void {
     const m = this.varianti.get(elemento);
     if (!m) return;
     for (const [id, o] of m) o.visible = id === variante;

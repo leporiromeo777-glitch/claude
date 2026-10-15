@@ -233,7 +233,6 @@ export class Regia implements SistemaGioco {
   /** Crea narrativa e catasto nuovi (partita nuova o prima di un caricamento). */
   private nuovoMondo(): void {
     for (const s of this.staccaNarrativa) s();
-    for (const s of this.staccaRilievo) s();
     const fatti: WorldFacts = {
       ora: () => this.orologio.ore,
       giorno: () => this.orologio.giorno,
@@ -606,10 +605,6 @@ export class Regia implements SistemaGioco {
       flag: () => Object.keys(this.narrativa.flag.tutti()).filter((f) => this.narrativa.flag.vero(f)),
     });
     if (attraversa(iv, 5.5).length) this.salvaTra = 2;
-  }
-
-  private inRifugio(): boolean {
-    return this.luoghiQui.has('fienile_ottavio') || this.interno === 'cripta' || (this.narrativa.flag.vero('dorme_casa_velo') && this.luoghiQui.has('casa_del_velo'));
   }
 
   /** Dormire fino a `ore` (effetto «dormi:fino», o il letto di un rifugio). */

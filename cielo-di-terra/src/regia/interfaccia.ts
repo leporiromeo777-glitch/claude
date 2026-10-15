@@ -10,11 +10,9 @@
  */
 import {
   aspettoDaPersonaggio,
-  capisaldiDaContenuti,
   cartaDaLeggenda,
   cartaDaTesto,
   grigliaDaParticelle,
-  latiDaContenuti,
   librettoDaTesti,
   luoghiDaContenuti,
   taccuinoDaContenuti,
@@ -28,8 +26,6 @@ import {
 } from '../ui';
 import { riempiSegnaposto } from '../narrativa';
 import {
-  CAPISALDI_JSON,
-  LATI,
   LUOGHI,
   PARTICELLE_AREA,
   TACCUINO,
@@ -39,6 +35,7 @@ import {
   suggerimento as trovaSuggerimento,
   testo as trovaTesto,
 } from './contenuti';
+import type { Resoconto } from '../rilievo';
 import type { Regia } from './regia';
 
 /** Nomi dei comandi per i segnaposto dei suggerimenti di testi.json. */
@@ -121,6 +118,7 @@ export class PonteInterfaccia {
     });
     this.ui.taccuino.on('nascosto', () => {
       for (const v of this.r.narrativa.taccuino.voci()) this.vociViste.add(v.id);
+      for (const v of this.righeResoconto) this.vociViste.add(v.id);
     });
     this.ui.taccuino.on('leggi', (id) => {
       const voce = id.split('.').pop() ?? id;
@@ -129,7 +127,7 @@ export class PonteInterfaccia {
     this.ui.pianta.on('mostrato', () => this.r.flag('pianta_aperta'));
     this.ui.pianta.on('punto', (p) => {
       const cella = this.r.game.world.cellAt(p.z, p.theta);
-      if (this.r.rilievo.rilevataDa(cella) === 'G4') this.r.flag('pianta_g4_guardata');
+      if (this.r.catasto.catasto.info(cella).firme.includes('G4')) this.r.flag('pianta_g4_guardata');
     });
   }
 
@@ -287,48 +285,56 @@ export class PonteInterfaccia {
 
   datiTaccuino(): DatiTaccuino | undefined {
     const voci = this.r.narrativa.taccuino.voci();
-    return taccuinoDaContenuti(TACCUINO as unknown as TaccuinoJson, {
+    const d = taccuinoDaContenuti(TACCUINO as unknown as TaccuinoJson, {
       voci: voci.map((v) => v.id),
       nuove: voci.filter((v) => !this.vociViste.has(v.id)).map((v) => v.id),
       chiuse: voci.filter((v) => v.chiusa).map((v) => v.id),
       prossimoEvento: this.rigaCielo(),
     });
+    // il resoconto del mattino (finché è mattino), in testa agli appunti
+    if (this.r.resocontoVisibile() && this.righeResoconto.length) {
+      d.note = [...this.righeResoconto.map((x) => ({ id: x.id, testo: `Stanotte — ${x.testo}`, mano: 'tecnica' as const, nuova: !this.vociViste.has(x.id) })), ...(d.note ?? [])];
+    }
+    return d;
   }
 
   datiPianta(): DatiPianta | undefined {
     const r = this.r;
-    const g = r.game;
-    const res = r.resocontoVisibile();
-    const stati = new Map<number, 'bianco' | 'matita' | 'colore'>();
-    for (const p of PARTICELLE_AREA) stati.set(p.id, r.rilievo.statoCella(p.id));
-    const area = grigliaDaParticelle(PARTICELLE_AREA as unknown as ParticellaFadeJson[], { stati, cambiate: res?.cambiate ?? [] });
-    // fuori dall'area: lo stato del motore
-    const st = new Uint8Array(g.world.cells.state);
-    const inArea = new Set(PARTICELLE_AREA.map((p) => p.id));
-    for (let i = 0; i < st.length; i++) if (inArea.has(i)) st[i] = area.stati[i]!;
-    const lati = r.rilievo.latiChiusi();
-    const usati = new Set<string>();
-    for (const id of lati) {
-      const l = LATI.find((x) => x.id === id);
-      if (l) {
-        usati.add(l.a);
-        usati.add(l.b);
-      }
-    }
-    const pc = g.player.cyl;
+    const pc = r.game.player.cyl;
+    const d = r.catasto.pianta(r.orologio.giorno, r.orologio.ore);
     const luoghi = luoghiDaContenuti(LUOGHI as never);
     if (r.narrativa.valuta('passo:m1_marza completato')) {
       luoghi.push({ id: 'marze_di_casa', nome: 'Terrazza Pedrazzini — marze di casa (E. P., 2119)', z: 948, theta: 23, visibile: true } as never);
     }
     return {
-      griglia: { ...area, stati: st },
-      capisaldi: capisaldiDaContenuti(CAPISALDI_JSON as never, { rilevati: usati, visti: r.capisaldiVisti }),
-      lati: latiDaContenuti(LATI, lati),
-      ...(res ? { resoconto: { righe: res.righe, ...(res.prossimaFinestra ? { prossimaFinestra: res.prossimaFinestra } : {}) } } : {}),
+      griglia: { ...d.griglia, terreno: this.terreno() },
+      capisaldi: d.capisaldi.map((c) => ({ id: c.id, numero: c.numero, tipo: c.tipo, z: c.z, theta: c.theta, rilevato: c.rilevato, visto: c.visto, nome: c.nome })),
+      lati: d.lati.map((l) => ({ da: l.da, a: l.a })),
+      ...(d.resoconto ? { resoconto: { righe: d.resoconto.righe, ...(d.resoconto.prossimaFinestra ? { prossimaFinestra: d.resoconto.prossimaFinestra } : {}) } } : {}),
       elvira: { z: pc.z, theta: pc.theta, direzione: r.direzioneSguardo() },
       luoghi,
+      totaleParticelle: d.totaleParticelle,
     };
   }
+
+  private terrenoCache: Uint8Array | null = null;
+  /** Terreno dell'acquerello (acqua, roccia, abitato) dai tipi delle particelle dell'area. */
+  private terreno(): Uint8Array {
+    if (!this.terrenoCache) {
+      const g = grigliaDaParticelle(PARTICELLE_AREA as unknown as ParticellaFadeJson[]);
+      this.terrenoCache = Uint8Array.from(g.terreno ?? []);
+    }
+    return this.terrenoCache;
+  }
+
+  /** Il resoconto del mattino: in rosso fra le notifiche e, riga per riga, nel Taccuino. */
+  resocontoDelMattino(r: Resoconto): void {
+    this.righeResoconto = r.testo.map((t, i) => ({ id: `resoconto_${r.notte}_${i}`, testo: t }));
+    for (const riga of r.righe.filter((x) => x.colore === 'rosso')) this.notifica(riga.testo, 'rosso');
+    if (r.quieta) this.notifica(r.testo[0] ?? 'Notte quieta.');
+  }
+
+  private righeResoconto: { id: string; testo: string }[] = [];
 
   datiPausa(): { luogo?: string; quando?: string; prossimoEvento?: string } {
     const r = this.r;
