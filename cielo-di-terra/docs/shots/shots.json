@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:29:51.214Z",
+  "date": "2026-10-15T07:31:56.610Z",
   "size": [
     1280,
     720
@@ -12,6 +12,62 @@
   "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
   "shots": [
     {
+      "n": 1,
+      "file": "01-paese-mezzogiorno.png",
+      "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
+      "frames": 4,
+      "frameMs": 5,
+      "stats": {
+        "drawCalls": 71,
+        "triangles": 435608,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          3,
+          8,
+          46,
+          69
+        ],
+        "terrainTriangles": 238168,
+        "trees": 5143,
+        "treesByLod": [
+          12,
+          1572,
+          3559
+        ],
+        "colliders": 5907,
+        "lamps": 228,
+        "fps": 0,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1028,
+        "theta": 36.6,
+        "h": 38.57578660673494,
+        "r": 607.4242133932651,
+        "groundH": 38.5757866067349,
+        "heightAboveGround": 3.552713678800501e-14,
+        "gravity": 9.219587373832233,
+        "gravityG": 0.9401362722063329,
+        "velocity": [
+          2.834235061553832e-17,
+          5.296598114011388e-17,
+          0
+        ],
+        "speed": 6.007232304937943e-17,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 1028,
+          "theta": 36.6,
+          "h": 40.19578660673483
+        },
+        "hours": 12.200000000000003
+      }
+    },
+    {
       "n": 2,
       "file": "02-asse-verso-il-sordo.png",
       "title": "Lungo l'asse verso il Sordo, dagli alpeggi del Tappo Sud",
@@ -19,22 +75,22 @@
       "frameMs": 3,
       "stats": {
         "drawCalls": 115,
-        "triangles": 455400,
+        "triangles": 440252,
         "terrainChunks": 126,
         "terrainByLod": [
           5,
           12,
-          33,
-          76
+          34,
+          75
         ],
-        "terrainTriangles": 290264,
-        "trees": 5759,
+        "terrainTriangles": 291480,
+        "trees": 5143,
         "treesByLod": [
           9,
           743,
-          5007
+          4391
         ],
-        "colliders": 6523,
+        "colliders": 5907,
         "lamps": 228,
         "fps": 0,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
@@ -72,10 +128,10 @@
       "file": "03-planata-alta.png",
       "title": "In planata alta, a 50 m dall'asse, verso il lago dall'altra parte del cielo",
       "frames": 50,
-      "frameMs": 6,
+      "frameMs": 1,
       "stats": {
         "drawCalls": 70,
-        "triangles": 294872,
+        "triangles": 280164,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
@@ -84,15 +140,15 @@
           49
         ],
         "terrainTriangles": 180472,
-        "trees": 5759,
+        "trees": 5143,
         "treesByLod": [
           0,
           0,
-          5759
+          5143
         ],
-        "colliders": 6523,
+        "colliders": 5907,
         "lamps": 228,
-        "fps": 5.142857142857142,
+        "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
@@ -128,10 +184,10 @@
       "file": "04-finestra-stelle.png",
       "title": "A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro",
       "frames": 2,
-      "frameMs": 1,
+      "frameMs": 2,
       "stats": {
-        "drawCalls": 37,
-        "triangles": 306974,
+        "drawCalls": 58,
+        "triangles": 308106,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
@@ -140,15 +196,15 @@
           81
         ],
         "terrainTriangles": 159352,
-        "trees": 5759,
+        "trees": 5143,
         "treesByLod": [
           0,
-          748,
-          5011
+          760,
+          4383
         ],
-        "colliders": 6523,
+        "colliders": 5907,
         "lamps": 228,
-        "fps": 5.142857142857142,
+        "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
@@ -186,8 +242,8 @@
       "frames": 4,
       "frameMs": 1,
       "stats": {
-        "drawCalls": 61,
-        "triangles": 454236,
+        "drawCalls": 67,
+        "triangles": 438820,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -196,15 +252,15 @@
           68
         ],
         "terrainTriangles": 243832,
-        "trees": 5759,
+        "trees": 5143,
         "treesByLod": [
           11,
           1605,
-          4143
+          3527
         ],
-        "colliders": 6523,
+        "colliders": 5907,
         "lamps": 228,
-        "fps": 5.142857142857142,
+        "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
@@ -240,10 +296,10 @@
       "file": "06-matita-rivelazione.png",
       "title": "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
       "frames": 30,
-      "frameMs": 7,
+      "frameMs": 3,
       "stats": {
         "drawCalls": 50,
-        "triangles": 509534,
+        "triangles": 494386,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -252,13 +308,13 @@
           74
         ],
         "terrainTriangles": 227640,
-        "trees": 5759,
+        "trees": 5143,
         "treesByLod": [
           233,
           1201,
-          4325
+          3709
         ],
-        "colliders": 6523,
+        "colliders": 5907,
         "lamps": 228,
         "fps": 13.846153846153845,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"

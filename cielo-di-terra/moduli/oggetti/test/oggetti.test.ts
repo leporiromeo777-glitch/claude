@@ -7,6 +7,7 @@ import {
   colliderAlMondo,
   creaAbitante,
   creaBotolaCripta,
+  creaCaposaldoDaContenuto,
   creaCastagno,
   creaFada,
   creaMuroSecco,
@@ -268,6 +269,17 @@ describe('cilindro e integrazione', () => {
       if (m.userData['canale'] === 'lume') for (let i = 0; i < a.count; i++) if (a.getW(i) > 0.5) lumeConEmissione = true;
     });
     expect(lumeConEmissione).toBe(true);
+  });
+  it('creaCaposaldoDaContenuto legge le voci di capisaldi.json', () => {
+    const p4 = creaCaposaldoDaContenuto({ numero: 4, tipo: 'pilastro', altezza_segnale: 6, note: "Disco bianco e rosso su un'asta di 6 m." });
+    expect(p4.nome).toBe('pilastro');
+    expect(p4.punti['cima']!.y).toBeGreaterThan(6);
+    const c3 = creaCaposaldoDaContenuto({ numero: 3, tipo: 'chiodo', nome: 'Chiodo 3, muro della Terrazza Pedrazzini' });
+    expect(c3.collider[0]?.tag).toBe('arrampicabile');
+    const c8 = creaCaposaldoDaContenuto({ numero: 8, tipo: 'chiodo', nome: 'Chiodo 8', luogo: 'sass_messo' });
+    expect(c8.punti['chiodo']!.y).toBeGreaterThan(0.3);
+    const lontano = creaCaposaldoDaContenuto({ numero: 12, tipo: 'pilastro', altezza_segnale: 8, lume: 'permanente' });
+    expect(lontano.punti['lume']).toBeDefined();
   });
   it('Rng è deterministico', () => {
     const a = new Rng('Corbella');

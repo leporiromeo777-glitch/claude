@@ -363,11 +363,9 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
     }
   }
   // montanti verso la tela, legati con la corda
-  const montanti: Array<[THREE.Vector3, THREE.Vector3]> = [];
   for (const s of [-1, 1]) {
     const a = v(s * 0.62, yT, zT);
     const c = v(s * 1.05, 0.82, -1.15);
-    montanti.push([a, c]);
     b.aggiungi(geoCilindro(0.021, 0.024, 1, 8), { matrice: matSegmento(a.clone().add(v(0, -0.04, 0)), c), colore: mescola(legno, 0x000000, 0.1) });
     for (let k = 0; k < 5; k++) {
       b.aggiungi(geoToro(0.032, 0.006, 4, 8), { matrice: mat(a.clone().add(v(s * 0.01 * k, 0.012 * k, 0)), [Math.PI / 2 + 0.3, 0, s * 0.6]), colore: PALETTE.canapa });
@@ -433,10 +431,12 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
     });
   }
   const nappina = bn.costruisci('velo-nappina', false);
+  // la nappina pende dalla traversa, fra la mano destra e il montante: sempre in vista
   const pernoNappina = new THREE.Group();
-  const [aD, cD] = montanti[1] as [THREE.Vector3, THREE.Vector3];
-  pernoNappina.position.copy(aD.clone().lerp(cD, 0.16)).add(v(-0.03, 0, 0));
+  pernoNappina.position.set(0.47, yT - 0.025, zT);
   pernoNappina.add(nappina);
+  // nodo del cordino sulla traversa
+  b.aggiungi(geoToro(0.03, 0.007, 4, 8), { matrice: mat([0.47, yT, zT], [0, Math.PI / 2, 0]), colore: PALETTE.canapaScura });
 
   // mani sulla traversa e maniche
   const bm = new Costruttore(rng.derivato('mani'));
