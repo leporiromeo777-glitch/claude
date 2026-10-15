@@ -25,7 +25,6 @@ import { cellaAColore, cellaRilevataDaElvira, clonaStato, elementoRilevato, part
 import { dentroIntervallo, formattaOra, minuti, minutiNotte, type Ora } from './tempo';
 import type {
   Atto,
-  Cambiamento,
   DefElemento,
   DefMossa,
   EventoCatasto,
