@@ -148,7 +148,7 @@ solo motore (senza regia, per gli screenshot del motore); `?debug` statistiche; 
 ## Prove
 
 - `npm test`: 41 file, 569 test verdi (narrativa, audio, oggetti, interfaccia, rilievo, popolamento,
-  regia e motore). I test della regia (`tests/regia/`, 46) coprono orologio,
+  regia e motore). I test della regia (`tests/regia/`, 45) coprono orologio,
   luoghi, contenuti, interazioni (tenute, «premi»), sguardi, corpo (fiato, planate), «linea
   libera?» (terreno e collisori), la quota d'appoggio sui ripiani, le tappe del tempo del catasto
   (notte dormita, notte vegliata, resoconto), rilievo e salvataggio, gli orari degli abitanti e,
