@@ -2,7 +2,7 @@ import { Componente } from '../core/componente';
 import { h, s } from '../core/dom';
 import { FASCE_VERBANO, LUNGHEZZA_Z, fasciaDi, limitaVista, normalizzaGradi, scalaIntera, type Vista } from '../pianta/geometria';
 import { PittorePianta } from '../pianta/disegno';
-import type { DatiPianta, ParticellaPianta } from '../pianta/modello';
+import { nomeCatastale, type DatiPianta, type ParticellaPianta } from '../pianta/modello';
 import './pianta.css';
 
 export interface EventiPianta {
@@ -16,6 +16,8 @@ export interface OpzioniPianta {
   rosaDeiVenti?: () => boolean;
   /** Mostrare la posizione di Elvira (impostazione). */
   posizione?: () => boolean;
+  /** Matita marcata (impostazione di accessibilità). */
+  matitaMarcata?: () => boolean;
 }
 
 const NOMI_STATO = ['mai vista', 'vista con lo squadro, a matita', 'rilevata'];
@@ -33,6 +35,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
   private readonly didascalia: HTMLParagraphElement;
   private readonly rosa: HTMLDivElement;
   private readonly scalaGrafica: HTMLDivElement;
+  private readonly resoconto: HTMLDivElement;
   private readonly opz: OpzioniPianta;
   private dati: DatiPianta = { capisaldi: [] };
   private vista: Vista = { zc: LUNGHEZZA_Z / 2, tc: 45, scala: 0.4 };
@@ -78,6 +81,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     );
 
     this.rosa = h('div', { class: 'ui-pt-rosa' }, rosaDeiVenti());
+    this.resoconto = h('div', { class: 'ui-pt-resoconto', hidden: true, role: 'region', 'aria-label': 'Resoconto del mattino' });
 
     const bottone = (testo: string, etichetta: string, fn: () => void, classe = ''): HTMLButtonElement =>
       h('button', { class: `ui-bottone ui-pt-bottone ${classe}`, type: 'button', 'aria-label': etichetta, title: etichetta, onclick: fn }, testo);
@@ -112,7 +116,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
 
     this.el.append(
       h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }),
-      h('div', { class: 'ui-carta ui-pt-foglio' }, this.area, cartiglio, legenda, this.rosa, comandi, aiuto),
+      h('div', { class: 'ui-carta ui-pt-foglio' }, this.area, cartiglio, legenda, this.rosa, comandi, this.resoconto, aiuto),
     );
     this.collegaInput();
   }
@@ -223,10 +227,24 @@ export class PiantaVerbano extends Componente<EventiPianta> {
       `${capisaldi} ${capisaldi === 1 ? 'caposaldo' : 'capisaldi'}`,
     ];
     this.sottotitolo.textContent = parti.join(' · ');
+    this.disegnaResoconto();
     const dove = dati.elvira ? fasciaDi(dati.elvira.theta, dati.fasce ?? FASCE_VERBANO)?.nome : undefined;
     this.canvas.setAttribute(
       'aria-label',
       `Pianta del Verbano: ${parti.join(', ')}.${dove ? ` Elvira è in ${dove}, a ${Math.round(dati.elvira!.z)} metri dal Tappo Sud.` : ''}`,
+    );
+  }
+
+  private disegnaResoconto(): void {
+    const r = this.dati.resoconto;
+    this.resoconto.hidden = !r;
+    if (!r) return;
+    this.resoconto.replaceChildren(
+      h('h3', { class: 'ui-pt-resoconto-titolo' }, 'Stanotte'),
+      r.righe.length
+        ? h('ul', null, r.righe.map((x) => h('li', null, x)))
+        : h('p', { class: 'ui-pt-resoconto-quieta' }, 'Notte quieta.'),
+      ...(r.prossimaFinestra ? [h('p', { class: 'ui-pt-resoconto-finestra' }, r.prossimaFinestra)] : []),
     );
   }
 
@@ -306,6 +324,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
       this.pittore.disegna(this.vista, {
         posizione: this.opz.posizione ? this.opz.posizione() : true,
         contrasto: !!this.el.closest('.ui-contrasto'),
+        marcata: this.opz.matitaMarcata ? this.opz.matitaMarcata() : !!this.el.closest('.ui-matita-marcata'),
         evidenzia: this.evidenzia,
       });
       this.aggiornaScala();
@@ -341,6 +360,8 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     const p = this.pittore.particellaIn(w.z, w.theta);
     const parti: string[] = [];
     if (p?.nome && p.stato !== 'bianco') parti.push(p.nome);
+    const catasto = nomeCatastale(Math.floor(i / m.nTheta), i % m.nTheta, m.nTheta);
+    if (catasto && stato > 0) parti.push(`particella ${catasto}`);
     if (fascia) parti.push(fascia.nome);
     parti.push(`z ${Math.round(w.z).toLocaleString('it-IT')} m, θ ${Math.round(normalizzaGradi(w.theta))}°`);
     let statoTesto = NOMI_STATO[stato] ?? '';

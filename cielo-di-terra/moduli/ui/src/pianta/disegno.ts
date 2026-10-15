@@ -25,6 +25,8 @@ export const LARGHEZZA_TAPPO = 64;
 export interface OpzioniDisegno {
   posizione: boolean;
   contrasto: boolean;
+  /** Matita marcata (accessibilità): tratteggio e contorni a matita più scuri. */
+  marcata?: boolean;
   /** Id della particella sotto il mouse (ripassata). */
   evidenzia?: string | null;
 }
@@ -228,12 +230,19 @@ export class PittorePianta {
     this.disegnaReticolo(vista, W, H, tMin, tMax, xZ, yT);
     this.disegnaMaschere(vista, W, H, tMin, tMax, xZ, yT, opz);
     this.disegnaFinestre(tMin, tMax, xZ, yT);
-    this.disegnaContorni(this.contornoMatita, tMin, tMax, xZ, yT, { colore: COLORI.matita, spessore: 1, doppio: true, ampiezza: 1.1, seme: 3 });
+    this.disegnaContorni(this.contornoMatita, tMin, tMax, xZ, yT, {
+      colore: opz.marcata || opz.contrasto ? '#2f2d29' : COLORI.matita,
+      spessore: opz.marcata ? 1.7 : 1,
+      doppio: true,
+      ampiezza: 1.1,
+      seme: 3,
+    });
     this.disegnaContorni(this.contornoInchiostro, tMin, tMax, xZ, yT, { colore: COLORI.inchiostro, spessore: 1.5, doppio: false, ampiezza: 0.6, seme: 7 });
     this.disegnaContorni(this.contornoCambiate, tMin, tMax, xZ, yT, { colore: COLORI.vermiglio, spessore: 1.6, doppio: true, ampiezza: 1.2, seme: 11 });
     this.disegnaParticelle(tMin, tMax, xZ, yT, opz.evidenzia ?? null);
     this.disegnaNomiFasce(vista, W, H, tMin, tMax, xZ, yT);
     this.disegnaLuoghi(tMin, tMax, xZ, yT);
+    this.disegnaLati(tMin, tMax, xZ, yT);
     this.disegnaCapisaldi(tMin, tMax, xZ, yT);
     if (opz.posizione && this.dati.elvira) this.disegnaElvira(tMin, tMax, xZ, yT);
     ctx.restore();
@@ -278,6 +287,7 @@ export class PittorePianta {
     etichetta(x0 - larg / 2, 'Tappo Sud · a Mont', -Math.PI / 2);
     etichetta(x1 + larg / 2, 'Il Sordo · Tappo Nord · a Lag', Math.PI / 2);
     ctx.restore();
+    this.disegnaLanterna(H, xZ, larg);
   }
 
   private disegnaReticolo(vista: Vista, W: number, H: number, tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {
@@ -357,7 +367,8 @@ export class PittorePianta {
       sc.fillRect(0, 0, W, H);
       sc.globalCompositeOperation = 'destination-in';
       disegnaMaschera(sc, m.matita);
-      versaStrato(opz.contrasto ? 0.9 : 0.75);
+      versaStrato(opz.contrasto || opz.marcata ? 1 : 0.75);
+      if (opz.marcata) versaStrato(0.5);
     }
 
     // 2. Acquerello: colore morbido, grana della carta, bordi più carichi.
@@ -608,7 +619,7 @@ export class PittorePianta {
     ctx.save();
     ctx.textBaseline = 'middle';
     for (const c of this.dati.capisaldi) {
-      if (!c.rilevato) continue;
+      if (!c.rilevato && !c.visto) continue;
       for (const k of copieVisibili(c.theta, 0, tMin - 2, tMax + 2)) {
         this.simboloCaposaldo(c, xZ(c.z), yT(c.theta + k));
       }
@@ -628,17 +639,66 @@ export class PittorePianta {
     ctx.closePath();
     ctx.fillStyle = 'rgba(241, 232, 210, 0.95)';
     ctx.fill();
-    ctx.strokeStyle = COLORI.inchiostro;
+    const tinta = c.rilevato ? COLORI.inchiostro : COLORI.matita;
+    ctx.strokeStyle = tinta;
     ctx.lineWidth = pilastro ? 1.6 : 1.2;
+    if (!c.rilevato) ctx.setLineDash([2.5, 2]);
     ctx.stroke();
-    ctx.fillStyle = COLORI.inchiostro;
+    ctx.setLineDash([]);
+    ctx.fillStyle = tinta;
     ctx.beginPath();
     ctx.arc(x, y + 0.6, pilastro ? 1.8 : 1.3, 0, Math.PI * 2);
     ctx.fill();
     ctx.font = pilastro ? '600 15px "EB Garamond", serif' : '500 14px "EB Garamond", serif';
     ctx.textAlign = 'left';
-    ctx.fillStyle = COLORI.inchiostro;
+    ctx.fillStyle = tinta;
     this.testoConAlone(pilastro ? `P ${c.numero}` : String(c.numero), x + r + 3, y + 1, 'rgba(241, 232, 210, 0.9)', 3);
+  }
+
+  /** Lati rilevati: linee sottili a china fra i capisaldi (sul foglio, per la via più corta in θ). */
+  private disegnaLati(tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {
+    const lati = this.dati.lati;
+    if (!lati?.length) return;
+    const perId = new Map(this.dati.capisaldi.map((c) => [c.id, c]));
+    const { ctx } = this;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(42, 35, 28, 0.8)';
+    ctx.lineWidth = 0.9;
+    ctx.setLineDash([7, 2, 1.5, 2]);
+    for (const l of lati) {
+      const a = perId.get(l.da);
+      const b = perId.get(l.a);
+      if (!a || !b) continue;
+      const tb = a.theta + (((b.theta - a.theta + 540) % 360) - 180);
+      for (const k of copieVisibili(Math.min(a.theta, tb), Math.abs(tb - a.theta), tMin - 2, tMax + 2)) {
+        ctx.beginPath();
+        ctx.moveTo(xZ(a.z), yT(a.theta + k));
+        ctx.lineTo(xZ(b.z), yT(tb + k));
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  /** La Lanterna, sul Tappo Nord: resta un cerchietto bianco anche quando tutto è a colori. */
+  private disegnaLanterna(H: number, xZ: (z: number) => number, larg: number): void {
+    const { ctx } = this;
+    const x = xZ(LUNGHEZZA_Z) + larg / 2;
+    const y = H * 0.18;
+    ctx.save();
+    ctx.fillStyle = '#fbf7ec';
+    ctx.strokeStyle = COLORI.inchiostro;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = 'italic 500 15px "EB Garamond", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = COLORI.inchiostro;
+    this.testoConAlone('Lanterna', x, y + 12, COLORI.carta, 4);
+    ctx.restore();
   }
 
   private disegnaElvira(tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {

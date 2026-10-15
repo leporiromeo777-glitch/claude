@@ -267,3 +267,48 @@
     height: auto;
   }
 }
+
+/* Resoconto del mattino: una nota a matita rossa, sotto i comandi. */
+.ui-pt-resoconto {
+  position: absolute;
+  top: 128px;
+  right: 92px;
+  width: min(330px, 34%);
+  padding: 10px 16px 12px;
+  background: var(--grana-fine), rgba(246, 239, 222, 0.95);
+  border: 1.5px solid var(--vermiglio);
+  box-shadow: 0 2px 6px rgba(60, 40, 15, 0.18);
+  transform: rotate(0.8deg);
+  color: var(--vermiglio);
+  pointer-events: none;
+}
+.ui-pt-resoconto[hidden] {
+  display: none;
+}
+.ui-pt-resoconto-titolo {
+  margin: 0 0 4px;
+  font-family: var(--f-mano);
+  font-weight: 600;
+  font-size: calc(26px * var(--ui-scala));
+  line-height: 1.1;
+}
+.ui-pt-resoconto ul {
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: var(--t-piccolo);
+  line-height: 1.35;
+}
+.ui-pt-resoconto li + li {
+  margin-top: 3px;
+}
+.ui-pt-resoconto-quieta {
+  margin: 0;
+  font-style: italic;
+}
+.ui-pt-resoconto-finestra {
+  margin: 8px 0 0;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(166, 58, 38, 0.5);
+  font-size: var(--t-piccolo);
+  color: var(--inchiostro);
+}

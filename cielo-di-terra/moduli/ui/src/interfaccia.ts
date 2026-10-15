@@ -85,7 +85,11 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     this.titolo = new SchermataTitolo();
     this.pausa = new MenuPausa();
     this.taccuino = new Taccuino();
-    this.pianta = new PiantaVerbano({ rosaDeiVenti: () => imp.get('rosaDeiVenti'), posizione: () => imp.get('posizioneSullaPianta') });
+    this.pianta = new PiantaVerbano({
+      rosaDeiVenti: () => imp.get('rosaDeiVenti'),
+      posizione: () => imp.get('posizioneSullaPianta'),
+      matitaMarcata: () => imp.get('matitaMarcata'),
+    });
     this.lettore = new LettoreCarte();
     this.pannelloImpostazioni = new PannelloImpostazioni(imp);
     this.crediti = new Crediti();
@@ -115,7 +119,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     applicaImpostazioniVisive(this.radice, imp.all());
     imp.on('cambio', (c) => {
       applicaImpostazioniVisive(this.radice, c.tutte);
-      if ((c.chiave === 'rosaDeiVenti' || c.chiave === 'posizioneSullaPianta' || c.chiave === 'altoContrasto') && this.pianta.visible) this.pianta.ridisegna();
+      const perPianta: string[] = ['rosaDeiVenti', 'posizioneSullaPianta', 'altoContrasto', 'matitaMarcata'];
+      if (perPianta.includes(c.chiave) && this.pianta.visible) this.pianta.ridisegna();
     });
 
     this.collegaNavigazione();

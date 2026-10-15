@@ -59,9 +59,25 @@ export interface CaposaldoPianta {
   tipo?: TipoCaposaldo;
   z: number;
   theta: number;
-  /** Solo i capisaldi rilevati compaiono sulla Pianta. */
+  /** Rilevato: triangolino a china. */
   rilevato: boolean;
+  /** Trovato o visto con lo squadro ma non ancora rilevato: triangolino a matita. Gli altri non compaiono. */
+  visto?: boolean;
   nome?: string;
+}
+
+/** Un lato rilevato fra due capisaldi: una linea sottile a china. */
+export interface LatoPianta {
+  da: string;
+  a: string;
+}
+
+/** Il resoconto del mattino (GDD §3.4.8): che cosa è cambiato nella notte e perché. */
+export interface ResocontoPianta {
+  /** Una riga per cambiamento («Non misurata: tornata alla Carta», «Chiodo 141 spostato di 2 m a Sera»…). */
+  righe: string[];
+  /** La prossima finestra utile, in chiaro. */
+  prossimaFinestra?: string;
 }
 
 export interface LuogoPianta {
@@ -89,6 +105,10 @@ export interface DatiPianta {
   /** Particelle del catasto (con nome e contorno): si sommano alla griglia. */
   particelle?: ParticellaPianta[];
   capisaldi: CaposaldoPianta[];
+  /** Lati rilevati fra capisaldi. */
+  lati?: LatoPianta[];
+  /** Resoconto del mattino; se c'è, la Pianta lo mostra in rosso. Righe vuote: «Notte quieta». */
+  resoconto?: ResocontoPianta;
   elvira?: PosizionePianta;
   luoghi?: LuogoPianta[];
   /** Valli e Finestre (predefinite: quelle del Verbano). */
@@ -267,6 +287,25 @@ export class ModelloPianta {
     }
     return new Float32Array(fuori);
   }
+}
+
+/**
+ * Nome catastale di una cella di valle (GDD §2.2): «foglio-numero», con foglio 1-3 per le tre valli
+ * e numero = iz·24 + colonna dentro la valle + 1. Fuori dalle valli restituisce null.
+ * Vale per la griglia del motore (96 colonne di 3,75°).
+ */
+export function nomeCatastale(iz: number, it: number, nTheta = 96): string | null {
+  const theta = ((it + 0.5) * 360) / nTheta;
+  const valli: [number, number][] = [
+    [0, 90],
+    [120, 210],
+    [240, 330],
+  ];
+  const v = valli.findIndex(([a, b]) => theta >= a && theta < b);
+  if (v < 0) return null;
+  const colonna = Math.floor((theta - valli[v]![0]) / (360 / nTheta));
+  const perRiga = Math.round(90 / (360 / nTheta));
+  return `${v + 1}-${iz * perRiga + colonna + 1}`;
 }
 
 /** Metri di arco del foglio per tutto il giro (per comodità di chi disegna). */
