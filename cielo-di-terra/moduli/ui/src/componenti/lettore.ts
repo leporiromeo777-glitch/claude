@@ -24,8 +24,12 @@ export interface PaginaCarta {
   tabella?: [string, string][];
   /** Firma, in fondo a destra. */
   firma?: string;
-  /** Nota a margine a matita, di un'altra mano (di solito Elvira). */
+  /** Nota a margine (di chi ha scritto la carta: «(a margine) Per E.: …»). */
   margine?: string;
+  /** Nota a matita di Elvira, aggiunta dopo (es. «Il castagno accanto non c'è più»). */
+  notaElvira?: string;
+  /** Uno schizzo, descritto a parole (finché non c'è il disegno): «il campanile visto di lato, con la palina». */
+  schizzo?: string;
 }
 
 export interface Carta {
@@ -33,6 +37,8 @@ export interface Carta {
   tipo: TipoCarta;
   /** Titolo mostrato sopra il foglio e letto dai lettori di schermo (es. «Lettera di Marta»). */
   titolo: string;
+  /** Com'è fatta la carta, in una riga (es. «un foglio di carta grezza piegato in quattro…»): sotto il titolo. */
+  supporto?: string;
   pagine: PaginaCarta[];
 }
 
@@ -49,6 +55,7 @@ export interface EventiLettore {
  */
 export class LettoreCarte extends Componente<EventiLettore> {
   private readonly titolo: HTMLHeadingElement;
+  private readonly supporto: HTMLParagraphElement;
   private readonly scena: HTMLDivElement;
   private readonly contatore: HTMLSpanElement;
   private readonly bPrec: HTMLButtonElement;
@@ -60,6 +67,7 @@ export class LettoreCarte extends Componente<EventiLettore> {
   constructor() {
     super({ classe: 'ui-modale ui-lettore', modale: true, ruolo: 'dialog', etichetta: 'Carta' });
     this.titolo = h('h2', { class: 'ui-lt-titolo', id: 'ui-lt-titolo' });
+    this.supporto = h('p', { class: 'ui-lt-supporto', hidden: true });
     this.scena = h('div', { class: 'ui-lt-scena', 'aria-live': 'polite' });
     this.contatore = h('span', { class: 'ui-lt-contatore' });
     this.bPrec = h('button', { class: 'ui-bottone ui-lt-nav', type: 'button', onclick: () => this.precedente() }, h('span', { 'aria-hidden': 'true' }, '‹'), ' Pagina prima');
@@ -80,7 +88,7 @@ export class LettoreCarte extends Componente<EventiLettore> {
     this.el.removeAttribute('aria-label');
     this.el.append(
       h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }),
-      h('div', { class: 'ui-lt-cornice' }, this.titolo, this.scena, h('nav', { class: 'ui-lt-barra', 'aria-label': 'Pagine' }, this.bPrec, this.contatore, this.bSucc, this.bStampato, bChiudi)),
+      h('div', { class: 'ui-lt-cornice' }, h('header', { class: 'ui-lt-testa' }, this.titolo, this.supporto), this.scena, h('nav', { class: 'ui-lt-barra', 'aria-label': 'Pagine' }, this.bPrec, this.contatore, this.bSucc, this.bStampato, bChiudi)),
     );
     this.scena.addEventListener('click', (e) => {
       if (!this.carta || this.pagineVisibili() >= this.carta.pagine.length) return;
@@ -99,6 +107,8 @@ export class LettoreCarte extends Componente<EventiLettore> {
     this.carta = carta;
     this.indice = 0;
     this.titolo.textContent = carta.titolo;
+    this.supporto.textContent = carta.supporto ?? '';
+    this.supporto.hidden = !carta.supporto;
     this.el.dataset['tipo'] = carta.tipo;
     this.vaiA(pagina, 0);
     this.apri();
@@ -222,8 +232,19 @@ export class LettoreCarte extends Componente<EventiLettore> {
         ),
       );
     }
+    if (pag.schizzo) {
+      el.append(
+        h(
+          'figure',
+          { class: 'ui-lt-schizzo' },
+          h('span', { class: 'ui-lt-schizzo-cornice', 'aria-hidden': 'true' }),
+          h('figcaption', null, h('span', { class: 'ui-sr' }, 'Schizzo: '), nodiTesto(pag.schizzo)),
+        ),
+      );
+    }
     if (pag.firma) el.append(h('p', { class: 'ui-lt-firma' }, pag.firma));
-    if (pag.margine) el.append(h('aside', { class: 'ui-lt-margine', 'aria-label': 'Nota a margine' }, nodiTesto(pag.margine)));
+    if (pag.margine) el.append(h('aside', { class: 'ui-lt-margine ui-lt-margine--autore', 'aria-label': 'Nota a margine' }, nodiTesto(pag.margine)));
+    if (pag.notaElvira) el.append(h('aside', { class: 'ui-lt-margine', 'aria-label': 'Nota di Elvira, a matita' }, nodiTesto(pag.notaElvira)));
     if (carta.tipo === 'libretto') el.append(h('span', { class: 'ui-lt-numero', 'aria-hidden': 'true' }, String(n + 1)));
     if (carta.tipo === 'cartellino') el.append(h('span', { class: 'ui-lt-foro', 'aria-hidden': 'true' }));
     return el;

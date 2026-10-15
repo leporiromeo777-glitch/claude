@@ -178,7 +178,7 @@
     }
    ],
    "via_necessaria": false,
-   "note": "Ogni notte perde un muro (avanza di uno stadio verso la Carta). Secondaria «La casa che non c'è»: poggia sul pozzo d'aria dell'Archivio. Il lato 1-8 la chiude."
+   "note": "Ogni notte perde un muro (avanza di uno stadio verso la Carta). Secondaria «La casa che non c'è»: poggia sul pozzo d'aria dell'Archivio. La chiudono i lati 1-8 e 8-11."
   },
   {
    "id": "E3",
@@ -216,7 +216,7 @@
    ],
    "via_necessaria": false,
    "legato_a": "E2",
-   "note": "Le stesse pietre vanno di giorno nella casa e di notte nel muro. Se il muro è rilevato, le Fade lasciano le pietre della casa in un mucchio al margine della particella. Chiuso dai lati 1-7 e 1-8."
+   "note": "Le stesse pietre vanno di giorno nella casa e di notte nel muro. Se il muro è rilevato, le Fade lasciano le pietre della casa in un mucchio al margine della particella. Chiuso dai lati 1-6, 1-7, 1-8 e 8-11."
   },
   {
    "id": "E4",

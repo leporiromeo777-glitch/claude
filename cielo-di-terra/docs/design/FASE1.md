@@ -555,11 +555,12 @@ Dopo la missione 1 il mondo resta aperto. Niente di ciò che segue è necessario
 
 - La rete di Corbella chiude 16 lati. Le 63 particelle del nucleo che la rete può rilevare sono l'**inventario di Corbella** (`fade_fase1.json` → `inventario_corbella`).
 - Quando sono tutte a colore: **le campane di San Vigilio tornano a segnare l'ora** (un rintocco per ora, 06:00-21:00), primo servizio di Meridiana. Meridiana dall'altoparlante: «Corbella è in carta. Le ore sono tue, Giardiniera.»
-- Il lato 1-8 chiude anche la casa di Nando: da quel giorno la casa resta intera e Nando lo dice a tutti («La Svegliata mi ha benedetto la casa»). È la premessa della secondaria «La casa che non c'è» (Fase 5), che ne mostrerà il costo. Il flag è `casa_nando_rilevata`.
-- I lati 1-7 e 1-8 chiudono il muro di Ronco: da quel momento le Fade non rimettono più le pietre nel muro, e lasciano quelle della casa di Nando in un mucchio al margine. Nando: «Adesso le pietre dormono per terra. Meglio per la schiena.»
+- I lati 1-8 e 8-11 chiudono anche la casa di Nando: da quel giorno la casa resta intera e Nando lo dice a tutti («La Svegliata mi ha benedetto la casa»). È la premessa della secondaria «La casa che non c'è» (Fase 5), che ne mostrerà il costo. Il flag è `casa_nando_rilevata`.
+- I lati 1-6, 1-7, 1-8 e 8-11 chiudono il muro di Ronco: da quel momento le Fade non rimettono più le pietre nel muro, e lasciano quelle della casa di Nando in un mucchio al margine. Nando: «Adesso le pietre dormono per terra. Meglio per la schiena.»
 
 ### 7.2 Il Balcone dei Messi e l'altra valle
 
+- Dal giorno 4, dalle 06:30 alle 09:00, Ottavio aspetta Elvira al Balcone per la lezione promessa (`d_ottavio_balcone`); in qualunque altro momento, parlandogli, dà consigli sul gioco libero (`d_ottavio_consigli`).
 - Il **sentiero dei nastri verdi** parte dal Pian dei Ricci (800, 9,0) e sale lungo la cresta a Sera fino al lobo del Tappo Sud, dentro il Collare (varco a h 294), fino al **Balcone dei Messi** (110, 30, 449), a 0,3 g. Circa 8 minuti di salita: i salti si allungano, le cadute rallentano.
 - Dal Balcone, con il Velo aperto e la nappina che pende, ci si lancia **verso l'altra valle**: 60-90 s di volo attraverso il cielo, il capovolgimento lento, l'atterraggio nel Verbanetto o negli Alpeggi.
 - **Le altre valli nella Fase 1** restano **a matita anche da vicino**: è un limite di produzione della Fase 1 (i materiali dipinti delle valli 2 e 3 arrivano nelle fasi 2 e 4), che il gioco presenta così: il mondo è un foglio ancora da colorare. I segnali vivi restano a colori: le vele rosse, la lanterna della Torre dei Bugni, il faro dell'Isola dei Conigli, il fumo della cascina degli Alpeggi. I capisaldi delle altre valli non si possono rilevare: le pagine del libretto per quelle valli sono incollate dall'umidità («Le scollerò con il vapore», scrive Elvira).
@@ -567,7 +568,11 @@ Dopo la missione 1 il mondo resta aperto. Niente di ciò che segue è necessario
 - Il **Cancello dei Pellegrini** sulla Finestra dei Ponti (1500, 88,5) è chiuso con una catena e un cartello: «Per ordine della Madre: nei giorni della Sorella la Notte non si attraversa.»
 - Per **tornare a Corbella**: si risale un Tappo e si ricade, oppure si cammina sul lobo del Tappo Sud attorno al Mozzo, in alto, dove i tre lobi si uniscono.
 
-### 7.3 La notte nel gioco libero
+### 7.3 La Bacheca delle Ore
+
+Ogni giorno la Bacheca cambia (`testi.json → scritte.bacheca_giorno_1/2/3`): avvisi del paese, le notizie del Messo, e il terzo giorno una riga sulla passerella («La passerella del Messo stamattina c'era.» e sotto, di un'altra mano: «Benedetta da chi?»). Il paese reagisce a ciò che fa Elvira.
+
+### 7.4 La notte nel gioco libero
 
 - Ogni notte ripete le regole di `fade_fase1.json` (notte 2 come modello): ciò che non è misurato fa il suo giro.
 - Dal fienile o dal campanile, di notte, si vedono i **lumi lontani** (`capisaldi.json` → `lontani_di_notte`): il faro dell'Isola dei Conigli, la lanterna della Torre dei Bugni, il lumino della croce d'alpe, il lumino della nicchia del Ponte di Mezzo e, dalle 23:00 alle 02:00, una lanterna che cammina sulla Finestra delle Vedove (Tecla). Si possono appuntare: diventano matita sulla Pianta e una nota nel Taccuino (`i_lumi_lontani`). Rilevare attraverso il cielo arriva nella Fase 3.

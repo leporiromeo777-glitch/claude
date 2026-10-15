@@ -18,6 +18,8 @@ export interface BattutaDialogo {
   chi: string;
   /** Come appare, in breve: i personaggi sono velati e non hanno ritratti. */
   aspetto?: string;
+  /** Didascalia di scena prima della battuta, in corsivo (es. «Tre rintocchi da San Vigilio…»). */
+  didascalia?: string;
   /** Testo della battuta (markup: [[tecnica|locale]], *corsivo*). */
   testo: string;
   /** Risposte di Elvira; se mancano, la battuta si chiude con Invio/clic («avanti»). */
@@ -61,6 +63,7 @@ export class FinestraDialogo extends Componente<EventiDialogo> {
   private readonly nome: HTMLSpanElement;
   private readonly aspetto: HTMLSpanElement;
   private readonly testo: HTMLDivElement;
+  private readonly didascalia: HTMLParagraphElement;
   private readonly testoSr: HTMLDivElement;
   private readonly risposte: HTMLOListElement;
   private readonly aiuto: HTMLParagraphElement;
@@ -95,6 +98,7 @@ export class FinestraDialogo extends Componente<EventiDialogo> {
       h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, 'H'),
     );
     this.testo = h('div', { class: 'ui-dlg-testo', 'aria-hidden': 'true' });
+    this.didascalia = h('p', { class: 'ui-dlg-didascalia', hidden: true });
     this.testoSr = h('div', { class: 'ui-sr', 'aria-live': 'polite' });
     this.risposte = h('ol', { class: 'ui-dlg-risposte', 'aria-label': 'Risposte' });
     this.aiuto = h('p', { class: 'ui-dlg-aiuto' });
@@ -103,6 +107,7 @@ export class FinestraDialogo extends Componente<EventiDialogo> {
       'div',
       { class: 'ui-carta ui-dlg-box', tabindex: -1 },
       h('header', { class: 'ui-dlg-testa' }, h('div', { class: 'ui-dlg-chi' }, this.nome, this.aspetto), this.bStorico),
+      this.didascalia,
       this.testo,
       this.testoSr,
       this.risposte,
@@ -133,7 +138,9 @@ export class FinestraDialogo extends Componente<EventiDialogo> {
     this.aspetto.textContent = battuta.aspetto ?? '';
     this.aspetto.hidden = !battuta.aspetto;
     this.el.setAttribute('aria-label', `Dialogo con ${battuta.chi}`);
-    this.testoSr.textContent = `${battuta.chi}: ${testoSemplice(battuta.testo)}`;
+    this.didascalia.replaceChildren(nodiTesto(battuta.didascalia ?? ''));
+    this.didascalia.hidden = !battuta.didascalia;
+    this.testoSr.textContent = `${battuta.didascalia ? `${testoSemplice(battuta.didascalia)} ` : ''}${battuta.chi}: ${testoSemplice(battuta.testo)}`;
     this.preparaTesto(battuta.testo);
     svuota(this.risposte);
     this.risposte.hidden = true;

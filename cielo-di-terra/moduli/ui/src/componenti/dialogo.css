@@ -63,6 +63,13 @@
   padding: 0.1em 0.5em;
   font-size: var(--t-piccolo);
 }
+.ui-dlg-didascalia {
+  margin: 0 0 0.45em;
+  font-style: italic;
+  font-size: var(--t-base);
+  line-height: 1.4;
+  color: var(--matita);
+}
 .ui-dlg-testo {
   min-height: 3.1em;
   font-size: calc(23px * var(--ui-scala));

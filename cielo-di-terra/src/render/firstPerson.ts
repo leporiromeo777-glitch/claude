@@ -8,7 +8,7 @@
  */
 import { BufferAttribute, BufferGeometry, Group, Matrix4, Mesh, PerspectiveCamera, Scene, ShaderMaterial, Vector3 } from 'three';
 import { GeomBuilder, PRIMS } from './geomBuilder';
-import { PALETTE, type RGB } from './palette';
+import type { RGB } from './palette';
 
 const _t = new Matrix4();
 const _v = new Vector3();
@@ -72,8 +72,9 @@ export class FirstPersonVelo {
           float b = floor(ndl * 3.0) / 3.0;
           b = mix(ndl, b + smoothstep(0.4, 0.6, fract(ndl * 3.0)) / 3.0, 0.7);
           vec3 col = vC.rgb * (uAmb * 0.75 + uSun * uSunI * b * 0.7);
-          // tela: cuciture e trama
+          // tela: controluce della Linea, cuciture e trama
           if (vC.a > 0.5) {
+            col = vC.rgb * (uAmb * 0.55 + uSun * uSunI * 0.62);
             float st = step(0.92, fract((vP.x + vP.z) * 9.0)) * step(0.5, fract(vP.y * 30.0));
             col *= 1.0 - st * 0.25;
             col *= 0.95 + 0.1 * hash(floor(vP.xy * 160.0));
@@ -84,54 +85,69 @@ export class FirstPersonVelo {
     });
 
     const b = new GeomBuilder();
-    const wood = PALETTE.wood;
-    const glove: RGB = [0.36, 0.24, 0.16];
-    const sleeve: RGB = [0.33, 0.4, 0.27];
-    const barY = -0.3;
-    const barZ = -0.52;
-    // traversa
-    cylinderBetween(b, new Vector3(-0.55, barY, barZ), new Vector3(0.55, barY, barZ), 0.024, wood);
-    // fasciature di cuoio sulla traversa
-    for (const x of [-0.08, 0.08]) {
-      _t.makeTranslation(x, barY, barZ).multiply(new Matrix4().makeRotationZ(Math.PI / 2)).scale(_v.set(0.03, 0.06, 0.03)).multiply(new Matrix4().makeTranslation(0, -0.5, 0));
-      b.add(PRIMS.cylinder(8), _t.clone(), [0.45, 0.3, 0.18]);
-    }
-    // guanti e maniche
+    const wood: RGB = [0.5, 0.34, 0.2];
+    const glove: RGB = [0.4, 0.27, 0.17];
+    const sleeve: RGB = [0.36, 0.43, 0.29];
+    const barY = -0.42;
+    const barZ = -0.56;
+    // traversa sottile
+    cylinderBetween(b, new Vector3(-0.46, barY, barZ), new Vector3(0.46, barY, barZ), 0.013, wood);
+    // fasciature di cuoio
+    for (const x of [-0.07, 0.07]) cylinderBetween(b, new Vector3(x - 0.02, barY, barZ), new Vector3(x + 0.02, barY, barZ), 0.017, [0.48, 0.32, 0.19]);
+    // guanti: palmo allungato e dita chiuse sulla traversa, polso e manica verso gli angoli in basso
     for (const s of [-1, 1]) {
-      _t.makeTranslation(s * 0.22, barY + 0.005, barZ + 0.01).scale(_v.set(0.1, 0.075, 0.1));
-      b.add(PRIMS.blob(1), _t.clone(), glove);
-      cylinderBetween(b, new Vector3(s * 0.24, barY - 0.03, barZ + 0.06), new Vector3(s * 0.42, barY - 0.32, barZ + 0.42), 0.075, sleeve);
-      cylinderBetween(b, new Vector3(s * 0.235, barY - 0.02, barZ + 0.05), new Vector3(s * 0.27, barY - 0.08, barZ + 0.12), 0.06, glove);
+      _t.makeTranslation(s * 0.2, barY + 0.012, barZ + 0.022).multiply(new Matrix4().makeRotationZ(s * 0.25)).scale(_v.set(0.05, 0.032, 0.055));
+      b.add(PRIMS.blob(2), _t.clone(), glove);
+      _t.makeTranslation(s * 0.2, barY - 0.004, barZ - 0.012).scale(_v.set(0.045, 0.02, 0.024));
+      b.add(PRIMS.blob(2), _t.clone(), [0.36, 0.24, 0.15]);
+      cylinderBetween(b, new Vector3(s * 0.205, barY - 0.01, barZ + 0.05), new Vector3(s * 0.25, barY - 0.07, barZ + 0.13), 0.032, glove);
+      cylinderBetween(b, new Vector3(s * 0.25, barY - 0.07, barZ + 0.13), new Vector3(s * 0.36, barY - 0.3, barZ + 0.42), 0.05, sleeve);
     }
-    // montanti verso la tela
-    const topL = new Vector3(-0.95, 0.62, -1.05);
-    const topR = new Vector3(0.95, 0.62, -1.05);
-    cylinderBetween(b, new Vector3(-0.5, barY, barZ), topL, 0.018, wood);
-    cylinderBetween(b, new Vector3(0.5, barY, barZ), topR, 0.018, wood);
+    // montanti corti che salgono verso gli angoli alti dello schermo
+    const topL = new Vector3(-0.86, 0.5, -1.0);
+    const topR = new Vector3(0.86, 0.5, -1.0);
+    cylinderBetween(b, new Vector3(-0.44, barY, barZ), topL, 0.011, wood);
+    cylinderBetween(b, new Vector3(0.44, barY, barZ), topR, 0.011, wood);
     const frame = b.build();
     const frameMesh = new Mesh(frame, mat);
     this.rig.add(frameMesh);
 
-    // tela: bordo inferiore visibile in alto, leggermente incurvato
+    // tela: visibile in alto, soprattutto agli angoli dove arrivano i montanti
     const cloth = new BufferGeometry();
     const cp: number[] = [];
     const cc: number[] = [];
     const cn: number[] = [];
-    const segs = 12;
+    const segs = 16;
+    const edgeY = (x: number) => 0.68 - 0.2 * Math.pow(Math.min(1, Math.abs(x) / 0.9), 2);
     for (let i = 0; i < segs; i++) {
-      const x0 = -1.25 + (2.5 * i) / segs;
-      const x1 = -1.25 + (2.5 * (i + 1)) / segs;
-      const sag = (x: number) => 0.62 + 0.05 * (1 - (x / 1.25) ** 2);
+      const x0 = -1.3 + (2.6 * i) / segs;
+      const x1 = -1.3 + (2.6 * (i + 1)) / segs;
       const quad = [
-        [x0, sag(x0), -1.06],
-        [x1, sag(x1), -1.06],
-        [x1 * 1.1, 1.1, -0.75],
-        [x0 * 1.1, 1.1, -0.75],
+        [x0, edgeY(x0), -1.02],
+        [x1, edgeY(x1), -1.02],
+        [x1 * 1.15, 1.25, -0.8],
+        [x0 * 1.15, 1.25, -0.8],
       ];
       for (const k of [0, 1, 2, 0, 2, 3]) {
         cp.push(...(quad[k] as [number, number, number]));
-        cc.push(0.93, 0.88, 0.76, 1);
-        cn.push(0, -0.6, 0.8);
+        cc.push(0.96, 0.91, 0.79, 1);
+        cn.push(0, -0.75, 0.66);
+      }
+    }
+    // orlo cucito, più scuro
+    for (let i = 0; i < segs; i++) {
+      const x0 = -1.3 + (2.6 * i) / segs;
+      const x1 = -1.3 + (2.6 * (i + 1)) / segs;
+      const quad = [
+        [x0, edgeY(x0) - 0.012, -1.019],
+        [x1, edgeY(x1) - 0.012, -1.019],
+        [x1, edgeY(x1) + 0.012, -1.019],
+        [x0, edgeY(x0) + 0.012, -1.019],
+      ];
+      for (const k of [0, 1, 2, 0, 2, 3]) {
+        cp.push(...(quad[k] as [number, number, number]));
+        cc.push(0.78, 0.7, 0.55, 0);
+        cn.push(0, -0.3, 1);
       }
     }
     cloth.setAttribute('position', new BufferAttribute(new Float32Array(cp), 3));
@@ -140,16 +156,16 @@ export class FirstPersonVelo {
     const clothMesh = new Mesh(cloth, mat);
     this.rig.add(clothMesh);
 
-    // nappina: cordino + fiocco rosso, perno sul montante destro
+    // nappina: cordino + fiocco rosso, appesa al montante destro
     const tb = new GeomBuilder();
-    cylinderBetween(tb, new Vector3(0, 0, 0), new Vector3(0, -0.16, 0), 0.004, [0.5, 0.15, 0.1]);
-    _t.makeTranslation(0, -0.16, 0).scale(_v.set(0.018, 0.018, 0.018));
+    cylinderBetween(tb, new Vector3(0, 0, 0), new Vector3(0, -0.12, 0), 0.003, [0.5, 0.15, 0.1]);
+    _t.makeTranslation(0, -0.12, 0).scale(_v.set(0.013, 0.013, 0.013));
     tb.add(PRIMS.blob(1), _t.clone(), [0.62, 0.18, 0.12]);
-    _t.makeTranslation(0, -0.27, 0).multiply(new Matrix4().makeRotationX(Math.PI)).scale(_v.set(0.03, 0.11, 0.03)).multiply(new Matrix4().makeTranslation(0, -0.5, 0));
-    tb.add(PRIMS.frustum(0.2, 8), _t.clone(), [0.74, 0.2, 0.13]);
+    _t.makeTranslation(0, -0.2, 0).multiply(new Matrix4().makeRotationX(Math.PI)).scale(_v.set(0.022, 0.085, 0.022)).multiply(new Matrix4().makeTranslation(0, -0.5, 0));
+    tb.add(PRIMS.frustum(0.25, 8), _t.clone(), [0.78, 0.2, 0.13]);
     const tasselMesh = new Mesh(tb.build(), mat);
     this.tassel.add(tasselMesh);
-    this.tassel.position.set(0.66, 0.02, -0.72);
+    this.tassel.position.set(0.6, 0.1, -0.79);
     this.rig.add(this.tassel);
 
     this.scene.add(this.rig);
