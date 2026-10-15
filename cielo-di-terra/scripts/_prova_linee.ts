@@ -29,3 +29,20 @@ for (const l of LATI) {
   const r2 = ll({ id: b.id, z: b.z, theta: b.theta, altezza: b.altezza }, { id: a.id, z: a.z, theta: a.theta, altezza: a.altezza, altezzaSegnale: a.altezza_segnale }, { scopo: 'lato', ora: 600 });
   console.log(l.id.padEnd(5), l.chiudibile ? 'chiudibile' : 'bloccato  ', `${l.a}->${l.b}:`, JSON.stringify(r1), ` ${l.b}->${l.a}:`, JSON.stringify(r2));
 }
+import { worldToCyl } from '../src/world/cylinder';
+import { groundHeight } from '../src/world/terrain';
+import { Vector3 } from 'three';
+for (const [x, y] of [['cs_1', 'cs_4'], ['cs_3', 'cs_4'], ['cs_3', 'cs_11'], ['cs_4', 'cs_37'], ['cs_11', 'cs_3']]) {
+  const a = def(x!), b = def(y!);
+  const o = pos.occhio({ id: a.id, z: a.z, theta: a.theta, altezza: a.altezza });
+  const s = pos.segnale({ id: b.id, z: b.z, theta: b.theta, altezza: b.altezza });
+  const d = o.distanceTo(s);
+  let peggio = 0, dove = 0;
+  for (let t = 2.5; t < d - 2.5; t += 1) {
+    const p = new Vector3().lerpVectors(o, s, t / d);
+    const c = worldToCyl(p);
+    const g = groundHeight(c.z, c.theta);
+    if (g - c.h > peggio) { peggio = g - c.h; dove = t; }
+  }
+  console.log(x, '->', y, 'dist', d.toFixed(0), 'max sotto il suolo', peggio.toFixed(1), 'm a', dove.toFixed(0), 'm');
+}
