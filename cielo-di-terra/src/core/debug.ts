@@ -26,6 +26,8 @@ export interface GameDebugApi {
   getTime(): number;
   setTimeScale(k: number): void;
   setClockRunning(on: boolean): void;
+  /** Imposta l'orologio di simulazione (s): stelle, animazioni, rivelazioni. */
+  setSimTime(t: number): void;
   setFreeCamera(on: boolean): void;
   toggleFreeCamera(): boolean;
   /** Camera libera in (z, theta, h) con yaw e pitch. */
@@ -89,6 +91,11 @@ export function installDebugApi(game: Game): GameDebugApi {
     },
     setClockRunning(on) {
       game.clock.running = on;
+    },
+    setSimTime(t) {
+      game.simTime = t;
+      game.world.time = t;
+      game.uniforms.uTime.value = t;
     },
     setFreeCamera(on) {
       game.setFreeCamera(on);
