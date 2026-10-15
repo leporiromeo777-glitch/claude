@@ -366,7 +366,7 @@
       "testo": "Tomorrow is my father's anniversary. Before eleven o'clock mass I want to speak to Don Piero, and I want Gino with me.",
       "esito": {
         "ok": "Before mass Marta spoke with Don Piero, with Gino beside her. Twenty years, and her voice still shook.",
-        "fallita": "Marta got to mass without speaking to Don Piero, or without Gino. She prayed alone.",
+        "fallita": "Marta got to mass without the moment she wanted, with both Don Piero and Gino. She prayed alone.",
         "lasciato": "Marta's note was left without a pin. She marked her father's anniversary alone, like the other years."
       }
     },
@@ -397,7 +397,7 @@
       "insonne": "I didn't sleep. Last night there was a light on the sea. A black one.",
       "anniversario2": "Requiem aeternam. A stern man, your father, Marta. But he wanted you here.",
       "partita2": "Nina runs along the Fondamenta without greeting anyone, so as not to cry.",
-      "scaduta2": "Nina puts the envelope back in her book, like a bookmark.",
+      "scaduta2": "Nina closes her schoolbook, slowly, the way you close a door.",
       "insonne2": "Zeno looks at the sea towards Chioggia, and says nothing more."
     },
     "hint": {

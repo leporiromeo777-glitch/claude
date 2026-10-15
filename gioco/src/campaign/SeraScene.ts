@@ -285,7 +285,7 @@ export class SeraScene implements Scene {
     const door = el(
       'button',
       { type: 'button', class: 'cp-porta core-solid', test: 'cp-oggetto', data: { da: arrival.from } },
-      first?.image ? spriteCanvas(this.s, first.image, 72) : svgIcon('nota', { size: 40 }),
+      first?.image ? spriteCanvas(this.s, first.image, 72) : svgIcon('foglio', { size: 40 }),
       el('span', { class: 'cp-porta-testo' }, el('span', { class: 'cp-porta-titolo', test: 'cp-sera-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })), textOf(tapKey('campaign.sera.oggettoTocca'), undefined, 'span', { className: 'cp-tenue' })),
     );
     door.addEventListener('click', () => {

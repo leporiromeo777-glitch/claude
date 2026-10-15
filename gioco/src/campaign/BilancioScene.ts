@@ -142,8 +142,17 @@ export class BilancioScene implements Scene {
     const unlocks = this.unlocksSection(r.unlocked);
     if (unlocks) parts.push(unlocks);
 
-    parts.push(...this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
-    return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
+    return this.sheet(parts, this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
+  }
+
+  /**
+   * Il foglio del bilancio: le voci scorrono in una zona loro e «Continua» sta sotto,
+   * fuori dalla zona che scorre. Così nessuna voce passa sotto «Continua»: al telefono,
+   * in inglese, la prima voce del Libro finiva a metà sotto il pulsante (residuo R2).
+   */
+  private sheet(parts: HTMLElement[], actions: { row: HTMLElement; footer: HTMLElement }): HTMLElement {
+    const body = el('div', { class: 'cp-foglio-scorre', test: 'cp-bilancio-scorre' }, ...parts, actions.row);
+    return el('article', { class: 'cp-foglio cp-foglio--piede core-solid', test: 'cp-bilancio-foglio' }, body, actions.footer);
   }
 
   /** «Nel Taccuino»: le voci nuove, toccabili (aprono il Taccuino su quella voce). */
@@ -214,10 +223,11 @@ export class BilancioScene implements Scene {
 
   /**
    * Pulsanti in fondo al foglio: "Riascolta il merletto", "Spartito" e il Taccuino in una
-   * riga; "Continua" in una riga sua che resta attaccata al bordo basso mentre si scorre
-   * (GDD 10.1: l'azione principale nel terzo inferiore, anche con molte voci nuove).
+   * riga, in fondo alle voci; "Continua" nel piede del foglio, sempre in vista sotto le
+   * voci che scorrono (GDD 10.1: l'azione principale nel terzo inferiore, anche con molte
+   * voci nuove).
    */
-  private actions(levelId: string, rows: DayReport['rows'], spartito: string, onContinue: () => void): HTMLElement[] {
+  private actions(levelId: string, rows: DayReport['rows'], spartito: string, onContinue: () => void): { row: HTMLElement; footer: HTMLElement } {
     const s = this.s;
     const replay = button({
       labelKey: 'campaign.bilancio.riascolta',
@@ -246,7 +256,7 @@ export class BilancioScene implements Scene {
       test: 'cp-bilancio-spartito',
     });
     const cont = button({ labelKey: 'campaign.bilancio.continua', icon: 'avanti', kind: 'primario', size: 'grande', onClick: onContinue, test: 'cp-bilancio-continua' });
-    return [el('div', { class: 'cp-foglio-azioni' }, replay, copy, this.side?.button() ?? null), el('footer', { class: 'cp-foglio-azioni cp-foglio-continua' }, cont)];
+    return { row: el('div', { class: 'cp-foglio-azioni' }, replay, copy, this.side?.button() ?? null), footer: el('footer', { class: 'cp-foglio-azioni cp-foglio-continua' }, cont) };
   }
 
   private buildTelaio(): HTMLElement {
@@ -259,8 +269,7 @@ export class BilancioScene implements Scene {
     parts.push(this.elegance(t.metrics, t.record, t.record.goldThread));
     const unlocks = this.unlocksSection(t.record.unlocked, false);
     if (unlocks) parts.push(unlocks);
-    parts.push(...this.actions(t.levelId, t.rows, t.spartito, () => void this.s.scenes.go('telaio', { ritorno: true })));
-    return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
+    return this.sheet(parts, this.actions(t.levelId, t.rows, t.spartito, () => void this.s.scenes.go('telaio', { ritorno: true })));
   }
 
   exit(): void {

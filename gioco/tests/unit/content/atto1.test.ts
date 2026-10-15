@@ -1323,3 +1323,24 @@ describe('REVISIONE-2 Q077: la colonna «Min» di GDD 5.2 è quella misurata', (
     expect(level('g04').goals).toContainEqual({ t: 'parte', who: 'bepi', hour: 8 });
   });
 });
+
+describe('Rifinitura della revisione 2 (residui dei verificatori)', () => {
+  it('Q019, g08: l\'alba della domanda scaduta non dice dov\'è la busta (può essere finita a Don Piero, che non dà niente)', () => {
+    const c = (level('g08').dawn?.candidates ?? []).find((v) => v.id === 'g08.alba.scaduta');
+    expect(c?.when).toEqual({ failed: 'g08.nina' });
+    expect(c?.lines.map((l) => l.textKey)).toEqual(['atto1.g08.alba.scaduta', 'atto1.g08.alba.scaduta2']);
+    expect(it_('atto1.g08.alba.scaduta2')).not.toMatch(/busta|segnalibro/);
+    expect(EN.get('atto1.g08.alba.scaduta2') ?? '').not.toMatch(/envelope|bookmark/);
+  });
+
+  it('R2-D3, g08 Marta: l\'esito fallito non è un «o… o…»', () => {
+    expect(it_('atto1.g08.marta.esito.fallita')).not.toMatch(/, o senza/);
+    expect(EN.get('atto1.g08.marta.esito.fallita')).not.toMatch(/, or without/);
+    expect(it_('atto1.g08.marta.esito.fallita')).toMatch(/tutti e due/);
+  });
+
+  it('g08: lo spillo della Nina alla Farmacia alle 10 regge la notte (R2-D7); il luogo è un tratto della Fondamenta anche a Farmacia chiusa', () => {
+    expect(level('g08').pins).toContainEqual({ thread: 'nina', place: 'farmacia', hour: 10 });
+    expect(level('g08').columns).toContain('farmacia');
+  });
+});

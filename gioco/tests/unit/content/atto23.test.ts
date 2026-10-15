@@ -2232,3 +2232,15 @@ describe('verifica della revisione 2 (contenuti-atti23): coerenza e ripetizioni 
     expect(level('fin_aperto').beads.find((b) => b.id === 'L_1951')?.holder).toBe('livia');
   });
 });
+
+describe('Rifinitura della revisione 2 (residui dei verificatori)', () => {
+  it('Q065, finale A: con Zeno appuntato al Faro alle 18 l\'epilogo non lo manda al vaporetto con la valigia', () => {
+    const lv = level('fin_merlettaia');
+    expect(lv.pins).toContainEqual({ thread: 'zeno', place: 'faro', hour: 18 });
+    for (const t of [IT, EN]) {
+      const line = t.get('finali.merlettaia.epilogo.2zeno.2') ?? '';
+      expect(line).not.toMatch(/valigia|suitcase/);
+      expect(line).toMatch(/Faro|Lighthouse/);
+    }
+  });
+});

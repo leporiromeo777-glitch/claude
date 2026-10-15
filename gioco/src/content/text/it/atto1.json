@@ -366,7 +366,7 @@
       "testo": "Domani è l'anniversario di mio padre. Prima della messa delle undici voglio parlare con Don Piero, e voglio il Gino con me.",
       "esito": {
         "ok": "Prima della messa Marta ha parlato con Don Piero, con il Gino accanto. Vent'anni, e la voce le tremava ancora.",
-        "fallita": "Marta è arrivata alla messa senza aver parlato con Don Piero, o senza il Gino. Ha pregato da sola.",
+        "fallita": "Marta è arrivata alla messa senza il momento che voleva, con Don Piero e il Gino tutti e due. Ha pregato da sola.",
         "lasciato": "Il bigliettino di Marta è rimasto senza spillo. All'anniversario di suo padre ci ha pensato da sola, come gli altri anni."
       }
     },
@@ -397,7 +397,7 @@
       "insonne": "Non ho dormito. Stanotte sul mare c'era una luce. Nera.",
       "anniversario2": "Requiem aeternam. Era un uomo severo, suo padre, Marta. Ma la voleva qui.",
       "partita2": "La Nina corre lungo la Fondamenta senza salutare nessuno, per non piangere.",
-      "scaduta2": "La Nina rimette la busta nel libro, come un segnalibro.",
+      "scaduta2": "La Nina chiude il libro di scuola, piano, come si chiude una porta.",
       "insonne2": "Zeno guarda il mare dalla parte di Chioggia, e non dice altro."
     },
     "hint": {

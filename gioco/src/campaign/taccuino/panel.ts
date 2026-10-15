@@ -37,7 +37,7 @@ import type { CampaignStateX, DayResultX } from '../types';
 
 export type TabId = 'bigliettini' | 'persone' | 'libro' | 'domande' | 'lettere' | 'archivio';
 export const TAB_IDS: readonly TabId[] = ['bigliettini', 'persone', 'libro', 'domande', 'lettere', 'archivio'];
-const TAB_ICONS: Record<TabId, string> = { bigliettini: 'spillo', persone: 'fuso', libro: 'libro', domande: 'info', lettere: 'nota', archivio: 'forbici' };
+const TAB_ICONS: Record<TabId, string> = { bigliettini: 'spillo', persone: 'fuso', libro: 'libro', domande: 'info', lettere: 'foglio', archivio: 'forbici' };
 
 export interface TaccuinoOpts {
   from?: string;
