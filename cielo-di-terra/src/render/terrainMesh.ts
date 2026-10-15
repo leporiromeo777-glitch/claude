@@ -236,7 +236,7 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
         maskStore[vi] = { ...masks };
       }
     }
-    if (i % 8 === 7) yield;
+    if (i % 2 === 1) yield;
   }
 
   const positions = new Float32Array(nV * 3);
@@ -276,7 +276,7 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
       colors[vi * 4 + 2] = Math.round(Math.min(1, Math.max(0, tmpColor[2]!)) * 255);
       colors[vi * 4 + 3] = m.kind === 'finestra' && h < 0.35 ? 255 : 0;
     }
-    if (i % 8 === 0) yield;
+    if (i % 3 === 0) yield;
   }
 
   // gonne lungo i quattro bordi
