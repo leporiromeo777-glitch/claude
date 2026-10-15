@@ -11,7 +11,7 @@
  * Sinonimi: `&&` e `,` valgono «e», `||` vale «o».
  *
  * Atomi riconosciuti:
- *   vero | falso | sempre | mai
+ *   vero | falso | sempre | mai | inizio (= vero: «subito, appena la missione parte»)
  *   notte | giorno (senza due punti: è giorno, cioè non notte)
  *   flag:nome                 flag acceso (definito e diverso da false/0/"")
  *   flag:nome=valore          anche != > >= < <= (i confronti d'ordine vogliono un numero)
@@ -125,7 +125,7 @@ interface Token {
   pos: number;
 }
 
-const PAROLE_RISERVATE = new Set(['e', 'o', 'non', 'vero', 'falso', 'sempre', 'mai', 'notte', 'giorno', 'dì']);
+const PAROLE_RISERVATE = new Set(['e', 'o', 'non', 'vero', 'falso', 'sempre', 'mai', 'inizio', 'notte', 'giorno', 'dì']);
 
 /** Normalizza spazi superflui fuori dalle virgolette («ora: >= 20» → «ora:>=20»). */
 function normalizza(testo: string): string {
@@ -455,6 +455,7 @@ class Parser {
       switch (low) {
         case 'vero':
         case 'sempre':
+        case 'inizio':
           return { tipo: 'costante', valore: true };
         case 'falso':
         case 'mai':

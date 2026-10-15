@@ -45,10 +45,10 @@ const VISTE: Record<string, Vista> = {
   castagni: { cam: [-14, 6, 46], guarda: [-22, 6, 20], didascalia: 'Castagni secolari: estate, autunno, fioritura' },
   cripta: { cam: [-2.5, 3.2, 23], guarda: [-6, 1.0, 15.5], didascalia: 'Castagno morto e botola della Cripta (aperta)' },
   muri: { cam: [21, 4.5, 33], guarda: [25, 1.2, 17], didascalia: 'Muri a secco, scaletta e cancello' },
-  lago: { cam: [24, 5, -6], guarda: [38, 0.5, -24], didascalia: 'Pontile con la tavola dei venti, barche a vela rossa' },
+  lago: { cam: [22, 4, -26], guarda: [32, 1, -19], fov: 50, didascalia: 'Pontile con la tavola dei venti, barche a vela rossa' },
   barca: { cam: [37, 2.2, -36], guarda: [42, 1.4, -30], fov: 42, didascalia: 'Barca a remi con vela al terzo e lanterna a prua' },
   fienile: { cam: [-20, 3.5, 6], guarda: [-28, 3, -6], didascalia: 'Fienile in legno e pietra' },
-  capisaldi: { cam: [7, 2.4, 33], guarda: [7, 0.8, 26.5], didascalia: 'Capisaldi: chiodo nel muro, pilastrino, masso, pilastro di bronzo' },
+  capisaldi: { cam: [7.2, 2.1, 31.8], guarda: [7.2, 0.7, 26.4], fov: 52, didascalia: 'Capisaldi: chiodo nel muro, pilastrino, masso, pilastro di bronzo' },
   chiodo: { cam: [1.95, 1.55, 26.5], guarda: [1.95, 0.84, 26.02], fov: 22, didascalia: 'Chiodo d’ottone numerato con il segno di vernice' },
   palina: { cam: [20, 3, 50], guarda: [28, 6, 35], didascalia: 'Paline bianche e rosse per i capisaldi lontani' },
   abitanti: { cam: [5.5, 1.9, 14.5], guarda: [5, 1.2, 3.5], fov: 42, t: 2.2, didascalia: 'Abitanti velati: garza di noce, maschere di castagno, bugnera, cappucci' },
@@ -139,11 +139,16 @@ function avviaVetrina(): void {
   posa(creaCancello({ seme: 34, apertura: 0.35 }), 31, 22, 0.1);
   posa(creaMuroSecco({ seme: 35, percorso: [[0, 0], [3, 0.2], [6, 1.2], [8, 3]], altezza: 1.1 }), 33, 22.3, 0);
   // --- lago
-  posa(creaPontile({ seme: 41 }), 30, -18, Math.PI * 0.72);
+  posa(creaPontile({ seme: 41 }), 26, -14, Math.PI * 0.75);
   posa(creaBarca({ seme: 42, vela: 'alzata' }), 42, -30, 0.6, () => ({ vento: 0.6, mura: 1 as const }));
   posa(creaBarca({ seme: 43, vela: 'ammainata', coloreScafo: 0xe4dccb }), 36, -22, 2.2);
   // --- capisaldi
   const chiodo37 = posa(creaCaposaldo({ numero: 37, supporto: 'muro' }), 2, 26);
+  if (nomeVista === 'chiodo') {
+    const c = (chiodo37.punti['chiodo'] as THREE.Vector3).clone().add(chiodo37.gruppo.position);
+    camera.position.copy(c).add(new THREE.Vector3(0.0, 0.42, 0.3));
+    camera.lookAt(c);
+  }
   posa(creaCaposaldo({ numero: 141, supporto: 'pilastrino' }), 5, 27);
   posa(creaCaposaldo({ numero: 8, supporto: 'masso' }), 8.5, 26);
   posa(creaPilastro({ numero: 4, segnale: 'palina' }), 12, 27);

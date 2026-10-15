@@ -202,9 +202,10 @@ export function creaBarca(opz: OpzioniBarca = {}): OggettoProcedurale<StatoBarca
   const Dp = 0.62;
   const colScafo = opz.coloreScafo ?? rng.scegli([0x3c5d5c, 0x2f4a5f, 0xe4dccb, PALETTE.smaltoVerde, 0x5a3b2a]);
   const nSt = 13;
-  const sezioneU = [0, 0.18, 0.5, 0.82, 1.0];
-  const sezioneX = [0, 0.52, 0.86, 0.98, 1.0];
-  const sezioneY = [0, 0.06, 0.28, 0.66, 1.0];
+  // sezione dello scafo dalla chiglia al capodibanda; due file ravvicinate sotto il bordo per la fascia netta
+  const sezioneU = [0, 0.18, 0.5, 0.82, 0.9, 0.91, 1.0];
+  const sezioneX = [0, 0.52, 0.86, 0.98, 0.993, 0.994, 1.0];
+  const sezioneY = [0, 0.06, 0.28, 0.66, 0.8, 0.81, 1.0];
   const larghezza = (t: number) => (B / 2) * Math.pow(Math.max(0, Math.sin(Math.PI * (0.13 + 0.87 * t))), 0.72);
   const bordo = (t: number) => 0.3 + 0.13 * Math.pow(2 * t - 1, 2) + 0.12 * Math.pow(Math.max(0, t - 0.6) / 0.4, 2);
   const chiglia = (t: number) => -0.3 + (Dp * 0.75) * Math.pow(Math.max(0, (t - 0.72) / 0.28), 2) + 0.12 * Math.pow(Math.max(0, (0.12 - t) / 0.12), 2);
@@ -255,9 +256,10 @@ export function creaBarca(opz: OpzioniBarca = {}): OggettoProcedurale<StatoBarca
   const cOpera = new THREE.Color(0x3a2a22);
   b.aggiungi(superficie(0, false), {
     colore: (p, _n, out) => {
-      const t = (p.z + L / 2) / L;
+      const t = THREE.MathUtils.clamp((p.z + L / 2) / L, 0, 1);
       const yb = bordo(t);
-      if (p.y > yb - 0.07) out.copy(cFascia);
+      const yk = chiglia(t);
+      if (p.y > yk + (yb - yk) * 0.805) out.copy(cFascia);
       else if (p.y < -0.12) out.copy(cOpera);
       else out.copy(cScafo);
     },

@@ -110,12 +110,29 @@ export function creaFienile(opz: OpzioniFienile = {}): OggettoProcedurale {
     piatto: true,
   });
   if (opz.fieno ?? true) {
-    for (let k = 0; k < 4; k++) {
-      const g = geoMassa(0.55 + rng.next() * 0.25, seme + k, 0.25, 1, 0.7);
+    // mucchio di fieno che riempie il vano e trabocca dalla soglia, con qualche ciuffo caduto
+    const cumuli: Array<[number, number, number, number]> = [
+      [-0.45, 0.3, -0.35, 0.62],
+      [0.4, 0.28, -0.3, 0.6],
+      [0.0, 0.55, -0.45, 0.7],
+      [-0.1, 0.12, -0.05, 0.5],
+      [0.35, 0.05, 0.05, 0.38],
+    ];
+    for (const [k, [du, dv, dw, rr]] of cumuli.entries()) {
+      const g = geoMassa(rr, seme + k, 0.3, 1, 0.75);
+      g.scale(1.25, 0.8, 1);
       b.aggiungi(g, {
-        matrice: inF(fF, portellone.u + rng.centrato(0.45), portellone.v + 0.35 + rng.next() * 0.5, -0.25 + rng.next() * 0.3),
+        matrice: inF(fF, portellone.u + du, portellone.v + dv, dw),
+        colore: mescola(PALETTE.fieno, PALETTE.stoppie, rng.next() * 0.5),
+        gradiente: { basso: 0.7, alto: 1.12, y0: portellone.v - 0.2, y1: portellone.v + 1.2 },
+        rumore: 0.12,
+      });
+    }
+    for (let k = 0; k < 3; k++) {
+      const g = geoMassa(0.18 + rng.next() * 0.1, seme + 10 + k, 0.35, 0, 0.5);
+      b.aggiungi(g, {
+        matrice: inF(fF, portellone.u + rng.centrato(1.2), 0.06, 0.6 + rng.next() * 0.8),
         colore: PALETTE.fieno,
-        gradiente: { basso: 0.75, alto: 1.1, y0: portellone.v, y1: portellone.v + 1.4 },
         rumore: 0.1,
       });
     }

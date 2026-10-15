@@ -20,7 +20,27 @@
  *   testo:id                → evento:testo id          (il gioco mostra un testo lungo di testi.json)
  *   suggerimento:id         → evento:suggerimento id   (il gioco mostra un suggerimento)
  *   variante:E1=Abitata     → evento:variante E1 Abitata (il gioco cambia la variante di un elemento mobile)
+ *   orologio:… musica:… suono:… battuta:… pianta:… npc:…  → evento:<prefisso> <argomenti>
+ *   germoglio:+1            → oggetto:+germoglio
+ *   dormi:fino 05:30        → tempo:salta-a 5.5
+ *   missione:id completata  → missione:id completa
  */
+
+/**
+ * Prefissi degli effetti che sono richieste al gioco (regia, suoni, UI):
+ * diventano l'evento `evento` con `nome` uguale al prefisso.
+ */
+export const PREFISSI_EVENTO: readonly string[] = [
+  'testo',
+  'suggerimento',
+  'variante',
+  'orologio',
+  'musica',
+  'suono',
+  'battuta',
+  'pianta',
+  'npc',
+];
 import { analizzaValore } from './condizioni';
 import type { ValoreFlag } from './flag';
 
@@ -71,7 +91,9 @@ const AZIONI_MISSIONE: Record<string, AzioneMissione> = {
   attiva: 'avvia',
   inizia: 'avvia',
   completa: 'completa',
+  completata: 'completa',
   concludi: 'completa',
+  conclusa: 'completa',
   fallisci: 'fallisci',
   fallita: 'fallisci',
 };
@@ -137,14 +159,22 @@ export function analizzaEffetto(testo: string): Effetto {
       if (/[=+]/.test(compatto)) errore('forma: contatore:nome+1, contatore:nome-1 o contatore:nome=3');
       return { tipo: 'flag-somma', nome: nomeFlag(compatto), delta: 1 };
     }
-    case 'testo':
-    case 'suggerimento':
-      if (parole.length !== 1) errore(`forma: ${prefisso}:id`);
-      return { tipo: 'evento', nome: prefisso, argomenti: [id(parole[0]!, `l'id del ${prefisso}`)] };
     case 'variante': {
       const m = /^([^=\s]+)\s*=\s*(\S+)$/.exec(arg);
       if (!m) return errore('forma: variante:elemento=Variante');
       return { tipo: 'evento', nome: 'variante', argomenti: [id(m[1]!, "l'elemento"), id(m[2]!, 'la variante')] };
+    }
+    case 'germoglio':
+    case 'germogli': {
+      const m = /^([+-]?)(\d+)$/.exec(arg.replace(/\s+/g, ''));
+      if (!m || Number(m[2]) <= 0) return errore('forma: germoglio:+1');
+      return { tipo: 'oggetto', id: 'germoglio', delta: m[1] === '-' ? -Number(m[2]) : Number(m[2]) };
+    }
+    case 'dormi': {
+      if (parole[0]?.toLowerCase() !== 'fino' || parole.length !== 2) return errore('forma: dormi:fino 05:30');
+      const ore = leggiOre(parole[1]!);
+      if (ore === null || ore >= 24) return errore(`ore non valide «${parole[1]}»`);
+      return { tipo: 'tempo', azione: 'salta-a', ore };
     }
     case 'taccuino':
     case 'voce': {
@@ -186,6 +216,10 @@ export function analizzaEffetto(testo: string): Effetto {
       return { tipo: 'dialogo', id: id(parole[0] ?? '', "l'id del dialogo") };
     }
     default:
+      if (PREFISSI_EVENTO.includes(prefisso)) {
+        if (!parole.length) errore(`manca l'argomento dopo «${prefisso}:»`);
+        return { tipo: 'evento', nome: prefisso, argomenti: parole };
+      }
       return errore(`prefisso sconosciuto «${prefisso}:»`);
   }
 }

@@ -215,14 +215,14 @@ const POSE: Record<PosaSquadro, Posa> = {
   piantato: {
     strumento: [PUNTALE_PIANTATO.clone(), e(0, 0.3, 0)],
     sinistra: { strumento: [v(0, 0.22, 0), e(0, -0.35, 0)] },
-    destra: { camera: [v(0.3, -0.47, -0.74), e(0.3, -0.4, 0.05)] },
+    destra: { camera: [v(0.27, -0.47, -0.95), e(0.3, -0.45, 0.05)] },
     destraAppoggiata: true,
   },
   // tenuto in mano come cannocchiale: la destra impugna l'asta, la sinistra culla il tubo
   mano: {
-    strumento: [v(0.17, -0.74, -0.52), e(0.06, 0.45, 0.03)],
+    strumento: [v(0.17, -0.68, -0.55), e(0.06, 0.45, 0.03)],
     destra: { strumento: [v(0, 0.22, 0), e(0, 0.3, 0)] },
-    sinistra: { strumento: [v(0, 0.6, -0.1), e(Math.PI / 2, 0, -0.9)] },
+    sinistra: { strumento: [v(0, 0.6, -0.1), e(Math.PI / 2, 0, 0)] },
     destraAppoggiata: false,
   },
   riposo: {
