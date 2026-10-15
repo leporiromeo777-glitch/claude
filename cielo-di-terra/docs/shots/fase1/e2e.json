@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T09:32:09.404Z",
+  "data": "2026-10-15T09:35:21.053Z",
   "esito": "fallita",
-  "secondi": 76,
+  "secondi": 92,
   "passi": [
-    "pronto in 8.9 s",
+    "pronto in 9.5 s",
     "— Titolo",
     "  📷 00-titolo.png",
     "  nella capsula 5, 05:38, giorno 1",
@@ -57,7 +57,21 @@
     "  aspetta fino a fra un'ora: 8.32 → 09:20",
     "  📷 09-togna-al-lavatoio.png",
     "  togna: Un'altra. Io. / Un'altra. Io. / Perché benedetto? / Che vuol dire? / E il resto, la notte lo tocca? / …",
-    "  bortolo: Da dove viene? / Si può salire sul campanile? / Domani, allora."
+    "  bortolo: Da dove viene? / Si può salire sul campanile? / Domani, allora.",
+    "  annunciata: Con sei colleghi. / Da chi? / Che cosa scrivono? / Anche a me hanno scritto così. / …",
+    "  ✓ tre velati (contatore:velati>=3 e passo:m1_velati completato)",
+    "— M1.7 Il Messo",
+    "  📷 10-ottavio.png",
+    "  ottavio: 12 risposte",
+    "  ✓ Ottavio, il Messo (passo:m1_ottavio completato e flag:aspetta_brace_sbloccato)",
+    "— M1.8 La brace",
+    "  aspetta fino a la brace: 9.54 → 19:30",
+    "  ✓ la brace (passo:m1_brace completato)",
+    "— M1.9 L'Ombrista",
+    "  📷 11-ombrista.png",
+    "  ✓ l'Ombrista vista (flag:ombrista_1_vista e passo:m1_ombrista completato)",
+    "— M1.10 Il fienile",
+    "  ✓ Ottavio ha buttato le assi sul riale (variante:E1=Abitata)"
   ],
   "errori": []
 }

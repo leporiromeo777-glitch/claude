@@ -465,7 +465,7 @@ async function main() {
     await avanza(1.5);
     await verifica('variante:E1=Abitata', 'Ottavio ha buttato le assi sul riale');
     // al fienile dalla parte della porta (il centro del luogo è dentro il fienile)
-    await avvicina('fienile', 3.0);
+    await avvicina('fienile', 1.2);
     await avanza(1);
     await verifica('passo:m1_fienile completato', 'al fienile');
 
