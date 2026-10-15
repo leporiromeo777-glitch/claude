@@ -294,7 +294,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 - **Luogo**: dalla botola al muretto del belvedere (1094, 29,8, 46), 25 m a Mont e a Mane, sul ciglio della prima terrazza.
 - **Che cosa vede**: il castagno morto sopra la botola, i ricci vuoti, l'erba fredda. Davanti, sotto, i tetti di piode di Corbella e il campanile bianco; più in là il riale; sopra, il lago appeso. Le prime persone velate attraversano la piazza, lontane.
 - **Che cosa fa**: cammina. Dopo 15-20 m il fiato si fa corto: la vista si restringe ai bordi, il respiratore soffia. Suggerimento «Siediti a respirare» la prima volta. Si siede sul muretto.
-- **Avanza quando**: `luogo:belvedere_muretto raggiunto e flag:seduta` (se si siede altrove prima del muretto, il passo si completa lo stesso appena arriva al muretto).
+- **Avanza quando**: `flag:seduta`: basta sedersi, ovunque all'aperto (il muretto del belvedere è il posto suggerito, ma il luogo largo 3 m bloccava chi si sedeva un po' più in là e non sentiva più le campane).
 - **Elvira**, sedendosi: «Piano, vecchia.»
 - **Tempo**: 1 min.
 

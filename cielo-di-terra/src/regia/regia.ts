@@ -84,6 +84,15 @@ const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
 /** Periodo della Meta (s): una rotazione del cilindro. */
 export const PERIODO_META = 51;
 
+/** Punti d'esame della lente con il nome detto al giocatore (scena: `lente_<id>`). */
+const PUNTI_LENTE: [string, string, string][] = [
+  ['ricci', 'i ricci per terra', 'm1_lente'],
+  ['amenti', 'gli amenti sui rami bassi', 'm1_lente'],
+  ['corteccia', 'la corteccia del tronco', 'm1_lente'],
+  ['innesto_vecchio', 'il vecchio innesto', 'm1_innesto'],
+];
+const _lenteD = new Vector3();
+
 export class Regia implements SistemaGioco {
   readonly audio = new PonteAudio();
   narrativa!: Narrativa;
@@ -130,6 +139,12 @@ export class Regia implements SistemaGioco {
   private salvaTra = -1;
   private ombristaSera = -1;
   private tenutaC = 0;
+  /** La lettera di Marta si è già aperta da sola in questa seduta (vedi letteraDaSeduta). */
+  private letteraOffertaDaSeduta = false;
+  /** Secondi dall'ultimo controllo del dialogo delle campane (vedi campaneDiRiserva). */
+  private attesaCampane = 0;
+  /** Indicazione a schermo per la lente (vedi cercaPuntoLente). */
+  private indicazioneLente: { tasto: string; testo: string; progresso?: number } | null = null;
   private attesaVicini = new Set<string>();
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
   private emisfero: HemisphereLight;
@@ -270,7 +285,7 @@ export class Regia implements SistemaGioco {
     this.game.clock.setHours(7.1);
     this.game.sky = this.game.clock.state(this.game.sky);
     this.game.setCameraPose(1096, 29.2, groundHeight(1096, 29.2) + 4, 128, 24);
-    this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: 'Fase 1 · prologo e missione 1' });
+    this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: `Fase 1 · prologo e missione 1 · aggiornata il ${typeof __AGGIORNAMENTO__ === 'string' ? __AGGIORNAMENTO__ : '?'}` });
   }
 
   private async nuovaPartitaDaTitolo(): Promise<void> {
@@ -317,6 +332,10 @@ export class Regia implements SistemaGioco {
   /** Continua dall'ultimo salvataggio valido. */
   async continua(): Promise<boolean> {
     this.ui.titolo.hide();
+    // Il titolo sorvola la valle con la camera libera: va spenta PRIMA di caricare (spegnerla
+    // dopo riporterebbe Elvira sotto la camera del titolo). Senza questo, dopo «Continua» i
+    // tasti muovevano la camera e il corpo restava fermo: non ci si poteva più sedere né leggere.
+    this.game.setFreeCamera(false);
     try {
       const r = await this.narrativa.carica(this.salvataggi, this.fornitoreMondo());
       if (!r) {
@@ -325,6 +344,15 @@ export class Regia implements SistemaGioco {
       }
       this.partitaIniziata = true;
       this.fase = 'gioco';
+      // Un salvataggio fatto a dialogo aperto (il salvataggio automatico scatta al cambio di
+      // passo, spesso mentre parte un dialogo automatico come quello delle campane) lo
+      // ricaricherebbe «aperto» senza finestra: la storia resterebbe ferma. Lo si interrompe,
+      // così un dialogo automatico si riapre da capo e gli altri si riprendono parlando.
+      if (this.narrativa.dialoghi.aperto()) {
+        this.narrativa.dialoghi.interrompi();
+        this.narrativa.tick(0);
+      }
+      this.suggerisciPassoCorrente();
       this.ui.indicazioni.show();
       this.riallinea();
       this.velatura.dalNero(1.2);
@@ -336,6 +364,87 @@ export class Regia implements SistemaGioco {
       this.nuovaPartita();
       return false;
     }
+  }
+
+  /**
+   * Dopo «Continua» ripete il suggerimento del passo della storia in corso: gli effetti di
+   * attivazione (che lo mostravano) non si riapplicano al caricamento, e il giocatore che
+   * riprende non sa più che cosa stava facendo.
+   */
+  private suggerisciPassoCorrente(): void {
+    const defs = this.narrativa.contenuti.missioni;
+    for (const a of this.narrativa.missioni.passiAttivi()) {
+      const m = defs.find((d) => d.id === a.missione);
+      if (!m || (m.tipo !== 'prologo' && m.tipo !== 'principale')) continue;
+      const s = m.passi.find((x) => x.id === a.passo)?.effettiAttivazione.find((e) => e.startsWith('suggerimento:'));
+      if (s) {
+        this.ponte.suggerimento(s.slice('suggerimento:'.length), 15);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Prologo: seduta con la lettera di Marta ancora da leggere, la busta si apre da sola
+   * (una volta per seduta, così chi la chiude non se la ritrova davanti di continuo).
+   */
+  private letteraDaSeduta(): void {
+    if (this.controllo.tipo !== 'seduta') {
+      this.letteraOffertaDaSeduta = false;
+      return;
+    }
+    if (this.letteraOffertaDaSeduta || this.ui.inputCatturato || this.dialoghi.aperto) return;
+    const n = this.narrativa;
+    if (n.flag.get('lettera_letta') || !n.inventario.ha('lettera_marta')) return;
+    if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_lettera')) return;
+    this.letteraOffertaDaSeduta = true;
+    this.ponte.leggi('lettera_marta');
+  }
+
+  /**
+   * Rete di sicurezza del prologo: se il passo delle campane è attivo da qualche secondo e il
+   * dialogo con Meridiana non è aperto né finito (interrotto, perso in un caricamento), lo si
+   * richiede di nuovo.
+   */
+  private campaneDiRiserva(dt: number): void {
+    this.attesaCampane += dt;
+    if (this.attesaCampane < 2) return;
+    this.attesaCampane = 0;
+    const n = this.narrativa;
+    if (this.dialoghi.aperto || this.ui.inputCatturato) return;
+    if (n.dialoghi.finito('d_meridiana_1') || n.dialoghi.aperto()) return;
+    if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_campane')) return;
+    this.dialoghi.richiedi('d_meridiana_1', true);
+  }
+
+  /**
+   * Che cosa dire a schermo sui punti d'esame della lente (i ricci, gli amenti, la corteccia,
+   * il vecchio innesto): senza lente, vicino a un punto ancora da esaminare, «Q — prendi la
+   * lente»; con la lente, il punto più vicino da guardare, con l'avanzamento dell'esame.
+   */
+  private cercaPuntoLente(occhi: Vector3, avanti: Vector3): { tasto: string; testo: string; progresso?: number } | null {
+    if (this.interno || !this.narrativa.inventario.ha('lente')) return null;
+    let migliore: { id: string; d: number; ang: number } | null = null;
+    let passi: string[] | null = null;
+    for (const [id, nome, passo] of PUNTI_LENTE) {
+      if (this.narrativa.flag.vero(`lente:${id}`)) continue;
+      passi ??= this.narrativa.missioni.passiAttivi().map((x) => x.passo);
+      if (!passi.includes(passo)) continue;
+      const pos = this.scena.punto(`lente_${id}`);
+      if (!pos) continue;
+      _lenteD.subVectors(pos, occhi);
+      const d = _lenteD.length();
+      if (d > 9) continue;
+      const ang = d < 1e-3 ? 0 : Math.acos(Math.max(-1, Math.min(1, _lenteD.dot(avanti) / d)));
+      if (!migliore || ang < migliore.ang) migliore = { id, d, ang };
+      void nome;
+    }
+    if (!migliore) return null;
+    const nome = PUNTI_LENTE.find(([id]) => id === migliore.id)![1];
+    if (!this.lente) return { tasto: 'Q', testo: `Prendi la lente ed esamina ${nome}` };
+    if (migliore.d > 4.5) return { tasto: 'Q', testo: `Avvicinati: ${nome}` };
+    const t = this.sguardi.tempo(`lente:${migliore.id}`);
+    return { tasto: 'Q', testo: `Lente: guarda ${nome}`, ...(t > 0 ? { progresso: Math.min(1, t / 0.8) } : {}) };
   }
 
   async salva(): Promise<void> {
@@ -365,7 +474,9 @@ export class Regia implements SistemaGioco {
         const fermo = this.controllo.tipo === 'seduta' || this.controllo.tipo === 'piantato';
         return {
           versione: 1,
-          giocatore: { z: pc.z, theta: pc.theta, h: fermo ? (this.controllo as { h: number }).h : pc.h, yaw: vp.yaw, pitch: vp.pitch },
+          // da seduta (o allo squadro) la quota del controllo è mezzo metro sotto il piano su cui
+          // poggia: si salva la quota in piedi, se no al caricamento Elvira finisce dentro il muretto
+          giocatore: { z: pc.z, theta: pc.theta, h: fermo ? (this.controllo as { h: number }).h + 0.5 : pc.h, yaw: vp.yaw, pitch: vp.pitch },
           interno: this.interno,
           sdraiata: this.controllo.tipo === 'sdraiata',
           orologio: this.orologio.esporta(),
@@ -402,7 +513,10 @@ export class Regia implements SistemaGioco {
         this.controllo = m.sdraiata ? { tipo: 'sdraiata' } : { tipo: 'libero' };
         if (p) {
           // quota assoluta salvata: anche sul ripiano di una terrazza o in cima al campanile
-          this.game.player.teleport(p.z, p.theta, Math.max(p.h, this.game.player.groundFn(p.z, p.theta)), true);
+          // con un margine sopra la quota salvata: Elvira ricade sul piano (muretto, ripiano, terreno)
+          // invece di ricomparire dentro un collisore (i salvataggi fatti da seduta prima di
+          // questa correzione avevano la quota mezzo metro più in basso)
+          this.game.player.teleport(p.z, p.theta, Math.max(p.h + (m.sdraiata ? 0 : 0.6), this.game.player.groundFn(p.z, p.theta)), true);
           if (m.sdraiata) this.posaSdraiata();
           this.game.setView(p.yaw, p.pitch);
           this.game.syncEyeNow();
@@ -1157,6 +1271,8 @@ export class Regia implements SistemaGioco {
       }
     }
     this.limitaVelocita();
+    this.letteraDaSeduta();
+    this.campaneDiRiserva(dt);
 
     // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
     if (!ui.tempoFermo) {
@@ -1175,6 +1291,7 @@ export class Regia implements SistemaGioco {
     const occhi = this.occhi(new Vector3());
     const avanti = g.rig.forward(new Vector3());
     this.sguardi.update(dt, occhi, avanti);
+    this.indicazioneLente = this.cercaPuntoLente(occhi, avanti);
     this.statoInterazione = this.interazioni.update(dt, occhi, avanti, catturato ? null : { premuto, tenuto: g.input.isDown('KeyE'), modoPremi: ui.impostazioni.get('azioniTenute') === 'premi' });
 
     // il mondo che si muove
@@ -1326,7 +1443,8 @@ export class Regia implements SistemaGioco {
     // indicazioni
     const st = this.statoInterazione;
     const b = st.bersaglio;
-    ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : null);
+    const lente = !b && !ui.inputCatturato ? this.indicazioneLente : null;
+    ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : lente);
     ui.indicazioni.mostraPuntino(!!b && ui.impostazioni.get('puntino'));
     ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);
     ui.indicazioni.velo(g.player.veloOpen ? Math.min(1, g.player.veloAmount) : null);
