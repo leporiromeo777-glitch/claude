@@ -1,0 +1,2270 @@
+{
+ "d_meridiana_1": {
+  "personaggio": "meridiana",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "passo:pr_lettera completato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:q_indice",
+   "taccuino:n_campane"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Tre rintocchi da San Vigilio. Poi una voce di donna, calma, metallica, che rimbalza sui tetti. La Linea sopra la valle pulsa una volta.",
+    "testo": "Giardiniera cinque. Bentornata in servizio.",
+    "risposte": [
+     {
+      "testo": "Chi parla?",
+      "vai_a": "n_chi"
+     },
+     {
+      "testo": "Dove sono?",
+      "vai_a": "n_dove"
+     },
+     {
+      "testo": "Chi mi ha svegliata?",
+      "vai_a": "n_sveglia"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_indice"
+     }
+    ]
+   },
+   {
+    "id": "n_chi",
+    "testo": "Meridiana. Gestione del Giardino: luce, acqua, assetto, macchine.",
+    "risposte": [
+     {
+      "testo": "Dove sono?",
+      "vai_a": "n_dove"
+     },
+     {
+      "testo": "Chi mi ha svegliata?",
+      "vai_a": "n_sveglia",
+      "condizione": "!flag:chiesto_sveglia"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_indice"
+     }
+    ]
+   },
+   {
+    "id": "n_dove",
+    "testo": "Nel Giardino. Non posso rivelare altro.",
+    "risposte": [
+     {
+      "testo": "Che anno è?",
+      "vai_a": "n_anno"
+     },
+     {
+      "testo": "Chi mi ha svegliata?",
+      "vai_a": "n_sveglia",
+      "condizione": "!flag:chiesto_sveglia"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_indice"
+     }
+    ]
+   },
+   {
+    "id": "n_anno",
+    "testo": "Duemilatrecentoventidue. Hai dormito duecentoun anni, quattro mesi e sei giorni.",
+    "risposte": [
+     {
+      "testo": "Chi mi ha svegliata?",
+      "vai_a": "n_sveglia",
+      "condizione": "!flag:chiesto_sveglia"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_indice"
+     }
+    ]
+   },
+   {
+    "id": "n_sveglia",
+    "testo": "Il registro della Cripta riporta un'apertura manuale. Non posso rivelare il codice.",
+    "risposte": [
+     {
+      "testo": "Perché no?",
+      "vai_a": "n_perche",
+      "effetti": [
+       "flag:chiesto_sveglia",
+       "taccuino:i_apertura_manuale"
+      ]
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_indice",
+      "effetti": [
+       "flag:chiesto_sveglia",
+       "taccuino:i_apertura_manuale"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_perche",
+    "testo": "Clausola del duemilacentoventidue. Posso confermare ciò che dimostri. Non posso rivelare.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_indice",
+      "effetti": [
+       "taccuino:i_clausola"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_indice",
+    "testo": "Indice ecologico: zero virgola quarantuno. Sotto zero virgola trenta non garantisco la vita.",
+    "risposte": [
+     {
+      "testo": "Che cosa sta morendo?",
+      "vai_a": "n_cosa"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_guarda"
+     }
+    ]
+   },
+   {
+    "id": "n_cosa",
+    "testo": "Castagni non impollinati. Api spente. Acqua torbida. Non posso dirti perché.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_guarda"
+     }
+    ]
+   },
+   {
+    "id": "n_guarda",
+    "testo": "Tu sei la Giardiniera. Guarda.",
+    "risposte": [
+     {
+      "testo": "Va bene.",
+      "vai_a": "n_registro"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_registro"
+     }
+    ]
+   },
+   {
+    "id": "n_registro",
+    "testo": "Registro la richiesta.",
+    "didascalia": "Tre rintocchi piccoli. La voce tace.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_meridiana_campanile": {
+  "personaggio": "meridiana",
+  "si_apre": {
+   "come": "interagendo",
+   "con": "altoparlante_cella",
+   "condizione": "luogo:cella_campanaria raggiunto"
+  },
+  "ripetibile": true,
+  "alla_fine": [],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "L'altoparlante gracchia. Tre rintocchi piccoli, quasi un pensiero.",
+    "testo": "Giardiniera cinque. Ti ascolto.",
+    "risposte": [
+     {
+      "testo": "Chi ha scritto sul mio vetro?",
+      "vai_a": "n_vetro",
+      "condizione": "!flag:md_vetro"
+     },
+     {
+      "testo": "Che cosa sono le Fade?",
+      "vai_a": "n_fade",
+      "condizione": "passo:m1_mattino completato e !flag:md_fade"
+     },
+     {
+      "testo": "La Linea è debole.",
+      "vai_a": "n_linea",
+      "condizione": "flag:lente:corteccia e !flag:md_linea"
+     },
+     {
+      "testo": "A chi riferisci quello che ti dico?",
+      "vai_a": "n_riferisci",
+      "condizione": "!flag:md_riferisci"
+     },
+     {
+      "testo": "Niente.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_vetro",
+    "testo": "Non registro scritte a matita.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_menu",
+      "effetti": [
+       "flag:md_vetro"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_fade",
+    "testo": "Macchine di manutenzione notturna. Riportano il Giardino alla Carta.",
+    "risposte": [
+     {
+      "testo": "Quale carta?",
+      "vai_a": "n_carta",
+      "effetti": [
+       "flag:md_fade"
+      ]
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_menu",
+      "effetti": [
+       "flag:md_fade"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_carta",
+    "testo": "La Carta Madre. Duemilacentoventuno. Rilevata dal geometra Aurelio Respìni. Il resto non posso rivelarlo.",
+    "risposte": [
+     {
+      "testo": "Respini. Si dice Respini.",
+      "vai_a": "n_respini"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_menu"
+     }
+    ]
+   },
+   {
+    "id": "n_respini",
+    "testo": "Respini. Registro la correzione.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_menu",
+      "effetti": [
+       "taccuino:i_carta_madre"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_linea",
+    "didascalia": "La Linea sopra Corbella pulsa una volta.",
+    "testo": "Confermo, Giardiniera. La Linea è sotto il valore di progetto.",
+    "risposte": [
+     {
+      "testo": "Dove va l'energia?",
+      "vai_a": "n_linea2",
+      "effetti": [
+       "flag:md_linea",
+       "taccuino:i_linea_confermata"
+      ]
+     },
+     {
+      "testo": "…",
+      "vai_a": "n_menu",
+      "effetti": [
+       "flag:md_linea",
+       "taccuino:i_linea_confermata"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_linea2",
+    "testo": "Non posso rivelare.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_menu"
+     }
+    ]
+   },
+   {
+    "id": "n_riferisci",
+    "testo": "Riferisco all'autorità civile ogni risveglio e ogni richiesta di un Giardiniere. È la procedura.",
+    "risposte": [
+     {
+      "testo": "Chi è l'autorità civile?",
+      "vai_a": "n_autorita",
+      "effetti": [
+       "flag:md_riferisci"
+      ]
+     },
+     {
+      "testo": "Anche questa?",
+      "vai_a": "n_anche",
+      "effetti": [
+       "flag:md_riferisci"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_autorita",
+    "testo": "Dal duemiladuecentottanta, la Madre della Confraternita della Linea.",
+    "risposte": [
+     {
+      "testo": "Allora anche questa.",
+      "vai_a": "n_anche",
+      "effetti": [
+       "taccuino:i_riferisce"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_anche",
+    "testo": "Registro la richiesta.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n_menu"
+     }
+    ]
+   },
+   {
+    "id": "n_menu",
+    "testo": "Altro, Giardiniera?",
+    "risposte": [
+     {
+      "testo": "Chi ha scritto sul mio vetro?",
+      "vai_a": "n_vetro",
+      "condizione": "!flag:md_vetro"
+     },
+     {
+      "testo": "Che cosa sono le Fade?",
+      "vai_a": "n_fade",
+      "condizione": "passo:m1_mattino completato e !flag:md_fade"
+     },
+     {
+      "testo": "La Linea è debole.",
+      "vai_a": "n_linea",
+      "condizione": "flag:lente:corteccia e !flag:md_linea"
+     },
+     {
+      "testo": "A chi riferisci quello che ti dico?",
+      "vai_a": "n_riferisci",
+      "condizione": "!flag:md_riferisci"
+     },
+     {
+      "testo": "No.",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_meridiana_corbella": {
+  "personaggio": "meridiana",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "flag:corbella_a_colori"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:campane_ore",
+   "taccuino:i_campane_ore"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Da San Vigilio un rintocco solo, pulito, come un'ora.",
+    "testo": "Corbella è in carta. Le ore sono tue, Giardiniera.",
+    "risposte": [
+     {
+      "testo": "Grazie.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Registro la richiesta.",
+    "risposte": [
+     {
+      "testo": "Non ti ho chiesto niente.",
+      "vai_a": "n3"
+     },
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Lo so.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_togna": {
+  "personaggio": "togna",
+  "si_apre": {
+   "come": "parlando",
+   "con": "togna"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_togna",
+   "taccuino:pv_misura",
+   "taccuino:i_proverbio_togna"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Una donna velata di garza color noce, le braccia nell'acqua del lavatoio fino ai gomiti. Non si gira.",
+    "testo": "Te set ti, la Dessedada?",
+    "risposte": [
+     {
+      "testo": "La che?",
+      "vai_a": "n_dessedada"
+     },
+     {
+      "testo": "Mi chiamo Elvira.",
+      "vai_a": "n_nome"
+     }
+    ]
+   },
+   {
+    "id": "n_dessedada",
+    "testo": "La Svegliata. Quella della profezia. La Santa ha dormito sotto il castagno e una mattina, invece di lei, è uscita un'altra.",
+    "didascalia": "Strizza un lenzuolo.",
+    "risposte": [
+     {
+      "testo": "Un'altra. Io.",
+      "vai_a": "n_lavoro"
+     }
+    ]
+   },
+   {
+    "id": "n_nome",
+    "testo": "Elvira. Nome da forestiera. Qui tutti dicono la Svegliata.",
+    "risposte": [
+     {
+      "testo": "Me ne farò una ragione.",
+      "vai_a": "n_lavoro"
+     }
+    ]
+   },
+   {
+    "id": "n_lavoro",
+    "testo": "Stanotte vedi di dormire in un posto benedetto.",
+    "risposte": [
+     {
+      "testo": "Perché benedetto?",
+      "vai_a": "n_proverbio"
+     },
+     {
+      "testo": "Che cosa succede, di notte?",
+      "vai_a": "n_proverbio"
+     }
+    ]
+   },
+   {
+    "id": "n_proverbio",
+    "didascalia": "Lo dice come una preghiera da bambini, senza alzare la testa.",
+    "testo": "Quel che la Giardinéra la mesüra, la nocc la tóca mía.",
+    "risposte": [
+     {
+      "testo": "Che vuol dire?",
+      "vai_a": "n_traduce"
+     },
+     {
+      "testo": "La Giardiniera sarei io?",
+      "vai_a": "n_io"
+     }
+    ]
+   },
+   {
+    "id": "n_traduce",
+    "testo": "Ciò che la Giardiniera ha misurato, la notte non lo tocca. Lo diceva mia nonna. Lo dico anch'io. Che cosa voglia dire, non lo so.",
+    "risposte": [
+     {
+      "testo": "E il resto, la notte lo tocca?",
+      "vai_a": "n_resto"
+     },
+     {
+      "testo": "Grazie.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_io",
+    "didascalia": "Ride sotto il velo.",
+    "testo": "Se la profezia è giusta. Le profezie, si sa.",
+    "risposte": [
+     {
+      "testo": "E il resto, la notte lo tocca?",
+      "vai_a": "n_resto"
+     },
+     {
+      "testo": "Grazie.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_resto",
+    "testo": "La notte lo rimette come dev'essere. Chiedi al Nando, ai Ronchi. Ogni mattina rifà la casa.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:i_benedetta"
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "d_bortolo_gradini": {
+  "personaggio": "bortolo",
+  "si_apre": {
+   "come": "parlando",
+   "con": "bortolo",
+   "condizione": "luogo:scorciatoia_terrazze raggiunto e ora:>=07:00 e ora:<07:40"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:pv_strada"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Un uomo velato infila assi nei muri delle terrazze, una alla volta, a colpi di martello.",
+    "testo": "Buongiorno, Svegliata. Attenta, che il terzo gradino è nuovo.",
+    "risposte": [
+     {
+      "testo": "Li rimetti ogni mattina?",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Chi li ha tolti?",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Da quando son nato. Il mio papà prima di me.",
+    "risposte": [
+     {
+      "testo": "E di notte spariscono.",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2b",
+    "testo": "Nessuno li toglie. Spariscono. Di notte.",
+    "risposte": [
+     {
+      "testo": "Da soli?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Strada da dí, la fann i pée; strada da nocc, la fann i Fade.",
+    "didascalia": "La strada del giorno la fanno i piedi; quella della notte, le Fade.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_bortolo_1": {
+  "personaggio": "bortolo",
+  "si_apre": {
+   "come": "parlando",
+   "con": "bortolo",
+   "condizione": "giorno:1"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_bortolo"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "La Svegliata. Le campane, stamattina, le ho suonate io. La voce no: quella viene da sola.",
+    "risposte": [
+     {
+      "testo": "Da dove viene?",
+      "vai_a": "n_voce"
+     },
+     {
+      "testo": "Si può salire sul campanile?",
+      "vai_a": "n_salire"
+     }
+    ]
+   },
+   {
+    "id": "n_voce",
+    "testo": "Dal ferro. È sempre venuta. La Madre dice che è la Linea che parla. Io suono e basta.",
+    "risposte": [
+     {
+      "testo": "Si può salire sul campanile?",
+      "vai_a": "n_salire"
+     },
+     {
+      "testo": "Grazie.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_salire",
+    "testo": "Oggi no. La chiave ce l'ho, ma oggi è giorno di Lettere e la Madre non vuole gente sulle campane. Domani.",
+    "risposte": [
+     {
+      "testo": "Domani, allora.",
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:i_campanile_domani"
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "d_bortolo_campanile": {
+  "personaggio": "bortolo",
+  "si_apre": {
+   "come": "parlando",
+   "con": "bortolo",
+   "condizione": "giorno:>=2 e !flag:velo_indossato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:campanile_aperto"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "La Svegliata vuole salire? Le campane non mordono. La voce sì, a volte.",
+    "risposte": [
+     {
+      "testo": "Salgo.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Che cosa c'è lassù?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Le tre campane, il ferro con la palina, i piccioni. E la voce.",
+    "risposte": [
+     {
+      "testo": "Salgo.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "didascalia": "Gira la chiave e spinge la porta del campanile.",
+    "testo": "Attenta al nono gradino. E il ferro con la palina non toccarlo: è della Carta.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_bortolo_campanile_velo": {
+  "personaggio": "bortolo",
+  "si_apre": {
+   "come": "parlando",
+   "con": "bortolo",
+   "condizione": "giorno:>=2 e flag:velo_indossato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:campanile_aperto"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Bortolo si fa il segno della Linea, una mano che sale dal petto alla fronte.",
+    "testo": "La Svegliata col velo nero. Salga, salga. Non serve chiedere.",
+    "risposte": [
+     {
+      "testo": "Grazie, Bortolo.",
+      "vai_a": "fine"
+     },
+     {
+      "testo": "Prima non serviva?",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Prima eri una forestiera. Adesso sei della Madre.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_annunciata": {
+  "personaggio": "annunciata",
+  "si_apre": {
+   "come": "parlando",
+   "con": "annunciata"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_annunciata",
+   "taccuino:i_lettere_sorella"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Una vecchia seduta sulla panca della chiesa, le mani sul bastone.",
+    "testo": "Sei tu quella della Cripta? Allora hai dormito con i santi.",
+    "risposte": [
+     {
+      "testo": "Con sei colleghi.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Lei chi aspetta?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Colleghi. Che parola. Io aspetto la mia lettera.",
+    "risposte": [
+     {
+      "testo": "Da chi?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "La linea di mia sorella è rimasta sulla Sorella, duecento anni fa. Due volte al mese la Madre legge le lettere, qui davanti. Ogni tanto ce n'è una per noi.",
+    "risposte": [
+     {
+      "testo": "Che cosa scrivono?",
+      "vai_a": "n4"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Scrivono bene, sulla Sorella. Scrivono sempre: fidati della Madre, non guardare indietro.",
+    "risposte": [
+     {
+      "testo": "Anche a me hanno scritto così.",
+      "vai_a": "n5",
+      "condizione": "flag:lettera_letta",
+      "effetti": [
+       "taccuino:i_stesse_parole"
+      ]
+     },
+     {
+      "testo": "Le fa piacere?",
+      "vai_a": "n6"
+     }
+    ]
+   },
+   {
+    "id": "n5",
+    "didascalia": "Si volta verso di te, per la prima volta.",
+    "testo": "Allora sei dei nostri.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n6",
+    "testo": "Mi fa compagnia. A una certa età è la stessa cosa.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_bambini": {
+  "personaggio": "bambini",
+  "si_apre": {
+   "come": "parlando",
+   "con": "bambini"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_bambini",
+   "taccuino:w_mane",
+   "taccuino:w_sera",
+   "taccuino:i_svegliata"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "chi": "lisa",
+    "didascalia": "Due bambini velati di garza bianca ti girano attorno, a distanza di sicurezza.",
+    "testo": "Sei tu la Svegliata?",
+    "risposte": [
+     {
+      "testo": "Credo di sì.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "E tu chi sei?",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2b",
+    "chi": "lisa",
+    "testo": "Lisa. Lui è il Gioanin. Ha paura di te.",
+    "risposte": [
+     {
+      "testo": "Fa bene.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "chi": "gioanin",
+    "testo": "Allora prendi la maschera! Lo dice la profezia.",
+    "risposte": [
+     {
+      "testo": "Quale maschera?",
+      "vai_a": "n3"
+     },
+     {
+      "testo": "Non mi piacciono le maschere.",
+      "vai_a": "n3b"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "chi": "lisa",
+    "testo": "Quella della Madre. La Svegliata prende la maschera e poi… il resto non lo so.",
+    "risposte": [
+     {
+      "testo": "Nemmeno io.",
+      "vai_a": "n4"
+     }
+    ]
+   },
+   {
+    "id": "n3b",
+    "chi": "gioanin",
+    "testo": "Neanche a me.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n4"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "chi": "lisa",
+    "didascalia": "Indica in su e di lato, verso il lago appeso.",
+    "testo": "Vuoi sapere dov'è il lago? A Mane. Là.",
+    "risposte": [
+     {
+      "testo": "E dall'altra parte?",
+      "vai_a": "n5"
+     }
+    ]
+   },
+   {
+    "id": "n5",
+    "chi": "gioanin",
+    "testo": "Gli Alpeggi, a Sera. E se corri a Sera pesi meno!",
+    "risposte": [
+     {
+      "testo": "Davvero?",
+      "vai_a": "n6"
+     },
+     {
+      "testo": "Grazie, geografi.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n6",
+    "chi": "gioanin",
+    "testo": "Un pochino. Il Ventin dice di sì.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_pina_soglia": {
+  "personaggio": "pina",
+  "si_apre": {
+   "come": "parlando",
+   "con": "pina",
+   "condizione": "!flag:velo_indossato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_pina"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Una figura curva sotto un cappuccio di lana, sulla soglia. Ritaglia un cartone con forbici enormi. Non alza la testa.",
+    "testo": "Non mi fare ombra, che taglio storto.",
+    "risposte": [
+     {
+      "testo": "Scusi.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Che cosa ritaglia?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "La Svegliata chiede scusa. Questa non me l'avevano detta.",
+    "risposte": [
+     {
+      "testo": "Che cosa ritaglia?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Figure. Stasera alla brace racconto la Partenza. Vieni, se vuoi. Vengono tutti.",
+    "risposte": [
+     {
+      "testo": "Che cos'è la Partenza?",
+      "vai_a": "n4"
+     },
+     {
+      "testo": "Verrò.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Quando i Padri lasciarono il Mondo Bruciato. Te la racconto stasera, non adesso: di giorno le storie non hanno ombra.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:pv_ombra"
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "d_pina_soglia_velo": {
+  "personaggio": "pina",
+  "si_apre": {
+   "come": "parlando",
+   "con": "pina",
+   "condizione": "flag:velo_indossato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_pina"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Pina alza appena il cappuccio, poi torna al suo cartone.",
+    "testo": "Ti sta bene il nero. Non ti somiglia.",
+    "risposte": [
+     {
+      "testo": "Me l'ha mandato la Madre.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Che cosa ritaglia?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Lo so chi te l'ha mandato. Lo so da prima di te.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Figure. Stasera alla brace racconto la Partenza. Vieni, se vuoi.",
+    "risposte": [
+     {
+      "testo": "Verrò.",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_pina_figura": {
+  "personaggio": "pina",
+  "si_apre": {
+   "come": "effetto",
+   "condizione": "flag:figura_presa"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:figura_toccata",
+   "taccuino:i_figura"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Pina allunga la mano senza alzare la testa, ti toglie la figura dalle dita e la rimette in fondo alla scatola, sotto le altre. Non dice niente.",
+    "testo": "",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_nando_1": {
+  "personaggio": "nando",
+  "si_apre": {
+   "come": "parlando",
+   "con": "nando",
+   "condizione": "!flag:velo_indossato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "contatore:velati+1",
+   "flag:parlato_nando",
+   "taccuino:i_benedetta",
+   "taccuino:i_casa_nando"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Un uomo senza velo, la faccia scura di sole, le mani spaccate. Sistema una pietra nel muro della sua casa.",
+    "testo": "Uè. La Svegliata, ai Ronchi. Qui non viene nessuno con la faccia coperta.",
+    "risposte": [
+     {
+      "testo": "La mia è coperta da un respiratore.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Che cosa fa?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "didascalia": "Ride.",
+    "testo": "Quello vale. Siediti, se vuoi. Qui non c'è niente di benedetto, però.",
+    "risposte": [
+     {
+      "testo": "Che cosa fa?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Rifaccio la casa. Ogni notte me ne portano via un pezzo, ogni mattina lo rimetto. Con le stesse pietre.",
+    "risposte": [
+     {
+      "testo": "Chi la porta via?",
+      "vai_a": "n4"
+     },
+     {
+      "testo": "Perché non la fa benedire?",
+      "vai_a": "n5"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Le Fade. Prendono le pietre della mia casa e le rimettono nel muro di Ronco. Al mattino me le riprendo. Si consumano le mani, non le pietre.",
+    "risposte": [
+     {
+      "testo": "Perché non la fa benedire?",
+      "vai_a": "n5"
+     }
+    ]
+   },
+   {
+    "id": "n5",
+    "testo": "Benedire costa. La Madre benedice chi porta il velo e paga la decima di castagne. Il velo io non lo porto, e castagne non ce n'è.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n6"
+     }
+    ]
+   },
+   {
+    "id": "n6",
+    "testo": "Tu sei la Svegliata. Me la benedici, la casa?",
+    "risposte": [
+     {
+      "testo": "Non so come si fa.",
+      "vai_a": "n7a"
+     },
+     {
+      "testo": "Ci provo.",
+      "vai_a": "n7b",
+      "effetti": [
+       "flag:promesso_nando"
+      ]
+     },
+     {
+      "testo": "Non sono una santa.",
+      "vai_a": "n7c"
+     }
+    ]
+   },
+   {
+    "id": "n7a",
+    "testo": "Neanche la Madre lo sapeva, all'inizio. Pensaci.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n7b",
+    "didascalia": "Ti guarda a lungo.",
+    "testo": "Allora ti aspetto.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n7c",
+    "testo": "Meglio. I santi non lavorano.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_nando_velo": {
+  "personaggio": "nando",
+  "si_apre": {
+   "come": "parlando",
+   "con": "nando",
+   "condizione": "flag:velo_indossato"
+  },
+  "ripetibile": true,
+  "alla_fine": [],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Nando vede il velo nero, si volta e torna alle sue pietre. Non risponde.",
+    "testo": "",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_nando_mattino": {
+  "personaggio": "nando",
+  "si_apre": {
+   "come": "parlando",
+   "con": "nando",
+   "condizione": "giorno:>=2 e ora:>=08:30 e ora:<09:30 e !flag:velo_indossato e !flag:casa_nando_rilevata"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:i_muro_ronco"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Nando toglie pietre dal muro di Ronco, intero, e le porta alla casa, una alla volta.",
+    "testo": "Hai visto? Stanotte il muro è guarito e la casa si è ammalata. Domani uguale.",
+    "risposte": [
+     {
+      "testo": "Le stesse pietre?",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Ti aiuto.",
+      "vai_a": "n3",
+      "effetti": [
+       "flag:aiutato_nando"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Le stesse. Questa ha una vena bianca: la conosco da vent'anni.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "didascalia": "Ti passa una pietra lo stesso.",
+    "testo": "Le Svegliate non portano pietre.",
+    "risposte": [
+     {
+      "testo": "Questa sì.",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_nando_benedetta": {
+  "personaggio": "nando",
+  "si_apre": {
+   "come": "parlando",
+   "con": "nando",
+   "condizione": "flag:casa_nando_rilevata"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:i_casa_nando_rimasta"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Nando è seduto sulla soglia di casa, con le mani in mano. Non sa dove metterle.",
+    "testo": "Non l'hanno toccata. Tutta la notte ho guardato: i lumi sono venuti, hanno girato, se ne sono andati. Me l'hai benedetta.",
+    "risposte": [
+     {
+      "testo": "L'ho misurata.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Te l'avevo promesso.",
+      "vai_a": "n2",
+      "condizione": "flag:promesso_nando"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Chiamala come vuoi. Lo dico a tutti.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_incontro": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "passo:m1_velati completato e luogo:piazza_ore raggiunto"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:ottavio_conosciuto",
+   "taccuino:w_linea",
+   "taccuino:w_meta",
+   "taccuino:w_mane",
+   "taccuino:w_sera",
+   "taccuino:w_insu",
+   "taccuino:i_messo",
+   "suggerimento:aspetta"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Un ragazzo atterra correndo, chiude il Velo verde con un colpo secco, si sistema il lume alla cintura.",
+    "testo": "Allora è vero. La Svegliata. Ti facevo più alta.",
+    "risposte": [
+     {
+      "testo": "Io ti facevo più lento.",
+      "vai_a": "n2a"
+     },
+     {
+      "testo": "Tu chi sei?",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2a",
+    "didascalia": "Ride, con la voce che gli si spezza a metà.",
+    "testo": "Più lento di così casco.",
+    "risposte": [
+     {
+      "testo": "Tu chi sei?",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2b",
+    "testo": "Ottavio. Il Messo. Ventin, per quelli che non mi pagano.",
+    "risposte": [
+     {
+      "testo": "Ventin?",
+      "vai_a": "n3b"
+     },
+     {
+      "testo": "Il Messo?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3b",
+    "testo": "Venticello. Perché arrivo prima delle lettere.",
+    "risposte": [
+     {
+      "testo": "E che cosa fa, il Messo?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Le lettere fra le valli le porto io. Da qui al lago appeso, agli Alpeggi. Al Sordo no.",
+    "risposte": [
+     {
+      "testo": "Come ci arrivi, al lago appeso?",
+      "vai_a": "n4"
+     },
+     {
+      "testo": "Perché al Sordo no?",
+      "vai_a": "n4b"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Si cade. In su. Dal Balcone dei Messi, dove si pesa poco: ti butti, e a metà strada il lago diventa sotto.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n5"
+     }
+    ]
+   },
+   {
+    "id": "n4b",
+    "testo": "Il Sordo non si guarda. Lo dice la Madre. Credo che lo dica anche il Sordo.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n5"
+     }
+    ]
+   },
+   {
+    "id": "n5",
+    "testo": "Il lago è a Mane, gli Alpeggi a Sera. Quando la Linea fa la brace, si torna a casa. Quando passa la Meta…",
+    "didascalia": "Una lama di luce bianca attraversa la piazza; tutte le ombre scattano e tornano.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n5b"
+     }
+    ]
+   },
+   {
+    "id": "n5b",
+    "testo": "…l'ombra scappa. Vedi? Sei già dei nostri.",
+    "risposte": [
+     {
+      "testo": "La Meta.",
+      "vai_a": "n6a"
+     },
+     {
+      "testo": "E la Linea?",
+      "vai_a": "n6b"
+     }
+    ]
+   },
+   {
+    "id": "n6a",
+    "testo": "La stella dove andiamo. Passa ogni momento, giorno e notte, e non arriva mai.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n7"
+     }
+    ]
+   },
+   {
+    "id": "n6b",
+    "didascalia": "Indica in su, il filo di luce lungo tutto il cielo.",
+    "testo": "Quella. Ci dà il giorno. Tu da dove vieni, che non sai la Linea?",
+    "risposte": [
+     {
+      "testo": "Da Cevio.",
+      "vai_a": "n6c"
+     },
+     {
+      "testo": "Da lontano.",
+      "vai_a": "n7"
+     }
+    ]
+   },
+   {
+    "id": "n6c",
+    "testo": "Non c'è una Cevio, qui.",
+    "risposte": [
+     {
+      "testo": "C'era.",
+      "vai_a": "n7"
+     }
+    ]
+   },
+   {
+    "id": "n7",
+    "testo": "Dove dormi, Svegliata? Nella Cripta, con i morti?",
+    "risposte": [
+     {
+      "testo": "Non lo so ancora.",
+      "vai_a": "n8"
+     },
+     {
+      "testo": "Con i morti si dorme bene.",
+      "vai_a": "n8b"
+     }
+    ]
+   },
+   {
+    "id": "n8b",
+    "testo": "Con i morti sì. Con le Fade meno.",
+    "risposte": [
+     {
+      "testo": "Le Fade?",
+      "vai_a": "n8"
+     }
+    ]
+   },
+   {
+    "id": "n8",
+    "testo": "Ho un fienile, di là dal riale. Il fieno è pulito, il tetto quasi.",
+    "risposte": [
+     {
+      "testo": "Accetto.",
+      "vai_a": "n9"
+     },
+     {
+      "testo": "Perché mi aiuti?",
+      "vai_a": "n8c"
+     }
+    ]
+   },
+   {
+    "id": "n8c",
+    "testo": "Perché porto notizie. E tu sei la notizia più grossa da quando sono nato.",
+    "risposte": [
+     {
+      "testo": "Accetto.",
+      "vai_a": "n9"
+     }
+    ]
+   },
+   {
+    "id": "n9",
+    "testo": "Prima però la Pina. Alla brace racconta la Partenza. Ci si siede e si aspetta.",
+    "risposte": [
+     {
+      "testo": "Aspettiamo.",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_fienile": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "passo:m1_fienile completato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:i_sorella_passa"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Il fienile odora di fieno vecchio. Ottavio apre la finestrella: a Mane e in alto, il vetro della Finestra dei Ponti, con le stelle che girano. Passa la Meta. Poco dopo, un disco grigio con la sua fase.",
+    "testo": "Quella è la Sorella. Sopra ci sono i parenti. Due volte al mese la Madre legge le loro lettere in piazza.",
+    "risposte": [
+     {
+      "testo": "Ci sono i miei, sopra.",
+      "vai_a": "n2a"
+     },
+     {
+      "testo": "Tu ci credi?",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2a",
+    "testo": "Allora ti scriveranno. Scrivono a tutti, prima o poi.",
+    "risposte": [
+     {
+      "testo": "Mi hanno già scritto.",
+      "vai_a": "n2c",
+      "condizione": "flag:lettera_letta"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2c",
+    "testo": "Già? Neanche il tempo di svegliarti. Sulla Sorella hanno fretta.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2b",
+    "didascalia": "Ci pensa un po' troppo.",
+    "testo": "Io guardo. Credere è un'altra cosa.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Dormi o guardi? Se guardi, non uscire. Il fienile è benedetto, il prato no.",
+    "risposte": [
+     {
+      "testo": "Dormo.",
+      "vai_a": "fine",
+      "effetti": [
+       "flag:scelta_dormire"
+      ]
+     },
+     {
+      "testo": "Guardo.",
+      "vai_a": "n4",
+      "effetti": [
+       "flag:scelta_vegliare"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "didascalia": "Si gira nel fieno, e in un minuto respira lungo.",
+    "testo": "Allora guarda dalla finestrella. Le Fade non guardano te. Tu guarda loro.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_mattino": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:2 e passo:m1_notte completato e !flag:notte_su_E1"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:q_notte",
+   "taccuino:i_sentiero_sparito",
+   "taccuino:w_fade"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Ottavio è sulla porta del fienile, scalzo, con le scarpe in mano.",
+    "testo": "Se l'è presa la notte. Le Fade. Non era benedetta.",
+    "risposte": [
+     {
+      "testo": "Benedetta da chi?",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "E adesso come si passa?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "didascalia": "Indica con il mento i Ronchi, lontani: la casa di Nando ha un muro a terra.",
+    "testo": "Dalla Madre. Le case benedette restano. Le altre…",
+    "risposte": [
+     {
+      "testo": "E adesso come si passa?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Al guado. Ci si bagna le scarpe. Stasera la rimetto.",
+    "risposte": [
+     {
+      "testo": "Ogni sera?",
+      "vai_a": "n4"
+     },
+     {
+      "testo": "Andiamo.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Ogni sera da tre anni. È la mia passerella. Le Fade non lo sanno.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_mattino_salvata": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:2 e passo:m1_notte completato e flag:notte_su_E1"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:q_notte",
+   "taccuino:i_sentiero_salvato",
+   "taccuino:w_fade"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Ottavio guarda le assi sul riale, poi te, poi di nuovo le assi.",
+    "testo": "Ci hai dormito sopra? Le Fade non toccano chi c'è.",
+    "risposte": [
+     {
+      "testo": "Ho visto. Mi giravano attorno.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Allora basta restare.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Ma non puoi dormire su tutti i ponti del mondo. Guarda le terrazze, guarda il Nando.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_clelia_dono": {
+  "personaggio": "clelia",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:>=2 e luogo:bacheca_ore raggiunto"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "oggetto:+velo_nero",
+   "oggetto:+biglietto_madre",
+   "testo:biglietto_madre",
+   "taccuino:q_sordo",
+   "taccuino:i_biglietto_madre",
+   "taccuino:w_sordo"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Una ragazza con una maschera di castagno liscia e una veste nera aspetta con le mani incrociate su un pacchetto legato con lo spago.",
+    "testo": "Dalla Madre, per la Svegliata.",
+    "risposte": [
+     {
+      "testo": "Che cosa vuole la Madre?",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Non porto veli.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Grazie.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "didascalia": "Ti mette in mano il pacchetto, si inchina appena e se ne va verso la Casa del Velo.",
+    "testo": "Non sta a me saperlo. La Madre scrive per chi sa leggere.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_clelia_letto": {
+  "personaggio": "clelia",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "flag:velo_indossato e ora:>=20:30 e passo:m1_strada completato"
+  },
+  "ripetibile": false,
+  "alla_fine": [],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "La Madre ha detto: se la Svegliata porta il velo, ha un letto nella Casa del Velo.",
+    "risposte": [
+     {
+      "testo": "Accetto.",
+      "vai_a": "fine",
+      "effetti": [
+       "flag:dorme_casa_velo"
+      ]
+     },
+     {
+      "testo": "Ho già un fienile.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Un fienile. Come le capre.",
+    "risposte": [
+     {
+      "testo": "Le capre dormono bene.",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_strada": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "parlando",
+   "con": "ottavio",
+   "condizione": "passo:m1_primo_rilievo completato"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "variante:E1=Abitata",
+   "flag:passerella_rimessa"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "Svegliata! Hai la faccia di chi ha un'idea.",
+    "risposte": [
+     {
+      "testo": "Rimettiamola adesso, la tua passerella.",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Adesso? Alla brace si rimette.",
+    "risposte": [
+     {
+      "testo": "Adesso.",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "didascalia": "Sbuffa, ma va a prendere le assi accatastate sulla riva.",
+    "testo": "Va bene. Ma se domani non c'è, le assi le porti tu.",
+    "risposte": [
+     {
+      "testo": "Affare fatto.",
+      "vai_a": "n4"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "didascalia": "Mettete le assi sul riale, una alla volta.",
+    "testo": "E con quel coso d'ottone che cosa fai?",
+    "risposte": [
+     {
+      "testo": "Lo misuro.",
+      "vai_a": "n5a"
+     },
+     {
+      "testo": "Lo benedico.",
+      "vai_a": "n5b"
+     }
+    ]
+   },
+   {
+    "id": "n5a",
+    "testo": "Misuri un ponte. Va bene, misura. Io intanto mi siedo.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n5b",
+    "testo": "Allora sei proprio la Santa. Non dirlo alla Madre.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_prova": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:>=3 e luogo:passerella_messo raggiunto"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "taccuino:i_legge_1",
+   "flag:legge_1"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Ottavio è seduto sulle assi della passerella, i piedi nell'acqua.",
+    "testo": "Non se l'è presa. Prima volta in tre anni.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "L'hai benedetta?",
+    "risposte": [
+     {
+      "testo": "L'ho misurata.",
+      "vai_a": "n3a"
+     },
+     {
+      "testo": "Sì.",
+      "vai_a": "n3b"
+     }
+    ]
+   },
+   {
+    "id": "n3a",
+    "testo": "È la stessa cosa? Mia nonna diceva: la préda mesürada la var püssée che la péna. Non ho mai capito di che penna parlasse.",
+    "risposte": [
+     {
+      "testo": "Non lo so ancora.",
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:pv_penna"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n3b",
+    "testo": "Lo sapevo. La Santa.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_gancio": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "dialogo:d_ottavio_prova finito"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:lettera_rosa_letta",
+   "taccuino:q_rosa",
+   "taccuino:i_lettera_rosa"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Ottavio fruga nella borsa del Messo e tira fuori una busta sporca di cera.",
+    "testo": "C'è anche questa. Dai Bugni, sul Verbanetto. La Rosa, la Bugnera. Ha detto: alla Svegliata, se è vera.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n2",
+      "effetti": [
+       "oggetto:+lettera_rosa",
+       "testo:lettera_rosa"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "didascalia": "Sopra, sul lago appeso, sulla riva a Mane, una colonna di scintille di rame sale e si sfalda.",
+    "testo": "Le api della Rosa. Da qui sembrano fuochi.",
+    "risposte": [
+     {
+      "testo": "Come ci si arriva, al lago appeso?",
+      "vai_a": "n3"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Si cade. Dal Balcone dei Messi, su in cima alle Selve, dove si pesa poco. Segui i nastri verdi sui castagni.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n4"
+     }
+    ]
+   },
+   {
+    "id": "n4",
+    "testo": "Domattina ti insegno. Se arrivi prima tu, non buttarti finché la nappina non pende.",
+    "risposte": [
+     {
+      "testo": "Che nappina?",
+      "vai_a": "n5"
+     },
+     {
+      "testo": "A domattina.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n5",
+    "didascalia": "Ti tocca la nappina appesa alla traversa del tuo Velo.",
+    "testo": "Questa. Quando pende di lato, il cielo ti prende.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_balcone": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:>=4 e luogo:balcone_messi raggiunto e ora:>=06:30 e ora:<09:00"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "flag:lezione_balcone"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "Sei arrivata. Senti come si pesa poco?",
+    "risposte": [
+     {
+      "testo": "Sì.",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "Ho paura.",
+      "vai_a": "n2b"
+     }
+    ]
+   },
+   {
+    "id": "n2b",
+    "testo": "Anch'io, la prima volta. Poi la paura si mette dietro.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Guarda la nappina. Quando pende verso Sera, corri e buttati. A metà strada non guardare giù: guarda in su, che è lo stesso.",
+    "risposte": [
+     {
+      "testo": "E se sbaglio?",
+      "vai_a": "n3"
+     },
+     {
+      "testo": "Andiamo.",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n3",
+    "testo": "Cadi nel lago. È morbido.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_consigli": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "parlando",
+   "con": "ottavio",
+   "condizione": "flag:gioco_libero"
+  },
+  "ripetibile": true,
+  "alla_fine": [],
+  "nodi": [
+   {
+    "id": "n1",
+    "testo": "Svegliata. Che cosa ti serve?",
+    "risposte": [
+     {
+      "testo": "Dov'è il Balcone dei Messi?",
+      "vai_a": "n_balcone"
+     },
+     {
+      "testo": "Che cosa si vede di notte?",
+      "vai_a": "n_notte"
+     },
+     {
+      "testo": "Chi altro ha bisogno di me?",
+      "vai_a": "n_nando",
+      "condizione": "!flag:casa_nando_rilevata"
+     },
+     {
+      "testo": "Niente. Volevo vederti.",
+      "vai_a": "n_niente"
+     }
+    ]
+   },
+   {
+    "id": "n_balcone",
+    "testo": "Su per le Selve fino al Pian dei Ricci, poi i nastri verdi sui castagni. Dentro le nuvole non ti fermare: si pesa sempre meno.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_notte",
+    "testo": "Dalla mia finestrella: il faro dell'isola, la lanterna della Torre dei Bugni, il lumino della croce d'alpe. E una luce che cammina sulla Finestra delle Vedove. Quella non la nomina nessuno.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:i_lumi_lontani"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "n_nando",
+    "testo": "Il Nando. Rifà la casa ogni mattina da quando sono nato. Se davvero sai benedire, comincia da lui.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   },
+   {
+    "id": "n_niente",
+    "didascalia": "Si gratta la nuca.",
+    "testo": "Nessuno vuole vedere il Messo. Vogliono le lettere.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ },
+ "d_ottavio_pacco": {
+  "personaggio": "ottavio",
+  "si_apre": {
+   "come": "automatico",
+   "condizione": "giorno:>=3 e passo:m1_prova completato e !dialogo:d_clelia_dono finito"
+  },
+  "ripetibile": false,
+  "alla_fine": [
+   "oggetto:+velo_nero",
+   "oggetto:+biglietto_madre",
+   "testo:biglietto_madre",
+   "taccuino:q_sordo",
+   "taccuino:i_biglietto_madre",
+   "taccuino:w_sordo"
+  ],
+  "nodi": [
+   {
+    "id": "n1",
+    "didascalia": "Ottavio tira fuori dalla borsa un pacchetto legato con lo spago.",
+    "testo": "Una novizia mi ha dato questo per te. Ha detto che ti ha aspettata tutto il giorno alla Bacheca. Non sembrava contenta.",
+    "risposte": [
+     {
+      "testo": "Che cos'è?",
+      "vai_a": "n2"
+     },
+     {
+      "testo": "…",
+      "vai_a": "n2"
+     }
+    ]
+   },
+   {
+    "id": "n2",
+    "testo": "Roba della Madre. Io i pacchi della Madre non li apro: ci tengo alle dita.",
+    "risposte": [
+     {
+      "testo": "…",
+      "vai_a": "fine"
+     }
+    ]
+   }
+  ]
+ }
+}

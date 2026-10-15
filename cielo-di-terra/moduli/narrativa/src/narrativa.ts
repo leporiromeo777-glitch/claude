@@ -15,6 +15,8 @@ import {
   ErroreCondizione,
   ParserCondizioni,
   atomiDi,
+  valutaNodo,
+  type NodoCondizione,
   type CondizioneGrezza,
   type ContestoCondizioni,
   type OpzioniParser,
@@ -226,6 +228,17 @@ export class Narrativa {
       if (this.rigoroso || !(e instanceof ErroreCondizione)) throw e;
       this.segnala(e.message, origine);
       return false;
+    } finally {
+      this.ambito = prima;
+    }
+  }
+
+  /** Valuta una condizione già compilata (per strumenti come il simulatore della verifica). */
+  valutaCompilata(n: NodoCondizione, ambito?: AmbitoPasso): boolean {
+    const prima = this.ambito;
+    this.ambito = ambito ? `${ambito.missione}/${ambito.passo}` : null;
+    try {
+      return valutaNodo(n, this.contesto);
     } finally {
       this.ambito = prima;
     }

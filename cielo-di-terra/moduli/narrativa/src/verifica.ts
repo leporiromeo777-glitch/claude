@@ -19,7 +19,6 @@ import {
   atomiDi,
   stampaAtomo,
   stampaCondizione,
-  valutaNodo,
   type Atomo,
   type CondizioneGrezza,
   type NodoCondizione,
@@ -28,6 +27,7 @@ import {
 import { normalizzaContenuti, type ContenutiNormalizzati, type DialogoDef } from './contenuti';
 import { analizzaEffetto, stampaEffetto, type Effetto } from './effetti';
 import { NOTTE_PREDEFINITA, Narrativa, type StatoNarrativo, type WorldFacts } from './narrativa';
+import type { AmbitoPasso } from './missioni';
 
 export interface ContenutiVerifica {
   missioni?: unknown;
@@ -207,6 +207,9 @@ function* effettiDi(c: ContenutiNormalizzati): Generator<[string, Sorgente]> {
 class FattiSimulati implements WorldFacts {
   oraCorrente = 7;
   giornoCorrente = 1;
+  /** Dove si trova Elvira adesso (un luogo alla volta). */
+  posizione: string | null = null;
+  /** Luoghi visitati (solo per la traccia). */
   luoghi = new Set<string>();
   rilevate = new Set<string>();
   viste = new Set<string>();
@@ -224,7 +227,7 @@ class FattiSimulati implements WorldFacts {
     return this.oraCorrente >= NOTTE_PREDEFINITA.inizio || this.oraCorrente < NOTTE_PREDEFINITA.fine;
   }
   luogoRaggiunto(id: string): boolean {
-    return this.luoghi.has(id);
+    return this.posizione === id;
   }
   cellaRilevata(id: string): boolean {
     return this.rilevate.has(id);
@@ -261,6 +264,7 @@ class FattiSimulati implements WorldFacts {
     const f = new FattiSimulati();
     f.oraCorrente = this.oraCorrente;
     f.giornoCorrente = this.giornoCorrente;
+    f.posizione = this.posizione;
     f.luoghi = new Set(this.luoghi);
     f.rilevate = new Set(this.rilevate);
     f.viste = new Set(this.viste);
@@ -295,6 +299,8 @@ class Simulatore {
   private esplorando = 0;
   /** La condizione che il simulatore sta cercando di rendere vera (guida la scelta delle risposte). */
   private radice: NodoCondizione | undefined;
+  /** Il passo nel cui ambito si valuta (luoghi raggiunti durante il passo). */
+  private ambito: AmbitoPasso | undefined;
   /** Flag letti da qualche condizione: impostarli «serve» alla storia. */
   private readonly flagLetti = new Set<string>();
   private readonly daAprire: string[] = [];
@@ -403,7 +409,13 @@ class Simulatore {
   }
 
   private firma(): string {
-    return JSON.stringify([this.n.esporta(), this.fatti.oraCorrente, this.fatti.giornoCorrente, [...this.fatti.luoghi], [...this.fatti.rilevate]]);
+    return JSON.stringify([
+      this.n.esporta(),
+      this.fatti.oraCorrente,
+      this.fatti.giornoCorrente,
+      this.fatti.posizione,
+      [...this.fatti.rilevate],
+    ]);
   }
 
   /** Partita intera: le missioni nell'ordine del file. */
@@ -433,7 +445,7 @@ class Simulatore {
       if (attivo) {
         dove = `passo ${attivo.id}`;
         if (attivo.completaQuando === undefined) return { esito: 'bloccata', motivo: `${dove}: manca «completa_quando»` };
-        motivo = this.soddisfa(attivo.completaQuando, 0);
+        motivo = this.soddisfa(attivo.completaQuando, 0, { missione: id, passo: attivo.id });
       } else {
         // Nessun passo attivo: si prova ad attivare il primo bloccato che ha una condizione propria.
         const bloccato = def.passi.find((p) => this.n.missioni.statoPasso(id, p.id) === 'bloccato' && p.attivaQuando !== undefined);
@@ -508,7 +520,7 @@ class Simulatore {
    * Prova a rendere vera una condizione. Restituisce null se ci riesce,
    * altrimenti il motivo.
    */
-  soddisfa(c: CondizioneGrezza, prof: number): string | null {
+  soddisfa(c: CondizioneGrezza, prof: number, ambito?: AmbitoPasso): string | null {
     let nodo: NodoCondizione;
     try {
       nodo = this.parser.compila(c);
@@ -516,16 +528,19 @@ class Simulatore {
       return e instanceof Error ? e.message : String(e);
     }
     const radicePrima = this.radice;
+    const ambitoPrima = this.ambito;
     if (prof === 0 || !this.radice) this.radice = nodo;
+    this.ambito = ambito;
     try {
       return this.soddisfaNodo(nodo, prof);
     } finally {
       this.radice = radicePrima;
+      this.ambito = ambitoPrima;
     }
   }
 
   private vero(n: NodoCondizione): boolean {
-    return valutaNodo(n, this.n.contesto);
+    return this.n.valutaCompilata(n, this.ambito);
   }
 
   private soddisfaNodo(n: NodoCondizione, prof: number): string | null {
@@ -598,8 +613,10 @@ class Simulatore {
     const f = this.fatti;
     switch (a.k) {
       case 'luogo':
+        f.posizione = a.id;
         f.luoghi.add(a.id);
-        this.log(`  raggiunge il luogo ${a.id}`);
+        this.log(`  va al luogo ${a.id}`);
+        this.n.segnalaLuogo(a.id); // resta «raggiunto» per i passi attivi
         return null;
       case 'cella':
         if (a.stato === 'rilevata') f.rilevate.add(a.id);
@@ -752,7 +769,7 @@ class Simulatore {
         }
         const p = this.c.missioni.find((m) => m.id === s.missione)!.passi.find((x) => x.id === s.passo)!;
         if (p.completaQuando === undefined) return `il passo ${s.missione}/${s.passo} non ha «completa_quando»`;
-        const m = this.soddisfa(p.completaQuando, prof + 1);
+        const m = this.soddisfa(p.completaQuando, prof + 1, { missione: s.missione, passo: s.passo });
         this.n.tick();
         if (m) return m;
         return riuscito() ? null : 'non basta';
@@ -766,7 +783,7 @@ class Simulatore {
         if (s.tipo === 'aiuto') {
           this.n.tick(p.aiuti[s.indice]!.dopoSecondi + 1);
         } else {
-          const m = this.soddisfa(p.eventi[s.indice]!.quando, prof + 1);
+          const m = this.soddisfa(p.eventi[s.indice]!.quando, prof + 1, { missione: s.missione, passo: s.passo });
           this.n.tick();
           if (m) return m;
         }
@@ -795,9 +812,9 @@ class Simulatore {
       const attivo = def.passi.find((p) => this.n.missioni.statoPasso(def.id, p.id) === 'attivo');
       const prima = this.firma();
       let m: string | null = null;
-      if (attivo?.completaQuando !== undefined && attivo.id !== passo) m = this.soddisfa(attivo.completaQuando, prof + 1);
-      else if (attivo?.id === passo && attivo.completaQuando !== undefined) m = this.soddisfa(attivo.completaQuando, prof + 1);
-      else {
+      if (attivo?.completaQuando !== undefined) {
+        m = this.soddisfa(attivo.completaQuando, prof + 1, { missione: def.id, passo: attivo.id });
+      } else {
         const bloccato = def.passi.find((p) => this.n.missioni.statoPasso(def.id, p.id) === 'bloccato');
         if (bloccato?.attivaQuando !== undefined) m = this.soddisfa(bloccato.attivaQuando, prof + 1);
       }
@@ -1026,8 +1043,8 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       avvisi.push(`dialogo ${d.id}: si apre parlando con «${d.apertura.con}», che non è in personaggi.json`);
     }
     if (d.apertura.come === 'automatico' && d.condizione === undefined) avvisi.push(`dialogo ${d.id}: automatico senza condizione (si aprirebbe subito)`);
-    if (d.apertura.come === 'effetto' && !prodotti.has(`dialogo:${d.id}`)) {
-      avvisaUnaVolta(`dialogo ${d.id}: «si_apre: effetto» ma nessun effetto «dialogo:${d.id}»: lo apro quando la condizione è vera, come un automatico`);
+    if (d.apertura.come === 'effetto' && !prodotti.has(`dialogo:${d.id}`) && d.condizione === undefined) {
+      avvisi.push(`dialogo ${d.id}: «si_apre: effetto» senza condizione e senza un effetto «dialogo:${d.id}»: non si apre mai`);
     }
     if (d.apertura.come === 'automatico' && d.ripetibile) avvisi.push(`dialogo ${d.id}: automatico e ripetibile: si apre una volta sola`);
   }
