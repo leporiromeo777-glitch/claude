@@ -357,7 +357,11 @@ async function main() {
       g.lookAt(1046, 37, 30);
       g.startGlide(9);
     });
-    await avanza(1.2);
+    for (let i = 0; i < 4; i++) {
+      const p = await R(() => window.__GAME__.getPlayerState());
+      log(`  volo: ${p.mode} velo ${p.veloOpen} h ${p.heightAboveGround.toFixed(1)} v ${p.speed.toFixed(1)} z ${p.z.toFixed(1)} θ ${p.theta.toFixed(2)}`);
+      await avanza(0.3);
+    }
     await foto('08-planata');
     for (let i = 0; i < 40; i++) {
       await avanza(0.5);
