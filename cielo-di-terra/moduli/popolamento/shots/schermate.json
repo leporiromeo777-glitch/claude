@@ -1,11 +1,13 @@
 {
   "statistiche": {
-    "zone": 2,
-    "triangoli": 47513,
-    "collider": 8,
-    "lumi": 0,
-    "punti": 6,
-    "castagniTolti": 0,
+    "zone": 36,
+    "triangoli": 503201,
+    "collider": 2286,
+    "lumi": 219,
+    "punti": 23,
+    "castagniTolti": 1,
+    "case": 44,
+    "muriMetri": 3414,
     "segnaposto": {
       "meshTolte": [
         "paese-corbella"
@@ -14,14 +16,26 @@
       "colliderTolti": 691,
       "lumiTolti": 83
     },
-    "msCostruzione": 189
+    "msCostruzione": 2323
   },
   "schermate": [
     {
       "file": "piazza-campanile.png",
       "titolo": "Piazza delle Ore con il campanile di San Vigilio, a metà mattina",
-      "drawCalls": 95,
-      "triangoli": 543381
+      "drawCalls": 121,
+      "triangoli": 908481
+    },
+    {
+      "file": "panorama-paese.png",
+      "titolo": "Corbella dall'alto delle terrazze, a Mont e a Sera del paese",
+      "drawCalls": 91,
+      "triangoli": 1027443
+    },
+    {
+      "file": "chiesa-sagrato.png",
+      "titolo": "San Vigilio, il sagrato a gradini e il tasso",
+      "drawCalls": 111,
+      "triangoli": 943785
     }
   ]
 }
