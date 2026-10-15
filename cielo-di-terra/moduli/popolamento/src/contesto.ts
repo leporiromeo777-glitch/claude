@@ -96,6 +96,12 @@ export class Contesto {
       ...(opz.rif ? { rif: opz.rif } : {}),
     };
     this.punti.set(id, p);
+    // il segnale di un chiodo, se il caposaldo non ne ha uno suo (palina, disco): la biffa tenuta
+    // in piedi sul chiodo, 1,2 m (come nelle visuali dei lati)
+    if (azione === 'pianta_squadro' && opz.rif?.startsWith('cs_') && !this.segnali.has(opz.rif)) {
+      const su = new Vector3(-pos.x, -pos.y, 0).normalize();
+      this.segnali.set(opz.rif, pos.clone().addScaledVector(su, 1.2));
+    }
     return p;
   }
 

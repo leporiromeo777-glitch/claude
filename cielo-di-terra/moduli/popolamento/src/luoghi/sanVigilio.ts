@@ -97,9 +97,6 @@ export function posaChiodo(ctx: Contesto, zona: string, numero: number, z: numbe
   const punti = ctx.posa(zona, ch, z, theta, 0, { h, luogo: luogoId, tag: () => 'chiodo' });
   ctx.zona(zona).aggiungiCollider(cylinderAt(z, theta, h - 0.05, 0.08, 0.08, 'chiodo'), 'chiodo', luogoId);
   const p = punti['chiodo'] ?? ctx.qui(z, theta, 0.05);
-  // segnale di un chiodo: la biffa tenuta in piedi sul chiodo (1,2 m), come nelle visuali dei lati
-  const su = new Vector3(-p.x, -p.y, 0).normalize();
-  ctx.segnali.set(id, p.clone().addScaledVector(su, 1.2));
   ctx.punto(`chiodo:${numero}`, 'pianta_squadro', `Pianta lo squadro sul chiodo ${numero}`, p, { raggio: 1.4, luogo: luogoId, rif: id });
 }
 
