@@ -149,11 +149,13 @@ export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): C
   const cs11 = RETE.find((c) => c.id === 'cs_11')!;
   const fpc = impronta(cs11.z, cs11.theta, 0, 0.9, 0.9);
   const bc = new Costruttore(1111);
-  bc.aggiungi(geoLastra(0.78, 0.95 + (fpc.max - fpc.min), 0.72, 1111, 0.07), { matrice: mat([0, (0.95 + (fpc.max - fpc.min)) / 2 - (fpc.max - fpc.min) - 0.1, 0], [0, 0.4, 0]), colore: mescola(PALETTE.gneiss, PALETTE.muschio, 0.15), gradiente: { basso: 0.7, alto: 1.05, y0: -0.5, y1: 0.85 }, piatto: true });
+  const hCippo = 0.62; // sopra il suolo più alto dell'impronta
+  const giu = fpc.max - fpc.min + 0.25;
+  bc.aggiungi(geoLastra(0.74, hCippo + giu, 0.66, 1111, 0.06), { matrice: mat([0, (hCippo - giu) / 2, 0], [0, 0.4, 0]), colore: mescola(PALETTE.gneiss, PALETTE.muschio, 0.15), gradiente: { basso: 0.7, alto: 1.05, y0: -giu, y1: hCippo }, piatto: true });
   ctx.zona(zona).oggetto(bc.costruisci('cippo'), matriceSuperficie(cs11.z, cs11.theta, fpc.max, yawValle(cs11.z, cs11.theta)), { lumi: false });
-  ctx.zona(zona).aggiungiCollider(boxCippo(cs11.z, cs11.theta, fpc.min - 0.2, fpc.max + 0.75), 'caposaldo', 'cippo_cripta');
-  posaChiodo(ctx, zona, 11, cs11.z, cs11.theta, 'cs_11', 'cippo_cripta', fpc.max + 0.75);
-  ctx.punto('lente:cippo', 'lente', 'Lente: i graffi sul chiodo 11', mondo(cs11.z, cs11.theta, fpc.max + 0.8), { raggio: 1.8, luogo: 'cippo_cripta', rif: 'flag:lente:cippo' });
+  ctx.zona(zona).aggiungiCollider(boxCippo(cs11.z, cs11.theta, fpc.min - 0.2, fpc.max + hCippo), 'caposaldo', 'cippo_cripta');
+  posaChiodo(ctx, zona, 11, cs11.z, cs11.theta, 'cs_11', 'cippo_cripta', fpc.max + hCippo + 0.035);
+  ctx.punto('lente:cippo', 'lente', 'Lente: i graffi sul chiodo 11', mondo(cs11.z, cs11.theta, fpc.max + hCippo + 0.05), { raggio: 1.8, luogo: 'cippo_cripta', rif: 'flag:lente:cippo' });
   ctx.occupa({ nome: 'cippo_cripta', z: cs11.z, theta: cs11.theta, raggio: 1.2 });
 
   // muretto del belvedere sul ciglio della prima terrazza, con la pietra piatta
