@@ -158,7 +158,7 @@
     },
     "titolo": "Il nodo",
     "teresa": {
-      "testo": "Cara, sono trent'anni. Domattina voglio parlare con la Marta, anche solo sulla soglia del forno, anche solo un minuto. Fammela incontrare. Il resto lo dico io.",
+      "testo": "Cara, sono trent'anni. Domani voglio parlare con la Marta, anche solo sulla soglia del forno, anche solo un minuto. Fammela incontrare. Il resto lo dico io.",
       "esito": {
         "ok": "Teresa e Marta si sono trovate faccia a faccia, dopo trent'anni. Non si sono dette niente, ma nessuna delle due ha abbassato gli occhi.",
         "fallita": "Teresa e Marta non si sono incontrate. Teresa ha detto «pazienza, cara» con la voce di chi conta gli anni."

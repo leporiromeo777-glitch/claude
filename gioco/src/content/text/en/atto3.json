@@ -124,7 +124,7 @@
       }
     },
     "lunardi": {
-      "testo": "Miss, I still feel a stranger. I should like to meet at least three people tomorrow morning, and have one, just one, confide something to me. As islanders do.",
+      "testo": "Miss, I still feel a stranger. I should like to meet at least three people tomorrow, and have one, just one, confide something to me. As islanders do.",
       "esito": {
         "ok": "The doctor had his three visits, and a confidence. He holds it as tight as a prescription.",
         "fallita": "Nobody confided anything to the doctor. He dined alone in the Pharmacy, with the glass jars for company."

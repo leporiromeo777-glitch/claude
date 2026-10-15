@@ -1287,6 +1287,13 @@ describe('revisione 1: continuità degli Atti II-III (CA23-05)', () => {
     expect(te(bepi?.lines[1]?.textKey ?? '')).not.toMatch(/as far as me/);
     // Don Piero dà del lei anche a Livia (g22 «Perdoni un vecchio distratto», g23).
     expect(t('atto3.g23.alba.messa.1')).not.toMatch(/come vedi/);
+    // P092: un bigliettino non chiede una mattina che la richiesta non controlla.
+    for (const id of ['g11.teresa', 'g18.lunardi']) {
+      const n = db.notes.get(id);
+      expect(JSON.stringify(n?.request), id).not.toMatch(/"(to|by|from|hour)"/);
+      expect(t(n?.textKey ?? ''), id).not.toMatch(/domattina|mattina/i);
+      expect(te(n?.textKey ?? ''), id).not.toMatch(/morning/i);
+    }
   });
 });
 
