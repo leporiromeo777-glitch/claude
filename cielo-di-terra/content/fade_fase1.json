@@ -36,6 +36,11 @@
    "colore -> matita: caposaldo spostato o scrittura cancellata (non accade nella Fase 1)"
   ]
  },
+ "condizioni_notte": {
+  "elemento_rilevato:X": "tutte le particelle dell'elemento X sono rilevate (da Elvira o da un altro Giardiniere). Se ne è rilevata solo una parte, l'elemento conta come non rilevato e torna alla Carta per intero.",
+  "elvira_su:X": "all'ora del passaggio Elvira si trova su una particella dell'elemento X: le Fade le girano attorno e se ne vanno (regola 4); il sistema accende flag:notte_su_X.",
+  "sintassi": "come nei passi di missione: atomi uniti da e / o, ! per negare"
+ },
  "leggi": [
   {
    "id": "legge_1",
@@ -329,7 +334,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurata: tornata alla Carta.",
-     "se": "!cella_rilevata:E4 e !elvira_su:E4"
+     "se": "!elemento_rilevato:E4 e !elvira_su:E4"
     },
     {
      "ora": "23:20",
@@ -341,7 +346,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurata: tornata alla Carta.",
-     "se": "!cella_rilevata:E1 e !elvira_su:E1"
+     "se": "!elemento_rilevato:E1 e !elvira_su:E1"
     },
     {
      "ora": "00:30",
@@ -352,7 +357,7 @@
      "da": "Abitata",
      "a": "Smontata",
      "motivo": "Non misurata: un muro in meno.",
-     "se": "!cella_rilevata:E2 e !elvira_su:E2"
+     "se": "!elemento_rilevato:E2 e !elvira_su:E2"
     },
     {
      "ora": "00:30",
@@ -363,7 +368,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurato: le pietre rimesse nel muro.",
-     "se": "!cella_rilevata:E3 e !elvira_su:E3"
+     "se": "!elemento_rilevato:E3 e !elvira_su:E3"
     },
     {
      "ora": "02:00",
@@ -406,7 +411,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurata: tornata alla Carta.",
-     "se": "!cella_rilevata:E4 e !elvira_su:E4"
+     "se": "!elemento_rilevato:E4 e !elvira_su:E4"
     },
     {
      "ora": "23:20",
@@ -418,7 +423,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurata: tornata alla Carta.",
-     "se": "!cella_rilevata:E1 e !elvira_su:E1"
+     "se": "!elemento_rilevato:E1 e !elvira_su:E1"
     },
     {
      "ora": "00:30",
@@ -429,7 +434,7 @@
      "da": "Abitata",
      "a": "Smontata",
      "motivo": "Non misurata: un muro in meno.",
-     "se": "!cella_rilevata:E2 e !elvira_su:E2"
+     "se": "!elemento_rilevato:E2 e !elvira_su:E2"
     },
     {
      "ora": "00:30",
@@ -440,7 +445,7 @@
      "da": "Abitata",
      "a": "Carta",
      "motivo": "Non misurato: le pietre rimesse nel muro.",
-     "se": "!cella_rilevata:E3 e !elvira_su:E3"
+     "se": "!elemento_rilevato:E3 e !elvira_su:E3"
     },
     {
      "ora": "04:30",

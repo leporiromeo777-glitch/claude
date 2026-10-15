@@ -873,6 +873,20 @@ class Simulatore {
 // ---------------------------------------------------------------------------
 // Verifica
 
+/** Id dei testi di testi.json: tutti, le battute e i suggerimenti. */
+function idTesti(x: unknown): { tutti: Set<string>; battute: Set<string>; suggerimenti: Set<string> } | null {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  const tutti = new Set<string>();
+  const sezioni: Record<string, Set<string>> = {};
+  for (const [k, v] of Object.entries(x as Oggetto)) {
+    if (k.startsWith('_') || k.startsWith('$')) continue;
+    const ids = idDa(v);
+    sezioni[k] = ids;
+    for (const id of ids) tutti.add(id);
+  }
+  return { tutti, battute: sezioni.battute ?? new Set(), suggerimenti: sezioni.suggerimenti ?? new Set() };
+}
+
 export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVerifica = {}): RapportoVerifica {
   const errori: string[] = [];
   const avvisi: string[] = [];
@@ -883,8 +897,25 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
   const luoghi = grezzi.luoghi !== undefined ? idDa(grezzi.luoghi) : null;
   const personaggi = grezzi.personaggi !== undefined ? idDa(grezzi.personaggi) : null;
   const celle = grezzi.celle ? new Set(grezzi.celle) : null;
-  const voci = new Set(c.taccuino.map((v) => v.id));
+  const elementi = grezzi.elementi ?? null;
+  const testi = idTesti(grezzi.testi);
+  const voci = new Map(c.taccuino.map((v) => [v.id, v]));
   const missioni = new Map(c.missioni.map((m) => [m.id, m]));
+  const avvisaUnaVolta = (s: string): void => {
+    if (!avvisi.includes(s)) avvisi.push(s);
+  };
+
+  // Passi con lo stesso id in missioni diverse (i contenuti li citano spesso con il solo id).
+  const passiVisti = new Map<string, string>();
+  for (const m of c.missioni) {
+    for (const p of m.passi) {
+      const altra = passiVisti.get(p.id);
+      if (altra !== undefined && altra !== m.id) avvisi.push(`il passo «${p.id}» è sia in ${altra} sia in ${m.id}`);
+      passiVisti.set(p.id, m.id);
+      if (p.luogo !== undefined && luoghi && !luoghi.has(p.luogo)) avvisi.push(`missione ${m.id}, passo ${p.id}: luogo «${p.luogo}» non è in luoghi.json`);
+      if (p.completaQuando === undefined) errori.push(`missione ${m.id}, passo ${p.id}: manca «completa_quando»`);
+    }
+  }
 
   // 1. Condizioni
   const atomiLetti: [Atomo, string][] = [];
@@ -919,9 +950,21 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     if (e.tipo === 'taccuino' && !voci.has(e.id)) avvisi.push(`${origine}: «${stampaEffetto(e)}» scrive una voce che non è in taccuino.json`);
     if (e.tipo === 'missione' && !missioni.has(e.id)) errori.push(`${origine}: «${s}» cita una missione inesistente`);
     if (e.tipo === 'dialogo' && !c.dialoghi[e.id]) errori.push(`${origine}: «${s}» cita un dialogo inesistente`);
+    if (e.tipo === 'evento' && testi) {
+      const arg = e.argomenti[0] ?? '';
+      if (e.nome === 'testo' && !testi.tutti.has(arg)) avvisi.push(`${origine}: «${s}»: testo inesistente in testi.json`);
+      if (e.nome === 'battuta' && !testi.battute.has(arg)) avvisi.push(`${origine}: «${s}»: battuta inesistente in testi.json`);
+      if (e.nome === 'suggerimento' && !testi.suggerimenti.has(arg)) avvisi.push(`${origine}: «${s}»: suggerimento inesistente in testi.json`);
+    }
+    if (e.tipo === 'evento' && e.nome === 'variante' && elementi) {
+      const [el, va] = e.argomenti;
+      const varianti = elementi[el!];
+      if (!varianti) avvisi.push(`${origine}: «${s}»: elemento mobile «${el}» non è in fade_fase1.json`);
+      else if (!varianti.includes(va!)) avvisi.push(`${origine}: «${s}»: l'elemento ${el} non ha la variante «${va}» (ha ${varianti.join(', ')})`);
+    }
   }
 
-  // 3. Dialoghi: vai_a, nodi irraggiungibili, personaggi
+  // 3. Dialoghi: vai_a, nodi irraggiungibili, personaggi, apertura
   let nNodi = 0;
   for (const d of Object.values(c.dialoghi)) {
     const ids = new Set(d.nodi.map((n) => n.id));
@@ -939,7 +982,6 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       if (n.vaiA && !ids.has(n.vaiA)) errori.push(`dialogo ${d.id}, nodo ${n.id}: vai_a «${n.vaiA}» non esiste`);
       if (!n.testo.trim() && !n.didascalia?.trim()) avvisi.push(`dialogo ${d.id}, nodo ${n.id}: né testo né didascalia`);
     }
-    // raggiungibilità
     const raggiunti = new Set<string>();
     const coda = ids.has(d.inizio) ? [d.inizio] : [];
     while (coda.length) {
@@ -951,31 +993,43 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       if (n.vaiA && ids.has(n.vaiA)) coda.push(n.vaiA);
     }
     for (const n of d.nodi) if (!raggiunti.has(n.id)) avvisi.push(`dialogo ${d.id}: il nodo «${n.id}» non è raggiungibile dall'inizio`);
-    // un dialogo deve poter finire
     const finisce = d.nodi.some((n) => raggiunti.has(n.id) && (n.risposte.length === 0 ? !n.vaiA : n.risposte.some((r) => r.vaiA === null)));
     if (d.nodi.length && !finisce) errori.push(`dialogo ${d.id}: nessun nodo raggiungibile chiude il dialogo`);
     if (!d.personaggio) avvisi.push(`dialogo ${d.id}: manca il personaggio`);
     else if (personaggi && !personaggi.has(d.personaggio)) avvisi.push(`dialogo ${d.id}: personaggio «${d.personaggio}» non è in personaggi.json`);
-    const chiSconosciuti = new Set(d.nodi.map((n) => n.chi).filter((c): c is string => !!c && !!personaggi && !personaggi.has(c)));
-    if (chiSconosciuti.size) {
-      avvisi.push(`dialogo ${d.id}: «chi» non presenti in personaggi.json: ${[...chiSconosciuti].join(', ')}`);
-    }
+    const chiSconosciuti = new Set(d.nodi.map((n) => n.chi).filter((x): x is string => !!x && !!personaggi && !personaggi.has(x)));
+    if (chiSconosciuti.size) avvisi.push(`dialogo ${d.id}: «chi» non presenti in personaggi.json: ${[...chiSconosciuti].join(', ')}`);
     if (d.apertura.come === 'parlando' && d.apertura.con && personaggi && !personaggi.has(d.apertura.con)) {
       avvisi.push(`dialogo ${d.id}: si apre parlando con «${d.apertura.con}», che non è in personaggi.json`);
     }
-    if (d.apertura.come === 'automatico' && d.condizione === undefined) {
-      avvisi.push(`dialogo ${d.id}: automatico senza condizione (si aprirebbe subito)`);
+    if (d.apertura.come === 'automatico' && d.condizione === undefined) avvisi.push(`dialogo ${d.id}: automatico senza condizione (si aprirebbe subito)`);
+    if (d.apertura.come === 'effetto' && !prodotti.has(`dialogo:${d.id}`)) {
+      avvisaUnaVolta(`dialogo ${d.id}: «si_apre: effetto» ma nessun effetto «dialogo:${d.id}»: lo apro quando la condizione è vera, come un automatico`);
     }
+    if (d.apertura.come === 'automatico' && d.ripetibile) avvisi.push(`dialogo ${d.id}: automatico e ripetibile: si apre una volta sola`);
   }
 
-  // 4. Riferimenti nelle condizioni
-  const visti = new Set<string>();
-  const avvisaUnaVolta = (s: string): void => {
-    if (!visti.has(s)) {
-      visti.add(s);
-      avvisi.push(s);
+  // 4. Taccuino: collegamenti fra domande, indizi, note, parole
+  for (const v of c.taccuino) {
+    if (v.domanda !== undefined) {
+      const q = voci.get(v.domanda);
+      if (!q) avvisi.push(`taccuino ${v.id}: la domanda «${v.domanda}» non esiste`);
+      else if (q.tipo !== 'domanda') avvisi.push(`taccuino ${v.id}: «${v.domanda}» non è una domanda`);
+      else if (q.indizi && !q.indizi.includes(v.id)) avvisi.push(`taccuino ${v.id}: punta alla domanda ${q.id}, che non lo elenca fra i suoi indizi`);
     }
-  };
+    for (const i of v.indizi ?? []) {
+      const ind = voci.get(i);
+      if (!ind) avvisi.push(`taccuino ${v.id}: l'indizio «${i}» non esiste`);
+      else if (ind.domanda !== undefined && ind.domanda !== v.id) avvisi.push(`taccuino ${v.id}: elenca l'indizio ${i}, che però punta a ${ind.domanda}`);
+    }
+    if (v.sotto !== undefined && !voci.has(v.sotto)) avvisi.push(`taccuino ${v.id}: «sotto» punta a «${v.sotto}», che non esiste`);
+    if (v.sostituisce !== undefined && !voci.has(v.sostituisce)) avvisi.push(`taccuino ${v.id}: sostituisce «${v.sostituisce}», che non esiste`);
+    if (!prodotti.has(`taccuino:${v.id}`) && v.sbloccaQuando === undefined) avvisi.push(`taccuino ${v.id}: nessun effetto scrive questa voce`);
+  }
+
+  // 5. Riferimenti nelle condizioni
+  const flagDaGioco = new Map<string, string[]>();
+  const oggettiDaGioco = new Map<string, string[]>();
   for (const [a, origine] of atomiLetti) {
     switch (a.k) {
       case 'luogo':
@@ -1005,29 +1059,30 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       }
       case 'taccuino':
         if (!voci.has(a.id)) avvisaUnaVolta(`${origine}: voce del taccuino «${a.id}» non è in taccuino.json`);
-        else if (!prodotti.has(`taccuino:${a.id}`) && !c.taccuino.find((v) => v.id === a.id)?.sbloccaQuando) {
-          avvisaUnaVolta(`${origine}: la voce «${a.id}» non viene mai scritta da un effetto`);
-        }
         break;
       case 'flag':
-        if (!flagImpostati.has(a.nome)) avvisaUnaVolta(`${origine}: il flag «${a.nome}» non è impostato da nessun effetto (deve farlo il gioco?)`);
+        if (!flagImpostati.has(a.nome)) flagDaGioco.set(a.nome, [...(flagDaGioco.get(a.nome) ?? []), origine]);
         break;
       case 'oggetto':
-        if (!prodotti.has(`oggetto:${a.id}`)) avvisaUnaVolta(`${origine}: l'oggetto «${a.id}» non è dato da nessun effetto (deve farlo il gioco?)`);
+        if (!prodotti.has(`oggetto:${a.id}`)) oggettiDaGioco.set(a.id, [...(oggettiDaGioco.get(a.id) ?? []), origine]);
         break;
       default:
         break;
     }
   }
+  const unici = (l: string[]): string[] => [...new Set(l)];
+  const flagDelGioco = [...flagDaGioco].map(([nome, letto]) => ({ nome, letto: unici(letto) })).sort((x, y) => x.nome.localeCompare(y.nome));
+  const oggettiDelGioco = [...oggettiDaGioco].map(([id, letto]) => ({ id, letto: unici(letto) })).sort((x, y) => x.id.localeCompare(y.id));
   for (const m of c.missioni) {
     for (const p of m.passi) {
-      if (p.completaQuando === undefined) errori.push(`missione ${m.id}, passo ${p.id}: manca «completa_quando»`);
-      if (p.obiettivo === undefined) avvisi.push(`missione ${m.id}, passo ${p.id}: manca «obiettivo_taccuino»`);
+      if (p.obiettivo === undefined && m.tipo !== 'sfondo' && m.tipo !== 'segreto' && m.tipo !== 'indizio' && m.tipo !== 'easter_egg') {
+        avvisi.push(`missione ${m.id}, passo ${p.id}: manca «obiettivo_taccuino»`);
+      }
     }
   }
 
-  // 5. Simulazione
-  const sim = new Simulatore(c, parser, opzioni, opzioni.maxAzioni ?? 400);
+  // 6. Simulazione
+  const sim = new Simulatore(c, parser, opzioni, opzioni.maxAzioni ?? 2000);
   let simulazione: EsitoMissione[] = [];
   try {
     simulazione = sim.gioca();
@@ -1037,7 +1092,9 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
   for (const s of simulazione) {
     if (s.esito !== 'completata') errori.push(`simulazione: la missione ${s.missione} è ${s.esito}: ${s.motivo}`);
   }
-  for (const p of sim.n.problemi) if (!errori.some((e) => e.includes(p)) && !avvisi.includes(`forma: ${p}`)) avvisi.push(`durante la simulazione: ${p}`);
+  for (const p of sim.n.problemi) {
+    if (!errori.some((e) => e.includes(p)) && !avvisi.some((a) => a.includes(p))) avvisi.push(`durante la simulazione: ${p}`);
+  }
 
   return {
     errori,
@@ -1045,12 +1102,15 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     simulazione,
     traccia: sim.traccia,
     ipotesi: sim.ipotesi,
+    flagDelGioco,
+    oggettiDelGioco,
     conteggi: {
       missioni: c.missioni.length,
-      passi: c.missioni.reduce((s, m) => s + m.passi.length, 0),
+      passi: c.missioni.reduce((t, m) => t + m.passi.length, 0),
       dialoghi: Object.keys(c.dialoghi).length,
       nodi: nNodi,
       vociTaccuino: c.taccuino.length,
+      righeCielo: c.rigaCielo.length,
       condizioni: nCondizioni,
       effetti: nEffetti,
     },

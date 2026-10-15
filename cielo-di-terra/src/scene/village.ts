@@ -327,7 +327,31 @@ export const PLACEHOLDER_HAMLETS: VillageDef[] = [
     campanile: { name: '', z: 1250, theta: 292, height: 14 },
     piazza: { name: '', z: 1250, theta: 292, radius: 6 },
   },
+  sparse('cascine-sparse-valle2', 'valle-2', 1950, 196, 230, 9),
+  sparse('cascine-sparse-valle3', 'valle-3', 1850, 268, 280, 11),
+  sparse('cascine-sparse-valle1-nord', 'valle-1', 1900, 30, 220, 8),
+  sparse('cascine-sparse-valle3-sud', 'valle-3', 800, 300, 200, 7),
 ];
+
+/** Cascine sparse segnaposto (luci notturne nelle altre valli). */
+function sparse(id: string, strip: string, z: number, theta: number, radius: number, houseCount: number): VillageDef {
+  return {
+    id,
+    name: `${id} (segnaposto)`,
+    strip,
+    zStart: z - radius,
+    zEnd: z + radius,
+    zCenter: z,
+    thetaCenter: theta,
+    radius,
+    houseCount,
+    terraceStep: 3.5,
+    terraceRadius: 0,
+    slope: 0,
+    campanile: { name: '', z, theta, height: 14 },
+    piazza: { name: '', z, theta, radius: 4 },
+  };
+}
 
 /** Posizione cilindrica di comodo per i lampioni della piazza. */
 export function piazzaLampPositions(v: VillageDef): Vector3[] {

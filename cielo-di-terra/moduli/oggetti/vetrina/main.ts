@@ -38,11 +38,11 @@ interface Vista {
 
 const VISTE: Record<string, Vista> = {
   insieme: { cam: [6, 30, 74], guarda: [2, 2, -2], didascalia: 'Vetrina d’insieme' },
-  rustici: { cam: [-6, 6, 22], guarda: [-6, 3.5, -6], didascalia: 'Rustici ticinesi in gneiss con tetto in piode' },
+  rustici: { cam: [-5, 4.2, 7], guarda: [-7, 3.6, -8], fov: 58, didascalia: 'Rustici ticinesi in gneiss con tetto in piode' },
   smontato: { cam: [27, 4.5, 6], guarda: [16, 2, -8], didascalia: 'Rustico «smontato dalle Fade» (stessa pianta del rustico a destra)' },
   campanile: { cam: [14, 5, 6], guarda: [4, 16, -22], fov: 50, didascalia: 'Campanile di San Vigilio con il Pilastro 1' },
   cella: { cam: [9, 23, -12], guarda: [4, 23, -22], fov: 40, didascalia: 'Cella campanaria, cappello di piode, Pilastro 1 con la targa del 2120' },
-  castagni: { cam: [-14, 6, 46], guarda: [-22, 6, 20], didascalia: 'Castagni secolari: estate, autunno, fioritura' },
+  castagni: { cam: [-18, 6.5, 50], guarda: [-27, 6, 22], fov: 55, didascalia: 'Castagni secolari: estate, autunno, fioritura' },
   cripta: { cam: [-2.5, 3.2, 23], guarda: [-6, 1.0, 15.5], didascalia: 'Castagno morto e botola della Cripta (aperta)' },
   muri: { cam: [19, 4.0, 31], guarda: [26, 1.0, 18], didascalia: 'Muri a secco, scaletta e cancello' },
   cancello: { cam: [29.5, 1.9, 26.5], guarda: [31, 0.8, 22], fov: 45, didascalia: 'Cancello di legno fra due pilastri' },

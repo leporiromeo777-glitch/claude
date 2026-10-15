@@ -45,7 +45,7 @@ const SHOTS = [
     setup: (g) => {
       g.setTime(12.2);
       g.teleport(1028, 36.6, 0);
-      g.look(62, 34);
+      g.look(62, 30);
     },
     frames: 4,
   },
@@ -63,11 +63,11 @@ const SHOTS = [
   {
     n: 3,
     file: '03-planata-alta.png',
-    title: "In planata alta, vicino all'asse, attraversando il cielo",
+    title: "In planata alta, a 50 m dall'asse, verso il lago dall'altra parte del cielo",
     setup: (g) => {
       g.setTime(11);
-      g.teleport(1350, 200, 590, true);
-      g.look(15, -38);
+      g.teleport(1350, 200, 592, true);
+      g.look(-8, -24);
       g.startGlide(7);
     },
     frames: 50,
@@ -75,37 +75,41 @@ const SHOTS = [
   {
     n: 4,
     file: '04-finestra-stelle.png',
-    title: 'Sul vetro della Finestra dei Ponti: le stelle girano sotto i piedi',
+    title: 'A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro',
     setup: (g) => {
       g.setTime(12);
-      g.teleport(1218, 106, 0);
-      g.look(10, -62);
-      g.setSimTime(10.0);
+      g.teleport(1200, 102, 0);
+      g.look(80, -42);
+      g.setSimTime(31.0);
     },
     frames: 2,
   },
   {
     n: 5,
     file: '05-notte-paese.png',
-    title: 'Notte in paese: la Linea è una brace blu, i lumi caldi',
+    title: 'Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo',
     setup: (g) => {
       g.setTime(23.2);
-      g.teleport(1028, 36.6, 0);
-      g.look(62, 26);
+      g.teleport(1047, 37.4, 0);
+      g.look(28, 40);
     },
     frames: 4,
   },
   {
     n: 6,
     file: '06-matita-rivelazione.png',
-    title: 'Confine matita/colore con una rivelazione in corso',
+    title: "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
     setup: (g) => {
-      g.setTime(11.5);
-      g.setCamera(1225, 30, 95, 4, -14);
-      const ids = g.cellsInRadius(1440, 30, 95);
-      g.revealCells(ids, { z: 1440, theta: 30 });
+      g.setTime(11.2);
+      g.setSetting('nearPaint', [6, 14]);
+      g.teleport(1452, 19.5, 0);
+      g.look(78, -9);
+      const origin = { z: 1462, theta: 25.5 };
+      const ids = g.cellsInRadius(1475, 27, 115);
+      g.revealCells(ids, origin);
     },
-    frames: 66,
+    frames: 24,
+    after: (g) => g.setSetting('nearPaint', [70, 150]),
   },
 ];
 
@@ -176,7 +180,8 @@ async function main() {
     const st = await page.evaluate(() => ({ s: window.__GAME__.getStats(), p: window.__GAME__.getPlayerState() }));
     const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s (un fotogramma ${(ms / 1000).toFixed(1)} s), draw ${st.s.drawCalls}, tri ${st.s.triangles}, terreno LOD ${st.s.terrainByLod.join('/')}, alberi ${st.s.treesByLod.join('/')}, camera z ${st.p.camera.z.toFixed(0)} θ ${st.p.camera.theta.toFixed(1)} h ${st.p.camera.h.toFixed(1)}, g ${st.p.gravityG.toFixed(2)}, ${st.p.mode}`;
     console.log(line);
-    report.push({ ...shot, setup: undefined, frameMs: Math.round(ms), stats: st.s, player: st.p });
+    if (shot.after) await page.evaluate((src) => new Function('g', `(${src})(g)`)(window.__GAME__), shot.after.toString());
+    report.push({ ...shot, setup: undefined, after: undefined, frameMs: Math.round(ms), stats: st.s, player: st.p });
   }
   writeFileSync(join(outDir, 'shots.json'), JSON.stringify({ date: new Date().toISOString(), size: [W, H], chromiumArgs: CHROMIUM_ARGS, renderer: info.renderer, shots: report }, null, 2));
   const errors = logs.filter((l) => l.includes('error') || l.includes('Error'));
