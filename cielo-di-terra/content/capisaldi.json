@@ -518,7 +518,7 @@
    "b": "cs_4",
    "lunghezza": 413.0,
    "chiudibile": true,
-   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): di giorno il dosso del Pian dei Ricci copre il disco",
+   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): con la luce della Linea il dosso del Pian dei Ricci copre il disco",
    "nota": "Dalle Selve alte al campanile, sopra le terrazze. Il Pilastro 4 sta nella conca dietro il dosso del Pian dei Ricci (104 m, più alto del pilastro e del disco): di giorno il disco non si vede da Corbella.",
    "particelle": [
     1825,
@@ -700,7 +700,7 @@
    "b": "cs_4",
    "lunghezza": 222.6,
    "chiudibile": true,
-   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): di giorno il dosso del Pian dei Ricci copre il disco",
+   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): con la luce della Linea il dosso del Pian dei Ricci copre il disco",
    "nota": "Su per le terrazze fino al Pian dei Ricci. Il Pilastro 4 sta nella conca dietro il dosso del Pian dei Ricci (104 m, più alto del pilastro e del disco): di giorno il disco non si vede da Corbella.",
    "particelle": [
     1825,
@@ -769,7 +769,7 @@
    "b": "cs_37",
    "lunghezza": 142.8,
    "chiudibile": true,
-   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): di giorno il dosso del Pian dei Ricci copre il disco",
+   "quando": "solo di notte, mirando il lume che Ottavio porta sul Pilastro 4 (dalla Fase 3): con la luce della Linea il dosso del Pian dei Ricci copre il disco",
    "nota": "Selve alte. Il Pilastro 4 sta nella conca dietro il dosso del Pian dei Ricci (104 m, più alto del pilastro e del disco): di giorno il disco non si vede da Corbella.",
    "particelle": [
     1825,
