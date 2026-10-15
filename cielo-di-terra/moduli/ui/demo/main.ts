@@ -93,6 +93,7 @@ const carte: Record<string, Carta> = {
   lettera: dati.lettera,
   libretto: dati.libretto,
   cartellino: dati.cartellino,
+  biglietto: dati.biglietto,
   dattiloscritto: dati.dattiloscritto,
 };
 
@@ -110,6 +111,7 @@ async function prepara(c: string): Promise<void> {
     lettera: 1,
     libretto: 2,
     cartellino: 2,
+    biglietto: 5,
     dattiloscritto: 7,
     taccuino: 5,
     'taccuino-parole': 5,
@@ -154,10 +156,13 @@ async function prepara(c: string): Promise<void> {
       if (c === 'dialogo-storico') ui.dialogo.toggleStorico(true);
       break;
     case 'lettera':
-    case 'libretto':
     case 'cartellino':
+    case 'biglietto':
     case 'dattiloscritto':
       ui.lettore.show(carte[c]!);
+      break;
+    case 'libretto':
+      ui.lettore.show(carte['libretto']!, dati.paginaLibretto);
       break;
     case 'testo-semplice':
       store.set('calligrafia', 'semplice');
@@ -183,8 +188,8 @@ async function prepara(c: string): Promise<void> {
       break;
     case 'pianta-zoom':
       ui.apriPianta();
-      ui.pianta.impostaZoom(2.6);
-      ui.pianta.centraSu(1090, 38);
+      ui.pianta.impostaZoom(4);
+      ui.pianta.centraSu(1010, 34);
       break;
     case 'hud':
       avviaGioco();
@@ -223,7 +228,7 @@ async function prepara(c: string): Promise<void> {
 function pannelloDemo(): void {
   const stati = [
     'titolo', 'pausa', 'impostazioni', 'dialogo', 'lettera', 'libretto', 'cartellino', 'dattiloscritto',
-    'taccuino', 'pianta', 'hud', 'hud-notte', 'squadro', 'crediti', 'caricamento',
+    'biglietto', 'taccuino', 'taccuino-parole', 'taccuino-leggende', 'pianta', 'pianta-zoom', 'hud', 'hud-notte', 'squadro', 'crediti', 'caricamento',
   ];
   const p = document.createElement('details');
   p.className = 'demo-pannello';

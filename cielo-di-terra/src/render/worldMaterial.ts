@@ -107,18 +107,18 @@ void main() {
 #ifndef NO_PENCIL
   float th = cylThetaDeg(P);
   PaintInfo pi = paintState(P, th, dist);
-  hazeK = mix(0.5, 1.0, pi.paint);
+  hazeK = mix(0.72, 1.0, pi.paint);
   if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
     float steep = 1.0 - smoothstep(0.35, 0.8, abs(dot(N, cylUp(P))));
     vec3 pc = pencilColor(suv, N, V, tone, hgt, dist, pi.blank, steep, pi.wet + pi.bleed * 0.6);
     // acquerello che sborda oltre il fronte: velatura diluita sul foglio
-    pc = mix(pc, mix(col, vec3(0.965, 0.918, 0.815), 0.4), pi.bleed * 0.55);
+    pc = mix(pc, mix(col, vec3(0.965, 0.918, 0.815), 0.3), pi.bleed * 0.75);
     col = mix(pc, col, pi.paint);
   }
   // pigmento che si raccoglie sul bordo bagnato, poi la linea d'inchiostro del fronte
-  col *= 1.0 - pi.wet * 0.2 * pi.paint;
-  col = mix(col, vec3(0.17, 0.14, 0.22), clamp(pi.ink, 0.0, 1.0) * 0.85);
+  col = mix(col, col * vec3(0.78, 0.8, 0.86), pi.wet * pi.paint * 0.6);
+  col = mix(col, vec3(0.2, 0.17, 0.26), clamp(pi.ink, 0.0, 1.0) * 0.6);
 #endif
 #ifdef OBJECT
   // finestre illuminate di notte (segnali vivi: restano a colori anche a matita)

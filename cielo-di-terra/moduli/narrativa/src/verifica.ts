@@ -80,6 +80,8 @@ export interface RapportoVerifica {
   oggettiDelGioco: { id: string; letto: string[] }[];
   /** Dialoghi che la partita simulata non ha giocato (di solito alternative o facoltativi). */
   dialoghiNonGiocati: string[];
+  /** Flag impostati dai contenuti che nessuna condizione legge: li deve leggere il gioco (o sono inutili). */
+  flagSoloScritti: { nome: string; scritto: string[] }[];
   conteggi: Record<string, number>;
 }
 
@@ -975,6 +977,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
   // 2. Effetti
   const prodotti = new Set<string>();
   const flagImpostati = new Set<string>();
+  const doveScritti = new Map<string, string[]>();
   let nEffetti = 0;
   for (const [s, sorgente] of effettiDi(c)) {
     nEffetti++;
@@ -988,7 +991,10 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     }
     const k = chiaveEffetto(e);
     if (k) prodotti.add(k);
-    if (e.tipo === 'flag' || e.tipo === 'flag-somma') flagImpostati.add(e.nome);
+    if (e.tipo === 'flag' || e.tipo === 'flag-somma') {
+      flagImpostati.add(e.nome);
+      doveScritti.set(e.nome, [...(doveScritti.get(e.nome) ?? []), origine]);
+    }
     if (e.tipo === 'taccuino' && !voci.has(e.id)) avvisi.push(`${origine}: «${stampaEffetto(e)}» scrive una voce che non è in taccuino.json`);
     if (e.tipo === 'missione' && !missioni.has(e.id)) errori.push(`${origine}: «${s}» cita una missione inesistente`);
     if (e.tipo === 'dialogo' && !c.dialoghi[e.id]) errori.push(`${origine}: «${s}» cita un dialogo inesistente`);
@@ -1113,6 +1119,11 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     }
   }
   const unici = (l: string[]): string[] => [...new Set(l)];
+  const flagLetti = new Set(atomiLetti.filter(([a]) => a.k === 'flag').map(([a]) => (a as { nome: string }).nome));
+  const flagSoloScritti = [...doveScritti]
+    .filter(([nome]) => !flagLetti.has(nome))
+    .map(([nome, scritto]) => ({ nome, scritto: unici(scritto) }))
+    .sort((x, y) => x.nome.localeCompare(y.nome));
   const flagDelGioco = [...flagDaGioco].map(([nome, letto]) => ({ nome, letto: unici(letto) })).sort((x, y) => x.nome.localeCompare(y.nome));
   const oggettiDelGioco = [...oggettiDaGioco].map(([id, letto]) => ({ id, letto: unici(letto) })).sort((x, y) => x.id.localeCompare(y.id));
   for (const m of c.missioni) {
@@ -1147,6 +1158,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     flagDelGioco,
     oggettiDelGioco,
     dialoghiNonGiocati: Object.keys(c.dialoghi).filter((d) => !sim.n.dialoghi.finito(d)),
+    flagSoloScritti,
     conteggi: {
       missioni: c.missioni.length,
       passi: c.missioni.reduce((t, m) => t + m.passi.length, 0),

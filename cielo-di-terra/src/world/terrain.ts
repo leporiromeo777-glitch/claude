@@ -132,6 +132,21 @@ function capHeight(z: number, sinT: number, cosT: number, m: TerrainMasks): numb
     hc = Math.max(hc, Math.min(H, SOUTH_TOP));
     m.capS = ts;
   }
+  // contrafforti e spalle del Sordo che scendono nelle valli (silhouette asimmetrica)
+  if (z > CAP_N.baseZ - 260) {
+    const px = -sinT * R;
+    const py = -cosT * R;
+    const lobe = N3.noise(px / 520, py / 520, 3.3) * 0.5 + 0.5;
+    const reach = 120 + 200 * lobe; // quanto avanza il piede del Sordo
+    const u = smoothstep(CAP_N.baseZ - reach, CAP_N.baseZ + 40, z);
+    const spurH = (60 + 170 * Math.pow(lobe, 1.5)) * u * u;
+    const ridgy = N1.ridged(px / 90, py / 90, z / 150, 3);
+    const sp = spurH * (0.55 + 0.6 * ridgy);
+    if (sp > hc) {
+      hc = smax(hc, sp, 20);
+      m.capN = Math.max(m.capN, 0.02 + 0.98 * u * u);
+    }
+  }
   const tn = northT(z);
   if (tn > 0) {
     let H = northProfile(z);
@@ -148,7 +163,7 @@ function capHeight(z: number, sinT: number, cosT: number, m: TerrainMasks): numb
     // cenge: ripiani orizzontali nella roccia
     H = lerp(H, terrace(H, 42, 0.7), 0.5 * env);
     hc = Math.max(hc, Math.min(H, NORTH_TOP));
-    m.capN = tn;
+    m.capN = Math.max(m.capN, tn);
   }
   m.capH = hc;
   return hc;

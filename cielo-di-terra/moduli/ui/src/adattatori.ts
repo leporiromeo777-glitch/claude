@@ -135,7 +135,8 @@ export function cartaDaLeggenda(id: string, voce: VoceTestiJson): Carta {
 // ---------- taccuino.json ----------
 
 export interface TaccuinoJson {
-  domande?: { id: string; mano?: string; testo: string; indizi?: string[] }[];
+  /** `indizi` può citare anche proverbi; `risposta` è l'id dell'indizio che chiude la domanda. */
+  domande?: { id: string; mano?: string; testo: string; indizi?: string[]; risposta?: string }[];
   indizi?: { id: string; mano?: string; testo: string; fonte: string; domanda?: string }[];
   note?: { id: string; mano?: string; testo: string; sotto?: string }[];
   parole?: { id: string; tecnica: string; locale: string; nota?: string }[];
@@ -194,14 +195,25 @@ export function taccuinoDaContenuti(json: TaccuinoJson, stato: StatoTaccuino): D
     };
   };
   const indiziAttivi = (json.indizi ?? []).filter((i) => voci.has(i.id));
+  // Una domanda può citare un proverbio come indizio: diventa un indizio con la sua fonte.
+  const proverbiComeIndizi = (json.proverbi ?? [])
+    .filter((p) => voci.has(p.id))
+    .map((p) => ({ id: p.id, testo: p.dialetto ? `«${p.dialetto}» ${p.italiano}` : `«${p.italiano}»`, fonte: p.fonte ?? 'un proverbio', mano: 'madre' }));
   const piste: PistaTaccuino[] = [];
   for (const d of json.domande ?? []) {
-    const suoi = indiziAttivi.filter((i) => (d.indizi ?? []).includes(i.id) || i.domanda === d.id);
+    const ordine = d.indizi ?? [];
+    const suoi = [
+      ...indiziAttivi.filter((i) => ordine.includes(i.id) || i.domanda === d.id),
+      ...proverbiComeIndizi.filter((p) => ordine.includes(p.id)),
+    ];
     if (!voci.has(d.id) && !suoi.length) continue;
     // Gli indizi nell'ordine della domanda, poi gli altri che la citano.
-    const ordine = d.indizi ?? [];
     suoi.sort((a, b) => (ordine.indexOf(a.id) + 1 || 999) - (ordine.indexOf(b.id) + 1 || 999));
     const note = noteAttive.filter((n) => n.sotto === d.id).map(nota);
+    if (chiuse.has(d.id) && !chiuseRisposte[d.id] && d.risposta) {
+      const r = (json.indizi ?? []).find((i) => i.id === d.risposta);
+      if (r) chiuseRisposte[d.id] = r.testo;
+    }
     piste.push({
       id: d.id,
       domanda: d.testo,

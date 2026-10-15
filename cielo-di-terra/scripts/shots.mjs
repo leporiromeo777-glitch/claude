@@ -79,7 +79,7 @@ const SHOTS = [
     setup: (g) => {
       g.setTime(12);
       g.teleport(1200, 104, 0);
-      g.look(4, -26);
+      g.look(6, -15);
       g.setSimTime(31.0);
     },
     frames: 2,
@@ -91,7 +91,7 @@ const SHOTS = [
     setup: (g) => {
       g.setTime(23.2);
       g.teleport(1033, 37.6, 0);
-      g.look(76, 30);
+      g.look(70, 40);
     },
     frames: 4,
   },

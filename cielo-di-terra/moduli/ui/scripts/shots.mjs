@@ -25,6 +25,7 @@ export const COMPONENTI = [
   'lettera',
   'libretto',
   'cartellino',
+  'biglietto',
   'dattiloscritto',
   'taccuino',
   'taccuino-parole',

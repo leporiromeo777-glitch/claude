@@ -71,7 +71,7 @@ void main() {
   }
   col *= 1.0 - pi.wet * 0.2 * pi.paint;
   col = mix(col, vec3(0.17, 0.14, 0.22), clamp(pi.ink, 0.0, 1.0) * 0.8);
-  col = applyHazeK(col, P, dist, mix(0.5, 1.0, pi.paint));
+  col = applyHazeK(col, P, dist, mix(0.72, 1.0, pi.paint));
   gl_FragColor = vec4(col, 1.0);
 }
 `;

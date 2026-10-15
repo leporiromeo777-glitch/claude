@@ -96,12 +96,20 @@ export class FirstPersonVelo {
     for (const x of [-0.07, 0.07]) cylinderBetween(b, new Vector3(x - 0.02, barY, barZ), new Vector3(x + 0.02, barY, barZ), 0.017, [0.48, 0.32, 0.19]);
     // guanti: palmo allungato e dita chiuse sulla traversa, polso e manica verso gli angoli in basso
     for (const s of [-1, 1]) {
-      _t.makeTranslation(s * 0.2, barY + 0.012, barZ + 0.022).multiply(new Matrix4().makeRotationZ(s * 0.25)).scale(_v.set(0.05, 0.032, 0.055));
+      // dorso della mano dietro la traversa
+      _t.makeTranslation(s * 0.2, barY + 0.006, barZ + 0.03).multiply(new Matrix4().makeRotationZ(s * 0.15)).scale(_v.set(0.048, 0.026, 0.042));
       b.add(PRIMS.blob(2), _t.clone(), glove);
-      _t.makeTranslation(s * 0.2, barY - 0.004, barZ - 0.012).scale(_v.set(0.045, 0.02, 0.024));
-      b.add(PRIMS.blob(2), _t.clone(), [0.36, 0.24, 0.15]);
-      cylinderBetween(b, new Vector3(s * 0.205, barY - 0.01, barZ + 0.05), new Vector3(s * 0.25, barY - 0.07, barZ + 0.13), 0.032, glove);
-      cylinderBetween(b, new Vector3(s * 0.25, barY - 0.07, barZ + 0.13), new Vector3(s * 0.36, barY - 0.3, barZ + 0.42), 0.05, sleeve);
+      // dita chiuse sopra e davanti alla traversa
+      for (let f = 0; f < 4; f++) {
+        const fx = s * (0.17 + f * 0.02);
+        _t.makeTranslation(fx, barY + 0.006, barZ - 0.008).scale(_v.set(0.0105, 0.014, 0.02));
+        b.add(PRIMS.blob(1), _t.clone(), [0.37, 0.25, 0.16]);
+      }
+      // pollice
+      _t.makeTranslation(s * 0.155, barY - 0.012, barZ + 0.01).multiply(new Matrix4().makeRotationZ(s * 0.9)).scale(_v.set(0.012, 0.024, 0.013));
+      b.add(PRIMS.blob(1), _t.clone(), glove);
+      cylinderBetween(b, new Vector3(s * 0.205, barY - 0.005, barZ + 0.06), new Vector3(s * 0.25, barY - 0.07, barZ + 0.14), 0.026, glove);
+      cylinderBetween(b, new Vector3(s * 0.25, barY - 0.07, barZ + 0.14), new Vector3(s * 0.36, barY - 0.3, barZ + 0.42), 0.045, sleeve);
     }
     // montanti corti che salgono verso gli angoli alti dello schermo
     const topL = new Vector3(-0.86, 0.5, -1.0);

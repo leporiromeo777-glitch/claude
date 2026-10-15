@@ -27,8 +27,8 @@ export class LampGlows {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           float dist = length(mv.xyz);
           float px = aSize / max(dist * uPixelAngle, 1e-4);
-          gl_PointSize = clamp(px * 3.0, 2.5, 26.0);
-          vFade = exp(-dist / 1600.0);
+          gl_PointSize = clamp(px * 3.0, 4.0, 28.0);
+          vFade = exp(-dist / 2500.0);
           vFlicker = 0.85 + 0.15 * sin(uTime * (3.0 + aSeed * 4.0) + aSeed * 30.0);
           gl_Position = projectionMatrix * mv;
         }`,
@@ -41,8 +41,8 @@ export class LampGlows {
         void main() {
           vec2 c = gl_PointCoord - 0.5;
           float d = length(c) * 2.0;
-          float core = exp(-d * d * 10.0);
-          float halo = exp(-d * d * 2.5) * 0.45;
+          float core = exp(-d * d * 9.0) * 1.4;
+          float halo = exp(-d * d * 2.5) * 0.5;
           float k = (core + halo) * mix(0.04, 1.0, uNight) * vFlicker;
           vec3 col = mix(uHazeColor, uLampColor * 1.2, 0.35 + 0.65 * vFade) * k;
           gl_FragColor = vec4(col, 1.0);
