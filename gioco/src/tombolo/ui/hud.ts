@@ -166,7 +166,9 @@ export class ColumnHeader {
       label.hidden = false;
       label.removeAttribute('aria-hidden');
       const tooNarrow = colW < 44;
-      const overflow = label.scrollWidth > 0 && label.scrollWidth > cell.clientWidth - 2;
+      // Il confronto è con la casella del nome (la cella ha 2 px di margine per lato):
+      // «Piazza» largo 60 px in una casella da 58 era tagliato di un soffio.
+      const overflow = label.scrollWidth > 0 && (label.scrollWidth > label.clientWidth || label.scrollWidth > cell.clientWidth - 4);
       if (tooNarrow || overflow) {
         cell.classList.add('tb-header-cell--icona');
         label.hidden = true;

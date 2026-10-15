@@ -753,7 +753,7 @@ export class NightController {
       const w = Math.min(220, l.center.w - 32);
       this.scrollDown.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
       this.scrollDown.style.width = `${w}px`;
-      this.scrollDown.style.top = `${l.lace.y + l.lace.h - 40}px`;
+      this.scrollDown.style.top = `${l.lace.y + l.lace.h - 48}px`;
     }
   }
 
