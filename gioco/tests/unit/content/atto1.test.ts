@@ -264,8 +264,15 @@ describe('giornate dell\'Atto I', () => {
         if (!st) throw new Error(d);
         const row = applyRow(lv, st, [{ pair: t.pair, over: t.over }], ctx);
         expect(row.ok, `${d} mano ${t.hour}`).toBe(true);
-        const rest = solve({ level: lv, ctx, goals: lv.goals ?? [], from: { state: row.state, rowsDone: [...base.filter((r) => r.hour < t.hour), { hour: t.hour, crossings: [{ pair: t.pair, over: t.over }] }] } });
+        const done = [...base.filter((r) => r.hour < t.hour), { hour: t.hour, crossings: [{ pair: t.pair, over: t.over }] }];
+        const rest = solve({ level: lv, ctx, goals: lv.goals ?? [], from: { state: row.state, rowsDone: done } });
         expect(rest.status, `${d} mano ${t.hour}: la giornata resta risolvibile`).toBe('ok');
+        // La mano non sabota la sera (P005): chi rifà la mossa mostrata può ancora compiere ogni bigliettino, da solo.
+        if (d === 'g00') continue;
+        for (const n of notesOf(d)) {
+          const r = solve({ level: lv, ctx, goals: [...(lv.goals ?? []), n.request as Condition], matassa: lv.matassa, from: { state: row.state, rowsDone: done } });
+          expect(r.status, `${d} mano ${t.hour}: ${n.id} resta possibile`).toBe('ok');
+        }
       }
     }
     // In g01 il «No.» di Marta e il Gino che non sta fermo hanno ciascuno la sua nota (codice del rifiuto, C02).
@@ -920,6 +927,33 @@ describe('REVISIONE-1 CA1-06: esiti dei bigliettini (C05)', () => {
     // Le varianti (Marta più dura, Teresa più fredda) usano gli esiti del bigliettino base: per il resto, tutti diversi.
     const texts = [...byKey.values()];
     expect(new Set(texts).size).toBe(texts.length);
+  });
+
+  it('il Taccuino non ricopia l\'alba né la rivelazione di un Archivio (P028: ogni informazione una volta)', () => {
+    const grams = (s: string): Set<string> => {
+      const w = words(s.replace(/'/g, ' '));
+      const out = new Set<string>();
+      for (let i = 0; i + 4 <= w.length; i++) out.add(w.slice(i, i + 4).join(' '));
+      return out;
+    };
+    const copies: string[] = [];
+    for (const id of MINE) {
+      const lv = level(id);
+      const scenes = (lv.dawn?.candidates ?? []).map((v) => [v.id, v.lines.map((l) => it_(l.textKey)).join(' ')] as const);
+      if (lv.archive) scenes.push([`${id}.rivela`, `${it_(`atto1.${id}.rivela.1`)} ${it_(`atto1.${id}.rivela.2`)}`]);
+      for (const [vid, t] of scenes) {
+        const g = grams(t);
+        for (const d of diaryTexts) {
+          const dg = grams(d);
+          const shared = [...dg].filter((x) => g.has(x)).length;
+          if (dg.size > 0 && shared / dg.size > 0.5) copies.push(`${vid} ≈ «${d}»`);
+        }
+      }
+    }
+    expect(copies).toEqual([]);
+    // arc1: la rivelazione dice che Ernesto partì solo; la voce su Marta dice un'altra cosa.
+    expect(it_('atto1.diario.persone.marta.ernesto')).not.toMatch(/partì solo/i);
+    expect(it_('atto1.diario.domande.filoNero.apre')).not.toBe(`${it_('atto1.g08.alba.filoNero')} ${it_('atto1.g08.alba.filoNero2')}`);
   });
 });
 

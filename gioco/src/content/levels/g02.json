@@ -76,7 +76,7 @@
   },
   "hintKeys": {"spinta": "atto1.g02.hint.spinta", "indizio": "atto1.g02.hint.indizio"},
   "tutorial": [
-    {"k": "mano", "hour": 7, "pair": 0, "over": "L"},
+    {"k": "mano", "hour": 7, "pair": 2, "over": "L"},
     {"k": "margine", "when": "primaOra", "textKey": "atto1.g02.margine.voce", "hour": 7},
     {"k": "margine", "when": "ora", "textKey": "atto1.g02.margine.matassa", "hour": 8},
     {"k": "pulsa", "target": "matassa", "hour": 8}
