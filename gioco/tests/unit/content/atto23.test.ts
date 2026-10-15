@@ -1133,7 +1133,10 @@ describe('revisione 1: tutorial degli Atti II-III e degli Archivi 3-5 (CA23-02)'
     for (const id of ['arc3', 'arc4', 'arc5']) {
       const lv = level(id);
       const hole = lv.archive?.holes[0];
-      expect(steps(id).some((s) => s.k === 'margine' && s.when === 'primaOra' && s.hour === hole?.from), id).toBe(true);
+      // Il tombolo apre l'Archivio al primo strappo, con le righe registrate già tessute:
+      // `primaOra` lì non scatta mai (verificato nel browser), la guida va all'ora dello strappo.
+      expect(steps(id).some((s) => s.k === 'margine' && s.when === 'ora' && s.hour === hole?.from), id).toBe(true);
+      if ((hole?.from ?? 0) > lv.startHour + 1) expect(steps(id).some((s) => s.k === 'margine' && s.when === 'primaOra'), id).toBe(false);
       expect(steps(id).some((s) => s.k === 'margine' && s.when === 'archivioNomi'), id).toBe(true);
       expect(t(lv.hintKeys?.spinta ?? ''), id).not.toBe('');
       expect(t(lv.hintKeys?.indizio ?? ''), id).not.toBe('');

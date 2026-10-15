@@ -245,7 +245,7 @@
   "tutorial": [
     {
       "k": "margine",
-      "when": "primaOra",
+      "when": "ora",
       "hour": 7,
       "textKey": "atto2.arc4.guida.nomina",
       "mano": "ada"

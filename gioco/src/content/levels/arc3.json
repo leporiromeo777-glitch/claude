@@ -220,7 +220,7 @@
   "tutorial": [
     {
       "k": "margine",
-      "when": "primaOra",
+      "when": "ora",
       "hour": 9,
       "textKey": "atto2.arc3.guida.nomina",
       "mano": "ada"
