@@ -351,11 +351,10 @@ async function main() {
     await R(() => {
       const g = window.__GAME__;
       const p = g.getPlayerState();
-      g.teleport(p.z, p.theta, 9);
-      g.lookAt(1046, 37, 38);
-      g.look(Math.atan2(1, 1), -8);
-      g.lookAt(1046, 37, 30);
-      g.startGlide(9);
+      // il salto dalla Ripa (12 m sopra la piazza): Elvira è già in aria sopra il ciglio
+      g.teleport(p.z, p.theta, 13);
+      g.lookAt(1046.5, 37.2, 34);
+      g.startGlide(10);
     });
     for (let i = 0; i < 4; i++) {
       const p = await R(() => window.__GAME__.getPlayerState());

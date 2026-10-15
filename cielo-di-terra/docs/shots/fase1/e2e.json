@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T08:36:06.810Z",
+  "data": "2026-10-15T08:36:48.675Z",
   "esito": "fallita",
-  "secondi": 26,
+  "secondi": 28,
   "passi": [
-    "pronto in 6.0 s",
+    "pronto in 7.2 s",
     "— Titolo",
     "  nella capsula 5, 05:38, giorno 1",
     "— P0.1 Il vetro",
@@ -36,6 +36,10 @@
     "— M1.4 L'innesto",
     "  ✓ l'innesto fatto in tre tempi (flag:innesto_fatto e passo:m1_innesto completato)",
     "— M1.5 Il Velo",
+    "  volo: glide velo true h 9.0 v 9.0 z 1036.0 θ 33.20",
+    "  volo: glide velo true h 8.4 v 9.4 z 1036.6 θ 33.45",
+    "  volo: glide velo true h 6.9 v 10.5 z 1037.3 θ 33.68",
+    "  volo: glide velo true h 4.8 v 11.7 z 1037.9 θ 33.93",
     "  atterrata: "
   ],
   "errori": []
