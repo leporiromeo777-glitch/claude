@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Corbella — popolamento</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #1d2233; overflow: hidden; }
+      #app { position: fixed; inset: 0; }
+      #app canvas { display: block; width: 100%; height: 100%; }
+      #prompt { position: fixed; left: 50%; bottom: 14%; transform: translateX(-50%); font: 15px/1.3 Georgia, serif;
+        color: #f4ecd8; background: rgba(28, 26, 38, 0.55); padding: 6px 12px; border-radius: 6px; pointer-events: none; display: none; z-index: 9; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="prompt"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -16,10 +16,9 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
-      "three": ["../../node_modules/@types/three/index.d.ts"],
-      "three/examples/jsm/*": ["../../node_modules/@types/three/examples/jsm/*"]
+      "three": ["./../../node_modules/@types/three/index.d.ts"],
+      "three/examples/jsm/*": ["./../../node_modules/@types/three/examples/jsm/*"]
     }
   },
   "include": ["src", "test", "demo", "vite.config.ts", "vitest.config.ts"]
