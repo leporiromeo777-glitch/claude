@@ -616,7 +616,8 @@ export class Abitanti {
         if (Math.abs(d.dot(c.right)) > c.half.x || Math.abs(d.dot(c.forward)) > c.half.z) continue;
         const top = c.center.clone().addScaledVector(c.up, c.half.y);
         const ht = h + new THREE.Vector3().subVectors(top, p).dot(up);
-        if (ht > h && ht < h + 4) h = ht;
+        // fino a 8 m: il ripiano della chiesa sta 4,3 m sopra il terreno (la panca di Annunciata)
+        if (ht > h && ht < suolo(z, theta) + 8) h = ht;
       }
     }
     return h;
