@@ -29,6 +29,7 @@ npm run dev              # demo su http://127.0.0.1:5181 (pannellino «Demo UI»
 npm test                 # vitest + happy-dom
 npm run typecheck        # tsc --noEmit (TypeScript 7, strict)
 npm run shots            # schermate in shots/<stato>-1280.png e -1920.png (Playwright, Chromium di /opt/pw-browsers)
+                         # (npm run shots -- pianta dialogo: solo quegli stati; SOLO_1280=1 o SOLO_1920=1: una risoluzione)
 npm run prova-tastiera   # prova di fumo nel browser: navigazione da tastiera fra i componenti
 npm run importa-contenuti   # copia content/*.json in demo/contenuti/ (fotografia per la demo)
 ```
@@ -133,6 +134,8 @@ class Emettitore<E> {
 }
 function creaRadice(contenitore: HTMLElement): HTMLElement;   // per usare i componenti senza la regia
 function applicaImpostazioniVisive(radice: HTMLElement, imp: Readonly<Impostazioni>): void;
+function fattoreSchermo(altezza: number): number;   // 1 fino a 864 px di altezza, 1,25 a 1080 px, al massimo 1,35
+function aggiornaScala(radice: HTMLElement): void;  // --ui-scala = dimensione del testo × fattore dello schermo
 function caricaCaratteri(limiteMs?: number): Promise<void>;
 ```
 
@@ -413,6 +416,10 @@ assoluto, nessun file esterno alla cartella.
   Moderna (la corsiva scolastica di Marta), Architects Daughter (Aurelio), Special Elite (dattiloscritti),
   Atkinson Hyperlegible (opzione di leggibilità).
 - Focus da tastiera: un ovale tracciato a matita intorno alle voci di menu, un contorno d'inchiostro altrove.
+
+L'interfaccia cresce con lo schermo: `--ui-scala` è la dimensione del testo scelta moltiplicata per un
+fattore che vale 1 fino a 864 px di altezza e 1,25 a 1080p (ricalcolato al ridimensionamento); la Pianta
+ingrandisce allo stesso modo etichette, righelli e margini del canvas.
 
 ## Accessibilità
 
