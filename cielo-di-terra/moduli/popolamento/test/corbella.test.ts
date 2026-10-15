@@ -9,7 +9,7 @@ import type { Collider } from '../../../src/world/colliders';
 import { cylToWorld } from '../../../src/world/cylinder';
 import { groundHeight } from '../../../src/world/terrain';
 import { ELEMENTI_MOBILI, LATI, LONTANI, PERSONAGGI, RETE, luogo } from '../src/contenuti';
-import { installaCorbella, type ManigliaCorbella } from '../src/index';
+import { ALIAS_SEGNAPOSTO, installaCorbella, portaPopolamento, type ManigliaCorbella } from '../src/index';
 import { dentroCorbella } from '../src/segnaposto';
 import { distanza } from '../src/terreno';
 import { giocoFinto } from './banco';
@@ -305,6 +305,50 @@ describe('visuali dei lati del rilievo (capisaldi.json → lati)', () => {
     // non dipendono dal popolamento: li segnala la console
     if (terreno.length) console.log('lati coperti dal terreno del motore:', terreno.join(', '));
     expect(bloccati).toEqual([]);
+  });
+});
+
+describe('porta verso la regia (PortaPopolamento)', () => {
+  it('ogni caposaldo ha chiodo e segnale; i pilastri hanno il segnale alto sopra il chiodo', () => {
+    for (const cs of RETE) {
+      const ch = c.chiodo(cs.id);
+      const se = c.segnale(cs.id);
+      expect(ch, `chiodo ${cs.id}`).not.toBeNull();
+      expect(se, `segnale ${cs.id}`).not.toBeNull();
+      const su = new Vector3(-ch!.x, -ch!.y, 0).normalize();
+      const alto = se!.clone().sub(ch!).dot(su);
+      if (cs.altezza_segnale > 0) expect(alto, cs.id).toBeGreaterThan(cs.altezza_segnale * 0.75);
+      else expect(alto, cs.id).toBeCloseTo(1.2, 1);
+    }
+    for (const l of LONTANI) expect(c.segnale(l.id), l.id).not.toBeNull();
+    expect(c.chiodo(3)!.distanceTo(c.chiodo('cs_3')!)).toBe(0);
+  });
+  it('gli id del segnaposto della regia si risolvono tutti, e anche quelli del popolamento', () => {
+    const porta = portaPopolamento(c);
+    for (const [vecchio, nuovo] of Object.entries(ALIAS_SEGNAPOSTO)) {
+      expect(c.punto(nuovo), `${vecchio} → ${nuovo}`).toBeDefined();
+      expect(porta.punto(vecchio), vecchio).not.toBeNull();
+    }
+    for (const cs of RETE) {
+      expect(porta.punto(`chiodo_${cs.id}`), cs.id).not.toBeNull();
+      expect(porta.punto(`segnale_${cs.id}`), cs.id).not.toBeNull();
+    }
+    expect(porta.punto('parla:ottavio')).not.toBeNull();
+    expect(porta.punto('non_esiste')).toBeNull();
+    expect(porta.idPunti().length).toBeGreaterThan(c.punti.size);
+  });
+  it('mostraVariante cambia la variante e ignora quelle sconosciute', () => {
+    const porta = portaPopolamento(c);
+    const prima = c.variante('E1')!;
+    const altra = c.elementi.get('E1')!.varianti.find((v) => v !== prima)!;
+    porta.mostraVariante('E1', altra, { mostra: [], nascondi: [] });
+    expect(c.variante('E1')).toBe(altra);
+    porta.mostraVariante('E1', 'Inesistente');
+    porta.mostraVariante('E9', 'Carta');
+    expect(c.variante('E1')).toBe(altra);
+    porta.mostraVariante('E1', prima);
+    expect(c.variante('E1')).toBe(prima);
+    expect(porta.lumi).toEqual([]);
   });
 });
 

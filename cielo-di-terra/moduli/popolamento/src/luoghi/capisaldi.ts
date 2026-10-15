@@ -141,6 +141,7 @@ export function costruisciLontani(ctx: Contesto): Array<{ id: string; pos: THREE
     if (c.id === 'cs_0') {
       // il Caposaldo Zero è la soglia della Lanterna sull'asse: solo il punto (si appunta, resta bianco)
       ctx.punto('appunta:cs_0', 'guarda', 'Il disco della Lanterna', mondo(c.z, c.theta, c.altezza), { raggio: 0, rif: 'cs_0', attivo: false });
+      ctx.segnali.set('cs_0', mondo(c.z, c.theta, c.altezza));
       continue;
     }
     const finestra = isWindowTheta(c.theta);

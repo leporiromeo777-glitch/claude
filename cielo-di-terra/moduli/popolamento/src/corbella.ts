@@ -88,6 +88,12 @@ export interface ManigliaCorbella {
   apriBotola(aperta: boolean): void;
   /** le Fade e la lanterna di Tecla */
   readonly notte: Notte;
+  /** chiodo d'ottone di un caposaldo (`'cs_3'` o `3`): dove si pianta lo squadro; null se non c'è */
+  chiodo(id: string | number): Vector3 | null;
+  /** segnale di mira di un caposaldo (palina, disco, lume lontano; per i chiodi la biffa a 1,2 m) */
+  segnale(id: string | number): Vector3 | null;
+  /** id dei capisaldi con un segnale (rete di Corbella + lontani di notte) */
+  readonly capisaldi: readonly string[];
   /** collider aggiunti al mondo, con tag e luogo (varianti attive comprese) */
   collider(): VoceCollider[];
   readonly lumi: readonly Vector3[];
@@ -297,6 +303,16 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     cripta,
     apriBotola,
     notte,
+    chiodo(id) {
+      const cs = typeof id === 'number' ? `cs_${id}` : id;
+      for (const p of ctx.punti.values()) if (p.azione === 'pianta_squadro' && p.rif === cs) return p.pos.clone();
+      return null;
+    },
+    segnale(id) {
+      const cs = typeof id === 'number' ? `cs_${id}` : id;
+      return ctx.segnali.get(cs)?.clone() ?? null;
+    },
+    capisaldi: [...ctx.segnali.keys()],
     collider: () => [...colliderStatici, ...[...colliderVarianti.values()].flat()],
     lumi,
     statistiche,
