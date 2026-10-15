@@ -148,3 +148,40 @@ Gruppo **schermi** della revisione 1 (docs/REVISIONE-1.md, sezione 3.4): `src/sc
 - «Salta le ore quiete» da tastiera funziona solo quando il tombolo gestisce l'azione `skipQuiet` (TOM-22).
 - Il service worker si registra anche nelle build `VITE_E2E=1` (serve al test «senza rete»): ogni contesto nuovo dei test end-to-end scarica la precache (circa 4 MB) in parallelo al gioco.
 - Su schermi larghi la carta inclinata di 3° di un foglio molto largo (oltre 1000 px) sposta gli angoli di circa 30 px: i fogli della campagna sono più stretti, ma conviene tenerli sotto i 640 px.
+
+## Revisione 2 (gruppo schermi-atto1)
+
+Gruppo **schermi-atto1** della revisione 2 (docs/REVISIONE-2.md, docs/stato/revisione-2.json): schermate, core, audio e contenuti dell'Atto I. Qui le schermate. Il core è in docs/stato/fondamenta.md, l'audio in docs/stato/audio.md e i contenuti in docs/stato/contenuti-atto1.md (tutti alla sezione «Revisione 2»).
+
+| Task | Esito | Commit | Cosa |
+|---|---|---|---|
+| Q071 (P1) gesti cronometrati sul tempo di elaborazione | fatto | 749257a | vedi fondamenta.md: `e.timeStamp`, movimenti accorpati, tratti ciechi, pressione lunga dopo gli eventi in coda |
+| Q022 (P2) «Marta — Nessuna stranezza.» | fatto | af695bb | `chiInfo` separa le stranezze che contano stanotte (`quirks`) da quelle del personaggio che stanotte non contano (`dormant`). Chi ne ha solo di queste dice «Nessuna stranezza che conti stanotte.» (`ui.chi.nessunaStranezzaStanotte`, en «No quirk that matters tonight.»). «Nessuna stranezza.» resta per chi non ne ha (Bepi) |
+| Q036 (P2) finale vero senza riconoscimento visibile | fatto | af695bb | dopo il finale vero, sotto «Telaio» si legge a video «Hai visto il finale vero: la Tovaglia è sul Telaio.» (`ui.titolo.finaleVeroTelaio`), con il Telaio aperto. La stella resta accanto, solo come segno (`aria-hidden`, la frase è nella didascalia). Con il Telaio ancora chiuso resta il lucchetto |
+| Q059 (P2) icona «nota» = nota musicale | fatto per le schermate | af695bb | glifo nuovo `foglio` (biglietto con l'angolo piegato e tre righe) in `src/core/ui/glyphs.ts`. Lo usa la sezione «La regola del giorno» del Merletto del giorno e del libero. `nota` resta la nota musicale per «Riascolta». Per Taccuino › Lettere e per i biglietti di Livia vedi le richieste sotto |
+| Q068 (P2) freccia di scorrimento su «Crediti» al 140% | fatto | af695bb | la freccia (`sc-titolo-ombra`) non è più dentro il menu che scorre: è una striscia sua sotto il menu, con un filo d'ottone. Compare se il menu scorre (`data-stato` `giu`/`fine`) e si accende solo se sotto c'è dell'altro. Il menu ha un piccolo margine in fondo. `sc-titolo-menu[data-scorre]` funziona come prima |
+| Q072 (P2) «TRAM / A» nei Crediti al 140% | fatto | af695bb | `.sc-crediti-nome` non va mai a capo (`nowrap`) e si misura sulla testata (`min(2.6rem, 15cqi)`, `container-type` sulla testata), come il nome nel titolo |
+| Q073 (P2, parte del core) parole spezzate nei fogli | fatto per il core | af695bb | vedi fondamenta.md |
+
+### Interpretazioni dei contratti (da sapere per gli altri gruppi)
+
+- **R2-D5, «la Tovaglia nominata e mostrata»**: il titolo nomina la Tovaglia e dice dove si vede (sul Telaio). Mostrarla sul Telaio è della campagna (`src/campaign/tovaglia.ts` c'è già). Se un giorno la Tovaglia andasse altrove, basta cambiare il testo `ui.titolo.finaleVeroTelaio`.
+- **Q059**: non ho cambiato il disegno di `nota`. «Riascolta il merletto» (Telaio, Bilancio, Tovaglia, Risultati) vuole davvero una nota musicale. Il glifo nuovo è `foglio`.
+- **Toast sulle righe basse di notte (Q075)**: la posizione degli avvisi è del core (`.core-toasts`, 96 px sopra il bordo basso), ma la causa sono gli avvisi delle stranezze scoperte di notte. La campagna li ha tolti dal merletto nel suo commit 44e0c93. Ho lasciato la posizione degli avvisi com'è: spostarli in alto coprirebbe le intestazioni delle colonne e la nota a margine.
+
+### Richieste per altri gruppi
+
+- **campagna**: la scheda «Lettere» del Taccuino (`src/campaign/taccuino/panel.ts`, `TAB_ICONS.lettere`) e il segnaposto dei biglietti di Livia nella sera (`src/campaign/SeraScene.ts`, `svgIcon('nota', …)`) usano ancora la nota musicale. Per un foglio va usato `'foglio'`, oppure `'busta'` per una lettera (Q059).
+- **tombolo-motore**: `tombolo.scheda.nessunaStranezza` nella scheda del personaggio (`src/tombolo/ui/charcard.ts`) ha lo stesso problema di Q022 se il personaggio ha stranezze che stanotte non contano.
+
+### Test
+
+- `tests/unit/screens/revisione2.test.ts` (11 test): Q022 (`chiInfo` del 15/10, il DOM del Merletto del giorno, l'inglese); Q059 (il glifo `foglio` nella sezione della regola); Q036 (la riga visibile sotto Telaio, non per soli lettori di schermo; niente riga senza il finale vero; lucchetto se il Telaio è chiuso); Q068 (la striscia è fuori dal menu e segue lo scorrimento; niente `sticky` né margine negativo nel CSS); Q072 (CSS del nome nei Crediti).
+- `tests/unit/screens/revisione1.test.ts` aggiornato: Marta «Nessuna stranezza che conti stanotte.», Bepi «Nessuna stranezza.».
+- Nel browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 6060):
+  - titolo al 140% a 360×640 e 390×844: la freccia sta in una striscia sotto il menu (614-632 px; «Crediti» è dentro il menu) e si spegne in fondo;
+  - riga del finale vero sotto Telaio letta a video;
+  - Crediti al 140%: «TRAMA» su una riga (42,9 px a 360, 47,4 px a 390);
+  - Merletto del giorno del 15/10: «Marta — Nessuna stranezza che conti stanotte.» e il foglio accanto a «La regola del giorno».
+  - Ho guardato gli screenshot.
+- `SCREENS_VERIFY_URL=http://localhost:6060/ npm run screens:verify`: **81/81**.

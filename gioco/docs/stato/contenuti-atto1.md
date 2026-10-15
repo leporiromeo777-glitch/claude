@@ -1,6 +1,79 @@
 # Stato del pacchetto: contenuti-atto1
 
-**Stato:** done (verificato e corretto; revisione 1 fatta, vedi sotto)
+**Stato:** done (verificato e corretto; revisioni 1 e 2 fatte, vedi sotto)
+
+## Revisione 2
+
+Gruppo **schermi-atto1** della revisione 2 (docs/REVISIONE-2.md): i contenuti dell'Atto I e i comuni, più R2-D7. Le schermate, il core e l'audio sono in interfaccia.md, fondamenta.md e audio.md (sezioni «Revisione 2»).
+
+**Accettazione:**
+- `npm run levels:check -- --qualita` esce con **0** su tutte le 34 notti: nessuna violazione C14 e nessun avviso K7, perché la colonna «Min» del GDD ora è quella misurata.
+- `npx vitest run tests/unit/content/atto1.test.ts tests/unit/content/en.test.ts` è verde: 80 test in atto1, compresi quelli nuovi della revisione 2.
+
+| Task | Esito | Commit | Cosa |
+|---|---|---|---|
+| Q009 bigliettino lasciato senza conseguenze | fatto | 3598d20 | Tutti i 26 bigliettini dell'Atto I hanno `esito.lasciato` (it/en, al massimo 140 caratteri), quindi ogni bigliettino lasciato ha la sua riga nel bilancio (regola della campagna in `flow.ts`). Ogni riga racconta come reagisce chi l'ha scritto al bigliettino rimasto senza spillo, mai un fatto del merletto che lasciarlo non controlla. Esempio, g01.piero: «Lui non ha chiesto niente: ha aspettato la posta, come si aspetta la pioggia.» |
+| Q005 nota della matassa | fatto (parte dei contenuti) | 3598d20 | «Il gomitolo conta il filo usato: ogni incrocio costa un braccio.» (en «The skein counts the thread used…»), come l'HUD |
+| Q065 coerenza (g01, g05) | fatto (parte dell'Atto I) | 3598d20 | **g01**: la campana delle undici è quella della messa, e Don Piero arriva di corsa dalla Piazza, dove lo appunta lo spillo delle 11 (alba e Taccuino, it/en). Spillo e conflitto voluto piero+gino restano: spostare lo spillo rendeva impossibile la posta di Don Piero o il conflitto. **g05**: il Gino la lanterna «me l'ha detto tre volte, ogni volta più forte» (non l'ha scritto) |
+| Q074 spoiler nel desiderio di Zeno | fatto | 3598d20 | `comune.pers.zeno.desiderio`: «Chiedere perdono a una persona, prima che sia tardi.» (en «To ask someone's forgiveness, before it is too late.»). Si sblocca la sera di g14, prima della lettera di Clotilde, e non nomina Livia |
+| Q018 + R2-D7 Atto I più impegnativo, regola di Gino che pesa | fatto | 2740d8f | g04, g06, g07, g08 ridisegnate (sotto); g05 era già a posto; g00-g02 non toccate |
+| Q077 colonna «Min» di GDD 5.2 | fatto | 2740d8f | Valori misurati per g04 (10), g06 (10), g07 (10), g08 (14), g09 (10), g10 (17), g11 (11), g12 (14), g13 (19), g14 (16), g15 (19), g16 (17), g18 (12), g20 (11), g22 (19), g23 (9). Le altre stavano già nell'intervallo ±1. g04: la barca «esce alle 8, rientra alle 11» |
+| Q048 (parte comune) | fatto | ba0360b | `comune.oggetti.fascio_lettere.descrizione` non ripete più «una al mese per quattordici anni» dell'alba e del Taccuino di g16 (lo segnalava il test R2-D3 di contenuti-atti23) |
+
+### R2-D7: come si misura «richiede di pensare»
+
+Il criterio di REVISIONE-2 («almeno il 30% di soluzioni non ottime tra quelle brevi») preso alla lettera non distingue niente. Fra tutti i percorsi entro il minimo + 2, quelli non ottimi sono sempre oltre l'85% in ogni notte, perché un incrocio in più si può aggiungere in molti modi. Eppure il giocatore del playtest trovava sempre il minimo.
+
+**Interpretazione** (la più semplice che distingue; codice in `tests/unit/content/viaBreve.ts`):
+- le «soluzioni brevi» sono quelle di chi a ogni ora fa il minor numero di incroci che lascia la notte ancora risolvibile entro la matassa (la **via breve**);
+- chi gioca così sa che cosa è ancora possibile, ma rimanda ogni incrocio finché può;
+- a parità si contano tutte le scelte, con i versi contati solo quando contano, come fa `countOptimal`;
+- una combinazione «richiede di pensare» se almeno il 30% dei percorsi della via breve finisce sopra il minimo, cioè se per arrivare al minimo bisogna pensare all'ordine delle cose.
+
+**Prima della revisione:**
+- g04, g06 e g08 erano a 0% in tutte le combinazioni: la via breve trovava sempre il minimo;
+- g05 era all'83% e al 75%, g07 al 70%;
+- la regola di Gino non alzava il minimo di nessuna combinazione possibile di g05 e g07.
+
+| Notte | Cosa cambia | Designata (min) | Matassa | Via breve (combinazioni possibili) | Regola di Gino |
+|---|---|---|---|---|---|
+| g04 | Teresa porta anche **la lettera per Don Piero entro le due** (obiettivo fisso, nuova perlina `L_piero`, etichetta it/en); ordine iniziale e spilli uguali | nina+piero 10 | 13 | nina+bepi **50%**, nina+piero 0% | — (niente Gino) |
+| g05 | invariata | zeno+teresa 8 | 11 | zeno+teresa **83%**, marta+teresa **75%** | non pesa (8 = 8) |
+| g06 | tolto lo spillo della Nina in Piazza alle 12 (resta Teresa al Forno alle 11): la lettera da Venezia ha più strade. La Nina costa 1 ed è la facile della sera, dentro il conflitto voluto con Zeno | marta+zeno 10 | 13 | nina+marta **50%**, marta+zeno 0% | — |
+| g07 | il Gino parte accanto a Teresa (nina, marta, **gino, teresa**, piero, zeno) e Marta torna al Forno alle 12 (spillo nuovo). Nessuna facile: tutti e tre i bigliettini costano 2 | teresa+zeno 10 | 13 | nina+zeno **75%**, teresa+zeno 0% | **pesa**: +2 in teresa+zeno e nina+zeno (10 contro 8), +2 nella base |
+| g08 | la Nina passa dalla **Farmacia alle 10**; il Gino va al **Faro alle 13** (prima Farmacia alle 14 e Faro alle 16); restano Marta al Forno alle 7 e alle 15 e la Nina in Chiesa alle 12 | marta+zeno 14 | 17 | nina+zeno **80%**, marta+zeno 0% | pesa: +4 in marta+zeno, +3 in nina+zeno (entro K3) |
+
+**La regola di Gino in g07** (Q018).
+- Il Gino non può stare fermo due ore. Nella soluzione registrata di nina+zeno la sua corsa porta la confessione: la riceve da Teresa alle 10, la passa a Marta alle 11 e a Don Piero alle 12, e alle 13 la Nina, curiosa, la prende da Marta.
+- In teresa+zeno la stessa corsa va fatta senza che il Gino riceva mai il peso di Teresa.
+- È il vincolo che Q018 chiedeva: «farlo ballare senza rovinare una consegna».
+
+**Misure C14 dopo il ridisegno.**
+- Nessuna violazione con `--qualita`.
+- Soluzioni ottime della designata: g04 16, g06 1, g07 16, g08 2.
+- Conflitti voluti invariati: bepi+piero, nina+zeno, teresa+nina, marta+nina.
+- Facili: g05.marta e g06.nina; g07.nina non è più facile.
+
+**Nel browser** (build `VITE_E2E=1` sulla porta 6060, 390×844 touch, it). Sera, poi bigliettini appuntati, poi notte nel tombolo vero (`night.autoplay`), poi alba. Le 8 combinazioni possibili di g04, g06, g07 e g08 finiscono con tutte e due le richieste soddisfatte al minimo:
+- g04: 10 e 9;
+- g06: 10 e 7;
+- g07: 10 e 10;
+- g08: 14 e 11.
+
+HUD della matassa: 13, 13, 13 e 17. Nessun errore in console. Ho guardato gli screenshot delle notti (spilli nuovi di g08).
+
+### Decisioni
+
+- **Lettera di Don Piero in g04.** È un obiettivo fisso, come la partenza della barca. È la sola aggiunta alla storia della notte: Teresa è la postina. Non cambia il cast né le intenzioni dei bigliettini.
+- **g08: la Nina alla Farmacia alle 10.** La Farmacia è solo un posto della Fondamenta (apre Lunardi in g09). Nessun testo lo contraddice.
+- **GDD.** Ho cambiato solo la colonna «Min» e la barca di g04, come chiede Q077. Nell'Appendice A del GDD la campana di g01 è ancora «stonata, fuori orario»: è un appunto di disegno, i testi del gioco ora dicono la messa.
+
+### Problemi noti e richieste
+
+- **tombolo-motore.** Il test `tests/unit/engine/quality.test.ts` «K7: intervalli "Min" dalle tabelle di GDD 5.2» legge il GDD vero e si aspetta i valori di prima (g06 `[5, 5]`, g13 `[10, 12]`). Dopo Q077 sono `[10, 10]` e `[19, 19]`. È l'unico test rosso della suita unitaria e va aggiornato da chi ha il file.
+- **tombolo-motore.** `hud.matassaAria` dice «1 braccia usate» (Q005, plurale). È in `src/i18n/*/tombolo.json`.
+- **contenuti-atti23.** Q065, finale A: «Zeno le ha portato la valigia fino al vaporetto» mentre Zeno è appuntato al Faro alle 18. È in `finali.json`, `finale.merlettaia.2.zeno`.
+- **e2e (nessun gruppo).** `tests/e2e/prologo.spec.ts` «dal titolo all'alba» passa tutti i gesti ma aspetta l'alba da sola. Con R2-D5 (campagna) dopo l'ultima ora serve un tocco: il test va aggiornato.
 
 ## Revisione 1
 

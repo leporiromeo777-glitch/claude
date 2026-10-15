@@ -130,3 +130,45 @@ In questa revisione il core (`src/core/`), `src/main.ts`, `src/content/loader.ts
 - **Tastiera**: Maiusc+Invio → azione nuova `skipQuiet`; `KEY_HELP` descrive la mappa per la pagina dei comandi.
 - **Offline**: `src/core/sw.ts` registra `public/sw.js` solo sul web e non in sviluppo; la build scrive `precache.json`.
 - **Build**: pacchetto diviso in `contenuti`, `testi`, `motore` (nessun avviso di dimensione).
+
+## Revisione 2 (gruppo schermi-atto1)
+
+Nella revisione 2 il core è del gruppo **schermi-atto1**. Le schermate sono in docs/stato/interfaccia.md e i contenuti in docs/stato/contenuti-atto1.md (sezioni «Revisione 2»).
+
+**Q071 (P1): i gesti si cronometravano sul tempo di elaborazione** (commit 749257a, `src/core/input.ts`, `src/core/gestures.ts`).
+
+- **Istante dell'evento.** Ogni campione porta `e.timeStamp`, sullo stesso orologio di `performance.now()` (`eventTime`). Se manca, o se è su un altro orologio (millisecondi dal 1970), si usa l'istante corrente; mai un istante nel futuro, e mai uno che torna indietro.
+- **Movimenti accorpati.** Finché il gesto non è deciso, i movimenti di `getCoalescedEvents()` passano uno per uno, ciascuno con il suo istante. Deciso il gesto, basta l'ultimo.
+- **Tratti ciechi (`SeenClock`).** Mentre un gesto non è deciso, un battito ogni 50 ms sorveglia il thread principale. Un vuoto di più di 120 ms fra due segni di vita (battito o evento) è un tratto in cui la pagina non vedeva il puntatore, e non conta come «fermo».
+  - Serve perché certi browser (e il mouse simulato di Playwright, che aspetta la risposta del renderer) creano i movimenti solo a blocco finito, con l'istante di allora.
+  - Con il solo `e.timeStamp` i passi della segnalazione davano ancora la scheda col mouse; davano un trascinamento solo col tocco.
+- **Pressione lunga dopo gli eventi in coda.** Quando sul tempo visto il puntatore è fermo da 500 ms, la pressione lunga non scatta subito. Si ricontrolla dopo il fotogramma successivo (`requestAnimationFrame`, poi un macrotask): i pointermove arretrati arrivano prima dei callback del fotogramma. Il rilascio o l'annullamento cancellano il ricontrollo.
+  - Una pressione lunga vera costa al più un fotogramma in più.
+  - Con il thread bloccato, la pressione lunga conta solo il tempo in cui la pagina vedeva il puntatore.
+- **Nel browser.** Passi della segnalazione: 1280×720, g00, giù sul fuso 1, blocco di 700 ms, 14 movimenti verso il fuso 0, su.
+  - Prima della correzione: bozza vuota e scheda aperta, 3 volte su 3.
+  - Ora: bozza `[{pair:0, over:'R'}]` e nessuna scheda, 3 volte su 3 col mouse e 3 su 3 col tocco (CDP).
+  - Controlli: la pressione lunga di 700 ms apre ancora la scheda (mouse e tocco); con un blocco di 700 ms nel mezzo la apre se la si tiene 1,4 s.
+- **Test.** `tests/unit/core/input-tempi.test.ts` (10 test, canvas e fotogrammi finti):
+  - `eventTime` e `SeenClock`;
+  - i passi della segnalazione con gli istanti veri del sistema e con il mouse simulato (movimenti nati dopo il blocco, battito prima o dopo);
+  - il movimento elaborato tardi conta col suo istante, e i movimenti accorpati anche;
+  - la pressione lunga, vera e durante un blocco;
+  - un tap fatto durante un blocco resta un tap;
+  - il rilascio annulla il ricontrollo.
+
+**Q059: glifo `foglio`** (`src/core/ui/glyphs.ts`). È un biglietto con l'angolo piegato e tre righe, per regole, lettere e biglietti. `nota` resta la nota musicale di «Riascolta».
+
+**Q073 (parte del core): le parole dei fogli non si spezzano a metà** (`src/core/ui/components.ts`, `src/core/ui/base.css`).
+
+- **Regole del foglio.**
+  - `.core-carta-testo` ora ha `overflow-wrap: normal`.
+  - `paperCard` misura quanto sporge la parola più lunga. Il rapporto è quello più alto fra contenuto e larghezza visibile, sul testo e su ogni blocco dentro. Durante la misura la classe `core-carta--misura` toglie anche le regole di chi usa il foglio che spezzano le parole.
+  - Se una parola sporge, la calligrafia scende quanto basta (`--carta-adatta`).
+  - Se non basta, si va a capo dentro la parola (`core-carta--spezza`).
+- **Limite (GDD 14: nessuna scritta sotto la sua misura).** La calligrafia scende al più fino al corpo dei fogli: 1,05 rem, con la scala del testo scelta dal giocatore (`fitFloor`). Un foglio senza calligrafia non scende mai.
+- **Nel browser.** Bigliettino di Marta in g08 al 140% a 1280×720: «L'ANNIVERSARIO» intero (fattore 0,75, con il foglio largo 200 px di allora). Nel frattempo la campagna ha allargato il foglio e la parola entra senza scendere.
+- **Test.** `tests/unit/core/carta-adatta.test.ts`.
+
+**Problemi noti e richieste.**
+- La posizione degli avvisi (`.core-toasts`) non è cambiata: vedi interfaccia.md, «Revisione 2».

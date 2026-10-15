@@ -172,3 +172,7 @@ In questa revisione l'audio è del gruppo **schermi** (rapporto completo in docs
 - **SCH-06**: a `scene:enter` del tombolo con origine `giornaliero`, `libero` o `spartito` l'automazione chiede `setMusic('notte', { seed: level.musicSeed ?? level.id, notes })` (personaggi presenti, `lino` per i passanti). `AutomationTarget.setMusic` è facoltativo. Il titolo e le schede delle modalità rimettono `titolo` come prima.
 - **SCH-13 (C11, C12)**: `tombolo:nodo` suona `nodo` e la campana dell'ora 3 con stonatura 1 (`NODO_BELL_HOUR`); `night:complete` di un livello con `chiusura: 'nodo'` non suona né `successo` né `fallimento`; `resolveStonatura` restituisce 1 per `fin_chiuso` prima di guardare il finale vero; `tombolo:apparizione` suona `nero`.
 - Test: `tests/unit/audio/revisione1.test.ts` (anche con il motore vero: `stats().music` vale `notte` nella notte del giorno e del libero). Nel browser: registro di `fin_chiuso` dopo il finale vero con `nodo`, `campana ore 3 s=1`, `nero`.
+
+## Revisione 2 (gruppo schermi-atto1)
+
+Nessuna segnalazione del secondo playtest riguardava l'audio (`src/audio/`): nessun cambiamento. `npx vitest run tests/unit/audio` resta verde. Il rapporto del gruppo è in docs/stato/interfaccia.md, fondamenta.md e contenuti-atto1.md (sezioni «Revisione 2»).
