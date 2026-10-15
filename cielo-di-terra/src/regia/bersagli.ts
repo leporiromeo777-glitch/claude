@@ -10,7 +10,7 @@
  */
 import { Vector3 } from 'three';
 import { localFrameAt, worldToCyl } from '../world/cylinder';
-import { CAPISALDI } from './contenuti';
+import { CAPISALDI, testo } from './contenuti';
 import type { Bersaglio } from './interazioni';
 import type { Regia } from './regia';
 import { elevazione, guardaPunto } from './sguardo';
@@ -228,6 +228,23 @@ export function registraBersagli(r: Regia): void {
       priorita: 1,
       disponibile: () => libero() && n().dialoghi.perPersonaggio(chi) !== null,
       azione: () => r.dialoghi.parla(chi),
+    });
+  }
+
+  // ---------------------------------------------------------------- le scritte del paese (popolamento)
+  // il motto del Balcone dei Messi, il cartello della casa di Nando…: i punti «leggi» del
+  // popolamento con un testo in testi.json che la regia non legge già altrove
+  for (const [id, pt] of r.corbella.punti) {
+    const rif = pt.rif;
+    if (pt.azione !== 'leggi' || !rif || ['targa_p1', 'cartellino_castagno'].includes(rif) || !testo(rif)) continue;
+    add({
+      id,
+      verbo: /^leggi\b/i.test(pt.etichetta) ? pt.etichetta : `Leggi: ${pt.etichetta}`,
+      posizione: () => pt.pos,
+      portata: 2.6,
+      raggio: 0.5,
+      disponibile: () => fuori() && pt.attivo,
+      azione: () => r.ponte.leggi(rif),
     });
   }
 
