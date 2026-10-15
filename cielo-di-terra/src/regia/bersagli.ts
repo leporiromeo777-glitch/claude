@@ -291,9 +291,10 @@ export function registraBersagli(r: Regia): void {
     S.registra({
       id: `lente:${id}`,
       posizione: pos,
-      raggio: 0.35,
-      distanza: 3.2,
-      durata: 1,
+      // larghi e vicini al giocatore: prima erano 35 cm a 3 m, invisibili, e non li trovava nessuno
+      raggio: 0.9,
+      distanza: 4.5,
+      durata: 0.8,
       attivo: () => r.lente && r.fase === 'gioco',
       compiuto: () => {
         r.flag(`lente:${id}`);

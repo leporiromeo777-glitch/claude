@@ -84,6 +84,15 @@ const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
 /** Periodo della Meta (s): una rotazione del cilindro. */
 export const PERIODO_META = 51;
 
+/** Punti d'esame della lente con il nome detto al giocatore (scena: `lente_<id>`). */
+const PUNTI_LENTE: [string, string, string][] = [
+  ['ricci', 'i ricci per terra', 'm1_lente'],
+  ['amenti', 'gli amenti sui rami bassi', 'm1_lente'],
+  ['corteccia', 'la corteccia del tronco', 'm1_lente'],
+  ['innesto_vecchio', 'il vecchio innesto', 'm1_innesto'],
+];
+const _lenteD = new Vector3();
+
 export class Regia implements SistemaGioco {
   readonly audio = new PonteAudio();
   narrativa!: Narrativa;
@@ -134,6 +143,8 @@ export class Regia implements SistemaGioco {
   private letteraOffertaDaSeduta = false;
   /** Secondi dall'ultimo controllo del dialogo delle campane (vedi campaneDiRiserva). */
   private attesaCampane = 0;
+  /** Indicazione a schermo per la lente (vedi cercaPuntoLente). */
+  private indicazioneLente: { tasto: string; testo: string; progresso?: number } | null = null;
   private attesaVicini = new Set<string>();
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
   private emisfero: HemisphereLight;
@@ -404,6 +415,36 @@ export class Regia implements SistemaGioco {
     if (n.dialoghi.finito('d_meridiana_1') || n.dialoghi.aperto()) return;
     if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_campane')) return;
     this.dialoghi.richiedi('d_meridiana_1', true);
+  }
+
+  /**
+   * Che cosa dire a schermo sui punti d'esame della lente (i ricci, gli amenti, la corteccia,
+   * il vecchio innesto): senza lente, vicino a un punto ancora da esaminare, «Q — prendi la
+   * lente»; con la lente, il punto più vicino da guardare, con l'avanzamento dell'esame.
+   */
+  private cercaPuntoLente(occhi: Vector3, avanti: Vector3): { tasto: string; testo: string; progresso?: number } | null {
+    if (this.interno || !this.narrativa.inventario.ha('lente')) return null;
+    let migliore: { id: string; d: number; ang: number } | null = null;
+    let passi: string[] | null = null;
+    for (const [id, nome, passo] of PUNTI_LENTE) {
+      if (this.narrativa.flag.vero(`lente:${id}`)) continue;
+      passi ??= this.narrativa.missioni.passiAttivi().map((x) => x.passo);
+      if (!passi.includes(passo)) continue;
+      const pos = this.scena.punto(`lente_${id}`);
+      if (!pos) continue;
+      _lenteD.subVectors(pos, occhi);
+      const d = _lenteD.length();
+      if (d > 9) continue;
+      const ang = d < 1e-3 ? 0 : Math.acos(Math.max(-1, Math.min(1, _lenteD.dot(avanti) / d)));
+      if (!migliore || ang < migliore.ang) migliore = { id, d, ang };
+      void nome;
+    }
+    if (!migliore) return null;
+    const nome = PUNTI_LENTE.find(([id]) => id === migliore.id)![1];
+    if (!this.lente) return { tasto: 'Q', testo: `Prendi la lente ed esamina ${nome}` };
+    if (migliore.d > 4.5) return { tasto: 'Q', testo: `Avvicinati: ${nome}` };
+    const t = this.sguardi.tempo(`lente:${migliore.id}`);
+    return { tasto: 'Q', testo: `Lente: guarda ${nome}`, ...(t > 0 ? { progresso: Math.min(1, t / 0.8) } : {}) };
   }
 
   async salva(): Promise<void> {
@@ -1250,6 +1291,7 @@ export class Regia implements SistemaGioco {
     const occhi = this.occhi(new Vector3());
     const avanti = g.rig.forward(new Vector3());
     this.sguardi.update(dt, occhi, avanti);
+    this.indicazioneLente = this.cercaPuntoLente(occhi, avanti);
     this.statoInterazione = this.interazioni.update(dt, occhi, avanti, catturato ? null : { premuto, tenuto: g.input.isDown('KeyE'), modoPremi: ui.impostazioni.get('azioniTenute') === 'premi' });
 
     // il mondo che si muove
@@ -1401,7 +1443,8 @@ export class Regia implements SistemaGioco {
     // indicazioni
     const st = this.statoInterazione;
     const b = st.bersaglio;
-    ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : null);
+    const lente = !b && !ui.inputCatturato ? this.indicazioneLente : null;
+    ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : lente);
     ui.indicazioni.mostraPuntino(!!b && ui.impostazioni.get('puntino'));
     ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);
     ui.indicazioni.velo(g.player.veloOpen ? Math.min(1, g.player.veloAmount) : null);
