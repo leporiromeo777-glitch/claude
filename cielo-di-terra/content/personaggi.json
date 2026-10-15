@@ -1,0 +1,312 @@
+[
+ {
+  "id": "elvira",
+  "nome": "Elvira Pedrazzini",
+  "ruolo": "La protagonista: botanica di Cevio, 58 anni biologici, Giardiniera n. 5 (codice G5). Si vede solo attraverso le sue mani.",
+  "come_appare": {
+   "velo": "nessuno sul viso: un respiratore di tela e ottone sulla bocca, dopo l'ibernazione. Il Velo da planata, grigio di servizio, si vede in alto quando è aperto; la nappina pende dalla traversa.",
+   "maschera": "nessuna (dal giorno 2 può indossare il velo di garza nera della Madre)",
+   "postura": "prima persona: mani con guanti da giardino rattoppati e l'anello di fidanzamento; nei primi dieci minuti cammina piano e si appoggia ai muri.",
+   "colori": "tuta da Giardiniera verde salvia del 2121, guanti color cuoio, squadro d'ottone, libretto di cuoio scuro"
+  },
+  "voce": "Doppiata. Sintetizzata e filtrata dal respiratore: un soffio metallico sulle consonanti. Commenta poco, battute di tre-sei parole, mai per spiegare. Parla alle piante a voce alta.",
+  "posizioni": [
+   {"fase": "prologo", "luogo": "cripta_capsula_5", "dalle": "05:38", "alle": "05:39"},
+   {"fase": "libera", "luogo": "dove la porta il giocatore"}
+  ]
+ },
+ {
+  "id": "meridiana",
+  "nome": "Meridiana",
+  "ruolo": "L'intelligenza che gestisce il cilindro. Parla con Elvira come con una collega; può solo confermare ciò che lei dimostra, mai rivelare. Riferisce alla Madre ogni richiesta di un Giardiniere.",
+  "come_appare": {
+   "velo": "nessun corpo",
+   "maschera": "nessuna",
+   "postura": "si manifesta con tre rintocchi e una voce dagli altoparlanti arrugginiti dei campanili; quando dice «Confermo» la Linea sopra Elvira pulsa una volta",
+   "colori": "la luce bianca della Linea"
+  },
+  "voce": "Doppiata. Femminile, calma, filtrata dal bronzo delle campane. Numeri impeccabili scanditi per intero («zero virgola quarantuno»); i nomi in dialetto li pronuncia male, con l'accento sbagliato.",
+  "posizioni": [
+   {"fase": "sempre", "luogo": "cella_campanaria", "nota": "altoparlante legato al ceppo della campana grande; si sente in tutta Corbella"}
+  ]
+ },
+ {
+  "id": "ottavio",
+  "nome": "Ottavio, detto Ventin",
+  "ruolo": "Diciassette anni, il Messo: porta lettere e notizie fra le valli planando con un Velo da corsa. La prima persona che si fida di Elvira.",
+  "come_appare": {
+   "velo": "velo da corsa verde legato alla fronte; Velo da planata verde, rattoppato, quasi sempre aperto",
+   "maschera": "nessuna",
+   "postura": "magro, sempre in movimento; atterra correndo; si siede sui costoloni e sulle assi con i piedi a penzoloni; tiene la borsa del Messo chiusa con la mano",
+   "colori": "verde da corsa, camicia di canapa, borsa di cuoio, un lume a petrolio d'ottone alla cintura"
+  },
+  "voce": "Doppiata. Filtro di vento (aria che passa). Parla in fretta, con la voce rotta dell'età; ride spesso.",
+  "posizioni": [
+   {"fase": "giorno 1", "luogo": "in volo sopra la valle (segnale di cielo: Velo verde)", "dalle": "05:40", "alle": "arrivo in piazza (passo m1_ottavio)"},
+   {"fase": "giorno 1", "luogo": "piazza_ore", "dalle": "passo m1_ottavio", "alle": "20:30"},
+   {"fase": "giorno 1", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "05:30"},
+   {"fase": "giorno 2", "luogo": "fienile_ottavio", "dalle": "05:30", "alle": "07:00"},
+   {"fase": "giorno 2", "luogo": "in volo con le lettere", "dalle": "07:00", "alle": "14:00"},
+   {"fase": "giorno 2", "luogo": "prato_ronco", "dalle": "14:00", "alle": "19:30", "nota": "se Elvira lo chiama prima delle 14:00 scende dal cielo"},
+   {"fase": "giorno 2", "luogo": "bacheca_ore", "dalle": "19:30", "alle": "20:30", "nota": "appende le notizie"},
+   {"fase": "giorno 2", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "05:30"},
+   {"fase": "giorno 3", "luogo": "passerella_messo", "dalle": "05:30", "alle": "fine della missione 1", "nota": "seduto sulle assi, i piedi nell'acqua"},
+   {"fase": "dal giorno 4", "luogo": "balcone_messi", "dalle": "06:30", "alle": "09:00", "nota": "aspetta Elvira per la lezione di volo"},
+   {"fase": "dal giorno 4", "luogo": "in volo", "dalle": "09:00", "alle": "19:30"},
+   {"fase": "dal giorno 4", "luogo": "bacheca_ore", "dalle": "19:30", "alle": "20:30"},
+   {"fase": "dal giorno 4", "luogo": "fienile_ottavio", "dalle": "20:40", "alle": "06:00"}
+  ]
+ },
+ {
+  "id": "pina",
+  "nome": "Pina Galli, l'Ombrista",
+  "ruolo": "Ottantun anni. Ogni sera alla brace racconta la Partenza con figure di cartone controluce, ogni volta in modo diverso.",
+  "come_appare": {
+   "velo": "un cappuccio di lana grigia che le copre la faccia",
+   "maschera": "nessuna: di sera non la si vede, è dietro il telo",
+   "postura": "di giorno una figura curva sulla soglia, con le forbici enormi e la scatola dei cartoni; di sera solo le mani, giganti, nell'ombra del telo",
+   "colori": "lana grigia, cartone color ocra, la luce gialla della lampada a olio"
+  },
+  "voce": "Testo con un mormorio. Voce bassa e lenta; dietro il telo diventa un'altra, più giovane.",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "soglia_pina", "dalle": "08:00", "alle": "18:00"},
+   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30"},
+   {"fase": "notte", "luogo": "casa (fuori scena)", "dalle": "20:30", "alle": "08:00"}
+  ]
+ },
+ {
+  "id": "togna",
+  "nome": "Togna",
+  "ruolo": "Lavandaia del lavatoio della piazza. Dice i proverbi della notte senza capirli.",
+  "come_appare": {
+   "velo": "garza color noce fino alle spalle, legata sotto il mento",
+   "maschera": "nessuna",
+   "postura": "china sulla vasca, le braccia nell'acqua fino ai gomiti; non si gira quasi mai, parla al bucato",
+   "colori": "noce, grembiule bianco, lenzuola stese"
+  },
+  "voce": "Testo con un mormorio. Parla per proverbi, mezza in dialetto.",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "lavatoio", "dalle": "07:00", "alle": "12:00"},
+   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "19:45", "alle": "20:30", "nota": "fra il pubblico dell'Ombrista"}
+  ]
+ },
+ {
+  "id": "bortolo",
+  "nome": "Bortolo, il campanaro",
+  "ruolo": "Campanaro di San Vigilio, laico della Confraternita. Ogni mattina rimette i gradini della scorciatoia delle Terrazze.",
+  "come_appare": {
+   "velo": "velo di garza color noce sotto un cappello di feltro a tesa larga",
+   "maschera": "nessuna",
+   "postura": "grosso, lento, con un martello alla cintura e un mazzo di chiavi che tintinna",
+   "colori": "noce, feltro nero, chiavi d'ottone"
+  },
+  "voce": "Testo con un mormorio. Bonario, parla piano, si fa il segno della Linea (una mano che sale dal petto alla fronte).",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "campanile", "dalle": "05:50", "alle": "06:10", "nota": "suona il mattutino"},
+   {"fase": "ogni giorno", "luogo": "scorciatoia_terrazze", "dalle": "07:00", "alle": "07:40", "nota": "rimette i gradini (E4)"},
+   {"fase": "ogni giorno", "luogo": "sagrato", "dalle": "08:00", "alle": "18:00", "nota": "alle 13:00 e alle 20:00 sale a suonare la mezza luce e la brace"},
+   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "19:45", "alle": "20:30"}
+  ]
+ },
+ {
+  "id": "annunciata",
+  "nome": "Annunciata",
+  "ruolo": "Una vecchia che aspetta le Lettere dalla Sorella della linea di sua sorella.",
+  "come_appare": {
+   "velo": "velo color noce lungo fino ai gomiti",
+   "maschera": "nessuna",
+   "postura": "seduta sulla panca della chiesa, le mani incrociate sul bastone; si volta verso chi le parla solo quando qualcosa la tocca",
+   "colori": "noce scuro, bastone di castagno"
+  },
+  "voce": "Testo con un mormorio. Gentile, un po' ironica.",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "san_vigilio", "dalle": "09:00", "alle": "17:00", "nota": "sulla panca davanti al portale (1066, 39,5)"}
+  ]
+ },
+ {
+  "id": "nando",
+  "nome": "Nando",
+  "ruolo": "Smascherato dei Ronchi: ogni mattina ricostruisce la casa che le Fade gli smontano di notte.",
+  "come_appare": {
+   "velo": "nessuno: è uno Smascherato",
+   "maschera": "nessuna",
+   "postura": "faccia scura di sole, mani spaccate, sempre con una pietra in mano; si volta e non parla se Elvira porta il velo nero",
+   "colori": "canapa grezza, pietra grigio-viola"
+  },
+  "voce": "Testo con un mormorio. Asciutto, ride di sé.",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "muro_ronco", "dalle": "08:30", "alle": "09:30", "nota": "prende le pietre e rifà la casa (cicli di E2 ed E3)"},
+   {"fase": "ogni giorno", "luogo": "casa_nando", "dalle": "09:30", "alle": "18:00"},
+   {"fase": "notte", "luogo": "casa_nando (dentro)", "dalle": "20:00", "alle": "08:30"}
+  ]
+ },
+ {
+  "id": "clelia",
+  "nome": "Clelia, novizia della Confraternita",
+  "ruolo": "Porta i doni e le lettere della Madre.",
+  "come_appare": {
+   "velo": "veste di garza nera fino a terra",
+   "maschera": "maschera di castagno liscia, senza tratti",
+   "postura": "dritta, mani incrociate, piccoli inchini; non resta mai più del necessario",
+   "colori": "nero, legno chiaro della maschera"
+  },
+  "voce": "Testo con un mormorio. Formale, a frasi brevi.",
+  "posizioni": [
+   {"fase": "giorno 2", "luogo": "bacheca_ore", "dalle": "07:00", "alle": "19:00", "condizione": "!dialogo:d_clelia_dono finito"},
+   {"fase": "dal giorno 2", "luogo": "casa_del_velo", "dalle": "07:00", "alle": "21:00"}
+  ]
+ },
+ {
+  "id": "bambini",
+  "nome": "Lisa e Gioanin",
+  "ruolo": "I bambini di Corbella: chiamano Elvira «la Svegliata» e insegnano le direzioni.",
+  "come_appare": {
+   "velo": "garza bianca da bambini, corta",
+   "maschera": "nessuna",
+   "postura": "girano attorno a Elvira a distanza di sicurezza; Lisa parla, Gioanin si nasconde dietro di lei",
+   "colori": "bianco, ginocchia sbucciate"
+  },
+  "voce": "Testo con un mormorio di voci acute.",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "08:00", "alle": "19:30"},
+   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30", "nota": "in prima fila"}
+  ]
+ },
+ {
+  "id": "velati_corbella",
+  "nome": "La gente di Corbella",
+  "ruolo": "Una dozzina di figure velate che vivono il paese con le loro routine; reagiscono a Elvira da lontano.",
+  "come_appare": {
+   "velo": "garza color noce, cappucci, cappelli a tesa larga",
+   "maschera": "qualche maschera di castagno semplice fra i più vecchi",
+   "postura": "si fermano e si voltano quando passa la Svegliata; si danno di gomito; all'alba stanno in piazza a guardare la Linea che si accende; con il velo nero di Elvira si inchinano",
+   "colori": "noce, ocra, grigio-viola"
+  },
+  "voce": "Mormorii; qualche frase udita al passaggio («La Svegliata», «Ha dormito con la Santa»).",
+  "posizioni": [
+   {"fase": "ogni giorno", "luogo": "piazza_ore", "dalle": "05:30", "alle": "06:30", "nota": "guardano la Linea che si accende"},
+   {"fase": "ogni giorno", "luogo": "corbella (orti, botteghe, grà)", "dalle": "06:30", "alle": "19:30"},
+   {"fase": "ogni giorno", "luogo": "telo_ombrista", "dalle": "19:45", "alle": "20:30", "nota": "trenta sagome sedute sui gradini"}
+  ]
+ },
+ {
+  "id": "la_madre",
+  "nome": "La Madre (Ilde Bassi)",
+  "ruolo": "Guida della Confraternita della Linea. Nella Fase 1 non si vede: manda il velo nero e un biglietto.",
+  "come_appare": {
+   "velo": "veste di garza nera che la fa sembrare più alta",
+   "maschera": "maschera di castagno liscia, senza tratti",
+   "postura": "quasi sempre di spalle; mani scoperte, vecchissime, con le cicatrici da innesto (non nella Fase 1)",
+   "colori": "nero, legno chiaro"
+  },
+  "voce": "Doppiata (dalla Fase 3). Filtro di garza: vicina e attutita. Nella Fase 1 solo calligrafia ordinata su carta grezza.",
+  "posizioni": [
+   {"fase": "Fase 1", "luogo": "Eremo della Linea (fuori scena, (2785, 30, 320))"}
+  ]
+ },
+ {
+  "id": "sconosciuto_vetro",
+  "nome": "La mano del vetro",
+  "ruolo": "Chi ha scritto «Non fidarti delle campane» sulla capsula (Severino, il Giardiniere n. 4: nella Fase 1 non si sa).",
+  "come_appare": {
+   "velo": "nessuno visibile",
+   "maschera": "nessuna",
+   "postura": "si conosce solo dalla calligrafia tecnica e minuta, a matita dura, e dai graffi freschi sul chiodo 11",
+   "colori": "grafite"
+  },
+  "voce": "Nessuna nella Fase 1.",
+  "posizioni": [
+   {"fase": "Fase 1", "luogo": "nessuno (tracce: cripta_capsula_5, cippo_cripta)"}
+  ]
+ },
+ {
+  "id": "rosa",
+  "nome": "Rosa Galli, la Bugnera",
+  "ruolo": "Apicoltrice delle api di rame ai Bugni. Nella Fase 1 solo una lettera e una porta chiusa.",
+  "come_appare": {
+   "velo": "velo da bugnera a rete fine color rame",
+   "maschera": "nessuna",
+   "postura": "non si vede nella Fase 1; attorno alla sua porta girano tre api di rame",
+   "colori": "rame, cuoio, fumo del fumigatore"
+  },
+  "voce": "Testo con un mormorio (dalla Fase 2).",
+  "posizioni": [
+   {"fase": "Fase 1", "luogo": "porta_bugni", "nota": "porta chiusa con un biglietto; la casa è a matita"}
+  ]
+ },
+ {
+  "id": "aurelio",
+  "nome": "Aurelio Respini, il geometra",
+  "ruolo": "Il marito di Elvira, morto a Cevio nel 2158. È presente attraverso il libretto di rilievo e lo squadro a cannocchiale.",
+  "come_appare": {
+   "velo": "nessuno",
+   "maschera": "nessuna",
+   "postura": "solo calligrafia minuta e regolare, numeri in colonna, schizzi, e i disegnini di una bambina con una stadia più alta di lei",
+   "colori": "inchiostro bruno, matita, carta del libretto ingiallita"
+  },
+  "voce": "Nessuna. Solo testo.",
+  "posizioni": [
+   {"fase": "sempre", "luogo": "il libretto, nella borsa di Elvira"}
+  ]
+ },
+ {
+  "id": "marta",
+  "nome": "Marta Pedrazzini (la lettera)",
+  "ruolo": "La figlia di Elvira, nove anni all'imbarco. Nella Fase 1 c'è solo la lettera «dalla Sorella», con il fiore sbagliato.",
+  "come_appare": {
+   "velo": "nessuno",
+   "maschera": "nessuna",
+   "postura": "calligrafia rotonda di ragazza, la «g» chiusa a ricciolo, carta grezza di castagno",
+   "colori": "inchiostro nero un po' sbiadito"
+  },
+  "voce": "Nessuna nella Fase 1.",
+  "posizioni": [
+   {"fase": "sempre", "luogo": "la lettera, in tasca a Elvira"}
+  ]
+ },
+ {
+  "id": "le_fade",
+  "nome": "Le Fade",
+  "ruolo": "Sciami notturni di piccole macchine di manutenzione con un lume: rimettono il mondo in pari con la Carta. Non attaccano e ignorano le persone.",
+  "come_appare": {
+   "velo": "nessuno",
+   "maschera": "nessuna",
+   "postura": "lumi caldi grandi come un pugno, con una cesta d'ottone sotto, che volano in cerchi lenti; sollevano pietre e assi e le posano con cura; girano attorno a chi sta fermo su una particella e se ne vanno",
+   "colori": "lumi giallo-arancio nel blu-viola della notte, ottone"
+  },
+  "voce": "Nessuna. Tintinnio d'ottone e un frullo leggero.",
+  "posizioni": [
+   {"fase": "ogni notte", "luogo": "giro_corbella in fade_fase1.json", "dalle": "22:05", "alle": "04:30"}
+  ]
+ },
+ {
+  "id": "pesarina",
+  "nome": "La Pesarina",
+  "ruolo": "Per i bambini, la cosa che si siede sul petto di chi dorme e ruba i sogni. È una macchina infermiera del 2121 (secondaria della Fase 5). Nella Fase 1 non si vede.",
+  "come_appare": {
+   "velo": "nessuno",
+   "maschera": "nessuna",
+   "postura": "nella Fase 1 solo l'effetto: il Taccuino aperto su un'altra pagina e un peso sul petto al risveglio",
+   "colori": "bianco smalto (dalla Fase 5)"
+  },
+  "voce": "Nessuna.",
+  "posizioni": [
+   {"fase": "ogni notte", "luogo": "dove dorme Elvira", "dalle": "03:10", "alle": "03:20"}
+  ]
+ },
+ {
+  "id": "tecla",
+  "nome": "Tecla (una lanterna sulla Finestra)",
+  "ruolo": "La vedova della Finestra (secondaria della Fase 3). Nella Fase 1 è solo una lanterna che cammina di notte sul vetro della Finestra delle Vedove.",
+  "come_appare": {
+   "velo": "non si vede",
+   "maschera": "non si vede",
+   "postura": "un lume che avanza lento lungo la Finestra delle Vedove e si ferma vicino alla nicchia",
+   "colori": "un punto giallo sul nero-viola del vetro"
+  },
+  "voce": "Nessuna nella Fase 1.",
+  "posizioni": [
+   {"fase": "ogni notte", "luogo": "Finestra delle Vedove, attorno a (1300, 345)", "dalle": "23:00", "alle": "02:00"}
+  ]
+ }
+]
