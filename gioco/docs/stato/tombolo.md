@@ -128,3 +128,65 @@ Anche lo script `tests/unit/tombolo/browser-verify.ts` si era fermato a metà: d
 - `npx vitest run` (tutto il repository): 56 file, 825 test verdi.
 - `npx tsx tests/unit/tombolo/browser-verify.ts` contro la build di produzione (`VITE_E2E=1 vite build` + `vite preview` sulla 5246): 67/67 (i 63 di prima più Archivio con `riconciliate`, giornata e anno nella barra alta, telefono in orizzontale).
 - Sonde della verifica (Playwright, non nel repository), tutte verdi: mano fantasma e pulsazione del prologo, lampada a 61 s di gioco (`core.time.step`), Esc → menu e di nuovo Esc, Tab → Taccuino in stretto, `quirk:discovered` di Teresa alle 6, movimento ridotto + velocità istantanea, alto contrasto, inglese, uscita con `night:exit` e notte salvata; arc1 a 4 fili (2 giusti + 1 sbagliato non conferma, 3 giusti confermano 3, l'ultimo da solo), ripresa d'Archivio con i nomi, g12 nome con un tocco e ripresa, g17 filo nero riga per riga (coppia forzata e vicino rifiutati), fin_seppia (altro filo rifiutato, Ada incrocia, ripresa), fin_aperto (ripresa con le occasioni); gettone → bigliettino, H tre volte → fantasma; trascinare l'incrocio fuori dalla riga, riga passata → anteprima → "Riavvolgi fino a qui", rotella e PagSu; inglese al 140% a 360×640 nella scelta dei nomi senza testo che esce; 34/34 livelli dei contenuti in autoplay (gli Archivi con `riconciliate`); nessun errore in console. Screenshot guardati a 360×640, 390×844, 844×390, 1024×700, 1280×720, 1920×1080, 820×1180.
+
+## Revisione 1
+
+**Stato:** done. Tutti i 22 compiti del gruppo (TOM-01…TOM-22) fatti, con test; le parti visibili provate nel browser (build `VITE_E2E=1` servita con `vite preview` sulla 5680, Chromium di Playwright): `tests/unit/tombolo/browser-revisione1.ts` 62/62 controlli, screenshot guardati.
+
+### Compiti
+
+| Compito | Che cosa c'è | Prove |
+|---|---|---|
+| TOM-01 [P0] Archivio su touch | Il selettore si apre dopo il click di compatibilità (ripiego a 400 ms), i click entro 350 ms dall'apertura si ignorano (`popupClock`, guardia in cattura); altezza fissa, «Togli il nome» sempre presente (disattivato senza nome); pressione lunga sul fuso sbiadito → selettore. | `revisione1-archivio.test.ts`; browser: tocchi veri a 390×844 e 1180×820, selettore aperto, 0 nomi assegnati. |
+| TOM-02 [P0] Nomi alla Obra Dinn | `ArchiveBook.name()`: nessun conteggio dei giusti, «Nomi dati: n di N · si confermano a gruppi di tre giusti», doppione spostato sul filo nuovo, nome confermato non si dà, «non ancora». | `revisione1-archivio.test.ts` (6 test). |
+| TOM-03 [P0] Fili usciti, Chiudi, Ricomincia | Il tratto del filo uscito si tocca (metà alta della cella, anche dall'elenco degli obiettivi); «Chiudi il merletto» spiega che cosa manca (`tombolo.archivio.manca.*`); «Ricomincia la notte» passa i nomi confermati in `resume.archiveNames`. | test + browser (arc1). |
+| TOM-04 Archivio: pannello, lampada, echi, tutorial | `ui/archivepanel.ts` (C09) al posto dei Bigliettini nel layout largo: fili, candidati, strappi, obiettivi, registro degli echi «Dottor Bortolo → Teresa, alle 9»; lampada nell'Archivio (nomi: `hintKeys` o `tombolo.hint.archivio.*`; rammendo su `computed.base.rows`); trigger `archivioNomi`/`archivioRammendo`; la nota a margine in cima al pannello fa scendere il pannello invece di coprirlo. | `revisione1-p1.test.ts`; browser arc3 1180×820. |
+| TOM-05 [P0] HUD e testo grande | HUD che va a capo (altezza misurata, relayout su `fonts.ready` e alla chiusura degli overlay), scritte ≥ 15 × scala, intestazioni intere o solo icona (`aria-label` con il nome). | browser it/en 360×640 140 % alto contrasto: minimo 21,0 px, niente puntini, misure uguali dopo ricarica. |
+| TOM-06 [P0] Destinatari e finestre | C16 per le lettere generate (`letteraPer`, numerate con `letteraPerN`), rischio con il nome della lettera, `incontra` con la finestra e «entro le 10» nel fallimento. | `revisione1-testi.test.ts` (giorno 14/10, libero gdjm8dc) + browser. |
+| TOM-07 Note a margine | D04: `placeMarginNote` (pannello / sopra le righe fissate / fascia che fa scendere il merletto), mai su riga corrente, future, fusi, richieste, azioni, spilli e slot; tocco sulla nota la chiude e non passa sotto; coda di una nota alla volta; 4 s / 12 s con l'avanzamento automatico; un solo messaggio per riga rifiutata (la riga di motivo sopra «Fissa l'ora» o la nota). | `revisione1-layout.test.ts`. |
+| TOM-08 Tutorial | C02 completo in `tutorial.ts` (ogni `when`, `codice`, `evento`/`chi`, `mano`, una volta per notte), pulsazioni su barra, HUD, lampada, obiettivi e merletto (bordo, spillo, fuso, marea); fuso fantasma che segue la mano. | `revisione1-p1.test.ts` (ogni `when` e ogni bersaglio; prologo: mano da 1 a 0 con il fuso fantasma, alle 7 «Chi sta sopra, dà»). |
+| TOM-09 «Soddisfatta» solo a ora fissata | `requestStatusFull()` con `anteprima`; spunta tratteggiata (`tb-token--anteprima`, «si compie se fissi l'ora»), avviso solo dopo «Fissa l'ora»; stessa regola per gli obiettivi (`goalStatus`/`goalPreview`). | test. |
+| TOM-10 Suggerimenti | Lampada sempre visibile e accesa dopo il primo suggerimento; tocco che riapre il gradino più alto; conferma del Fantasma (`tb-fantasma-conferma`); Fantasma di una riga quieta gratuito; diagnosi con `solveAsync` (incompatibili / tardi / obiettivi, ultima ora possibile per ricerca binaria) con «Lascia cadere» e «Disfa fino alle N». | test con solver finto (iniettabile: `ControllerOptions.solveAsync`). |
+| TOM-11 Righe visibili e ora di fine | Righe 30-56 px perché la notte stia tutta, nel largo la fascia dei fusi scende fino a 104 px; sotto i 30 px righe da 40 e `tb-scorri-giu` con le ore nascoste; HUD «fino alle N»; spilli nascosti negli obiettivi. | test + browser g13 1180×820 e 390×844, fin_seppia 1280×800. |
+| TOM-12 Il tocco spiega | `ui/bubbles.ts`: bolle (`tb-bolla`) su spilli, bordi, perline, ore, filo nero; mouse equivalente; ora e icona affiancate. | test + browser (prologo «Teresa al Forno alle 9: appuntamento fisso.», g06 il marinaio con la lettera per Nina). |
+| TOM-13 Obiettivi | `ui/objectives.ts`; pulsante `tb-obiettivi` con «n/N», popup senza titolo ripetuto con l'ombra di scorrimento; `objectivesElement()` (C08) che si aggiorna e si smonta con la notte. | test + browser 360×640 al 140 %. |
+| TOM-14 Testi generati | C16 e C13 nei testi; nel popup del gettone la riga `tb-bigliettino-condizione` con la condizione esatta. | `revisione1-testi.test.ts` (ogni tipo di perlina e ogni chiave dei rapporti in it e en). |
+| TOM-15 Occasioni | Slot al centro della cella (`slotCenter`, stessa funzione per disegno e tocco), icona su fondo pieno, contatore fuori dalla griglia, «Riprova» azzera gli obiettivi. | test (un clic al centro di ogni cerchio pianta esattamente quella occasione). |
+| TOM-16 Nome che si sposta | Prima della prima ora fissata un tocco su un altro fuso sposta il nome («Il tuo nome ora è su X»); dopo, «Il nome è già appuntato». | test (g12 e fixture). |
+| TOM-17 Rancore e stranezze | Nodo sulla testa dei fusi in rancore, riga negli obiettivi, riga nella scheda; `quirks.ts` copia di `quirkRevealed` (test di equivalenza sui dati veri); nelle modalità extra tutte le stranezze attive. | test. |
+| TOM-18 Desktop grande | Centro fino a 960 px; `layout.scale` (1 fino a 640 px di centro, poi fino a 1,5) per perline, spilli, slot e numeri delle ore (e la colonna delle ore); filo nero sempre con bordo chiaro (`NERO_BORDO`); righe di Teresa e onde di Gino più marcate. | test + browser 1920×1080 (centro 960, scala 1,5) e g17. |
+| TOM-19 Tastiera e lettore di schermo | Quando si nomina (nome di Ada o fili sbiaditi) le frecce arrivano a ogni colonna, cursore sul fuso, la riga di stato dice chi c'è sotto il cursore; la riga di stato si riscrive su `settings:change`. | test + browser (N sull'ultima colonna, stato in inglese dopo il cambio). |
+| TOM-20 Nodo e apparizione | C11 e C12: eventi una volta, `night:complete` dopo l'animazione (2,3 s / 2,5 s a 1×, dissolvenza con il movimento ridotto, subito con velocità 0); dopo il nodo né HUD, né pulsante, né riga di stato dicono «Merletto chiuso». | test + browser fin_chiuso e g08. |
+| TOM-21 PNG con cartiglio | `renderLacePng(level, rows, flags, caption?)` con `{ titolo, sottotitolo, riga }` in un cartiglio in basso (76 px, larghezza ≥ 300). | test di dimensioni, area e posizione delle tre righe. |
+| TOM-22 Salta le ore quiete | `Session.quietRun()`, pulsante `tb-salta-quiete` «Fissa fino alle N» con ≥ 2 righe quiete; Maiusc+Invio (azione `skipQuiet` del core, e anche `confirm` con Maiusc); Disfa riga per riga. | test + browser g03. |
+
+### Come ho letto i contratti (decisioni)
+
+- **C07**: «a rischio» anche quando solo la bozza farebbe fallire la richiesta; `report` sempre sulle righe fissate.
+- **C08**: `objectivesElement()` si smonta (esce dal DOM) quando la regia della notte si chiude; i `tb-obiettivo-<i>` ora sono voci dell'elenco (popup e pannelli), il riassunto in striscia è il pulsante `tb-obiettivi` «n/N».
+- **C09 / D05**: nell'Archivio la striscia dice la forma breve «Nomi dati: n di N»; «Chiudi il merletto» chiude solo con tutti i nomi e il rammendo, altrimenti spiega.
+- **C10**: il tombolo emette solo `night:exit`; il pulsante «Lascia per ora» è delle schermate.
+- **C11**: «la riga Merletto chiuso» = la riga di spiegazione `tombolo.fine`, l'ora dell'HUD «Merletto chiuso», l'etichetta del pulsante (resta «Fissa l'ora», disattivato) e la riga di stato (`tombolo.sr.stato`).
+- **C13**: `corre` senza `vicino` usa `tombolo.violazione.correSolo`; `bloccato` senza `causa` la chiave generica.
+- **D07.3-4**: il Fantasma costa il filo d'oro solo se mostra un incrocio; chiede conferma solo se il filo d'oro è ancora possibile.
+- **D02.3**: «Salta le ore quiete» solo nel modo normale; si ferma prima dell'ultima riga (si chiude a mano), di spilli, bordi, marea, filo nero, ore delle condizioni attive, incroci forzati, eventi o righe rifiutate (Gino).
+- **D06 desktop**: la scala cresce solo nel layout largo, oltre i 640 px di centro.
+- **Debug**: `state().message` ripiega sulla riga di motivo e sul messaggio sostituito da una nota (`nota: true`); `layout()` ora dà anche `scale`, `gutterCx`, `pins` (teste e slot), `edges`, `hiddenBelow` e i pulsanti `scrollDown`, `skipQuiet`, `goals`.
+
+### data-test aggiunti (nessuno cambiato)
+
+`tb-nomina-dati`, `tb-scheda-rancore`, `tb-hud-ora`, `tb-hud-fine`, `tb-nota-margine` (il `p` dentro `tb-margine`), `tb-archivio-chiudi-motivo`, `tb-scorri-giu`, `tb-salta-quiete`, `tb-obiettivi`, `tb-obiettivi-lista`, `tb-obiettivi-scorre`, `tb-obiettivo-<i>`, `tb-spillo-<filo>-<ora>`, `tb-rancore-<a>-<b>`, `tb-sbiadito-<filo>`, `tb-strappo-<ora>`, `tb-bolla`, `tb-eco-chi`, `tb-fantasma-conferma`, `tb-fantasma-annulla`, `tb-suggerimento-lascia-<id>`, `tb-suggerimento-riavvolgi`, `tb-archivio-pannello`, `tb-ap-filo-<filo>`, `tb-ap-candidato-<id>`, `tb-ap-strappo-<ora>`, `tb-ap-echi`, `tb-bigliettino-condizione`.
+
+### Test della revisione
+
+- `npx vitest run tests/unit/tombolo`: 14 file, 216 test verdi (nuovi `revisione1-archivio`, `revisione1-testi`, `revisione1-layout`, `revisione1-p1`, `revisione1-p2`). I test che dipendevano dai livelli ridisegnati in parallelo (g01, g04, g06, g12…) ora usano le fixture del motore o ricavano le attese dai dati.
+- `npx tsc --noEmit -p .`: nessun errore.
+- `npx vitest run tests/unit` (tutto): falliscono solo test dei contenuti in lavorazione (`content/atto1`, `atto23`, `en`: righe lunghe e `.computed.json` dei livelli ridisegnati), nessuno del tombolo.
+- Browser: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers TOMBOLO_R1_URL=http://127.0.0.1:5680/ npx tsx tests/unit/tombolo/browser-revisione1.ts` → 62/62 (TOM-01, 03, 04, 05, 06, 11, 12, 13, 18, 19, 20, 22).
+
+### Problemi noti della revisione
+
+- TOM-17: «Chi c'è stanotte» nella scheda della modalità (P045) è delle schermate (scheda del Merletto del giorno e del libero); il libero `pm0ozmz` con «Un nodo in più» è provato con la fixture `test-rancore`, non con il seme nel browser.
+- TOM-22: nei livelli della campagna, disegnati densi, le ore quiete sono rare (nel browser l'ha offerte g03 alle 7, «Fissa fino alle 8»).
+- TOM-10: la prova «g06 con Nina e Zeno» con il solver vero dipende dai contenuti ridisegnati; la logica è provata con un solver finto (incompatibili, tardi, obiettivi).
+- TOM-18: il controllo «Gino e Teresa in bianco e nero» è su spessori, ampiezza e contrasto d'inchiostro dei motivi e sulla loro forma (tratti staccati contro linea unica), non su un'immagine.
