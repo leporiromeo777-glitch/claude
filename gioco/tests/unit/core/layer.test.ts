@@ -172,6 +172,18 @@ describe('UiLayer', () => {
     bus.emit('audio:caption', { textKey: 'core.ui.ok' });
     expect(caps.dataset.posto).toBe('basso');
     expect(caps.style.getPropertyValue('--didascalie-basso')).toBe('');
+    // Una nota da leggere (la nota a margine, role="note") appena sopra il menu: le
+    // didascalie salgono anche sopra la nota (640 - 420 + 8 = 228), non la coprono.
+    btn.getBoundingClientRect = () => rect(16, 470, 328, 160);
+    const note = document.createElement('aside');
+    note.setAttribute('role', 'note');
+    note.getBoundingClientRect = () => rect(0, 420, 360, 45);
+    scene.appendChild(note);
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    patch();
+    bus.emit('audio:caption', { textKey: 'core.ui.ok' });
+    expect(caps.dataset.posto).toBe('basso');
+    expect(caps.style.getPropertyValue('--didascalie-basso')).toBe('228px');
     obs.disconnect();
     void ui;
   });

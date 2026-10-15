@@ -165,7 +165,8 @@ in un contenitore fratello; `core-carta--scorre` fa scorrere le lettere lunghe d
 (70% dell'altezza). `inkOnPaper(hex, carta = '#EDE4D3')` in `src/core/ui/richtext.ts` scurisce un
 colore (stessa tinta) fino a 4,5:1 sulla carta: lo usa `.core-pers` per il nome (`--pers-ink`), il
 colore pieno resta nella sottolineatura e nell'icona. Gli avvisi brevi (`toast`) non prendono i
-tocchi; le didascalie dei suoni si spostano se coprirebbero un pulsante. I fogli dentro gli
+tocchi; le didascalie dei suoni si spostano se coprirebbero un pulsante (e, se c'è posto,
+anche una nota da leggere, `role="note"`). I fogli dentro gli
 overlay sono opachi (`--foglio-sovrapposto`, con un colore suo in alto contrasto) e un secondo
 overlay mette un velo pieno su quello sotto. Glifi (icone dei personaggi e dei luoghi, icone d'interfaccia) in
 `src/core/ui/glyphs.ts`, per il DOM (`svgIcon`) e per il canvas (`drawGlyph`). Usare

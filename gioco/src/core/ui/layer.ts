@@ -59,6 +59,10 @@ export interface CoreUiLayer extends UiLayer {
 
 /** Elementi che si toccano: le didascalie non ci vanno sopra. */
 const INTERACTIVE = 'button, a[href], input, select, textarea, [role="button"], [role="tab"], [role="switch"], [role="slider"]';
+/** Note da leggere (la nota a margine del tutorial sul tombolo): le didascalie le evitano se possono. */
+const NOTES = '[role="note"]';
+/** Quanto conta coprire una nota rispetto a un pulsante: meno, così non si copre mai un pulsante per lasciarla libera. */
+const NOTE_WEIGHT = 0.25;
 
 export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
   const { root, input, bus, i18n, settings } = deps;
@@ -113,20 +117,26 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
   }
 
   /**
-   * Didascalie dei suoni (revisione 1, SCH-10, P055): mai sopra un pulsante. Si prova
-   * il posto di sempre (in basso a sinistra), poi appena sopra i controlli in basso,
-   * poi in alto; vince il primo che non copre niente (o quello che copre meno).
+   * Didascalie dei suoni (revisione 1, SCH-10, P055): mai sopra un pulsante e, se si
+   * può, nemmeno sopra una nota da leggere (`role="note"`, la nota a margine del
+   * tutorial). Si prova il posto di sempre (in basso a sinistra), poi appena sopra i
+   * controlli in basso, poi in alto; vince il primo che non copre niente, o quello che
+   * copre meno (una nota pesa un quarto di un pulsante).
    */
   function placeCaptions(): void {
     const lines = Array.from(captionsEl.children) as HTMLElement[];
     if (lines.length === 0) return;
     const rootBox = root.getBoundingClientRect();
-    const controls: DOMRect[] = [];
-    for (const c of Array.from(root.querySelectorAll<HTMLElement>(INTERACTIVE))) {
-      if (captionsEl.contains(c) || toastsEl.contains(c) || fadeEl.contains(c)) continue;
-      const r = c.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) controls.push(r);
-    }
+    const controls: { r: DOMRect; w: number }[] = [];
+    const collect = (sel: string, w: number): void => {
+      for (const c of Array.from(root.querySelectorAll<HTMLElement>(sel))) {
+        if (captionsEl.contains(c) || toastsEl.contains(c) || fadeEl.contains(c)) continue;
+        const r = c.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) controls.push({ r, w });
+      }
+    };
+    collect(INTERACTIVE, 1);
+    collect(NOTES, NOTE_WEIGHT);
     if (controls.length === 0) return;
     const block = (): DOMRect | null => {
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -141,10 +151,10 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
       const b = block();
       if (!b) return 0;
       let area = 0;
-      for (const r of controls) {
+      for (const { r, w: weight } of controls) {
         const w = Math.min(b.right, r.right) - Math.max(b.left, r.left);
         const h = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
-        if (w > 0 && h > 0) area += w * h;
+        if (w > 0 && h > 0) area += w * h * weight;
       }
       return area;
     };
@@ -159,9 +169,9 @@ export function createUiLayer(deps: UiLayerDeps): CoreUiLayer {
     // Appena sopra i controlli che stanno sotto (e di fianco) alle didascalie.
     const b = block();
     if (b) {
-      const below = controls.filter((r) => r.right > b.left && r.left < b.right && r.top >= rootBox.top + rootBox.height * 0.35);
+      const below = controls.filter(({ r }) => r.right > b.left && r.left < b.right && r.top >= rootBox.top + rootBox.height * 0.35);
       if (below.length > 0) {
-        const top = Math.min(...below.map((r) => r.top));
+        const top = Math.min(...below.map(({ r }) => r.top));
         const bottom = rootBox.bottom - top + 8;
         if (bottom + b.height < rootBox.height) {
           apply('basso', bottom);
