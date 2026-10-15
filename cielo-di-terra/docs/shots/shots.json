@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:36:46.919Z",
+  "date": "2026-10-15T07:41:44.372Z",
   "size": [
     1280,
     720
@@ -10,14 +10,14 @@
     "--ignore-gpu-blocklist"
   ],
   "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
-  "startupSeconds": 1.23,
+  "startupSeconds": 1.5,
   "shots": [
     {
       "n": 1,
       "file": "01-paese-mezzogiorno.png",
       "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
       "frames": 4,
-      "frameMs": 1,
+      "frameMs": 2,
       "stats": {
         "drawCalls": 71,
         "triangles": 519224,
@@ -364,7 +364,7 @@
       "ratio": 5.5
     },
     "updateMsPerStep": 0.006,
-    "renderCpuMs": 18.9,
+    "renderCpuMs": 15.8,
     "stats": {
       "drawCalls": 84,
       "triangles": 499578,
