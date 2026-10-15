@@ -42,6 +42,11 @@ export interface HintCardData {
   params: Params;
   /** Gradino successivo disponibile (null all'ultimo). */
   next: HintTier | null;
+  /**
+   * Il Fantasma toglierebbe davvero il filo d'oro? (R2-D1: l'avviso non mente;
+   * falso se il filo d'oro è già perso o stanotte non c'è). Predefinito: sì.
+   */
+  goldAtStake?: boolean;
 }
 
 /** Contenuto della scheda del suggerimento. */
@@ -51,7 +56,7 @@ export function hintCard(d: HintCardData, onNext: (t: HintTier) => void): HTMLEl
   body.appendChild(textOf(d.textKey, d.params, 'p', { className: 'tb-hint-text', rich: true }));
   if (d.next) {
     const next = d.next;
-    if (next === 'fantasma') body.appendChild(textOf('tombolo.hint.fantasmaAvviso', undefined, 'p', { className: 'tb-hint-warn' }));
+    if (next === 'fantasma' && d.goldAtStake !== false) body.appendChild(textOf('tombolo.hint.fantasmaAvviso', undefined, 'p', { className: 'tb-hint-warn' }));
     body.appendChild(button({ labelKey: `tombolo.hint.ancora.${next}`, kind: 'secondario', icon: 'lampada', onClick: () => onNext(next), test: 'tb-suggerimento-ancora' }));
   }
   return body;

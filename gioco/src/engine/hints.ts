@@ -6,8 +6,9 @@
  *   ha superato il primo evento di cui parla: Q076) o una generica; con «Spilli
  *   velati» guarda solo gli spilli già visibili (Q062);
  * - indizio: confronta la bozza con la riga della soluzione. Se coincide, «Quest'ora
- *   va bene: fissala»; altrimenti nomina il primo incrocio (da sinistra) mancante,
- *   rovesciato o di troppo, e dice se nella riga ce n'è ancora da sistemare;
+ *   va bene: fissala»; altrimenti nomina il primo incrocio di troppo (da sinistra)
+ *   o, se non ce ne sono, il primo mancante o rovesciato, e dice se nella riga ce
+ *   n'è ancora da sistemare;
  * - fantasma: TUTTI gli incroci del giocatore della riga corrente (`ghosts`;
  *   `ghost` è il primo, per chi ne legge uno solo).
  *
@@ -227,7 +228,10 @@ export function hintFor(args: HintArgs): RowHint {
     if (solRow.length === 0) return { tier: 'indizio', textKey: HINT_KEYS.indizioQuiete, params: { ora: row }, highlight: { hour: row } };
     return { tier: 'indizio', textKey: HINT_KEYS.indizioVa, params: { ora: row }, highlight: { hour: row } };
   }
-  const d = diffs[0] as RowDiff;
+  // Prima gli incroci di troppo (da sinistra), poi quelli rovesciati o mancanti: uno di troppo
+  // può impedire quello che manca (un filo in comune, «disgiunto») o lasciare senza matassa
+  // per farlo (verifica R2: seguire l'Indizio non deve mai portare a un rifiuto).
+  const d = diffs.find((x) => x.k === 'troppo') ?? (diffs[0] as RowDiff);
   const t = threadsOf(state, d.c);
   const altri = diffs.length - 1;
   const highlight = { hour: row, column: d.c.pair };

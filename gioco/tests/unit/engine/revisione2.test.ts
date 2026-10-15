@@ -113,10 +113,17 @@ describe('R2-D1: l\'Indizio confronta la bozza con la riga della soluzione (Q025
     expect(h).toMatchObject({ textKey: HINT_KEYS.indizioVerso, params: { ora: 6, sopra: 'marta', sotto: 'teresa', altri: 0 } });
   });
 
-  it('un incrocio di troppo: lo dice, e dice che manca ancora quello giusto', () => {
+  it('un incrocio di troppo: lo dice per primo, e dice che manca ancora quello giusto', () => {
     const h = hintFor({ level: g00, ctx, timeline: start, rows: [], goals, tier: 'indizio', draft: [{ pair: 1, over: 'L' }] });
-    // Prima coppia da sinistra: la 0 manca; poi la 1 è di troppo.
-    expect(h).toMatchObject({ textKey: HINT_KEYS.indizioSopraAltri, params: { ora: 6, sopra: 'marta', sotto: 'teresa', altri: 1 } });
+    // La coppia 0 manca, la 1 è di troppo: si scioglie prima la 1 (ha un filo in comune con la 0,
+    // e finché c'è il motore rifiuterebbe la 0: verifica R2, l'Indizio non porta mai a un rifiuto).
+    const pos = start[0]!.pos;
+    expect(h).toMatchObject({ textKey: HINT_KEYS.indizioTroppo, params: { ora: 6, a: pos[1], b: pos[2], altri: 1 } });
+  });
+
+  it('dopo aver sciolto quello di troppo, l\'Indizio nomina quello che manca', () => {
+    const h = hintFor({ level: g00, ctx, timeline: start, rows: [], goals, tier: 'indizio', draft: [] });
+    expect(h).toMatchObject({ textKey: HINT_KEYS.indizioSopra, params: { ora: 6, sopra: 'marta', sotto: 'teresa' } });
   });
 
   it('il Fantasma con un incrocio di troppo nella bozza lo nomina da sciogliere', () => {

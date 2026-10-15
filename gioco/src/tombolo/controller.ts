@@ -32,8 +32,8 @@ import type {
 } from '../core/types';
 import { el } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
-import { type RowHint, solveAsync } from '../engine/index';
-import { type Diagnosis, Session } from './session';
+import { HINT_KEYS, type RowHint, solveAsync } from '../engine/index';
+import { type Diagnosis, NOME_HINT_KEY, Session } from './session';
 import { BAND, type NotePlacement, SLOT_R, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, rowsBelow, scrollLimits, slotCenter } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
 import { type TextDeps, beadName, capitalizeFirst, describeCondition, formatHour, joinNames, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
@@ -73,6 +73,11 @@ const ENDING_FADE_S = 0.6;
 /** Nota a margine: si chiude alla prima azione valida dopo 4 s, da sola dopo 12 s (D04). */
 const NOTE_MIN_S = 4;
 const NOTE_MAX_S = 12;
+
+/** Bordo alto del pulsante «↓ altre N ore» (in fondo al merletto). */
+export function scrollHintTop(l: Pick<TomboloLayout, 'lace'>): number {
+  return l.lace.y + l.lace.h - 48;
+}
 
 export interface ControllerOptions {
   computed: LevelComputed | null;
@@ -434,7 +439,9 @@ export class NightController {
     if (l.kind === 'stretto' && this.model) {
       const h = node.offsetHeight;
       const rowY = l.lace.y - this.scroll + rowBottom(l, Math.min(this.model.current, this.model.rows));
-      const above = l.requests.y - 4;
+      let above = l.requests.y - 4;
+      // Con «↓ altre N ore» in fondo al merletto la riga sta sopra il pulsante (non sotto di lui).
+      if (!this.scrollDown.hidden) above = Math.min(above, scrollHintTop(l) - 4);
       if (h > 0 && rowY + 6 <= above - h) bottom = l.cssH - above;
     }
     const v = `${Math.round(bottom)}px`;
@@ -803,7 +810,7 @@ export class NightController {
       const w = Math.min(220, l.center.w - 32);
       this.scrollDown.style.left = `${l.center.x + (l.center.w - w) / 2}px`;
       this.scrollDown.style.width = `${w}px`;
-      this.scrollDown.style.top = `${l.lace.y + l.lace.h - 48}px`;
+      this.scrollDown.style.top = `${scrollHintTop(l)}px`;
     }
   }
 
@@ -1789,13 +1796,18 @@ export class NightController {
     }
     if (o.hintRow >= 1) this.revealRow(o.hintRow);
     const maxTier = this.namingHints() ? 1 : TIERS.length - 1;
-    const next = this.hintMax < maxTier ? (TIERS[this.hintMax + 1] as HintTier) : null;
+    // Un Indizio che dice «va bene», «lascia stare i fili» o «prima appunta il nome» non ha un
+    // Fantasma da offrire: direbbe la stessa cosa (R2-D1: niente pulsanti né avvisi che non servono).
+    const rowSettled = h.tier === 'indizio' && (h.textKey === HINT_KEYS.indizioVa || h.textKey === HINT_KEYS.indizioQuiete || h.textKey === NOME_HINT_KEY);
+    const next = this.hintMax < maxTier && !rowSettled ? (TIERS[this.hintMax + 1] as HintTier) : null;
+    // L'avviso «il fantasma toglie il filo d'oro» solo se c'è ancora un filo d'oro da perdere.
+    const goldAtStake = next !== 'fantasma' || s.goldPossible(this.s.content.balance?.oro?.minIncroci ?? 3);
     const hint = h;
     const leavesOut = h.tier === 'spinta' ? [] : [...s.hintLeavesOut];
     this.openPopup(
       'tb-popup-hint',
       (body) => {
-        const card = hintCard({ tier: hint.tier, textKey: hint.textKey, params: nameParams(this.textDeps, hint.params), next }, () => void this.advanceHint());
+        const card = hintCard({ tier: hint.tier, textKey: hint.textKey, params: nameParams(this.textDeps, hint.params), next, goldAtStake }, () => void this.advanceHint());
         if (hint.tier === 'spinta' && this.diagnosis) this.appendDiagnosisActions(card, this.diagnosis);
         if (hint.tier !== 'spinta' && leavesOut.length > 0) this.appendLeavesOut(card, leavesOut);
         const extra = (hint as RowHint).extra ?? [];

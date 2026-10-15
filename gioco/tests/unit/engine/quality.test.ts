@@ -259,10 +259,36 @@ describe('levels:check: criteri di qualità', () => {
   }, 30_000);
 
   it('K7: intervalli "Min" dalle tabelle di GDD 5.2', () => {
-    const r = gddMinRanges();
+    // Una tabella in miniatura con la stessa forma di GDD 5.2 (i valori veri li aggiorna la regia).
+    const dir = mkdtempSync(join(tmpdir(), 'gdd-'));
+    dirs.push(dir);
+    const md = join(dir, 'GDD.md');
+    writeFileSync(
+      md,
+      [
+        '| ID | Titolo | Colonne / ore | Min | Momento |',
+        '|---|---|---|---|---|',
+        '| g01 | La prima sera | M F P C / 6→11 | 3-5 | … |',
+        '| g06 | La lettera | M F P C A R / 6→12 | 10 | … |',
+        '| `g13` | La notte più lunga | 6 col / 6→20 | 10–12 | … |',
+        '',
+        '| ID | Altro | Min |',
+        '|---|---|---|',
+        '| arc1 | Archivio | — |',
+      ].join('\n'),
+    );
+    const r = gddMinRanges(md);
     expect(r.get('g01')).toEqual([3, 5]);
-    expect(r.get('g06')).toEqual([5, 5]);
+    expect(r.get('g06')).toEqual([10, 10]);
     expect(r.get('g13')).toEqual([10, 12]);
+    expect(r.has('arc1')).toBe(false);
+    // Il GDD vero: ogni notte della campagna ha un intervallo leggibile.
+    const real = gddMinRanges();
+    for (const id of ['g01', 'g06', 'g13', 'g23']) {
+      const v = real.get(id);
+      expect(v, id).toBeDefined();
+      expect((v as [number, number])[0]).toBeLessThanOrEqual((v as [number, number])[1]);
+    }
   });
 
   it('Archivio: esente, con il rammendo come base', () => {

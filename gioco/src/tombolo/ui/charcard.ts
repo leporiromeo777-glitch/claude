@@ -24,7 +24,7 @@ export interface CharCardData {
   memoria: number | null;
   /**
    * Che cosa ha adesso, già scritto (R2-D4, Q033, Q052): «Porta la lettera per
-   * Bepi.», «Ha la febbre.», «È annodato: in quest'ora non si muove.».
+   * Bepi.», «Ha la febbre.», «Il suo filo è annodato: in quest'ora non si muove.».
    */
   stato?: string[];
 }
