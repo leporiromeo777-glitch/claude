@@ -59,6 +59,8 @@ const MASSIMO_GIRI = 10_000;
 export class Missioni {
   readonly eventi = new Emettitore<EventiMissioni>();
   private readonly defs = new Map<string, MissioneDef>();
+  /** id del passo → missione (i contenuti possono citare un passo con il solo id). */
+  private readonly passoInMissione = new Map<string, string>();
   private readonly stati = new Map<string, StatoInterno>();
   private inizializzate = false;
   private inAggiornamento = false;
@@ -68,7 +70,15 @@ export class Missioni {
     private readonly deps: DipendenzeMissioni,
     readonly iniziali: readonly string[] = [],
   ) {
-    for (const d of defs) this.defs.set(d.id, d);
+    for (const d of defs) {
+      this.defs.set(d.id, d);
+      for (const p of d.passi) if (!this.passoInMissione.has(p.id)) this.passoInMissione.set(p.id, d.id);
+    }
+  }
+
+  /** La missione che contiene il passo `passo` (la prima, se l'id si ripete). */
+  missioneDelPasso(passo: string): string | undefined {
+    return this.passoInMissione.get(passo);
   }
 
   definizione(id: string): MissioneDef | undefined {
@@ -84,8 +94,11 @@ export class Missioni {
     return this.stati.get(id)?.stato ?? 'inattiva';
   }
 
-  statoPasso(missione: string, passo: string): StatoPasso {
-    return this.stati.get(missione)?.passi.get(passo) ?? 'bloccato';
+  /** Stato di un passo; con `missione` undefined il passo si cerca per id fra tutte le missioni. */
+  statoPasso(missione: string | undefined, passo: string): StatoPasso {
+    const m = missione ?? this.passoInMissione.get(passo);
+    if (m === undefined) return 'bloccato';
+    return this.stati.get(m)?.passi.get(passo) ?? 'bloccato';
   }
 
   attive(): string[] {

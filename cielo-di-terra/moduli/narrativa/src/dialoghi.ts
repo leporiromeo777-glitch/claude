@@ -29,6 +29,8 @@ export interface VistaNodo {
   nodo: string;
   /** Chi parla in questo nodo (di solito il personaggio del dialogo). */
   chi: string;
+  /** Didascalia di regia, se c'è (il testo può essere vuoto quando c'è solo la didascalia). */
+  didascalia?: string;
   testo: string;
   risposte: RispostaVisibile[];
   /** Nessuna risposta visibile: `choose(0)` continua o chiude. */
@@ -108,6 +110,7 @@ export class Dialoghi {
       personaggio: def.personaggio,
       nodo: nodo.id,
       chi: nodo.chi ?? def.personaggio,
+      ...(nodo.didascalia !== undefined ? { didascalia: nodo.didascalia } : {}),
       testo: nodo.testo,
       risposte,
       finale: risposte.length === 0,
@@ -179,22 +182,41 @@ export class Dialoghi {
 
   /**
    * Dialoghi disponibili (condizione vera e non finiti, o ripetibili),
-   * eventualmente di un solo personaggio, ordinati per priorità e poi
-   * nell'ordine del file.
+   * ordinati per priorità e poi nell'ordine del file. Con `personaggio`
+   * restano quelli che si aprono parlando con lui.
    */
   disponibili(personaggio?: string): string[] {
-    return Object.values(this.defs)
-      .map((d, i) => ({ d, i }))
-      .filter(({ d }) => personaggio === undefined || d.personaggio === personaggio)
-      .filter(({ d }) => d.ripetibile || !this.finitiSet.has(d.id))
-      .filter(({ d }) => d.condizione === undefined || this.deps.valuta(d.condizione))
-      .sort((a, b) => b.d.priorita - a.d.priorita || a.i - b.i)
-      .map(({ d }) => d.id);
+    return this.filtra((d) => personaggio === undefined || (d.apertura.come === 'parlando' && (d.apertura.con ?? d.personaggio) === personaggio));
   }
 
   /** Il dialogo da aprire parlando con un personaggio (o null). */
   perPersonaggio(personaggio: string): string | null {
     return this.disponibili(personaggio)[0] ?? null;
+  }
+
+  /** Il dialogo da aprire usando un oggetto del mondo («si_apre: interagendo con …»), o null. */
+  perInterazione(oggetto: string): string | null {
+    return this.filtra((d) => d.apertura.come === 'interagendo' && d.apertura.con === oggetto)[0] ?? null;
+  }
+
+  /**
+   * Dialoghi «automatici» (e «effetto») pronti: condizione vera, mai finiti,
+   * non aperti adesso. Narrativa li annuncia con l'evento `apriDialogo`.
+   */
+  automaticiPronti(): string[] {
+    return this.filtra(
+      (d) => (d.apertura.come === 'automatico' || d.apertura.come === 'effetto') && !this.finitiSet.has(d.id) && this.corrente?.def !== d,
+    );
+  }
+
+  private filtra(scelta: (d: DialogoDef) => boolean): string[] {
+    return Object.values(this.defs)
+      .map((d, i) => ({ d, i }))
+      .filter(({ d }) => scelta(d))
+      .filter(({ d }) => d.ripetibile || !this.finitiSet.has(d.id))
+      .filter(({ d }) => d.condizione === undefined || this.deps.valuta(d.condizione))
+      .sort((a, b) => b.d.priorita - a.d.priorita || a.i - b.i)
+      .map(({ d }) => d.id);
   }
 
   // --- interni ---------------------------------------------------------------
@@ -228,6 +250,7 @@ export class Dialoghi {
     const { def } = this.corrente;
     this.corrente = null;
     this.finitiSet.add(def.id);
+    if (def.effettiFine.length) this.deps.applicaEffetti(def.effettiFine, `dialogo ${def.id}, alla fine`);
     this.eventi.emit('dialogoFinito', { dialogo: def.id, personaggio: def.personaggio });
   }
 

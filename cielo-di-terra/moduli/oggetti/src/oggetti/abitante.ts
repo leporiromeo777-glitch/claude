@@ -354,8 +354,8 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
       // testa scura dentro la rete
       b.aggiungi(geoSfera(rT, 8, 6), { matrice: mat(cT), colore: 0x2b2420, osso: O.testa });
       const rete = geoCilindro(rT * 2.2, rT * 2.4, rT * 2.6 + 0.06 * H, 14, true);
-      const cR1 = new THREE.Color(PALETTE.rameChiaro);
-      const cR2 = new THREE.Color(PALETTE.rame);
+      const cR1 = mescola(PALETTE.rame, PALETTE.canapaScura, 0.45);
+      const cR2 = mescola(PALETTE.rameScuro, 0x2b2420, 0.45);
       b.aggiungi(rete, {
         matrice: mat([0, yC + rT * 0.7 - (rT * 2.6 + 0.06 * H), 0], [0, 0, 0], [1, 1, 0.85]),
         colore: (p, _n, out) => out.copy(cR2).lerp(cR1, Math.sin(Math.atan2(p.x, p.z) * 16) * 0.5 + 0.5),

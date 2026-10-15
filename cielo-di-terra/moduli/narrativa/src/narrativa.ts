@@ -92,8 +92,13 @@ export interface EventiNarrativa extends EventiMissioni, EventiDialoghi {
   evento: { nome: string; argomenti: string[]; origine?: string };
   /** «tempo:salta-a 6» / «tempo:avanza 2»: il gioco sposta l'orologio. */
   tempo: { azione: 'salta-a' | 'avanza'; ore: number; origine?: string };
-  /** «dialogo:id avvia»: il gioco apre il dialogo quando può (di solito con `dialoghi.avvia`). */
-  apriDialogo: { dialogo: string; origine?: string };
+  /**
+   * Il gioco apre il dialogo quando può (di solito con `dialoghi.avvia`): viene
+   * dall'effetto «dialogo:id avvia» oppure (`automatico: true`) da un dialogo
+   * «si_apre: automatico» la cui condizione è diventata vera. Un dialogo
+   * automatico si annuncia una volta sola; se viene interrotto si riannuncia.
+   */
+  apriDialogo: { dialogo: string; origine?: string; automatico?: boolean };
   /** Problemi dei contenuti scoperti durante il gioco (condizioni o effetti malformati, id inesistenti). */
   errore: { messaggio: string; origine?: string };
 }
@@ -159,6 +164,8 @@ export class Narrativa {
   private readonly segnalati = new Set<string>();
   private inTick = false;
   private tickRichiesto = false;
+  /** Dialoghi automatici già annunciati (si riannunciano se interrotti). */
+  private readonly automaticiAnnunciati = new Set<string>();
 
   constructor(
     contenuti: ContenutiNarrativa | ContenutiNormalizzati,
@@ -307,12 +314,30 @@ export class Narrativa {
     } finally {
       this.inTick = false;
     }
+    this.annunciaAutomatici();
     return cambiato;
+  }
+
+  /** Annuncia (evento `apriDialogo`) i dialoghi automatici pronti, se nessun dialogo è aperto. */
+  private annunciaAutomatici(): void {
+    if (!this.dialoghi.isFinished()) return;
+    for (const id of this.dialoghi.automaticiPronti()) {
+      if (this.automaticiAnnunciati.has(id)) continue;
+      this.automaticiAnnunciati.add(id);
+      this.eventi.emit('apriDialogo', { dialogo: id, automatico: true });
+      if (!this.dialoghi.isFinished()) return; // il gioco l'ha aperto subito: gli altri aspettano
+    }
   }
 
   /** Apre il dialogo disponibile di un personaggio (null se non ne ha). */
   parla(personaggio: string): VistaNodo | null {
     const id = this.dialoghi.perPersonaggio(personaggio);
+    return id ? this.dialoghi.avvia(id) : null;
+  }
+
+  /** Apre il dialogo legato a un oggetto del mondo («si_apre: interagendo con …»), o null. */
+  interagisci(oggetto: string): VistaNodo | null {
+    const id = this.dialoghi.perInterazione(oggetto);
     return id ? this.dialoghi.avvia(id) : null;
   }
 
@@ -447,6 +472,7 @@ export class Narrativa {
 
     // Finito un dialogo, le missioni possono andare avanti subito.
     this.dialoghi.eventi.on('dialogoFinito', () => this.tick());
+    this.dialoghi.eventi.on('dialogoInterrotto', ({ dialogo }) => this.automaticiAnnunciati.delete(dialogo));
     this.dialoghi.eventi.on('erroreDialogo', ({ dialogo, messaggio }) => this.segnala(messaggio, `dialogo ${dialogo}`));
   }
 
@@ -481,6 +507,7 @@ export class Narrativa {
     }
     for (const d of Object.values(this.contenuti.dialoghi)) {
       cond(d.condizione, `dialogo ${d.id}`);
+      eff(d.effettiFine, `dialogo ${d.id}, alla fine`);
       for (const n of d.nodi) {
         eff(n.effetti, `dialogo ${d.id}, nodo ${n.id}`);
         for (const r of n.risposte) {

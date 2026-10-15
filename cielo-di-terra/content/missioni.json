@@ -1,0 +1,557 @@
+[
+ {
+  "id": "prologo",
+  "titolo": "Due secoli",
+  "tipo": "prologo",
+  "descrizione": "Elvira si sveglia nella Cripta, esce dalla botola sotto il castagno morto, guarda in su, legge la lettera di Marta e sente per la prima volta la voce delle campane.",
+  "passi": [
+   {
+    "id": "pr_vetro",
+    "obiettivo_taccuino": "Chi ha scritto «Non fidarti delle campane» sul mio vetro?",
+    "luogo": "cripta_capsula_5",
+    "attiva_quando": "inizio",
+    "completa_quando": "flag:guardato_vetro",
+    "effetti_attivazione": ["orologio:fermo 05:38", "suggerimento:guarda"],
+    "effetti": ["taccuino:q_vetro", "taccuino:i_scritta_vetro"],
+    "durata_min": 0.7
+   },
+   {
+    "id": "pr_cripta",
+    "obiettivo_taccuino": "Dove sono gli altri sei?",
+    "luogo": "cripta_sala",
+    "attiva_quando": "passo:pr_vetro completato",
+    "completa_quando": "oggetto:lettera_marta e flag:armadietto_aperto",
+    "effetti_attivazione": ["suggerimento:alzati"],
+    "effetti": ["taccuino:q_giardinieri", "oggetto:+squadro", "oggetto:+libretto", "oggetto:+erbario", "oggetto:+lente", "oggetto:+velo", "oggetto:+coltello_innesto", "oggetto:+rafia_mastice"],
+    "eventi": [
+     {"quando": "flag:esaminato:capsula_1", "effetti": ["taccuino:i_capsula_1"]},
+     {"quando": "flag:esaminato:capsula_2", "effetti": ["taccuino:i_capsula_2"]},
+     {"quando": "flag:esaminato:capsula_3", "effetti": ["taccuino:i_capsula_3", "testo:targa_santa"]},
+     {"quando": "flag:esaminato:capsula_4", "effetti": ["taccuino:i_capsula_4"]},
+     {"quando": "flag:esaminato:capsula_6 o flag:esaminato:capsula_7", "effetti": ["taccuino:i_capsule_6_7"]},
+     {"quando": "flag:esaminato:serratura_5", "effetti": ["taccuino:i_forzata"]}
+    ],
+    "note": "Oggetti interattivi della Cripta: capsula_1 ... capsula_7, serratura_5, busta_5 (la lettera di Marta: dà oggetto:lettera_marta), busta_6, busta_7, armadietto_5 (dà flag:armadietto_aperto). Elvira cammina a 0,9 m/s per i primi dieci minuti.",
+    "durata_min": 2.5
+   },
+   {
+    "id": "pr_botola_scala",
+    "obiettivo_taccuino": "C'è una scala. E sopra, luce.",
+    "luogo": "cripta_scala",
+    "attiva_quando": "passo:pr_cripta completato",
+    "completa_quando": "luogo:botola raggiunto",
+    "effetti_attivazione": [],
+    "effetti": ["orologio:max 17:30", "evento:linea_miccia", "musica:primo_sguardo"],
+    "note": "Quando Elvira spinge la botola l'orologio riparte (05:39) e la Linea si accende dal Tappo Sud come una miccia: il fronte passa sopra Corbella alle 05:40. All'alba la gente di Corbella è in piazza a guardare la Linea.",
+    "durata_min": 0.8
+   },
+   {
+    "id": "pr_guarda_su",
+    "obiettivo_taccuino": "Che cosa c'è al posto del cielo?",
+    "luogo": "botola",
+    "attiva_quando": "passo:pr_botola_scala completato",
+    "completa_quando": "flag:guardato_in_su",
+    "effetti_attivazione": [],
+    "aiuti": [
+     {"dopo_s": 20, "effetti": ["evento:passero_vola_in_su", "suono:campanaccio_dal_cielo"]},
+     {"dopo_s": 35, "effetti": ["suggerimento:guarda_in_su"]}
+    ],
+    "effetti": ["taccuino:w_insu", "taccuino:w_linea", "battuta:elvira_lago_sopra"],
+    "durata_min": 0.6
+   },
+   {
+    "id": "pr_camminare",
+    "obiettivo_taccuino": "Le gambe. Due secoli. Piano.",
+    "luogo": "belvedere_muretto",
+    "attiva_quando": "passo:pr_guarda_su completato",
+    "completa_quando": "luogo:belvedere_muretto raggiunto e flag:seduta",
+    "effetti_attivazione": ["suggerimento:cammina"],
+    "eventi": [
+     {"quando": "flag:fiato_corto", "effetti": ["suggerimento:siediti"]}
+    ],
+    "effetti": ["battuta:elvira_piano_vecchia"],
+    "durata_min": 1
+   },
+   {
+    "id": "pr_lettera",
+    "obiettivo_taccuino": "«Per la mamma.» La busta che era sul mio vetro.",
+    "luogo": "belvedere_muretto",
+    "attiva_quando": "passo:pr_camminare completato",
+    "completa_quando": "flag:lettera_letta",
+    "effetti_attivazione": ["suggerimento:leggi"],
+    "effetti": ["taccuino:i_stella_alpina", "taccuino:n_fiore_madre", "taccuino:q_lettera", "taccuino:q_marta", "taccuino:w_sorella", "taccuino:i_carta_castagno", "taccuino:n_carta_madre", "battuta:elvira_martagone"],
+    "note": "La vista di lettura apre testi.lettere.lettera_marta. Il passo si chiude all'ultima riga.",
+    "durata_min": 1.5
+   },
+   {
+    "id": "pr_campane",
+    "obiettivo_taccuino": "Le campane parlano.",
+    "luogo": "belvedere_muretto",
+    "attiva_quando": "passo:pr_lettera completato",
+    "completa_quando": "dialogo:d_meridiana_1 finito",
+    "effetti_attivazione": ["suono:tre_rintocchi"],
+    "effetti": ["missione:prologo completata", "missione:m01_castagno_vuoto", "battuta:elvira_campane_parlano"],
+    "durata_min": 1
+   }
+  ]
+ },
+ {
+  "id": "sfondo_prima_meta",
+  "titolo": "La prima Meta",
+  "tipo": "sfondo",
+  "descrizione": "La nota sulla Meta scatta al primo passaggio della Meta dopo che Elvira ha letto la lettera (così la madre può nominare la Sorella).",
+  "passi": [
+   {
+    "id": "bg_meta",
+    "obiettivo_taccuino": null,
+    "attiva_quando": "flag:lettera_letta",
+    "completa_quando": "flag:meta_appena_passata",
+    "effetti": ["taccuino:i_ombre_meta", "taccuino:n_meta_tecnica", "taccuino:n_sorella_madre", "taccuino:w_meta"]
+   }
+  ]
+ },
+ {
+  "id": "m01_castagno_vuoto",
+  "titolo": "Il castagno vuoto",
+  "tipo": "principale",
+  "descrizione": "Diagnosi botanica e tutorial di rilievo. Il mondo si ridisegna di notte, e lo squadro di Aurelio decide che cosa resta.",
+  "passi": [
+   {
+    "id": "m1_lente",
+    "obiettivo_taccuino": "Il mio castagno. Che cos'ha?",
+    "luogo": "castagno_morto",
+    "attiva_quando": "passo:pr_campane completato",
+    "completa_quando": "flag:lente:ricci e flag:lente:amenti e flag:lente:corteccia",
+    "effetti_attivazione": ["suggerimento:lente"],
+    "eventi": [
+     {"quando": "flag:lente:ricci", "effetti": ["taccuino:i_ricci_vuoti"]},
+     {"quando": "flag:lente:amenti", "effetti": ["taccuino:i_amenti"]},
+     {"quando": "flag:lente:corteccia", "effetti": ["taccuino:i_fame_luce"]}
+    ],
+    "effetti": ["taccuino:q_api", "taccuino:i_ramo_vivo", "flag:ramo_vivo_trovato", "battuta:elvira_hai_fame"],
+    "durata_min": 3
+   },
+   {
+    "id": "m1_marza",
+    "obiettivo_taccuino": "Una marza dal ramo vivo, prima che muoia anche lui.",
+    "luogo": "castagno_morto",
+    "attiva_quando": "passo:m1_lente completato",
+    "completa_quando": "oggetto:marza_pedrazzini",
+    "effetti_attivazione": ["suggerimento:taglia"],
+    "effetti": ["battuta:elvira_scusa", "pianta:apri", "suggerimento:pianta"],
+    "note": "La Pianta si apre da sola sul disegno a matita delle Selve (mano di Elvira, 2119) con la scritta «Terrazza Pedrazzini — marze di casa». Si vede anche la striscia seppia della Cripta (indizio facoltativo ind_striscia_g4).",
+    "durata_min": 0.5
+   },
+   {
+    "id": "m1_cartellino",
+    "obiettivo_taccuino": "Dove l'ho piantato, il primo innesto di casa?",
+    "luogo": "castagno_cartellino",
+    "attiva_quando": "passo:m1_marza completato",
+    "completa_quando": "luogo:castagno_cartellino raggiunto e flag:cartellino_letto",
+    "effetti": ["taccuino:i_cartellino", "battuta:elvira_mia_scrittura"],
+    "note": "Due strade: la mulattiera delle Terrazze (Carta) o la scorciatoia con i gradini (E4, rimessa da Bortolo alle 07:00). Leggere il cartellino apre testi.cartellini.cartellino_castagno e accende flag:cartellino_letto.",
+    "durata_min": 2.5
+   },
+   {
+    "id": "m1_innesto",
+    "obiettivo_taccuino": "Rimettere casa sul castagno del cartellino.",
+    "luogo": "castagno_cartellino",
+    "attiva_quando": "passo:m1_cartellino completato",
+    "completa_quando": "flag:innesto_fatto",
+    "effetti_attivazione": ["suggerimento:innesta"],
+    "eventi": [
+     {"quando": "flag:lente:innesto_vecchio", "effetti": ["taccuino:i_innesto_morto"]}
+    ],
+    "effetti": ["oggetto:-marza_pedrazzini", "taccuino:n_innesto", "taccuino:n_rafia_madre", "battuta:elvira_attacca", "flag:nodo1_innestato"],
+    "note": "Gesto in tre tempi: taglia (spacco), inserisci (marza), lega (rafia e mastice). Se si lascia a metà, si riprende da lì.",
+    "durata_min": 3
+   },
+   {
+    "id": "m1_velo",
+    "obiettivo_taccuino": "In paese senza fare tutti i tornanti.",
+    "luogo": "piazza_ore",
+    "attiva_quando": "passo:m1_innesto completato",
+    "completa_quando": "flag:planata_fatta e luogo:piazza_ore raggiunto",
+    "effetti_attivazione": ["suggerimento:velo"],
+    "eventi": [
+     {"quando": "flag:planata_fatta", "effetti": ["battuta:elvira_oh"]},
+     {"quando": "flag:planata:ripa_san_vigilio", "effetti": ["battuta:elvira_si_vola", "evento:velati_si_voltano"]}
+    ],
+    "effetti": [],
+    "note": "Tre muri in fila: muretto_terrazza (3,5 m), muraglione_gra (8 m), ripa_san_vigilio (12 m, atterraggio in piazza). Basta una planata qualunque di almeno 3 m.",
+    "durata_min": 3.5
+   },
+   {
+    "id": "m1_velati",
+    "obiettivo_taccuino": "Che cosa sanno, quelli velati?",
+    "luogo": "piazza_ore",
+    "attiva_quando": "passo:m1_velo completato",
+    "completa_quando": "contatore:velati>=3",
+    "effetti": [],
+    "note": "Valgono: d_togna, d_bortolo_1, d_annunciata, d_pina_soglia (o d_pina_soglia_velo), d_nando_1, d_bambini. Ogni dialogo fa contatore:velati+1 nel suo alla_fine.",
+    "durata_min": 5.5
+   },
+   {
+    "id": "m1_ottavio",
+    "obiettivo_taccuino": "Chi vola sopra la piazza?",
+    "luogo": "piazza_ore",
+    "attiva_quando": "passo:m1_velati completato",
+    "completa_quando": "dialogo:d_ottavio_incontro finito",
+    "effetti_attivazione": ["evento:ottavio_atterra_in_piazza"],
+    "effetti": ["orologio:libero", "flag:aspetta_brace_sbloccato"],
+    "note": "Entro 30 s una sagoma con il Velo verde scende in spirale da una corrente calda sopra la grà e atterra in piazza. Se Elvira non è in piazza, Ottavio atterra a 20 m da lei.",
+    "durata_min": 3
+   },
+   {
+    "id": "m1_brace",
+    "obiettivo_taccuino": "Aspettare la brace.",
+    "luogo": "piazza_ore",
+    "attiva_quando": "passo:m1_ottavio completato",
+    "completa_quando": "ora:>=19:30",
+    "effetti_attivazione": ["suggerimento:aspetta"],
+    "effetti": ["battuta:elvira_miccia_al_contrario"],
+    "durata_min": 1
+   },
+   {
+    "id": "m1_ombrista",
+    "obiettivo_taccuino": "La Pina racconta la Partenza.",
+    "luogo": "telo_ombrista",
+    "attiva_quando": "passo:m1_brace completato",
+    "completa_quando": "ora:>=20:30 o flag:ombrista_1_vista",
+    "effetti_attivazione": [],
+    "effetti": ["npc:ottavio->accompagna:fienile_ottavio"],
+    "note": "La scena dell'Ombrista (testi.leggende.partenza_1) parte alle 19:45 da sola, come ogni sera. Il giocatore può andarsene: Ottavio lo aspetta al margine della piazza.",
+    "durata_min": 3
+   },
+   {
+    "id": "m1_fienile",
+    "obiettivo_taccuino": "Il fienile del Messo, di là dal riale.",
+    "luogo": "fienile_ottavio",
+    "attiva_quando": "passo:m1_ombrista completato",
+    "completa_quando": "luogo:fienile_ottavio raggiunto",
+    "eventi": [
+     {"quando": "luogo:passerella_messo raggiunto", "effetti": ["variante:E1=Abitata", "battuta:ottavio_ogni_sera", "taccuino:w_fade_dubbio"]}
+    ],
+    "effetti": [],
+    "note": "Ottavio prende tre assi da sotto un cespuglio e le butta sul riale: la passerella del Messo (E1) diventa Abitata. Battute: «Ogni sera la rimetto. Ogni notte se la prendono.» «Chi?» «Le Fade. Chi altro.»",
+    "durata_min": 2
+   },
+   {
+    "id": "m1_notte",
+    "obiettivo_taccuino": "Dormire o guardare.",
+    "luogo": "fienile_ottavio",
+    "attiva_quando": "passo:m1_fienile completato",
+    "completa_quando": "giorno:2 e ora:>=05:30",
+    "eventi": [
+     {"quando": "flag:scelta_dormire", "effetti": ["dormi:fino 05:30"]},
+     {"quando": "flag:scelta_vegliare e flag:fade_viste", "effetti": ["taccuino:i_ballo_fade", "taccuino:n_fade_tecnica"]}
+    ],
+    "effetti": [],
+    "note": "Le regole della notte sono in fade_fase1.json (notte 1). Se Elvira resta sulle particelle di E1 alle 23:20, il sistema della notte accende flag:notte_su_E1 e la passerella resta. flag:fade_viste si accende quando un cerchio di Fade è nel campo visivo per 3 s.",
+    "durata_min": 1
+   },
+   {
+    "id": "m1_mattino",
+    "obiettivo_taccuino": "Dov'è finita la passerella?",
+    "luogo": "fienile_ottavio",
+    "attiva_quando": "passo:m1_notte completato",
+    "completa_quando": "(dialogo:d_ottavio_mattino finito o dialogo:d_ottavio_mattino_salvata finito) e flag:pianta_aperta",
+    "effetti_attivazione": ["orologio:max 16:00", "pianta:resoconto", "suggerimento:pianta"],
+    "eventi": [
+     {"quando": "flag:taccuino_spostato", "effetti": ["taccuino:q_pesarina", "taccuino:i_taccuino_aperto"]}
+    ],
+    "effetti": ["taccuino:i_muro_ronco_notte"],
+    "note": "Il Taccuino è aperto sulla pagina «Parole» (la Pesarina, notte 1). La Pianta si apre sul primo resoconto del mattino (fade_fase1.json → resoconto_del_mattino).",
+    "durata_min": 3
+   },
+   {
+    "id": "m1_ritorno",
+    "obiettivo_taccuino": "Tornare in paese dal guado.",
+    "luogo": "guado_sass",
+    "attiva_quando": "passo:m1_mattino completato",
+    "completa_quando": "luogo:piazza_ore raggiunto",
+    "effetti": ["taccuino:n_pietre"],
+    "note": "Il guado del Sass è l'alternativa visibile garantita dalla regola 4. Alle 08:30 ai Ronchi Nando rifà la casa (d_nando_mattino).",
+    "durata_min": 2
+   },
+   {
+    "id": "m1_dono",
+    "obiettivo_taccuino": "Una novizia aspetta alla Bacheca. Per me?",
+    "luogo": "bacheca_ore",
+    "attiva_quando": "passo:m1_mattino completato",
+    "completa_quando": "dialogo:d_clelia_dono finito o dialogo:d_ottavio_pacco finito",
+    "effetti": ["battuta:elvira_allora_guardo"],
+    "note": "Passo parallelo agli altri del giorno 2. Clelia aspetta alla Bacheca dalle 07:00 alle 19:00 e parla quando Elvira è a 15 m. Riserva: se non è successo entro il giorno 3, Ottavio consegna il pacchetto (d_ottavio_pacco). Il velo nero si può mettere e togliere: flag:velo_indossato.",
+    "durata_min": 2
+   },
+   {
+    "id": "m1_campanile",
+    "obiettivo_taccuino": "Perché sul campanile c'è un pilastro del Catasto?",
+    "luogo": "cella_campanaria",
+    "attiva_quando": "passo:m1_ritorno completato",
+    "completa_quando": "luogo:cella_campanaria raggiunto e flag:targa_p1_letta",
+    "effetti": ["taccuino:i_targa_p1", "battuta:elvira_ciao_geometra"],
+    "note": "Bortolo apre il campanile (d_bortolo_campanile o d_bortolo_campanile_velo). Nella cella c'è l'altoparlante di Meridiana (d_meridiana_campanile, facoltativo). La targa si legge con testi.cartellini.targa_p1.",
+    "durata_min": 2
+   },
+   {
+    "id": "m1_libretto",
+    "obiettivo_taccuino": "Che cosa dice Aurelio del suo Pilastro 1?",
+    "luogo": "cella_campanaria",
+    "attiva_quando": "passo:m1_campanile completato",
+    "completa_quando": "flag:libretto_cs1_letto",
+    "effetti_attivazione": ["suggerimento:libretto"],
+    "effetti": ["taccuino:n_aurelio_madre", "battuta:elvira_pianta_livella"],
+    "note": "Il libretto si apre sulla pagina con il segnalibro di rafia: testi.libretto.cs_1, e accanto testi.libretto.come_si_fa.",
+    "durata_min": 1.5
+   },
+   {
+    "id": "m1_chiodo2",
+    "obiettivo_taccuino": "Il chiodo 2, sul sagrato.",
+    "luogo": "sagrato",
+    "attiva_quando": "passo:m1_libretto completato",
+    "completa_quando": "flag:tentato_lato:2-1 o cella:2214 rilevata",
+    "effetti_attivazione": ["suggerimento:pianta_squadro"],
+    "effetti": ["taccuino:i_tasso", "battuta:elvira_tasso"],
+    "note": "Insegna pianta e livella; la collimazione mostra solo il tasso. Il lato 2-6 invece si chiude: se il giocatore lo scopre, va bene.",
+    "durata_min": 2
+   },
+   {
+    "id": "m1_primo_rilievo",
+    "obiettivo_taccuino": "Dalla Terrazza Pedrazzini si vede il campanile?",
+    "luogo": "terrazza_pedrazzini",
+    "attiva_quando": "passo:m1_chiodo2 completato",
+    "completa_quando": "cella:2214 rilevata",
+    "effetti_attivazione": ["suggerimento:collima"],
+    "effetti": ["orologio:max 19:00", "flag:primo_rilievo", "taccuino:n_primo_rilievo", "taccuino:i_nodo_1", "battuta:elvira_eccoti", "musica:primo_rilievo"],
+    "note": "Lato 1-3 (capisaldi.json): 20 particelle, fra cui la terrazza (2214), il castagno del cartellino (2213) e la scorciatoia (2311, 2407). Il primo rilievo di un foglio mostra per 6 s la griglia a china del foglio intero.",
+    "durata_min": 3
+   },
+   {
+    "id": "m1_strada",
+    "obiettivo_taccuino": "Se misuro la passerella del Messo, la notte la lascia stare?",
+    "luogo": "passerella_messo",
+    "attiva_quando": "passo:m1_primo_rilievo completato",
+    "completa_quando": "cella:2797 rilevata e cella:2798 rilevata",
+    "eventi": [
+     {"quando": "dialogo:d_ottavio_strada finito", "effetti": ["suggerimento:cerca_nel_libretto"]}
+    ],
+    "effetti": ["orologio:libero", "battuta:elvira_sa_leggere"],
+    "note": "Ottavio è al prato di Ronco dalle 14:00 (prima scende dal cielo se Elvira fischia). Il lato 7-8 chiude la passerella; vanno bene anche 1-7, 1-8 o 8-11.",
+    "durata_min": 4.5
+   },
+   {
+    "id": "m1_seconda_notte",
+    "obiettivo_taccuino": "Aspettare il mattino.",
+    "attiva_quando": "passo:m1_strada completato",
+    "completa_quando": "giorno:3 e ora:>=05:30",
+    "effetti": ["pianta:resoconto"],
+    "note": "Notte 2 di fade_fase1.json. Se Elvira porta il velo, Clelia le offre un letto nella Casa del Velo (d_clelia_letto). L'Ombrista della seconda sera sceglie fra partenza_2a, 2b, 2c.",
+    "durata_min": 1
+   },
+   {
+    "id": "m1_prova",
+    "obiettivo_taccuino": "La passerella c'è ancora?",
+    "luogo": "passerella_messo",
+    "attiva_quando": "passo:m1_seconda_notte completato",
+    "completa_quando": "dialogo:d_ottavio_prova finito",
+    "effetti": [],
+    "durata_min": 2
+   },
+   {
+    "id": "m1_gancio",
+    "obiettivo_taccuino": "Il Messo ha una lettera per me.",
+    "luogo": "passerella_messo",
+    "attiva_quando": "passo:m1_prova completato",
+    "completa_quando": "flag:lettera_rosa_letta",
+    "effetti": ["germoglio:+1", "missione:m01_castagno_vuoto completata", "missione:m02_cisterna_di_rosa", "flag:gioco_libero", "missione:lib_corbella_a_colori", "missione:lib_balcone_messi", "missione:lib_lumi_lontani", "musica:chiusura_m1"],
+    "durata_min": 1.5
+   }
+  ]
+ },
+ {
+  "id": "m02_cisterna_di_rosa",
+  "titolo": "La cisterna di Rosa",
+  "tipo": "principale",
+  "descrizione": "Nella Fase 1 solo l'aggancio: la domanda nel Taccuino e la porta chiusa ai Bugni. La missione intera arriva con la Fase 2.",
+  "passi": [
+   {
+    "id": "m2_aggancio",
+    "obiettivo_taccuino": "Trecento api morte, ai Bugni. Perché?",
+    "luogo": "porta_bugni",
+    "attiva_quando": "passo:m1_gancio completato",
+    "completa_quando": "flag:fase2_disponibile",
+    "eventi": [
+     {"quando": "luogo:porta_bugni raggiunto", "effetti": ["testo:biglietto_porta_rosa"]}
+    ],
+    "effetti": [],
+    "note": "Nella Fase 1 non si completa: ai Bugni la porta è chiusa con il biglietto di Rosa."
+   }
+  ]
+ },
+ {
+  "id": "seg_buste_capsule",
+  "titolo": "Le buste delle capsule",
+  "tipo": "segreto",
+  "descrizione": "Segreto di livello 2: le buste sulle capsule 6 e 7 hanno la stessa carta e la stessa «g» della lettera di Marta.",
+  "passi": [
+   {
+    "id": "sb_lente",
+    "obiettivo_taccuino": null,
+    "luogo": "cripta_sala",
+    "attiva_quando": "inizio",
+    "completa_quando": "flag:lente:busta_6 e flag:lente:busta_7 e oggetto:lettera_marta",
+    "effetti": ["taccuino:i_buste", "taccuino:n_buste_madre", "germoglio:+1", "flag:segreto_buste", "battuta:elvira_stessa_g"]
+   }
+  ]
+ },
+ {
+  "id": "seg_figura",
+  "titolo": "La figura che non esce mai",
+  "tipo": "segreto",
+  "descrizione": "Segreto di livello 2: nella scatola di Pina c'è un uomo con una ruota sulle spalle. Se Elvira lo prende, Pina lo riprende e da quella sera la leggenda nomina «quello di sotto».",
+  "passi": [
+   {
+    "id": "sf_figura",
+    "obiettivo_taccuino": null,
+    "luogo": "soglia_pina",
+    "attiva_quando": "inizio",
+    "completa_quando": "flag:figura_toccata",
+    "effetti": ["flag:segreto_figura"],
+    "note": "Guardare nella scatola accende flag:esaminato:scatola_pina; prendere la figura accende flag:figura_presa e apre d_pina_figura. Solo di giorno (08:00-18:00), quando Pina è sulla soglia."
+   }
+  ]
+ },
+ {
+  "id": "seg_meridiana",
+  "titolo": "La meridiana della Piazza",
+  "tipo": "segreto",
+  "descrizione": "Segreto di livello 2: vista dall'altra valle, la Piazza delle Ore indica il Sordo, e una linea più scura indica il punto dove passava la scala dei pellegrini.",
+  "passi": [
+   {
+    "id": "sm_appunta",
+    "obiettivo_taccuino": null,
+    "luogo": "belvedere_ponti",
+    "attiva_quando": "inizio",
+    "completa_quando": "flag:appuntato_lontano:2505",
+    "effetti": ["taccuino:i_meridiana", "germoglio:+1", "flag:segreto_meridiana", "battuta:elvira_meridiana"],
+    "note": "Appuntare la cella 2505 con lo squadro da più di 600 m. Di giorno la linea di mira non deve passare a meno di 150 m dall'asse; alla brace va bene da ovunque."
+   }
+  ]
+ },
+ {
+  "id": "ind_striscia_g4",
+  "titolo": "Chi ha misurato la Cripta",
+  "tipo": "indizio",
+  "descrizione": "Indizio facoltativo: la striscia della Cripta è già rilevata, a inchiostro seppia, con la firma G4 e la data 2291.",
+  "passi": [
+   {
+    "id": "ig_striscia",
+    "obiettivo_taccuino": null,
+    "attiva_quando": "inizio",
+    "completa_quando": "flag:pianta_g4_guardata o flag:lente:cippo",
+    "eventi": [
+     {"quando": "flag:lente:cippo", "effetti": ["taccuino:i_graffi_cippo"]}
+    ],
+    "effetti": ["taccuino:q_botola", "taccuino:i_g4"],
+    "note": "flag:pianta_g4_guardata si accende quando il cursore della Pianta resta 1 s su una particella con rilevata_da G4."
+   }
+  ]
+ },
+ {
+  "id": "ee_monte_vettore",
+  "titolo": "Il Monte Vettore",
+  "tipo": "easter_egg",
+  "descrizione": "L'ultima pagina del libretto di Aurelio: una monografia del 2084 sui Monti Sibillini.",
+  "passi": [
+   {
+    "id": "ev_pagina",
+    "obiettivo_taccuino": null,
+    "attiva_quando": "oggetto:libretto",
+    "completa_quando": "flag:libretto_pagina:monte_vettore",
+    "effetti": ["taccuino:i_vettore", "battuta:elvira_vent_anni"]
+   }
+  ]
+ },
+ {
+  "id": "lib_corbella_a_colori",
+  "titolo": "Corbella a china",
+  "tipo": "libero",
+  "descrizione": "Rilevare tutte le 63 particelle dell'inventario di Corbella. Ricompensa: le campane tornano a segnare l'ora.",
+  "passi": [
+   {
+    "id": "lc_inventario",
+    "obiettivo_taccuino": "Quanto manca perché Corbella sia tutta a china?",
+    "attiva_quando": "flag:gioco_libero",
+    "completa_quando": "flag:corbella_a_colori",
+    "effetti": ["dialogo:d_meridiana_corbella"],
+    "note": "Il motore accende flag:corbella_a_colori quando tutte le particelle di fade_fase1.json → inventario_corbella sono rilevate. Se il lato 1-8 o 8-11 chiude la casa di Nando, accende anche flag:casa_nando_rilevata."
+   }
+  ]
+ },
+ {
+  "id": "lib_balcone_messi",
+  "titolo": "Cadere nell'altra valle",
+  "tipo": "libero",
+  "descrizione": "Salire al Balcone dei Messi lungo i nastri verdi e attraversare il cielo con il Velo. Le altre valli sono a matita.",
+  "passi": [
+   {
+    "id": "lb_salita",
+    "obiettivo_taccuino": "Il Balcone dei Messi: su per le Selve, seguendo i nastri verdi.",
+    "luogo": "balcone_messi",
+    "attiva_quando": "flag:gioco_libero",
+    "completa_quando": "luogo:balcone_messi raggiunto",
+    "effetti": ["taccuino:w_collare"]
+   },
+   {
+    "id": "lb_volo",
+    "obiettivo_taccuino": "Quando la nappina pende, il cielo ti prende.",
+    "luogo": "balcone_messi",
+    "attiva_quando": "passo:lb_salita completato",
+    "completa_quando": "flag:atterrata_altra_valle",
+    "effetti": ["taccuino:i_altra_valle", "battuta:elvira_atterraggio"],
+    "note": "flag:atterrata_altra_valle si accende quando Elvira atterra in piedi nella valle 2 o 3."
+   },
+   {
+    "id": "lb_ritorno",
+    "obiettivo_taccuino": "Tornare a Corbella.",
+    "luogo": "piazza_ore",
+    "attiva_quando": "passo:lb_volo completato",
+    "completa_quando": "luogo:piazza_ore raggiunto",
+    "effetti": []
+   }
+  ]
+ },
+ {
+  "id": "lib_lumi_lontani",
+  "titolo": "I lumi lontani",
+  "tipo": "libero",
+  "descrizione": "Di notte, appuntare con lo squadro almeno tre lumi lontani sopra la testa.",
+  "passi": [
+   {
+    "id": "ll_appunta",
+    "obiettivo_taccuino": "Che cosa brilla, di notte, sopra la testa?",
+    "attiva_quando": "flag:gioco_libero",
+    "completa_quando": "contatore:lumi_appuntati>=3",
+    "effetti": ["taccuino:i_lumi_lontani"],
+    "note": "Il motore fa contatore:lumi_appuntati+1 quando Elvira appunta di notte un pilastro lontano con lume permanente (capisaldi.json → lontani_di_notte). Appuntare la lanterna di Tecla (cs_35, 23:00-02:00) aggiunge taccuino:i_lume_che_cammina."
+   }
+  ]
+ },
+ {
+  "id": "lib_disco_di_piombo",
+  "titolo": "Il disco di piombo",
+  "tipo": "libero",
+  "descrizione": "Il segreto di livello 1 della Lanterna: si vede da ovunque ma non si raggiunge. Appuntarla lascia una domanda.",
+  "passi": [
+   {
+    "id": "ld_appunta",
+    "obiettivo_taccuino": null,
+    "attiva_quando": "oggetto:squadro",
+    "completa_quando": "flag:appuntato_lanterna",
+    "effetti": ["taccuino:q_lanterna", "battuta:elvira_disco"],
+    "note": "Appuntata con lo squadro, la Lanterna resta in bianco sulla Pianta."
+   }
+  ]
+ }
+]

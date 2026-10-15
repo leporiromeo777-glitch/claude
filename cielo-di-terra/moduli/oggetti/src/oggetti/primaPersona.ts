@@ -207,7 +207,7 @@ const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const e = (x: number, y: number, z: number) => new THREE.Euler(x, y, z, 'YXZ');
 
 /** Posizione (spazio camera) del puntale nella posa 'piantato': serve per far coincidere la camera col chiodo. */
-export const PUNTALE_PIANTATO = v(0.0, -0.62, -0.95);
+export const PUNTALE_PIANTATO = v(0.02, -0.5, -0.85);
 
 /** Pose: strumento (punta del puntale) in spazio camera, mani agganciate allo strumento o alla camera. */
 const POSE: Record<PosaSquadro, Posa> = {
@@ -215,12 +215,12 @@ const POSE: Record<PosaSquadro, Posa> = {
   piantato: {
     strumento: [PUNTALE_PIANTATO.clone(), e(0, 0.3, 0)],
     sinistra: { strumento: [v(0, 0.22, 0), e(0, -0.35, 0)] },
-    destra: { camera: [v(0.3, -0.6, -0.78), e(0.3, -0.35, 0.05)] },
+    destra: { camera: [v(0.3, -0.47, -0.74), e(0.3, -0.4, 0.05)] },
     destraAppoggiata: true,
   },
   // tenuto in mano come cannocchiale: la destra impugna l'asta, la sinistra culla il tubo
   mano: {
-    strumento: [v(0.2, -0.95, -0.72), e(0.1, 0.45, 0.04)],
+    strumento: [v(0.17, -0.74, -0.52), e(0.06, 0.45, 0.03)],
     destra: { strumento: [v(0, 0.22, 0), e(0, 0.3, 0)] },
     sinistra: { strumento: [v(0, 0.6, -0.1), e(Math.PI / 2, 0, -0.9)] },
     destraAppoggiata: false,
@@ -434,7 +434,7 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   const nappina = bn.costruisci('velo-nappina', false);
   const pernoNappina = new THREE.Group();
   const [aD, cD] = montanti[1] as [THREE.Vector3, THREE.Vector3];
-  pernoNappina.position.copy(aD.clone().lerp(cD, 0.3)).add(v(0.03, 0, 0));
+  pernoNappina.position.copy(aD.clone().lerp(cD, 0.16)).add(v(-0.03, 0, 0));
   pernoNappina.add(nappina);
 
   // mani sulla traversa e maniche

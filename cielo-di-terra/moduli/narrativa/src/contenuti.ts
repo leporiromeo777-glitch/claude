@@ -53,6 +53,8 @@ export interface NodoDef {
   id: string;
   /** Chi parla (se diverso dal personaggio del dialogo). */
   chi?: string;
+  /** Didascalia di regia (gesti, suoni) mostrata prima del testo. */
+  didascalia?: string;
   testo: string;
   risposte: RispostaDef[];
   /** Effetti applicati entrando nel nodo. */
@@ -62,14 +64,29 @@ export interface NodoDef {
   dati: Record<string, unknown>;
 }
 
+/**
+ * Come si apre un dialogo (campo `si_apre` dei contenuti):
+ * - «parlando»: quando il giocatore parla con `con` (predefinito: il personaggio);
+ * - «interagendo»: quando il giocatore usa l'oggetto `con` (`Narrativa.interagisci`);
+ * - «automatico»: da solo, appena la condizione è vera (evento `apriDialogo`);
+ * - «effetto»: da un effetto «dialogo:id», oppure da solo appena la condizione è vera.
+ */
+export interface AperturaDialogo {
+  come: 'parlando' | 'interagendo' | 'automatico' | 'effetto' | (string & {});
+  con?: string;
+}
+
 export interface DialogoDef {
   id: string;
   personaggio: string;
+  apertura: AperturaDialogo;
   /** Id del primo nodo. */
   inizio: string;
   nodi: NodoDef[];
-  /** Condizione perché il dialogo sia disponibile. */
+  /** Condizione perché il dialogo sia disponibile (anche `si_apre.condizione`). */
   condizione?: CondizioneGrezza;
+  /** Effetti applicati quando il dialogo finisce normalmente (`alla_fine`). */
+  effettiFine: string[];
   /** Se vero il dialogo resta disponibile anche dopo essere stato finito. */
   ripetibile: boolean;
   /** Priorità nella scelta del dialogo di un personaggio (più alta = prima). */
@@ -263,9 +280,11 @@ export function normalizzaDialoghi(x: unknown, avvisi: string[] = []): Record<st
         : [];
       const vai = primo(n, 'vai_a', 'prossimo');
       const chi = stringa(primo(n, 'chi', 'parla', 'personaggio'));
+      const didascalia = stringa(primo(n, 'didascalia', 'regia'));
       nodi.push({
         id: idNodo,
         ...(chi !== undefined ? { chi } : {}),
+        ...(didascalia !== undefined ? { didascalia } : {}),
         testo: stringa(primo(n, 'testo', 'battuta')) ?? '',
         risposte,
         effetti: listaEffetti(primo(n, 'effetti', 'effetto')),
@@ -275,13 +294,22 @@ export function normalizzaDialoghi(x: unknown, avvisi: string[] = []): Record<st
     });
     if (nodi.length === 0) avvisi.push(`dialogo «${id}»: nessun nodo`);
     const inizio = stringa(primo(d, 'inizio', 'nodo_iniziale', 'primo')) ?? nodi[0]?.id ?? '';
-    const cond = condizione(d, 'condizione', 'condizioni', 'disponibile_quando');
+    const siApre = oggetto(d.si_apre) ? d.si_apre : {};
+    const cond = condizione(siApre, 'condizione', 'condizioni', 'quando') ?? condizione(d, 'condizione', 'condizioni', 'disponibile_quando');
+    const personaggio = stringa(primo(d, 'personaggio', 'chi')) ?? '';
+    const come = stringa(siApre.come) ?? 'parlando';
+    if (!['parlando', 'interagendo', 'automatico', 'effetto'].includes(come)) {
+      avvisi.push(`dialogo «${id}»: si_apre.come sconosciuto «${come}»`);
+    }
+    const con = stringa(siApre.con);
     out[id] = {
       id,
-      personaggio: stringa(primo(d, 'personaggio', 'chi')) ?? '',
+      personaggio,
+      apertura: { come, ...(con !== undefined ? { con } : {}) },
       inizio,
       nodi,
       ...(cond !== undefined ? { condizione: cond } : {}),
+      effettiFine: listaEffetti(primo(d, 'alla_fine', 'effetti_fine', 'effetti')),
       ripetibile: d.ripetibile === true,
       priorita: typeof d.priorita === 'number' ? d.priorita : 0,
       dati: d,
