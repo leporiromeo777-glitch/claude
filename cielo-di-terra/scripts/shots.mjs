@@ -212,6 +212,8 @@ async function main() {
         g.pause();
         g.holdKey('Space', false);
         g.setClockRunning(false);
+        // le inquadrature si fanno a qualità Alta (post-produzione piena)
+        g.setSetting('qualita', 'alta');
         // eslint-disable-next-line no-new-func
         const fn = new Function('g', `(${src})(g)`);
         fn(g);
@@ -238,6 +240,8 @@ async function main() {
     g.stopLoop();
     g.pause();
     g.setClockRunning(false);
+    // le verifiche disegnano più di cento fotogrammi: qualità Bassa (le inquadrature sopra sono ad Alta)
+    g.setSetting('qualita', 'bassa');
     g.setTime(11);
     const out = {};
     const s0 = g.teleport(1032, 36.4, 0);

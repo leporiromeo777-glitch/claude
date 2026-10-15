@@ -4,6 +4,13 @@
  * shader porta la direzione di vista nel riferimento inerziale (il cielo gira
  * una volta ogni 51 s) e disegna un cielo procedurale con la Via Lattea e la
  * Meta (il sole lontano, bianco duro). La Luna arriverà più avanti (uMoonDir).
+ *
+ * Il vetro è profondo (blu oltremare, non una griglia fredda): riflette di taglio l'interno del
+ * cilindro e, morbido, il filo della Linea; brina leggera ai bordi; le stelle brillano (le più
+ * forti sopra 1, così la post le apre in un piccolo bagliore). Di giorno, da lontano e di taglio, il
+ * vetro rimanda l'interno illuminato e si fa cielo (Fresnel addolcito): la striscia non è più un
+ * nastro blu a griglia in pieno giorno; da vicino si vedono le stelle. Costoloni e passerelle hanno
+ * toni spenti vicini al vetro, per non disegnare da lontano un reticolo.
  */
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, ShaderMaterial, Vector3 } from 'three';
 import { DEG, LAYOUT, OMEGA, R } from '../world/constants';
@@ -14,9 +21,12 @@ import type { WorldUniforms } from './uniforms';
 import { createWorldMaterial } from './worldMaterial';
 import type { RGB } from './palette';
 
-/** Acciaio del telaio e dei costoloni. */
-const STEEL: RGB = [0.5, 0.53, 0.59];
-const STEEL_DARK: RGB = [0.3, 0.31, 0.36];
+/**
+ * Acciaio del telaio e dei costoloni: grigio-azzurro spento, vicino al tono del vetro, così da
+ * lontano i costoloni non disegnano un reticolo (né chiaro né scuro) sulla striscia.
+ */
+const STEEL: RGB = [0.3, 0.32, 0.38];
+const STEEL_DARK: RGB = [0.2, 0.23, 0.31];
 
 const WIN = LAYOUT.windows;
 
@@ -47,12 +57,15 @@ float starLayer(vec3 D, float scale, float density, float pix, out vec3 tint) {
   float d = length(q - sp) / scale;
   // poche stelle brillanti, molte deboli
   float m = pow(h.y, 5.0);
-  float b = 0.18 + m * 2.6;
-  float rad = pix * (0.55 + 2.4 * m);
-  float tw = 0.85 + 0.15 * sin(uTime * (2.0 + 6.0 * h.z) + h.x * 40.0);
-  tint = mix(vec3(0.75, 0.82, 1.0), vec3(1.0, 0.88, 0.7), h.z);
+  float b = 0.22 + m * 3.4;
+  float rad = pix * (0.7 + 2.6 * m);
+  // scintillio: due onde fuori fase, più forte per le stelle deboli (aria fra noi e il vetro)
+  float tw = 0.72 + 0.28 * sin(uTime * (2.0 + 7.0 * h.z) + h.x * 40.0) * sin(uTime * (1.3 + 3.0 * h.y) + h.z * 17.0);
+  tint = mix(vec3(0.72, 0.8, 1.0), vec3(1.0, 0.86, 0.66), h.z);
   float core = 1.0 - smoothstep(rad * 0.3, rad, d);
-  float glow = exp(-d / (pix * 3.0)) * m * 0.5;
+  // il bagliore resta dentro la cella della stella (niente rombi tagliati): quello largo lo fa la post
+  float cella = 0.2 / scale;
+  float glow = exp(-d / min(pix * 2.2, cella * 0.3)) * m * 0.6 * (1.0 - smoothstep(cella * 0.5, cella, d));
   return b * tw * (core + glow);
 }
 void main() {
@@ -75,7 +88,7 @@ void main() {
   float s1 = starLayer(D, 55.0, 0.16, pix, t1);
   float s2 = starLayer(D, 120.0, 0.09, pix, t2);
   float s3 = starLayer(D, 260.0, 0.05 + 0.12 * band, pix, t3);
-  col += t1 * s1 + t2 * s2 * 0.7 + t3 * s3 * 0.45;
+  vec3 stelle = t1 * s1 + t2 * s2 * 0.7 + t3 * s3 * 0.45;
   // la Meta: disco bianco con bagliore
   if (uMetaOn > 0.5) {
     float ang = acos(clamp(dot(D, normalize(uMetaDir)), -1.0, 1.0));
@@ -87,20 +100,47 @@ void main() {
     float ang = acos(clamp(dot(D, normalize(uMoonDir)), -1.0, 1.0));
     col = mix(col, vec3(0.78, 0.78, 0.74), 1.0 - smoothstep(0.0045, 0.0045 + pix * 1.5, ang));
   }
-  // vetro: brina ai bordi, condensa, riflesso della foschia di taglio
+  // vetro: brina ai bordi, condensa, riflessi morbidi dell'interno e della Linea
   float th = cylThetaDeg(P);
   float edgeDist = min(th - uWinRange.x, uWinRange.y - th) * uR * PI / 180.0;
-  float frost = (1.0 - smoothstep(4.0, 30.0, edgeDist)) * (0.5 + 0.5 * vnoise2(vec2(P.z, th * 11.0) * 0.12));
+  float frost = (1.0 - smoothstep(3.0, 26.0, edgeDist)) * (0.45 + 0.55 * vnoise2(vec2(P.z, th * 11.0) * 0.12));
   float ribD = abs(mod(P.z + 20.0, 40.0) - 20.0);
-  frost += (1.0 - smoothstep(1.2, 5.0, ribD)) * 0.35 * vnoise2(vec2(P.z * 0.6, th * 30.0));
+  frost += (1.0 - smoothstep(1.2, 3.5, ribD)) * 0.12 * vnoise2(vec2(P.z * 0.6, th * 30.0));
+  // da lontano la brina non deve disegnare righe bianche lungo le rive
+  frost *= 1.0 - 0.75 * smoothstep(150.0, 900.0, dist);
   vec3 up = cylUp(P);
-  float graz = 1.0 - abs(dot(-V, up));
-  vec3 glassTint = vec3(0.16, 0.18, 0.28);
-  // riflesso tenue dell'interno sul vetro, più forte di taglio
-  vec3 refl = mix(uHazeColor, uLineaGlow, 0.25) * (0.35 + 0.65 * uSunIntensity);
-  col = mix(col, refl, 0.06 + 0.04 * vnoise2(vec2(P.z * 0.05, th * 2.0)));
-  col = mix(col, glassTint + uHazeColor * 0.25, clamp(pow(graz, 3.0) * 0.8, 0.0, 0.8));
-  col = mix(col, vec3(0.62, 0.68, 0.78), clamp(frost, 0.0, 1.0) * 0.45);
+  float cosV = abs(dot(-V, up));
+  float graz = 1.0 - cosV;
+  // riflessione di Fresnel addolcita (licenza pittorica): da vicino e dall'alto si vede lo
+  // spazio, da lontano e di taglio il vetro rimanda l'interno illuminato e si fa cielo
+  float fres = 0.05 + 0.95 * pow(graz, 2.4);
+  float giorno = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight);
+  // spessore del vetro: oltremare profondo, più denso di taglio
+  vec3 profondo = mix(vec3(0.04, 0.05, 0.16), vec3(0.1, 0.16, 0.36), 0.5 + 0.5 * uSunIntensity);
+  col = mix(col, col * vec3(0.75, 0.85, 1.25) + profondo * 0.35, 0.6);
+  // le stelle restano bianche e calde: il vetro le vela di taglio e quando rimanda il giorno
+  col += stelle * (1.0 - clamp(pow(graz, 2.0) * 0.8, 0.0, 0.85)) * (1.0 - 0.6 * giorno * fres);
+  col = mix(col, profondo, clamp(pow(graz, 2.0) * 0.55, 0.0, 0.6));
+  // riflesso dell'interno: di giorno un cielo ceruleo velato dalla foschia, con chiazze morbide
+  // (le terre dell'altra parte, sfocate nel vetro); calda vicino alla Linea
+  vec3 Rr = reflect(V, up);
+  float dAsse = abs(P.x * Rr.y - P.y * Rr.x) / max(length(Rr.xy), 1e-4);
+  float versoAsse = step(0.0, dot(Rr.xy, -P.xy));
+  float filo = versoAsse * (exp(-dAsse / 9.0) * 0.9 + exp(-dAsse / 70.0) * 0.3) * step(P.z, uLineaIgnite);
+  float chiazze = vnoise2(vec2(P.z * 0.0035, th * 0.22)) * 0.65 + vnoise2(vec2(P.z * 0.011, th * 0.9) + 7.3) * 0.35;
+  vec3 ceruleo = mix(vec3(0.34, 0.52, 0.82), uHazeColor, 0.3);
+  vec3 terre = uHazeColor * vec3(0.9, 0.95, 0.82);
+  vec3 interno = mix(ceruleo, terre, smoothstep(0.35, 0.85, chiazze) * 0.55);
+  interno = mix(interno, uHazeColor + uLineaGlow * 0.15, exp(-dAsse / 260.0) * versoAsse * 0.5);
+  interno *= 0.18 + 0.82 * giorno;
+  // riflessi morbidi anche guardando il vetro di fronte: larghe velature oblique, più chiare
+  // verso le rive (dove il vetro è più spesso e la brina comincia), più cupe al centro
+  float velo = vnoise2(vec2(P.z * 0.004 + th * 0.06, th * 0.3 - P.z * 0.0012));
+  float riva = 1.0 - smoothstep(10.0, 70.0, edgeDist);
+  float riflesso = clamp(fres * mix(0.55, 0.92, giorno) + (0.06 + 0.16 * smoothstep(0.35, 0.9, velo) + 0.12 * riva) * (0.35 + 0.65 * giorno) + 0.08 * giorno, 0.0, 0.94);
+  col = mix(col, interno, riflesso);
+  col += uLineaGlow * filo * (0.25 + 0.75 * fres) * mix(1.1, 0.35, uNight) * (0.6 + 0.4 * vnoise2(vec2(P.z * 0.02, th * 4.0)));
+  col = mix(col, vec3(0.6, 0.67, 0.8) * (0.4 + 0.6 * uSunIntensity), clamp(frost, 0.0, 1.0) * 0.38);
   col = applyHaze(col, P, dist);
   gl_FragColor = vec4(col, 1.0);
 }
@@ -131,7 +171,8 @@ export class Windows {
   constructor(world: WorldUniforms) {
     this.group.name = 'finestre';
     const windows = LAYOUT.strips.filter((s) => s.kind === 'finestra');
-    const ironMat = createWorldMaterial(world, { kind: 'object', brush: 0.6, side: DoubleSide });
+    // i costoloni appartengono al vetro, non al terreno da rilevare: sempre dipinti (mai a matita)
+    const ironMat = createWorldMaterial(world, { kind: 'object', brush: 0.6, side: DoubleSide, noPencil: true });
     const ribPos: number[] = [];
     const ribNor: number[] = [];
     const ribCol: number[] = [];
@@ -240,10 +281,11 @@ function addCurvedBeam(pos: number[], nor: number[], col: number[], z: number, t
       const z0 = za + 0.18 + ((zb - za - 0.36) * k) / boards + 0.03;
       const z1 = za + 0.18 + ((zb - za - 0.36) * (k + 1)) / boards - 0.03;
       const v = ((s * 7 + k * 3) % 5) / 5;
-      const plank: [number, number, number] = [0.47 + v * 0.08, 0.35 + v * 0.05, 0.23 + v * 0.03];
+      // legno stagionato e scuro, della luminosità del vetro (da lontano non deve rigarlo)
+      const plank: [number, number, number] = [0.31 + v * 0.05, 0.25 + v * 0.035, 0.21 + v * 0.03];
       pushQuad(pos, nor, col, cylToWorld(z0, ta, height + 0.02), cylToWorld(z0, tb, height + 0.02), cylToWorld(z1, tb, height + 0.02), cylToWorld(z1, ta, height + 0.02), up, plank);
     }
-    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, [0.2, 0.16, 0.13]);
+    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, [0.2, 0.19, 0.2]);
     // bordini d'acciaio della passerella
     for (const ze of [za, zb - 0.18]) {
       pushQuad(pos, nor, col, cylToWorld(ze, ta, height + 0.12), cylToWorld(ze, tb, height + 0.12), cylToWorld(ze + 0.18, tb, height + 0.12), cylToWorld(ze + 0.18, ta, height + 0.12), up, color);
