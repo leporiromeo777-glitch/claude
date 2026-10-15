@@ -136,6 +136,12 @@ export class Abitanti {
     return out;
   }
 
+  /** Chi parla si gira verso Elvira (il corpo; la testa la gira già da vicino). */
+  voltaVerso(id: string, elvira: { z: number; theta: number }): void {
+    const n = this.npc(id);
+    if (n?.presente && !n.inCammino && !this.inVolo(n)) n.orientaVerso(elvira);
+  }
+
   /** I velati della piazza si voltano tutti insieme verso Elvira (evento:velati_si_voltano). */
   voltatiTutti(secondi = 25): void {
     this.voltatiFino = this.tempo + secondi;

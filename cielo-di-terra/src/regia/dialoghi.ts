@@ -95,6 +95,8 @@ export class DirettoreDialoghi {
     this.vista = v;
     this.ultimo = v.dialogo;
     this.r.ui.dialogo.show(this.battuta(v));
+    // chi parla si gira verso Elvira, se la didascalia non dice il contrario («Non si gira»)
+    if (!/non si gira/i.test(v.didascalia ?? '')) this.r.abitanti.voltaVerso(v.chi, this.r.game.player.cyl);
     return true;
   }
 
