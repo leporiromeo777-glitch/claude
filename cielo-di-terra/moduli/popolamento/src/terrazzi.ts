@@ -10,7 +10,12 @@
 import { matriceSuperficie } from '../../oggetti/src/cilindro';
 import { creaMuroSecco } from '../../oggetti/src/oggetti/muri';
 import type { Contesto } from './contesto';
+import * as THREE from 'three';
 import { muroLontano } from './forme';
+import type { Cantiere } from './cantiere';
+import { boxAt } from '../../../src/world/colliders';
+import { localFrameTheta } from '../../../src/world/cylinder';
+import { cil } from './terreno';
 import { metriPerGrado, sposta, suolo } from './terreno';
 
 export interface Regione {
@@ -297,8 +302,31 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
   const zona = `${opz.prefissoZona}:${Math.floor(pm.z / 80)}:${Math.floor(pm.theta / 7)}`;
   ctx.posa(zona, muro, origine.z, origine.theta, 0, { h: piede, tag: () => 'muro', lumi: false });
   muro.dispose();
-  // versione lontana: nastro semplice
+  // riempimento erboso dietro la testa del muro (copre il fosso fra il muro e l'alzata) e il suo
+  // collider: dal muro si cammina sulla testa e si prosegue sul gradone di sopra
   const cz = ctx.zona(zona);
+  const mW = matriceSuperficie(origine.z, origine.theta, piede, 0);
+  rempimento(cz, mW, percorso, alto + 0.2, 0.72, 2.6);
+  {
+    const A = percorso[0]!;
+    const B = percorso[percorso.length - 1]!;
+    const dX = B[0] - A[0];
+    const dZ = B[1] - A[1];
+    const L = Math.hypot(dX, dZ) || 1;
+    // normale della faccia (libreria): (-dZ, dX)/L; il riempimento sta dalla parte opposta
+    const nX = -dZ / L;
+    const nZ = dX / L;
+    const cX = (A[0] + B[0]) / 2 - nX * 1.45;
+    const cZ = (A[1] + B[1]) / 2 - nZ * 1.45;
+    const c = new THREE.Vector3(cX, 0, cZ).applyMatrix4(mW);
+    const cc = cil(c);
+    // yaw del collider: l'asse «avanti» lungo la normale
+    const fw = new THREE.Vector3(nX, 0, nZ).transformDirection(mW);
+    const ter = localFrameTheta(cc.theta);
+    const yawC = (Math.atan2(fw.dot(ter.east), fw.dot(ter.north)) * 180) / Math.PI;
+    cz.aggiungiCollider(boxAt(cc.z, cc.theta, piede - 0.6, yawC, L + 0.3, alto + 0.2 + 0.6, 3.1), 'muro');
+  }
+  // versione lontana: nastro semplice
   cz.distanzaLod = 170;
   muroLontano(cz.lontano, matriceSuperficie(origine.z, origine.theta, piede, 0), percorso, alto + 0.2, 0.7, Math.floor(pm.z));
   return lunghezza(pezzo);
@@ -306,4 +334,41 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
 
 function xy(p: { z: number; theta: number }): [number, number] {
   return [p.z, p.theta];
+}
+
+/** Striscia erbosa dietro la testa di un muro di sostegno (coordinate della libreria del muro). */
+function rempimento(c: Cantiere, m: THREE.Matrix4, percorso: Array<[number, number]>, altezza: number, spessore: number, profondita: number): void {
+  const pos: number[] = [];
+  const v = new THREE.Vector3();
+  const push = (x: number, y: number, z: number) => {
+    v.set(x, y, z).applyMatrix4(m);
+    pos.push(v.x, v.y, v.z);
+  };
+  for (let i = 0; i < percorso.length - 1; i++) {
+    const [ax, az] = percorso[i]!;
+    const [bx, bz] = percorso[i + 1]!;
+    const l = Math.hypot(bx - ax, bz - az) || 1;
+    const nx = -(bz - az) / l;
+    const nz = (bx - ax) / l;
+    const y = altezza - 0.02;
+    const a0 = [ax - nx * spessore, az - nz * spessore];
+    const b0 = [bx - nx * spessore, bz - nz * spessore];
+    const a1 = [ax - nx * (spessore + profondita), az - nz * (spessore + profondita)];
+    const b1 = [bx - nx * (spessore + profondita), bz - nz * (spessore + profondita)];
+    push(a0[0]!, y, a0[1]!);
+    push(b0[0]!, y, b0[1]!);
+    push(b1[0]!, y - 0.05, b1[1]!);
+    push(a0[0]!, y, a0[1]!);
+    push(b1[0]!, y - 0.05, b1[1]!);
+    push(a1[0]!, y - 0.05, a1[1]!);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  c.forma(g, new THREE.Matrix4(), [0.52, 0.6, 0.28], 0, 'doppio', (p, out) => {
+    const k = 0.92 + 0.16 * Math.abs(Math.sin(p.x * 1.3 + p.z * 0.7));
+    out[0] *= k;
+    out[1] *= k;
+    out[2] *= k;
+  });
 }

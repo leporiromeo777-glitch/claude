@@ -14,7 +14,7 @@ import { metriPerGrado, sposta } from './terreno';
  * Mantello sul suolo: griglia polare (disco) o lungo una spezzata, a `sopra` metri dal suolo.
  * `colore(x, y)` riceve le coordinate locali (est, nord in metri dal centro) e restituisce rgb.
  */
-export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: number, passo: number, sopra: number, colore: (x: number, y: number, r: number) => RGB, quota?: (z: number, th: number) => number): void {
+export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: number, passo: number, sopra: number, colore: (x: number, y: number, r: number) => RGB, quota?: (z: number, th: number) => number, piatto = true): void {
   const anelli = Math.max(2, Math.ceil(raggio / passo));
   const settori = Math.max(16, Math.ceil((2 * Math.PI * raggio) / passo));
   const pos: number[] = [];
@@ -23,13 +23,22 @@ export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: numb
   const h0 = q(z0, th0);
   const kdeg = metriPerGrado(h0);
   const v = new Vector3();
+  let triCol: RGB | null = null;
   const vertice = (x: number, y: number) => {
     const z = z0 + y;
     const th = th0 + x / kdeg;
     cylToWorld(z, th, q(z, th) + sopra, v);
     pos.push(v.x, v.y, v.z);
-    const cc = colore(x, y, Math.hypot(x, y));
+    const cc = triCol ?? colore(x, y, Math.hypot(x, y));
     col.push(cc[0], cc[1], cc[2], 0);
+  };
+  const tri = (a: number[], b: number[], d: number[]) => {
+    // colore piatto per triangolo (ciottoli netti): al baricentro
+    triCol = piatto ? colore((a[0]! + b[0]! + d[0]!) / 3, (a[1]! + b[1]! + d[1]!) / 3, Math.hypot((a[0]! + b[0]! + d[0]!) / 3, (a[1]! + b[1]! + d[1]!) / 3)) : null;
+    vertice(a[0]!, a[1]!);
+    vertice(b[0]!, b[1]!);
+    vertice(d[0]!, d[1]!);
+    triCol = null;
   };
   for (let i = 0; i < anelli; i++) {
     const r0 = (i / anelli) * raggio;
@@ -41,15 +50,9 @@ export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: numb
       const p01 = [Math.cos(a1) * r0, Math.sin(a1) * r0];
       const p10 = [Math.cos(a0) * r1, Math.sin(a0) * r1];
       const p11 = [Math.cos(a1) * r1, Math.sin(a1) * r1];
-      // x = est, y = nord; ordine dei vertici per normale verso l'asse (su)
-      vertice(p00[0]!, p00[1]!);
-      vertice(p11[0]!, p11[1]!);
-      vertice(p10[0]!, p10[1]!);
-      if (i > 0) {
-        vertice(p00[0]!, p00[1]!);
-        vertice(p01[0]!, p01[1]!);
-        vertice(p11[0]!, p11[1]!);
-      }
+      // x = est, y = nord (l'orientamento delle facce lo sistema aggiungiMantello)
+      tri(p00, p11, p10);
+      if (i > 0) tri(p00, p01, p11);
     }
   }
   aggiungiMantello(c, pos, col);

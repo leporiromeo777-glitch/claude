@@ -589,8 +589,18 @@ export function creaErbaRicci(seme: Seme, raggio: number, ciuffi = 40, ricci = 3
   for (let k = 0; k < ciuffi; k++) {
     const a = rng.next() * Math.PI * 2;
     const d = Math.sqrt(rng.next()) * raggio;
-    const h = rng.tra(0.35, 0.8);
-    b.aggiungi(geoCono(rng.tra(0.18, 0.35), h, 5), { matrice: mat([Math.cos(a) * d, -0.05, Math.sin(a) * d], [rng.centrato(0.2), rng.next() * 3, rng.centrato(0.2)]), colore: mescola(0x8a9a44, rng.prob(0.4) ? 0xc4a858 : 0x6f8a3c, rng.next()), variazione: 0.1, piatto: true });
+    const colore = mescola(0x8a9a44, rng.prob(0.4) ? 0xc4a858 : 0x6f8a3c, rng.next());
+    // ciuffo: tre-cinque fili sottili e inclinati
+    const nf = rng.intero(3, 5);
+    for (let f = 0; f < nf; f++) {
+      const h = rng.tra(0.28, 0.62);
+      b.aggiungi(geoCono(rng.tra(0.025, 0.045), h, 3), {
+        matrice: mat([Math.cos(a) * d + rng.centrato(0.12), -0.03, Math.sin(a) * d + rng.centrato(0.12)], [rng.centrato(0.5), rng.next() * 3, rng.centrato(0.5)]),
+        colore,
+        variazione: 0.12,
+        piatto: true,
+      });
+    }
   }
   for (let k = 0; k < ricci; k++) {
     const a = rng.next() * Math.PI * 2;
