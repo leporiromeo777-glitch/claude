@@ -2,7 +2,8 @@
  * Forme proprie del popolamento: mantelli che seguono il suolo (selciati, sentieri, prati
  * pettinati), lastre, pietre e piccoli oggetti costruiti con il Costruttore della libreria.
  */
-import { Vector3 } from 'three';
+import { BoxGeometry, BufferAttribute as THREE_ATTR, BufferGeometry as THREE_BUFGEO, Matrix4 as THREE_MAT4, PlaneGeometry as THREE_PLANE, Vector3 } from 'three';
+const THREE_GEOM = { BoxGeometry };
 import { DEG } from '../../../src/world/constants';
 import { cylToWorld } from '../../../src/world/cylinder';
 import { groundHeight } from '../../../src/world/terrain';
@@ -180,3 +181,71 @@ export function hash2(x: number, y: number, seme = 0): number {
 }
 
 export const RAD = DEG;
+
+/** Versione lontana di un rustico: scatola di gneiss, tetto a capanna di piode, due finestre accese. */
+export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hMuri: number, interrata: number, seme = 0): void {
+  const { BoxGeometry } = THREE_GEOM;
+  const t = new THREE_MAT4();
+  const box = new BoxGeometry(1, 1, 1);
+  const pietra: RGB = [0.66 + hash2(seme, 1) * 0.08, 0.64 + hash2(seme, 2) * 0.06, 0.6 + hash2(seme, 3) * 0.06];
+  t.makeTranslation(0, (hMuri - interrata) / 2, 0).scale(new Vector3(W, hMuri + interrata, D));
+  c.forma(box, m.clone().multiply(t), pietra);
+  const pend = 0.55;
+  const hT = (W / 2 + 0.45) * Math.tan(pend);
+  t.makeTranslation(0, hMuri - 0.02, 0).scale(new Vector3(W + 0.9, hT, D + 0.8));
+  c.forma(timpanoUnitario(), m.clone().multiply(t), [0.3, 0.29, 0.31]);
+  // finestre (accese di notte) sulle due facciate lunghe
+  const q = new THREE_PLANE(0.7, 0.85);
+  for (const s of [-1, 1]) {
+    t.makeTranslation(s * (W / 2 + 0.02), Math.min(hMuri - 1.2, 3.2), 0).multiply(new THREE_MAT4().makeRotationY((s * Math.PI) / 2));
+    c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, s) < 0.6 ? 1 : 0);
+  }
+}
+
+/** Nastro semplice di muro a secco (versione lontana): faccia e testa lungo la spezzata locale. */
+export function muroLontano(c: Cantiere, m: import('three').Matrix4, percorso: Array<[number, number]>, altezza: number, spessore: number, seme = 0): void {
+  const pos: number[] = [];
+  const v = new Vector3();
+  const push = (x: number, y: number, z: number) => {
+    v.set(x, y, z).applyMatrix4(m);
+    pos.push(v.x, v.y, v.z);
+  };
+  for (let i = 0; i < percorso.length - 1; i++) {
+    const [ax, az] = percorso[i]!;
+    const [bx, bz] = percorso[i + 1]!;
+    const l = Math.hypot(bx - ax, bz - az) || 1;
+    // normale della faccia (a destra del verso, convenzione della libreria): (-dz, dx)
+    const nx = -(bz - az) / l;
+    const nz = (bx - ax) / l;
+    const y0 = -0.4;
+    // faccia
+    push(ax, y0, az);
+    push(bx, y0, bz);
+    push(bx, altezza, bz);
+    push(ax, y0, az);
+    push(bx, altezza, bz);
+    push(ax, altezza, az);
+    // testa
+    push(ax, altezza, az);
+    push(bx, altezza, bz);
+    push(bx - nx * spessore, altezza, bz - nz * spessore);
+    push(ax, altezza, az);
+    push(bx - nx * spessore, altezza, bz - nz * spessore);
+    push(ax - nx * spessore, altezza, az - nz * spessore);
+  }
+  const g = new THREE_BUFGEO();
+  g.setAttribute('position', new THREE_ATTR(new Float32Array(pos), 3));
+  g.computeVertexNormals();
+  const k = 0.92 + hash2(seme, 7) * 0.12;
+  c.forma(g, new THREE_MAT4(), [0.55 * k, 0.53 * k, 0.52 * k], 0, 'doppio');
+}
+
+function timpanoUnitario(): import('three').BufferGeometry {
+  // prisma: base 1x1 (x, z in [-0.5, 0.5]), colmo alto 1 lungo z
+  const A = [-0.5, 0, -0.5], B = [-0.5, 0, 0.5], E = [0.5, 0, -0.5], F = [0.5, 0, 0.5], C = [0, 1, 0.5], D = [0, 1, -0.5];
+  const p = [...A, ...B, ...C, ...A, ...C, ...D, ...E, ...D, ...C, ...E, ...C, ...F, ...B, ...F, ...C, ...A, ...D, ...E];
+  const g = new THREE_BUFGEO();
+  g.setAttribute('position', new THREE_ATTR(new Float32Array(p), 3));
+  g.computeVertexNormals();
+  return g;
+}

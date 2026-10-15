@@ -14,7 +14,7 @@ import { matriceSuperficie } from '../../../oggetti/src/cilindro';
 import { creaRustico } from '../../../oggetti/src/oggetti/rustico';
 import { PARTICELLE, luogo } from '../contenuti';
 import type { Contesto } from '../contesto';
-import { hash2 } from '../forme';
+import { casaLontana, hash2 } from '../forme';
 import { distanza, impronta, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { boxAt } from '../../../../src/world/colliders';
 
@@ -51,8 +51,13 @@ export function posaRustico(
   const D = opz?.profondita ?? 7;
   const fp = impronta(z, theta, yaw, W, D);
   const base = opz?.base ?? fp.min - 0.12;
-  const casa = creaRustico({ ...opz, interrata: Math.max(0.8, fp.max - base + 0.6) });
+  const interrata = Math.max(0.8, fp.max - base + 0.6);
+  const casa = creaRustico({ ...opz, interrata });
   const punti = ctx.posa(zona, casa, z, theta, yaw, { h: base, tag: (t) => (t === 'muro' ? 'casa' : t ?? 'casa'), ...(opz?.luogo ? { luogo: opz.luogo } : {}) });
+  if (zona.startsWith('case:')) {
+    const piani = opz?.piani ?? 2;
+    casaLontana(ctx.zona(zona).lontano, matriceSuperficie(z, theta, base, yaw), W, D, 2.5 + (piani - 1) * 2.45 + 0.35, interrata, Math.floor(z * 7 + theta));
+  }
   // porta: collider sottile davanti all'uscio (tag 'porta') per chi interroga i collider
   const pl = casa.punti['porta']!;
   const pd = spostaYaw(z, theta, yaw, D / 2 + 0.05, base);
@@ -90,7 +95,7 @@ export function costruisciCase(ctx: Contesto, quante = 44): CasaPosata[] {
     const r2 = hash2(c.theta, c.z, 11);
     const W = 5 + r * 2.2;
     const D = 6 + r2 * 2.6;
-    const vicinoPiazza = distanza(c, piazza) < 48;
+    const vicinoPiazza = distanza(c, piazza) < 31;
     let yaw = vicinoPiazza ? yawVerso(c, piazza) : yawValle(c.z, c.theta);
     yaw += (hash2(c.z, c.theta, 5) - 0.5) * 16;
     // le case lontane dalla piazza si allineano un po' alle curve di livello (colmo lungo il pendio)

@@ -7,8 +7,10 @@
  * sotto, la testa al livello del piano di sopra. Dove passa un sentiero si apre un varco (i gradini
  * li mette il sentiero); dentro le impronte (case, piattaforme) non si costruisce.
  */
+import { matriceSuperficie } from '../../oggetti/src/cilindro';
 import { creaMuroSecco } from '../../oggetti/src/oggetti/muri';
 import type { Contesto } from './contesto';
+import { muroLontano } from './forme';
 import { metriPerGrado, sposta, suolo } from './terreno';
 
 export interface Regione {
@@ -128,6 +130,39 @@ export function lunghezza(s: Spezzata): number {
   return l;
 }
 
+/** Smussa una spezzata (Chaikin), tenendo gli estremi. */
+export function smussa(s: Spezzata, iterazioni = 2): Spezzata {
+  let p = s;
+  for (let it = 0; it < iterazioni; it++) {
+    if (p.length < 3) return p;
+    const q: Spezzata = [p[0]!];
+    for (let i = 0; i < p.length - 1; i++) {
+      const a = p[i]!;
+      const b = p[i + 1]!;
+      q.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]);
+    }
+    q.push(p[p.length - 1]!);
+    p = q;
+  }
+  return p;
+}
+
+/** Media mobile sui punti interni (toglie il dente di sega del marching squares). */
+export function media(s: Spezzata, raggio = 2): Spezzata {
+  return s.map((pt, i) => {
+    if (i === 0 || i === s.length - 1) return pt;
+    let x = 0;
+    let y = 0;
+    let n = 0;
+    for (let k = Math.max(0, i - raggio); k <= Math.min(s.length - 1, i + raggio); k++) {
+      x += s[k]![0];
+      y += s[k]![1];
+      n++;
+    }
+    return [x / n, y / n] as [number, number];
+  });
+}
+
 /** Ricampiona e semplifica una spezzata a passo ~`passo`. */
 export function semplifica(s: Spezzata, passo: number): Spezzata {
   const out: Spezzata = [s[0]!];
@@ -177,7 +212,7 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
     const livello = k * passoG + 0.45;
     for (const curva of curveDiLivello(r, griglia, nx, ny, livello)) {
       if (lunghezza(curva) < 3) continue;
-      const linea = semplifica(curva, 1.2);
+      const linea = semplifica(smussa(media(curva, 3), 1), 1.0);
       // taglia in pezzi validi
       let pezzo: Spezzata = [];
       const chiudi = () => {
@@ -199,7 +234,7 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
           continue;
         }
         pezzo.push([x, y]);
-        if (lunghezza(pezzo) >= 6.5) {
+        if (lunghezza(pezzo) >= 4.2) {
           const ultimo = pezzo[pezzo.length - 1]!;
           chiudi();
           pezzo.push(ultimo);
@@ -262,6 +297,10 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
   const zona = `${opz.prefissoZona}:${Math.floor(pm.z / 80)}:${Math.floor(pm.theta / 7)}`;
   ctx.posa(zona, muro, origine.z, origine.theta, 0, { h: piede, tag: () => 'muro', lumi: false });
   muro.dispose();
+  // versione lontana: nastro semplice
+  const cz = ctx.zona(zona);
+  cz.distanzaLod = 170;
+  muroLontano(cz.lontano, matriceSuperficie(origine.z, origine.theta, piede, 0), percorso, alto + 0.2, 0.7, Math.floor(pm.z));
   return lunghezza(pezzo);
 }
 
