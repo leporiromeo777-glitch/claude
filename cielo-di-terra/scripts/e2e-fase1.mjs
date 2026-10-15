@@ -471,7 +471,21 @@ async function main() {
 
     log('— M1.11 La notte');
     await avanzaFinche('dialogo:d_ottavio_fienile iniziato', 10);
-    await foto('12-fienile-notte', () => inquadra('ottavio', 4));
+    await foto('12-fienile-notte', () =>
+      R(() => {
+        // dalla parte opposta al fienile, così i muri non si mettono in mezzo
+        const G = window.__GAME__.regia;
+        const o = G.regia.abitanti.posizione('ottavio');
+        if (!o) return;
+        const mpd = (646 * Math.PI) / 180;
+        const dz = o.z - 1176;
+        const ds = (o.theta - 58.5) * mpd;
+        const d = Math.hypot(dz, ds) || 1;
+        G.regia.vai(o.z + (dz / d) * 4.2, o.theta + ((ds / d) * 4.2) / mpd);
+        G.avanza(0.05);
+        G.mira([o.z, o.theta, o.h + 0.35]);
+      }),
+    );
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await avanza(1);
     s = await stato();
