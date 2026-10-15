@@ -26,9 +26,12 @@ describe('record di eleganza', () => {
     const d = emptySave();
     const first = recordNight(d, 'g01', m(3, 0), 'x');
     expect(first.goldThread).toBe(true);
-    expect(first.improved).toEqual(['filoDOro']);
+    // R2-D2: «Primo filo d'oro» non è un «nuovo record»; è il primo della vita del salvataggio.
+    expect(first.improved).toEqual([]);
+    expect(first.firstGold).toBe(true);
     const again = recordNight(d, 'g01', m(3, 4), 'y');
     expect(again.goldThread).toBe(false);
+    expect(again.firstGold).toBe(false);
     expect(d.stats).toMatchObject({ nights: 2, goldThreads: 1 });
     recordNight(d, 'g02', m(3, 0), 'x');
     const third = recordNight(d, 'g03', m(3, 0), 'x');

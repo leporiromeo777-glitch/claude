@@ -92,8 +92,8 @@ describe('CAM-02: il foglio giusto', () => {
     h.destroy();
   });
 
-  it('spilli finiti: come liberarne uno, con il collegamento ai bigliettini appuntati', () => {
-    const { s, d, ui } = setup();
+  it('spilli finiti: lo spillo di un altro bigliettino si sposta qui in un passo (Q007)', () => {
+    const { s, d } = setup();
     const c = eveningAt(d, 'g04');
     const [a, b, third] = c.evening?.noteIds ?? [];
     expect(pinNote(c, db(), a!)).toBeNull();
@@ -106,8 +106,12 @@ describe('CAM-02: il foglio giusto', () => {
     expect(box.querySelector('[data-test="cp-spilli-finiti"]')).not.toBeNull();
     const link = box.querySelector<HTMLButtonElement>(`[data-test="cp-vai-${a}"]`);
     expect(link?.textContent).not.toContain('[[');
+    expect(link?.textContent).toContain('Sposta qui lo spillo di');
     link?.click();
-    expect(ui.overlays()).toEqual(['cp-nota']);
+    const after = (d.campaign as typeof c).evening?.accepted.map((x) => x.noteId) ?? [];
+    expect(after).toContain(third);
+    expect(after).toContain(b);
+    expect(after).not.toContain(a);
     h.destroy();
   });
 

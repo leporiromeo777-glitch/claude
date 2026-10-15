@@ -6,7 +6,8 @@
  * riavvolgimento (sono conoscenza). Si ricontrollano a ogni passaggio importante: fine
  * della notte, stranezza scoperta, oggetto letto, risposta, Archivio, finale.
  */
-import type { BookPageDef, CampaignState, CharacterId, ContentDB, DiaryEntryDef, DiaryEntryId, Knowledge, QuestionId, QuirkId, StoryCond } from '../core/types';
+import type { BookPageDef, CampaignState, CharacterId, ContentDB, DiaryEntryDef, DiaryEntryId, FlagValue, Knowledge, LevelDef, QuestionId, QuirkId, StoryCond } from '../core/types';
+import { createContext } from '../engine/index';
 import { addDiary, evalStory, emptyLog, type EffectLog } from './story';
 
 type Db = Pick<ContentDB, 'diary' | 'levels' | 'balance' | 'book'>;
@@ -146,4 +147,18 @@ export function quirkRevealed(q: QuirkId, character: CharacterId, k: Pick<Knowle
     if (!k.diary.includes(def.id)) return false;
   }
   return true;
+}
+
+/**
+ * La stranezza non vale più per via della storia (Q056): i flag la tolgono dal contesto
+ * delle notti (oggi solo la pace di g18, `riconciliate`, scioglie «Non passa mai sotto
+ * Teresa» e «Legge le lettere che porta»). Si chiede al motore, che decide quali restano.
+ */
+export function quirkDissolved(q: QuirkId, flags: Record<string, FlagValue>): boolean {
+  try {
+    const probe = { quirks: [q], rancor: [], threads: [], rules: [] } as unknown as LevelDef;
+    return !createContext(probe, flags).quirks.includes(q);
+  } catch {
+    return false;
+  }
 }

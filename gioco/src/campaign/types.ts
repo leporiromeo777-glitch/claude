@@ -59,6 +59,9 @@ export interface VignetteView extends Omit<VignetteDef, 'lines'> {
 
 export type RequestOutcome = 'soddisfatta' | 'fallita';
 
+/** Record mostrato nel bilancio (quello di un insieme di richieste, o un `LaceRecord` dei salvataggi di prima). */
+export type RecordView = Pick<LaceRecord, 'minIncroci' | 'maxQuiete' | 'simmetria'> & { bestSpartito?: string };
+
 /** Una richiesta della giornata nel bilancio. */
 export interface ReportRequest {
   noteId: NoteId;
@@ -94,7 +97,13 @@ export interface DayReport {
   newDesires: CharacterId[];
   memoria: MemoriaChange[];
   metrics: LaceMetrics;
-  record: { before: LaceRecord | null; after: LaceRecord; improved: ('incroci' | 'quiete' | 'simmetria' | 'filoDOro')[] };
+  /**
+   * Record dell'insieme di richieste della notte (R2-D2): prima e dopo (null se non c'è),
+   * i «nuovo record», se il merletto è entrato nei record (`counted`, tutte le richieste e
+   * gli obiettivi soddisfatti) e se è il primo filo d'oro della vita del salvataggio.
+   * I resoconti salvati prima della revisione 2 non hanno `counted` né `firstGold`.
+   */
+  record: { before: RecordView | null; after: RecordView | null; improved: ('incroci' | 'quiete' | 'simmetria' | 'filoDOro')[]; counted?: boolean; firstGold?: boolean };
   goldThread: boolean;
   /** Sblocchi nuovi (GDD 7): 'daily', 'libero', 'gradi', 'tovaglia', 'cosmetic:<id>', 'archive:<id>'. */
   unlocked: string[];

@@ -83,8 +83,131 @@ export const PENCIL_HAND: Handwriting = { font: 'caveat', ink: '#55504A', paper:
 /** Mano di Ada a matita (pagine del Libro sul nome e sul filo nero). */
 export const ADA_PENCIL_HAND: Handwriting = { font: 'caveat', ink: '#5A5048', paper: '#EFE6D2', slantDeg: 2, sizeScale: 1 };
 
+/**
+ * La mano di Clotilde (Q060): la grafia color seppia delle note a margine del Libro e dei
+ * merletti d'Archivio (Caveat, inchiostro seppia), non il tondo tipografico. Così il
+ * Taccuino può dire che la lettera «è scritta con la grafia dei margini».
+ */
+export const CLOTILDE_HAND: Handwriting = { font: 'caveat', ink: '#5C3B22', paper: '#EFE3C8', slantDeg: 2, sizeScale: 1.1 };
+
 export function handOf(s: Services, id: CharacterId | string): Handwriting | null {
+  if (id === 'clotilde') return CLOTILDE_HAND;
   return s.content.characters.get(id as CharacterId)?.hand ?? null;
+}
+
+/** La bottiglia vuota con il nodo di filo nero (g15 → sera di g16, Q039): derivata da `obj/bottiglia`. */
+export const EMPTY_BOTTLE = 'obj/bottiglia_vuota';
+
+type Frame = ReturnType<Services['assets']['frame']>;
+const derived = new Map<unknown, HTMLCanvasElement>();
+
+/**
+ * La bottiglia senza il foglio arrotolato (Q039): dalla bottiglia col messaggio si toglie
+ * la carta (i pixel color carta dentro il vetro, riempiti col vetro intorno) e dentro si
+ * disegna un nodo di filo nero. Si calcola una volta per immagine; null se non si può.
+ */
+export function emptyBottle(f: Frame): HTMLCanvasElement | null {
+  const cached = derived.get(f.source);
+  if (cached) return cached;
+  if (typeof document === 'undefined') return null;
+  try {
+    const w = Math.max(1, Math.round(f.sw));
+    const h = Math.max(1, Math.round(f.sh));
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d', { willReadFrequently: true } as CanvasRenderingContext2DSettings) as CanvasRenderingContext2D | null;
+    if (!ctx || typeof ctx.getImageData !== 'function') return null;
+    ctx.drawImage(f.source, f.sx, f.sy, f.sw, f.sh, 0, 0, w, h);
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    const k = 256 / Math.max(w, h);
+    // La carta: più rossa che verde e più che blu, fuori dal tappo (in alto a sinistra).
+    const paper = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        const r = d[i] ?? 0;
+        const g = d[i + 1] ?? 0;
+        const b = d[i + 2] ?? 0;
+        const a = d[i + 3] ?? 0;
+        if (a >= 40 && (x + y) * k >= 130 && r >= g && r > b + 12) paper[y * w + x] = 1;
+      }
+    }
+    // Un po' più larga, per prendere anche i bordi sfumati del foglio.
+    const rad = Math.max(1, Math.round(4 / k));
+    const mask = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (!paper[y * w + x]) continue;
+        for (let yy = Math.max(0, y - rad); yy <= Math.min(h - 1, y + rad); yy++) for (let xx = Math.max(0, x - rad); xx <= Math.min(w - 1, x + rad); xx++) mask[yy * w + xx] = 1;
+      }
+    }
+    // Si riempie col vetro intorno, dal bordo verso l'interno.
+    const known = new Uint8Array(w * h);
+    for (let p = 0; p < w * h; p++) known[p] = !mask[p] && (d[p * 4 + 3] ?? 0) > 100 ? 1 : 0;
+    let todo: number[] = [];
+    for (let p = 0; p < w * h; p++) if (mask[p]) todo.push(p);
+    for (let it = 0; it < 120 && todo.length > 0; it++) {
+      const fill: [number, number, number, number, number][] = [];
+      const rest: number[] = [];
+      for (const p of todo) {
+        const x = p % w;
+        const y = (p - x) / w;
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let a = 0;
+        let n = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const xx = x + dx;
+            const yy = y + dy;
+            if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+            const q = yy * w + xx;
+            if (!known[q]) continue;
+            r += d[q * 4] ?? 0;
+            g += d[q * 4 + 1] ?? 0;
+            b += d[q * 4 + 2] ?? 0;
+            a += d[q * 4 + 3] ?? 0;
+            n++;
+          }
+        }
+        if (n > 0) fill.push([p, r / n, g / n, b / n, a / n]);
+        else rest.push(p);
+      }
+      if (fill.length === 0) break;
+      for (const [p, r, g, b, a] of fill) {
+        d[p * 4] = r;
+        d[p * 4 + 1] = g;
+        d[p * 4 + 2] = b;
+        d[p * 4 + 3] = a;
+        known[p] = 1;
+      }
+      todo = rest;
+    }
+    ctx.putImageData(img, 0, 0);
+    // Il nodo di filo nero, dove stava il foglio.
+    ctx.save();
+    ctx.scale(1 / k, 1 / k);
+    ctx.strokeStyle = '#120e0e';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.ellipse(160, 149, 9, 8, -0.5, 0, Math.PI * 2);
+    ctx.moveTo(128, 170);
+    ctx.quadraticCurveTo(140, 158, 152, 152);
+    ctx.moveTo(167, 153);
+    ctx.quadraticCurveTo(178, 162, 192, 166);
+    ctx.stroke();
+    ctx.restore();
+    derived.set(f.source, c);
+    return c;
+  } catch {
+    return null;
+  }
 }
 
 /** Disegna una cornice di sprite (obj/…, fig/…) in un canvas del DOM, centrata. */
@@ -100,18 +223,34 @@ export function spriteCanvas(s: Services, name: string, size: number, opts: { cl
     if (!ctx) return;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, c.width, c.height);
-    const f = s.assets.frame(name);
+    const f = s.assets.frame(name === EMPTY_BOTTLE ? 'obj/bottiglia' : name);
     const k = Math.min(c.width / Math.max(1, f.sw), c.height / Math.max(1, f.sh));
     const w = f.sw * k;
     const h = f.sh * k;
     try {
-      ctx.drawImage(f.source, f.sx, f.sy, f.sw, f.sh, (c.width - w) / 2, (c.height - h) / 2, w, h);
+      const empty = name === EMPTY_BOTTLE && !f.placeholder ? emptyBottle(f) : null;
+      if (empty) ctx.drawImage(empty, 0, 0, empty.width, empty.height, (c.width - w) / 2, (c.height - h) / 2, w, h);
+      else ctx.drawImage(f.source, f.sx, f.sy, f.sw, f.sh, (c.width - w) / 2, (c.height - h) / 2, w, h);
     } catch {
       /* immagine non pronta */
     }
   };
   draw();
   return c;
+}
+
+/** Si gioca con il mouse (puntatore fine, come nel titolo, SCH-12). */
+export function pointerFine(): boolean {
+  try {
+    return typeof matchMedia === 'function' && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  } catch {
+    return false;
+  }
+}
+
+/** «Tocca…» col dito, «Clicca…» col mouse (Q067, D17): la chiave con il suffisso `Clic`. */
+export function tapKey(key: string): string {
+  return pointerFine() ? `${key}Clic` : key;
 }
 
 /** Ritardo scalato con la velocità delle animazioni (0 = istantanea). */

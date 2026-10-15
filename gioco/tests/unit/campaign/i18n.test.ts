@@ -41,10 +41,12 @@ const CODE = sources(join(ROOT, 'src/campaign')).map((p) => ({ p, text: readFile
 const DYNAMIC: string[] = [
   ...['nuovo', 'nominato', 'rammendato'].map((x) => `campaign.archivio.stato.${x}`),
   ...['ok', 'fallita', 'lasciato', 'desiderio', 'autoreSbagliato'].map((x) => `campaign.bilancio.conseguenza.${x}`),
-  ...['incroci', 'quiete', 'simmetria', 'filoDOro'].map((x) => `campaign.bilancio.nuovoRecord.${x}`),
+  ...['incroci', 'quiete', 'simmetria'].map((x) => `campaign.bilancio.nuovoRecord.${x}`),
   ...ENDING_IDS.map((x) => `campaign.finale.${x}`),
   ...THREAD_PATTERNS.map((x) => `campaign.motivi.${x}`),
-  ...['daily', 'libero', 'gradi', 'tovaglia', 'archivio', 'fuso'].map((x) => `campaign.sblocchi.${x}`),
+  ...['daily', 'libero', 'gradi', 'tovaglia', 'archivio', 'fusoNome', 'fusoDove'].map((x) => `campaign.sblocchi.${x}`),
+  // Revisione 2: «Clicca» col mouse (Q067, `tapKey`).
+  ...['prologo.tocca', 'prologo.tombolo', 'sera.oggettoTocca', 'vignetta.tocca', 'telaio.intro'].map((x) => `campaign.${x}Clic`),
   ...ENDING_IDS.map((x) => `campaign.scelta.conferma.${x}`),
   ...['nessunaSera', 'sconosciuto', 'spilli', 'chi', 'senzaRichiesta', 'giaRisposto', 'senzaRisposte'].map((x) => `campaign.sera.errore.${x}`),
   ...QUIRK_IDS.map((x) => `campaign.stranezze.${x}`),

@@ -4,6 +4,9 @@
  * Rigioca (per i record, la storia non cambia), Riprendi da qui (la storia torna alla
  * sera di quella giornata, il Taccuino resta; con conferma), Riascolta (il carillon del
  * merletto). In fondo gli epiloghi visti.
+ *
+ * Revisione 2: dopo il finale vero, in cima, la Tovaglia (R2-D5, `tovaglia.ts`); i pulsanti
+ * di una giornata aperta in fondo alla lista scorrono sopra il piede fisso (Q035).
  */
 import type { ActionEvent, LevelId, Playing, RowMoves, Scene, SceneId, Services, Viewport } from '../core/types';
 import { el, clear } from '../core/ui/dom';
@@ -14,7 +17,8 @@ import { controller, type FinaleParams } from './controller';
 import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
 import { replayRipassaParams } from './flow';
-import { sceneHost } from './ui';
+import { sceneHost, tapKey } from './ui';
+import { hasTovaglia, tovagliaSection } from './tovaglia';
 import type { DayResultX } from './types';
 
 /** Parametri della scena 'telaio'. */
@@ -36,6 +40,10 @@ export class TelaioScene implements Scene {
   private carillon: Playing | null = null;
   private back: SceneId | null = null;
   private open: LevelId | null = null;
+  /** La Tovaglia (R2-D5): si costruisce una volta e resta fra un ridisegno e l'altro. */
+  private tovaglia: ReturnType<typeof tovagliaSection> | null = null;
+  /** Giornata appena aperta: i suoi pulsanti si portano in vista sopra il piede (Q035). */
+  private reveal: LevelId | null = null;
 
   constructor(private readonly s: Services) {}
 
@@ -57,6 +65,8 @@ export class TelaioScene implements Scene {
       /* audio non pronto */
     }
     this.open = controller.state()?.levelId ?? null;
+    const c = controller.state();
+    if (c && hasTovaglia(controller.data())) this.tovaglia = tovagliaSection(this.s, c);
     this.refresh();
   }
 
@@ -83,9 +93,11 @@ export class TelaioScene implements Scene {
       el(
         'header',
         { class: 'cp-sera-testa' },
-        el('div', { class: 'cp-sera-intestazione' }, textOf('campaign.telaio.titolo', undefined, 'h1', { className: 'cp-sera-titolo' }), textOf('campaign.telaio.intro', undefined, 'p', { className: 'cp-sera-intro' })),
+        el('div', { class: 'cp-sera-intestazione' }, textOf('campaign.telaio.titolo', undefined, 'h1', { className: 'cp-sera-titolo' }), textOf(tapKey('campaign.telaio.intro'), undefined, 'p', { className: 'cp-sera-intro' })),
       ),
     );
+    // Il finale vero: la Tovaglia, nominata e mostrata in cima al Telaio (R2-D5).
+    if (this.tovaglia) main.appendChild(this.tovaglia.el);
     if (!c) {
       main.appendChild(textOf('campaign.telaio.vuoto', undefined, 'p', { className: 'cp-sera-intro', rich: true }));
     } else {
@@ -109,6 +121,7 @@ export class TelaioScene implements Scene {
         }
         head.addEventListener('click', () => {
           this.open = this.open === day.id ? null : day.id;
+          this.reveal = this.open;
           this.refresh();
         });
         node.appendChild(head);
@@ -126,8 +139,15 @@ export class TelaioScene implements Scene {
         main.appendChild(ep);
       }
     }
-    main.appendChild(el('footer', { class: 'cp-sera-piede' }, el('div', { class: 'cp-sera-strumenti' }, this.side?.button() ?? null), el('div', { class: 'cp-sera-vai' }, button({ labelKey: 'campaign.telaio.indietro', icon: 'indietro', kind: 'secondario', onClick: () => this.leave(), test: 'cp-telaio-indietro' }))));
+    const foot = el('footer', { class: 'cp-sera-piede' }, el('div', { class: 'cp-sera-strumenti' }, this.side?.button() ?? null), el('div', { class: 'cp-sera-vai' }, button({ labelKey: 'campaign.telaio.indietro', icon: 'indietro', kind: 'secondario', onClick: () => this.leave(), test: 'cp-telaio-indietro' })));
+    main.appendChild(foot);
     if (focused) main.querySelector<HTMLElement>(`[data-test="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
+    // I pulsanti della giornata appena aperta non restano sotto il piede fisso (Q035):
+    // l'elenco scorre fin sopra il piede.
+    main.style.setProperty('--cp-piede-h', `${Math.round(foot.offsetHeight)}px`);
+    const shown = this.reveal;
+    this.reveal = null;
+    if (shown) main.querySelector<HTMLElement>(`[data-test="cp-nodo-azioni-${CSS.escape(shown)}"]`)?.scrollIntoView?.({ block: 'nearest' });
   }
 
   private actions(id: LevelId, played: boolean, canResume: boolean): HTMLElement {
@@ -189,6 +209,8 @@ export class TelaioScene implements Scene {
       /* già fermo */
     }
     this.carillon = null;
+    this.tovaglia?.stop();
+    this.tovaglia = null;
     this.side?.destroy();
     this.side = null;
     this.root?.remove();

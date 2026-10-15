@@ -51,7 +51,9 @@ export class AlbaScene implements Scene {
     this.player = new VignettePlayer(this.s, { vignettes: report.dawn, onDone: () => this.done(), test: 'cp-alba-vignetta' });
     this.root.appendChild(this.player.el);
     sceneHost(this.s).appendChild(this.root);
-    if (level) {
+    // Il carillon del merletto finito (R2-D5) continua qui, se suona ancora.
+    this.carillon = level ? controller.adoptLaceCarillon(level.id) : null;
+    if (level && !this.carillon) {
       try {
         const beat = this.s.content.balance.anim.beatMs;
         const score = c.lastOutcome?.levelId === level.id ? scoreFromOutcome(level, c.lastOutcome, beat) : scoreFromRows(level, report.rows, c.flags, this.s.content.balance, beat);

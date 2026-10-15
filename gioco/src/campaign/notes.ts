@@ -17,7 +17,7 @@ import { el, clear } from '../core/ui/dom';
 import { button, paperCard, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
 import { controller } from './controller';
-import { arrivalOf, eveningItems, guessCandidates, isAnonymous, pinNote, pinsLeft, replyNote, leaveNote, unpinNote, type EveningItem } from './evening';
+import { arrivalOf, eveningItems, guessCandidates, isAnonymous, movePin, pinNote, pinsLeft, replyNote, leaveNote, unpinNote, type EveningItem } from './evening';
 import { choiceCards } from './endings';
 import { eveningMode, levelOf } from './flow';
 import { ADA_PENCIL_HAND, PENCIL_HAND, charChip, charName, handOf, inkNamesOn, spriteCanvas } from './ui';
@@ -184,20 +184,27 @@ export function noteDetailPanel(s: Services, container: HTMLElement, opts?: unkn
       );
     }
     root.appendChild(actions);
-    // Spilli finiti (CAM-09): come liberarne uno, con il collegamento ai bigliettini appuntati.
+    // Spilli finiti (CAM-09, Q007): lo spillo si sposta da un bigliettino appuntato a questo
+    // in un passo solo («Sposta qui lo spillo di Bepi»), e questo resta appuntato.
     if (!m.pinned && note.request && left <= 0) {
-      const free = el('div', { class: 'cp-spilli-finiti', test: 'cp-spilli-finiti' }, textOf('campaign.sera.spilliFiniti', undefined, 'p', { className: 'cp-tenue' }));
+      const free = el('div', { class: 'cp-spilli-finiti', test: 'cp-spilli-finiti' }, textOf('campaign.sera.spilliFinitiSposta', undefined, 'p', { className: 'cp-tenue' }));
       for (const a of c.evening?.accepted ?? []) {
         const other = s.content.notes.get(a.noteId);
         if (!other) continue;
         free.appendChild(
           button({
-            labelKey: isAnonymous(other, c, s.content) ? 'campaign.sera.vaiAlBigliettinoAnonimo' : 'campaign.sera.vaiAlBigliettino',
+            labelKey: isAnonymous(other, c, s.content) ? 'campaign.sera.spostaSpilloAnonimo' : 'campaign.sera.spostaSpillo',
             params: { nome: charName(s, other.author) },
-            kind: 'testo',
+            icon: 'spillo',
+            kind: 'secondario',
             onClick: () => {
+              const err = controller.mutate((d) => movePin(d.campaign as CampaignStateX, s.content, other.id, noteId, guess ?? undefined), 'spillo');
+              if (err) {
+                error = err;
+                render();
+                return;
+              }
               s.ui.closeOverlay();
-              void s.ui.openOverlay('cp-nota', { noteId: other.id, from: 'sera' });
             },
             test: `cp-vai-${other.id}`,
           }),

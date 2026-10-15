@@ -28,7 +28,7 @@ import { svgIcon } from '../../core/ui/glyphs';
 import * as tombolo from '../../tombolo/index';
 import { activeNight } from '../../tombolo/index';
 import { controller, nightRulePage } from '../controller';
-import { bookPageByAda, bookPages, currentPista, markBookSeen, newBookPages, questionOf, quirkRevealed } from '../diary';
+import { bookPageByAda, bookPages, currentPista, markBookSeen, newBookPages, questionOf, quirkDissolved, quirkRevealed } from '../diary';
 import { dayIndexOf } from '../evening';
 import { notePaper, noteMarks } from '../notes';
 import { memoriaInPlay } from '../memoria';
@@ -176,19 +176,32 @@ export function renderBigliettini(s: Services, box: HTMLElement, o: TaccuinoOpts
       }
       list.appendChild(item);
     }
+    // «Torna alla sera» (Q012): prima della prima ora fissata gli spilli si possono cambiare.
+    if (!o.noteId && controller.canGoBackToEvening()) {
+      list.appendChild(
+        el(
+          'div',
+          { class: 'cp-torna-sera', test: 'cp-torna-sera-box' },
+          textOf('campaign.taccuino.tornaSeraTesto', undefined, 'p', { className: 'cp-tenue' }),
+          button({ labelKey: 'campaign.taccuino.tornaSera', icon: 'indietro', kind: 'secondario', onClick: () => void controller.backToEvening(), test: 'cp-torna-sera' }),
+        ),
+      );
+    }
     // Sotto le richieste, l'elenco completo degli obiettivi del tombolo (C08); se il
     // tombolo non lo offre, il conteggio di prima.
     let objectives: HTMLElement | null = null;
     if (!o.noteId) {
       objectives = objectivesFor(cache, night);
+      if (objectives && p.goals.length === 0 && !objectives.textContent?.trim()) objectives = null;
       if (!objectives && p.goals.length > 0) {
         const goals = night.session.goalStatus();
         const ok = goals.filter((g) => g.status === 'soddisfatta').length;
         objectives = el('p', { class: 'cp-obiettivi', test: 'cp-obiettivi-notte' }, svgIcon('stella', { size: 16 }), textOf('campaign.taccuino.obiettivi', { fatti: ok, totale: goals.length }, 'span'));
       }
     }
-    // Nelle notti senza bigliettini niente «Nessuna richiesta» se ci sono gli obiettivi.
-    if (list.childElementCount === 0 && (!objectives || p.origin === 'campagna')) list.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
+    // Nelle notti senza bigliettini niente «Nessuna richiesta» se ci sono gli obiettivi (Q066):
+    // il pannello si intitola «Obiettivi».
+    if (only.length === 0 && !objectives) list.appendChild(textOf('campaign.taccuino.nessunaRichiesta', undefined, 'p', { className: 'cp-tenue' }));
     if (objectives) list.appendChild(el('div', { class: 'cp-obiettivi-lista', test: 'cp-obiettivi-notte-lista' }, objectives));
     box.appendChild(list);
     return;
@@ -277,7 +290,20 @@ function renderPersone(s: Services, box: HTMLElement, k: Knowledge, seenMark: nu
     );
     card.appendChild(head);
     const quirks = def.quirks.filter((q) => quirkRevealed(q, id, k, s.content));
-    for (const q of quirks) card.appendChild(el('p', { class: 'cp-persona-stranezza', test: `cp-stranezza-${q}` }, svgIcon('info', { size: 16 }), textOf(`campaign.stranezze.${q}`, undefined, 'span'), textOf('campaign.taccuino.fonte.visto', undefined, 'span', { className: 'cp-voce-fonte' })));
+    for (const q of quirks) {
+      // Una stranezza sciolta dalla storia (la pace di g18 scioglie quelle di Teresa e di
+      // Marta) si legge al passato: barrata, con «sciolta» (Q056).
+      const gone = !!c && quirkDissolved(q, c.flags);
+      card.appendChild(
+        el(
+          'p',
+          { class: ['cp-persona-stranezza', gone ? 'cp-persona-stranezza--sciolta' : null], test: `cp-stranezza-${q}`, data: { sciolta: gone ? '1' : '0' } },
+          svgIcon(gone ? 'spunta' : 'info', { size: 16 }),
+          textOf(`campaign.stranezze.${q}`, undefined, gone ? 's' : 'span'),
+          textOf(gone ? 'campaign.taccuino.stranezzaSciolta' : 'campaign.taccuino.fonte.visto', undefined, 'span', { className: 'cp-voce-fonte' }),
+        ),
+      );
+    }
     const knowsDesire = k.desires.includes(id);
     card.appendChild(
       el('p', { class: 'cp-persona-desiderio', test: `cp-desiderio-${id}`, data: { noto: knowsDesire ? '1' : '0' } }, textOf('campaign.taccuino.desiderio', undefined, 'span', { className: 'cp-tenue' }), knowsDesire && def.desireKey ? textOf(def.desireKey, undefined, 'span', { rich: true }) : el('span', { class: 'cp-ignoto', text: '?' })),
@@ -427,6 +453,56 @@ function syncStrip(strip: HTMLElement): void {
   strip.classList.toggle('cp-schede--dopo', more && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 1);
 }
 
+/**
+ * Le schede si vedono tutte (Q008, Q020, Q037): in una riga se ci stanno, altrimenti su
+ * due righe bilanciate (3 + 3, 3 + 2…), e su tre se nemmeno così ci stanno le etichette.
+ * Nessuna scheda resta tagliata o fuori dal pannello. Restituisce le righe usate.
+ */
+export function fitStrip(strip: HTMLElement): number {
+  const tabs = [...strip.querySelectorAll<HTMLElement>('[role="tab"]')];
+  const n = tabs.length;
+  strip.classList.remove('cp-schede--righe');
+  strip.style.removeProperty('--cp-schede-colonne');
+  if (n === 0 || strip.clientWidth <= 0) return 1;
+  const fits = (): boolean => strip.scrollWidth <= strip.clientWidth + 1 && tabs.every((t) => t.scrollWidth <= t.clientWidth + 1);
+  let rows = 1;
+  if (!fits()) {
+    for (rows = 2; rows <= 3; rows++) {
+      strip.classList.add('cp-schede--righe');
+      strip.style.setProperty('--cp-schede-colonne', String(Math.ceil(n / rows)));
+      if (fits()) break;
+    }
+    rows = Math.min(rows, 3);
+  }
+  strip.dataset.righe = String(rows);
+  syncStrip(strip);
+  return rows;
+}
+
+/** Firma dello stato della notte che i pannelli mostrano e che può cambiare senza eventi. */
+export function nightSignature(): string {
+  const n = activeNight();
+  if (!n) return '';
+  return `${n.params.level.id}|${(n.session.dropped ?? []).join(',')}|${n.completed ? 1 : 0}|${n.session.rows?.length ?? 0}`;
+}
+
+/**
+ * Guarda la notte in corso (ogni 250 ms, solo mentre il pannello è montato) e chiama
+ * `onChange` quando cambia qualcosa che non passa dal bus: uno spillo lasciato cadere
+ * dal gettone del tombolo (Q014). Restituisce la funzione che smette di guardare.
+ */
+export function watchNight(alive: () => boolean, onChange: () => void, ms = 250): Unsub {
+  let last = nightSignature();
+  const timer = setInterval(() => {
+    if (!alive()) return;
+    const now = nightSignature();
+    if (now === last) return;
+    last = now;
+    onChange();
+  }, ms);
+  return () => clearInterval(timer);
+}
+
 /** Pannello 'taccuino'. */
 export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown): PanelHandle {
   const o = (raw ?? {}) as TaccuinoOpts;
@@ -499,12 +575,15 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
       barBox.appendChild(bar.el);
       const strip = bar.el;
       strip.addEventListener('scroll', () => syncStrip(strip), { passive: true });
+      fitStrip(strip);
     }
     bar?.select(current);
     if (bar) {
       const strip = bar.el;
-      // La scheda scelta resta in vista nella riga che scorre (D10).
+      // Tutte le schede in vista (una, due o tre righe); la scelta resta in vista.
       requestAnimationFrame(() => {
+        if (!strip.isConnected) return;
+        fitStrip(strip);
         strip.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
         syncStrip(strip);
       });
@@ -542,6 +621,20 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
   };
 
   render();
+  // La larghezza del pannello cambia (rotazione, testo più grande): le schede si ridispongono.
+  let resizeObs: ResizeObserver | null = null;
+  if (typeof ResizeObserver === 'function') {
+    let lastW = -1;
+    resizeObs = new ResizeObserver(() => {
+      const strip = bar?.el;
+      if (!strip || !strip.isConnected) return;
+      const w = barBox.clientWidth;
+      if (w === lastW) return;
+      lastW = w;
+      fitStrip(strip);
+    });
+    resizeObs.observe(barBox);
+  }
   // Le voci viste adesso non sono più nuove alla prossima apertura (GDD 5.8: le già lette
   // si riassumono in una riga). L'overlay le segna lette appena si apre; il pannello fisso
   // del layout largo, che resta sempre aperto, quando la scena lo smonta.
@@ -554,10 +647,29 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
     }, 'taccuino', false);
   };
   if (c0 && (c0.diarySeen ?? 0) < k0.diary.length && !o.fixed) markSeen();
+  // Il Taccuino fisso «si apre un attimo» (GDD 9) quando arriva una voce nuova: si accende,
+  // senza avvisi sopra il merletto (Q069, Q075).
+  let diaryCount = k0.diary.length;
+  let flashTimer: ReturnType<typeof setTimeout> | null = null;
+  const flash = (): void => {
+    root.classList.remove('cp-taccuino--lampo');
+    void root.offsetWidth;
+    root.classList.add('cp-taccuino--lampo');
+    if (flashTimer) clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => root.classList.remove('cp-taccuino--lampo'), 1400);
+  };
   const offs: Unsub[] = [
     controller.onChange(() => {
-      if (root.isConnected) render();
+      if (!root.isConnected) return;
+      const n = controller.knowledge().diary.length;
+      if (o.fixed && n > diaryCount) flash();
+      diaryCount = n;
+      render();
     }),
+    () => {
+      if (flashTimer) clearTimeout(flashTimer);
+      resizeObs?.disconnect();
+    },
   ];
   // La bozza cambia lo stato «si compie se fissi l'ora» (C07): anche night:cross.
   for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'quirk:discovered'] as const) {
@@ -567,6 +679,15 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
       }),
     );
   }
+  // Spilli lasciati cadere dal gettone del tombolo (Q014): senza evento sul bus.
+  offs.push(
+    watchNight(
+      () => root.isConnected,
+      () => {
+        if (root.isConnected && current === 'bigliettini') renderBody();
+      },
+    ),
+  );
   // Il tombolo monta i pannelli prima che la notte sia attiva: quando la scena è entrata
   // le schede (Bigliettini durante una notte con richieste) e lo stato dal vivo cambiano.
   offs.push(
@@ -600,7 +721,8 @@ export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unkn
   const titleKey = (): string => {
     const n = activeNight();
     const origin = n?.params.origin ?? o.origin;
-    return origin && origin !== 'campagna' && (n?.params.accepted.length ?? 0) === 0 ? 'campaign.taccuino.obiettiviTitolo' : 'campaign.taccuino.schede.bigliettini';
+    if (n) return n.params.accepted.length === 0 && (n.params.goals.length > 0 || origin !== 'campagna') ? 'campaign.taccuino.obiettiviTitolo' : 'campaign.taccuino.schede.bigliettini';
+    return origin && origin !== 'campagna' ? 'campaign.taccuino.obiettiviTitolo' : 'campaign.taccuino.schede.bigliettini';
   };
   let title = textOf(titleKey(), undefined, 'h2', { className: 'cp-taccuino-titolo' });
   const root = el('section', { class: 'cp-taccuino cp-pannello-bigliettini core-solid', test: 'cp-pannello-bigliettini' }, title);
@@ -633,6 +755,9 @@ export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unkn
     });
   };
   for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'scene:enter'] as const) offs.push(s.bus.on(ev, later));
+  // Uno spillo lasciato cadere dal gettone del tombolo non ha un evento sul bus (Q014):
+  // il pannello guarda lo stato della notte e si ridisegna appena cambia.
+  offs.push(watchNight(() => root.isConnected, later));
   return {
     update: render,
     destroy() {

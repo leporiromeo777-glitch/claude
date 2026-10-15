@@ -119,7 +119,8 @@ const OBJECT_IMAGES: Record<string, string> = {
   pagina_strappata: 'obj/libro',
   fuso_faro: 'obj/fuso_faro',
   bottiglia: 'obj/bottiglia',
-  bottiglia_nodo_nero: 'obj/bottiglia',
+  // Vuota, con un nodo di filo nero (Q039): `EMPTY_BOTTLE` in ui.ts.
+  bottiglia_nodo_nero: 'obj/bottiglia_vuota',
   fascio_lettere: 'obj/fascio_lettere',
   nastro_nonna: 'obj/forbici',
 };
@@ -250,6 +251,32 @@ export function unpinNote(s: CampaignStateX, noteId: NoteId): void {
   if (!ev) return;
   ev.accepted = ev.accepted.filter((a) => a.noteId !== noteId);
   if (!ev.replies[noteId] && !(s.left ?? []).includes(noteId)) s.decided = (s.decided ?? []).filter((x) => x !== noteId);
+}
+
+/**
+ * Sposta lo spillo da un bigliettino appuntato a un altro, in un passo solo (Q007): con gli
+ * spilli finiti, «Sposta qui lo spillo di Bepi» toglie lo spillo a Bepi e appunta subito il
+ * bigliettino aperto. Se il nuovo non si può appuntare (un anonimo senza autore scelto),
+ * non cambia niente e restituisce l'errore.
+ */
+export function movePin(s: CampaignStateX, db: Db, from: NoteId, to: NoteId, guess?: CharacterId): EveningError | null {
+  const ev = evening(s);
+  if (!ev) return 'nessunaSera';
+  const old = ev.accepted.find((a) => a.noteId === from);
+  if (!old) return pinNote(s, db, to, guess);
+  if (ev.accepted.some((a) => a.noteId === to)) return null;
+  const note = db.notes.get(to);
+  if (!note || !ev.noteIds.includes(to)) return 'sconosciuto';
+  if (!note.request && !note.ending) return 'senzaRichiesta';
+  if (isAnonymous(note, s, db) && !guess) return 'chi';
+  const decidedBefore = [...(s.decided ?? [])];
+  unpinNote(s, from);
+  const err = pinNote(s, db, to, guess);
+  if (err) {
+    ev.accepted.push(old);
+    s.decided = decidedBefore;
+  }
+  return err;
 }
 
 /** Risponde a un bigliettino (R1 o R2): gli effetti valgono subito. */

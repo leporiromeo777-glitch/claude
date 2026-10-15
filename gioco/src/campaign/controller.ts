@@ -21,6 +21,7 @@ import type {
   MusicState,
   NightOutcome,
   NightParams,
+  Playing,
   SaveData,
   SceneId,
   Services,
@@ -39,6 +40,7 @@ import { animDelay, charName, isWide } from './ui';
 import { plainText } from '../core/ui/richtext';
 import { clearNightBars, showNightBar, showNightNotice } from './nightbar';
 import { newBookPages } from './diary';
+import { scoreFromOutcome } from './score';
 
 export interface CampaignController {
   newGame(): Promise<void>;
@@ -72,6 +74,13 @@ export interface BilancioParams {
 }
 
 const NIGHT_TO_DAWN_MS = 1600;
+/**
+ * Fine della notte da gustare (R2-D5): il merletto finito resta almeno 2,5 s con il suo
+ * carillon, poi un tocco su «Continua» (o l'avanzamento automatico) porta avanti.
+ */
+export const LACE_HOLD_MS = 2500;
+/** Il carillon del merletto finito parte dopo il suono del successo. */
+const LACE_CARILLON_DELAY_MS = 700;
 
 type Listener = () => void;
 
@@ -87,6 +96,10 @@ export class CampaignControllerImpl implements CampaignController {
   private held: { key: string; params?: Record<string, string | number> }[] = [];
   /** Avvisi appena mostrati (per toglierli se l'alba arriva mentre sono ancora sullo schermo). */
   private recent: { key: string; params?: Record<string, string | number>; at: number }[] = [];
+  /** Il carillon del merletto appena finito (R2-D5): l'alba lo prende e lo lascia suonare. */
+  private laceCarillon: { levelId: LevelId; playing: Playing | null; timer: ReturnType<typeof setTimeout> | null } | null = null;
+  /** «Torna alla sera» (Q012): la notte di questo livello, lasciata prima della prima ora, non si riprende. */
+  private backToEveningOf: LevelId | null = null;
 
   constructor(private readonly svc: () => Services = () => services) {}
 
@@ -156,6 +169,8 @@ export class CampaignControllerImpl implements CampaignController {
     bus.on('scene:enter', ({ id }) => {
       if (this.pendingNav?.scene === id) this.pendingNav = null;
       try {
+        // Il carillon del merletto finito continua nell'alba (che lo prende); altrove si ferma.
+        if (id !== 'alba' && id !== 'tombolo') this.stopLaceCarillon();
         if (id === 'tombolo') this.nightStarted();
         else if (id !== 'alba') this.flushNotices();
       } catch (err) {
@@ -193,8 +208,12 @@ export class CampaignControllerImpl implements CampaignController {
         this.announceDiary(fresh);
         // Il Taccuino "si apre un attimo" (GDD 9): la voce nuova in un avviso. Se la notte
         // è appena finita l'avviso aspetta la fine dell'alba (D11): non copre le vignette.
+        // Di notte, nel tombolo, la voce nuova non esce in un avviso (Q069, Q075): il tombolo
+        // spiega già la stranezza (riga del motivo e nota a margine), e un avviso coprirebbe le
+        // righe basse del merletto. Resta «Nuova» nel Taccuino (il pannello fisso si accende
+        // un attimo) e torna nel bilancio in «Nel Taccuino».
         const first = fresh.map((id) => this.s.content.diary.get(id)).find((x) => !!x);
-        if (first) setTimeout(() => this.notice(first.textKey), 0);
+        if (first) setTimeout(() => this.notice(first.textKey, undefined, origin ?? null), 0);
       } catch (err) {
         console.error('[campaign] quirk:discovered failed', err);
       }
@@ -221,7 +240,9 @@ export class CampaignControllerImpl implements CampaignController {
     } else if (outcome.origin === 'telaio') {
       const rec = this.mutate((d) => flow.completeReplay(d, outcome), 'telaio');
       const params: BilancioParams = { telaio: { levelId: outcome.levelId, metrics: outcome.metrics, record: rec, spartito: outcome.spartito, rows: outcome.rows } };
-      this.afterNight(outcome, () => this.go({ scene: 'bilancio', params }));
+      // Un Ripassa (modo 'replay') si è già goduto ritessendosi; un Rigioca resta sul merletto (R2-D5).
+      if (activeNight()?.params.mode === 'replay') this.afterNight(outcome, () => this.go({ scene: 'bilancio', params }));
+      else this.holdLace(outcome, () => this.go({ scene: 'bilancio', params }), { labelKey: 'campaign.notte.continua', test: 'cp-notte-continua' });
     }
   }
 
@@ -233,6 +254,20 @@ export class CampaignControllerImpl implements CampaignController {
    * della storia. Se l'app viene chiusa senza uscire dalla notte, si riprende anche quella.
    */
   private onNightExit(origin: NightParams['origin']): void {
+    // «Torna alla sera» (Q012): il tombolo, uscendo, salva ancora la notte: si toglie.
+    const back = this.backToEveningOf;
+    if (back) {
+      this.backToEveningOf = null;
+      if (origin === 'campagna' && this.data().night?.params.levelId === back) {
+        this.s.save.update(
+          (d) => {
+            if (d.night?.origin === 'campagna' && d.night.params.levelId === back) d.night = null;
+          },
+          { immediate: true, reason: 'torna alla sera' },
+        );
+      }
+      return;
+    }
     const phase = this.state()?.phase;
     const optional = origin === 'telaio' || (origin === 'archivio' && phase !== 'archivio');
     if (!optional || this.data().night?.origin !== origin) return;
@@ -247,7 +282,8 @@ export class CampaignControllerImpl implements CampaignController {
   private closeDay(outcome: NightOutcome): DayReport {
     const report = this.mutate((d) => flow.completeDay(d, this.s.content, outcome), 'giornata');
     this.announceDiary(report.newDiary);
-    this.afterNight(outcome, () => this.go({ scene: 'alba' }));
+    // R2-D5: il merletto finito resta con il carillon, poi un tocco porta all'alba.
+    this.holdLace(outcome, () => this.go({ scene: 'alba' }), { labelKey: 'campaign.notte.allAlba', test: 'cp-notte-continua' });
     return report;
   }
 
@@ -262,19 +298,29 @@ export class CampaignControllerImpl implements CampaignController {
     this.announceDiary(r.newDiary);
     const toFinale = (): void => this.go({ scene: 'finale', params: { mode: r.kind, ending: r.ending } satisfies FinaleParams });
     if (r.kind === 'chiuso') this.afterNight(outcome, toFinale, 0);
-    else if (r.kind === 'epilogo') this.afterNight(outcome, () => void showNightBar(this.s, { labelKey: 'campaign.finale.continua', test: 'cp-finale-continua', onClick: toFinale }), 0);
+    else if (r.kind === 'epilogo') this.holdLace(outcome, toFinale, { labelKey: 'campaign.finale.continua', test: 'cp-finale-continua', autoAdvance: false });
     else this.afterNight(outcome, toFinale, NIGHT_TO_DAWN_MS);
     return r;
   }
 
   // ───────── Avvisi ─────────
 
-  /** Un avviso del Taccuino: subito, oppure dopo l'alba se la notte è appena finita. */
-  notice(key: string, params?: Record<string, string | number>): void {
+  /**
+   * Un avviso del Taccuino: subito, oppure dopo l'alba se la notte è appena finita.
+   * Durante una notte nel tombolo non esce mai (Q069, Q075): in una notte della storia la
+   * voce torna nel bilancio («Nel Taccuino»), in un merletto d'Archivio esce quando si
+   * lascia il tombolo.
+   */
+  notice(key: string, params?: Record<string, string | number>, origin: string | null = null): void {
     const night = activeNight();
-    const ending = !!night && (!!night.completed || !!(night.session as { done?: boolean }).done);
     const scene = this.s.scenes.current();
-    if (scene === 'alba' || (scene === 'tombolo' && ending && night?.params.origin === 'campagna')) {
+    if (scene === 'tombolo' && night) {
+      const from = origin ?? night.params.origin;
+      if (from === 'campagna' && this.state()?.phase !== 'finale') return;
+      this.held.push(params ? { key, params } : { key });
+      return;
+    }
+    if (scene === 'alba') {
       this.held.push(params ? { key, params } : { key });
       return;
     }
@@ -326,6 +372,7 @@ export class CampaignControllerImpl implements CampaignController {
     if (this.pendingTimer) clearTimeout(this.pendingTimer);
     this.pendingTimer = null;
     clearNightBars();
+    this.stopLaceCarillon();
   }
 
   /** Stato della navigazione (debug). */
@@ -353,6 +400,113 @@ export class CampaignControllerImpl implements CampaignController {
     // Anche senza attesa si passa al turno dopo: il tombolo segna la notte come
     // completata subito dopo aver emesso night:complete.
     this.pendingTimer = setTimeout(run, Math.max(0, animDelay(this.s, ms)));
+  }
+
+  /**
+   * Fine della notte da gustare (R2-D5): il merletto finito resta sullo schermo almeno
+   * `LACE_HOLD_MS` mentre suona il suo carillon; poi compare «Continua» (`o.test`) e un
+   * tocco porta avanti. Con l'avanzamento automatico si va avanti da soli dopo l'attesa.
+   * Il pulsante principale del tombolo, spento, si nasconde sotto la barra (Q031).
+   */
+  private holdLace(outcome: NightOutcome, then: () => void, o: { labelKey: string; test: string; autoAdvance?: boolean }): void {
+    if (this.suppressNav > 0) return;
+    if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    this.startLaceCarillon(outcome);
+    const still = (): boolean => this.s.scenes.current() === 'tombolo' && activeNight()?.completed?.levelId === outcome.levelId;
+    const go = (): void => {
+      if (still()) then();
+    };
+    this.pendingTimer = setTimeout(() => {
+      this.pendingTimer = null;
+      if (!still()) return;
+      if (o.autoAdvance !== false && this.s.settings.get().autoAdvance) {
+        go();
+        return;
+      }
+      showNightBar(this.s, { labelKey: o.labelKey, test: o.test, onClick: go });
+    }, LACE_HOLD_MS);
+  }
+
+  /** Il carillon del merletto appena finito (R2-D5), dopo il suono del successo. */
+  private startLaceCarillon(outcome: NightOutcome): void {
+    this.stopLaceCarillon();
+    const level = this.s.content.levels.get(outcome.levelId);
+    if (!level || (outcome.rows.length === 0 && outcome.events.length === 0)) return;
+    const entry: { levelId: LevelId; playing: Playing | null; timer: ReturnType<typeof setTimeout> | null } = { levelId: outcome.levelId, playing: null, timer: null };
+    entry.timer = setTimeout(() => {
+      entry.timer = null;
+      if (this.laceCarillon !== entry) return;
+      try {
+        const p = this.s.audio.carillon(scoreFromOutcome(level, outcome, this.s.content.balance.anim.beatMs));
+        entry.playing = p;
+        void p.done.then(
+          () => {
+            if (this.laceCarillon === entry) this.laceCarillon = null;
+          },
+          () => undefined,
+        );
+      } catch {
+        if (this.laceCarillon === entry) this.laceCarillon = null;
+      }
+    }, LACE_CARILLON_DELAY_MS);
+    this.laceCarillon = entry;
+  }
+
+  /** Ferma il carillon del merletto finito (se c'è). */
+  stopLaceCarillon(): void {
+    const e = this.laceCarillon;
+    this.laceCarillon = null;
+    if (!e) return;
+    if (e.timer) clearTimeout(e.timer);
+    try {
+      e.playing?.stop();
+    } catch {
+      /* già fermo */
+    }
+  }
+
+  /**
+   * L'alba prende il carillon del merletto appena finito, se suona ancora (così non
+   * ricomincia da capo): lo restituisce (lo fermerà lei); null se deve suonare il suo.
+   */
+  adoptLaceCarillon(levelId: LevelId): Playing | null {
+    const e = this.laceCarillon;
+    if (!e || e.levelId !== levelId) return null;
+    if (e.playing) {
+      this.laceCarillon = null;
+      return e.playing;
+    }
+    // Non è ancora partito: si annulla, l'alba suona il suo.
+    this.stopLaceCarillon();
+    return null;
+  }
+
+  /**
+   * «Torna alla sera» (Q012): prima di fissare la prima ora di una notte della storia si
+   * può tornare alla sera e cambiare gli spilli, senza conseguenze. Vero se è possibile adesso.
+   */
+  canGoBackToEvening(): boolean {
+    const c = this.state();
+    const night = activeNight();
+    if (!c || c.phase !== 'notte' || !night || night.completed) return false;
+    const p = night.params;
+    if (p.origin !== 'campagna' || p.level.id !== c.levelId || p.mode === 'replay') return false;
+    return (night.session.rows?.length ?? 0) === 0 && (c.evening?.noteIds.length ?? 0) > 0;
+  }
+
+  backToEvening(): boolean {
+    if (!this.canGoBackToEvening()) return false;
+    const levelId = this.state()?.levelId ?? null;
+    this.backToEveningOf = levelId;
+    this.mutate((d) => {
+      const c = d.campaign as CampaignStateX | null;
+      if (!c || c.phase !== 'notte') return;
+      c.phase = 'sera';
+      if (c.evening) c.evening.ignored = [];
+      if (d.night?.origin === 'campagna') d.night = null;
+    }, 'torna alla sera');
+    this.nav('sera');
+    return true;
   }
 
   // ───────── Navigazione ─────────

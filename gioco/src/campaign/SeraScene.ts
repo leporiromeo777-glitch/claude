@@ -31,7 +31,7 @@ import { choiceCards } from './endings';
 import { eveningMode, levelOf, ripassaAvailable } from './flow';
 import { Backdrop, dayLabel, SideNotebook } from './frame';
 import { notePaper, noteMarks } from './notes';
-import { handOf, sceneHost, spriteCanvas, unloadImages } from './ui';
+import { handOf, sceneHost, spriteCanvas, tapKey, unloadImages } from './ui';
 import type { CampaignStateX } from './types';
 
 export class SeraScene implements Scene {
@@ -49,6 +49,11 @@ export class SeraScene implements Scene {
   private active = false;
   /** Si sta già andando al tombolo (niente doppie partenze con un doppio tocco). */
   private leaving = false;
+  /**
+   * Fino a quando ignorare i pulsanti della sera dopo la chiusura di un foglio (Q006): un
+   * secondo tocco su «Continua» non deve arrivare ad «Al tombolo», che sta sotto.
+   */
+  private quietUntil = 0;
 
   constructor(private readonly s: Services) {}
 
@@ -61,6 +66,7 @@ export class SeraScene implements Scene {
     this.side = new SideNotebook(this.s, { from: 'sera' });
     this.root.append(this.backdrop.el, this.main, this.side.column);
     sceneHost(this.s).appendChild(this.root);
+    this.main.addEventListener('scroll', () => this.syncScrollCue(), { passive: true });
 
     if (cmd.cmd === 'nuova' && controller.state() && !cmd.confirmed) {
       // Nuova storia con un salvataggio: conferma (la storia e il Taccuino ricominciano).
@@ -133,6 +139,33 @@ export class SeraScene implements Scene {
     else this.renderEvening(main, c);
     this.side?.update();
     if (focusedTest) main.querySelector<HTMLElement>(`[data-test="${CSS.escape(focusedTest)}"]`)?.focus({ preventScroll: true });
+    this.syncScrollCue();
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => this.syncScrollCue());
+  }
+
+  /**
+   * L'elenco scorre sotto il piede (Q004): l'altezza del piede va in `--cp-piede-h` (i
+   * bigliettini tornano in vista sopra i pulsanti) e, finché sotto c'è altro, sul bordo
+   * del piede compare la freccia che scorre (`cp-sera-scorri`).
+   */
+  private syncScrollCue(): void {
+    const main = this.main;
+    if (!main) return;
+    const foot = main.querySelector<HTMLElement>(':scope > .cp-sera-piede');
+    if (foot) main.style.setProperty('--cp-piede-h', `${Math.round(foot.offsetHeight)}px`);
+    const more = main.scrollHeight - main.clientHeight - main.scrollTop > 8;
+    main.classList.toggle('cp-sera--altro', more);
+  }
+
+  /** Dopo un foglio chiuso: niente tocchi fantasma, e il bigliettino toccato torna in vista. */
+  private afterOverlay(noteId?: string): void {
+    this.quietUntil = Date.now() + 450;
+    if (!noteId || !this.main) return;
+    this.main.querySelector<HTMLElement>(`[data-test="cp-bigliettino-${CSS.escape(noteId)}"]`)?.scrollIntoView?.({ block: 'nearest' });
+  }
+
+  private quiet(): boolean {
+    return Date.now() < this.quietUntil;
   }
 
   // ───────── Prologo (GDD 9) ─────────
@@ -144,7 +177,7 @@ export class SeraScene implements Scene {
         'button',
         { type: 'button', class: 'cp-prologo-buio', test: 'cp-prologo-buio' },
         textOf('campaign.prologo.notte', undefined, 'p', { className: 'cp-prologo-riga' }),
-        textOf('campaign.prologo.tocca', undefined, 'p', { className: 'cp-prologo-tocca' }),
+        textOf(tapKey('campaign.prologo.tocca'), undefined, 'p', { className: 'cp-prologo-tocca' }),
       );
       box.addEventListener('click', () => this.advancePrologue());
       main.appendChild(box);
@@ -162,7 +195,7 @@ export class SeraScene implements Scene {
     // Il biglietto appuntato sul tombolo (CAM-10): il tombolo al centro, lo spillo sul foglio.
     const pin = el('span', { class: 'cp-biglietto-spillo', attrs: { 'aria-hidden': 'true' } }, svgIcon('spillo', { size: 22 }));
     const table = el('div', { class: 'cp-prologo-tombolo' }, spriteCanvas(this.s, 'obj/tombolo', 220, { className: 'cp-prologo-tombolo-figura' }), el('div', { class: 'cp-prologo-biglietto' }, pin, note));
-    const go = button({ labelKey: 'campaign.prologo.tombolo', kind: 'primario', size: 'grande', onClick: () => this.goNight(), test: 'cp-prologo-tombolo' });
+    const go = button({ labelKey: tapKey('campaign.prologo.tombolo'), kind: 'primario', size: 'grande', onClick: () => this.goNight(), test: 'cp-prologo-tombolo' });
     go.prepend(spriteCanvas(this.s, 'obj/tombolo', 40));
     main.append(
       el('header', { class: 'cp-sera-testa cp-fascia', test: 'cp-prologo-titolo' }, el('div', { class: 'cp-sera-intestazione' }, textOf(lab.key, lab.params, 'p', { className: 'cp-sera-giornata' }), textOf('comune.atti.0.sottotitolo', undefined, 'h1', { className: 'cp-sera-titolo' }))),
@@ -187,7 +220,7 @@ export class SeraScene implements Scene {
       { type: 'button', class: 'cp-prologo-buio cp-atto-cartello', test: 'cp-atto-cartello', data: { atto: String(act) } },
       textOf(`comune.atti.${act}.sottotitolo`, undefined, 'p', { className: 'cp-atto-stagione' }),
       textOf(`comune.atti.${act}.titolo`, undefined, 'h1', { className: 'cp-prologo-riga cp-atto-titolo' }),
-      textOf('campaign.prologo.tocca', undefined, 'p', { className: 'cp-prologo-tocca' }),
+      textOf(tapKey('campaign.prologo.tocca'), undefined, 'p', { className: 'cp-prologo-tocca' }),
     );
     card.addEventListener('click', () => this.closeActCard());
     main.appendChild(card);
@@ -242,10 +275,12 @@ export class SeraScene implements Scene {
       'button',
       { type: 'button', class: 'cp-porta core-solid', test: 'cp-oggetto', data: { da: arrival.from } },
       first?.image ? spriteCanvas(this.s, first.image, 72) : svgIcon('nota', { size: 40 }),
-      el('span', { class: 'cp-porta-testo' }, el('span', { class: 'cp-porta-titolo', test: 'cp-sera-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })), textOf('campaign.sera.oggettoTocca', undefined, 'span', { className: 'cp-tenue' })),
+      el('span', { class: 'cp-porta-testo' }, el('span', { class: 'cp-porta-titolo', test: 'cp-sera-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })), textOf(tapKey('campaign.sera.oggettoTocca'), undefined, 'span', { className: 'cp-tenue' })),
     );
     door.addEventListener('click', () => {
+      if (this.quiet()) return;
       void this.s.ui.openOverlay('cp-oggetto', { from: 'sera' }).then(() => {
+        this.afterOverlay();
         // Chiuso senza «Continua» (Indietro): l'oggetto è letto lo stesso (C03).
         if (!this.active || controller.state()?.evening?.objectSeen) return;
         const fresh = controller.objectSeen();
@@ -265,7 +300,10 @@ export class SeraScene implements Scene {
     if (m.reply) marks.appendChild(el('span', { class: 'cp-segno' }, svgIcon('matita', { size: 16 }), textOf('campaign.sera.segnoRisposto', undefined, 'span')));
     if (m.left && !m.pinned) marks.appendChild(el('span', { class: 'cp-segno' }, textOf('campaign.sera.segnoLasciato', undefined, 'span')));
     const b = el('button', { type: 'button', class: ['cp-bigliettino', m.pinned ? 'cp-appuntato' : null, m.left && !m.pinned ? 'cp-lasciato' : null], test: `cp-bigliettino-${id}` }, notePaper(this.s, note, c), marks);
-    b.addEventListener('click', () => void this.s.ui.openOverlay('cp-nota', { noteId: id, from: 'sera' }));
+    b.addEventListener('click', () => {
+      if (this.quiet()) return;
+      void this.s.ui.openOverlay('cp-nota', { noteId: id, from: 'sera' }).then(() => this.afterOverlay(id));
+    });
     return b;
   }
 
@@ -327,11 +365,18 @@ export class SeraScene implements Scene {
     // Taccuino, i bigliettini non decisi contano come lasciati (con una conferma).
     go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
     foot.appendChild(go);
+    // L'elenco continua sotto il piede (Q004): una freccia sul bordo lo dice e lo fa scorrere.
+    const more = el('button', { type: 'button', class: 'cp-sera-scorri', test: 'cp-sera-scorri', label: this.s.i18n.t('campaign.sera.scorri'), title: this.s.i18n.t('campaign.sera.scorri') }, svgIcon('avanti', { size: 22 }));
+    more.addEventListener('click', () => {
+      const main = this.main;
+      if (main) main.scrollBy?.({ top: Math.max(120, main.clientHeight * 0.7), behavior: 'smooth' });
+    });
+    foot.prepend(more);
     return foot;
   }
 
   private goNight(ripassa = false): void {
-    if (this.leaving || !this.active) return;
+    if (this.leaving || !this.active || this.quiet()) return;
     this.leaving = true;
     if (ripassa) controller.ripassa();
     else controller.toNight();
@@ -339,7 +384,7 @@ export class SeraScene implements Scene {
 
   private toNight(): void {
     const c = controller.state();
-    if (!c || this.leaving) return;
+    if (!c || this.leaving || this.quiet()) return;
     const open = undecided(c);
     if (open.length === 0) {
       this.goNight();

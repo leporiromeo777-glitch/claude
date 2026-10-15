@@ -17,7 +17,7 @@ import { el, clear } from '../core/ui/dom';
 import { button, iconButton, textOf } from '../core/ui/components';
 import { plainText } from '../core/ui/richtext';
 import { FIGURINE_IDS } from './dawn';
-import { charChip, charColor, charName, loadImages } from './ui';
+import { charChip, charColor, charName, loadImages, tapKey } from './ui';
 import type { VignetteView } from './types';
 
 /** Durata massima di una vignetta in avanzamento automatico (GDD 3.13). */
@@ -96,7 +96,7 @@ export class VignettePlayer {
     this.canvas = el('canvas', { class: 'cp-vignetta-quadro', attrs: { 'aria-hidden': 'true' } });
     this.who = el('div', { class: 'cp-vignetta-chi' });
     this.text = el('p', { class: 'cp-vignetta-testo', attrs: { 'aria-live': 'polite' }, test: 'cp-vignetta-testo' });
-    this.hint = textOf('campaign.vignetta.tocca', undefined, 'p', { className: 'cp-vignetta-suggerimento' });
+    this.hint = textOf(tapKey('campaign.vignetta.tocca'), undefined, 'p', { className: 'cp-vignetta-suggerimento' });
     this.autoBtn = iconButton({
       icon: 'play',
       labelKey: 'campaign.vignetta.automatico',

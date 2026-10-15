@@ -49,7 +49,7 @@ import {
   type EveningMode,
 } from './evening';
 import { choiceCards, countsAsEnding, endingOfLevel, epilogueOf, finalLevelId } from './endings';
-import { dayUnlocks, endingUnlocks, recordNight } from './progress';
+import { dayUnlocks, endingUnlocks, outcomeCounts, recordNight } from './progress';
 import type { CampaignStateX, DayReport, DayResultX, ReportRequest, SolutionEntry, VignetteView } from './types';
 
 export type Db = Pick<ContentDB, 'levels' | 'computed' | 'notes' | 'diary' | 'balance' | 'letters' | 'campaign' | 'lines' | 'characters' | 'endings' | 'book'>;
@@ -401,9 +401,11 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
     unlocked.push(`archive:${day.archiveAfter}`);
   }
   unlocked.push(...dayUnlocks(d.unlocks, level.id));
-  const rec = recordNight(d, level.id, outcome.metrics, outcome.spartito);
-  unlocked.push(...rec.unlocked);
+  // Record e fili d'oro solo con richieste e obiettivi tutti soddisfatti, per lo stesso
+  // insieme di richieste (R2-D2): un autore sbagliato o uno spillo lasciato cadere non contano.
   const allOk = outcome.goals.every((g) => g.status === 'soddisfatta') && histReqs.every((r) => r.status === 'soddisfatta');
+  const rec = recordNight(d, level.id, outcome.metrics, outcome.spartito, { ok: allOk && outcome.dropped.length === 0, set: ev.accepted.map((a) => a.noteId) });
+  unlocked.push(...rec.unlocked);
   if (allOk) addSolution(c, level.id, ev.accepted.map((a) => a.noteId), outcome.rows, outcome.nomeOn);
 
   // Taccuino.
@@ -439,7 +441,7 @@ export function completeDay(d: SaveData, db: Db, outcome: NightOutcome, now: str
     newDesires: [...log.desires],
     memoria: mem.changes,
     metrics: { ...outcome.metrics },
-    record: { before: rec.before, after: rec.after, improved: rec.improved },
+    record: { before: rec.before, after: rec.after, improved: rec.improved, counted: rec.counted, firstGold: rec.firstGold },
     goldThread: rec.goldThread,
     unlocked,
     spartito: outcome.spartito,
@@ -579,7 +581,7 @@ export function completeArchive(d: SaveData, db: Db, outcome: NightOutcome): Arc
   }
   const c = d.campaign as CampaignStateX | null;
   if (c) refreshDiary(c, k, db, log);
-  const rec = recordNight(d, level.id, outcome.metrics, outcome.spartito);
+  const rec = recordNight(d, level.id, outcome.metrics, outcome.spartito, { ok: mended, set: [] });
   let reveal: VignetteView | null = null;
   if (mended && level.archive?.reveal) {
     reveal = c ? resolveForgotten(toView(level.archive.reveal), c, db) : toView(level.archive.reveal);
@@ -659,7 +661,7 @@ export function completeFinal(d: SaveData, db: Db, outcome: NightOutcome, now: s
   c.lastOutcome = compactOutcome(outcome);
   if (!c.endingsSeen.includes(ending)) c.endingsSeen.push(ending);
   const unlocked = endingUnlocks(d.unlocks, ending, true);
-  const rec = recordNight(d, outcome.levelId, outcome.metrics, outcome.spartito);
+  const rec = recordNight(d, outcome.levelId, outcome.metrics, outcome.spartito, outcomeCounts(outcome));
   unlocked.push(...rec.unlocked);
   refreshDiary(c, k, db);
   c.phase = 'titoli';
@@ -758,9 +760,12 @@ export function replayRipassaParams(d: SaveData, db: Db, levelId: LevelId): Nigh
   return p;
 }
 
-/** Esito di una notte del Telaio: solo record e statistiche. */
+/**
+ * Esito di una notte del Telaio: solo record e statistiche. Conta solo un merletto con
+ * tutte le richieste e gli obiettivi soddisfatti, confrontato con le stesse richieste (R2-D2).
+ */
 export function completeReplay(d: SaveData, outcome: NightOutcome): ReturnType<typeof recordNight> {
-  return recordNight(d, outcome.levelId, outcome.metrics, outcome.spartito);
+  return recordNight(d, outcome.levelId, outcome.metrics, outcome.spartito, outcomeCounts(outcome));
 }
 
 /** Ripassa è possibile stasera: Merletto libero sbloccato e le stesse richieste di una soluzione trovata. */

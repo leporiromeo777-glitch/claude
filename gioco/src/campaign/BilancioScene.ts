@@ -7,16 +7,17 @@
  * Con `{ telaio }` mostra il merletto rigiocato dal Telaio (solo eleganza e record) e
  * torna al Telaio.
  */
-import type { ActionEvent, CharacterId, LaceMetrics, LaceRecord, Playing, Scene, Services, Viewport } from '../core/types';
+import type { ActionEvent, CharacterId, LaceMetrics, Playing, Scene, Services, Viewport } from '../core/types';
 import { el } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
 import { svgIcon } from '../core/ui/glyphs';
 import { controller, type BilancioParams } from './controller';
 import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
-import { charChip, sceneHost } from './ui';
+import { charChip, sceneHost, spriteCanvas } from './ui';
 import type { DayReport } from './types';
-import { showsElegance, type RecordField } from './progress';
+import { showsElegance } from './progress';
+import { availableCosmetics, cosmeticNameKey } from '../screens/cosmetics';
 
 function dots(n: number, max = 3): string {
   return '●'.repeat(Math.max(0, Math.min(max, n))) + '○'.repeat(Math.max(0, max - Math.max(0, n)));
@@ -122,7 +123,9 @@ export class BilancioScene implements Scene {
             { class: 'cp-riga', test: `cp-bilancio-memoria-${m.character}` },
             charChip(s, m.character as CharacterId),
             el('span', { class: 'cp-punti', attrs: { 'aria-hidden': 'true' } }, dots(m.after)),
-            textOf(up ? 'campaign.bilancio.ricorda' : m.after === 0 ? 'campaign.bilancio.dimenticato' : 'campaign.bilancio.dimentica', { n: m.after }, 'span', { className: 'cp-tenue' }),
+            // Le parole dicono quanto ricorda (Q055); la direzione è detta a parte.
+            textOf('campaign.bilancio.memoriaLivello', { n: m.after }, 'span', { className: 'cp-tenue' }),
+            m.after > 0 ? textOf(up ? 'campaign.bilancio.memoriaSu' : 'campaign.bilancio.memoriaGiu', undefined, 'span', { className: 'cp-tenue cp-memoria-verso' }) : null,
           ),
         );
       }
@@ -143,37 +146,63 @@ export class BilancioScene implements Scene {
     }
 
     // Eleganza e record da quando la matassa è visibile (GDD 7: g02).
-    if (showsElegance(s.content.levels.get(r.levelId))) parts.push(this.elegance(r.metrics, r.record.after, r.record.improved, r.goldThread));
+    if (showsElegance(s.content.levels.get(r.levelId))) parts.push(this.elegance(r.metrics, r.record, r.goldThread));
 
-    if (r.unlocked.length > 0) {
-      const list = el('ul', { class: 'cp-lista' });
-      for (const u of r.unlocked) list.appendChild(el('li', { class: 'cp-riga cp-sblocco', test: `cp-bilancio-sblocco-${u}` }, svgIcon('stella', { size: 18 }), this.unlockText(u)));
-      parts.push(this.section('campaign.bilancio.sblocchi', 'cp-bilancio-sblocchi', list));
-    }
+    const unlocks = this.unlocksSection(r.unlocked);
+    if (unlocks) parts.push(unlocks);
 
     parts.push(...this.actions(r.levelId, r.rows, r.spartito, () => controller.afterBilancio()));
     return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
   }
 
-  private unlockText(u: string): HTMLElement {
-    const [kind, id] = u.includes(':') ? (u.split(':') as [string, string]) : [u, ''];
+  /**
+   * «Si apre qualcosa». Un fuso intagliato si annuncia solo se si può scegliere (ha il suo
+   * disegno, `availableCosmetics`): con il nome, l'anteprima e dove si sceglie (Q010, Q058).
+   */
+  private unlocksSection(unlocked: readonly string[], withTest = true): HTMLElement | null {
+    const owned = new Set<string>(availableCosmetics(this.s));
+    const list = el('ul', { class: 'cp-lista' });
+    for (const u of unlocked) {
+      const [kind, id] = u.includes(':') ? (u.split(':') as [string, string]) : [u, ''];
+      if (kind === 'cosmetic' && !owned.has(id)) continue;
+      const icon = kind === 'cosmetic' ? spriteCanvas(this.s, `fuso/${id}`, 40, { className: 'cp-sblocco-fuso' }) : svgIcon('stella', { size: 18 });
+      list.appendChild(el('li', { class: ['cp-riga', 'cp-sblocco', kind === 'cosmetic' ? 'cp-sblocco--fuso' : null], test: withTest ? `cp-bilancio-sblocco-${u}` : undefined }, icon, this.unlockText(kind, id)));
+    }
+    if (list.childElementCount === 0) return null;
+    return this.section('campaign.bilancio.sblocchi', 'cp-bilancio-sblocchi', list);
+  }
+
+  private unlockText(kind: string, id: string): HTMLElement {
     if (kind === 'archive') {
       const lv = this.s.content.levels.get(id);
       return textOf('campaign.sblocchi.archivio', { titolo: lv?.archive ? this.s.i18n.t(lv.archive.titleKey) : id }, 'span');
     }
-    if (kind === 'cosmetic') return textOf('campaign.sblocchi.fuso', { n: id.replace(/^stile_/, '') }, 'span');
+    if (kind === 'cosmetic') {
+      return el('span', { class: 'cp-sblocco-testo' }, textOf('campaign.sblocchi.fusoNome', { nome: this.s.i18n.t(cosmeticNameKey(id)) }, 'span'), textOf('campaign.sblocchi.fusoDove', undefined, 'span', { className: 'cp-tenue cp-sblocco-dove' }));
+    }
     return textOf(`campaign.sblocchi.${kind}`, undefined, 'span');
   }
 
-  private elegance(m: LaceMetrics, rec: LaceRecord, improved: RecordField[], gold: boolean): HTMLElement {
+  /**
+   * Eleganza (R2-D2). I record sono quelli delle stesse richieste e li fa solo un merletto
+   * con tutte le richieste e gli obiettivi soddisfatti: un merletto che non conta lo dice e
+   * non annuncia né «Nuovo record» né il filo d'oro. «Primo filo d'oro» compare una volta
+   * sola nella vita del salvataggio, al posto della riga del filo d'oro (Q016, Q054).
+   */
+  private elegance(m: LaceMetrics, rec: DayReport['record'], gold: boolean): HTMLElement {
     const rows: HTMLElement[] = [];
+    const counted = rec.counted !== false;
     rows.push(el('p', { class: 'cp-riga', test: 'cp-bilancio-incroci' }, textOf(m.minIncroci === null ? 'campaign.bilancio.incrociSenzaMin' : 'campaign.bilancio.incroci', { n: m.incroci, min: m.minIncroci ?? 0 }, 'span')));
-    if (m.filoDOro) rows.push(el('p', { class: 'cp-riga cp-oro', test: 'cp-bilancio-oro' }, svgIcon('stella', { size: 18 }), textOf(gold ? 'campaign.bilancio.filoDOroNuovo' : 'campaign.bilancio.filoDOro', undefined, 'span')));
+    if (m.filoDOro && counted) {
+      const key = rec.firstGold ? 'campaign.bilancio.filoDOroPrimo' : gold ? 'campaign.bilancio.filoDOroNuovo' : 'campaign.bilancio.filoDOro';
+      rows.push(el('p', { class: ['cp-riga', 'cp-oro', rec.firstGold ? 'cp-oro--primo' : null], test: 'cp-bilancio-oro', data: { primo: rec.firstGold ? '1' : '0' } }, svgIcon('stella', { size: 18 }), textOf(key, undefined, 'span')));
+    }
     rows.push(el('p', { class: 'cp-riga' }, textOf('campaign.bilancio.quiete', { n: m.quiete }, 'span')));
     rows.push(el('p', { class: 'cp-riga' }, textOf(m.simmetria ? 'campaign.bilancio.simmetriaSi' : 'campaign.bilancio.simmetriaNo', undefined, 'span')));
-    const recs = el('p', { class: 'cp-riga cp-tenue', test: 'cp-bilancio-record' }, textOf('campaign.bilancio.record', { incroci: rec.minIncroci ?? 0, quiete: rec.maxQuiete ?? 0 }, 'span'));
-    rows.push(recs);
-    for (const f of improved) rows.push(el('p', { class: 'cp-riga cp-nuovo-record', test: `cp-bilancio-nuovo-${f}` }, textOf(`campaign.bilancio.nuovoRecord.${f}`, undefined, 'span')));
+    const after = rec.after;
+    if (after && after.minIncroci !== null) rows.push(el('p', { class: 'cp-riga cp-tenue', test: 'cp-bilancio-record' }, textOf('campaign.bilancio.record', { incroci: after.minIncroci ?? 0, quiete: after.maxQuiete ?? 0 }, 'span')));
+    if (!counted) rows.push(el('p', { class: 'cp-riga cp-tenue', test: 'cp-bilancio-record-escluso' }, textOf('campaign.bilancio.recordNonConta', undefined, 'span')));
+    else for (const f of rec.improved) if (f !== 'filoDOro') rows.push(el('p', { class: 'cp-riga cp-nuovo-record', test: `cp-bilancio-nuovo-${f}` }, textOf(`campaign.bilancio.nuovoRecord.${f}`, undefined, 'span')));
     return this.section('campaign.bilancio.eleganza', 'cp-bilancio-eleganza', ...rows);
   }
 
@@ -218,12 +247,9 @@ export class BilancioScene implements Scene {
     const t = this.telaio;
     if (!t) return el('article');
     const parts: HTMLElement[] = [this.header(t.levelId), textOf('campaign.bilancio.rigiocata', undefined, 'p', { className: 'cp-tenue' })];
-    parts.push(this.elegance(t.metrics, t.record.after, t.record.improved, t.record.goldThread));
-    if (t.record.unlocked.length > 0) {
-      const list = el('ul', { class: 'cp-lista' });
-      for (const u of t.record.unlocked) list.appendChild(el('li', { class: 'cp-riga cp-sblocco' }, svgIcon('stella', { size: 18 }), this.unlockText(u)));
-      parts.push(this.section('campaign.bilancio.sblocchi', 'cp-bilancio-sblocchi', list));
-    }
+    parts.push(this.elegance(t.metrics, t.record, t.record.goldThread));
+    const unlocks = this.unlocksSection(t.record.unlocked, false);
+    if (unlocks) parts.push(unlocks);
     parts.push(...this.actions(t.levelId, t.rows, t.spartito, () => void this.s.scenes.go('telaio', { ritorno: true })));
     return el('article', { class: 'cp-foglio core-solid', test: 'cp-bilancio-foglio' }, ...parts);
   }

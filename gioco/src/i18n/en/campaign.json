@@ -11,7 +11,9 @@
     "tocca": "Tap to continue",
     "stanza": "Grandmother's chair is empty. On the pillow there is a half-finished lace, and a note pinned to it.",
     "biglietto": "Ada, you finish it. The sun is waiting. C.",
-    "tombolo": "Touch the pillow"
+    "tombolo": "Touch the pillow",
+    "toccaClic": "Click to continue",
+    "tomboloClic": "Click the pillow"
   },
   "nuova": {
     "titolo": "A new story?",
@@ -66,13 +68,15 @@
       "casa": "On the pillow, something of grandmother's is still waiting for you.",
       "niente": "Tonight nobody knocks at the door."
     },
-    "spilliFiniti": "Tonight's pins are used up. To pin this note, take the pin off another one:",
-    "vaiAlBigliettino": "{nome}'s note",
     "esciTitolo": "Back to the title?",
     "esciCorpo": "Everything is saved.",
     "esciOk": "Back to the title",
     "esciNo": "Stay",
-    "vaiAlBigliettinoAnonimo": "The unsigned note"
+    "oggettoToccaClic": "Click to pick it up",
+    "scorri": "Scroll: there are more notes below",
+    "spilliFinitiSposta": "Tonight's pins are used up. You can move the pin from another note to this one:",
+    "spostaSpillo": "Move {nome}'s pin here",
+    "spostaSpilloAnonimo": "Move the unsigned note's pin here"
   },
   "scelta": {
     "giornata": "The eve",
@@ -104,7 +108,8 @@
     "tocca": "Tap to continue",
     "salta": "Skip",
     "avanti": "Next",
-    "automatico": "Auto-advance"
+    "automatico": "Auto-advance",
+    "toccaClic": "Click to continue"
   },
   "bilancio": {
     "titolo": "Reckoning",
@@ -129,9 +134,6 @@
       "autoreSbagliato": "The note was from {autore}, not {indovinato}: the request came to nothing."
     },
     "memoria": "Who remembers Ada",
-    "ricorda": "remembers ({n}/3)",
-    "dimentica": "begins to forget ({n}/3)",
-    "dimenticato": "has forgotten Ada",
     "taccuino": "In the Notebook",
     "eleganza": "Elegance",
     "incroci": "{n, plural, one {# crossing} other {# crossings}} (minimum {min})",
@@ -145,8 +147,7 @@
     "nuovoRecord": {
       "incroci": "New record: fewer crossings",
       "quiete": "New record: more quiet hours",
-      "simmetria": "First symmetry",
-      "filoDOro": "First golden thread"
+      "simmetria": "First symmetry"
     },
     "sblocchi": "Something opens",
     "riascolta": "Listen to the lace again",
@@ -154,7 +155,12 @@
     "spartitoCopiato": "Score copied: {spartito}",
     "spartitoNonCopiato": "The score could not be copied.",
     "continua": "Continue",
-    "rigiocata": "Lace replayed from the Loom: the story does not change."
+    "rigiocata": "Lace replayed from the Loom: the story does not change.",
+    "filoDOroPrimo": "Your first golden thread ✦",
+    "recordNonConta": "This lace doesn't count for records: only laces with every request fulfilled do.",
+    "memoriaLivello": "{n, plural, =0 {has forgotten Ada} =1 {barely remembers Ada (1/3)} =2 {remembers Ada (2/3)} other {remembers Ada well (3/3)}}",
+    "memoriaSu": "· more than yesterday",
+    "memoriaGiu": "· less than yesterday"
   },
   "sblocchi": {
     "daily": "The Lace of the Day",
@@ -162,7 +168,8 @@
     "gradi": "The grades of Free Lace",
     "tovaglia": "The Tablecloth",
     "archivio": "In the chest: {titolo}",
-    "fuso": "A carved bobbin (style {n})"
+    "fusoNome": "A carved bobbin: “{nome}”",
+    "fusoDove": "Choose it in Settings, under the bobbin: it only changes the look of Ada's bobbin and the linen bobbins."
   },
   "destini": {
     "nina": {
@@ -225,7 +232,12 @@
     "riprendiOk": "Resume from here",
     "epiloghi": "Epilogues seen",
     "filoDOro": "Golden thread",
-    "richieste": "✓ {ok} · ✗ {ko}"
+    "richieste": "✓ {ok} · ✗ {ko}",
+    "introClic": "Every day is a knot on the strip. Click it to replay it, resume from it or listen to it.",
+    "tovaglia": "The Tablecloth",
+    "tovagliaIntro": "The true ending stitched together every lace of that year, one for each day: this is the Tablecloth, and it plays the whole story.",
+    "tovagliaTela": "{n, plural, one {The Tablecloth: one lace} other {The Tablecloth: # laces stitched together}}",
+    "tovagliaAscolta": "Listen to the Tablecloth"
   },
   "finale": {
     "annodato": "At nine the lace knots itself.",
@@ -295,7 +307,10 @@
     "annulla": "Cancel",
     "pistaFinita": "There is nothing left to look for. The answers are all in the lace.",
     "paginaNuova": "New page in the Book: {titolo}",
-    "obiettiviTitolo": "Goals"
+    "obiettiviTitolo": "Goals",
+    "tornaSera": "Back to the evening",
+    "tornaSeraTesto": "No hour is set yet: you can go back to the evening and change the pins, with no consequences.",
+    "stranezzaSciolta": "no longer: undone"
   },
   "motivi": {
     "righe": "Diagonal-striped thread",
@@ -345,5 +360,9 @@
     "chiesa": "in Church",
     "farmacia": "at the Pharmacy",
     "faro": "at the Lighthouse"
+  },
+  "notte": {
+    "allAlba": "To the dawn",
+    "continua": "Continue"
   }
 }
