@@ -19,7 +19,7 @@ import { Tutorial } from '../../../src/tombolo/tutorial';
 import { popupClock } from '../../../src/tombolo/ui/popup';
 import { edgeCenter, pinHead } from '../../../src/tombolo/ui/bubbles';
 import { slotCenter } from '../../../src/tombolo/layout';
-import { beadName, threadName } from '../../../src/tombolo/text';
+import { beadName, capitalizeFirst, threadName } from '../../../src/tombolo/text';
 import { extraMode, quirkRevealed as tomboloQuirkRevealed, shownQuirks } from '../../../src/tombolo/quirks';
 import { quirkRevealed as diaryQuirkRevealed } from '../../../src/campaign/diary';
 import { ROOT, fixture, fixtureComputed, nightParams } from './helpers';
@@ -170,8 +170,8 @@ describe('TOM-04: Archivio, pannello, lampada, echi, tutorial (P002, P070, P099)
       const under = expectedName(lv, th.under);
       if (!over || !under) continue;
       expect(c.echo(e.hour, e.pair)).toBe(e.textKey);
-      const want = h.s.i18n.t('tombolo.archivio.ecoChi', { sopra: over, sotto: under, ora: String(e.hour) });
-      expect(want).toBe(`${over} → ${under}, alle ${e.hour}`);
+      const want = capitalizeFirst(h.s.i18n.t('tombolo.archivio.ecoChi', { sopra: over, sotto: under, ora: String(e.hour) }));
+      expect(want).toBe(capitalizeFirst(`${over} → ${under}, alle ${e.hour}`));
       expect(q('tb-eco-chi')?.textContent).toBe(want);
       const reg = q('tb-ap-echi');
       expect(reg?.textContent).toContain(want);
@@ -804,7 +804,10 @@ describe('TOM-20: chiusura a nodo e apparizione del filo nero (C11, C12)', () =>
     for (let i = 0; i < 3 * 60; i++) c.update(1 / 60);
     expect(r.nodo).toBe(1);
     expect(r.complete).toBe(1);
-    expect(q('tb-hud-fine')?.textContent ?? '').not.toContain(h.s.i18n.t('tombolo.hud.finito'));
+    const chiuso = h.s.i18n.t('tombolo.hud.finito');
+    expect(q('tb-hud-fine')?.textContent ?? '').not.toContain(chiuso);
+    const where = Array.from(document.querySelectorAll<HTMLElement>('*')).filter((e) => Array.from(e.childNodes).some((n) => n.nodeType === 3 && (n.textContent ?? '').includes(chiuso))).map((e) => `${e.tagName}.${e.className}[${e.dataset.test ?? ''}]`);
+    expect(where).toEqual([]);
   });
 
   it('apparizione: prima tombolo:apparizione, poi night:complete; con animSpeed 0 tutto subito', async () => {

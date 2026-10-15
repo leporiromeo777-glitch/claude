@@ -349,6 +349,11 @@ export class Interaction {
         }
         c.mainAction();
         return true;
+      case 'skipQuiet':
+        // Maiusc+Invio (il core la manda come azione a sé): le ore quiete se sono offerte, altrimenti come Invio.
+        if (c.quietUntil !== null) c.skipQuiet();
+        else c.mainAction();
+        return true;
       case 'fixHour':
         c.mainAction();
         return true;

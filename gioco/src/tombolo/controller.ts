@@ -447,7 +447,7 @@ export class NightController {
   echoNames(hour: number, pair: number): string {
     const t = this.session.archive?.echoThreads(hour, pair);
     if (!t) return formatHour(this.textDeps, hour);
-    return this.s.i18n.t('tombolo.archivio.ecoChi', { sopra: threadName(this.textDeps, t.over), sotto: threadName(this.textDeps, t.under), ora: formatHour(this.textDeps, hour) });
+    return capitalizeFirst(this.s.i18n.t('tombolo.archivio.ecoChi', { sopra: threadName(this.textDeps, t.over), sotto: threadName(this.textDeps, t.under), ora: formatHour(this.textDeps, hour) }), this.s.i18n.locale());
   }
 
   /** La notte è attiva (`setActiveNight`): si montano i pannelli del layout largo. */
@@ -542,7 +542,8 @@ export class NightController {
   private mainKey(): { key: string; enabled: boolean } {
     const s = this.session;
     const m = this.params.mode;
-    if (this.completed) return { key: 'tombolo.azioni.chiuso', enabled: false };
+    // C11: il merletto chiuso dal nodo non dice «Merletto chiuso» nemmeno sul pulsante.
+    if (this.completed) return { key: this.params.level.chiusura === 'nodo' ? 'tombolo.azioni.fissa' : 'tombolo.azioni.chiuso', enabled: false };
     if (m === 'replay') return { key: 'tombolo.azioni.salta', enabled: true };
     if (m === 'occasioni') {
       if (this.runner?.running()) return { key: 'tombolo.azioni.accade', enabled: false };
@@ -678,7 +679,8 @@ export class NightController {
       const place = this.params.level.columns[col] ?? 'molo';
       parts.push(this.s.i18n.t(`tombolo.sr.luogo.${place}`, { nome: threadName(this.textDeps, t) }));
     });
-    this.status.set(s.done ? 'tombolo.sr.fine' : 'tombolo.sr.stato', { ora: st.hour, posizioni: parts.join(this.s.i18n.t('tombolo.sr.separatore')) });
+    // C11: nemmeno la riga di stato dice «Merletto chiuso» dopo il nodo.
+    this.status.set(s.done && this.params.level.chiusura !== 'nodo' ? 'tombolo.sr.fine' : 'tombolo.sr.stato', { ora: st.hour, posizioni: parts.join(this.s.i18n.t('tombolo.sr.separatore')) });
   }
 
   private rememberStatuses(): void {
@@ -2408,6 +2410,7 @@ export class NightController {
     if (!this.layout || !this.model) return;
     if (!this.margin.visible()) {
       this.notePlace = null;
+      this.leftBox.style.paddingTop = '';
       if (this.noteBand !== 0) {
         this.noteBand = 0;
         this.resize(this.vp);
@@ -2439,6 +2442,8 @@ export class NightController {
     node.style.right = '';
     node.style.maxWidth = '';
     node.dataset.posto = pl.mode;
+    // In cima al pannello di sinistra la nota non copre il pannello: il suo contenuto scende.
+    this.leftBox.style.paddingTop = pl.mode === 'pannello' ? `${pl.rect.h + 16}px` : '';
   }
 
   // ───────── Salvataggio ─────────

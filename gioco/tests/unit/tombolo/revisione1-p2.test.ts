@@ -332,6 +332,18 @@ describe('TOM-22: «Salta le ore quiete» (D02.3)', () => {
     expect(c.session.rows.length).toBe(4);
   });
 
+  it('l\'azione skipQuiet del core (Maiusc+Invio) fa lo stesso; senza ore quiete vale come Invio', () => {
+    c = new NightController(h.s, nightParams(quiet()), { computed: null });
+    c.interact.onAction(act('skipQuiet'));
+    expect(c.session.rows.length).toBe(6);
+    c.destroy();
+    c = new NightController(h.s, nightParams(fixture('g00')), { computed: null });
+    expect(c.quietUntil).toBeNull();
+    c.cross(0, 'R', 'debug');
+    c.interact.onAction(act('skipQuiet'));
+    expect(c.session.rows.length).toBe(1);
+  });
+
   it('il pulsante fa lo stesso; Invio senza Maiusc fissa una riga sola', () => {
     c = new NightController(h.s, nightParams(quiet()), { computed: null });
     c.interact.onAction(act('confirm'));

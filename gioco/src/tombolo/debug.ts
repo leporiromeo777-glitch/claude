@@ -21,7 +21,8 @@ import { resolveLevel, resumeNight } from './resume';
 import { spartitoParams } from './modes/replay';
 import { defaultMode } from './modes/autoweave';
 import { renderLacePng } from './export';
-import { rowBottom, rowTop } from './layout';
+import { rowBottom, rowTop, rowsBelow, slotCenter } from './layout';
+import { edgeCenter, pinHead } from './ui/bubbles';
 import { threadName } from './text';
 
 const fixtureNotes = import.meta.glob('../engine/fixtures/notes.fixtures.json', { import: 'default' });
@@ -190,9 +191,23 @@ export function registerNightDebug(s: Services): void {
     });
     const q = (sel: string): Box | null => domBox(c.root.querySelector(sel));
     const tokens = Array.from(c.root.querySelectorAll<HTMLElement>('[data-test^="tb-richiesta-"]')).map((e) => ({ noteId: (e.dataset.test ?? '').replace('tb-richiesta-', ''), rect: domBox(e) }));
+    // Teste degli spilli, slot delle occasioni e icone dei bordi (dove toccare per le bolle, TOM-12).
+    const pins = c.model.pins.map((p) => {
+      const hd = p.kind === 'verde' ? slotCenter(l, c.scroll, p.col, p.index) : pinHead(l, c.scroll, p.col, p.index);
+      return { kind: p.kind, col: p.col, index: p.index, hour: start + p.index, x: Math.round(hd.x), y: Math.round(hd.y) };
+    });
+    const edges = c.model.edges.map((e) => {
+      const p = edgeCenter(l, c.scroll, e.index, e.side);
+      return { index: e.index, hour: start + e.index, side: e.side, kind: e.kind, x: Math.round(p.x), y: Math.round(p.y) };
+    });
     return {
       kind: l.kind,
       viewport: { w: l.cssW, h: l.cssH },
+      scale: l.scale,
+      gutterCx: l.gutterCx,
+      pins,
+      edges,
+      hiddenBelow: rowsBelow(l, c.scroll),
       center: l.center,
       left: l.left,
       right: l.right,
@@ -219,6 +234,9 @@ export function registerNightDebug(s: Services): void {
         lamp: q('[data-test="tb-lampada"]'),
         rewind: q('[data-test="tb-riavvolgi-qui"]'),
         rewindCancel: q('[data-test="tb-riavvolgi-annulla"]'),
+        scrollDown: q('[data-test="tb-scorri-giu"]'),
+        skipQuiet: q('[data-test="tb-salta-quiete"]'),
+        goals: q('[data-test="tb-obiettivi"]'),
       },
       tokens,
       panels: { left: q('[data-test="tb-pannello-sinistro"]'), right: q('[data-test="tb-pannello-destro"]') },
