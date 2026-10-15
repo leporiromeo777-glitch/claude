@@ -394,7 +394,8 @@ export class Regia implements SistemaGioco {
         const p = m.giocatore;
         this.controllo = m.sdraiata ? { tipo: 'sdraiata' } : { tipo: 'libero' };
         if (p) {
-          this.game.player.teleport(p.z, p.theta, this.interno ? Math.max(0, p.h - this.game.player.groundFn(p.z, p.theta)) : 0, false);
+          // quota assoluta salvata: anche sul ripiano di una terrazza o in cima al campanile
+          this.game.player.teleport(p.z, p.theta, Math.max(p.h, this.game.player.groundFn(p.z, p.theta)), true);
           if (m.sdraiata) this.posaSdraiata();
           this.game.setView(p.yaw, p.pitch);
           this.game.syncEyeNow();
@@ -764,7 +765,7 @@ export class Regia implements SistemaGioco {
     this.spegni('seduta');
     this.orologio.interrompiAttesa();
     this.ponte.chiudiAttesa();
-    this.game.player.teleport(c.z, c.theta, 0);
+    this.game.player.teleport(c.z, c.theta, quotaAppoggio(this.game.world.colliders, c.z, c.theta), true);
   }
 
   saliScala(): void {
@@ -780,11 +781,19 @@ export class Regia implements SistemaGioco {
     this.interno = null;
     this.applicaInterno();
     this.controllo = { tipo: 'libero' };
-    const b = luogo('botola')!;
-    const z = b.z - 1.6;
-    const theta = b.theta + 0.6 / METERS_PER_DEG;
-    this.game.player.teleport(z, theta, 0);
-    this.guardaDirezione(140, 8);
+    // accanto alla botola del popolamento, dalla parte opposta al tronco, con il paese davanti
+    const pb = this.scena.punto('botola');
+    const pt = this.scena.punto('castagno_morto');
+    const b = pb ? worldToCyl(pb) : { ...luogo('botola')!, h: 0 };
+    const t = pt ? worldToCyl(pt) : { z: b.z + 2, theta: b.theta };
+    const dz = b.z - t.z;
+    const ds = (b.theta - t.theta) * METERS_PER_DEG;
+    const d = Math.hypot(dz, ds) || 1;
+    const z = b.z + (dz / d) * 1.3;
+    const theta = b.theta + ((ds / d) * 1.3) / METERS_PER_DEG;
+    this.game.player.teleport(z, theta, quotaAppoggio(this.game.world.colliders, z, theta), true);
+    const piazza = luogo('piazza_ore')!;
+    this.guardaDirezione((Math.atan2((piazza.theta - theta) * METERS_PER_DEG, piazza.z - z) * 180) / Math.PI, 8);
     this.corpo.affaticata = !this.narrativa.valuta('passo:pr_camminare completato');
     if (this.orologio.fermo !== null) {
       // l'orologio riparte: sono le 05:39
@@ -881,7 +890,7 @@ export class Regia implements SistemaGioco {
       if (this.controllo.tipo === 'piantato') {
         const c = this.controllo;
         this.controllo = { tipo: 'libero' };
-        this.game.player.teleport(c.z, c.theta, this.interno === 'cella' ? Math.max(0, c.h - groundHeight(c.z, c.theta)) : 0, this.interno === 'cella');
+        this.game.player.teleport(c.z, c.theta, c.h, true);
       }
     });
     s.eventi.on('collimato', ({ stazione, mira }) => this.collimato(stazione, mira));
