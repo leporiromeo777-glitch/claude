@@ -17,32 +17,26 @@
       "colliderTolti": 691,
       "lumiTolti": 83
     },
-    "msCostruzione": 3335
+    "msCostruzione": 2808
   },
   "schermate": [
     {
       "file": "fienile-ottavio.png",
       "titolo": "Il fienile di Ottavio oltre il riale, il Sass dal Messo e la passerella",
-      "drawCalls": 69,
-      "triangoli": 540377
-    },
-    {
-      "file": "abitanti-piazza.png",
-      "titolo": "Gli abitanti velati in piazza: Ottavio, i bambini, Pina sulla soglia, i velati",
-      "drawCalls": 98,
-      "triangoli": 824050
+      "drawCalls": 93,
+      "triangoli": 552003
     },
     {
       "file": "notte-paese.png",
       "titolo": "Corbella di notte: finestre accese, lampioni, le Fade sui Ronchi, la casa di Nando",
-      "drawCalls": 105,
-      "triangoli": 849152
+      "drawCalls": 110,
+      "triangoli": 895515
     },
     {
       "file": "fade-ronchi.png",
       "titolo": "Le Fade alle 00:40 sui Ronchi: lumi caldi in cerchio sopra la casa di Nando",
-      "drawCalls": 94,
-      "triangoli": 775006
+      "drawCalls": 97,
+      "triangoli": 884494
     },
     {
       "file": "cripta-interno.png",
@@ -51,16 +45,10 @@
       "triangoli": 538409
     },
     {
-      "file": "mobili-varianti.png",
-      "titolo": "Elementi mobili: la passerella del Messo (Abitata), la casa di Nando (Smontata), il muro di Ronco con la breccia",
-      "drawCalls": 65,
-      "triangoli": 559365
-    },
-    {
       "file": "muri-del-velo.png",
       "titolo": "I tre muri del Velo dalla Terrazza: il Muretto, il Muraglione della Grà, la Ripa sopra la piazza",
-      "drawCalls": 146,
-      "triangoli": 944798
+      "drawCalls": 135,
+      "triangoli": 924520
     }
   ]
 }
