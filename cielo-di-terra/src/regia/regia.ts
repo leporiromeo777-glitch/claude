@@ -50,6 +50,7 @@ import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '..
 import { CatastoGioco, posizioniCapisaldi } from './catasto';
 import { QUOTA_CRIPTA, SCALA, costruisciCripta, type Cripta } from './scena/cripta';
 import { cellaDaCorbella, type CellaCampanaria } from './scena/campanile';
+import { LetteraInMano } from './scena/lettera';
 import { Sguardi } from './sguardo';
 import { Squadro, type BersaglioMira } from './squadro';
 import { Velatura } from './velatura';
@@ -220,6 +221,8 @@ export class Regia implements SistemaGioco {
     });
     g.clock.running = false;
     g.sistemi.push(this.squadro, this);
+    // la lettera in mano in prima persona (solo visiva, traccia «paese»): il foglio della carta aperta
+    g.sistemi.push(new LetteraInMano(g, () => ({ aperta: ui.lettore.visible, tipo: ui.lettore.el.dataset['tipo'] ?? '' })));
 
     // --- interfaccia ---
     ui.on('catturaInput', (preso) => {

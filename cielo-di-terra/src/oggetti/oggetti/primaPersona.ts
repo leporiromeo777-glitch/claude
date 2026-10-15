@@ -698,16 +698,21 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
   const pos: number[] = [];
   const col: number[] = [];
   const pp: number[] = [];
-  const carta = new THREE.Color(0xe6cfa2);
+  const carta = new THREE.Color(0xd9c094);
+  // quota del foglio: pieghe in tre (orizzontali, monte e valle) e a metà (verticale), che prendono
+  // la luce, e un angolo che si arriccia
+  const zCarta = (x: number, y: number): number => {
+    const fascia = y / H + 0.5;
+    const u = x / W + 0.5;
+    const piega = Math.max(0, 1 - Math.abs(fascia - 1 / 3) / 0.07) * 0.006 - Math.max(0, 1 - Math.abs(fascia - 2 / 3) / 0.07) * 0.005 + Math.max(0, 1 - Math.abs(u - 0.5) / 0.12) * 0.004;
+    const arriccia = Math.max(0, u - 0.75) * Math.max(0, fascia - 0.7) * 0.18;
+    return piega + arriccia + Math.sin(x * 30) * 0.002;
+  };
   for (let j = 0; j <= ny; j++) {
     for (let i = 0; i <= nx; i++) {
       const x = (i / nx - 0.5) * W;
       const y = (j / ny - 0.5) * H;
-      const fascia = j / ny;
-      // pieghe a 1/3 e 2/3: lievi creste e valli
-      const piega = Math.abs(fascia - 1 / 3) < 0.05 ? 0.004 : Math.abs(fascia - 2 / 3) < 0.05 ? -0.003 : 0;
-      const arriccia = Math.max(0, i / nx - 0.75) * Math.max(0, j / ny - 0.7) * 0.18;
-      pos.push(x, y, piega + arriccia + Math.sin(x * 30) * 0.002);
+      pos.push(x, y, zCarta(x, y));
       const tono = 0.95 + rng.centrato(0.04);
       col.push(carta.r * tono, carta.g * tono, carta.b * tono, MATERIA.CARTA);
       pp.push(x + W / 2, y + H / 2, 0);
@@ -738,7 +743,8 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
       const n = Math.max(2, Math.round(l / 0.003));
       for (let k = 0; k <= n; k++) {
         const xx = x + (l * k) / n;
-        pts.push(v(xx, y + Math.sin(xx * 900 + r) * 0.0016 + (k % 2 ? 0.0012 : -0.0006), 0.0012 + (Math.abs(y / H - 1 / 3 + 0.5) < 0.05 ? 0.004 : 0)));
+        const yy = y + Math.sin(xx * 900 + r) * 0.0016 + (k % 2 ? 0.0012 : -0.0006);
+        pts.push(v(xx, yy, zCarta(xx, yy) + 0.0012));
       }
       fs.tubo(pts, 0.00045, { colore: 0x3d2a1c, materia: MATERIA.PIENA, segmenti: 3, liscio: false, passi: n });
       x += l + 0.004 + rng.next() * 0.004;
@@ -748,10 +754,10 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
   const scritta = mesh(fs, 'lettera-scritta');
   // la destra lo tiene per il bordo basso: pollice davanti, dita dietro
   const fm = new FormePrimoPiano();
-  // la destra tiene il margine destro: dita dietro il foglio (verso l'alto e a sinistra), il palmo
-  // oltre il bordo, il pollice che gira attorno al bordo e si posa davanti, sul margine
-  const pm = manoGuanto(fm, posaAngoli([[0.03, 0.05, 0.03], [0.04, 0.06, 0.04], [0.08, 0.1, 0.06], [0.2, 0.2, 0.12]], [0.3, 0.85, 0.22], [-0.04, 0, 0.06, 0.14]), { consumo: 0.5 });
-  const mMano = matriceMano(v(0.112, -0.168, -0.041), v(-0.6, 0.8, 0), v(0, 0, -1));
+  // la destra tiene l'angolo basso a destra: il dorso del guanto verso l'occhio, le dita distese sul
+  // foglio (si vedono, come nel bozzetto), il pollice dietro
+  const pm = manoGuanto(fm, posaAngoli([[0.3, 0.45, 0.3], [0.26, 0.42, 0.3], [0.34, 0.48, 0.32], [0.45, 0.55, 0.35]], [0.35, 0.95, 0.3], [-0.015, 0, 0.02, 0.05]), { consumo: 0.5 });
+  const mMano = matriceMano(v(0.175, -0.115, 0.03), v(-0.93, 0.37, 0), v(0, 0.15, 1));
   const fM = new FormePrimoPiano();
   fM.unisci(fm, mMano);
   const polso = pm.polso.clone().applyMatrix4(mMano);
@@ -762,7 +768,7 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
   const gruppo = new THREE.Group();
   gruppo.name = 'lettera-prima-persona';
   gruppo.add(nodo);
-  const su = { p: v(0.24, -0.15, -0.46), r: e(0.1, -0.35, -0.16) };
+  const su = { p: v(0.21, -0.13, -0.47), r: e(0.12, -0.38, -0.2) };
   const giu = { p: v(0.45, -0.85, -0.45), r: e(0.6, -0.4, -0.3) };
   let alz = 1;
   const update = (dt: number, stato?: StatoLettera) => {
