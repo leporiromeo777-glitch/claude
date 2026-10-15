@@ -10,10 +10,12 @@ import { nomeCatastale } from './griglia';
 import { caposaldoDef } from './regole';
 import { conteggi, inchiostroDi } from './stato';
 import { minuti, type Ora } from './tempo';
-import type { Inchiostro, RegoleCatasto, RigaResoconto, StatoCatasto, StatoParticella } from './tipi';
+import type { Inchiostro, RegoleCatasto, RigaResoconto, Salute, StatoCatasto, StatoParticella } from './tipi';
 
 /** Codici degli stati del motore (`CellState` in src/world/cells.ts): Blank 0, Pencil 1, Painted 2. */
 export const CODICE_MOTORE: Readonly<Record<StatoParticella, 0 | 1 | 2>> = { bianco: 0, matita: 1, colore: 2 };
+/** Codici della salute del modulo ui (`CODICE_SALUTE` in moduli/ui/src/pianta/modello.ts). */
+export const CODICE_SALUTE: Readonly<Record<Salute, number>> = { verde: 1, bruno: 2, grigio: 3 };
 
 export interface GrigliaPiantaCatasto {
   nZ: number;
@@ -24,6 +26,8 @@ export interface GrigliaPiantaCatasto {
   seppia: Uint8Array;
   /** 1 = cambiata stanotte (segno rosso fino a mezzogiorno). */
   cambiate: Uint8Array;
+  /** 0 = non indicata, 1 = verde, 2 = bruno, 3 = grigio (codici del modulo ui). */
+  salute: Uint8Array;
 }
 
 export interface ParticellaPiantaCatasto {
@@ -109,6 +113,7 @@ export function datiPianta(stato: StatoCatasto, regole: RegoleCatasto, opzioni: 
   const stati = celleMotore(stato);
   const seppia = new Uint8Array(CELLE_TOTALI);
   const cambiate = new Uint8Array(CELLE_TOTALI);
+  const salute = new Uint8Array(CELLE_TOTALI);
   const mostraResoconto = resocontoVisibile(stato, opzioni);
   const cambiateSet = new Set(mostraResoconto ? (stato.ultimaNotte?.cambiate ?? []) : []);
   const particelle: ParticellaPiantaCatasto[] = [];
@@ -117,6 +122,7 @@ export function datiPianta(stato: StatoCatasto, regole: RegoleCatasto, opzioni: 
     if (p.stato === 'bianco') continue;
     const ink = inchiostroDi(stato, k);
     if (ink === 'seppia') seppia[k] = 1;
+    if (p.salute && p.stato === 'colore') salute[k] = CODICE_SALUTE[p.salute];
     particelle.push({ id: k, catasto: nomeCatastale(k), stato: p.stato, ...(ink ? { inchiostro: ink } : {}), ...(cambiateSet.has(k) ? { cambiata: true } : {}) });
   }
   for (const c of cambiateSet) {
@@ -153,7 +159,7 @@ export function datiPianta(stato: StatoCatasto, regole: RegoleCatasto, opzioni: 
   const r = mostraResoconto ? stato.ultimaNotte!.resoconto : null;
   const inv = regole.inventario;
   return {
-    griglia: { nZ: CELLE_NZ, nTheta: CELLE_NTHETA, stati, seppia, cambiate },
+    griglia: { nZ: CELLE_NZ, nTheta: CELLE_NTHETA, stati, seppia, cambiate, salute },
     particelle,
     capisaldi,
     lati,

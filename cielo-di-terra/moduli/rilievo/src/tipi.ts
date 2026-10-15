@@ -272,7 +272,12 @@ export interface ParticellaStato {
   rilievi: Rilievo[];
   /** Capisaldi spostati che le hanno fatto perdere il rilievo (si rimisura in 5 s). */
   persaPer?: string[];
+  /** Salute che la particella mostra quando è a colore (GDD §3.3): la decide il gioco. */
+  salute?: Salute;
 }
+
+/** Verde (sana), bruno (malata), grigio (spenta, senz'acqua o senza luce). */
+export type Salute = 'verde' | 'bruno' | 'grigio';
 
 export interface ElementoStato {
   variante: string;

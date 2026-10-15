@@ -316,6 +316,11 @@ function passaggioElemento(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCor
     n.salvati.push({ elemento: e.id, motivo: prot, ora });
     return;
   }
+  // le stesse pietre: il muro si richiude solo con le pietre che le Fade hanno tolto alla casa stanotte
+  if (e.legatoA && !n.cambiamenti.some((c) => c.tipo === 'variante' && c.elemento === e.legatoA)) {
+    n.cronologia.push({ ora: formattaOra(ora), testo: `${e.nome}: niente da rimettere, le pietre sono rimaste dove stavano.`, elemento: e.id });
+    return;
+  }
   if (n.particelleCambiateGiro + e.particelle.length > regole.parametri.tettoParticellePerNotte) {
     n.cronologia.push({ ora: formattaOra(ora), testo: `Le Fade rimandano ${e.nome} a un'altra notte (tetto della notte raggiunto).`, elemento: e.id });
     return;
@@ -363,7 +368,8 @@ function scaletta(regole: RegoleCatasto, numero: number): Voce[] {
   });
   const elementi = [...regole.elementi.values()].filter((e) => e.oraFade !== null).sort((a, b) => a.id.localeCompare(b.id));
   for (const e of elementi) {
-    voci.push({ t: minutiNotte(formattaOra(e.oraFade!)), priorita: 2, fai: (s, n, ev) => passaggioElemento(s, regole, n, e, minutiNotte(formattaOra(e.oraFade!)), ev) });
+    // un elemento legato (il muro di Ronco) passa dopo quello da cui prende le pietre (la casa di Nando)
+    voci.push({ t: minutiNotte(formattaOra(e.oraFade!)), priorita: e.legatoA ? 3 : 2, fai: (s, n, ev) => passaggioElemento(s, regole, n, e, minutiNotte(formattaOra(e.oraFade!)), ev) });
   }
   const dn = regole.notti.get(numero) ?? (regole.notteModello !== null ? regole.notti.get(regole.notteModello) : undefined);
   const oreNotte = new Set((dn?.eventi ?? []).map((x) => x.ora));
@@ -376,7 +382,7 @@ function scaletta(regole: RegoleCatasto, numero: number): Voce[] {
   }
   const pes = regole.notti.get(numero) ?? (regole.notteModello !== null ? regole.notti.get(regole.notteModello) : undefined);
   if (pes?.pesarinaOra !== null && pes?.pesarinaOra !== undefined) {
-    voci.push({ t: minutiNotte(formattaOra(pes.pesarinaOra)), priorita: 3, fai: (_s, n) => void n.cronologia.push({ ora: formattaOra(pes.pesarinaOra!), testo: 'La Pesarina passa dove dorme Elvira.' }) });
+    voci.push({ t: minutiNotte(formattaOra(pes.pesarinaOra)), priorita: 4, fai: (_s, n) => void n.cronologia.push({ ora: formattaOra(pes.pesarinaOra!), testo: 'La Pesarina passa dove dorme Elvira.' }) });
   }
   return voci.sort((a, b) => a.t - b.t || a.priorita - b.priorita);
 }
@@ -516,10 +522,16 @@ export function applicaCicliDelGiorno(stato: StatoCatasto, regole: RegoleCatasto
     .sort((x, y) => ((x.c.ora - da + 1440) % 1440) - ((y.c.ora - da + 1440) % 1440) || x.e.id.localeCompare(y.e.id));
   let s: StatoCatasto | null = null;
   const eventi: EventoCatasto[] = [];
+  const applicati = new Set<string>();
+  cicli.sort((x, y) => Number(!!x.e.legatoA) - Number(!!y.e.legatoA));
+  cicli.sort((x, y) => ((x.c.ora - da + 1440) % 1440) - ((y.c.ora - da + 1440) % 1440));
   for (const { e, c } of cicli) {
     const cur = (s ?? stato).elementi[e.id]?.variante;
     if (cur !== c.da) continue;
     if (input.chiPresente && !input.chiPresente(c.chi)) continue;
+    // Nando apre la breccia nel muro solo se ha una casa da rifare
+    if (e.legatoA && !applicati.has(e.legatoA)) continue;
+    applicati.add(e.id);
     s ??= clonaStato(stato);
     s.elementi[e.id] = { variante: c.a, rimastaSegnalata: s.elementi[e.id]?.rimastaSegnalata ?? false };
     eventi.push(eventoVariante(e, c.da, c.a, 'giorno', c.ora, { chi: c.chi }));

@@ -15,6 +15,7 @@ import type {
   ParticellaStato,
   RegoleCatasto,
   Rilievo,
+  Salute,
   StatoCatasto,
   StatoParticella,
 } from './tipi';
@@ -124,8 +125,21 @@ export function particellaDaModificare(stato: StatoCatasto, id: number): Partice
   return p ? { ...p, rilievi: [...p.rilievi], ...(p.persaPer ? { persaPer: [...p.persaPer] } : {}) } : { stato: 'bianco', rilievi: [] };
 }
 
+/**
+ * La salute di una particella (GDD §3.3, §3.11): il gioco la imposta quando la diagnosi la scopre
+ * o quando un Nodo è riparato. Si vede sulla Pianta solo a colore. `null` la toglie.
+ */
+export function impostaSalute(stato: StatoCatasto, id: number, salute: Salute | null): StatoCatasto {
+  const s = clonaStato(stato);
+  const p = particellaDaModificare(s, id);
+  if (salute) p.salute = salute;
+  else delete p.salute;
+  scriviParticella(s, id, p);
+  return s;
+}
+
 export function scriviParticella(stato: StatoCatasto, id: number, p: ParticellaStato): void {
-  if (p.stato === 'bianco' && p.rilievi.length === 0 && !p.persaPer?.length) delete stato.particelle[String(id)];
+  if (p.stato === 'bianco' && p.rilievi.length === 0 && !p.persaPer?.length && !p.salute) delete stato.particelle[String(id)];
   else stato.particelle[String(id)] = p;
 }
 
