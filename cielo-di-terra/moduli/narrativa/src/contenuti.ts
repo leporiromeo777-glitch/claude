@@ -11,11 +11,26 @@ import { listaEffetti } from './effetti';
 // ---------------------------------------------------------------------------
 // Forma normalizzata
 
+/** Un «evento» di un passo: mentre il passo è attivo, la prima volta che `quando` è vera si applicano gli effetti. */
+export interface EventoPassoDef {
+  quando: CondizioneGrezza;
+  effetti: string[];
+}
+
+/** Un aiuto a tempo: dopo `dopoSecondi` secondi reali di passo attivo si applicano gli effetti (una volta). */
+export interface AiutoDef {
+  dopoSecondi: number;
+  effetti: string[];
+}
+
 export interface PassoDef {
   id: string;
   /** Testo (o id di voce del taccuino) dell'obiettivo mostrato mentre il passo è attivo. */
   obiettivo?: string;
-  /** Condizione di attivazione (in aggiunta al passo precedente completato, se la missione è sequenziale). */
+  /**
+   * Condizione di attivazione. Se c'è, decide da sola (passi paralleli
+   * possibili); se manca, il passo aspetta il precedente.
+   */
   attivaQuando?: CondizioneGrezza;
   /** Condizione di completamento. Se manca, il passo si completa solo da codice. */
   completaQuando?: CondizioneGrezza;
@@ -23,6 +38,12 @@ export interface PassoDef {
   effetti: string[];
   /** Effetti applicati all'attivazione. */
   effettiAttivazione: string[];
+  /** Eventi interni al passo (`eventi: [{ quando, effetti }]`). */
+  eventi: EventoPassoDef[];
+  /** Aiuti a tempo (`aiuti: [{ dopo_s, effetti }]`). */
+  aiuti: AiutoDef[];
+  /** Luogo dell'obiettivo (id di luoghi.json), se c'è. */
+  luogo?: string;
   /** Oggetto originale del JSON (per campi in più come descrizioni). */
   dati: Record<string, unknown>;
 }
@@ -30,9 +51,15 @@ export interface PassoDef {
 export interface MissioneDef {
   id: string;
   titolo: string;
+  /** «prologo», «principale», «segreto», «libero», «sfondo»… (campo `tipo`). */
+  tipo?: string;
+  descrizione?: string;
   /** Condizione di avvio automatico. Se manca, la missione parte da un effetto o da `missioniIniziali`. */
   avviaQuando?: CondizioneGrezza;
-  /** «sequenziale» (predefinito): ogni passo aspetta il precedente. «libero»: contano solo le condizioni. */
+  /**
+   * «sequenziale» (predefinito): un passo senza `attivaQuando` aspetta il
+   * precedente. «libero»: un passo senza `attivaQuando` si attiva subito.
+   */
   ordine: 'sequenziale' | 'libero';
   passi: PassoDef[];
   /** Effetti applicati quando la missione è completata. */
@@ -94,7 +121,7 @@ export interface DialogoDef {
   dati: Record<string, unknown>;
 }
 
-export type TipoVoce = 'domanda' | 'indizio' | 'parola' | 'nota' | 'obiettivo' | (string & {});
+export type TipoVoce = 'domanda' | 'indizio' | 'parola' | 'nota' | 'proverbio' | 'leggenda' | 'obiettivo' | (string & {});
 
 export interface VoceDef {
   id: string;
@@ -110,6 +137,19 @@ export interface VoceDef {
   domanda?: string;
   /** Testo della risposta, mostrato quando la domanda è chiusa. */
   risposta?: string;
+  /** Chi scrive: «tecnica» (stampatello, matita dura) o «madre» (corsivo, matita morbida). */
+  mano?: string;
+  /** La voce si scrive sotto un'altra (id). */
+  sotto?: string;
+  /** Per le domande: gli indizi che la riguardano. */
+  indizi?: string[];
+  /** Per i proverbi: il testo in dialetto e la traduzione. */
+  dialetto?: string;
+  italiano?: string;
+  /** Nota a margine (campo `nota` o `nota_elvira`). */
+  commento?: string;
+  /** Questa voce prende il posto di un'altra (che viene tolta). */
+  sostituisce?: string;
   /** La voce si scrive da sola quando la condizione diventa vera. */
   sbloccaQuando?: CondizioneGrezza;
   /** La domanda si chiude da sola quando la condizione diventa vera. */
@@ -117,10 +157,21 @@ export interface VoceDef {
   dati: Record<string, unknown>;
 }
 
+/** Una candidata per la «riga del cielo»: vince la più alta `priorita` fra quelle con `quando` vera. */
+export interface RigaCieloDef {
+  id: string;
+  /** Può contenere segnaposto come `{secondi}` (vedi `riempiSegnaposto`). */
+  testo: string;
+  priorita: number;
+  quando?: CondizioneGrezza;
+}
+
 export interface ContenutiNormalizzati {
   missioni: MissioneDef[];
   dialoghi: Record<string, DialogoDef>;
   taccuino: VoceDef[];
+  /** Candidate della riga del cielo (`taccuino.json` → `riga_del_cielo`). */
+  rigaCielo: RigaCieloDef[];
   avvisi: string[];
 }
 
@@ -179,9 +230,10 @@ function voci(x: unknown, cosa: string, avvisi: string[], chiaveLista: string[])
   return [];
 }
 
+/** Condizione di un campo; `null` vale «assente». */
 function condizione(o: Oggetto, ...chiavi: string[]): CondizioneGrezza | undefined {
   const v = primo(o, ...chiavi);
-  return v === undefined ? undefined : (v as CondizioneGrezza);
+  return v === undefined || v === null ? undefined : (v as CondizioneGrezza);
 }
 
 // ---------------------------------------------------------------------------
@@ -208,6 +260,31 @@ export function normalizzaMissioni(x: unknown, avvisi: string[] = []): MissioneD
       const obiettivo = stringa(primo(p, 'obiettivo_taccuino', 'obiettivo', 'testo'));
       const attivaQuando = condizione(p, 'attiva_quando', 'attivo_quando', 'condizione_attivazione');
       const completaQuando = condizione(p, 'completa_quando', 'completato_quando', 'condizione', 'condizioni');
+      const luogo = stringa(p.luogo);
+      const eventi: EventoPassoDef[] = [];
+      const eventiGrezzi = primo(p, 'eventi', 'reazioni');
+      if (Array.isArray(eventiGrezzi)) {
+        eventiGrezzi.forEach((e, k) => {
+          const quando = oggetto(e) ? condizione(e, 'quando', 'condizione', 'se') : undefined;
+          if (!oggetto(e) || quando === undefined) {
+            avvisi.push(`missione «${id}», passo «${idPasso}»: l'evento ${k + 1} non ha «quando»`);
+            return;
+          }
+          eventi.push({ quando, effetti: listaEffetti(primo(e, 'effetti', 'effetto')) });
+        });
+      }
+      const aiuti: AiutoDef[] = [];
+      const aiutiGrezzi = p.aiuti;
+      if (Array.isArray(aiutiGrezzi)) {
+        aiutiGrezzi.forEach((a, k) => {
+          const dopo = oggetto(a) ? primo(a, 'dopo_s', 'dopo_secondi', 'dopo') : undefined;
+          if (!oggetto(a) || typeof dopo !== 'number') {
+            avvisi.push(`missione «${id}», passo «${idPasso}»: l'aiuto ${k + 1} non ha «dopo_s»`);
+            return;
+          }
+          aiuti.push({ dopoSecondi: dopo, effetti: listaEffetti(primo(a, 'effetti', 'effetto')) });
+        });
+      }
       passi.push({
         id: idPasso,
         ...(obiettivo !== undefined ? { obiettivo } : {}),
@@ -215,15 +292,22 @@ export function normalizzaMissioni(x: unknown, avvisi: string[] = []): MissioneD
         ...(completaQuando !== undefined ? { completaQuando } : {}),
         effetti: listaEffetti(primo(p, 'effetti', 'effetto', 'effetti_completamento')),
         effettiAttivazione: listaEffetti(primo(p, 'effetti_attivazione', 'effetti_inizio', 'all_attivazione')),
+        eventi,
+        aiuti,
+        ...(luogo !== undefined ? { luogo } : {}),
         dati: p,
       });
     });
     if (passi.length === 0) avvisi.push(`missione «${id}»: nessun passo`);
     const avviaQuando = condizione(m, 'avvia_quando', 'attiva_quando', 'inizia_quando', 'condizione_avvio');
     const ordine = stringa(m.ordine) === 'libero' ? 'libero' : 'sequenziale';
+    const tipo = stringa(m.tipo);
+    const descrizione = stringa(m.descrizione);
     out.push({
       id,
       titolo: stringa(primo(m, 'titolo', 'nome')) ?? id,
+      ...(tipo !== undefined ? { tipo } : {}),
+      ...(descrizione !== undefined ? { descrizione } : {}),
       ...(avviaQuando !== undefined ? { avviaQuando } : {}),
       ordine,
       passi,
@@ -326,8 +410,12 @@ const TIPI_DA_GRUPPO: Record<string, TipoVoce> = {
   indizi: 'indizio',
   parole: 'parola',
   note: 'nota',
+  proverbi: 'proverbio',
+  leggende: 'leggenda',
   obiettivi: 'obiettivo',
 };
+
+const GRUPPI_RIGA_CIELO = ['riga_del_cielo', 'riga_cielo', 'righe_cielo'];
 
 function normalizzaVoce(id: string | undefined, v: Oggetto, tipoGruppo: TipoVoce | undefined, avvisi: string[]): VoceDef | null {
   if (!id) {
@@ -347,6 +435,12 @@ function normalizzaVoce(id: string | undefined, v: Oggetto, tipoGruppo: TipoVoce
     ['locale', ['locale', 'parola_locale']],
     ['domanda', ['domanda_id', 'per_domanda', 'pista']],
     ['risposta', ['risposta', 'testo_chiusa']],
+    ['mano', ['mano']],
+    ['sotto', ['sotto']],
+    ['dialetto', ['dialetto']],
+    ['italiano', ['italiano']],
+    ['commento', ['nota', 'nota_elvira']],
+    ['sostituisce', ['sostituisce']],
   ];
   for (const [campo, chiavi] of campi) {
     const s = stringa(primo(v, ...chiavi));
@@ -360,7 +454,9 @@ function normalizzaVoce(id: string | undefined, v: Oggetto, tipoGruppo: TipoVoce
   if (sblocca !== undefined) voce.sbloccaQuando = sblocca;
   const chiudi = condizione(v, 'chiudi_quando', 'chiusa_quando', 'risolta_quando');
   if (chiudi !== undefined) voce.chiudiQuando = chiudi;
+  if (Array.isArray(v.indizi)) voce.indizi = v.indizi.filter((x): x is string => typeof x === 'string');
   if (tipo === 'parola' && voce.testo === '') voce.testo = voce.locale ?? voce.tecnica ?? '';
+  if (tipo === 'proverbio' && voce.testo === '') voce.testo = voce.dialetto ?? voce.italiano ?? '';
   if (tipo === 'parola' && (!voce.tecnica || !voce.locale)) {
     avvisi.push(`taccuino: la parola «${id}» non ha sia «tecnica» sia «locale»`);
   }
@@ -374,7 +470,7 @@ export function normalizzaTaccuino(x: unknown, avvisi: string[] = []): VoceDef[]
     for (const [gruppo, contenuto] of Object.entries(x)) {
       const tipo = TIPI_DA_GRUPPO[gruppo];
       if (!tipo) {
-        if (gruppo === 'riga_cielo' || gruppo.startsWith('$') || gruppo.startsWith('_')) continue;
+        if (GRUPPI_RIGA_CIELO.includes(gruppo) || gruppo === 'versione' || gruppo.startsWith('$') || gruppo.startsWith('_')) continue;
         avvisi.push(`taccuino: gruppo sconosciuto «${gruppo}»`);
         continue;
       }
@@ -397,6 +493,34 @@ export function normalizzaTaccuino(x: unknown, avvisi: string[] = []): VoceDef[]
   return out;
 }
 
+/** Candidate della riga del cielo da taccuino.json (`riga_del_cielo`). */
+export function normalizzaRigaCielo(x: unknown, avvisi: string[] = []): RigaCieloDef[] {
+  if (!oggetto(x)) return [];
+  const gruppo = GRUPPI_RIGA_CIELO.map((k) => x[k]).find((v) => v !== undefined);
+  if (gruppo === undefined) return [];
+  return voci(gruppo, 'taccuino.riga_del_cielo', avvisi, []).flatMap(([id, r], i) => {
+    const testo = stringa(r.testo);
+    if (!testo) {
+      avvisi.push(`taccuino.riga_del_cielo: la riga ${i + 1} non ha testo`);
+      return [];
+    }
+    const quando = condizione(r, 'quando', 'condizione');
+    return [
+      {
+        id: id ?? `riga${i + 1}`,
+        testo,
+        priorita: typeof r.priorita === 'number' ? r.priorita : 0,
+        ...(quando !== undefined ? { quando } : {}),
+      },
+    ];
+  });
+}
+
+/** Sostituisce i segnaposto `{nome}` di un testo (per esempio la riga del cielo «Meta fra {secondi} s»). */
+export function riempiSegnaposto(testo: string, valori: Record<string, string | number>): string {
+  return testo.replace(/\{(\w+)\}/g, (m, k: string) => (k in valori ? String(valori[k]) : m));
+}
+
 /** Normalizza tutti i contenuti narrativi. */
 export function normalizzaContenuti(c: ContenutiNarrativa): ContenutiNormalizzati {
   const avvisi: string[] = [];
@@ -404,6 +528,7 @@ export function normalizzaContenuti(c: ContenutiNarrativa): ContenutiNormalizzat
     missioni: normalizzaMissioni(c.missioni, avvisi),
     dialoghi: normalizzaDialoghi(c.dialoghi, avvisi),
     taccuino: normalizzaTaccuino(c.taccuino, avvisi),
+    rigaCielo: normalizzaRigaCielo(c.taccuino, avvisi),
     avvisi,
   };
 }
