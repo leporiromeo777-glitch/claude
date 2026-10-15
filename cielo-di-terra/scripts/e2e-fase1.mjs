@@ -356,6 +356,10 @@ async function main() {
     s = await stato();
     if (!s.modali.dialogo || s.dialogo?.dialogo !== 'd_meridiana_1') throw new Error(`dopo «Continua» il dialogo delle campane non si è riaperto: ${JSON.stringify({ dialogo: s.dialogo, modali: s.modali })}`);
     log('  ✓ salvato a dialogo aperto, «Continua» lo riapre');
+    // dopo «Continua» si comanda Elvira, non la camera libera del titolo, e lei sta su un piano
+    const pc = await R(() => window.__GAME__.getPlayerState());
+    if (pc.freeCamera || !pc.grounded) throw new Error(`dopo «Continua» Elvira non è controllabile: ${JSON.stringify({ freeCamera: pc.freeCamera, grounded: pc.grounded, mode: pc.mode })}`);
+    log('  ✓ dopo «Continua» Elvira è a terra e la camera è la sua');
     await foto('05-meridiana', () => mira([1062, 37.2, 60]));
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await verifica('missione:prologo completata e missione:m01_castagno_vuoto attiva', 'prologo completato');

@@ -161,7 +161,7 @@
     "attiva_quando": "passo:pr_camminare completato",
     "completa_quando": "flag:lettera_letta",
     "effetti_attivazione": [
-     "suggerimento:leggi"
+     "suggerimento:leggi_lettera"
     ],
     "effetti": [
      "taccuino:i_stella_alpina",

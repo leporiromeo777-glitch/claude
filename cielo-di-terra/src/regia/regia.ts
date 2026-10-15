@@ -130,6 +130,8 @@ export class Regia implements SistemaGioco {
   private salvaTra = -1;
   private ombristaSera = -1;
   private tenutaC = 0;
+  /** La lettera di Marta si è già aperta da sola in questa seduta (vedi letteraDaSeduta). */
+  private letteraOffertaDaSeduta = false;
   private attesaVicini = new Set<string>();
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
   private emisfero: HemisphereLight;
@@ -270,7 +272,7 @@ export class Regia implements SistemaGioco {
     this.game.clock.setHours(7.1);
     this.game.sky = this.game.clock.state(this.game.sky);
     this.game.setCameraPose(1096, 29.2, groundHeight(1096, 29.2) + 4, 128, 24);
-    this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: 'Fase 1 · prologo e missione 1' });
+    this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: `Fase 1 · prologo e missione 1 · aggiornata il ${typeof __AGGIORNAMENTO__ === 'string' ? __AGGIORNAMENTO__ : '?'}` });
   }
 
   private async nuovaPartitaDaTitolo(): Promise<void> {
@@ -317,6 +319,10 @@ export class Regia implements SistemaGioco {
   /** Continua dall'ultimo salvataggio valido. */
   async continua(): Promise<boolean> {
     this.ui.titolo.hide();
+    // Il titolo sorvola la valle con la camera libera: va spenta PRIMA di caricare (spegnerla
+    // dopo riporterebbe Elvira sotto la camera del titolo). Senza questo, dopo «Continua» i
+    // tasti muovevano la camera e il corpo restava fermo: non ci si poteva più sedere né leggere.
+    this.game.setFreeCamera(false);
     try {
       const r = await this.narrativa.carica(this.salvataggi, this.fornitoreMondo());
       if (!r) {
@@ -333,6 +339,7 @@ export class Regia implements SistemaGioco {
         this.narrativa.dialoghi.interrompi();
         this.narrativa.tick(0);
       }
+      this.suggerisciPassoCorrente();
       this.ui.indicazioni.show();
       this.riallinea();
       this.velatura.dalNero(1.2);
@@ -344,6 +351,41 @@ export class Regia implements SistemaGioco {
       this.nuovaPartita();
       return false;
     }
+  }
+
+  /**
+   * Dopo «Continua» ripete il suggerimento del passo della storia in corso: gli effetti di
+   * attivazione (che lo mostravano) non si riapplicano al caricamento, e il giocatore che
+   * riprende non sa più che cosa stava facendo.
+   */
+  private suggerisciPassoCorrente(): void {
+    const defs = this.narrativa.contenuti.missioni;
+    for (const a of this.narrativa.missioni.passiAttivi()) {
+      const m = defs.find((d) => d.id === a.missione);
+      if (!m || (m.tipo !== 'prologo' && m.tipo !== 'principale')) continue;
+      const s = m.passi.find((x) => x.id === a.passo)?.effettiAttivazione.find((e) => e.startsWith('suggerimento:'));
+      if (s) {
+        this.ponte.suggerimento(s.slice('suggerimento:'.length), 15);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Prologo: seduta con la lettera di Marta ancora da leggere, la busta si apre da sola
+   * (una volta per seduta, così chi la chiude non se la ritrova davanti di continuo).
+   */
+  private letteraDaSeduta(): void {
+    if (this.controllo.tipo !== 'seduta') {
+      this.letteraOffertaDaSeduta = false;
+      return;
+    }
+    if (this.letteraOffertaDaSeduta || this.ui.inputCatturato || this.dialoghi.aperto) return;
+    const n = this.narrativa;
+    if (n.flag.get('lettera_letta') || !n.inventario.ha('lettera_marta')) return;
+    if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_lettera')) return;
+    this.letteraOffertaDaSeduta = true;
+    this.ponte.leggi('lettera_marta');
   }
 
   async salva(): Promise<void> {
@@ -373,7 +415,9 @@ export class Regia implements SistemaGioco {
         const fermo = this.controllo.tipo === 'seduta' || this.controllo.tipo === 'piantato';
         return {
           versione: 1,
-          giocatore: { z: pc.z, theta: pc.theta, h: fermo ? (this.controllo as { h: number }).h : pc.h, yaw: vp.yaw, pitch: vp.pitch },
+          // da seduta (o allo squadro) la quota del controllo è mezzo metro sotto il piano su cui
+          // poggia: si salva la quota in piedi, se no al caricamento Elvira finisce dentro il muretto
+          giocatore: { z: pc.z, theta: pc.theta, h: fermo ? (this.controllo as { h: number }).h + 0.5 : pc.h, yaw: vp.yaw, pitch: vp.pitch },
           interno: this.interno,
           sdraiata: this.controllo.tipo === 'sdraiata',
           orologio: this.orologio.esporta(),
@@ -410,7 +454,10 @@ export class Regia implements SistemaGioco {
         this.controllo = m.sdraiata ? { tipo: 'sdraiata' } : { tipo: 'libero' };
         if (p) {
           // quota assoluta salvata: anche sul ripiano di una terrazza o in cima al campanile
-          this.game.player.teleport(p.z, p.theta, Math.max(p.h, this.game.player.groundFn(p.z, p.theta)), true);
+          // con un margine sopra la quota salvata: Elvira ricade sul piano (muretto, ripiano, terreno)
+          // invece di ricomparire dentro un collisore (i salvataggi fatti da seduta prima di
+          // questa correzione avevano la quota mezzo metro più in basso)
+          this.game.player.teleport(p.z, p.theta, Math.max(p.h + (m.sdraiata ? 0 : 0.6), this.game.player.groundFn(p.z, p.theta)), true);
           if (m.sdraiata) this.posaSdraiata();
           this.game.setView(p.yaw, p.pitch);
           this.game.syncEyeNow();
@@ -1165,6 +1212,7 @@ export class Regia implements SistemaGioco {
       }
     }
     this.limitaVelocita();
+    this.letteraDaSeduta();
 
     // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
     if (!ui.tempoFermo) {
