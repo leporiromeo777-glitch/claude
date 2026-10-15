@@ -4,3 +4,4 @@ dist-e2e/
 *.log
 .vite/
 test-results/
+docs/shots/indicazioni/

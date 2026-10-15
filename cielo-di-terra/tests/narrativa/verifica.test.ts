@@ -18,17 +18,20 @@ function contenutiBuoni(): {
           {
             id: 'esci',
             obiettivo_taccuino: 'Esci dalla Cripta',
+            indicazione: 'Sali la scala ({usa}) ed esci dalla botola.',
             completa_quando: 'luogo:castagno_morto raggiunto',
             effetti: ['taccuino:chi_marta'],
           },
           {
             id: 'ottavio',
             obiettivo_taccuino: 'Chiedi un riparo per la notte',
+            indicazione: 'Parla con Ottavio.',
             completa_quando: 'dialogo:ottavio_fienile finito e flag:sa_fienile',
           },
           {
             id: 'dormi',
             obiettivo_taccuino: 'Dormi nel fienile',
+            indicazione: 'Torna al fienile e dormi.',
             attiva_quando: 'ora:>=18 o notte',
             completa_quando: ['luogo:fienile raggiunto', 'notte'],
             effetti: ['tempo:salta-a 6', 'flag:prima_notte'],
@@ -43,12 +46,14 @@ function contenutiBuoni(): {
           {
             id: 'sentiero',
             obiettivo_taccuino: 'Il sentiero è sparito?',
+            indicazione: 'Cammina fino al sentiero del fienile.',
             completa_quando: 'flag:prima_notte e giorno:>=2 e luogo:sentiero_fienile raggiunto',
           },
-          { id: 'campanile', obiettivo_taccuino: 'Sali sul campanile', completa_quando: 'luogo:campanile_san_vigilio raggiunto' },
+          { id: 'campanile', obiettivo_taccuino: 'Sali sul campanile', indicazione: 'Sali sul campanile.', completa_quando: 'luogo:campanile_san_vigilio raggiunto' },
           {
             id: 'rilievo',
             obiettivo_taccuino: 'Collima il Pilastro 1',
+            indicazione: 'Collima il Pilastro 1 ({mira}).',
             completa_quando: 'cella:terrazza_innesto rilevata e (flag:fiducia_ottavio>=1 o oggetto:velo)',
             effetti: ['taccuino:prima_legge', 'evento:matita_colore terrazza_innesto'],
           },
@@ -212,5 +217,43 @@ describe('verifica dei contenuti', () => {
     });
     expect(r.errori).toEqual([]);
     expect(r.simulazione.map((s) => s.esito)).toEqual(['completata', 'completata']);
+  });
+});
+
+describe('verifica delle indicazioni dei passi', () => {
+  it('ogni passo con un obiettivo vuole un\u2019indicazione; i segnaposto devono essere comandi del gioco', () => {
+    const c = contenutiBuoni();
+    const passi = (c.missioni[1] as { passi: Record<string, unknown>[] }).passi;
+    delete passi[0]!['indicazione'];
+    passi[1]!['indicazione'] = 'Sali in cima ({vola}).';
+    passi[2]!['indicazione'] = 'Mira {mira e collima.';
+    const r = verificaContenuti({ ...c, tasti: ['usa', 'mira'], testi: { suggerimenti: { guarda: 'Guarda: {sguardo}', usa: 'Usa: {usa}' } } });
+    expect(r.avvisi).toContain("missione m1, passo sentiero: manca «indicazione» (il pannello dell'obiettivo resterebbe senza istruzioni)");
+    expect(r.errori).toContain('missione m1, passo campanile: l\'indicazione usa il segnaposto «{vola}», che non è un comando del gioco');
+    expect(r.errori).toContain('missione m1, passo rilievo: l\'indicazione ha una graffa spaiata');
+    expect(r.errori).toContain('testi.suggerimenti.guarda: segnaposto «{sguardo}» che non è un comando del gioco');
+    expect(r.errori.filter((e) => e.includes('suggerimenti.usa'))).toEqual([]);
+  });
+
+  it('senza l\u2019elenco dei comandi i segnaposto non si controllano', () => {
+    const c = contenutiBuoni();
+    ((c.missioni[1] as { passi: Record<string, unknown>[] }).passi[1]!)['indicazione'] = 'Sali in cima ({vola}).';
+    expect(verificaContenuti(c).errori).toEqual([]);
+  });
+
+  it('le tappe e le indicazioni dei rami: luoghi e persone che esistono, condizioni lette, segnaposto giusti', () => {
+    const c = contenutiBuoni();
+    const passi = (c.missioni[1] as { passi: Record<string, unknown>[] }).passi;
+    passi[0]!['tappe'] = [{ luogo: 'posto_che_non_c_e' }, { persona: 'nessuno', luogo: 'sentiero_fienile', quando: 'flag:mai_scritto' }, { punto: 'busta_5' }];
+    passi[0]!['indicazione_se'] = [{ quando: 'flag:prima_notte', indicazione: 'Di notte ({vola}).' }];
+    passi[1]!['tappe'] = [{ quando: 'flag:prima_notte' }, { punto: 'a', luogo: 'b' }];
+    const r = verificaContenuti({ ...c, tasti: ['usa', 'mira'] });
+    expect(r.errori).toContain('missione m1, passo sentiero: la tappa va al luogo \u00abposto_che_non_c_e\u00bb, che non \u00e8 in luoghi.json');
+    expect(r.errori).toContain('missione m1, passo sentiero: la tappa cerca \u00abnessuno\u00bb, che non \u00e8 in personaggi.json');
+    expect(r.errori).toContain("missione m1, passo sentiero: l'indicazione usa il segnaposto \u00ab{vola}\u00bb, che non \u00e8 un comando del gioco");
+    // le condizioni delle tappe contano come lette: un flag che i contenuti non scrivono tocca al gioco
+    expect(r.flagDelGioco.find((x) => x.nome === 'mai_scritto')?.letto).toEqual(['missione m1, passo sentiero, tappa 2']);
+    // una tappa senza meta, o con un punto e un luogo insieme, \u00e8 un errore di forma
+    expect(r.avvisi.filter((a) => a.startsWith('forma: missione «m1», passo «campanile»: la tappa'))).toHaveLength(2);
   });
 });

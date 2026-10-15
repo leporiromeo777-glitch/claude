@@ -10,6 +10,7 @@ import { LettoreCarte } from './componenti/lettore';
 import { Taccuino, type DatiTaccuino } from './componenti/taccuino';
 import { PiantaVerbano } from './componenti/pianta';
 import { Indicazioni } from './componenti/indicazioni';
+import { PannelloObiettivo } from './componenti/obiettivo';
 import { Crediti } from './componenti/crediti';
 import { SchermataCaricamento } from './componenti/caricamento';
 import type { DatiPianta } from './pianta/modello';
@@ -20,7 +21,8 @@ export interface OpzioniInterfaccia {
   /** Opzioni dello store se viene creato qui. */
   opzioniStore?: OpzioniStore;
   /**
-   * Scorciatoie da tastiera durante il gioco: Esc = pausa, T = taccuino, P = pianta (predefinito true).
+   * Scorciatoie da tastiera durante il gioco: Esc = pausa, T = taccuino, P = pianta, O = pannello
+   * dell'obiettivo (predefinito true).
    * Nei menu i tasti sono sempre gestiti dall'interfaccia.
    */
   scorciatoie?: boolean;
@@ -58,6 +60,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   readonly radice: HTMLElement;
   readonly impostazioni: StoreImpostazioni;
   readonly indicazioni: Indicazioni;
+  /** Pannello dell'obiettivo e segnalino di direzione (le indicazioni delle missioni). */
+  readonly obiettivo: PannelloObiettivo;
   readonly dialogo: FinestraDialogo;
   readonly titolo: SchermataTitolo;
   readonly pausa: MenuPausa;
@@ -84,6 +88,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     const imp = this.impostazioni;
 
     this.indicazioni = new Indicazioni();
+    this.obiettivo = new PannelloObiettivo({ modo: () => imp.get('indicazioniMissioni') });
     this.dialogo = new FinestraDialogo({ caratteriAlSecondo: () => VELOCITA_CARATTERI[imp.get('velocitaTesto')] });
     this.titolo = new SchermataTitolo();
     this.pausa = new MenuPausa();
@@ -101,6 +106,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     // L'ordine di montaggio è l'ordine di sovrapposizione.
     const tutti: ComponenteQualsiasi[] = [
       this.indicazioni,
+      this.obiettivo,
       this.dialogo,
       this.titolo,
       this.pausa,
@@ -129,6 +135,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
       applicaImpostazioniVisive(this.radice, c.tutte);
       const perPianta: string[] = ['rosaDeiVenti', 'posizioneSullaPianta', 'altoContrasto', 'matitaMarcata'];
       if (perPianta.includes(c.chiave) && this.pianta.visible) this.pianta.ridisegna();
+      if (c.chiave === 'indicazioniMissioni') this.obiettivo.ridisegna();
     });
 
     this.collegaNavigazione();
@@ -179,7 +186,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   /** Smonta tutto e toglie gli ascoltatori. */
   destroy(): void {
     window.removeEventListener('keydown', this.suTasto, true);
-    for (const c of [this.indicazioni, this.dialogo, this.titolo, this.pausa, this.taccuino, this.pianta, this.lettore, this.pannelloImpostazioni, this.crediti, this.caricamento]) c.destroy();
+    for (const c of [this.indicazioni, this.obiettivo, this.dialogo, this.titolo, this.pausa, this.taccuino, this.pianta, this.lettore, this.pannelloImpostazioni, this.crediti, this.caricamento]) c.destroy();
     this.radice.remove();
     this.offAll();
   }
@@ -211,6 +218,11 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     this.pausa.on('impostazioni', () => this.apriDa(C(this.pausa), () => this.pannelloImpostazioni.show(), C(this.pannelloImpostazioni)));
     this.pausa.on('taccuino', () => this.apriDa(C(this.pausa), () => this.apriTaccuino(), C(this.taccuino)));
     this.pausa.on('pianta', () => this.apriDa(C(this.pausa), () => this.apriPianta(), C(this.pianta)));
+    // l'obiettivo si vede solo in gioco: si torna al gioco e lo si mostra o nasconde lì
+    this.pausa.on('obiettivo', () => {
+      this.pausa.hide();
+      this.obiettivo.alterna();
+    });
     this.pausa.on('esciAlTitolo', () => {
       this.tornaAlGioco();
       this.pausa.hide();
@@ -266,6 +278,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     if (k === 'Escape') this.apriPausa();
     else if (k === 't' || k === 'T') this.apriTaccuino();
     else if (k === 'p' || k === 'P') this.apriPianta();
+    else if ((k === 'o' || k === 'O') && this.obiettivo.visible) this.obiettivo.alterna();
     else return;
     e.preventDefault();
     e.stopPropagation();

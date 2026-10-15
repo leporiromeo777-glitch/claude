@@ -264,7 +264,11 @@ export class Narrativa {
     this.tick();
   }
 
-  /** Ricorda i luoghi delle condizioni dei passi attivi in cui Elvira si trova adesso. */
+  /**
+   * Ricorda i luoghi dei passi attivi in cui Elvira si trova adesso: quelli delle condizioni, il
+   * luogo del passo e quelli delle sue tappe (la guida delle indicazioni sa così, anche dopo un
+   * caricamento, che il guado è già alle spalle).
+   */
   private registraLuoghi(): void {
     for (const p of this.missioni.passiAttivi()) {
       const k = `${p.missione}/${p.passo}`;
@@ -273,6 +277,8 @@ export class Narrativa {
         const def = this.missioni.definizione(p.missione)?.passi.find((x) => x.id === p.passo);
         const condizioni = [def?.completaQuando, ...(def?.eventi.map((e) => e.quando) ?? [])];
         const ids = new Set<string>();
+        if (def?.luogo) ids.add(def.luogo);
+        for (const t of def?.tappe ?? []) if (t.luogo) ids.add(t.luogo);
         for (const c of condizioni) {
           if (c === undefined) continue;
           try {

@@ -11,6 +11,11 @@ export class Velatura {
   private lenteEl: HTMLDivElement;
   private uccello: HTMLDivElement;
   private foglie: HTMLDivElement;
+  /**
+   * L'ultima dissolvenza del nero e quella del bianco, ognuna per conto suo (per sapere se la
+   * vista è coperta: un lampo della Meta durante l'alba non deve far dimenticare il nero).
+   */
+  private readonly copertura = new Map<HTMLDivElement, { t0: number; da: number; a: number; secondi: number }>();
 
   constructor(contenitore: HTMLElement) {
     const base = (z: number): HTMLDivElement => {
@@ -47,11 +52,25 @@ export class Velatura {
   }
 
   private dissolvi(el: HTMLDivElement, da: number, a: number, secondi: number, passi?: number): void {
+    if (el === this.nero || el === this.bianco) this.copertura.set(el, { t0: performance.now(), da, a, secondi });
     el.style.transition = 'none';
     el.style.opacity = String(da);
     void el.offsetWidth;
     el.style.transition = `opacity ${secondi}s ${passi ? `steps(${passi}, end)` : 'ease'}`;
     el.style.opacity = String(a);
+  }
+
+  /**
+   * La vista è coperta dal nero o dal bianco (più di metà): l'inizio nella capsula, il sonno,
+   * la luce della botola. Le indicazioni a schermo aspettano che si veda.
+   */
+  coperta(): boolean {
+    const adesso = performance.now();
+    for (const c of this.copertura.values()) {
+      const k = c.secondi > 0 ? Math.min(1, (adesso - c.t0) / (c.secondi * 1000)) : 1;
+      if (c.da + (c.a - c.da) * k > 0.5) return true;
+    }
+    return false;
   }
 
   /** Dal nero alla vista (a scatti: la luce color miele che si accende). */

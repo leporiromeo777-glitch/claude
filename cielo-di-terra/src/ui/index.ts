@@ -70,6 +70,15 @@ export {
   type OpzioniNotifica,
   type EventiIndicazioni,
 } from './componenti/indicazioni';
+export {
+  PannelloObiettivo,
+  type DatiObiettivo,
+  type VoceObiettivo,
+  type StatoSegnalino,
+  type OpzioniPannelloObiettivo,
+  type EventiPannelloObiettivo,
+  type IndicazioniMissioni,
+} from './componenti/obiettivo';
 export { Crediti, CREDITI_PREDEFINITI, type DatiCrediti, type SezioneCrediti, type EventiCrediti } from './componenti/crediti';
 export { SchermataCaricamento, PROVERBI_PREDEFINITI, type DatiCaricamento, type EventiCaricamento } from './componenti/caricamento';
 
