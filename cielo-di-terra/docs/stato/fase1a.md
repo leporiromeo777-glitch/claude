@@ -86,7 +86,7 @@ Screenshot (generati da `npm run shots`, guardati e rifiniti uno per uno):
    in alto ai bordi dello schermo, nappina rossa che pende dalla parte della
    gravità apparente (Coriolis incluso) e anticipa il rollio.
 8. **Segnaposto**: Corbella con 30 rustici in gneiss e tetti in piode, il campanile
-   bianco di San Vigilio con la palina bianca e rossa, la chiesa, ~600 tratti di
+   bianco di San Vigilio con la palina bianca e rossa, la chiesa, 680 tratti di
    muro a secco sui gradoni (con varchi), lampioni della piazza. Ci sono anche due
    frazioni e quattro gruppi di cascine sparse nelle altre valli (luci notturne),
    7 barche a vela rossa sul lago, la Lanterna di piombo sul Sordo e il Mozzo Sud.
@@ -130,7 +130,7 @@ Rendering e costi (build E2E in Chromium headless, SwiftShader, 1280 × 720):
 - Simulazione: < 0.01 ms per passo a 60 Hz. Preparazione CPU di un fotogramma: 12-19 ms
   in SwiftShader (comprende LOD, alberi e lumi; il tempo GPU reale va misurato su hardware vero).
 - Mondo: 126 chunk di terreno, ~5 900 collisori, 228 lumi, bundle 647 kB (174 kB gzip).
-- Test: 59 test in 7 file, tutti verdi (`npm test`, ~1 s).
+- Test: 59 test in 6 file, tutti verdi (`npm test`, ~1 s).
 
 ## Problemi noti e limiti
 
