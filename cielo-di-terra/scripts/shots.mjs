@@ -111,6 +111,52 @@ const SHOTS = [
     frames: 30,
     after: (g) => g.setSetting('nearPaint', [70, 150]),
   },
+  // Confronti con i bozzetti del concept (idee-gioco/pagina/img/finale-N.jpg): stessa scena, stessa ora.
+  {
+    n: 11,
+    file: 'confronto-1-alba-castagno.png',
+    title: 'Bozzetto 1: all\'alba, dalla botola sotto il castagno morto, verso il paese e la valle',
+    setup: (g) => {
+      g.setTime(7.0);
+      g.teleport(1117, 26.6, 0);
+      g.lookAt(1046, 37.4, g.game.world.groundAt(1046, 37.4) + 18);
+    },
+    frames: 6,
+  },
+  {
+    n: 12,
+    file: 'confronto-2-terrazze-mezzogiorno.png',
+    title: 'Bozzetto 2: a mezzogiorno sulle terrazze dei castagni, verso il paese e il lago lontano',
+    setup: (g) => {
+      g.setTime(12.5);
+      g.teleport(965, 25.0, 0);
+      g.lookAt(1045, 38, g.game.world.groundAt(1045, 38) - 6);
+    },
+    frames: 6,
+  },
+  {
+    n: 13,
+    file: 'confronto-3-planata-asse.png',
+    title: 'Bozzetto 3: in planata alta lungo l\'asse, il lago e le valli sopra la testa',
+    setup: (g) => {
+      g.setTime(11);
+      g.teleport(700, 35, 330, true);
+      g.look(0, 12);
+      g.startGlide(7);
+    },
+    frames: 40,
+  },
+  {
+    n: 14,
+    file: 'confronto-5-notte-paese.png',
+    title: 'Bozzetto 5: di notte, seduta nell\'erba al margine del paese',
+    setup: (g) => {
+      g.setTime(22.4);
+      g.teleport(1085, 31.5, 0);
+      g.lookAt(1050, 37.2, g.game.world.groundAt(1050, 37.2) + 6);
+    },
+    frames: 6,
+  },
 ];
 
 function serve(dir, port) {
