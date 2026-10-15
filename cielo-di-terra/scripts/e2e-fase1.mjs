@@ -89,6 +89,12 @@ async function dialogo(scelte = [], max = 40) {
   for (let i = 0; i < max; i++) {
     const s = await stato();
     if (!s.dialogo) break;
+    if (s.lettura) {
+      // una carta aperta da un effetto del dialogo (la lettera di Rosa): prima si legge
+      await foto(`carta-${s.lettura}`);
+      await leggi();
+      continue;
+    }
     await page.keyboard.press('Enter'); // completa il testo che si scrive
     await attendi(30);
     const s2 = await stato();
@@ -549,14 +555,7 @@ async function main() {
 
     log('— M1.22 La lettera di Rosa');
     await avanzaFinche('dialogo:d_ottavio_gancio iniziato', 10);
-    for (let k = 0; k < 6; k++) {
-      await dialogo([], 3);
-      if ((await stato()).lettura) {
-        await foto('20-lettera-di-rosa');
-        await leggi();
-      }
-      if (!(await stato()).dialogo) break;
-    }
+    log(`  ottavio: ${(await dialogo()).join(' / ')}`);
     await avanza(0.5);
     await verifica('missione:m01_castagno_vuoto completata e flag:gioco_libero', 'missione 1 completata');
     await foto('21-gioco-libero', () => R(() => {
