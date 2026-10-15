@@ -183,7 +183,8 @@
     "attiva_quando": "passo:pr_lettera completato",
     "completa_quando": "dialogo:d_meridiana_1 finito",
     "effetti_attivazione": [
-     "suono:tre_rintocchi"
+     "suono:tre_rintocchi",
+     "suggerimento:corri"
     ],
     "effetti": [
      "missione:prologo completata",

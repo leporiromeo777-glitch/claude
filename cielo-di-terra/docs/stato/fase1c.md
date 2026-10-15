@@ -118,7 +118,7 @@ libretto. Salvataggio automatico dopo ogni passo della storia, al risveglio e do
 | clic | cattura il mouse (il primo gesto avvia anche l'audio) |
 | mouse | guarda |
 | W A S D | cammina (A/D livellano la bolla quando lo squadro è piantato) |
-| Shift | corre (costa fiato) |
+| Shift | corre (costa fiato: circa 28 s da fiato pieno; nel prologo, prima del muretto del belvedere, solo una corsetta) |
 | Spazio | salta; tenuto in aria apre il Velo |
 | E | interagisce (il verbo è scritto a schermo); tenuto per tagliare, innestare, piantare lo squadro |
 | C | siede (sui muretti, per terra) / si alza |

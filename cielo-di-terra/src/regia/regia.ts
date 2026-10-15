@@ -1249,8 +1249,9 @@ export class Regia implements SistemaGioco {
       passo = 0.9;
       corsa = 0.9;
     } else if (!n.valuta('passo:pr_camminare completato') && n.valuta('missione:prologo attiva')) {
-      passo = 1.9;
-      corsa = 1.9;
+      // le gambe di due secoli: con Shift solo una corsetta zoppicante (e il fiato cala per metro)
+      passo = 2.1;
+      corsa = 3.2;
     }
     const k = this.corpo.fattoreVelocita;
     t.walkSpeed = passo * k;

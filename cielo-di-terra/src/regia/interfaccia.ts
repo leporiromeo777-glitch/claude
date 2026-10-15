@@ -43,6 +43,7 @@ export const TASTI: Record<string, string> = {
   usa: 'E',
   guarda: 'il mouse',
   muovi: 'W A S D',
+  corri: 'Shift',
   siedi: 'C',
   lente: 'Q',
   pianta: 'P',
