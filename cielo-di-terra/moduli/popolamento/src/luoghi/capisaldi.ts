@@ -105,6 +105,7 @@ export function costruisciPilastriValle(ctx: Contesto): void {
     }
     const pil = creaPilastro({ numero: c.numero, segnale: id === 'cs_4' ? 'disco' : 'palina', altezzaSegnale: c.altezza_segnale, lumeDiMira: false });
     const pp = ctx.posa('selve', pil, c.z, c.theta, 200, { h: h + 0.35, luogo: c.luogo, tag: (t) => t ?? 'caposaldo' });
+    if (pp['cima']) ctx.segnali.set(c.id, pp['cima'].clone());
     ctx.punto(`chiodo:${c.numero}`, 'pianta_squadro', `Pianta lo squadro sul Pilastro ${c.numero}`, pp['chiodo'] ?? mondo(c.z, c.theta, h + 1.8), { raggio: 1.8, luogo: c.luogo, rif: c.id });
     ctx.occupa({ nome: c.id, z: c.z, theta: c.theta, raggio: 2 });
   }
@@ -122,6 +123,7 @@ export function costruisciBalcone(ctx: Contesto): void {
   const pfr = spostaYaw(b.z, b.theta, yaw, 2.6, H);
   const pfr2 = spostaYaw(pfr.z, pfr.theta, yaw - 90, 3.2, H);
   const pp = ctx.posa('balcone', pil, pfr2.z, pfr2.theta, 270, { h: H + 0.35, luogo: 'balcone_messi', tag: (t) => t ?? 'caposaldo' });
+  if (pp['cima']) ctx.segnali.set('cs_42', pp['cima'].clone());
   ctx.punto('chiodo:42', 'pianta_squadro', 'Pianta lo squadro sul Pilastro 42', pp['chiodo'] ?? mondo(pfr2.z, pfr2.theta, H + 1.8), { raggio: 1.8, luogo: 'balcone_messi', rif: 'cs_42' });
   const pc = spostaYaw(b.z, b.theta, yaw + 180, 6.2, H);
   const fpc = impronta(pc.z, pc.theta, yaw, 4, 4);
@@ -161,6 +163,7 @@ export function costruisciLontani(ctx: Contesto): Array<{ id: string; pos: THREE
     const pLume = lumeLontano(c, pp['lume'] ?? mondo(c.z, c.theta, hBase + 8));
     if (c.lume === 'permanente') ctx.zona(zona).lume(pLume, 2.4);
     out.push({ id: c.id, pos: pLume, permanente: c.lume === 'permanente' });
+    ctx.segnali.set(c.id, (pp['cima'] ?? pLume).clone());
     ctx.punto(`appunta:${c.id}`, 'guarda', c.nome, pLume, { raggio: 0, rif: c.id, attivo: false });
   }
   return out;

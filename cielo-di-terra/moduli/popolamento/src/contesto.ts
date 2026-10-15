@@ -48,6 +48,8 @@ export class Contesto {
   readonly visuali: Array<{ z: number; theta: number; raggio: number }> = [];
   /** dove la visuale sfiora il suolo (< 1,6 m): niente muri delle terrazze */
   readonly visualiBasse: Array<{ z: number; theta: number; raggio: number }> = [];
+  /** segnale di mira di ogni caposaldo (id `cs_N` → punto mondo): palina, disco o biffa sul chiodo */
+  readonly segnali = new Map<string, Vector3>();
   /** collider di oggetti dinamici (fuori dai cantieri), con tag */
   readonly colliderDinamici: Array<{ collider: Collider; tag: string; luogo?: string }> = [];
 
