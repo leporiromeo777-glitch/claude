@@ -25,6 +25,7 @@ import { caricaCatasto, salvaCatasto, type BlobCatasto, type OpzioniCaricamento 
 import {
   cellaAColore,
   cellaRilevataDaElvira,
+  impostaSalute,
   infoParticella,
   inventarioCompleto,
   statoDi,
@@ -34,7 +35,7 @@ import {
 } from './stato';
 import type { PuntoFoglio } from './griglia';
 import type { Ora } from './tempo';
-import type { EventoCatasto, InputNotte, RegoleCatasto, Resoconto, RisultatoCatasto, StatoCatasto, StatoParticella } from './tipi';
+import type { EventoCatasto, InputNotte, RegoleCatasto, Resoconto, RisultatoCatasto, Salute, StatoCatasto, StatoParticella } from './tipi';
 
 type TipoEvento = EventoCatasto['tipo'];
 type EventoDi<T extends TipoEvento> = Extract<EventoCatasto, { tipo: T }>;
@@ -116,6 +117,9 @@ export class Catasto {
   }
   rimisuraScrittura(ancora: string): RisultatoCatasto {
     return this.applica(rimisuraScrittura(this._stato, this.regole, ancora));
+  }
+  impostaSalute(id: number, salute: Salute | null): void {
+    this._stato = impostaSalute(this._stato, id, salute);
   }
   parametriSquadro(): ParametriSquadro {
     return parametriSquadro(this._stato, this.regole);

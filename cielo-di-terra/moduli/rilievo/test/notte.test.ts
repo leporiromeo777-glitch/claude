@@ -114,7 +114,7 @@ describe('la notte della Fase 1 (regole 3 e 4)', () => {
     expect(n.resoconto.cronologia.some((v) => /niente da rimettere/.test(v.testo))).toBe(true);
     // e di giorno Nando apre la breccia solo se ha una casa da rifare
     const s = applicaCicliDelGiorno(n.nuovoStato, r, { da: '05:30', a: '09:00' });
-    expect(s.eventi.map((e) => e.tipo === 'variante_cambiata' && e.elemento)).toEqual(['E4', 'E1'].slice(0, 1));
+    expect(s.eventi.map((e) => e.tipo === 'variante_cambiata' && e.elemento)).toEqual(['E4']);
     expect(varianteDi(s.stato, 'E3')).toBe('Abitata');
   });
 
