@@ -90,6 +90,29 @@ Costo = minimo con il solo bigliettino meno il minimo della base. Vuote = righe 
 - `npx tsc --noEmit -p .` → nessun errore nei file del gruppo.
 - Browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5740, Chromium 412×900, in italiano; g16 anche in inglese): per g13, g16, g17, g18, g19, g20, g21 e g22 si accetta la designata, si apre la notte (screenshot: spilli, marea di g21, note a margine del trabocco) e si fa giocare la soluzione. Tutte le richieste della designata risultano soddisfatte, con i loro esiti; i bigliettini di g16 si leggono nella sera con i testi nuovi. Nessun errore in console.
 
+### Verifica della revisione 1
+
+Controllo scettico di CA23-01…07 sul codice e nel browser (build `VITE_E2E=1`, `vite preview` sulla porta 5745, Chromium a 1280×800 e 412×900 touch, it ed en), con i passi delle segnalazioni del playtest. Correzioni nei file del gruppo:
+
+| Commit | Compito | Difetto trovato | Correzione |
+|---|---|---|---|
+| e6fa04c | CA23-02 (P070) | Negli Archivi 3-5 la guida «chi è questo filo» era un passo `primaOra`, che non scatta mai: il tombolo apre l'Archivio al primo strappo con le righe registrate già tessute (`rows.length > 0`). Nel browser `margin.shown` restava vuoto in arc3, arc4 e arc5 (arc6 invece funziona: lo strappo comincia alla prima riga). | Passo `when: 'ora'` all'ora dello strappo, come arc1. Nel browser la nota compare all'apertura di arc3, arc4 e arc5. Test aggiornato. |
+| 6a49de2 | CA23-05 (P068) | g10: con R2 al Bepi e Lunardi riuscito, il bilancio diceva insieme «Bepi non apre la porta al dottore forestiero» e «Lunardi ha curato Bepi» (visto nel browser). «Mi ha chiuso la porta in faccia» usciva anche quando Lunardi aveva curato il Bepi ma con meno di tre visite. | «Bepi non vuole il dottore forestiero in casa…» (it, en); la vignetta `g10.alba.chiuso` vale solo se manca l'evento `cura` del Bepi da Lunardi. |
+| 6a49de2 | CA23-03/05 | g13 ridisegnata: la Nina diceva «Il dottore non è arrivato fino a me» nella vignetta della richiesta fallita per il Bepi, anche quando lei era stata curata (visto nel browser con Lunardi riuscito e Nina fallita). | «… fino al babbo» (it, en). |
+| 6a49de2 | CA23-07 (P079) | g23: Don Piero dava del tu a Livia («come vedi»), il giorno dopo averle dato del lei in g22. | «come vede». |
+| 0335ba4 | CA23-05 (P092) | Bigliettini di Teresa (g11) e Lunardi (g18) chiedevano «domattina», che la richiesta non controlla. | «domani» (it, en). |
+| 990e1ad | CA23-07 (P081) | In arc6 «Don Piero» c'era, ma nessun testo diceva che era il giovane cappellano. | Eco 2 di arc6: «chiese il giovane cappellano» (it, en). |
+
+Confermato nel browser, coi passi delle segnalazioni:
+- **P056** (g14, Zeno + Nina): alba prete → ammessa → consegna di Zeno («Me l'ha data lei, alle due…»), poi «Prima di andare via…» con la lettera a tutto schermo e le voci su Livia madre sotto la lettera; nel bilancio nessuna voce su Livia madre. **P064**: sera di g15 «Stasera la laguna non porta niente…», bottiglia col nodo nero la sera di g16, sera di g17 «Sotto la porta non c'è niente…» (dopo il cartello dell'Atto III), biglietto di Livia sotto la porta in g18. In g16 il fascio si consegna all'alba solo con le lettere liberate (Zeno riuscito); con Zeno fallito l'alba ha «sepolte» e niente consegna.
+- **P088**: note a margine e fusi che pulsano all'inizio di g09 (febbre), g11 (nodo), g16 (trabocco, poi «traboccato» al primo trabocco), g17 (nero, a matita), g19 (marea alle 9, colonne allagate); in g09 la nota della cura al primo evento `cura`. Anche in inglese.
+- **P060/P061**: con g17.teresa riuscita, la sera di g22 ha `g22.teresa.riconosciuta`; dopo la pace di g18 la sera di g19 ha `g19.teresa.pace` («Non le leggo più, ma l'acqua sì»). **P117/P067**: alba di g18 pace → pane → Gino, di g11 nodo → pagella, di g20 resta → fazzoletto, senza battute generiche.
+- **P073/P106/P085**: epilogo D con le occasioni piantate (vaporetto delle 9, festa in Farmacia a mezzogiorno, festa in Piazza alle 17, lanterna alle 20) in una frase, Teresa, Gino, Lunardi, Nina, Zeno e Livia, il nastro «abbastanza lungo per due fili», «Per un autunno e un inverno»; epilogo A col nastro; it ed en. **P109**: fin_chiuso alle 9 mostra il nodo su tutti i fili e suona `nodo` e la campana. **P112/P113**: obiettivi del finale D «Almeno 3 fra … sentono il nome del dottore (entro le 20)», «La lettera del 1951, che mia madre ha riavuto dal pozzo, per Ada». **P063**: in g15 l'apparizione del filo nero dal Faro alle 3 (audio `nero`). **P065**: g13 «Un giorno intero di visite». **P114**: g23 due bigliettini e «spilli 0/2».
+
+Problemi per altri gruppi trovati nella verifica:
+- **contenuti-atto1** (`src/content/text/it/comune.json`, `personaggi.zeno.desiderio`): la scheda di Zeno nel Taccuino dice «Desidera: Chiedere perdono a Livia.» già la sera di g14, appena si risponde al suo bigliettino, prima della lettera di Clotilde (visto nel browser). Il nome Livia non compare in nessun altro testo prima della lettera, e la voce del diario dice «Non dice a chi». Proposta: «Chiedere perdono a qualcuno.» (en «To ask someone's forgiveness.»), o un testo che non nomini Livia.
+- **campagna/tombolo**: gli avvisi delle voci nuove del Taccuino durante la notte (stranezze scoperte: Nina, trabocco del pozzo, Lunardi) coprono per qualche secondo le righe basse del merletto sul telefono (g09 alle 12, g15 a fine notte, g16 alle 13).
+
 
 ## Correzioni della verifica
 
