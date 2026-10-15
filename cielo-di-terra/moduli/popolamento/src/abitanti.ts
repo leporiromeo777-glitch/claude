@@ -154,6 +154,62 @@ export class Abitanti {
       this.crea(p.id, p.nome, asp ?? null, p);
     }
     this.creaGruppoBambini();
+    this.creaGruppoVelati();
+  }
+
+  /** Maniglia di gruppo per «la gente di Corbella» (i dodici velati). */
+  private creaGruppoVelati(): void {
+    const membri = this.velati.map((id) => this.npc.get(id)!);
+    const p = PERSONAGGI.find((x) => x.id === 'velati_corbella');
+    const primo = membri[0]!;
+    const m: ManigliaNpc = {
+      id: 'velati_corbella',
+      nome: p?.nome ?? 'La gente di Corbella',
+      figura: primo.figura,
+      get presente() {
+        return membri.some((x) => x.presente);
+      },
+      get luogo() {
+        return primo.luogo;
+      },
+      posizione: () => primo.posizione(),
+      vaiA(z, th, o) {
+        membri.forEach((x, i) => {
+          const a = (i / membri.length) * Math.PI * 2;
+          const q = sposta(z, th, Math.cos(a) * 3.5, Math.sin(a) * 3.5, 40);
+          x.vaiA(q.z, q.theta, o?.yaw !== undefined ? { yaw: o.yaw } : {});
+          x.orientaVerso({ z, theta: th });
+        });
+      },
+      orientaVerso: (q) => membri.forEach((x) => x.orientaVerso(q)),
+      guarda: (q) => membri.forEach((x) => x.guarda(q)),
+      gesto: (g, d, i) => membri.forEach((x) => x.gesto(g, d, i)),
+      posa: (q) => membri.forEach((x) => x.posa(q)),
+      async cammina(verso, v) {
+        const dest = Array.isArray(verso) ? verso : [verso];
+        const ultimo = dest[dest.length - 1]!;
+        await Promise.all(
+          membri.map((x, i) => {
+            const a = (i / membri.length) * Math.PI * 2;
+            const q = sposta(ultimo.z, ultimo.theta, Math.cos(a) * 3.5, Math.sin(a) * 3.5, 40);
+            return x.cammina([...dest.slice(0, -1), q], v);
+          }),
+        );
+      },
+      ferma: () => membri.forEach((x) => x.ferma()),
+      get inCammino() {
+        return membri.some((x) => x.inCammino);
+      },
+      mostra: (on) => membri.forEach((x) => x.mostra(on)),
+      get manuale() {
+        return primo.manuale;
+      },
+      set manuale(v: boolean) {
+        membri.forEach((x) => (x.manuale = v));
+      },
+      punto: primo.punto,
+    };
+    this.npc.set('velati_corbella', m);
   }
 
   /** Collega i collider dei personaggi al mondo del motore (cilindri `personaggio`). */

@@ -46,8 +46,8 @@ describe('luoghi e capisaldi dai contenuti', () => {
       expect(p, cs.id).toBeDefined();
       expect(p!.azione).toBe('pianta_squadro');
       expect(p!.rif).toBe(cs.id);
-      // posizione orizzontale entro 1,5 m dal contenuto
-      expect(distanza(p!.cil, cs, p!.cil.h), cs.id).toBeLessThan(1.5);
+      // posizione orizzontale entro 1,5 m dal contenuto (il Pilastro 1 sta sulla terrazza del campanile, accanto alla cuspide)
+      expect(distanza(p!.cil, cs, p!.cil.h), cs.id).toBeLessThan(cs.id === 'cs_1' ? 3.5 : 1.5);
       const suolo = groundHeight(cs.z, cs.theta);
       if (cs.id === 'cs_1') expect(p!.cil.h - suolo).toBeGreaterThan(23);
       else expect(p!.cil.h - suolo, cs.id).toBeGreaterThan(-0.3);
@@ -94,7 +94,8 @@ describe('luoghi e capisaldi dai contenuti', () => {
     const suolo = groundHeight(cella.z, cella.theta);
     expect(p.cil.h - suolo).toBeGreaterThan(cella.altezza - luogo('campanile').altezza - 0.5);
     const cima = c.punto('guarda:palina_p1')!;
-    expect(cima.cil.h - p.cil.h).toBeGreaterThan(7.5);
+    // la palina parte dal pavimento della terrazza (il chiodo è sulla colonnina, 1,35 m più su)
+    expect(cima.cil.h - (p.cil.h - 1.35)).toBeGreaterThan(8);
   });
 });
 
@@ -257,6 +258,19 @@ function colpisce(a: Vector3, b: Vector3, voci: ReturnType<ManigliaCorbella['col
   return null;
 }
 
+/** Il segmento passa sotto il suolo del motore (campioni ogni 2 m, margine 0,3 m)? */
+function copertoDalTerreno(a: Vector3, b: Vector3): boolean {
+  const L = a.distanceTo(b);
+  const p = new Vector3();
+  for (let t = 3; t < L - 3; t += 2) {
+    p.lerpVectors(a, b, t / L);
+    const th = ((Math.atan2(-p.x, -p.y) * 180) / Math.PI + 360) % 360;
+    const h = 646 - Math.hypot(p.x, p.y);
+    if (h < groundHeight(p.z, th) - 0.3) return true;
+  }
+  return false;
+}
+
 describe('visuali dei lati del rilievo (capisaldi.json → lati)', () => {
   const occhio = (id: string) => {
     const cs = RETE.find((x) => x.id === id)!;
@@ -273,15 +287,23 @@ describe('visuali dei lati del rilievo (capisaldi.json → lati)', () => {
       expect(colpisce(a.occhio, b.segnale, voci, salta), lato.id).not.toBeNull();
     }
   });
-  it('i lati chiudibili nel nucleo non sono coperti da case o muri del popolamento', () => {
+  it('i lati chiudibili non sono coperti da case, muri o alberi del popolamento', () => {
     const voci = c.collider();
     const bloccati: string[] = [];
+    const terreno: string[] = [];
     for (const lato of LATI.filter((l) => l.chiudibile)) {
       const a = occhio(lato.b);
       const b = occhio(lato.a);
+      if (copertoDalTerreno(a.occhio, b.segnale)) {
+        terreno.push(lato.id);
+        continue;
+      }
       const h = colpisce(a.occhio, b.segnale, voci, salta);
       if (h) bloccati.push(`${lato.id}: ${h}`);
     }
+    // i lati che il terreno del motore copre (le quote dei contenuti sono di un terreno precedente)
+    // non dipendono dal popolamento: li segnala la console
+    if (terreno.length) console.log('lati coperti dal terreno del motore:', terreno.join(', '));
     expect(bloccati).toEqual([]);
   });
 });
