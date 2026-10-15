@@ -1,78 +1,26 @@
 /**
- * Gli abitanti di Corbella (personaggi non giocanti): figure velate di `src/oggetti`
- * (`creaAbitante`), messe al loro posto secondo gli orari di personaggi.json, che girano la
- * testa verso Elvira quando è vicina e camminano quando la storia lo chiede.
+ * Gli abitanti di Corbella per la regia: le figure vere del popolamento (`corbella.npc(id)`,
+ * con animazione, pose e collider) guidate dalla storia.
  *
- * - `posizioni` dei personaggi: fase (ogni giorno, giorno N, dal giorno N, notte…), dalle/alle,
- *   luogo (un id di luoghi.json; «in volo», «fuori scena», «dentro» = non si vede);
- * - Ottavio segue la storia: scende in spirale dal cielo (`atterra`), accompagna Elvira
- *   (`npc:ottavio->accompagna:fienile_ottavio`), arriva quando lo si chiama con un fischio;
- * - la gente di Corbella: una dozzina di velati senza dialogo (piazza all'alba, il paese di
- *   giorno, i gradini davanti al telo dell'Ombrista alla brace).
- *
- * Quando arriverà il modulo `popolamento` con i «posti» degli abitanti, basterà passarli qui
- * al posto dei luoghi (vedi `PostiAbitanti`).
+ * - Gli orari di personaggi.json li applica il popolamento (ogni minuto di gioco, con il giorno
+ *   che gli passa la regia). La regia corregge le poche posizioni con una condizione dei contenuti
+ *   (Clelia lascia la Bacheca dopo il dono) e prende in mano chi la storia muove (`manuale`).
+ * - Ottavio segue la storia: vola sopra la valle (Velo verde) finché non scende in spirale
+ *   (`atterra`), accompagna Elvira (`npc:ottavio->accompagna:fienile_ottavio`), le viene incontro
+ *   prima di un dialogo automatico (`ottavioRaggiunge`), arriva quando lo si chiama col fischio.
+ * - Chi è vicino a Elvira gira la testa verso di lei (tutti, per un po', con `velati_si_voltano`).
  */
-import { DoubleSide, Group, Mesh, MeshLambertMaterial, PlaneGeometry, Vector3, type Scene } from 'three';
-import { creaAbitante, posaSulCilindro, type OggettoProcedurale, type OpzioniAbitante, type StatoAbitante } from '../oggetti';
-import { cylToWorld, deltaDeg, surfaceDistance, upAt, worldToCyl } from '../world/cylinder';
+import type { Object3D, Vector3 } from 'three';
+import type { ManigliaCorbella, ManigliaNpc } from '../popolamento';
 import { METERS_PER_DEG } from '../world/constants';
+import { cylToWorld, deltaDeg, surfaceDistance, worldToCyl } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
-import { PERSONAGGI, luogo, oreDa, type Personaggio } from './contenuti';
-
-export interface DefFigura {
-  id: string;
-  /** Personaggio dei dialoghi a cui parla (i bambini parlano come «bambini»). */
-  parla?: string;
-  opzioni: OpzioniAbitante;
-  /** Scarto dal centro del luogo (m verso Mane, m verso Lag), per non sovrapporsi. */
-  scarto: [number, number];
-}
-
-const NOCE = 0x8a6a4a;
-
-export const FIGURE: DefFigura[] = [
-  { id: 'togna', parla: 'togna', opzioni: { seme: 'togna', copricapo: 'velo', corporatura: 'robusta', postura: 'curva', coloreVelo: NOCE, colore: 0xe8e2d4 }, scarto: [1.2, 0.6] },
-  { id: 'bortolo', parla: 'bortolo', opzioni: { seme: 'bortolo', copricapo: 'cappello', corporatura: 'robusta', postura: 'eretta', coloreVelo: NOCE }, scarto: [1.5, -1.0] },
-  { id: 'annunciata', parla: 'annunciata', opzioni: { seme: 'annunciata', copricapo: 'velo', corporatura: 'anziana', postura: 'mani-giunte', bastone: true, coloreVelo: 0x5c4330 }, scarto: [0, 0] },
-  { id: 'pina', parla: 'pina', opzioni: { seme: 'pina', copricapo: 'cappuccio', corporatura: 'anziana', postura: 'curva', coloreVelo: 0x8a8580 }, scarto: [0.3, 0.3] },
-  { id: 'nando', parla: 'nando', opzioni: { seme: 'nando', copricapo: 'cappuccio', corporatura: 'media', postura: 'braccia-conserte', coloreVelo: 0xb8a68a, colore: 0xb8a68a }, scarto: [2.5, 1.5] },
-  { id: 'clelia', parla: 'clelia', opzioni: { seme: 'clelia', copricapo: 'maschera-liscia', corporatura: 'esile', postura: 'mani-giunte', colore: 0x1e1c22, coloreVelo: 0x1e1c22 }, scarto: [1.4, -0.8] },
-  { id: 'lisa', parla: 'bambini', opzioni: { seme: 'lisa', copricapo: 'velo', corporatura: 'bambino', postura: 'eretta', coloreVelo: 0xf2efe6 }, scarto: [-4, 3] },
-  { id: 'gioanin', parla: 'bambini', opzioni: { seme: 'gioanin', copricapo: 'velo', corporatura: 'bambino', postura: 'mani-dietro', coloreVelo: 0xf2efe6 }, scarto: [-4.6, 3.6] },
-  { id: 'ottavio', parla: 'ottavio', opzioni: { seme: 'ottavio', copricapo: 'cappuccio', corporatura: 'esile', postura: 'eretta', coloreVelo: 0x4f7a3a, colore: 0x5b6146 }, scarto: [2.2, -2.2] },
-];
-
-/** Posti dei velati senza nome (scarti attorno alla piazza, al sagrato, al lavatoio). */
-const POSTI_VELATI: { luogo: string; scarto: [number, number] }[] = [
-  { luogo: 'piazza_ore', scarto: [6, 4] },
-  { luogo: 'piazza_ore', scarto: [-5, 7] },
-  { luogo: 'piazza_ore', scarto: [8, -6] },
-  { luogo: 'sagrato', scarto: [3, 2] },
-  { luogo: 'lavatoio', scarto: [-2.5, -2] },
-  { luogo: 'soglia_pina', scarto: [-3, 1.5] },
-  { luogo: 'casa_del_velo', scarto: [3, -3] },
-  { luogo: 'piazza_ore', scarto: [-8, -5] },
-];
-
-export interface Figura {
-  def: DefFigura;
-  obj: OggettoProcedurale<StatoAbitante>;
-  stato: StatoAbitante;
-  /** Posizione dei piedi (z, θ) e yaw (gradi da nord verso est). */
-  z: number;
-  theta: number;
-  h: number;
-  yaw: number;
-  visibile: boolean;
-  /** Luogo corrente (id) o null. */
-  luogo: string | null;
-}
+import { luogo, oreDa, type Personaggio } from './contenuti';
 
 type ModoOttavio =
   | { tipo: 'orario' }
   | { tipo: 'cielo' }
-  | { tipo: 'atterra'; da: Vector3; a: { z: number; theta: number }; t: number; poi: ModoOttavio }
+  | { tipo: 'atterra'; da: { z: number; theta: number; h: number }; a: { z: number; theta: number }; t: number; poi: ModoOttavio }
   | { tipo: 'fermo'; z: number; theta: number; fino?: number }
   | { tipo: 'accompagna'; tappe: string[] }
   /** Viene incontro a Elvira (un dialogo automatico con lui sta per aprirsi). */
@@ -84,6 +32,10 @@ const OTTAVIO_VICINO = 2.4;
 const OTTAVIO_A_PORTATA = 6;
 /** Oltre questa distanza (m) Ottavio non viene a piedi: scende dal cielo vicino a Elvira. */
 const OTTAVIO_LONTANO_A_PIEDI = 36;
+/** Sopra il suolo di tanto (m) una figura è «in volo»: si vede, ma non è lì. */
+const IN_VOLO = 6;
+/** Maniglie di gruppo del popolamento (muovono più figure). */
+const GRUPPI = new Set(['bambini', 'velati_corbella']);
 
 export interface ContestoAbitanti {
   giorno: number;
@@ -121,63 +73,67 @@ export function luogoDaOrario(p: Personaggio, giorno: number, ore: number, valut
   return null;
 }
 
-const _v = new Vector3();
-const _u = new Vector3();
-
 export class Abitanti {
-  readonly gruppo = new Group();
-  readonly figure = new Map<string, Figura>();
-  private velati: Figura[] = [];
   private ottavio: ModoOttavio = { tipo: 'orario' };
-  private veloVerde: Mesh;
-  /** Fino a quando (tempo di simulazione) i velati guardano tutti Elvira. */
+  /** Fino a quando (secondi della regia) tutti guardano Elvira. */
   private voltatiFino = -1;
   private tempo = 0;
+  private guardanti = new Set<string>();
+  /** Meta del cammino in corso di Ottavio (per non ridare lo stesso ordine a ogni passo). */
+  private metaCammino: { z: number; theta: number } | null = null;
+  private prossimaCondizione = 0;
   /** Velocità di cammino di chi accompagna (m/s). */
   passoAccompagna = 1.7;
 
-  constructor(scene: Scene) {
-    this.gruppo.name = 'abitanti';
-    scene.add(this.gruppo);
-    for (const def of FIGURE) this.figure.set(def.id, this.crea(def));
-    POSTI_VELATI.forEach((p, i) => {
-      const def: DefFigura = {
-        id: `velato_${i + 1}`,
-        opzioni: { seme: `velato-${i}`, copricapo: i % 3 === 0 ? 'cappello' : i % 4 === 1 ? 'maschera' : 'velo', corporatura: i % 3 === 2 ? 'anziana' : 'media', postura: i % 2 ? 'mani-dietro' : 'eretta' },
-        scarto: p.scarto,
-      };
-      this.velati.push(this.crea(def));
-    });
-    this.veloVerde = new Mesh(new PlaneGeometry(3.6, 1.4), new MeshLambertMaterial({ color: 0x5f8a42, side: DoubleSide }));
-    this.veloVerde.name = 'velo-verde-ottavio';
-    this.veloVerde.visible = false;
-    this.gruppo.add(this.veloVerde);
+  constructor(readonly corbella: ManigliaCorbella) {}
+
+  private npc(id: string): ManigliaNpc | undefined {
+    return this.corbella.npc(id === 'bambini' ? 'lisa' : id);
   }
 
-  private crea(def: DefFigura): Figura {
-    const obj = creaAbitante(def.opzioni);
-    obj.gruppo.name = `figura-${def.id}`;
-    obj.gruppo.visible = false;
-    this.gruppo.add(obj.gruppo);
-    return { def, obj, stato: { modo: 'fermo', guarda: null }, z: 0, theta: 0, h: 0, yaw: 0, visibile: false, luogo: null };
+  /** Il personaggio ha un corpo nel paese (i dialoghi aspettano che ci sia). */
+  ha(id: string): boolean {
+    return !!this.npc(id)?.figura;
   }
 
-  /** Testa della figura (mondo), per i bersagli del dialogo. */
-  testa(id: string, out = new Vector3()): Vector3 | null {
-    const f = this.figure.get(id);
-    if (!f?.visibile) return null;
-    const k = f.def.opzioni.corporatura === 'bambino' ? 1.0 : 1.5;
-    return cylToWorld(f.z, f.theta, f.h + k, out);
+  private inVolo(n: ManigliaNpc): boolean {
+    const p = n.posizione();
+    return !!p && p.h - groundHeight(p.z, p.theta) > IN_VOLO;
   }
 
-  /** Il punto dove si parla a un personaggio dei dialoghi («bambini» = Lisa). */
-  puntoDialogo(personaggio: string): Vector3 | null {
-    for (const f of this.figure.values()) if (f.def.parla === personaggio && f.visibile) return this.testa(f.def.id);
-    return null;
-  }
-
+  /** Visibile e a terra (Ottavio in volo sopra la valle non è «presente»). */
   presente(id: string): boolean {
-    return !!this.figure.get(id)?.visibile;
+    const n = this.npc(id);
+    return !!n?.presente && !this.inVolo(n);
+  }
+
+  posizione(id: string): { z: number; theta: number; h: number } | null {
+    const n = this.npc(id);
+    return n?.presente ? n.posizione() : null;
+  }
+
+  /** Distanza (sulla superficie) fra una figura presente e un punto; Infinity se non c'è. */
+  distanzaDa(id: string, z: number, theta: number): number {
+    const p = this.posizione(id);
+    return p ? surfaceDistance(p.z, p.theta, z, theta) : Infinity;
+  }
+
+  /** Il punto dove si parla a un personaggio dei dialoghi (la testa; «bambini» = Lisa). */
+  puntoDialogo(personaggio: string): Vector3 | null {
+    if (!this.presente(personaggio)) return null;
+    const p = this.npc(personaggio)!.posizione()!;
+    return cylToWorld(p.z, p.theta, p.h + (personaggio === 'bambini' || personaggio === 'lisa' || personaggio === 'gioanin' ? 1.0 : 1.45));
+  }
+
+  /** Chi (con un corpo, a terra) è entro `raggio` m da (z, θ). */
+  vicini(z: number, theta: number, raggio: number, escludi: readonly string[] = []): string[] {
+    const out: string[] = [];
+    for (const [id, n] of this.corbella.personaggi) {
+      if (GRUPPI.has(id) || escludi.includes(id) || !n.figura || !n.presente || this.inVolo(n)) continue;
+      const p = n.posizione();
+      if (p && surfaceDistance(p.z, p.theta, z, theta) < raggio) out.push(id);
+    }
+    return out;
   }
 
   /** I velati della piazza si voltano tutti insieme verso Elvira (evento:velati_si_voltano). */
@@ -185,10 +141,15 @@ export class Abitanti {
     this.voltatiFino = this.tempo + secondi;
   }
 
-  /** Ottavio scende in spirale da una corrente calda sopra la grà e atterra vicino a (z, θ). */
+  // ------------------------------------------------------------------ Ottavio
+
+  /** Ottavio scende in spirale da una corrente calda e atterra vicino a (z, θ). */
   atterra(z: number, theta: number, poi: ModoOttavio = { tipo: 'fermo', z, theta }): void {
-    const da = cylToWorld(z - 30, theta - 2, groundHeight(z, theta) + 70);
+    const n = this.npc('ottavio');
+    const p = n?.presente ? n.posizione() : null;
+    const da = p && p.h - groundHeight(p.z, p.theta) > IN_VOLO ? p : { z: z - 30, theta: theta - 2, h: groundHeight(z, theta) + 70 };
     this.ottavio = { tipo: 'atterra', da, a: { z, theta }, t: 0, poi };
+    this.metaCammino = null;
   }
 
   /** Comandi «npc:» dei contenuti: «ottavio->accompagna:fienile_ottavio». */
@@ -198,6 +159,7 @@ export class Abitanti {
     if (m[2] === 'accompagna') {
       const dest = m[3] || 'fienile_ottavio';
       this.ottavio = { tipo: 'accompagna', tappe: dest === 'fienile_ottavio' ? ['passerella_messo', 'fienile_ottavio'] : [dest] };
+      this.metaCammino = null;
     } else if (m[2] === 'vai' && m[3]) {
       const l = luogo(m[3]);
       if (l) this.ottavio = { tipo: 'fermo', z: l.z, theta: l.theta };
@@ -214,7 +176,7 @@ export class Abitanti {
     this.ottavio = { tipo: 'fermo', z, theta, ...(fino !== undefined ? { fino } : {}) };
   }
 
-  /** Ottavio nascosto (in volo) finché la storia non lo fa scendere. */
+  /** Ottavio in volo sopra la valle finché la storia non lo fa scendere. */
   ottavioInCielo(): void {
     this.ottavio = { tipo: 'cielo' };
   }
@@ -226,14 +188,9 @@ export class Abitanti {
    */
   ottavioRaggiunge(): void {
     const o = this.ottavio;
-    if (o.tipo === 'raggiunge' || o.tipo === 'atterra' || o.tipo === 'cielo') return;
+    if (o.tipo === 'raggiunge' || o.tipo === 'atterra') return;
     this.ottavio = { tipo: 'raggiunge', poi: o };
-  }
-
-  /** Distanza (sulla superficie) fra una figura visibile e un punto; Infinity se non c'è. */
-  distanzaDa(id: string, z: number, theta: number): number {
-    const f = this.figure.get(id);
-    return f?.visibile ? surfaceDistance(f.z, f.theta, z, theta) : Infinity;
+    this.metaCammino = null;
   }
 
   get modoOttavio(): string {
@@ -250,147 +207,113 @@ export class Abitanti {
     const o = (d as { ottavio?: ModoOttavio } | null)?.ottavio;
     if (o && typeof o === 'object' && 'tipo' in o && o.tipo !== 'atterra' && o.tipo !== 'raggiunge') this.ottavio = o;
     else this.ottavio = { tipo: 'orario' };
+    this.metaCammino = null;
   }
 
-  private posa(f: Figura, z: number, theta: number, yaw: number, h = groundHeight(z, theta)): void {
-    f.z = z;
-    f.theta = theta;
-    f.h = h;
-    f.yaw = yaw;
-    posaSulCilindro(f.obj.gruppo, z, theta, h, yaw);
-  }
-
-  private mostra(f: Figura, si: boolean): void {
-    f.visibile = si;
-    f.obj.gruppo.visible = si;
-  }
-
-  private alLuogo(f: Figura, id: string | null, scarto = f.def.scarto): void {
-    if (!id) {
-      this.mostra(f, false);
-      f.luogo = null;
-      return;
-    }
-    const l = luogo(id)!;
-    const z = l.z + scarto[1];
-    const theta = l.theta + scarto[0] / METERS_PER_DEG;
-    if (f.luogo !== id || !f.visibile) {
-      const versoPiazza = (Math.atan2(deltaDeg(theta, 37) * METERS_PER_DEG, 1046 - z) * 180) / Math.PI;
-      this.posa(f, z, theta, Number.isFinite(versoPiazza) ? versoPiazza : 0);
-    }
-    f.luogo = id;
-    this.mostra(f, true);
-  }
+  // ------------------------------------------------------------------ passo
 
   update(dt: number, ctx: ContestoAbitanti): void {
     this.tempo += dt;
-    const voltati = this.tempo < this.voltatiFino;
-    for (const f of this.figure.values()) {
-      if (f.def.id === 'ottavio') this.aggiornaOttavio(f, dt, ctx);
-      else {
-        const pid = f.def.id;
-        const p = PERSONAGGI.find((x) => x.id === pid);
-        this.alLuogo(f, p ? luogoDaOrario(p, ctx.giorno, ctx.ore, ctx.valuta) : null);
-      }
+    if (this.corbella.giorno !== ctx.giorno) this.corbella.giorno = ctx.giorno;
+    this.prossimaCondizione -= dt;
+    if (this.prossimaCondizione <= 0) {
+      this.prossimaCondizione = 0.5;
+      this.condizioni(ctx);
     }
-    const pv = PERSONAGGI.find((x) => x.id === 'velati_corbella');
-    this.velati.forEach((f, i) => {
-      const dove = pv ? luogoDaOrario(pv, ctx.giorno, ctx.ore) : null;
-      const posto = POSTI_VELATI[i]!;
-      if (ctx.ore >= 5.5 && ctx.ore < 6.5) this.alLuogo(f, 'piazza_ore', [posto.scarto[0] * 0.8, posto.scarto[1] * 0.8]);
-      else if (ctx.ore >= 19.75 && ctx.ore < 20.5) this.alLuogo(f, 'telo_ombrista', [(i % 4) * 1.6 - 2.4, -4 - Math.floor(i / 4) * 1.5]);
-      else this.alLuogo(f, dove || (ctx.ore >= 6.5 && ctx.ore < 19.5) ? posto.luogo : null);
-    });
-    // testa verso Elvira (vicina, o tutti quando si voltano)
-    for (const f of [...this.figure.values(), ...this.velati]) {
-      if (!f.visibile) continue;
-      const vicino = surfaceDistance(f.z, f.theta, ctx.elvira.z, ctx.elvira.theta);
-      const guarda = vicino < 9 || (voltati && vicino < 70);
-      f.stato.guarda = guarda ? ctx.occhi.clone() : null;
-      f.obj.update?.(dt, f.stato);
+    this.aggiornaOttavio(dt, ctx);
+    this.sguardi(ctx);
+  }
+
+  /** Le posizioni dei contenuti con una condizione (il popolamento non le valuta). */
+  private condizioni(ctx: ContestoAbitanti): void {
+    const clelia = this.npc('clelia');
+    if (!clelia) return;
+    const via = ctx.giorno === 2 && ctx.valuta('dialogo:d_clelia_dono finito');
+    if (via && !clelia.manuale) {
+      clelia.manuale = true;
+      clelia.mostra(false);
+    } else if (!via && clelia.manuale) {
+      clelia.manuale = false;
+      this.corbella.applicaOrario(ctx.giorno, ctx.ore);
     }
   }
 
-  private aggiornaOttavio(f: Figura, dt: number, ctx: ContestoAbitanti): void {
+  private sguardi(ctx: ContestoAbitanti): void {
+    const voltati = this.tempo < this.voltatiFino;
+    for (const [id, n] of this.corbella.personaggi) {
+      if (GRUPPI.has(id) || !n.figura) continue;
+      const p = n.presente ? n.posizione() : null;
+      const d = p ? surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta) : Infinity;
+      if (d < 9 || (voltati && d < 70)) {
+        n.guarda(ctx.occhi);
+        this.guardanti.add(id);
+      } else if (this.guardanti.delete(id)) n.guarda(null);
+    }
+  }
+
+  private velo(n: ManigliaNpc): Object3D | null {
+    return n.figura?.getObjectByName('velo-ottavio') ?? null;
+  }
+
+  private aggiornaOttavio(dt: number, ctx: ContestoAbitanti): void {
+    const n = this.npc('ottavio');
+    if (!n) return;
     const o = this.ottavio;
-    this.veloVerde.visible = false;
-    f.stato.modo = 'fermo';
+    n.manuale = o.tipo !== 'orario';
+    if (o.tipo === 'orario') {
+      this.metaCammino = null;
+      return;
+    }
+    const velo = this.velo(n);
+    if (velo && o.tipo !== 'cielo' && o.tipo !== 'atterra') velo.visible = false;
     switch (o.tipo) {
-      case 'orario': {
-        const p = PERSONAGGI.find((x) => x.id === 'ottavio');
-        this.alLuogo(f, p ? luogoDaOrario(p, ctx.giorno, ctx.ore, ctx.valuta) : null);
+      case 'cielo': {
+        // un segnale di cielo: il Velo verde che gira sopra la valle
+        const t = this.tempo * 0.05;
+        const z = 1090 + Math.cos(t) * 60;
+        const theta = 42 + (Math.sin(t) * 40) / METERS_PER_DEG;
+        n.vaiA(z, theta, { h: groundHeight(z, theta) + 55, yaw: (t * 180) / Math.PI + 90 });
+        if (!n.presente) n.mostra(true);
+        if (velo) velo.visible = true;
         return;
       }
-      case 'cielo':
-        this.mostra(f, false);
-        return;
       case 'fermo': {
         if (o.fino !== undefined && ctx.assoluto >= o.fino) {
           this.ottavio = { tipo: 'orario' };
+          n.manuale = false;
+          this.corbella.applicaOrario(ctx.giorno, ctx.ore);
           return;
         }
-        if (!f.visibile || Math.abs(f.z - o.z) > 0.01 || Math.abs(f.theta - o.theta) > 1e-4) {
-          this.posa(f, o.z, o.theta, f.yaw);
-          f.luogo = null;
+        const p = n.posizione();
+        if (!n.presente || !p || surfaceDistance(p.z, p.theta, o.z, o.theta) > 0.3 || p.h - groundHeight(o.z, o.theta) > 1.5) {
+          n.ferma();
+          n.vaiA(o.z, o.theta);
+          n.orientaVerso(ctx.elvira);
+          n.mostra(true);
         }
-        this.mostra(f, true);
         return;
       }
       case 'atterra': {
         o.t += dt / 7;
         const t = Math.min(1, o.t);
-        const a = cylToWorld(o.a.z, o.a.theta, groundHeight(o.a.z, o.a.theta));
+        const s = t * t * (3 - 2 * t);
+        const hA = groundHeight(o.a.z, o.a.theta);
         const giri = (1 - t) * Math.PI * 3;
         const raggio = 18 * (1 - t);
-        _v.lerpVectors(o.da, a, t * t * (3 - 2 * t));
-        const c = worldToCyl(_v);
-        const z = c.z + Math.cos(giri) * raggio;
-        const theta = c.theta + (Math.sin(giri) * raggio) / METERS_PER_DEG;
-        const h = Math.max(groundHeight(z, theta), c.h);
-        this.posa(f, z, theta, (giri * 180) / Math.PI + 90, h);
-        this.mostra(f, true);
-        f.luogo = null;
-        if (t < 0.97) {
-          this.veloVerde.visible = true;
-          upAt(theta, _u);
-          this.veloVerde.position.copy(cylToWorld(z, theta, h + 2.3));
-          this.veloVerde.lookAt(_v.copy(this.veloVerde.position).add(_u));
-        }
-        if (t >= 1) this.ottavio = o.poi;
-        return;
-      }
-      case 'raggiunge': {
-        // doveva già stare vicino a Elvira (fermo davanti al fienile): ci va e basta
-        if (o.poi.tipo === 'fermo' && surfaceDistance(o.poi.z, o.poi.theta, ctx.elvira.z, ctx.elvira.theta) <= OTTAVIO_A_PORTATA) {
+        const zc = o.da.z + (o.a.z - o.da.z) * s;
+        const thc = o.da.theta + deltaDeg(o.da.theta, o.a.theta) * s;
+        const z = zc + Math.cos(giri) * raggio;
+        const theta = thc + (Math.sin(giri) * raggio) / METERS_PER_DEG;
+        const h = Math.max(groundHeight(z, theta), o.da.h + (hA - o.da.h) * s);
+        n.vaiA(z, theta, { h, yaw: (giri * 180) / Math.PI + 90 });
+        if (!n.presente) n.mostra(true);
+        if (velo) velo.visible = t < 0.97;
+        if (t >= 1) {
           this.ottavio = o.poi;
-          return;
+          n.vaiA(o.a.z, o.a.theta);
+          n.orientaVerso(ctx.elvira);
+          n.mostra(true); // il collider sul suolo
         }
-        const dz = ctx.elvira.z - f.z;
-        const ds = deltaDeg(f.theta, ctx.elvira.theta) * METERS_PER_DEG;
-        const dist = Math.hypot(dz, ds);
-        if (f.visibile && dist > OTTAVIO_LONTANO_A_PIEDI) {
-          // troppo lontano per venire a piedi: arriva dal cielo, come fa lui
-          const k = OTTAVIO_VICINO / dist;
-          const z = ctx.elvira.z - dz * k;
-          const theta = ctx.elvira.theta - (ds * k) / METERS_PER_DEG;
-          const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
-          this.atterra(z, theta, { tipo: 'fermo', z, theta, fino });
-          return;
-        }
-        if (!f.visibile || dist <= OTTAVIO_VICINO + 0.05) {
-          // arrivato: resta lì (fino a quando sarebbe rimasto dov'era, o per un'ora)
-          const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
-          this.ottavio = o.poi.tipo === 'accompagna' ? o.poi : { tipo: 'fermo', z: f.z, theta: f.theta, fino };
-          this.mostra(f, true);
-          return;
-        }
-        const passo = Math.min(dist - OTTAVIO_VICINO, 2.4 * dt);
-        const k = passo / dist;
-        this.posa(f, f.z + dz * k, f.theta + (ds * k) / METERS_PER_DEG, (Math.atan2(ds, dz) * 180) / Math.PI);
-        this.mostra(f, true);
-        f.stato.modo = 'cammina';
-        f.stato.velocita = 2.4;
-        f.luogo = null;
         return;
       }
       case 'accompagna': {
@@ -399,31 +322,76 @@ export class Abitanti {
           this.ottavio = { tipo: 'orario' };
           return;
         }
-        if (!f.visibile) {
+        if (!n.presente || this.inVolo(n)) {
           // compare vicino a Elvira
-          this.posa(f, ctx.elvira.z + 2, ctx.elvira.theta + 1.5 / METERS_PER_DEG, 0);
-          this.mostra(f, true);
+          n.vaiA(ctx.elvira.z + 2, ctx.elvira.theta + 1.5 / METERS_PER_DEG);
+          n.mostra(true);
+          this.metaCammino = null;
         }
-        const dist = surfaceDistance(f.z, f.theta, dest.z, dest.theta);
-        const distElvira = surfaceDistance(f.z, f.theta, ctx.elvira.z, ctx.elvira.theta);
+        const p = n.posizione()!;
+        const dist = surfaceDistance(p.z, p.theta, dest.z, dest.theta);
+        const distElvira = surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta);
         if (dist < 1.5) {
+          this.metaCammino = null;
           if (o.tappe.length > 1 && distElvira < 12) o.tappe.shift();
-          else if (o.tappe.length === 1) this.ottavio = { tipo: 'fermo', z: f.z, theta: f.theta };
+          else if (o.tappe.length === 1) this.ottavio = { tipo: 'fermo', z: p.z, theta: p.theta };
           return;
         }
-        if (distElvira > 22) return; // aspetta che Elvira lo raggiunga
-        const passo = Math.min(dist, this.passoAccompagna * dt);
-        const dz = dest.z - f.z;
-        const ds = deltaDeg(f.theta, dest.theta) * METERS_PER_DEG;
-        const k = passo / Math.max(1e-6, Math.hypot(dz, ds));
-        const z = f.z + dz * k;
-        const theta = f.theta + (ds * k) / METERS_PER_DEG;
-        this.posa(f, z, theta, (Math.atan2(ds, dz) * 180) / Math.PI);
-        f.stato.modo = 'cammina';
-        f.stato.velocita = this.passoAccompagna;
-        f.luogo = null;
+        if (distElvira > 22) {
+          // aspetta che Elvira lo raggiunga
+          if (n.inCammino) n.ferma();
+          this.metaCammino = null;
+          return;
+        }
+        this.cammina(n, dest, this.passoAccompagna);
+        return;
+      }
+      case 'raggiunge': {
+        // doveva già stare vicino a Elvira (fermo davanti al fienile): ci va e basta
+        if (o.poi.tipo === 'fermo' && surfaceDistance(o.poi.z, o.poi.theta, ctx.elvira.z, ctx.elvira.theta) <= OTTAVIO_A_PORTATA) {
+          this.ottavio = o.poi;
+          return;
+        }
+        const p = n.presente ? n.posizione() : null;
+        const dist = p ? surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta) : Infinity;
+        const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
+        if (!p || dist > OTTAVIO_LONTANO_A_PIEDI || this.inVolo(n)) {
+          // troppo lontano per venire a piedi (o in volo): scende dal cielo vicino a Elvira
+          const q = this.accanto(ctx.elvira, p);
+          this.atterra(q.z, q.theta, { tipo: 'fermo', z: q.z, theta: q.theta, fino });
+          return;
+        }
+        if (dist <= OTTAVIO_VICINO + 0.15) {
+          n.ferma();
+          this.metaCammino = null;
+          n.orientaVerso(ctx.elvira);
+          this.ottavio = o.poi.tipo === 'accompagna' ? o.poi : { tipo: 'fermo', z: p.z, theta: p.theta, fino };
+          return;
+        }
+        this.cammina(n, this.accanto(ctx.elvira, p), 2.4);
         return;
       }
     }
   }
+
+  /** Un punto a OTTAVIO_VICINO m da Elvira, dalla parte di `da` (o davanti a Mane). */
+  private accanto(elvira: { z: number; theta: number }, da: { z: number; theta: number } | null): { z: number; theta: number } {
+    const dz = da ? da.z - elvira.z : 0;
+    const ds = da ? deltaDeg(elvira.theta, da.theta) * METERS_PER_DEG : 1;
+    const d = Math.hypot(dz, ds) || 1;
+    return { z: elvira.z + (dz / d) * OTTAVIO_VICINO, theta: elvira.theta + ((ds / d) * OTTAVIO_VICINO) / METERS_PER_DEG };
+  }
+
+  /** Dà l'ordine di camminare solo se la meta è cambiata (o se si era fermato). */
+  private cammina(n: ManigliaNpc, meta: { z: number; theta: number }, velocita: number): void {
+    const m = this.metaCammino;
+    if (m && n.inCammino && surfaceDistance(m.z, m.theta, meta.z, meta.theta) < 1.2) return;
+    this.metaCammino = { z: meta.z, theta: meta.theta };
+    void n.cammina({ z: meta.z, theta: meta.theta }, velocita);
+  }
+}
+
+/** Per i test e il debug: (z, θ) di un punto mondo. */
+export function cilDi(p: Vector3): { z: number; theta: number; h: number } {
+  return worldToCyl(p);
 }
