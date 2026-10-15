@@ -34,6 +34,7 @@ import { nomeCatastale, type InterfacciaGioco } from '../ui';
 import { DEG, METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, localFrameAt, rotatingToInertialDir, upAt, worldToCyl } from '../world/cylinder';
 import { groundHeight, stripAt } from '../world/terrain';
+import { portaPopolamento, type ManigliaCorbella, type PortaCorbella } from '../popolamento';
 import { PonteAudio } from './audio';
 import { CAPISALDI, CONTENUTI_NARRATIVA, LONTANI, luogo, ostacoloFra, testoOra as fmtOra } from './contenuti';
 import { Corpo } from './corpo';

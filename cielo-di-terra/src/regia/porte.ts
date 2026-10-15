@@ -1,11 +1,7 @@
 /**
- * Le «porte» della regia verso i moduli ancora in arrivo.
- *
- * - `PortaPopolamento`: i contenuti veri di Corbella posati nel mondo (punti d'interazione,
- *   elementi mobili con le loro varianti). Oggi la implementano i segnaposto di `scena/`;
- *   il modulo `popolamento`, quando arriva, la implementa con i suoi oggetti.
- *
- * (Il catasto non ha più una porta: la regia usa direttamente `src/rilievo`, vedi `catasto.ts`.)
+ * La «porta» della regia verso il paese: i contenuti di Corbella posati nel mondo (punti
+ * d'interazione, elementi mobili con le loro varianti). La implementa `portaPopolamento(corbella)`
+ * di `src/popolamento`, che traduce anche gli id storici della regia (`ALIAS_SEGNAPOSTO`).
  */
 import type { Vector3 } from 'three';
 

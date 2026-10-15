@@ -8,6 +8,7 @@
  */
 import { installDebugApi } from './core/debug';
 import { Game } from './game';
+import { installaCorbella } from './popolamento';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
 import { InterfacciaGioco, caricaCaratteri } from './ui';
@@ -59,9 +60,13 @@ async function boot(): Promise<void> {
   if (ore !== null && !Number.isNaN(Number(ore))) game.clock.setHours(Number(ore));
   if (debugEnabled) installDebugApi(game);
   if (!params.has('senza-titolo')) {
-    ui.caricamento.progresso(0.97, 'la Cripta, le persone, i chiodi');
+    ui.caricamento.progresso(0.9, 'Corbella: le case, i muri, la gente');
     await new Promise((r) => setTimeout(r, 0));
-    regia = new Regia(game, ui, { e2e });
+    // il paese vero (src/popolamento) al posto del segnaposto del motore; il suo passo lo chiama la regia
+    const corbella = installaCorbella(game, { agganciaCiclo: false, luciAbitanti: false });
+    ui.caricamento.progresso(0.97, 'la Cripta, i chiodi');
+    await new Promise((r) => setTimeout(r, 0));
+    regia = new Regia(game, ui, corbella, { e2e });
     if (debugEnabled) installaDebugRegia(regia);
   }
   ui.caricamento.progresso(1, 'pronto');
