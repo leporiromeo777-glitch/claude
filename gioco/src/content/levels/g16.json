@@ -46,10 +46,10 @@
     }
   ],
   "initial": [
+    "teresa",
     "nina",
     "marta",
     "gino",
-    "teresa",
     "piero",
     "zeno"
   ],
@@ -116,9 +116,34 @@
   ],
   "pins": [
     {
-      "thread": "marta",
-      "place": "forno",
+      "thread": "piero",
+      "place": "farmacia",
       "hour": 7
+    },
+    {
+      "thread": "teresa",
+      "place": "forno",
+      "hour": 8
+    },
+    {
+      "thread": "gino",
+      "place": "faro",
+      "hour": 9
+    },
+    {
+      "thread": "gino",
+      "place": "farmacia",
+      "hour": 10
+    },
+    {
+      "thread": "teresa",
+      "place": "forno",
+      "hour": 10
+    },
+    {
+      "thread": "gino",
+      "place": "faro",
+      "hour": 11
     },
     {
       "thread": "piero",
@@ -126,14 +151,29 @@
       "hour": 11
     },
     {
-      "thread": "marta",
-      "place": "forno",
-      "hour": 17
+      "thread": "gino",
+      "place": "faro",
+      "hour": 12
     },
     {
-      "thread": "zeno",
-      "place": "faro",
-      "hour": 18
+      "thread": "marta",
+      "place": "piazza",
+      "hour": 13
+    },
+    {
+      "thread": "nina",
+      "place": "piazza",
+      "hour": 14
+    },
+    {
+      "thread": "gino",
+      "place": "farmacia",
+      "hour": 15
+    },
+    {
+      "thread": "nina",
+      "place": "chiesa",
+      "hour": 17
     }
   ],
   "notes": [
@@ -142,7 +182,7 @@
     "g16.piero",
     "g16.marta"
   ],
-  "matassa": 15,
+  "matassa": 19,
   "hintKeys": {
     "spinta": "atto2.g16.hint.spinta",
     "indizio": "atto2.g16.hint.indizio"
@@ -198,7 +238,15 @@
           }
         ],
         "when": {
-          "failed": "g16.teresa"
+          "all": [
+            {
+              "failed": "g16.teresa"
+            },
+            {
+              "event": "legge",
+              "a": "teresa"
+            }
+          ]
         },
         "dopo": "g16.alba.trabocco"
       },

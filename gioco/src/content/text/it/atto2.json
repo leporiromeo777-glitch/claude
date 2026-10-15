@@ -448,7 +448,7 @@
     },
     "hint": {
       "spinta": "Il pozzo trabocca con tre segreti: al suo incrocio successivo, da sopra, dà tutto.",
-      "indizio": "Fai arrivare al pozzo i segreti di Nina e di Marta, poi Don Piero sopra Zeno."
+      "indizio": "La Nina sopra Marta prende tutti e due i segreti e li porta al pozzo; il fascio va a Zeno."
     },
     "alba": {
       "trabocco": {
@@ -478,36 +478,36 @@
     },
     "titolo": "Il pozzo trabocca",
     "zeno": {
-      "testo": "Il prete custodisce un fascio di lettere che non sa di avere. Sono tue, ma tu non hai filo: falle arrivare a me, al Faro, che te le porto io. Le ho aspettate anch'io.",
+      "testo": "Il prete custodisce un fascio di lettere che non sa di avere. Sono tue, ma tu non hai filo: falle arrivare a me entro le cinque, che te le porto io. Le ho aspettate anch'io.",
       "esito": {
-        "ok": "Il fascio è uscito dal pozzo ed è arrivato a Zeno. Le lettere di mia madre, dopo quattordici anni, sono in viaggio.",
-        "fallita": "Il fascio non è uscito dal pozzo, o non è arrivato al Faro. Zeno ha aspettato sulla porta fino a buio.",
+        "ok": "Il fascio è uscito dal pozzo ed è arrivato a Zeno prima delle cinque. Le lettere di mia madre, dopo quattordici anni, sono in viaggio.",
+        "fallita": "Il fascio non è uscito dal pozzo, o non è arrivato a Zeno per le cinque. Zeno ha aspettato sulla porta fino a buio.",
         "lasciato": "Ho lasciato cadere il fascio. Le lettere di mia madre restano nel pozzo, a dieci passi da casa."
       }
     },
     "teresa": {
-      "testo": "Cara, ho deciso: non leggo più niente che non sia mio. Ma da sola non ci riesco, le lettere mi cascano in mano come ciliegie. Domani tienimi lontana da quel fascio.",
+      "testo": "Cara, ho deciso: non leggo più niente che non sia mio. Ma da sola non ci riesco, le lettere mi cascano in mano come ciliegie. Domani alle due portami al Forno, lontana da quel fascio.",
       "r1": "Ce la farai. Io ti tengo d'occhio dal tombolo.",
       "r2": "Quelle lettere sono di mia madre. Lasciale arrivare intere.",
       "esito": {
-        "ok": "Teresa non ha toccato il fascio. È passata accanto alla chiesa con le mani in tasca, e lo ha fatto apposta.",
-        "fallita": "Il fascio è passato per la borsa di Teresa. Ha promesso di non leggere più, e stavolta ci crede anche lei."
+        "ok": "Alle due Teresa era al Forno, e il fascio non l'ha toccato. Davanti alla chiesa è passata con le mani in tasca, apposta.",
+        "fallita": "Teresa non è stata lontana dal fascio come voleva: alle due non era al Forno, o il fascio le è passato per la borsa."
       }
     },
     "piero": {
-      "testo": "Mi liberi, figliola. Ho nel petto più segreti di quanti un uomo ne possa tenere, e non so più quali sono miei. Mi mandi chi ha qualcosa da confessare. Domine, non sum dignus.",
+      "testo": "Mi liberi, figliola. Ho nel petto più segreti di quanti un uomo ne possa tenere, e non so più quali sono miei. Mi mandi entro l'una chi ha qualcosa da confessare. Domine, non sum dignus.",
       "r1": "La libero. Ma prima mi dica che cosa custodisce, e per chi.",
       "r2": "Quello che custodisce non è tutto suo. Restituirlo è già metà del perdono.",
       "esito": {
-        "ok": "Al prete sono arrivati i segreti della Nina e di Marta. Il pozzo era pieno; adesso, dice, respira.",
-        "fallita": "Al prete non sono arrivati i segreti che chiedeva. Ha pregato da solo, con le mani sulle tovaglie dell'altare."
+        "ok": "Entro l'una al prete sono arrivati i segreti della Nina e di Marta. Il pozzo era pieno; adesso, dice, respira.",
+        "fallita": "Per l'una al prete non sono arrivati i segreti che chiedeva. Ha pregato da solo, con le mani sulle tovaglie dell'altare."
       }
     },
     "marta": {
-      "testo": "Quello che ho da dire al prete lo dico al Signore, senza intermediari. Il mio segreto resta mio, come il lievito madre. Domani niente confessione.",
+      "testo": "Quello che ho da dire al prete lo dico al Signore, senza intermediari. Il mio segreto resta mio, come il lievito madre. Domani alle due sono al mio Forno, e niente confessione.",
       "esito": {
-        "ok": "Il segreto di Marta non è arrivato al prete. Lei ha fatto il pane come sempre, e le è venuto più buono.",
-        "fallita": "Il segreto di Marta è finito nel pozzo. Non me l'ha perdonato, ma il pane me l'ha portato lo stesso."
+        "ok": "Alle due Marta era al suo Forno, e il suo segreto non è arrivato al prete. Il pane le è venuto più buono.",
+        "fallita": "Alle due Marta non era al suo Forno, o il suo segreto è finito nel pozzo. Non me l'ha perdonato, ma il pane me l'ha portato lo stesso."
       }
     },
     "margine": {

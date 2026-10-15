@@ -826,7 +826,15 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.teresa.fascio",
     "unlock": {
-      "failed": "g16.teresa"
+      "all": [
+        {
+          "failed": "g16.teresa"
+        },
+        {
+          "event": "legge",
+          "a": "teresa"
+        }
+      ]
     },
     "character": "teresa",
     "source": "visto"

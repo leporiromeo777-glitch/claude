@@ -775,7 +775,9 @@ describe('giornate: eventi della tabella del GDD 5.2', () => {
     const lv = level('g16');
     expect(lv.beads.find((b) => b.id === 'fascio')).toMatchObject({ type: 'lettera', holder: 'piero', to: 'zeno' });
     expect(lv.quirks).toEqual(expect.arrayContaining(['pieroPozzo', 'pieroTrabocca']));
-    expect(db.notes.get('g16.zeno')?.request).toEqual({ t: 'consegnata', bead: 'fascio' });
+    // Revisione 1 (C14): il fascio arriva a Zeno entro le cinque.
+    expect(db.notes.get('g16.zeno')?.request).toEqual({ t: 'consegnata', bead: 'fascio', by: 17 });
+    expect(t('atto2.g16.zeno.testo')).toContain('entro le cinque');
   });
 
   it('g17: il filo nero entra dal Faro alle 9 e segue Zeno; Zeno non deve uscire', () => {

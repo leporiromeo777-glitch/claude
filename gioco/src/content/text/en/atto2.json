@@ -448,7 +448,7 @@
     },
     "hint": {
       "spinta": "With three secrets the well overflows: at its next crossing from on top, it gives it all.",
-      "indizio": "Bring Nina's and Marta's secrets to the well, then Don Piero on top of Zeno."
+      "indizio": "Nina on top of Marta takes both secrets to the well; then the bundle goes to Zeno."
     },
     "alba": {
       "trabocco": {
@@ -478,36 +478,36 @@
     },
     "titolo": "The Well Overflows",
     "zeno": {
-      "testo": "The priest keeps a bundle of letters he doesn't know he has. They're yours, but you have no thread: get them to me, at the Lighthouse, and I'll bring them. I waited for them too.",
+      "testo": "The priest keeps a bundle of letters he doesn't know he has. They're yours, but you have no thread: get them to me by five, and I'll bring them. I waited for them too.",
       "esito": {
-        "ok": "The bundle came out of the well and reached Zeno. My mother's letters, after fourteen years, are on their way.",
-        "fallita": "The bundle never left the well, or never reached the Lighthouse. Zeno waited at his door until dark.",
+        "ok": "The bundle came out of the well and reached Zeno before five. My mother's letters, after fourteen years, are on their way.",
+        "fallita": "The bundle never left the well, or didn't reach Zeno by five. Zeno waited at his door until dark.",
         "lasciato": "I let the bundle drop. My mother's letters stay in the well, ten steps from home."
       }
     },
     "teresa": {
-      "testo": "Dear, I've decided: I'll read nothing more that isn't mine. But I can't do it alone, letters fall into my hands like cherries. Tomorrow keep me away from that bundle.",
+      "testo": "Dear, I've decided: I'll read nothing more that isn't mine. But I can't do it alone, letters fall into my hands like cherries. Tomorrow at two take me to the Bakery, far from that bundle.",
       "r1": "You'll manage. I'll watch you from the lace pillow.",
       "r2": "Those letters are my mother's. Let them arrive whole.",
       "esito": {
-        "ok": "Teresa never touched the bundle. She walked past the church with her hands in her pockets, on purpose.",
-        "fallita": "The bundle went through Teresa's bag. She has promised not to read any more, and this time she believes it too."
+        "ok": "At two Teresa was at the Bakery, and she never touched the bundle. She walked past the church with her hands in her pockets, on purpose.",
+        "fallita": "Teresa didn't keep away from the bundle as she wished: at two she wasn't at the Bakery, or it passed through her bag."
       }
     },
     "piero": {
-      "testo": "Free me, my child. I hold more secrets in my breast than one man can keep, and I no longer know which are mine. Send me whoever has something to confess. Domine, non sum dignus.",
+      "testo": "Free me, my child. I hold more secrets in my breast than one man can keep, and I no longer know which are mine. Send me by one whoever has something to confess. Domine, non sum dignus.",
       "r1": "I'll free you. But first tell me what you're keeping, and for whom.",
       "r2": "What you keep isn't all yours. Giving it back is half the forgiveness.",
       "esito": {
-        "ok": "Nina's and Marta's secrets reached the priest. The well was full; now, he says, it can breathe.",
-        "fallita": "The secrets he asked for never reached the priest. He prayed alone, his hands on the altar cloths."
+        "ok": "By one, Nina's and Marta's secrets had reached the priest. The well was full; now, he says, it can breathe.",
+        "fallita": "By one, the secrets he asked for hadn't reached the priest. He prayed alone, his hands on the altar cloths."
       }
     },
     "marta": {
-      "testo": "What I have to tell the priest I tell the Lord, with no go-between. My secret stays mine, like my sourdough starter. No confession tomorrow.",
+      "testo": "What I have to tell the priest I tell the Lord, with no go-between. My secret stays mine, like my sourdough starter. Tomorrow at two I'm at my Bakery, and no confession.",
       "esito": {
-        "ok": "Marta's secret never reached the priest. She baked as always, and the bread came out better.",
-        "fallita": "Marta's secret ended up in the well. She hasn't forgiven me, but she brought me bread all the same."
+        "ok": "At two Marta was at her Bakery, and her secret never reached the priest. The bread came out better.",
+        "fallita": "At two Marta wasn't at her Bakery, or her secret ended up in the well. She hasn't forgiven me, but she brought me bread all the same."
       }
     },
     "margine": {

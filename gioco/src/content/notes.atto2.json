@@ -895,7 +895,8 @@
     "textKey": "atto2.g16.zeno.testo",
     "request": {
       "t": "consegnata",
-      "bead": "fascio"
+      "bead": "fascio",
+      "by": 17
     },
     "onOk": [
       {
@@ -931,9 +932,20 @@
     "author": "teresa",
     "textKey": "atto2.g16.teresa.testo",
     "request": {
-      "t": "nonHa",
-      "who": "teresa",
-      "bead": "fascio"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "presso",
+          "who": "teresa",
+          "place": "forno",
+          "hour": 14
+        },
+        {
+          "t": "nonHa",
+          "who": "teresa",
+          "bead": "fascio"
+        }
+      ]
     },
     "replies": [
       {
@@ -979,12 +991,14 @@
         {
           "t": "ha",
           "who": "piero",
-          "bead": "segreto:nina"
+          "bead": "segreto:nina",
+          "by": 13
         },
         {
           "t": "ha",
           "who": "piero",
-          "bead": "segreto:marta"
+          "bead": "segreto:marta",
+          "by": 13
         }
       ]
     },
@@ -1029,9 +1043,20 @@
     "author": "marta",
     "textKey": "atto2.g16.marta.testo",
     "request": {
-      "t": "nonHa",
-      "who": "piero",
-      "bead": "segreto:marta"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "nonHa",
+          "who": "piero",
+          "bead": "segreto:marta"
+        },
+        {
+          "t": "presso",
+          "who": "marta",
+          "place": "forno",
+          "hour": 14
+        }
+      ]
     },
     "esito": {
       "ok": "atto2.g16.marta.esito.ok",
