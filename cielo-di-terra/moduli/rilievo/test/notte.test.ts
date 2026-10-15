@@ -101,6 +101,23 @@ describe('la notte della Fase 1 (regole 3 e 4)', () => {
     expect(n.resoconto.righe.find((x) => x.elemento === 'E3')).toMatchObject({ colore: 'verde', testo: 'Muro di Ronco: misurata, è rimasta.' });
   });
 
+  it('le stesse pietre: se la casa non perde il muro, il muro di Ronco non si richiude', () => {
+    // Elvira passa la notte nella casa di Nando: le Fade non toccano la casa, e non hanno pietre per il muro
+    const n = notte(brace(), r, { elvira: { cella: 2796 } });
+    expect(varianteDi(n.nuovoStato, 'E2')).toBe('Abitata');
+    expect(varianteDi(n.nuovoStato, 'E3')).toBe('Abitata');
+    expect(n.resoconto.righe.map((x) => [x.elemento, x.colore])).toEqual([
+      ['E4', 'rosso'],
+      ['E1', 'rosso'],
+      ['E2', 'grigio'],
+    ]);
+    expect(n.resoconto.cronologia.some((v) => /niente da rimettere/.test(v.testo))).toBe(true);
+    // e di giorno Nando apre la breccia solo se ha una casa da rifare
+    const s = applicaCicliDelGiorno(n.nuovoStato, r, { da: '05:30', a: '09:00' });
+    expect(s.eventi.map((e) => e.tipo === 'variante_cambiata' && e.elemento)).toEqual(['E4', 'E1'].slice(0, 1));
+    expect(varianteDi(s.stato, 'E3')).toBe('Abitata');
+  });
+
   it('eccezioni: vie di trama, alternativa non visibile, particelle protette', () => {
     const conVia = regoleCon({ vieDiTrama: [2797] });
     const a = notte(brace(conVia), conVia, {});

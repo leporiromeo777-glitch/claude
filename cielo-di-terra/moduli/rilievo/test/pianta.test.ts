@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { applicaCicliDelGiorno, notte } from '../src/notte';
 import { CODICE_MOTORE, celleMotore, datiPianta } from '../src/pianta';
 import { appunta, rileva } from '../src/rilievo';
-import { infoParticella, statoIniziale } from '../src/stato';
+import { impostaSalute, infoParticella, statoIniziale } from '../src/stato';
 import { regoleFase1 } from './aiuti';
 
 const r = regoleFase1();
@@ -55,6 +55,21 @@ describe('dati per la Pianta', () => {
     expect([...pomeriggio.griglia.cambiate].filter(Boolean)).toHaveLength(0);
     expect(datiPianta(s, r, { ora: '06:00', giorno: 5 }).resoconto).toBeUndefined();
     expect(infoParticella(s, r, 2797)).toMatchObject({ catasto: '1-710', elemento: 'E1', cambiataStanotte: true, protettaStanotte: null, vegliata: false });
+  });
+
+  it('la salute si vede solo a colore', () => {
+    let s = statoIniziale(r);
+    s = impostaSalute(s, r.capisaldi.get('cs_1')!.cella, 'bruno');
+    s = impostaSalute(s, 2213, 'grigio'); // ancora a matita: non si vede
+    let d = datiPianta(s, r);
+    expect(d.griglia.salute[2505]).toBe(2);
+    expect(d.griglia.salute[2213]).toBe(0);
+    s = rileva(s, r, { stazione: 'cs_3', mira: 'cs_1', ora: 10 }).stato;
+    d = datiPianta(s, r);
+    expect(d.griglia.salute[2213]).toBe(3);
+    s = impostaSalute(s, 2213, null);
+    expect(datiPianta(s, r).griglia.salute[2213]).toBe(0);
+    expect(impostaSalute(statoIniziale(r), 5, null).particelle['5']).toBeUndefined();
   });
 
   it('i codici del motore', () => {
