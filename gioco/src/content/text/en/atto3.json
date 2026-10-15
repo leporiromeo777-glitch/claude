@@ -173,7 +173,7 @@
       "testo": "tomoro the water rises. the boat must be tied to the pier before 10. I go at 9, or I loose her. the boat is all I have, apart from nina",
       "esito": {
         "ok": "Bepi tied the boat in time. When the water rose he was already at the tavern saying he'd seen it coming.",
-        "fallita": "Bepi didn't reach the Pier in time. The high water took a plank from the boat, and some of his pride."
+        "fallita": "Bepi didn't reach the Pier before ten. Tonight at the tavern he tells no stories, which for him is worse than the broken boat."
       }
     },
     "nina": {
@@ -527,7 +527,7 @@
     },
     "persone": {
       "livia": {
-        "nero": "The stranger in black is my mother. She wove herself in with the sepia thread, to find me. Only Zeno recognises her.",
+        "nero": "The stranger in black is my mother. She walks the Fondamenta like someone counting her steps, and only Zeno recognises her.",
         "secca": "My mother is on the island now. In the morning she passes under my window and raises her hand; I have no thread to go down.",
         "pane": "Marta doesn't know who the stranger is; the stranger knows exactly who Marta is. As a girl she stole buns from her counter."
       },

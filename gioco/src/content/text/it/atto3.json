@@ -173,7 +173,7 @@
       "testo": "domani sale l'aqua. la barca va legata al molo prima delle 10. ci vado io alle 9, se no la perdo. la barca è tutto quello che ho, a parte la nina",
       "esito": {
         "ok": "Il Bepi ha legato la barca in tempo. Quando l'acqua è salita, lui era già all'osteria a dire che l'aveva previsto.",
-        "fallita": "Il Bepi non è arrivato al Molo in tempo. L'acqua alta si è presa una tavola della barca, e un po' del suo orgoglio."
+        "fallita": "Il Bepi non è arrivato al Molo prima delle dieci. Stasera all'osteria non racconta niente, che per lui è peggio della barca rotta."
       }
     },
     "nina": {
@@ -527,7 +527,7 @@
     },
     "persone": {
       "livia": {
-        "nero": "La forestiera in nero è mia madre. Si è tessuta dentro col filo di seppia, per cercarmi. La riconosce solo Zeno.",
+        "nero": "La forestiera in nero è mia madre. Cammina sulla Fondamenta come una che conta i passi, e la riconosce solo Zeno.",
         "secca": "Mia madre adesso è sull'isola. La mattina passa sotto la mia finestra e alza la mano; io non ho un filo per scendere.",
         "pane": "Marta non sa chi sia la forestiera; la forestiera sa benissimo chi è Marta. Da bambina le rubava le ciambelle dal banco."
       },

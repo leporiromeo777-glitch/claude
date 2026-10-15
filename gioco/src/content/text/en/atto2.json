@@ -285,7 +285,7 @@
     "marta": {
       "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let the doctor see him by five, and him be well by evening. I'm asking you please.",
       "esito": {
-        "ok": "The doctor saw Gino in time, and by evening he was cured: he started running at once. Marta let him, for once.",
+        "ok": "The doctor got to Gino in time, and by evening the fever was gone. Marta thanked the doctor: once, but she said it.",
         "fallita": "Lunardi didn't get to Gino in time. Marta sat up by his bed, and he called for Grandmother in his sleep."
       }
     },
@@ -303,7 +303,7 @@
       "r1": "Get better first. The lantern can wait, and so can Zeno.",
       "r2": "From inside, I promise. But the priest first: he knows how to ring the bell.",
       "esito": {
-        "ok": "The priest is cured. Gino has already tried the bell rope, just to be sure.",
+        "ok": "The priest was well before one. He says Gino is the first altar boy ever to play doctor to him.",
         "fallita": "The doctor didn't reach the priest before one. Gino stared at the bell rope all afternoon, and took it badly."
       }
     },
@@ -414,7 +414,7 @@
     "nina": {
       "testo": "Dad went out fishing and the sea has turned. Let Zeno stay at the Lighthouse with the light on from six to eight in the evening, the whole time. And at seven take me to the Pier, to wait for him. Please. Please.",
       "esito": {
-        "ok": "The Lighthouse light stayed lit until eight, and Nina was at the Pier waiting. Bepi came home whole, and Nina slept.",
+        "ok": "The Lighthouse light stayed lit until eight, and Nina was at the Pier waiting. Tonight, for the first time in days, she slept.",
         "fallita": "Bepi's boat hit the shallows, in the dark. Tonight Nina wrote me nothing.",
         "lasciato": "I let Nina's request drop. Nobody kept the Lighthouse light for Bepi."
       }
@@ -594,7 +594,7 @@
         "passo": "Lunardi apologises to everyone, even to the fever. I have to send him over the sick myself: he won't dare alone.",
         "nome": "Pinning my name costs little: a thread, a stitch. Not pinning it costs one person at a time.",
         "ettore": "I called him Ettore, and the doctor went red to the ears. In Padua, he says, nobody called him that.",
-        "scarpa": "Lunardi cured Bepi with a hand on his forehead. Bepi will never thank him out loud, but now he greets him with a nod of the chin.",
+        "scarpa": "Bepi will never thank Lunardi out loud, but now he greets him with a nod of the chin. For a fisherman here, that's worth a letter.",
         "nomeNo": "Lunardi asked everyone my name, and nobody could answer. A whole island, and no one who knows what I'm called.",
         "dottore": "I thanked the doctor and called him “Doctor”, like everyone does. He smiled anyway, but only with his mouth."
       },
@@ -654,7 +654,7 @@
       "piero": {
         "trabocca": "Even wells fill up. With three secrets Don Piero overflows, and at his first crossing from on top he gives away all he keeps, letters included.",
         "messa": "Don Piero said mass for the healthy without falling ill. He says the credit is the Lord's; I know some of it is the lace pillow's.",
-        "campane": "Don Piero hadn't rung the storm bells since he was young. He says his arms remembered better than he did.",
+        "campane": "Don Piero hadn't rung the storm bells since he was young. This morning at mass there were three more fishermen.",
         "febbre": "Don Piero fell ill so as to say mass for the healthy. I think a healthy priest, on this island, feels useless.",
         "curato": "Gino, with the fever still on him, asked for the priest to be cured first. Under all that running there's a tidy heart."
       },

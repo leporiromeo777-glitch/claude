@@ -285,7 +285,7 @@
     "marta": {
       "testo": "Il Gino delira e chiama la nonna. La tua. Dice che lei gli diceva di stare fermo. Il dottore passi da lui entro le cinque, e domani sera sia sano. Te lo chiedo per piacere.",
       "esito": {
-        "ok": "Il dottore è passato dal Gino in tempo, e la sera era guarito: ha ripreso a correre subito. Marta l'ha lasciato fare, per una volta.",
+        "ok": "Il dottore è passato dal Gino in tempo, e la sera la febbre era sparita. Marta ha detto grazie al dottore: una volta, ma l'ha detto.",
         "fallita": "Lunardi non è passato dal Gino in tempo. Marta ha vegliato accanto al letto, e lui chiamava la nonna nel sonno."
       }
     },
@@ -303,7 +303,7 @@
       "r1": "Prima guarisci tu. La lanterna aspetta, e anche lo Zeno.",
       "r2": "Da dentro, promesso. Ma prima il prete, che la campana la sa suonare lui.",
       "esito": {
-        "ok": "Il prete è guarito. Il Gino ha già provato la corda della campana, per sicurezza.",
+        "ok": "Il prete è guarito prima dell'una. Dice che il Gino è il primo chierichetto che gli abbia mai fatto da medico.",
         "fallita": "Il dottore non ha raggiunto il prete prima dell'una. Il Gino ha guardato la corda della campana tutto il pomeriggio, e ci è rimasto male."
       }
     },
@@ -414,7 +414,7 @@
     "nina": {
       "testo": "Il babbo è uscito a pescare e il mare si è girato. Zeno stia al Faro con la luce accesa dalle sei alle otto di sera, tutto il tempo. E alle sette portami al Molo, ad aspettarlo. Ti prego. Ti prego.",
       "esito": {
-        "ok": "La luce del Faro è rimasta accesa fino alle otto, e la Nina era al Molo ad aspettarlo. Il Bepi è tornato a casa intero, e la Nina ha dormito.",
+        "ok": "La luce del Faro è rimasta accesa fino alle otto, e la Nina era al Molo ad aspettarlo. Stanotte, per la prima volta da giorni, ha dormito.",
         "fallita": "La barca del Bepi ha preso la secca, al buio. Stanotte la Nina non mi ha scritto niente.",
         "lasciato": "Ho lasciato cadere la richiesta della Nina. Nessuno ha tenuto la luce del Faro per il Bepi."
       }
@@ -594,7 +594,7 @@
         "passo": "Lunardi chiede scusa a tutti, anche alla febbre. Sopra i malati devo mandarlo io: da solo non osa.",
         "nome": "Appuntare il nome costa poco: un filo, un punto. Non appuntarlo costa una persona alla volta.",
         "ettore": "L'ho chiamato Ettore, e il dottore è diventato rosso fino alle orecchie. A Padova, dice, nessuno lo chiamava così.",
-        "scarpa": "Lunardi ha curato Bepi con una mano sulla fronte. Bepi non lo ringrazierà mai ad alta voce, ma adesso lo saluta col mento.",
+        "scarpa": "Bepi non ringrazierà mai Lunardi ad alta voce, ma adesso lo saluta col mento. Per un pescatore di qui vale una lettera.",
         "nomeNo": "Lunardi ha chiesto il mio nome a tutti, e nessuno sapeva rispondere. Un'isola intera, e nessuno che sappia come mi chiamo.",
         "dottore": "Ho ringraziato il dottore chiamandolo «dottore», come fanno tutti. Ha sorriso lo stesso, ma solo con la bocca."
       },
@@ -654,7 +654,7 @@
       "piero": {
         "trabocca": "Anche i pozzi si riempiono. Con tre segreti Don Piero trabocca, e al primo incrocio da sopra dà tutto quello che custodisce, lettere comprese.",
         "messa": "Don Piero ha detto la messa per i sani senza ammalarsi. Dice che il merito è del Signore; io so che un po' è del tombolo.",
-        "campane": "Don Piero non suonava a tempesta da quando era giovane. Dice che le braccia se lo ricordavano meglio di lui.",
+        "campane": "Don Piero non suonava a tempesta da quando era giovane. Stamattina, alla messa, c'erano tre pescatori in più.",
         "febbre": "Don Piero si è ammalato per dire la messa ai sani. Credo che un prete sano, in quest'isola, si senta inutile.",
         "curato": "Il Gino, con la febbre addosso, ha chiesto di curare prima il prete. Sotto tutto quel correre c'è un cuore in ordine."
       },
