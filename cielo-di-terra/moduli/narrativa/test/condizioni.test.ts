@@ -54,6 +54,10 @@ describe('parser delle condizioni: atomi', () => {
     expect(stampa('missione:m1 attiva')).toBe('missione:m1 attiva');
     expect(stampa('passo:m1/innesto completato')).toBe('passo:m1/innesto completato');
     expect(stampa('passo:m1.innesto attivo')).toBe('passo:m1/innesto attivo');
+    expect(stampa('passo:pr_lettera completato')).toBe('passo:pr_lettera completato');
+    expect(stampa('contatore:velati>=3')).toBe('flag:velati>=3');
+    expect(stampa('flag:lente:corteccia e !flag:md_linea')).toBe('flag:lente:corteccia e !flag:md_linea');
+    expect(stampa('ora:>=07:00 e ora:<07:40')).toBe('ora:>=7 e ora:<7.666666666666667');
     expect(stampa('oggetto:squadro')).toBe('oggetto:squadro');
     expect(stampa('oggetto:api_rame>=3')).toBe('oggetto:api_rame>=3');
     expect(stampa('taccuino:chi_lettera_marta chiusa')).toBe('taccuino:chi_lettera_marta chiusa');
@@ -166,7 +170,7 @@ describe('parser delle condizioni: errori', () => {
     ['giorno:4-2', /rovesciato/],
     ['flag:x>abc', /vuole un numero/],
     ['flag:x=', /manca il valore/],
-    ['passo:soloid', /missione\/passo/],
+    ['passo:m1/', /«id» o «missione\/passo»/],
     ['oggetto:api>=tre', /quantità non valida/],
     ['flag:frase="aperta', /virgolette non chiuse/],
   ];
