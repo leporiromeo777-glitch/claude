@@ -223,8 +223,14 @@ async function foto(nome, prepara) {
     )
     .catch(() => log(`  (animazioni ancora in corso per ${nome})`));
   await attendi(200);
-  await page.screenshot({ path: join(cartellaFoto, `${nome}.png`) });
-  log(`  📷 ${nome}.png`);
+  // Le foto documentano, non verificano: con la macchina carica (SwiftShader su CPU) possono
+  // metterci molto; se non arrivano si annota e la prova continua.
+  try {
+    await page.screenshot({ path: join(cartellaFoto, `${nome}.png`), timeout: 120000 });
+    log(`  📷 ${nome}.png`);
+  } catch (e) {
+    log(`  (foto ${nome} non riuscita: ${String(e?.message || e).split('\n')[0]})`);
+  }
 }
 
 async function main() {
