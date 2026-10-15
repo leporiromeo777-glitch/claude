@@ -15,7 +15,7 @@
  * hanno una maniglia speciale (notte.ts).
  */
 import * as THREE from 'three';
-import { creaAbitante, type Copricapo, type Corporatura, type OpzioniAbitante, type Postura, type StatoAbitante } from '../../oggetti/src/oggetti/abitante';
+import { creaAbitante, type OpzioniAbitante, type StatoAbitante } from '../../oggetti/src/oggetti/abitante';
 import { matriceSuperficie } from '../../oggetti/src/cilindro';
 import { geoBoxC, geoCilindro, geoLastra, geoPiano } from '../../oggetti/src/forme';
 import { Costruttore, mat } from '../../oggetti/src/costruttore';
