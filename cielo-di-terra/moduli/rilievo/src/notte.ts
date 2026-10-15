@@ -210,7 +210,7 @@ function applicaMosse(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCorso, o
           break;
         case 'sposta_scelti': {
           const candidati = Object.entries(s.capisaldi)
-            .filter(([id, cs]) => cs.firme.includes(FIRMA_ELVIRA) && !cs.spostato)
+            .filter(([, cs]) => cs.firme.includes(FIRMA_ELVIRA) && !cs.spostato)
             .map(([id]) => caposaldoDef(regole, s.capisaldiNuovi, id))
             .filter((d): d is NonNullable<typeof d> => !!d && d.tipo !== 'pilastro' && d.tipo !== 'zero' && !caposaldoIntoccabile(regole, d.cella))
             .map((d) => d.id)
@@ -292,15 +292,22 @@ function protezione(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCorso, e: 
 
 function passaggioElemento(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCorso, e: DefElemento, t: number, eventi: EventoCatasto[]): void {
   n.elementiFatti.push(e.id);
-  const ora = minuti(formattaOra((t + 720) % 1440));
+  const ora = (t + 720) % 1440;
   const es = s.elementi[e.id];
   if (!es || !regole.regoleAttive.giro) return;
   const da = es.variante;
   const a = varianteBersaglio(e, da, !!n.input.dopoSvolta);
-  const prot = protezione(s, regole, n, e, t);
+  // Elvira sulla particella al passaggio: flag notte_su_X (FASE1 §2.6), qualunque cosa succeda
+  const cellaElvira = cellaDiElvira(n, t);
+  const elviraLi = cellaElvira !== null && e.particelle.includes(cellaElvira);
+  if (elviraLi) {
+    if (!n.vegliate.includes(cellaElvira)) n.vegliate.push(cellaElvira);
+    n.effetti.push(`flag:notte_su_${e.id}`);
+  }
+  const prot = a === da ? null : protezione(s, regole, n, e, t);
   n.cronologia.push({
     ora: formattaOra(ora),
-    testo: prot === 'elvira' ? `Le Fade arrivano, girano attorno a Elvira e se ne vanno (${e.nome}).` : e.cheCosa ?? `Le Fade passano: ${e.nome}.`,
+    testo: elviraLi ? `Le Fade arrivano, girano attorno a Elvira e se ne vanno (${e.nome}).` : e.cheCosa ?? `Le Fade passano: ${e.nome}.`,
     elemento: e.id,
     ...(e.dove ? { dove: e.dove } : {}),
   });
@@ -308,10 +315,6 @@ function passaggioElemento(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCor
   if (prot) {
     for (const c of e.particelle) n.protette[String(c)] = prot;
     n.salvati.push({ elemento: e.id, motivo: prot, ora });
-    if (prot === 'elvira') {
-      for (const c of e.particelle) if (!n.vegliate.includes(c)) n.vegliate.push(c);
-      n.effetti.push(`flag:notte_su_${e.id}`);
-    }
     return;
   }
   if (n.particelleCambiateGiro + e.particelle.length > regole.parametri.tettoParticellePerNotte) {
@@ -320,7 +323,9 @@ function passaggioElemento(s: StatoCatasto, regole: RegoleCatasto, n: NotteInCor
   }
   // l'elemento legato (il muro di Ronco) misurato cambia dove finiscono le pietre della casa
   const legati = [...regole.elementi.values()].filter((x) => x.legatoA === e.id && elementoRilevato(s, regole, x.id));
-  const nota = legati.length && e.stadi ? `Le pietre restano in un mucchio al margine: ${legati.map((x) => x.nome.toLowerCase()).join(', ')} è misurato.` : undefined;
+  const nota = legati.length
+    ? riempi(regole.testi.legatoMisurato, { legato: legati.map((x) => x.nome.charAt(0).toLowerCase() + x.nome.slice(1)).join(', ') })
+    : undefined;
   es.variante = a;
   es.rimastaSegnalata = false;
   n.particelleCambiateGiro += e.particelle.length;

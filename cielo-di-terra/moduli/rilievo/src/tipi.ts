@@ -208,6 +208,8 @@ export interface TestiResoconto {
   caposaldoSpostato: string;
   scritturaCancellata: string;
   scritturaCostruita: string;
+  /** Nota quando un elemento legato è misurato (il muro di Ronco): «Le pietre restano in un mucchio…». */
+  legatoMisurato: string;
   /** Riga in fondo con le prossime finestre utili: «Alle {ora}: {testo}». */
   prossimaFinestra: string;
 }

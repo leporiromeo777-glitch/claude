@@ -69,6 +69,7 @@ export const TESTI_PREDEFINITI: TestiResoconto = {
   caposaldoSpostato: '{caposaldo} spostato di {metri} m a {direzione}.',
   scritturaCancellata: '{nome}: scrittura G5 cancellata dal G3.',
   scritturaCostruita: "{nome}: la Penna ha scritto, le Fade hanno costruito. Va rimisurata all'alba.",
+  legatoMisurato: 'Le pietre restano in un mucchio al margine (misurato: {legato}).',
   prossimaFinestra: 'Alle {ora}: {testo}',
 };
 
