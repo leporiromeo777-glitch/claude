@@ -140,6 +140,8 @@ export class ColumnHeader {
       const label = textOf(c.shortKey, undefined, 'span', { className: 'tb-header-label' });
       const cell = el('div', { class: 'tb-header-cell', data: { luogo: c.place }, attrs: { role: 'columnheader', 'aria-label': nameOf(c.nameKey) } }, svgIcon(c.icon, { size: 18 }), label);
       cell.title = nameOf(c.nameKey);
+      // Al cambio di lingua il nome accessibile (e il title) si riscrive con il resto (D16).
+      cell.dataset.i18nLabel = c.nameKey;
       this.cells.push(cell);
       this.labels.push(label);
       this.el.appendChild(cell);

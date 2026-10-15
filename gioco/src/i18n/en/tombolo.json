@@ -180,7 +180,10 @@
       "echi": "Echoes: {letti} of {totale}"
     },
     "ecoChi": "{sopra} → {sotto}, at {ora}",
-    "nomiDatiBreve": "Names given: {dati} of {totale}"
+    "nomiDatiBreve": "Names given: {dati} of {totale}",
+    "fattoBreve": "Touch the crossings.",
+    "daRammendareBreve": "Now the mending.",
+    "contatoreOccasioniBreve": "Names {dati}/{totale} · Occasions {piantate}/{posti}"
   },
   "filo": {
     "avorio": "the ivory thread",
@@ -258,8 +261,8 @@
   },
   "sr": {
     "vuoto": "",
-    "stato": "{ora} o'clock. {posizioni}.",
-    "fine": "Lace finished at {ora}. {posizioni}.",
+    "stato": "{oraFmt}. {posizioni}.",
+    "fine": "Lace finished at {oraFmt}. {posizioni}.",
     "anteprima": "Preview: this is how it was at {ora}.",
     "cursore": "Cursor: {posto}.",
     "separatore": ", ",

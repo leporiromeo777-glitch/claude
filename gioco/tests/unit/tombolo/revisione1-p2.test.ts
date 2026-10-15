@@ -219,7 +219,8 @@ describe('TOM-19: tastiera e lettore di schermo', () => {
     h.data.settings.locale = 'en';
     h.s.bus.emit('settings:change', h.data.settings);
     const en = q('tb-stato')?.textContent ?? '';
-    expect(en).toContain("o'clock");
+    // Verifica: l'ora inglese come negli altri testi («6 am», D08), non «6 o'clock».
+    expect(en).toMatch(/^\d+ (am|pm)\. /);
     expect(en).toContain('at the Bakery');
     expect(en).not.toContain('al Forno');
     expect(en).not.toMatch(/\b(Ore|in Piazza|in Chiesa)\b/);

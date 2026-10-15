@@ -623,10 +623,11 @@ export class NightController {
       if (!a.allNamed()) {
         const pr = a.progress();
         // Nella striscia la forma breve (la regola dei gruppi di tre la dice il selettore).
-        this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.nomiDatiBreve', { dati: pr.given, totale: pr.total, ...(occ ?? {}) });
+        this.requests.setInfo(occ ? 'tombolo.archivio.contatoreOccasioni' : 'tombolo.archivio.nomiDatiBreve', { dati: pr.given, totale: pr.total, ...(occ ?? {}) }, occ ? 'tombolo.archivio.contatoreOccasioniBreve' : undefined);
       }
-      else if (!this.echoesOpen()) this.requests.setInfo(occ ? 'tombolo.occasioni.contatore' : 'tombolo.archivio.daRammendare', occ ?? {});
-      else this.requests.setInfo('tombolo.archivio.fatto', {});
+      // Sul telefono stretto la frase intera non sta nella striscia: la forma breve, mai tagliata.
+      else if (!this.echoesOpen()) this.requests.setInfo(occ ? 'tombolo.occasioni.contatore' : 'tombolo.archivio.daRammendare', occ ?? {}, occ ? undefined : 'tombolo.archivio.daRammendareBreve');
+      else this.requests.setInfo('tombolo.archivio.fatto', {}, 'tombolo.archivio.fattoBreve');
     } else if (this.params.mode === 'occasioni') {
       this.requests.setInfo('tombolo.occasioni.contatore', { piantate: s.occasions.length, posti: occasionSlots(lv) });
     } else if (this.params.mode === 'replay') {
@@ -679,8 +680,15 @@ export class NightController {
       const place = this.params.level.columns[col] ?? 'molo';
       parts.push(this.s.i18n.t(`tombolo.sr.luogo.${place}`, { nome: threadName(this.textDeps, t) }));
     });
+    // Dopo «Ore 9.» comincia una frase nuova: maiuscola anche se il primo nome è
+    // «il marinaio» o «il filo sbiadito 1» (P012, P082); l'ora nel formato della lingua.
+    if (parts[0]) parts[0] = capitalizeFirst(parts[0], this.s.i18n.locale());
     // C11: nemmeno la riga di stato dice «Merletto chiuso» dopo il nodo.
-    this.status.set(s.done && this.params.level.chiusura !== 'nodo' ? 'tombolo.sr.fine' : 'tombolo.sr.stato', { ora: st.hour, posizioni: parts.join(this.s.i18n.t('tombolo.sr.separatore')) });
+    this.status.set(s.done && this.params.level.chiusura !== 'nodo' ? 'tombolo.sr.fine' : 'tombolo.sr.stato', {
+      ora: st.hour,
+      oraFmt: formatHour(this.textDeps, st.hour),
+      posizioni: parts.join(this.s.i18n.t('tombolo.sr.separatore')),
+    });
   }
 
   private rememberStatuses(): void {
@@ -2422,7 +2430,9 @@ export class NightController {
     const w = base.kind === 'largo' && base.left ? base.left.w - 16 : Math.min(base.center.w - 24, 380);
     const h = this.margin.measure(w);
     const obstacles = this.model.pins.map((p) => p.index);
-    const pl = placeMarginNote(base, this.model.current, obstacles, w, h);
+    // A merletto d'Archivio nominato e rammendato gli incroci degli echi si toccano: la nota non li copre.
+    const echoRows = [...new Set(this.model.echoes.map((e) => e.index))];
+    const pl = placeMarginNote(base, this.model.current, obstacles, w, h, echoRows);
     this.notePlace = pl;
     if (pl.band !== this.noteBand) {
       this.noteBand = pl.band;

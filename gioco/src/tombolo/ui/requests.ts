@@ -137,20 +137,47 @@ export class RequestStrip {
     }
   }
 
-  /** Testo a destra della striscia (Archivio, occasioni); chiave vuota = niente. */
-  setInfo(key: string, params: Params): void {
-    const k = `${key}|${JSON.stringify(params)}`;
+  /**
+   * Testo a destra della striscia (Archivio, occasioni); chiave vuota = niente.
+   * `shortKey`: la forma breve, se la frase intera non sta nemmeno a 12 px
+   * (telefono stretto, testo grande): meglio breve che tagliata a metà parola.
+   */
+  setInfo(key: string, params: Params, shortKey?: string): void {
+    const k = `${key}|${shortKey ?? ''}|${JSON.stringify(params)}`;
     if (k === this.infoKey) return;
     this.infoKey = k;
+    this.infoText = { key, params, shortKey };
+    this.fitInfo();
+  }
+
+  private infoText: { key: string; params: Params; shortKey?: string | undefined } = { key: '', params: {} };
+
+  /** Nome del testo mostrato (per i test): la chiave intera o quella breve. */
+  infoShown = '';
+
+  private fitInfo(): void {
+    const { key, params, shortKey } = this.infoText;
     clear(this.info);
-    if (key) this.info.appendChild(textOf(key, params, 'span'));
-    fitText(this.info, 10);
+    this.infoShown = key;
+    if (!key) return;
+    this.info.appendChild(textOf(key, params, 'span'));
+    if (!shortKey) {
+      fitText(this.info, 10);
+      return;
+    }
+    fitText(this.info, 12);
+    if (this.info.clientWidth > 0 && this.info.scrollWidth > this.info.clientWidth + 1) {
+      clear(this.info);
+      this.info.appendChild(textOf(shortKey, params, 'span'));
+      this.infoShown = shortKey;
+      fitText(this.info, 10);
+    }
   }
 
   layout(l: TomboloLayout): void {
     place(this.el, l.requests);
     this.el.style.paddingRight = `${l.lamp.w + 8}px`;
-    fitText(this.info, 10);
+    this.fitInfo();
   }
 }
 

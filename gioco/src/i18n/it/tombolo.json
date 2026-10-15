@@ -180,7 +180,10 @@
       "echi": "Echi: {letti} di {totale}"
     },
     "ecoChi": "{sopra} → {sotto}, alle {ora}",
-    "nomiDatiBreve": "Nomi dati: {dati} di {totale}"
+    "nomiDatiBreve": "Nomi dati: {dati} di {totale}",
+    "fattoBreve": "Tocca gli incroci.",
+    "daRammendareBreve": "Ora il rammendo.",
+    "contatoreOccasioniBreve": "Nomi {dati}/{totale} · Occasioni {piantate}/{posti}"
   },
   "filo": {
     "avorio": "il filo d'avorio",

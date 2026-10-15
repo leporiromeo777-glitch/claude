@@ -252,6 +252,14 @@ function hourEvents(d: BubbleTextDeps, hour: number): string[] {
   }
   if (lv.nero && lv.nero.enter.hour === hour) out.push(i18n.t('tombolo.bolla.evento.nero', {}));
   for (const p of lv.pins) if (p.hour === hour) out.push(i18n.t('tombolo.bolla.evento.spillo', nameParams(td, { chi: p.thread, luogo: p.place })));
+  // Anche gli spilli d'ottone (obiettivi) e rossi (richieste appuntate) di quell'ora.
+  const seen = new Set(lv.pins.filter((p) => p.hour === hour).map((p) => `${p.thread}@${p.place}`));
+  const extra = [...d.session.params.goals, ...d.accepted.filter((a) => !d.session.dropped.includes(a.noteId)).map((a) => a.request)].flatMap((c) => presso(c));
+  for (const c of extra) {
+    if (c.hour !== hour || seen.has(`${c.who}@${c.place}`)) continue;
+    seen.add(`${c.who}@${c.place}`);
+    out.push(i18n.t('tombolo.bolla.evento.spillo', nameParams(td, { chi: c.who, luogo: c.place })));
+  }
   for (const t of lv.tide ?? []) {
     const luoghi = joinNames(td, t.places.map((p) => i18n.t(`tombolo.presso.${p}`)));
     if (t.from === hour) out.push(i18n.t('tombolo.bolla.evento.marea', { luoghi }));

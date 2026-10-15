@@ -661,7 +661,9 @@ export class Session implements NightSession {
   private statusReports(conds: Condition[]): { report: CondReport; anteprima: CondStatus }[] {
     if (conds.length === 0) return [];
     const fixed = evaluate(this.level, this._timeline, this._events, conds, this._ctx, this.done);
-    if (this.done) return fixed.map((r) => ({ report: r, anteprima: r.status }));
+    // Senza una riga in bozza da fissare (occasioni, spartiti) non c'è anteprima: «si compie
+    // se fissi l'ora» non avrebbe senso dove l'ora non la fissa il giocatore (C07).
+    if (this.done || this.params.mode === 'occasioni' || this.params.mode === 'replay') return fixed.map((r) => ({ report: r, anteprima: r.status }));
     const { timeline, events } = this.liveTimeline();
     const live = evaluate(this.level, timeline, events, conds, this._ctx, false);
     return fixed.map((f, i) => {

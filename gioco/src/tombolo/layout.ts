@@ -292,12 +292,13 @@ export const NOTE_GAP = 6;
 /**
  * Posto della nota a margine (D04). `base` è la disposizione SENZA fascia della
  * nota; `current` la riga corrente; `obstacles` le righe fissate con uno spillo o
- * uno slot (indici). Nel layout largo la nota va in cima al pannello di sinistra.
+ * uno slot (indici); `rowsBlocked` righe da non coprire per intero (gli echi
+ * dell'Archivio). Nel layout largo la nota va in cima al pannello di sinistra.
  * Nello stretto va sopra le righe già fissate se lì c'è posto senza toccare spilli
  * e slot; altrimenti in una fascia fra l'intestazione e il merletto, che scende.
  * Mai sulla riga corrente, sulle righe future, sui fusi, sulle richieste o sulle azioni.
  */
-export function placeMarginNote(base: TomboloLayout, current: number, obstacles: readonly number[], noteW: number, noteH: number): NotePlacement {
+export function placeMarginNote(base: TomboloLayout, current: number, obstacles: readonly number[], noteW: number, noteH: number, rowsBlocked: readonly number[] = []): NotePlacement {
   const h = Math.max(1, Math.round(noteH));
   if (base.kind === 'largo' && base.left) {
     const r = base.left;
@@ -315,6 +316,11 @@ export function placeMarginNote(base: TomboloLayout, current: number, obstacles:
       const y = base.lace.y - scroll + rowBottom(base, i);
       return { y0: y - 22, y1: y + 4 };
     });
+  // Righe intere da lasciare libere (gli incroci che parlano, a merletto d'Archivio rammendato).
+  for (const i of rowsBlocked) {
+    if (i < 0 || i > base.rows) continue;
+    blocked.push({ y0: base.lace.y - scroll + rowTop(base, i), y1: base.lace.y - scroll + rowBottom(base, i) });
+  }
   for (let y = top; y + h <= bottom; y += 4) {
     if (blocked.every((b) => y + h <= b.y0 || y >= b.y1)) return { mode: 'righe', rect: rect(x, y, w, h), band: 0 };
   }
