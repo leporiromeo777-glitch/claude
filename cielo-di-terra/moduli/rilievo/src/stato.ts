@@ -19,8 +19,39 @@ import type {
   StatoParticella,
 } from './tipi';
 
+/**
+ * Copia dello stato da modificare. È una copia «copy-on-write»: le particelle e i rilievi non
+ * si modificano mai sul posto (si sostituiscono con `particellaDaModificare` + `scriviParticella`),
+ * quindi si condividono con lo stato di partenza; tutto il resto che le funzioni cambiano
+ * (elementi, capisaldi, ancore, liste, la notte in corso) si copia. Chi usa il modulo non deve
+ * modificare gli oggetti dello stato: si cambiano solo con le funzioni del catasto.
+ */
 export function clonaStato(stato: StatoCatasto): StatoCatasto {
-  return structuredClone(stato);
+  const mappa = <T extends object>(o: Record<string, T>): Record<string, T> => {
+    const out: Record<string, T> = {};
+    for (const k in o) out[k] = { ...o[k]! };
+    return out;
+  };
+  const capisaldi: StatoCatasto['capisaldi'] = {};
+  for (const k in stato.capisaldi) {
+    const c = stato.capisaldi[k]!;
+    capisaldi[k] = { ...c, firme: [...c.firme] };
+  }
+  return {
+    ...stato,
+    particelle: { ...stato.particelle },
+    elementi: mappa(stato.elementi),
+    capisaldi,
+    capisaldiNuovi: { ...stato.capisaldiNuovi },
+    lati: { ...stato.lati },
+    triangoli: { ...stato.triangoli },
+    ancore: mappa(stato.ancore),
+    mosse: { programmate: [...stato.mosse.programmate], usate: [...stato.mosse.usate] },
+    contatori: { ...stato.contatori },
+    fogliRilevati: [...stato.fogliRilevati],
+    lumiAppuntati: [...stato.lumiAppuntati],
+    notteInCorso: stato.notteInCorso ? structuredClone(stato.notteInCorso) : null,
+  };
 }
 
 /** Lo stato all'inizio del gioco (GDD §3.3): bianco quasi tutto, le Selve a matita, la striscia della Cripta a seppia. */

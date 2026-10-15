@@ -30,7 +30,8 @@ const GUADO = 2893;
 
 function cellaAllOra(e: ElviraNotte, t: number): number | null {
   let c = e.cella ?? null;
-  for (const p of e.percorso ?? []) if (minutiNotte(p.ora) <= t) c = p.cella;
+  const tappe = [...(e.percorso ?? [])].sort((a, b) => minutiNotte(a.ora) - minutiNotte(b.ora));
+  for (const p of tappe) if (minutiNotte(p.ora) <= t) c = p.cella;
   return c;
 }
 
