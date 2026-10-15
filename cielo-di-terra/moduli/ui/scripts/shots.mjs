@@ -41,10 +41,11 @@ export const COMPONENTI = [
   'contrasto-grande',
 ];
 
-const DIMENSIONI = (process.env.SOLO_1280 ? [[1280, 720]] : [
+// SOLO_1280=1 o SOLO_1920=1 per una sola risoluzione (durante le prove).
+const DIMENSIONI = process.env.SOLO_1280 ? [[1280, 720]] : process.env.SOLO_1920 ? [[1920, 1080]] : [
   [1280, 720],
   [1920, 1080],
-]);
+];
 
 const scelti = process.argv.slice(2);
 const lista = scelti.length ? COMPONENTI.filter((c) => scelti.some((s) => c === s || c.startsWith(s + '-'))) : COMPONENTI;

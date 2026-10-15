@@ -16,8 +16,11 @@ type Riga =
   | { tipo: 'interruttore'; chiave: ChiaviTipo<boolean>; etichetta: string; nota?: string }
   | { tipo: 'scelta'; chiave: ChiaviTipo<string>; etichetta: string; nota?: string; opzioni: { valore: string; etichetta: string }[] };
 
+/** Le schede del pannello. */
+export type SchedaImpostazioni = 'visione' | 'comfort' | 'suono' | 'testo' | 'aiuti';
+
 interface Sezione {
-  id: string;
+  id: SchedaImpostazioni;
   titolo: string;
   righe: Riga[];
 }
@@ -257,8 +260,8 @@ export class PannelloImpostazioni extends Componente<EventiPannelloImpostazioni>
     this.mostraScheda(0, false);
   }
 
-  /** Mostra il pannello, facoltativamente su una scheda ('visione' | 'suono' | 'accessibilita'). */
-  show(scheda?: string): void {
+  /** Mostra il pannello, facoltativamente su una scheda. */
+  show(scheda?: SchedaImpostazioni): void {
     for (const agg of this.aggiornatori.values()) agg();
     if (scheda) {
       const i = SEZIONI_IMPOSTAZIONI.findIndex((s) => s.id === scheda);

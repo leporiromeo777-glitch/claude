@@ -169,11 +169,12 @@ export class FirstPersonVelo {
     cylinderBetween(tb, new Vector3(0, 0, 0), new Vector3(0, -0.12, 0), 0.003, [0.5, 0.15, 0.1]);
     _t.makeTranslation(0, -0.12, 0).scale(_v.set(0.013, 0.013, 0.013));
     tb.add(PRIMS.blob(1), _t.clone(), [0.62, 0.18, 0.12]);
-    _t.makeTranslation(0, -0.2, 0).multiply(new Matrix4().makeRotationX(Math.PI)).scale(_v.set(0.022, 0.085, 0.022)).multiply(new Matrix4().makeTranslation(0, -0.5, 0));
+    // fiocco: stretto in alto sotto il nodo, largo in basso
+    _t.makeTranslation(0, -0.12 - 0.01 - 0.085, 0).scale(_v.set(0.022, 0.085, 0.022));
     tb.add(PRIMS.frustum(0.25, 8), _t.clone(), [0.78, 0.2, 0.13]);
     const tasselMesh = new Mesh(tb.build(), mat);
     this.tassel.add(tasselMesh);
-    this.tassel.position.set(0.6, 0.1, -0.79);
+    this.tassel.position.set(0.655, 0.1, -0.785);
     this.rig.add(this.tassel);
 
     this.scene.add(this.rig);

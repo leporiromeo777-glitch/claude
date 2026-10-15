@@ -35,7 +35,7 @@ export {
 
 export { SchermataTitolo, type DatiTitolo, type EventiTitolo } from './componenti/titolo';
 export { MenuPausa, type DatiPausa, type EventiPausa } from './componenti/pausa';
-export { PannelloImpostazioni, SEZIONI_IMPOSTAZIONI, type EventiPannelloImpostazioni } from './componenti/impostazioni';
+export { PannelloImpostazioni, SEZIONI_IMPOSTAZIONI, type EventiPannelloImpostazioni, type SchedaImpostazioni } from './componenti/impostazioni';
 export {
   FinestraDialogo,
   type BattutaDialogo,
