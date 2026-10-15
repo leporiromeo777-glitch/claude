@@ -42,8 +42,9 @@ const GIRO: Tappa[][] = [
     { ora: 22.08, z: 1215, theta: 41, quota: 1.5, raggio: 2 },
     { ora: 23.33, z: 1166, theta: 52.6, quota: 3, raggio: 7 },
     { ora: 23.83, z: 1170, theta: 54.5, quota: 3, raggio: 9 },
-    { ora: 24.5, z: 1170, theta: 45.6, quota: 3.5, raggio: 8 },
-    { ora: 25.17, z: 1160, theta: 44.4, quota: 3, raggio: 9 },
+    { ora: 24.5, z: 1186, theta: 46.0, quota: 3.0, raggio: 6 },
+    { ora: 24.85, z: 1170, theta: 44.8, quota: 3.5, raggio: 8 },
+    { ora: 25.17, z: 1152, theta: 43.6, quota: 3, raggio: 7 },
     { ora: 26.0, z: 830, theta: 12, quota: 12, raggio: 16 },
     { ora: 28.5, z: 1215, theta: 41, quota: 1.5, raggio: 2 },
   ],
@@ -74,7 +75,7 @@ export function costruisciNotte(ctx: Contesto, uniforms: WorldUniforms | undefin
   const sciami: THREE.Object3D[] = [];
   const oggetti: Array<ReturnType<typeof creaSciameFade>> = [];
   GIRO.forEach((giro, i) => {
-    const s = creaSciameFade({ seme: `fade-${i}`, numero: 14, raggio: 6, quota: 3, conPietra: i === 1 ? 5 : 2, scala: 1.0 });
+    const s = creaSciameFade({ seme: `fade-${i}`, numero: 18, raggio: 6, quota: 3, conPietra: i === 1 ? 0.45 : 0.2, scala: 1.15 });
     const g = new THREE.Group();
     g.name = `fade:${i}`;
     g.add(s.gruppo);

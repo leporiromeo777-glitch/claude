@@ -78,7 +78,7 @@ const SHOTS = [
       g.setTime(16.5);
       c.applicaOrario(1, 10.5);
       c.setVariante('E1', 'Abitata');
-      g.setCamera(1171.2, 56.3, g.game.world.groundAt(1171.2, 56.3) + 1.7, 70, 6);
+      g.setCamera(1166.5, 57.6, g.game.world.groundAt(1166.5, 57.6) + 1.8, 47, 4);
     },
     frames: 3,
   },
@@ -123,7 +123,7 @@ const SHOTS = [
       g.setTime(0.6);
       c.applicaOrario(2, 0.6);
       c.setVariante('E2', 'Smontata');
-      g.setCamera(1204, 49.2, g.game.world.groundAt(1204, 49.2) + 7.5, 232, -9);
+      g.setCamera(1206, 46.6, g.game.world.groundAt(1206, 46.6) + 5.5, 198, -8);
     },
     frames: 60,
   },
@@ -135,7 +135,7 @@ const SHOTS = [
       g.setTime(0.66);
       c.applicaOrario(2, 0.66);
       c.setVariante('E2', 'Smontata');
-      g.setCamera(1186, 44.2, g.game.world.groundAt(1186, 44.2) + 3.0, 150, -4);
+      g.setCamera(1197, 44.6, g.game.world.groundAt(1197, 44.6) + 3.2, 160, -6);
     },
     frames: 90,
   },
@@ -174,7 +174,7 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(11.5);
       c.applicaOrario(1, 11.5);
-      g.setCamera(958, 24.0, g.game.world.groundAt(958, 24.0) + 8, 45, -10);
+      { const t = c.punto('chiodo:3').cil; g.setCamera(951, 23.75, t.h + 3.0, 48, -16); }
     },
     frames: 3,
   },

@@ -225,8 +225,8 @@ function costruisciInterno(z: number, theta: number, hBotola: number, yaw: numbe
   b.aggiungi(geoBoxC(2.3, 0.1, lc), { matrice: mat([0, fondo, -0.6 - lc / 2]), colore: 0x4f4943, piatto: true });
   for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.1, 1.0, lc), { matrice: mat([s * 1.15, fondo + 0.5, -0.6 - lc / 2]), colore: 0x6a625a, piatto: true });
   const volta = new THREE.CylinderGeometry(1.15, 1.15, lc, 10, 1, true, -Math.PI / 2, Math.PI);
-  volta.rotateX(Math.PI / 2);
-  b.aggiungi(volta, { matrice: mat([0, fondo + 1.0, -0.6 - lc / 2], [0, 0, Math.PI / 2]), colore: 0x7b7168, canale: 'sottile' });
+  volta.rotateX(-Math.PI / 2);
+  b.aggiungi(volta, { matrice: mat([0, fondo + 1.0, -0.6 - lc / 2]), colore: 0x7b7168, canale: 'sottile' });
   // orari dipinti (righe chiare sul ferro) e la scritta a gesso
   for (let r = 0; r < 4; r++) b.aggiungi(geoBoxC(0.01, 0.05, 1.4 - r * 0.2), { matrice: mat([1.09, fondo + 1.5 - r * 0.12, -3.0]), colore: 0xd8c9a0 });
   for (let r = 0; r < 2; r++) b.aggiungi(geoBoxC(0.01, 0.04, 1.2), { matrice: mat([-1.09, fondo + 1.2 - r * 0.1, -4.2]), colore: 0xf0ede6 });
@@ -234,8 +234,8 @@ function costruisciInterno(z: number, theta: number, hBotola: number, yaw: numbe
   const zs = -7.5;
   const R = 5.0;
   const sala = new THREE.CylinderGeometry(R, R, 9, 16, 1, true, -Math.PI / 2, Math.PI);
-  sala.rotateX(Math.PI / 2);
-  b.aggiungi(sala, { matrice: mat([0, fondo + 0.4, zs], [0, 0, Math.PI / 2]), colore: 0x8a8076, canale: 'sottile' });
+  sala.rotateX(-Math.PI / 2);
+  b.aggiungi(sala, { matrice: mat([0, fondo + 0.4, zs]), colore: 0x8a8076, canale: 'sottile' });
   b.aggiungi(geoBoxC(2 * R, 0.12, 9), { matrice: mat([0, fondo - 0.06, zs]), colore: 0x5d564f, piatto: true });
   for (const s of [-1, 1]) b.aggiungi(geoBoxC(2 * R, 5.4, 0.2), { matrice: mat([0, fondo + 2.7, zs + s * 4.5]), colore: 0x766d64, piatto: true });
   // sette capsule in semicerchio (aperte verso il centro della sala)
