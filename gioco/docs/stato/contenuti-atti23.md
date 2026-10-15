@@ -1,8 +1,82 @@
 # Stato del pacchetto: contenuti-atti23
 
-**Stato:** done (verificato e corretto; revisione 1 fatta, vedi sotto)
+**Stato:** done (revisione 2 fatta, vedi sotto; revisione 1 verificata e corretta)
 
 Atto II (g09-g16), Atto III (g17-g23), le quattro giornate finali, l'Archivio A3-A6, i finali, il Taccuino, le lettere e il test. Il pacchetto contiene solo JSON più il test `tests/unit/content/atto23.test.ts`. `src/core/types.ts` non è stato toccato.
+
+## Revisione 2
+
+Task del gruppo in `docs/stato/revisione-2.json` (playtest 2), tutte fatte, con le decisioni R2-D3 (la storia regge su tutti i rami) e R2-D6 (Archivio 1958 deducibile). Solo file del gruppo. Ogni testo italiano cambiato ha la sua versione inglese (anche le nuove: `en.test.ts` verde, righe ≤ 90 e rapporto it/en ≤ 1,2).
+
+### Il test della storia su tutti i rami (R2-D3)
+
+In `tests/unit/content/atto23.test.ts`, blocchi «revisione 2». La campagna vera (`src/campaign/flow`, `evening`, `endings`, `simulate`) si gioca dalla sera del prologo alla scelta su **18 rami**, e da lì ogni finale che si può appuntare:
+
+- `riuscito` (le richieste che portano al finale vero, nome passato bene);
+- `riuscito-resta` (finale vero con la domanda di g08 non appuntata, la Nina rimasta, il Bepi ferito, Zeno senza perdono alla secca);
+- `q043` (i passi di Q043: in g08 Marta e la Nina insieme);
+- `fallito` (spilli a caso, notti con la sola base, autori sbagliati), `lasciato` (tutto lasciato), `dimenticata` (memoria a zero dopo ogni notte col nome);
+- `chiave-21…24` e `misto-11…18`: misti a caso con seme fisso (mulberry32).
+
+A ogni momento (sera, alba, oggetto dell'alba, bilancio, Archivio, scelta, obiettivi della notte del finale, epilogo) si annotano le chiavi dei testi mostrati con lo stato di quel momento. Le condizioni di coerenza sono **dichiarate come dati** nel test e si valutano con `evalStory`:
+
+- `COERENZA`: un testo (chiave, obiettivo o testo italiano) si mostra solo se la sua condizione è vera (Q043 ammessa/tardiva, Q042 Nina partita/rimasta e niente obiettivi per la Nina partita, Q044 fascio intero/ultima lettera, Q046 regole sciolte/nodo, Q057, Q019);
+- `UN_GIORNO`: fatti raccontati in una giornata sola (la Nina parte una volta sola; le lettere di Livia tornano una volta sola; il perdono della valigia una volta sola);
+- `MAI_INSIEME`: testi che non stanno nella stessa giornata (Q047, Q046);
+- in più: ogni testo esiste in it e en; le carte della scelta le firma chi ricorda Ada (Q045); nessuna sequenza di 5 parole in comune fra alba, oggetto e bilancio della stessa giornata, nell'Archivio e nell'epilogo (Q048); niente «o… o…» negli esiti e nel Taccuino (Q049).
+
+Il primo giro sui contenuti di prima ha riprodotto tutte le segnalazioni: 80 violazioni di COERENZA, 17 di MAI_INSIEME, decine di ripetizioni, le voci vaghe, la carta A di Don Piero senza memoria in 13 rami. Ora è tutto verde. Un test per segnalazione ripete i passi del playtest sui rami simulati.
+
+### Le task
+
+| Task | Esito | Cosa |
+|---|---|---|
+| Q042 [P0] la Nina riparte nel finale vero | fatto | `fin_aperto` non ha più il filo della Nina (dopo g20 non c'è in nessun livello, in nessun ramo: g21, g22, g23 e gli altri finali già non l'avevano). Al suo posto Lunardi; alle 9 il Bepi prende il vaporetto (obiettivo `parte(bepi, 9)`), la voce del dottore fra Teresa, Gino, Bepi e Zeno. Stessa soluzione di prima (vaporetto delle 9, feste a mezzogiorno e alle 17, lanterna alle 20; 20 insiemi validi): il test della campagna su `{occasioni}` resta verde. Epilogo D con 4 varianti: Nina partita → il Bepi va a trovarla in convitto (solo il Bepi nella vignetta); Nina rimasta → il Bepi va a tenerle il posto e a settembre lei parte, per scelta (una volta sola); col braccio buono se ferito. Tolte dal livello le stranezze di Marta e Teresa, che il finale vero (con `riconciliate`) toglie comunque: `levels:check` e il gioco tessono lo stesso merletto. Indizio della lampada allineato alla soluzione. |
+| Q043 [P0] ammessa senza domanda | fatto | `g14.nina` solo se la domanda è partita in g08 (`ninaIscritta` o `ok g08.nina`); altrimenti `g14.nina.tardiva` («La domanda per Venezia l'ho spedita io, in ritardo, con due righe di Don Piero…»), con la sua alba («Presa lo stesso!…») e la sua voce del Taccuino («…per colpa del mio merletto»). `levels:check` rigenerato (`g14.nina.tardiva + g14.gino` voluta come il gemello). |
+| Q028 [P1] Archivio 1958 | fatto | arc3: Teresa porta in borsa «la lettera dalla terraferma per Aldo» e la legge alla fine della prima riga (stranezza `teresaLegge`, perlina «il segreto della lettera…»); il Bepi esce in barca dal Faro alle 8. Guida «Chi porta la medicina, chi scotta, chi legge la posta degli altri, chi esce in barca?»; guida dello strappo e indizio che spiegano il rammendo. Test R2-D6: dalle righe fuori dallo strappo e dalle perline di partenza ogni filo ha un solo candidato (Lunardi nel 1958 non c'era), e il risultato è la risposta. Voci dell'Archivio riscritte (Q048). |
+| Q044 [P1] g22, lettere già uscite | fatto | Don Piero chiede «le lettere ancora nel pozzo, e in fondo la prima di tutte, quella del '51»: vale in tutti e due i rami. Alba e voce del Taccuino in due varianti (fascio intero se sepolte; le ultime e quella del '51 se liberate). Perlina «le lettere ancora nel pozzo, per Livia». |
+| Q045 [P1] carta A di Don Piero | fatto | Catena: Zeno, poi Don Piero (testo suo, col lei: «Resti, figliola…»), poi Marta, poi Teresa; se tutti e quattro hanno dimenticato Ada, la carta se la scrive Ada («Resto io…»). Le carte non sono mai anonime (codice della campagna), quindi firma solo chi ricorda Ada. |
+| Q046 [P1] g18 fallita | fatto | `persone.ada.g18` solo con la pace; senza, `persone.ada.g18nodo` («Il nodo è ancora lì…»). `persone.teresa.pace` non ripete più le regole sciolte dell'alba. |
+| Q047 [P1] contraddizioni | fatto | g22: «Si sono tenuti le mani finché è tornata l'acqua»; g16: `persone.marta.segreto` solo se il segreto non è arrivato al prete, altrimenti `segretoPozzo`; g18: «non era solo colpa mia». |
+| Q048 [P1] ripetizioni | fatto | Riscritte ~45 voci, esiti e albe (g09-g23, Archivi 3-6): ogni voce di fine giornata aggiunge il punto di vista di Ada o un fatto nuovo. g12: una voce sola sulla regola del nome; quella su chi dimentica Ada arriva la prima volta che qualcuno la dimentica. g16: niente più «Una al mese, per quattordici anni» nei miei testi. |
+| Q049 [P1] voci vaghe | fatto | Voci di Ada divise per esito: g11 (nodo o no), g13 (0, 1, 2 cure), g16 (lettere liberate o no), g18, g20 (partita o rimasta). Esiti falliti di g15, g16, g17 senza «o… o…». |
+| Q050 [P1] perdono tre volte | fatto | g17 senza «faccia da gita»; g21: Zeno parla della lanterna accesa per lei, la valigia resta per la secca; epilogo D: perdono solo se alla secca non c'è stato (`zenoLivia` falso). |
+| Q019 [P2] | fatto (g10) | «Le porte restano socchiuse» al posto di «Il forno resta aperto». La metà su g08 è dell'Atto I (vedi sotto). |
+| Q038 [P2] | fatto | «Stasera torta. E la pagella la metto in cornice, sopra il forno.» |
+| Q057 [P2] | fatto | Desiderio di Zeno senza «non c'è più» né «Non dice a chi»; voce nuova `persone.zeno.chi` dopo la lettera della nonna («Adesso so a chi Zeno vuole chiedere perdono: a mia madre. Per che cosa, non lo so ancora.»: la valigia si scopre in arc4). |
+
+### Decisioni e interpretazioni dei contratti
+
+- **«Condizioni di coerenza dichiarate nei dati» (R2-D3).** Le ho dichiarate come tabelle di dati nel test (`COERENZA`, `UN_GIORNO`, `MAI_INSIEME`, con `StoryCond`), non come campi nuovi dei JSON: `validate.ts` e i tipi non sono del gruppo, e nessun contratto li prevede.
+- **La Nina nel finale vero (Q042).** Gli obiettivi di un livello non dipendono dai flag (motore e campagna non lo prevedono), quindi la Nina non può esserci in un ramo e mancare nell'altro. Fra «tornata per la vigilia» (la Nina partirebbe due volte, contro R2-D3) e toglierla, l'ho tolta: è coerente con g21-g23 e con gli altri finali. Il suo desiderio si chiude nell'epilogo. Il GDD 5.2 e 6.6 dicono ancora «Nina» fra i desideri tessuti quella notte: da aggiornare (regia).
+- **GDD 6.4, g18**: il testo «non era nemmeno colpa mia» è nel GDD alla lettera; Q047 chiede «non era solo colpa mia». Ho seguito Q047 e aggiornato il test; il GDD va aggiornato (regia).
+- **Lettere del pozzo in g22 (Q044).** Un bigliettino solo, valido in tutti e due i rami, invece di un gemello: non cambia le combinazioni di `levels:check`.
+- **Carta A (Q045).** Ultimo anello della catena: Ada stessa (quando nessuno la ricorda, le due carte «sue» sono la A e la D).
+
+### Test e verifiche
+
+- `npx vitest run tests/unit/content/` → 3 file, 194 test verdi (`atto23.test.ts` 98 test: i 78 di prima, alcuni aggiornati, e 20 nuovi della revisione 2); `npx vitest run` → 100 file, 1475 test verdi.
+- `npm run levels:check -- --only <i 23 livelli del gruppo> --qualita` → «23 levels OK»; rigenerati solo `g14`, `g22`, `g23`, `fin_aperto`, `arc3`.
+- `npx tsc --noEmit -p .` → nessun errore.
+- Browser (build `VITE_E2E=1`, `vite preview` sulla porta 6040, Chromium 1280×800, it ed en):
+  - Q043: g08 con Marta e la Nina (fallite), sera di g14 col bigliettino tardivo, alba «Presa lo stesso!», bilancio con la voce della domanda in ritardo e senza «Non dice a chi».
+  - Q042: finale vero con la Nina partita: obiettivi senza la Nina («Bepi parte alle 9»), 8/8, epilogo col Bepi da solo sul vaporetto; con la Nina rimasta e il Bepi ferito, «A settembre lei è partita… col braccio buono» e il perdono di Zeno.
+  - Q045: Zeno e Don Piero a memoria 0 → carta A di Marta, nella sua grafia.
+  - Q044: g22 dopo lettere liberate, bigliettino di Don Piero e alba «Erano in fondo, sotto la tovaglia…».
+  - Q046: g18 con le tre richieste impossibili, bilancio con «Il nodo è ancora lì…» e nessuna regola sciolta.
+  - Q028: arc3 con la guida nuova, la lettera e il suo segreto su Teresa, il Bepi che esce in barca alle 8.
+  - Nessun errore in console.
+
+### Problemi per altri gruppi
+
+- **schermi-atto1 (contenuti Atto I):**
+  - Q019, seconda metà: l'alba di g08 «La Nina rimette la busta nel libro» esce anche quando la domanda è finita a Don Piero (`atto1.g08.alba.scaduta2`).
+  - Q048, g01: «stonata, fuori orario, felice» copiata dall'alba nel Taccuino.
+  - `comune.oggetti.fascio_lettere.descrizione` ripete «Una al mese, per quattordici anni», che ho tolto dai miei testi di g16.
+  - Facoltativo: un flag `onFail` per `g08.nina` (domanda persa). Oggi la variante tardiva di g14 legge `ninaIscritta` e `ok: g08.nina`, che bastano.
+- **tombolo-motore (Q028, seconda metà):** aprendo «Filo sbiadito 1» dal pannello di sinistra il popup copre il merletto e non evidenzia quale filo è.
+- **campagna (proposta, non urgente):** obiettivi di un livello che dipendano dai flag (per esempio `goalsIf`) permetterebbero di rimettere la Nina nel finale vero quando è rimasta.
+- **regia (GDD):** aggiornare 6.4 (g18, «non era solo colpa mia»), 6.6 e 5.2 (`fin_aperto` senza la Nina, il Bepi sul vaporetto delle 9, Lunardi sul tombolo; carta A firmata da chi ricorda Ada) e 5.3 (arc3: la lettera per Aldo, il Bepi in barca).
 
 ## Revisione 1
 

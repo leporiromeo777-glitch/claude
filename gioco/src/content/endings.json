@@ -3373,15 +3373,9 @@
         "background": "dio/molo/giorno",
         "figures": [
           {
-            "character": "nina",
-            "pose": "saluta",
-            "x": 0.36
-          },
-          {
             "character": "bepi",
-            "pose": "ferma",
-            "x": 0.64,
-            "flip": true
+            "pose": "saluta",
+            "x": 0.6
           }
         ],
         "lines": [
@@ -3415,15 +3409,9 @@
         "background": "dio/molo/giorno",
         "figures": [
           {
-            "character": "nina",
-            "pose": "saluta",
-            "x": 0.36
-          },
-          {
             "character": "bepi",
-            "pose": "ferma",
-            "x": 0.64,
-            "flip": true
+            "pose": "saluta",
+            "x": 0.6
           }
         ],
         "lines": [

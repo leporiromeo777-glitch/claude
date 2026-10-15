@@ -1593,6 +1593,16 @@ const RAMI: Ramo[] = [
     rammenda: (arc) => arc !== 'arc4',
     memoria: 'piena',
   },
+  {
+    // I passi di Q043: in g08 si appuntano Marta e la Nina (insieme non si può): la domanda della Nina non parte.
+    nome: 'q043',
+    seed: 6,
+    rispondi: (n) => (n.replies?.find((x) => x.effects.some((e) => 'desire' in e))?.id ?? 'R1'),
+    appunta: (day, cands, max) => (day === 'g08' ? cands.filter((n) => n.id === 'g08.marta' || n.id === 'g08.nina') : migliori(day, cands, max)),
+    riuscite: (_d, pinned) => pinned,
+    rammenda: () => true,
+    memoria: 'piena',
+  },
   { nome: 'fallito', seed: 2, rispondi: () => 'R2', appunta: (_d, c, max, r) => shuffle(c, r).slice(0, max), riuscite: () => [], rammenda: () => false, sbaglia: 0.5 },
   { nome: 'lasciato', seed: 3, rispondi: () => null, appunta: () => [], riuscite: () => [], rammenda: () => false },
   { nome: 'dimenticata', seed: 4, rispondi: (_n, r) => (r() < 0.5 ? 'R1' : 'R2'), appunta: (_d, c, max, r) => shuffle(c, r).slice(0, Math.floor(r() * (max + 1))), riuscite: (_d, p, r) => p.filter(() => r() < 0.5), rammenda: (_a, r) => r() < 0.5, memoria: 'zero' },
@@ -1909,3 +1919,192 @@ function ngramComune(a: string, b: string, n: number): string | null {
   }
   return null;
 }
+
+describe('revisione 2: le segnalazioni coi loro passi (Q042-Q050, Q019, Q028, Q038, Q057)', () => {
+  const pagine = (ramo: string, giorno: string, momento: Momento): Pagina[] => PAGINE.filter((p) => p.ramo === ramo && p.giorno === giorno && p.momento === momento);
+  const chiavi = (ps: Pagina[]): string[] => ps.flatMap((p) => p.voci.map((v) => v.key));
+  const stato = (ramo: string, giorno: string, momento: Momento): Pagina => {
+    const p = pagine(ramo, giorno, momento)[0];
+    if (!p) throw new Error(`${ramo} ${giorno} ${momento}: pagina assente`);
+    return p;
+  };
+
+  it('Q042: con la Nina partita in g20, il finale vero non la fa ripartire (obiettivi ed epilogo)', () => {
+    const p = stato('riuscito', 'fin_aperto', 'notte');
+    expect(p.s.flags['nina']).toBe('parte');
+    expect(vale({ ok: 'g20.nina' }, p)).toBe(true);
+    const goals = chiavi([p]).join('\n');
+    expect(goals).not.toContain('"nina"');
+    expect(goals).toContain('{"t":"parte","who":"bepi","hour":9}');
+    const ep = chiavi(pagine('riuscito', 'fin_aperto', 'epilogo'));
+    expect(ep).toContain('finali.aperto.epilogo.ninaParte.1');
+    for (const k of ep) expect(testoDi(k), k).not.toMatch(/la Nina è partita|è salita sul vaporetto/i);
+    // Con la Nina rimasta, nel finale vero parte una volta sola: a settembre.
+    const resta = chiavi(pagine('riuscito-resta', 'fin_aperto', 'epilogo'));
+    expect(resta.some((k) => k.startsWith('finali.aperto.epilogo.ninaResta.2'))).toBe(true);
+    // In nessun livello dopo g20 il filo della Nina è sul tombolo, in nessun ramo.
+    for (const id of ['g21', 'g22', 'g23', ...FINALS]) expect(level(id).threads.map((x) => x.id), id).not.toContain('nina');
+  });
+
+  it('Q043: la domanda della Nina non parte in g08 → in g14 la domanda tardiva, non l\'ammissione', () => {
+    const g08 = stato('q043', 'g08', 'bilancio');
+    expect(vale({ failed: 'g08.nina' }, g08)).toBe(true);
+    const sera = chiavi(pagine('q043', 'g14', 'sera'));
+    expect(sera).toContain('atto2.g14.nina.tardiva.testo');
+    expect(sera).not.toContain('atto2.g14.nina.testo');
+    const giorno = chiavi([...pagine('q043', 'g14', 'alba'), ...pagine('q043', 'g14', 'bilancio')]);
+    expect(giorno.some((k) => k.startsWith('atto2.g14.alba.ammessa.'))).toBe(false);
+    expect(giorno).toContain('atto2.diario.persone.nina.tardiva');
+    expect(giorno).not.toContain('atto2.diario.persone.nina.ammessa');
+    // Con la domanda partita, l'ammissione.
+    expect(chiavi(pagine('riuscito', 'g14', 'sera'))).toContain('atto2.g14.nina.testo');
+    expect(chiavi(pagine('riuscito', 'g14', 'alba'))).toContain('atto2.g14.alba.ammessa.1');
+    // Su ogni ramo, la sera di g14 c'è una sola delle due varianti, quella giusta.
+    for (const p of PAGINE.filter((x) => x.giorno === 'g14' && x.momento === 'sera')) {
+      const ks = chiavi([p]);
+      expect(ks.includes('atto2.g14.nina.testo'), p.ramo).toBe(vale(DOMANDA_PARTITA, p));
+      expect(ks.includes('atto2.g14.nina.tardiva.testo'), p.ramo).toBe(!vale(DOMANDA_PARTITA, p));
+    }
+  });
+
+  it('Q044: dopo una g16 riuscita, in g22 Don Piero chiede solo le lettere ancora nel pozzo', () => {
+    expect(stato('riuscito', 'g22', 'sera').s.flags['lettereLivia']).toBe('liberate');
+    expect(t('atto3.g22.piero.testo')).toMatch(/ancora/);
+    expect(t('atto3.g22.piero.testo')).not.toMatch(/restano le lettere che non ho saputo dare/);
+    const alba = chiavi(pagine('riuscito', 'g22', 'alba'));
+    if (vale({ ok: 'g22.piero' }, stato('riuscito', 'g22', 'alba'))) {
+      expect(alba).toContain('atto3.g22.alba.prima.1');
+      expect(alba).not.toContain('atto3.g22.alba.fascio.1');
+    }
+    expect(t('atto3.g22.perline.fascio')).not.toMatch(/fascio rimasto/);
+  });
+
+  it('Q045: Zeno e Don Piero hanno dimenticato Ada → la carta A la firma chi la ricorda, col suo testo', () => {
+    const fallito = stato('fallito', 'g23', 'scelta');
+    const a = fallito.voci.map((v) => v.note as NoteDef).find((n) => n.ending === 'merlettaia') as NoteDef;
+    expect(vale({ memoria: 'zeno', lte: 0 }, fallito) && vale({ memoria: 'piero', lte: 0 }, fallito)).toBe(true);
+    expect(a.author).not.toBe('piero');
+    expect(vale({ memoria: a.author, gte: 1 }, fallito) || a.author === 'ada').toBe(true);
+    const tutti = stato('dimenticata', 'g23', 'scelta').voci.map((v) => v.note as NoteDef).find((n) => n.ending === 'merlettaia') as NoteDef;
+    expect(tutti.author).toBe('ada');
+    // Don Piero dà del lei, col testo suo.
+    expect(t('atto3.g23.piero.carta')).toMatch(/^Resti, figliola/);
+    expect(t('atto3.g23.piero.carta')).not.toMatch(/\btua\b|\btu\b/);
+    expect(db.notes.get('g23.piero')?.textKey).toBe('atto3.g23.piero.carta');
+  });
+
+  it('Q046: g18 fallita, il Taccuino non festeggia le regole sciolte', () => {
+    const p = stato('fallito', 'g18', 'bilancio');
+    expect(vale(PACE, p)).toBe(false);
+    const ks = chiavi(pagine('fallito', 'g18', 'bilancio'));
+    expect(ks).not.toContain('atto3.diario.persone.ada.g18');
+    expect(ks).toContain('atto3.diario.persone.ada.g18nodo');
+    expect(chiavi(pagine('riuscito', 'g18', 'bilancio'))).toContain('atto3.diario.persone.ada.g18');
+  });
+
+  it('Q047: niente contraddizioni nella stessa pagina (g22 si parlano, g16 il segreto di Marta, g18 la confessione di g07)', () => {
+    expect(t('atto3.g22.zeno.esito.ok')).not.toMatch(/senza dire niente/);
+    expect(t('atto3.g18.alba.pace.2')).toContain('non era solo colpa mia');
+    expect(te('atto3.g18.alba.pace.2')).toContain('wasn\'t only my fault');
+    expect(t('atto2.diario.persone.marta.segretoPozzo')).toContain('adesso è nel pozzo');
+    expect(db.diary.get('persone.marta.segreto')?.unlock).toEqual({ all: [{ done: 'g16' }, { not: { ok: 'g16.piero' } }] });
+    for (const k of ['atto2.diario.persone.marta.segreto', 'atto2.diario.persone.marta.confessione']) expect(t(k), k).not.toMatch(/mai detto al prete/);
+  });
+
+  it('Q048: niente frase ripetuta fra alba, esito e Taccuino (i casi della segnalazione)', () => {
+    const mine = [...IT.entries()].filter(([k]) => MIE.test(k) && /\.(diario|alba|esito)\./.test(k)).map(([, v]) => v);
+    expect(mine.filter((v) => /una al mese,? per quattordici anni/i.test(v))).toEqual([]);
+    expect(mine.filter((v) => /appunto il mio nome su un filo/i.test(v))).toEqual([]);
+    expect(mine.filter((v) => /doppio nodo/i.test(v)).length).toBe(1);
+    expect(t('atto2.diario.archivio.arc3.scuola')).not.toMatch(/mandò/);
+    expect(t('atto2.diario.domande.anno1958.risposta')).not.toMatch(/salvò i sei bambini/);
+    // g12: una sola voce sulla regola del nome la sera in cui si impara.
+    const g12 = chiavi(pagine('riuscito', 'g12', 'bilancio')).map(testoDi).filter((x) => /nome/.test(x) && /filo|passa|riceve/.test(x));
+    expect(g12.length).toBeLessThanOrEqual(1);
+  });
+
+  it('Q049: voci ed esiti dicono quello che è successo davvero', () => {
+    expect(t('atto2.diario.persone.ada.g13')).not.toMatch(/provato a non scegliere/);
+    expect(t('atto3.diario.persone.ada.g20')).not.toMatch(/non partenza/);
+    expect(t('atto2.diario.persone.ada.g11')).not.toMatch(/\bo si sono/);
+    expect(t('atto3.g17.teresa.esito.fallita')).not.toMatch(/, o /);
+    // Le varianti di fine giornata si escludono e coprono tutti i casi.
+    const gruppi = [
+      ['persone.ada.g11', 'persone.ada.g11largo'],
+      ['persone.ada.g13', 'persone.ada.g13uno', 'persone.ada.g13nessuno'],
+      ['persone.ada.g16', 'persone.ada.g16pozzo'],
+      ['persone.ada.g18', 'persone.ada.g18nodo'],
+      ['persone.ada.g20', 'persone.ada.g20resta'],
+    ];
+    for (const g of gruppi) {
+      for (const p of PAGINE.filter((x) => x.momento === 'bilancio' && x.giorno === `g${/g(\d\d)/.exec(g[0] as string)?.[1]}`)) {
+        const n = g.filter((id) => p.k.diary.includes(id)).length;
+        expect(n, `${p.ramo} ${g.join(' / ')}`).toBe(1);
+      }
+    }
+  });
+
+  it('Q050: il perdono della valigia si consuma una volta sola, alla secca', () => {
+    for (const k of ['atto3.g17.alba.zeno.2', 'atto3.g21.alba.zeno.1', 'atto3.g21.alba.zeno.2', 'atto3.diario.persone.zeno.valigia', 'atto3.g21.zeno.testo']) {
+      expect(t(k), k).not.toMatch(/valigia.*(perdon|credevo)|gita|ti ho portato la valigia/i);
+    }
+    expect(t('atto3.g22.alba.perdono.1')).toContain('Perdonami, Livia');
+    // Nel finale vero il perdono c'è solo se alla secca non c'è stato.
+    expect(db.endings.get('aperto')?.epilogue.find((v) => v.id === 'finale.aperto.zeno.perdono')?.when).toEqual({ not: { flag: 'zenoLivia', eq: true } });
+  });
+
+  it('Q019 e Q038: l\'alba di g10 non tiene aperto il forno chiuso, quella di g11 non chiede chi ha portato la pagella', () => {
+    expect(t('atto2.g10.alba.quarantena.1')).not.toMatch(/forno/i);
+    expect(t('atto2.g11.alba.pagella.2')).not.toMatch(/chi me l'ha portata|Teresa/);
+    expect(te('atto2.g11.alba.pagella.2')).not.toMatch(/who brought|Teresa/);
+  });
+
+  it('Q057: dopo la lettera della nonna il bilancio di g14 sa a chi Zeno chiede perdono', () => {
+    const p = stato('riuscito', 'g14', 'bilancio');
+    expect(p.k.desires).toContain('zeno');
+    const giorno = chiavi([...pagine('riuscito', 'g14', 'oggetto'), ...pagine('riuscito', 'g14', 'bilancio')]);
+    expect(giorno).toContain('atto2.diario.persone.zeno.chi');
+    for (const k of giorno) expect(testoDi(k), k).not.toMatch(/non dice a chi|non c'è più/i);
+    expect(t('atto2.diario.desiderio.zeno')).not.toMatch(/Livia|madre|non c'è più/);
+  });
+
+  it('Q028 (R2-D6): Archivio 1958, ogni nome si deduce dal merletto registrato, senza tentativi', () => {
+    const lv = level('arc3');
+    const a = lv.archive as NonNullable<LevelDef['archive']>;
+    const sim = simulate({ ...lv, matassa: 99 }, createContext(lv, {}, { balance: db.balance }), a.recorded.map((r) => ({ hour: r.hour, crossings: r.crossings.filter((c) => !c.forced) })));
+    expect(sim.ok).toBe(true);
+    // Quello che il giocatore vede prima di rammendare: le righe fuori dallo strappo e le perline di partenza.
+    const torn = (h: number): boolean => a.holes.some((x) => h >= x.from && h <= x.to);
+    const visibili = sim.events.flatMap((row, i) => (torn(lv.startHour + i + 1) ? [] : row));
+    const fatti = (f: string) => ({
+      medicina: lv.beads.some((b) => b.id === 'medicina' && b.holder === f),
+      febbre: lv.beads.some((b) => b.type === 'febbre' && (b.holders ?? []).includes(f)),
+      perLui: lv.beads.find((b) => b.type === 'lettera' && b.to === f)?.labelKey,
+      legge: visibili.some((e) => e.k === 'legge' && e.who === f),
+      barca: visibili.some((e) => e.k === 'esce' && e.thread === f && e.kind === 'barca'),
+      forno: sim.timeline[0]?.pos[lv.columns.indexOf('forno')] === f,
+    });
+    // Le firme dei candidati, nella grammatica imparata giocando (GDD 5.3). Lunardi nel 1958 non era sull'isola.
+    const FIRME: Record<string, (x: ReturnType<typeof fatti>) => boolean> = {
+      bortolo: (x) => x.medicina,
+      aldo: (x) => x.febbre && !!x.perLui && t(x.perLui).includes('Aldo'),
+      teresa: (x) => x.legge,
+      bepi: (x) => x.barca,
+      marta: (x) => x.forno,
+      lunardi: () => false,
+    };
+    const dedotti: Record<string, string> = {};
+    for (const f of a.faded) {
+      const chi = a.candidates.filter((c) => FIRME[c]?.(fatti(f)));
+      expect(chi, `${f}: ${JSON.stringify(fatti(f))}`).toHaveLength(1);
+      dedotti[f] = chi[0] as string;
+    }
+    expect(dedotti).toEqual(a.answer);
+    // La guida e i suggerimenti dicono dove guardare, e il rammendo si capisce senza la lampada.
+    expect(t('atto2.arc3.guida.nomina')).toMatch(/legge la posta/);
+    expect(t('atto2.arc3.guida.nomina')).toMatch(/barca/);
+    expect(t('atto2.arc3.guida.strappo')).toMatch(/undici/);
+    expect(t('atto2.arc3.hint.indizio')).toMatch(/Teresa/);
+    expect(t('atto2.arc3.perline.L_aldo')).toBe('la lettera dalla terraferma per Aldo');
+  });
+});
