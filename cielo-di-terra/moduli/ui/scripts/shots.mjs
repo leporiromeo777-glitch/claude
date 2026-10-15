@@ -19,6 +19,7 @@ export const COMPONENTI = [
   'pausa',
   'impostazioni',
   'impostazioni-accessibilita',
+  'impostazioni-aiuti',
   'dialogo',
   'dialogo-storico',
   'lettera',
@@ -27,6 +28,7 @@ export const COMPONENTI = [
   'dattiloscritto',
   'taccuino',
   'taccuino-parole',
+  'taccuino-leggende',
   'pianta',
   'pianta-zoom',
   'hud',
@@ -35,12 +37,13 @@ export const COMPONENTI = [
   'crediti',
   'caricamento',
   'testo-semplice',
+  'contrasto-grande',
 ];
 
-const DIMENSIONI = [
+const DIMENSIONI = (process.env.SOLO_1280 ? [[1280, 720]] : [
   [1280, 720],
   [1920, 1080],
-];
+]);
 
 const scelti = process.argv.slice(2);
 const lista = scelti.length ? COMPONENTI.filter((c) => scelti.some((s) => c === s || c.startsWith(s + '-'))) : COMPONENTI;
