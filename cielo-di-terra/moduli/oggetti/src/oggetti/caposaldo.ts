@@ -9,6 +9,8 @@
  */
 import * as THREE from 'three';
 import { Costruttore, mat, matSegmento, mescola } from '../costruttore';
+import { creaAlone } from '../comune';
+import { testaLanterna } from './lumi';
 import { box, cil, ingombroDa, risultato } from '../comune';
 import { geoBoxC, geoCilindro, geoLastra, geoMasso, geoSfera, geoToro } from '../forme';
 import { PALETTE } from '../palette';
@@ -63,7 +65,7 @@ export function numero(b: Costruttore, testo: string, m: THREE.Matrix4, h: numbe
 }
 
 /** Testa del chiodo con il numero, nel sistema locale m (asse +Y uscente dalla superficie). */
-function testaChiodo(b: Costruttore, m: THREE.Matrix4, num: number, scala = 1): void {
+export function testaChiodo(b: Costruttore, m: THREE.Matrix4, num: number, scala = 1): void {
   const r = 0.045 * scala;
   // gambo appena visibile e testa
   b.aggiungi(geoCilindro(r * 0.35, r * 0.35, 0.05 * scala, 6), { matrice: m.clone().multiply(mat([0, -0.045 * scala, 0])), colore: PALETTE.ottoneScuro });
@@ -230,6 +232,8 @@ export interface OpzioniPalina {
   bandierina?: boolean;
   /** numero del caposaldo sulla targa (solo base 'pilastro') */
   numero?: number;
+  /** lume di mira in cima (i lumi che Ottavio porta di notte sui pilastri lontani) */
+  lumeDiMira?: boolean;
 }
 
 /** Palina bianca e rossa per i capisaldi lontani. */
@@ -303,7 +307,12 @@ export function creaPalina(opz: OpzioniPalina = {}): OggettoProcedurale {
   }
   const cima = aggiungiPalina(b, new THREE.Vector3(0, yBase, 0), h, opz.banda ?? 1.0, 0.07, opz.bandierina ?? true);
   collider.push(cil(0, yBase, 0, 0.1, h, 'palina'));
+  const fiamma = opz.lumeDiMira ? testaLanterna(b, mat([0, yBase + h + 0.12, 0]), 1.1, PALETTE.ottoneScuro) : null;
   const gruppo = b.costruisci('palina');
+  if (fiamma) {
+    gruppo.add(creaAlone(fiamma, 3.5));
+    punti['lume'] = fiamma;
+  }
   punti['cima'] = cima;
   return risultato({ nome: 'palina', seme, gruppo, collider, ingombro: ingombroDa(gruppo), punti });
 }
@@ -314,8 +323,10 @@ export interface OpzioniPilastro {
   /** segnale sul pilastro: palina 8-10 m, disco, o nessuno */
   segnale?: 'palina' | 'disco' | 'nessuno';
   altezzaSegnale?: number;
-  /** pilastro storto (il Pilastro 4 «sta tre metri più in là»): inclinazione in gradi */
+  /** pilastro storto: inclinazione in gradi */
   inclinazione?: number;
+  /** lume di mira in cima al segnale (visibile di notte attraverso l'asse) */
+  lumeDiMira?: boolean;
 }
 
 /** Pilastro di bronzo del Catasto: colonnina ottagonale su zoccolo, targa numerata, chiodo in cima, segnale. */
@@ -368,7 +379,14 @@ export function creaPilastro(opz: OpzioniPilastro): OggettoProcedurale {
     b.aggiungi(fascia.clone(), { matrice: mat(centroDisco.clone().add(new THREE.Vector3(0, 0, -0.01)), [0, Math.PI, 0]), colore: PALETTE.rossoPalina, canale: 'sottile' });
     punti['cima'] = centroDisco;
   }
+  let fiamma: THREE.Vector3 | null = null;
+  if (opz.lumeDiMira) {
+    const sopra = (punti['cima'] ?? pChiodo).clone().add(new THREE.Vector3(0, segnale === 'disco' ? 0.95 : 0.12, 0));
+    fiamma = testaLanterna(b, mat(sopra), 1.1, PALETTE.ottoneScuro);
+    punti['lume'] = fiamma;
+  }
   const gruppo = b.costruisci(`pilastro-${opz.numero}`);
+  if (fiamma) gruppo.add(creaAlone(fiamma, 3.5));
   return risultato({
     nome: 'pilastro',
     seme,
@@ -377,4 +395,44 @@ export function creaPilastro(opz: OpzioniPilastro): OggettoProcedurale {
     ingombro: ingombroDa(gruppo),
     punti,
   });
+}
+
+/** Voce di content/capisaldi.json (campi usati). */
+export interface VoceCaposaldo {
+  numero: number;
+  tipo: string;
+  nome?: string;
+  luogo?: string;
+  altezza_segnale?: number;
+  note?: string;
+  /** solo per i capisaldi lontani visti di notte */
+  lume?: string;
+}
+
+/**
+ * Crea il caposaldo giusto da una voce di content/capisaldi.json:
+ * - tipo 'pilastro' → pilastro di bronzo con palina alta `altezza_segnale` (disco se le note parlano di disco);
+ * - tipo 'chiodo' → chiodo murato: nel muro, su un masso («Sass»), su un pilastrino («cippo»),
+ *   oppure solo il chiodo (gradini, soglie, sagrato: lo si posa sulla pietra che c'è già).
+ * Il Pilastro 1 sta sulla terrazza del campanile (creaCampanile lo comprende già).
+ */
+export function creaCaposaldoDaContenuto(v: VoceCaposaldo): OggettoProcedurale {
+  const testo = `${v.nome ?? ''} ${v.luogo ?? ''} ${v.note ?? ''}`.toLowerCase();
+  if (v.tipo === 'pilastro') {
+    const hs = v.altezza_segnale ?? 8;
+    return creaPilastro({
+      numero: v.numero,
+      segnale: hs <= 0 ? 'nessuno' : testo.includes('disco') ? 'disco' : 'palina',
+      altezzaSegnale: hs > 0 ? hs : 8,
+      lumeDiMira: v.lume !== undefined,
+    });
+  }
+  const supporto: OpzioniChiodo['supporto'] = testo.includes('muro')
+    ? 'muro'
+    : testo.includes('sass') || testo.includes('masso')
+      ? 'masso'
+      : testo.includes('cippo') || testo.includes('pilastrino')
+        ? 'pilastrino'
+        : 'nessuno';
+  return creaCaposaldo({ numero: v.numero, supporto, segno: true });
 }

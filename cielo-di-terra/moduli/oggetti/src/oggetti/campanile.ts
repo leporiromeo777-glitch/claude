@@ -11,7 +11,7 @@ import { formaArco, geoBoxC, geoCilindro, geoEstrusione, geoLastra } from '../fo
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
-import { aggiungiPalina, numero } from './caposaldo';
+import { aggiungiPalina, numero, testaChiodo } from './caposaldo';
 
 export interface OpzioniCampanile {
   seme?: Seme;
@@ -238,8 +238,8 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   numero(b, '1', mTarga.clone().multiply(mat([0, 0.045, 0.008])), 0.09, PALETTE.bronzoScuro);
   numero(b, '2120', mTarga.clone().multiply(mat([0, -0.075, 0.008])), 0.035, PALETTE.bronzoScuro, 0.003);
   const yChiodo = yPav + hPil + 0.2;
-  // chiodo sulla sommità del pilastro (testa a cupola)
-  b.aggiungi(geoCilindro(0.045, 0.047, 0.012, 12), { matrice: mat([px, yChiodo, pz]), colore: PALETTE.ottone });
+  // chiodo numerato sulla sommità del pilastro
+  testaChiodo(b, mat([px, yChiodo, pz]), 1);
   punti['chiodo'] = new THREE.Vector3(px, yChiodo + 0.02, pz);
   punti['terrazza'] = new THREE.Vector3(0.0, yPav, lt / 2 - 0.9);
   punti['botolaTerrazza'] = new THREE.Vector3(-(lt / 2 - 0.75), yPav, -(lt / 2 - 0.75));

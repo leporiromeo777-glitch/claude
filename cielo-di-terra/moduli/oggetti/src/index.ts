@@ -62,11 +62,14 @@ export {
   creaCaposaldo,
   creaPilastro,
   creaPalina,
+  creaCaposaldoDaContenuto,
+  testaChiodo,
   aggiungiPalina,
   numero as incidiNumero,
   type OpzioniChiodo,
   type OpzioniPilastro,
   type OpzioniPalina,
+  type VoceCaposaldo,
 } from './oggetti/caposaldo';
 export {
   creaSquadroPrimaPersona,
