@@ -45,6 +45,26 @@ const SHOTS = [
     },
     frames: 3,
   },
+  {
+    nome: 'panorama',
+    file: 'panorama-paese.png',
+    titolo: 'Corbella dall\'alto delle terrazze, a Mont e a Sera del paese',
+    setup: (g) => {
+      g.setTime(10.8);
+      g.setCamera(985, 24, g.game.world.groundAt(985, 24) + 26, 50, -14);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'chiesa',
+    file: 'chiesa-sagrato.png',
+    titolo: 'San Vigilio, il sagrato a gradini e il tasso',
+    setup: (g) => {
+      g.setTime(15.5);
+      g.setCamera(1038, 41.6, g.game.world.groundAt(1038, 41.6) + 2.2, -40, 8);
+    },
+    frames: 3,
+  },
 ];
 
 function serve(dir, port) {
