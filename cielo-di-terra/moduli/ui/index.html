@@ -8,6 +8,12 @@
       html, body { margin: 0; height: 100%; background: #1d2233; overflow: hidden; }
       #gioco { position: fixed; inset: 0; }
       #gioco canvas { display: block; width: 100%; height: 100%; }
+      /* Pannellino della demo (non fa parte del modulo). */
+      .demo-pannello { position: fixed; top: 8px; left: 8px; z-index: 100; font: 14px system-ui, sans-serif; color: #f3ead6;
+        background: rgba(20, 16, 12, .78); border-radius: 6px; padding: 4px 10px; max-width: 220px; }
+      .demo-pannello summary { cursor: pointer; padding: 4px 0; }
+      .demo-pannello div { display: flex; flex-wrap: wrap; gap: 4px 8px; padding: 6px 0; }
+      .demo-pannello a { color: #e2c58a; }
     </style>
   </head>
   <body>
