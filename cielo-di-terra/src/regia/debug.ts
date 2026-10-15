@@ -126,7 +126,10 @@ export function installaDebugRegia(r: Regia): DebugRegia {
       const d = Math.hypot(dz, ds) || 1;
       const z = c.z + (dz / d) * distanza;
       const th = c.theta + ((ds / d) * distanza * 180) / (Math.PI * 646);
-      if (r.interno) {
+      if (r.interno === 'cella') {
+        g.player.teleport(z, th, r.cella.quotaPavimento, true);
+        g.syncEyeNow();
+      } else if (r.interno) {
         g.player.teleport(z, th, 0);
         g.syncEyeNow();
       } else r.vai(z, th);

@@ -613,7 +613,7 @@ export class Regia implements SistemaGioco {
     if (this.dormendo) return;
     this.dormendo = true;
     this.log(`dorme fino alle ${fmtOra(ore)}`);
-    this.dialoghi.chiudi();
+    // (un dialogo che ha deciso il sonno, «Dormo.», finisce da sé: non si interrompe)
     this.velatura.alNero(0.01);
     if (this.narrativa.flag.vero('dorme_casa_velo')) {
       const cv = luogo('casa_del_velo')!;
