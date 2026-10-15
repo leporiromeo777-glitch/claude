@@ -83,25 +83,100 @@ Quando un fermo tiene, il mondo non si blocca: la luce resta quella del pomerigg
 
 **Effetti**: `flag:nome` (accende), `flag:-nome` (spegne), `contatore:nome+1`, `taccuino:id` (aggiunge una voce di `taccuino.json`), `missione:id` (attiva una missione), `missione:id completata`, `oggetto:+id` / `oggetto:-id`, `testo:id` (apre un testo di `testi.json` in vista di lettura), `dialogo:id` (avvia un dialogo), `orologio:fermo HH:MM`, `orologio:max HH:MM`, `orologio:libero`, `germoglio:+1`, `variante:E1=Abitata`, `suono:id`, `musica:id`, `pianta:apri`, `npc:id->luogo` (sposta un personaggio), `suggerimento:id` (mostra un suggerimento dei comandi).
 
-### 2.4 Flag che il motore accende da solo
+### 2.4 Contratto col motore
 
-| Flag | Si accende quando |
+Le condizioni dei contenuti leggono 46 flag e 1 oggetto che **nessun effetto dei contenuti imposta**: li deve accendere il motore. L'elenco è quello prodotto da `npm run verifica-contenuti -- --md` nel modulo `narrativa`. I flag restano accesi una volta accesi, salvo dove è scritto «si spegne».
+
+**Sguardo, lettura e interazione**
+
+| Flag | Quando si accende | Chi lo accende |
+|---|---|---|
+| `guardato_vetro` | nella capsula, lo sguardo resta 1,5 s sulla scritta del vetro | motore: controllo dello sguardo |
+| `guardato_in_su` | all'aperto, lo sguardo sta più di 50° sopra l'orizzonte locale per 1,5 s | motore: controllo dello sguardo |
+| `esaminato:busta_5` | il giocatore prende la busta dal vetro della sua capsula (dà poi `oggetto:+lettera_marta` con un evento di `pr_cripta`) | motore: interazione con l'oggetto |
+| `esaminato:capsula_1` … `esaminato:capsula_4`, `esaminato:capsula_6`, `esaminato:capsula_7` | il giocatore interagisce («guarda») con la capsula | motore: interazione con l'oggetto |
+| `esaminato:serratura_5` | interazione con la serratura forzata della capsula 5 | motore: interazione con l'oggetto |
+| `armadietto_aperto` | si apre l'armadietto n. 5 | motore: interazione con l'oggetto |
+| `figura_presa` | Elvira prende in mano la figura dell'uomo con la ruota dalla scatola di Pina (08:00-18:00) | motore: interazione con l'oggetto |
+| `lettera_letta` | la vista di lettura di `lettera_marta` arriva all'ultima riga | motore: vista di lettura |
+| `cartellino_letto` | la vista di lettura di `cartellino_castagno` arriva all'ultima riga | motore: vista di lettura |
+| `targa_p1_letta` | la vista di lettura di `targa_p1` arriva all'ultima riga | motore: vista di lettura |
+| `libretto_cs1_letto` | il libretto mostra la pagina `cs_1` per almeno 2 s | motore: libretto |
+| `libretto_pagina:monte_vettore` | il libretto mostra la pagina `monte_vettore` per almeno 2 s | motore: libretto |
+| `pianta_aperta` | il giocatore apre la Pianta (anche quando la apre `pianta:resoconto`) | motore: interfaccia |
+| `pianta_g4_guardata` | il cursore della Pianta resta 1 s su una particella con `rilevata_da` G4 | motore: interfaccia |
+
+**Lente dell'erbario** (la lente resta 1 s su un punto d'esame)
+
+| Flag | Punto d'esame | Chi lo accende |
+|---|---|---|
+| `lente:ricci` | i ricci vuoti sotto il castagno morto | motore: lente |
+| `lente:amenti` | gli amenti sui rami bassi del castagno morto | motore: lente |
+| `lente:corteccia` | il tronco del castagno morto | motore: lente |
+| `lente:innesto_vecchio` | il punto d'innesto del castagno del cartellino | motore: lente |
+| `lente:busta_6`, `lente:busta_7` | le buste sui vetri delle capsule 6 e 7 | motore: lente |
+| `lente:cippo` | il chiodo 11 sul cippo della Cripta | motore: lente |
+
+**Corpo, gesti, volo**
+
+| Flag | Quando si accende | Chi lo accende |
+|---|---|---|
+| `seduta` | Elvira si siede a respirare (si spegne quando si alza) | motore: controllo del giocatore |
+| `fiato_corto` | la vista si restringe per la prima volta per il fiato | motore: fiato |
+| `innesto_fatto` | il gesto dell'innesto (taglia, inserisci, lega) è completo sul castagno del cartellino | motore: gesto dell'innesto |
+| `planata_fatta` | il Velo resta aperto almeno 2 s e Elvira atterra in piedi | motore: Velo |
+| `planata:ripa_san_vigilio` | una planata parte dal luogo `ripa_san_vigilio` | motore: Velo |
+| `atterrata_altra_valle` | atterraggio in piedi nella valle 2 o 3 | motore: Velo e regioni |
+| `velo_indossato` | Elvira indossa il velo nero dall'inventario (si spegne quando lo toglie; dalla missione 6 non cambia più) | motore: inventario |
+
+**Squadro e rilievo**
+
+| Flag o contatore | Quando si accende | Chi lo accende |
+|---|---|---|
+| `tentato_lato:2-1` | Elvira pianta lo squadro sul chiodo 2 e collima verso il Pilastro 1, anche senza riuscire | motore: squadro |
+| `appuntato_lontano:2505` | la cella 2505 (Piazza delle Ore) è appuntata da più di 600 m | motore: squadro |
+| `appuntato_lanterna` | la Lanterna è appuntata con lo squadro | motore: squadro |
+| `appuntato_lume:tecla` | lo squadro resta 1 s sulla lanterna mobile di Tecla (23:00-02:00, Finestra delle Vedove) | motore: squadro |
+| `contatore:lumi_appuntati` (+1) | di notte, Elvira appunta un pilastro lontano con lume permanente (`capisaldi.json → lontani_di_notte`, `lume: "permanente"`), una volta per pilastro | motore: squadro |
+| `corbella_a_colori` | tutte le particelle di `fade_fase1.json → inventario_corbella` sono rilevate | motore: griglia delle particelle |
+| `casa_nando_rilevata` | la particella 2796 è rilevata | motore: griglia delle particelle |
+
+**Tempo, cielo e notte**
+
+| Flag | Quando si accende | Chi lo accende |
+|---|---|---|
+| `prima_meta_vista` | primo passaggio della Meta con Elvira all'aperto | motore: cielo |
+| `meta_appena_passata` | impulso di 5 s a ogni passaggio della Meta (si spegne da solo) | motore: cielo |
+| `taccuino_spostato` | alle 03:10 della notte 1, dove dorme Elvira (la Pesarina) | motore: sistema della notte |
+| `notte_su_E1` | alle 23:20 della notte 1 Elvira è su una particella di E1 | motore: sistema della notte |
+| `fade_viste` | un cerchio di Fade resta 3 s nel campo visivo | motore: sistema della notte |
+
+**Versione del gioco**
+
+| Flag | Quando si accende | Chi lo accende |
+|---|---|---|
+| `fase2_disponibile` | mai nella Fase 1; si accende all'avvio quando sono caricati i contenuti della Fase 2 | motore: caricamento dei contenuti |
+
+**Oggetti dati dal motore**
+
+| Oggetto | Quando | Chi lo dà |
+|---|---|---|
+| `marza_pedrazzini` | il gesto «taglia» (tenere premuto guardando il ramo vivo del castagno morto) è completo | motore: gesto dell'innesto |
+
+(`lettera_marta` non è più nel contratto: la dà l'evento di `pr_cripta` su `esaminato:busta_5`.)
+
+**Flag scritti dai contenuti e letti dal motore** (nessuna condizione dei contenuti li legge)
+
+| Flag | Che cosa deve fare il motore |
 |---|---|
-| `guardato_in_su` | all'aperto, lo sguardo sta più di 50° sopra l'orizzonte locale per 1,5 s |
-| `guardato_vetro` | nella capsula, lo sguardo resta sulla scritta del vetro per 1,5 s |
-| `seduta` | Elvira si siede a respirare |
-| `lettera_letta` | la vista di lettura della lettera di Marta arriva all'ultima riga |
-| `prima_meta_vista` | primo passaggio della Meta con Elvira all'aperto |
-| `planata_fatta` | il Velo resta aperto almeno 2 s e Elvira atterra in piedi |
-| `pianta_aperta` | il giocatore apre la Pianta |
-| `libretto_aperto` | il giocatore apre il libretto |
-| `lente:<oggetto>` | la lente resta 1 s su un punto d'esame (vedi `luoghi.json` e §5) |
-| `appuntato:<cella>` | la cella è stata appuntata con lo squadro |
-| `appuntato_lontano:<cella>` | la cella è stata appuntata da più di 600 m |
-| `tentato_lato:<a-b>` | Elvira ha piantato lo squadro su `a` e collimato verso `b`, anche senza riuscire |
-| `rilevato_lato:<a-b>` | il lato è stato chiuso |
-| `notte_vegliata:N` | Elvira è rimasta sveglia per tutta la notte N |
-| `taccuino_spostato` | la Pesarina ha aperto il Taccuino (notte 1) |
+| `campanile_aperto` | apre la porta del campanile di San Vigilio (chiusa finché il flag è spento); lo legge anche `m1_campanile` |
+| `aspetta_brace_sbloccato` | aggiunge «brace» alle voci di «aspetta fino a» |
+| `campane_ore` | le campane di San Vigilio suonano un rintocco a ogni ora dalle 06:00 alle 21:00 |
+| `dorme_casa_velo` | la notte Elvira dorme nella Casa del Velo (dissolvenza, risveglio lì) |
+| `primo_rilievo` | dopo il primo rilievo non mostra più la griglia a china del foglio 1 |
+| `nodo1_innestato` | nella Pianta e nel mondo il castagno del cartellino mostra l'innesto legato con la rafia |
+| `passerella_rimessa`, `aiutato_nando`, `lezione_balcone`, `ramo_vivo_trovato`, `parlato_*`, `segreto_*` | memoria per le fasi successive e per le statistiche; nessuna azione nella Fase 1 |
+
 
 ### 2.5 Campi in più rispetto al formato di base
 
@@ -134,33 +209,9 @@ Il primo nodo dell'elenco è quello d'ingresso. Le battute dei nodi sono dei per
 | `obiettivo_taccuino: null` | passo che non scrive nessun obiettivo (segreti, sfondo) |
 | `durata_min`, `note` | indicazioni per chi costruisce |
 
-**Effetti in più**: `battuta:<id>` (una battuta di `testi.json → battute`), `evento:<id>` (vedi §2.7), `dormi:fino HH:MM`, `pianta:apri`, `pianta:resoconto` (apre la Pianta sul resoconto del mattino).
+**Effetti in più**: `battuta:<id>` (una battuta di `testi.json → battute`), `evento:<id>` (vedi §2.6), `dormi:fino HH:MM`, `pianta:apri`, `pianta:resoconto` (apre la Pianta sul resoconto del mattino).
 
-### 2.6 Altri flag e contatori che il motore accende
-
-| Flag o contatore | Quando |
-|---|---|
-| `esaminato:<oggetto>` | il giocatore guarda da vicino un oggetto interattivo (capsule, serratura, scatola di Pina) |
-| `lente:<punto>` | la lente resta 1 s su un punto d'esame: `ricci`, `amenti`, `corteccia` (castagno morto), `innesto_vecchio` (castagno del cartellino), `busta_6`, `busta_7`, `cippo` |
-| `armadietto_aperto`, `cartellino_letto`, `targa_p1_letta`, `libretto_cs1_letto`, `libretto_pagina:<id>` | letture e aperture |
-| `fiato_corto` | la vista si restringe per la prima volta |
-| `meta_appena_passata` | impulso di 5 s a ogni passaggio della Meta |
-| `planata:<luogo>` | planata partita da un muro con quel luogo |
-| `innesto_fatto` | il gesto dell'innesto è completo |
-| `figura_presa` | Elvira prende in mano la figura dell'uomo con la ruota |
-| `velo_indossato` | Elvira porta il velo nero (si accende e si spegne) |
-| `notte_su_E1` | alle 23:20 della notte 1 Elvira è su una particella di E1 (dal sistema della notte) |
-| `fade_viste` | un cerchio di Fade resta 3 s nel campo visivo |
-| `pianta_g4_guardata` | il cursore della Pianta resta 1 s su una particella rilevata dal G4 |
-| `appuntato_lanterna` | la Lanterna appuntata con lo squadro |
-| `atterrata_altra_valle` | atterraggio in piedi nella valle 2 o 3 |
-| `corbella_a_colori` | tutte le particelle dell'inventario di Corbella sono rilevate |
-| `casa_nando_rilevata` | la particella 2796 è rilevata |
-| `contatore:velati` | dialoghi finiti con i velati (nei loro `alla_fine`) |
-| `contatore:lumi_appuntati` | lumi lontani appuntati di notte |
-| oggetto `marza_pedrazzini` | dato dal gesto «taglia» sul ramo vivo |
-
-### 2.7 Eventi, suoni e musiche della Fase 1
+### 2.6 Eventi, suoni e musiche della Fase 1
 
 | Id | Che cos'è |
 |---|---|
