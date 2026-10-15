@@ -114,7 +114,7 @@ Senza gli uniform del motore (pagina di prova, Node) si usa il toon di ripiego; 
 | 120-230 m | LOD1, senza ombra portata | 6 Hz |
 | oltre 230 m | non si disegna né si anima | — |
 
-Isteresi di 2 m a ogni confine; gli aggiornamenti dei lontani sono sfasati (non tutti nello stesso fotogramma). A 130 m un personaggio è alto 2-3 pixel. Oltre 230 m si è scelto «niente» invece di una figura semplice: la figura procedurale costerebbe come il LOD1, e a quella distanza è sotto i 2 pixel e dentro la foschia. Le distanze si cambiano con `impostaDistanzePersonaggi`. Una copia costa uno scheletro di 17 ossa (più 4 prese), due `SkinnedMesh` (una sola visibile: una chiamata di disegno) e un materiale; nessuna allocazione per fotogramma (vettori e quaternioni di lavoro del modulo, stato riusato, distanza letta da `matrixWorld`).
+Isteresi di 2 m a ogni confine; gli aggiornamenti dei lontani sono sfasati (non tutti nello stesso fotogramma). A 130 m un personaggio è alto 2-3 pixel. Oltre 230 m si è scelto «niente» invece di una figura semplice: la figura procedurale costerebbe come il LOD1, e a quella distanza è sotto i 2 pixel e dentro la foschia. Le distanze si cambiano con `impostaDistanzePersonaggi`. Una copia costa uno scheletro di 17 ossa (più 4 prese), due `SkinnedMesh` (una sola visibile: una chiamata di disegno) e un materiale; nessuna allocazione per fotogramma (vettori e quaternioni di lavoro del modulo, stato riusato, distanza letta da `matrixWorld`). Misura in Node (modello sintetico, macchina carica): 25 personaggi animati tutti a piena frequenza costano 0,21 ms di CPU per fotogramma, circa 8 µs l'uno, senza contare l'aggiornamento delle matrici nel disegno.
 
 ## Le prove
 
