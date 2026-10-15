@@ -59,6 +59,16 @@ Per i due volti scoperti si aggiunge **VOLTO** (al posto della descrizione reali
 Per i velati si aggiunge sempre **VELO**:
 > The whole head and face are completely hidden under the veil: no eyes, no nose, no mouth, no skin visible on the head, only soft draped fabric following the shape of the head.
 
+Per i due con la maschera di castagno (Clelia, l'anziano `velato_maschera`) la frase VELO parla di stoffa e contraddice la maschera: si usa **MASCHERA** (aggiunta nella produzione):
+> The face is completely hidden behind the smooth wooden mask, framed by the hood: no skin, no eyes, no nose, no mouth visible anywhere on the head.
+
+Nel prompt di Ottavio (17 anni) la frase VOLTO perde «a few painted lines for wrinkles».
+
+**RIFERIMENTO** (aggiunta nella produzione): ogni immagine si genera con l'immagine sorgente di Togna del pilota come riferimento di stile (`medias: [{ role: "image_references" }]` di `gpt_image_2_5`, stesso costo), e dopo STILE si aggiunge:
+> Use the reference image ONLY as a guide for the art style, rendering, brushwork, color palette, lighting, background color and level of detail: the reference shows a different character, so do not copy her clothing, veil, apron, body or proportions.
+
+Il prompt completo lo compone `tools/personaggi/prompt.py --id <id>` (STILE + RIFERIMENTO + personaggio + VELO | MASCHERA | VOLTO + POSA).
+
 ## I tredici modelli
 
 Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra personaggi si leggono meglio della corporatura).
