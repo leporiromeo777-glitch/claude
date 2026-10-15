@@ -1,12 +1,12 @@
 {
   "statistiche": {
-    "zone": 55,
-    "triangoli": 696604,
-    "collider": 2312,
-    "lumi": 220,
+    "zone": 54,
+    "triangoli": 781592,
+    "collider": 3112,
+    "lumi": 338,
     "punti": 102,
-    "case": 44,
-    "muriMetri": 3169,
+    "case": 58,
+    "muriMetri": 3183,
     "personaggi": 32,
     "castagniTolti": 3,
     "segnaposto": {
@@ -17,68 +17,68 @@
       "colliderTolti": 691,
       "lumiTolti": 83
     },
-    "msCostruzione": 3967
+    "msCostruzione": 3741
   },
   "schermate": [
     {
       "file": "piazza-campanile.png",
       "titolo": "Piazza delle Ore con il campanile bianco di San Vigilio e il Pilastro 1, a metà mattina",
-      "drawCalls": 149,
-      "triangoli": 1043509
+      "drawCalls": 163,
+      "triangoli": 1034748
     },
     {
       "file": "castagno-morto-botola.png",
       "titolo": "Il castagno morto e la botola della Cripta fra le radici, la mattina",
-      "drawCalls": 98,
-      "triangoli": 898588
+      "drawCalls": 110,
+      "triangoli": 1022793
     },
     {
       "file": "terrazza-pedrazzini.png",
       "titolo": "La Terrazza Pedrazzini: castagni da frutto, erba alta, il castagno del cartellino",
-      "drawCalls": 156,
-      "triangoli": 1039965
+      "drawCalls": 165,
+      "triangoli": 974923
     },
     {
       "file": "fienile-ottavio.png",
       "titolo": "Il fienile di Ottavio oltre il riale, il Sass dal Messo e la passerella",
-      "drawCalls": 73,
-      "triangoli": 531448
+      "drawCalls": 70,
+      "triangoli": 540270
     },
     {
       "file": "chiodo-3-squadro.png",
       "titolo": "Il chiodo 3 sulla copertina del muro della Terrazza: dove si pianta lo squadro per collimare il Pilastro 1",
-      "drawCalls": 108,
-      "triangoli": 1028889
+      "drawCalls": 102,
+      "triangoli": 1033931
     },
     {
       "file": "abitanti-piazza.png",
       "titolo": "Gli abitanti velati in piazza: Ottavio, i bambini, Pina sulla soglia, i velati",
-      "drawCalls": 100,
-      "triangoli": 901949
+      "drawCalls": 103,
+      "triangoli": 1006990
     },
     {
       "file": "notte-paese.png",
       "titolo": "Corbella di notte: finestre accese, lampioni, le Fade sui Ronchi, la casa di Nando",
       "drawCalls": 105,
-      "triangoli": 1040571
+      "triangoli": 974018
     },
     {
       "file": "panorama-paese.png",
       "titolo": "Corbella dall'alto delle terrazze, a Mont e a Sera del paese",
-      "drawCalls": 130,
-      "triangoli": 1026607
+      "drawCalls": 136,
+      "triangoli": 1057047
     },
     {
       "file": "chiesa-sagrato.png",
       "titolo": "San Vigilio, il sagrato a gradini e il tasso",
-      "drawCalls": 150,
-      "triangoli": 974677
+      "drawCalls": 118,
+      "triangoli": 1079718
     },
     {
       "file": "debug-pianta.png",
       "titolo": "Pianta di Corbella vista dall'alto (controllo del piazzamento)",
-      "drawCalls": 99,
-      "triangoli": 741976
+      "drawCalls": 98,
+      "triangoli": 750192
     }
   ]
 }
