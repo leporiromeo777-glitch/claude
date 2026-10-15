@@ -39,8 +39,13 @@ export interface StatoPersonaggio {
   curvo?: number;
   /** posa delle braccia da fermi (come la «postura» degli abitanti procedurali); se manca, quella delle opzioni */
   braccia?: PosaBraccia;
-  /** in piedi (predefinito), seduto (bacino a 0,5 m dall'origine, come la figura procedurale), chino */
+  /** in piedi (predefinito), seduto (anche a `ancaSeduta` dall'origine, 0,5 m come la figura procedurale), chino */
   posa?: PosaCorpo;
+  /**
+   * le due mani su due punti dello spazio del modello (per esempio i montanti del Velo da planata di
+   * Ottavio); null o assente = niente. Sopra la posa delle braccia, sotto i gesti.
+   */
+  mani?: { readonly S: THREE.Vector3; readonly D: THREE.Vector3 } | null;
 }
 
 export interface OpzioniAnimatore {
@@ -64,6 +69,11 @@ export interface OpzioniAnimatore {
   bastone?: boolean;
   /** bambino: passo più rapido, respiro più veloce, sguardi più vivaci */
   bambino?: boolean;
+  /**
+   * quota (m) dell'attacco delle cosce sopra l'origine da seduti; predefinito 0,5 come la figura
+   * procedurale (i `sopra` dei piazzamenti del popolamento sono tarati su quella)
+   */
+  ancaSeduta?: number;
 }
 
 /** Il «carattere» del movimento, dal seme: ritmi e ampiezze un po' diversi per ognuno. */
@@ -164,7 +174,7 @@ export class AnimatorePersonaggio {
   /** z della superficie del petto (per le mani) */
   readonly fronteBusto: number;
   readonly carattere: Carattere;
-  private readonly opz: { apertura: number; gonna: boolean; sfasamento: number; curvo: number; braccia: PosaBraccia; bastone: boolean; bambino: boolean };
+  private readonly opz: { apertura: number; gonna: boolean; sfasamento: number; curvo: number; braccia: PosaBraccia; bastone: boolean; bambino: boolean; ancaSeduta: number };
   private t = 0;
   private fase = 0;
   /** 0 = fermo, 1 = cammina (sfuma fra i due) */
@@ -180,6 +190,10 @@ export class AnimatorePersonaggio {
   private curvo = 0;
   private seduto = 0;
   private chino = 0;
+  /** peso e bersagli delle mani su due punti (StatoPersonaggio.mani), tenuti per sfumare all'uscita */
+  private maniPeso = 0;
+  private readonly maniS = new THREE.Vector3();
+  private readonly maniD = new THREE.Vector3();
   /**
    * spostamento del modello (m, nello spazio del suo genitore) da applicare alla radice dopo `update`:
    * y = abbassamento del bacino nel passo e nella seduta, z = indietro da seduti
@@ -202,6 +216,7 @@ export class AnimatorePersonaggio {
       braccia: opz.braccia ?? 'libere',
       bastone: opz.bastone ?? false,
       bambino: opz.bambino ?? false,
+      ancaSeduta: opz.ancaSeduta ?? 0.5,
     };
     this.t = this.opz.sfasamento;
     this.curvo = this.opz.curvo;
@@ -371,7 +386,7 @@ export class AnimatorePersonaggio {
       }
       this.ruota('schiena', 5 * DEG * sd);
       this.ruota('collo', 3 * DEG * sd);
-      dy += (0.5 - this.yAnche) * sd;
+      dy += (this.opz.ancaSeduta - this.yAnche) * sd;
     }
 
     // --- chino sul lavoro (la vasca, il muro): schiena giù, ginocchia morbide
@@ -408,6 +423,17 @@ export class AnimatorePersonaggio {
     if (ch > 0.001) this.maniAlLavoro(ch * libero, t);
     // il bastone: la mano destra lo tiene avanti, all'altezza del fianco (in piedi)
     if (this.opz.bastone) this.reggiBastone(inPiedi * libero * (1 - 0.6 * k));
+
+    // --- le mani su due punti (i montanti del Velo da planata), sopra le pose e sotto i gesti
+    if (stato.mani) {
+      this.maniS.copy(stato.mani.S);
+      this.maniD.copy(stato.mani.D);
+    }
+    this.maniPeso = smorza(this.maniPeso, stato.mani ? 1 : 0, 6, d);
+    if (this.maniPeso > 0.001) {
+      this.raggiungi('S', this.maniS, this.maniPeso * libero);
+      this.raggiungi('D', this.maniD, this.maniPeso * libero);
+    }
 
     // --- gesti (braccio destro), sfumati
     const g = this.gestoPeso;

@@ -8,6 +8,7 @@
  */
 import { installDebugApi } from './core/debug';
 import { Game } from './game';
+import { collegaMotorePersonaggi, precaricaPersonaggi } from './personaggi';
 import { installaCorbella } from './popolamento';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
@@ -60,6 +61,10 @@ async function boot(): Promise<void> {
   if (ore !== null && !Number.isNaN(Number(ore))) game.clock.setHours(Number(ore));
   if (debugEnabled) installDebugApi(game);
   if (!params.has('senza-titolo')) {
+    // personaggi nuovi (public/personaggi/*.glb, docs/personaggi/INTEGRAZIONE.md): materiale del mondo e
+    // camera per i livelli di dettaglio, poi i modelli; senza file la gente resta procedurale
+    collegaMotorePersonaggi({ uniforms: game.uniforms, camera: game.camera });
+    await precaricaPersonaggi((f) => ui.caricamento.progresso(0.86 + 0.04 * f, 'la gente di Corbella'));
     ui.caricamento.progresso(0.9, 'Corbella: le case, i muri, la gente');
     await new Promise((r) => setTimeout(r, 0));
     // il paese vero (src/popolamento) al posto del segnaposto del motore; il suo passo lo chiama la regia

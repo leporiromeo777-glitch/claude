@@ -1,6 +1,6 @@
 # Personaggi nuovi: il modulo di gioco (`src/personaggi/`)
 
-Il pilota ([PIPELINE.md](PIPELINE.md)) ha prodotto i GLB con lo scheletro di 17 ossa. Questo modulo li porta nel gioco con **la stessa interfaccia della figura procedurale** (`creaAbitante`), così il popolamento cambia una riga sola. **Non è ancora collegato**: lo collega l'integratore, quando il rifacimento grafico avrà chiuso `src/popolamento/**` e `src/oggetti/**` (sotto le quattro modifiche da fare).
+Il pilota ([PIPELINE.md](PIPELINE.md)) ha prodotto i GLB con lo scheletro di 17 ossa. Questo modulo li porta nel gioco con **la stessa interfaccia della figura procedurale** (`creaAbitante`), così il popolamento cambia una riga sola. **Ora è collegato** (ramo `personaggi/integrazione`): le quattro modifiche qui sotto sono fatte, con l'indice degli asset (curvo, oggetti di scena) e due ritocchi visti nel gioco; vedi [INTEGRAZIONE.md](INTEGRAZIONE.md).
 
 ![giorno, sera, notte nel gioco vero: Nando e Togna nuovi, a destra la Togna procedurale di oggi](modulo/giorno-sera-notte.jpg)
 ![gesti e pose: saluta, indica, mani giunte, cammina, chino sul lavoro, seduti](modulo/pose-gesti.jpg)
@@ -42,7 +42,7 @@ const obj = creaPersonaggio('togna', aspetto) ?? creaAbitante(aspetto);   // Ogg
 
 **Scelta del modello** (`scegliModello`): chi ha un modello suo (`ottavio`, `togna`, `bortolo`, `pina`, `annunciata`, `nando`, `clelia`, `lisa`, `gioanin`; anche `la_madre`, `rosa` se un giorno ci sarà il file) usa quello; i velati `velato_N` usano il generico del loro copricapo: velo → `velata_donna`, cappello o gerla → `velato_gerla`, maschera o bastone → `velato_maschera`, cappuccio o velo da apicoltore → `velato_cappuccio`. Se il generico preferito manca si prende un altro generico caricato; se non ce n'è nessuno, null. **Varianti dei generici** (senza crediti): scala ±4% in altezza e ±5% in larghezza (più larghi i robusti, più bassi gli anziani), tinta leggera (12-22%) dal colore della veste procedurale, carattere del movimento dal seme.
 
-## Le quattro modifiche per collegarlo
+## Le quattro modifiche per collegarlo (fatte: vedi INTEGRAZIONE.md)
 
 1. **`src/main.ts`**, prima di `installaCorbella` (riga ~66):
    ```ts

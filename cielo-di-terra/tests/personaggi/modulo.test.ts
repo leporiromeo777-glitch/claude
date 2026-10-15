@@ -212,7 +212,7 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     p2.dispose();
   });
 
-  it('seduto: il bacino scende a mezzo metro dall origine; chino: la testa va avanti e giù', () => {
+  it('seduto: il bacino scende a 0,5 m dall origine più lo spessore delle vesti (5% dell altezza); chino: la testa va avanti e giù', () => {
     registra('togna');
     const p = creaPersonaggio('togna', { ...TOGNA, postura: 'eretta' });
     if (!p) throw new Error('null');
@@ -220,7 +220,7 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     const testaIn = osso(p.gruppo, 'testa');
     const stato: StatoPersonaggioGioco = { modo: 'fermo', posa: 'seduto' };
     for (let i = 0; i < 180; i++) p.update?.(1 / 60, stato);
-    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(0.5, 1);
+    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(0.5 + 0.05 * 1.62, 1);
     // le ginocchia avanti
     expect(osso(p.gruppo, 'stincoS').z).toBeGreaterThan(0.2);
     stato.posa = 'chino';

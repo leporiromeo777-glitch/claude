@@ -85,7 +85,7 @@ export function cartellaPersonaggi(cartella?: string): string {
   return new URL('personaggi/', new URL(base, doc)).href;
 }
 
-/** La scheda di un id, corretta dalla voce dell'indice (altezza, gonna, apertura). */
+/** La scheda di un id, corretta dalla voce dell'indice (altezza, gonna, apertura, curvo, oggetti, bambino). */
 function schedaPer(id: string, voce?: VoceModello): SchedaModello {
   const base: SchedaModello = SCHEDE[id] ?? { id, altezza: 1.7, gonna: false, apertura: 10, generico: false };
   return {
@@ -93,6 +93,9 @@ function schedaPer(id: string, voce?: VoceModello): SchedaModello {
     ...(voce?.altezza !== undefined ? { altezza: voce.altezza } : {}),
     ...(voce?.gonna !== undefined ? { gonna: voce.gonna } : {}),
     ...(voce?.apertura !== undefined ? { apertura: voce.apertura } : {}),
+    ...(voce?.curvo !== undefined ? { curvo: voce.curvo } : {}),
+    ...(voce?.oggetti !== undefined ? { oggetti: voce.oggetti } : {}),
+    ...(voce?.bambino !== undefined ? { bambino: voce.bambino } : {}),
   };
 }
 

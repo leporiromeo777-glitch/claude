@@ -30,6 +30,7 @@ import { semeNumerico } from '../oggetti/rng';
 import type { OggettoProcedurale } from '../oggetti/tipi';
 import { AnimatorePersonaggio, type PosaCorpo, type StatoPersonaggio } from './animatore';
 import { aggiornaOnda, creaMaterialePersonaggio } from './materiale';
+import { attaccaOggetto, leggiOggetto } from './oggetti';
 import type { NomeOsso } from './ossa';
 import { motore, personaggiDisponibili, prototipo, type PrototipoPersonaggio } from './precarica';
 import { derivaProcedurale, posturaAnimatore, scegliModello } from './schede';
@@ -41,6 +42,16 @@ export interface StatoPersonaggioGioco extends StatoAbitante {
 
 /** Colore del legno del bastone (sRGB). */
 const LEGNO = 0x5a4030;
+
+/** Quanto più su (frazione dell'altezza) stanno le anche da seduti rispetto alla figura procedurale. */
+const SEDUTA_IN_PIU = 0.05;
+
+/**
+ * Le mani sui montanti del Velo da planata (src/popolamento/abitanti.ts, accessori(): montanti a
+ * x = ±0,25 m, alti da 0,85 a 2,05 m, 10 cm davanti), nello spazio del modello: quando il Velo è
+ * aperto (visibile) Ottavio ci si appende invece di lasciare le braccia giù.
+ */
+const PRESA_VELO = { S: new THREE.Vector3(0.24, 1.42, 0.12), D: new THREE.Vector3(-0.24, 1.42, 0.12) };
 
 const _pos = new THREE.Vector3();
 const _cam = new THREE.Vector3();
@@ -71,6 +82,45 @@ function texturePixel(): THREE.DataTexture {
   t.needsUpdate = true;
   pixelLegno = t;
   return t;
+}
+
+/**
+ * Gli oggetti di scena (oggetti.ts) nascono con un MeshLambertMaterial per colore, che ha bisogno delle
+ * luci della scena. Con gli uniform del motore passano al materiale del mondo (stessa luce, foschia e
+ * matita dei personaggi), uno per colore e faccia, condiviso da tutte le copie: si ricava dal colore
+ * del Lambert, che resta in userData per poterlo rifare.
+ */
+const materialiOggetti = new Map<string, THREE.Material>();
+let uniformOggetti: unknown = null;
+function vestiOggetti(oggetti: readonly THREE.Object3D[]): void {
+  const u = motore.uniform;
+  if (!u) return;
+  if (uniformOggetti !== u) {
+    // un altro motore (prove, nuova partita): i materiali vecchi restano a chi li usa
+    materialiOggetti.clear();
+    uniformOggetti = u;
+  }
+  for (const radice of oggetti) {
+    radice.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const orig = (mesh.userData['materialeLambert'] ?? mesh.material) as THREE.MeshLambertMaterial;
+      if (!orig.color) return;
+      mesh.userData['materialeLambert'] = orig;
+      const chiave = `${orig.color.getHexString()}:${orig.side}`;
+      let m = materialiOggetti.get(chiave);
+      if (!m) {
+        const c = orig.color;
+        const t = new THREE.DataTexture(new Uint8Array([Math.round(c.r * 255), Math.round(c.g * 255), Math.round(c.b * 255), 255]), 1, 1, THREE.RGBAFormat);
+        t.colorSpace = THREE.NoColorSpace;
+        t.needsUpdate = true;
+        m = creaMaterialePersonaggio(u, { mappa: t, pennellata: 0.3 });
+        m.side = orig.side;
+        materialiOggetti.set(chiave, m);
+      }
+      mesh.material = m;
+    });
+  }
 }
 
 /**
@@ -163,6 +213,9 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
 
   // --- animatore: postura come la figura procedurale con le stesse opzioni
   const postura = posturaAnimatore(der.postura, der.corporatura);
+  // quanto è curvo: per i personaggi con un nome vale quello scelto dalla produzione sul modello
+  // (indice.json: Annunciata 0,55, Pina 0,45...), per i generici almeno quello
+  const curvo = scheda.curvo === undefined ? postura.curvo : scheda.generico ? Math.max(postura.curvo, scheda.curvo) : scheda.curvo;
   const animatore = new AnimatorePersonaggio(copia, {
     apertura: scheda.apertura,
     gonna: scheda.gonna,
@@ -170,10 +223,13 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     altezza: H0,
     fronteBusto: proto.fronteBusto,
     seme,
-    curvo: postura.curvo,
+    curvo,
     braccia: postura.braccia,
     bastone: opz.bastone ?? false,
     bambino: scheda.bambino ?? false,
+    // le vesti dei modelli hanno spessore (la figura procedurale no): da seduti le anche stanno più su,
+    // altrimenti la panca e i gradini tagliano le cosce (i `sopra` dei piazzamenti restano quelli)
+    ancaSeduta: 0.5 + SEDUTA_IN_PIU * H0,
   });
 
   // --- materiale (uno per copia: tinta e ondeggio sono suoi); passa a quello del mondo quando arrivano gli uniform
@@ -197,6 +253,8 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     bastone.castShadow = true;
     gruppo.add(bastone);
   }
+  /** oggetti di scena dell'indice attaccati alle ossa (più sotto, dopo la prima posa) */
+  const oggetti: THREE.Object3D[] = [];
   const rifaiMateriale = () => {
     if (!motore.uniform || usaMondo) return;
     const nuovo = creaMaterialePersonaggio(motore.uniform, { mappa: proto.mappa, tinta });
@@ -209,19 +267,26 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
       matBastone.dispose();
       matBastone = nb;
     }
+    vestiOggetti(oggetti);
     usaMondo = true;
   };
   motore.ascoltatori.add(rifaiMateriale);
 
   // --- stato per l'animatore (riusato: niente allocazioni)
   const st: StatoPersonaggio = {};
-  const passa = (s: StatoAbitante | undefined) => {
+  let velo: THREE.Object3D | null = null;
+  let cercaVelo = 3;
+  const passa =(s: StatoAbitante | undefined) => {
     st.modo = s?.modo ?? 'fermo';
     st.velocita = s?.velocita ?? (st.modo === 'cammina' ? 1.1 : 0);
     st.guarda = s?.guarda ?? null;
     st.gesto = s?.gesto ?? 'nessuno';
     st.indica = s?.indica ?? null;
     st.posa = (s as StatoPersonaggioGioco | undefined)?.posa ?? 'in-piedi';
+    // il Velo da planata (lo aggiunge il popolamento subito dopo la creazione, accessori()): cercato
+    // nei primi aggiornamenti, poi mai più
+    if (!velo && cercaVelo-- > 0) velo = gruppo.getObjectByName('velo-ottavio') ?? null;
+    st.mani = velo?.visible ? PRESA_VELO : null;
   };
   const ampOrlo = scheda.gonna ? 0.011 * H0 : 0;
   const cima = new THREE.Vector3();
@@ -246,6 +311,20 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
   };
   anima(0, undefined);
 
+  // --- oggetti di scena dell'indice (oggetti.ts), attaccati nella posa di riposo appena calcolata.
+  // Il bastone lo fa già questa fabbrica (da terra al palmo, con `opz.bastone`, come la figura
+  // procedurale); la gerla solo a chi l'aveva (`opz.gerla`: il generico con la gerla veste anche chi ha
+  // solo il cappello); il cesto facoltativo a metà delle donne velate, se hanno le mani libere.
+  for (const voce of scheda.oggetti ?? []) {
+    const r = leggiOggetto(voce);
+    if (!r || r.nome === 'bastone') continue;
+    if (r.nome === 'gerla' && !opz.gerla) continue;
+    if (r.nome === 'cesto' && (postura.braccia !== 'libere' || caso() < 0.5)) continue;
+    const o = attaccaOggetto({ gruppo, animatore }, voce);
+    if (o) oggetti.push(o);
+  }
+  vestiOggetti(oggetti);
+
   // --- livello di dettaglio e frequenza dell'animazione
   let livello = 0; // 0, 1 = LOD; 2 = lontano (LOD1 a 6 Hz); 3 = sparito
   let accumulo = caso() * 0.1; // sfasato: i lontani non si aggiornano tutti nello stesso fotogramma
@@ -259,6 +338,7 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
       m.castShadow = l < 2;
     }
     if (bastone) bastone.visible = l < 3;
+    for (const o of oggetti) o.visible = l < 3;
   };
   mostra(0);
   const scegliLivello = (): number => {
@@ -328,6 +408,8 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
       materiale.dispose();
       matBastone?.dispose();
       bastone?.geometry.dispose();
+      // gli oggetti di scena: geometrie proprie, materiali condivisi (oggetti.ts e vestiOggetti)
+      for (const o of oggetti) o.traverse((x) => (x as THREE.Mesh).geometry?.dispose());
       gruppo.removeFromParent();
     },
   };

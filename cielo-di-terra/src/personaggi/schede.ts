@@ -23,23 +23,33 @@ export interface SchedaModello {
   readonly generico: boolean;
   /** bambino: passo e respiro più rapidi */
   readonly bambino?: boolean;
+  /**
+   * postura di riposo 0..1 scelta per il modello dalla pipeline degli asset (indice.json, `curvo`): per i
+   * personaggi con un nome vale questa, per i generici almeno questa (vedi fabbrica.ts)
+   */
+  readonly curvo?: number;
+  /** oggetti di scena dell'indice, «nome@osso» (oggetti.ts); le voci senza @ sono note */
+  readonly oggetti?: readonly string[];
 }
 
-/** I tredici modelli della Fase 1, con i valori della Bibbia (l'indice dei file può correggerli). */
+/**
+ * I tredici modelli della Fase 1, con i valori di public/personaggi/indice.json (la Bibbia corretta dalla
+ * produzione: altezze, apertura delle braccia, curvo, oggetti). L'indice, se c'è, vince comunque.
+ */
 export const SCHEDE: Readonly<Record<string, SchedaModello>> = {
-  ottavio: { id: 'ottavio', altezza: 1.74, gonna: false, apertura: 8, generico: false },
-  togna: { id: 'togna', altezza: 1.62, gonna: true, apertura: 11, generico: false },
-  bortolo: { id: 'bortolo', altezza: 1.8, gonna: false, apertura: 12, generico: false },
-  pina: { id: 'pina', altezza: 1.5, gonna: true, apertura: 10, generico: false },
-  annunciata: { id: 'annunciata', altezza: 1.55, gonna: true, apertura: 10, generico: false },
-  nando: { id: 'nando', altezza: 1.76, gonna: false, apertura: 9, generico: false },
-  clelia: { id: 'clelia', altezza: 1.68, gonna: true, apertura: 8, generico: false },
-  lisa: { id: 'lisa', altezza: 1.3, gonna: true, apertura: 9, generico: false, bambino: true },
-  gioanin: { id: 'gioanin', altezza: 1.12, gonna: false, apertura: 10, generico: false, bambino: true },
-  velata_donna: { id: 'velata_donna', altezza: 1.63, gonna: true, apertura: 10, generico: true },
-  velato_gerla: { id: 'velato_gerla', altezza: 1.75, gonna: false, apertura: 11, generico: true },
-  velato_maschera: { id: 'velato_maschera', altezza: 1.6, gonna: false, apertura: 10, generico: true },
-  velato_cappuccio: { id: 'velato_cappuccio', altezza: 1.7, gonna: true, apertura: 12, generico: true },
+  ottavio: { id: 'ottavio', altezza: 1.74, gonna: false, apertura: 10, generico: false, curvo: 0 },
+  togna: { id: 'togna', altezza: 1.62, gonna: true, apertura: 13, generico: false, curvo: 0 },
+  bortolo: { id: 'bortolo', altezza: 1.8, gonna: false, apertura: 13, generico: false, curvo: 0 },
+  pina: { id: 'pina', altezza: 1.52, gonna: true, apertura: 12, generico: false, curvo: 0.45, oggetti: ['forbici@manoD', 'figura-di-cartone@manoS'] },
+  annunciata: { id: 'annunciata', altezza: 1.56, gonna: true, apertura: 11, generico: false, curvo: 0.55, oggetti: ['bastone@manoD'] },
+  nando: { id: 'nando', altezza: 1.76, gonna: false, apertura: 10, generico: false, curvo: 0, oggetti: ['pietra@manoD'] },
+  clelia: { id: 'clelia', altezza: 1.68, gonna: true, apertura: 12, generico: false, curvo: 0, oggetti: ['pacchetto@manoS'] },
+  lisa: { id: 'lisa', altezza: 1.25, gonna: true, apertura: 12, generico: false, bambino: true, curvo: 0 },
+  gioanin: { id: 'gioanin', altezza: 1.12, gonna: false, apertura: 12, generico: false, bambino: true, curvo: 0 },
+  velata_donna: { id: 'velata_donna', altezza: 1.63, gonna: true, apertura: 12, generico: true, curvo: 0, oggetti: ['cesto@manoS (facoltativo)'] },
+  velato_gerla: { id: 'velato_gerla', altezza: 1.75, gonna: false, apertura: 12, generico: true, curvo: 0.1, oggetti: ['gerla@petto'] },
+  velato_maschera: { id: 'velato_maschera', altezza: 1.6, gonna: true, apertura: 11, generico: true, curvo: 0.35, oggetti: ['bastone@manoD'] },
+  velato_cappuccio: { id: 'velato_cappuccio', altezza: 1.7, gonna: true, apertura: 12, generico: true, curvo: 0 },
 };
 
 /** I quattro generici, nell'ordine in cui si ripiega quando quello preferito manca. */
@@ -146,6 +156,12 @@ export interface VoceModello {
   altezza?: number;
   gonna?: boolean;
   apertura?: number;
+  /** postura di riposo 0..1 (indice degli asset) */
+  curvo?: number;
+  /** oggetti di scena «nome@osso» (indice degli asset) */
+  oggetti?: string[];
+  /** `proporzioni: "bambino"` nell'indice degli asset */
+  bambino?: boolean;
 }
 
 /**
@@ -169,6 +185,11 @@ export function leggiIndice(json: unknown): VoceModello[] {
     else if (typeof o['gonna'] === 'number') r.gonna = true;
     else if (o['gonna'] === null) r.gonna = false;
     if (typeof o['apertura'] === 'number') r.apertura = o['apertura'];
+    // i campi in più dell'indice degli asset (scritto da tools/personaggi/indice.py)
+    if (typeof o['curvo'] === 'number' && o['curvo'] >= 0 && o['curvo'] <= 1) r.curvo = o['curvo'];
+    if (Array.isArray(o['oggetti'])) r.oggetti = o['oggetti'].filter((x): x is string => typeof x === 'string');
+    if (o['proporzioni'] === 'bambino') r.bambino = true;
+    else if (o['proporzioni'] === 'adulto') r.bambino = false;
     out.push(r);
   };
   const lista = (x: unknown): boolean => {

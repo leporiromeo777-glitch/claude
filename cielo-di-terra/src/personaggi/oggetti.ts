@@ -180,8 +180,9 @@ const _s = new THREE.Vector3();
 /**
  * Attacca un oggetto di scena all'osso indicato («bastone@manoD», «gerla@petto»...) e lo restituisce
  * (null se la voce non è un oggetto noto). L'oggetto è dritto nel mondo nella posa attuale.
+ * Basta il gruppo e l'animatore: lo usano sia caricaPersonaggio (pagine di prova) sia la fabbrica del gioco.
  */
-export function attaccaOggetto(modello: ModelloPersonaggio, voce: string): THREE.Object3D | null {
+export function attaccaOggetto(modello: Pick<ModelloPersonaggio, 'gruppo' | 'animatore'>, voce: string): THREE.Object3D | null {
   const r = leggiOggetto(voce);
   if (!r) return null;
   const a = modello.animatore;

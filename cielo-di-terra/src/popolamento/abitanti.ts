@@ -16,6 +16,8 @@
  */
 import * as THREE from 'three';
 import { creaAbitante, type OpzioniAbitante, type StatoAbitante } from '../oggetti/oggetti/abitante';
+// personaggi nuovi (GLB dipinti, docs/personaggi/INTEGRAZIONE.md): stessa interfaccia di creaAbitante
+import { creaPersonaggio, type StatoPersonaggioGioco } from '../personaggi';
 import { matriceSuperficie } from '../oggetti/cilindro';
 import { geoBoxC, geoCilindro, geoLastra, geoPiano } from '../oggetti/forme';
 import { Costruttore, mat } from '../oggetti/costruttore';
@@ -226,7 +228,10 @@ export class Abitanti {
     let obj: ReturnType<typeof creaAbitante> | null = null;
     let extra: THREE.Object3D | null = null;
     if (aspetto) {
-      obj = creaAbitante(aspetto);
+      // il modello nuovo se è stato precaricato (main.ts), altrimenti la figura procedurale di sempre;
+      // stessa interfaccia: stato, punti, ingombro (il cilindro di aggiornaCollider resta di raggio 0,3 m,
+      // alto quanto la figura)
+      obj = creaPersonaggio(id, aspetto) ?? creaAbitante(aspetto);
       figura = new THREE.Group();
       figura.name = `abitante:${id}`;
       figura.add(obj.gruppo);
@@ -272,7 +277,9 @@ export class Abitanti {
       });
       return o as THREE.Object3D | null;
     };
-    if (id === 'nando') {
+    // personaggio nuovo: la pietra di Nando viene dall'indice dei modelli (src/personaggi/oggetti.ts)
+    const nuovo = obj.gruppo.userData['personaggio'] !== undefined;
+    if (id === 'nando' && !nuovo) {
       // sempre una pietra in mano
       const b = new Costruttore(46);
       b.aggiungi(geoLastra(0.26, 0.16, 0.2, 46, 0.2), { colore: PALETTE.gneiss, piatto: true });
@@ -288,7 +295,8 @@ export class Abitanti {
       b.aggiungi(geoBoxC(0.08, 0.06, 0.08), { matrice: mat([0, 0.19, 0]), colore: 0xffc870, canale: 'lume' });
       const lume = b.costruisci('lume-ottavio');
       lume.position.set(-0.2, -0.05, 0.1);
-      osso('bacino')?.add(lume);
+      // sui modelli nuovi la presa «cintura» ha gli assi del modello, come l'osso del bacino procedurale
+      (osso('cintura') ?? osso('bacino'))?.add(lume);
       const v = new Costruttore(9);
       const tela = geoPiano(3.6, 1.8, 6, 3);
       const pp = tela.getAttribute('position');
@@ -635,8 +643,12 @@ export class Abitanti {
         s.gestoFino = 0;
       }
       this.passo(s, dt);
+      // i personaggi nuovi fanno da sé seduto e chino (la posa passa nello stato); le rotazioni di
+      // posaOssa sono per le ossa della figura procedurale
+      const nuovo = s.obj.gruppo.userData['personaggio'] !== undefined;
+      if (nuovo) (s.stato as StatoPersonaggioGioco).posa = s.posa;
       s.obj.update?.(dt, s.stato);
-      this.posaOssa(s);
+      if (!nuovo) this.posaOssa(s);
     }
   }
 
