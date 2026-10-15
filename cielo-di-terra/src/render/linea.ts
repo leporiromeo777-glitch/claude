@@ -124,14 +124,16 @@ export class Linea {
         varying float vHw;
         void main() {
           float d = abs(vSide);
-          float inner = exp(-pow(d / 0.04, 2.0));
-          float mid = exp(-pow(d / 0.15, 2.0));
-          float outer = exp(-pow(d / 0.5, 2.0));
+          // filo sottile e vivo, alone stretto e un velo largo appena accennato (come nei
+          // bozzetti: una riga di luce, non una colonna); il resto lo fa il bagliore della post
+          float inner = exp(-pow(d / 0.032, 2.0));
+          float mid = exp(-pow(d / 0.12, 2.0));
+          float outer = exp(-pow(d / 0.45, 2.0));
           float lit = 1.0 - smoothstep(uLineaIgnite - 25.0, uLineaIgnite + 25.0, vZ);
           float tip = exp(-pow((vZ - uLineaIgnite) / 60.0, 2.0)) * step(1.0, uLineaIgnite) * (1.0 - step(2990.0, uLineaIgnite));
           // alone caldo: bianco-oro sul filo, ambra verso il bordo
           vec3 caldo = mix(uGlow, uGlow * vec3(1.05, 0.82, 0.58), smoothstep(0.03, 0.4, d));
-          vec3 day = caldo * (inner * 0.9 * uHdr * 0.55 + mid * 0.3 + outer * 0.09) * uBright;
+          vec3 day = caldo * (inner * 0.9 * uHdr * 0.55 + mid * 0.2 + outer * 0.075) * uBright;
           vec3 ember = uEmber * (inner * 0.7 + mid * 0.26 + outer * 0.08);
           vec3 c = mix(ember, day, lit) + vec3(1.0, 0.8, 0.5) * tip * (inner * 1.6 + mid * 0.8 + outer * 0.2);
           gl_FragColor = vec4(c, 1.0);

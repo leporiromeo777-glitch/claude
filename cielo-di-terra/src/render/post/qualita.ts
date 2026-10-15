@@ -14,6 +14,12 @@ export const SCELTE_QUALITA: readonly SceltaQualita[] = ['automatica', 'bassa', 
 
 export type FiltroPittorico = 'nessuno' | 'generalizzato' | 'anisotropico';
 
+/**
+ * Livello delle ombre portate della traccia «luce» per ogni qualità: gli stessi nomi di
+ * `QualitaOmbre` in render/ombre.ts, così `luce.ombre.impostaQualita(preset.ombre)` basta.
+ */
+export type LivelloOmbre = 'spente' | 'bassa' | 'media' | 'alta';
+
 /** Che cosa accende ogni livello. */
 export interface PresetQualita {
   livello: LivelloQualita;
@@ -40,14 +46,14 @@ export interface PresetQualita {
   pennellata: boolean;
   /** Antialiasing di ripiego nel passaggio finale (quando non c'è né MSAA né filtro). */
   fxaa: boolean;
-  /** Ombre portate (le accende la traccia «luce»: vedi `Game.onQualita`). */
-  ombre: boolean;
+  /** Ombre portate della traccia «luce» ('spente' a Bassa): vedi `Game.applicaOmbre`. */
+  ombre: LivelloOmbre;
 }
 
 export const PRESET_QUALITA: Readonly<Record<LivelloQualita, PresetQualita>> = {
-  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: false },
-  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: true },
-  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 4, mezzaRisoluzione: false, contorni: true, pennellata: true, fxaa: false, ombre: true },
+  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente' },
+  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media' },
+  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta' },
 };
 
 export function isLivello(x: unknown): x is LivelloQualita {

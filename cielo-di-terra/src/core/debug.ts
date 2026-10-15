@@ -16,7 +16,7 @@ import type { GameSettings } from './settings';
 
 /**
  * Impostazioni che `setSetting` accetta: quelle del motore più la qualità grafica
- * (`setSetting('qualita', 'alta')`; 'automatica' in E2E vale 'alta').
+ * (`setSetting('qualita', 'alta')`; in E2E 'automatica' vale 'media' e non misura).
  */
 export type ImpostazioniDebug = GameSettings & { qualita: SceltaQualita };
 

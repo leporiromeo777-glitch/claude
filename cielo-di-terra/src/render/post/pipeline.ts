@@ -53,8 +53,8 @@ import {
 export interface ParametriPost {
   /** Esposizione prima della mappatura dei toni. */
   esposizione: number;
-  /** 0 spalla pittorica (predefinita), 1 ACES, 2 AgX. */
-  tonemap: 0 | 1 | 2;
+  /** 0 spalla pittorica, 1 ACES calibrato, 2 AgX, 3 ACES di giorno e spalla di notte. */
+  tonemap: 0 | 1 | 2 | 3;
   /** Da dove la spalla comincia a comprimere (0..1, sul canale più forte). */
   ginocchio: number;
   saturazione: number;
@@ -87,6 +87,8 @@ export interface ParametriPost {
   alfa: number;
   /** Il raggio del filtro si stringe sotto questa distanza (m): da [0] a [1] torna pieno. */
   vicino: [number, number];
+  /** Fra [0] e [1] metri il raggio del filtro cresce fino a [2] volte: il fondo a pennellate larghe. */
+  lontano: [number, number, number];
   /**
    * Dettagli salvati dal filtro: sopra questo contrasto (luminanza compressa, da [0] a [1]) il
    * pixel originale torna sopra la pittura per la frazione [2] (tratti, finestrelle, stelle).
@@ -94,6 +96,10 @@ export interface ParametriPost {
   dettaglio: [number, number, number];
   /** Pennellata, grana fine e macchie della carta. */
   pennellata: number;
+  /** Variazione calda/fredda del colore lungo le pennellate. */
+  pennellataColore: number;
+  /** Tremolio della mano sui bordi: ampiezza e scala, in pixel a 1080p (0 = spento). */
+  tremolio: [number, number];
   grana: number;
   macchie: number;
   /** Vignettatura: colore (moltiplica) e forza. */
@@ -103,11 +109,11 @@ export interface ParametriPost {
 
 export const PARAMETRI_PREDEFINITI: ParametriPost = {
   esposizione: 1,
-  tonemap: 0,
+  tonemap: 3,
   ginocchio: 0.82,
-  saturazione: 1.08,
+  saturazione: 1.12,
   vibranza: 0.16,
-  contrasto: 0.15,
+  contrasto: 0.22,
   pernoContrasto: 0.42,
   luci: [1.03, 1.0, 0.955],
   ombre: [0.96, 0.975, 1.05],
@@ -126,8 +132,11 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
   nitidezza: 8,
   alfa: 2,
   vicino: [1.5, 9],
+  lontano: [80, 450, 1.35],
   dettaglio: [0.05, 0.16, 0.85],
   pennellata: 0.085,
+  pennellataColore: 0.05,
+  tremolio: [1.4, 26],
   grana: 0.05,
   macchie: 0.035,
   vignetta: [0.74, 0.66, 0.7],
@@ -218,6 +227,7 @@ export class PostProduzione {
     uContorni: { value: new Vector2() },
     uOrientata: { value: 0 },
     uCarta: { value: new Vector3() },
+    uTremolio: { value: new Vector3() },
     uVignetta: { value: new Vector4() },
     uEsposizione: { value: 1 },
     uTonemap: { value: 0 },
@@ -340,6 +350,7 @@ export class PostProduzione {
       uNearFar: { value: new Vector2() },
       uRaggio: { value: 3 },
       uVicino: { value: new Vector2() },
+      uLontano: { value: new Vector3(80, 450, 1) },
       uOverlay: { value: 0 },
       uDurezza: { value: 8 },
       uNitidezza: { value: 8 },
@@ -347,11 +358,16 @@ export class PostProduzione {
     }, defines);
   }
 
+  /** Raggio massimo (pixel) per cui la shader del filtro è compilata. */
+  private rmaxKuwahara = 4;
+
   private aggiornaKuwahara(): void {
     const p = this.presetCorrente;
     if (p.filtro === 'nessuno') return;
     const aniso = p.filtro === 'anisotropico';
-    const rmax = Math.ceil(this.raggioPixel);
+    // posto anche per il raggio più largo del fondo (`parametri.lontano`)
+    const rmax = Math.ceil(this.raggioPixel * Math.max(1, this.parametri.lontano[2]));
+    this.rmaxKuwahara = rmax;
     const d = this.pKuwahara.material.defines as Record<string, string>;
     if (d.RMAX !== String(rmax) || ('ANISOTROPO' in d) !== aniso) {
       this.pKuwahara.material.dispose();
@@ -483,6 +499,9 @@ export class PostProduzione {
       (uk.uNearFar!.value as Vector2).set(this.near, this.far);
       uk.uRaggio!.value = this.raggioPixel;
       (uk.uVicino!.value as Vector2).set(P.vicino[0], P.vicino[1]);
+      // il raggio largo del fondo non può superare il limite dei cicli (RMAX) della shader
+      const lmax = Math.min(P.lontano[2], this.rmaxKuwahara / Math.max(this.raggioPixel, 1e-3));
+      (uk.uLontano!.value as Vector3).set(P.lontano[0], P.lontano[1], Math.max(1, lmax));
       uk.uOverlay!.value = overlay;
       uk.uDurezza!.value = P.durezza;
       uk.uNitidezza!.value = P.nitidezza;
@@ -511,6 +530,7 @@ export class PostProduzione {
     (u.uContorni!.value as Vector2).set(p.contorni ? P.contorni : 0, p.contorni ? P.contorniPrimoPiano : 0);
     u.uOrientata!.value = this.tensoreA ? 1 : 0;
     (u.uCarta!.value as Vector3).set(p.pennellata ? P.pennellata : 0, P.grana * (p.pennellata ? 1 : 0.6), P.macchie);
+    (u.uTremolio!.value as Vector3).set(p.pennellata ? P.tremolio[0] : 0, Math.max(1, P.tremolio[1]), p.pennellata ? P.pennellataColore : 0);
     (u.uVignetta!.value as Vector4).set(P.vignetta[0], P.vignetta[1], P.vignetta[2], P.forzaVignetta);
     u.uEsposizione!.value = P.esposizione;
     u.uTonemap!.value = P.tonemap;

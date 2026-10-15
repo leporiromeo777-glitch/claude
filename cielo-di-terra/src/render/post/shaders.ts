@@ -190,6 +190,7 @@ uniform vec2 uTexel;
 uniform vec2 uNearFar;
 uniform float uRaggio;
 uniform vec2 uVicino;      // da questa distanza (m) a quest'altra il raggio torna pieno
+uniform vec3 uLontano;     // fra x e y metri il raggio cresce fino a z volte (pennellate larghe sul fondo)
 uniform float uOverlay;    // 1 se la prima persona ha disegnato
 uniform float uDurezza;
 uniform float uNitidezza;
@@ -201,6 +202,8 @@ void main() {
   float z = uNearFar.x * exp2(logd * log2(uNearFar.y / uNearFar.x));
   float primoPiano = uOverlay * step(texture2D(tDepth, vUv).r, 0.99999);
   float k = mix(0.4, 1.0, smoothstep(uVicino.x, uVicino.y, z));
+  // come un pittore: il fondo a pennellate larghe, il vicino più fine
+  k *= mix(1.0, uLontano.z, smoothstep(uLontano.x, uLontano.y, z));
   k = mix(k, 0.35, primoPiano);
   float rr = max(uRaggio * k, 1.0);
 #ifdef ANISOTROPO
@@ -294,9 +297,10 @@ uniform float uBloom;
 uniform vec2 uContorni;      // x mondo, y prima persona
 uniform float uOrientata;    // 1: pennellata lungo il tensore di struttura
 uniform vec3 uCarta;         // x pennellata, y grana, z macchie
+uniform vec3 uTremolio;      // x ampiezza (pixel a 1080p), y scala (pixel a 1080p), z variazione di colore delle pennellate
 uniform vec4 uVignetta;      // rgb colore, a forza
 uniform float uEsposizione;
-uniform float uTonemap;      // 0 spalla pittorica, 1 ACES, 2 AgX
+uniform float uTonemap;      // 0 spalla pittorica, 1 ACES, 2 AgX, 3 ACES di giorno e spalla di notte
 uniform float uGinocchio;
 uniform vec4 uGrade;         // x saturazione, y vibranza, z contrasto, w perno del contrasto
 uniform vec3 uLuci;          // tinta delle luci
@@ -366,13 +370,23 @@ vec3 acesCalibrato(vec3 lin) {
   return acesFit(lin * 0.58) / 0.743;
 }
 
+vec3 acesSrgb(vec3 c) {
+  // ACES lavora in lineare: si torna allo sRGB «da pittore» alla fine
+  vec3 lin = pow(max(c, vec3(0.0)), vec3(2.2));
+  return pow(clamp(acesCalibrato(lin), 0.0, 1.0), vec3(1.0 / 2.2));
+}
+
 vec3 mappaToni(vec3 c) {
   c *= uEsposizione;
   if (uTonemap < 0.5) return clamp(spalla(c), 0.0, 1.0);
-  // ACES e AgX lavorano in lineare: si torna allo sRGB «da pittore» alla fine
+  if (uTonemap < 1.5) return acesSrgb(c);
+  if (uTonemap > 2.5) {
+    // giorno e notte: ACES calibrato di giorno (ombre profonde, contrasto da pellicola), la
+    // spalla di notte (ACES scurirebbe troppo il blu-viola e le pozze dei lumi)
+    return mix(acesSrgb(c), clamp(spalla(c), 0.0, 1.0), smoothstep(0.15, 0.75, uNotte));
+  }
   vec3 lin = pow(max(c, vec3(0.0)), vec3(2.2));
-  vec3 o = uTonemap < 1.5 ? acesCalibrato(lin) : agx(lin * 1.6);
-  return pow(clamp(o, 0.0, 1.0), vec3(1.0 / 2.2));
+  return pow(clamp(agx(lin * 1.6), 0.0, 1.0), vec3(1.0 / 2.2));
 }
 
 vec3 correggi(vec3 c) {
@@ -427,8 +441,18 @@ vec3 pittura(vec2 uv, vec3 orig, float pp) {
 }
 
 void main() {
+  vec2 px = gl_FragCoord.xy;
+  float sc = uRisoluzione.y / 1080.0;
   vec2 uv = vUv;
   float pp = primoPiano(uv);
+  // tremolio della mano: i bordi dritti dei poligoni ondeggiano appena, come tirati a pennello
+  // (fermo sullo schermo; niente sulla prima persona, che resta ferma e leggibile)
+  if (uTremolio.x > 0.0) {
+    vec2 qn = px / (uTremolio.y * sc);
+    vec2 w = vec2(vnoise(qn), vnoise(qn + 19.7)) - 0.5;
+    w += (vec2(vnoise(qn * 2.7 + 5.1), vnoise(qn * 2.7 + 31.3)) - 0.5) * 0.45;
+    uv += w * 2.0 * uTremolio.x * sc / uRisoluzione * (1.0 - pp);
+  }
   vec3 col = uFxaa > 0.5 ? fxaa(uv) : texture2D(tScena, uv).rgb;
   col = pittura(uv, col, pp);
 
@@ -446,8 +470,6 @@ void main() {
   col = mappaToni(col);
   col = correggi(col);
 
-  vec2 px = gl_FragCoord.xy;
-  float sc = uRisoluzione.y / 1080.0;
   // pennellata: rumore stirato lungo la direzione del colore (tensore) o di un campo morbido
   if (uCarta.x > 0.0) {
     vec2 dir;
@@ -461,16 +483,19 @@ void main() {
       dir = length(tv) > 1e-6 ? normalize(tv) : vec2(0.7071, 0.7071);
       float A = (l1 + l2 > 1e-6) ? (l1 - l2) / (l1 + l2) : 0.0;
       // nelle zone piatte la direzione è casuale: si torna al campo morbido
-      float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 3.0) - 0.5) * 2.4;
+      float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 2.2) - 0.5) * 1.3;
       dir = normalize(mix(vec2(cos(ang), sin(ang)), dir, smoothstep(0.15, 0.6, A)));
       forza = 0.6 + 0.4 * A;
     } else {
-      float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 3.0) - 0.5) * 2.4;
+      float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 2.2) - 0.5) * 1.3;
       dir = vec2(cos(ang), sin(ang));
     }
     vec2 q = vec2(dot(px, dir), dot(px, vec2(-dir.y, dir.x))) / sc;
     float st = vnoise(q * vec2(1.0 / 16.0, 1.0 / 2.6)) * 0.65 + vnoise(q * vec2(1.0 / 40.0, 1.0 / 6.0) + 13.7) * 0.35;
     col *= 1.0 + (st - 0.5) * uCarta.x * forza * (0.6 + 0.8 * luma(col));
+    // le pennellate non sono solo più chiare o più scure: tirano un po' al caldo o al freddo
+    float tono = vnoise(q * vec2(1.0 / 60.0, 1.0 / 9.0) + 41.0) - 0.5;
+    col *= 1.0 + vec3(1.0, 0.15, -0.9) * tono * uTremolio.z * (1.0 - pp);
   }
   // grana della carta: puntini, fibre e macchie larghe (ferma sullo schermo, come un foglio)
   if (uCarta.y > 0.0) {

@@ -5,14 +5,16 @@ describe('preset di qualità', () => {
   it('Bassa: niente Kuwahara, niente ombre, risoluzione ridotta; Alta: anisotropico e MSAA', () => {
     const b = PRESET_QUALITA.bassa;
     expect(b.filtro).toBe('nessuno');
-    expect(b.ombre).toBe(false);
+    expect(b.ombre).toBe('spente');
     expect(b.scala).toBeLessThan(1);
     expect(PRESET_QUALITA.media.filtro).toBe('generalizzato');
     expect(PRESET_QUALITA.alta.filtro).toBe('anisotropico');
     expect(PRESET_QUALITA.alta.msaa).toBeGreaterThan(0);
-    // Media filtra a metà risoluzione (molto meno lavoro), Alta a risoluzione piena
+    // il filtro lavora a metà risoluzione (circa 16 volte meno lavoro a parità di pennellata);
+    // Alta ha le pennellate più larghe e orientate
     expect(PRESET_QUALITA.media.mezzaRisoluzione).toBe(true);
-    expect(PRESET_QUALITA.alta.mezzaRisoluzione).toBe(false);
+    expect(PRESET_QUALITA.alta.mezzaRisoluzione).toBe(true);
+    expect(PRESET_QUALITA.alta.raggio).toBeGreaterThan(PRESET_QUALITA.media.raggio);
   });
 
   it('riconosce le scelte valide', () => {

@@ -8,10 +8,25 @@
  *           (src/render/post): mondo nel render target HDR, contorni, Velo e sovrapposizioni
  *           della regia nello stesso target, bagliore, filtro di Kuwahara, passata finale.
  *
- * Qualità grafica: `setQualita('automatica' | 'bassa' | 'media' | 'alta')`; chi deve reagire
- * (per esempio le ombre) si iscrive con `onQualita`.
+ * Qualità grafica: `setQualita('automatica' | 'bassa' | 'media' | 'alta')`; le ombre della
+ * traccia «luce» la seguono da sé (`applicaOmbre`), il resto si iscrive con `onQualita`.
  */
-import { ColorManagement, LinearSRGBColorSpace, PerspectiveCamera, Scene, Vector3, WebGLRenderer, type Material } from 'three';
+import {
+  ColorManagement,
+  DepthFormat,
+  DepthTexture,
+  Group,
+  LessEqualCompare,
+  LinearSRGBColorSpace,
+  PerspectiveCamera,
+  Scene,
+  UnsignedIntType,
+  Vector3,
+  WebGLRenderTarget,
+  WebGLRenderer,
+  type Material,
+  type Texture,
+} from 'three';
 import { EventBus } from './core/events';
 import { Input } from './core/input';
 import { FixedLoop } from './core/loop';
@@ -20,7 +35,7 @@ import { CameraRig } from './player/cameraRig';
 import { PlayerController, emptyInput, type PlayerInput } from './player/controller';
 import { PLAYER_TUNABLES } from './player/tunables';
 import { CellTexture } from './render/cellTexture';
-import { createCollare } from './render/collare';
+import { createCollare, ordinaCollare } from './render/collare';
 import { FirstPersonVelo } from './render/firstPerson';
 import { LampGlows } from './render/lamps';
 import { Linea } from './render/linea';
@@ -105,6 +120,8 @@ export class Game {
   terrain!: TerrainSystem;
   linea!: Linea;
   windows!: Windows;
+  /** Le nubi del Collare (l'ordine dei loro strati segue la quota della camera). */
+  collare!: Group;
   vegetation!: Vegetation;
   lamps!: LampGlows;
   fp!: FirstPersonVelo;
@@ -137,6 +154,7 @@ export class Game {
   private misura: MisuraQualita | null = null;
   private readonly tempoGpu: TempoGpu;
   private readonly ascoltatoriQualita = new Set<(p: PresetQualita) => void>();
+  private mappaOmbreVuota: WebGLRenderTarget | null = null;
 
   constructor(
     private container: HTMLElement,
@@ -194,7 +212,8 @@ export class Game {
     this.windows.setStarSpeed(this.settings.starSpeed);
     this.linea = new Linea(u);
     this.scene.add(this.linea.group);
-    this.scene.add(createCollare(u));
+    this.collare = createCollare(u);
+    this.scene.add(this.collare);
     this.scene.add(createLake(u));
 
     await progress('paesi');
@@ -230,6 +249,8 @@ export class Game {
     this.resize();
     window.addEventListener('resize', () => this.resize());
     this.input.attach(this.renderer.domElement);
+    // le ombre (traccia «luce», se c'è) prendono la qualità scelta
+    this.applicaOmbre(this.presetQualita);
     await progress('pronto');
   }
 
@@ -302,8 +323,7 @@ export class Game {
 
   /**
    * Avvisa quando il livello cambia (subito, poi a ogni cambio). È il punto dove collegare ciò
-   * che dipende dalla qualità fuori dalla post, per esempio le ombre:
-   *   `game.onQualita((p) => ombre.attiva(p.ombre))`.
+   * che dipende dalla qualità fuori dalla post (l'interfaccia, per la nota «Adesso: Media»).
    * Restituisce la funzione per staccarsi.
    */
   onQualita(fn: (p: PresetQualita) => void): () => void {
@@ -317,7 +337,44 @@ export class Game {
     const p = PRESET_QUALITA[l];
     this.post.setPreset(p);
     this.resize();
+    this.applicaOmbre(p);
     for (const fn of this.ascoltatoriQualita) fn(p);
+  }
+
+  /**
+   * Le ombre portate della traccia «luce» seguono la qualità: spente a Bassa, 'media' e 'alta'
+   * sopra (`PresetQualita.ombre`). L'aggancio di «luce» crea `game.luce.ombre` in `init`; qui lo si
+   * cerca senza dipenderne, così il collegamento funziona appena i due rami sono uniti e non fa
+   * nulla prima (o se le ombre non ci sono). Si richiama anche alla fine di `init`.
+   */
+  private applicaOmbre(p: PresetQualita): void {
+    const luce = (this as unknown as { luce?: { ombre?: { impostaQualita?: (q: PresetQualita['ombre']) => void } } }).luce;
+    luce?.ombre?.impostaQualita?.(p.ombre);
+  }
+
+  /**
+   * Rete di sicurezza per l'unione con la traccia «luce»: lo shader del mondo legge `uOmbraMappa`
+   * come `sampler2DShadow`. Se vale null (ombre spente a Bassa, oppure di notte prima del primo
+   * passaggio d'ombra) three.js lega una texture vuota a colori e OGNI draw del mondo fallisce
+   * (GL_INVALID_OPERATION, «Mismatch between texture format and sampler type»): resterebbero solo
+   * lumi, stelle e vetro. Qui si lega al suo posto una mappa di profondità 1×1 pulita (tutto in
+   * luce); il passaggio delle ombre la sostituisce appena disegna. Senza `uOmbraMappa` non fa nulla.
+   */
+  private garantisciMappaOmbre(): void {
+    const u = (this.uniforms as unknown as { uOmbraMappa?: { value: Texture | null } }).uOmbraMappa;
+    if (!u || u.value) return;
+    if (!this.mappaOmbreVuota) {
+      const dt = new DepthTexture(1, 1, UnsignedIntType);
+      dt.format = DepthFormat;
+      dt.compareFunction = LessEqualCompare;
+      dt.name = 'ombre-vuota';
+      this.mappaOmbreVuota = new WebGLRenderTarget(1, 1, { depthTexture: dt, depthBuffer: true });
+      const prima = this.renderer.getRenderTarget();
+      this.renderer.setRenderTarget(this.mappaOmbreVuota);
+      this.renderer.clear(false, true, false);
+      this.renderer.setRenderTarget(prima);
+    }
+    u.value = this.mappaOmbreVuota.depthTexture;
   }
 
   private nomeRenderer(): string {
@@ -490,7 +547,8 @@ export class Game {
       localFrameAt(pos, _f, this.player.cyl.theta);
       const k = this.settings.mouseSensitivity;
       const inv = this.settings.invertY ? -1 : 1;
-      this.rig.look(m.dx * k + kb.yaw, (-m.dy * k + kb.pitch) * inv, _f.up);
+      // «inverti asse Y» vale per il mouse; ↑ alza sempre lo sguardo
+      this.rig.look(m.dx * k + kb.yaw, -m.dy * k * inv + kb.pitch, _f.up);
     }
     this.camera.position.lerpVectors(this.prevEye, this.currEye, alpha);
     this.camera.quaternion.copy(this.rig.quaternion);
@@ -498,6 +556,7 @@ export class Game {
 
     applySky(this.uniforms, this.sky);
     this.linea.applySky(this.sky);
+    ordinaCollare(this.collare, this.camera.position);
     this.renderer.setClearColor(hazeClearColor(this.sky), 1);
 
     this.terrain.update(this.camera.position, this.opts.e2e ? 50 : 5);
@@ -513,6 +572,7 @@ export class Game {
     const misura = !!this.misura && !this.misura.finita;
     if (misura) this.tempoGpu.inizio();
     // 1. il mondo nel render target HDR della post
+    this.garantisciMappaOmbre();
     this.post.inizioMondo();
     this.post.fase('mondo', () => this.renderer.render(this.scene, this.camera));
     // 2. contorni dalla profondità del mondo, poi profondità pulita per la prima persona
