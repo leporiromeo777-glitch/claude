@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:45:54.863Z",
+  "date": "2026-10-15T09:53:30.369Z",
   "size": [
     1280,
     720
@@ -10,8 +10,120 @@
     "--ignore-gpu-blocklist"
   ],
   "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
-  "startupSeconds": 1.26,
+  "startupSeconds": 5.73,
   "shots": [
+    {
+      "n": 1,
+      "file": "01-paese-mezzogiorno.png",
+      "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
+      "frames": 4,
+      "frameMs": 3,
+      "stats": {
+        "drawCalls": 153,
+        "triangles": 839342,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          3,
+          8,
+          46,
+          69
+        ],
+        "terrainTriangles": 238168,
+        "trees": 5140,
+        "treesByLod": [
+          10,
+          1571,
+          3559
+        ],
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 0,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1028,
+        "theta": 36.6,
+        "h": 38.57578660673494,
+        "r": 607.4242133932651,
+        "groundH": 38.5757866067349,
+        "heightAboveGround": 3.552713678800501e-14,
+        "gravity": 9.219587373832233,
+        "gravityG": 0.9401362722063329,
+        "velocity": [
+          2.834235061553832e-17,
+          5.296598114011388e-17,
+          0
+        ],
+        "speed": 6.007232304937943e-17,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 1028,
+          "theta": 36.6,
+          "h": 40.19578660673483
+        },
+        "hours": 12.200000000000003
+      }
+    },
+    {
+      "n": 2,
+      "file": "02-asse-verso-il-sordo.png",
+      "title": "Lungo l'asse verso il Sordo, dagli alpeggi del Tappo Sud",
+      "frames": 4,
+      "frameMs": 6,
+      "stats": {
+        "drawCalls": 227,
+        "triangles": 816626,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          5,
+          12,
+          34,
+          75
+        ],
+        "terrainTriangles": 291480,
+        "trees": 5140,
+        "treesByLod": [
+          9,
+          743,
+          4388
+        ],
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 0,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 470.00722869775643,
+        "theta": 44.00009428182446,
+        "h": 53.31944274589557,
+        "r": 592.6805572541044,
+        "groundH": 53.31944274589553,
+        "heightAboveGround": 4.263256414560601e-14,
+        "gravity": 8.995805669073745,
+        "gravityG": 0.9173168889553257,
+        "velocity": [
+          -0.28422623975073413,
+          -0.23800721916457301,
+          0.289217168557912
+        ],
+        "speed": 0.4701899215486765,
+        "grounded": false,
+        "mode": "air",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 470.00722869775643,
+          "theta": 44.00009428182446,
+          "h": 54.939442745895576
+        },
+        "hours": 10.5
+      }
+    },
     {
       "n": 3,
       "file": "03-planata-alta.png",
@@ -19,25 +131,25 @@
       "frames": 50,
       "frameMs": 2,
       "stats": {
-        "drawCalls": 70,
-        "triangles": 363780,
+        "drawCalls": 98,
+        "triangles": 399549,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
           4,
-          72,
-          50
+          73,
+          49
         ],
-        "terrainTriangles": 179256,
-        "trees": 5143,
+        "terrainTriangles": 180472,
+        "trees": 5140,
         "treesByLod": [
           0,
           0,
-          5143
+          5140
         ],
-        "colliders": 5907,
-        "lamps": 228,
-        "fps": 2.7692307692307687,
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },
       "player": {
@@ -67,6 +179,174 @@
         },
         "hours": 11
       }
+    },
+    {
+      "n": 4,
+      "file": "04-finestra-stelle.png",
+      "title": "A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro",
+      "frames": 2,
+      "frameMs": 3,
+      "stats": {
+        "drawCalls": 72,
+        "triangles": 411060,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          1,
+          8,
+          35,
+          82
+        ],
+        "terrainTriangles": 179544,
+        "trees": 5140,
+        "treesByLod": [
+          0,
+          822,
+          4318
+        ],
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 7.2,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1200,
+        "theta": 101.50000000000003,
+        "h": 1,
+        "r": 645,
+        "groundH": 1,
+        "heightAboveGround": 0,
+        "gravity": 9.78991901376799,
+        "gravityG": 0.9982939142080111,
+        "velocity": [
+          -4.537667350964241e-19,
+          -2.230334758475409e-18,
+          0
+        ],
+        "speed": 2.2760266660879943e-18,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 1200,
+          "theta": 101.50000000000003,
+          "h": 2.6200000000000045
+        },
+        "hours": 12
+      }
+    },
+    {
+      "n": 5,
+      "file": "05-notte-paese.png",
+      "title": "Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo",
+      "frames": 4,
+      "frameMs": 2,
+      "stats": {
+        "drawCalls": 136,
+        "triangles": 924007,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          4,
+          7,
+          47,
+          68
+        ],
+        "terrainTriangles": 256344,
+        "trees": 5140,
+        "treesByLod": [
+          21,
+          1416,
+          3703
+        ],
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 7.2,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1012,
+        "theta": 30.5,
+        "h": 45.49999845238847,
+        "r": 600.5000015476115,
+        "groundH": 45.49999845238852,
+        "heightAboveGround": -4.973799150320701e-14,
+        "gravity": 9.114490516152976,
+        "gravityG": 0.9294193752354756,
+        "velocity": [
+          1.336314528162333e-16,
+          2.609426212329883e-16,
+          0
+        ],
+        "speed": 2.9316960408221034e-16,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 1012,
+          "theta": 30.499999999999993,
+          "h": 47.11999845238847
+        },
+        "hours": 23.200000000000003
+      }
+    },
+    {
+      "n": 6,
+      "file": "06-matita-rivelazione.png",
+      "title": "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
+      "frames": 30,
+      "frameMs": 2,
+      "stats": {
+        "drawCalls": 78,
+        "triangles": 601554,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          3,
+          7,
+          42,
+          74
+        ],
+        "terrainTriangles": 227640,
+        "trees": 5140,
+        "treesByLod": [
+          233,
+          1200,
+          3707
+        ],
+        "colliders": 8102,
+        "lamps": 469,
+        "fps": 13.846153846153845,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1012,
+        "theta": 30.5,
+        "h": 45.49999845238847,
+        "r": 600.5000015476115,
+        "groundH": 45.49999845238852,
+        "heightAboveGround": -4.973799150320701e-14,
+        "gravity": 9.114490516152976,
+        "gravityG": 0.9294193752354756,
+        "velocity": [
+          1.336314528162333e-16,
+          2.609426212329883e-16,
+          0
+        ],
+        "speed": 2.9316960408221034e-16,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": true,
+        "camera": {
+          "z": 1500,
+          "theta": 21,
+          "h": 96.62108164410324
+        },
+        "hours": 11.200000000000003
+      }
     }
   ],
   "checks": {
@@ -75,7 +355,7 @@
       "grounded": true,
       "mode": "walk"
     },
-    "jumpHeight": 0,
+    "jumpHeight": 1.31,
     "glide10s": {
       "drop": 21.4,
       "dz": 116.9,
@@ -83,11 +363,11 @@
       "mode": "glide",
       "ratio": 5.5
     },
-    "updateMsPerStep": 0.005,
-    "renderCpuMs": 11.3,
+    "updateMsPerStep": 0.02,
+    "renderCpuMs": 15.9,
     "stats": {
-      "drawCalls": 84,
-      "triangles": 499578,
+      "drawCalls": 176,
+      "triangles": 907073,
       "terrainChunks": 126,
       "terrainByLod": [
         3,
@@ -96,14 +376,14 @@
         68
       ],
       "terrainTriangles": 239384,
-      "trees": 5143,
+      "trees": 5140,
       "treesByLod": [
-        10,
-        1583,
+        8,
+        1582,
         3550
       ],
-      "colliders": 5907,
-      "lamps": 228,
+      "colliders": 8102,
+      "lamps": 469,
       "fps": 2.770700636942675,
       "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
     }
