@@ -530,7 +530,7 @@ export class Abitanti {
       p = spostaYaw(q.z, q.theta, yawG + 180, -0.4 + fila * 0.9, 39);
       verso = tl;
       posa = 'seduto';
-      sopra = 0;
+      sopra = -0.42;
     } else {
       p = GIRO_VELATI[i % GIRO_VELATI.length]!;
       verso = (i % 3 === 0 ? piazza : { z: p.z + 10, theta: p.theta + (i % 2 ? 2 : -2) });
@@ -552,7 +552,7 @@ export class Abitanti {
     for (const zona of this.ctx.zone.values()) {
       for (const v of zona.collider) {
         const c = v.collider;
-        if (c.kind !== 'box' || !['gradino', 'calpestabile', 'panca'].includes(v.tag)) continue;
+        if (c.kind !== 'box' || !['gradino', 'calpestabile'].includes(v.tag)) continue;
         const d = new THREE.Vector3().subVectors(p, c.center);
         if (Math.abs(d.dot(c.right)) > c.half.x || Math.abs(d.dot(c.forward)) > c.half.z) continue;
         const top = c.center.clone().addScaledVector(c.up, c.half.y);
@@ -675,7 +675,7 @@ export class Abitanti {
 
 /** Piazzamenti fini per personaggio@luogo: spostamento (m) dal punto del luogo, posa, verso chi guarda. */
 const PIAZZAMENTI: Record<string, { nord?: number; est?: number; posa?: PosaNpc; verso?: string; sopra?: number }> = {
-  'pina@soglia_pina': { est: 0.6, posa: 'seduto', verso: 'piazza_ore' },
+  'pina@soglia_pina': { est: 0.6, posa: 'seduto', verso: 'piazza_ore', sopra: -0.26 },
   'pina@telo_ombrista': { nord: 1.6, est: 0.3, verso: 'piazza_ore' },
   'togna@lavatoio': { nord: 2.1, est: 0.5, posa: 'chino', verso: 'campanile' },
   'togna@piazza_ore': { nord: 6, est: -12, verso: 'telo_ombrista' },
@@ -690,13 +690,13 @@ const PIAZZAMENTI: Record<string, { nord?: number; est?: number; posa?: PosaNpc;
   'clelia@casa_del_velo': { nord: -3.6, est: 3.6, verso: 'piazza_ore' },
   'lisa@piazza_ore': { nord: -6, est: 4, verso: 'campanile' },
   'gioanin@piazza_ore': { nord: -6.8, est: 4.9, verso: 'campanile' },
-  'lisa@telo_ombrista': { nord: -5, est: -2.5, posa: 'seduto', verso: 'telo_ombrista' },
-  'gioanin@telo_ombrista': { nord: -5, est: -1.6, posa: 'seduto', verso: 'telo_ombrista' },
+  'lisa@telo_ombrista': { nord: -5, est: -2.5, posa: 'seduto', verso: 'telo_ombrista', sopra: -0.3 },
+  'gioanin@telo_ombrista': { nord: -5, est: -1.6, posa: 'seduto', verso: 'telo_ombrista', sopra: -0.3 },
   'ottavio@piazza_ore': { nord: 3, est: 6, verso: 'campanile' },
   'ottavio@fienile_ottavio': { nord: -1.5, est: -4.8, verso: 'passerella_messo' },
   'ottavio@prato_ronco': { nord: 0, est: 0, verso: 'passerella_messo' },
   'ottavio@bacheca_ore': { nord: 0.5, est: 1.6, verso: 'bacheca_ore' },
-  'ottavio@passerella_messo': { nord: 0, est: 0, posa: 'seduto', verso: 'fienile_ottavio' },
+  'ottavio@passerella_messo': { nord: 0.3, est: 0, posa: 'seduto', verso: 'fienile_ottavio', sopra: -0.42 },
   'ottavio@balcone_messi': { nord: 1, est: -2, verso: 'piazza_ore' },
 };
 
