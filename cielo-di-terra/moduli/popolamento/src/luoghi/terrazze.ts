@@ -41,11 +41,12 @@ export function costruisciTerrazzaPedrazzini(ctx: Contesto): void {
   // il chiodo 3 sulla copertina del muro di fronte
   posaChiodo(ctx, 'terrazza', cs3.numero, cs3.z, cs3.theta, 'cs_3', 'terrazza_pedrazzini', H + 0.3);
   // castagni da frutto inselvatichiti sul ripiano
+  // (fuori dalle visuali dal chiodo 3 verso il chiodo 37 e il Pilastro 4, a Mont e a Sera)
   const posti: Array<[number, number, number]> = [
-    [-11, -1.5, 11],
-    [-4, 1.5, 12.5],
-    [5, -0.5, 10.5],
-    [11.5, 1.0, 11.5],
+    [3.5, -2.5, 11],
+    [9.5, 1.5, 12.5],
+    [14, -1.5, 10.5],
+    [-12.5, 3.5, 11],
   ];
   posti.forEach(([dz, de, h], i) => {
     const p = localeDa(centro.z, centro.theta, yaw, -dz, de, H);

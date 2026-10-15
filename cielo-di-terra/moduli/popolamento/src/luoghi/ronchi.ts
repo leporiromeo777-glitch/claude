@@ -57,13 +57,13 @@ export function costruisciRiale(ctx: Contesto): void {
   // mulino: porta e soglia a Mont (chiodo 7), ruota a Mane verso il riale
   const ml = luogo('mulino');
   const cs7 = RETE.find((c) => c.id === 'cs_7')!;
-  const yaw = 180;
+  const yaw = 0;
   const D = 6.8;
   const centro = spostaYaw(cs7.z, cs7.theta, yaw + 180, D / 2 + 0.35, 7);
   // la soglia del mulino è il chiodo 7 (cs_7): la porta è a +0,6 m sull'asse X della libreria
   const c2 = spostaYaw(centro.z, centro.theta, yaw - 90, -0.6, 7);
   const base = suolo(cs7.z, cs7.theta) - 0.05;
-  const mulino = creaMulino('mulino-riale');
+  const mulino = creaMulino('mulino-riale', true);
   const pm = ctx.posa('riale', mulino, c2.z, c2.theta, yaw, { h: base, luogo: 'mulino' });
   ctx.occupa({ nome: 'mulino', z: c2.z, theta: c2.theta, yaw, larghezza: 9.5, profondita: 8 });
   posaChiodo(ctx, 'riale', cs7.numero, cs7.z, cs7.theta, 'cs_7', 'mulino', base + 0.1);

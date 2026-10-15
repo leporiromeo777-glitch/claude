@@ -20,7 +20,7 @@ import { LONTANI, RETE, luogo, type CaposaldoLontano } from '../contenuti';
 import type { Contesto } from '../contesto';
 import { creaCapanno, creaGra, creaMasso } from '../edifici';
 import { costruisciRipiano } from '../ripiano';
-import { impronta, mondo, spostaYaw, suolo, yawValle } from '../terreno';
+import { impronta, mondo, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { isWindowTheta } from '../../../../src/world/terrain';
 
 export interface Fumo {
@@ -36,11 +36,32 @@ export function costruisciGraDiPian(ctx: Contesto): THREE.Object3D {
   const base = fp.min - 0.05;
   const pg = ctx.posa('selve', gra, g.z, g.theta, yaw, { h: base, luogo: 'gra_di_pian', tag: (t) => t ?? 'muro' });
   ctx.occupa({ nome: 'gra_di_pian', z: g.z, theta: g.theta, yaw, larghezza: 6, profondita: 7 });
-  // chiodo 37 murato nell'angolo
-  const angolo = pg['angolo'] ?? mondo(cs37.z, cs37.theta, base + 1.1);
+  // chiodo 37 murato nell'angolo: lo spigolo da cui si vedono il chiodo 3 (a Mane) e il Pilastro 4 (a Mont)
+  void pg;
+  const cs3 = RETE.find((c) => c.id === 'cs_3')!;
+  const cs4 = RETE.find((c) => c.id === 'cs_4')!;
+  const b3 = yawVerso(g, cs3);
+  const b4 = yawVerso(g, cs4);
+  // direzione dello spigolo: perpendicolare alla bisettrice dei due bersagli (quasi opposti)
+  const bis = Math.atan2(Math.sin((b3 * Math.PI) / 180) + Math.sin((b4 * Math.PI) / 180), Math.cos((b3 * Math.PI) / 180) + Math.cos((b4 * Math.PI) / 180)) * (180 / Math.PI);
+  const voluta = bis + 90;
+  let migliore = { sx: 1, sz: 1, d: 1e9 };
+  for (const sx of [1, -1]) {
+    for (const sz of [1, -1]) {
+      // spigolo (X = sinistra: bussola yaw - 90; Z = avanti: bussola yaw)
+      const bx = sx > 0 ? yaw - 90 : yaw + 90;
+      const bz = sz > 0 ? yaw : yaw + 180;
+      const dir = Math.atan2(Math.sin((bx * Math.PI) / 180) + Math.sin((bz * Math.PI) / 180), Math.cos((bx * Math.PI) / 180) + Math.cos((bz * Math.PI) / 180)) * (180 / Math.PI);
+      const d = Math.min(Math.abs(((dir - voluta + 540) % 360) - 180), Math.abs(((dir - voluta - 180 + 540) % 360) - 180));
+      if (d < migliore.d) migliore = { sx, sz, d };
+    }
+  }
+  const mG = matriceSuperficie(g.z, g.theta, base, yaw);
+  const pAng = new THREE.Vector3(migliore.sx * 2.21, 1.1, migliore.sz * 2.52);
+  const m = mG.clone().multiply(new THREE.Matrix4().makeTranslation(pAng.x, pAng.y, pAng.z)).multiply(new THREE.Matrix4().makeRotationX((migliore.sz * Math.PI) / 2));
   const ch = creaCaposaldo({ numero: 37, supporto: 'nessuno', segno: true });
-  const m = matriceSuperficie(g.z, g.theta, base, yaw).multiply(new THREE.Matrix4().makeTranslation(2.2, 1.1, 2.52)).multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2));
   ctx.zona('selve').oggetto(ch, m, { tag: () => 'chiodo', luogo: 'gra_di_pian' });
+  const angolo = pAng.clone().add(new THREE.Vector3(0, 0, migliore.sz * 0.06)).applyMatrix4(mG);
   ctx.punto('chiodo:37', 'pianta_squadro', 'Pianta lo squadro sul chiodo 37', angolo, { raggio: 1.8, luogo: 'gra_di_pian', rif: 'cs_37' });
   // legnaia dove c'era il castagno
   const lg = new Costruttore(890);

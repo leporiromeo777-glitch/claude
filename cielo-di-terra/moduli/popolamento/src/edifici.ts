@@ -153,7 +153,8 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
   const zV = -1.4; // centro della vasca
   // piattaforma di lastre e gradino davanti
   b.aggiungi(geoLastra(7.4, 0.5, 6.2, rng.intero(0, 1e6), 0.04), { matrice: mat([0, -0.12, -0.6]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true });
-  b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 2.75]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true });
+  b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 3.4]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true });
+  b.aggiungi(geoLastra(4.0, 0.5, 0.7, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.12, 2.75]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true });
   // vasca
   b.aggiungi(geoBoxC(LX, 0.85, LZ), { matrice: mat([0, 0.55, zV]), colore: 0x9c968e, rumore: 0.05, piatto: true });
   b.aggiungi(geoBoxC(LX - 0.4, 0.04, LZ - 0.4), { matrice: mat([0, 0.86, zV]), colore: 0x3f6f73 });
@@ -198,7 +199,7 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
     collider: [
       box(0, 0.5, zV, LX / 2 + 0.3, 0.5, LZ / 2 + 0.1, 'muro'),
       box(0, 0.06, -0.6, 3.7, 0.06, 3.1, 'calpestabile'),
-      box(0, 0.06, 2.75, 2.1, 0.1, 0.4, 'gradino'),
+      box(0, 0.06, 3.4, 2.1, 0.1, 0.4, 'gradino'),
       cil(-3.1, 0, -3.2, 0.3, hP, 'muro'),
       cil(3.1, 0, -3.2, 0.3, hP, 'muro'),
       cil(-3.1, 0, 1.8, 0.3, hP, 'muro'),
@@ -206,7 +207,7 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
       box(0, hP + 1.0, -0.7, 4.0, 0.9, 3.6, 'tetto'),
     ],
     ingombro: ingombroDa(gruppo),
-    punti: { gradino: new THREE.Vector3(0, 0.08, 2.75), vasca: new THREE.Vector3(0, 0.9, zV + LZ / 2 + 0.4), lume: fiamma },
+    punti: { gradino: new THREE.Vector3(0, 0.08, 3.4), vasca: new THREE.Vector3(0, 0.9, zV + LZ / 2 + 0.4), lume: fiamma },
   });
 }
 
@@ -278,9 +279,9 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
   const H = altezza;
   b.aggiungi(geoTubo([new THREE.Vector3(0, -0.4, 0), new THREE.Vector3(0.1, 1.2, 0.05), new THREE.Vector3(-0.05, 2.4, 0)], [0.55, 0.45, 0.35], 7), { colore: 0x6e3f2c });
   const verdi = [0x24402a, 0x2c4b30, 0x355637, 0x1f3826];
-  for (let k = 0; k < 9; k++) {
-    const t = k / 8;
-    const r = (1 - t * 0.6) * H * 0.3;
+  for (let k = 0; k < 11; k++) {
+    const t = k / 10;
+    const r = (1 - t * 0.62) * Math.min(H * 0.3, 4.6);
     const a = rng.next() * Math.PI * 2;
     const d = (1 - t) * H * 0.12;
     b.aggiungi(geoMassa(r, rng.intero(0, 1e6), 0.22, 1, 0.9), {
@@ -295,7 +296,7 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
     nome: 'tasso',
     seme: s,
     gruppo,
-    collider: [cil(0, -0.4, 0, 0.6, 2.6, 'tronco'), cil(0, 2.1, 0, H * 0.28, H - 2.1, 'chioma')],
+    collider: [cil(0, -0.4, 0, 0.6, 2.6, 'tronco'), cil(0, 2.1, 0, Math.min(H * 0.28, 4.3), H - 2.1, 'chioma')],
     ingombro: ingombroDa(gruppo),
     punti: { tronco: new THREE.Vector3(0, 1.2, 0), chioma: new THREE.Vector3(0, H * 0.6, 0) },
   });
@@ -476,7 +477,7 @@ export function creaAssi(seme: Seme, quante: number, lunghezza: number, accatast
 // ---------------------------------------------------------------- mulino, grà, capanno
 
 /** Mulino di pietra con la ruota ferma sul fianco (+X verso il riale). */
-export function creaMulino(seme: Seme = 'mulino'): OggettoProcedurale {
+export function creaMulino(seme: Seme = 'mulino', ruotaADestra = false): OggettoProcedurale {
   const s = semeNumerico(seme);
   const rng = new Rng(s);
   const b = new Costruttore(rng);
@@ -490,7 +491,8 @@ export function creaMulino(seme: Seme = 'mulino'): OggettoProcedurale {
   porta(b, facciata(0, D / 2, 0), 0.6, 0, 1.0, 1.9, PALETTE.legnoVecchio);
   finestra(b, facciata(0, D / 2, 0), -1.5, 1.3, { larghezza: 0.55, altezza: 0.65, ante: 0x6b4a33, accesa: true });
   // ruota ferma
-  const xR = W / 2 + 0.45;
+  const sR = ruotaADestra ? -1 : 1;
+  const xR = sR * (W / 2 + 0.45);
   const ruota = new THREE.TorusGeometry(1.9, 0.12, 4, 16);
   b.aggiungi(ruota, { matrice: mat([xR, 1.4, 0], [0, Math.PI / 2, 0]), colore: PALETTE.legnoScuro, piatto: true });
   b.aggiungi(new THREE.TorusGeometry(1.2, 0.08, 4, 12), { matrice: mat([xR, 1.4, 0], [0, Math.PI / 2, 0]), colore: PALETTE.legnoScuro, piatto: true });
@@ -499,7 +501,7 @@ export function creaMulino(seme: Seme = 'mulino'): OggettoProcedurale {
     b.aggiungi(geoBoxC(0.08, 0.5, 0.9), { matrice: mat([xR, 1.4 + Math.sin(a) * 1.9, Math.cos(a) * 1.9], [a, 0, 0]), colore: PALETTE.legno, piatto: true });
     if (k % 3 === 0) b.aggiungi(geoBoxC(0.08, 3.6, 0.1), { matrice: mat([xR, 1.4, 0], [a, 0, 0]), colore: PALETTE.legnoScuro, piatto: true });
   }
-  b.aggiungi(geoCilindro(0.18, 0.18, 0.9, 6), { matrice: mat([W / 2, 1.4, 0], [0, 0, -Math.PI / 2]), colore: PALETTE.ferro });
+  b.aggiungi(geoCilindro(0.18, 0.18, 0.9, 6), { matrice: mat([(sR * W) / 2, 1.4, 0], [0, 0, -sR * Math.PI / 2]), colore: PALETTE.ferro });
   // gora di legno
   b.aggiungi(geoBoxC(0.9, 0.4, 4.0), { matrice: mat([xR, 3.5, -2.6], [0.18, 0, 0]), colore: PALETTE.legnoGrigio, piatto: true });
   // soglia di pietra (chiodo 7)

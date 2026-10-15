@@ -80,9 +80,9 @@ export function costruisciChiesa(ctx: Contesto): void {
   posaChiodo(ctx, 'chiesa', cs2.numero, cs2.z, cs2.theta, 'cs_2', 'sagrato');
   // il tasso del sagrato
   const t = luogo('tasso');
-  const tasso = creaTasso('tasso-sagrato', 10.5);
+  const tasso = creaTasso('tasso-sagrato', 19);
   ctx.posa('chiesa', tasso, t.z, t.theta, 20, { luogo: 'tasso' });
-  ctx.occupa({ nome: 'tasso', z: t.z, theta: t.theta, raggio: 3.5 });
+  ctx.occupa({ nome: 'tasso', z: t.z, theta: t.theta, raggio: 5 });
   ctx.punto('esamina:tasso', 'esamina', 'Il tasso del sagrato', ctx.qui(t.z, t.theta, 1.4), { raggio: 3, luogo: 'tasso' });
 }
 

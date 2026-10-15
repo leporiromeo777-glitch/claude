@@ -111,7 +111,7 @@ export function costruisciPiazza(ctx: Contesto): void {
   const campanile = luogo('campanile');
   // il davanti (gradino) volta le spalle al campanile: dal chiodo, guardando la cella, c'è la tettoia
   const yawL = yawVerso(lv, campanile) + 180;
-  const centroL = spostaYaw(lv.z, lv.theta, yawL + 180, 2.75, 35.5);
+  const centroL = spostaYaw(lv.z, lv.theta, yawL + 180, 3.4, 35.5);
   const baseL = suolo(cs5.z, cs5.theta) + 0.05;
   const pl = ctx.posa('piazza', creaLavatoio('lavatoio-piazza'), centroL.z, centroL.theta, yawL, { h: baseL, luogo: 'lavatoio' });
   ctx.occupa({ nome: 'lavatoio', z: centroL.z, theta: centroL.theta, yaw: yawL, larghezza: 8, profondita: 7.5 });
