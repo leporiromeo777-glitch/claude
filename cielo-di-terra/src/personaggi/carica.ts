@@ -112,6 +112,26 @@ function materiale(orig: THREE.Material, opz: OpzioniCaricamento): THREE.Materia
   }
 }
 
+/** Vertici del LOD0 a riposo nello spazio della radice della copia (calcolati una volta per GLB). */
+const riposo = new WeakMap<GLTF, { punti: THREE.Vector3[]; box: THREE.Box3 }>();
+function puntiARiposo(gltf: GLTF, radice: THREE.Object3D, m: THREE.SkinnedMesh): { punti: THREE.Vector3[]; box: THREE.Box3 } {
+  let r = riposo.get(gltf);
+  if (r) return r;
+  radice.updateMatrixWorld(true);
+  const verso = new THREE.Matrix4().copy(radice.matrixWorld).invert().multiply(m.matrixWorld);
+  const n = m.geometry.getAttribute('position').count;
+  const punti: THREE.Vector3[] = [];
+  const box = new THREE.Box3();
+  for (let i = 0; i < n; i++) {
+    const p = m.getVertexPosition(i, new THREE.Vector3()).applyMatrix4(verso);
+    punti.push(p);
+    box.expandByPoint(p);
+  }
+  r = { punti, box };
+  riposo.set(gltf, r);
+  return r;
+}
+
 /** Crea una copia animabile di un personaggio. */
 export async function caricaPersonaggio(url: string, opz: OpzioniCaricamento = {}): Promise<ModelloPersonaggio> {
   const gltf = await scaricaPersonaggio(url);
@@ -137,22 +157,22 @@ export async function caricaPersonaggio(url: string, opz: OpzioniCaricamento = {
   });
   lod.sort((a, b) => a.name.localeCompare(b.name));
   if (!lod.length) throw new Error(`${url}: nessuna SkinnedMesh`);
-  // altezza: dall'ingombro della geometria a riposo
-  const box = new THREE.Box3();
-  for (const m of lod) {
-    m.geometry.computeBoundingBox();
-    box.union(m.geometry.boundingBox as THREE.Box3);
-    // le braccia e le gambe escono dall'ingombro di riposo: sfera più larga per il frustum culling
-    m.geometry.computeBoundingSphere();
-    (m.geometry.boundingSphere as THREE.Sphere).radius *= 1.3;
-  }
+  // Ingombro a riposo nello spazio del modello. Non dalla geometria: con KHR_mesh_quantization le
+  // posizioni sono interi normalizzati e la scala sta nelle matrici di bind dello scheletro, quindi
+  // l'ingombro della geometria è in unità quantizzate (l'altezza veniva sempre 2). Si passa dai vertici
+  // con la deformazione dello scheletro a riposo (getVertexPosition) e dalla matrice della mesh.
+  const { punti, box } = puntiARiposo(gltf, copia, lod[0] as THREE.SkinnedMesh);
   const altezza = box.max.y - box.min.y;
+  for (const m of lod) {
+    // le braccia e le gambe escono dall'ingombro di riposo: sfera più larga per il frustum culling
+    m.computeBoundingSphere();
+    if (m.boundingSphere) m.boundingSphere.radius *= 1.3;
+  }
   // dove sta la superficie del petto (per le mani): il punto più avanti del busto fra 0,66 e 0,78 H
-  const pos0 = (lod[0] as THREE.SkinnedMesh).geometry.getAttribute('position');
   let fronteBusto = -Infinity;
-  for (let i = 0; i < pos0.count; i++) {
-    const y = pos0.getY(i) - box.min.y;
-    if (y > 0.66 * altezza && y < 0.78 * altezza && Math.abs(pos0.getX(i)) < 0.08 * altezza) fronteBusto = Math.max(fronteBusto, pos0.getZ(i));
+  for (const p of punti) {
+    const y = p.y - box.min.y;
+    if (y > 0.66 * altezza && y < 0.78 * altezza && Math.abs(p.x) < 0.08 * altezza) fronteBusto = Math.max(fronteBusto, p.z);
   }
   const animatore = new AnimatorePersonaggio(copia, { ...opz, altezza, ...(Number.isFinite(fronteBusto) ? { fronteBusto } : {}) });
   const distanzaLod = opz.distanzaLod ?? 16;

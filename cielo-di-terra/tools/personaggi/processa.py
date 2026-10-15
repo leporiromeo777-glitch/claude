@@ -13,16 +13,18 @@ Passi (tutto in bpy, senza interfaccia):
     del gioco), scelta della fronte dai piedi (sporgono in avanti) o da --ruota;
  4. scala all'altezza voluta, piedi a z=0, centrato sul bacino;
  5. analisi delle proporzioni per lo scheletro: piedi (due gruppi in basso), mani (estremi laterali),
-    linea delle braccia (sezioni orizzontali: il braccio è il gruppo più esterno staccato dal busto);
+    braccia (polso e gomito al centro dell'anello della manica, spalla dentro il bordo delle spalle,
+    poi i due lati resi simmetrici: le sorgenti sono in A-pose simmetrica);
  6. armatura umanoide di 17 ossa: bacino, schiena, petto, collo, testa, braccio/avambraccio/mano,
     coscia/stinco/piede (S = sinistra del personaggio, D = destra);
  7. LOD0 e LOD1 per decimazione (collasso) del modello pulito;
  8. pesi: bone heat sul modello pulito ad alta risoluzione (dopo la fusione dei doppi tripo e sam
     sono un'isola sola); se lascia più del 2% dei vertici senza peso, bone heat su un PROXY chiuso
     (rimesh a voxel). Poi trasferimento dei pesi a ogni LOD (punto più vicino, baricentriche) e
-    correzioni geometriche: braccia solo sui vertici del braccio, gonne sfumate verso il bacino,
-    testa rigida, piedi; massimo 4 influenze, normalizzate;
- 9. materiale: metallico 0, ruvidità 1, una texture ridotta a --texture px (JPEG nel GLB);
+    correzioni geometriche: braccia solo sui vertici del braccio, omero e gomito (maniche larghe,
+    sbuffi) al braccio, gonne sfumate verso il bacino, testa rigida, piedi; massimo 4 influenze;
+ 9. materiale: metallico 0, ruvidità 1, una texture ridotta a --texture px (JPEG nel GLB), con i
+    texel quasi neri dell'atlante riempiti dai vicini;
 10. esportazione GLB: armatura + mesh «lod0» e «lod1» che condividono scheletro e materiale;
     poi KHR_mesh_quantization con gltf-transform (npx);
 11. rapporto in tools/personaggi/rapporti/<id>.json.
@@ -229,16 +231,6 @@ def orienta_e_scala(o, altezza: float, ruota_gradi: float | None):
 
 # --------------------------------------------------------------------------- 5 analisi
 
-def gruppi_1d(x: np.ndarray, salto: float):
-    """Divide valori 1D ordinati in gruppi separati da buchi più larghi di `salto`."""
-    if len(x) == 0:
-        return []
-    o = np.sort(x)
-    tagli = np.where(np.diff(o) > salto)[0]
-    gruppi = np.split(o, tagli + 1)
-    return gruppi
-
-
 def analizza(o, H: float, prop: dict) -> dict:
     v = vertici(o)
     z = v[:, 2]
@@ -285,9 +277,14 @@ def analizza(o, H: float, prop: dict) -> dict:
         J[f'caviglia{nome}'] = Vector((xa, yc, 0.05 * H))
         J[f'punta{nome}'] = Vector((xa, min(ytoe + 0.02 * H, yc - 0.06 * H), 0.012 * H))
 
-    # --- braccia: sezioni orizzontali, il gruppo più esterno staccato dal busto
-    salto = 0.010 * H
+    # --- braccia. Le sezioni orizzontali «gruppo più esterno» del pilota sbagliano con le maniche larghe
+    # e le mesh rade (una sezione di manica cava si spezza in frammenti e il frammento più esterno tira il
+    # gomito fuori dal braccio). Qui: punta delle dita misurata; polso e gomito come CENTRO DELL'ANELLO
+    # della manica attorno a una retta di prima stima; spalla dalla larghezza delle spalle; infine le due
+    # braccia si rendono simmetriche (le immagini sorgente sono in A-pose simmetrica), così un lato
+    # disturbato da un velo o da uno scialle non storce lo scheletro.
     banda = 0.012 * H
+    lati_b = {}
     for nome, seg in (('S', 1), ('D', -1)):
         lato = v[v[:, 0] * seg > 0]
         cand = lato[(lato[:, 2] > 0.25 * H) & (lato[:, 2] < 0.8 * H)]
@@ -295,71 +292,55 @@ def analizza(o, H: float, prop: dict) -> dict:
         # fondo della mano: il punto più basso vicino alla punta
         vicino = cand[(np.linalg.norm(cand - punta, axis=1) < 0.1 * H) & (cand[:, 0] * seg > punta[0] * seg - 0.05 * H)]
         zbasso = float(vicino[:, 2].min())
-        centri = []
-        larghe = []
-        zz = zbasso + banda / 2
-        while zz < 0.86 * H:
-            m = np.abs(lato[:, 2] - zz) < banda / 2
-            xs = lato[m][:, 0] * seg
-            if len(xs) < 3:
-                zz += banda
-                continue
-            gr = gruppi_1d(xs, salto)
-            if len(gr) < 2:
-                break  # il braccio tocca il busto (ascella o mantellina)
-            est = gr[-1]
-            if np.ptp(est) > 0.16 * H:
-                break
-            sel = lato[m][(xs >= est.min()) & (xs <= est.max())]
-            c = (float(sel[:, 0].mean()), float(sel[:, 1].mean()), zz)
-            # continuità: il braccio sale verso il busto a piccoli passi; un salto vuol dire che il gruppo
-            # esterno ora è un'altra cosa (l'orlo di una mantellina, il velo, la tesa del cappello)
-            if len(centri) > 4 and (abs(c[0] - centri[-1][0]) > 0.045 * H or abs(c[1] - centri[-1][1]) > 0.045 * H):
-                break
-            centri.append(c)
-            larghe.append(float(np.ptp(est)))
-            zz += banda
-        centri = np.array(centri) if centri else np.zeros((0, 3))
-        larghe = np.array(larghe)
-        zasc = float(centri[-1, 2]) if len(centri) else zbasso + 0.2 * H
-        log(f'braccio {nome}: punta {np.round(punta, 3)}, fondo mano z {zbasso:.3f}, ascella/mantella z {zasc:.3f}, sezioni {len(centri)}')
-        # linea del braccio: retta ai minimi quadrati sui centri sopra il polso
         zpolso = zbasso + prop['mano'] * H
-        su = centri[(centri[:, 2] >= zpolso) & (centri[:, 2] <= prop['spalla'] * H - 0.06 * H)] if len(centri) else centri
-        if len(su) >= 3:
-            A = np.c_[su[:, 2], np.ones(len(su))]
-            kx, qx = np.linalg.lstsq(A, su[:, 0], rcond=None)[0]
-            ky, qy = np.linalg.lstsq(A, su[:, 1], rcond=None)[0]
-        else:
-            # ripiego: retta dalla punta alla spalla delle proporzioni
-            kx = (seg * 0.11 * H - punta[0]) / (0.8 * H - punta[2])
-            qx = punta[0] - kx * punta[2]
-            ky, qy = 0.0, float(punta[1])
-        lin = lambda zq: Vector((kx * zq + qx, ky * zq + qy, zq))
-        zsp = min(max(zasc + 0.06 * H, prop['spalla'] * H - 0.03 * H), prop['spalla'] * H + 0.02 * H)
-        spalla = lin(zsp)
-        # la spalla non va fuori dal busto né dentro il collo
-        spalla.x = seg * min(max(abs(spalla.x), 0.07 * H), 0.15 * H)
-        spalla.y = centro_y(zsp - 0.03 * H, zsp + 0.03 * H)
-        polso = lin(zpolso)
-        # gomito: a metà fra spalla e polso, sulla linea vera del braccio se c'è una sezione lì
-        zg = (spalla.z + polso.z) / 2
-        gomito = lin(zg)
-        if len(centri):
-            k = int(np.argmin(np.abs(centri[:, 2] - zg)))
-            if abs(centri[k, 2] - zg) < 0.03 * H:
-                gomito = Vector(centri[k])
-        gomito.y += 0.008 * H  # un filo indietro: la piega naturale del gomito
-        dita = Vector((float(punta[0]), float(punta[1]), float(zbasso) + 0.01 * H))
+        zsp = prop['spalla'] * H
+        # spalla: un po' dentro il bordo esterno delle spalle (deltoide, o l'orlo di un velo che vi cade sopra)
+        fascia = lato[np.abs(lato[:, 2] - (zsp - 0.03 * H)) < banda]
+        bordo = float((fascia[:, 0] * seg).max()) if len(fascia) else 0.16 * H
+        xs = min(max(bordo - 0.045 * H, 0.085 * H), 0.14 * H)
+
+        def anello(zc, xc, larg):
+            """Centro (x, y) e ampiezza dei vertici in una fascia orizzontale attorno a (zc, xc)."""
+            m = (np.abs(lato[:, 2] - zc) < banda) & (np.abs(lato[:, 0] * seg - xc) < larg)
+            s = lato[m]
+            if len(s) < 4:
+                return None
+            return float(s[:, 0].mean()) * seg, float(s[:, 1].mean()), float(np.ptp(s[:, 0]))
+
+        # polso: anello attorno al punto sopra la punta delle dita
+        xp0 = float(punta[0] * seg) - 0.02 * H
+        a = anello(zpolso, xp0, 0.05 * H)
+        xp, yp = (a[0], a[1]) if a else (xp0, float(punta[1]))
+        # gomito: anello attorno al punto a metà della retta spalla-polso (un po' più vicino alla spalla)
+        zg = zsp + 0.52 * (zpolso - zsp)
+        xg0 = xs + 0.52 * (xp - xs)
+        a = anello(zg, xg0 + 0.01 * H, 0.055 * H)
+        xg, yg = (a[0], a[1]) if a else (xg0, yp)
+        # raggio dell'avambraccio (serve ai pesi): ampiezza dell'anello a metà avambraccio
+        zm = (zg + zpolso) / 2
+        a = anello(zm, (xg + xp) / 2, 0.055 * H)
+        r = 0.55 * a[2] if a else 0.04 * H
+        lati_b[nome] = dict(seg=seg, punta=punta, zbasso=zbasso, xs=xs, zsp=zsp, xg=xg, yg=yg, zg=zg,
+                            xp=xp, yp=yp, zpolso=zpolso, r=r)
+        log(f'braccio {nome}: punta {np.round(punta, 3)}, fondo mano z {zbasso:.3f}, spalla x {xs / H:.3f} H '
+            f'(bordo {bordo / H:.3f} H), gomito x {xg / H:.3f} H, polso x {xp / H:.3f} H, raggio {r / H:.3f} H')
+    # simmetria: media dei due lati (le y restano le proprie medie, x speculari)
+    S_, D_ = lati_b['S'], lati_b['D']
+    med = {k: (S_[k] + D_[k]) / 2 for k in ('xs', 'xg', 'yg', 'zg', 'xp', 'yp', 'zpolso', 'r')}
+    diff = max(abs(S_[k] - D_[k]) for k in ('xs', 'xg', 'xp')) / H
+    log(f'braccia: scarto fra i lati {diff:.3f} H (resi simmetrici)')
+    for nome, b in lati_b.items():
+        seg = b['seg']
+        spalla = Vector((seg * med['xs'], 0.0, b['zsp']))
+        spalla.y = centro_y(b['zsp'] - 0.03 * H, b['zsp'] + 0.03 * H)
+        gomito = Vector((seg * med['xg'], med['yg'] + 0.008 * H, med['zg']))  # un filo indietro: la piega del gomito
+        polso = Vector((seg * med['xp'], med['yp'], med['zpolso']))
+        dita = Vector((float(b['punta'][0]), float(b['punta'][1]), float(b['zbasso']) + 0.01 * H))
         J[f'spalla{nome}'] = spalla
         J[f'gomito{nome}'] = gomito
         J[f'polso{nome}'] = polso
         J[f'dita{nome}'] = dita
-        # raggio dell'avambraccio (dalle sezioni fra polso e gomito): serve ai pesi
-        tra = (centri[:, 2] > zpolso) & (centri[:, 2] < zg) if len(centri) else np.zeros(0, dtype=bool)
-        r = 0.6 * float(np.median(larghe[tra])) + 0.008 * H if tra.any() else 0.045 * H
-        J[f'r{nome}'] = float(min(max(r, 0.025 * H), 0.06 * H))
-        log(f'braccio {nome}: raggio avambraccio {J[f"r{nome}"]:.3f}')
+        J[f'r{nome}'] = float(min(max(med['r'], 0.025 * H), 0.06 * H))
 
     # --- collo: per chi ha la testa scoperta (o un velo aderente) il collo è la sezione più stretta
     # fra le spalle e la testa; sotto un velo a mantellina non c'è restringimento e valgono le proporzioni
@@ -370,6 +351,7 @@ def analizza(o, H: float, prop: dict) -> dict:
         return float(np.ptp(s[:, 0])) if len(s) > 5 else 0.0
     zs = np.arange(prop['collo'] - 0.06, prop['testa'] + 0.05, 0.005) * H
     ws = np.array([larghezza(zc) for zc in zs])
+    ws[ws <= 0] = np.inf  # fasce senza vertici (mesh rada): non sono un collo
     testa_l = max(larghezza(zc) for zc in np.arange(prop['testa'] + 0.03, prop['testa'] + 0.09, 0.01) * H)
     k = int(np.argmin(ws))
     if 0 < k < len(zs) - 1 and ws[k] < 0.8 * testa_l:
@@ -645,6 +627,38 @@ def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: floa
             g /= g.sum(1, keepdims=True)
             P[lontano] = 0
             P[np.ix_(lontano, ossa_b)] = g
+        # Il braccio dalla metà dell'omero a metà dell'avambraccio è braccio: maniche a sbuffo, risvolti,
+        # il dietro di una manica larga. Il bone heat li dava spesso al petto (il gomito è vicino al fianco
+        # nella posa ad A): quando l'animatore abbassa le braccia restavano indietro e se ne vedeva l'interno
+        # scuro. Criterio: vicino alla catena del braccio molto più che all'asse del busto.
+        seg = 1 if n == 'S' else -1
+        S_, W_ = np.array(J['spalla' + n]), np.array(J['polso' + n])
+        asse = W_ - S_
+        t = ((v - S_) @ asse) / float(asse @ asse)
+        # (non solo l'insieme «braccio» raggiungibile dalle dita: i pezzi di manica staccati dal braccio
+        # nella mesh, come gli sbuffi, non ci arrivano; sopra il bacino, così la gonna vicino alle mani resta)
+        cand = ~lontano & (t > 0.25) & (t < 0.8) & (x * seg > 0) & (z > J['bacino'].z)
+        if cand.any():
+            pts = v[cand]
+            d = np.stack([
+                dist_segmento(pts, S_, np.array(J['gomito' + n])),
+                dist_segmento(pts, np.array(J['gomito' + n]), W_),
+                dist_segmento(pts, W_, np.array(J['dita' + n])),
+            ], 1)
+            dbr = d.min(1)
+            yb = np.interp(pts[:, 2], [J['bacino'].z, J['schiena'].z, J['petto'].z, J['collo'].z],
+                           [J['bacino'].y, J['schiena'].y, J['petto'].y, J['collo'].y])
+            dasse = np.hypot(pts[:, 0], pts[:, 1] - yb)
+            rapporto = dbr / np.maximum(dasse, 1e-6)
+            a = smussa(rapporto, 0.45, 0.25) * smussa(t[cand], 0.25, 0.42)
+            g = 1 / np.maximum(d, 0.004 * H) ** 4
+            g /= g.sum(1, keepdims=True)
+            nuovo = np.zeros((len(pts), len(nomi)))
+            nuovo[:, ossa_b] = g
+            prima = P[cand][:, ossa_b].sum(1)
+            P[cand] = (1 - a[:, None]) * P[cand] + a[:, None] * nuovo
+            log(f'{mesh.name}: braccio {n}, {int((a > 0.5).sum())} vertici di omero e gomito portati al braccio '
+                f'({int(((prima < 0.5) & (a > 0.5)).sum())} pesavano meno di metà sul braccio)')
     # chi è rimasto senza peso: al petto sopra la vita, al bacino sotto
     vuoti = P.sum(1) < 1e-4
     P[vuoti & (z >= J['schiena'].z), i['petto']] = 1
@@ -695,6 +709,38 @@ def lega(mesh, arm):
 
 # --------------------------------------------------------------------------- 9 materiale
 
+def riempi_neri(im, soglia: float = 16 / 255, passi: int = 48):
+    """I texel quasi neri dell'atlante (sam_3_3d lascia nero dove nessuna vista dell'immagine arriva:
+    punte delle dita, risvolti delle maniche, l'interno dei veli) si vedono come macchie e buchi neri
+    sui panni. Si riempiono dai vicini non neri (media dei vicini, a passi); nelle zone scure vere (la
+    veste di Clelia, il feltro di Bortolo) i vicini sono scuri anch'essi e il colore non cambia."""
+    w, h = im.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    im.pixels.foreach_get(px)
+    a = px.reshape(h, w, 4)
+    rgb = a[:, :, :3].copy()
+    buco = rgb.max(2) < soglia
+    n0 = int(buco.sum())
+    if not n0:
+        return
+    for _ in range(passi):
+        if not buco.any():
+            break
+        somma = np.zeros_like(rgb)
+        conta = np.zeros(buco.shape, dtype=np.float32)
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)):
+            pieno = np.roll(~buco, (dy, dx), (0, 1))
+            somma += np.roll(rgb, (dy, dx), (0, 1)) * pieno[:, :, None]
+            conta += pieno
+        nuovi = buco & (conta > 0)
+        rgb[nuovi] = somma[nuovi] / conta[nuovi][:, None]
+        buco &= ~nuovi
+    a[:, :, :3] = rgb
+    im.pixels.foreach_set(a.reshape(-1))
+    im.update()
+    log(f'texture: {n0} texel quasi neri riempiti dai vicini ({n0 / (w * h) * 100:.1f}%)')
+
+
 def prepara_materiale(o, lato_tex: int, nome: str):
     mats = [s.material for s in o.material_slots if s.material]
     for m in mats:
@@ -719,6 +765,7 @@ def prepara_materiale(o, lato_tex: int, nome: str):
                         if im.size[0] > lato_tex or im.size[1] > lato_tex:
                             im.scale(lato_tex, lato_tex)
                         im.name = f'{nome}_colore'
+                        riempi_neri(im)
             nm = bsdf.inputs.get('Normal')
             if nm:
                 for l in list(nm.links):

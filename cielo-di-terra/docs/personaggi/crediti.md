@@ -21,3 +21,7 @@ Nota: `count: 2` di `gpt_image_2_5` a qualità media costa 1 credito in tutto (0
 
 **Totale del pilota: 13 crediti** (saldo 76,97 → 63,97, letto dopo l'ultima spesa). Restano 37 crediti sotto il tetto di 50.
 Piano per gli altri 11 modelli (PIPELINE.md): 11 coppie di immagini (11) + 10 `sam_3_3d` (10) + Ottavio con `tripo_h3_1_image_to_3d` (9) = 30, cioè 43 su 50; margine 7 per rifare Nando con la frase VOLTO e per qualche ritiro di sam con un altro `seed`.
+
+**Produzione: 32 crediti** (saldo 63,97 → 31,97, letto con `balance` dopo l'ultima spesa): 1 (immagini di Bortolo, della sessione interrotta) + 11 (immagini degli altri 11) + 9 (tripo per Ottavio) + 10 (sam: 11 lanci, uno fallito e rimborsato) + 1 (secondo sam di Gioanin). A parte il secondo tentativo per Gioanin non è servito rifare niente: tutte le 24 immagini erano usabili e i 12 modelli 3D anche.
+
+**Totale personaggi: 45 crediti su 50** (pilota 13 + produzione 32). Restano 5 crediti sotto il tetto, non spesi.

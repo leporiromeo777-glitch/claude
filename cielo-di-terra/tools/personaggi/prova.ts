@@ -5,8 +5,22 @@
  * Per le schermate automatiche espone window.__PROVA__ (tools/personaggi/fotografa.mjs).
  */
 import * as THREE from 'three';
-import { caricaPersonaggio, type GestoPersonaggio, type ModelloPersonaggio, type PosaBraccia, type StatoPersonaggio, type StileMateriale } from '../../src/personaggi';
+import {
+  attaccaOggetto,
+  caricaIndice,
+  caricaPersonaggio,
+  opzioniDaIndice,
+  type GestoPersonaggio,
+  type IndicePersonaggi,
+  type ModelloPersonaggio,
+  type PosaBraccia,
+  type StatoPersonaggio,
+  type StileMateriale,
+} from '../../src/personaggi';
 import { creaAbitante } from '../../src/oggetti/oggetti/abitante';
+
+let indiceP: Promise<IndicePersonaggi> | null = null;
+const indice = () => (indiceP ??= caricaIndice('../../public/personaggi/'));
 
 const q = new URLSearchParams(location.search);
 const modelli = (q.get('m') ?? 'togna').split(',').filter(Boolean);
@@ -64,8 +78,22 @@ interface Figura {
   altezza: number;
 }
 
+// gli abitanti procedurali di oggi, per il confronto: copia di ASPETTO e dei VELATI di
+// src/popolamento/abitanti.ts (i quattro generici sono i velati più vicini ai nuovi modelli)
 const ASPETTO_VECCHIO: Record<string, Parameters<typeof creaAbitante>[0]> = {
+  ottavio: { seme: 'ottavio', copricapo: 'velo', corporatura: 'esile', postura: 'eretta', colore: 0x5c7442, coloreVelo: 0x4f8a46 },
+  pina: { seme: 'pina', copricapo: 'cappuccio', corporatura: 'anziana', postura: 'curva', colore: 0x7c766e, coloreVelo: 0x8d8780 },
   togna: { seme: 'togna', copricapo: 'velo', corporatura: 'robusta', postura: 'curva', colore: 0xd9d0bf, coloreVelo: 0x6a4a31 },
+  bortolo: { seme: 'bortolo', copricapo: 'cappello', corporatura: 'robusta', postura: 'mani-dietro', colore: 0x5a4a3a, coloreVelo: 0x1f1d22 },
+  annunciata: { seme: 'annunciata', copricapo: 'velo', corporatura: 'anziana', postura: 'mani-giunte', colore: 0x4b3322, coloreVelo: 0x4b3322, bastone: true },
+  nando: { seme: 'nando', copricapo: 'cappello', corporatura: 'robusta', postura: 'eretta', colore: 0xcfbd97, coloreVelo: 0x8a7a5a, guanti: false },
+  clelia: { seme: 'clelia', copricapo: 'maschera-liscia', corporatura: 'esile', postura: 'mani-giunte', colore: 0x1b191e, coloreVelo: 0x141216 },
+  lisa: { seme: 'lisa', copricapo: 'velo', corporatura: 'bambino', postura: 'eretta', colore: 0xe9e3d6, coloreVelo: 0xf2eee4 },
+  gioanin: { seme: 'gioanin', copricapo: 'velo', corporatura: 'bambino', postura: 'eretta', colore: 0xe2dccc, coloreVelo: 0xf4f0e6 },
+  velata_donna: { seme: 'velata_donna', copricapo: 'velo', corporatura: 'media' },
+  velato_gerla: { seme: 'velato_gerla', copricapo: 'velo', corporatura: 'media', gerla: true },
+  velato_maschera: { seme: 'velato_maschera', copricapo: 'maschera', corporatura: 'anziana', bastone: true },
+  velato_cappuccio: { seme: 'velato_cappuccio', copricapo: 'cappuccio', corporatura: 'esile' },
 };
 
 async function figura(id: string): Promise<Figura> {
@@ -73,7 +101,7 @@ async function figura(id: string): Promise<Figura> {
     const chi = id.split(':')[1] ?? 'togna';
     const a = creaAbitante(ASPETTO_VECCHIO[chi] ?? { seme: chi });
     return {
-      nome: `oggi: ${chi} (procedurale)`,
+      nome: q.get('nomi') === '1' ? chi : `oggi: ${chi} (procedurale)`,
       gruppo: a.gruppo,
       altezza: a.ingombro.altezza,
       update: (dt, s) => a.update?.(dt, { modo: s.modo ?? 'fermo', velocita: s.velocita ?? 1.1, guarda: s.guarda ?? null, gesto: s.gesto ?? 'nessuno' }),
@@ -81,18 +109,34 @@ async function figura(id: string): Promise<Figura> {
   }
   const url = id.startsWith('pilota:') ? `./pilota/${id.slice(7)}.glb` : `../../public/personaggi/${id}.glb`;
   // lod=1 forza il livello basso (distanza di passaggio 0)
-  const m: ModelloPersonaggio = await caricaPersonaggio(url, {
+  // con indice=1 gonna, apertura e postura di riposo vengono da public/personaggi/indice.json
+  const voce = q.get('indice') === '1' ? (await indice()).personaggi.find((p) => p.id === id) : undefined;
+  const base = {
     stile,
     gonna: q.get('gonna') !== '0',
     apertura: Number(q.get('apertura') ?? 12),
     ...(q.get('lod') === '1' ? { distanzaLod: 0 } : {}),
-  });
+  };
+  const m: ModelloPersonaggio = await caricaPersonaggio(url, voce ? opzioniDaIndice(voce, { stile: base.stile, ...(q.get('lod') === '1' ? { distanzaLod: 0 } : {}) }) : base);
+  const curvo = voce?.curvo ?? 0;
+  if (voce && q.get('oggetti') !== '0') {
+    // gli oggetti di scena dell'indice (bastone, gerla...), attaccati nella posa di riposo
+    m.update(0, { curvo });
+    for (const o of voce.oggetti) attaccaOggetto(m, o);
+  }
   const tri = m.lod.map((x) => (x.geometry.index ? x.geometry.index.count : x.geometry.getAttribute('position').count) / 3);
-  return { nome: `${id} (${tri.map((x) => Math.round(x)).join(' / ')} tri)`, gruppo: m.gruppo, altezza: m.altezza, update: (dt, s) => m.update(dt, s, camera) };
+  const nome = q.get('nomi') === '1' ? `${id}\n${m.altezza.toFixed(2).replace('.', ',')} m` : `${id} (${tri.map((x) => Math.round(x)).join(' / ')} tri)`;
+  return { nome, gruppo: m.gruppo, altezza: m.altezza, update: (dt, s) => m.update(dt, { ...s, curvo: Math.max(s.curvo ?? 0, curvo) }, camera) };
 }
 
 const figure: Figura[] = [];
 const etichette = document.getElementById('etichette') as HTMLDivElement;
+if (q.get('nomi') === '1') {
+  // modo «scheda» (tools/personaggi/scheda.mjs): etichette grandi, niente riga di stato
+  etichette.style.fontSize = '22px';
+  etichette.style.bottom = '8px';
+  (document.getElementById('info') as HTMLDivElement).style.display = 'none';
+}
 const stato: StatoPersonaggio = {
   modo: (q.get('modo') as 'fermo' | 'cammina') ?? 'fermo',
   velocita: Number(q.get('velocita') ?? 1.1),
@@ -105,7 +149,7 @@ let vista = q.get('vista') ?? 'tre-quarti';
 
 function inquadra(): void {
   const n = figure.length;
-  const passo = 1.15;
+  const passo = Number(q.get('passo') ?? 1.15);
   const largo = (n - 1) * passo + 1.2;
   const alto = Math.max(1.8, ...figure.map((f) => f.altezza)) + 0.3;
   const fov = THREE.MathUtils.degToRad(camera.fov);
@@ -132,6 +176,12 @@ function inquadra(): void {
     const p = f.gruppo.position.clone().project(camera);
     const s = document.createElement('span');
     s.textContent = f.nome;
+    if (q.get('nomi') === '1') {
+      // due righe (nome, altezza) appoggiate al fondo
+      s.style.whiteSpace = 'pre-line';
+      s.style.textAlign = 'center';
+      s.style.bottom = '0';
+    }
     s.style.left = `${((p.x + 1) / 2) * innerWidth}px`;
     etichette.appendChild(s);
   });

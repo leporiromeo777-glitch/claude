@@ -4,6 +4,7 @@
  *
  *   node tools/personaggi/fotografa.mjs --out=<cartella> [--m=vecchio,togna,nando] [--size=1280x720]
  *          [--stile=toon] [--sfondo=<url>] [--lod=1] [--luce=sera] [--primo=1] [--solo=viste,cammina,gesti,primo,sfondo]
+ *          [--indice=1] [--passo=0.9] [--nomi=1] [--oggetti=0]   (parametri passati a prova.html)
  *
  * Avvia Vite in modalità sviluppo sulla cartella del gioco, apre Chromium headless con WebGL2 via
  * SwiftShader (come scripts/shots.mjs) e salva:
@@ -49,6 +50,7 @@ async function apri(params) {
   if (args.luce) qs.set('luce', args.luce);
   if (args.primo) qs.set('primo', args.primo);
   if (args.sfondo) qs.set('sfondo', args.sfondo);
+  for (const k of ['indice', 'passo', 'nomi', 'oggetti']) if (args[k]) qs.set(k, args[k]);
   await page.goto(`${base}?${qs}`);
   await page.evaluate(() => window.__PROVA__.pronto);
   return page;

@@ -71,7 +71,9 @@ Il prompt completo lo compone `tools/personaggi/prompt.py --id <id>` (STILE + RI
 
 ## I tredici modelli
 
-Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra personaggi si leggono meglio della corporatura).
+Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra personaggi si leggono meglio della corporatura). Adulti fra 1,60 e 1,80 m; le due vecchie più piccole di proposito (Pina 1,52, Annunciata 1,56: «minuta», «esile»), e la curva gliela dà l'animatore (`curvo` nell'indice); bambini 1,12 (Gioanin) e 1,25 (Lisa, prima 1,30: i bambini stanno fra 1,10 e 1,25).
+
+Tutti fatti: le immagini scelte sono in [`sorgenti/`](sorgenti/) ([`sorgenti/tutte.jpg`](sorgenti/tutte.jpg)), i modelli in `public/personaggi/<id>.glb`, l'elenco in `public/personaggi/indice.json`, la scheda in [`scheda-cast.png`](scheda-cast.png). Che cosa è uscito diverso dal previsto è in fondo a ogni voce («Fatto»).
 
 ### 1. Ottavio, detto Ventin — `ottavio` (1,74 m)
 - **Chi**: il Messo, 17 anni; plana fra le valli con il Velo verde. Primo amico di Elvira.
@@ -83,8 +85,9 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: il Velo da planata addosso (è un oggetto a parte), coltelli, cappelli, sorrisi forzati.
 - **Prompt**:
 > A lean 17-year-old messenger boy from an alpine chestnut-forest village, long legs and narrow shoulders, short messy brown hair under a green gauze racing band tied around the forehead with two short tails at the back, a young thin face with thick eyebrows, a few freckles and a calm expression, rough natural hemp shirt with sleeves rolled below the elbows, short sage-green racing waistcoat, brown corduroy breeches gathered below the knee, grey wool socks, low leather boots, a closed leather messenger satchel on a strap across the chest hanging at the left hip, a plain leather belt, empty open hands.
+- **Fatto**: `tripo_h3_1`, variante (a), la più calma; volto dipinto e semplice, mani con le dita. Il lume e il Velo da planata restano oggetti a parte.
 
-### 2. Togna — `togna` (1,62 m) — PILOTA (fatta: `public/personaggi/togna.glb`, tripo)
+### 2. Togna — `togna` (1,62 m) — dal pilota (`public/personaggi/togna.glb`, tripo)
 - **Chi**: la lavandaia del lavatoio in piazza; china sulla vasca, parla al bucato.
 - **Silhouette**: robusta, bassa, fianchi larghi; testa a cupola morbida del velo che si allarga sulle spalle; grembiule bianco che spicca sul noce.
 - **Abiti**: garza color noce fino alle spalle, legata sotto il mento; camicia d'ocra chiaro con le maniche arrotolate sopra il gomito; gonna di lana ruggine-noce lunga alla caviglia; grembiule bianco di canapa dal petto alle ginocchia; zoccoli di legno.
@@ -93,6 +96,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, capelli, mani curate; secchi o ceste nel modello (sono oggetti di scena).
 - **Prompt**:
 > A sturdy, short middle-aged village washerwoman with broad hips, her whole head covered by a walnut-brown hemp gauze veil that falls over the shoulders like a soft cape and is tied under the chin, a pale ochre linen blouse with sleeves rolled up above the elbows, bare strong forearms and hands, a long rust-brown wool skirt to the ankles, a large white hemp apron from chest to knees tied at the waist, simple dark wooden clogs.
+- **Fatto**: dal pilota (`tripo_h3_1`, variante b), ripassata nella pipeline della produzione.
 
 ### 3. Bortolo, il campanaro — `bortolo` (1,80 m)
 - **Chi**: campanaro di San Vigilio, laico della Confraternita; ogni mattina rimette i gradini delle Terrazze.
@@ -103,8 +107,9 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, barba visibile, campane in mano.
 - **Prompt**:
 > A big heavy-set village bell-ringer with broad shoulders and a round belly, a wide-brimmed black felt hat, under the hat a walnut-brown gauze veil that completely covers his face and neck and falls onto the shoulders, a short dark walnut wool jacket open over a brown waistcoat and a hemp shirt, brown corduroy trousers, heavy leather boots, a short mason's hammer with a chestnut handle hanging from the belt on his right side, a large ring of brass keys hanging from the belt on his left side.
+- **Fatto**: `sam_3_3d`, variante (b), la più grossa; martello e chiavi alla cintura sono nel modello.
 
-### 4. Pina Galli, l'Ombrista — `pina` (1,50 m)
+### 4. Pina Galli, l'Ombrista — `pina` (1,52 m)
 - **Chi**: 81 anni; ogni sera racconta la Partenza con figure di cartone controluce.
 - **Silhouette**: piccola, curva (la curva la fa il rig, il modello sta quasi dritto con le spalle un po' tonde), cappuccio di lana grigia a punta morbida che copre tutta la faccia, scialle sulle spalle; le forbici enormi in mano.
 - **Abiti**: cappuccio di lana grigio-viola lungo fino al petto, scialle di lana grigia, veste lunga grigio scuro, grembiule ocra macchiato, scarpe di panno.
@@ -113,8 +118,9 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, mani giganti (solo le ombre sul telo lo sono), lampada in mano.
 - **Prompt**:
 > A tiny, very old village woman with slightly rounded shoulders, a long soft grey wool hood with a gentle point that hangs down to the chest and hides her face completely in shadowless fabric, a grey wool shawl over the shoulders, a long dark grey dress to the ankles, a stained ochre apron with a big front pocket, cloth shoes, empty open hands.
+- **Fatto**: `sam_3_3d`, variante (b) (braccia più staccate); forbici e figura di cartone sono oggetti di scena (`forbici@manoD`, `figura-di-cartone@manoS`); curva 0,45 nell'indice.
 
-### 5. Annunciata — `annunciata` (1,55 m)
+### 5. Annunciata — `annunciata` (1,56 m)
 - **Chi**: una vecchia che aspetta le Lettere dalla Sorella; seduta sulla panca della chiesa.
 - **Silhouette**: esile, un po' curva, il velo noce scuro lungo che arriva ai gomiti come una mantellina; il bastone di castagno dritto accanto.
 - **Abiti**: velo noce scuro fino ai gomiti; veste lunga noce con un fazzoletto di lana ocra incrociato sul petto; calze nere; scarpe basse.
@@ -123,8 +129,9 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, rosari o croci, lettere in mano.
 - **Prompt**:
 > A slender very old village woman, slightly stooped, a long dark walnut gauze veil covering her whole head and face and falling like a short cape down to her elbows, a long walnut-brown dress to the ankles with an ochre wool kerchief crossed over the chest, black stockings, low dark shoes, empty open hands.
+- **Fatto**: `sam_3_3d`, variante (a): il velo finisce sopra il gomito e lascia libere le braccia; bastone come oggetto di scena; curva 0,55 nell'indice.
 
-### 6. Nando, lo Smascherato — `nando` (1,76 m) — prova del pilota (`public/personaggi/nando.glb`, sam)
+### 6. Nando, lo Smascherato — `nando` (1,76 m) — rifatto nella produzione con la frase VOLTO
 - **Chi**: Smascherato dei Ronchi; ogni mattina ricostruisce la casa che le Fade gli smontano.
 - **Silhouette**: largo e asciutto, braccia lunghe, testa scoperta; una pietra piatta in mano.
 - **Abiti**: camicia di canapa grezza senza colletto, maniche arrotolate; calzoni di canapa rattoppati alle ginocchia, tenuti da una corda; fascia di lana in vita; scarpe di cuoio consumate.
@@ -134,6 +141,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: cappello, velo, attrezzi da taglio.
 - **Prompt**:
 > A broad, lean, weathered stonemason in his fifties with long arms, an uncovered head with short grey hair and a short salt-and-pepper beard, a sun-darkened face with a square jaw and small tired eyes, big rough hands, a collarless raw hemp shirt with rolled-up sleeves, patched hemp trousers held up by a rope and a grey wool sash, worn leather shoes, empty open hands.
+- **Fatto**: rifatto con la frase VOLTO e le mani vuote, `sam_3_3d`, variante (a): volto dipinto, non più fotografico; la pietra è un oggetto di scena (`pietra@manoD`).
 
 (Il pilota ha usato la versione precedente, con «face painted in a simple stylized way» e la pietra in mano: vedi PIPELINE.md.)
 
@@ -146,8 +154,9 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, occhi nella maschera, croci, candele.
 - **Prompt**:
 > A slim upright young novice of a village confraternity, a long layered black gauze robe with a dark violet tint falling straight to the ground without a train, a black gauze hood over the head, the face completely covered by a smooth oval mask of pale chestnut wood with no features at all (no eye holes, no mouth, just smooth polished wood grain), a thin hemp cord tied at the waist, pale empty open hands.
+- **Fatto**: `sam_3_3d`, variante (a): la maschera è davvero senza tratti (la b aveva naso e bocca accennati); il castagno è più caldo e rossiccio del `#c9a983` previsto. Pacchetto come oggetto di scena.
 
-### 8. Lisa — `lisa` (1,30 m)
+### 8. Lisa — `lisa` (1,25 m)
 - **Chi**: nove anni; parla per tutti e due e chiama Elvira «la Svegliata».
 - **Silhouette**: bambina, testa grande, il velo bianco corto annodato storto con un nodo che sporge da un lato; gonna corta, ginocchia sbucciate; mani sui fianchi in gioco (nel modello: A-pose).
 - **Abiti**: garza bianca da bambini corta fino al collo, annodata di traverso; vestitino di canapa bianco-crema al ginocchio con un grembiulino; calzettoni di lana; zoccoli.
@@ -155,6 +164,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, trecce visibili, giocattoli moderni.
 - **Prompt**:
 > A nine-year-old village girl with a big head and short limbs, her head and face completely covered by a short white children's gauze veil reaching the neck, knotted crookedly on one side with the knot sticking out, a knee-length cream hemp dress with a small white pinafore, scraped pink knees, grey wool knee socks, wooden clogs, a small vermilion ribbon tied around her left wrist.
+- **Fatto**: `sam_3_3d`, variante (b); 1,25 m.
 
 ### 9. Gioanin — `gioanin` (1,12 m)
 - **Chi**: il fratello di Lisa, sei anni; si nasconde dietro la sorella.
@@ -164,6 +174,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Niente**: volto, giocattoli.
 - **Prompt**:
 > A small six-year-old village boy with a round body and a big head, his head and face completely covered by a white children's gauze veil that is far too long and falls down to his waist like a little cape, a hemp shirt, short walnut-brown wool trousers with braces, bare knees, big wooden clogs.
+- **Fatto**: `sam_3_3d` (al secondo tentativo), variante (b): il velo arriva al petto, non alla vita. La variante (a), col velo fino alla vita, lo faceva cadere sulle braccia, e per lo scheletro era peggio.
 
 ### 10. Velata generica: donna con garza e grembiule — `velata_donna` (1,63 m)
 - **Ruolo**: la base del coro dei velati (orti, lavatoio, piazza); si colora in varianti.
@@ -172,6 +183,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Colori**: noce, ocra, verde salvia spento (la variante cambia gonna e grembiule).
 - **Prompt**:
 > An ordinary village woman of medium build, a walnut-brown hemp gauze veil covering her whole head and face and falling over the shoulders down to the chest, a hemp blouse, a sage-green wool shawl crossed over the chest, a long walnut-brown wool skirt to the ankles, an ochre apron, simple leather shoes.
+- **Fatto**: `sam_3_3d`, variante (a); cesto facoltativo come oggetto di scena.
 
 ### 11. Velato generico: uomo con cappello di feltro e gerla — `velato_gerla` (1,75 m)
 - **Ruolo**: contadini e portatori; la gerla è la silhouette del paese.
@@ -181,6 +193,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Accessori**: gerla vuota (cesta conica intrecciata) con le spallacce di cuoio; niente in mano.
 - **Prompt**:
 > A village peasant man of medium build, a wide-brimmed brown felt hat, under the hat a walnut-brown gauze veil that completely covers his face and neck, a short ochre wool jacket, brown corduroy trousers with cloth leg wraps below the knee, heavy leather boots, an empty conical woven chestnut-wood basket (gerla) carried on his back with leather shoulder straps, its rim rising above his shoulders, nothing in his hands.
+- **Fatto**: `sam_3_3d`, variante (b). La gerla l'ha tolta `sam_3_3d` (ritaglia la persona, anche col prompt «the man with the basket on his back»): ora è un oggetto di scena procedurale sull'osso `petto` (`gerla@petto`), vuota o, in futuro, carica.
 
 ### 12. Velato generico: anziano con maschera di castagno e bastone — `velato_maschera` (1,60 m)
 - **Ruolo**: i vecchi del paese, le panche davanti alla chiesa.
@@ -190,6 +203,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Accessori**: bastone di castagno dritto nella mano destra (procedurale; nell'immagine la mano è vuota).
 - **Prompt**:
 > An old village man, slightly stooped, a dark walnut wool hood, the face completely covered by a smooth carved mask of pale chestnut wood with only two thin horizontal slits for the eyes filled with flat shadow (no eyes visible, no other features), a short grey-violet wool cape over the shoulders, a long walnut-brown coat to the knees, dark trousers, worn leather shoes, empty open hands.
+- **Fatto**: `sam_3_3d`, variante (a): maschera con i due tagli e una cresta del naso appena accennata; bastone come oggetto di scena; curvo 0,35.
 
 ### 13. Velato generico: figura incappucciata — `velato_cappuccio` (1,70 m)
 - **Ruolo**: le figure che si fermano e si voltano da lontano.
@@ -198,6 +212,7 @@ Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra
 - **Colori**: grigio-viola, ocra spento, noce.
 - **Prompt**:
 > A tall hooded villager, a deep wide grey-violet wool hood with a soft point resting on the shoulders, inside the hood a walnut-brown gauze veil completely covering the face, a grey-violet wool cloak to mid-calf open at the front with slits for the arms, a muted ochre tunic underneath, dark trousers, leather boots, hands empty.
+- **Fatto**: `sam_3_3d`, variante (b): il velo noce si vede dentro il cappuccio (nella a era nero).
 
 ## Varianti dei generici (senza spendere crediti)
 I quattro generici diventano la dozzina di velati con varianti fatte nel gioco, senza nuove generazioni:

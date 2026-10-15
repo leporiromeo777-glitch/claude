@@ -22,11 +22,12 @@
         right: 0;
         bottom: 10px;
         pointer-events: none;
+        font-size: 15px;
       }
       #etichette span {
         position: absolute;
         transform: translateX(-50%);
-        font-size: 15px;
+        font-size: inherit;
         color: #3b2c1f;
         background: rgba(240, 230, 210, 0.8);
         padding: 2px 8px;
@@ -54,7 +55,9 @@
       animazione: immagine ferma), gesto (saluta|indica|mano-al-petto), braccia (mani-giunte|
       braccia-conserte|mani-dietro), curvo (0..1), stile (toon|lambert|originale), lod (1 = forza il
       LOD basso), luce (giorno|sera), primo (1 = primo piano), sfondo (url di un'immagine),
-      apertura (gradi delle braccia a riposo), gonna (0 = passo lungo).
+      apertura (gradi delle braccia a riposo), gonna (0 = passo lungo), passo (metri fra le figure),
+      indice (1 = gonna, apertura e postura da public/personaggi/indice.json), nomi (1 = etichette
+      grandi con nome e altezza, per la scheda del cast).
     -->
     <script type="module" src="./prova.ts"></script>
   </body>
