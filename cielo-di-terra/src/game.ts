@@ -18,6 +18,7 @@ import { CellTexture } from './render/cellTexture';
 import { createCollare } from './render/collare';
 import { FirstPersonVelo } from './render/firstPerson';
 import { LampGlows } from './render/lamps';
+import { installaLuce, type Luce } from './render/luce';
 import { Linea } from './render/linea';
 import { TerrainSystem } from './render/terrainMesh';
 import { applySky, createWorldUniforms, hazeClearColor, type WorldUniforms } from './render/uniforms';
@@ -98,6 +99,8 @@ export class Game {
   vegetation!: Vegetation;
   lamps!: LampGlows;
   fp!: FirstPersonVelo;
+  /** Traccia «luce»: ombre morbide vicino alla camera (`luce.ombre.impostaQualita(...)`), vedi render/luce.ts. */
+  luce!: Luce;
   cellTexture!: CellTexture;
   materials: Record<string, Material> = {};
 
@@ -200,6 +203,10 @@ export class Game {
     this.lamps = new LampGlows(u);
     this.lamps.setLamps(lampPoints);
     this.scene.add(this.lamps.points);
+
+    // Aggancio della traccia «luce»: il passaggio delle ombre si registra fra i `sistemi`
+    // (render prima del disegno del mondo); niente altro cambia nel percorso di rendering.
+    this.luce = installaLuce(this);
 
     this.fp = new FirstPersonVelo(this.settings.fov, 1);
 
