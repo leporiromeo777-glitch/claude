@@ -2,7 +2,7 @@
  * Forme proprie del popolamento: mantelli che seguono il suolo (selciati, sentieri, prati
  * pettinati), lastre, pietre e piccoli oggetti costruiti con il Costruttore della libreria.
  */
-import { BufferAttribute, BufferGeometry, Matrix4, Vector3 } from 'three';
+import { Vector3 } from 'three';
 import { DEG } from '../../../src/world/constants';
 import { cylToWorld } from '../../../src/world/cylinder';
 import { groundHeight } from '../../../src/world/terrain';
@@ -116,49 +116,42 @@ export function nastroSulSuolo(
   aggiungiMantello(c, pos, col);
 }
 
-/** Aggiunge triangoli già in coordinate mondo; le normali vengono calcolate e girate verso l'asse. */
+/** Aggiunge triangoli già in coordinate mondo; ogni triangolo viene girato con la faccia verso l'asse. */
 function aggiungiMantello(c: Cantiere, pos: number[], col: number[]): void {
-  const g = new BufferGeometry();
+  const n = pos.length / 3;
   const P = new Float32Array(pos);
-  g.setAttribute('position', new BufferAttribute(P, 3));
-  g.computeVertexNormals();
-  // tutte le normali devono guardare verso l'asse (su locale = -(x, y) normalizzato)
-  const N = g.getAttribute('normal') as BufferAttribute;
-  for (let t = 0; t < P.length / 9; t++) {
-    const cx = (P[t * 9]! + P[t * 9 + 3]! + P[t * 9 + 6]!) / 3;
-    const cy = (P[t * 9 + 1]! + P[t * 9 + 4]! + P[t * 9 + 7]!) / 3;
-    const nx = N.getX(t * 3);
-    const ny = N.getY(t * 3);
-    if (nx * -cx + ny * -cy < 0) {
-      // inverte il triangolo
+  const C = new Float32Array(col);
+  const N = new Float32Array(n * 3);
+  const a = new Vector3();
+  const b = new Vector3();
+  const d = new Vector3();
+  for (let t = 0; t < n / 3; t++) {
+    const o = t * 9;
+    a.set(P[o + 3]! - P[o]!, P[o + 4]! - P[o + 1]!, P[o + 5]! - P[o + 2]!);
+    b.set(P[o + 6]! - P[o]!, P[o + 7]! - P[o + 1]!, P[o + 8]! - P[o + 2]!);
+    d.crossVectors(a, b);
+    const cx = (P[o]! + P[o + 3]! + P[o + 6]!) / 3;
+    const cy = (P[o + 1]! + P[o + 4]! + P[o + 7]!) / 3;
+    if (d.x * -cx + d.y * -cy < 0) {
+      // scambia i vertici 1 e 2 (posizione e colore)
       for (let k = 0; k < 3; k++) {
-        const tmp = P[t * 9 + 3 + k]!;
-        P[t * 9 + 3 + k] = P[t * 9 + 6 + k]!;
-        P[t * 9 + 6 + k] = tmp;
+        const tmp = P[o + 3 + k]!;
+        P[o + 3 + k] = P[o + 6 + k]!;
+        P[o + 6 + k] = tmp;
       }
-      for (let k = 0; k < 2; k++) {
-        const ia = t * 3 + 1;
-        const ib = t * 3 + 2;
-        const t4 = col.slice(ia * 4, ia * 4 + 4);
-        col.splice(ia * 4, 4, ...col.slice(ib * 4, ib * 4 + 4));
-        col.splice(ib * 4, 4, ...t4);
-        break;
+      for (let k = 0; k < 4; k++) {
+        const i1 = (t * 3 + 1) * 4 + k;
+        const i2 = (t * 3 + 2) * 4 + k;
+        const tmp = C[i1]!;
+        C[i1] = C[i2]!;
+        C[i2] = tmp;
       }
+      d.negate();
     }
+    d.normalize();
+    for (let k = 0; k < 3; k++) N.set([d.x, d.y, d.z], o + k * 3);
   }
-  g.computeVertexNormals();
-  // in coordinate mondo: la matrice è l'identità
-  const colori: RGB[] = [];
-  for (let i = 0; i < col.length; i += 4) colori.push([col[i]!, col[i + 1]!, col[i + 2]!]);
-  c.forma(g, new Matrix4(), [1, 1, 1], 0, 'singolo', undefined);
-  // sostituisce i colori dell'ultima parte con quelli per vertice
-  const parte = c.singolo.parti[c.singolo.parti.length - 1]!;
-  for (let i = 0; i < colori.length; i++) {
-    parte.col[i * 4] = colori[i]![0];
-    parte.col[i * 4 + 1] = colori[i]![1];
-    parte.col[i * 4 + 2] = colori[i]![2];
-    parte.col[i * 4 + 3] = col[i * 4 + 3]!;
-  }
+  c.grezzo(P, N, C, 'singolo');
 }
 
 /** Rumore di valore 2D deterministico (0..1). */

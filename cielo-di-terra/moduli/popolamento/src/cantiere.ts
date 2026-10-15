@@ -178,6 +178,13 @@ export class Cantiere {
     acc.vertici += n;
   }
 
+  /** Triangoli già in coordinate mondo (posizioni, normali, colori rgba). */
+  grezzo(P: Float32Array, N: Float32Array, C: Float32Array, faccia: 'singolo' | 'doppio' = 'singolo'): void {
+    const acc = faccia === 'doppio' ? this.doppio : this.singolo;
+    acc.parti.push({ pos: P, nor: N, col: C });
+    acc.vertici += P.length / 3;
+  }
+
   /** Geometria già con `aColor` (o `color` lineare della libreria) e matrice. */
   private aggiungiGeometria(g: BufferGeometry, m: Matrix4, faccia: 'singolo' | 'doppio', lume: boolean, raccogliLumi: boolean, tinta?: RGB): void {
     const gg = g.index ? g.toNonIndexed() : g;
