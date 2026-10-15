@@ -231,7 +231,18 @@
           }
         ],
         "when": {
-          "failed": "g10.lunardi"
+          "all": [
+            {
+              "failed": "g10.lunardi"
+            },
+            {
+              "not": {
+                "event": "cura",
+                "a": "bepi",
+                "b": "lunardi"
+              }
+            }
+          ]
         }
       },
       {

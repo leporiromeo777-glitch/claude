@@ -278,7 +278,7 @@
       },
       "bepi": {
         "1": "La febbre mi tiene ancora. La Nina non studia per starmi dietro.",
-        "2": "Il dottore non è arrivato fino a me. Dice che stanotte non c'era filo per tutti."
+        "2": "Il dottore non è arrivato fino al babbo. Dice che stanotte non c'era filo per tutti."
       }
     },
     "titolo": "La notte più lunga",
@@ -602,7 +602,7 @@
         "sa": "Ho detto a Teresa che quelle lettere sono di mia madre. È rimasta zitta un minuto intero. Per Teresa è un'eternità."
       },
       "bepi": {
-        "dottore": "Bepi non apre la porta al dottore forestiero. Si cura col vino, col silenzio e con la Nina che gli porta il brodo.",
+        "dottore": "Bepi non vuole il dottore forestiero in casa: dice che la febbre si cura col vino, col silenzio e con la Nina che gli porta il brodo.",
         "debito": "Bepi ha un debito a Chioggia, per la rete buona. Se la Nina lo sa, l'ha saputo dalla strada e non da lui.",
         "luce": "Nella tempesta Bepi ha seguito la luce del Faro fino a casa. Zeno non ha chiuso occhio, e la Nina nemmeno.",
         "secca": "Nella tempesta Bepi ha preso la secca, col Faro spento. Il braccio guarirà; la barca, forse. La Nina non gli parla da due giorni, per paura.",

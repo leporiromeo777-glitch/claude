@@ -278,7 +278,7 @@
       },
       "bepi": {
         "1": "The fever still has me. Nina isn't studying, she's looking after me.",
-        "2": "The doctor never got as far as me. He says last night there wasn't thread for all."
+        "2": "The doctor never got as far as Dad. He says last night there wasn't thread for all."
       }
     },
     "titolo": "The Longest Night",
@@ -602,7 +602,7 @@
         "sa": "I told Teresa those letters are my mother's. She was silent for a whole minute. For Teresa, that's an eternity."
       },
       "bepi": {
-        "dottore": "Bepi won't open the door to the mainland doctor. He treats himself with wine, with silence, and with Nina bringing him broth.",
+        "dottore": "Bepi won't have the mainland doctor in the house: he says a fever is cured with wine, with silence, and with Nina bringing him broth.",
         "debito": "Bepi has a debt in Chioggia, for the good net. If Nina knows, she heard it from the street and not from him.",
         "luce": "In the storm Bepi followed the Lighthouse beam all the way home. Zeno didn't sleep a wink, and neither did Nina.",
         "secca": "In the storm Bepi ran aground, with the Lighthouse dark. His arm will heal; the boat, perhaps. Nina hasn't spoken to him for two days, out of fear.",

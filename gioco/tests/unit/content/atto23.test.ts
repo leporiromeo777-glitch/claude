@@ -1271,6 +1271,23 @@ describe('revisione 1: continuità degli Atti II-III (CA23-05)', () => {
     expect(db.diary.get('persone.marta.promessaRotta')?.unlock).toEqual({ all: [{ reply: 'g21.marta', is: 'R2' }, { ok: 'g21.gino' }] });
     expect(t('atto3.diario.persone.marta.casa')).not.toMatch(/resterà/);
   });
+
+  it('verifica della revisione 1: niente contraddizioni rimaste (g10 il Bepi e il dottore, g13 la Nina, g23 Don Piero)', () => {
+    // g10, R2 al Bepi e Lunardi appuntato e riuscito: le due voci escono nella stessa sera.
+    // «Non vuole» il dottore regge anche se poi il dottore lo cura; «non apre la porta» no.
+    expect(t('atto2.diario.persone.bepi.dottore')).not.toMatch(/non apre la porta/);
+    expect(te('atto2.diario.persone.bepi.dottore')).not.toMatch(/open the door/);
+    // «Mi ha chiuso la porta in faccia» solo se il dottore non ha curato il Bepi (la richiesta fallisce anche con due visite sole).
+    const chiuso = level('g10').dawn?.candidates.find((v) => v.id === 'g10.alba.chiuso');
+    expect(chiuso?.when).toEqual({ all: [{ failed: 'g10.lunardi' }, { not: { event: 'cura', a: 'bepi', b: 'lunardi' } }] });
+    // g13: se la richiesta della Nina fallisce, è il Bepi che non è stato curato (lei può esserlo, con Lunardi).
+    const bepi = level('g13').dawn?.candidates.find((v) => v.id === 'g13.alba.bepi');
+    expect(bepi?.lines[1]?.speaker).toBe('nina');
+    expect(t(bepi?.lines[1]?.textKey ?? '')).not.toMatch(/fino a me/);
+    expect(te(bepi?.lines[1]?.textKey ?? '')).not.toMatch(/as far as me/);
+    // Don Piero dà del lei anche a Livia (g22 «Perdoni un vecchio distratto», g23).
+    expect(t('atto3.g23.alba.messa.1')).not.toMatch(/come vedi/);
+  });
 });
 
 describe('revisione 1: esiti e albe (CA23-06)', () => {
