@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T07:14:22.446Z",
+  "date": "2026-10-15T07:17:56.974Z",
   "size": [
     1280,
     720
@@ -18,23 +18,23 @@
       "frames": 4,
       "stats": {
         "drawCalls": 72,
-        "triangles": 604400,
+        "triangles": 440138,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
           8,
-          47,
-          68
+          46,
+          69
         ],
-        "terrainTriangles": 239384,
-        "trees": 7051,
+        "terrainTriangles": 238168,
+        "trees": 5442,
         "treesByLod": [
-          8,
-          2050,
-          4993
+          7,
+          1478,
+          3957
         ],
-        "colliders": 7808,
-        "lamps": 133,
+        "colliders": 6156,
+        "lamps": 116,
         "fps": 4,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
       },

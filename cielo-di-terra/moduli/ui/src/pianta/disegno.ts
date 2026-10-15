@@ -91,6 +91,7 @@ export class PittorePianta {
   private contornoInchiostro: Float32Array = new Float32Array(0);
   private contornoCambiate: Float32Array = new Float32Array(0);
   private strato: HTMLCanvasElement = nuovoCanvas(1, 1);
+  private stratoMaschera: HTMLCanvasElement = nuovoCanvas(1, 1);
   private readonly motivi: { carta: CanvasPattern | null; tratteggio: CanvasPattern | null; rosso: CanvasPattern | null; tappo: CanvasPattern | null; grana: CanvasPattern | null };
   private dpr = 1;
   private larghezza = 1;
@@ -140,6 +141,7 @@ export class PittorePianta {
     this.canvas.width = Math.round(this.larghezza * this.dpr);
     this.canvas.height = Math.round(this.altezza * this.dpr);
     this.strato = nuovoCanvas(this.canvas.width, this.canvas.height);
+    this.stratoMaschera = nuovoCanvas(this.canvas.width, this.canvas.height);
   }
 
   /** Nuovi dati: ricostruisce maschere e contorni. */
@@ -360,13 +362,31 @@ export class PittorePianta {
       ctx.restore();
     };
 
+    // Le maschere si compongono prima tutte (una copia per giro visibile) e poi si applicano in una volta:
+    // «destination-in» cancella tutto ciò che sta fuori dall'immagine disegnata.
+    const mascheraComposta = (img: HTMLCanvasElement): HTMLCanvasElement => {
+      const mc = this.stratoMaschera.getContext('2d')!;
+      mc.setTransform(1, 0, 0, 1, 0, 0);
+      mc.clearRect(0, 0, this.stratoMaschera.width, this.stratoMaschera.height);
+      mc.setTransform(this.dpr, 0, 0, this.dpr, MARGINI.sinistra * this.dpr, MARGINI.alto * this.dpr);
+      disegnaMaschera(mc, img);
+      return this.stratoMaschera;
+    };
+    const applicaMaschera = (img: HTMLCanvasElement): void => {
+      const composta = mascheraComposta(img);
+      sc.save();
+      sc.setTransform(1, 0, 0, 1, 0, 0);
+      sc.globalCompositeOperation = 'destination-in';
+      sc.drawImage(composta, 0, 0);
+      sc.restore();
+    };
+
     // 1. Matita: tratteggio di grafite dove la particella è stata vista.
     preparaStrato();
     if (this.motivi.tratteggio) {
       sc.fillStyle = this.motivi.tratteggio;
       sc.fillRect(0, 0, W, H);
-      sc.globalCompositeOperation = 'destination-in';
-      disegnaMaschera(sc, m.matita);
+      applicaMaschera(m.matita);
       versaStrato(opz.contrasto || opz.marcata ? 1 : 0.75);
       if (opz.marcata) versaStrato(0.5);
     }
@@ -391,8 +411,7 @@ export class PittorePianta {
     if (this.motivi.rosso) {
       sc.fillStyle = this.motivi.rosso;
       sc.fillRect(0, 0, W, H);
-      sc.globalCompositeOperation = 'destination-in';
-      disegnaMaschera(sc, m.cambiate);
+      applicaMaschera(m.cambiate);
       versaStrato(0.8);
     }
   }
@@ -568,8 +587,8 @@ export class PittorePianta {
         const y = yT(f.theta0 + amp / 2 + k);
         if (f.tipo === 'valle') {
           ctx.font = `400 ${corpoValle}px "IM Fell English SC", "EB Garamond", serif`;
-          ctx.fillStyle = 'rgba(42, 35, 28, 0.78)';
-          this.testoConAlone(spaziato(f.nome, corpoValle > 22 ? 3 : 2), xc, y, 'rgba(241, 232, 210, 0.85)', 6);
+          ctx.fillStyle = 'rgba(42, 35, 28, 0.62)';
+          this.testoConAlone(spaziato(f.nome, corpoValle > 22 ? 3 : 2), xc, y, 'rgba(241, 232, 210, 0.7)', 6);
           if (f.breve) {
             ctx.font = `italic 400 ${Math.round(corpoValle * 0.62)}px "EB Garamond", serif`;
             ctx.fillStyle = 'rgba(42, 35, 28, 0.7)';
@@ -684,7 +703,7 @@ export class PittorePianta {
   private disegnaLanterna(H: number, xZ: (z: number) => number, larg: number): void {
     const { ctx } = this;
     const x = xZ(LUNGHEZZA_Z) + larg / 2;
-    const y = H * 0.18;
+    const y = Math.max(30, H / 2 - 200);
     ctx.save();
     ctx.fillStyle = '#fbf7ec';
     ctx.strokeStyle = COLORI.inchiostro;

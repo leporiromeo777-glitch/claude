@@ -1,6 +1,6 @@
 import { Componente } from '../core/componente';
 import { h, s } from '../core/dom';
-import { FASCE_VERBANO, LUNGHEZZA_Z, fasciaDi, limitaVista, normalizzaGradi, scalaIntera, type Vista } from '../pianta/geometria';
+import { FASCE_VERBANO, LUNGHEZZA_Z, fasciaDi, limitaVista, normalizzaGradi, scalaIntera, scalaMinima, type Vista } from '../pianta/geometria';
 import { PittorePianta } from '../pianta/disegno';
 import { nomeCatastale, type DatiPianta, type ParticellaPianta } from '../pianta/modello';
 import './pianta.css';
@@ -199,8 +199,10 @@ export class PiantaVerbano extends Componente<EventiPianta> {
         return true;
       case '0':
       case 'Home':
-        this.vistaIntera();
-        this.centraSuElvira(false);
+        // Alterna «tutto il giro» e «tutto il cilindro in larghezza».
+        if (Math.abs(this.vista.scala - scalaMinima(this.pittore.larghezzaUtile, this.pittore.altezzaRegione)) < 1e-6) this.vistaIntera();
+        else this.vista = { ...this.vista, zc: LUNGHEZZA_Z / 2, scala: scalaMinima(this.pittore.larghezzaUtile, this.pittore.altezzaRegione) };
+        this.limita();
         this.ridisegna();
         return true;
       default:
@@ -280,7 +282,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
   private centraSuElvira(animato: boolean): void {
     const e = this.dati.elvira;
     if (!e) return;
-    const intera = Math.abs(this.vista.scala - scalaIntera(this.pittore.larghezzaUtile)) < 1e-6;
+    const intera = this.vista.scala <= scalaIntera(this.pittore.larghezzaUtile) + 1e-6;
     this.vista = { ...this.vista, zc: intera ? this.vista.zc : e.z, tc: this.tVicino(e.theta) };
     this.limita();
     if (animato) this.ridisegna();
@@ -317,7 +319,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     // Tiene θ del centro vicino a [0, 360) senza cambiare ciò che si vede.
     const tc = this.vista.tc;
     const giri = Math.floor(tc / 360);
-    this.vista = limitaVista({ ...this.vista, tc: tc - giri * 360 }, this.pittore.larghezzaRegione, this.pittore.larghezzaUtile);
+    this.vista = limitaVista({ ...this.vista, tc: tc - giri * 360 }, this.pittore.larghezzaRegione, this.pittore.larghezzaUtile, this.pittore.altezzaRegione);
   }
 
   /** Ridisegna la Pianta al prossimo fotogramma (es. dopo un cambio di impostazioni). */

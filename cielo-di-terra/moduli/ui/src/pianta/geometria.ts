@@ -24,14 +24,14 @@ export interface FasciaPianta {
   tipo: TipoFascia;
 }
 
-/** Le tre valli e le tre Finestre del Verbano (costanti del motore). */
+/** Le tre valli e le tre Finestre del Verbano (costanti del motore; nomi dal GDD §2.4). */
 export const FASCE_VERBANO: readonly FasciaPianta[] = [
   { nome: 'Corbella e le Selve', breve: 'Valle 1', theta0: 0, theta1: 90, tipo: 'valle' },
   { nome: 'Finestra dei Ponti', theta0: 90, theta1: 120, tipo: 'finestra' },
   { nome: 'Il Verbanetto', breve: 'Valle 2', theta0: 120, theta1: 210, tipo: 'valle' },
-  { nome: 'Seconda Finestra', theta0: 210, theta1: 240, tipo: 'finestra' },
+  { nome: 'Finestra Cieca', theta0: 210, theta1: 240, tipo: 'finestra' },
   { nome: 'Gli Alpeggi', breve: 'Valle 3', theta0: 240, theta1: 330, tipo: 'valle' },
-  { nome: 'Terza Finestra', theta0: 330, theta1: 360, tipo: 'finestra' },
+  { nome: 'Finestra delle Vedove', theta0: 330, theta1: 360, tipo: 'finestra' },
 ];
 
 /** Porta un angolo in [0, 360). */
@@ -102,13 +102,19 @@ export function scalaIntera(larghezzaUtile: number): number {
   return Math.max(0.01, larghezzaUtile / LUNGHEZZA_Z);
 }
 
+/** Scala minima: tutto il giro (360°) nell'altezza utile, o tutto il cilindro in larghezza se è più piccola. */
+export function scalaMinima(larghezzaUtile: number, altezzaUtile?: number): number {
+  const sL = scalaIntera(larghezzaUtile);
+  return altezzaUtile ? Math.min(sL, Math.max(0.01, altezzaUtile / CIRCONFERENZA)) : sL;
+}
+
 /**
  * Tiene la vista dentro limiti sensati: z del centro fra i due Tappi (con un po' di margine se si è ingranditi),
- * scala fra quella intera e 8 volte tanto. θ resta libero (la Pianta si chiude su sé stessa).
+ * scala fra «tutto il giro» e 8 volte la scala intera. θ resta libero (la Pianta si chiude su sé stessa).
  */
-export function limitaVista(v: Vista, larghezza: number, larghezzaUtile: number): Vista {
-  const sMin = scalaIntera(larghezzaUtile);
-  const scala = Math.min(sMin * 8, Math.max(sMin, v.scala));
+export function limitaVista(v: Vista, larghezza: number, larghezzaUtile: number, altezzaUtile?: number): Vista {
+  const sMin = scalaMinima(larghezzaUtile, altezzaUtile);
+  const scala = Math.min(scalaIntera(larghezzaUtile) * 8, Math.max(sMin, v.scala));
   const meta = larghezza / 2 / scala;
   const margine = (larghezza - larghezzaUtile) / 2 / scala;
   const zMin = Math.min(LUNGHEZZA_Z / 2, meta - margine);
