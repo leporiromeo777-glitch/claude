@@ -132,6 +132,8 @@ export class Regia implements SistemaGioco {
   private tenutaC = 0;
   /** La lettera di Marta si è già aperta da sola in questa seduta (vedi letteraDaSeduta). */
   private letteraOffertaDaSeduta = false;
+  /** Secondi dall'ultimo controllo del dialogo delle campane (vedi campaneDiRiserva). */
+  private attesaCampane = 0;
   private attesaVicini = new Set<string>();
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
   private emisfero: HemisphereLight;
@@ -386,6 +388,22 @@ export class Regia implements SistemaGioco {
     if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_lettera')) return;
     this.letteraOffertaDaSeduta = true;
     this.ponte.leggi('lettera_marta');
+  }
+
+  /**
+   * Rete di sicurezza del prologo: se il passo delle campane è attivo da qualche secondo e il
+   * dialogo con Meridiana non è aperto né finito (interrotto, perso in un caricamento), lo si
+   * richiede di nuovo.
+   */
+  private campaneDiRiserva(dt: number): void {
+    this.attesaCampane += dt;
+    if (this.attesaCampane < 2) return;
+    this.attesaCampane = 0;
+    const n = this.narrativa;
+    if (this.dialoghi.aperto || this.ui.inputCatturato) return;
+    if (n.dialoghi.finito('d_meridiana_1') || n.dialoghi.aperto()) return;
+    if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_campane')) return;
+    this.dialoghi.richiedi('d_meridiana_1', true);
   }
 
   async salva(): Promise<void> {
@@ -1213,6 +1231,7 @@ export class Regia implements SistemaGioco {
     }
     this.limitaVelocita();
     this.letteraDaSeduta();
+    this.campaneDiRiserva(dt);
 
     // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
     if (!ui.tempoFermo) {
