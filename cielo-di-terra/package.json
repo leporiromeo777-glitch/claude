@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "shots": "node scripts/shots.mjs",
-    "verifica-contenuti": "tsx src/narrativa/scripts/verifica-contenuti.ts"
+    "verifica-contenuti": "tsx src/narrativa/scripts/verifica-contenuti.ts",
+    "e2e:fase1": "node scripts/e2e-fase1.mjs"
   },
   "dependencies": {
     "@fontsource/architects-daughter": "5.3.0",
