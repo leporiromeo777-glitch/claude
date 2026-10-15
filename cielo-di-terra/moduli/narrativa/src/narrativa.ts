@@ -292,11 +292,14 @@ export class Narrativa {
   }
 
   /**
-   * Valuta le missioni (avvio, attivazione e completamento dei passi) e le
-   * voci automatiche del taccuino, a cascata finché nulla cambia.
-   * Il gioco lo chiama ogni tanto; restituisce true se qualcosa è cambiato.
+   * Valuta le missioni (avvio, attivazione e completamento dei passi, eventi
+   * dei passi) e le voci automatiche del taccuino, a cascata finché nulla
+   * cambia; aggiorna la riga del cielo e annuncia i dialoghi automatici.
+   * Il gioco lo chiama ogni tanto; `secondi` (facoltativo) sono i secondi
+   * reali passati dall'ultima chiamata, per gli aiuti a tempo dei passi.
+   * Restituisce true se qualcosa è cambiato.
    */
-  tick(): boolean {
+  tick(secondi = 0): boolean {
     if (this.inTick) {
       this.tickRichiesto = true;
       return false;
@@ -304,6 +307,7 @@ export class Narrativa {
     this.inTick = true;
     let cambiato = false;
     try {
+      if (this.missioni.avanzaTempo(secondi)) cambiato = true;
       if (this.fatti.prossimoEventoCielo) this.taccuino.impostaRigaCieloGioco(this.fatti.prossimoEventoCielo());
       for (let giro = 0; giro < 1000; giro++) {
         this.tickRichiesto = false;

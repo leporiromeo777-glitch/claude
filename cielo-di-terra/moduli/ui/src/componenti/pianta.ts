@@ -111,14 +111,14 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     const lato = h(
       'aside',
       { class: 'ui-pt-lato' },
-      h('div', { class: 'ui-pt-comandi-riga' }, comandi, bChiudi),
+      h('div', { class: 'ui-pt-chiudi-riga' }, bChiudi),
       h('header', { class: 'ui-pt-testa' }, h('h2', { class: 'ui-pt-titolo' }, 'Pianta del Verbano'), this.sottotitolo),
-      this.scalaGrafica,
+      h('div', { class: 'ui-pt-strumenti' }, this.scalaGrafica, comandi),
       this.didascalia,
       this.resoconto,
       legenda,
-      aiuto,
     );
+    this.area.append(aiuto);
 
     this.el.append(
       h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }),

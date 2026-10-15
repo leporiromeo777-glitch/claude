@@ -48,10 +48,10 @@
   border-left: 1.5px solid rgba(36, 30, 25, 0.55);
   box-shadow: inset 1px 0 0 rgba(255, 252, 240, 0.6);
 }
-.ui-pt-comandi-riga {
+.ui-pt-chiudi-riga {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-end;
+  margin-bottom: -6px;
 }
 .ui-pt-testa {
   padding-bottom: 8px;
@@ -62,7 +62,7 @@
   margin: 0;
   font-family: var(--f-titolo);
   font-weight: 400;
-  font-size: calc(30px * var(--ui-scala));
+  font-size: calc(32px * var(--ui-scala));
   line-height: 1.05;
 }
 .ui-pt-sottotitolo {
@@ -258,12 +258,20 @@
 }
 
 .ui-pt-aiuto {
-  margin: auto 0 0;
-  padding-top: 8px;
-  border-top: 1px solid rgba(36, 30, 25, 0.25);
+  position: absolute;
+  left: 70px;
+  right: 70px;
+  bottom: 2px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 4px;
   font-size: var(--t-piccolo);
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--matita);
+  pointer-events: none;
 }
 .ui-pt-aiuto .ui-tasto {
   font-size: 0.78em;
