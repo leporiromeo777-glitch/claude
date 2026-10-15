@@ -193,9 +193,9 @@
       }
     },
     "lunardi": {
-      "testo": "During high water the Pharmacy stays open. I should like to see at least three people: with the damp, the coughs arrive on time, like the ferry.",
+      "testo": "During the high water the Pharmacy stays open: at eleven I shall be there. I should like to see at least three people: with the damp, the cough comes on time, like the ferry.",
       "esito": {
-        "ok": "In the high water the doctor saw his three people. He says the coughs, this time, came late.",
+        "ok": "At eleven the doctor was in the Pharmacy, in the high water, and saw his three people. He says the cough, this time, came late.",
         "fallita": "In the high water the Pharmacy stayed empty. The doctor arranged his jars in alphabetical order, twice."
       }
     },

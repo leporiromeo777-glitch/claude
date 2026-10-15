@@ -50,8 +50,8 @@
     "marta",
     "teresa",
     "bepi",
-    "lunardi",
-    "zeno"
+    "zeno",
+    "lunardi"
   ],
   "beads": [
     {
@@ -79,7 +79,6 @@
     "martaNoSotto",
     "teresaLegge",
     "pieroPozzo",
-    "pieroTrabocca",
     "ginoCorre",
     "ninaCuriosa",
     "zenoFaro",
@@ -106,6 +105,31 @@
       "thread": "marta",
       "place": "forno",
       "hour": 15
+    },
+    {
+      "thread": "lunardi",
+      "place": "faro",
+      "hour": 8
+    },
+    {
+      "thread": "zeno",
+      "place": "chiesa",
+      "hour": 12
+    },
+    {
+      "thread": "teresa",
+      "place": "chiesa",
+      "hour": 9
+    },
+    {
+      "thread": "zeno",
+      "place": "farmacia",
+      "hour": 13
+    },
+    {
+      "thread": "bepi",
+      "place": "piazza",
+      "hour": 15
     }
   ],
   "tide": [
@@ -125,7 +149,7 @@
     "g19.teresa.pace",
     "g19.lunardi"
   ],
-  "matassa": 10,
+  "matassa": 12,
   "hintKeys": {
     "spinta": "atto3.g19.hint.spinta",
     "indizio": "atto3.g19.hint.indizio"

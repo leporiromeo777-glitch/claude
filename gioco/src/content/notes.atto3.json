@@ -366,9 +366,20 @@
     "author": "lunardi",
     "textKey": "atto3.g19.lunardi.testo",
     "request": {
-      "t": "incontriAlmeno",
-      "who": "lunardi",
-      "n": 3
+      "t": "tutti",
+      "of": [
+        {
+          "t": "incontriAlmeno",
+          "who": "lunardi",
+          "n": 3
+        },
+        {
+          "t": "presso",
+          "who": "lunardi",
+          "place": "farmacia",
+          "hour": 11
+        }
+      ]
     },
     "esito": {
       "ok": "atto3.g19.lunardi.esito.ok",

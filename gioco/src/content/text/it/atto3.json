@@ -193,9 +193,9 @@
       }
     },
     "lunardi": {
-      "testo": "Durante l'acqua alta la Farmacia resta aperta. Vorrei vedere almeno tre persone: con l'umido la tosse arriva puntuale, come il vaporetto.",
+      "testo": "Durante l'acqua alta la Farmacia resta aperta: alle undici sarò lì. Vorrei vedere almeno tre persone: con l'umido la tosse arriva puntuale, come il vaporetto.",
       "esito": {
-        "ok": "Con l'acqua alta il dottore ha visto le sue tre persone. Dice che la tosse, stavolta, è arrivata tardi.",
+        "ok": "Alle undici il dottore era in Farmacia, con l'acqua alta, e ha visto le sue tre persone. Dice che la tosse, stavolta, è arrivata tardi.",
         "fallita": "Con l'acqua alta la Farmacia è rimasta vuota. Il dottore ha riordinato i vasi in ordine alfabetico, due volte."
       }
     },

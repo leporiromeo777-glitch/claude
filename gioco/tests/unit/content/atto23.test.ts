@@ -275,7 +275,10 @@ describe('bigliettini e vignette', () => {
       const lv = level(d);
       expect(lv.quirks, d).toContain('ninaCuriosa');
       expect(lv.quirks, d).toContain('lunardiCura');
-      expect(lv.quirks.includes('pieroTrabocca'), d).toBe(Number(d.slice(1)) >= 16);
+      // Il trabocco vale da g16 dove c'è Don Piero (revisione 1: in g19 non c'è, e la stranezza farebbe solo
+      // tracciare al solver lettere e segreti senza effetto, moltiplicando le soluzioni ottime: K5).
+      const piero = lv.threads.some((x) => x.character === 'piero');
+      expect(lv.quirks.includes('pieroTrabocca'), d).toBe(Number(d.slice(1)) >= 16 && (piero || d !== 'g19'));
       const both = ['teresa', 'marta'].every((c) => lv.threads.some((x) => x.id === c));
       if (Number(d.slice(1)) >= 11 && both) {
         expect(lv.rules, d).toContain('rancore');
