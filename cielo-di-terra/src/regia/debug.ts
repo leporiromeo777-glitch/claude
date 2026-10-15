@@ -125,20 +125,33 @@ export function installaDebugRegia(r: Regia): DebugRegia {
       if (!p) return false;
       const c = worldToCyl(p);
       const pc = g.player.cyl;
-      // dalla parte di dove si trova adesso Elvira, a `distanza` m dal bersaglio
-      const dz = pc.z - c.z;
-      const ds = ((((pc.theta - c.theta + 540) % 360) - 180) * Math.PI * 646) / 180;
-      const d = Math.hypot(dz, ds) || 1;
-      const z = c.z + (dz / d) * distanza;
-      const th = c.theta + ((ds / d) * distanza * 180) / (Math.PI * 646);
-      if (r.interno === 'cella') {
-        g.player.teleport(z, th, r.cella.quotaPavimento, true);
-        g.syncEyeNow();
-      } else if (r.interno) {
-        g.player.teleport(z, th, 0);
-        g.syncEyeNow();
-      } else r.vai(z, th);
-      g.loop.stepUpdates(2);
+      // dalla parte di dove si trova adesso Elvira, a `distanza` m dal bersaglio; se un muro,
+      // una panca o una casa la spingono più in là, si prova girando attorno al bersaglio
+      const dz0 = pc.z - c.z;
+      const ds0 = ((((pc.theta - c.theta + 540) % 360) - 180) * Math.PI * 646) / 180;
+      const a0 = Math.atan2(ds0, dz0 || 1e-6);
+      const metti = (a: number) => {
+        const z = c.z + Math.cos(a) * distanza;
+        const th = c.theta + ((Math.sin(a) * distanza * 180) / (Math.PI * 646));
+        if (r.interno === 'cella') {
+          g.player.teleport(z, th, r.cella.quotaPavimento, true);
+          g.syncEyeNow();
+        } else if (r.interno) {
+          g.player.teleport(z, th, 0);
+          g.syncEyeNow();
+        } else r.vai(z, th);
+        g.loop.stepUpdates(2);
+        const q = g.player.cyl;
+        return Math.hypot(q.z - c.z, ((((q.theta - c.theta + 540) % 360) - 180) * Math.PI * 646) / 180);
+      };
+      let migliore = { a: a0, scarto: Infinity };
+      for (const k of [0, 1, -1, 2, -2, 3, -3, 4]) {
+        const a = a0 + (k * Math.PI) / 4;
+        const scarto = Math.abs(metti(a) - distanza);
+        if (scarto < migliore.scarto) migliore = { a, scarto };
+        if (scarto < 0.5) break;
+      }
+      if (migliore.scarto >= 0.5) metti(migliore.a);
       r.guarda(p);
       g.loop.stepUpdates(1);
       return true;
