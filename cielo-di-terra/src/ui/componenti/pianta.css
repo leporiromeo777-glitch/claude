@@ -1,0 +1,339 @@
+/* ---------- Pianta del Verbano ---------- */
+
+.ui-pianta {
+  display: grid;
+}
+.ui-pt-foglio {
+  position: absolute;
+  inset: clamp(8px, 1.6vh, 18px) clamp(8px, 1.2vw, 20px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(250px, 21vw, calc(340px * var(--ui-scala)));
+}
+.ui-pt-foglio::before {
+  /* La Pianta disegna da sé la sua carta: qui basta il bordo sfrangiato e l'ombra. */
+  background-color: #f1e8d2;
+}
+.ui-pt-area {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 6px 0 6px 6px;
+}
+.ui-pt-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.ui-pt-canvas.ui-pt-presa {
+  cursor: grabbing;
+}
+.ui-pt-canvas:focus-visible {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: -4px;
+}
+
+/* Colonna a destra: cartiglio, comandi, didascalia, resoconto, legenda. */
+.ui-pt-lato {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 24px 24px 18px 14px;
+  border-left: 1.5px solid rgba(36, 30, 25, 0.55);
+  box-shadow: inset 1px 0 0 rgba(255, 252, 240, 0.6);
+}
+.ui-pt-chiudi-riga {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -6px;
+}
+.ui-pt-testa {
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--inchiostro);
+  box-shadow: 0 3px 0 -2px var(--inchiostro);
+}
+.ui-pt-titolo {
+  margin: 0;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: calc(32px * var(--ui-scala));
+  line-height: 1.05;
+}
+.ui-pt-sottotitolo {
+  margin: 4px 0 0;
+  font-style: italic;
+  font-size: var(--t-piccolo);
+  color: var(--matita);
+}
+.ui-pt-strumenti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ui-pt-scala {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-piccolo);
+  color: var(--inchiostro-2);
+}
+.ui-pt-scala-barra {
+  display: flex;
+  height: 7px;
+  border: 1.2px solid var(--inchiostro);
+}
+.ui-pt-scala-barra span {
+  flex: 1;
+}
+.ui-pt-scala-barra span:first-child {
+  background: var(--inchiostro);
+}
+.ui-pt-didascalia {
+  margin: 0;
+  min-height: 2.7em;
+  padding: 6px 10px;
+  border: 1px dashed rgba(36, 30, 25, 0.35);
+  font-size: var(--t-piccolo);
+  line-height: 1.35;
+  color: var(--inchiostro);
+}
+.ui-pt-didascalia:empty::before {
+  content: 'Passa sopra la Pianta per leggerla.';
+  color: var(--matita);
+  font-style: italic;
+}
+
+/* Legenda. */
+.ui-pt-legenda {
+  padding: 0;
+}
+.ui-pt-legenda h3 {
+  margin: 0 0 4px;
+  font-size: var(--t-base);
+}
+.ui-pt-legenda ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  font-size: var(--t-piccolo);
+}
+.ui-pt-legenda li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.ui-pt-campione {
+  flex: none;
+  width: 26px;
+  height: 16px;
+  border: 1px solid rgba(36, 30, 25, 0.45);
+}
+.ui-pt-campione--bianco {
+  background: #f6efdd;
+  border-style: dashed;
+}
+.ui-pt-campione--matita {
+  background: repeating-linear-gradient(-45deg, rgba(93, 90, 84, 0.65) 0 1px, transparent 1px 6px), #f3ead5;
+  border-color: var(--matita);
+}
+.ui-pt-campione--rilevato {
+  background: linear-gradient(135deg, #8ea567, #9aae78 55%, #b5926a);
+  border: 1.5px solid var(--inchiostro);
+}
+.ui-pt-campione--cambiata {
+  background: repeating-linear-gradient(45deg, rgba(166, 58, 38, 0.6) 0 1px, transparent 1px 5px), #f3ead5;
+  border: 1.5px dashed var(--vermiglio);
+}
+.ui-pt-campione--finestra {
+  background: radial-gradient(circle at 30% 40%, #fff 0.6px, transparent 1.2px), radial-gradient(circle at 70% 70%, #fff 0.6px, transparent 1.2px), #221c33;
+  border-color: var(--inchiostro);
+}
+.ui-pt-campione--caposaldo {
+  width: 30px;
+  border: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 17'%3E%3Cpath d='M8 2 L14 13 L2 13 Z' fill='%23f1e8d2' stroke='%23241e19' stroke-width='1.4'/%3E%3Ccircle cx='8' cy='9.5' r='1.4' fill='%23241e19'/%3E%3Cpath d='M22 2 L28 13 L16 13 Z' fill='%23f1e8d2' stroke='%235d5a54' stroke-width='1.2' stroke-dasharray='2 1.6'/%3E%3C/svg%3E") no-repeat center;
+}
+
+/* Rosa dei venti nell'angolo del disegno, dentro la cornice e accanto al Tappo Nord. */
+.ui-pt-rosa {
+  position: absolute;
+  right: calc(120px * var(--ui-scala));
+  bottom: calc(52px * var(--ui-scala));
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(241, 232, 210, 0.9));
+}
+.ui-pt-rosa svg {
+  display: block;
+  overflow: visible;
+  width: calc(260px * var(--ui-scala));
+  height: auto;
+}
+.ui-pt-rosa[hidden] {
+  display: none;
+}
+.ui-rosa-anello {
+  fill: rgba(246, 239, 222, 0.82);
+  stroke: var(--inchiostro);
+  stroke-width: 1.4;
+}
+.ui-rosa-anello-fine {
+  fill: none;
+  stroke: var(--ottone);
+  stroke-width: 2.4;
+}
+.ui-rosa-scuro {
+  fill: var(--inchiostro);
+}
+.ui-rosa-chiaro {
+  fill: #f6efde;
+  stroke: var(--inchiostro);
+  stroke-width: 0.9;
+}
+.ui-rosa-insu {
+  fill: #f6efde;
+  stroke: var(--vermiglio);
+  stroke-width: 2;
+}
+.ui-rosa-insu-punto {
+  fill: var(--vermiglio);
+}
+.ui-rosa-testo {
+  font-family: var(--f-maiuscoletto);
+  font-size: 18px;
+  fill: var(--inchiostro);
+  paint-order: stroke;
+  stroke: #f1e8d2;
+  stroke-width: 4px;
+}
+.ui-rosa-sotto {
+  font-family: var(--f-testo);
+  font-style: italic;
+  font-size: 16px;
+  fill: var(--inchiostro-2);
+  paint-order: stroke;
+  stroke: #f1e8d2;
+  stroke-width: 4px;
+}
+.ui-rosa-insu-testo {
+  font-family: var(--f-mano);
+  font-weight: 600;
+  font-size: 18px;
+  fill: var(--vermiglio);
+  paint-order: stroke;
+  stroke: #f6efde;
+  stroke-width: 4px;
+}
+
+/* Comandi. */
+.ui-pt-comandi {
+  display: flex;
+  gap: 6px;
+}
+.ui-pt-bottone {
+  min-width: 2.4em;
+  justify-content: center;
+  padding: 0.2em 0.6em;
+  background: rgba(246, 239, 222, 0.95);
+  font-family: var(--f-testo);
+  font-size: var(--t-medio);
+  line-height: 1;
+}
+.ui-pt-bottone--testo {
+  font-family: var(--f-maiuscoletto);
+  font-size: var(--t-base);
+}
+.ui-pt-chiudi {
+  flex: none;
+  background: rgba(246, 239, 222, 0.95);
+}
+
+.ui-pt-aiuto {
+  position: absolute;
+  left: calc(70px * var(--ui-scala));
+  right: calc(70px * var(--ui-scala));
+  bottom: 2px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 4px;
+  font-size: var(--t-piccolo);
+  line-height: 1.5;
+  color: var(--matita);
+  pointer-events: none;
+}
+.ui-pt-aiuto .ui-tasto {
+  margin: 0 1px;
+}
+
+@media (max-width: 900px) {
+  .ui-pt-foglio {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .ui-pt-lato {
+    max-height: 40vh;
+    border-left: 0;
+    border-top: 1.5px solid rgba(36, 30, 25, 0.55);
+  }
+  .ui-pt-legenda,
+  .ui-pt-aiuto {
+    display: none;
+  }
+  .ui-pt-rosa {
+    right: 90px;
+  }
+}
+
+/* Resoconto del mattino: una nota a matita rossa. */
+.ui-pt-resoconto {
+  padding: 8px 14px 10px;
+  background: var(--grana-fine), rgba(246, 239, 222, 0.95);
+  border: 1.5px solid var(--vermiglio);
+  box-shadow: 0 2px 6px rgba(60, 40, 15, 0.18);
+  transform: rotate(0.6deg);
+  color: var(--vermiglio);
+}
+.ui-pt-resoconto[hidden] {
+  display: none;
+}
+.ui-pt-resoconto-titolo {
+  margin: 0 0 4px;
+  font-family: var(--f-mano);
+  font-weight: 600;
+  font-size: calc(26px * var(--ui-scala));
+  line-height: 1.1;
+}
+.ui-pt-resoconto ul {
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: var(--t-piccolo);
+  line-height: 1.35;
+}
+.ui-pt-resoconto li + li {
+  margin-top: 3px;
+}
+.ui-pt-resoconto-quieta {
+  margin: 0;
+  font-style: italic;
+}
+.ui-pt-resoconto-finestra {
+  margin: 8px 0 0;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(166, 58, 38, 0.5);
+  font-size: var(--t-piccolo);
+  color: var(--inchiostro);
+}

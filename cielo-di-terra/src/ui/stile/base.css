@@ -1,0 +1,447 @@
+/*
+ * Interfaccia di «Cielo di Terra»: carta, inchiostro, matita e ottone.
+ * Tutto vive dentro .ui-radice, un livello trasparente sopra il canvas del gioco.
+ */
+
+.ui-radice {
+  /* Carta */
+  --carta: #f0e7d1;
+  --carta-chiara: #f6efde;
+  --carta-scura: #e3d5b4;
+  --carta-bordo: #d2bf98;
+  --carta-quaderno: #f3eee0;
+  /* Inchiostro (di galla, bruno-nero) */
+  --inchiostro: #241e19;
+  --inchiostro-2: #3e342b;
+  /* Matita (grafite): contrasto ≥ 6:1 sulla carta */
+  --matita: #57534c;
+  --matita-chiara: #8a857b;
+  --matita-velo: rgba(70, 66, 60, 0.18);
+  /* Ottone */
+  --ottone: #b4904f;
+  --ottone-chiaro: #e2c58a;
+  --ottone-scuro: #6f5122;
+  /* Colori del mondo */
+  --vermiglio: #a63a26;
+  --salvia: #7f9466;
+  --castagna: #8a5a33;
+  --gneiss: #8d8697;
+  --giada: #4b8a80;
+  --notte: #1f1a2e;
+  --rigatura: rgba(84, 116, 150, 0.28);
+  --margine-rosso: rgba(176, 72, 60, 0.45);
+
+  /* Caratteri */
+  --f-testo: 'EB Garamond', 'Garamond', Georgia, 'Times New Roman', serif;
+  --f-titolo: 'IM Fell English', 'EB Garamond', Georgia, serif;
+  --f-maiuscoletto: 'IM Fell English SC', 'EB Garamond', Georgia, serif;
+  --f-mano: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --f-stampatello: 'Patrick Hand SC', 'Caveat', cursive;
+  --f-lettera: 'Playwrite IT Moderna', 'Caveat', cursive;
+  --f-geometra: 'Architects Daughter', 'Caveat', cursive;
+  --f-macchina: 'Special Elite', 'Courier New', ui-monospace, monospace;
+
+  /* Scala del testo (impostazione «dimensione del testo») */
+  --ui-scala: 1;
+  --ui-schermo: 1;
+  --t-base: calc(18px * var(--ui-scala));
+  --t-piccolo: calc(16px * var(--ui-scala));
+  --t-medio: calc(21px * var(--ui-scala));
+  --t-grande: calc(26px * var(--ui-scala));
+
+  /* Grana della carta: puntini fini e macchie larghe (SVG feTurbulence in data URI) */
+  --grana-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .25 0 0 0 0 .15 1.6 0 0 0 -.78'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  --grana-macchie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.008' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .40 0 0 0 0 .18 1.4 0 0 0 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' opacity='.32'/%3E%3C/svg%3E");
+  --grana-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .45' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 1.5 0 0 0 -.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.22'/%3E%3C/svg%3E");
+
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+  font-family: var(--f-testo);
+  font-size: var(--t-base);
+  line-height: 1.45;
+  color: var(--inchiostro);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ui-radice *,
+.ui-radice *::before,
+.ui-radice *::after {
+  box-sizing: border-box;
+}
+
+/* Opzione «testo semplice»: le calligrafie diventano carattere da stampa. */
+.ui-radice.ui-semplice {
+  --f-mano: var(--f-testo);
+  --f-stampatello: var(--f-testo);
+  --f-lettera: var(--f-testo);
+  --f-geometra: var(--f-testo);
+  --f-macchina: var(--f-testo);
+}
+
+/* Opzione «caratteri ad alta leggibilità». */
+.ui-radice.ui-leggibile {
+  --f-testo: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-titolo: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-maiuscoletto: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-mano: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-stampatello: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-lettera: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-geometra: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-macchina: 'Atkinson Hyperlegible', Verdana, sans-serif;
+}
+
+/* Opzione «alto contrasto»: carta piena, inchiostro nero, matita scura. */
+.ui-radice.ui-contrasto {
+  --carta: #fbf6ea;
+  --carta-chiara: #ffffff;
+  --inchiostro: #000000;
+  --inchiostro-2: #1a1612;
+  --matita: #2e2b27;
+  --matita-chiara: #4f4b45;
+  --rigatura: rgba(60, 90, 130, 0.35);
+}
+
+/* ---------- Componenti: comparsa e scomparsa ---------- */
+
+.ui-componente {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+.ui-componente.ui-aperto {
+  opacity: 1;
+}
+.ui-componente[hidden],
+.ui-radice [hidden] {
+  display: none !important;
+}
+.ui-modale.ui-aperto {
+  pointer-events: auto;
+}
+
+.ui-ridotto *,
+.ui-ridotto *::before,
+.ui-ridotto *::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+}
+
+/* Velo sopra il gioco quando un menu è aperto: seppia, un po' sfocato. */
+.ui-velo {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(38, 28, 18, 0.25) 0%, rgba(24, 17, 10, 0.62) 100%);
+  backdrop-filter: blur(3px) sepia(0.35) saturate(0.8);
+  -webkit-backdrop-filter: blur(3px) sepia(0.35) saturate(0.8);
+}
+.ui-velo--scuro {
+  background: radial-gradient(ellipse at 50% 45%, rgba(22, 16, 10, 0.72) 0%, rgba(12, 8, 5, 0.9) 100%);
+  backdrop-filter: blur(5px) sepia(0.3);
+  -webkit-backdrop-filter: blur(5px) sepia(0.3);
+}
+
+/* ---------- Carta ---------- */
+
+/*
+ * .ui-carta: un foglio con bordi sfrangiati e grana. Il fondo è disegnato dallo pseudo-elemento,
+ * deformato dal filtro SVG #ui-f-bordo, così il testo resta nitido.
+ */
+.ui-carta {
+  position: relative;
+  isolation: isolate;
+  color: var(--inchiostro);
+}
+.ui-carta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--carta);
+  background-image:
+    var(--grana-fine),
+    var(--grana-fibre),
+    var(--grana-macchie),
+    radial-gradient(ellipse at 50% 42%, rgba(255, 251, 240, 0.55) 0%, rgba(255, 251, 240, 0) 55%, rgba(150, 112, 60, 0.18) 100%);
+  filter: url(#ui-f-bordo) drop-shadow(0 12px 18px rgba(18, 10, 2, 0.38)) drop-shadow(0 2px 3px rgba(18, 10, 2, 0.3));
+  will-change: transform;
+}
+.ui-contrasto .ui-carta::before {
+  background-image: none;
+}
+
+/* ---------- Tipografia ---------- */
+
+.ui-titoletto {
+  font-family: var(--f-maiuscoletto);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--inchiostro-2);
+}
+.ui-nota {
+  font-size: var(--t-piccolo);
+  color: var(--matita);
+  font-style: italic;
+}
+.ui-tasto {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.3em;
+  border: 1.5px solid currentColor;
+  border-radius: 0.3em;
+  font-family: var(--f-testo);
+  /* Mai sotto i 16 px, anche dentro i testi piccoli. */
+  font-size: max(16px, 0.85em);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  box-shadow: 0 1.5px 0 currentColor;
+  vertical-align: 0.08em;
+}
+
+/* Filetto con losanga al centro (come nei cartigli delle carte topografiche). */
+.ui-filetto {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  color: var(--inchiostro-2);
+  margin: 0.4em 0;
+}
+.ui-filetto::before,
+.ui-filetto::after {
+  content: '';
+  flex: 1;
+  height: 0;
+  border-top: 1px solid currentColor;
+  box-shadow: 0 2px 0 -1px currentColor;
+  opacity: 0.7;
+}
+.ui-filetto > span {
+  width: 0.45em;
+  height: 0.45em;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+/* ---------- Voci di menu ---------- */
+
+.ui-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+.ui-voce {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  width: 100%;
+  padding: 0.2em 0.3em 0.26em 0.2em;
+  margin-left: -0.2em;
+  border: 0;
+  background: none;
+  color: var(--inchiostro);
+  font-family: var(--f-titolo);
+  font-size: var(--t-grande);
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.15s ease;
+}
+.ui-voce-segno {
+  flex: none;
+  display: inline-block;
+  width: 0.8em;
+  color: var(--vermiglio);
+  font-family: var(--f-testo);
+  opacity: 0;
+  transform: translateX(-0.3em);
+  transition: opacity 0.15s ease, transform 0.18s ease;
+}
+.ui-voce-testo {
+  position: relative;
+}
+.ui-voce-tasto {
+  margin-left: auto;
+  padding-left: 1em;
+  font-family: var(--f-testo);
+  font-size: var(--t-piccolo);
+  color: var(--matita);
+}
+/* Sottolineatura a matita: un tratto SVG che si allunga sotto il testo. */
+.ui-voce-testo::after {
+  content: '';
+  position: absolute;
+  left: -0.05em;
+  right: -0.1em;
+  bottom: -0.12em;
+  height: 0.42em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 40 3, 90 9, 140 5 S 190 6, 198 4' fill='none' stroke='%23423d36' stroke-width='2.2' stroke-linecap='round' opacity='.85'/%3E%3Cpath d='M8 9 C 60 6, 120 10, 194 7' fill='none' stroke='%23423d36' stroke-width='1' stroke-linecap='round' opacity='.45'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.32s ease;
+}
+.ui-voce:hover .ui-voce-segno,
+.ui-voce:focus-visible .ui-voce-segno {
+  opacity: 1;
+  transform: none;
+}
+.ui-voce:hover .ui-voce-testo::after,
+.ui-voce:focus-visible .ui-voce-testo::after {
+  clip-path: inset(0 0 0 0);
+}
+/* Focus da tastiera: un ovale tracciato a matita intorno al testo (ben visibile, nello stile del foglio). */
+.ui-radice .ui-voce:focus-visible {
+  outline: none;
+}
+.ui-voce:focus-visible .ui-voce-testo::before {
+  content: '';
+  position: absolute;
+  inset: -0.22em -0.55em -0.2em -0.5em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M18 9 C 60 1, 150 2, 186 12 C 204 20, 199 46, 170 53 C 120 61, 50 59, 18 50 C -4 42, 0 16, 30 7 L 52 4' fill='none' stroke='%23241e19' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  pointer-events: none;
+}
+.ui-voce:disabled,
+.ui-voce[aria-disabled='true'] {
+  color: var(--matita-chiara);
+  cursor: default;
+}
+.ui-voce:disabled .ui-voce-testo::after,
+.ui-voce[aria-disabled='true'] .ui-voce-testo::after {
+  display: none;
+}
+
+/* Bottoni piccoli a forma di etichetta (Indietro, Chiudi, Ripristina…). */
+.ui-bottone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 2.3em;
+  padding: 0.3em 0.9em;
+  border: 1.5px solid var(--inchiostro-2);
+  border-radius: 3px 6px 4px 7px;
+  background: rgba(255, 250, 238, 0.45);
+  color: var(--inchiostro);
+  font-family: var(--f-maiuscoletto);
+  font-size: var(--t-base);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 1px 2px 0 rgba(36, 30, 25, 0.25);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.ui-bottone:hover {
+  background: rgba(255, 250, 238, 0.9);
+}
+.ui-bottone:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+.ui-bottone .ui-tasto {
+  font-size: max(16px, 0.75em);
+}
+.ui-bottone--leggero {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  color: var(--inchiostro-2);
+}
+.ui-bottone--leggero:hover {
+  background: rgba(120, 100, 70, 0.1);
+}
+
+.ui-radice :focus-visible {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: 3px;
+}
+.ui-radice :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Testo solo per i lettori di schermo. */
+.ui-sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Parola tecnica barrata con accanto la parola locale. */
+.ui-parola {
+  white-space: nowrap;
+}
+.ui-parola s {
+  text-decoration: none;
+  position: relative;
+  color: var(--inchiostro-2);
+  font-family: var(--f-testo);
+  font-style: normal;
+  font-size: max(16px, 0.82em);
+}
+.ui-parola s::after {
+  content: '';
+  position: absolute;
+  left: -0.12em;
+  right: -0.12em;
+  top: 52%;
+  height: 0.5em;
+  transform: translateY(-50%) rotate(-3deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M1 6 C 30 4, 60 6.5, 99 3.5' fill='none' stroke='%23241e19' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M3 4.5 C 40 6, 70 3.8, 97 5.5' fill='none' stroke='%23241e19' stroke-width='1' stroke-linecap='round' opacity='.6'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+.ui-parola b {
+  font-family: var(--f-mano);
+  font-weight: 600;
+  color: var(--inchiostro);
+  margin-left: 0.25em;
+  font-size: 1.08em;
+}
+
+/* Evidenziazione a matita delle voci nuove: tratteggio di grafite dietro al testo. */
+.ui-nuovo {
+  position: relative;
+  isolation: isolate;
+}
+.ui-nuovo::before {
+  content: '';
+  position: absolute;
+  left: -0.35em;
+  right: -0.2em;
+  top: 0.1em;
+  bottom: 0.05em;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cg stroke='%2357534c' stroke-width='1.3' stroke-linecap='round' opacity='.55'%3E%3Cpath d='M-2 10 L10 -2'/%3E%3Cpath d='M-1 18 L18 -1'/%3E%3Cpath d='M1 25 L25 1'/%3E%3Cpath d='M8 27 L27 8'/%3E%3Cpath d='M16 28 L28 16'/%3E%3C/g%3E%3C/svg%3E");
+  border-radius: 40% 12% 35% 10% / 30% 50% 20% 60%;
+  opacity: 0.55;
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 92%, transparent 100%);
+}
+.ui-nuovo-segno {
+  position: absolute;
+  left: -1.35em;
+  top: 0.05em;
+  font-family: var(--f-mano);
+  font-size: 1.25em;
+  color: var(--vermiglio);
+  line-height: 1;
+}

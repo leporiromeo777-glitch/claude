@@ -1,0 +1,155 @@
+/* ---------- Schermata del titolo ---------- */
+
+.ui-titolo {
+  display: flex;
+  align-items: center;
+  padding: clamp(16px, 5vh, 64px) clamp(16px, 6vw, 110px);
+}
+.ui-titolo-ombra {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(22, 15, 8, 0.42) 0%, rgba(22, 15, 8, 0.16) 38%, rgba(22, 15, 8, 0) 60%);
+  pointer-events: none;
+}
+.ui-titolo-cartiglio {
+  width: clamp(380px, 34vw, calc(520px * var(--ui-scala)));
+  padding: 30px 40px 26px 44px;
+  transform: rotate(-0.6deg);
+  transition: transform 0.6s ease;
+}
+.ui-titolo:not(.ui-aperto) .ui-titolo-cartiglio {
+  transform: rotate(-0.6deg) translateY(10px);
+}
+.ui-titolo-fregio {
+  display: flex;
+  justify-content: center;
+  margin: -4px 0 6px;
+}
+.ui-titolo-fregio svg {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+.ui-titolo-nome {
+  margin: 0;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: clamp(40px, 3.9vw, 64px);
+  white-space: nowrap;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--inchiostro);
+}
+.ui-titolo .ui-filetto {
+  width: 62%;
+  margin: 12px auto 8px;
+  font-size: 14px;
+}
+.ui-titolo-sottotitolo {
+  margin: 0 0 22px;
+  text-align: center;
+  font-family: var(--f-titolo);
+  font-style: italic;
+  font-size: var(--t-medio);
+  color: var(--matita);
+}
+.ui-titolo-nav {
+  padding-left: 4px;
+}
+.ui-titolo-menu li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.ui-titolo-salvataggio {
+  margin: 0.1em 0 0.35em 1.7em;
+  font-size: var(--t-piccolo);
+  font-style: italic;
+  color: var(--matita);
+}
+.ui-titolo-domanda {
+  margin: 0 0 0.5em;
+  font-size: var(--t-medio);
+  font-style: italic;
+  color: var(--inchiostro-2);
+}
+.ui-titolo-conferma .ui-voce {
+  font-size: var(--t-medio);
+}
+.ui-titolo-piede {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin: 22px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(36, 30, 25, 0.25);
+  font-size: var(--t-piccolo);
+  color: var(--matita);
+}
+.ui-titolo-aiuto .ui-tasto {
+  margin-right: 0.2em;
+}
+
+/* Il disegno del cilindro (anche nella schermata di caricamento). */
+.ui-cilindro {
+  overflow: visible;
+}
+.ui-cil-contorno {
+  fill: none;
+  stroke: var(--inchiostro);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.ui-cil-generatrice {
+  fill: none;
+  stroke: var(--matita);
+  stroke-width: 0.7;
+  opacity: 0.75;
+  stroke-linecap: round;
+}
+.ui-cil-finestra {
+  fill: var(--notte);
+  opacity: 0.78;
+}
+.ui-cil-valle ellipse {
+  fill: rgba(127, 148, 102, 0.35);
+  stroke: var(--inchiostro-2);
+  stroke-width: 0.7;
+}
+.ui-cil-valle path {
+  fill: none;
+  stroke: var(--inchiostro-2);
+  stroke-width: 0.6;
+}
+.ui-cil-valle .ui-cil-campanile {
+  fill: #fbf7ec;
+  stroke: var(--inchiostro);
+  stroke-width: 0.8;
+}
+.ui-cil-lago path {
+  fill: none;
+  stroke: var(--giada);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+.ui-cil-linea {
+  stroke: var(--ottone);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1 5;
+}
+.ui-cil-lanterna {
+  fill: var(--inchiostro);
+}
+
+@media (max-width: 720px) {
+  .ui-titolo {
+    justify-content: center;
+  }
+  .ui-titolo-cartiglio {
+    width: min(100%, 440px);
+    padding: 24px 26px 20px;
+  }
+}

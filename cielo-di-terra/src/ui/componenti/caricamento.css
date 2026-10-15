@@ -1,0 +1,158 @@
+/* ---------- Schermata di caricamento ---------- */
+
+.ui-caricamento {
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background-color: var(--carta);
+  background-image:
+    var(--grana-fine),
+    var(--grana-fibre),
+    var(--grana-macchie),
+    radial-gradient(ellipse at 50% 45%, rgba(255, 251, 240, 0.6) 0%, rgba(255, 251, 240, 0) 50%, rgba(120, 88, 44, 0.32) 100%);
+}
+.ui-car-foglio {
+  width: min(640px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.ui-car-disegno svg {
+  width: min(420px, 100%);
+  height: auto;
+}
+.ui-car-titolo {
+  margin: 18px 0 26px;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: calc(40px * var(--ui-scala));
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.ui-car-barra {
+  position: relative;
+  width: min(460px, 100%);
+  height: 16px;
+}
+.ui-car-barra svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ui-car-guida {
+  fill: none;
+  stroke: rgba(84, 116, 150, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  vector-effect: non-scaling-stroke;
+}
+.ui-car-tratto {
+  fill: none;
+  stroke: var(--inchiostro);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+  transition: stroke-dashoffset 0.4s ease;
+}
+/* La punta della matita che segue la linea. */
+.ui-car-matita {
+  position: absolute;
+  top: -20px;
+  left: calc(var(--p, 0) * 100%);
+  width: 6px;
+  height: 26px;
+  margin-left: -2px;
+  border-radius: 1px 1px 3px 3px;
+  background: linear-gradient(180deg, #c9a35e 0 62%, #e9d4a8 62% 84%, #3a3833 84%);
+  transform: rotate(28deg);
+  transform-origin: bottom center;
+  transition: left 0.4s ease;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25);
+}
+.ui-car-stato {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(460px, 100%);
+  margin-top: 10px;
+  font-size: var(--t-base);
+  color: var(--matita);
+}
+.ui-car-testo {
+  margin: 0;
+  font-style: italic;
+}
+.ui-car-percento {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.ui-car-proverbio {
+  margin: 46px 0 0;
+  max-width: 34em;
+  min-height: 2.8em;
+  font-family: var(--f-titolo);
+  font-style: italic;
+  font-size: var(--t-medio);
+  line-height: 1.35;
+  color: var(--inchiostro-2);
+}
+.ui-car-proverbio::before {
+  content: '«';
+}
+.ui-car-proverbio::after {
+  content: '»';
+}
+.ui-car-proverbio--entra {
+  animation: ui-car-dissolvi 0.9s ease both;
+}
+@keyframes ui-car-dissolvi {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Il cilindro si disegna a matita, una linea dopo l'altra. */
+.ui-cilindro--animato .ui-cil-contorno,
+.ui-cilindro--animato .ui-cil-generatrice {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: ui-car-disegna 2.4s ease forwards;
+}
+.ui-cilindro--animato .ui-cil-generatrice {
+  animation-duration: 3.2s;
+  animation-delay: 0.6s;
+}
+.ui-cilindro--animato .ui-cil-finestra,
+.ui-cilindro--animato .ui-cil-linea,
+.ui-cilindro--animato .ui-cil-lanterna,
+.ui-cilindro--animato .ui-cil-valle,
+.ui-cilindro--animato .ui-cil-lago {
+  opacity: 0;
+  animation: ui-car-appari 1.2s 1.4s ease forwards;
+}
+.ui-cilindro--animato .ui-cil-valle {
+  animation-delay: 0.9s;
+}
+@keyframes ui-car-disegna {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ui-car-appari {
+  to {
+    opacity: 0.82;
+  }
+}
+.ui-ridotto .ui-cilindro--animato .ui-cil-contorno,
+.ui-ridotto .ui-cilindro--animato .ui-cil-generatrice {
+  stroke-dashoffset: 0;
+}
+.ui-ridotto .ui-cilindro--animato .ui-cil-finestra,
+.ui-ridotto .ui-cilindro--animato .ui-cil-linea,
+.ui-ridotto .ui-cilindro--animato .ui-cil-lanterna,
+.ui-ridotto .ui-cilindro--animato .ui-cil-valle,
+.ui-ridotto .ui-cilindro--animato .ui-cil-lago {
+  opacity: 0.82;
+}
