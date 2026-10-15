@@ -108,7 +108,11 @@
     },
     "indizio": {
       "sopra": "Alle {ora} {sopra} deve passare sopra {sotto}.",
-      "quiete": "Alle {ora} lascia stare i fili."
+      "quiete": "Alle {ora} lascia stare i fili: fissala così.",
+      "sopraAltri": "Alle {ora} {sopra} deve passare sopra {sotto}. {altri, plural, one {E in quest'ora c'è ancora un incrocio da sistemare.} other {E in quest'ora ci sono ancora # incroci da sistemare.}}",
+      "verso": "Alle {ora} è {sopra} che deve passare sopra {sotto}: rovescia l'incrocio.{altri, plural, =0 {} one { E c'è ancora un incrocio da sistemare.} other { E ci sono ancora # incroci da sistemare.}}",
+      "troppo": "Alle {ora} {a} e {b} non si devono incrociare: sciogli quell'incrocio.{altri, plural, =0 {} one { E c'è ancora un incrocio da sistemare.} other { E ci sono ancora # incroci da sistemare.}}",
+      "va": "Quest'ora va bene: fissala."
     },
     "fantasma": "Alle {ora}: {sopra} sopra {sotto}. Te l'ho tratteggiato.",
     "fantasma.quiete": "In questa riga non serve nessun incrocio.",
@@ -135,7 +139,15 @@
     "fantasmaSi": "Sì, mostramelo (perdi il filo d'oro)",
     "fantasmaNo": "No, ci provo da sola",
     "archivio.spinta": "Guarda chi esce, chi entra, chi porta che cosa: i nomi sono scritti nel merletto.",
-    "archivio.indizio": "Chi parte col vaporetto, chi passa da chi: un filo alla volta, e prova tre nomi insieme."
+    "archivio.indizio": "Chi parte col vaporetto, chi passa da chi: un filo alla volta, e prova tre nomi insieme.",
+    "fantasma.due": "Alle {ora}: {sopra} sopra {sotto}, e {sopra2} sopra {sotto2}. Te li ho tratteggiati.",
+    "fantasma.tre": "Alle {ora}: {sopra} sopra {sotto}, {sopra2} sopra {sotto2} e {sopra3} sopra {sotto3}. Te li ho tratteggiati.",
+    "fantasma.va": "Alle {ora} la bozza è già giusta: fissala.",
+    "nomePrima": "Prima appunta il tuo nome: tocca il fuso di chi deve ricordarlo. Poi chiedimi di nuovo.",
+    "seLasci": "Vale se lasci cadere {richieste}.",
+    "richiestaUna": "la richiesta di {nome}",
+    "coppia": "{a} e {b}",
+    "sciogli": "{n, plural, one {E sciogli l'incrocio fra {elenco}.} other {E sciogli gli incroci fra {elenco}.}}"
   },
   "richieste": {
     "di": "Bigliettino di {nome}",

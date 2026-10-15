@@ -9,7 +9,7 @@
  * Niente allocazioni nel ciclo: il modello (render/model.ts) si ricalcola solo
  * quando la notte cambia; qui si leggono campi e si disegna.
  */
-import type { AssetStore, Side, ThreadId } from '../../core/types';
+import type { AssetStore, Crossing, Side, ThreadId } from '../../core/types';
 import type { TomboloLayout } from '../layout';
 import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import { visualOf } from '../visuals';
@@ -52,9 +52,11 @@ export interface Overlay {
   /** Riga e colonna evidenziate da un suggerimento (−1 = nessuna). */
   hintRow: number;
   hintCol: number;
-  /** Incrocio fantasma del suggerimento. */
+  /** Incrocio fantasma del suggerimento (il primo; −1 = nessuno). */
   ghostPair: number;
   ghostOver: Side;
+  /** Tutti gli incroci fantasma della riga (R2-D1: il Fantasma mostra la riga intera). */
+  ghosts: Crossing[];
   /** Anteprima di una riga passata (riavvolgimento), −1 = nessuna. */
   previewRow: number;
   previewStacks: StackView[] | null;
@@ -94,6 +96,7 @@ export function emptyOverlay(): Overlay {
     hintCol: -1,
     ghostPair: -1,
     ghostOver: 'L',
+    ghosts: [],
     previewRow: -1,
     previewStacks: null,
     cursorPair: -1,
@@ -325,27 +328,30 @@ export class LaceRenderer {
       if (o.hintCol >= 0) ctx.strokeRect((l.colX[o.hintCol] ?? 0) + 2, y0 + 3, l.colW * (o.ghostPair >= 0 ? 2 : 1) - 4, l.rowH - 6);
       ctx.globalAlpha = 1;
     }
-    if (o.ghostPair >= 0 && !m.done) {
+    if ((o.ghostPair >= 0 || o.ghosts.length > 0) && !m.done) {
       const y0 = top + rowTop(l, cur);
-      const xa = g.colCx[o.ghostPair] ?? 0;
-      const xb = g.colCx[o.ghostPair + 1] ?? 0;
+      const list: readonly Crossing[] = o.ghosts.length > 0 ? o.ghosts : [{ pair: o.ghostPair, over: o.ghostOver }];
       const p = poolPoly(2);
       ctx.lineCap = 'butt';
       ctx.setLineDash(GHOST_DASH);
-      ctx.lineWidth = 4;
       ctx.strokeStyle = P.ottone;
       ctx.globalAlpha = 0.85;
-      // Prima il filo sotto, poi quello sopra.
-      const overLeft = o.ghostOver === 'L';
-      sampleThread(p, overLeft ? xb : xa, y0 + 2, overLeft ? xa : xb, y0 + l.rowH - 2, 12, 0.5);
-      ctx.beginPath();
-      traceCurve(ctx, p);
-      ctx.stroke();
-      sampleThread(p, overLeft ? xa : xb, y0 + 2, overLeft ? xb : xa, y0 + l.rowH - 2, 12, 0.5);
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      traceCurve(ctx, p);
-      ctx.stroke();
+      for (const gc of list) {
+        const xa = g.colCx[gc.pair] ?? 0;
+        const xb = g.colCx[gc.pair + 1] ?? 0;
+        // Prima il filo sotto, poi quello sopra.
+        const overLeft = gc.over === 'L';
+        ctx.lineWidth = 4;
+        sampleThread(p, overLeft ? xb : xa, y0 + 2, overLeft ? xa : xb, y0 + l.rowH - 2, 12, 0.5);
+        ctx.beginPath();
+        traceCurve(ctx, p);
+        ctx.stroke();
+        sampleThread(p, overLeft ? xa : xb, y0 + 2, overLeft ? xb : xa, y0 + l.rowH - 2, 12, 0.5);
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        traceCurve(ctx, p);
+        ctx.stroke();
+      }
       ctx.setLineDash(NO_DASH);
       ctx.lineCap = 'round';
       ctx.globalAlpha = 1;
@@ -588,22 +594,17 @@ export class LaceRenderer {
 
   private drawStacks(ctx: CanvasRenderingContext2D, l: TomboloLayout, stacks: readonly StackView[], y0: number, m: LaceModel | null): void {
     const g = this.geom;
-    const k = l.scale ?? 1;
     for (let i = 0; i < stacks.length; i++) {
       const st = stacks[i] as StackView;
       const s = this.rig.get(st.thread);
       const x0 = g.colCx[st.col] ?? 0;
       const x1 = s ? this.rig.xOf(s) : x0;
-      let y = y0;
-      for (let k = 0; k < st.beads.length && k < 5; k++) {
-        const b = st.beads[k] as StackView['beads'][number];
+      for (const slot of stackSlots(l, st, x0, x1, y0)) {
+        const b = slot.bead;
         if (m && this.flights.flying(st.thread, b.id)) continue;
-        // Le perline scendono lungo il filo che pende: x interpolata verso il fuso.
-        const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
         // Una lettera col destinatario accanto trema verso di lui (non col movimento ridotto).
         const shake = b.tremble !== 0 && !this.rig.reduced ? b.tremble * (1.6 + 1.6 * Math.sin(this.frameTime * 24)) : 0;
-        drawBead(ctx, b.type, x0 + (x1 - x0) * f * f + shake, y, k, b.delivered);
-        y += BEAD_STEP * k;
+        drawBead(ctx, b.type, slot.x + shake, slot.y, slot.scale, b.delivered);
       }
     }
   }
@@ -611,6 +612,48 @@ export class LaceRenderer {
 
 /** Passo verticale fra le perline di una pila (px CSS a scala 1). */
 export const BEAD_STEP = 16;
+/** Perline disegnate al massimo per pila. */
+export const STACK_MAX = 5;
+/**
+ * Scala minima delle perline sugli schermi stretti (Q052: su telefono si vedono
+ * appena): le perline in mano ai fili sono il cuore del puzzle.
+ */
+export const BEAD_SCALE_NARROW = 1.25;
+
+/** Scala delle perline appese ai fili per un layout. */
+export function beadScale(l: Pick<TomboloLayout, 'scale' | 'kind'>): number {
+  const k = l.scale ?? 1;
+  return l.kind === 'stretto' ? Math.max(k, BEAD_SCALE_NARROW) : k;
+}
+
+export interface StackSlot {
+  bead: StackView['beads'][number];
+  x: number;
+  y: number;
+  /** Scala con cui si disegna (sempre > 0: Q011, la prima perlina era a scala 0). */
+  scale: number;
+}
+
+/**
+ * Dove si disegnano le perline di una pila (renderer e bersagli dei tocchi): la
+ * prima a `y0`, le altre una sotto l'altra con passo `BEAD_STEP × scala`, lungo
+ * il filo che pende dalla colonna `x0` verso il fuso in `x1`.
+ */
+export function stackSlots(l: Pick<TomboloLayout, 'scale' | 'kind' | 'spindles'>, st: Pick<StackView, 'beads'>, x0: number, x1: number, y0: number): StackSlot[] {
+  const k = beadScale(l);
+  const out: StackSlot[] = [];
+  let y = y0;
+  for (let j = 0; j < st.beads.length && j < STACK_MAX; j++) {
+    const bead = st.beads[j];
+    if (!bead) continue;
+    // Le perline scendono lungo il filo che pende: x interpolata verso il fuso.
+    const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
+    out.push({ bead, x: x0 + (x1 - x0) * f * f, y, scale: k });
+    y += BEAD_STEP * k;
+  }
+  return out;
+}
+
 
 /** X dell'icona di un evento di bordo (barca, vaporetto, filo nero). */
 export function edgeX(l: Pick<TomboloLayout, 'colX' | 'cols' | 'colW'>, side: number): number {

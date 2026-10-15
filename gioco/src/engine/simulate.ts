@@ -5,7 +5,7 @@
  * ai suggerimenti, a `levels:check` e ai test.
  */
 import type { Condition, CondReport, LaceEvent, LaceState, LevelDef, RowMoves, RunContext, Violation } from '../core/types';
-import { applyRow } from './rules';
+import { applyRow, forcedCrossings } from './rules';
 import { initialState } from './state';
 import { evaluate } from './conditions';
 
@@ -30,14 +30,29 @@ export function simulate(level: LevelDef, ctx: RunContext, rows: readonly RowMov
     if (!res.ok) return { ok: false, timeline, events, rows: applied, failedAt: { hour: s.hour + 1, violations: res.violations } };
     timeline.push(res.state);
     events.push(res.events);
-    applied.push({ hour: res.state.hour, crossings: crossingsOf(res.events, r.crossings) });
+    applied.push({ hour: res.state.hour, crossings: crossingsOf(res.events, r.crossings, forcedPairsOf(level, s, ctx)) });
   }
   return { ok: true, timeline, events, rows: applied };
 }
 
-/** Incroci della riga ricostruiti dagli eventi 'incontro'; quelli che il giocatore non ha chiesto sono forzati. */
-export function crossingsOf(events: readonly LaceEvent[], draft: readonly RowMoves['crossings'][number][]): RowMoves['crossings'] {
-  const mine = new Set(draft.filter((c) => !c.forced).map((c) => c.pair));
+/**
+ * Coppie degli incroci forzati (filo nero) della riga che parte da `state`.
+ * Servono a `crossingsOf`: un incrocio del giocatore identico a uno forzato
+ * (l'«eco», che il motore accetta in silenzio) resta forzato e non si conta
+ * (Q024: in g21 gli incroci di Livia rifatti a mano finivano nell'eleganza).
+ * Con l'autotessitura il piano dipende dal filo controllato: nessuna coppia.
+ */
+export function forcedPairsOf(level: LevelDef, state: LaceState, ctx: RunContext): Set<number> {
+  if (level.autoweave || state.hour >= level.endHour) return new Set();
+  return new Set(forcedCrossings(level, state, ctx).map((c) => c.pair));
+}
+
+/**
+ * Incroci della riga ricostruiti dagli eventi 'incontro'; quelli che il giocatore
+ * non ha chiesto, o che erano già forzati (`forcedPairs`), sono forzati.
+ */
+export function crossingsOf(events: readonly LaceEvent[], draft: readonly RowMoves['crossings'][number][], forcedPairs?: ReadonlySet<number>): RowMoves['crossings'] {
+  const mine = new Set(draft.filter((c) => !c.forced && !forcedPairs?.has(c.pair)).map((c) => c.pair));
   const out: RowMoves['crossings'] = [];
   for (const e of events) {
     if (e.k !== 'incontro') continue;

@@ -72,9 +72,16 @@ export function conditionKey(state: 'fallita' | 'rischio', t: Condition['t']): s
  *   spinta.spillo     spillo d'ottone più urgente {chi, luogo, ora}
  *   spinta.richiesta  richiesta più a rischio {ora}
  *   spinta.generico   frase generica della nonna
- *   indizio.sopra     «Alle {ora} {sopra} deve passare sopra {sotto}»
- *   indizio.quiete    «Alle {ora} lascia stare i fili»
- *   fantasma          incrocio giusto della riga corrente {ora, sopra, sotto}
+ *   indizio.sopra     «Alle {ora} {sopra} deve passare sopra {sotto}» (manca nella bozza)
+ *   indizio.sopraAltri  lo stesso, e nella riga c'è ancora {altri} da sistemare
+ *   indizio.verso     l'incrocio c'è ma col verso rovesciato {ora, sopra, sotto, altri}
+ *   indizio.troppo    un incrocio della bozza che la soluzione non ha {ora, a, b, altri}
+ *   indizio.va        la bozza è la riga giusta: «Quest'ora va bene: fissala» {ora}
+ *   indizio.quiete    «Alle {ora} lascia stare i fili» (riga vuota, bozza vuota)
+ *   fantasma          l'unico incrocio della riga corrente {ora, sopra, sotto}
+ *   fantasma.due      i due incroci della riga {ora, sopra, sotto, sopra2, sotto2}
+ *   fantasma.tre      i tre incroci della riga {… sopra3, sotto3}
+ *   fantasma.va       la bozza è già la riga giusta {ora}
  *   fantasma.quiete   in questa riga non serve nessun incrocio {ora}
  *   impossibile       da qui non si arriva: disfa qualche riga
  */
@@ -83,8 +90,15 @@ export const HINT_KEYS = {
   spintaRichiesta: 'tombolo.hint.spinta.richiesta',
   spintaGenerico: 'tombolo.hint.spinta.generico',
   indizioSopra: 'tombolo.hint.indizio.sopra',
+  indizioSopraAltri: 'tombolo.hint.indizio.sopraAltri',
+  indizioVerso: 'tombolo.hint.indizio.verso',
+  indizioTroppo: 'tombolo.hint.indizio.troppo',
+  indizioVa: 'tombolo.hint.indizio.va',
   indizioQuiete: 'tombolo.hint.indizio.quiete',
   fantasma: 'tombolo.hint.fantasma',
+  fantasmaDue: 'tombolo.hint.fantasma.due',
+  fantasmaTre: 'tombolo.hint.fantasma.tre',
+  fantasmaVa: 'tombolo.hint.fantasma.va',
   fantasmaQuiete: 'tombolo.hint.fantasma.quiete',
   impossibile: 'tombolo.hint.impossibile',
 } as const;

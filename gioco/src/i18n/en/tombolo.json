@@ -108,7 +108,11 @@
     },
     "indizio": {
       "sopra": "At {ora}, {sopra} must pass over {sotto}.",
-      "quiete": "At {ora}, leave the threads alone."
+      "quiete": "At {ora}, leave the threads alone: fix it as it is.",
+      "sopraAltri": "At {ora}, {sopra} must pass over {sotto}. {altri, plural, one {And this hour still has one more crossing to fix.} other {And this hour still has # more crossings to fix.}}",
+      "verso": "At {ora} it is {sopra} who must pass over {sotto}: turn the crossing over.{altri, plural, =0 {} one { And one more crossing still needs fixing.} other { And # more crossings still need fixing.}}",
+      "troppo": "At {ora}, {a} and {b} must not cross: undo that crossing.{altri, plural, =0 {} one { And one more crossing still needs fixing.} other { And # more crossings still need fixing.}}",
+      "va": "This hour is right: fix it."
     },
     "fantasma": "At {ora}: {sopra} over {sotto}. I've sketched it for you.",
     "fantasma.quiete": "This row needs no crossing.",
@@ -135,7 +139,15 @@
     "fantasmaSi": "Yes, show me (lose the golden thread)",
     "fantasmaNo": "No, I'll try on my own",
     "archivio.spinta": "Look at who leaves, who arrives, who carries what: the names are written in the lace.",
-    "archivio.indizio": "Who leaves on the ferry, who passes to whom: one thread at a time, and try three names together."
+    "archivio.indizio": "Who leaves on the ferry, who passes to whom: one thread at a time, and try three names together.",
+    "fantasma.due": "At {ora}: {sopra} over {sotto}, and {sopra2} over {sotto2}. I've sketched them for you.",
+    "fantasma.tre": "At {ora}: {sopra} over {sotto}, {sopra2} over {sotto2} and {sopra3} over {sotto3}. I've sketched them for you.",
+    "fantasma.va": "At {ora} your draft is already right: fix it.",
+    "nomePrima": "First pin your name: touch the bobbin of whoever should remember it. Then ask me again.",
+    "seLasci": "This holds if you let go of {richieste}.",
+    "richiestaUna": "{nome}'s request",
+    "coppia": "{a} and {b}",
+    "sciogli": "{n, plural, one {And undo the crossing between {elenco}.} other {And undo the crossings between {elenco}.}}"
   },
   "richieste": {
     "di": "Note from {nome}",

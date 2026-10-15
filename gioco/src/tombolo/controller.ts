@@ -32,7 +32,7 @@ import type {
 } from '../core/types';
 import { el } from '../core/ui/dom';
 import { button, textOf } from '../core/ui/components';
-import { solveAsync } from '../engine/index';
+import { type RowHint, solveAsync } from '../engine/index';
 import { type Diagnosis, Session } from './session';
 import { BAND, type NotePlacement, SLOT_R, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, rowsBelow, scrollLimits, slotCenter } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
@@ -609,8 +609,9 @@ export class NightController {
       };
     });
     this.requests.update(tokens);
-    // Salta le ore quiete (D02.3): «Fissa fino alle N» quando almeno 2 righe si fissano vuote senza eventi.
-    const quiet = this.completed || this.previewRow >= 0 ? { count: 0, until: 0 } : s.quietRun();
+    // Salta le ore quiete (D02.3): «Fissa fino alle N» quando almeno 2 righe si fissano vuote senza eventi
+    // e (R2-D1, Q001) il solver conferma che da lì le richieste si compiono ancora.
+    const quiet = this.completed || this.previewRow >= 0 ? { count: 0, until: 0 } : this.confirmedQuiet();
     this.quietUntil = quiet.count >= 2 ? quiet.until : null;
     this.requests.setSkip(this.quietUntil !== null ? formatHour(this.textDeps, this.quietUntil) : null);
     // Pulsante Obiettivi con il contatore «2/5» (C08): obiettivi, spilli, rancore, fili da nominare.
@@ -1034,7 +1035,7 @@ export class NightController {
       this.refresh();
       return v;
     }
-    if (this.lastHint?.ghost && this.lastHint.ghost.pair === pair) this.clearHintMarks();
+    this.ghostDone(pair, over);
     this.launchFlights(pair);
     this.validAction();
     this.tutorial.onCross(hour, s.wrongSide(pair));
@@ -1256,6 +1257,27 @@ export class NightController {
 
   /** Ultima ora che «Fissa fino alle N» fisserebbe (null = non offerto). */
   quietUntil: number | null = null;
+  /** Conferma del solver per «Fissa fino alle N» (per stato della notte; null = in attesa). */
+  private quietCheck: { key: string; result: { count: number; until: number } | null } | null = null;
+
+  /** Corsa di ore quiete confermata (subito se si può, altrimenti quando il solver risponde). */
+  private confirmedQuiet(): { count: number; until: number } {
+    const s = this.session;
+    const run = s.quietRun();
+    const none = { count: 0, until: 0 };
+    if (run.count < 2) return none;
+    const key = `${s.hour}|${s.hintSig()}|${run.count}`;
+    if (this.quietCheck?.key === key) return this.quietCheck.result ?? none;
+    const now = s.quietConfirmedNow(run);
+    this.quietCheck = { key, result: now };
+    if (now) return now;
+    void s.confirmQuietRun(run).then((r) => {
+      if (this.destroyed || this.quietCheck?.key !== key) return;
+      this.quietCheck.result = r;
+      if (r.count >= 2) this.updateUi();
+    });
+    return none;
+  }
 
   /**
    * Salta le ore quiete (D02.3, Maiusc+Invio): fissa riga per riga le ore vuote e si
@@ -1454,17 +1476,59 @@ export class NightController {
     this.overlay.hintRow = -1;
     this.overlay.hintCol = -1;
     this.overlay.ghostPair = -1;
+    this.overlay.ghosts = [];
     if (this.popup?.el.dataset.test === 'tb-popup-hint') this.popup.close();
   }
 
+  /** Il giocatore ha fatto un incrocio del Fantasma: quel tratteggio sparisce, e con l'ultimo tutto. */
+  private ghostDone(pair: number, over: Side): void {
+    const o = this.overlay;
+    if (o.ghosts.length === 0) {
+      if (o.ghostPair === pair) this.clearHintMarks();
+      return;
+    }
+    const rest = o.ghosts.filter((g) => !(g.pair === pair && g.over === over));
+    if (rest.length === o.ghosts.length) return;
+    if (rest.length === 0) {
+      this.clearHintMarks();
+      return;
+    }
+    o.ghosts = rest;
+    o.ghostPair = rest[0]?.pair ?? -1;
+    o.ghostOver = rest[0]?.over ?? 'L';
+  }
+
+  /**
+   * Suggerimenti della riga (D07.2) e loro validità (R2-D1): cambiando ora si
+   * riparte dalla Spinta; cambiando nome, bozza o richieste lasciate cadere i
+   * suggerimenti già calcolati non valgono più (si ricalcolano), ma la lampada
+   * riapre lo stesso gradino.
+   */
   private resetHintRow(): void {
-    const h = this.session.done ? -2 : this.session.hour;
-    if (this.hintRowHour === h) return;
+    const s = this.session;
+    const h = s.done ? -2 : s.hour;
+    const sig = `${s.hintSig()}|${s.draft.map((c) => `${c.pair}${c.over}`).sort().join(',')}`;
+    if (this.hintRowHour === h) {
+      if (this.hintStateSig !== sig) {
+        this.hintStateSig = sig;
+        this.rowHints.clear();
+        this.pendingGhost = null;
+        this.diagnosis = null;
+      }
+      return;
+    }
     this.hintRowHour = h;
+    this.hintStateSig = sig;
     this.hintMax = -1;
     this.rowHints.clear();
+    this.countedTiers.clear();
     this.pendingGhost = null;
   }
+
+  /** Firma dello stato su cui sono stati calcolati i suggerimenti della riga. */
+  private hintStateSig = '';
+  /** Gradini già contati in questa riga (un suggerimento ricalcolato non si conta di nuovo). */
+  private readonly countedTiers = new Set<HintTier>();
 
   /** Nell'Archivio, a righe finite o fra uno strappo e l'altro: suggerimenti sui nomi. */
   private namingHints(): boolean {
@@ -1555,7 +1619,9 @@ export class NightController {
         return h;
       }
       if (!this.rowHints.has(h.tier)) {
-        s.useHint(h);
+        if (!this.countedTiers.has(h.tier)) s.useHint(h);
+        else if (h.tier === 'fantasma' && h.ghost) s.fantasmaUsed = true;
+        this.countedTiers.add(h.tier);
         this.rowHints.set(h.tier, h);
       }
       if (h.tier === 'spinta' && !this.diagnosis) this.lastSpinta = this.hintKey(h);
@@ -1570,15 +1636,26 @@ export class NightController {
     o.hintCol = h.highlight?.column ?? -1;
     o.ghostPair = h.ghost ? h.ghost.pair : -1;
     o.ghostOver = h.ghost?.over ?? 'L';
+    o.ghosts = (h as RowHint).ghosts?.map((g) => ({ pair: g.pair, over: g.over })) ?? (h.ghost ? [{ pair: h.ghost.pair, over: h.ghost.over }] : []);
     if (o.hintRow >= 1) this.revealRow(o.hintRow);
     const maxTier = this.namingHints() ? 1 : TIERS.length - 1;
     const next = this.hintMax < maxTier ? (TIERS[this.hintMax + 1] as HintTier) : null;
     const hint = h;
+    const leavesOut = h.tier === 'spinta' ? [] : [...s.hintLeavesOut];
     this.openPopup(
       'tb-popup-hint',
       (body) => {
         const card = hintCard({ tier: hint.tier, textKey: hint.textKey, params: nameParams(this.textDeps, hint.params), next }, () => void this.advanceHint());
         if (hint.tier === 'spinta' && this.diagnosis) this.appendDiagnosisActions(card, this.diagnosis);
+        if (hint.tier !== 'spinta' && leavesOut.length > 0) this.appendLeavesOut(card, leavesOut);
+        const extra = (hint as RowHint).extra ?? [];
+        if (extra.length > 0) {
+          const st = this.session.state;
+          const names = extra.map((c) => this.s.i18n.t('tombolo.hint.coppia', { a: threadName(this.textDeps, st.pos[c.pair] ?? ''), b: threadName(this.textDeps, st.pos[c.pair + 1] ?? '') }));
+          const p = textOf('tombolo.hint.sciogli', { elenco: this.joinList(names), n: extra.length }, 'p', { className: 'tb-hint-text' });
+          p.dataset.test = 'tb-suggerimento-sciogli';
+          card.insertBefore(p, card.querySelector('.tb-hint-text')?.nextSibling ?? null);
+        }
         body.appendChild(card);
       },
       // H con la scheda aperta: il gradino successivo (come il pulsante della scheda).
@@ -1607,6 +1684,25 @@ export class NightController {
       return { tier: 'spinta', textKey: 'tombolo.hint.incompatibili', params: { richieste } };
     }
     return d.hour === null ? { tier: 'spinta', textKey: 'tombolo.hint.impossibile' } : { tier: 'spinta', textKey: 'tombolo.hint.obiettiviTardi', params: { ora: d.hour } };
+  }
+
+  /** Nomi degli autori dei bigliettini (come li ha attribuiti il giocatore). */
+  private noteAuthor(id: NoteId): string {
+    const acc = this.params.accepted.find((a) => a.noteId === id);
+    const ch = acc ? this.s.content.characters.get(acc.authorGuess ?? acc.author) : undefined;
+    return ch ? this.s.i18n.t(ch.nameKey) : id;
+  }
+
+  /** «Vale se lasci cadere la richiesta di …» (Q013): l'Indizio non sceglie in silenzio. */
+  private appendLeavesOut(card: HTMLElement, notes: readonly NoteId[]): void {
+    const names = notes.map((id) => this.noteAuthor(id));
+    const t = this.s.i18n.t.bind(this.s.i18n);
+    const richieste = names.length === 1 ? t('tombolo.hint.richiestaUna', { nome: names[0] ?? '' }) : names.length === 2 ? t('tombolo.hint.richiesteDue', { a: names[0] ?? '', b: names[1] ?? '' }) : t('tombolo.hint.richiesteMolte', { elenco: this.joinList(names) });
+    const p = textOf('tombolo.hint.seLasci', { richieste }, 'p', { className: 'tb-hint-warn' });
+    p.dataset.test = 'tb-suggerimento-selasci';
+    const text = card.querySelector('.tb-hint-text');
+    if (text && text.nextSibling) card.insertBefore(p, text.nextSibling);
+    else card.appendChild(p);
   }
 
   /** Pulsanti della diagnosi: lascia cadere lo spillo di …, disfa fino alle … */

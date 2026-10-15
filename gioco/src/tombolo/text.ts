@@ -134,7 +134,7 @@ export function articolata(prep: 'di', s: string): string {
   return `${map[art] ?? `${prep} `}${rest}`;
 }
 
-const THREAD_PARAMS = ['chi', 'sopra', 'sotto', 'a', 'b', 'vicino', 'nero'];
+const THREAD_PARAMS = ['chi', 'sopra', 'sotto', 'a', 'b', 'vicino', 'nero', 'sopra2', 'sotto2', 'sopra3', 'sotto3'];
 const HOUR_PARAMS = ['ora', 'da', 'a', 'dalle', 'alle', 'fine'];
 
 /** Parametri di un messaggio del motore con i nomi al posto degli id e le ore nella lingua corrente. */

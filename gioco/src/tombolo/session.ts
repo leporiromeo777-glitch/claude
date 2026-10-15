@@ -57,6 +57,7 @@ import {
   forcedCrossings,
   hintFor,
   HINT_KEYS,
+  type RowHint,
   initialState,
   metrics,
   planAutoRow,
@@ -68,7 +69,7 @@ import {
   unreachablePins,
   violationKey,
 } from '../engine/index';
-import { crossingsOf } from '../engine/simulate';
+import { crossingsOf, forcedPairsOf } from '../engine/simulate';
 import { ARCHIVE_FLAGS, ArchiveBook, archiveActive } from './modes/archive';
 import { occasionProblem, OCCASION_KINDS_ORDER } from './modes/autoweave';
 
@@ -143,6 +144,8 @@ export const ARCHIVE_MISMATCH_KEY = 'tombolo.archivio.nonCoincide';
 export const NOME_FIRST_KEY = 'tombolo.nome.prima';
 /** Modalità senza incroci del giocatore (occasioni, spartito). */
 export const NO_CROSS_KEY = 'tombolo.violazione.forzato';
+/** Suggerimento prima del nome di Ada: appuntalo (R2-D1). */
+export const NOME_HINT_KEY = 'tombolo.hint.nomePrima';
 /** Disfa non permesso dal grado "Senza Disfa". */
 export const NO_UNDO_KEY = 'tombolo.disfa.vietato';
 
@@ -165,6 +168,24 @@ function cloneCrossing(c: Crossing): Crossing {
   const out: Crossing = { pair: c.pair, over: c.over };
   if (c.forced) out.forced = true;
   return out;
+}
+
+/** La condizione parla del nome di Ada (la perlina `nome`)? */
+export function dependsOnNome(c: Condition): boolean {
+  switch (c.t) {
+    case 'ha':
+    case 'nonHa':
+    case 'consegnata':
+    case 'esceCon':
+      return c.bead === 'nome';
+    case 'tutti':
+    case 'almeno':
+      return c.of.some(dependsOnNome);
+    case 'non':
+      return dependsOnNome(c.c);
+    default:
+      return false;
+  }
 }
 
 /** Condizioni attive della notte: obiettivi obbligatori + richieste non lasciate cadere. */
@@ -412,7 +433,8 @@ export class Session implements NightSession {
 
   private commit(res: RowResult, draft: readonly Crossing[], locked: boolean): void {
     const hour = res.state.hour;
-    const row: RowMoves = { hour, crossings: crossingsOf(res.events, draft.filter((c) => !c.forced)) };
+    // Lo stato prima della riga è ancora l'ultimo della timeline: i forzati si ricalcolano da lì (Q024).
+    const row: RowMoves = { hour, crossings: crossingsOf(res.events, draft.filter((c) => !c.forced), forcedPairsOf(this.level, this.state, this._ctx)) };
     this._rows.push(row);
     this._timeline.push(res.state);
     this._events.push(res.events);
@@ -469,6 +491,12 @@ export class Session implements NightSession {
   check(c: Crossing): Violation | null {
     if (this.params.mode === 'replay' || this.params.mode === 'occasioni') return this.violation('forzato', NO_CROSS_KEY);
     if (this.needsNome) return this.violation('bloccato', NOME_FIRST_KEY);
+    // Lo stesso incrocio che il filo nero fa da solo (l'«eco»): non è del giocatore (Q024, R2-D2).
+    if (!this.level.autoweave && this.forced().some((f) => f.pair === c.pair)) {
+      const nero = this.level.nero && (this.state.pos[c.pair] === this.level.nero.thread || this.state.pos[c.pair + 1] === this.level.nero.thread) ? this.level.nero.thread : null;
+      const threads = [this.state.pos[c.pair] ?? '', this.state.pos[c.pair + 1] ?? ''];
+      return this.violation('forzato', violationKey('forzato'), nero ? { threads, params: { nero } } : { threads });
+    }
     const others = this.params.mode === 'controllato' ? [] : this._draft.filter((d) => d.pair !== c.pair);
     return checkCrossing(this.level, this.state, others, c, this._ctx);
   }
@@ -633,6 +661,7 @@ export class Session implements NightSession {
   drop(noteId: NoteId): void {
     if (!this.params.accepted.some((a) => a.noteId === noteId) || this._dropped.includes(noteId)) return;
     this._dropped.push(noteId);
+    this.hintGoals = null;
     this.touch();
   }
 
@@ -660,6 +689,16 @@ export class Session implements NightSession {
    */
   private statusReports(conds: Condition[]): { report: CondReport; anteprima: CondStatus }[] {
     if (conds.length === 0) return [];
+    // Prima che il nome sia appuntato, le condizioni sul nome sono solo «in corso» (R2-D1, Q023).
+    if (this.params.needsNome && this._nomeOn === null && conds.some(dependsOnNome)) {
+      const rest = conds.map((c, i) => ({ c, i })).filter((x) => !dependsOnNome(x.c));
+      const reps = this.statusReports(rest.map((x) => x.c));
+      const out: { report: CondReport; anteprima: CondStatus }[] = conds.map(() => ({ report: { status: 'in_corso' }, anteprima: 'in_corso' }));
+      rest.forEach((x, k) => {
+        out[x.i] = reps[k] as { report: CondReport; anteprima: CondStatus };
+      });
+      return out;
+    }
     const fixed = evaluate(this.level, this._timeline, this._events, conds, this._ctx, this.done);
     // Senza una riga in bozza da fissare (occasioni, spartiti) non c'è anteprima: «si compie
     // se fissi l'ora» non avrebbe senso dove l'ora non la fissa il giocatore (C07).
@@ -768,6 +807,8 @@ export class Session implements NightSession {
     const none = { count: 0, until: this.hour - 1 };
     if (!this.isPlayerRow() || this._draft.length > 0 || this.needsNome) return none;
     if (this.params.mode !== 'normale') return none;
+    // Mai nelle notti con il tutorial (R2-D1, Q001: nel prologo portava dritto a un merletto impossibile).
+    if ((this.level.tutorial?.length ?? 0) > 0) return none;
     const lv = this.level;
     const stops = this.conditionHours();
     for (const p of lv.pins) stops.add(p.hour);
@@ -788,6 +829,65 @@ export class Session implements NightSession {
       n++;
     }
     return n > 0 ? { count: n, until: this.hour + n - 1 } : none;
+  }
+
+  /**
+   * «Fissa fino alle N» solo se le ore vuote lasciano una soluzione per le
+   * condizioni attive (R2-D1, Q001). Senza condizioni basta `quietRun`; se la
+   * soluzione precalcolata lascia vuote quelle righe, basta lei; altrimenti
+   * decide il solver (la più lunga corsa di almeno 2 righe che lascia una
+   * soluzione; nessuna se il solver non conferma in tempo).
+   */
+  quietConfirmedNow(run = this.quietRun()): { count: number; until: Hour } | null {
+    const none = { count: 0, until: this.hour - 1 };
+    if (run.count < 2) return none;
+    if (this.goals().length === 0) return run;
+    const pre = this.precomputed();
+    if (pre && this.matchesPrefix(pre)) {
+      const i = this._rows.length;
+      const empty = pre.slice(i, i + run.count).every((r) => r.crossings.every((c) => c.forced));
+      if (empty) return run;
+    }
+    return null;
+  }
+
+  /** Come `quietConfirmedNow`, ma chiedendo al solver quando serve. */
+  async confirmQuietRun(run = this.quietRun()): Promise<{ count: number; until: Hour }> {
+    const now = this.quietConfirmedNow(run);
+    if (now) return now;
+    const none = { count: 0, until: this.hour - 1 };
+    const goals = this.goals();
+    const after: { state: LaceState; rows: RowMoves[] }[] = [];
+    let st = this.state;
+    const rows = [...this._rows];
+    for (let k = 0; k < run.count; k++) {
+      const r = applyRow(this.level, st, [], this._ctx);
+      if (!r.ok) break;
+      rows.push({ hour: r.state.hour, crossings: crossingsOf(r.events, [], forcedPairsOf(this.level, st, this._ctx)) });
+      st = r.state;
+      after.push({ state: st, rows: [...rows] });
+    }
+    const ok = async (k: number): Promise<boolean> => {
+      const a = after[k - 1];
+      if (!a) return false;
+      const r = await this.solveFromState(goals, a.state, a.rows);
+      return r.status === 'ok';
+    };
+    const max = after.length;
+    if (max < 2) return none;
+    if (await ok(max)) return { count: max, until: this.hour + max - 1 };
+    // Se da k righe vuote si arriva, si arriva anche da k − 1: ricerca binaria.
+    let lo = 2;
+    let hi = max - 1;
+    let best = 0;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (await ok(mid)) {
+        best = mid;
+        lo = mid + 1;
+      } else hi = mid - 1;
+    }
+    return best >= 2 ? { count: best, until: this.hour + best - 1 } : none;
   }
 
   // ───────── Suggerimenti ─────────
@@ -845,6 +945,12 @@ export class Session implements NightSession {
    * corrente) con le condizioni date, entro il tempo dei suggerimenti.
    */
   private async solveFrom(goals: Condition[], index = this._rows.length): Promise<{ status: SolveResult['status'] | 'timeout'; rows?: RowMoves[] }> {
+    const i = Math.max(0, Math.min(this._rows.length, index));
+    return this.solveFromState(goals, this._timeline[i] as LaceState, this._rows.slice(0, i));
+  }
+
+  /** Soluzione da uno stato qualunque (righe già fatte `rowsDone`), entro il tempo dei suggerimenti. */
+  private async solveFromState(goals: Condition[], state: LaceState, rowsDone: RowMoves[]): Promise<{ status: SolveResult['status'] | 'timeout'; rows?: RowMoves[] }> {
     const solver = this.deps.solveAsync ?? engineSolveAsync;
     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
     const ms = this.deps.hintTimeoutMs ?? 1500;
@@ -855,9 +961,7 @@ export class Session implements NightSession {
         resolve({ status: 'timeout' });
       }, ms);
     });
-    const i = Math.max(0, Math.min(this._rows.length, index));
-    const state = this._timeline[i] as LaceState;
-    const req: SolveRequest = { level: this.level, ctx: this._ctx, goals, from: { state, rowsDone: this._rows.slice(0, i) } };
+    const req: SolveRequest = { level: this.level, ctx: this._ctx, goals, from: { state, rowsDone } };
     try {
       const res = await Promise.race([solver(req, ctl?.signal).then((r) => ({ status: r.status, rows: r.rows })), timeout]);
       return res;
@@ -888,12 +992,33 @@ export class Session implements NightSession {
   /** Il filo d'oro di stanotte è ancora possibile? (per chiedere conferma prima del fantasma) */
   goldPossible(oroMin = 3): boolean {
     if (this.fantasmaUsed) return false;
+    // Merletto del giorno e libero: il minimo lo calcolano le schermate, il tombolo non lo sa.
+    // Nel dubbio si chiede conferma (Q061: il Fantasma toglieva il filo d'oro senza chiedere).
+    if (!this.deps.computed && !this.archive) return true;
     const min = this.minIncroci();
     return min !== null && min >= oroMin;
   }
 
   /** Righe della soluzione da seguire per i suggerimenti (le richieste attive, o quelle rimaste dopo una diagnosi). */
   private hintGoals: Condition[] | null = null;
+  /** Firma (righe fissate, nome, richieste lasciate cadere) con cui è stata fatta la diagnosi. */
+  private hintGoalsSig = '';
+  /**
+   * Bigliettini che la soluzione dell'ultimo Indizio o Fantasma NON tiene (Q013):
+   * dopo «non stanno insieme» il suggerimento vale solo se si lasciano cadere.
+   */
+  hintLeavesOut: NoteId[] = [];
+
+  /** Firma di ciò da cui dipendono diagnosi e soluzione dei suggerimenti (R2-D1). */
+  hintSig(): string {
+    return `${this._rows.length}|${this._nomeOn ?? ''}|${[...this._dropped].sort().join(',')}`;
+  }
+
+  /** Condizioni da seguire per i suggerimenti: quelle della diagnosi se è ancora valida. */
+  private currentHintGoals(): Condition[] | null {
+    if (this.hintGoals && this.hintGoalsSig !== this.hintSig()) this.hintGoals = null;
+    return this.hintGoals;
+  }
 
   /**
    * Diagnosi delle richieste (D07.5), quando con le richieste accettate il solver
@@ -907,7 +1032,10 @@ export class Session implements NightSession {
    */
   async diagnose(): Promise<Diagnosis | null> {
     this.hintGoals = null;
+    this.hintGoalsSig = this.hintSig();
     if (!this.isPlayerRow() || this.archive) return null;
+    // Prima del nome di Ada nessun verdetto (R2-D1, Q023): senza il nome le richieste che ne dipendono sembrano impossibili.
+    if (this.needsNome) return null;
     const goals = this.goals();
     if (goals.length === 0) return null;
     const all = await this.solveFrom(goals);
@@ -960,20 +1088,25 @@ export class Session implements NightSession {
   }
 
   /** Suggerimento del gradino `tier`, senza contarlo (vedi `useHint`). */
-  async computeHint(tier: HintTier): Promise<Hint> {
-    const goals = this.hintGoals ?? this.goals();
-    const base = { level: this.level, ctx: this._ctx, timeline: this._timeline, rows: this._rows };
+  async computeHint(tier: HintTier): Promise<RowHint> {
+    const sub = this.currentHintGoals();
+    const goals = sub ?? this.goals();
+    this.hintLeavesOut = [];
+    const base = { level: this.level, ctx: this._ctx, timeline: this._timeline, rows: this._rows, draft: this._draft, gradi: this.params.gradi ?? [] };
     if (this.done) return { tier, textKey: HINT_KEYS.spintaGenerico };
     if (!this.isPlayerRow()) return { tier, textKey: this.level.hintKeys?.spinta ?? HINT_KEYS.spintaGenerico, highlight: { hour: this.hour } };
     if (tier === 'spinta') return hintFor({ ...base, goals, tier });
+    // Prima del nome nessun incrocio è possibile: il suggerimento è appuntarlo (R2-D1, Q023).
+    if (this.needsNome) return { tier, textKey: NOME_HINT_KEY };
     let solution: RowMoves[] | null = null;
+    let used = goals;
     const pre = this.precomputed();
     if (this.archive) {
       // Il rammendo segue la soluzione calcolata del livello, o il merletto registrato.
       const base = this.deps.computed?.base.rows;
       if (base && this.matchesPrefix(base)) solution = base;
     }
-    if (!solution && pre && this.matchesPrefix(pre) && !this.hintGoals) solution = pre;
+    if (!solution && pre && this.matchesPrefix(pre) && !sub) solution = pre;
     if (!solution) {
       const res = await this.solveFrom(goals);
       if (res.status === 'ok' && res.rows) solution = res.rows;
@@ -981,7 +1114,10 @@ export class Session implements NightSession {
         // Con le richieste non si arriva: almeno la strada per chiudere la notte.
         if (goals.length !== this.params.goals.length) {
           const res2 = await this.solveFrom(this.params.goals);
-          if (res2.status === 'ok' && res2.rows) solution = res2.rows;
+          if (res2.status === 'ok' && res2.rows) {
+            solution = res2.rows;
+            used = this.params.goals;
+          }
         }
         if (!solution) {
           if (tier === 'indizio' && this.level.hintKeys?.indizio) return { tier, textKey: this.level.hintKeys.indizio };
@@ -993,7 +1129,33 @@ export class Session implements NightSession {
       // Solver al limite o troppo lento, e nessuna soluzione precalcolata che combaci: suggerimento generico.
       return { tier, textKey: this.level.hintKeys?.spinta ?? HINT_KEYS.spintaGenerico, highlight: { hour: this.hour } };
     }
-    return hintFor({ ...base, goals, tier, solution });
+    // La bozza così com'è porta a una soluzione? Allora l'ora va bene (R2-D1: mai dire «sbagliato» a una bozza giusta).
+    const idx = this._rows.length;
+    const solRow = solution[idx];
+    if (this._draft.length > 0 && solRow && !sameCrossings(solRow.crossings, this._draft) && !this.archive) {
+      const alt = await this.solveWithDraft(used);
+      if (alt) solution = alt;
+    }
+    // Quali bigliettini la soluzione seguita lascia fuori (Q013: l'Indizio dice per quale richiesta vale).
+    const live = this.params.accepted.filter((a) => !this._dropped.includes(a.noteId));
+    this.hintLeavesOut = live.filter((a) => !used.includes(a.request)).map((a) => a.noteId);
+    return hintFor({ ...base, goals: used, tier, solution });
+  }
+
+  /** Soluzione (righe complete) che fissa la riga corrente esattamente come la bozza, o null. */
+  private async solveWithDraft(goals: Condition[]): Promise<RowMoves[] | null> {
+    const res = applyRow(this.level, this.state, this._draft.map(cloneCrossing), this._ctx);
+    if (!res.ok) return null;
+    const row: RowMoves = { hour: res.state.hour, crossings: crossingsOf(res.events, this._draft, forcedPairsOf(this.level, this.state, this._ctx)) };
+    const rowsDone = [...this._rows, row];
+    if (res.state.hour >= this.level.endHour) {
+      const timeline = [...this._timeline, res.state];
+      const events = [...this._events, res.events];
+      const ok = evaluate(this.level, timeline, events, goals, this._ctx, true).every((r) => r.status === 'soddisfatta');
+      return ok ? rowsDone : null;
+    }
+    const r = await this.solveFromState(goals, res.state, rowsDone);
+    return r.status === 'ok' && r.rows ? r.rows : null;
   }
 
   // ───────── Modalità automatiche ─────────

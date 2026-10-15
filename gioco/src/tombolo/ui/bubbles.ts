@@ -10,7 +10,7 @@ import { el } from '../../core/ui/dom';
 import type { Rect, TomboloLayout } from '../layout';
 import { SLOT_R, rowBottom, rowTop, slotCenter } from '../layout';
 import type { LaceModel } from '../render/model';
-import { BEAD_STEP, edgeX } from '../render/lace';
+import { beadScale, edgeX, stackSlots } from '../render/lace';
 import { pinHeadOffset } from '../render/pins';
 import type { SpindleRig } from '../render/spindles';
 import type { Session } from '../session';
@@ -57,14 +57,7 @@ export function beadSpots(sc: BubbleScene): { thread: ThreadId; bead: string; de
     const s = rig.get(st.thread);
     const x0 = l.colCx[st.col] ?? 0;
     const x1 = s ? rig.xOf(s) : x0;
-    let y = y0;
-    for (let k = 0; k < st.beads.length && k < 5; k++) {
-      const b = st.beads[k];
-      if (!b) continue;
-      const f = Math.min(1, (y - y0) / Math.max(1, l.spindles.y - y0));
-      out.push({ thread: st.thread, bead: b.id, delivered: b.delivered, x: x0 + (x1 - x0) * f * f, y });
-      y += BEAD_STEP * (l.scale ?? 1);
-    }
+    for (const slot of stackSlots(l, st, x0, x1, y0)) out.push({ thread: st.thread, bead: slot.bead.id, delivered: slot.bead.delivered, x: slot.x, y: slot.y });
   }
   return out;
 }
@@ -85,7 +78,8 @@ export function bubbleTargetAt(sc: BubbleScene, x: number, y: number): BubbleTar
   const near = (ax: number, ay: number, r = BUBBLE_HIT): boolean => (x - ax) * (x - ax) + (y - ay) * (y - ay) <= r * r;
   // Perline (sotto la riga corrente, sui fili che pendono).
   const k = l.scale ?? 1;
-  for (const b of beadSpots(sc)) if (near(b.x, b.y, 10 * k)) return { k: 'perlina', thread: b.thread, bead: b.bead, delivered: b.delivered, x: b.x, y: b.y };
+  const kb = beadScale(l);
+  for (const b of beadSpots(sc)) if (near(b.x, b.y, 10 * kb)) return { k: 'perlina', thread: b.thread, bead: b.bead, delivered: b.delivered, x: b.x, y: b.y };
   const inLace = y >= l.lace.y && y < l.lace.y + l.lace.h;
   if (!inLace) return null;
   // Spilli (anche nelle righe future).
