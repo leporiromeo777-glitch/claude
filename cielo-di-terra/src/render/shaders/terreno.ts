@@ -82,9 +82,10 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
     vec3 t3 = tocchi(duv, 0.32, ang - 0.7, 11.0);
     st += (t3.x - 0.5) * v3 * (0.35 + 0.25 * grass);
     tw += (t3.y - 0.5) * v3 * 0.3;
-    // ottobre: foglie di castagno cadute sul prato, a gruppi (un tocco ogni tanto, più fitti a chiazze)
-    float gruppi = smoothstep(0.45, 0.8, vnoise2(cl.xy / 6.0 + 2.7));
-    foglia = step(1.0 - 0.16 * gruppi, t3.x) * smoothstep(0.02, 0.12, t3.z) * v3 * grass;
+    // ottobre: qualche foglia caduta sul prato, a gruppi radi (le foglie vere sotto i castagni le
+    // mette il sottobosco della traccia «natura»): tocchi piccoli, non pozze arancioni
+    float gruppi = smoothstep(0.55, 0.85, vnoise2(cl.xy / 6.0 + 2.7));
+    foglia = step(1.0 - 0.07 * gruppi, t3.x) * smoothstep(0.12, 0.3, t3.z) * v3 * grass;
   }
   // (i bozzetti hanno molta variazione locale: i tocchi si vedono)
   a *= 1.0 + st * 0.42;
@@ -92,7 +93,7 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   a = mix(a, a * vec3(1.1, 1.02, 0.78), clamp(tw * 2.0, 0.0, 1.0) * 0.5);
   a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * 0.45);
   vec3 fogliaC = mix(vec3(0.74, 0.42, 0.16), vec3(0.82, 0.62, 0.24), hash12(floor(duv / 0.3) + 0.5));
-  a = mix(a, fogliaC, foglia * 0.85);
+  a = mix(a, fogliaC, foglia * 0.6);
   return a;
 }
 

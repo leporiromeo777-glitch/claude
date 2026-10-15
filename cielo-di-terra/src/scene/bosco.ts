@@ -10,10 +10,10 @@
  * sparisce retinando (gli alberi veri prendono il posto).
  */
 import { BufferAttribute, BufferGeometry, Group, Mesh, Vector3, type ShaderMaterial } from 'three';
-import { DEG } from '../world/constants';
-import { cylToWorld, upAt } from '../world/cylinder';
+import { DEG, LAYOUT } from '../world/constants';
+import { cylToWorld, surfaceDistance, upAt } from '../world/cylinder';
 import { Simplex3, smoothstep } from '../world/noise';
-import { STRIPS, WATER_HEIGHT, createMasks, forestDensity, surfaceHeight } from '../world/terrain';
+import { STRIPS, WATER_HEIGHT, createMasks, forestDensity, surfaceHeight, type TerrainMasks } from '../world/terrain';
 import { CHUNK_DEG, CHUNK_ROWS, CHUNK_S, zAtS } from '../world/terrainGrid';
 import { creaMaterialeNatura, impostaSfuma } from '../render/naturaMateriali';
 import type { WorldUniforms } from '../render/uniforms';
@@ -25,6 +25,37 @@ const COLONNE = 56;
 const ALTEZZA = 10.5;
 
 const N1 = new Simplex3(3131);
+const N2 = new Simplex3(5151);
+const VILLAGE = LAYOUT.villages[0]!;
+
+/**
+ * Densità di bosco della vegetazione (0..1): quella del terreno (`forestDensity`, che decide anche il
+ * sottobosco dipinto) con i boschi che salgono anche sui versanti ripidi (come nei bozzetti: le
+ * coste delle valli coperte di selve d'ottobre) e, fuori dal paese, versanti più fitti. Solo la
+ * roccia nuda (oltre ~45°), il paese con le sue terrazze, il lago e il bastione restano scoperti.
+ * La usano gli alberi (`scene/vegetation.ts`) e le masse dei boschi lontani, così coincidono.
+ */
+export function densitaBosco(z: number, theta: number, h: number, slope: number, m: TerrainMasks): number {
+  // (la pendenza ridotta sposta il taglio di forestDensity da ~32° a ~55°)
+  let f = forestDensity(z, theta, h, slope * 0.6, m);
+  if (m.kind === 'valle' && m.capN <= 0 && m.capS < 0.3 && m.lakeQ > 1.15 && h > WATER_HEIGHT + 0.8) {
+    const e = Math.abs(2 * m.across - 1);
+    const versante = smoothstep(0.27, 0.42, e) * (1 - smoothstep(0.88, 0.97, e));
+    const t = theta * DEG;
+    const px = -Math.sin(t) * 646;
+    const py = -Math.cos(t) * 646;
+    const n = N2.noise(px / 170, py / 170, z / 170) * 0.5 + 0.5;
+    const tema = m.theme === 'selve' ? 0.95 : m.theme === 'lago' ? 0.75 : m.theme === 'campi' ? 0.45 : 0.5;
+    // fuori dal paese: niente boschi nuovi dentro l'anello delle terrazze (lì comanda il popolamento)
+    const dv = m.theme === 'selve' ? surfaceDistance(z, theta, VILLAGE.zCenter, VILLAGE.thetaCenter) : 1e9;
+    const lontano = smoothstep(330, 380, dv) * (1 - smoothstep(0.01, 0.05, m.village));
+    const g = versante * smoothstep(0.3, 0.55, n) * tema * lontano * (1 - m.bank);
+    f = Math.max(f, g);
+  }
+  // la roccia nuda dei pendii molto ripidi
+  f *= 1 - smoothstep(0.8, 0.98, slope);
+  return f;
+}
 /** maschere del terreno per vertice di un blocco (riusate) */
 const MASCHERE = Array.from({ length: (COLONNE + 3) * (RIGHE + 3) }, () => createMasks());
 const _a = new Vector3();
@@ -157,7 +188,7 @@ export class BoschiLontani {
         upAt(th, _up);
         const slope = Math.acos(Math.max(-1, Math.min(1, _n.dot(_up))));
         const masks = MASCHERE[o]!;
-        let f = forestDensity(z, th, h, slope, masks);
+        let f = densitaBosco(z, th, h, slope, masks);
         if (masks.lakeQ < 1.1 || h < WATER_HEIGHT + 0.5) f = 0;
         const x = -Math.sin(th * DEG) * 646;
         const y = -Math.cos(th * DEG) * 646;

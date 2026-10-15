@@ -39,7 +39,7 @@ import { applySky, createWorldUniforms, hazeClearColor, type WorldUniforms } fro
 import { PostProduzione } from './render/post/pipeline';
 import { MisuraQualita, PRESET_QUALITA, stimaIniziale, type LivelloQualita, type PresetQualita, type SceltaQualita } from './render/post/qualita';
 import { TempoGpu } from './render/post/tempoGpu';
-import { createLake } from './render/water';
+import { createLake, createRiale } from './render/water';
 import { Windows } from './render/windows';
 import { createWorldMaterial } from './render/worldMaterial';
 import { buildProps } from './scene/props';
@@ -212,6 +212,7 @@ export class Game {
     this.collare = createCollare(u);
     this.scene.add(this.collare);
     this.scene.add(createLake(u));
+    this.scene.add(createRiale(u));
 
     await progress('paesi');
     const lampPoints: Vector3[] = [];
@@ -230,6 +231,8 @@ export class Game {
     await progress('castagni');
     this.vegetation = new Vegetation(this.materials.crown, this.materials.trunk, this.world.colliders);
     this.scene.add(this.vegetation.group);
+    // la vegetazione (alberi, sottobosco) segue la qualità grafica (traccia «natura»)
+    this.onQualita((p) => this.vegetation.impostaQualita(p.vegetazione));
 
     this.lamps = new LampGlows(u);
     this.lamps.setLamps(lampPoints);

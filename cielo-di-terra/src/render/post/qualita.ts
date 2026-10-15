@@ -53,12 +53,17 @@ export interface PresetQualita {
    * fini del prato né foglie cadute, motivi delle superfici solo da vicino). Vedi `Game.applicaOmbre`.
    */
   motivi: number;
+  /**
+   * Vegetazione della traccia «natura» (0.2..1.3): distanze dei livelli di dettaglio degli alberi,
+   * raggio e densità del sottobosco (erba, felci, fiori…). Vedi `Vegetation.impostaQualita`.
+   */
+  vegetazione: number;
 }
 
 export const PRESET_QUALITA: Readonly<Record<LivelloQualita, PresetQualita>> = {
-  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente', motivi: 0 },
-  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media', motivi: 1 },
-  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta', motivi: 1 },
+  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente', motivi: 0, vegetazione: 0.45 },
+  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media', motivi: 1, vegetazione: 0.75 },
+  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta', motivi: 1, vegetazione: 1 },
 };
 
 export function isLivello(x: unknown): x is LivelloQualita {

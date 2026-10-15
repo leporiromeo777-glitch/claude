@@ -16,17 +16,18 @@
  * popolamento di Corbella li toglie dove costruisce: `liberaCastagni`).
  */
 import { Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Material, type ShaderMaterial } from 'three';
-import { L, LAYOUT, METERS_PER_DEG } from '../world/constants';
+import { DEG, L, LAYOUT, METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, surfaceDistance, upAt, worldToCyl } from '../world/cylinder';
 import { cylinderAt, type ColliderWorld } from '../world/colliders';
 import { Simplex3, clamp, mulberry32, smoothstep } from '../world/noise';
-import { STRIPS, WATER_HEIGHT, createMasks, forestDensity, slopeAt, surfaceHeight, type TerrainMasks } from '../world/terrain';
+import { STRIPS, WATER_HEIGHT, createMasks, slopeAt, surfaceHeight, type TerrainMasks } from '../world/terrain';
 import type { RGB } from '../render/palette';
 import { surfaceMatrix } from '../render/placement';
-import { creaMaterialeNatura, impostaSfuma } from '../render/naturaMateriali';
+import { creaMaterialeNatura, impostaNucleo, impostaSfuma } from '../render/naturaMateriali';
 import type { WorldUniforms } from '../render/uniforms';
 import { N_LOD_ALBERI, SPECIE, geometrieAlbero, triangoli, type Specie } from './alberi';
-import { BoschiLontani } from './bosco';
+import { BoschiLontani, densitaBosco } from './bosco';
+import { Sottobosco } from './sottobosco';
 
 export interface TreeInstance {
   pos: Vector3;
@@ -84,6 +85,8 @@ const CELLA = 64;
 
 interface Livello {
   chioma: InstancedMesh;
+  /** carte di foglie (LOD 0 e 1) */
+  carte: InstancedMesh | null;
   tronco: InstancedMesh | null;
   capienza: number;
 }
@@ -100,29 +103,50 @@ export class Vegetation {
   private readonly u: WorldUniforms;
   /** per specie: livelli 0..2 dinamici */
   private livelli = new Map<Specie, Livello[]>();
-  /** per specie: livello 3 statico (alberi sparsi) */
-  private lontani = new Map<Specie, InstancedMesh>();
-  private materiali: { chioma: ShaderMaterial[]; tronco: ShaderMaterial[]; lontano: ShaderMaterial };
+  /** per specie: livello 3 statico (alberi sparsi), masse e carte */
+  private lontani = new Map<Specie, InstancedMesh[]>();
+  private materiali: { chioma: ShaderMaterial[]; tronco: ShaderMaterial[]; lontano: ShaderMaterial; carte: Map<Specie, ShaderMaterial[]>; carteLontane: Map<Specie, ShaderMaterial> };
   private celle = new Map<number, number[]>();
   private indicizzati = -1;
   private conteggi = [0, 0, 0, 0];
   /** le masse dei boschi lontani (oltre l'ultimo livello) */
   readonly boschi: BoschiLontani;
+  /** erba, felci, fiori, cespugli, sassi, foglie e ricci vicino alla camera */
+  readonly sottobosco: Sottobosco;
 
   constructor(material: Material, _trunkMaterial: Material, colliders: ColliderWorld, seed = 99) {
     this.group.name = 'alberi';
     // i materiali della vegetazione usano gli stessi uniform del mondo (quelli del materiale passato)
     this.u = (material as ShaderMaterial).uniforms as unknown as WorldUniforms;
     this.materiali = {
-      chioma: [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'chioma' })),
+      chioma: [0, 1, 2].map((lod) => {
+        const m = creaMaterialeNatura(this.u, { tipo: 'chioma' });
+        // sotto le carte di foglie le masse sono l'interno in ombra della chioma
+        impostaNucleo(m, lod === 0 ? 0.62 : lod === 1 ? 0.72 : 0.92);
+        return m;
+      }),
       tronco: [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'tronco' })),
       lontano: creaMaterialeNatura(this.u, { tipo: 'chioma' }),
+      // carte di foglie: un materiale per specie e livello (la forma delle foglie è della specie)
+      carte: new Map(SPECIE.map((sp) => [sp, [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'carte', foglia: geometrieAlbero(sp).forma }))])),
+      carteLontane: new Map(SPECIE.map((sp) => [sp, creaMaterialeNatura(this.u, { tipo: 'carte', foglia: geometrieAlbero(sp).forma })])),
     };
     this.pianta(colliders, seed);
     this.costruisciMesh();
     this.boschi = new BoschiLontani(this.u);
     this.group.add(this.boschi.group);
+    this.sottobosco = new Sottobosco(this.u, colliders, this.trees);
+    this.group.add(this.sottobosco.group);
     this.impostaDistanze(1);
+  }
+
+  /**
+   * Qualità della vegetazione (`PresetQualita.vegetazione`: Bassa ~0.45, Media ~0.75, Alta 1):
+   * distanze dei livelli di dettaglio degli alberi, raggio e densità del sottobosco.
+   */
+  impostaQualita(k: number): void {
+    this.impostaDistanze(0.55 + 0.45 * clamp(k, 0, 1.3));
+    this.sottobosco.impostaQualita(k);
   }
 
   // ---------------------------------------------------------------------------------- piantare
@@ -148,11 +172,14 @@ export class Vegetation {
           if (masks.piazza > 0) continue;
           if (masks.stream < 6) continue;
           const slope = slopeAt(zz, th, false);
-          const f = forestDensity(zz, th, h, slope, masks);
+          const f = densitaBosco(zz, th, h, slope, masks);
           // boschi: probabilità alta dove la densità supera la soglia (chiome che si toccano)
           let d = smoothstep(0.06, 0.5, f) * (0.45 + 0.55 * k);
           // alberi sparsi nei prati (nel paese quasi nessuno: lo costruisce il popolamento)
-          d = Math.max(d, 0.008 * (1 - masks.bank) * (1 - 0.9 * smoothstep(0.05, 0.5, masks.village)));
+          // (a gruppi: boschetti, filari lungo i muri e qualche albero solo, non pois sui prati)
+          const tt = th * DEG;
+          const gruppi = smoothstep(0.52, 0.78, noise.noise((-Math.sin(tt) * 646) / 75, (-Math.cos(tt) * 646) / 75, zz / 75) * 0.5 + 0.5);
+          d = Math.max(d, (0.002 + 0.05 * gruppi) * (1 - masks.bank) * (1 - 0.9 * smoothstep(0.05, 0.5, masks.village)));
           // selva castanile sulle terrazze attorno al paese (castagni da frutto radi, come nel
           // bozzetto 2), fuori dal nucleo delle case e dalla fascia dei muri del Velo
           let frutto = false;
@@ -232,9 +259,13 @@ export class Vegetation {
         // capienza: gli alberi di una specie, al più quelli che stanno in un anello del livello
         const n = Math.min(quanti, CAPIENZA[lod]!);
         const chioma = this.istanze(geo.chioma[lod]!, this.materiali.chioma[lod]!, n, `alberi-${sp}-chioma-lod${lod}`, true);
+        const cg = geo.carte[lod];
+        const carte = cg ? this.istanze(cg, this.materiali.carte.get(sp)![lod]!, n, `alberi-${sp}-carte-lod${lod}`, true) : null;
+        // (le carte sono degeneri nel passaggio delle ombre: non proiettano, inutile disegnarle)
+        if (carte) carte.userData['ombra'] = false;
         const tg = geo.tronco[lod];
         const tronco = tg ? this.istanze(tg, this.materiali.tronco[lod]!, n, `alberi-${sp}-tronco-lod${lod}`, false) : null;
-        liv.push({ chioma, tronco, capienza: n });
+        liv.push({ chioma, carte, tronco, capienza: n });
       }
       this.livelli.set(sp, liv);
     }
@@ -256,21 +287,28 @@ export class Vegetation {
 
   /** Il livello 3: tutti gli alberi sparsi (non di bosco), statico. */
   private costruisciLontani(): void {
-    for (const m of this.lontani.values()) {
-      this.group.remove(m);
-      m.geometry.dispose();
+    for (const ms of this.lontani.values()) {
+      for (const m of ms) {
+        this.group.remove(m);
+        m.geometry.dispose();
+      }
     }
     this.lontani.clear();
     for (const sp of SPECIE) {
       const lista = this.trees.filter((t) => (t.specie ?? 'castagno') === sp && !t.bosco);
       if (!lista.length) continue;
-      const mesh = this.istanze(geometrieAlbero(sp).chioma[N_LOD_ALBERI - 1]!, this.materiali.lontano, lista.length, `alberi-${sp}-chioma-lod3`, true);
-      lista.forEach((t, i) => this.scrivi(mesh, i, t, true));
-      mesh.count = lista.length;
-      mesh.visible = true;
-      mesh.userData['ombra'] = false;
-      mesh.instanceMatrix.needsUpdate = true;
-      this.lontani.set(sp, mesh);
+      const geo = geometrieAlbero(sp);
+      const ms: InstancedMesh[] = [this.istanze(geo.chioma[N_LOD_ALBERI - 1]!, this.materiali.lontano, lista.length, `alberi-${sp}-chioma-lod3`, true)];
+      const cg = geo.carte[N_LOD_ALBERI - 1];
+      if (cg) ms.push(this.istanze(cg, this.materiali.carteLontane.get(sp)!, lista.length, `alberi-${sp}-carte-lod3`, true));
+      for (const mesh of ms) {
+        lista.forEach((t, i) => this.scrivi(mesh, i, t, true));
+        mesh.count = lista.length;
+        mesh.visible = true;
+        mesh.userData['ombra'] = false;
+        mesh.instanceMatrix.needsUpdate = true;
+      }
+      this.lontani.set(sp, ms);
     }
   }
 
@@ -308,6 +346,12 @@ export class Vegetation {
     impostaSfuma(this.materiali.chioma[2]!, d1 - b1, d1 + b1, d2 - b2, d2);
     impostaSfuma(this.materiali.tronco[2]!, d1 - b1, d1 + b1, d2 - b2, d2);
     impostaSfuma(this.materiali.lontano, d2 - b2, d2, 0, 0);
+    for (const m of this.materiali.carteLontane.values()) impostaSfuma(m, d2 - b2, d2, 0, 0);
+    for (const [c0, c1, c2] of this.materiali.carte.values()) {
+      impostaSfuma(c0!, 0, 0, d0 - b0, d0 + b0);
+      impostaSfuma(c1!, d0 - b0, d0 + b0, d1 - b1, d1 + b1);
+      impostaSfuma(c2!, d1 - b1, d1 + b1, d2 - b2, d2);
+    }
     this.boschi.impostaComparsa(d2 - b2, d2);
     this.lastCam.set(1e9, 0, 0);
   }
@@ -341,6 +385,7 @@ export class Vegetation {
   update(cam: Vector3, force = false): void {
     // le masse dei boschi lontani si costruiscono a pezzi (subito se richiesto)
     this.boschi.update(force ? 1e9 : 2);
+    this.sottobosco.update(cam, force ? Infinity : 3);
     if (this.indicizzati !== this.trees.length) {
       // alberi tolti dal popolamento (liberaCastagni): rifà le celle e il livello statico
       this.indicizza();
@@ -378,6 +423,7 @@ export class Vegetation {
             if (cc[lod]! >= L.capienza) return;
             const j = cc[lod]!++;
             this.scrivi(L.chioma, j, t, true);
+            if (L.carte) this.scrivi(L.carte, j, t, true);
             if (L.tronco) this.scrivi(L.tronco, j, t, false);
             n[lod]!++;
           };
@@ -392,7 +438,7 @@ export class Vegetation {
       const cc = conta.get(sp)!;
       for (let lod = 0; lod < 3; lod++) {
         const L = liv[lod]!;
-        for (const mesh of [L.chioma, L.tronco]) {
+        for (const mesh of [L.chioma, L.carte, L.tronco]) {
           if (!mesh) continue;
           mesh.count = cc[lod]!;
           mesh.visible = cc[lod]! > 0;
@@ -404,13 +450,16 @@ export class Vegetation {
       }
     }
     let lontani = 0;
-    for (const m of this.lontani.values()) lontani += m.count;
+    for (const ms of this.lontani.values()) lontani += ms[0]!.count;
     this.conteggi = [n[0]!, n[1]!, n[2]!, lontani];
   }
 
-  /** Numero di alberi per LOD (statistiche): [vicini, medi, lontani, sparsi statici]. */
+  /**
+   * Numero di alberi per LOD (statistiche): [vicini, medi, lontani, sparsi statici, istanze del
+   * sottobosco].
+   */
   counts(): number[] {
-    return this.conteggi.slice();
+    return [...this.conteggi, this.sottobosco.istanze];
   }
 
   /** Triangoli disegnati dagli alberi dinamici (stima per le statistiche). */
@@ -419,6 +468,7 @@ export class Vegetation {
     for (const liv of this.livelli.values()) {
       for (const L of liv) {
         t += triangoli(L.chioma.geometry) * L.chioma.count;
+        if (L.carte) t += triangoli(L.carte.geometry) * L.carte.count;
         if (L.tronco) t += triangoli(L.tronco.geometry) * L.tronco.count;
       }
     }

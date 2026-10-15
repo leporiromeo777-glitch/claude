@@ -10,6 +10,7 @@ import { installDebugApi } from './core/debug';
 import { SuggerimentoSguardo } from './core/suggerimentoSguardo';
 import { Game } from './game';
 import { installaCorbella } from './popolamento';
+import { aggiungiAcquaLavatoio } from './render/water';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
 import { InterfacciaGioco, caricaCaratteri } from './ui';
@@ -67,6 +68,8 @@ async function boot(): Promise<void> {
     await new Promise((r) => setTimeout(r, 0));
     // il paese vero (src/popolamento) al posto del segnaposto del motore; il suo passo lo chiama la regia
     const corbella = installaCorbella(game, { agganciaCiclo: false, luciAbitanti: false });
+    // l'acqua che si muove nella vasca del lavatoio (traccia «natura»)
+    aggiungiAcquaLavatoio(game, corbella.punto('esamina:lavatoio')?.pos, corbella.chiodo(5));
     ui.caricamento.progresso(0.97, 'la Cripta, i chiodi');
     await new Promise((r) => setTimeout(r, 0));
     regia = new Regia(game, ui, corbella, { e2e });
