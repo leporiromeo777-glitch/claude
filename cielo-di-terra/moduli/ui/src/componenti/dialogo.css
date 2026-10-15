@@ -177,7 +177,7 @@
   color: var(--matita);
 }
 .ui-dlg-aiuto .ui-tasto {
-  font-size: 0.8em;
+  margin: 0 2px;
 }
 .ui-dlg-aiuto--avanti {
   animation: ui-dlg-respiro 2.4s ease-in-out infinite;

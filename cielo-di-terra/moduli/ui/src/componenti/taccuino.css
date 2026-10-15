@@ -334,7 +334,7 @@
   white-space: pre;
 }
 .ui-tc-aiuto .ui-tasto {
-  font-size: 0.8em;
+  margin: 0 1px;
 }
 .ui-tc-chiudi {
   margin-left: 18px;

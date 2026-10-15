@@ -31,7 +31,7 @@
 | Velo in prima persona | 3806 | 4 | 3806 | 4 | 0 |  |
 | abitante velato (velo di garza) | 802 | 1 | 802 | 1 | 1 |  |
 | abitante con maschera di castagno | 898 | 1 | 898 | 1 | 1 |  |
-| abitante con velo da apicoltore | 926 | 2 | 926 | 2 | 1 |  |
+| abitante con velo da apicoltore | 1054 | 2 | 1054 | 2 | 1 |  |
 | Fada singola (con pietra) | 806 | 7 | 806 | 7 | 0 |  |
 | sciame di 24 Fade (istanziato) | 19416 | 5 | 19416 | 5 | 0 |  |
 | sciame di 160 api di rame (istanziato) | 7040 | 3 | 7040 | 3 | 0 |  |

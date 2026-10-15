@@ -626,7 +626,7 @@ export class PittorePianta {
           ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
           ctx.fillText(spaziato(f.nome, corpoValle > 22 ? 4 : 2), xc, y);
           if (f.breve) {
-            ctx.font = `italic 400 ${Math.max(15, Math.round(corpoValle * 0.6))}px "EB Garamond", serif`;
+            ctx.font = `italic 400 ${Math.max(16, Math.round(corpoValle * 0.6))}px "EB Garamond", serif`;
             ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
             ctx.fillText(f.breve, xc, y + corpoValle * 0.95);
           }
@@ -705,7 +705,7 @@ export class PittorePianta {
     ctx.beginPath();
     ctx.arc(x, y + 0.6, pilastro ? 1.8 : 1.3, 0, Math.PI * 2);
     ctx.fill();
-    ctx.font = pilastro ? '600 15px "EB Garamond", serif' : '500 14px "EB Garamond", serif';
+    ctx.font = pilastro ? '600 16px "EB Garamond", serif' : '500 16px "EB Garamond", serif';
     ctx.textAlign = 'left';
     ctx.fillStyle = tinta;
     const etichetta = pilastro ? `P ${c.numero}` : String(c.numero);
@@ -751,7 +751,7 @@ export class PittorePianta {
     ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.font = 'italic 500 15px "EB Garamond", serif';
+    ctx.font = 'italic 500 16px "EB Garamond", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = COLORI.inchiostro;
@@ -815,7 +815,7 @@ export class PittorePianta {
     ctx.strokeStyle = COLORI.inchiostro2;
     ctx.textBaseline = 'alphabetic';
     // z: tacche in alto e in basso.
-    ctx.font = '500 15px "EB Garamond", serif';
+    ctx.font = '500 16px "EB Garamond", serif';
     ctx.textAlign = 'center';
     const passoZ = vista.scala * 250 < 50 ? 500 : 250;
     for (let z = 0; z <= LUNGHEZZA_Z; z += passoZ / 5) {

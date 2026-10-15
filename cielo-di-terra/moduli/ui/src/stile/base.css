@@ -197,13 +197,14 @@
 .ui-tasto {
   display: inline-grid;
   place-items: center;
-  min-width: 1.6em;
-  height: 1.6em;
-  padding: 0 0.35em;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.3em;
   border: 1.5px solid currentColor;
   border-radius: 0.3em;
   font-family: var(--f-testo);
-  font-size: 0.85em;
+  /* Mai sotto i 16 px, anche dentro i testi piccoli. */
+  font-size: max(16px, 0.85em);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: lining-nums;
@@ -353,7 +354,7 @@
   box-shadow: none;
 }
 .ui-bottone .ui-tasto {
-  font-size: 0.75em;
+  font-size: max(16px, 0.75em);
 }
 .ui-bottone--leggero {
   border-color: transparent;
@@ -396,7 +397,7 @@
   color: var(--inchiostro-2);
   font-family: var(--f-testo);
   font-style: normal;
-  font-size: 0.82em;
+  font-size: max(16px, 0.82em);
 }
 .ui-parola s::after {
   content: '';

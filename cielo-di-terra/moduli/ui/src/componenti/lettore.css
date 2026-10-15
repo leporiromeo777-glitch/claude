@@ -220,7 +220,7 @@
   display: block;
 }
 .ui-lt-data {
-  font-size: 0.9em;
+  font-size: max(16px, 0.9em);
   font-style: normal;
   margin-bottom: 0.6em;
 }
@@ -328,7 +328,7 @@
   position: absolute;
   bottom: 12px;
   right: 18px;
-  font-size: 0.9em;
+  font-size: max(16px, 0.9em);
   color: var(--matita);
 }
 .ui-lt--libretto.ui-lt--doppia .ui-lt-pagina:first-child .ui-lt-numero {

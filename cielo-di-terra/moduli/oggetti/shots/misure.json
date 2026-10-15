@@ -342,11 +342,11 @@
   },
   {
     "nome": "abitante con velo da apicoltore",
-    "triangoli": 926,
+    "triangoli": 1054,
     "drawCall": 2,
     "punti": 0,
     "mesh": 2,
-    "stimaTriangoli": 926,
+    "stimaTriangoli": 1054,
     "stimaDrawCall": 2,
     "collider": 1,
     "note": ""
