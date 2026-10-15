@@ -48,8 +48,8 @@
   "initial": [
     "nina",
     "marta",
-    "gino",
     "piero",
+    "gino",
     "teresa",
     "lunardi"
   ],
@@ -106,6 +106,26 @@
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "nina",
+      "place": "molo",
+      "hour": 16
+    },
+    {
+      "thread": "gino",
+      "place": "molo",
+      "hour": 13
+    },
+    {
+      "thread": "nina",
+      "place": "forno",
+      "hour": 12
+    },
+    {
+      "thread": "lunardi",
+      "place": "faro",
+      "hour": 13
     }
   ],
   "notes": [
@@ -115,7 +135,7 @@
     "g18.gino",
     "g18.lunardi"
   ],
-  "matassa": 15,
+  "matassa": 13,
   "hintKeys": {
     "spinta": "atto3.g18.hint.spinta",
     "indizio": "atto3.g18.hint.indizio"
