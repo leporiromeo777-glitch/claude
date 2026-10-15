@@ -169,6 +169,7 @@ export class Regia implements SistemaGioco {
     );
     this.catasto.onEvento((e) => this.eventoCatasto(e));
     this.abitanti = new Abitanti(corbella);
+    this.abitanti.log = (riga) => this.log(riga);
     this.notteVista = new NotteVista(corbella.notte);
     // luci per le figure (materiale toon della libreria oggetti)
     this.emisfero = new HemisphereLight(0xdfe6f0, 0x6a6050, 1.1);

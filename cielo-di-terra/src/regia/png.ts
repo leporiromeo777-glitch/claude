@@ -74,7 +74,21 @@ export function luogoDaOrario(p: Personaggio, giorno: number, ore: number, valut
 }
 
 export class Abitanti {
-  private ottavio: ModoOttavio = { tipo: 'orario' };
+  private _ottavio: ModoOttavio = { tipo: 'orario' };
+  /** Diario dei cambi di modo di Ottavio (la regia lo collega al suo diario). */
+  log: ((riga: string) => void) | null = null;
+
+  private get ottavio(): ModoOttavio {
+    return this._ottavio;
+  }
+
+  private set ottavio(o: ModoOttavio) {
+    if (this.log && (o.tipo !== this._ottavio.tipo || o.tipo === 'fermo')) {
+      const dove = o.tipo === 'fermo' ? ` (${o.z.toFixed(0)}, ${o.theta.toFixed(1)})` : o.tipo === 'accompagna' ? ` ${o.tappe.join('→')}` : '';
+      this.log(`ottavio: ${this._ottavio.tipo} → ${o.tipo}${dove}`);
+    }
+    this._ottavio = o;
+  }
   /** Fino a quando (secondi della regia) tutti guardano Elvira. */
   private voltatiFino = -1;
   private tempo = 0;
