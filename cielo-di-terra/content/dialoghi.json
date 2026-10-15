@@ -1985,11 +1985,14 @@
    },
    {
     "id": "n3a",
-    "testo": "È la stessa cosa?",
+    "testo": "È la stessa cosa? Mia nonna diceva: la préda mesürada la var püssée che la péna. Non ho mai capito di che penna parlasse.",
     "risposte": [
      {
       "testo": "Non lo so ancora.",
-      "vai_a": "fine"
+      "vai_a": "fine",
+      "effetti": [
+       "taccuino:pv_penna"
+      ]
      }
     ]
    },
