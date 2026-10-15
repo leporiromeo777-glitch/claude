@@ -24,8 +24,10 @@ vec3 tocchi(vec2 uv, float scala, float ang, float seed) {
   float ca = cos(ang);
   float sa = sin(ang);
   vec2 r = vec2(ca * uv.x + sa * uv.y, -sa * uv.x + ca * uv.y) / (scala * vec2(1.6, 0.8)) + seed;
-  // bordi irregolari (dominio deformato): pennellate, non tessere di un mosaico
-  r += (vec2(vnoise2(r * 1.7), vnoise2(r * 1.7 + 5.3)) - 0.5) * 0.7;
+  // bordi irregolari (dominio deformato lungo la diagonale, un solo rumore): pennellate, non
+  // tessere di un mosaico
+  float wn = vnoise2(r * 1.7) - 0.5;
+  r += vec2(wn, -wn * 0.8) * 0.8;
   vec3 vo = voronoi4(r);
   // il tocco è quasi piatto dentro e sfuma sul bordo, che resta leggibile ma morbido
   float k = smoothstep(0.0, 0.3, vo.x);
@@ -75,16 +77,22 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   }
   // tocchi fini vicino al giocatore (ciuffi d'erba dipinti), solo a qualità piena
   float v3 = visMotivo(pix, 0.5) * step(0.5, uDettaglio);
+  float foglia = 0.0;
   if (v3 > 0.0) {
     vec3 t3 = tocchi(duv, 0.32, ang - 0.7, 11.0);
     st += (t3.x - 0.5) * v3 * (0.35 + 0.25 * grass);
     tw += (t3.y - 0.5) * v3 * 0.3;
+    // ottobre: foglie di castagno cadute sul prato, a gruppi (un tocco ogni tanto, più fitti a chiazze)
+    float gruppi = smoothstep(0.45, 0.8, vnoise2(cl.xy / 6.0 + 2.7));
+    foglia = step(1.0 - 0.16 * gruppi, t3.x) * smoothstep(0.02, 0.12, t3.z) * v3 * grass;
   }
   // (i bozzetti hanno molta variazione locale: i tocchi si vedono)
   a *= 1.0 + st * 0.42;
   // tocchi caldi e freddi (come nei bozzetti: giallo-oliva e verde-azzurro accostati)
   a = mix(a, a * vec3(1.1, 1.02, 0.78), clamp(tw * 2.0, 0.0, 1.0) * 0.5);
   a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * 0.45);
+  vec3 fogliaC = mix(vec3(0.74, 0.42, 0.16), vec3(0.82, 0.62, 0.24), hash12(floor(duv / 0.3) + 0.5));
+  a = mix(a, fogliaC, foglia * 0.85);
   return a;
 }
 
@@ -119,11 +127,14 @@ void terrenoDipinto(inout Sup s, vec3 P, vec3 Nv, float dist, float pix) {
     float layer = hgt / 2.4 + sn * 1.6 + vnoise2(duv / 3.0) * 0.25;
     float fr = fract(layer);
     float band = hash12(vec2(floor(layer), 3.3));
-    vec3 rc = mix(vec3(0.6, 0.58, 0.55), vec3(0.68, 0.6, 0.48), band) * (0.82 + 0.3 * vnoise2(duv / 4.0));
+    // ogni strato è una campitura (tono suo, quasi piatto), con lo spigolo in luce sopra e
+    // l'ombra netta sotto: niente sfumature lungo il pendio (sembrerebbero strisciate)
+    vec3 rc = mix(vec3(0.6, 0.58, 0.55), vec3(0.68, 0.6, 0.48), band) * (0.84 + 0.22 * hash12(vec2(floor(layer), 9.1)));
+    rc *= 0.94 + 0.12 * vnoise2(duv / 1.7);
     rc = mix(rc, a * 0.9 + 0.06, 0.2);
     float vs = visMotivo(pix, 2.4);
-    rc *= 1.0 - (1.0 - smoothstep(0.0, 0.08, fr)) * 0.4 * vs;
-    rc *= mix(1.0, mix(0.9, 1.07, smoothstep(0.1, 0.6, fr)), vs);
+    rc *= 1.0 - (1.0 - smoothstep(0.0, 0.05, fr)) * 0.45 * vs;
+    rc *= 1.0 + smoothstep(0.86, 0.97, fr) * 0.12 * vs;
     // spaccature verticali
     float cr = vnoise2(vec2(duv.x * 1.3, hgt * 0.18) + 2.0);
     rc *= 1.0 - smoothstep(0.78, 0.86, cr) * 0.32 * vs;

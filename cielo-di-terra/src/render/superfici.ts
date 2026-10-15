@@ -479,24 +479,24 @@ void supFogliame(inout Sup s, vec3 P, vec3 Nv, vec3 up, float pix, float var) {
     float mass = smoothstep(0.32, 0.72, h);
     s.N = bumpDaAltezza(s.N, P, mass * 0.32 * sc * vis, 1.0);
     gapK = (1.0 - mass) * vis;
-    lc = mix(lc, lc * vec3(0.8, 0.86, 0.9), gapK * 0.5);
+    lc = mix(lc, lc * vec3(0.84, 0.9, 0.94), gapK * 0.4);
     // una massa ogni tanto più calda (foglie che girano)
-    float w = vnoise3(q * 0.5 + 11.0);
-    lc = mix(lc, lc * vec3(1.15, 0.96, 0.72), smoothstep(0.62, 0.8, w) * 0.5 * vis);
+    lc = mix(lc, lc * vec3(1.15, 0.96, 0.72), smoothstep(0.66, 0.85, h) * smoothstep(0.45, 0.6, v) * 0.6 * vis);
   } else {
     float n1 = vnoise3(P / sc + var * 23.0);
     lc *= 0.9 + 0.16 * n1;
   }
-  lc *= 1.0 - gapK * 0.22;
+  lc *= 1.0 - gapK * 0.12;
   // foglie: tocchi di pennello piccoli (gruppi di foglie), poi macchiette fini da vicino
   float vf = visMotivo(pix, 0.35);
   if (vf > 0.0) {
-    float lf = vnoise3(P / 0.16 + 9.0);
-    float lf2 = vnoise3(P / 0.07 + 3.0) * visMotivo(pix, 0.12);
-    lc *= 1.0 + ((lf - 0.5) * 0.4 + (lf2 - 0.5) * 0.2) * vf;
+    float lf = vnoise3(P / 0.16 + 9.0) - 0.5;
+    float vf2 = visMotivo(pix, 0.12);
+    if (vf2 > 0.0) lf += (vnoise3(P / 0.07 + 3.0) - 0.5) * 0.5 * vf2;
+    lc *= 1.0 + lf * 0.4 * vf;
   }
   s.albedo = lc;
-  s.ao *= 1.0 - gapK * 0.5;
+  s.ao *= 1.0 - gapK * 0.35;
   s.trasm = 0.9;
   // il bordo luminoso sta sui contorni della chioma, non sulle facce in su viste di scorcio
   s.bordo = 0.75 * (1.0 - smoothstep(0.6, 0.95, dot(Nv, up)) * 0.8);
@@ -522,9 +522,10 @@ void supTerra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   vec3 lc = c * (0.88 + 0.2 * m);
   lc = mix(lc, lc * vec3(0.78, 0.74, 0.7), smoothstep(0.6, 0.85, vnoise2(uv * 0.25 + 3.0)) * 0.5);
   if (pix < 0.03) {
-    float g = hash12(floor(uv * 28.0));
-    float pebble = step(0.86, g) * (1.0 - smoothstep(0.012, 0.03, pix));
-    lc = mix(lc, g > 0.93 ? lc * 1.35 + 0.05 : lc * 0.6, pebble * 0.7);
+    // ghiaino: sassolini tondi (celle), chiari e scuri, che spariscono presto con la distanza
+    vec3 vo = voronoi4(uv * 18.0 + var * 3.0);
+    float pebble = step(0.8, vo.z) * (1.0 - smoothstep(0.18, 0.32, vo.y)) * (1.0 - smoothstep(0.008, 0.025, pix));
+    lc = mix(lc, vo.z > 0.9 ? lc * 1.3 + 0.04 : lc * 0.68, pebble * 0.6);
   }
   s.albedo = lc;
 }

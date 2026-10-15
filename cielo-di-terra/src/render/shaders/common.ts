@@ -319,15 +319,17 @@ vec3 shadeSup(Sup s, vec3 Nv, vec3 P, vec3 V, out float tone) {
   float warmK = (1.0 - smoothstep(0.12, 0.62, elev)) * (1.0 - uNight) * 0.85;
   vec3 sunC = uSunColor * mix(vec3(1.0), vec3(1.1, 0.86, 0.64), warmK);
   // all alba e al tramonto la luce calda è più piena (come nei bozzetti: la luce radente "accende")
-  float key = uSunIntensity * uSole.w * mix(1.0, 1.25, uGolden);
-  // riempimento emisferico: cielo freddo sopra, rimbalzo caldo dal suolo sotto
+  float key = uSunIntensity * uSole.w * mix(1.0, 1.5, uGolden);
+  // riempimento emisferico: cielo freddo sopra, rimbalzo caldo dal suolo sotto (più basso
+  // all'alba e al tramonto: il contrasto fra luce dorata e ombra fredda è quello dei bozzetti)
   float hemi = dot(N, up) * 0.5 + 0.5;
-  vec3 fill = mix(uAmbBottom, uAmbTop, hemi);
+  vec3 fill = mix(uAmbBottom, uAmbTop, hemi) * mix(1.0, 0.78, uGolden);
   float occ = mix(1.0, s.ao, uLuce.y);
   // notte: i colori perdono saturazione e virano al blu (i lumi invece li mostrano veri)
   vec3 albN = mix(s.albedo, vec3(lumaP(s.albedo)) * vec3(0.7, 0.94, 1.22), 0.62 * uNight);
-  // (taratura: al sole pieno ~1.15 volte l'albedo, in ombra ~0.45 e più azzurro)
-  vec3 light = fill * (0.68 * occ) + sunC * (key * b * 0.7);
+  // (taratura: al sole pieno ~1.15 volte l'albedo, in ombra ~0.5 e più azzurro: ombre piene di
+  // luce riflessa, come nei bozzetti, mai nere)
+  vec3 light = fill * (0.78 * occ) + sunC * (key * b * 0.66);
   vec3 col = albN * light;
   // banda calda sul terminatore (nella pittura il passaggio luce-ombra è più saturo)
   float term = smoothstep(-0.08, 0.1, ndl) * (1.0 - smoothstep(0.1, 0.42, ndl)) * reach * sh * key;
@@ -590,9 +592,9 @@ PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
     return q;
   }
   vec2 cc = vec2(P.z / uCellGrid.z, thetaDeg / uCellGrid.w);
-  // bordi organici: leggera distorsione del dominio
-  vec2 warp = vec2(vnoise3(P * 0.021), vnoise3(P * 0.021 + 7.3)) - 0.5;
-  cc += warp * 0.55;
+  // bordi organici: leggera distorsione del dominio (un solo rumore, lungo la diagonale)
+  float wn = vnoise3(P * 0.021) - 0.5;
+  cc += vec2(wn, -wn * 0.8) * 0.62;
   // frastagliatura del fronte: serve solo se una rivelazione può essere in corso
   float en = 0.0;
   if (uTime - uCellAnim <= uPencil.w + 0.05) {
@@ -613,7 +615,9 @@ PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
   float anim = anW > 1e-4 ? anW / max(dot(step(vec4(1e-4), vec4(a.w, b.w, c.w, d.w)), wts), 1e-4) : 0.0;
   anim = clamp(anim, 0.0, 1.0) * step(1e-4, anW);
   // bordo netto ma frastagliato, come acquerello che si allarga
-  float wob = (vnoise3(P * 0.045) - 0.5) * 0.55 + (vnoise3(P * 0.3) - 0.5) * 0.12;
+  float wob = (vnoise3(P * 0.045) - 0.5) * 0.55;
+  // (l'ottava fine, 3 m, da lontano non si vede)
+  if (dist < 500.0) wob += (vnoise3(P * 0.3) - 0.5) * 0.12;
   if (anim > 0.0) wob *= 0.25; // durante la rivelazione comanda il fronte
   PaintInfo pi;
   pi.paint = smoothstep(0.42, 0.58, s.x + wob);

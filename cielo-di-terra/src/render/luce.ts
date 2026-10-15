@@ -10,11 +10,11 @@
  *
  * Per spegnere o cambiare le ombre: `game.luce.ombre.impostaQualita('spente' | 'bassa' | 'media' | 'alta')`.
  */
-import type { Camera, Material, Scene, ShaderMaterial, WebGLRenderer } from 'three';
+import type { Camera, Material, Mesh, Scene, ShaderMaterial, WebGLRenderer } from 'three';
 import { Ombre, type QualitaOmbre } from './ombre';
 import { SUPERFICIE } from './superfici';
 import type { WorldUniforms } from './uniforms';
-import { impostaSuperficieBase } from './worldMaterial';
+import { impostaChioma, impostaSuperficieBase } from './worldMaterial';
 
 /** Quello che serve del gioco (evita la dipendenza circolare da game.ts). */
 export interface GiocoLuce {
@@ -42,8 +42,17 @@ export function installaLuce(game: GiocoLuce, qualita: QualitaOmbre = 'media'): 
   });
   const crown = game.materials['crown'] as ShaderMaterial | undefined;
   const trunk = game.materials['trunk'] as ShaderMaterial | undefined;
-  if (crown?.uniforms) impostaSuperficieBase(crown, SUPERFICIE.FOGLIAME);
+  if (crown?.uniforms) {
+    impostaSuperficieBase(crown, SUPERFICIE.FOGLIAME);
+    // chiome dei castagni segnaposto: centro a ~5.5 unità (vedi scene/vegetation.ts)
+    impostaChioma(crown, 0.62, 5.5, 1.35);
+  }
   if (trunk?.uniforms) impostaSuperficieBase(trunk, SUPERFICIE.CORTECCIA);
+  // i costoloni delle Finestre sono di ferro (materiale "iron" di render/windows.ts): METALLO
+  // invece di AUTO, che li leggerebbe come pietra e terra dal colore
+  const costoloni = game.scene.getObjectByName('costoloni') as Mesh | undefined;
+  const ferro = costoloni?.material as ShaderMaterial | undefined;
+  if (ferro?.uniforms?.['uSuperficieBase']) impostaSuperficieBase(ferro, SUPERFICIE.METALLO);
   const luce: Luce = { ombre };
   if (import.meta.env.DEV || import.meta.env.VITE_E2E === '1') {
     const w = window as unknown as { __LUCE__?: unknown };

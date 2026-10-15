@@ -91,21 +91,21 @@ const mixc = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1]
  */
 const PAL = {
   sunDay: hex(0xfff0d2),
-  sunGold: hex(0xffcf96),
+  sunGold: hex(0xffc282),
   sunNight: hex(0x6a6ee0),
   ambTopDay: hex(0x93a7cf),
   ambTopGold: hex(0x8f9cd0),
   ambTopNight: hex(0x5052a2),
   ambBotDay: hex(0xa2906a),
   ambBotGold: hex(0xa47e60),
-  ambBotNight: hex(0x2c2850),
+  ambBotNight: hex(0x262848),
   hazeDay: hex(0xbcd1e6),
   // all'alba la foschia è lilla-rosata; l'oro sta solo verso la luce (hazeSunGold)
-  hazeGold: hex(0xcdbfc6),
-  hazeNight: hex(0x3b3c7a),
+  hazeGold: hex(0xc6bccb),
+  hazeNight: hex(0x3a4288),
   zenithDay: hex(0x5286cc),
   zenithGold: hex(0x5a82c4),
-  zenithNight: hex(0x2b2e6a),
+  zenithNight: hex(0x2c387e),
   hazeSunDay: hex(0xfff0d2),
   hazeSunGold: hex(0xffbf7a),
   hazeSunNight: hex(0x4a58c8),
@@ -166,7 +166,8 @@ export function computeSky(hours: number, t: SkyTimes = DEFAULT_TIMES, out?: Sky
   const mid = (t.dawnEnd + t.duskStart) / 2;
   const half = (t.duskStart - t.dawnEnd) / 2;
   const fromMid = Math.abs(h - mid) / half; // 0 a mezzogiorno, 1 a fine alba/inizio tramonto
-  const golden = dayK * smoothstep(0.62, 1.05, fromMid);
+  // (finestra larga: la luce dorata dura le prime e le ultime due ore, come nei bozzetti)
+  const golden = dayK * smoothstep(0.5, 1.0, fromMid);
   const night = 1 - dayK;
 
   // inclinazione della luce (schermo girevole)

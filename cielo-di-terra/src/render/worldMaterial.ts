@@ -16,7 +16,7 @@
  * Uniform propri di ogni materiale: `uBrush` (forza della pennellata), `uSuperficieBase` (tipo di
  * superficie usato dove il vertice non ne dichiara uno; 0 = nessuno).
  */
-import { DoubleSide, FrontSide, ShaderMaterial, type Side } from 'three';
+import { DoubleSide, FrontSide, ShaderMaterial, Vector4, type Side } from 'three';
 import { BRUSH_GLSL, LIGHT_GLSL, NOISE_GLSL, PENCIL_GLSL, WORLD_UNIFORMS_GLSL } from './shaders/common';
 import { TERRENO_GLSL } from './shaders/terreno';
 import { SUPERFICIE, SUPERFICI_BASE_GLSL, SUPERFICI_GLSL } from './superfici';
@@ -47,6 +47,10 @@ attribute vec2 aSuperficie;
 attribute vec3 aTint;
 #endif
 #include <skinning_pars_vertex>
+// chiome instanziate: x = quanto la normale si piega verso quella di una sfera attorno al centro
+// della chioma (ombreggiatura tonda e morbida), y = altezza del centro (unità locali), z =
+// schiacciamento verticale della sfera (1 = sfera)
+uniform vec4 uChioma;
 varying vec3 vWorldPos;
 varying vec3 vNormalW;
 varying vec4 vColor;
@@ -69,6 +73,16 @@ void main() {
   vec4 wp = modelMatrix * lp;
   vWorldPos = wp.xyz;
   vNormalW = normalize(mat3(modelMatrix) * n);
+#ifdef USE_INSTANCING
+  if (uChioma.x > 0.0) {
+    // normale "sferica" della chioma: la luce la gira come un unico volume morbido
+    vec3 cc = (modelMatrix * instanceMatrix * vec4(0.0, uChioma.y, 0.0, 1.0)).xyz;
+    vec3 ax = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * vec3(0.0, 1.0, 0.0));
+    vec3 d = wp.xyz - cc;
+    d += ax * dot(d, ax) * (uChioma.z - 1.0);
+    vNormalW = normalize(mix(vNormalW, normalize(d), uChioma.x));
+  }
+#endif
   vColor = aColor;
   vSup = aSuperficie;
 #ifdef USE_TINT
@@ -131,9 +145,10 @@ void main() {
   float var = max(tipoF - tipo, 0.0);
   // AUTO: il tipo dal colore per vertice (oggetti non ancora taggati)
   if (tipo > 13.5 && tipo < 14.5) {
-    // curvatura (1/m): quanto gira la normale per metro; > ~1 = forma tonda stretta (tronchi, rami)
+    // curvatura (1/m): quanto gira la normale per metro; > ~0.45 = forma tonda (tronchi, rami,
+    // sassi lisci); i selciati che seguono il suolo restano sotto
     float curv = length(fwidth(N)) / max(length(fwidth(P)), 1e-4);
-    tipo = superficieAuto(vColor.rgb, vColor.a, dot(N, cylUp(P)), step(1.0, curv));
+    tipo = superficieAuto(vColor.rgb, vColor.a, dot(N, cylUp(P)), step(0.45, curv));
     var = 0.0; // i motivi sono ancorati al mondo: variano da soli da un oggetto all'altro
   }
   s.ao = 1.0 - clamp(vSup.y, 0.0, 1.0);
@@ -206,7 +221,7 @@ export function createWorldMaterial(u: WorldUniforms, opts: WorldMaterialOptions
   const base = opts.superficie ?? (opts.kind === 'object' ? SUPERFICIE.AUTO : SUPERFICIE.NESSUNA);
   const mat = new ShaderMaterial({
     name: `world-${opts.kind}`,
-    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: base } },
+    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: base }, uChioma: { value: new Vector4(0, 5.5, 1.35, 0) } },
     vertexShader: VERT,
     fragmentShader: FRAG,
     defines,
@@ -221,4 +236,17 @@ export function createWorldMaterial(u: WorldUniforms, opts: WorldMaterialOptions
 export function impostaSuperficieBase(mat: ShaderMaterial, superficie: number): void {
   const u = mat.uniforms['uSuperficieBase'];
   if (u) u.value = superficie;
+}
+
+/**
+ * Chiome instanziate (InstancedMesh): piega la normale verso quella di una sfera attorno al
+ * centro della chioma, così la luce gira la chioma come un unico volume morbido (in due toni,
+ * con il bordo luminoso), invece di mostrare le faccette delle masse.
+ * @param forza 0 = spento, 0.5-0.7 = consigliato
+ * @param altezza altezza del centro della chioma sopra l'origine dell'istanza (unità locali)
+ * @param schiaccia allungamento verticale della normale (1 = sfera, 1.35 = chioma più larga che alta)
+ */
+export function impostaChioma(mat: ShaderMaterial, forza: number, altezza = 5.5, schiaccia = 1.35): void {
+  const u = mat.uniforms['uChioma'];
+  if (u) (u.value as Vector4).set(forza, altezza, schiaccia, 0);
 }
