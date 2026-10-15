@@ -34,7 +34,7 @@
       "testo": "Il Gino scotta da tre giorni, e per la prima volta in vita sua sta fermo nel letto. Quel dottore forestiero lo prenda entro mezzogiorno, e domani sera sia guarito. Il pane glielo porto io.",
       "esito": {
         "ok": "Il dottore ha preso il Gino prima di mezzogiorno. Guarito, il Gino ha ricominciato a correre: Marta dice che preferiva la febbre.",
-        "fallita": "Il Gino scotta ancora. Marta ha messo il pane del dottore in fondo alla cesta, sotto quello di ieri."
+        "fallita": "Lunardi non è arrivato dal Gino prima di mezzogiorno. Marta ha messo il pane del dottore in fondo alla cesta, sotto quello di ieri."
       }
     },
     "teresa": {
@@ -240,7 +240,7 @@
       "testo": "Domattina scendo alla messa delle undici, a parlare col prete. Dopo le tre il Faro è mio: nessuno salga. Ho da pensare a una calligrafia.",
       "esito": {
         "ok": "Zeno è rimasto solo sul Faro, dopo le tre. Quando è sceso aveva gli occhi di chi ha riletto una lettera vecchia.",
-        "fallita": "Zeno non ha avuto il Faro tutto per sé. Ha borbottato col vento fino a sera."
+        "fallita": "La giornata di Zeno non è andata come voleva, fra la messa e il Faro. Ha borbottato col vento fino a sera."
       }
     },
     "teresa": {
@@ -286,7 +286,7 @@
       "testo": "Il Gino delira e chiama la nonna. La tua. Dice che lei gli diceva di stare fermo. Il dottore passi da lui entro le cinque, e domani sera sia sano. Te lo chiedo per piacere.",
       "esito": {
         "ok": "Il dottore è passato dal Gino in tempo, e la sera era guarito: ha ripreso a correre subito. Marta l'ha lasciato fare, per una volta.",
-        "fallita": "Il Gino ha ancora la febbre, e chiama la nonna nel sonno. Marta veglia accanto al letto."
+        "fallita": "Lunardi non è passato dal Gino in tempo. Marta ha vegliato accanto al letto, e lui chiamava la nonna nel sonno."
       }
     },
     "lunardi": {
@@ -295,7 +295,7 @@
       "r2": "Grazie, Ettore. Faremo il possibile, tutti e due.",
       "esito": {
         "ok": "Il dottore ha visto la Nina in tempo, e lei si è alzata dal letto prima di sera, coi libri sotto il braccio.",
-        "fallita": "La Nina ha ancora la febbre. Due volte il dottore si è fermato sotto la sua finestra, senza poter salire."
+        "fallita": "Lunardi non è salito dalla Nina in tempo. Due volte si è fermato sotto la sua finestra, col cappello in mano."
       }
     },
     "gino": {
@@ -304,7 +304,7 @@
       "r2": "Da dentro, promesso. Ma prima il prete, che la campana la sa suonare lui.",
       "esito": {
         "ok": "Il prete è guarito. Il Gino ha già provato la corda della campana, per sicurezza.",
-        "fallita": "Il prete tossisce ancora, e domenica la campana resterà muta. Il Gino ci è rimasto male."
+        "fallita": "Il dottore non ha raggiunto il prete prima dell'una. Il Gino ha guardato la corda della campana tutto il pomeriggio, e ci è rimasto male."
       }
     },
     "nina": {

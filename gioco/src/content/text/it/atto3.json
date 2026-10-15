@@ -130,7 +130,7 @@
       "testo": "Signorina, mi sento ancora un forestiero. Vorrei incontrare almeno tre persone, domani, e che una, una sola, mi confidasse qualcosa. Come si fa tra gente dell'isola.",
       "esito": {
         "ok": "Il dottore ha avuto le sue tre visite, e una confidenza. La tiene stretta come una ricetta.",
-        "fallita": "Al dottore nessuno ha confidato niente. Ha cenato da solo in Farmacia, coi vasi di vetro per compagnia."
+        "fallita": "La giornata del dottore non è stata ancora quella di un uomo dell'isola. Ha cenato da solo in Farmacia, coi vasi di vetro per compagnia."
       }
     }
   },

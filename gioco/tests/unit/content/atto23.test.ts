@@ -2206,6 +2206,17 @@ describe('verifica della revisione 2 (contenuti-atti23): coerenza e ripetizioni 
     for (const v of [storta, attesa]) expect(v.lines[1]?.textKey, v.id).toBe('atto3.g18.alba.storta.2');
   });
 
+  it('esiti falliti di richieste composte: non danno per certo un motivo che può non essere quello vero', () => {
+    // g18 (passi di Q046): la confessione arriva a Lunardi ma lui incontra meno di tre persone → «nessuno ha confidato» mentirebbe.
+    expect(t('atto3.g18.lunardi.esito.fallita')).not.toMatch(/nessuno ha confidato/i);
+    // Le cure in ritardo (sopra … entro l'ora) guariscono lo stesso: l'esito non dice «ha ancora la febbre».
+    for (const k of ['atto2.g09.marta.esito.fallita', 'atto2.g13.marta.esito.fallita', 'atto2.g13.lunardi.esito.fallita', 'atto2.g13.gino.esito.fallita']) {
+      expect(t(k), k).not.toMatch(/ancora la febbre|scotta ancora|tossisce ancora/i);
+    }
+    // g12: Zeno può mancare la messa o il Faro.
+    expect(t('atto2.g12.zeno.esito.fallita')).not.toMatch(/Faro tutto per sé/);
+  });
+
   it('fin_aperto: la lettera del 1951 è di mia madre, anche se in g22 il pozzo non l\'ha restituita', () => {
     expect(t('finali.aperto.perline.L_1951')).not.toMatch(/pozzo/);
     expect(level('fin_aperto').beads.find((b) => b.id === 'L_1951')?.holder).toBe('livia');

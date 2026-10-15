@@ -34,7 +34,7 @@
       "testo": "Gino has been burning for three days, and for the first time in his life he lies still in bed. That mainland doctor is to see him by noon, and by tomorrow evening he's to be well. I'll bring the man his bread.",
       "esito": {
         "ok": "The doctor saw to Gino before noon. Cured, Gino started running again: Marta says she preferred the fever.",
-        "fallita": "Gino is still burning. Marta put the doctor's bread at the bottom of the basket, under yesterday's."
+        "fallita": "Lunardi didn't reach Gino before noon. Marta put the doctor's bread at the bottom of the basket, under yesterday's."
       }
     },
     "teresa": {
@@ -240,7 +240,7 @@
       "testo": "Tomorrow I'm coming down for eleven o'clock mass, to talk to the priest. From three the Lighthouse is mine: no visitors. I have a handwriting to ponder.",
       "esito": {
         "ok": "Zeno stayed alone on the Lighthouse after three. When he came down he had the eyes of a man who has reread an old letter.",
-        "fallita": "Zeno didn't have the Lighthouse to himself. He grumbled at the wind until evening."
+        "fallita": "Zeno's day didn't go as he wanted, between mass and the Lighthouse. He grumbled at the wind until evening."
       }
     },
     "teresa": {
@@ -286,7 +286,7 @@
       "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let the doctor see him by five, and him be well by evening. I'm asking you please.",
       "esito": {
         "ok": "The doctor saw Gino in time, and by evening he was cured: he started running at once. Marta let him, for once.",
-        "fallita": "Gino still has the fever, and calls for Grandmother in his sleep. Marta sits up by his bed."
+        "fallita": "Lunardi didn't get to Gino in time. Marta sat up by his bed, and he called for Grandmother in his sleep."
       }
     },
     "lunardi": {
@@ -295,7 +295,7 @@
       "r2": "Thank you, Ettore. We'll do our best, both of us.",
       "esito": {
         "ok": "The doctor saw Nina in time, and she got out of bed before evening, books under her arm.",
-        "fallita": "Nina still has the fever. Twice the doctor stopped under her window, without being able to go up."
+        "fallita": "Lunardi didn't get up to Nina in time. Twice he stopped under her window, hat in hand."
       }
     },
     "gino": {
@@ -304,7 +304,7 @@
       "r2": "From inside, I promise. But the priest first: he knows how to ring the bell.",
       "esito": {
         "ok": "The priest is cured. Gino has already tried the bell rope, just to be sure.",
-        "fallita": "The priest is still coughing, and on Sunday the bell will stay silent. Gino took it badly."
+        "fallita": "The doctor didn't reach the priest before one. Gino stared at the bell rope all afternoon, and took it badly."
       }
     },
     "nina": {
