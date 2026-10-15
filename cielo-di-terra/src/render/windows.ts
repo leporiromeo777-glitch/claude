@@ -12,7 +12,11 @@ import { surfaceHeight } from '../world/terrain';
 import { LIGHT_GLSL, NOISE_GLSL, WORLD_UNIFORMS_GLSL } from './shaders/common';
 import type { WorldUniforms } from './uniforms';
 import { createWorldMaterial } from './worldMaterial';
-import { PALETTE } from './palette';
+import type { RGB } from './palette';
+
+/** Acciaio del telaio e dei costoloni. */
+const STEEL: RGB = [0.5, 0.53, 0.59];
+const STEEL_DARK: RGB = [0.3, 0.31, 0.36];
 
 const WIN = LAYOUT.windows;
 
@@ -141,7 +145,7 @@ export class Windows {
       const thMid = (w.thetaStart + w.thetaEnd) / 2;
       for (let z = 0; z <= LAYOUT.cylinder.length; z += WIN.ribSpacing) {
         if (surfaceHeight(z, thMid) > 0.5) continue;
-        addCurvedBeam(ribPos, ribNor, ribCol, z, w.thetaStart, w.thetaEnd, WIN.ribWidth, WIN.ribHeight, 24, PALETTE.slateDark);
+        addCurvedBeam(ribPos, ribNor, ribCol, z, w.thetaStart, w.thetaEnd, WIN.ribWidth, WIN.ribHeight, 24, STEEL_DARK);
       }
       // travi di bordo lungo le due rive del vetro
       for (const edge of [w.thetaStart, w.thetaEnd]) {
@@ -149,7 +153,7 @@ export class Windows {
         const thA = edge + (dir * (WIN.edgeBeamWidth * 0.5)) / (R * DEG);
         for (let z = 0; z < LAYOUT.cylinder.length; z += 40) {
           if (surfaceHeight(z + 20, thMid) > 0.5) continue;
-          addLongBeam(ribPos, ribNor, ribCol, z, z + 40, thA, WIN.edgeBeamWidth, 1.3, PALETTE.slate);
+          addLongBeam(ribPos, ribNor, ribCol, z, z + 40, thA, WIN.edgeBeamWidth, 2.9, STEEL);
         }
       }
     }

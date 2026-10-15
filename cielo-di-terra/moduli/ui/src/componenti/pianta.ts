@@ -55,15 +55,6 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     this.sottotitolo = h('p', { class: 'ui-pt-sottotitolo' });
     this.didascalia = h('p', { class: 'ui-pt-didascalia', 'aria-live': 'polite' });
     this.scalaGrafica = h('div', { class: 'ui-pt-scala', 'aria-hidden': 'true' });
-    const cartiglio = h(
-      'div',
-      { class: 'ui-pt-cartiglio' },
-      h('h2', { class: 'ui-pt-titolo' }, 'Pianta del Verbano'),
-      this.sottotitolo,
-      this.scalaGrafica,
-      this.didascalia,
-    );
-
     const voceLegenda = (classe: string, testo: string): HTMLLIElement => h('li', null, h('span', { class: `ui-pt-campione ${classe}`, 'aria-hidden': 'true' }), testo);
     const legenda = h(
       'div',
@@ -72,15 +63,17 @@ export class PiantaVerbano extends Componente<EventiPianta> {
       h(
         'ul',
         null,
-        voceLegenda('ui-pt-campione--bianco', 'mai vista'),
-        voceLegenda('ui-pt-campione--matita', 'vista con lo squadro'),
-        voceLegenda('ui-pt-campione--rilevato', 'rilevata'),
+        voceLegenda('ui-pt-campione--bianco', 'mai vista: carta bianca'),
+        voceLegenda('ui-pt-campione--matita', 'vista con lo squadro: a matita'),
+        voceLegenda('ui-pt-campione--rilevato', 'rilevata: china e acquerello'),
         voceLegenda('ui-pt-campione--cambiata', 'cambiata stanotte'),
-        voceLegenda('ui-pt-campione--caposaldo', 'caposaldo rilevato'),
+        voceLegenda('ui-pt-campione--caposaldo', 'caposaldo rilevato · visto'),
+        voceLegenda('ui-pt-campione--finestra', 'Finestra: la Notte'),
       ),
     );
 
     this.rosa = h('div', { class: 'ui-pt-rosa' }, rosaDeiVenti());
+    this.area.append(this.rosa);
     this.resoconto = h('div', { class: 'ui-pt-resoconto', hidden: true, role: 'region', 'aria-label': 'Resoconto del mattino' });
 
     const bottone = (testo: string, etichetta: string, fn: () => void, classe = ''): HTMLButtonElement =>
@@ -91,32 +84,45 @@ export class PiantaVerbano extends Componente<EventiPianta> {
       bottone('+', 'Ingrandisci', () => this.zoom(1.4)),
       bottone('−', 'Rimpicciolisci', () => this.zoom(1 / 1.4)),
       bottone('Elvira', 'Centra su Elvira (C)', () => this.centraSuElvira(true), 'ui-pt-bottone--testo'),
-      h(
-        'button',
-        { class: 'ui-bottone ui-pt-chiudi', type: 'button', onclick: () => this.emit('chiudi') },
-        h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, 'Esc'),
-        'Chiudi',
-      ),
+    );
+    const bChiudi = h(
+      'button',
+      { class: 'ui-bottone ui-pt-chiudi', type: 'button', onclick: () => this.emit('chiudi') },
+      h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, 'Esc'),
+      'Chiudi',
     );
     const aiuto = h(
       'p',
       { class: 'ui-pt-aiuto' },
-      'Trascina o ',
+      'Trascina o usa ',
       h('span', { class: 'ui-tasto' }, '←'),
       h('span', { class: 'ui-tasto' }, '↑'),
       h('span', { class: 'ui-tasto' }, '↓'),
       h('span', { class: 'ui-tasto' }, '→'),
-      ' per scorrere · rotella o ',
+      ' per scorrere; rotella o ',
       h('span', { class: 'ui-tasto' }, '+'),
       h('span', { class: 'ui-tasto' }, '−'),
-      ' per ingrandire · ',
+      ' per ingrandire; ',
+      h('span', { class: 'ui-tasto' }, '0'),
+      ' tutto il giro; ',
       h('span', { class: 'ui-tasto' }, 'C'),
-      ' centra su Elvira',
+      ' su Elvira.',
+    );
+    const lato = h(
+      'aside',
+      { class: 'ui-pt-lato' },
+      h('header', { class: 'ui-pt-testa' }, h('h2', { class: 'ui-pt-titolo' }, 'Pianta del Verbano'), bChiudi),
+      this.sottotitolo,
+      h('div', { class: 'ui-pt-strumenti' }, this.scalaGrafica, comandi),
+      this.didascalia,
+      this.resoconto,
+      legenda,
+      aiuto,
     );
 
     this.el.append(
       h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }),
-      h('div', { class: 'ui-carta ui-pt-foglio' }, this.area, cartiglio, legenda, this.rosa, comandi, this.resoconto, aiuto),
+      h('div', { class: 'ui-carta ui-pt-foglio' }, this.area, lato),
     );
     this.collegaInput();
   }
@@ -219,11 +225,11 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     const c = this.pittore.modelloCorrente.conteggi();
     const totale = dati.totaleParticelle;
     const capisaldi = dati.capisaldi.filter((x) => x.rilevato).length;
-    const rilevate = dati.particelle?.length
-      ? dati.particelle.filter((p) => p.stato === 'rilevato').length
-      : c.rilevato;
+    const rilevate = dati.griglia || !dati.particelle?.length ? c.rilevato : dati.particelle.filter((p) => p.stato === 'rilevato').length;
     const parti = [
-      totale ? `${rilevate} particelle rilevate su ${totale}` : `${rilevate} ${rilevate === 1 ? 'particella rilevata' : 'particelle rilevate'}`,
+      totale
+        ? `${rilevate.toLocaleString('it-IT')} particelle rilevate su ${totale.toLocaleString('it-IT')}`
+        : `${rilevate.toLocaleString('it-IT')} ${rilevate === 1 ? 'particella rilevata' : 'particelle rilevate'}`,
       `${capisaldi} ${capisaldi === 1 ? 'caposaldo' : 'capisaldi'}`,
     ];
     this.sottotitolo.textContent = parti.join(' · ');
