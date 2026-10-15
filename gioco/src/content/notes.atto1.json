@@ -18,7 +18,7 @@
     "request": {"t": "consegnata", "bead": "L_piero", "by": 10},
     "onOk": [{"diary": "persone.piero.buste"}],
     "onFail": [{"setFlag": "postaPieroTardi", "value": true}],
-    "esito": {"ok": "atto1.g01.piero.esito.ok", "fallita": "atto1.g01.piero.esito.fallita"}
+    "esito": {"ok": "atto1.g01.piero.esito.ok", "fallita": "atto1.g01.piero.esito.fallita", "lasciato": "atto1.g01.piero.esito.lasciato"}
   },
   {
     "id": "g01.gino",
@@ -40,7 +40,7 @@
     ],
     "onOk": [{"setFlag": "campanaGino", "value": true}],
     "onFail": [{"setFlag": "ginoDeluso", "value": true}],
-    "esito": {"ok": "atto1.g01.gino.esito.ok", "fallita": "atto1.g01.gino.esito.fallita"}
+    "esito": {"ok": "atto1.g01.gino.esito.ok", "fallita": "atto1.g01.gino.esito.fallita", "lasciato": "atto1.g01.gino.esito.lasciato"}
   },
   {
     "id": "g02.marta",
@@ -53,7 +53,7 @@
     "availableIf": {
       "not": {"flag": "martaDura", "eq": true}
     },
-    "esito": {"ok": "atto1.g02.marta.esito.ok", "fallita": "atto1.g02.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g02.marta.esito.ok", "fallita": "atto1.g02.marta.esito.fallita", "lasciato": "atto1.g02.marta.esito.lasciato"}
   },
   {
     "id": "g02.martaDura",
@@ -64,7 +64,7 @@
     "onOk": [{"setFlag": "ginoNonSa", "value": true}],
     "onFail": [{"diary": "persone.gino.chiacchiere"}],
     "availableIf": {"flag": "martaDura", "eq": true},
-    "esito": {"ok": "atto1.g02.marta.esito.ok", "fallita": "atto1.g02.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g02.marta.esito.ok", "fallita": "atto1.g02.marta.esito.fallita", "lasciato": "atto1.g02.marta.esito.lasciato"}
   },
   {
     "id": "g02.teresa",
@@ -85,7 +85,7 @@
       }
     ],
     "onOk": [{"diary": "persone.piero.ascolta"}],
-    "esito": {"ok": "atto1.g02.teresa.esito.ok", "fallita": "atto1.g02.teresa.esito.fallita"}
+    "esito": {"ok": "atto1.g02.teresa.esito.ok", "fallita": "atto1.g02.teresa.esito.fallita", "lasciato": "atto1.g02.teresa.esito.lasciato"}
   },
   {
     "id": "g02.gino",
@@ -97,7 +97,7 @@
       "of": [{"t": "presso", "who": "gino", "place": "molo", "hour": 8}, {"t": "presso", "who": "gino", "place": "chiesa", "hour": 11}]
     },
     "onOk": [{"setFlag": "ginoGiro", "value": true}],
-    "esito": {"ok": "atto1.g02.gino.esito.ok", "fallita": "atto1.g02.gino.esito.fallita"}
+    "esito": {"ok": "atto1.g02.gino.esito.ok", "fallita": "atto1.g02.gino.esito.fallita", "lasciato": "atto1.g02.gino.esito.lasciato"}
   },
   {
     "id": "g03.nina",
@@ -130,7 +130,7 @@
     "request": {"t": "resta", "who": "nina"},
     "onOk": [{"setFlag": "ninaRestata", "value": true}],
     "onFail": [{"diary": "persone.marta.partenze"}],
-    "esito": {"ok": "atto1.g03.marta.esito.ok", "fallita": "atto1.g03.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g03.marta.esito.ok", "fallita": "atto1.g03.marta.esito.fallita", "lasciato": "atto1.g03.marta.esito.lasciato"}
   },
   {
     "id": "g03.teresa",
@@ -143,7 +143,7 @@
     "availableIf": {
       "not": {"flag": "teresaFredda", "eq": true}
     },
-    "esito": {"ok": "atto1.g03.teresa.esito.ok", "fallita": "atto1.g03.teresa.esito.fallita"}
+    "esito": {"ok": "atto1.g03.teresa.esito.ok", "fallita": "atto1.g03.teresa.esito.fallita", "lasciato": "atto1.g03.teresa.esito.lasciato"}
   },
   {
     "id": "g03.teresaFredda",
@@ -154,7 +154,7 @@
     "onOk": [{"diary": "persone.teresa.cartolina"}],
     "onFail": [{"setFlag": "postaInRitardo", "value": true}],
     "availableIf": {"flag": "teresaFredda", "eq": true},
-    "esito": {"ok": "atto1.g03.teresa.esito.ok", "fallita": "atto1.g03.teresa.esito.fallita"}
+    "esito": {"ok": "atto1.g03.teresa.esito.ok", "fallita": "atto1.g03.teresa.esito.fallita", "lasciato": "atto1.g03.teresa.esito.lasciato"}
   },
   {
     "id": "g04.nina",
@@ -175,7 +175,7 @@
       }
     ],
     "onOk": [{"setFlag": "ninaSaluto", "value": true}],
-    "esito": {"ok": "atto1.g04.nina.esito.ok", "fallita": "atto1.g04.nina.esito.fallita"}
+    "esito": {"ok": "atto1.g04.nina.esito.ok", "fallita": "atto1.g04.nina.esito.fallita", "lasciato": "atto1.g04.nina.esito.lasciato"}
   },
   {
     "id": "g04.bepi",
@@ -185,7 +185,7 @@
     "request": {"t": "nonHa", "who": "nina", "bead": "voce:rete"},
     "onOk": [{"setFlag": "reteSegreta", "value": true}],
     "onFail": [{"diary": "persone.bepi.rete"}],
-    "esito": {"ok": "atto1.g04.bepi.esito.ok", "fallita": "atto1.g04.bepi.esito.fallita"}
+    "esito": {"ok": "atto1.g04.bepi.esito.ok", "fallita": "atto1.g04.bepi.esito.fallita", "lasciato": "atto1.g04.bepi.esito.lasciato"}
   },
   {
     "id": "g04.piero",
@@ -194,7 +194,7 @@
     "textKey": "atto1.g04.piero.testo",
     "request": {"t": "presso", "who": "bepi", "place": "chiesa", "hour": 14},
     "onOk": [{"diary": "persone.bepi.candela"}],
-    "esito": {"ok": "atto1.g04.piero.esito.ok", "fallita": "atto1.g04.piero.esito.fallita"}
+    "esito": {"ok": "atto1.g04.piero.esito.ok", "fallita": "atto1.g04.piero.esito.fallita", "lasciato": "atto1.g04.piero.esito.lasciato"}
   },
   {
     "id": "g05.zeno",
@@ -203,7 +203,7 @@
     "textKey": "atto1.g05.zeno.testo",
     "request": {"t": "presso", "who": "gino", "place": "faro", "hour": 12},
     "onOk": [{"setFlag": "ginoFaro", "value": true}, {"desire": "gino"}],
-    "esito": {"ok": "atto1.g05.zeno.esito.ok", "fallita": "atto1.g05.zeno.esito.fallita"}
+    "esito": {"ok": "atto1.g05.zeno.esito.ok", "fallita": "atto1.g05.zeno.esito.fallita", "lasciato": "atto1.g05.zeno.esito.lasciato"}
   },
   {
     "id": "g05.marta",
@@ -224,7 +224,7 @@
       }
     ],
     "onOk": [{"setFlag": "ginoLontanoFaro", "value": true}],
-    "esito": {"ok": "atto1.g05.marta.esito.ok", "fallita": "atto1.g05.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g05.marta.esito.ok", "fallita": "atto1.g05.marta.esito.fallita", "lasciato": "atto1.g05.marta.esito.lasciato"}
   },
   {
     "id": "g05.teresa",
@@ -234,7 +234,7 @@
     "request": {"t": "consegnata", "bead": "L_zeno", "by": 13},
     "onOk": [{"diary": "domande.chiL.zeno"}],
     "onFail": [{"setFlag": "letteraZenoPersa", "value": true}],
-    "esito": {"ok": "atto1.g05.teresa.esito.ok", "fallita": "atto1.g05.teresa.esito.fallita"}
+    "esito": {"ok": "atto1.g05.teresa.esito.ok", "fallita": "atto1.g05.teresa.esito.fallita", "lasciato": "atto1.g05.teresa.esito.lasciato"}
   },
   {
     "id": "g06.nina",
@@ -247,7 +247,7 @@
     },
     "onOk": [{"setFlag": "ninaPromossa", "value": true}],
     "onFail": [{"setFlag": "ninaPromossa", "value": true}, {"diary": "persone.nina.tuttiSanno"}],
-    "esito": {"ok": "atto1.g06.nina.esito.ok", "fallita": "atto1.g06.nina.esito.fallita"}
+    "esito": {"ok": "atto1.g06.nina.esito.ok", "fallita": "atto1.g06.nina.esito.fallita", "lasciato": "atto1.g06.nina.esito.lasciato"}
   },
   {
     "id": "g06.marta",
@@ -268,7 +268,7 @@
       }
     ],
     "onOk": [{"setFlag": "martaRespiro", "value": true}],
-    "esito": {"ok": "atto1.g06.marta.esito.ok", "fallita": "atto1.g06.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g06.marta.esito.ok", "fallita": "atto1.g06.marta.esito.fallita", "lasciato": "atto1.g06.marta.esito.lasciato"}
   },
   {
     "id": "g06.zeno",
@@ -278,7 +278,7 @@
     "request": {"t": "nonHa", "who": "piero", "bead": "voce:ninaParte"},
     "onOk": [{"setFlag": "bepiNonSa", "value": true}],
     "onFail": [{"setFlag": "bepiSaVenezia", "value": true}, {"diary": "persone.piero.bepi"}],
-    "esito": {"ok": "atto1.g06.zeno.esito.ok", "fallita": "atto1.g06.zeno.esito.fallita"}
+    "esito": {"ok": "atto1.g06.zeno.esito.ok", "fallita": "atto1.g06.zeno.esito.fallita", "lasciato": "atto1.g06.zeno.esito.lasciato"}
   },
   {
     "id": "g07.teresa",
@@ -297,7 +297,7 @@
     },
     "onOk": [{"setFlag": "teresaConfessata", "value": true}, {"diary": "domande.martaTeresa.confessione"}],
     "onFail": [{"setFlag": "confessioneSparsa", "value": true}],
-    "esito": {"ok": "atto1.g07.teresa.esito.ok", "fallita": "atto1.g07.teresa.esito.fallita"}
+    "esito": {"ok": "atto1.g07.teresa.esito.ok", "fallita": "atto1.g07.teresa.esito.fallita", "lasciato": "atto1.g07.teresa.esito.lasciato"}
   },
   {
     "id": "g07.nina",
@@ -318,7 +318,7 @@
       }
     ],
     "onOk": [{"diary": "domande.martaTeresa.nina"}],
-    "esito": {"ok": "atto1.g07.nina.esito.ok", "fallita": "atto1.g07.nina.esito.fallita"}
+    "esito": {"ok": "atto1.g07.nina.esito.ok", "fallita": "atto1.g07.nina.esito.fallita", "lasciato": "atto1.g07.nina.esito.lasciato"}
   },
   {
     "id": "g07.zeno",
@@ -327,7 +327,7 @@
     "textKey": "atto1.g07.zeno.testo",
     "request": {"t": "presso", "who": "gino", "place": "faro", "hour": 13},
     "onOk": [{"setFlag": "ginoFaro", "value": true}, {"desire": "gino"}],
-    "esito": {"ok": "atto1.g07.zeno.esito.ok", "fallita": "atto1.g07.zeno.esito.fallita"}
+    "esito": {"ok": "atto1.g07.zeno.esito.ok", "fallita": "atto1.g07.zeno.esito.fallita", "lasciato": "atto1.g07.zeno.esito.lasciato"}
   },
   {
     "id": "g08.marta",
@@ -339,7 +339,7 @@
       "of": [{"t": "incontra", "a": "marta", "b": "piero", "from": 9, "to": 11}, {"t": "incontra", "a": "marta", "b": "gino", "from": 9, "to": 11}]
     },
     "onOk": [{"diary": "persone.marta.padre"}],
-    "esito": {"ok": "atto1.g08.marta.esito.ok", "fallita": "atto1.g08.marta.esito.fallita"}
+    "esito": {"ok": "atto1.g08.marta.esito.ok", "fallita": "atto1.g08.marta.esito.fallita", "lasciato": "atto1.g08.marta.esito.lasciato"}
   },
   {
     "id": "g08.nina",
@@ -361,7 +361,7 @@
     ],
     "onOk": [{"setFlag": "ninaIscritta", "value": true}],
     "onFail": [{"diary": "persone.nina.iscrizione"}],
-    "esito": {"ok": "atto1.g08.nina.esito.ok", "fallita": "atto1.g08.nina.esito.fallita"}
+    "esito": {"ok": "atto1.g08.nina.esito.ok", "fallita": "atto1.g08.nina.esito.fallita", "lasciato": "atto1.g08.nina.esito.lasciato"}
   },
   {
     "id": "g08.zeno",
@@ -371,6 +371,6 @@
     "request": {"t": "nonIncontra", "a": "zeno", "b": "*", "from": 14, "to": 16},
     "onOk": [{"setFlag": "zenoRiposo", "value": true}],
     "onFail": [{"diary": "persone.zeno.insonne"}],
-    "esito": {"ok": "atto1.g08.zeno.esito.ok", "fallita": "atto1.g08.zeno.esito.fallita"}
+    "esito": {"ok": "atto1.g08.zeno.esito.ok", "fallita": "atto1.g08.zeno.esito.fallita", "lasciato": "atto1.g08.zeno.esito.lasciato"}
   }
 ]

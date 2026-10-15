@@ -34,7 +34,8 @@
       "testo": "Gentile signorina Ada, la posta mi arrivi entro le dieci, se il Signore e la Teresa lo consentono.",
       "esito": {
         "ok": "La posta è arrivata in tempo. Don Piero l'ha presa senza aprirla, come una cosa da custodire.",
-        "fallita": "La posta di Don Piero è arrivata tardi, o non è arrivata. Lui non si è lamentato: aspetta."
+        "fallita": "La posta di Don Piero è arrivata tardi, o non è arrivata. Lui non si è lamentato: aspetta.",
+        "lasciato": "Il bigliettino di Don Piero è rimasto senza spillo. Lui non ha chiesto niente: ha aspettato la posta, come si aspetta la pioggia."
       }
     },
     "gino": {
@@ -43,13 +44,14 @@
       "r2": "Prima chiedilo a Don Piero.",
       "esito": {
         "ok": "Alle undici il Gino era in chiesa. La campana, dice lui, si è sentita fino a Chioggia.",
-        "fallita": "Alle undici il Gino non era in chiesa. La campana è rimasta zitta, e lui pure, per un'ora intera."
+        "fallita": "Alle undici il Gino non era in chiesa. La campana è rimasta zitta, e lui pure, per un'ora intera.",
+        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Ha suonato lo stesso, battendo un cucchiaio su una pentola."
       }
     },
     "alba": {
       "bambina": "Sulla Fondamenta si dice a bassa voce: la merlettaia nuova è una ragazzina.",
       "bambina2": "Sedici anni, cara. Sedici! Io a sedici anni impastavo già il pane per mia madre.",
-      "campana": "Alle undici la campana suona fuori orario, stonata e felice.",
+      "campana": "Alle undici il Gino tira la campana della messa. Don Piero arriva di corsa dalla Piazza.",
       "campana2": "Ah, il Gino. Ego te absolvo, figliolo. Ma la prossima volta, piano.",
       "brava": "Brava, merlettaia.",
       "bagnato": "Il Gino torna dal Molo bagnato fino alle ginocchia, con un granchio in tasca.",
@@ -74,7 +76,8 @@
       "testo": "Che il Gino non senta le chiacchiere.",
       "esito": {
         "ok": "Il Gino non ha saputo niente della chiacchiera. Ha passato la giornata a correre, e basta.",
-        "fallita": "La chiacchiera è arrivata anche al Gino. Marta stamattina impastava senza dire una parola."
+        "fallita": "La chiacchiera è arrivata anche al Gino. Marta stamattina impastava senza dire una parola.",
+        "lasciato": "Marta ha visto il suo bigliettino ancora senza spillo. Oggi il pane non me l'ha dato in mano: l'ha lasciato sul banco."
       }
     },
     "martaDura": {
@@ -86,14 +89,16 @@
       "r2": "Va bene.",
       "esito": {
         "ok": "La novità è arrivata a Don Piero prima della messa. Teresa è contenta come se l'avesse detta dal pulpito.",
-        "fallita": "Entro le nove Don Piero non ha saputo niente. Teresa gliel'ha raccontato dopo la messa, di persona."
+        "fallita": "Entro le nove Don Piero non ha saputo niente. Teresa gliel'ha raccontato dopo la messa, di persona.",
+        "lasciato": "Teresa ha ripreso il suo bigliettino senza spillo. Le novità, dice, le porta con le sue gambe."
       }
     },
     "gino": {
       "testo": "voglio fare il giro! molo alle 8, chiesa alle 11. cuesta volta di corsa!",
       "esito": {
         "ok": "Dal Molo alla chiesa, tutto di corsa: il Gino è tornato a casa senza fiato e contento.",
-        "fallita": "Il giro del Gino è rimasto a metà. Ha detto che domani lo rifà, tutto e di corsa."
+        "fallita": "Il giro del Gino è rimasto a metà. Ha detto che domani lo rifà, tutto e di corsa.",
+        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Il giro l'ha fatto in cortile, cento volte, contando ad alta voce."
       }
     },
     "alba": {
@@ -113,7 +118,7 @@
     },
     "margine": {
       "voce": "La voce non ha verso.",
-      "matassa": "Il gomitolo dice quanto filo resta: ogni incrocio ne costa un braccio."
+      "matassa": "Il gomitolo conta il filo usato: ogni incrocio costa un braccio."
     }
   },
   "g03": {
@@ -132,14 +137,16 @@
       "testo": "Domani nessuno parta. Non voglio vedere partenze.",
       "esito": {
         "ok": "Nessuno è partito. Marta ha sfornato il pane come se fosse domenica.",
-        "fallita": "Il vaporetto ha portato via qualcuno. Marta ha chiuso il forno prima di mezzogiorno."
+        "fallita": "Il vaporetto ha portato via qualcuno. Marta ha chiuso il forno prima di mezzogiorno.",
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Ha guardato il vaporetto dalla porta del forno, a braccia conserte."
       }
     },
     "teresa": {
       "testo": "La posta dal vaporetto la prendo io. Fa' che io sia al Molo alle dieci.",
       "esito": {
         "ok": "Alle dieci Teresa era al Molo: la posta del vaporetto è passata tutta dalle sue mani.",
-        "fallita": "Alle dieci Teresa non era al Molo. La posta del vaporetto è rimasta in un sacco, sul pontile."
+        "fallita": "Alle dieci Teresa non era al Molo. La posta del vaporetto è rimasta in un sacco, sul pontile.",
+        "lasciato": "Il bigliettino di Teresa è rimasto senza spillo. Me l'ha fatto notare due volte, e la seconda senza sorridere."
       }
     },
     "teresaFredda": {"testo": "Merlettaia. La posta del vaporetto la prendo io. Al Molo alle dieci. Senza chiacchiere."},
@@ -169,21 +176,24 @@
       "r2": "Digli di Venezia.",
       "esito": {
         "ok": "La Nina ha salutato il babbo prima che uscisse in barca. Lui ha detto «Mh», che per Bepi è tanto.",
-        "fallita": "La barca di Bepi è uscita prima che la Nina riuscisse a salutarlo."
+        "fallita": "La barca di Bepi è uscita prima che la Nina riuscisse a salutarlo.",
+        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. Il babbo, dice lei, saluta col berretto anche da lontano."
       }
     },
     "bepi": {
       "testo": "la teresa non vada a dire in giro dela rete. specie ala nina",
       "esito": {
         "ok": "La Nina non ha saputo niente della rete. Bepi ripara quella vecchia e tace.",
-        "fallita": "La chiacchiera sulla rete è arrivata alla Nina. Bepi non ha detto niente, ma ha guardato storto la Teresa."
+        "fallita": "La chiacchiera sulla rete è arrivata alla Nina. Bepi non ha detto niente, ma ha guardato storto la Teresa.",
+        "lasciato": "Il bigliettino di Bepi è rimasto senza spillo. Non ne scriverà un altro: Bepi le parole le conta."
       }
     },
     "piero": {
       "testo": "Bepi passi in Chiesa al ritorno: ha una candela da accendere per sua moglie.",
       "esito": {
         "ok": "Al ritorno Bepi è passato in Chiesa. Don Piero aveva lasciato la porta socchiusa per lui.",
-        "fallita": "Bepi non è passato in Chiesa. La candela per l'Elvira resterà spenta fino a domenica."
+        "fallita": "Bepi non è passato in Chiesa. La candela per l'Elvira resterà spenta fino a domenica.",
+        "lasciato": "Il bigliettino di Don Piero è rimasto senza spillo. La porta della Chiesa è rimasta socchiusa fino a sera, per chiunque."
       }
     },
     "alba": {
@@ -211,7 +221,8 @@
       "testo": "Il ragazzo venga a vedere la lanterna alle dodici.",
       "esito": {
         "ok": "A mezzogiorno il Gino era al Faro. Zeno gli ha fatto contare i gradini, uno per uno.",
-        "fallita": "A mezzogiorno il Gino non è salito al Faro. Zeno ha aspettato in cima alle scale fino all'una."
+        "fallita": "A mezzogiorno il Gino non è salito al Faro. Zeno ha aspettato in cima alle scale fino all'una.",
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. Non ne scriverà un altro: dice che la carta, al Faro, costa."
       }
     },
     "marta": {
@@ -220,14 +231,16 @@
       "r2": "Va bene, Marta.",
       "esito": {
         "ok": "Il Gino è rimasto lontano dal Faro. Marta ha respirato, per un giorno.",
-        "fallita": "Il Gino è arrivato fino al Faro. Marta l'ha saputo prima di sera, come si sanno le cose sull'isola."
+        "fallita": "Il Gino è arrivato fino al Faro. Marta l'ha saputo prima di sera, come si sanno le cose sull'isola.",
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Il Gino l'ha sgridato lo stesso, a cena, per precauzione."
       }
     },
     "teresa": {
       "testo": "C'è una lettera per Zeno. Viene da Chioggia. Fa' che arrivi, cara.",
       "esito": {
         "ok": "La lettera da Chioggia è arrivata a Zeno. Teresa dice che a lui tremavano le mani.",
-        "fallita": "La lettera da Chioggia non è arrivata a Zeno. È rimasta in fondo alla borsa di Teresa."
+        "fallita": "La lettera da Chioggia non è arrivata a Zeno. È rimasta in fondo alla borsa di Teresa.",
+        "lasciato": "Il bigliettino di Teresa è rimasto senza spillo. Mi ha chiesto due volte se l'avevo letto bene."
       }
     },
     "alba": {
@@ -255,7 +268,8 @@
       "testo": "La lettera da Venezia arrivi a me entro le 11. E la postina non la deve leggere.",
       "esito": {
         "ok": "La lettera da Venezia è arrivata alla Nina chiusa, come doveva. L'ha aperta lei, per prima.",
-        "fallita": "La lettera da Venezia non è arrivata alla Nina come voleva lei: chiusa, ed entro le undici."
+        "fallita": "La lettera da Venezia non è arrivata alla Nina come voleva lei: chiusa, ed entro le undici.",
+        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. Ha aspettato la posta tutta la mattina, col cuore in gola."
       }
     },
     "marta": {
@@ -264,14 +278,16 @@
       "r2": "Come vuoi.",
       "esito": {
         "ok": "Per tutto il giorno Marta non ha incrociato Teresa. Ha cantato, piano, impastando.",
-        "fallita": "Marta e Teresa si sono incrociate sulla Fondamenta. Nessuna delle due ha abbassato gli occhi."
+        "fallita": "Marta e Teresa si sono incrociate sulla Fondamenta. Nessuna delle due ha abbassato gli occhi.",
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Ha tenuto la porta del forno chiusa a metà, per non vedere chi passava."
       }
     },
     "zeno": {
       "testo": "Che il prete non senta chiacchiere su Nina: lo direbbe a suo padre.",
       "esito": {
         "ok": "La chiacchiera sulla Nina non è arrivata a Don Piero. Bepi, per oggi, non sa niente.",
-        "fallita": "La chiacchiera sulla Nina è arrivata fino in chiesa. Ormai la sa tutta l'isola, e anche Bepi."
+        "fallita": "La chiacchiera sulla Nina è arrivata fino in chiesa. Ormai la sa tutta l'isola, e anche Bepi.",
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. La sera ha acceso il Faro un po' prima, come per dire qualcosa."
       }
     },
     "alba": {
@@ -299,7 +315,8 @@
       "testo": "Voglio confessarmi. Che il mio peso arrivi a Don Piero, e a nessun altro.",
       "esito": {
         "ok": "Il peso di Teresa è arrivato a Don Piero, e a nessun altro. Stamattina cammina più dritta.",
-        "fallita": "Il peso di Teresa non è arrivato dove voleva lei. Stamattina non è passata davanti al forno."
+        "fallita": "Il peso di Teresa non è arrivato dove voleva lei. Stamattina non è passata davanti al forno.",
+        "lasciato": "Il bigliettino di Teresa è rimasto senza spillo. Non me l'ha chiesto indietro: l'ha ripiegato in quattro e messo via."
       }
     },
     "nina": {
@@ -308,14 +325,16 @@
       "r2": "Hai ragione: non sei una bambina.",
       "esito": {
         "ok": "La Nina adesso sa che cosa nasconde Teresa. Non l'ha raccontato: l'ha scritto.",
-        "fallita": "La Nina non ha scoperto niente. Dice che è un mistero da romanzo, e che i romanzi finiscono."
+        "fallita": "La Nina non ha scoperto niente. Dice che è un mistero da romanzo, e che i romanzi finiscono.",
+        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. Dice che i misteri si risolvono da soli, a forza di guardarli."
       }
     },
     "zeno": {
       "testo": "Il ragazzo passi dal Faro alle tredici. Gli ho promesso la lanterna.",
       "esito": {
         "ok": "Alle tredici il Gino era al Faro, puntuale come non è mai. Zeno gliel'aveva promesso.",
-        "fallita": "Alle tredici il Gino non è arrivato al Faro. Zeno ha rimesso il lume piccolo nel cassetto."
+        "fallita": "Alle tredici il Gino non è arrivato al Faro. Zeno ha rimesso il lume piccolo nel cassetto.",
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. La lanterna promessa, dice, aspetterà: è abituata."
       }
     },
     "alba": {
@@ -347,7 +366,8 @@
       "testo": "Domani è l'anniversario di mio padre. Prima della messa delle undici voglio parlare con Don Piero, e voglio il Gino con me.",
       "esito": {
         "ok": "Prima della messa Marta ha parlato con Don Piero, con il Gino accanto. Vent'anni, e la voce le tremava ancora.",
-        "fallita": "Marta è arrivata alla messa senza aver parlato con Don Piero, o senza il Gino. Ha pregato da sola."
+        "fallita": "Marta è arrivata alla messa senza aver parlato con Don Piero, o senza il Gino. Ha pregato da sola.",
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. All'anniversario di suo padre ci ha pensato da sola, come gli altri anni."
       }
     },
     "nina": {
@@ -356,14 +376,16 @@
       "r2": "Partirà.",
       "esito": {
         "ok": "La busta della Nina è salita sul vaporetto delle nove, in mano a qualcuno che andava a Venezia.",
-        "fallita": "La busta della Nina non è salita sul vaporetto delle nove. È rimasta sull'isola, come lei."
+        "fallita": "La busta della Nina non è salita sul vaporetto delle nove. È rimasta sull'isola, come lei.",
+        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. La busta per Venezia se l'è tenuta in tasca tutto il giorno."
       }
     },
     "zeno": {
       "testo": "Non dormo da giorni. Domani, dalle due in poi, non voglio vedere nessuno.",
       "esito": {
         "ok": "Dalle due in poi nessuno ha disturbato Zeno. Il Faro è stato zitto tutto il pomeriggio.",
-        "fallita": "Qualcuno è passato dal Faro nel pomeriggio. Zeno non ha chiuso occhio nemmeno oggi."
+        "fallita": "Qualcuno è passato dal Faro nel pomeriggio. Zeno non ha chiuso occhio nemmeno oggi.",
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. Ha chiuso la porta del Faro col chiavistello, per sicurezza."
       }
     },
     "alba": {
@@ -461,7 +483,7 @@
         "bagnato": "Il Gino è tornato dal Molo bagnato fino alle ginocchia. Marta non mi ha guardata in faccia.",
         "chiacchiere": "Il Gino ha ripetuto a tutti che la merlettaia è una bambina. Ha aggiunto di suo: «Però brava».",
         "chi": "Il Gino è il figlio di Marta. Ha undici anni e non sta fermo nemmeno in chiesa.",
-        "campana": "Alle undici il Gino ha suonato la campana. Stonata, fuori orario, felice. Don Piero ha riso.",
+        "campana": "Alle undici il Gino ha suonato la campana della messa. Stonata, felice. Don Piero è arrivato di corsa dalla Piazza, e ha riso.",
         "promessa": "Ho promesso la campana al Gino. Adesso è una promessa, e le promesse pesano più dei bigliettini.",
         "giro": "Il Gino ha fatto il giro: Molo, Forno, Piazza, Chiesa. Domani, dice, lo fa al contrario.",
         "lume": "Zeno ha fatto accendere al Gino il lume piccolo del Faro. Il Gino non parla d'altro.",
@@ -499,7 +521,7 @@
     },
     "desiderio": {
       "nina": "La Nina vuole studiare a Venezia e diventare maestra. Lo dice come si dice una cosa già fatta.",
-      "gino": "Il Gino vuole vedere la lanterna accesa da dentro. Lo ha scritto tre volte, con tre errori diversi."
+      "gino": "Il Gino vuole vedere la lanterna accesa da dentro. Me l'ha detto tre volte, ogni volta più forte."
     },
     "libro": {
       "incrocio": "Due fili che si incontrano si scambiano il posto. Sul tombolo come sulla Fondamenta.",

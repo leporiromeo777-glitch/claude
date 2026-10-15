@@ -1163,3 +1163,56 @@ describe('REVISIONE-1 CA1-08: etichette, voci e battute (C16, D08)', () => {
     }
   });
 });
+
+describe('REVISIONE-2: testi e coerenza dell\'Atto I (playtest 2)', () => {
+  type WithEsito = NoteDef & { esito?: { ok?: string; fallita?: string; lasciato?: string } };
+  const notes = DAYS.flatMap((d) => notesOf(d)).filter((n) => n.request && !n.ending) as WithEsito[];
+
+  it('Q009: ogni bigliettino lasciato ha la sua riga nel bilancio (esito.lasciato, it e en, ≤ 140 caratteri)', () => {
+    expect(notes.length).toBe(26);
+    for (const n of notes) {
+      const k = n.esito?.lasciato;
+      expect(k, `${n.id} lasciato`).toBeDefined();
+      // La regola del bilancio (campagna, flow.ts): una riga per ogni lasciato con onIgnore o esito.lasciato.
+      expect((n.onIgnore?.length ?? 0) > 0 || !!n.esito?.lasciato, n.id).toBe(true);
+      const it = it_(k as string);
+      const en = EN.get(k as string) ?? '';
+      expect(it.length, `${n.id}`).toBeGreaterThan(20);
+      expect(it.length, `${n.id}: ${it}`).toBeLessThanOrEqual(140);
+      expect(en.length, `en ${n.id}`).toBeGreaterThan(20);
+      expect(en.length, `en ${n.id}: ${en}`).toBeLessThanOrEqual(140);
+      // Racconta il bigliettino senza spillo, non un fatto del merletto che lasciarlo non controlla.
+      expect(it, n.id).toMatch(/senza spillo/);
+    }
+    // Don Piero (g01): la segnalazione del playtest.
+    expect(it_('atto1.g01.piero.esito.lasciato')).toMatch(/Don Piero/);
+  });
+
+  it('Q005: la nota della matassa dice che il gomitolo conta il filo usato, come l\'HUD', () => {
+    expect(it_('atto1.g02.margine.matassa')).toMatch(/usato/);
+    expect(it_('atto1.g02.margine.matassa')).not.toMatch(/resta/);
+    expect(EN.get('atto1.g02.margine.matassa') ?? '').toMatch(/used/);
+  });
+
+  it('Q065: la campana delle undici è quella della messa (Don Piero arriva dalla Piazza, dove lo appunta lo spillo)', () => {
+    const pin = (level('g01').pins ?? []).find((p) => p.thread === 'piero');
+    expect(pin).toEqual({ thread: 'piero', place: 'piazza', hour: 11 });
+    for (const k of ['atto1.g01.alba.campana', 'atto1.diario.persone.gino.campana']) {
+      expect(it_(k), k).toMatch(/messa/);
+      expect(it_(k), k).toMatch(/Piazza/);
+      expect(it_(k), k).not.toMatch(/fuori orario/);
+      expect(EN.get(k) ?? '', k).not.toMatch(/out of hours/);
+    }
+    // g05: il Gino non ha scritto della lanterna in nessun bigliettino: lo ha detto.
+    expect(it_('atto1.diario.desiderio.gino')).not.toMatch(/scritto/);
+    expect(EN.get('atto1.diario.desiderio.gino') ?? '').not.toMatch(/written/);
+  });
+
+  it('Q074: il desiderio di Zeno (si sblocca la sera di g14, prima della lettera di Clotilde) non nomina Livia', () => {
+    const zeno = db.characters.get('zeno');
+    expect(zeno?.desireKey).toBe('comune.pers.zeno.desiderio');
+    expect(it_('comune.pers.zeno.desiderio')).not.toMatch(/Livia/);
+    expect(EN.get('comune.pers.zeno.desiderio') ?? '').not.toMatch(/Livia/);
+    expect(it_('comune.pers.zeno.desiderio')).toMatch(/perdono/);
+  });
+});

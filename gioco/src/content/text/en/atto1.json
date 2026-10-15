@@ -34,7 +34,8 @@
       "testo": "Dear Miss Ada, may my post reach me by ten, if the Lord and Teresa allow.",
       "esito": {
         "ok": "The post arrived in time. Don Piero took it without opening it, like something to keep safe.",
-        "fallita": "Don Piero's post came late, or not at all. He didn't complain: he waits."
+        "fallita": "Don Piero's post came late, or not at all. He didn't complain: he waits.",
+        "lasciato": "Don Piero's note was left without a pin. He asked for nothing: he waited for the post, the way one waits for rain."
       }
     },
     "gino": {
@@ -43,13 +44,14 @@
       "r2": "Ask Don Piero first.",
       "esito": {
         "ok": "At eleven Gino was in church. The bell, he says, could be heard as far as Chioggia.",
-        "fallita": "At eleven Gino was not in church. The bell kept quiet, and so did he, for a whole hour."
+        "fallita": "At eleven Gino was not in church. The bell kept quiet, and so did he, for a whole hour.",
+        "lasciato": "Gino's note was left without a pin. He rang anyway, banging a spoon on a pot."
       }
     },
     "alba": {
       "bambina": "On the Fondamenta they whisper it: the new lacemaker is just a girl.",
       "bambina2": "Sixteen, dear. Sixteen! At sixteen I was already kneading bread for my mother.",
-      "campana": "At eleven the bell rings out of hours, out of tune and happy.",
+      "campana": "At eleven Gino pulls the bell for mass. Don Piero comes running from the Square.",
       "campana2": "Ah, Gino. Ego te absolvo, my son. But next time, gently.",
       "brava": "Well done, lacemaker.",
       "bagnato": "Gino comes back from the Pier wet to the knees, with a crab in his pocket.",
@@ -74,7 +76,8 @@
       "testo": "Gino is not to hear the gossip.",
       "esito": {
         "ok": "Gino heard nothing of the gossip. He spent the day running, and that was all.",
-        "fallita": "The gossip reached Gino too. This morning Marta kneaded without a word."
+        "fallita": "The gossip reached Gino too. This morning Marta kneaded without a word.",
+        "lasciato": "Marta saw her note still without a pin. Today she didn't hand me the bread: she left it on the counter."
       }
     },
     "martaDura": {
@@ -86,14 +89,16 @@
       "r2": "All right.",
       "esito": {
         "ok": "The news reached Don Piero before mass. Teresa is as pleased as if she had said it from the pulpit.",
-        "fallita": "By nine Don Piero had heard nothing. Teresa told him after mass, in person."
+        "fallita": "By nine Don Piero had heard nothing. Teresa told him after mass, in person.",
+        "lasciato": "Teresa took back her unpinned note. News, she says, she carries on her own two legs."
       }
     },
     "gino": {
       "testo": "i want to go all the way round! Peer at 8, chirch at 11. this time runing!",
       "esito": {
         "ok": "From the Pier to the church, all at a run: Gino came home out of breath and happy.",
-        "fallita": "Gino's round was left half done. He says tomorrow he'll do it again, all of it, running."
+        "fallita": "Gino's round was left half done. He says tomorrow he'll do it again, all of it, running.",
+        "lasciato": "Gino's note was left without a pin. He did his round in the courtyard, a hundred times, counting out loud."
       }
     },
     "alba": {
@@ -113,7 +118,7 @@
     },
     "margine": {
       "voce": "A rumour has no direction.",
-      "matassa": "The skein tells how much thread is left: each crossing costs an arm's length."
+      "matassa": "The skein counts the thread used: each crossing costs an arm's length."
     }
   },
   "g03": {
@@ -132,14 +137,16 @@
       "testo": "Nobody leaves tomorrow. I won't watch anyone go.",
       "esito": {
         "ok": "Nobody left. Marta took the bread out of the oven as if it were Sunday.",
-        "fallita": "The ferry took someone away. Marta closed the bakery before noon."
+        "fallita": "The ferry took someone away. Marta closed the bakery before noon.",
+        "lasciato": "Marta's note was left without a pin. She watched the ferry from the bakery door, arms folded."
       }
     },
     "teresa": {
       "testo": "I collect the post from the ferry. See that I'm at the Pier at ten.",
       "esito": {
         "ok": "At ten Teresa was at the Pier: all the ferry post passed through her hands.",
-        "fallita": "At ten Teresa was not at the Pier. The ferry post sat in a sack on the landing stage."
+        "fallita": "At ten Teresa was not at the Pier. The ferry post sat in a sack on the landing stage.",
+        "lasciato": "Teresa's note was left without a pin. She pointed it out to me twice, the second time without a smile."
       }
     },
     "teresaFredda": {"testo": "Lacemaker. I collect the ferry post. At the Pier at ten. No gossip."},
@@ -169,21 +176,24 @@
       "r2": "Tell him about Venice.",
       "esito": {
         "ok": "Nina said goodbye to her dad before he took the boat out. He said “Mh”, which for Bepi is a lot.",
-        "fallita": "Bepi's boat went out before Nina could say goodbye."
+        "fallita": "Bepi's boat went out before Nina could say goodbye.",
+        "lasciato": "Nina's note was left without a pin. Her father, she says, waves his cap even from far away."
       }
     },
     "bepi": {
       "testo": "teresa not to go round teling about the net. specialy not to nina",
       "esito": {
         "ok": "Nina heard nothing about the net. Bepi mends the old one and keeps quiet.",
-        "fallita": "The gossip about the net reached Nina. Bepi said nothing, but he gave Teresa a black look."
+        "fallita": "The gossip about the net reached Nina. Bepi said nothing, but he gave Teresa a black look.",
+        "lasciato": "Bepi's note was left without a pin. He won't write another: Bepi counts his words."
       }
     },
     "piero": {
       "testo": "Let Bepi stop at the Church on his way back: he has a candle to light for his wife.",
       "esito": {
         "ok": "On his way back Bepi stopped at the Church. Don Piero had left the door ajar for him.",
-        "fallita": "Bepi didn't stop at the Church. Elvira's candle will stay unlit until Sunday."
+        "fallita": "Bepi didn't stop at the Church. Elvira's candle will stay unlit until Sunday.",
+        "lasciato": "Don Piero's note was left without a pin. The church door stayed ajar until evening, for anyone."
       }
     },
     "alba": {
@@ -211,7 +221,8 @@
       "testo": "The boy can come and see the lantern at twelve.",
       "esito": {
         "ok": "At noon Gino was at the Lighthouse. Zeno made him count the steps, one by one.",
-        "fallita": "At noon Gino didn't climb the Lighthouse. Zeno waited at the top of the stairs until one."
+        "fallita": "At noon Gino didn't climb the Lighthouse. Zeno waited at the top of the stairs until one.",
+        "lasciato": "Zeno's note was left without a pin. He won't write another: paper, at the Lighthouse, is dear."
       }
     },
     "marta": {
@@ -220,14 +231,16 @@
       "r2": "All right, Marta.",
       "esito": {
         "ok": "Gino stayed away from the Lighthouse. Marta breathed easy, for one day.",
-        "fallita": "Gino got as far as the Lighthouse. Marta knew it before evening, the way things are known on the island."
+        "fallita": "Gino got as far as the Lighthouse. Marta knew it before evening, the way things are known on the island.",
+        "lasciato": "Marta's note was left without a pin. She scolded Gino all the same, at supper, just in case."
       }
     },
     "teresa": {
       "testo": "There's a letter for Zeno. It comes from Chioggia. See it gets there, dear.",
       "esito": {
         "ok": "The letter from Chioggia reached Zeno. Teresa says his hands were shaking.",
-        "fallita": "The letter from Chioggia didn't reach Zeno. It stayed at the bottom of Teresa's bag."
+        "fallita": "The letter from Chioggia didn't reach Zeno. It stayed at the bottom of Teresa's bag.",
+        "lasciato": "Teresa's note was left without a pin. She asked me twice whether I had read it properly."
       }
     },
     "alba": {
@@ -255,7 +268,8 @@
       "testo": "The letter from Venice must reach me by 11. And the postwoman must not read it.",
       "esito": {
         "ok": "The letter from Venice reached Nina sealed, as it should. She opened it herself, first.",
-        "fallita": "The letter from Venice didn't reach Nina the way she wanted: sealed, and by eleven."
+        "fallita": "The letter from Venice didn't reach Nina the way she wanted: sealed, and by eleven.",
+        "lasciato": "Nina's note was left without a pin. She waited for the post all morning, her heart in her mouth."
       }
     },
     "marta": {
@@ -264,14 +278,16 @@
       "r2": "As you wish.",
       "esito": {
         "ok": "All day long Marta didn't cross Teresa. She sang, softly, as she kneaded.",
-        "fallita": "Marta and Teresa crossed on the Fondamenta. Neither of them looked down."
+        "fallita": "Marta and Teresa crossed on the Fondamenta. Neither of them looked down.",
+        "lasciato": "Marta's note was left without a pin. She kept the bakery door half shut, so as not to see who went by."
       }
     },
     "zeno": {
       "testo": "The priest mustn't hear gossip about Nina: he'd tell her father.",
       "esito": {
         "ok": "The gossip about Nina never reached Don Piero. Bepi, for today, knows nothing.",
-        "fallita": "The gossip about Nina got as far as the church. By now the whole island knows, and Bepi too."
+        "fallita": "The gossip about Nina got as far as the church. By now the whole island knows, and Bepi too.",
+        "lasciato": "Zeno's note was left without a pin. In the evening he lit the Lighthouse a little early, as if to say something."
       }
     },
     "alba": {
@@ -299,7 +315,8 @@
       "testo": "I want to confess. Let my burden reach Don Piero, and no one else.",
       "esito": {
         "ok": "Teresa's burden reached Don Piero, and no one else. This morning she walks straighter.",
-        "fallita": "Teresa's burden didn't go where she wanted. This morning she didn't walk past the bakery."
+        "fallita": "Teresa's burden didn't go where she wanted. This morning she didn't walk past the bakery.",
+        "lasciato": "Teresa's note was left without a pin. She didn't ask for it back: she folded it in four and put it away."
       }
     },
     "nina": {
@@ -308,14 +325,16 @@
       "r2": "You're right: you're not a child.",
       "esito": {
         "ok": "Nina now knows what Teresa is hiding. She told no one: she wrote it down.",
-        "fallita": "Nina found out nothing. She says it's a mystery out of a novel, and novels end."
+        "fallita": "Nina found out nothing. She says it's a mystery out of a novel, and novels end.",
+        "lasciato": "Nina's note was left without a pin. She says mysteries solve themselves, if you stare at them long enough."
       }
     },
     "zeno": {
       "testo": "The boy should come by the Lighthouse at one. I promised him the lantern.",
       "esito": {
         "ok": "At one Gino was at the Lighthouse, on time as he never is. Zeno had promised him.",
-        "fallita": "At one Gino didn't reach the Lighthouse. Zeno put the little lamp back in the drawer."
+        "fallita": "At one Gino didn't reach the Lighthouse. Zeno put the little lamp back in the drawer.",
+        "lasciato": "Zeno's note was left without a pin. The promised lantern, he says, will wait: it is used to it."
       }
     },
     "alba": {
@@ -347,7 +366,8 @@
       "testo": "Tomorrow is my father's anniversary. Before eleven o'clock mass I want to speak to Don Piero, and I want Gino with me.",
       "esito": {
         "ok": "Before mass Marta spoke with Don Piero, with Gino beside her. Twenty years, and her voice still shook.",
-        "fallita": "Marta got to mass without speaking to Don Piero, or without Gino. She prayed alone."
+        "fallita": "Marta got to mass without speaking to Don Piero, or without Gino. She prayed alone.",
+        "lasciato": "Marta's note was left without a pin. She marked her father's anniversary alone, like the other years."
       }
     },
     "nina": {
@@ -356,14 +376,16 @@
       "r2": "It'll go.",
       "esito": {
         "ok": "Nina's envelope went on the nine o'clock ferry, in the hands of someone bound for Venice.",
-        "fallita": "Nina's envelope didn't go on the nine o'clock ferry. It stayed on the island, like her."
+        "fallita": "Nina's envelope didn't go on the nine o'clock ferry. It stayed on the island, like her.",
+        "lasciato": "Nina's note was left without a pin. She kept the envelope for Venice in her pocket all day."
       }
     },
     "zeno": {
       "testo": "I haven't slept for days. Tomorrow, from two on, I want to see no one.",
       "esito": {
         "ok": "From two on nobody disturbed Zeno. The Lighthouse was silent all afternoon.",
-        "fallita": "Someone came by the Lighthouse in the afternoon. Zeno didn't sleep a wink today either."
+        "fallita": "Someone came by the Lighthouse in the afternoon. Zeno didn't sleep a wink today either.",
+        "lasciato": "Zeno's note was left without a pin. He bolted the Lighthouse door, just in case."
       }
     },
     "alba": {
@@ -464,7 +486,7 @@
         "bagnato": "Gino came back from the Pier wet to the knees. Marta wouldn't look me in the face.",
         "chiacchiere": "Gino told everyone the lacemaker is a child. He added, on his own account: “A good one, though”.",
         "chi": "Gino is Marta's son. He's eleven and can't keep still even in church.",
-        "campana": "At eleven Gino rang the bell. Out of tune, out of hours, happy. Don Piero laughed.",
+        "campana": "At eleven Gino rang the bell for mass. Out of tune, happy. Don Piero came running from the Square, and laughed.",
         "promessa": "I promised Gino the bell. Now it's a promise, and promises weigh more than notes.",
         "giro": "Gino went all the way round: Pier, Bakery, Square, Church. Tomorrow, he says, he'll do it backwards.",
         "lume": "Zeno let Gino light the little lamp at the Lighthouse. Gino talks of nothing else.",
@@ -502,7 +524,7 @@
     },
     "desiderio": {
       "nina": "Nina wants to study in Venice and become a teacher. She says it the way you say a thing already done.",
-      "gino": "Gino wants to see the lantern lit from inside. He's written it three times, with three different mistakes."
+      "gino": "Gino wants to see the lantern lit from inside. He's told me three times, louder each time."
     },
     "libro": {
       "incrocio": "Two threads that meet swap places. On the lace pillow as on the Fondamenta.",
