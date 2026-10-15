@@ -154,9 +154,15 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     const tintaMassa = rng.centrato(0.05);
     const fn: FnColore = (p, n, out) => {
       const altezza = THREE.MathUtils.clamp((p.y - yMin) / (yMax - yMin), 0, 1);
-      const t = THREE.MathUtils.clamp(n.y * 0.35 + 0.35 + altezza * 0.45 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.18, 0, 1);
+      // occlusione: i vertici verso l'interno della chioma (fra le masse) sono più scuri
+      const dx = (p.x - cChioma.x) / rx;
+      const dy = (p.y - cChioma.y) / (ry * 1.2);
+      const dz = (p.z - cChioma.z) / rx;
+      const esterno = THREE.MathUtils.smoothstep(Math.sqrt(dx * dx + dy * dy + dz * dz), 0.45, 1.05);
+      const t = THREE.MathUtils.clamp(n.y * 0.3 + 0.2 + altezza * 0.35 + esterno * 0.3 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.14, 0, 1);
       if (t < 0.5) out.copy(cScuro).lerp(cMedio, t / 0.5);
       else out.copy(cMedio).lerp(cChiaro, (t - 0.5) / 0.5);
+      out.multiplyScalar(0.72 + 0.28 * esterno);
       if (mixVerde > 0) out.lerp(new THREE.Color(verdi[t < 0.5 ? 0 : 1]), mixVerde);
       out.r *= 1 + tintaMassa;
       out.b *= 1 - tintaMassa;
@@ -332,6 +338,8 @@ export function creaCastagnoMorto(opz: OpzioniCastagnoMorto = {}): OggettoProced
 export interface OpzioniBotola {
   seme?: Seme;
   apertaAllInizio?: boolean;
+  /** quadrato nero sulla bocca del pozzo (predefinito sì) */
+  boccaBuia?: boolean;
 }
 
 /**
@@ -346,6 +354,7 @@ export function creaBotolaCripta(opz: OpzioniBotola = {}): OggettoProcedurale<St
   const L = 1.1; // luce dell'apertura
   // telaio di quattro lastre
   const lastre: Array<[number, number, number, number]> = [
+    // (x, z, larghezza, profondità) delle quattro lastre del telaio
     [0, -(L / 2 + 0.25), L + 1.0, 0.5],
     [0, L / 2 + 0.25, L + 1.0, 0.5],
     [-(L / 2 + 0.25), 0, 0.5, L],
@@ -370,6 +379,13 @@ export function creaBotolaCripta(opz: OpzioniBotola = {}): OggettoProcedurale<St
     b.aggiungi(geoBoxC(w, 2.4, d), { matrice: mat([x, -1.25, z]), colore: 0x2a2622, gradiente: { basso: 0.2, alto: 1, y0: -2.4, y1: 0 }, piatto: true });
   }
   b.aggiungi(geoBoxC(L, 0.1, L), { matrice: mat([0, -2.4, 0]), colore: 0x0c0b0d, piatto: true });
+  // bocca buia appena sopra il suolo: nasconde il terreno se il motore non vi apre un foro
+  // (si vede solo dall'alto; disattivabile con boccaBuia: false quando il terreno ha il foro)
+  if (opz.boccaBuia ?? true) {
+    const bocca = new THREE.PlaneGeometry(L + 0.02, L + 0.02);
+    bocca.rotateX(-Math.PI / 2);
+    b.aggiungi(bocca, { matrice: mat([0, 0.025, 0]), colore: 0x0b0a0c, piatto: true });
+  }
   // pioli della scala sul lato +Z
   for (let i = 0; i < 6; i++) {
     const y = -0.35 - i * 0.32;

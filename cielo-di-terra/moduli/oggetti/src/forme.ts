@@ -74,7 +74,7 @@ export function geoMassa(raggio: number, seme: number, irregolarita = 0.18, dett
       const c = new THREE.Vector3(cx, cy * 0.6 + 0.2, cz).normalize();
       s += Math.max(0, d.dot(c)) ** 3 * irregolarita * 1.3;
     }
-    s += (hashPosizione(v.x, v.y, v.z, seme) - 0.5) * irregolarita * 0.6;
+    s += (hashPosizione(v.x, v.y, v.z, seme) - 0.5) * irregolarita * 0.25;
     v.multiplyScalar(s);
     // fondo più piatto, come le chiome dipinte
     if (v.y < 0) v.y *= schiaccia * 0.8;

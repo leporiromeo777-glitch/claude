@@ -392,7 +392,7 @@ class Simulatore {
       if (motivo) return { esito: 'mai avviata', motivo };
     }
     for (let giri = 0; this.n.missioni.stato(id) === 'attiva'; giri++) {
-      if (this.azioni > this.maxAzioni) return { esito: 'bloccata', motivo: 'troppe azioni (ciclo?)' };
+      if (this.azioni > this.maxAzioni || giri > 500) return { esito: 'bloccata', motivo: 'troppe azioni (ciclo?)' };
       const prima = this.firma();
       const attivo = def.passi.find((p) => this.n.missioni.statoPasso(id, p.id) === 'attivo');
       let motivo: string | null;
