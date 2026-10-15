@@ -1,0 +1,717 @@
+{
+ "groups": [
+  {
+   "id": "tombolo-motore",
+   "tasks": [
+    {
+     "id": "Q011",
+     "priority": "P0",
+     "title": "La prima perlina di ogni filo è invisibile: voci, segreti, lettere e febbre di chi ne porta una sola non si vedono",
+     "spec": "Vedi la segnalazione Q011 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q011"
+     ]
+    },
+    {
+     "id": "Q023",
+     "priority": "P0",
+     "title": "g12: la lampada dichiara impossibile la richiesta di Lunardi (fattibile) se la chiedi prima di appuntare il nome, e non si corregge più",
+     "spec": "Vedi la segnalazione Q023 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q023"
+     ]
+    },
+    {
+     "id": "Q041",
+     "priority": "P0",
+     "title": "Indizio e Fantasma danno un solo incrocio per riga: seguirli porta in un vicolo cieco",
+     "spec": "Vedi la segnalazione Q041 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q041"
+     ]
+    },
+    {
+     "id": "Q001",
+     "priority": "P1",
+     "title": "Nel prologo «Fissa fino alle 8» porta dritto in un merletto impossibile",
+     "spec": "Vedi la segnalazione Q001 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q001"
+     ]
+    },
+    {
+     "id": "Q013",
+     "priority": "P1",
+     "title": "Dopo «non stanno insieme», l'Indizio sceglie in silenzio quale richiesta tenere",
+     "spec": "Vedi la segnalazione Q013 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q013"
+     ]
+    },
+    {
+     "id": "Q024",
+     "priority": "P1",
+     "title": "Bilancio di g21: «18 incroci (minimo 12)» anche con la soluzione ottima; conta gli incroci automatici del filo nero",
+     "spec": "Vedi la segnalazione Q024 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q024"
+     ]
+    },
+    {
+     "id": "Q025",
+     "priority": "P1",
+     "title": "g13: l'indizio della lampada ripete un incrocio che è già nella bozza invece di dire quello che manca",
+     "spec": "Vedi la segnalazione Q025 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q025"
+     ]
+    },
+    {
+     "id": "Q051",
+     "priority": "P1",
+     "title": "Libero: il filo nero entra al Molo alla prima ora e fa uscire Marta in silenzio; gli obiettivi restano «a rischio»",
+     "spec": "Vedi la segnalazione Q051 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q051"
+     ]
+    },
+    {
+     "id": "Q052",
+     "priority": "P1",
+     "title": "Merletto del giorno 15/10: la lettera di Marta e la febbre di Bepi non si vedono sul tombolo",
+     "spec": "Vedi la segnalazione Q052 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q052"
+     ]
+    },
+    {
+     "id": "Q070",
+     "priority": "P1",
+     "title": "When arc1 opens, a toast reveals that faded thread 2 is Teresa before any name is given",
+     "spec": "Vedi la segnalazione Q070 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q070"
+     ]
+    },
+    {
+     "id": "Q015",
+     "priority": "P2",
+     "title": "«A rischio» per una richiesta già impossibile",
+     "spec": "Vedi la segnalazione Q015 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q015"
+     ]
+    },
+    {
+     "id": "Q017",
+     "priority": "P2",
+     "title": "«Hai lasciato cadere lo spillo rosso»: non dice di chi",
+     "spec": "Vedi la segnalazione Q017 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q017"
+     ]
+    },
+    {
+     "id": "Q021",
+     "priority": "P2",
+     "title": "I fili non hanno nome sul tombolo; il motivo «a onde» di Gino sembra lo zig-zag di Bepi",
+     "spec": "Vedi la segnalazione Q021 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q021"
+     ]
+    },
+    {
+     "id": "Q029",
+     "priority": "P2",
+     "title": "Finale B (filo controllato): la modalità non è spiegata e trascinare un altro filo cancella in silenzio l'incrocio di Ada",
+     "spec": "Vedi la segnalazione Q029 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q029"
+     ]
+    },
+    {
+     "id": "Q030",
+     "priority": "P2",
+     "title": "Finale D: nessuna lampada, icone delle occasioni sbiadite sotto i fili, piantarle non dice cosa si è piantato",
+     "spec": "Vedi la segnalazione Q030 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q030"
+     ]
+    },
+    {
+     "id": "Q033",
+     "priority": "P2",
+     "title": "Stati invisibili sul tombolo: chi è annodato (g11) e chi ha la febbre all'inizio (g13) non si vede",
+     "spec": "Vedi la segnalazione Q033 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q033"
+     ]
+    },
+    {
+     "id": "Q034",
+     "priority": "P2",
+     "title": "Richieste «a fine giornata» restano «In corso» all'ultima ora anche con la bozza giusta",
+     "spec": "Vedi la segnalazione Q034 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q034"
+     ]
+    },
+    {
+     "id": "Q040",
+     "priority": "P2",
+     "title": "Finale D: il fallimento di «Almeno 3 fra Teresa, Gino, Bepi, Nina e Zeno…» nomina solo Teresa",
+     "spec": "Vedi la segnalazione Q040 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q040"
+     ]
+    },
+    {
+     "id": "Q061",
+     "priority": "P2",
+     "title": "Il Fantasma non chiede conferma prima di togliere il filo d'oro (D07.3)",
+     "spec": "Vedi la segnalazione Q061 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q061"
+     ]
+    },
+    {
+     "id": "Q062",
+     "priority": "P2",
+     "title": "Con «Spilli velati» la Spinta svela gli spilli nascosti",
+     "spec": "Vedi la segnalazione Q062 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q062"
+     ]
+    },
+    {
+     "id": "Q063",
+     "priority": "P2",
+     "title": "Al 140% su telefono il messaggio di rifiuto copre tutta la fascia dei fusi",
+     "spec": "Vedi la segnalazione Q063 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q063"
+     ]
+    },
+    {
+     "id": "Q064",
+     "priority": "P2",
+     "title": "L'apparizione del filo nero in g08 dura meno di un secondo ed è un segmento minuscolo",
+     "spec": "Vedi la segnalazione Q064 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q064"
+     ]
+    },
+    {
+     "id": "Q076",
+     "priority": "P2",
+     "title": "La Spinta della lampada può parlare di un evento passato (g04 alle 9: 'Alle otto Bepi esce in barca…').",
+     "spec": "Vedi la segnalazione Q076 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q076"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "campagna",
+   "tasks": [
+    {
+     "id": "Q002",
+     "priority": "P1",
+     "title": "Rigioca dal Telaio: un merletto con richieste fallite diventa «Nuovo record: meno incroci», sotto il minimo",
+     "spec": "Vedi la segnalazione Q002 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q002"
+     ]
+    },
+    {
+     "id": "Q012",
+     "priority": "P1",
+     "title": "La coppia incompatibile della sera non si può dedurre (g06, g08) e di notte non si rimedia senza un fallimento",
+     "spec": "Vedi la segnalazione Q012 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q012"
+     ]
+    },
+    {
+     "id": "Q014",
+     "priority": "P1",
+     "title": "Dopo «Lascia cadere lo spillo» dal gettone, il pannello Bigliettini resta su «In corso» con il pulsante attivo",
+     "spec": "Vedi la segnalazione Q014 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q014"
+     ]
+    },
+    {
+     "id": "Q026",
+     "priority": "P1",
+     "title": "Pannello della lettera (alba di g14, fascio di g16): «Nel taccuino» e le sue voci con contrasto 1,8:1 e 3,5:1",
+     "spec": "Vedi la segnalazione Q026 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q026"
+     ]
+    },
+    {
+     "id": "Q027",
+     "priority": "P1",
+     "title": "Cassapanca: i pulsanti «Rifai» degli Archivi rammendati sono quasi invisibili (testo crema su carta crema)",
+     "spec": "Vedi la segnalazione Q027 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q027"
+     ]
+    },
+    {
+     "id": "Q069",
+     "priority": "P1",
+     "title": "A row refused for Gino also produces a banner toast with the quirk text (3 messages for one violation)",
+     "spec": "Vedi la segnalazione Q069 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q069"
+     ]
+    },
+    {
+     "id": "Q003",
+     "priority": "P2",
+     "title": "Cassapanca: il pulsante «Rifai» è crema su carta crema, quasi invisibile",
+     "spec": "Vedi la segnalazione Q003 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q003"
+     ]
+    },
+    {
+     "id": "Q004",
+     "priority": "P2",
+     "title": "Sera: la fine del bigliettino di Gino resta sotto i pulsanti rotondi Taccuino e Telaio (P011 ancora aperto)",
+     "spec": "Vedi la segnalazione Q004 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q004"
+     ]
+    },
+    {
+     "id": "Q006",
+     "priority": "P2",
+     "title": "Intermittente: chiusa la bottiglia di g03 si apre da sola «Andare al tombolo?»",
+     "spec": "Vedi la segnalazione Q006 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q006"
+     ]
+    },
+    {
+     "id": "Q007",
+     "priority": "P2",
+     "title": "Spostare uno spillo quando sono finiti richiede 4 passi e porta sul bigliettino sbagliato",
+     "spec": "Vedi la segnalazione Q007 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q007"
+     ]
+    },
+    {
+     "id": "Q008",
+     "priority": "P2",
+     "title": "Taccuino: la sesta scheda «Archivio» è tagliata dal bordo destro",
+     "spec": "Vedi la segnalazione Q008 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q008"
+     ]
+    },
+    {
+     "id": "Q010",
+     "priority": "P2",
+     "title": "«Si apre qualcosa: Un fuso intagliato (stile 1)» senza dire che cos'è né dove vederlo",
+     "spec": "Vedi la segnalazione Q010 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q010"
+     ]
+    },
+    {
+     "id": "Q016",
+     "priority": "P2",
+     "title": "Bilancio: «Filo d'oro ✦ (il primo di questa giornata)» e «Primo filo d'oro» dicono la stessa cosa, ogni sera",
+     "spec": "Vedi la segnalazione Q016 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q016"
+     ]
+    },
+    {
+     "id": "Q020",
+     "priority": "P2",
+     "title": "Schede del Taccuino tagliate a 1440×900: «Lettere» troncata, «Archivio» fuori dal pannello",
+     "spec": "Vedi la segnalazione Q020 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q020"
+     ]
+    },
+    {
+     "id": "Q031",
+     "priority": "P2",
+     "title": "Finali: «Continua» è sovrapposto al pulsante «Merletto chiuso» e copre il bordo del Taccuino",
+     "spec": "Vedi la segnalazione Q031 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q031"
+     ]
+    },
+    {
+     "id": "Q032",
+     "priority": "P2",
+     "title": "Notti normali: dopo l'ultima ora la scena passa all'alba in meno di un secondo, il merletto finito non si gode",
+     "spec": "Vedi la segnalazione Q032 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q032"
+     ]
+    },
+    {
+     "id": "Q035",
+     "priority": "P2",
+     "title": "Telaio: i pulsanti di una giornata aperta in fondo alla lista finiscono sotto il piede fisso e non rispondono",
+     "spec": "Vedi la segnalazione Q035 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q035"
+     ]
+    },
+    {
+     "id": "Q037",
+     "priority": "P2",
+     "title": "Schede del Taccuino tagliate senza segno di scorrimento («Archivio» fuori dal pannello)",
+     "spec": "Vedi la segnalazione Q037 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q037"
+     ]
+    },
+    {
+     "id": "Q039",
+     "priority": "P2",
+     "title": "g16: «Una bottiglia vuota. Niente lettera.» ma l'immagine mostra una bottiglia con il foglio arrotolato",
+     "spec": "Vedi la segnalazione Q039 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q039"
+     ]
+    },
+    {
+     "id": "Q053",
+     "priority": "P2",
+     "title": "Il record mescola tentativi con richieste diverse: «12 incroci (minimo 12)» ma «Record: 7 incroci»",
+     "spec": "Vedi la segnalazione Q053 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q053"
+     ]
+    },
+    {
+     "id": "Q054",
+     "priority": "P2",
+     "title": "«Primo filo d'oro» compare in ogni bilancio, accanto a «(il primo di questa giornata)»",
+     "spec": "Vedi la segnalazione Q054 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q054"
+     ]
+    },
+    {
+     "id": "Q055",
+     "priority": "P2",
+     "title": "«Chi ricorda Ada»: a 1/3 dice «ricorda», a 2/3 «comincia a dimenticare»",
+     "spec": "Vedi la segnalazione Q055 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q055"
+     ]
+    },
+    {
+     "id": "Q056",
+     "priority": "P2",
+     "title": "Dopo la pace il Taccuino descrive ancora come attive le stranezze sciolte",
+     "spec": "Vedi la segnalazione Q056 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q056"
+     ]
+    },
+    {
+     "id": "Q058",
+     "priority": "P2",
+     "title": "Fusi intagliati «stile 3» e «stile 4» annunciati come ricompensa ma non selezionabili",
+     "spec": "Vedi la segnalazione Q058 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q058"
+     ]
+    },
+    {
+     "id": "Q060",
+     "priority": "P2",
+     "title": "La lettera di Clotilde è in tondo tipografico, non nella sua grafia color seppia",
+     "spec": "Vedi la segnalazione Q060 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q060"
+     ]
+    },
+    {
+     "id": "Q066",
+     "priority": "P2",
+     "title": "«Nessuna richiesta stanotte.» sopra un elenco di obiettivi",
+     "spec": "Vedi la segnalazione Q066 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q066"
+     ]
+    },
+    {
+     "id": "Q067",
+     "priority": "P2",
+     "title": "Con il mouse il gioco dice «Tocca…» (prologo, alba, sera)",
+     "spec": "Vedi la segnalazione Q067 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q067"
+     ]
+    },
+    {
+     "id": "Q073",
+     "priority": "P2",
+     "title": "Marta's g08 note at 140%: 'L'ANNIVERSA / RIO'; still present, and wider with Marta's new uppercase print hand (D15)",
+     "spec": "Vedi la segnalazione Q073 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q073"
+     ]
+    },
+    {
+     "id": "Q075",
+     "priority": "P2",
+     "title": "Gli avvisi delle nuove voci del Taccuino durante la notte (stranezze scoperte) coprono le righe basse del merletto su telefono per qualche secondo (g09 alle 12, g16 alle 13, fine di g15).",
+     "spec": "Vedi la segnalazione Q075 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q075"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "schermi-atto1",
+   "tasks": [
+    {
+     "id": "Q071",
+     "priority": "P1",
+     "title": "Gestures are timed by processing time: a main-thread stall turns a drag into a long press (character card); intermittent under load",
+     "spec": "Vedi la segnalazione Q071 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q071"
+     ]
+    },
+    {
+     "id": "Q005",
+     "priority": "P2",
+     "title": "Matassa: la nota dice «quanto filo resta» ma il contatore conta il filo usato; «1 braccia usate»",
+     "spec": "Vedi la segnalazione Q005 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q005"
+     ]
+    },
+    {
+     "id": "Q009",
+     "priority": "P2",
+     "title": "«Anche lasciarli ha le sue conseguenze», ma il bigliettino lasciato di Don Piero (g01) non ne ha nessuna",
+     "spec": "Vedi la segnalazione Q009 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q009"
+     ]
+    },
+    {
+     "id": "Q018",
+     "priority": "P2",
+     "title": "La regola nuova di Gino quasi non incide",
+     "spec": "Vedi la segnalazione Q018 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q018"
+     ]
+    },
+    {
+     "id": "Q022",
+     "priority": "P2",
+     "title": "Merletto del giorno: «Marta — Nessuna stranezza.» anche se Marta ne ha una nota",
+     "spec": "Vedi la segnalazione Q022 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q022"
+     ]
+    },
+    {
+     "id": "Q036",
+     "priority": "P2",
+     "title": "Il finale vero non dà un riconoscimento visibile: solo una stellina sul Telaio, la Tovaglia mai nominata",
+     "spec": "Vedi la segnalazione Q036 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q036"
+     ]
+    },
+    {
+     "id": "Q059",
+     "priority": "P2",
+     "title": "L'icona «nota» è una nota musicale (♫): usata per regola del giorno, scheda Lettere e biglietti di Livia",
+     "spec": "Vedi la segnalazione Q059 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q059"
+     ]
+    },
+    {
+     "id": "Q065",
+     "priority": "P2",
+     "title": "Coerenza minore: messa delle 11 contro Don Piero in Piazza alle 11 (g01); Gino che «l'ha scritto tre volte» (g05); Zeno al Faro e alla valigia alle 18 (finale A)",
+     "spec": "Vedi la segnalazione Q065 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q065"
+     ]
+    },
+    {
+     "id": "Q068",
+     "priority": "P2",
+     "title": "Titolo al 140% su telefono: la freccia di scorrimento copre «Crediti»",
+     "spec": "Vedi la segnalazione Q068 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q068"
+     ]
+    },
+    {
+     "id": "Q072",
+     "priority": "P2",
+     "title": "Crediti at 140% on phones: 'TRAMA' breaks mid-word ('TRAM' / 'A'); still present from the previous round",
+     "spec": "Vedi la segnalazione Q072 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q072"
+     ]
+    },
+    {
+     "id": "Q074",
+     "priority": "P2",
+     "title": "La scheda Persone di Zeno mostra «Desidera: Chiedere perdono a Livia.» la sera di g14, appena si risponde al suo bigliettino, prima della lettera di Clotilde (spoiler).",
+     "spec": "Vedi la segnalazione Q074 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q074"
+     ]
+    },
+    {
+     "id": "Q077",
+     "priority": "P2",
+     "title": "K7: in 12 notti degli Atti II-III la combinazione più difficile è sopra l'intervallo 'Min' del GDD 5.2: aggiornare la colonna del GDD con i valori misurati; idem g04/g06/g08 e la barca di g04 (esce alle 8, rientra alle 11).",
+     "spec": "Vedi la segnalazione Q077 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q077"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "contenuti-atti23",
+   "tasks": [
+    {
+     "id": "Q042",
+     "priority": "P0",
+     "title": "Finale vero (D): la Nina parte di nuovo, anche se è partita in g20",
+     "spec": "Vedi la segnalazione Q042 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q042"
+     ]
+    },
+    {
+     "id": "Q043",
+     "priority": "P0",
+     "title": "La domanda d'iscrizione della Nina non parte (g08), ma in g14 arriva l'ammissione",
+     "spec": "Vedi la segnalazione Q043 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q043"
+     ]
+    },
+    {
+     "id": "Q028",
+     "priority": "P1",
+     "title": "Archivio 1958: gli ultimi due nomi (Teresa e Bepi) si indovinano a caso; il rammendo si capisce solo con l'indizio",
+     "spec": "Vedi la segnalazione Q028 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q028"
+     ]
+    },
+    {
+     "id": "Q044",
+     "priority": "P1",
+     "title": "g22: Don Piero chiede di restituire lettere che sono già uscite dal pozzo in g16",
+     "spec": "Vedi la segnalazione Q044 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q044"
+     ]
+    },
+    {
+     "id": "Q045",
+     "priority": "P1",
+     "title": "La carta A firmata Don Piero usa il testo di Zeno, col «tu», e Don Piero ha dimenticato Ada",
+     "spec": "Vedi la segnalazione Q045 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q045"
+     ]
+    },
+    {
+     "id": "Q046",
+     "priority": "P1",
+     "title": "g18 fallita: l'alba dice «il nodo resta», il Taccuino festeggia regole sciolte",
+     "spec": "Vedi la segnalazione Q046 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q046"
+     ]
+    },
+    {
+     "id": "Q047",
+     "priority": "P1",
+     "title": "Contraddizioni nella stessa pagina: g22 «senza dire niente», g16 «segreti di Marta al prete», g18 «non era nemmeno colpa mia»",
+     "spec": "Vedi la segnalazione Q047 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q047"
+     ]
+    },
+    {
+     "id": "Q048",
+     "priority": "P1",
+     "title": "Ripetizioni: alba, esito e Taccuino dicono la stessa cosa, anche tre o quattro volte",
+     "spec": "Vedi la segnalazione Q048 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q048"
+     ]
+    },
+    {
+     "id": "Q049",
+     "priority": "P1",
+     "title": "Voci ed esiti che restano vaghi («o… o…») su ciò che il giocatore ha appena visto",
+     "spec": "Vedi la segnalazione Q049 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q049"
+     ]
+    },
+    {
+     "id": "Q050",
+     "priority": "P1",
+     "title": "Il perdono di Zeno per la valigia si consuma tre volte (g17, g21, g22)",
+     "spec": "Vedi la segnalazione Q050 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q050"
+     ]
+    },
+    {
+     "id": "Q019",
+     "priority": "P2",
+     "title": "Alba e Taccuino si contraddicono (g10: il forno; g08: la busta di Nina)",
+     "spec": "Vedi la segnalazione Q019 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q019"
+     ]
+    },
+    {
+     "id": "Q038",
+     "priority": "P2",
+     "title": "Alba di g11: Marta chiede «chi me l'ha portata? Non la Teresa, spero» anche quando gliel'ha data il Gino",
+     "spec": "Vedi la segnalazione Q038 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q038"
+     ]
+    },
+    {
+     "id": "Q057",
+     "priority": "P2",
+     "title": "g14: dopo la lettera della nonna il bilancio dice ancora «Non dice a chi» di Zeno",
+     "spec": "Vedi la segnalazione Q057 in docs/stato/playtest-2.json (passi, atteso, osservato, suggerimento). Risolvila alla radice; criterio: i passi non riproducono più il problema e un test lo copre.",
+     "findings": [
+      "Q057"
+     ]
+    }
+   ]
+  }
+ ]
+}
