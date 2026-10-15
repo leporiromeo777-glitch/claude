@@ -346,6 +346,8 @@ export interface Cambiamento {
   da?: string;
   a?: string;
   motivo: string;
+  /** Nota in più per la riga (le pietre della casa in un mucchio, perché il muro è misurato). */
+  nota?: string;
 }
 
 export interface RigaResoconto {
@@ -547,6 +549,7 @@ export type EventoCatasto =
       causa: 'notte' | 'giorno' | 'gioco';
       ora: number | null;
       chi?: string;
+      nota?: string;
     }
   | { tipo: 'mossa_annunciata'; mossa: string; notte: number; annuncio: string }
   | { tipo: 'scrittura'; ancora: string; stato: AncoraStato['stato'] }
