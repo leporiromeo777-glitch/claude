@@ -252,10 +252,14 @@ export async function auditLayout(page: Page, opts: AuditOptions = {}): Promise<
             const tolX = 2 + lineH * sin;
             let worst = 0;
             let where = '';
+            const scrollY = scrollsBetween(e, sheet, 'y');
             for (const q of rects) {
+              // In un foglio che scorre contano le righe in vista: quelle nascoste sotto, in un
+              // foglio inclinato, hanno un rettangolo spostato di lato finché non si scorre.
+              if (scrollY && (q.top + q.height / 2 < sr.top || q.top + q.height / 2 > sr.bottom)) continue;
               const tolY = 2 + q.width * sin;
               const dx = Math.max(sr.left - q.left - tolX, q.right - sr.right - tolX, 0);
-              const dy = scrollsBetween(e, sheet, 'y') ? 0 : Math.max(sr.top - q.top - tolY, q.bottom - sr.bottom - tolY, 0);
+              const dy = scrollY ? 0 : Math.max(sr.top - q.top - tolY, q.bottom - sr.bottom - tolY, 0);
               const d = Math.max(scrollsBetween(e, sheet, 'x') ? 0 : dx, dy);
               if (d > worst) {
                 worst = d;
