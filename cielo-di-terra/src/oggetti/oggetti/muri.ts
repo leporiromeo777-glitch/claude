@@ -6,9 +6,9 @@
  * senza fughe. Con `terrapieno` il retro è considerato interrato (muro di sostegno di una terrazza).
  */
 import * as THREE from 'three';
-import { Costruttore, mat, mescola } from '../costruttore';
+import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
-import { geoBoxC, geoCilindro, geoLastra, geoPiano, geoPietraFaccia } from '../forme';
+import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMasso, geoPiano, geoPietraFaccia } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
@@ -96,6 +96,13 @@ function percorsoArco(L: number, R: number): THREE.Vector3[] {
   return pts;
 }
 
+/** Colore per vertice di una pietra di testa: la faccia di sopra e i fianchi. */
+function coloreTesta(sopra: THREE.Color, fianco: THREE.Color): FnColore {
+  return (_p, n, out) => {
+    out.copy(n.y > 0.55 ? sopra : fianco);
+  };
+}
+
 /** Muro a secco lungo un percorso. */
 export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
   const seme = semeNumerico(opz.seme ?? 'muro');
@@ -166,7 +173,10 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
           const off = lato > 0 ? -scarpa * Math.max(0, yy) + 0.02 : -sp - 0.02 + (opz.terrapieno ? 0 : scarpa * Math.max(0, yy) * 0.5);
           const centro = c.p.clone().addScaledVector(c.n, off);
           const ang = Math.atan2(-c.t.z, c.t.x);
-          const colore = mescola(tono, rng.prob(0.5) ? PALETTE.gneissChiaro : rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
+          let colore = mescola(tono, rng.prob(0.5) ? PALETTE.gneissChiaro : rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
+          // licheni gialli e muschio su qualche pietra (più in basso, dove resta l'umido)
+          if (rng.prob(0.14)) colore = mescola(colore, 0xb3a86e, rng.tra(0.25, 0.5));
+          else if (yy < H * 0.35 && rng.prob(0.18)) colore = mescola(colore, PALETTE.muschio, rng.tra(0.2, 0.45));
           if (det === 'alto') {
             b.aggiungi(geoPietraFaccia(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
               matrice: mat([centro.x, y + 0.017, centro.z], [lato > 0 ? -scarpa * 0.8 : scarpa * 0.4, ang + (lato > 0 ? 0 : Math.PI), rng.centrato(0.04)]),
@@ -189,23 +199,68 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
     }
   }
 
-  // copertina di lastre
+  // testa del muro: pietre di coronamento irregolari e proporzionate, dello stesso tono del muro
+  // (non lastre lunghe e chiare). Nel muro di sostegno la testa sta sul davanti: dietro c'è la
+  // terra della terrazza; nel muro libero copre tutto lo spessore.
   {
+    const prof = opz.terrapieno ? Math.min(0.55, sp * 0.75) : sp + 0.04;
     let s = 0;
     while (s < L) {
-      const lw = Math.min(L - s, rng.tra(0.45, 0.8));
-      if (lw < 0.15) break;
+      const lw = Math.min(L - s, pietra * rng.tra(0.6, 1.05));
+      if (lw < 0.12) break;
       const c = aLunghezza(camp, s + lw / 2);
-      const centro = c.p.clone().addScaledVector(c.n, -scarpa * H * 0.5 - sp / 2 + 0.02);
+      const off = opz.terrapieno ? -scarpa * H - prof / 2 + 0.04 : -scarpa * H * 0.5 - sp / 2 + 0.02;
+      const centro = c.p.clone().addScaledVector(c.n, off);
       const ang = Math.atan2(-c.t.z, c.t.x);
-      b.aggiungi(geoLastra(lw - 0.02, rng.tra(0.1, 0.16), sp + 0.08 + scarpa * H * 0.3, rng.intero(0, 1e6), 0.12), {
-        matrice: mat([centro.x, H - 0.03, centro.z], [rng.centrato(0.04), ang, rng.centrato(0.06)]),
-        colore: mescola(tono, PALETTE.gneissChiaro, 0.3 + rng.next() * 0.4),
-        variazione: 0.06,
+      const alt = rng.tra(0.16, 0.27);
+      const fianco = mescola(tono, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.5);
+      // la faccia di sopra: nel muro di sostegno coperta di muschio e d'erba (il prato della
+      // terrazza ci cresce sopra), nel muro libero pietra con i licheni
+      const sopra = opz.terrapieno
+        ? mescola(rng.prob(0.6) ? 0x7b8246 : 0x938c52, fianco, rng.tra(0.05, 0.3))
+        : mescola(fianco, rng.prob(0.3) ? 0xb3a86e : PALETTE.muschio, rng.tra(0.1, 0.35));
+      const colore = coloreTesta(sopra, fianco);
+      if (det === 'alto') {
+        // sasso arrotondato a facce (icosaedro schiacciato), mezzo affondato nella testa
+        const g = geoMasso(1, rng.intero(0, 1e6), 0.22, 0, 1);
+        g.computeVertexNormals();
+        b.aggiungi(g, {
+          matrice: mat([centro.x, H - 0.02 + alt * 0.1, centro.z], [rng.centrato(0.08), ang + rng.centrato(0.25), rng.centrato(0.08)], [lw * 0.56, alt * 0.55, prof * 0.56]),
+          colore,
+          variazione: 0.07,
+          piatto: true,
+        });
+      } else {
+        const g = geoLastra(lw - 0.03, alt * 0.7, prof, rng.intero(0, 1e6), 0.24);
+        g.computeVertexNormals();
+        b.aggiungi(g, {
+          matrice: mat([centro.x, H - 0.05, centro.z], [rng.centrato(0.06), ang + rng.centrato(0.12), rng.centrato(0.06)]),
+          colore,
+          variazione: 0.06,
+          piatto: true,
+        });
+      }
+      s += lw;
+    }
+  }
+  // muschio e ciuffi d'erba sulla testa e al piede (solo da vicino)
+  if (det === 'alto') {
+    const n = Math.round(L / 1.4);
+    for (let k = 0; k < n; k++) {
+      const c = aLunghezza(camp, rng.next() * L);
+      const ang = Math.atan2(-c.t.z, c.t.x);
+      const sopra = rng.prob(0.6);
+      const y = sopra ? H + 0.08 : -0.02;
+      const off = sopra ? (opz.terrapieno ? -scarpa * H - rng.tra(0.1, 0.5) : -scarpa * H * 0.5 - sp * rng.tra(0.2, 0.8)) : rng.tra(0.02, 0.14);
+      const p = c.p.clone().addScaledVector(c.n, off);
+      const erba = sopra && rng.prob(0.5);
+      const g = geoCiuffo(erba ? 0.16 : 0.13, rng.intero(0, 1e6), erba ? 1.8 : 0.45);
+      b.aggiungi(g, {
+        matrice: mat([p.x, y, p.z], [0, ang + rng.next() * 3, 0], [rng.tra(1, 2.2), 1, rng.tra(0.8, 1.4)]),
+        colore: erba ? (rng.prob(0.5) ? 0x9a8a48 : 0x6d7a3c) : PALETTE.muschio,
+        variazione: 0.12,
         piatto: true,
       });
-      // ciuffi di muschio qua e là
-      s += lw;
     }
   }
 

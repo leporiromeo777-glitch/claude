@@ -11,7 +11,6 @@ import { matriceSuperficie } from '../oggetti/cilindro';
 import { creaMuroSecco } from '../oggetti/oggetti/muri';
 import type { Contesto } from './contesto';
 import * as THREE from 'three';
-import { muroLontano } from './forme';
 import type { Cantiere } from './cantiere';
 import { boxAt } from '../world/colliders';
 import { localFrameTheta } from '../world/cylinder';
@@ -326,10 +325,47 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
     const yawC = (Math.atan2(fw.dot(ter.east), fw.dot(ter.north)) * 180) / Math.PI;
     cz.aggiungiCollider(boxAt(cc.z, cc.theta, piede - 0.6, yawC, L + 0.3, alto + 0.2 + 0.6, 3.1), 'muro');
   }
-  // versione lontana: nastro semplice
+  // versione lontana: nastro semplice (faccia di pietra, testa erbosa come il gradone di sopra)
   cz.distanzaLod = 130;
-  muroLontano(cz.lontano, matriceSuperficie(origine.z, origine.theta, piede, 0), percorso, alto + 0.2, 0.7, Math.floor(pm.z));
+  muroLontanoErboso(cz.lontano, matriceSuperficie(origine.z, origine.theta, piede, 0), percorso, alto + 0.2, 0.7, Math.floor(pm.z));
   return lunghezza(pezzo);
+}
+
+/**
+ * Versione lontana di un muro di sostegno (traccia «natura»): la faccia in pietra grigio calda,
+ * più scura al piede, e la testa verde d'erba (da lontano le terrazze si leggono come gradini
+ * verdi con l'alzata di pietra, non come righe chiare). Stessa forma di `muroLontano`.
+ */
+function muroLontanoErboso(c: Cantiere, m: THREE.Matrix4, percorso: Array<[number, number]>, altezza: number, spessore: number, seme: number): void {
+  const g = new THREE.BufferGeometry();
+  const pos: number[] = [];
+  for (let i = 0; i < percorso.length - 1; i++) {
+    const [ax, az] = percorso[i]!;
+    const [bx, bz] = percorso[i + 1]!;
+    const l = Math.hypot(bx - ax, bz - az) || 1;
+    const nx = -(bz - az) / l;
+    const nz = (bx - ax) / l;
+    const y0 = -0.4;
+    pos.push(ax, y0, az, bx, y0, bz, bx, altezza, bz, ax, y0, az, bx, altezza, bz, ax, altezza, az);
+    const s = spessore + 0.6;
+    pos.push(ax, altezza, az, bx, altezza, bz, bx - nx * s, altezza, bz - nz * s, ax, altezza, az, bx - nx * s, altezza, bz - nz * s, ax - nx * s, altezza, az - nz * s);
+  }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  const k = 0.92 + ((seme * 7919) % 97) / 97 * 0.12;
+  c.forma(g, m, [0.6 * k, 0.56 * k, 0.5 * k], 0, 'doppio', (p, out) => {
+    if (p.y > altezza - 0.01) {
+      out[0] = 0.5;
+      out[1] = 0.55;
+      out[2] = 0.29;
+    } else {
+      const t = Math.min(1, Math.max(0, (p.y + 0.4) / (altezza + 0.4)));
+      const f = 0.72 + 0.28 * t;
+      out[0] *= f;
+      out[1] *= f;
+      out[2] *= f;
+    }
+  });
 }
 
 function xy(p: { z: number; theta: number }): [number, number] {
