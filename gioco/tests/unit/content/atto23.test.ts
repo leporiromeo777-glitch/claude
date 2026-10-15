@@ -1429,6 +1429,9 @@ describe('revisione 1: testi minori (CA23-07)', () => {
   it('geografia, titoli e voci (P079, P081, P097, P119)', () => {
     expect(t('atto3.g20.alba.resta.1')).toContain('Pellestrina');
     expect(t('atto3.arc6.eco.2')).toContain('Don Piero');
+    // D13: in arc6 Don Piero è il giovane cappellano (il parroco del 1936 era Don Anselmo).
+    expect(t('atto3.arc6.eco.2')).toContain('giovane cappellano');
+    expect(te('atto3.arc6.eco.2')).toContain('young chaplain');
     expect(t('atto3.g17.titolo')).toBe('La donna in nero');
     expect(t('atto3.g17.titolo')).not.toBe(t('atto1.g08.titolo'));
     for (const id of ARCHIVES) expect(t(level(id).titleKey), id).not.toMatch(/\d/);
