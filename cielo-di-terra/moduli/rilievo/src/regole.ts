@@ -232,7 +232,9 @@ export function regoleDaContenuti(contenuti: ContenutiCatasto, opzioni: OpzioniR
     }
     const numero = typeof c.numero === 'number' ? c.numero : null;
     const zero = numero === 0 || id === 'cs_0';
-    let lume: DefLume | null = null;
+    // un pilastro della rete vicina, visto da lontano di notte, ha bisogno del lume di mira di Ottavio
+    let lume: DefLume | null =
+      !lontano && c.tipo === 'pilastro' ? { tipo: 'ottavio', descrizione: 'il lume di mira di Ottavio', ore: [21 * 60, 5 * 60], collare: [] } : null;
     if (lontano) {
       const l = str(c.lume).toLowerCase();
       lume = {

@@ -16,6 +16,7 @@ import {
   CanvasTexture,
   DoubleSide,
   Group,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -24,7 +25,7 @@ import {
   type Material,
 } from 'three';
 import { GeomBuilder, PRIMS } from '../../render/geomBuilder';
-import { PALETTE, type RGB } from '../../render/palette';
+import type { RGB } from '../../render/palette';
 import type { Collider } from '../../world/colliders';
 import { Ancora } from './ancora';
 
@@ -53,7 +54,7 @@ const VOLTA: RGB = [0.7, 0.66, 0.6];
 const PAVIMENTO: RGB = [0.42, 0.4, 0.38];
 const METALLO: RGB = [0.5, 0.55, 0.5];
 const RAME: RGB = [0.72, 0.42, 0.24];
-const LEGNO = PALETTE.wood;
+
 
 export interface Cripta {
   gruppo: Group;
@@ -199,8 +200,8 @@ export function costruisciCripta(materiale: Material): Cripta {
     const perno = centroCapsula(i, RAGGIO_ANELLO + 1.08);
     const cardine = new Group();
     cardine.matrixAutoUpdate = false;
-    cardine.matrix.copy(A.matrice).multiply(new (A.matrice.constructor as typeof import('three').Matrix4)().makeTranslation(perno.e, 0.97, -perno.n));
-    cardine.matrix.multiply(new (A.matrice.constructor as typeof import('three').Matrix4)().makeRotationY((-(ruota) * Math.PI) / 180));
+    cardine.matrix.copy(A.matrice).multiply(new Matrix4().makeTranslation(perno.e, 0.97, -perno.n));
+    cardine.matrix.multiply(new Matrix4().makeRotationY((-ruota * Math.PI) / 180));
     const braccio = new Group();
     braccio.name = `cardine-${i}`;
     vetro.rotation.x = -Math.PI / 2;
@@ -222,28 +223,26 @@ export function costruisciCripta(materiale: Material): Cripta {
   const ruotaArm = 90 - angoloCapsula(4.5);
   A.scatola(b, arm.e, arm.n, 0, 0.75, 1.95, 0.5, [0.46, 0.5, 0.46], 0, ruotaArm);
   col.push(A.collisoreScatola(arm.e, arm.n, 0, 0.75, 1.95, 0.5, 'armadietto', ruotaArm));
-  const anta = new Mesh(PRIMS.box().clone(), materiale);
-  {
-    const g = new GeomBuilder();
-    const fronte = centroCapsula(4.5, RAGGIO_ANELLO + 0.62);
-    A.scatola(g, fronte.e, fronte.n, 0.05, 0.7, 1.85, 0.04, [0.52, 0.57, 0.52], 0, ruotaArm);
-    // numero 5 in vernice
-    A.scatola(g, fronte.e, fronte.n - 0.03, 1.45, 0.16, 0.22, 0.05, [0.9, 0.86, 0.72], 0, ruotaArm);
-    anta.geometry = g.build();
-    anta.name = 'anta-armadietto-5';
-  }
+  const gAnta = new GeomBuilder();
+  const fronte = centroCapsula(4.5, RAGGIO_ANELLO + 0.62);
+  A.scatola(gAnta, fronte.e, fronte.n, 0.05, 0.7, 1.85, 0.04, [0.52, 0.57, 0.52], 0, ruotaArm);
+  A.scatola(gAnta, fronte.e, fronte.n - 0.03, 1.45, 0.16, 0.22, 0.05, [0.9, 0.86, 0.72], 0, ruotaArm); // il 5 in vernice
+  const anta = new Mesh(gAnta.build(), materiale);
+  anta.name = 'anta-armadietto-5';
   gruppo.add(anta);
+  // dentro: la borsa di cuoio, il Velo ripiegato, lo squadro d'ottone (si vedono ad anta aperta)
+  const interno = centroCapsula(4.5, RAGGIO_ANELLO + 0.8);
+  A.scatola(b, interno.e, interno.n, 0.9, 0.4, 0.3, 0.25, [0.45, 0.3, 0.18]);
+  A.scatola(b, interno.e, interno.n, 1.25, 0.18, 0.4, 0.1, [0.8, 0.62, 0.28]);
+  A.scatola(b, interno.e, interno.n, 0.4, 0.5, 0.25, 0.3, [0.32, 0.36, 0.42]);
   punti['armadietto_5'] = A.punto(centroCapsula(4.5, RAGGIO_ANELLO + 0.55).e, centroCapsula(4.5, RAGGIO_ANELLO + 0.55).n, 1.2);
 
   // la busta «Per la mamma» sul bordo della capsula 5, dalla parte di Q
   const bustaPos = centroCapsula(5, RAGGIO_ANELLO - 0.95);
-  const busta = new Mesh(PRIMS.box().clone(), materiale);
-  {
-    const g = new GeomBuilder();
-    A.scatola(g, bustaPos.e + 0.2, bustaPos.n, 0.68, 0.3, 0.02, 0.2, [0.9, 0.85, 0.72], 0, 8);
-    busta.geometry = g.build();
-    busta.name = 'busta-5';
-  }
+  const gBusta = new GeomBuilder();
+  A.scatola(gBusta, bustaPos.e + 0.2, bustaPos.n, 0.68, 0.3, 0.02, 0.2, [0.9, 0.85, 0.72], 0, 8);
+  const busta = new Mesh(gBusta.build(), materiale);
+  busta.name = 'busta-5';
   gruppo.add(busta);
   punti['busta_5'] = A.punto(bustaPos.e + 0.2, bustaPos.n, 0.7);
 
@@ -274,13 +273,10 @@ export function costruisciCripta(materiale: Material): Cripta {
   for (let y = 0.3; y < SCALA.cima + 2.2; y += 0.32) A.scatola(b, SCALA.e, C.n0 + 0.18, y, 0.64, 0.04, 0.04, [0.4, 0.4, 0.38]);
   // la botola in cima al pozzo, con il filo di luce attorno
   const yBotola = SCALA.cima + 3.2;
-  const botola = new Mesh(PRIMS.box().clone(), materiale);
-  {
-    const g = new GeomBuilder();
-    A.scatola(g, SCALA.e, (pozzo.n0 + pozzo.n1) / 2, yBotola - 0.12, pozzo.e1 - pozzo.e0 - 0.08, 0.1, pozzo.n1 - pozzo.n0 - 0.08, [0.3, 0.26, 0.22]);
-    botola.geometry = g.build();
-    botola.name = 'botola-interna';
-  }
+  const gBotola = new GeomBuilder();
+  A.scatola(gBotola, SCALA.e, (pozzo.n0 + pozzo.n1) / 2, yBotola - 0.12, pozzo.e1 - pozzo.e0 - 0.08, 0.1, pozzo.n1 - pozzo.n0 - 0.08, [0.3, 0.26, 0.22]);
+  const botola = new Mesh(gBotola.build(), materiale);
+  botola.name = 'botola-interna';
   gruppo.add(botola);
   A.scatola(b, SCALA.e, (pozzo.n0 + pozzo.n1) / 2, yBotola - 0.02, pozzo.e1 - pozzo.e0 + 0.1, 0.03, pozzo.n1 - pozzo.n0 + 0.1, [0.85, 0.86, 0.88], 1);
   A.scatola(b, SCALA.e, (pozzo.n0 + pozzo.n1) / 2, yBotola + 0.01, pozzo.e1 - pozzo.e0 + 2 * sp, 0.3, pozzo.n1 - pozzo.n0 + 2 * sp, [0.2, 0.18, 0.17]);
@@ -314,7 +310,6 @@ export function costruisciCripta(materiale: Material): Cripta {
   let apri = false;
   let aperturaArm = 0;
   let apriArm = false;
-  const centroArm = A.punto(arm.e, arm.n, 0);
   return {
     gruppo,
     collisori: col,
@@ -336,11 +331,8 @@ export function costruisciCripta(materiale: Material): Cripta {
         if (coperchio5?.parent) coperchio5.parent.rotation.x = -1.25 * k;
       }
       if (apriArm && aperturaArm < 1) {
+        // segnaposto: l'anta sparisce a metà del gesto (niente cardine vero)
         aperturaArm = Math.min(1, aperturaArm + dt / 0.8);
-        anta.position.set(0, 0, 0);
-        // l'anta scivola di lato (segnaposto: niente cardine vero)
-        const su = centroArm.clone().normalize().multiplyScalar(-1);
-        void su;
         anta.visible = aperturaArm < 0.5;
       }
     },

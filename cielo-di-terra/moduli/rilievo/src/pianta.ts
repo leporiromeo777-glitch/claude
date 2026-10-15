@@ -101,8 +101,7 @@ function resocontoVisibile(stato: StatoCatasto, opz: OpzioniPianta): boolean {
   const giorno = opz.giorno ?? stato.giorno;
   if (giorno !== un.giorno + 1) return false;
   if (opz.ora === undefined) return true;
-  const m = minuti(opz.ora);
-  return m >= ORARI.alba - 60 && m < ORARI.fineMattino;
+  return minuti(opz.ora) < ORARI.fineMattino;
 }
 
 /** Tutto ciò che la Pianta deve disegnare, in un formato semplice. */

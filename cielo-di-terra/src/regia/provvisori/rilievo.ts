@@ -258,7 +258,7 @@ export class RilievoProvvisorio implements PortaRilievo {
       righe.push(modello.replace('{nome}', e.nome));
       cambiate.push(...e.particelle);
       for (const ciclo of e.cicli_del_giorno ?? []) {
-        if (ciclo.a === 'Abitata') finestre.push(`${ciclo.testo.replace(/\.$/, '')} alle ${testoOra(oreDa(ciclo.ora))}.`);
+        if (ciclo.a === 'Abitata') finestre.push(`${(ciclo.testo ?? ciclo.chi).replace(/\.$/, '')} alle ${testoOra(oreDa(ciclo.ora))}.`);
       }
     }
     for (const id of nc?.notte === notte ? nc.rimaste : []) {
