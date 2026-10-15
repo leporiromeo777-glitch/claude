@@ -19,7 +19,7 @@ import { creaCaposaldo, creaPalina, creaPilastro } from '../src/oggetti/caposald
 import { creaLanterna, creaLumino } from '../src/oggetti/lumi';
 import { creaAbitante, type StatoAbitante } from '../src/oggetti/abitante';
 import { creaFada, creaSciameFade, creaSciameApi, type StatoFada } from '../src/oggetti/fade';
-import { creaSquadroPrimaPersona, creaVeloPrimaPersona } from '../src/oggetti/primaPersona';
+import { creaSquadroPrimaPersona, creaVeloPrimaPersona, PUNTALE_PIANTATO } from '../src/oggetti/primaPersona';
 import { CATALOGO } from '../src/catalogo';
 import { misura } from '../src/misure';
 import type { OggettoProcedurale } from '../src/tipi';
@@ -230,9 +230,9 @@ function avviaVetrina(): void {
       animati.push({ o: sq as unknown as OggettoProcedurale<unknown>, stato: () => ({ posa: 'piantato' }) });
       // camera disposta in modo che il puntale stia sul chiodo 37
       const chiodo = (chiodo37.punti['chiodo'] as THREE.Vector3).clone().add(chiodo37.gruppo.position);
-      camera.rotation.set(-0.42, 0, 0, 'YXZ');
+      camera.rotation.set(-0.3, 0.15, 0, 'YXZ');
       camera.updateMatrixWorld();
-      const off = new THREE.Vector3(-0.02, -0.66, -0.72).applyQuaternion(camera.quaternion);
+      const off = PUNTALE_PIANTATO.clone().applyQuaternion(camera.quaternion);
       camera.position.copy(chiodo).sub(off);
     } else if (vista.primaPersona === 'squadro-mano') {
       const sq = creaSquadroPrimaPersona({ posa: 'mano' });
