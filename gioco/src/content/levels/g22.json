@@ -53,8 +53,8 @@
   "initial": [
     "bepi",
     "marta",
-    "gino",
     "teresa",
+    "gino",
     "piero",
     "zeno"
   ],
@@ -129,6 +129,46 @@
       "thread": "piero",
       "place": "chiesa",
       "hour": 11
+    },
+    {
+      "thread": "teresa",
+      "place": "piazza",
+      "hour": 10
+    },
+    {
+      "thread": "bepi",
+      "place": "forno",
+      "hour": 15
+    },
+    {
+      "thread": "zeno",
+      "place": "farmacia",
+      "hour": 12
+    },
+    {
+      "thread": "bepi",
+      "place": "forno",
+      "hour": 9
+    },
+    {
+      "thread": "gino",
+      "place": "molo",
+      "hour": 11
+    },
+    {
+      "thread": "marta",
+      "place": "farmacia",
+      "hour": 19
+    },
+    {
+      "thread": "bepi",
+      "place": "forno",
+      "hour": 12
+    },
+    {
+      "thread": "piero",
+      "place": "farmacia",
+      "hour": 9
     }
   ],
   "edges": [
@@ -146,7 +186,7 @@
     "g22.teresa.riconosciuta",
     "g22.marta"
   ],
-  "matassa": 18,
+  "matassa": 20,
   "hintKeys": {
     "spinta": "atto3.g22.hint.spinta",
     "indizio": "atto3.g22.hint.indizio"

@@ -372,7 +372,7 @@
       }
     },
     "piero": {
-      "testo": "Nel pozzo restano le lettere che non ho saputo dare. Sono di sua madre. Faccia che le arrivino domani, prima che la marea se la riprenda.",
+      "testo": "Nel pozzo restano le lettere che non ho saputo dare. Sono di sua madre. Faccia che le arrivino domani entro le sette di sera, prima che la marea se la riprenda.",
       "esito": {
         "ok": "Il fascio è arrivato a mia madre. Ha tenuto le sue lettere strette al petto, come si tiene un bambino.",
         "fallita": "Il fascio non è arrivato a mia madre. Il prete ha detto che il pozzo, a volte, è anche una tomba."
@@ -391,9 +391,9 @@
       }
     },
     "marta": {
-      "testo": "Se arriva una forestiera a piedi dalla secca, avrà fame. Il pane caldo glielo porto io, con le mie mani.",
+      "testo": "Se arriva una forestiera a piedi dalla secca, avrà fame. Il pane caldo glielo porto io, con le mie mani, prima delle cinque.",
       "esito": {
-        "ok": "Marta è arrivata dalla forestiera col pane ancora caldo. Le ha detto «mangi», e mia madre ha obbedito.",
+        "ok": "Marta è arrivata dalla forestiera prima delle cinque, col pane ancora caldo. Le ha detto «mangi», e mia madre ha obbedito.",
         "fallita": "Il pane di Marta non è arrivato alla forestiera. Marta l'ha lasciato sulla soglia del forno, sotto un tovagliolo, per chi passa."
       }
     }

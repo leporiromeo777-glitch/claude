@@ -623,7 +623,8 @@
     "textKey": "atto3.g22.piero.testo",
     "request": {
       "t": "consegnata",
-      "bead": "fascio"
+      "bead": "fascio",
+      "by": 19
     },
     "esito": {
       "ok": "atto3.g22.piero.esito.ok",
@@ -734,7 +735,8 @@
     "request": {
       "t": "sopra",
       "a": "marta",
-      "b": "livia"
+      "b": "livia",
+      "to": 17
     },
     "esito": {
       "ok": "atto3.g22.marta.esito.ok",

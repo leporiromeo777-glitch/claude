@@ -372,7 +372,7 @@
       }
     },
     "piero": {
-      "testo": "In the well are the letters I failed to give. They are your mother's. See that they reach her tomorrow, before the tide takes her back.",
+      "testo": "In the well are the letters I failed to give. They are your mother's. See that they reach her tomorrow by seven, before the tide takes her back.",
       "esito": {
         "ok": "The bundle reached my mother. She held her letters tight to her chest, the way you hold a child.",
         "fallita": "The bundle never reached my mother. The priest said that the well, sometimes, is a tomb as well."
@@ -391,9 +391,9 @@
       }
     },
     "marta": {
-      "testo": "If a stranger comes on foot over the shallows, she'll be hungry. I'll bring her warm bread, with my own hands.",
+      "testo": "If a stranger comes on foot over the shallows, she'll be hungry. I'll bring her warm bread, with my own hands, before five.",
       "esito": {
-        "ok": "Marta reached the stranger with the bread still warm. She said “eat”, and my mother did as she was told.",
+        "ok": "Marta reached the stranger before five, the bread still warm. She said “eat”, and my mother did as she was told.",
         "fallita": "Marta's bread never reached the stranger. Marta left it on the bakery step, under a napkin, for whoever passes."
       }
     }
