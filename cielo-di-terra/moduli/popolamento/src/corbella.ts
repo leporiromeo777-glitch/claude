@@ -40,6 +40,11 @@ export interface OpzioniCorbella {
   varianti?: Partial<Record<'E1' | 'E2' | 'E3' | 'E4', string>>;
   /** muri delle terrazze (predefinito true; false per un paese più leggero) */
   muriTerrazze?: boolean;
+  /**
+   * luci (emisfero + direzionale guidate da `game.sky`) per il materiale toon dei personaggi
+   * (predefinito true); false se la scena ha già le sue (la regia ne aggiunge)
+   */
+  luciAbitanti?: boolean;
 }
 
 export interface StatisticheCorbella {
@@ -152,7 +157,7 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
         });
   // 4. la notte e gli abitanti
   const notte = costruisciNotte(ctx, game.uniforms);
-  const abitanti = new Abitanti(ctx);
+  const abitanti = new Abitanti(ctx, opzioni.luciAbitanti ?? true);
 
   // cottura delle zone
   const radice = new Group();

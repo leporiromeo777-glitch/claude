@@ -137,9 +137,12 @@ export class Abitanti {
   private colliders: ColliderWorld | null = null;
   private velati: string[] = [];
 
-  constructor(private ctx: Contesto) {
+  constructor(
+    private ctx: Contesto,
+    private conLuci = true,
+  ) {
     this.gruppo.name = 'corbella:abitanti';
-    this.gruppo.add(this.sole, this.sole.target, this.emisfero);
+    if (conLuci) this.gruppo.add(this.sole, this.sole.target, this.emisfero);
     for (const p of PERSONAGGI) {
       if (p.id === 'velati_corbella') {
         VELATI.forEach((v, i) => {
@@ -623,7 +626,7 @@ export class Abitanti {
 
   update(dt: number, sky?: { night: number; sunIntensity: number; sunColor: number[]; ambientTop: number[]; ambientBottom?: number[]; tiltAlpha: number; tiltBeta: number }): void {
     this.t += dt;
-    this.luci(sky);
+    if (this.conLuci) this.luci(sky);
     for (const s of this.stati.values()) {
       if (!s.figura || !s.obj || !s.presente) continue;
       if (s.gestoFino > 0 && this.t > s.gestoFino) {
