@@ -137,7 +137,7 @@
     "obiettivo_taccuino": "Le gambe. Due secoli. Piano.",
     "luogo": "belvedere_muretto",
     "attiva_quando": "passo:pr_guarda_su completato",
-    "completa_quando": "luogo:belvedere_muretto raggiunto e flag:seduta",
+    "completa_quando": "flag:seduta",
     "effetti_attivazione": [
      "suggerimento:cammina"
     ],
@@ -161,7 +161,7 @@
     "attiva_quando": "passo:pr_camminare completato",
     "completa_quando": "flag:lettera_letta",
     "effetti_attivazione": [
-     "suggerimento:leggi"
+     "suggerimento:leggi_lettera"
     ],
     "effetti": [
      "taccuino:i_stella_alpina",
@@ -183,7 +183,8 @@
     "attiva_quando": "passo:pr_lettera completato",
     "completa_quando": "dialogo:d_meridiana_1 finito",
     "effetti_attivazione": [
-     "suono:tre_rintocchi"
+     "suono:tre_rintocchi",
+     "suggerimento:corri"
     ],
     "effetti": [
      "missione:prologo completata",

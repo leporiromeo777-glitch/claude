@@ -519,6 +519,7 @@ L'ala di tela di Elvira, con la traversa di legno e una nappina appesa. Si vede 
 ### 3.7 Il fiato e l'attesa
 
 - Il **fiato** è l'unica risorsa del corpo. Lo consumano la corsa, l'arrampicata, le cadute, i colpi (cariche delle Falciatrici, nebbiolina delle api) e l'apnea. Non c'è barra: la vista si restringe ai bordi, il respiratore si sente più forte, i suoni si attutiscono.
+- Si corre tenendo premuto **Shift**: da fiato pieno la corsa regge circa 28 s, poi Elvira rallenta. Nel prologo, finché non si siede sul muretto del belvedere, Shift dà solo una corsetta zoppicante.
 - Si recupera camminando piano o **sedendosi a respirare** (fiato pieno in 6 s).
 - **«Aspetta fino a»**: da seduta, Elvira fa passare il tempo fino a un evento scelto. Le voci si sbloccano man mano che il giocatore le conosce: prossima Meta, brace, alba, mezzanotte, arrivo delle Fade, Strada delle Fade stesa, marea, manovra. Il tempo accelera fino a ×20 e la riga del cielo nel Taccuino conta all'indietro. Si interrompe se qualcuno si avvicina.
 - **Apnea**: il respiratore regge 45 s sott'acqua (35 s se la Pesarina è stata spenta, +50 % con l'opzione di accessibilità). Ogni sacca d'aria ricarica il fiato e resta segnata per sempre nel Taccuino come punto di respiro.

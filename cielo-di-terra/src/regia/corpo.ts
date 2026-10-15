@@ -57,7 +57,8 @@ export class Corpo {
     // --- fiato ---
     if (this.seduta) this.fiato += dt / 6;
     else if (s.grounded) {
-      if (s.corre && s.velocita > 5) this.fiato -= dt / 14;
+      // correndo il fiato dura circa 28 s; camminando torna in circa 25 s
+      if (s.corre && s.velocita > 5) this.fiato -= dt / 28;
       else if (this.affaticata && s.velocita > 0.3) this.fiato -= s.velocita * dt * this.consumoPerMetro;
       else if (s.velocita < 0.3) this.fiato += dt * 0.08;
       else this.fiato += dt * 0.04;
