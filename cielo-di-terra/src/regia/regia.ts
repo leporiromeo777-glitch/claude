@@ -859,7 +859,9 @@ export class Regia implements SistemaGioco {
       const avanti = this.game.rig.forward(new Vector3());
       const verso = ch.clone().add(avanti);
       const piedi = Squadro.piediDavantiAlChiodo(ch, verso, 0.7);
-      const hp = this.interno === 'cella' ? this.cella.quotaPavimento : groundHeight(piedi.z, piedi.theta);
+      // in piedi dov'è (il ripiano della terrazza, la copertina di un muro): non sotto, sul terreno del motore
+      const pl = this.game.player;
+      const hp = this.interno === 'cella' ? this.cella.quotaPavimento : Math.max(groundHeight(piedi.z, piedi.theta), pl.grounded ? pl.cyl.h : -Infinity);
       this.controllo = { tipo: 'piantato', z: piedi.z, theta: piedi.theta, h: hp };
       this.capisaldiVisti.add(id);
       this.audio.evento({ tipo: 'squadro-pianta', posizione: ch });
