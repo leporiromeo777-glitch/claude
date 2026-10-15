@@ -139,6 +139,7 @@ export function missioniOrfane(c: ContenutiNormalizzati): string[] {
     }
   }
   for (const d of Object.values(c.dialoghi)) {
+    guarda(d.effettiFine);
     for (const n of d.nodi) {
       guarda(n.effetti);
       for (const r of n.risposte) guarda(r.effetti);
@@ -355,6 +356,7 @@ export class Narrativa {
 
   /** Ripristina uno stato esportato (senza emettere eventi né applicare effetti). */
   importa(stato: StatoNarrativo): void {
+    this.automaticiAnnunciati.clear();
     this.flag.importa(stato.flag ?? {});
     this.missioni.importa(stato.missioni ?? { inizializzate: false, missioni: {} });
     this.dialoghi.importa(stato.dialoghi ?? { finiti: [], iniziati: [], corrente: null });

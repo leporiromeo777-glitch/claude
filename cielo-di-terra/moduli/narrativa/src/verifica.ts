@@ -94,6 +94,7 @@ function idDa(x: unknown): Set<string> {
 type Sorgente =
   | { tipo: 'risposta'; dialogo: string; nodo: string; indice: number }
   | { tipo: 'nodo'; dialogo: string; nodo: string }
+  | { tipo: 'fine'; dialogo: string }
   | { tipo: 'passo'; missione: string; passo: string }
   | { tipo: 'missione'; missione: string };
 
@@ -103,6 +104,8 @@ function descriviSorgente(s: Sorgente): string {
       return `dialogo ${s.dialogo}, nodo ${s.nodo}, risposta ${s.indice + 1}`;
     case 'nodo':
       return `dialogo ${s.dialogo}, nodo ${s.nodo}`;
+    case 'fine':
+      return `dialogo ${s.dialogo}, alla fine`;
     case 'passo':
       return `missione ${s.missione}, passo ${s.passo}`;
     case 'missione':
@@ -163,6 +166,7 @@ function* effettiDi(c: ContenutiNormalizzati): Generator<[string, Sorgente]> {
     for (const e of m.effetti) yield [e, { tipo: 'missione', missione: m.id }];
   }
   for (const d of Object.values(c.dialoghi)) {
+    for (const e of d.effettiFine) yield [e, { tipo: 'fine', dialogo: d.id }];
     for (const n of d.nodi) {
       for (const e of n.effetti) yield [e, { tipo: 'nodo', dialogo: d.id, nodo: n.id }];
       for (let i = 0; i < n.risposte.length; i++) {
@@ -303,6 +307,10 @@ class Simulatore {
     });
     this.n.eventi.on('apriDialogo', ({ dialogo }) => {
       if (!this.esplorando) this.daAprire.push(dialogo);
+    });
+    this.n.eventi.on('evento', ({ nome, argomenti }) => {
+      // «variante:E1=Abitata»: il mondo cambia la variante dell'elemento mobile.
+      if (nome === 'variante' && argomenti.length === 2) this.fatti.varianti.set(argomenti[0]!, argomenti[1]!);
     });
     this.n.eventi.on('passoCompletato', ({ missione, passo }) => {
       if (!this.esplorando) this.log(`✓ ${missione}/${passo}`);
@@ -618,7 +626,7 @@ class Simulatore {
         return null;
       }
       case 'passo':
-        return `il passo ${a.missione}/${a.passo} non è ${a.stato}`;
+        return this.avanzaFinoAlPasso(a.missione, a.passo, a.stato, prof + 1);
       case 'flag':
         return this.daSorgenti(`flag:${a.nome}`, { tipo: 'atomo', atomo: a }, prof, () => {
           // Nessun contenuto lo imposta: presumo che lo faccia il gioco.
@@ -684,6 +692,7 @@ class Simulatore {
     switch (s.tipo) {
       case 'risposta':
       case 'nodo':
+      case 'fine':
         return this.giocaDialogo(s.dialogo, riuscito, prof);
       case 'passo': {
         if (this.n.missioni.stato(s.missione) === 'completata' || this.n.missioni.statoPasso(s.missione, s.passo) === 'completato') {
@@ -702,6 +711,38 @@ class Simulatore {
       case 'missione':
         return riuscito() ? null : `serve completare la missione ${s.missione}`;
     }
+  }
+
+  /** Porta avanti la missione di un passo finché il passo è attivo o completato. */
+  private avanzaFinoAlPasso(missione: string | undefined, passo: string, stato: 'attivo' | 'completato', prof: number): string | null {
+    const idM = missione ?? this.n.missioni.missioneDelPasso(passo);
+    const def = idM === undefined ? undefined : this.c.missioni.find((m) => m.id === idM);
+    if (!def || !def.passi.some((p) => p.id === passo)) return `passo inesistente «${passo}»`;
+    const arrivato = (): boolean => {
+      const st = this.n.missioni.statoPasso(def.id, passo);
+      return st === 'completato' || (stato === 'attivo' && st === 'attivo');
+    };
+    if (this.n.missioni.stato(def.id) === 'inattiva') {
+      const m = this.avviaMissione(def.id, prof);
+      if (m) return `missione ${def.id}: ${m}`;
+    }
+    for (let giro = 0; !arrivato() && giro < def.passi.length * 3; giro++) {
+      if (this.n.missioni.stato(def.id) !== 'attiva') break;
+      const attivo = def.passi.find((p) => this.n.missioni.statoPasso(def.id, p.id) === 'attivo');
+      const prima = this.firma();
+      let m: string | null = null;
+      if (attivo?.completaQuando !== undefined && attivo.id !== passo) m = this.soddisfa(attivo.completaQuando, prof + 1);
+      else if (attivo?.id === passo && attivo.completaQuando !== undefined) m = this.soddisfa(attivo.completaQuando, prof + 1);
+      else {
+        const bloccato = def.passi.find((p) => this.n.missioni.statoPasso(def.id, p.id) === 'bloccato');
+        if (bloccato?.attivaQuando !== undefined) m = this.soddisfa(bloccato.attivaQuando, prof + 1);
+      }
+      this.n.tick();
+      this.apriInSospeso();
+      if (m) return `per arrivare al passo ${passo}: ${m}`;
+      if (this.firma() === prima) break;
+    }
+    return arrivato() ? null : `il passo ${def.id}/${passo} non diventa ${stato}`;
   }
 
   /**
@@ -850,7 +891,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
         if (!r.testo.trim()) avvisi.push(`dialogo ${d.id}, nodo ${n.id}, risposta ${i + 1}: testo vuoto`);
       });
       if (n.vaiA && !ids.has(n.vaiA)) errori.push(`dialogo ${d.id}, nodo ${n.id}: vai_a «${n.vaiA}» non esiste`);
-      if (!n.testo.trim()) avvisi.push(`dialogo ${d.id}, nodo ${n.id}: testo vuoto`);
+      if (!n.testo.trim() && !n.didascalia?.trim()) avvisi.push(`dialogo ${d.id}, nodo ${n.id}: né testo né didascalia`);
     }
     // raggiungibilità
     const raggiunti = new Set<string>();
@@ -869,6 +910,16 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     if (d.nodi.length && !finisce) errori.push(`dialogo ${d.id}: nessun nodo raggiungibile chiude il dialogo`);
     if (!d.personaggio) avvisi.push(`dialogo ${d.id}: manca il personaggio`);
     else if (personaggi && !personaggi.has(d.personaggio)) avvisi.push(`dialogo ${d.id}: personaggio «${d.personaggio}» non è in personaggi.json`);
+    const chiSconosciuti = new Set(d.nodi.map((n) => n.chi).filter((c): c is string => !!c && !!personaggi && !personaggi.has(c)));
+    if (chiSconosciuti.size) {
+      avvisi.push(`dialogo ${d.id}: «chi» non presenti in personaggi.json: ${[...chiSconosciuti].join(', ')}`);
+    }
+    if (d.apertura.come === 'parlando' && d.apertura.con && personaggi && !personaggi.has(d.apertura.con)) {
+      avvisi.push(`dialogo ${d.id}: si apre parlando con «${d.apertura.con}», che non è in personaggi.json`);
+    }
+    if (d.apertura.come === 'automatico' && d.condizione === undefined) {
+      avvisi.push(`dialogo ${d.id}: automatico senza condizione (si aprirebbe subito)`);
+    }
   }
 
   // 4. Riferimenti nelle condizioni
@@ -894,8 +945,16 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
         if (!missioni.has(a.id)) errori.push(`${origine}: missione inesistente «${a.id}»`);
         break;
       case 'passo': {
-        const m = missioni.get(a.missione);
-        if (!m || !m.passi.some((p) => p.id === a.passo)) errori.push(`${origine}: passo inesistente «${a.missione}/${a.passo}»`);
+        if (a.missione !== undefined) {
+          const m = missioni.get(a.missione);
+          if (!m || !m.passi.some((p) => p.id === a.passo)) errori.push(`${origine}: passo inesistente «${a.missione}/${a.passo}»`);
+        } else {
+          const dove = c.missioni.filter((m) => m.passi.some((p) => p.id === a.passo));
+          if (dove.length === 0) errori.push(`${origine}: passo inesistente «${a.passo}»`);
+          else if (dove.length > 1) {
+            errori.push(`${origine}: il passo «${a.passo}» è ambiguo (è in ${dove.map((m) => m.id).join(' e ')}): scrivere «missione/passo»`);
+          }
+        }
         break;
       }
       case 'taccuino':
