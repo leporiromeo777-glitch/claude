@@ -14,6 +14,8 @@ export type Capovolgimento = 'rollio' | 'dissolvenza';
 export type DondolioVisivo = 'visivo' | 'suono';
 /** Azioni lunghe (rilievo, Tenuta…): tenere premuto o premere una volta. */
 export type ModoAzioni = 'tieni' | 'premi';
+/** Qualità grafica: «automatica» misura i primi secondi e scende se il fotogramma è lento. */
+export type QualitaGrafica = 'automatica' | 'bassa' | 'media' | 'alta';
 
 /** Tutte le impostazioni del gioco gestite dall'interfaccia. */
 export interface Impostazioni {
@@ -28,6 +30,8 @@ export interface Impostazioni {
   /** Coriolis su passi e salti; 'pieno' è la «fisica piena». */
   coriolisCorpo: CoriolisCorpo;
   azioniTenute: ModoAzioni;
+  /** Qualità grafica (pittura, ombre, risoluzione); «automatica» di serie. */
+  qualitaGrafica: QualitaGrafica;
   // Comfort
   /** Vignettatura in planata (0-1). */
   vignettaturaPlanata: number;
@@ -80,6 +84,11 @@ export interface Impostazioni {
   arcoLancio: boolean;
   /** Avviso della sera: prima di dormire, ciò che non è misurato. */
   avvisoSera: boolean;
+  /**
+   * Pannello dell'obiettivo in alto a sinistra e segnalino sulla meta (per richiesta dell'utente,
+   * di serie): «complete», «obiettivo» (il pannello senza segnalino), «nessuna» (come nel GDD).
+   */
+  indicazioniMissioni: 'complete' | 'obiettivo' | 'nessuna';
 }
 
 export type ChiaveImpostazione = keyof Impostazioni;
@@ -123,6 +132,7 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     oscillazioneTesta: false,
     coriolisCorpo: 'ridotto',
     azioniTenute: 'tieni',
+    qualitaGrafica: 'automatica',
     vignettaturaPlanata: 0.5,
     capovolgimento: 'rollio',
     velocitaStelle: 1,
@@ -153,6 +163,7 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     piuTempo: false,
     arcoLancio: false,
     avvisoSera: false,
+    indicazioniMissioni: 'complete',
   };
 }
 
@@ -180,8 +191,10 @@ const VALORI_AMMESSI: Partial<Record<ChiaveImpostazione, readonly string[]>> = {
   calligrafia: ['corsiva', 'semplice'],
   coriolisCorpo: ['spento', 'ridotto', 'pieno'],
   azioniTenute: ['tieni', 'premi'],
+  qualitaGrafica: ['automatica', 'bassa', 'media', 'alta'],
   capovolgimento: ['rollio', 'dissolvenza'],
   dondolio: ['visivo', 'suono'],
+  indicazioniMissioni: ['complete', 'obiettivo', 'nessuna'],
 };
 
 /** Corregge un valore: tipo giusto, dentro i limiti; altrimenti restituisce `undefined`. */

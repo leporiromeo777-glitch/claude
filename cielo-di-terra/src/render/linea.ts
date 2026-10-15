@@ -1,8 +1,12 @@
 /**
  * La Linea: il filamento luminoso lungo l'asse che fa da sole.
- * - nucleo: un cilindro sottile emissivo (acceso fino a `uLineaIgnite`, brace blu oltre);
- * - alone: un nastro rivolto alla camera con profilo gaussiano, in additivo;
- * - la "miccia": all'alba e al tramonto la punta accesa brilla di più.
+ * - nucleo: un cilindro sottile emissivo (acceso fino a `uLineaIgnite`, brace blu oltre), in HDR:
+ *   sopra 1 la post lo sbianca e il bagliore lo apre in un alone vero;
+ * - alone: un nastro rivolto alla camera con tre profili (filo, alone caldo, velo largo), in additivo;
+ *   l'alone caldo è più dorato verso il bordo, come l'aria scaldata attorno al filo;
+ * - la "miccia": all'alba e al tramonto la punta accesa brilla di più;
+ * - il nucleo più luminoso (`uSole.x`, la z del nucleo della traccia «luce») scorre lungo l'asse
+ *   durante il giorno: il filo e l'alone sono un po' più vivi lì, così si vede da dove viene la luce.
  */
 import {
   AdditiveBlending,
@@ -20,6 +24,9 @@ import type { WorldUniforms } from './uniforms';
 
 const LIN = LAYOUT.linea;
 
+/** Quanto il nucleo acceso supera il bianco (HDR): regola anche la forza del bagliore. */
+export const LINEA_HDR = 2.6;
+
 export class Linea {
   readonly group = new Group();
   readonly uniforms = {
@@ -28,6 +35,7 @@ export class Linea {
     uEmber: { value: new Vector3(0.43, 0.52, 1.0) },
     uBright: { value: 1 },
     uHalfWidth: { value: LIN.haloRadius * 3.2 },
+    uHdr: { value: LINEA_HDR },
   };
 
   constructor(world: WorldUniforms) {
@@ -38,7 +46,7 @@ export class Linea {
     core.translate(0, 0, LIN.zStart + len / 2);
     const coreMat = new ShaderMaterial({
       name: 'linea-nucleo',
-      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight },
+      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole },
       vertexShader: /* glsl */ `
         varying float vZ;
         void main() {
@@ -46,12 +54,17 @@ export class Linea {
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
       fragmentShader: /* glsl */ `
-        uniform vec3 uCore; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uTime;
+        uniform vec3 uCore; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uTime; uniform float uHdr;
+        uniform vec4 uSole;
         varying float vZ;
         void main() {
           float lit = 1.0 - smoothstep(uLineaIgnite - 6.0, uLineaIgnite + 6.0, vZ);
+          // il nucleo più luminoso che scorre lungo l'asse (traccia «luce»)
+          float nucleo = 0.86 + 0.32 * exp(-pow((vZ - uSole.x) / 420.0, 2.0));
           float tip = exp(-pow((vZ - uLineaIgnite) / 30.0, 2.0)) * step(1.0, uLineaIgnite);
-          vec3 c = mix(uEmber * 0.85, uCore * uBright, lit) + vec3(1.0, 0.85, 0.6) * tip * 0.8;
+          // un filo vivo: pulsazioni lente lungo l'asse, appena percettibili
+          float vivo = 0.94 + 0.06 * sin(vZ * 0.013 - uTime * 0.7) * sin(vZ * 0.0041 + uTime * 0.23);
+          vec3 c = mix(uEmber * 1.1, uCore * uBright * uHdr * vivo * nucleo, lit) + vec3(1.0, 0.85, 0.6) * tip * 2.2;
           gl_FragColor = vec4(c, 1.0);
         }`,
     });
@@ -85,13 +98,14 @@ export class Linea {
     halo.setIndex(idx);
     const haloMat = new ShaderMaterial({
       name: 'linea-alone',
-      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight },
+      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole },
       vertexShader: /* glsl */ `
         attribute float aSide;
         uniform float uHalfWidth;
         varying float vSide;
         varying float vZ;
         varying float vDist;
+        varying float vHw;
         void main() {
           vec3 P = position;
           vec3 toCam = cameraPosition - P;
@@ -104,23 +118,31 @@ export class Linea {
           vSide = aSide;
           vZ = position.z;
           vDist = length(toCam);
+          vHw = hw;
           gl_Position = projectionMatrix * viewMatrix * vec4(P, 1.0);
         }`,
       fragmentShader: /* glsl */ `
-        uniform vec3 uGlow; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uNight;
+        uniform vec3 uGlow; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uNight; uniform float uHdr;
+        uniform vec4 uSole;
         varying float vSide;
         varying float vZ;
         varying float vDist;
+        varying float vHw;
         void main() {
           float d = abs(vSide);
-          float inner = exp(-pow(d / 0.045, 2.0));
-          float mid = exp(-pow(d / 0.16, 2.0));
-          float outer = exp(-pow(d / 0.55, 2.0));
+          // filo sottile e vivo, alone stretto e un velo largo appena accennato (come nei
+          // bozzetti: una riga di luce, non una colonna); il resto lo fa il bagliore della post
+          float inner = exp(-pow(d / 0.032, 2.0));
+          float mid = exp(-pow(d / 0.12, 2.0));
+          float outer = exp(-pow(d / 0.45, 2.0));
           float lit = 1.0 - smoothstep(uLineaIgnite - 25.0, uLineaIgnite + 25.0, vZ);
           float tip = exp(-pow((vZ - uLineaIgnite) / 60.0, 2.0)) * step(1.0, uLineaIgnite) * (1.0 - step(2990.0, uLineaIgnite));
-          vec3 day = uGlow * (inner * 0.75 + mid * 0.22 + outer * 0.07) * uBright;
-          vec3 ember = uEmber * (inner * 0.55 + mid * 0.22 + outer * 0.07);
-          vec3 c = mix(ember, day, lit) + vec3(1.0, 0.8, 0.5) * tip * (inner + mid * 0.6);
+          // alone caldo: bianco-oro sul filo, ambra verso il bordo
+          vec3 caldo = mix(uGlow, uGlow * vec3(1.05, 0.82, 0.58), smoothstep(0.03, 0.4, d));
+          float nucleo = 0.82 + 0.4 * exp(-pow((vZ - uSole.x) / 420.0, 2.0));
+          vec3 day = caldo * (inner * 0.9 * uHdr * 0.55 + mid * 0.2 + outer * 0.075) * uBright * nucleo;
+          vec3 ember = uEmber * (inner * 0.7 + mid * 0.26 + outer * 0.08);
+          vec3 c = mix(ember, day, lit) + vec3(1.0, 0.8, 0.5) * tip * (inner * 1.6 + mid * 0.8 + outer * 0.2);
           gl_FragColor = vec4(c, 1.0);
         }`,
       transparent: true,

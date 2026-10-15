@@ -25,7 +25,7 @@ e i personaggi con le loro figure animate. L'unico interno della regia rimasto �
 | narrativa (storia, dialoghi, taccuino, salvataggi) | `src/narrativa/` | `tests/narrativa/` |
 | audio (motore, musica, campane, passi) | `src/audio/` | `tests/audio/` |
 | oggetti (abitanti, castagni, botola, capisaldi, squadro…) | `src/oggetti/` | `tests/oggetti/` |
-| interfaccia (titolo, pausa, impostazioni, dialoghi, carte, taccuino, pianta, indicazioni) | `src/ui/` | `tests/ui/` (happy-dom) |
+| interfaccia (titolo, pausa, impostazioni, dialoghi, carte, taccuino, pianta, indicazioni, pannello dell'obiettivo) | `src/ui/` | `tests/ui/` (happy-dom) |
 | rilievo (catasto, lati, notti, pianta, resoconto) | `src/rilievo/` | `tests/rilievo/` |
 | popolamento (Corbella: case, muri, chiodi, elementi mobili, personaggi, Fade) | `src/popolamento/` | `tests/popolamento/` |
 | **regia** (questo lavoro) | `src/regia/` | `tests/regia/` + `npm run e2e:fase1` |
@@ -53,6 +53,11 @@ il disegno serve solo alle viste.
 | `catasto.ts` | il catasto collegato al mondo: «linea libera?» (terreno + collisori), tappe del tempo, notti, resoconto |
 | `dialoghi.ts` | i nodi della storia nella finestra di dialogo; coda dei dialoghi automatici; chi parla si volta |
 | `interfaccia.ts` | il ponte verso `src/ui`: carte e libretto (lettura fino in fondo), sottotitoli, suggerimenti, Taccuino, Pianta, «Aspetta fino a», pausa |
+| `obiettivi.ts` | le **indicazioni delle missioni**: il passo seguito (il primo passo attivo con un'indicazione della missione principale; in piccolo gli altri passi attivi e, nel gioco libero, due missioni libere), il pannello dell'obiettivo, il segnalino sulla meta (luogo, persona, chiodo; prima la porta se la meta è in un altro interno), la sospensione sotto i modali e nelle scene, il suono del passo nuovo |
+| `destinazione.ts` | la meta del segnalino ricavata dal passo: ciò che manca a `completa_quando`, le tappe di strada degli `eventi`, il luogo del passo (logica pura, provata in Node) |
+| `segnalino.ts` | la matematica del segnalino: proiezione, bordo dello schermo per le mete fuori o dietro, «in su»/«sotto» nel cilindro, distanza sulla superficie più il dislivello |
+| `tasti.ts` | i nomi dei comandi per i segnaposto (`{usa}`, `{siedi}`…) dei suggerimenti e delle indicazioni; li usa anche `verifica-contenuti` |
+| `orari.ts` | quando arriva qualcuno secondo gli orari di `personaggi.json` (la riga «… arriva alle 07:00» del pannello, l'ora proposta da «Aspetta fino a») |
 | `png.ts` | gli abitanti: le figure del popolamento (`corbella.npc(id)`) guidate dalla storia; gli orari li applica il popolamento, la regia corregge le condizioni (Clelia dopo il dono) e muove Ottavio (vola, scende in spirale, accompagna, viene incontro); chi è vicino guarda Elvira |
 | `audio.ts` | il ponte verso `src/audio`: avvio al primo gesto, stato per fotogramma, passi, eventi, temi |
 | `notte.ts` | le Fade del popolamento viste dalla regia (controllo «Fade nel campo visivo», audio) e la lanterna di Tecla |
@@ -132,6 +137,7 @@ libretto. Salvataggio automatico dopo ogni passo della storia, al risveglio e do
 | V | il velo nero di Clelia (dopo il dono) |
 | T | Taccuino |
 | P | Pianta del Verbano |
+| O | mostra / nasconde il pannello dell'obiettivo (in alto a sinistra) |
 | Esc | pausa (impostazioni, salva, titolo) / chiude carte e menu |
 
 Nelle carte: PagGiù/frecce per leggere, S per il testo stampato, Esc per mettere via. Nei
@@ -139,22 +145,89 @@ dialoghi: Invio completa la riga, 1-9 o frecce + Invio rispondono, H lo storico.
 
 Impostazioni collegate al motore: campo visivo, sensibilità del mouse, asse Y, oscillazione
 della testa, Coriolis sul corpo, velocità delle stelle, volumi (generale, musica, ambiente,
-voci); aiuti: azioni tenute «premi», bolla larga, collimazione agganciata, puntino. La pausa,
-le carte e i menu fermano l'orologio (`tempoFermo`) e rilasciano il mouse (`catturaInput`).
+voci); aiuti: azioni tenute «premi», bolla larga, collimazione agganciata, puntino, **indicazioni
+delle missioni** (Complete, di serie: pannello e segnalino; Senza segnalino; Nessuna).
+
+### Indicazioni delle missioni (richiesta dell'utente)
+
+Chi giocava non capiva che cosa fare: l'obiettivo stava solo nel Taccuino, ed è poetico. Ora, di
+serie, in alto a sinistra c'è il **pannello dell'obiettivo** (titolo della missione, indicazione
+pratica con i tasti, l'obiettivo del Taccuino a matita, al massimo due righe in più) e sulla meta
+un **segnalino** a matita con la distanza in metri, che al bordo dello schermo diventa una freccia
+verso cui girarsi e dice «in su» o «sotto» quando la meta è molto più in alto o più in basso. Al
+cambio di passo la riga vecchia si barra a matita, compare «nuovo obiettivo» e suona un tocco di
+marimba. Il pannello si nasconde nei dialoghi, nelle carte, nel Taccuino, nella Pianta, nella
+pausa, nel titolo, nel sonno e quando la vista è coperta (il nero dell'inizio, il bianco della
+botola); il segnalino anche nel cannocchiale e quando Elvira è arrivata. Le indicazioni sono
+nei contenuti (campo `indicazione` dei passi di `missioni.json`, FASE1 §2.5); la meta si
+ricava dal passo (`src/regia/destinazione.ts`). Il GDD (§8) lo registra come eccezione al
+principio «nessun segnalino», per richiesta dell'utente.
+
+Dettagli che contano:
+
+- **La meta**: le tappe scritte nel passo (`tappe`: la busta e l'armadietto nella Cripta, la
+  Ripa di San Vigilio prima della planata, il campanaro cercato sul sagrato, il Balcone dei Messi
+  prima dei Bugni), poi il luogo del passo (al punto vero del paese: il muretto, la Bacheca, il
+  telo…); la persona con cui parlare, dov'è adesso, sopra la sua testa vera (l'osso «testa»: chi
+  è seduto, i bambini); per i velati la più vicina fra chi ha ancora da dire, e dopo ogni
+  conversazione si passa alla successiva; il chiodo per il rilievo. Se la meta è in un altro
+  interno, prima la via: la scala e la botola della Cripta, la porta del campanile, la scala per
+  scendere dalla cella. Per `pr_lettera` e `pr_campane` niente segnalino (`segnalino: false`).
+- **Chi non c'è ancora**: se la persona da cercare non è nel paese (all'alba in piazza ci sono
+  solo i velati della folla, che non parlano; la novizia arriva alla Bacheca alle 7; il campanaro
+  è sul sagrato dalle 8) il segnalino va dove arriverà, secondo gli orari di `personaggi.json`, e
+  il pannello aggiunge una riga: «Adesso non c'è nessuno con cui parlare. Una velata al lavatoio
+  arriva alle 07:00: siediti (C) e aspetta (X).»; il menu «Aspetta fino a» propone quell'ora.
+- **I rami**: l'indicazione cambia con la storia (`indicazione_se`): vegliare invece di dormire,
+  la passerella salvata nella notte (niente Ottavio, dritti al chiodo 7), il campanile aperto,
+  l'altra valle e la porta chiusa dei Bugni (dove il segnalino tace: nella Fase 1 non c'è altro
+  da fare).
+- **Il bordo**: fuori vista il segnalino diventa una punta di freccia piena (44 px) sul bordo
+  della zona utile: ai lati vicino al fondo dello schermo, al centro sopra la fascia dei
+  sottotitoli e delle azioni. Alle spalle sta sul fianco verso cui girarsi, un po' sotto la metà,
+  con «dietro» nell'etichetta. Mai sotto il pannello né sotto le notifiche del Taccuino: una meta
+  che ci cadrebbe (anche sullo schermo) diventa una freccia appena sotto il loro orlo. «In
+  su»/«sotto» quando la meta è molto più in alto o più in basso (oltre 6 m e 30°: l'altra parte
+  della valle, la cella, la Cripta) o quasi a piombo (oltre 1,5 m e 60°: la botola).
+- **Il ritmo**: passo seguito, tappe, meta e attese cinque volte al secondo nel passo fisso; il
+  segnalino si proietta a ogni disegno, dopo il campo visivo della lente e del cannocchiale
+  (scrive nel DOM solo se si sposta di un pixel), la distanza otto volte al secondo, le aree del
+  pannello e delle notifiche due. La riga barrata se ne va alla fine della sua animazione.
+- **La ripresa**: dopo «Continua» l'obiettivo torna nel pannello senza «nuovo obiettivo» né
+  suono; il guado già passato resta passato (i luoghi del passo li ricorda la narrativa, nel
+  salvataggio). Una partita nuova svuota il pannello.
+
+`npm run shots:indicazioni` gioca il prologo e la missione 1 e scatta le foto in
+`docs/shots/indicazioni/` (non nel repository); controlla anche che il segnalino stia sul muretto,
+sulla busta e sulle persone giuste, che all'alba in piazza mandi al lavatoio con l'ora, che cerchi
+il campanaro sul sagrato. Le foto scelte, guardate una per una, sono in `docs/indicazioni/`
+(con `RESOCONTO.md`, problema per problema).
+
+La pausa, le carte e i menu fermano l'orologio (`tempoFermo`) e rilasciano il mouse (`catturaInput`).
 
 Parametri URL: `?nuova` salta il titolo e comincia una partita nuova; `?senza-titolo` avvia il
 solo motore (senza regia, per gli screenshot del motore); `?debug` statistiche; `?ora=…`.
 
 ## Prove
 
-- `npm test`: 41 file, 569 test verdi (narrativa, audio, oggetti, interfaccia, rilievo, popolamento,
-  regia e motore). I test della regia (`tests/regia/`, 45) coprono orologio,
+- `npm test`: 46 file, 641 test verdi (narrativa, audio, oggetti, interfaccia, rilievo, popolamento,
+  regia e motore). Le indicazioni delle missioni hanno i loro: la meta del segnalino dai passi
+  (scritti a mano e veri, `tests/regia/destinazione.test.ts`), la matematica del segnalino
+  (proiezione, bordo, fascia dei sottotitoli, dietro, in su/sotto anche a piombo,
+  `segnalino.test.ts`), la guida con la storia e l'interfaccia vere (passo nuovo, suono,
+  sospensione, segnalino sul muretto e sui velati, chi non c'è ancora e quando arriva, i rami
+  della storia, la ripresa dopo «Continua», il guado dopo un caricamento, la cella, il gioco
+  libero, la proiezione a ogni fotogramma, la meta sotto il pannello e le notifiche,
+  `obiettivi.test.ts`), gli orari (`orari.test.ts`), il pannello e il tasto O (aggiornamento al
+  cambio di passo, riga barrata che se ne va, riga dell'attesa, ripresa senza annuncio, tastini
+  senza a capo, nascondimento, impostazione, `tests/ui/obiettivo.test.ts`) e la verifica delle
+  indicazioni e delle tappe nei contenuti. I test della regia (`tests/regia/`, 96) coprono orologio,
   luoghi, contenuti, interazioni (tenute, «premi»), sguardi, corpo (fiato, planate), «linea
   libera?» (terreno e collisori), la quota d'appoggio sui ripiani, le tappe del tempo del catasto
   (notte dormita, notte vegliata, resoconto), rilievo e salvataggio, gli orari degli abitanti e,
   sulle figure vere del popolamento, Ottavio (vola, scende, viene incontro), Clelia dopo il dono e
   chi guarda Elvira. `npm run verifica-contenuti`: 0 errori, 0 avvisi.
-- `npm run e2e:fase1`: verde, «prova ok in 164 s», nel paese vero. Fa la build E2E, apre Chromium (SwiftShader), clicca
+- `npm run e2e:fase1`: verde, «prova ok in 164 s» (330 s con le indicazioni delle missioni, su una macchina con il carico fra 12 e 14 su 4 processori: il segnalino costa pochi microsecondi a fotogramma, vedi `docs/indicazioni/RESOCONTO.md`), nel paese vero. Fa la build E2E, apre Chromium (SwiftShader), clicca
   «Nuova partita» e gioca: P0.1-P0.6 (vetro, alzarsi, capsule, armadietto, scala, botola,
   primo sguardo in su, muretto, lettera, Meta, Meridiana) e M1.1-M1.22 (lente, ramo vivo,
   Pianta, cartellino, innesto, planata, i velati, Ottavio, la brace, l'Ombrista, il fienile, la

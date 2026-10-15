@@ -7,12 +7,14 @@
  * titolo e comincia una partita nuova (prove); `?senza-titolo` resta nel mondo libero (motore).
  */
 import { installDebugApi } from './core/debug';
+import { SuggerimentoSguardo } from './core/suggerimentoSguardo';
 import { Game } from './game';
 import { collegaMotorePersonaggi, precaricaPersonaggi } from './personaggi';
 import { installaCorbella } from './popolamento';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
 import { InterfacciaGioco, caricaCaratteri } from './ui';
+import { NOTA_QUALITA } from './ui/componenti/impostazioni';
 
 const app = document.getElementById('app')!;
 const params = new URLSearchParams(location.search);
@@ -59,6 +61,7 @@ async function boot(): Promise<void> {
   });
   const ore = params.get('ora');
   if (ore !== null && !Number.isNaN(Number(ore))) game.clock.setHours(Number(ore));
+  collegaInterfaccia(game, ui);
   if (debugEnabled) installDebugApi(game);
   if (!params.has('senza-titolo')) {
     // personaggi nuovi (public/personaggi/*.glb, docs/personaggi/INTEGRAZIONE.md): materiale del mondo e
@@ -90,6 +93,33 @@ async function boot(): Promise<void> {
   }
   if (!e2e) game.ensureLoaded();
   (window as unknown as { __GAME_READY__: boolean }).__GAME_READY__ = true;
+}
+
+/**
+ * Fili fra interfaccia e motore che non passano dalla regia:
+ * - «Qualità grafica» (Esc → Impostazioni → Visione e comandi) → `game.setQualita`;
+ * - quando l'interfaccia prende la tastiera (menu, dialoghi, carte) le frecce non girano lo sguardo;
+ * - il suggerimento dello sguardo la prima volta (non nelle prove E2E: le foto restano pulite).
+ */
+function collegaInterfaccia(game: Game, ui: InterfacciaGioco): void {
+  const imp = ui.impostazioni;
+  const qualita = (): void => game.setQualita(imp.get('qualitaGrafica'));
+  qualita();
+  imp.on('cambio', (c) => {
+    if (c.chiave === 'qualitaGrafica') qualita();
+  });
+  imp.on('ripristino', qualita);
+  const nomi = { bassa: 'Bassa', media: 'Media', alta: 'Alta' } as const;
+  game.onQualita((p) => {
+    const auto = game.qualita === 'automatica' ? ' (scelta automatica)' : '';
+    ui.pannelloImpostazioni.impostaNota('qualitaGrafica', `${NOTA_QUALITA} Adesso: ${nomi[p.livello]}${auto}.`);
+  });
+  game.input.bloccoInterfaccia = ui.inputCatturato;
+  ui.on('catturaInput', (preso) => (game.input.bloccoInterfaccia = preso));
+  if (!e2e) {
+    const sugg = new SuggerimentoSguardo(ui.radice, game.input);
+    game.sistemi.push({ update: (dt) => sugg.aggiorna(dt) });
+  }
 }
 
 boot().catch((err) => {

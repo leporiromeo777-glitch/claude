@@ -1,0 +1,404 @@
+/* ---------- Indicazioni delle missioni: pannello dell'obiettivo e segnalino ---------- */
+
+.ui-obiettivo {
+  pointer-events: none;
+  --chiaro: #f7f0dc;
+  --ombra-testo: 0 0 2px rgba(10, 7, 4, 0.9), 0 1px 3px rgba(10, 7, 4, 0.85), 0 0 12px rgba(10, 7, 4, 0.45);
+}
+
+/* Sotto i modali (dialoghi, carte, Taccuino, Pianta, pausa, titolo), nelle scene guidate e con O. */
+.ui-ob-pannello,
+.ui-ob-avviso,
+.ui-ob-segnalino {
+  transition: opacity 0.3s ease;
+}
+.ui-con-modale .ui-ob-pannello,
+.ui-con-modale .ui-ob-avviso,
+.ui-con-modale .ui-ob-segnalino,
+.ui-ob--sospeso .ui-ob-pannello,
+.ui-ob--sospeso .ui-ob-avviso,
+.ui-ob--sospeso .ui-ob-segnalino,
+.ui-ob--nascosto .ui-ob-pannello,
+.ui-ob--nessuna .ui-ob-pannello,
+.ui-ob--nessuna .ui-ob-segnalino,
+.ui-ob--solo-obiettivo .ui-ob-segnalino {
+  opacity: 0;
+}
+.ui-ob--nessuna .ui-ob-pannello {
+  display: none;
+}
+
+/* ---------- Il pannello: un ritaglio di carta in alto a sinistra ---------- */
+
+.ui-ob-pannello {
+  position: absolute;
+  top: clamp(14px, 3vh, 32px);
+  left: clamp(14px, 2.4vw, 36px);
+  width: max-content;
+  max-width: min(calc(400px * var(--ui-scala)), calc(48vw - 30px));
+  min-width: min(240px, 40vw);
+  padding: 9px 18px 12px 17px;
+  transform: rotate(-0.5deg);
+  transform-origin: top left;
+  color: var(--inchiostro);
+}
+.ui-ob-pannello::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--grana-fine), var(--carta);
+  opacity: 0.94;
+  filter: url(#ui-f-bordo-fine) drop-shadow(0 4px 9px rgba(0, 0, 0, 0.32));
+}
+.ui-contrasto .ui-ob-pannello::before {
+  background: var(--carta-chiara);
+  opacity: 1;
+}
+
+.ui-ob-testa {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 2px;
+}
+.ui-ob-missione {
+  font-family: var(--f-maiuscoletto);
+  font-size: max(16px, calc(15px * var(--ui-scala)));
+  letter-spacing: 0.06em;
+  color: var(--ottone-scuro);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ui-ob-nuovo {
+  font-family: var(--f-mano);
+  font-size: calc(19px * var(--ui-scala));
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vermiglio);
+  white-space: nowrap;
+  opacity: 0;
+  transform: rotate(-3deg);
+}
+/* «nuovo obiettivo»: compare, resta un poco e se ne va (tutto in un'animazione, sotto i 3 s) */
+.ui-ob-nuovo--si {
+  animation: ui-ob-etichetta 2.8s ease both;
+}
+@keyframes ui-ob-etichetta {
+  0% {
+    opacity: 0;
+    transform: rotate(-3deg) translateY(3px);
+  }
+  14%,
+  84% {
+    opacity: 1;
+    transform: rotate(-3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-3deg);
+  }
+}
+
+/* Le righe: la vecchia (barrata) e la nuova nello stesso posto, senza salti. */
+.ui-ob-righe {
+  display: grid;
+}
+.ui-ob-indicazione {
+  grid-area: 1 / 1;
+  position: relative;
+  margin: 0;
+  font-size: calc(19px * var(--ui-scala));
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--inchiostro);
+  text-wrap: pretty;
+}
+.ui-ob-insieme {
+  /* il tastino con la parola davanti e la sua parentesi: mai spezzati da un a capo */
+  white-space: nowrap;
+}
+.ui-ob-tasto {
+  margin: 0 0.12em;
+  vertical-align: 0.06em;
+  font-size: max(16px, 0.8em);
+  color: var(--inchiostro);
+  background: var(--carta-chiara);
+}
+.ui-ob-indicazione--prima {
+  animation: ui-ob-compari 0.45s ease both;
+}
+.ui-ob-indicazione--entra {
+  animation: ui-ob-compari 0.5s 0.65s ease both;
+}
+.ui-ob-indicazione--conclusa {
+  color: var(--matita);
+  animation: ui-ob-svanisci 0.35s 0.6s ease forwards;
+}
+.ui-ob-indicazione--conclusa .ui-ob-testo {
+  /* la matita barra il testo riga per riga, da sinistra a destra (lo sfondo di uno span in linea
+     corre lungo tutte le righe come se fossero una sola) */
+  background-image: linear-gradient(var(--matita), var(--matita));
+  background-repeat: no-repeat;
+  background-position: 0 62%;
+  background-size: 0% 2px;
+  animation: ui-ob-barra 0.5s 0.05s ease-in forwards;
+}
+@keyframes ui-ob-barra {
+  to {
+    background-size: 100% 2px;
+  }
+}
+@keyframes ui-ob-compari {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+@keyframes ui-ob-svanisci {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.ui-ridotto .ui-ob-indicazione--conclusa .ui-ob-testo {
+  background-size: 100% 2px;
+}
+
+/* L'attesa: la meta non c'è ancora («arriva alle 07:00»). */
+.ui-ob-attesa {
+  margin: 5px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--vermiglio);
+  font-size: max(16px, calc(16px * var(--ui-scala)));
+  line-height: 1.3;
+  color: var(--inchiostro-2);
+  animation: ui-ob-compari 0.4s ease both;
+}
+.ui-ob-attesa .ui-ob-tasto {
+  font-size: 16px;
+}
+
+/* L'obiettivo del Taccuino: più piccolo, a matita. */
+.ui-ob-obiettivo {
+  margin: 4px 0 0;
+  font-family: var(--f-mano);
+  font-size: calc(20px * var(--ui-scala));
+  line-height: 1.15;
+  color: var(--matita);
+}
+.ui-semplice .ui-ob-obiettivo,
+.ui-leggibile .ui-ob-obiettivo {
+  font-size: max(16px, calc(16px * var(--ui-scala)));
+  font-style: italic;
+}
+.ui-ob-pannello--primo .ui-ob-obiettivo,
+.ui-ob-pannello--primo .ui-ob-altri {
+  animation: ui-ob-compari 0.45s ease both;
+}
+/* dopo la riga barrata: l'obiettivo e le righe in più compaiono con la riga nuova */
+.ui-ob-pannello--cambia .ui-ob-obiettivo,
+.ui-ob-pannello--cambia .ui-ob-altri {
+  animation: ui-ob-compari 0.5s 0.65s ease both;
+}
+
+/* Le righe in più: altri passi attivi e missioni secondarie (al massimo due). */
+.ui-ob-altri {
+  margin: 7px 0 0;
+  padding: 6px 0 0;
+  list-style: none;
+  border-top: 1px solid rgba(87, 83, 76, 0.28);
+}
+.ui-ob-altro {
+  margin: 0;
+  font-size: max(16px, calc(15px * var(--ui-scala)));
+  line-height: 1.3;
+  color: var(--inchiostro-2);
+  /* una riga sola per missione: il resto è nel Taccuino (con due secondarie il pannello restava alto un terzo dello schermo) */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ui-ob-altro + .ui-ob-altro {
+  margin-top: 3px;
+}
+.ui-ob-altro-titolo {
+  font-family: var(--f-maiuscoletto);
+  letter-spacing: 0.04em;
+  color: var(--ottone-scuro);
+}
+.ui-ob-altro-titolo::after {
+  content: ':';
+}
+.ui-ob-altro .ui-ob-tasto {
+  font-size: 16px;
+}
+
+/* La riga breve del tasto O. */
+.ui-ob-avviso {
+  position: absolute;
+  top: clamp(14px, 3vh, 32px);
+  left: clamp(14px, 2.4vw, 36px);
+  margin: 0;
+  font-style: italic;
+  font-size: calc(18px * var(--ui-scala));
+  color: var(--chiaro);
+  text-shadow: var(--ombra-testo);
+  animation: ui-ob-compari 0.3s ease both;
+}
+.ui-ob-avviso .ui-tasto {
+  margin: 0 0.15em;
+  font-style: normal;
+  color: var(--inchiostro);
+  background: var(--chiaro);
+  text-shadow: none;
+}
+
+/* ---------- Il segnalino: un cerchietto a matita sulla meta, o una freccia al bordo ---------- */
+
+.ui-ob-segnalino {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+.ui-ob-segno {
+  position: absolute;
+  left: -15px;
+  top: -15px;
+  width: 30px;
+  height: 30px;
+}
+.ui-ob-segno svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.ui-ob-ombra,
+.ui-ob-linea {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ui-ob-ombra {
+  stroke: rgba(14, 10, 6, 0.72);
+  stroke-width: 4.6;
+}
+.ui-ob-linea {
+  stroke: var(--ottone-chiaro);
+  stroke-width: 2.2;
+}
+.ui-ob-punto {
+  fill: var(--ottone-chiaro);
+  stroke: rgba(14, 10, 6, 0.72);
+  stroke-width: 1.2;
+}
+.ui-ob-punta {
+  fill: var(--ottone-chiaro);
+  stroke: rgba(14, 10, 6, 0.8);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(10, 7, 4, 0.7));
+}
+.ui-ob-freccia {
+  display: none;
+  transform-origin: 50% 50%;
+}
+.ui-ob-segnalino--bordo .ui-ob-cerchio {
+  display: none;
+}
+.ui-ob-segnalino--bordo .ui-ob-freccia {
+  display: block;
+}
+.ui-ob-segnalino--bordo .ui-ob-segno {
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  height: 44px;
+}
+.ui-ob-segnalino--bordo .ui-ob-etichetta {
+  top: 25px;
+}
+.ui-ob-segnalino--bordo.ui-ob-segnalino--etichetta-sopra .ui-ob-etichetta {
+  bottom: 27px;
+}
+/* alle spalle, sul fianco: l'etichetta verso l'interno dello schermo, sotto la freccia */
+.ui-ob-segnalino--dietro .ui-ob-etichetta {
+  top: 25px;
+  bottom: auto;
+}
+.ui-ob-segnalino--fianco-destro .ui-ob-etichetta {
+  left: 22px;
+  transform: translateX(-100%);
+}
+.ui-ob-segnalino--fianco-sinistro .ui-ob-etichetta {
+  left: -22px;
+  transform: none;
+}
+.ui-ob-dietro {
+  font-style: italic;
+}
+
+.ui-ob-etichetta {
+  position: absolute;
+  left: 0;
+  top: 15px;
+  display: flex;
+  gap: 0.35em;
+  align-items: baseline;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--f-mano);
+  font-size: calc(20px * var(--ui-scala));
+  font-weight: 600;
+  line-height: 1;
+  color: var(--chiaro);
+  text-shadow: var(--ombra-testo);
+}
+.ui-ob-segnalino--etichetta-sopra .ui-ob-etichetta {
+  top: auto;
+  bottom: 17px;
+}
+.ui-ob-segnalino--dietro.ui-ob-segnalino--etichetta-sopra .ui-ob-etichetta {
+  top: 25px;
+  bottom: auto;
+}
+.ui-semplice .ui-ob-etichetta,
+.ui-leggibile .ui-ob-etichetta {
+  font-size: max(16px, calc(16px * var(--ui-scala)));
+}
+.ui-ob-verticale {
+  color: var(--ottone-chiaro);
+}
+.ui-ob-segnalino--su .ui-ob-verticale::after {
+  content: ' \2191';
+}
+.ui-ob-segnalino--giu .ui-ob-verticale::after {
+  content: ' \2193';
+}
+
+/* Le notifiche del Taccuino (in alto a destra) non passano sotto il pannello: le lunghe vanno a
+   capo, ma solo quando il pannello c'è (non con «Nessuna», non nascosto con O). */
+.ui-radice:has(.ui-ob--con-pannello) .ui-hud-notifiche {
+  max-width: calc(100% - min(calc(400px * var(--ui-scala)), calc(48vw - 30px)) - 2 * clamp(14px, 2.4vw, 36px) - 28px);
+}
+
+/* La nota del tasto O, la prima volta. */
+.ui-ob-nota {
+  margin: 6px 0 0;
+  font-size: max(16px, calc(15px * var(--ui-scala)));
+  font-style: italic;
+  color: var(--matita);
+  animation: ui-ob-compari 0.5s ease both;
+}
+.ui-ob-nota .ui-tasto {
+  margin: 0 0.15em;
+  font-style: normal;
+  font-size: 16px;
+  color: var(--inchiostro);
+  background: var(--carta-chiara);
+}

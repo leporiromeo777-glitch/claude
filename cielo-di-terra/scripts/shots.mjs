@@ -101,6 +101,7 @@ const SHOTS = [
     title: "Rivelazione in corso: l'inchiostro chiude i contorni e il colore entra dal caposaldo",
     setup: (g) => {
       g.setTime(11.2);
+      g.__nearPaintPrima = g.game.settings.nearPaint.slice();
       g.setSetting('nearPaint', [6, 14]);
       const origin = { z: 1585, theta: 24 };
       const ground = g.game.world.groundAt(1500, 21);
@@ -109,7 +110,8 @@ const SHOTS = [
       g.revealCells(ids, origin);
     },
     frames: 30,
-    after: (g) => g.setSetting('nearPaint', [70, 150]),
+    // rimette il raggio dipinto di prima (le inquadrature seguenti usano quello predefinito)
+    after: (g) => g.setSetting('nearPaint', g.__nearPaintPrima),
   },
   // Confronti con i bozzetti del concept (idee-gioco/pagina/img/finale-N.jpg): stessa scena, stessa ora.
   {
@@ -210,6 +212,8 @@ async function main() {
         g.pause();
         g.holdKey('Space', false);
         g.setClockRunning(false);
+        // le inquadrature si fanno a qualità Alta (post-produzione piena)
+        g.setSetting('qualita', 'alta');
         // eslint-disable-next-line no-new-func
         const fn = new Function('g', `(${src})(g)`);
         fn(g);
@@ -236,6 +240,8 @@ async function main() {
     g.stopLoop();
     g.pause();
     g.setClockRunning(false);
+    // le verifiche disegnano più di cento fotogrammi: qualità Bassa (le inquadrature sopra sono ad Alta)
+    g.setSetting('qualita', 'bassa');
     g.setTime(11);
     const out = {};
     const s0 = g.teleport(1032, 36.4, 0);

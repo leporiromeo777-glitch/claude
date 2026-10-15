@@ -59,6 +59,8 @@ export {
   type TipoVoce,
   type AperturaDialogo,
   type EventoPassoDef,
+  type IndicazioneSeDef,
+  type TappaDef,
   type AiutoDef,
   type RigaCieloDef,
 } from './contenuti';

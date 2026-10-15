@@ -31,6 +31,10 @@ const percento = (v: number): string => `${numero(v * 100)} %`;
 
 const si = (v: number): string => `${numero(v * 100)} %`;
 
+/** Nota della «Qualità grafica» (il gioco ci aggiunge il livello in uso con `impostaNota`). */
+export const NOTA_QUALITA =
+  'Automatica misura i primi secondi di gioco e scende se il computer fatica. Bassa: niente pittura né ombre, risoluzione ridotta. Alta: per le schede grafiche dedicate.';
+
 /** Le sezioni e le righe del pannello. */
 export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
   {
@@ -65,6 +69,18 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
         opzioni: [
           { valore: 'tieni', etichetta: 'Tieni premuto' },
           { valore: 'premi', etichetta: 'Premi una volta' },
+        ],
+      },
+      {
+        tipo: 'scelta',
+        chiave: 'qualitaGrafica',
+        etichetta: 'Qualità grafica',
+        nota: NOTA_QUALITA,
+        opzioni: [
+          { valore: 'automatica', etichetta: 'Automatica' },
+          { valore: 'bassa', etichetta: 'Bassa' },
+          { valore: 'media', etichetta: 'Media' },
+          { valore: 'alta', etichetta: 'Alta' },
         ],
       },
     ],
@@ -169,6 +185,17 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
       { tipo: 'interruttore', chiave: 'piuTempo', etichetta: 'Più tempo nelle prove', nota: 'Tenuta con la fascia verde più larga, dieci secondi d\u2019ombra in più sulle Finestre.' },
       { tipo: 'interruttore', chiave: 'arcoLancio', etichetta: 'Arco del lancio a matita', nota: 'Mostra prima dove curverà ciò che lanci.' },
       { tipo: 'interruttore', chiave: 'avvisoSera', etichetta: 'Avviso della sera', nota: 'Prima di dormire il taccuino elenca ciò che hai usato e che non è misurato.' },
+      {
+        tipo: 'scelta',
+        chiave: 'indicazioniMissioni',
+        etichetta: 'Indicazioni delle missioni',
+        nota: 'In alto a sinistra che cosa fare; sul mondo un segnalino con la distanza. «Senza segnalino»: solo il pannello. Il tasto O nasconde il pannello. «Nessuna»: solo il Taccuino.',
+        opzioni: [
+          { valore: 'complete', etichetta: 'Complete' },
+          { valore: 'obiettivo', etichetta: 'Senza segnalino' },
+          { valore: 'nessuna', etichetta: 'Nessuna' },
+        ],
+      },
     ],
   },
 ];
@@ -268,6 +295,12 @@ export class PannelloImpostazioni extends Componente<EventiPannelloImpostazioni>
       if (i >= 0) this.mostraScheda(i, false);
     }
     this.apri();
+  }
+
+  /** Cambia la nota sotto un'impostazione (per esempio il livello scelto dalla qualità automatica). */
+  impostaNota(chiave: ChiaveImpostazione, testo: string): void {
+    const el = this.el.querySelector<HTMLElement>(`#ui-imp-${chiave}-nota`);
+    if (el) el.textContent = testo;
   }
 
   protected override focusIniziale(): HTMLElement | null {
