@@ -72,12 +72,22 @@ export function dentroCollisore(c: Collider, p: Vector3, margine = 0.05): boolea
 const MOTIVI_TAG: Record<string, string> = {
   tronco: 'Un castagno copre la mira.',
   albero: 'Un albero copre la mira.',
+  chioma: 'Le fronde di un albero coprono la mira.',
   casa: 'Una casa copre la mira.',
+  porta: 'Una casa copre la mira.',
   chiesa: 'La chiesa copre la mira.',
   campanile: 'Il campanile copre la mira.',
   muro: 'Un muro copre la mira.',
   tetto: 'Un tetto copre la mira.',
+  roccia: 'Una roccia copre la mira.',
+  palo: 'Un palo copre la mira.',
+  caposaldo: 'Un pilastro copre la mira.',
+  calpestabile: 'Il terreno copre la mira.',
+  gradino: 'Il terreno copre la mira.',
 };
+
+/** Collisori che non coprono una mira: le persone (si spostano) e i chiodi a terra. */
+const NON_COPRONO = new Set(['personaggio', 'chiodo']);
 
 /**
  * La funzione «linea libera?» del gioco: un raggio da `da` (occhio sopra la stazione) ad `a`
@@ -114,7 +124,7 @@ export function creaLineaLibera(
       if (!colliders) continue;
       colliders.query(c.z, c.theta, 3, cols);
       for (const col of cols) {
-        if (!propri.has(col.id) && dentroCollisore(col, _p)) return { libera: false, motivo: MOTIVI_TAG[col.tag ?? ''] ?? 'Qualcosa copre la mira.' };
+        if (!propri.has(col.id) && !NON_COPRONO.has(col.tag ?? '') && dentroCollisore(col, _p)) return { libera: false, motivo: MOTIVI_TAG[col.tag ?? ''] ?? 'Qualcosa copre la mira.' };
       }
     }
     return true;
