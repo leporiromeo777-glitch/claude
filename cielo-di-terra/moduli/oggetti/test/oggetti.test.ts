@@ -74,7 +74,8 @@ describe('catalogo: ogni generatore', () => {
       for (const c of a.collider) expect(colliderValido(c)).toBe(true);
       expect(a.appoggio.y).toBe(0);
       expect(Number.isFinite(a.ingombro.raggio)).toBe(true);
-      expect(a.ingombro.altezza).toBeGreaterThan(0);
+      // gli oggetti in prima persona vivono nello spazio camera (sotto l'occhio): niente altezza dal suolo
+      if (!a.nome.includes('prima-persona')) expect(a.ingombro.altezza).toBeGreaterThan(0);
       const m = misura(a.gruppo);
       expect(m.triangoli).toBeGreaterThan(0);
       expect(m.drawCall).toBeGreaterThan(0);

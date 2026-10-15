@@ -95,6 +95,20 @@ export function geoMassa(raggio: number, seme: number, irregolarita = 0.18, dett
   return g;
 }
 
+/**
+ * Pietra da muro vista da una faccia: come geoLastra ma senza la faccia posteriore (−Z), che resta
+ * nascosta nel corpo del muro (10 triangoli invece di 12).
+ */
+export function geoPietraFaccia(w: number, h: number, d: number, seme: number, irregolarita = 0.12): THREE.BufferGeometry {
+  const g = geoLastra(w, h, d, seme, irregolarita);
+  const idx = g.getIndex() as THREE.BufferAttribute;
+  // BoxGeometry: gruppi +x, −x, +y, −y, +z, −z (6 indici ciascuno): tolgo l'ultimo
+  const nuovi = Array.from(idx.array).slice(0, 30);
+  g.setIndex(nuovi);
+  g.clearGroups();
+  return g;
+}
+
 /** Lastra o blocco squadrato con gli spigoli un po' irregolari (facce piatte). */
 export function geoLastra(w: number, h: number, d: number, seme: number, irregolarita = 0.12): THREE.BufferGeometry {
   const g = new THREE.BoxGeometry(w, h, d);

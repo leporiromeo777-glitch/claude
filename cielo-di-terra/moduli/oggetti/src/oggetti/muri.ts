@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { Costruttore, mat, mescola } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
-import { geoBoxC, geoCilindro, geoLastra, geoPiano } from '../forme';
+import { geoBoxC, geoCilindro, geoLastra, geoPiano, geoPietraFaccia } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
@@ -105,7 +105,7 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
   const sp = opz.spessore ?? 0.6;
   const scarpa = opz.scarpa ?? 0.12;
   const interr = opz.interrata ?? 0.4;
-  const pietra = opz.pietra ?? 0.45;
+  const pietra = opz.pietra ?? 0.5;
   const det = opz.dettaglio ?? 'alto';
   const punti = opz.percorso ? opz.percorso.map(([x, z]) => new THREE.Vector3(x, 0, z)) : percorsoArco(opz.lunghezza ?? 8, opz.raggioCurva ?? 0);
   const camp = campiona(punti, 0.5);
@@ -168,7 +168,7 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
           const ang = Math.atan2(-c.t.z, c.t.x);
           const colore = mescola(tono, rng.prob(0.5) ? PALETTE.gneissChiaro : rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
           if (det === 'alto') {
-            b.aggiungi(geoLastra(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
+            b.aggiungi(geoPietraFaccia(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
               matrice: mat([centro.x, y + 0.017, centro.z], [lato > 0 ? -scarpa * 0.8 : scarpa * 0.4, ang + (lato > 0 ? 0 : Math.PI), rng.centrato(0.04)]),
               colore,
               variazione: 0.06,

@@ -164,7 +164,7 @@ Il primo nodo dell'elenco è quello d'ingresso. Le battute dei nodi sono dei per
 
 | Id | Che cos'è |
 |---|---|
-| `evento:linea_miccia` | la Linea si accende dal Tappo Sud: un fronte di luce che corre lungo l'asse (da z 0 alle 05:39 a z 3000 alle 06:00); sopra Corbella alle 05:40 |
+| `evento:linea_miccia` | la Linea si è accesa dal Tappo Sud alle 05:30 e il fronte di luce corre lungo l'asse a circa 100 m per minuto di gioco: quando Elvira apre la botola (05:39) il fronte sta arrivando da Mont, passa sopra Corbella alle 05:40 e raggiunge il Sordo alle 06:00 |
 | `evento:passero_vola_in_su` | un passero si alza dalla botola e vola dritto verso l'asse, attirando lo sguardo |
 | `evento:velati_si_voltano` | i velati in piazza si voltano tutti insieme verso Elvira |
 | `evento:ottavio_atterra_in_piazza` | Ottavio scende in spirale da una corrente calda sopra la grà e atterra correndo |

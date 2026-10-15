@@ -96,9 +96,9 @@ describe('verifica dei contenuti', () => {
   it('contenuti corretti: nessun errore e missioni completate nella simulazione', () => {
     const r = verificaContenuti(contenutiBuoni());
     expect(r.errori).toEqual([]);
-    expect(r.avvisi).toEqual([
-      "missione m1, passo rilievo (completamento): l'oggetto «velo» non è dato da nessun effetto (deve farlo il gioco?)",
-    ]);
+    expect(r.avvisi).toEqual([]);
+    expect(r.oggettiDelGioco).toEqual([{ id: 'velo', letto: ['missione m1, passo rilievo (completamento)'] }]);
+    expect(r.flagDelGioco).toEqual([]);
     expect(r.simulazione.map((s) => [s.missione, s.esito])).toEqual([
       ['prologo', 'completata'],
       ['m1', 'completata'],
@@ -161,7 +161,7 @@ describe('verifica dei contenuti', () => {
     expect(r.simulazione.map((s) => s.esito)).toEqual(['completata', 'mai avviata']);
     expect(r.simulazione[1]!.motivo).toMatch(/leva_tirata/);
     expect(r.ipotesi).toContain('flag «leva_tirata» impostato dal gioco (nessun effetto dei contenuti lo imposta)');
-    expect(r.avvisi.join('\n')).toMatch(/il flag «leva_tirata» non è impostato da nessun effetto/);
+    expect(r.flagDelGioco.map((f) => f.nome)).toEqual(['leva_tirata', 'mai_impostato']);
   });
 
   it('condizioni impossibili bloccano la simulazione con un motivo leggibile', () => {
