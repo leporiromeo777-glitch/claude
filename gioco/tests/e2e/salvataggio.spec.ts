@@ -9,6 +9,7 @@
  */
 import type { Page } from '@playwright/test';
 import { call, expect, nightState, onlyProjects, PLAY_PROJECTS, reload, test, until, waitNight, waitScene, type Rec } from './helpers/game';
+import { solutionRows } from './helpers/campaign';
 import { pointerOf, tapTest } from './helpers/pointer';
 
 const KEYS = { a: 'trama.v1.a', b: 'trama.v1.b', ultimo: 'trama.v1.ultimo' } as const;
@@ -65,12 +66,12 @@ async function midNight(page: Page): Promise<void> {
   expect((await call<{ ok: boolean }>(page, 'campaign.accept', ['g01.marta', 'g01.piero'])).ok).toBe(true);
   await call(page, 'campaign.toNight');
   expect(await waitNight(page)).toBe(true);
-  const sol = await call<{ rows: { crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[] }[] }>(page, 'engine.solve', 'g01', ['g01.marta', 'g01.piero']);
-  for (const r of sol.rows.slice(0, 2)) {
-    for (const c of r.crossings) if (!c.forced) await call(page, 'night.cross', c.pair, c.over);
-    expect((await call<{ ok: boolean }>(page, 'night.fix')).ok).toBe(true);
-  }
-  const third = sol.rows[2]?.crossings.find((c) => !c.forced);
+  const rows = await solutionRows(page, 'g01', ['g01.marta', 'g01.piero']);
+  expect(rows, 'una soluzione per g01 con le due richieste').not.toBeNull();
+  // Le prime due ore come la soluzione (l'autoplay con le righe si ferma lì), poi una bozza.
+  await call(page, 'night.autoplay', rows!.slice(0, 2));
+  await expect.poll(async () => (await nightState(page)).rows.length).toBe(2);
+  const third = rows![2]?.crossings.find((c) => !c.forced);
   if (third) await call(page, 'night.cross', third.pair, third.over);
 }
 

@@ -17,7 +17,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Browser, Page, TestInfo } from '@playwright/test';
 import { auditLayout, describeProblems, INFO_KINDS, type AuditProblem } from './helpers/audit';
-import { campaignDays, playGolden } from './helpers/campaign';
+import { campaignDays, playGolden, solutionRows } from './helpers/campaign';
 import { call, captureErrors, expect, guardNetwork, nightState, onlyProjects, openGame, test, until, waitNight, waitScene } from './helpers/game';
 import { nightLayout } from './helpers/pointer';
 import { keepImage, shot } from './helpers/shots';
@@ -326,12 +326,17 @@ test.describe('layout: daltonismo', () => {
     await call(page, 'core.setSettings', { animSpeed: 0 });
     const lab = await page.context().newPage();
     try {
-      for (const target of [{ id: 'motivi', fixture: 'test-motivi' }, { id: 'g14', level: 'g14' }] as const) {
+      const targets: { id: string; levelId: string; fixture: boolean }[] = [
+        { id: 'motivi', levelId: 'test-motivi', fixture: true },
+        { id: 'g14', levelId: 'g14', fixture: false },
+      ];
+      for (const target of targets) {
         // Tutto il merletto tranne l'ultima riga: la notte resta aperta, i motivi si vedono.
-        const levelId = 'fixture' in target ? target.fixture : target.level;
-        if ('fixture' in target) await call(page, 'engine.fixture', target.fixture);
-        const sol = await call<{ rows: unknown[] }>(page, 'engine.solve', levelId);
-        await call(page, 'night.start', 'fixture' in target ? { fixture: target.fixture } : { level: target.level, origin: 'campagna' });
+        const levelId = target.levelId;
+        if (target.fixture) await call(page, 'engine.fixture', levelId);
+        const sol = { rows: (await solutionRows(page, levelId, [])) ?? [] };
+        expect(sol.rows.length, `una soluzione per ${levelId}`).toBeGreaterThan(1);
+        await call(page, 'night.start', target.fixture ? { fixture: levelId } : { level: levelId, origin: 'campagna' });
         expect(await waitNight(page)).toBe(true);
         await call(page, 'night.autoplay', sol.rows.slice(0, -1));
         await page.waitForTimeout(3200);
@@ -476,13 +481,12 @@ test.describe('layout: schermate per gli store', () => {
         await call(page, 'campaign.accept', notes);
         await call(page, 'campaign.toNight');
         expect(await waitNight(page)).toBe(true);
-        const sol = await call<{ nomeOn?: string; rows: { crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[] }[] }>(page, 'engine.solve', 'g16', notes, { flags: (await call<{ flags: Record<string, unknown> }>(page, 'campaign.state')).flags });
-        // g16 ha la regola del nome: prima si appunta il nome di Ada (dove dice la soluzione, o sul primo filo).
-        await call(page, 'night.setNome', sol.nomeOn ?? (await nightState(page)).positions[0]);
-        for (const r of sol.rows.slice(0, Math.ceil(sol.rows.length * 0.6))) {
-          for (const c of r.crossings) if (!c.forced) await call(page, 'night.cross', c.pair, c.over);
-          expect((await call<{ ok: boolean }>(page, 'night.fix')).ok, 'riga della soluzione accettata').toBe(true);
-        }
+        const rows = await solutionRows(page, 'g16', notes, (await call<{ flags: Record<string, unknown> }>(page, 'campaign.state')).flags);
+        expect(rows, 'una soluzione per g16 con le due richieste').not.toBeNull();
+        // Sei decimi della notte come la soluzione (l'autoplay con le righe appunta anche il
+        // nome di Ada, regola di g16) e la notte resta a metà.
+        await call(page, 'night.autoplay', rows!.slice(0, Math.ceil(rows!.length * 0.6)));
+        await expect.poll(async () => (await nightState(page)).rows.length, { timeout: 15_000 }).toBe(Math.ceil(rows!.length * 0.6));
         await call(page, 'core.setSettings', { animSpeed: 1 });
         await snap('2-tombolo-notte');
         // La notte si finisce (niente notte a metà che chieda conferma al Merletto del giorno).

@@ -111,6 +111,55 @@ export interface DayLog {
   requests: { noteId: string; status: string }[];
 }
 
+export interface RowMovesLite {
+  hour?: number;
+  crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[];
+}
+
+interface ComputedLite {
+  base?: { incroci: number | null; rows?: RowMovesLite[] };
+  perNote?: Record<string, { incroci: number | null; rows?: RowMovesLite[] } | undefined>;
+  combos?: { notes: string[]; incroci: number | null; rows?: RowMovesLite[] }[];
+}
+
+/**
+ * La soluzione precalcolata (`.computed.json` di `npm run levels:check`, la stessa che usano
+ * l'autoplay e i suggerimenti quando il Worker non fa in tempo) per un insieme di
+ * bigliettini: `undefined` se non è stata calcolata, `null` se è impossibile.
+ */
+export async function precomputed(page: Page, levelId: string, noteIds: readonly string[]): Promise<RowMovesLite[] | null | undefined> {
+  const c = await call<ComputedLite | null>(page, 'engine.computed', levelId);
+  if (!c) return undefined;
+  const pick = (r: { incroci: number | null; rows?: RowMovesLite[] } | undefined): RowMovesLite[] | null | undefined => (r === undefined ? undefined : r.incroci === null || r.incroci === undefined ? null : (r.rows ?? []));
+  if (noteIds.length === 0) return pick(c.base);
+  if (noteIds.length === 1) return pick(c.perNote?.[noteIds[0]!]);
+  const key = [...noteIds].sort().join('|');
+  return pick(c.combos?.find((x) => [...x.notes].sort().join('|') === key));
+}
+
+/**
+ * Le righe di una soluzione: prima quella precalcolata, poi il solver nel browser
+ * (`engine.solve`, che sui livelli grandi può fermarsi al limite: allora null).
+ */
+export async function solutionRows(page: Page, levelId: string, noteIds: readonly string[], flags?: Record<string, unknown>): Promise<RowMovesLite[] | null> {
+  const pre = await precomputed(page, levelId, noteIds);
+  if (pre !== undefined) return pre;
+  const r = await call<{ status: string; rows?: RowMovesLite[] } | null>(page, 'engine.solve', levelId, [...noteIds], flags ? { flags } : {});
+  return r?.status === 'ok' ? (r.rows ?? []) : null;
+}
+
+/**
+ * Dopo la notte di un finale: il merletto finito resta sullo schermo con «Continua»
+ * (`cp-finale-continua`, tranne il merletto chiuso che passa subito); poi la scena del finale.
+ */
+export async function toFinale(page: Page, ms = 20_000): Promise<boolean> {
+  const cont = page.locator('[data-test="cp-finale-continua"]');
+  const ready = await until(page, async () => (await scene(page)) === 'finale' || (await cont.isVisible().catch(() => false)), ms);
+  if (!ready) return false;
+  if ((await scene(page)) !== 'finale') await cont.click();
+  return waitScene(page, 'finale', ms);
+}
+
 /** Sera: oggetto, risposte, spilli. Restituisce le scelte fatte. */
 export async function planEvening(page: Page): Promise<Omit<DayLog, 'requests'>> {
   const notes = contentNotes();
@@ -136,11 +185,7 @@ export async function planEvening(page: Page): Promise<Omit<DayLog, 'requests'>>
     .sort((a, b) => noteScore(b, known) - noteScore(a, known));
   // La combinazione migliore che il solver sa tessere entro la matassa.
   let pick = candidates.slice(0, Math.max(0, ev.pinsLeft)).map((n) => n.id);
-  const solvable = async (ids: string[]): Promise<boolean> => {
-    if (ids.length === 0) return true;
-    const r = await call<{ status: string } | null>(page, 'engine.solve', state.levelId, ids, { flags: state.flags });
-    return r?.status === 'ok';
-  };
+  const solvable = async (ids: string[]): Promise<boolean> => (ids.length === 0 ? true : (await solutionRows(page, state.levelId, ids, state.flags)) !== null);
   if (!(await solvable(pick))) {
     let best: string[] = [];
     const pool = candidates.map((n) => n.id);

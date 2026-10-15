@@ -11,7 +11,7 @@
  * Tutto il percorso gira con la rete sorvegliata: nessuna richiesta esce da localhost.
  */
 import { writeFileSync } from 'node:fs';
-import { CAST, playGolden, type GoldenResult } from './helpers/campaign';
+import { CAST, playGolden, toFinale, type GoldenResult } from './helpers/campaign';
 import { call, expect, onlyProjects, phase, scene, test, until, waitNight, waitScene, type Rec } from './helpers/game';
 
 interface CampaignState {
@@ -84,7 +84,7 @@ test.describe('campagna: percorso d’oro e i quattro finali', () => {
     expect(await waitNight(page)).toBe(true);
     expect((await call<Rec>(page, 'night.state')).levelId).toBe('fin_chiuso');
     await call(page, 'night.autoplay');
-    expect(await waitScene(page, 'finale', 20_000)).toBe(true);
+    expect(await toFinale(page), 'C: la scena del finale').toBe(true);
     await until(page, async () => (await page.locator('[data-test="cp-vignetta-salta"]').isVisible()) || (await scene(page)) !== 'finale', 15_000);
     if (await page.locator('[data-test="cp-vignetta-salta"]').isVisible()) await page.locator('[data-test="cp-vignetta-salta"]').click();
     expect(await waitScene(page, 'sera', 20_000), 'C riporta alla sera').toBe(true);
@@ -115,7 +115,8 @@ test.describe('campagna: percorso d’oro e i quattro finali', () => {
       const lv = (await call<Rec>(page, 'night.state')).levelId;
       expect(lv).toBe(`fin_${ending}`);
       await call(page, 'night.autoplay');
-      expect(await waitScene(page, 'finale', 20_000), `${ending}: scena finale`).toBe(true);
+      // Il merletto finito resta sullo schermo con «Continua» (D14): poi l'epilogo.
+      expect(await toFinale(page), `${ending}: scena finale`).toBe(true);
       await until(page, async () => ((await call<Rec | null>(page, 'campaign.finale'))?.mode ?? null) === 'epilogo', 15_000);
       const fin = await call<Rec | null>(page, 'campaign.finale');
       expect([fin?.mode, fin?.ending], `${ending}: epilogo`).toEqual(['epilogo', ending]);

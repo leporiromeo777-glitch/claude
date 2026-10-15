@@ -53,11 +53,17 @@ test.describe('audio', () => {
   test('il log della prima riga del prologo: incrocio, ora fissata, campana, segreto', async ({ game }, testInfo) => {
     const { page } = game;
     const kind = pointerOf(testInfo);
+    // Come un giocatore: l'audio si sblocca col primo tocco al titolo («Tocca per iniziare»),
+    // prima della notte; il primo trascinamento non paga anche il pre-render dei suoni.
+    const vp = await call<{ cssW: number; cssH: number }>(page, 'core.viewport');
+    await tap(page, kind, { x: Math.round(vp.cssW / 2), y: Math.round(vp.cssH * 0.45) });
+    await expect.poll(() => audioState(page), { timeout: 5_000 }).toBe('running');
     await call(page, 'campaign.newGame');
     await call(page, 'campaign.goto', 'g00', 'notte');
     expect(await waitNight(page)).toBe(true);
+    await page.waitForTimeout(500);
     await dragSpindle(page, kind, 1, 0);
-    await expect.poll(() => audioState(page), { timeout: 5_000 }).toBe('running');
+    expect((await call<{ draft: unknown[] }>(page, 'night.state')).draft, 'Marta su Teresa').toEqual([{ pair: 0, over: 'R' }]);
     const before = (await call<LogEntry[]>(page, 'audio.log')).length;
     await pressFix(page, kind);
     await expect.poll(async () => (await call<{ hour: number }>(page, 'night.state')).hour).toBe(7);

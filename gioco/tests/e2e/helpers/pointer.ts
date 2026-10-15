@@ -49,13 +49,19 @@ async function withTouch<T>(page: Page, fn: (send: (type: string, points: Point[
   }
 }
 
-/** Trascinamento continuo da `from` a `to` (passi da ~16 ms, come un dito vero). */
+/**
+ * Trascinamento continuo da `from` a `to` (passi da ~16 ms, come un dito vero). Il primo
+ * spostamento parte subito dopo la pressione, come fa un dito che trascina: con la macchina
+ * carica un'attesa prima del primo passo può superare i 500 ms della pressione lunga e
+ * aprire la scheda del personaggio invece di incrociare.
+ */
 export async function drag(page: Page, kind: PointerKind, from: Point, to: Point, steps = 14): Promise<void> {
+  const at = (i: number): Point => ({ x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps });
   if (kind === 'mouse') {
     await page.mouse.move(from.x, from.y);
     await page.mouse.down();
     for (let i = 1; i <= steps; i++) {
-      await page.mouse.move(from.x + ((to.x - from.x) * i) / steps, from.y + ((to.y - from.y) * i) / steps);
+      await page.mouse.move(at(i).x, at(i).y);
       await page.waitForTimeout(16);
     }
     await page.mouse.up();
@@ -63,8 +69,8 @@ export async function drag(page: Page, kind: PointerKind, from: Point, to: Point
     await withTouch(page, async (send) => {
       await send('touchStart', [from]);
       for (let i = 1; i <= steps; i++) {
+        await send('touchMove', [at(i)]);
         await page.waitForTimeout(16);
-        await send('touchMove', [{ x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps }]);
       }
       await send('touchEnd', []);
     });

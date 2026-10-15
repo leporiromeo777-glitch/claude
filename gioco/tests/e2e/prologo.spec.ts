@@ -33,8 +33,10 @@ test.describe('prologo con gesti veri', () => {
       await dragSpindle(page, kind, from, to);
       let st = await nightState(page);
       const toasts = await page.locator('[data-test="toast"]').allInnerTexts();
-      expect.soft(st.draft, `${label}: il trascinamento arriva al tombolo al primo colpo (avvisi sopra i fusi: ${JSON.stringify(toasts)})`).toEqual(expected);
+      const card = await page.locator('[data-test="tb-scheda"]').isVisible().catch(() => false);
+      expect.soft(st.draft, `${label}: il trascinamento arriva al tombolo al primo colpo (avvisi sopra i fusi: ${JSON.stringify(toasts)}${card ? '; si è aperta la scheda del personaggio' : ''})`).toEqual(expected);
       if (JSON.stringify(st.draft) !== JSON.stringify(expected)) {
+        if (card) await page.keyboard.press('Escape');
         await expect(page.locator('[data-test="toast"]')).toHaveCount(0, { timeout: 8_000 });
         if (st.draft.length > 0) await call(page, 'night.undo');
         await dragSpindle(page, kind, from, to);

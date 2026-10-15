@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 import { RULE_IDS } from '../../../src/core/ids';
-import { CAST, contentNotes } from './campaign';
+import { CAST, contentNotes, solutionRows, toFinale } from './campaign';
 import { call, phase, until, waitNight, waitScene } from './game';
 
 export interface TourStep {
@@ -84,8 +84,7 @@ async function acceptSome(page: Page, n: number): Promise<void> {
   const picked: string[] = [];
   for (const id of ev.noteIds) {
     if (picked.length >= Math.min(n, ev.pinsLeft)) break;
-    const r = await call<{ status: string } | null>(page, 'engine.solve', ev.levelId, [...picked, id]);
-    if (r?.status === 'ok') picked.push(id);
+    if ((await solutionRows(page, ev.levelId, [...picked, id])) !== null) picked.push(id);
   }
   if (picked.length) await call(page, 'campaign.accept', picked);
 }
@@ -225,11 +224,10 @@ export const TOUR: TourStep[] = [
       await acceptSome(page, 2);
       await call(page, 'campaign.toNight');
       await waitNight(page);
-      const sol = await call<{ rows: { crossings: { pair: number; over: 'L' | 'R'; forced?: boolean }[] }[] } | null>(page, 'engine.solve', 'g05', ((await call<{ accepted: string[] } | null>(page, 'campaign.evening'))?.accepted ?? []));
-      for (const r of (sol?.rows ?? []).slice(0, 3)) {
-        for (const c of r.crossings) if (!c.forced) await call(page, 'night.cross', c.pair, c.over);
-        await call(page, 'night.fix');
-      }
+      const accepted = (await call<{ accepted: string[] } | null>(page, 'campaign.evening'))?.accepted ?? [];
+      const rows = await solutionRows(page, 'g05', accepted);
+      // Tre ore tessute come la soluzione: la notte resta a metà.
+      if (rows) await call(page, 'night.autoplay', rows.slice(0, 3));
       await settle(page, 600);
     },
   },
@@ -408,7 +406,7 @@ export const TOUR: TourStep[] = [
       await call(page, 'campaign.choose', 'merlettaia');
       await waitNight(page);
       await call(page, 'night.autoplay');
-      await waitScene(page, 'finale', 20_000);
+      await toFinale(page);
       await until(page, async () => ((await call<{ mode?: string } | null>(page, 'campaign.finale'))?.mode ?? '') === 'epilogo', 15_000);
       await visible(page, '[data-test="cp-vignetta-salta"]');
       await settle(page, 600);
