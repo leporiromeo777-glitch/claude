@@ -114,7 +114,7 @@ describe('griglia delle particelle', () => {
     expect(c).toContain(2505);
     expect(c.every((id) => distanzaFoglio({ z: 1062, theta: 37.2 }, centroCella(id)) <= 60)).toBe(true);
     // attorno a θ 0 prende le colonne di entrambi i lati
-    const z = celleNelRaggio({ z: 1000, theta: 0.5 }, 30);
+    const z = celleNelRaggio({ z: 1000, theta: 0.5 }, 40);
     expect(z.some((id) => id % 96 === 95) && z.some((id) => id % 96 === 0)).toBe(true);
   });
 

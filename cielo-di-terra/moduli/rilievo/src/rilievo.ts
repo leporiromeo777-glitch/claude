@@ -22,6 +22,7 @@ import {
   foglioDi,
   idCella,
   idValido,
+  lunghezzaLato,
   posizione3D,
   strisciaDi,
   type PuntoFoglio,
@@ -423,7 +424,7 @@ export function rileva(stato: StatoCatasto, regole: RegoleCatasto, input: InputR
   const def = latoFra(regole, S.id, M.id);
   const pa = p3(S);
   const pb = p3(M, true);
-  const lunghezza = def && Number.isFinite(def.lunghezza) ? def.lunghezza : distanza3D(p3(S), p3(M));
+  const lunghezza = def && Number.isFinite(def.lunghezza) ? def.lunghezza : lunghezzaLato(S, M);
   if (lunghezza < regole.parametri.latoMin) {
     return fail('troppo_corto', `Lato di ${Math.round(lunghezza)} m: troppo corto, la lettura non vale (minimo ${regole.parametri.latoMin} m).`);
   }

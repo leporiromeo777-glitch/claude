@@ -353,7 +353,7 @@ export function regoleDaContenuti(contenuti: ContenutiCatasto, opzioni: OpzioniR
     }
     const chiudibile = l.chiudibile !== false;
     const ventaglio = numArr(l.particelle).filter(idValido);
-    if (chiudibile && ventaglio.length === 0) problemi.push(`lato ${id}: chiudibile ma senza particelle`);
+    if (chiudibile && ventaglio.length === 0) problemi.push(`lato ${id}: senza ventaglio precalcolato, si usa la fascia geometrica di ${parametri.bufferVentaglio} m`);
     lati.set(id, {
       id,
       a,

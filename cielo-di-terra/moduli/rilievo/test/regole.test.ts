@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CATALOGO_ELEMENTI, MOSSE_GDD, PILASTRI_GDD, TETTO_MOSSE_PER_ATTO, TRIANGOLI_GDD } from '../src/catalogoGdd';
-import { distanza3D, posizione3D } from '../src/griglia';
+import { lunghezzaLato } from '../src/griglia';
 import { latoFra, regoleDaContenuti } from '../src/regole';
 import { visibilitaDaTabella } from '../src/visibilita';
 import { contenutoSintetico, regoleCon, regoleFase1 } from './aiuti';
@@ -28,12 +28,11 @@ describe('regole dai contenuti della Fase 1', () => {
     expect(regoleCon({ fase: 5 }).regoleAttive).toEqual({ mosse: true, terminale: true, giro: true, eccezioni: true });
   });
 
-  it('ogni lato chiudibile contiene le particelle dei suoi due capisaldi e la sua lunghezza è la distanza 3D', () => {
+  it('ogni lato contiene le particelle dei suoi due capisaldi e la sua lunghezza è quella sul foglio con il dislivello', () => {
     for (const l of r.lati.values()) {
       const a = r.capisaldi.get(l.a)!;
       const b = r.capisaldi.get(l.b)!;
-      const d = distanza3D(posizione3D(a.z, a.theta, a.altezza), posizione3D(b.z, b.theta, b.altezza));
-      expect(Math.abs(d - l.lunghezza), l.id).toBeLessThan(1.5);
+      expect(Math.abs(lunghezzaLato(a, b) - l.lunghezza), l.id).toBeLessThan(0.15);
       const ventaglio = l.chiudibile ? l.particelle : l.particelleSeChiudibile;
       expect(ventaglio, l.id).toContain(a.cella);
       expect(ventaglio, l.id).toContain(b.cella);
@@ -109,7 +108,7 @@ describe('regole dai contenuti della Fase 1', () => {
 
   it('il contenuto sintetico dei test si legge senza problemi gravi', () => {
     const s = regoleDaContenuti(contenutoSintetico());
-    expect(s.problemi.filter((p) => !/catalogo/.test(p))).toEqual([]);
+    expect(s.problemi.filter((p) => !/catalogo/.test(p))).toEqual(['lato a-b: senza ventaglio precalcolato, si usa la fascia geometrica di 60 m']);
     expect(s.elementi.get('X2')?.protocollo).toBe(true);
     expect(s.lati.get('a-b')?.quando).toEqual(['alba', 'giorno']);
   });

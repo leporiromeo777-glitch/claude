@@ -62,7 +62,7 @@ export const SINT = {
 export const CELLE = {
   hub: cella(1500, 40),
   rifugio: cella(1540, 40),
-  x1: cella(1500, 50), // X1 sull'hub? no: X1 tocca anche l'hub
+  x1: cella(1500, 50), // la bottega X1 sta su questa particella e su quella dell'hub
   mietuta: cella(1600, 40),
   scritta: cella(1000, 20),
   scritta2: cella(1040, 20),
@@ -83,8 +83,8 @@ export function contenutoSintetico(): { capisaldi: unknown; fade: unknown } {
     },
     fade: {
       particelle: [
-        p(CELLE.hub, { hub: true, tipo: 'piazza' }),
-        p(CELLE.rifugio, { rifugio: true }),
+        p(CELLE.hub, { hub: true, tipo: 'piazza', elemento: 'X1' }),
+        p(CELLE.rifugio, { rifugio: true, elemento: 'X5' }),
         p(CELLE.x1, { elemento: 'X1' }),
         p(CELLE.mietuta, { elemento: 'X2' }),
         p(CELLE.scritta, { elemento: 'X3' }),

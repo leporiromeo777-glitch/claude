@@ -178,6 +178,14 @@ export function celleNellaFascia(a: PuntoFoglio, b: PuntoFoglio, buffer: number)
   return [...out].sort((x, y) => x - y);
 }
 
+/**
+ * Lunghezza di un lato come la scrive capisaldi.json: la distanza sul foglio (z, arco sul fondo)
+ * composta con il dislivello. È quella che conta per i limiti di 40 e 600 m.
+ */
+export function lunghezzaLato(a: PuntoFoglio & { altezza: number }, b: PuntoFoglio & { altezza: number }): number {
+  return Math.hypot(distanzaFoglio(a, b), b.altezza - a.altezza);
+}
+
 /** Punto del mondo a (z, θ, h), con la stessa terna del motore (`cylToWorld`). */
 export function posizione3D(z: number, theta: number, h: number): Punto3D {
   const r = R - h;
