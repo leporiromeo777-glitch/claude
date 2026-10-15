@@ -4,8 +4,8 @@
       "livia": "il nome della donna con lo scialle nero"
     },
     "hint": {
-      "spinta": "Il filo nero entra dal Faro alle nove: chi è là se ne va. Si muove da solo e cerca Zeno.",
-      "indizio": "Il filo nero non si tocca, ma puoi scegliere chi trova sulla sua strada, e quando."
+      "spinta": "Il filo nero entra dal Faro alle nove: chi è là se ne va. Poi cerca Zeno.",
+      "indizio": "Non si tocca: trovato Zeno, va in chiesa. Tu scegli chi trova sulla sua strada, e quando."
     },
     "alba": {
       "livia": {
@@ -41,14 +41,14 @@
       }
     },
     "teresa": {
-      "testo": "Cara, gira voce di una forestiera vestita di nero. Nessuno sa chi sia, e a me non piace non sapere. Voglio saperlo io, e per prima. Prima del prete, soprattutto.",
+      "testo": "Cara, gira voce di una forestiera vestita di nero. Nessuno sa chi sia, e a me non piace non sapere. Voglio saperlo io, e il prete no: lui le cose le mette nel pozzo.",
       "esito": {
-        "ok": "Teresa ha saputo chi è la donna in nero, prima di tutti. Stasera parla piano, come chi tiene una cosa in tasca.",
-        "fallita": "Teresa non ha saputo chi è la donna in nero. Ha fatto il giro della Piazza tre volte, invano."
+        "ok": "Teresa ha saputo chi è la donna in nero, e il prete no. Stasera parla piano, come chi tiene una cosa in tasca.",
+        "fallita": "Teresa non ha saputo chi è la donna in nero, o l'ha saputo anche il prete. Ha fatto il giro della Piazza tre volte, di malumore."
       }
     },
     "marta": {
-      "testo": "Durante il mercato non voglio forestiere in Piazza. Dalle nove a mezzogiorno. Le donne in nero portano disgrazia, lo diceva mia madre, e mia madre non sbagliava.",
+      "testo": "Durante il mercato non voglio forestiere in Piazza. Dalle nove all'una. Le donne in nero portano disgrazia, lo diceva mia madre, e mia madre non sbagliava.",
       "esito": {
         "ok": "Durante il mercato la forestiera non è passata dalla Piazza. Marta ha venduto tutto il pane, e ha detto «visto?».",
         "fallita": "La forestiera è passata per la Piazza al mercato. Marta ha toccato ferro, poi il pane, poi di nuovo ferro."

@@ -55,9 +55,19 @@
     "author": "teresa",
     "textKey": "atto3.g17.teresa.testo",
     "request": {
-      "t": "ha",
-      "who": "teresa",
-      "bead": "segreto:livia"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "ha",
+          "who": "teresa",
+          "bead": "segreto:livia"
+        },
+        {
+          "t": "nonHa",
+          "who": "piero",
+          "bead": "segreto:livia"
+        }
+      ]
     },
     "esito": {
       "ok": "atto3.g17.teresa.esito.ok",
@@ -74,7 +84,7 @@
       "who": "livia",
       "place": "piazza",
       "from": 9,
-      "to": 12
+      "to": 13
     },
     "esito": {
       "ok": "atto3.g17.marta.esito.ok",

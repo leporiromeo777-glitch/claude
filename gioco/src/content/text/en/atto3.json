@@ -4,8 +4,8 @@
       "livia": "the name of the woman in the black shawl"
     },
     "hint": {
-      "spinta": "At nine the black thread enters at the Lighthouse: whoever's there leaves. It seeks Zeno.",
-      "indizio": "You can't touch the black thread, but you can choose who it meets on its way, and when."
+      "spinta": "The black thread enters at the Lighthouse at nine; whoever's there leaves. It seeks Zeno.",
+      "indizio": "You can't touch it: after Zeno, it goes to church. You choose who it meets, and when."
     },
     "alba": {
       "livia": {
@@ -41,14 +41,14 @@
       }
     },
     "teresa": {
-      "testo": "Dear, there's talk of a stranger dressed in black. Nobody knows who she is, and I don't like not knowing. I want to know, and first. Before the priest, above all.",
+      "testo": "Dear, there's talk of a stranger dressed in black. Nobody knows who she is, and I don't like not knowing. I want to know, and not the priest: he puts things in the well.",
       "esito": {
-        "ok": "Teresa found out who the woman in black is, before anyone. Tonight she talks softly, like someone with something in her pocket.",
-        "fallita": "Teresa didn't find out who the woman in black is. She went round the Square three times, in vain."
+        "ok": "Teresa learned who the woman in black is; the priest didn't. Tonight she talks softly, like one with something in her pocket.",
+        "fallita": "Teresa didn't find out who the woman in black is, or the priest found out too. She went round the Square three times, sulking."
       }
     },
     "marta": {
-      "testo": "During the market I want no strange women in the Square. From nine to noon. Women in black bring bad luck, my mother said so, and my mother was never wrong.",
+      "testo": "During the market I want no strange women in the Square. From nine to one. Women in black bring bad luck, my mother said so, and my mother was never wrong.",
       "esito": {
         "ok": "During the market the stranger never came through the Square. Marta sold all her bread, and said “you see?”.",
         "fallita": "The stranger came through the Square at market time. Marta touched iron, then the bread, then iron again."

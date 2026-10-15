@@ -51,12 +51,12 @@
     }
   ],
   "initial": [
-    "teresa",
+    "gino",
     "marta",
     "piero",
-    "gino",
-    "nina",
-    "zeno"
+    "teresa",
+    "zeno",
+    "nina"
   ],
   "beads": [
     {
@@ -107,6 +107,31 @@
       "thread": "piero",
       "place": "chiesa",
       "hour": 7
+    },
+    {
+      "thread": "gino",
+      "place": "piazza",
+      "hour": 9
+    },
+    {
+      "thread": "teresa",
+      "place": "piazza",
+      "hour": 11
+    },
+    {
+      "thread": "teresa",
+      "place": "forno",
+      "hour": 9
+    },
+    {
+      "thread": "gino",
+      "place": "forno",
+      "hour": 16
+    },
+    {
+      "thread": "zeno",
+      "place": "faro",
+      "hour": 12
     }
   ],
   "nero": {
@@ -118,6 +143,10 @@
     "agenda": [
       {
         "follow": "zeno"
+      },
+      {
+        "place": "chiesa",
+        "hour": 12
       },
       {
         "place": "piazza",
@@ -137,7 +166,7 @@
     "g17.marta",
     "g17.piero"
   ],
-  "matassa": 13,
+  "matassa": 10,
   "hintKeys": {
     "spinta": "atto3.g17.hint.spinta",
     "indizio": "atto3.g17.hint.indizio"
