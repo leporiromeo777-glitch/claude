@@ -78,6 +78,8 @@ export interface RapportoVerifica {
   flagDelGioco: { nome: string; letto: string[] }[];
   /** Oggetti richiesti che nessun effetto dà. */
   oggettiDelGioco: { id: string; letto: string[] }[];
+  /** Dialoghi che la partita simulata non ha giocato (di solito alternative o facoltativi). */
+  dialoghiNonGiocati: string[];
   conteggi: Record<string, number>;
 }
 
@@ -1144,6 +1146,7 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     ipotesi: sim.ipotesi,
     flagDelGioco,
     oggettiDelGioco,
+    dialoghiNonGiocati: Object.keys(c.dialoghi).filter((d) => !sim.n.dialoghi.finito(d)),
     conteggi: {
       missioni: c.missioni.length,
       passi: c.missioni.reduce((t, m) => t + m.passi.length, 0),

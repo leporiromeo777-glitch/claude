@@ -140,6 +140,10 @@ if (r.oggettiDelGioco.length) {
   titolo(`Oggetti che deve dare il gioco (${r.oggettiDelGioco.length})`);
   for (const o of r.oggettiDelGioco) voce(`${markdown ? '`' + o.id + '`' : o.id} — letto in: ${o.letto.join('; ')}`);
 }
+if (r.dialoghiNonGiocati.length) {
+  titolo(`Dialoghi non giocati nella partita simulata (${r.dialoghiNonGiocati.length}: alternative, facoltativi, ripetibili)`);
+  voce(r.dialoghiNonGiocati.join(', '));
+}
 if (conTraccia) {
   titolo('Traccia della partita simulata');
   if (markdown) righe.push('```');
