@@ -248,3 +248,96 @@ describe('Q024: l\'incrocio del filo nero non è del giocatore', () => {
     expect(s.outcome().metrics).toMatchObject({ incroci: 12, minIncroci: 12, filoDOro: true });
   });
 });
+
+describe('Q070: nessun avviso dice chi è un filo sbiadito', () => {
+  it('arc1: la lettura di Teresa (filo sbiadito 2) non emette quirk:discovered', () => {
+    const lv = level('arc1');
+    c = new NightController(h.s, nightParams(lv, { origin: 'archivio', mode: 'archivio' }), { computed: computed('arc1'), solveAsync: syncSolve });
+    // Le righe registrate si riapplicano da sole fino allo strappo.
+    expect(c.session.rows.length).toBeGreaterThan(0);
+    expect(h.events.filter((e) => e.k === 'quirk:discovered')).toEqual([]);
+    expect(c.session.discoveredQuirks).toEqual([]);
+  });
+});
+
+describe('Q051: il filo nero che entra', () => {
+  it('la bolla del bordo dice che chi è lì esce; nelle modalità extra è annunciato', () => {
+    const lv = fixture('test-nero');
+    c = new NightController(h.s, nightParams(lv, { origin: 'libero' }), { computed: null, solveAsync: syncSolve });
+    const t = h.s.i18n.t('tombolo.bolla.bordo.nero', { ora: '8', presso: 'al Faro' });
+    expect(t).toMatch(/esce/);
+    // L'ingresso delle 8 è a un'ora dall'apertura (riga delle 7): la riga in basso lo annuncia.
+    expect(q('tb-explain')?.hidden).toBe(false);
+    expect(q('tb-explain')?.textContent).toMatch(/Alle 8 entra il filo nero al Faro: chi è lì esce/);
+  });
+
+  it('un obiettivo di un filo uscito per sempre è «fallita», non «a rischio»', () => {
+    const lv = fixture('test-nero');
+    // Il lino al Faro esce quando entra il filo nero (alle 8): non incontrerà più Nina.
+    const s = new Session(nightParams(lv, { goals: [{ t: 'incontra', a: 'lino1', b: 'nina' }] }));
+    expect(s.fix().ok).toBe(true);
+    expect(s.fix().ok).toBe(true);
+    expect(s.state.offboard.some((o) => o.thread === 'lino1')).toBe(true);
+    expect(s.goalStatus()[0]).toMatchObject({ status: 'fallita', reasonKey: 'tombolo.cond.perso.incontra' });
+  });
+});
+
+describe('Q015: una richiesta già impossibile è «fallita»', () => {
+  it('presso irraggiungibile per distanza: fallita con il motivo «non può più»', () => {
+    const g00 = fixture('g00');
+    const far = g00.columns[2] as LevelDef['columns'][number];
+    const lv: LevelDef = { ...g00, pins: [], tutorial: [], goals: [{ t: 'presso', who: g00.initial[0] as string, place: far, hour: g00.startHour + 1 }] };
+    const s = new Session(nightParams(lv));
+    // Il primo filo non arriva due colonne più in là in un'ora sola.
+    const r = s.goalStatus()[0]!;
+    expect(r.status).toBe('fallita');
+    expect(r.reasonKey).toBe('tombolo.cond.perso.presso');
+    expect(h.s.i18n.t('tombolo.cond.perso.presso', { chi: 'Marta', presso: 'in Chiesa', ora: '7' })).toMatch(/non può più/);
+  });
+});
+
+describe('Q034: all\'ultima ora le condizioni «a fine giornata» si decidono sulla bozza', () => {
+  it('nonHa: con la bozza giusta all\'ultima riga è «si compie se fissi l\'ora»', () => {
+    const lv: LevelDef = { ...fixture('g00'), pins: [], tutorial: [], goals: [], endHour: 7 };
+    const s = new Session(nightParams(lv, { goals: [{ t: 'nonHa', who: 'piero', bead: 'L1' }] }));
+    expect(s.fix().ok).toBe(true);
+    expect(s.hour).toBe(lv.endHour);
+    const st = s.goalPreview()[0];
+    expect(st).toBe('soddisfatta');
+  });
+});
+
+describe('R2-D4, Q033, Q052: gli stati si vedono sul tombolo', () => {
+  it('g13: i malati hanno il segno della febbre sul fuso e nella scheda', () => {
+    const lv = level('g13');
+    c = new NightController(h.s, nightParams(lv, { origin: 'campagna', needsNome: false }), { computed: computed('g13'), solveAsync: syncSolve });
+    const sick = c.session.state.holders.febbre ?? [];
+    expect(sick.length).toBeGreaterThan(0);
+    for (const t of sick) expect(c.overlay.fever(t)).toBe(true);
+    const healthy = c.session.state.pos.find((t) => !sick.includes(t))!;
+    expect(c.overlay.fever(healthy)).toBe(false);
+    c.openCharCard(sick[0]!);
+    expect(q('tb-scheda-stato')?.textContent).toContain('Ha la febbre');
+  });
+
+  it('la scheda dice che cosa porta un filo (anche su touch)', () => {
+    const lv = fixture('g00');
+    c = new NightController(h.s, nightParams(lv), { computed: null, solveAsync: syncSolve });
+    const holder = c.session.state.holders.L1?.[0] as string;
+    c.openCharCard(holder);
+    expect(q('tb-scheda-stato')?.textContent).toMatch(/^Porta /);
+  });
+
+  it('annodato: segno sul fuso e riga nella scheda', () => {
+    const lv = fixture('test-rancore');
+    c = new NightController(h.s, nightParams(lv), { computed: null, solveAsync: syncSolve });
+    // Teresa e Marta si incrociano: nodo, nella riga dopo non si muovono.
+    expect(c.cross(0, 'R', 'debug')).toBeNull();
+    expect(c.fix().ok).toBe(true);
+    expect(c.session.state.knotted).toContain('teresa');
+    expect(c.overlay.knotted('teresa')).toBe(true);
+    expect(c.overlay.knotted('piero')).toBe(false);
+    c.openCharCard('teresa');
+    expect(q('tb-scheda-stato')?.textContent).toContain('annodato');
+  });
+});

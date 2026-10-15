@@ -447,6 +447,9 @@ export class Session implements NightSession {
   }
 
   private discover(q: QuirkId, thread: ThreadId): void {
+    // Un filo sbiadito dell'Archivio non insegna niente sulle persone di oggi, e
+    // dire «Teresa si è accesa» svelerebbe chi è prima che lo si nomini (Q070).
+    if (this.level.archive?.faded.includes(thread)) return;
     if (!this._discovered.includes(q)) this._discovered.push(q);
     if (this.known.has(q)) return;
     this.known.add(q);
@@ -704,13 +707,19 @@ export class Session implements NightSession {
     // se fissi l'ora» non avrebbe senso dove l'ora non la fissa il giocatore (C07).
     if (this.done || this.params.mode === 'occasioni' || this.params.mode === 'replay') return fixed.map((r) => ({ report: r, anteprima: r.status }));
     const { timeline, events } = this.liveTimeline();
-    const live = evaluate(this.level, timeline, events, conds, this._ctx, false);
+    // All'ultima ora la bozza chiude la giornata: le condizioni «a fine giornata» si decidono
+    // sull'anteprima (Q034: restavano «in corso» anche con la bozza giusta).
+    const p = this.preview();
+    const closes = p.ok && p.state.hour >= this.level.endHour;
+    const live = evaluate(this.level, timeline, events, conds, this._ctx, closes);
     return fixed.map((f, i) => {
       const l = live[i] ?? f;
       if (l.status !== 'fallita' || f.status === 'fallita' || f.status === 'soddisfatta') return { report: f, anteprima: l.status };
-      // La bozza la farebbe fallire: a rischio, con il motivo del rischio se il motore lo sa dire.
+      // La bozza la farebbe fallire: a rischio, con il motivo del rischio se il motore lo sa dire
+      // (il tipo della foglia che fallirebbe, dal motivo dell'anteprima).
       const c = conds[i] as Condition;
-      const key = conditionKey('rischio', c.t);
+      const leaf = /^tombolo\.cond\.(?:fallita|perso)\.(\w+)$/.exec(l.reasonKey ?? '')?.[1] ?? c.t;
+      const key = conditionKey('rischio', leaf as Condition['t']);
       if (RISK_KEYS.has(key) && l.params) return { report: { status: 'a_rischio', reasonKey: key, params: l.params }, anteprima: l.status };
       return { report: f.status === 'a_rischio' ? f : { status: 'a_rischio' }, anteprima: l.status };
     });

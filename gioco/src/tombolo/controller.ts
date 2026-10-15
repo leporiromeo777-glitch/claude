@@ -36,7 +36,7 @@ import { type RowHint, solveAsync } from '../engine/index';
 import { type Diagnosis, Session } from './session';
 import { BAND, type NotePlacement, SLOT_R, type TomboloLayout, autoScroll, computeTomboloLayout, placeMarginNote, rowBottom, rowTop, rowsBelow, scrollLimits, slotCenter } from './layout';
 import { buildVisuals, type ThreadVisual, visualOf } from './visuals';
-import { type TextDeps, capitalizeFirst, describeCondition, formatHour, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
+import { type TextDeps, beadName, capitalizeFirst, describeCondition, formatHour, joinNames, nameParams, reportText, threadName, violationMessageKey, violationParams } from './text';
 import { LaceRenderer, emptyOverlay, type Overlay, type Palette } from './render/lace';
 import { type LaceModel, buildLaceModel, stacksOf } from './render/model';
 import { type ActivePulse, type MarginHand, Tutorial } from './tutorial';
@@ -47,7 +47,7 @@ import { type GoalsButtonState, RequestStrip, goalCard, noteCard, type RequestTo
 import { ObjectivesList } from './ui/objectives';
 import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
 import { ArchivePanel } from './ui/archivepanel';
-import { shownQuirks } from './quirks';
+import { extraMode, shownQuirks } from './quirks';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -165,6 +165,8 @@ export class NightController {
     this.overlay.quirk = this.quirkOf;
     this.overlay.label = this.labelOf;
     this.overlay.rancor = this.rancorOf;
+    this.overlay.fever = this.feverOf;
+    this.overlay.knotted = this.knotOf;
     this.interact = new Interaction(this);
     this.vp = s.viewport.get();
 
@@ -245,6 +247,7 @@ export class NightController {
     this.updateStatusLine();
     this.lastRowHour = this.session.hour;
     this.rememberStatuses();
+    this.announceNero();
     this.saveNow(false);
     this.s.canvas?.canvas?.addEventListener('pointermove', this.onHover);
     if (typeof window !== 'undefined') window.addEventListener('keydown', this.onKeyCapture, true);
@@ -786,6 +789,10 @@ export class NightController {
   /** Fili in rancore finché la regola vale (segno del nodo sulla testa del fuso, D06). */
   private readonly rancorous = new Set<ThreadId>();
   private readonly rancorOf = (t: ThreadId): boolean => this.rancorous.has(t);
+  /** Fili con la febbre e fili annodati nella riga corrente (R2-D4, Q033). */
+  private readonly fevered = new Set<ThreadId>();
+  private readonly feverOf = (t: ThreadId): boolean => this.fevered.has(t);
+  private readonly knotOf = (t: ThreadId): boolean => !this.completed && !this.session.done && this.session.state.knotted.includes(t);
 
   /** Stranezze da mostrare di un personaggio (TOM-17: modalità extra o regola del Taccuino). */
   quirksOf(character: CharacterId): QuirkId[] {
@@ -805,6 +812,8 @@ export class NightController {
       if (!v || !v.character || v.faded) continue;
       if (this.quirksOf(v.character).length > 0) this.quirky.add(t);
     }
+    this.fevered.clear();
+    for (const st of this.model?.stacks ?? []) if (st.beads.some((b) => b.type === 'febbre')) this.fevered.add(st.thread);
     this.rancorous.clear();
     for (const [a, b] of s.ctx.rancor) {
       this.rancorous.add(a);
@@ -1013,6 +1022,26 @@ export class NightController {
 
   /** Messaggio di una violazione sostituito da una nota del tutorial (per il debug). */
   suppressed: { key: string; params: Params } | null = null;
+
+  /** Ingresso del filo nero già annunciato (R2-D4, Q051). */
+  private neroAnnounced = false;
+
+  /**
+   * Nelle modalità extra (Merletto del giorno, libero, spartito) non c'è un
+   * tutorial che presenti il filo nero: un'ora prima che entri (o all'apertura)
+   * la riga in basso dice dove entra e che chi è lì esce (R2-D4, Q051).
+   */
+  private announceNero(): void {
+    const nero = this.params.level.nero;
+    const s = this.session;
+    if (!nero || this.neroAnnounced || s.done || !extraMode(this.params.origin) || this.params.mode !== 'normale') return;
+    const h = nero.enter.hour;
+    if (s.hour < h - 1 || s.hour > h) return;
+    this.neroAnnounced = true;
+    const lv = this.params.level;
+    const place = nero.enter.side === 'molo' ? lv.columns[0] : lv.columns[lv.columns.length - 1];
+    this.say('tombolo.nero.annuncio', nameParams(this.textDeps, { ora: h, luogo: place ?? 'molo' }), 'info', 6000);
+  }
 
   /** Un messaggio nella riga in basso (al posto di quello che c'era). */
   private say(key: string, params: Params, kind: 'info' | 'warn' | 'ok', ms: number): void {
@@ -1238,6 +1267,7 @@ export class NightController {
     }
     this.tutorial.onRowStart(s.hour, false);
     if (!s.done) this.tutorial.onEvents(s.preview().events);
+    this.announceNero();
     this.saveNow(true);
     if (s.done && !(s.archive && this.params.mode === 'archivio') && this.params.mode !== 'occasioni') this.finish();
   }
@@ -2341,6 +2371,7 @@ export class NightController {
       .map(([a, b]) => this.s.i18n.t('tombolo.rancore.coppia', { a: threadName(this.textDeps, a), b: threadName(this.textDeps, b) }));
     const memoria = ch && save.campaign ? (save.campaign.memoria[ch.id] ?? null) : null;
     const showMem = memoria !== null && (this.params.needsNome || this.params.level.rules.includes('nome'));
+    const stato = this.threadStatus(t);
     this.openPopup('tb-popup-scheda', (body) => {
       body.appendChild(
         charCard({
@@ -2354,9 +2385,29 @@ export class NightController {
           rancor,
           desireKey: ch && save.knowledge.desires.includes(ch.id) ? (ch.desireKey ?? null) : null,
           memoria: showMem ? memoria : null,
+          stato,
         }),
       );
     });
+  }
+
+  /**
+   * Che cosa ha adesso un filo, in parole (R2-D4, Q033, Q052): le perline che
+   * porta (anche su touch, dove il passaggio del mouse non c'è), la febbre, il
+   * nome di Ada, il nodo dell'ora. Sullo stato in fondo alla riga corrente.
+   */
+  threadStatus(t: ThreadId): string[] {
+    const i18n = this.s.i18n;
+    const st = this.model?.stacks.find((x) => x.thread === t);
+    const beads = st?.beads ?? [];
+    const out: string[] = [];
+    const carried = beads.filter((b) => b.type !== 'febbre' && b.type !== 'nome').map((b) => beadName(this.textDeps, b.id));
+    if (carried.length > 0) out.push(i18n.t('tombolo.scheda.porta', { perline: joinNames(this.textDeps, carried) }));
+    if (beads.some((b) => b.type === 'febbre')) out.push(i18n.t('tombolo.scheda.febbre'));
+    if (beads.some((b) => b.type === 'nome')) out.push(i18n.t('tombolo.scheda.nome'));
+    if (this.knotOf(t)) out.push(i18n.t('tombolo.scheda.annodato'));
+    if (out.length === 0) out.push(i18n.t('tombolo.scheda.niente'));
+    return out;
   }
 
   openNotebook(): void {

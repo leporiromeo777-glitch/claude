@@ -90,6 +90,23 @@
       "ha.segreto": "{chi} rischia di non scoprire {perlina} entro le {ora}.",
       "ha.nome": "{chi} rischia di non ricordare il nome di Ada.",
       "ha.febbre": "{chi} rischia di non prendere la febbre entro le {ora}."
+    },
+    "perso": {
+      "presso": "{chi} non può più arrivare {presso} per le {ora}.",
+      "incontra": "{a} non può più incontrare {b}.",
+      "sopra": "{a} non può più passare sopra {b}.",
+      "consegnata": "{perlina}: non può più arrivare entro le {ora}.",
+      "ha": "{chi} non può più avere {perlina} entro le {ora}.",
+      "parte": "{chi} non può più lasciare l'isola.",
+      "esceCon": "{perlina}: non può più lasciare il merletto alle {ora}.",
+      "incontriAlmeno": "{chi} non può più incontrare {n} persone.",
+      "incontraFinestra": "{a} non può più incontrare {b} entro le {alle}.",
+      "sopraEntro": "{a} non può più passare sopra {b} entro le {alle}.",
+      "ha.lettera": "{chi} non può più ricevere {perlina} entro le {ora}.",
+      "ha.voce": "{chi} non può più sentire {perlina} entro le {ora}.",
+      "ha.segreto": "{chi} non può più scoprire {perlina} entro le {ora}.",
+      "ha.nome": "{chi} non può più ricordare il nome di Ada.",
+      "ha.febbre": "{chi} non può più prendere la febbre entro le {ora}."
     }
   },
   "stato": {
@@ -259,7 +276,13 @@
       "nero": "Il filo nero: si muove da solo e sta sempre sopra.",
       "avorio": "Il filo d'avorio: esiste solo nei merletti antichi.",
       "sbiadito": "Un filo sbiadito. Chi sarà?"
-    }
+    },
+    "adesso": "Adesso",
+    "porta": "Porta {perline}.",
+    "febbre": "Ha la febbre.",
+    "nome": "Ricorda il tuo nome.",
+    "annodato": "È annodato: in quest'ora non si muove.",
+    "niente": "Non porta niente."
   },
   "stranezza": {
     "martaNoSotto": "Marta non passa mai sotto Teresa.",
@@ -436,7 +459,7 @@
       "vaporetto": "Alle {ora} il vaporetto: chi è {presso} esce.",
       "barca": "Alle {ora} la barca: chi è {presso} esce.",
       "secca": "Alle {ora} la secca: chi è {presso} esce.",
-      "nero": "Alle {ora} entra il filo nero, {presso}."
+      "nero": "Alle {ora} entra il filo nero {presso}: chi è lì esce dal merletto."
     },
     "evento": {
       "vaporetto": "il vaporetto {presso}",
@@ -450,5 +473,8 @@
   },
   "scorri": {
     "giu": "↓ {n, plural, one {ancora un'ora} other {altre # ore}}"
+  },
+  "nero": {
+    "annuncio": "Alle {ora} entra il filo nero {presso}: chi è lì esce dal merletto, con tutto quello che porta."
   }
 }

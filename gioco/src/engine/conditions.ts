@@ -24,8 +24,11 @@
  *   incontriAlmeno(chi, n)           ok quando ha incrociato n fili diversi con nome
  *
  * Stati per l'interfaccia (`CondReport`): soddisfatta e fallita sono definitive;
- * a_rischio = non ancora decisa ma i limiti (distanze, ore rimaste) dicono che
- * non si può più soddisfare; altrimenti in_corso. I parametri del motivo sono
+ * una condizione non ancora decisa che i limiti (distanze, ore rimaste, fili
+ * usciti per sempre) dicono impossibile è già «fallita», con il motivo
+ * `tombolo.cond.perso.<tipo>` (revisione 2, Q015: prima era «a_rischio», che il
+ * giocatore leggeva come «si può ancora»); altrimenti in_corso. «a_rischio» lo
+ * usa il tombolo per la bozza che la farebbe fallire (C07). I parametri del motivo sono
  * gli id della condizione (chi, a, b, perlina, luogo, ora, n) e, per
  * `incontra`/`nonIncontra` con una finestra, `dalle` e `alle`; per `sopra` con
  * un limite, `alle` (C13).
@@ -651,8 +654,10 @@ export function evaluate(level: LevelDef, timeline: LaceState[], events: LaceEve
       return a ? { status: 'fallita', reasonKey: conditionKey('fallita', a.t), params: reasonParams(a, m) } : { status: 'fallita' };
     }
     if (!nodeCanOk(r, p, m, S, last.hour)) {
+      // Non ancora decisa, ma i limiti (distanze, ore rimaste, fili usciti per sempre) dicono che
+      // non si può più soddisfare: è già fallita (revisione 2, Q015, Q051), con il motivo «perso».
       const a = firstBad(r, p, m, S, last.hour, 'risk');
-      return a ? { status: 'a_rischio', reasonKey: conditionKey('rischio', a.t), params: reasonParams(a, m) } : { status: 'a_rischio' };
+      return a ? { status: 'fallita', reasonKey: conditionKey('perso', a.t), params: reasonParams(a, m) } : { status: 'fallita' };
     }
     return { status: 'in_corso' };
   });

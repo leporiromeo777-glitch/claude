@@ -111,9 +111,9 @@ describe('rapporti delle condizioni con la finestra oraria (C13)', () => {
     expect(r?.params).toEqual({ a: 'marta', b: 'bepi', dalle: 7, alle: 9 });
   });
 
-  it('incontra a rischio: anche lì dalle e alle', () => {
+  it('incontra ormai impossibile (perso): anche lì dalle e alle', () => {
     const [r] = reports([{ t: 'incontra', a: 'marta', b: 'bepi', from: 7, to: 9 }], false, 3);
-    expect(r).toEqual({ status: 'a_rischio', reasonKey: 'tombolo.cond.rischio.incontra', params: { a: 'marta', b: 'bepi', dalle: 7, alle: 9 } });
+    expect(r).toEqual({ status: 'fallita', reasonKey: 'tombolo.cond.perso.incontra', params: { a: 'marta', b: 'bepi', dalle: 7, alle: 9 } });
   });
 
   it('incontra senza finestra: niente dalle e alle', () => {

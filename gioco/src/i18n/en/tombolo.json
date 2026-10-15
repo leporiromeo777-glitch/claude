@@ -90,6 +90,23 @@
       "ha.segreto": "{chi} may not find out {perlina} by {ora}.",
       "ha.nome": "{chi} may not remember Ada's name.",
       "ha.febbre": "{chi} may not catch the fever by {ora}."
+    },
+    "perso": {
+      "presso": "{chi} can no longer make it {presso} by {ora}.",
+      "incontra": "{a} can no longer meet {b}.",
+      "sopra": "{a} can no longer pass over {b}.",
+      "consegnata": "{perlina}: can no longer arrive by {ora}.",
+      "ha": "{chi} can no longer get {perlina} by {ora}.",
+      "parte": "{chi} can no longer leave the island.",
+      "esceCon": "{perlina}: can no longer leave the lace at {ora}.",
+      "incontriAlmeno": "{chi} can no longer meet {n} people.",
+      "incontraFinestra": "{a} can no longer meet {b} by {alle}.",
+      "sopraEntro": "{a} can no longer pass over {b} by {alle}.",
+      "ha.lettera": "{chi} can no longer receive {perlina} by {ora}.",
+      "ha.voce": "{chi} can no longer hear {perlina} by {ora}.",
+      "ha.segreto": "{chi} can no longer find out {perlina} by {ora}.",
+      "ha.nome": "{chi} can no longer remember Ada's name.",
+      "ha.febbre": "{chi} can no longer catch the fever by {ora}."
     }
   },
   "stato": {
@@ -259,7 +276,13 @@
       "nero": "The black thread: moves on its own and always stays on top.",
       "avorio": "The ivory thread: it exists only in the old laces.",
       "sbiadito": "A faded thread. Who could it be?"
-    }
+    },
+    "adesso": "Right now",
+    "porta": "Carries {perline}.",
+    "febbre": "Has the fever.",
+    "nome": "Remembers your name.",
+    "annodato": "Knotted: won't move this hour.",
+    "niente": "Carries nothing."
   },
   "stranezza": {
     "martaNoSotto": "Marta never passes under Teresa.",
@@ -436,7 +459,7 @@
       "vaporetto": "At {ora} the ferry: whoever is {presso} leaves.",
       "barca": "At {ora} the boat: whoever is {presso} leaves.",
       "secca": "At {ora} the low tide: whoever is {presso} leaves.",
-      "nero": "At {ora} the black thread comes in, {presso}."
+      "nero": "At {ora} the black thread comes in {presso}: whoever is there leaves the lace."
     },
     "evento": {
       "vaporetto": "the ferry {presso}",
@@ -450,5 +473,8 @@
   },
   "scorri": {
     "giu": "↓ {n, plural, one {one more hour} other {# more hours}}"
+  },
+  "nero": {
+    "annuncio": "At {ora} the black thread comes in {presso}: whoever is there leaves the lace, with everything they carry."
   }
 }

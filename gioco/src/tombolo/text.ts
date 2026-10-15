@@ -213,7 +213,7 @@ export function reportKey(d: TextDeps, r: CondReport, cond?: Condition): string 
   const key = r.reasonKey;
   if (!key) return null;
   const p = r.params ?? {};
-  const m = /^tombolo\.cond\.(fallita|rischio)\.(ha|nonHa|incontra|nonIncontra|sopra)$/.exec(key);
+  const m = /^tombolo\.cond\.(fallita|rischio|perso)\.(ha|nonHa|incontra|nonIncontra|sopra)$/.exec(key);
   if (!m) return key;
   const t = m[2];
   if ((t === 'ha' || t === 'nonHa') && typeof p.perlina === 'string') {

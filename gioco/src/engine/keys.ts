@@ -25,7 +25,8 @@
  * le sceglie il tombolo dai parametri (REVISIONE-1, sezione 4: senza parametri
  * si ripiega sulla chiave generica); `violationTextKey` fa questa scelta.
  *
- * Condizioni (`tombolo.cond.<stato>.<tipo>`, stato = fallita | rischio):
+ * Condizioni (`tombolo.cond.<stato>.<tipo>`, stato = fallita | rischio | perso;
+ * perso = non ancora decisa ma ormai impossibile, revisione 2, Q015):
  * parametri chi, a, b, perlina, luogo, ora, n secondo la condizione; per
  * `incontra`/`nonIncontra` con una finestra anche dalle e alle, per `sopra` con
  * un limite alle (C13).
@@ -63,7 +64,7 @@ export const CONDITION_TYPES: readonly Condition['t'][] = [
 /** Condizioni che possono essere "a rischio" (hanno un limite di distanza o di tempo). */
 export const RISK_TYPES: readonly Condition['t'][] = ['presso', 'incontra', 'sopra', 'consegnata', 'ha', 'parte', 'esceCon', 'incontriAlmeno'];
 
-export function conditionKey(state: 'fallita' | 'rischio', t: Condition['t']): string {
+export function conditionKey(state: 'fallita' | 'rischio' | 'perso', t: Condition['t']): string {
   return `tombolo.cond.${state}.${t}`;
 }
 
@@ -108,6 +109,7 @@ export function engineTextKeys(): string[] {
   const out: string[] = [...VIOLATION_CODES.map(violationKey), ...VIOLATION_DETAIL_KEYS];
   for (const t of CONDITION_TYPES) out.push(conditionKey('fallita', t));
   for (const t of RISK_TYPES) out.push(conditionKey('rischio', t));
+  for (const t of RISK_TYPES) out.push(conditionKey('perso', t));
   out.push(...Object.values(HINT_KEYS));
   return out;
 }

@@ -74,6 +74,10 @@ export interface Overlay {
   quirk: (thread: ThreadId) => boolean;
   /** Il filo è in rancore (segno del nodo sulla testa del fuso). */
   rancor: (thread: ThreadId) => boolean;
+  /** Il filo ha la febbre (goccia sul fuso, R2-D4). */
+  fever: (thread: ThreadId) => boolean;
+  /** Il filo è annodato in quest'ora (nodo sul fuso e sul filo, R2-D4). */
+  knotted: (thread: ThreadId) => boolean;
   label: (thread: ThreadId) => string | null;
   highlight: Set<ThreadId>;
   nomeOn: ThreadId | null;
@@ -107,6 +111,8 @@ export function emptyOverlay(): Overlay {
     showEchoes: false,
     quirk: () => false,
     rancor: () => false,
+    fever: () => false,
+    knotted: () => false,
     label: () => null,
     highlight: new Set(),
     nomeOn: null,
@@ -142,7 +148,7 @@ export class LaceRenderer {
   private readonly style: RowStyle = { gap: DEFAULT_PALETTE.velluto, time: 0, ghostAlpha: 0.55, marks: true };
   private readonly fixedStyle: RowStyle = { gap: DEFAULT_PALETTE.velluto, time: 0, ghostAlpha: 0.55, marks: true };
   private readonly handPoly = new Poly();
-  private readonly spindleOpts: SpindleDrawOptions = { quirk: () => false, rancor: () => false, label: () => null, highlight: new Set(), pulse: 0, nomeOn: null };
+  private readonly spindleOpts: SpindleDrawOptions = { quirk: () => false, rancor: () => false, fever: () => false, knotted: () => false, label: () => null, highlight: new Set(), pulse: 0, nomeOn: null };
   private paintModel: LaceModel | null = null;
   private paintLayout: TomboloLayout | null = null;
   /** Tempo del fotogramma (per il tremito delle lettere). */
@@ -427,7 +433,10 @@ export class LaceRenderer {
       const v = visualOf(m.visuals, t);
       const x0 = g.colCx[c] ?? 0;
       const x1 = s ? rig.xOf(s) : x0;
-      drawHanging(ctx, p, v, x0, hangTop, x1, spTop, o.time, m.hangKnotted.includes(t));
+      const knot = m.hangKnotted.includes(t);
+      drawHanging(ctx, p, v, x0, hangTop, x1, spTop, o.time, knot);
+      // Annodato: il nodo si vede anche sul filo, appena sotto la riga (R2-D4, Q033).
+      if (knot && !m.done) drawKnot(ctx, x0, hangTop + 5);
     }
     if (o.previewRow < 0) this.drawStacks(ctx, l, m.stacks, hangTop + 14, m);
     this.flights.draw(ctx, top);
@@ -437,6 +446,8 @@ export class LaceRenderer {
     const so = this.spindleOpts;
     so.quirk = o.quirk;
     so.rancor = o.rancor;
+    so.fever = o.fever;
+    so.knotted = o.knotted;
     so.label = o.label;
     so.highlight = o.highlight;
     so.pulse = o.pulse;

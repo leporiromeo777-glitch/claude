@@ -65,7 +65,7 @@ describe('condizioni sul merletto', () => {
     expect(statuses(A, rowsA, [cond], true)).toEqual([want]);
   });
 
-  it('a metà giornata: in corso, a rischio, già decise', () => {
+  it('a metà giornata: in corso, già impossibili (fallite, Q015), già decise', () => {
     const conds: Condition[] = [
       { t: 'presso', who: 'nina', place: 'piazza', hour: 8 },
       { t: 'presso', who: 'bepi', place: 'molo', hour: 8 },
@@ -77,14 +77,14 @@ describe('condizioni sul merletto', () => {
       { t: 'non', c: { t: 'presso', who: 'bepi', place: 'molo', hour: 8 } },
     ];
     // timeline fino alle 7 (apertura + una riga)
-    expect(statuses(A, rowsA, conds, false, 2)).toEqual(['in_corso', 'a_rischio', 'in_corso', 'in_corso', 'a_rischio', 'fallita', 'a_rischio', 'in_corso']);
+    expect(statuses(A, rowsA, conds, false, 2)).toEqual(['in_corso', 'fallita', 'in_corso', 'in_corso', 'fallita', 'fallita', 'fallita', 'in_corso']);
   });
 
-  it('a rischio porta il motivo', () => {
+  it('una condizione ormai impossibile è fallita con il motivo «perso» (Q015)', () => {
     const ctx = createContext(A, {});
     const sim = simulate(A, ctx, rowsA.map((cr, i) => ({ hour: 7 + i, crossings: cr })));
     const [r] = evaluate(A, sim.timeline.slice(0, 2), sim.events.slice(0, 1), [{ t: 'presso', who: 'bepi', place: 'molo', hour: 8 }], ctx, false);
-    expect(r).toMatchObject({ status: 'a_rischio', reasonKey: 'tombolo.cond.rischio.presso', params: { chi: 'bepi', luogo: 'molo', ora: 8 } });
+    expect(r).toMatchObject({ status: 'fallita', reasonKey: 'tombolo.cond.perso.presso', params: { chi: 'bepi', luogo: 'molo', ora: 8 } });
     const [f] = evaluate(A, sim.timeline, sim.events, [{ t: 'nonHa', who: 'nina', bead: 'voce:x' }], ctx, true);
     expect(f).toMatchObject({ status: 'fallita', reasonKey: 'tombolo.cond.fallita.nonHa' });
   });

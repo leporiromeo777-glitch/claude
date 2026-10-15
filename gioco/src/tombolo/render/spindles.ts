@@ -12,6 +12,7 @@ import type { ThreadVisual } from '../visuals';
 import { visualOf } from '../visuals';
 import { easeInOut } from './curves';
 import { drawKnot } from './threads';
+import { drawBead } from './beads';
 
 export const SPRING_K = 40;
 export const SPRING_C = 6;
@@ -41,6 +42,10 @@ export interface SpindleDrawOptions {
   quirk(thread: ThreadId): boolean;
   /** Il filo è in rancore: un piccolo nodo sulla testa del fuso (D06). */
   rancor(thread: ThreadId): boolean;
+  /** Il filo ha la febbre: una goccia verde sul fuso (R2-D4, Q033). */
+  fever(thread: ThreadId): boolean;
+  /** Il filo è annodato in quest'ora: un nodo sul fuso (R2-D4, Q033). */
+  knotted(thread: ThreadId): boolean;
   /** Etichetta sotto la testa (Archivio: nome provvisorio). */
   label(thread: ThreadId): string | null;
   /** Fusi evidenziati (cursore della tastiera, passaggio del nome). */
@@ -251,6 +256,21 @@ export class SpindleRig {
         drawGlyph(ctx, 'info', w * 0.42, h * (0.24 - ay), 11, '#1A1610', 2);
       }
       if (o.rancor(s.thread)) drawKnot(ctx, 0, h * (0.12 - ay) - 15);
+      // Stati della notte sul fuso (R2-D4, Q033): febbre a destra, nodo a sinistra.
+      if (o.fever(s.thread)) {
+        ctx.fillStyle = 'rgba(18,22,34,0.55)';
+        ctx.beginPath();
+        ctx.arc(w * 0.42, h * (0.42 - ay), 8.5, 0, Math.PI * 2);
+        ctx.fill();
+        drawBead(ctx, 'febbre', w * 0.42, h * (0.42 - ay) + 1, 1.25, false);
+      }
+      if (o.knotted(s.thread)) {
+        ctx.fillStyle = 'rgba(224,96,79,0.85)';
+        ctx.beginPath();
+        ctx.arc(-w * 0.42, h * (0.42 - ay), 9, 0, Math.PI * 2);
+        ctx.fill();
+        drawKnot(ctx, -w * 0.42, h * (0.42 - ay) - 1);
+      }
       if (o.nomeOn === s.thread) {
         ctx.fillStyle = 'rgba(240,124,108,0.5)';
         ctx.beginPath();

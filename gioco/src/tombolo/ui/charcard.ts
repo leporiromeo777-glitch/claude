@@ -22,6 +22,11 @@ export interface CharCardData {
   rancor?: string[];
   desireKey: string | null;
   memoria: number | null;
+  /**
+   * Che cosa ha adesso, già scritto (R2-D4, Q033, Q052): «Porta la lettera per
+   * Bepi.», «Ha la febbre.», «È annodato: in quest'ora non si muove.».
+   */
+  stato?: string[];
 }
 
 export function charCard(d: CharCardData): HTMLElement {
@@ -32,6 +37,12 @@ export function charCard(d: CharCardData): HTMLElement {
   head.append(badge, el('h2', { class: 'tb-char-name', text: d.nameText }));
   body.appendChild(head);
   if (d.roleKey) body.appendChild(textOf(d.roleKey, undefined, 'p', { className: 'tb-char-role' }));
+  if (d.stato && d.stato.length > 0) {
+    body.appendChild(textOf('tombolo.scheda.adesso', undefined, 'h3', { className: 'tb-char-sub' }));
+    const box = el('div', { class: 'tb-char-stato', test: 'tb-scheda-stato' });
+    for (const line of d.stato) box.appendChild(el('p', { class: 'tb-char-line', text: line }));
+    body.appendChild(box);
+  }
   if (d.kind !== 'persona') {
     body.appendChild(textOf(`tombolo.scheda.tipo.${d.kind}`, undefined, 'p', { className: 'tb-char-kind' }));
     return body;

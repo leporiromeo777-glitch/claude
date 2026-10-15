@@ -294,13 +294,14 @@ describe('condizioni sul segreto di lettura', () => {
     expect(r2.status).toBe('ok');
   });
 
-  it('con la lettera già consegnata il segreto non nasce più: a rischio', () => {
+  it('con la lettera già consegnata il segreto non nasce più: già fallita (Q015)', () => {
     const lv = mk({ initial: ['teresa', 'piero', 'nina'], quirks: ['teresaLegge'], beads: [L('L1', 'teresa', 'piero')] });
     const c = createContext(lv, {});
     const sim = simulate(lv, c, [{ hour: 7, crossings: [{ pair: 0, over: 'L' }] }]);
     expect(sim.ok).toBe(true);
     const rep = evaluate(lv, sim.timeline, sim.events, [{ t: 'ha', who: 'nina', bead: 'letta:L1', by: 9 }], c, false);
-    expect(rep[0]?.status).toBe('a_rischio');
+    expect(rep[0]?.status).toBe('fallita');
+    expect(rep[0]?.reasonKey).toBe('tombolo.cond.perso.ha');
   });
 });
 
