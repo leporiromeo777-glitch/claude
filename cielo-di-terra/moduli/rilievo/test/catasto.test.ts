@@ -66,7 +66,7 @@ describe('la facciata Catasto', () => {
     expect(c.stato.giorno).toBe(2);
     scollega();
     c.passa({ z: 2000, theta: 45 });
-    expect(mondo.stati[idSantAnna()]).toBe(1); // era già 1 nel motore: lo scollegamento non lo tocca più
+    expect(mondo.stati[idSantAnna()]).toBe(0); // scollegato: il mondo non riceve più la matita
   });
 
   it('notte a passi, previsione, salvataggio e caricamento', () => {
@@ -76,9 +76,10 @@ describe('la facciata Catasto', () => {
     expect(prev.righe).toHaveLength(4);
     c.iniziaNotte({ elvira: { sveglia: true } });
     c.avanzaNotte('22:00', { cella: 2799 });
-    c.avanzaNotte('22:25', { cella: 2311 });
+    c.avanzaNotte('22:25', { cella: 2311 }); // dalle 22:01 è sulla scorciatoia: alle 22:20 le Fade la trovano lì
     const res = c.chiudiNotte();
-    expect(res.righe.filter((x) => x.colore === 'rosso').map((x) => x.elemento)).toEqual(['E4', 'E1', 'E2', 'E3']);
+    expect(res.righe.filter((x) => x.colore === 'rosso').map((x) => x.elemento)).toEqual(['E1', 'E2', 'E3']);
+    expect(res.righe.filter((x) => x.colore === 'grigio').map((x) => x.elemento)).toEqual(['E4']);
     const blob = c.salva();
     const d = Catasto.carica(blob, r);
     expect(d.stato).toEqual(c.stato);
