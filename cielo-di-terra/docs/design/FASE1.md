@@ -138,7 +138,7 @@ Le condizioni dei contenuti leggono 46 flag e 1 oggetto che **nessun effetto dei
 | `appuntato_lanterna` | la Lanterna è appuntata con lo squadro | motore: squadro |
 | `appuntato_lume:tecla` | lo squadro resta 1 s sulla lanterna mobile di Tecla (23:00-02:00, Finestra delle Vedove) | motore: squadro |
 | `contatore:lumi_appuntati` (+1) | di notte, Elvira appunta un pilastro lontano con lume permanente (`capisaldi.json → lontani_di_notte`, `lume: "permanente"`), una volta per pilastro | motore: squadro |
-| `corbella_a_colori` | tutte le 63 particelle di `fade_fase1.json → inventario_corbella` sono a colore, rilevate da chiunque (contano anche le 15 seppia del G4) | motore: griglia delle particelle |
+| `corbella_a_colori` | tutte le 62 particelle di `fade_fase1.json → inventario_corbella` sono a colore, rilevate da chiunque (contano anche le 15 seppia del G4) | motore: griglia delle particelle |
 | `casa_nando_rilevata` | la particella 2796 è rilevata | motore: griglia delle particelle |
 
 **Tempo, cielo e notte**
@@ -244,7 +244,7 @@ Dieci capisaldi (dettagli in `capisaldi.json`). Per la storia ne servono quattro
 | Chiodo 11 | cippo della Cripta | (1110, 26,2, 45,9) | già rilevato dal G4 nel 2291 (lato 1-11) |
 | Chiodo 37 | muro della grà di Pian | (890, 17,5, 35,2) | gioco libero |
 
-Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-37, 4-37, 5-6, 2-6, 6-8, 7-8, 8-11. Bloccati: 1-2 (il tasso), 1-5 (la tettoia del lavatoio). Tutti si chiudono di giorno e alla brace; di notte solo quelli verso un pilastro con il lume acceso, cioè mai nella Fase 1 (i lumi di Ottavio arrivano nella Fase 3). I ventagli in `capisaldi.json` sono ritagliati all'area della Fase 1: le tre particelle fuori area dei lati del Pilastro 6 sono in `particelle_fuori_area`.
+Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-37, 4-37, 5-6, 2-6, 6-8, 7-8, 8-11. Bloccati: 1-2 (il tasso), 1-5 (la tettoia del lavatoio). Si chiudono di giorno e alla brace; di notte solo quelli verso un pilastro con il lume acceso, cioè mai nella Fase 1 (i lumi di Ottavio arrivano nella Fase 3). **Eccezione: 1-4, 3-4 e 4-37 si chiudono solo di notte**, mirando il lume di Ottavio sul Pilastro 4 (dalla Fase 3): il Pilastro 4 sta nella conca dietro il dosso del Pian dei Ricci (104 m), più alto del pilastro e del suo disco, e di giorno da Corbella il disco non si vede. Nella Fase 1 quindi i lati chiudibili davvero sono 13. I ventagli in `capisaldi.json` sono ritagliati all'area della Fase 1: le tre particelle fuori area dei lati del Pilastro 6 sono in `particelle_fuori_area`.
 
 ---
 
@@ -604,7 +604,7 @@ Dopo la missione 1 il mondo resta aperto. Niente di ciò che segue è necessario
 
 ### 7.1 Corbella a colori
 
-- La rete di Corbella chiude 16 lati. Le 63 particelle del nucleo che la rete può rilevare sono l'**inventario di Corbella** (`fade_fase1.json` → `inventario_corbella`).
+- La rete di Corbella chiude 16 lati, 13 di giorno (1-4, 3-4 e 4-37 solo di notte con il lume di Ottavio, dalla Fase 3: §3). Le 62 particelle del nucleo che i 13 lati di giorno possono rilevare sono l'**inventario di Corbella** (`fade_fase1.json` → `inventario_corbella`; la 2119, sotto le Selve, la copre solo 1-4 e ne è uscita).
 - Quando sono tutte a colore (contano anche quelle seppia del G4; con i soli lati di Elvira si coprono comunque tutte): **le campane di San Vigilio tornano a segnare l'ora** (un rintocco per ora, 06:00-21:00), primo servizio di Meridiana. Meridiana dall'altoparlante: «Corbella è in carta. Le ore sono tue, Giardiniera.»
 - I lati 1-8 e 8-11 chiudono anche la casa di Nando: da quel giorno la casa resta intera e Nando lo dice a tutti («La Svegliata mi ha benedetto la casa»). È la premessa della secondaria «La casa che non c'è» (Fase 5), che ne mostrerà il costo. Il flag è `casa_nando_rilevata`.
 - I lati 1-6, 1-7, 1-8 e 8-11 chiudono il muro di Ronco: da quel momento le Fade non rimettono più le pietre nel muro, e lasciano quelle della casa di Nando in un mucchio al margine. Nando: «Adesso le pietre dormono per terra. Meglio per la schiena.»
