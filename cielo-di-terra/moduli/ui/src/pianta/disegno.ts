@@ -335,9 +335,12 @@ export class PittorePianta {
       ctx.restore();
     };
     etichetta(x0 - larg / 2, 'Tappo Sud · a Mont', -Math.PI / 2);
-    etichetta(x1 + larg / 2, 'Il Sordo · Tappo Nord · a Lag', Math.PI / 2);
+    const nord = 'Il Sordo · Tappo Nord · a Lag';
+    etichetta(x1 + larg / 2, nord, Math.PI / 2);
+    // La Lanterna sopra la scritta del Tappo Nord, senza toccarla.
+    const metaScritta = ctx.measureText(spaziato(nord, 1)).width / 2;
     ctx.restore();
-    this.disegnaLanterna(H, xZ, larg);
+    this.disegnaLanterna(Math.max(this.px(26), H / 2 - metaScritta - this.px(44)), xZ, larg);
   }
 
   private disegnaReticolo(vista: Vista, W: number, H: number, tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {
@@ -763,10 +766,9 @@ export class PittorePianta {
   }
 
   /** La Lanterna, sul Tappo Nord: resta un cerchietto bianco anche quando tutto è a colori. */
-  private disegnaLanterna(H: number, xZ: (z: number) => number, larg: number): void {
+  private disegnaLanterna(y: number, xZ: (z: number) => number, larg: number): void {
     const { ctx } = this;
     const x = xZ(LUNGHEZZA_Z) + larg / 2;
-    const y = Math.max(30, H / 2 - 200);
     ctx.save();
     ctx.fillStyle = '#fbf7ec';
     ctx.strokeStyle = COLORI.inchiostro;

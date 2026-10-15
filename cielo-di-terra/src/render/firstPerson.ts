@@ -22,6 +22,7 @@ function cylinderBetween(b: GeomBuilder, a: Vector3, c: Vector3, radius: number,
   const ang = Math.acos(Math.max(-1, Math.min(1, up.dot(dir) / len)));
   m.makeTranslation(a.x, a.y, a.z);
   if (axis.lengthSq() > 1e-8) m.multiply(new Matrix4().makeRotationAxis(axis, ang));
+  else if (dir.y < 0) m.multiply(new Matrix4().makeRotationX(Math.PI)); // verso il basso
   m.scale(_v.set(radius, len, radius));
   b.add(PRIMS.cylinder(8), m, color);
 }
