@@ -1,8 +1,86 @@
 # Stato del pacchetto: piattaforma-qa (parte 2, suite end-to-end)
 
-**Stato:** done, allineato alla revisione 1 (vedi «Dopo la revisione 1» qui sotto: suite su `HEAD` 116e167, 280 test, 172 superati, 10 falliti per 5 difetti di altri gruppi, 98 saltati per progetto). Tutte le suite di ARCHITETTURA 15.2 (tranne `smoke`, di fondamenta) sono scritte e girano sui cinque progetti di Playwright. La verifica ha allargato il giro delle schermate, ha reso il controllo del layout capace di vedere i difetti trovati dal primo playtest (calligrafia fuori dal foglio, pulsanti coperti, parole spezzate), ha aggiunto il controllo di tutta la carta della storia e il comportamento da app di GDD 17. I test che falliscono lo fanno per difetti di altri pacchetti, descritti qui sotto con i passi per riprodurli.
+**Stato:** done, collaudo finale superato (vedi «Collaudo finale» qui sotto: suite completa sui cinque progetti su `HEAD` 6cc1041, 290 test, 190 superati, 0 falliti, 100 saltati per progetto; `tsc`, `vitest`, `levels:check --qualita`, `native:check`, `native:test` e `build` verdi). Nel collaudo un difetto del gioco corretto (la testata dell'alba illeggibile sui diorami chiari) e un test che non guardava quello che diceva (la notte del giro delle schermate). Tutte le suite di ARCHITETTURA 15.2 (tranne `smoke`, di fondamenta) sono scritte e girano sui cinque progetti di Playwright. Le sezioni più in basso sono la storia dei giri precedenti.
 
 La parte 1 (nativo: `android/`, `ios/`, `scripts/`, `docs/STORE.md`) è del pacchetto piattaforma-nativa e non è stata toccata.
+
+## Collaudo finale (15/10/2026)
+
+Ultimo giro di QA dopo la rifinitura della revisione 2 (commit 1e84849…e7387c4). Nessun altro modificava il gioco durante il collaudo.
+
+### Come si è lanciata
+
+- Build statica di `HEAD` e7387c4 (poi di 2d8dda5, con la correzione qui sotto): `VITE_E2E=1 npx vite build --outDir <scratchpad>/qa-finale/dist --emptyOutDir`, servita da `npx vite preview --outDir <scratchpad>/qa-finale/dist --host 127.0.0.1 --port 6110 --strictPort`.
+- `E2E_PORT=6110 E2E_REUSE=1 E2E_DIST=<scratchpad>/qa-finale/dist E2E_SHOTS=1 npx playwright test --workers=2` su tutti i progetti (il test offline accende il suo server fra 6111 e 6119). Con `E2E_SHOTS=1` si riscrivono tutti i riferimenti; nel repository restano solo quelli per gli store.
+- Macchina libera (nessun altro agente): carico medio intorno a 6 su 4 CPU durante la suite.
+
+### Controlli fuori dalla suite end-to-end
+
+| Comando | Prima del collaudo (e7387c4) | Alla fine (6cc1041) |
+|---|---|---|
+| `npx tsc --noEmit -p .` | nessun errore | nessun errore |
+| `npx vitest run` | 102 file, 1633 test superati (39 s) | 102 file, 1633 test superati |
+| `npm run levels:check -- --qualita` | 34 livelli OK, nessun avviso K7 (due note volute: arc6 si rammenda con le occasioni, g13 lunardi+nina impossibile solo per la matassa) | 34 livelli OK, file `.computed.json` invariati |
+| `npm run native:check` | 48/48 controlli | invariato (nessun file nativo toccato) |
+| `npm run native:test` | 70 prove superate, 0 fallite | invariato |
+| `npm run build` | nessun errore | nessun errore |
+
+### Primo giro: la suite com'era
+
+280 test in 24,7 min: **182 superati, 0 falliti, 0 instabili, 98 saltati** (progetti esclusi apposta).
+
+| Progetto | Superati | Falliti | Saltati |
+|---|---|---|---|
+| desktop | 56 | 0 | 0 |
+| desktop-hd | 12 | 0 | 44 |
+| iphone | 42 | 0 | 14 |
+| android-piccolo | 37 | 0 | 19 |
+| ipad-orizzontale | 35 | 0 | 21 |
+
+I cinque difetti del giro «Dopo la revisione 1» sono corretti e i test che li trovavano passano su tutti i progetti: niente avviso a banner per il rifiuto di Gino (revisione1, desktop e iphone), nessun avviso su Teresa all'apertura di arc1, «TRAMA» intera nei Crediti al 140%, «L'ANNIVERSARIO» intero nel bigliettino di Marta al 140%, e nessun gesto perso (prologo, audio e Archivio verdi su tutti i progetti, al primo colpo, in entrambi i giri). Anche le attese cambiate dalla revisione 2 (merletto finito che resta col carillon e «All'alba», R2-D5) erano già allineate dalla rifinitura.
+
+Una suite verde non basta: ho guardato gli allegati e le schermate di ogni progetto. Da lì due problemi.
+
+### Difetti trovati e corretti
+
+1. **Gioco (campagna, `src/campaign/campaign.css`) · la testata dell'alba non si leggeva sui diorami chiari.** «IL GIORNO ACCADE» è ottone (`--ottone` #C9A24A) senza fondo; sulla Piazza di giorno di g06, l'alba delle schermate per gli store, il contrasto misurato sui pixel era **1,07:1** (Android) e 1,05:1 (iPad), il titolo bianco 2,2:1. Era già fra le osservazioni del giro precedente; GDD 14 chiede ≥ 4,5:1. Correzione piccola e solo di stile: `.cp-alba-testa` sta su una fascia scura come il titolo del prologo (`rgba(10, 12, 18, 0.82)`, come `.cp-fascia` di CAM-10), larga quanto il testo, con angoli arrotondati. Vale anche per la rivelazione d'Archivio, che usa la stessa testata. Con la fascia l'ottone resta ≥ 4,5:1 anche se sotto ci fosse un fondo bianco (alto contrasto compreso).
+   - Test nuovo `tests/e2e/collaudo.spec.ts` (4 progetti da gioco, normale e alto contrasto): alba di g06, fascia con opacità ≥ 0,8, ottone e titolo ≥ 4,5:1 sulla fascia sopra un fondo bianco, fascia dentro lo schermo e sopra la vignetta, controllo del layout senza problemi. Sulla build di prima fallisce (`alpha 0`); su quella corretta passa su tutti i progetti.
+2. **Test (`tests/e2e/helpers/tour.ts`) · la tappa `tombolo-notte` del giro delle schermate mostrava una notte già persa.** Passava al solver `campaign.evening().accepted`, che è fatto di oggetti `{ noteId }`, invece degli id: la soluzione precalcolata non si trovava, il solver risolveva la notte senza richieste e dopo tre ore la richiesta di Zeno risultava «fallita» (spillo barrato con «!12», gettone con la ×). Il test era verde, ma questa tappa e le quattro dopo (`tombolo-obiettivi`, `-suggerimento`, `-riavvolgi`, `-scheda`, tutte sulla stessa notte) fotografavano e controllavano uno stato che un giocatore che segue la soluzione non vede mai; l'Indizio diceva «Vale se lasci cadere la richiesta di Zeno e quella di Teresa». Corretto: si passano gli id; `solutionRows` rifiuta gli id che non sono stringhe (prima davano in silenzio la soluzione senza richieste); la tappa controlla che, seguendo la soluzione, nessuna richiesta appuntata sia persa. Il gioco era giusto: con le righe della soluzione di `g05.zeno` + `g05.teresa` la richiesta di Zeno resta «a rischio» (la bozza vuota la farebbe fallire) e diventa «soddisfatta» quando si fissano le 12.
+
+Controllato e non è un difetto: lo spillo rosso barrato nella colonna del Faro a 360 px ha l'ora «12» intera, l'ultima cifra finisce a 0,5 px dal bordo (sonda a 360×640 e 390×844, dpr 3).
+
+### Giro finale
+
+290 test in 24,6 min sulla build corretta: **190 superati, 0 falliti, 0 instabili, 100 saltati**. I 10 test in più sono `collaudo.spec.ts` (2 test × 5 progetti, saltati su desktop-hd).
+
+| Progetto | Superati | Falliti | Saltati |
+|---|---|---|---|
+| desktop | 58 | 0 | 0 |
+| desktop-hd | 12 | 0 | 46 |
+| iphone | 44 | 0 | 14 |
+| android-piccolo | 39 | 0 | 19 |
+| ipad-orizzontale | 37 | 0 | 21 |
+
+Misure (allegati dei test, CPU condivisa fra 2 worker):
+- percorso d'oro (desktop e iphone): 24 giornate, **48 richieste appuntate, 48 soddisfatte**, 6 Archivi rammendati, requisiti del finale vero raggiunti giocando, poi C, D, A e B fino alla fine;
+- carta della storia: 153 fogli per giro, nessun problema (base sui 4 progetti da gioco, 140% e inglese su desktop e Android piccolo);
+- trascinamento su 6 colonne: p95 **1,7 ms**, p50 0,5 ms, 267 fotogrammi durante il trascinamento;
+- heap JS dopo 10 giornate (g00-g09) in autoplay: **9 MB**;
+- build: JavaScript 408,9 KB gzip (budget 450; erano 390,7 KB dopo la revisione 1), worker 20 KB, CSS 18,6 KB gzip (82,5 KB senza compressione), font 222,1 KB, asset 2,15 MB, atlas 1,61 MB.
+- Note informative del controllo del layout (non sono errori): 19 classi di testo fra 13,6 e 14,4 px (sotto i 15 px × scala di GDD 10.1: sottotitoli delle voci del titolo, «Prologo», motivo dei fili, etichette delle schede, segno «Nuova», fonte delle voci, «Tocca per continuare», intestazioni del bilancio, crediti); 4 bersagli fra 44 e 48 px (tre voci lunghe del Taccuino e `tb-scorri-giu` sui telefoni).
+
+### Screenshot
+
+Rigenerati tutti i riferimenti (`__screenshots__/layout/`, fuori da git) e le 15 schermate per gli store (`__screenshots__/store/`, nel repository). Guardate: le 15 per gli store (titolo, g16 a metà notte con la nota «Il pozzo ha restituito tutto», alba di g06 con la Nina al pozzo, Taccuino a g09, Merletto del giorno con «Nuovo record»), prima e dopo la correzione dell'alba; nel giro delle schermate le albe di g00 e g14 (la fascia anche sui diorami scuri), il bilancio al 140% su Android (scorre, «Continua» nel piede: rifinitura), la notte di g05 (in inglese prima della correzione del giro, in italiano dopo) e il suggerimento, il nodo del Telaio, il Taccuino con la scheda «Lettere» col foglio al posto della nota musicale (rifinitura), la scelta di g23, l'epilogo e i titoli di coda. Nessun avviso, nessun testo tagliato.
+
+Osservazioni senza test che falliscono (per chi decide):
+- Nella schermata per gli store Android di g16 il pulsante «↓ ancora un'ora» copre i fili alle 16 e alle 17 (a 360×640 il merletto non entra tutto): è l'interfaccia vera, ma per la scheda dello store si potrebbe fermare la notte un'ora prima o scegliere un'altra inquadratura.
+- Sull'iPad la nota a margine di g16 copre le ore 6-7 già tessute in cima al merletto: è permesso da D04 (non copre la riga corrente né le due dopo).
+- Sui telefoni stretti la fascia dell'alba va su due righe e prende tutta la larghezza (il titolo della giornata non entra accanto a «Il giorno accade»).
+
+### Commit del collaudo
+
+2d8dda5 (fascia dell'alba e `collaudo.spec.ts`), ef554d0 (giro delle schermate e `solutionRows`), 6cc1041 (schermate per gli store), più questo rapporto. Niente push.
 
 ## Dopo la revisione 1 (15/10/2026)
 
@@ -116,6 +194,7 @@ File (tutti in `tests/e2e/`):
 | `i18n.spec.ts` | In inglese nessuna chiave L1 mancante (core, ui, tombolo, campaign, audio, comune), storia inglese controllata a parte; italiano completo; giro di tutte le schermate in italiano e in inglese senza chiavi chieste e mancanti né chiavi visibili; `<html lang>`. | desktop |
 | `rete.spec.ts` | Percorso completo (tutte le schermate, una partita fino all'Archivio di g03, Merletto libero) con la rete sorvegliata: tutte le richieste sono dell'origine del gioco. Dopo il primo caricamento, con il server fermato davvero (service worker): prologo, sera, notte, poi ricarica della pagina e ancora sera, notte, Merletto del giorno (Worker) e libero, Impostazioni, Crediti. | desktop, iphone |
 | `revisione1.spec.ts` | Le correzioni principali della revisione 1 (vedi «Dopo la revisione 1»). | 4 da gioco (alcuni desktop e iphone) |
+| `collaudo.spec.ts` | Le correzioni del collaudo finale: testata dell'alba leggibile (fascia scura, contrasto ≥ 4,5:1 anche su un fondo bianco, normale e alto contrasto). | 4 da gioco |
 
 ### API dei file di aiuto (`tests/e2e/helpers/`, riusabili da chiunque scriva un test end-to-end)
 
