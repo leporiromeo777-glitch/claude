@@ -74,6 +74,7 @@ export {
 export {
   creaSquadroPrimaPersona,
   creaVeloPrimaPersona,
+  PUNTALE_PIANTATO,
   manoPresa,
   manoAppoggiata,
   type PosaSquadro,
