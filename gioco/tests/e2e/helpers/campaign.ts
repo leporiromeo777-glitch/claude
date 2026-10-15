@@ -68,7 +68,7 @@ export const CAST = ['teresa', 'marta', 'piero', 'gino', 'bepi', 'nina', 'zeno',
 interface Evening {
   levelId: string;
   noteIds: string[];
-  accepted: string[];
+  accepted: { noteId: string; guesses?: Record<string, string> }[];
   pinsLeft: number;
   anonymous: string[];
   objectSeen: boolean;
@@ -142,6 +142,10 @@ export async function precomputed(page: Page, levelId: string, noteIds: readonly
  * (`engine.solve`, che sui livelli grandi può fermarsi al limite: allora null).
  */
 export async function solutionRows(page: Page, levelId: string, noteIds: readonly string[], flags?: Record<string, unknown>): Promise<RowMovesLite[] | null> {
+  // Un id che non è una stringa (per esempio `campaign.evening().accepted`, fatto di oggetti)
+  // darebbe in silenzio la soluzione senza richieste.
+  const bad = noteIds.filter((id) => typeof id !== 'string');
+  if (bad.length > 0) throw new Error(`solutionRows(${levelId}): id dei bigliettini non validi ${JSON.stringify(bad)}`);
   const pre = await precomputed(page, levelId, noteIds);
   if (pre !== undefined) return pre;
   const r = await call<{ status: string; rows?: RowMovesLite[] } | null>(page, 'engine.solve', levelId, [...noteIds], flags ? { flags } : {});

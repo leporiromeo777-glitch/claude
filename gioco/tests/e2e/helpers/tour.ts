@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 import { RULE_IDS } from '../../../src/core/ids';
 import { CAST, contentNotes, solutionRows, toFinale } from './campaign';
-import { call, phase, until, waitNight, waitScene } from './game';
+import { call, nightState, phase, until, waitNight, waitScene } from './game';
 
 export interface TourStep {
   id: string;
@@ -233,11 +233,17 @@ export const TOUR: TourStep[] = [
       await acceptSome(page, 2);
       await call(page, 'campaign.toNight');
       await waitNight(page);
-      const accepted = (await call<{ accepted: string[] } | null>(page, 'campaign.evening'))?.accepted ?? [];
+      // `accepted` della sera sono oggetti { noteId, guesses? }: al solver vanno gli id (prima
+      // del collaudo finale passavano gli oggetti, la soluzione era quella senza richieste e la
+      // richiesta di Zeno risultava fallita alle 10 nella schermata).
+      const accepted = ((await call<{ accepted: { noteId: string }[] } | null>(page, 'campaign.evening'))?.accepted ?? []).map((a) => a.noteId);
       const rows = await solutionRows(page, 'g05', accepted);
       // Tre ore tessute come la soluzione: la notte resta a metà.
       if (rows) await call(page, 'night.autoplay', rows.slice(0, 3));
       await settle(page, 600);
+      // Seguendo la soluzione nessuna richiesta appuntata è già persa.
+      const lost = (await nightState(page)).requests.filter((r) => r.status === 'fallita').map((r) => r.noteId);
+      if (rows && lost.length > 0) throw new Error(`tombolo-notte: con la soluzione di ${accepted.join(', ')} risultano fallite ${lost.join(', ')}`);
     },
   },
   {
