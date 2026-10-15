@@ -28,7 +28,12 @@ export interface SkyTimes {
   duskEnd: number;
 }
 
-export const DEFAULT_TIMES: SkyTimes = { dawnStart: 5.5, dawnEnd: 6.6, duskStart: 19.4, duskEnd: 20.6 };
+/**
+ * Orari predefiniti, allineati a docs/design/FASE1.md: alba 05:30, la miccia
+ * arriva sopra Corbella (z ~ 1050) alle 05:40 e in fondo al cilindro alle 06:00;
+ * il ritiro comincia alle 19:30 e alle 21:00 resta la brace.
+ */
+export const DEFAULT_TIMES: SkyTimes = { dawnStart: 5.5, dawnEnd: 6.0, duskStart: 19.5, duskEnd: 21.0 };
 
 export interface SkyState {
   hours: number;
