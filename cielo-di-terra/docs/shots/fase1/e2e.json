@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T08:41:14.411Z",
-  "esito": "fallita",
-  "secondi": 56,
+  "data": "2026-10-15T08:42:12.012Z",
+  "esito": "ok",
+  "secondi": 51,
   "passi": [
-    "pronto in 13.3 s",
+    "pronto in 6.6 s",
     "— Titolo",
     "  nella capsula 5, 05:38, giorno 1",
     "— P0.1 Il vetro",
@@ -94,7 +94,15 @@
     "  ✓ il lato 7-8: la passerella misurata (cella:2797 rilevata e cella:2798 rilevata e passo:m1_strada completato)",
     "— M1.20 La seconda notte",
     "  aspetta fino a la brace: 8.38 → 19:30",
-    "  aspetta fino a fra un'ora: 19.50 → 20:31"
+    "  aspetta fino a fra un'ora: 19.50 → 20:31",
+    "  ✓ la seconda notte (giorno:3 e passo:m1_seconda_notte completato)",
+    "— M1.21 La prova",
+    "  ✓ la passerella è rimasta (variante:E1=Abitata)",
+    "  ottavio: … / L'ho misurata. / Non lo so ancora. / … / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso? / Come ci si arriva, al lago appeso?",
+    "  ✓ la prima legge (passo:m1_prova completato e taccuino:i_legge_1)",
+    "— M1.22 La lettera di Rosa",
+    "  ✓ missione 1 completata (missione:m01_castagno_vuoto completata e flag:gioco_libero)",
+    "Taccuino: 64 voci. Salvataggio fatto."
   ],
   "errori": []
 }
