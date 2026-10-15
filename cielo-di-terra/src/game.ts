@@ -13,19 +13,13 @@
  */
 import {
   ColorManagement,
-  DepthFormat,
-  DepthTexture,
   Group,
-  LessEqualCompare,
   LinearSRGBColorSpace,
   PerspectiveCamera,
   Scene,
-  UnsignedIntType,
   Vector3,
-  WebGLRenderTarget,
   WebGLRenderer,
   type Material,
-  type Texture,
 } from 'three';
 import { EventBus } from './core/events';
 import { Input } from './core/input';
@@ -54,7 +48,7 @@ import { Vegetation } from './scene/vegetation';
 import { StatsOverlay } from './ui/stats';
 import { DEG, G_EARTH, LAYOUT } from './world/constants';
 import { apparentAcceleration, cylToWorld, gravityAtHeight, localFrameAt, localFrameTheta, upAt, worldToCyl, type LocalFrame } from './world/cylinder';
-import { WorldClock, type SkyState } from './world/sky';
+import { WorldClock, keyLightDir, type SkyState } from './world/sky';
 import { World, applyDemoCells } from './world/world';
 
 export interface GameOptions {
@@ -101,6 +95,7 @@ export interface PlayerState {
 const _f: LocalFrame = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
 const _v = new Vector3();
 const _w = new Vector3();
+const _luce = { x: 0, y: 0, z: 0 };
 
 export class Game {
   readonly renderer: WebGLRenderer;
@@ -157,7 +152,6 @@ export class Game {
   private misura: MisuraQualita | null = null;
   private readonly tempoGpu: TempoGpu;
   private readonly ascoltatoriQualita = new Set<(p: PresetQualita) => void>();
-  private mappaOmbreVuota: WebGLRenderTarget | null = null;
 
   constructor(
     private container: HTMLElement,
@@ -349,39 +343,17 @@ export class Game {
   }
 
   /**
-   * Le ombre portate della traccia «luce» seguono la qualità: spente a Bassa, 'media' e 'alta'
-   * sopra (`PresetQualita.ombre`). L'aggancio di «luce» crea `game.luce.ombre` in `init`; qui lo si
-   * cerca senza dipenderne, così il collegamento funziona appena i due rami sono uniti e non fa
-   * nulla prima (o se le ombre non ci sono). Si richiama anche alla fine di `init`.
+   * Ciò che la qualità comanda nel mondo della traccia «luce»: le ombre portate (spente a Bassa,
+   * 'media' e 'alta' sopra: `PresetQualita.ombre`) e i motivi delle superfici e del prato
+   * (`uDettaglio`: economici a Bassa, pieni sopra: `PresetQualita.motivi`). Si richiama a ogni
+   * cambio di qualità e alla fine di `init` (prima `luce` non c'è ancora).
+   *
+   * La mappa d'ombra non è mai null: a ombre spente e di notte `Ombre` lega la mappa vuota di
+   * `mappaOmbraVuota()` (uniforms.ts), così lo shader del mondo non perde mai le sue draw.
    */
   private applicaOmbre(p: PresetQualita): void {
-    const luce = (this as unknown as { luce?: { ombre?: { impostaQualita?: (q: PresetQualita['ombre']) => void } } }).luce;
-    luce?.ombre?.impostaQualita?.(p.ombre);
-  }
-
-  /**
-   * Rete di sicurezza per l'unione con la traccia «luce»: lo shader del mondo legge `uOmbraMappa`
-   * come `sampler2DShadow`. Se vale null (ombre spente a Bassa, oppure di notte prima del primo
-   * passaggio d'ombra) three.js lega una texture vuota a colori e OGNI draw del mondo fallisce
-   * (GL_INVALID_OPERATION, «Mismatch between texture format and sampler type»): resterebbero solo
-   * lumi, stelle e vetro. Qui si lega al suo posto una mappa di profondità 1×1 pulita (tutto in
-   * luce); il passaggio delle ombre la sostituisce appena disegna. Senza `uOmbraMappa` non fa nulla.
-   */
-  private garantisciMappaOmbre(): void {
-    const u = (this.uniforms as unknown as { uOmbraMappa?: { value: Texture | null } }).uOmbraMappa;
-    if (!u || u.value) return;
-    if (!this.mappaOmbreVuota) {
-      const dt = new DepthTexture(1, 1, UnsignedIntType);
-      dt.format = DepthFormat;
-      dt.compareFunction = LessEqualCompare;
-      dt.name = 'ombre-vuota';
-      this.mappaOmbreVuota = new WebGLRenderTarget(1, 1, { depthTexture: dt, depthBuffer: true });
-      const prima = this.renderer.getRenderTarget();
-      this.renderer.setRenderTarget(this.mappaOmbreVuota);
-      this.renderer.clear(false, true, false);
-      this.renderer.setRenderTarget(prima);
-    }
-    u.value = this.mappaOmbreVuota.depthTexture;
+    this.uniforms.uDettaglio.value = p.motivi;
+    this.luce?.ombre.impostaQualita(p.ombre);
   }
 
   private nomeRenderer(): string {
@@ -579,7 +551,6 @@ export class Game {
     const misura = !!this.misura && !this.misura.finita;
     if (misura) this.tempoGpu.inizio();
     // 1. il mondo nel render target HDR della post
-    this.garantisciMappaOmbre();
     this.post.inizioMondo();
     this.post.fase('mondo', () => this.renderer.render(this.scene, this.camera));
     // 2. contorni dalla profondità del mondo, poi profondità pulita per la prima persona
@@ -609,12 +580,12 @@ export class Game {
     const scrUp = this.rig.screenUp(new Vector3());
     const vertical = -_v.dot(scrUp);
     fp.update(Math.min(0.05, dt), pl.veloAmount, lateral, vertical, this.rig.rollError);
-    // luce della Linea nello spazio della camera
-    localFrameAt(this.camera.position, _f, pl.cyl.theta);
-    const a = this.sky.tiltAlpha;
-    const b = this.sky.tiltBeta;
-    const L = _f.up.clone().multiplyScalar(Math.cos(a)).addScaledVector(_f.east, Math.sin(a) * Math.cos(b)).addScaledVector(_f.north, Math.sin(a) * Math.sin(b));
-    fp.uniforms.uLightView.value.copy(L.transformDirection(this.camera.matrixWorldInverse));
+    // luce della Linea nello spazio della camera: la stessa luce principale del mondo (il nucleo che
+    // scorre lungo l'asse, radente al mattino e alla sera: `keyLightDir` della traccia «luce»)
+    const c = this.camera.position;
+    const k = keyLightDir(c.x, c.y, c.z, this.sky, _luce);
+    _w.set(k.x, k.y, k.z);
+    fp.uniforms.uLightView.value.copy(_w.transformDirection(this.camera.matrixWorldInverse));
     fp.uniforms.uSun.value.set(...this.sky.sunColor);
     fp.uniforms.uSunI.value = this.sky.sunIntensity;
     fp.uniforms.uAmb.value.set(...this.sky.ambientTop);

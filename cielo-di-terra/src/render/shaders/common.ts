@@ -431,7 +431,9 @@ vec3 coloreFoschia(vec3 P, float dist, out float glow) {
   hc = mix(hc, uHazeSun, clamp(fwd, 0.0, 1.0));
   // la Linea illumina la foschia attorno a sé
   float litAt = max(step(q.z, uLineaIgnite), 0.55 * uNight);
-  glow = (exp(-dmin / 38.0) * 0.6 + exp(-dmin / 160.0) * 0.3) * 0.7 * litAt * smoothstep(0.0, 260.0, dist);
+  // (alone stretto: con la post-produzione il bagliore HDR della Linea apre già l'alone largo;
+  // qui resta una riga di luce nell'aria, come nei bozzetti, non una colonna bianca)
+  glow = (exp(-dmin / 20.0) * 0.6 + exp(-dmin / 110.0) * 0.24) * 0.7 * litAt * smoothstep(0.0, 260.0, dist);
   glow *= 1.0 - 0.45 * uNight;
   return hc + uLineaGlow * glow * 0.36;
 }
