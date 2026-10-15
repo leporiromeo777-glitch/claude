@@ -155,6 +155,7 @@ async function main() {
     await page.evaluate(
       ([src, frames]) => {
         const g = window.__GAME__;
+        g.stopLoop();
         g.pause();
         g.holdKey('Space', false);
         g.setClockRunning(false);
@@ -168,14 +169,14 @@ async function main() {
       },
       [shot.setup.toString(), shot.frames],
     );
-    // due fotogrammi del ciclo rAF per essere certi che il canvas sia aggiornato
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const ms = await page.evaluate(() => window.__GAME__.timedRender());
     const file = join(outDir, shot.file);
-    await page.screenshot({ path: file });
+    const dataUrl = await page.evaluate(() => window.__GAME__.capture());
+    writeFileSync(file, Buffer.from(dataUrl.split(',')[1], 'base64'));
     const st = await page.evaluate(() => ({ s: window.__GAME__.getStats(), p: window.__GAME__.getPlayerState() }));
-    const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s, draw ${st.s.drawCalls}, tri ${st.s.triangles}, terreno LOD ${st.s.terrainByLod.join('/')}, alberi ${st.s.treesByLod.join('/')}, camera z ${st.p.camera.z.toFixed(0)} θ ${st.p.camera.theta.toFixed(1)} h ${st.p.camera.h.toFixed(1)}, g ${st.p.gravityG.toFixed(2)}, ${st.p.mode}`;
+    const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s (un fotogramma ${(ms / 1000).toFixed(1)} s), draw ${st.s.drawCalls}, tri ${st.s.triangles}, terreno LOD ${st.s.terrainByLod.join('/')}, alberi ${st.s.treesByLod.join('/')}, camera z ${st.p.camera.z.toFixed(0)} θ ${st.p.camera.theta.toFixed(1)} h ${st.p.camera.h.toFixed(1)}, g ${st.p.gravityG.toFixed(2)}, ${st.p.mode}`;
     console.log(line);
-    report.push({ ...shot, setup: undefined, stats: st.s, player: st.p });
+    report.push({ ...shot, setup: undefined, frameMs: Math.round(ms), stats: st.s, player: st.p });
   }
   writeFileSync(join(outDir, 'shots.json'), JSON.stringify({ date: new Date().toISOString(), size: [W, H], chromiumArgs: CHROMIUM_ARGS, renderer: info.renderer, shots: report }, null, 2));
   const errors = logs.filter((l) => l.includes('error') || l.includes('Error'));

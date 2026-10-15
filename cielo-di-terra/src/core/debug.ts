@@ -37,6 +37,13 @@ export interface GameDebugApi {
   step(n: number): void;
   pause(): void;
   resume(): void;
+  /** Ferma/riavvia il ciclo requestAnimationFrame (gli screenshot disegnano solo con step). */
+  stopLoop(): void;
+  startLoop(): void;
+  /** Disegna un fotogramma e restituisce il tempo impiegato (ms). */
+  timedRender(): number;
+  /** PNG del canvas come data URL (richiede preserveDrawingBuffer, attivo in E2E). */
+  capture(): string;
   /** Apre il Velo in volo con una velocità iniziale lungo lo sguardo orizzontale (m/s). */
   startGlide(speed?: number): void;
   /** Tiene premuto o rilascia un tasto (codici KeyboardEvent.code). */
@@ -116,6 +123,21 @@ export function installDebugApi(game: Game): GameDebugApi {
     },
     resume() {
       game.loop.paused = false;
+    },
+    stopLoop() {
+      game.loop.stop();
+    },
+    startLoop() {
+      game.loop.start();
+    },
+    timedRender() {
+      const t0 = performance.now();
+      game.loop.stepFrames(0);
+      game.renderer.getContext().finish();
+      return performance.now() - t0;
+    },
+    capture() {
+      return game.renderer.domElement.toDataURL('image/png');
     },
     startGlide(speed = 12) {
       const p = game.player;
