@@ -14,6 +14,12 @@
  *   evento:nome [argomenti…]   evento per il gioco (suoni, scene, dissolvenze…)
  *   tempo:salta-a 6  tempo:salta-a 6:30  tempo:avanza 2   richiesta al gioco
  *   dialogo:id [avvia]  richiesta al gioco di aprire un dialogo
+ *
+ * Forme dei contenuti veri, ricondotte alle precedenti:
+ *   contatore:nome+1  contatore:nome-1  contatore:nome=3  contatore:nome   (flag numerici)
+ *   testo:id                → evento:testo id          (il gioco mostra un testo lungo di testi.json)
+ *   suggerimento:id         → evento:suggerimento id   (il gioco mostra un suggerimento)
+ *   variante:E1=Abitata     → evento:variante E1 Abitata (il gioco cambia la variante di un elemento mobile)
  */
 import { analizzaValore } from './condizioni';
 import type { ValoreFlag } from './flag';
@@ -44,6 +50,7 @@ export class ErroreEffetto extends Error {
 }
 
 const RE_ID = /^[\p{L}\p{N}_.\-/']+$/u;
+const RE_FLAG = /^[\p{L}\p{N}_.\-/':]+$/u;
 
 const AZIONI_TACCUINO: Record<string, AzioneTaccuino> = {
   aggiungi: 'aggiungi',
@@ -81,17 +88,18 @@ export function analizzaEffetto(testo: string): Effetto {
   const errore: (motivo: string) => never = (motivo) => {
     throw new ErroreEffetto(motivo, testo);
   };
-  const id = (x: string, cosa: string): string => {
+  const id = (x: string, cosa: string, re: RegExp = RE_ID): string => {
     if (!x) errore(`manca ${cosa}`);
-    if (!RE_ID.test(x)) errore(`${cosa} non valido «${x}»`);
+    if (!re.test(x)) errore(`${cosa} non valido «${x}»`);
     return x;
   };
+  const nomeFlag = (x: string): string => id(x, 'il nome del flag', RE_FLAG);
   if (!s) errore('effetto vuoto');
 
   if (s.startsWith('!')) {
     const resto = s.slice(1).trim();
     if (!resto.toLowerCase().startsWith('flag:')) errore('«!» si usa solo davanti a «flag:»');
-    return { tipo: 'flag-rimuovi', nome: id(resto.slice(5).trim(), 'il nome del flag') };
+    return { tipo: 'flag-rimuovi', nome: nomeFlag(resto.slice(5).trim()) };
   }
 
   const due = s.indexOf(':');
@@ -106,17 +114,37 @@ export function analizzaEffetto(testo: string): Effetto {
       let m = /^([^=+\-\s][^=\s]*?)(\+=|-=)(-?\d+(?:[.,]\d+)?)$/.exec(compatto);
       if (m) {
         const d = Number(m[3]!.replace(',', '.'));
-        return { tipo: 'flag-somma', nome: id(m[1]!, 'il nome del flag'), delta: m[2] === '-=' ? -d : d };
+        return { tipo: 'flag-somma', nome: nomeFlag(m[1]!), delta: m[2] === '-=' ? -d : d };
       }
       if (compatto.startsWith('-') && !compatto.includes('=')) {
-        return { tipo: 'flag-rimuovi', nome: id(compatto.slice(1), 'il nome del flag') };
+        return { tipo: 'flag-rimuovi', nome: nomeFlag(compatto.slice(1)) };
       }
       m = /^([^=\s]+)=(.*)$/.exec(compatto);
       if (m) {
         if (m[2] === '') errore('manca il valore dopo «=»');
-        return { tipo: 'flag', nome: id(m[1]!, 'il nome del flag'), valore: analizzaValore(m[2]!) };
+        return { tipo: 'flag', nome: nomeFlag(m[1]!), valore: analizzaValore(m[2]!) };
       }
-      return { tipo: 'flag', nome: id(compatto, 'il nome del flag'), valore: true };
+      return { tipo: 'flag', nome: nomeFlag(compatto), valore: true };
+    }
+    case 'contatore': {
+      const compatto = arg.replace(/\s+/g, '');
+      const m = /^([^=+\-]+?)(\+=|-=|\+|-|=)(\d+)$/.exec(compatto);
+      if (m) {
+        const n = Number(m[3]);
+        if (m[2] === '=') return { tipo: 'flag', nome: nomeFlag(m[1]!), valore: n };
+        return { tipo: 'flag-somma', nome: nomeFlag(m[1]!), delta: m[2]!.startsWith('-') ? -n : n };
+      }
+      if (/[=+]/.test(compatto)) errore('forma: contatore:nome+1, contatore:nome-1 o contatore:nome=3');
+      return { tipo: 'flag-somma', nome: nomeFlag(compatto), delta: 1 };
+    }
+    case 'testo':
+    case 'suggerimento':
+      if (parole.length !== 1) errore(`forma: ${prefisso}:id`);
+      return { tipo: 'evento', nome: prefisso, argomenti: [id(parole[0]!, `l'id del ${prefisso}`)] };
+    case 'variante': {
+      const m = /^([^=\s]+)\s*=\s*(\S+)$/.exec(arg);
+      if (!m) return errore('forma: variante:elemento=Variante');
+      return { tipo: 'evento', nome: 'variante', argomenti: [id(m[1]!, "l'elemento"), id(m[2]!, 'la variante')] };
     }
     case 'taccuino':
     case 'voce': {

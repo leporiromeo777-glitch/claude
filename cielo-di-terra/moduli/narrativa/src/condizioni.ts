@@ -24,7 +24,9 @@
  *       (anche colore = rilevata, matita = vista, bianco = bianca; particella: è sinonimo)
  *   dialogo:id [finito|iniziato]
  *   missione:id [completata|attiva|avviata|inattiva]
+ *   passo:id [completato|attivo]               (id unico fra tutte le missioni)
  *   passo:missione/passo [completato|attivo]   (anche missione.passo)
+ *   contatore:nome>=3  contatore:nome          (sinonimo di flag: sui contatori numerici)
  *   oggetto:id   oggetto:id>=2
  *   taccuino:id [presente|aperta|chiusa|barrata]
  *
@@ -56,7 +58,7 @@ export type Atomo =
   | { k: 'cella'; id: string; stato: string }
   | { k: 'dialogo'; id: string; stato: StatoDialogoCondizione }
   | { k: 'missione'; id: string; stato: StatoMissioneCondizione }
-  | { k: 'passo'; missione: string; passo: string; stato: StatoPassoCondizione }
+  | { k: 'passo'; missione?: string; passo: string; stato: StatoPassoCondizione }
   | { k: 'oggetto'; id: string; op: Operatore; quantita: number }
   | { k: 'taccuino'; id: string; stato: StatoTaccuinoCondizione }
   | { k: 'extra'; prefisso: string; argomento: string; qualificatore?: string };
@@ -88,7 +90,8 @@ export interface ContestoCondizioni {
   cella(id: string, stato: string): boolean;
   dialogo(id: string, stato: StatoDialogoCondizione): boolean;
   missione(id: string, stato: StatoMissioneCondizione): boolean;
-  passo(missione: string, passo: string, stato: StatoPassoCondizione): boolean;
+  /** `missione` manca quando il contenuto cita il passo con il solo id. */
+  passo(missione: string | undefined, passo: string, stato: StatoPassoCondizione): boolean;
   quantitaOggetto(id: string): number;
   taccuino(id: string, stato: StatoTaccuinoCondizione): boolean;
   /** Prefissi aggiuntivi registrati nelle opzioni del parser. */
@@ -353,6 +356,8 @@ const Q_CELLA: Record<string, string> = {
 };
 
 const RE_ID = /^[\p{L}\p{N}_.\-/']+$/u;
+/** I nomi dei flag possono contenere anche «:» («flag:lente:corteccia»). */
+const RE_FLAG = /^[\p{L}\p{N}_.\-/':]+$/u;
 
 // ---------------------------------------------------------------------------
 // Parser
@@ -473,8 +478,8 @@ class Parser {
     const nessunQualificatore = (): void => {
       if (q) this.errore(`«${prefisso}:» non accetta il qualificatore «${q.v}»`, q.pos);
     };
-    const id = (s: string): string => {
-      if (!RE_ID.test(s)) this.errore(`identificatore non valido «${s}»`, t.pos);
+    const id = (s: string, re: RegExp = RE_ID): string => {
+      if (!re.test(s)) this.errore(`identificatore non valido «${s}»`, t.pos);
       return s;
     };
     const conQualificatore = <T>(tabella: Record<string, T>, predefinito: T, nome: string): T => {
@@ -488,11 +493,12 @@ class Parser {
     const atomo = (a: Atomo): NodoCondizione => ({ tipo: 'atomo', atomo: a });
 
     switch (prefisso) {
-      case 'flag': {
+      case 'flag':
+      case 'contatore': {
         nessunQualificatore();
         const m = /^([^=!<>]+?)(==|!=|>=|<=|=|>|<)(.*)$/.exec(arg);
-        if (!m) return atomo({ k: 'flag', nome: id(arg) });
-        const nome = id(m[1]!);
+        if (!m) return atomo({ k: 'flag', nome: id(arg, RE_FLAG) });
+        const nome = id(m[1]!, RE_FLAG);
         if (m[3] === '') this.errore(`manca il valore dopo «${m[2]}»`, t.pos);
         const op = (m[2] === '==' ? '=' : m[2]) as Operatore;
         const valore = analizzaValore(m[3]!);
@@ -526,15 +532,12 @@ class Parser {
       case 'missione':
         return atomo({ k: 'missione', id: id(arg), stato: conQualificatore(Q_MISSIONE, 'completata', 'una missione') });
       case 'passo': {
-        const sep = arg.includes('/') ? '/' : '.';
+        const stato = conQualificatore(Q_PASSO, 'completato', 'un passo');
+        const sep = arg.includes('/') ? '/' : arg.includes('.') ? '.' : null;
+        if (sep === null) return atomo({ k: 'passo', passo: id(arg), stato });
         const k = arg.indexOf(sep);
-        if (k <= 0 || k === arg.length - 1) this.errore(`il passo va scritto «missione/passo», non «${arg}»`, t.pos);
-        return atomo({
-          k: 'passo',
-          missione: id(arg.slice(0, k)),
-          passo: id(arg.slice(k + 1)),
-          stato: conQualificatore(Q_PASSO, 'completato', 'un passo'),
-        });
+        if (k <= 0 || k === arg.length - 1) this.errore(`il passo va scritto «id» o «missione/passo», non «${arg}»`, t.pos);
+        return atomo({ k: 'passo', missione: id(arg.slice(0, k)), passo: id(arg.slice(k + 1)), stato });
       }
       case 'oggetto': {
         if (q && qv !== 'posseduto' && qv !== 'presente') {
@@ -728,7 +731,7 @@ export function stampaAtomo(a: Atomo): string {
     case 'missione':
       return `missione:${a.id} ${a.stato}`;
     case 'passo':
-      return `passo:${a.missione}/${a.passo} ${a.stato}`;
+      return `passo:${a.missione !== undefined ? a.missione + '/' : ''}${a.passo} ${a.stato}`;
     case 'oggetto':
       return a.op === '>=' && a.quantita === 1 ? `oggetto:${a.id}` : `oggetto:${a.id}${a.op}${a.quantita}`;
     case 'taccuino':
