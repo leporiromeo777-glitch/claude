@@ -44,7 +44,8 @@ const VISTE: Record<string, Vista> = {
   cella: { cam: [9, 23, -12], guarda: [4, 23, -22], fov: 40, didascalia: 'Cella campanaria, cappello di piode, Pilastro 1 con la targa del 2120' },
   castagni: { cam: [-14, 6, 46], guarda: [-22, 6, 20], didascalia: 'Castagni secolari: estate, autunno, fioritura' },
   cripta: { cam: [-2.5, 3.2, 23], guarda: [-6, 1.0, 15.5], didascalia: 'Castagno morto e botola della Cripta (aperta)' },
-  muri: { cam: [21, 4.5, 33], guarda: [25, 1.2, 17], didascalia: 'Muri a secco, scaletta e cancello' },
+  muri: { cam: [19, 4.0, 31], guarda: [26, 1.0, 18], didascalia: 'Muri a secco, scaletta e cancello' },
+  cancello: { cam: [29.5, 1.9, 26.5], guarda: [31, 0.8, 22], fov: 45, didascalia: 'Cancello di legno fra due pilastri' },
   lago: { cam: [22, 4, -26], guarda: [32, 1, -19], fov: 50, didascalia: 'Pontile con la tavola dei venti, barche a vela rossa' },
   barca: { cam: [37, 2.2, -36], guarda: [42, 1.4, -30], fov: 42, didascalia: 'Barca a remi con vela al terzo e lanterna a prua' },
   fienile: { cam: [-20, 3.5, 6], guarda: [-28, 3, -6], didascalia: 'Fienile in legno e pietra' },
@@ -57,9 +58,9 @@ const VISTE: Record<string, Vista> = {
   'squadro-mano': { cam: [-1, 1.62, 34], guarda: [4, 6, -22], fov: 60, primaPersona: 'squadro-mano', didascalia: 'Lo squadro tenuto in mano come cannocchiale' },
   velo: { cam: [10, 7.5, 38], guarda: [18, 2, -20], fov: 65, primaPersona: 'velo', didascalia: 'Il Velo in planata: traversa, tela cucita, nappina' },
   fade: { cam: [26, 3.2, 3], guarda: [16, 1.6, -8], notte: true, t: 7, didascalia: 'Notte: le Fade smontano il rustico non benedetto' },
-  'fade-vicino': { cam: [20.5, 2.3, -1.5], guarda: [17.5, 1.5, -5], fov: 40, notte: true, t: 3.2, didascalia: 'Una Fada solleva una pietra' },
-  'fada-giorno': { cam: [20.5, 2.3, -1.5], guarda: [17.5, 1.5, -5], fov: 40, t: 3.2, didascalia: 'Una Fada di giorno: rame, ottone e smalto verde' },
-  api: { cam: [17.2, 2.1, 1.6], guarda: [20, 1.8, -1.5], fov: 45, t: 4, didascalia: 'Sciame di api di rame' },
+  'fade-vicino': { cam: [20.5, 2.3, -1.5], guarda: [17.5, 1.5, -5], fov: 40, notte: true, t: 2.3, didascalia: 'Una Fada solleva una pietra' },
+  'fada-giorno': { cam: [20.5, 2.3, -1.5], guarda: [17.5, 1.5, -5], fov: 40, t: 2.3, didascalia: 'Una Fada di giorno: rame, ottone e smalto verde' },
+  api: { cam: [19.6, 2.0, 9.0], guarda: [22, 1.8, 6], fov: 45, t: 4, didascalia: 'Sciame di api di rame' },
   lanterne: { cam: [5, 1.8, 15], guarda: [5, 1.6, 3], fov: 50, notte: true, t: 2.2, didascalia: 'Lanterne e lumi notturni del paese' },
   notte: { cam: [6, 30, 74], guarda: [2, 2, -2], notte: true, t: 6, didascalia: 'Vetrina d’insieme di notte' },
 };
@@ -135,7 +136,7 @@ function avviaVetrina(): void {
   // --- terrazze
   posa(creaMuroSecco({ seme: 31, lunghezza: 14, raggioCurva: 30, altezza: 1.6 }), 24, 18, 0.1);
   posa(creaMuroSecco({ seme: 32, lunghezza: 12, raggioCurva: 26, altezza: 1.3 }), 25, 12, 0.08);
-  posa(creaScaletta({ seme: 33, gradini: 7 }), 21, 18.6, 0.1);
+  posa(creaScaletta({ seme: 33, gradini: 7 }), 21, 20.6, 0.1);
   posa(creaCancello({ seme: 34, apertura: 0.35 }), 31, 22, 0.1);
   posa(creaMuroSecco({ seme: 35, percorso: [[0, 0], [3, 0.2], [6, 1.2], [8, 3]], altezza: 1.1 }), 33, 22.3, 0);
   // --- lago
@@ -206,8 +207,10 @@ function avviaVetrina(): void {
     [new THREE.Vector3(12.8, 0, -6.5), new THREE.Vector3(11.0, 0, -2.5), 1.7],
     [new THREE.Vector3(18.5, 0, -4.5), new THREE.Vector3(21.5, 0, -7.5), 3.3],
   ];
+  let fadaVicina: THREE.Object3D | null = null;
   for (const [i, [da, a, ritardo]] of fadeLavori.entries()) {
     const f = creaFada({ seme: 200 + i, luce: !!vista.notte && i === 0, scia: !!vista.notte });
+    if (i === 0) fadaVicina = f.gruppo.getObjectByName('fada-macchina') ?? null;
     scena.add(f.gruppo);
     const stato: StatoFada = { modo: 'trasporta', da, a, quota: 2.4, velocita: 2.4 };
     // avanzamento iniziale sfalsato
@@ -225,7 +228,7 @@ function avviaVetrina(): void {
     animati.push({ o: sc as unknown as OggettoProcedurale<unknown> });
   }
   // --- sciame di api sopra il prato vicino al lago
-  posa(creaSciameApi({ seme: 300, numero: 160, raggio: 1.4, centro: new THREE.Vector3(0, 1.8, 0) }), 20, -1.5);
+  posa(creaSciameApi({ seme: 300, numero: 160, raggio: 1.0, centro: new THREE.Vector3(0, 1.8, 0) }), 22, 6);
 
   // --- prima persona
   if (vista.primaPersona) {
@@ -258,6 +261,12 @@ function avviaVetrina(): void {
   };
   const passo = 1 / 30;
   for (let t = 0; t < tSimulato; t += passo) aggiorna(passo);
+  // primi piani di una Fada: la camera la segue
+  if ((nomeVista === 'fade-vicino' || nomeVista === 'fada-giorno') && fadaVicina) {
+    const p = fadaVicina.getWorldPosition(new THREE.Vector3());
+    camera.position.copy(p).add(new THREE.Vector3(1.6, 0.25, 1.9));
+    camera.lookAt(p.clone().add(new THREE.Vector3(0, 0.05, 0)));
+  }
 
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;

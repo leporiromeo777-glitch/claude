@@ -1,7 +1,13 @@
 /**
  * Il Taccuino di Elvira: domande (piste) aperte e chiuse, indizi con la
- * fonte, parole tecniche barrate con accanto quella locale, obiettivi delle
- * missioni e, in alto, la «riga del cielo» con il prossimo evento del cielo.
+ * fonte, parole tecniche barrate con accanto quella locale, note, proverbi,
+ * leggende, obiettivi delle missioni e, in alto, la «riga del cielo» con il
+ * prossimo evento del cielo.
+ *
+ * Una parola si scrive già barrata (la tecnica barrata, la locale accanto),
+ * come vuole taccuino.json. Una voce con `sostituisce` toglie quella che
+ * sostituisce. Una domanda con `chiudiQuando` si chiude da sola, ma solo se
+ * è già scritta.
  */
 import type { CondizioneGrezza } from './condizioni';
 import type { TipoVoce, VoceDef } from './contenuti';
@@ -32,6 +38,12 @@ export interface VoceVisibile {
   locale?: string;
   domanda?: string;
   risposta?: string;
+  mano?: string;
+  sotto?: string;
+  indizi?: string[];
+  dialetto?: string;
+  italiano?: string;
+  commento?: string;
   chiusa: boolean;
   barrata: boolean;
   ordine: number;
@@ -70,6 +82,8 @@ export class Taccuino {
   private riga: string | null = null;
   /** Riga calcolata dal gioco a ogni tick (`WorldFacts.prossimoEventoCielo`). */
   private rigaGioco: string | null = null;
+  /** Riga scelta fra le candidate di taccuino.json (`riga_del_cielo`) a ogni tick. */
+  private rigaCandidata: { id: string; testo: string } | null = null;
   private obiettiviAttivi: Obiettivo[] = [];
 
   constructor(
@@ -98,13 +112,15 @@ export class Taccuino {
   aggiungi(id: string): boolean {
     if (this.stati.has(id)) return false;
     const quando = this.adesso();
+    const def = this.defs.get(id);
     this.stati.set(id, {
       id,
       ordine: this.prossimoOrdine++,
       chiusa: false,
-      barrata: false,
+      barrata: def?.tipo === 'parola',
       ...(quando ? { scrittaIl: quando } : {}),
     });
+    if (def?.sostituisce) this.rimuovi(def.sostituisce);
     this.eventi.emit('voce', { id, azione: 'aggiunta', voce: this.voce(id) });
     return true;
   }
@@ -165,6 +181,12 @@ export class Taccuino {
     if (d?.locale !== undefined) v.locale = d.locale;
     if (d?.domanda !== undefined) v.domanda = d.domanda;
     if (d?.risposta !== undefined) v.risposta = d.risposta;
+    if (d?.mano !== undefined) v.mano = d.mano;
+    if (d?.sotto !== undefined) v.sotto = d.sotto;
+    if (d?.indizi !== undefined) v.indizi = [...d.indizi];
+    if (d?.dialetto !== undefined) v.dialetto = d.dialetto;
+    if (d?.italiano !== undefined) v.italiano = d.italiano;
+    if (d?.commento !== undefined) v.commento = d.commento;
     if (s.scrittaIl) v.scrittaIl = { ...s.scrittaIl };
     if (s.chiusaIl) v.chiusaIl = { ...s.chiusaIl };
     return v;
@@ -199,11 +221,24 @@ export class Taccuino {
 
   /**
    * Il testo fisso in alto: il prossimo evento del cielo. Vince quello
-   * scritto dai contenuti (o impostato a mano); se manca, quello calcolato
-   * dal gioco.
+   * scritto da un effetto «cielo:» (o impostato a mano); poi la candidata di
+   * taccuino.json con priorità più alta; poi quello calcolato dal gioco.
+   * Può contenere segnaposto come `{secondi}` (vedi `riempiSegnaposto`).
    */
   rigaCielo(): string | null {
-    return this.riga ?? this.rigaGioco;
+    return this.riga ?? this.rigaCandidata?.testo ?? this.rigaGioco;
+  }
+
+  /** Id della candidata di taccuino.json mostrata, se è quella a vincere. */
+  rigaCieloId(): string | null {
+    return this.riga === null && this.rigaCandidata ? this.rigaCandidata.id : null;
+  }
+
+  /** La candidata scelta da Narrativa a ogni tick (non salvata). */
+  impostaRigaCieloCandidata(r: { id: string; testo: string } | null): void {
+    const prima = this.rigaCielo();
+    this.rigaCandidata = r ? { ...r } : null;
+    this.emettiRiga(prima);
   }
 
   /** Imposta (o con null cancella) la riga scritta dai contenuti. Viene salvata. */
@@ -257,7 +292,8 @@ export class Taccuino {
       if (d.sbloccaQuando !== undefined && !this.stati.has(d.id) && valuta(d.sbloccaQuando)) {
         cambiato = this.aggiungi(d.id) || cambiato;
       }
-      if (d.chiudiQuando !== undefined && !this.stati.get(d.id)?.chiusa && valuta(d.chiudiQuando)) {
+      const s = this.stati.get(d.id);
+      if (d.chiudiQuando !== undefined && s && !s.chiusa && valuta(d.chiudiQuando)) {
         cambiato = this.chiudi(d.id) || cambiato;
       }
     }

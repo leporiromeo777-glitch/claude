@@ -136,6 +136,8 @@ export function missioniOrfane(c: ContenutiNormalizzati): string[] {
     for (const p of m.passi) {
       guarda(p.effetti);
       guarda(p.effettiAttivazione);
+      for (const e of p.eventi) guarda(e.effetti);
+      for (const a of p.aiuti) guarda(a.effetti);
     }
   }
   for (const d of Object.values(c.dialoghi)) {
@@ -308,7 +310,7 @@ export class Narrativa {
     let cambiato = false;
     try {
       if (this.missioni.avanzaTempo(secondi)) cambiato = true;
-      if (this.fatti.prossimoEventoCielo) this.taccuino.impostaRigaCieloGioco(this.fatti.prossimoEventoCielo());
+      this.aggiornaRigaCielo();
       for (let giro = 0; giro < 1000; giro++) {
         this.tickRichiesto = false;
         const m = this.missioni.aggiorna();
@@ -319,8 +321,20 @@ export class Narrativa {
     } finally {
       this.inTick = false;
     }
+    this.aggiornaRigaCielo();
     this.annunciaAutomatici();
     return cambiato;
+  }
+
+  /** Sceglie la riga del cielo fra le candidate di taccuino.json e quella del gioco. */
+  private aggiornaRigaCielo(): void {
+    if (this.fatti.prossimoEventoCielo) this.taccuino.impostaRigaCieloGioco(this.fatti.prossimoEventoCielo());
+    let migliore: { id: string; testo: string; priorita: number } | null = null;
+    for (const r of this.contenuti.rigaCielo) {
+      if (migliore && r.priorita <= migliore.priorita) continue;
+      if (r.quando === undefined || this.valuta(r.quando, `riga del cielo ${r.id}`)) migliore = r;
+    }
+    this.taccuino.impostaRigaCieloCandidata(migliore ? { id: migliore.id, testo: migliore.testo } : null);
   }
 
   /** Annuncia (evento `apriDialogo`) i dialoghi automatici pronti, se nessun dialogo è aperto. */
@@ -525,6 +539,16 @@ export class Narrativa {
     for (const v of this.contenuti.taccuino) {
       cond(v.sbloccaQuando, `taccuino ${v.id}`);
       cond(v.chiudiQuando, `taccuino ${v.id}`);
+    }
+    for (const r of this.contenuti.rigaCielo) cond(r.quando, `riga del cielo ${r.id}`);
+    for (const m of this.contenuti.missioni) {
+      for (const p of m.passi) {
+        p.eventi.forEach((e, k) => {
+          cond(e.quando, `missione ${m.id}, passo ${p.id}, evento ${k + 1}`);
+          eff(e.effetti, `missione ${m.id}, passo ${p.id}, evento ${k + 1}`);
+        });
+        p.aiuti.forEach((a, k) => eff(a.effetti, `missione ${m.id}, passo ${p.id}, aiuto ${k + 1}`));
+      }
     }
   }
 }

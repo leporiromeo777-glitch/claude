@@ -1,0 +1,254 @@
+{
+ "_nota": "Testi della Fase 1. Gli id sono unici in tutto il file: l'effetto testo:<id> apre in vista di lettura la voce con quell'id, in qualunque sezione si trovi. I segnaposto fra graffe nei suggerimenti ({usa}, {guarda}...) sono i nomi dei comandi, che il motore sostituisce.",
+ "lettere": {
+  "lettera_marta": {
+   "titolo": "Per la mamma",
+   "supporto": "un foglio di carta grezza piegato in quattro, fibra lunga di castagno, in una busta senza francobollo; inchiostro nero un po' sbiadito; calligrafia rotonda di ragazza, con la «g» chiusa a ricciolo; nessuna data",
+   "testo": "Mamma,\n\nti scrivo dalla Sorella. Ti scrivo adesso perché so che ti sveglieranno presto, e voglio che la prima cosa che trovi sia una cosa mia.\n\nPapà e io dormiamo a turno e vi seguiamo. Quando uno dei due è sveglio guarda il Verbano dalla finestra: siete una lucina, ma la lucina c'è sempre. Papà misura tutto anche qui, lo sai com'è. Ti saluta.\n\nQuando arriveremo ti racconterò tutto. Adesso non posso: le lettere devono essere poche e corte, e la Madre ve le porta con tanta fatica.\n\nTieni ancora la stella alpina che ti ho dato all'imbarco? Io l'ho disegnata sul mio quaderno, così non la perdo.\n\nFidati della Madre. Lei conosce la strada e vi vuole bene come noi. Non guardare indietro: indietro non c'è più niente da guardare, c'è solo da andare avanti, verso di noi.\n\nTi voglio bene.\n\nMarta",
+   "note_di_regia": "Il dettaglio del fiore sbagliato è la quinta frase: Marta, all'imbarco, le aveva dato un giglio martagone. Tutto il resto è plausibile e affettuoso: chi l'ha scritta conosceva il nome di Marta, la sua età e il mestiere di Aurelio (dal fascicolo di Elvira), non il fiore. La «g» chiusa a ricciolo è la stessa delle buste delle capsule 6 e 7 e delle Lettere dalla Sorella (missione 9)."
+  },
+  "biglietto_madre": {
+   "titolo": "Alla Svegliata",
+   "supporto": "un cartoncino di carta grezza dentro il pacchetto del velo nero; calligrafia ordinata, inchiostro bruno",
+   "testo": "Alla Svegliata.\n\nIl velo è per le settimane delle fioriture, quando le api fanno piangere gli occhi. E per te.\n\nLa profezia dice che la Svegliata prenderà la maschera. Non guardare il Sordo, e ti aspetto.\n\nLa Madre",
+   "note_di_regia": "La carta è la stessa della lettera di Marta, ma nella Fase 1 Elvira non li confronta: la calligrafia è diversa (la Madre sa scrivere in due mani)."
+  },
+  "lettera_rosa": {
+   "titolo": "Alla Svegliata, se è vera",
+   "supporto": "un foglio strappato da un quaderno, macchiato di cera d'api, piegato due volte",
+   "testo": "Alla Svegliata, se è vera.\n\nHo trecento api di rame in una cisterna. Non sono rotte. Il prete dice di pregare, io dico di guardarle.\n\nVieni ai Bugni prima della Tramontana.\n\nRosa"
+  },
+  "scritta_vetro": {
+   "titolo": "Sul vetro della capsula n. 5",
+   "supporto": "matita dura, scritta da fuori sul coperchio di vetro; calligrafia tecnica e minuta",
+   "testo": "Non fidarti delle campane"
+  },
+  "busta_6": {
+   "titolo": "Busta sul vetro della capsula n. 6",
+   "supporto": "busta di carta grezza, chiusa",
+   "testo": "Per Teo, da Ines, dalla Sorella",
+   "note_di_regia": "Elvira non la apre. Con la lente: la stessa carta e la stessa «g» della lettera di Marta."
+  },
+  "busta_7": {
+   "titolo": "Busta sul vetro della capsula n. 7",
+   "supporto": "busta di carta grezza, chiusa",
+   "testo": "Per la dottoressa Sala, da suo figlio, dalla Sorella",
+   "note_di_regia": "Come la busta 6."
+  }
+ },
+ "libretto": {
+  "copertina": {
+   "titolo": "Libretto di campagna",
+   "testo": "CATASTO DEL GIARDINO DEL VERBANO\nMonografie dei capisaldi, 2120-2121\nA. Respini, geometra\n\n(sotto, a matita) Per E., quando arriverete."
+  },
+  "dedica": {
+   "titolo": "Per E.",
+   "testo": "Ti lascio lo squadro e le monografie.\n\nIl libretto è vecchio prima ancora di partire: le pietre si spostano, gli alberi crescono, la gente costruisce. Fidati dei chiodi, non delle descrizioni. Se un chiodo non c'è più, cercalo: i chiodi non scappano, si spostano.\n\nIo vi raggiungo nel '41 con la M.\n\nA."
+  },
+  "come_si_fa": {
+   "titolo": "Come si fa (per E., che non ha pazienza)",
+   "testo": "1. Pianta. Lo squadro sul chiodo, il piede nella coppetta: deve fare clic.\n2. Livella. La bolla in mezzo. Non a occhio: in mezzo.\n3. Collima. Nel cannocchiale, la croce sulla palina dell'altro caposaldo. Respira, e tieni.\n4. Leggi. Scrivi il numero.\n\nSe sbagli, rifai: il chiodo non scappa.\n\nDi giorno misura vicino, nella tua valle. Attraverso il cielo si misura solo di notte: la Linea acceca.",
+   "schizzo": "una bambina di sei anni che regge una stadia più alta di lei, con la didascalia «La M. regge la stadia meglio di me»"
+  },
+  "cs_1": {
+   "titolo": "CS 1",
+   "testo": "Pilastro di bronzo sulla cella campanaria di San Vigilio, Corbella. Palina bianca e rossa di 8 m.\nVede: 2, 3, 4, 5, 6, 7, 8, 11.\nDa qui vedi il chiodo 2 sul sagrato, se il tasso non è cresciuto.\n\n(a margine) Per E.: il primo l'ho messo dove avresti sentito le campane.",
+   "schizzo": "il campanile visto di lato, con la palina e una freccia verso il sagrato"
+  },
+  "cs_2": {
+   "titolo": "CS 2",
+   "testo": "Chiodo d'ottone sul primo gradino del sagrato, a Mane del portale.\nVede: 1 (lato corto, 40 m: buono per controllo), 6 attraverso la valle.\nIl tasso del sagrato è giovane: tenerlo d'occhio."
+  },
+  "cs_3": {
+   "titolo": "CS 3",
+   "testo": "Chiodo sul muro della terrazza di sopra, quella dei tuoi castagni.\nVede: 1 sopra i tetti, 4, 5, 11, 37.\nIl muro è buono: gneiss a secco, non si muove.\n\n(a margine) La terrazza Pedrazzini, E. Le marze di casa le hai messe qui."
+  },
+  "cs_4": {
+   "titolo": "CS 4",
+   "testo": "Pilastro al Pian dei Ricci, Selve alte. Disco bianco e rosso su asta di 6 m.\nVede: 1, 3, 37.\nBel posto per mangiare."
+  },
+  "cs_5": {
+   "titolo": "CS 5",
+   "testo": "Chiodo sul primo gradino del lavatoio della piazza.\nVede: 1, 3, 6."
+  },
+  "cs_6": {
+   "titolo": "CS 6",
+   "testo": "Pilastro sul Sass Grand, cresta a Mane, sopra la Finestra dei Ponti. Palina bianca e rossa.\nVede: 1, 2, 5, 8.\nDa qui si vede la Finestra. Non sporgerti."
+  },
+  "cs_7": {
+   "titolo": "CS 7",
+   "testo": "Chiodo sulla soglia del mulino.\nVede: 1, 8.\nIl mugnaio, se ce ne sarà uno, non deve murarci sopra."
+  },
+  "cs_8": {
+   "titolo": "CS 8",
+   "testo": "Chiodo sul masso tondo a Mane del riale, quello dove ci si siede.\nVede: 1, 6, 7, 11."
+  },
+  "cs_11": {
+   "titolo": "CS 11",
+   "testo": "Chiodo sul cippo accanto alla botola della Cripta.\nVede: 1, 3, 8.\n\n(a margine) Per E.: se ti svegliano, comincia da qui."
+  },
+  "cs_37": {
+   "titolo": "CS 37",
+   "testo": "Chiodo nell'angolo del muro della grà di Pian.\nGuarda il Pilastro 4 a Mont e il chiodo 3 a Mane. Accanto, un castagno giovane con una biforcazione: ottimo riferimento.",
+   "nota_2322": "Il castagno accanto non c'è più: al suo posto c'è la legnaia della grà."
+  },
+  "cs_9": {
+   "titolo": "CS 9",
+   "testo": "Pilastro di bronzo nel punto più basso del futuro lago.\nAnnegato il 3 marzo 2121, quando hanno riempito il lago. Peccato, era il più bello.\nLo cerchiamo insieme quando arriviamo, con la M."
+  },
+  "cs_12": {
+   "titolo": "CS 12",
+   "testo": "Pilastro sul pilone di ferro del Ponte di Mezzo, Finestra dei Ponti. Livella delicata: il ferro canta.\n\n(a margine) In un cilindro che gira e basta, la livella sta ferma. Se un giorno trema, chiedi chi sta girando l'asse."
+  },
+  "cs_0": {
+   "titolo": "CS 0",
+   "testo": "Caposaldo Zero, sulla soglia dell'osservatorio sull'asse nord. Da qui è partito tutto.\nPrimo triangolo: 0, 1, 15, 23. Chiuso il 2 settembre 2120, alle 3 di notte, con la M. che dormiva sulla mia giacca."
+  },
+  "pagine_incollate": {
+   "titolo": "(pagine incollate)",
+   "testo": "Le monografie delle altre valli sono incollate dall'umidità.\n\n(Elvira, a matita) Le scollerò con il vapore."
+  },
+  "monte_vettore": {
+   "titolo": "Monografia n. 3 — Monte Vettore",
+   "testo": "Monte Vettore, cresta sud. Caposaldo su roccia, chiodo in ottone. Esercitazione del corso di topografia, agosto 2084.\n\n(a margine) Nebbia. Il sentiero di ieri oggi non c'era. Rimisurare.",
+   "schizzo": "il profilo dei Sibillini, con una croce sulla cima",
+   "note_di_regia": "L'easter egg della Fase 1. L'unica pagina del libretto che non riguarda il Verbano."
+  }
+ },
+ "cartellini": {
+  "cartellino_castagno": {"titolo": "Cartellino di zinco", "supporto": "zinco scritto a punta secca, legato con il fil di ferro al ramo più basso", "testo": "Marze: selva Pedrazzini, Cevio\nE. P. 2119"},
+  "targa_p1": {"titolo": "Targa del Pilastro 1", "supporto": "ottone avvitato al bronzo", "testo": "CATASTO DEL GIARDINO DEL VERBANO\nCS 1 — pilastro di riferimento\nrilevato da A. Respini, 14 ottobre 2120\nConsorzio Insubrico"},
+  "targa_santa": {"titolo": "Targa sulla capsula n. 3", "supporto": "ottone lucidato da molte mani, sotto una corona di fiori secchi", "testo": "Santa Giardiniera\nsalita nella Linea\n2265"},
+  "targhe_capsule": {"titolo": "Targhette delle capsule", "supporto": "smalto bianco sul piede di ogni capsula", "testo": "1 — Battista Rè, ingegnere\n2 — Agnese Moretti, idrologa\n3 — Ilde Bassi, agronoma\n4 — Severino Lanfranchi, meccanico\n5 — Elvira Pedrazzini, botanica\n6 — Teo Cattori, entomologo\n7 — Irene Sala, medico"},
+  "cartello_cancello": {"titolo": "Cartello al Cancello dei Pellegrini", "supporto": "legno dipinto di nero, appeso alla catena", "testo": "Per ordine della Madre:\nnei giorni della Sorella\nla Notte non si attraversa."},
+  "motto_messi": {"titolo": "Sulla porta del capanno dei Messi", "supporto": "inciso col coltello nel legno", "testo": "Un Velo rotto si ricuce.\nUn Messo rotto no."}
+ },
+ "scritte": {
+  "gesso_corridoio": {"titolo": "A gesso, nel corridoio della Cripta", "testo": "Qui non ci sono torri da scalare. Arrangiati con la carta.\n— G. B., manutenzione, 2121"},
+  "orari_cripta": {"titolo": "Orari dipinti nel corridoio della Cripta", "testo": "MANUTENZIONE CRIPTA — 2121\ncontrollo capsule: ogni notte alle 03:00\nsveglie: verifica settimanale\ninfermiera (giro dei dormienti e dei risvegliati): 03:10", "note_di_regia": "L'ora dell'infermiera è l'ora in cui, la prima notte, la Pesarina apre il Taccuino di Elvira."},
+  "casa_nando": {"titolo": "Scritto col carbone sulla porta di Nando", "testo": "Cà dal Nando — rifacia tücc i dí", "traduzione": "Casa del Nando — rifatta tutti i giorni"},
+  "biglietto_porta_rosa": {"titolo": "Biglietto nel battente, ai Bugni", "testo": "Sono in cisterna. Torno con la Tramontana.\n— R."},
+  "bacheca_giorno_1": {"titolo": "Bacheca delle Ore, giorno 1", "testo": "Domenica, dopo il mattutino: lettura delle Lettere dalla Sorella.\n\nSi cercano due capre scappate verso le Selve alte. Chiedere al Bortolo.\n\nLe Falciatrici pascolano al Pian dei Ricci dalle 9 alle 12. Tenere lontani i bambini."},
+  "bacheca_giorno_2": {"titolo": "Bacheca delle Ore, giorno 2 (notizie del Messo)", "testo": "Dal Verbanetto: la Rosa cerca chi sa di api.\n\nDagli Alpeggi: prima neve sulla Corte Alta.\n\nA Corbella: la Svegliata dorme dal Messo. (Scritto da un'altra mano, sotto:) Vergogna."},
+  "bacheca_giorno_3": {"titolo": "Bacheca delle Ore, giorno 3", "testo": "La passerella del Messo stamattina c'era.\n\n(Sotto, un'altra mano:) Benedetta da chi?"}
+ },
+ "proverbi": [
+  {"id": "pv_misura", "dialetto": "Quel che la Giardinéra la mesüra, la nocc la tóca mía.", "italiano": "Ciò che la Giardiniera ha misurato, la notte non lo tocca.", "chi": "Togna; tutti"},
+  {"id": "pv_penna", "dialetto": "La préda mesürada la var püssée che la péna.", "italiano": "La pietra misurata vale più della penna.", "chi": "Ottavio (da sua nonna)"},
+  {"id": "pv_strada", "dialetto": "Strada da dí, la fann i pée; strada da nocc, la fann i Fade.", "italiano": "La strada del giorno la fanno i piedi; quella della notte, le Fade.", "chi": "Bortolo"},
+  {"id": "pv_su", "dialetto": "Chi guarda in sü, al tröva la strada.", "italiano": "Chi guarda in su trova la strada.", "chi": "detto dei Messi (sulla porta del capanno, sotto il motto)"},
+  {"id": "pv_risc", "dialetto": "Risc vöid, invèrn lóngh.", "italiano": "Ricci vuoti, inverno lungo.", "chi": "detto dei vecchi, alla vista dei castagni"},
+  {"id": "pv_brasa", "dialetto": "Quand la Linea la fa brasa, ognün a la sò cà.", "italiano": "Quando la Linea fa la brace, ognuno a casa sua.", "chi": "detto della sera"},
+  {"id": "pv_meta", "dialetto": "La Meta la passa, l'ombra la scapa.", "italiano": "La Meta passa, l'ombra scappa.", "chi": "Ottavio"},
+  {"id": "pv_sordo", "dialetto": "Ul Sordo al se guarda mía.", "italiano": "Il Sordo non si guarda.", "chi": "detto della Confraternita"},
+  {"id": "pv_benedis", "dialetto": "Chi la benedís, la tegn.", "italiano": "Chi la benedice, la tiene.", "chi": "detto della Confraternita sulle case"},
+  {"id": "pv_pesarina", "dialetto": "La Pesarina la se senta sül stómegh di forèst.", "italiano": "La Pesarina si siede sul petto dei forestieri.", "chi": "detto dei bambini"},
+  {"id": "pv_avia", "dialetto": "Avía che dorm, castan che piang.", "italiano": "Ape che dorme, castagno che piange.", "chi": "detto delle Bugnere (Fase 2)"},
+  {"id": "pv_ombra", "dialetto": null, "italiano": "Di giorno le storie non hanno ombra.", "chi": "Pina"}
+ ],
+ "leggende": {
+  "partenza_1": {
+   "titolo": "La Partenza (prima sera)",
+   "condizione": "giorno:1",
+   "alla_fine": ["taccuino:lg_partenza_1", "flag:ombrista_1_vista"],
+   "quadri": [
+    {"figure": "i Padri: sagome con le valigie e i fagotti", "testo": "C'era una volta il Mondo, e il Mondo bruciava. I Padri presero le valli che amavano, pietra per pietra, e le misero in una nave lunga come un giorno di cammino."},
+    {"figure": "il Mondo Bruciato: un disco con fiamme di carta rossa", "testo": "Dietro di loro il Mondo si fece cenere. E la cenere non si guarda: chi la guarda diventa cenere anche lui."},
+    {"figure": "la Nave e la Sorella: due sagome di nave, una piccola che segue la grande", "testo": "Ma i Padri non partirono soli. Dietro veniva la Sorella, con i parenti che non c'era posto per portare. La Sorella ci segue, e passa ogni notte nella Notte per dirci che c'è."},
+    {"figure": "la Meta: una stella di cartone bucata, da cui passa la luce", "testo": "Davanti c'è la Meta. Passa e ripassa, perché il viaggio è lungo e chi va lontano deve vedere dove va."},
+    {"figure": "la Santa: una donna che sale lungo un filo di luce", "testo": "E quando il giardino ebbe sete, dalla Cripta uscì la Santa Giardiniera. Curò i castagni, scrisse le regole, e poi salì nella Linea, a tenerci il giorno."},
+    {"figure": "la Svegliata: una figura nuova, il cartone ancora bianco", "testo": "E la profezia dice: un giorno, sotto il castagno, se ne sveglierà un'altra. E la Svegliata prenderà la maschera."}
+   ],
+   "chiusura": "Pina spegne la lampada. I bambini restano un momento a guardare il telo vuoto."
+  },
+  "partenza_2a": {
+   "titolo": "La Partenza: quello di sotto",
+   "condizione": "flag:figura_toccata",
+   "alla_fine": ["taccuino:lg_partenza_2a"],
+   "quadri": [
+    {"figure": "i Padri e il Mondo Bruciato, insieme", "testo": "I Padri presero le valli, e dietro il Mondo si fece cenere."},
+    {"figure": "la Nave", "testo": "La nave va, e la Linea le dà il giorno."},
+    {"figure": "nessun cartone: le mani di Pina fanno, da sole, l'ombra di un uomo curvo", "testo": "Ma sotto il mondo, dove la Linea non arriva, c'è quello di sotto, che nessuno nomina. Regge, e non si lamenta. Ieri notte, dicono, ha cambiato spalla."},
+    {"figure": "la Svegliata", "testo": "E la Svegliata guardò il telo, e non disse niente."}
+   ],
+   "chiusura": "Pina spegne la lampada prima del solito. Qualcuno, fra il pubblico, si fa il segno della Linea."
+  },
+  "partenza_2b": {
+   "titolo": "La Partenza: la Svegliata guardò in su",
+   "condizione": "!flag:figura_toccata e !flag:velo_indossato",
+   "alla_fine": ["taccuino:lg_partenza_2b"],
+   "quadri": [
+    {"figure": "i Padri e il Mondo Bruciato", "testo": "I Padri presero le valli, e dietro il Mondo si fece cenere."},
+    {"figure": "la Sorella", "testo": "La Sorella ci segue, e passa nella Notte."},
+    {"figure": "la Svegliata, con un piccolo ferro d'ottone in mano", "testo": "E la Svegliata guardò in su, e la Notte la guardò. Poi prese un ferro d'ottone e misurò un sentiero, e la notte non lo toccò."}
+   ],
+   "chiusura": "I bambini ridono. Due vecchi, in fondo, se ne vanno senza aspettare la fine."
+  },
+  "partenza_2c": {
+   "titolo": "La Partenza: il velo nero",
+   "condizione": "!flag:figura_toccata e flag:velo_indossato",
+   "alla_fine": ["taccuino:lg_partenza_2c"],
+   "quadri": [
+    {"figure": "i Padri e il Mondo Bruciato", "testo": "I Padri presero le valli, e dietro il Mondo si fece cenere."},
+    {"figure": "la Santa che sale nella Linea", "testo": "La Santa salì nella Linea, a tenerci il giorno."},
+    {"figure": "la Svegliata, con un velo di carta velina nera", "testo": "E la Svegliata prese il velo, e le campane suonarono a festa. Ma il velo non è la maschera, dice la profezia. Non ancora."}
+   ],
+   "chiusura": "Il pubblico batte le mani piano. Clelia, in fondo, se ne va per prima."
+  }
+ },
+ "battute": {
+  "elvira_chi": {"chi": "elvira", "testo": "…Chi?", "quando": "pr_vetro, guardando la scritta"},
+  "elvira_aurelio": {"chi": "elvira", "testo": "Aurelio.", "quando": "toccando lo squadro nell'armadietto"},
+  "elvira_ilde": {"chi": "elvira", "testo": "Ilde? Santa?", "quando": "esaminando la capsula 3"},
+  "elvira_dormite": {"chi": "elvira", "testo": "Dormite. Beati voi.", "quando": "esaminando le capsule 6 e 7"},
+  "elvira_lago_sopra": {"chi": "elvira", "testo": "Il lago. Sopra.", "quando": "primo sguardo in su"},
+  "elvira_piano_vecchia": {"chi": "elvira", "testo": "Piano, vecchia.", "quando": "sedendosi la prima volta"},
+  "elvira_martagone": {"chi": "elvira", "testo": "Stella alpina. … Mi diede un martagone.", "quando": "alla fine della lettera"},
+  "elvira_campane_parlano": {"chi": "elvira", "testo": "Le campane parlano.", "quando": "dopo Meridiana"},
+  "elvira_ciao_vecchio": {"chi": "elvira", "testo": "Ciao, vecchio.", "quando": "toccando il castagno morto"},
+  "elvira_hai_fame": {"chi": "elvira", "testo": "Non sei malato. Hai fame. … Uno è ancora vivo. Bravo.", "quando": "fine della diagnosi con la lente"},
+  "elvira_scusa": {"chi": "elvira", "testo": "Scusa.", "quando": "tagliando la marza"},
+  "elvira_mia_scrittura": {"chi": "elvira", "testo": "La mia scrittura.", "quando": "leggendo il cartellino di zinco"},
+  "elvira_attacca": {"chi": "elvira", "testo": "Su. Attacca. … Lo saprò in primavera.", "quando": "legando l'innesto"},
+  "elvira_oh": {"chi": "elvira", "testo": "Oh.", "quando": "prima planata"},
+  "elvira_si_vola": {"chi": "elvira", "testo": "Si vola ancora, qui.", "quando": "atterrando in piazza dalla Ripa"},
+  "elvira_miccia_al_contrario": {"chi": "elvira", "testo": "Come una miccia, al contrario.", "quando": "la Linea si ritira alla brace"},
+  "ottavio_ogni_sera": {"chi": "ottavio", "testo": "Ogni sera la rimetto. Ogni notte se la prendono.", "risposta_elvira": "Chi?", "replica": "Le Fade. Chi altro.", "quando": "buttando le assi sul riale"},
+  "elvira_allora_guardo": {"chi": "elvira", "testo": "«Non guardare.» Allora guardo.", "quando": "dopo il biglietto della Madre, guardando il Sordo"},
+  "elvira_ciao_geometra": {"chi": "elvira", "testo": "Ciao, geometra.", "quando": "toccando la targa del Pilastro 1"},
+  "elvira_pianta_livella": {"chi": "elvira", "testo": "Pianta, livella, collima, leggi. Me lo dicevi sempre.", "quando": "dopo la pagina «Come si fa»"},
+  "elvira_tasso": {"chi": "elvira", "testo": "Il tasso è cresciuto, Aurelio. … Chiodo 3. «Quella dei tuoi castagni.»", "quando": "collimando dal chiodo 2"},
+  "elvira_eccoti": {"chi": "elvira", "testo": "Eccoti.", "quando": "il colore che si allarga dal chiodo 3"},
+  "elvira_sa_leggere": {"chi": "elvira", "testo": "Vediamo se la notte sa leggere.", "quando": "dopo aver rilevato la passerella"},
+  "elvira_stessa_g": {"chi": "elvira", "testo": "La stessa g.", "quando": "segreto delle buste"},
+  "elvira_meridiana": {"chi": "elvira", "testo": "Una piazza che indica una montagna.", "quando": "segreto della meridiana"},
+  "elvira_vent_anni": {"chi": "elvira", "testo": "Avevi vent'anni. Già allora.", "quando": "la pagina del Monte Vettore"},
+  "elvira_atterraggio": {"chi": "elvira", "testo": "In piedi. Quasi.", "quando": "primo atterraggio nell'altra valle"},
+  "elvira_disco": {"chi": "elvira", "testo": "L'osservatorio. Coperto di piombo.", "quando": "appuntando la Lanterna"}
+ },
+ "meridiana": {
+  "registro": "Registro la richiesta.",
+  "non_posso": "Non posso rivelare.",
+  "confermo": "Confermo, Giardiniera.",
+  "indice": "Indice ecologico: zero virgola quarantuno. Sotto zero virgola trenta non garantisco la vita.",
+  "corbella": "Corbella è in carta. Le ore sono tue, Giardiniera."
+ },
+ "suggerimenti": {
+  "guarda": "Guarda: {guarda}",
+  "alzati": "Alzati: {usa}",
+  "guarda_in_su": "Guarda in su",
+  "cammina": "Cammina: {muovi}",
+  "siediti": "Siediti a respirare: tieni premuto {siedi}",
+  "leggi": "Leggi: {usa}",
+  "lente": "La lente dell'erbario: {lente}, poi avvicinati a ciò che vuoi esaminare",
+  "taglia": "Taglia la marza: tieni premuto {usa} guardando il ramo",
+  "pianta": "La Pianta: {pianta}",
+  "innesta": "Innesta: taglia, inserisci, lega ({usa} per ogni gesto)",
+  "velo": "Salta dal muro ({salta}), poi apri il Velo in aria ({velo})",
+  "aspetta": "Da seduta, aspetta fino a…: {aspetta}",
+  "libretto": "Il libretto di Aurelio: {libretto}",
+  "pianta_squadro": "Pianta lo squadro sul chiodo: tieni premuto {usa}. Poi centra la bolla",
+  "collima": "Guarda nel cannocchiale ({mira}) e tieni la croce sulla palina",
+  "cerca_nel_libretto": "Le monografie del libretto dicono dove sono i chiodi"
+ }
+}

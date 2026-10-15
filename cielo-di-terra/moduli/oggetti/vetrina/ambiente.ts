@@ -137,10 +137,10 @@ export function creaAmbiente(scena: THREE.Scene): Ambiente {
       coloraCielo(0x141a3c, 0x3b3f73, 0x23264a);
       scena.fog = new THREE.Fog(0x2b2f5c, 40, 300);
       sole.color.set(0x8f9be0);
-      sole.intensity = 0.55;
-      emisfero.color.set(0x5560a8);
-      emisfero.groundColor.set(0x2a2440);
-      emisfero.intensity = 0.9;
+      sole.intensity = 0.8;
+      emisfero.color.set(0x5c68b4);
+      emisfero.groundColor.set(0x30294a);
+      emisfero.intensity = 1.35;
     } else {
       coloraCielo(0x6f9cc6, 0xf1e2c2, 0xd8c9a6);
       scena.fog = new THREE.Fog(0xd9dfdc, 90, 520);
