@@ -10,7 +10,8 @@
  * - Primissimo avvio (GDD 9): «una scritta sola», «Tocca per iniziare» («Clicca
  *   per iniziare» con il mouse); le modalità chiuse si vedono con il lucchetto e
  *   la condizione (D17), Impostazioni e Crediti sono due icone.
- * - Il menu scorre: un'ombra in fondo dice che sotto c'è dell'altro (SCH-10).
+ * - Il menu scorre: una freccia sotto il menu, fuori dall'area che scorre, dice che
+ *   sotto c'è dell'altro (SCH-10; revisione 2, Q068: non copre più l'ultima voce).
  * - Dopo il finale vero (`unlocks.tovaglia`): un filo corallo sul tombolo e una
  *   stella accanto a Telaio (SCH-15, P121).
  * - Musica del titolo (campana intonata dopo il finale vero) e laguna.
@@ -162,11 +163,16 @@ export class TitoloScene implements Scene {
       el('div', { class: 'sc-titolo-principali' }, ...slots.principale),
       slots.modo.length > 0 ? el('div', { class: 'sc-titolo-griglia', test: 'sc-titolo-modi' }, ...slots.modo) : null,
       el('div', { class: 'sc-titolo-piede', test: 'sc-titolo-piede' }, ...slots.piede),
-      // Ombra in fondo quando il menu scorre e sotto c'è dell'altro (SCH-10, P055).
-      el('div', { class: 'sc-titolo-ombra', test: 'sc-titolo-ombra', attrs: { 'aria-hidden': 'true' } }),
     );
+    // Segno di scorrimento (SCH-10, P055) in una striscia sua SOTTO il menu, fuori dall'area che
+    // scorre: non copre mai una voce (revisione 2, Q068: la freccia cadeva su «Crediti»). C'è
+    // finché il menu scorre; la freccia si accende quando sotto c'è dell'altro.
+    const hint = el('div', { class: 'sc-titolo-ombra', test: 'sc-titolo-ombra', attrs: { 'aria-hidden': 'true' } });
     const shade = (): void => {
-      nav.dataset.scorre = nav.scrollTop + nav.clientHeight < nav.scrollHeight - 2 ? 'giu' : 'no';
+      const overflow = nav.scrollHeight > nav.clientHeight + 2;
+      const more = nav.scrollTop + nav.clientHeight < nav.scrollHeight - 2;
+      nav.dataset.scorre = more ? 'giu' : 'no';
+      hint.dataset.stato = !overflow ? 'no' : more ? 'giu' : 'fine';
     };
     nav.addEventListener('scroll', shade, { passive: true });
     this.shade = shade;
@@ -174,7 +180,7 @@ export class TitoloScene implements Scene {
     arrowNavigation(nav, 'button', 'both');
     const version = textOf('ui.titolo.versione', { versione: typeof __GAME_VERSION__ === 'string' ? __GAME_VERSION__ : '' }, 'p', { className: 'sc-titolo-versione' });
     version.setAttribute('aria-hidden', 'true');
-    const side = el('div', { class: 'sc-titolo-lato' }, head, nav, version);
+    const side = el('div', { class: 'sc-titolo-lato' }, head, nav, hint, version);
     this.root = el(
       'div',
       { class: ['sc-titolo', !this.built && 'sc-titolo--entra', first && 'sc-titolo--primo'], test: 'sc-titolo', data: { forma: this.landscape ? 'orizzontale' : 'verticale' } },
@@ -229,8 +235,8 @@ export class TitoloScene implements Scene {
     if (it.primary) b.classList.add('core-btn--grande', 'sc-voce--principale');
     if (it.star) {
       // Il finale vero (SCH-15): una stella d'ottone accanto a Telaio.
-      const star = el('span', { class: 'sc-voce-stella', test: `sc-titolo-${it.id}-stella`, attrs: { title: s.i18n.t('ui.titolo.finaleVero') } }, icon('stella', 18));
-      star.appendChild(textOf('ui.titolo.finaleVero', undefined, 'span', { className: 'core-sr-only' }));
+      // La frase si legge a video nella didascalia (Q036): la stella è solo un segno.
+      const star = el('span', { class: 'sc-voce-stella', test: `sc-titolo-${it.id}-stella`, attrs: { title: s.i18n.t('ui.titolo.finaleVero'), 'aria-hidden': 'true' } }, icon('stella', 18));
       b.querySelector('.sc-voce-testi')?.after(star);
     }
     return b;

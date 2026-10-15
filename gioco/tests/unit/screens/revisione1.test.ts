@@ -233,7 +233,7 @@ describe("«Chi c'è stanotte» (SCH-07, P041, P045)", () => {
     document.body.replaceChildren();
   });
 
-  it('Merletto del giorno del 15/10: Lunardi cura, Gino non sta fermo, Marta e Bepi senza stranezze, un passante', async () => {
+  it('Merletto del giorno del 15/10: Lunardi cura, Gino non sta fermo, Marta senza stranezze che contino, Bepi senza stranezze, un passante', async () => {
     const h = makeServices({ save: UNLOCKED });
     setTodayOverride('2026-10-15');
     const scene = new GiornalieroScene(h.s);
@@ -244,8 +244,10 @@ describe("«Chi c'è stanotte» (SCH-07, P041, P045)", () => {
     expect(q(chi, 'sc-giornaliero-chi-lunardi')?.dataset.quirks).toBe('lunardiCura');
     expect(q(chi, 'sc-giornaliero-chi-lunardi')?.textContent).toContain(h.s.i18n.t('tombolo.stranezza.lunardiCura'));
     expect(q(chi, 'sc-giornaliero-chi-gino')?.textContent).toContain(h.s.i18n.t('tombolo.stranezza.ginoCorre'));
-    expect(q(chi, 'sc-giornaliero-chi-marta')?.textContent).toContain('Nessuna stranezza');
-    expect(q(chi, 'sc-giornaliero-chi-bepi')).not.toBeNull();
+    // Q022: Marta «non passa mai sotto Teresa», ma Teresa stanotte non c'è.
+    expect(q(chi, 'sc-giornaliero-chi-marta')?.textContent).toContain('Nessuna stranezza che conti stanotte.');
+    expect(q(chi, 'sc-giornaliero-chi-bepi')?.textContent).toContain('Nessuna stranezza.');
+    expect(q(chi, 'sc-giornaliero-chi-bepi')?.textContent).not.toContain('stanotte');
     expect(chi.querySelector('.sc-chi-passanti')?.textContent).toContain('un passante');
     // La regola del giorno con la pagina del Libro, subito sopra.
     expect(q(document.body, 'sc-giornaliero-libro')).not.toBeNull();

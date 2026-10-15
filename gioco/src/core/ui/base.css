@@ -305,14 +305,30 @@ button.core-carta {
   transform: rotate(clamp(-3deg, var(--mano-inclinazione, 0deg), 3deg));
   transform-origin: center;
 }
+/*
+ * Le parole non si spezzano a metà (revisione 2, Q073): se una parola non entra, la
+ * calligrafia scende un poco (--carta-adatta, keepWordsInside in components.ts), mai sotto
+ * il corpo dei fogli (1.05rem, GDD 14); solo se non basta si va a capo dentro la parola
+ * (core-carta--spezza).
+ */
 .core-carta-testo {
   transform: none;
   pointer-events: none;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
+}
+/* Misura (un istante, da keepWordsInside): le parole intere anche dove il foglio le lascerebbe spezzare. */
+.core-carta--misura .core-carta-testo,
+.core-carta--misura .core-carta-testo * {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+.core-carta--spezza .core-carta-testo,
+.core-carta--spezza .core-carta-testo * {
+  overflow-wrap: anywhere;
 }
 .core-carta--mano .core-carta-testo {
   font-family: var(--mano-font, var(--font-mano));
-  font-size: calc(1.35rem * var(--mano-scala, 1));
+  font-size: calc(1.35rem * var(--mano-scala, 1) * var(--carta-adatta, 1));
   line-height: 1.25;
   text-transform: var(--mano-maiuscole, none);
 }

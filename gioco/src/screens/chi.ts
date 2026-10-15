@@ -3,6 +3,8 @@
  * scheda del Merletto del giorno e del libero, prima di tessere, i personaggi
  * del merletto con icona, nome e stranezze attive (`tombolo.stranezza.*`), il
  * filo nero, i passanti e le coppie in rancore (`tombolo.rancore.coppia`).
+ * Chi ha stranezze che stanotte non contano (revisione 2, Q022) non è detto
+ * «senza stranezze»: «Nessuna stranezza che conti stanotte».
  * La regola del giorno resta nella sua sezione con la pagina del Libro.
  */
 import type { CharacterId, LevelDef, QuirkId, Services, ThreadId } from '../core/types';
@@ -16,7 +18,10 @@ export interface ChiPerson {
   thread: ThreadId;
   character: CharacterId;
   nero: boolean;
+  /** Stranezze del personaggio che stanotte contano. */
   quirks: QuirkId[];
+  /** Stranezze sue che stanotte non contano (per esempio: chi riguardano non c'è). Revisione 2, Q022. */
+  dormant: QuirkId[];
 }
 
 export interface ChiInfo {
@@ -51,7 +56,13 @@ export function chiInfo(s: Pick<Services, 'content'>, level: LevelDef): ChiInfo 
     }
     if (people.some((p) => p.character === ch)) continue;
     const own = s.content.characters.get(ch)?.quirks ?? [];
-    people.push({ thread: t.id, character: ch, nero: t.kind === 'nero', quirks: own.filter((q) => active.has(q)) });
+    people.push({
+      thread: t.id,
+      character: ch,
+      nero: t.kind === 'nero',
+      quirks: own.filter((q) => active.has(q)),
+      dormant: own.filter((q) => !active.has(q)),
+    });
   }
   const rancor = ctx.rancor.map(([a, b]) => [characterOf(level, a) ?? a, characterOf(level, b) ?? b] as [CharacterId | ThreadId, CharacterId | ThreadId]);
   return { people, passanti, rancor };
@@ -88,7 +99,11 @@ export function chiSection(s: Pick<Services, 'content' | 'i18n'>, level: LevelDe
       const key = `tombolo.stranezza.${q}`;
       text.appendChild(textOf(s.i18n.has(key) ? key : 'ui.chi.stranezzaRiserva', undefined, 'span', { className: 'sc-chi-stranezza' }));
     }
-    if (!p.nero && p.quirks.length === 0) text.appendChild(textOf('ui.chi.nessunaStranezza', undefined, 'span', { className: 'sc-chi-stranezza sc-chi-stranezza--nessuna' }));
+    // Q022: chi ha stranezze che stanotte non contano non è «senza stranezze».
+    if (!p.nero && p.quirks.length === 0) {
+      const key = p.dormant.length > 0 ? 'ui.chi.nessunaStranezzaStanotte' : 'ui.chi.nessunaStranezza';
+      text.appendChild(textOf(key, undefined, 'span', { className: 'sc-chi-stranezza sc-chi-stranezza--nessuna' }));
+    }
     row.appendChild(text);
     list.appendChild(row);
   }

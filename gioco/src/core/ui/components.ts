@@ -394,6 +394,80 @@ function keepTiltInside(card: HTMLElement, slantDeg: number): void {
   }).observe(card);
 }
 
+/** Corpo del testo di un foglio (rem, base.css `.core-carta`) e della calligrafia (`.core-carta--mano .core-carta-testo`). */
+export const CARTA_REM = 1.05;
+export const MANO_REM = 1.35;
+
+/**
+ * Fin dove può scendere il carattere di un foglio perché una parola lunga non si spezzi
+ * (revisione 2, Q073). GDD 14: nessuna scritta si rimpicciolisce sotto la sua misura. La
+ * misura di un foglio è il corpo del testo dei fogli (CARTA_REM, già moltiplicato per la
+ * scala del testo scelta dal giocatore): la calligrafia, che per sua natura è più grande
+ * (MANO_REM × la scala della mano), può tornare fino a lì e non oltre. Un foglio senza
+ * calligrafia non scende mai (1).
+ */
+export function fitFloor(hand: Handwriting | null | undefined): number {
+  if (!hand) return 1;
+  return Math.min(1, CARTA_REM / (MANO_REM * (hand.sizeScale > 0 ? hand.sizeScale : 1)));
+}
+
+/**
+ * Fattore di carattere perché la parola più lunga entri nel foglio (revisione 2, Q073:
+ * «L'ANNIVERSA / RIO» nel bigliettino di Marta al 140%). `contentWidth` è la larghezza
+ * del testo senza andare a capo dentro le parole, `boxWidth` quella del foglio; `current`
+ * il fattore con cui si è misurato; `floor` il minimo (fitFloor). Restituisce un fattore
+ * in [floor, 1] arrotondato per difetto al centesimo, oppure null se basta quello pieno o
+ * se il foglio non può scendere.
+ */
+export function fitFactor(contentWidth: number, boxWidth: number, current = 1, floor = 1): number | null {
+  if (!(boxWidth > 0) || !(contentWidth > 0) || floor >= 1) return null;
+  const natural = contentWidth / current;
+  if (natural <= boxWidth + 0.5) return null;
+  return Math.max(Math.ceil(floor * 100) / 100, Math.floor((boxWidth / natural) * 100) / 100);
+}
+
+/**
+ * Tiene le parole intere nel foglio: se una parola sporge (con overflow-wrap: normal) il
+ * carattere della calligrafia scende (`--carta-adatta`) quanto basta, ma mai sotto la misura
+ * del foglio (fitFloor); solo oltre si va a capo dentro la parola (`core-carta--spezza`).
+ * Si rifà quando cambia la larghezza del foglio (testo grande, rotazione, cambio di lingua).
+ */
+function keepWordsInside(card: HTMLElement, floor: number): void {
+  if (typeof ResizeObserver === 'undefined') return;
+  const text = card.querySelector<HTMLElement>('.core-carta-testo');
+  if (!text) return;
+  let lastWidth = -1;
+  /**
+   * Quanto sporge il testo con le parole intere (anche se una regola di chi usa il foglio le
+   * lascerebbe spezzare): il rapporto più alto fra larghezza del contenuto e larghezza visibile,
+   * sul testo e su ogni suo blocco (un blocco che taglia il suo contenuto non lo passa al padre).
+   */
+  const overflowRatio = (): number => {
+    card.classList.add('core-carta--misura');
+    let worst = 1;
+    for (const e of [text, ...Array.from(text.querySelectorAll<HTMLElement>('*'))]) {
+      const cw = e.clientWidth;
+      if (cw > 0) worst = Math.max(worst, e.scrollWidth / cw);
+    }
+    card.classList.remove('core-carta--misura');
+    return worst;
+  };
+  const fit = (): void => {
+    const box = text.clientWidth;
+    if (box <= 0 || box === lastWidth) return;
+    lastWidth = box;
+    card.style.removeProperty('--carta-adatta');
+    card.classList.remove('core-carta--spezza');
+    const ratio = overflowRatio();
+    if (ratio * box <= box + 1) return;
+    const f = fitFactor(ratio * box, box, 1, floor);
+    if (f !== null) card.style.setProperty('--carta-adatta', String(f));
+    // Il carattere non scala in modo perfettamente lineare: un pixel di tolleranza.
+    if (f === null || overflowRatio() * box > box + 1) card.classList.add('core-carta--spezza');
+  };
+  new ResizeObserver(fit).observe(card);
+}
+
 export function paperCard(o: { children?: Child[]; hand?: Handwriting | null; onClick?: () => void; test?: string; className?: string; labelKey?: string }): HTMLElement {
   const interactive = !!o.onClick;
   const card = el(interactive ? 'button' : 'div', {
@@ -403,6 +477,7 @@ export function paperCard(o: { children?: Child[]; hand?: Handwriting | null; on
     type: interactive ? 'button' : undefined,
   }, el('div', { class: 'core-carta-testo' }, ...(o.children ?? [])));
   if (o.hand) keepTiltInside(card, o.hand.slantDeg);
+  keepWordsInside(card, fitFloor(o.hand));
   if (o.labelKey) {
     card.setAttribute('aria-label', tr(o.labelKey));
     card.dataset.i18nLabel = o.labelKey;

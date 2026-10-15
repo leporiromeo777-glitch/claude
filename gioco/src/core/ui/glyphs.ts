@@ -7,7 +7,8 @@
  * ampolla, scialle, fuso, forbici. Luoghi (GDD 5.5): bitta, pagnotta, pozzo,
  * campanile, mortaio, faro. Interfaccia: menu, disfa, taccuino, lampada, lucchetto,
  * indietro, avanti, chiudi, spillo, gomitolo, spunta, impostazioni, condividi,
- * copia, nota, stella, play, pausa, info, campana, matita.
+ * copia, nota (musicale: «Riascolta»), foglio (biglietto o pagina scritta: regola
+ * del giorno, lettere; revisione 2, Q059), stella, play, pausa, info, campana, matita.
  */
 
 export interface Glyph {
@@ -53,6 +54,7 @@ export const GLYPHS: Readonly<Record<string, Glyph>> = {
   condividi: { d: 'M12 3v12 M8 7l4-4 4 4 M5 12v8h14v-8' },
   copia: { d: 'M8 8h11v13H8z M5 16V3h11' },
   nota: { d: 'M9 18V5l10-2v13 M9 18a3 3 0 1 1-6 0 3 3 0 1 1 6 0z M19 16a3 3 0 1 1-6 0 3 3 0 1 1 6 0z' },
+  foglio: { d: 'M6 3h9l4 4v14H6z M15 3v4h4 M9 11h7 M9 14h7 M9 17h4' },
   stella: { d: 'M12 2l2 8 8 2-8 2-2 8-2-8-8-2 8-2z', fill: true },
   play: { d: 'M7 4l13 8-13 8z', fill: true },
   pausa: { d: 'M7 4h3v16H7z M14 4h3v16h-3z', fill: true },

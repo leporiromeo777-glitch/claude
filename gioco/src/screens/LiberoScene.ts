@@ -418,7 +418,7 @@ export class LiberoScene extends ScreenScene {
       );
     }
     host.replaceChildren(
-      section('ui.libero.regola', 'nota', 'sc-libero-regola', bookPage(s, rule, 'sc-libero-libro')),
+      section('ui.libero.regola', 'foglio', 'sc-libero-regola', bookPage(s, rule, 'sc-libero-libro')),
       chiSection(s, gen?.level ?? null, 'sc-libero-chi'),
       section(
         'ui.libero.record',

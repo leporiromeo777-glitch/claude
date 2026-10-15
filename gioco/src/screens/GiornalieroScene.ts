@@ -172,7 +172,7 @@ export class GiornalieroScene extends ScreenScene {
     f.body.append(
       dateLine,
       status,
-      section('ui.giornaliero.regola', 'nota', 'sc-giornaliero-regola', bookPage(s, spec.rule, 'sc-giornaliero-libro')),
+      section('ui.giornaliero.regola', 'foglio', 'sc-giornaliero-regola', bookPage(s, spec.rule, 'sc-giornaliero-libro')),
       chiSection(s, this.gen?.level ?? null, 'sc-giornaliero-chi'),
       section('ui.giornaliero.merletto', 'gomitolo', 'sc-giornaliero-merletto', info),
       section('ui.giornaliero.record', 'stella', 'sc-giornaliero-records', records),

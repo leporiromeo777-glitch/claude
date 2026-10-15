@@ -33,7 +33,8 @@
     },
     "storiaAssente": "The story is not ready in this version yet.",
     "versione": "v{versione}",
-    "finaleVero": "You saw the true ending: the bell rings in tune."
+    "finaleVero": "You saw the true ending: the bell rings in tune.",
+    "finaleVeroTelaio": "You saw the true ending: the Tablecloth is on the Loom."
   },
   "pausa": {
     "titoloPannello": "Pause",
@@ -459,6 +460,7 @@
     "nero": "Black thread: it moves on its own, and crosses over whoever it meets.",
     "stranezzaRiserva": "Has a quirk: you will find it while weaving.",
     "nessunaStranezza": "No quirks.",
+    "nessunaStranezzaStanotte": "No quirk that matters tonight.",
     "passanti": "{n, plural, one {And a passer-by, who always gives way.} other {And # passers-by, who always give way.}}",
     "rancore": "{a} and {b} hold a grudge: if they cross, they knot."
   }

@@ -84,31 +84,48 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
-/* Ombra in fondo al menu quando sotto c'è dell'altro (SCH-10). */
+/*
+ * Segno di scorrimento del menu (SCH-10; revisione 2, Q068): una striscia sotto il menu,
+ * fuori dall'area che scorre, così la freccia non copre mai una voce. C'è finché il menu
+ * scorre (data-stato giu o fine) e la freccia si vede quando sotto c'è dell'altro. In fondo
+ * al menu un piccolo margine: l'ultima voce non tocca il bordo.
+ */
+.sc-titolo-menu {
+  padding-bottom: var(--spazio-1);
+}
 .sc-titolo-ombra {
-  position: sticky;
-  bottom: 0;
+  order: 3;
   flex: none;
-  height: 32px;
-  margin-top: calc(-32px - var(--spazio-2));
+  display: none;
+  position: relative;
+  width: min(460px, 100%);
+  height: 18px;
+  margin-top: calc(var(--spazio-1) - var(--spazio-2));
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(8, 10, 16, 0), rgba(8, 10, 16, 0.9));
-  opacity: 0;
-  transition: opacity var(--durata-breve);
+  border-top: 1px solid color-mix(in srgb, var(--ottone) 35%, transparent);
+}
+.sc-titolo-ombra[data-stato='giu'],
+.sc-titolo-ombra[data-stato='fine'] {
+  display: block;
 }
 .sc-titolo-ombra::after {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 6px;
-  width: 10px;
-  height: 10px;
+  top: 2px;
+  width: 9px;
+  height: 9px;
   border-right: 2px solid var(--ottone);
   border-bottom: 2px solid var(--ottone);
   transform: translateX(-50%) rotate(45deg);
+  opacity: 0;
+  transition: opacity var(--durata-breve);
 }
-.sc-titolo-menu[data-scorre='giu'] .sc-titolo-ombra {
+.sc-titolo-ombra[data-stato='giu']::after {
   opacity: 1;
+}
+.sc-titolo[data-forma='orizzontale'] .sc-titolo-ombra {
+  margin-top: calc(var(--spazio-1) - var(--spazio-3));
 }
 /* Stella del finale vero accanto a Telaio (SCH-15). */
 .sc-voce-stella {
@@ -947,13 +964,20 @@
   align-items: center;
   margin-bottom: var(--spazio-5);
 }
+/*
+ * «TRAMA» non va mai a capo (revisione 2, Q072: al 140% su telefono diventava «TRAM / A»):
+ * il nome si misura sulla larghezza della testata, come nel titolo.
+ */
+.sc-crediti-testa {
+  container-type: inline-size;
+}
 .sc-crediti-nome {
   font-family: var(--font-libro);
-  font-size: 2.6rem;
+  font-size: min(2.6rem, 15cqi);
   letter-spacing: 0.3em;
   padding-left: 0.3em;
   color: var(--carta);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .sc-crediti-sotto {
   font-family: var(--font-libro);

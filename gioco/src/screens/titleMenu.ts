@@ -38,7 +38,10 @@ export interface TitleMenuContext {
   dailyDoneToday: boolean;
   /** Si gioca con il mouse (puntatore fine): «Clicca per iniziare» (SCH-12). */
   mouse?: boolean;
-  /** Il finale vero è stato visto (`unlocks.tovaglia`): la stella accanto a Telaio (SCH-15). */
+  /**
+   * Il finale vero è stato visto (`unlocks.tovaglia`): la stella accanto a Telaio (SCH-15)
+   * e, sotto, la riga «Hai visto il finale vero: la Tovaglia è sul Telaio» (revisione 2, Q036).
+   */
   trueEnding?: boolean;
 }
 
@@ -99,7 +102,8 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
       primary: false,
       locked: telaioLocked,
       slot: 'modo',
-      ...(telaioLocked ? { subKey: 'ui.titolo.lucchetto.telaio' } : {}),
+      // Finale vero (revisione 2, Q036): una riga visibile che nomina la Tovaglia e dice dov'è.
+      ...(telaioLocked ? { subKey: 'ui.titolo.lucchetto.telaio' } : c.trueEnding ? { subKey: 'ui.titolo.finaleVeroTelaio' } : {}),
       ...(c.trueEnding ? { star: true } : {}),
     });
   }

@@ -33,7 +33,8 @@
     },
     "storiaAssente": "La storia non è ancora pronta in questa versione.",
     "versione": "v{versione}",
-    "finaleVero": "Hai visto il finale vero: la campana suona intonata."
+    "finaleVero": "Hai visto il finale vero: la campana suona intonata.",
+    "finaleVeroTelaio": "Hai visto il finale vero: la Tovaglia è sul Telaio."
   },
   "pausa": {
     "titoloPannello": "Pausa",
@@ -459,6 +460,7 @@
     "nero": "Filo nero: si muove da solo, e chi incontra lo incrocia da sopra.",
     "stranezzaRiserva": "Ha una stranezza: la scopri tessendo.",
     "nessunaStranezza": "Nessuna stranezza.",
+    "nessunaStranezzaStanotte": "Nessuna stranezza che conti stanotte.",
     "passanti": "{n, plural, one {E un passante, che cede sempre.} other {E # passanti, che cedono sempre.}}",
     "rancore": "{a} e {b} sono in rancore: se si incrociano, si annodano."
   }
