@@ -1,5 +1,5 @@
 import { Componente } from '../core/componente';
-import { h, navigazioneFrecce } from '../core/dom';
+import { h, navigazioneFrecce, voceMenu } from '../core/dom';
 import { disegnoCilindro } from '../core/disegni';
 import './titolo.css';
 
@@ -36,14 +36,7 @@ export class SchermataTitolo extends Componente<EventiTitolo> {
   constructor() {
     super({ classe: 'ui-modale ui-titolo', modale: true, ruolo: 'dialog', etichetta: 'Cielo di Terra, schermata del titolo' });
 
-    const voce = (testo: string, fn: () => void, tasto?: string): HTMLButtonElement =>
-      h(
-        'button',
-        { class: 'ui-voce', type: 'button', onclick: fn },
-        h('span', { class: 'ui-voce-segno', 'aria-hidden': 'true' }, '—'),
-        h('span', null, testo),
-        tasto ? h('span', { class: 'ui-voce-tasto', 'aria-hidden': 'true' }, tasto) : null,
-      );
+    const voce = voceMenu;
 
     this.bContinua = voce('Continua', () => this.emit('continua'));
     this.notaSalvataggio = h('span', { class: 'ui-titolo-salvataggio' });
@@ -57,18 +50,8 @@ export class SchermataTitolo extends Componente<EventiTitolo> {
       h('li', null, voce('Crediti', () => this.emit('crediti'))),
     );
 
-    const bSi = h(
-      'button',
-      { class: 'ui-voce', type: 'button', onclick: () => this.emit('nuovaPartita') },
-      h('span', { class: 'ui-voce-segno', 'aria-hidden': 'true' }, '—'),
-      'Sì, da capo',
-    );
-    const bNo = h(
-      'button',
-      { class: 'ui-voce', type: 'button', onclick: () => this.annullaNuova() },
-      h('span', { class: 'ui-voce-segno', 'aria-hidden': 'true' }, '—'),
-      'No, torna indietro',
-    );
+    const bSi = voce('Sì, da capo', () => this.emit('nuovaPartita'));
+    const bNo = voce('No, torna indietro', () => this.annullaNuova());
     this.conferma = h(
       'div',
       { class: 'ui-titolo-conferma', hidden: true, role: 'group', 'aria-labelledby': 'ui-titolo-conferma-d' },
@@ -127,7 +110,7 @@ export class SchermataTitolo extends Componente<EventiTitolo> {
     }
     this.menu.hidden = true;
     this.conferma.hidden = false;
-    this.conferma.querySelector<HTMLButtonElement>('.ui-voce:last-child, li:last-child .ui-voce')?.focus();
+    this.conferma.querySelectorAll<HTMLButtonElement>('.ui-voce')[1]?.focus();
   }
 
   private annullaNuova(focus = true): void {

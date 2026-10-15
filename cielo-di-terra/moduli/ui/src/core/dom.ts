@@ -158,3 +158,17 @@ export function movimentiRidotti(radice: Element | null): boolean {
 export function fotogramma(): Promise<void> {
   return new Promise((r) => requestAnimationFrame(() => r()));
 }
+
+/**
+ * Voce di menu: un trattino rosso che compare al passaggio, il testo con la sottolineatura a matita
+ * e, se dato, il tasto rapido a destra.
+ */
+export function voceMenu(testo: string, azione: () => void, tasto?: string): HTMLButtonElement {
+  return h(
+    'button',
+    { class: 'ui-voce', type: 'button', onclick: azione },
+    h('span', { class: 'ui-voce-segno', 'aria-hidden': 'true' }, '—'),
+    h('span', { class: 'ui-voce-testo' }, testo),
+    tasto ? h('span', { class: 'ui-voce-tasto' }, h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, tasto), h('span', { class: 'ui-sr' }, ` (tasto ${tasto})`)) : null,
+  );
+}

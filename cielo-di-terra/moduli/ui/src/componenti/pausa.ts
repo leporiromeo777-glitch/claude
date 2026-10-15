@@ -1,5 +1,5 @@
 import { Componente } from '../core/componente';
-import { h, navigazioneFrecce } from '../core/dom';
+import { h, navigazioneFrecce, voceMenu } from '../core/dom';
 import './pausa.css';
 
 export interface DatiPausa {
@@ -34,14 +34,7 @@ export class MenuPausa extends Componente<EventiPausa> {
 
   constructor() {
     super({ classe: 'ui-modale ui-pausa', modale: true, ruolo: 'dialog', etichetta: 'Pausa' });
-    const voce = (testo: string, fn: () => void, tasto?: string): HTMLButtonElement =>
-      h(
-        'button',
-        { class: 'ui-voce', type: 'button', onclick: fn },
-        h('span', { class: 'ui-voce-segno', 'aria-hidden': 'true' }, '—'),
-        h('span', null, testo),
-        tasto ? h('span', { class: 'ui-voce-tasto' }, h('span', { class: 'ui-tasto', 'aria-label': `tasto ${tasto}` }, tasto)) : null,
-      );
+    const voce = voceMenu;
     this.bRiprendi = voce('Riprendi', () => this.emit('riprendi'), 'Esc');
     this.bEsci = voce('Esci al titolo', () => this.chiediUscita());
     this.menu = h(
@@ -83,9 +76,8 @@ export class MenuPausa extends Componente<EventiPausa> {
   }
 
   show(dati: DatiPausa = {}): void {
-    const righe = [dati.luogo, dati.quando].filter(Boolean).join(' · ');
-    this.luogo.textContent = righe;
-    this.luogo.hidden = !righe;
+    this.luogo.replaceChildren(...[dati.luogo, dati.quando].filter((x): x is string => !!x).map((x) => h('span', null, x)));
+    this.luogo.hidden = !dati.luogo && !dati.quando;
     this.evento.textContent = dati.prossimoEvento ?? '';
     this.evento.hidden = !dati.prossimoEvento;
     this.annullaUscita(false);

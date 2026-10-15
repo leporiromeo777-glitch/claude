@@ -164,11 +164,15 @@ function valleyHeight(strip: StripDef, idx: number, z: number, theta: number, si
 
   const ridgeN = N1.noise(z / 520, side * 17.3 + idx * 5.1, 0.5);
   const ridge = lerp(strip.ridgeMin ?? 70, strip.ridgeMax ?? 110, 0.5 + 0.5 * ridgeN);
-  const s = smoothstep(EDGE.ridgeStart, EDGE.ridgeEnd, e);
-  const rise = ridge * Math.pow(s, 1.35);
+  // versante che sale fino alla cresta, poi cornice di terra che scende dolce al vetro
+  const peak = EDGE.ridgePeak + 0.05 * N2.noise(z / 300, side * 3.3 + idx, 1.7);
+  const up = smoothstep(EDGE.ridgeStart, peak, e);
+  const down = 1 - smoothstep(peak + 0.02, 1.0, e);
+  const s = Math.pow(up, 1.3) * (0.03 + 0.97 * Math.pow(down, 0.85));
+  const rise = ridge * s;
   const amp = strip.hillAmplitude ?? 16;
   const hills =
-    N1.fbm(px / 260, py / 260, z / 260, 4) * amp * (0.55 + 0.45 * (1 - s)) +
+    N1.fbm(px / 260, py / 260, z / 260, 4) * amp * (0.55 + 0.45 * (1 - s)) * (0.25 + 0.75 * down) +
     N2.fbm(px / 70, py / 70, z / 70, 3) * 2.6 +
     (N3.ridged(px / 140, py / 140, z / 140, 3) - 0.4) * 22 * s;
   let h = (strip.floorHeight ?? 8) + rise + hills;
@@ -220,12 +224,11 @@ function valleyHeight(strip: StripDef, idx: number, z: number, theta: number, si
     }
   }
 
-  // bastione verso le finestre
+  // raccordo con il telaio della finestra: gli ultimi metri scendono a edgeHeight
   const bw = EDGE.bankWidth;
   const b = smoothstep(0, bw, dEdge);
-  m.bank = 1 - smoothstep(bw * 0.4, bw * 1.3, dEdge);
-  const rock = (N2.ridged(px / 26, py / 26, z / 26, 2) - 0.5) * 6 * (1 - b) * b * 4;
-  h = h * Math.pow(b, 0.55) + rock;
+  m.bank = 1 - smoothstep(bw * 0.3, bw, dEdge);
+  h = lerp(EDGE.edgeHeight * smoothstep(0, 3, dEdge), h, b * b * (3 - 2 * b));
   return Math.max(0, h);
 }
 

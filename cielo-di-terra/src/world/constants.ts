@@ -69,7 +69,7 @@ export interface Layout {
   version: number;
   cylinder: { radius: number; length: number; rotationPeriod: number; hullDepth: number };
   strips: StripDef[];
-  valleyEdge: { bankWidth: number; ridgeStart: number; ridgeEnd: number };
+  valleyEdge: { bankWidth: number; ridgeStart: number; ridgePeak: number; edgeHeight: number };
   windows: { ribSpacing: number; ribWidth: number; ribHeight: number; edgeBeamWidth: number; glassThickness: number };
   endCaps: { south: CapDef; north: CapDef };
   lanterna: { name: string; z: number; radius: number; length: number };

@@ -119,7 +119,8 @@
 .ui-componente.ui-aperto {
   opacity: 1;
 }
-.ui-componente[hidden] {
+.ui-componente[hidden],
+.ui-radice [hidden] {
   display: none !important;
 }
 .ui-modale.ui-aperto {
@@ -246,10 +247,11 @@
 }
 .ui-voce {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: baseline;
-  gap: 0.55em;
-  padding: 0.22em 0.5em 0.28em 0.2em;
+  gap: 0.5em;
+  width: 100%;
+  padding: 0.2em 0.3em 0.26em 0.2em;
   margin-left: -0.2em;
   border: 0;
   background: none;
@@ -260,55 +262,58 @@
   text-align: left;
   cursor: pointer;
   pointer-events: auto;
-  transition: color 0.15s ease, transform 0.18s ease;
+  transition: color 0.15s ease;
 }
-.ui-voce .ui-voce-segno {
+.ui-voce-segno {
+  flex: none;
   display: inline-block;
-  width: 0.9em;
+  width: 0.8em;
   color: var(--vermiglio);
   font-family: var(--f-testo);
   opacity: 0;
   transform: translateX(-0.3em);
   transition: opacity 0.15s ease, transform 0.18s ease;
 }
-.ui-voce .ui-voce-tasto {
+.ui-voce-testo {
+  position: relative;
+}
+.ui-voce-tasto {
   margin-left: auto;
-  padding-left: 1.2em;
+  padding-left: 1em;
   font-family: var(--f-testo);
   font-size: var(--t-piccolo);
   color: var(--matita);
 }
-/* Sottolineatura a matita: un tratto SVG che si allunga. */
-.ui-voce::after {
+/* Sottolineatura a matita: un tratto SVG che si allunga sotto il testo. */
+.ui-voce-testo::after {
   content: '';
   position: absolute;
-  left: 1.25em;
-  right: 0.3em;
-  bottom: 0.05em;
+  left: -0.05em;
+  right: -0.1em;
+  bottom: -0.12em;
   height: 0.42em;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 40 3, 90 9, 140 5 S 190 6, 198 4' fill='none' stroke='%23423d36' stroke-width='2.2' stroke-linecap='round' opacity='.85'/%3E%3Cpath d='M8 9 C 60 6, 120 10, 194 7' fill='none' stroke='%23423d36' stroke-width='1' stroke-linecap='round' opacity='.45'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
   clip-path: inset(0 100% 0 0);
   transition: clip-path 0.32s ease;
 }
 .ui-voce:hover .ui-voce-segno,
-.ui-voce:focus-visible .ui-voce-segno,
-.ui-voce[aria-current='true'] .ui-voce-segno {
+.ui-voce:focus-visible .ui-voce-segno {
   opacity: 1;
   transform: none;
 }
-.ui-voce:hover::after,
-.ui-voce:focus-visible::after {
+.ui-voce:hover .ui-voce-testo::after,
+.ui-voce:focus-visible .ui-voce-testo::after {
   clip-path: inset(0 0 0 0);
 }
-/* Focus da tastiera: un ovale tracciato a matita intorno alla voce (ben visibile, nello stile del foglio). */
-.ui-voce:focus-visible {
+/* Focus da tastiera: un ovale tracciato a matita intorno al testo (ben visibile, nello stile del foglio). */
+.ui-radice .ui-voce:focus-visible {
   outline: none;
 }
-.ui-voce:focus-visible::before {
+.ui-voce:focus-visible .ui-voce-testo::before {
   content: '';
   position: absolute;
-  inset: -0.18em -0.35em -0.12em 0.6em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M18 9 C 60 1, 150 2, 186 12 C 204 20, 199 46, 170 53 C 120 61, 50 59, 18 50 C -4 42, 0 16, 30 7 L 52 4' fill='none' stroke='%23241e19' stroke-width='2.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  inset: -0.22em -0.55em -0.2em -0.5em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M18 9 C 60 1, 150 2, 186 12 C 204 20, 199 46, 170 53 C 120 61, 50 59, 18 50 C -4 42, 0 16, 30 7 L 52 4' fill='none' stroke='%23241e19' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
   pointer-events: none;
 }
 .ui-voce:disabled,
@@ -316,8 +321,8 @@
   color: var(--matita-chiara);
   cursor: default;
 }
-.ui-voce:disabled::after,
-.ui-voce[aria-disabled='true']::after {
+.ui-voce:disabled .ui-voce-testo::after,
+.ui-voce[aria-disabled='true'] .ui-voce-testo::after {
   display: none;
 }
 
