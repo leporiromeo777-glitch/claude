@@ -129,6 +129,82 @@ Anche lo script `tests/unit/tombolo/browser-verify.ts` si era fermato a metà: d
 - `npx tsx tests/unit/tombolo/browser-verify.ts` contro la build di produzione (`VITE_E2E=1 vite build` + `vite preview` sulla 5246): 67/67 (i 63 di prima più Archivio con `riconciliate`, giornata e anno nella barra alta, telefono in orizzontale).
 - Sonde della verifica (Playwright, non nel repository), tutte verdi: mano fantasma e pulsazione del prologo, lampada a 61 s di gioco (`core.time.step`), Esc → menu e di nuovo Esc, Tab → Taccuino in stretto, `quirk:discovered` di Teresa alle 6, movimento ridotto + velocità istantanea, alto contrasto, inglese, uscita con `night:exit` e notte salvata; arc1 a 4 fili (2 giusti + 1 sbagliato non conferma, 3 giusti confermano 3, l'ultimo da solo), ripresa d'Archivio con i nomi, g12 nome con un tocco e ripresa, g17 filo nero riga per riga (coppia forzata e vicino rifiutati), fin_seppia (altro filo rifiutato, Ada incrocia, ripresa), fin_aperto (ripresa con le occasioni); gettone → bigliettino, H tre volte → fantasma; trascinare l'incrocio fuori dalla riga, riga passata → anteprima → "Riavvolgi fino a qui", rotella e PagSu; inglese al 140% a 360×640 nella scelta dei nomi senza testo che esce; 34/34 livelli dei contenuti in autoplay (gli Archivi con `riconciliate`); nessun errore in console. Screenshot guardati a 360×640, 390×844, 844×390, 1024×700, 1280×720, 1920×1080, 820×1180.
 
+## Revisione 2
+
+**Stato:** done. Un solo agente per tombolo e motore (gruppo «tombolo-motore» di docs/REVISIONE-2.md): tutte le 23 segnalazioni del gruppo (P0, P1, P2) chiuse con test; le parti visibili provate nel browser (build `VITE_E2E=1` servita con `vite preview` sulla 6001, Chromium di Playwright): `tests/unit/tombolo/browser-revisione2.ts` 28/28 controlli, screenshot guardati. Le modifiche al motore sono descritte anche in docs/stato/motore.md, sezione «Revisione 2».
+
+### Compiti
+
+| Segnalazione | Che cosa c'è | Prove |
+|---|---|---|
+| Q011 [P0] La prima perlina invisibile | In `drawStacks` l'indice del ciclo oscurava la scala: la prima perlina era disegnata a scala 0 e la seconda nello stesso punto. Ora `stackSlots()` (render/lace.ts) dà posizione e scala di ogni perlina, la usano sia il disegno sia i tocchi (`beadSpots`); sul telefono le perline sono più grandi (`BEAD_SCALE_NARROW` 1,25). | `revisione2.test.ts` (scala > 0, una sotto l'altra, g06: la voce di Teresa ha posto e tocco); browser g06 1440×900 e 360×640 al 140 %. |
+| Q023 [P0] g12, verdetto prima del nome | Prima del nome: `diagnose()` non dà verdetti, l'Indizio dice di appuntarlo (`tombolo.hint.nomePrima`), le condizioni sul nome restano «in corso» (`dependsOnNome`). I suggerimenti calcolati si buttano quando cambiano nome, bozza o richieste lasciate cadere (firma `hintSig()` + bozza), la lampada riapre lo stesso gradino ricalcolato. | test (g12 con Lunardi e Zeno: prima e dopo il nome su Marta); browser 1180×820. |
+| Q041 [P0] Un solo incrocio per riga | Il Fantasma mostra tutti gli incroci della riga (`RowHint.ghosts`, testi `fantasma.due`/`.tre`, tutti tratteggiati, ciascuno sparisce quando lo si fa); l'Indizio dice se nella riga c'è ancora qualcosa da sistemare. | motore: applicare il Fantasma riga per riga, o seguire l'Indizio finché dice «va bene», porta alla soluzione su livelli generati con righe da 2 incroci; tombolo: g13; browser. |
+| Q001 Fissa fino alle N nel prologo | Mai nelle notti con tutorial; altrove solo se le ore vuote lasciano una soluzione per le condizioni attive: subito se non ci sono condizioni o se la soluzione precalcolata ha quelle righe vuote, altrimenti il solver (ricerca binaria della corsa più lunga ≥ 2; se non conferma in tempo, niente pulsante). | test (prologo; prologo senza tutorial: la corsa delle 7-8 è rifiutata; corsa accorciata da una scadenza); browser. |
+| Q013 L'Indizio dopo «non stanno insieme» | Se la soluzione seguita lascia fuori dei bigliettini, l'Indizio e il Fantasma lo dicono: «Vale se lasci cadere la richiesta di Nina.» (`tb-suggerimento-selasci`). | test con la fixture g06 (Nina + Zeno). |
+| Q024 Incroci del filo nero nel bilancio | Causa: l'incrocio uguale a quello forzato del filo nero (l'«eco») era accettato in silenzio e finiva fra quelli del giocatore. Ora `Session.check` lo rifiuta con «forzato» e `crossingsOf` lo marca sempre forzato (anche nelle righe salvate o importate). | test: g21 con Zeno e Don Piero, il percorso da 12 rifacendo a mano i 6 incroci di Livia: 12 incroci, minimo 12, filo d'oro. |
+| Q025 L'Indizio ripete l'incrocio già fatto | L'Indizio confronta la bozza con la riga della soluzione: «Quest'ora va bene: fissala», oppure il primo incrocio (da sinistra) che manca, è rovesciato o è di troppo. Prima prova se la bozza così com'è porta a una soluzione: se sì, «va bene». | test (g00, g13) + browser g13. |
+| Q051 Il filo nero nel libero | Bolla del bordo: «Alle 9 entra il filo nero al Molo: chi è lì esce dal merletto.»; nelle modalità extra (giorno, libero, spartito) la riga in basso lo annuncia un'ora prima. Gli obiettivi di un filo uscito per sempre sono «fallita» (vedi Q015). | test (fixture test-nero) + browser 360×640 al 140 %. |
+| Q052 Lettera e febbre sul tombolo | Q011 più: la scheda del personaggio (pressione lunga o tasto destro sul fuso) ha la parte «Adesso»: che cosa porta, febbre, nome, nodo (`tb-scheda-stato`). | test + browser. |
+| Q070 Avviso che svela un filo sbiadito | Nessun `quirk:discovered` (né stranezza scoperta nell'esito) per i fili sbiaditi di un Archivio. | test arc1; e2e `revisione1.spec.ts` «nessun avviso dice chi è un filo sbiadito» verde. |
+| Q015 «A rischio» per una richiesta impossibile | Una condizione non ancora decisa ma impossibile (distanze, ore rimaste, filo uscito) è «fallita» con il motivo «non può più» (`tombolo.cond.perso.*`). «A rischio» resta per la bozza che la farebbe fallire (C07). | test motore e tombolo. |
+| Q017 «Lo spillo rosso» | «Hai lasciato cadere lo spillo di Zeno.» | test. |
+| Q021 Chi è ogni fuso | Onde di Gino lunghe e morbide (periodo 30 px, campionate ogni 1,5 px), diverse dallo zig-zag fitto di Bepi; col mouse sul fuso una bolla con nome, motivo del filo e che cosa porta (`data-tipo="fuso"`); sul touch la scheda. | test + browser. |
+| Q029 Finale B, filo controllato | Trascinare un altro fuso è rifiutato: «Muovi solo il filo di Ada: gli altri seguono la loro agenda.» (rimbalzo e vibrazione); una nota a margine spiega la modalità e i cerchi verdi (`tombolo.controllato.nota`). La riga nei Comandi è delle schermate (richiesta sotto). | test + browser 1440×900. |
+| Q030 Finale D | La lampada c'è anche con le occasioni (Spinta e Indizio del livello, Fantasma = «Una giornata che va: …» da `occasionsSolution`, gratuito); i cerchi delle occasioni sono più grandi (raggio 15), con l'icona piena e sopra i fili che pendono; piantare dice «Occasione piantata: il pane al Forno alle 7 (1 di 5).». | test + browser 390×844. |
+| Q033 Stati invisibili | Sul fuso una goccia per la febbre e un nodo rosso per il filo annodato in quest'ora (oltre al nodo del rancore), più la scheda. | test (g13, test-rancore) + browser. |
+| Q034 Fine giornata «in corso» | All'ultima ora la bozza chiude la giornata: le condizioni di fine giornata si valutano sull'anteprima (spunta tratteggiata «si compie se fissi l'ora»). | test. |
+| Q040 «Almeno 3 fra…» | Il motivo dice quanti ce l'hanno fatta: «Ce l'ha fatta uno solo: ne servivano 3.», oppure «Al massimo 2 su 3: non ci si arriva più (1 per ora).» | test. |
+| Q061 Fantasma senza conferma | Nel Merletto del giorno e nel libero il tombolo non conosce il minimo (lo calcolano le schermate): nel dubbio chiede conferma. | test. |
+| Q062 Spinta con «Spilli velati» | La Spinta nomina solo gli spilli già visibili (fino a 2 ore dopo la riga corrente, come il disegno). | test motore. |
+| Q063 Messaggio che copre i fusi | Sul telefono la riga di spiegazione sale sopra la striscia delle richieste quando lì sotto non c'è la riga corrente; un tocco sulla fascia dei fusi la toglie; la scheda del suggerimento va in alto quando la riga corrente è nella metà bassa del merletto. | test + browser 360×640 al 140 %. |
+| Q064 Apparizione del filo nero | 3,6 s a 1×, mai sotto 2,5 s (anche a velocità doppia o col movimento ridotto); filo più spesso, bordo da cui entra che pulsa, riga «Alle 3 della notte, dal bordo, è entrato un filo nero.». | test + browser g08. |
+| Q076 Spinta su un evento passato | La frase della nonna del livello vale fino al primo evento della giornata (barca, filo nero, fine della marea: `spintaCustomUntil`), poi le frasi generiche; la Spinta sulle richieste non nomina un'ora passata. | test motore. |
+
+### Come ho letto i contratti (decisioni)
+
+- **R2-D1, Indizio**: «confronta con la riga della soluzione» = la soluzione che continua le righe fissate (precalcolata o del solver), ma se la bozza così com'è porta a una soluzione si dice «va bene» (non si dichiara mai sbagliata una bozza giusta). «Primo incrocio» = il primo da sinistra fra quelli che mancano, sono rovesciati o sono di troppo; se ne restano altri, il testo lo dice. Riga vuota e bozza vuota: «Alle 7 lascia stare i fili: fissala così».
+- **R2-D1, Fantasma**: «tutti gli incroci della riga» = tutti quelli del giocatore della riga della soluzione; se la bozza è già giusta non mostra niente ed è gratuito; se la bozza ha incroci in più li nomina da sciogliere. `Hint.ghost` resta il primo (compatibilità), `ghosts` li ha tutti.
+- **R2-D1, nome**: «condizioni che dipendono dal nome» = quelle con la perlina `nome` (anche dentro tutti/almeno/non). Prima del nome nessuna diagnosi.
+- **R2-D1, cache**: si invalida con nome, bozza, richieste lasciate cadere e righe fissate; il gradino più alto della riga resta (D07.2), i conteggi dei suggerimenti no (un gradino ricalcolato non si conta di nuovo, ma il Fantasma che ora mostra un incrocio toglie il filo d'oro).
+- **R2-D1, Fissa fino alle N**: «notti con tutorial» = livelli con `tutorial` non vuoto, alla lettera (oggi 23 livelli su 34: tutto l'Atto I fino a g07, g09, g11, g12, g16, g17, g19, gli Archivi tranne arc2 e i finali, perché il campo porta anche le note a margine); il pulsante resta nelle altre notti della campagna, nel giorno e nel libero. Se la regia vuole limitarlo alle notti con la mano guida basta cambiare la condizione in `Session.quietRun()`. «Richieste accettate» = condizioni attive (obiettivi + bigliettini non lasciati cadere).
+- **R2-D2**: il motore già escludeva i forzati da `metrics`; il difetto era l'eco. Nessun cambio a `metrics()` né a `SOLVER_VERSION` né ai `.computed.json`.
+- **R2-D4**: «annunciato» = riga di spiegazione un'ora prima dell'ingresso (o all'apertura) nelle modalità extra; «finale B spiega la modalità» = nota a margine del tombolo dopo quella del livello; «finale D ha la lampada» = sempre, non solo dopo «Riprova».
+- **Q015**: lo stato «a_rischio» del motore (`evaluate`) è diventato «fallita» con il motivo `tombolo.cond.perso.<tipo>`: era già un'impossibilità certa (la stessa potatura del solver), e il giocatore leggeva «a rischio» come «si può ancora».
+
+### API e testi nuovi
+
+- `Session`: `hintSig()`, `hintLeavesOut`, `quietConfirmedNow(run?)`, `confirmQuietRun(run?)`; `computeHint()` restituisce `RowHint`; `dependsOnNome(c)`, `NOME_HINT_KEY`.
+- `NightController`: `rejectUncontrolled(t)`, `yieldMessages()`, `showSpindleTip(x, y)`, `threadStatus(t)`; `Overlay.ghosts`, `Overlay.fever`, `Overlay.knotted`; `SpindleDrawOptions.fever/knotted`.
+- render: `stackSlots`, `beadScale`, `BEAD_SCALE_NARROW`, `STACK_MAX`; `SLOT_R` 13 → 15; `ONDE_P`.
+- Chiavi it/en: `tombolo.hint.indizio.{sopraAltri,verso,troppo,va}`, `tombolo.hint.fantasma.{due,tre,va}`, `tombolo.hint.{nomePrima,seLasci,richiestaUna,coppia,sciogli}`, `tombolo.hint.occasioni.*`, `tombolo.cond.perso.*`, `tombolo.cond.{fallita,perso}.almeno`, `tombolo.scheda.{adesso,porta,febbre,nome,annodato,niente}`, `tombolo.motivo.*`, `tombolo.controllato.{solo,nota}`, `tombolo.occasioni.{piantata,tolta}`, `tombolo.nero.annuncio`, `tombolo.apparizione.testo`; cambiate `tombolo.richieste.lasciataMsg` ({nome}), `tombolo.bolla.bordo.nero`, `tombolo.hint.indizio.quiete`.
+
+### data-test aggiunti (nessuno cambiato)
+
+`tb-suggerimento-selasci`, `tb-suggerimento-sciogli`, `tb-scheda-stato`; la bolla `tb-bolla` ha il nuovo `data-tipo="fuso"`.
+
+### Test della revisione
+
+- `npx vitest run tests/unit/tombolo tests/unit/engine`: 34 file, 619 test verdi (nuovi `tombolo/revisione2.test.ts` 28 test, `engine/revisione2.test.ts` 13 test; aggiornati i test che fissavano il vecchio comportamento: «a rischio» → «fallita/perso» in `conditions`, `verifica`, `violations`; apparizione 2,5 → 3,6 s in `revisione1-p1`; parametri `ok`/`max` in `revisione1-testi`).
+- `npx tsc --noEmit -p .`: nessun errore nei file del gruppo.
+- `npm run levels:check`: 34 livelli OK (solo gli avvisi K7 dei contenuti).
+- `npx vitest run` (tutto): falliscono solo i 6 test R2-D3 di `content/atto23.test.ts`, in lavorazione dal gruppo contenuti-atti23.
+- e2e: `E2E_PORT=6001 E2E_REUSE=1 npx playwright test tests/e2e/revisione1.spec.ts --project=desktop --project=android-piccolo` → 21 verdi, 3 saltati.
+- Browser: `TOMBOLO_R2_URL=http://127.0.0.1:6001/ node --experimental-strip-types tests/unit/tombolo/browser-revisione2.ts` → 28/28.
+
+### Richieste per altri gruppi
+
+- **schermi-atto1** (Q029): una riga nei «Comandi» per il filo controllato del finale B («Nel filo di seppia muovi solo il filo di Ada; gli altri seguono la loro agenda, i cerchi verdi»). Il tombolo lo dice già con la nota e col rifiuto.
+- **campagna**: il motore ora dà «fallita» (motivo `tombolo.cond.perso.*`) dove prima dava «a_rischio» per le condizioni ormai impossibili; il Taccuino che mostra lo stato dal vivo vedrà la croce invece della «i». `outcome.metrics` contava come del giocatore l'eco del filo nero (Q024): ora no, i record di R2-D2 partono da numeri giusti.
+- **contenuti** (Atto I, Atti II-III): le frasi `hintKeys.spinta` che parlano di un'ora precisa valgono fino al primo evento della giornata (barca, filo nero, fine della marea); se una frase parla di un evento più tardo, dopo il primo evento compare la Spinta generica.
+
+### Problemi noti della revisione
+
+- Q021: i nomi non sono scritti sui fusi (si leggono col mouse e nella scheda); l'opzione «nomi sui fusi» sarebbe un'impostazione del core.
+- Q001: la conferma del solver arriva dopo (al più 1,5 s per chiamata, poche chiamate); fino ad allora il pulsante non c'è.
+- Q061: nel giorno e nel libero la conferma del Fantasma compare anche quando il minimo è sotto 3 (filo d'oro comunque impossibile): il tombolo non conosce il minimo.
+- Q013: «Vale se lasci cadere…» compare solo quando la soluzione seguita lascia fuori qualcosa; se la diagnosi non risponde in tempo il suggerimento è quello generico.
+
 ## Revisione 1
 
 **Stato:** done. Tutti i 22 compiti del gruppo (TOM-01…TOM-22) fatti, con test; le parti visibili provate nel browser (build `VITE_E2E=1` servita con `vite preview` sulla 5680, Chromium di Playwright): `tests/unit/tombolo/browser-revisione1.ts` 62/62 controlli, screenshot guardati.

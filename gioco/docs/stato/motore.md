@@ -1,8 +1,35 @@
 # Stato del pacchetto: motore
 
-Costruito, verificato e aggiornato con un intervento mirato su `levels:check` (richieste di docs/stato/RICHIESTE.md, sezione «Per: motore»). Revisione 1 dopo il primo playtest: MOT-01…MOT-05 chiusi e verificati (sezione «Revisione 1» qui sotto, con la «Verifica della revisione 1»).
+Costruito, verificato e aggiornato con un intervento mirato su `levels:check` (richieste di docs/stato/RICHIESTE.md, sezione «Per: motore»). Revisione 1 dopo il primo playtest: MOT-01…MOT-05 chiusi e verificati (sezione «Revisione 1» qui sotto, con la «Verifica della revisione 1»). Revisione 2 dopo il secondo playtest: sezione «Revisione 2».
 
 **Stato:** done
+
+## Revisione 2
+
+Fatta insieme al tombolo da un solo agente (gruppo «tombolo-motore» di docs/REVISIONE-2.md): il dettaglio di ogni segnalazione, le prove nel browser e le richieste agli altri gruppi sono in docs/stato/tombolo.md, sezione «Revisione 2». Qui le modifiche del motore. Nessun cambio a `SOLVER_VERSION`, al formato dei `.computed.json` né alla firma di `metrics()`: i contenuti non vanno rigenerati.
+
+### Suggerimenti che non mentono (R2-D1; Q025, Q041, Q062, Q076)
+
+- `hintFor(args)` ha due argomenti facoltativi: `draft` (la bozza della riga corrente) e `gradi`. Restituisce `RowHint` (estende `Hint`, compatibile con i chiamanti che leggono `Hint`): `ghosts` = tutti gli incroci del giocatore della riga corrente, `extra` = incroci della bozza che la riga giusta non ha.
+- Indizio: `rowDiffs(bozza, rigaDellaSoluzione)` coppia per coppia da sinistra (`manca`, `verso`, `troppo`); chiavi `indizio.sopra` (unico), `indizio.sopraAltri` (`altri`), `indizio.verso`, `indizio.troppo`, `indizio.va` («Quest'ora va bene: fissala»), `indizio.quiete` (riga e bozza vuote).
+- Fantasma: `fantasma` (uno), `fantasma.due`, `fantasma.tre` (parametri `sopra2`, `sotto2`, `sopra3`, `sotto3`), `fantasma.va` (bozza già giusta, nessun incrocio mostrato).
+- Spinta: con «Spilli velati» solo gli spilli visibili (`VEILED_PIN_AHEAD` = 2 ore dopo la riga corrente, come il disegno); la frase del livello vale fino al primo evento della giornata (`spintaCustomUntil(level)`: barca o vaporetto, ingresso del filo nero, fine della marea); la Spinta sulle richieste non nomina mai un'ora già passata.
+- Prova: su livelli generati con righe da due incroci, applicare il Fantasma riga per riga, o aggiungere gli incroci dell'Indizio finché dice «va bene», arriva sempre a una soluzione (`tests/unit/engine/revisione2.test.ts`).
+
+### Incroci del giocatore (R2-D2; Q024)
+
+- Il difetto: `checkCrossing` accetta in silenzio un incrocio identico a uno forzato del filo nero (l'«eco»); `crossingsOf` lo segnava come del giocatore e `metrics` lo contava (g21: 18 incroci con il percorso minimo da 12).
+- `crossingsOf(events, draft, forcedPairs?)`: con il terzo argomento (`forcedPairsOf(level, state, ctx)`, coppie dei forzati della riga) un incrocio su una coppia forzata resta forzato. `simulate` lo usa sempre, quindi anche le righe salvate o importate (spartito) si ricostruiscono giuste. Con l'autotessitura non si passa nulla (il piano dipende dal filo controllato).
+
+### Stato delle condizioni (Q015, Q051, Q040)
+
+- `evaluate`: una condizione non ancora decisa ma impossibile (la stessa verifica che usa il solver per potare: distanze, ore rimaste, filo uscito per sempre) è «fallita» con il motivo `tombolo.cond.perso.<tipo>` (prima «a_rischio» con `tombolo.cond.rischio.<tipo>`). `conditionKey` accetta `'perso'`; `engineTextKeys()` ne elenca le chiavi.
+- «Almeno N fra…» alla radice: il motivo è `tombolo.cond.fallita.almeno` o `tombolo.cond.perso.almeno` con `{ ok, max, n, tot }` (quanti ce l'hanno fatta, quanti al massimo, quanti ne servono), non il primo che manca.
+
+### Test e controlli
+
+- `npx vitest run tests/unit/engine`: verdi, con il nuovo `revisione2.test.ts` (13 test) e i test aggiornati da «a_rischio» a «fallita/perso» (`conditions`, `verifica`, `violations`).
+- `npm run levels:check`: 34 livelli OK.
 
 ## Revisione 1
 
