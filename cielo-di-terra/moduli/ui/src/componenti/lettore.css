@@ -140,6 +140,29 @@
 .ui-lt--lettera .ui-lt-firma {
   font-size: 1.05em;
 }
+.ui-lt-stampato {
+  --f-lettera: var(--f-testo);
+  --f-geometra: var(--f-testo);
+  --f-macchina: var(--f-testo);
+  --f-mano: var(--f-testo);
+}
+.ui-semplice .ui-lt-stampato-b,
+.ui-leggibile .ui-lt-stampato-b {
+  display: none;
+}
+.ui-lt-barra .ui-lt-stampato-b {
+  background: none;
+  color: #eadfc4;
+  border-color: transparent;
+  box-shadow: none;
+}
+.ui-lt-barra .ui-lt-stampato-b:hover {
+  background: rgba(240, 231, 209, 0.12);
+}
+.ui-lt-barra .ui-lt-stampato-b .ui-tasto {
+  color: #eadfc4;
+}
+.ui-lt-stampato .ui-lt--lettera .ui-lt-pagina,
 .ui-semplice .ui-lt--lettera .ui-lt-pagina,
 .ui-leggibile .ui-lt--lettera .ui-lt-pagina {
   font-size: calc(clamp(18px, 2.8vh, 23px) * var(--ui-scala));
@@ -264,6 +287,7 @@
   background: rgba(20, 14, 8, 0.85);
   box-shadow: 0 0 0 5px #c9b07a, 0 0 0 6px rgba(80, 60, 25, 0.5);
 }
+.ui-lt-stampato .ui-lt--cartellino .ui-lt-pagina,
 .ui-semplice .ui-lt--cartellino .ui-lt-pagina,
 .ui-leggibile .ui-lt--cartellino .ui-lt-pagina {
   font-size: calc(clamp(18px, 2.8vh, 22px) * var(--ui-scala));

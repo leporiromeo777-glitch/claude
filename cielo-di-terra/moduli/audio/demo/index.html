@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Banco del suono</title>
+    <style>
+      :root {
+        --carta: #f4ecdc;
+        --carta-2: #ebe0c9;
+        --inchiostro: #2b2420;
+        --matita: #6f6459;
+        --ocra: #c48a2c;
+        --castagna: #7a4a2a;
+        --gneiss: #7d7186;
+        --salvia: #8ea07f;
+        --giada: #3f8a7e;
+        --vermiglio: #c4452f;
+        --rame: #b26b3c;
+        --calce: #fbf8f1;
+        --bordo: #d8cbb0;
+        --ombra: 0 1px 0 rgba(60, 40, 20, 0.08), 0 6px 18px rgba(60, 40, 20, 0.08);
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --carta: #1f1b18;
+          --carta-2: #2a2420;
+          --inchiostro: #efe6d6;
+          --matita: #b5a894;
+          --calce: #262120;
+          --bordo: #4a3f35;
+          --ombra: 0 1px 0 rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.3);
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme='dark'] {
+        --carta: #1f1b18;
+        --carta-2: #2a2420;
+        --inchiostro: #efe6d6;
+        --matita: #b5a894;
+        --calce: #262120;
+        --bordo: #4a3f35;
+        --ombra: 0 1px 0 rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.3);
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--carta);
+        color: var(--inchiostro);
+        font: 15px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      body {
+        background-image: radial-gradient(circle at 20% 0%, rgba(196, 138, 44, 0.12), transparent 45%),
+          radial-gradient(circle at 100% 30%, rgba(63, 138, 126, 0.1), transparent 40%);
+        min-height: 100vh;
+      }
+      header {
+        padding: 28px 16px 12px;
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 24px;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+      h1 {
+        font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+        font-weight: 600;
+        font-size: 30px;
+        margin: 0;
+        letter-spacing: 0.01em;
+      }
+      h1 small {
+        display: block;
+        font: 500 13px/1.3 system-ui, sans-serif;
+        color: var(--matita);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .sottotitolo {
+        color: var(--matita);
+        margin: 6px 0 0;
+        max-width: 60ch;
+      }
+      .avvio {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+      }
+      .grande {
+        background: var(--castagna);
+        color: #fbf3e4;
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font-weight: 600;
+        box-shadow: var(--ombra);
+      }
+      .grande:hover {
+        filter: brightness(1.08);
+      }
+      .grande[disabled] {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .stato {
+        font-size: 13px;
+        color: var(--matita);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .led {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--gneiss);
+      }
+      .led.attivo {
+        background: var(--giada);
+        box-shadow: 0 0 0 3px rgba(63, 138, 126, 0.2);
+      }
+      .led.in-pausa {
+        background: var(--ocra);
+      }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 8px 16px 40px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+        gap: 16px;
+      }
+      @media (max-width: 860px) {
+        main {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .colonna {
+        display: grid;
+        gap: 16px;
+        align-content: start;
+        min-width: 0;
+      }
+      section {
+        background: var(--calce);
+        border: 1px solid var(--bordo);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: var(--ombra);
+        min-width: 0;
+      }
+      h2 {
+        font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+        font-size: 19px;
+        font-weight: 600;
+        margin: 0 0 10px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      h2 .nota {
+        font: 12px system-ui, sans-serif;
+        color: var(--matita);
+        font-weight: 400;
+      }
+      .cursore {
+        display: grid;
+        grid-template-columns: 9.5em minmax(0, 1fr) 6.5em;
+        gap: 10px;
+        align-items: center;
+        margin: 6px 0;
+      }
+      .cursore label {
+        font-size: 14px;
+      }
+      .cursore output {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        font-size: 13px;
+        color: var(--matita);
+      }
+      input[type='range'] {
+        width: 100%;
+        accent-color: var(--castagna);
+      }
+      .righe {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        align-items: center;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      select {
+        font: inherit;
+        color: inherit;
+        background: var(--carta);
+        border: 1px solid var(--bordo);
+        border-radius: 8px;
+        padding: 3px 6px;
+      }
+      .luoghi {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .chip {
+        border: 1px solid var(--bordo);
+        background: var(--carta);
+        border-radius: 999px;
+        padding: 4px 11px;
+        font-size: 13px;
+      }
+      .chip:hover {
+        border-color: var(--castagna);
+      }
+      .gruppo {
+        margin: 0 0 12px;
+      }
+      .gruppo:last-child {
+        margin-bottom: 0;
+      }
+      .gruppo h3 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--matita);
+        margin: 0 0 6px;
+        font-weight: 600;
+      }
+      .tasti {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tasto {
+        border: 1px solid var(--bordo);
+        background: var(--carta);
+        border-radius: 9px;
+        padding: 7px 11px;
+        font-size: 14px;
+        border-left: 4px solid var(--colore, var(--gneiss));
+        transition: transform 0.08s, background 0.2s;
+      }
+      .tasto:hover {
+        background: var(--carta-2);
+      }
+      .tasto:active,
+      .tasto.premuto {
+        transform: translateY(1px);
+        background: var(--carta-2);
+      }
+      .tasto.vivo {
+        box-shadow: inset 0 0 0 2px var(--colore, var(--gneiss));
+      }
+      .misuratore {
+        display: grid;
+        gap: 8px;
+      }
+      canvas {
+        width: 100%;
+        height: 110px;
+        display: block;
+        border-radius: 10px;
+        background: var(--carta);
+        border: 1px solid var(--bordo);
+      }
+      .livello {
+        height: 8px;
+        border-radius: 99px;
+        background: var(--carta-2);
+        overflow: hidden;
+        border: 1px solid var(--bordo);
+      }
+      .livello > div {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--salvia), var(--ocra) 75%, var(--vermiglio));
+        transition: width 0.06s linear;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 8px;
+        margin: 0;
+      }
+      dl div {
+        background: var(--carta);
+        border: 1px solid var(--bordo);
+        border-radius: 10px;
+        padding: 7px 10px;
+      }
+      dt {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--matita);
+      }
+      dd {
+        margin: 2px 0 0;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .barra {
+        height: 4px;
+        border-radius: 99px;
+        background: var(--carta-2);
+        margin-top: 5px;
+        overflow: hidden;
+      }
+      .barra > i {
+        display: block;
+        height: 100%;
+        background: var(--giada);
+        width: 0%;
+      }
+      footer {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 16px 32px;
+        color: var(--matita);
+        font-size: 13px;
+      }
+      @media (max-width: 520px) {
+        .cursore {
+          grid-template-columns: 1fr 5.5em;
+        }
+        .cursore input[type='range'] {
+          grid-column: 1 / -1;
+          grid-row: 2;
+        }
+        h1 {
+          font-size: 25px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1><small>Cielo di Terra · modulo audio</small>Banco del suono</h1>
+        <p class="sottotitolo">
+          Tutto è sintetizzato nel browser: vento, Linea, uccelli, grilli, acqua, campane, Fade e temi musicali.
+          Nessun file audio. Con le cuffie si sente la posizione 3D.
+        </p>
+      </div>
+      <div class="avvio">
+        <span class="stato"><span class="led" id="led"></span><span id="testoStato">spento</span></span>
+        <button class="grande" id="avvia">Avvia l’audio</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="colonna">
+        <section>
+          <h2>Il mondo <span class="nota" id="zonaNome">—</span></h2>
+          <div class="luoghi" id="luoghi"></div>
+          <div class="cursore">
+            <label for="ora">Ora</label><input id="ora" type="range" min="0" max="24" step="0.05" value="10" /><output id="oraV"></output>
+          </div>
+          <div class="cursore">
+            <label for="altezza">Altezza dal suolo</label><input id="altezza" type="range" min="0" max="600" step="1" value="1.7" /><output id="altezzaV"></output>
+          </div>
+          <div class="cursore">
+            <label for="velocita">Velocità</label><input id="velocita" type="range" min="0" max="40" step="0.5" value="0" /><output id="velocitaV"></output>
+          </div>
+          <div class="cursore">
+            <label for="theta">Angolo θ</label><input id="theta" type="range" min="0" max="359.5" step="0.5" value="45" /><output id="thetaV"></output>
+          </div>
+          <div class="cursore">
+            <label for="z">Lungo l’asse (z)</label><input id="z" type="range" min="0" max="3000" step="5" value="1050" /><output id="zV"></output>
+          </div>
+          <div class="cursore">
+            <label for="lago">Distanza dal lago</label><input id="lago" type="range" min="0" max="300" step="1" value="300" /><output id="lagoV"></output>
+          </div>
+          <div class="cursore">
+            <label for="fade">Fade nei dintorni</label><input id="fade" type="range" min="0" max="1" step="0.05" value="0" /><output id="fadeV"></output>
+          </div>
+          <div class="righe">
+            <label><input type="checkbox" id="volo" /> Velo aperto</label>
+            <label><input type="checkbox" id="lagoAuto" checked /> lago stimato dalla posizione</label>
+            <label><input type="checkbox" id="scorre" /> il tempo scorre</label>
+            <select id="ritmo" aria-label="velocità del tempo">
+              <option value="1">×1 (gioco)</option>
+              <option value="10">×10</option>
+              <option value="60" selected>×60</option>
+              <option value="240">×240</option>
+            </select>
+          </div>
+          <div class="righe">
+            <label><input type="checkbox" id="autopassi" /> passi automatici su</label>
+            <select id="superficie" aria-label="superficie">
+              <option value="erba">erba</option>
+              <option value="pietra">pietra</option>
+              <option value="legno">legno</option>
+              <option value="ghiaia">ghiaia</option>
+            </select>
+            <label>sguardo
+              <select id="sguardo">
+                <option value="nord">a nord (il Sordo)</option>
+                <option value="sud">a sud</option>
+                <option value="est">lungo θ+</option>
+                <option value="ovest">lungo θ−</option>
+              </select>
+            </label>
+            <label><input type="checkbox" id="campanile" /> San Vigilio batte le ore</label>
+          </div>
+        </section>
+
+        <section>
+          <h2>Mixer <span class="nota">curva percettiva, 0,5 ≈ −12 dB</span></h2>
+          <div id="mixer"></div>
+          <div class="righe">
+            <label><input type="checkbox" id="muto" /> muto</label>
+            <button class="chip" id="pausa">Pausa</button>
+          </div>
+        </section>
+
+        <section>
+          <h2>Che cosa sente il motore</h2>
+          <dl id="lettura"></dl>
+        </section>
+      </div>
+
+      <div class="colonna">
+        <section class="misuratore">
+          <h2>Uscita <span class="nota" id="piccoV">— dB</span></h2>
+          <canvas id="spettro" width="900" height="220"></canvas>
+          <div class="livello"><div id="livello"></div></div>
+        </section>
+        <section>
+          <h2>Suoni <span class="nota">un clic, un suono</span></h2>
+          <div id="effetti"></div>
+        </section>
+      </div>
+    </main>
+    <footer>
+      La pagina usa l’API pubblica del modulo (<code>AudioEngine.aggiorna</code> a ogni fotogramma,
+      <code>AudioEngine.evento</code> per i suoni singoli). Un’ora di gioco dura 100 secondi reali.
+    </footer>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

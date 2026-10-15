@@ -53,6 +53,7 @@ export class LettoreCarte extends Componente<EventiLettore> {
   private readonly contatore: HTMLSpanElement;
   private readonly bPrec: HTMLButtonElement;
   private readonly bSucc: HTMLButtonElement;
+  private readonly bStampato: HTMLButtonElement;
   private carta: Carta | null = null;
   private indice = 0;
 
@@ -63,6 +64,12 @@ export class LettoreCarte extends Componente<EventiLettore> {
     this.contatore = h('span', { class: 'ui-lt-contatore' });
     this.bPrec = h('button', { class: 'ui-bottone ui-lt-nav', type: 'button', onclick: () => this.precedente() }, h('span', { 'aria-hidden': 'true' }, '‹'), ' Pagina prima');
     this.bSucc = h('button', { class: 'ui-bottone ui-lt-nav', type: 'button', onclick: () => this.successiva() }, 'Pagina dopo ', h('span', { 'aria-hidden': 'true' }, '›'));
+    this.bStampato = h(
+      'button',
+      { class: 'ui-bottone ui-bottone--leggero ui-lt-stampato-b', type: 'button', 'aria-pressed': 'false', onclick: () => this.toggleStampato() },
+      h('span', { class: 'ui-tasto', 'aria-hidden': 'true' }, 'S'),
+      'Leggi stampato',
+    );
     const bChiudi = h(
       'button',
       { class: 'ui-bottone ui-lt-chiudi', type: 'button', onclick: () => this.emit('chiudi') },
@@ -73,7 +80,7 @@ export class LettoreCarte extends Componente<EventiLettore> {
     this.el.removeAttribute('aria-label');
     this.el.append(
       h('div', { class: 'ui-velo ui-velo--scuro', 'aria-hidden': 'true' }),
-      h('div', { class: 'ui-lt-cornice' }, this.titolo, this.scena, h('nav', { class: 'ui-lt-barra', 'aria-label': 'Pagine' }, this.bPrec, this.contatore, this.bSucc, bChiudi)),
+      h('div', { class: 'ui-lt-cornice' }, this.titolo, this.scena, h('nav', { class: 'ui-lt-barra', 'aria-label': 'Pagine' }, this.bPrec, this.contatore, this.bSucc, this.bStampato, bChiudi)),
     );
     this.scena.addEventListener('click', (e) => {
       if (!this.carta || this.pagineVisibili() >= this.carta.pagine.length) return;
@@ -120,6 +127,13 @@ export class LettoreCarte extends Componente<EventiLettore> {
     if (this.indice > 0) this.vaiA(this.indice - this.pagineVisibili(), -1);
   }
 
+  /** Alterna la lettura a mano e quella in carattere stampato, solo per il lettore (GDD §10: «versione stampata a richiesta»). */
+  toggleStampato(vero = !this.el.classList.contains('ui-lt-stampato')): void {
+    this.el.classList.toggle('ui-lt-stampato', vero);
+    this.bStampato.setAttribute('aria-pressed', String(vero));
+    this.bStampato.lastChild!.textContent = vero ? 'Leggi a mano' : 'Leggi stampato';
+  }
+
   /** Pagina corrente (0-based). */
   get paginaCorrente(): number {
     return this.indice;
@@ -143,6 +157,11 @@ export class LettoreCarte extends Componente<EventiLettore> {
         return true;
       case 'End':
         this.vaiA(Number.MAX_SAFE_INTEGER, 1);
+        return true;
+      case 's':
+      case 'S':
+        if (e.ctrlKey || e.metaKey || e.altKey || this.bStampato.offsetParent === null) return false;
+        this.toggleStampato();
         return true;
       default:
         return false;

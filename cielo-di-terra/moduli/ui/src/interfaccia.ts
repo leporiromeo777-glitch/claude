@@ -38,8 +38,11 @@ export interface EventiInterfaccia {
    * il gioco deve liberare il puntatore e ignorare i comandi di movimento.
    */
   catturaInput: boolean;
-  /** Il gioco è in pausa (menu di pausa o un suo sottomenu aperto). */
-  pausa: boolean;
+  /**
+   * Il tempo del mondo deve fermarsi (GDD §10: nei menu, nella lettura delle carte e nella pausa).
+   * Il taccuino e la Pianta aperti durante il gioco non fermano il tempo; aperti dalla pausa sì.
+   */
+  tempoFermo: boolean;
 }
 
 type ComponenteQualsiasi = Componente<object>;
@@ -49,7 +52,7 @@ type ComponenteQualsiasi = Componente<object>;
  * dei modali (Esc torna indietro), la navigazione fra menu e sottomenu, le scorciatoie e le impostazioni visive.
  *
  * Il gioco ascolta gli eventi «di gioco» direttamente sui componenti (es. `ui.titolo.on('continua', …)`,
- * `ui.dialogo.on('scelta', …)`, `ui.pausa.on('esciAlTitolo', …)`) e quelli di regia qui (`catturaInput`, `pausa`).
+ * `ui.dialogo.on('scelta', …)`, `ui.pausa.on('esciAlTitolo', …)`) e quelli di regia qui (`catturaInput`, `tempoFermo`).
  */
 export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   readonly radice: HTMLElement;
@@ -115,6 +118,11 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
         c.on('nascosto', () => this.esce(c));
       }
     }
+    // Il caricamento non è modale (non intrappola il focus) ma ferma il tempo.
+    for (const c of [this.caricamento] as unknown as ComponenteQualsiasi[]) {
+      c.on('mostrato', () => this.aggiornaStato());
+      c.on('nascosto', () => this.aggiornaStato());
+    }
 
     applicaImpostazioniVisive(this.radice, imp.all());
     imp.on('cambio', (c) => {
@@ -133,8 +141,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     return this.catturato;
   }
 
-  /** Vero se il menu di pausa (o un suo sottomenu) è aperto. */
-  get pausaAttiva(): boolean {
+  /** Vero se il tempo del mondo deve restare fermo (vedi l'evento «tempoFermo»). */
+  get tempoFermo(): boolean {
     return this.inPausa;
   }
 
@@ -230,7 +238,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   private aggiornaStato(): void {
     const catturato = this.pila.length > 0;
     const sottomenuDiPausa = [...this.ritorni.values()].includes(this.pausa as unknown as ComponenteQualsiasi);
-    const inPausa = this.pausa.visible || sottomenuDiPausa;
+    const fermano = [this.pausa, this.lettore, this.pannelloImpostazioni, this.crediti, this.titolo, this.caricamento];
+    const inPausa = sottomenuDiPausa || fermano.some((c) => c.visible);
     this.radice.classList.toggle('ui-con-modale', catturato);
     if (catturato !== this.catturato) {
       this.catturato = catturato;
@@ -238,7 +247,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     }
     if (inPausa !== this.inPausa) {
       this.inPausa = inPausa;
-      this.emit('pausa', inPausa);
+      this.emit('tempoFermo', inPausa);
     }
   }
 
