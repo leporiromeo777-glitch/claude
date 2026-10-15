@@ -234,8 +234,16 @@ function addCurvedBeam(pos: number[], nor: number[], col: number[], z: number, t
     const tm = (ta + tb) / 2;
     const up = new Vector3(Math.sin(tm * DEG), Math.cos(tm * DEG), 0);
     // sopra: passerella di servizio in legno (assi chiare e scure)
-    const plank: [number, number, number] = s % 2 === 0 ? [0.56, 0.42, 0.28] : [0.5, 0.37, 0.24];
-    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, plank);
+    // tre assi longitudinali con fughe scure
+    const boards = 3;
+    for (let k = 0; k < boards; k++) {
+      const z0 = za + 0.18 + ((zb - za - 0.36) * k) / boards + 0.03;
+      const z1 = za + 0.18 + ((zb - za - 0.36) * (k + 1)) / boards - 0.03;
+      const v = ((s * 7 + k * 3) % 5) / 5;
+      const plank: [number, number, number] = [0.47 + v * 0.08, 0.35 + v * 0.05, 0.23 + v * 0.03];
+      pushQuad(pos, nor, col, cylToWorld(z0, ta, height + 0.02), cylToWorld(z0, tb, height + 0.02), cylToWorld(z1, tb, height + 0.02), cylToWorld(z1, ta, height + 0.02), up, plank);
+    }
+    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, [0.2, 0.16, 0.13]);
     // bordini d'acciaio della passerella
     for (const ze of [za, zb - 0.18]) {
       pushQuad(pos, nor, col, cylToWorld(ze, ta, height + 0.12), cylToWorld(ze, tb, height + 0.12), cylToWorld(ze + 0.18, tb, height + 0.12), cylToWorld(ze + 0.18, ta, height + 0.12), up, color);

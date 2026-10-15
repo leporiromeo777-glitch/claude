@@ -94,6 +94,8 @@ export class PittorePianta {
   private strato: HTMLCanvasElement = nuovoCanvas(1, 1);
   private stratoMaschera: HTMLCanvasElement = nuovoCanvas(1, 1);
   private readonly motivi: { carta: CanvasPattern | null; tratteggio: CanvasPattern | null; rosso: CanvasPattern | null; tappo: CanvasPattern | null; grana: CanvasPattern | null };
+  /** Riquadri delle etichette già scritte in questo disegno (per non sovrapporle). */
+  private etichette: { x: number; y: number; w: number; h: number }[] = [];
   private dpr = 1;
   private larghezza = 1;
   private altezza = 1;
@@ -263,9 +265,11 @@ export class PittorePianta {
     this.disegnaContorni(this.contornoSeppia, tMin, tMax, xZ, yT, { colore: '#7a4a28', spessore: 1.5, doppio: false, ampiezza: 0.6, seme: 9 });
     this.disegnaContorni(this.contornoCambiate, tMin, tMax, xZ, yT, { colore: COLORI.vermiglio, spessore: 1.6, doppio: true, ampiezza: 1.2, seme: 11 });
     this.disegnaParticelle(tMin, tMax, xZ, yT, opz.evidenzia ?? null);
-    this.disegnaLuoghi(tMin, tMax, xZ, yT);
+    this.etichette = [];
     this.disegnaLati(tMin, tMax, xZ, yT);
     this.disegnaCapisaldi(tMin, tMax, xZ, yT);
+    // I nomi dei luoghi dopo i capisaldi, e solo dove c'è posto.
+    this.disegnaLuoghi(tMin, tMax, xZ, yT);
     if (opz.posizione && this.dati.elvira) this.disegnaElvira(tMin, tMax, xZ, yT);
     ctx.restore();
 
@@ -655,6 +659,7 @@ export class PittorePianta {
       for (const k of copieVisibili(l.theta, 0, tMin - 2, tMax + 2)) {
         const x = xZ(l.z);
         const y = yT(l.theta + k);
+        if (!this.prenotaEtichetta(l.nome, x + 6, y - 1, 'left')) continue;
         ctx.fillStyle = COLORI.inchiostro;
         ctx.beginPath();
         ctx.arc(x, y, 2.2, 0, Math.PI * 2);
@@ -703,7 +708,9 @@ export class PittorePianta {
     ctx.font = pilastro ? '600 15px "EB Garamond", serif' : '500 14px "EB Garamond", serif';
     ctx.textAlign = 'left';
     ctx.fillStyle = tinta;
-    this.testoConAlone(pilastro ? `P ${c.numero}` : String(c.numero), x + r + 3, y + 1, 'rgba(241, 232, 210, 0.9)', 3);
+    const etichetta = pilastro ? `P ${c.numero}` : String(c.numero);
+    this.prenotaEtichetta(etichetta, x + r + 3, y + 1, 'left', r * 2 + 4);
+    this.testoConAlone(etichetta, x + r + 3, y + 1, 'rgba(241, 232, 210, 0.9)', 3);
   }
 
   /** Lati rilevati: linee sottili a china fra i capisaldi (sul foglio, per la via più corta in θ). */
@@ -862,6 +869,21 @@ export class PittorePianta {
   }
 
   // ---------- aiuti ----------
+
+  /**
+   * Riserva lo spazio di un'etichetta (font corrente, baseline «middle»); restituisce false se si sovrappone
+   * a un'etichetta già scritta. `margineSinistro` allarga il riquadro a sinistra (per il simbolo accanto).
+   */
+  private prenotaEtichetta(testo: string, x: number, y: number, allinea: 'left' | 'center', margineSinistro = 8): boolean {
+    const w = this.ctx.measureText(testo).width;
+    const h = 16;
+    const x0 = (allinea === 'center' ? x - w / 2 : x) - margineSinistro;
+    const r = { x: x0, y: y - h / 2 - 2, w: w + margineSinistro + 4, h: h + 4 };
+    const urta = this.etichette.some((e) => r.x < e.x + e.w && r.x + r.w > e.x && r.y < e.y + e.h && r.y + r.h > e.y);
+    if (urta) return false;
+    this.etichette.push(r);
+    return true;
+  }
 
   private testoConAlone(testo: string, x: number, y: number, alone: string, spessore: number): void {
     const { ctx } = this;
