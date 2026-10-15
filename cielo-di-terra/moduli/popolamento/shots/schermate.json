@@ -1,0 +1,27 @@
+{
+  "statistiche": {
+    "zone": 2,
+    "triangoli": 47513,
+    "collider": 8,
+    "lumi": 0,
+    "punti": 6,
+    "castagniTolti": 0,
+    "segnaposto": {
+      "meshTolte": [
+        "paese-corbella"
+      ],
+      "triangoliTolti": 144,
+      "colliderTolti": 691,
+      "lumiTolti": 83
+    },
+    "msCostruzione": 189
+  },
+  "schermate": [
+    {
+      "file": "piazza-campanile.png",
+      "titolo": "Piazza delle Ore con il campanile di San Vigilio, a metà mattina",
+      "drawCalls": 95,
+      "triangoli": 543381
+    }
+  ]
+}
