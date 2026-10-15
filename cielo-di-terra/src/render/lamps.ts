@@ -79,6 +79,12 @@ export class LampGlows {
     this.points.geometry = g;
   }
 
+  /** Aggiunge lumi a quelli esistenti (es. nuovi edifici, lanterne delle Fade). */
+  addLamps(list: Vector3[], sizes?: number[]): void {
+    const oldSizes = (this.points.geometry.getAttribute('aSize')?.array as Float32Array | undefined) ?? new Float32Array(0);
+    this.setLamps([...this.positions, ...list], [...Array.from(oldSizes), ...(sizes ?? list.map(() => 0.6))]);
+  }
+
   get count(): number {
     return this.positions.length;
   }
