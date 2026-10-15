@@ -150,7 +150,7 @@ export function terrainColor(z: number, theta: number, h: number, slope: number,
   }
 
   // roccia sui pendii ripidi e sui bastioni verso le finestre
-  const rockW = clamp(smoothstep(0.6, 0.95, slope) + m.bank * 0.9, 0, 1);
+  const rockW = clamp(smoothstep(0.82, 1.15, slope) + m.bank * 0.35, 0, 1);
   if (rockW > 0) {
     const tmp: number[] = [PALETTE.rock[0], PALETTE.rock[1], PALETTE.rock[2]];
     mixInto(tmp, PALETTE.rockViolet, n2 * 0.7);

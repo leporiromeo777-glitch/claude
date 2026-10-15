@@ -141,9 +141,12 @@ function capHeight(z: number, sinT: number, cosT: number, m: TerrainMasks): numb
     const rid = N2.ridged(px / 95, py / 95, z / 95, 4);
     const fac = N3.fbm(px / 40, py / 40, z / 40, 2);
     const env = Math.pow(Math.sin(Math.PI * Math.min(1, tn * 1.02)), 0.6);
-    H += CAP_N.noiseAmplitude * (rid - 0.45) * 1.6 * env + 5 * fac * env;
-    // cenge: piccoli ripiani orizzontali nella roccia
-    H = lerp(H, terrace(H, 38, 0.72), 0.55 * env);
+    // contrafforti: creste che salgono lungo la parete e convergono verso la cima
+    const butt = N1.ridged(px / 70, py / 70, z / 260, 3);
+    H += 78 * (butt - 0.42) * env;
+    H += CAP_N.noiseAmplitude * (rid - 0.45) * 1.3 * env + 5 * fac * env;
+    // cenge: ripiani orizzontali nella roccia
+    H = lerp(H, terrace(H, 42, 0.7), 0.5 * env);
     hc = Math.max(hc, Math.min(H, NORTH_TOP));
     m.capN = tn;
   }
@@ -174,7 +177,7 @@ function valleyHeight(strip: StripDef, idx: number, z: number, theta: number, si
   const hills =
     N1.fbm(px / 260, py / 260, z / 260, 4) * amp * (0.55 + 0.45 * (1 - s)) * (0.25 + 0.75 * down) +
     N2.fbm(px / 70, py / 70, z / 70, 3) * 2.6 +
-    (N3.ridged(px / 140, py / 140, z / 140, 3) - 0.4) * 22 * s;
+    (N3.ridged(px / 140, py / 140, z / 140, 3) - 0.4) * 10 * s;
   let h = (strip.floorHeight ?? 8) + rise + hills;
 
   if (strip.theme === 'selve') {

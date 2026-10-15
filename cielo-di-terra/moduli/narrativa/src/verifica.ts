@@ -39,6 +39,10 @@ export interface ContenutiVerifica {
   personaggi?: unknown;
   /** Id di celle/particelle conosciute (facoltativo). */
   celle?: readonly string[];
+  /** Elementi mobili e loro varianti (facoltativo, da fade_fase1.json): { E1: ['Carta', 'Abitata'] }. */
+  elementi?: Readonly<Record<string, readonly string[]>>;
+  /** content/testi.json (facoltativo: controlla testo:, battuta:, suggerimento:). */
+  testi?: unknown;
 }
 
 export interface OpzioniVerifica {
@@ -67,6 +71,13 @@ export interface RapportoVerifica {
   traccia: string[];
   /** Ipotesi fatte dal simulatore (flag o oggetti che nessun contenuto dà). */
   ipotesi: string[];
+  /**
+   * Il «contratto» con il gioco: flag e contatori letti dai contenuti che
+   * nessun effetto imposta, quindi tocca al motore accenderli; con le origini.
+   */
+  flagDelGioco: { nome: string; letto: string[] }[];
+  /** Oggetti richiesti che nessun effetto dà. */
+  oggettiDelGioco: { id: string; letto: string[] }[];
   conteggi: Record<string, number>;
 }
 
@@ -96,6 +107,8 @@ type Sorgente =
   | { tipo: 'nodo'; dialogo: string; nodo: string }
   | { tipo: 'fine'; dialogo: string }
   | { tipo: 'passo'; missione: string; passo: string }
+  | { tipo: 'eventoPasso'; missione: string; passo: string; indice: number }
+  | { tipo: 'aiuto'; missione: string; passo: string; indice: number }
   | { tipo: 'missione'; missione: string };
 
 function descriviSorgente(s: Sorgente): string {
@@ -108,6 +121,10 @@ function descriviSorgente(s: Sorgente): string {
       return `dialogo ${s.dialogo}, alla fine`;
     case 'passo':
       return `missione ${s.missione}, passo ${s.passo}`;
+    case 'eventoPasso':
+      return `missione ${s.missione}, passo ${s.passo}, evento ${s.indice + 1}`;
+    case 'aiuto':
+      return `missione ${s.missione}, passo ${s.passo}, aiuto ${s.indice + 1}`;
     case 'missione':
       return `missione ${s.missione}`;
   }
@@ -139,6 +156,7 @@ function* condizioniDi(c: ContenutiNormalizzati): Generator<[CondizioneGrezza, s
     for (const p of m.passi) {
       if (p.attivaQuando !== undefined) yield [p.attivaQuando, `missione ${m.id}, passo ${p.id} (attivazione)`];
       if (p.completaQuando !== undefined) yield [p.completaQuando, `missione ${m.id}, passo ${p.id} (completamento)`];
+      for (let k = 0; k < p.eventi.length; k++) yield [p.eventi[k]!.quando, `missione ${m.id}, passo ${p.id}, evento ${k + 1}`];
     }
   }
   for (const d of Object.values(c.dialoghi)) {
@@ -154,6 +172,7 @@ function* condizioniDi(c: ContenutiNormalizzati): Generator<[CondizioneGrezza, s
     if (v.sbloccaQuando !== undefined) yield [v.sbloccaQuando, `taccuino ${v.id} (sblocco)`];
     if (v.chiudiQuando !== undefined) yield [v.chiudiQuando, `taccuino ${v.id} (chiusura)`];
   }
+  for (const r of c.rigaCielo) if (r.quando !== undefined) yield [r.quando, `riga del cielo ${r.id}`];
 }
 
 /** Ogni lista di effetti dei contenuti con la sua sorgente. */
@@ -162,6 +181,12 @@ function* effettiDi(c: ContenutiNormalizzati): Generator<[string, Sorgente]> {
     for (const p of m.passi) {
       for (const e of p.effettiAttivazione) yield [e, { tipo: 'passo', missione: m.id, passo: p.id }];
       for (const e of p.effetti) yield [e, { tipo: 'passo', missione: m.id, passo: p.id }];
+      for (let k = 0; k < p.eventi.length; k++) {
+        for (const e of p.eventi[k]!.effetti) yield [e, { tipo: 'eventoPasso', missione: m.id, passo: p.id, indice: k }];
+      }
+      for (let k = 0; k < p.aiuti.length; k++) {
+        for (const e of p.aiuti[k]!.effetti) yield [e, { tipo: 'aiuto', missione: m.id, passo: p.id, indice: k }];
+      }
     }
     for (const e of m.effetti) yield [e, { tipo: 'missione', missione: m.id }];
   }
@@ -410,17 +435,18 @@ class Simulatore {
         if (attivo.completaQuando === undefined) return { esito: 'bloccata', motivo: `${dove}: manca «completa_quando»` };
         motivo = this.soddisfa(attivo.completaQuando, 0);
       } else {
-        const i = def.passi.findIndex((p) => this.n.missioni.statoPasso(id, p.id) === 'bloccato');
-        const bloccato = def.passi[i];
+        // Nessun passo attivo: si prova ad attivare il primo bloccato che ha una condizione propria.
+        const bloccato = def.passi.find((p) => this.n.missioni.statoPasso(id, p.id) === 'bloccato' && p.attivaQuando !== undefined);
         if (!bloccato) {
+          const fermo = def.passi.find((p) => this.n.missioni.statoPasso(id, p.id) === 'bloccato');
           this.n.tick();
+          if (this.firma() === prima) {
+            return { esito: 'bloccata', motivo: fermo ? `passo ${fermo.id}: non si attiva (aspetta un passo che non arriva)` : 'nessun passo da fare' };
+          }
           continue;
         }
         dove = `passo ${bloccato.id} (attivazione)`;
-        if (def.ordine === 'sequenziale' && i > 0 && this.n.missioni.statoPasso(id, def.passi[i - 1]!.id) !== 'completato') {
-          return { esito: 'bloccata', motivo: `${dove}: il passo precedente non è completato` };
-        }
-        motivo = bloccato.attivaQuando === undefined ? null : this.soddisfa(bloccato.attivaQuando, 0);
+        motivo = this.soddisfa(bloccato.attivaQuando!, 0);
       }
       this.n.tick();
       this.apriInSospeso();
@@ -522,14 +548,19 @@ class Simulatore {
         return `«${stampaCondizione(n)}»: le parti si escludono a vicenda`;
       }
       case 'o': {
+        // Si preferisce l'alternativa che riesce senza ipotesi (flag o oggetti «dati dal gioco»).
         const motivi: string[] = [];
+        let conIpotesi: NodoCondizione | null = null;
         for (const f of n.figli) {
           const s = this.istantanea();
           const m = this.soddisfaNodo(f, prof);
-          if (!m && this.vero(n)) return null;
-          motivi.push(m ?? 'nessun effetto');
+          if (!m && this.vero(n)) {
+            if (this.ipotesi.length === s.ipotesi) return null;
+            conIpotesi ??= f;
+          } else motivi.push(m ?? 'nessun effetto');
           this.ripristina(s);
         }
+        if (conIpotesi) return this.soddisfaNodo(conIpotesi, prof);
         return `nessuna alternativa riesce (${motivi.join(' | ')})`;
       }
       case 'non':
@@ -706,6 +737,21 @@ class Simulatore {
         const m = this.soddisfa(p.completaQuando, prof + 1);
         this.n.tick();
         if (m) return m;
+        return riuscito() ? null : 'non basta';
+      }
+      case 'eventoPasso':
+      case 'aiuto': {
+        if (this.n.missioni.statoPasso(s.missione, s.passo) !== 'attivo') {
+          return riuscito() ? null : `serve il passo ${s.missione}/${s.passo} attivo`;
+        }
+        const p = this.c.missioni.find((m) => m.id === s.missione)!.passi.find((x) => x.id === s.passo)!;
+        if (s.tipo === 'aiuto') {
+          this.n.tick(p.aiuti[s.indice]!.dopoSecondi + 1);
+        } else {
+          const m = this.soddisfa(p.eventi[s.indice]!.quando, prof + 1);
+          this.n.tick();
+          if (m) return m;
+        }
         return riuscito() ? null : 'non basta';
       }
       case 'missione':

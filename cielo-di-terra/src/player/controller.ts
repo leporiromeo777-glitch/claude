@@ -116,6 +116,7 @@ export class PlayerController {
     this.grounded = !absolute && height <= 0.01;
     this.mode = this.grounded ? 'walk' : 'air';
     this.veloOpen = false;
+    this.veloAmount = 0;
     this.airTime = 0;
     this.updateDerived();
   }

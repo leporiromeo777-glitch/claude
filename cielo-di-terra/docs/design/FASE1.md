@@ -103,6 +103,77 @@ Quando un fermo tiene, il mondo non si blocca: la luce resta quella del pomerigg
 | `notte_vegliata:N` | Elvira è rimasta sveglia per tutta la notte N |
 | `taccuino_spostato` | la Pesarina ha aperto il Taccuino (notte 1) |
 
+### 2.5 Campi in più rispetto al formato di base
+
+I file rispettano il formato concordato e aggiungono pochi campi, tutti facoltativi per chi legge.
+
+**`dialoghi.json`**
+
+| Campo | Significato |
+|---|---|
+| `si_apre` | come parte il dialogo: `{"come": "parlando", "con": <personaggio>, "condizione"}` quando il giocatore interagisce; `{"come": "automatico", "condizione"}` appena la condizione è vera; `{"come": "effetto"}` solo da un effetto o da un flag; `{"come": "interagendo", "con": <oggetto>}` per gli oggetti (l'altoparlante della cella) |
+| `ripetibile` | se `false`, il dialogo si fa una volta sola; se più dialoghi dello stesso personaggio sono disponibili, vale il primo nell'ordine del file |
+| `alla_fine` | effetti applicati quando il dialogo arriva a `fine`, qualunque strada abbia fatto |
+| `didascalia` (nel nodo) | descrizione non parlata, mostrata in corsivo prima della battuta |
+| `chi` (nel nodo) | chi dice la battuta, se non è il `personaggio` del dialogo (i bambini: `lisa`, `gioanin`) |
+| `vai_a: "fine"` | chiude il dialogo |
+| risposta `«…»` | il silenzio di Elvira: si va avanti senza che parli |
+| `testo: ""` | nodo muto (solo didascalia) |
+
+Il primo nodo dell'elenco è quello d'ingresso. Le battute dei nodi sono dei personaggi; le risposte sono di Elvira.
+
+**`missioni.json`**
+
+| Campo | Significato |
+|---|---|
+| `tipo` | `prologo`, `principale`, `segreto`, `indizio`, `easter_egg`, `libero`, `sfondo` (passi invisibili al giocatore) |
+| `luogo` | dove si svolge il passo (per il motore e per i test, non per il giocatore: nessun segnalino) |
+| `effetti_attivazione` | effetti applicati quando il passo si attiva |
+| `eventi` | `[{"quando", "effetti"}]`: reazioni che scattano una volta sola mentre il passo è attivo |
+| `aiuti` | `[{"dopo_s", "effetti"}]`: aiuti a tempo dall'attivazione del passo, se non è ancora completato |
+| `obiettivo_taccuino: null` | passo che non scrive nessun obiettivo (segreti, sfondo) |
+| `durata_min`, `note` | indicazioni per chi costruisce |
+
+**Effetti in più**: `battuta:<id>` (una battuta di `testi.json → battute`), `evento:<id>` (vedi §2.7), `dormi:fino HH:MM`, `pianta:apri`, `pianta:resoconto` (apre la Pianta sul resoconto del mattino).
+
+### 2.6 Altri flag e contatori che il motore accende
+
+| Flag o contatore | Quando |
+|---|---|
+| `esaminato:<oggetto>` | il giocatore guarda da vicino un oggetto interattivo (capsule, serratura, scatola di Pina) |
+| `lente:<punto>` | la lente resta 1 s su un punto d'esame: `ricci`, `amenti`, `corteccia` (castagno morto), `innesto_vecchio` (castagno del cartellino), `busta_6`, `busta_7`, `cippo` |
+| `armadietto_aperto`, `cartellino_letto`, `targa_p1_letta`, `libretto_cs1_letto`, `libretto_pagina:<id>` | letture e aperture |
+| `fiato_corto` | la vista si restringe per la prima volta |
+| `meta_appena_passata` | impulso di 5 s a ogni passaggio della Meta |
+| `planata:<luogo>` | planata partita da un muro con quel luogo |
+| `innesto_fatto` | il gesto dell'innesto è completo |
+| `figura_presa` | Elvira prende in mano la figura dell'uomo con la ruota |
+| `velo_indossato` | Elvira porta il velo nero (si accende e si spegne) |
+| `notte_su_E1` | alle 23:20 della notte 1 Elvira è su una particella di E1 (dal sistema della notte) |
+| `fade_viste` | un cerchio di Fade resta 3 s nel campo visivo |
+| `pianta_g4_guardata` | il cursore della Pianta resta 1 s su una particella rilevata dal G4 |
+| `appuntato_lanterna` | la Lanterna appuntata con lo squadro |
+| `atterrata_altra_valle` | atterraggio in piedi nella valle 2 o 3 |
+| `corbella_a_colori` | tutte le particelle dell'inventario di Corbella sono rilevate |
+| `casa_nando_rilevata` | la particella 2796 è rilevata |
+| `contatore:velati` | dialoghi finiti con i velati (nei loro `alla_fine`) |
+| `contatore:lumi_appuntati` | lumi lontani appuntati di notte |
+| oggetto `marza_pedrazzini` | dato dal gesto «taglia» sul ramo vivo |
+
+### 2.7 Eventi, suoni e musiche della Fase 1
+
+| Id | Che cos'è |
+|---|---|
+| `evento:linea_miccia` | la Linea si accende dal Tappo Sud: un fronte di luce che corre lungo l'asse (da z 0 alle 05:39 a z 3000 alle 06:00); sopra Corbella alle 05:40 |
+| `evento:passero_vola_in_su` | un passero si alza dalla botola e vola dritto verso l'asse, attirando lo sguardo |
+| `evento:velati_si_voltano` | i velati in piazza si voltano tutti insieme verso Elvira |
+| `evento:ottavio_atterra_in_piazza` | Ottavio scende in spirale da una corrente calda sopra la grà e atterra correndo |
+| `suono:tre_rintocchi` | il motivo di Meridiana: tre rintocchi dal campanile |
+| `suono:campanaccio_dal_cielo` | un campanaccio lontano che arriva dall'alto (dagli Alpeggi) |
+| `musica:primo_sguardo` | il primo tema: un accordo che si apre, organetto e archi bassi, 40 s |
+| `musica:primo_rilievo` | un accordo che sale mentre il colore si allarga, 8 s |
+| `musica:chiusura_m1` | il tema di Marta fischiato, 20 s |
+
 ---
 
 ## 3. La rete di Corbella in breve
@@ -371,7 +442,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
   - **Clelia**, a tutte: «Non sta a me saperlo. La Madre scrive per chi sa leggere.» E se ne va verso la Casa del Velo.
 - **Il biglietto** (vista di lettura, `testi.json` → `lettere.biglietto_madre`): «La profezia dice che la Svegliata prenderà la maschera. Non guardare il Sordo, e ti aspetto. — La Madre». Calligrafia ordinata, carta grezza.
 - **Scelta** (libera, reversibile fino alla missione 6): **indossare il velo** o tenerlo nella borsa. Con il velo: i velati si inchinano, Nando si volta e non parla, Bortolo apre il campanile senza fare domande, Pina dice «Ti sta bene il nero. Non ti somiglia». Senza velo: tutto come prima.
-- **Avanza quando**: `dialogo:d_clelia_dono finito`.
+- **Avanza quando**: `dialogo:d_clelia_dono finito`. **Riserva**: se il giocatore non passa dalla Bacheca per tutto il giorno 2, il terzo mattino, dopo la prova della passerella, Ottavio consegna il pacchetto (`d_ottavio_pacco`: «Una novizia mi ha dato questo per te. Non sembrava contenta.»).
 - **Taccuino**: domanda `q_sordo` («Perché non si guarda il Sordo?»); indizio `i_biglietto_madre`; parola `w_sordo` (~~Tappo Nord~~ il Sordo). Elvira guarda a Lag, in fondo alla valle: la parete grigia, a matita, e sopra il disco di piombo sull'asse.
 - **Elvira**: «"Non guardare." Allora guardo.»
 

@@ -37,17 +37,23 @@ vec3 hash33(vec3 p3) {
   p3 += dot(p3, p3.yxz + 33.33);
   return fract((p3.xxy + p3.yxx) * p3.zyx);
 }
-float starLayer(vec3 D, float scale, float density, float pix) {
+float starLayer(vec3 D, float scale, float density, float pix, out vec3 tint) {
   vec3 q = D * scale;
   vec3 cell = floor(q);
   vec3 h = hash33(cell);
+  tint = vec3(1.0);
   if (h.x > density) return 0.0;
   vec3 sp = cell + 0.2 + 0.6 * hash33(cell + 13.7);
   float d = length(q - sp) / scale;
-  float b = pow(h.y, 3.0) * 1.4 + 0.25;
-  float rad = pix * (0.7 + 1.6 * h.y);
+  // poche stelle brillanti, molte deboli
+  float m = pow(h.y, 5.0);
+  float b = 0.18 + m * 2.6;
+  float rad = pix * (0.55 + 2.4 * m);
   float tw = 0.85 + 0.15 * sin(uTime * (2.0 + 6.0 * h.z) + h.x * 40.0);
-  return b * tw * (1.0 - smoothstep(rad * 0.35, rad, d));
+  tint = mix(vec3(0.75, 0.82, 1.0), vec3(1.0, 0.88, 0.7), h.z);
+  float core = 1.0 - smoothstep(rad * 0.3, rad, d);
+  float glow = exp(-d / (pix * 3.0)) * m * 0.5;
+  return b * tw * (core + glow);
 }
 void main() {
   vec3 P = vWorldPos;
@@ -60,13 +66,16 @@ void main() {
   float sa = sin(a);
   vec3 D = vec3(ca * V.x - sa * V.y, sa * V.x + ca * V.y, V.z);
   float pix = max(uPixelAngle, 1e-5);
-  // fondo nero-viola e Via Lattea
+  // fondo nero-viola e un velo leggero di Via Lattea
   vec3 nmw = normalize(vec3(0.35, 0.55, 0.76));
-  float band = exp(-pow(dot(D, nmw) / 0.22, 2.0));
-  float mwn = vnoise3(D * 7.0) * 0.6 + vnoise3(D * 19.0) * 0.4;
-  vec3 col = vec3(0.035, 0.022, 0.07) + vec3(0.11, 0.085, 0.17) * band * (0.35 + 0.9 * mwn);
-  float s = starLayer(D, 70.0, 0.55, pix) + starLayer(D, 150.0, 0.5, pix) * 0.8 + starLayer(D, 320.0, 0.45, pix) * 0.6 * (0.4 + band);
-  col += vec3(0.95, 0.93, 1.0) * s;
+  float band = exp(-pow(dot(D, nmw) / 0.2, 2.0));
+  float mwn = vnoise3(D * 6.0) * 0.6 + vnoise3(D * 17.0) * 0.4;
+  vec3 col = vec3(0.03, 0.02, 0.065) + vec3(0.075, 0.06, 0.11) * band * smoothstep(0.3, 0.8, mwn);
+  vec3 t1; vec3 t2; vec3 t3;
+  float s1 = starLayer(D, 55.0, 0.16, pix, t1);
+  float s2 = starLayer(D, 120.0, 0.09, pix, t2);
+  float s3 = starLayer(D, 260.0, 0.05 + 0.12 * band, pix, t3);
+  col += t1 * s1 + t2 * s2 * 0.7 + t3 * s3 * 0.45;
   // la Meta: disco bianco con bagliore
   if (uMetaOn > 0.5) {
     float ang = acos(clamp(dot(D, normalize(uMetaDir)), -1.0, 1.0));
@@ -87,6 +96,9 @@ void main() {
   vec3 up = cylUp(P);
   float graz = 1.0 - abs(dot(-V, up));
   vec3 glassTint = vec3(0.16, 0.18, 0.28);
+  // riflesso tenue dell'interno sul vetro, più forte di taglio
+  vec3 refl = mix(uHazeColor, uLineaGlow, 0.25) * (0.35 + 0.65 * uSunIntensity);
+  col = mix(col, refl, 0.06 + 0.04 * vnoise2(vec2(P.z * 0.05, th * 2.0)));
   col = mix(col, glassTint + uHazeColor * 0.25, clamp(pow(graz, 3.0) * 0.8, 0.0, 0.8));
   col = mix(col, vec3(0.62, 0.68, 0.78), clamp(frost, 0.0, 1.0) * 0.45);
   col = applyHaze(col, P, dist);

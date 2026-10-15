@@ -110,6 +110,7 @@ export class Game {
     this.renderer = new WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: opts.e2e });
     this.renderer.outputColorSpace = LinearSRGBColorSpace;
     this.renderer.autoClear = false;
+    this.renderer.info.autoReset = false;
     this.renderer.setPixelRatio(opts.e2e ? 1 : Math.min(window.devicePixelRatio || 1, 2));
     container.appendChild(this.renderer.domElement);
     this.camera = new PerspectiveCamera(this.settings.fov, 1, 0.3, 6000);
@@ -328,6 +329,7 @@ export class Game {
     // Velo in primo piano e nappina
     this.updateFirstPerson(frameDt);
 
+    this.renderer.info.reset();
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
     if (this.fp.openAmount > 0.01 && !this.freeCamera) {
