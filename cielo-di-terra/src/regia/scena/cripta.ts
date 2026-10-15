@@ -289,15 +289,15 @@ export function costruisciCripta(materiale: Material): Cripta {
   punti['orari_cripta'] = A.punto(C.e0, -10.2, 1.55);
 
   // lumi color miele
-  for (const [e, n, y] of [
-    [0.2, -2.0, 3.0],
-    [9.0, -2.0, 3.0],
-    [4.5, -8.0, 3.2],
-    [4.5, -11.6, 2.2],
-    [4.5, 0.9, 3.2],
+  // (i lumi del motore illuminano forte e da vicino: due bastano per la sala e il corridoio)
+  for (const [e, n, y, luce] of [
+    [0.2, -2.0, 3.0, false],
+    [9.0, -2.0, 3.0, false],
+    [4.5, -6.5, 3.5, true],
+    [4.5, -12.0, 2.2, true],
   ] as const) {
     A.scatola(b, e, n, y, 0.18, 0.22, 0.18, [1, 0.8, 0.45], 1);
-    lumi.push(A.punto(e, n, y));
+    if (luce) lumi.push(A.punto(e, n, y));
   }
 
   const mesh = new Mesh(b.build(), materiale);

@@ -295,7 +295,8 @@ export class Regia implements SistemaGioco {
     this.squadro.importa(null);
     this.applicaInterno();
     this.posaSdraiata();
-    this.guarda(this.cripta.scritta);
+    // sdraiata, lo sguardo in su verso la volta: la scritta è sul vetro, un po' più in basso
+    this.guardaDirezione(0, 62);
     this.velatura.dalNero(3.2, true);
     this.ui.indicazioni.show();
     this.narrativa.tick(0);

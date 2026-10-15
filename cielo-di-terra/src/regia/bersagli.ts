@@ -248,7 +248,7 @@ export function registraBersagli(r: Regia): void {
 
   // ---------------------------------------------------------------- sguardi
   const S = r.sguardi;
-  S.registra({ id: 'guardato_vetro', posizione: r.cripta.scritta, raggio: 0.28, durata: 1.5, attivo: () => r.controllo.tipo === 'sdraiata', compiuto: () => r.flag('guardato_vetro') });
+  S.registra({ id: 'guardato_vetro', posizione: r.cripta.scritta, raggio: 0.12, durata: 1.5, attivo: () => r.controllo.tipo === 'sdraiata', compiuto: () => r.flag('guardato_vetro') });
   S.registra({
     id: 'guardato_in_su',
     durata: 1.5,
