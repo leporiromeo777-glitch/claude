@@ -1,8 +1,95 @@
 # Stato del pacchetto: contenuti-atti23
 
-**Stato:** done (verificato e corretto)
+**Stato:** done (verificato e corretto; revisione 1 fatta, vedi sotto)
 
 Atto II (g09-g16), Atto III (g17-g23), le quattro giornate finali, l'Archivio A3-A6, i finali, il Taccuino, le lettere e il test. Il pacchetto contiene solo JSON più il test `tests/unit/content/atto23.test.ts`. `src/core/types.ts` non è stato toccato.
+
+## Revisione 1
+
+Compiti CA23-01 … CA23-07 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: livelli g09-g23, fin_*, arc3-arc6 con i `.computed.json`, note, diario, lettere e finali degli Atti II-III, testi `atto2`, `atto3`, `finali` in it/en, `tests/unit/content/atto23.test.ts`.
+
+**Accettazione di CA23-03:** `npm run levels:check -- --only g09,g10,g11,g12,g13,g14,g15,g16,g17,g18,g19,g20,g21,g22,g23,fin_merlettaia,fin_seppia,fin_chiuso,fin_aperto,arc3,arc4,arc5,arc6 --qualita` esce con **0** (23 livelli OK, nessuna violazione C14; restano gli avvisi K7, vedi sotto). Il test «criteri di qualità C14 (revisione 1)» chiede `quality.violazioni` vuoto per tutti i livelli del pacchetto, un conflitto voluto per sera e al più un bigliettino facile, solo dentro un conflitto voluto. Tutti i `.computed.json` sono rigenerati con il `SOLVER_VERSION` nuovo (solo con `--only`). g16 ora si risolve in 60 mila stati (prima superava il limite di 400 mila).
+
+| Compito | Esito | Commit | Cosa |
+|---|---|---|---|
+| CA23-01 [P0] rivelazione di g14, fascio, piste | fatto | 8840605 | La consegna di Zeno all'alba di g14 (priorità 100, senza `when`); le voci su Livia madre, sulla lettera di Clotilde e sul fascio si sbloccano con `{knows:'oggetto'}`, cioè alla lettura; piste prima delle risposte (D10), quella del 1958 da g10; chiavi `atto2.g15.sera.vuota` e `atto3.g17.sera.vuota`. Test con la campagna simulata. |
+| CA23-02 [P1] tutorial degli Atti II-III e degli Archivi 3-5 | fatto | 8840605 | Note a margine e fusi che pulsano per febbre e cura (g09), nodo (g11), trabocco (g16), filo nero con la mano di Ada (g17), marea (g19), note e `hintKeys` di arc3-arc5. Test: una nota per ogni regola nuova nella sua prima notte. |
+| CA23-03 [P1] ridisegno delle notti g09-g23 | fatto | 8d10662, 2ef61b2, 74acebc, 58e7510, 2f8b827, ab0dbbb, 64b0ad5, e18a77e, 9da8685, 8f114fd, c4674e8, 04cf78a | Tutte le notti rispettano C14 (tabella sotto). g13 resta il dilemma della cura col Gino a letto finché è malato; g21 ha al più 1 ora vuota di fila; g16 sta nel limite di stati. |
+| CA23-04 [P1] finali A, C, D | fatto | 8840605, 2ef61b2 | fin_merlettaia coi saluti che danno (4 su 6, conflitto voluto, base 13); fin_chiuso con `"chiusura":"nodo"`; epilogo D con `{occasioni}` in una frase sola, i desideri chiusi e il nastro «abbastanza lungo per due fili»; epilogo A col nastro; nessuna riga d'epilogo spezzata (it, en). |
+| CA23-05 [P1] continuità | fatto | 8840605 | Varianti `availableIf` di g22.teresa (su `ok:g17.teresa`) e di g19.teresa con la sua alba (su `riconciliate`); arc6, lettera di Clotilde, diario della lettera, Nina in convitto da Pasqua, testi di g10, g11, g13, g18, g21 ed esito neutro di g12.teresa. Test: le varianti si escludono e coprono tutti i casi. |
+| CA23-06 [P1] esiti e albe | fatto | 8840605, 04cf78a | `esito.ok` ed `esito.fallita` per ogni bigliettino di g09-g23 (C05), esito proprio di g11.teresa, `dopo` in g16 e g18, albe di g11, g14, g16, g18, g20 riviste. Gli esiti delle notti ridisegnate sono riscritti con le richieste nuove. In g16 la vignetta di Teresa e la voce `persone.teresa.fascio` vengono solo se Teresa ha davvero letto il fascio (`event: legge`), non per ogni fallimento della sua richiesta. |
+| CA23-07 [P2] testi minori | fatto | 8840605 | Deissi, g15 «più vicino dell'altra volta» con l'apparizione alle 3, «fino a Pellestrina», Don Piero giovane cappellano in arc6, titoli, voci di Bepi, Don Piero e Lunardi, etichetta C16 del nome del dottore, «Per un autunno e un inverno», due bigliettini semplici per g23. Inglese allineato. |
+
+### Misure C14 per notte (dopo il ridisegno)
+
+Costo = minimo con il solo bigliettino meno il minimo della base. Vuote = righe vuote di fila / totali nella soluzione registrata della designata. Soluzioni = soluzioni ottime della designata (K5, al massimo 20). I finali e gli Archivi sono esenti (fin_merlettaia ha i suoi criteri: base ≥ 8, K3, K4).
+
+| Notte | Righe | Base | Designata (min) | Matassa | Costo dei bigliettini | Conflitti voluti | Facile | Senza Gino | Vuote | Soluzioni |
+|---|---|---|---|---|---|---|---|---|---|---|
+| g09 | 8 | 6 | marta+teresa 10 | 12 | marta +3, teresa +4, nina +0 | teresa+nina | nina | 10 | 1/2 | 12 |
+| g10 | 10 | 8 | marta+piero 17 | 19 | marta +3, marta.senzaArchivio +3, lunardi +3, piero +7, bepi +0 | lunardi+bepi, piero+bepi | bepi | 17 | 1/1 | 6 |
+| g11 | 10 | 7 | teresa+gino 11 | 13 | teresa +4, marta +0, gino +4 | teresa+marta | marta | 11 | 1/3 | 16 |
+| g12 | 10 | 6 | lunardi+zeno 14 | 16 | lunardi +5, bepi +0, zeno +3, teresa +3 | bepi+teresa | bepi | – | 1/1 | 3 |
+| g13 | 14 | 10 | marta+nina 19 | 19 | marta +7, lunardi +6, gino +4, nina +4 | marta+lunardi, lunardi+nina | — | 19 | 1/1 | 12 |
+| g14 | 10 | 10 | zeno+gino 16 | 18 | zeno +3, nina +3, gino +2 | nina+gino | gino | 10 | 0/0 | 3 |
+| g15 | 14 | 12 | piero+gino 19 | 21 | nina +5, marta +0, piero +3, gino +3 | nina+gino, marta+gino | marta | 15 | 1/2 | 12 |
+| g16 | 12 | 12 | zeno+teresa 17 | 19 | zeno +4, teresa +4, piero +3, marta +0 | zeno+marta, teresa+marta, piero+marta | marta | 15 | 1/1 | 16 |
+| g17 | 10 | 6 | zeno+marta+piero 9 | 10 | zeno +0, teresa +3, marta +3, piero +3 | teresa+marta, teresa+piero, zeno+teresa+marta, zeno+teresa+piero, teresa+marta+piero | zeno | 7 | 1/1 | 2 |
+| g18 | 10 | 7 | teresa+gino 12 | 13 | teresa +3, gino +4, lunardi +3 | teresa+lunardi, teresa+gino+lunardi | — | 12 | 0/0 | 16 |
+| g19 | 10 | 4 | bepi+teresa+teresa.pace 11 | 12 | bepi +4, nina +4, teresa +3, teresa.pace +3, lunardi +3 | bepi+nina, teresa+lunardi, teresa.pace+lunardi, bepi+nina+teresa, bepi+nina+teresa.pace, bepi+nina+lunardi, bepi+teresa+lunardi, bepi+teresa.pace+lunardi, nina+teresa+lunardi, nina+teresa.pace+lunardi, teresa+teresa.pace+lunardi | — | – | 1/1 | 1 |
+| g20 | 8 | 7 | nina+bepi+marta 11 | 12 | nina +4, bepi +4, marta +3, teresa +0 | nina+teresa, bepi+teresa, marta+teresa, nina+bepi+teresa, nina+marta+teresa, bepi+marta+teresa | teresa | 8 | 1/1 | 1 |
+| g21 | 12 | 8 | zeno+piero+marta 12 | 13 | zeno +3, piero +4, gino +1, marta +3 | zeno+gino, piero+gino, gino+marta, zeno+piero+gino, zeno+gino+marta, piero+gino+marta | gino | 10 | 1/2 | 12 |
+| g22 | 14 | 13 | piero+teresa+teresa.riconosciuta 19 | 20 | zeno +4, piero +4, teresa +4, teresa.riconosciuta +4, marta +2 | zeno+piero, zeno+teresa, zeno+teresa.riconosciuta, zeno+piero+teresa, zeno+piero+teresa.riconosciuta, zeno+piero+marta, zeno+teresa+teresa.riconosciuta, zeno+teresa+marta, zeno+teresa.riconosciuta+marta | marta | 13 | 1/1 | 16 |
+| g23 | 6 | 2 | teresa+bepi 9 | 10 | teresa +3, bepi +4 | — | — | – | 1/1 | 4 |
+| fin_merlettaia | 12 | 13 | base 13 | 14 | — | — | — | – | 2/3 | 50 |
+| fin_seppia | 12 | 9 | base 9 | 10 | — | — | — | 9 | 2/3 | 50 |
+| fin_chiuso | 3 | 3 | base 3 | 4 | — | — | — | – | 0/0 | 1 |
+| fin_aperto | 14 | 0 | base 0 | 0 | — | — | — | 0 | 14/14 | 1 |
+| arc3 | 5 | 2 | base 2 | 2 | — | — | — | – | 0/0 | 4 |
+| arc4 | 5 | 2 | base 2 | 2 | — | — | — | – | 0/0 | 2 |
+| arc5 | 5 | 3 | base 3 | 3 | — | — | — | – | 0/0 | 16 |
+| arc6 | 6 | 0 | base 0 | 0 | — | — | — | – | 6/6 | 1 |
+
+### Le notti ridisegnate (CA23-03)
+
+- **g09, g11, g12, g23** (8d10662): g09 col Gino a letto e il dottore che deve arrivare da lui; g11 col nodo; g12 col dottore che torna col vaporetto delle nove e chiede il nome a tre persone; g23 con due bigliettini semplici (Teresa saluta la forestiera, Bepi accende due candele).
+- **g10, g14** (2ef61b2) e **g15** (58e7510): tenute dal lavoro interrotto e rivalutate nella ripresa; in g15 la Nina al Molo alle sette e il Gino al Forno con Marta.
+- **g13** (ab0dbbb): quattro malati e un medico solo. Marta va in chiesa e in Farmacia; le visite del dottore vanno fatte entro un'ora (il Gino entro le cinque, la Nina entro le quattro, Don Piero entro l'una). La matassa ha margine 0 ed è proprio lei il conflitto voluto: la Nina non si cura insieme al Gino né al Bepi.
+- **g16** (04cf78a): la Nina sopra Marta raccoglie i due segreti e li porta al pozzo entro l'una; Don Piero trabocca su Marta e il fascio arriva a Zeno entro le cinque. Teresa e Marta vogliono tutte e due il Forno alle due: è il conflitto voluto, e il divieto di Marta è il facile. Il Gino gira fra Faro e Farmacia. Designata Zeno + Teresa, 17 incroci, 16 soluzioni ottime, 12 spilli.
+- **g17** (8f114fd): la donna in nero cerca Zeno, poi va in chiesa a mezzogiorno e in Piazza alle tre. Teresa vuole sapere chi è senza che lo sappia il prete; Marta non vuole forestiere in Piazza dalle nove all'una.
+- **g18** (64b0ad5): la Nina al Forno a mezzogiorno e al Molo alle quattro, il Gino al Molo all'una, il dottore al Faro all'una; richieste invariate.
+- **g19** (9da8685): Lunardi al Faro alle otto e in Farmacia alle undici con l'acqua alta, Teresa in chiesa alle nove, Zeno in chiesa e in Farmacia durante la marea, il Bepi in Piazza dopo.
+- **g20** (2f8b827): il Bepi al Molo, la Nina al Forno, il Gino al Molo alle 11 dopo il vaporetto, Teresa in Piazza a mezzogiorno; Marta chiede che il Gino non incroci la Nina fino alle nove. Il saluto di Teresa è il facile.
+- **g21** (c4674e8): acqua alta dalle 12 alle 14. Zeno vuole incrociare Livia dopo le due; il Gino vuole essere al Faro dalle cinque, Marta lo vuole a casa, al Forno, alle cinque: è il conflitto voluto, e la richiesta del Gino è il facile. Una sola ora vuota di fila.
+- **g22** (e18a77e): mattino pieno (Teresa in Piazza alle dieci, il Bepi al Forno, il Gino al Molo alle undici, Don Piero in Farmacia e in chiesa, Zeno in Farmacia a mezzogiorno); il fascio a Livia entro le sette e il pane di Marta prima delle cinque.
+
+### Decisioni e interpretazioni dei contratti
+
+- **g13, «si curano tutti solo con un merletto perfetto» (GDD 5.2).** Con 2 spilli la sera si accettano due richieste di cura. Il merletto perfetto (matassa = minimo, margine 0) serve per curare i due scelti; curarli tutti e quattro non entra nella matassa. Il conflitto voluto è il filo contato: la coppia Lunardi + Nina si tesserebbe con un incrocio in più (`levels:check` lo segnala come voluto solo per la matassa, ed è voluto). Propongo di aggiornare il GDD: «si curano i due scelti solo con un merletto perfetto». Il test di g13 lo verifica.
+- **g19 senza `pieroTrabocca`.** Don Piero non è nel merletto di g19; la stranezza faceva solo tracciare al solver tutte le lettere, con decine di soluzioni ottime che differivano solo per il verso di incroci senza effetto (K5). Il test delle stranezze del giorno lo accetta: `pieroTrabocca` da g16 in poi, tranne g19 senza Piero.
+- **K5 e i versi che non cambiano niente.** Con il pozzo (`pieroPozzo`) e i segreti in viaggio, il solver conta come soluzioni diverse i due versi di ogni incrocio con Don Piero, anche quando il risultato è lo stesso. In g16 la designata è stata scelta perché Don Piero incroci solo quando serve. Vedi le richieste al motore.
+- **Facili dentro le terne.** Nell'Atto III il facile può stare in un conflitto voluto di tre bigliettini (g17: l'incontro di Zeno è nelle terne con Teresa). Il contratto dice «in una combinazione `voluta`», e `quality.ts` accetta combinazioni da 2 in su: ho seguito il codice.
+- **Varianti gemelle** (g19.teresa / teresa.pace, g22.teresa / teresa.riconosciuta): hanno la stessa richiesta e non arrivano mai insieme, ma `levels:check` le combina come due bigliettini. Per questo la designata di g19 e di g22 contiene tutte e due le varianti, e i conflitti voluti sono marcati per entrambe. Nessuna delle due può essere il facile (sarebbero due facili).
+- **g16, `marta forno 7` e `zeno faro 18` tolti.** Il disegno vecchio aveva Marta al Forno alle 7 e Zeno al Faro alle 18, e nessun testo li citava. La ricerca li ha tolti: con Marta al Forno alle 7 la richiesta di Don Piero costava 1 incrocio (K2), senza ne costa 3. Il fascio è «consegnato» quando arriva a Zeno, dovunque sia (GDD 5.2), e Zeno lo chiede «entro le cinque».
+- **Spilli.** Alcune notti ne hanno parecchi (g16 12, g22 10, g21 9): servono a tenere basso il numero di soluzioni ottime (K5) e a dare un ritmo senza buchi (K4).
+
+### Avvisi K7 (GDD 5.2, colonna «Min»)
+
+`levels:check` segnala la designata fuori dall'intervallo ±1 in g09 (10 contro 5-7), g10 (17 contro 7-9), g11 (11 contro 7-9), g12 (14 contro 7-9), g13 (19 contro 10-12), g14 (16 contro 8-10), g15 (19 contro 9-11), g16 (17 contro 9-11), g18 (12 contro 8-10), g20 (11 contro 7-9), g22 (19 contro 10-12) e g23 (9 contro 4-6). Sono solo avvisi. Con la regola nuova del Gino (C01) e i criteri K1-K2 (densità, bigliettini da almeno 3 incroci) i minimi del GDD non bastano più. Propongo di aggiornare la colonna «Min» del GDD 5.2 con i valori della tabella qui sopra.
+
+### Problemi noti e richieste
+
+- **motore** (facoltativa): in `versoMatters`, il pozzo conta il verso di ogni incrocio con Don Piero quando c'è un segreto in viaggio, anche se i due versi danno lo stesso stato. Il numero di soluzioni ottime (K5) ne esce gonfiato. Si potrebbero contare i due versi una volta sola quando portano allo stesso stato. Oggi le notti rispettano K5 lo stesso.
+- **GDD 5.2**: aggiornare la colonna «Min» (vedi K7), la frase di g13 sulla cura e, per g16, il fascio «entro le cinque».
+- g13 resta la notte più lunga e densa dell'Atto II (19 incroci su 14 righe, margine 0). Da guardare nel playtest 2, come la curva dell'Atto II, che sale presto (g10 17, g13 19, g15 19).
+
+### Test e verifiche della revisione 1
+
+- `npx vitest run tests/unit/content/` → 3 file, 169 test verdi (`atto23.test.ts`, `en.test.ts`, `atto1.test.ts`).
+- `npm run levels:check -- --only <i 23 livelli del gruppo> --qualita` → exit 0, «23 levels OK».
+- `npx tsc --noEmit -p .` → nessun errore nei file del gruppo.
+- Browser (build `VITE_E2E=1` servita da `vite preview` sulla porta 5740, Chromium 412×900, in italiano; g16 anche in inglese): per g13, g16, g17, g18, g19, g20, g21 e g22 si accetta la designata, si apre la notte (screenshot: spilli, marea di g21, note a margine del trabocco) e si fa giocare la soluzione. Tutte le richieste della designata risultano soddisfatte, con i loro esiti; i bigliettini di g16 si leggono nella sera con i testi nuovi. Nessun errore in console.
+
 
 ## Correzioni della verifica
 
