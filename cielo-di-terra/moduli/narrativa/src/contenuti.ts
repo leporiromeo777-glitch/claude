@@ -551,7 +551,6 @@ export function normalizzaScene(x: unknown, avvisi: string[] = []): ScenaDef[] {
       const cond = condizione(v, 'condizione', 'quando_vale');
       const effettiFine = listaEffetti(primo(v, 'alla_fine', 'effetti_fine'));
       if (cond === undefined && effettiFine.length === 0) continue;
-      if (typeof v.quando === 'string' && cond === undefined && effettiFine.length === 0) continue;
       out.push({ id, gruppo, ...(cond !== undefined ? { condizione: cond } : {}), effettiFine, dati: v });
     }
   }

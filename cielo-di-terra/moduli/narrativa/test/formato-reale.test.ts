@@ -411,6 +411,38 @@ describe('forme dei contenuti veri: partita', () => {
     expect(n.taccuino.rigaCieloId()).toBeNull();
   });
 
+  it('scene di testi.json: la variante dell’Ombrista della sera e i suoi effetti finali', () => {
+    const TESTI = {
+      _nota: 'prova',
+      lettere: { lettera_marta: { titolo: 'Per la mamma', testo: '…' } },
+      leggende: {
+        partenza_1: { titolo: 'Prima sera', condizione: 'giorno:1', alla_fine: ['taccuino:lg_partenza_1', 'flag:ombrista_1_vista'] },
+        partenza_2a: { titolo: 'Seconda sera', condizione: 'flag:figura_toccata', alla_fine: ['flag:2a'] },
+        partenza_2b: { titolo: 'Seconda sera', condizione: '!flag:figura_toccata e giorno:>=2', alla_fine: ['flag:2b'] },
+      },
+      battute: { elvira_oh: { testo: 'Oh.', quando: 'prima planata' } },
+    };
+    const f = new FattiPosizione();
+    const n = new Narrativa({ taccuino: TACCUINO, testi: TESTI }, f);
+    expect(n.contenuti.scene.map((x) => x.id)).toEqual(['partenza_1', 'partenza_2a', 'partenza_2b']);
+    expect(n.scenaDisponibile()).toBe('partenza_1');
+    const concluse = vi.fn();
+    n.eventi.on('scenaConclusa', concluse);
+    expect(n.concludiScena('partenza_1')).toBe(true);
+    expect(n.concludiScena('partenza_1')).toBe(false);
+    expect(concluse).toHaveBeenCalledWith({ scena: 'partenza_1', gruppo: 'leggende' });
+    expect(n.flag.vero('ombrista_1_vista')).toBe(true);
+    expect(n.taccuino.ha('lg_partenza_1')).toBe(true);
+    expect(n.scenaDisponibile()).toBeNull(); // giorno 1, già vista
+    f.giornoCorrente = 2;
+    expect(n.scenaDisponibile()).toBe('partenza_2b');
+    n.flag.set('figura_toccata');
+    expect(n.scenaDisponibile()).toBe('partenza_2a');
+    expect(n.esporta().scene).toEqual(['partenza_1']);
+    expect(n.concludiScena('nessuna')).toBe(false);
+    expect(n.problemi.join()).toMatch(/Scena inesistente/);
+  });
+
   it('la verifica percorre tutto con questi contenuti', () => {
     const r = verificaContenuti({ missioni: MISSIONI, dialoghi: DIALOGHI, taccuino: TACCUINO });
     expect(r.errori).toEqual([]);
