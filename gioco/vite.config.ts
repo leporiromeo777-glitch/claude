@@ -86,6 +86,9 @@ export default defineConfig({
     // motore, così nessun pezzo supera il limite e la build non dà avvisi.
     chunkSizeWarningLimit: 600,
     rolldownOptions: {
+      // Niente avviso PLUGIN_TIMINGS: misura solo quanto è lenta la macchina (il plugin
+      // dei Worker di Vite), non dice niente del gioco, e la build deve restare senza avvisi.
+      checks: { bundlerTimings: false },
       output: {
         codeSplitting: {
           groups: [

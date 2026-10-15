@@ -10,7 +10,7 @@
  * cartiglio (TRAMA, data o seme, incroci e minimo; TOM-21) e nel Merletto
  * libero c'è «Condividi il seme» (seme, gradi, incroci e spartito).
  */
-import type { CarillonScore, CharacterId, FlagId, FlagValue, GradoId, LevelDef, NightOutcome, Playing, RowMoves, Services } from '../core/types';
+import type { CarillonScore, CharacterId, GradoId, LevelDef, NightOutcome, Playing, Services } from '../core/types';
 import { el } from '../core/ui/dom';
 import { textOf } from '../core/ui/components';
 import { renderLacePng } from '../tombolo/index';
@@ -97,13 +97,10 @@ export function captionOf(s: Pick<Services, 'i18n'>, info: Pick<ResultInfo, 'ori
   return { titolo: s.i18n.t('ui.condividi.titolo'), sottotitolo, riga };
 }
 
-type RenderWithCaption = (level: LevelDef, rows: RowMoves[], flags?: Record<FlagId, FlagValue>, caption?: LaceCaption) => Promise<Blob>;
-
 export async function lacePng(info: Pick<ResultInfo, 'level' | 'outcome' | 'flags'>, caption?: LaceCaption): Promise<Blob | null> {
   try {
-    // Il quarto argomento (cartiglio) è di TOM-21: un tombolo che non lo conosce ancora lo ignora.
-    const render = renderLacePng as unknown as RenderWithCaption;
-    return await (caption ? render(info.level, info.outcome.rows, info.flags, caption) : render(info.level, info.outcome.rows, info.flags));
+    // Il cartiglio (quarto argomento) lo disegna il tombolo (TOM-21).
+    return await renderLacePng(info.level, info.outcome.rows, info.flags, caption ?? null);
   } catch (err) {
     console.warn('[screens] PNG failed', err);
     return null;

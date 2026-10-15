@@ -70,6 +70,8 @@ perché il server di sviluppo ricarica la pagina quando qualcuno modifica i file
 e dei dati), `testi` (i18n e testi narrativi) e `motore` (`build.rolldownOptions.output.codeSplitting`
 in `vite.config.ts`): nessun pezzo supera il limite di 600 KB e la build non dà avvisi del
 gioco (un avviso che nomina il codice di un pacchetto in lavorazione è di quel pacchetto).
+L'avviso `PLUGIN_TIMINGS` di Rolldown è spento (`checks.bundlerTimings: false`): misura solo la
+lentezza della macchina (il plugin dei Worker di Vite), non il gioco.
 Budget CSS: **al massimo 30 KB in gzip in tutto** (oggi circa 18 KB in cinque fogli: core,
 tombolo, campagna, schermate, audio); si misura con `gzip -c dist/assets/*.css | wc -c`.
 
@@ -155,7 +157,9 @@ Indietro; la Promise si risolve alla chiusura; un pannello non registrato mostra
 (`button`, `iconButton`, `panel`, `tabs`, `slider`, `toggle`, `paperCard`, `modal`, `menuList`,
 `textOf`): bersagli ≥ 48 px, fuoco visibile, testi da chiavi i18n che si riscrivono da soli al
 cambio di lingua. **Carta e calligrafia** (C17): `paperCard({ hand })` dà un foglio
-`.core-carta--mano` che si inclina tutto, al massimo ±3° attorno al centro; il testo
+`.core-carta--mano` che si inclina tutto, al massimo ±3° attorno al centro (un foglio molto
+alto si inclina meno, `slantForHeight`: gli angoli non si spostano più di 12 px, così una
+lettera lunga non esce dai lati del contenitore che la taglia); il testo
 (`.core-carta-testo`) non ruota e non prende i tocchi, quindi i pulsanti vanno fuori dal foglio,
 in un contenitore fratello; `core-carta--scorre` fa scorrere le lettere lunghe dentro il foglio
 (70% dell'altezza). `inkOnPaper(hex, carta = '#EDE4D3')` in `src/core/ui/richtext.ts` scurisce un

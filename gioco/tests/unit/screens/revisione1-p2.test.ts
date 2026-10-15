@@ -23,6 +23,7 @@ vi.mock('../../../src/tombolo/index', async (orig) => {
 import type { NightOutcome, SaveData, Viewport } from '../../../src/core/types';
 import { createContext, dailySpec, generate, metrics, simulate, solve } from '../../../src/engine/index';
 import { dateTag, shareParams, shortDate } from '../../../src/screens/daily';
+import { longDate } from '../../../src/screens/format';
 import { captionOf, resultsSheet, seedShareText } from '../../../src/screens/results';
 import { liberoSpec } from '../../../src/screens/libero';
 import { pausePanel } from '../../../src/screens/pausePanel';
@@ -64,6 +65,13 @@ describe('SCH-11: condivisione', () => {
     expect(dateTag('en', ['it-IT'])).toBe('en-GB');
     expect(dateTag('it', ['en-US', 'it-CH'])).toBe('it-CH');
     expect(shareParams({ date: '2026-10-18', incroci: 7, min: 7, quiete: 1, simmetria: false }, 'en-US').data).toBe('10/18');
+  });
+
+  it('anche la data lunga (scheda del giorno, cartiglio) segue la lingua del browser', () => {
+    expect(longDate('2026-10-18', 'en', 'en-US')).toBe('Sunday, October 18');
+    expect(longDate('2026-10-18', 'en', 'en-GB')).toBe('Sunday 18 October');
+    expect(longDate('2026-10-18', 'it', 'it-IT')).toBe('Domenica 18 ottobre');
+    expect(longDate('2026-10-18', 'en', dateTag('en', ['en-US']))).toBe('Sunday, October 18');
   });
 
   it('il PNG ha il cartiglio: TRAMA, data, incroci e minimo', async () => {

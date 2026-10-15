@@ -365,6 +365,35 @@ export function handStyle(h: Handwriting): Record<string, string> {
   };
 }
 
+/** Spostamento massimo (px) degli angoli di un foglio inclinato: un foglio alto si inclina meno (P057). */
+export const MANO_SPOSTAMENTO_MAX = 12;
+
+/**
+ * Inclinazione (gradi) di un foglio scritto a mano alto `height` px: quella del
+ * personaggio, al massimo ±3° (C17), e meno se il foglio è così alto che i suoi
+ * angoli si sposterebbero di più di `maxShift` px. Così una lettera lunga (Clotilde
+ * nel Taccuino a 360 px con il testo al 140%: quasi 1900 px) non esce dai lati del
+ * contenitore che la taglia, e le iniziali delle righe e la firma restano visibili.
+ */
+export function slantForHeight(slantDeg: number, height: number, maxShift = MANO_SPOSTAMENTO_MAX): number {
+  const want = Math.min(3, Math.abs(slantDeg));
+  const sign = slantDeg < 0 ? -1 : 1;
+  const half = height / 2;
+  if (want === 0 || !(half > maxShift)) return sign * want;
+  const allowed = (Math.asin(maxShift / half) * 180) / Math.PI;
+  return sign * (Math.round(Math.min(want, allowed) * 100) / 100);
+}
+
+/** Tiene l'inclinazione di un foglio alto entro `slantForHeight` (si ricalcola quando cambia l'altezza). */
+function keepTiltInside(card: HTMLElement, slantDeg: number): void {
+  if (slantDeg === 0 || typeof ResizeObserver === 'undefined') return;
+  const full = Math.min(3, Math.abs(slantDeg));
+  new ResizeObserver(() => {
+    const s = slantForHeight(slantDeg, card.offsetHeight);
+    card.style.setProperty('--mano-inclinazione', Math.abs(s) < full ? `${s}deg` : `${slantDeg}deg`);
+  }).observe(card);
+}
+
 export function paperCard(o: { children?: Child[]; hand?: Handwriting | null; onClick?: () => void; test?: string; className?: string; labelKey?: string }): HTMLElement {
   const interactive = !!o.onClick;
   const card = el(interactive ? 'button' : 'div', {
@@ -373,6 +402,7 @@ export function paperCard(o: { children?: Child[]; hand?: Handwriting | null; on
     test: o.test,
     type: interactive ? 'button' : undefined,
   }, el('div', { class: 'core-carta-testo' }, ...(o.children ?? [])));
+  if (o.hand) keepTiltInside(card, o.hand.slantDeg);
   if (o.labelKey) {
     card.setAttribute('aria-label', tr(o.labelKey));
     card.dataset.i18nLabel = o.labelKey;

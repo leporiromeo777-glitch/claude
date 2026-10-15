@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { paperCard, handStyle } from '../../../src/core/ui/components';
+import { MANO_SPOSTAMENTO_MAX, paperCard, handStyle, slantForHeight } from '../../../src/core/ui/components';
 import { contrastRatio, inkOnPaper, PAPER_DEFAULT, richFromString } from '../../../src/core/ui/richtext';
 import type { Handwriting } from '../../../src/core/types';
 import { installTestServices } from './helpers';
@@ -66,6 +66,21 @@ describe('calligrafia (C17): il foglio si inclina, il testo resta dentro', () =>
     document.body.appendChild(card);
     expect(getComputedStyle(card).overflowY).toBe('auto');
     card.remove();
+  });
+
+  it('un foglio alto si inclina meno: gli angoli non si spostano più di 12 px (P057)', () => {
+    // Foglio basso: l'inclinazione del personaggio, limitata a ±3°.
+    expect(slantForHeight(-9, 200)).toBe(-3);
+    expect(slantForHeight(2, 300)).toBe(2);
+    expect(slantForHeight(0, 2000)).toBe(0);
+    // La lettera di Clotilde nel Taccuino a 360 px e 140%: quasi 1900 px.
+    const s = slantForHeight(6, 1889);
+    expect(s).toBeGreaterThan(0);
+    expect(s).toBeLessThan(1);
+    expect((1889 / 2) * Math.sin((s * Math.PI) / 180)).toBeLessThanOrEqual(MANO_SPOSTAMENTO_MAX + 0.1);
+    expect(slantForHeight(-6, 1889)).toBe(-s);
+    // Altezza sconosciuta (0): nessuna riduzione.
+    expect(slantForHeight(5, 0)).toBe(3);
   });
 
   it('handStyle porta l\'inclinazione del personaggio, il CSS la limita', () => {
