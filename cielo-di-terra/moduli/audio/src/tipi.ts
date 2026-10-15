@@ -5,7 +5,10 @@
  * (un THREE.Vector3 è compatibile e si può passare direttamente).
  */
 
-/** Vettore 3D in metri, nel sistema del mondo (asse del cilindro = asse Z). */
+/**
+ * Vettore 3D in metri, nel sistema del mondo del motore (riferimento rotante, asse del
+ * cilindro = asse Z, x = −r·sin θ, y = −r·cos θ).
+ */
 export interface Vec3 {
   x: number;
   y: number;
@@ -58,9 +61,13 @@ export interface StatoAudio {
   velocita: number;
   /** Ora del giorno di gioco, 0-24 (si accettano anche valori fuori intervallo). */
   ora: number;
-  /** Altezza dal suolo in metri. Predefinita: R - distanza dall'asse. */
+  /**
+   * Altezza sopra il terreno in metri (nel motore: `PlayerController.heightAboveGround`).
+   * Predefinita: R − distanza dall'asse, cioè l'altezza sul fondo dello scafo, che sui
+   * rilievi sovrastima: conviene passarla.
+   */
   altezza?: number;
-  /** Angolo θ in gradi (0-360). Predefinito: atan2(y, x). */
+  /** Angolo θ in gradi (0-360). Predefinito: atan2(−x, −y), come nel motore. */
   theta?: number;
   /** Zona corrente. Predefinita: ricavata da θ. */
   zona?: IdZona;
@@ -68,7 +75,7 @@ export interface StatoAudio {
   inVolo?: boolean;
   /** Distanza in metri dalla riva più vicina del lago. Predefinita: stima grossolana dalla posizione. */
   distanzaLago?: number;
-  /** Distanza in metri dal piede del Sordo (Tappo Nord). Predefinita: 3000 - z. */
+  /** Distanza in metri dal piede del Sordo (Tappo Nord). Predefinita: 2640 − z. */
   distanzaSordo?: number;
   /** Densità delle Fade nei dintorni, 0-1 (solo di notte produce suoni automatici). Predefinita 0. */
   fadeVicine?: number;

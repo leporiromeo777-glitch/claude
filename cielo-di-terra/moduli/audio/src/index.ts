@@ -9,6 +9,7 @@ export * from './tipi';
 export {
   calcolaParametriAmbiente,
   coordinateCilindriche,
+  posizioneCilindrica,
   suVersoAsse,
   vettoreSicuro,
   zonaDaTheta,

@@ -381,10 +381,10 @@
             <label for="velocita">Velocità</label><input id="velocita" type="range" min="0" max="40" step="0.5" value="0" /><output id="velocitaV"></output>
           </div>
           <div class="cursore">
-            <label for="theta">Angolo θ</label><input id="theta" type="range" min="0" max="359.5" step="0.5" value="45" /><output id="thetaV"></output>
+            <label for="theta">Angolo θ</label><input id="theta" type="range" min="0" max="359.5" step="0.1" value="36.4" /><output id="thetaV"></output>
           </div>
           <div class="cursore">
-            <label for="z">Lungo l’asse (z)</label><input id="z" type="range" min="0" max="3000" step="5" value="1050" /><output id="zV"></output>
+            <label for="z">Lungo l’asse (z)</label><input id="z" type="range" min="0" max="3000" step="2" value="1032" /><output id="zV"></output>
           </div>
           <div class="cursore">
             <label for="lago">Distanza dal lago</label><input id="lago" type="range" min="0" max="300" step="1" value="300" /><output id="lagoV"></output>
@@ -415,8 +415,8 @@
               <select id="sguardo">
                 <option value="nord">a nord (il Sordo)</option>
                 <option value="sud">a sud</option>
-                <option value="est">lungo θ+</option>
-                <option value="ovest">lungo θ−</option>
+                <option value="est">a Mane (θ+)</option>
+                <option value="ovest">θ−</option>
               </select>
             </label>
             <label><input type="checkbox" id="campanile" /> San Vigilio batte le ore</label>

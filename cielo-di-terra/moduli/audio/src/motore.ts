@@ -10,10 +10,11 @@
  *
  * Tutto è sintetizzato: nessun file audio.
  */
-import { LUNGHEZZA_CILINDRO, ORA_ACCENSIONE, ORA_TEMA_ALBA, ORE_CAMPANE, RAGGIO_INTERNO } from './costanti';
+import { CAMPANILE_SAN_VIGILIO, LUNGHEZZA_CILINDRO, ORA_ACCENSIONE, ORA_TEMA_ALBA, ORE_CAMPANE } from './costanti';
 import {
   calcolaParametriAmbiente,
   haAttraversato,
+  posizioneCilindrica,
   orientamentoAscoltatore,
   suVersoAsse,
   vettoreSicuro,
@@ -64,7 +65,11 @@ export interface OpzioniMotore {
   strati?: readonly NomeStrato[];
   /** Fa partire da solo il tema dell'alba (predefinito true). */
   musicaAlba?: boolean;
-  /** Il campanile di San Vigilio: posizione e se batte le ore da solo. */
+  /**
+   * Il campanile: posizione delle campane e se battono le ore da sole (6-22).
+   * Predefinito: la cella campanaria di San Vigilio, senza ore automatiche
+   * (nel gioco tornano a segnare l'ora dopo il rilievo della valle). null = campane non posizionate.
+   */
   campanile?: { posizione: Vec3; orarie: boolean } | null;
   /**
    * Timer interno (100 ms) che continua a pianificare musica ed eventi d'ambiente anche
@@ -115,9 +120,9 @@ export class AudioEngine {
   private readonly regia = new RegiaMusica();
   private readonly rng: Rng;
   private asc: Ascoltatore = {
-    posizione: { x: RAGGIO_INTERNO - 1.7, y: 0, z: 1000 },
+    posizione: posizioneCilindrica(0, 1000, 1.7),
     avanti: { x: 0, y: 0, z: 1 },
-    su: { x: -1, y: 0, z: 0 },
+    su: { x: 0, y: 1, z: 0 },
     altezza: 1.7,
   };
   private ultimiParametri: ParametriAmbiente | null = null;
@@ -130,7 +135,13 @@ export class AudioEngine {
 
   constructor(private readonly opz: OpzioniMotore = {}) {
     this.rng = creaRng(opz.seme ?? (Date.now() >>> 0));
-    this.campanile = opz.campanile ?? null;
+    this.campanile =
+      opz.campanile === undefined
+        ? {
+            posizione: posizioneCilindrica(CAMPANILE_SAN_VIGILIO.theta, CAMPANILE_SAN_VIGILIO.z, CAMPANILE_SAN_VIGILIO.altezza),
+            orarie: false,
+          }
+        : opz.campanile;
   }
 
   // -------------------------------------------------------------------------

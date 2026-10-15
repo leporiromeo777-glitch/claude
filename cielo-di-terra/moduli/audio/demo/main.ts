@@ -7,6 +7,7 @@ import {
   NOMI_BUS,
   costanti,
   descrizioneZona,
+  posizioneCilindrica,
   zonaDaTheta,
   type EventoAudio,
   type NomeBus,
@@ -24,27 +25,28 @@ const cursore = (id: string): HTMLInputElement => $<HTMLInputElement>(id);
 const valore = (id: string): number => Number(cursore(id).value);
 const spunta = (id: string): boolean => cursore(id).checked;
 
-const motore = new AudioEngine({ campanile: { posizione: posizioneDa(30, 1080, 25), orarie: false } });
+const SAN_VIGILIO = costanti.CAMPANILE_SAN_VIGILIO;
+const motore = new AudioEngine();
 
 // ---------------------------------------------------------------------------
 // Geometria
 // ---------------------------------------------------------------------------
 
+/** Il mondo della demo è piatto: l'altezza dal suolo coincide con h dal fondo dello scafo. */
 function posizioneDa(thetaGradi: number, z: number, altezza: number): Vec3 {
-  const r = costanti.RAGGIO_INTERNO - altezza;
-  const a = (thetaGradi * Math.PI) / 180;
-  return { x: r * Math.cos(a), y: r * Math.sin(a), z };
+  return posizioneCilindrica(thetaGradi, z, altezza);
 }
 
+/** Direzione dello sguardo nella terna locale del motore (est = verso della rotazione, nord = +z). */
 function sguardo(thetaGradi: number): Vec3 {
   const a = (thetaGradi * Math.PI) / 180;
   switch ((document.getElementById('sguardo') as HTMLSelectElement).value) {
     case 'sud':
       return { x: 0, y: 0, z: -1 };
     case 'est':
-      return { x: -Math.sin(a), y: Math.cos(a), z: 0 };
+      return { x: -Math.cos(a), y: Math.sin(a), z: 0 };
     case 'ovest':
-      return { x: Math.sin(a), y: -Math.cos(a), z: 0 };
+      return { x: Math.cos(a), y: -Math.sin(a), z: 0 };
     default:
       return { x: 0, y: 0, z: 1 };
   }
@@ -56,6 +58,7 @@ function statoCorrente(): StatoAudio {
   const altezza = valore('altezza');
   const s: StatoAudio = {
     posizione: posizioneDa(theta, z, altezza),
+    altezza,
     avanti: sguardo(theta),
     velocita: valore('velocita'),
     ora: valore('ora'),
@@ -105,7 +108,7 @@ interface Luogo {
 }
 
 const LUOGHI: Luogo[] = [
-  { nome: 'Corbella a mezzogiorno', valori: { ora: 12, altezza: 1.7, velocita: 1.4, theta: 45, z: 1050, fade: 0 } },
+  { nome: 'Corbella a mezzogiorno', valori: { ora: 12, altezza: 1.7, velocita: 1.4, theta: 36.4, z: 1032, fade: 0 } },
   { nome: 'Alba nelle Selve', valori: { ora: 5.3, altezza: 1.7, velocita: 0, theta: 60, z: 1300, fade: 0 } },
   { nome: 'Notte delle Fade', valori: { ora: 23, altezza: 1.7, velocita: 0, theta: 40, z: 1100, fade: 1 } },
   { nome: 'Sulla Finestra dei Ponti', valori: { ora: 15, altezza: 1.7, velocita: 1, theta: 105, z: 1500, fade: 0 } },
@@ -131,7 +134,7 @@ for (const l of LUOGHI) {
 
 cursore('volo').addEventListener('change', () => motore.evento({ tipo: spunta('volo') ? 'velo-apri' : 'velo-chiudi' }));
 cursore('campanile').addEventListener('change', () =>
-  motore.impostaCampanile(posizioneDa(30, 1080, 25), spunta('campanile')),
+  motore.impostaCampanile(posizioneDa(SAN_VIGILIO.theta, SAN_VIGILIO.z, SAN_VIGILIO.altezza), spunta('campanile')),
 );
 
 // ---------------------------------------------------------------------------

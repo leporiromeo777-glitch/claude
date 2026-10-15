@@ -93,8 +93,8 @@ export function puntoSordo(asc: Ascoltatore): Vec3 {
   const r = Math.hypot(asc.posizione.x, asc.posizione.y);
   const k = r > 1e-6 ? (RAGGIO_INTERNO + 6) / r : 0;
   return {
-    x: r > 1e-6 ? asc.posizione.x * k : RAGGIO_INTERNO + 6,
-    y: r > 1e-6 ? asc.posizione.y * k : 0,
+    x: r > 1e-6 ? asc.posizione.x * k : 0,
+    y: r > 1e-6 ? asc.posizione.y * k : -(RAGGIO_INTERNO + 6),
     z: LUNGHEZZA_CILINDRO,
   };
 }

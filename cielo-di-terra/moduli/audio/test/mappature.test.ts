@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  posizioneCilindrica,
   attenuazioneValle,
   calcolaParametriAmbiente,
   coordinateCilindriche,
@@ -27,9 +28,7 @@ import { lunghezza, punto } from '../src/util';
 import type { Vec3 } from '../src/tipi';
 
 function pos(theta: number, z: number, altezza: number): Vec3 {
-  const r = RAGGIO_INTERNO - altezza;
-  const a = (theta * Math.PI) / 180;
-  return { x: r * Math.cos(a), y: r * Math.sin(a), z };
+  return posizioneCilindrica(theta, z, altezza);
 }
 
 describe('geometria del cilindro', () => {
@@ -39,6 +38,21 @@ describe('geometria del cilindro', () => {
     expect(c.altezza).toBeCloseTo(12, 6);
     expect(c.z).toBe(1200);
     expect(coordinateCilindriche(pos(350, 0, 0)).theta).toBeCloseTo(350, 6);
+  });
+
+  it('segue le convenzioni del motore: x = −r·sin θ, y = −r·cos θ', () => {
+    const p0 = posizioneCilindrica(0, 10, 0);
+    expect(p0.x).toBeCloseTo(0, 9);
+    expect(p0.y).toBeCloseTo(-RAGGIO_INTERNO, 9);
+    const p90 = posizioneCilindrica(90, 10, 46);
+    expect(p90.x).toBeCloseTo(-600, 9);
+    expect(p90.y).toBeCloseTo(0, 9);
+    const u0 = suVersoAsse(p0);
+    expect(u0.x).toBeCloseTo(0, 9);
+    expect(u0.y).toBeCloseTo(1, 9);
+    expect(u0.z).toBe(0);
+    // la stessa θ del motore: thetaOf(x, y) = atan2(−x, −y)
+    for (const t of [0, 37.2, 105, 166, 300]) expect(coordinateCilindriche(posizioneCilindrica(t, 1, 5)).theta).toBeCloseTo(t, 9);
   });
 
   it('il «su» punta verso l\'asse ed è unitario', () => {
@@ -206,18 +220,19 @@ describe('lago, Sordo, Finestre', () => {
     expect(pesoLago(80)).toBeGreaterThan(0);
     expect(pesoLago(80)).toBeLessThan(1);
     expect(pesoLago(150)).toBe(0);
-    expect(distanzaLagoStimata(165, 1500, 0)).toBe(0);
+    expect(distanzaLagoStimata(166, 1500, 0)).toBe(0);
+    expect(distanzaLagoStimata(166, 700, 0)).toBe(20);
     expect(distanzaLagoStimata(45, 1500, 0)).toBeGreaterThan(500);
-    expect(distanzaLagoStimata(165, 1500, 40)).toBe(40);
+    expect(distanzaLagoStimata(166, 1500, 40)).toBe(40);
   });
 
   it('il rombo del Sordo cresce avvicinandosi al Tappo Nord', () => {
-    expect(distanzaSordoStimata(2950)).toBe(50);
-    expect(distanzaSordoStimata(3200)).toBe(0);
+    expect(distanzaSordoStimata(2600)).toBe(40);
+    expect(distanzaSordoStimata(2950)).toBe(0);
     expect(pesoSordo(distanzaSordoStimata(1000))).toBe(0);
     expect(pesoSordo(30)).toBe(1);
     let prec = -1;
-    for (let z = 1500; z <= 3000; z += 50) {
+    for (let z = 1200; z <= 3000; z += 50) {
       const w = pesoSordo(distanzaSordoStimata(z));
       expect(w).toBeGreaterThanOrEqual(prec);
       prec = w;

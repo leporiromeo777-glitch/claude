@@ -4,7 +4,7 @@
  * Viene impacchettato con esbuild ed esposto come `window.bancoAudio`.
  */
 import { AudioEngine } from '../../src/motore';
-import { RAGGIO_INTERNO } from '../../src/costanti';
+import { posizioneCilindrica } from '../../src/mappature';
 import type { EventoAudio, NomeBus, StatoAudio, TemaMusicale, Vec3 } from '../../src/tipi';
 import type { NomeStrato } from '../../src/motore';
 
@@ -39,9 +39,7 @@ export interface Misura {
 
 /** Posizione nel cilindro da θ (gradi), z e altezza dal suolo. */
 export function posizione(thetaGradi: number, z: number, altezza: number): Vec3 {
-  const r = RAGGIO_INTERNO - altezza;
-  const a = (thetaGradi * Math.PI) / 180;
-  return { x: r * Math.cos(a), y: r * Math.sin(a), z };
+  return posizioneCilindrica(thetaGradi, z, altezza);
 }
 
 const ev = (e: EventoAudio, t = 0.05): { t: number; e: EventoAudio } => ({ t, e });
@@ -76,7 +74,7 @@ export const PROVE: Prova[] = [
   {
     id: 'campane-lontane',
     durata: 9,
-    eventi: [ev({ tipo: 'campane', modo: 'rintocco', posizione: posizione(30, 1100, 30) })],
+    eventi: [ev({ tipo: 'campane', modo: 'rintocco', posizione: posizione(150, 1400, 30) })],
   },
   { id: 'accensione-linea', durata: 10, eventi: [ev({ tipo: 'accensione-linea' })] },
   { id: 'ui-clic', durata: 0.4, eventi: [ev({ tipo: 'interfaccia', varieta: 'clic' })] },
@@ -93,7 +91,7 @@ export const PROVE: Prova[] = [
   { id: 'amb-volo-basso', durata: 6, ambienti: true, stato: { ora: 10, quota: 35, velocita: 14, inVolo: true } },
   { id: 'amb-finestra', durata: 14, ambienti: true, stato: { ora: 14, thetaGradi: 105 } },
   { id: 'amb-lago', durata: 8, ambienti: true, stato: { ora: 15, thetaGradi: 160, distanzaLago: 2 } },
-  { id: 'amb-sordo', durata: 8, ambienti: true, stato: { ora: 11, zeta: 2960 } },
+  { id: 'amb-sordo', durata: 8, ambienti: true, stato: { ora: 11, zeta: 2600 } },
   { id: 'amb-fade-notte', durata: 10, ambienti: true, stato: { ora: 23, fadeVicine: 1 } },
   { id: 'amb-brace', durata: 6, ambienti: true, stato: { ora: 2, thetaGradi: 260 } },
   // --- musica ---
@@ -273,6 +271,7 @@ export async function rendi(
   const s = prova.stato ?? {};
   const stato: StatoAudio = {
     posizione: posizione(s.thetaGradi ?? 45, s.zeta ?? 1050, s.quota ?? 1.7),
+    altezza: s.quota ?? 1.7,
     velocita: s.velocita ?? 0,
     ora: s.ora ?? 12,
     inVolo: s.inVolo ?? false,
