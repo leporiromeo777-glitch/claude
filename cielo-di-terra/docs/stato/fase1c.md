@@ -13,9 +13,10 @@ La prova automatica `npm run e2e:fase1` gioca tutta la sequenza con i tasti, la 
 catasto reali (nessun flag acceso a mano), salva e controlla «Continua», e scatta 22 foto in
 `docs/shots/fase1/`.
 
-I luoghi di Corbella sono ancora quelli segnaposto del motore più i segnaposto della regia
-(cripta, cella campanaria, castagni, fienile, capisaldi…): il modulo `popolamento` è in
-lavorazione in `moduli/popolamento/` e si collega alla porta `PortaPopolamento` (vedi sotto).
+Corbella è quella vera del modulo `popolamento` (`src/popolamento`): San Vigilio con il
+campanile e il Pilastro 1 sulla terrazza della cuspide, la Piazza delle Ore, 58 rustici, i muri a
+secco delle terrazze, i Ronchi, il fienile, i chiodi d'ottone, gli elementi mobili E1-E4, le Fade
+e i personaggi con le loro figure animate. L'unico interno della regia rimasto è la Cripta.
 
 ## Moduli integrati
 
@@ -26,6 +27,7 @@ lavorazione in `moduli/popolamento/` e si collega alla porta `PortaPopolamento` 
 | oggetti (abitanti, castagni, botola, capisaldi, squadro…) | `src/oggetti/` | `tests/oggetti/` |
 | interfaccia (titolo, pausa, impostazioni, dialoghi, carte, taccuino, pianta, indicazioni) | `src/ui/` | `tests/ui/` (happy-dom) |
 | rilievo (catasto, lati, notti, pianta, resoconto) | `src/rilievo/` | `tests/rilievo/` |
+| popolamento (Corbella: case, muri, chiodi, elementi mobili, personaggi, Fade) | `src/popolamento/` | `tests/popolamento/` |
 | **regia** (questo lavoro) | `src/regia/` | `tests/regia/` + `npm run e2e:fase1` |
 
 Le dipendenze dei moduli sono nel `package.json` principale (`@fontsource/*` per i caratteri
@@ -51,11 +53,11 @@ il disegno serve solo alle viste.
 | `catasto.ts` | il catasto collegato al mondo: «linea libera?» (terreno + collisori), tappe del tempo, notti, resoconto |
 | `dialoghi.ts` | i nodi della storia nella finestra di dialogo; coda dei dialoghi automatici; chi parla si volta |
 | `interfaccia.ts` | il ponte verso `src/ui`: carte e libretto (lettura fino in fondo), sottotitoli, suggerimenti, Taccuino, Pianta, «Aspetta fino a», pausa |
-| `png.ts` | gli abitanti (figure della libreria oggetti) secondo gli orari di `personaggi.json`; Ottavio che scende dal cielo, accompagna, viene incontro |
+| `png.ts` | gli abitanti: le figure del popolamento (`corbella.npc(id)`) guidate dalla storia; gli orari li applica il popolamento, la regia corregge le condizioni (Clelia dopo il dono) e muove Ottavio (vola, scende in spirale, accompagna, viene incontro); chi è vicino guarda Elvira |
 | `audio.ts` | il ponte verso `src/audio`: avvio al primo gesto, stato per fotogramma, passi, eventi, temi |
-| `notte.ts` | le Fade di notte (sciami), il giro della Corbella |
+| `notte.ts` | le Fade del popolamento viste dalla regia (controllo «Fade nel campo visivo», audio) e la lanterna di Tecla |
 | `velatura.ts` | nero, bianco, lampo della Meta, lente, fogliame nel cannocchiale, il passero |
-| `scena/` | segnaposto: la cripta, la cella campanaria, i luoghi della Missione 1 (`Segnaposto` implementa `PortaPopolamento`) |
+| `scena/` | la Cripta (interno della regia, con i meccanismi del prologo) e `cellaDaCorbella` (la cella e la terrazza del campanile del popolamento con i nomi della regia) |
 | `debug.ts` | `window.__GAME__.regia` (dev e `VITE_E2E=1`): stato, flag, avanza, vai, mira, avvicina, tieni, premi, ora |
 
 ### Contratto col motore della storia
@@ -159,34 +161,48 @@ solo motore (senza regia, per gli screenshot del motore); `?debug` statistiche; 
   guardate una per una; `e2e.json` ha il riassunto della corsa.
 - `npm run build` e `npm run shots` (le 6 foto del motore, prese dal canvas con la regia ferma sul titolo) restano verdi.
 
-## Segnaposto (da sostituire con `popolamento`)
+## Il paese: `src/popolamento`
 
-- **Cripta** (`scena/cripta.ts`): anello delle sette capsule, sala, corridoio, scala, pozzo e
-  botola interna, armadietto e buste; tre lampade accese.
-- **Cella campanaria** (`scena/campanile.ts`): stanza dentro la torre del motore con le bifore,
-  le campane, l'altoparlante, il pilastro di bronzo con la targa; scale «a stacco» (dissolvenza).
-- **Luoghi della Missione 1** (`scena/segnaposto.ts`): castagno morto e ramo vivo, botola,
-  capisaldi (chiodi e paline), muretto, castagno del cartellino, fienile, bacheca, telo
-  dell'Ombrista, scatola di Pina, porta del campanile; elementi mobili E1-E4 con le varianti.
-- **Abitanti** (`png.ts`): figure della libreria oggetti posate al centro dei luoghi degli
-  orari, con uno scarto; niente percorsi a piedi fra un luogo e l'altro (cambiano posto quando
-  Elvira non guarda… o anche quando guarda). Le Fade di notte sono sciami posati sul giro.
+`main.ts` chiama `installaCorbella(game, { agganciaCiclo: false, luciAbitanti: false })` dopo
+`game.init()` (toglie il paese segnaposto del motore) e passa la maniglia alla regia, che chiama
+`portaPopolamento(corbella).update(dt)` a ogni passo (abitanti, botola, Fade, fumo della grà).
+La regia usa `portaPopolamento(corbella)` al posto del suo vecchio segnaposto: gli id storici
+(`chiodo_cs_N`, `segnale_cs_N`, `lente_corteccia`, `muretto`, `porta_campanile`…) passano per
+`ALIAS_SEGNAPOSTO`; le varianti E1-E4 del catasto vanno a `setVariante`.
 
-`PortaPopolamento` (`src/regia/porte.ts`) è la porta per il modulo vero: `punto(id)` e
-`mostraVariante(elemento, variante, pezzi)`. Dalla bozza in `moduli/popolamento/`
-(`installaCorbella(game) → ManigliaCorbella`): `punto(id)` → `maniglia.punto(…)?.pos` con la
-mappa degli id (`leggi:targa_p1`, `chiodo:3`, `apri:botola`, `dormi:fienile_ottavio`…),
-`mostraVariante` → `setVariante`, le figure → `npc(id)`, la cripta → `cripta`/`apriBotola`,
-le Fade → `notte`. Quando il modulo avrà il suo README si sostituisce `Segnaposto` (e le
-figure di `png.ts`) con un adattatore.
+Doppioni risolti:
+
+- **Cella campanaria**: tolta quella della regia. Si usa il campanile del popolamento: la cella con
+  le bifore, le campane e l'altoparlante, e sopra la terrazza della cuspide con il Pilastro 1, la
+  targa e la palina. Salendo dalla porta (dissolvenza: la scala interna è implicita) Elvira arriva
+  sulla terrazza (`cellaDaCorbella` legge i punti `scendi:campanile`, `leggi:targa_p1`,
+  `parla:meridiana`, il chiodo 1); l'interno della regia `cella` è la terrazza.
+- **Cripta**: resta quella della regia, perché porta i meccanismi del prologo (coperchi delle
+  capsule con la scritta sul vetro, targhette, armadietto, buste, scala alla marinara, botola
+  interna, orari col gesso); `corbella.cripta.interno` (solo da vedere, senza punti) resta
+  nascosto. Si esce accanto alla botola vera del popolamento (`apri:botola`, al piede
+  dell'alzata) e la si apre con `apriBotola`. Portare quei meccanismi sull'interno del popolamento
+  (sala a volta, sette capsule in semicerchio) è un lavoro di grafica, non di logica.
+- **Figure**: tolte quelle della regia; si usano le maniglie `npc(id)` del popolamento (con
+  animazione, pose sedute, collider), vedi `png.ts`. Le Fade e la lanterna di Tecla sono quelle di
+  `corbella.notte`.
+
+Teletrasporti della regia (uscita dalla botola, alzarsi, staccare lo squadro, caricare, debug):
+atterrano sulla «quota d'appoggio» (`quotaAppoggio`: il ripiano o il gradino del popolamento sotto
+il punto, se più alto del terreno), non ai piedi dei muri delle terrazze.
 
 ## Problemi noti
 
-- **Lati coperti dal terreno**: con il terreno del motore, i lati 1-4, 3-4 e 4-37 (verso il
-  Monte, CS 4) e 3-11 (da CS 3) sono coperti dal terreno lungo la «linea libera». La Fase 1
-  non li chiede, ma la particella 2119 dell'inventario si raggiunge solo dal lato 1-4: la voce
-  `corbella_a_colori` oggi non si completa. Va rivista la rete con il terreno (o le quote dei
-  capisaldi, che nei contenuti sono di un terreno precedente).
+- **Pilastro 4 e il dosso del Pian dei Ricci (risolto nei contenuti)**: con il terreno del motore il
+  Pilastro 4 (800, 9,0) sta in una conca a 80 m dietro un dosso di 104 m: i lati 1-4, 3-4 e 4-37
+  sono coperti dal terreno anche alzando il disco di 25 m (3-4 vuole 30 m, 4-3 40 m), quindi alzare
+  il segnale non è coerente. Nei contenuti quei tre lati ora **si chiudono solo di notte**, con il
+  lume di Ottavio sul Pilastro 4 (dalla Fase 3): `capisaldi.json` (`quando` e `nota` dei lati, nota
+  di cs_4), `fade_fase1.json` (la particella 2119, coperta solo da 1-4, esce dall'inventario di
+  Corbella: 62 particelle invece di 63) e `FASE1.md` (§3, tabella dei flag, §7.1). I test del
+  rilievo seguono (13 lati di giorno, 82 particelle; le mosse della Madre chiudono 3-4 alle 23:00).
+  Resta per la Fase 3: di notte la «linea libera» del gioco vede ancora il dosso, quindi il lume
+  dovrà stare in alto (o il pilastro sul dosso).
 - **Quote dei contenuti**: le `altezza` di `luoghi.json` e `capisaldi.json` non coincidono con
   il terreno del motore; la regia usa il terreno all'aperto e le quote dei contenuti solo per
   gli interni e la cella.
@@ -196,5 +212,5 @@ figure di `png.ts`) con un adattatore.
 - **Test del terreno del motore** (`tests/terrain.test.ts`, «groundHeight coincide con
   surfaceHeight…»): campiona punti a caso e fallisce circa una volta su otto (lo scarto
   massimo trovato è 4,4 m a z 1163, θ 162,4, valle 2). Non dipende dalla regia.
-- Niente gobo né ombre portate dalla Linea sugli interni; la cella campanaria non ha scale vere.
-- Gli abitanti non camminano fra i luoghi (solo Ottavio quando accompagna o viene incontro).
+- Niente gobo né ombre portate dalla Linea sugli interni; al campanile si sale e si scende con una dissolvenza (niente scala vera).
+- Gli abitanti del popolamento cambiano posto con gli orari (teletrasporto ogni minuto di gioco); camminano solo quando la regia lo chiede (Ottavio che accompagna o viene incontro).
