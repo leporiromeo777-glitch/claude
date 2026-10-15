@@ -2217,6 +2217,16 @@ describe('verifica della revisione 2 (contenuti-atti23): coerenza e ripetizioni 
     expect(t('atto2.g12.zeno.esito.fallita')).not.toMatch(/Faro tutto per sé/);
   });
 
+  it('Q042: se il Bepi ha già salutato la Nina in g20, l\'epilogo D non la fa salutare «come si deve» un\'altra volta', () => {
+    const ep = PAGINE.filter((p) => p.momento === 'epilogo' && p.giorno === 'fin_aperto' && p.s.flags['nina'] === 'parte');
+    expect(ep.some((p) => vale({ ok: 'g20.bepi' }, p))).toBe(true);
+    for (const p of ep) {
+      const testi = p.voci.map((v) => testoDi(v.key)).join(' ');
+      if (vale({ ok: 'g20.bepi' }, p)) expect(testi, p.ramo).not.toMatch(/salutata come si deve/);
+      else expect(testi, p.ramo).toMatch(/salutata come si deve/);
+    }
+  });
+
   it('fin_aperto: la lettera del 1951 è di mia madre, anche se in g22 il pozzo non l\'ha restituita', () => {
     expect(t('finali.aperto.perline.L_1951')).not.toMatch(/pozzo/);
     expect(level('fin_aperto').beads.find((b) => b.id === 'L_1951')?.holder).toBe('livia');

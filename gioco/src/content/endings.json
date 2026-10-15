@@ -3399,6 +3399,50 @@
                 "flag": "bepi",
                 "eq": "ferito"
               }
+            },
+            {
+              "not": {
+                "ok": "g20.bepi"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "finale.aperto.nina.saluto",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "saluta",
+            "x": 0.6
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaParte.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaParte.2s"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "flag": "nina",
+              "eq": "parte"
+            },
+            {
+              "not": {
+                "flag": "bepi",
+                "eq": "ferito"
+              }
+            },
+            {
+              "ok": "g20.bepi"
             }
           ]
         }
@@ -3433,6 +3477,48 @@
             {
               "flag": "bepi",
               "eq": "ferito"
+            },
+            {
+              "not": {
+                "ok": "g20.bepi"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "finale.aperto.nina.bepi.saluto",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "bepi",
+            "pose": "saluta",
+            "x": 0.6
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaParte.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaParte.2bs"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "flag": "nina",
+              "eq": "parte"
+            },
+            {
+              "flag": "bepi",
+              "eq": "ferito"
+            },
+            {
+              "ok": "g20.bepi"
             }
           ]
         }

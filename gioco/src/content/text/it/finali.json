@@ -133,7 +133,9 @@
       "ninaParte": {
         "1": "Il Bepi è salito sul primo vaporetto col vestito della festa: andava a trovare la Nina.",
         "2": "In convitto l'ha salutata come si deve. Lei dice che Venezia ha troppa acqua, poca laguna.",
-        "2b": "In convitto l'ha salutata come si deve, col braccio buono. Lei rideva, e lui pure."
+        "2b": "In convitto l'ha salutata come si deve, col braccio buono. Lei rideva, e lui pure.",
+        "2s": "Le ha portato le sarde fritte. Lei dice che Venezia ha troppa acqua, poca laguna.",
+        "2bs": "L'ha abbracciata col braccio buono. Lei rideva, e lui pure."
       },
       "ninaResta": {
         "1": "Il Bepi ha preso il primo vaporetto col vestito buono: va a tenere il posto alla Nina.",
