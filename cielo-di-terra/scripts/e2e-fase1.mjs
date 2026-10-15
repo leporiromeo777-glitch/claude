@@ -138,7 +138,7 @@ async function aspetta(testo, maxS = 120) {
     const st = await R(() => window.__GAME__.regia.regia.orologio.inAttesa);
     if (!st) break;
   }
-  log(`  aspetta fino a ${testo}: ${ore0.toFixed(2)} → ${(await stato()).ora}`);
+  log(`  aspetta fino a ${testo}: ${ore0.toFixed(2)} → ${(await stato()).ora}${(await stato()).controllo !== 'seduta' ? ' (interrotta)' : ''}`);
 }
 
 async function alzati() {

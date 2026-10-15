@@ -53,9 +53,20 @@ export class DirettoreDialoghi {
   update(): void {
     if (this.aperto || !this.coda.length) return;
     if (this.r.ui.lettore.visible || this.r.ponte.attesaAperta || this.r.ui.titolo.visible) return;
-    const prossimo = this.coda.shift()!;
+    // un dialogo con una persona aspetta che la persona ci sia (Ottavio che scende dal cielo)
+    const i = this.coda.findIndex((c) => this.personaPronta(c.dialogo));
+    if (i < 0) return;
+    const [prossimo] = this.coda.splice(i, 1);
+    if (!prossimo) return;
     if (this.r.narrativa.dialoghi.finito(prossimo.dialogo) && !this.ripetibile(prossimo.dialogo)) return;
     this.mostra(this.r.narrativa.dialoghi.avvia(prossimo.dialogo));
+  }
+
+  private personaPronta(dialogo: string): boolean {
+    const p = this.r.narrativa.dialoghi.definizione(dialogo)?.personaggio;
+    if (!p || !this.r.abitanti.figure.has(p === 'bambini' ? 'lisa' : p)) return true;
+    if (p === 'ottavio' && this.r.abitanti.modoOttavio === 'atterra') return false;
+    return this.r.abitanti.presente(p === 'bambini' ? 'lisa' : p);
   }
 
   private ripetibile(id: string): boolean {
