@@ -217,6 +217,7 @@ export function costruisciCripta(materiale: Material): Cripta {
   const c5 = centroCapsula(5);
   const scritta = A.punto(c5.e, c5.n + 0.25, 0.97);
   const occhiSdraiata = A.punto(c5.e, c5.n + 0.45, 0.62);
+  punti['scritta_vetro'] = scritta.clone();
 
   // --- armadietto n. 5 (fra la 4 e la 5, contro il muro) ---
   const arm = centroCapsula(4.5, RAGGIO_ANELLO + 0.9);

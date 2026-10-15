@@ -80,7 +80,7 @@ export function installaDebugRegia(r: Regia): DebugRegia {
         ultimoSuggerimento: r.ultimoSuggerimento,
         fiato: r.corpo.fiato,
         lente: r.lente,
-        squadro: { stato: r.squadro.stato, stazione: r.squadro.stazione, livellato: r.squadro.livellato, telescopio: r.squadro.telescopio, disponibile: r.squadro.disponibile },
+        squadro: { stato: r.squadro.stato, stazione: r.squadro.stazione, livellato: r.squadro.livellato, bolla: r.squadro.bolla, telescopio: r.squadro.telescopio, disponibile: r.squadro.disponibile },
         varianti: Object.fromEntries(['E1', 'E2', 'E3', 'E4'].map((e) => [e, r.catasto.variante(e)])),
         latiChiusi: r.catasto.latiChiusi(),
         ottavio: r.abitanti.modoOttavio,
