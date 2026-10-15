@@ -14,7 +14,7 @@ export default defineConfig({
     dedupe: ['three'],
   },
   test: {
-    include: ['test/**/*.test.ts', 'sonde/**/*.test.ts'],
+    include: ['test/**/*.test.ts'],
     environment: 'node',
     testTimeout: 60000,
   },

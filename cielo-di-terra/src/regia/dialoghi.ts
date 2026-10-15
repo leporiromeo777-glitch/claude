@@ -12,6 +12,9 @@ import type { VistaNodo } from '../narrativa';
 import type { BattutaDialogo } from '../ui';
 import type { Regia } from './regia';
 
+/** Oltre questa distanza (m) Ottavio viene incontro a Elvira prima di un dialogo automatico. */
+const DISTANZA_PER_PARLARE = 6;
+
 export class DirettoreDialoghi {
   private coda: { dialogo: string; automatico: boolean }[] = [];
   private vista: VistaNodo | null = null;
@@ -69,8 +72,17 @@ export class DirettoreDialoghi {
   private personaPronta(dialogo: string): boolean {
     const p = this.r.narrativa.dialoghi.definizione(dialogo)?.personaggio;
     if (!p || !this.r.abitanti.figure.has(p === 'bambini' ? 'lisa' : p)) return true;
-    if (p === 'ottavio' && this.r.abitanti.modoOttavio === 'atterra') return false;
-    return this.r.abitanti.presente(p === 'bambini' ? 'lisa' : p);
+    const a = this.r.abitanti;
+    if (p === 'ottavio') {
+      if (a.modoOttavio === 'atterra' || a.modoOttavio === 'raggiunge') return false;
+      // lontano (atterrato dall'altra parte della piazza, fermo davanti al fienile): viene incontro
+      const e = this.r.game.player.cyl;
+      if (a.presente('ottavio') && a.modoOttavio !== 'accompagna' && a.distanzaDa('ottavio', e.z, e.theta) > DISTANZA_PER_PARLARE) {
+        a.ottavioRaggiunge();
+        return false;
+      }
+    }
+    return a.presente(p === 'bambini' ? 'lisa' : p);
   }
 
   private ripetibile(id: string): boolean {

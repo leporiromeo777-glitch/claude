@@ -672,12 +672,19 @@ export class Abitanti {
   }
 
   /** Pose che la libreria non ha: seduto, chino (offset alle ossa dopo l'animazione). */
+  private ossaCache = new Map<string, Record<string, THREE.Bone>>();
+
   private posaOssa(s: StatoNpc): void {
     if (s.posa === 'in-piedi' || !s.obj) return;
-    const ossa: Record<string, THREE.Bone> = {};
-    s.obj.gruppo.traverse((o) => {
-      if ((o as THREE.Bone).isBone) ossa[o.name] = o as THREE.Bone;
-    });
+    let ossa = this.ossaCache.get(s.id);
+    if (!ossa) {
+      const o2: Record<string, THREE.Bone> = {};
+      s.obj.gruppo.traverse((o) => {
+        if ((o as THREE.Bone).isBone) o2[o.name] = o as THREE.Bone;
+      });
+      ossa = o2;
+      this.ossaCache.set(s.id, ossa);
+    }
     if (s.posa === 'seduto') {
       const H = s.altezzaFianchi;
       ossa['radice']!.position.y = -(H - 0.5);
