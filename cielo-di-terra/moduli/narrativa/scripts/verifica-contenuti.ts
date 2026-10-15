@@ -33,28 +33,24 @@ function leggi(nome: string): unknown {
   }
 }
 
-/** Raccoglie gli id di celle/particelle da fade_fase1.json, qualunque sia la forma esatta. */
+/**
+ * Id di celle/particelle da fade_fase1.json: gli id numerici della griglia
+ * (iz*96 + itheta), i codici di catasto («1-458») e gli elementi mobili («E1»).
+ */
 function idCelle(x: unknown): string[] | undefined {
-  if (x === undefined) return undefined;
+  if (!x || typeof x !== 'object') return undefined;
   const out = new Set<string>();
-  const visita = (v: unknown, chiave: string): void => {
-    if (Array.isArray(v)) {
-      for (const e of v) {
-        if (/particell|cell/i.test(chiave) && e && typeof e === 'object' && typeof (e as { id?: unknown }).id === 'string') {
-          out.add((e as { id: string }).id);
-        }
-        visita(e, chiave);
-      }
-    } else if (v && typeof v === 'object') {
-      for (const [k, w] of Object.entries(v as Record<string, unknown>)) {
-        if (/^(particelle|celle|stati_iniziali)$/i.test(k) && w && typeof w === 'object' && !Array.isArray(w)) {
-          for (const id of Object.keys(w as object)) out.add(id);
-        }
-        visita(w, k);
-      }
+  const o = x as Record<string, unknown>;
+  for (const chiave of ['particelle', 'elementi_mobili', 'celle']) {
+    const lista = o[chiave];
+    if (!Array.isArray(lista)) continue;
+    for (const p of lista) {
+      if (!p || typeof p !== 'object') continue;
+      const q = p as Record<string, unknown>;
+      if (typeof q.id === 'string' || typeof q.id === 'number') out.add(String(q.id));
+      if (typeof q.catasto === 'string') out.add(q.catasto);
     }
-  };
-  visita(x, '');
+  }
   return out.size ? [...out] : undefined;
 }
 

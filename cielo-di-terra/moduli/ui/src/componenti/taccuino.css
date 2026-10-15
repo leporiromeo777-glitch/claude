@@ -355,3 +355,81 @@
     padding-left: 70px;
   }
 }
+
+/* Le due mani di Elvira: la tecnica in stampatello a matita dura, la madre in corsivo a matita morbida. */
+.ui-tc-mano--tecnica {
+  font-family: var(--f-stampatello);
+  font-size: 0.86em;
+  letter-spacing: 0.02em;
+  color: #46443f;
+}
+.ui-tc-mano--madre {
+  font-family: var(--f-mano);
+  font-weight: 600;
+  color: #2f2d2a;
+}
+.ui-semplice .ui-tc-mano--tecnica,
+.ui-leggibile .ui-tc-mano--tecnica {
+  font-size: 1em;
+  font-variant: small-caps;
+}
+.ui-semplice .ui-tc-mano--madre,
+.ui-leggibile .ui-tc-mano--madre {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.ui-tc-linguetta[hidden] {
+  display: none;
+}
+.ui-tc-linguetta:nth-child(3) {
+  background: var(--grana-fine), #c9b2c4;
+}
+.ui-tc-linguetta:nth-child(4) {
+  background: var(--grana-fine), #a9c4c0;
+}
+
+.ui-tc-proverbio,
+.ui-tc-respiro {
+  position: relative;
+  margin: 0 0 calc(var(--riga-mano) * 0.5);
+}
+.ui-tc-dialetto {
+  display: block;
+  font-family: var(--f-mano);
+  font-weight: 600;
+  color: var(--inchiostro);
+}
+.ui-tc-traduzione {
+  display: block;
+  padding-left: 1.2em;
+  font-family: var(--f-stampatello);
+  font-size: 0.82em;
+  color: #46443f;
+}
+.ui-tc-regola {
+  display: block;
+  padding-left: 1.2em;
+  font-family: var(--f-testo);
+  font-style: italic;
+  font-size: var(--t-piccolo);
+  line-height: calc(var(--riga-mano) * 0.75);
+  color: var(--matita);
+}
+.ui-tc-leggenda {
+  position: relative;
+  margin: 0 0 calc(var(--riga-mano) * 0.5);
+}
+.ui-tc-leggenda p {
+  margin: 0;
+}
+.ui-tc-sera {
+  position: relative;
+  margin: 0;
+  font-family: var(--f-testo);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--t-piccolo);
+  line-height: var(--riga-mano);
+  color: var(--matita);
+}

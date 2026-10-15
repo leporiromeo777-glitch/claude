@@ -5,7 +5,7 @@
  */
 import { AudioEngine } from '../../src/motore';
 import { RAGGIO_INTERNO } from '../../src/costanti';
-import type { EventoAudio, StatoAudio, TemaMusicale, Vec3 } from '../../src/tipi';
+import type { EventoAudio, NomeBus, StatoAudio, TemaMusicale, Vec3 } from '../../src/tipi';
 import type { NomeStrato } from '../../src/motore';
 
 export interface Prova {
@@ -245,7 +245,14 @@ function aWav(buf: AudioBuffer): string {
 
 export async function rendi(
   id: string,
-  opz: { wav?: boolean; sr?: number; strati?: NomeStrato[] } = {},
+  opz: {
+    wav?: boolean;
+    sr?: number;
+    strati?: NomeStrato[];
+    muto?: boolean;
+    volumi?: Partial<Record<NomeBus, number>>;
+    limitatore?: boolean;
+  } = {},
 ): Promise<Misura> {
   const prova = PROVE.find((p) => p.id === id);
   if (!prova) throw new Error(`prova sconosciuta: ${id}`);
@@ -254,12 +261,14 @@ export async function rendi(
   const motore = new AudioEngine({
     contesto: ctx,
     seme: 20260 + id.length * 31,
-    limitatore: prova.limitatore ?? false,
+    limitatore: opz.limitatore ?? prova.limitatore ?? false,
     ambienti: prova.ambienti === true,
     ...(opz.strati ? { strati: opz.strati } : {}),
     musicaAlba: false,
     battito: false,
   });
+  if (opz.muto) motore.mixer.muto = true;
+  for (const [bus, v] of Object.entries(opz.volumi ?? {})) motore.mixer.imposta(bus as NomeBus, v);
   await motore.avvia();
   const s = prova.stato ?? {};
   const stato: StatoAudio = {
@@ -300,10 +309,57 @@ export async function rendi(
   return m;
 }
 
+/**
+ * Prova del ciclo di vita con un AudioContext vero: avvio, aggiornamenti, eventi,
+ * pausa (contesto sospeso), ripresa, distruzione (contesto chiuso).
+ */
+export async function provaCicloDiVita(): Promise<Record<string, string | number | boolean>> {
+  const esito: Record<string, string | number | boolean> = {};
+  const motore = new AudioEngine({ seme: 7 });
+  esito.statoIniziale = motore.stato;
+  esito.eventoPrimaDellAvvio = motore.evento({ tipo: 'interfaccia', varieta: 'clic' });
+  await motore.avvia();
+  esito.statoAvviato = motore.stato;
+  esito.contesto = (motore.contesto as AudioContext).state;
+  const stato: StatoAudio = { posizione: posizione(45, 1050, 1.7), velocita: 2, ora: 5.4 };
+  for (let i = 0; i < 30; i++) {
+    stato.ora += 0.01; // attraversa l'accensione della Linea (5,5)
+    motore.aggiorna(stato, 1 / 60);
+    await new Promise((r) => setTimeout(r, 16));
+  }
+  esito.durataPasso = motore.evento({ tipo: 'passo', superficie: 'legno' });
+  esito.temaAccettato = motore.suonaTema('primo-volo');
+  esito.temaRifiutato = motore.suonaTema('alba');
+  esito.temaInCorso = motore.temaInCorso ?? '';
+  const sorgente = motore.creaSorgente(posizione(46, 1060, 2), { bus: 'voci' });
+  esito.sorgente = sorgente !== null;
+  sorgente?.posiziona(posizione(47, 1070, 2));
+  sorgente?.rilascia();
+  motore.impostaVolume('musica', 0.2);
+  esito.volumeMusica = motore.volume('musica');
+  motore.pausa();
+  esito.statoPausa = motore.stato;
+  esito.eventoInPausa = motore.evento({ tipo: 'passo', superficie: 'erba' });
+  await new Promise((r) => setTimeout(r, 400));
+  esito.contestoInPausa = (motore.contesto as AudioContext).state;
+  await motore.riprendi();
+  esito.statoRipreso = motore.stato;
+  esito.contestoRipreso = (motore.contesto as AudioContext).state;
+  const ctx = motore.contesto as AudioContext;
+  await motore.distruggi();
+  esito.statoFinale = motore.stato;
+  esito.contestoFinale = ctx.state;
+  return esito;
+}
+
 declare global {
   interface Window {
-    bancoAudio: { elenco: () => string[]; rendi: typeof rendi };
+    bancoAudio: {
+      elenco: () => string[];
+      rendi: typeof rendi;
+      provaCicloDiVita: typeof provaCicloDiVita;
+    };
   }
 }
 
-window.bancoAudio = { elenco: () => PROVE.map((p) => p.id), rendi };
+window.bancoAudio = { elenco: () => PROVE.map((p) => p.id), rendi, provaCicloDiVita };

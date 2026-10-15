@@ -49,7 +49,7 @@ export interface WorldFacts {
   cellaRilevata(id: string): boolean;
   /** true se la cella è almeno vista con lo squadro (matita). Se manca vale come `cellaRilevata`. */
   cellaVista?(id: string): boolean;
-  /** Variante corrente della particella: «carta», «abitata», «mietuta», «scritta». */
+  /** Variante corrente di un elemento mobile o particella («Carta», «Abitata», «Smontata»…; maiuscole indifferenti). */
   varianteParticella?(id: string): string | undefined;
   /** Oggetti che il gioco tiene fuori dall'inventario narrativo (si sommano a quelli dell'inventario). */
   quantitaOggetto?(id: string): number;
@@ -383,7 +383,7 @@ export class Narrativa {
           case 'bianca':
             return !f.cellaRilevata(id) && !(f.cellaVista?.(id) ?? false);
           default:
-            return f.varianteParticella?.(id) === stato;
+            return f.varianteParticella?.(id)?.toLowerCase() === stato;
         }
       },
       dialogo: (id, stato) => (stato === 'finito' ? this.dialoghi.finito(id) : this.dialoghi.iniziato(id)),

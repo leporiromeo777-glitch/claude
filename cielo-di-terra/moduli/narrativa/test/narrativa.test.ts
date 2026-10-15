@@ -20,6 +20,9 @@ describe('facciata Narrativa', () => {
     expect(n.valuta('cella:c2 bianca')).toBe(false);
     expect(n.valuta('particella:p1 mietuta')).toBe(true);
     expect(n.valuta('particella:p1 carta')).toBe(false);
+    f.varianti.set('E1', 'Abitata'); // come in fade_fase1.json, con la maiuscola
+    expect(n.valuta('particella:E1 abitata')).toBe(true);
+    expect(n.valuta('cella:2599 colore')).toBe(false);
     expect(n.valuta('oggetto:lume>=3')).toBe(true);
     expect(n.valuta('oggetto:lume>=4')).toBe(false);
   });

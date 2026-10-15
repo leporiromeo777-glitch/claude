@@ -20,7 +20,8 @@
  *       intervalli semiaperti [da, a); se da > a l'intervallo scavalca la mezzanotte;
  *       un'ora sola (ora:20) vale per tutta l'ora [20, 21)
  *   giorno:>=2  giorno:2  giorno:2-4   (gli intervalli di giorni sono chiusi)
- *   cella:id [rilevata|vista|bianca|carta|abitata|mietuta|scritta]
+ *   cella:id [rilevata|vista|bianca|carta|abitata|mietuta|scritta|smontata]
+ *       (anche colore = rilevata, matita = vista, bianco = bianca; particella: è sinonimo)
  *   dialogo:id [finito|iniziato]
  *   missione:id [completata|attiva|avviata|inattiva]
  *   passo:missione/passo [completato|attivo]   (anche missione.passo)
@@ -333,16 +334,22 @@ const Q_TACCUINO: Record<string, StatoTaccuinoCondizione> = {
   barrato: 'barrata',
 };
 const Q_CELLA: Record<string, string> = {
+  // stati della Pianta (fade_fase1.json li chiama bianco, matita, colore)
   rilevata: 'rilevata',
   rilevato: 'rilevata',
+  colore: 'rilevata',
   vista: 'vista',
   visto: 'vista',
+  matita: 'vista',
   bianca: 'bianca',
+  bianco: 'bianca',
   mai_vista: 'bianca',
+  // varianti degli elementi mobili
   carta: 'carta',
   abitata: 'abitata',
   mietuta: 'mietuta',
   scritta: 'scritta',
+  smontata: 'smontata',
 };
 
 const RE_ID = /^[\p{L}\p{N}_.\-/']+$/u;

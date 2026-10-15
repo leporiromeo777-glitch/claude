@@ -42,6 +42,7 @@ export async function apriBanco() {
     errori,
     elenco: () => pagina.evaluate(() => window.bancoAudio.elenco()),
     rendi: (id, opz = {}) => pagina.evaluate(([i, o]) => window.bancoAudio.rendi(i, o), [id, opz]),
+    cicloDiVita: () => pagina.evaluate(() => window.bancoAudio.provaCicloDiVita()),
     chiudi: () => browser.close(),
   };
 }

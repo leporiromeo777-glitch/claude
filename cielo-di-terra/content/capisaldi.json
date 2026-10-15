@@ -36,7 +36,7 @@
     },
     {
      "id": "cs_5",
-     "motivo": "Lato troppo corto (34 m): nel libretto «meno di una catena»."
+     "motivo": "La tettoia di piode del lavatoio, costruita dopo il 2121, copre la cella del campanile."
     }
    ],
    "monografia": "libretto.cs_1",
@@ -129,11 +129,11 @@
    "non_visibile_da": [
     {
      "id": "cs_1",
-     "motivo": "Lato troppo corto (34 m): nel libretto «meno di una catena»."
+     "motivo": "La tettoia di piode del lavatoio, costruita dopo il 2121, copre la cella del campanile."
     }
    ],
    "monografia": "libretto.cs_5",
-   "note": "Troppo vicino al Pilastro 1 per un lato (34 m: «meno di una catena», scrive Aurelio). Vede il Pilastro 6 e la Terrazza Pedrazzini.",
+   "note": "Dal gradino la cella del campanile è coperta dalla tettoia del lavatoio, che nel 2121 non c'era. Vede il Pilastro 6 e la Terrazza Pedrazzini.",
    "stato_iniziale": "mai_usato"
   },
   {
@@ -192,7 +192,8 @@
    "visibile_da": [
     "cs_1",
     "cs_6",
-    "cs_7"
+    "cs_7",
+    "cs_11"
    ],
    "non_visibile_da": [],
    "monografia": "libretto.cs_8",
@@ -212,7 +213,8 @@
    "cella": 2598,
    "visibile_da": [
     "cs_1",
-    "cs_3"
+    "cs_3",
+    "cs_8"
    ],
    "non_visibile_da": [],
    "monografia": "libretto.cs_11",
@@ -489,7 +491,7 @@
    "lunghezza": 43.2,
    "chiudibile": false,
    "quando": "mai (per ora)",
-   "nota": "Lato troppo corto (34 m): nel libretto «meno di una catena».",
+   "nota": "La tettoia di piode del lavatoio, costruita dopo il 2121, copre la cella del campanile.",
    "particelle": [],
    "particelle_se_fosse_chiudibile": [
     2409,
@@ -501,6 +503,50 @@
     2601,
     2602
    ]
+  },
+  {
+   "id": "8-11",
+   "a": "cs_8",
+   "b": "cs_11",
+   "lunghezza": 354.3,
+   "chiudibile": true,
+   "quando": "giorno, brace e notte",
+   "nota": "Dal Sass dal Messo alla Cripta, sopra i tetti dei Ronchi.",
+   "particelle": [
+    2502,
+    2503,
+    2598,
+    2599,
+    2600,
+    2601,
+    2602,
+    2603,
+    2604,
+    2605,
+    2694,
+    2695,
+    2696,
+    2697,
+    2698,
+    2699,
+    2700,
+    2701,
+    2702,
+    2703,
+    2792,
+    2793,
+    2794,
+    2795,
+    2796,
+    2797,
+    2798,
+    2799,
+    2800,
+    2893,
+    2894,
+    2895
+   ],
+   "particelle_se_fosse_chiudibile": []
   },
   {
    "id": "3-5",

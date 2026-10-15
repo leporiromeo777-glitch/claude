@@ -44,6 +44,10 @@ describe('parser delle condizioni: atomi', () => {
     expect(stampa('cella:c-12')).toBe('cella:c-12 rilevata');
     expect(stampa('cella:c-12 vista')).toBe('cella:c-12 vista');
     expect(stampa('particella:p7 mietuta')).toBe('cella:p7 mietuta');
+    expect(stampa('cella:2599 colore')).toBe('cella:2599 rilevata');
+    expect(stampa('cella:2599 matita')).toBe('cella:2599 vista');
+    expect(stampa('cella:2599 bianco')).toBe('cella:2599 bianca');
+    expect(stampa('particella:E2 Smontata')).toBe('cella:E2 smontata');
     expect(stampa('dialogo:ottavio_1 finito')).toBe('dialogo:ottavio_1 finito');
     expect(stampa('dialogo:ottavio_1 iniziato')).toBe('dialogo:ottavio_1 iniziato');
     expect(stampa('missione:m1 completata')).toBe('missione:m1 completata');

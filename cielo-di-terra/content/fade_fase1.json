@@ -515,6 +515,7 @@
    2694,
    2695,
    2696,
+   2697,
    2698,
    2699,
    2700,
@@ -522,13 +523,17 @@
    2702,
    2703,
    2704,
+   2792,
+   2793,
+   2794,
+   2795,
    2796,
    2797,
    2798,
    2799,
    2800
   ],
-  "quante": 58
+  "quante": 63
  },
  "particelle": [
   {
@@ -4278,6 +4283,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -4311,6 +4317,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -4852,6 +4859,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -4889,6 +4897,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -4921,7 +4930,8 @@
     "inchiostro": "seppia"
    },
    "chiusa_da": [
-    "1-11"
+    "1-11",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -4958,7 +4968,8 @@
     "1-6",
     "1-7",
     "1-8",
-    "1-4"
+    "1-4",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -4996,6 +5007,7 @@
     "1-7",
     "1-8",
     "1-4",
+    "8-11",
     "5-6",
     "2-6"
    ],
@@ -5027,6 +5039,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "5-6",
     "2-6"
    ],
@@ -5058,6 +5071,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "7-8"
@@ -5090,6 +5104,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "7-8"
@@ -5425,6 +5440,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -5458,6 +5474,7 @@
    },
    "chiusa_da": [
     "1-11",
+    "8-11",
     "3-11"
    ],
    "inventario_corbella": true
@@ -5490,7 +5507,8 @@
     "inchiostro": "seppia"
    },
    "chiusa_da": [
-    "1-11"
+    "1-11",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -5516,8 +5534,10 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
-   "inventario_corbella": false
+   "chiusa_da": [
+    "8-11"
+   ],
+   "inventario_corbella": true
   },
   {
    "id": 2698,
@@ -5542,7 +5562,8 @@
    "stato_iniziale": "bianco",
    "rilevata_da": null,
    "chiusa_da": [
-    "1-8"
+    "1-8",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -5573,7 +5594,8 @@
    "chiusa_da": [
     "1-6",
     "1-7",
-    "1-8"
+    "1-8",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -5603,6 +5625,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "2-6",
     "7-8"
    ],
@@ -5636,6 +5659,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "7-8"
@@ -5668,6 +5692,7 @@
     "1-6",
     "1-7",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "6-8",
@@ -5700,6 +5725,7 @@
    "chiusa_da": [
     "1-6",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "6-8",
@@ -6029,8 +6055,10 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
-   "inventario_corbella": false
+   "chiusa_da": [
+    "8-11"
+   ],
+   "inventario_corbella": true
   },
   {
    "id": 2793,
@@ -6054,8 +6082,10 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
-   "inventario_corbella": false
+   "chiusa_da": [
+    "8-11"
+   ],
+   "inventario_corbella": true
   },
   {
    "id": 2794,
@@ -6079,8 +6109,10 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
-   "inventario_corbella": false
+   "chiusa_da": [
+    "8-11"
+   ],
+   "inventario_corbella": true
   },
   {
    "id": 2795,
@@ -6104,8 +6136,10 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
-   "inventario_corbella": false
+   "chiusa_da": [
+    "8-11"
+   ],
+   "inventario_corbella": true
   },
   {
    "id": 2796,
@@ -6133,7 +6167,8 @@
    "stato_iniziale": "bianco",
    "rilevata_da": null,
    "chiusa_da": [
-    "1-8"
+    "1-8",
+    "8-11"
    ],
    "inventario_corbella": true
   },
@@ -6164,6 +6199,7 @@
    "chiusa_da": [
     "1-7",
     "1-8",
+    "8-11",
     "7-8"
    ],
    "inventario_corbella": true
@@ -6195,6 +6231,7 @@
    "chiusa_da": [
     "1-6",
     "1-8",
+    "8-11",
     "6-8",
     "7-8"
    ],
@@ -6228,6 +6265,7 @@
    "chiusa_da": [
     "1-6",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "6-8",
@@ -6260,6 +6298,7 @@
    "chiusa_da": [
     "1-6",
     "1-8",
+    "8-11",
     "5-6",
     "2-6",
     "6-8",
@@ -6692,7 +6731,9 @@
    "elemento": null,
    "stato_iniziale": "bianco",
    "rilevata_da": null,
-   "chiusa_da": [],
+   "chiusa_da": [
+    "8-11"
+   ],
    "inventario_corbella": false
   },
   {
@@ -6719,6 +6760,7 @@
    "rilevata_da": null,
    "chiusa_da": [
     "1-8",
+    "8-11",
     "6-8",
     "7-8"
    ],
@@ -6748,6 +6790,7 @@
    "rilevata_da": null,
    "chiusa_da": [
     "1-8",
+    "8-11",
     "6-8",
     "7-8"
    ],
