@@ -94,6 +94,8 @@ export const PROVE: Prova[] = [
   { id: 'amb-sordo', durata: 8, ambienti: true, stato: { ora: 11, zeta: 2600 } },
   { id: 'amb-fade-notte', durata: 10, ambienti: true, stato: { ora: 23, fadeVicine: 1 } },
   { id: 'amb-brace', durata: 6, ambienti: true, stato: { ora: 2, thetaGradi: 260 } },
+  // abbastanza lungo perché gli strati muti si addormentino (8 s)
+  { id: 'amb-sonno', durata: 16, ambienti: true, stato: { ora: 13, thetaGradi: 60 } },
   // --- musica ---
   { id: 'tema-alba', durata: 30, tema: 'alba' },
   { id: 'tema-primo-volo', durata: 27, tema: 'primo-volo' },

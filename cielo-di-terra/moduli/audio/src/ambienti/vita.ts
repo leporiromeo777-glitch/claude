@@ -166,9 +166,11 @@ export class StratoFauna extends Strato {
     coro.buffer = kit.coroGrilli();
     coro.loop = true;
     this.gCoro = this.tieni(kit.guadagno(0));
-    coro.connect(this.gCoro).connect(c.uscita);
+    coro.connect(this.gCoro);
+    this.collegaUscita(this.gCoro, c.uscita);
     const mandata = this.tieni(kit.guadagno(0.12));
-    this.gCoro.connect(mandata).connect(c.riverbero);
+    mandata.connect(c.riverbero);
+    this.collegaUscita(this.gCoro, mandata);
     avviaContinua(coro, t);
     this.pUccelli = new Pianificatore(kit.rng, 2);
     this.pGrilli = new Pianificatore(kit.rng, 1);
@@ -177,6 +179,7 @@ export class StratoFauna extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const r = kit.rng;
+    this.sonno(p.fauna.grilli * p.duckValle, t);
     this.gCoro.gain.setTargetAtTime(0.17 * p.fauna.grilli * p.duckValle, t, 1.5);
     const [da, a] = this.finestra(t);
     const asc = this.c.ascoltatore();

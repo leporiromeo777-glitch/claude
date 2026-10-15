@@ -45,12 +45,53 @@ export interface ContestoStrato {
 /** Anticipo con cui gli strati pianificano gli eventi casuali (s). */
 export const ANTICIPO = 0.3;
 
+/** Dopo quanti secondi di silenzio uno strato si stacca dal grafo (e smette di costare CPU). */
+export const ATTESA_SONNO = 8;
+
 export abstract class Strato {
   private ultimoT = -Infinity;
   protected readonly sorgenti: AudioScheduledSourceNode[] = [];
   protected readonly nodi: AudioNode[] = [];
+  private readonly uscite: [AudioNode, AudioNode][] = [];
+  private collegato = true;
+  private ultimoAttivo = -Infinity;
 
   constructor(protected readonly c: ContestoStrato) {}
+
+  /** Vero quando lo strato è staccato dal grafo perché tace da un po'. */
+  get addormentato(): boolean {
+    return !this.collegato;
+  }
+
+  /** Collega un'uscita continua dello strato, che `sonno` può staccare e riattaccare. */
+  protected collegaUscita(nodo: AudioNode, dest: AudioNode): void {
+    nodo.connect(dest);
+    this.uscite.push([nodo, dest]);
+  }
+
+  /**
+   * Se il peso dello strato resta nullo per ATTESA_SONNO secondi, stacca le uscite
+   * continue: i nodi non raggiungibili dall'uscita non vengono calcolati. Appena il peso
+   * torna positivo le riattacca (il guadagno riparte da quasi zero: niente clic).
+   */
+  protected sonno(peso: number, t: number): void {
+    if (peso > 1e-3) {
+      this.ultimoAttivo = t;
+      if (!this.collegato) {
+        for (const [n, d] of this.uscite) n.connect(d);
+        this.collegato = true;
+      }
+    } else if (this.collegato && this.uscite.length > 0 && t - Math.max(this.ultimoAttivo, 0) > ATTESA_SONNO) {
+      for (const [n, d] of this.uscite) {
+        try {
+          n.disconnect(d);
+        } catch {
+          /* già staccato */
+        }
+      }
+      this.collegato = false;
+    }
+  }
 
   /** Applica i parametri e pianifica gli eventi casuali fino a t + ANTICIPO. */
   abstract aggiorna(p: ParametriAmbiente, t: number): void;

@@ -604,7 +604,9 @@ export class AudioEngine {
       uscita: bus.ingresso,
       riverbero: bus.mandata,
       ascoltatore: () => this.asc,
-      panner: (p, profilo) => this.creaPanner(p, profilo, bus.ingresso),
+      // gli eventi d'ambiente lontani usano il pan semplice: l'HRTF serve da vicino
+      panner: (p, profilo) =>
+        this.creaPanner(p, distanza(p, this.asc.posizione) > 30 ? { ...profilo, semplice: true } : profilo, bus.ingresso),
     };
   }
 

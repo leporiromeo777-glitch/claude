@@ -61,9 +61,10 @@ export class StratoLago extends Strato {
     const { kit } = c;
     const t = kit.ctx.currentTime;
     this.gLago = this.tieni(kit.guadagno(0));
-    this.gLago.connect(c.uscita);
+    this.collegaUscita(this.gLago, c.uscita);
     const mandata = this.tieni(kit.guadagno(0.15));
-    this.gLago.connect(mandata).connect(c.riverbero);
+    mandata.connect(c.riverbero);
+    this.collegaUscita(this.gLago, mandata);
     const letto = this.tieni(kit.sorgenteRumore('marrone'));
     const lp = this.tieni(kit.filtro('lowpass', 380, 0.5));
     const gLetto = this.tieni(kit.guadagno(0.12));
@@ -76,6 +77,7 @@ export class StratoLago extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const w = p.pesoLago;
+    this.sonno(w, t);
     this.gLago.gain.setTargetAtTime(1.4 * w, t, 0.8);
     const [da, a] = this.finestra(t);
     const attivo = w > 0.01 ? 1 : 0;
@@ -108,10 +110,11 @@ export class StratoSordo extends Strato {
     super(c);
     const { kit } = c;
     const t = kit.ctx.currentTime;
-    // nessuna attenuazione con la distanza (la gestisce pesoSordo): solo la direzione
-    this.pan = this.tieni(c.panner(puntoSordo(c.ascoltatore()), { rif: 1, max: 10000, rolloff: 0 }));
+    // nessuna attenuazione con la distanza (la gestisce pesoSordo): solo la direzione;
+    // pan semplice: per un rombo così grave l'HRTF non aggiunge nulla e costa molto
+    this.pan = this.tieni(c.panner(puntoSordo(c.ascoltatore()), { rif: 1, max: 10000, rolloff: 0, semplice: true }));
     this.gSordo = this.tieni(kit.guadagno(0));
-    this.gSordo.connect(this.pan);
+    this.collegaUscita(this.gSordo, this.pan);
     // il rombo
     const s = this.tieni(kit.sorgenteRumore('marrone'));
     const lp1 = this.tieni(kit.filtro('lowpass', 110, 0.7));
@@ -141,6 +144,7 @@ export class StratoSordo extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const w = p.pesoSordo;
+    this.sonno(w, t);
     this.gSordo.gain.setTargetAtTime(0.32 * w, t, 1.5);
     const ps = puntoSordo(this.c.ascoltatore());
     this.pan.positionX.setTargetAtTime(ps.x, t, 0.1);
@@ -228,9 +232,10 @@ export class StratoFinestre extends Strato {
     const { kit } = c;
     const t = kit.ctx.currentTime;
     this.gFin = this.tieni(kit.guadagno(0));
-    this.gFin.connect(c.uscita);
+    this.collegaUscita(this.gFin, c.uscita);
     const mandata = this.tieni(kit.guadagno(0.3));
-    this.gFin.connect(mandata).connect(c.riverbero);
+    mandata.connect(c.riverbero);
+    this.collegaUscita(this.gFin, mandata);
     // il fruscio del vetro: un sibilo chiarissimo e lontano che va e viene
     this.gOnda = this.tieni(kit.guadagno(0.6));
     const vetro = this.tieni(kit.sorgenteRumore('bianco'));
@@ -252,6 +257,7 @@ export class StratoFinestre extends Strato {
     const { kit } = this.c;
     const r = kit.rng;
     const w = p.pesoFinestra;
+    this.sonno(w, t);
     this.gFin.gain.setTargetAtTime(w, t, 0.8);
     if (t >= this.prossimaOnda) {
       this.gOnda.gain.setTargetAtTime(tra(r, 0.3, 1), t, tra(r, 0.8, 2));

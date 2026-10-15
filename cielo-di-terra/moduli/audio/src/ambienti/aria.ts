@@ -91,7 +91,7 @@ export class StratoVolo extends Strato {
     this.gVolo = this.tieni(kit.guadagno(0));
     s.connect(this.bp).connect(mod).connect(this.gVolo);
     s2.connect(lp).connect(mod2).connect(g2).connect(this.gVolo);
-    this.gVolo.connect(c.uscita);
+    this.collegaUscita(this.gVolo, c.uscita);
     avviaContinua(s, t);
     avviaContinua(s2, t);
     this.lfo.start(t);
@@ -99,6 +99,7 @@ export class StratoVolo extends Strato {
 
   aggiorna(p: ParametriAmbiente, t: number): void {
     const v = p.volo;
+    this.sonno(v.guadagno, t);
     this.gVolo.gain.setTargetAtTime(v.guadagno, t, p.inVolo ? 0.12 : 0.2);
     this.bp.frequency.setTargetAtTime(v.centro, t, 0.3);
     this.lfo.frequency.setTargetAtTime(v.battito * tra(this.c.kit.rng, 0.9, 1.1), t, 0.25);
