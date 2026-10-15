@@ -1,0 +1,8 @@
+{
+ "_nota": "Parametri della pipeline (processa.py --id <id>). altezza in metri; gonna = quota dell'orlo in frazioni dell'altezza (null se non porta gonna/veste lunga); ruota = gradi attorno all'alto (tripo_h3_1 esce con la fronte su +X: -90; sam_3_3d con la fronte su -Y di Blender: 0); pesi = diretto (bone heat sul modello pulito, con ripiego automatico sul proxy a voxel) o proxy; proporzioni = adulto | bambino. Vedi docs/personaggi/PIPELINE.md.",
+ "predefiniti": { "lod0": 8000, "lod1": 2000, "texture": 1024, "jpeg": 85, "formato": "jpeg", "quantizza": 1, "proporzioni": "adulto", "pesi": "diretto" },
+ "personaggi": {
+  "togna": { "entrata": "tools/personaggi/pilota/togna-tripo-grezzo.glb", "uscita": "public/personaggi/togna.glb", "altezza": 1.62, "gonna": 0.09, "ruota": -90, "generatore": "tripo_h3_1_image_to_3d", "sorgente": "tools/personaggi/pilota/togna-sorgente.jpg" },
+  "nando": { "entrata": "tools/personaggi/pilota/nando-sam-grezzo.glb", "uscita": "public/personaggi/nando.glb", "altezza": 1.76, "gonna": null, "ruota": 0, "generatore": "sam_3_3d", "sorgente": "tools/personaggi/pilota/nando-sorgente.jpg" }
+ }
+}

@@ -1,0 +1,18 @@
+# Crediti Higgsfield spesi per i personaggi
+
+Tetto per tutto il lavoro sui personaggi: **50 crediti**. Saldo all'inizio del pilota: **76,97**.
+Ogni spesa si annota qui, con il saldo letto da `balance` subito prima.
+
+| data | fase | che cosa | modello e parametri | job | crediti | saldo prima |
+|---|---|---|---|---|---|---|
+| 2026-10-15 | pilota | Togna, 2 immagini sorgente (stesso prompt) | `gpt_image_2_5`, quality medium, 1k, 2:3, count 2 | `7d9b3458…` (a), `5f3f4513…` (b, scelta) | 1 | 76,97 |
+| 2026-10-15 | pilota | Togna in 3D da (b) | `sam_3_3d`, prompt «the woman», GLB testurizzato | `c77836ee…` | 1 | 75,97 |
+| 2026-10-15 | pilota | Togna in 3D da (b) | `tripo_h3_1_image_to_3d`, face_limit 12000, texture standard, pbr false, orientation align_image | `331c2553…` | 9 | 75,97 |
+| 2026-10-15 | pilota (prova del rischio «volto scoperto con sam») | Nando, 2 immagini sorgente | `gpt_image_2_5`, quality medium, 1k, 2:3, count 2 | `02ae0a08…` (a, scelta), `3a8fe63b…` (b) | 1 | 65,97 |
+| 2026-10-15 | pilota | Nando in 3D da (a) | `sam_3_3d`, prompt «the man» | `e8270b86…` | 1 | 64,97 |
+
+Preventivi verificati con `get_cost` (non spesi): `tripo_p2_image_to_3d` 34 crediti (anche con texture «fast»), `meshy_v7_image_to_3d` lowpoly testurizzato 38. Fuori portata.
+Nota: `count: 2` di `gpt_image_2_5` a qualità media costa 1 credito in tutto (0,5 a immagine).
+
+**Totale del pilota: 13 crediti** (saldo 76,97 → 63,97, letto dopo l'ultima spesa). Restano 37 crediti sotto il tetto di 50.
+Piano per gli altri 11 modelli (PIPELINE.md): 11 coppie di immagini (11) + 10 `sam_3_3d` (10) + Ottavio con `tripo_h3_1_image_to_3d` (9) = 30, cioè 43 su 50; margine 7 per rifare Nando con la frase VOLTO e per qualche ritiro di sam con un altro `seed`.
