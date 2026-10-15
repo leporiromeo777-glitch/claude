@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T09:43:31.803Z",
-  "esito": "fallita",
-  "secondi": 139,
+  "data": "2026-10-15T09:46:35.760Z",
+  "esito": "ok",
+  "secondi": 160,
   "passi": [
-    "pronto in 8.4 s",
+    "pronto in 8.3 s",
     "— Titolo",
     "  📷 00-titolo.png",
     "  nella capsula 5, 05:38, giorno 1",
@@ -113,7 +113,19 @@
     "  📷 18-passerella-rilevata.png",
     "— M1.20 La seconda notte",
     "  aspetta fino a la brace: 8.38 → 19:30",
-    "  aspetta fino a fra un'ora: 19.50 → 20:31"
+    "  aspetta fino a fra un'ora: 19.50 → 20:31",
+    "  ✓ la seconda notte (giorno:3 e passo:m1_seconda_notte completato)",
+    "— M1.21 La prova",
+    "  📷 19-resoconto-notte-2.png",
+    "  ✓ la passerella è rimasta (variante:E1=Abitata)",
+    "  📷 carta-lettera_rosa.png",
+    "  ottavio: … / L'ho misurata. / Non lo so ancora. / … / … / … / Che nappina? / …",
+    "  ✓ la prima legge (passo:m1_prova completato e taccuino:i_legge_1)",
+    "— M1.22 La lettera di Rosa",
+    "  ottavio: ",
+    "  ✓ missione 1 completata (missione:m01_castagno_vuoto completata e flag:gioco_libero)",
+    "  📷 21-gioco-libero.png",
+    "Taccuino: 64 voci. Salvataggio fatto."
   ],
   "errori": []
 }
