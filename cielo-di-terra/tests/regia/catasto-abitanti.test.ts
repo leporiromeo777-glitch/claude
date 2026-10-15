@@ -3,10 +3,12 @@
  * collisori, le tappe del tempo (brace, notte che comincia, alba, resoconto), gli orari dei
  * personaggi e Ottavio che viene incontro a Elvira.
  */
-import { describe, expect, it } from 'vitest';
-import { Scene, Vector3 } from 'three';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { Vector3 } from 'three';
 import { CatastoGioco, creaLineaLibera, dentroCollisore, posizioniCapisaldi } from '../../src/regia/catasto';
-import { CAPISALDI, PARTICELLE_AREA, PERSONAGGI, type Personaggio } from '../../src/regia/contenuti';
+import { CAPISALDI, PARTICELLE_AREA, PERSONAGGI, luogo, type Personaggio } from '../../src/regia/contenuti';
+import { installaCorbella, type ManigliaCorbella } from '../../src/popolamento';
+import { giocoFinto } from '../popolamento/banco';
 import { assolutoDi } from '../../src/regia/orologio';
 import { Abitanti, luogoDaOrario, type ContestoAbitanti } from '../../src/regia/png';
 import type { ContestoVisibilita, EventoCatasto, PuntoMira } from '../../src/rilievo';
@@ -156,47 +158,117 @@ describe('Abitanti', () => {
     expect(luogoDaOrario(togna, 1, 9)).toBeTruthy();
   });
 
-  it('Ottavio viene incontro a Elvira e si ferma a un paio di metri', () => {
-    const a = new Abitanti(new Scene());
-    const elvira = { z: 1046, theta: 37 };
-    const ctx: ContestoAbitanti = { giorno: 1, ore: 10, assoluto: 10, valuta: () => true, occhi: cylToWorld(elvira.z, elvira.theta, groundHeight(elvira.z, elvira.theta) + 1.6), elvira };
-    a.ottavioFermo(1046 + 15, 37, 12);
-    a.update(1 / 60, ctx);
-    expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeGreaterThan(14);
-    a.ottavioRaggiunge();
-    expect(a.modoOttavio).toBe('raggiunge');
-    for (let i = 0; i < 60 * 10 && a.modoOttavio === 'raggiunge'; i++) a.update(1 / 60, ctx);
-    expect(a.modoOttavio).toBe('fermo');
-    const d = a.distanzaDa('ottavio', elvira.z, elvira.theta);
-    expect(d).toBeLessThan(3);
-    expect(d).toBeGreaterThan(1.5);
-    // nel salvataggio resta il modo di prima, non il cammino
-    a.ottavioRaggiunge();
-    expect((a.esporta() as { ottavio: { tipo: string } }).ottavio.tipo).toBe('fermo');
-    expect(a.puntoDialogo('ottavio')).toBeInstanceOf(Vector3);
-  });
+  describe('con le figure del popolamento', () => {
+    let corbella: ManigliaCorbella;
+    beforeAll(() => {
+      corbella = installaCorbella(giocoFinto(), { agganciaCiclo: false, luciAbitanti: false });
+    });
+    const contesto = (elvira: { z: number; theta: number }, giorno: number, ore: number, valuta: (c: string) => boolean = () => false): ContestoAbitanti => ({
+      giorno,
+      ore,
+      assoluto: (giorno - 1) * 24 + ore,
+      valuta,
+      occhi: cylToWorld(elvira.z, elvira.theta, groundHeight(elvira.z, elvira.theta) + 1.6),
+      elvira,
+    });
+    const passi = (a: Abitanti, ctx: ContestoAbitanti, n: number, finche: () => boolean = () => true) => {
+      for (let i = 0; i < n && finche(); i++) {
+        a.update(1 / 60, ctx);
+        corbella.update(1 / 60);
+      }
+    };
 
-  it('se doveva già stare vicino a Elvira ci va subito; da lontano scende dal cielo', () => {
-    const a = new Abitanti(new Scene());
-    const elvira = { z: 1174, theta: 58.06 };
-    const ctx: ContestoAbitanti = { giorno: 1, ore: 19.8, assoluto: 19.8, valuta: () => true, occhi: cylToWorld(elvira.z, elvira.theta, groundHeight(elvira.z, elvira.theta) + 1.6), elvira };
-    // in piazza, a 240 m: la storia lo vuole davanti al fienile, il dialogo lo chiama nello stesso passo
-    a.ottavioFermo(1071.6, 38.5);
-    a.update(1 / 60, ctx);
-    a.ottavioFermo(1174, 58.5, 31);
-    a.ottavioRaggiunge();
-    a.update(1 / 60, ctx);
-    expect(a.modoOttavio).toBe('fermo');
-    a.update(1 / 60, ctx);
-    expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(6);
-    // lontano davvero: atterra vicino a Elvira
-    a.ottavioFermo(1071.6, 38.5);
-    a.update(1 / 60, ctx);
-    a.ottavioRaggiunge();
-    a.update(1 / 60, ctx);
-    expect(a.modoOttavio).toBe('atterra');
-    for (let i = 0; i < 60 * 8; i++) a.update(1 / 60, ctx);
-    expect(a.modoOttavio).toBe('fermo');
-    expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(3);
+    it('Ottavio viene incontro a Elvira camminando e si ferma a un paio di metri', () => {
+      const a = new Abitanti(corbella);
+      const elvira = { z: 1046, theta: 37 };
+      const ctx = contesto(elvira, 1, 10);
+      a.ottavioFermo(1046 + 15, 37, 12);
+      passi(a, ctx, 2);
+      expect(a.presente('ottavio')).toBe(true);
+      expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeGreaterThan(14);
+      a.ottavioRaggiunge();
+      expect(a.modoOttavio).toBe('raggiunge');
+      passi(a, ctx, 60 * 12, () => a.modoOttavio === 'raggiunge');
+      expect(a.modoOttavio).toBe('fermo');
+      const d = a.distanzaDa('ottavio', elvira.z, elvira.theta);
+      expect(d).toBeLessThan(3);
+      expect(d).toBeGreaterThan(1.5);
+      // nel salvataggio resta il modo di prima, non il cammino
+      a.ottavioRaggiunge();
+      expect((a.esporta() as { ottavio: { tipo: string } }).ottavio.tipo).toBe('fermo');
+      expect(a.puntoDialogo('ottavio')).toBeInstanceOf(Vector3);
+    });
+
+    it('se doveva già stare vicino a Elvira ci va subito; da lontano scende dal cielo', () => {
+      const a = new Abitanti(corbella);
+      const elvira = { z: 1174, theta: 58.06 };
+      const ctx = contesto(elvira, 1, 19.8);
+      // in piazza, a 240 m: la storia lo vuole davanti al fienile, il dialogo lo chiama nello stesso passo
+      a.ottavioFermo(1071.6, 38.5);
+      passi(a, ctx, 1);
+      a.ottavioFermo(1174, 58.5, 31);
+      a.ottavioRaggiunge();
+      passi(a, ctx, 2);
+      expect(a.modoOttavio).toBe('fermo');
+      expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(6);
+      // lontano davvero: atterra vicino a Elvira (in volo non è «presente»)
+      a.ottavioFermo(1071.6, 38.5);
+      passi(a, ctx, 1);
+      a.ottavioRaggiunge();
+      passi(a, ctx, 1);
+      expect(a.modoOttavio).toBe('atterra');
+      passi(a, ctx, 60);
+      expect(a.presente('ottavio')).toBe(false);
+      passi(a, ctx, 60 * 8, () => a.modoOttavio === 'atterra');
+      expect(a.modoOttavio).toBe('fermo');
+      expect(a.presente('ottavio')).toBe(true);
+      expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(3);
+    });
+
+    it('in cielo gira sopra la valle col Velo verde; il fischio (atterra) lo porta giù', () => {
+      const a = new Abitanti(corbella);
+      const elvira = { z: 1046, theta: 37 };
+      const ctx = contesto(elvira, 1, 8);
+      a.ottavioInCielo();
+      passi(a, ctx, 3);
+      const o = corbella.npc('ottavio')!;
+      expect(o.presente).toBe(true);
+      expect(a.presente('ottavio')).toBe(false);
+      expect(o.figura!.getObjectByName('velo-ottavio')!.visible).toBe(true);
+      a.atterra(elvira.z + 4, elvira.theta);
+      passi(a, ctx, 60 * 8);
+      expect(a.presente('ottavio')).toBe(true);
+      expect(o.figura!.getObjectByName('velo-ottavio')!.visible).toBe(false);
+      a.ottavioSegueOrario();
+      passi(a, ctx, 2);
+      expect(o.manuale).toBe(false);
+    });
+
+    it('Clelia lascia la Bacheca dopo il dono (la condizione che il popolamento non valuta)', () => {
+      const a = new Abitanti(corbella);
+      const bacheca = luogo('bacheca_ore')!;
+      const elvira = { z: bacheca.z + 3, theta: bacheca.theta };
+      corbella.applicaOrario(2, 9);
+      passi(a, contesto(elvira, 2, 9), 2);
+      expect(a.presente('clelia')).toBe(true);
+      expect(a.vicini(elvira.z, elvira.theta, 8)).toContain('clelia');
+      passi(a, contesto(elvira, 2, 9, (c) => c === 'dialogo:d_clelia_dono finito'), 40);
+      expect(a.presente('clelia')).toBe(false);
+      // il giorno dopo torna agli orari
+      passi(a, contesto(elvira, 3, 9, () => true), 40);
+      expect(corbella.npc('clelia')!.manuale).toBe(false);
+    });
+
+    it('chi è vicino guarda Elvira; i gruppi non contano fra i vicini', () => {
+      const a = new Abitanti(corbella);
+      corbella.applicaOrario(1, 9);
+      const togna = corbella.npc('togna')!.posizione()!;
+      const elvira = { z: togna.z + 2, theta: togna.theta };
+      passi(a, contesto(elvira, 1, 9), 2);
+      const vicini = a.vicini(elvira.z, elvira.theta, 4);
+      expect(vicini).toContain('togna');
+      expect(vicini).not.toContain('bambini');
+      expect(vicini).not.toContain('velati_corbella');
+    });
   });
 });
