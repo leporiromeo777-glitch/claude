@@ -185,3 +185,25 @@ Gruppo **schermi-atto1** della revisione 2 (docs/REVISIONE-2.md, docs/stato/revi
   - Merletto del giorno del 15/10: «Marta — Nessuna stranezza che conti stanotte.» e il foglio accanto a «La regola del giorno».
   - Ho guardato gli screenshot.
 - `SCREENS_VERIFY_URL=http://localhost:6060/ npm run screens:verify`: **81/81**.
+
+### Verifica della revisione 2
+
+Verificatore del gruppo schermi-atto1: ogni task ripresa coi passi del playtest 2, nel codice, nei test e nel browser (build `VITE_E2E=1` servita sulla porta 6065, screenshot guardati). Core e contenuti: vedi le sezioni «Verifica della revisione 2» di fondamenta.md e contenuti-atto1.md.
+
+| Task | Esito della verifica | Prova |
+|---|---|---|
+| Q071 | fatto | i passi della segnalazione danno un trascinamento 3/3 col mouse e 3/3 col tocco; la pressione lunga vera apre ancora la scheda (vedi fondamenta.md) |
+| Q022 | fatto | Merletto del giorno del 15/10 a 1280×800 e 390×844: «Marta — Nessuna stranezza che conti stanotte.», «Bepi — Nessuna stranezza.» |
+| Q036 | fatto, con una correzione | dopo il finale D (giocato con `fin_aperto` nel tombolo vero) il titolo a 360×640 al 140% dice a video «Hai visto il finale vero: la Tovaglia è sul Telaio.» e il Telaio mostra la Tovaglia. **Corretto (a8fe1a6)**: dopo una storia nuova con una notte tessuta il titolo diceva ancora «la Tovaglia è sul Telaio», ma la campagna (339c8c5) la mostra solo nel Telaio della storia che ha tessuto il finale vero. Ora la riga nomina la Tovaglia solo se la storia di adesso ha il finale vero nella cronologia (`tovagliaOnLoom` in `titleMenu.ts`, stessa condizione di `tovagliaShown`); altrimenti dice, sempre a video, «Hai visto il finale vero: la campana suona intonata.». La stella resta. Test nuovo in `revisione2.test.ts` |
+| Q059 | parziale (resta la campagna) | «La regola del giorno» ha il glifo `foglio` (a 1280 e 390). La scheda «Lettere» del Taccuino ha ancora la nota musicale (`src/campaign/taccuino/panel.ts`), come il segnaposto dei biglietti di Livia in `SeraScene.ts` |
+| Q068 | fatto | titolo al 140% a 360×640: la freccia sta nella striscia sotto il menu (614-632 px), «Crediti» resta dentro l'area che scorre e in fondo allo scorrimento la freccia si spegne; a 390×844 e 1280×720 il menu non scorre e la freccia non c'è |
+| Q072 | fatto | Crediti al 140%: «TRAMA» su una riga a 360 (42,9 px) e a 390 (47,4 px) |
+| Q073 (parte del core) | fatto | vedi fondamenta.md |
+
+**Test della verifica.**
+- `npx vitest run` completo: 101 file, 1615 test verdi. `npx tsc --noEmit -p .`: nessun errore.
+- `SCREENS_VERIFY_URL=http://localhost:6065/ npm run screens:verify`: 81/81.
+- e2e `prologo`, `revisione1` e `layout` su desktop, iphone e android-piccolo contro la stessa build: 62 passati, 18 saltati, 7 falliti, nessuno per le schermate di questo gruppo:
+  - 6 aspettano l'alba da sola dopo la notte («dal titolo all'alba» sui tre progetti, «schermate per gli store» su desktop). Con R2-D5 della campagna dopo l'ultima ora serve un tocco: `tests/e2e` non ha gruppo e va aggiornato;
+  - giro delle schermate in inglese su android-piccolo, bilancio: all'inizio dello scorrimento «Continua» (`cp-bilancio-continua`) copre la voce del Taccuino `cp-bilancio-voce-libro.voce`. È della campagna.
+

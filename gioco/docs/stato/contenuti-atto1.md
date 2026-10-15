@@ -75,6 +75,19 @@ HUD della matassa: 13, 13, 13 e 17. Nessun errore in console. Ho guardato gli sc
 - **contenuti-atti23.** Q065, finale A: «Zeno le ha portato la valigia fino al vaporetto» mentre Zeno è appuntato al Faro alle 18. È in `finali.json`, `finale.merlettaia.2.zeno`.
 - **e2e (nessun gruppo).** `tests/e2e/prologo.spec.ts` «dal titolo all'alba» passa tutti i gesti ma aspetta l'alba da sola. Con R2-D5 (campagna) dopo l'ultima ora serve un tocco: il test va aggiornato.
 
+### Verifica della revisione 2
+
+Verificatore del gruppo schermi-atto1: ho ripreso ogni task coi passi del playtest 2, nel codice, nei test e nel browser (build `VITE_E2E=1` servita sulla porta 6065, screenshot guardati).
+
+| Task | Esito della verifica | Prova |
+|---|---|---|
+| Q005 | parziale (resta il plurale) | la nota di g02 dice «Il gomitolo conta il filo usato», come l'HUD. `hud.matassaAria` («1 braccia usate») è ancora di tombolo-motore |
+| Q009 | fatto, con una correzione | sera di g01 a 390×844 con Marta e Gino appuntati e Don Piero lasciato: il bilancio ha la riga «Bigliettini lasciati — Don Piero — Il bigliettino di Don Piero è rimasto senza spillo…». **Corretto (d95f53e)**: g05 Zeno e g04 Bepi dicevano «Non ne scriverà un altro», ma Zeno scrive ancora in g06-g08 e Bepi in g10. g01 e g02 Gino («ha suonato con la pentola», «il giro in cortile»), g06 Nina («ha aspettato la posta tutta la mattina») e g07 Zeno («la lanterna aspetterà») raccontavano fatti del merletto che lasciare il bigliettino non decide: ora dicono solo la reazione di chi l'ha scritto. In g02 Marta non dice più «ancora» (con g01 riuscito non era mai stata lasciata) e in g05 «Ha sgridato il Gino» non è più ambiguo. Test nuovo in `atto1.test.ts` |
+| Q018, R2-D7 | fatto | `levels:check --qualita` verde su 34 notti. Nel browser la soluzione da 8 incroci di g07 Nina+Zeno trovata **senza** la regola del Gino, giocata nel tombolo vero, si ferma alle 9 con «Gino è stato fermo un'ora: adesso deve incrociare (può con Nina).»: la regola è il collo di bottiglia (minimo 10 contro 8). Le soluzioni registrate di 10 combinazioni di g04-g08 finiscono al minimo con tutte le richieste soddisfatte |
+| Q065 | parziale (resta il finale A) | g01: campana della messa e Don Piero dalla Piazza in alba e Taccuino; g05: «Me l'ha detto tre volte». Il finale A (`finali.json`, contenuti-atti23) dice ancora «la valigia fino al vaporetto» |
+| Q074 | fatto | `comune.pers.zeno.desiderio` non nomina Livia (it/en), test |
+| Q077 | fatto | colonna «Min» e barca di g04 nel GDD; nessun avviso K7. Il test K7 di `quality.test.ts` è stato staccato dai valori del GDD da tombolo-motore (45cf7ce) |
+
 ## Revisione 1
 
 Compiti CA1-01 … CA1-08 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: JSON dei contenuti, testi `atto1` e `comune` in it/en, livelli g00-g08, arc1, arc2 con i `.computed.json`, `tests/unit/content/atto1.test.ts`.

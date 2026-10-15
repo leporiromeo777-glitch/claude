@@ -172,3 +172,14 @@ Nella revisione 2 il core è del gruppo **schermi-atto1**. Le schermate sono in 
 
 **Problemi noti e richieste.**
 - La posizione degli avvisi (`.core-toasts`) non è cambiata: vedi interfaccia.md, «Revisione 2».
+
+### Verifica della revisione 2
+
+- **Q071, rifatto nel browser** (build `VITE_E2E=1`, porta 6065, g00, i passi della segnalazione, 3 volte per caso, mouse a 1280×720 e tocco CDP a 390×844):
+  - giù sul fuso 1, blocco di 700 ms, 14 movimenti verso il fuso 0, su: bozza `[{pair:0, over:'R'}]` e nessuna scheda, 3/3 col mouse e 3/3 col tocco;
+  - lo stesso senza blocco: trascinamento, 6/6;
+  - pressione lunga di 700 ms: la scheda si apre, 6/6; con un blocco di 700 ms e il dito fermo per 1,3 s la scheda si apre lo stesso, 6/6;
+  - tocco breve dato durante un blocco: niente scheda, niente incrocio, 6/6.
+- **Q073, parte del core**: bigliettino di Marta in g08 al 140% a 1280×720 e 360×640 (it ed en): nessuna parola spezzata su due righe («L'ANNIVERSARIO» intero), screenshot guardati.
+- `tests/unit/core` verdi; nessuna correzione al core in questa verifica.
+
