@@ -164,7 +164,13 @@ export function costruisciMuriDelVelo(ctx: Contesto): void {
     const W = 12;
     const D = 8;
     const centro = sposta(l.z, l.theta, 0, 1.5, base);
-    costruisciRipiano(ctx, { zona: 'velo', nome: 'ripa_san_vigilio', z: centro.z, theta: centro.theta, yaw: yawR, larghezza: W, profondita: D, quota: top, superficie: 'lastre', parapetto: 1.0, senzaParapetto: ['fronte'], dettaglio: 'alto', luogo: 'ripa_san_vigilio' });
+    costruisciRipiano(ctx, { zona: 'velo', nome: 'ripa_san_vigilio', z: centro.z, theta: centro.theta, yaw: yawR, larghezza: W, profondita: D, quota: top, superficie: 'lastre', parapetto: 1.0, senzaParapetto: ['fronte', 'sinistra'], dettaglio: 'alto', luogo: 'ripa_san_vigilio' });
+    // parapetto a Lag con il varco dove arriva la scala (in fondo, a Sera)
+    {
+      const p = localeDa(centro.z, centro.theta, yawR, -(W / 2 - 0.42), 1.1, top);
+      const par = creaMuroSecco({ seme: 'parapetto-ripa-lag', percorso: [[0, -2.9], [0, 2.9]], altezza: 1.0, spessore: 0.5, pietra: 0.42, dettaglio: 'alto', interrata: 0.2 });
+      ctx.posa('velo', par, p.z, p.theta, yawR, { h: top, tag: () => 'muro', luogo: 'ripa_san_vigilio' });
+    }
     // parapetto del fronte con il varco centrale
     for (const s of [-1, 1]) {
       const p = localeDa(centro.z, centro.theta, yawR, s * 4.1, D / 2 - 0.45, top);
