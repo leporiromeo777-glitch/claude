@@ -1,16 +1,23 @@
 /**
- * Punto d'ingresso: controlla WebGL2, mostra un piccolo caricamento, costruisce
- * il gioco e (in sviluppo o con VITE_E2E=1) installa `window.__GAME__`.
+ * Punto d'ingresso: controlla WebGL2, monta l'interfaccia (caricamento, titolo), costruisce il
+ * gioco e la regia e, in sviluppo o con VITE_E2E=1, installa `window.__GAME__` (motore) e
+ * `window.__GAME__.regia` (storia).
+ *
+ * Parametri URL: `?debug` pannello statistiche; `?ora=21.5` ora del titolo; `?nuova` salta il
+ * titolo e comincia una partita nuova (prove); `?senza-titolo` resta nel mondo libero (motore).
  */
 import { installDebugApi } from './core/debug';
 import { Game } from './game';
+import { installaDebugRegia } from './regia/debug';
+import { Regia } from './regia/regia';
+import { InterfacciaGioco, caricaCaratteri } from './ui';
 
 const app = document.getElementById('app')!;
 const params = new URLSearchParams(location.search);
 const e2e = import.meta.env.VITE_E2E === '1';
 const debugEnabled = import.meta.env.DEV || e2e;
 
-function overlay(text: string): HTMLDivElement {
+function senzaWebGL(): void {
   const el = document.createElement('div');
   Object.assign(el.style, {
     position: 'fixed',
@@ -20,60 +27,65 @@ function overlay(text: string): HTMLDivElement {
     justifyContent: 'center',
     flexDirection: 'column',
     gap: '10px',
-    font: '15px/1.4 Georgia, "Times New Roman", serif',
+    font: '17px/1.4 Georgia, "Times New Roman", serif',
     color: '#efe8d8',
     background: '#232838',
-    zIndex: '20',
     textAlign: 'center',
   } satisfies Partial<CSSStyleDeclaration>);
-  el.innerHTML = `<div style="font-size:28px;letter-spacing:.04em">Cielo di Terra</div><div id="load-msg">${text}</div>`;
+  el.innerHTML = '<div style="font-size:28px;letter-spacing:.04em">Cielo di Terra</div><div>Questo browser non supporta WebGL2: serve per entrare nel Verbano.</div>';
   document.body.appendChild(el);
-  return el;
-}
-
-function hint(): void {
-  const el = document.createElement('div');
-  Object.assign(el.style, {
-    position: 'fixed',
-    right: '10px',
-    bottom: '10px',
-    font: '12px/1.4 Georgia, serif',
-    color: 'rgba(245,240,228,0.85)',
-    background: 'rgba(30,28,40,0.45)',
-    padding: '6px 10px',
-    borderRadius: '6px',
-    pointerEvents: 'none',
-    zIndex: '9',
-  } satisfies Partial<CSSStyleDeclaration>);
-  el.textContent = 'Clic per guardare · WASD · Spazio salta, tenuto in aria apre il Velo · Shift corre · E interagisce · F3 statistiche';
-  document.body.appendChild(el);
-  setTimeout(() => (el.style.display = 'none'), 15000);
 }
 
 async function boot(): Promise<void> {
-  const test = document.createElement('canvas').getContext('webgl2');
-  if (!test) {
-    overlay('Questo browser non supporta WebGL2: serve per entrare nel Verbano.');
+  if (!document.createElement('canvas').getContext('webgl2')) {
+    senzaWebGL();
     return;
   }
-  const load = overlay('preparo il cilindro…');
-  const msg = load.querySelector('#load-msg') as HTMLDivElement;
+  let regia: Regia | null = null;
+  const ui = new InterfacciaGioco(app, {
+    datiTaccuino: () => regia?.ponte.datiTaccuino(),
+    datiPianta: () => regia?.ponte.datiPianta(),
+    datiPausa: () => regia?.ponte.datiPausa(),
+  });
+  ui.caricamento.show({ testo: 'preparo il cilindro…' });
+  await caricaCaratteri(e2e ? 400 : 1500).catch(() => undefined);
   const game = new Game(app, { debugOverlay: params.has('debug'), e2e });
-  const hours = params.get('ora');
-  if (hours !== null && !Number.isNaN(Number(hours))) game.clock.setHours(Number(hours));
+  const passi = ['particelle', 'terreno', 'finestre, Linea, Collare', 'paesi', 'castagni', 'pronto'];
   await game.init(async (m) => {
-    msg.textContent = m;
+    ui.caricamento.progresso(Math.min(0.95, (passi.indexOf(m) + 1) / (passi.length + 1)), m);
     await new Promise((r) => setTimeout(r, 0));
   });
+  const ore = params.get('ora');
+  if (ore !== null && !Number.isNaN(Number(ore))) game.clock.setHours(Number(ore));
   if (debugEnabled) installDebugApi(game);
-  if (!e2e) game.ensureLoaded();
-  load.remove();
-  if (!e2e) hint();
+  if (!params.has('senza-titolo')) {
+    ui.caricamento.progresso(0.97, 'la Cripta, le persone, i chiodi');
+    await new Promise((r) => setTimeout(r, 0));
+    regia = new Regia(game, ui, { e2e });
+    if (debugEnabled) installaDebugRegia(regia);
+  }
+  ui.caricamento.progresso(1, 'pronto');
+  ui.caricamento.hide();
   game.start();
+  if (regia) {
+    let nuova = params.has('nuova');
+    try {
+      nuova ||= sessionStorage.getItem('cielo-di-terra.nuova') === '1';
+      sessionStorage.removeItem('cielo-di-terra.nuova');
+    } catch {
+      /* niente */
+    }
+    if (nuova) regia.nuovaPartita();
+    else await regia.mostraTitolo();
+  }
+  if (!e2e) game.ensureLoaded();
   (window as unknown as { __GAME_READY__: boolean }).__GAME_READY__ = true;
 }
 
 boot().catch((err) => {
   console.error(err);
-  overlay(`Errore: ${String(err)}`);
+  const el = document.createElement('pre');
+  el.textContent = `Errore: ${String(err)}`;
+  Object.assign(el.style, { position: 'fixed', inset: '20px', color: '#f0e7d1', background: '#232838', padding: '20px', zIndex: '50' });
+  document.body.appendChild(el);
 });
