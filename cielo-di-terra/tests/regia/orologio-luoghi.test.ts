@@ -67,9 +67,14 @@ describe('OrologioStoria', () => {
     expect(o.aspettaFino(10)).toBe(true);
     const base = 24 / (40 * 60);
     expect(o.oreAlSecondo()).toBeCloseTo(base * 20, 9);
-    for (let i = 0; i < 400; i++) o.avanza(1);
+    let secondi = 0;
+    while (o.inAttesa && secondi < 60) {
+      o.avanza(0.25);
+      secondi += 0.25;
+    }
     expect(o.ore).toBeCloseTo(10, 6);
-    expect(o.inAttesa).toBe(false);
+    // un'ora di gioco in 5 secondi reali (x20 su 40 minuti al giorno)
+    expect(secondi).toBeCloseTo(5, 0);
     // non si aspetta con l'orologio fermo
     o.comando(['fermo', '10:00']);
     expect(o.aspettaFino(12)).toBe(false);
