@@ -193,10 +193,10 @@ export function costruisciCasaVelo(ctx: Contesto): CasaPosata {
   for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) * 9) * 0.04 * (1 - (pos.getY(i) + 1.1) / 2.2));
   b.aggiungi(veloG, { matrice: mat([0, 1.05, D / 2 + 0.08]), colore: 0x16141a, canale: 'sottile' });
   b.aggiungi(new BoxGeometry(1.5, 0.05, 0.08), { matrice: mat([0, 2.18, D / 2 + 0.08]), colore: 0x2a2622, piatto: true });
-  for (const piano of [1, 2]) {
-    for (const u of [-W * 0.22, W * 0.22]) {
-      for (let k = -2; k <= 2; k++) b.aggiungi(new BoxGeometry(0.025, 0.95, 0.025), { matrice: mat([u + k * 0.13, 2.5 + (piano - 1) * 2.45 + 0.95 + 0.45, D / 2 + 0.11]), colore: 0x26242a, piatto: true });
-    }
+  // finestre della facciata (W < 5,8: una per piano al centro, davanzale a quota piano + 0,95)
+  for (const yPiano of [2.5, 4.95]) {
+    for (let k = -2; k <= 2; k++) b.aggiungi(new BoxGeometry(0.028, 0.9, 0.028), { matrice: mat([k * 0.13, yPiano + 1.38, D / 2 + 0.12]), colore: 0x26242a, piatto: true });
+    for (const dy of [0.97, 1.8]) b.aggiungi(new BoxGeometry(0.62, 0.03, 0.03), { matrice: mat([0, yPiano + dy, D / 2 + 0.12]), colore: 0x26242a, piatto: true });
   }
   ctx.zona('nucleo').oggetto(b.costruisci('casa-velo-dettagli'), matriceSuperficie(l.z, l.theta, casa.base, yaw), { lumi: false });
   ctx.punto('apri:casa_del_velo', 'apri', 'Porta della Casa del Velo', casa.porta, { raggio: 2, luogo: 'casa_del_velo', rif: 'flag:dorme_casa_velo' });
