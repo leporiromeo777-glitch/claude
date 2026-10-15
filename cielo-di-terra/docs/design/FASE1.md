@@ -138,7 +138,7 @@ Le condizioni dei contenuti leggono 46 flag e 1 oggetto che **nessun effetto dei
 | `appuntato_lanterna` | la Lanterna è appuntata con lo squadro | motore: squadro |
 | `appuntato_lume:tecla` | lo squadro resta 1 s sulla lanterna mobile di Tecla (23:00-02:00, Finestra delle Vedove) | motore: squadro |
 | `contatore:lumi_appuntati` (+1) | di notte, Elvira appunta un pilastro lontano con lume permanente (`capisaldi.json → lontani_di_notte`, `lume: "permanente"`), una volta per pilastro | motore: squadro |
-| `corbella_a_colori` | tutte le particelle di `fade_fase1.json → inventario_corbella` sono rilevate | motore: griglia delle particelle |
+| `corbella_a_colori` | tutte le 63 particelle di `fade_fase1.json → inventario_corbella` sono a colore, rilevate da chiunque (contano anche le 15 seppia del G4) | motore: griglia delle particelle |
 | `casa_nando_rilevata` | la particella 2796 è rilevata | motore: griglia delle particelle |
 
 **Tempo, cielo e notte**
@@ -147,7 +147,7 @@ Le condizioni dei contenuti leggono 46 flag e 1 oggetto che **nessun effetto dei
 |---|---|---|
 | `prima_meta_vista` | primo passaggio della Meta con Elvira all'aperto | motore: cielo |
 | `meta_appena_passata` | impulso di 5 s a ogni passaggio della Meta (si spegne da solo) | motore: cielo |
-| `taccuino_spostato` | alle 03:10 della notte 1, dove dorme Elvira (la Pesarina) | motore: sistema della notte |
+| `taccuino_spostato` | alle 03:10 della notte 1, solo se Elvira dorme (la Pesarina); se veglia resta spento | motore: sistema della notte |
 | `notte_su_E1` | alle 23:20 della notte 1 Elvira è su una particella di E1 | motore: sistema della notte |
 | `fade_viste` | un cerchio di Fade resta 3 s nel campo visivo | motore: sistema della notte |
 
@@ -244,7 +244,7 @@ Dieci capisaldi (dettagli in `capisaldi.json`). Per la storia ne servono quattro
 | Chiodo 11 | cippo della Cripta | (1110, 26,2, 45,9) | già rilevato dal G4 nel 2291 (lato 1-11) |
 | Chiodo 37 | muro della grà di Pian | (890, 17,5, 35,2) | gioco libero |
 
-Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-37, 4-37, 5-6, 2-6, 6-8, 7-8, 8-11. Bloccati: 1-2 (il tasso), 1-5 (la tettoia del lavatoio).
+Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-37, 4-37, 5-6, 2-6, 6-8, 7-8, 8-11. Bloccati: 1-2 (il tasso), 1-5 (la tettoia del lavatoio). Tutti si chiudono di giorno e alla brace; di notte solo quelli verso un pilastro con il lume acceso, cioè mai nella Fase 1 (i lumi di Ottavio arrivano nella Fase 3). I ventagli in `capisaldi.json` sono ritagliati all'area della Fase 1: le tre particelle fuori area dei lati del Pilastro 6 sono in `particelle_fuori_area`.
 
 ---
 
@@ -464,7 +464,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 #### M1.12 Il mattino — `m1_mattino` (3 min)
 
 - **Obiettivo**: «Dov'è finita la passerella?»
-- **Che cosa vede**: Elvira si sveglia nel fieno. Il Taccuino è **aperto sulla pagina delle parole**; lei l'aveva chiuso. Un peso sul petto che svanisce. Ottavio è sulla porta.
+- **Che cosa vede**: Elvira si sveglia nel fieno. Il Taccuino è **aperto sulla pagina delle parole**; lei l'aveva chiuso. Un peso sul petto che svanisce. (Solo se ha dormito. Se ha vegliato, alle 03:10 ha visto una sagoma bianca fermarsi a una decina di metri, restare un minuto e andarsene: il Taccuino è dove l'aveva lasciato e la domanda sulla Pesarina arriverà più avanti.) Ottavio è sulla porta.
 - **Il resoconto del mattino**: la Pianta si apre da sola (suggerimento «Pianta») sul primo resoconto: in rosso la passerella del Messo e la scorciatoia delle Terrazze («non misurata: tornata alla Carta»), la casa di Nando («non misurata: un muro in meno»), il muro di Ronco. In fondo: «Nando ricostruisce alle 08:30. Bortolo rimette i gradini alle 07:00.»
 - **Fuori**: il riale scorre libero; il sentiero è un prato pettinato come da una mano enorme; le tre assi sono accatastate in ordine sulla riva, dall'altra parte.
 - **Dialogo** `d_ottavio_mattino`:
@@ -530,7 +530,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 - **Obiettivo**: «Dalla Terrazza Pedrazzini si vede il campanile?»
 - **Luogo**: chiodo 3, sul muro della Terrazza Pedrazzini (946, 23,6, 57). La scorciatoia è stata rimessa da Bortolo alle 07:00.
 - **Che cosa fa**: pianta, livella, collima: nel reticolo, sopra i tetti, la palina bianca e rossa del Pilastro 1, in una cartolina nitida. Tiene la mira 1,5 s. **Leggi**: Elvira scrive la lettura nel libretto (suono di matita).
-- **Lo spettacolo**: per sei secondi una griglia a china si disegna su tutta la valle (il foglio 1 del Catasto, a celle di 40 m), visibile anche sopra la testa; poi resta solo il ventaglio del lato 1-3 (20 particelle: la terrazza, la scorciatoia, la fascia di terrazze fino al campanile). L'inchiostro chiude i contorni, il colore entra a velature dal chiodo verso il campanile in tre secondi: l'erba diventa verde-oro, i castagni a tre toni, i muri grigio-viola. Le terrazze sopra il paese, che erano tempera spenta, si accendono. Musica: l'accordo che sale. In basso, in piazza, qualcuno indica la collina.
+- **Lo spettacolo**: per sei secondi una griglia a china si disegna su tutta la valle (il foglio 1 del Catasto, a celle di 40 m), visibile anche sopra la testa; poi resta solo il ventaglio del lato 1-3. Conta 20 particelle: 13 (la terrazza, la scorciatoia, la fascia di terrazze sotto) passano al colore sotto gli occhi del giocatore; le altre 7, attorno al campanile, erano già a seppia per il rilievo G4 e sulla Pianta vengono ripassate a china. Sulle 13 l'inchiostro chiude i contorni, il colore entra a velature dal chiodo verso il campanile in tre secondi: l'erba diventa verde-oro, i castagni a tre toni, i muri grigio-viola. Le terrazze sopra il paese, che erano tempera spenta, si accendono. Musica: l'accordo che sale. In basso, in piazza, qualcuno indica la collina.
 - **Elvira**: «Eccoti.»
 - **Avanza quando**: `cella:2214 rilevata`.
 - **Effetti**: toglie il fermo delle 16:00; `flag:primo_rilievo`; il Nodo 1 (castagno del cartellino, particella 2213) diventa visibile: il Taccuino scrive «Nodo del giardino: castagno del cartellino. Non impollinato.» con uno schizzo bruno; la scorciatoia delle Terrazze (2311, 2407) è ora misurata.
@@ -544,7 +544,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
   - Elvira: «Rimettiamola adesso, la tua passerella.»
   - **Ottavio**: «Adesso? Alla brace si rimette.» … «Va bene, Svegliata. Ma se domani non c'è, le assi le porti tu.»
   - mentre posano le assi: **Ottavio**: «Che cosa fai con quel coso d'ottone?» Elvira: «Lo misuro.» / «Lo benedico.» **Ottavio** (alla seconda): «Allora sei proprio la Santa. Non dirlo alla Madre.»
-- **Che cosa fa**: la passerella torna Abitata; Elvira cerca da sola i chiodi nel libretto (monografie CS 7 e CS 8, con le loro descrizioni: «sulla soglia del mulino», «sul masso tondo dove si siedono i Messi»), pianta lo squadro su uno e collima l'altro. Il lato 7-8 chiude 13 particelle, fra cui la passerella e il sentiero nel prato.
+- **Che cosa fa**: la passerella torna Abitata; Elvira cerca da sola i chiodi nel libretto (monografie CS 7 e CS 8, con le loro descrizioni: «sulla soglia del mulino», «sul masso tondo dove si siedono i Messi»), pianta lo squadro su uno e collima l'altro. Il lato 7-8 chiude 13 particelle, fra cui la passerella (2797) e il sentiero nel prato (2798). Vanno bene anche 1-8 o 8-11; il lato 1-7 chiude solo la passerella e 1-6 o 6-8 solo il sentiero: servono in coppia, perché un elemento misurato a metà torna alla Carta per intero.
 - **Avanza quando**: `cella:2797 rilevata e cella:2798 rilevata`.
 - **Effetti**: toglie il fermo delle 19:00.
 - **Elvira**: «Vediamo se la notte sa leggere.»
@@ -605,7 +605,7 @@ Dopo la missione 1 il mondo resta aperto. Niente di ciò che segue è necessario
 ### 7.1 Corbella a colori
 
 - La rete di Corbella chiude 16 lati. Le 63 particelle del nucleo che la rete può rilevare sono l'**inventario di Corbella** (`fade_fase1.json` → `inventario_corbella`).
-- Quando sono tutte a colore: **le campane di San Vigilio tornano a segnare l'ora** (un rintocco per ora, 06:00-21:00), primo servizio di Meridiana. Meridiana dall'altoparlante: «Corbella è in carta. Le ore sono tue, Giardiniera.»
+- Quando sono tutte a colore (contano anche quelle seppia del G4; con i soli lati di Elvira si coprono comunque tutte): **le campane di San Vigilio tornano a segnare l'ora** (un rintocco per ora, 06:00-21:00), primo servizio di Meridiana. Meridiana dall'altoparlante: «Corbella è in carta. Le ore sono tue, Giardiniera.»
 - I lati 1-8 e 8-11 chiudono anche la casa di Nando: da quel giorno la casa resta intera e Nando lo dice a tutti («La Svegliata mi ha benedetto la casa»). È la premessa della secondaria «La casa che non c'è» (Fase 5), che ne mostrerà il costo. Il flag è `casa_nando_rilevata`.
 - I lati 1-6, 1-7, 1-8 e 8-11 chiudono il muro di Ronco: da quel momento le Fade non rimettono più le pietre nel muro, e lasciano quelle della casa di Nando in un mucchio al margine. Nando: «Adesso le pietre dormono per terra. Meglio per la schiena.»
 

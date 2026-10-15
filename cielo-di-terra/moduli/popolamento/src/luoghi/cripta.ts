@@ -47,7 +47,7 @@ export interface Cripta {
   colliderBotola: Collider[];
 }
 
-export function costruisciCripta(ctx: Contesto, mat: MaterialiCantiere): Cripta {
+export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): Cripta {
   const cm = luogo('castagno_morto');
   const bl = luogo('botola');
   const zona = 'cripta';
@@ -116,7 +116,7 @@ export function costruisciCripta(ctx: Contesto, mat: MaterialiCantiere): Cripta 
   const hB = fp.max + 0.04;
   costruisciRipiano(ctx, { zona, nome: 'ripiano_botola', z: pb.z, theta: pb.theta, yaw, larghezza: 3.2, profondita: 3.2, quota: hB - 0.02, superficie: 'lastre', dettaglio: 'alto', luogo: 'botola', collider: false });
   const botola = creaBotolaCripta({ seme: 'botola-cripta', apertaAllInizio: false, boccaBuia: true });
-  adattaOggetto(botola.gruppo, mat);
+  adattaOggetto(botola.gruppo, materiali);
   const gB = new THREE.Group();
   gB.name = 'botola-cripta';
   gB.add(botola.gruppo);
@@ -257,7 +257,7 @@ function costruisciInterno(z: number, theta: number, hBotola: number, yaw: numbe
     b.aggiungi(geoCilindro(0.05, 0.05, 2.6, 6), { matrice: m.clone().multiply(mat([1.0, 0.9, -0.45])), colore: 0x8a8f94 });
   }
   // urna di rame (n. 2) e corona secca (n. 3)
-  b.aggiungi(geoCilindro(0.12, 0.18, 0.4, 8), { matrice: mat([Math.cos(Math.PI * 0.247) * 3.4, fondo + 0.95, zs - Math.sin(Math.PI * 0.247) * 3.0 + 1.2]), colore: PALETTE.rame ?? 0xb0683a });
+  b.aggiungi(geoCilindro(0.12, 0.18, 0.4, 8), { matrice: mat([Math.cos(Math.PI * 0.247) * 3.4, fondo + 0.95, zs - Math.sin(Math.PI * 0.247) * 3.0 + 1.2]), colore: PALETTE.rame });
   b.aggiungi(new THREE.TorusGeometry(0.35, 0.07, 4, 10), { matrice: mat([Math.cos(Math.PI * 0.373) * 3.4, fondo + 0.98, zs - Math.sin(Math.PI * 0.373) * 3.0 + 1.2], [Math.PI / 2, 0, 0]), colore: 0x7a6a40 });
   // armadietto n. 5
   b.aggiungi(geoBoxC(0.7, 1.9, 0.5), { matrice: mat([3.7, fondo + 0.95, zs + 3.6]), colore: 0x6d7a72, piatto: true });
