@@ -10,6 +10,11 @@ Ogni spesa si annota qui, con il saldo letto da `balance` subito prima.
 | 2026-10-15 | pilota | Togna in 3D da (b) | `tripo_h3_1_image_to_3d`, face_limit 12000, texture standard, pbr false, orientation align_image | `331c2553…` | 9 | 75,97 |
 | 2026-10-15 | pilota (prova del rischio «volto scoperto con sam») | Nando, 2 immagini sorgente | `gpt_image_2_5`, quality medium, 1k, 2:3, count 2 | `02ae0a08…` (a, scelta), `3a8fe63b…` (b) | 1 | 65,97 |
 | 2026-10-15 | pilota | Nando in 3D da (a) | `sam_3_3d`, prompt «the man» | `e8270b86…` | 1 | 64,97 |
+| 2026-10-15 | produzione (sessione interrotta, ricostruita dalle transazioni) | Bortolo, 2 immagini sorgente con Togna come riferimento di stile | `gpt_image_2_5`, quality medium, 1k, 2:3, count 2, `medias: [{1918f415… (togna-sorgente.jpg caricata), image_references}]` | `42643337…` (a), `aac0b40d…` (b) | 1 | 63,97 |
+| 2026-10-15 | produzione | 11 coppie di immagini sorgente (ottavio, nando rifatto con VOLTO, pina, annunciata, clelia, lisa, gioanin, velata_donna, velato_gerla, velato_maschera, velato_cappuccio), stesso riferimento di stile | `gpt_image_2_5`, quality medium, 1k, 2:3, count 2 ciascuna | elenco in `tools/personaggi/produzione.json` | 11 | 62,97 |
+| 2026-10-15 | produzione | Ottavio in 3D dalla variante (a) | `tripo_h3_1_image_to_3d`, face_limit 12000, texture standard, pbr false, orientation align_image | `7e9e85c5…` | 9 | 51,97 |
+| 2026-10-15 | produzione | 11 conversioni 3D (bortolo, nando, pina, annunciata, clelia, lisa, gioanin, velata_donna, velato_gerla, velato_maschera, velato_cappuccio) | `sam_3_3d`, GLB testurizzato, prompt per figura (`produzione.json`) | `produzione.json` | 11 − 1 rimborsato = 10 | 51,97 |
+| 2026-10-15 | produzione | Gioanin, nuovo tentativo (il primo `sam_3_3d` è fallito ed è stato rimborsato) | `sam_3_3d`, prompt «the child» | `1dd5394c…` | 1 | 32,97 |
 
 Preventivi verificati con `get_cost` (non spesi): `tripo_p2_image_to_3d` 34 crediti (anche con texture «fast»), `meshy_v7_image_to_3d` lowpoly testurizzato 38. Fuori portata.
 Nota: `count: 2` di `gpt_image_2_5` a qualità media costa 1 credito in tutto (0,5 a immagine).

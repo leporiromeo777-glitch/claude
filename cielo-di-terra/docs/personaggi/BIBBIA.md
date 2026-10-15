@@ -54,7 +54,7 @@ Ogni prompt è `STILE + personaggio + POSA`. Le due frasi comuni tengono coerent
 > Single character only, full body from head to feet, centered with margin, front view facing the camera, symmetrical A-pose: arms straight and held away from the torso at about 25 degrees with a clear gap between arms and body, hands open and relaxed, legs straight with feet slightly apart. Plain uniform light warm-grey background, no floor, no cast shadow, flat even diffuse lighting with no strong painted shadows and no rim light. No weapons.
 
 Per i due volti scoperti si aggiunge **VOLTO** (al posto della descrizione realistica del viso):
-> The face is drawn like a character from a hand-painted animated feature film: broad flat planes of warm color, simplified shapes, small dark eyes without highlights, a simple nose shape, a few painted lines for wrinkles, no realistic skin texture, no pores, no photographic lighting.
+> The face is drawn like a character from a hand-painted animated feature film: broad flat planes of warm color, simplified shapes, small dark eyes without highlights, a simple nose shape, a few painted lines for wrinkles, no realistic skin texture, no pores, no photographic lighting; the face is as simplified and painterly as the clothes, clearly not a photograph.
 
 Per i velati si aggiunge sempre **VELO**:
 > The whole head and face are completely hidden under the veil: no eyes, no nose, no mouth, no skin visible on the head, only soft draped fabric following the shape of the head.
