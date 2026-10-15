@@ -42,10 +42,10 @@ Documento normativo per la prima versione giocabile. Le regole generali sono nel
 | 2214 | 1-559 | la Terrazza Pedrazzini e il chiodo 3 |
 | 2213 | 1-558 | il castagno del cartellino |
 | 2311, 2407 | 1-584, 1-608 | la scorciatoia delle Terrazze (elemento mobile E4) |
-| 2505 | 1-632 | Piazza delle Ore e campanile di San Vigilio (Pilastro 1) |
+| 2505 | 1-634 | Piazza delle Ore e campanile di San Vigilio (Pilastro 1) |
 | 2797, 2798 | 1-710, 1-711 | la passerella del Messo e il sentiero nel prato di Ronco (elemento mobile E1) |
 | 2796 | 1-709 | la casa di Nando (E2) |
-| 2699 | 1-686 | il muro di Ronco (E3) |
+| 2699 | 1-684 | il muro di Ronco (E3) |
 | 2799 | 1-712 | il fienile di Ottavio (rifugio) e il chiodo 8 |
 
 ### 2.2 Il tempo nella Fase 1
@@ -112,15 +112,15 @@ Dieci capisaldi (dettagli in `capisaldi.json`). Per la storia ne servono quattro
 | Caposaldo | Dove | (z, θ, h) | Ruolo nella Fase 1 |
 |---|---|---|---|
 | Pilastro 1 | cella campanaria di San Vigilio | (1062, 37,2, 62,5) | il bersaglio del primo rilievo |
-| Chiodo 2 | sagrato | (1050, 39,6, 38,7) | il primo tentativo: il tasso copre il Pilastro 1 |
+| Chiodo 2 | sagrato | (1050, 39,6, 35,5) | il primo tentativo: il tasso copre il Pilastro 1 |
 | Chiodo 3 | muro della Terrazza Pedrazzini | (946, 23,6, 57) | stazione del primo rilievo (lato 1-3) |
 | Pilastro 4 | Pian dei Ricci | (800, 9,0, 91) | gioco libero |
 | Chiodo 5 | gradino del lavatoio | (1040, 39,5, 35,8) | gioco libero (la tettoia copre il Pilastro 1) |
 | Pilastro 6 | Sass Grand | (1190, 74,0, 41,7) | gioco libero |
 | Chiodo 7 | soglia del mulino | (1130, 51,0, 7,7) | passerella del Messo (lato 7-8) |
-| Chiodo 8 | Sass dal Messo | (1172, 57,0, 12) | passerella del Messo |
-| Chiodo 11 | cippo della Cripta | (1110, 26,2, 43) | già rilevato dal G4 nel 2291 (lato 1-11) |
-| Chiodo 37 | muro della grà di Pian | (890, 17,5, 35) | gioco libero |
+| Chiodo 8 | Sass dal Messo | (1172, 57,0, 12,8) | passerella del Messo |
+| Chiodo 11 | cippo della Cripta | (1110, 26,2, 45,9) | già rilevato dal G4 nel 2291 (lato 1-11) |
+| Chiodo 37 | muro della grà di Pian | (890, 17,5, 35,2) | gioco libero |
 
 Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-37, 4-37, 5-6, 2-6, 6-8, 7-8, 8-11. Bloccati: 1-2 (il tasso), 1-5 (la tettoia del lavatoio).
 
@@ -396,7 +396,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 #### M1.17 Il chiodo 2 — `m1_chiodo2` (2 min)
 
 - **Obiettivo**: «Il chiodo 2, sul sagrato.»
-- **Luogo**: sagrato, gradino più basso (1050, 39,6, 38,7).
+- **Luogo**: sagrato, gradino più basso (1050, 39,6, 35,5).
 - **Che cosa fa**: trova il chiodo d'ottone (la monografia CS 2 lo descrive: «sul primo gradino, a Mane del portale»), **pianta** lo squadro (suggerimento «Pianta»: tieni premuto), **livella** (la bolla nella fiala; suggerimento la prima volta), **collima**: nel cannocchiale, al posto della palina, il buio verde del **tasso**. Si può muovere il reticolo quanto si vuole: la palina non si vede.
 - **Elvira**: «Il tasso è cresciuto, Aurelio.» Poi, sfogliando: «Chiodo 3. Il muro della terrazza di sopra. "Quella dei tuoi castagni."»
 - **Avanza quando**: `flag:tentato_lato:2-1`.

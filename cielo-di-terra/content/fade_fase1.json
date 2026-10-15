@@ -3764,7 +3764,7 @@
     "mulattiera_terrazze",
     "scorciatoia_terrazze"
    ],
-   "hub": true,
+   "hub": false,
    "rifugio": false,
    "mobile": true,
    "elemento": "E4",
@@ -5585,7 +5585,7 @@
    "nomi": [
     "muro_ronco"
    ],
-   "hub": true,
+   "hub": false,
    "rifugio": false,
    "mobile": true,
    "elemento": "E3",
@@ -6160,7 +6160,7 @@
     "i_ronchi",
     "casa_nando"
    ],
-   "hub": true,
+   "hub": false,
    "rifugio": false,
    "mobile": true,
    "elemento": "E2",
