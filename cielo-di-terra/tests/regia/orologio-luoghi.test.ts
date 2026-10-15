@@ -4,7 +4,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import { OrologioStoria, assolutoDi, attraversa, eNotte } from '../../src/regia/orologio';
-import { Luoghi, dentroLuogo, quotaLuogo } from '../../src/regia/luoghi';
+import { Luoghi, dentroLuogo, quotaAppoggio, quotaLuogo } from '../../src/regia/luoghi';
+import { ColliderWorld, boxAt } from '../../src/world/colliders';
 import { luogo, oreDa, ostacoloFra, testo, testoOra } from '../../src/regia/contenuti';
 import { groundHeight } from '../../src/world/terrain';
 
@@ -158,5 +159,21 @@ describe('Luoghi', () => {
     const f = luogo('fienile_ottavio')!;
     expect(luoghi.piuVicino(f.z + 1, f.theta)?.id).toBe('fienile_ottavio');
     expect(luoghi.posizione('non_esiste')).toBeNull();
+  });
+
+  it('quota d\'appoggio: sul ripiano o sul gradino del popolamento, non ai piedi del muro', () => {
+    const z = 948;
+    const theta = 23;
+    const suolo = groundHeight(z, theta);
+    const cols = new ColliderWorld();
+    expect(quotaAppoggio(cols, z, theta)).toBeCloseTo(suolo, 6);
+    // un muro alto non è un appoggio; un ripiano riempito alto 4 m sì
+    cols.add(boxAt(z, theta, suolo - 1, 0, 6, 9, 6, 'muro'));
+    expect(quotaAppoggio(cols, z, theta)).toBeCloseTo(suolo, 6);
+    cols.add(boxAt(z, theta, suolo - 2, 0, 20, 6, 20, 'calpestabile'));
+    expect(quotaAppoggio(cols, z, theta)).toBeCloseTo(suolo + 4, 1);
+    // fuori dall'impronta del ripiano resta il terreno
+    expect(quotaAppoggio(cols, z + 15, theta)).toBeCloseTo(groundHeight(z + 15, theta), 6);
+    expect(quotaAppoggio(null, z, theta)).toBeCloseTo(suolo, 6);
   });
 });
