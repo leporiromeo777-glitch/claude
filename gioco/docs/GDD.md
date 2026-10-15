@@ -348,11 +348,11 @@ Convenzioni: colonne abbreviate **M**olo, **F**orno, **P**iazza, **C**hiesa, F**
 | g01 | La prima sera | M F P C / 6→11 | Gino, Marta, Teresa, Piero | Bigliettini, `ginoCorre` (non sta fermo due ore di fila) | 3-5 | L'isola scopre che la merlettaia nuova è una ragazzina |
 | g02 | Si dice | M F P C / 6→12 | Gino, Marta, Teresa, Piero | Voce, matassa visibile | 4-6 | La voce gira: "la piccola tesse peggio della vecchia" |
 | g03 | Il vaporetto delle nove | M F P C / 6→12 | Nina, Marta, Teresa, Piero (+ lino) | Regola del Molo (vaporetto alle 9) | 4-6 | Nina vuole andare a Venezia per l'esame |
-| g04 | La barca di Bepi | M F P C A / 6→14 | Bepi, Nina, Marta, Teresa, Piero | Barca: Bepi esce alle 7, rientra alle 13 | 5-7 | Bepi non vuole che la figlia parta |
+| g04 | La barca di Bepi | M F P C A / 6→14 | Bepi, Nina, Marta, Teresa, Piero | Barca: Bepi esce alle 8, rientra alle 11 | 10 | Bepi non vuole che la figlia parta |
 | g05 | Il guardiano | M F P C A R / 6→13 | lino, Gino, Marta, Teresa, Piero, Zeno | `zenoFaro`, sei colonne (la Farmacia è chiusa: lino) | 5-8 | Zeno riceve una lettera firmata "L.": «Questa calligrafia… no, non può essere.» |
-| g06 | La lettera da Venezia | M F P C A R / 6→12 | lino, Marta, Teresa, Piero, Nina, Zeno | Segreto, `teresaLegge` formale | 5 | Esempio 3.16. Arriva l'esito dell'esame di Nina |
-| g07 | Il pozzo | M F P C A R / 6→14 | Marta, Teresa, Piero, Nina, Gino, Zeno | `pieroPozzo` formale, `ninaCuriosa` | 6-8 | Teresa vuole confessarsi: trent'anni fa lesse una lettera di Marta |
-| g08 | Il filo nero | M F P C A R / 6→16 | Marta, Teresa, Piero, Nina, Gino, Zeno | Combinazione di tutto (vaporetto alle 9) | 8-10 | Chiuso il merletto, sul bordo alto (ore 3 della notte) compare un filo nero che Ada non ha tessuto e che incrocia Zeno al Faro: il giocatore lo **vede** (apparizione, `apparizione` nei dati). Fine Atto I |
+| g06 | La lettera da Venezia | M F P C A R / 6→12 | lino, Marta, Teresa, Piero, Nina, Zeno | Segreto, `teresaLegge` formale | 10 | Esempio 3.16. Arriva l'esito dell'esame di Nina |
+| g07 | Il pozzo | M F P C A R / 6→14 | Marta, Teresa, Piero, Nina, Gino, Zeno | `pieroPozzo` formale, `ninaCuriosa` | 10 | Teresa vuole confessarsi: trent'anni fa lesse una lettera di Marta |
+| g08 | Il filo nero | M F P C A R / 6→16 | Marta, Teresa, Piero, Nina, Gino, Zeno | Combinazione di tutto (vaporetto alle 9) | 14 | Chiuso il merletto, sul bordo alto (ore 3 della notte) compare un filo nero che Ada non ha tessuto e che incrocia Zeno al Faro: il giocatore lo **vede** (apparizione, `apparizione` nei dati). Fine Atto I |
 
 Archivio sbloccato: **arc1** dopo g03, **arc2** dopo g07.
 
@@ -360,14 +360,14 @@ Archivio sbloccato: **arc1** dopo g03, **arc2** dopo g07.
 
 | ID | Titolo | Colonne / ore | Fili | Novità | Min | Momento di storia |
 |---|---|---|---|---|---|---|
-| g09 | Il farmacista | 6 col / 6→14 | Gino (malato, a letto finché non è curato), Marta, Teresa, Piero, Nina, lino → Lunardi | Febbre, `lunardiCura`, Gino malato non corre; Lunardi arriva col vaporetto delle 8 e apre la Farmacia alle 10 (spillo d'ottone) | 5-7 | Un medico forestiero: l'isola diffida. Curare Gino lo rimette a correre |
-| g10 | La settimana della febbre | 6 col / 6→16 | Gino e Bepi malati, Marta, Teresa, Lunardi, Nina | Quarantena: forno e chiesa devono funzionare (spilli d'ottone) | 7-9 | Marta vuole stare vicino a Gino malato (risposta: desiderio di Marta) |
-| g11 | Il nodo | 6 col / 6→16 | Marta, Teresa, Piero, Gino, Lunardi, Nina | Rancore Teresa-Marta | 7-9 | Teresa e Marta si incrociano per la prima volta: nodo |
-| g12 | Il nome | 6 col / 6→16 | Marta, Teresa, Piero, Lunardi, Bepi, Zeno | Nome di Ada e memoria | 7-9 | Lunardi chiede «E lei chi sarebbe?». La figurina di Ada perde il primo colore |
-| g13 | La notte più lunga | 6 col / 6→20 | 4 malati (Gino delira: a letto finché ha la febbre), Lunardi, Marta | Margine di matassa 0 | 10-12 | Si possono curare tutti solo con un merletto perfetto. Specchio del 1958 (arc3) |
-| g14 | La lettera di Zeno | 6 col / 6→16 | Zeno, Piero, Teresa, Marta, Nina, Gino | Nessuna nuova regola | 8-10 | Alla fine dell'alba Zeno bussa e consegna la lettera che il filo d'avorio gli diede alle 2 (6.4): Ada la legge subito, prima del bilancio; poi la cassapanca con l'Archivio 1951. Svolta di metà gioco |
-| g15 | La tempesta | 6 col / 6→20 | Bepi in mare (fuori dal merletto), Zeno, Nina, Marta, Gino, Piero + lino | Bepi rientra sempre alle 20 (barca al Molo). Se Zeno non è al Faro alle 18, 19 e 20 (richiesta di Nina), la barca urta la secca e Bepi torna ferito: destino `bepi` | 9-11 | Zeno al Faro tutta la sera, mentre sul bordo alto del merletto torna a vedersi il filo nero lontano |
-| g16 | Il pozzo trabocca | 6 col / 6→18 | Piero (custodisce il fascio delle lettere di Livia), Teresa, Zeno, Nina, Marta, Gino | `pieroTrabocca` | 9-11 | Far traboccare il pozzo e portare il fascio a Zeno senza che Teresa lo legga (Ada non ha filo: il fascio è indirizzato a lei presso il Faro, quindi è consegnato quando arriva a Zeno). Fine Atto II: se le lettere sono liberate, alla fine dell'alba Zeno porta il fascio e Ada legge la voce di Livia |
+| g09 | Il farmacista | 6 col / 6→14 | Gino (malato, a letto finché non è curato), Marta, Teresa, Piero, Nina, lino → Lunardi | Febbre, `lunardiCura`, Gino malato non corre; Lunardi arriva col vaporetto delle 8 e apre la Farmacia alle 10 (spillo d'ottone) | 10 | Un medico forestiero: l'isola diffida. Curare Gino lo rimette a correre |
+| g10 | La settimana della febbre | 6 col / 6→16 | Gino e Bepi malati, Marta, Teresa, Lunardi, Nina | Quarantena: forno e chiesa devono funzionare (spilli d'ottone) | 17 | Marta vuole stare vicino a Gino malato (risposta: desiderio di Marta) |
+| g11 | Il nodo | 6 col / 6→16 | Marta, Teresa, Piero, Gino, Lunardi, Nina | Rancore Teresa-Marta | 11 | Teresa e Marta si incrociano per la prima volta: nodo |
+| g12 | Il nome | 6 col / 6→16 | Marta, Teresa, Piero, Lunardi, Bepi, Zeno | Nome di Ada e memoria | 14 | Lunardi chiede «E lei chi sarebbe?». La figurina di Ada perde il primo colore |
+| g13 | La notte più lunga | 6 col / 6→20 | 4 malati (Gino delira: a letto finché ha la febbre), Lunardi, Marta | Margine di matassa 0 | 19 | Si possono curare tutti solo con un merletto perfetto. Specchio del 1958 (arc3) |
+| g14 | La lettera di Zeno | 6 col / 6→16 | Zeno, Piero, Teresa, Marta, Nina, Gino | Nessuna nuova regola | 16 | Alla fine dell'alba Zeno bussa e consegna la lettera che il filo d'avorio gli diede alle 2 (6.4): Ada la legge subito, prima del bilancio; poi la cassapanca con l'Archivio 1951. Svolta di metà gioco |
+| g15 | La tempesta | 6 col / 6→20 | Bepi in mare (fuori dal merletto), Zeno, Nina, Marta, Gino, Piero + lino | Bepi rientra sempre alle 20 (barca al Molo). Se Zeno non è al Faro alle 18, 19 e 20 (richiesta di Nina), la barca urta la secca e Bepi torna ferito: destino `bepi` | 19 | Zeno al Faro tutta la sera, mentre sul bordo alto del merletto torna a vedersi il filo nero lontano |
+| g16 | Il pozzo trabocca | 6 col / 6→18 | Piero (custodisce il fascio delle lettere di Livia), Teresa, Zeno, Nina, Marta, Gino | `pieroTrabocca` | 17 | Far traboccare il pozzo e portare il fascio a Zeno senza che Teresa lo legga (Ada non ha filo: il fascio è indirizzato a lei presso il Faro, quindi è consegnato quando arriva a Zeno). Fine Atto II: se le lettere sono liberate, alla fine dell'alba Zeno porta il fascio e Ada legge la voce di Livia |
 
 Archivio: **arc3** dopo g11, **arc4** dopo g14.
 
@@ -376,12 +376,12 @@ Archivio: **arc3** dopo g11, **arc4** dopo g14.
 | ID | Titolo | Colonne / ore | Fili | Novità | Min | Momento di storia |
 |---|---|---|---|---|---|---|
 | g17 | La donna in nero | 6 col / 6→16 | Zeno, Teresa, Marta, Nina, Gino, Piero + nero (entra dal Faro alle 9: chi è al Faro alle 9 esce, quindi non deve esserci Zeno) | Filo nero autonomo, che segue Zeno | 7-9 | Una donna con lo scialle nero sulla Fondamenta. Nessuno la riconosce, tranne Zeno |
-| g18 | La pace | 6 col / 6→16 | Teresa, Marta, Gino, Nina, Piero, Lunardi | Riconciliazione: la confessione di Teresa deve arrivare a Marta passando da Gino (il segreto scende soltanto e Marta non sta sotto Teresa) | 8-10 | Se riesce: `riconciliate`, si tolgono `martaNoSotto`, `teresaLegge` e il rancore. Le regole cambiano davanti al giocatore |
+| g18 | La pace | 6 col / 6→16 | Teresa, Marta, Gino, Nina, Piero, Lunardi | Riconciliazione: la confessione di Teresa deve arrivare a Marta passando da Gino (il segreto scende soltanto e Marta non sta sotto Teresa) | 12 | Se riesce: `riconciliate`, si tolgono `martaNoSotto`, `teresaLegge` e il rancore. Le regole cambiano davanti al giocatore |
 | g19 | Acqua alta | 6 col / 6→16 | Bepi, Nina, Marta, Teresa, Zeno, Lunardi | Marea: Molo e Piazza allagati 10-13 | 8-10 | La laguna si alza: l'isola è più piccola |
-| g20 | Nina | 6 col / 6→14 | Nina, Bepi, Marta, Gino, Teresa, Zeno | Vaporetto delle 9 | 7-9 | Nina parte per Venezia o resta. Bepi vuole salutarla «come si deve» |
+| g20 | Nina | 6 col / 6→14 | Nina, Bepi, Marta, Gino, Teresa, Zeno | Vaporetto delle 9 | 11 | Nina parte per Venezia o resta. Bepi vuole salutarla «come si deve» |
 | g21 | Il punto aperto | 6 col / 6→18 | Teresa, Marta, Piero, Gino, Zeno, Lunardi + nero | Nero + marea | 9-11 | La sera prima Ada ha letto arc6: sa che esiste un punto senza merlettaia |
-| g22 | La secca | 6 col / 6→20 | Zeno, Piero, Teresa, Marta, Gino, Nina/Bepi + Livia | Bordo del Faro: alle 15 Livia arriva a piedi sulla lingua di sabbia (chi è al Faro esce) | 10-12 | Livia sull'isola. Se Zeno la incrocia: `zenoLivia`. Controllo della memoria per il finale vero |
-| g23 | La vigilia | 6 col / 6→12 | Tutti quelli rimasti | Nessuna; 2 bigliettini semplici, 2 spilli | 4-6 | Giornata breve e quieta. Dopo la notte, la sera della scelta (6.6), con un solo spillo |
+| g22 | La secca | 6 col / 6→20 | Zeno, Piero, Teresa, Marta, Gino, Nina/Bepi + Livia | Bordo del Faro: alle 15 Livia arriva a piedi sulla lingua di sabbia (chi è al Faro esce) | 19 | Livia sull'isola. Se Zeno la incrocia: `zenoLivia`. Controllo della memoria per il finale vero |
+| g23 | La vigilia | 6 col / 6→12 | Tutti quelli rimasti | Nessuna; 2 bigliettini semplici, 2 spilli | 9 | Giornata breve e quieta. Dopo la notte, la sera della scelta (6.6), con un solo spillo |
 
 Archivio: **arc5** dopo g18, **arc6** la sera di g20.
 

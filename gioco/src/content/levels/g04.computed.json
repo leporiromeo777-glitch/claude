@@ -1,6 +1,6 @@
 {
   "levelId": "g04",
-  "sourceHash": "ade6b12f33e81774",
+  "sourceHash": "bbb7a6588b3b1ed7",
   "solverVersion": 2,
   "base": {
     "incroci": 4,
@@ -466,7 +466,7 @@
         "minSenzaGino": null,
         "vuoteMax": 2,
         "vuoteTot": 4,
-        "soluzioniOttime": 14
+        "soluzioniOttime": 50
       },
       {
         "config": "g04.nina",
@@ -475,7 +475,7 @@
         "costo": 2,
         "vuoteMax": 2,
         "vuoteTot": 2,
-        "soluzioniOttime": 1
+        "soluzioniOttime": 4
       },
       {
         "config": "g04.bepi",
@@ -484,7 +484,7 @@
         "costo": 3,
         "vuoteMax": 2,
         "vuoteTot": 2,
-        "soluzioniOttime": 30
+        "soluzioniOttime": 50
       },
       {
         "config": "g04.piero",
@@ -493,7 +493,7 @@
         "costo": 4,
         "vuoteMax": 2,
         "vuoteTot": 2,
-        "soluzioniOttime": 14
+        "soluzioniOttime": 50
       },
       {
         "config": "g04.nina+g04.bepi",
@@ -501,7 +501,7 @@
         "minSenzaGino": null,
         "vuoteMax": 2,
         "vuoteTot": 2,
-        "soluzioniOttime": 30
+        "soluzioniOttime": 50
       },
       {
         "config": "g04.nina+g04.piero",
@@ -509,7 +509,7 @@
         "minSenzaGino": null,
         "vuoteMax": 0,
         "vuoteTot": 0,
-        "soluzioniOttime": 1
+        "soluzioniOttime": 16
       }
     ],
     "designata": "g04.nina+g04.piero",

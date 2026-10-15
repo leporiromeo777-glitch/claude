@@ -14,6 +14,10 @@ import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
 import { CHARACTER_IDS } from '../../../src/core/ids';
 import { SOLVER_VERSION, applyRow, createContext, evaluate, levelSourceHashFromDB, simulate, solve } from '../../../src/engine/index';
 import diarioAtto1 from '../../../src/content/diary.atto1.json';
+import { VIA_BREVE_SOGLIA, viaBreve } from './viaBreve';
+import { gddMinRanges } from '../../../tools/levels/check';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const db = loadContent();
 /** Campi della campagna introdotti dalla REVISIONE-1 (C04): letti in forma locale, validi anche prima di SCH-01. */
@@ -583,21 +587,23 @@ describe('solver e file calcolati', () => {
     expect(sim.timeline[sim.timeline.length - 1]?.pos).toEqual(['teresa', 'marta', 'piero']);
   });
 
-  it('g06 (revisione 1, C14): la lettera di Nina e la chiacchiera per Zeno si escludono, Marta e Zeno sono la designata', () => {
+  it('g06 (revisione 1, C14; revisione 2, R2-D7): la lettera di Nina e la chiacchiera per Zeno si escludono, Marta e Zeno sono la designata', () => {
     const c = db.computed.get('g06');
     const combo = (a: string, b: string) => c?.combos.find((x) => x.notes.includes(a) && x.notes.includes(b));
     expect(c?.base.incroci).toBe(4);
-    expect([c?.perNote['g06.nina']?.incroci, c?.perNote['g06.marta']?.incroci, c?.perNote['g06.zeno']?.incroci]).toEqual([6, 7, 9]);
+    expect([c?.perNote['g06.nina']?.incroci, c?.perNote['g06.marta']?.incroci, c?.perNote['g06.zeno']?.incroci]).toEqual([5, 6, 8]);
     expect(combo('g06.nina', 'g06.marta')?.incroci).toBe(7);
     expect(combo('g06.nina', 'g06.zeno')?.incroci).toBeNull();
     expect(combo('g06.nina', 'g06.zeno')?.voluta).toBe(true);
-    expect(combo('g06.marta', 'g06.zeno')?.incroci).toBe(12);
+    expect(combo('g06.marta', 'g06.zeno')?.incroci).toBe(10);
     expect(c?.quality?.designata).toBe('g06.marta+g06.zeno');
-    expect(level('g06').matassa).toBe(15);
+    expect(level('g06').matassa).toBe(13);
+    // Revisione 2: senza lo spillo della Nina in Piazza alle 12 la lettera ha più strade; la Nina, nel conflitto voluto con Zeno, è la facile della sera.
+    expect(c?.quality?.facili).toEqual(['g06.nina']);
     // Teresa all'alba sta al Faro e alle 11 deve essere al Forno: il divieto di Marta costa davvero.
     const lv = level('g06');
     expect(lv.initial).toEqual(['lino1', 'nina', 'marta', 'zeno', 'piero', 'teresa']);
-    expect(lv.pins).toContainEqual({ thread: 'teresa', place: 'forno', hour: 11 });
+    expect(lv.pins).toEqual([{ thread: 'teresa', place: 'forno', hour: 11 }]);
     // La soluzione registrata di Nina + Marta vale davvero, con le posizioni dell'apertura.
     const ctx = createContext(lv, {}, { balance: db.balance });
     const sim = simulate(lv, ctx, combo('g06.nina', 'g06.marta')?.rows ?? []);
@@ -649,8 +655,10 @@ describe('solver e file calcolati', () => {
     const others = level('g07').threads.filter((t) => t.kind === 'persona' && !['piero', 'teresa'].includes(t.character ?? '')).map((t) => t.id);
     expect(req.of).toContainEqual({ t: 'ha', who: 'piero', bead: 'segreto:confessione' });
     for (const o of others) expect(req.of, o).toContainEqual({ t: 'nonHa', who: o, bead: 'segreto:confessione' });
-    // la Nina curiosa rende facile il suo bigliettino: è la facile della sera, dentro il conflitto voluto con Teresa
-    expect(db.computed.get('g07')?.quality?.facili).toEqual(['g07.nina']);
+    // Revisione 2 (R2-D7): con il Gino che parte accanto a Teresa il bigliettino della Nina costa 2,
+    // come gli altri: non c'è più una facile della sera.
+    expect(db.computed.get('g07')?.quality?.facili).toEqual([]);
+    expect(db.computed.get('g07')?.quality?.configs.find((c) => c.config === 'g07.nina')?.costo).toBeGreaterThanOrEqual(2);
   });
 
   it('GDD 3.6: nel giorno del debutto di una stranezza nessuna richiesta (o coppia) è impossibile per colpa sua', () => {
@@ -1214,5 +1222,80 @@ describe('REVISIONE-2: testi e coerenza dell\'Atto I (playtest 2)', () => {
     expect(it_('comune.pers.zeno.desiderio')).not.toMatch(/Livia/);
     expect(EN.get('comune.pers.zeno.desiderio') ?? '').not.toMatch(/Livia/);
     expect(it_('comune.pers.zeno.desiderio')).toMatch(/perdono/);
+  });
+});
+
+describe('REVISIONE-2 R2-D7: l\'Atto I un po\' più impegnativo per chi è bravo', () => {
+  /** Notti di R2-D7 (g00-g02 sono tutorial e non si toccano). */
+  const D7 = ['g04', 'g05', 'g06', 'g07', 'g08'] as const;
+  const goalsOf = (lv: LevelDef, notes: readonly string[]): Condition[] => [
+    ...(lv.goals ?? []),
+    ...notes.map((n) => db.notes.get(n)?.request as Condition),
+  ];
+
+  it.each(D7)('%s: almeno una combinazione di due bigliettini richiede di pensare (via breve: almeno il 30 per cento delle soluzioni sopra il minimo)', (d) => {
+    const lv = level(d);
+    const c = db.computed.get(d);
+    const ctx = createContext(lv, {}, { balance: db.balance });
+    const combos = (c?.combos ?? []).filter((x) => !x.voluta && x.notes.length === 2 && x.incroci !== null);
+    expect(combos.length, d).toBeGreaterThan(0);
+    const misure = combos.map((x) => ({ notes: x.notes.join('+'), ...viaBreve(lv, ctx, goalsOf(lv, x.notes)) }));
+    for (const m of misure) expect(m.min, `${d} ${m.notes}`).toBe(combos.find((x) => x.notes.join('+') === m.notes)?.incroci);
+    const migliore = Math.max(...misure.map((m) => m.nonOttime));
+    expect(migliore, `${d}: ${JSON.stringify(misure)}`).toBeGreaterThanOrEqual(VIA_BREVE_SOGLIA);
+  });
+
+  it('g07: la regola di Gino pesa (il minimo sale in tutte e due le combinazioni possibili) e la sua corsa porta il segreto', () => {
+    const c = db.computed.get('g07');
+    const cfg = (k: string) => c?.quality?.configs.find((x) => x.config === k);
+    for (const k of ['g07.teresa+g07.zeno', 'g07.nina+g07.zeno']) {
+      const q = cfg(k);
+      expect(q?.min, k).not.toBeNull();
+      expect((q?.min ?? 0) - (q?.minSenzaGino ?? 0), k).toBeGreaterThanOrEqual(1);
+    }
+    expect(c?.quality?.violazioni).toEqual([]);
+    // Nella soluzione registrata di Nina + Zeno il Gino, che non può stare fermo, riceve la
+    // confessione da Teresa e la passa più avanti: la sua corsa la porta verso la Nina.
+    const lv = level('g07');
+    const rows = c?.combos.find((x) => x.notes.includes('g07.nina') && x.notes.includes('g07.zeno'))?.rows ?? [];
+    const sim = simulate(lv, createContext(lv, {}, { balance: db.balance }), rows);
+    expect(sim.ok).toBe(true);
+    const copie = sim.events.flat().filter((e) => (e as { k?: string }).k === 'copia') as unknown as { bead: string; from: string; to: string }[];
+    expect(copie.some((e) => e.bead === 'segreto:confessione' && e.to === 'gino')).toBe(true);
+    expect(copie.some((e) => e.bead === 'segreto:confessione' && e.from === 'gino')).toBe(true);
+    expect(copie.some((e) => e.bead === 'segreto:confessione' && e.to === 'nina')).toBe(true);
+  });
+
+  it('g04: la posta di Don Piero entro le due è un obiettivo fisso, con la sua etichetta', () => {
+    const lv = level('g04');
+    expect(lv.goals).toContainEqual({ t: 'consegnata', bead: 'L_piero', by: 14 });
+    expect(lv.beads.find((b) => b.id === 'L_piero')).toMatchObject({ type: 'lettera', holder: 'teresa', to: 'piero' });
+    expect(it_('atto1.g04.perline.L_piero')).toBe('la lettera per Don Piero');
+    expect(EN.get('atto1.g04.perline.L_piero')).toBe('the letter for Don Piero');
+  });
+});
+
+describe('REVISIONE-2 Q077: la colonna «Min» di GDD 5.2 è quella misurata', () => {
+  it('ogni giornata g00-g23 ha il minimo della designata dentro l\'intervallo «Min» del GDD (±1, K7)', () => {
+    const ranges = gddMinRanges();
+    const fuori: string[] = [];
+    for (let i = 0; i <= 23; i++) {
+      const id = `g${String(i).padStart(2, '0')}`;
+      const q = db.computed.get(id)?.quality;
+      const min = q?.configs.find((x) => x.config === q.designata)?.min;
+      const r = ranges.get(id);
+      expect(r, id).toBeDefined();
+      if (min === null || min === undefined || !r) continue;
+      if (min < r[0] - 1 || min > r[1] + 1) fuori.push(`${id}: ${min} fuori da ${r[0]}-${r[1]}`);
+    }
+    expect(fuori).toEqual([]);
+  });
+
+  it('g04: la barca esce alle 8 e rientra alle 11, nel GDD come nei dati', () => {
+    const gdd = readFileSync(resolve(__dirname, '../../../docs/GDD.md'), 'utf8');
+    expect(gdd).toMatch(/\| g04 \| La barca di Bepi \|[^\n]*Bepi esce alle 8, rientra alle 11/);
+    const edges = (level('g04') as LevelDef & { edges?: { hour: number; kind: string; enters?: string }[] }).edges ?? [];
+    expect(edges.map((e) => [e.hour, e.kind])).toEqual([[8, 'barca'], [11, 'barca']]);
+    expect(level('g04').goals).toContainEqual({ t: 'parte', who: 'bepi', hour: 8 });
   });
 });

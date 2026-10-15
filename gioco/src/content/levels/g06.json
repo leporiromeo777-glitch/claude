@@ -27,10 +27,10 @@
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo", "segreto"],
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "zenoFaro"],
-  "pins": [{"thread": "teresa", "place": "forno", "hour": 11}, {"thread": "nina", "place": "piazza", "hour": 12}],
+  "pins": [{"thread": "teresa", "place": "forno", "hour": 11}],
   "edges": [{"hour": 8, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g06.nina", "g06.marta", "g06.zeno"],
-  "matassa": 15,
+  "matassa": 13,
   "dawn": {
     "candidates": [
       {

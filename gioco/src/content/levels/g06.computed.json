@@ -1,6 +1,6 @@
 {
   "levelId": "g06",
-  "sourceHash": "c58311bfea4dace4",
+  "sourceHash": "a1f7d530bbf1cd89",
   "solverVersion": 2,
   "base": {
     "incroci": 4,
@@ -53,7 +53,7 @@
   },
   "perNote": {
     "g06.nina": {
-      "incroci": 6,
+      "incroci": 5,
       "rows": [
         {
           "hour": 7,
@@ -71,10 +71,6 @@
         {
           "hour": 9,
           "crossings": [
-            {
-              "pair": 0,
-              "over": "L"
-            },
             {
               "pair": 3,
               "over": "L"
@@ -110,7 +106,7 @@
       ]
     },
     "g06.marta": {
-      "incroci": 7,
+      "incroci": 6,
       "rows": [
         {
           "hour": 7,
@@ -162,17 +158,12 @@
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     },
     "g06.zeno": {
-      "incroci": 9,
+      "incroci": 8,
       "rows": [
         {
           "hour": 7,
@@ -233,12 +224,7 @@
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     }
@@ -323,7 +309,7 @@
         "g06.marta",
         "g06.zeno"
       ],
-      "incroci": 12,
+      "incroci": 10,
       "rows": [
         {
           "hour": 7,
@@ -387,26 +373,17 @@
             {
               "pair": 1,
               "over": "L"
-            },
-            {
-              "pair": 3,
-              "over": "L"
             }
           ]
         },
         {
           "hour": 12,
-          "crossings": [
-            {
-              "pair": 2,
-              "over": "L"
-            }
-          ]
+          "crossings": []
         }
       ]
     }
   ],
-  "matassaSuggerita": 15,
+  "matassaSuggerita": 13,
   "quieteMax": 2,
   "quality": {
     "configs": [
@@ -420,29 +397,29 @@
       },
       {
         "config": "g06.nina",
+        "min": 5,
+        "minSenzaGino": null,
+        "costo": 1,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 18
+      },
+      {
+        "config": "g06.marta",
         "min": 6,
         "minSenzaGino": null,
         "costo": 2,
         "vuoteMax": 1,
         "vuoteTot": 2,
-        "soluzioniOttime": 16
-      },
-      {
-        "config": "g06.marta",
-        "min": 7,
-        "minSenzaGino": null,
-        "costo": 3,
-        "vuoteMax": 1,
-        "vuoteTot": 1,
-        "soluzioniOttime": 32
+        "soluzioniOttime": 26
       },
       {
         "config": "g06.zeno",
-        "min": 9,
+        "min": 8,
         "minSenzaGino": null,
-        "costo": 5,
-        "vuoteMax": 0,
-        "vuoteTot": 0,
+        "costo": 4,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
         "soluzioniOttime": 1
       },
       {
@@ -455,15 +432,17 @@
       },
       {
         "config": "g06.marta+g06.zeno",
-        "min": 12,
+        "min": 10,
         "minSenzaGino": null,
-        "vuoteMax": 0,
-        "vuoteTot": 0,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
         "soluzioniOttime": 1
       }
     ],
     "designata": "g06.marta+g06.zeno",
-    "facili": [],
+    "facili": [
+      "g06.nina"
+    ],
     "violazioni": []
   }
 }

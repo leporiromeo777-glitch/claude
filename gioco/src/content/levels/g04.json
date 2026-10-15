@@ -21,6 +21,13 @@
       "type": "voce",
       "holders": ["teresa"],
       "labelKey": "atto1.g04.perline.rete"
+    },
+    {
+      "id": "L_piero",
+      "type": "lettera",
+      "holder": "teresa",
+      "to": "piero",
+      "labelKey": "atto1.g04.perline.L_piero"
     }
   ],
   "rules": ["incrocio", "spillo", "lettera", "voce", "matassa", "molo"],
@@ -34,7 +41,7 @@
     {"hour": 8, "side": "molo", "kind": "barca", "enters": "lino1"},
     {"hour": 11, "side": "molo", "kind": "barca", "enters": "bepi"}
   ],
-  "goals": [{"t": "parte", "who": "bepi", "hour": 8}],
+  "goals": [{"t": "parte", "who": "bepi", "hour": 8}, {"t": "consegnata", "bead": "L_piero", "by": 14}],
   "notes": ["g04.nina", "g04.bepi", "g04.piero"],
   "matassa": 13,
   "dawn": {

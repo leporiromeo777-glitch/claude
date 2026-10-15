@@ -22,14 +22,14 @@
   "quirks": ["martaNoSotto", "teresaLegge", "pieroPozzo", "ginoCorre", "zenoFaro", "ninaCuriosa"],
   "pins": [
     {"thread": "marta", "place": "forno", "hour": 7},
+    {"thread": "nina", "place": "farmacia", "hour": 10},
     {"thread": "nina", "place": "chiesa", "hour": 12},
-    {"thread": "gino", "place": "farmacia", "hour": 14},
-    {"thread": "marta", "place": "forno", "hour": 15},
-    {"thread": "gino", "place": "faro", "hour": 16}
+    {"thread": "gino", "place": "faro", "hour": 13},
+    {"thread": "marta", "place": "forno", "hour": 15}
   ],
   "edges": [{"hour": 9, "side": "molo", "kind": "vaporetto", "enters": "marinaio"}],
   "notes": ["g08.marta", "g08.nina", "g08.zeno"],
-  "matassa": 16,
+  "matassa": 17,
   "dawn": {
     "candidates": [
       {

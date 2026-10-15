@@ -169,7 +169,7 @@
   },
   "g04": {
     "titolo": "Bepi's Boat",
-    "perline": {"rete": "the gossip about Bepi's net"},
+    "perline": {"rete": "the gossip about Bepi's net", "L_piero": "the letter for Don Piero"},
     "nina": {
       "testo": "I'd like to say goodbye to Dad before he takes the boat out.",
       "r1": "Hug him tight.",

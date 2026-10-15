@@ -169,7 +169,7 @@
   },
   "g04": {
     "titolo": "La barca di Bepi",
-    "perline": {"rete": "la chiacchiera sulla rete di Bepi"},
+    "perline": {"rete": "la chiacchiera sulla rete di Bepi", "L_piero": "la lettera per Don Piero"},
     "nina": {
       "testo": "Vorrei salutare il babbo prima che esca in barca.",
       "r1": "Abbraccialo forte.",
