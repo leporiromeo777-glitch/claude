@@ -35,7 +35,7 @@ export class LettoreMusica {
   /** Comincia a suonare una partitura all'istante `t`. Ferma quella precedente. */
   suona(partitura: Partitura, t: number): void {
     this.ferma(t, 1.5);
-    const gTema = this.kit.guadagno(1.25);
+    const gTema = this.kit.guadagno(0.9);
     gTema.connect(this.uscita);
     const mandata = this.kit.guadagno(0.22);
     gTema.connect(mandata).connect(this.riverbero);

@@ -76,7 +76,7 @@ export class StratoLago extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const w = p.pesoLago;
-    this.gLago.gain.setTargetAtTime(w, t, 0.8);
+    this.gLago.gain.setTargetAtTime(1.4 * w, t, 0.8);
     const [da, a] = this.finestra(t);
     const attivo = w > 0.01 ? 1 : 0;
     for (const te of this.pOnde.eventi(da, a, 0.42 * attivo)) onda(kit, this.gLago, te, tra(kit.rng, 0.6, 1));
@@ -141,7 +141,7 @@ export class StratoSordo extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const w = p.pesoSordo;
-    this.gSordo.gain.setTargetAtTime(0.5 * w, t, 1.5);
+    this.gSordo.gain.setTargetAtTime(0.32 * w, t, 1.5);
     const ps = puntoSordo(this.c.ascoltatore());
     this.pan.positionX.setTargetAtTime(ps.x, t, 0.1);
     this.pan.positionY.setTargetAtTime(ps.y, t, 0.1);
@@ -235,7 +235,7 @@ export class StratoFinestre extends Strato {
     this.gOnda = this.tieni(kit.guadagno(0.6));
     const vetro = this.tieni(kit.sorgenteRumore('bianco'));
     const bpV = this.tieni(kit.filtro('bandpass', 4200, 0.6));
-    const gV = this.tieni(kit.guadagno(0.05));
+    const gV = this.tieni(kit.guadagno(0.04));
     vetro.connect(bpV).connect(gV).connect(this.gOnda).connect(this.gFin);
     // l'aria ferma sopra il vetro
     const aria = this.tieni(kit.sorgenteRumore('rosa'));

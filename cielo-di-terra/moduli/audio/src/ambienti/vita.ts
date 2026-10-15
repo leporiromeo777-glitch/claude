@@ -177,7 +177,7 @@ export class StratoFauna extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const r = kit.rng;
-    this.gCoro.gain.setTargetAtTime(0.12 * p.fauna.grilli * p.duckValle, t, 1.5);
+    this.gCoro.gain.setTargetAtTime(0.17 * p.fauna.grilli * p.duckValle, t, 1.5);
     const [da, a] = this.finestra(t);
     const asc = this.c.ascoltatore();
     for (const te of this.pUccelli.eventi(da, a, 1.3 * p.fauna.uccelli)) {
@@ -187,13 +187,13 @@ export class StratoFauna extends Strato {
       const pan = this.c.panner(pos, PROFILO_UCCELLO);
       const mandata = kit.guadagno(0.12);
       pan.connect(mandata).connect(this.c.riverbero);
-      const fine = canto(kit, pan, te, noteCanto(specie, r), (lontano ? 0.35 : 0.18) * tra(r, 0.6, 1));
+      const fine = canto(kit, pan, te, noteCanto(specie, r), (lontano ? 0.5 : 0.28) * tra(r, 0.6, 1));
       pulisciA(kit, fine, [pan, mandata]);
     }
     for (const te of this.pGrilli.eventi(da, a, 0.35 * p.fauna.grilli)) {
       const pos = puntoAttorno(asc, r, 3, 18, 0.1);
       const pan = this.c.panner(pos, PROFILO_GRILLO);
-      const fine = grillo(kit, pan, te, tra(r, 2, 5), 0.05);
+      const fine = grillo(kit, pan, te, tra(r, 2, 5), 0.07);
       pulisciA(kit, fine, [pan]);
     }
   }

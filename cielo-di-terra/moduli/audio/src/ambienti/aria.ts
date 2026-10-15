@@ -161,6 +161,6 @@ export class StratoLinea extends Strato {
     this.profRespiro.gain.setTargetAtTime(l.respiro / 2, t, 2);
     this.profBrace.gain.setTargetAtTime(l.taglio * 0.25 * l.brace, t, 2);
     // sulle Finestre anche la Linea si fa lontana
-    this.gLinea.gain.setTargetAtTime(l.guadagno * mescola(1, 0.45, p.pesoFinestra), t, 1.2);
+    this.gLinea.gain.setTargetAtTime(l.guadagno * mescola(1, 0.3, p.pesoFinestra), t, 1.2);
   }
 }

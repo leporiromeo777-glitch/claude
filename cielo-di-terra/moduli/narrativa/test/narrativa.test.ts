@@ -88,6 +88,17 @@ describe('facciata Narrativa', () => {
     ]);
   });
 
+  it('gli errori del gioco (WorldFacts) non vengono scambiati per errori dei contenuti', () => {
+    const f = Object.assign(new FattiFinti(), {
+      luogoRaggiunto: (): boolean => {
+        throw new Error('bug del motore');
+      },
+    });
+    const n = new Narrativa({}, f);
+    expect(() => n.valuta('luogo:x raggiunto')).toThrow('bug del motore');
+    expect(n.problemi).toEqual([]);
+  });
+
   it('in modo rigoroso lancia subito', () => {
     expect(
       () =>

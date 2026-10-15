@@ -12,6 +12,7 @@
  *   narrativa.tick();
  */
 import {
+  ErroreCondizione,
   ParserCondizioni,
   type CondizioneGrezza,
   type ContestoCondizioni,
@@ -23,7 +24,7 @@ import {
   type ContenutiNormalizzati,
 } from './contenuti';
 import { Dialoghi, type EventiDialoghi, type StatoDialoghi, type VistaNodo } from './dialoghi';
-import { analizzaEffetto, type Effetto } from './effetti';
+import { ErroreEffetto, analizzaEffetto, type Effetto } from './effetti';
 import { Emettitore } from './eventi';
 import { ArchivioFlag, type CambioFlag, type ValoreFlag } from './flag';
 import { Inventario, type CambioOggetto } from './inventario';
@@ -191,8 +192,9 @@ export class Narrativa {
     try {
       return this.parser.valuta(c, this.contesto);
     } catch (e) {
-      if (this.rigoroso) throw e;
-      this.segnala(e instanceof Error ? e.message : String(e), origine);
+      // Solo gli errori dei contenuti; un errore del gioco (in WorldFacts) deve vedersi.
+      if (this.rigoroso || !(e instanceof ErroreCondizione)) throw e;
+      this.segnala(e.message, origine);
       return false;
     }
   }
@@ -209,8 +211,8 @@ export class Narrativa {
     try {
       e = typeof effetto === 'string' ? analizzaEffetto(effetto) : effetto;
     } catch (err) {
-      if (this.rigoroso) throw err;
-      this.segnala(err instanceof Error ? err.message : String(err), origine);
+      if (this.rigoroso || !(err instanceof ErroreEffetto)) throw err;
+      this.segnala(err.message, origine);
       return;
     }
     const conOrigine = origine !== undefined ? { origine } : {};

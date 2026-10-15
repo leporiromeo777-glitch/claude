@@ -152,7 +152,7 @@ export function parametriVento(altezza: number, velocita: number): ParametriVent
   const intensita = limita(0.18 + 0.42 * quota + 0.55 * Math.pow(v, 1.2), 0, 1.25);
   return {
     intensita,
-    guadagno: 0.25 * Math.pow(intensita, 1.15),
+    guadagno: 0.3 * Math.pow(intensita, 1.15),
     tagliaCorpo: 220 + 1100 * intensita,
     centroFischio: 550 + 700 * intensita + 300 * Math.min(v, 1.2),
     qFischio: 0.8 + 1.4 * quota,
@@ -216,7 +216,7 @@ export function parametriLinea(ora: number, altezza = 0): ParametriLinea {
   return {
     luce,
     brace: 1 - luce,
-    guadagno: (0.018 + 0.022 * luce) * (1 + 1.2 * vicinanza),
+    guadagno: (0.025 + 0.03 * luce) * (1 + 1.2 * vicinanza),
     frequenza: mescola(49, 55, luce),
     taglio: mescola(170, 650, luce) + 300 * vicinanza,
     respiro: mescola(0.35, 0.08, luce),
