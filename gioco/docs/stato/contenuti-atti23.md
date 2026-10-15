@@ -78,6 +78,45 @@ Il primo giro sui contenuti di prima ha riprodotto tutte le segnalazioni: 80 vio
 - **campagna (proposta, non urgente):** obiettivi di un livello che dipendano dai flag (per esempio `goalsIf`) permetterebbero di rimettere la Nina nel finale vero quando è rimasta.
 - **regia (GDD):** aggiornare 6.4 (g18, «non era solo colpa mia»), 6.6 e 5.2 (`fin_aperto` senza la Nina, il Bepi sul vaporetto delle 9, Lunardi sul tombolo; carta A firmata da chi ricorda Ada) e 5.3 (arc3: la lettera per Aldo, il Bepi in barca).
 
+### Verifica della revisione 2
+
+Controllo scettico delle 13 task. Ho letto i dati e il racconto completo di tutti i 18 rami della campagna simulata, uno per uno: un dump delle pagine (sera, alba, oggetto, bilancio, Archivio, scelta, epilogo) in italiano e in inglese. Ho rifatto i passi del playtest nel browser (build `VITE_E2E=1`, porta 6045, Chromium 1280×800, it ed en) scegliendo i bigliettini dall'interfaccia: bigliettino, «Appunta», risposte, «Al tombolo», carta della scelta e conferma. Per la notte ho usato l'autoplay.
+
+Confermate nel browser: Q043 (g08 Marta + Nina fallite → in g14 solo il bigliettino tardivo, alba «Presa lo stesso!», niente «Non dice a chi»); Q042 con la Nina partita e rimasta (obiettivi senza la Nina, «Bepi parte alle 9», epilogo senza seconda partenza); Q045 (carta A di Don Piero col lei, di Marta, di Ada; it ed en); Q044 (bigliettino «ancora lettere… quella del '51», alba della prima lettera); Q046 coi passi esatti (alba storta, «Il nodo è ancora lì»); Q047 (g22, g16, g18); Q019, Q038, Q057, Q050. Per Q028 ho nominato i fili e rammendato arc3 dall'interfaccia: toccando il fuso si apre la scheda di quel filo, quindi il nome si dà senza tirare a indovinare.
+
+Difetti trovati e corretti (commit 650f6b8, caf8295, d527ff9, 51f4aa9):
+
+| Task | Difetto | Correzione |
+|---|---|---|
+| R2-D3, Q047 | g16: nella stessa pagina «le altre centosessantacinque le leggo una per sera» e «le altre l'umido le ha fatte tornare carta» | `persone.livia.lettere`: «Cominciano tutte con «Ada mia»…» |
+| R2-D3 | g16: «lo sa perfino il pozzo» anche quando i segreti non sono arrivati al prete | «lo sanno perfino i gabbiani» |
+| R2-D3 | g22: la risposta R2 svelava a Teresa chi è la donna della secca. Poi esito, alba e Taccuino dicevano che non l'aveva saputo, o l'aveva saputo per ultima | R2: «La conosci anche tu. Guardala bene, quando arriva.»; voce `liviaSa` riscritta; flag `teresaLivia: 'conosce'` |
+| R2-D3 | `persone.teresa.fascio` (g16) si sbloccava in g19 se Teresa leggeva qualcosa quella notte (rami fallito e dimenticata) | guardia `{not: {done: 'g17'}}` |
+| Q046 | g18 fallita: «la confessione è arrivata alla persona sbagliata» anche se non era uscita da Teresa | `g18.alba.storta` solo con l'evento `copia` verso Nina, Lunardi o Don Piero; altrimenti `g18.alba.storta.attesa` («Ho aspettato trent'anni…»). `g18.computed.json` rigenerato (cambia solo l'impronta) |
+| Q046 (passi esatti) | la confessione arriva a Lunardi, che però incontra meno di tre persone; il bilancio diceva «Al dottore nessuno ha confidato niente» | esiti falliti delle richieste composte che non danno per certo un solo motivo: g18 Lunardi, g12 Zeno, cure in ritardo di g09 e g13 (niente «ha ancora la febbre») |
+| Q042 | con la Nina partita e il saluto di g20 riuscito, l'epilogo D la faceva salutare «come si deve» un'altra volta | varianti `.saluto` su `{ok: 'g20.bepi'}`: le sarde fritte, o l'abbraccio col braccio buono |
+| R2-D3 | fin_aperto: «la lettera del 1951, che mia madre ha riavuto dal pozzo» anche se in g22 non ne è uscita | «…che mia madre aveva scritto per Ada» (concorda ancora con chi la tiene, P113) |
+| Q048 | circa 35 voci ed esiti che ricopiavano l'alba o un esito della stessa giornata. Il test delle 5 parole non li prendeva: g13 (due pagnotte, campana, correre), g15 (luce, secca, campane), g18 (cinque persone, «pensare di restare»), g19 (acqua alla caviglia, medicine, osteria, tavola), g20 (preso per la maglia, viaggio mai fatto, «la Nina è rimasta» due volte), g22 (pane, la lettera del '51 tre volte), g14 («data lei alle due… come un'onda», convitto da Pasqua, domanda tardiva), g09-g12 e g21 | riscritte col punto di vista di Ada o con un fatto nuovo, in italiano e in inglese |
+
+Test nuovi in `atto23.test.ts`, nel blocco «verifica della revisione 2»:
+- 4 parole di fila nella stessa frase fra Taccuino, alba ed esiti della stessa giornata, su tutti i rami;
+- le voci con un evento della notte si sbloccano solo nel loro giorno;
+- g16, g18 (le condizioni di storta e attesa sullo stesso stato), g22 e fin_aperto;
+- gli esiti delle richieste composte;
+- il saluto del Bepi nell'epilogo D;
+- tre regole in più in `COERENZA` e `MAI_INSIEME`.
+
+Ognuno è stato provato anche al contrario, rimettendo il testo vecchio: il test fallisce. Nel test D13 della revisione 1, l'etichetta di L_1951 ora dice «aveva scritto», non più «riavuto».
+
+Risultati:
+- `npx vitest run`: 101 file, 1616 test verdi;
+- `npx tsc --noEmit -p .`: nessun errore;
+- `levels:check --qualita` sui 23 livelli: OK.
+
+Restano, per altri gruppi:
+- **tombolo-motore:** Q028, seconda metà. Dal pannello di sinistra «Filo sbiadito N» apre la scheda sopra il merletto senza evidenziare il filo. Toccando il fuso, invece, il filo è quello giusto.
+- **schermi-atto1:** l'alba di g08 «La Nina rimette la busta nel libro», e un «o… o…» nell'esito fallito di g08 Marta («senza aver parlato con Don Piero, o senza il Gino»).
+
 ## Revisione 1
 
 Compiti CA23-01 … CA23-07 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: livelli g09-g23, fin_*, arc3-arc6 con i `.computed.json`, note, diario, lettere e finali degli Atti II-III, testi `atto2`, `atto3`, `finali` in it/en, `tests/unit/content/atto23.test.ts`.
