@@ -298,10 +298,10 @@
     },
     "titolo": "The Open Stitch",
     "zeno": {
-      "testo": "The woman in black is back. Last time I couldn't find the words. This time I want to cross her myself, and tell her something that has waited fourteen years.",
+      "testo": "The woman in black is back. Last time I couldn't find the words. Tomorrow, after two, I want to cross her myself, and tell her something fourteen years old.",
       "esito": {
-        "ok": "Zeno crossed the woman in black, and this time he found the words.",
-        "fallita": "Zeno didn't cross the woman in black. The words he has kept ready for fourteen years are still there."
+        "ok": "In the afternoon Zeno crossed the woman in black, and this time he found the words.",
+        "fallita": "In the afternoon Zeno didn't cross the woman in black. The words he has kept ready for fourteen years are still there."
       }
     },
     "piero": {
@@ -312,19 +312,19 @@
       }
     },
     "gino": {
-      "testo": "tomorow nite at 6 zeno lights the lantern and i want to be at the litehouse!!! he promised. i swear on my report",
+      "testo": "tomorow nite at 6 zeno lights the lantern and i want to be at the litehouse!!! from 5, not to miss it. he promised. i swear on my report",
       "esito": {
-        "ok": "At six in the evening Gino was at the Lighthouse when the lantern lit. From outside, but so close it warmed his nose.",
-        "fallita": "At six in the evening Gino wasn't at the Lighthouse. The lantern lit all the same, and he watched it from afar."
+        "ok": "At five Gino was already at the Lighthouse, and at six the lantern lit. From outside, but so close it warmed his nose.",
+        "fallita": "Gino didn't reach the Lighthouse by five. The lantern lit all the same, and he watched it from afar."
       }
     },
     "marta": {
-      "testo": "Gino is not going to the Lighthouse tomorrow evening. With the high water and that woman about, I want him home from three. Until evening.",
+      "testo": "Gino is not going to the Lighthouse tomorrow evening. With the high water and that woman about, at five I want him home, at the bakery.",
       "r1": "Let him go. Zeno looks on him like a son.",
       "r2": "All right. He'll stay home, with you.",
       "esito": {
-        "ok": "Gino stayed home, away from the Lighthouse and the water. Marta baked him a cake, to be forgiven.",
-        "fallita": "Gino ran off to the Lighthouse, against Marta's wishes. She hasn't said anything to me, and her nothing weighs."
+        "ok": "At five Gino was home, at the bakery, away from the Lighthouse and the water. Marta baked him a cake, to be forgiven.",
+        "fallita": "At five Gino wasn't home: he ran off toward the Lighthouse, against Marta's wishes. She said nothing to me, and her nothing weighs."
       }
     }
   },

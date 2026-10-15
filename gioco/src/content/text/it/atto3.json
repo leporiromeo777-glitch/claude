@@ -298,10 +298,10 @@
     },
     "titolo": "Il punto aperto",
     "zeno": {
-      "testo": "La donna in nero è tornata. L'altra volta non ho trovato le parole. Stavolta voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni.",
+      "testo": "La donna in nero è tornata. L'altra volta non ho trovato le parole. Domani, dopo le due, voglio incrociarla io, e dirle una cosa che aspetta da quattordici anni.",
       "esito": {
-        "ok": "Zeno ha incrociato la donna in nero, e stavolta le parole le ha trovate.",
-        "fallita": "Zeno non ha incrociato la donna in nero. Le parole che tiene pronte da quattordici anni sono ancora lì."
+        "ok": "Nel pomeriggio Zeno ha incrociato la donna in nero, e stavolta le parole le ha trovate.",
+        "fallita": "Nel pomeriggio Zeno non ha incrociato la donna in nero. Le parole che tiene pronte da quattordici anni sono ancora lì."
       }
     },
     "piero": {
@@ -312,19 +312,19 @@
       }
     },
     "gino": {
-      "testo": "domani sera alle 6 lo Zeno accende la lanterna e io voglio essere al faro!!! me l'ha promesso. lo giuro sulla pagella",
+      "testo": "domani sera alle 6 lo Zeno accende la lanterna e io voglio essere al faro!!! dalle 5, per non perdermela. me l'ha promesso. lo giuro sulla pagella",
       "esito": {
-        "ok": "Alle sei di sera il Gino era al Faro quando la lanterna si è accesa. Da fuori, ma così vicino che gli scottava il naso.",
-        "fallita": "Alle sei di sera il Gino non era al Faro. La lanterna si è accesa lo stesso, e lui l'ha guardata da lontano."
+        "ok": "Alle cinque il Gino era già al Faro, e alle sei la lanterna si è accesa. Da fuori, ma così vicino che gli scottava il naso.",
+        "fallita": "Il Gino non è arrivato al Faro per le cinque. La lanterna si è accesa lo stesso, e lui l'ha guardata da lontano."
       }
     },
     "marta": {
-      "testo": "Il Gino domani sera non va al Faro. Con l'acqua alta e quella donna in giro, dalle tre lo voglio a casa. Fino a sera.",
+      "testo": "Il Gino domani sera non va al Faro. Con l'acqua alta e quella donna in giro, alle cinque lo voglio a casa, al forno, con me.",
       "r1": "Lascialo andare. Zeno lo guarda come un figlio.",
       "r2": "Va bene. Starà a casa, con te.",
       "esito": {
-        "ok": "Il Gino è stato a casa, lontano dal Faro e dall'acqua. Marta gli ha fatto la torta, per farsi perdonare.",
-        "fallita": "Il Gino è scappato al Faro, contro la volontà di Marta. Lei non mi ha detto niente, e il suo niente pesa."
+        "ok": "Alle cinque il Gino era a casa, al forno, lontano dal Faro e dall'acqua. Marta gli ha fatto la torta, per farsi perdonare.",
+        "fallita": "Alle cinque il Gino non era a casa: è scappato verso il Faro, contro la volontà di Marta. Lei non mi ha detto niente, e il suo niente pesa."
       }
     }
   },

@@ -519,7 +519,8 @@
     "request": {
       "t": "incontra",
       "a": "zeno",
-      "b": "livia"
+      "b": "livia",
+      "from": 14
     },
     "esito": {
       "ok": "atto3.g21.zeno.esito.ok",
@@ -546,10 +547,21 @@
     "author": "gino",
     "textKey": "atto3.g21.gino.testo",
     "request": {
-      "t": "presso",
-      "who": "gino",
-      "place": "faro",
-      "hour": 18
+      "t": "tutti",
+      "of": [
+        {
+          "t": "presso",
+          "who": "gino",
+          "place": "faro",
+          "hour": 17
+        },
+        {
+          "t": "presso",
+          "who": "gino",
+          "place": "faro",
+          "hour": 18
+        }
+      ]
     },
     "esito": {
       "ok": "atto3.g21.gino.esito.ok",
@@ -562,11 +574,10 @@
     "author": "marta",
     "textKey": "atto3.g21.marta.testo",
     "request": {
-      "t": "maiPresso",
+      "t": "presso",
       "who": "gino",
-      "place": "faro",
-      "from": 15,
-      "to": 18
+      "place": "forno",
+      "hour": 17
     },
     "replies": [
       {
