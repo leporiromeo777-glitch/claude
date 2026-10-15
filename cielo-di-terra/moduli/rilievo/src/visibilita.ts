@@ -7,7 +7,7 @@
  * di capisaldi.json. Qui stanno anche i lumi lontani (ore di accensione, Collare).
  */
 import { caposaldoDef } from './regole';
-import { dentroIntervallo, formattaOra } from './tempo';
+import { dentroIntervalloMinuti, formattaOra } from './tempo';
 import type { DefCaposaldo, RegoleCatasto } from './tipi';
 
 /** Un punto da cui o verso cui si mira. `id` c'è quando il punto è un caposaldo. */
@@ -94,11 +94,11 @@ export function lumeVisibile(c: DefCaposaldo, ora: number, lumiDiOttavio: readon
   if (l.tipo === 'ottavio' && !lumiDiOttavio.includes(c.id)) {
     return { acceso: false, codice: 'buio', motivo: `${nome} è buio: serve il lume di mira di Ottavio.` };
   }
-  if (l.tipo === 'permanente' && !dentroIntervallo(ora, l.ore)) {
+  if (l.tipo === 'permanente' && !dentroIntervalloMinuti(ora, l.ore)) {
     return { acceso: false, codice: 'buio', motivo: `Il lume di ${nome.charAt(0).toLowerCase()}${nome.slice(1)} a quest'ora è spento.` };
   }
   for (const iv of l.collare) {
-    if (dentroIntervallo(ora, iv)) {
+    if (dentroIntervalloMinuti(ora, iv)) {
       return { acceso: false, codice: 'collare', motivo: `Il Collare copre ${nomeBreve(c)} fino alle ${formattaOra(iv[1])}.` };
     }
   }

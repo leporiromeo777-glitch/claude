@@ -42,25 +42,38 @@ export function minutiNotte(ora: Ora): number {
   return (minuti(ora) - 720 + 1440) % 1440;
 }
 
-export function dentroIntervallo(ora: Ora, intervallo: Intervallo): boolean {
-  const m = minuti(ora);
+/** L'ora (già in minuti dalla mezzanotte) è nell'intervallo semiaperto [da, a)? */
+export function dentroIntervalloMinuti(m: number, intervallo: Intervallo): boolean {
   const [da, a] = intervallo;
   if (da === a) return false;
   return da < a ? m >= da && m < a : m >= da || m < a;
 }
 
-/** Fase del giorno (GDD §2.3): notte 21:00-05:30, alba 05:30-06:30, giorno 06:30-19:30, brace 19:30-21:00. */
-export function faseDelGiorno(ora: Ora): FaseDelGiorno {
-  const m = minuti(ora);
+export function dentroIntervallo(ora: Ora, intervallo: Intervallo): boolean {
+  return dentroIntervalloMinuti(minuti(ora), intervallo);
+}
+
+/** Fase del giorno da minuti dalla mezzanotte. */
+export function faseDaMinuti(m: number): FaseDelGiorno {
   if (m >= ORARI.notte || m < ORARI.alba) return 'notte';
   if (m < ORARI.giornoPieno) return 'alba';
   if (m < ORARI.brace) return 'giorno';
   return 'brace';
 }
 
+/** Fase del giorno (GDD §2.3): notte 21:00-05:30, alba 05:30-06:30, giorno 06:30-19:30, brace 19:30-21:00. */
+export function faseDelGiorno(ora: Ora): FaseDelGiorno {
+  return faseDaMinuti(minuti(ora));
+}
+
 /** La Linea è accesa dall'alba alla brace: di giorno abbaglia chi mira vicino all'asse. */
 export function lineaAccesa(ora: Ora): boolean {
   const f = faseDelGiorno(ora);
+  return f === 'alba' || f === 'giorno';
+}
+
+export function lineaAccesaMinuti(m: number): boolean {
+  const f = faseDaMinuti(m);
   return f === 'alba' || f === 'giorno';
 }
 

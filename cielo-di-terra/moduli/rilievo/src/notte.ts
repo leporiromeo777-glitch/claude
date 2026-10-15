@@ -22,7 +22,7 @@ import { FIRMA_ELVIRA, ORARI } from './costanti';
 import { caposaldoDef, defParticella } from './regole';
 import { costruisciResoconto, motivoVariante, riempi } from './resoconto';
 import { cellaAColore, cellaRilevataDaElvira, clonaStato, elementoRilevato, particellaDaModificare, scriviParticella } from './stato';
-import { dentroIntervallo, formattaOra, minuti, minutiNotte, type Ora } from './tempo';
+import { dentroIntervalloMinuti, formattaOra, minuti, minutiNotte, type Ora } from './tempo';
 import type {
   Atto,
   DefElemento,
@@ -509,7 +509,7 @@ export function applicaCicliDelGiorno(stato: StatoCatasto, regole: RegoleCatasto
   const da = minuti(input.da);
   const a = minuti(input.a);
   if (da === a) return { stato, ok: true, eventi: [], effetti: [] };
-  const dentro = (m: number) => m !== da && dentroIntervallo(m, [da, (a + 1) % 1440]);
+  const dentro = (m: number) => m !== da && dentroIntervalloMinuti(m, [da, (a + 1) % 1440]);
   const cicli = [...regole.elementi.values()]
     .flatMap((e) => e.cicli.map((c) => ({ e, c })))
     .filter(({ c }) => dentro(c.ora))

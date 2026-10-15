@@ -37,7 +37,7 @@ import {
   particellaDaModificare,
   scriviParticella,
 } from './stato';
-import { faseDelGiorno, lineaAccesa, minuti, type Ora } from './tempo';
+import { faseDaMinuti, lineaAccesaMinuti, minuti, type Ora } from './tempo';
 import type {
   CodiceMotivo,
   DefCaposaldo,
@@ -257,7 +257,7 @@ export interface InputAppunto {
 export function appunta(stato: StatoCatasto, regole: RegoleCatasto, input: InputAppunto): RisultatoCatasto {
   const ora = minuti(input.ora);
   const b = input.bersaglio;
-  const notte = faseDelGiorno(ora) === 'notte';
+  const notte = faseDaMinuti(ora) === 'notte';
 
   if ('lanterna' in b) {
     return {
@@ -302,7 +302,7 @@ export function appunta(stato: StatoCatasto, regole: RegoleCatasto, input: Input
     if (distanza > regole.parametri.portataAppunto) {
       return fallito(stato, 'appunto', 'troppo_lontano', `Troppo lontano: lo squadro arriva a ${regole.parametri.portataAppunto} m.`);
     }
-    if (lineaAccesa(ora)) {
+    if (lineaAccesaMinuti(ora)) {
       const dAsse = distanzaSegmentoDallAsse(o, t);
       if (dAsse < regole.parametri.abbagliamentoAsse) {
         return fallito(stato, 'appunto', 'abbaglia', `La Linea abbaglia: la mira passa a ${Math.round(dAsse)} m dall'asse.`);
@@ -433,7 +433,7 @@ export function rileva(stato: StatoCatasto, regole: RegoleCatasto, input: InputR
   if (strisciaDi(S.theta).id !== strisciaDi(M.theta).id) {
     return fail('altra_valle', 'Di giorno si rileva vicino, nella stessa valle: attraverso il cielo si chiudono i triangoli, di notte.');
   }
-  if (lineaAccesa(ora)) {
+  if (lineaAccesaMinuti(ora)) {
     const dAsse = distanzaSegmentoDallAsse(pa, pb);
     if (dAsse < regole.parametri.abbagliamentoAsse) {
       return fail('abbaglia', `La Linea abbaglia: il lato passa a ${Math.round(dAsse)} m dall'asse.`);
@@ -444,7 +444,7 @@ export function rileva(stato: StatoCatasto, regole: RegoleCatasto, input: InputR
     const tab = lineaLiberaFra(regole, nuovi, undefined, puntoDi(S), puntoDi(M), { scopo: 'lato', ora });
     return fail('coperto', (v && !v.libera && v.motivo) || tab.motivo || def.nota || 'La mira è coperta.');
   }
-  if (def && def.quando.length > 0 && !def.quando.includes(faseDelGiorno(ora))) {
+  if (def && def.quando.length > 0 && !def.quando.includes(faseDaMinuti(ora))) {
     return fail('fuori_orario', 'A quest\'ora il segnale non si legge.');
   }
   const vis = lineaLiberaFra(regole, nuovi, input.lineaLibera, puntoDi(S), puntoDi(M), { scopo: 'lato', ora });
@@ -535,7 +535,7 @@ export function chiudiTriangolo(stato: StatoCatasto, regole: RegoleCatasto, inpu
   const giorno = input.giorno ?? stato.giorno;
   const nuovi = stato.capisaldiNuovi;
   const fail = (m: CodiceMotivo, msg: string) => fallito(stato, 'triangolo', m, msg, { stazione: input.stazione });
-  const fase = faseDelGiorno(ora);
+  const fase = faseDaMinuti(ora);
   if (fase !== 'notte' && fase !== 'brace') return fail('non_notte', 'Attraverso il cielo si mira di notte o alla brace, sui lumi.');
   const ids = [input.stazione, ...input.mire];
   if (new Set(ids).size !== 3) return fail('stessa_stazione', 'Servono tre pilastri diversi.');
@@ -636,7 +636,7 @@ export function stazioneLibera(stato: StatoCatasto, regole: RegoleCatasto, input
   const giorno = input.giorno ?? stato.giorno;
   const nuovi = stato.capisaldiNuovi;
   const fail = (m: CodiceMotivo, msg: string) => fallito(stato, 'stazione_libera', m, msg);
-  const fase = faseDelGiorno(ora);
+  const fase = faseDaMinuti(ora);
   if (fase !== 'notte' && fase !== 'brace') return fail('non_notte', 'La stazione libera si fa di notte, sui lumi lontani.');
   if (new Set(input.lumi).size !== 3) return fail('lumi_insufficienti', 'Servono tre lumi su tre pilastri diversi.');
   const defs = input.lumi.map((id) => caposaldoDef(regole, nuovi, id));
