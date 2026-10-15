@@ -38,27 +38,112 @@ const SHOTS = [
   {
     nome: 'piazza',
     file: 'piazza-campanile.png',
-    titolo: 'Piazza delle Ore con il campanile di San Vigilio, a metà mattina',
-    setup: (g) => {
+    titolo: 'Piazza delle Ore con il campanile bianco di San Vigilio e il Pilastro 1, a metà mattina',
+    setup: (g, c) => {
       g.setTime(10.2);
-      g.setCamera(1028, 34.6, g.game.world.groundAt(1028, 34.6) + 1.7, 25, 14);
+      c.applicaOrario(1, 10.2);
+      g.setCamera(1029, 35.2, g.game.world.groundAt(1029, 35.2) + 1.7, 30, 9);
     },
     frames: 3,
   },
   {
+    nome: 'cripta',
+    file: 'castagno-morto-botola.png',
+    titolo: 'Il castagno morto e la botola della Cripta fra le radici, la mattina',
+    setup: (g, c) => {
+      g.setTime(7.2);
+      c.applicaOrario(1, 7.2);
+      c.apriBotola(true);
+      g.setCamera(1106.5, 26.4, g.game.world.groundAt(1106.5, 26.4) + 2.4, 62, -9);
+    },
+    frames: 90,
+    after: (g, c) => c.apriBotola(false),
+  },
+  {
+    nome: 'terrazza',
+    file: 'terrazza-pedrazzini.png',
+    titolo: 'La Terrazza Pedrazzini: castagni da frutto, erba alta, il castagno del cartellino',
+    setup: (g, c) => {
+      g.setTime(15.0);
+      c.applicaOrario(1, 15.0);
+      g.setCamera(931, 23.9, g.game.world.groundAt(931, 23.9) + 3.2, 2, -4);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'fienile',
+    file: 'fienile-ottavio.png',
+    titolo: 'Il fienile di Ottavio oltre il riale, il Sass dal Messo e la passerella',
+    setup: (g, c) => {
+      g.setTime(16.5);
+      c.applicaOrario(2, 16.5);
+      c.setVariante('E1', 'Abitata');
+      g.setCamera(1158, 50.2, g.game.world.groundAt(1158, 50.2) + 2.6, 62, 2);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'chiodo',
+    file: 'chiodo-3-squadro.png',
+    titolo: 'Il chiodo 3 sulla copertina del muro della Terrazza: dove si pianta lo squadro per collimare il Pilastro 1',
+    setup: (g, c) => {
+      g.setTime(11.0);
+      const p = c.punto('chiodo:3').cil;
+      g.setCamera(p.z - 0.9, p.theta - 0.12, p.h + 1.25, 40, -38);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'abitanti',
+    file: 'abitanti-piazza.png',
+    titolo: 'Gli abitanti velati in piazza: Ottavio, i bambini, Pina sulla soglia, i velati',
+    setup: (g, c) => {
+      g.setTime(13.2);
+      c.applicaOrario(1, 13.2);
+      const n = c.npc('ottavio');
+      g.setCamera(1043, 38.4, g.game.world.groundAt(1043, 38.4) + 1.65, -62, 2);
+      n.gesto('saluta', 0);
+    },
+    frames: 40,
+  },
+  {
+    nome: 'notte',
+    file: 'notte-paese.png',
+    titolo: 'Corbella di notte: finestre accese, lampioni, le Fade sui Ronchi, la casa di Nando',
+    setup: (g, c) => {
+      g.setTime(0.6);
+      c.applicaOrario(2, 0.6);
+      c.setVariante('E2', 'Smontata');
+      g.setCamera(1206, 41.2, g.game.world.groundAt(1206, 41.2) + 6, 205, -6);
+    },
+    frames: 60,
+  },
+  {
     nome: 'panorama',
     file: 'panorama-paese.png',
-    titolo: 'Corbella dall\'alto delle terrazze, a Mont e a Sera del paese',
-    setup: (g) => {
+    titolo: "Corbella dall'alto delle terrazze, a Mont e a Sera del paese",
+    setup: (g, c) => {
       g.setTime(10.8);
+      c.applicaOrario(1, 10.8);
       g.setCamera(985, 24, g.game.world.groundAt(985, 24) + 26, 50, -14);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'chiesa',
+    file: 'chiesa-sagrato.png',
+    titolo: 'San Vigilio, il sagrato a gradini e il tasso',
+    setup: (g, c) => {
+      g.setTime(15.5);
+      c.applicaOrario(1, 15.5);
+      g.setCamera(1040.5, 42.5, g.game.world.groundAt(1040.5, 42.5) + 1.8, -28, 9);
     },
     frames: 3,
   },
   {
     nome: 'pianta',
     file: 'debug-pianta.png',
-    titolo: 'Pianta di Corbella vista dall\'alto (controllo del piazzamento)',
+    titolo: "Pianta di Corbella vista dall'alto (controllo del piazzamento)",
     setup: (g) => {
       g.setTime(12);
       g.setSetting('nearPaint', [400, 600]);
@@ -66,16 +151,6 @@ const SHOTS = [
     },
     after: (g) => g.setSetting('nearPaint', [70, 150]),
     frames: 2,
-  },
-  {
-    nome: 'chiesa',
-    file: 'chiesa-sagrato.png',
-    titolo: 'San Vigilio, il sagrato a gradini e il tasso',
-    setup: (g) => {
-      g.setTime(15.5);
-      g.setCamera(1038, 41.6, g.game.world.groundAt(1038, 41.6) + 2.2, -40, 8);
-    },
-    frames: 3,
   },
 ];
 
@@ -144,7 +219,7 @@ async function main() {
     const s = await page.evaluate(() => window.__GAME__.getStats());
     const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s (fotogramma ${(ms / 1000).toFixed(1)} s), draw ${s.drawCalls}, tri ${s.triangles}`;
     console.log(line);
-    if (shot.after) await page.evaluate((src) => new Function('g', `(${src})(g)`)(window.__GAME__), shot.after.toString());
+    if (shot.after) await page.evaluate((src) => new Function('g', 'c', `(${src})(g, c)`)(window.__GAME__, window.__CORBELLA__), shot.after.toString());
     report.push({ file: shot.file, titolo: shot.titolo, drawCalls: s.drawCalls, triangoli: s.triangles });
   }
   writeFileSync(join(outDir, 'schermate.json'), JSON.stringify({ statistiche: st, schermate: report }, null, 2));
