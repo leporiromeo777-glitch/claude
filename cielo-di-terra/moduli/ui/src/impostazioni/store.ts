@@ -6,28 +6,45 @@ export type DimensioneTesto = 'normale' | 'grande' | 'molto-grande' | 'enorme';
 export type VelocitaTesto = 'lenta' | 'normale' | 'veloce' | 'istantanea';
 /** Come si leggono le carte scritte a mano. */
 export type Calligrafia = 'corsiva' | 'semplice';
+/** Coriolis sul corpo di Elvira: spento (0 %), ridotto (40 %, di serie) o pieno («fisica piena», 100 %). */
+export type CoriolisCorpo = 'spento' | 'ridotto' | 'pieno';
+/** Capovolgimento attraversando il cielo: rollio lento annunciato o dissolvenza a pennello. */
+export type Capovolgimento = 'rollio' | 'dissolvenza';
+/** Il Dondolio dopo la svolta: visibile, oppure sostituito da un suono e da un'onda del Velo. */
+export type DondolioVisivo = 'visivo' | 'suono';
+/** Azioni lunghe (rilievo, Tenuta…): tenere premuto o premere una volta. */
+export type ModoAzioni = 'tieni' | 'premi';
 
 /** Tutte le impostazioni del gioco gestite dall'interfaccia. */
 export interface Impostazioni {
-  // Visione e controlli
-  /** Campo visivo verticale in gradi (60-110). */
+  // Visione e comandi
+  /** Campo visivo verticale in gradi (70-110). */
   campoVisivo: number;
   /** Moltiplicatore della sensibilità del mouse (0,2-3). */
   sensibilitaMouse: number;
   invertiAsseY: boolean;
   /** Oscillazione della testa camminando: spenta di default. */
   oscillazioneTesta: boolean;
-  /** «Fisica piena»: Coriolis pieno anche sul passo e sui salti di Elvira (di norma ridotto al 40%). */
-  fisicaPiena: boolean;
+  /** Coriolis su passi e salti; 'pieno' è la «fisica piena». */
+  coriolisCorpo: CoriolisCorpo;
+  azioniTenute: ModoAzioni;
+  // Comfort
+  /** Vignettatura in planata (0-1). */
+  vignettaturaPlanata: number;
+  capovolgimento: Capovolgimento;
+  /** Velocità apparente delle stelle nelle Finestre (0,25-1). */
+  velocitaStelle: number;
+  dondolio: DondolioVisivo;
   // Suono (0-1)
   volumeGenerale: number;
   volumeMusica: number;
   volumeAmbiente: number;
   volumeVoci: number;
-  // Testo e accessibilità
+  audioMono: boolean;
+  // Testo e lettura
   dimensioneTesto: DimensioneTesto;
   sottotitoli: boolean;
-  /** Sottotitoli anche per i suoni («[campane di San Vigilio]»). */
+  /** Didascalie dei suoni («[tre rintocchi]»). */
   sottotitoliSuoni: boolean;
   /** Opacità della fascia dietro i sottotitoli (0-1). */
   sfondoSottotitoli: number;
@@ -38,10 +55,31 @@ export interface Impostazioni {
   altoContrasto: boolean;
   /** Riduce i movimenti dell'interfaccia (dissolvenze, sfogliare, testo progressivo). */
   riduciMovimenti: boolean;
-  /** Pianta: mostra la rosa dei venti. */
+  // Aiuti
+  /** Il punto a matita al centro, quando lo sguardo cade su qualcosa. */
+  puntino: boolean;
+  /** Suggerimenti dei comandi la prima volta di ogni verbo. */
+  suggerimentiComandi: boolean;
+  /** Archi sottili del fiato e del Velo intorno al punto (oltre al restringimento della vista). */
+  indicatoriFiato: boolean;
+  /** Pianta: rosa dei venti. */
   rosaDeiVenti: boolean;
-  /** Pianta: mostra la posizione e la direzione di Elvira. */
+  /** Pianta: puntatore della posizione di Elvira (spento di serie, come da GDD §8.3). */
   posizioneSullaPianta: boolean;
+  /** Matita marcata: più contrasto per il mondo e la Pianta a matita. */
+  matitaMarcata: boolean;
+  /** Bolla più larga (finestra di 1,5 s nel Dondolio). */
+  bollaLarga: boolean;
+  /** La collimazione aggancia il segnale. */
+  collimazioneAgganciata: boolean;
+  /** Apnea più lunga (+50 %). */
+  apneaLunga: boolean;
+  /** Più tempo nelle prove a tempo (Tenuta, traversate delle Finestre). */
+  piuTempo: boolean;
+  /** Arco di anteprima a matita per i lanci. */
+  arcoLancio: boolean;
+  /** Avviso della sera: prima di dormire, ciò che non è misurato. */
+  avvisoSera: boolean;
 }
 
 export type ChiaveImpostazione = keyof Impostazioni;
@@ -83,11 +121,17 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     sensibilitaMouse: 1,
     invertiAsseY: false,
     oscillazioneTesta: false,
-    fisicaPiena: false,
+    coriolisCorpo: 'ridotto',
+    azioniTenute: 'tieni',
+    vignettaturaPlanata: 0.5,
+    capovolgimento: 'rollio',
+    velocitaStelle: 1,
+    dondolio: 'visivo',
     volumeGenerale: 0.8,
     volumeMusica: 0.7,
     volumeAmbiente: 0.8,
     volumeVoci: 1,
+    audioMono: false,
     dimensioneTesto: 'normale',
     sottotitoli: true,
     sottotitoliSuoni: true,
@@ -97,15 +141,32 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     caratteriLeggibili: false,
     altoContrasto: false,
     riduciMovimenti: preferisceMenoMovimento,
+    puntino: true,
+    suggerimentiComandi: true,
+    indicatoriFiato: true,
     rosaDeiVenti: true,
-    posizioneSullaPianta: true,
+    posizioneSullaPianta: false,
+    matitaMarcata: false,
+    bollaLarga: false,
+    collimazioneAgganciata: false,
+    apneaLunga: false,
+    piuTempo: false,
+    arcoLancio: false,
+    avvisoSera: false,
   };
+}
+
+/** Fattore del Coriolis sul corpo (0; 0,4; 1) per il motore. */
+export function fattoreCoriolisCorpo(imp: Pick<Impostazioni, 'coriolisCorpo'>): number {
+  return imp.coriolisCorpo === 'pieno' ? 1 : imp.coriolisCorpo === 'spento' ? 0 : 0.4;
 }
 
 /** Limiti dei valori numerici: [minimo, massimo, passo]. */
 export const LIMITI: Partial<Record<ChiaveImpostazione, readonly [number, number, number]>> = {
-  campoVisivo: [60, 110, 1],
+  campoVisivo: [70, 110, 1],
   sensibilitaMouse: [0.2, 3, 0.05],
+  vignettaturaPlanata: [0, 1, 0.05],
+  velocitaStelle: [0.25, 1, 0.05],
   volumeGenerale: [0, 1, 0.01],
   volumeMusica: [0, 1, 0.01],
   volumeAmbiente: [0, 1, 0.01],
@@ -117,6 +178,10 @@ const VALORI_AMMESSI: Partial<Record<ChiaveImpostazione, readonly string[]>> = {
   dimensioneTesto: ['normale', 'grande', 'molto-grande', 'enorme'],
   velocitaTesto: ['lenta', 'normale', 'veloce', 'istantanea'],
   calligrafia: ['corsiva', 'semplice'],
+  coriolisCorpo: ['spento', 'ridotto', 'pieno'],
+  azioniTenute: ['tieni', 'premi'],
+  capovolgimento: ['rollio', 'dissolvenza'],
+  dondolio: ['visivo', 'suono'],
 };
 
 /** Corregge un valore: tipo giusto, dentro i limiti; altrimenti restituisce `undefined`. */

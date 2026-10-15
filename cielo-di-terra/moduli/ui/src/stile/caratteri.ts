@@ -4,7 +4,8 @@
  *
  * - EB Garamond: testo dell'interfaccia.
  * - IM Fell English / IM Fell English SC: titoli e maiuscoletti, come i cartigli incisi.
- * - Caveat: la mano di Elvira (taccuino, notifiche a matita).
+ * - Caveat: la mano di Elvira «madre», in corsivo a matita morbida (taccuino, notifiche).
+ * - Patrick Hand SC: la mano di Elvira «tecnica», in stampatello a matita dura.
  * - Playwrite IT Moderna: la corsiva scolastica italiana della lettera di Marta.
  * - Architects Daughter: la calligrafia minuta e regolare di Aurelio, geometra.
  * - Special Elite: i fogli battuti a macchina (le lettere di «S.»).
@@ -19,6 +20,7 @@ import '@fontsource/im-fell-english/latin-400-italic.css';
 import '@fontsource/im-fell-english-sc/latin-400.css';
 import '@fontsource/caveat/latin-400.css';
 import '@fontsource/caveat/latin-600.css';
+import '@fontsource/patrick-hand-sc/latin-400.css';
 import '@fontsource/playwrite-it-moderna/latin-400.css';
 import '@fontsource/architects-daughter/latin-400.css';
 import '@fontsource/special-elite/latin-400.css';
@@ -34,6 +36,7 @@ export const FAMIGLIE_CARATTERI = [
   '400 18px "IM Fell English SC"',
   '400 18px "Caveat"',
   '600 18px "Caveat"',
+  '400 18px "Patrick Hand SC"',
   '400 18px "Playwrite IT Moderna"',
   '400 18px "Architects Daughter"',
   '400 18px "Special Elite"',

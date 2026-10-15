@@ -16,6 +16,7 @@ import {
   haAttraversato,
   orientamentoAscoltatore,
   suVersoAsse,
+  vettoreSicuro,
   type ParametriAmbiente,
 } from './mappature';
 import { Mixer } from './mixer';
@@ -309,9 +310,10 @@ export class AudioEngine {
     if (this._stato !== 'attivo' || !ctx) return;
     const t = ctx.currentTime;
     const p = calcolaParametriAmbiente(stato);
-    const o = orientamentoAscoltatore(stato.avanti ?? { x: 0, y: 0, z: 1 }, stato.su ?? suVersoAsse(stato.posizione));
+    const posizione = vettoreSicuro(stato.posizione);
+    const o = orientamentoAscoltatore(stato.avanti ?? { x: 0, y: 0, z: 1 }, stato.su ?? suVersoAsse(posizione));
     const primo = this.ultimiParametri === null;
-    this.asc = { posizione: { ...stato.posizione }, avanti: o.avanti, su: o.su, altezza: p.altezza };
+    this.asc = { posizione, avanti: o.avanti, su: o.su, altezza: p.altezza };
     this.applicaAscoltatore(t, primo);
     this.ultimiParametri = p;
     if (this.oraPrecedente !== null) {
@@ -481,8 +483,9 @@ export class AudioEngine {
     );
     return {
       ingresso: pan,
-      posiziona: (p: Vec3) => {
+      posiziona: (nuova: Vec3) => {
         const t = ctx.currentTime;
+        const p = vettoreSicuro(nuova);
         pan.positionX.setTargetAtTime(p.x, t, 0.03);
         pan.positionY.setTargetAtTime(p.y, t, 0.03);
         pan.positionZ.setTargetAtTime(p.z, t, 0.03);
@@ -589,8 +592,9 @@ export class AudioEngine {
     };
   }
 
-  private creaPanner(p: Vec3, profilo: ProfiloSpaziale, uscita: AudioNode): PannerNode {
+  private creaPanner(posizione: Vec3, profilo: ProfiloSpaziale, uscita: AudioNode): PannerNode {
     const ctx = this.ctx as BaseAudioContext;
+    const p = vettoreSicuro(posizione);
     const pan = ctx.createPanner();
     pan.panningModel = 'HRTF';
     pan.distanceModel = 'inverse';

@@ -26,26 +26,71 @@ const numero = (v: number, cifre = 0): string =>
   v.toLocaleString('it-IT', { minimumFractionDigits: cifre, maximumFractionDigits: cifre });
 const percento = (v: number): string => `${numero(v * 100)} %`;
 
+const si = (v: number): string => `${numero(v * 100)} %`;
+
 /** Le sezioni e le righe del pannello. */
 export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
   {
     id: 'visione',
-    titolo: 'Visione e controlli',
+    titolo: 'Visione e comandi',
     righe: [
       { tipo: 'cursore', chiave: 'campoVisivo', etichetta: 'Campo visivo', formato: (v) => `${numero(v)}°` },
       { tipo: 'cursore', chiave: 'sensibilitaMouse', etichetta: 'Sensibilità del mouse', formato: (v) => `${numero(v, 2)} ×` },
-      { tipo: 'interruttore', chiave: 'invertiAsseY', etichetta: 'Inverti l’asse verticale', nota: 'Il mouse in avanti fa guardare in basso.' },
+      { tipo: 'interruttore', chiave: 'invertiAsseY', etichetta: 'Inverti l\u2019asse verticale', nota: 'Il mouse in avanti fa guardare in basso.' },
       {
         tipo: 'interruttore',
         chiave: 'oscillazioneTesta',
         etichetta: 'Oscillazione della testa',
-        nota: 'Il passo fa ondeggiare lo sguardo. Spenta di base, per chi soffre il mal di mare.',
+        nota: 'Il passo fa ondeggiare lo sguardo. Spenta di serie, per chi soffre il mal di movimento.',
       },
       {
-        tipo: 'interruttore',
-        chiave: 'fisicaPiena',
-        etichetta: 'Fisica piena',
-        nota: 'Il Coriolis agisce per intero anche sul passo e sui salti di Elvira; di norma è ridotto al 40%.',
+        tipo: 'scelta',
+        chiave: 'coriolisCorpo',
+        etichetta: 'Coriolis sul corpo',
+        nota: 'Quanto la rotazione devia i passi e i salti di Elvira. «Fisica piena»: come per oggetti, acqua e planate.',
+        opzioni: [
+          { valore: 'spento', etichetta: 'Spento' },
+          { valore: 'ridotto', etichetta: 'Ridotto' },
+          { valore: 'pieno', etichetta: 'Fisica piena' },
+        ],
+      },
+      {
+        tipo: 'scelta',
+        chiave: 'azioniTenute',
+        etichetta: 'Azioni lunghe',
+        nota: 'Rilievo, Tenuta, arrampicata: tenere premuto il tasto o premerlo una volta.',
+        opzioni: [
+          { valore: 'tieni', etichetta: 'Tieni premuto' },
+          { valore: 'premi', etichetta: 'Premi una volta' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'comfort',
+    titolo: 'Comfort',
+    righe: [
+      { tipo: 'cursore', chiave: 'vignettaturaPlanata', etichetta: 'Vignettatura in planata', nota: 'Bordi scuri durante il volo con il Velo.', formato: si },
+      {
+        tipo: 'scelta',
+        chiave: 'capovolgimento',
+        etichetta: 'Attraversare il cielo',
+        nota: 'A metà del volo verso l\u2019altra valle il «giù» si capovolge.',
+        opzioni: [
+          { valore: 'rollio', etichetta: 'Rollio lento' },
+          { valore: 'dissolvenza', etichetta: 'Dissolvenza a pennello' },
+        ],
+      },
+      { tipo: 'cursore', chiave: 'velocitaStelle', etichetta: 'Stelle nelle Finestre', nota: 'Velocità apparente delle stelle che girano sotto il vetro.', formato: si },
+      {
+        tipo: 'scelta',
+        chiave: 'dondolio',
+        etichetta: 'Il Dondolio',
+        nota: 'Dopo la svolta il mondo ondeggia: vederlo, oppure sentirlo e leggerlo nel Velo.',
+        opzioni: [
+          { valore: 'visivo', etichetta: 'Visibile' },
+          { valore: 'suono', etichetta: 'Suono e Velo' },
+        ],
       },
     ],
   },
@@ -57,11 +102,12 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
       { tipo: 'cursore', chiave: 'volumeMusica', etichetta: 'Musica', formato: percento },
       { tipo: 'cursore', chiave: 'volumeAmbiente', etichetta: 'Ambiente', nota: 'Vento, acqua, campane, macchine.', formato: percento },
       { tipo: 'cursore', chiave: 'volumeVoci', etichetta: 'Voci', formato: percento },
+      { tipo: 'interruttore', chiave: 'audioMono', etichetta: 'Audio mono' },
     ],
   },
   {
-    id: 'accessibilita',
-    titolo: 'Testo e accessibilità',
+    id: 'testo',
+    titolo: 'Testo e lettura',
     righe: [
       {
         tipo: 'scelta',
@@ -75,7 +121,7 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
         ],
       },
       { tipo: 'interruttore', chiave: 'sottotitoli', etichetta: 'Sottotitoli', nota: 'Le voci, con il nome di chi parla.' },
-      { tipo: 'interruttore', chiave: 'sottotitoliSuoni', etichetta: 'Sottotitoli dei suoni', nota: 'Campane, macchine, sciami, con la direzione.' },
+      { tipo: 'interruttore', chiave: 'sottotitoliSuoni', etichetta: 'Didascalie dei suoni', nota: 'Campane, macchine, sciami, con la direzione.' },
       { tipo: 'cursore', chiave: 'sfondoSottotitoli', etichetta: 'Fondo dei sottotitoli', formato: percento },
       {
         tipo: 'scelta',
@@ -92,18 +138,34 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
       {
         tipo: 'scelta',
         chiave: 'calligrafia',
-        etichetta: 'Calligrafia delle carte',
-        nota: 'Lettere, libretto di Aurelio, taccuino: a mano o in carattere da stampa.',
+        etichetta: 'Calligrafia',
+        nota: 'Lettere, libretto di Aurelio e taccuino: a mano o in testo semplice, stampato.',
         opzioni: [
           { valore: 'corsiva', etichetta: 'A mano' },
           { valore: 'semplice', etichetta: 'Testo semplice' },
         ],
       },
-      { tipo: 'interruttore', chiave: 'caratteriLeggibili', etichetta: 'Caratteri ad alta leggibilità', nota: 'Atkinson Hyperlegible in tutta l’interfaccia.' },
+      { tipo: 'interruttore', chiave: 'caratteriLeggibili', etichetta: 'Caratteri ad alta leggibilità', nota: 'Atkinson Hyperlegible in tutta l\u2019interfaccia.' },
       { tipo: 'interruttore', chiave: 'altoContrasto', etichetta: 'Alto contrasto', nota: 'Carta piena e inchiostro nero, senza grana.' },
-      { tipo: 'interruttore', chiave: 'riduciMovimenti', etichetta: 'Riduci i movimenti dell’interfaccia', nota: 'Niente dissolvenze, pagine che scorrono o testo progressivo.' },
+      { tipo: 'interruttore', chiave: 'riduciMovimenti', etichetta: 'Riduci i movimenti dell\u2019interfaccia', nota: 'Niente dissolvenze, pagine che scorrono o testo che compare a poco a poco.' },
+    ],
+  },
+  {
+    id: 'aiuti',
+    titolo: 'Aiuti',
+    righe: [
+      { tipo: 'interruttore', chiave: 'puntino', etichetta: 'Punto al centro', nota: 'Compare quando lo sguardo cade su qualcosa con cui si può fare qualcosa.' },
+      { tipo: 'interruttore', chiave: 'suggerimentiComandi', etichetta: 'Suggerimenti dei comandi', nota: 'Una riga a matita in basso, la prima volta di ogni gesto.' },
+      { tipo: 'interruttore', chiave: 'indicatoriFiato', etichetta: 'Segni del fiato e del Velo', nota: 'Due archi sottili intorno al punto, solo quando servono. Senza, resta la vista che si restringe.' },
       { tipo: 'interruttore', chiave: 'rosaDeiVenti', etichetta: 'Pianta: rosa dei venti' },
-      { tipo: 'interruttore', chiave: 'posizioneSullaPianta', etichetta: 'Pianta: posizione di Elvira' },
+      { tipo: 'interruttore', chiave: 'posizioneSullaPianta', etichetta: 'Pianta: dove sono', nota: 'La posizione e lo sguardo di Elvira sulla Pianta.' },
+      { tipo: 'interruttore', chiave: 'matitaMarcata', etichetta: 'Matita marcata', nota: 'Più contrasto per ciò che è disegnato a matita.' },
+      { tipo: 'interruttore', chiave: 'bollaLarga', etichetta: 'Bolla più larga', nota: 'Più tolleranza nel livellare lo squadro, anche nel Dondolio.' },
+      { tipo: 'interruttore', chiave: 'collimazioneAgganciata', etichetta: 'Collimazione che aggancia', nota: 'Il reticolo si ferma da solo sul segnale vicino.' },
+      { tipo: 'interruttore', chiave: 'apneaLunga', etichetta: 'Apnea più lunga', nota: 'Il respiratore regge la metà in più sott\u2019acqua.' },
+      { tipo: 'interruttore', chiave: 'piuTempo', etichetta: 'Più tempo nelle prove', nota: 'Tenuta con la fascia verde più larga, dieci secondi d\u2019ombra in più sulle Finestre.' },
+      { tipo: 'interruttore', chiave: 'arcoLancio', etichetta: 'Arco del lancio a matita', nota: 'Mostra prima dove curverà ciò che lanci.' },
+      { tipo: 'interruttore', chiave: 'avvisoSera', etichetta: 'Avviso della sera', nota: 'Prima di dormire il taccuino elenca ciò che hai usato e che non è misurato.' },
     ],
   },
 ];

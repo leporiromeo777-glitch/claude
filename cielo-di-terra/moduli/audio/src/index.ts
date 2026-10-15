@@ -10,6 +10,7 @@ export {
   calcolaParametriAmbiente,
   coordinateCilindriche,
   suVersoAsse,
+  vettoreSicuro,
   zonaDaTheta,
   descrizioneZona,
   pesoFinestra,

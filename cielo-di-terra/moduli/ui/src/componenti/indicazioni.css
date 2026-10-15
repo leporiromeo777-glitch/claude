@@ -6,7 +6,7 @@
   --ombra-testo: 0 0 2px rgba(10, 7, 4, 0.9), 0 1px 3px rgba(10, 7, 4, 0.85), 0 0 12px rgba(10, 7, 4, 0.45);
 }
 
-/* Puntino: avorio con un filo scuro, si legge sul cielo e sull'ombra. */
+/* Punto a matita: grafite con un alone chiaro, si legge sul cielo e sull'ombra. */
 .ui-hud-puntino {
   position: absolute;
   left: 50%;
@@ -14,12 +14,46 @@
   width: 6px;
   height: 6px;
   margin: -3px 0 0 -3px;
-  border-radius: 50%;
-  background: var(--chiaro);
-  box-shadow: 0 0 0 1.2px rgba(20, 14, 8, 0.75), 0 0 4px rgba(0, 0, 0, 0.35);
+  border-radius: 46% 54% 50% 50%;
+  background: radial-gradient(circle at 40% 40%, #6a665f, #3b3934 70%);
+  box-shadow: 0 0 0 1.5px rgba(247, 240, 220, 0.85), 0 0 5px rgba(0, 0, 0, 0.35);
 }
-.ui-hud-puntino[hidden] {
+.ui-hud-puntino[hidden],
+.ui-senza-puntino .ui-hud-puntino,
+.ui-senza-archi .ui-hud-misuratori,
+.ui-senza-suggerimenti .ui-hud-suggerimento,
+.ui-con-modale .ui-hud-puntino,
+.ui-con-modale .ui-hud-azione,
+.ui-con-modale .ui-hud-suggerimento,
+.ui-con-modale .ui-hud-misuratori,
+.ui-con-modale .ui-squadro {
   display: none;
+}
+
+/* Suggerimento dei comandi: una riga in corsivo a matita, in basso. */
+.ui-hud-suggerimento {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(70px, 17vh, 170px);
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: min(760px, calc(100% - 32px));
+  text-align: center;
+  font-style: italic;
+  font-size: calc(20px * var(--ui-scala));
+  color: var(--chiaro);
+  text-shadow: var(--ombra-testo);
+  animation: ui-hud-compari-sotto 0.5s ease both;
+}
+.ui-hud-suggerimento[hidden] {
+  display: none;
+}
+.ui-hud-suggerimento .ui-tasto {
+  margin: 0 0.2em;
+  font-style: normal;
+  color: var(--inchiostro);
+  background: var(--chiaro);
+  text-shadow: none;
 }
 
 /* Azione contestuale. */
@@ -60,6 +94,7 @@
   opacity: 0.8;
 }
 .ui-hud-azione-testo {
+  font-style: italic;
   font-weight: 500;
   letter-spacing: 0.01em;
 }

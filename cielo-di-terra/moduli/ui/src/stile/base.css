@@ -36,6 +36,7 @@
   --f-titolo: 'IM Fell English', 'EB Garamond', Georgia, serif;
   --f-maiuscoletto: 'IM Fell English SC', 'EB Garamond', Georgia, serif;
   --f-mano: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --f-stampatello: 'Patrick Hand SC', 'Caveat', cursive;
   --f-lettera: 'Playwrite IT Moderna', 'Caveat', cursive;
   --f-geometra: 'Architects Daughter', 'Caveat', cursive;
   --f-macchina: 'Special Elite', 'Courier New', ui-monospace, monospace;
@@ -78,6 +79,7 @@
 /* Opzione «testo semplice»: le calligrafie diventano carattere da stampa. */
 .ui-radice.ui-semplice {
   --f-mano: var(--f-testo);
+  --f-stampatello: var(--f-testo);
   --f-lettera: var(--f-testo);
   --f-geometra: var(--f-testo);
   --f-macchina: var(--f-testo);
@@ -89,6 +91,7 @@
   --f-titolo: 'Atkinson Hyperlegible', Verdana, sans-serif;
   --f-maiuscoletto: 'Atkinson Hyperlegible', Verdana, sans-serif;
   --f-mano: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --f-stampatello: 'Atkinson Hyperlegible', Verdana, sans-serif;
   --f-lettera: 'Atkinson Hyperlegible', Verdana, sans-serif;
   --f-geometra: 'Atkinson Hyperlegible', Verdana, sans-serif;
   --f-macchina: 'Atkinson Hyperlegible', Verdana, sans-serif;

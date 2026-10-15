@@ -44,4 +44,8 @@ export function applicaImpostazioniVisive(radice: HTMLElement, imp: Readonly<Imp
   radice.classList.toggle('ui-contrasto', imp.altoContrasto);
   radice.classList.toggle('ui-senza-sottotitoli', !imp.sottotitoli);
   radice.classList.toggle('ui-senza-suoni', !imp.sottotitoliSuoni);
+  radice.classList.toggle('ui-senza-puntino', !imp.puntino);
+  radice.classList.toggle('ui-senza-suggerimenti', !imp.suggerimentiComandi);
+  radice.classList.toggle('ui-senza-archi', !imp.indicatoriFiato);
+  radice.classList.toggle('ui-matita-marcata', imp.matitaMarcata);
 }

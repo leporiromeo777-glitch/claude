@@ -40,6 +40,12 @@ export function coordinateCilindriche(p: Vec3): Cilindriche {
   return { theta, raggio, altezza: RAGGIO_INTERNO - raggio, z: p.z };
 }
 
+/** Copia di un vettore con le componenti non finite (NaN, ±Infinity) sostituite da 0. */
+export function vettoreSicuro(p: Vec3): Vec3 {
+  const f = (x: number): number => (Number.isFinite(x) ? x : 0);
+  return { x: f(p.x), y: f(p.y), z: f(p.z) };
+}
+
 /** Il «su» locale nel cilindro: dal suolo verso l'asse (versore). */
 export function suVersoAsse(p: Vec3): Vec3 {
   const r = Math.hypot(p.x, p.y);
@@ -315,9 +321,9 @@ export interface ParametriAmbiente {
 }
 
 export function calcolaParametriAmbiente(stato: StatoAudio): ParametriAmbiente {
-  const cil = coordinateCilindriche(stato.posizione);
-  const theta = stato.theta !== undefined ? modulo(stato.theta, 360) : cil.theta;
-  const altezza = stato.altezza !== undefined ? stato.altezza : cil.altezza;
+  const cil = coordinateCilindriche(vettoreSicuro(stato.posizione));
+  const theta = stato.theta !== undefined && Number.isFinite(stato.theta) ? modulo(stato.theta, 360) : cil.theta;
+  const altezza = stato.altezza !== undefined && Number.isFinite(stato.altezza) ? stato.altezza : cil.altezza;
   const ora = normalizzaOra(stato.ora);
   const velocita = Number.isFinite(stato.velocita) ? Math.abs(stato.velocita) : 0;
   const inVolo = stato.inVolo === true;
@@ -330,8 +336,8 @@ export function calcolaParametriAmbiente(stato: StatoAudio): ParametriAmbiente {
         : 0
       : pesoFinestra(theta);
   const pValle = 1 - pFin;
-  const dLago = stato.distanzaLago ?? distanzaLagoStimata(theta, cil.z, altezza);
-  const dSordo = stato.distanzaSordo ?? distanzaSordoStimata(cil.z);
+  const dLago = Number.isFinite(stato.distanzaLago) ? (stato.distanzaLago as number) : distanzaLagoStimata(theta, cil.z, altezza);
+  const dSordo = Number.isFinite(stato.distanzaSordo) ? (stato.distanzaSordo as number) : distanzaSordoStimata(cil.z);
   const linea = parametriLinea(ora, altezza);
   return {
     ora,
@@ -346,7 +352,7 @@ export function calcolaParametriAmbiente(stato: StatoAudio): ParametriAmbiente {
     pesoLago: pesoLago(dLago) * pValle,
     pesoSordo: pesoSordo(dSordo),
     notte: linea.brace,
-    fadeVicine: limita(stato.fadeVicine ?? 0, 0, 1),
+    fadeVicine: Number.isFinite(stato.fadeVicine) ? limita(stato.fadeVicine as number, 0, 1) : 0,
     vento: parametriVento(altezza, velocita),
     volo: parametriVolo(velocita, inVolo),
     linea,

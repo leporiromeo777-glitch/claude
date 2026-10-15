@@ -68,6 +68,7 @@ const PAROLE_DIREZIONE: Record<DirezioneSuono, string> = {
 export class Indicazioni extends Componente<EventiIndicazioni> {
   private readonly puntino: HTMLDivElement;
   private readonly azioneEl: HTMLDivElement;
+  private readonly suggerimentoEl: HTMLParagraphElement;
   private readonly notifiche: HTMLDivElement;
   private readonly sottotitoli: HTMLDivElement;
   private readonly misuratori: HTMLDivElement;
@@ -91,6 +92,7 @@ export class Indicazioni extends Componente<EventiIndicazioni> {
 
     this.puntino = h('div', { class: 'ui-hud-puntino', 'aria-hidden': 'true' });
     this.azioneEl = h('div', { class: 'ui-hud-azione', hidden: true, role: 'status' });
+    this.suggerimentoEl = h('p', { class: 'ui-hud-suggerimento', hidden: true, role: 'status' });
     this.notifiche = h('div', { class: 'ui-hud-notifiche', role: 'status', 'aria-live': 'polite' });
     this.sottotitoli = h('div', { class: 'ui-hud-sottotitoli', 'aria-live': 'polite' });
 
@@ -134,7 +136,7 @@ export class Indicazioni extends Componente<EventiIndicazioni> {
     // Annuncio testuale per i lettori di schermo.
     this.annuncioSquadro = h('div', { class: 'ui-sr', 'aria-live': 'polite' });
 
-    this.el.append(this.vignetta, this.squadroEl, this.puntino, this.misuratori, this.azioneEl, this.sottotitoli, this.notifiche, this.annuncioSquadro);
+    this.el.append(this.vignetta, this.squadroEl, this.puntino, this.misuratori, this.azioneEl, this.suggerimentoEl, this.sottotitoli, this.notifiche, this.annuncioSquadro);
     this.aggiornaMisuratori();
   }
 
@@ -164,6 +166,21 @@ export class Indicazioni extends Componente<EventiIndicazioni> {
     );
     this.azioneEl.setAttribute('aria-label', `${a.tasto}: ${a.testo}`);
     this.azioneEl.hidden = false;
+  }
+
+  /**
+   * Suggerimento dei comandi: una riga in corsivo a matita in basso, la prima volta di ogni gesto
+   * (markup [[tecnica|locale]] e *corsivo*; i tasti fra parentesi graffe, es. «Tieni premuto {E} vicino al chiodo»).
+   * null lo toglie. Si nasconde da sé se l'impostazione «Suggerimenti dei comandi» è spenta.
+   */
+  suggerimento(testo: string | null): void {
+    if (!testo) {
+      this.suggerimentoEl.hidden = true;
+      return;
+    }
+    const parti = testo.split(/\{([^}]+)\}/);
+    this.suggerimentoEl.replaceChildren(...parti.map((p, i) => (i % 2 ? h('span', { class: 'ui-tasto' }, p) : nodiTesto(p))));
+    this.suggerimentoEl.hidden = false;
   }
 
   /** Notifica breve a matita in alto a destra («Nuova pista nel taccuino»). */
