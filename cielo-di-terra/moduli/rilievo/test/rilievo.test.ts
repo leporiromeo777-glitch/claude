@@ -78,9 +78,9 @@ describe('appuntare con lo squadro in mano', () => {
 
   it('di notte i lumi lontani: si contano una volta sola; buio senza lume, coperti dal Collare', () => {
     const faro = appunta(s0, r, { bersaglio: { caposaldo: 'cs_17' }, ora: '22:00' });
-    expect(faro.effetti).toEqual(['flag:appuntato:2513', 'contatore:lumi_appuntati+1']);
+    expect(faro.effetti).toEqual(['flag:appuntato:2825', 'contatore:lumi_appuntati+1']);
     const ancora = appunta(faro.stato, r, { bersaglio: { caposaldo: 'cs_17' }, ora: '23:00' });
-    expect(ancora.effetti).toEqual(['flag:appuntato:2513']);
+    expect(ancora.effetti).toEqual(['flag:appuntato:2825']);
     expect(appunta(s0, r, { bersaglio: { caposaldo: 'cs_15' }, ora: '22:00' })).toMatchObject({ ok: false, motivo: 'buio' });
     const collare = appunta(s0, r, { bersaglio: { caposaldo: 'cs_14' }, ora: '01:20' });
     expect(collare).toMatchObject({ ok: false, motivo: 'collare' });
