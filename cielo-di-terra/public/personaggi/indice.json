@@ -1,0 +1,595 @@
+{
+ "versione": 1,
+ "descrizione": "Personaggi della Fase 1 generati (Higgsfield -> Blender -> GLB skinned). Prodotto da tools/personaggi/indice.py; vedi docs/personaggi/PIPELINE.md.",
+ "unita": "metri (scala 1 = 1 m; altezza = cima della testa o del cappello)",
+ "orientamento": "glTF: +Y in alto, il personaggio guarda +Z, la sua sinistra è +X; piedi a y = 0, centrato sui fianchi",
+ "posa_di_riposo": "A-pose (braccia a circa 25-30 gradi dal corpo): le abbassa l'animatore (apertura)",
+ "ossa": [
+  "bacino",
+  "schiena",
+  "petto",
+  "collo",
+  "testa",
+  "braccioS",
+  "avambraccioS",
+  "manoS",
+  "braccioD",
+  "avambraccioD",
+  "manoD",
+  "cosciaS",
+  "stincoS",
+  "piedeS",
+  "cosciaD",
+  "stincoD",
+  "piedeD"
+ ],
+ "lod": "un GLB per personaggio con due SkinnedMesh sullo stesso scheletro e lo stesso materiale: lod0 (8000 tri) e lod1 (2000 tri)",
+ "texture": "una texture di colore JPEG 1024 px per personaggio, materiale opaco (metallic 0, roughness 1)",
+ "totale_kb": 5222,
+ "personaggi": [
+  {
+   "id": "ottavio",
+   "file": "ottavio.glb",
+   "lod1": {
+    "file": "ottavio.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.74,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 391,
+   "generatore": "tripo_h3_1_image_to_3d",
+   "proporzioni": "adulto",
+   "volto": "scoperto",
+   "gonna": false,
+   "apertura": 10,
+   "curvo": 0.0,
+   "oggetti": [
+    "lume@bacino",
+    "velo-da-planata (oggetto a parte)"
+   ],
+   "note": "Il Messo, 17 anni; volto dipinto e stilizzato, fascia verde sulla fronte, borsa a tracolla nel modello. Tripo: il più dettagliato, si vede da vicino."
+  },
+  {
+   "id": "togna",
+   "file": "togna.glb",
+   "lod1": {
+    "file": "togna.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.62,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 387,
+   "generatore": "tripo_h3_1_image_to_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 13,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "La lavandaia; curvo 1 quando è china sulla vasca (raggiungi() per le mani nell'acqua). Tripo, dal pilota."
+  },
+  {
+   "id": "bortolo",
+   "file": "bortolo.glb",
+   "lod1": {
+    "file": "bortolo.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.8,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 373,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 13,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Il campanaro: cappello di feltro nero sopra il velo, martello e chiavi d'ottone alla cintura (nel modello)."
+  },
+  {
+   "id": "pina",
+   "file": "pina.glb",
+   "lod1": {
+    "file": "pina.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.52,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 432,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.45,
+   "oggetti": [
+    "forbici@manoD",
+    "figura-di-cartone@manoS"
+   ],
+   "note": "L'Ombrista, 81 anni: cappuccio di lana grigia, scialle, grembiule ocra; piccola (1,52 m) e curva."
+  },
+  {
+   "id": "annunciata",
+   "file": "annunciata.glb",
+   "lod1": {
+    "file": "annunciata.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.56,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 379,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 11,
+   "curvo": 0.55,
+   "oggetti": [
+    "bastone@manoD"
+   ],
+   "note": "Vecchia, velo noce scuro fino ai gomiti; curva (la curva la fa l'animatore), 1,56 m."
+  },
+  {
+   "id": "nando",
+   "file": "nando.glb",
+   "lod1": {
+    "file": "nando.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 6614
+   },
+   "altezza": 1.76,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 359,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "scoperto",
+   "gonna": false,
+   "apertura": 10,
+   "curvo": 0.0,
+   "oggetti": [
+    "pietra@manoD"
+   ],
+   "note": "Lo Smascherato: testa scoperta, volto dipinto e stilizzato, barba grigia corta."
+  },
+  {
+   "id": "clelia",
+   "file": "clelia.glb",
+   "lod1": {
+    "file": "clelia.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.68,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 414,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "maschera",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [
+    "pacchetto@manoS"
+   ],
+   "note": "Novizia della Confraternita: veste di garza nero-viola fino a terra, maschera ovale di castagno senza tratti."
+  },
+  {
+   "id": "lisa",
+   "file": "lisa.glb",
+   "lod1": {
+    "file": "lisa.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.25,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 406,
+   "generatore": "sam_3_3d",
+   "proporzioni": "bambino",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Nove anni: garza bianca annodata storta, nastro vermiglio al polso sinistro. Proporzioni da bambina (testa 1/5)."
+  },
+  {
+   "id": "gioanin",
+   "file": "gioanin.glb",
+   "lod1": {
+    "file": "gioanin.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.12,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 447,
+   "generatore": "sam_3_3d",
+   "proporzioni": "bambino",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Sei anni: garza bianca troppo lunga, calzoncini con le bretelle, zoccoli. Proporzioni da bambino."
+  },
+  {
+   "id": "velata_donna",
+   "file": "velata_donna.glb",
+   "lod1": {
+    "file": "velata_donna.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.63,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 424,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [
+    "cesto@manoS (facoltativo)"
+   ],
+   "note": "Velata generica: garza noce, scialle verde salvia, gonna noce, grembiule ocra. Varianti con tinta/scala/posa."
+  },
+  {
+   "id": "velato_gerla",
+   "file": "velato_gerla.glb",
+   "lod1": {
+    "file": "velato_gerla.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7818
+   },
+   "altezza": 1.75,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 384,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 12,
+   "curvo": 0.1,
+   "oggetti": [
+    "gerla@petto"
+   ],
+   "note": "Velato generico: cappello di feltro bruno, giacca ocra, fasce alle gambe. La gerla l'ha tolta sam_3_3d (ritaglia la persona): va attaccata come oggetto di scena all'osso petto, sulla schiena."
+  },
+  {
+   "id": "velato_maschera",
+   "file": "velato_maschera.glb",
+   "lod1": {
+    "file": "velato_maschera.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.6,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 409,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "maschera",
+   "gonna": true,
+   "apertura": 11,
+   "curvo": 0.35,
+   "oggetti": [
+    "bastone@manoD"
+   ],
+   "note": "Anziano generico: cappuccio noce, maschera di castagno con due tagli per gli occhi, mantellina grigio-viola, cappotto lungo."
+  },
+  {
+   "id": "velato_cappuccio",
+   "file": "velato_cappuccio.glb",
+   "lod1": {
+    "file": "velato_cappuccio.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.7,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 418,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Figura incappucciata generica: cappuccio e mantello grigio-viola aperto davanti, tunica ocra, velo noce dentro il cappuccio."
+  }
+ ]
+}
