@@ -86,8 +86,8 @@ export function installaDebugRegia(r: Regia): DebugRegia {
         ottavio: r.abitanti.modoOttavio,
         ottavioDistanza: Math.round(r.abitanti.distanzaDa('ottavio', pc.z, pc.theta) * 10) / 10,
         ottavioPos: (() => {
-          const f = r.abitanti.figure.get('ottavio');
-          return f ? [Math.round(f.z * 10) / 10, Math.round(f.theta * 100) / 100, f.visibile] : null;
+          const o = r.abitanti.posizione('ottavio');
+          return o ? [Math.round(o.z * 10) / 10, Math.round(o.theta * 100) / 100, Math.round(o.h * 10) / 10] : null;
         })(),
         taccuino: n.taccuino.voci().length,
         rigaCielo: r.ponte.rigaCielo(),

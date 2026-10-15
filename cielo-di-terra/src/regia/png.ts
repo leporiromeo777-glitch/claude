@@ -13,7 +13,7 @@
 import type { Object3D, Vector3 } from 'three';
 import type { ManigliaCorbella, ManigliaNpc } from '../popolamento';
 import { METERS_PER_DEG } from '../world/constants';
-import { cylToWorld, deltaDeg, surfaceDistance, worldToCyl } from '../world/cylinder';
+import { cylToWorld, deltaDeg, surfaceDistance } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
 import { luogo, oreDa, type Personaggio } from './contenuti';
 
@@ -389,9 +389,4 @@ export class Abitanti {
     this.metaCammino = { z: meta.z, theta: meta.theta };
     void n.cammina({ z: meta.z, theta: meta.theta }, velocita);
   }
-}
-
-/** Per i test e il debug: (z, θ) di un punto mondo. */
-export function cilDi(p: Vector3): { z: number; theta: number; h: number } {
-  return worldToCyl(p);
 }

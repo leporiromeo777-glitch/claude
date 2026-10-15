@@ -71,18 +71,19 @@ export class DirettoreDialoghi {
 
   private personaPronta(dialogo: string): boolean {
     const p = this.r.narrativa.dialoghi.definizione(dialogo)?.personaggio;
-    if (!p || !this.r.abitanti.figure.has(p === 'bambini' ? 'lisa' : p)) return true;
     const a = this.r.abitanti;
+    if (!p || !a.ha(p)) return true;
     if (p === 'ottavio') {
       if (a.modoOttavio === 'atterra' || a.modoOttavio === 'raggiunge') return false;
-      // lontano (atterrato dall'altra parte della piazza, fermo davanti al fienile): viene incontro
+      // lontano (atterrato dall'altra parte della piazza, fermo davanti al fienile) o in volo:
+      // viene incontro (o scende dal cielo)
       const e = this.r.game.player.cyl;
-      if (a.presente('ottavio') && a.modoOttavio !== 'accompagna' && a.distanzaDa('ottavio', e.z, e.theta) > DISTANZA_PER_PARLARE) {
+      if (a.modoOttavio !== 'accompagna' && a.modoOttavio !== 'cielo' && a.distanzaDa('ottavio', e.z, e.theta) > DISTANZA_PER_PARLARE) {
         a.ottavioRaggiunge();
         return false;
       }
     }
-    return a.presente(p === 'bambini' ? 'lisa' : p);
+    return a.presente(p);
   }
 
   private ripetibile(id: string): boolean {

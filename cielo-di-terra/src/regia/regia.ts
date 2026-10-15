@@ -654,12 +654,7 @@ export class Regia implements SistemaGioco {
   /** Chi è entro `raggio` m da Elvira (Ottavio no: è il compagno di strada e le si siede accanto). */
   private personeVicine(raggio = 4): Set<string> {
     const pc = this.game.player.cyl;
-    const out = new Set<string>();
-    for (const f of this.abitanti.figure.values()) {
-      if (!f.visibile || f.def.id === 'ottavio') continue;
-      if (Math.hypot(f.z - pc.z, (f.theta - pc.theta) * METERS_PER_DEG) < raggio) out.add(f.def.id);
-    }
-    return out;
+    return new Set(this.abitanti.vicini(pc.z, pc.theta, raggio, ['ottavio']));
   }
 
   testoOra(): string {
