@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T08:36:48.675Z",
+  "data": "2026-10-15T08:37:29.066Z",
   "esito": "fallita",
-  "secondi": 28,
+  "secondi": 30,
   "passi": [
-    "pronto in 7.2 s",
+    "pronto in 6.0 s",
     "— Titolo",
     "  nella capsula 5, 05:38, giorno 1",
     "— P0.1 Il vetro",
@@ -36,11 +36,25 @@
     "— M1.4 L'innesto",
     "  ✓ l'innesto fatto in tre tempi (flag:innesto_fatto e passo:m1_innesto completato)",
     "— M1.5 Il Velo",
-    "  volo: glide velo true h 9.0 v 9.0 z 1036.0 θ 33.20",
-    "  volo: glide velo true h 8.4 v 9.4 z 1036.6 θ 33.45",
-    "  volo: glide velo true h 6.9 v 10.5 z 1037.3 θ 33.68",
-    "  volo: glide velo true h 4.8 v 11.7 z 1037.9 θ 33.93",
-    "  atterrata: "
+    "  volo: glide velo true h 13.0 v 10.0 z 1036.0 θ 33.20",
+    "  volo: glide velo true h 12.4 v 10.3 z 1036.7 θ 33.48",
+    "  volo: glide velo true h 10.8 v 11.3 z 1037.4 θ 33.74",
+    "  volo: glide velo true h 8.7 v 12.4 z 1038.1 θ 34.01",
+    "  atterrata: piazza_ore, bacheca_ore",
+    "  ✓ la prima planata, in piazza (flag:planata_fatta e passo:m1_velo completato)",
+    "— M1.6 I velati",
+    "  aspetta fino a fra un'ora: 6.29 → 07:18",
+    "  aspetta fino a fra un'ora: 7.30 → 08:18",
+    "  aspetta fino a fra un'ora: 8.31 → 09:19",
+    "  togna: La che? / Un'altra. Io. / Perché benedetto? / Che vuol dire? / E il resto, la notte lo tocca? / …",
+    "  bortolo: Da dove viene? / Si può salire sul campanile? / Domani, allora.",
+    "  annunciata: Con sei colleghi. / Da chi? / Che cosa scrivono? / Anche a me hanno scritto così. / …",
+    "  ✓ tre velati (contatore:velati>=3 e passo:m1_velati completato)",
+    "— M1.7 Il Messo",
+    "  ottavio: 12 risposte",
+    "  ✓ Ottavio, il Messo (passo:m1_ottavio completato e flag:aspetta_brace_sbloccato)",
+    "— M1.8 La brace",
+    "  aspetta fino a la brace: 9.35 → 09:43"
   ],
   "errori": []
 }
