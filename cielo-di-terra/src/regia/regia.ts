@@ -889,8 +889,17 @@ export class Regia implements SistemaGioco {
 
   /** I contenuti dicono che da `stazione` il segnale di `mira` è coperto (il tasso, la tettoia)? */
   segnaleCoperto(stazione: string | null, mira: string): boolean {
-    if (!stazione) return false;
-    return !!CAPISALDI.find((c) => c.id === mira)?.non_visibile_da?.some((n) => n.id === stazione);
+    return this.ostacoloFra(stazione, mira) !== null;
+  }
+
+  /** Che cosa copre il segnale di `mira` da `stazione` («il tasso del sagrato»), o null. */
+  ostacoloFra(stazione: string | null, mira: string): string | null {
+    if (!stazione) return null;
+    const n = CAPISALDI.find((c) => c.id === mira)?.non_visibile_da?.find((x) => x.id === stazione);
+    if (!n) return null;
+    const motivo = (n as { motivo?: string }).motivo ?? '';
+    const chi = (motivo.split(/\s+copre\b/)[0] ?? '').split(',')[0]!.trim();
+    return chi ? chi.charAt(0).toLowerCase() + chi.slice(1) : 'qualcosa';
   }
 
   /** Il chiodo di un caposaldo (mondo). */
@@ -1289,12 +1298,14 @@ export class Regia implements SistemaGioco {
     ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);
     ui.indicazioni.velo(g.player.veloOpen ? Math.min(1, g.player.veloAmount) : null);
     // da una stazione da cui i contenuti dicono che il segnale non si vede: il buio verde del tasso
-    const coperto = this.squadro.telescopio && this.squadro.stato === 'piantato' && !!this.mira.b?.caposaldo && this.segnaleCoperto(this.squadro.stazione, this.mira.b.caposaldo);
+    const ostacolo = this.squadro.telescopio && this.squadro.stato === 'piantato' && this.mira.b?.caposaldo ? this.ostacoloFra(this.squadro.stazione, this.mira.b.caposaldo) : null;
+    const coperto = ostacolo !== null;
     this.velatura.fogliame(coperto);
     if (this.squadro.telescopio) {
       const m = this.mira;
       ui.indicazioni.squadro({
         ...(m.b && !coperto ? { caposaldo: m.b.nome, dettaglio: `${Math.round(m.d)} m` } : {}),
+        ...(coperto ? { dettaglio: `${ostacolo} copre la mira` } : {}),
         ...(this.squadro.stato === 'piantato' ? { livella: this.squadro.bolla } : {}),
         ingrandimento: 4,
         collimato: !!m.b && m.t > 0.5,
