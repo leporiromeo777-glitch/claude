@@ -180,7 +180,7 @@
 
 /* --- Lettera: carta da lettere piegata in tre, corsiva scolastica --- */
 .ui-lt--lettera .ui-lt-pagina {
-  width: min(720px, 92vw);
+  width: min(calc(720px * var(--ui-scala)), 92vw);
   max-height: calc(100vh - 130px);
   padding: clamp(28px, 6vh, 56px) clamp(28px, 5vw, 68px) clamp(24px, 5vh, 48px);
   font-family: var(--f-lettera);
@@ -265,13 +265,16 @@
     linear-gradient(135deg, #3d4a38 0%, #2c3829 60%, #222c20 100%);
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
+.ui-lt--libretto {
+  --quadretto: calc(24px * var(--ui-scala));
+}
 .ui-lt--libretto .ui-lt-pagina {
-  width: min(480px, 88vw);
-  height: min(660px, calc(100vh - 160px));
+  width: min(calc(480px * var(--ui-scala)), 88vw);
+  height: min(calc(660px * var(--ui-schermo)), calc(100vh - 160px));
   padding: 34px 34px 40px 40px;
   font-family: var(--f-geometra);
   font-size: calc(clamp(16px, 2.3vh, 19px) * var(--ui-scala));
-  line-height: 24px;
+  line-height: var(--quadretto);
   color: #262c3a;
 }
 .ui-lt--libretto .ui-lt-pagina::before {
@@ -279,8 +282,8 @@
   background-color: #f1ecda;
   background-image:
     linear-gradient(90deg, transparent 31px, rgba(176, 72, 60, 0.42) 31px, rgba(176, 72, 60, 0.42) 32.5px, transparent 32.5px),
-    repeating-linear-gradient(0deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px 24px),
-    repeating-linear-gradient(90deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(0deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px var(--quadretto)),
+    repeating-linear-gradient(90deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px var(--quadretto)),
     var(--grana-fine),
     var(--grana-macchie);
   border-radius: 3px;
@@ -304,17 +307,17 @@
   line-height: 28px;
 }
 .ui-lt--libretto .ui-lt-testo p {
-  margin: 0 0 24px;
+  margin: 0 0 var(--quadretto);
 }
 .ui-lt-tabella {
   border-collapse: collapse;
-  margin: 0 0 24px;
+  margin: 0 0 var(--quadretto);
   font-variant-numeric: tabular-nums;
 }
 .ui-lt-tabella th,
 .ui-lt-tabella td {
   padding: 0 14px 0 0;
-  height: 24px;
+  height: var(--quadretto);
   text-align: left;
   font-weight: 400;
   vertical-align: bottom;
@@ -341,7 +344,7 @@
 
 /* --- Cartellino: cartoncino color manila con il foro rinforzato --- */
 .ui-lt--cartellino .ui-lt-pagina {
-  width: min(580px, 90vw);
+  width: min(calc(580px * var(--ui-scala)), 90vw);
   max-height: calc(100vh - 140px);
   padding: 40px 48px 34px 72px;
   font-family: var(--f-mano);
@@ -382,7 +385,7 @@
 
 /* --- Dattiloscritto: carta velina, lettere battute a macchina --- */
 .ui-lt--dattiloscritto .ui-lt-pagina {
-  width: min(700px, 92vw);
+  width: min(calc(700px * var(--ui-scala)), 92vw);
   max-height: calc(100vh - 130px);
   padding: 48px 58px 40px;
   font-family: var(--f-macchina);
@@ -408,7 +411,7 @@
 
 /* --- Biglietto: carta grezza, una mano adulta e ordinata --- */
 .ui-lt--biglietto .ui-lt-pagina {
-  width: min(620px, 92vw);
+  width: min(calc(620px * var(--ui-scala)), 92vw);
   max-height: calc(100vh - 140px);
   padding: 44px 54px 36px;
   font-family: var(--f-mano);
@@ -430,7 +433,7 @@
 
 /* --- Foglio stampato --- */
 .ui-lt--foglio .ui-lt-pagina {
-  width: min(720px, 92vw);
+  width: min(calc(720px * var(--ui-scala)), 92vw);
   max-height: calc(100vh - 130px);
   padding: 48px 60px 40px;
   font-size: calc(21px * var(--ui-scala));

@@ -43,6 +43,7 @@
 
   /* Scala del testo (impostazione «dimensione del testo») */
   --ui-scala: 1;
+  --ui-schermo: 1;
   --t-base: calc(18px * var(--ui-scala));
   --t-piccolo: calc(16px * var(--ui-scala));
   --t-medio: calc(21px * var(--ui-scala));

@@ -19,6 +19,7 @@ import { ModelloPianta, type CaposaldoPianta, type DatiPianta, type ParticellaPi
 
 /** Margini del foglio occupati dai righelli (px CSS). */
 export const MARGINI = { sinistra: 70, destra: 70, alto: 50, basso: 46 } as const;
+type Margini = { sinistra: number; destra: number; alto: number; basso: number };
 /** Larghezza dei Tappi disegnati ai lati del cilindro (px CSS, alla scala intera). */
 export const LARGHEZZA_TAPPO = 64;
 
@@ -97,6 +98,9 @@ export class PittorePianta {
   /** Riquadri delle etichette già scritte in questo disegno (per non sovrapporle). */
   private etichette: { x: number; y: number; w: number; h: number }[] = [];
   private dpr = 1;
+  /** Scala del testo (impostazione × schermo): ingrandisce etichette, righelli e margini. */
+  private sc = 1;
+  private m: Margini = { ...MARGINI };
   private larghezza = 1;
   private altezza = 1;
 
@@ -125,6 +129,26 @@ export class PittorePianta {
     };
   }
 
+  /** Scala delle scritte sulla Pianta (1 = 16 px per le etichette più piccole). */
+  impostaScalaTesto(scala: number): void {
+    this.sc = Math.max(1, Math.min(2, scala || 1));
+    this.m = {
+      sinistra: Math.round(MARGINI.sinistra * this.sc),
+      destra: Math.round(MARGINI.destra * this.sc),
+      alto: Math.round(MARGINI.alto * this.sc),
+      basso: Math.round(MARGINI.basso * this.sc),
+    };
+  }
+
+  /** Margini correnti (righelli). */
+  get margini(): Readonly<Margini> {
+    return this.m;
+  }
+
+  private px(n: number): number {
+    return Math.round(n * this.sc);
+  }
+
   /** Dimensioni CSS dell'area di disegno. */
   get misure(): { larghezza: number; altezza: number } {
     return { larghezza: this.larghezza, altezza: this.altezza };
@@ -132,11 +156,11 @@ export class PittorePianta {
 
   /** Larghezza della regione della carta (senza righelli). */
   get larghezzaRegione(): number {
-    return Math.max(10, this.larghezza - MARGINI.sinistra - MARGINI.destra);
+    return Math.max(10, this.larghezza - this.m.sinistra - this.m.destra);
   }
 
   get altezzaRegione(): number {
-    return Math.max(10, this.altezza - MARGINI.alto - MARGINI.basso);
+    return Math.max(10, this.altezza - this.m.alto - this.m.basso);
   }
 
   /** Larghezza utile per il cilindro (senza i Tappi), per la scala intera. */
@@ -202,8 +226,8 @@ export class PittorePianta {
 
   /** Coordinate del mondo sotto un punto del canvas (px CSS), o null fuori dalla regione. */
   mondoIn(vista: Vista, x: number, y: number): { z: number; theta: number } | null {
-    const rx = x - MARGINI.sinistra;
-    const ry = y - MARGINI.alto;
+    const rx = x - this.m.sinistra;
+    const ry = y - this.m.alto;
     if (rx < 0 || ry < 0 || rx > this.larghezzaRegione || ry > this.altezzaRegione) return null;
     const [z, t] = daSchermo(vista, this.larghezzaRegione, this.altezzaRegione, rx, ry);
     return { z, theta: t };
@@ -236,7 +260,7 @@ export class PittorePianta {
     }
 
     ctx.save();
-    ctx.translate(MARGINI.sinistra, MARGINI.alto);
+    ctx.translate(this.m.sinistra, this.m.alto);
     ctx.beginPath();
     ctx.rect(0, 0, W, H);
     ctx.clip();
@@ -300,7 +324,7 @@ export class PittorePianta {
     ctx.stroke();
     // Etichette verticali dei Tappi.
     ctx.fillStyle = COLORI.inchiostro2;
-    ctx.font = '400 17px "IM Fell English SC", "EB Garamond", serif';
+    ctx.font = `400 ${this.px(17)}px "IM Fell English SC", "EB Garamond", serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const etichetta = (x: number, testo: string, rot: number): void => {
@@ -375,7 +399,7 @@ export class PittorePianta {
       sc.globalCompositeOperation = 'source-over';
       sc.globalAlpha = 1;
       sc.clearRect(0, 0, strato.width, strato.height);
-      sc.setTransform(this.dpr, 0, 0, this.dpr, MARGINI.sinistra * this.dpr, MARGINI.alto * this.dpr);
+      sc.setTransform(this.dpr, 0, 0, this.dpr, this.m.sinistra * this.dpr, this.m.alto * this.dpr);
     };
     const versaStrato = (alpha: number, modo: GlobalCompositeOperation = 'source-over'): void => {
       ctx.save();
@@ -392,7 +416,7 @@ export class PittorePianta {
       const mc = this.stratoMaschera.getContext('2d')!;
       mc.setTransform(1, 0, 0, 1, 0, 0);
       mc.clearRect(0, 0, this.stratoMaschera.width, this.stratoMaschera.height);
-      mc.setTransform(this.dpr, 0, 0, this.dpr, MARGINI.sinistra * this.dpr, MARGINI.alto * this.dpr);
+      mc.setTransform(this.dpr, 0, 0, this.dpr, this.m.sinistra * this.dpr, this.m.alto * this.dpr);
       disegnaMaschera(mc, img);
       return this.stratoMaschera;
     };
@@ -615,7 +639,7 @@ export class PittorePianta {
     const x0 = Math.max(xZ(0), 0);
     const x1 = Math.min(xZ(LUNGHEZZA_Z), W);
     const xc = (x0 + x1) / 2;
-    const corpoValle = Math.round(Math.min(32, Math.max(18, vista.scala * 52)));
+    const corpoValle = Math.round(Math.min(this.px(32), Math.max(this.px(18), vista.scala * 52)));
     for (const f of this.fasce) {
       if (f.tipo !== tipo) continue;
       const amp = ampiezza(f.theta0, f.theta1);
@@ -626,12 +650,12 @@ export class PittorePianta {
           ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
           ctx.fillText(spaziato(f.nome, corpoValle > 22 ? 4 : 2), xc, y);
           if (f.breve) {
-            ctx.font = `italic 400 ${Math.max(16, Math.round(corpoValle * 0.6))}px "EB Garamond", serif`;
+            ctx.font = `italic 400 ${Math.max(this.px(16), Math.round(corpoValle * 0.6))}px "EB Garamond", serif`;
             ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
             ctx.fillText(f.breve, xc, y + corpoValle * 0.95);
           }
         } else {
-          ctx.font = '400 16px "IM Fell English SC", "EB Garamond", serif';
+          ctx.font = `400 ${this.px(16)}px "IM Fell English SC", "EB Garamond", serif`;
           ctx.fillStyle = 'rgba(241, 232, 210, 0.92)';
           const testo = spaziato(f.nome, 2);
           const larghezzaTesto = ctx.measureText(testo).width;
@@ -650,7 +674,7 @@ export class PittorePianta {
     if (!luoghi?.length) return;
     const { ctx } = this;
     ctx.save();
-    ctx.font = 'italic 500 16px "EB Garamond", serif';
+    ctx.font = `italic 500 ${this.px(16)}px "EB Garamond", serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     for (const l of luoghi) {
@@ -705,7 +729,7 @@ export class PittorePianta {
     ctx.beginPath();
     ctx.arc(x, y + 0.6, pilastro ? 1.8 : 1.3, 0, Math.PI * 2);
     ctx.fill();
-    ctx.font = pilastro ? '600 16px "EB Garamond", serif' : '500 16px "EB Garamond", serif';
+    ctx.font = `${pilastro ? 600 : 500} ${this.px(16)}px "EB Garamond", serif`;
     ctx.textAlign = 'left';
     ctx.fillStyle = tinta;
     const etichetta = pilastro ? `P ${c.numero}` : String(c.numero);
@@ -751,7 +775,7 @@ export class PittorePianta {
     ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.font = 'italic 500 16px "EB Garamond", serif';
+    ctx.font = `italic 500 ${this.px(16)}px "EB Garamond", serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = COLORI.inchiostro;
@@ -801,8 +825,8 @@ export class PittorePianta {
 
   private disegnaRighelli(vista: Vista, W: number, H: number, tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {
     const { ctx } = this;
-    const L = MARGINI.sinistra;
-    const T = MARGINI.alto;
+    const L = this.m.sinistra;
+    const T = this.m.alto;
     ctx.save();
     // Cornice: filetto doppio, come nelle carte incise.
     ctx.strokeStyle = COLORI.inchiostro;
@@ -815,7 +839,7 @@ export class PittorePianta {
     ctx.strokeStyle = COLORI.inchiostro2;
     ctx.textBaseline = 'alphabetic';
     // z: tacche in alto e in basso.
-    ctx.font = '500 16px "EB Garamond", serif';
+    ctx.font = `500 ${this.px(16)}px "EB Garamond", serif`;
     ctx.textAlign = 'center';
     const passoZ = vista.scala * 250 < 50 ? 500 : 250;
     for (let z = 0; z <= LUNGHEZZA_Z; z += passoZ / 5) {
@@ -876,7 +900,7 @@ export class PittorePianta {
    */
   private prenotaEtichetta(testo: string, x: number, y: number, allinea: 'left' | 'center', margineSinistro = 8): boolean {
     const w = this.ctx.measureText(testo).width;
-    const h = 16;
+    const h = this.px(16);
     const x0 = (allinea === 'center' ? x - w / 2 : x) - margineSinistro;
     const r = { x: x0, y: y - h / 2 - 2, w: w + margineSinistro + 4, h: h + 4 };
     const urta = this.etichette.some((e) => r.x < e.x + e.w && r.x + r.w > e.x && r.y < e.y + e.h && r.y + r.h > e.y);

@@ -270,6 +270,8 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     if (r.width < 2 || r.height < 2) return;
     const sIntera = scalaIntera(this.pittore.larghezzaUtile);
     const fattore = this.vista.scala / sIntera;
+    const scala = Number.parseFloat(getComputedStyle(this.el).getPropertyValue('--ui-scala')) || 1;
+    this.pittore.impostaScalaTesto(scala);
     this.pittore.ridimensiona(r.width, r.height, typeof devicePixelRatio === 'number' ? devicePixelRatio : 1);
     this.vista = { ...this.vista, scala: scalaIntera(this.pittore.larghezzaUtile) * (Number.isFinite(fattore) ? fattore : 1) };
     this.limita();

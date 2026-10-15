@@ -12,7 +12,7 @@
   pointer-events: none;
 }
 .ui-titolo-cartiglio {
-  width: clamp(380px, 34vw, 520px);
+  width: clamp(380px, 34vw, calc(520px * var(--ui-scala)));
   padding: 30px 40px 26px 44px;
   transform: rotate(-0.6deg);
   transition: transform 0.6s ease;

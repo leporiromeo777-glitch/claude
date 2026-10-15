@@ -6,7 +6,7 @@
   padding: clamp(12px, 4vh, 48px) 16px;
 }
 .ui-imp-foglio {
-  width: min(920px, 100%);
+  width: min(calc(920px * var(--ui-scala)), 100%);
   /* Niente percentuali: nella griglia sarebbero cicliche e la riga crescerebbe col contenuto. */
   max-height: min(88vh, calc(100vh - 32px));
   display: flex;
@@ -120,7 +120,7 @@
   appearance: none;
   -webkit-appearance: none;
   flex: none;
-  width: clamp(180px, 22vw, 260px);
+  width: calc(clamp(180px, 22vw, 260px) * var(--ui-schermo));
   height: 30px;
   margin: 0;
   background: transparent;

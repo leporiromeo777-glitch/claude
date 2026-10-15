@@ -24,8 +24,8 @@
 }
 .ui-tc-quaderno {
   position: relative;
-  width: min(1260px, 100%);
-  flex: 0 1 800px;
+  width: min(calc(1260px * var(--ui-schermo)), 100%);
+  flex: 0 1 calc(800px * var(--ui-schermo));
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);

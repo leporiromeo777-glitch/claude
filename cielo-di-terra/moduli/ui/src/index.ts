@@ -8,7 +8,7 @@
  *   ui.titolo.on('continua', () => { ui.titolo.hide(); … });
  */
 export { InterfacciaGioco, type OpzioniInterfaccia, type EventiInterfaccia } from './interfaccia';
-export { creaRadice, applicaImpostazioniVisive, annuncia } from './radice';
+export { creaRadice, applicaImpostazioniVisive, annuncia, aggiornaScala, fattoreSchermo } from './radice';
 export { caricaCaratteri, FAMIGLIE_CARATTERI } from './stile/caratteri';
 
 export { Emettitore, type Ascoltatore } from './core/emettitore';

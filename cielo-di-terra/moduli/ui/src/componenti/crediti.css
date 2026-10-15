@@ -16,7 +16,7 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  width: min(640px, 100%);
+  width: min(calc(640px * var(--ui-scala)), 100%);
   display: flex;
 }
 .ui-cr-scorri {

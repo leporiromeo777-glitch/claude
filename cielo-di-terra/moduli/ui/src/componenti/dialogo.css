@@ -14,7 +14,7 @@
 }
 .ui-dlg-colonna {
   position: relative;
-  width: min(980px, 100%);
+  width: min(calc(980px * var(--ui-scala)), 100%);
   display: flex;
   flex-direction: column;
   gap: 14px;

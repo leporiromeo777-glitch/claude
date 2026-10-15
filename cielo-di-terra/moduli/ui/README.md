@@ -456,7 +456,7 @@ dipendono dal solo colore (vuoto, tratteggio, campitura con contorno a china); m
   `tempoFermo`), titolo, impostazioni, dialogo, lettore, taccuino, indicazioni e adattatori.
 - `npm run prova-tastiera`: 16 controlli nel Chromium vero (frecce, Invio, Tab intrappolato, Esc, T, P, 1-9).
 - `npm run typecheck`: pulito.
-- `npm run shots`: 26 stati × 2 risoluzioni in `shots/`, senza errori nella pagina.
+- `npm run shots`: 25 stati × 2 risoluzioni (50 schermate) in `shots/`, senza errori nella pagina.
 
 ## Cosa resta da fare
 

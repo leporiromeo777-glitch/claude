@@ -7,7 +7,7 @@
   position: absolute;
   inset: clamp(8px, 1.6vh, 18px) clamp(8px, 1.2vw, 20px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(250px, 21vw, 340px);
+  grid-template-columns: minmax(0, 1fr) clamp(250px, 21vw, calc(340px * var(--ui-scala)));
 }
 .ui-pt-foglio::before {
   /* La Pianta disegna da sé la sua carta: qui basta il bordo sfrangiato e l'ombra. */
@@ -169,14 +169,16 @@
 /* Rosa dei venti nell'angolo del disegno, dentro la cornice e accanto al Tappo Nord. */
 .ui-pt-rosa {
   position: absolute;
-  right: 120px;
-  bottom: 52px;
+  right: calc(120px * var(--ui-scala));
+  bottom: calc(52px * var(--ui-scala));
   pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(241, 232, 210, 0.9));
 }
 .ui-pt-rosa svg {
   display: block;
   overflow: visible;
+  width: calc(260px * var(--ui-scala));
+  height: auto;
 }
 .ui-pt-rosa[hidden] {
   display: none;
@@ -259,8 +261,8 @@
 
 .ui-pt-aiuto {
   position: absolute;
-  left: 70px;
-  right: 70px;
+  left: calc(70px * var(--ui-scala));
+  right: calc(70px * var(--ui-scala));
   bottom: 2px;
   margin: 0;
   display: flex;

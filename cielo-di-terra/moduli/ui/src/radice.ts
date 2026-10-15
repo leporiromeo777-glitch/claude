@@ -20,6 +20,12 @@ export function creaRadice(contenitore: HTMLElement): HTMLElement {
   annunci.setAttribute('aria-live', 'polite');
   annunci.setAttribute('role', 'status');
   radice.append(annunci);
+  aggiornaScala(radice);
+  const suRidimensiona = (): void => {
+    if (!radice.isConnected) removeEventListener('resize', suRidimensiona);
+    else aggiornaScala(radice);
+  };
+  addEventListener('resize', suRidimensiona);
   return radice;
 }
 
@@ -34,9 +40,27 @@ export function annuncia(radice: HTMLElement, testo: string): void {
   }, 30);
 }
 
+/**
+ * Fattore dello schermo: 1 fino a 864 px di altezza, poi cresce con lo schermo fino a 1,35
+ * (a 1080 px vale 1,25), così l'interfaccia ha la stessa presenza a 720p e a 1080p.
+ */
+export function fattoreSchermo(altezza: number): number {
+  return Math.min(1.35, Math.max(1, altezza / 864));
+}
+
+/** Ricalcola --ui-scala = scala scelta dall'utente × fattore dello schermo. */
+export function aggiornaScala(radice: HTMLElement): void {
+  const utente = Number(radice.dataset['scalaUtente'] ?? '1') || 1;
+  const altezza = radice.clientHeight || (typeof innerHeight === 'number' ? innerHeight : 720);
+  const schermo = fattoreSchermo(altezza);
+  radice.style.setProperty('--ui-schermo', String(Math.round(schermo * 1000) / 1000));
+  radice.style.setProperty('--ui-scala', String(Math.round(utente * schermo * 1000) / 1000));
+}
+
 /** Applica alla radice le impostazioni che riguardano l'aspetto dell'interfaccia. */
 export function applicaImpostazioniVisive(radice: HTMLElement, imp: Readonly<Impostazioni>): void {
-  radice.style.setProperty('--ui-scala', String(SCALE_TESTO[imp.dimensioneTesto] ?? 1));
+  radice.dataset['scalaUtente'] = String(SCALE_TESTO[imp.dimensioneTesto] ?? 1);
+  aggiornaScala(radice);
   radice.style.setProperty('--ui-sfondo-sottotitoli', String(imp.sfondoSottotitoli));
   radice.classList.toggle('ui-ridotto', imp.riduciMovimenti);
   radice.classList.toggle('ui-semplice', imp.calligrafia === 'semplice');

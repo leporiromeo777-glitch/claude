@@ -6,7 +6,7 @@
   padding: clamp(16px, 5vh, 64px) clamp(16px, 8vw, 150px);
 }
 .ui-pausa-foglio {
-  width: clamp(340px, 30vw, 440px);
+  width: clamp(340px, 30vw, calc(440px * var(--ui-scala)));
   padding: 28px 38px 24px 40px;
   transform: rotate(0.5deg);
   transition: transform 0.4s ease;
