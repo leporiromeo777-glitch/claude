@@ -40,7 +40,7 @@
 .ui-pt-lato {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -48,11 +48,12 @@
   border-left: 1.5px solid rgba(36, 30, 25, 0.55);
   box-shadow: inset 1px 0 0 rgba(255, 252, 240, 0.6);
 }
-.ui-pt-testa {
+.ui-pt-comandi-riga {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+}
+.ui-pt-testa {
   padding-bottom: 8px;
   border-bottom: 1.5px solid var(--inchiostro);
   box-shadow: 0 3px 0 -2px var(--inchiostro);
@@ -65,7 +66,7 @@
   line-height: 1.05;
 }
 .ui-pt-sottotitolo {
-  margin: -4px 0 0;
+  margin: 4px 0 0;
   font-style: italic;
   font-size: var(--t-piccolo);
   color: var(--matita);
@@ -123,18 +124,20 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 3px;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
   font-size: var(--t-piccolo);
 }
 .ui-pt-legenda li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  white-space: nowrap;
 }
 .ui-pt-campione {
   flex: none;
-  width: 30px;
-  height: 17px;
+  width: 26px;
+  height: 16px;
   border: 1px solid rgba(36, 30, 25, 0.45);
 }
 .ui-pt-campione--bianco {
@@ -172,7 +175,7 @@
   filter: drop-shadow(0 1px 1px rgba(241, 232, 210, 0.9));
 }
 .ui-pt-rosa svg {
-  width: clamp(130px, 11vw, 190px);
+  width: clamp(120px, 10vw, 180px);
   height: auto;
 }
 .ui-pt-rosa[hidden] {

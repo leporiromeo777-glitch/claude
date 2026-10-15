@@ -403,13 +403,10 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
 
   // --- gerla sulla schiena
   if (opz.gerla) {
-    const prof: Array<[number, number]> = [
-      [0.12, 0],
-      [0.17, 0.1],
-      [0.27, 0.62],
-      [0.29, 0.66],
-      [0.26, 0.66],
-    ];
+    // gerla: cesto conico di vimini (righe di intreccio chiare e scure)
+    const prof: Array<[number, number]> = [[0.12, 0]];
+    for (let i = 1; i <= 10; i++) prof.push([0.12 + (0.15 * i) / 10, (0.62 * i) / 10]);
+    prof.push([0.29, 0.66], [0.26, 0.66]);
     const g = new THREE.LatheGeometry(
       prof.map(([x, y]) => new THREE.Vector2(x, y)),
       10,
@@ -419,7 +416,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     const cG2 = new THREE.Color(0x6e5534);
     b.aggiungi(g, {
       matrice: mat([0, 0.98 * H, -0.3 * Lx], [-0.12, 0, 0], [1, 1, 0.8]),
-      colore: (p, _n, out) => out.copy(cG2).lerp(cG1, Math.sin(p.y * 70) * 0.5 + 0.5),
+      colore: (p, _n, out) => out.copy(cG2).lerp(cG1, Math.sin(p.y * 48) * 0.5 + 0.5),
       osso: O.petto,
     });
     for (const s of [-1, 1]) {

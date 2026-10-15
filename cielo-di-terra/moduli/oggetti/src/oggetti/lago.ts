@@ -116,7 +116,7 @@ export function creaPontile(opz: OpzioniPontile = {}): OggettoProcedurale<{ acce
     const px = -(Wd / 2 - 0.1);
     const pz = zTesta - 0.9;
     b.aggiungi(geoBoxC(0.1, 2.6, 0.1), { matrice: mat([px, h + 1.3, pz]), colore: PALETTE.legnoScuro, piatto: true });
-    const mT = mat([px - 0.02, h + 1.75, pz], [0, -Math.PI / 2, 0]);
+    const mT = mat([px + 0.07, h + 1.75, pz], [0, Math.PI / 2, 0]);
     b.aggiungi(geoBoxC(0.95, 0.62, 0.04), { matrice: mT, colore: PALETTE.calce, variazione: 0.04, piatto: true });
     b.aggiungi(geoBoxC(1.0, 0.04, 0.05), { matrice: mT.clone().multiply(mat([0, 0.31, 0])), colore: PALETTE.legnoScuro, piatto: true });
     b.aggiungi(geoBoxC(1.0, 0.04, 0.05), { matrice: mT.clone().multiply(mat([0, -0.31, 0])), colore: PALETTE.legnoScuro, piatto: true });

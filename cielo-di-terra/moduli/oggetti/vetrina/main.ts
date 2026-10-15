@@ -49,7 +49,7 @@ const VISTE: Record<string, Vista> = {
   barca: { cam: [37, 2.2, -36], guarda: [42, 1.4, -30], fov: 42, didascalia: 'Barca a remi con vela al terzo e lanterna a prua' },
   fienile: { cam: [-20, 3.5, 6], guarda: [-28, 3, -6], didascalia: 'Fienile in legno e pietra' },
   capisaldi: { cam: [7.2, 2.1, 31.8], guarda: [7.2, 0.7, 26.4], fov: 52, didascalia: 'Capisaldi: chiodo nel muro, pilastrino, masso, pilastro di bronzo' },
-  chiodo: { cam: [1.95, 1.55, 26.5], guarda: [1.95, 0.84, 26.02], fov: 22, didascalia: 'Chiodo d’ottone numerato con il segno di vernice' },
+  chiodo: { cam: [1.95, 1.55, 26.5], guarda: [1.95, 0.84, 26.02], fov: 38, didascalia: 'Chiodo d’ottone numerato con il segno di vernice' },
   palina: { cam: [20, 3, 50], guarda: [28, 6, 35], didascalia: 'Paline bianche e rosse per i capisaldi lontani' },
   abitanti: { cam: [5.5, 1.9, 14.5], guarda: [5, 1.2, 3.5], fov: 42, t: 2.2, didascalia: 'Abitanti velati: garza di noce, maschere di castagno, bugnera, cappucci' },
   velati: { cam: [3.6, 1.62, 7.6], guarda: [4.0, 1.35, 3.0], fov: 32, t: 2.2, didascalia: 'Senza volto: velo di garza, maschera intagliata, cappuccio, rete da apicoltore' },
@@ -141,7 +141,7 @@ function avviaVetrina(): void {
   // --- lago
   posa(creaPontile({ seme: 41 }), 26, -14, Math.PI * 0.75);
   posa(creaBarca({ seme: 42, vela: 'alzata' }), 42, -30, 0.6, () => ({ vento: 0.6, mura: 1 as const }));
-  posa(creaBarca({ seme: 43, vela: 'ammainata', coloreScafo: 0xe4dccb }), 36, -22, 2.2);
+  posa(creaBarca({ seme: 43, vela: 'ammainata', coloreScafo: 0xe4dccb }), 34.8, -19.3, 2.356);
   // --- capisaldi
   const chiodo37 = posa(creaCaposaldo({ numero: 37, supporto: 'muro' }), 2, 26);
   if (nomeVista === 'chiodo') {

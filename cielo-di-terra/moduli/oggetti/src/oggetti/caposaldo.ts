@@ -80,10 +80,10 @@ function testaChiodo(b: Costruttore, m: THREE.Matrix4, num: number, scala = 1): 
 
 /** Segno di vernice rossa e bianca attorno al chiodo (aiuta a trovarlo). */
 function segnoVernice(b: Costruttore, m: THREE.Matrix4, scala = 1): void {
-  const anello = new THREE.RingGeometry(0.075 * scala, 0.11 * scala, 18, 1);
+  const anello = new THREE.RingGeometry(0.068 * scala, 0.095 * scala, 18, 1);
   anello.rotateX(-Math.PI / 2);
   b.aggiungi(anello, { matrice: m.clone().multiply(mat([0, 0.002, 0])), colore: PALETTE.rossoPalina, piatto: true });
-  const anello2 = new THREE.RingGeometry(0.11 * scala, 0.135 * scala, 18, 1);
+  const anello2 = new THREE.RingGeometry(0.095 * scala, 0.112 * scala, 18, 1);
   anello2.rotateX(-Math.PI / 2);
   b.aggiungi(anello2, { matrice: m.clone().multiply(mat([0, 0.002, 0])), colore: PALETTE.biancoPalina, piatto: true });
 }

@@ -63,12 +63,12 @@ export class PiantaVerbano extends Componente<EventiPianta> {
       h(
         'ul',
         null,
-        voceLegenda('ui-pt-campione--bianco', 'mai vista: carta bianca'),
-        voceLegenda('ui-pt-campione--matita', 'vista con lo squadro: a matita'),
-        voceLegenda('ui-pt-campione--rilevato', 'rilevata: china e acquerello'),
-        voceLegenda('ui-pt-campione--cambiata', 'cambiata stanotte'),
-        voceLegenda('ui-pt-campione--caposaldo', 'caposaldo rilevato · visto'),
-        voceLegenda('ui-pt-campione--finestra', 'Finestra: la Notte'),
+        voceLegenda('ui-pt-campione--bianco', 'mai vista'),
+        voceLegenda('ui-pt-campione--matita', 'a matita'),
+        voceLegenda('ui-pt-campione--rilevato', 'rilevata'),
+        voceLegenda('ui-pt-campione--cambiata', 'cambiata'),
+        voceLegenda('ui-pt-campione--caposaldo', 'capisaldi'),
+        voceLegenda('ui-pt-campione--finestra', 'Finestra'),
       ),
     );
 
@@ -111,9 +111,9 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     const lato = h(
       'aside',
       { class: 'ui-pt-lato' },
-      h('header', { class: 'ui-pt-testa' }, h('h2', { class: 'ui-pt-titolo' }, 'Pianta del Verbano'), bChiudi),
-      this.sottotitolo,
-      h('div', { class: 'ui-pt-strumenti' }, this.scalaGrafica, comandi),
+      h('div', { class: 'ui-pt-comandi-riga' }, comandi, bChiudi),
+      h('header', { class: 'ui-pt-testa' }, h('h2', { class: 'ui-pt-titolo' }, 'Pianta del Verbano'), this.sottotitolo),
+      this.scalaGrafica,
       this.didascalia,
       this.resoconto,
       legenda,

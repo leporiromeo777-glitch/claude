@@ -97,10 +97,22 @@ export class PittorePianta {
   private larghezza = 1;
   private altezza = 1;
 
+  /** Falso se il browser (o l'ambiente dei test) non dà un contesto 2D: la Pianta allora non disegna ma non si rompe. */
+  readonly attivo: boolean;
+
   constructor(private readonly canvas: HTMLCanvasElement) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('[ui] canvas 2D non disponibile per la Pianta');
-    this.ctx = ctx;
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+      ctx = canvas.getContext('2d');
+    } catch {
+      ctx = null;
+    }
+    this.attivo = !!ctx && typeof ImageData !== 'undefined';
+    this.ctx = ctx as CanvasRenderingContext2D;
+    if (!this.attivo) {
+      this.motivi = { carta: null, tratteggio: null, rosso: null, tappo: null, grana: null };
+      return;
+    }
     this.motivi = {
       carta: this.motivoCarta(),
       tratteggio: this.motivoTratteggio(COLORI.matita, 0.62, 9, 1),
@@ -138,6 +150,7 @@ export class PittorePianta {
     this.larghezza = Math.max(1, Math.round(larghezza));
     this.altezza = Math.max(1, Math.round(altezza));
     this.dpr = Math.max(1, Math.min(3, dpr));
+    if (!this.attivo) return;
     this.canvas.width = Math.round(this.larghezza * this.dpr);
     this.canvas.height = Math.round(this.altezza * this.dpr);
     this.strato = nuovoCanvas(this.canvas.width, this.canvas.height);
@@ -150,6 +163,10 @@ export class PittorePianta {
     this.fasce = dati.fasce ?? FASCE_VERBANO;
     this.modello = ModelloPianta.da(dati);
     const m = this.modello;
+    this.contornoMatita = m.contorni(1);
+    this.contornoInchiostro = m.contorni(2);
+    this.contornoCambiate = m.contorni(1, m.cambiate);
+    if (!this.attivo) return;
     const matita = nuovoCanvas(m.nZ, m.nTheta);
     const colore = nuovoCanvas(m.nZ, m.nTheta);
     const cambiate = nuovoCanvas(m.nZ, m.nTheta);
@@ -177,9 +194,6 @@ export class PittorePianta {
     colore.getContext('2d')!.putImageData(ic, 0, 0);
     cambiate.getContext('2d')!.putImageData(ir, 0, 0);
     this.maschere = { matita, colore, cambiate };
-    this.contornoMatita = m.contorni(1);
-    this.contornoInchiostro = m.contorni(2);
-    this.contornoCambiate = m.contorni(1, m.cambiate);
   }
 
   /** Coordinate del mondo sotto un punto del canvas (px CSS), o null fuori dalla regione. */
@@ -202,6 +216,7 @@ export class PittorePianta {
 
   /** Disegna tutto il foglio. */
   disegna(vista: Vista, opz: OpzioniDisegno): void {
+    if (!this.attivo) return;
     const { ctx } = this;
     const W = this.larghezzaRegione;
     const H = this.altezzaRegione;
@@ -230,8 +245,11 @@ export class PittorePianta {
 
     this.disegnaTappi(vista, W, H, xZ);
     this.disegnaReticolo(vista, W, H, tMin, tMax, xZ, yT);
+    // I nomi delle valli stanno sotto l'acquerello, come nelle carte vere.
+    this.disegnaNomiFasce('valle', vista, W, tMin, tMax, xZ, yT);
     this.disegnaMaschere(vista, W, H, tMin, tMax, xZ, yT, opz);
     this.disegnaFinestre(tMin, tMax, xZ, yT);
+    this.disegnaNomiFasce('finestra', vista, W, tMin, tMax, xZ, yT);
     this.disegnaContorni(this.contornoMatita, tMin, tMax, xZ, yT, {
       colore: opz.marcata || opz.contrasto ? '#2f2d29' : COLORI.matita,
       spessore: opz.marcata ? 1.7 : 1,
@@ -242,7 +260,6 @@ export class PittorePianta {
     this.disegnaContorni(this.contornoInchiostro, tMin, tMax, xZ, yT, { colore: COLORI.inchiostro, spessore: 1.5, doppio: false, ampiezza: 0.6, seme: 7 });
     this.disegnaContorni(this.contornoCambiate, tMin, tMax, xZ, yT, { colore: COLORI.vermiglio, spessore: 1.6, doppio: true, ampiezza: 1.2, seme: 11 });
     this.disegnaParticelle(tMin, tMax, xZ, yT, opz.evidenzia ?? null);
-    this.disegnaNomiFasce(vista, W, H, tMin, tMax, xZ, yT);
     this.disegnaLuoghi(tMin, tMax, xZ, yT);
     this.disegnaLati(tMin, tMax, xZ, yT);
     this.disegnaCapisaldi(tMin, tMax, xZ, yT);
@@ -572,7 +589,15 @@ export class PittorePianta {
     ctx.restore();
   }
 
-  private disegnaNomiFasce(vista: Vista, W: number, _H: number, tMin: number, tMax: number, xZ: (z: number) => number, yT: (t: number) => number): void {
+  private disegnaNomiFasce(
+    tipo: 'valle' | 'finestra',
+    vista: Vista,
+    W: number,
+    tMin: number,
+    tMax: number,
+    xZ: (z: number) => number,
+    yT: (t: number) => number,
+  ): void {
     const { ctx } = this;
     ctx.save();
     ctx.textAlign = 'center';
@@ -580,29 +605,30 @@ export class PittorePianta {
     const x0 = Math.max(xZ(0), 0);
     const x1 = Math.min(xZ(LUNGHEZZA_Z), W);
     const xc = (x0 + x1) / 2;
-    const corpoValle = Math.round(Math.min(30, Math.max(17, vista.scala * 48)));
+    const corpoValle = Math.round(Math.min(32, Math.max(18, vista.scala * 52)));
     for (const f of this.fasce) {
+      if (f.tipo !== tipo) continue;
       const amp = ampiezza(f.theta0, f.theta1);
       for (const k of copieVisibili(f.theta0, amp, tMin, tMax)) {
         const y = yT(f.theta0 + amp / 2 + k);
-        if (f.tipo === 'valle') {
+        if (tipo === 'valle') {
           ctx.font = `400 ${corpoValle}px "IM Fell English SC", "EB Garamond", serif`;
-          ctx.fillStyle = 'rgba(42, 35, 28, 0.62)';
-          this.testoConAlone(spaziato(f.nome, corpoValle > 22 ? 3 : 2), xc, y, 'rgba(241, 232, 210, 0.7)', 6);
+          ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
+          ctx.fillText(spaziato(f.nome, corpoValle > 22 ? 4 : 2), xc, y);
           if (f.breve) {
-            ctx.font = `italic 400 ${Math.round(corpoValle * 0.62)}px "EB Garamond", serif`;
-            ctx.fillStyle = 'rgba(42, 35, 28, 0.7)';
-            this.testoConAlone(f.breve, xc, y + corpoValle * 0.95, 'rgba(241, 232, 210, 0.85)', 4);
+            ctx.font = `italic 400 ${Math.max(15, Math.round(corpoValle * 0.6))}px "EB Garamond", serif`;
+            ctx.fillStyle = 'rgba(42, 35, 28, 0.5)';
+            ctx.fillText(f.breve, xc, y + corpoValle * 0.95);
           }
         } else {
           ctx.font = '400 16px "IM Fell English SC", "EB Garamond", serif';
           ctx.fillStyle = 'rgba(241, 232, 210, 0.92)';
-          const passo = Math.max(500, (x1 - x0) / vista.scala / 3);
-          for (let z = passo / 2; z < LUNGHEZZA_Z; z += passo) {
-            const x = xZ(z);
-            if (x < 40 || x > W - 40) continue;
-            ctx.fillText(spaziato(f.nome, 2), x, y);
-          }
+          const testo = spaziato(f.nome, 2);
+          const larghezzaTesto = ctx.measureText(testo).width;
+          const passo = larghezzaTesto + 220;
+          const n = Math.max(1, Math.floor((x1 - x0) / passo));
+          const inizio = xc - ((n - 1) * passo) / 2;
+          for (let i = 0; i < n; i++) ctx.fillText(testo, inizio + i * passo, y);
         }
       }
     }
