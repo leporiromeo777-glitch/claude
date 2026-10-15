@@ -41,7 +41,7 @@ import { Corpo } from './corpo';
 import { DirettoreDialoghi } from './dialoghi';
 import { ORDINE_LIBRETTO, PonteInterfaccia } from './interfaccia';
 import { Interazioni, type StatoInterazione } from './interazioni';
-import { Luoghi } from './luoghi';
+import { Luoghi, quotaAppoggio } from './luoghi';
 import { NotteVista } from './notte';
 import { OrologioStoria, attraversa, type Intervallo } from './orologio';
 import { Abitanti } from './png';
@@ -835,7 +835,9 @@ export class Regia implements SistemaGioco {
     this.interno = null;
     this.applicaInterno();
     this.game.setFreeCamera(false);
-    this.game.player.teleport(z, theta, altezza);
+    // sul ripiano o sul gradino, se c'è (le terrazze del popolamento stanno sopra il terreno)
+    if (altezza === 0) this.game.player.teleport(z, theta, quotaAppoggio(this.game.world.colliders, z, theta), true);
+    else this.game.player.teleport(z, theta, altezza);
     this.game.syncEyeNow();
     this.aggiornaLuoghi();
   }

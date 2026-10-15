@@ -7,7 +7,8 @@
  * solo per gli interni (la Cripta, sotto terra), per la cella campanaria e per il cielo.
  */
 import { Vector3 } from 'three';
-import { cylToWorld, surfaceDistance } from '../world/cylinder';
+import type { Collider, ColliderWorld } from '../world/colliders';
+import { cylToWorld, surfaceDistance, upAt } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
 import { LUOGHI, type Luogo } from './contenuti';
 
@@ -85,4 +86,34 @@ export class Luoghi {
     }
     return best;
   }
+}
+
+const _p = new Vector3();
+const _d = new Vector3();
+const _u = new Vector3();
+const _t = new Vector3();
+const _q: Collider[] = [];
+
+/** Collisori su cui si sta in piedi: i ripiani delle terrazze, i gradini dei sentieri. */
+const CALPESTABILI = new Set(['calpestabile', 'gradino']);
+
+/**
+ * Quota d'appoggio in (z, θ): il terreno del motore o, se più in alto (fino a 8 m), la cima di un
+ * ripiano o di un gradino del popolamento (le terrazze riempite stanno sopra il terreno). Serve ai
+ * teletrasporti della regia, che altrimenti lascerebbero Elvira ai piedi del muro della terrazza.
+ */
+export function quotaAppoggio(colliders: ColliderWorld | null, z: number, theta: number, suolo: (z: number, theta: number) => number = groundHeight): number {
+  let h = suolo(z, theta);
+  if (!colliders) return h;
+  cylToWorld(z, theta, h, _p);
+  upAt(theta, _u);
+  for (const c of colliders.query(z, theta, 2, _q)) {
+    if (c.kind !== 'box' || !CALPESTABILI.has(c.tag ?? '')) continue;
+    _d.subVectors(_p, c.center);
+    if (Math.abs(_d.dot(c.right)) > c.half.x || Math.abs(_d.dot(c.forward)) > c.half.z) continue;
+    _t.copy(c.center).addScaledVector(c.up, c.half.y);
+    const ht = h + _t.sub(_p).dot(_u);
+    if (ht > h && ht < suolo(z, theta) + 8) h = ht;
+  }
+  return h;
 }
