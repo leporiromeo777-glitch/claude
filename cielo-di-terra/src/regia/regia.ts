@@ -147,6 +147,12 @@ export class Regia implements SistemaGioco {
     // --- il paese: il popolamento di Corbella (src/popolamento), installato da main.ts ---
     this.scena = portaPopolamento(corbella);
     this.cella = cellaDaCorbella(corbella);
+    // i luoghi che il popolamento ha messo altrove rispetto ai contenuti
+    const botola = this.scena.punto('botola');
+    if (botola) {
+      const c = worldToCyl(botola);
+      this.luoghi.sposta('botola', c.z, c.theta);
+    }
     // la Cripta della regia (con coperchi, armadietto, buste, scala e botola interna): l'interno
     // del popolamento resta nascosto, ne basta una
     corbella.cripta.interno.visible = false;

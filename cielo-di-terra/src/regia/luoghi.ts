@@ -40,12 +40,25 @@ export function dentroLuogo(l: Luogo, z: number, theta: number, h: number, quota
 
 /** Indice dei luoghi con le quote efficaci precalcolate. */
 export class Luoghi {
-  readonly tutti: readonly Luogo[];
+  tutti: readonly Luogo[];
   private quote = new Map<string, number>();
 
-  constructor(luoghi: readonly Luogo[] = LUOGHI, suolo: (z: number, theta: number) => number = groundHeight) {
+  constructor(
+    luoghi: readonly Luogo[] = LUOGHI,
+    private readonly suolo: (z: number, theta: number) => number = groundHeight,
+  ) {
     this.tutti = luoghi;
     for (const l of luoghi) this.quote.set(l.id, quotaLuogo(l, suolo));
+  }
+
+  /**
+   * Sposta un luogo dove il popolamento ha messo davvero la cosa (la botola sta al piede
+   * dell'alzata, 2,5 m dal tronco, non sul punto dei contenuti che cade sul pendio).
+   */
+  sposta(id: string, z: number, theta: number): void {
+    this.tutti = this.tutti.map((l) => (l.id === id ? { ...l, z, theta } : l));
+    const l = this.get(id);
+    if (l) this.quote.set(id, quotaLuogo(l, this.suolo));
   }
 
   get(id: string): Luogo | undefined {
