@@ -42,7 +42,7 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(10.2);
       c.applicaOrario(1, 10.2);
-      g.setCamera(1029, 35.2, g.game.world.groundAt(1029, 35.2) + 1.7, 30, 9);
+      g.setCamera(1030.5, 36.7, g.game.world.groundAt(1030.5, 36.7) + 1.7, 8, 11);
     },
     frames: 3,
   },
@@ -54,7 +54,7 @@ const SHOTS = [
       g.setTime(7.2);
       c.applicaOrario(1, 7.2);
       c.apriBotola(true);
-      g.setCamera(1106.5, 26.4, g.game.world.groundAt(1106.5, 26.4) + 2.4, 62, -9);
+      g.setCamera(1105, 25.9, g.game.world.groundAt(1105, 25.9) + 1.8, 63, -8);
     },
     frames: 90,
     after: (g, c) => c.apriBotola(false),
@@ -66,7 +66,7 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(15.0);
       c.applicaOrario(1, 15.0);
-      g.setCamera(931, 23.9, g.game.world.groundAt(931, 23.9) + 3.2, 2, -4);
+      const t = c.punto('chiodo:3').cil; g.setCamera(934.5, 23.15, t.h + 1.5, 4, 1);
     },
     frames: 3,
   },
@@ -78,7 +78,7 @@ const SHOTS = [
       g.setTime(16.5);
       c.applicaOrario(2, 16.5);
       c.setVariante('E1', 'Abitata');
-      g.setCamera(1158, 50.2, g.game.world.groundAt(1158, 50.2) + 2.6, 62, 2);
+      g.setCamera(1168.5, 55.4, g.game.world.groundAt(1168.5, 55.4) + 1.8, 76, 5);
     },
     frames: 3,
   },
@@ -89,7 +89,7 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(11.0);
       const p = c.punto('chiodo:3').cil;
-      g.setCamera(p.z - 0.9, p.theta - 0.12, p.h + 1.25, 40, -38);
+      g.setCamera(p.z - 0.55, p.theta - 0.085, p.h + 1.05, 46, -42);
     },
     frames: 3,
   },
@@ -100,9 +100,18 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(13.2);
       c.applicaOrario(1, 13.2);
-      const n = c.npc('ottavio');
-      g.setCamera(1043, 38.4, g.game.world.groundAt(1043, 38.4) + 1.65, -62, 2);
-      n.gesto('saluta', 0);
+      // qualche velato in piazza per l'inquadratura, Ottavio saluta
+      const vel = [[1048.5, 35.9], [1050.2, 36.3], [1044.2, 35.4], [1052.5, 37.9]];
+      vel.forEach(([z, th], i) => {
+        const n = c.npc('velato_' + (i + 1));
+        n.manuale = true;
+        n.mostra(true);
+        n.vaiA(z, th);
+        n.orientaVerso({ z: 1047, theta: 38.6 });
+      });
+      g.setCamera(1043.5, 39.4, g.game.world.groundAt(1043.5, 39.4) + 1.65, -70, 3);
+      c.npc('ottavio').gesto('saluta', 0);
+      c.npc('lisa').gesto('indica', 0, { z: 1062, theta: 37.2, h: 70 });
     },
     frames: 40,
   },
@@ -114,7 +123,7 @@ const SHOTS = [
       g.setTime(0.6);
       c.applicaOrario(2, 0.6);
       c.setVariante('E2', 'Smontata');
-      g.setCamera(1206, 41.2, g.game.world.groundAt(1206, 41.2) + 6, 205, -6);
+      g.setCamera(1200, 48.5, g.game.world.groundAt(1200, 48.5) + 4, 240, -5);
     },
     frames: 60,
   },
@@ -136,7 +145,7 @@ const SHOTS = [
     setup: (g, c) => {
       g.setTime(15.5);
       c.applicaOrario(1, 15.5);
-      g.setCamera(1040.5, 42.5, g.game.world.groundAt(1040.5, 42.5) + 1.8, -28, 9);
+      g.setCamera(1052, 41.2, g.game.world.groundAt(1052, 41.2) + 1.8, -63, 7);
     },
     frames: 3,
   },
