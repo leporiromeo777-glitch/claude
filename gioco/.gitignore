@@ -48,3 +48,8 @@ tools/blender/out/
 # Python
 __pycache__/
 *.pyc
+
+# Screenshot di riferimento dei test: si rigenerano a ogni esecuzione (npm run test:e2e).
+# Restano versionati solo quelli per le schede degli store.
+tests/e2e/__screenshots__/*
+!tests/e2e/__screenshots__/store/
