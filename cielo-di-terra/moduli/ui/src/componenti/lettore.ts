@@ -7,11 +7,12 @@ import './lettore.css';
  * Tipi di carta, ognuno con la sua carta e la sua mano:
  * - lettera: corsiva scolastica su carta da lettere piegata in tre (la lettera di Marta);
  * - libretto: il libretto di rilievo di Aurelio, a quadretti, due pagine affiancate;
+ * - biglietto: un biglietto scritto a mano da qualcun altro (la Madre, Rosa…), su carta grezza;
  * - cartellino: un cartellino piccolo (erbario, bacheca, capisaldi);
  * - dattiloscritto: un foglio battuto a macchina (le lettere di «S.»);
  * - foglio: un foglio stampato qualsiasi.
  */
-export type TipoCarta = 'lettera' | 'libretto' | 'cartellino' | 'dattiloscritto' | 'foglio';
+export type TipoCarta = 'lettera' | 'biglietto' | 'libretto' | 'cartellino' | 'dattiloscritto' | 'foglio';
 
 export interface PaginaCarta {
   /** Intestazione in alto (es. «Chiodo 37 · grà di Pian»). */

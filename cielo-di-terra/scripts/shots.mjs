@@ -78,8 +78,8 @@ const SHOTS = [
     title: 'A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro',
     setup: (g) => {
       g.setTime(12);
-      g.teleport(1200, 102, 0);
-      g.look(80, -42);
+      g.teleport(1200, 104, 0);
+      g.look(4, -26);
       g.setSimTime(31.0);
     },
     frames: 2,
@@ -90,8 +90,8 @@ const SHOTS = [
     title: 'Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo',
     setup: (g) => {
       g.setTime(23.2);
-      g.teleport(1047, 37.4, 0);
-      g.look(28, 40);
+      g.teleport(1033, 37.6, 0);
+      g.look(76, 30);
     },
     frames: 4,
   },
@@ -102,13 +102,13 @@ const SHOTS = [
     setup: (g) => {
       g.setTime(11.2);
       g.setSetting('nearPaint', [6, 14]);
-      g.teleport(1452, 19.5, 0);
-      g.look(78, -9);
-      const origin = { z: 1462, theta: 25.5 };
-      const ids = g.cellsInRadius(1475, 27, 115);
+      const origin = { z: 1585, theta: 24 };
+      const ground = g.game.world.groundAt(1500, 21);
+      g.setCamera(1500, 21, ground + 32, 14, -19);
+      const ids = g.cellsInRadius(1590, 25, 125);
       g.revealCells(ids, origin);
     },
-    frames: 24,
+    frames: 30,
     after: (g) => g.setSetting('nearPaint', [70, 150]),
   },
 ];

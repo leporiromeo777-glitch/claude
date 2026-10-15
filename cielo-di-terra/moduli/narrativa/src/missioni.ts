@@ -36,8 +36,14 @@ export interface EventiMissioni {
   missioneFallita: { missione: string; titolo: string };
 }
 
+/** Il passo nel cui ambito si valuta una condizione (per i luoghi «raggiunti durante il passo»). */
+export interface AmbitoPasso {
+  missione: string;
+  passo: string;
+}
+
 export interface DipendenzeMissioni {
-  valuta(c: CondizioneGrezza): boolean;
+  valuta(c: CondizioneGrezza, ambito?: AmbitoPasso): boolean;
   applicaEffetti(effetti: readonly string[], origine: string): void;
 }
 
@@ -234,7 +240,7 @@ export class Missioni {
           let fatti = s.eventi.get(p.id);
           p.eventi.forEach((e, k) => {
             if (s.stato !== 'attiva' || s.passi.get(p.id) !== 'attivo' || fatti?.has(k)) return;
-            if (!this.deps.valuta(e.quando)) return;
+            if (!this.deps.valuta(e.quando, { missione: d.id, passo: p.id })) return;
             if (!fatti) s.eventi.set(p.id, (fatti = new Set()));
             fatti.add(k);
             progresso = true;
@@ -242,7 +248,7 @@ export class Missioni {
           });
           if (s.passi.get(p.id) !== 'attivo') return;
         }
-        if (st === 'attivo' && p.completaQuando !== undefined && this.deps.valuta(p.completaQuando)) {
+        if (st === 'attivo' && p.completaQuando !== undefined && this.deps.valuta(p.completaQuando, { missione: d.id, passo: p.id })) {
           this.completaPassoInterno(d, s, p);
           progresso = true;
         }

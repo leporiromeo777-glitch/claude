@@ -368,6 +368,28 @@
   text-underline-offset: 4px;
 }
 
+/* --- Biglietto: carta grezza, una mano adulta e ordinata --- */
+.ui-lt--biglietto .ui-lt-pagina {
+  width: min(620px, 92vw);
+  max-height: calc(100vh - 140px);
+  padding: 44px 54px 36px;
+  font-family: var(--f-mano);
+  font-size: calc(clamp(21px, 3.2vh, 27px) * var(--ui-scala));
+  font-weight: 600;
+  line-height: 1.45;
+  color: #2b2620;
+  transform: rotate(-1deg);
+}
+.ui-lt--biglietto .ui-lt-pagina::before {
+  background-color: #e8dcc0;
+}
+.ui-semplice .ui-lt--biglietto .ui-lt-pagina,
+.ui-leggibile .ui-lt--biglietto .ui-lt-pagina,
+.ui-lt-stampato .ui-lt--biglietto .ui-lt-pagina {
+  font-size: calc(clamp(18px, 2.8vh, 22px) * var(--ui-scala));
+  font-weight: 400;
+}
+
 /* --- Foglio stampato --- */
 .ui-lt--foglio .ui-lt-pagina {
   width: min(720px, 92vw);

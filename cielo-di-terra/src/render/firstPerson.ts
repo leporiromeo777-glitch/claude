@@ -75,8 +75,8 @@ export class FirstPersonVelo {
           // tela: controluce della Linea, cuciture e trama
           if (vC.a > 0.5) {
             col = vC.rgb * (uAmb * 0.55 + uSun * uSunI * 0.62);
-            float st = step(0.92, fract((vP.x + vP.z) * 9.0)) * step(0.5, fract(vP.y * 30.0));
-            col *= 1.0 - st * 0.25;
+            float st = step(0.965, fract((vP.x * 0.8 + vP.z) * 4.0)) * step(0.55, fract(vP.y * 22.0));
+            col *= 1.0 - st * 0.18;
             col *= 0.95 + 0.1 * hash(floor(vP.xy * 160.0));
           }
           col *= 1.0 - 0.45 * uNight;
@@ -88,7 +88,7 @@ export class FirstPersonVelo {
     const wood: RGB = [0.5, 0.34, 0.2];
     const glove: RGB = [0.4, 0.27, 0.17];
     const sleeve: RGB = [0.36, 0.43, 0.29];
-    const barY = -0.42;
+    const barY = -0.335;
     const barZ = -0.56;
     // traversa sottile
     cylinderBetween(b, new Vector3(-0.46, barY, barZ), new Vector3(0.46, barY, barZ), 0.013, wood);

@@ -14,6 +14,7 @@
 import {
   ErroreCondizione,
   ParserCondizioni,
+  atomiDi,
   type CondizioneGrezza,
   type ContestoCondizioni,
   type OpzioniParser,
@@ -28,7 +29,7 @@ import { ErroreEffetto, analizzaEffetto, type Effetto } from './effetti';
 import { Emettitore } from './eventi';
 import { ArchivioFlag, type CambioFlag, type ValoreFlag } from './flag';
 import { Inventario, type CambioOggetto } from './inventario';
-import { Missioni, type EventiMissioni, type StatoMissioni } from './missioni';
+import { Missioni, type AmbitoPasso, type EventiMissioni, type StatoMissioni } from './missioni';
 import type { GestoreSalvataggi, InfoSlot, RisultatoCaricamento } from './salvataggio';
 import { Taccuino, type EventiTaccuino, type Obiettivo, type StatoTaccuino } from './taccuino';
 
@@ -43,7 +44,12 @@ export interface WorldFacts {
   giorno(): number;
   /** true di notte. Se manca: notte fra `opzioni.notte.inizio` e `opzioni.notte.fine`. */
   notte?(): boolean;
-  /** true se il giocatore ha raggiunto il luogo (id di content/luoghi.json). */
+  /**
+   * true se Elvira è ora entro il raggio del luogo (id di content/luoghi.json).
+   * Dentro un passo di missione il luogo resta «raggiunto» per tutto il passo
+   * (FASE1 §2.3): la narrativa se lo ricorda da sola. Per le visite brevi fra
+   * due tick il gioco può chiamare `Narrativa.segnalaLuogo(id)`.
+   */
   luogoRaggiunto(id: string): boolean;
   /** true se la cella/particella è rilevata (inchiostro e colore sulla Pianta). */
   cellaRilevata(id: string): boolean;
@@ -109,6 +115,8 @@ export interface StatoNarrativo {
   dialoghi: StatoDialoghi;
   taccuino: StatoTaccuino;
   inventario: Record<string, number>;
+  /** Luoghi raggiunti durante ciascun passo attivo («missione/passo» → id). */
+  luoghiPasso?: Record<string, string[]>;
 }
 
 /** La notte del GDD (§2.3): dalle 21:00 alle 05:30. */
@@ -169,6 +177,12 @@ export class Narrativa {
   private tickRichiesto = false;
   /** Dialoghi automatici già annunciati (si riannunciano se interrotti). */
   private readonly automaticiAnnunciati = new Set<string>();
+  /** Luoghi raggiunti durante ciascun passo attivo («missione/passo»). */
+  private readonly luoghiPasso = new Map<string, Set<string>>();
+  /** Luoghi citati dalle condizioni di ciascun passo (cache). */
+  private readonly luoghiDelPasso = new Map<string, string[]>();
+  /** Il passo nel cui ambito si sta valutando una condizione. */
+  private ambito: string | null = null;
 
   constructor(
     contenuti: ContenutiNarrativa | ContenutiNormalizzati,
@@ -184,7 +198,7 @@ export class Narrativa {
     this.contesto = this.creaContesto(notte);
 
     const deps = {
-      valuta: (c: CondizioneGrezza) => this.valuta(c),
+      valuta: (c: CondizioneGrezza, ambito?: AmbitoPasso) => this.valuta(c, undefined, ambito),
       applicaEffetti: (effetti: readonly string[], origine: string) => this.applicaEffetti(effetti, origine),
     };
     this.taccuino = new Taccuino(this.contenuti.taccuino, () => ({ giorno: fatti.giorno(), ora: fatti.ora() }));
@@ -197,8 +211,14 @@ export class Narrativa {
 
   // --- Condizioni ed effetti ------------------------------------------------
 
-  /** Valuta una condizione dei contenuti. Una condizione malformata vale false (e viene segnalata). */
-  valuta(c: CondizioneGrezza, origine?: string): boolean {
+  /**
+   * Valuta una condizione dei contenuti. Una condizione malformata vale false
+   * (e viene segnalata). Con `ambito` i luoghi raggiunti durante quel passo
+   * restano veri anche se Elvira se n'è andata.
+   */
+  valuta(c: CondizioneGrezza, origine?: string, ambito?: AmbitoPasso): boolean {
+    const prima = this.ambito;
+    this.ambito = ambito ? `${ambito.missione}/${ambito.passo}` : null;
     try {
       return this.parser.valuta(c, this.contesto);
     } catch (e) {
@@ -206,6 +226,49 @@ export class Narrativa {
       if (this.rigoroso || !(e instanceof ErroreCondizione)) throw e;
       this.segnala(e.message, origine);
       return false;
+    } finally {
+      this.ambito = prima;
+    }
+  }
+
+  /**
+   * Il gioco segnala che Elvira ha raggiunto un luogo (utile per le visite più
+   * brevi dell'intervallo fra due tick): vale per tutti i passi attivi. Poi tick().
+   */
+  segnalaLuogo(id: string): void {
+    for (const p of this.missioni.passiAttivi()) {
+      const k = `${p.missione}/${p.passo}`;
+      if (!this.luoghiPasso.has(k)) this.luoghiPasso.set(k, new Set());
+      this.luoghiPasso.get(k)!.add(id);
+    }
+    this.tick();
+  }
+
+  /** Ricorda i luoghi delle condizioni dei passi attivi in cui Elvira si trova adesso. */
+  private registraLuoghi(): void {
+    for (const p of this.missioni.passiAttivi()) {
+      const k = `${p.missione}/${p.passo}`;
+      let luoghi = this.luoghiDelPasso.get(k);
+      if (!luoghi) {
+        const def = this.missioni.definizione(p.missione)?.passi.find((x) => x.id === p.passo);
+        const condizioni = [def?.completaQuando, ...(def?.eventi.map((e) => e.quando) ?? [])];
+        const ids = new Set<string>();
+        for (const c of condizioni) {
+          if (c === undefined) continue;
+          try {
+            for (const a of atomiDi(this.parser.compila(c))) if (a.k === 'luogo') ids.add(a.id);
+          } catch {
+            // segnalato altrove
+          }
+        }
+        luoghi = [...ids];
+        this.luoghiDelPasso.set(k, luoghi);
+      }
+      for (const id of luoghi) {
+        if (!this.fatti.luogoRaggiunto(id)) continue;
+        if (!this.luoghiPasso.has(k)) this.luoghiPasso.set(k, new Set());
+        this.luoghiPasso.get(k)!.add(id);
+      }
     }
   }
 
@@ -310,7 +373,7 @@ export class Narrativa {
     let cambiato = false;
     try {
       if (this.missioni.avanzaTempo(secondi)) cambiato = true;
-      this.aggiornaRigaCielo();
+      this.registraLuoghi();
       for (let giro = 0; giro < 1000; giro++) {
         this.tickRichiesto = false;
         const m = this.missioni.aggiorna();
@@ -369,6 +432,7 @@ export class Narrativa {
       dialoghi: this.dialoghi.esporta(),
       taccuino: this.taccuino.esporta(),
       inventario: this.inventario.esporta(),
+      luoghiPasso: Object.fromEntries([...this.luoghiPasso].map(([k, v]) => [k, [...v]])),
     };
   }
 
@@ -380,6 +444,10 @@ export class Narrativa {
     this.dialoghi.importa(stato.dialoghi ?? { finiti: [], iniziati: [], corrente: null });
     this.taccuino.importa(stato.taccuino ?? { voci: [], rigaCielo: null, obiettivi: [] });
     this.inventario.importa(stato.inventario ?? {});
+    this.luoghiPasso.clear();
+    for (const [k, v] of Object.entries(stato.luoghiPasso ?? {})) {
+      if (Array.isArray(v)) this.luoghiPasso.set(k, new Set(v.filter((x): x is string => typeof x === 'string')));
+    }
   }
 
   /** Salva narrativa e mondo nel prossimo slot del gestore. */
@@ -418,7 +486,7 @@ export class Narrativa {
         const h = f.ora();
         return notte.inizio > notte.fine ? h >= notte.inizio || h < notte.fine : h >= notte.inizio && h < notte.fine;
       },
-      luogoRaggiunto: (id) => f.luogoRaggiunto(id),
+      luogoRaggiunto: (id) => f.luogoRaggiunto(id) || (this.ambito !== null && !!this.luoghiPasso.get(this.ambito)?.has(id)),
       cella: (id, stato) => {
         switch (stato) {
           case 'rilevata':
@@ -486,9 +554,23 @@ export class Narrativa {
       if (voce) this.taccuino.aggiungi(obiettivo);
       this.taccuino.segnaObiettivo({ missione, passo, testo: voce ? voce.testo : obiettivo });
     });
-    this.missioni.eventi.on('passoCompletato', ({ missione, passo }) => this.taccuino.togliObiettivo(missione, passo));
-    this.missioni.eventi.on('missioneCompletata', ({ missione }) => this.taccuino.togliObiettivo(missione));
-    this.missioni.eventi.on('missioneFallita', ({ missione }) => this.taccuino.togliObiettivo(missione));
+    const dimenticaLuoghi = (missione: string, passo?: string): void => {
+      for (const k of [...this.luoghiPasso.keys()]) {
+        if (passo !== undefined ? k === `${missione}/${passo}` : k.startsWith(`${missione}/`)) this.luoghiPasso.delete(k);
+      }
+    };
+    this.missioni.eventi.on('passoCompletato', ({ missione, passo }) => {
+      this.taccuino.togliObiettivo(missione, passo);
+      dimenticaLuoghi(missione, passo);
+    });
+    this.missioni.eventi.on('missioneCompletata', ({ missione }) => {
+      this.taccuino.togliObiettivo(missione);
+      dimenticaLuoghi(missione);
+    });
+    this.missioni.eventi.on('missioneFallita', ({ missione }) => {
+      this.taccuino.togliObiettivo(missione);
+      dimenticaLuoghi(missione);
+    });
 
     // Finito un dialogo, le missioni possono andare avanti subito.
     this.dialoghi.eventi.on('dialogoFinito', () => this.tick());

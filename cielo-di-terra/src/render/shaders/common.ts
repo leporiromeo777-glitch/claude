@@ -276,7 +276,7 @@ vec4 cellSample(vec2 idx, vec3 P, float thetaDeg, float edgeNoise) {
   float ds = radians(dth) * uR;
   float dz = P.z - t.b;
   float d = length(vec2(dz, ds));
-  float edge = front - d + edgeNoise * 16.0 * (0.4 + 0.6 * ease);
+  float edge = front - d + edgeNoise * 24.0 * (0.4 + 0.6 * ease);
   float k = smoothstep(-2.5, 2.5, edge);
   return vec4(mix(vp, vc, k), edge, 1.0 - p);
 }
@@ -286,7 +286,7 @@ PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
   // bordi organici: leggera distorsione del dominio
   vec2 warp = vec2(vnoise3(P * 0.021), vnoise3(P * 0.021 + 7.3)) - 0.5;
   cc += warp * 0.55;
-  float en = vnoise3(P * 0.06) * 0.55 + vnoise3(P * 0.19) * 0.3 + vnoise3(P * 0.7) * 0.15 - 0.5;
+  float en = vnoise3(P * 0.05) * 0.45 + vnoise3(P * 0.16) * 0.3 + vnoise3(P * 0.45) * 0.17 + vnoise3(P * 1.3) * 0.08 - 0.5;
   vec2 base = floor(cc - 0.5);
   vec2 f = cc - 0.5 - base;
   vec4 a = cellSample(base, P, thetaDeg, en);
@@ -363,7 +363,10 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
   float hatch = mix(h0, h1, smoothstep(0.2, 0.8, lf));
   // tratteggio a macchie, come in uno schizzo: non uniforme
   float patchy = smoothstep(0.32, 0.68, vnoise2(uv * 0.018 + 3.7) * 0.7 + vnoise2(uv * 0.07) * 0.3);
-  hatch *= mix(0.25 + 0.75 * patchy, 1.0, steep * 0.6);
+  hatch *= mix(0.25 + 0.75 * patchy, 1.0, steep * 0.4);
+  // da lontano lo schizzo si semplifica: meno tratteggio, più sfumato
+  float far = smoothstep(120.0, 650.0, dist);
+  hatch *= 1.0 - far * 0.8;
   // curve di livello dalla quota (passo che raddoppia con la distanza), deboli sulle pareti
   float cstep = 6.0 * exp2(floor(clamp(log2(max(pix * 40.0 / 6.0, 1.0)), 0.0, 5.0)));
   float fh = hgt / cstep;
@@ -377,9 +380,13 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
   ink *= mix(1.0, 0.22, blank);
   // sfumato di grafite: la forma si legge anche senza tratteggio
   float smudge = mix(1.0, mix(0.8, 1.02, clamp(t, 0.0, 1.0)), 1.0 - blank * 0.8);
+  // pareti ripide: velatura di grafite (la roccia si legge grigia)
+  smudge *= 1.0 - steep * (0.16 + 0.12 * far) * (1.0 - blank);
   vec3 col = paper * (1.0 + grain) * smudge;
   vec3 lineC = mix(graphite, inkC, inked);
   col = mix(col, lineC, clamp(ink * (1.0 + inked * 0.6), 0.0, 0.92));
+  // anche la carta prende la luce della notte
+  col *= mix(vec3(1.0), uAmbTop * 0.8 + uSunColor * uSunIntensity * 0.25, uNight);
   return col;
 }
 `;

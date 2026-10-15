@@ -101,3 +101,32 @@ export {
   type TipoFascia,
   type Vista,
 } from './pianta/geometria';
+
+export {
+  separaNote,
+  staccaFirma,
+  tipoCartaPer,
+  cartaDaTesto,
+  librettoDaTesti,
+  cartaDaLeggenda,
+  taccuinoDaContenuti,
+  terrenoDaTipo,
+  grigliaDaParticelle,
+  capisaldiDaContenuti,
+  latiDaContenuti,
+  luoghiDaContenuti,
+  aspettoDaPersonaggio,
+  battutaDaNodo,
+  TIPI_LUOGO_SULLA_PIANTA,
+  type VoceTestiJson,
+  type TaccuinoJson,
+  type StatoTaccuino,
+  type ParticellaFadeJson,
+  type CaposaldoJson,
+  type PersonaggioJson,
+  type DialogoJson,
+  type RispostaJson,
+} from './adattatori';
+export type { LatoPianta, ResocontoPianta } from './pianta/modello';
+export { nomeCatastale } from './pianta/modello';
+export { fattoreCoriolisCorpo, type CoriolisCorpo, type Capovolgimento, type DondolioVisivo, type ModoAzioni } from './impostazioni/store';

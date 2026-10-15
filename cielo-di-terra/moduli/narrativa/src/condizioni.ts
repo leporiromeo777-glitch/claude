@@ -27,6 +27,7 @@
  *   passo:id [completato|attivo]               (id unico fra tutte le missioni)
  *   passo:missione/passo [completato|attivo]   (anche missione.passo)
  *   contatore:nome>=3  contatore:nome          (sinonimo di flag: sui contatori numerici)
+ *   variante:E1=Abitata                        (sinonimo di particella:E1 abitata)
  *   oggetto:id   oggetto:id>=2
  *   taccuino:id [presente|aperta|chiusa|barrata]
  *
@@ -518,6 +519,12 @@ class Parser {
       case 'giorno':
         nessunQualificatore();
         return atomo({ k: 'giorno', confronto: analizzaConfronto(arg, 'giorno', this.testo, t.pos) });
+      case 'variante': {
+        nessunQualificatore();
+        const m = /^([^=]+)=(.+)$/.exec(arg);
+        if (!m) this.errore(`la variante va scritta «variante:elemento=Variante», non «${arg}»`, t.pos);
+        return atomo({ k: 'cella', id: id(m[1]!), stato: id(m[2]!).toLowerCase() });
+      }
       case 'cella':
       case 'particella': {
         let stato = 'rilevata';
