@@ -63,77 +63,143 @@ export function posaRustico(
   const pd = spostaYaw(z, theta, yaw, D / 2 + 0.05, base);
   const pdd = spostaYaw(pd.z, pd.theta, yaw - 90, pl.x, base);
   ctx.zona(zona).aggiungiCollider(boxAt(pdd.z, pdd.theta, base, yaw, 1.1, 2.0, 0.12), 'porta', opz?.luogo ?? nome);
-  ctx.occupa({ nome, z, theta, yaw, larghezza: W + 1.2, profondita: D + 1.6 });
+  ctx.occupa({ nome, z, theta, yaw, larghezza: W + 0.3, profondita: D + 0.8 });
   casa.dispose();
   return { nome, z, theta, yaw, base, larghezza: W, profondita: D, porta: punti['porta']! };
 }
 
-/** Rustici generici sulle particelle abitate. */
-export function costruisciCase(ctx: Contesto, quante = 44): CasaPosata[] {
+interface Proposta {
+  z: number;
+  theta: number;
+  yaw: number;
+  W: number;
+  D: number;
+}
+
+/**
+ * Rustici generici sulle particelle abitate, a schiere come nei paesi ticinesi: si parte dai bordi
+ * della piazza e dai vicoli, e ogni casa ne «chiama» altre accanto (lungo la curva di livello,
+ * a 0,6-1,6 m) e una fila più su o più giù (oltre un vicolo di 3-4 m). Il davanti (timpano con la
+ * porta) guarda la valle; sul bordo della piazza guarda la piazza.
+ */
+export function costruisciCase(ctx: Contesto, quante = 58): CasaPosata[] {
   const piazza = luogo('piazza_ore');
   const ronchi = luogo('i_ronchi');
   const out: CasaPosata[] = [];
-  const candidati: Array<{ z: number; theta: number; k: number }> = [];
-  for (let z = 996; z <= 1206; z += 3) {
-    for (let th = 26.2; th <= 50; th += 0.29) {
-      const zz = z + (hash2(z, th, 1) - 0.5) * 2.4;
-      const tt = th + (hash2(z, th, 2) - 0.5) * 0.24;
-      const c = cella(zz, tt);
-      if (!CELLE_ABITATE.has(c) || CELLE_ESCLUSE.has(c)) continue;
-      // più case vicino alla piazza: ordine casuale pesato dalla distanza
-      const d = distanza({ z: zz, theta: tt }, piazza);
-      candidati.push({ z: zz, theta: tt, k: hash2(zz * 3.1, tt * 7.7, 3) * 0.6 + Math.min(1, d / 140) * 0.4 });
-    }
+  const coda: Proposta[] = [];
+  let seme = 0;
+  const misura = () => {
+    const r = hash2(seme * 1.7, seme * 0.37, 9);
+    const r2 = hash2(seme * 0.91, seme * 2.3, 11);
+    seme++;
+    return { W: 5 + r * 2.0, D: 6 + r2 * 2.4, r, r2 };
+  };
+  // 1. corona della piazza: case con la facciata sulla piazza (lati a Sera, a Mont e a Lag)
+  for (let ang = 0; ang < 360; ang += 17) {
+    const a = ang + (hash2(ang, 3, 1) - 0.5) * 5;
+    const m = misura();
+    const r = piazza.raggio + 2.4 + m.D / 2;
+    const c = spostaYaw(piazza.z, piazza.theta, a, r, 38.5);
+    coda.push({ ...c, yaw: yawVerso(c, piazza), W: m.W, D: m.D });
   }
-  candidati.sort((a, b) => a.k - b.k);
-  let i = 0;
-  for (const c of candidati) {
-    if (out.length >= quante) break;
-    if (distanza(c, ronchi) < 34) continue;
-    if (distanza(c, piazza) < piazza.raggio + 6) continue;
-    const r = hash2(c.z, c.theta, 9);
-    const r2 = hash2(c.theta, c.z, 11);
-    const W = 5 + r * 2.2;
-    const D = 6 + r2 * 2.6;
-    const vicinoPiazza = distanza(c, piazza) < 31;
-    let yaw = vicinoPiazza ? yawVerso(c, piazza) : yawValle(c.z, c.theta);
-    yaw += (hash2(c.z, c.theta, 5) - 0.5) * 16;
-    // le case lontane dalla piazza si allineano un po' alle curve di livello (colmo lungo il pendio)
-    const fp = impronta(c.z, c.theta, yaw, W + 1, D + 1);
+  // 2. semi lungo i vicoli verso la Cripta e verso i Ronchi, e a Mont della piazza
+  for (const [z, th] of [
+    [1078, 32.0],
+    [1094, 30.4],
+    [1086, 35.6],
+    [1104, 33.4],
+    [1112, 38.0],
+    [1132, 36.4],
+    [1150, 39.4],
+    [1120, 41.2],
+    [1094, 40.6],
+    [1080, 43.6],
+    [1022, 33.0],
+    [1012, 40.2],
+    [1030, 43.0],
+    [1060, 44.5],
+    [1140, 33.2],
+  ] as const) {
+    const m = misura();
+    coda.push({ z, theta: th, yaw: yawValle(z, th) + (hash2(z, th, 4) - 0.5) * 14, W: m.W, D: m.D });
+  }
+  let tentativi = 0;
+  while (coda.length && out.length < quante && tentativi < 900) {
+    tentativi++;
+    const p = coda.shift()!;
+    const c = cella(p.z, p.theta);
+    if (!CELLE_ABITATE.has(c) || CELLE_ESCLUSE.has(c)) continue;
+    if (distanza(p, ronchi) < 30) continue;
+    if (distanza(p, piazza) < piazza.raggio + 1.8 + p.D / 2 - 0.5) continue;
+    const fp = impronta(p.z, p.theta, p.yaw, p.W + 0.6, p.D + 0.6);
     if (fp.max - fp.min > 3.9) continue;
-    // spazio libero (case, luoghi, piattaforme) e distanza dai sentieri
-    if (ctx.occupato(c.z, c.theta, Math.max(W, D) * 0.62 + 1.4)) continue;
-    let troppoVicino = false;
-    for (const [a, b] of [
-      [0, 0],
-      [-W / 2, -D / 2],
-      [W / 2, -D / 2],
-      [-W / 2, D / 2],
-      [W / 2, D / 2],
-      [0, D / 2 + 1.5],
-    ] as const) {
-      const p = spostaYaw(c.z, c.theta, yaw, b, 40);
-      const q = spostaYaw(p.z, p.theta, yaw + 90, a, 40);
-      if (ctx.distanzaSentieri(q.z, q.theta) < 1.0) {
-        troppoVicino = true;
-        break;
-      }
-    }
-    if (troppoVicino) continue;
-    const piani = (r2 < 0.2 ? 1 : r < 0.25 ? 3 : 2) as 1 | 2 | 3;
-    const casa = posaRustico(ctx, `case:${Math.floor(c.z / 70)}:${Math.floor(c.theta / 8)}`, `rustico_${i}`, c.z, c.theta, yaw, {
+    if (ctx.occupato(p.z, p.theta, 0.3) || occupatoRett(ctx, p, 0.35)) continue;
+    if (vicinoSentieri(ctx, p, 0.9)) continue;
+    const m = { r: hash2(p.z, p.theta, 9), r2: hash2(p.theta, p.z, 11) };
+    const piani = (m.r2 < 0.12 ? 1 : m.r < 0.32 ? 3 : 2) as 1 | 2 | 3;
+    const i = out.length;
+    const casa = posaRustico(ctx, `case:${Math.floor(p.z / 70)}:${Math.floor(p.theta / 8)}`, `rustico_${i}`, p.z, p.theta, p.yaw, {
       seme: `corbella-${i}`,
-      larghezza: W,
-      profondita: D,
+      larghezza: p.W,
+      profondita: p.D,
       piani,
-      finestreAccese: 0.45 + r * 0.3,
-      gerani: 0.35,
+      finestreAccese: 0.4 + m.r * 0.35,
+      gerani: 0.4,
       dettaglio: 'alto',
     });
     out.push(casa);
-    i++;
+    // vicine di schiera (accanto, lungo la curva di livello) e la fila sopra/sotto oltre il vicolo
+    const vicini: Array<[number, number]> = [
+      [90, 1],
+      [-90, 1],
+      [0, 0],
+      [180, 0],
+    ];
+    for (const [rot, schiera] of vicini) {
+      const n = misura();
+      const gap = schiera ? 0.6 + hash2(p.z, rot, 6) * 1.0 : 3.2 + hash2(p.theta, rot, 7) * 1.2;
+      const d = schiera ? p.W / 2 + n.W / 2 + gap : p.D / 2 + n.D / 2 + gap;
+      const q = spostaYaw(p.z, p.theta, p.yaw + rot, d, 40);
+      const yawN = distanza(q, piazza) < piazza.raggio + 9 ? yawVerso(q, piazza) : schiera ? p.yaw + (hash2(q.z, q.theta, 8) - 0.5) * 8 : yawValle(q.z, q.theta) + (hash2(q.z, q.theta, 8) - 0.5) * 10;
+      coda.push({ ...q, yaw: yawN, W: n.W, D: n.D });
+    }
   }
   return out;
+}
+
+/** La proposta tocca un'impronta già occupata (controllo sui quattro spigoli e sul centro)? */
+function occupatoRett(ctx: Contesto, p: Proposta, margine: number): boolean {
+  for (const [a, b] of [
+    [-p.W / 2, -p.D / 2],
+    [p.W / 2, -p.D / 2],
+    [-p.W / 2, p.D / 2],
+    [p.W / 2, p.D / 2],
+    [0, p.D / 2],
+    [0, -p.D / 2],
+    [p.W / 2, 0],
+    [-p.W / 2, 0],
+  ] as const) {
+    const q = spostaYaw(p.z, p.theta, p.yaw, b, 40);
+    const r = spostaYaw(q.z, q.theta, p.yaw + 90, a, 40);
+    if (ctx.occupato(r.z, r.theta, margine)) return true;
+  }
+  return false;
+}
+
+function vicinoSentieri(ctx: Contesto, p: Proposta, margine: number): boolean {
+  for (const [a, b] of [
+    [0, 0],
+    [-p.W / 2, -p.D / 2],
+    [p.W / 2, -p.D / 2],
+    [-p.W / 2, p.D / 2],
+    [p.W / 2, p.D / 2],
+    [0, p.D / 2 + 1.2],
+  ] as const) {
+    const q = spostaYaw(p.z, p.theta, p.yaw, b, 40);
+    const r = spostaYaw(q.z, q.theta, p.yaw + 90, a, 40);
+    if (ctx.distanzaSentieri(r.z, r.theta) < margine) return true;
+  }
+  return false;
 }
 
 /** La casa bassa di Pina sulla piazza: la soglia è il luogo `soglia_pina`. */
