@@ -223,8 +223,14 @@ async function foto(nome, prepara) {
     )
     .catch(() => log(`  (animazioni ancora in corso per ${nome})`));
   await attendi(200);
-  await page.screenshot({ path: join(cartellaFoto, `${nome}.png`) });
-  log(`  📷 ${nome}.png`);
+  // Le foto documentano, non verificano: con la macchina carica (SwiftShader su CPU) possono
+  // metterci molto; se non arrivano si annota e la prova continua.
+  try {
+    await page.screenshot({ path: join(cartellaFoto, `${nome}.png`), timeout: 120000 });
+    log(`  📷 ${nome}.png`);
+  } catch (e) {
+    log(`  (foto ${nome} non riuscita: ${String(e?.message || e).split('\n')[0]})`);
+  }
 }
 
 async function main() {
@@ -339,6 +345,21 @@ async function main() {
 
     log('— P0.6 Le campane');
     await avanzaFinche('dialogo:d_meridiana_1 iniziato', 10);
+    // Il salvataggio automatico scatta spesso a dialogo aperto: «Continua» deve riaprirlo
+    // (prima restava aperto senza finestra e la storia si fermava qui).
+    await R(() => window.__GAME__.regia.salva());
+    await page.reload();
+    await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 300000 });
+    await R(() => window.__GAME__.stopLoop());
+    await page.getByRole('button', { name: 'Continua' }).click();
+    await avanza(3);
+    s = await stato();
+    if (!s.modali.dialogo || s.dialogo?.dialogo !== 'd_meridiana_1') throw new Error(`dopo «Continua» il dialogo delle campane non si è riaperto: ${JSON.stringify({ dialogo: s.dialogo, modali: s.modali })}`);
+    log('  ✓ salvato a dialogo aperto, «Continua» lo riapre');
+    // dopo «Continua» si comanda Elvira, non la camera libera del titolo, e lei sta su un piano
+    const pc = await R(() => window.__GAME__.getPlayerState());
+    if (pc.freeCamera || !pc.grounded) throw new Error(`dopo «Continua» Elvira non è controllabile: ${JSON.stringify({ freeCamera: pc.freeCamera, grounded: pc.grounded, mode: pc.mode })}`);
+    log('  ✓ dopo «Continua» Elvira è a terra e la camera è la sua');
     await foto('05-meridiana', () => mira([1062, 37.2, 60]));
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await verifica('missione:prologo completata e missione:m01_castagno_vuoto attiva', 'prologo completato');
