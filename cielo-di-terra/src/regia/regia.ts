@@ -604,8 +604,26 @@ export class Regia implements SistemaGioco {
       this.audio.evento({ tipo: 'interfaccia', varieta: 'apri' });
     }
     if (passo === 'pr_camminare') this.corpo.affaticata = false;
-    if (passo === 'm1_fienile') this.abitanti.ottavioFermo(luogo('fienile_ottavio')!.z - 2, luogo('fienile_ottavio')!.theta, Math.floor(this.orologio.assoluto / 24) * 24 + 24 + 7);
+    if (passo === 'm1_fienile') {
+      // fuori dalla porta del fienile (non dentro i muri), fino alle 07:00 del giorno dopo
+      const q = this.davantiAlFienile();
+      this.abitanti.ottavioFermo(q.z, q.theta, Math.floor(this.orologio.assoluto / 24) * 24 + 24 + 7);
+    }
     this.salvaTra = 1.5;
+  }
+
+  /** Un punto davanti alla porta del fienile di Ottavio, un passo di lato. */
+  private davantiAlFienile(): { z: number; theta: number } {
+    const l = luogo('fienile_ottavio')!;
+    const porta = this.scena.punto('fienile');
+    if (!porta) return { z: l.z - 2, theta: l.theta };
+    const p = worldToCyl(porta);
+    const dz = p.z - l.z;
+    const ds = (p.theta - l.theta) * METERS_PER_DEG;
+    const d = Math.hypot(dz, ds) || 1;
+    const [uz, us] = [dz / d, ds / d];
+    // 1,6 m fuori dalla porta e 1,2 m di lato
+    return { z: p.z + uz * 1.6 - us * 1.2, theta: p.theta + (us * 1.6 + uz * 1.2) / METERS_PER_DEG };
   }
 
   // =================================================================== tempo
