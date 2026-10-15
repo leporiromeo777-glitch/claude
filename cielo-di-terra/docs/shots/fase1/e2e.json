@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T08:40:04.136Z",
+  "data": "2026-10-15T08:41:14.411Z",
   "esito": "fallita",
-  "secondi": 55,
+  "secondi": 56,
   "passi": [
-    "pronto in 11.4 s",
+    "pronto in 13.3 s",
     "— Titolo",
     "  nella capsula 5, 05:38, giorno 1",
     "— P0.1 Il vetro",
@@ -88,7 +88,13 @@
     "  bolla in centro sul cs_3",
     "  ✓ il primo rilievo: lato 1-3 (cella:2214 rilevata e passo:m1_primo_rilievo completato e flag:primo_rilievo)",
     "— M1.19 La strada del Messo",
-    "  ottavio: Rimettiamola adesso, la tua passerella. / Adesso. / Affare fatto. / Lo misuro. / …"
+    "  ottavio: Rimettiamola adesso, la tua passerella. / Adesso. / Affare fatto. / Lo misuro. / …",
+    "  ✓ la passerella rimessa con Ottavio (dialogo:d_ottavio_strada finito e variante:E1=Abitata)",
+    "  bolla in centro sul cs_7",
+    "  ✓ il lato 7-8: la passerella misurata (cella:2797 rilevata e cella:2798 rilevata e passo:m1_strada completato)",
+    "— M1.20 La seconda notte",
+    "  aspetta fino a la brace: 8.38 → 19:30",
+    "  aspetta fino a fra un'ora: 19.50 → 20:31"
   ],
   "errori": []
 }
