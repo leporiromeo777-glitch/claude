@@ -190,3 +190,19 @@ Anche lo script `tests/unit/tombolo/browser-verify.ts` si era fermato a metà: d
 - TOM-22: nei livelli della campagna, disegnati densi, le ore quiete sono rare (nel browser l'ha offerte g03 alle 7, «Fissa fino alle 8»).
 - TOM-10: la prova «g06 con Nina e Zeno» con il solver vero dipende dai contenuti ridisegnati; la logica è provata con un solver finto (incompatibili, tardi, obiettivi).
 - TOM-18: il controllo «Gino e Teresa in bianco e nero» è su spessori, ampiezza e contrasto d'inchiostro dei motivi e sulla loro forma (tratti staccati contro linea unica), non su un'immagine.
+
+## Verifica della revisione 1
+
+Un secondo agente ha ripreso ogni compito TOM-01…TOM-22 con i passi delle segnalazioni di playtest-1.json, nella build `VITE_E2E=1` servita con `vite preview` (porta 5765), con tocchi veri (`Input.dispatchTouchEvent`, click di compatibilità compreso), mouse e tastiera, e ha guardato gli screenshot. Tutti i criteri d'accettazione tornano; i difetti trovati nei file del gruppo sono corretti:
+
+- **Riga di stato** (P012, P082 non ancora risolti lì): dopo «Ore 9.» la frase comincia con la maiuscola anche con «il filo sbiadito 1» o «il marinaio»; in inglese l'ora è «9 am», «Lace finished at noon» (prima «9 o'clock», «at 12», «13 o'clock»).
+- **Intestazione delle colonne**: il nome accessibile (e il `title`) delle colonne a sola icona restava in italiano dopo il cambio di lingua (`data-i18n-label`). Un nome che sforava di 2 px la sua casella («Piazza» a 360×640 col 140 %) restava tagliato: ora si confronta con la casella del nome.
+- **Striscia dell'Archivio**: sul telefono «Nominato e rammendato: tocca gli incroci per gli echi.» era tagliata a metà parola; se la frase non sta a 12 px compare la forma breve (`tombolo.archivio.fattoBreve`, `daRammendareBreve`, `contatoreOccasioniBreve`, it e en).
+- **Note a margine**: a merletto d'Archivio nominato e rammendato la nota non copre le righe degli echi (va nella fascia); una nota rimasta da un'ora già fissata lascia il posto a quella dell'ora corrente, così alle 7 del prologo «Chi sta sopra, dà» compare al primo incrocio anche giocando svelti (prima arrivava un'ora dopo; falliva `tests/e2e/prologo.spec.ts` su tutti i progetti e `archivio.spec.ts` su android-piccolo).
+- **Occasioni**: niente «Si compie se fissi l'ora» nel finale D e in arc6, dove l'ora non la fissa il giocatore (anteprima = stato fissato nei modi `occasioni` e `replay`).
+- **Bolla dell'ora**: elenca anche gli spilli d'ottone degli obiettivi e quelli rossi delle richieste di quell'ora (prima «Alle 12 non succede niente di speciale» con Bepi atteso al Molo alle 12).
+- **Bersagli**: «↓ altre N ore» e «Fissa fino alle N» alti 44 px (il controllo di layout end-to-end li segnava piccoli).
+
+Letture dei contratti: `tombolo.cond.fallita.incontraFinestra` dice «{a} non ha incontrato {b} entro le {alle}.» invece di «{a} e {b} non si sono incontrati…» di C16, per non sbagliare l'accordo con due donne (D08); il criterio «entro le 10» vale. TOM-22: il finale A ridisegnato non ha due ore quiete di fila (alle 16 lo spillo di Teresa e la scadenza, alle 17 quella di Lunardi), quindi non offre il salto; lo offrono g03 alle 7 e g21 alle 14.
+
+Prove: `npx vitest run tests/unit/tombolo` 15 file, 227 test verdi (nuovo `verifica-revisione1.test.ts`); `tests/unit/tombolo/browser-revisione1.ts` 62/62; end-to-end `archivio` e `prologo` verdi su desktop, iphone, android-piccolo, ipad-orizzontale; `layout` senza problemi del tombolo (restano «TRAMA» spezzato nei crediti e «l'anniversario» nei bigliettini di g08, di schermi e campagna). `npx tsc --noEmit -p .` senza errori; `npx vitest run` completo: falliscono solo 3 test di `content/atto23.test.ts` (livelli in ridisegno).

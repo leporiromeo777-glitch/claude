@@ -464,7 +464,7 @@ async function tom19(browser: Browser): Promise<void> {
   await call(page, 'core.setSettings', { locale: 'en' });
   await page.waitForTimeout(300);
   const en = await call<{ status: string }>(page, 'night.state');
-  check('TOM-19: dopo il cambio di lingua la riga di stato è in inglese', /o'clock/.test(en.status) && !/\bOre\b| al | in Piazza/.test(en.status), en.status);
+  check('TOM-19: dopo il cambio di lingua la riga di stato è in inglese', /^\d+ (am|pm)\. [A-Z]/.test(en.status) && !/\bOre\b| al | in Piazza/.test(en.status), en.status);
   check('TOM-19: nessun errore', errors.length === 0, errors.join(' | '));
   await close();
 }
