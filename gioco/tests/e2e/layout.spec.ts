@@ -17,7 +17,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Browser, Page, TestInfo } from '@playwright/test';
 import { auditLayout, describeProblems, INFO_KINDS, type AuditProblem } from './helpers/audit';
-import { campaignDays, dismissActCard, playGolden, solutionRows } from './helpers/campaign';
+import { campaignDays, dismissActCard, passLace, playGolden, solutionRows } from './helpers/campaign';
 import { call, captureErrors, expect, guardNetwork, nightState, onlyProjects, openGame, test, until, waitNight, waitScene } from './helpers/game';
 import { nightLayout } from './helpers/pointer';
 import { keepImage, shot } from './helpers/shots';
@@ -464,6 +464,9 @@ test.describe('layout: schermate per gli store', () => {
         await call(page, 'campaign.toNight');
         expect(await waitNight(page)).toBe(true);
         await call(page, 'night.autoplay');
+        // R2-D5: il merletto finito resta sul tombolo finché non si va «All'alba».
+        await until(page, async () => (await call<string | null>(page, 'campaign.phase')) !== 'notte', 20_000);
+        await passLace(page);
         expect(await waitScene(page, 'alba', 20_000)).toBe(true);
         await call(page, 'core.setSettings', { animSpeed: 1 });
         // La prima vignetta di quest'alba con i personaggi (le figure sono disegnate sul canvas).

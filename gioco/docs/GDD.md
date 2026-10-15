@@ -1,8 +1,8 @@
 # TRAMA. Il merletto dei giorni
-### Game Design Document (versione 1.1, 14 ottobre 2026: revisione 1 dopo il primo playtest)
+### Game Design Document (versione 1.2, 15 ottobre 2026: revisione 2 dopo il secondo playtest)
 
 > In inglese: *Trama: The Lace of Days*. Questo documento è la bibbia del progetto: dove il codice e questo testo non sono d'accordo, si corregge uno dei due e si annota il cambiamento in fondo (sezione 18, Registro delle modifiche).
-> Documenti collegati: `ARCHITETTURA.md` (tecnica, interfacce TypeScript, pipeline), `RICERCA.md` (perché questo gioco e non un altro), `REVISIONE-1.md` (decisioni e contratti della revisione 1, dopo il primo playtest).
+> Documenti collegati: `ARCHITETTURA.md` (tecnica, interfacce TypeScript, pipeline), `RICERCA.md` (perché questo gioco e non un altro), `REVISIONE-1.md` e `REVISIONE-2.md` (decisioni e contratti delle revisioni 1 e 2, dopo il primo e il secondo playtest).
 
 ---
 
@@ -338,18 +338,18 @@ Flag minori (stringhe e numeri): risposte ai bigliettini (`risposta:<idBiglietti
 
 ### 5.2 Le giornate
 
-Convenzioni: colonne abbreviate **M**olo, **F**orno, **P**iazza, **C**hiesa, F**a**rmacia, Fa**r**o. Le posizioni iniziali precise, le perline e gli spilli d'ottone li scrivono i pacchetti di contenuto e li verifica il solver (`npm run levels:check`), rispettando i vincoli di ogni riga. "Min" è l'intervallo atteso del minimo di incroci per la combinazione di richieste prevista (la *designata*), con la regola di Gino della revisione 1. Ogni notte rispetta inoltre i criteri di qualità di 3.13; una notte che non li rispetta si ridisegna (cast, intenzioni dei bigliettini e conflitti voluti restano).
+Convenzioni: colonne abbreviate **M**olo, **F**orno, **P**iazza, **C**hiesa, F**a**rmacia, Fa**r**o. Le posizioni iniziali precise, le perline e gli spilli d'ottone li scrivono i pacchetti di contenuto e li verifica il solver (`npm run levels:check`), rispettando i vincoli di ogni riga. "Min" è il minimo di incroci della combinazione di richieste prevista (la *designata*), con la regola di Gino della revisione 1, come lo misura `npm run levels:check` (revisione 2; K7 tollera ±1). Il valore misurato di ogni notte sta nel suo `.computed.json` (`quality`). Ogni notte rispetta inoltre i criteri di qualità di 3.13; una notte che non li rispetta si ridisegna (cast, intenzioni dei bigliettini e conflitti voluti restano).
 
 #### ATTO I. L'ordito (autunno). Insegna: incrocio, spillo, sopra dà, voce, Molo, segreto, pozzo.
 
 | ID | Titolo | Colonne / ore | Fili | Novità | Min | Momento di storia |
 |---|---|---|---|---|---|---|
 | g00 | Il merletto della nonna | F P C / 5→9 | Teresa, Marta, Piero | Incrocio, spillo, sopra dà, prima stranezza | 4 | Clotilde è morta, l'orologio è fermo alle 5:59. Ada finisce il merletto e il sole sorge |
-| g01 | La prima sera | M F P C / 6→11 | Gino, Marta, Teresa, Piero | Bigliettini, `ginoCorre` (non sta fermo due ore di fila) | 3-5 | L'isola scopre che la merlettaia nuova è una ragazzina |
-| g02 | Si dice | M F P C / 6→12 | Gino, Marta, Teresa, Piero | Voce, matassa visibile | 4-6 | La voce gira: "la piccola tesse peggio della vecchia" |
-| g03 | Il vaporetto delle nove | M F P C / 6→12 | Nina, Marta, Teresa, Piero (+ lino) | Regola del Molo (vaporetto alle 9) | 4-6 | Nina vuole andare a Venezia per l'esame |
+| g01 | La prima sera | M F P C / 6→11 | Gino, Marta, Teresa, Piero | Bigliettini, `ginoCorre` (non sta fermo due ore di fila) | 6 | L'isola scopre che la merlettaia nuova è una ragazzina |
+| g02 | Si dice | M F P C / 6→12 | Gino, Marta, Teresa, Piero | Voce, matassa visibile | 7 | La voce gira: "la piccola tesse peggio della vecchia" |
+| g03 | Il vaporetto delle nove | M F P C / 6→12 | Nina, Marta, Teresa, Piero (+ lino) | Regola del Molo (vaporetto alle 9) | 7 | Nina vuole andare a Venezia per l'esame |
 | g04 | La barca di Bepi | M F P C A / 6→14 | Bepi, Nina, Marta, Teresa, Piero | Barca: Bepi esce alle 8, rientra alle 11 | 10 | Bepi non vuole che la figlia parta |
-| g05 | Il guardiano | M F P C A R / 6→13 | lino, Gino, Marta, Teresa, Piero, Zeno | `zenoFaro`, sei colonne (la Farmacia è chiusa: lino) | 5-8 | Zeno riceve una lettera firmata "L.": «Questa calligrafia… no, non può essere.» |
+| g05 | Il guardiano | M F P C A R / 6→13 | lino, Gino, Marta, Teresa, Piero, Zeno | `zenoFaro`, sei colonne (la Farmacia è chiusa: lino) | 8 | Zeno riceve una lettera firmata "L.": «Questa calligrafia… no, non può essere.» |
 | g06 | La lettera da Venezia | M F P C A R / 6→12 | lino, Marta, Teresa, Piero, Nina, Zeno | Segreto, `teresaLegge` formale | 10 | Esempio 3.16. Arriva l'esito dell'esame di Nina |
 | g07 | Il pozzo | M F P C A R / 6→14 | Marta, Teresa, Piero, Nina, Gino, Zeno | `pieroPozzo` formale, `ninaCuriosa` | 10 | Teresa vuole confessarsi: trent'anni fa lesse una lettera di Marta |
 | g08 | Il filo nero | M F P C A R / 6→16 | Marta, Teresa, Piero, Nina, Gino, Zeno | Combinazione di tutto (vaporetto alle 9) | 14 | Chiuso il merletto, sul bordo alto (ore 3 della notte) compare un filo nero che Ada non ha tessuto e che incrocia Zeno al Faro: il giocatore lo **vede** (apparizione, `apparizione` nei dati). Fine Atto I |
@@ -375,11 +375,11 @@ Archivio: **arc3** dopo g11, **arc4** dopo g14.
 
 | ID | Titolo | Colonne / ore | Fili | Novità | Min | Momento di storia |
 |---|---|---|---|---|---|---|
-| g17 | La donna in nero | 6 col / 6→16 | Zeno, Teresa, Marta, Nina, Gino, Piero + nero (entra dal Faro alle 9: chi è al Faro alle 9 esce, quindi non deve esserci Zeno) | Filo nero autonomo, che segue Zeno | 7-9 | Una donna con lo scialle nero sulla Fondamenta. Nessuno la riconosce, tranne Zeno |
+| g17 | La donna in nero | 6 col / 6→16 | Zeno, Teresa, Marta, Nina, Gino, Piero + nero (entra dal Faro alle 9: chi è al Faro alle 9 esce, quindi non deve esserci Zeno) | Filo nero autonomo, che segue Zeno | 9 | Una donna con lo scialle nero sulla Fondamenta. Nessuno la riconosce, tranne Zeno |
 | g18 | La pace | 6 col / 6→16 | Teresa, Marta, Gino, Nina, Piero, Lunardi | Riconciliazione: la confessione di Teresa deve arrivare a Marta passando da Gino (il segreto scende soltanto e Marta non sta sotto Teresa) | 12 | Se riesce: `riconciliate`, si tolgono `martaNoSotto`, `teresaLegge` e il rancore. Le regole cambiano davanti al giocatore |
-| g19 | Acqua alta | 6 col / 6→16 | Bepi, Nina, Marta, Teresa, Zeno, Lunardi | Marea: Molo e Piazza allagati 10-13 | 8-10 | La laguna si alza: l'isola è più piccola |
+| g19 | Acqua alta | 6 col / 6→16 | Bepi, Nina, Marta, Teresa, Zeno, Lunardi | Marea: Molo e Piazza allagati 10-13 | 11 | La laguna si alza: l'isola è più piccola |
 | g20 | Nina | 6 col / 6→14 | Nina, Bepi, Marta, Gino, Teresa, Zeno | Vaporetto delle 9 | 11 | Nina parte per Venezia o resta. Bepi vuole salutarla «come si deve» |
-| g21 | Il punto aperto | 6 col / 6→18 | Teresa, Marta, Piero, Gino, Zeno, Lunardi + nero | Nero + marea | 9-11 | La sera prima Ada ha letto arc6: sa che esiste un punto senza merlettaia |
+| g21 | Il punto aperto | 6 col / 6→18 | Teresa, Marta, Piero, Gino, Zeno, Lunardi + nero | Nero + marea | 12 | La sera prima Ada ha letto arc6: sa che esiste un punto senza merlettaia |
 | g22 | La secca | 6 col / 6→20 | Zeno, Piero, Teresa, Marta, Gino, Nina/Bepi + Livia | Bordo del Faro: alle 15 Livia arriva a piedi sulla lingua di sabbia (chi è al Faro esce) | 19 | Livia sull'isola. Se Zeno la incrocia: `zenoLivia`. Controllo della memoria per il finale vero |
 | g23 | La vigilia | 6 col / 6→12 | Tutti quelli rimasti | Nessuna; 2 bigliettini semplici, 2 spilli | 9 | Giornata breve e quieta. Dopo la notte, la sera della scelta (6.6), con un solo spillo |
 
@@ -392,7 +392,7 @@ Archivio: **arc5** dopo g18, **arc6** la sera di g20.
 | `fin_merlettaia` | La merlettaia | Tessitura normale, 6 colonne, 6→18 | Almeno quattro saluti su sei, fatti **dando**: chi saluta passa sopra a Livia e le consegna qualcosa (il pane di Marta, una lettera di Teresa, la benedizione di Don Piero, la valigia di Zeno…), con almeno un conflitto voluto; poi Livia sale volontariamente sul vaporetto delle 18. Minimo della base ≥ 8 (3.13). Il filtro sulla memoria della 1.0 cade: con la memoria a zero chi saluta Livia non ricorda Ada, e il saluto vale lo stesso |
 | `fin_seppia` | Il filo di seppia | Ada ha un filo corallo e il giocatore muove **solo quello**; tutti gli altri si muovono con l'autotessitura secondo l'agenda scritta da Livia | Ada incontra sei persone (sta sotto: riceve) prima delle 18 |
 | `fin_chiuso` | Il merletto chiuso (finale falso) | Tessitura normale, 6→9 | Portare Livia al Molo alle 9. Quando si fissa l'ora 9 il giocatore vede il nodo chiudersi su tutti i fili e il merletto disfarsi all'indietro (`chiusura: 'nodo'`), senza suono di successo; non si salva: «Questo merletto l'ho già visto.» Si torna alla sera di g23, dove il biglietto di Clotilde resta piegato |
-| `fin_aperto` | Il merletto aperto (finale vero) | Nessun incrocio manuale. Ada pianta fino a **5 occasioni** (spilli verdi) e preme "Lascia accadere": il giorno si tesse da solo (3.10). Si può riprovare all'infinito | Tutti i desideri soddisfatti nello stesso merletto (5.4), Ada e Livia si incontrano, nessuno parte contro voglia |
+| `fin_aperto` | Il merletto aperto (finale vero) | Nessun incrocio manuale. Ada pianta fino a **5 occasioni** (spilli verdi) e preme "Lascia accadere": il giorno si tesse da solo (3.10). Si può riprovare all'infinito. Sul tombolo Lunardi, il Bepi, il Gino, Ada, Livia e Zeno; Teresa arriva col vaporetto delle 9. La Nina non c'è: dopo g20 non è più in nessun merletto, che sia partita o rimasta (revisione 2) | Tutti i desideri soddisfatti nello stesso merletto (5.4): la lettera di Ada per Teresa consegnata; il Gino resta e alle 20 è al Faro (la lanterna); la lettera del 1951, «che mia madre aveva scritto per Ada», consegnata; il Bepi parte col vaporetto delle 9 (va dalla Nina); Zeno incontra Livia; almeno 3 fra Teresa, il Gino, il Bepi e Zeno sentono il nome del dottore; Ada e Livia si incontrano. Nessuno parte contro voglia |
 
 ### 5.3 L'Archivio (6 merletti antichi)
 
@@ -408,7 +408,7 @@ Archivio: **arc5** dopo g18, **arc6** la sera di g20.
 |---|---|---|---|---|---|
 | arc1 | 1936 | La lettera di Marta | Marta, Teresa, Ernesto (marinaio), Don Anselmo; *Clotilde* | Clotilde fece portare a Teresa la lettera in cui Ernesto chiedeva a Marta di partire con lui, e la fece leggere in Piazza all'ora del mercato. La voce arrivò al padre di Marta. Ernesto partì solo. Esca: la merlettaia non ha filo | «Perché restasse.» |
 | arc2 | 1965 | L'ultimo merletto | Zeno, Piero, Teresa, lino, filo d'avorio; *Livia* | Il filo d'avorio è Clotilde, l'ultima volta che si è tessuta dentro (la prima fu il merletto di prova di arc6). Alle 2 passa sopra Zeno al Faro e gli consegna una lettera. Alle 3 il filo è tagliato: Clotilde muore | «Un'ultima volta, dentro.» |
-| arc3 | 1958 | La febbre | Teresa, Aldo, il vecchio dottor Bortolo, Marta, Bepi; *Lunardi* (allora non era sull'isola) | Nell'epidemia, Clotilde fece arrivare il medico prima ai sei bambini della scuola e lasciò la febbre ad Aldo, il fidanzato di Teresa, che l'estate dopo l'avrebbe portata via in terraferma. Aldo morì | «Uno per sei. E uno che restava.» |
+| arc3 | 1958 | La febbre | Teresa, Aldo, il vecchio dottor Bortolo, Marta, Bepi; *Lunardi* (allora non era sull'isola). La scuola (i sei bambini) è un filo già nominato | Nell'epidemia, Clotilde fece arrivare il medico prima ai sei bambini della scuola e lasciò la febbre ad Aldo, il fidanzato di Teresa, che l'estate dopo l'avrebbe portata via in terraferma. Aldo morì. Indizi per nominare senza tirare a indovinare (R2-D6): Bortolo porta la medicina alla scuola; Aldo scotta; Teresa porta in borsa la lettera dalla terraferma per Aldo e la legge alla fine della prima riga (`teresaLegge`); il Bepi esce in barca dal Faro alle 8. Guida: «Chi porta la medicina, chi scotta, chi legge la posta degli altri, chi esce in barca?» | «Uno per sei. E uno che restava.» |
 | arc4 | 1951 | Il vaporetto delle nove | Livia, Zeno, Piero, Teresa, Bepi; *Ernesto* (partito nel 1936) | Livia voleva un merletto "aperto" e litigò con la madre. Clotilde la tessé al Molo all'ora del vaporetto. Zeno le portò la valigia credendo a una gita. La lettera di Livia per la figlia di due anni finì a Don Piero | «Non ancora.» |
 | arc5 | 1630 | Il primo merletto | Arianna, cinque fili di appestati e sani (nominati per mestiere: il barcaiolo, la vedova, il fornaio, il prete, il bambino); *Clotilde* | Arianna tessé la quarantena durante la peste: tenne lontani malati e sani e salvò l'isola, che la dimenticò. Nasce la regola «chi tesse non è tessuto» | Mano di Arianna: «Chi tesse non è tessuto.» Sotto, mano di Clotilde: «Lo so.» |
 | arc6 | Senza data | Il punto aperto | Quattro fili (Clotilde giovane, Livia bambina, Zeno, Piero giovane cappellano): la prima volta che la merlettaia si è data un filo | Un merletto di prova in cui Clotilde non incrocia nulla: pianta solo occasioni, e i fili si incrociano da soli secondo i desideri. Il rammendo qui si fa **piantando occasioni** (tutorial del finale vero) | «Non ho avuto il coraggio.» |
@@ -451,7 +451,7 @@ Personaggi solo d'Archivio (fili sbiaditi, figurine riusate con un viraggio): Er
 
 | ID | Luogo | Icona | Abitudini (spilli d'ottone tipici) | Diorama |
 |---|---|---|---|---|
-| `molo` | Molo | Bitta con cima | Vaporetto 8 o 9 e 18; barca di Bepi alle 7 | Pali, vaporetto, barche |
+| `molo` | Molo | Bitta con cima | Vaporetto 8 o 9 e 18; barca di Bepi alle 8 (g04) | Pali, vaporetto, barche |
 | `forno` | Forno | Pagnotta | Marta dalle 6 alle 7 | Bocca del forno, pale |
 | `piazza` | Piazza | Vera da pozzo | Mercato 9-11, festa | Pozzo di pietra, panchine, lampione |
 | `chiesa` | Chiesa | Campanile | Messa: Don Piero alle 7 o alle 9, e alle 11 | Sagrato, portale, campanile con l'orologio |
@@ -585,7 +585,7 @@ Il Taccuino contiene indizi e collegamenti, mai soluzioni, e mai anticipazioni: 
 
 **Livia, prima battuta nel merletto (g17, alba):** «Nessuno qui sa chi sono. Va bene così. Basta che lei mi veda.»
 
-**Teresa, riconciliazione (g18, alba, se riuscita):** Marta: «Trent'anni, Teresa.» Teresa: «Trenta. E non era nemmeno colpa mia, si scopre: me l'ha detto la piccola.» Marta: «Lo so. Siediti, che il pane è caldo.» (Le due vignette escono sempre insieme: 5.9.)
+**Teresa, riconciliazione (g18, alba, se riuscita):** Marta: «Trent'anni, Teresa.» Teresa: «Trenta. E non era solo colpa mia, si scopre: me l'ha detto la piccola.» (Con la memoria di Teresa a zero: «…me l'ha detto la merlettaia.») Marta: «Lo so. Siediti, che il pane è caldo.» (Le due vignette escono sempre insieme: 5.9.)
 
 **Don Piero, trabocco (g16):** «Credevo di custodire peccati. Erano lettere. Che Dio mi perdoni la distrazione.»
 
@@ -604,7 +604,7 @@ La scelta usa lo stesso sistema dei bigliettini: quattro biglietti e un solo spi
 
 | Biglietto | Autore | Testo | Porta a |
 |---|---|---|---|
-| A | Zeno (o Don Piero, se Zeno ha memoria 0) | «Resta. L'isola ha bisogno di una merlettaia, e tua madre ha bisogno di andarsene libera, stavolta.» | `fin_merlettaia` |
+| A | Chi ricorda Ada, in quest'ordine: Zeno; Don Piero, col suo testo e col lei («Resti, figliola. L'isola ha bisogno di una merlettaia, e sua madre di andarsene libera, stavolta. Il Signore guarda anche i merletti.»); Marta; Teresa. Se nessuno dei quattro la ricorda, la carta se la scrive Ada («Resto io…»). Le carte non sono mai anonime (revisione 2) | «Resta. L'isola ha bisogno di una merlettaia, e tua madre ha bisogno di andarsene libera, stavolta.» (testo di Zeno) | `fin_merlettaia` |
 | B | Livia | «Dammi il tombolo, Ada. Tu vivi. Io ho già vissuto abbastanza fuori.» | `fin_seppia` |
 | C | Clotilde (pagina trovata nel Libro) | «Rimandala via, come ho fatto io. Funziona.» | `fin_chiuso` (falso) |
 | D | Ada stessa | «Il punto aperto.» | `fin_aperto`; se mancano i requisiti il biglietto è strappato e dice cosa manca, per esempio «Non so ancora cosa vuole Zeno» |
@@ -616,7 +616,7 @@ La scelta usa lo stesso sistema dei bigliettini: quattro biglietti e un solo spi
 - **A. La merlettaia (il dovere).** Nella notte del finale l'isola saluta Livia dando (almeno quattro saluti su sei, 5.2). Livia riparte con il vaporetto delle 18, per scelta, con Ada che la saluta dalla finestra. Ada resta senza filo: il nastro della nonna lo annoda al tombolo, per la merlettaia che verrà. Anni dopo, il suo merletto più bello è appeso in chiesa senza nome; i ragazzi dell'isola non sanno chi l'ha fatto. Ultima riga: «Il sole è sorto ogni giorno. Nessuno ha mai saputo perché.»
 - **B. Il filo di seppia (la libertà).** Livia prende il tombolo e diventa la merlettaia; Ada ha un filo corallo e una vita: la scuola, Nina, la terraferma. Nel giro di un anno l'isola dimentica Livia, e anche Ada comincia a dimenticarla. Ultima riga: «Mia madre tesse ancora. Lo so perché ogni tanto il giorno è più gentile di quanto dovrebbe.»
 - **C. Il merletto chiuso (falso).** Alle 9 il giocatore vede il nodo chiudersi su tutti i fili e il merletto disfarsi all'indietro; nessun suono di successo; schermo nero; la campana stonata (sempre, anche dopo il finale vero) suona un'ora sbagliata; si torna alla sera di g23 con una nuova voce del Taccuino: «Il punto di Clotilde: chi lo ripete, lo ripete per sempre.» Il biglietto di Clotilde resta piegato e non si riappunta. Non conta come finale nei titoli.
-- **D. Il merletto aperto (il finale vero).** Ada e Livia appuntano solo occasioni: l'epilogo nomina quelle **davvero piantate** dal giocatore (parametro `{occasioni}`). I fili si incrociano da soli secondo i desideri; almeno tre vignette chiudono i desideri tessuti quella notte (Teresa riceve una lettera scritta per lei, Gino dentro la lanterna accesa, Lunardi chiamato per nome, Nina, Zeno e Livia). Il nastro della nonna basta per due fili: uno per Ada, uno per Livia. Tutti hanno un filo. Il tombolo resta in chiesa, come una reliquia che nessuno usa più. La campana del campanile suona finalmente intonata. Ultima riga: «Per un autunno e un inverno ho imparato a comandare le persone. Poi ho imparato a conoscerle.» Si sblocca lo spartito dell'intera partita; la schermata Fine lo riconosce («La campana suona intonata. Hai trovato il punto aperto.») e il titolo cambia (filo corallo sul tombolo, campana intonata).
+- **D. Il merletto aperto (il finale vero).** Ada e Livia appuntano solo occasioni: l'epilogo nomina quelle **davvero piantate** dal giocatore (parametro `{occasioni}`). I fili si incrociano da soli secondo i desideri; almeno tre vignette chiudono i desideri tessuti quella notte (Teresa riceve una lettera scritta per lei, Gino dentro la lanterna accesa, Lunardi chiamato per nome, Zeno e Livia; la lettera del 1951, «che mia madre aveva scritto per Ada», arriva finalmente ad Ada). La Nina non è sul tombolo: il Bepi prende il vaporetto delle 9 col vestito buono, e va a trovarla in convitto se è partita in g20, o a tenerle il posto se è rimasta (a settembre parte, per scelta, una volta sola); col braccio buono, se in g15 è tornato ferito. Il nastro della nonna basta per due fili: uno per Ada, uno per Livia. Tutti hanno un filo. Il tombolo resta in chiesa, come una reliquia che nessuno usa più. La campana del campanile suona finalmente intonata. Ultima riga: «Per un autunno e un inverno ho imparato a comandare le persone. Poi ho imparato a conoscerle.» Si sblocca lo spartito dell'intera partita; la schermata Fine lo riconosce («La campana suona intonata. Hai trovato il punto aperto.») e il titolo cambia (filo corallo sul tombolo, campana intonata).
 
 In tutti i finali il merletto finito resta sullo schermo finché il giocatore non tocca «Continua».
 
@@ -639,7 +639,7 @@ Si sblocca varietà, mai potenza. Nessuna statistica cresce.
 | fine g16 | Gradi del Merletto libero |
 | g18, g20 | arc5, arc6 |
 | primo finale (qualsiasi, tranne il falso) | Epiloghi nel Telaio, spartito dell'intera partita, fusi intagliati extra |
-| finale vero | Campana intonata e filo corallo nel titolo, riga dedicata nella schermata Fine (la Tovaglia resta L3) |
+| finale vero | Campana intonata e filo corallo nel titolo, riga dedicata nella schermata Fine; nel Telaio la **Tovaglia**: i merletti della storia cuciti in una tela, uno per giornata, che suona l'intera partita (revisione 2, R2-D5). L'esportazione in PNG resta L3 |
 
 **Fusi intagliati** (solo estetici, cambiano il fuso di Ada nel titolo e i fusi dei lino): 6 stili (liscio, a spirale, a pigna, col faro, con la barca, d'avorio). Si ottengono con i fili d'oro: 3, 8, 15, 22 fili d'oro, più due legati al Merletto del giorno (7 giorni di fila, 30 giorni in totale).
 
@@ -677,7 +677,7 @@ Si sblocca varietà, mai potenza. Nessuna statistica cresce.
 - **Esercizi della nonna**: 12 puzzle puri scelti dal generatore, uno per regola, con 3 livelli di eleganza.
 - Storia completa in inglese.
 
-**Livello L3**: la **Tovaglia** (tutti i merletti della partita cuciti in un'unica immagine esportabile in PNG, che suona l'intera partita), l'**alfabeto dei punti** (certe sequenze di incroci nei merletti d'Archivio formano lettere; decifrate, aprono 6 merletti segreti).
+**Livello L3**: la **Tovaglia esportabile** (dalla revisione 2 la Tovaglia si vede e si ascolta nel Telaio dopo il finale vero; L3 è l'immagine unica esportabile in PNG), l'**alfabeto dei punti** (certe sequenze di incroci nei merletti d'Archivio formano lettere; decifrate, aprono 6 merletti segreti).
 
 ---
 
@@ -1057,6 +1057,8 @@ Una funzione è fatta quando tutte le voci pertinenti sono vere.
 | 2026-10-14 | 1.0 | Prima stesura dal concept vincitore TRAMA, con le correzioni dei giudici (vedi `RICERCA.md`) |
 | 2026-10-14 | 1.1 | **Revisione 1 dopo il primo playtest** (121 segnalazioni, `docs/stato/PLAYTEST-1.md`; decisioni e contratti in `REVISIONE-1.md`). Regole: `ginoCorre` diventa «Gino non sta fermo due ore di fila» e con la febbre resta a letto (3.5, 3.6); filo d'oro solo con minimo ≥ 3 (3.13, 3.14); criteri di qualità delle notti K1-K7 (3.13, 5.2, 17). Onboarding: ogni regola nuova annunciata sul tombolo nella sua prima notte, pagina del Libro «Nuova», prologo con fuso fantasma e «Chi sta sopra, dà» per tutti (3.15, 5.7, 9). Archivio: nomi senza contatore dei giusti e senza doppioni, fili usciti nominabili, «Lascia per ora», tutorial, «Rileggi» in sola lettura (4.2, 5.3, 10.3). Tombolo: ora di fine nell'HUD, righe adattive, bolle al tocco, obiettivi completi con spilli e finestre orarie, lettere col destinatario, rancore visibile, «soddisfatta» solo a ora fissata, lampada sempre visibile e fantasma con conferma, «Salta le ore quiete» (10.3, 11, 12.3, 14). Storia: lettera di Clotilde e fascio consegnati a mano alla fine dell'alba di g14 e g16, provenienza degli oggetti, due sere senza oggetto (4.2, 5.6, 6.3); Taccuino che non anticipa (5.8); selezione dell'alba con culmini e coppie (5.9); continuità (5.3 arc2/arc6, 6.1, 6.4, Appendici A e B); g17 si chiama «La donna in nero»; g23 con 2 bigliettini. Finali: A ridisegnato (saluti che danno, senza filtro sulla memoria), C con nodo e riavvolgimento visibili, D con epilogo dalle occasioni piantate e chiusura dei desideri, il merletto finito resta, riconoscimento del finale vero senza la Tovaglia (L3) (5.2, 6.6, 7). Modalità extra: «Chi c'è stanotte», gradi che contano, condivisione con data locale e cartiglio (8). Accessibilità: testo grande mai rimpicciolito, inchiostro ≥ 4,5:1, calligrafia entro ±3° (14) |
 
+| 2026-10-15 | 1.2 | **Revisione 2 dopo il secondo playtest** (77 segnalazioni, `docs/stato/PLAYTEST-2.md`; decisioni in `REVISIONE-2.md`, R2-D1…R2-D7). Suggerimenti che non mentono (Indizio sulla bozza, Fantasma su tutta la riga, niente verdetti prima del nome, «Fissa fino alle N» solo se il solver lo conferma). Numeri veri nel bilancio: record per insieme di richieste e solo dei merletti riusciti, «Primo filo d'oro» una volta; il Telaio legge i record per insieme. Storia coerente su tutti i rami (R2-D3): 6.4 g18 «non era solo colpa mia»; 6.6 carta A firmata da chi ricorda Ada, epilogo D senza la Nina sul tombolo (il Bepi sul vaporetto delle 9), la lettera del 1951 «che mia madre aveva scritto per Ada»; 5.2 `fin_aperto` con Lunardi al posto della Nina. Fine della notte da gustare (R2-D5): il merletto finito resta 2,5 s col carillon, poi «All'alba»; la Tovaglia nel Telaio dopo il finale vero (7). Archivio 1958 deducibile (5.3 arc3, R2-D6). Atto I più impegnativo per chi è bravo (R2-D7): colonna Min di 5.2 coi minimi misurati da `levels:check`, barca di g04 alle 8 e alle 11, spilli di g08. Appendice A allineata ai dati (campana della messa in g01, g04, g07, g08). Rifinitura: la Spinta offre anche «Torna alla sera» prima della prima ora quando le richieste non stanno insieme |
+
 ---
 
 ## Appendice A. Bigliettini dell'Atto I (testo e condizioni)
@@ -1064,22 +1066,23 @@ Una funzione è fatta quando tutte le voci pertinenti sono vere.
 Formato: **ID**, autore, testo, richiesta (`Condition`), conseguenze principali. Le risposte, dove ci sono, sono indicate con R1/R2. Le conseguenze "se lasciato" valgono anche quando la richiesta fallisce, salvo indicazione.
 
 **g01, La prima sera** (2 spilli)
-- `g01.marta`, Marta: «Il Gino stia lontano dal Molo dopo le nove. L'acqua è alta e lui non ha giudizio.» → `maiPresso(gino, molo, 9, 11)`. Ok: Marta all'alba «Brava, merlettaia.» Fallita: Gino si bagna fino alle ginocchia, Marta scrive più dura domani.
+- `g01.marta`, Marta: «Il Gino stia lontano dal Molo dalle nove in poi. L'acqua è alta e lui non ha giudizio.» → `maiPresso(gino, molo, 9, 11)`. Ok: Marta all'alba «Brava, merlettaia.» Fallita: Gino si bagna fino alle ginocchia, Marta scrive più dura domani.
 - `g01.piero`, Don Piero: «Gentile signorina Ada, la posta mi arrivi entro le dieci, se il Signore e la Teresa lo consentono.» → `consegnata(L_piero, 10)` (entro = l'ora compresa; rev. 1: prima diceva «prima delle dieci»). Ok: voce di Taccuino sul pozzo (indizio: «Don Piero mette via tutto, anche le buste vuote»).
-- `g01.gino`, Gino: «VOGLIO SUONARE LA CAMPANA!!! portami in chiesa alle 11» → `presso(gino, chiesa, 11)`. Ok: alle 11 suona la campana del campanile (stonata, fuori orario): vignetta comica, Don Piero ride.
+- `g01.gino`, Gino: «VOGLIO SUONARE LA CANPANA!!! portami in chiesa alle 11» → `presso(gino, chiesa, 11)`. Ok: alle 11 il Gino tira la campana della messa (stonata, felice) e Don Piero arriva di corsa dalla Piazza, dove lo appunta lo spillo delle 11: vignetta comica, Don Piero ride (revisione 2, Q065: non è più «fuori orario», è la campana della messa delle undici).
 
 **g02, Si dice** (2 spilli; Teresa ha la voce «La merlettaia nuova è una bambina»)
 - `g02.marta`: «Che il Gino non senta le chiacchiere.» → `nonHa(gino, voce:bambina)`.
 - `g02.teresa`: «Cara, Don Piero deve sapere la novità entro le nove. È giusto che il parroco sappia.» → `ha(piero, voce:bambina, 9)` (rev. 1: la messa è alle undici, ovunque). R1 «Non è una novità, è una chiacchiera.» R2 «Va bene.» (R1 abbassa la fiducia di Teresa: i suoi bigliettini di g03 sono più freddi).
-- `g02.gino`: «voglio fare il giro! Molo alle 8, chiesa alle 11» → `tutti(presso(gino, molo, 8), presso(gino, chiesa, 11))`.
+- `g02.gino`: «voglio fare il giro! molo alle 8, chiesa alle 11. cuesta volta di corsa!» → `tutti(presso(gino, molo, 8), presso(gino, chiesa, 11))`.
+- `g02.martaDura` (al posto di `g02.marta` se in g01 il Gino si è bagnato): «Del Molo te l'avevo scritto. Adesso scrivo questo, e una volta sola: il Gino non senta le chiacchiere.» → come `g02.marta`.
 
 **g03, Il vaporetto delle nove** (2 spilli)
 - `g03.nina`: «Domani prendo il vaporetto delle nove per l'esame a Venezia. Al babbo non dire niente: lui è in mare.» → `parte(nina, 9)`. R1 «Diglielo, a tuo padre.» R2 «Vai. È la tua vita.» Ok: flag `ninaEsame`. Sblocca il desiderio di Nina (con qualsiasi risposta o se appuntato).
 - `g03.marta`: «Domani nessuno parta. Non voglio vedere partenze.» → `resta(nina)` (conflitto voluto con `g03.nina`).
-- `g03.teresa`: «La posta dal vaporetto la prendo io. Fa' che io sia al Molo alle dieci.» → `presso(teresa, molo, 10)`.
+- `g03.teresa`: «La posta dal vaporetto la prendo io. Fa' che io sia al Molo alle dieci.» → `presso(teresa, molo, 10)`. Se in g02 Ada ha risposto R1, lo stesso bigliettino più freddo (`g03.teresaFredda`): «Merlettaia. La posta del vaporetto la prendo io. Al Molo alle dieci. Senza chiacchiere.»
 
-**g04, La barca di Bepi** (2 spilli; Teresa ha la voce «Bepi ha venduto la rete buona»)
-- `g04.nina`: «Vorrei salutare il babbo prima che esca in barca.» → `incontra(nina, bepi, 6, 7)`.
+**g04, La barca di Bepi** (2 spilli; Teresa ha la voce «Bepi ha venduto la rete buona» e la lettera per Don Piero, da consegnare entro le due: obiettivo fisso; la barca esce alle 8 e rientra alle 11)
+- `g04.nina`: «Vorrei salutare il babbo prima che esca in barca.» → `incontra(nina, bepi, 6, 8)`.
 - `g04.bepi`: «la teresa non vada a dire in giro della rete. specie a mia figlia» → `nonHa(nina, voce:rete)`.
 - `g04.piero`: «Bepi passi in Chiesa al ritorno: ha una candela da accendere per sua moglie.» → `presso(bepi, chiesa, 14)`. Ok: vignetta di Bepi in chiesa; primo accenno alla moglie morta (nessun mistero, solo tenerezza).
 
@@ -1091,14 +1094,15 @@ Formato: **ID**, autore, testo, richiesta (`Condition`), conseguenze principali.
 **g06, La lettera da Venezia**: vedi 3.16.
 
 **g07, Il pozzo** (2 spilli; Teresa ha il segreto «Ho letto la lettera di Marta, nel '36»)
-- `g07.teresa`: «Voglio confessarmi. Che il mio peso arrivi a Don Piero, e a nessun altro.» → `tutti(ha(piero, segreto:confessione), nonHa(nina, segreto:confessione), nonHa(marta, segreto:confessione))`. Il peso non è la lettura in Piazza (la sa mezza isola) ma il fatto che Teresa aveva aperto la lettera prima e sapeva che cosa chiedeva Ernesto.
+- `g07.teresa`: «Voglio confessarmi. Che il mio peso arrivi a Don Piero, e a nessun altro.» → `tutti(ha(piero, segreto:confessione), nonHa(nina|marta|gino|zeno, segreto:confessione))`. Il peso non è la lettura in Piazza (la sa mezza isola) ma il fatto che Teresa aveva aperto la lettera prima e sapeva che cosa chiedeva Ernesto.
 - `g07.nina`: «Cosa nasconde la Teresa? Voglio saperlo. Ho diciassette anni, non sette.» → `ha(nina, segreto:confessione)` (conflitto; con `ninaCuriosa` è più facile di quanto sembri).
 - `g07.zeno`: «Il ragazzo passi dal Faro alle tredici. Gli ho promesso la lanterna.» → `presso(gino, faro, 13)`.
 
 **g08, Il filo nero** (2 spilli)
 - `g08.marta`: «Domani è l'anniversario di mio padre. Prima della messa delle undici voglio parlare con Don Piero, e voglio il Gino con me.» → `tutti(incontra(marta, piero, 9, 11), incontra(marta, gino, 9, 11))`.
 - `g08.nina`: «La domanda d'iscrizione per Venezia deve partire col vaporetto delle nove. Dalla a chiunque salga.» → `esceCon(L_iscrizione, 9)`. R1 «Il babbo lo sa?» R2 «Partirà.»
-- `g08.zeno`: «Stanotte non ho dormito. Dalle tre in poi non voglio vedere nessuno.» → `nonIncontra(zeno, *, 15, 16)`.
+- `g08.zeno`: «Non dormo da giorni. Domani, dalle due in poi, non voglio vedere nessuno.» → `nonIncontra(zeno, *, 14, 16)`.
+- Spilli d'ottone di g08: Marta al Forno alle 7 e alle 15, la Nina davanti alla Farmacia alle 10 e in Chiesa alle 12, il Gino al Faro alle 13 (revisione 2, R2-D7). La Farmacia è chiusa fino a g09, ma il suo tratto di Fondamenta c'è: con sei colonne a ogni ora qualcuno ci passa davanti.
 - Fine giornata (sempre): apparizione del filo nero sul bordo alto del merletto, all'ora 3, che incrocia Zeno al Faro (il giocatore la vede); Taccuino: «Non l'ho tessuto io.»
 
 

@@ -88,6 +88,13 @@ Verificatore del gruppo schermi-atto1: ho ripreso ogni task coi passi del playte
 | Q074 | fatto | `comune.pers.zeno.desiderio` non nomina Livia (it/en), test |
 | Q077 | fatto | colonna «Min» e barca di g04 nel GDD; nessun avviso K7. Il test K7 di `quality.test.ts` è stato staccato dai valori del GDD da tombolo-motore (45cf7ce) |
 
+### Rifinitura della revisione 2 (residui dei verificatori)
+
+- **Q019, metà di g08.** L'alba della domanda scaduta diceva «La Nina rimette la busta nel libro» anche quando la busta era finita a Don Piero (che non dà niente). La seconda riga ora non dice dov'è la busta: «La Nina chiude il libro di scuola, piano, come si chiude una porta.» (en allineato). Dividere la vignetta per chi tiene la busta avrebbe portato g08 a 6-7 vignette candidate, oltre le 3-5 di GDD 5.9.
+- **R2-D3, g08 Marta.** L'esito fallito non è più un «o… o…»: «Marta è arrivata alla messa senza il momento che voleva, con Don Piero e il Gino tutti e due. Ha pregato da sola.»
+- **g08, la Nina alla Farmacia alle 10.** Verificato col GDD: la Farmacia è chiusa fino a g09, ma è un tratto della Fondamenta (con sei colonne a ogni ora qualcuno ci passa davanti) e nessun testo lo contraddice. Ho cercato con il solver un'altra posizione: lo spillo spostato in ogni altro luogo e ora (7-15), anche insieme a uno spostamento dello spillo del Gino o a uno spillo in più di qualunque filo (12 466 varianti), o rompe la notte (base irrisolvibile, K2, K3) o porta la designata a 16-17 (oltre il 14 di GDD 5.2) o perde la «via breve» di R2-D7; l'unica variante con designata 14 mette Zeno in Chiesa alle 14-15, contro il suo bigliettino e `zenoFaro`. **Scelta consapevole:** lo spillo resta; il GDD (Appendice A) lo spiega.
+- **Q005** (plurale della matassa) e **Q065** (finale A, Zeno al Faro) sono fatti; **Q077**: la colonna «Min» di GDD 5.2 ha ora tutti i minimi misurati da `levels:check` (anche g01-g03, g05, g17, g19, g21) e l'Appendice A è allineata ai dati (campana della messa in g01, g02 «di corsa», bigliettini più duri di Marta e più freddi di Teresa, g04, g07, g08).
+
 ## Revisione 1
 
 Compiti CA1-01 … CA1-08 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: JSON dei contenuti, testi `atto1` e `comune` in it/en, livelli g00-g08, arc1, arc2 con i `.computed.json`, `tests/unit/content/atto1.test.ts`.

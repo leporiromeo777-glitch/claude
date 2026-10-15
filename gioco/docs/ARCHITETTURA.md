@@ -527,11 +527,16 @@ export interface GameEventMap {
   'night:undo': { hour: Hour };
   'night:complete': { outcome: NightOutcome };
   'night:exit': { origin: NightOrigin };
+  /** Revisione 2 (Q014): uno spillo rosso lasciato cadere durante la notte (gettone, Spinta, Taccuino, debug). */
+  'night:drop': { noteId: NoteId; levelId: LevelId };
   'quirk:discovered': { quirk: QuirkId; thread: ThreadId };
   'diary:new': { id: DiaryEntryId };
   'toast': { textKey: string; params?: Record<string, string | number>; kind?: 'info' | 'ok' | 'warn' };
   'audio:caption': { textKey: string; params?: Record<string, string | number> };
   'audio:unlocked': {};
+  // Revisione 1 (C11, C12)
+  'tombolo:nodo': { levelId: LevelId };
+  'tombolo:apparizione': { levelId: LevelId };
 }
 export interface EventBus<M> {
   on<K extends keyof M>(k: K, fn: (p: M[K]) => void): Unsub;
@@ -622,7 +627,12 @@ export interface AudioEngine {
   bell(o: { hour: Hour; stonatura: number }): void;
   carillon(score: CarillonScore): Playing;
   babble(who: CharacterId, text: string, o?: { rate?: number }): Playing;
-  setAmbience(a: AmbienceId, fadeMs?: number): void;
+  /**
+   * Ambiente (GDD 13.3). `o.clock` (revisione 2) aggiunge (true) o toglie (false) l'orologio
+   * che ticchetta; senza, c'è solo nella notte (fermo nel prologo). Il titolo chiede
+   * `setAmbience('laguna', undefined, { clock: true })`: laguna e orologio (GDD 9).
+   */
+  setAmbience(a: AmbienceId, fadeMs?: number, o?: { clock?: boolean }): void;
   setMusic(s: MusicState, o?: { seed?: string; notes?: (CharacterId | 'lino')[]; stonatura?: number }): void;
   duck(on: boolean): void;
 }
@@ -766,7 +776,9 @@ export const SOLVER_VERSION: number;
 
 ### 5.3 Tombolo (T): `src/tombolo/`
 
-Una sola scena (`TomboloScene`, id `tombolo`) che riceve `NightParams` ed emette `night:complete`.
+Una sola scena (`TomboloScene`, id `tombolo`) che riceve `NightParams` ed emette `night:complete` (e `night:drop` quando uno spillo si lascia cadere, revisione 2).
+
+Agganci della notte (revisione 2, Q012): il tombolo non importa la campagna. Le azioni che appartengono a chi ha aperto la notte passano da `setNightHooks({ backToEvening: { can, go } })` (`src/tombolo/active.ts`, esportato da `src/tombolo/index.ts`): la campagna lo registra in `controller.install()`, e la Spinta «le richieste non stanno insieme» offre «Torna alla sera» accanto a «Lascia cadere» finché `can()` è vero (prima della prima ora di una notte della storia).
 
 | File | Contenuto |
 |---|---|

@@ -206,7 +206,7 @@
         "2": "I'll write it in my prescription book, so as not to lose it. There: in capitals."
       },
       "lunardi_no": {
-        "1": "I asked everyone. “The little one”, “the lacemaker”. Nobody can say more.",
+        "1": "I've been asking around, miss. Here they call you “the little one”, “the lacemaker”.",
         "2": "Strange place: here a name must be passed from hand to hand, like bread."
       },
       "debito": {
@@ -224,7 +224,7 @@
       "testo": "Forgive the question, I have wondered for a week: what is the lacemaker's name? Tomorrow I come back on the nine o'clock ferry, and I shall ask at least three people. One will know.",
       "esito": {
         "ok": "The doctor learned my name. He greeted me by it three times, like someone trying out a new word.",
-        "fallita": "The doctor never learned my name. He greeted me with a bow, “miss”, the way one greets a stranger."
+        "fallita": "The doctor wanted three people and my name, and the day didn't give him both. He greeted me with a bow: “miss”, and nothing more."
       }
     },
     "bepi": {

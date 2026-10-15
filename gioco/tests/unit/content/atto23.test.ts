@@ -2234,6 +2234,15 @@ describe('verifica della revisione 2 (contenuti-atti23): coerenza e ripetizioni 
 });
 
 describe('Rifinitura della revisione 2 (residui dei verificatori)', () => {
+  it('g12 Lunardi: l\'esito fallito e l\'alba non dicono che il nome non è arrivato (col nome appuntato su Lunardi la richiesta fallisce per gli incontri)', () => {
+    const n = db.notes.get('g12.lunardi');
+    expect(JSON.stringify(n?.request)).toContain('incontriAlmeno');
+    for (const t of [IT, EN]) {
+      expect(t.get('atto2.g12.lunardi.esito.fallita') ?? '').not.toMatch(/non ha saputo il mio nome|never learned my name/);
+      expect(t.get('atto2.g12.alba.lunardi_no.1') ?? '').not.toMatch(/Nessuno sa dire|Nobody can say/);
+    }
+  });
+
   it('Q065, finale A: con Zeno appuntato al Faro alle 18 l\'epilogo non lo manda al vaporetto con la valigia', () => {
     const lv = level('fin_merlettaia');
     expect(lv.pins).toContainEqual({ thread: 'zeno', place: 'faro', hour: 18 });

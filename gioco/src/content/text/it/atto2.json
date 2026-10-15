@@ -206,7 +206,7 @@
         "2": "Lo scrivo sul ricettario, così non lo perdo. Ecco: in stampatello."
       },
       "lunardi_no": {
-        "1": "Ho chiesto a tutti. «La piccola», «la merlettaia». Nessuno sa dire altro.",
+        "1": "Ho chiesto in giro, signorina. Qui la chiamano «la piccola», «la merlettaia».",
         "2": "Strano posto: qui un nome bisogna passarlo di mano in mano, come il pane."
       },
       "debito": {
@@ -224,7 +224,7 @@
       "testo": "Mi scusi la domanda, è una settimana che me lo chiedo: come si chiama, la merlettaia? Domani torno col vaporetto delle nove, e lo chiederò ad almeno tre persone. Una lo saprà.",
       "esito": {
         "ok": "Il dottore ha saputo come mi chiamo. Mi ha salutata per nome tre volte, come uno che prova una parola nuova.",
-        "fallita": "Il dottore non ha saputo il mio nome. Mi ha salutata con un inchino, «signorina», come si saluta un'estranea."
+        "fallita": "Il dottore voleva tre persone e il mio nome, e la giornata non gli ha dato tutti e due. Mi ha salutata con un inchino: «signorina», e basta."
       }
     },
     "bepi": {

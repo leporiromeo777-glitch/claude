@@ -111,6 +111,11 @@ test.describe('prologo con gesti veri', () => {
     expect(s.positions, 'il merletto si chiude come era cominciato').toEqual(['teresa', 'marta', 'piero']);
     const events = await call<Rec[]>(page, 'core.events', 400);
     expect(events.some((e) => e.k === 'night:complete'), 'evento night:complete').toBe(true);
+    // R2-D5: il merletto finito resta almeno 2,5 s col carillon; poi un tocco su «All'alba».
+    const allAlba = page.locator('[data-test="cp-notte-continua"]');
+    await expect(allAlba, '«All’alba» dopo il merletto finito').toBeVisible({ timeout: 10_000 });
+    expect(await call<string>(page, 'core.scene'), 'prima del tocco si resta sul merletto').toBe('tombolo');
+    expect(await tapTest(page, kind, 'cp-notte-continua'), 'tocco su «All’alba»').toBe(true);
     expect(await waitScene(page, 'alba', 20_000), 'dopo la notte, l’alba').toBe(true);
     const dawn = await call<{ report: string[] }>(page, 'campaign.dawn');
     expect(dawn.report).toEqual(['g00.alba.marta', 'g00.alba.teresa', 'g00.alba.piero']);

@@ -117,6 +117,14 @@ Restano, per altri gruppi:
 - **tombolo-motore:** Q028, seconda metà. Dal pannello di sinistra «Filo sbiadito N» apre la scheda sopra il merletto senza evidenziare il filo. Toccando il fuso, invece, il filo è quello giusto.
 - **schermi-atto1:** l'alba di g08 «La Nina rimette la busta nel libro», e un «o… o…» nell'esito fallito di g08 Marta («senza aver parlato con Don Piero, o senza il Gino»).
 
+### Rifinitura della revisione 2 (residui dei verificatori)
+
+- **Q065, finale A.** Con Zeno appuntato al Faro alle 18, l'epilogo `finale.merlettaia.2.zeno` non gli fa più portare la valigia al vaporetto: «Zeno ha acceso il Faro al passaggio del vaporetto. Stavolta lei sapeva dove andava.» (en allineato; il Faro si accende alle 18, GDD 5.5).
+- **g12 Lunardi, caso limite.** Col nome appuntato su Lunardi (la scelta migliore per `levels:check`) la richiesta fallisce per gli incontri, non per il nome: l'esito fallito diceva «Il dottore non ha saputo il mio nome» e l'alba «Nessuno sa dire altro». Ora: «Il dottore voleva tre persone e il mio nome, e la giornata non gli ha dato tutti e due. Mi ha salutata con un inchino: «signorina», e basta.» e «Ho chiesto in giro, signorina. Qui la chiamano «la piccola», «la merlettaia».» (it, en; test).
+- **GDD aggiornato** (regia): 6.4 g18 «non era solo colpa mia»; 5.2 e 6.6 `fin_aperto` senza la Nina (Lunardi sul tombolo, il Bepi sul vaporetto delle 9), carta A firmata da chi ricorda Ada, la lettera del 1951 «che mia madre aveva scritto per Ada»; 5.3 arc3 con gli indizi di R2-D6.
+
+Scelte consapevoli (lasciate come sono): **Q048**, il test prende solo le copie letterali; le ripetizioni di senso si controllano leggendo. **Epilogo D con la Nina rimasta**: «a settembre… l'ha salutata come si deve» resta anche se in g20 il Bepi l'aveva già salutata, perché la partenza vera è a settembre. **fin_aperto**: 20 insiemi di occasioni validi, esattamente il massimo che `levels:check` conta; nessun margine, ma la notte è stabile.
+
 ## Revisione 1
 
 Compiti CA23-01 … CA23-07 di `docs/REVISIONE-1.md` (playtest 1), tutti fatti. Solo file del gruppo: livelli g09-g23, fin_*, arc3-arc6 con i `.computed.json`, note, diario, lettere e finali degli Atti II-III, testi `atto2`, `atto3`, `finali` in it/en, `tests/unit/content/atto23.test.ts`.

@@ -221,7 +221,27 @@ export async function planEvening(page: Page): Promise<Omit<DayLog, 'requests'>>
 export async function playNight(page: Page): Promise<boolean> {
   if (!(await waitNight(page))) return false;
   await call(page, 'night.autoplay');
-  return until(page, async () => (await phase(page)) !== 'notte', 20_000);
+  const done = await until(page, async () => (await phase(page)) !== 'notte', 20_000);
+  if (done) await passLace(page);
+  return done;
+}
+
+/**
+ * Dopo una notte della storia (o un Rigioca dal Telaio) il merletto finito resta sul tombolo
+ * con il carillon finché non si tocca «All'alba» / «Continua» (R2-D5): qui si va oltre subito
+ * con `campaign.pastLace()`. Restituisce true se c'era un merletto finito da lasciare.
+ */
+export async function passLace(page: Page, ms = 5_000): Promise<boolean> {
+  let passed = false;
+  await until(
+    page,
+    async () => {
+      if (await call<boolean>(page, 'campaign.pastLace')) passed = true;
+      return passed || (await scene(page)) !== 'tombolo';
+    },
+    ms,
+  );
+  return passed;
 }
 
 /** Un merletto d'Archivio aperto dalla cassapanca e rammendato. */
@@ -270,6 +290,7 @@ export async function playGolden(page: Page, opts: { untilLevel?: string; maxDay
     } else if (ph === 'notte') {
       await playNight(page);
     } else if (ph === 'alba') {
+      await passLace(page, 1_000);
       await waitScene(page, 'alba');
       await call(page, 'campaign.skipDawn');
       await until(page, async () => (await phase(page)) !== 'alba');

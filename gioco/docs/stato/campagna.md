@@ -323,7 +323,7 @@ Tutte le 29 attività del gruppo in `docs/stato/revisione-2.json` (6 P1, 23 P2) 
   - la tela con tutti i merletti tessuti, uno per giornata nell'ordine della storia (`cp-tovaglia-tela`), disegnati con `drawLaceImage` del tombolo, uno alla volta;
   - «Ascolta la Tovaglia» (`cp-tovaglia-ascolta`), il carillon dell'intera partita.
 - **Q012, coppia incompatibile.** Prima di fissare la prima ora di una notte della storia, nei Bigliettini (pannello di sinistra, o Taccuino sul telefono) c'è «Torna alla sera» (`cp-torna-sera`). Si torna alla sera con gli spilli di prima, senza conseguenze. La notte salvata si toglie (anche quella che il tombolo salva uscendo) e i fogli aperti si chiudono. Dopo la prima ora il pulsante sparisce.
-- **Q014.** Il tombolo non emette un evento quando si lascia cadere uno spillo dal gettone. Per questo i Bigliettini e il Taccuino guardano lo stato della notte ogni 250 ms, solo mentre sono montati (`watchNight`), e si ridisegnano appena cambia.
+- **Q014.** Il tombolo non emetteva un evento quando si lascia cadere uno spillo dal gettone, e i Bigliettini e il Taccuino guardavano lo stato della notte ogni 250 ms (`watchNight`). Nella rifinitura (sotto) il controllo periodico è sostituito dall'evento `night:drop`.
 - **Q069, Q075.** Di notte, nel tombolo, una stranezza scoperta non fa più un avviso, nemmeno quando viene da un rifiuto. Il tombolo la spiega già, e l'avviso copriva le righe basse.
   - La voce resta «Nuova» nel Taccuino e torna nel bilancio in «Nel Taccuino».
   - Il Taccuino fisso del layout largo si accende un attimo (`cp-taccuino--lampo`).
@@ -424,5 +424,40 @@ Tutte le 29 attività del gruppo in `docs/stato/revisione-2.json` (6 P1, 23 P2) 
 
 ### Problemi noti
 
-- I record dei salvataggi di prima della revisione 2 tengono i loro valori di livello. Fra questi può esserci un minimo ottenuto con una richiesta fallita, ma il bilancio non li mostra più, perché mostra quelli dell'insieme. Il Telaio usa solo il filo d'oro e lo spartito.
+- I record dei salvataggi di prima della revisione 2 tengono i loro valori di livello. Fra questi può esserci un minimo ottenuto con una richiesta fallita, ma il bilancio non li mostra più, perché mostra quelli dell'insieme. Dalla rifinitura anche il Telaio legge solo i record per insieme (vedi sotto).
 - La bottiglia vuota è ricavata dall'immagine della bottiglia col messaggio. Dove stava il foglio resta una leggera traccia nel vetro, a 72-112 px poco visibile. Un asset dedicato (asset-blender) sarebbe più pulito.
+
+## Verifica e rifinitura della revisione 2
+
+### Correzioni della verifica (commit 339c8c5)
+
+- La sfumatura del piede fisso (sera, Telaio) non si prende più i tocchi; i suoi pulsanti sì.
+- Q035: una giornata del Telaio mezza sotto il piede risponde ai tocchi, e aprendola i suoi pulsanti vengono in vista.
+- Q056: nel Taccuino le voci sulle stranezze sciolte dalla pace sono segnate «non più».
+- Le stranezze scoperte rigiocando dal Telaio vanno in «Nel Taccuino» del bilancio, non in avvisi impilati sopra «Continua».
+- La Tovaglia compare nel Telaio solo se la storia di adesso ha tessuto il finale vero (non per uno sblocco di una storia di prima).
+- Q039: il nodo nero della bottiglia vuota si legge anche alla porta.
+- Q010: il bilancio nomina il «Fuso intagliato».
+
+### Rifinitura (ultimo passaggio, residui dei verificatori)
+
+- **«Continua» del bilancio fuori dalla zona che scorre.** Al telefono piccolo, in inglese, la prima voce del Libro restava a metà sotto «Continua» (attaccato al bordo con `position: sticky`). Adesso il foglio del bilancio ha due parti: le voci scorrono in `.cp-foglio-scorre` (`cp-bilancio-scorre`) e «Continua» sta nel piede del foglio, sotto. Nessuna voce gli passa sotto; «Riascolta», «Spartito» e il Taccuino restano in fondo alle voci. Vale anche per il bilancio di un Rigioca dal Telaio. Provato a 360×640 in inglese con il controllo dei layout degli e2e (`auditLayout`): nessun problema.
+- **Q012, la Spinta offre «Torna alla sera».** Quando la Spinta dice che le richieste non stanno insieme, prima della prima ora c'è anche «Torna alla sera» (`tb-suggerimento-torna-sera`, con una riga che dice che si cambiano gli spilli senza conseguenze), accanto a «Lascia cadere lo spillo di…». Il tombolo non importa la campagna: chiede a un aggancio (`setNightHooks({ backToEvening })` in `src/tombolo/active.ts`), che la campagna registra in `controller.install()` con `canGoBackToEvening()` e `backToEvening()`. Nel Merletto del giorno e nel libero l'aggancio dice di no e resta solo «Lascia cadere».
+- **Q014, evento `night:drop`.** Il tombolo emette `night:drop` (`{ noteId, levelId }`) quando uno spillo si lascia cadere, da qualunque parte (gettone, Spinta, Taccuino, debug), una volta sola. I Bigliettini e il Taccuino si ridisegnano su questo evento; `watchNight` e il controllo ogni 250 ms sono tolti. L'evento è in `GameEventMap` (core) e in ARCHITETTURA 4.
+- **Telaio sui record per insieme.** La stella del filo d'oro e lo spartito di «Riascolta» (quando la giornata non è nella storia di adesso) vengono da `countedRecord` (`progress.ts`): solo i record per insieme di richieste, cioè solo merletti riusciti. Lo spartito è quello dell'insieme della giornata, se c'è, altrimenti quello col minimo d'incroci. Il record d'insieme tiene anche il filo d'oro (`SetRecord.filoDOro`). I campi di livello dei salvataggi di prima (che potevano venire da merletti falliti, Q002) non si leggono più.
+- **Q059.** La scheda «Lettere» del Taccuino e il segnaposto dei biglietti alla porta hanno il glifo `foglio`. La nota musicale resta per «Riascolta».
+- **e2e.** `helpers/campaign.ts` ha `passLace(page)` (chiama `campaign.pastLace()` finché il merletto finito è sul tombolo); `playNight` e `playGolden` lo usano. `prologo.spec.ts` aspetta «All'alba» (`cp-notte-continua`), verifica che prima del tocco la scena sia ancora il tombolo e lo tocca (mouse o dito); `layout.spec.ts` (schermate per gli store) va oltre il merletto prima di aspettare l'alba. Verdi: prologo su desktop e android-piccolo, store (3), giro in inglese su android-piccolo.
+
+### Scelte consapevoli (lasciate come sono)
+
+- **Q004.** Finché non si scorre, la freccia `cp-sera-scorri` sta sopra il testo dell'ultimo bigliettino: è il segno che l'elenco continua; dopo il tocco il bigliettino è tutto in vista.
+- **Q039.** La bottiglia vuota resta ricavata dallo sprite, col nodo disegnato sopra. Un asset dedicato è lavoro di asset-blender.
+- **R2-D5.** «Un tocco» resta il tocco su «All'alba» al posto del pulsante principale (non un tocco ovunque), per lasciare menu e Taccuino sul merletto finito.
+- **Salvataggi di prima.** Una stella del filo d'oro che c'era solo nei campi di livello (salvataggi di prima della revisione 2) non si vede più nel Telaio finché un merletto riuscito non la rifà. Contatori e fusi intagliati già sbloccati restano.
+
+### Test (rifinitura)
+
+- `tests/unit/campaign/revisione2.dom.test.ts`: Q014 sull'evento (niente `setInterval`); glifo `foglio` nella scheda Lettere; bilancio con «Continua» fuori dalla zona che scorre (DOM e CSS); `countedRecord` e stella del Telaio solo dai record per insieme; l'aggancio «Torna alla sera» registrato da `install()`.
+- `tests/unit/tombolo/rifinitura-r2.test.ts`: Spinta con «Torna alla sera» (e senza, fuori dalla campagna), `night:drop` una volta sola.
+- `npx vitest run`, `npx tsc --noEmit -p .`, `npm run levels:check -- --qualita`, `npm run build`: verdi (vedi il messaggio del commit finale).
+

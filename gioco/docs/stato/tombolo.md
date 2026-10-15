@@ -220,6 +220,21 @@ Test: nuovo `tests/unit/tombolo/verifica-r2.test.ts` (seguire l'Indizio su tutte
 
 Controlli finali: `npx vitest run` (tutto) 101 file, 1616 test verdi; `npx tsc --noEmit -p .` senza errori; `npm run levels:check` 34 livelli OK. e2e sulla 6005 (`desktop`, `android-piccolo`): `revisione1.spec.ts` 21 verdi e 3 saltati; `prologo`, `archivio`, `giornaliero`, `layout`, `smoke` 41 verdi, 7 saltati, 6 rossi, nessuno del tombolo: `prologo.spec.ts` e le tre schermate per gli store di `layout.spec.ts` aspettano l'alba da sola dopo la notte, mentre ora (R2-D5, gruppo campagna) ci vuole il tocco su «All'alba»; il giro delle schermate in inglese su `android-piccolo` trova nel bilancio la voce del Libro coperta da «Continua» (campagna). I test e2e non sono di nessun gruppo: vanno allineati a R2-D5.
 
+### Rifinitura della revisione 2 (residui dei verificatori)
+
+Ultimo passaggio, su tutti i file (commit «TRAMA rifinitura R2: …»):
+
+- **Q005.** `hud.matassaAria` ha il plurale: «Matassa: 1 braccio usato su 12», «3 braccia usate» (`{usata, plural, …}`).
+- **Q022 nella scheda.** Chi ha stranezze note che stanotte non contano non è «senza stranezze»: «Nessuna stranezza nota che conti stanotte.» (`tombolo.scheda.nessunaStranezzaStanotte`, en «No known quirk that matters tonight.»). Le stranezze «dormienti» si contano con `dormantQuirks` (`quirks.ts`): nella storia solo quelle già scritte nel Taccuino (le altre non si svelano), nelle modalità extra tutte quelle del personaggio non attive. `data-test` `tb-scheda-nessuna`, `data-stanotte`.
+- **Q012.** Quando la Spinta dice che le richieste non stanno insieme (o che una non si può più compiere), prima della prima ora offre anche «Torna alla sera» (`tb-suggerimento-torna-sera`, con la riga `tb-suggerimento-torna-sera-testo`). Il tombolo chiede all'aggancio `nightHooks().backToEvening` (`active.ts`, `setNightHooks` esportato da `index.ts`), che la campagna registra; senza aggancio (giorno, libero) resta solo «Lascia cadere».
+- **Q014.** `drop(noteId)` emette `night:drop` (`{ noteId, levelId }`, una volta per spillo): la campagna non controlla più la notte ogni 250 ms.
+- **Q028, seconda metà.** Aperta dal pannello di sinistra dell'Archivio, la scheda «Filo sbiadito N» sta sul pannello (`popupSide`, ancorata a `layout.left`) e non copre più il merletto; finché è aperta il filo si segue in tutto il merletto con un alone d'ottone e il filo ripassato nel suo colore (`Overlay.trace`, `traceThreadRow` in `render/threads.ts`), anche quando la scheda si apre toccando il fuso. La scheda ha `data-filo`.
+- `tests/unit/engine/quality.test.ts` (K7 in miniatura) legge l'intervallo di g05 dal GDD invece di un valore scritto nel test.
+
+Test: `tests/unit/tombolo/rifinitura-r2.test.ts` (8 test).
+
+Scelte consapevoli (lasciate come sono): **Q001**, «Fissa fino alle N» manca in tutte le notti con un `tutorial` (23 livelli su 34), come dice alla lettera R2-D1; **R2-D1**, l'Indizio confronta la bozza con una soluzione sola e può dire «di troppo» un incrocio che sta in un'altra soluzione (seguirlo porta comunque alla fine: 69 casi su 69); **Q021**, niente nomi scritti in modo permanente sui fusi (si leggono col mouse e nella scheda; un'opzione sarebbe del core); **Q061**, nel giorno e nel libero la conferma del Fantasma compare anche col minimo sotto 3, perché lì il tombolo non conosce il minimo.
+
 ## Revisione 1
 
 **Stato:** done. Tutti i 22 compiti del gruppo (TOM-01…TOM-22) fatti, con test; le parti visibili provate nel browser (build `VITE_E2E=1` servita con `vite preview` sulla 5680, Chromium di Playwright): `tests/unit/tombolo/browser-revisione1.ts` 62/62 controlli, screenshot guardati.

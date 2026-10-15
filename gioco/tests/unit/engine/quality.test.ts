@@ -212,8 +212,12 @@ describe('levels:check: criteri di qualità', () => {
     // Le violazioni sono avvisi; con --qualita diventano errori.
     const qw = res.levels[0]?.warnings.filter((w) => w.includes('[quality]')) ?? [];
     expect(qw).toHaveLength(11);
-    // K7 (solo avviso): g05 in GDD 5.2 ha "Min" 5-8, la designata 3.
-    expect(qw.filter((w) => w.includes('[quality] K7'))).toEqual(['levels/g05: [quality] K7 mq.a+mq.b: designated minimum 3 outside the GDD 5.2 range 5-8 (±1)']);
+    // K7 (solo avviso): la designata 3 è fuori dal «Min» di g05 in GDD 5.2 (letto dal GDD, che
+    // dalla revisione 2 porta il minimo misurato: il test non dipende dal suo valore).
+    const g05 = gddMinRanges().get('g05') as [number, number];
+    expect(g05[0] - 1).toBeGreaterThan(3);
+    const range = g05[0] === g05[1] ? `${g05[0]}` : `${g05[0]}-${g05[1]}`;
+    expect(qw.filter((w) => w.includes('[quality] K7'))).toEqual([`levels/g05: [quality] K7 mq.a+mq.b: designated minimum 3 outside the GDD 5.2 range ${range} (±1)`]);
     const strict = runCheck({ dir, qualita: true, write: false, ...quiet });
     expect(strict.errors).toBe(10);
   }, 30_000);
