@@ -466,16 +466,24 @@
 .cp-finale {
   flex-direction: column;
 }
+/* La testata sta su una fascia scura come quella del prologo (CAM-10): i diorami di giorno
+   (la Piazza al sole, i muri ocra) sono chiari quanto l'ottone, che senza fascia non si leggeva
+   (contrasto 1,1:1). Con la fascia l'ottone resta sopra 4,5:1 anche su un fondo bianco. */
 .cp-alba-testa {
   position: absolute;
   top: calc(var(--safe-top) + var(--spazio-3));
   left: calc(var(--safe-left) + var(--spazio-4));
-  right: calc(var(--safe-right) + var(--spazio-4));
+  right: auto;
+  max-width: calc(100% - var(--safe-left) - var(--safe-right) - 2 * var(--spazio-4));
+  box-sizing: border-box;
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--spazio-2);
+  gap: var(--spazio-1) var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-3);
+  border-radius: var(--raggio);
+  background: rgba(10, 12, 18, 0.82);
   color: var(--testo-chiaro);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   pointer-events: none;
