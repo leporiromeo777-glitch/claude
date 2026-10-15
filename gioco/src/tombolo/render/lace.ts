@@ -442,6 +442,22 @@ export class LaceRenderer {
     this.flights.draw(ctx, top);
     ctx.restore();
 
+    // Le occasioni (cerchi verdi) restano sopra i fili che pendono: si leggono e si toccano (Q030).
+    if (m.pins.some((p) => p.kind === 'verde')) {
+      const ks2 = l.scale ?? 1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(l.center.x, lace.y, l.center.w, lace.h);
+      ctx.clip();
+      for (const pin of m.pins) {
+        if (pin.kind !== 'verde') continue;
+        const c = slotCenter(l, scroll, pin.col, pin.index);
+        if (c.y < lace.y - 20 || c.y > lace.y + lace.h + 20) continue;
+        drawSlot(ctx, pin.state, c.x, c.y, SLOT_R * ks2, pin.icon);
+      }
+      ctx.restore();
+    }
+
     // Fusi.
     const so = this.spindleOpts;
     so.quirk = o.quirk;
@@ -565,15 +581,22 @@ export class LaceRenderer {
     const xEnd = (l.colCx[target] ?? 0) - e.side * l.colW * 0.35;
     const adv = e.fade ? 1 : Math.min(1, e.p / 0.7);
     const x1 = xEdge + (xEnd - xEdge) * adv;
+    // Il bordo da cui entra pulsa (Q064: un trattino in un angolo non si notava).
+    const ring = 0.5 + 0.5 * Math.sin(o.time * 6);
+    ctx.strokeStyle = P.ottone;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(xEdge, yb - 8, 12 + 5 * ring, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#E8DCC4';
-    ctx.lineWidth = 9;
+    ctx.lineWidth = 13;
     ctx.beginPath();
     ctx.moveTo(xEdge, yb - 8);
     ctx.lineTo(x1, yb + 8 * adv);
     ctx.stroke();
     ctx.strokeStyle = '#15110E';
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 9;
     ctx.beginPath();
     ctx.moveTo(xEdge, yb - 8);
     ctx.lineTo(x1, yb + 8 * adv);

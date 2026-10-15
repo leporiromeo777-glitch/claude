@@ -72,7 +72,8 @@
       "nonHa.voce": "{chi} heard {perlina}.",
       "nonHa.segreto": "{chi} found out {perlina}.",
       "nonHa.nome": "{chi} heard Ada's name.",
-      "nonHa.febbre": "{chi} caught the fever."
+      "nonHa.febbre": "{chi} caught the fever.",
+      "almeno": "{ok, plural, =0 {Nobody made it} one {Only one made it} other {Only # made it}}: {n} were needed."
     },
     "rischio": {
       "presso": "{chi} may not make it {presso} by {ora}.",
@@ -106,7 +107,8 @@
       "ha.voce": "{chi} can no longer hear {perlina} by {ora}.",
       "ha.segreto": "{chi} can no longer find out {perlina} by {ora}.",
       "ha.nome": "{chi} can no longer remember Ada's name.",
-      "ha.febbre": "{chi} can no longer catch the fever by {ora}."
+      "ha.febbre": "{chi} can no longer catch the fever by {ora}.",
+      "almeno": "At most {max} of the {n} needed: it can no longer be done ({ok} so far)."
     }
   },
   "stato": {
@@ -164,14 +166,18 @@
     "seLasci": "This holds if you let go of {richieste}.",
     "richiestaUna": "{nome}'s request",
     "coppia": "{a} and {b}",
-    "sciogli": "{n, plural, one {And undo the crossing between {elenco}.} other {And undo the crossings between {elenco}.}}"
+    "sciogli": "{n, plural, one {And undo the crossing between {elenco}.} other {And undo the crossings between {elenco}.}}",
+    "occasioni.spinta": "No crossings: plant occasions in the circles and let the day happen.",
+    "occasioni.indizio": "Everyone goes where they like: see who loves what on their card.",
+    "occasioni.voce": "{tipo} {presso} at {ora}",
+    "occasioni.fantasma": "A day that works: {elenco}."
   },
   "richieste": {
     "di": "Note from {nome}",
     "gettone": "{nome}: {stato}",
     "lascia": "Drop the pin",
     "lasciata": "Dropped.",
-    "lasciataMsg": "You dropped the red pin.",
+    "lasciataMsg": "You let go of {nome}'s pin.",
     "statoLasciata": "Dropped",
     "soddisfatta": "{nome}'s request is fulfilled!",
     "senzaTesto": "The note can't be read.",
@@ -254,7 +260,9 @@
     "nonAmmessa": "You can't plant an occasion here.",
     "occupata": "This cell already has an occasion.",
     "troppe": "{posti, plural, one {You can plant only one occasion.} other {You can plant at most # occasions.}}",
-    "nonBasta": "Not everything happened as you hoped. Change the occasions and try again."
+    "nonBasta": "Not everything happened as you hoped. Change the occasions and try again.",
+    "piantata": "Occasion planted: {tipo} {presso} at {ora} ({piantate} of {posti}).",
+    "tolta": "Occasion removed: {tipo} {presso} at {ora}."
   },
   "replay": {
     "righe": "Rows: {fatte}/{totale}",
@@ -476,5 +484,25 @@
   },
   "nero": {
     "annuncio": "At {ora} the black thread comes in {presso}: whoever is there leaves the lace, with everything they carry."
+  },
+  "controllato": {
+    "solo": "Move only {nome}'s thread: the others follow their own schedule.",
+    "nota": "I move only my own thread, the coral one: I drag it onto a neighbour. The others follow their own schedule, the green circles: touch them to read it."
+  },
+  "apparizione": {
+    "testo": "At {ora} in the night, a black thread came in from the edge."
+  },
+  "motivo": {
+    "righe": "striped thread",
+    "puntini": "dotted thread",
+    "doppio": "double thread",
+    "onde": "wavy thread",
+    "zigzag": "zigzag thread",
+    "tratteggio": "dashed thread",
+    "catenella": "chain thread",
+    "croce": "cross-stitched thread",
+    "lucido": "glossy thread",
+    "perlato": "pearled thread",
+    "liscio": "plain thread"
   }
 }

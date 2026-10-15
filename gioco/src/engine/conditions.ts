@@ -649,6 +649,18 @@ export function evaluate(level: LevelDef, timeline: LaceState[], events: LaceEve
   return p.roots.map((r) => {
     const s = nodeStatus(r, p, S);
     if (s === S_OK) return { status: 'soddisfatta' };
+    // «Almeno N fra…»: il motivo dice quanti ce l'hanno fatta, non il primo che manca (Q040).
+    if (r.k === 'almeno' && (s === S_FAIL || !nodeCanOk(r, p, m, S, last.hour))) {
+      let ok = 0;
+      let max = 0;
+      for (const c of r.of) {
+        const cs = nodeStatus(c, p, S);
+        if (cs === S_OK) ok++;
+        if (cs === S_OK || (cs === S_PENDING && nodeCanOk(c, p, m, S, last.hour))) max++;
+      }
+      const state = s === S_FAIL ? 'fallita' : 'perso';
+      return { status: 'fallita', reasonKey: `tombolo.cond.${state}.almeno`, params: { ok, max, n: r.n, tot: r.of.length } };
+    }
     if (s === S_FAIL) {
       const a = firstBad(r, p, m, S, last.hour, 'fail');
       return a ? { status: 'fallita', reasonKey: conditionKey('fallita', a.t), params: reasonParams(a, m) } : { status: 'fallita' };

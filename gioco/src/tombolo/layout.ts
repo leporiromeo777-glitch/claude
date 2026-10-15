@@ -344,4 +344,4 @@ export function slotCenter(l: Pick<TomboloLayout, 'colCx' | 'rowH' | 'openH' | '
 }
 
 /** Raggio del cerchio di uno slot (px CSS). */
-export const SLOT_R = 13;
+export const SLOT_R = 15;

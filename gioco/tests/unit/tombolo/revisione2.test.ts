@@ -341,3 +341,107 @@ describe('R2-D4, Q033, Q052: gli stati si vedono sul tombolo', () => {
     expect(q('tb-scheda-stato')?.textContent).toContain('annodato');
   });
 });
+
+describe('Q017: lasciare cadere uno spillo dice di chi era', () => {
+  it('«Hai lasciato cadere lo spillo di Zeno.»', () => {
+    const lv = fixture('g06');
+    const notes = fixtureNotes();
+    const acc = ['g06.nina', 'g06.zeno'].map((id) => {
+      const n = notes.find((x) => x.id === id)!;
+      return { noteId: n.id, request: n.request!, author: n.author };
+    });
+    c = new NightController(h.s, nightParams(lv, { origin: 'campagna', accepted: acc }), { computed: fixtureComputed('g06'), solveAsync: syncSolve });
+    c.drop('g06.zeno');
+    expect(q('tb-explain')?.textContent).toBe('Hai lasciato cadere lo spillo di Zeno.');
+  });
+});
+
+describe('Q040: «almeno N fra…» dice quanti ce l\'hanno fatta', () => {
+  it('fallita a fine giornata: «Ce l\'ha fatta uno solo: ne servivano 3.»', () => {
+    const g00 = fixture('g00');
+    const [a, b, c2] = g00.initial as [string, string, string];
+    const goal = { t: 'almeno' as const, n: 3, of: [{ t: 'presso' as const, who: a, place: g00.columns[0]!, hour: g00.startHour + 1 }, { t: 'presso' as const, who: b, place: g00.columns[0]!, hour: g00.startHour + 1 }, { t: 'presso' as const, who: c2, place: g00.columns[0]!, hour: g00.startHour + 1 }] };
+    const lv: LevelDef = { ...g00, pins: [], tutorial: [], goals: [goal] };
+    const s = new Session(nightParams(lv));
+    const r = s.goalStatus()[0]!;
+    expect(r.status).toBe('fallita');
+    expect(r.reasonKey).toBe('tombolo.cond.perso.almeno');
+    expect(r.params).toMatchObject({ n: 3, ok: 0, max: 2 });
+    expect(h.s.i18n.t('tombolo.cond.fallita.almeno', { ok: 1, n: 3 })).toBe("Ce l'ha fatta uno solo: ne servivano 3.");
+    expect(h.s.i18n.t('tombolo.cond.perso.almeno', { ok: 0, max: 2, n: 3 })).toMatch(/Al massimo 2 su 3/);
+  });
+});
+
+describe('Q029: finale B, il filo controllato', () => {
+  it('trascinare un altro fuso è rifiutato con un messaggio; la nota spiega la modalità', () => {
+    const lv = level('fin_seppia');
+    c = new NightController(h.s, nightParams(lv, { origin: 'campagna', mode: 'controllato' }), { computed: computed('fin_seppia'), solveAsync: syncSolve });
+    const ctrl = lv.autoweave!.controlled!;
+    const other = c.session.state.pos.find((t) => t !== ctrl)!;
+    expect(c.rejectUncontrolled(other)).toBe(true);
+    expect(q('tb-explain')?.textContent).toMatch(/Muovi solo il filo di/);
+    expect(c.rejectUncontrolled(ctrl)).toBe(false);
+    // La nota a margine della modalità (dopo quella del livello, se c'è).
+    const all = [document.querySelector('[data-test="tb-margine"]')?.textContent ?? '', JSON.stringify((c as unknown as { noteQueue: { key: string }[] }).noteQueue)].join(' ');
+    expect(all).toMatch(/tombolo\.controllato\.nota|Muovo solo il mio filo/);
+  });
+});
+
+describe('Q030: finale D, occasioni leggibili e lampada', () => {
+  it('la lampada c\'è; piantare dice che cosa; il Fantasma propone una giornata che va', async () => {
+    const lv = level('fin_aperto');
+    c = new NightController(h.s, nightParams(lv, { origin: 'campagna', mode: 'occasioni' }), { computed: computed('fin_aperto'), solveAsync: syncSolve });
+    expect(c.lampAvailable()).toBe(true);
+    const sol = computed('fin_aperto')!.occasionsSolution!;
+    const o = sol[0]!;
+    c.toggleOccasionCell(lv.columns.indexOf(o.place), o.hour - lv.startHour);
+    expect(q('tb-explain')?.textContent).toMatch(/^Occasione piantata: .* \(1 di 5\)\.$/);
+    const sp = await c.lampTap();
+    expect(sp?.tier).toBe('spinta');
+    const g = await c.hint('fantasma');
+    expect(g.textKey).toBe('tombolo.hint.occasioni.fantasma');
+    expect(q('tb-suggerimento')?.textContent).toMatch(/Una giornata che va/);
+    expect(c.session.fantasmaUsed).toBe(false);
+  });
+});
+
+describe('Q063: i messaggi non coprono i fusi', () => {
+  it('un tocco sulla fascia dei fusi toglie la riga di spiegazione', () => {
+    const lv = fixture('g00');
+    c = new NightController(h.s, nightParams(lv), { computed: null, solveAsync: syncSolve });
+    expect(c.fix().ok).toBe(false);
+    expect(q('tb-explain')?.hidden).toBe(false);
+    const l = c.layout;
+    c.interact.onGesture({ k: 'dragstart', x: l.colCx[2]!, y: l.spindles.y + 20, startX: l.colCx[2]!, startY: l.spindles.y + 20, dx: 0, dy: 0, pointer: 'touch' });
+    expect(q('tb-explain')?.classList.contains('tb-visibile') ?? false).toBe(false);
+  });
+});
+
+describe('Q021: chi è ogni fuso', () => {
+  it('passando col mouse su un fuso: nome, motivo del filo e che cosa porta', () => {
+    const lv = fixture('g00');
+    c = new NightController(h.s, nightParams(lv), { computed: null, solveAsync: syncSolve });
+    const l = c.layout;
+    const holder = c.session.state.holders.L1?.[0] as string;
+    const col = c.session.state.pos.indexOf(holder);
+    expect(c.showSpindleTip(l.colCx[col]!, l.spindles.y + 30)).toBe(true);
+    const b = document.querySelector('[data-tipo="fuso"]');
+    expect(b?.textContent).toMatch(/·.*filo/);
+    expect(b?.textContent).toMatch(/Porta /);
+  });
+});
+
+describe('Q061: il Fantasma chiede conferma anche nel Merletto del giorno', () => {
+  it('senza minimo noto (niente .computed) il filo d\'oro si considera possibile: prima la conferma', async () => {
+    const lv: LevelDef = { ...fixture('g00'), id: 'day-2026-10-16', tutorial: [] };
+    c = new NightController(h.s, nightParams(lv, { origin: 'giornaliero' }), { computed: null, solveAsync: syncSolve });
+    expect(c.session.goldPossible()).toBe(true);
+    await c.lampTap();
+    const adv = (c as unknown as { advanceHint(): Promise<unknown> }).advanceHint.bind(c);
+    await adv();
+    expect(q('tb-suggerimento')?.dataset.gradino).toBe('indizio');
+    await adv();
+    expect(q('tb-suggerimento')?.dataset.gradino).toBe('conferma');
+    expect(c.session.fantasmaUsed).toBe(false);
+  });
+});

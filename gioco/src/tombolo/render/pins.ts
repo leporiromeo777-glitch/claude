@@ -165,7 +165,8 @@ export function drawSlot(ctx: CanvasRenderingContext2D, state: PinState, x: numb
   if (!planted) ctx.setLineDash(DASH);
   ctx.stroke();
   ctx.setLineDash(NO_DASH);
-  if (icon) drawGlyph(ctx, icon, x, y, Math.round(r * 1.15), planted ? '#F3EEE4' : '#A6DDB0', 1.8);
+  // Icona grande e piena anche da piantare (Q030: sbiadita e minuscola non si leggeva).
+  if (icon) drawGlyph(ctx, icon, x, y, Math.round(r * 1.35), planted ? '#F3EEE4' : '#D4F0D9', 2.2);
 }
 
 const DASH: number[] = [3, 3];

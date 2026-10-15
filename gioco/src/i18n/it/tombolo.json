@@ -72,7 +72,8 @@
       "nonHa.voce": "{chi} ha sentito {perlina}.",
       "nonHa.segreto": "{chi} ha scoperto {perlina}.",
       "nonHa.nome": "{chi} ha sentito il nome di Ada.",
-      "nonHa.febbre": "{chi} ha preso la febbre."
+      "nonHa.febbre": "{chi} ha preso la febbre.",
+      "almeno": "{ok, plural, =0 {Nessuno ce l'ha fatta} one {Ce l'ha fatta uno solo} other {Ce l'hanno fatta in #}}: ne servivano {n}."
     },
     "rischio": {
       "presso": "{chi} rischia di non arrivare {presso} per le {ora}.",
@@ -106,7 +107,8 @@
       "ha.voce": "{chi} non può più sentire {perlina} entro le {ora}.",
       "ha.segreto": "{chi} non può più scoprire {perlina} entro le {ora}.",
       "ha.nome": "{chi} non può più ricordare il nome di Ada.",
-      "ha.febbre": "{chi} non può più prendere la febbre entro le {ora}."
+      "ha.febbre": "{chi} non può più prendere la febbre entro le {ora}.",
+      "almeno": "Al massimo {max, plural, =0 {nessuno} one {uno} other {#}} su {n}: non ci si arriva più ({ok} per ora)."
     }
   },
   "stato": {
@@ -164,14 +166,18 @@
     "seLasci": "Vale se lasci cadere {richieste}.",
     "richiestaUna": "la richiesta di {nome}",
     "coppia": "{a} e {b}",
-    "sciogli": "{n, plural, one {E sciogli l'incrocio fra {elenco}.} other {E sciogli gli incroci fra {elenco}.}}"
+    "sciogli": "{n, plural, one {E sciogli l'incrocio fra {elenco}.} other {E sciogli gli incroci fra {elenco}.}}",
+    "occasioni.spinta": "Nessun incrocio: pianta le occasioni nei cerchi e lascia accadere la giornata.",
+    "occasioni.indizio": "Ognuno va dove gli piace: guarda chi ama che cosa nella sua scheda.",
+    "occasioni.voce": "{tipo} {presso} alle {ora}",
+    "occasioni.fantasma": "Una giornata che va: {elenco}."
   },
   "richieste": {
     "di": "Bigliettino di {nome}",
     "gettone": "{nome}: {stato}",
     "lascia": "Lascia cadere lo spillo",
     "lasciata": "Lasciata cadere.",
-    "lasciataMsg": "Hai lasciato cadere lo spillo rosso.",
+    "lasciataMsg": "Hai lasciato cadere lo spillo di {nome}.",
     "statoLasciata": "Lasciata cadere",
     "soddisfatta": "La richiesta di {nome} è soddisfatta!",
     "senzaTesto": "Il bigliettino è illeggibile.",
@@ -254,7 +260,9 @@
     "nonAmmessa": "Qui non si può piantare un'occasione.",
     "occupata": "In questa cella c'è già un'occasione.",
     "troppe": "{posti, plural, one {Si può piantare una sola occasione.} other {Si possono piantare al massimo # occasioni.}}",
-    "nonBasta": "Non tutto è accaduto come speravi. Cambia le occasioni e riprova."
+    "nonBasta": "Non tutto è accaduto come speravi. Cambia le occasioni e riprova.",
+    "piantata": "Occasione piantata: {tipo} {presso} alle {ora} ({piantate} di {posti}).",
+    "tolta": "Occasione tolta: {tipo} {presso} alle {ora}."
   },
   "replay": {
     "righe": "Righe: {fatte}/{totale}",
@@ -476,5 +484,25 @@
   },
   "nero": {
     "annuncio": "Alle {ora} entra il filo nero {presso}: chi è lì esce dal merletto, con tutto quello che porta."
+  },
+  "controllato": {
+    "solo": "Muovi solo il filo di {nome}: gli altri seguono la loro agenda.",
+    "nota": "Muovo solo il mio filo, quello corallo: lo trascino su un vicino. Gli altri seguono da soli la loro agenda, i cerchi verdi: toccali per leggerla."
+  },
+  "apparizione": {
+    "testo": "Alle {ora} della notte, dal bordo, è entrato un filo nero."
+  },
+  "motivo": {
+    "righe": "filo a righe",
+    "puntini": "filo a puntini",
+    "doppio": "filo doppio",
+    "onde": "filo a onde",
+    "zigzag": "filo a zig-zag",
+    "tratteggio": "filo tratteggiato",
+    "catenella": "filo a catenella",
+    "croce": "filo a crocette",
+    "lucido": "filo lucido",
+    "perlato": "filo perlato",
+    "liscio": "filo liscio"
   }
 }

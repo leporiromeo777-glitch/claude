@@ -66,7 +66,9 @@ export interface TapVia {
 const BEAD_EVENTS: ReadonlySet<LaceEvent['k']> = new Set(['passa', 'copia', 'consegna', 'contagio', 'cura']);
 /** Durate delle chiusure speciali a 1× (C11, C12) e della dissolvenza con il movimento ridotto. */
 const ENDING_NODO_S = 2.3;
-const ENDING_APPARIZIONE_S = 2.5;
+/** Apparizione del filo nero (g08, g15): abbastanza lunga da notarla (Q064, almeno 2,5 s a ogni velocità). */
+const ENDING_APPARIZIONE_S = 3.6;
+const ENDING_APPARIZIONE_MIN_S = 2.5;
 const ENDING_FADE_S = 0.6;
 /** Nota a margine: si chiude alla prima azione valida dopo 4 s, da sola dopo 12 s (D04). */
 const NOTE_MIN_S = 4;
@@ -248,6 +250,8 @@ export class NightController {
     this.lastRowHour = this.session.hour;
     this.rememberStatuses();
     this.announceNero();
+    // Finale B: una nota spiega la modalità del filo controllato (R2-D4, Q029).
+    if (params.mode === 'controllato' && !this.session.done) this.showMargin('tombolo.controllato.nota', 'ada');
     this.saveNow(false);
     this.s.canvas?.canvas?.addEventListener('pointermove', this.onHover);
     if (typeof window !== 'undefined') window.addEventListener('keydown', this.onKeyCapture, true);
@@ -395,6 +399,26 @@ export class NightController {
   }
 
   private popupTop = false;
+
+  /**
+   * Sul telefono la scheda del suggerimento non copre i fusi (Q063): se la riga
+   * corrente è nella metà bassa del merletto la scheda sta in alto.
+   */
+  private hintOnTop(): boolean {
+    const l = this.layout;
+    if (!l || l.kind !== 'stretto' || !this.model) return false;
+    const y = l.lace.y - this.scroll + rowTop(l, this.model.current);
+    return y > l.lace.y + l.lace.h / 2;
+  }
+
+  /**
+   * Un tocco sulla fascia dei fusi: la riga di spiegazione e il motivo del
+   * rifiuto si tolgono, così non coprono il fuso che si trascina (Q063).
+   */
+  yieldMessages(): void {
+    if (this.explain.key) this.explain.hide();
+    this.closeReason.hide();
+  }
 
   /** Riga di motivo: sopra la barra delle azioni, centrata sul pulsante grande. */
   private placeReason(node: HTMLElement): void {
@@ -916,8 +940,36 @@ export class NightController {
     const cv = this.s.canvas?.canvas;
     if (!cv) return;
     const r = cv.getBoundingClientRect();
-    this.showBubbleAt(e.clientX - r.left, e.clientY - r.top, true);
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    if (this.showSpindleTip(x, y)) return;
+    this.showBubbleAt(x, y, true);
   };
+
+  /**
+   * Passaggio del mouse su un fuso (Q021): chi è, con il motivo del suo filo, e
+   * che cosa porta adesso. Sul touch lo stesso lo dice la scheda (pressione lunga).
+   */
+  showSpindleTip(x: number, y: number): boolean {
+    const l = this.layout;
+    if (!l || y < l.spindles.y || y >= l.spindles.y + l.spindles.h) return false;
+    let col = -1;
+    for (let c = 0; c < l.cols; c++) if (x >= (l.colX[c] ?? 0) && x < (l.colX[c] ?? 0) + l.colW) col = c;
+    const t = col >= 0 ? this.threadAtColumn(col) : null;
+    if (!t) {
+      if (this.bubbleByHover) this.hideBubble();
+      return true;
+    }
+    const v = visualOf(this.visuals, t);
+    const i18n = this.s.i18n;
+    const parts = [threadName(this.textDeps, t)];
+    if (!v.faded && i18n.has(`tombolo.motivo.${v.pattern}`)) parts.push(i18n.t(`tombolo.motivo.${v.pattern}`));
+    const text = [parts.join(' · '), ...this.threadStatus(t)].join(' ');
+    this.bubble.show(text, l.colCx[col] ?? x, l.spindles.y + 8, { x: l.center.x, y: l.hud.y + l.hud.h, w: l.center.w, h: l.actions.y - l.hud.y - l.hud.h });
+    this.bubble.el.dataset.tipo = 'fuso';
+    this.bubbleByHover = true;
+    return true;
+  }
 
   // ───────── Scorrimento ─────────
 
@@ -959,6 +1011,20 @@ export class NightController {
   canDragSpindles(): boolean {
     const s = this.session;
     return !this.completed && s.isPlayerRow() && !s.needsNome && this.previewRow < 0;
+  }
+
+  /**
+   * Modalità del filo controllato (finale B): un fuso che non è quello del
+   * giocatore non si trascina. Lo dice la riga in basso e il fuso rimbalza
+   * (Q029: prima la bozza si svuotava in silenzio). true se rifiutato.
+   */
+  rejectUncontrolled(t: ThreadId): boolean {
+    const ctrl = this.params.level.autoweave?.controlled;
+    if (this.params.mode !== 'controllato' || !ctrl || t === ctrl) return false;
+    this.say('tombolo.controllato.solo', { nome: threadName(this.textDeps, ctrl) }, 'info', 3500);
+    this.renderer.rig.bounce(t, 1, this.layout.colW * 0.4);
+    this.s.haptics.play('rifiuto');
+    return true;
   }
 
   /** Colonna del compagno d'incrocio (nella bozza) del filo in colonna `col`, o −1. */
@@ -1495,7 +1561,8 @@ export class NightController {
   drop(noteId: NoteId): void {
     if (this.completed) return;
     this.session.drop(noteId);
-    this.explain.show('tombolo.richieste.lasciataMsg', {}, 'info', 3000);
+    // Di chi era lo spillo (Q017: «lo spillo rosso» non diceva quale richiesta).
+    this.explain.show('tombolo.richieste.lasciataMsg', { nome: this.noteAuthor(noteId) }, 'info', 3000);
     this.refresh();
     this.saveNow(true);
   }
@@ -1566,10 +1633,10 @@ export class NightController {
     return !!a && !a.allNamed() && !this.session.isPlayerRow() && !this.completed;
   }
 
-  /** La lampada si può toccare (sempre visibile, D07.1). */
+  /** La lampada si può toccare (sempre visibile, D07.1; anche con le occasioni, R2-D4, Q030). */
   lampAvailable(): boolean {
     if (this.completed) return false;
-    return this.session.isPlayerRow() || this.namingHints();
+    return this.session.isPlayerRow() || this.namingHints() || this.params.mode === 'occasioni';
   }
 
   /**
@@ -1616,6 +1683,28 @@ export class NightController {
     return `${h.textKey}|${JSON.stringify(h.params ?? {})}`;
   }
 
+  /**
+   * Suggerimenti con le occasioni (finale D, A6; R2-D4, Q030): Spinta e Indizio
+   * sono le frasi del livello; il Fantasma dice un insieme di occasioni che
+   * funziona (dal `.computed.json`) e accende la prima cella. Niente incroci,
+   * quindi niente filo d'oro da perdere.
+   */
+  private occasionHint(tier: HintTier): Hint {
+    const lv = this.params.level;
+    const keys = lv.hintKeys ?? {};
+    if (tier === 'spinta') return { tier, textKey: keys.spinta ?? 'tombolo.hint.occasioni.spinta' };
+    const sol = this.s.content.computed.get(lv.id)?.occasionsSolution ?? [];
+    if (tier === 'indizio' || sol.length === 0) return { tier: 'indizio', textKey: keys.indizio ?? 'tombolo.hint.occasioni.indizio' };
+    const t = this.s.i18n.t.bind(this.s.i18n);
+    const items = [...sol]
+      .sort((a, b) => a.hour - b.hour)
+      .map((o) => t('tombolo.hint.occasioni.voce', { ...nameParams(this.textDeps, { luogo: o.place, ora: o.hour }), tipo: t(`tombolo.occasione.${o.kind}`) }));
+    const first = [...sol].sort((a, b) => a.hour - b.hour)[0];
+    const h: Hint = { tier: 'fantasma', textKey: 'tombolo.hint.occasioni.fantasma', params: { elenco: this.joinList(items) } };
+    if (first) h.highlight = { hour: first.hour, column: lv.columns.indexOf(first.place) };
+    return h;
+  }
+
   /** Suggerimento sui nomi dell'Archivio (spinta e indizio del livello). */
   private namingHint(tier: HintTier): Hint {
     const keys = this.params.level.hintKeys ?? {};
@@ -1629,6 +1718,7 @@ export class NightController {
     let h = this.rowHints.get(tier) ?? null;
     if (!h) {
       if (this.namingHints()) h = this.namingHint(tier);
+      else if (this.params.mode === 'occasioni') h = this.occasionHint(tier);
       else if (tier === 'spinta') {
         const d = await s.diagnose();
         if (this.destroyed) return { tier, textKey: 'tombolo.hint.spinta.generico' };
@@ -1690,6 +1780,7 @@ export class NightController {
       },
       // H con la scheda aperta: il gradino successivo (come il pulsante della scheda).
       { hint: () => void this.advanceHint() },
+      this.hintOnTop(),
     );
     this.updateUi();
     this.saveNow(false);
@@ -1911,7 +2002,15 @@ export class NightController {
       this.s.haptics.play('rifiuto');
       return;
     }
+    const before = this.session.occasions.length;
     this.setOccasions(r.list);
+    // Che cosa si è piantato (o tolto), con il contatore (Q030).
+    const planted = this.session.occasions.length > before;
+    const o = planted ? this.session.occasions.find((x) => x.place === place && x.hour === hour) : cell;
+    if (o) {
+      const tipo = this.s.i18n.t(`tombolo.occasione.${o.kind}`);
+      this.say(planted ? 'tombolo.occasioni.piantata' : 'tombolo.occasioni.tolta', { ...nameParams(this.textDeps, { luogo: o.place, ora: o.hour }), tipo, piantate: this.session.occasions.length, posti: occasionSlots(lv) }, 'info', 3000);
+    }
   }
 
   /**
@@ -2076,7 +2175,9 @@ export class NightController {
     const sp = this.animSpeed();
     const reduced = this.s.settings.get().reducedMotion;
     const base = kind === 'nodo' ? ENDING_NODO_S : ENDING_APPARIZIONE_S;
-    const dur = sp <= 0 ? 0 : (reduced ? ENDING_FADE_S : base) / sp;
+    let dur = sp <= 0 ? 0 : (reduced ? ENDING_FADE_S : base) / sp;
+    // L'apparizione non si brucia in un attimo nemmeno a velocità doppia o col movimento ridotto (Q064).
+    if (kind === 'apparizione' && sp > 0) dur = Math.max(dur, ENDING_APPARIZIONE_MIN_S);
     const ap = lv.apparizione;
     const o = this.overlay;
     o.ending = { kind, p: 0, fade: reduced, hour: ap ? String(ap.hour) : '', side: ap?.side === 'molo' ? -1 : 1, passi: ap?.passi ?? 1 };
@@ -2085,6 +2186,8 @@ export class NightController {
       // In cima, con un margine sopra la prima riga per l'ora della notte prima.
       this.manualScroll = true;
       this.scroll = -(this.layout.rowH + 8);
+      // Una riga la dice anche a parole, così l'alba la può richiamare (Q064).
+      if (ap) this.say('tombolo.apparizione.testo', nameParams(this.textDeps, { ora: ap.hour }), 'info', Math.round(dur * 1000) + 1500);
     }
     if (dur <= 0) this.endEnding();
   }

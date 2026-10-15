@@ -110,6 +110,8 @@ export function engineTextKeys(): string[] {
   for (const t of CONDITION_TYPES) out.push(conditionKey('fallita', t));
   for (const t of RISK_TYPES) out.push(conditionKey('rischio', t));
   for (const t of RISK_TYPES) out.push(conditionKey('perso', t));
+  // «Almeno N fra…» (Q040): quanti ce l'hanno fatta {ok}, al massimo {max}, su {n} richiesti.
+  out.push(conditionKey('fallita', 'almeno'), conditionKey('perso', 'almeno'));
   out.push(...Object.values(HINT_KEYS));
   return out;
 }

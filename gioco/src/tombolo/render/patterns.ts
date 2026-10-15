@@ -6,7 +6,7 @@
  *   righe       tratti obliqui a 45° ogni 6 px, marcati  (Teresa)
  *   puntini     puntini ogni 9 px                        (Marta)
  *   doppio      due linee da 2,5 px                      (Don Piero)
- *   onde        sinusoide lunga (16 px, ampiezza 2,6 px)  (Gino)
+ *   onde        sinusoide lunga (30 px, ampiezza 2,8 px)  (Gino)
  *
  * Righe e onde sono più marcate (D06, P034): Gino e Teresa vicini si distinguono
  * anche in bianco e nero, senza cambiare i colori, che sono del personaggio.
@@ -47,7 +47,9 @@ export const PATTERN_STEP: Readonly<Record<ThreadPattern, number>> = {
 /** Spessore dei tratti obliqui di Teresa e dell'onda di Gino, e ampiezza dell'onda (D06). */
 export const RIGHE_W = 2;
 export const ONDE_W = 1.8;
-export const ONDE_A = 2.6;
+export const ONDE_A = 2.8;
+/** Periodo delle onde (px): lungo, così non sembrano lo zig-zag di Bepi (Q021). */
+export const ONDE_P = 30;
 
 const DASH_LONG: number[] = [7, 5];
 const NO_DASH: number[] = [];
@@ -126,10 +128,12 @@ export function drawPattern(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVis
       ctx.lineWidth = ONDE_W;
       ctx.beginPath();
       let first = true;
-      for (let s = 0; s <= total; s += 2) {
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      for (let s = 0; s <= total; s += 1.5) {
         pointAt(p, s, P);
-        // Onda morbida e lunga (16 px): non si confonde con lo zig-zag.
-        const a = Math.sin(((s + phase) / 16) * Math.PI * 2) * ONDE_A;
+        // Onda morbida e lunga (ONDE_P): non si confonde con lo zig-zag fitto (5 px) di Bepi.
+        const a = Math.sin(((s + phase) / ONDE_P) * Math.PI * 2) * Math.min(ONDE_A, half * 0.95);
         const x = P.x + P.ty * a;
         const y = P.y - P.tx * a;
         if (first) ctx.moveTo(x, y);

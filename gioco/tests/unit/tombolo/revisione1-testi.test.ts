@@ -236,7 +236,7 @@ describe('TOM-14: ogni tipo di perlina e ogni rapporto, in it e en', () => {
       };
       walk(src.cond, 'tombolo.cond.');
       expect(keys.length).toBeGreaterThan(30);
-      const params = { chi: 'bepi', a: 'marta', b: 'nina', perlina: 'L1', ora: 10, dalle: 7, alle: 10, n: 3, luogo: 'forno' };
+      const params = { chi: 'bepi', a: 'marta', b: 'nina', perlina: 'L1', ora: 10, dalle: 7, alle: 10, n: 3, luogo: 'forno', ok: 1, max: 2 };
       for (const key of keys) clean(reportText(d, { status: 'fallita', reasonKey: key, params }), `${locale} ${key}`);
     });
   }

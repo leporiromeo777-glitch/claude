@@ -820,7 +820,7 @@ describe('TOM-20: chiusura a nodo e apparizione del filo nero (C11, C12)', () =>
     expect(c.endingRunning()).toBe(false);
   });
 
-  it('apparizione a 1×: 2,5 s; con il movimento ridotto una dissolvenza breve', async () => {
+  it('apparizione a 1×: 3,6 s; mai sotto i 2,5 s, nemmeno col movimento ridotto (revisione 2, Q064)', async () => {
     for (const reduced of [false, true]) {
       h = harness();
       const r = record();
@@ -831,9 +831,10 @@ describe('TOM-20: chiusura a nodo e apparizione del filo nero (C11, C12)', () =>
       c = new NightController(h.s, nightParams(lv), { computed: fixtureComputed('g00') });
       await c.autoplay(fixtureComputed('g00').base.rows);
       expect(r.app).toBe(1);
-      for (let i = 0; i < 0.7 * 60; i++) c.update(1 / 60);
-      expect(r.complete, `ridotto ${reduced}`).toBe(reduced ? 1 : 0);
-      for (let i = 0; i < 2 * 60; i++) c.update(1 / 60);
+      for (let i = 0; i < 2.4 * 60; i++) c.update(1 / 60);
+      expect(r.complete, `ridotto ${reduced}: ancora visibile a 2,4 s`).toBe(0);
+      expect(q('tb-explain')?.textContent).toMatch(/filo nero/);
+      for (let i = 0; i < 1.4 * 60; i++) c.update(1 / 60);
       expect(r.complete).toBe(1);
     }
   });

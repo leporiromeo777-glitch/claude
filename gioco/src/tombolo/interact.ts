@@ -66,6 +66,9 @@ export class Interaction {
     // La bolla del tocco si chiude al tocco successivo (che fa anche quello che deve).
     if (g.k !== 'drag' && g.k !== 'wheel') c.hideBubble();
     if (c.isBusy()) return true;
+    // Un tocco sui fusi toglie i messaggi che li coprono (Q063).
+    const gy = g.k === 'dragstart' ? g.startY : g.y;
+    if ((g.k === 'dragstart' || g.k === 'tap' || g.k === 'longpress') && gy >= l.spindles.y && gy < l.spindles.y + l.spindles.h) c.yieldMessages();
     switch (g.k) {
       case 'wheel':
         c.scrollBy(g.dy);
@@ -195,6 +198,11 @@ export class Interaction {
       const col = columnAt(l, sx);
       const t = col >= 0 ? c.threadAtColumn(col) : null;
       if (!t || !c.canDragSpindles()) {
+        this.drag = { k: 'none' };
+        return true;
+      }
+      // Filo controllato (finale B): gli altri fusi non si trascinano, e lo si dice (Q029).
+      if (c.rejectUncontrolled(t)) {
         this.drag = { k: 'none' };
         return true;
       }
