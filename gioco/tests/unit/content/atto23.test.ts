@@ -292,14 +292,17 @@ describe('bigliettini e vignette', () => {
     const lv = level('g12');
     expect(lv.tutorial?.some((s) => s.k === 'pulsa' && s.target === 'nome')).toBe(true);
     const req = db.notes.get('g12.lunardi')?.request as Condition;
-    expect(req).toEqual({ t: 'ha', who: 'lunardi', bead: 'nome' });
+    // Revisione 1 (CA23-03): Lunardi torna col vaporetto delle nove e chiede il nome ad almeno tre persone.
+    expect(req).toEqual({ t: 'tutti', of: [{ t: 'ha', who: 'lunardi', bead: 'nome' }, { t: 'incontriAlmeno', who: 'lunardi', n: 3 }] });
+    expect(level('g12').edges).toContainEqual({ hour: 9, side: 'molo', kind: 'vaporetto', enters: 'lunardi' });
     const okWith = (nomeOn: string): boolean =>
       solve({ level: lv, ctx: createContext(lv, {}, { nomeOn, balance: db.balance }), goals: [...(lv.goals ?? []), req] }).status === 'ok';
-    expect(okWith('lunardi')).toBe(true);
     expect(okWith('marta')).toBe(true);
-    // Con il nome su Lunardi la richiesta è compatibile con tutte le altre, anche con quella di Teresa (5 incroci):
+    expect(okWith('teresa')).toBe(true);
+    // Con il nome su Marta (la scelta migliore di levels:check) la richiesta è compatibile con tutte le altre:
     // il conflitto voluto della sera è Bepi + Teresa. levels:check prova da sé le scelte di nomeOn.
-    const ctx = createContext(lv, {}, { nomeOn: 'lunardi', balance: db.balance });
+    expect(db.computed.get('g12')?.perNote['g12.lunardi']?.nomeOn).toBe('marta');
+    const ctx = createContext(lv, {}, { nomeOn: 'marta', balance: db.balance });
     for (const other of ['g12.bepi', 'g12.zeno', 'g12.teresa']) {
       const r = solve({ level: lv, ctx, goals: [...(lv.goals ?? []), req, db.notes.get(other)?.request as Condition] });
       expect(r.status, other).toBe('ok');
