@@ -128,7 +128,7 @@ export function costruisciSentiero(ctx: Contesto, zona: string, nome: string, pu
     nastroSulSuolo(cant, punti, larghezza, 0.8, 0.05, (s, u) => coloreNastro(tipo, s, u));
   }
   let gradini = 0;
-  if ((opz.gradini ?? 'pietra') !== 'nessuno') gradini = gradiniLungo(cant, c, larghezza, opz.gradini ?? 'pietra', opz.alzata ?? 0.4, opz.tag ?? 'gradino', opz.luogo, opz.seme ?? hashNome(nome));
+  if ((opz.gradini ?? 'pietra') !== 'nessuno') gradini = gradiniLungo(cant, c, larghezza, (opz.gradini ?? 'pietra') as 'pietra' | 'assi', opz.alzata ?? 0.4, opz.tag ?? 'gradino', opz.luogo, opz.seme ?? hashNome(nome));
   if (opz.registra ?? true) ctx.sentieri.push({ nome, punti, larghezza });
   return { campioni: c, gradini };
 }

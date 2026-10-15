@@ -5,7 +5,6 @@
  * restituiscono: lo stato ricevuto non viene mai toccato.
  */
 import { CELLE_TOTALI, FIRMA_ELVIRA } from './costanti';
-import { centroCella } from './griglia';
 import { caposaldoDef, defParticella } from './regole';
 import type {
   CaposaldoStato,
@@ -253,7 +252,3 @@ export function conteggi(stato: StatoCatasto): { bianco: number; matita: number;
   return { bianco: CELLE_TOTALI - matita - colore, matita, colore, china, seppia: colore - china };
 }
 
-/** Centro della particella (comodo per l'origine delle animazioni). */
-export function centroDi(id: number): { z: number; theta: number } {
-  return centroCella(id);
-}

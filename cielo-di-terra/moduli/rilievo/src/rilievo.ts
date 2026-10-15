@@ -29,7 +29,6 @@ import {
 } from './griglia';
 import { caposaldoDef, chiaveCoppia, latoFra } from './regole';
 import {
-  cellaAColore,
   cellaRilevataDaElvira,
   clonaStato,
   elementoRilevato,
@@ -810,7 +809,3 @@ export function anteprimaRilievo(stato: StatoCatasto, regole: RegoleCatasto, inp
   return { ok: true, nuove: ev && ev.tipo === 'particelle_rivelate' ? ev.celle : [] };
 }
 
-/** Le particelle a colore dentro un insieme (comodo per i test e per l'interfaccia). */
-export function quanteAColore(stato: StatoCatasto, celle: readonly number[]): number {
-  return celle.filter((c) => cellaAColore(stato, c)).length;
-}

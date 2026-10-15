@@ -118,7 +118,3 @@ export function lineaLiberaFra(
   return normalizzaEsito(f(da, a, contesto));
 }
 
-/** Il caposaldo per id (contenuti o chiodi nuovi), con un errore leggibile. */
-export function trovaCaposaldo(regole: RegoleCatasto, nuovi: Readonly<Record<string, DefCaposaldo>>, id: string): DefCaposaldo | undefined {
-  return caposaldoDef(regole, nuovi, id);
-}
