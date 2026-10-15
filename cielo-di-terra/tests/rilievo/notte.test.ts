@@ -33,7 +33,9 @@ function brace(regole: RegoleCatasto = r): StatoCatasto {
 function chiudi(s: StatoCatasto, regole: RegoleCatasto, ...lati: string[]): StatoCatasto {
   for (const l of lati) {
     const [a, b] = l.split('-');
-    const x = rileva(s, regole, { stazione: `cs_${a}`, mira: `cs_${b}`, ora: 11 });
+    // 1-4, 3-4 e 4-37 si chiudono solo di notte (il dosso del Pian dei Ricci copre il Pilastro 4)
+    const soloNotte = !(regole.lati.get(l)?.quando ?? ['giorno']).includes('giorno');
+    const x = rileva(s, regole, { stazione: `cs_${a}`, mira: `cs_${b}`, ora: soloNotte ? 23 : 11 });
     if (!x.ok) throw new Error(`${l}: ${x.messaggio}`);
     s = x.stato;
   }
@@ -242,7 +244,7 @@ describe('regola 1: le mosse della Madre (dalla Fase 5)', () => {
     expect(n.eventi.find((e) => e.tipo === 'particelle_perse')).toMatchObject({ caposaldo: 'cs_4' });
     // si rimette la pietra e si rimisura: «la mano ricorda», in 5 s
     const rim = rimettiCaposaldo(n.nuovoStato, r5, 'cs_4');
-    const x = rileva(rim.stato, r5, { stazione: 'cs_3', mira: 'cs_4', ora: 9 });
+    const x = rileva(rim.stato, r5, { stazione: 'cs_3', mira: 'cs_4', ora: 23 }); // 3-4 solo di notte
     expect(x.ok).toBe(true);
     expect(x.eventi.find((e) => e.tipo === 'particelle_rivelate')).toMatchObject({ rimisura: true });
     // il tetto dell'Atto I è 2: dopo A1 ne resta una sola

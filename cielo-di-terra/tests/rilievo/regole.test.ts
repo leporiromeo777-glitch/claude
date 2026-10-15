@@ -17,7 +17,7 @@ describe('regole dai contenuti della Fase 1', () => {
     expect([...r.lati.values()].filter((l) => l.chiudibile)).toHaveLength(16);
     expect(r.particelle.size).toBe(228);
     expect([...r.elementi.keys()]).toEqual(['E1', 'E2', 'E3', 'E4']);
-    expect(r.inventario?.particelle).toHaveLength(63);
+    expect(r.inventario?.particelle).toHaveLength(62);
     expect(r.area).toEqual({ izMin: 19, izMax: 30, itMin: 1, itMax: 19 });
     expect(r.parametri).toMatchObject({ latoMin: 40, latoMaxGiorno: 600, bufferVentaglio: 60, abbagliamentoAsse: 150, tettoCapisaldiPerNotte: 8 });
     expect(r.leggi.map((l) => l.id)).toEqual(['legge_1', 'legge_2']);

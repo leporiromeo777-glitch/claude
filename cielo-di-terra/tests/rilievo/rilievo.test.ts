@@ -178,7 +178,7 @@ describe('rilevare un lato', () => {
   it('la mano che ricorda: dopo 10 rilievi la bolla è più larga e la collimazione più corta', () => {
     let s: StatoCatasto = s0;
     expect(parametriSquadro(s, r)).toEqual({ manoCheRicorda: false, tolleranzaBolla: 1, collimazioneS: 1.5, rimisuraS: 5, appuntoS: 1 });
-    const lati = ['1-3', '1-4', '1-6', '1-7', '1-8', '3-4', '3-5', '3-11', '3-37', '4-37'];
+    const lati = ['1-3', '1-6', '1-7', '1-8', '3-5', '3-11', '3-37', '5-6', '6-8', '7-8'];
     for (const l of lati) {
       const [a, b] = l.split('-');
       s = rileva(s, r, { stazione: `cs_${a}`, mira: `cs_${b}`, ora: 10 }).stato;

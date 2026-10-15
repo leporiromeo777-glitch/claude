@@ -4,7 +4,8 @@
  * Percorso: stato iniziale da fade_fase1.json → giorno 1 (gli abitanti rimettono le cose,
  * Ottavio butta le assi) → prima notte (il sentiero sparisce) → mattino 2 (resoconto) →
  * chiodo 2 (il tasso) → lato 1-3 (20 particelle) → lato 7-8 (13 particelle, la passerella)
- * → seconda notte (la passerella c'è ancora) → gioco libero (tutta Corbella, 63 particelle).
+ * → seconda notte (la passerella c'è ancora) → gioco libero (tutta Corbella, 62 particelle con i
+ * 13 lati che si chiudono di giorno; 1-4, 3-4 e 4-37 solo di notte, dietro il dosso del Pian dei Ricci).
  * I numeri sono confrontati con quelli scritti nel design e nei contenuti.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -218,13 +219,17 @@ describe('Fase 1: il percorso del catasto', () => {
     expect(s.ultimaNotte?.protette['2311']).toBe('rilevato');
   });
 
-  it('gioco libero: la rete chiude 16 lati e Corbella va tutta a colore (63 particelle)', () => {
+  it('gioco libero: la rete chiude 13 lati di giorno e Corbella va tutta a colore (62 particelle)', () => {
     s = applicaCicliDelGiorno(s, regole, { da: '05:30', a: '09:00' }).stato;
     const chiudibili = capisaldi.lati.filter((l) => l.chiudibile);
     expect(chiudibili).toHaveLength(16); // FASE1 §3 e §7.1
+    // 1-4, 3-4 e 4-37 solo di notte: il dosso del Pian dei Ricci copre il Pilastro 4 (FASE1 §3)
+    const diGiorno = chiudibili.filter((l) => regole.lati.get(l.id)!.quando.includes('giorno'));
+    expect(chiudibili.filter((l) => !diGiorno.includes(l)).map((l) => l.id).sort()).toEqual(['1-4', '3-4', '4-37']);
+    expect(rileva(s, regole, { stazione: 'cs_3', mira: 'cs_4', ora: 10 })).toMatchObject({ ok: false, motivo: 'fuori_orario' });
     const effetti: string[] = [];
     let ora = 9;
-    for (const l of chiudibili) {
+    for (const l of diGiorno) {
       if (s.lati[l.id]?.firma === 'G5') continue;
       const [a, b] = l.id.split('-');
       const r = rileva(s, regole, { stazione: `cs_${a}`, mira: `cs_${b}`, ora: ora++ % 10 + 8 });
@@ -232,20 +237,20 @@ describe('Fase 1: il percorso del catasto', () => {
       s = r.stato;
       effetti.push(...r.effetti);
     }
-    expect(fade.inventario_corbella.quante).toBe(63);
+    expect(fade.inventario_corbella.quante).toBe(62);
     expect(fade.inventario_corbella.particelle.every((c) => cellaAColore(s, c))).toBe(true);
     expect(fade.inventario_corbella.particelle.every((c) => cellaRilevataDaElvira(s, c))).toBe(true);
     expect(inventarioCompleto(s, regole)).toBe(true);
     expect(flagDa(effetti).filter((f) => f === 'corbella_a_colori')).toHaveLength(1);
     expect(flagDa(effetti)).toContain('casa_nando_rilevata');
     expect(flagDa(effetti)).toEqual(expect.arrayContaining(['elemento_rilevato:E2', 'elemento_rilevato:E3']));
-    // tutta l'area che la rete può rilevare: l'unione dei 16 ventagli
-    const unione = new Set(chiudibili.flatMap((l) => l.particelle));
-    expect(unione.size).toBe(91);
-    expect(conteggi(s)).toMatchObject({ colore: 91, china: 91, seppia: 0 });
+    // tutta l'area che la rete può rilevare di giorno: l'unione dei 13 ventagli
+    const unione = new Set(diGiorno.flatMap((l) => l.particelle));
+    expect(unione.size).toBe(82);
+    expect(conteggi(s)).toMatchObject({ colore: 82, china: 82, seppia: 0 });
     // i lati bloccati restano bloccati
     expect(rileva(s, regole, { stazione: 'cs_5', mira: 'cs_1', ora: 10 }).messaggio).toMatch(/tettoia/);
-    expect(s.rilieviFatti).toBe(16);
+    expect(s.rilieviFatti).toBe(13);
   });
 
   it('dopo Corbella a colori la notte non cambia più niente: «Notte quieta»', () => {

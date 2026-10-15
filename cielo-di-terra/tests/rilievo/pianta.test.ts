@@ -24,8 +24,8 @@ describe('dati per la Pianta', () => {
     expect(d.capisaldi.find((c) => c.id === 'cs_1')).toMatchObject({ numero: 1, tipo: 'pilastro', rilevato: true, visto: true, inchiostro: 'seppia', z: 1062, theta: 37.2 });
     expect(d.lati).toEqual([{ id: '1-11', da: 'cs_1', a: 'cs_11', firma: 'G4' }]);
     expect(d.resoconto).toBeUndefined();
-    expect(d.inventario).toEqual({ nome: 'Corbella', aColore: 15, totale: 63 });
-    expect(d.totaleParticelle).toBe(63);
+    expect(d.inventario).toEqual({ nome: 'Corbella', aColore: 15, totale: 62 });
+    expect(d.totaleParticelle).toBe(62);
     expect(d.conteggi).toEqual({ bianco: 7200 - 101, matita: 86, colore: 15, china: 0, seppia: 15 });
     expect(datiPianta(s, r, { tuttiICapisaldi: true }).capisaldi.length).toBe(r.capisaldi.size);
   });
