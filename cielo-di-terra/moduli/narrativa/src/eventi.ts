@@ -46,9 +46,20 @@ export class Emettitore<M extends object> {
     };
   }
 
+  /** Chiama prima gli ascoltatori di `onQualsiasi` (registri, inoltri), poi quelli del tipo. */
   emit<K extends keyof M>(tipo: K, dato: M[K]): void {
     let primoErrore: unknown = undefined;
     let errore = false;
+    for (const fn of [...this.universali]) {
+      try {
+        fn(tipo, dato);
+      } catch (e) {
+        if (!errore) {
+          errore = true;
+          primoErrore = e;
+        }
+      }
+    }
     const insieme = this.ascoltatori.get(tipo);
     if (insieme) {
       for (const fn of [...insieme]) {
@@ -59,16 +70,6 @@ export class Emettitore<M extends object> {
             errore = true;
             primoErrore = e;
           }
-        }
-      }
-    }
-    for (const fn of [...this.universali]) {
-      try {
-        fn(tipo, dato);
-      } catch (e) {
-        if (!errore) {
-          errore = true;
-          primoErrore = e;
         }
       }
     }

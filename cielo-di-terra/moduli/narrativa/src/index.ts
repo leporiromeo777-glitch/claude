@@ -35,6 +35,7 @@ export {
   listaEffetti,
   stampaEffetto,
   ErroreEffetto,
+  PREFISSI_EVENTO,
   type Effetto,
   type AzioneTaccuino,
   type AzioneMissione,
@@ -44,6 +45,8 @@ export {
   normalizzaMissioni,
   normalizzaDialoghi,
   normalizzaTaccuino,
+  normalizzaRigaCielo,
+  riempiSegnaposto,
   eFineDialogo,
   type ContenutiNarrativa,
   type ContenutiNormalizzati,
@@ -54,6 +57,10 @@ export {
   type RispostaDef,
   type VoceDef,
   type TipoVoce,
+  type AperturaDialogo,
+  type EventoPassoDef,
+  type AiutoDef,
+  type RigaCieloDef,
 } from './contenuti';
 export {
   Missioni,
@@ -63,6 +70,7 @@ export {
   type EventiMissioni,
   type DipendenzeMissioni,
   type PassoAttivo,
+  type AmbitoPasso,
 } from './missioni';
 export {
   Dialoghi,
