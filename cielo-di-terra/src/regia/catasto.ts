@@ -78,14 +78,17 @@ const MOTIVI_TAG: Record<string, string> = {
 
 /**
  * La funzione «linea libera?» del gioco: un raggio da `da` (occhio sopra la stazione) ad `a`
- * (il segnale), ogni `passo` metri, contro il terreno e i collisori. I primi e gli ultimi 2,5 m
- * non contano (lo squadro e il segnale stanno su muri e pilastri).
+ * (il segnale), ogni `passo` metri, contro il terreno e i collisori. I primi e gli ultimi 3,5 m
+ * non contano (lo squadro e il segnale stanno su muri, pilastri e dentro la cella campanaria);
+ * il terreno copre solo se il raggio passa più di `tolleranza` m sotto il suolo (erba, sassi,
+ * il ciglio di un muro: la quota del motore è una media).
  */
 export function creaLineaLibera(
   colliders: ColliderWorld | null,
   occhio: (p: PuntoMira) => Vector3,
   bersaglio: (p: PuntoMira) => Vector3,
   passo = 2,
+  tolleranza = 2.5,
 ): FunzioneVisibilita {
   const cols: Collider[] = [];
   return (da, a): EsitoVisibilita => {
@@ -93,10 +96,10 @@ export function creaLineaLibera(
     const s = bersaglio(a);
     const dist = o.distanceTo(s);
     _d.subVectors(s, o).normalize();
-    for (let t = 2.5; t < dist - 2.5; t += passo) {
+    for (let t = 3.5; t < dist - 3.5; t += passo) {
       _p.copy(o).addScaledVector(_d, t);
       const c = worldToCyl(_p);
-      if (c.h < groundHeight(c.z, c.theta) - 0.3) return { libera: false, motivo: 'Il terreno copre la mira.' };
+      if (c.h < groundHeight(c.z, c.theta) - tolleranza) return { libera: false, motivo: 'Il terreno copre la mira.' };
       if (!colliders) continue;
       colliders.query(c.z, c.theta, 3, cols);
       for (const col of cols) {
