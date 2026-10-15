@@ -262,6 +262,31 @@ describe('due slot alternati', () => {
     expect((await h.carica())?.documento.dati.narrativa).toBe('x');
   });
 
+  it('due salvataggi lanciati insieme vanno in fila e occupano entrambi gli slot', async () => {
+    const memoria = new ArchivioMemoria();
+    const lento: Archivio = {
+      leggi: async (k) => {
+        await new Promise((r) => setTimeout(r, 5));
+        return memoria.leggi(k);
+      },
+      scrivi: async (k, v) => {
+        await new Promise((r) => setTimeout(r, 5));
+        memoria.scrivi(k, v);
+      },
+      rimuovi: (k) => memoria.rimuovi(k),
+    };
+    const g = new GestoreSalvataggi({ archivio: lento });
+    const contenuto = { narrativa: { n: 1 }, mondo: null };
+    const p1 = g.salva(contenuto);
+    contenuto.narrativa.n = 2; // il primo salvataggio ha già copiato il suo contenuto
+    const p2 = g.salva(contenuto);
+    const [i1, i2] = await Promise.all([p1, p2]);
+    expect([i1.slot, i2.slot]).toEqual(['a', 'b']);
+    expect([i1.contatore, i2.contatore]).toEqual([1, 2]);
+    expect(leggiDocumento(memoria.leggi('cielo-di-terra.salvataggio.a')!).dati.narrativa).toEqual({ n: 1 });
+    expect((await g.carica<{ n: number }>())?.documento.dati.narrativa.n).toBe(2);
+  });
+
   it('checksumDocumento ignora il campo checksum', () => {
     const doc = creaDocumento({ narrativa: 1, mondo: null });
     expect(checksumDocumento(doc)).toBe(doc.checksum);

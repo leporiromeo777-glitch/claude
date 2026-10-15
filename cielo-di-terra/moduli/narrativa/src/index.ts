@@ -114,6 +114,7 @@ export {
 } from './salvataggio';
 export {
   Narrativa,
+  NOTTE_PREDEFINITA,
   missioniOrfane,
   type WorldFacts,
   type FornitoreMondo,
@@ -121,3 +122,10 @@ export {
   type EventiNarrativa,
   type StatoNarrativo,
 } from './narrativa';
+export {
+  verificaContenuti,
+  type ContenutiVerifica,
+  type OpzioniVerifica,
+  type RapportoVerifica,
+  type EsitoMissione,
+} from './verifica';

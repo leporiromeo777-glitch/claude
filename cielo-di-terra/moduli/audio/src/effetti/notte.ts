@@ -48,7 +48,7 @@ export function fadeCarillon(kit: Kit, dest: Destinazione, t: number): number {
 /** Il ronzio di una Fade che passa: un piccolo motore con un tremolo e il «zip» di un servo. */
 export function fadeRonzio(kit: Kit, dest: Destinazione, t: number): number {
   const r = kit.rng;
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(1.4);
   const mandata = invia(kit, out, dest, 0.15);
   const durata = tra(r, 1.6, 2.4);
   const f = tra(r, 130, 180);
@@ -131,7 +131,7 @@ export function fade(kit: Kit, dest: Destinazione, t: number, varieta: VarietaFa
 export function api(kit: Kit, dest: Destinazione, t: number, durata = 4): number {
   const r = kit.rng;
   const d = Math.max(1, durata);
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(1.6);
   const mandata = invia(kit, out, dest, 0.08);
   let fine = t;
   const quante = intero(r, 4, 6);

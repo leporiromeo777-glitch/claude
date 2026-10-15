@@ -20,7 +20,7 @@ function marimba(kit: Kit, uscita: AudioNode, t: number, f: number, a: number, t
 }
 
 export function interfaccia(kit: Kit, dest: Destinazione, t: number, varieta: VarietaInterfaccia): number {
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(varieta === 'apri' ? 2 : varieta === 'chiudi' ? 1.6 : 1);
   const lp = kit.filtro('lowpass', 6000, 0.5);
   out.connect(lp);
   const mandata = invia(kit, lp, dest, varieta === 'conferma' || varieta === 'annulla' ? 0.1 : 0.03);

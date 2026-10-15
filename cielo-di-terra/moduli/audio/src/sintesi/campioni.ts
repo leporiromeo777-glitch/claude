@@ -241,7 +241,7 @@ export function sintetizzaCoroGrilli(sr: number, durata: number, seme: number): 
   const dx = new Float32Array(n);
   const quanti = 12;
   for (let g = 0; g < quanti; g++) {
-    const f = tra(rng, 3500, 4500);
+    const f = tra(rng, 2900, 3800);
     const periodoCanto = tra(rng, 0.45, 1.1);
     const impulsi = 2 + Math.floor(rng() * 3);
     const lungImpulso = tra(rng, 0.012, 0.02);

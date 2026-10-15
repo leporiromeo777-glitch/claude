@@ -3,7 +3,7 @@
  * Serve solo per guardare gli oggetti; il motore del gioco ha il suo ambiente.
  */
 import * as THREE from 'three';
-import { materiali } from '../src/materiali';
+import { aggiungiPennellata, creaMappaToni } from '../src/materiali';
 import { hashPosizione } from '../src/rng';
 
 export interface Ambiente {
@@ -106,7 +106,9 @@ export function creaAmbiente(scena: THREE.Scene): Ambiente {
   gTerra.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   gTerra.setIndex(idx);
   gTerra.computeVertexNormals();
-  const prato = new THREE.Mesh(gTerra, materiali().opaco);
+  const matPrato = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: creaMappaToni(3) });
+  aggiungiPennellata(matPrato, 0.035);
+  const prato = new THREE.Mesh(gTerra, matPrato);
   prato.receiveShadow = true;
   prato.name = 'prato';
   scena.add(prato);

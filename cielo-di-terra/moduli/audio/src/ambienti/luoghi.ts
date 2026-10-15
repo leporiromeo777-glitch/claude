@@ -141,7 +141,7 @@ export class StratoSordo extends Strato {
   aggiorna(p: ParametriAmbiente, t: number): void {
     const { kit } = this.c;
     const w = p.pesoSordo;
-    this.gSordo.gain.setTargetAtTime(0.6 * w, t, 1.5);
+    this.gSordo.gain.setTargetAtTime(0.5 * w, t, 1.5);
     const ps = puntoSordo(this.c.ascoltatore());
     this.pan.positionX.setTargetAtTime(ps.x, t, 0.1);
     this.pan.positionY.setTargetAtTime(ps.y, t, 0.1);
@@ -234,7 +234,7 @@ export class StratoFinestre extends Strato {
     // il fruscio del vetro: un sibilo chiarissimo e lontano che va e viene
     this.gOnda = this.tieni(kit.guadagno(0.6));
     const vetro = this.tieni(kit.sorgenteRumore('bianco'));
-    const bpV = this.tieni(kit.filtro('bandpass', 5200, 0.6));
+    const bpV = this.tieni(kit.filtro('bandpass', 4200, 0.6));
     const gV = this.tieni(kit.guadagno(0.05));
     vetro.connect(bpV).connect(gV).connect(this.gOnda).connect(this.gFin);
     // l'aria ferma sopra il vetro

@@ -35,7 +35,7 @@ export function fisarmonica(kit: Kit, uscita: AudioNode, t: number, n: NotaMusic
   const lunga = n.durata > 2.5;
   const attacco = lunga ? Math.min(1.5, n.durata * 0.3) : Math.min(0.1, n.durata * 0.25);
   const rilascio = lunga ? 1.2 : 0.18;
-  const picco = 0.085 * n.vel;
+  const picco = 0.17 * n.vel;
   env.gain.setValueAtTime(0, t);
   env.gain.linearRampToValueAtTime(picco, t + attacco);
   // il mantice: un piccolo respiro dentro la nota
@@ -87,8 +87,8 @@ export function flauto(kit: Kit, uscita: AudioNode, t: number, n: NotaMusicale):
   const gf = kit.guadagno(0);
   s.connect(bp).connect(gf).connect(env);
   gf.gain.setValueAtTime(0, t);
-  gf.gain.linearRampToValueAtTime(0.9, t + 0.02);
-  gf.gain.setTargetAtTime(0.25, t + 0.03, 0.05);
+  gf.gain.linearRampToValueAtTime(8, t + 0.02);
+  gf.gain.setTargetAtTime(2.5, t + 0.03, 0.05);
   o.start(t);
   lfo.start(t);
   s.start(t, s.scarto);

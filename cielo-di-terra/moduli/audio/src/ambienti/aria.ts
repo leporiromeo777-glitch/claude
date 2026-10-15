@@ -127,9 +127,9 @@ export class StratoLinea extends Strato {
     this.gLinea = this.tieni(kit.guadagno(0));
     const somma = this.tieni(kit.guadagno(1));
     const voci: [OscillatorType, number, number, boolean][] = [
-      ['sine', 1, 0.5, false],
-      ['sine', 1.004, 0.35, false], // battimento lento
-      ['triangle', 2, 0.22, false],
+      ['sine', 1, 0.35, false],
+      ['sine', 1.004, 0.25, false], // battimento lento
+      ['triangle', 2, 0.3, false],
       ['sawtooth', 1, 0.3, true], // la sega passa nel filtro: è il «calore»
       ['sine', 3, 0.08, false],
     ];

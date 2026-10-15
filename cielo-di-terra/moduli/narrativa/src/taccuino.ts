@@ -66,7 +66,10 @@ export class Taccuino {
   private readonly defs = new Map<string, VoceDef>();
   private readonly stati = new Map<string, StatoVoce>();
   private prossimoOrdine = 0;
+  /** Riga del cielo scritta dai contenuti (effetto «cielo:») o dal gioco con `impostaRigaCielo`. */
   private riga: string | null = null;
+  /** Riga calcolata dal gioco a ogni tick (`WorldFacts.prossimoEventoCielo`). */
+  private rigaGioco: string | null = null;
   private obiettiviAttivi: Obiettivo[] = [];
 
   constructor(
@@ -194,16 +197,32 @@ export class Taccuino {
 
   // --- Riga del cielo -------------------------------------------------------
 
-  /** Il testo fisso in alto: il prossimo evento del cielo. */
+  /**
+   * Il testo fisso in alto: il prossimo evento del cielo. Vince quello
+   * scritto dai contenuti (o impostato a mano); se manca, quello calcolato
+   * dal gioco.
+   */
   rigaCielo(): string | null {
-    return this.riga;
+    return this.riga ?? this.rigaGioco;
   }
 
+  /** Imposta (o con null cancella) la riga scritta dai contenuti. Viene salvata. */
   impostaRigaCielo(testo: string | null): void {
-    const t = testo === null || testo.trim() === '' ? null : testo;
-    if (t === this.riga) return;
-    this.riga = t;
-    this.eventi.emit('rigaCielo', { testo: t });
+    const prima = this.rigaCielo();
+    this.riga = testo === null || testo.trim() === '' ? null : testo;
+    this.emettiRiga(prima);
+  }
+
+  /** Riga calcolata dal gioco (non salvata: il gioco la ricalcola). */
+  impostaRigaCieloGioco(testo: string | null): void {
+    const prima = this.rigaCielo();
+    this.rigaGioco = testo === null || testo.trim() === '' ? null : testo;
+    this.emettiRiga(prima);
+  }
+
+  private emettiRiga(prima: string | null): void {
+    const dopo = this.rigaCielo();
+    if (dopo !== prima) this.eventi.emit('rigaCielo', { testo: dopo });
   }
 
   // --- Obiettivi delle missioni ----------------------------------------------

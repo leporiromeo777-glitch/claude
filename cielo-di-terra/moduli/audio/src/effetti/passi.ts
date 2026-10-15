@@ -49,11 +49,14 @@ export function graniDiRumore(
   return fine;
 }
 
+/** Livello relativo delle superfici (tarato con le misure offline). */
+const GUADAGNO_SUPERFICIE: Readonly<Record<Superficie, number>> = { erba: 1.8, pietra: 1.4, legno: 1.1, ghiaia: 1.8 };
+
 /** Un passo sulla superficie data. `forza` 0-1,3 (camminata ≈ 0,6, corsa ≈ 1). */
 export function passo(kit: Kit, dest: Destinazione, t: number, superficie: Superficie, forza = 0.7): number {
   const r = kit.rng;
   const k = limita(forza, 0.1, 1.3);
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(GUADAGNO_SUPERFICIE[superficie]);
   const lp = kit.filtro('lowpass', 7500, 0.5);
   out.connect(lp);
   const mandata = invia(kit, lp, dest, 0.06);
@@ -201,13 +204,13 @@ export function atterraggio(
   o.connect(g).connect(out);
   o.frequency.setValueAtTime(95, t);
   o.frequency.exponentialRampToValueAtTime(46, t + 0.14);
-  const fineTonfo = colpo(g.gain, t, 0.28 * forza, 0.003, 0.055);
+  const fineTonfo = colpo(g.gain, t, 0.22 * forza, 0.003, 0.055);
   o.start(t);
   o.stop(fineTonfo);
   pulisci(o, [o, g]);
   const fine = Math.max(
     fineTonfo,
-    soffio(kit, out, t, { tipo: 'rosa', filtro: 'lowpass', f: 380, picco: 0.15 * forza, attacco: 0.004, tau: 0.045 }),
+    soffio(kit, out, t, { tipo: 'rosa', filtro: 'lowpass', f: 380, picco: 0.12 * forza, attacco: 0.004, tau: 0.045 }),
     passo(kit, dest, t, superficie, 0.9 * forza),
     passo(kit, dest, t + tra(r, 0.03, 0.055), superficie, 0.7 * forza),
     soffio(kit, out, t + 0.04, { tipo: 'rosa', filtro: 'bandpass', f: 1400, q: 0.7, picco: 0.04, attacco: 0.03, tau: 0.07 }),

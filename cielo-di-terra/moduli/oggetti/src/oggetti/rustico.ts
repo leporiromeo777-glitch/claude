@@ -541,6 +541,28 @@ function rusticoSmontato(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng)
       // architrave di pietra
       b.aggiungi(geoLastra(a.w + 0.4, 0.17, t + 0.04, r.intero(0, 1e6), 0.1), { matrice: inF(fl, a.u, a.v + a.h, 0), colore: PALETTE.gneissChiaro, piatto: true });
     }
+    // pietre a vista sulle due facce, solo sotto il bordo rotto
+    for (const faccia of [1, -1]) {
+      const fm = inF(M, 0, 0, (faccia * t) / 2, [0, faccia > 0 ? 0 : Math.PI, 0]);
+      const n = Math.round((m.L * hMuri) / 3.2);
+      for (let k = 0, messe = 0; k < n * 4 && messe < n; k++) {
+        const pw = 0.3 + r.next() * 0.4;
+        const ph = 0.14 + r.next() * 0.14;
+        const uu = r.tra(-m.L / 2 + pw / 2 + 0.1, m.L / 2 - pw / 2 - 0.1);
+        const vv = r.tra(0.15, hMuri);
+        const uMuro = faccia > 0 ? uu : -uu;
+        if (vv + ph / 2 > Math.min(cima(uMuro - pw / 2), cima(uMuro + pw / 2), cima(uMuro)) - 0.08) continue;
+        if (aperte.some((a) => Math.abs(uMuro - a.u) < a.w / 2 + pw / 2 + 0.05 && vv > a.v - ph && vv < a.v + a.h + ph + 0.2)) continue;
+        const scuro = r.prob(0.5);
+        b.aggiungi(new THREE.PlaneGeometry(pw, ph), {
+          matrice: inF(fm, uu, vv, 0.012, [0, 0, r.centrato(0.08)]),
+          colore: scuro ? mescola(PALETTE.gneissScuro, PALETTE.gneissViola, r.next()) : mescola(PALETTE.gneissChiaro, PALETTE.gneissCaldo, r.next()),
+          variazione: 0.05,
+          piatto: true,
+        });
+        messe++;
+      }
+    }
     // pietre sparse sulla cima del muro
     for (let k = 0; k < Math.round(m.L / 1.6); k++) {
       const x = r.tra(-m.L / 2 + 0.3, m.L / 2 - 0.3);

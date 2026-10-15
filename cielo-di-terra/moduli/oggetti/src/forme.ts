@@ -55,7 +55,7 @@ export function geoMasso(raggio: number, seme: number, irregolarita = 0.3, detta
  * Massa tondeggiante di fogliame: icosaedro suddiviso, gonfiato in modo irregolare, normali morbide.
  * `dettaglio` 1 = 80 triangoli, 2 = 320.
  */
-export function geoMassa(raggio: number, seme: number, irregolarita = 0.18, dettaglio = 1, schiaccia = 0.85): THREE.BufferGeometry {
+export function geoMassa(raggio: number, seme: number, irregolarita = 0.18, dettaglio = 1, schiaccia = 0.85, normaliSferiche = 0.6): THREE.BufferGeometry {
   let g: THREE.BufferGeometry = new THREE.IcosahedronGeometry(raggio, dettaglio);
   g.deleteAttribute('uv');
   g.deleteAttribute('normal');
@@ -82,6 +82,16 @@ export function geoMassa(raggio: number, seme: number, irregolarita = 0.18, dett
     pos.setXYZ(i, v.x, v.y, v.z);
   }
   g.computeVertexNormals();
+  if (normaliSferiche > 0) {
+    // normali piegate verso la direzione radiale: ombreggiatura tonda anche con pochi poligoni
+    const nor = g.getAttribute('normal') as THREE.BufferAttribute;
+    const n = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).normalize();
+      n.fromBufferAttribute(nor, i).lerp(v, normaliSferiche).normalize();
+      nor.setXYZ(i, n.x, n.y, n.z);
+    }
+  }
   return g;
 }
 

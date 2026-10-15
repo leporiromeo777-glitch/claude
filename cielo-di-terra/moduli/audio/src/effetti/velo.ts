@@ -62,7 +62,7 @@ export function veloApri(kit: Kit, dest: Destinazione, t: number): number {
 
 /** Il Velo si chiude: fruscio che scende, la piega e il fermaglio di legno. */
 export function veloChiudi(kit: Kit, dest: Destinazione, t: number): number {
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(1.4);
   const mandata = invia(kit, out, dest, 0.06);
   const fine = Math.max(
     stoffa(kit, out, t, { fDa: 2000, fA: 520, durata: 0.36, picco: 0.1, battitoDa: 20, battitoA: 11 }),

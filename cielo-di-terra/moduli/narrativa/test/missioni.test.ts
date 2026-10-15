@@ -100,7 +100,7 @@ describe('missioni attraverso la facciata', () => {
     f.luoghi.add('fienile');
     n.tick();
     expect(n.missioni.statoPasso('prologo', 'notte')).toBe('attivo'); // non è ancora notte
-    f.oraCorrente = 21;
+    f.oraCorrente = 22;
     n.tick();
     expect(n.missioni.stato('prologo')).toBe('completata');
     expect(n.missioni.stato('m1')).toBe('attiva');

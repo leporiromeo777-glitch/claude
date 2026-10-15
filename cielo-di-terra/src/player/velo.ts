@@ -62,17 +62,26 @@ export function veloAcceleration(
     return out;
   }
   _vh.copy(_air).multiplyScalar(1 / s); // direzione della traiettoria rispetto all'aria
-  // direzione della portanza: componente del "su" dell'ala perpendicolare alla traiettoria
-  _l.copy(wingUp).addScaledVector(_vh, -wingUp.dot(_vh));
-  if (_l.lengthSq() < 1e-8) _l.copy(up).addScaledVector(_vh, -up.dot(_vh));
+  // apertura alare = destra dello sguardo; la portanza è perpendicolare a traiettoria e apertura
+  _side.crossVectors(forward, wingUp);
+  _l.crossVectors(_side, _vh);
+  if (_l.lengthSq() < 1e-8) {
+    // traiettoria lungo l'apertura (scivolata d'ala): usa il "su" dell'ala
+    _l.copy(wingUp).addScaledVector(_vh, -wingUp.dot(_vh));
+  }
   _l.normalize();
-  // incidenza: lo sguardo sopra la traiettoria = positiva
-  const alpha = Math.atan2(forward.dot(_l), forward.dot(_vh));
+  if (_l.dot(wingUp) < 0) _l.negate();
+  // incidenza geometrica: lo sguardo sopra la traiettoria = positiva
+  const alphaGeom = Math.atan2(forward.dot(_l), forward.dot(_vh));
+  // l'ala di stoffa si "autoregola": l'incidenza efficace resta sotto lo stallo;
+  // guardare molto sopra la traiettoria frena (richiamata), non stalla
   const stall = t.stallDeg * (Math.PI / 180);
+  const alphaMax = stall * 0.9;
+  const alpha = Math.min(alphaMax, Math.max(-0.22, alphaGeom));
   let cl = t.cl0 + t.clAlpha * alpha;
-  if (alpha > stall) cl *= Math.max(0.25, 1 - (alpha - stall) * 2.2);
   cl = Math.min(t.clMax, Math.max(t.clMin, cl));
-  const cd = t.cd0 + t.kInduced * cl * cl + (alpha > stall ? (alpha - stall) * 1.4 : 0);
+  const flare = Math.max(0, alphaGeom - alphaMax);
+  const cd = t.cd0 + t.kInduced * cl * cl + Math.min(1.2, flare * 0.6);
   const q = t.aeroK * s * s;
   out.addScaledVector(_l, q * cl).addScaledVector(_vh, -q * cd);
   // virata: porta la traiettoria orizzontale verso lo sguardo orizzontale

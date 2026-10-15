@@ -24,16 +24,16 @@ describe('facciata Narrativa', () => {
     expect(n.valuta('oggetto:lume>=4')).toBe(false);
   });
 
-  it('notte predefinita dalle 20 alle 6 se il gioco non la fornisce', () => {
+  it('notte predefinita dalle 21 alle 5:30 (GDD) se il gioco non la fornisce', () => {
     const f = new FattiFinti();
     const n = new Narrativa({}, f);
-    f.oraCorrente = 19.9;
+    f.oraCorrente = 20.9;
     expect(n.valuta('notte')).toBe(false);
-    f.oraCorrente = 20;
+    f.oraCorrente = 21;
     expect(n.valuta('notte')).toBe(true);
-    f.oraCorrente = 5.9;
+    f.oraCorrente = 5.4;
     expect(n.valuta('notte')).toBe(true);
-    f.oraCorrente = 6;
+    f.oraCorrente = 5.5;
     expect(n.valuta('giorno')).toBe(true);
     const m = new Narrativa({}, f, { notte: { inizio: 1, fine: 4 } });
     f.oraCorrente = 2;
@@ -211,6 +211,28 @@ describe('facciata Narrativa', () => {
     m.importa({} as ReturnType<Narrativa['esporta']>); // stato vuoto: tutto azzerato
     expect(m.flag.tutti()).toEqual({});
     expect(m.missioni.stato('a')).toBe('inattiva');
+  });
+
+  it('riga del cielo: quella del gioco a ogni tick, quella dei contenuti ha la precedenza', () => {
+    let prossimo: string | null = 'La Meta passa fra 20 secondi';
+    const f = Object.assign(new FattiFinti(), { prossimoEventoCielo: () => prossimo });
+    const n = new Narrativa({}, f);
+    const righe: (string | null)[] = [];
+    n.eventi.on('rigaCielo', ({ testo }) => righe.push(testo));
+    n.tick();
+    expect(n.taccuino.rigaCielo()).toBe('La Meta passa fra 20 secondi');
+    n.applicaEffetti(['cielo:Stanotte la Madre muove un caposaldo']);
+    prossimo = 'Brace della Linea fra due ore';
+    n.tick();
+    expect(n.taccuino.rigaCielo()).toBe('Stanotte la Madre muove un caposaldo');
+    n.applicaEffetti(['cielo:']);
+    expect(n.taccuino.rigaCielo()).toBe('Brace della Linea fra due ore');
+    expect(righe).toEqual([
+      'La Meta passa fra 20 secondi',
+      'Stanotte la Madre muove un caposaldo',
+      'Brace della Linea fra due ore',
+    ]);
+    expect(n.esporta().taccuino.rigaCielo).toBeNull(); // quella del gioco non si salva
   });
 
   it('accetta contenuti già normalizzati', () => {

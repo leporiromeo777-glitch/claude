@@ -54,6 +54,12 @@ export interface WorldFacts {
   quantitaOggetto?(id: string): number;
   /** Prefissi aggiuntivi registrati in `opzioni.parser.prefissiExtra`. */
   predicato?(prefisso: string, argomento: string, qualificatore?: string): boolean;
+  /**
+   * Il prossimo evento del cielo per la riga fissa del taccuino («Brace della
+   * Linea fra due ore»). Letto a ogni `tick()`; la riga scritta dai contenuti
+   * con l'effetto «cielo:» ha la precedenza.
+   */
+  prossimoEventoCielo?(): string | null;
 }
 
 /** Il gioco fornisce lo stato del mondo da salvare insieme alla narrativa (blob opaco). */
@@ -69,7 +75,7 @@ export interface OpzioniNarrativa {
    * missioni senza `avvia_quando` che nessun effetto dei contenuti avvia.
    */
   missioniIniziali?: string[];
-  /** Ore della notte se `WorldFacts.notte` manca (predefinite: dalle 20 alle 6). */
+  /** Ore della notte se `WorldFacts.notte` manca (predefinite: dalle 21 alle 5:30, come nel GDD §2.3). */
   notte?: { inizio: number; fine: number };
   /** Se vero, un errore nei contenuti lancia subito un'eccezione invece di finire in `problemi`. */
   rigoroso?: boolean;
@@ -98,6 +104,9 @@ export interface StatoNarrativo {
   taccuino: StatoTaccuino;
   inventario: Record<string, number>;
 }
+
+/** La notte del GDD (§2.3): dalle 21:00 alle 05:30. */
+export const NOTTE_PREDEFINITA = { inizio: 21, fine: 5.5 } as const;
 
 function eNormalizzati(c: ContenutiNarrativa | ContenutiNormalizzati): c is ContenutiNormalizzati {
   return Array.isArray((c as ContenutiNormalizzati).avvisi) && Array.isArray(c.missioni);
@@ -160,7 +169,7 @@ export class Narrativa {
     this.contenuti = eNormalizzati(contenuti) ? contenuti : normalizzaContenuti(contenuti);
     for (const a of this.contenuti.avvisi) this.segnala(a, 'contenuti');
 
-    const notte = opzioni.notte ?? { inizio: 20, fine: 6 };
+    const notte = opzioni.notte ?? NOTTE_PREDEFINITA;
     this.contesto = this.creaContesto(notte);
 
     const deps = {
@@ -285,6 +294,7 @@ export class Narrativa {
     this.inTick = true;
     let cambiato = false;
     try {
+      if (this.fatti.prossimoEventoCielo) this.taccuino.impostaRigaCieloGioco(this.fatti.prossimoEventoCielo());
       for (let giro = 0; giro < 1000; giro++) {
         this.tickRichiesto = false;
         const m = this.missioni.aggiorna();

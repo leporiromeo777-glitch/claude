@@ -54,13 +54,14 @@ export const VELO_TUNABLES = {
   coriolis: 1.0,
   /**
    * Correnti calde della Linea: vento verso l'asse (m/s) nella fascia di quota
-   * [thermalFrom, thermalTo]. Permettono, da circa 0.3 g in su, di salire verso
-   * l'asse e "cadere" nella valle opposta (chiudendo il Velo per attraversare la fascia).
+   * [thermalFrom, thermalTo]. Da circa 0.3 g in su portano il Velo fin quasi
+   * all'asse; chiudendo il Velo lì si "cade" nella valle opposta, e lo si riapre
+   * sotto la fascia per planare e atterrare (tecnica provata in tests/player.test.ts).
    */
   thermalSpeed: 2.6,
   thermalFrom: 400,
   thermalFull: 450,
-  thermalTo: 630,
+  thermalTo: 645,
   /** Velocità di rollio della camera quando il "giù" si capovolge (s, costante di tempo). */
   flipRollTau: 1.1,
   /** Resistenza (stamina): per ora nessuna. Lasciato come aggancio. */

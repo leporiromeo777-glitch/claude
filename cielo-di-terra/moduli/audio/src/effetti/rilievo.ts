@@ -88,7 +88,7 @@ const ACCORDI_INCHIOSTRO: readonly (readonly number[])[] = [
 export function inchiostro(kit: Kit, dest: Destinazione, t: number, ampiezza = 0.7): number {
   const r = kit.rng;
   const k = 0.55 + 0.45 * limita(ampiezza, 0, 1);
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(1.6);
   const mandata = invia(kit, out, dest, 0.25);
   // tocco del pennello bagnato
   let fine = Math.max(
@@ -176,10 +176,10 @@ export function inchiostro(kit: Kit, dest: Destinazione, t: number, ampiezza = 0
 /** Una pagina del taccuino: si solleva, gira con uno schiocco morbido e si posa. */
 export function pagina(kit: Kit, dest: Destinazione, t: number, verso: 'avanti' | 'indietro' = 'avanti'): number {
   const r = kit.rng;
-  const out = kit.guadagno(1);
+  const out = kit.guadagno(2.2);
   const mandata = invia(kit, out, dest, 0.05);
   const giro = t + tra(r, 0.08, 0.12);
-  const [fDa, fA] = verso === 'avanti' ? [3800, 1400] : [1600, 3400];
+  const [fDa, fA] = verso === 'avanti' ? [3000, 1200] : [1300, 2800];
   const fine = Math.max(
     soffio(kit, out, t, { tipo: 'rosa', filtro: 'bandpass', f: 2400, q: 0.9, picco: 0.05, attacco: 0.06, tau: 0.03 }),
     soffio(kit, out, giro, { tipo: 'rosa', filtro: 'bandpass', f: fDa, fFine: fA, q: 0.8, picco: 0.14, attacco: 0.035, tau: 0.05 }),

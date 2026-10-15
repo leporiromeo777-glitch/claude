@@ -38,7 +38,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   const hC = 4.4; // cella
   const interr = 1.0;
   const calce = PALETTE.calce;
-  const ombraCalce = PALETTE.calceOmbra;
+  const ombraCalce = mescola(PALETTE.calceOmbra, PALETTE.gneissViola, 0.45);
 
   // fusto
   b.aggiungi(geoBoxC(L, hF + interr, L), {

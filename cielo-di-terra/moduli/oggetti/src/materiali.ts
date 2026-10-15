@@ -213,7 +213,7 @@ function applicaIntensita(): void {
   if (!correnti) return;
   const k = intensitaLumi;
   const lume = correnti.lume as THREE.MeshBasicMaterial;
-  if (lume.color) lume.color.setScalar(THREE.MathUtils.lerp(0.2, 1.0, Math.min(k, 1)) * Math.max(1, k));
+  if (lume.color) lume.color.setScalar(THREE.MathUtils.lerp(0.1, 1.0, Math.min(k, 1)) * Math.max(1, k));
   correnti.alone.opacity = Math.min(1, k);
   correnti.alone.visible = k > 0.02;
 }

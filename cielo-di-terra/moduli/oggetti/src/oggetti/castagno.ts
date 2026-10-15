@@ -68,8 +68,8 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
   const larg = opz.larghezzaChioma ?? H * rng.tra(0.85, 1.1);
   const stagione = opz.stagione ?? 'estate';
   const det = opz.dettaglio ?? 'alto';
-  const rTronco = H * rng.tra(0.065, 0.085);
-  const hFusto = H * rng.tra(0.26, 0.34);
+  const rTronco = H * rng.tra(0.075, 0.095);
+  const hFusto = H * rng.tra(0.22, 0.28);
 
   // tronco con radici a contrafforte e torsione
   const nAnelli = 7;
@@ -84,7 +84,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     pts.push(new THREE.Vector3(pende.x * t * t, y, pende.z * t * t));
     raggi.push(rTronco * (1.0 + 0.55 * Math.pow(1 - t, 3) + (t > 0.85 ? 0.12 : 0)));
   }
-  const corteccia1 = corteccia(PALETTE.troncoCastagno, PALETTE.troncoScuro, seme, H);
+  const corteccia1 = corteccia(0x7a6553, 0x4a3a2e, seme, H);
   b.aggiungi(
     geoTubo(pts, raggi, 9, {
       chiudiFine: true,
@@ -92,7 +92,8 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       forma: (i, a) => {
         const t = i / (nAnelli - 1);
         const l = Math.pow(Math.max(0, Math.cos(a * lobi + fase)), 2);
-        return 1 + l * 0.45 * Math.pow(1 - t, 2) + Math.sin(a * 3 + i * 0.9) * 0.05;
+        const torto = Math.pow(Math.max(0, Math.cos(a * 2 + fase + i * 0.45)), 3) * 0.12;
+        return 1 + l * 0.55 * Math.pow(1 - t, 2) + torto + Math.sin(a * 3 + i * 0.9) * 0.05;
       },
     }),
     { colore: corteccia1 },
@@ -161,7 +162,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       out.b *= 1 - tintaMassa;
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
-    const g = geoMassa(r, seme + i * 31, 0.22, det === 'alto' && r > rx * 0.3 ? 1 : 1, 0.82);
+    const g = geoMassa(r, seme + i * 31, 0.2, det === 'alto' && r > rx * 0.38 ? 2 : 1, 0.84, 0.65);
     b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn });
   }
 
@@ -229,7 +230,7 @@ export function creaCastagnoMorto(opz: OpzioniCastagnoMorto = {}): OggettoProced
   const H = opz.altezza ?? rng.tra(9, 12);
   const rT = H * 0.08;
   const hFusto = H * 0.42;
-  const col = corteccia(PALETTE.troncoMorto, PALETTE.troncoMortoScuro, seme, H);
+  const col = corteccia(0xa69d91, 0x6a6158, seme, H);
 
   // fusto spaccato: due metà divaricate in cima
   const nA = 7;
@@ -250,9 +251,9 @@ export function creaCastagnoMorto(opz: OpzioniCastagnoMorto = {}): OggettoProced
     { colore: col },
   );
   // cavità scura sul fusto (spacco)
-  const cav = geoMasso(rT * 0.55, seme + 3, 0.2, 0, 1);
-  cav.scale(0.6, 2.4, 0.35);
-  b.aggiungi(cav, { matrice: mat([0, hFusto * 0.45, rT * 0.95], [0, 0, 0.1]), colore: PALETTE.troncoScuro, piatto: true });
+  const cav = geoMasso(rT * 0.45, seme + 3, 0.2, 0, 1);
+  cav.scale(0.55, 1.9, 0.3);
+  b.aggiungi(cav, { matrice: mat([pts[3]!.x * 0.5, hFusto * 0.5, rT * 0.98 + pts[3]!.z * 0.5], [0, 0, 0.1]), colore: 0x1e1814, piatto: true });
 
   // rami ricorsivi
   const cima = pts[nA - 1] as THREE.Vector3;
@@ -416,10 +417,11 @@ export function creaBotolaCripta(opz: OpzioniBotola = {}): OggettoProcedurale<St
   gruppo.add(statica);
   gruppo.add(perno);
   let angolo = opz.apertaAllInizio ? 1 : 0;
+  let obiettivo = angolo;
   const ANGOLO_APERTO = THREE.MathUtils.degToRad(-112);
   perno.rotation.x = angolo * ANGOLO_APERTO;
   const update = (dt: number, stato?: StatoBotola) => {
-    const obiettivo = stato?.aperta ? 1 : 0;
+    if (stato) obiettivo = stato.aperta ? 1 : 0;
     angolo = smorza(angolo, obiettivo, 3.2, dt);
     perno.rotation.x = angolo * ANGOLO_APERTO;
   };

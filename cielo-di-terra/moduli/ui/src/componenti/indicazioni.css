@@ -1,0 +1,456 @@
+/* ---------- Indicazioni a schermo ---------- */
+
+.ui-indicazioni {
+  pointer-events: none;
+  --chiaro: #f7f0dc;
+  --ombra-testo: 0 0 2px rgba(10, 7, 4, 0.9), 0 1px 3px rgba(10, 7, 4, 0.85), 0 0 12px rgba(10, 7, 4, 0.45);
+}
+
+/* Puntino: avorio con un filo scuro, si legge sul cielo e sull'ombra. */
+.ui-hud-puntino {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--chiaro);
+  box-shadow: 0 0 0 1.2px rgba(20, 14, 8, 0.75), 0 0 4px rgba(0, 0, 0, 0.35);
+}
+.ui-hud-puntino[hidden] {
+  display: none;
+}
+
+/* Azione contestuale. */
+.ui-hud-azione {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 58px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  color: var(--chiaro);
+  font-size: calc(21px * var(--ui-scala));
+  text-shadow: var(--ombra-testo);
+  animation: ui-hud-compari 0.25s ease both;
+}
+.ui-hud-azione[hidden] {
+  display: none;
+}
+@keyframes ui-hud-compari {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+}
+.ui-hud-tasto {
+  min-width: 1.75em;
+  height: 1.75em;
+  color: var(--inchiostro);
+  background: var(--chiaro);
+  border-color: rgba(20, 14, 8, 0.8);
+  box-shadow: 0 2px 0 rgba(20, 14, 8, 0.8), 0 2px 8px rgba(0, 0, 0, 0.35);
+  text-shadow: none;
+  font-size: 0.82em;
+}
+.ui-hud-azione-sep {
+  opacity: 0.8;
+}
+.ui-hud-azione-testo {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.ui-hud-progresso {
+  position: relative;
+  width: 64px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(247, 240, 220, 0.3);
+  box-shadow: 0 0 0 1px rgba(20, 14, 8, 0.6);
+  overflow: hidden;
+}
+.ui-hud-progresso::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(var(--p, 0));
+  background: var(--ottone-chiaro);
+}
+
+/* Notifiche a matita: un ritaglio di carta in alto a destra. */
+.ui-hud-notifiche {
+  position: absolute;
+  top: clamp(14px, 3vh, 32px);
+  right: clamp(14px, 2.4vw, 36px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.ui-hud-notifica {
+  position: relative;
+  padding: 8px 20px 12px 18px;
+  font-family: var(--f-mano);
+  font-size: calc(25px * var(--ui-scala));
+  font-weight: 600;
+  line-height: 1.15;
+  color: #3b3934;
+  transform: rotate(-1deg);
+  animation: ui-hud-notifica-entra 0.45s ease both;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.ui-semplice .ui-hud-notifica,
+.ui-leggibile .ui-hud-notifica {
+  font-size: calc(19px * var(--ui-scala));
+  font-weight: 500;
+}
+.ui-hud-notifica::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--grana-fine), var(--carta);
+  filter: url(#ui-f-bordo-fine) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+.ui-hud-notifica-tratto {
+  position: absolute;
+  left: 16px;
+  right: 18px;
+  bottom: 6px;
+  width: calc(100% - 34px);
+  height: 8px;
+}
+.ui-hud-notifica-tratto path {
+  fill: none;
+  stroke: var(--matita);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ui-hud-traccia 0.7s 0.25s ease forwards;
+}
+.ui-hud-notifica--rosso {
+  color: var(--vermiglio);
+}
+.ui-hud-notifica--rosso .ui-hud-notifica-tratto path {
+  stroke: var(--vermiglio);
+}
+.ui-hud-notifica--via {
+  opacity: 0;
+  transform: rotate(-1deg) translateY(-6px);
+}
+@keyframes ui-hud-notifica-entra {
+  from {
+    opacity: 0;
+    transform: rotate(-1deg) translateX(18px);
+  }
+}
+@keyframes ui-hud-traccia {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.ui-ridotto .ui-hud-notifica-tratto path {
+  stroke-dashoffset: 0;
+}
+
+/* Sottotitoli: in basso, con una fascia scura regolabile. */
+.ui-hud-sottotitoli {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(24px, 9vh, 96px);
+  transform: translateX(-50%);
+  width: min(1100px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ui-senza-sottotitoli .ui-hud-sottotitolo:not(.ui-hud-sottotitolo--suono),
+.ui-senza-suoni .ui-hud-sottotitolo--suono {
+  display: none;
+}
+.ui-hud-sottotitolo {
+  margin: 0;
+  max-width: 100%;
+  padding: 4px 14px 5px;
+  border-radius: 4px;
+  background: rgba(16, 12, 8, var(--ui-sfondo-sottotitoli, 0.55));
+  color: var(--chiaro);
+  font-size: calc(24px * var(--ui-scala));
+  line-height: 1.35;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  animation: ui-hud-compari-sotto 0.2s ease both;
+  transition: opacity 0.3s ease;
+}
+.ui-contrasto .ui-hud-sottotitolo {
+  background: rgba(0, 0, 0, 0.88);
+  color: #ffffff;
+}
+@keyframes ui-hud-compari-sotto {
+  from {
+    opacity: 0;
+  }
+}
+.ui-hud-sottotitolo--via {
+  opacity: 0;
+}
+.ui-hud-chi {
+  margin-right: 0.5em;
+  font-family: var(--f-maiuscoletto);
+  letter-spacing: 0.03em;
+  color: var(--ottone-chiaro);
+}
+.ui-hud-chi::after {
+  content: ':';
+}
+.ui-hud-sottotitolo--suono {
+  font-style: italic;
+  font-size: calc(21px * var(--ui-scala));
+  color: #e4dccb;
+}
+.ui-hud-freccia {
+  display: inline-block;
+  margin: 0 0.45em;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ottone-chiaro);
+}
+
+/* Fiato e Velo: due archi intorno al puntino, solo quando servono. */
+.ui-hud-misuratori {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88px;
+  height: 88px;
+  margin: -44px 0 0 -44px;
+}
+.ui-hud-misuratori svg {
+  overflow: visible;
+}
+.ui-hud-arco,
+.ui-hud-arco-fondo {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.4s ease, stroke-dashoffset 0.25s linear;
+}
+.ui-hud-arco-fondo {
+  stroke: rgba(10, 7, 4, 0.45);
+  stroke-width: 6;
+}
+.ui-hud-arco {
+  stroke-width: 3.2;
+  stroke-dasharray: 1;
+}
+.ui-hud-arco--fiato {
+  stroke: var(--chiaro);
+}
+.ui-hud-arco--velo {
+  stroke: var(--ottone-chiaro);
+}
+.ui-hud-misuratori--fiato .ui-hud-arco--fiato,
+.ui-hud-misuratori--fiato .ui-hud-arco--fiato-fondo,
+.ui-hud-misuratori--pieno .ui-hud-arco--fiato,
+.ui-hud-misuratori--pieno .ui-hud-arco--fiato-fondo,
+.ui-hud-misuratori--velo .ui-hud-arco--velo,
+.ui-hud-misuratori--velo .ui-hud-arco--velo-fondo {
+  opacity: 1;
+}
+.ui-hud-misuratori--poco-fiato .ui-hud-arco--fiato {
+  stroke: #f0a28e;
+  animation: ui-hud-affanno 1.1s ease-in-out infinite;
+}
+@keyframes ui-hud-affanno {
+  50% {
+    opacity: 0.45;
+  }
+}
+.ui-hud-etichetta {
+  position: absolute;
+  top: 50%;
+  font-family: var(--f-mano);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--chiaro);
+  text-shadow: var(--ombra-testo);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.4s ease;
+}
+.ui-hud-etichetta--fiato {
+  right: calc(100% - 2px);
+}
+.ui-hud-etichetta--velo {
+  left: calc(100% - 2px);
+  color: var(--ottone-chiaro);
+}
+.ui-hud-misuratori--fiato .ui-hud-etichetta--fiato,
+.ui-hud-misuratori--velo .ui-hud-etichetta--velo {
+  opacity: 1;
+}
+
+/* Quando il fiato manca, la vista si restringe. */
+.ui-hud-vignetta {
+  position: absolute;
+  inset: 0;
+  --stretta: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) calc(70% - var(--stretta) * 38%), rgba(8, 5, 3, calc(var(--stretta) * 0.85)) 100%);
+  transition: background 0.4s ease;
+}
+
+/* ---------- Mirino dello squadro a cannocchiale ---------- */
+
+.ui-squadro {
+  position: absolute;
+  inset: 0;
+}
+.ui-squadro[hidden] {
+  display: none;
+}
+.ui-sq-ombra {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) calc(38vmin - 6px), rgba(14, 10, 6, 0.55) calc(38vmin - 2px), rgba(10, 7, 4, 0.97) calc(38vmin + 14px), #070503 100%);
+}
+.ui-sq-reticolo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vmin;
+  height: 100vmin;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+}
+.ui-sq-anello {
+  fill: none;
+  stroke: url(#ui-sq-ottone);
+  stroke-width: 26;
+}
+.ui-sq-anello-interno {
+  fill: none;
+  stroke: rgba(30, 20, 8, 0.85);
+  stroke-width: 3;
+}
+.ui-sq-tacche line {
+  stroke: rgba(240, 215, 154, 0.55);
+  stroke-width: 1.4;
+}
+.ui-sq-filo {
+  stroke: rgba(16, 12, 8, 0.85);
+  stroke-width: 1.4;
+}
+.ui-sq-filo-chiaro {
+  stroke: rgba(247, 240, 220, 0.5);
+  stroke-width: 3.4;
+}
+.ui-sq-centro {
+  fill: var(--vermiglio);
+}
+.ui-sq--collimato .ui-sq-filo {
+  stroke: rgba(16, 12, 8, 1);
+  stroke-width: 1.8;
+}
+.ui-sq--collimato .ui-sq-centro {
+  fill: #e04a2e;
+}
+.ui-sq-x {
+  font-family: var(--f-maiuscoletto);
+  font-size: 26px;
+  fill: #e2c58a;
+  paint-order: stroke;
+  stroke: rgba(10, 7, 4, 0.8);
+  stroke-width: 4px;
+}
+
+/* Targhetta d'ottone in alto, incisa con il caposaldo traguardato. */
+.ui-sq-testa {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 38vmin - 18px);
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ui-sq-targa {
+  min-width: 190px;
+  padding: 6px 22px 5px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f0d79a 0%, #c9a35e 45%, #9b7537 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 210, 0.8), inset 0 -2px 3px rgba(60, 35, 5, 0.5), 0 2px 6px rgba(0, 0, 0, 0.6);
+  font-family: var(--f-maiuscoletto);
+  font-size: calc(24px * var(--ui-scala));
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #3a2810;
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6);
+}
+.ui-sq-targa--vuota {
+  color: rgba(58, 40, 16, 0.55);
+}
+.ui-sq-dettaglio {
+  min-height: 1.3em;
+  font-size: calc(19px * var(--ui-scala));
+  font-style: italic;
+  color: #e9dfc6;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* Livella: fiala di vetro con la bolla. */
+.ui-sq-livella {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 38vmin + 20px);
+  transform: translateX(-50%);
+}
+.ui-sq-fiala {
+  position: relative;
+  width: 210px;
+  height: 26px;
+  border-radius: 13px;
+  border: 3px solid #b4904f;
+  background: linear-gradient(180deg, rgba(210, 225, 190, 0.85), rgba(150, 175, 120, 0.85) 60%, rgba(190, 210, 165, 0.9));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.ui-sq-tacca {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: calc(50% - 22px);
+  width: 1.5px;
+  background: rgba(30, 20, 8, 0.75);
+}
+.ui-sq-tacca--d {
+  left: calc(50% + 21px);
+}
+.ui-sq-bolla {
+  --liv: 0;
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 18px + var(--liv) * 82px);
+  width: 36px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 35%, rgba(255, 255, 245, 0.95), rgba(235, 245, 220, 0.6) 60%, rgba(200, 220, 180, 0.3));
+  box-shadow: 0 0 0 1px rgba(60, 80, 40, 0.35);
+  transition: left 0.12s linear;
+}
+.ui-sq--in-bolla .ui-sq-fiala {
+  border-color: #e2c58a;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 2px rgba(226, 197, 138, 0.45), 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Con lo squadro alzato l'azione scende fra le tacche stadimetriche e il bordo del campo. */
+.ui-hud--squadro .ui-hud-azione {
+  top: calc(50% + 21vmin);
+}

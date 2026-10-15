@@ -290,6 +290,8 @@ export class GestoreSalvataggi {
   private readonly migrazioni: RegistroMigrazioni;
   private readonly versione: number;
   private readonly adesso: () => Date;
+  /** Le operazioni vanno in fila: due salvataggi contemporanei non si pestano i piedi. */
+  private coda: Promise<unknown> = Promise.resolve();
 
   constructor(opzioni: OpzioniGestore) {
     this.archivio = opzioni.archivio;
@@ -339,7 +341,19 @@ export class GestoreSalvataggi {
    * Salva nello slot che non contiene il salvataggio valido più recente,
    * poi rilegge e verifica quello che ha scritto.
    */
-  async salva<N>(contenuto: ContenutoSalvataggio<N>): Promise<InfoSlot> {
+  salva<N>(contenuto: ContenutoSalvataggio<N>): Promise<InfoSlot> {
+    // Il contenuto si copia subito: il chiamante può continuare a modificarlo.
+    const testoProvvisorio = JSON.stringify(contenuto);
+    return this.inFila(() => this.salvaOra(JSON.parse(testoProvvisorio) as ContenutoSalvataggio<N>));
+  }
+
+  private inFila<T>(fn: () => Promise<T>): Promise<T> {
+    const r = this.coda.then(fn, fn);
+    this.coda = r.catch(() => undefined);
+    return r;
+  }
+
+  private async salvaOra<N>(contenuto: ContenutoSalvataggio<N>): Promise<InfoSlot> {
     const [a, b] = await this.elenco();
     const validi = [a!, b!].filter((s) => s.stato === 'valido');
     const piuRecente = validi.sort((x, y) => (y.contatore ?? 0) - (x.contatore ?? 0))[0];
@@ -359,7 +373,11 @@ export class GestoreSalvataggi {
   }
 
   /** Carica il salvataggio valido più recente (null se non ce n'è nessuno). */
-  async carica<N = unknown>(): Promise<RisultatoCaricamento<N> | null> {
+  carica<N = unknown>(): Promise<RisultatoCaricamento<N> | null> {
+    return this.inFila(() => this.caricaOra<N>());
+  }
+
+  private async caricaOra<N>(): Promise<RisultatoCaricamento<N> | null> {
     const slot = [await this.info('a'), await this.info('b')];
     const avvisi: string[] = [];
     for (const s of slot) if (s.stato === 'rovinato') avvisi.push(`Slot ${s.slot} rovinato: ${s.errore}`);
@@ -379,9 +397,11 @@ export class GestoreSalvataggi {
   }
 
   /** Cancella entrambi gli slot. */
-  async cancella(): Promise<void> {
-    await this.archivio.rimuovi(this.chiave('a'));
-    await this.archivio.rimuovi(this.chiave('b'));
+  cancella(): Promise<void> {
+    return this.inFila(async () => {
+      await this.archivio.rimuovi(this.chiave('a'));
+      await this.archivio.rimuovi(this.chiave('b'));
+    });
   }
 }
 
