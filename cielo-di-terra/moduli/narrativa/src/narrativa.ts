@@ -342,9 +342,9 @@ export class Narrativa {
   // --- interni --------------------------------------------------------------
 
   private segnala(messaggio: string, origine?: string): void {
-    const chiave = `${origine ?? ''}|${messaggio}`;
-    if (this.segnalati.has(chiave)) return;
-    this.segnalati.add(chiave);
+    // Ogni problema si segnala una volta sola (le condizioni si rivalutano a ogni tick).
+    if (this.segnalati.has(messaggio)) return;
+    this.segnalati.add(messaggio);
     const testo = origine ? `${origine}: ${messaggio}` : messaggio;
     this.problemi.push(testo);
     this.eventi.emit('errore', { messaggio, ...(origine !== undefined ? { origine } : {}) });

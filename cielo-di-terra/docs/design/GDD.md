@@ -135,7 +135,7 @@ In verticale, sopra tutto: il **Collare** (h 283-317, z 200-2800), il **Fuso** (
 | # | Zona | z | θ | h | Verbo nuovo | Pericolo |
 |---|---|---|---|---|---|---|
 | Z1 | Corbella e le Selve (hub) | 0-2640 | 0-90 | 0-450 (con il lobo del Tappo Sud) | guardare in su, planare, appuntare, rilevare | Falciatrici a orario |
-| Z2 | Il Verbanetto e il Fondale | 0-2640 | 120-210 | −0 (fondale h 2) - 120 | remare, vela, nuoto, apnea | sciami di api di rame impazzite |
+| Z2 | Il Verbanetto e il Fondale | 0-2640 | 120-210 | 2 (fondo del lago) - 120 | remare, vela, nuoto, apnea | sciami di api di rame impazzite |
 | Z3 | Gli Alpeggi | 0-2640 | 240-330 | 0-630 (lobo del Tappo Sud) | gravità variabile, lanciare, ascoltare | il Bue mietitore |
 | Z4 | Le Tre Finestre | 0-3000 | 90-120, 210-240, 330-360 | 0 (vetro) - 10 | traversata a impulsi di luce, misurare il cielo | i Ragni di vetro, il freddo |
 | Z5 | Il Fuso | 0-3000 | (asse) | 600-646 | gravità zero, spinte e cavi | il calore della Linea |
