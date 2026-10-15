@@ -426,7 +426,7 @@ export class Taccuino extends Componente<EventiTaccuino> {
           ? h('span', { class: `ui-tc-dialetto${p.nuovo ? ' ui-nuovo' : ''}`, lang: 'lmo' }, `«${p.dialetto}»`)
           : h('span', { class: `ui-tc-dialetto${p.nuovo ? ' ui-nuovo' : ''}` }, `«${p.italiano}»`),
         p.dialetto ? h('span', { class: 'ui-tc-traduzione' }, nodiTesto(p.italiano)) : null,
-        p.nota ? h('span', { class: 'ui-tc-regola ui-tc-mano--madre' }, nodiTesto(p.nota)) : null,
+        p.nota ? h('span', { class: 'ui-tc-nota-proverbio ui-tc-mano--madre' }, nodiTesto(p.nota)) : null,
         p.fonte ? h('span', { class: 'ui-tc-fonte' }, `— ${p.fonte}`) : null,
       );
     this.sinistra.append(

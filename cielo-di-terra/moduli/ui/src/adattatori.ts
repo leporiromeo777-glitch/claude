@@ -95,9 +95,8 @@ export function cartaDaTesto(id: string, voce: VoceTestiJson, sezione = 'lettere
   const conFirma = tipo === 'lettera' || tipo === 'biglietto' || tipo === 'dattiloscritto';
   const { corpo: testo, firma } = conFirma ? staccaFirma(corpo) : { corpo, firma: undefined };
   const pagina: PaginaCarta = { testo };
-  if (tipo === 'libretto' || tipo === 'cartellino' || tipo === 'foglio') {
-    if (voce.titolo) pagina.intestazione = voce.titolo;
-  }
+  // Nel libretto e nei fogli il titolo è scritto sulla pagina; per le altre carte sta sopra il foglio.
+  if ((tipo === 'libretto' || tipo === 'foglio') && voce.titolo) pagina.intestazione = voce.titolo;
   if (firma) pagina.firma = firma;
   if (margine) pagina.margine = margine;
   const nota = [notaElvira, voce.nota_2322, voce.traduzione].filter(Boolean).join('\n\n');

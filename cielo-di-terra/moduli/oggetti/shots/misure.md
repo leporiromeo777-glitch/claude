@@ -5,7 +5,7 @@
 | rustico 3 piani, balcone sul fianco | 3756 | 2 | 3756 | 2 | 4 |  |
 | rustico 2 piani, dettaglio basso | 1778 | 2 | 1778 | 2 | 6 | LOD lontano |
 | rustico smontato dalle Fade | 2496 | 1 | 2496 | 1 | 18 |  |
-| campanile di San Vigilio | 1978 | 3 | 1978 | 3 | 3 |  |
+| campanile di San Vigilio | 2650 | 3 | 2650 | 3 | 8 |  |
 | castagno vivo (estate) | 2581 | 1 | 2581 | 1 | 1 |  |
 | castagno vivo (autunno) | 3209 | 1 | 3209 | 1 | 1 |  |
 | castagno vivo (fioritura) | 3449 | 1 | 3449 | 1 | 1 |  |
@@ -28,7 +28,7 @@
 | palina 9 m su ometto | 855 | 2 | 855 | 2 | 2 |  |
 | squadro in prima persona (piantato) | 1764 | 5 | 1764 | 5 | 0 |  |
 | squadro in prima persona (in mano) | 1888 | 5 | 1888 | 5 | 0 |  |
-| Velo in prima persona | 3742 | 4 | 3742 | 4 | 0 |  |
+| Velo in prima persona | 3806 | 4 | 3806 | 4 | 0 |  |
 | abitante velato (velo di garza) | 802 | 1 | 802 | 1 | 1 |  |
 | abitante con maschera di castagno | 898 | 1 | 898 | 1 | 1 |  |
 | abitante con velo da apicoltore | 926 | 2 | 926 | 2 | 1 |  |

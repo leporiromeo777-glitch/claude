@@ -56,13 +56,13 @@
   },
   {
     "nome": "campanile di San Vigilio",
-    "triangoli": 1978,
+    "triangoli": 2650,
     "drawCall": 3,
     "punti": 0,
     "mesh": 3,
-    "stimaTriangoli": 1978,
+    "stimaTriangoli": 2650,
     "stimaDrawCall": 3,
-    "collider": 3,
+    "collider": 8,
     "note": ""
   },
   {
@@ -309,11 +309,11 @@
   },
   {
     "nome": "Velo in prima persona",
-    "triangoli": 3742,
+    "triangoli": 3806,
     "drawCall": 4,
     "punti": 0,
     "mesh": 4,
-    "stimaTriangoli": 3742,
+    "stimaTriangoli": 3806,
     "stimaDrawCall": 4,
     "collider": 0,
     "note": ""

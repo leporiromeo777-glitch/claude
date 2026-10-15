@@ -156,12 +156,22 @@ export class LettoreCarte extends Componente<EventiLettore> {
         this.emit('chiudi');
         return true;
       case 'ArrowRight':
-      case 'PageDown':
         this.successiva();
         return true;
       case 'ArrowLeft':
-      case 'PageUp':
         this.precedente();
+        return true;
+      case 'ArrowDown':
+      case 'ArrowUp':
+        this.scorri(e.key === 'ArrowDown' ? 80 : -80);
+        return true;
+      case 'PageDown':
+      case ' ':
+        // Prima si legge fino in fondo la pagina lunga, poi si gira.
+        if (!this.scorri('pagina')) this.successiva();
+        return true;
+      case 'PageUp':
+        if (!this.scorri('pagina-su')) this.precedente();
         return true;
       case 'Home':
         this.vaiA(0, -1);
@@ -181,6 +191,26 @@ export class LettoreCarte extends Componente<EventiLettore> {
 
   protected override focusIniziale(): HTMLElement | null {
     return this.bSucc.disabled ? (this.el.querySelector<HTMLElement>('.ui-lt-chiudi') ?? null) : this.bSucc;
+  }
+
+  /** Scorre la pagina lunga visibile; restituisce false se non c'era niente da scorrere in quel verso. */
+  private scorri(quanto: number | 'pagina' | 'pagina-su'): boolean {
+    const pagine = [...this.scena.querySelectorAll<HTMLElement>('.ui-lt-pagina')];
+    for (const p of pagine) {
+      const passo = quanto === 'pagina' ? p.clientHeight * 0.85 : quanto === 'pagina-su' ? -p.clientHeight * 0.85 : quanto;
+      const prima = p.scrollTop;
+      const max = p.scrollHeight - p.clientHeight;
+      if (max <= 1) continue;
+      if ((passo > 0 && prima >= max - 1) || (passo < 0 && prima <= 0)) continue;
+      p.scrollBy({ top: passo, behavior: this.ridotto() ? 'auto' : 'smooth' });
+      return true;
+    }
+    return false;
+  }
+
+  /** Segna le pagine che continuano più in basso («segue»). */
+  private aggiornaSegue(p: HTMLElement): void {
+    p.classList.toggle('ui-lt-segue', p.scrollHeight - p.scrollTop - p.clientHeight > 6);
   }
 
   /** Il libretto mostra due pagine affiancate quando c'è spazio. */
@@ -203,6 +233,10 @@ export class LettoreCarte extends Componente<EventiLettore> {
     }
     if (direzione !== 0 && !this.ridotto()) foglio.classList.add(direzione > 0 ? 'ui-lt-entra-destra' : 'ui-lt-entra-sinistra');
     this.scena.append(foglio);
+    for (const p of foglio.querySelectorAll<HTMLElement>('.ui-lt-pagina')) {
+      p.addEventListener('scroll', () => this.aggiornaSegue(p), { passive: true });
+      requestAnimationFrame(() => this.aggiornaSegue(p));
+    }
 
     const totale = carta.pagine.length;
     const ultima = Math.min(totale, this.indice + passo);
@@ -246,6 +280,7 @@ export class LettoreCarte extends Componente<EventiLettore> {
     if (pag.firma) el.append(h('p', { class: 'ui-lt-firma' }, pag.firma));
     if (pag.margine) el.append(h('aside', { class: 'ui-lt-margine ui-lt-margine--autore', 'aria-label': 'Nota a margine' }, nodiTesto(pag.margine)));
     if (pag.notaElvira) el.append(h('aside', { class: 'ui-lt-margine', 'aria-label': 'Nota di Elvira, a matita' }, nodiTesto(pag.notaElvira)));
+    el.append(h('span', { class: 'ui-lt-segno-segue', 'aria-hidden': 'true' }, 'segue ▾'));
     if (carta.tipo === 'libretto') el.append(h('span', { class: 'ui-lt-numero', 'aria-hidden': 'true' }, String(n + 1)));
     if (carta.tipo === 'cartellino') el.append(h('span', { class: 'ui-lt-foro', 'aria-hidden': 'true' }));
     return el;

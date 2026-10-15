@@ -149,7 +149,8 @@ async function main() {
   const t0 = Date.now();
   await page.goto(`http://127.0.0.1:${port}/`);
   await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__, null, { timeout: 300000 });
-  console.log(`gioco pronto in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  const startup = +((Date.now() - t0) / 1000).toFixed(2);
+  console.log(`gioco pronto in ${startup} s`);
   const info = await page.evaluate(() => window.__GAME__.getStats());
   console.log('renderer:', info.renderer);
   const report = [];
@@ -183,7 +184,54 @@ async function main() {
     if (shot.after) await page.evaluate((src) => new Function('g', `(${src})(g)`)(window.__GAME__), shot.after.toString());
     report.push({ ...shot, setup: undefined, after: undefined, frameMs: Math.round(ms), stats: st.s, player: st.p });
   }
-  writeFileSync(join(outDir, 'shots.json'), JSON.stringify({ date: new Date().toISOString(), size: [W, H], chromiumArgs: CHROMIUM_ARGS, renderer: info.renderer, shots: report }, null, 2));
+  // verifiche di gioco nella build reale (camminata, salto, Velo, costo della simulazione)
+  const checks = await page.evaluate(() => {
+    const g = window.__GAME__;
+    g.stopLoop();
+    g.pause();
+    g.setClockRunning(false);
+    g.setTime(11);
+    const out = {};
+    const s0 = g.teleport(1032, 36.4, 0);
+    g.look(0, 0);
+    g.holdKey('KeyW', true);
+    g.step(120);
+    g.holdKey('KeyW', false);
+    const s1 = g.getPlayerState();
+    out.walk2s = { dz: +(s1.z - s0.z).toFixed(2), grounded: s1.grounded, mode: s1.mode };
+    g.step(30);
+    let maxH = 0;
+    g.holdKey('Space', true);
+    g.step(1);
+    g.holdKey('Space', false);
+    for (let i = 0; i < 120; i++) {
+      g.step(1);
+      maxH = Math.max(maxH, g.getPlayerState().heightAboveGround);
+    }
+    out.jumpHeight = +maxH.toFixed(2);
+    // planata da 80 m sopra il fondovalle verso Lag
+    g.teleport(1500, 52, 80);
+    g.look(0, 0);
+    g.startGlide(13);
+    const a = g.getPlayerState();
+    g.step(600);
+    const b = g.getPlayerState();
+    out.glide10s = { drop: +(a.h - b.h).toFixed(1), dz: +(b.z - a.z).toFixed(1), speed: +b.speed.toFixed(1), mode: b.mode, ratio: +((b.z - a.z) / Math.max(0.1, a.h - b.h)).toFixed(1) };
+    g.holdKey('Space', false);
+    // costo CPU della simulazione: 600 passi senza disegno intermedio
+    g.teleport(1032, 36.4, 0);
+    const t0 = performance.now();
+    for (let i = 0; i < 600; i++) g.game.update(1 / 60);
+    out.updateMsPerStep = +((performance.now() - t0) / 600).toFixed(3);
+    // costo CPU di un render (preparazione e invio dei comandi, non il tempo GPU)
+    const t1 = performance.now();
+    for (let i = 0; i < 5; i++) g.render();
+    out.renderCpuMs = +((performance.now() - t1) / 5).toFixed(1);
+    out.stats = g.getStats();
+    return out;
+  });
+  console.log('verifiche:', JSON.stringify(checks));
+  writeFileSync(join(outDir, 'shots.json'), JSON.stringify({ date: new Date().toISOString(), size: [W, H], chromiumArgs: CHROMIUM_ARGS, renderer: info.renderer, startupSeconds: startup, shots: report, checks }, null, 2));
   const errors = logs.filter((l) => l.includes('error') || l.includes('Error'));
   if (errors.length) console.log('messaggi di errore del browser:\n' + errors.slice(0, 20).join('\n'));
   await browser.close();
