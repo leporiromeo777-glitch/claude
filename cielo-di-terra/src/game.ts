@@ -3,8 +3,13 @@
  *
  * Ordine di un fotogramma:
  *   update (60 Hz fissi): input -> giocatore (o camera libera) -> camera rig -> orologio
- *   render: interpolazione dell'occhio, uniform del cielo, LOD di terreno e alberi,
- *           lumi vicini, mondo, poi il Velo in primo piano.
+ *   render: interpolazione dell'occhio (mouse e frecce), uniform del cielo, LOD di terreno e
+ *           alberi, lumi vicini; poi il disegno passa dalla post-produzione pittorica
+ *           (src/render/post): mondo nel render target HDR, contorni, Velo e sovrapposizioni
+ *           della regia nello stesso target, bagliore, filtro di Kuwahara, passata finale.
+ *
+ * Qualità grafica: `setQualita('automatica' | 'bassa' | 'media' | 'alta')`; chi deve reagire
+ * (per esempio le ombre) si iscrive con `onQualita`.
  */
 import { ColorManagement, LinearSRGBColorSpace, PerspectiveCamera, Scene, Vector3, WebGLRenderer, type Material } from 'three';
 import { EventBus } from './core/events';
@@ -21,6 +26,9 @@ import { LampGlows } from './render/lamps';
 import { Linea } from './render/linea';
 import { TerrainSystem } from './render/terrainMesh';
 import { applySky, createWorldUniforms, hazeClearColor, type WorldUniforms } from './render/uniforms';
+import { PostProduzione } from './render/post/pipeline';
+import { MisuraQualita, PRESET_QUALITA, stimaIniziale, type LivelloQualita, type PresetQualita, type SceltaQualita } from './render/post/qualita';
+import { TempoGpu } from './render/post/tempoGpu';
 import { createLake } from './render/water';
 import { Windows } from './render/windows';
 import { createWorldMaterial } from './render/worldMaterial';
@@ -92,6 +100,8 @@ export class Game {
   readonly rig = new CameraRig();
   readonly loop: FixedLoop;
   readonly stats: StatsOverlay;
+  /** Post-produzione pittorica (render target HDR, bagliore, Kuwahara, contorni, toni). */
+  readonly post: PostProduzione;
   terrain!: TerrainSystem;
   linea!: Linea;
   windows!: Windows;
@@ -122,7 +132,11 @@ export class Game {
   private prevVel = new Vector3();
   private playerAccel = new Vector3();
   private lastLit = -1;
-  private renderScale = 1;
+  private sceltaQualita: SceltaQualita = 'automatica';
+  private livello: LivelloQualita = 'media';
+  private misura: MisuraQualita | null = null;
+  private readonly tempoGpu: TempoGpu;
+  private readonly ascoltatoriQualita = new Set<(p: PresetQualita) => void>();
 
   constructor(
     private container: HTMLElement,
@@ -130,12 +144,15 @@ export class Game {
   ) {
     ColorManagement.enabled = false;
     this.settings = loadSettings();
-    this.renderer = new WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: opts.e2e });
+    // niente MSAA sul canvas: riceve solo la passata finale (l'antialiasing lo fa la post)
+    this.renderer = new WebGLRenderer({ antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: opts.e2e });
     this.renderer.outputColorSpace = LinearSRGBColorSpace;
     this.renderer.autoClear = false;
     this.renderer.info.autoReset = false;
     this.renderer.setPixelRatio(opts.e2e ? 1 : Math.min(window.devicePixelRatio || 1, 2));
     container.appendChild(this.renderer.domElement);
+    this.post = new PostProduzione(this.renderer);
+    this.tempoGpu = new TempoGpu(this.renderer.getContext() as WebGL2RenderingContext);
     this.camera = new PerspectiveCamera(this.settings.fov, 1, 0.3, 6000);
     this.uniforms = createWorldUniforms();
     this.clock = new WorldClock(opts.hours ?? 10.5, this.settings.dayLengthMinutes);
@@ -149,6 +166,7 @@ export class Game {
     this.world.cells.onChange((c) => this.bus.emit('cells:changed', c));
     this.loop = new FixedLoop({ update: (dt) => this.update(dt), render: (a, fdt) => this.render(a, fdt) });
     this.stats = new StatsOverlay(container, opts.debugOverlay);
+    this.setQualita('automatica');
   }
 
   /** Costruisce il mondo. `progress` riceve messaggi per la schermata di caricamento. */
@@ -234,12 +252,127 @@ export class Game {
   resize(): void {
     const w = Math.max(1, this.container.clientWidth || window.innerWidth);
     const h = Math.max(1, this.container.clientHeight || window.innerHeight);
+    const dpr = this.opts.e2e ? 1 : window.devicePixelRatio || 1;
+    const dprCanvas = Math.min(dpr, 2);
+    if (this.renderer.getPixelRatio() !== dprCanvas) this.renderer.setPixelRatio(dprCanvas);
     this.renderer.setSize(w, h, false);
+    this.post.setSize(w, h, dprCanvas, dpr);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.fp?.setAspect(this.settings.fov, w / h);
-    const pxH = h * this.renderer.getPixelRatio() * this.renderScale;
-    this.uniforms.uPixelAngle.value = (this.camera.fov * DEG) / pxH;
+    // il mondo si disegna alla risoluzione interna della post
+    this.uniforms.uPixelAngle.value = (this.camera.fov * DEG) / this.post.interna.y;
+  }
+
+  // ------------------------------------------------------------------ qualità grafica
+
+  /**
+   * Sceglie la qualità. 'automatica' parte da una stima (nome della scheda) e misura i primi
+   * secondi: se il fotogramma è lento scende. In modalità E2E 'automatica' vale sempre 'media'
+   * e non misura (deterministica e abbastanza leggera per SwiftShader); `npm run shots` forza
+   * 'alta' con `__GAME__.setSetting('qualita', 'alta')`.
+   */
+  setQualita(scelta: SceltaQualita): void {
+    this.sceltaQualita = scelta;
+    let livello: LivelloQualita;
+    if (scelta === 'automatica') {
+      livello = this.opts.e2e ? 'media' : stimaIniziale(this.nomeRenderer());
+      this.misura = this.opts.e2e ? null : new MisuraQualita(livello);
+    } else {
+      livello = scelta;
+      this.misura = null;
+    }
+    this.applicaLivello(livello);
+  }
+
+  /** La scelta fatta (anche 'automatica'). */
+  get qualita(): SceltaQualita {
+    return this.sceltaQualita;
+  }
+
+  /** Il livello in uso adesso. */
+  get livelloQualita(): LivelloQualita {
+    return this.livello;
+  }
+
+  /** Il preset in uso adesso (che cosa è acceso). */
+  get presetQualita(): PresetQualita {
+    return PRESET_QUALITA[this.livello];
+  }
+
+  /**
+   * Avvisa quando il livello cambia (subito, poi a ogni cambio). È il punto dove collegare ciò
+   * che dipende dalla qualità fuori dalla post, per esempio le ombre:
+   *   `game.onQualita((p) => ombre.attiva(p.ombre))`.
+   * Restituisce la funzione per staccarsi.
+   */
+  onQualita(fn: (p: PresetQualita) => void): () => void {
+    this.ascoltatoriQualita.add(fn);
+    fn(this.presetQualita);
+    return () => this.ascoltatoriQualita.delete(fn);
+  }
+
+  private applicaLivello(l: LivelloQualita): void {
+    this.livello = l;
+    const p = PRESET_QUALITA[l];
+    this.post.setPreset(p);
+    this.resize();
+    for (const fn of this.ascoltatoriQualita) fn(p);
+  }
+
+  private nomeRenderer(): string {
+    try {
+      const gl = this.renderer.getContext();
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      return String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    } catch {
+      return '';
+    }
+  }
+
+  /**
+   * Misura (ms) del mondo e di ogni passata della post, mediata su `n` fotogrammi, con una
+   * lettura di un pixel fra una fase e l'altra per aspettare la scheda. Solo per lo sviluppo:
+   * i numeri valgono come confronto relativo (su SwiftShader sono lentissimi).
+   */
+  misuraPassi(n = 3): Record<string, number> {
+    const gl = this.renderer.getContext();
+    const px = new Uint8Array(4);
+    const sync = (): void => {
+      const rt = this.renderer.getRenderTarget();
+      this.renderer.setRenderTarget(null);
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      this.renderer.setRenderTarget(rt);
+    };
+    this.loop.stepFrames(0);
+    const tempi: Record<string, number> = {};
+    this.post.cronometro = { sync, tempi };
+    try {
+      for (let i = 0; i < n; i++) this.loop.stepFrames(0);
+    } finally {
+      this.post.cronometro = null;
+    }
+    let tot = 0;
+    for (const k of Object.keys(tempi)) {
+      tempi[k] = +(tempi[k]! / n).toFixed(2);
+      tot += tempi[k]!;
+    }
+    tempi.totale = +tot.toFixed(2);
+    return tempi;
+  }
+
+  /** Qualità automatica: un campione per fotogramma (tempo GPU se c'è, altrimenti il fotogramma). */
+  private misuraQualita(frameDt: number): void {
+    const m = this.misura;
+    if (!m || m.finita) return;
+    let costo = frameDt;
+    if (this.tempoGpu.disponibile) {
+      const gpu = this.tempoGpu.raccogli();
+      if (!gpu.length) return;
+      costo = Math.max(...gpu) / 1000;
+    }
+    const nuovo = m.campione(frameDt, costo);
+    if (nuovo) this.applicaLivello(nuovo);
   }
 
   /** Restringe o allarga il campo visivo (1 = quello delle impostazioni; 0.25 = cannocchiale x4). */
@@ -287,8 +420,9 @@ export class Game {
     const i = this.input;
     const inp = emptyInput();
     if (this.movimentoBloccato) return inp;
-    inp.forward = (i.isDown('KeyW') || i.isDown('ArrowUp') ? 1 : 0) - (i.isDown('KeyS') || i.isDown('ArrowDown') ? 1 : 0);
-    inp.right = (i.isDown('KeyD') || i.isDown('ArrowRight') ? 1 : 0) - (i.isDown('KeyA') || i.isDown('ArrowLeft') ? 1 : 0);
+    // le frecce girano lo sguardo (vedi render): si cammina con WASD
+    inp.forward = (i.isDown('KeyW') ? 1 : 0) - (i.isDown('KeyS') ? 1 : 0);
+    inp.right = (i.isDown('KeyD') ? 1 : 0) - (i.isDown('KeyA') ? 1 : 0);
     inp.run = i.isDown('ShiftLeft') || i.isDown('ShiftRight');
     inp.jumpPressed = i.consumePressed('Space');
     inp.jumpHeld = i.isDown('Space');
@@ -348,13 +482,15 @@ export class Game {
   }
 
   render(alpha: number, frameDt: number): void {
-    // sguardo dal mouse a ogni fotogramma (latenza minima)
+    // sguardo dal mouse (o dal trascinamento) e dalle frecce a ogni fotogramma (latenza minima)
     const m = this.input.consumeMouse();
-    if (m.dx || m.dy) {
+    const kb = this.input.lookKeys(frameDt);
+    if (m.dx || m.dy || kb.yaw || kb.pitch) {
       const pos = this.freeCamera ? this.freePos : this.player.pos;
       localFrameAt(pos, _f, this.player.cyl.theta);
       const k = this.settings.mouseSensitivity;
-      this.rig.look(m.dx * k, -m.dy * k * (this.settings.invertY ? -1 : 1), _f.up);
+      const inv = this.settings.invertY ? -1 : 1;
+      this.rig.look(m.dx * k + kb.yaw, (-m.dy * k + kb.pitch) * inv, _f.up);
     }
     this.camera.position.lerpVectors(this.prevEye, this.currEye, alpha);
     this.camera.quaternion.copy(this.rig.quaternion);
@@ -374,13 +510,25 @@ export class Game {
     for (const s of this.sistemi) s.render?.(frameDt);
 
     this.renderer.info.reset();
-    this.renderer.clear();
-    this.renderer.render(this.scene, this.camera);
-    if (this.fp.openAmount > 0.01 && !this.freeCamera) {
-      this.renderer.clearDepth();
-      this.renderer.render(this.fp.scene, this.fp.camera);
-    }
-    for (const s of this.sistemi) s.overlay?.(this.renderer);
+    const misura = !!this.misura && !this.misura.finita;
+    if (misura) this.tempoGpu.inizio();
+    // 1. il mondo nel render target HDR della post
+    this.post.inizioMondo();
+    this.post.fase('mondo', () => this.renderer.render(this.scene, this.camera));
+    // 2. contorni dalla profondità del mondo, poi profondità pulita per la prima persona
+    this.post.dopoMondo(this.camera);
+    // 3. Velo e sovrapposizioni della regia nello stesso target: passano dalla stessa post
+    this.post.fase('primo piano', () => {
+      if (this.fp.openAmount > 0.01 && !this.freeCamera) {
+        this.renderer.clearDepth();
+        this.renderer.render(this.fp.scene, this.fp.camera);
+      }
+      for (const s of this.sistemi) s.overlay?.(this.renderer);
+    });
+    // 4. bagliore, filtro pittorico, toni: sul canvas
+    this.post.fine({ notte: this.sky.night });
+    if (misura) this.tempoGpu.fine();
+    this.misuraQualita(frameDt);
     this.stats.frame(frameDt, () => this.statsLines());
   }
 
@@ -417,6 +565,7 @@ export class Game {
       `z ${s.z.toFixed(0)}  θ ${s.theta.toFixed(1)}°  h ${s.h.toFixed(1)} m`,
       `g ${s.gravityG.toFixed(2)}  v ${s.speed.toFixed(1)} m/s  ${s.mode}${s.freeCamera ? ' (libera)' : ''}`,
       `ora ${s.hours.toFixed(2)}`,
+      `qualità ${this.livello}${this.sceltaQualita === 'automatica' ? ' (automatica)' : ''}  ${this.post.interna.x}×${this.post.interna.y}`,
     ];
   }
 

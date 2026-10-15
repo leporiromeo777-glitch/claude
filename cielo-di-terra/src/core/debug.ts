@@ -11,7 +11,14 @@ import type { Game, PlayerState } from '../game';
 import { CellState, type CellOrigin } from '../world/cells';
 import { cylToWorld, localFrameAt, worldToCyl } from '../world/cylinder';
 import { DEG } from '../world/constants';
+import { isSceltaQualita, type SceltaQualita } from '../render/post/qualita';
 import type { GameSettings } from './settings';
+
+/**
+ * Impostazioni che `setSetting` accetta: quelle del motore più la qualità grafica
+ * (`setSetting('qualita', 'alta')`; 'automatica' in E2E vale 'alta').
+ */
+export type ImpostazioniDebug = GameSettings & { qualita: SceltaQualita };
 
 export interface GameDebugApi {
   version: string;
@@ -40,10 +47,12 @@ export interface GameDebugApi {
   /** Ferma/riavvia il ciclo requestAnimationFrame (gli screenshot disegnano solo con step). */
   stopLoop(): void;
   startLoop(): void;
-  /** Disegna un fotogramma e restituisce il tempo impiegato (ms). */
+  /** Disegna un fotogramma (post compresa) e restituisce il tempo impiegato (ms). */
   timedRender(): number;
-  /** PNG del canvas come data URL (richiede preserveDrawingBuffer, attivo in E2E). */
+  /** PNG del canvas dopo la post-produzione, come data URL (richiede preserveDrawingBuffer, attivo in E2E). */
   capture(): string;
+  /** Millisecondi del mondo e di ogni passata della post (media su n fotogrammi, confronto relativo). */
+  misuraPassi(n?: number): Record<string, number>;
   /** Apre il Velo in volo con una velocità iniziale lungo lo sguardo orizzontale (m/s). */
   startGlide(speed?: number): void;
   /** Tiene premuto o rilascia un tasto (codici KeyboardEvent.code). */
@@ -56,7 +65,7 @@ export interface GameDebugApi {
   ensureLoaded(): void;
   render(): void;
   getStats(): Record<string, unknown>;
-  setSetting<K extends keyof GameSettings>(key: K, value: GameSettings[K]): void;
+  setSetting<K extends keyof ImpostazioniDebug>(key: K, value: ImpostazioniDebug[K]): void;
   /** Accesso diretto (per strumenti di sviluppo). */
   game: Game;
 }
@@ -139,6 +148,9 @@ export function installDebugApi(game: Game): GameDebugApi {
     capture() {
       return game.renderer.domElement.toDataURL('image/png');
     },
+    misuraPassi(n = 3) {
+      return game.misuraPassi(n);
+    },
     startGlide(speed = 12) {
       const p = game.player;
       const f = localFrameAt(p.pos, undefined, p.cyl.theta);
@@ -184,10 +196,19 @@ export function installDebugApi(game: Game): GameDebugApi {
         lamps: game.lamps.count,
         fps: game.stats.currentFps,
         renderer: rendererName(game),
+        qualita: game.livelloQualita,
+        sceltaQualita: game.qualita,
+        risoluzioneInterna: [game.post.interna.x, game.post.interna.y],
       };
     },
     setSetting(key, value) {
-      game.settings[key] = value;
+      if (key === 'qualita') {
+        if (!isSceltaQualita(value)) throw new Error(`qualità sconosciuta: ${String(value)}`);
+        game.setQualita(value);
+        return;
+      }
+      const k = key as keyof GameSettings;
+      (game.settings as unknown as Record<string, unknown>)[k] = value;
       game.applySettings();
     },
     game,
