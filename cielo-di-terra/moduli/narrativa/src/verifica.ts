@@ -668,7 +668,9 @@ class Simulatore {
         });
       case 'oggetto':
         return this.daSorgenti(`oggetto:${a.id}`, { tipo: 'atomo', atomo: a }, prof, () => {
-          f.oggetti.set(a.id, Math.max(a.quantita, 1));
+          // Il gioco lo mette nell'inventario narrativo (così gli effetti «oggetto:-id» funzionano).
+          const manca = Math.max(a.quantita, 1) - this.n.inventario.quantita(a.id);
+          if (manca > 0) this.n.inventario.aggiungi(a.id, manca);
           this.ipotizza(`oggetto «${a.id}» dato dal gioco (nessun effetto «oggetto:+${a.id}»)`);
           return null;
         });
@@ -697,22 +699,38 @@ class Simulatore {
   }
 
   /** Prova le sorgenti di un effetto finché l'atomo è vero; altrimenti `ripiego`. */
+  /** Valore attuale di ciò che una chiave di effetto produce (per capire se una sorgente ha fatto progressi). */
+  private valoreChiave(chiave: string): string {
+    const [tipo, ...resto] = chiave.split(':');
+    const id = resto.join(':');
+    if (tipo === 'flag') return JSON.stringify(this.n.flag.get(id) ?? null);
+    if (tipo === 'oggetto') return String(this.n.inventario.quantita(id));
+    if (tipo === 'taccuino') return JSON.stringify(this.n.taccuino.stato(id) ?? null);
+    return '';
+  }
+
   private daSorgenti(chiave: string, obiettivo: NodoCondizione, prof: number, ripiego: () => string | null): string | null {
     const sorgenti = this.sorgenti.get(chiave) ?? [];
     const motivi: string[] = [];
-    for (const s of sorgenti) {
-      // per i contatori (flag:x>=3) una sorgente può servire più volte
-      for (let volte = 0; volte < 5; volte++) {
-        const prima = this.firma();
-        const m = this.attivaSorgente(s, () => this.vero(obiettivo), prof + 1);
-        if (!m) return null;
-        if (this.firma() === prima) {
-          motivi.push(`${descriviSorgente(s)}: ${m}`);
-          break;
-        }
+    // Per i contatori (contatore:velati>=3) servono più sorgenti, o la stessa più volte:
+    // una sorgente «riesce» quando fa avanzare il valore.
+    for (let giro = 0; giro < 6 && !this.vero(obiettivo); giro++) {
+      let avanzato = false;
+      for (const s of sorgenti) {
         if (this.vero(obiettivo)) return null;
+        const prima = this.valoreChiave(chiave);
+        const istantanea = this.istantanea();
+        const m = this.attivaSorgente(s, () => this.vero(obiettivo) || this.valoreChiave(chiave) !== prima, prof + 1);
+        if (m || this.valoreChiave(chiave) === prima) {
+          this.ripristina(istantanea);
+          if (giro === 0) motivi.push(`${descriviSorgente(s)}: ${m ?? 'nessun progresso'}`);
+          continue;
+        }
+        avanzato = true;
       }
+      if (!avanzato) break;
     }
+    if (this.vero(obiettivo)) return null;
     if (sorgenti.length === 0) return ripiego();
     return `«${stampaCondizione(obiettivo)}» non raggiungibile (${motivi.join('; ') || 'le sorgenti non bastano'})`;
   }
@@ -873,14 +891,19 @@ class Simulatore {
 // ---------------------------------------------------------------------------
 // Verifica
 
-/** Id dei testi di testi.json: tutti, le battute e i suggerimenti. */
+/** Id dei testi di testi.json: tutti, le battute e i suggerimenti (sezioni come liste con id o mappe per id). */
 function idTesti(x: unknown): { tutti: Set<string>; battute: Set<string>; suggerimenti: Set<string> } | null {
   if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
   const tutti = new Set<string>();
   const sezioni: Record<string, Set<string>> = {};
   for (const [k, v] of Object.entries(x as Oggetto)) {
     if (k.startsWith('_') || k.startsWith('$')) continue;
-    const ids = idDa(v);
+    const ids = new Set<string>();
+    if (Array.isArray(v)) {
+      for (const e of v) if (e && typeof e === 'object' && typeof (e as Oggetto).id === 'string') ids.add((e as Oggetto).id as string);
+    } else if (v && typeof v === 'object') {
+      for (const chiave of Object.keys(v)) if (!chiave.startsWith('_')) ids.add(chiave);
+    }
     sezioni[k] = ids;
     for (const id of ids) tutti.add(id);
   }
