@@ -65,13 +65,14 @@ void main() {
   float th = cylThetaDeg(P);
   PaintInfo pi = paintState(P, th, dist);
   if (pi.paint < 0.999) {
-    vec3 pc = pencilColor(suv, N, V, 0.8, 0.0, dist, pi.blank, 0.0, pi.wet);
-    pc = mix(pc, mix(col, vec3(0.965, 0.918, 0.815), 0.4), pi.bleed * 0.55);
+    // non rilevato: abbozzo ad acquerello dell'acqua (vedi schizzo() in shaders/common.ts)
+    vec3 pc = schizzo(col, suv, N, V, P, 0.8, 0.0, dist, pi.blank, 0.0, pi.wet);
+    pc = mix(pc, mix(col, vec3(0.962, 0.935, 0.862), 0.3), pi.bleed * 0.55);
     col = mix(pc, col, pi.paint);
   }
   col *= 1.0 - pi.wet * 0.2 * pi.paint;
   col = mix(col, vec3(0.17, 0.14, 0.22), clamp(pi.ink, 0.0, 1.0) * 0.8);
-  col = applyHazeK(col, P, dist, mix(0.72, 1.0, pi.paint));
+  col = applyHazeK(col, P, dist, mix(0.92, 1.0, pi.paint));
   gl_FragColor = vec4(col, 1.0);
 }
 `;

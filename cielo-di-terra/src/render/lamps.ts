@@ -29,7 +29,8 @@ export class LampGlows {
           // spinge il bagliore verso la camera: non viene coperto dal muro o dal terreno lontano
           mv.xyz *= max(0.0, 1.0 - min(6.0 + dist * 0.004, dist * 0.5) / max(dist, 1e-3));
           float px = aSize / max(dist * uPixelAngle, 1e-4);
-          gl_PointSize = clamp(px * 3.0, 4.0, 28.0);
+          // alone largo attorno al nucleo (come le lanterne dei bozzetti), più contenuto da lontano
+          gl_PointSize = clamp(px * 4.2, 4.0, 46.0);
           vFade = exp(-dist / 2500.0);
           vFlicker = 0.85 + 0.15 * sin(uTime * (3.0 + aSeed * 4.0) + aSeed * 30.0);
           gl_Position = projectionMatrix * mv;
@@ -43,10 +44,12 @@ export class LampGlows {
         void main() {
           vec2 c = gl_PointCoord - 0.5;
           float d = length(c) * 2.0;
-          float core = exp(-d * d * 9.0) * 1.4;
-          float halo = exp(-d * d * 2.5) * 0.5;
-          float k = (core + halo) * mix(0.04, 1.0, uNight) * vFlicker;
-          vec3 col = mix(uHazeColor, uLampColor * 1.2, 0.35 + 0.65 * vFade) * k;
+          // nucleo caldo quasi bianco, alone ambrato morbido che sfuma nella foschia
+          float core = exp(-d * d * 16.0) * 1.5;
+          float halo = exp(-d * d * 3.2) * 0.42 + exp(-d * 2.2) * 0.12;
+          float k = mix(0.04, 1.0, uNight) * vFlicker;
+          vec3 lamp = mix(uHazeColor, uLampColor * 1.15, 0.35 + 0.65 * vFade);
+          vec3 col = (lamp * halo + mix(lamp, vec3(1.0, 0.93, 0.8), 0.5) * core) * k;
           gl_FragColor = vec4(col, 1.0);
         }`,
       transparent: true,

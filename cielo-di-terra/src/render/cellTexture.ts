@@ -13,6 +13,8 @@ import type { CellGrid } from '../world/cells';
 
 export class CellTexture {
   readonly texture: DataTexture;
+  /** Istante d'inizio (s) della rivelazione animata più recente (-1e9 se nessuna). */
+  ultimaRivelazione = -1e9;
   private data: Float32Array;
 
   constructor(private grid: CellGrid) {
@@ -31,6 +33,7 @@ export class CellTexture {
     const q = Math.ceil(g.radius[id]! / 10);
     this.data[o] = g.prev[id]! + 3 * g.state[id]! + 9 * q;
     this.data[o + 1] = g.start[id]!;
+    if (g.start[id]! > -1e5 && g.start[id]! > this.ultimaRivelazione) this.ultimaRivelazione = g.start[id]!;
     this.data[o + 2] = g.originZ[id]!;
     this.data[o + 3] = g.originTheta[id]!;
   }

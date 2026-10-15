@@ -5,10 +5,15 @@
  * - All'alba la Linea si accende dal Tappo Sud verso nord come una miccia
  *   (`lineaIgnite` va da 0 a L); al tramonto si ritira verso sud e resta una
  *   brace blu per la notte.
- * - La direzione della luce in ogni punto è il versore verso l'asse, inclinato
- *   di 30-50 gradi dallo "schermo girevole" (alpha), con un azimut (beta) che
- *   ruota durante il giorno: luce da Mane al mattino, da Lag a mezzogiorno, da
- *   Sera la sera. Così ci sono sempre ombre laterali.
+ * - Il NUCLEO luminoso della Linea (licenza artistica motivata nel brief grafico) scorre lungo
+ *   l'asse durante il giorno: vicino al Tappo Sud al mattino, a metà cilindro a mezzogiorno,
+ *   verso il Sordo la sera, poi segue la brace che si ritira. La luce principale in ogni punto
+ *   arriva dal nucleo (`coreZ`): radente lungo la valle al mattino e alla sera, alta a
+ *   mezzogiorno. `coreFlat` la rende ancora più radente nelle ore basse, `coreSide` aggiunge
+ *   la componente laterale dello "schermo girevole" (da Mane al mattino, da Sera la sera).
+ * - `tiltAlpha`/`tiltBeta` restano come prima (schermo girevole: 30-50 gradi dalla verticale,
+ *   azimut che ruota) per chi li usa come luce "media" (luci toon degli abitanti, squadro).
+ *   Per la direzione vera della luce principale in un punto usare `keyLightDir`.
  *
  * Tutti i colori sono nello spazio sRGB "da pittore" (il renderer non converte).
  */
@@ -35,6 +40,10 @@ export interface SkyTimes {
  */
 export const DEFAULT_TIMES: SkyTimes = { dawnStart: 5.5, dawnEnd: 6.0, duskStart: 19.5, duskEnd: 21.0 };
 
+/** Estremi della corsa del nucleo lungo l'asse (m). */
+export const CORE_Z_MORNING = 120;
+export const CORE_Z_EVENING = L - 120;
+
 export interface SkyState {
   hours: number;
   /** z fino a cui la Linea è accesa (m). */
@@ -49,10 +58,23 @@ export interface SkyState {
   tiltAlpha: number;
   /** Azimut dell'inclinazione: 0 = da Mane (est), pi/2 = da Lag (nord), pi = da Sera (rad). */
   tiltBeta: number;
+  /** z del nucleo luminoso della Linea (m): da qui arriva la luce principale. */
+  coreZ: number;
+  /** Radenza: moltiplica la componente "dall'asse" della luce (1 = geometrica, < 1 più radente). */
+  coreFlat: number;
+  /** Componente laterale della luce (frazione del raggio, + = da Mane, - = da Sera). */
+  coreSide: number;
   sunColor: RGB;
   ambientTop: RGB;
   ambientBottom: RGB;
+  /** Foschia verso l'orizzonte (raggi radenti al fondo): più chiara. */
   hazeColor: RGB;
+  /** Foschia verso lo "zenit" (raggi che attraversano il cilindro passando vicino all'asse): azzurro pieno. */
+  hazeZenith: RGB;
+  /** Colore della foschia in controluce, verso il nucleo (diffusione in avanti). */
+  hazeSun: RGB;
+  /** Moltiplicatore della densità dell'aria (foschie del mattino, aria limpida a mezzogiorno). */
+  airDensity: number;
   lineaCore: RGB;
   lineaGlow: RGB;
   /** Intensità visiva del filamento (anche di notte, come brace). */
@@ -62,17 +84,30 @@ export interface SkyState {
 const hex = (h: number): RGB => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
 const mixc = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 
+/**
+ * Palette del cielo d'ottobre. Luce principale calda, riempimento freddo dal cielo (l'aria
+ * azzurra del cilindro), rimbalzo caldo dal suolo; foschia azzurra di giorno, pesca e oro
+ * all'alba e al tramonto, blu-viola di notte.
+ */
 const PAL = {
-  sunDay: hex(0xffeccb),
-  sunGold: hex(0xffc58e),
-  sunNight: hex(0x5a64d8),
-  ambTopDay: hex(0xb4c0d6),
-  ambTopNight: hex(0x3d4386),
-  ambBotDay: hex(0xaba38e),
-  ambBotNight: hex(0x2a2748),
-  hazeDay: hex(0x8eabd6),
-  hazeGold: hex(0xc9a7a6),
-  hazeNight: hex(0x2e3468),
+  sunDay: hex(0xfff0d2),
+  sunGold: hex(0xffcf96),
+  sunNight: hex(0x6a6ee0),
+  ambTopDay: hex(0x93a7cf),
+  ambTopGold: hex(0x8f9cd0),
+  ambTopNight: hex(0x5052a2),
+  ambBotDay: hex(0xa2906a),
+  ambBotGold: hex(0xa47e60),
+  ambBotNight: hex(0x2c2850),
+  hazeDay: hex(0xc4d2df),
+  hazeGold: hex(0xf2cfa4),
+  hazeNight: hex(0x3b3c7a),
+  zenithDay: hex(0x6590cc),
+  zenithGold: hex(0x6283bd),
+  zenithNight: hex(0x2b2e6a),
+  hazeSunDay: hex(0xfff1d6),
+  hazeSunGold: hex(0xffc98c),
+  hazeSunNight: hex(0x4a58c8),
   coreDay: hex(0xfffbec),
   coreGold: hex(0xffd9a0),
   coreEmber: hex(0x6f86ff),
@@ -138,21 +173,69 @@ export function computeSky(hours: number, t: SkyTimes = DEFAULT_TIMES, out?: Sky
   const tiltAlpha = (30 + 20 * Math.abs(Math.cos(Math.PI * dayFrac))) * (Math.PI / 180);
   const tiltBeta = Math.PI * dayFrac;
 
+  // il nucleo: corre da sud a nord fra la fine dell'alba e l'inizio del tramonto
+  const lineaIgnite = lit * L;
+  const dayU = clamp((h - t.dawnEnd) / (t.duskStart - t.dawnEnd), 0, 1);
+  let coreZ = lerp(CORE_Z_MORNING, CORE_Z_EVENING, dayU);
+  // all'alba sta sulla punta della miccia finché non arriva al suo posto; al tramonto segue la brace
+  if (h >= t.dawnStart && h < t.dawnEnd) coreZ = Math.min(coreZ, lineaIgnite);
+  if (h >= t.duskStart || h < t.dawnStart) coreZ = Math.min(coreZ, Math.max(0, lineaIgnite - 60));
+  // radenza: luce bassa nelle prime e nelle ultime ore, alta a mezzogiorno
+  const arc = Math.sin(Math.PI * dayU);
+  const coreFlat = lerp(0.5, 1, smoothstep(0, 0.75, arc));
+  const coreSide = 0.32 * Math.cos(tiltBeta);
+
   const sunColor = mixc(mixc(PAL.sunDay, PAL.sunGold, golden), PAL.sunNight, night);
   const res: SkyState = out ?? ({} as SkyState);
   res.hours = h;
-  res.lineaIgnite = lit * L;
+  res.lineaIgnite = lineaIgnite;
   res.sunIntensity = lerp(0.1, 1, dayK);
   res.night = night;
   res.golden = golden;
   res.tiltAlpha = tiltAlpha;
   res.tiltBeta = tiltBeta;
+  res.coreZ = coreZ;
+  res.coreFlat = coreFlat;
+  res.coreSide = coreSide;
   res.sunColor = sunColor;
-  res.ambientTop = mixc(PAL.ambTopDay, PAL.ambTopNight, night);
-  res.ambientBottom = mixc(PAL.ambBotDay, PAL.ambBotNight, night);
-  res.hazeColor = mixc(mixc(PAL.hazeDay, PAL.hazeGold, golden * 0.8), PAL.hazeNight, night);
+  res.ambientTop = mixc(mixc(PAL.ambTopDay, PAL.ambTopGold, golden), PAL.ambTopNight, night);
+  res.ambientBottom = mixc(mixc(PAL.ambBotDay, PAL.ambBotGold, golden), PAL.ambBotNight, night);
+  res.hazeColor = mixc(mixc(PAL.hazeDay, PAL.hazeGold, golden * 0.85), PAL.hazeNight, night);
+  res.hazeZenith = mixc(mixc(PAL.zenithDay, PAL.zenithGold, golden * 0.8), PAL.zenithNight, night);
+  res.hazeSun = mixc(mixc(PAL.hazeSunDay, PAL.hazeSunGold, golden), PAL.hazeSunNight, night);
+  res.airDensity = lerp(1, 1.18, golden) * lerp(1, 0.92, night);
   res.lineaCore = mixc(mixc(PAL.coreDay, PAL.coreGold, golden), PAL.coreEmber, night);
   res.lineaGlow = mixc(PAL.glowDay, PAL.glowEmber, night);
   res.lineaBrightness = lerp(0.45, 1, dayK);
   return res;
+}
+
+/**
+ * Direzione (versore, verso la luce) della luce principale nel punto mondo (x, y, z):
+ * verso il nucleo della Linea sull'asse, resa più radente da `coreFlat`, con la componente
+ * laterale `coreSide`. È la stessa formula dello shader (`lineaLightDir` in
+ * `render/shaders/common.ts`): usarla per luci CPU (prima persona, abitanti, ombre).
+ */
+export function keyLightDir(x: number, y: number, z: number, s: SkyState, out: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 }): { x: number; y: number; z: number } {
+  const r = Math.hypot(x, y);
+  // terna locale: su = verso l'asse, est = tangente, nord = +z
+  const ux = r > 1e-3 ? -x / r : 0;
+  const uy = r > 1e-3 ? -y / r : 1;
+  const ex = -uy;
+  const ey = ux;
+  const rr = Math.max(r, 40);
+  const up = rr * s.coreFlat;
+  const north = s.coreZ - z;
+  const east = rr * s.coreSide;
+  let lx = ux * up + ex * east;
+  let ly = uy * up + ey * east;
+  let lz = north;
+  const n = Math.hypot(lx, ly, lz) || 1;
+  lx /= n;
+  ly /= n;
+  lz /= n;
+  out.x = lx;
+  out.y = ly;
+  out.z = lz;
+  return out;
 }
