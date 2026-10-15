@@ -73,7 +73,10 @@ export function luogoDaOrario(p: Personaggio, giorno: number, ore: number, valut
   return null;
 }
 
-/** Clelia aspetta alla Bacheca (finché non ha dato il dono): dal giorno 2, dalle 07:00 alle 21:00. */
+/**
+ * Clelia è in giro (alla Bacheca finché non ha dato il dono, poi alla Casa del Velo): dal giorno
+ * 2, dalle 07:00 alle 21:00 (personaggi.json).
+ */
 export function cleliaAspettaAllaBacheca(giorno: number, ore: number): boolean {
   return giorno >= 2 && ore >= 7 && ore < 21;
 }
@@ -84,6 +87,32 @@ export function posizioneCleliaAllaBacheca(): { z: number; theta: number } {
   const z = l?.z ?? 1043;
   const theta = l?.theta ?? 35.6;
   return { z: z + 0.8, theta: theta + 1.8 / METERS_PER_DEG };
+}
+
+/** Dove sta Clelia alla Casa del Velo: come la mette il popolamento (3,6 m a Sol, 3,6 m a Mane). */
+export function posizioneCleliaAllaCasa(): { z: number; theta: number } | null {
+  const l = luogo('casa_del_velo');
+  return l ? { z: l.z - 3.6, theta: l.theta + 3.6 / METERS_PER_DEG } : null;
+}
+
+/** Dove la regia tiene Clelia (null: la lascia agli orari del popolamento). */
+export type PostoClelia = 'bacheca' | 'via' | 'casa' | null;
+
+/**
+ * Il posto di Clelia adesso. Il popolamento non valuta le condizioni degli orari: la prima riga
+ * (la Bacheca, «!dialogo:d_clelia_dono finito») la terrebbe lì anche dopo il dono.
+ * - il dono non è fatto (né da lei né da Ottavio con il pacco): alla Bacheca, dalle 07:00 alle
+ *   21:00 di ogni giorno dal secondo (gli orari la mandavano alla Casa del Velo alle 19:00 e solo
+ *   il giorno 2: chi arrivava alla Bacheca la sera, o il giorno dopo, non trovava nessuno);
+ * - il giorno 2, dato il dono, se ne va (fino alle 20:00: poi è alla Casa del Velo, dove la sera
+ *   offre il letto a chi porta il velo);
+ * - dopo il dono, nelle stesse ore, alla Casa del Velo.
+ */
+export function postoDiClelia(giorno: number, ore: number, donoDaLei: boolean, paccoDaOttavio: boolean): PostoClelia {
+  const inGiro = cleliaAspettaAllaBacheca(giorno, ore);
+  if (!donoDaLei && !paccoDaOttavio) return inGiro ? 'bacheca' : null;
+  if (donoDaLei && giorno === 2 && ore < 20) return 'via';
+  return inGiro ? 'casa' : null;
 }
 
 export class Abitanti {
@@ -293,45 +322,35 @@ export class Abitanti {
   }
 
   /**
-   * Le posizioni dei contenuti con una condizione (il popolamento non le valuta).
-   *
-   * Clelia: dopo il dono, il giorno 2, se ne va (verso la Casa del Velo). Finché il dono non è
-   * fatto (né da lei né da Ottavio con il pacco), aspetta alla Bacheca dalle 07:00 alle 21:00 di
-   * ogni giorno dal secondo: gli orari la mandavano alla Casa del Velo alle 19:00, e chi arrivava
-   * alla Bacheca la sera non trovava nessuno (e il dialogo partiva da lontano).
+   * Le posizioni dei contenuti con una condizione (il popolamento non le valuta): Clelia alla
+   * Bacheca finché non ha dato il dono, poi alla Casa del Velo (vedi `postoDiClelia`).
    */
   private condizioni(ctx: ContestoAbitanti): void {
     const clelia = this.npc('clelia');
     if (!clelia) return;
-    const via = ctx.giorno === 2 && ctx.valuta('dialogo:d_clelia_dono finito');
-    const dono = via || ctx.valuta('dialogo:d_clelia_dono finito') || ctx.valuta('dialogo:d_ottavio_pacco finito');
-    const aspetta = !dono && cleliaAspettaAllaBacheca(ctx.giorno, ctx.ore);
-    if (via) {
-      if (!clelia.manuale || this.cleliaAllaBacheca) {
-        clelia.manuale = true;
-        clelia.mostra(false);
-        this.cleliaAllaBacheca = false;
-      }
-    } else if (aspetta) {
-      if (!this.cleliaAllaBacheca) {
-        const q = posizioneCleliaAllaBacheca();
-        clelia.manuale = true;
-        clelia.ferma();
-        clelia.vaiA(q.z, q.theta);
-        const piazza = luogo('piazza_ore');
-        if (piazza) clelia.orientaVerso(piazza);
-        clelia.mostra(true);
-        this.cleliaAllaBacheca = true;
-      }
-    } else if (clelia.manuale) {
+    const posto = postoDiClelia(ctx.giorno, ctx.ore, ctx.valuta('dialogo:d_clelia_dono finito'), ctx.valuta('dialogo:d_ottavio_pacco finito'));
+    if (posto === this.postoClelia && (posto !== null || !clelia.manuale)) return;
+    this.postoClelia = posto;
+    if (posto === null) {
       clelia.manuale = false;
-      this.cleliaAllaBacheca = false;
       this.corbella.applicaOrario(ctx.giorno, ctx.ore);
+      return;
     }
+    clelia.manuale = true;
+    const q = posto === 'bacheca' ? posizioneCleliaAllaBacheca() : posto === 'casa' ? posizioneCleliaAllaCasa() : null;
+    if (!q) {
+      clelia.mostra(false);
+      return;
+    }
+    clelia.ferma();
+    clelia.vaiA(q.z, q.theta);
+    const piazza = luogo('piazza_ore');
+    if (piazza) clelia.orientaVerso(piazza);
+    clelia.mostra(true);
   }
 
-  /** Clelia è tenuta alla Bacheca dalla regia (vedi `condizioni`). */
-  private cleliaAllaBacheca = false;
+  /** Dove la regia tiene Clelia adesso (vedi `condizioni`). */
+  private postoClelia: PostoClelia = null;
 
   private sguardi(ctx: ContestoAbitanti): void {
     const voltati = this.tempo < this.voltatiFino;

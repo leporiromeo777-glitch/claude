@@ -38,13 +38,25 @@ const CAPSULE: Record<number, string> = {
 
 const NOMI_DIALOGO = ['togna', 'bortolo', 'annunciata', 'pina', 'nando', 'clelia', 'bambini', 'ottavio'];
 
-/** Che cosa dice la porta chiusa del campanile: chi ha le chiavi, e quando c'è (08:00-18:00 sul sagrato). */
-export function chiaviDelCampanaro(giorno: number, ore: number, campanaroQui: boolean): string {
-  if (giorno < 2) return 'Chiusa a chiave. Le chiavi le ha il campanaro.';
-  if (campanaroQui) return 'Chiusa a chiave. Le chiavi le ha il campanaro: è qui vicino, parlagli.';
-  if (ore < 8) return 'Chiusa a chiave. Il campanaro arriva sul sagrato alle 08:00: siediti (C) e aspetta (X).';
-  if (ore >= 18) return 'Chiusa a chiave. Il campanaro torna sul sagrato domattina alle 08:00.';
-  return 'Chiusa a chiave. Le chiavi le ha il campanaro: di giorno sta sul sagrato.';
+/** Entro questa distanza (m) dalla porta il campanaro «è qui»: sul sagrato, in piazza. */
+const CAMPANARO_VICINO = 35;
+
+/**
+ * Che cosa dice la porta chiusa del campanile: chi ha le chiavi e, dal giorno 2 (quando il
+ * campanile serve), dove trovarlo adesso o quando arriva (personaggi.json: 07:00-07:40 sulla
+ * scorciatoia delle Terrazze, 08:00-18:00 sul sagrato, 19:45-20:30 in piazza per l'Ombrista).
+ * `distanza`: quanto è lontano adesso dalla porta (Infinity se non è in paese).
+ */
+export function chiaviDelCampanaro(giorno: number, ore: number, distanza: number): string {
+  const base = 'Chiusa a chiave. Le chiavi le ha il campanaro';
+  if (giorno < 2) return `${base}.`;
+  if (distanza <= CAMPANARO_VICINO) return `${base}: è qui vicino, parlagli (E).`;
+  if (ore >= 7 && ore < 7 + 40 / 60) return `${base}: adesso rimette i gradini della scorciatoia delle Terrazze; alle 08:00 è sul sagrato.`;
+  if (ore < 8) return `${base}: arriva sul sagrato alle 08:00. Siediti (C) e aspetta (X).`;
+  if (ore < 18) return `${base}: di giorno sta sul sagrato, qui davanti.`;
+  if (ore < 19.75) return `${base}: torna in piazza alle 19:45, per l'Ombrista. Siediti (C) e aspetta (X).`;
+  if (ore < 20.5) return `${base}: è in piazza, davanti al telo dell'Ombrista.`;
+  return `${base}: domattina alle 08:00 è sul sagrato.`;
 }
 
 export function registraBersagli(r: Regia): void {
@@ -213,7 +225,11 @@ export function registraBersagli(r: Regia): void {
     disponibile: fuori,
     azione: () => {
       if (flag('campanile_aperto')) r.saliCampanile();
-      else r.ponte.notifica(chiaviDelCampanaro(r.orologio.giorno, r.orologio.ore, r.abitanti.presente('bortolo')));
+      else {
+        const porta = r.scena.punto('porta_campanile');
+        const c = porta ? worldToCyl(porta) : r.game.player.cyl;
+        r.ponte.notifica(chiaviDelCampanaro(r.orologio.giorno, r.orologio.ore, r.abitanti.distanzaDa('bortolo', c.z, c.theta)));
+      }
     },
   });
   const inCella = () => r.interno === 'cella' && libero();

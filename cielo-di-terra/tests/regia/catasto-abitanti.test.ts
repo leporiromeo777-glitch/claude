@@ -262,11 +262,22 @@ describe('Abitanti', () => {
       passi(a, contesto(elvira, 2, 9), 2);
       expect(a.presente('clelia')).toBe(true);
       expect(a.vicini(elvira.z, elvira.theta, 8)).toContain('clelia');
-      passi(a, contesto(elvira, 2, 9, (c) => c === 'dialogo:d_clelia_dono finito'), 40);
+      const donato = (c: string) => c === 'dialogo:d_clelia_dono finito';
+      passi(a, contesto(elvira, 2, 9, donato), 40);
       expect(a.presente('clelia')).toBe(false);
-      // il giorno dopo torna agli orari
-      passi(a, contesto(elvira, 3, 9, () => true), 40);
+      // la sera è alla Casa del Velo (offre il letto a chi porta il velo), non alla Bacheca
+      passi(a, contesto(elvira, 2, 20.2, donato), 40);
+      expect(a.presente('clelia')).toBe(true);
+      expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeGreaterThan(8);
+      // il giorno dopo anche (gli orari, senza condizioni, la rimetterebbero alla Bacheca)
+      corbella.applicaOrario(3, 9);
+      passi(a, contesto(elvira, 3, 9, donato), 40);
+      expect(a.presente('clelia')).toBe(true);
+      expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeGreaterThan(8);
+      // di notte non c'è: torna agli orari
+      passi(a, contesto(elvira, 3, 22, donato), 40);
       expect(corbella.npc('clelia')!.manuale).toBe(false);
+      expect(a.presente('clelia')).toBe(false);
     });
 
     it('Clelia aspetta alla Bacheca finché non ha dato il dono: anche la sera e il giorno dopo', () => {
@@ -285,9 +296,9 @@ describe('Abitanti', () => {
       corbella.applicaOrario(3, 8);
       passi(a, contesto(elvira, 3, 8), 40);
       expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeLessThan(3);
-      // il pacco l'ha portato Ottavio: torna agli orari
+      // il pacco l'ha portato Ottavio: non aspetta più alla Bacheca
       passi(a, contesto(elvira, 3, 8, (c) => c === 'dialogo:d_ottavio_pacco finito'), 40);
-      expect(corbella.npc('clelia')!.manuale).toBe(false);
+      expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeGreaterThan(8);
     });
 
     it('chi è vicino guarda Elvira; i gruppi non contano fra i vicini', () => {

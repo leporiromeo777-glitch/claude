@@ -5,13 +5,14 @@
  */
 import { describe, expect, it } from 'vitest';
 import { normalizzaContenuti } from '../../src/narrativa';
-import { CONTENUTI_NARRATIVA, luogo } from '../../src/regia/contenuti';
+import { CONTENUTI_NARRATIVA, luogo, personaggio } from '../../src/regia/contenuti';
 import { DISLIVELLO_PLANATA, eUnaPlanata } from '../../src/regia/corpo';
 import { chiaviDelCampanaro } from '../../src/regia/bersagli';
 import { dentroLuogo, quotaLuogo } from '../../src/regia/luoghi';
 import { OrologioStoria } from '../../src/regia/orologio';
-import { FERMO_PRIMA_NOTTE, dialoghiCheFannoAvanzare, dialoghiNominati, flagNominati, indicazioneGesto, murettoDavanti } from '../../src/regia/percorso';
-import { cleliaAspettaAllaBacheca, posizioneCleliaAllaBacheca } from '../../src/regia/png';
+import { FERMO_PRIMA_NOTTE, altezzeDavanti, dialoghiCheFannoAvanzare, dialoghiNominati, flagNominati, indicazioneGesto, muroAltoDavanti, murettoDavanti, troppoRipido } from '../../src/regia/percorso';
+import { cleliaAspettaAllaBacheca, posizioneCleliaAllaBacheca, postoDiClelia } from '../../src/regia/png';
+import { prossimoArrivo } from '../../src/regia/orari';
 import { METERS_PER_DEG } from '../../src/world/constants';
 import { boxAt } from '../../src/world/colliders';
 import { cylToWorld, surfaceDistance } from '../../src/world/cylinder';
@@ -104,6 +105,27 @@ describe('il muretto da scavalcare', () => {
   it('l\'indicazione: «Spazio — scavalca il muretto»', () => {
     expect(indicazioneGesto({ controllo: 'libero', muretto: true })).toMatchObject({ tasto: 'Spazio' });
   });
+
+  it('contro un muro di terrazza troppo alto: «P — troppo alto…», la strada sulla Pianta', () => {
+    const alte = altezzeDavanti(piedi, 30, verso, muro(3.5));
+    expect(alte).toHaveLength(1);
+    expect(alte[0]).toBeCloseTo(3.5, 1);
+    expect(muroAltoDavanti(alte)).toBe(true);
+    expect(muroAltoDavanti(altezzeDavanti(piedi, 30, verso, muro(0.9)))).toBe(false); // si scavalca
+    expect(muroAltoDavanti([3.5, 0.9])).toBe(false); // c'è anche un muretto: si salta quello
+    expect(muroAltoDavanti([40])).toBe(false); // il campanile, una casa: non è una strada da cercare
+    expect(muroAltoDavanti([])).toBe(false);
+    expect(indicazioneGesto({ controllo: 'libero', muroAlto: 'Troppo alto: la mulattiera' })).toMatchObject({ tasto: 'P', testo: 'Troppo alto: la mulattiera' });
+    // il muretto basso vince sul muro alto
+    expect(indicazioneGesto({ controllo: 'libero', muretto: true, muroAlto: 'x' })).toMatchObject({ tasto: 'Spazio' });
+  });
+
+  it('una scarpata sotto la terrazza è troppo ripida; un pendio che si cammina no', () => {
+    expect(troppoRipido(2.3, 1.2)).toBe(true); // la scarpata sotto la Terrazza Pedrazzini
+    expect(troppoRipido(1.0, 1.2)).toBe(false); // ripido ma si sale (47°)
+    expect(troppoRipido(0.4, 0.3)).toBe(false); // un gradino
+    expect(troppoRipido(-1, 1.2)).toBe(false); // in discesa
+  });
 });
 
 describe('il fermo della prima notte', () => {
@@ -158,11 +180,15 @@ describe('i luoghi del percorso, più larghi', () => {
 });
 
 describe('la porta del campanile e la novizia', () => {
-  it('la porta chiusa dice quando c\'è il campanaro', () => {
-    expect(chiaviDelCampanaro(1, 10, true)).toBe('Chiusa a chiave. Le chiavi le ha il campanaro.');
-    expect(chiaviDelCampanaro(2, 7.5, false)).toMatch(/alle 08:00.*aspetta/);
-    expect(chiaviDelCampanaro(2, 10, true)).toMatch(/parlagli/);
-    expect(chiaviDelCampanaro(2, 18.5, false)).toMatch(/domattina/);
+  it('la porta chiusa dice dov\'è il campanaro adesso, o quando arriva', () => {
+    expect(chiaviDelCampanaro(1, 10, 5)).toBe('Chiusa a chiave. Le chiavi le ha il campanaro.');
+    expect(chiaviDelCampanaro(2, 10, 12)).toMatch(/parlagli/);
+    expect(chiaviDelCampanaro(2, 6.5, Infinity)).toMatch(/alle 08:00.*aspetta/);
+    expect(chiaviDelCampanaro(2, 7.2, 300)).toMatch(/gradini.*08:00/);
+    expect(chiaviDelCampanaro(2, 12, 200)).toMatch(/sagrato/);
+    expect(chiaviDelCampanaro(2, 18.5, Infinity)).toMatch(/19:45/);
+    expect(chiaviDelCampanaro(2, 20, 60)).toMatch(/Ombrista/);
+    expect(chiaviDelCampanaro(2, 22, Infinity)).toMatch(/domattina/);
   });
 
   it('la novizia aspetta alla Bacheca dal giorno 2, dalle 07:00 alle 21:00', () => {
@@ -174,5 +200,23 @@ describe('la porta del campanile e la novizia', () => {
     const b = luogo('bacheca_ore')!;
     const q = posizioneCleliaAllaBacheca();
     expect(surfaceDistance(q.z, q.theta, b.z, b.theta)).toBeLessThan(b.raggio);
+  });
+
+  it('il posto della novizia: la Bacheca finché il dono non è dato, poi la Casa del Velo', () => {
+    expect(postoDiClelia(2, 20, false, false)).toBe('bacheca'); // cercata alle 20: c'è
+    expect(postoDiClelia(2, 22, false, false)).toBeNull(); // di notte no
+    expect(postoDiClelia(3, 9, false, false)).toBe('bacheca'); // il giorno dopo ancora
+    expect(postoDiClelia(2, 9, true, false)).toBe('via'); // dato il dono se ne va
+    expect(postoDiClelia(2, 20.5, true, false)).toBe('casa'); // la sera alla Casa del Velo
+    expect(postoDiClelia(3, 9, false, true)).toBe('casa'); // il pacco l'ha portato Ottavio
+  });
+
+  it('cercata alle 22, il pannello sa che arriva domani alle 07:00 alla Bacheca', () => {
+    const clelia = personaggio('clelia')!;
+    const valuta = () => true;
+    expect(prossimoArrivo(clelia, 2, 22, { luogo: 'bacheca_ore', valuta })).toEqual({ giorno: 3, ore: 7, luogo: 'bacheca_ore' });
+    expect(prossimoArrivo(clelia, 2, 22, { valuta })?.luogo).toBe('bacheca_ore');
+    // dato il dono non la si aspetta più alla Bacheca
+    expect(prossimoArrivo(clelia, 2, 22, { luogo: 'bacheca_ore', valuta: () => false })).toBeNull();
   });
 });

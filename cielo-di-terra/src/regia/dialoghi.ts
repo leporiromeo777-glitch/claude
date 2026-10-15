@@ -8,9 +8,10 @@
  * - il nome di chi parla resta «una velata» finché Elvira non lo sa (GDD §8.1);
  * - mentre si parla la persona guarda Elvira (lo fanno gli abitanti: è vicina);
  * - un dialogo automatico in coda si apre solo se la sua condizione vale ancora (Elvira è
- *   tornata alla Bacheca) e se chi parla è vicino: la novizia che aspetta alla Bacheca non
- *   parla a Elvira dall'altra parte del paese, la mattina dopo, perché ieri sera lei era passata
- *   di lì. Le richieste «forzate» della rete di sicurezza (`percorso.ts`) saltano la condizione.
+ *   tornata alla Bacheca) e, se è legato a un luogo, solo se chi parla è vicino: la novizia che
+ *   aspetta alla Bacheca non parla a Elvira dall'altra parte del paese, la mattina dopo, perché
+ *   ieri sera lei era passata di lì. Le richieste «forzate» della rete di sicurezza
+ *   (`percorso.ts`) saltano la condizione.
  */
 import type { VistaNodo } from '../narrativa';
 import type { BattutaDialogo } from '../ui';
@@ -18,8 +19,17 @@ import type { Regia } from './regia';
 
 /** Oltre questa distanza (m) Ottavio viene incontro a Elvira prima di un dialogo automatico. */
 const DISTANZA_PER_PARLARE = 6;
-/** Entro questa distanza (m) da Elvira una persona apre un dialogo automatico (Ottavio a parte). */
+/**
+ * Entro questa distanza (m) da Elvira una persona apre un dialogo automatico legato a un luogo
+ * (Ottavio a parte: viene lui).
+ */
 export const DISTANZA_DIALOGO_AUTOMATICO = 25;
+
+/** La condizione d'apertura di un dialogo nomina un luogo («luogo:bacheca_ore raggiunto»)? */
+export function dialogoDiUnLuogo(condizione: unknown): boolean {
+  const t = typeof condizione === 'string' ? condizione : condizione === undefined || condizione === null ? '' : JSON.stringify(condizione);
+  return /(^|[^\w])luogo:/.test(t);
+}
 
 interface Richiesta {
   dialogo: string;
@@ -104,8 +114,9 @@ export class DirettoreDialoghi {
     const p = this.r.narrativa.dialoghi.definizione(dialogo)?.personaggio;
     const a = this.r.abitanti;
     if (!p || !a.ha(p)) return true;
-    if (automatico && p !== 'ottavio') {
-      // chi parla per primo lo fa da vicino (la novizia alla Bacheca, la Pina con la figura)
+    if (automatico && p !== 'ottavio' && dialogoDiUnLuogo(this.r.narrativa.dialoghi.definizione(dialogo)?.condizione)) {
+      // chi aspetta Elvira in un luogo (la novizia alla Bacheca) le parla da vicino; gli altri
+      // dialoghi automatici (il letto nella Casa del Velo, alle 20:30) si aprono dove capita
       const e = this.r.game.player.cyl;
       return a.presente(p) && a.distanzaDa(p, e.z, e.theta) <= DISTANZA_DIALOGO_AUTOMATICO;
     }

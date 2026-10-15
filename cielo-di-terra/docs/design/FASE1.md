@@ -493,7 +493,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 #### M1.14 Il dono dell'Eremo — `m1_dono` (2 min)
 
 - **Obiettivo**: «Una novizia mi aspetta alla Bacheca.»
-- **Luogo**: Bacheca delle Ore (1043, 35,6). La novizia **Clelia** (maschera di castagno liscia, veste nera) aspetta dalle 07:00 alle 21:00, ogni giorno dal secondo finché non ha dato il dono (la sera e il giorno dopo chi la cerca la trova ancora); parte il dialogo quando Elvira è alla Bacheca (raggio 8 m).
+- **Luogo**: Bacheca delle Ore (1043, 35,6). La novizia **Clelia** (maschera di castagno liscia, veste nera) aspetta dalle 07:00 alle 21:00, ogni giorno dal secondo finché non ha dato il dono (la sera e il giorno dopo chi la cerca la trova ancora); parte il dialogo quando Elvira è alla Bacheca (raggio 8 m) e lei è a meno di 25 m. Dato il dono, il giorno 2 se ne va e dalle 20:00 è alla Casa del Velo (dove la sera può offrire il letto, `d_clelia_letto`); i giorni dopo sta lì dalle 07:00 alle 21:00 (la regia, `postoDiClelia` in `src/regia/png.ts`).
 - **Dialogo** `d_clelia_dono`:
   - **Clelia**: «Dalla Madre, per la Svegliata.» Porge un pacchetto legato con lo spago: un **velo di garza nera** e un biglietto.
   - Elvira: «Che cosa vuole la Madre?» / «Non porto veli.» / «Grazie.»

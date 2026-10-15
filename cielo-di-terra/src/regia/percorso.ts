@@ -18,18 +18,25 @@
  * - **Promemoria**: se un passo resta fermo a lungo, il suo suggerimento dei comandi torna una
  *   volta (sedersi nel prologo, aspettare la brace…).
  * - **Lo sguardo nella capsula**: se dopo 12 s la scritta del vetro non è stata trovata, lo
- *   sguardo ci scivola sopra da solo (e ancora a 30 s).
+ *   sguardo ci scivola sopra da solo (e ancora a 30 s); fuori dalla botola, se dopo 50 s Elvira
+ *   non ha ancora guardato in su (il passero a 20 s, il suggerimento a 35 s), lo sguardo sale da
+ *   solo verso il lago appeso (e ancora a 80 s).
+ * - **Muri troppo alti**: chi spinge contro un muro che non si scavalca (le terrazze, il muro di
+ *   Ronco) legge «P — troppo alto…» e, verso la Terrazza Pedrazzini, la strada: la mulattiera o
+ *   la scorciatoia con i gradini di assi.
  * - **Il fermo della prima notte**: finché Elvira non arriva al fienile l'orologio non passa le
  *   05:00 del giorno 2. Senza, chi girava tutta la notte arrivava al fienile di giorno e la notte
  *   (la scelta di Ottavio, il resoconto, il mattino del giorno 2) non tornava più.
- * - **Il paese che dorme**: nel passo dei velati, se in piazza non c'è ancora abbastanza gente
- *   con cui parlare, una nota dice quando arriva e come aspettare.
+ *
+ * Chi arriva e quando (la novizia alle 07:00, il campanaro alle 08:00, i velati all'alba) lo
+ * dicono le indicazioni delle missioni (`obiettivi.ts`, la riga dell'attesa e il menu «Aspetta
+ * fino a»): qui non si ripete.
  */
 import { Vector3 } from 'three';
 import type { CondizioneGrezza, DialogoDef, PassoDef } from '../narrativa';
 import type { AzioneContestuale } from '../ui';
 import type { Collider } from '../world/colliders';
-import { localFrameAt } from '../world/cylinder';
+import { localFrameAt, worldToCyl } from '../world/cylinder';
 import { assolutoDi } from './orologio';
 import type { Regia } from './regia';
 
@@ -66,12 +73,32 @@ const PROMEMORIA_DOPO = 90;
 
 /** Quando lo sguardo scivola da solo sulla scritta del vetro (s di passo). */
 const AIUTI_VETRO = [12, 30];
+/** Quando lo sguardo sale da solo verso il lago appeso, fuori dalla botola (s di passo). */
+const AIUTI_IN_SU = [50, 80];
+
+/**
+ * La strada da dire a chi spinge contro un muro troppo alto o un pendio troppo ripido, per i
+ * passi che portano in alto (la Terrazza Pedrazzini sta sopra muri e scarpate di terrazza di
+ * tre metri e più).
+ */
+const TERRAZZA = 'alla Terrazza Pedrazzini si sale dalla mulattiera delle Terrazze o dalla scorciatoia con i gradini di assi (la Pianta)';
+const STRADE: Readonly<Record<string, string>> = {
+  m1_cartellino: TERRAZZA,
+  m1_innesto: TERRAZZA,
+  m1_primo_rilievo: TERRAZZA,
+};
+const STRADA_DI_SERIE = 'cerca un sentiero o dei gradini (la Pianta)';
+
+/** Il pendio più ripido che si cammina (`slopeLimitDeg` del controller). */
+const PENDENZA_MAX_GRADI = 47;
+
+/** Il terreno sale di `salita` m in `distanza` m: più ripido di quanto si cammini (con un margine)? */
+export function troppoRipido(salita: number, distanza: number, limiteGradi = PENDENZA_MAX_GRADI): boolean {
+  return distanza > 0 && salita > MURETTO_MAX && salita > distanza * Math.tan((limiteGradi * Math.PI) / 180) + 0.1;
+}
 
 /** Il fermo della prima notte: le 05:00 del giorno 2 (tempo assoluto). */
 export const FERMO_PRIMA_NOTTE = assolutoDi(2, 5);
-
-/** Chi conta per «Che cosa sanno, quelli velati?». */
-const VELATI = ['togna', 'bortolo', 'annunciata', 'pina', 'nando', 'bambini'];
 
 function testoCondizione(c: CondizioneGrezza): string {
   return typeof c === 'string' ? c : c === undefined || c === null ? '' : JSON.stringify(c);
@@ -114,6 +141,8 @@ export interface StatoGesto {
   fischio?: boolean;
   /** Ferma contro un muretto che si scavalca con un salto. */
   muretto?: boolean;
+  /** Ferma contro un muro troppo alto: la strada da prendere (o quella di serie). */
+  muroAlto?: string;
   /** Da seduta: si può aspettare (e la lettera di Marta, già letta, si può rileggere con E). */
   attesa?: boolean;
   rilettura?: boolean;
@@ -127,32 +156,47 @@ export const MURETTO_MIN = 0.5;
 export const MURETTO_MAX = 1.2;
 
 const _avanti = new Vector3();
+const _sguardo = new Vector3();
+const _occhi = new Vector3();
 const _punto = new Vector3();
 const _rel = new Vector3();
 const _cornice = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
+const _cil = { z: 0, theta: 0, r: 0, h: 0 };
+
+/** Oltre questa altezza (m) non è più un muro da girare ma una parete, una casa, il campanile. */
+export const MURO_ALTO_MAX = 15;
 
 /**
- * C'è un muretto basso subito davanti ai piedi? Si guarda un punto `davanti` m avanti, lungo lo
- * sguardo sul piano, a mezzo metro da terra: dentro una scatola il cui tetto sta fra
- * `MURETTO_MIN` e `MURETTO_MAX` sopra i piedi.
+ * Le altezze (m sopra i piedi) dei tetti delle scatole subito davanti: si guarda un punto
+ * `davanti` m avanti, lungo lo sguardo sul piano, a 30 cm da terra.
  */
-export function murettoDavanti(piedi: Vector3, theta: number, sguardo: Vector3, collisori: readonly Collider[], davanti = 0.6): boolean {
+export function altezzeDavanti(piedi: Vector3, theta: number, sguardo: Vector3, collisori: readonly Collider[], davanti = 0.6): number[] {
   localFrameAt(piedi, _cornice, theta);
   const su = _cornice.up;
   _avanti.copy(sguardo).addScaledVector(su, -sguardo.dot(su));
-  if (_avanti.lengthSq() < 1e-6) return false;
+  if (_avanti.lengthSq() < 1e-6) return [];
   _avanti.normalize();
   _punto.copy(piedi).addScaledVector(_avanti, davanti).addScaledVector(su, 0.3);
+  const out: number[] = [];
   for (const c of collisori) {
     if (c.kind !== 'box') continue;
     _rel.subVectors(_punto, c.center);
     if (Math.abs(_rel.dot(c.right)) > c.half.x + 0.05 || Math.abs(_rel.dot(c.forward)) > c.half.z + 0.05) continue;
-    // il tetto della scatola sopra i piedi
-    const tetto = c.half.y - _rel.dot(c.up) + 0.3;
     if (Math.abs(_rel.dot(c.up)) > c.half.y + 0.05) continue;
-    if (tetto >= MURETTO_MIN && tetto <= MURETTO_MAX) return true;
+    // il tetto della scatola sopra i piedi
+    out.push(c.half.y - _rel.dot(c.up) + 0.3);
   }
-  return false;
+  return out;
+}
+
+/** C'è un muretto basso subito davanti ai piedi (il tetto fra `MURETTO_MIN` e `MURETTO_MAX`)? */
+export function murettoDavanti(piedi: Vector3, theta: number, sguardo: Vector3, collisori: readonly Collider[], davanti = 0.6): boolean {
+  return altezzeDavanti(piedi, theta, sguardo, collisori, davanti).some((h) => h >= MURETTO_MIN && h <= MURETTO_MAX);
+}
+
+/** Davanti c'è solo un muro troppo alto per un salto (un muro di terrazza, non una casa)? */
+export function muroAltoDavanti(altezze: readonly number[]): boolean {
+  return altezze.length > 0 && altezze.every((h) => h > MURETTO_MAX) && altezze.some((h) => h <= MURO_ALTO_MAX);
 }
 
 /** Che cosa premere adesso, quando nessun bersaglio lo dice (o null). */
@@ -174,6 +218,7 @@ export function indicazioneGesto(s: StatoGesto): AzioneContestuale | null {
     if (s.aria.velo) return { tasto: 'Spazio', testo: 'Tienilo premuto: il Velo plana (lo sguardo in giù per scendere)' };
   }
   if (s.controllo === 'libero' && s.muretto) return { tasto: 'Spazio', testo: 'Salta: scavalca il muretto' };
+  if (s.controllo === 'libero' && s.muroAlto) return { tasto: 'P', testo: s.muroAlto };
   if (s.controllo === 'libero' && s.fischio) return { tasto: 'G', testo: 'Chiama Ottavio con un fischio: è in volo con le lettere' };
   if (s.controllo === 'seduta' && s.attesa) return { tasto: 'X', testo: s.rilettura ? 'Aspetta fino a… (E: rileggi la lettera; C: alzati)' : 'Aspetta fino a… (C per alzarti)' };
   return null;
@@ -185,13 +230,15 @@ export class Percorso {
   /** Secondi di attività dei passi della storia attivi. */
   private readonly tempi = new Map<string, number>();
   private readonly promemoriaDati = new Set<string>();
-  private readonly aiutiVetro = new Set<number>();
+  /** Gli aiuti dello sguardo già dati («passo@secondi»). */
+  private readonly aiutiDati = new Set<string>();
   private attesaRiserva = 0;
   private ultimaNotaPlanata = -Infinity;
-  private notaVelati: string | null = null;
   private tempo = 0;
   /** Secondi passati spingendo (un tasto di movimento) senza muoversi. */
   private spinta = 0;
+  /** Le altezze delle scatole davanti all'ultima spinta (per il debug e le prove). */
+  altezzeDavanti: readonly number[] = [];
 
   constructor(private readonly r: Regia) {}
 
@@ -199,9 +246,8 @@ export class Percorso {
   azzera(): void {
     this.tempi.clear();
     this.promemoriaDati.clear();
-    this.aiutiVetro.clear();
+    this.aiutiDati.clear();
     this.attesaRiserva = 0;
-    this.notaVelati = null;
     this.indicazione = null;
   }
 
@@ -222,7 +268,12 @@ export class Percorso {
     const p = r.game.player;
     const inp = r.game.input;
     const spinge = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp'].some((k) => inp.isDown(k));
-    const ferma = p.grounded && r.controllo.tipo === 'libero' && p.vel.length() < 0.4;
+    // ferma contro qualcosa: quasi a terra (contro un muro sul pendio il controller salta fra
+    // «a terra» e «in aria») e quasi immobile sul piano (strisciando sul muro resta mezzo metro al secondo)
+    localFrameAt(p.pos, _cornice, p.cyl.theta);
+    const sulPiano = Math.sqrt(Math.max(0, p.vel.lengthSq() - p.vel.dot(_cornice.up) ** 2));
+    // (chi cammina piano, senza fiato o nel prologo, non è «ferma»)
+    const ferma = r.controllo.tipo === 'libero' && p.heightAboveGround < 0.6 && sulPiano < Math.min(0.8, 0.35 * p.tunables.walkSpeed);
     this.spinta = spinge && ferma && !r.ui.inputCatturato ? this.spinta + dt : 0;
     this.attesaRiserva += dt;
     if (this.attesaRiserva >= PASSO_RISERVA) {
@@ -231,8 +282,7 @@ export class Percorso {
     }
     if (!r.ui.inputCatturato && !r.dialoghi.aperto) {
       this.promemoria(passi);
-      this.aiutoVetro(attivi);
-      this.paeseCheDorme(attivi);
+      this.aiutiSguardo(attivi);
     }
     this.indicazione = this.calcolaIndicazione(attivi);
   }
@@ -298,39 +348,43 @@ export class Percorso {
     }
   }
 
-  private aiutoVetro(attivi: ReadonlySet<string>): void {
+  /** Gli sguardi da trovare (la scritta del vetro, il lago in su): dopo un po' lo sguardo ci va da solo. */
+  private aiutiSguardo(attivi: ReadonlySet<string>): void {
     const r = this.r;
-    if (!attivi.has('pr_vetro') || r.controllo.tipo !== 'sdraiata') return;
-    const t = this.tempoDelPasso('pr_vetro');
-    for (const s of AIUTI_VETRO) {
-      if (t < s || this.aiutiVetro.has(s)) continue;
-      this.aiutiVetro.add(s);
-      r.voltatiVerso(r.cripta.scritta, 2.4, true);
-      r.log('aiuto: lo sguardo scivola sulla scritta del vetro');
+    if (attivi.has('pr_vetro') && r.controllo.tipo === 'sdraiata') {
+      if (this.aiuto('pr_vetro', AIUTI_VETRO)) {
+        r.voltatiVerso(r.cripta.scritta, 2.4, true);
+        r.log('aiuto: lo sguardo scivola sulla scritta del vetro');
+      }
+    }
+    // fuori dalla botola, in piedi o seduta
+    const fuori = r.interno === null && (r.controllo.tipo === 'libero' || r.controllo.tipo === 'seduta');
+    if (attivi.has('pr_guarda_su') && fuori && !r.narrativa.flag.vero('guardato_in_su')) {
+      if (this.aiuto('pr_guarda_su', AIUTI_IN_SU)) {
+        // un punto alto davanti: quasi dritto in su, dove pende il lago (più di 50° sull'orizzonte)
+        const p = r.game.player;
+        localFrameAt(p.pos, _cornice, p.cyl.theta);
+        const su = _cornice.up;
+        r.game.rig.forward(_sguardo).addScaledVector(su, -_sguardo.dot(su));
+        if (_sguardo.lengthSq() < 1e-6) _sguardo.copy(_cornice.north);
+        _sguardo.normalize();
+        const punto = r.occhi(_occhi).addScaledVector(su, 30).addScaledVector(_sguardo, 8);
+        r.voltatiVerso(punto, 2.4, true);
+        r.log('aiuto: lo sguardo sale verso il lago appeso');
+      }
     }
   }
 
-  /** I velati: se adesso in giro non c'è abbastanza gente con cui parlare, una nota dice quando arriva. */
-  private paeseCheDorme(attivi: ReadonlySet<string>): void {
-    const r = this.r;
-    if (!attivi.has('m1_velati') || !r.luoghiQui.has('piazza_ore')) return;
-    const n = r.narrativa;
-    let fatti = 0;
-    while (fatti < 3 && n.valuta(`contatore:velati>=${fatti + 1}`)) fatti++;
-    const servono = 3 - fatti;
-    if (servono <= 0) return;
-    const qui = VELATI.filter((id) => {
-      if (!r.abitanti.presente(id)) return false;
-      const d = n.dialoghi.perPersonaggio(id);
-      return d !== null && !!n.dialoghi.definizione(d)?.effettiFine.includes('contatore:velati+1');
-    }).length;
-    if (qui >= servono) return;
-    const o = r.orologio;
-    const chiave = `${o.giorno}-${Math.floor(o.ore)}`;
-    if (this.notaVelati === chiave) return;
-    this.notaVelati = chiave;
-    const quando = o.ore < 8 ? 'Il paese si sveglia: alle 08:00 sul sagrato c\'è il campanaro, sulla soglia la Pina, in piazza i bambini.' : 'Fra poco arriva qualcuno.';
-    r.ponte.notifica(`Adesso in piazza non c'è nessuno con cui parlare. ${quando} Siediti (C) e aspetta (X).`);
+  /** Vero (una volta per ciascuno) quando il passo è attivo da uno dei tempi `quando` (s). */
+  private aiuto(passo: string, quando: readonly number[]): boolean {
+    const t = this.tempoDelPasso(passo);
+    for (const s of quando) {
+      const k = `${passo}@${s}`;
+      if (t < s || this.aiutiDati.has(k)) continue;
+      this.aiutiDati.add(k);
+      return true;
+    }
+    return false;
   }
 
   /** Un atterraggio che non è una planata, mentre il passo del Velo la chiede: perché. */
@@ -348,6 +402,19 @@ export class Percorso {
   }
 
   // ------------------------------------------------------------------ il gesto di adesso
+
+  /** Il terreno `distanza` m avanti (lungo lo sguardo) sale più di quanto si cammini? */
+  private salitaDavanti(distanza: number): boolean {
+    const p = this.r.game.player;
+    localFrameAt(p.pos, _cornice, p.cyl.theta);
+    const su = _cornice.up;
+    this.r.game.rig.forward(_sguardo).addScaledVector(su, -_sguardo.dot(su));
+    if (_sguardo.lengthSq() < 1e-6) return false;
+    _sguardo.normalize();
+    const avanti = worldToCyl(_punto.copy(p.pos).addScaledVector(_sguardo, distanza), _cil);
+    const qui = p.groundFn(p.cyl.z, p.cyl.theta);
+    return troppoRipido(p.groundFn(avanti.z, avanti.theta) - qui, distanza);
+  }
 
   private calcolaIndicazione(attivi: ReadonlySet<string>): AzioneContestuale | null {
     const r = this.r;
@@ -375,7 +442,19 @@ export class Percorso {
     }
     if (c.tipo === 'libero' && r.interno === null && this.spinta >= 0.4) {
       const q = p.cyl;
-      s.muretto = murettoDavanti(p.pos, q.theta, r.game.rig.forward(_avanti), r.game.world.colliders.query(q.z, q.theta, 3, []));
+      const altezze = altezzeDavanti(p.pos, q.theta, r.game.rig.forward(_sguardo), r.game.world.colliders.query(q.z, q.theta, 3, []));
+      this.altezzeDavanti = altezze;
+      s.muretto = altezze.some((h) => h >= MURETTO_MIN && h <= MURETTO_MAX);
+      // contro un muro alto o una scarpata (il terreno sotto le terrazze) si capisce dopo poco
+      // più di un secondo di spinta, non a ogni urto
+      if (!s.muretto && this.spinta >= 1.2) {
+        const muro = muroAltoDavanti(altezze);
+        const ripido = !muro && altezze.length === 0 && this.salitaDavanti(1.2);
+        if (muro || ripido) {
+          const strada = [...attivi].map((id) => STRADE[id]).find((x) => x) ?? STRADA_DI_SERIE;
+          s.muroAlto = `${muro ? 'Troppo alto' : 'Troppo ripido'}: ${strada}`;
+        }
+      }
     }
     if (c.tipo === 'libero' && r.interno === null && attivi.has('m1_strada') && !n.dialoghi.finito('d_ottavio_strada')) {
       const o = r.orologio.ore;

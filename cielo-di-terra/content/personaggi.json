@@ -305,11 +305,11 @@
   "voce": "Testo con un mormorio. Formale, a frasi brevi.",
   "posizioni": [
    {
-    "fase": "giorno 2",
+    "fase": "dal giorno 2",
     "luogo": "bacheca_ore",
     "dalle": "07:00",
-    "alle": "19:00",
-    "condizione": "!dialogo:d_clelia_dono finito"
+    "alle": "21:00",
+    "condizione": "!dialogo:d_clelia_dono finito e !dialogo:d_ottavio_pacco finito"
    },
    {
     "fase": "dal giorno 2",

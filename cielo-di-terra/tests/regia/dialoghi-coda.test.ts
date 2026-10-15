@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { Narrativa } from '../../src/narrativa/narrativa';
 import { CONTENUTI_NARRATIVA } from '../../src/regia/contenuti';
-import { DISTANZA_DIALOGO_AUTOMATICO, DirettoreDialoghi } from '../../src/regia/dialoghi';
+import { DISTANZA_DIALOGO_AUTOMATICO, DirettoreDialoghi, dialogoDiUnLuogo } from '../../src/regia/dialoghi';
 import type { Regia } from '../../src/regia/regia';
 import { FattiFinti } from '../narrativa/aiuti';
 
@@ -70,6 +70,21 @@ describe('la coda dei dialoghi', () => {
     d.richiedi('d_clelia_dono', true);
     d.update();
     expect(d.aperto).toBe(false);
+  });
+
+  it('un dialogo automatico senza luogo (il letto nella Casa del Velo) si apre anche da lontano', () => {
+    expect(dialogoDiUnLuogo('giorno:>=2 e luogo:bacheca_ore raggiunto')).toBe(true);
+    expect(dialogoDiUnLuogo('flag:velo_indossato e ora:>=20:30')).toBe(false);
+    const { d, narrativa, fatti } = regiaFinta({ clelia: 400 });
+    fatti.giornoCorrente = 2;
+    fatti.oraCorrente = 20.6;
+    narrativa.flag.set('velo_indossato');
+    narrativa.missioni.avvia('m01_castagno_vuoto');
+    narrativa.missioni.completaPasso('m01_castagno_vuoto', 'm1_strada');
+    expect(narrativa.valuta('passo:m1_strada completato')).toBe(true);
+    d.richiedi('d_clelia_letto', true);
+    d.update();
+    expect(d.nodo?.dialogo).toBe('d_clelia_letto');
   });
 
   it('una richiesta forzata (la rete di sicurezza) salta la condizione', () => {
