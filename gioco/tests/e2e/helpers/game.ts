@@ -183,6 +183,8 @@ export interface NightState {
   lastViolation: { code: string } | null;
   message: { key: string; text: string } | null;
   margin: { current: string | null; shown: string[] };
+  hintsUsed: number;
+  fantasmaUsed: boolean;
   archive: null | { names: Record<string, string | null>; confirmed: string[]; counter: { correct: number }; named: boolean; mended: boolean; holes: unknown };
   layout: string;
 }

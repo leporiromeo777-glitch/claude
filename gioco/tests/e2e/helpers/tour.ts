@@ -42,10 +42,10 @@ async function closeOverlays(page: Page): Promise<void> {
   }
 }
 
-/** Chiude le schede del tombolo (suggerimento, personaggio, eco) senza aprire la Pausa. */
+/** Chiude le schede del tombolo (suggerimento, personaggio, eco, obiettivi) senza aprire la Pausa. */
 async function closeNightPopups(page: Page): Promise<void> {
   for (let i = 0; i < 3; i++) {
-    const open = await page.locator('[data-test="tb-suggerimento"], [data-test="tb-scheda"], [data-test="tb-eco"]').first().isVisible().catch(() => false);
+    const open = await page.locator('[data-test="tb-suggerimento"], [data-test="tb-scheda"], [data-test="tb-eco"], [data-test="tb-popup-obiettivi"]').first().isVisible().catch(() => false);
     if (!open) return;
     await page.keyboard.press('Escape');
     await page.waitForTimeout(120);
@@ -130,6 +130,15 @@ export const TOUR: TourStep[] = [
     async run(page) {
       await call(page, 'core.input.action', 'back');
       await until(page, async () => (await call<string[]>(page, 'core.overlays')).includes('pausa'), 5_000);
+      await settle(page);
+    },
+  },
+  {
+    id: 'pausa-comandi',
+    async run(page) {
+      // «Comandi» nella Pausa (revisione 1, D07.6 e C10): tasti e gesti.
+      await page.locator('[data-test="sc-pausa-comandi"]').click();
+      await visible(page, '[data-test="sc-comandi"]', 5_000);
       await settle(page);
     },
   },
@@ -232,8 +241,21 @@ export const TOUR: TourStep[] = [
     },
   },
   {
+    id: 'tombolo-obiettivi',
+    async run(page) {
+      // Il popup degli obiettivi con il contatore sul pulsante (revisione 1, D06 e TOM-13).
+      const btn = page.locator('[data-test="tb-obiettivi"]');
+      if (await btn.isVisible().catch(() => false)) {
+        await btn.click();
+        await visible(page, '[data-test="tb-popup-obiettivi"]', 3_000);
+      }
+      await settle(page, 400);
+    },
+  },
+  {
     id: 'tombolo-suggerimento',
     async run(page) {
+      await closeNightPopups(page);
       // La lampada: secondo gradino (Indizio), una frase sulla scheda (GDD 14).
       await call(page, 'night.hint', 'indizio');
       await visible(page, '[data-test="tb-suggerimento"]', 5_000);
@@ -264,6 +286,17 @@ export const TOUR: TourStep[] = [
       if (sp) await page.mouse.click(sp.cx, sp.cy, { button: 'right' });
       await visible(page, '[data-test="tb-scheda"]', 3_000);
       await settle(page, 400);
+    },
+  },
+  {
+    id: 'atto-cartello',
+    async run(page) {
+      // Il cartello della prima sera dell'Atto II (revisione 1, CAM-10: titolo e stagione).
+      await closeNightPopups(page);
+      await call(page, 'campaign.goto', 'g09', 'sera');
+      await waitScene(page, 'sera');
+      await visible(page, '[data-test="cp-atto-cartello"]', 5_000);
+      await settle(page, 500);
     },
   },
   {
@@ -330,6 +363,17 @@ export const TOUR: TourStep[] = [
       await call(page, 'campaign.goto', 'g14', 'alba');
       await waitScene(page, 'alba');
       await visible(page, '[data-test="cp-vignetta-salta"]');
+      await settle(page, 600);
+    },
+  },
+  {
+    id: 'alba-oggetto',
+    async run(page) {
+      // Dopo le vignette dell'alba di g14, Zeno consegna a mano la lettera di Clotilde
+      // (revisione 1, D09 e C04): la lettera lunga si legge nel foglio, che scorre.
+      const skip = page.locator('[data-test="cp-vignetta-salta"]');
+      if (await skip.isVisible().catch(() => false)) await skip.click();
+      await visible(page, '[data-test="cp-alba-oggetto"]', 8_000);
       await settle(page, 600);
     },
   },

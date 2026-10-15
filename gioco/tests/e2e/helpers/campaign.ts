@@ -160,6 +160,20 @@ export async function toFinale(page: Page, ms = 20_000): Promise<boolean> {
   return waitScene(page, 'finale', ms);
 }
 
+/**
+ * Alla prima sera di ogni atto la sera si apre con il cartello d'atto (titolo e stagione,
+ * «Tocca per continuare», CAM-10 della revisione 1): finché non lo si tocca i bigliettini
+ * non ci sono. Lo tocca se c'è; restituisce true se c'era.
+ */
+export async function dismissActCard(page: Page, timeout = 1_500): Promise<boolean> {
+  const card = page.locator('[data-test="cp-atto-cartello"]');
+  const shown = await card.waitFor({ state: 'visible', timeout }).then(() => true, () => false);
+  if (!shown) return false;
+  await card.click();
+  await card.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => undefined);
+  return true;
+}
+
 /** Sera: oggetto, risposte, spilli. Restituisce le scelte fatte. */
 export async function planEvening(page: Page): Promise<Omit<DayLog, 'requests'>> {
   const notes = contentNotes();

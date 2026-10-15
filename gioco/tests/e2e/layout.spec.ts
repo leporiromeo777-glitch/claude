@@ -17,7 +17,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Browser, Page, TestInfo } from '@playwright/test';
 import { auditLayout, describeProblems, INFO_KINDS, type AuditProblem } from './helpers/audit';
-import { campaignDays, playGolden, solutionRows } from './helpers/campaign';
+import { campaignDays, dismissActCard, playGolden, solutionRows } from './helpers/campaign';
 import { call, captureErrors, expect, guardNetwork, nightState, onlyProjects, openGame, test, until, waitNight, waitScene } from './helpers/game';
 import { nightLayout } from './helpers/pointer';
 import { keepImage, shot } from './helpers/shots';
@@ -42,6 +42,9 @@ const KEY_STEPS = new Set([
   'sera-atto2',
   'sera-anonimo',
   'alba-atto2',
+  // Revisione 1: la lettera di Clotilde consegnata all'alba di g14 e la pagina dei comandi.
+  'alba-oggetto',
+  'pausa-comandi',
   'bilancio',
   'taccuino',
   'taccuino-lettere',
@@ -200,6 +203,12 @@ test.describe('layout: tutta la carta della storia', () => {
         await test.step(day, async () => {
           await call(page, 'campaign.goto', day, 'sera');
           expect(await waitScene(page, 'sera'), `sera di ${day}`).toBe(true);
+          // Alla prima sera di un atto il cartello d'atto (CAM-10) viene prima di tutto: si
+          // controlla anche lui e si tocca (senza, i bigliettini di quella sera non ci sono).
+          if (await page.locator('[data-test="cp-atto-cartello"]').isVisible().catch(() => false)) {
+            await check(`${day}-cartello`);
+            expect(await dismissActCard(page), `${day}: il cartello d'atto si chiude al tocco`).toBe(true);
+          }
           // L'oggetto (o la lettera) della laguna, se c'è.
           const door = page.locator('[data-test="cp-oggetto"]');
           if (await door.isVisible().catch(() => false)) {
@@ -216,7 +225,12 @@ test.describe('layout: tutta la carta della storia', () => {
           await check(`${day}-sera`);
           for (const id of ev?.noteIds ?? []) {
             const card = page.locator(`[data-test="cp-bigliettino-${id}"]`);
-            if (!(await card.isVisible().catch(() => false))) continue;
+            if (!(await card.isVisible().catch(() => false))) {
+              // Un bigliettino della sera che non si vede non si può controllare: è un problema
+              // (o il test non sa più arrivarci, come con il cartello d'atto della revisione 1).
+              problems.push(`${day}-${id}: il bigliettino non si vede nella sera`);
+              continue;
+            }
             // Un bigliettino che non si apre con un clic al centro è coperto da qualcosa.
             const opened = await card.click({ timeout: 3_000 }).then(() => true, () => false);
             if (!opened) {
