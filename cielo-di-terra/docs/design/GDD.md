@@ -78,7 +78,11 @@ Gravità di riferimento per il level design: le tre «corti di peso» degli Alpe
   - **a Mont**: verso z = 0, il Tappo Sud e gli Alpeggi;
   - **a Lag**: verso z = 3000, il Sordo;
   - **in su**: verso l'asse e la Linea.
-- **Fogli del catasto** (per l'interfaccia e i nomi delle particelle): 1 = Corbella e le Selve, 2 = Il Verbanetto, 3 = Gli Alpeggi, 4 = Il Sordo, 5 = Le Finestre, 6 = Il Fuso, 7 = Il Guscio. Il nome catastale di una particella di valle è «foglio-numero», con numero = iz·24 + (colonna dentro la valle) + 1. Esempio: la particella della Terrazza Pedrazzini (iz 23, colonna 6 di Valle 1) è «1-559». Il motore usa l'id numerico della griglia; il nome catastale serve solo a schermo e nei testi.
+- **Fogli del catasto** (per l'interfaccia e i nomi delle particelle): 1 = Corbella e le Selve, 2 = Il Verbanetto, 3 = Gli Alpeggi, 4 = Il Sordo, 5 = Le Finestre, 6 = Il Fuso, 7 = Il Guscio. Il nome catastale è «foglio-numero»; il motore usa l'id numerico della griglia, il nome serve a schermo e nei testi:
+  - **valli** (fogli 1, 2, 3; righe iz 0-65, cioè z < 2640, compreso il lobo del Tappo Sud): numero = iz·24 + (colonna dentro la valle) + 1. Esempio: la Terrazza Pedrazzini (iz 23, colonna 6 di Valle 1) è «1-559»;
+  - **Sordo** (foglio 4; righe iz 66-74, z ≥ 2640, su tutte le 96 colonne): numero = (iz − 66)·96 + iθ + 1. Esempio: l'orto di Battista (cella 6949, iz 72, iθ 37) è «4-614»;
+  - **Finestre** (foglio 5; righe iz 0-65): le tre strisce da 8 colonne in fila, Ponti (iθ 24-31), Cieca (iθ 56-63), Vedove (iθ 88-95): numero = iz·24 + k·8 + (iθ − inizio della striscia) + 1, con k = 0, 1, 2;
+  - Fuso e Guscio (fogli 6 e 7) non hanno particelle nella griglia del motore: i loro luoghi hanno solo un nome.
 
 ### 2.3 Il tempo
 
@@ -159,9 +163,9 @@ Le tre valli condividono i due Tappi. Il Tappo Sud (z 0-620) sale a conca in tre
 | Mulino sul riale | (1130, 51,0, 7,5) | ruota, chiodo 7 |
 | Fienile di Ottavio | (1176, 58,5, 11,7) | rifugio, chiodo 8 sul Sass dal Messo |
 | I Ronchi | (1150-1200, 42-48) | case degli Smascherati, casa di Nando |
-| Sass Grand e Pilastro 6 | (1190, 74,0, 42) | belvedere sulla Finestra dei Ponti |
+| Sass Grand e Pilastro 6 | (1190, 74,0, 41,7) | belvedere sulla Finestra dei Ponti |
 | Grà di Pian | (890, 17,5, 34) | essiccatoio con fumo, chiodo 37 |
-| Pian dei Ricci e Pilastro 4 | (800, 9,0, 90) | Selve alte |
+| Pian dei Ricci e Pilastro 4 | (800, 9,0, 91) | Selve alte |
 | Balcone dei Messi e Pilastro 42 | (110, 30, 450) | 0,3 g: da qui si «cade» nell'altra valle |
 | Cartiera | (1320, 49, 4) | carta di castagno con la filigrana (secondaria 7) |
 | Bocca delle Fade e Pilastro 44 | (1520, 70, 18) | botola d'ingresso alla Galleria della Carta |
@@ -250,7 +254,7 @@ La parete nord sale da z 2640 (piede) a z 3000; la quota passa da 0 a 642 in poc
 | Eremo della Linea | (2785, 30, 320) | a mezza parete sopra Valle 1: reliquiario, cella, scrittoio della Madre; si raggiunge dalla Scala Coperta |
 | Pilastri divelti nel 2266 | 210 (2715, 45, 150), 211 (2790, 165, 320), 212 (2915, 285, 500) | restano i fori nella roccia |
 | Scala dei pellegrini | θ 44, dal piede (San Rocco) alla Lanterna | tolta dalla Carta, non dalla pietra: chiodi da arrampicata, gradini scavati |
-| Orto di Battista (particella 4-117) | (2880, 140, 470) | cengia tenuta in ordine dalle Fade per una riga G1 del 2199 |
+| Orto di Battista (particella 4-614) | (2880, 140, 470) | cengia tenuta in ordine dalle Fade per una riga G1 del 2199 |
 | Lanterna | (2968, asse, 642) | osservatorio murato con lastre di piombo; telescopio da 60 cm e cercastelle |
 | Caposaldo Zero | sulla soglia della Lanterna | cancellato dalla Carta nel 2265 |
 
@@ -263,8 +267,8 @@ La rete di Aurelio Respini conta **212 capisaldi**: 24 pilastri di bronzo (alti 
 | N. | Pilastro | (z, θ, h) | Zona |
 |---|---|---|---|
 | 1 | San Vigilio, sulla cella campanaria | (1062, 37,2, 62,5) | Corbella |
-| 4 | Pian dei Ricci | (800, 9,0, 90) | Selve alte |
-| 6 | Sass Grand | (1190, 74,0, 42) | Corbella, versante a Mane |
+| 4 | Pian dei Ricci | (800, 9,0, 91) | Selve alte |
+| 6 | Sass Grand | (1190, 74,0, 41,7) | Corbella, versante a Mane |
 | 9 | Fondo del Verbanetto (sommerso) | (2300, 170, 2) | Fondale |
 | 12 | Ponte di Mezzo | (1500, 105, 8) | Finestra dei Ponti |
 | 14 | Torre dei Bugni | (1500, 197, 45) | Verbanetto |
@@ -349,7 +353,8 @@ Ogni zona introduce un verbo o una regola nuova, poi la varia, poi la combina co
 **La regola del cilindro.**
 
 - **Di giorno** si rileva **vicino**: lati fra capisaldi della stessa valle, lunghi da 40 a 600 m. Un lato che passa a meno di 150 m dall'asse non si può mirare finché la Linea è accesa: abbaglia.
-- **Di notte e alla brace** si mira **in su**, attraverso il cielo, sui lumi che Ottavio porta in volo sui pilastri delle altre valli (dalla missione 4; in sua assenza le api di Rosa, i fuochi dei Sordi, la lampada di Uè). Tre pilastri di tre valli che si vedono a vicenda formano un **triangolo attraverso il cielo**. Chiudere un triangolo rileva le particelle entro 80 m da ciascun vertice e le **particelle di trama** scritte per quel triangolo. Sei triangoli servono alla trama (§5.6).
+- **Alla brace** si vede ancora tutto: valgono anche i lati vicini fra due chiodi. **Di notte** un lato vicino si chiude solo se il bersaglio è un pilastro con il lume acceso: un chiodo d'ottone a terra, senza segnale, di notte non si vede.
+- **Di notte e alla brace** si mira anche **in su**, attraverso il cielo, sui lumi che Ottavio porta in volo sui pilastri delle altre valli (dalla missione 4; in sua assenza le api di Rosa, i fuochi dei Sordi, la lampada di Uè). Tre pilastri di tre valli che si vedono a vicenda formano un **triangolo attraverso il cielo**. Chiudere un triangolo rileva le particelle entro 80 m da ciascun vertice e le **particelle di trama** scritte per quel triangolo. Sei triangoli servono alla trama (§5.6).
 - **La stazione libera.** Dove non c'è un caposaldo (il Sordo, una cengia, il fondo di una gola) Elvira pianta lo squadro su un punto qualunque e collima di notte **tre** lumi su pilastri noti: è l'intersezione inversa dei geometri. Il punto viene rilevato con un ventaglio di 40 m e Elvira ci pianta un chiodo nuovo, numerato «E1», «E2»… nel libretto. Il chiodo nuovo è un caposaldo a tutti gli effetti, finché nessuno lo sposta. È il modo di salire il Sordo (missione 14).
 
 **La mano che ricorda.** Dopo i primi 10 rilievi la bolla chiede metà della precisione e la collimazione dura 0,8 s: un rilievo dura meno di 30 s. Una particella che ha perso il rilievo perché il suo caposaldo è stato spostato si rileva di nuovo in 5 s, appena il caposaldo torna al suo posto.
@@ -359,6 +364,8 @@ Ogni zona introduce un verbo o una regola nuova, poi la varia, poi la combina co
 **Il Dondolio.** Dopo la svolta la bolla ondeggia. La lettura si prende quando la bolla passa per il centro, in una finestra fissa di 0,6 s ogni 4,5 s (1,5 s con l'aiuto di accessibilità).
 
 **Quando non si può rilevare**: il bersaglio non è visibile (tabella), il Collare lo copre (a orario fisso, sempre lo stesso), la Linea abbaglia, il caposaldo è stato spostato, oppure Elvira è senza fiato. Un tentativo fallito non costa nulla.
+
+**Seppia e china.** Ripassare a china una particella già rilevata da un altro Giardiniere non toglie il rilievo vecchio: la particella li conserva tutti e sulla Pianta prevale la china. Per le condizioni di missione (`cella:id rilevata`) conta solo il rilievo di Elvira (G5); per la notte conta il rilievo di chiunque.
 
 **Validità.** Un rilievo vale cinquant'anni di gioco finché il caposaldo resta al suo posto: in pratica, per tutta la partita. Il Catasto conserva anche i rilievi di altri Giardinieri: all'inizio del gioco una piccola striscia attorno alla Cripta è già rilevata, a inchiostro seppia, con la firma G4 e la data 2291 (§FASE1).
 
@@ -414,7 +421,7 @@ Il terreno non cambia mai forma. Di notte cambiano solo **40 elementi mobili** (
 
 Alcuni elementi hanno **stadi intermedi** prefabbricati (per esempio la casa di Nando, che perde un muro per notte: Abitata → Smontata).
 
-Distribuzione: Corbella e le Selve 12 (4 nel nucleo di Corbella), Verbanetto 9, Alpeggi 10, Tappo Sud 1, Finestre 5, Guscio 2, Sordo 1 (la Via della parete, che però è lunga e ha otto ancore). L'elenco completo è nell'appendice B.
+Gli elementi mobili non fanno mai parte dell'hub, anche quando stanno dentro il nucleo di Corbella (hanno sempre `hub: false`). Distribuzione: Corbella e le Selve 12 (4 nel nucleo di Corbella), Verbanetto 9, Alpeggi 10, Tappo Sud 1, Finestre 5, Guscio 2, Sordo 1 (la Via della parete, che però è lunga e ha otto ancore). L'elenco completo è nell'appendice B.
 
 #### 3.4.4 Le quattro regole, sempre in quest'ordine
 
@@ -424,7 +431,7 @@ Ogni notte, all'inizio del giro (22:00), si applicano:
 2. **Le correzioni al terminale.** Il G3 della Madre cancella gli elementi scritti dalla Penna di Elvira (firma G5) che lei non ha rimisurato sul terreno. Il G3 batte il G5 al terminale perché la Madre è la Giardiniera di turno più anziana; nessuna penna batte una misura.
 3. **Il giro delle Fade.** Ogni elemento mobile non rilevato torna alla variante Carta (o avanza di uno stadio verso la Carta, se ha stadi). Dopo la svolta, gli elementi del Protocollo non rilevati passano a Mietuta. Ogni elemento ha un'ora di passaggio fissa (la tabella del giro).
 4. **Le eccezioni fisse.** Le Fade non toccano mai:
-   - l'hub (il nucleo di Corbella), le vie di trama, i rifugi;
+   - l'hub (le particelle con `hub: true`: case, chiesa e piazza del nucleo di Corbella, esclusi i suoi quattro elementi mobili), le vie di trama, i rifugi;
    - la particella dove si trova Elvira al momento del passaggio (le Fade aspettano e se ne vanno all'alba: chi passa la notte su un sentiero lo salva);
    - un sentiero necessario senza un'alternativa visibile.
 
@@ -436,7 +443,7 @@ Scritte a mano, scelte da una tabella secondo lo stato. Tetto per atto: **2 nell
 
 | # | Atto | Nome | Condizione | Effetto | Annuncio dell'Ombrista |
 |---|---|---|---|---|---|
-| A1 | I | La pietra che cammina | Elvira ha rilevato un lato con il Pilastro 4 | le guardie spostano il Pilastro 4 di 3 m a Sera (secondaria «I termini spostati») | «e di notte una pietra camminò verso Sera» |
+| A1 | I | La pietra che cammina | Elvira ha rilevato un lato con il Pilastro 4 **e** ha chiuso almeno una pista fra le missioni 2-5; mai prima del giorno 6 (i lati chiusi nel gioco libero della Fase 1 non la fanno scattare la prima sera) | le guardie spostano il Pilastro 4 di 3 m a Sera (secondaria «I termini spostati») | «e di notte una pietra camminò verso Sera» |
 | A2 | I | Il chiodo della Bugnera | Elvira ha rilevato attorno ai Bugni | il chiodo 141 spostato di 2 m: le arnie di Rosa tornano a matita | «e la Bugnera trovò la sua soglia più lontana» |
 | A3 | I | Il chiodo del Pian | Elvira ha rilevato nel Pian dal Fen | il chiodo 203 spostato: un fienile dei Sordi torna a matita | «e il fieno non sapeva più dove dormire» |
 | A4 | I | La benedizione tolta | Elvira ha rifiutato il velo per tre giorni | la casa di Nando perde la «benedizione» provvisoria (se Elvira gliel'ha data con la Penna) | «e una casa fu dimenticata» |
@@ -926,7 +933,7 @@ Quattro livelli: (1) visto ma irraggiungibile; (2) nascosto in piena vista; (3) 
 | 3 | **Le firme nel vetro** | Finestra delle Vedove, faccia esterna | cavalcando un Ragno o restando sul costolone con le Suole d'ancora durante il passaggio della Meta, la luce radente mostra per 1,5 s le 2.300 firme; fra le altre «Tienimi la valle, mamma. Marta» e, poco sotto, «A. R., geometra» | 1 Germoglio; una battuta diversa di Elvira nell'ultima scena di ogni finale |
 | 3 | **La capsula del Pilastro 9** | (2300, 170, 2), sotto il limo, accanto alla bocca di scarico | nessuna via segnata: Priorità sullo scarico, Contrappeso nella corrente, lanterna portata dalle api fino all'ultima sacca, oppure la sacca di Gioann e la bassa marea | 1 Germoglio; il biglietto di Aurelio e un disegno di Marta; chiudere il Triangolo del Lago (9-15-17) mette a inchiostro tutto il Fondale |
 | 3 | **La luce cinerea** | Finestra delle Vedove, nei Giorni Ciechi | spegnere ogni lume, sedersi e aspettare che gli occhi si abituino: la parte scura della Sorella è grigio-azzurra; confrontandola con il quaderno di Ottavio Elvira scrive «C'è qualcosa di grande e luminoso dietro il Tappo Nord» | 1 Germoglio; una battuta in più nella M6 |
-| 3 | **L'orto di Battista** | particella 4-117, cengia del Sordo (2880, 140, 470) | al terminale, fra centinaia di righe G3, una riga G1 del 2199: «particella 4-117, orto, conservare». Ci si arriva combinando gravità ridotta, Coriolis e passerelle notturne | 2 Germogli; una lettera di Battista «a chi verrà dopo»; nella M14 un rifugio che le Fade non toccano |
+| 3 | **L'orto di Battista** | particella 4-614, cengia del Sordo (2880, 140, 470) | al terminale, fra centinaia di righe G3, una riga G1 del 2199: «particella 4-614, orto, conservare». Ci si arriva combinando gravità ridotta, Coriolis e passerelle notturne | 2 Germogli; una lettera di Battista «a chi verrà dopo»; nella M14 un rifugio che le Fade non toccano |
 | 4 | **Il merletto di Sant'Arianna** | Archivio dei Fondatori | il merletto a tombolo «Sant'Arianna, inverno 1965, dal tombolo di Ada; portato quassù da Lucia F.»: i pieni e i vuoti, letti come il codice delle campane, danno il numero di un cassetto e la frase «Ciò che si tesse di notte si sveglia di giorno» | 1 Germoglio; l'ultima lettera di Lucia (via della parola nella M13) |
 | 4 | **Il cilindro di Giulia** | i 52 cilindri di Fermo | convertendo il calendario dei Sordi (inverni dall'ultima Salida, mesi dalle fasi della Sorella) in date terrestri, i cilindri dell'alba mostrano piccole differenze; uno di quattro anni fa dice: «da oggi legge la Giulia, che ha quindici anni, perché la mamma non c'è più» | requisito del finale segreto |
 
@@ -1115,7 +1122,7 @@ Ogni fase finisce con una versione giocabile dall'inizio, con i test automatici 
 | Concept | Questo documento | Motivo |
 |---|---|---|
 | cilindro di 3,2 km, raggio 650 m | 3000 m, raggio 646 m | costanti del motore; la gravità al fondo resta 1 g con 51 s |
-| 160 particelle, 40 mobili | particelle = celle di 40 m (7.200 in tutto); 40 **elementi mobili** di 1-6 particelle | griglia del motore; il numero che conta per la produzione (varianti da costruire) resta 40 |
+| 160 particelle, 40 mobili | particelle = celle di 40 m (7.200 in tutto); 40 **elementi mobili** di 1-6 particelle; nomi catastali con una formula per foglio (§2.2) | griglia del motore; il numero che conta per la produzione (varianti da costruire) resta 40 |
 | giorni di 40 + 12 minuti | giorno di 24 ore = 40 minuti reali (giorno 26 min, notte 14) | costante del motore |
 | l'esodo dei Sordi passa sulla Finestra dei Ponti | passa sulla **Finestra delle Vedove** | nel motore la Finestra dei Ponti sta fra Corbella e il Verbanetto; la Finestra fra gli Alpeggi e Corbella è la 330-360, che diventa la Finestra delle Vedove (le firme sotto la carovana rafforzano la scena) |
 | nomi delle Finestre 2 e 3 non assegnati | 210-240 Finestra Cieca, 330-360 Finestra delle Vedove | la Cieca vicina agli Alpeggi rende visibile l'agenda della Madre sulla valle che gela; le Vedove vicine a Corbella mettono Tecla e la luce cinerea a portata del primo atto |
@@ -1124,5 +1131,6 @@ Ogni fase finisce con una versione giocabile dall'inizio, con i test automatici 
 | pagine da 2 a 4 Germogli, 8 coppie su 12 | 2/3/3/4 Germogli, 8 o 9 coppie su 12 | numeri interi coerenti con 28 Germogli |
 | rilievo della singola particella | ventaglio di 60 m attorno a un lato; triangoli attraverso il cielo; **stazione libera** | con celle di 40 m un rilievo per cella sarebbe una lista della spesa; la stazione libera (intersezione inversa) dà una regola leggibile alla salita del Sordo |
 | velo della Madre: scelta fissa | si mette e si toglie fino alla M6 | arriva il secondo giorno, prima che il giocatore sappia che cosa significa |
+| «particella 4-117» (l'orto di Battista) | «particella 4-614» | il nome segue la formula del foglio 4 (§2.2), così la Pianta e il terminale dicono lo stesso numero |
 | striscia della Cripta | rilevata dal G4 nel 2291, a inchiostro seppia | spiega perché la botola non è stata richiusa dalle Fade e pianta il primo indizio su S. |
 | manovre e Tenuta di quattro minuti | manovra di 40 minuti di gioco; nella Tenuta l'orologio corre a un quarto | coerenza fra orologio del mondo e durata della scena |

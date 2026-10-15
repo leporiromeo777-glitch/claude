@@ -190,17 +190,17 @@ export class CatastoGioco {
   scorri(iv: Intervallo, ctx: ContestoTempo): void {
     if (iv.a <= iv.da) return;
     // tappe: 05:30 (alba), 19:30 (brace), 22:00 (la notte comincia per chi veglia)
-    const tappe = [...attraversa(iv, 5.5), ...attraversa(iv, 19.5), ...attraversa(iv, 22)].sort((x, y) => x - y);
+    const tappe = [...new Set([...attraversa(iv, 5.5), ...attraversa(iv, 19.5), ...attraversa(iv, 22)])].sort((x, y) => x - y);
     let t = iv.da;
-    for (const tappa of [...tappe, iv.a]) {
+    for (const tappa of tappe) {
       this.tratto(t, tappa, ctx);
       t = tappa;
-      const ore = ((tappa % 24) + 24) % 24;
-      if (tappa === iv.a && !tappe.includes(tappa)) break;
-      if (Math.abs(ore - 5.5) < 1e-6) this.alba(ctx);
-      else if (Math.abs(ore - 19.5) < 1e-6) this.brace(ctx, tappa);
-      else if (Math.abs(ore - 22) < 1e-6 && !ctx.dorme && !this.catasto.stato.notteInCorso) this.catasto.iniziaNotte({ elvira: { sveglia: true }, seme: this.seme });
+      const ore = Math.round((((tappa % 24) + 24) % 24) * 60);
+      if (ore === 330) this.alba(ctx);
+      else if (ore === 1170) this.brace(ctx, tappa);
+      else if (ore === 1320 && !ctx.dorme && !this.catasto.stato.notteInCorso) this.catasto.iniziaNotte({ elvira: { sveglia: true }, seme: this.seme });
     }
+    this.tratto(t, iv.a, ctx);
   }
 
   /** Un tratto senza tappe in mezzo: cicli del giorno o avanzamento della notte. */
@@ -264,7 +264,7 @@ export class CatastoGioco {
   }
 
   latiChiusi(): string[] {
-    return Object.keys(this.catasto.stato.lati ?? {});
+    return Object.keys(this.catasto.stato.lati);
   }
 
   salva(): unknown {
