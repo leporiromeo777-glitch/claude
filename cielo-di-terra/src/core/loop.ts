@@ -68,6 +68,14 @@ export class FixedLoop {
     return n;
   }
 
+  /** Avanza di `n` passi fissi senza disegnare (test e prove E2E veloci). */
+  stepUpdates(n: number): void {
+    for (let i = 0; i < n; i++) {
+      this.cb.update(this.dt);
+      this.steps++;
+    }
+  }
+
   /** Avanza di `n` passi fissi e disegna una volta (anche in pausa). */
   stepFrames(n: number): void {
     for (let i = 0; i < n; i++) {

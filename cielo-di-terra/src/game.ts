@@ -42,6 +42,18 @@ export interface GameOptions {
   hours?: number;
 }
 
+/**
+ * Un sistema esterno agganciato al ciclo del gioco (la regia, l'audio, gli oggetti animati...).
+ * - `update(dt)`: a ogni passo fisso, dopo il giocatore e prima dell'orologio del cielo;
+ * - `render(frameDt)`: a ogni fotogramma, con la camera già al suo posto, prima del disegno del mondo;
+ * - `overlay(renderer)`: dopo il mondo e il Velo (oggetti in primo piano, come lo squadro).
+ */
+export interface SistemaGioco {
+  update?(dt: number): void;
+  render?(frameDt: number): void;
+  overlay?(renderer: WebGLRenderer): void;
+}
+
 export interface PlayerState {
   z: number;
   theta: number;
@@ -89,6 +101,17 @@ export class Game {
   cellTexture!: CellTexture;
   materials: Record<string, Material> = {};
 
+  /** Sistemi agganciati al ciclo (vedi `SistemaGioco`), chiamati nell'ordine. */
+  readonly sistemi: SistemaGioco[] = [];
+  /** Se vero i comandi di movimento sono ignorati (menu, dialoghi, Elvira seduta). */
+  movimentoBloccato = false;
+  /**
+   * Controllo esterno del corpo (scala a pioli, capsula, squadro piantato): se la funzione
+   * restituisce true il controller del giocatore salta il passo.
+   */
+  controlloEsterno: ((dt: number) => boolean) | null = null;
+  /** Moltiplicatore del campo visivo (cannocchiale x4 = 0.25). */
+  private fovScale = 1;
   /** Tempo di simulazione (s). */
   simTime = 0;
   sky: SkyState;
@@ -201,7 +224,7 @@ export class Game {
     this.player.options.fullPhysics = st.fullPhysics;
     this.player.options.coriolisOnFoot = st.coriolisOnFoot;
     this.clock.dayLengthMinutes = st.dayLengthMinutes;
-    this.camera.fov = st.fov;
+    this.camera.fov = st.fov * this.fovScale;
     this.uniforms.uPencil.value.x = st.nearPaint[0];
     this.uniforms.uPencil.value.y = st.nearPaint[1];
     this.windows?.setStarSpeed(st.starSpeed);
@@ -214,9 +237,21 @@ export class Game {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.fp?.setAspect(this.camera.fov, w / h);
+    this.fp?.setAspect(this.settings.fov, w / h);
     const pxH = h * this.renderer.getPixelRatio() * this.renderScale;
     this.uniforms.uPixelAngle.value = (this.camera.fov * DEG) / pxH;
+  }
+
+  /** Restringe o allarga il campo visivo (1 = quello delle impostazioni; 0.25 = cannocchiale x4). */
+  setFovScale(k: number): void {
+    if (Math.abs(k - this.fovScale) < 1e-4) return;
+    this.fovScale = k;
+    this.camera.fov = this.settings.fov * k;
+    this.resize();
+  }
+
+  get currentFovScale(): number {
+    return this.fovScale;
   }
 
   /** Orienta lo sguardo: yaw 0 = nord (Lag), 90 = est (Mane); pitch in gradi. */
@@ -251,6 +286,7 @@ export class Game {
   private readInput(): PlayerInput {
     const i = this.input;
     const inp = emptyInput();
+    if (this.movimentoBloccato) return inp;
     inp.forward = (i.isDown('KeyW') || i.isDown('ArrowUp') ? 1 : 0) - (i.isDown('KeyS') || i.isDown('ArrowDown') ? 1 : 0);
     inp.right = (i.isDown('KeyD') || i.isDown('ArrowRight') ? 1 : 0) - (i.isDown('KeyA') || i.isDown('ArrowLeft') ? 1 : 0);
     inp.run = i.isDown('ShiftLeft') || i.isDown('ShiftRight');
@@ -283,6 +319,11 @@ export class Game {
       const upd = (i.isDown('Space') ? 1 : 0) - (i.isDown('KeyC') ? 1 : 0);
       this.freePos.addScaledVector(f, fw * speed * dt).addScaledVector(r, rt * speed * dt).addScaledVector(_f.up, upd * speed * dt);
       this.rig.update(dt, _f.up, false);
+    } else if (this.controlloEsterno?.(dt)) {
+      this.player.vel.set(0, 0, 0);
+      this.prevVel.set(0, 0, 0);
+      localFrameAt(this.player.pos, _f, this.player.cyl.theta);
+      this.rig.update(dt, _f.up, true);
     } else {
       const inp = this.readInput();
       this.prevVel.copy(this.player.vel);
@@ -292,6 +333,8 @@ export class Game {
       localFrameAt(this.player.pos, _f, this.player.cyl.theta);
       this.rig.update(dt, _f.up, this.player.grounded);
     }
+
+    for (const s of this.sistemi) s.update?.(dt);
 
     this.clock.advance(dt);
     this.sky = this.clock.state(this.sky);
@@ -328,6 +371,7 @@ export class Game {
 
     // Velo in primo piano e nappina
     this.updateFirstPerson(frameDt);
+    for (const s of this.sistemi) s.render?.(frameDt);
 
     this.renderer.info.reset();
     this.renderer.clear();
@@ -336,6 +380,7 @@ export class Game {
       this.renderer.clearDepth();
       this.renderer.render(this.fp.scene, this.fp.camera);
     }
+    for (const s of this.sistemi) s.overlay?.(this.renderer);
     this.stats.frame(frameDt, () => this.statsLines());
   }
 
