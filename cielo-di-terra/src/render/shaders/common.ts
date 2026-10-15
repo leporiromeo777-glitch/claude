@@ -149,7 +149,7 @@ vec3 shadeLit(vec3 albedo, vec3 N, vec3 P, out float tone) {
   float b = bandLight((ndl + 0.12) / 1.12) * lineaReach(P);
   float hemi = dot(N, up) * 0.5 + 0.5;
   vec3 amb = mix(uAmbBottom, uAmbTop, hemi);
-  vec3 light = amb * 0.86 + uSunColor * (uSunIntensity * b * 0.6);
+  vec3 light = amb * 0.96 + uSunColor * (uSunIntensity * b * 0.55);
   tone = clamp(dot(light, vec3(0.333)), 0.0, 1.2);
   return albedo * light + albedo * lampLight(P, N);
 }
@@ -184,10 +184,10 @@ export const BRUSH_GLSL = /* glsl */ `
 float brushStrokes(vec2 uv, float dist) {
   float s1 = vnoise2(uv * vec2(0.42, 2.1));
   float s2 = vnoise2(uv * vec2(0.1, 0.5) + 17.0);
-  float s3 = vnoise2(uv * vec2(0.025, 0.12) + 41.0);
+  float s3 = vnoise2(uv * vec2(0.03, 0.06) + 41.0);
   float fNear = 1.0 - smoothstep(15.0, 60.0, dist);
   float fMid = 1.0 - smoothstep(150.0, 600.0, dist);
-  return (s1 - 0.5) * fNear * 0.55 + (s2 - 0.5) * fMid * 0.75 + (s3 - 0.5) * 0.9;
+  return (s1 - 0.5) * fNear * 0.55 + (s2 - 0.5) * fMid * 0.75 + (s3 - 0.5) * 0.55;
 }
 
 // coordinate di superficie per oggetti qualsiasi (piano tangente alla normale)

@@ -70,7 +70,7 @@ try {
     for (const c of lista) {
       await pagina.goto(`${indirizzo}?c=${encodeURIComponent(c)}`, { waitUntil: 'networkidle' });
       await pagina.waitForFunction(() => window.__UI_PRONTA__ === true, null, { timeout: 15000 });
-      await pagina.waitForTimeout(700);
+      await pagina.waitForTimeout(c === 'caricamento' ? 3200 : 700);
       const file = path.join(cartellaShots, `${c}-${w}.png`);
       await pagina.screenshot({ path: file });
       console.log('salvata', path.relative(radiceModulo, file));

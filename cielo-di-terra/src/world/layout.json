@@ -194,8 +194,9 @@
     "pitch": 8
   },
   "demo": {
-    "_nota": "Stato iniziale delle particelle per la demo: valle 1 a matita tranne attorno al paese; Verbanetto e Tappo Sud dipinti; valle 3 a matita con qualche macchia; il Sordo a matita.",
+    "_nota": "Stato iniziale delle particelle per la demo: valle 1 dipinta per tutta la larghezza attorno al paese (z in paintedValle1Z) e in un cerchio di paintedAroundStart m dalla partenza, a matita altrove; Verbanetto e Tappo Sud dipinti; valle 3 a matita con qualche macchia; il Sordo a matita.",
     "paintedAroundStart": 340,
+    "paintedValle1Z": [640, 1420],
     "paintedStrips": ["valle-2"],
     "pencilStrips": ["valle-1", "valle-3"],
     "paintedSouthCap": true,

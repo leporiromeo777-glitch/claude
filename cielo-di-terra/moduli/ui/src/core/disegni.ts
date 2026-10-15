@@ -2,7 +2,7 @@
  * Piccoli disegni a penna in SVG, condivisi fra i componenti (non sono icone: sono illustrazioni
  * da cartiglio, come i fregi delle carte topografiche).
  */
-import { s } from './dom';
+import { casuale, s } from './dom';
 
 /**
  * Il Verbano visto di tre quarti: un cilindro a matita con le tre Finestre scure, la Linea sull'asse
@@ -50,16 +50,42 @@ export function disegnoCilindro(opz: { larghezza?: number; animato?: boolean } =
     svg.append(s('polygon', { points: pts.join(' '), class: 'ui-cil-finestra' }));
   }
 
-  // Tratteggio delle valli: generatrici sottili.
-  for (let phi = 45; phi < 180; phi += 9) {
-    if (finestre.some(([a, b]) => phi >= a - 2 && phi <= b + 2)) continue;
+  // Le valli dentro il cilindro: castagni a pallini, un campanile, il lago a onde.
+  const r = casuale(7);
+  const castagni = s('g', { class: 'ui-cil-valle' });
+  for (let i = 0; i < 46; i++) {
+    const phi = 40 + r() * 64;
     const y = yAngolo(phi);
-    svg.append(
-      s('path', {
-        d: `M${xBordo(cx1, y).toFixed(1)} ${y.toFixed(1)} L${xBordo(cx2, y).toFixed(1)} ${y.toFixed(1)}`,
-        class: 'ui-cil-generatrice',
-      }),
+    const xa = xBordo(cx1, y) + 8;
+    const xb = xBordo(cx2, y) - 8;
+    const x = xa + r() * (xb - xa);
+    const sy = Math.max(0.35, Math.sin((phi * Math.PI) / 180));
+    const raggio = 2.2 + r() * 1.4;
+    castagni.append(
+      s('ellipse', { cx: x.toFixed(1), cy: y.toFixed(1), rx: raggio.toFixed(1), ry: (raggio * sy).toFixed(1) }),
+      s('path', { d: `M${x.toFixed(1)} ${(y + raggio * sy).toFixed(1)} l0 ${(2.2 * sy).toFixed(1)}` }),
     );
+  }
+  // Il campanile di San Vigilio, bianco di calce.
+  const yc = yAngolo(74);
+  castagni.append(
+    s('path', { d: `M128 ${(yc + 3).toFixed(1)} l0 -9 l3 -4 l3 4 l0 9 z`, class: 'ui-cil-campanile' }),
+  );
+  svg.append(castagni);
+  const lago = s('g', { class: 'ui-cil-lago' });
+  for (let i = 0; i < 9; i++) {
+    const phi = 146 + r() * 28;
+    const y = yAngolo(phi);
+    const xa = xBordo(cx1, y) + 30;
+    const xb = xBordo(cx2, y) - 40;
+    const x = xa + r() * (xb - xa);
+    lago.append(s('path', { d: `M${x.toFixed(1)} ${y.toFixed(1)} q3 -2 6 0 t6 0 t6 0` }));
+  }
+  svg.append(lago);
+  // Due generatrici sottili ai bordi delle valli, a matita.
+  for (const phi of [40, 104, 146]) {
+    const y = yAngolo(phi);
+    svg.append(s('path', { d: `M${xBordo(cx1, y).toFixed(1)} ${y.toFixed(1)} L${xBordo(cx2, y).toFixed(1)} ${y.toFixed(1)}`, class: 'ui-cil-generatrice' }));
   }
 
   // Contorno: arco sinistro (metà visibile), due generatrici di contorno, ellisse del Tappo Nord.

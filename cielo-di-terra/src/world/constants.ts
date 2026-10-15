@@ -94,6 +94,8 @@ export interface Layout {
   start: { z: number; theta: number; yaw: number; pitch: number };
   demo: {
     paintedAroundStart: number;
+    /** Intervallo di z in cui la Valle 1 è dipinta per tutta la larghezza. */
+    paintedValle1Z: [number, number];
     paintedStrips: string[];
     pencilStrips: string[];
     paintedSouthCap: boolean;

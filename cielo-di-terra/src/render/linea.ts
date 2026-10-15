@@ -118,7 +118,7 @@ export class Linea {
           float outer = exp(-pow(d / 0.55, 2.0));
           float lit = 1.0 - smoothstep(uLineaIgnite - 25.0, uLineaIgnite + 25.0, vZ);
           float tip = exp(-pow((vZ - uLineaIgnite) / 60.0, 2.0)) * step(1.0, uLineaIgnite) * (1.0 - step(2990.0, uLineaIgnite));
-          vec3 day = uGlow * (inner * 0.9 + mid * 0.35 + outer * 0.12) * uBright;
+          vec3 day = uGlow * (inner * 0.75 + mid * 0.22 + outer * 0.07) * uBright;
           vec3 ember = uEmber * (inner * 0.55 + mid * 0.22 + outer * 0.07);
           vec3 c = mix(ember, day, lit) + vec3(1.0, 0.8, 0.5) * tip * (inner + mid * 0.6);
           gl_FragColor = vec4(c, 1.0);

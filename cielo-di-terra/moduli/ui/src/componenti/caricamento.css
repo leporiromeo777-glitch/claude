@@ -126,9 +126,14 @@
 }
 .ui-cilindro--animato .ui-cil-finestra,
 .ui-cilindro--animato .ui-cil-linea,
-.ui-cilindro--animato .ui-cil-lanterna {
+.ui-cilindro--animato .ui-cil-lanterna,
+.ui-cilindro--animato .ui-cil-valle,
+.ui-cilindro--animato .ui-cil-lago {
   opacity: 0;
-  animation: ui-car-appari 1.2s 2s ease forwards;
+  animation: ui-car-appari 1.2s 1.4s ease forwards;
+}
+.ui-cilindro--animato .ui-cil-valle {
+  animation-delay: 0.9s;
 }
 @keyframes ui-car-disegna {
   to {
@@ -146,6 +151,8 @@
 }
 .ui-ridotto .ui-cilindro--animato .ui-cil-finestra,
 .ui-ridotto .ui-cilindro--animato .ui-cil-linea,
-.ui-ridotto .ui-cilindro--animato .ui-cil-lanterna {
+.ui-ridotto .ui-cilindro--animato .ui-cil-lanterna,
+.ui-ridotto .ui-cilindro--animato .ui-cil-valle,
+.ui-ridotto .ui-cilindro--animato .ui-cil-lago {
   opacity: 0.82;
 }

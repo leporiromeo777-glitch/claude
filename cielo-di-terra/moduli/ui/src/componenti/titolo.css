@@ -112,7 +112,28 @@
 }
 .ui-cil-finestra {
   fill: var(--notte);
-  opacity: 0.82;
+  opacity: 0.78;
+}
+.ui-cil-valle ellipse {
+  fill: rgba(127, 148, 102, 0.35);
+  stroke: var(--inchiostro-2);
+  stroke-width: 0.7;
+}
+.ui-cil-valle path {
+  fill: none;
+  stroke: var(--inchiostro-2);
+  stroke-width: 0.6;
+}
+.ui-cil-valle .ui-cil-campanile {
+  fill: #fbf7ec;
+  stroke: var(--inchiostro);
+  stroke-width: 0.8;
+}
+.ui-cil-lago path {
+  fill: none;
+  stroke: var(--giada);
+  stroke-width: 0.9;
+  stroke-linecap: round;
 }
 .ui-cil-linea {
   stroke: var(--ottone);

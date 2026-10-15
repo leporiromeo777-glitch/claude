@@ -42,11 +42,11 @@ void main() {
   vec2 suv = cylUV(P);
   // bande di colore con la profondità
   float d = max(vDepth, 0.0);
-  vec3 shallow = vec3(0.40, 0.76, 0.64);
-  vec3 jade = vec3(0.16, 0.60, 0.55);
-  vec3 deep = vec3(0.12, 0.37, 0.56);
-  float b1 = smoothstep(1.2, 2.6, d);
-  float b2 = smoothstep(7.0, 10.0, d);
+  vec3 shallow = vec3(0.45, 0.79, 0.60);
+  vec3 jade = vec3(0.13, 0.62, 0.50);
+  vec3 deep = vec3(0.10, 0.42, 0.52);
+  float b1 = smoothstep(1.0, 2.4, d);
+  float b2 = smoothstep(12.0, 16.5, d);
   vec3 albedo = mix(mix(shallow, jade, b1), deep, b2);
   // increspature: pennellate allungate che scorrono piano
   vec2 wuv = suv + vec2(uTime * 0.6, uTime * 0.25);

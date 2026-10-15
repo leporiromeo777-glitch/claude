@@ -76,6 +76,7 @@ export function applyDemoCells(world: World): void {
     if (d.paintedSouthCap && c.z < LAYOUT.endCaps.south.baseZ) state = CellState.Painted;
     if (d.pencilNorthCap && c.z > LAYOUT.endCaps.north.baseZ) state = CellState.Pencil;
     if (surfaceDistance(c.z, c.theta, start.z, start.theta) < d.paintedAroundStart) state = CellState.Painted;
+    if (strip.id === 'valle-1' && c.z >= d.paintedValle1Z[0] && c.z <= d.paintedValle1Z[1]) state = CellState.Painted;
     (state === CellState.Painted ? painted : pencil).push(id);
   }
   g.setMany(painted, CellState.Painted);
