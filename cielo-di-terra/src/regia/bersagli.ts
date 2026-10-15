@@ -9,7 +9,7 @@
  * Sguardi: la scritta del vetro, lo sguardo in su, la lente sui punti d'esame, le Fade.
  */
 import { Vector3 } from 'three';
-import { localFrameAt } from '../world/cylinder';
+import { localFrameAt, worldToCyl } from '../world/cylinder';
 import { CAPISALDI } from './contenuti';
 import type { Bersaglio } from './interazioni';
 import type { Regia } from './regia';
@@ -133,9 +133,8 @@ export function registraBersagli(r: Regia): void {
     azione: () => {
       const m = r.scena.punto('muretto');
       if (!m) return;
-      const c = r.game.player.cyl;
-      void c;
-      r.siedi({ ...cylDi(m), h: cylDi(m).h + 0.05 });
+      const c = worldToCyl(m);
+      r.siedi({ z: c.z, theta: c.theta, h: c.h + 0.05 });
     },
   });
   add({
@@ -292,11 +291,4 @@ export function registraBersagli(r: Regia): void {
     prova: (occhi, avanti) => r.notteVista.visibili.some((c) => guardaPunto(occhi, avanti, c, 6, 400, 22)),
     compiuto: () => r.flag('fade_viste'),
   });
-}
-
-function cylDi(p: Vector3): { z: number; theta: number; h: number } {
-  const r = Math.hypot(p.x, p.y);
-  let theta = (Math.atan2(-p.x, -p.y) * 180) / Math.PI;
-  if (theta < 0) theta += 360;
-  return { z: p.z, theta, h: 646 - r };
 }

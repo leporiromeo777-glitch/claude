@@ -50,7 +50,7 @@ import { RilievoProvvisorio } from './provvisori/rilievo';
 import { QUOTA_CRIPTA, SCALA, costruisciCripta, type Cripta } from './scena/cripta';
 import { costruisciCella, type CellaCampanaria } from './scena/campanile';
 import { Segnaposto } from './scena/segnaposto';
-import { Sguardi, elevazione } from './sguardo';
+import { Sguardi } from './sguardo';
 import { Squadro, type BersaglioMira } from './squadro';
 import { Velatura } from './velatura';
 import { registraBersagli } from './bersagli';

@@ -13,7 +13,7 @@ import { costruisciCampanile, costruisciChiesa } from './luoghi/sanVigilio';
 import { costruisciSentieri } from './luoghi/sentieriCorbella';
 import { costruisciMuriTerrazze } from './terrazzi';
 import { distanza, suolo } from './terreno';
-import { luogo } from './contenuti';
+import { PARTICELLE, luogo } from './contenuti';
 import { materialiMotore } from './materiali';
 import { dentroCorbella, liberaCastagni, rimuoviSegnaposto, type RisultatoSegnaposto } from './segnaposto';
 import type { GiocoCorbella, PuntoInterazione } from './tipi';
@@ -72,10 +72,15 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const case_ = costruisciCase(ctx);
   // 3. muri delle terrazze lungo le alzate dei gradoni
   const piazza = luogo('piazza_ore');
+  const tipoCella = new Map(PARTICELLE.map((p) => [p.id, p.tipo]));
+  const terrazzata = (z: number, th: number) => {
+    const t = tipoCella.get(Math.floor(z / 40) * 96 + Math.floor(th / 3.75));
+    return t === 'terrazze' || t === 'abitato';
+  };
   const muri = costruisciMuriTerrazze(ctx, {
     regione: { z0: 1060, theta0: 35, xMin: -112, xMax: 150, yMin: -122, yMax: 150, passo: 1.5 },
     prefissoZona: 'terrazze',
-    escludi: (z, th) => distanza({ z, theta: th }, piazza) < piazza.raggio + 3 || suolo(z, th) < 9,
+    escludi: (z, th) => !terrazzata(z, th) || th < 16 || distanza({ z, theta: th }, piazza) < piazza.raggio + 3 || suolo(z, th) < 9,
     dettaglio: (z, th) => (distanza({ z, theta: th }, piazza) < 70 ? 'alto' : 'basso'),
   });
 
