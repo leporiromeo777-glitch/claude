@@ -80,6 +80,10 @@ type ModoOttavio =
 
 /** A che distanza da Elvira Ottavio si ferma quando le viene incontro (m). */
 const OTTAVIO_VICINO = 2.4;
+/** Entro questa distanza (m) si parla senza che nessuno debba muoversi. */
+const OTTAVIO_A_PORTATA = 6;
+/** Oltre questa distanza (m) Ottavio non viene a piedi: scende dal cielo vicino a Elvira. */
+const OTTAVIO_LONTANO_A_PIEDI = 36;
 
 export interface ContestoAbitanti {
   giorno: number;
@@ -356,9 +360,23 @@ export class Abitanti {
         return;
       }
       case 'raggiunge': {
+        // doveva già stare vicino a Elvira (fermo davanti al fienile): ci va e basta
+        if (o.poi.tipo === 'fermo' && surfaceDistance(o.poi.z, o.poi.theta, ctx.elvira.z, ctx.elvira.theta) <= OTTAVIO_A_PORTATA) {
+          this.ottavio = o.poi;
+          return;
+        }
         const dz = ctx.elvira.z - f.z;
         const ds = deltaDeg(f.theta, ctx.elvira.theta) * METERS_PER_DEG;
         const dist = Math.hypot(dz, ds);
+        if (f.visibile && dist > OTTAVIO_LONTANO_A_PIEDI) {
+          // troppo lontano per venire a piedi: arriva dal cielo, come fa lui
+          const k = OTTAVIO_VICINO / dist;
+          const z = ctx.elvira.z - dz * k;
+          const theta = ctx.elvira.theta - (ds * k) / METERS_PER_DEG;
+          const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
+          this.atterra(z, theta, { tipo: 'fermo', z, theta, fino });
+          return;
+        }
         if (!f.visibile || dist <= OTTAVIO_VICINO + 0.05) {
           // arrivato: resta lì (fino a quando sarebbe rimasto dov'era, o per un'ora)
           const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;

@@ -175,4 +175,28 @@ describe('Abitanti', () => {
     expect((a.esporta() as { ottavio: { tipo: string } }).ottavio.tipo).toBe('fermo');
     expect(a.puntoDialogo('ottavio')).toBeInstanceOf(Vector3);
   });
+
+  it('se doveva già stare vicino a Elvira ci va subito; da lontano scende dal cielo', () => {
+    const a = new Abitanti(new Scene());
+    const elvira = { z: 1174, theta: 58.06 };
+    const ctx: ContestoAbitanti = { giorno: 1, ore: 19.8, assoluto: 19.8, valuta: () => true, occhi: cylToWorld(elvira.z, elvira.theta, groundHeight(elvira.z, elvira.theta) + 1.6), elvira };
+    // in piazza, a 240 m: la storia lo vuole davanti al fienile, il dialogo lo chiama nello stesso passo
+    a.ottavioFermo(1071.6, 38.5);
+    a.update(1 / 60, ctx);
+    a.ottavioFermo(1174, 58.5, 31);
+    a.ottavioRaggiunge();
+    a.update(1 / 60, ctx);
+    expect(a.modoOttavio).toBe('fermo');
+    a.update(1 / 60, ctx);
+    expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(6);
+    // lontano davvero: atterra vicino a Elvira
+    a.ottavioFermo(1071.6, 38.5);
+    a.update(1 / 60, ctx);
+    a.ottavioRaggiunge();
+    a.update(1 / 60, ctx);
+    expect(a.modoOttavio).toBe('atterra');
+    for (let i = 0; i < 60 * 8; i++) a.update(1 / 60, ctx);
+    expect(a.modoOttavio).toBe('fermo');
+    expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(3);
+  });
 });
