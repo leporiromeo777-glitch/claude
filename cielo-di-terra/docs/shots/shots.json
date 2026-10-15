@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-15T07:14:22.446Z",
+  "size": [
+    1280,
+    720
+  ],
+  "chromiumArgs": [
+    "--use-angle=swiftshader",
+    "--enable-unsafe-swiftshader",
+    "--ignore-gpu-blocklist"
+  ],
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "shots": [
+    {
+      "n": 1,
+      "file": "01-paese-mezzogiorno.png",
+      "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
+      "frames": 4,
+      "stats": {
+        "drawCalls": 72,
+        "triangles": 604400,
+        "terrainChunks": 126,
+        "terrainByLod": [
+          3,
+          8,
+          47,
+          68
+        ],
+        "terrainTriangles": 239384,
+        "trees": 7051,
+        "treesByLod": [
+          8,
+          2050,
+          4993
+        ],
+        "colliders": 7808,
+        "lamps": 133,
+        "fps": 4,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "player": {
+        "z": 1028,
+        "theta": 36.6,
+        "h": 38.57578660673494,
+        "r": 607.4242133932651,
+        "groundH": 38.5757866067349,
+        "heightAboveGround": 3.552713678800501e-14,
+        "gravity": 9.219587373832233,
+        "gravityG": 0.9401362722063329,
+        "velocity": [
+          2.834235061553832e-17,
+          5.296598114011388e-17,
+          0
+        ],
+        "speed": 6.007232304937943e-17,
+        "grounded": true,
+        "mode": "walk",
+        "veloOpen": false,
+        "coriolisFactor": 0.4,
+        "freeCamera": false,
+        "camera": {
+          "z": 1028,
+          "theta": 36.6,
+          "h": 40.19578660673483
+        },
+        "hours": 12.200000000000003
+      }
+    }
+  ]
+}

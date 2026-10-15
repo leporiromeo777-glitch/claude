@@ -155,13 +155,13 @@ function avviaVetrina(): void {
   const campanileTesta = new THREE.Vector3(4, 22, -22);
   const fermoGuarda = (): StatoAbitante => ({ modo: 'fermo', guarda: occhio });
   posa(creaAbitante({ seme: 101, copricapo: 'velo', corporatura: 'media', postura: 'mani-giunte' }), 2.2, 3.2, 0.3, fermoGuarda);
-  posa(creaAbitante({ seme: 102, copricapo: 'maschera', corporatura: 'robusta', postura: 'eretta', gerla: true }), 4.1, 2.4, -0.2, () => ({ guarda: occhio, gesto: 'saluta' }));
-  posa(creaAbitante({ seme: 103, copricapo: 'apicoltore', corporatura: 'esile', postura: 'eretta', guanti: true }), 6.3, 3.4, -0.5, () => ({ gesto: 'indica', indica: campanileTesta, guarda: campanileTesta }));
+  posa(creaAbitante({ seme: 102, copricapo: 'maschera', corporatura: 'robusta', postura: 'eretta', gerla: true }), 4.1, 2.4, -0.2, (): StatoAbitante => ({ guarda: occhio, gesto: 'saluta' }));
+  posa(creaAbitante({ seme: 103, copricapo: 'apicoltore', corporatura: 'esile', postura: 'eretta', guanti: true }), 6.3, 3.4, -0.5, (): StatoAbitante => ({ gesto: 'indica', indica: campanileTesta, guarda: campanileTesta }));
   posa(creaAbitante({ seme: 104, copricapo: 'cappuccio', corporatura: 'anziana', bastone: true }), 8.2, 2.0, -0.7, fermoGuarda);
-  posa(creaAbitante({ seme: 105, copricapo: 'cappello', corporatura: 'esile', postura: 'eretta', gerla: true }), 3.2, 5.6, 0.9, () => ({ modo: 'cammina', velocita: 1.0 }));
+  posa(creaAbitante({ seme: 105, copricapo: 'cappello', corporatura: 'esile', postura: 'eretta', gerla: true }), 3.2, 5.6, 0.9, (): StatoAbitante => ({ modo: 'cammina', velocita: 1.0 }));
   posa(creaAbitante({ seme: 106, copricapo: 'velo', corporatura: 'bambino', postura: 'eretta', coloreVelo: 0x8c6c4c }), 5.1, 5.9, -0.3, fermoGuarda);
   posa(creaAbitante({ seme: 107, copricapo: 'maschera-liscia', corporatura: 'esile', postura: 'mani-giunte', colore: 0x26222a, coloreVelo: 0x1d1a20 }), 0.6, 5.2, 0.6);
-  posa(creaAbitante({ seme: 108, copricapo: 'velo', corporatura: 'robusta', postura: 'braccia-conserte', coloreVelo: 0x5c4330 }), 9.4, 5.1, -0.9, () => ({ gesto: 'mano-al-petto', guarda: occhio }));
+  posa(creaAbitante({ seme: 108, copricapo: 'velo', corporatura: 'robusta', postura: 'braccia-conserte', coloreVelo: 0x5c4330 }), 9.4, 5.1, -0.9, (): StatoAbitante => ({ gesto: 'mano-al-petto', guarda: occhio }));
   // le api che girano attorno alla bugnera
   posa(creaSciameApi({ seme: 109, numero: 6, raggio: 0.45, centro: new THREE.Vector3(0, 1.8, 0) }), 6.3, 3.4);
 
