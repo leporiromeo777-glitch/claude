@@ -198,8 +198,8 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   }
 
   // cuspide di piode al centro della terrazza: piramide a gradoni
-  const hTetto = 3.6;
-  const base = L * 0.31;
+  const hTetto = 5.0;
+  const base = L * 0.36;
   const strati = 5;
   for (let st = 0; st < strati; st++) {
     const t0 = st / strati;

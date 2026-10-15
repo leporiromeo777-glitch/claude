@@ -157,15 +157,21 @@ export function creaCaposaldo(opz: OpzioniChiodo): OggettoProcedurale {
     collider.push(cil(0, -0.2, 0, 0.2, h + 0.2, 'caposaldo'));
   } else if (supporto === 'masso') {
     const r = 0.75;
-    b.aggiungi(geoMasso(r, rng.intero(0, 1e6), 0.22, 1, 0.65), {
+    const gm = geoMasso(r, rng.intero(0, 1e6), 0.22, 1, 0.65);
+    b.aggiungi(gm, {
       matrice: mat([0, r * 0.25, 0]),
       colore: mescola(PALETTE.gneiss, PALETTE.gneissViola, 0.4),
       rumore: 0.08,
       gradiente: { basso: 0.75, alto: 1.05, y0: 0, y1: r },
       piatto: true,
     });
-    // il chiodo sulla sommità del masso (cerco il punto più alto vicino al centro)
-    mChiodo = mat([0, r * 0.25 + r * 0.6, 0]);
+    // il chiodo sta sulla superficie del masso, sulla verticale del centro (raggio verso il basso)
+    const prova = new THREE.Mesh(gm.clone().translate(0, r * 0.25, 0), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+    const colpo = new THREE.Raycaster(new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, -1, 0)).intersectObject(prova)[0];
+    const yTop = colpo ? colpo.point.y : r * 0.8;
+    const nrm = colpo?.face ? colpo.face.normal.clone() : new THREE.Vector3(0, 1, 0);
+    mChiodo = new THREE.Matrix4().compose(new THREE.Vector3(0, yTop - 0.004, 0), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), nrm), new THREE.Vector3(1, 1, 1));
+    prova.geometry.dispose();
     collider.push(cil(0, 0, 0, r * 0.95, r * 0.8, 'arrampicabile'));
   }
 

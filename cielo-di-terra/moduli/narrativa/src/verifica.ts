@@ -547,10 +547,16 @@ class Simulatore {
     return this.n.valutaCompilata(n, this.ambito);
   }
 
+  /** true se il passo per cui si sta lavorando si è già completato (per esempio con un tick intermedio). */
+  private ambitoConcluso(): boolean {
+    const a = this.ambito;
+    return !!a && (this.n.missioni.statoPasso(a.missione, a.passo) === 'completato' || this.n.missioni.stato(a.missione) !== 'attiva');
+  }
+
   private soddisfaNodo(n: NodoCondizione, prof: number): string | null {
     if (prof > 8) return 'catena di dipendenze troppo lunga';
     this.azioni++;
-    if (this.vero(n)) return null;
+    if (this.ambitoConcluso() || this.vero(n)) return null;
     switch (n.tipo) {
       case 'costante':
         return 'condizione sempre falsa';
@@ -561,6 +567,7 @@ class Simulatore {
           for (const f of n.figli) {
             const m = this.soddisfaNodo(f, prof);
             if (m) return m;
+            if (this.ambitoConcluso()) return null;
           }
           if (this.vero(n)) return null;
         }

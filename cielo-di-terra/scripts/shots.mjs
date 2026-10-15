@@ -78,8 +78,8 @@ const SHOTS = [
     title: 'A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro',
     setup: (g) => {
       g.setTime(12);
-      g.teleport(1200, 104, 0);
-      g.look(6, -15);
+      g.teleport(1200, 101.5, 0);
+      g.look(38, -20);
       g.setSimTime(31.0);
     },
     frames: 2,
@@ -90,8 +90,8 @@ const SHOTS = [
     title: 'Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo',
     setup: (g) => {
       g.setTime(23.2);
-      g.teleport(1033, 37.6, 0);
-      g.look(70, 40);
+      g.teleport(1012, 30.5, 0);
+      g.look(78, 24);
     },
     frames: 4,
   },

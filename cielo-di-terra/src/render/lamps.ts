@@ -26,6 +26,8 @@ export class LampGlows {
         void main() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           float dist = length(mv.xyz);
+          // spinge il bagliore verso la camera: non viene coperto dal muro o dal terreno lontano
+          mv.xyz *= max(0.0, 1.0 - min(6.0 + dist * 0.004, dist * 0.5) / max(dist, 1e-3));
           float px = aSize / max(dist * uPixelAngle, 1e-4);
           gl_PointSize = clamp(px * 3.0, 4.0, 28.0);
           vFade = exp(-dist / 2500.0);

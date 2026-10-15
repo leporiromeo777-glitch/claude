@@ -307,7 +307,9 @@ PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
   PaintInfo pi;
   pi.paint = smoothstep(0.42, 0.58, s.x + wob);
   pi.blank = smoothstep(0.42, 0.58, s.y + wob);
-  pi.ink = anim * (1.0 - smoothstep(0.0, 1.6, abs(edge - 0.8))) * smoothstep(0.0, 0.25, anim);
+  // linea d'inchiostro sottile (in pixel) sul fronte
+  float ew = max(fwidth(edge), 0.03);
+  pi.ink = anim * (1.0 - smoothstep(0.9, 2.2, abs(edge - 0.6) / ew)) * smoothstep(0.0, 0.25, anim);
   pi.wet = anim * step(0.0, edge) * (1.0 - smoothstep(0.0, 12.0, edge));
   pi.bleed = anim * step(edge, 0.0) * (1.0 - smoothstep(0.0, 30.0, -edge)) * (0.6 + 0.4 * vnoise3(P * 0.11));
   // il mondo vicino è sempre dipinto (ci sei dentro)

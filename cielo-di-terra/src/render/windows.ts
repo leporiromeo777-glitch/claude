@@ -157,7 +157,7 @@ export class Windows {
       const thMid = (w.thetaStart + w.thetaEnd) / 2;
       for (let z = 0; z <= LAYOUT.cylinder.length; z += WIN.ribSpacing) {
         if (surfaceHeight(z, thMid) > 0.5) continue;
-        addCurvedBeam(ribPos, ribNor, ribCol, z, w.thetaStart, w.thetaEnd, WIN.ribWidth, WIN.ribHeight, 24, STEEL_DARK);
+        addCurvedBeam(ribPos, ribNor, ribCol, z, w.thetaStart, w.thetaEnd, WIN.ribWidth, WIN.ribHeight, 48, STEEL_DARK);
       }
       // travi di bordo lungo le due rive del vetro
       for (const edge of [w.thetaStart, w.thetaEnd]) {
@@ -233,8 +233,13 @@ function addCurvedBeam(pos: number[], nor: number[], col: number[], z: number, t
     const tb = th0 + ((th1 - th0) * (s + 1)) / segs;
     const tm = (ta + tb) / 2;
     const up = new Vector3(Math.sin(tm * DEG), Math.cos(tm * DEG), 0);
-    // sopra
-    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, color);
+    // sopra: passerella di servizio in legno (assi chiare e scure)
+    const plank: [number, number, number] = s % 2 === 0 ? [0.56, 0.42, 0.28] : [0.5, 0.37, 0.24];
+    pushQuad(pos, nor, col, cylToWorld(za, ta, height), cylToWorld(za, tb, height), cylToWorld(zb, tb, height), cylToWorld(zb, ta, height), up, plank);
+    // bordini d'acciaio della passerella
+    for (const ze of [za, zb - 0.18]) {
+      pushQuad(pos, nor, col, cylToWorld(ze, ta, height + 0.12), cylToWorld(ze, tb, height + 0.12), cylToWorld(ze + 0.18, tb, height + 0.12), cylToWorld(ze + 0.18, ta, height + 0.12), up, color);
+    }
     // fianchi (sud e nord)
     pushQuad(pos, nor, col, cylToWorld(za, ta, -0.2), cylToWorld(za, tb, -0.2), cylToWorld(za, tb, height), cylToWorld(za, ta, height), new Vector3(0, 0, -1), color);
     pushQuad(pos, nor, col, cylToWorld(zb, tb, -0.2), cylToWorld(zb, ta, -0.2), cylToWorld(zb, ta, height), cylToWorld(zb, tb, height), new Vector3(0, 0, 1), color);

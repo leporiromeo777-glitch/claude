@@ -118,7 +118,7 @@ void main() {
   }
   // pigmento che si raccoglie sul bordo bagnato, poi la linea d'inchiostro del fronte
   col = mix(col, col * vec3(0.78, 0.8, 0.86), pi.wet * pi.paint * 0.6);
-  col = mix(col, vec3(0.2, 0.17, 0.26), clamp(pi.ink, 0.0, 1.0) * 0.6);
+  col = mix(col, vec3(0.2, 0.17, 0.26), clamp(pi.ink, 0.0, 1.0) * 0.85);
 #endif
 #ifdef OBJECT
   // finestre illuminate di notte (segnali vivi: restano a colori anche a matita)
