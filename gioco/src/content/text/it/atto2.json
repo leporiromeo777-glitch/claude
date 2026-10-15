@@ -99,7 +99,7 @@
       },
       "esito": {
         "ok": "Marta ha tenuto il Gino vicino tutto il pomeriggio. Se la febbre l'ha presa, non lo dirà a nessuno.",
-        "fallita": "Il Gino ha passato il pomeriggio lontano da Marta. Lei ha impastato fino a sera, senza alzare gli occhi."
+        "fallita": "Il Gino ha passato il pomeriggio lontano da Marta. Lei l'ha cercato da tutte le finestre del forno."
       }
     },
     "lunardi": {
@@ -160,7 +160,7 @@
     "teresa": {
       "testo": "Cara, sono trent'anni. Domani voglio parlare con la Marta, anche solo sulla soglia del forno, anche solo un minuto. Fammela incontrare. Il resto lo dico io.",
       "esito": {
-        "ok": "Teresa e Marta si sono trovate faccia a faccia, dopo trent'anni. Non si sono dette niente, ma nessuna delle due ha abbassato gli occhi.",
+        "ok": "Teresa e Marta si sono trovate faccia a faccia, dopo trent'anni. Si sono guardate a lungo, e nessuna ha abbassato gli occhi.",
         "fallita": "Teresa e Marta non si sono incontrate. Teresa ha detto «pazienza, cara» con la voce di chi conta gli anni."
       }
     },
@@ -247,7 +247,7 @@
       "testo": "Cara, il Bepi deve soldi a mezza Chioggia, lo sanno tutti tranne sua figlia. Non è giusto, a diciassette anni si è grandi. Che la Nina lo sappia prima delle due.",
       "esito": {
         "ok": "Teresa voleva che la Nina sapesse, e la Nina ha saputo. Teresa ha l'aria di chi ha fatto una buona azione.",
-        "fallita": "Prima delle due la Nina non sapeva ancora niente. Teresa ha detto «meglio così» con la faccia di chi non lo pensa."
+        "fallita": "Prima delle due la Nina non sapeva ancora niente. Teresa ha detto «meglio così», e non lo pensava."
       }
     }
   },
@@ -295,7 +295,7 @@
       "r2": "Grazie, Ettore. Faremo il possibile, tutti e due.",
       "esito": {
         "ok": "Il dottore ha visto la Nina in tempo, e lei si è alzata dal letto prima di sera, coi libri sotto il braccio.",
-        "fallita": "La Nina ha ancora la febbre. Il dottore è passato due volte sotto la sua finestra, senza poter salire."
+        "fallita": "La Nina ha ancora la febbre. Due volte il dottore si è fermato sotto la sua finestra, senza poter salire."
       }
     },
     "gino": {
@@ -429,7 +429,7 @@
     "piero": {
       "testo": "Alle sette di sera suono le campane a tempesta, come si faceva una volta. Che io sia in chiesa: le barche in mare devono sentirle, e sapere che qui si prega.",
       "esito": {
-        "ok": "Alle sette di sera le campane a tempesta hanno suonato. Dal mare, qualcuno ha risposto con un fischio.",
+        "ok": "Alle sette di sera le campane a tempesta hanno suonato. Dal mare, qualcuno ha fischiato in risposta.",
         "fallita": "Alle sette il prete non era in chiesa, e le campane sono rimaste zitte. Il vento ha suonato da solo."
       }
     },
@@ -591,11 +591,11 @@
       "lunardi": {
         "arrivo": "Il dottor Lunardi viene da Padova. Dice «permesso» e «grazie», porta il cappello anche col vento. Qui nessuno si fida di uno così educato.",
         "cura": "Lunardi non si ammala mai. Se sta sopra a un malato, lo guarisce: la cura vince sul contagio. Se sta sotto, invece, non cura nessuno.",
-        "passo": "Lunardi cammina piano, come in città. Per guarire qualcuno deve passargli sopra; se gli passa accanto e basta, la febbre resta dov'è.",
+        "passo": "Lunardi chiede scusa a tutti, anche alla febbre. Sopra i malati devo mandarlo io: da solo non osa.",
         "nome": "Appuntare il nome costa poco: un filo, un punto. Non appuntarlo costa una persona alla volta.",
         "ettore": "L'ho chiamato Ettore, e il dottore è diventato rosso fino alle orecchie. A Padova, dice, nessuno lo chiamava così.",
         "scarpa": "Lunardi ha curato Bepi con una mano sulla fronte. Bepi non lo ringrazierà mai ad alta voce, ma adesso lo saluta col mento.",
-        "nomeNo": "Lunardi ha chiesto il mio nome a tutti, e nessuno sapeva rispondere. Il nome, qui, si passa di mano in mano.",
+        "nomeNo": "Lunardi ha chiesto il mio nome a tutti, e nessuno sapeva rispondere. Un'isola intera, e nessuno che sappia come mi chiamo.",
         "dottore": "Ho ringraziato il dottore chiamandolo «dottore», come fanno tutti. Ha sorriso lo stesso, ma solo con la bocca."
       },
       "teresa": {
@@ -612,15 +612,15 @@
       "bepi": {
         "dottore": "Bepi non vuole il dottore forestiero in casa: dice che la febbre si cura col vino, col silenzio e con la Nina che gli porta il brodo.",
         "debito": "Bepi ha un debito a Chioggia, per la rete buona. Se la Nina lo sa, l'ha saputo dalla strada e non da lui.",
-        "luce": "Nella tempesta Bepi ha seguito la luce del Faro fino a casa. Zeno non ha chiuso occhio, e la Nina nemmeno.",
-        "secca": "Nella tempesta Bepi ha preso la secca, col Faro spento. Il braccio guarirà; la barca, forse. La Nina non gli parla da due giorni, per paura.",
+        "luce": "Il Bepi giura che a casa ci sarebbe tornato anche al buio. Zeno, dal Faro, non l'ha contraddetto: ha solo pulito il vetro della lanterna.",
+        "secca": "La barca del Bepi è in secca anche lei, sul pontile. La Nina non gli parla da due giorni: ha avuto più paura di lui.",
         "febbre": "Nella notte più lunga il dottore non è arrivato fino al Molo. Bepi ha ancora la febbre, e la Nina non studia.",
         "apre": "Ho scritto a Bepi di lasciarsi visitare, per la Nina se non per lui. Ha lasciato la porta socchiusa. Per Bepi è un sì.",
         "tacere": "Ho promesso a Bepi che la Nina non saprà del debito da me. Ma l'isola è piccola, e la borsa di Teresa è grande."
       },
       "marta": {
         "nodo": "Teresa e Marta, se si incrociano, si annodano: restano ferme un'ora e non si passano niente, nemmeno un saluto. Il nodo resta disegnato nel merletto.",
-        "forno": "Nella settimana della febbre il forno di Marta è rimasto aperto, tranne un'ora: quella del Gino. Nessuno ha osato lamentarsi.",
+        "forno": "In questi giorni di febbre il forno di Marta è rimasto aperto, tranne un'ora: quella del Gino. Nessuno ha osato lamentarsi.",
         "segreto": "Marta tiene ancora la lettera di Ernesto, quella del '36. Non la legge più, ma sa dov'è anche al buio.",
         "confessione": "Marta non si è confessata. Dice che il Signore la conosce già, e che al prete basta il pane della domenica.",
         "fornoChiuso": "Ho scritto a Marta di chiudere il forno un'ora e stare col Gino. Per la prima volta in trent'anni, il pane ha aspettato.",
@@ -633,39 +633,39 @@
         "pagella": "La maestra ha scritto BRAVO sulla pagella del Gino. In italiano. In aritmetica, meno: lì c'è scritto «si impegni», che è un altro modo di dire.",
         "febbre": "Il Gino con la febbre resta a letto: per una volta non corre. Chi gli passa accanto, però, se la prende.",
         "tempesta": "Nella tempesta il Gino è scappato a guardare le onde invece di stare a casa. Marta l'ha asciugato in silenzio, che è peggio di una sgridata.",
-        "guarito": "Il Gino è guarito nella notte più lunga. Ha mangiato due pagnotte e ha ricominciato a correre prima di colazione.",
+        "guarito": "Il Gino è guarito nella notte più lunga. Marta ha acceso una candela in chiesa, e non ha detto a nessuno per chi.",
         "faro": "Il Gino ha visto la lanterna di giorno, spenta. Da allora conta sulle dita le sere che mancano.",
         "casa": "Ho scritto al Gino che stasera il Faro è di Zeno e della luce. Mi ha risposto con un faro disegnato, arrabbiato, con gli occhi.",
         "finestra": "Il Gino guarderà la tempesta dalla finestra, con la mamma accanto. Dice che è uguale. Non è uguale, ma va bene così."
       },
       "nina": {
-        "ammessa": "Ammessa: la Nina andrà a studiare a Venezia, in convitto da Pasqua. Ha già deciso dove si siederà: in prima fila, vicino alla finestra.",
+        "ammessa": "Venezia, convitto da Pasqua: la Nina ha già deciso dove si siederà. In prima fila, vicino alla finestra, per vedere l'acqua.",
         "venezia": "La Nina tiene sotto il cuscino l'orario dei vaporetti per Venezia. Lo sa a memoria, come Leopardi, e lo ripete per addormentarsi.",
-        "valigia": "La Nina ha la valigia pronta sotto il letto. È il segreto peggio tenuto dell'isola: lo sa perfino il pozzo.",
+        "valigia": "La Nina ha la valigia pronta sotto il letto. È il segreto peggio tenuto dell'isola: lo sanno perfino i gabbiani.",
         "febbre": "La Nina ha preso la febbre dal Gino, di mano in mano. Legge Manzoni a letto, e dice che è il momento giusto.",
         "debito": "La Nina ha saputo del debito. Il Bepi non parla più a nessuno.",
-        "tardiva": "La domanda della Nina è partita in ritardo, per colpa del mio merletto. A Venezia l'hanno presa lo stesso, e io ho ricominciato a respirare."
+        "tardiva": "Per colpa del mio merletto la domanda della Nina è partita tardi. Don Piero ci ha messo due righe, Venezia ha detto sì, e io ho ricominciato a respirare."
       },
       "zeno": {
-        "lettera": "Zeno ha tenuto per tutto questo tempo la lettera della nonna per me. Gliel'aveva data lei, alle due, passandogli sopra come un'onda.",
+        "lettera": "Zeno ha tenuto per tutto questo tempo la lettera della nonna per me. Non l'ha mai aperta: dice che le lettere degli altri pesano il doppio.",
         "calligrafia": "Zeno riconosce una calligrafia a quattordici anni di distanza. Io la mia, certe sere, non la riconosco.",
-        "chi": "Adesso so a chi Zeno vuole chiedere perdono: a mia madre. Per che cosa, non lo so ancora."
+        "chi": "Adesso so a chi Zeno deve chiedere perdono: a mia madre. Per che cosa, non lo so ancora."
       },
       "piero": {
         "trabocca": "Anche i pozzi si riempiono. Con tre segreti Don Piero trabocca, e al primo incrocio da sopra dà tutto quello che custodisce, lettere comprese.",
         "messa": "Don Piero ha detto la messa per i sani senza ammalarsi. Dice che il merito è del Signore; io so che un po' è del tombolo.",
-        "campane": "Nella tempesta Don Piero ha suonato le campane come una volta. Le barche in mare le hanno sentite, e hanno pregato con lui.",
+        "campane": "Don Piero non suonava a tempesta da quando era giovane. Dice che le braccia se lo ricordavano meglio di lui.",
         "febbre": "Don Piero si è ammalato per dire la messa ai sani. Credo che un prete sano, in quest'isola, si senta inutile.",
-        "curato": "Don Piero è guarito, e domenica la campana la suonerà il Gino. Stonata, ha detto il prete, come tutto qui."
+        "curato": "Il Gino, con la febbre addosso, ha chiesto di curare prima il prete. Sotto tutto quel correre c'è un cuore in ordine."
       },
       "livia": {
-        "lettere": "Ho letto tre lettere di mia madre. Le altre centosessantacinque le leggo piano, una per sera, come un rosario."
+        "lettere": "Ho letto tre lettere di mia madre. Cominciano tutte con «Ada mia»: adesso so come mi chiamava, da lontano."
       },
       "ada": {
         "nome": "Chi mi dimentica non mi chiama più Ada: «signorina», «la piccola», poi niente. Ho cominciato a contare chi mi saluta.",
         "g09": "Con il dottore è arrivata la febbre, o forse il contrario. L'isola guarda Lunardi come si guarda il mare d'inverno: da lontano.",
         "g10": "Nella settimana della febbre ho capito una cosa: chi cura deve stare sopra, e chi ama vuole stare vicino. Non è sempre la stessa cosa.",
-        "g11": "Il primo nodo sul mio tombolo. Trent'anni stretti in un'ora sola, sulla soglia del forno.",
+        "g11": "Il primo nodo sul mio tombolo. Trent'anni stretti in un'ora sola, e il merletto era il mio.",
         "g12": "Mi chiamo Ada Vio. Lo scrivo qui, nel caso un giorno serva anche a me.",
         "g13": "Stanotte ho scelto chi curare: due su quattro. La nonna nel '58 ha fatto lo stesso conto, e adesso so che cosa si prova.",
         "g14": "Ho letto la lettera della nonna tre volte, poi l'ho messa sotto il cuscino. Stanotte dormirò con mia madre sotto la testa.",

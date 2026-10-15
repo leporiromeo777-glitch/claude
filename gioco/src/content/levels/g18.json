@@ -244,7 +244,74 @@
           }
         ],
         "when": {
-          "failed": "g18.teresa"
+          "all": [
+            {
+              "failed": "g18.teresa"
+            },
+            {
+              "any": [
+                {
+                  "event": "copia",
+                  "b": "nina"
+                },
+                {
+                  "event": "copia",
+                  "b": "lunardi"
+                },
+                {
+                  "event": "copia",
+                  "b": "piero"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "g18.alba.storta.attesa",
+        "priority": 80,
+        "background": "dio/forno/giorno",
+        "figures": [
+          {
+            "character": "teresa",
+            "pose": "ferma",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "teresa",
+            "textKey": "atto3.g18.alba.attesa.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "atto3.g18.alba.storta.2"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "failed": "g18.teresa"
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "event": "copia",
+                    "b": "nina"
+                  },
+                  {
+                    "event": "copia",
+                    "b": "lunardi"
+                  },
+                  {
+                    "event": "copia",
+                    "b": "piero"
+                  }
+                ]
+              }
+            }
+          ]
         }
       },
       {

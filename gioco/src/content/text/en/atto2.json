@@ -99,7 +99,7 @@
       },
       "esito": {
         "ok": "Marta kept Gino close all afternoon. If she caught the fever, she won't tell anyone.",
-        "fallita": "Gino spent the afternoon away from Marta. She kneaded until evening, without looking up."
+        "fallita": "Gino spent the afternoon away from Marta. She looked for him from every window of the bakery."
       }
     },
     "lunardi": {
@@ -160,7 +160,7 @@
     "teresa": {
       "testo": "Dear, it's been thirty years. Tomorrow I want to speak to Marta, even just on the bakery doorstep, even just for a minute. Let me meet her. I'll say the rest.",
       "esito": {
-        "ok": "Teresa and Marta came face to face, after thirty years. They said nothing, but neither lowered her eyes.",
+        "ok": "Teresa and Marta came face to face, after thirty years. They looked at each other a long time, and neither lowered her eyes.",
         "fallita": "Teresa and Marta did not meet. Teresa said “never mind, dear” in the voice of someone counting years."
       }
     },
@@ -247,7 +247,7 @@
       "testo": "Dear, Bepi owes money to half of Chioggia, everyone knows but his daughter. It isn't right, at seventeen you're grown. Let Nina know it before two.",
       "esito": {
         "ok": "Teresa wanted Nina to know, and Nina knows. Teresa has the air of someone who has done a good deed.",
-        "fallita": "By two Nina still knew nothing. Teresa said “just as well” with the face of someone who doesn't mean it."
+        "fallita": "By two Nina still knew nothing. Teresa said “just as well”, and didn't mean it."
       }
     }
   },
@@ -295,7 +295,7 @@
       "r2": "Thank you, Ettore. We'll do our best, both of us.",
       "esito": {
         "ok": "The doctor saw Nina in time, and she got out of bed before evening, books under her arm.",
-        "fallita": "Nina still has the fever. The doctor passed under her window twice, without being able to go up."
+        "fallita": "Nina still has the fever. Twice the doctor stopped under her window, without being able to go up."
       }
     },
     "gino": {
@@ -429,7 +429,7 @@
     "piero": {
       "testo": "At seven in the evening I'll ring the storm bells, as they did in the old days. Let me be in church: the boats at sea must hear them, and know that here we pray.",
       "esito": {
-        "ok": "At seven in the evening the storm bells rang. From the sea, someone answered with a whistle.",
+        "ok": "At seven in the evening the storm bells rang. From the sea, someone whistled in reply.",
         "fallita": "At seven the priest wasn't in church, and the bells stayed silent. The wind rang on its own."
       }
     },
@@ -591,11 +591,11 @@
       "lunardi": {
         "arrivo": "Dr Lunardi comes from Padua. He says “excuse me” and “thank you”, and wears his hat even in the wind. Nobody here trusts a man so polite.",
         "cura": "Lunardi never falls ill. If he's on top of a sick person, he cures them: the cure beats the contagion. If he's below, he cures no one.",
-        "passo": "Lunardi walks slowly, as in the city. To cure someone he must pass over them; if he only passes by, the fever stays where it is.",
+        "passo": "Lunardi apologises to everyone, even to the fever. I have to send him over the sick myself: he won't dare alone.",
         "nome": "Pinning my name costs little: a thread, a stitch. Not pinning it costs one person at a time.",
         "ettore": "I called him Ettore, and the doctor went red to the ears. In Padua, he says, nobody called him that.",
         "scarpa": "Lunardi cured Bepi with a hand on his forehead. Bepi will never thank him out loud, but now he greets him with a nod of the chin.",
-        "nomeNo": "Lunardi asked everyone my name, and nobody could answer. Here, a name is passed from hand to hand.",
+        "nomeNo": "Lunardi asked everyone my name, and nobody could answer. A whole island, and no one who knows what I'm called.",
         "dottore": "I thanked the doctor and called him “Doctor”, like everyone does. He smiled anyway, but only with his mouth."
       },
       "teresa": {
@@ -612,15 +612,15 @@
       "bepi": {
         "dottore": "Bepi won't have the mainland doctor in the house: he says a fever is cured with wine, with silence, and with Nina bringing him broth.",
         "debito": "Bepi has a debt in Chioggia, for the good net. If Nina knows, she heard it from the street and not from him.",
-        "luce": "In the storm Bepi followed the Lighthouse beam all the way home. Zeno didn't sleep a wink, and neither did Nina.",
-        "secca": "In the storm Bepi ran aground, with the Lighthouse dark. His arm will heal; the boat, perhaps. Nina hasn't spoken to him for two days, out of fear.",
+        "luce": "Bepi swears he'd have got home even in the dark. Zeno, up at the Lighthouse, didn't argue: he just polished the lantern glass.",
+        "secca": "Bepi's boat is beached too, up on the jetty. Nina hasn't spoken to him for two days: she was more frightened than he was.",
         "febbre": "On the longest night the doctor never got as far as the Pier. Bepi still has the fever, and Nina isn't studying.",
         "apre": "I told Bepi to let the doctor see him, for Nina if not for himself. He left the door ajar. For Bepi, that's a yes.",
         "tacere": "I promised Bepi that Nina won't hear of the debt from me. But the island is small, and Teresa's bag is big."
       },
       "marta": {
         "nodo": "If Teresa and Marta cross, they knot: they stand still an hour and pass nothing, not even a greeting. The knot stays drawn in the lace.",
-        "forno": "In the week of the fever Marta's bakery stayed open, except for one hour: Gino's. Nobody dared complain.",
+        "forno": "In these fever days Marta's bakery stayed open, except for one hour: Gino's. Nobody dared complain.",
         "segreto": "Marta still keeps Ernesto's letter from '36. She no longer reads it, but knows where it is even in the dark.",
         "confessione": "Marta didn't confess. She says the Lord knows her already, and the priest can make do with the Sunday bread.",
         "fornoChiuso": "I told Marta to shut the bakery for an hour and stay with Gino. For the first time in thirty years, the bread waited.",
@@ -633,39 +633,39 @@
         "pagella": "The teacher wrote WELL DONE on Gino's report. In Italian. In arithmetic, less so: there it says “must try harder”, which is another way of putting it.",
         "febbre": "Gino with a fever stays in bed: for once he doesn't run. Anyone who crosses him, though, catches it.",
         "tempesta": "In the storm Gino ran off to watch the waves instead of staying home. Marta dried him in silence, which is worse than a scolding.",
-        "guarito": "Gino got well on the longest night. He ate two loaves and was running again before breakfast.",
+        "guarito": "Gino got well on the longest night. Marta lit a candle in church, and told no one who it was for.",
         "faro": "Gino saw the lantern by day, unlit. Since then he counts on his fingers the evenings still to go.",
         "casa": "I told Gino that tonight the Lighthouse belongs to Zeno and the light. He answered with a drawing of a lighthouse, angry, with eyes.",
         "finestra": "Gino will watch the storm from the window, with his mum beside him. He says it's the same. It isn't, but that's all right."
       },
       "nina": {
-        "ammessa": "Accepted: Nina will go and study in Venice, boarding from Easter. She's already decided where she'll sit: front row, by the window.",
+        "ammessa": "Venice, boarding from Easter: Nina has already decided where she'll sit. Front row, by the window, to see the water.",
         "venezia": "Nina keeps the Venice ferry timetable under her pillow. She knows it by heart, like Leopardi, and recites it to fall asleep.",
-        "valigia": "Nina has a suitcase packed under her bed. It's the worst-kept secret on the island: even the well knows.",
+        "valigia": "Nina has a suitcase packed under her bed. It's the worst-kept secret on the island: even the gulls know.",
         "febbre": "Nina caught the fever from Gino, hand to hand. She reads Manzoni in bed, and says it's the right moment.",
         "debito": "Nina has found out about the debt. Bepi won't speak to anyone any more.",
-        "tardiva": "Nina's application left late, because of my lace. Venice took her anyway, and I started breathing again."
+        "tardiva": "Because of my lace, Nina's application left late. Don Piero added two lines, Venice said yes, and I started breathing again."
       },
       "zeno": {
-        "lettera": "Zeno kept Grandmother's letter for me all this time. She gave it to him herself, at two, passing over him like a wave.",
+        "lettera": "Zeno kept Grandmother's letter for me all this time. He never opened it: he says other people's letters weigh twice as much.",
         "calligrafia": "Zeno recognises a hand after fourteen years. Some evenings I don't recognise my own.",
-        "chi": "Now I know whose forgiveness Zeno wants to ask: my mother's. For what, I don't know yet."
+        "chi": "Now I know whose forgiveness Zeno has to ask: my mother's. For what, I don't know yet."
       },
       "piero": {
         "trabocca": "Even wells fill up. With three secrets Don Piero overflows, and at his first crossing from on top he gives away all he keeps, letters included.",
         "messa": "Don Piero said mass for the healthy without falling ill. He says the credit is the Lord's; I know some of it is the lace pillow's.",
-        "campane": "In the storm Don Piero rang the bells as in the old days. The boats at sea heard them, and prayed with him.",
+        "campane": "Don Piero hadn't rung the storm bells since he was young. He says his arms remembered better than he did.",
         "febbre": "Don Piero fell ill so as to say mass for the healthy. I think a healthy priest, on this island, feels useless.",
-        "curato": "Don Piero is well again, and on Sunday Gino will ring the bell. Out of tune, the priest said, like everything here."
+        "curato": "Gino, with the fever still on him, asked for the priest to be cured first. Under all that running there's a tidy heart."
       },
       "livia": {
-        "lettere": "I've read three of my mother's letters. The other hundred and sixty-five I read slowly, one each evening, like a rosary."
+        "lettere": "I've read three of my mother's letters. They all begin “My Ada”: now I know what she called me, from far away."
       },
       "ada": {
         "nome": "Whoever forgets me no longer calls me Ada: “miss”, “the little one”, then nothing. I've started counting who says hello to me.",
         "g09": "With the doctor came the fever, or perhaps the other way round. The island looks at Lunardi the way you look at the sea in winter: from far off.",
         "g10": "In the week of the fever I understood something: whoever cures must be on top, and whoever loves wants to be near. It isn't always the same thing.",
-        "g11": "The first knot on my lace pillow. Thirty years pulled tight in a single hour, on the bakery doorstep.",
+        "g11": "The first knot on my lace pillow. Thirty years pulled tight in a single hour, and the lace was mine.",
         "g12": "My name is Ada Vio. I'm writing it here, in case one day I need it too.",
         "g13": "Tonight I chose who to cure: two out of four. Grandmother did the same sum in '58, and now I know how it feels.",
         "g14": "I read Grandmother's letter three times, then put it under my pillow. Tonight I'll sleep with my mother under my head.",

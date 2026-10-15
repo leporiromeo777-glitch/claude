@@ -98,6 +98,9 @@
         "1": "Someone confided something from '36 to me. I shall never repeat it, miss.",
         "1d": "Someone confided something from '36 to me. I shall never repeat it, Miss Lacemaker.",
         "2": "I feel a little less from Padua. I'm beginning to think of staying."
+      },
+      "attesa": {
+        "1": "I've waited thirty years. One more day won't kill me."
       }
     },
     "titolo": "Peace",
@@ -189,7 +192,7 @@
       },
       "esito": {
         "ok": "The medicines reached the doctor before ten, dry. Teresa made him say thank you twice.",
-        "fallita": "The medicines arrived late, after the water. The doctor set them to dry on the sill, one by one."
+        "fallita": "Teresa didn't reach the doctor before the water. He set the medicines to dry on the sill, one by one."
       }
     },
     "lunardi": {
@@ -235,8 +238,8 @@
       "testo": "The nine o'clock ferry. My suitcase has been under the bed for a month, with Leopardi inside. Get me to the Pier in time, before I change my mind.",
       "esito": {
         "ok": "At nine Nina boarded the ferry. From the deck she raised her hand just once, so as not to cry.",
-        "fallita": "The nine o'clock ferry left without Nina. The suitcase went back under the bed, still shut.",
-        "lasciato": "I let Nina's departure drop. The nine o'clock ferry left without her."
+        "fallita": "The ferry didn't wait for Nina. The suitcase went back under the bed, still shut.",
+        "lasciato": "I let Nina's departure drop. At nine her seat on the ferry stayed empty."
       }
     },
     "bepi": {
@@ -385,7 +388,7 @@
     "teresa": {
       "testo": "Dear, tomorrow a woman comes over the shallows and everyone says they know her. I don't. I want to know the moment she sets foot on the island. At once.",
       "r1": "You'll know. But not from me, and not tonight.",
-      "r2": "She's my mother. Her name is Livia, and you don't remember her.",
+      "r2": "You know her too. Look at her closely when she comes.",
       "riconosciuta": {
         "testo": "I had recognised that woman, dear, and then she slipped away from me like a word. I want to see her again the moment she sets foot on the island."
       },
@@ -526,17 +529,17 @@
       "livia": {
         "nero": "The stranger in black is my mother. She wove herself in with the sepia thread, to find me. Only Zeno recognises her.",
         "secca": "My mother is on the island now. In the morning she passes under my window and raises her hand; I have no thread to go down.",
-        "pane": "Marta gave my mother warm bread without knowing who she was. My mother thanked her, calling her by name."
+        "pane": "Marta doesn't know who the stranger is; the stranger knows exactly who Marta is. As a girl she stole buns from her counter."
       },
       "teresa": {
-        "pace": "Teresa and Marta have spoken, after thirty years. Now Teresa buys her bread from Marta, and Marta wraps it nicely for her.",
+        "pace": "Now Teresa buys her bread from Marta, and Marta wraps it nicely for her. For the island it's more than a truce: it's news.",
         "livia": "For once Teresa knows something and tells no one. Almost: she let me understand it with her eyes.",
-        "cassetto": "Teresa gave Nina the handkerchief from her never-taken trip. She says a handkerchief ought to travel, at least.",
+        "cassetto": "I didn't know Teresa, as a girl, had wanted to leave too. On the island everyone wants to, at least once.",
         "lettera2": "Teresa's first letter in thirty years came from the well. Whose it was she told no one: for once.",
-        "medicine": "Teresa swears she only looked at the medicines. The doctor pretended to believe her: he's already one of us.",
+        "medicine": "The doctor pretended to believe Teresa about the medicines. When an outsider pretends the way we do, he's already one of us.",
         "secca": "For the first time in thirty years the postwoman was the last to hear a piece of news. She won't forgive herself.",
         "aspetta": "I wrote to Teresa that she'll know who that woman is, but not from me. For once the postwoman waits for news instead of bringing it.",
-        "liviaSa": "I told Teresa the woman from the shallows is my mother. She doesn't remember her. She cried all the same, without knowing why.",
+        "liviaSa": "I wrote to Teresa that she knows that woman too. She read my note three times over, like other people's letters.",
         "medicinePace": "Since the peace Teresa no longer opens other people's letters. She says now the only one reading the post is the water."
       },
       "zeno": {
@@ -547,12 +550,12 @@
       "nina": {
         "parte": "Nina studies in Venice now. Leopardi went with her; Bepi stayed on the Pier as long as the smoke could be seen.",
         "resta": "Nina stayed. She says Venice isn't going anywhere and they'll keep her boarding place until September. She says it a few times too often.",
-        "acqua": "Nina stood in the Square with water to her ankles. She says that's how it's done in Venice, and one must practise.",
+        "acqua": "Nina trains for Venice the way others train for a race. Watching her from the lace pillow I wanted to laugh, and a little to cry.",
         "aspetta": "I wrote to Nina that Venice is waiting for her, high water and all. She answered with a line of Leopardi. I think it was a thank-you.",
         "restaQui": "I wrote to Nina that the island needs her. She didn't answer. Nina's silence makes more noise than the wind."
       },
       "lunardi": {
-        "resta": "Dr Lunardi is beginning to think of staying. He has bought a saucepan, which for a man from Padua is almost an oath.",
+        "resta": "Lunardi has bought a saucepan. For a man from Padua that's almost an oath: he's staying.",
         "confidenza": "Dr Lunardi has had his first confidence from the island. He keeps it like a rare stamp, and shows it to no one."
       },
       "marta": {
@@ -563,16 +566,16 @@
         "promessaRotta": "I had promised Marta that Gino would stay home, and Gino ended up at the Lighthouse. Marta hasn't said so, but she knows, and I know she knows."
       },
       "gino": {
-        "cinque": "Gino met five people in a single morning. He says he won. Against whom, nobody knows, but he's happy all the same.",
-        "vaporetto": "Gino ran after Nina all the way to the ferry. Marta caught him by the jumper, and didn't let go until evening."
+        "cinque": "Gino needs everyone, and everyone needs him: today I watched him go from house to house like a letter.",
+        "vaporetto": "For Marta every ferry that leaves is Ernesto's. Tonight Gino understood why his mother won't let him run to the Pier."
       },
       "bepi": {
-        "barca": "In the high water Bepi's boat didn't move an inch. He tells it at the tavern, each evening with an inch less."
+        "barca": "Bepi doesn't trust the sea, and the sea doesn't trust him: that's why they get along. In the high water his boat was the only thing that stayed put."
       },
       "piero": {
         "fascio": "Don Piero gave my mother back the letters he was keeping. He was no longer a well: he was an old man with empty hands, and content.",
         "livia": "Don Piero knows who the woman in black is, I'm sure of it. He keeps her name under his tongue, like a host.",
-        "prima": "At the bottom of the well was still my mother's first letter, the one from '51. Now the well really is empty, says Don Piero."
+        "prima": "Now Don Piero's well really is empty. He says it's the first time since he became a priest that he isn't keeping anything."
       },
       "ada": {
         "nastro": "On the table is Grandmother's ribbon: the leftover ivory thread, which belongs to no one. Tonight I must choose.",
@@ -580,13 +583,13 @@
         "g18": "The rules of the lace pillow are not only added: they can be taken away too. Sometimes it's enough for two people to talk.",
         "g19": "The sea doesn't ask permission, like the fever. Tonight I wove with water up to the columns, and my hands were shaking.",
         "g20": "I wove a leaving. It hurts as if it were mine, and a little it is.",
-        "g21": "The open stitch was in the chest, tried and hidden. Now I know it, and I can't pretend any more.",
-        "g22": "My mother came over the shallows. Her hands smell of fish and salt, and her voice I already knew from the letters.",
+        "g21": "The open stitch: tried and hidden. Now I know it too, and I can't pretend any more.",
+        "g22": "My mother's hands smell of fish and salt, and her voice I already knew from the letters.",
         "g23": "I've counted the threads I know, one by one. Tonight a single pin will decide for everyone, and I'll be the one to pin it.",
         "arc5": "Under Arianna's words Grandmother wrote “I know”. Underneath, I haven't written anything yet.",
         "arc6": "If Grandmother had had the courage, my mother would have grown up here. So would I. I can't stop thinking about it.",
         "g18nodo": "The knot is still there. Thirty years, and one more evening. I wonder if Grandmother ever tried to undo it.",
-        "g20resta": "Nina stayed. The ferry left, and I don't know how much of the blame is my thread's."
+        "g20resta": "Today Nina didn't leave, and I don't know how much of the blame is my thread's."
       }
     },
     "domande": {

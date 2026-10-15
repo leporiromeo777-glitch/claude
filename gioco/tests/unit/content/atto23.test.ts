@@ -1257,7 +1257,9 @@ describe('revisione 1: continuità degli Atti II-III (CA23-05)', () => {
       ['atto3.g18.alba.pace.2', 'me l\'ha detto la piccola'],
       ['atto2.g10.lunardi.testo', 'passi anche dal pescatore Scarpa'],
       ['atto2.g13.nina.testo', 'Curalo, ti prego.'],
-      ['finali.aperto.perline.L_1951', 'che mia madre ha riavuto dal pozzo'],
+      // Verifica della revisione 2: l'etichetta concorda con chi tiene la lettera (P113) e vale anche
+      // se in g22 la lettera non è uscita dal pozzo (R2-D3).
+      ['finali.aperto.perline.L_1951', 'che mia madre aveva scritto per Ada'],
     ];
     for (const [k, s] of has) expect(t(k), k).toContain(s);
     const hasNot: [string, string][] = [
@@ -1271,6 +1273,7 @@ describe('revisione 1: continuità degli Atti II-III (CA23-05)', () => {
       ['atto2.g10.lunardi.testo', 'la prima'],
       ['atto2.g13.nina.testo', 'per primo'],
       ['finali.aperto.perline.L_1951', 'custodita'],
+      ['finali.aperto.perline.L_1951', 'riavuto'],
     ];
     for (const [k, s] of hasNot) expect(t(k), k).not.toContain(s);
     expect(t('atto2.diario.persone.nina.debito')).toBe('La Nina ha saputo del debito. Il Bepi non parla più a nessuno.');
@@ -1758,6 +1761,10 @@ const COERENZA: Regola[] = [
   { id: 'Q046: il nodo che resta solo senza la pace', chiave: /^atto3\.diario\.persone\.ada\.g18nodo$/, richiede: { not: PACE } },
   { id: 'Q057: dopo la lettera della nonna Ada sa a chi Zeno chiede perdono', testo: /non dice a chi|non c'è più/i, richiede: { not: { knows: 'oggetto', id: 'lettera_clotilde' } } },
   { id: 'Q019: il forno chiuso un\'ora non «resta aperto»', testo: /forno resta aperto/i, richiede: { not: { any: [{ reply: 'g10.marta', is: 'R1' }, { reply: 'g10.marta.senzaArchivio', is: 'R1' }] } } },
+  // Verifica della revisione 2.
+  { id: 'verifica: «lo sa perfino il pozzo» solo se i segreti sono arrivati al prete', testo: /perfino il pozzo/i, richiede: { ok: 'g16.piero' } },
+  { id: 'verifica: g18, la confessione «alla persona sbagliata» solo se è arrivata a qualcuno di sbagliato', chiave: /^atto3\.g18\.alba\.storta\.1$/, richiede: { any: [{ event: 'copia', b: 'nina' }, { event: 'copia', b: 'lunardi' }, { event: 'copia', b: 'piero' }] } },
+  { id: 'verifica: g18, la confessione ferma solo se non è arrivata a nessuno di sbagliato', chiave: /^atto3\.g18\.alba\.attesa\.1$/, richiede: { not: { any: [{ event: 'copia', b: 'nina' }, { event: 'copia', b: 'lunardi' }, { event: 'copia', b: 'piero' }] } } },
 ];
 /** Fatti che si raccontano in una giornata sola (la stessa scena non torna un altro giorno). */
 const UN_GIORNO: { id: string; chiave: RegExp }[] = [
@@ -1770,6 +1777,7 @@ const MAI_INSIEME: { id: string; a: RegExp; b: RegExp }[] = [
   { id: 'Q047: g22, Zeno e mia madre si parlano all\'alba', a: /^atto3\.g22\.alba\.perdono\./, b: /senza dir(e|si) niente/i },
   { id: 'Q047: g16, il segreto di Marta è arrivato al prete', a: /^atto2\.g16\.piero\.esito\.ok$/, b: /non l'ha mai detto al prete/i },
   { id: 'Q046: g18, la confessione storta e le regole sciolte', a: /^atto3\.g18\.alba\.storta\./, b: /regole .*(togliere|sciolt)/i },
+  { id: 'verifica: g16, le lettere che l\'umido ha fatto tornare carta non si leggono «una per sera»', a: /^atto2\.diario\.lettere\.fascio$/, b: /le altre .*(leggo|una per sera)/i },
 ];
 
 const MIE = /^(atto2|atto3|finali)\./;
@@ -2106,5 +2114,100 @@ describe('revisione 2: le segnalazioni coi loro passi (Q042-Q050, Q019, Q028, Q0
     expect(t('atto2.arc3.guida.strappo')).toMatch(/undici/);
     expect(t('atto2.arc3.hint.indizio')).toMatch(/Teresa/);
     expect(t('atto2.arc3.perline.L_aldo')).toBe('la lettera dalla terraferma per Aldo');
+  });
+});
+
+describe('verifica della revisione 2 (contenuti-atti23): coerenza e ripetizioni sui rami simulati', () => {
+  /** Sequenze di `n` parole in comune fra due testi, dentro la stessa frase (il punto e la virgola spezzano). */
+  const frasiComuni = (a: string, b: string, n: number): string[] => {
+    const grams = (s: string): Set<string> => {
+      const out = new Set<string>();
+      for (const frase of s.split(/[.,;:!?—–«»"“”()]/)) {
+        const w = parole(frase);
+        for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(' '));
+      }
+      return out;
+    };
+    const ga = grams(a);
+    return [...grams(b)].filter((g) => ga.has(g));
+  };
+  /** Nomi di cose e di persone che i testi possono ripetere (non sono una frase ricopiata). */
+  const NOMI = /donna in nero|donna della secca|acqua alta|lettera della nonna|filo d' avorio|vaporetto delle nove|lettere degli altri|luce del faro/;
+  const tipo = (k: string): string => (/\.diario\./.test(k) ? 'diario' : /\.esito\./.test(k) ? 'esito' : /\.alba\./.test(k) ? 'alba' : 'altro');
+
+  it('Q048: nella stessa giornata il Taccuino non ricopia l\'alba né gli esiti, e gli esiti non ricopiano l\'alba (4 parole di fila)', () => {
+    const bad = new Set<string>();
+    for (const ps of giornate().values()) {
+      const keys = [...new Set(ps.flatMap((p) => p.voci.map((v) => v.key)))].filter((k) => MIE.test(k) && tipo(k) !== 'altro');
+      for (let i = 0; i < keys.length; i++) {
+        for (let j = i + 1; j < keys.length; j++) {
+          const a = keys[i] as string;
+          const b = keys[j] as string;
+          // Due vignette dell'alba o due esiti possono raccontare due fatti con le stesse parole.
+          if (tipo(a) === tipo(b) && tipo(a) !== 'diario') continue;
+          const g = frasiComuni(testoDi(a), testoDi(b), 4).filter((x) => !NOMI.test(x));
+          if (g.length) bad.add(`${ps[0]?.giorno}: «${g[0]}» in ${a} e ${b}`);
+        }
+      }
+    }
+    expect([...bad].sort()).toEqual([]);
+  });
+
+  it('le voci del Taccuino che leggono un evento della notte si sbloccano solo il giorno a cui si riferiscono', () => {
+    const byKey = new Map([...db.diary.values()].map((d) => [d.textKey, d]));
+    const bad = new Set<string>();
+    let viste = 0;
+    for (const p of PAGINE.filter((x) => x.momento === 'bilancio' || x.momento === 'oggetto')) {
+      for (const v of p.voci) {
+        const d = byKey.get(v.key);
+        const u = d ? JSON.stringify(d.unlock) : '';
+        if (!d || !MY_DIARY.has(d.id) || !u.includes('"event"')) continue;
+        const giorni = [...u.matchAll(/"(g\d\d)[".]/g)].map((m) => m[1] as string).sort();
+        if (!giorni.length) continue;
+        viste++;
+        if (p.giorno !== giorni[0]) bad.add(`${p.ramo} ${p.giorno}: ${d.id} (è di ${giorni[0]})`);
+      }
+    }
+    expect(viste).toBeGreaterThan(0);
+    expect([...bad]).toEqual([]);
+    expect(db.diary.get('persone.teresa.fascio')?.unlock).toEqual({ all: [{ failed: 'g16.teresa' }, { event: 'legge', a: 'teresa' }, { not: { done: 'g17' } }] });
+  });
+
+  it('g16: le lettere del fascio che l\'umido ha rovinato non si leggono, e il pozzo sa solo se i segreti ci sono arrivati', () => {
+    expect(t('atto2.diario.persone.livia.lettere')).not.toMatch(/centosessantacinque|una per sera/);
+    expect(t('atto2.diario.lettere.fascio')).toMatch(/tornare carta/);
+    expect(t('atto2.diario.persone.nina.valigia')).not.toMatch(/pozzo/);
+  });
+
+  it('g22: la risposta a Teresa non le svela chi è la donna della secca (esiti, alba e Taccuino dicono che non lo sa)', () => {
+    for (const id of ['g22.teresa', 'g22.teresa.riconosciuta']) {
+      const n = db.notes.get(id) as NoteDef;
+      for (const r of n.replies ?? []) expect(t(r.textKey), `${id} ${r.id}`).not.toMatch(/madre|Livia/);
+    }
+    expect(t('atto3.diario.persone.teresa.liviaSa')).not.toMatch(/madre|Livia/);
+    expect(t('atto3.g22.teresa.esito.fallita')).toMatch(/non ha saputo/);
+  });
+
+  it('g18 fallita: «la persona sbagliata» solo se la confessione ci è arrivata, altrimenti Teresa aspetta', () => {
+    const albe = PAGINE.filter((p) => p.giorno === 'g18' && p.momento === 'alba' && vale({ failed: 'g18.teresa' }, p));
+    expect(albe.length).toBeGreaterThan(0);
+    const lv = level('g18');
+    const storta = lv.dawn?.candidates.find((c) => c.id === 'g18.alba.storta') as VignetteDef;
+    const attesa = lv.dawn?.candidates.find((c) => c.id === 'g18.alba.storta.attesa') as VignetteDef;
+    for (const p of albe) {
+      // Sui rami simulati la confessione è sempre uscita: lo stesso stato, con la notte senza passaggi, vuole l'attesa.
+      const ferma: Pagina = { ...p, s: { ...p.s, lastOutcome: p.s.lastOutcome ? { ...p.s.lastOutcome, events: [] } : p.s.lastOutcome } };
+      for (const [q, giusta] of [[p, p.voci.some((v) => v.key === 'atto3.g18.alba.storta.1') ? storta : attesa], [ferma, attesa]] as const) {
+        expect(vale(storta.when as StoryCond, q), `${p.ramo} storta`).toBe(giusta === storta);
+        expect(vale(attesa.when as StoryCond, q), `${p.ramo} attesa`).toBe(giusta === attesa);
+      }
+    }
+    // Il nodo che resta lo dice la stessa riga del narratore, in tutti e due i casi.
+    for (const v of [storta, attesa]) expect(v.lines[1]?.textKey, v.id).toBe('atto3.g18.alba.storta.2');
+  });
+
+  it('fin_aperto: la lettera del 1951 è di mia madre, anche se in g22 il pozzo non l\'ha restituita', () => {
+    expect(t('finali.aperto.perline.L_1951')).not.toMatch(/pozzo/);
+    expect(level('fin_aperto').beads.find((b) => b.id === 'L_1951')?.holder).toBe('livia');
   });
 });

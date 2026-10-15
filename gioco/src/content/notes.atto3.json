@@ -694,7 +694,7 @@
         "effects": [
           {
             "setFlag": "teresaLivia",
-            "value": "sa"
+            "value": "conosce"
           },
           {
             "diary": "persone.teresa.liviaSa"
@@ -743,7 +743,7 @@
         "effects": [
           {
             "setFlag": "teresaLivia",
-            "value": "sa"
+            "value": "conosce"
           },
           {
             "diary": "persone.teresa.liviaSa"

@@ -1079,6 +1079,11 @@
         {
           "event": "legge",
           "a": "teresa"
+        },
+        {
+          "not": {
+            "done": "g17"
+          }
         }
       ]
     },
