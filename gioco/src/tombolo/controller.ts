@@ -420,6 +420,27 @@ export class NightController {
     this.closeReason.hide();
   }
 
+  /**
+   * Sul telefono la riga di spiegazione sale sopra la striscia delle richieste
+   * quando lì sotto non c'è la riga corrente (Q063: sopra «Fissa l'ora» copriva
+   * i fusi al 140%); altrimenti resta sopra la barra delle azioni (D04: mai
+   * sulla riga corrente).
+   */
+  private placeExplain(): void {
+    const l = this.layout;
+    const node = this.explain.el;
+    if (!l || node.hidden) return;
+    let bottom = l.cssH - l.actions.y + 4;
+    if (l.kind === 'stretto' && this.model) {
+      const h = node.offsetHeight;
+      const rowY = l.lace.y - this.scroll + rowBottom(l, Math.min(this.model.current, this.model.rows));
+      const above = l.requests.y - 4;
+      if (h > 0 && rowY + 6 <= above - h) bottom = l.cssH - above;
+    }
+    const v = `${Math.round(bottom)}px`;
+    if (node.style.bottom !== v) node.style.bottom = v;
+  }
+
   /** Riga di motivo: sopra la barra delle azioni, centrata sul pulsante grande. */
   private placeReason(node: HTMLElement): void {
     const l = this.layout;
@@ -740,6 +761,7 @@ export class NightController {
     const overlayOpen = (ui.overlays?.().length ?? 0) > 0;
     if (this.overlayWasOpen && !overlayOpen) this.resize(this.vp);
     this.overlayWasOpen = overlayOpen;
+    this.placeExplain();
     // Nota a margine: 12 s, se l'avanzamento automatico è acceso (D04).
     if (this.margin.visible() && this.s.settings.get().autoAdvance && this.time - this.noteAt >= NOTE_MAX_S) this.closeNote();
     if (s.isPlayerRow() && !this.completed && !this.popup?.isOpen() && !s.needsNome) {
@@ -1756,7 +1778,15 @@ export class NightController {
     o.hintCol = h.highlight?.column ?? -1;
     o.ghostPair = h.ghost ? h.ghost.pair : -1;
     o.ghostOver = h.ghost?.over ?? 'L';
-    o.ghosts = (h as RowHint).ghosts?.map((g) => ({ pair: g.pair, over: g.over })) ?? (h.ghost ? [{ pair: h.ghost.pair, over: h.ghost.over }] : []);
+    // Tratteggiati solo gli incroci che la bozza non ha già (gli altri si vedono pieni).
+    const all = (h as RowHint).ghosts?.map((g) => ({ pair: g.pair, over: g.over })) ?? (h.ghost ? [{ pair: h.ghost.pair, over: h.ghost.over }] : []);
+    o.ghosts = all.filter((g) => !s.draft.some((d) => d.pair === g.pair && d.over === g.over));
+    if (all.length > 0 && o.ghosts.length === 0) o.ghostPair = -1;
+    else if (o.ghosts[0]) {
+      o.ghostPair = o.ghosts[0].pair;
+      o.ghostOver = o.ghosts[0].over;
+      o.hintCol = o.ghosts[0].pair;
+    }
     if (o.hintRow >= 1) this.revealRow(o.hintRow);
     const maxTier = this.namingHints() ? 1 : TIERS.length - 1;
     const next = this.hintMax < maxTier ? (TIERS[this.hintMax + 1] as HintTier) : null;
