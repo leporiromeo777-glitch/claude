@@ -479,8 +479,19 @@
     "author": "marta",
     "textKey": "atto2.g13.marta.testo",
     "request": {
-      "t": "sano",
-      "who": "gino"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "sopra",
+          "a": "lunardi",
+          "b": "gino",
+          "to": 17
+        },
+        {
+          "t": "sano",
+          "who": "gino"
+        }
+      ]
     },
     "onOk": [
       {
@@ -499,8 +510,19 @@
     "author": "lunardi",
     "textKey": "atto2.g13.lunardi.testo",
     "request": {
-      "t": "sano",
-      "who": "nina"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "sopra",
+          "a": "lunardi",
+          "b": "nina",
+          "to": 16
+        },
+        {
+          "t": "sano",
+          "who": "nina"
+        }
+      ]
     },
     "replies": [
       {
@@ -547,8 +569,19 @@
     "author": "gino",
     "textKey": "atto2.g13.gino.testo",
     "request": {
-      "t": "sano",
-      "who": "piero"
+      "t": "tutti",
+      "of": [
+        {
+          "t": "sopra",
+          "a": "lunardi",
+          "b": "piero",
+          "to": 13
+        },
+        {
+          "t": "sano",
+          "who": "piero"
+        }
+      ]
     },
     "replies": [
       {

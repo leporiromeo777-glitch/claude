@@ -256,8 +256,8 @@
       "febbre": "the fever of the four sick"
     },
     "hint": {
-      "spinta": "Four sick and only one doctor. Tonight's thread is counted: not one crossing too many.",
-      "indizio": "Whoever is cured mustn't cross a sick one again. Start with the one who runs."
+      "spinta": "Four sick and only one doctor. Tonight's thread is enough for two visits, not for all.",
+      "indizio": "Whoever is cured and then crosses a sick one falls ill again: the last visits count."
     },
     "alba": {
       "specchio": {
@@ -278,28 +278,28 @@
       },
       "bepi": {
         "1": "The fever still has me. Nina isn't studying, she's looking after me.",
-        "2": "The doctor never got as far as the Pier. He says last night there wasn't thread for all."
+        "2": "The doctor never got as far as me. He says last night there wasn't thread for all."
       }
     },
     "titolo": "The Longest Night",
     "marta": {
-      "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let him be well by tomorrow evening. I'm asking you please, and I never ask.",
+      "testo": "Gino is raving and calling for Granny. Yours. Says she told him to keep still. Let the doctor see him by five, and him be well by evening. I'm asking you please.",
       "esito": {
-        "ok": "Gino is cured, and the moment he was cured he started running again. Marta let him, for once.",
+        "ok": "The doctor saw Gino in time, and by evening he was cured: he started running at once. Marta let him, for once.",
         "fallita": "Gino still has the fever, and calls for Grandmother in his sleep. Marta sits up by his bed."
       }
     },
     "lunardi": {
-      "testo": "Miss Lacemaker, I have medicine for all but legs for one. The Scarpa girl has books on her bed and fever on her: let her be cured. I put myself in her hands. In yours, miss, I mean.",
+      "testo": "Miss Lacemaker, I have medicine for all but legs for one. The Scarpa girl has fever and books on her bed: I must see her by four, and she must mend. I rely on you. On you, miss, I mean.",
       "r1": "Thank you, Doctor. We'll do our best, both of us.",
       "r2": "Thank you, Ettore. We'll do our best, both of us.",
       "esito": {
-        "ok": "Nina got out of bed before evening, books under her arm. The doctor pretended not to see her.",
+        "ok": "The doctor saw Nina in time, and she got out of bed before evening, books under her arm.",
         "fallita": "Nina still has the fever. The doctor passed under her window twice, without being able to go up."
       }
     },
     "gino": {
-      "testo": "don piero is cofing and cant say mass so who rings the bell?? cure him. and when im better i want to see the litehouse lantern from INSIDE. promise??",
+      "testo": "don piero is cofing and cant say mass so who rings the bell?? cure him before one. and when im better i want to see the litehouse lantern from INSIDE. promise??",
       "r1": "Get better first. The lantern can wait, and so can Zeno.",
       "r2": "From inside, I promise. But the priest first: he knows how to ring the bell.",
       "esito": {

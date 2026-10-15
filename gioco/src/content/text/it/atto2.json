@@ -256,8 +256,8 @@
       "febbre": "la febbre dei quattro malati"
     },
     "hint": {
-      "spinta": "Quattro malati e un medico solo. Il filo di stanotte è contato: nessun incrocio di troppo.",
-      "indizio": "Chi è guarito non deve incrociare di nuovo un malato. Comincia da chi corre."
+      "spinta": "Quattro malati e un medico solo. Il filo di stanotte basta per due visite, non per tutte.",
+      "indizio": "Chi guarisce e poi incrocia un malato si riammala: contano le visite dell'ultima ora."
     },
     "alba": {
       "specchio": {
@@ -278,28 +278,28 @@
       },
       "bepi": {
         "1": "La febbre mi tiene ancora. La Nina non studia per starmi dietro.",
-        "2": "Il dottore non è arrivato fino al Molo. Dice che stanotte non c'era filo per tutti."
+        "2": "Il dottore non è arrivato fino a me. Dice che stanotte non c'era filo per tutti."
       }
     },
     "titolo": "La notte più lunga",
     "marta": {
-      "testo": "Il Gino delira e chiama la nonna. La tua. Dice che lei gli diceva di stare fermo. Che domani sera sia sano. Te lo chiedo per piacere, e io non lo chiedo mai.",
+      "testo": "Il Gino delira e chiama la nonna. La tua. Dice che lei gli diceva di stare fermo. Il dottore passi da lui entro le cinque, e domani sera sia sano. Te lo chiedo per piacere.",
       "esito": {
-        "ok": "Il Gino è guarito, e appena guarito ha ripreso a correre. Marta l'ha lasciato fare, per una volta.",
+        "ok": "Il dottore è passato dal Gino in tempo, e la sera era guarito: ha ripreso a correre subito. Marta l'ha lasciato fare, per una volta.",
         "fallita": "Il Gino ha ancora la febbre, e chiama la nonna nel sonno. Marta veglia accanto al letto."
       }
     },
     "lunardi": {
-      "testo": "Signorina merlettaia, ho medicine per tutti ma gambe per uno. La ragazza Scarpa ha i libri sul letto e la febbre addosso: che guarisca lei. Mi affido a lei. A lei, signorina, intendo.",
+      "testo": "Signorina merlettaia, ho medicine per tutti ma gambe per uno. La ragazza Scarpa ha la febbre e i libri sul letto: devo vederla entro le quattro, e che guarisca. Mi affido a lei. A lei, signorina, intendo.",
       "r1": "Grazie, dottore. Faremo il possibile, tutti e due.",
       "r2": "Grazie, Ettore. Faremo il possibile, tutti e due.",
       "esito": {
-        "ok": "La Nina si è alzata dal letto prima di sera, coi libri sotto il braccio. Il dottore ha fatto finta di non vederla.",
+        "ok": "Il dottore ha visto la Nina in tempo, e lei si è alzata dal letto prima di sera, coi libri sotto il braccio.",
         "fallita": "La Nina ha ancora la febbre. Il dottore è passato due volte sotto la sua finestra, senza poter salire."
       }
     },
     "gino": {
-      "testo": "il don piero tosisce e non puo dire messa e allora la campana chi la suona?? curalo. e poi quando guarisco voglio vedere la lanterna del faro da DENTRO. promesso??",
+      "testo": "il don piero tosisce e non puo dire messa e allora la campana chi la suona?? curalo prima del l'una. e poi quando guarisco voglio vedere la lanterna del faro da DENTRO. promesso??",
       "r1": "Prima guarisci tu. La lanterna aspetta, e anche lo Zeno.",
       "r2": "Da dentro, promesso. Ma prima il prete, che la campana la sa suonare lui.",
       "esito": {

@@ -46,12 +46,12 @@
     }
   ],
   "initial": [
+    "nina",
     "bepi",
     "marta",
     "gino",
     "piero",
-    "lunardi",
-    "nina"
+    "lunardi"
   ],
   "beads": [
     {
@@ -97,6 +97,36 @@
       "thread": "marta",
       "place": "forno",
       "hour": 19
+    },
+    {
+      "thread": "marta",
+      "place": "chiesa",
+      "hour": 13
+    },
+    {
+      "thread": "lunardi",
+      "place": "faro",
+      "hour": 18
+    },
+    {
+      "thread": "nina",
+      "place": "farmacia",
+      "hour": 17
+    },
+    {
+      "thread": "gino",
+      "place": "forno",
+      "hour": 14
+    },
+    {
+      "thread": "marta",
+      "place": "farmacia",
+      "hour": 15
+    },
+    {
+      "thread": "nina",
+      "place": "piazza",
+      "hour": 12
     }
   ],
   "notes": [
@@ -105,7 +135,7 @@
     "g13.gino",
     "g13.nina"
   ],
-  "matassa": 20,
+  "matassa": 19,
   "hintKeys": {
     "spinta": "atto2.g13.hint.spinta",
     "indizio": "atto2.g13.hint.indizio"

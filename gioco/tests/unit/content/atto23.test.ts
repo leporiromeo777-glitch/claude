@@ -263,9 +263,8 @@ describe('bigliettini e vignette', () => {
     expect(flagged('g22', 'zenoLivia')).toBe(true);
   });
 
-  it('almeno un conflitto per sera: una combinazione impossibile e voluta (g13: la matassa esatta)', () => {
+  it('almeno un conflitto per sera: una combinazione impossibile e voluta (K6, anche in g13)', () => {
     for (const d of DAYS) {
-      if (d === 'g13') continue;
       const c = db.computed.get(d);
       expect(c?.combos.some((x) => x.incroci === null && x.voluta), d).toBe(true);
     }
@@ -633,6 +632,22 @@ describe('solver e file calcolati', () => {
     }
   });
 
+  it('criteri di qualità C14 (revisione 1): quality.violazioni vuoto per ogni livello del pacchetto, conflitto voluto e al più un facile per sera', () => {
+    for (const id of MINE) {
+      const c = db.computed.get(id);
+      expect(c?.quality, id).toBeDefined();
+      expect(c?.quality?.violazioni ?? ['assente'], id).toEqual([]);
+    }
+    for (const d of DAYS) {
+      const q = db.computed.get(d)?.quality;
+      expect(q?.facili.length ?? 0, d).toBeLessThanOrEqual(1);
+      // Il facile è in un conflitto voluto con un altro bigliettino della sera (C14, K2).
+      for (const f of q?.facili ?? []) {
+        expect(db.computed.get(d)?.combos.some((x) => x.voluta && x.notes.length >= 2 && x.notes.includes(f)), `${d} ${f}`).toBe(true);
+      }
+    }
+  });
+
   it('nessuna combinazione impossibile senza il segno voluta', () => {
     for (const id of MINE) {
       const c = db.computed.get(id);
@@ -668,6 +683,7 @@ describe('solver e file calcolati', () => {
   it('nessun conflitto nascosto dalla matassa: ogni combinazione possibile senza limite sta anche nella matassa', () => {
     for (const d of DAYS) {
       if (d === 'g12') continue; // la richiesta di Lunardi dipende dal nome appuntato: vedi il test di g12
+      if (d === 'g13') continue; // in g13 il conflitto voluto è proprio la matassa esatta: vedi il test di g13
       const pins = db.campaign.days.find((x) => x.id === d)?.pins ?? 2;
       for (let k = 1; k <= pins; k++) {
         for (const combo of combosOf(d, k)) {
@@ -682,12 +698,34 @@ describe('solver e file calcolati', () => {
     }
   }, 300_000);
 
-  it('g13: con la matassa esatta, un merletto perfetto cura tutti e quattro i malati', () => {
+  it('g13 (revisione 1): il filo contato è il conflitto voluto; la designata si tesse solo con un merletto perfetto', () => {
     const lv = level('g13');
-    const goals = ['g13.marta', 'g13.lunardi', 'g13.gino', 'g13.nina'].map((id) => db.notes.get(id)?.request as Condition);
-    const r = solve({ level: lv, ctx: createContext(lv, {}, { balance: db.balance }), goals });
-    expect(r.status).toBe('ok');
-    expect(r.incroci).toBe(lv.matassa);
+    const c = db.computed.get('g13');
+    const ctx = createContext(lv, {}, { balance: db.balance });
+    const req = (id: string): Condition => db.notes.get(id)?.request as Condition;
+    // Margine 0: la matassa è il minimo della designata.
+    const des = c?.quality?.configs.find((x) => x.config === c?.quality?.designata);
+    expect(lv.matassa).toBe(des?.min);
+    // Le coppie volute non stanno nel filo della notte; almeno una si tesserebbe con più filo: è la scelta
+    // di chi curare (il medico ha gambe per uno, e il filo è contato).
+    const volute = (c?.combos ?? []).filter((x) => x.voluta && x.notes.length === 2);
+    expect(volute.length).toBeGreaterThanOrEqual(1);
+    let soloFilo = 0;
+    for (const v of volute) {
+      const goals = [...(lv.goals ?? []), ...v.notes.map(req)];
+      expect(solve({ level: lv, ctx, goals }).status, v.notes.join('+')).toBe('impossibile');
+      const free = solve({ level: lv, ctx, goals, matassa: 99 });
+      if (free.status === 'ok') {
+        expect(free.incroci ?? 0, v.notes.join('+')).toBeGreaterThan(lv.matassa);
+        soloFilo++;
+      }
+    }
+    expect(soloFilo).toBeGreaterThanOrEqual(1);
+    // Tutti e quattro non si curano con il filo della notte.
+    const all = ['g13.marta', 'g13.lunardi', 'g13.gino', 'g13.nina'].map(req);
+    expect(solve({ level: lv, ctx, goals: all }).status).toBe('impossibile');
+    // Il Gino a letto finché ha la febbre: la febbre è attiva e Gino è fra i malati.
+    expect(lv.beads.find((b) => b.type === 'febbre')?.holders).toEqual(expect.arrayContaining(['gino', 'bepi', 'nina', 'piero']));
   });
 
   it('le soluzioni calcolate rispettano davvero le richieste (riprova col motore)', () => {
