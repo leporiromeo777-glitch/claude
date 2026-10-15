@@ -146,7 +146,10 @@ describe('C04: provenienza degli oggetti e sere vuote', () => {
     const fresh = readDawnObject(d, db());
     expect(d.knowledge.letters).toContain('lettera_clotilde');
     expect(dawnObjectPending(camp(d))).toBe(false);
-    for (const id of aboutLetter) expect(fresh).toContain(id);
+    // (Le voci che chiedono anche altro, per esempio un desiderio non ancora noto, aspettano.)
+    const unlocked = aboutLetter.filter((id) => d.knowledge.diary.includes(id));
+    expect(unlocked.length).toBeGreaterThan(0);
+    for (const id of unlocked) expect(fresh).toContain(id);
     // Poi il bilancio (che resta quello di fine notte) e la cassapanca con arc4.
     finishDawn(d, db());
     expect(camp(d).phase).toBe('bilancio');

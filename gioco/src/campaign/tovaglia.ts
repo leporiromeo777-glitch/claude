@@ -48,8 +48,7 @@ function tileCanvas(): HTMLCanvasElement {
   const cv = el('canvas', { class: 'cp-tovaglia-merletto', attrs: { 'aria-hidden': 'true' } });
   cv.width = Math.round(TILE_W * dpr);
   cv.height = Math.round(TILE_H * dpr);
-  cv.style.width = `${TILE_W}px`;
-  cv.style.height = `${TILE_H}px`;
+  // La misura a schermo la decide il CSS (più piccola sul telefono, `--cp-tov-w`).
   return cv;
 }
 

@@ -50,10 +50,14 @@ export class SeraScene implements Scene {
   /** Si sta già andando al tombolo (niente doppie partenze con un doppio tocco). */
   private leaving = false;
   /**
-   * Fino a quando ignorare i pulsanti della sera dopo la chiusura di un foglio (Q006): un
-   * secondo tocco su «Continua» non deve arrivare ad «Al tombolo», che sta sotto.
+   * Dove è cominciato l'ultimo tocco o clic (Q006): un «clic» che arriva ad «Al tombolo» da
+   * un tocco cominciato altrove (su «Continua» di un foglio che intanto si è chiuso) è un
+   * clic fantasma e non vale. Un tocco vero comincia sul pulsante; la tastiera non ha tocchi.
    */
-  private quietUntil = 0;
+  private lastDown: { target: EventTarget | null; at: number } = { target: null, at: -Infinity };
+  private readonly onPointerDown = (e: Event): void => {
+    this.lastDown = { target: e.target, at: Date.now() };
+  };
 
   constructor(private readonly s: Services) {}
 
@@ -67,6 +71,7 @@ export class SeraScene implements Scene {
     this.root.append(this.backdrop.el, this.main, this.side.column);
     sceneHost(this.s).appendChild(this.root);
     this.main.addEventListener('scroll', () => this.syncScrollCue(), { passive: true });
+    if (typeof document !== 'undefined') document.addEventListener('pointerdown', this.onPointerDown, true);
 
     if (cmd.cmd === 'nuova' && controller.state() && !cmd.confirmed) {
       // Nuova storia con un salvataggio: conferma (la storia e il Taccuino ricominciano).
@@ -157,15 +162,21 @@ export class SeraScene implements Scene {
     main.classList.toggle('cp-sera--altro', more);
   }
 
-  /** Dopo un foglio chiuso: niente tocchi fantasma, e il bigliettino toccato torna in vista. */
+  /** Dopo un foglio chiuso il bigliettino toccato torna in vista sopra il piede (Q004). */
   private afterOverlay(noteId?: string): void {
-    this.quietUntil = Date.now() + 450;
     if (!noteId || !this.main) return;
     this.main.querySelector<HTMLElement>(`[data-test="cp-bigliettino-${CSS.escape(noteId)}"]`)?.scrollIntoView?.({ block: 'nearest' });
   }
 
-  private quiet(): boolean {
-    return Date.now() < this.quietUntil;
+  /**
+   * Il clic viene da un tocco cominciato poco prima fuori dal pulsante (un clic fantasma,
+   * Q006). Senza un tocco recente (tastiera, o un tocco di più di 800 ms fa) vale sempre.
+   */
+  private ghost(e?: MouseEvent): boolean {
+    const b = (e?.currentTarget as Node | null) ?? null;
+    const t = this.lastDown.target as Node | null;
+    if (!b || !t || Date.now() - this.lastDown.at > 800) return false;
+    return !b.contains(t);
   }
 
   // ───────── Prologo (GDD 9) ─────────
@@ -278,9 +289,7 @@ export class SeraScene implements Scene {
       el('span', { class: 'cp-porta-testo' }, el('span', { class: 'cp-porta-titolo', test: 'cp-sera-arrivo', data: { da: arrival.from } }, textOf(arrival.key, arrival.params, 'span', { rich: true })), textOf(tapKey('campaign.sera.oggettoTocca'), undefined, 'span', { className: 'cp-tenue' })),
     );
     door.addEventListener('click', () => {
-      if (this.quiet()) return;
       void this.s.ui.openOverlay('cp-oggetto', { from: 'sera' }).then(() => {
-        this.afterOverlay();
         // Chiuso senza «Continua» (Indietro): l'oggetto è letto lo stesso (C03).
         if (!this.active || controller.state()?.evening?.objectSeen) return;
         const fresh = controller.objectSeen();
@@ -301,7 +310,6 @@ export class SeraScene implements Scene {
     if (m.left && !m.pinned) marks.appendChild(el('span', { class: 'cp-segno' }, textOf('campaign.sera.segnoLasciato', undefined, 'span')));
     const b = el('button', { type: 'button', class: ['cp-bigliettino', m.pinned ? 'cp-appuntato' : null, m.left && !m.pinned ? 'cp-lasciato' : null], test: `cp-bigliettino-${id}` }, notePaper(this.s, note, c), marks);
     b.addEventListener('click', () => {
-      if (this.quiet()) return;
       void this.s.ui.openOverlay('cp-nota', { noteId: id, from: 'sera' }).then(() => this.afterOverlay(id));
     });
     return b;
@@ -356,14 +364,14 @@ export class SeraScene implements Scene {
     foot.appendChild(tools);
     const go = el('div', { class: 'cp-sera-vai' });
     if (ripassaAvailable(controller.data())) {
-      go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: () => this.goNight(true), test: 'cp-ripassa' }));
+      go.appendChild(button({ labelKey: 'campaign.sera.ripassa', icon: 'play', kind: 'secondario', onClick: (e) => this.goNight(true, e), test: 'cp-ripassa' }));
     }
     // Gli spilli si contano solo se stasera c'è un bigliettino da appuntare (CAM-09).
     const pinnable = (c.evening?.noteIds ?? []).some((id) => !!s.content.notes.get(id)?.request);
     const label = total > 0 && pinnable ? 'campaign.sera.alTomboloSpilli' : 'campaign.sera.alTombolo';
     // "Al tombolo" è attivo sempre (GDD 10.3): l'oggetto non letto finisce comunque nel
     // Taccuino, i bigliettini non decisi contano come lasciati (con una conferma).
-    go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', onClick: () => this.toNight(), test: 'cp-al-tombolo' }));
+    go.appendChild(button({ labelKey: label, params: { usati: used, totale: total }, kind: 'primario', size: 'grande', onClick: (e) => this.toNight(e), test: 'cp-al-tombolo' }));
     foot.appendChild(go);
     // L'elenco continua sotto il piede (Q004): una freccia sul bordo lo dice e lo fa scorrere.
     const more = el('button', { type: 'button', class: 'cp-sera-scorri', test: 'cp-sera-scorri', label: this.s.i18n.t('campaign.sera.scorri'), title: this.s.i18n.t('campaign.sera.scorri') }, svgIcon('avanti', { size: 22 }));
@@ -375,16 +383,16 @@ export class SeraScene implements Scene {
     return foot;
   }
 
-  private goNight(ripassa = false): void {
-    if (this.leaving || !this.active || this.quiet()) return;
+  private goNight(ripassa = false, e?: MouseEvent): void {
+    if (this.leaving || !this.active || this.ghost(e)) return;
     this.leaving = true;
     if (ripassa) controller.ripassa();
     else controller.toNight();
   }
 
-  private toNight(): void {
+  private toNight(e?: MouseEvent): void {
     const c = controller.state();
-    if (!c || this.leaving || this.quiet()) return;
+    if (!c || this.leaving || this.ghost(e)) return;
     const open = undecided(c);
     if (open.length === 0) {
       this.goNight();
@@ -432,6 +440,7 @@ export class SeraScene implements Scene {
 
   exit(): void {
     this.active = false;
+    if (typeof document !== 'undefined') document.removeEventListener('pointerdown', this.onPointerDown, true);
     this.off?.();
     this.off = null;
     this.side?.destroy();

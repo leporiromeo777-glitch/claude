@@ -498,6 +498,10 @@ export class CampaignControllerImpl implements CampaignController {
     if (!this.canGoBackToEvening()) return false;
     const levelId = this.state()?.levelId ?? null;
     this.backToEveningOf = levelId;
+    // Il pulsante sta nel Taccuino o nei Bigliettini aperti sopra il tombolo: si chiudono.
+    const ui = this.s.ui as Services['ui'] & { overlays?: () => string[] };
+    if (typeof ui.overlays === 'function') for (let i = 0; i < 6 && ui.overlays().length > 0; i++) ui.closeOverlay();
+    else ui.closeOverlay?.();
     this.mutate((d) => {
       const c = d.campaign as CampaignStateX | null;
       if (!c || c.phase !== 'notte') return;

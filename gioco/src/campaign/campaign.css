@@ -1493,17 +1493,17 @@
 }
 .cp-sera-scorri {
   position: absolute;
-  top: -10px;
+  top: -16px;
   left: 50%;
   z-index: 2;
   display: none;
   align-items: center;
   justify-content: center;
   width: 56px;
-  height: 36px;
+  height: var(--tocco);
   padding: 0;
   border: 1px solid var(--bordo-pannello);
-  border-radius: 18px;
+  border-radius: 24px;
   background: var(--velluto-luce);
   color: var(--testo);
   transform: translateX(-50%);
@@ -1636,10 +1636,17 @@
 }
 .cp-tovaglia-merletto {
   display: block;
+  width: var(--cp-tov-w, 84px);
+  height: calc(var(--cp-tov-w, 84px) * 132 / 84);
   outline: 1px dashed rgba(216, 204, 180, 0.35);
   outline-offset: -1px;
 }
 .cp-tovaglia-azioni {
   display: flex;
   justify-content: flex-end;
+}
+@media (max-width: 600px) {
+  .cp-tovaglia {
+    --cp-tov-w: 60px;
+  }
 }

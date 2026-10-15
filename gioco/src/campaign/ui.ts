@@ -122,34 +122,49 @@ export function emptyBottle(f: Frame): HTMLCanvasElement | null {
     const img = ctx.getImageData(0, 0, w, h);
     const d = img.data;
     const k = 256 / Math.max(w, h);
-    // La carta: più rossa che verde e più che blu, fuori dal tappo (in alto a sinistra).
-    const paper = new Uint8Array(w * h);
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
+    const alpha = (x: number, y: number): number => (x < 0 || y < 0 || x >= w || y >= h ? 0 : (d[(y * w + x) * 4 + 3] ?? 0));
+    // Dentro il vetro, lontano dal contorno: il bordo della bottiglia non si tocca.
+    const inside = (x: number, y: number, r: number): boolean => {
+      for (let yy = y - r; yy <= y + r; yy++) for (let xx = x - r; xx <= x + r; xx++) if (alpha(xx, yy) < 200) return false;
+      return true;
+    };
+    // La carta: più rossa che verde e più che blu, nel mezzo della bottiglia (non il tappo).
+    const x0 = Math.floor(100 / k);
+    const x1 = Math.ceil(220 / k);
+    const y0 = Math.floor(90 / k);
+    const y1 = Math.ceil(205 / k);
+    const r3 = Math.max(1, Math.round(3 / k));
+    const r2 = Math.max(1, Math.round(2 / k));
+    const paper: number[] = [];
+    for (let y = y0; y < Math.min(h, y1); y++) {
+      for (let x = x0; x < Math.min(w, x1); x++) {
         const i = (y * w + x) * 4;
         const r = d[i] ?? 0;
         const g = d[i + 1] ?? 0;
         const b = d[i + 2] ?? 0;
-        const a = d[i + 3] ?? 0;
-        if (a >= 40 && (x + y) * k >= 130 && r >= g && r > b + 12) paper[y * w + x] = 1;
+        if ((d[i + 3] ?? 0) >= 200 && r >= g && r > b + 12 && inside(x, y, r3)) paper.push(y * w + x);
       }
     }
-    // Un po' più larga, per prendere anche i bordi sfumati del foglio.
+    // Un po' più larga, per prendere anche i bordi sfumati del foglio (sempre dentro il vetro).
     const rad = Math.max(1, Math.round(4 / k));
     const mask = new Uint8Array(w * h);
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        if (!paper[y * w + x]) continue;
-        for (let yy = Math.max(0, y - rad); yy <= Math.min(h - 1, y + rad); yy++) for (let xx = Math.max(0, x - rad); xx <= Math.min(w - 1, x + rad); xx++) mask[yy * w + xx] = 1;
+    for (const p of paper) {
+      const x = p % w;
+      const y = (p - x) / w;
+      for (let yy = Math.max(0, y - rad); yy <= Math.min(h - 1, y + rad); yy++) {
+        for (let xx = Math.max(0, x - rad); xx <= Math.min(w - 1, x + rad); xx++) {
+          const q = yy * w + xx;
+          if (!mask[q] && alpha(xx, yy) >= 200 && inside(xx, yy, r2)) mask[q] = 1;
+        }
       }
     }
-    // Si riempie col vetro intorno, dal bordo verso l'interno.
+    // Si riempie col vetro intorno, dal bordo verso l'interno (l'opacità resta quella di prima).
     const known = new Uint8Array(w * h);
     for (let p = 0; p < w * h; p++) known[p] = !mask[p] && (d[p * 4 + 3] ?? 0) > 100 ? 1 : 0;
     let todo: number[] = [];
     for (let p = 0; p < w * h; p++) if (mask[p]) todo.push(p);
-    for (let it = 0; it < 120 && todo.length > 0; it++) {
-      const fill: [number, number, number, number, number][] = [];
+    for (let it = 0; it < 160 && todo.length > 0; it++) {
+      const fill: [number, number, number, number][] = [];
       const rest: number[] = [];
       for (const p of todo) {
         const x = p % w;
@@ -157,7 +172,6 @@ export function emptyBottle(f: Frame): HTMLCanvasElement | null {
         let r = 0;
         let g = 0;
         let b = 0;
-        let a = 0;
         let n = 0;
         for (let dy = -1; dy <= 1; dy++) {
           for (let dx = -1; dx <= 1; dx++) {
@@ -170,19 +184,17 @@ export function emptyBottle(f: Frame): HTMLCanvasElement | null {
             r += d[q * 4] ?? 0;
             g += d[q * 4 + 1] ?? 0;
             b += d[q * 4 + 2] ?? 0;
-            a += d[q * 4 + 3] ?? 0;
             n++;
           }
         }
-        if (n > 0) fill.push([p, r / n, g / n, b / n, a / n]);
+        if (n > 0) fill.push([p, r / n, g / n, b / n]);
         else rest.push(p);
       }
       if (fill.length === 0) break;
-      for (const [p, r, g, b, a] of fill) {
+      for (const [p, r, g, b] of fill) {
         d[p * 4] = r;
         d[p * 4 + 1] = g;
         d[p * 4 + 2] = b;
-        d[p * 4 + 3] = a;
         known[p] = 1;
       }
       todo = rest;

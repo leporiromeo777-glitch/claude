@@ -254,12 +254,14 @@ describe('pannello dei bigliettini (Q014, Q066, Q012)', () => {
     setScene('tombolo');
     const night = fakeNight({ level: p.level, accepted: p.accepted });
     d.night = { origin: 'campagna', params: { origin: 'campagna', mode: 'normale', levelId: p.level.id, flags: {}, accepted: [], goals: [], needsNome: false }, resume: { levelId: p.level.id, rows: [], draft: [], dropped: [], nomeOn: null, hintsUsed: 0, fantasmaUsed: false } };
-    const box = document.createElement('div');
-    document.body.appendChild(box);
-    const h = bigliettiniPanel(s, box, { from: 'tombolo' });
-    const back = box.querySelector<HTMLButtonElement>('[data-test="cp-torna-sera"]');
+    // Nel layout stretto il pulsante sta nei Bigliettini aperti sopra il tombolo: si chiudono.
+    ui.registerPanel('bigliettini', (container, o) => bigliettiniPanel(s, container, o));
+    void ui.openOverlay('bigliettini', { from: 'tombolo' });
+    await tick();
+    const back = document.querySelector<HTMLButtonElement>('[data-test="cp-torna-sera"]');
     expect(back).not.toBeNull();
     back?.click();
+    expect(ui.overlays()).toEqual([]);
     expect(camp(d).phase).toBe('sera');
     expect(camp(d).evening?.accepted.map((a) => a.noteId)).toEqual([ids[0], ids[1]]);
     expect(d.night).toBeNull();
@@ -268,7 +270,6 @@ describe('pannello dei bigliettini (Q014, Q066, Q012)', () => {
     d.night = { origin: 'campagna', params: { origin: 'campagna', mode: 'normale', levelId: p.level.id, flags: {}, accepted: [], goals: [], needsNome: false }, resume: { levelId: p.level.id, rows: [], draft: [], dropped: [], nomeOn: null, hintsUsed: 0, fantasmaUsed: false } };
     s.bus.emit('night:exit', { origin: 'campagna' });
     expect(d.night).toBeNull();
-    h.destroy();
     // Con un'ora già fissata il pulsante non c'è più.
     camp(d).phase = 'notte';
     (night.session as { rows: unknown[] }).rows = [{ hour: 7, crossings: [] }];
@@ -277,7 +278,6 @@ describe('pannello dei bigliettini (Q014, Q066, Q012)', () => {
     const h2 = bigliettiniPanel(s, box2, { from: 'tombolo' });
     expect(box2.querySelector('[data-test="cp-torna-sera"]')).toBeNull();
     h2.destroy();
-    void ui;
   });
 });
 
@@ -373,14 +373,24 @@ describe('sera (Q067, Q004, Q006)', () => {
     await scene.enter({ cmd: 'continua' });
     document.querySelector<HTMLButtonElement>('[data-test="cp-oggetto"]')?.click();
     await tick();
-    // «Continua» due volte: legge, poi chiude.
-    document.querySelector<HTMLButtonElement>('[data-test="cp-oggetto-continua"]')?.click();
-    document.querySelector<HTMLButtonElement>('[data-test="cp-oggetto-continua"]')?.click();
+    // «Continua» due volte, toccando: legge, poi chiude.
+    const tap = (sel: string): void => {
+      const b = document.querySelector<HTMLButtonElement>(sel);
+      b?.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+      b?.click();
+    };
+    tap('[data-test="cp-oggetto-continua"]');
+    tap('[data-test="cp-oggetto-continua"]');
     await tick();
     expect(ui.overlays()).toEqual([]);
+    // Il «clic» fantasma dello stesso tocco arriva ad «Al tombolo», sotto: niente conferma.
     document.querySelector<HTMLButtonElement>('[data-test="cp-al-tombolo"]')?.click();
     await tick();
     expect(document.querySelector('[data-test="confirm"]')).toBeNull();
+    // Un tocco vero su «Al tombolo» (comincia sul pulsante) chiede la conferma.
+    tap('[data-test="cp-al-tombolo"]');
+    await tick();
+    expect(document.querySelector('[data-test="confirm"]')).not.toBeNull();
     scene.exit();
   });
 });

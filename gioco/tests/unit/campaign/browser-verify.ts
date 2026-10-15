@@ -112,6 +112,16 @@ async function until(page: Page, what: string, fn: () => Promise<boolean>, ms = 
 const scene = (page: Page): Promise<string> => call<string>(page, 'core.scene');
 const phase = (page: Page): Promise<string | null> => call<string | null>(page, 'campaign.phase');
 const waitScene = (page: Page, id: string, ms?: number): Promise<boolean> => until(page, `scena ${id}`, async () => (await scene(page)) === id, ms);
+/**
+ * Fine della notte da gustare (R2-D5): il merletto finito resta con «Continua»
+ * (`cp-notte-continua`) dopo 2,5 s; lo si tocca e si va alla scena dopo.
+ */
+async function pastLace(page: Page, target: string, ms = 20000): Promise<boolean> {
+  const ok = await until(page, `merletto finito o ${target}`, async () => (await scene(page)) === target || (await page.isVisible('[data-test="cp-notte-continua"]')), ms);
+  if (!ok) return false;
+  if ((await scene(page)) !== target) await page.click('[data-test="cp-notte-continua"]');
+  return waitScene(page, target);
+}
 const waitNight = (page: Page): Promise<boolean> =>
   until(page, 'notte attiva', async () => (await scene(page)) === 'tombolo' && !!(await call<Rec>(page, 'night.state')).active);
 
@@ -182,6 +192,12 @@ async function prologueAndFirstDay(browser: Browser, url: string): Promise<void>
   const n0 = await call<Rec>(page, 'night.state');
   check('notte g00 della campagna', n0.levelId === 'g00' && n0.origin === 'campagna', `${String(n0.levelId)} ${String(n0.origin)}`);
   await call(page, 'night.autoplay', undefined, 60);
+  // R2-D5: il merletto finito resta almeno 2,5 s, poi «All'alba».
+  await until(page, 'fine della notte', async () => (await phase(page)) === 'alba');
+  const t0 = Date.now();
+  check('R2-D5: «All’alba» compare sul merletto finito', await until(page, 'All’alba', () => page.isVisible('[data-test="cp-notte-continua"]'), 8000));
+  check('R2-D5: dopo almeno 2,5 s', Date.now() - t0 >= 2300 && (await scene(page)) === 'tombolo', `${Date.now() - t0} ms`);
+  await page.tap('[data-test="cp-notte-continua"]');
   check('dopo la notte: alba', await waitScene(page, 'alba'));
   const dawn = await call<{ report: string[] }>(page, 'campaign.dawn');
   check('alba del prologo: 3 vignette del GDD 9', dawn.report.join(',') === 'g00.alba.marta,g00.alba.teresa,g00.alba.piero', dawn.report.join(','));
@@ -250,7 +266,7 @@ async function prologueAndFirstDay(browser: Browser, url: string): Promise<void>
   const after = await call<Rec>(page, 'night.state');
   check('Continua a metà notte: stessa riga', after.hour === before.hour && (after.rows as unknown[]).length === (before.rows as unknown[]).length && after.levelId === 'g01', `${String(before.hour)} → ${String(after.hour)}`);
   await call(page, 'night.autoplay');
-  await waitScene(page, 'alba');
+  await pastLace(page, 'alba');
   await page.reload();
   await page.evaluate(() => (window as unknown as { __GAME__: { ready: Promise<void> } }).__GAME__.ready);
   await call(page, 'core.goto', 'sera', { cmd: 'continua' });
@@ -420,7 +436,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   check('largo: all’inizio della notte i Bigliettini mostrano la richiesta appuntata', await page.isVisible('[data-test="cp-pannello-bigliettini"] [data-test="cp-richiesta-g01.marta"]'));
   await shot(page, '21-largo-notte');
   await call(page, 'night.autoplay');
-  await waitScene(page, 'alba');
+  await pastLace(page, 'alba');
 
   // Archivio (dopo g03).
   await call(page, 'campaign.finishDay'); // chiude g01
@@ -430,7 +446,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await call(page, 'campaign.toNight');
   await waitNight(page);
   await call(page, 'night.autoplay');
-  await waitScene(page, 'alba');
+  await pastLace(page, 'alba');
   await call(page, 'campaign.skipDawn');
   await waitScene(page, 'bilancio');
   await call(page, 'campaign.next');
@@ -485,7 +501,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await call(page, 'campaign.toNight');
   await waitNight(page);
   await call(page, 'night.autoplay');
-  await waitScene(page, 'alba');
+  await pastLace(page, 'alba');
   const rep = await call<{ requests: { noteId: string; wrongGuess: boolean; status: string }[]; dawn: { id: string }[] }>(page, 'campaign.report');
   const r13 = rep.requests.find((r) => r.noteId === 'g13.marta');
   check('autore sbagliato: richiesta fallita', !!r13 && r13.wrongGuess && r13.status === 'fallita');
@@ -510,7 +526,7 @@ async function extras(browser: Browser, url: string): Promise<void> {
   await waitNight(page);
   check('Rigioca: notte del Telaio', (await call<Rec>(page, 'night.state')).origin === 'telaio');
   await call(page, 'night.autoplay');
-  await waitScene(page, 'bilancio');
+  await pastLace(page, 'bilancio');
   await page.click('[data-test="cp-bilancio-continua"]');
   await waitScene(page, 'telaio');
   check('Rigioca non cambia la storia', JSON.stringify(Object.keys((await call<Rec>(page, 'campaign.state')).history as Rec)) === '["g00"]');
