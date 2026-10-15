@@ -1,15 +1,17 @@
 /**
- * Caricamento dei personaggi generati (public/personaggi/<id>.glb, prodotti da
- * tools/personaggi/processa.py): una SkinnedMesh per livello di dettaglio («lod0», «lod1») sullo
+ * Caricamento libero dei personaggi generati per la pagina di prova (tools/personaggi/prova.ts): per il
+ * gioco si usano precaricaPersonaggi + creaPersonaggio (precarica.ts, fabbrica.ts).
+ * Modelli: public/personaggi/<id>.glb, prodotti da tools/personaggi/processa.py: una SkinnedMesh per livello di dettaglio («lod0», «lod1») sullo
  * stesso scheletro, un solo materiale con la texture dipinta.
  *
  * Ogni chiamata dà una copia indipendente (SkeletonUtils.clone) con il suo animatore; il GLB si
  * scarica una volta sola per URL.
  */
 import * as THREE from 'three';
-import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { clone as cloneScheletro } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneScheletro } from 'three/addons/utils/SkeletonUtils.js';
 import { AnimatorePersonaggio, type OpzioniAnimatore, type StatoPersonaggio } from './animatore';
+import { rampaToni } from './materiale';
 
 export type StileMateriale = 'toon' | 'lambert' | 'originale';
 
@@ -61,32 +63,6 @@ export function scaricaPersonaggio(url: string): Promise<GLTF> {
     cache.set(url, p);
   }
   return p;
-}
-
-/** Rampa del toon: tre campiture con passaggi morbidi (coordinata = N·L·0.5+0.5). */
-let rampa: THREE.DataTexture | null = null;
-function rampaToni(): THREE.DataTexture {
-  if (rampa) return rampa;
-  const n = 64;
-  const dati = new Uint8Array(n * 4);
-  const livelli = [0.5, 0.78, 1.0];
-  const soglie = [0.46, 0.64];
-  for (let i = 0; i < n; i++) {
-    const x = i / (n - 1);
-    let v = livelli[0] as number;
-    for (let k = 0; k < soglie.length; k++) {
-      const s = soglie[k] as number;
-      v += ((livelli[k + 1] as number) - (livelli[k] as number)) * THREE.MathUtils.smoothstep(x, s - 0.06, s + 0.06);
-    }
-    const b = Math.round(v * 255);
-    dati.set([b, b, b, 255], i * 4);
-  }
-  rampa = new THREE.DataTexture(dati, n, 1, THREE.RGBAFormat);
-  rampa.minFilter = THREE.LinearFilter;
-  rampa.magFilter = THREE.LinearFilter;
-  rampa.generateMipmaps = false;
-  rampa.needsUpdate = true;
-  return rampa;
 }
 
 function materiale(orig: THREE.Material, opz: OpzioniCaricamento): THREE.Material {
@@ -194,7 +170,7 @@ export async function caricaPersonaggio(url: string, opz: OpzioniCaricamento = {
     },
     update(dt, stato, camera) {
       animatore.update(dt, stato);
-      copia.position.y = animatore.abbassamento;
+      copia.position.copy(animatore.spostamento);
       if (camera) {
         gruppo.getWorldPosition(pos);
         camera.getWorldPosition(cam);
