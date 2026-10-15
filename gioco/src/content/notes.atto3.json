@@ -462,9 +462,9 @@
     "author": "marta",
     "textKey": "atto3.g20.marta.testo",
     "request": {
-      "t": "maiPresso",
-      "who": "gino",
-      "place": "molo",
+      "t": "nonIncontra",
+      "a": "gino",
+      "b": "nina",
       "from": 7,
       "to": 9
     },

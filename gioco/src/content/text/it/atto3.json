@@ -249,10 +249,10 @@
       }
     },
     "marta": {
-      "testo": "Il Gino vuole seguire la Nina al Molo. Non deve: se sale su quel vaporetto per gioco, non lo riprendo più. Lontano dal Molo fino alle nove.",
+      "testo": "Il Gino vuole correre dietro alla Nina fino al vaporetto. Non deve: se sale per gioco, non lo riprendo più. Fino alle nove, che non la incroci nemmeno.",
       "esito": {
-        "ok": "Il Gino è rimasto lontano dal Molo fino alle nove. Marta l'ha tenuto a impastare, e lui ha impastato il broncio.",
-        "fallita": "Il Gino è finito al Molo col vaporetto che fischiava. Marta stasera gli ha dato la cena senza dire una parola."
+        "ok": "Fino alle nove il Gino non ha incrociato la Nina. Marta l'ha tenuto a impastare, e lui ha impastato il broncio.",
+        "fallita": "Il Gino ha incrociato la Nina prima del vaporetto, e voleva salire con lei. Marta stasera gli ha dato la cena senza dire una parola."
       }
     },
     "teresa": {
@@ -552,7 +552,7 @@
       },
       "gino": {
         "cinque": "Il Gino ha incontrato cinque persone in una mattina sola. Dice che ha vinto. Contro chi, non si sa, ma è contento lo stesso.",
-        "vaporetto": "Il Gino è corso al Molo dietro al vaporetto. Marta l'ha preso per la maglia, e non l'ha lasciato fino a sera."
+        "vaporetto": "Il Gino è corso dietro alla Nina fino al vaporetto. Marta l'ha preso per la maglia, e non l'ha lasciato fino a sera."
       },
       "bepi": {
         "barca": "Bepi lega la barca col doppio nodo di suo padre. Nell'acqua alta non si è mossa di un palmo, e lui lo racconta a tutti."

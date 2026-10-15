@@ -52,10 +52,10 @@
   ],
   "initial": [
     "bepi",
-    "marta",
     "nina",
-    "teresa",
+    "marta",
     "gino",
+    "teresa",
     "zeno"
   ],
   "beads": [],
@@ -92,6 +92,16 @@
       "thread": "marta",
       "place": "forno",
       "hour": 7
+    },
+    {
+      "thread": "gino",
+      "place": "molo",
+      "hour": 11
+    },
+    {
+      "thread": "teresa",
+      "place": "piazza",
+      "hour": 12
     }
   ],
   "edges": [
@@ -107,7 +117,7 @@
     "g20.marta",
     "g20.teresa"
   ],
-  "matassa": 13,
+  "matassa": 12,
   "hintKeys": {
     "spinta": "atto3.g20.hint.spinta",
     "indizio": "atto3.g20.hint.indizio"

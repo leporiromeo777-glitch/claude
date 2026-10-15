@@ -249,10 +249,10 @@
       }
     },
     "marta": {
-      "testo": "Gino wants to follow Nina to the Pier. He mustn't: if he gets on that ferry for a game, I'll never get him back. Away from the Pier until nine.",
+      "testo": "Gino wants to run after Nina all the way to the ferry. He mustn't: if he gets on for a game, I'll never get him back. Until nine, he's not to cross her at all.",
       "esito": {
-        "ok": "Gino stayed away from the Pier until nine. Marta kept him kneading, and he kneaded his sulk.",
-        "fallita": "Gino ended up at the Pier with the ferry whistling. Tonight Marta gave him his supper without a word."
+        "ok": "Until nine Gino never crossed Nina. Marta kept him kneading, and he kneaded his sulk.",
+        "fallita": "Gino crossed Nina before the ferry, and wanted to get on with her. Tonight Marta gave him his supper without a word."
       }
     },
     "teresa": {
@@ -552,7 +552,7 @@
       },
       "gino": {
         "cinque": "Gino met five people in a single morning. He says he won. Against whom, nobody knows, but he's happy all the same.",
-        "vaporetto": "Gino ran to the Pier after the ferry. Marta caught him by the jumper, and didn't let go until evening."
+        "vaporetto": "Gino ran after Nina all the way to the ferry. Marta caught him by the jumper, and didn't let go until evening."
       },
       "bepi": {
         "barca": "Bepi ties his boat with his father's double knot. In the high water it didn't move an inch, and he tells everyone so."
