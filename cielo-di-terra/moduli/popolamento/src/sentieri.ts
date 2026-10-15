@@ -208,3 +208,52 @@ function gradino(cant: Cantiere, a: CampioneSentiero, b: CampioneSentiero, largh
   const col = boxAt(z, theta, fondo, yaw, larghezza, alto, lung, tag);
   cant.aggiungiCollider(col, tag, luogo);
 }
+
+/**
+ * Gradinata che segue il suolo da a a b (sagrati, scalette fra i gradoni dolci): ogni gradino è il
+ * suolo arrotondato in su al passo `alzata` (contato dalla quota d'arrivo), quindi i gradini stanno
+ * sempre sopra il terreno e il controller li sale.
+ */
+export function gradinataSulSuolo(cant: Cantiere, a: PuntoCil, b: PuntoCil, larghezza: number, alzata = 0.4, materiale: 'pietra' | 'assi' = 'pietra', tag = 'gradino', luogo?: string, seme = 7): number {
+  const c = campionaSentiero([a, b], 0.3);
+  const fine = c[c.length - 1]!.suolo;
+  const inizio = c[0]!.suolo;
+  const rif = Math.min(fine, inizio);
+  for (const x of c) x.cammino = rif + Math.ceil((x.suolo - rif) / alzata - 0.05) * alzata;
+  let n = 0;
+  let j = 0;
+  while (j < c.length) {
+    const livello = c[j]!.cammino;
+    let k = j;
+    while (k + 1 < c.length && Math.abs(c[k + 1]!.cammino - livello) < 1e-6) k++;
+    let minSuolo = Infinity;
+    for (let q = j; q <= k; q++) minSuolo = Math.min(minSuolo, c[q]!.suolo);
+    if (livello > minSuolo + 0.04 || k - j >= 1) {
+      gradino(cant, c[j]!, c[k]!, larghezza, Math.max(livello, minSuolo + 0.12), minSuolo - 0.35, materiale, tag, luogo, seme + n);
+      n++;
+    }
+    j = k + 1;
+  }
+  return n;
+}
+
+/** Scalinata dritta fra due quote assegnate (rampe di bastioni, scale dei campanili all'aperto). */
+export function scalinata(cant: Cantiere, a: PuntoCil, b: PuntoCil, ha: number, hb: number, larghezza: number, alzata = 0.38, tag = 'gradino', luogo?: string, seme = 11): number {
+  const c = campionaSentiero([a, b], 0.25);
+  const L = c[c.length - 1]!.s;
+  const salita = hb - ha;
+  const n = Math.max(1, Math.ceil(Math.abs(salita) / alzata));
+  let fatti = 0;
+  for (let i = 0; i < n; i++) {
+    const s0 = (i / n) * L;
+    const s1 = ((i + 1) / n) * L;
+    const livello = ha + (salita * (i + (salita > 0 ? 1 : 0))) / n;
+    const ca = c.reduce((m, x) => (Math.abs(x.s - s0) < Math.abs(m.s - s0) ? x : m), c[0]!);
+    const cb = c.reduce((m, x) => (Math.abs(x.s - s1) < Math.abs(m.s - s1) ? x : m), c[0]!);
+    const minSuolo = Math.min(ca.suolo, cb.suolo);
+    if (livello <= minSuolo + 0.03) continue;
+    gradino(cant, ca, cb, larghezza, livello, Math.min(minSuolo, livello - 0.5) - 0.3, 'pietra', tag, luogo, seme + i);
+    fatti++;
+  }
+  return fatti;
+}
