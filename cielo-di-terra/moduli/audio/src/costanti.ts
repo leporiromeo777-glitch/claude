@@ -39,10 +39,19 @@ export const ZONE: readonly DescrizioneZona[] = [
 export const CORBELLA = { thetaDa: 0, thetaA: 90, zDa: 900, zA: 1200 } as const;
 
 /**
- * Stima grossolana del lago del Verbanetto (lungo 2 km): serve solo quando il gioco
- * non passa `distanzaLago`. θ e z sono indicativi, da sostituire con i dati veri.
+ * La cella campanaria di San Vigilio (da layout.json e content/luoghi.json del motore):
+ * z, θ in gradi e altezza h dal fondo dello scafo.
  */
-export const LAGO_STIMATO = { thetaDa: 147, thetaA: 183, zDa: 500, zA: 2500 } as const;
+export const CAMPANILE_SAN_VIGILIO = { z: 1062, theta: 37.2, altezza: 62.5 } as const;
+
+/**
+ * Il lago del Verbanetto secondo layout.json (θ centro 166°, semiampiezza 25°,
+ * z 720-2480). Serve solo quando il gioco non passa `distanzaLago`.
+ */
+export const LAGO_STIMATO = { thetaDa: 141, thetaA: 191, zDa: 720, zA: 2480 } as const;
+
+/** Dove comincia la parete del Sordo (base del Tappo Nord in layout.json). */
+export const PIEDE_SORDO = 2640;
 
 /** Ora (0-24) in cui la Linea comincia ad accendersi dal Tappo Sud «come una miccia». */
 export const ORA_ACCENSIONE = 5.5;
@@ -54,6 +63,9 @@ export const ORA_TRAMONTO = 18.5;
 export const ORA_BRACE = 20;
 /** Ora in cui parte il tema musicale dell'alba (una volta per giorno di gioco). */
 export const ORA_TEMA_ALBA = 5.8;
+
+/** Il campanile batte le ore da solo solo fra queste ore (di notte tace). */
+export const ORE_CAMPANE = { da: 6, a: 22 } as const;
 
 /** Larghezza in gradi della sfumatura sonora fra valle e Finestra. */
 export const SFUMATURA_FINESTRA_GRADI = 4;

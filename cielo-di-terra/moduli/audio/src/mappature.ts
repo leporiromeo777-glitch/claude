@@ -5,7 +5,7 @@
  */
 import {
   LAGO_STIMATO,
-  LUNGHEZZA_CILINDRO,
+  PIEDE_SORDO,
   ORA_ACCENSIONE,
   ORA_BRACE,
   ORA_PIENA_LUCE,
@@ -22,9 +22,13 @@ import { limita, liscia, mescola, modulo, normalizza, punto, scala, vettoriale, 
 // Geometria del cilindro
 // ---------------------------------------------------------------------------
 
-/** Coordinate cilindriche di un punto del mondo (asse = Z). */
+/**
+ * Coordinate cilindriche di un punto del mondo, con le stesse convenzioni del motore
+ * (src/world/cylinder.ts): asse = Z, x = −r·sin θ, y = −r·cos θ, r = R − h.
+ * Per θ = 0 il fondo è a y = −R e il «su» è +Y.
+ */
 export interface Cilindriche {
-  /** Angolo in gradi, 0-360, misurato come atan2(y, x). */
+  /** Angolo in gradi, 0-360 (θ = atan2(−x, −y)). */
   theta: number;
   /** Distanza dall'asse in metri. */
   raggio: number;
@@ -36,8 +40,15 @@ export interface Cilindriche {
 
 export function coordinateCilindriche(p: Vec3): Cilindriche {
   const raggio = Math.hypot(p.x, p.y);
-  const theta = modulo((Math.atan2(p.y, p.x) * 180) / Math.PI, 360);
+  const theta = raggio > 1e-9 ? modulo((Math.atan2(-p.x, -p.y) * 180) / Math.PI, 360) : 0;
   return { theta, raggio, altezza: RAGGIO_INTERNO - raggio, z: p.z };
+}
+
+/** Punto del mondo a (θ in gradi, z, h dal fondo dello scafo): l'inverso di coordinateCilindriche. */
+export function posizioneCilindrica(thetaGradi: number, z: number, altezza: number): Vec3 {
+  const r = RAGGIO_INTERNO - altezza;
+  const t = (thetaGradi * Math.PI) / 180;
+  return { x: -r * Math.sin(t), y: -r * Math.cos(t), z };
 }
 
 /** Copia di un vettore con le componenti non finite (NaN, ±Infinity) sostituite da 0. */
@@ -277,9 +288,9 @@ export function pesoLago(distanza: number): number {
   return 1 - liscia(8, 150, Math.max(0, distanza));
 }
 
-/** Distanza stimata dal piede del Sordo (il Tappo Nord). */
+/** Distanza stimata (lungo l'asse) dal piede del Sordo, dove comincia il Tappo Nord. */
 export function distanzaSordoStimata(z: number): number {
-  return Math.max(0, LUNGHEZZA_CILINDRO - z);
+  return Math.max(0, PIEDE_SORDO - z);
 }
 
 /** Il rombo «come di treno» della Ruota: comincia a 1300 m dal Sordo e cresce avvicinandosi. */

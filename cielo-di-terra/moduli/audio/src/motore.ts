@@ -10,7 +10,7 @@
  *
  * Tutto è sintetizzato: nessun file audio.
  */
-import { LUNGHEZZA_CILINDRO, ORA_ACCENSIONE, ORA_TEMA_ALBA, RAGGIO_INTERNO } from './costanti';
+import { LUNGHEZZA_CILINDRO, ORA_ACCENSIONE, ORA_TEMA_ALBA, ORE_CAMPANE, RAGGIO_INTERNO } from './costanti';
 import {
   calcolaParametriAmbiente,
   haAttraversato,
@@ -321,7 +321,7 @@ export class AudioEngine {
       if (haAttraversato(prima, p.ora, ORA_ACCENSIONE)) this.evento({ tipo: 'accensione-linea' });
       if (this.opz.musicaAlba !== false && haAttraversato(prima, p.ora, ORA_TEMA_ALBA)) this.suonaTema('alba');
       if (this.campanile?.orarie) {
-        for (let h = 23; h >= 0; h--) {
+        for (let h = ORE_CAMPANE.a; h >= ORE_CAMPANE.da; h--) {
           if (haAttraversato(prima, p.ora, h)) {
             this.evento({ tipo: 'campane', modo: 'ore', ore: h % 12 || 12 });
             break;
