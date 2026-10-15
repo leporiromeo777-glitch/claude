@@ -183,7 +183,7 @@ export function costruisciRipiano(ctx: Contesto, o: OpzioniRipiano): Ripiano {
         spessore: 0.75,
         scarpa: 0.08,
         terrapieno: true,
-        pietra: (o.dettaglio ?? 'alto') === 'alto' ? 0.5 : 0.62,
+        pietra: (o.dettaglio ?? 'alto') === 'alto' ? (salto > 4 ? 0.62 : 0.52) : 0.72,
         dettaglio: o.dettaglio ?? 'alto',
         interrata: 0.8,
       });

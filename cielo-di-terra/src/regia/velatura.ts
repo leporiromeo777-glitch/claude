@@ -10,6 +10,7 @@ export class Velatura {
   private bianco: HTMLDivElement;
   private lenteEl: HTMLDivElement;
   private uccello: HTMLDivElement;
+  private foglie: HTMLDivElement;
 
   constructor(contenitore: HTMLElement) {
     const base = (z: number): HTMLDivElement => {
@@ -26,6 +27,9 @@ export class Velatura {
     this.lenteEl = base(5);
     this.lenteEl.style.background = 'radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 30vmin, rgba(40,32,24,0.55) 31vmin, rgba(20,16,12,0.92) 40vmin)';
     this.lenteEl.style.transition = 'opacity .25s';
+    this.foglie = base(5);
+    this.foglie.style.background = 'radial-gradient(circle at 46% 52%, rgba(18,38,22,0.97) 0 22vmin, rgba(28,52,30,0.93) 34vmin, rgba(10,22,14,0.9) 60vmin)';
+    this.foglie.style.transition = 'opacity .3s';
     this.uccello = document.createElement('div');
     Object.assign(this.uccello.style, {
       position: 'fixed',
@@ -77,6 +81,12 @@ export class Velatura {
   lente(si: boolean): void {
     const v = si ? '1' : '0';
     if (this.lenteEl.style.opacity !== v) this.lenteEl.style.opacity = v;
+  }
+
+  /** Nel cannocchiale, al posto della palina, il buio verde di un albero (il tasso del sagrato). */
+  fogliame(si: boolean): void {
+    const v = si ? '1' : '0';
+    if (this.foglie.style.opacity !== v) this.foglie.style.opacity = v;
   }
 
   /** Un passero si alza dalla botola e vola dritto verso l'asse. */

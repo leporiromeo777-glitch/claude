@@ -93,7 +93,7 @@ export function costruisciBalcone(ctx: Contesto): void {
   const yaw = 90;
   const fp = impronta(b.z, b.theta, yaw, 9, 7);
   const H = fp.max + 0.2;
-  costruisciRipiano(ctx, { zona: 'balcone', nome: 'balcone_messi', z: b.z, theta: b.theta, yaw, larghezza: 9, profondita: 7, quota: H, superficie: 'lastre', parapetto: 0.8, senzaParapetto: ['fronte'], dettaglio: 'alto', luogo: 'balcone_messi' });
+  costruisciRipiano(ctx, { zona: 'balcone', nome: 'balcone_messi', z: b.z, theta: b.theta, yaw, larghezza: 9, profondita: 7, quota: H, superficie: 'lastre', parapetto: 0.8, senzaParapetto: ['fronte'], dettaglio: 'basso', luogo: 'balcone_messi' });
   const pil = creaPilastro({ numero: 42, segnale: 'palina', altezzaSegnale: 8, lumeDiMira: true });
   const pfr = spostaYaw(b.z, b.theta, yaw, 2.6, H);
   const pfr2 = spostaYaw(pfr.z, pfr.theta, yaw - 90, 3.2, H);

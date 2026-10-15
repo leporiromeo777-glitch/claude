@@ -256,9 +256,10 @@ export class Regia implements SistemaGioco {
     const elenco = await this.salvataggi.elenco().catch(() => []);
     const valido = elenco.filter((s) => s.stato === 'valido').sort((a, b) => (b.contatore ?? 0) - (a.contatore ?? 0))[0];
     const meta = valido?.meta as { descrizione?: string } | undefined;
-    this.game.clock.setHours(6.2);
+    // il titolo: dal belvedere sopra Corbella, nella luce del mattino, il lago appeso nel cielo
+    this.game.clock.setHours(7.1);
     this.game.sky = this.game.clock.state(this.game.sky);
-    this.game.setCameraPose(1002, 31.5, groundHeight(1002, 31.5) + 9, 68, 18);
+    this.game.setCameraPose(1096, 29.2, groundHeight(1096, 29.2) + 4, 128, 24);
     this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: 'Fase 1 · prologo e missione 1' });
   }
 
@@ -886,6 +887,12 @@ export class Regia implements SistemaGioco {
     s.eventi.on('mira', (m) => (this.mira = { b: m.bersaglio, d: m.distanza, t: m.tenuta }));
   }
 
+  /** I contenuti dicono che da `stazione` il segnale di `mira` è coperto (il tasso, la tettoia)? */
+  segnaleCoperto(stazione: string | null, mira: string): boolean {
+    if (!stazione) return false;
+    return !!CAPISALDI.find((c) => c.id === mira)?.non_visibile_da?.some((n) => n.id === stazione);
+  }
+
   /** Il chiodo di un caposaldo (mondo). */
   chiodo(id: string): Vector3 | null {
     if (id === 'cs_1') return this.cella.punti['chiodo_cs_1']!.clone();
@@ -976,6 +983,29 @@ export class Regia implements SistemaGioco {
     const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north));
     this.game.setView(yaw / DEG, pitch / DEG);
     this.game.syncEyeNow();
+  }
+
+  /** Volta lo sguardo verso un punto in `secondi` (chi comincia a parlare, una voce dall'alto). */
+  voltatiVerso(p: Vector3, secondi = 0.7): void {
+    const da = this.yawPitch();
+    const occhi = this.occhi(new Vector3());
+    localFrameAt(this.game.player.pos, _f, this.game.player.cyl.theta);
+    const d = _w.subVectors(p, occhi).normalize();
+    const pitch = Math.asin(Math.max(-1, Math.min(1, d.dot(_f.up)))) / DEG;
+    const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north)) / DEG;
+    this.sguardoGuidato = { da, a: { yaw, pitch: Math.max(-35, Math.min(45, pitch)) }, t: 0, durata: secondi };
+  }
+
+  private sguardoGuidato: { da: { yaw: number; pitch: number }; a: { yaw: number; pitch: number }; t: number; durata: number } | null = null;
+
+  private guidaSguardo(dt: number): void {
+    const s = this.sguardoGuidato;
+    if (!s) return;
+    s.t = Math.min(1, s.t + dt / s.durata);
+    const k = s.t * s.t * (3 - 2 * s.t);
+    const dy = ((((s.a.yaw - s.da.yaw) % 360) + 540) % 360) - 180;
+    this.game.setView(s.da.yaw + dy * k, s.da.pitch + (s.a.pitch - s.da.pitch) * k);
+    if (s.t >= 1) this.sguardoGuidato = null;
   }
 
   guardaDirezione(yaw: number, pitch: number): void {
@@ -1099,6 +1129,7 @@ export class Regia implements SistemaGioco {
     g.clock.setHours(this.orologio.ore);
 
     // sguardi e interazioni
+    this.guidaSguardo(dt);
     const occhi = this.occhi(new Vector3());
     const avanti = g.rig.forward(new Vector3());
     this.sguardi.update(dt, occhi, avanti);
@@ -1257,10 +1288,13 @@ export class Regia implements SistemaGioco {
     ui.indicazioni.mostraPuntino(!!b && ui.impostazioni.get('puntino'));
     ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);
     ui.indicazioni.velo(g.player.veloOpen ? Math.min(1, g.player.veloAmount) : null);
+    // da una stazione da cui i contenuti dicono che il segnale non si vede: il buio verde del tasso
+    const coperto = this.squadro.telescopio && this.squadro.stato === 'piantato' && !!this.mira.b?.caposaldo && this.segnaleCoperto(this.squadro.stazione, this.mira.b.caposaldo);
+    this.velatura.fogliame(coperto);
     if (this.squadro.telescopio) {
       const m = this.mira;
       ui.indicazioni.squadro({
-        ...(m.b ? { caposaldo: m.b.nome, dettaglio: `${Math.round(m.d)} m` } : {}),
+        ...(m.b && !coperto ? { caposaldo: m.b.nome, dettaglio: `${Math.round(m.d)} m` } : {}),
         ...(this.squadro.stato === 'piantato' ? { livella: this.squadro.bolla } : {}),
         ingrandimento: 4,
         collimato: !!m.b && m.t > 0.5,

@@ -185,12 +185,17 @@ async function staccaSquadro() {
 async function foto(nome, prepara) {
   if (!conFoto) return;
   if (prepara) await prepara();
+  if ((await stato()).dialogo) {
+    // il testo del dialogo scritto tutto; lo sguardo finisce di voltarsi verso chi parla
+    await R(() => window.__GAME__.regia.regia.ui.dialogo.completa());
+    await avanza(0.8);
+  }
   await R(() => {
     const g = window.__GAME__;
     g.ensureLoaded();
     g.render();
   });
-  await attendi(80);
+  await attendi(450); // transizioni dell'interfaccia (carte, lente, velature)
   await page.screenshot({ path: join(cartellaFoto, `${nome}.png`) });
   log(`  📷 ${nome}.png`);
 }
@@ -307,7 +312,7 @@ async function main() {
 
     log('— P0.6 Le campane');
     await avanzaFinche('dialogo:d_meridiana_1 iniziato', 10);
-    await foto('05-meridiana');
+    await foto('05-meridiana', () => mira([1062, 37.2, 60]));
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await verifica('missione:prologo completata e missione:m01_castagno_vuoto attiva', 'prologo completato');
 
@@ -319,7 +324,10 @@ async function main() {
       await avvicina(p, 1.5);
       await avanza(1.3);
     }
-    await foto('06-lente-castagno-morto');
+    await foto('06-lente-castagno-morto', async () => {
+      await avvicina('lente_ricci', 1.6);
+      await avanza(0.1);
+    });
     await premi('KeyQ');
     await verifica('passo:m1_lente completato e flag:ramo_vivo_trovato', 'diagnosi del castagno morto');
 
@@ -479,7 +487,7 @@ async function main() {
     await verifica('flag:campanile_aperto', 'Bortolo apre il campanile');
     await usa('porta_campanile', { distanza: 2.0 });
     await avanza(0.4);
-    await usa('targa_p1', { distanza: 1.0 });
+    await usa('targa_p1', { distanza: 1.3 });
     await avanza(0.2);
     await foto('14-targa-pilastro-1');
     await leggi();

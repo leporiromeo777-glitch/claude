@@ -112,7 +112,7 @@ export function costruisciMuriDelVelo(ctx: Contesto): void {
     const piede = spostaYaw(l.z, l.theta, yv, a.d - 0.3, a.alto);
     const altezza = a.alto - a.basso + 0.35;
     // percorso lungo la curva di livello (coordinate della libreria: X = sinistra)
-    const muro = creaMuroSecco({ seme: 'muretto-terrazza', percorso: [[5, 0], [-5, 0]], altezza, spessore: 0.8, scarpa: 0.1, terrapieno: true, pietra: 0.48, dettaglio: 'alto', interrata: 0.7 });
+    const muro = creaMuroSecco({ seme: 'muretto-terrazza', percorso: [[5, 0], [-5, 0]], altezza, spessore: 0.8, scarpa: 0.1, terrapieno: true, pietra: 0.55, dettaglio: 'alto', interrata: 0.7 });
     ctx.posa('velo', muro, piede.z, piede.theta, yv, { h: a.basso - 0.05, luogo: 'muretto_terrazza', tag: () => 'muro' });
     // riempimento dietro la testa (sottile striscia calpestabile alla quota del gradone)
     const dietro = spostaYaw(piede.z, piede.theta, yv + 180, 1.2, a.alto);

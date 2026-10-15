@@ -295,7 +295,7 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
     spessore: 0.7,
     scarpa: 0.1,
     terrapieno: true,
-    pietra: dettaglio === 'alto' ? 0.5 : 0.62,
+    pietra: dettaglio === 'alto' ? 0.55 : 0.74,
     dettaglio,
     interrata: 0.7,
   });
@@ -327,7 +327,7 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
     cz.aggiungiCollider(boxAt(cc.z, cc.theta, piede - 0.6, yawC, L + 0.3, alto + 0.2 + 0.6, 3.1), 'muro');
   }
   // versione lontana: nastro semplice
-  cz.distanzaLod = 170;
+  cz.distanzaLod = 130;
   muroLontano(cz.lontano, matriceSuperficie(origine.z, origine.theta, piede, 0), percorso, alto + 0.2, 0.7, Math.floor(pm.z));
   return lunghezza(pezzo);
 }

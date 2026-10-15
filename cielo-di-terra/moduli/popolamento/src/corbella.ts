@@ -137,8 +137,8 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
       : costruisciMuriTerrazze(ctx, {
           regione: { z0: 1060, theta0: 35, xMin: -112, xMax: 150, yMin: -122, yMax: 150, passo: 1.5 },
           prefissoZona: 'terrazze',
-          escludi: (z, th) => !terrazzata(z, th) || th < 16 || distanza({ z, theta: th }, piazza) < piazza.raggio + 3 || suolo(z, th) < 9,
-          dettaglio: (z, th) => (distanza({ z, theta: th }, piazza) < 70 ? 'alto' : 'basso'),
+          escludi: (z, th) => !terrazzata(z, th) || th < 19 || z < 925 || distanza({ z, theta: th }, piazza) < piazza.raggio + 3 || suolo(z, th) < 9,
+          dettaglio: (z, th) => (distanza({ z, theta: th }, piazza) < 38 ? 'alto' : 'basso'),
         });
   // 4. la notte e gli abitanti
   const notte = costruisciNotte(ctx, game.uniforms);

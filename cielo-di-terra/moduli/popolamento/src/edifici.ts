@@ -338,7 +338,7 @@ export function creaCasupola(opz: OpzioniCasupola = {}): OggettoProcedurale {
   const muro = (cx: number, cz: number, lung: number, rotY: number, conPorta: boolean) => {
     // pietre a corsi irregolari, nessuna calce: fughe scure profonde
     const m = mat([cx, 0, cz], [0, rotY, 0]);
-    b.aggiungi(geoBoxC(lung, H + interr, sp - 0.1), { matrice: m.clone().multiply(mat([0, (H - interr) / 2, 0])), colore: 0x3a352f, piatto: true });
+    b.aggiungi(geoBoxC(lung, H + interr, sp - 0.1), { matrice: m.clone().multiply(mat([0, (H - interr) / 2, 0])), colore: 0x6e6862, piatto: true });
     let y = -interr * 0.5;
     while (y < H - 0.1) {
       const hc = Math.min(H - y, rng.tra(0.2, 0.34));
@@ -349,7 +349,7 @@ export function creaCasupola(opz: OpzioniCasupola = {}): OggettoProcedurale {
           x += lw;
           continue;
         }
-        for (const lato of [1, -1]) {
+        for (const lato of [1]) {
           b.aggiungi(geoLastra(lw - 0.04, hc - 0.04, 0.2, rng.intero(0, 1e6), 0.16), {
             matrice: m.clone().multiply(mat([x + lw / 2, y + hc / 2, lato * (sp / 2 - 0.08)], [0, 0, rng.centrato(0.06)])),
             colore: mescola(PALETTE.gneiss, rng.prob(0.5) ? PALETTE.gneissViola : PALETTE.gneissCaldo, rng.next() * 0.7),

@@ -292,7 +292,7 @@ export function costruisciCripta(materiale: Material): Cripta {
   // lumi color miele
   // (i lumi del motore illuminano forte e da vicino: due bastano per la sala e il corridoio)
   for (const [e, n, y, luce] of [
-    [0.2, -2.0, 3.0, false],
+    [0.2, -2.0, 3.0, true],
     [9.0, -2.0, 3.0, false],
     [4.5, -6.5, 3.5, true],
     [4.5, -12.0, 2.2, true],

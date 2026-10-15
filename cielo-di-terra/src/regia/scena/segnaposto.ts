@@ -118,7 +118,7 @@ export class Segnaposto implements PortaPopolamento {
     const morto = this.posa(creaCastagnoMorto({ seme: 'castagno-morto', altezza: 10.5, cripta: false }), cm.z, cm.theta, hCm - 0.1, 200);
     const A = new Ancora(cm.z, cm.theta, hCm);
     this.segna('castagno_morto', this.mondo(morto, new Vector3(0, 1.4, 0)));
-    this.segna('lente_corteccia', this.mondo(morto, new Vector3(0, 1.3, 0.55)));
+    this.segna('lente_corteccia', this.mondo(morto, new Vector3(0, 1.3, 10.5 * 0.08 + 0.12)));
     this.segna('lente_ricci', A.punto(-1.6, -1.2, 0.05));
     this.segna('lente_amenti', A.punto(1.3, -1.5, 2.5));
     this.segna('ramo_vivo', A.punto(2.1, 0.2, 2.2));

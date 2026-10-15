@@ -196,8 +196,8 @@ function gradino(cant: Cantiere, a: CampioneSentiero, b: CampioneSentiero, largh
   const b2 = new Costruttore(seme);
   if (materiale === 'pietra') {
     // corpo del gradino e lastra di copertina
-    b2.aggiungi(new BoxGeometry(larghezza, alto - 0.12, lung), { matrice: mat([0, (alto - 0.12) / 2, 0]), colore: 0x8e877d, variazione: 0.06, piatto: true });
-    b2.aggiungi(geoLastra(larghezza + 0.1, 0.14, lung + 0.04, seme, 0.08), { matrice: mat([0, alto - 0.13, 0]), colore: 0xa8a197, variazione: 0.08, piatto: true });
+    b2.aggiungi(new BoxGeometry(larghezza, alto - 0.12, lung), { matrice: mat([0, (alto - 0.12) / 2, 0]), colore: 0x7f7970, variazione: 0.06, piatto: true });
+    b2.aggiungi(geoLastra(larghezza + 0.1, 0.14, lung + 0.04, seme, 0.08), { matrice: mat([0, alto - 0.13, 0]), colore: 0x948e85, variazione: 0.08, piatto: true });
   } else {
     // asse di castagno infilata nel muro, su due paletti
     b2.aggiungi(new BoxGeometry(larghezza, 0.07, Math.min(lung, 0.5)), { matrice: mat([0, alto - 0.035, 0]), colore: 0x7a5236, variazione: 0.1, piatto: true });

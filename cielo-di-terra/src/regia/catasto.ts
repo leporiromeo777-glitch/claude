@@ -35,7 +35,10 @@ import type { Collider, ColliderWorld } from '../world/colliders';
 import { cylToWorld, worldToCyl } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
 import type { World } from '../world/world';
-import { CAPISALDI } from './contenuti';
+import { CAPISALDI, PARTICELLE_AREA } from './contenuti';
+
+/** Le 228 particelle dell'area della Fase 1 (fade_fase1.json). */
+const AREA = new Set(PARTICELLE_AREA.map((p) => p.id));
 import { attraversa, type Intervallo } from './orologio';
 
 export interface ContestoTempo {
@@ -157,14 +160,26 @@ export class CatastoGioco {
     return () => (this.ascoltatori = this.ascoltatori.filter((f) => f !== fn));
   }
 
+  /**
+   * Il mondo del motore visto dal catasto. Fuori dall'area della Fase 1 il catasto parte
+   * «bianco» (la Pianta è un foglio vuoto), ma nel mondo le altre valli si vedono a matita
+   * (FASE1 §7.2: «restano a matita anche da vicino»; il lago appeso del primo sguardo in su).
+   */
+  private mondo(): { setCellState: (id: number, s: 0 | 1 | 2) => void; revealCells: (ids: number[], o: { z: number; theta: number }) => void } {
+    return {
+      setCellState: (id, s) => this.world.setCellState(id, s === 0 && !AREA.has(id) ? 1 : s),
+      revealCells: (ids, o) => this.world.revealCells(ids, o),
+    };
+  }
+
   private collega(): void {
     this.stacca?.();
     this.staccaEventi?.();
     this.staccaEventi = this.catasto.on('*', (e) => {
       for (const f of this.ascoltatori) f(e);
     });
-    this.stacca = collegaAlMondo(this.catasto, { setCellState: (id, s) => this.world.setCellState(id, s), revealCells: (ids, o) => this.world.revealCells(ids, o) }, this.oggetti);
-    sincronizzaMondo(this.catasto.stato, { setCellState: (id, s) => this.world.setCellState(id, s), revealCells: () => {} });
+    this.stacca = collegaAlMondo(this.catasto, this.mondo(), this.oggetti);
+    sincronizzaMondo(this.catasto.stato, this.mondo());
     for (const e of this.regole.elementi.keys()) this.oggetti.mostraVariante(e, this.catasto.variante(e) ?? 'Carta', { mostra: [], nascondi: [] });
     this.ultimaCella = -1;
     this.ultimoMinutoNotte = -1;

@@ -59,7 +59,11 @@ export class DirettoreDialoghi {
     const [prossimo] = this.coda.splice(i, 1);
     if (!prossimo) return;
     if (this.r.narrativa.dialoghi.finito(prossimo.dialogo) && !this.ripetibile(prossimo.dialogo)) return;
-    this.mostra(this.r.narrativa.dialoghi.avvia(prossimo.dialogo));
+    if (this.mostra(this.r.narrativa.dialoghi.avvia(prossimo.dialogo))) {
+      const p = this.r.narrativa.dialoghi.definizione(prossimo.dialogo)?.personaggio ?? '';
+      const testa = this.r.abitanti.puntoDialogo(p);
+      if (testa) this.r.voltatiVerso(testa);
+    }
   }
 
   private personaPronta(dialogo: string): boolean {

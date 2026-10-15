@@ -145,7 +145,7 @@ export function costruisciCase(ctx: Contesto, quante = 58): CasaPosata[] {
       piani,
       finestreAccese: 0.4 + m.r * 0.35,
       gerani: 0.4,
-      dettaglio: 'alto',
+      dettaglio: distanza(p, piazza) < 55 ? 'alto' : 'medio',
     });
     out.push(casa);
     // vicine di schiera (accanto, lungo la curva di livello) e la fila sopra/sotto oltre il vicolo
