@@ -44,7 +44,7 @@ export interface HazeSettings {
   lineaGlow: number;
 }
 
-export const DEFAULT_HAZE: HazeSettings = { density: 1 / 950, max: 0.8, layers: 0.45, lineaGlow: 0.9 };
+export const DEFAULT_HAZE: HazeSettings = { density: 1 / 1000, max: 0.74, layers: 0.8, lineaGlow: 0.45 };
 
 export function createWorldUniforms(): WorldUniforms {
   return {

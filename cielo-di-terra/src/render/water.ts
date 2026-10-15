@@ -42,9 +42,9 @@ void main() {
   vec2 suv = cylUV(P);
   // bande di colore con la profondità
   float d = max(vDepth, 0.0);
-  vec3 shallow = vec3(0.47, 0.73, 0.66);
-  vec3 jade = vec3(0.27, 0.58, 0.56);
-  vec3 deep = vec3(0.19, 0.36, 0.55);
+  vec3 shallow = vec3(0.40, 0.76, 0.64);
+  vec3 jade = vec3(0.16, 0.60, 0.55);
+  vec3 deep = vec3(0.12, 0.37, 0.56);
   float b1 = smoothstep(1.2, 2.6, d);
   float b2 = smoothstep(7.0, 10.0, d);
   vec3 albedo = mix(mix(shallow, jade, b1), deep, b2);
@@ -69,7 +69,7 @@ void main() {
     col = mix(pc, col, ps.x);
   }
   col = mix(col, vec3(0.17, 0.14, 0.22), clamp(ps.z, 0.0, 1.0) * 0.8);
-  col = applyHaze(col, P, dist);
+  col = applyHazeK(col, P, dist, mix(0.5, 1.0, ps.x));
   gl_FragColor = vec4(col, 1.0);
 }
 `;

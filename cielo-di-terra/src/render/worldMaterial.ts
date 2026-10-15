@@ -102,9 +102,11 @@ void main() {
   float rimD = 1.0 - abs(dot(N, V));
   col *= 1.0 - smoothstep(0.75, 1.0, rimD) * 0.12;
 #endif
+  float hazeK = 1.0;
 #ifndef NO_PENCIL
   float th = cylThetaDeg(P);
   vec3 ps = paintState(P, th, dist);
+  hazeK = mix(0.5, 1.0, ps.x);
   if (ps.x < 0.999) {
     float hgt = uR - length(P.xy);
     vec3 pc = pencilColor(suv, N, V, tone, hgt, dist, ps.y);
@@ -117,7 +119,7 @@ void main() {
   // finestre illuminate di notte (segnali vivi: restano a colori anche a matita)
   col = mix(col, uLampColor * 1.15, vColor.a * uNight);
 #endif
-  col = applyHaze(col, P, dist);
+  col = applyHazeK(col, P, dist, hazeK);
   if (uDebugView > 0.5) col = N * 0.5 + 0.5;
   gl_FragColor = vec4(col, 1.0);
 }

@@ -149,18 +149,19 @@ vec3 shadeLit(vec3 albedo, vec3 N, vec3 P, out float tone) {
   float b = bandLight((ndl + 0.12) / 1.12) * lineaReach(P);
   float hemi = dot(N, up) * 0.5 + 0.5;
   vec3 amb = mix(uAmbBottom, uAmbTop, hemi);
-  vec3 light = amb * 0.62 + uSunColor * (uSunIntensity * b * 0.78);
+  vec3 light = amb * 0.86 + uSunColor * (uSunIntensity * b * 0.6);
   tone = clamp(dot(light, vec3(0.333)), 0.0, 1.2);
   return albedo * light + albedo * lampLight(P, N);
 }
 
 // foschia (prospettiva aerea) con quinte teatrali e bagliore della Linea
-vec3 applyHaze(vec3 col, vec3 P, float dist) {
-  float f = 1.0 - exp(-dist * uHaze.x);
-  float steps = 5.0;
+vec3 applyHazeK(vec3 col, vec3 P, float dist, float k) {
+  float f = 1.0 - exp(-pow(dist * uHaze.x, 1.15));
+  // quinte teatrali: la foschia sale a gradini morbidi (piani di profondità distinti)
+  float steps = 4.0;
   float fs = f * steps;
-  float fq = (floor(fs) + smoothstep(0.3, 0.7, fract(fs))) / steps;
-  f = mix(f, fq, uHaze.z) * uHaze.y;
+  float fq = (floor(fs) + smoothstep(0.35, 0.65, fract(fs))) / steps;
+  f = mix(f, fq, uHaze.z) * uHaze.y * k;
   // bagliore: distanza minima del raggio camera->P dall'asse
   vec3 c = cameraPosition;
   vec3 d = P - c;
@@ -171,7 +172,10 @@ vec3 applyHaze(vec3 col, vec3 P, float dist) {
   float litAt = mix(step(q.z, uLineaIgnite), 1.0, uNight * 0.0);
   float glow = exp(-dmin / 110.0) * uHaze.w * litAt * smoothstep(0.0, 300.0, dist) * (1.0 - 0.6 * uNight);
   vec3 hc = uHazeColor + uLineaGlow * glow * 0.55;
-  return mix(col, hc, clamp(f + glow * 0.25, 0.0, 1.0));
+  return mix(col, hc, clamp(f + glow * 0.25 * k, 0.0, 1.0));
+}
+vec3 applyHaze(vec3 col, vec3 P, float dist) {
+  return applyHazeK(col, P, dist, 1.0);
 }
 `;
 
@@ -272,9 +276,9 @@ float hatchLines(vec2 uv, float angle, float spacing, float pix, float wPx) {
 
 float hatchTone(vec2 uv, float tone, float spacing, float pix, float jitter) {
   float h = 0.0;
-  float w1 = 0.95 * (1.0 - smoothstep(0.62, 0.86, tone));
-  float w2 = 0.9 * (1.0 - smoothstep(0.38, 0.6, tone));
-  float w3 = 0.85 * (1.0 - smoothstep(0.18, 0.36, tone));
+  float w1 = 0.85 * (1.0 - smoothstep(0.55, 0.78, tone));
+  float w2 = 0.8 * (1.0 - smoothstep(0.32, 0.5, tone));
+  float w3 = 0.75 * (1.0 - smoothstep(0.15, 0.3, tone));
   if (w1 > 0.01) h = max(h, hatchLines(uv, 0.62 + jitter, spacing, pix, w1) * 0.85);
   if (w2 > 0.01) h = max(h, hatchLines(uv, -0.85 + jitter, spacing * 0.9, pix, w2));
   if (w3 > 0.01) h = max(h, hatchLines(uv, 1.45 + jitter, spacing * 0.8, pix, w3));
@@ -283,8 +287,8 @@ float hatchTone(vec2 uv, float tone, float spacing, float pix, float jitter) {
 
 // resa a matita: carta avorio, tratteggio, curve di livello, contorni tremanti
 vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, float blank) {
-  vec3 paper = vec3(0.947, 0.922, 0.856);
-  vec3 graphite = vec3(0.36, 0.36, 0.40);
+  vec3 paper = vec3(0.965, 0.918, 0.815);
+  vec3 graphite = vec3(0.40, 0.385, 0.40);
   float pix = max(dist, 0.5) * uPixelAngle;
   float grain = (vnoise2(uv * 2.7) - 0.5) * 0.05 + (vnoise2(uv * 0.21) - 0.5) * 0.04;
   // il tratto "trema" piano: rumore che cambia a scatti (6 al secondo)
@@ -292,12 +296,15 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
   float jitter = (hash12(vec2(tq, 3.1)) - 0.5) * 0.04;
   vec2 juv = uv + (vec2(vnoise2(uv * 0.08 + tq * 1.7), vnoise2(uv * 0.08 - tq * 1.3)) - 0.5) * 0.6;
   // spaziatura del tratteggio in ottave di metri, stabile con la distanza
-  float level = log2(max(pix * 7.0, 0.3));
+  float level = log2(max(pix * 10.0, 0.45));
   float l0 = floor(level);
   float lf = level - l0;
   float h0 = hatchTone(juv, tone, exp2(l0), pix, jitter);
   float h1 = hatchTone(juv, tone, exp2(l0 + 1.0), pix, jitter);
   float hatch = mix(h0, h1, smoothstep(0.2, 0.8, lf));
+  // tratteggio a macchie, come in uno schizzo: non uniforme
+  float patchy = smoothstep(0.32, 0.68, vnoise2(uv * 0.018 + 3.7) * 0.7 + vnoise2(uv * 0.07) * 0.3);
+  hatch *= 0.25 + 0.75 * patchy;
   // curve di livello dalla quota (passo che raddoppia con la distanza)
   float cstep = 6.0 * exp2(floor(clamp(log2(max(pix * 40.0 / 6.0, 1.0)), 0.0, 5.0)));
   float fh = hgt / cstep;
@@ -307,7 +314,7 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
   float ndv = abs(dot(N, V));
   float wob = (vnoise2(uv * 0.35 + tq * 0.9) - 0.5) * 0.12;
   float rim = 1.0 - smoothstep(0.1 + wob, 0.26 + wob, ndv);
-  float ink = hatch * 0.5 + contour * 0.36 + rim * 0.62;
+  float ink = hatch * 0.4 + contour * 0.3 + rim * 0.6;
   ink *= mix(1.0, 0.22, blank);
   vec3 col = paper * (1.0 + grain) ;
   col = mix(col, graphite, clamp(ink, 0.0, 0.9));

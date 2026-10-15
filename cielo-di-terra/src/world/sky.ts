@@ -58,15 +58,15 @@ const hex = (h: number): RGB => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255
 const mixc = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 
 const PAL = {
-  sunDay: hex(0xfff0d6),
+  sunDay: hex(0xffeccb),
   sunGold: hex(0xffc58e),
   sunNight: hex(0x5a64d8),
-  ambTopDay: hex(0x8ea6c8),
+  ambTopDay: hex(0xa9b6cc),
   ambTopNight: hex(0x2c2f66),
-  ambBotDay: hex(0x8a7b5c),
+  ambBotDay: hex(0xa08e66),
   ambBotNight: hex(0x1c1a36),
-  hazeDay: hex(0xb2c6dc),
-  hazeGold: hex(0xd9bfae),
+  hazeDay: hex(0x8eabd6),
+  hazeGold: hex(0xc9a7a6),
   hazeNight: hex(0x252a55),
   coreDay: hex(0xfffbec),
   coreGold: hex(0xffd9a0),
