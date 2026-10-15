@@ -546,7 +546,8 @@ export class Regia implements SistemaGioco {
         this.abitanti.ordine(argomenti.join(' '));
         return;
       case 'variante': {
-        const [el, va] = a0.split('=');
+        // «variante:E1=Abitata» arriva come ['E1', 'Abitata'] (o ['E1=Abitata'])
+        const [el, va] = argomenti.length >= 2 ? argomenti : a0.split('=');
         if (el && va) this.catasto.impostaVariante(el, va);
         return;
       }
