@@ -296,3 +296,133 @@ Ho rifatto i passi del playtest per ogni segnalazione del gruppo, nel browser (b
 
 - **Tombolo, layout largo.** La nota a margine copre ancora il titolo e l'inizio del pannello dei Bigliettini (screenshot di g05 a 1440×900).
 - **Tombolo, build minimizzata.** Durante la verifica, una build con il `lace.ts` di prima del commit ff88c10 lanciava a ogni fotogramma `ReferenceError: Cannot access 'c' before initialization` nel disegno degli spilli: il minimizzatore di Vite 8.3.4 rinominava male l'indice del ciclo. Senza minimizzazione non succedeva. Con il codice attuale del tombolo la build è pulita; lo segnalo perché la stessa forma di codice potrebbe ripresentarlo.
+
+## Revisione 2
+
+Tutte le 29 attività del gruppo in `docs/stato/revisione-2.json` (6 P1, 23 P2) sono chiuse. Per ognuna ho rifatto i passi del playtest nel browser e c'è un test che le copre. Le decisioni seguite sono R2-D2 (numeri veri del bilancio, per la parte della campagna) e R2-D5 (fine della notte da gustare). Il conteggio degli incroci del giocatore in `metrics` resta del motore.
+
+### Che cosa è cambiato
+
+- **R2-D2: record veri (Q002, Q053, Q016, Q054).**
+  - `recordNight(d, levelId, metrics, spartito, { ok, set })` in `progress.ts`. Un merletto entra nei record e nei fili d'oro solo se tutte le richieste accettate e tutti gli obiettivi sono soddisfatti (`outcomeCounts`). Una richiesta lasciata cadere o con l'autore sbagliato conta come fallita. Un merletto sotto il minimo della notte non conta mai.
+  - I record sono per insieme di richieste: `records[livello].sets[chiave]`, con la chiave `requestSetKey` (gli id ordinati, «-» se non ce ne sono). Il bilancio mostra il record delle stesse richieste. Il primo merletto di un insieme fa il record senza annunciarlo. I campi di `LaceRecord` restano: sono il meglio dei merletti riusciti, e il Telaio ne legge filo d'oro e spartito.
+  - Un merletto che non conta lo dice: «Questo merletto non entra nei record…» (`cp-bilancio-record-escluso`). Niente «Nuovo record» e niente filo d'oro.
+  - Il filo d'oro ha una riga sola:
+    - «Il tuo primo filo d'oro ✦» una volta nella vita del salvataggio (`firstGold`, `data-primo="1"`);
+    - poi «Filo d'oro ✦ (il primo di questa giornata)»;
+    - poi «Filo d'oro ✦».
+    «Primo filo d'oro» non è più fra i «nuovo record».
+  - Lo stesso vale per Rigioca dal Telaio (`completeReplay`), gli Archivi (contano se rammendati) e i finali.
+- **R2-D5: fine della notte da gustare (Q032, Q031).**
+  - Dopo l'ultima ora il merletto finito resta sul tombolo almeno 2,5 s (`LACE_HOLD_MS`, non scalati dalla velocità delle animazioni). Dopo 0,7 s suona il suo carillon. Poi compare «All'alba» (`cp-notte-continua`), e un tocco porta all'alba.
+  - Con l'avanzamento automatico si va all'alba da soli, sempre dopo 2,5 s. L'alba prende il carillon che sta suonando (`adoptLaceCarillon`), così non ricomincia da capo.
+  - Lo stesso vale per Rigioca dal Telaio (verso il bilancio) e per i finali A, B, D (`cp-finale-continua`, che non va avanti da solo). C resta immediato, Ripassa resta com'era.
+  - La barra prende il posto del pulsante principale del tombolo, spento (`placeOverMain` in `nightbar.ts`): stessa posizione e altezza, senza toccare menu e Taccuino. Il pulsante spento si nasconde (`cp-con-barra`).
+- **R2-D5: la Tovaglia sul Telaio.** Dopo il finale vero (`unlocks.tovaglia`, o «aperto» fra gli epiloghi visti) il Telaio si apre con «La Tovaglia» (`cp-tovaglia`, file nuovo `tovaglia.ts`):
+  - una riga che dice che cos'è;
+  - la tela con tutti i merletti tessuti, uno per giornata nell'ordine della storia (`cp-tovaglia-tela`), disegnati con `drawLaceImage` del tombolo, uno alla volta;
+  - «Ascolta la Tovaglia» (`cp-tovaglia-ascolta`), il carillon dell'intera partita.
+- **Q012, coppia incompatibile.** Prima di fissare la prima ora di una notte della storia, nei Bigliettini (pannello di sinistra, o Taccuino sul telefono) c'è «Torna alla sera» (`cp-torna-sera`). Si torna alla sera con gli spilli di prima, senza conseguenze. La notte salvata si toglie (anche quella che il tombolo salva uscendo) e i fogli aperti si chiudono. Dopo la prima ora il pulsante sparisce.
+- **Q014.** Il tombolo non emette un evento quando si lascia cadere uno spillo dal gettone. Per questo i Bigliettini e il Taccuino guardano lo stato della notte ogni 250 ms, solo mentre sono montati (`watchNight`), e si ridisegnano appena cambia.
+- **Q069, Q075.** Di notte, nel tombolo, una stranezza scoperta non fa più un avviso, nemmeno quando viene da un rifiuto. Il tombolo la spiega già, e l'avviso copriva le righe basse.
+  - La voce resta «Nuova» nel Taccuino e torna nel bilancio in «Nel Taccuino».
+  - Il Taccuino fisso del layout largo si accende un attimo (`cp-taccuino--lampo`).
+  - Nei merletti d'Archivio l'avviso esce quando si lascia il tombolo.
+- **Q026.** Nel foglio della lettera (alba di g14 e g16, porta):
+  - «Nel Taccuino» è chiaro sul velluto: 6,1:1;
+  - le voci sono su carta opaca: 11,9:1.
+- **Q027, Q003.** I pulsanti di testo sulla carta, come «Rifai» nella cassapanca, sono in inchiostro e sottolineati: 11,9:1.
+- **Q004.**
+  - Quando l'elenco dei bigliettini continua sotto il piede compare la freccia `cp-sera-scorri` (48 px), che scorre l'elenco.
+  - L'altezza del piede va in `--cp-piede-h`: un bigliettino appena chiuso torna in vista sopra i pulsanti.
+- **Q006.** «Al tombolo» e «Ripassa» ignorano il clic fantasma: un clic che arriva da un tocco cominciato fuori dal pulsante negli ultimi 800 ms, cioè su «Continua» di un foglio che intanto si è chiuso. La tastiera e i tocchi veri valgono sempre.
+- **Q007.** Con gli spilli finiti, «Sposta qui lo spillo di Bepi» (`cp-vai-<id>`, stesso data-test) toglie lo spillo e appunta subito il bigliettino aperto (`movePin`). Un anonimo senza autore scelto non lo prende.
+- **Q008, Q020, Q037.** Le schede del Taccuino stanno tutte in vista. Se in una riga non ci stanno, vanno su due righe bilanciate (3 + 3, 3 + 2), e su tre se nemmeno così ci stanno le etichette (`fitStrip`, `data-righe`). Si ridispongono quando cambia la larghezza.
+- **Q010, Q058.**
+  - Un fuso intagliato si annuncia solo se si può scegliere (`availableCosmetics`, letto da `src/screens/cosmetics.ts`).
+  - Si annuncia col nome («Un fuso intagliato: «Liscio»»), la sua anteprima e dove si sceglie («Si sceglie in Impostazioni…»).
+  - Niente più «(stile N)». Gli stili senza disegno restano in `unlocks.cosmetics`.
+- **Q055.** «Chi ricorda Ada» dice quanto ricorda, con la direzione a parte:
+  - «ricorda appena Ada (1/3) · più di ieri»;
+  - «ricorda Ada (2/3) · meno di ieri»;
+  - «ricorda bene Ada (3/3)»;
+  - «ha dimenticato Ada».
+- **Q056.** Una stranezza sciolta dalla storia è barrata, con «non più: sciolta». Lo decide il motore (`quirkDissolved` chiede a `createContext` con i flag).
+- **Q060.** Clotilde scrive con la grafia seppia dei margini (`CLOTILDE_HAND`: Caveat, inchiostro #5C3B22 su #EFE3C8, 7,8:1, ±2°). Vale per la lettera all'alba, le lettere nel Taccuino, la sua carta nella scelta e il biglietto del prologo.
+- **Q039.** La sera di g16 la bottiglia è vuota, con un nodo di filo nero (`EMPTY_BOTTLE`). La si ricava da `obj/bottiglia`:
+  - la carta dentro il vetro si riempie col vetro intorno;
+  - il contorno resta intatto;
+  - dentro si disegna il nodo;
+  - il risultato si calcola una volta.
+- **Q066.** Nelle notti senza bigliettini e con obiettivi il pannello si intitola «Obiettivi» e non dice «Nessuna richiesta stanotte».
+- **Q067.** Col mouse (puntatore fine, come nel titolo) le scritte dicono «Clicca…» (`tapKey`): prologo, tombolo del prologo, porta, vignette, Telaio. La scritta sul buio compare prima ed è chiara: 17,5:1.
+- **Q073.**
+  - Le parole dei bigliettini restano intere (niente `overflow-wrap: anywhere` sul testo; ci pensa il foglio del core).
+  - Col testo grande le colonne si allargano (`210px × --text-scale`).
+  - A 140% «L'ANNIVERSARIO» di Marta resta su una riga, a 360×640 e a 1280×720.
+- **Q035.** Aprendo una giornata del Telaio i suoi pulsanti vengono in vista sopra il piede fisso.
+- **Debug.** `__GAME__.campaign.pastLace()` va subito oltre il merletto finito, come il tocco su «Continua».
+
+### Come ho letto i contratti
+
+- **R2-D2, «per lo stesso insieme di richieste».** I record si tengono per insieme (le richieste accettate quella sera, anche se poi lasciate cadere), dentro il `LaceRecord` del livello (campo `sets`, che il core conserva). Non ho cambiato `LaceRecord` in `core/types.ts`, che non è del gruppo.
+  - Il filo d'oro resta uno per livello, come nel GDD, ma lo dà solo un merletto che conta.
+  - I salvataggi di prima tengono i loro valori. Il primo merletto riuscito di un insieme fa il record di quell'insieme.
+- **R2-D2, «Primo filo d'oro una volta sola».** È il primo filo d'oro di tutto il salvataggio: nessun livello lo aveva prima. Una storia nuova non lo ripete, perché i record restano.
+- **R2-D5, 2,5 s.** Valgono sempre, anche con la velocità istantanea: il contratto dice «almeno 2,5 s».
+  - «Un tocco» è il tocco su «All'alba», al posto del pulsante principale. Un tocco ovunque avrebbe tolto al giocatore il menu e il Taccuino sul merletto finito.
+  - Ho applicato la stessa attesa ai finali e a Rigioca dal Telaio.
+- **R2-D5, «Tovaglia nominata e mostrata».** Sul Telaio la Tovaglia è i merletti della partita cuciti in una tela, che suona l'intera partita (GDD 7, L3, nella forma più semplice): niente PNG da esportare.
+  - Il titolo è di schermi-atto1 (Q036). Può rimandare al Telaio: «la Tovaglia è nel Telaio».
+- **Q012.** Ho scelto la via più semplice fra quelle proposte: tornare alla sera finché non c'è un'ora fissata. Lasciar cadere uno spillo resta una richiesta fallita, come dice la conferma del tombolo. Non ho aggiunto avvisi alla sera, che avrebbero svelato il dilemma. Gli indizi che rendono deducibile la coppia sono dei contenuti (vedi sotto).
+
+### Richieste per altri gruppi
+
+- **QA / e2e** (`tests/e2e`, di nessun gruppo), dopo R2-D5:
+  - dopo una notte della storia la scena resta `tombolo` finché non si tocca `cp-notte-continua`, o non si chiama `campaign.pastLace()` (o `campaign.skipDawn()`);
+  - `prologo.spec.ts` («dopo la notte, l'alba» entro 20 s), `layout.spec.ts` (g06 → alba) e `helpers/campaign.ts` (`playGolden`: `waitScene('alba')` dopo `playNight`) vanno aggiornati;
+  - `cp-vai-<id>` adesso sposta lo spillo;
+  - `cp-finale-continua` compare dopo 2,5 s.
+- **schermi-atto1:**
+  - Q036: la Tovaglia si vede nel Telaio (`cp-tovaglia`);
+  - GDD 7 dice ancora «la Tovaglia resta L3»;
+  - Q012: in g06 e g08 la coppia incompatibile dipende da informazioni che la sera non mostra (Teresa che porta già la chiacchiera, il vaporetto delle 9); servono indizi nei testi della sera.
+- **tombolo:**
+  - un evento sul bus quando uno spillo si lascia cadere (per esempio `night:drop`) sarebbe meglio del controllo periodico dei pannelli;
+  - a merletto finito resta la nota a margine del tutorial («Sbagliare non costa…») sopra le prime righe.
+- **contenuti-atti23:** dopo la pace le voci del Taccuino sulle stranezze sciolte (per esempio «Marta non passa mai sotto Teresa. Me l'ha detto con un «No.»…») restano al presente. Le righe delle stranezze nella scheda adesso sono barrate. Si può valutare una formulazione al passato, legata a `riconciliate`.
+
+### Test
+
+- `npx vitest run tests/unit/campaign`: 14 file, 148 test, tutti verdi. Sono nuovi:
+  - `revisione2.test.ts`, logica con i contenuti veri: record per insieme e solo riusciti; passi di Q002 dalla giornata e da Rigioca; Q053; primo filo d'oro; `movePin`; stranezze sciolte; Tovaglia;
+  - `revisione2.dom.test.ts`, 23 test in happy-dom per bilancio, pannelli, Taccuino, sera, carta e CSS, Telaio e controller.
+  Aggiornati `progress`, `i18n` e `revisione1.dom`. In `revisione1.test.ts` le voci della lettera di Clotilde che chiedono anche un desiderio aspettano: è un contenuto nuovo di contenuti-atti23.
+- `npx tsc --noEmit -p .`: nessun errore.
+- `tests/unit/content/atto23.test.ts` e `tests/unit/tombolo/revisione1-p1.test.ts`, che usano la campagna: verdi.
+- Nel browser ho usato la build `VITE_E2E=1` servita con `vite preview` sulla porta 6020 e ho guardato gli screenshot uno per uno.
+  - `browser-verify.ts`, aggiornato alla fine della notte: **107/107**.
+  - Sonde della revisione 2 (`scratchpad/rev2-campagna/probe.mjs`): **76/76**, nessun errore in console.
+
+| Segnalazioni | Sonda | Esito |
+|---|---|---|
+| R2-D5, Q032, Q031, Q067 | prologo a 390×844 a tocchi: «Tocca per continuare» 17,5:1; a 0,7 s ancora il merletto; «All'alba» dopo 2,5 s al posto di «Merletto chiuso», fra menu e Taccuino, non coperto; un tocco porta all'alba | 10/10 |
+| Q066, Q067, Q020 | prologo a 1440×900 col mouse: «Clicca per continuare» e «Clicca sul tombolo»; pannello «Obiettivi» senza «Nessuna richiesta»; schede del Taccuino fisso dentro il pannello | 6/6 |
+| Q004, Q007, Q039 | g01 con Gino appuntato: freccia, scorrimento, Gino sopra il piede; g04: «Sposta qui lo spillo di Bepi» in un tocco; g16: bottiglia vuota col nodo, alla porta e nel foglio | 5/5 |
+| Q073 | g08 al 140% a 360×640 e 1280×720: «L'ANNIVERSARIO» intero, nella carta e nel dettaglio | 4/4 |
+| Q012 | g06 Nina + Zeno a 390×844: «Torna alla sera» nel Taccuino, sera con gli stessi spilli e senza notte salvata, Taccuino chiuso, cambio di spillo e nuova notte con Nina + Marta, pulsante sparito dopo la prima ora | 7/7 |
+| Q014 | g06 a 1440×900: spillo di Zeno lasciato cadere dal tombolo, il pannello dice «Lasciata cadere» entro 450 ms e il pulsante sparisce | 4/4 |
+| Q069, Q075 | g01: riga rifiutata per Gino, nessun avviso, la stranezza nel Taccuino | 3/3 |
+| Q026, Q060 | alba di g14 a 390×844 e 1440×900: lettera in Caveat seppia, «Nel Taccuino» 6,1:1, voci 11,9:1 | 8/8 |
+| Q027, Q003 | cassapanca con arc1 rammendato: «Rifai» 11,9:1, «Rileggi» 11,0:1 | 3/3 |
+| Q008, Q020, Q037 | sei schede a 390 (overlay), 1180 e 1440 (fisse): due righe, nessuna tagliata, alte 52 px | 3/3 |
+| Q002, Q053 | g02 riuscita (record 7), poi Rigioca con le righe della base (richieste fallite, 4 incroci): niente «Nuovo record», «non entra nei record», salvataggio invariato | 6/6 |
+| Q016, Q054, Q010, Q058 | bilancio di g02 col primo filo d'oro (una riga), g04 col terzo e il fuso «Liscio» con «Impostazioni» | 5/5 |
+| R2-D5, Q031 | finale D a 1180×820: «Continua» dopo 2,5 s, non copre il Taccuino; Telaio con la Tovaglia | 6/6 |
+| R2-D5, Q035 | 12 giornate e la Tovaglia al telefono (12 merletti); Giornata 11 in fondo: «Rigioca» si tocca | 4/4 |
+| Q056 | g19 dopo la pace a 1440×900: «Non passa mai sotto Teresa» barrata | 2/2 |
+
+### Problemi noti
+
+- I record dei salvataggi di prima della revisione 2 tengono i loro valori di livello. Fra questi può esserci un minimo ottenuto con una richiesta fallita, ma il bilancio non li mostra più, perché mostra quelli dell'insieme. Il Telaio usa solo il filo d'oro e lo spartito.
+- La bottiglia vuota è ricavata dall'immagine della bottiglia col messaggio. Dove stava il foglio resta una leggera traccia nel vetro, a 72-112 px poco visibile. Un asset dedicato (asset-blender) sarebbe più pulito.

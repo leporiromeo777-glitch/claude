@@ -371,6 +371,7 @@ export class CampaignControllerImpl implements CampaignController {
   cancelPending(): void {
     if (this.pendingTimer) clearTimeout(this.pendingTimer);
     this.pendingTimer = null;
+    this.laceGo = null;
     clearNightBars();
     this.stopLaceCarillon();
   }
@@ -414,8 +415,10 @@ export class CampaignControllerImpl implements CampaignController {
     this.startLaceCarillon(outcome);
     const still = (): boolean => this.s.scenes.current() === 'tombolo' && activeNight()?.completed?.levelId === outcome.levelId;
     const go = (): void => {
+      this.laceGo = null;
       if (still()) then();
     };
+    this.laceGo = go;
     this.pendingTimer = setTimeout(() => {
       this.pendingTimer = null;
       if (!still()) return;
@@ -425,6 +428,23 @@ export class CampaignControllerImpl implements CampaignController {
       }
       showNightBar(this.s, { labelKey: o.labelKey, test: o.test, onClick: go });
     }, LACE_HOLD_MS);
+  }
+
+  /** Dove porta il merletto finito che si sta guardando (R2-D5), finché non si tocca «Continua». */
+  private laceGo: (() => void) | null = null;
+
+  /**
+   * Va subito oltre il merletto finito (debug e test: `__GAME__.campaign.pastLace()`), come
+   * il tocco su «Continua». false se non si sta guardando un merletto finito.
+   */
+  pastLace(): boolean {
+    const go = this.laceGo;
+    if (!go) return false;
+    if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    this.pendingTimer = null;
+    clearNightBars();
+    go();
+    return true;
   }
 
   /** Il carillon del merletto appena finito (R2-D5), dopo il suono del successo. */

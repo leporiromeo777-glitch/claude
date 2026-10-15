@@ -571,6 +571,21 @@ describe('controller: fine della notte (R2-D5) e avvisi (Q069, Q075)', () => {
     expect(go).toHaveBeenCalledWith('alba', undefined);
   });
 
+  it('pastLace (debug) va subito all’alba, come il tocco su «Continua»', async () => {
+    vi.useFakeTimers();
+    const { ctl, d, bus, go, root } = setupCtl();
+    const { o, p } = nightOf(d, 'g05');
+    setActiveNight({ params: p, completed: o, session: { rows: o.rows, dropped: [] } } as never);
+    expect(ctl.pastLace()).toBe(false);
+    bus.emit('night:complete', { outcome: o });
+    await vi.advanceTimersByTimeAsync(100);
+    expect(ctl.pastLace()).toBe(true);
+    expect(go).toHaveBeenCalledWith('alba', undefined);
+    await vi.advanceTimersByTimeAsync(LACE_HOLD_MS);
+    expect(root.querySelector('[data-test="cp-notte-continua"]')).toBeNull();
+    expect(go).toHaveBeenCalledTimes(1);
+  });
+
   it('l’alba prende il carillon che suona: non ricomincia da capo', async () => {
     vi.useFakeTimers();
     const { ctl, d, bus, carillon } = setupCtl();

@@ -7,7 +7,8 @@
  * In più: phase(), evening(), report(), cards(), requirements(), next(), continue(),
  *   resumeFrom(levelId), replay(levelId), archive(levelId), objectSeen(), leave(noteId),
  *   unpin(noteId), dawn(), scene(), ripassa(); revisione 1: dawnObjectSeen(),
- *   leaveArchive(levelId), reread(levelId).
+ *   leaveArchive(levelId), reread(levelId); revisione 2: pastLace() (oltre il merletto
+ *   finito, come il tocco su «Continua»).
  */
 import type { CharacterId, EndingId, FlagValue, LevelId, QuestionId, QuirkId, RuleId, Services } from '../core/types';
 import { activeNight } from '../tombolo/index';
@@ -138,6 +139,8 @@ export function registerCampaignDebug(s: Services): void {
       };
     },
     dawnObjectSeen: () => controller.dawnObjectSeen(),
+    // Revisione 2 (R2-D5): oltre il merletto finito senza aspettare i 2,5 s né toccare «Continua».
+    pastLace: () => controller.pastLace(),
     leaveArchive: (levelId: LevelId) => controller.leaveArchive(levelId),
     reread: (levelId: LevelId) => {
       const p = controller.rereadArchive(levelId);
