@@ -56,6 +56,18 @@ const SHOTS = [
     frames: 3,
   },
   {
+    nome: 'pianta',
+    file: 'debug-pianta.png',
+    titolo: 'Pianta di Corbella vista dall\'alto (controllo del piazzamento)',
+    setup: (g) => {
+      g.setTime(12);
+      g.setSetting('nearPaint', [400, 600]);
+      g.setCamera(1080, 37, 330, 0, -89.5);
+    },
+    after: (g) => g.setSetting('nearPaint', [70, 150]),
+    frames: 2,
+  },
+  {
     nome: 'chiesa',
     file: 'chiesa-sagrato.png',
     titolo: 'San Vigilio, il sagrato a gradini e il tasso',
@@ -132,6 +144,7 @@ async function main() {
     const s = await page.evaluate(() => window.__GAME__.getStats());
     const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s (fotogramma ${(ms / 1000).toFixed(1)} s), draw ${s.drawCalls}, tri ${s.triangles}`;
     console.log(line);
+    if (shot.after) await page.evaluate((src) => new Function('g', `(${src})(g)`)(window.__GAME__), shot.after.toString());
     report.push({ file: shot.file, titolo: shot.titolo, drawCalls: s.drawCalls, triangoli: s.triangles });
   }
   writeFileSync(join(outDir, 'schermate.json'), JSON.stringify({ statistiche: st, schermate: report }, null, 2));

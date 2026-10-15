@@ -1,0 +1,1336 @@
+/**
+ * La regia del gioco: la colla fra il mondo (motore), la storia (narrativa), il suono (audio),
+ * l'interfaccia (ui), gli oggetti e il catasto.
+ *
+ * Responsabilità:
+ * - ciclo di vita: titolo → nuova partita (nella capsula 5, il prologo) / continua;
+ * - i fatti del mondo per la storia (`WorldFacts`): ora, giorno, luoghi raggiunti, particelle,
+ *   varianti degli elementi mobili;
+ * - i flag del «Contratto col motore» (FASE1 §2.4), accesi nel momento giusto, e i flag scritti
+ *   dai contenuti che il motore deve eseguire (campanile, «aspetta fino a: brace», campane…);
+ * - l'orologio con i fermi, il sonno, l'attesa, la notte (giro delle Fade) e il mattino;
+ * - interazioni (E), sguardi, lente, gesti tenuti, squadro, dialoghi, letture;
+ * - audio (avvio al primo gesto, aggiornamento a ogni fotogramma, suoni degli eventi);
+ * - salvataggi (due slot alternati della narrativa + il blob del mondo).
+ *
+ * Tutta la logica che cambia lo stato gira nel passo fisso (`update`), così le prove E2E
+ * possono far avanzare il gioco senza disegnare; `render` aggiorna solo ciò che si vede.
+ */
+import {
+  AmbientLight,
+  DirectionalLight,
+  HemisphereLight,
+  Vector3,
+} from 'three';
+import type { Game, SistemaGioco } from '../game';
+import {
+  GestoreSalvataggi,
+  Narrativa,
+  archivioDaStorage,
+  type FornitoreMondo,
+  type WorldFacts,
+} from '../narrativa';
+import { nomeCatastale, type InterfacciaGioco } from '../ui';
+import { CellState } from '../world/cells';
+import { DEG, METERS_PER_DEG } from '../world/constants';
+import { cylToWorld, localFrameAt, rotatingToInertialDir, upAt, worldToCyl } from '../world/cylinder';
+import { groundHeight, stripAt } from '../world/terrain';
+import { PonteAudio } from './audio';
+import { CAPISALDI, CONTENUTI_NARRATIVA, INVENTARIO_CORBELLA, LONTANI, caposaldo, luogo, testoOra as fmtOra } from './contenuti';
+import { Corpo } from './corpo';
+import { DirettoreDialoghi } from './dialoghi';
+import { ORDINE_LIBRETTO, PonteInterfaccia } from './interfaccia';
+import { Interazioni, type StatoInterazione } from './interazioni';
+import { Luoghi } from './luoghi';
+import { NotteVista } from './notte';
+import { OrologioStoria, attraversa, type Intervallo } from './orologio';
+import { Abitanti } from './png';
+import type { PortaRilievo, Resoconto, StatoCella } from './porte';
+import { RilievoProvvisorio } from './provvisori/rilievo';
+import { QUOTA_CRIPTA, SCALA, costruisciCripta, type Cripta } from './scena/cripta';
+import { costruisciCella, type CellaCampanaria } from './scena/campanile';
+import { Segnaposto } from './scena/segnaposto';
+import { Sguardi, elevazione } from './sguardo';
+import { Squadro, type BersaglioMira } from './squadro';
+import { Velatura } from './velatura';
+import { registraBersagli } from './bersagli';
+
+export type Controllo =
+  | { tipo: 'libero' }
+  | { tipo: 'sdraiata' }
+  | { tipo: 'alzandosi'; t: number }
+  | { tipo: 'scala'; y: number }
+  | { tipo: 'seduta'; z: number; theta: number; h: number }
+  | { tipo: 'piantato'; z: number; theta: number; h: number }
+  | { tipo: 'dorme' };
+
+export interface MondoSalvato {
+  versione: 1;
+  giocatore: { z: number; theta: number; h: number; yaw: number; pitch: number };
+  interno: 'cripta' | 'cella' | null;
+  sdraiata: boolean;
+  orologio: ReturnType<OrologioStoria['esporta']>;
+  rilievo: unknown;
+  corpo: ReturnType<Corpo['esporta']>;
+  squadro: ReturnType<Squadro['esporta']>;
+  abitanti: unknown;
+  regia: { nomiNoti: string[]; capisaldiVisti: string[]; stadioInnesto: number; segnalibro: string; lumiAppuntati: string[]; simTime: number };
+}
+
+const OCCHI = 1.62;
+const _v = new Vector3();
+const _w = new Vector3();
+const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
+
+/** Periodo della Meta (s): una rotazione del cilindro. */
+export const PERIODO_META = 51;
+
+export class Regia implements SistemaGioco {
+  readonly audio = new PonteAudio();
+  narrativa!: Narrativa;
+  rilievo!: PortaRilievo;
+  readonly orologio = new OrologioStoria();
+  readonly luoghi = new Luoghi();
+  readonly interazioni = new Interazioni();
+  readonly sguardi = new Sguardi();
+  readonly corpo = new Corpo();
+  readonly squadro: Squadro;
+  readonly abitanti: Abitanti;
+  readonly notteVista: NotteVista;
+  readonly cripta: Cripta;
+  readonly cella: CellaCampanaria;
+  readonly scena: Segnaposto;
+  readonly ponte: PonteInterfaccia;
+  readonly dialoghi: DirettoreDialoghi;
+  readonly velatura: Velatura;
+  readonly salvataggi: GestoreSalvataggi;
+
+  fase: 'caricamento' | 'titolo' | 'gioco' = 'caricamento';
+  interno: 'cripta' | 'cella' | null = null;
+  controllo: Controllo = { tipo: 'libero' };
+  lente = false;
+  readonly nomiNoti = new Set<string>();
+  readonly capisaldiVisti = new Set<string>();
+  readonly libretto = { ordine: ORDINE_LIBRETTO, segnalibro: 'cs_1' };
+  ultimoSuggerimento: string | null = null;
+  ultimaBattuta: string | null = null;
+  /** Luoghi dove si trova adesso Elvira. */
+  readonly luoghiQui = new Set<string>();
+  /** Innesto in tre tempi: 0 = da fare, 3 = fatto. */
+  stadioInnesto = 0;
+  statoInterazione: StatoInterazione = { bersaglio: null, progresso: null };
+  /** Diario degli eventi della storia (debug e prove). */
+  readonly diario: string[] = [];
+  dormendo = false;
+
+  private ePremuto = false;
+  private accTick = 0;
+  private metaFase = 0;
+  private metaPrecedente = -1;
+  private metaImpulso = -1;
+  private salvaTra = -1;
+  private ombristaSera = -1;
+  private lumiAppuntati = new Set<string>();
+  private tenutaC = 0;
+  private attesaVicini = new Set<string>();
+  private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
+  private emisfero: HemisphereLight;
+  private sole: DirectionalLight;
+  private campaneAttive = false;
+  private staccaNarrativa: (() => void)[] = [];
+  private staccaRilievo: (() => void)[] = [];
+
+  constructor(
+    readonly game: Game,
+    readonly ui: InterfacciaGioco,
+    readonly opzioni: { e2e: boolean } = { e2e: false },
+  ) {
+    const g = game;
+    // --- scena: segnaposto finché non arriva il popolamento ---
+    this.cripta = costruisciCripta(g.materials.object!);
+    g.scene.add(this.cripta.gruppo);
+    for (const c of this.cripta.collisori) g.world.colliders.add(c);
+    this.scena = new Segnaposto(g.scene, g.world.colliders, g.materials.object!, g.uniforms);
+    this.cella = costruisciCella(g.materials.object!, g.world.colliders);
+    g.scene.add(this.cella.mesh);
+    g.lamps.addLamps([...this.cripta.lumi, ...this.scena.lumi]);
+    this.abitanti = new Abitanti(g.scene);
+    this.notteVista = new NotteVista(g.scene);
+    // luci per le figure (materiale toon della libreria oggetti)
+    this.emisfero = new HemisphereLight(0xdfe6f0, 0x6a6050, 1.1);
+    this.sole = new DirectionalLight(0xfff0d8, 1.6);
+    g.scene.add(this.emisfero, this.sole, this.sole.target, new AmbientLight(0x303040, 0.3));
+
+    this.velatura = new Velatura(ui.radice.parentElement ?? document.body);
+    this.salvataggi = new GestoreSalvataggi({ archivio: archivioDaStorage(localStorage), prefisso: 'cielo-di-terra.salvataggio' });
+    this.ponte = new PonteInterfaccia(this);
+    this.dialoghi = new DirettoreDialoghi(this);
+
+    // --- squadro ---
+    this.squadro = new Squadro(g, {
+      bersagli: () => this.bersagliMira(),
+      tolleranzaBolla: () => (ui.impostazioni.get('bollaLarga') ? 0.25 : 0.12),
+      tempoCollimazione: () => (ui.impostazioni.get('collimazioneAgganciata') ? 0.8 : 1.5),
+    });
+    this.collegaSquadro();
+
+    // --- il motore ---
+    g.player.groundFn = (z, theta) => (this.interno === 'cripta' ? QUOTA_CRIPTA : groundHeight(z, theta));
+    g.controlloEsterno = (dt) => this.controlloCorpo(dt);
+    g.bus.on('player:interact', () => (this.ePremuto = true));
+    g.bus.on('player:jump', () => this.audio.evento({ tipo: 'salto', superficie: this.superficie() }));
+    g.bus.on('player:land', (e) => this.audio.evento({ tipo: 'atterraggio', superficie: this.superficie(), velocita: e.speed }));
+    g.bus.on('velo:toggle', (e) => {
+      this.audio.evento({ tipo: e.open ? 'velo-apri' : 'velo-chiudi' });
+      if (e.open && this.narrativa?.valuta('passo:m1_velo attivo')) this.audio.tema('primo_volo', false);
+    });
+    g.clock.running = false;
+    g.sistemi.push(this.squadro, this);
+
+    // --- interfaccia ---
+    ui.on('catturaInput', (preso) => {
+      g.input.releaseAll();
+      if (preso) document.exitPointerLock?.();
+    });
+    ui.titolo.on('nuovaPartita', () => void this.nuovaPartitaDaTitolo());
+    ui.titolo.on('continua', () => void this.continua());
+    ui.pausa.on('esciAlTitolo', () => void this.esciAlTitolo());
+    const imp = ui.impostazioni;
+    const applica = () => {
+      g.settings.fov = imp.get('campoVisivo');
+      g.settings.mouseSensitivity = 0.0022 * imp.get('sensibilitaMouse');
+      g.settings.invertY = imp.get('invertiAsseY');
+      g.settings.headBob = imp.get('oscillazioneTesta');
+      const cor = imp.get('coriolisCorpo');
+      g.settings.fullPhysics = cor === 'pieno';
+      g.settings.coriolisOnFoot = cor === 'spento' ? 0 : 0.4;
+      g.settings.starSpeed = imp.get('velocitaStelle');
+      g.applySettings();
+      this.audio.volume('generale', imp.get('volumeGenerale'));
+      this.audio.volume('musica', imp.get('volumeMusica'));
+      this.audio.volume('ambiente', imp.get('volumeAmbiente'));
+      this.audio.volume('voci', imp.get('volumeVoci'));
+      ui.indicazioni.mostraPuntino(false);
+    };
+    applica();
+    imp.on('cambio', applica);
+    imp.on('ripristino', applica);
+    this.audio.avviaAlPrimoGesto(window);
+
+    // la Meta: istante del passaggio sulla Finestra dei Ponti (la luce entra dal vetro)
+    this.metaFase = calcolaFaseMeta();
+    this.nuovoMondo();
+    registraBersagli(this);
+  }
+
+  // =================================================================== ciclo di vita
+
+  /** Crea narrativa e catasto nuovi (partita nuova o prima di un caricamento). */
+  private nuovoMondo(): void {
+    for (const s of this.staccaNarrativa) s();
+    for (const s of this.staccaRilievo) s();
+    const fatti: WorldFacts = {
+      ora: () => this.orologio.ore,
+      giorno: () => this.orologio.giorno,
+      notte: () => this.orologio.notte,
+      luogoRaggiunto: (id) => this.luoghiQui.has(id),
+      cellaRilevata: (id) => this.rilievo.statoCella(Number(id)) === 'colore',
+      cellaVista: (id) => this.rilievo.statoCella(Number(id)) !== 'bianco',
+      varianteParticella: (id) => this.rilievo.variante(id),
+      prossimoEventoCielo: () => null,
+    };
+    this.narrativa = new Narrativa(CONTENUTI_NARRATIVA, fatti);
+    if (this.narrativa.problemi.length) console.warn('[regia] contenuti:', this.narrativa.problemi);
+    this.collegaNarrativa();
+    this.rilievo = new RilievoProvvisorio();
+    this.collegaRilievo();
+    this.sincronizzaCelle();
+    for (const e of ['E1', 'E2', 'E3', 'E4']) this.scena.mostraVariante(e, this.rilievo.variante(e));
+  }
+
+  /** Mostra il titolo, con il mondo dietro (Corbella all'alba). */
+  async mostraTitolo(): Promise<void> {
+    this.fase = 'titolo';
+    const elenco = await this.salvataggi.elenco().catch(() => []);
+    const valido = elenco.filter((s) => s.stato === 'valido').sort((a, b) => (b.contatore ?? 0) - (a.contatore ?? 0))[0];
+    const meta = valido?.meta as { descrizione?: string } | undefined;
+    this.game.clock.setHours(6.2);
+    this.game.sky = this.game.clock.state(this.game.sky);
+    this.game.setCameraPose(1002, 31.5, groundHeight(1002, 31.5) + 9, 68, 18);
+    this.ui.titolo.show({ puoiContinuare: !!valido, ...(meta?.descrizione ? { salvataggio: meta.descrizione } : {}), versione: 'Fase 1 · prologo e missione 1' });
+  }
+
+  private async nuovaPartitaDaTitolo(): Promise<void> {
+    this.ui.titolo.hide();
+    if (this.fase === 'gioco' || this.partitaIniziata) {
+      // ripartire da capo in una pagina pulita (la Cripta e il mondo tornano come nuovi)
+      try {
+        sessionStorage.setItem('cielo-di-terra.nuova', '1');
+      } catch {
+        /* niente */
+      }
+      location.reload();
+      return;
+    }
+    this.nuovaPartita();
+  }
+
+  private partitaIniziata = false;
+
+  /** Una partita nuova: Elvira sdraiata nella capsula 5, alle 05:38 del giorno 1. */
+  nuovaPartita(): void {
+    this.partitaIniziata = true;
+    this.fase = 'gioco';
+    this.ui.titolo.hide();
+    this.game.setFreeCamera(false);
+    this.orologio.imposta(1, 5 + 38 / 60);
+    this.orologio.fermo = 5 + 38 / 60;
+    this.orologio.limite = null;
+    this.interno = 'cripta';
+    this.controllo = { tipo: 'sdraiata' };
+    this.abitanti.ottavioInCielo();
+    this.squadro.disponibile = false;
+    this.squadro.importa(null);
+    this.applicaInterno();
+    this.posaSdraiata();
+    this.guarda(this.cripta.scritta);
+    this.velatura.dalNero(3.2, true);
+    this.ui.indicazioni.show();
+    this.narrativa.tick(0);
+    this.log('nuova partita');
+  }
+
+  /** Continua dall'ultimo salvataggio valido. */
+  async continua(): Promise<boolean> {
+    this.ui.titolo.hide();
+    try {
+      const r = await this.narrativa.carica(this.salvataggi, this.fornitoreMondo());
+      if (!r) {
+        this.nuovaPartita();
+        return false;
+      }
+      this.partitaIniziata = true;
+      this.fase = 'gioco';
+      this.ui.indicazioni.show();
+      this.riallinea();
+      this.velatura.dalNero(1.2);
+      this.log('partita caricata');
+      return true;
+    } catch (e) {
+      console.warn('[regia] caricamento fallito:', e);
+      this.ponte.notifica('Il salvataggio non si legge: si comincia da capo.', 'rosso');
+      this.nuovaPartita();
+      return false;
+    }
+  }
+
+  async salva(): Promise<void> {
+    if (this.fase !== 'gioco' || this.controllo.tipo === 'sdraiata') return;
+    const pc = this.game.player.cyl;
+    const luogoNome = this.interno === 'cripta' ? 'la Cripta' : (this.luoghi.piuVicino(pc.z, pc.theta)?.nome ?? 'Corbella');
+    await this.narrativa
+      .salva(this.salvataggi, this.fornitoreMondo(), { descrizione: `Giorno ${this.orologio.giorno} · ${luogoNome} · ${this.testoOra()}`, giorno: this.orologio.giorno })
+      .catch((e) => console.warn('[regia] salvataggio:', e));
+  }
+
+  private async esciAlTitolo(): Promise<void> {
+    await this.salva();
+    this.dialoghi.svuota();
+    this.ponte.chiudiAttesa();
+    await this.mostraTitolo();
+  }
+
+  // =================================================================== salvataggio
+
+  fornitoreMondo(): FornitoreMondo {
+    return {
+      esporta: (): MondoSalvato => {
+        const g = this.game;
+        const pc = g.player.cyl;
+        const vp = this.yawPitch();
+        const fermo = this.controllo.tipo === 'seduta' || this.controllo.tipo === 'piantato';
+        return {
+          versione: 1,
+          giocatore: { z: pc.z, theta: pc.theta, h: fermo ? (this.controllo as { h: number }).h : pc.h, yaw: vp.yaw, pitch: vp.pitch },
+          interno: this.interno,
+          sdraiata: this.controllo.tipo === 'sdraiata',
+          orologio: this.orologio.esporta(),
+          rilievo: this.rilievo.esporta(),
+          corpo: this.corpo.esporta(),
+          squadro: this.squadro.esporta(),
+          abitanti: this.abitanti.esporta(),
+          regia: {
+            nomiNoti: [...this.nomiNoti],
+            capisaldiVisti: [...this.capisaldiVisti],
+            stadioInnesto: this.stadioInnesto,
+            segnalibro: this.libretto.segnalibro,
+            lumiAppuntati: [...this.lumiAppuntati],
+            simTime: g.simTime,
+          },
+        };
+      },
+      importa: (blob: unknown) => {
+        const m = blob as Partial<MondoSalvato> | null;
+        if (!m || m.versione !== 1) return;
+        this.orologio.importa(m.orologio);
+        this.rilievo.importa(m.rilievo);
+        this.corpo.importa(m.corpo);
+        this.abitanti.importa(m.abitanti);
+        const r = m.regia;
+        this.nomiNoti.clear();
+        for (const n of r?.nomiNoti ?? []) this.nomiNoti.add(n);
+        this.capisaldiVisti.clear();
+        for (const n of r?.capisaldiVisti ?? []) this.capisaldiVisti.add(n);
+        this.lumiAppuntati = new Set(r?.lumiAppuntati ?? []);
+        this.stadioInnesto = r?.stadioInnesto ?? 0;
+        this.libretto.segnalibro = r?.segnalibro ?? 'cs_1';
+        this.interno = m.interno ?? null;
+        this.applicaInterno();
+        const p = m.giocatore;
+        this.controllo = m.sdraiata ? { tipo: 'sdraiata' } : { tipo: 'libero' };
+        if (p) {
+          this.game.player.teleport(p.z, p.theta, this.interno ? Math.max(0, p.h - this.game.player.groundFn(p.z, p.theta)) : 0, false);
+          if (m.sdraiata) this.posaSdraiata();
+          this.game.setView(p.yaw, p.pitch);
+          this.game.syncEyeNow();
+        }
+        if (typeof r?.simTime === 'number') {
+          this.game.simTime = r.simTime;
+          this.game.world.time = r.simTime;
+        }
+        this.squadro.disponibile = this.narrativa.inventario.ha('squadro');
+        this.squadro.importa(m.squadro);
+      },
+    };
+  }
+
+  /** Dopo un caricamento: rimette il mondo d'accordo con i flag e i passi. */
+  private riallinea(): void {
+    const n = this.narrativa;
+    if (n.valuta('passo:pr_vetro completato')) this.cripta.apriCoperchio();
+    if (n.flag.vero('esaminato:busta_5')) this.cripta.togliBusta();
+    if (n.flag.vero('armadietto_aperto')) this.cripta.apriArmadietto();
+    if (n.valuta('passo:pr_botola_scala completato')) {
+      this.cripta.apriBotola();
+      this.scena.apriBotola(true);
+    }
+    for (let i = 0; i < 4; i++) this.cripta.update(5);
+    this.sincronizzaCelle();
+    for (const e of ['E1', 'E2', 'E3', 'E4']) this.scena.mostraVariante(e, this.rilievo.variante(e));
+    this.campaneAttive = false;
+  }
+
+  // =================================================================== storia
+
+  private collegaNarrativa(): void {
+    const n = this.narrativa;
+    const ev = n.eventi;
+    this.staccaNarrativa = [
+      ev.on('evento', ({ nome, argomenti }) => this.eventoStoria(nome, argomenti)),
+      ev.on('tempo', ({ azione, ore }) => (azione === 'salta-a' ? this.dormi(ore) : this.scorriTempo(this.orologio.avanzaDi(ore)))),
+      ev.on('apriDialogo', ({ dialogo, automatico }) => this.dialoghi.richiedi(dialogo, !!automatico)),
+      ev.on('passoAttivato', ({ passo }) => this.passoAttivato(passo)),
+      ev.on('passoCompletato', ({ passo }) => this.passoCompletato(passo)),
+      ev.on('missioneCompletata', ({ missione }) => this.log(`missione completata: ${missione}`)),
+      ev.on('dialogoFinito', ({ dialogo, personaggio }) => {
+        this.nomiNoti.add(personaggio);
+        if (personaggio === 'bambini') this.nomiNoti.add('lisa').add('gioanin');
+        if (this.dialoghi.nodo?.dialogo === dialogo) this.dialoghi.chiudi();
+        this.log(`dialogo finito: ${dialogo}`);
+      }),
+      ev.on('oggetto', ({ id, dopo, prima }) => {
+        if (id === 'squadro' && dopo > 0) this.squadro.disponibile = true;
+        if (dopo > prima && id === 'velo_nero') this.ponte.notifica('Il velo di garza nera: V per indossarlo o toglierlo.');
+        if (dopo > prima && id === 'marza_pedrazzini') this.audio.evento({ tipo: 'interfaccia', varieta: 'conferma' });
+      }),
+      ev.on('taccuino', ({ azione, voce }) => {
+        if (azione !== 'aggiunta' || !voce) return;
+        const testo = voce.tipo === 'parola' ? `${voce.tecnica ?? ''} → ${voce.locale ?? voce.testo}` : voce.testo;
+        this.ponte.notifica(`Taccuino: ${testo.length > 70 ? `${testo.slice(0, 68)}…` : testo}`);
+      }),
+      ev.on('errore', ({ messaggio }) => console.warn('[narrativa]', messaggio)),
+    ];
+  }
+
+  private collegaRilievo(): void {
+    const ev = this.rilievo.eventi;
+    this.staccaRilievo = [
+      ev.on('celle', (c) => {
+        if (c.motivo === 'carico') {
+          this.sincronizzaCelle();
+          return;
+        }
+        const stato = CODICE_STATO_MOTORE[c.stato];
+        if (c.motivo === 'rilievo' && c.origine) {
+          this.game.world.revealCells(c.ids, c.origine);
+          this.audio.evento({ tipo: 'inchiostro', ampiezza: 0.9, posizione: cylToWorld(c.origine.z, c.origine.theta, groundHeight(c.origine.z, c.origine.theta)) });
+        } else this.game.world.cells.setMany(c.ids, stato);
+        if (c.stato === 'colore') this.controllaColori();
+      }),
+      ev.on('variante', (v) => {
+        this.scena.mostraVariante(v.elemento, v.a);
+        this.log(`variante ${v.elemento}: ${v.da} → ${v.a} (${v.chi})`);
+      }),
+    ];
+  }
+
+  /** Copia gli stati del catasto nella griglia del motore. */
+  sincronizzaCelle(): void {
+    const per: Record<StatoCella, number[]> = { bianco: [], matita: [], colore: [] };
+    for (const [id, s] of this.rilievo.tutteLeCelle()) per[s].push(id);
+    const g = this.game.world.cells;
+    g.setMany(per.bianco, CellState.Blank);
+    g.setMany(per.matita, CellState.Pencil);
+    g.setMany(per.colore, CellState.Painted);
+  }
+
+  private controllaColori(): void {
+    if (INVENTARIO_CORBELLA.every((id) => this.rilievo.statoCella(id) === 'colore')) this.flag('corbella_a_colori');
+    if (this.rilievo.statoCella(2796) === 'colore') this.flag('casa_nando_rilevata');
+  }
+
+  /** Accende un flag del contratto col motore (una volta). */
+  flag(nome: string): void {
+    if (!this.narrativa.flag.vero(nome)) {
+      this.narrativa.flag.set(nome);
+      this.log(`flag ${nome}`);
+    }
+  }
+
+  spegni(nome: string): void {
+    if (this.narrativa.flag.vero(nome)) this.narrativa.flag.rimuovi(nome);
+  }
+
+  log(testo: string): void {
+    const voce = `[g${this.orologio.giorno} ${this.testoOra()}] ${testo}`;
+    this.diario.push(voce);
+    if (this.diario.length > 400) this.diario.shift();
+  }
+
+  private eventoStoria(nome: string, argomenti: string[]): void {
+    const a0 = argomenti[0] ?? '';
+    this.log(`evento ${nome} ${argomenti.join(' ')}`);
+    switch (nome) {
+      case 'orologio':
+        this.orologio.comando(argomenti);
+        return;
+      case 'testo':
+        this.ponte.leggi(a0);
+        return;
+      case 'battuta':
+        this.ponte.battuta(a0);
+        return;
+      case 'suggerimento':
+        this.ponte.suggerimento(a0);
+        return;
+      case 'musica':
+        this.audio.tema(a0);
+        return;
+      case 'suono':
+        if (a0 === 'tre_rintocchi') {
+          this.audio.evento({ tipo: 'campane', modo: 'ore', ore: 3 });
+          this.ponte.suono('[tre rintocchi dal campanile]', 'sotto');
+        } else if (a0 === 'campanaccio_dal_cielo') {
+          this.audio.evento({ tipo: 'campane', modo: 'rintocco', posizione: cylToWorld(1500, 180, 30) });
+          this.ponte.suono('[un campanaccio, lontano, dall\'alto]', 'sopra');
+        }
+        return;
+      case 'pianta':
+        this.ui.apriPianta(this.ponte.datiPianta());
+        return;
+      case 'npc':
+        this.abitanti.ordine(argomenti.join(' '));
+        return;
+      case 'variante': {
+        const [el, va] = a0.split('=');
+        if (el && va) this.rilievo.impostaVariante(el, va, 'storia', this.orologio.assoluto);
+        return;
+      }
+      case 'linea_miccia':
+        this.audio.evento({ tipo: 'accensione-linea' });
+        return;
+      case 'passero_vola_in_su':
+        this.velatura.passero();
+        this.ponte.suono('[un passero si alza dalla botola]', 'sopra');
+        return;
+      case 'velati_si_voltano':
+        this.abitanti.voltatiTutti();
+        return;
+      case 'ottavio_atterra_in_piazza': {
+        const pc = this.game.player.cyl;
+        const piazza = luogo('piazza_ore')!;
+        const inPiazza = this.luoghiQui.has('piazza_ore');
+        const z = inPiazza ? pc.z + 3 : pc.z + 14;
+        const theta = inPiazza ? pc.theta + 2.5 / METERS_PER_DEG : pc.theta + 14 / METERS_PER_DEG;
+        this.abitanti.atterra(inPiazza ? z : (z + piazza.z) / 2, inPiazza ? theta : (theta + piazza.theta) / 2);
+        this.ponte.suono('[un frullo di tela, dall\'alto]', 'sopra');
+        return;
+      }
+      default:
+        console.info('[regia] evento senza regia:', nome, argomenti);
+    }
+  }
+
+  private passoAttivato(passo: string): void {
+    this.log(`passo attivato: ${passo}`);
+    if (passo === 'm1_chiodo2') this.libretto.segnalibro = 'cs_2';
+    if (passo === 'm1_primo_rilievo') this.libretto.segnalibro = 'cs_3';
+    if (passo === 'm1_strada') this.libretto.segnalibro = 'cs_7';
+    this.salvaTra = 1.5;
+  }
+
+  private passoCompletato(passo: string): void {
+    this.log(`passo completato: ${passo}`);
+    if (passo === 'pr_vetro') {
+      this.cripta.apriCoperchio();
+      this.ponte.battuta('elvira_chi');
+      this.audio.evento({ tipo: 'interfaccia', varieta: 'apri' });
+    }
+    if (passo === 'pr_camminare') this.corpo.affaticata = false;
+    if (passo === 'm1_fienile') this.abitanti.ottavioFermo(luogo('fienile_ottavio')!.z - 2, luogo('fienile_ottavio')!.theta, Math.floor(this.orologio.assoluto / 24) * 24 + 24 + 7);
+    this.salvaTra = 1.5;
+  }
+
+  // =================================================================== tempo
+
+  /** Fa scorrere il catasto e la notte fra due tempi assoluti. */
+  scorriTempo(iv: Intervallo): void {
+    if (iv.a <= iv.da) return;
+    const cella = this.cellaElvira();
+    const segnali = this.rilievo.avanzaTempo(iv, {
+      elviraSu: (ps) => cella !== null && ps.includes(cella),
+      dorme: this.dormendo || this.inRifugio(),
+    });
+    for (const s of segnali) {
+      if (s.tipo === 'flag') this.flag(s.nome);
+      else if (s.tipo === 'pesarina' && s.notte === 1) this.ponte.paginaParole = true;
+      else if (s.tipo === 'passaggio' && s.protetto === 'elvira') this.ponte.suono('[le Fade ti girano attorno, poi se ne vanno]', 'sopra');
+    }
+    if (attraversa(iv, 5.5).length) this.salvaTra = 2;
+  }
+
+  private inRifugio(): boolean {
+    return this.luoghiQui.has('fienile_ottavio') || this.interno === 'cripta' || (this.narrativa.flag.vero('dorme_casa_velo') && this.luoghiQui.has('casa_del_velo'));
+  }
+
+  /** Dormire fino a `ore` (effetto «dormi:fino», o il letto di un rifugio). */
+  dormi(ore: number): void {
+    if (this.dormendo) return;
+    this.dormendo = true;
+    this.log(`dorme fino alle ${fmtOra(ore)}`);
+    this.dialoghi.chiudi();
+    this.velatura.alNero(0.01);
+    if (this.narrativa.flag.vero('dorme_casa_velo')) {
+      const cv = luogo('casa_del_velo')!;
+      this.vai(cv.z, cv.theta);
+    }
+    const iv = this.orologio.saltaA(ore);
+    this.scorriTempo(iv);
+    this.dormendo = false;
+    this.controllo = { tipo: 'libero' };
+    this.narrativa.tick(0);
+    this.velatura.dalNero(2.6);
+    this.salvaTra = 2;
+  }
+
+  /** «Aspetta fino a» (da seduti). */
+  aspettaFino(scelta: number | 'meta'): void {
+    if (scelta === 'meta') return;
+    if (!this.orologio.aspettaFino(scelta, 20)) {
+      this.ponte.notifica('Il tempo non passa ancora: c\'è qualcosa da fare.');
+      return;
+    }
+    this.attesaVicini = this.personeVicine();
+    this.log(`aspetta fino alle ${fmtOra(scelta)}`);
+  }
+
+  vociAttesa(): { testo: string; ore: number }[] {
+    const o = this.orologio.ore;
+    const v: { testo: string; ore: number }[] = [];
+    if (this.narrativa.flag.vero('aspetta_brace_sbloccato') && o < 19.5 && o >= 5.5) v.push({ testo: 'la brace (19:30)', ore: 19.5 });
+    if (o >= 19 || this.narrativa.flag.vero('scelta_vegliare')) v.push({ testo: 'mezzanotte', ore: 0 });
+    if (o >= 21 || o < 5.5) v.push({ testo: "l'alba (05:30)", ore: 5.5 });
+    if (o >= 5.5 && o < 20) v.push({ testo: "fra un'ora", ore: (o + 1) % 24 });
+    return v;
+  }
+
+  private personeVicine(): Set<string> {
+    const pc = this.game.player.cyl;
+    const out = new Set<string>();
+    for (const f of this.abitanti.figure.values()) if (f.visibile && Math.hypot(f.z - pc.z, (f.theta - pc.theta) * METERS_PER_DEG) < 5) out.add(f.def.id);
+    return out;
+  }
+
+  testoOra(): string {
+    return fmtOra(this.orologio.ore);
+  }
+
+  /** Secondi reali al prossimo passaggio della Meta. */
+  secondiAllaMeta(): number {
+    const t = this.game.simTime - this.metaFase;
+    return PERIODO_META - (((t % PERIODO_META) + PERIODO_META) % PERIODO_META);
+  }
+
+  resocontoVisibile(): Resoconto | null {
+    const r = this.rilievo.resoconto();
+    if (!r) return null;
+    // il resoconto resta sulla Pianta per il mattino dopo la sua notte (fino alle 12:00)
+    if (this.orologio.giorno === r.notte + 1 && this.orologio.ore < 12) return r;
+    return null;
+  }
+
+  // =================================================================== corpo
+
+  private posa(z: number, theta: number, h: number): void {
+    const p = this.game.player;
+    cylToWorld(z, theta, h, p.pos);
+    worldToCyl(p.pos, p.cyl);
+    p.vel.set(0, 0, 0);
+    p.grounded = true;
+    p.mode = 'walk';
+    p.veloOpen = false;
+    p.veloAmount = 0;
+  }
+
+  /** I piedi messi in modo che gli occhi siano nella capsula, sotto il vetro. */
+  private posaSdraiata(): void {
+    const o = worldToCyl(this.cripta.occhiSdraiata);
+    this.posa(o.z, o.theta, o.h - OCCHI);
+  }
+
+  private controlloCorpo(dt: number): boolean {
+    const c = this.controllo;
+    switch (c.tipo) {
+      case 'libero':
+        return false;
+      case 'sdraiata':
+        this.posaSdraiata();
+        return true;
+      case 'alzandosi': {
+        c.t = Math.min(1, c.t + dt / 1.4);
+        const o = worldToCyl(this.cripta.occhiSdraiata);
+        const p = this.cripta.inPiedi;
+        const k = c.t * c.t * (3 - 2 * c.t);
+        const z = o.z + (p.z - o.z) * k;
+        const theta = o.theta + (p.theta - o.theta) * k;
+        const hOcchi = o.h + (QUOTA_CRIPTA + OCCHI - o.h) * k;
+        this.posa(z, theta, hOcchi - OCCHI);
+        if (c.t >= 1) {
+          this.controllo = { tipo: 'libero' };
+          this.game.player.teleport(p.z, p.theta, 0);
+        }
+        return true;
+      }
+      case 'scala': {
+        const inp = this.game.input;
+        const su = (inp.isDown('KeyW') || inp.isDown('ArrowUp') || inp.isDown('Space') ? 1 : 0) - (inp.isDown('KeyS') || inp.isDown('ArrowDown') ? 1 : 0);
+        if (!this.ui.inputCatturato) c.y = Math.max(0, Math.min(SCALA.cima, c.y + su * 1.15 * dt));
+        if (c.y <= 0 && su < 0) {
+          this.controllo = { tipo: 'libero' };
+          const p = this.cripta.ancora.cyl(SCALA.e, SCALA.n + 0.7);
+          this.game.player.teleport(p.z, p.theta, 0);
+          return false;
+        }
+        const p = this.cripta.ancora.cyl(SCALA.e, SCALA.n + 0.45, c.y);
+        this.posa(p.z, p.theta, p.h);
+        return true;
+      }
+      case 'seduta':
+      case 'piantato':
+        this.posa(c.z, c.theta, c.h);
+        return true;
+      case 'dorme':
+        return true;
+    }
+  }
+
+  /** Elvira si alza dalla capsula (comando «alzati»). */
+  alzati(): void {
+    if (this.controllo.tipo !== 'sdraiata') return;
+    this.controllo = { tipo: 'alzandosi', t: 0 };
+    this.velatura.respiro();
+  }
+
+  siedi(dove?: { z: number; theta: number; h: number }): void {
+    if (this.controllo.tipo !== 'libero' || !this.game.player.grounded) return;
+    const pc = this.game.player.cyl;
+    const s = dove ?? { z: pc.z, theta: pc.theta, h: pc.h };
+    this.controllo = { tipo: 'seduta', z: s.z, theta: s.theta, h: s.h - 0.5 };
+    this.corpo.seduta = true;
+    this.flag('seduta');
+    this.log('si siede');
+  }
+
+  alzaDaSeduta(): void {
+    if (this.controllo.tipo !== 'seduta') return;
+    const c = this.controllo;
+    this.controllo = { tipo: 'libero' };
+    this.corpo.seduta = false;
+    this.spegni('seduta');
+    this.orologio.interrompiAttesa();
+    this.ponte.chiudiAttesa();
+    this.game.player.teleport(c.z, c.theta, 0);
+  }
+
+  saliScala(): void {
+    if (this.controllo.tipo !== 'libero' || this.interno !== 'cripta') return;
+    this.controllo = { tipo: 'scala', y: 0.05 };
+    this.guardaDirezione(0, 55);
+  }
+
+  /** In cima alla scala: si spinge la botola ed Elvira esce sotto il castagno morto. */
+  esciDallaBotola(): void {
+    this.cripta.apriBotola();
+    this.scena.apriBotola(true);
+    this.interno = null;
+    this.applicaInterno();
+    this.controllo = { tipo: 'libero' };
+    const b = luogo('botola')!;
+    const z = b.z - 1.6;
+    const theta = b.theta + 0.6 / METERS_PER_DEG;
+    this.game.player.teleport(z, theta, 0);
+    this.guardaDirezione(140, 8);
+    this.corpo.affaticata = !this.narrativa.valuta('passo:pr_camminare completato');
+    if (this.orologio.fermo !== null) {
+      // l'orologio riparte: sono le 05:39
+      this.orologio.fermo = null;
+      this.orologio.ore = 5 + 39 / 60;
+    }
+    this.velatura.dalBianco(1.6);
+    this.audio.evento({ tipo: 'interfaccia', varieta: 'apri' });
+    this.aggiornaLuoghi();
+    this.narrativa.tick(0);
+    this.log('esce dalla botola');
+  }
+
+  /** Dalla botola si torna giù nella Cripta (resta aperta per tutto il gioco). */
+  entraNellaCripta(): void {
+    this.interno = 'cripta';
+    this.applicaInterno();
+    this.controllo = { tipo: 'scala', y: SCALA.cima };
+    this.guardaDirezione(180, -40);
+    this.velatura.dalNero(0.8);
+  }
+
+  saliCampanile(): void {
+    const d = this.cella.dentro;
+    this.interno = 'cella';
+    this.applicaInterno();
+    this.game.player.teleport(d.z, d.theta, d.h, true);
+    this.guardaDirezione(d.yaw, 6);
+    this.velatura.dalNero(0.9);
+    this.audio.evento({ tipo: 'passo', superficie: 'legno' });
+  }
+
+  scendiCampanile(): void {
+    const f = this.cella.fuori;
+    this.interno = null;
+    this.applicaInterno();
+    this.game.player.teleport(f.z, f.theta, 0);
+    this.guardaDirezione(f.yaw, 0);
+    this.velatura.dalNero(0.9);
+  }
+
+  /** Teletrasporto della regia (debug, prove): fuori dagli interni, in piedi. */
+  vai(z: number, theta: number, altezza = 0): void {
+    if (this.controllo.tipo === 'piantato') this.squadro.stacca();
+    this.controllo = { tipo: 'libero' };
+    this.corpo.seduta = false;
+    this.spegni('seduta');
+    this.interno = null;
+    this.applicaInterno();
+    this.game.setFreeCamera(false);
+    this.game.player.teleport(z, theta, altezza);
+    this.game.syncEyeNow();
+    this.aggiornaLuoghi();
+  }
+
+  private applicaInterno(): void {
+    const cam = this.game.camera;
+    const near = this.interno === 'cripta' ? 0.05 : 0.3;
+    if (cam.near !== near) {
+      cam.near = near;
+      cam.updateProjectionMatrix();
+    }
+  }
+
+  // =================================================================== squadro
+
+  private collegaSquadro(): void {
+    const s = this.squadro;
+    s.eventi.on('piantato', ({ caposaldo: id }) => {
+      const ch = this.chiodo(id);
+      if (!ch) return;
+      const avanti = this.game.rig.forward(new Vector3());
+      const verso = ch.clone().add(avanti);
+      const piedi = Squadro.piediDavantiAlChiodo(ch, verso, 0.7);
+      const hp = this.interno === 'cella' ? this.cella.quotaPavimento : groundHeight(piedi.z, piedi.theta);
+      this.controllo = { tipo: 'piantato', z: piedi.z, theta: piedi.theta, h: hp };
+      this.capisaldiVisti.add(id);
+      this.audio.evento({ tipo: 'squadro-pianta', posizione: ch });
+      if (!this.narrativa.flag.vero('bolla_spiegata')) {
+        this.ui.indicazioni.suggerimento('Livella: centra la bolla con A e D');
+        this.narrativa.flag.set('bolla_spiegata');
+      }
+      this.log(`squadro piantato su ${id}`);
+    });
+    s.eventi.on('livellato', () => {
+      this.audio.evento({ tipo: 'bolla-livellata' });
+      this.ponte.suggerimento('collima');
+    });
+    s.eventi.on('staccato', () => {
+      if (this.controllo.tipo === 'piantato') {
+        const c = this.controllo;
+        this.controllo = { tipo: 'libero' };
+        this.game.player.teleport(c.z, c.theta, this.interno === 'cella' ? Math.max(0, c.h - groundHeight(c.z, c.theta)) : 0, this.interno === 'cella');
+      }
+    });
+    s.eventi.on('collimato', ({ stazione, mira }) => this.collimato(stazione, mira));
+    s.eventi.on('appunto', (a) => this.appunto(a.bersaglio, a.cella, a.distanza));
+    s.eventi.on('mira', (m) => (this.mira = { b: m.bersaglio, d: m.distanza, t: m.tenuta }));
+  }
+
+  /** Il chiodo di un caposaldo (mondo). */
+  chiodo(id: string): Vector3 | null {
+    if (id === 'cs_1') return this.cella.punti['chiodo_cs_1']!.clone();
+    return this.scena.punto(`chiodo_${id}`);
+  }
+
+  piantaSquadro(id: string): void {
+    if (!this.squadro.disponibile) return;
+    if (this.squadro.stato === 'riposto') this.squadro.prendi();
+    this.squadro.pianta(id);
+  }
+
+  private collimato(stazione: string, mira: string): void {
+    const num = (id: string) => caposaldo(id)?.numero ?? id;
+    this.flag(`tentato_lato:${num(stazione)}-${num(mira)}`);
+    this.capisaldiVisti.add(mira);
+    const esito = this.rilievo.collima(stazione, mira, this.orologio.ore);
+    this.log(`collima ${stazione} → ${mira}: ${esito.esito}`);
+    switch (esito.esito) {
+      case 'chiuso':
+        this.audio.evento({ tipo: 'pagina', verso: 'avanti' });
+        this.ponte.notifica(`Lato ${num(mira)}-${num(stazione)}, chiuso. ${esito.particelle.length} particelle a colore.`);
+        if (esito.primoDelFoglio) this.audio.tema('primo_rilievo');
+        break;
+      case 'gia_chiuso':
+        this.ponte.notifica('Questo lato è già nel libretto.');
+        break;
+      case 'non_visibile':
+        this.ponte.notifica(esito.motivo, 'rosso');
+        break;
+      case 'nessun_lato':
+        this.ponte.notifica(esito.motivo);
+        break;
+    }
+  }
+
+  private appunto(bersaglio: string | null, cella: number | null, distanza: number): void {
+    if (cella !== null) {
+      this.rilievo.appunta(cella);
+      const iz = Math.floor(cella / 96);
+      const it = cella % 96;
+      this.ponte.notifica(`Appuntato: particella ${nomeCatastale(iz, it)}, ${Math.round(distanza)} m.`);
+      if (cella === 2505 && distanza > 600) {
+        // di giorno la mira non deve passare a meno di 150 m dall'asse (alla brace va bene tutto)
+        const occhi = this.occhi(new Vector3());
+        const fine = cylToWorld(1046, 37, 38.5);
+        const asseOk = this.orologio.ore >= 19.5 || this.orologio.ore < 5.5 || distanzaDallAsse(occhi, fine) >= 150;
+        if (asseOk) this.flag('appuntato_lontano:2505');
+      }
+    }
+    if (bersaglio === 'lanterna') this.flag('appuntato_lanterna');
+    if (bersaglio === 'tecla') this.flag('appuntato_lume:tecla');
+    if (bersaglio?.startsWith('lume_') && !this.lumiAppuntati.has(bersaglio)) {
+      this.lumiAppuntati.add(bersaglio);
+      this.narrativa.flag.incrementa('lumi_appuntati');
+    }
+    if (bersaglio?.startsWith('segnale_')) this.capisaldiVisti.add(bersaglio.slice(8));
+  }
+
+  /** I bersagli del cannocchiale adesso: segnali dei capisaldi, la Lanterna, i lumi della notte. */
+  private bersagliMira(): BersaglioMira[] {
+    const out: BersaglioMira[] = [];
+    const largo = this.ui.impostazioni.get('collimazioneAgganciata') ? 1.6 : 0.9;
+    for (const c of CAPISALDI) {
+      const p = c.id === 'cs_1' ? this.scena.punto('segnale_cs_1') : this.scena.punto(`segnale_${c.id}`);
+      if (p) out.push({ id: `segnale_${c.id}`, nome: c.nome, posizione: p, tolleranza: largo, caposaldo: c.id });
+    }
+    out.push({ id: 'lanterna', nome: 'la Lanterna', posizione: cylToWorld(2968, 0, 642), tolleranza: 1.5 });
+    const o = this.orologio.ore;
+    const notte = o >= 20 || o < 5.5;
+    if (o >= 23 || o < 2) {
+      const t = this.game.simTime / 40;
+      out.push({ id: 'tecla', nome: 'una lanterna che cammina', posizione: cylToWorld(1300 + Math.sin(t) * 30, 345, 9), tolleranza: 1.2 });
+    }
+    if (notte) {
+      for (const l of LONTANI) if (l.lume === 'permanente') out.push({ id: `lume_${l.id}`, nome: l.lume_descrizione ?? l.nome, posizione: cylToWorld(l.z, l.theta, l.altezza + 2), tolleranza: 1.2 });
+    }
+    return out;
+  }
+
+  // =================================================================== sguardo, tasti
+
+  /** Occhi di Elvira (mondo), calcolati dai piedi (validi anche senza disegnare). */
+  occhi(out: Vector3): Vector3 {
+    const p = this.game.player;
+    localFrameAt(p.pos, _f, p.cyl.theta);
+    if (this.controllo.tipo === 'seduta') return out.copy(p.pos).addScaledVector(_f.up, OCCHI);
+    return out.copy(p.pos).addScaledVector(_f.up, OCCHI);
+  }
+
+  yawPitch(): { yaw: number; pitch: number } {
+    const p = this.game.player;
+    localFrameAt(p.pos, _f, p.cyl.theta);
+    const d = this.game.rig.forward(_v);
+    const pitch = Math.asin(Math.max(-1, Math.min(1, d.dot(_f.up))));
+    const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north));
+    return { yaw: yaw / DEG, pitch: pitch / DEG };
+  }
+
+  /** Direzione dello sguardo sulla Pianta (gradi: 0 = verso Lag, 90 = a Mane). */
+  direzioneSguardo(): number {
+    return ((this.yawPitch().yaw % 360) + 360) % 360;
+  }
+
+  /** Orienta lo sguardo verso un punto del mondo. */
+  guarda(p: Vector3): void {
+    const occhi = this.occhi(new Vector3());
+    localFrameAt(this.game.player.pos, _f, this.game.player.cyl.theta);
+    const d = _w.subVectors(p, occhi).normalize();
+    const pitch = Math.asin(Math.max(-1, Math.min(1, d.dot(_f.up))));
+    const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north));
+    this.game.setView(yaw / DEG, pitch / DEG);
+    this.game.syncEyeNow();
+  }
+
+  guardaDirezione(yaw: number, pitch: number): void {
+    this.game.setView(yaw, pitch);
+    this.game.syncEyeNow();
+  }
+
+  private tasti(): void {
+    const inp = this.game.input;
+    const inv = this.narrativa.inventario;
+    if (inp.consumePressed('KeyQ') && inv.ha('lente')) {
+      this.lente = !this.lente;
+      this.audio.evento({ tipo: 'interfaccia', varieta: this.lente ? 'apri' : 'chiudi' });
+    }
+    if (inp.consumePressed('KeyL') && inv.ha('libretto')) this.ponte.apriLibretto();
+    if (inp.consumePressed('KeyV') && inv.ha('velo_nero')) {
+      if (this.narrativa.flag.vero('velo_indossato')) {
+        this.spegni('velo_indossato');
+        this.ponte.notifica('Ti togli il velo nero.');
+      } else {
+        this.flag('velo_indossato');
+        this.ponte.notifica('Indossi il velo nero.');
+      }
+    }
+    if (inp.consumePressed('KeyG')) this.fischia();
+    if (inp.consumePressed('KeyX') && this.controllo.tipo === 'seduta') {
+      if (this.ponte.attesaAperta) this.ponte.chiudiAttesa();
+      else this.ponte.apriAttesa(this.vociAttesa());
+    }
+    // sedersi: C tenuto (o premuto con «azioni: premi»); alzarsi: C o un tasto di movimento
+    if (this.controllo.tipo === 'seduta') {
+      inp.consumePressed('KeyC') ? this.alzaDaSeduta() : null;
+      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space'].some((k) => inp.isDown(k)) && !this.ponte.attesaAperta) this.alzaDaSeduta();
+      this.tenutaC = 0;
+    } else if (this.controllo.tipo === 'libero') {
+      const premi = this.ui.impostazioni.get('azioniTenute') === 'premi';
+      if (inp.isDown('KeyC')) this.tenutaC += 1 / 60;
+      else this.tenutaC = 0;
+      if ((premi && inp.consumePressed('KeyC')) || this.tenutaC >= 0.4) {
+        this.tenutaC = 0;
+        inp.consumePressed('KeyC');
+        this.siedi();
+      }
+    } else inp.consumePressed('KeyC');
+    if (this.controllo.tipo === 'piantato' && (inp.isDown('KeyW') || inp.isDown('KeyS'))) this.squadro.stacca();
+  }
+
+  /** Il fischio: Ottavio scende dal cielo se è in volo (FASE1 M1.19). */
+  fischia(): void {
+    this.ponte.suono('[Elvira fischia]');
+    if (this.abitanti.presente('ottavio') || !this.narrativa.flag.vero('ottavio_conosciuto')) return;
+    const o = this.orologio.ore;
+    if (o < 6 || o >= 20.5) return;
+    const pc = this.game.player.cyl;
+    const z = pc.z + 4;
+    const theta = pc.theta + 3 / METERS_PER_DEG;
+    this.abitanti.atterra(z, theta, { tipo: 'fermo', z, theta, fino: this.orologio.assoluto + 2 });
+  }
+
+  private superficie(): 'erba' | 'pietra' | 'legno' | 'ghiaia' {
+    if (this.interno === 'cripta') return 'pietra';
+    if (this.interno === 'cella') return 'legno';
+    if (this.luoghiQui.has('passerella_messo') && this.rilievo.variante('E1') === 'Abitata') return 'legno';
+    if (this.luoghiQui.has('piazza_ore') || this.luoghiQui.has('sagrato') || this.luoghiQui.has('lavatoio')) return 'pietra';
+    return 'erba';
+  }
+
+  private cellaElvira(): number | null {
+    const pc = this.game.player.cyl;
+    return this.game.world.cellAt(pc.z, pc.theta);
+  }
+
+  aggiornaLuoghi(): void {
+    const pc = this.game.player.cyl;
+    this.luoghiQui.clear();
+    if (this.interno === 'cripta') {
+      for (const id of ['cripta_capsula_5', 'cripta_sala', 'cripta_corridoio', 'cripta_scala']) if (this.luoghi.dentro(id, pc.z, pc.theta, pc.h)) this.luoghiQui.add(id);
+      // la sala e il corridoio nel segnaposto sono più grandi dei raggi dei contenuti
+      this.luoghiQui.add('cripta_sala');
+      return;
+    }
+    for (const id of this.luoghi.doveSono(pc.z, pc.theta, pc.h)) this.luoghiQui.add(id);
+  }
+
+  // =================================================================== passo e fotogramma
+
+  update(dt: number): void {
+    if (this.fase !== 'gioco') return;
+    const g = this.game;
+    const ui = this.ui;
+    const catturato = ui.inputCatturato || this.ponte.attesaAperta;
+    const premuto = this.ePremuto && !ui.inputCatturato;
+    this.ePremuto = false;
+    if (!catturato) this.tasti();
+    this.squadro.bloccato = ui.inputCatturato || this.controllo.tipo === 'sdraiata' || this.controllo.tipo === 'scala' || this.interno === 'cripta';
+    g.movimentoBloccato = catturato || this.controllo.tipo !== 'libero';
+
+    // dove sono, il corpo
+    this.aggiornaLuoghi();
+    const p = g.player;
+    const libero = this.controllo.tipo === 'libero' || this.controllo.tipo === 'seduta';
+    if (libero) {
+      const corre = g.input.isDown('ShiftLeft') || g.input.isDown('ShiftRight');
+      for (const e of this.corpo.aggiorna(dt, { grounded: p.grounded, veloOpen: p.veloOpen, velocita: p.grounded ? p.vel.length() : 0, corre, z: p.cyl.z, theta: p.cyl.theta, h: p.cyl.h })) {
+        if (e.tipo === 'fiato_corto') this.flag('fiato_corto');
+        else if (e.tipo === 'atterraggio') this.atterraggio(e.planata, e.decollo, e.dove.theta);
+      }
+    }
+    this.limitaVelocita();
+
+    // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
+    if (!ui.tempoFermo) {
+      if (this.orologio.inAttesa) {
+        const vicini = this.personeVicine();
+        if ([...vicini].some((v) => !this.attesaVicini.has(v)) || this.controllo.tipo !== 'seduta') this.orologio.interrompiAttesa();
+      }
+      const iv = this.orologio.avanza(dt);
+      this.scorriTempo(iv);
+    }
+    g.clock.running = false;
+    g.clock.setHours(this.orologio.ore);
+
+    // sguardi e interazioni
+    const occhi = this.occhi(new Vector3());
+    const avanti = g.rig.forward(new Vector3());
+    this.sguardi.update(dt, occhi, avanti);
+    this.statoInterazione = this.interazioni.update(dt, occhi, avanti, catturato ? null : { premuto, tenuto: g.input.isDown('KeyE'), modoPremi: ui.impostazioni.get('azioniTenute') === 'premi' });
+
+    // il mondo che si muove
+    this.cripta.update(dt);
+    this.scena.update(dt);
+    this.abitanti.update(dt, {
+      giorno: this.orologio.giorno,
+      ore: this.orologio.ore,
+      assoluto: this.orologio.assoluto,
+      valuta: (c) => this.narrativa.valuta(c),
+      occhi,
+      elvira: { z: p.cyl.z, theta: p.cyl.theta },
+    });
+    this.notteVista.update(dt, this.orologio.ore, g.sky.night);
+    this.aggiornaMeta();
+
+    // la storia (10 volte al secondo)
+    this.accTick += dt;
+    if (this.accTick >= 0.1) {
+      this.narrativa.tick(this.accTick);
+      this.accTick = 0;
+    }
+    this.dialoghi.update();
+    this.ombrista();
+    this.campane();
+    if (p.cyl.z > 0 && !this.interno) this.rilievo.passaggio(p.cyl.z, p.cyl.theta);
+    this.ponte.sonda(dt);
+
+    // salvataggio automatico (ogni passo di missione e a ogni alba)
+    if (this.salvaTra > 0) {
+      this.salvaTra -= dt;
+      if (this.salvaTra <= 0 && !this.dormendo) void this.salva();
+    }
+  }
+
+  private atterraggio(planata: boolean, decollo: { z: number; theta: number; h: number } | null, theta: number): void {
+    if (planata) {
+      this.flag('planata_fatta');
+      if (decollo) {
+        for (const l of this.luoghi.tutti) {
+          if (l.tipo !== 'muro' && l.tipo !== 'belvedere') continue;
+          const d = Math.hypot(decollo.z - l.z, (decollo.theta - l.theta) * METERS_PER_DEG);
+          if (d <= l.raggio + 6) this.flag(`planata:${l.id}`);
+        }
+      }
+    }
+    const s = stripAt(theta).id;
+    if ((s === 'valle-2' || s === 'valle-3') && planata) this.flag('atterrata_altra_valle');
+  }
+
+  private limitaVelocita(): void {
+    const t = this.game.player.tunables;
+    const n = this.narrativa;
+    let passo = 4.2;
+    let corsa = 7.2;
+    if (this.interno === 'cripta' && !n.valuta('passo:pr_botola_scala completato')) {
+      passo = 0.9;
+      corsa = 0.9;
+    } else if (!n.valuta('passo:pr_camminare completato') && n.valuta('missione:prologo attiva')) {
+      passo = 1.9;
+      corsa = 1.9;
+    }
+    const k = this.corpo.fattoreVelocita;
+    t.walkSpeed = passo * k;
+    t.runSpeed = corsa * k;
+  }
+
+  private aggiornaMeta(): void {
+    const t = this.game.simTime - this.metaFase;
+    const k = Math.floor(t / PERIODO_META);
+    if (this.metaPrecedente >= 0 && k > this.metaPrecedente) {
+      if (!this.interno) {
+        this.flag('prima_meta_vista');
+        this.flag('meta_appena_passata');
+        this.metaImpulso = this.game.simTime + 5;
+        if (this.game.sky.night < 0.8) this.velatura.lampo();
+        this.log('passa la Meta');
+      }
+    }
+    this.metaPrecedente = k;
+    if (this.metaImpulso > 0 && this.game.simTime > this.metaImpulso) {
+      this.metaImpulso = -1;
+      this.spegni('meta_appena_passata');
+    }
+  }
+
+  /** L'Ombrista alle 19:45: la scena parte da sola se Elvira è in piazza. */
+  private ombrista(): void {
+    const o = this.orologio.ore;
+    if (o < 19.75 || o >= 20.5 || this.ombristaSera === this.orologio.giorno) return;
+    if (this.ui.inputCatturato) return;
+    const t = luogo('telo_ombrista')!;
+    const pc = this.game.player.cyl;
+    if (Math.hypot(pc.z - t.z, (pc.theta - t.theta) * METERS_PER_DEG) > 35) return;
+    const scena = this.narrativa.scenaDisponibile('leggende');
+    this.ombristaSera = this.orologio.giorno;
+    if (scena) {
+      this.ponte.suono('[la lampada a olio si accende dietro il telo]');
+      this.ponte.recitaScena(scena);
+      this.log(`ombrista: ${scena}`);
+    }
+  }
+
+  private campane(): void {
+    const si = this.narrativa.flag.vero('campane_ore');
+    if (si !== this.campaneAttive) {
+      this.campaneAttive = si;
+      this.audio.campaneOrarie(si, this.cella.punti['altoparlante_cella']!);
+    }
+  }
+
+  render(frameDt: number): void {
+    const g = this.game;
+    const ui = this.ui;
+    // la pausa ferma il mondo; dialoghi, carte, taccuino e Pianta no (il tempo lo ferma la regia)
+    const inPausa = this.fase === 'gioco' && (ui.pausa.visible || ui.pannelloImpostazioni.visible || ui.crediti.visible);
+    g.loop.paused = inPausa || this.fase === 'titolo';
+    this.audio.pausa(inPausa);
+    if (this.fase !== 'gioco') {
+      ui.indicazioni.azione(null);
+      ui.indicazioni.squadro(null);
+      return;
+    }
+    // luci delle figure: dall'asse, come la Linea
+    const s = g.sky;
+    const p = g.camera.position;
+    upAt(worldToCyl(p).theta, _v);
+    this.sole.position.copy(p).addScaledVector(_v, 50).addScaledVector(_w.set(0, 0, 1), 18);
+    this.sole.target.position.copy(p);
+    this.sole.intensity = 0.25 + 1.5 * s.sunIntensity;
+    this.sole.color.setRGB(s.sunColor[0], s.sunColor[1], s.sunColor[2]);
+    this.emisfero.intensity = 0.45 + 0.75 * s.sunIntensity;
+    // indicazioni
+    const st = this.statoInterazione;
+    const b = st.bersaglio;
+    ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : null);
+    ui.indicazioni.mostraPuntino(!!b && ui.impostazioni.get('puntino'));
+    ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);
+    ui.indicazioni.velo(g.player.veloOpen ? Math.min(1, g.player.veloAmount) : null);
+    if (this.squadro.telescopio) {
+      const m = this.mira;
+      ui.indicazioni.squadro({
+        ...(m.b ? { caposaldo: m.b.nome, dettaglio: `${Math.round(m.d)} m` } : {}),
+        ...(this.squadro.stato === 'piantato' ? { livella: this.squadro.bolla } : {}),
+        ingrandimento: 4,
+        collimato: !!m.b && m.t > 0.5,
+      });
+    } else ui.indicazioni.squadro(this.squadro.stato === 'piantato' && !this.squadro.livellato ? { livella: this.squadro.bolla } : null);
+    this.velatura.lente(this.lente && !this.squadro.telescopio);
+    g.setFovScale(this.squadro.telescopio ? 0.25 : this.lente ? 0.62 : 1);
+    this.velatura.update(frameDt);
+    if (ui.taccuino.visible) ui.taccuino.prossimoEvento(this.ponte.rigaCielo());
+    // audio
+    const pc = g.player.cyl;
+    this.audio.aggiorna(frameDt, {
+      occhi: g.camera.position,
+      avanti: g.rig.forward(new Vector3()),
+      su: upAt(pc.theta, new Vector3()),
+      velocita: g.player.vel.length(),
+      ore: this.orologio.ore,
+      altezza: this.interno === 'cripta' ? 0 : g.player.heightAboveGround,
+      inVolo: g.player.veloOpen,
+      aTerra: g.player.grounded && this.controllo.tipo === 'libero',
+      corre: g.input.isDown('ShiftLeft'),
+      superficie: this.superficie(),
+      fadeVicine: this.notteVista.vicine(g.camera.position),
+    });
+    if (g.loop.paused) this.ponte.sonda(frameDt);
+  }
+}
+
+const CODICE_STATO_MOTORE: Record<StatoCella, CellState> = { bianco: CellState.Blank, matita: CellState.Pencil, colore: CellState.Painted };
+
+/** Distanza minima (m) dall'asse del segmento a-b. */
+export function distanzaDallAsse(a: Vector3, b: Vector3): number {
+  let best = Infinity;
+  for (let i = 0; i <= 40; i++) {
+    const t = i / 40;
+    const x = a.x + (b.x - a.x) * t;
+    const y = a.y + (b.y - a.y) * t;
+    best = Math.min(best, Math.hypot(x, y));
+  }
+  return best;
+}
+
+/**
+ * Fase della Meta (s): l'istante, dentro i 51 s di una rotazione, in cui la luce della Meta
+ * entra di più dalla Finestra dei Ponti (θ 105°) verso Corbella.
+ */
+export function calcolaFaseMeta(): number {
+  const meta = new Vector3(1, 0, 0.08).normalize();
+  let best = 0;
+  let bv = -Infinity;
+  const su = upAt(105);
+  for (let i = 0; i < 510; i++) {
+    const t = (i / 510) * PERIODO_META;
+    const d = rotatingToInertialDir(su, t, new Vector3());
+    const v = -d.dot(meta);
+    if (v > bv) {
+      bv = v;
+      best = t;
+    }
+  }
+  return best;
+}
