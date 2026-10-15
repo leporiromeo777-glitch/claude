@@ -1,0 +1,297 @@
+{
+ "testers": [
+  {
+   "tester": "finale-nuovo-telefono",
+   "fun": 7,
+   "clarity": 6,
+   "overall": "Da pendolare che non legge le istruzioni, i primi 10 minuti funzionano bene. La mano fantasma insegna il gesto. Ogni regola arriva con una nota a margine al momento giusto. Gli spilli toccati dicono di chi sono, e i gettoni «a rischio» aiutano davvero. Diorami e bigliettini scritti a mano hanno fascino. L'Archivio del '36, con i ricordi sugli incroci e il «Perché restasse», è il momento più bello. La ripresa dopo una ricarica è perfetta.\n\nDal giorno 2 però in metro non basta l'intuito. Con Marta+Teresa la notte g02 ha solo 2 soluzioni e l'ho dovuta schematizzare su carta. Anche g04 (5 fili più la barca) e g05 (6 fili, colonne da 57 px) chiedono ragionamenti lunghi. Le notti durano 5-10 minuti l'una. Nell'Archivio il pannello Obiettivi diceva «In corso» per una consegna che la mia bozza faceva già: ho disfatto una soluzione giusta e consumato due Indizi.\n\nRispetto a PLAYTEST-1 e PLAYTEST-2:\n- non ho più visto la scorciatoia «Fissa fino alle 8» (Q001) né il toast che svela Teresa nell'Archivio (Q070);\n- il bigliettino di Gino coperto dai pulsanti rotondi (Q004/P011) c'è ancora;\n- lo stato «In corso» con la bozza giusta (Q034) si ripresenta nell'Archivio, dove pesa di più.\n\nNiente di bloccante, solo attriti di chiarezza e un salto di difficoltà.",
+   "would_recommend": "Sì, ma a un amico che ama i puzzle logici e le storie piccole, non a chi cerca un passatempo da due fermate. È bello e la storia di Marta e Teresa prende. Però dal giorno 2 servono 5-10 minuti di concentrazione a notte, e in metro con una mano sola si fatica.",
+   "played": "Ho giocato tutto a mano dall'inizio assoluto, su un profilo pulito: telefono 390x844 touch, it-IT, build VITE_E2E sulla porta 6130 (ora chiusa). Ho usato trascinamenti touch CDP veri e __GAME__ solo per leggere stato e coordinate. Ho fatto il prologo e poi le giornate dell'Atto I. g01 (Marta+Gino, promessa a Gino): 5 incroci su 5. g02 (Marta+Teresa): 7 su 7. g03 (Nina+Teresa): 7 su 7. Archivio arc1: 4 nomi giusti, con la Spinta e 2 Indizi. g04 (Nina+Don Piero): 10 su 10; a metà notte ho ricaricato la pagina e la ripresa è stata esatta. g05 (Zeno+Teresa): 9 incroci, minimo 8. Tutte le richieste appuntate sono soddisfatte. A parte ho provato nel prologo una prima mossa al contrario. Nessun errore in console. Screenshot in /tmp/claude-0/-home-user-claude/c3e3ef47-6c71-52f7-905c-1c8a39dab6eb/scratchpad/finale-nuovo/shots/"
+  },
+  {
+   "tester": "finale-esperto",
+   "fun": 8,
+   "clarity": 6,
+   "overall": "Da giocatore pagante che vuole arrivare in fondo: TRAMA è un gioco vero, con un'anima. Il sistema delle regole che si accumulano funziona: chi sta sopra dà, voci, segreti che scendono, Don Piero pozzo che trabocca a tre segreti, febbre e cura, nodo, Gino che non sta fermo, Zeno legato al Faro, filo nero che cerca, acqua alta. Le notti dell'Atto II e III sono puzzle densi, dove ogni regola serve. g13 (19 incroci su 19 di matassa, scegliere chi curare come la nonna nel '58) e g18 (la confessione portata dal Gino mentre Nina e Lunardi non devono saperla) sono momenti alla Obra Dinn/Outer Wilds: la regola diventa storia.\n\nLa scrittura è il punto più alto, e i ritorni sono veri: la lettera di Clotilde all'alba di g14, «Uno per sei. E uno che restava» in arc3, la risposta a Marta che sblocca il desiderio di Teresa solo se hai rammendato il '58, le regole che «si sciolgono come spago bagnato» dopo la pace, il finale chiuso che ti riporta alla sera con la carta «Piegato». Diorami e figurine sono belli, bilancio e Taccuino danno conseguenze specifiche. L'undo libero fra le ore rende la sperimentazione indolore.\n\nDove perde punti è la leggibilità delle informazioni che decidono la notte.\n- In g18 e g21 si possono appuntare richieste che si escludono a vicenda, e la sera non lo lascia capire. In g21 serve la Spinta per scoprirlo.\n- Le ore dell'acqua alta non sono scritte da nessuna parte: ho pianificato male per un'ora sbagliata.\n- La stranezza di Zeno (al massimo due luoghi dal Faro) l'ho scoperta solo sbattendoci contro, ma perché avevo saltato l'Atto I.\n- I finali B e D hanno meccaniche nuove e opache: agende e desideri dei fili si vedono un'ora prima o per niente. Li ho chiusi grazie alla lampada, che risolve più che guidare.\n- L'Archivio a nomi resta in parte una lotteria sugli ultimi due fili.\n- Piccoli attriti d'interfaccia: bolla dell'Archivio appiccicosa e non aggiornata, eco che blocca i tocchi, testo «gruppi di tre» con un solo filo, pannelli doppi sul tombolo.\n\nNiente di bloccante: ho raggiunto il finale vero e altri due finali senza bug che rompono la partita.",
+   "would_recommend": "Sì, a un amico che ha amato Obra Dinn, Outer Wilds o i puzzle logici con carta e matita, e che legge volentieri: le notti difficili ripagano e la storia di Ada, Clotilde e Livia arriva davvero. Gli direi però due cose. La prima: tenga a portata un foglio, perché dall'Atto II in poi le notti vanno pianificate. La seconda: alla sera certe richieste si escludono senza dirlo, e allora la Spinta della lampada va chiesta senza vergogna. A chi cerca un puzzle rilassante da metro lo sconsiglierei per gli ultimi atti. Per lo stesso motivo non lo metterei ancora fra i capolavori: i finali B e D e l'Archivio chiedono troppa fiducia nella lampada.",
+   "played": "Desktop 1440×900, mouse, it-IT, build VITE_E2E nello scratchpad servita su :6140, Chromium di Playwright e input veri (trascinamenti col mouse, clic sui pulsanti, tocco sugli incroci per rovesciarli). Il prologo l'ho giocato a mano per imparare le regole. g01–g08 li ho saltati con __GAME__ (percorso d'oro: risposte che svelano desideri, spilli migliori, autoplay della notte, albe saltate, arc1 e arc2 rammendati). Ho anche usato __GAME__ per g10, g12, g15–g17, g19, g20 e g22, e per l'autoplay di arc4, arc5 e arc6.\n\nA mano, leggendo tutto (oggetto, bigliettini, risposte, alba, bilancio, Taccuino):\n- g09: 11 incroci, minimo 9.\n- g11: 11/11, filo d'oro.\n- arc3 «La febbre»: nomi dati da me (un tentativo sbagliato) e rammendo con 2 indizi; echi letti tutti.\n- g13: 19/19, filo d'oro.\n- g14 con la lettera di Clotilde all'alba: 15/15.\n- g18 «La pace»: 12/12, Marta e Teresa riconciliate, regole sciolte.\n- g21 «Il punto aperto»: 12/13, dopo aver scoperto con la Spinta che le 3 richieste appuntate non stavano insieme; ho tolto Gino e appuntato Marta.\n- La notte della vigilia di g23 (9/9), poi la scelta.\n\nFinali visti:\n- D, «Il merletto aperto»: 2 tentativi falliti (6/8 e 5/8), poi l'Indizio («un vaporetto, due feste, la lanterna») e 8/8. Epilogo e titoli letti.\n- C, «Il merletto chiuso»: si torna alla sera della scelta con la carta di Clotilde «Piegato».\n- B, «Il filo di seppia»: risolto seguendo la lampada ora per ora (14 indizi). Epilogo letto.\n\nPer correttezza: in g11, g13, g14, g18, g21 e g23 ho trascritto le regole del Libro in un piccolo modello su carta e matita (uno script mio nello scratchpad) e cercato lì la soluzione, prima di trascinarla sul tombolo. A un giocatore umano le stesse notti chiederebbero molto più tempo.\n\nDopo aver giocato ho confrontato con PLAYTEST-1/2.\n- Risolti: Q024 (il bilancio di g21 ora dice «12 incroci, minimo 12»), Q020/Q037 (schede del Taccuino su due righe), Q074 (il desiderio di Zeno non anticipa Livia), Q067 («Clicca»), Q041 (l'Indizio dice che manca un altro incrocio).\n- Migliorati: Q030 (le occasioni di D dicono cosa si è piantato e la lampada c'è), Q036 (il finale vero ha «Hai trovato il punto aperto» e la Tovaglia).\n- Ancora presenti: Q012 (richieste incompatibili non deducibili alla sera) e Q028 (ultimi nomi di arc3 a indovinare).\n\nIl salvataggio ha retto un crash del browser: «Continua» riporta alla cassapanca."
+  }
+ ],
+ "findings": [
+  {
+   "severity": "medio",
+   "title": "Archivio arc1: gli obiettivi dicono «In corso» anche quando la bozza consegna già la lettera; la conferma arriva solo fissando l'ora",
+   "steps": "1) Arrivo ad arc1 dopo g03. 2) Ore 10: incrocio f1 e f3, poi trascino f2 sopra il padre di Marta: la lettera passa al padre. 3) Ore 11: trascino il padre sopra f1 e incrocio f2 con f4. La matassa arriva a 4/4. 4) Apro Obiettivi: «La lettera sigillata male per la ragazza del Forno: consegnata entro le 12 — In corso». A differenza dei gettoni delle notti normali, non c'è nessuna spunta tratteggiata. 5) Credendo di aver sbagliato ho disfatto tutto e chiesto due Indizi: indicavano la stessa soluzione. Rifatta e fissata l'ora, l'obiettivo diventa «Soddisfatta» e la riga delle 12 si tesse da sola. Il caso è affine a Q034, ma qui fa buttare via una soluzione giusta.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F001"
+  },
+  {
+   "severity": "medio",
+   "title": "Prologo: la prima mossa 'naturale' (trascinare il fuso di sinistra) viene rifiutata con «No.» per una regola mai mostrata",
+   "steps": "1) Nuova storia, poi «Tocca il tombolo». 2) Ore 6, prima di ogni altro gesto: trascino il fuso del Forno (Teresa) sul fuso della Piazza (Marta). 3) Esce ««No.» Marta non passa sotto Teresa.» e l'incrocio non si fa. Il messaggio non dice che basta trascinare Marta su Teresa, e la parola «sotto» non è ancora stata spiegata. Alla prima azione della partita sembra un gioco rotto. Screenshot: shots/107-probe-reverse.png.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F002"
+  },
+  {
+   "severity": "minore",
+   "title": "g02 con Marta+Teresa: salto di difficoltà al giorno 2 (2 sole soluzioni), senza nessun segnale la sera",
+   "steps": "1) Sera di g02: appunto Marta (il Gino non senta le chiacchiere) e Teresa (Don Piero sappia entro le 9). 2) Di notte bisogna capire tre cose insieme: Piero deve scavalcare Gino da solo prima delle 9; Gino non deve mai toccare chi sa la voce; Gino deve muoversi a ore alterne con l'unica partner pulita, Marta. Con la matassa 10 ci sono solo 2 sequenze valide. La Spinta ripete soltanto la regola della voce. Per un giocatore da metro è un muro, e la sera non dice quali coppie di richieste sono difficili.",
+   "package": "contenuti-atto1",
+   "tester": "finale-nuovo-telefono",
+   "id": "F003"
+  },
+  {
+   "severity": "minore",
+   "title": "Archivio: l'intestazione dice «Merletto chiuso» mentre il pulsante dice ancora «Chiudi il merletto»",
+   "steps": "arc1: fisso l'ora 11 con la matassa a 4/4. La riga delle 12 si tesse in automatico e l'intestazione diventa «Merletto chiuso». Il pulsante in basso resta però «Chiudi il merletto», perché mancano i nomi. I due messaggi si contraddicono. Screenshot: shots/078-arc1-r12.png.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F004"
+  },
+  {
+   "severity": "minore",
+   "title": "Sera: «Andare al tombolo? Alcuni bigliettini non sono stati decisi…» compare ogni sera anche dopo aver usato tutti gli spilli",
+   "steps": "In g01-g05 appunto 2 bigliettini su 3 (spilli 2/2) e tocco «Al tombolo». Ogni volta compare la conferma con «contano come lasciati, e anche lasciarli ha le sue conseguenze». Con 3 bigliettini e 2 spilli è inevitabile: è un tocco in più e un senso di colpa ogni sera.",
+   "package": "campagna",
+   "tester": "finale-nuovo-telefono",
+   "id": "F005"
+  },
+  {
+   "severity": "minore",
+   "title": "Oggetto della sera: il primo «Continua» non chiude la scheda, la allunga e sposta il pulsante",
+   "steps": "Sera di g01: tocco «Sul tombolo ti aspetta…» e poi «Continua». Invece di chiudersi, la scheda aggiunge «Nel taccuino» e il pulsante scende in fondo. Serve un secondo tocco in un punto diverso. Succede ogni sera con le bottiglie.",
+   "package": "campagna",
+   "tester": "finale-nuovo-telefono",
+   "id": "F006"
+  },
+  {
+   "severity": "minore",
+   "title": "Bigliettino di Gino (g01): la fine «alle 11» è coperta dai pulsanti rotondi e dalla freccia di scorrimento",
+   "steps": "Sera di g01, elenco dei 3 bigliettini: l'«11» di «portami in chiesa alle 11» è sotto i pulsanti Taccuino/Telaio e la freccia giù. È ancora Q004/P011. Screenshot: shots/025-evening3.png.",
+   "package": "campagna",
+   "tester": "finale-nuovo-telefono",
+   "id": "F007"
+  },
+  {
+   "severity": "minore",
+   "title": "Uno spillo d'ottone violato dalla bozza non si segnala: lo scopri solo toccando «Chiudi il merletto»",
+   "steps": "g05, ore 13 con tutto a posto: trascino Teresa sul passante. Lo spillo della Piazza alle 13 resta uguale, senza colore né animazione. Solo al tocco su «Chiudi il merletto» arriva «Teresa deve essere in Piazza alle 13.». Screenshot: shots/103-g05-break.png e 104.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F008"
+  },
+  {
+   "severity": "minore",
+   "title": "La bolla di uno spillo resta sullo schermo dopo altri tocchi",
+   "steps": "g01: tocco lo spillo rosso della Chiesa alle 11 («Gino in Chiesa alle 11: lo chiede Gino.»). Poi uso Disfa e apro il pannello Obiettivi: la bolla resta sopra il merletto e sparisce solo al trascinamento successivo. Screenshot: shots/037-g01-goals.png.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F009"
+  },
+  {
+   "severity": "minore",
+   "title": "«Nuova pagina nel Libro» copre l'ora e il «fino alle» all'inizio della notte",
+   "steps": "Inizio di g02 e di g03: il toast «Nuova pagina nel Libro: La voce / Il Molo» copre per qualche secondo il titolo e l'indicatore delle ore, proprio quando si guarda quante ore ci sono. Screenshot: shots/048-g02-start.png.",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F010"
+  },
+  {
+   "severity": "minore",
+   "title": "g05: alba e bilancio mettono Zeno al Faro a mezzogiorno, ma per portarci Gino, Zeno deve lasciarlo",
+   "steps": "g05 con Zeno appuntato: perché Gino sia al Faro alle 12, Zeno deve per forza spostarsi. Nella mia soluzione era in Chiesa alle 12. Il bilancio dice invece «Zeno gli ha fatto contare i gradini, uno per uno», e l'alba mostra Zeno al Faro.",
+   "package": "contenuti-atto1",
+   "tester": "finale-nuovo-telefono",
+   "id": "F011"
+  },
+  {
+   "severity": "minore",
+   "title": "Archivio: la riga per il lettore di schermo usa ancora «il filo sbiadito N» dopo aver dato i nomi",
+   "steps": "arc1: dopo aver dato tutti e 4 i nomi giusti, la riga di stato dice ancora «Il marinaio del vaporetto al Molo, il padre di Marta al Forno, il filo sbiadito 1 in Piazza…».",
+   "package": "tombolo",
+   "tester": "finale-nuovo-telefono",
+   "id": "F012"
+  },
+  {
+   "severity": "medio",
+   "title": "g21: tre richieste appuntabili insieme ma incompatibili, e la sera non lo dice (Q012 ancora presente)",
+   "steps": "1) Arriva alla sera di g21 «Il punto aperto»: spilli 3/3. 2) Rispondi a Marta R1, attribuisci il bigliettino anonimo a Zeno, appunta Zeno, Don Piero e Gino. 3) Al tombolo nessun segnale (né sera, né gettoni, né obiettivi) che le tre richieste non stiano insieme; si possono provare decine di combinazioni. 4) Solo la lampada → Spinta dice: «Stanotte le richieste di Zeno, Don Piero e Gino non stanno insieme: una va lasciata cadere», e propone lei quale lasciare. Atteso: un segnale alla sera (o al primo ingresso al tombolo) che con quegli spilli la notte è impossibile, senza dover chiedere un aiuto.",
+   "package": "campagna / contenuti-atti23",
+   "tester": "finale-esperto",
+   "id": "F013"
+  },
+  {
+   "severity": "medio",
+   "title": "g18: la richiesta di Lunardi contraddice quella di Teresa, ma il suo bigliettino non lo lascia capire",
+   "steps": "1) Sera di g18 «La pace»: appunta Teresa, Gino e Lunardi (3 spilli disponibili). 2) Il bigliettino di Lunardi dice solo «che una, una sola, mi confidasse qualcosa». 3) Al tombolo il gettone di Lunardi chiede «Lunardi conosce la confessione di Teresa sul '36 entro le 16», mentre quello di Teresa chiede «Lunardi non scopre mai la confessione di Teresa». È un vicolo cieco logico, scoperto solo dopo aver speso lo spillo. Rimedio attuale: «Torna alla sera» e togli lo spillo. Atteso: che il testo del bigliettino nomini il segreto, o che la sera mostri la condizione formale.",
+   "package": "contenuti-atti23 / campagna",
+   "tester": "finale-esperto",
+   "id": "F014"
+  },
+  {
+   "severity": "medio",
+   "title": "g21: le ore dell'acqua alta non sono indicate da nessuna parte (rettangoli grigi ambigui, nessuna bolla)",
+   "steps": "1) Notte di g21: su Molo e Piazza compaiono due rettangoli grigi a righe fra metà riga 11 e metà riga 14. 2) Tocca il rettangolo: nessuna bolla (null), mentre il bordo del filo nero ne ha una. 3) Il Libro («La marea») non dice le ore, e nemmeno gli obiettivi. 4) Ho pianificato una marea alle 12-13 ed era alle 12-14: alle 14 il filo nero è rimasto fermo in Piazza, il piano si è spostato di un'ora e Piero ha perso la Chiesa delle 16 (rifatto con l'undo). Atteso: bolla «Acqua alta dalle 12 alle 14: Molo e Piazza», oppure le ore in un obiettivo o in una nota a margine.",
+   "package": "tombolo",
+   "tester": "finale-esperto",
+   "id": "F015"
+  },
+  {
+   "severity": "medio",
+   "title": "Finali B e D: meccaniche nuove quasi senza spiegazione, si chiudono di fatto con la lampada",
+   "steps": "D «Il merletto aperto»: 1) Appunta il punto aperto. 2) Le icone delle occasioni (vaporetto, pane, messa, festa, lanterna) dicono cosa si pianta, ma non chi attirano né cosa vuole ogni filo. L'anteprima mostra solo la riga successiva. 3) Con vaporetto@9, lanterna@20, lanterna in Farmacia@14, messa@11 e festa al Faro@16 → 6/8. Con pane@19 e festa in Piazza@17 → 5/8. 4) L'Indizio («un vaporetto, due feste, la lanterna la sera») dà di fatto la soluzione → 8/8.\nB «Il filo di seppia»: 1) Si muove solo Ada. Il filo trascinato va sopra, ma l'obiettivo chiede che gli altri passino SOPRA Ada: bisogna trascinare e poi toccare l'incrocio per rovesciarlo, e nessuno lo spiega. 2) Le agende degli altri si vedono solo un'ora prima. Ho perso Gino, Piero e Zeno andando prima a sinistra. 3) Chiuso seguendo l'Indizio ora per ora (14 indizi).\nAtteso: nel Libro o in una nota a margine, cosa attira ogni filo (D) e le tappe dell'agenda di Livia per ogni filo (B).",
+   "package": "tombolo / campagna",
+   "tester": "finale-esperto",
+   "id": "F016"
+  },
+  {
+   "severity": "medio",
+   "title": "Archivio 1958: gli ultimi due nomi si tirano a indovinare (Q028 ancora presente)",
+   "steps": "1) Apri arc3 dalla cassapanca. 2) Teresa (lettera dalla terraferma), Marta (Forno) e Bepi (esce in barca) si deducono e si confermano a gruppi di tre. 3) Restano fili 3 e 4 con candidati Aldo, dottor Bortolo e Lunardi (escludibile per data). Niente sul tombolo distingue chi «porta la medicina» da chi «scotta»: la goccia verde sta su Aldo, ma la medicina sta nei possessori di stato, non nelle icone. Ho messo 3=Aldo e 4=Bortolo: «Due nomi giusti non ci sono ancora». Scambiati, confermati. Atteso: un indizio leggibile (icona della medicina sul filo del dottore, o eco consultabile prima di nominare).",
+   "package": "contenuti-atti23 / tombolo",
+   "tester": "finale-esperto",
+   "id": "F017"
+  },
+  {
+   "severity": "minore",
+   "title": "Archivio: la bolla informativa resta appiccicata e non si aggiorna dopo aver dato il nome",
+   "steps": "1) arc3: tocca la busta sul filo del Forno all'ora 9-10 → bolla «La lettera dalla terraferma per Aldo: la porta il filo sbiadito 1.». 2) Premi Esc (si apre la Pausa) o tocca la goccia in Farmacia o la barca del Faro: resta la stessa bolla, non quella dell'oggetto toccato. 3) Nomina il filo 1 «Teresa» (confermato): la bolla resta visibile per minuti e dice ancora «filo sbiadito 1» (vedi gli screenshot dopo la conferma). Atteso: la bolla si chiude toccando altrove, si aggiorna sull'oggetto toccato e usa il nome confermato.",
+   "package": "tombolo",
+   "tester": "finale-esperto",
+   "id": "F018"
+  },
+  {
+   "severity": "minore",
+   "title": "Archivio rammendato: con la scheda di un'eco aperta, i tocchi sugli altri incroci vengono ignorati",
+   "steps": "1) arc3 nominato e rammendato: «tocca gli incroci per gli echi». 2) Tocca l'incrocio delle 7 → scheda dell'eco con la X in basso. 3) Tocca un punto vuoto, poi gli incroci delle 8, 9, 10 e 11: non succede niente, «Echi: 1 di 5» resta fermo. 4) Solo chiudendo con la X il tocco successivo apre l'eco. Atteso: un tocco su un altro incrocio apre la sua eco, oppure un tocco fuori chiude la scheda.",
+   "package": "tombolo",
+   "tester": "finale-esperto",
+   "id": "F019"
+  },
+  {
+   "severity": "minore",
+   "title": "arc5: «Nomi dati: 0 di 1 · si confermano a gruppi di tre giusti» con un solo filo da nominare",
+   "steps": "1) Dopo g18 si apre in cassapanca «1630 · Il primo merletto». 2) Apri il merletto: il pannello sinistro dice «Nomi dati: 0 di 1 · si confermano a gruppi di tre giusti», con candidati Arianna e Clotilde. Con un solo filo il gruppo di tre è impossibile. Atteso: il testo si adatta («si conferma subito»), oppure niente frase sui gruppi.",
+   "package": "tombolo / contenuti-atti23",
+   "tester": "finale-esperto",
+   "id": "F020"
+  },
+  {
+   "severity": "minore",
+   "title": "g09: la nota a margine «finché è malato non deve correre» sembra un divieto, ma la regola è un'esenzione",
+   "steps": "1) g09: alle 7 fai incrociare il Gino malato con Don Piero. 2) Compare la nota «Il Gino con la febbre resta a letto: finché è malato non deve correre.». L'ho letta come «non può muoversi», mentre il gioco accetta i suoi incroci. 3) Solo il bilancio chiarisce: «per una volta non corre» (non è obbligato a incrociare). Atteso: «non ha bisogno di correre» o «non è obbligato a muoversi».",
+   "package": "contenuti-atti23",
+   "tester": "finale-esperto",
+   "id": "F021"
+  },
+  {
+   "severity": "minore",
+   "title": "Vignetta dell'Archivio persa se il gioco si chiude durante la lettura; «Rileggi» mostra solo il merletto",
+   "steps": "1) Dopo g14 apri arc4 «Il vaporetto delle nove» e rammendalo. 2) Durante la vignetta finale («Nel 1951 la nonna tessé mia madre al Molo…») chiudi il browser o l'app. 3) Riapri e premi «Continua»: si torna alla cassapanca con arc4 «Rammendato» e la vignetta non riparte. 4) «Rileggi» apre solo il merletto in replay, con «Obiettivi / Nessuna richiesta stanotte.», senza vignetta né echi. Le frasi della vignetta non si ritrovano nel Taccuino. Atteso: vignetta ripetibile da «Rileggi», oppure riproposta alla ripresa.",
+   "package": "campagna",
+   "tester": "finale-esperto",
+   "id": "F022"
+  },
+  {
+   "severity": "minore",
+   "title": "Una risposta che svela un desiderio non dà alcun segnale",
+   "steps": "1) g14: rispondi a Zeno «A chi devi chiedere perdono?» (R1). 2) Il bigliettino mostra solo «Hai risposto: …». Nessun avviso, nessun «NUOVA» sulla scheda di Zeno, eppure il suo desiderio ora è scritto nel Taccuino. 3) Uguale in g18: la risposta R2 a Marta («Anche Teresa ha perso qualcuno, nel '58») svela il desiderio di Teresa, senza segnale. Per il finale vero servono tutti gli otto desideri, quindi è un'informazione chiave. Atteso: un breve avviso («Ho capito che cosa vuole Zeno») o il marchio NUOVA.",
+   "package": "campagna",
+   "tester": "finale-esperto",
+   "id": "F023"
+  },
+  {
+   "severity": "minore",
+   "title": "Telaio: per provare un altro finale bisogna rigiocare tutta la vigilia di g23",
+   "steps": "1) Finisci un finale e scegli «Il Telaio». 2) Giornata 23 → «Riprendi da qui» → conferma. 3) Si torna alla sera di g23 PRIMA della notte della vigilia: per tornare alle quattro carte servono oggetto, spilli, 6 ore di tombolo, alba e bilancio. Dopo il finale chiuso si torna invece direttamente alla scelta. Atteso: un punto di ripresa «La scelta» nel Telaio, o un «Rigioca la scelta» nella schermata Fine.",
+   "package": "campagna",
+   "tester": "finale-esperto",
+   "id": "F024"
+  },
+  {
+   "severity": "minore",
+   "title": "Il finale chiuso visto non compare fra gli «Epiloghi visti» del Telaio",
+   "steps": "1) Alla scelta di g23 appunta Clotilde e completa la notte (Livia al Molo alle 9). 2) Leggi la scena («Il punto di Clotilde: chi lo ripete, lo ripete per sempre.»), che riporta alla sera con la carta «Piegato». 3) Più tardi, chiusi i finali D e B, il Telaio mostra «EPILOGHI VISTI: Il merletto aperto, Il filo di seppia», senza il chiuso. Se è voluto (è un anello), serve almeno un segno che l'hai visto.",
+   "package": "campagna",
+   "tester": "finale-esperto",
+   "id": "F025"
+  },
+  {
+   "severity": "minore",
+   "title": "Epilogo del finale vero: Marta e Don Piero non ci sono",
+   "steps": "1) Finale D 8/8 con Marta e Teresa riconciliate in g18 e la lettera del pozzo restituita in g21. 2) L'epilogo dà una scena a Teresa, Gino, Zeno, Lunardi, Bepi e Livia, ma non nomina Marta (la pace col pane caldo è il cuore dell'Atto III). Don Piero compare solo come «il tombolo riposa in chiesa». Suggerimento: una riga per Marta, e una per Don Piero col pozzo vuoto.",
+   "package": "contenuti-atti23",
+   "tester": "finale-esperto",
+   "id": "F026"
+  },
+  {
+   "severity": "minore",
+   "title": "Tombolo a 1440×900: i due pannelli laterali mostrano gli stessi bigliettini",
+   "steps": "1) Entra in una notte con spilli (es. g09, g13). 2) Il pannello sinistro «Bigliettini» e il pannello destro «Il Taccuino di Ada», aperto sulla scheda Bigliettini, mostrano gli stessi foglietti, «Lascia cadere» e obiettivi. Persone e Libro, che servono per le stranezze, vanno aperti a mano ogni notte. Suggerimento: a schermo largo, aprire il Taccuino su Persone o Libro.",
+   "package": "campagna / tombolo",
+   "tester": "finale-esperto",
+   "id": "F027"
+  }
+ ],
+ "qa": {
+  "status": "done",
+  "summary": "Final QA of TRAMA is done and everything is green. I ran the whole end-to-end suite twice on all 5 Playwright projects, against a static VITE_E2E=1 build in scratchpad/qa-finale/dist served by vite preview on port 6110 (rete used its own server on 6111-6119), with 2 workers. I also ran tsc, vitest, levels:check --qualita, native:check, native:test and build.\n\nFirst run on e7387c4: 280 tests, 182 passed, 0 failed, 0 flaky, 98 skipped (projects excluded on purpose). The five defects reported in the earlier QA round (Gino banner, notice about Teresa in arc1, «TRAMA» split in the Credits, «L'ANNIVERSARIO» split, lost gestures) are all fixed, and their tests pass.\n\nA green suite was not enough, so I also read the test attachments and the screenshots. That turned up two problems, both fixed:\n1. A real game defect. The dawn header «IL GIORNO ACCADE» is brass text with no background. Over the light daytime diorama of g06 (the dawn shot used for the stores) I measured its contrast at 1.07:1; GDD 14 requires at least 4.5:1. The fix is CSS only: the header now sits on the same dark band as the prologue title, which also covers the Archive reveal. A new test, tests/e2e/collaudo.spec.ts, fails on the old build and passes on the fixed one.\n2. A test that was green but not checking what it claimed. The tour's g05 night step passed campaign.evening().accepted (objects) to the solver instead of note ids. The solver therefore solved a night with no requests, and that step plus the four after it photographed and checked a night where Zeno's request had already failed. The test now passes the ids, solutionRows rejects ids that are not strings, and the step checks that no pinned request is lost while following the solution.\n\nFinal run on the fixed build: 290 tests, 190 passed, 0 failed, 100 skipped, in 24.6 min. I regenerated the 15 store screenshots and looked at all of them, before and after the dawn fix. Report: section «Collaudo finale» in /home/user/claude/gioco/docs/stato/piattaforma-qa.md. Commits 2d8dda5, ef554d0, 6cc1041, 6c969d8; nothing pushed, and the working tree is clean.",
+  "items": [
+   {
+    "item": "Full e2e suite on all 5 projects (first run, e7387c4)",
+    "outcome": "280 tests: 182 passed, 0 failed, 0 flaky, 98 skipped (desktop 56/0/0, desktop-hd 12/0/44, iphone 42/0/14, android-piccolo 37/0/19, ipad-orizzontale 35/0/21). The 5 defects from the previous QA round are fixed and their tests are green."
+   },
+   {
+    "item": "Dawn header unreadable on light dioramas (game defect, src/campaign/campaign.css)",
+    "outcome": "Fixed: .cp-alba-testa now has a dark band rgba(10,12,18,0.82), sized to its text, the same as the prologue band. Measured contrast before was 1.07:1 (Android) and 1.05:1 (iPad). Now the brass and title text stay at or above 4.5:1 even over a white background. The Archive reveal uses the same header, so it is fixed too. New test: /home/user/claude/gioco/tests/e2e/collaudo.spec.ts (4 game projects, normal and high contrast). It fails on the old build and passes on the new one. Commit 2d8dda5."
+   },
+   {
+    "item": "Tour g05 night stage was testing the wrong state (test bug, tests/e2e/helpers/tour.ts)",
+    "outcome": "Fixed: the stage now passes note ids, not the {noteId} objects, to solutionRows. solutionRows (helpers/campaign.ts) now throws on ids that are not strings. The stage asserts that no pinned request has failed after following the solution. The Evening type is corrected. Commit ef554d0. The game itself was right: with the correct solution, Zeno's request is satisfied when the 12 o'clock row is fixed."
+   },
+   {
+    "item": "Final full e2e run (fixed build)",
+    "outcome": "290 tests: 190 passed, 0 failed, 0 flaky, 100 skipped in 24.6 min. Golden path: 24 days, 48 of 48 requests satisfied, 6 Archives mended, the true ending reached by playing, then endings C, D, A and B. 153 story sheets checked per round. Drag p95 1.7 ms. Heap 9 MB after 10 days. JS bundle 408.9 KB gzip (budget 450)."
+   },
+   {
+    "item": "npx tsc --noEmit -p .",
+    "outcome": "No errors, before and after the fixes."
+   },
+   {
+    "item": "npx vitest run",
+    "outcome": "102 files, 1633 tests passed, before and after the fixes."
+   },
+   {
+    "item": "npm run levels:check -- --qualita",
+    "outcome": "34 levels OK, no K7 warnings, computed files unchanged."
+   },
+   {
+    "item": "npm run native:check / npm run native:test",
+    "outcome": "48 of 48 checks pass; 70 tests passed, 0 failed."
+   },
+   {
+    "item": "npm run build",
+    "outcome": "No errors."
+   },
+   {
+    "item": "Store screenshots (tests/e2e/__screenshots__/store/)",
+    "outcome": "All 15 regenerated, looked at, and committed in 6cc1041. They show the g06 dawn with the readable band and the sheet icon on the Taccuino 'Lettere' tab. No notices and no clipped text."
+   },
+   {
+    "item": "docs/stato/piattaforma-qa.md",
+    "outcome": "Added a 'Collaudo finale' section: how the suite was run, the non-e2e checks, both runs with per-project tables, the two fixed problems, measurements, screenshots looked at, and observations. Status line updated; collaudo.spec.ts added to the summary table. Commit 6c969d8."
+   }
+  ],
+  "tests": "E2E, both runs with E2E_PORT=6110 E2E_REUSE=1 E2E_DIST=scratchpad/qa-finale/dist E2E_SHOTS=1 npx playwright test --workers=2: first run 182 passed, 0 failed, 98 skipped; final run 290 tests, 190 passed, 0 failed, 0 flaky, 100 skipped. collaudo.spec.ts on its own: fails on the old build (band alpha 0), 8 of 8 pass on the fixed build. npx tsc --noEmit -p .: no errors. npx vitest run: 102 files, 1633 tests passed. npm run levels:check -- --qualita: 34 levels OK. npm run native:check: 48 of 48. npm run native:test: 70 passed, 0 failed. npm run build: no errors. Browser probes in scratchpad/probe-qa checked the failed-pin label «!12» at the right edge at 360 and 390 px; it is not clipped.",
+  "known_issues": [
+   "Observation for the store listing: in the Android g16 store screenshot, the «↓ ancora un'ora» button covers the threads at 16 and 17 o'clock. This is real game UI; the shot could be framed one hour earlier.",
+   "On iPad the g16 margin note covers rows 6-7, which are already woven. D04 allows this.",
+   "On narrow phones the dawn band wraps to two lines and takes the full width.",
+   "Informational layout notes only, not errors: 19 secondary text classes are between 13.6 and 14.4 px, below the 15 px × scale of GDD 10.1, and 4 touch targets are between 44 and 48 px (three long Taccuino entries, and tb-scorri-giu on phones).",
+   "Unchanged limits: only Chromium is tested (no Safari on iOS); performance was measured in a container and says nothing about real phones; screenshots are references, not pixel-by-pixel comparisons.",
+   "The vite preview server on port 6110 was stopped at the end; it is no longer running."
+  ]
+ }
+}
