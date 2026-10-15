@@ -204,6 +204,16 @@ export class Indicazioni extends Componente<EventiIndicazioni> {
   }
 
   /**
+   * Dove stanno le notifiche sullo schermo (px), se ce n'è almeno una: il segnalino delle
+   * indicazioni non ci passa sotto. Null senza notifiche.
+   */
+  areaNotifiche(): { sinistra: number; destra: number; sotto: number } | null {
+    if (!this.visible || this.notifiche.children.length === 0) return null;
+    const r = this.notifiche.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 ? { sinistra: r.left, destra: r.right, sotto: r.bottom } : null;
+  }
+
+  /**
    * Sottotitolo di una voce o di un suono. Restituisce una funzione che lo toglie prima del tempo.
    * Rispetta le impostazioni (sottotitoli, sottotitoli dei suoni) tramite le classi della radice.
    */

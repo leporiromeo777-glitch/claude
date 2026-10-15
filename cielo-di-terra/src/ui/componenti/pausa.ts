@@ -15,13 +15,15 @@ export interface EventiPausa {
   riprendi: void;
   taccuino: void;
   pianta: void;
+  /** Mostra o nasconde il pannello dell'obiettivo (tasto O) e torna al gioco. */
+  obiettivo: void;
   impostazioni: void;
   /** Emesso dopo la conferma. */
   esciAlTitolo: void;
 }
 
 /**
- * Menu di pausa (Esc): Riprendi, Taccuino, Pianta, Impostazioni, Esci al titolo.
+ * Menu di pausa (Esc): Riprendi, Taccuino, Pianta, Obiettivo a schermo, Impostazioni, Esci al titolo.
  * Il gioco dietro resta fermo, velato di seppia.
  */
 export class MenuPausa extends Componente<EventiPausa> {
@@ -43,6 +45,7 @@ export class MenuPausa extends Componente<EventiPausa> {
       h('li', null, this.bRiprendi),
       h('li', null, voce('Taccuino', () => this.emit('taccuino'), 'T')),
       h('li', null, voce('Pianta', () => this.emit('pianta'), 'P')),
+      h('li', null, voce('Obiettivo a schermo', () => this.emit('obiettivo'), 'O')),
       h('li', null, voce('Impostazioni', () => this.emit('impostazioni'))),
       h('li', { class: 'ui-pausa-separa' }, this.bEsci),
     );
@@ -102,6 +105,10 @@ export class MenuPausa extends Componente<EventiPausa> {
     }
     if (k === 'p') {
       this.emit('pianta');
+      return true;
+    }
+    if (k === 'o') {
+      this.emit('obiettivo');
       return true;
     }
     return false;

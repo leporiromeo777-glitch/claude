@@ -37,24 +37,10 @@ import {
 } from './contenuti';
 import type { Resoconto } from '../rilievo';
 import type { Regia } from './regia';
+import { TASTI } from './tasti';
 
-/** Nomi dei comandi per i segnaposto dei suggerimenti di testi.json. */
-export const TASTI: Record<string, string> = {
-  usa: 'E',
-  guarda: 'il mouse',
-  muovi: 'W A S D',
-  corri: 'Shift',
-  siedi: 'C',
-  lente: 'Q',
-  pianta: 'P',
-  salta: 'Spazio',
-  velo: 'tieni Spazio in aria',
-  aspetta: 'X',
-  libretto: 'L',
-  mira: 'tasto destro',
-  squadro: 'R',
-  chiama: 'G',
-};
+/** Nomi dei comandi per i segnaposto dei suggerimenti di testi.json (la tabella è in tasti.ts). */
+export { TASTI };
 
 /** Come si chiama una persona finché Elvira non sa il suo nome (GDD §8.1). */
 const SCONOSCIUTI: Record<string, string> = {

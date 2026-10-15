@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "shots": "node scripts/shots.mjs",
+    "shots:indicazioni": "node scripts/shots-indicazioni.mjs",
     "verifica-contenuti": "tsx src/narrativa/scripts/verifica-contenuti.ts",
     "e2e:fase1": "node scripts/e2e-fase1.mjs"
   },
