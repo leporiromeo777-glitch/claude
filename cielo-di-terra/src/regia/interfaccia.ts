@@ -75,6 +75,9 @@ const SCONOSCIUTI: Record<string, string> = {
 const LIBRETTO = TESTI['libretto'] as Record<string, VoceTestiJson>;
 export const ORDINE_LIBRETTO = Object.keys(LIBRETTO).filter((k) => !k.startsWith('_'));
 
+/** Secondi di carta aperta oltre i quali chiuderla conta come averla letta. */
+const LETTURA_MINIMA = 3;
+
 /** Carte la cui lettura completa accende un flag del contratto. */
 const FLAG_LETTURA: Record<string, string> = {
   lettera_marta: 'lettera_letta',
@@ -186,8 +189,20 @@ export class PonteInterfaccia {
     const l = this.lettura;
     if (!l) return;
     this.lettura = null;
+    // Chi chiude una carta dopo averla tenuta aperta qualche secondo l'ha letta, anche se non
+    // l'ha scorsa fino all'ultima riga: senza questo la storia si fermava (la lettera di Marta
+    // chiusa a metà non faceva partire le campane).
+    if (!l.finita && !l.pagine && !l.scena && l.aperta >= LETTURA_MINIMA) this.segnaLetta(l);
     if (l.scena) this.r.narrativa.concludiScena(l.scena);
     if (l.finita) l.poi?.();
+  }
+
+  /** La carta conta come letta: accende i flag del contratto. */
+  private segnaLetta(l: LetturaAperta): void {
+    l.finita = true;
+    const f = FLAG_LETTURA[l.id];
+    if (f) this.r.flag(f);
+    this.r.flag(`letto:${l.id}`);
   }
 
   /** Le pagine (indici) visibili adesso nel lettore. */
@@ -233,12 +248,7 @@ export class PonteInterfaccia {
       for (const id of [...l.pagine.keys()]) if (!this.pagineVisibili().some((i) => ordine[i] === id)) l.pagine.delete(id);
       return;
     }
-    if (!l.finita && l.aperta >= 1.2 && this.inFondo(l)) {
-      l.finita = true;
-      const f = FLAG_LETTURA[l.id];
-      if (f) this.r.flag(f);
-      this.r.flag(`letto:${l.id}`);
-    }
+    if (!l.finita && l.aperta >= 1.2 && this.inFondo(l)) this.segnaLetta(l);
   }
 
   // ---------- suggerimenti, battute, notifiche ----------
