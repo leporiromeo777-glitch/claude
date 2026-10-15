@@ -69,6 +69,19 @@ async function verifica(cond, messaggio) {
   throw new Error(`✗ ${messaggio}: la condizione «${cond}» non è vera.\nstato: ${JSON.stringify(s)}\ndiario:\n${d.join('\n')}`);
 }
 
+/**
+ * Inquadra una persona per la foto: a `d` m, lo sguardo sul petto, così la testa resta sopra la
+ * finestra del dialogo (che copre la metà bassa dello schermo).
+ */
+async function inquadra(chi, d = 3.2) {
+  await avvicina(`png_${chi}`, d);
+  await R((c) => {
+    const G = window.__GAME__.regia;
+    const p = G.regia.abitanti.posizione(c);
+    if (p) G.mira([p.z, p.theta, p.h + 0.35]);
+  }, chi);
+}
+
 /** Interagisce con un bersaglio: lo avvicina, controlla che sia quello scelto, preme (o tiene) E. */
 async function usa(id, { distanza = 1.3, tenere = 0, avvicinare = true } = {}) {
   if (avvicinare) await avvicina(id, distanza);
@@ -184,12 +197,13 @@ async function staccaSquadro() {
 
 async function foto(nome, prepara) {
   if (!conFoto) return;
-  if (prepara) await prepara();
   if ((await stato()).dialogo) {
     // il testo del dialogo scritto tutto; lo sguardo finisce di voltarsi verso chi parla
     await R(() => window.__GAME__.regia.regia.ui.dialogo.completa());
     await avanza(0.8);
   }
+  // dopo il dialogo: l'inquadratura della foto non la rigira più nessuno (si disegna senza passi)
+  if (prepara) await prepara();
   await R(() => {
     const g = window.__GAME__;
     g.ensureLoaded();
@@ -412,7 +426,7 @@ async function main() {
     for (const chi of ['togna', 'bortolo', 'annunciata']) {
       await usa(`png_${chi}`, { distanza: 1.8 });
       await avanza(0.2);
-      if (chi === 'togna') await foto('09-togna-al-lavatoio');
+      if (chi === 'togna') await foto('09-togna-al-lavatoio', () => inquadra('togna', 3.4));
       log(`  ${chi}: ${(await dialogo()).join(' / ')}`);
     }
     await verifica('contatore:velati>=3 e passo:m1_velati completato', 'tre velati');
@@ -420,7 +434,7 @@ async function main() {
     log('— M1.7 Il Messo');
     await vai('piazza_ore');
     await avanzaFinche('dialogo:d_ottavio_incontro iniziato', 30);
-    await foto('10-ottavio');
+    await foto('10-ottavio', () => inquadra('ottavio', 3.6));
     log(`  ottavio: ${(await dialogo()).length} risposte`);
     await verifica('passo:m1_ottavio completato e flag:aspetta_brace_sbloccato', 'Ottavio, il Messo');
 
@@ -457,7 +471,7 @@ async function main() {
 
     log('— M1.11 La notte');
     await avanzaFinche('dialogo:d_ottavio_fienile iniziato', 10);
-    await foto('12-fienile-notte');
+    await foto('12-fienile-notte', () => inquadra('ottavio', 4));
     log(`  risposte: ${(await dialogo()).join(' / ')}`);
     await avanza(1);
     s = await stato();
