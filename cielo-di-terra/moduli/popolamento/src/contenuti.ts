@@ -116,6 +116,21 @@ export interface PassaggioFade {
   che_cosa: string;
 }
 
+export interface Particella {
+  id: number;
+  iz: number;
+  itheta: number;
+  centro: { z: number; theta: number; altezza: number };
+  tipo: string;
+  nomi: string[];
+  hub: boolean;
+  rifugio: boolean;
+  mobile: boolean;
+  elemento: string | null;
+}
+
+export const PARTICELLE: readonly Particella[] = (fadeJson as unknown as { particelle: Particella[] }).particelle;
+
 export const LUOGHI: readonly Luogo[] = luoghiJson as Luogo[];
 export const RETE: readonly CaposaldoRete[] = (capisaldiJson as unknown as { rete_corbella: CaposaldoRete[] }).rete_corbella;
 export const LONTANI: readonly CaposaldoLontano[] = (capisaldiJson as unknown as { lontani_di_notte: CaposaldoLontano[] }).lontani_di_notte;
