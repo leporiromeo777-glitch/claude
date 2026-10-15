@@ -18,3 +18,5 @@ https://claude.ai/artifact/2J1MKBBmexkP1z1ovVxHCy (privata).
   - `prove-stile/`: le prove dei cinque stili (100-109) e del misto scelto (110-111), con i fogli di confronto.
 
 Rigenerare la pagina: `python3 pagina/genera.py` (legge `concept/`, `giurie/` e `pagina/note.json`).
+
+Le pagine pubblicate hanno le immagini incorporate come data URI (l'app non mostrava le immagini come file separati): dopo `genera.py` e `genera_finale.py` eseguire `python3 pagina/incorpora.py pagina/atlante.html pagina/cielo-di-terra.html`. Le copie salvate qui restano con i percorsi relativi `img/`.
