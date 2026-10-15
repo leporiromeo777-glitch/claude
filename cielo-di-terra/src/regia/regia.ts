@@ -47,8 +47,7 @@ import { Abitanti } from './png';
 import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '../rilievo';
 import { CatastoGioco, posizioniCapisaldi } from './catasto';
 import { QUOTA_CRIPTA, SCALA, costruisciCripta, type Cripta } from './scena/cripta';
-import { costruisciCella, type CellaCampanaria } from './scena/campanile';
-import { Segnaposto } from './scena/segnaposto';
+import { cellaDaCorbella, type CellaCampanaria } from './scena/campanile';
 import { Sguardi } from './sguardo';
 import { Squadro, type BersaglioMira } from './squadro';
 import { Velatura } from './velatura';
@@ -98,7 +97,7 @@ export class Regia implements SistemaGioco {
   readonly notteVista: NotteVista;
   readonly cripta: Cripta;
   readonly cella: CellaCampanaria;
-  readonly scena: Segnaposto;
+  readonly scena: PortaCorbella;
   readonly ponte: PonteInterfaccia;
   readonly dialoghi: DirettoreDialoghi;
   readonly velatura: Velatura;
@@ -140,17 +139,20 @@ export class Regia implements SistemaGioco {
   constructor(
     readonly game: Game,
     readonly ui: InterfacciaGioco,
+    readonly corbella: ManigliaCorbella,
     readonly opzioni: { e2e: boolean } = { e2e: false },
   ) {
     const g = game;
-    // --- scena: segnaposto finché non arriva il popolamento ---
+    // --- il paese: il popolamento di Corbella (src/popolamento), installato da main.ts ---
+    this.scena = portaPopolamento(corbella);
+    this.cella = cellaDaCorbella(corbella);
+    // la Cripta della regia (con coperchi, armadietto, buste, scala e botola interna): l'interno
+    // del popolamento resta nascosto, ne basta una
+    corbella.cripta.interno.visible = false;
     this.cripta = costruisciCripta(g.materials.object!);
     g.scene.add(this.cripta.gruppo);
     for (const c of this.cripta.collisori) g.world.colliders.add(c);
-    this.scena = new Segnaposto(g.scene, g.world.colliders, g.materials.object!, g.uniforms);
-    this.cella = costruisciCella(g.materials.object!, g.world.colliders);
-    g.scene.add(this.cella.mesh);
-    g.lamps.addLamps([...this.cripta.lumi, ...this.scena.lumi]);
+    g.lamps.addLamps([...this.cripta.lumi]);
     // il catasto (src/rilievo): particelle nel motore, varianti agli oggetti, effetti alla storia
     this.catasto = new CatastoGioco(
       g.world,
@@ -159,8 +161,8 @@ export class Regia implements SistemaGioco {
       posizioniCapisaldi({ punto: (id) => this.chiodo(id), segnale: (id) => this.scena.punto(`segnale_${id}`) }),
     );
     this.catasto.onEvento((e) => this.eventoCatasto(e));
-    this.abitanti = new Abitanti(g.scene);
-    this.notteVista = new NotteVista(g.scene);
+    this.abitanti = new Abitanti(corbella);
+    this.notteVista = new NotteVista(corbella.notte);
     // luci per le figure (materiale toon della libreria oggetti)
     this.emisfero = new HemisphereLight(0xdfe6f0, 0x6a6050, 1.1);
     this.sole = new DirectionalLight(0xfff0d8, 1.6);
@@ -933,18 +935,20 @@ export class Regia implements SistemaGioco {
     const out: BersaglioMira[] = [];
     const largo = this.ui.impostazioni.get('collimazioneAgganciata') ? 1.6 : 0.9;
     for (const c of CAPISALDI) {
-      const p = c.id === 'cs_1' ? this.scena.punto('segnale_cs_1') : this.scena.punto(`segnale_${c.id}`);
+      const p = this.scena.punto(`segnale_${c.id}`);
       if (p) out.push({ id: `segnale_${c.id}`, nome: c.nome, posizione: p, tolleranza: largo, caposaldo: c.id });
     }
     out.push({ id: 'lanterna', nome: 'la Lanterna', posizione: cylToWorld(2968, 0, 642), tolleranza: 1.5 });
     const o = this.orologio.ore;
     const notte = o >= 20 || o < 5.5;
-    if (o >= 23 || o < 2) {
-      const t = this.game.simTime / 40;
-      out.push({ id: 'tecla', nome: 'una lanterna che cammina', posizione: cylToWorld(1300 + Math.sin(t) * 30, 345, 9), tolleranza: 1.2 });
-    }
+    const tecla = this.notteVista.tecla;
+    if (tecla) out.push({ id: 'tecla', nome: 'una lanterna che cammina', posizione: tecla, tolleranza: 1.2 });
     if (notte) {
-      for (const l of LONTANI) if (l.lume === 'permanente') out.push({ id: `lume_${l.id}`, nome: l.lume_descrizione ?? l.nome, posizione: cylToWorld(l.z, l.theta, l.altezza + 2), tolleranza: 1.2 });
+      for (const l of LONTANI) {
+        if (l.lume !== 'permanente') continue;
+        const pos = this.scena.punto(`segnale_${l.id}`) ?? cylToWorld(l.z, l.theta, l.altezza + 2);
+        out.push({ id: `lume_${l.id}`, nome: l.lume_descrizione ?? l.nome, posizione: pos, tolleranza: 1.2 });
+      }
     }
     return out;
   }
@@ -1145,7 +1149,6 @@ export class Regia implements SistemaGioco {
       occhi,
       elvira: { z: p.cyl.z, theta: p.cyl.theta },
     });
-    this.notteVista.update(dt, this.orologio.ore, g.sky.night);
     this.aggiornaMeta();
 
     // la storia (10 volte al secondo)
