@@ -15,7 +15,7 @@
  * I collider della libreria passano nel formato del motore con `colliderAlMondo`; ogni collider porta
  * un tag (muro, tetto, calpestabile, porta, botola, chiodo, caposaldo, palina, tronco, scala…).
  */
-import { BufferAttribute, BufferGeometry, Color, LinearSRGBColorSpace, Matrix3, Matrix4, Mesh, Object3D, SRGBColorSpace, Vector3, type Material } from 'three';
+import { BufferAttribute, BufferGeometry, Color, LOD, LinearSRGBColorSpace, Matrix3, Matrix4, Mesh, Object3D, SRGBColorSpace, Sphere, Vector3, type Material } from 'three';
 import { colliderAlMondo } from '../../oggetti/src/cilindro';
 import type { OggettoProcedurale } from '../../oggetti/src/tipi';
 import type { Collider } from '../../../src/world/colliders';
@@ -84,7 +84,21 @@ export class Cantiere {
   readonly lumi: Vector3[] = [];
   readonly dimensioniLumi: number[] = [];
 
+  /** distanza (m) oltre la quale si mostra la versione `lontano` (se c'è) */
+  distanzaLod = 210;
+  private _lontano: Cantiere | null = null;
+
   constructor(readonly nome: string) {}
+
+  /** Versione semplificata per la distanza (case come scatole, muri come nastri). */
+  get lontano(): Cantiere {
+    if (!this._lontano) this._lontano = new Cantiere(`${this.nome}:lontano`);
+    return this._lontano;
+  }
+
+  get haLontano(): boolean {
+    return !!this._lontano && this._lontano.triangoli > 0;
+  }
 
   /** Numero di triangoli raccolti. */
   get triangoli(): number {
@@ -284,8 +298,41 @@ export class Cantiere {
     }
   }
 
-  /** Cuoce la zona: una o due mesh con i materiali del motore. */
+  /**
+   * Cuoce la zona: una o due mesh con i materiali del motore; se c'è una versione `lontano`, un LOD
+   * centrato sulla zona (vicino fino a `distanzaLod`, poi la versione semplice).
+   */
   costruisci(mat: MaterialiCantiere): Object3D {
+    const vicino = this.costruisciSolo(mat);
+    if (!this.haLontano) return vicino;
+    const lontano = this._lontano!.costruisciSolo(mat);
+    const sfera = new Sphere();
+    const tmp = new Sphere();
+    let prima = true;
+    vicino.traverse((o) => {
+      const g = (o as Mesh).geometry as BufferGeometry | undefined;
+      if (!g?.boundingSphere) return;
+      if (prima) sfera.copy(g.boundingSphere);
+      else sfera.union(tmp.copy(g.boundingSphere));
+      prima = false;
+    });
+    const lod = new LOD();
+    lod.name = `corbella:${this.nome}:lod`;
+    lod.position.copy(sfera.center);
+    lod.updateMatrix();
+    for (const g of [vicino, lontano]) {
+      g.position.copy(sfera.center).negate();
+      g.updateMatrix();
+      g.matrixAutoUpdate = false;
+    }
+    lod.addLevel(vicino, 0);
+    lod.addLevel(lontano, this.distanzaLod);
+    lod.userData['triangoliVicino'] = this.triangoli;
+    lod.userData['triangoliLontano'] = this._lontano!.triangoli;
+    return lod;
+  }
+
+  private costruisciSolo(mat: MaterialiCantiere): Object3D {
     const gruppo = new Object3D();
     gruppo.name = `corbella:${this.nome}`;
     for (const [nome, acc] of [
