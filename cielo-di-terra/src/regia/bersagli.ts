@@ -210,8 +210,9 @@ export function registraBersagli(r: Regia): void {
   add({
     id: 'dormi',
     verbo: 'Dormi nel fieno',
+    // la porta del fienile del popolamento: si dorme entrando (la regia dissolve nel sonno)
     posizione: p('fienile'),
-    portata: 4,
+    portata: 5,
     raggio: 1.5,
     disponibile: () => fuori() && (r.orologio.ore >= 20.5 || r.orologio.ore < 5) && !n().valuta('passo:m1_fienile attivo') && !(n().valuta('passo:m1_notte attivo') && !n().dialoghi.finito('d_ottavio_fienile')),
     azione: () => r.dormi(5.5),
