@@ -4,9 +4,12 @@ Open world in prima persona dentro il Verbano, un cilindro di O'Neill: il terren
 sale ai lati e prosegue sopra la testa, la Linea lungo l'asse fa da sole, salendo
 verso l'asse si pesa meno e con il Velo si può "cadere" nella valle opposta.
 
-Questa cartella contiene il motore (fase 1A, il "kernel del cilindro") e, in
-cartelle curate da altri agenti, design (`docs/design/`), contenuti (`content/`),
-moduli (`moduli/`) e strumenti (`strumenti/`).
+Questa cartella contiene il motore (fase 1A, il "kernel del cilindro"), i moduli
+integrati nella fase 1C (storia, catasto, interfaccia, audio, oggetti) con la regia
+che li tiene insieme, e, in cartelle curate da altri agenti, design (`docs/design/`),
+contenuti (`content/`), moduli in lavorazione (`moduli/`) e strumenti (`strumenti/`).
+Stato: `docs/stato/fase1a.md` (motore), `docs/stato/fase1c.md` (integrazione: prologo e
+Missione 1 giocabili).
 
 ## Comandi
 
@@ -18,17 +21,26 @@ moduli (`moduli/`) e strumenti (`strumenti/`).
 | `npm run build:e2e` | build con `VITE_E2E=1` (API di debug attiva, buffer conservato) in `dist-e2e/` |
 | `npm test` | test unitari Vitest in Node (fisica, terreno, celle, controller, Velo...) |
 | `npm run shots` | build E2E + Chromium headless + 6 screenshot in `docs/shots/` + verifiche di gioco |
+| `npm run e2e:fase1` | build E2E + Chromium: gioca prologo e Missione 1 con i sistemi veri, foto in `docs/shots/fase1/` |
+| `npm run verifica-contenuti` | verifica dei contenuti della storia (`content/*.json`) |
 | `npm run typecheck` | solo il controllo dei tipi |
 
 Opzioni di `npm run shots` (dopo `--`): `--no-build`, `--only=1,3`, `--size=1280x720`.
 
-Parametri URL: `?debug` mostra il pannello statistiche (anche F3); `?ora=21.5` imposta l'ora.
+Opzioni di `npm run e2e:fase1`: `--no-build`.
+
+Parametri URL: `?debug` mostra il pannello statistiche (anche F3); `?ora=21.5` imposta l'ora;
+`?nuova` comincia una partita nuova senza titolo; `?senza-titolo` avvia il solo motore.
 
 ## Comandi di gioco
 
 Clic sulla finestra per catturare il mouse. **WASD** muove, **Shift** corre,
 **Spazio** salta e, **tenuto premuto in aria**, apre il Velo (rilasciandolo si
-chiude), **E** interagisce (evento `player:interact`), **F3** statistiche.
+chiude), **E** interagisce (premuto o tenuto, il verbo è scritto a schermo),
+**C** siede e si alza, **X** da seduta «aspetta fino a…», **Q** la lente, **R** lo
+squadro, **tasto destro** (o **M**) il cannocchiale, **L** il libretto, **G** fischia,
+**V** il velo nero, **T** Taccuino, **P** Pianta, **Esc** pausa, **F3** statistiche.
+Tutti i comandi e gli aiuti: `docs/stato/fase1c.md`.
 In sviluppo/E2E: **F** camera libera (WASD, Spazio su, C giù, Shift veloce).
 
 Planata attraverso il cielo: dagli alti alpeggi del Tappo Sud (sopra ~450 m, circa
@@ -70,9 +82,16 @@ src/
     linea.ts, windows.ts, collare.ts, water.ts, lamps.ts, firstPerson.ts
     palette.ts, geomBuilder.ts, placement.ts, uniforms.ts, cellTexture.ts
   scene/             contenuti segnaposto: paesi, castagni, Lanterna, barche
-  ui/stats.ts        pannello statistiche
-tests/               test Vitest (Node)
+  narrativa/         motore della storia: missioni, dialoghi, flag, taccuino, salvataggi
+  rilievo/           il catasto: capisaldi, lati, particelle, notti, Pianta, resoconto
+  ui/                interfaccia DOM: titolo, pausa, impostazioni, dialoghi, carte, Taccuino, Pianta
+  audio/             motore audio: musica, campane, ambienti, passi
+  oggetti/           libreria di oggetti procedurali (abitanti, castagni, capisaldi, squadro…)
+  regia/             la regia della Fase 1: collega tutto al motore (vedi docs/stato/fase1c.md)
+    scena/           segnaposto di cripta, cella campanaria e luoghi della Missione 1
+tests/               test Vitest (Node; tests/ui con happy-dom)
 scripts/shots.mjs    screenshot automatici con Playwright
+scripts/e2e-fase1.mjs prova giocata di prologo e Missione 1 (Playwright)
 ```
 
 Regola: `world/` e `player/` non importano WebGL (si testano in Node); `render/` e
