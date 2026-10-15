@@ -11,8 +11,13 @@
  *                          motivo, e per LEGNO: >= 0.5 = assi orizzontali)
  *   y = occlusione        0 = nessuna, 1 = buio pieno (occlusione ambientale cotta: angoli,
  *                          piede dei muri, interno delle chiome). Facoltativo.
- * Se l'attributo manca vale 0: comportamento di prima (nessun motivo), salvo la superficie
- * predefinita del materiale (`createWorldMaterial(u, { superficie })` o l'uniform `uSuperficieBase`).
+ * Se l'attributo manca (o x vale 0) vale la superficie predefinita del materiale
+ * (`createWorldMaterial(u, { superficie })` o l'uniform `uSuperficieBase`). Il materiale degli
+ * oggetti del gioco (`game.materials.object`) ha come predefinita `SUPERFICIE.AUTO`: il tipo si
+ * deduce dal colore per vertice (grigio = pietra, ardesia sui tetti = piode, calce = intonaco,
+ * bruno = legno, verde = erba o fogliame, vetri accesi = vetro), finché le tracce non taggano.
+ * Per dire esplicitamente «nessun motivo» si tagga `SUPERFICIE.NESSUNA` (`taggaSuperficie` scrive
+ * 0.5, che lo shader legge come tipo 0 dichiarato).
  *
  * Il colore di base resta `aColor`: il motivo lo varia attorno al suo valore (per esempio
  * PIETRA con aColor grigio caldo dà pietre grigie, ocra e brune con i giunti scuri).
@@ -37,7 +42,7 @@ export const SUPERFICIE = {
   INTONACO: 4,
   /** Corteccia (castagno): solchi lungo il tronco, licheni chiari. */
   CORTECCIA: 5,
-  /** Fogliame: ciuffi a due toni, interstizi scuri, bordi luminosi, luce trasmessa in controluce. */
+  /** Fogliame: ciuffi a cupola con la loro luce, interstizi scuri, bordi luminosi, luce trasmessa in controluce. */
   FOGLIAME: 6,
   /** Tessuto: trama fine, pieghe morbide, un po' di luce trasmessa (vele, Velo, vestiti). */
   TESSUTO: 7,
@@ -49,10 +54,12 @@ export const SUPERFICIE = {
   OTTONE: 10,
   /** Roccia naturale: crepe larghe, strati, licheni arancio, muschio sulle facce in su. */
   ROCCIA: 11,
-  /** Erba (zolle, tetti verdi, prato su oggetti): pennellate a ciuffi, punte secche dorate. */
+  /** Erba (zolle, terrazzi, tetti verdi): la stessa pittura del prato del terreno. */
   ERBA: 12,
   /** Vetro: scuro, riflette il cielo e la foschia di taglio (di notte si accende con aColor.a). */
   VETRO: 13,
+  /** Automatica: il tipo si deduce dal colore per vertice (vedi in cima). Predefinita degli oggetti. */
+  AUTO: 14,
 } as const;
 
 export type Superficie = (typeof SUPERFICIE)[keyof typeof SUPERFICIE];
@@ -73,6 +80,7 @@ export const NOMI_SUPERFICIE: Record<Superficie, string> = {
   11: 'roccia',
   12: 'erba',
   13: 'vetro',
+  14: 'automatica',
 };
 
 export interface OpzioniTag {
@@ -85,6 +93,9 @@ export interface OpzioniTag {
   /** Occlusione ambientale cotta (0 = nessuna, 1 = buio pieno). */
   occlusione?: number;
 }
+
+/** Valore scritto per NESSUNA dichiarata (lo shader lo legge come tipo 0, non come "non taggato"). */
+export const NESSUNA_DICHIARATA = 0.5;
 
 /**
  * Scrive il tipo di superficie su un intervallo di vertici di una geometria (crea l'attributo
@@ -102,25 +113,58 @@ export function taggaSuperficie(g: BufferGeometry, tipo: Superficie, opz: Opzion
   const da = Math.max(0, opz.da ?? 0);
   const a = Math.min(n, opz.a ?? n);
   const v = Math.min(0.99, Math.max(0, opz.variante ?? 0));
+  const x = tipo === SUPERFICIE.NESSUNA ? NESSUNA_DICHIARATA : tipo + v;
   for (let i = da; i < a; i++) {
-    attr.setX(i, tipo + v);
+    attr.setX(i, x);
     if (opz.occlusione !== undefined) attr.setY(i, opz.occlusione);
   }
   attr.needsUpdate = true;
   return attr;
 }
 
-/** Decodifica il valore dell'attributo (come fa lo shader). */
-export function leggiSuperficie(x: number): { tipo: number; variante: number } {
+/** Decodifica il valore dell'attributo (come fa lo shader). `dichiarata` = falso se il vertice non è taggato. */
+export function leggiSuperficie(x: number): { tipo: number; variante: number; dichiarata: boolean } {
   const tipo = Math.floor(x + 1e-3);
-  return { tipo, variante: Math.max(0, x - tipo) };
+  return { tipo, variante: Math.max(0, x - tipo), dichiarata: x > 0.25 };
+}
+
+/** Colore sRGB 0..1. */
+type RGB = readonly [number, number, number];
+
+/**
+ * Il tipo che la superficie AUTO sceglie per un colore (stessa regola dello shader, per i test
+ * e per chi vuole sapere che cosa succederà a una geometria non taggata).
+ * @param su quanto la faccia guarda in su (dot(N, su), -1..1)
+ * @param emissione aColor.a (finestre e lumi accesi di notte)
+ * @param opz curvo = forma tonda (lo shader lo misura dalla variazione della normale);
+ *            doppia = materiale a doppia faccia (tele, veli)
+ */
+export function superficieAutomatica(c: RGB, su: number, emissione = 0, opz: { curvo?: boolean; doppia?: boolean } = {}): Superficie {
+  const mx = Math.max(c[0], c[1], c[2]);
+  const mn = Math.min(c[0], c[1], c[2]);
+  const sat = mx - mn;
+  const lum = c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11;
+  if (emissione > 0.02) return SUPERFICIE.VETRO;
+  if (c[1] > c[0] && c[1] > c[2] && sat > 0.06) return su > 0.6 && !opz.curvo ? SUPERFICIE.ERBA : SUPERFICIE.FOGLIAME;
+  let t: Superficie = SUPERFICIE.NESSUNA;
+  if (sat < 0.12 && lum < 0.36) t = su > 0.25 && su < 0.96 ? SUPERFICIE.PIODE : SUPERFICIE.PIETRA;
+  else if (sat < 0.21 && lum > 0.76) t = su > 0.6 ? SUPERFICIE.PIETRA : SUPERFICIE.INTONACO;
+  else if (sat < 0.16) t = SUPERFICIE.PIETRA;
+  else if (c[0] > c[1] && c[1] >= c[2] && sat < 0.36 && lum < 0.56) t = su > 0.6 ? SUPERFICIE.TERRA : SUPERFICIE.LEGNO;
+  if (opz.doppia && t === SUPERFICIE.INTONACO) t = SUPERFICIE.TESSUTO;
+  if (opz.curvo) {
+    const scuro = t === SUPERFICIE.LEGNO || (t === SUPERFICIE.PIETRA && lum < 0.52);
+    t = scuro ? SUPERFICIE.CORTECCIA : SUPERFICIE.NESSUNA;
+  }
+  return t;
 }
 
 /**
- * Motivi procedurali delle superfici (GLSL). Richiede NOISE_GLSL, LIGHT_GLSL (struct Sup,
- * lumaP, cylUp) e BRUSH_GLSL (cylLocal) prima.
+ * Funzioni di base delle superfici (GLSL): coordinate di faccia, normale da un campo d'altezza,
+ * visibilità dei motivi con la distanza, celle 3D. Richiede NOISE_GLSL, LIGHT_GLSL e BRUSH_GLSL.
+ * Va incluso prima di TERRENO_GLSL e di SUPERFICI_GLSL.
  */
-export const SUPERFICI_GLSL = /* glsl */ `
+export const SUPERFICI_BASE_GLSL = /* glsl */ `
 // coordinate di faccia nello spazio "srotolato" del cilindro (arco, z, quota): niente
 // stiramenti, i corsi delle pietre restano orizzontali e allineati da un muro all'altro.
 // tW, bW (out) = assi della faccia in coordinate mondo (tW orizzontale, bW "in su").
@@ -134,6 +178,36 @@ vec2 faceUV(vec3 P, vec3 N, out vec3 tW, out vec3 bW) {
   bW = east * bl.x + vec3(0.0, 0.0, bl.y) + up * bl.z;
   vec3 c = cylLocal(P);
   return vec2(dot(c, tl), dot(c, bl));
+}
+
+// coordinate di superficie robuste per qualsiasi geometria:
+// - facce piane (normale interpolata = normale della faccia): la terna esatta della faccia
+//   (faceUV con la normale geometrica), così i corsi di pietra seguono anche i muri ruotati;
+// - superfici lisce (normali interpolate: selciati ondulati, sassi, tronchi): la proiezione
+//   dominante nella terna del cilindro, stabile (faceUV con la normale interpolata farebbe
+//   ruotare la terna da un pixel all'altro: rumore).
+vec2 uvSuperficie(vec3 P, vec3 N, out vec3 tW, out vec3 bW) {
+  // faccia piana: la normale interpolata è identica in tutti i pixel (derivata nulla). Non si usa
+  // la normale ricavata dalle derivate della posizione: a 600 m dall'origine la precisione dei
+  // float la fa tremare di un pixel all'altro, e la terna con lei.
+  vec3 fN = fwidth(N);
+  if (fN.x + fN.y + fN.z < 2e-5) return faceUV(P, N, tW, bW);
+  vec3 up = cylUp(P);
+  vec3 east = vec3(-up.y, up.x, 0.0);
+  vec3 c = cylLocal(P);
+  vec3 a = abs(vec3(dot(N, east), N.z, dot(N, up)));
+  if (a.z >= a.x && a.z >= a.y) {
+    tW = east;
+    bW = vec3(0.0, 0.0, 1.0);
+    return c.xy;
+  }
+  bW = up;
+  if (a.x >= a.y) {
+    tW = vec3(0.0, 0.0, 1.0);
+    return vec2(c.y, c.z);
+  }
+  tW = east;
+  return vec2(c.x, c.z);
 }
 
 // normale da un campo d'altezza qualsiasi (derivate in schermo, metodo di Mikkelsen)
@@ -157,39 +231,115 @@ float visMotivo(float pix, float scala) {
   return 1.0 - smoothstep(scala * 0.08 * k, scala * 0.25 * k, pix);
 }
 
+vec3 hash33(vec3 p) {
+  p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+  p += dot(p, p.yxz + 33.33);
+  return fract((p.xxy + p.yxx) * p.zyx);
+}
+
+// celle di Voronoi 3D economiche (8 campioni, centri spostati al più di un quarto di cella):
+// x = F2 - F1 (bordo), y = F1 (distanza dal centro), z = identità; 'rel' (out) = verso il centro
+vec3 voronoi3(vec3 x, out vec3 rel) {
+  vec3 n = floor(x - 0.5);
+  vec3 f = x - n;
+  float d1 = 8.0;
+  float d2 = 8.0;
+  vec3 c1 = vec3(0.0);
+  vec3 r1 = vec3(0.0);
+  for (int k = 0; k < 8; k++) {
+    vec3 g = vec3(float(k & 1), float((k >> 1) & 1), float(k >> 2));
+    vec3 r = g + hash33(n + g) * 0.5 + 0.25 - f;
+    float d = dot(r, r);
+    if (d < d1) { d2 = d1; d1 = d; c1 = n + g; r1 = r; }
+    else if (d < d2) { d2 = d; }
+  }
+  rel = r1;
+  float a = sqrt(d1);
+  return vec3(sqrt(d2) - a, a, hash13(c1 + 0.37));
+}
+`;
+
+/**
+ * Motivi procedurali delle superfici (GLSL). Richiede NOISE_GLSL, LIGHT_GLSL (struct Sup,
+ * lumaP, cylUp), BRUSH_GLSL (cylLocal), SUPERFICI_BASE_GLSL e TERRENO_GLSL (pratoDipinto) prima.
+ */
+export const SUPERFICI_GLSL = /* glsl */ `
+// AUTO: il tipo dal colore per vertice (stessa regola di superficieAutomatica in superfici.ts).
+// 'su' = dot(N, su); 'curvo' = 1 sulle forme tonde (tronchi, sassi lisci), dove le coordinate di
+// faccia non reggono: lì si usano solo i motivi 3D o nessuno.
+float superficieAuto(vec3 c, float emiss, float su, float curvo) {
+  float mx = max(c.r, max(c.g, c.b));
+  float mn = min(c.r, min(c.g, c.b));
+  float sat = mx - mn;
+  float lum = lumaP(c);
+  if (emiss > 0.02) return 13.0;
+  if (c.g > c.r && c.g > c.b && sat > 0.06) return (su > 0.6 && curvo < 0.5) ? 12.0 : 6.0;
+  float t = 0.0;
+  // ardesia: piode sulle falde inclinate, pietra in piedi e in piano (selciati, soglie)
+  if (sat < 0.12 && lum < 0.36) t = (su > 0.25 && su < 0.96) ? 2.0 : 1.0;
+  // calce: intonaco sui muri; in piano è un selciato chiaro
+  else if (sat < 0.21 && lum > 0.76) t = su > 0.6 ? 1.0 : 4.0;
+  else if (sat < 0.16) t = 1.0;
+  else if (c.r > c.g && c.g >= c.b && sat < 0.36 && lum < 0.56) t = su > 0.6 ? 8.0 : 3.0; // bruni: terra in piano, legno in piedi
+#ifdef DOPPIA_FACCIA
+  // tele, veli, vele: i chiari sono tessuto, non intonaco
+  if (t > 3.5 && t < 4.5) t = 7.0;
+#endif
+  if (curvo > 0.5) {
+    bool scuro = (t > 2.5 && t < 3.5) || (t > 0.5 && t < 1.5 && lum < 0.52);
+    t = scuro ? 5.0 : 0.0;
+  }
+  return t;
+}
+
 void supPietra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   float vis = visMotivo(pix, 0.3);
   vec3 c = s.albedo;
-  // da lontano: solo una leggera variazione a macchie
+  // da lontano: macchie calde e fredde (la pietra dei rustici non è mai grigia uniforme)
   float far = vnoise2(uv * 0.9 + var * 11.0);
-  s.albedo = c * (0.94 + 0.12 * far);
+  float far2 = vnoise2(uv * 0.23 + 4.0);
+  s.albedo = c * (0.92 + 0.14 * far) * mix(vec3(0.97, 0.99, 1.03), vec3(1.06, 1.0, 0.88), far2);
+  // a media distanza: le pietre accennate a tocchi (corsi orizzontali, toni diversi)
+  float vm = visMotivo(pix, 1.4) * (1.0 - vis);
+  if (vm > 0.0) {
+    vec3 t = voronoi4(uv / vec2(0.55, 0.3) + var * 7.0);
+    s.albedo *= 1.0 + ((t.z - 0.5) * 0.24 - (1.0 - smoothstep(0.0, 0.18, t.x)) * 0.12) * vm;
+  }
   if (vis <= 0.0) return;
   vec2 cell = vec2(0.38, 0.23);
   vec2 q = uv / cell + var * 17.0;
   q.y += (vnoise2(uv * vec2(0.7, 0.25)) - 0.5) * 0.7;
+  // pietre arrotondate, non poligoni: dominio deformato
+  q += (vec2(vnoise2(q * 1.3), vnoise2(q * 1.3 + 4.1)) - 0.5) * 0.55;
   vec2 rel;
   vec4 vo = voronoi2(q, rel);
   float id = vo.z;
-  vec3 ocra = c * vec3(1.08, 1.0, 0.86);
-  vec3 bruno = c * vec3(0.93, 0.86, 0.79);
-  vec3 freddo = c * vec3(0.95, 0.98, 1.03);
+  vec3 ocra = c * vec3(1.07, 1.0, 0.86);
+  vec3 bruno = c * vec3(0.94, 0.88, 0.8);
+  vec3 freddo = c * vec3(0.96, 0.98, 1.03);
   vec3 pc = id < 0.3 ? ocra : (id < 0.6 ? c : (id < 0.84 ? freddo : bruno));
-  pc *= 0.88 + 0.2 * hash12(vec2(id * 31.0, 3.7));
-  // faccia della pietra: piccole scaglie e licheni
+  pc *= 0.88 + 0.18 * hash12(vec2(id * 31.0, 3.7));
+  // faccia della pietra: scaglie, puntini scuri, licheni gialli e grigio-verdi
   float sc = vnoise2(uv * 9.0 + id * 13.0);
-  pc *= 0.94 + 0.12 * sc;
+  float sc2 = vnoise2(uv * 23.0 + id * 5.0);
+  pc *= 0.88 + 0.18 * sc + (sc2 - 0.5) * 0.12;
   float lich = smoothstep(0.66, 0.82, vnoise2(uv * 2.6 + id * 9.0));
-  pc = mix(pc, vec3(0.8, 0.77, 0.55), lich * 0.4);
-  float joint = 1.0 - smoothstep(0.02, 0.09, vo.x);
+  pc = mix(pc, vec3(0.8, 0.74, 0.5), lich * 0.45);
+  float lich2 = smoothstep(0.7, 0.84, vnoise2(uv * 4.1 + id * 3.0 + 20.0));
+  pc = mix(pc, vec3(0.7, 0.74, 0.66), lich2 * 0.35);
+  float joint = 1.0 - smoothstep(0.015, 0.06, vo.x);
   float round = smoothstep(0.0, 0.35, vo.x);
-  pc *= mix(0.88, 1.0, round);
-  // giunto: malta e ombra, scuro ma non nero (si legge come pietra a secco)
-  vec3 alb = mix(pc, c * vec3(0.56, 0.53, 0.5), joint * 0.85);
+  pc *= mix(0.9, 1.03, round);
+  // giunto: malta e ombra, scuro ma non nero (si legge come pietra a secco); sulle facce in su
+  // nei giunti cresce il muschio
+  float top = smoothstep(0.6, 0.95, dot(s.N, cylUp(P)));
+  vec3 jc = mix(c * vec3(0.52, 0.49, 0.46), vec3(0.33, 0.4, 0.19), top * 0.7);
+  vec3 alb = mix(pc, jc, joint * 0.8);
   s.albedo = mix(s.albedo, alb, vis);
-  // altezza: pietra a cuscino, giunto incavato
-  float h = (round * 0.6 + sc * 0.08) * 0.028 - joint * 0.012;
+  // altezza: pietra a cuscino, giunto incavato (rilievo leggero: campitura, non plastica)
+  float h = (round * 0.6 + sc * 0.08) * 0.016 - joint * 0.008;
   s.N = bumpDaAltezza(s.N, P, h * vis, 1.0);
-  s.ao *= mix(1.0, mix(0.78, 1.0, smoothstep(0.0, 0.14, vo.x)), vis);
+  s.ao *= mix(1.0, mix(0.72, 1.0, smoothstep(0.0, 0.14, vo.x)), vis);
 }
 
 void supPiode(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
@@ -208,7 +358,7 @@ void supPiode(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   float id = hash12(vec2(row * 1.7, colI));
   // gneiss: grigio scuro con lastre brune, verdastre, chiare
   vec3 lc = c * (0.8 + 0.42 * id);
-  lc = mix(lc, lc * vec3(1.12, 1.0, 0.86), step(0.72, hash12(vec2(colI, row + 9.0))) * 0.6);
+  lc = mix(lc, lc * vec3(1.14, 1.0, 0.84), step(0.72, hash12(vec2(colI, row + 9.0))) * 0.6);
   lc = mix(lc, lc * vec3(0.92, 1.04, 0.92), step(0.85, hash12(vec2(colI + 3.0, row))) * 0.5);
   float sc = vnoise2(uv * 7.0 + id * 21.0);
   lc *= 0.92 + 0.14 * sc;
@@ -221,10 +371,14 @@ void supPiode(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   float edge = 1.0 - smoothstep(0.0, 0.09, fy2);
   float under = smoothstep(0.7, 1.0, fy2);
   float gap = 1.0 - smoothstep(0.0, 0.035, min(fx, 1.0 - fx) * w);
-  lc = mix(lc, lc * 1.28 + 0.03, edge * 0.8);
+  lc = mix(lc, lc * 1.3 + 0.03, edge * 0.8);
   lc *= 1.0 - under * 0.45;
   lc = mix(lc, c * 0.3, gap * (1.0 - edge));
-  s.albedo = mix(c * (0.92 + 0.12 * vnoise2(uv * 0.8)), lc, vis);
+  // da lontano: file di lastre appena accennate e macchie di muschio (il tetto non è un piano grigio)
+  float farRows = smoothstep(0.55, 0.95, fract(uv.y / 1.2)) * 0.12;
+  vec3 farC = c * (0.9 + 0.16 * vnoise2(uv * 0.8)) * (1.0 - farRows);
+  farC = mix(farC, vec3(0.5, 0.5, 0.3), smoothstep(0.62, 0.85, vnoise2(uv * 0.35 + 2.0)) * 0.3);
+  s.albedo = mix(farC, lc, vis);
   // le lastre sono più inclinate della falda: ogni fila sale verso il colmo
   float h = (fy2 * 0.05 + id * 0.01) - gap * 0.015;
   s.N = bumpDaAltezza(s.N, P, h * vis, 1.0);
@@ -264,8 +418,9 @@ void supIntonaco(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   float m1 = vnoise2(uv * 0.55 + var * 13.0);
   float m2 = vnoise2(uv * 2.1 + 5.0);
   float streak = vnoise2(vec2(uv.x * 3.6, uv.y * 0.28 + var * 3.0));
-  vec3 lc = c * (0.92 + 0.1 * m1 + 0.05 * m2);
-  // colature e sbiaditure (calce dilavata dalla pioggia)
+  // la calce non è mai bianca pura: avorio caldo con velature
+  vec3 lc = c * vec3(0.98, 0.96, 0.9) * (0.92 + 0.1 * m1 + 0.05 * m2);
+  // colature e sbiaditure (calce dilavata dalla pioggia), più in basso
   lc = mix(lc, lc * vec3(0.85, 0.83, 0.79), smoothstep(0.55, 0.85, streak) * 0.55);
   lc = mix(lc, lc * vec3(1.03, 1.0, 0.94) + 0.02, smoothstep(0.6, 0.9, m1) * 0.4);
   // intonaco caduto: sotto si vede la pietra
@@ -304,30 +459,48 @@ void supCorteccia(inout Sup s, vec3 P, float pix, float var) {
   s.ao *= mix(1.0, mix(0.65, 1.0, furrow), vis);
 }
 
-void supFogliame(inout Sup s, vec3 P, vec3 Nv, float pix, float var) {
+// fogliame: ciuffi a cupola (celle di Voronoi 3D): ogni ciuffo ha la sua normale, quindi il suo
+// lato in luce e il suo lato in ombra, con interstizi scuri fra un ciuffo e l'altro. Funziona su
+// qualsiasi forma (palloni, chiome unite, siepi): niente coordinate di faccia.
+void supFogliame(inout Sup s, vec3 P, vec3 Nv, vec3 up, float pix, float var) {
   vec3 c = s.albedo;
-  // ciuffi: masse di foglie a scala ~0.7 m, due toni morbidi (la forma la dà la luce)
-  float sc = 0.7;
-  float n1 = vnoise3(P / sc + var * 23.0);
-  float n0 = vnoise3(P / (sc * 2.6) + 5.0);
-  float vis = visMotivo(pix, sc);
-  float clump = smoothstep(0.28, 0.72, n1 * 0.68 + n0 * 0.32);
   // varietà d'autunno a chiazze più grandi: verde, oro, ruggine
   float v = vnoise3(P * 0.42 + var * 7.0);
-  vec3 lc = mix(c, c * vec3(1.16, 1.0, 0.64), smoothstep(0.56, 0.78, v) * 0.45);
-  lc = mix(lc, c * vec3(1.1, 0.8, 0.62), smoothstep(0.3, 0.1, v) * 0.32);
-  lc *= mix(0.8, 1.05, mix(0.5, clump, vis));
-  // foglie: macchiette fini da vicino
-  if (pix < 0.03) {
-    float lf = vnoise3(P / 0.08 + 3.0);
-    lc *= 1.0 + (lf - 0.5) * 0.2 * (1.0 - smoothstep(0.01, 0.03, pix));
+  vec3 lc = mix(c, c * vec3(1.18, 1.0, 0.6), smoothstep(0.56, 0.78, v) * 0.45);
+  lc = mix(lc, c * vec3(1.12, 0.78, 0.58), smoothstep(0.3, 0.1, v) * 0.32);
+  float sc = 0.8;
+  float vis = visMotivo(pix, sc * 1.6);
+  float gapK = 0.0;
+  if (vis > 0.0) {
+    // masse di foglie: un campo d'altezza morbido (due ottave 3D) che fa da rilievo, così ogni
+    // massa prende la luce sopra e resta in ombra sotto; le cavità sono più scure e più fredde
+    vec3 q = P / sc + var * 23.0;
+    float h = vnoise3(q) * 0.62 + vnoise3(q * 2.3 + 5.0) * 0.38;
+    float mass = smoothstep(0.32, 0.72, h);
+    s.N = bumpDaAltezza(s.N, P, mass * 0.32 * sc * vis, 1.0);
+    gapK = (1.0 - mass) * vis;
+    lc = mix(lc, lc * vec3(0.8, 0.86, 0.9), gapK * 0.5);
+    // una massa ogni tanto più calda (foglie che girano)
+    float w = vnoise3(q * 0.5 + 11.0);
+    lc = mix(lc, lc * vec3(1.15, 0.96, 0.72), smoothstep(0.62, 0.8, w) * 0.5 * vis);
+  } else {
+    float n1 = vnoise3(P / sc + var * 23.0);
+    lc *= 0.9 + 0.16 * n1;
+  }
+  lc *= 1.0 - gapK * 0.22;
+  // foglie: tocchi di pennello piccoli (gruppi di foglie), poi macchiette fini da vicino
+  float vf = visMotivo(pix, 0.35);
+  if (vf > 0.0) {
+    float lf = vnoise3(P / 0.16 + 9.0);
+    float lf2 = vnoise3(P / 0.07 + 3.0) * visMotivo(pix, 0.12);
+    lc *= 1.0 + ((lf - 0.5) * 0.4 + (lf2 - 0.5) * 0.2) * vf;
   }
   s.albedo = lc;
-  s.N = bumpDaAltezza(s.N, P, clump * 0.04 * vis, 1.0);
-  s.ao *= mix(0.74, 1.0, clump);
+  s.ao *= 1.0 - gapK * 0.5;
   s.trasm = 0.9;
-  s.bordo = 0.75;
-  s.bande = 0.72;
+  // il bordo luminoso sta sui contorni della chioma, non sulle facce in su viste di scorcio
+  s.bordo = 0.75 * (1.0 - smoothstep(0.6, 0.95, dot(Nv, up)) * 0.8);
+  s.bande = 0.5;
 }
 
 void supTessuto(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
@@ -395,14 +568,18 @@ void supRoccia(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   s.ao *= mix(1.0, 1.0 - crack * 0.45, vis);
 }
 
+// erba sugli oggetti: la stessa pittura del prato del terreno (pratoDipinto), un po' più fine
 void supErba(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   vec3 c = s.albedo;
-  float st = vnoise2(uv * vec2(9.0, 2.2) + var * 7.0);
-  float tuft = vnoise2(uv * 1.7 + 3.0);
-  vec3 lc = c * (0.8 + 0.35 * st);
-  lc = mix(lc, vec3(0.82, 0.7, 0.38), smoothstep(0.6, 0.85, tuft) * 0.45);
-  s.albedo = mix(c, lc, visMotivo(pix, 0.15) * 0.8 + 0.2);
-  s.trasm = 0.35;
+  // i verdi acidi dei segnaposto diventano verdi d'ottobre, più caldi e meno chiari
+  float lum = lumaP(c);
+  c = mix(c, vec3(lum) * vec3(1.02, 1.08, 0.7), 0.28) * 0.9;
+  float st;
+  vec3 cl = cylLocal(P);
+  float flatK = clamp(dot(s.N, up), 0.0, 1.0);
+  s.albedo = pratoDipinto(c, cl, uv, pix, flatK, 1.0, st);
+  s.trasm = 0.3;
+  s.bande = 0.4;
 }
 
 void supVetro(inout Sup s, vec3 P, vec2 uv, float pix) {
@@ -420,14 +597,14 @@ void applicaSuperficie(inout Sup s, float tipo, float var, vec3 P, vec3 Nv, floa
   if (tipo < 0.5) return;
   vec3 tW;
   vec3 bW;
-  vec2 uv = faceUV(P, Nv, tW, bW);
+  vec2 uv = uvSuperficie(P, Nv, tW, bW);
   vec3 up = cylUp(P);
   if (tipo < 1.5) supPietra(s, P, uv, pix, var);
   else if (tipo < 2.5) supPiode(s, P, uv, pix, var);
   else if (tipo < 3.5) supLegno(s, P, uv, pix, var);
   else if (tipo < 4.5) supIntonaco(s, P, uv, pix, var);
   else if (tipo < 5.5) supCorteccia(s, P, pix, var);
-  else if (tipo < 6.5) supFogliame(s, P, Nv, pix, var);
+  else if (tipo < 6.5) supFogliame(s, P, Nv, up, pix, var);
   else if (tipo < 7.5) supTessuto(s, P, uv, pix, var);
   else if (tipo < 8.5) supTerra(s, P, uv, pix, var);
   else if (tipo < 9.5) supMetallo(s, P, uv, pix, var);

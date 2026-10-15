@@ -10,8 +10,9 @@
  * Chi proietta ombra: le Mesh opache (anche InstancedMesh e SkinnedMesh), messe sul layer
  * `LAYER_OMBRE` da una scansione periodica della scena. Si escludono con `userData.ombra = false`
  * (e si forzano con `userData.ombra = true`); sono esclusi d'ufficio i materiali trasparenti, la
- * Linea, il Collare, il lago, i vetri e i livelli lontani dei castagni (nome che finisce con
- * `lod2`, `lod3`…). Il terreno non proietta ombra (le sue maglie di 3 m darebbero bordi a
+ * Linea, il Collare, il lago, i vetri e le InstancedMesh dei livelli lontani (nome che finisce con
+ * `lod1`, `lod2`…: stanno oltre la zona d'ombra ma la loro sfera di contenimento copre il mondo,
+ * quindi non si scarterebbero mai). Il terreno non proietta ombra (le sue maglie di 3 m darebbero bordi a
  * dente di sega; la sua forma la dice già la luce a bande): `PROFILI_OMBRE.*.terreno` lo riaccende.
  *
  * Accensione e qualità (la traccia «post» la collega alle impostazioni):
@@ -45,7 +46,7 @@ import {
   type Scene,
   type WebGLRenderer,
 } from 'three';
-import type { WorldUniforms } from './uniforms';
+import { mappaOmbraVuota, type WorldUniforms } from './uniforms';
 
 /** Layer degli oggetti che proiettano ombra (la camera principale non lo guarda). */
 export const LAYER_OMBRE = 7;
@@ -64,13 +65,19 @@ interface ProfiloOmbre {
 }
 
 export const PROFILI_OMBRE: Record<Exclude<QualitaOmbre, 'spente'>, ProfiloOmbre> = {
-  bassa: { risoluzione: 1024, raggio: 38, terreno: false, ogni: 2 },
-  media: { risoluzione: 2048, raggio: 60, terreno: false, ogni: 1 },
+  // (la mappa e la sua matrice si aggiornano insieme: ridisegnare a fotogrammi alterni non sposta
+  // le ombre ferme, fa solo ritardare di un fotogramma quelle degli oggetti che si muovono)
+  bassa: { risoluzione: 1024, raggio: 38, terreno: false, ogni: 3 },
+  media: { risoluzione: 2048, raggio: 60, terreno: false, ogni: 2 },
   alta: { risoluzione: 3072, raggio: 85, terreno: false, ogni: 1 },
 };
 
-/** Distanza della sorgente virtuale dal centro, lungo la luce (m). */
-const DISTANZA = 320;
+/**
+ * Distanza della sorgente virtuale dal centro, lungo la luce (m): chi sta più a monte non
+ * proietta nella zona (con la luce radente servirebbe un oggetto alto più di 40-70 m). Più
+ * corta = meno oggetti del paese nel passaggio d'ombra.
+ */
+const DISTANZA = 160;
 /** Nomi (prefissi) mai proiettanti. */
 const ESCLUSI = /^(linea|collare|lago|vetro|bagliori|finestre|velo-in-primo-piano)/;
 
@@ -94,6 +101,8 @@ export class Ombre {
   private dirValida = false;
   private fotogramma = 0;
   private ultimaScansione = -1e9;
+  private readonly ultimoCentro = new Vector3(1e9, 1e9, 1e9);
+  private readonly vuota: DepthTexture;
 
   constructor(
     private readonly renderer: WebGLRenderer,
@@ -105,6 +114,11 @@ export class Ombre {
     this.materiale = new MeshBasicMaterial({ colorWrite: false, side: DoubleSide });
     this.materiale.name = 'ombre-profondita';
     this.camera.layers.set(LAYER_OMBRE);
+    // la mappa vuota degli uniform (o una nuova se qualcuno l'ha tolta): legata finché non c'è
+    // un passaggio d'ombra disegnato (di notte, a ombre spente, prima del primo fotogramma)
+    const m = u.uOmbraMappa.value as DepthTexture | null;
+    this.vuota = m && m.isDepthTexture && m.name === 'ombre-vuota' ? m : mappaOmbraVuota();
+    u.uOmbraMappa.value = this.vuota;
     this.impostaQualita(qualita);
   }
 
@@ -155,11 +169,13 @@ export class Ombre {
   }
 
   private liberaTarget(): void {
+    // lo shader torna sulla mappa vuota (mai null: vedi mappaOmbraVuota in uniforms.ts)
+    this.u.uOmbra.value.x = 0;
+    this.u.uOmbraMappa.value = this.vuota;
     if (!this.target) return;
     this.target.depthTexture?.dispose();
     this.target.dispose();
     this.target = null;
-    this.u.uOmbraMappa.value = null;
   }
 
   /** Mette (o toglie) sul layer delle ombre gli oggetti della scena. */
@@ -180,7 +196,9 @@ export class Ombre {
           const mats = Array.isArray(m.material) ? m.material : [m.material];
           if (mats.some((x) => !x || x.transparent || x.depthWrite === false || x.visible === false)) si = false;
           else if (!terreno && o.name.startsWith('terreno')) si = false;
-          else if ((o as InstancedMesh).isInstancedMesh && /lod[2-9]$/.test(o.name)) si = false;
+          // istanze dei livelli lontani: stanno tutte oltre la zona d'ombra (i castagni lod1 partono
+          // da 140 m) ma la loro sfera di contenimento copre il mondo e non si scartano mai
+          else if ((o as InstancedMesh).isInstancedMesh && /lod[1-9]$/.test(o.name)) si = false;
         }
         if (si) {
           o.layers.enable(LAYER_OMBRE);
@@ -231,7 +249,10 @@ export class Ombre {
       this.dir.copy(_L);
       this.dirValida = true;
     }
-    if (!nuova && p.ogni > 1 && this.fotogramma % p.ogni !== 0) return;
+    // fotogrammi alterni, salvo dopo un salto della camera (teletrasporto, taglio di regia)
+    const saltata = this.ultimoCentro.distanceToSquared(centro) > (p.raggio * 0.2) ** 2;
+    if (!nuova && !saltata && p.ogni > 1 && this.fotogramma % p.ogni !== 0) return;
+    this.ultimoCentro.copy(centro);
     const L = this.dir;
     // base della vista della luce, poi il centro agganciato alla griglia dei texel
     const ref = Math.abs(L.z) < 0.95 ? _u.set(0, 0, 1) : _u.set(1, 0, 0);
@@ -268,7 +289,7 @@ export class Ombre {
     const prof = cam.far - cam.near;
     _bias.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5 - 0.05 / prof, 0, 0, 0, 1);
     u.uOmbraMatrice.value.copy(_bias).multiply(cam.projectionMatrix).multiply(cam.matrixWorldInverse);
-    u.uOmbraMappa.value = this.target.depthTexture;
+    u.uOmbraMappa.value = this.target.depthTexture ?? this.vuota;
     u.uOmbra.value.set(1, 1 / p.risoluzione, p.raggio * 0.62, p.raggio * 0.94);
     u.uOmbraCentro.value.set(centro.x, centro.y, centro.z, texel);
   }

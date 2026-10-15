@@ -3,12 +3,12 @@
  * superfici, materiale del mondo, scelta di chi proietta ombra.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { BoxGeometry, Group, InstancedMesh, Mesh, MeshBasicMaterial, Scene, ShaderMaterial, Vector3, type WebGLRenderer } from 'three';
+import { BoxGeometry, Group, InstancedMesh, Mesh, MeshBasicMaterial, Scene, ShaderMaterial, Vector3, type DepthTexture, type WebGLRenderer } from 'three';
 import { DEFAULT_SETTINGS, LEGACY_SETTINGS_KEYS, SETTINGS_KEY, SETTINGS_VERSION, loadSettings, migraImpostazioni, saveSettings } from '../src/core/settings';
 import { CORE_Z_EVENING, CORE_Z_MORNING, computeSky, keyLightDir } from '../src/world/sky';
 import { cylToWorld, upAt } from '../src/world/cylinder';
 import { L, LAYOUT } from '../src/world/constants';
-import { SUPERFICIE, leggiSuperficie, taggaSuperficie } from '../src/render/superfici';
+import { SUPERFICIE, leggiSuperficie, superficieAutomatica, taggaSuperficie } from '../src/render/superfici';
 import { createWorldMaterial, impostaSuperficieBase } from '../src/render/worldMaterial';
 import { applySky, createWorldUniforms } from '../src/render/uniforms';
 import { LAYER_OMBRE, Ombre } from '../src/render/ombre';
@@ -134,10 +134,37 @@ describe('superfici', () => {
     const a = geo.getAttribute('aSuperficie');
     expect(a.itemSize).toBe(2);
     expect(a.count).toBe(n);
-    expect(leggiSuperficie(a.getX(0))).toEqual({ tipo: SUPERFICIE.PIETRA, variante: expect.closeTo(0.3, 5) });
+    expect(leggiSuperficie(a.getX(0))).toEqual({ tipo: SUPERFICIE.PIETRA, variante: expect.closeTo(0.3, 5), dichiarata: true });
     expect(a.getY(0)).toBeCloseTo(0.2, 6);
     expect(leggiSuperficie(a.getX(7)).tipo).toBe(SUPERFICIE.PIODE);
     expect(a.getY(7)).toBe(0);
+  });
+
+  it('NESSUNA si può dichiarare (diverso da "non taggato", che prende la superficie del materiale)', () => {
+    const geo = new BoxGeometry(1, 1, 1).toNonIndexed();
+    taggaSuperficie(geo, SUPERFICIE.NESSUNA, { a: 3 });
+    const a = geo.getAttribute('aSuperficie');
+    expect(leggiSuperficie(a.getX(0))).toMatchObject({ tipo: SUPERFICIE.NESSUNA, dichiarata: true });
+    expect(leggiSuperficie(a.getX(5))).toMatchObject({ tipo: SUPERFICIE.NESSUNA, dichiarata: false });
+  });
+
+  it('AUTO deduce il tipo dal colore dei segnaposto', () => {
+    const c = (h: number): [number, number, number] => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
+    expect(superficieAutomatica(c(0xa7a39b), 0)).toBe(SUPERFICIE.PIETRA); // gneiss
+    expect(superficieAutomatica(c(0xb0a491), 0)).toBe(SUPERFICIE.PIETRA); // gneiss caldo
+    expect(superficieAutomatica(c(0x4a4c56), 0.7)).toBe(SUPERFICIE.PIODE); // ardesia sul tetto
+    expect(superficieAutomatica(c(0x4a4c56), 0)).toBe(SUPERFICIE.PIETRA); // ardesia in piedi
+    expect(superficieAutomatica(c(0xf1ebde), 0)).toBe(SUPERFICIE.INTONACO); // calce
+    expect(superficieAutomatica(c(0xd9d0bd), 1)).toBe(SUPERFICIE.PIETRA); // ciottoli chiari del selciato
+    expect(superficieAutomatica(c(0x2c2830), 1)).toBe(SUPERFICIE.PIETRA); // linea scura della meridiana
+    expect(superficieAutomatica(c(0x7a5236), 0)).toBe(SUPERFICIE.LEGNO);
+    expect(superficieAutomatica(c(0x7d9a4b), 1)).toBe(SUPERFICIE.ERBA);
+    expect(superficieAutomatica(c(0x678a3c), 0)).toBe(SUPERFICIE.FOGLIAME);
+    expect(superficieAutomatica(c(0x2a2c30), 0, 1)).toBe(SUPERFICIE.VETRO); // finestra che si accende
+    // colori vivi (ottone, gerani, foglie d'autunno, palina): nessun motivo, restano come sono
+    expect(superficieAutomatica(c(0xc9a24a), 0)).toBe(SUPERFICIE.NESSUNA);
+    expect(superficieAutomatica(c(0xc7362b), 0)).toBe(SUPERFICIE.NESSUNA);
+    expect(superficieAutomatica(c(0xc2802b), 0)).toBe(SUPERFICIE.NESSUNA);
   });
 
   it('i valori dell enum sono interi distinti, 0 = nessuna', () => {
@@ -205,11 +232,30 @@ describe('ombre: chi proietta', () => {
     const o = new Ombre(finto, new Scene(), new Group() as never, u, 'spente');
     o.render();
     expect(u.uOmbra.value.x).toBe(0);
-    expect(u.uOmbraMappa.value).toBeNull();
     o.impostaQualita('bassa');
     expect(o.qualita).toBe('bassa');
     o.attive = false;
     o.render();
     expect(u.uOmbra.value.x).toBe(0);
+  });
+
+  it('il sampler delle ombre ha sempre una mappa di profondità con confronto (mai null)', () => {
+    // con null three.js lega una texture RGBA e WebGL2 rifiuta tutte le draw del mondo
+    const u = createWorldUniforms();
+    const vuota = u.uOmbraMappa.value as DepthTexture;
+    expect(vuota.isDepthTexture).toBe(true);
+    expect(vuota.compareFunction).not.toBeNull();
+    expect(vuota.version).toBeGreaterThan(0); // si alloca al primo uso
+    const o = new Ombre(finto, new Scene(), new Group() as never, u, 'alta');
+    expect(u.uOmbraMappa.value).toBe(vuota); // prima del primo passaggio (o di notte)
+    u.uNight.value = 1;
+    o.render();
+    expect(u.uOmbraMappa.value).toBe(vuota);
+    o.impostaQualita('spente');
+    expect(u.uOmbraMappa.value).toBe(vuota);
+    o.impostaQualita('media');
+    expect(u.uOmbraMappa.value).toBe(vuota);
+    o.dispose();
+    expect(u.uOmbraMappa.value).toBe(vuota);
   });
 });

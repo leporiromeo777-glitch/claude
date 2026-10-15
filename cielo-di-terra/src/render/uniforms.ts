@@ -20,7 +20,7 @@
  *   `CellTexture.ultimaRivelazione`): vicino al giocatore, senza animazioni, lo shader salta le celle;
  * - `uDettaglio` (float): 1 = motivi pieni, 0 = economici (la traccia «post» lo lega alla qualità).
  */
-import { Color, DataTexture, Matrix4, Vector2, Vector3, Vector4, type Texture } from 'three';
+import { Color, DataTexture, DepthFormat, DepthTexture, LessEqualCompare, Matrix4, NearestFilter, UnsignedIntType, Vector2, Vector3, Vector4, type Texture } from 'three';
 import { CELLS_NTHETA, CELLS_NZ, CELL_DEG, CELL_DZ, L, R } from '../world/constants';
 import { REVEAL_DURATION } from '../world/cells';
 import type { SkyState } from '../world/sky';
@@ -57,7 +57,8 @@ export interface WorldUniforms {
   uLuce: { value: Vector4 };
   uAcquerello: { value: Vector4 };
   uOmbraMatrice: { value: Matrix4 };
-  uOmbraMappa: { value: Texture | null };
+  /** Mai null: a ombre spente vale una mappa vuota (vedi `mappaOmbraVuota`). */
+  uOmbraMappa: { value: Texture };
   uOmbra: { value: Vector4 };
   uOmbraCentro: { value: Vector4 };
   uCellAnim: { value: number };
@@ -75,10 +76,29 @@ export interface HazeSettings {
   velo: number;
 }
 
-export const DEFAULT_HAZE: HazeSettings = { density: 1 / 900, max: 0.9, layers: 0.5, velo: 0.95 };
+export const DEFAULT_HAZE: HazeSettings = { density: 1 / 900, max: 0.9, layers: 0.5, velo: 0.12 };
 
 /** Aria del cilindro: densa sul fondo (foschie di valle), più rada verso l'asse. */
 export const DEFAULT_ARIA = { scaleHeight: 150, upperFraction: 0.32, forward: 0.8 };
+
+/**
+ * Mappa d'ombra "vuota" (1×1, profondità con confronto). Il `sampler2DShadow` dello shader deve
+ * avere SEMPRE una texture di profondità con confronto legata: con `null` three.js lega una
+ * texture RGBA vuota, WebGL2 rifiuta la draw («Mismatch between texture format and sampler type»)
+ * e il mondo sparisce. Serve a ombre spente, di notte e prima del primo passaggio d'ombra.
+ */
+export function mappaOmbraVuota(): DepthTexture {
+  const t = new DepthTexture(1, 1);
+  t.format = DepthFormat;
+  t.type = UnsignedIntType;
+  t.compareFunction = LessEqualCompare;
+  t.minFilter = NearestFilter;
+  t.magFilter = NearestFilter;
+  t.name = 'ombre-vuota';
+  // texture autonoma (non di un render target): three.js la alloca al primo uso
+  t.needsUpdate = true;
+  return t;
+}
 
 export function createWorldUniforms(): WorldUniforms {
   return {
@@ -110,7 +130,7 @@ export function createWorldUniforms(): WorldUniforms {
     uLuce: { value: new Vector4(1, 1, 1, 1.06) },
     uAcquerello: { value: new Vector4(0.74, 1, 1, 1) },
     uOmbraMatrice: { value: new Matrix4() },
-    uOmbraMappa: { value: null },
+    uOmbraMappa: { value: mappaOmbraVuota() },
     uOmbra: { value: new Vector4(0, 1 / 1024, 50, 70) },
     uOmbraCentro: { value: new Vector4(0, 0, 0, 0.06) },
     // nessuno lo aggiorna? allora si assume che una rivelazione sia sempre possibile (sicuro)

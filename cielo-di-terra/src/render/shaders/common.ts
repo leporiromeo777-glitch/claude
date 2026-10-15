@@ -325,8 +325,9 @@ vec3 shadeSup(Sup s, vec3 Nv, vec3 P, vec3 V, out float tone) {
   vec3 fill = mix(uAmbBottom, uAmbTop, hemi);
   float occ = mix(1.0, s.ao, uLuce.y);
   // notte: i colori perdono saturazione e virano al blu (i lumi invece li mostrano veri)
-  vec3 albN = mix(s.albedo, vec3(lumaP(s.albedo)) * vec3(0.78, 0.96, 1.16), 0.5 * uNight);
-  vec3 light = fill * (0.66 * occ) + sunC * (key * b * 0.86);
+  vec3 albN = mix(s.albedo, vec3(lumaP(s.albedo)) * vec3(0.7, 0.94, 1.22), 0.62 * uNight);
+  // (taratura: al sole pieno ~1.15 volte l'albedo, in ombra ~0.45 e più azzurro)
+  vec3 light = fill * (0.68 * occ) + sunC * (key * b * 0.7);
   vec3 col = albN * light;
   // banda calda sul terminatore (nella pittura il passaggio luce-ombra è più saturo)
   float term = smoothstep(-0.08, 0.1, ndl) * (1.0 - smoothstep(0.1, 0.42, ndl)) * reach * sh * key;
@@ -400,8 +401,9 @@ float foschiaFrazione(vec3 P, float dist) {
 }
 
 // colore della foschia lungo la direzione V (dalla camera): orizzonte chiaro, "zenit" azzurro
-// (raggi che attraversano il cilindro vicino all'asse), controluce verso il nucleo, alone della
-// Linea. 'glow' (out) = quanto bagliore della Linea c'è sul raggio.
+// (raggi che attraversano il cilindro vicino all'asse), bagliore verso la luce principale
+// (radente come la luce: all alba e al tramonto sta basso sulla valle, come il sole dei
+// bozzetti), alone della Linea. 'glow' (out) = quanto bagliore della Linea c'è sul raggio.
 vec3 coloreFoschia(vec3 P, float dist, out float glow) {
   vec3 c = cameraPosition;
   vec3 d = P - c;
@@ -412,19 +414,24 @@ vec3 coloreFoschia(vec3 P, float dist, out float glow) {
   vec3 q = c + d * t;
   float dmin = length(q.xy);
   // come in un cielo vero: guardando in su (verso l'altra metà) azzurro pieno, all'orizzonte chiaro
-  float elevV = dot(V, cylUp(c));
-  float alto = max(smoothstep(0.05, 0.62, elevV), smoothstep(0.2, 0.8, 1.0 - dmin / uR));
+  vec3 upC = cylUp(c);
+  float elevV = dot(V, upC);
+  float alto = max(smoothstep(0.02, 0.5, elevV), smoothstep(0.2, 0.75, 1.0 - dmin / uR));
   vec3 hc = mix(uHazeColor, uHazeZenith, alto);
-  // diffusione in avanti verso il nucleo della Linea (alba dorata, controluce)
-  vec3 toCore = vec3(0.0, 0.0, uSole.x) - c;
-  float mu = max(dot(V, normalize(toCore)), 0.0);
-  float fwd = (pow(mu, 4.0) * 0.32 + pow(mu, 48.0) * 0.4) * uAria.w * mix(0.55, 1.0, uGolden) * uSunIntensity * (1.0 - uNight * 0.85);
+  // bagliore verso la luce principale: stessa direzione (radente) della luce sul terreno
+  vec3 Lc = lineaLightDir(c, upC);
+  // (un po' più basso della luce: il bagliore si posa sulla valle, come il sole basso dei bozzetti)
+  Lc = normalize(Lc - upC * (dot(Lc, upC) * 0.45));
+  float mu = max(dot(V, Lc), 0.0);
+  float fwd = (pow(mu, mix(10.0, 7.0, uGolden)) * 0.28 + pow(mu, 48.0) * 0.5) * uAria.w * mix(0.45, 1.15, uGolden) * uSunIntensity * (1.0 - uNight);
+  // il bagliore si allarga lungo l'orizzonte (luce che attraversa più aria), non verso lo zenit
+  fwd *= mix(1.0, 0.55, alto);
   hc = mix(hc, uHazeSun, clamp(fwd, 0.0, 1.0));
   // la Linea illumina la foschia attorno a sé
   float litAt = max(step(q.z, uLineaIgnite), 0.55 * uNight);
-  glow = (exp(-dmin / 45.0) * 0.55 + exp(-dmin / 190.0) * 0.22) * 0.65 * litAt * smoothstep(0.0, 260.0, dist);
+  glow = (exp(-dmin / 38.0) * 0.6 + exp(-dmin / 160.0) * 0.3) * 0.7 * litAt * smoothstep(0.0, 260.0, dist);
   glow *= 1.0 - 0.45 * uNight;
-  return hc + uLineaGlow * glow * 0.32;
+  return hc + uLineaGlow * glow * 0.36;
 }
 
 // foschia con "quinte teatrali": 'k' scala la quantità (1 = piena)
@@ -709,11 +716,16 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
 vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, float dist, float blank, float steep, float inked) {
   float pix = max(dist, 0.5) * uPixelAngle;
   vec3 paper = vec3(0.962, 0.935, 0.862);
+  // da lontano la carta si confonde con l'aria (l'abbozzo dell'altra metà è dietro il velo azzurro)
+  paper = mix(paper, mix(uHazeColor, uHazeZenith, 0.35) * 1.08, smoothstep(350.0, 1100.0, dist) * 0.55 * (1.0 - uNight));
   // la carta prende la luce dell'ora (di notte è blu-viola)
   vec3 paperLight = mix(vec3(1.0), uAmbTop * 0.48 + uSunColor * uSunIntensity * 0.18 + uHazeColor * 0.16, uNight);
-  // pigmento: colore vero, meno saturo, un po' più chiaro
+  // da lontano la carta si vede meno e il colore torna (le terre si leggono a piani)
+  float lontano = smoothstep(260.0, 950.0, dist);
+  // pigmento: colore vero, meno saturo (circa 60%), un po' più chiaro; il foglio mai visto
+  // è un abbozzo ancora più spento, ma non vuoto
   float lum = lumaP(col);
-  vec3 pig = mix(vec3(lum), col, 0.62);
+  vec3 pig = mix(vec3(lum), col, mix(0.6, 0.88, lontano) * mix(1.0, 0.85, blank));
   pig = pig * 1.04 + 0.03;
   // stesure non uniformi: macchie d'acqua e di pigmento ancorate al mondo (in pixel, stabili)
   float w1 = rumoreStabile2(uv, pix, 140.0, 2.0);
@@ -725,12 +737,12 @@ vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, f
   // bordo della pozza: il pigmento si raccoglie e scurisce il contorno della stesura
   float pozza = 1.0 - smoothstep(0.0, 0.035, abs(w1 - 0.44));
   // granulazione del pigmento
-  float gran = (rumoreStabile2(uv + 41.0, pix, 2.5, 0.04) - 0.5) * 0.1 * uAcquerello.w;
+  float gran = (rumoreStabile2(uv + 41.0, pix, 3.0, 0.04) - 0.5) * 0.06 * uAcquerello.w;
   wash = clamp(wash * (1.0 + gran) + pozza * 0.12, 0.0, 1.0);
   // da lontano la carta si vede meno: resta una velatura di colore (le terre si leggono a piani)
-  float lontano = smoothstep(260.0, 950.0, dist);
-  wash = mix(wash, 0.9, lontano * 0.75);
-  wash *= mix(1.0, 0.16, blank);
+  wash = mix(wash, 0.97, lontano * 0.85);
+  // il foglio mai visto: una prima velatura leggera (il mondo non sembra mai vuoto)
+  wash *= mix(1.0, mix(0.72, 0.94, lontano), blank);
   vec3 wc = paper * mix(vec3(1.0), clamp(pig, 0.0, 1.0), wash);
   wc *= 1.0 - pozza * 0.06 * (1.0 - blank);
   // grana della carta

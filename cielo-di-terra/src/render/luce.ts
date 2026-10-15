@@ -4,7 +4,8 @@
  * - crea le ombre morbide vicino alla camera (`Ombre`) e le registra come sistema del ciclo
  *   (`render` prima del disegno del mondo);
  * - dà ai castagni segnaposto del motore (`materials.crown` / `materials.trunk`) le superfici
- *   FOGLIAME e CORTECCIA, finché la traccia «natura» non tagga le sue geometrie;
+ *   FOGLIAME e CORTECCIA, finché la traccia «natura» non tagga le sue geometrie (gli altri
+ *   oggetti hanno già la superficie AUTO di `createWorldMaterial`);
  * - in sviluppo e nelle prove E2E espone `window.__LUCE__` (ombre, scena di prova delle superfici).
  *
  * Per spegnere o cambiare le ombre: `game.luce.ombre.impostaQualita('spente' | 'bassa' | 'media' | 'alta')`.

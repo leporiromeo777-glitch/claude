@@ -16,10 +16,10 @@
  * Uniform propri di ogni materiale: `uBrush` (forza della pennellata), `uSuperficieBase` (tipo di
  * superficie usato dove il vertice non ne dichiara uno; 0 = nessuno).
  */
-import { FrontSide, ShaderMaterial, type Side } from 'three';
+import { DoubleSide, FrontSide, ShaderMaterial, type Side } from 'three';
 import { BRUSH_GLSL, LIGHT_GLSL, NOISE_GLSL, PENCIL_GLSL, WORLD_UNIFORMS_GLSL } from './shaders/common';
 import { TERRENO_GLSL } from './shaders/terreno';
-import { SUPERFICI_GLSL } from './superfici';
+import { SUPERFICIE, SUPERFICI_BASE_GLSL, SUPERFICI_GLSL } from './superfici';
 import type { WorldUniforms } from './uniforms';
 
 export type WorldMaterialKind = 'terrain' | 'object' | 'cloud';
@@ -33,7 +33,10 @@ export interface WorldMaterialOptions {
   side?: Side;
   /** Forza della pennellata (0..1). */
   brush?: number;
-  /** Tipo di superficie predefinito (valore di `SUPERFICIE`, + variante) dove il vertice non lo dice. */
+  /**
+   * Tipo di superficie predefinito (valore di `SUPERFICIE`, + variante) dove il vertice non lo dice.
+   * Predefinito: `SUPERFICIE.AUTO` per gli oggetti (motivo dedotto dal colore), NESSUNA per il resto.
+   */
   superficie?: number;
 }
 
@@ -86,8 +89,9 @@ varying vec2 vSup;
 ${NOISE_GLSL}
 ${LIGHT_GLSL}
 ${BRUSH_GLSL}
-${SUPERFICI_GLSL}
+${SUPERFICI_BASE_GLSL}
 ${TERRENO_GLSL}
+${SUPERFICI_GLSL}
 ${PENCIL_GLSL}
 void main() {
   vec3 P = vWorldPos;
@@ -109,7 +113,7 @@ void main() {
 #else
   vec3 tW;
   vec3 bW;
-  vec2 suv = faceUV(P, N, tW, bW);
+  vec2 suv = uvSuperficie(P, N, tW, bW);
   float br = brushStrokes(suv, dist);
 #endif
   // variazione pittorica a bassa frequenza e pennellata
@@ -121,9 +125,17 @@ void main() {
 #ifdef TERRAIN
   terrenoDipinto(s, P, N, dist, pixW);
 #elif !defined(CLOUD)
-  float tipoF = vSup.x > 0.5 ? vSup.x : uSuperficieBase;
+  // vertice taggato (anche NESSUNA dichiarata = 0.5) oppure la superficie predefinita del materiale
+  float tipoF = vSup.x > 0.25 ? vSup.x : uSuperficieBase;
   float tipo = floor(tipoF + 1e-3);
   float var = max(tipoF - tipo, 0.0);
+  // AUTO: il tipo dal colore per vertice (oggetti non ancora taggati)
+  if (tipo > 13.5 && tipo < 14.5) {
+    // curvatura (1/m): quanto gira la normale per metro; > ~1 = forma tonda stretta (tronchi, rami)
+    float curv = length(fwidth(N)) / max(length(fwidth(P)), 1e-4);
+    tipo = superficieAuto(vColor.rgb, vColor.a, dot(N, cylUp(P)), step(1.0, curv));
+    var = 0.0; // i motivi sono ancorati al mondo: variano da soli da un oggetto all'altro
+  }
   s.ao = 1.0 - clamp(vSup.y, 0.0, 1.0);
   applicaSuperficie(s, tipo, var, P, N, pixW);
 #endif
@@ -152,7 +164,8 @@ void main() {
   PaintInfo pi = paintState(P, th, dist);
   // rilevato: inchiostro e colore pieno (un filo più saturo)
   vec3 colPieno = max(mix(vec3(lumaP(col)), col, uLuce.w), 0.0);
-  hazeK = mix(0.92, 1.0, pi.paint);
+  // l'abbozzo sta un po' più dietro l'aria (si legge come un fondale), il dipinto è più nitido
+  hazeK = mix(1.12, 1.0, pi.paint);
   if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
     float steep = 1.0 - smoothstep(0.35, 0.8, abs(dot(N, cylUp(P))));
@@ -187,9 +200,13 @@ export function createWorldMaterial(u: WorldUniforms, opts: WorldMaterialOptions
   }
   if (opts.noPencil) defines.NO_PENCIL = '';
   if (opts.tint) defines.USE_TINT = '';
+  // superfici a doppia faccia (tele, veli, foglie piatte): AUTO legge i chiari come tessuto
+  if (opts.side === DoubleSide) defines.DOPPIA_FACCIA = '';
+  // gli oggetti senza superficie dichiarata prendono il motivo dal colore (AUTO, vedi superfici.ts)
+  const base = opts.superficie ?? (opts.kind === 'object' ? SUPERFICIE.AUTO : SUPERFICIE.NESSUNA);
   const mat = new ShaderMaterial({
     name: `world-${opts.kind}`,
-    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: opts.superficie ?? 0 } },
+    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: base } },
     vertexShader: VERT,
     fragmentShader: FRAG,
     defines,
