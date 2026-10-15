@@ -76,9 +76,9 @@ const SHOTS = [
     titolo: 'Il fienile di Ottavio oltre il riale, il Sass dal Messo e la passerella',
     setup: (g, c) => {
       g.setTime(16.5);
-      c.applicaOrario(2, 16.5);
+      c.applicaOrario(1, 10.5);
       c.setVariante('E1', 'Abitata');
-      g.setCamera(1168.5, 55.4, g.game.world.groundAt(1168.5, 55.4) + 1.8, 76, 5);
+      g.setCamera(1171.2, 56.3, g.game.world.groundAt(1171.2, 56.3) + 1.7, 70, 6);
     },
     frames: 3,
   },
@@ -109,7 +109,7 @@ const SHOTS = [
         n.vaiA(z, th);
         n.orientaVerso({ z: 1047, theta: 38.6 });
       });
-      g.setCamera(1043.5, 39.4, g.game.world.groundAt(1043.5, 39.4) + 1.65, -70, 3);
+      g.setCamera(1043.0, 38.25, g.game.world.groundAt(1043.0, 38.25) + 1.65, -72, 2);
       c.npc('ottavio').gesto('saluta', 0);
       c.npc('lisa').gesto('indica', 0, { z: 1062, theta: 37.2, h: 70 });
     },
@@ -123,9 +123,60 @@ const SHOTS = [
       g.setTime(0.6);
       c.applicaOrario(2, 0.6);
       c.setVariante('E2', 'Smontata');
-      g.setCamera(1200, 48.5, g.game.world.groundAt(1200, 48.5) + 4, 240, -5);
+      g.setCamera(1204, 49.2, g.game.world.groundAt(1204, 49.2) + 7.5, 232, -9);
     },
     frames: 60,
+  },
+  {
+    nome: 'fade',
+    file: 'fade-ronchi.png',
+    titolo: 'Le Fade alle 00:40 sui Ronchi: lumi caldi in cerchio sopra la casa di Nando',
+    setup: (g, c) => {
+      g.setTime(0.66);
+      c.applicaOrario(2, 0.66);
+      c.setVariante('E2', 'Smontata');
+      g.setCamera(1186, 44.2, g.game.world.groundAt(1186, 44.2) + 3.0, 150, -4);
+    },
+    frames: 90,
+  },
+  {
+    nome: 'cripta-interno',
+    file: 'cripta-interno.png',
+    titolo: 'La Cripta dei Giardinieri sotto la botola: sette capsule, luci color miele',
+    setup: (g, c) => {
+      g.setTime(5.6);
+      c.cripta.interno.visible = true;
+      const s = c.cripta.sala;
+      const b = c.cripta.botola;
+      g.setCamera(b.z + (s.z - b.z) * 0.45, b.theta + (s.theta - b.theta) * 0.45, s.h + 1.6, Math.atan2((s.theta - b.theta) * 10.6, s.z - b.z) * 57.3, -6);
+    },
+    after: (g, c) => (c.cripta.interno.visible = false),
+    frames: 2,
+  },
+  {
+    nome: 'mobili',
+    file: 'mobili-varianti.png',
+    titolo: 'Elementi mobili: la passerella del Messo (Abitata), la casa di Nando (Smontata), il muro di Ronco con la breccia',
+    setup: (g, c) => {
+      g.setTime(9.0);
+      c.applicaOrario(2, 9.0);
+      c.setVariante('E1', 'Abitata');
+      c.setVariante('E2', 'Smontata');
+      c.setVariante('E3', 'Abitata');
+      g.setCamera(1176, 42.6, g.game.world.groundAt(1176, 42.6) + 14, 90, -22);
+    },
+    frames: 3,
+  },
+  {
+    nome: 'velo',
+    file: 'muri-del-velo.png',
+    titolo: 'I tre muri del Velo dalla Terrazza: il Muretto, il Muraglione della Grà, la Ripa sopra la piazza',
+    setup: (g, c) => {
+      g.setTime(11.5);
+      c.applicaOrario(1, 11.5);
+      g.setCamera(958, 24.0, g.game.world.groundAt(958, 24.0) + 8, 45, -10);
+    },
+    frames: 3,
   },
   {
     nome: 'panorama',
