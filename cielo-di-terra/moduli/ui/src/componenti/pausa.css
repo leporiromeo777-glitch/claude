@@ -1,0 +1,57 @@
+/* ---------- Pausa ---------- */
+
+.ui-pausa {
+  display: flex;
+  align-items: center;
+  padding: clamp(16px, 5vh, 64px) clamp(16px, 8vw, 150px);
+}
+.ui-pausa-foglio {
+  width: clamp(340px, 30vw, 440px);
+  padding: 28px 38px 24px 40px;
+  transform: rotate(0.5deg);
+  transition: transform 0.4s ease;
+}
+.ui-pausa:not(.ui-aperto) .ui-pausa-foglio {
+  transform: rotate(0.5deg) translateX(-14px);
+}
+.ui-pausa-titolo {
+  margin: 0;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: calc(40px * var(--ui-scala));
+  line-height: 1.05;
+}
+.ui-pausa-luogo {
+  margin: 0.25em 0 0;
+  font-style: italic;
+  color: var(--matita);
+  font-size: var(--t-base);
+}
+.ui-pausa .ui-filetto {
+  margin: 14px 0 12px;
+  width: 70%;
+  font-size: 13px;
+}
+.ui-pausa-separa {
+  margin-top: 0.5em;
+  padding-top: 0.4em;
+  border-top: 1px dashed rgba(36, 30, 25, 0.3);
+}
+.ui-pausa-domanda {
+  margin: 0 0 0.5em;
+  font-size: var(--t-medio);
+  font-style: italic;
+  color: var(--inchiostro-2);
+}
+.ui-pausa-conferma .ui-voce {
+  font-size: var(--t-medio);
+}
+.ui-pausa-evento {
+  margin: 18px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(36, 30, 25, 0.22);
+  font-family: var(--f-mano);
+  font-size: calc(22px * var(--ui-scala));
+  line-height: 1.2;
+  color: var(--matita);
+}

@@ -1,0 +1,285 @@
+/* ---------- Impostazioni ---------- */
+
+.ui-impostazioni {
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 4vh, 48px) 16px;
+}
+.ui-imp-foglio {
+  width: min(920px, 100%);
+  max-height: min(88vh, 100%);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 26px 0 0;
+  transform: translateY(0);
+  transition: transform 0.35s ease;
+}
+.ui-impostazioni:not(.ui-aperto) .ui-imp-foglio {
+  transform: translateY(12px);
+}
+.ui-imp-testa {
+  padding: 0 44px;
+}
+.ui-imp-titolo {
+  margin: 0 0 12px;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: calc(38px * var(--ui-scala));
+  line-height: 1.05;
+}
+
+/* Schede come divisori di un quaderno. */
+.ui-imp-schede {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  border-bottom: 1.5px solid var(--inchiostro-2);
+}
+.ui-imp-scheda {
+  position: relative;
+  margin-bottom: -1.5px;
+  padding: 0.35em 0.9em 0.3em;
+  border: 1.5px solid transparent;
+  border-bottom: 0;
+  border-radius: 6px 9px 0 0;
+  background: none;
+  color: var(--matita);
+  font-family: var(--f-maiuscoletto);
+  font-size: var(--t-medio);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.ui-imp-scheda:hover {
+  color: var(--inchiostro);
+}
+.ui-imp-scheda[aria-selected='true'] {
+  color: var(--inchiostro);
+  border-color: var(--inchiostro-2);
+  background: var(--carta-chiara);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+}
+.ui-imp-scheda:focus-visible {
+  outline-offset: -5px;
+}
+
+.ui-imp-corpo {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 44px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--matita-chiara) transparent;
+  user-select: text;
+}
+.ui-imp-pannello:focus {
+  outline: none;
+}
+.ui-imp-riga {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: center;
+  gap: 8px 28px;
+  padding: 14px 0 13px;
+  border-bottom: 1px solid rgba(84, 116, 150, 0.22);
+}
+.ui-imp-riga:last-child {
+  border-bottom: 0;
+}
+.ui-imp-etichetta label {
+  font-size: var(--t-medio);
+  color: var(--inchiostro);
+  cursor: pointer;
+}
+.ui-imp-nota {
+  margin: 0.15em 0 0;
+  font-size: var(--t-piccolo);
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--matita);
+}
+.ui-imp-controllo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+.ui-imp-valore {
+  min-width: 4.4em;
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-size: var(--t-base);
+  color: var(--inchiostro-2);
+}
+
+/* Cursore: una riga a matita con le tacche, la parte scelta a inchiostro, il pomello d'ottone. */
+.ui-cursore {
+  --riempito: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.ui-cursore::-webkit-slider-runnable-track {
+  height: 12px;
+  background:
+    linear-gradient(var(--inchiostro), var(--inchiostro)) left center / var(--riempito) 2.5px no-repeat,
+    linear-gradient(var(--matita-chiara), var(--matita-chiara)) left center / 100% 1.5px no-repeat,
+    repeating-linear-gradient(90deg, var(--matita-chiara) 0 1px, transparent 1px 10%) left center / 100% 9px no-repeat;
+  border-radius: 2px;
+}
+.ui-cursore::-moz-range-track {
+  height: 12px;
+  background:
+    linear-gradient(var(--matita-chiara), var(--matita-chiara)) left center / 100% 1.5px no-repeat,
+    repeating-linear-gradient(90deg, var(--matita-chiara) 0 1px, transparent 1px 10%) left center / 100% 9px no-repeat;
+}
+.ui-cursore::-moz-range-progress {
+  height: 2.5px;
+  background: var(--inchiostro);
+}
+.ui-cursore::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ottone-scuro);
+  background: radial-gradient(circle at 35% 30%, #fff3cf 0%, var(--ottone-chiaro) 22%, var(--ottone) 55%, var(--ottone-scuro) 100%);
+  box-shadow: 0 2px 3px rgba(30, 18, 4, 0.45), inset 0 -1px 2px rgba(60, 35, 5, 0.4);
+}
+.ui-cursore::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ottone-scuro);
+  background: radial-gradient(circle at 35% 30%, #fff3cf 0%, var(--ottone-chiaro) 22%, var(--ottone) 55%, var(--ottone-scuro) 100%);
+  box-shadow: 0 2px 3px rgba(30, 18, 4, 0.45);
+}
+.ui-cursore:focus-visible {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Interruttore: una levetta con il pomello d'ottone. */
+.ui-interruttore {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px;
+  border: 0;
+  background: none;
+  color: var(--inchiostro);
+  font-family: var(--f-testo);
+  font-size: var(--t-base);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.ui-interruttore-binario {
+  position: relative;
+  width: 52px;
+  height: 26px;
+  border: 1.5px solid var(--inchiostro-2);
+  border-radius: 14px;
+  background: rgba(120, 100, 70, 0.12);
+  box-shadow: inset 0 1px 3px rgba(40, 25, 10, 0.25);
+  transition: background-color 0.2s ease;
+}
+.ui-interruttore-pomo {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  border: 1.2px solid var(--ottone-scuro);
+  background: radial-gradient(circle at 35% 30%, #fff3cf 0%, var(--ottone-chiaro) 22%, var(--ottone) 60%, var(--ottone-scuro) 100%);
+  box-shadow: 0 1px 2px rgba(30, 18, 4, 0.45);
+  transition: transform 0.2s ease;
+}
+.ui-interruttore[aria-checked='true'] .ui-interruttore-binario {
+  background: var(--inchiostro-2);
+}
+.ui-interruttore[aria-checked='true'] .ui-interruttore-pomo {
+  transform: translateX(26px);
+}
+.ui-interruttore-testo {
+  min-width: 1.8em;
+  text-align: left;
+  color: var(--matita);
+}
+.ui-interruttore[aria-checked='true'] .ui-interruttore-testo {
+  color: var(--inchiostro);
+}
+
+/* Scelta fra poche opzioni: quella scelta è cerchiata a matita. */
+.ui-scelta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 2px 4px;
+}
+.ui-scelta-voce {
+  position: relative;
+}
+.ui-scelta-voce label {
+  position: relative;
+  display: inline-block;
+  padding: 0.2em 0.6em 0.25em;
+  color: var(--matita);
+  font-size: var(--t-base);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ui-scelta-voce label:hover {
+  color: var(--inchiostro);
+}
+.ui-scelta-input:checked + label {
+  color: var(--inchiostro);
+  font-weight: 600;
+}
+.ui-scelta-input:checked + label::before {
+  content: '';
+  position: absolute;
+  inset: -0.05em -0.1em -0.05em -0.15em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M22 10 C 70 0, 160 3, 188 16 C 202 26, 196 46, 168 53 C 120 60, 50 59, 20 49 C 0 41, 2 18, 34 8 L 58 5' fill='none' stroke='%23241e19' stroke-width='2' stroke-linecap='round' vector-effect='non-scaling-stroke' opacity='.85'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+.ui-scelta-input:focus-visible + label {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ui-imp-piede {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 14px;
+  padding: 14px 44px 22px;
+  border-top: 1.5px solid var(--inchiostro-2);
+}
+.ui-imp-salvate {
+  margin: 0 auto 0 0;
+}
+.ui-imp-avviso {
+  color: var(--vermiglio) !important;
+}
+
+@media (max-width: 720px) {
+  .ui-imp-testa,
+  .ui-imp-corpo,
+  .ui-imp-piede {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .ui-imp-riga {
+    grid-template-columns: 1fr;
+  }
+  .ui-imp-controllo {
+    justify-content: flex-start;
+  }
+}

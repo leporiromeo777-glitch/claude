@@ -1,0 +1,311 @@
+/* ---------- Lettore di carte ---------- */
+
+.ui-lettore {
+  display: grid;
+}
+.ui-lt-cornice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+  height: 100%;
+  padding: clamp(12px, 2.6vh, 28px) 16px clamp(12px, 2.4vh, 24px);
+}
+.ui-lt-titolo {
+  margin: 0;
+  font-family: var(--f-maiuscoletto);
+  font-weight: 400;
+  font-size: var(--t-medio);
+  letter-spacing: 0.06em;
+  color: #eadfc4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.ui-lt-scena {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+.ui-lt-foglio {
+  display: flex;
+  max-height: 100%;
+  min-height: 0;
+}
+.ui-lt-entra-destra {
+  animation: ui-lt-da-destra 0.32s ease both;
+}
+.ui-lt-entra-sinistra {
+  animation: ui-lt-da-sinistra 0.32s ease both;
+}
+@keyframes ui-lt-da-destra {
+  from {
+    opacity: 0;
+    transform: translateX(26px) rotate(0.6deg);
+  }
+}
+@keyframes ui-lt-da-sinistra {
+  from {
+    opacity: 0;
+    transform: translateX(-26px) rotate(-0.6deg);
+  }
+}
+.ui-lt-pagina {
+  position: relative;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--matita-chiara) transparent;
+  user-select: text;
+}
+.ui-lt-pagina p {
+  margin: 0 0 0.75em;
+}
+.ui-lt-data {
+  text-align: right;
+  font-style: italic;
+}
+.ui-lt-firma {
+  text-align: right;
+  margin-top: 0.6em !important;
+}
+.ui-lt-margine {
+  margin: 1.1em 0 0.3em;
+  padding: 0.1em 0 0.1em 0.8em;
+  border-left: 2px solid rgba(70, 66, 60, 0.4);
+  transform: rotate(-1.2deg);
+  transform-origin: left top;
+  font-family: var(--f-mano);
+  font-size: 1.12em;
+  line-height: 1.3;
+  color: var(--matita);
+}
+
+.ui-lt-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+}
+.ui-lt-barra .ui-bottone {
+  background: rgba(240, 231, 209, 0.92);
+}
+.ui-lt-barra .ui-bottone:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ui-lt-contatore {
+  min-width: 9em;
+  text-align: center;
+  font-size: var(--t-base);
+  color: #eadfc4;
+  font-variant-numeric: lining-nums;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.ui-lettore .ui-radice :focus-visible,
+.ui-lt-barra :focus-visible {
+  outline-color: #f3e7c6;
+}
+
+/* --- Lettera: carta da lettere piegata in tre, corsiva scolastica --- */
+.ui-lt--lettera .ui-lt-pagina {
+  width: min(720px, 92vw);
+  max-height: calc(100vh - 130px);
+  padding: clamp(28px, 6vh, 56px) clamp(28px, 5vw, 68px) clamp(24px, 5vh, 48px);
+  font-family: var(--f-lettera);
+  font-size: calc(clamp(16px, 2.5vh, 21px) * var(--ui-scala));
+  line-height: 2.05;
+  color: #2a2633;
+  transform: rotate(-0.7deg);
+}
+.ui-lt--lettera .ui-lt-pagina::after {
+  /* Pieghe: due linee chiaro-scure a un terzo e a due terzi. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent calc(33.3% - 3px), rgba(110, 82, 40, 0.13) calc(33.3% - 1px), rgba(255, 252, 240, 0.55) 33.3%, transparent calc(33.3% + 4px)),
+    linear-gradient(180deg, transparent calc(66.6% - 3px), rgba(110, 82, 40, 0.13) calc(66.6% - 1px), rgba(255, 252, 240, 0.55) 66.6%, transparent calc(66.6% + 4px));
+}
+.ui-lt--lettera .ui-lt-data {
+  font-size: 0.9em;
+  font-style: normal;
+  margin-bottom: 0.6em;
+}
+.ui-lt--lettera .ui-lt-firma {
+  font-size: 1.05em;
+}
+.ui-semplice .ui-lt--lettera .ui-lt-pagina,
+.ui-leggibile .ui-lt--lettera .ui-lt-pagina {
+  font-size: calc(clamp(18px, 2.8vh, 23px) * var(--ui-scala));
+  line-height: 1.7;
+}
+
+/* --- Libretto di Aurelio: quadretti, mano da geometra, due pagine sulla copertina di tela --- */
+.ui-lt--libretto {
+  padding: 12px;
+  border-radius: 10px 14px 12px 10px;
+  background:
+    var(--grana-fine),
+    linear-gradient(135deg, #3d4a38 0%, #2c3829 60%, #222c20 100%);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.ui-lt--libretto .ui-lt-pagina {
+  width: min(480px, 88vw);
+  height: min(660px, calc(100vh - 160px));
+  padding: 34px 34px 40px 40px;
+  font-family: var(--f-geometra);
+  font-size: calc(clamp(16px, 2.3vh, 19px) * var(--ui-scala));
+  line-height: 24px;
+  color: #262c3a;
+}
+.ui-lt--libretto .ui-lt-pagina::before {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+  background-color: #f1ecda;
+  background-image:
+    linear-gradient(90deg, transparent 31px, rgba(176, 72, 60, 0.42) 31px, rgba(176, 72, 60, 0.42) 32.5px, transparent 32.5px),
+    repeating-linear-gradient(0deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(84, 116, 150, 0.2) 0 1px, transparent 1px 24px),
+    var(--grana-fine),
+    var(--grana-macchie);
+  border-radius: 3px;
+}
+.ui-lt--libretto.ui-lt--doppia .ui-lt-pagina:first-child::before {
+  border-radius: 6px 0 0 6px;
+  box-shadow: inset -18px 0 22px -14px rgba(60, 40, 15, 0.45);
+}
+.ui-lt--libretto.ui-lt--doppia .ui-lt-pagina:last-child::before {
+  border-radius: 0 6px 6px 0;
+  box-shadow: inset 18px 0 22px -14px rgba(60, 40, 15, 0.45);
+}
+.ui-lt--libretto .ui-lt-intestazione {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 2px 10px 0;
+  border: 1.5px solid #262c3a;
+  font-family: var(--f-geometra);
+  font-weight: 400;
+  font-size: 1.1em;
+  line-height: 28px;
+}
+.ui-lt--libretto .ui-lt-testo p {
+  margin: 0 0 24px;
+}
+.ui-lt-tabella {
+  border-collapse: collapse;
+  margin: 0 0 24px;
+  font-variant-numeric: tabular-nums;
+}
+.ui-lt-tabella th,
+.ui-lt-tabella td {
+  padding: 0 14px 0 0;
+  height: 24px;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: bottom;
+}
+.ui-lt-tabella td {
+  text-align: right;
+  border-left: 1.5px solid rgba(38, 44, 58, 0.55);
+  padding-left: 12px;
+}
+.ui-lt-numero {
+  position: absolute;
+  bottom: 12px;
+  right: 18px;
+  font-size: 0.9em;
+  color: var(--matita);
+}
+.ui-lt--libretto.ui-lt--doppia .ui-lt-pagina:first-child .ui-lt-numero {
+  right: auto;
+  left: 18px;
+}
+.ui-lt-pagina--vuota {
+  pointer-events: none;
+}
+
+/* --- Cartellino: cartoncino color manila con il foro rinforzato --- */
+.ui-lt--cartellino .ui-lt-pagina {
+  width: min(580px, 90vw);
+  max-height: calc(100vh - 140px);
+  padding: 40px 48px 34px 72px;
+  font-family: var(--f-mano);
+  font-size: calc(clamp(20px, 3.2vh, 26px) * var(--ui-scala));
+  line-height: 1.35;
+  transform: rotate(1.4deg);
+}
+.ui-lt--cartellino .ui-lt-pagina::before {
+  background-color: #e6d3a4;
+  filter: url(#ui-f-bordo-fine) drop-shadow(0 14px 18px rgba(0, 0, 0, 0.45));
+  border-radius: 8px 12px 10px 8px;
+}
+.ui-lt--cartellino .ui-lt-intestazione {
+  margin: 0 0 10px;
+  font-family: var(--f-maiuscoletto);
+  font-weight: 400;
+  font-size: 0.95em;
+  letter-spacing: 0.05em;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid rgba(36, 30, 25, 0.5);
+}
+.ui-lt-foro {
+  position: absolute;
+  left: 26px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: rgba(20, 14, 8, 0.85);
+  box-shadow: 0 0 0 5px #c9b07a, 0 0 0 6px rgba(80, 60, 25, 0.5);
+}
+.ui-semplice .ui-lt--cartellino .ui-lt-pagina,
+.ui-leggibile .ui-lt--cartellino .ui-lt-pagina {
+  font-size: calc(clamp(18px, 2.8vh, 22px) * var(--ui-scala));
+}
+
+/* --- Dattiloscritto: carta velina, lettere battute a macchina --- */
+.ui-lt--dattiloscritto .ui-lt-pagina {
+  width: min(700px, 92vw);
+  max-height: calc(100vh - 130px);
+  padding: 48px 58px 40px;
+  font-family: var(--f-macchina);
+  font-size: calc(clamp(16px, 2.4vh, 19px) * var(--ui-scala));
+  line-height: 1.75;
+  color: #26232a;
+  transform: rotate(0.5deg);
+}
+.ui-lt--dattiloscritto .ui-lt-pagina::before {
+  background-color: #f5f2e9;
+}
+.ui-lt--dattiloscritto .ui-lt-testo {
+  text-shadow: 0.3px 0.2px 0 rgba(38, 35, 42, 0.5);
+}
+.ui-lt--dattiloscritto .ui-lt-intestazione {
+  margin: 0 0 1em;
+  font-family: var(--f-macchina);
+  font-weight: 400;
+  font-size: 1em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* --- Foglio stampato --- */
+.ui-lt--foglio .ui-lt-pagina {
+  width: min(720px, 92vw);
+  max-height: calc(100vh - 130px);
+  padding: 48px 60px 40px;
+  font-size: calc(21px * var(--ui-scala));
+  line-height: 1.55;
+}
+.ui-lt--foglio .ui-lt-intestazione {
+  margin: 0 0 0.6em;
+  font-family: var(--f-titolo);
+  font-weight: 400;
+  font-size: 1.4em;
+}

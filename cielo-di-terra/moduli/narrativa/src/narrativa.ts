@@ -1,0 +1,485 @@
+/**
+ * Facciata del modulo: crea flag, missioni, dialoghi, taccuino e inventario
+ * da un oggetto contenuti e da un `WorldFacts`, li collega fra loro e
+ * raccoglie tutti gli eventi in un solo emettitore.
+ *
+ *   const narrativa = new Narrativa({ missioni, dialoghi, taccuino }, fatti);
+ *   narrativa.eventi.on('passoAttivato', …);
+ *   narrativa.eventi.on('evento', ({ nome }) => …);   // «evento:nome» dei contenuti
+ *   narrativa.eventi.on('tempo', ({ azione, ore }) => …);
+ *   // ogni tanto (per esempio ogni mezzo secondo, e dopo che il giocatore
+ *   // raggiunge un luogo o rileva una cella):
+ *   narrativa.tick();
+ */
+import {
+  ParserCondizioni,
+  type CondizioneGrezza,
+  type ContestoCondizioni,
+  type OpzioniParser,
+} from './condizioni';
+import {
+  normalizzaContenuti,
+  type ContenutiNarrativa,
+  type ContenutiNormalizzati,
+} from './contenuti';
+import { Dialoghi, type EventiDialoghi, type StatoDialoghi, type VistaNodo } from './dialoghi';
+import { analizzaEffetto, type Effetto } from './effetti';
+import { Emettitore } from './eventi';
+import { ArchivioFlag, type CambioFlag, type ValoreFlag } from './flag';
+import { Inventario, type CambioOggetto } from './inventario';
+import { Missioni, type EventiMissioni, type StatoMissioni } from './missioni';
+import type { GestoreSalvataggi, InfoSlot, RisultatoCaricamento } from './salvataggio';
+import { Taccuino, type EventiTaccuino, type Obiettivo, type StatoTaccuino } from './taccuino';
+
+/**
+ * I fatti del mondo che il gioco mette a disposizione della narrativa.
+ * Tutte le funzioni devono essere veloci: vengono chiamate a ogni `tick()`.
+ */
+export interface WorldFacts {
+  /** Ora del giorno di gioco, 0 ≤ ora < 24, anche frazionaria. */
+  ora(): number;
+  /** Numero del giorno di gioco (il primo giorno è 1). */
+  giorno(): number;
+  /** true di notte. Se manca: notte fra `opzioni.notte.inizio` e `opzioni.notte.fine`. */
+  notte?(): boolean;
+  /** true se il giocatore ha raggiunto il luogo (id di content/luoghi.json). */
+  luogoRaggiunto(id: string): boolean;
+  /** true se la cella/particella è rilevata (inchiostro e colore sulla Pianta). */
+  cellaRilevata(id: string): boolean;
+  /** true se la cella è almeno vista con lo squadro (matita). Se manca vale come `cellaRilevata`. */
+  cellaVista?(id: string): boolean;
+  /** Variante corrente della particella: «carta», «abitata», «mietuta», «scritta». */
+  varianteParticella?(id: string): string | undefined;
+  /** Oggetti che il gioco tiene fuori dall'inventario narrativo (si sommano a quelli dell'inventario). */
+  quantitaOggetto?(id: string): number;
+  /** Prefissi aggiuntivi registrati in `opzioni.parser.prefissiExtra`. */
+  predicato?(prefisso: string, argomento: string, qualificatore?: string): boolean;
+}
+
+/** Il gioco fornisce lo stato del mondo da salvare insieme alla narrativa (blob opaco). */
+export interface FornitoreMondo {
+  esporta(): unknown;
+  importa(blob: unknown): void;
+}
+
+export interface OpzioniNarrativa {
+  parser?: OpzioniParser;
+  /**
+   * Missioni avviate al primo `tick()` di una partita nuova. Predefinite: le
+   * missioni senza `avvia_quando` che nessun effetto dei contenuti avvia.
+   */
+  missioniIniziali?: string[];
+  /** Ore della notte se `WorldFacts.notte` manca (predefinite: dalle 20 alle 6). */
+  notte?: { inizio: number; fine: number };
+  /** Se vero, un errore nei contenuti lancia subito un'eccezione invece di finire in `problemi`. */
+  rigoroso?: boolean;
+}
+
+export interface EventiNarrativa extends EventiMissioni, EventiDialoghi {
+  flag: CambioFlag;
+  oggetto: CambioOggetto;
+  taccuino: EventiTaccuino['voce'];
+  rigaCielo: { testo: string | null };
+  obiettivi: { obiettivi: Obiettivo[] };
+  /** «evento:nome arg…» dei contenuti: il gioco lo intercetta (scene, suoni, dissolvenze). */
+  evento: { nome: string; argomenti: string[]; origine?: string };
+  /** «tempo:salta-a 6» / «tempo:avanza 2»: il gioco sposta l'orologio. */
+  tempo: { azione: 'salta-a' | 'avanza'; ore: number; origine?: string };
+  /** «dialogo:id avvia»: il gioco apre il dialogo quando può (di solito con `dialoghi.avvia`). */
+  apriDialogo: { dialogo: string; origine?: string };
+  /** Problemi dei contenuti scoperti durante il gioco (condizioni o effetti malformati, id inesistenti). */
+  errore: { messaggio: string; origine?: string };
+}
+
+export interface StatoNarrativo {
+  flag: Record<string, ValoreFlag>;
+  missioni: StatoMissioni;
+  dialoghi: StatoDialoghi;
+  taccuino: StatoTaccuino;
+  inventario: Record<string, number>;
+}
+
+function eNormalizzati(c: ContenutiNarrativa | ContenutiNormalizzati): c is ContenutiNormalizzati {
+  return Array.isArray((c as ContenutiNormalizzati).avvisi) && Array.isArray(c.missioni);
+}
+
+/** Missioni senza `avviaQuando` che nessun effetto dei contenuti avvia. */
+export function missioniOrfane(c: ContenutiNormalizzati): string[] {
+  const avviate = new Set<string>();
+  const guarda = (effetti: readonly string[]): void => {
+    for (const s of effetti) {
+      try {
+        const e = analizzaEffetto(s);
+        if (e.tipo === 'missione' && e.azione === 'avvia') avviate.add(e.id);
+      } catch {
+        // gli effetti malformati sono segnalati altrove
+      }
+    }
+  };
+  for (const m of c.missioni) {
+    guarda(m.effetti);
+    for (const p of m.passi) {
+      guarda(p.effetti);
+      guarda(p.effettiAttivazione);
+    }
+  }
+  for (const d of Object.values(c.dialoghi)) {
+    for (const n of d.nodi) {
+      guarda(n.effetti);
+      for (const r of n.risposte) guarda(r.effetti);
+    }
+  }
+  return c.missioni.filter((m) => m.avviaQuando === undefined && !avviate.has(m.id)).map((m) => m.id);
+}
+
+export class Narrativa {
+  readonly eventi = new Emettitore<EventiNarrativa>();
+  readonly flag = new ArchivioFlag();
+  readonly inventario = new Inventario();
+  readonly taccuino: Taccuino;
+  readonly missioni: Missioni;
+  readonly dialoghi: Dialoghi;
+  readonly parser: ParserCondizioni;
+  readonly contenuti: ContenutiNormalizzati;
+  readonly contesto: ContestoCondizioni;
+  /** Problemi dei contenuti: forme inattese, condizioni ed effetti malformati, id inesistenti. */
+  readonly problemi: string[] = [];
+
+  private readonly rigoroso: boolean;
+  private readonly segnalati = new Set<string>();
+  private inTick = false;
+  private tickRichiesto = false;
+
+  constructor(
+    contenuti: ContenutiNarrativa | ContenutiNormalizzati,
+    readonly fatti: WorldFacts,
+    opzioni: OpzioniNarrativa = {},
+  ) {
+    this.rigoroso = opzioni.rigoroso ?? false;
+    this.parser = new ParserCondizioni(opzioni.parser);
+    this.contenuti = eNormalizzati(contenuti) ? contenuti : normalizzaContenuti(contenuti);
+    for (const a of this.contenuti.avvisi) this.segnala(a, 'contenuti');
+
+    const notte = opzioni.notte ?? { inizio: 20, fine: 6 };
+    this.contesto = this.creaContesto(notte);
+
+    const deps = {
+      valuta: (c: CondizioneGrezza) => this.valuta(c),
+      applicaEffetti: (effetti: readonly string[], origine: string) => this.applicaEffetti(effetti, origine),
+    };
+    this.taccuino = new Taccuino(this.contenuti.taccuino, () => ({ giorno: fatti.giorno(), ora: fatti.ora() }));
+    this.missioni = new Missioni(this.contenuti.missioni, deps, opzioni.missioniIniziali ?? missioniOrfane(this.contenuti));
+    this.dialoghi = new Dialoghi(this.contenuti.dialoghi, deps);
+
+    this.collegaEventi();
+    this.controllaSintassi();
+  }
+
+  // --- Condizioni ed effetti ------------------------------------------------
+
+  /** Valuta una condizione dei contenuti. Una condizione malformata vale false (e viene segnalata). */
+  valuta(c: CondizioneGrezza, origine?: string): boolean {
+    try {
+      return this.parser.valuta(c, this.contesto);
+    } catch (e) {
+      if (this.rigoroso) throw e;
+      this.segnala(e instanceof Error ? e.message : String(e), origine);
+      return false;
+    }
+  }
+
+  /** Applica una lista di effetti, poi aggiorna missioni e taccuino. */
+  applicaEffetti(effetti: readonly (string | Effetto)[], origine?: string): void {
+    for (const e of effetti) this.applicaEffetto(e, origine);
+    this.tick();
+  }
+
+  /** Applica un solo effetto (senza aggiornare le missioni). */
+  applicaEffetto(effetto: string | Effetto, origine?: string): void {
+    let e: Effetto;
+    try {
+      e = typeof effetto === 'string' ? analizzaEffetto(effetto) : effetto;
+    } catch (err) {
+      if (this.rigoroso) throw err;
+      this.segnala(err instanceof Error ? err.message : String(err), origine);
+      return;
+    }
+    const conOrigine = origine !== undefined ? { origine } : {};
+    switch (e.tipo) {
+      case 'flag':
+        this.flag.set(e.nome, e.valore);
+        break;
+      case 'flag-somma':
+        this.flag.incrementa(e.nome, e.delta);
+        break;
+      case 'flag-rimuovi':
+        this.flag.rimuovi(e.nome);
+        break;
+      case 'taccuino':
+        if (!this.taccuino.definizione(e.id) && e.azione !== 'rimuovi') {
+          this.segnala(`Voce del taccuino inesistente «${e.id}»`, origine);
+        }
+        switch (e.azione) {
+          case 'aggiungi':
+            this.taccuino.aggiungi(e.id);
+            break;
+          case 'chiudi':
+            this.taccuino.chiudi(e.id);
+            break;
+          case 'riapri':
+            this.taccuino.riapri(e.id);
+            break;
+          case 'barra':
+            this.taccuino.barra(e.id);
+            break;
+          case 'rimuovi':
+            this.taccuino.rimuovi(e.id);
+            break;
+        }
+        break;
+      case 'cielo':
+        this.taccuino.impostaRigaCielo(e.testo || null);
+        break;
+      case 'missione': {
+        if (!this.missioni.definizione(e.id)) {
+          this.segnala(`Missione inesistente «${e.id}»`, origine);
+          break;
+        }
+        if (e.azione === 'avvia') this.missioni.avvia(e.id);
+        else if (e.azione === 'completa') this.missioni.completa(e.id);
+        else this.missioni.fallisci(e.id);
+        break;
+      }
+      case 'oggetto':
+        if (e.delta > 0) this.inventario.aggiungi(e.id, e.delta);
+        else if (!this.inventario.rimuovi(e.id, -e.delta)) {
+          this.segnala(`Non ci sono ${-e.delta} «${e.id}» da togliere dall'inventario`, origine);
+        }
+        break;
+      case 'evento':
+        this.eventi.emit('evento', { nome: e.nome, argomenti: e.argomenti, ...conOrigine });
+        break;
+      case 'tempo':
+        this.eventi.emit('tempo', { azione: e.azione, ore: e.ore, ...conOrigine });
+        break;
+      case 'dialogo':
+        if (!this.dialoghi.definizione(e.id)) {
+          this.segnala(`Dialogo inesistente «${e.id}»`, origine);
+          break;
+        }
+        this.eventi.emit('apriDialogo', { dialogo: e.id, ...conOrigine });
+        break;
+    }
+  }
+
+  /**
+   * Valuta le missioni (avvio, attivazione e completamento dei passi) e le
+   * voci automatiche del taccuino, a cascata finché nulla cambia.
+   * Il gioco lo chiama ogni tanto; restituisce true se qualcosa è cambiato.
+   */
+  tick(): boolean {
+    if (this.inTick) {
+      this.tickRichiesto = true;
+      return false;
+    }
+    this.inTick = true;
+    let cambiato = false;
+    try {
+      for (let giro = 0; giro < 1000; giro++) {
+        this.tickRichiesto = false;
+        const m = this.missioni.aggiorna();
+        const t = this.taccuino.aggiorna((c) => this.valuta(c, 'taccuino'));
+        if (m || t) cambiato = true;
+        if (!m && !t && !this.tickRichiesto) break;
+      }
+    } finally {
+      this.inTick = false;
+    }
+    return cambiato;
+  }
+
+  /** Apre il dialogo disponibile di un personaggio (null se non ne ha). */
+  parla(personaggio: string): VistaNodo | null {
+    const id = this.dialoghi.perPersonaggio(personaggio);
+    return id ? this.dialoghi.avvia(id) : null;
+  }
+
+  // --- Stato e salvataggio ------------------------------------------------
+
+  esporta(): StatoNarrativo {
+    return {
+      flag: this.flag.esporta(),
+      missioni: this.missioni.esporta(),
+      dialoghi: this.dialoghi.esporta(),
+      taccuino: this.taccuino.esporta(),
+      inventario: this.inventario.esporta(),
+    };
+  }
+
+  /** Ripristina uno stato esportato (senza emettere eventi né applicare effetti). */
+  importa(stato: StatoNarrativo): void {
+    this.flag.importa(stato.flag ?? {});
+    this.missioni.importa(stato.missioni ?? { inizializzate: false, missioni: {} });
+    this.dialoghi.importa(stato.dialoghi ?? { finiti: [], iniziati: [], corrente: null });
+    this.taccuino.importa(stato.taccuino ?? { voci: [], rigaCielo: null, obiettivi: [] });
+    this.inventario.importa(stato.inventario ?? {});
+  }
+
+  /** Salva narrativa e mondo nel prossimo slot del gestore. */
+  salva(gestore: GestoreSalvataggi, mondo: FornitoreMondo, meta?: Record<string, unknown>): Promise<InfoSlot> {
+    return gestore.salva({ narrativa: this.esporta(), mondo: mondo.esporta(), ...(meta ? { meta } : {}) });
+  }
+
+  /** Carica il salvataggio più recente in narrativa e mondo. Restituisce null se non ce n'è nessuno. */
+  async carica(gestore: GestoreSalvataggi, mondo: FornitoreMondo): Promise<RisultatoCaricamento<StatoNarrativo> | null> {
+    const r = await gestore.carica<StatoNarrativo>();
+    if (!r) return null;
+    this.importa(r.documento.dati.narrativa);
+    mondo.importa(r.documento.dati.mondo);
+    return r;
+  }
+
+  // --- interni --------------------------------------------------------------
+
+  private segnala(messaggio: string, origine?: string): void {
+    const chiave = `${origine ?? ''}|${messaggio}`;
+    if (this.segnalati.has(chiave)) return;
+    this.segnalati.add(chiave);
+    const testo = origine ? `${origine}: ${messaggio}` : messaggio;
+    this.problemi.push(testo);
+    this.eventi.emit('errore', { messaggio, ...(origine !== undefined ? { origine } : {}) });
+  }
+
+  private creaContesto(notte: { inizio: number; fine: number }): ContestoCondizioni {
+    const f = this.fatti;
+    const ctx: ContestoCondizioni = {
+      flag: (n) => this.flag.get(n),
+      ora: () => f.ora(),
+      giorno: () => f.giorno(),
+      notte: () => {
+        if (f.notte) return f.notte();
+        const h = f.ora();
+        return notte.inizio > notte.fine ? h >= notte.inizio || h < notte.fine : h >= notte.inizio && h < notte.fine;
+      },
+      luogoRaggiunto: (id) => f.luogoRaggiunto(id),
+      cella: (id, stato) => {
+        switch (stato) {
+          case 'rilevata':
+            return f.cellaRilevata(id);
+          case 'vista':
+            return f.cellaRilevata(id) || (f.cellaVista?.(id) ?? false);
+          case 'bianca':
+            return !f.cellaRilevata(id) && !(f.cellaVista?.(id) ?? false);
+          default:
+            return f.varianteParticella?.(id) === stato;
+        }
+      },
+      dialogo: (id, stato) => (stato === 'finito' ? this.dialoghi.finito(id) : this.dialoghi.iniziato(id)),
+      missione: (id, stato) => {
+        const s = this.missioni.stato(id);
+        switch (stato) {
+          case 'completata':
+            return s === 'completata';
+          case 'attiva':
+            return s === 'attiva';
+          case 'avviata':
+            return s !== 'inattiva';
+          case 'inattiva':
+            return s === 'inattiva';
+        }
+      },
+      passo: (m, p, stato) => this.missioni.statoPasso(m, p) === (stato === 'attivo' ? 'attivo' : 'completato'),
+      quantitaOggetto: (id) => this.inventario.quantita(id) + (f.quantitaOggetto?.(id) ?? 0),
+      taccuino: (id, stato) => {
+        const s = this.taccuino.stato(id);
+        switch (stato) {
+          case 'presente':
+            return !!s;
+          case 'aperta':
+            return !!s && !s.chiusa;
+          case 'chiusa':
+            return !!s?.chiusa;
+          case 'barrata':
+            return !!s?.barrata;
+        }
+      },
+    };
+    if (f.predicato) ctx.predicato = (p, a, q) => f.predicato!(p, a, q);
+    return ctx;
+  }
+
+  private collegaEventi(): void {
+    const inoltra = <M extends object>(sorgente: Emettitore<M>): void => {
+      sorgente.onQualsiasi((tipo, dato) => {
+        (this.eventi.emit as (t: string, d: unknown) => void).call(this.eventi, tipo as string, dato);
+      });
+    };
+    inoltra(this.missioni.eventi);
+    inoltra(this.dialoghi.eventi);
+    this.flag.eventi.on('cambio', (c) => this.eventi.emit('flag', c));
+    this.inventario.eventi.on('cambio', (c) => this.eventi.emit('oggetto', c));
+    this.taccuino.eventi.on('voce', (v) => this.eventi.emit('taccuino', v));
+    this.taccuino.eventi.on('rigaCielo', (r) => this.eventi.emit('rigaCielo', r));
+    this.taccuino.eventi.on('obiettivi', (o) => this.eventi.emit('obiettivi', o));
+
+    // Obiettivi del taccuino seguono i passi delle missioni.
+    this.missioni.eventi.on('passoAttivato', ({ missione, passo, obiettivo }) => {
+      if (obiettivo === undefined || obiettivo === '') return;
+      const voce = this.taccuino.definizione(obiettivo);
+      if (voce) this.taccuino.aggiungi(obiettivo);
+      this.taccuino.segnaObiettivo({ missione, passo, testo: voce ? voce.testo : obiettivo });
+    });
+    this.missioni.eventi.on('passoCompletato', ({ missione, passo }) => this.taccuino.togliObiettivo(missione, passo));
+    this.missioni.eventi.on('missioneCompletata', ({ missione }) => this.taccuino.togliObiettivo(missione));
+    this.missioni.eventi.on('missioneFallita', ({ missione }) => this.taccuino.togliObiettivo(missione));
+
+    // Finito un dialogo, le missioni possono andare avanti subito.
+    this.dialoghi.eventi.on('dialogoFinito', () => this.tick());
+    this.dialoghi.eventi.on('erroreDialogo', ({ dialogo, messaggio }) => this.segnala(messaggio, `dialogo ${dialogo}`));
+  }
+
+  /** Analizza in anticipo tutte le condizioni e gli effetti, per trovare subito gli errori di sintassi. */
+  private controllaSintassi(): void {
+    const cond = (c: CondizioneGrezza | undefined, origine: string): void => {
+      if (c === undefined) return;
+      for (const e of this.parser.errori(c)) {
+        if (this.rigoroso) throw new Error(`${origine}: ${e}`);
+        this.segnala(e, origine);
+      }
+    };
+    const eff = (lista: readonly string[], origine: string): void => {
+      for (const s of lista) {
+        try {
+          analizzaEffetto(s);
+        } catch (e) {
+          if (this.rigoroso) throw e;
+          this.segnala(e instanceof Error ? e.message : String(e), origine);
+        }
+      }
+    };
+    for (const m of this.contenuti.missioni) {
+      cond(m.avviaQuando, `missione ${m.id}`);
+      eff(m.effetti, `missione ${m.id}`);
+      for (const p of m.passi) {
+        cond(p.attivaQuando, `missione ${m.id}, passo ${p.id}`);
+        cond(p.completaQuando, `missione ${m.id}, passo ${p.id}`);
+        eff(p.effetti, `missione ${m.id}, passo ${p.id}`);
+        eff(p.effettiAttivazione, `missione ${m.id}, passo ${p.id}`);
+      }
+    }
+    for (const d of Object.values(this.contenuti.dialoghi)) {
+      cond(d.condizione, `dialogo ${d.id}`);
+      for (const n of d.nodi) {
+        eff(n.effetti, `dialogo ${d.id}, nodo ${n.id}`);
+        for (const r of n.risposte) {
+          cond(r.condizione, `dialogo ${d.id}, nodo ${n.id}`);
+          eff(r.effetti, `dialogo ${d.id}, nodo ${n.id}`);
+        }
+      }
+    }
+    for (const v of this.contenuti.taccuino) {
+      cond(v.sbloccaQuando, `taccuino ${v.id}`);
+      cond(v.chiudiQuando, `taccuino ${v.id}`);
+    }
+  }
+}

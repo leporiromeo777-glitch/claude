@@ -1,0 +1,204 @@
+{
+  "_nota": "Layout del Verbano, fase 1A. Fonte unica per motore e contenuti. Angoli in gradi (theta 0-360, crescente nel verso della rotazione = Mane/est), distanze in metri. 'h' e' la quota sopra il fondo del cilindro misurata verso l'asse (r = radius - h). z va da 0 (Tappo Sud) a length (Tappo Nord).",
+  "version": 1,
+  "cylinder": {
+    "radius": 646,
+    "length": 3000,
+    "rotationPeriod": 51,
+    "hullDepth": 6
+  },
+  "directions": {
+    "mane": "+theta, est, verso della rotazione",
+    "sera": "-theta, ovest, contro la rotazione",
+    "mont": "-z, verso il Tappo Sud",
+    "lag": "+z, verso il Tappo Nord (il Sordo)",
+    "inSu": "verso l'asse"
+  },
+  "strips": [
+    {
+      "id": "valle-1",
+      "kind": "valle",
+      "name": "Corbella e le Selve",
+      "thetaStart": 0,
+      "thetaEnd": 90,
+      "floorHeight": 8,
+      "ridgeMin": 70,
+      "ridgeMax": 120,
+      "hillAmplitude": 20,
+      "theme": "selve"
+    },
+    {
+      "id": "finestra-ponti",
+      "kind": "finestra",
+      "name": "Finestra dei Ponti",
+      "thetaStart": 90,
+      "thetaEnd": 120
+    },
+    {
+      "id": "valle-2",
+      "kind": "valle",
+      "name": "Il Verbanetto",
+      "thetaStart": 120,
+      "thetaEnd": 210,
+      "floorHeight": 22,
+      "ridgeMin": 60,
+      "ridgeMax": 110,
+      "hillAmplitude": 16,
+      "theme": "lago"
+    },
+    {
+      "id": "finestra-2",
+      "kind": "finestra",
+      "name": "Finestra 2",
+      "_nota": "nome narrativo da assegnare (Vedove o Cieca)",
+      "thetaStart": 210,
+      "thetaEnd": 240
+    },
+    {
+      "id": "valle-3",
+      "kind": "valle",
+      "name": "Valle 3",
+      "_nota": "per ora campi e pascoli",
+      "thetaStart": 240,
+      "thetaEnd": 330,
+      "floorHeight": 6,
+      "ridgeMin": 55,
+      "ridgeMax": 100,
+      "hillAmplitude": 12,
+      "theme": "campi"
+    },
+    {
+      "id": "finestra-3",
+      "kind": "finestra",
+      "name": "Finestra 3",
+      "_nota": "nome narrativo da assegnare (Vedove o Cieca)",
+      "thetaStart": 330,
+      "thetaEnd": 360
+    }
+  ],
+  "valleyEdge": {
+    "_nota": "Bastione di roccia che scende dalla cresta della valle al vetro della finestra.",
+    "bankWidth": 40,
+    "ridgeStart": 0.42,
+    "ridgeEnd": 0.94
+  },
+  "windows": {
+    "ribSpacing": 40,
+    "ribWidth": 2.4,
+    "ribHeight": 1.0,
+    "edgeBeamWidth": 5,
+    "glassThickness": 1.5
+  },
+  "endCaps": {
+    "south": {
+      "id": "tappo-sud",
+      "name": "Tappo Sud",
+      "theme": "alpeggi",
+      "baseZ": 620,
+      "profileExponent": 1.7,
+      "terraceStep": 14,
+      "terraceTop": 470,
+      "noiseAmplitude": 10,
+      "hubRadius": 16
+    },
+    "north": {
+      "id": "tappo-nord",
+      "name": "Il Sordo",
+      "theme": "roccia",
+      "baseZ": 2640,
+      "profileExponent": 0.8,
+      "noiseAmplitude": 26,
+      "hubRadius": 4
+    }
+  },
+  "lanterna": {
+    "name": "Lanterna",
+    "z": 2968,
+    "radius": 26,
+    "length": 26
+  },
+  "linea": {
+    "name": "Linea",
+    "zStart": 0,
+    "zEnd": 3000,
+    "coreRadius": 1.6,
+    "haloRadius": 48
+  },
+  "collare": {
+    "name": "Collare",
+    "height": 300,
+    "thickness": 34,
+    "coverage": 0.5,
+    "patchSpacing": 120,
+    "seed": 7
+  },
+  "lake": {
+    "name": "Verbanetto",
+    "strip": "valle-2",
+    "zStart": 720,
+    "zEnd": 2480,
+    "thetaCenter": 166,
+    "halfWidth": 25,
+    "waterHeight": 20,
+    "depth": 18,
+    "shoreWidth": 36,
+    "islands": [
+      { "name": "Isola dei Conigli", "z": 1180, "theta": 156, "radius": 46, "height": 5 },
+      { "name": "Isola Grande", "z": 1760, "theta": 173, "radius": 105, "height": 13 }
+    ]
+  },
+  "riale": {
+    "name": "Riale",
+    "strip": "valle-1",
+    "thetaBase": 54,
+    "amplitude": 5,
+    "wavelength": 760,
+    "width": 9,
+    "depth": 3.5
+  },
+  "villages": [
+    {
+      "id": "corbella",
+      "name": "Corbella",
+      "strip": "valle-1",
+      "zStart": 900,
+      "zEnd": 1200,
+      "zCenter": 1050,
+      "thetaCenter": 35,
+      "radius": 120,
+      "houseCount": 30,
+      "terraceStep": 3.5,
+      "terraceRadius": 300,
+      "slope": 0.12,
+      "campanile": { "name": "San Vigilio", "z": 1062, "theta": 37.2, "height": 24 },
+      "piazza": { "name": "Piazza delle Ore", "z": 1046, "theta": 37.0, "radius": 18 }
+    }
+  ],
+  "forests": [
+    { "strip": "valle-1", "density": 0.9, "_nota": "Selve castanili sui versanti" },
+    { "strip": "valle-2", "density": 0.35 },
+    { "strip": "valle-3", "density": 0.18 },
+    { "strip": "tappo-sud", "density": 0.2 }
+  ],
+  "cells": {
+    "_nota": "Particelle per lo stato matita/colore: griglia (z, theta). id = iz * nTheta + itheta.",
+    "size": 40,
+    "nZ": 75,
+    "nTheta": 96
+  },
+  "start": {
+    "z": 1032,
+    "theta": 36.4,
+    "yaw": 20,
+    "pitch": 8
+  },
+  "demo": {
+    "_nota": "Stato iniziale delle particelle per la demo: valle 1 a matita tranne attorno al paese; Verbanetto e Tappo Sud dipinti; valle 3 a matita con qualche macchia; il Sordo a matita.",
+    "paintedAroundStart": 260,
+    "paintedStrips": ["valle-2"],
+    "pencilStrips": ["valle-1", "valle-3"],
+    "paintedSouthCap": true,
+    "pencilNorthCap": true,
+    "valle3PaintedFraction": 0.18
+  }
+}

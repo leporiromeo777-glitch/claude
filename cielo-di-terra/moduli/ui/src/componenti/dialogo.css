@@ -1,0 +1,228 @@
+/* ---------- Finestra di dialogo ---------- */
+
+.ui-dialogo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 16px clamp(16px, 4.5vh, 48px);
+}
+.ui-dlg-ombra {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(14, 10, 6, 0) 45%, rgba(14, 10, 6, 0.38) 100%);
+  pointer-events: none;
+}
+.ui-dlg-colonna {
+  position: relative;
+  width: min(980px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ui-dlg-box {
+  padding: 20px 38px 16px 40px;
+  transform: rotate(-0.25deg);
+  transition: transform 0.3s ease;
+  cursor: default;
+}
+.ui-dlg-box:focus {
+  outline: none;
+}
+.ui-dialogo:not(.ui-aperto) .ui-dlg-box {
+  transform: rotate(-0.25deg) translateY(16px);
+}
+.ui-dlg-testa {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(36, 30, 25, 0.22);
+}
+.ui-dlg-chi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 14px;
+}
+.ui-dlg-nome {
+  font-family: var(--f-maiuscoletto);
+  font-size: calc(24px * var(--ui-scala));
+  letter-spacing: 0.03em;
+  color: var(--inchiostro);
+}
+.ui-dlg-aspetto {
+  font-style: italic;
+  font-size: var(--t-base);
+  color: var(--matita);
+}
+.ui-dlg-bstorico {
+  flex: none;
+  min-height: 0;
+  padding: 0.1em 0.5em;
+  font-size: var(--t-piccolo);
+}
+.ui-dlg-testo {
+  min-height: 3.1em;
+  font-size: calc(23px * var(--ui-scala));
+  line-height: 1.45;
+  color: var(--inchiostro);
+  text-wrap: pretty;
+}
+.ui-dlg-testo em {
+  font-style: italic;
+}
+.ui-dlg-parola {
+  white-space: nowrap;
+}
+.ui-dlg-c {
+  opacity: 0;
+  transition: opacity 0.12s linear;
+}
+.ui-dlg-c.ui-visibile {
+  opacity: 1;
+}
+
+.ui-dlg-risposte {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: ui-dlg-compari 0.3s ease both;
+}
+@keyframes ui-dlg-compari {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.ui-dlg-risposta {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  width: 100%;
+  padding: 6px 12px 7px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--inchiostro-2);
+  font-family: var(--f-testo);
+  font-size: calc(21px * var(--ui-scala));
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.ui-dlg-numero {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.45em;
+  height: 1.45em;
+  border: 1.5px solid currentColor;
+  border-radius: 50% 46% 52% 48%;
+  font-size: 0.8em;
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+  transform: translateY(-0.08em);
+}
+.ui-dlg-risposta-testo {
+  flex: 1;
+}
+.ui-dlg-risposta-nota {
+  font-family: var(--f-mano);
+  font-size: 1.05em;
+  color: var(--vermiglio);
+  white-space: nowrap;
+}
+.ui-dlg-risposta:hover,
+.ui-dlg-risposta:focus-visible {
+  color: var(--inchiostro);
+  background: rgba(120, 96, 60, 0.12);
+}
+.ui-dlg-risposta:focus-visible {
+  outline: 2.5px solid var(--inchiostro);
+  outline-offset: 0;
+}
+.ui-dlg-risposta:focus-visible .ui-dlg-numero,
+.ui-dlg-risposta:hover .ui-dlg-numero {
+  background: var(--inchiostro);
+  border-color: var(--inchiostro);
+  color: var(--carta);
+}
+.ui-dlg-risposta--detta {
+  color: var(--matita);
+}
+.ui-dlg-risposta:disabled {
+  color: var(--matita-chiara);
+  cursor: not-allowed;
+  background: none;
+}
+.ui-dlg-aiuto {
+  margin: 10px 0 0;
+  min-height: 1.3em;
+  text-align: right;
+  font-size: var(--t-piccolo);
+  color: var(--matita);
+}
+.ui-dlg-aiuto .ui-tasto {
+  font-size: 0.8em;
+}
+.ui-dlg-aiuto--avanti {
+  animation: ui-dlg-respiro 2.4s ease-in-out infinite;
+}
+@keyframes ui-dlg-respiro {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Storico */
+.ui-dlg-storico {
+  max-height: min(44vh, 420px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 34px 14px 36px;
+  transform: rotate(0.3deg);
+}
+.ui-dlg-storico[hidden] {
+  display: none;
+}
+.ui-dlg-storico:focus {
+  outline: none;
+}
+.ui-dlg-storico-titolo {
+  margin: 0 0 8px;
+  font-size: var(--t-medio);
+}
+.ui-dlg-storico-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  user-select: text;
+}
+.ui-dlg-storico-lista li {
+  padding: 5px 0 6px;
+  border-bottom: 1px solid rgba(84, 116, 150, 0.2);
+  font-size: var(--t-base);
+  line-height: 1.4;
+}
+.ui-dlg-st-chi {
+  font-family: var(--f-maiuscoletto);
+  margin-right: 0.6em;
+  color: var(--inchiostro-2);
+}
+.ui-dlg-st-elvira .ui-dlg-st-chi {
+  color: var(--vermiglio);
+}
+.ui-dlg-st-elvira .ui-dlg-st-testo {
+  font-style: italic;
+  color: var(--inchiostro-2);
+}
