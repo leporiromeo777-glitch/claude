@@ -35,7 +35,7 @@ import { DEG, METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, localFrameAt, rotatingToInertialDir, upAt, worldToCyl } from '../world/cylinder';
 import { groundHeight, stripAt } from '../world/terrain';
 import { PonteAudio } from './audio';
-import { CAPISALDI, CONTENUTI_NARRATIVA, LONTANI, luogo, testoOra as fmtOra } from './contenuti';
+import { CAPISALDI, CONTENUTI_NARRATIVA, LONTANI, luogo, ostacoloFra, testoOra as fmtOra } from './contenuti';
 import { Corpo } from './corpo';
 import { DirettoreDialoghi } from './dialoghi';
 import { ORDINE_LIBRETTO, PonteInterfaccia } from './interfaccia';
@@ -894,12 +894,7 @@ export class Regia implements SistemaGioco {
 
   /** Che cosa copre il segnale di `mira` da `stazione` («il tasso del sagrato»), o null. */
   ostacoloFra(stazione: string | null, mira: string): string | null {
-    if (!stazione) return null;
-    const n = CAPISALDI.find((c) => c.id === mira)?.non_visibile_da?.find((x) => x.id === stazione);
-    if (!n) return null;
-    const motivo = n.motivo ?? '';
-    const chi = (motivo.split(/\s+copre\b/)[0] ?? '').split(',')[0]!.trim();
-    return chi ? chi.charAt(0).toLowerCase() + chi.slice(1) : 'qualcosa';
+    return ostacoloFra(stazione, mira);
   }
 
   /** Il chiodo di un caposaldo (mondo). */

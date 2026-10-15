@@ -235,3 +235,15 @@ export function testoOra(ore: number): string {
   }
   return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
 }
+
+/**
+ * Che cosa copre, secondo i contenuti, il segnale di `mira` visto da `stazione`
+ * («il tasso del sagrato», «la tettoia di piode del lavatoio»), o null se nulla lo copre.
+ */
+export function ostacoloFra(stazione: string | null, mira: string): string | null {
+  if (!stazione) return null;
+  const n = caposaldo(mira)?.non_visibile_da?.find((x) => x.id === stazione);
+  if (!n) return null;
+  const chi = (n.motivo.split(/\s+copre\b/)[0] ?? '').split(',')[0]?.trim() ?? '';
+  return chi ? chi.charAt(0).toLowerCase() + chi.slice(1) : 'qualcosa';
+}
