@@ -59,6 +59,11 @@ export class GestureRecognizer {
     return this.state === 'idle' ? -1 : this.id;
   }
 
+  /** Il puntatore è giù e il gesto non è ancora deciso (né tap, né pressione lunga, né trascinamento). */
+  pending(): boolean {
+    return this.state === 'pending';
+  }
+
   /** Istante (ms) in cui scatterà la pressione lunga, o null. */
   longpressDue(): number | null {
     return this.state === 'pending' ? this.t0 + LONGPRESS_MS : null;
@@ -164,3 +169,46 @@ export class GestureRecognizer {
     this.maxDist = 0;
   }
 }
+
+/** Intervallo del battito che sorveglia il thread principale mentre un gesto non è deciso (ms). */
+export const BEAT_MS = 50;
+/** Un vuoto fra due battiti più lungo di questo vuol dire che il thread era bloccato (ms). */
+export const STALL_MS = 120;
+
+/**
+ * Orologio «visto» (revisione 2, Q071). La pressione lunga vuol dire «fermo per 500 ms»,
+ * ma mentre il thread principale è bloccato la pagina non vede il puntatore: certi
+ * browser (e il mouse simulato dei test) creano i movimenti solo quando il blocco finisce,
+ * con l'istante di allora. Questo orologio toglie dal tempo trascorso i tratti ciechi:
+ * fra un segno di vita e il successivo, oltre `STALL_MS`, la pagina non ha visto niente.
+ * Puro: riceve gli istanti da chi lo usa.
+ */
+export class SeenClock {
+  private last = 0;
+  private blind: [number, number][] = [];
+
+  /** Nuovo gesto: il puntatore è sceso all'istante `t`. */
+  start(t: number): void {
+    this.last = t;
+    this.blind = [];
+  }
+
+  /** Il thread gira all'istante `now` (battito o evento elaborato). */
+  alive(now: number): void {
+    if (now - this.last > STALL_MS) this.blind.push([this.last + BEAT_MS, now]);
+    if (now > this.last) this.last = now;
+  }
+
+  /** Millisecondi ciechi fino a `t`. */
+  blindBefore(t: number): number {
+    let sum = 0;
+    for (const [a, b] of this.blind) if (t > a) sum += Math.min(t, b) - a;
+    return sum;
+  }
+
+  /** L'istante `t` sull'orologio visto (senza i tratti ciechi precedenti). */
+  map(t: number): number {
+    return t - this.blindBefore(t);
+  }
+}
+

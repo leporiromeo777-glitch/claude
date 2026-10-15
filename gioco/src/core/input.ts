@@ -12,9 +12,17 @@
  * - Sblocco audio: al pointerdown, al pointerup (che per il tocco è l'evento che
  *   dà l'attivazione utente) e al keydown si chiama `audio.unlock()` in modo
  *   sincrono, dentro il gestore, finché l'audio non è 'running'.
+ * - Tempi dei gesti (revisione 2, Q071): ogni campione porta l'istante in cui il
+ *   browser ha creato l'evento (`e.timeStamp`), non quello in cui lo si elabora,
+ *   e i movimenti accorpati (`getCoalescedEvents`) passano uno per uno finché il
+ *   gesto non è deciso. Un battito ogni 50 ms sorveglia il thread: i tratti in cui
+ *   era bloccato non contano come «fermo» (SeenClock), perché la pagina non vedeva
+ *   il puntatore. Quando è il momento, la pressione lunga si controlla solo dopo
+ *   che gli eventi rimasti in coda sono arrivati: un trascinamento fatto durante
+ *   un blocco resta un trascinamento.
  */
 import type { ActionEvent, ActionId, AudioEngine, Gesture, InputRouter, Unsub } from './types';
-import { GestureRecognizer, LONGPRESS_MS, type PointerKind, type PointerSample } from './gestures';
+import { BEAT_MS, GestureRecognizer, LONGPRESS_MS, SeenClock, type PointerKind, type PointerSample } from './gestures';
 import { ALWAYS_PREVENT, mapKey, type FocusContext } from './keymap';
 
 export interface InputDeps {
@@ -79,6 +87,56 @@ export function focusContextOf(target: EventTarget | null): FocusContext {
 
 function pointerKind(t: string): PointerKind {
   return t === 'touch' ? 'touch' : t === 'pen' ? 'pen' : 'mouse';
+}
+
+/**
+ * Istante in cui il browser ha creato l'evento, sullo stesso orologio di performance.now().
+ * Se `timeStamp` manca o è su un altro orologio (vecchi browser: millisecondi dal 1970),
+ * si usa l'istante corrente. Mai nel futuro.
+ */
+export function eventTime(e: { timeStamp?: number }, nowMs: number): number {
+  const ts = e.timeStamp;
+  if (typeof ts !== 'number' || !Number.isFinite(ts) || ts <= 0) return nowMs;
+  // Un evento vero ha al più qualche secondo: oltre un minuto di distanza è un altro orologio.
+  if (Math.abs(nowMs - ts) > 60_000) return nowMs;
+  return Math.min(ts, nowMs);
+}
+
+/** I movimenti accorpati nell'evento (Chrome li consegna uno per fotogramma), o l'evento stesso. */
+function coalesced(e: PointerEvent): PointerEvent[] {
+  try {
+    const list = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : [];
+    return list.length > 0 ? list : [e];
+  } catch {
+    return [e];
+  }
+}
+
+/**
+ * Chiama `fn` dopo che il browser ha consegnato gli eventi d'ingresso rimasti in coda:
+ * al fotogramma successivo (i pointermove arretrati arrivano prima dei callback di
+ * requestAnimationFrame) e poi ancora dopo un giro di macrotask. Restituisce l'annullamento.
+ */
+function afterQueuedInput(win: Window | null, fn: () => void): () => void {
+  let cancelled = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let frame: number | null = null;
+  const later = (): void => {
+    frame = null;
+    if (cancelled) return;
+    timer = setTimeout(() => {
+      timer = null;
+      if (!cancelled) fn();
+    }, 0);
+  };
+  const raf = win && typeof win.requestAnimationFrame === 'function' ? win.requestAnimationFrame.bind(win) : null;
+  if (raf) frame = raf(later);
+  else later();
+  return () => {
+    cancelled = true;
+    if (timer !== null) clearTimeout(timer);
+    if (frame !== null && win && typeof win.cancelAnimationFrame === 'function') win.cancelAnimationFrame(frame);
+  };
 }
 
 export function createInput(deps: InputDeps = {}): CoreInput {
@@ -255,36 +313,90 @@ export function createInput(deps: InputDeps = {}): CoreInput {
 
   if (canvas) {
     let rect = canvas.getBoundingClientRect();
-    let longTimer: ReturnType<typeof setTimeout> | null = null;
+    /** Battito che sorveglia il thread e fa scattare la pressione lunga a tempo debito. */
+    let beatTimer: ReturnType<typeof setTimeout> | null = null;
+    /** Ricontrollo rimandato della pressione lunga (dopo gli eventi in coda). */
+    let longRecheck: (() => void) | null = null;
     const clearLong = (): void => {
-      if (longTimer !== null) clearTimeout(longTimer);
-      longTimer = null;
+      if (beatTimer !== null) clearTimeout(beatTimer);
+      beatTimer = null;
+      longRecheck?.();
+      longRecheck = null;
     };
-    const sample = (e: PointerEvent): PointerSample => ({
-      id: e.pointerId,
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      t: now(),
-      pointer: pointerKind(e.pointerType),
-      button: e.button,
-    });
+    /** Tratti in cui il thread era bloccato (Q071): non contano per la pressione lunga. */
+    const seen = new SeenClock();
+    /** Istante (orologio visto) della pressione in corso. */
+    let downT = 0;
+    /** Ultimo istante dato a un campione: i tempi non tornano mai indietro. */
+    let lastT = -Infinity;
+    const sample = (e: PointerEvent): PointerSample => {
+      seen.alive(now());
+      const t = seen.map(eventTime(e, now()));
+      lastT = Math.max(lastT, t);
+      return {
+        id: e.pointerId,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        t: lastT,
+        pointer: pointerKind(e.pointerType),
+        button: e.button,
+      };
+    };
+    /**
+     * Battito ogni BEAT_MS finché il gesto non è deciso: segna i blocchi del thread e, quando
+     * il puntatore è fermo da LONGPRESS_MS sull'orologio visto, chiede la pressione lunga.
+     * Non la decide subito: se il thread era bloccato, i movimenti fatti nel frattempo possono
+     * essere ancora in coda (i pointermove arrivano allineati al fotogramma). Si ricontrolla
+     * dopo il fotogramma successivo, quando sono già passati da onMove con i loro istanti.
+     */
+    const beat = (): void => {
+      beatTimer = null;
+      if (!recognizer.pending()) return;
+      seen.alive(now());
+      if (seen.map(now()) - downT < LONGPRESS_MS) {
+        beatTimer = setTimeout(beat, BEAT_MS);
+        return;
+      }
+      longRecheck = afterQueuedInput(win, () => {
+        longRecheck = null;
+        if (!recognizer.pending()) return;
+        seen.alive(now());
+        recognizer.tick(seen.map(now()));
+        if (recognizer.pending()) beatTimer = setTimeout(beat, BEAT_MS);
+      });
+    };
     const onDown = (e: PointerEvent): void => {
+      if (recognizer.active()) return;
       rect = canvas.getBoundingClientRect();
-      if (!recognizer.down(sample(e))) return;
+      clearLong();
+      lastT = -Infinity;
+      seen.start(eventTime(e, now()));
+      const s = sample(e);
+      if (!recognizer.down(s)) return;
+      downT = s.t;
       try {
         canvas.setPointerCapture(e.pointerId);
       } catch {
         /* il puntatore può essere già sparito */
       }
-      clearLong();
-      longTimer = setTimeout(() => {
-        longTimer = null;
-        recognizer.tick(now());
-      }, LONGPRESS_MS + 10);
+      beatTimer = setTimeout(beat, BEAT_MS);
     };
     const onMove = (e: PointerEvent): void => {
       if (recognizer.activeId() !== e.pointerId) return;
-      recognizer.move(sample(e));
+      if (!recognizer.pending()) {
+        recognizer.move(sample(e));
+        return;
+      }
+      // Finché il gesto non è deciso (tap, pressione lunga o trascinamento) contano tutti i
+      // campioni accorpati, ciascuno con il suo istante; deciso il gesto, basta l'ultimo.
+      const list = coalesced(e);
+      for (let i = 0; i < list.length; i++) {
+        recognizer.move(sample(list[i] as PointerEvent));
+        if (!recognizer.pending()) {
+          if (i < list.length - 1 && recognizer.activeId() === e.pointerId) recognizer.move(sample(e));
+          return;
+        }
+      }
     };
     const onUp = (e: PointerEvent): void => {
       if (recognizer.activeId() !== e.pointerId) return;
