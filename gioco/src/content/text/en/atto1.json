@@ -45,7 +45,7 @@
       "esito": {
         "ok": "At eleven Gino was in church. The bell, he says, could be heard as far as Chioggia.",
         "fallita": "At eleven Gino was not in church. The bell kept quiet, and so did he, for a whole hour.",
-        "lasciato": "Gino's note was left without a pin. He rang anyway, banging a spoon on a pot."
+        "lasciato": "Gino's note was left without a pin. He slipped it back under my door, with BELL underlined three times."
       }
     },
     "alba": {
@@ -77,7 +77,7 @@
       "esito": {
         "ok": "Gino heard nothing of the gossip. He spent the day running, and that was all.",
         "fallita": "The gossip reached Gino too. This morning Marta kneaded without a word.",
-        "lasciato": "Marta saw her note still without a pin. Today she didn't hand me the bread: she left it on the counter."
+        "lasciato": "Marta's note was left without a pin. Today she didn't hand me the bread: she left it on the counter."
       }
     },
     "martaDura": {
@@ -98,7 +98,7 @@
       "esito": {
         "ok": "From the Pier to the church, all at a run: Gino came home out of breath and happy.",
         "fallita": "Gino's round was left half done. He says tomorrow he'll do it again, all of it, running.",
-        "lasciato": "Gino's note was left without a pin. He did his round in the courtyard, a hundred times, counting out loud."
+        "lasciato": "Gino's note was left without a pin. He sulked until lunch, then forgot all about it."
       }
     },
     "alba": {
@@ -185,7 +185,7 @@
       "esito": {
         "ok": "Nina heard nothing about the net. Bepi mends the old one and keeps quiet.",
         "fallita": "The gossip about the net reached Nina. Bepi said nothing, but he gave Teresa a black look.",
-        "lasciato": "Bepi's note was left without a pin. He won't write another: Bepi counts his words."
+        "lasciato": "Bepi's note was left without a pin. He said nothing: Bepi counts his words."
       }
     },
     "piero": {
@@ -222,7 +222,7 @@
       "esito": {
         "ok": "At noon Gino was at the Lighthouse. Zeno made him count the steps, one by one.",
         "fallita": "At noon Gino didn't climb the Lighthouse. Zeno waited at the top of the stairs until one.",
-        "lasciato": "Zeno's note was left without a pin. He won't write another: paper, at the Lighthouse, is dear."
+        "lasciato": "Zeno's note was left without a pin. He shrugged: the lantern, he says, isn't going anywhere."
       }
     },
     "marta": {
@@ -269,7 +269,7 @@
       "esito": {
         "ok": "The letter from Venice reached Nina sealed, as it should. She opened it herself, first.",
         "fallita": "The letter from Venice didn't reach Nina the way she wanted: sealed, and by eleven.",
-        "lasciato": "Nina's note was left without a pin. She waited for the post all morning, her heart in her mouth."
+        "lasciato": "Nina's note was left without a pin. She looked at me the way you look at someone who forgot a promise."
       }
     },
     "marta": {
@@ -334,7 +334,7 @@
       "esito": {
         "ok": "At one Gino was at the Lighthouse, on time as he never is. Zeno had promised him.",
         "fallita": "At one Gino didn't reach the Lighthouse. Zeno put the little lamp back in the drawer.",
-        "lasciato": "Zeno's note was left without a pin. The promised lantern, he says, will wait: it is used to it."
+        "lasciato": "Zeno's note was left without a pin. He said nothing: he polished the lantern once more."
       }
     },
     "alba": {

@@ -1196,6 +1196,30 @@ describe('REVISIONE-2: testi e coerenza dell\'Atto I (playtest 2)', () => {
     expect(it_('atto1.g01.piero.esito.lasciato')).toMatch(/Don Piero/);
   });
 
+  it('Q009 (verifica): l\'esito «lasciato» non promette che l\'autore non scriverà più se scrive ancora, né racconta fatti del merletto che lasciarlo non decide', () => {
+    const dayOf = (id: string): number => Number(id.slice(1, 3));
+    const all = [...db.notes.values()].filter((n) => /^g\d\d\./.test(n.id));
+    for (const n of notes) {
+      const k = n.esito?.lasciato as string;
+      const later = all.filter((m) => m.author === n.author && dayOf(m.id) > dayOf(n.id));
+      if (later.length > 0) {
+        expect(it_(k), `${n.id}: ${n.author} scrive ancora (${later[0]?.id})`).not.toMatch(/non ne scriver|non scriverà più/i);
+        expect(EN.get(k) ?? '', `en ${n.id}`).not.toMatch(/won't write another|will not write another|never write again/i);
+      }
+    }
+    // Il merletto può portare il Gino in Chiesa alle 11, la lettera alla Nina o il Gino al Faro
+    // anche con il bigliettino lasciato: l'esito racconta solo la reazione di chi l'ha scritto.
+    const fatti: [string, RegExp][] = [
+      ['atto1.g01.gino.esito.lasciato', /suonato|pentola/],
+      ['atto1.g02.gino.esito.lasciato', /giro/],
+      ['atto1.g06.nina.esito.lasciato', /aspettato la posta/],
+      ['atto1.g07.zeno.esito.lasciato', /aspetterà/],
+    ];
+    for (const [k, re] of fatti) expect(it_(k), k).not.toMatch(re);
+    // g02: il bigliettino di Marta non dice «ancora» (con g01 riuscito non era mai stato lasciato).
+    expect(it_('atto1.g02.marta.esito.lasciato')).not.toMatch(/ancora/);
+  });
+
   it('Q005: la nota della matassa dice che il gomitolo conta il filo usato, come l\'HUD', () => {
     expect(it_('atto1.g02.margine.matassa')).toMatch(/usato/);
     expect(it_('atto1.g02.margine.matassa')).not.toMatch(/resta/);

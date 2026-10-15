@@ -45,7 +45,7 @@
       "esito": {
         "ok": "Alle undici il Gino era in chiesa. La campana, dice lui, si è sentita fino a Chioggia.",
         "fallita": "Alle undici il Gino non era in chiesa. La campana è rimasta zitta, e lui pure, per un'ora intera.",
-        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Ha suonato lo stesso, battendo un cucchiaio su una pentola."
+        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Me l'ha rimesso sotto la porta, con la CANPANA sottolineata tre volte."
       }
     },
     "alba": {
@@ -77,7 +77,7 @@
       "esito": {
         "ok": "Il Gino non ha saputo niente della chiacchiera. Ha passato la giornata a correre, e basta.",
         "fallita": "La chiacchiera è arrivata anche al Gino. Marta stamattina impastava senza dire una parola.",
-        "lasciato": "Marta ha visto il suo bigliettino ancora senza spillo. Oggi il pane non me l'ha dato in mano: l'ha lasciato sul banco."
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Oggi il pane non me l'ha dato in mano: l'ha lasciato sul banco."
       }
     },
     "martaDura": {
@@ -98,7 +98,7 @@
       "esito": {
         "ok": "Dal Molo alla chiesa, tutto di corsa: il Gino è tornato a casa senza fiato e contento.",
         "fallita": "Il giro del Gino è rimasto a metà. Ha detto che domani lo rifà, tutto e di corsa.",
-        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Il giro l'ha fatto in cortile, cento volte, contando ad alta voce."
+        "lasciato": "Il bigliettino del Gino è rimasto senza spillo. Ha tenuto il muso fino a pranzo, poi se n'è scordato."
       }
     },
     "alba": {
@@ -185,7 +185,7 @@
       "esito": {
         "ok": "La Nina non ha saputo niente della rete. Bepi ripara quella vecchia e tace.",
         "fallita": "La chiacchiera sulla rete è arrivata alla Nina. Bepi non ha detto niente, ma ha guardato storto la Teresa.",
-        "lasciato": "Il bigliettino di Bepi è rimasto senza spillo. Non ne scriverà un altro: Bepi le parole le conta."
+        "lasciato": "Il bigliettino di Bepi è rimasto senza spillo. Non ha detto niente: Bepi le parole le conta."
       }
     },
     "piero": {
@@ -222,7 +222,7 @@
       "esito": {
         "ok": "A mezzogiorno il Gino era al Faro. Zeno gli ha fatto contare i gradini, uno per uno.",
         "fallita": "A mezzogiorno il Gino non è salito al Faro. Zeno ha aspettato in cima alle scale fino all'una.",
-        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. Non ne scriverà un altro: dice che la carta, al Faro, costa."
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. Ha alzato le spalle: la lanterna, dice, non scappa."
       }
     },
     "marta": {
@@ -232,7 +232,7 @@
       "esito": {
         "ok": "Il Gino è rimasto lontano dal Faro. Marta ha respirato, per un giorno.",
         "fallita": "Il Gino è arrivato fino al Faro. Marta l'ha saputo prima di sera, come si sanno le cose sull'isola.",
-        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Il Gino l'ha sgridato lo stesso, a cena, per precauzione."
+        "lasciato": "Il bigliettino di Marta è rimasto senza spillo. Ha sgridato il Gino lo stesso, a cena, per precauzione."
       }
     },
     "teresa": {
@@ -269,7 +269,7 @@
       "esito": {
         "ok": "La lettera da Venezia è arrivata alla Nina chiusa, come doveva. L'ha aperta lei, per prima.",
         "fallita": "La lettera da Venezia non è arrivata alla Nina come voleva lei: chiusa, ed entro le undici.",
-        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. Ha aspettato la posta tutta la mattina, col cuore in gola."
+        "lasciato": "Il bigliettino della Nina è rimasto senza spillo. Mi ha guardata come si guarda chi ha scordato una promessa."
       }
     },
     "marta": {
@@ -334,7 +334,7 @@
       "esito": {
         "ok": "Alle tredici il Gino era al Faro, puntuale come non è mai. Zeno gliel'aveva promesso.",
         "fallita": "Alle tredici il Gino non è arrivato al Faro. Zeno ha rimesso il lume piccolo nel cassetto.",
-        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. La lanterna promessa, dice, aspetterà: è abituata."
+        "lasciato": "Il bigliettino di Zeno è rimasto senza spillo. Non ha detto niente: ha lucidato la lanterna un'altra volta."
       }
     },
     "alba": {
