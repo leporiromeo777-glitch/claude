@@ -31,12 +31,11 @@ import {
   type WorldFacts,
 } from '../narrativa';
 import { nomeCatastale, type InterfacciaGioco } from '../ui';
-import { CellState } from '../world/cells';
 import { DEG, METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, localFrameAt, rotatingToInertialDir, upAt, worldToCyl } from '../world/cylinder';
 import { groundHeight, stripAt } from '../world/terrain';
 import { PonteAudio } from './audio';
-import { CAPISALDI, CONTENUTI_NARRATIVA, INVENTARIO_CORBELLA, LONTANI, caposaldo, luogo, testoOra as fmtOra } from './contenuti';
+import { CAPISALDI, CONTENUTI_NARRATIVA, LONTANI, luogo, testoOra as fmtOra } from './contenuti';
 import { Corpo } from './corpo';
 import { DirettoreDialoghi } from './dialoghi';
 import { ORDINE_LIBRETTO, PonteInterfaccia } from './interfaccia';
@@ -45,8 +44,8 @@ import { Luoghi } from './luoghi';
 import { NotteVista } from './notte';
 import { OrologioStoria, attraversa, type Intervallo } from './orologio';
 import { Abitanti } from './png';
-import type { PortaRilievo, Resoconto, StatoCella } from './porte';
-import { RilievoProvvisorio } from './provvisori/rilievo';
+import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '../rilievo';
+import { CatastoGioco, posizioniCapisaldi } from './catasto';
 import { QUOTA_CRIPTA, SCALA, costruisciCripta, type Cripta } from './scena/cripta';
 import { costruisciCella, type CellaCampanaria } from './scena/campanile';
 import { Segnaposto } from './scena/segnaposto';
@@ -70,11 +69,11 @@ export interface MondoSalvato {
   interno: 'cripta' | 'cella' | null;
   sdraiata: boolean;
   orologio: ReturnType<OrologioStoria['esporta']>;
-  rilievo: unknown;
+  catasto: unknown;
   corpo: ReturnType<Corpo['esporta']>;
   squadro: ReturnType<Squadro['esporta']>;
   abitanti: unknown;
-  regia: { nomiNoti: string[]; capisaldiVisti: string[]; stadioInnesto: number; segnalibro: string; lumiAppuntati: string[]; simTime: number };
+  regia: { nomiNoti: string[]; capisaldiVisti: string[]; stadioInnesto: number; segnalibro: string; simTime: number };
 }
 
 const OCCHI = 1.62;
@@ -88,7 +87,7 @@ export const PERIODO_META = 51;
 export class Regia implements SistemaGioco {
   readonly audio = new PonteAudio();
   narrativa!: Narrativa;
-  rilievo!: PortaRilievo;
+  readonly catasto: CatastoGioco;
   readonly orologio = new OrologioStoria();
   readonly luoghi = new Luoghi();
   readonly interazioni = new Interazioni();
@@ -130,7 +129,6 @@ export class Regia implements SistemaGioco {
   private metaImpulso = -1;
   private salvaTra = -1;
   private ombristaSera = -1;
-  private lumiAppuntati = new Set<string>();
   private tenutaC = 0;
   private attesaVicini = new Set<string>();
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
@@ -138,7 +136,6 @@ export class Regia implements SistemaGioco {
   private sole: DirectionalLight;
   private campaneAttive = false;
   private staccaNarrativa: (() => void)[] = [];
-  private staccaRilievo: (() => void)[] = [];
 
   constructor(
     readonly game: Game,
@@ -154,6 +151,14 @@ export class Regia implements SistemaGioco {
     this.cella = costruisciCella(g.materials.object!, g.world.colliders);
     g.scene.add(this.cella.mesh);
     g.lamps.addLamps([...this.cripta.lumi, ...this.scena.lumi]);
+    // il catasto (src/rilievo): particelle nel motore, varianti agli oggetti, effetti alla storia
+    this.catasto = new CatastoGioco(
+      g.world,
+      { mostraVariante: (e, v, pezzi) => this.scena.mostraVariante(e, v, pezzi) },
+      (eff) => this.effettiCatasto(eff),
+      posizioniCapisaldi({ punto: (id) => this.chiodo(id), segnale: (id) => this.scena.punto(`segnale_${id}`) }),
+    );
+    this.catasto.onEvento((e) => this.eventoCatasto(e));
     this.abitanti = new Abitanti(g.scene);
     this.notteVista = new NotteVista(g.scene);
     // luci per le figure (materiale toon della libreria oggetti)
@@ -234,18 +239,16 @@ export class Regia implements SistemaGioco {
       giorno: () => this.orologio.giorno,
       notte: () => this.orologio.notte,
       luogoRaggiunto: (id) => this.luoghiQui.has(id),
-      cellaRilevata: (id) => this.rilievo.statoCella(Number(id)) === 'colore',
-      cellaVista: (id) => this.rilievo.statoCella(Number(id)) !== 'bianco',
-      varianteParticella: (id) => this.rilievo.variante(id),
+      // «cella:id rilevata» = rilevata da Elvira (G5); la striscia seppia del G4 non conta
+      cellaRilevata: (id) => this.catasto.rilevataDaElvira(Number(id)),
+      cellaVista: (id) => this.catasto.stato(Number(id)) !== 'bianco',
+      varianteParticella: (id) => this.catasto.variante(id),
       prossimoEventoCielo: () => null,
     };
     this.narrativa = new Narrativa(CONTENUTI_NARRATIVA, fatti);
     if (this.narrativa.problemi.length) console.warn('[regia] contenuti:', this.narrativa.problemi);
     this.collegaNarrativa();
-    this.rilievo = new RilievoProvvisorio();
-    this.collegaRilievo();
-    this.sincronizzaCelle();
-    for (const e of ['E1', 'E2', 'E3', 'E4']) this.scena.mostraVariante(e, this.rilievo.variante(e));
+    this.catasto.nuovo();
   }
 
   /** Mostra il titolo, con il mondo dietro (Corbella all'alba). */
@@ -355,7 +358,7 @@ export class Regia implements SistemaGioco {
           interno: this.interno,
           sdraiata: this.controllo.tipo === 'sdraiata',
           orologio: this.orologio.esporta(),
-          rilievo: this.rilievo.esporta(),
+          catasto: this.catasto.salva(),
           corpo: this.corpo.esporta(),
           squadro: this.squadro.esporta(),
           abitanti: this.abitanti.esporta(),
@@ -364,7 +367,6 @@ export class Regia implements SistemaGioco {
             capisaldiVisti: [...this.capisaldiVisti],
             stadioInnesto: this.stadioInnesto,
             segnalibro: this.libretto.segnalibro,
-            lumiAppuntati: [...this.lumiAppuntati],
             simTime: g.simTime,
           },
         };
@@ -373,7 +375,7 @@ export class Regia implements SistemaGioco {
         const m = blob as Partial<MondoSalvato> | null;
         if (!m || m.versione !== 1) return;
         this.orologio.importa(m.orologio);
-        this.rilievo.importa(m.rilievo);
+        if (m.catasto) this.catasto.carica(m.catasto);
         this.corpo.importa(m.corpo);
         this.abitanti.importa(m.abitanti);
         const r = m.regia;
@@ -381,7 +383,6 @@ export class Regia implements SistemaGioco {
         for (const n of r?.nomiNoti ?? []) this.nomiNoti.add(n);
         this.capisaldiVisti.clear();
         for (const n of r?.capisaldiVisti ?? []) this.capisaldiVisti.add(n);
-        this.lumiAppuntati = new Set(r?.lumiAppuntati ?? []);
         this.stadioInnesto = r?.stadioInnesto ?? 0;
         this.libretto.segnalibro = r?.segnalibro ?? 'cs_1';
         this.interno = m.interno ?? null;
@@ -415,8 +416,6 @@ export class Regia implements SistemaGioco {
       this.scena.apriBotola(true);
     }
     for (let i = 0; i < 4; i++) this.cripta.update(5);
-    this.sincronizzaCelle();
-    for (const e of ['E1', 'E2', 'E3', 'E4']) this.scena.mostraVariante(e, this.rilievo.variante(e));
     this.campaneAttive = false;
   }
 
@@ -452,41 +451,46 @@ export class Regia implements SistemaGioco {
     ];
   }
 
-  private collegaRilievo(): void {
-    const ev = this.rilievo.eventi;
-    this.staccaRilievo = [
-      ev.on('celle', (c) => {
-        if (c.motivo === 'carico') {
-          this.sincronizzaCelle();
-          return;
-        }
-        const stato = CODICE_STATO_MOTORE[c.stato];
-        if (c.motivo === 'rilievo' && c.origine) {
-          this.game.world.revealCells(c.ids, c.origine);
-          this.audio.evento({ tipo: 'inchiostro', ampiezza: 0.9, posizione: cylToWorld(c.origine.z, c.origine.theta, groundHeight(c.origine.z, c.origine.theta)) });
-        } else this.game.world.cells.setMany(c.ids, stato);
-        if (c.stato === 'colore') this.controllaColori();
-      }),
-      ev.on('variante', (v) => {
-        this.scena.mostraVariante(v.elemento, v.a);
-        this.log(`variante ${v.elemento}: ${v.da} → ${v.a} (${v.chi})`);
-      }),
-    ];
+  /** Effetti del catasto verso la storia (flag del contratto, contatori, Pesarina). */
+  private effettiCatasto(effetti: string[]): void {
+    if (!effetti.length) return;
+    this.log(`catasto: ${effetti.join(', ')}`);
+    if (effetti.includes('flag:taccuino_spostato')) this.ponte.paginaParole = true;
+    this.narrativa.applicaEffetti(effetti, 'catasto');
   }
 
-  /** Copia gli stati del catasto nella griglia del motore. */
-  sincronizzaCelle(): void {
-    const per: Record<StatoCella, number[]> = { bianco: [], matita: [], colore: [] };
-    for (const [id, s] of this.rilievo.tutteLeCelle()) per[s].push(id);
-    const g = this.game.world.cells;
-    g.setMany(per.bianco, CellState.Blank);
-    g.setMany(per.matita, CellState.Pencil);
-    g.setMany(per.colore, CellState.Painted);
-  }
-
-  private controllaColori(): void {
-    if (INVENTARIO_CORBELLA.every((id) => this.rilievo.statoCella(id) === 'colore')) this.flag('corbella_a_colori');
-    if (this.rilievo.statoCella(2796) === 'colore') this.flag('casa_nando_rilevata');
+  private eventoCatasto(e: EventoCatasto): void {
+    switch (e.tipo) {
+      case 'particelle_rivelate':
+        if (!e.celle.length) break;
+        this.audio.evento({ tipo: 'inchiostro', ampiezza: 0.9, posizione: cylToWorld(e.origine.z, e.origine.theta, groundHeight(e.origine.z, e.origine.theta)) });
+        if (e.primoDelFoglio) this.audio.tema('primo_rilievo');
+        this.log(`rivelate ${e.celle.length} particelle (${e.rif})${e.primoDelFoglio ? ', primo del foglio' : ''}`);
+        break;
+      case 'lato_chiuso':
+        this.audio.evento({ tipo: 'pagina', verso: 'avanti' });
+        this.ponte.notifica(`Lato ${e.lato}, chiuso: ${e.nuove} particelle nuove a colore.`);
+        break;
+      case 'rilievo_fallito':
+        if (e.operazione !== 'appunto') this.ponte.notifica(e.messaggio, 'rosso');
+        this.log(`rilievo fallito (${e.operazione}): ${e.motivo}`);
+        break;
+      case 'appunto':
+        if (e.messaggio) this.ponte.notifica(e.messaggio);
+        break;
+      case 'caposaldo_visto':
+        this.capisaldiVisti.add(e.caposaldo);
+        break;
+      case 'variante_cambiata':
+        this.log(`variante ${e.elemento}: ${e.da} → ${e.a} (${e.causa}${e.chi ? `, ${e.chi}` : ''})`);
+        break;
+      case 'resoconto':
+        this.log(`resoconto della notte ${e.resoconto.notte}: ${e.resoconto.testo.join(' / ')}`);
+        this.ponte.resocontoDelMattino(e.resoconto);
+        break;
+      default:
+        break;
+    }
   }
 
   /** Accende un flag del contratto col motore (una volta). */
@@ -543,7 +547,7 @@ export class Regia implements SistemaGioco {
         return;
       case 'variante': {
         const [el, va] = a0.split('=');
-        if (el && va) this.rilievo.impostaVariante(el, va, 'storia', this.orologio.assoluto);
+        if (el && va) this.catasto.impostaVariante(el, va);
         return;
       }
       case 'linea_miccia':
@@ -596,16 +600,11 @@ export class Regia implements SistemaGioco {
   /** Fa scorrere il catasto e la notte fra due tempi assoluti. */
   scorriTempo(iv: Intervallo): void {
     if (iv.a <= iv.da) return;
-    const cella = this.cellaElvira();
-    const segnali = this.rilievo.avanzaTempo(iv, {
-      elviraSu: (ps) => cella !== null && ps.includes(cella),
-      dorme: this.dormendo || this.inRifugio(),
+    this.catasto.scorri(iv, {
+      cella: this.cellaElvira(),
+      dorme: this.dormendo,
+      flag: () => Object.keys(this.narrativa.flag.tutti()).filter((f) => this.narrativa.flag.vero(f)),
     });
-    for (const s of segnali) {
-      if (s.tipo === 'flag') this.flag(s.nome);
-      else if (s.tipo === 'pesarina' && s.notte === 1) this.ponte.paginaParole = true;
-      else if (s.tipo === 'passaggio' && s.protetto === 'elvira') this.ponte.suono('[le Fade ti girano attorno, poi se ne vanno]', 'sopra');
-    }
     if (attraversa(iv, 5.5).length) this.salvaTra = 2;
   }
 
@@ -672,11 +671,7 @@ export class Regia implements SistemaGioco {
   }
 
   resocontoVisibile(): Resoconto | null {
-    const r = this.rilievo.resoconto();
-    if (!r) return null;
-    // il resoconto resta sulla Pianta per il mattino dopo la sua notte (fino alle 12:00)
-    if (this.orologio.giorno === r.notte + 1 && this.orologio.ore < 12) return r;
-    return null;
+    return this.catasto.resocontoDelMattino(this.orologio.giorno, this.orologio.ore);
   }
 
   // =================================================================== corpo
@@ -903,50 +898,27 @@ export class Regia implements SistemaGioco {
   }
 
   private collimato(stazione: string, mira: string): void {
-    const num = (id: string) => caposaldo(id)?.numero ?? id;
-    this.flag(`tentato_lato:${num(stazione)}-${num(mira)}`);
     this.capisaldiVisti.add(mira);
-    const esito = this.rilievo.collima(stazione, mira, this.orologio.ore);
-    this.log(`collima ${stazione} → ${mira}: ${esito.esito}`);
-    switch (esito.esito) {
-      case 'chiuso':
-        this.audio.evento({ tipo: 'pagina', verso: 'avanti' });
-        this.ponte.notifica(`Lato ${num(mira)}-${num(stazione)}, chiuso. ${esito.particelle.length} particelle a colore.`);
-        if (esito.primoDelFoglio) this.audio.tema('primo_rilievo');
-        break;
-      case 'gia_chiuso':
-        this.ponte.notifica('Questo lato è già nel libretto.');
-        break;
-      case 'non_visibile':
-        this.ponte.notifica(esito.motivo, 'rosso');
-        break;
-      case 'nessun_lato':
-        this.ponte.notifica(esito.motivo);
-        break;
-    }
+    const r = this.catasto.rileva(stazione, mira, this.orologio.ore, this.orologio.giorno, this.corpo.fiato < 0.15);
+    this.log(`collima ${stazione} → ${mira}: ${r.ok ? 'lato chiuso' : (r.motivo ?? 'no')}`);
   }
 
-  private appunto(bersaglio: string | null, cella: number | null, distanza: number): void {
-    if (cella !== null) {
-      this.rilievo.appunta(cella);
-      const iz = Math.floor(cella / 96);
-      const it = cella % 96;
-      this.ponte.notifica(`Appuntato: particella ${nomeCatastale(iz, it)}, ${Math.round(distanza)} m.`);
-      if (cella === 2505 && distanza > 600) {
-        // di giorno la mira non deve passare a meno di 150 m dall'asse (alla brace va bene tutto)
-        const occhi = this.occhi(new Vector3());
-        const fine = cylToWorld(1046, 37, 38.5);
-        const asseOk = this.orologio.ore >= 19.5 || this.orologio.ore < 5.5 || distanzaDallAsse(occhi, fine) >= 150;
-        if (asseOk) this.flag('appuntato_lontano:2505');
-      }
+  private appunto(bersaglio: string | null, cella: number | null, _distanza: number): void {
+    let b: BersaglioCatasto | null = null;
+    if (bersaglio?.startsWith('segnale_')) b = { caposaldo: bersaglio.slice(8) };
+    else if (bersaglio?.startsWith('lume_')) b = { caposaldo: bersaglio.slice(5) };
+    else if (bersaglio === 'lanterna') b = { lanterna: true };
+    else if (bersaglio === 'tecla') b = { lume: 'tecla' };
+    else if (cella !== null) b = { cella };
+    if (!b) return;
+    const o = worldToCyl(this.occhi(new Vector3()));
+    const r = this.catasto.appunta(b, this.orologio.ore, { z: o.z, theta: o.theta, altezza: o.h });
+    if (r.ok && 'cella' in b) {
+      const iz = Math.floor(b.cella / 96);
+      const it = b.cella % 96;
+      this.ponte.notifica(`Appuntato: particella ${nomeCatastale(iz, it)}.`);
     }
-    if (bersaglio === 'lanterna') this.flag('appuntato_lanterna');
-    if (bersaglio === 'tecla') this.flag('appuntato_lume:tecla');
-    if (bersaglio?.startsWith('lume_') && !this.lumiAppuntati.has(bersaglio)) {
-      this.lumiAppuntati.add(bersaglio);
-      this.narrativa.flag.incrementa('lumi_appuntati');
-    }
-    if (bersaglio?.startsWith('segnale_')) this.capisaldiVisti.add(bersaglio.slice(8));
+    this.log(`appunto ${JSON.stringify(b)}: ${r.ok ? 'ok' : r.motivo}`);
   }
 
   /** I bersagli del cannocchiale adesso: segnali dei capisaldi, la Lanterna, i lumi della notte. */
@@ -1065,7 +1037,7 @@ export class Regia implements SistemaGioco {
   private superficie(): 'erba' | 'pietra' | 'legno' | 'ghiaia' {
     if (this.interno === 'cripta') return 'pietra';
     if (this.interno === 'cella') return 'legno';
-    if (this.luoghiQui.has('passerella_messo') && this.rilievo.variante('E1') === 'Abitata') return 'legno';
+    if (this.luoghiQui.has('passerella_messo') && this.catasto.variante('E1') === 'Abitata') return 'legno';
     if (this.luoghiQui.has('piazza_ore') || this.luoghiQui.has('sagrato') || this.luoghiQui.has('lavatoio')) return 'pietra';
     return 'erba';
   }
@@ -1154,13 +1126,29 @@ export class Regia implements SistemaGioco {
     this.dialoghi.update();
     this.ombrista();
     this.campane();
-    if (p.cyl.z > 0 && !this.interno) this.rilievo.passaggio(p.cyl.z, p.cyl.theta);
+    if (!this.interno) {
+      const cella = this.cellaElvira();
+      if (cella !== null) this.catasto.passa(p.cyl.z, p.cyl.theta, cella);
+      this.capisaldiTrovati(occhi);
+    }
     this.ponte.sonda(dt);
 
     // salvataggio automatico (ogni passo di missione e a ogni alba)
     if (this.salvaTra > 0) {
       this.salvaTra -= dt;
       if (this.salvaTra <= 0 && !this.dormendo) void this.salva();
+    }
+  }
+
+  /** Un chiodo trovato a 1,5 m diventa «visto» (sulla Pianta compare il triangolino). */
+  private capisaldiTrovati(occhi: Vector3): void {
+    for (const c of CAPISALDI) {
+      if (this.capisaldiVisti.has(c.id)) continue;
+      const ch = this.chiodo(c.id);
+      if (ch && ch.distanceTo(occhi) < 2.2) {
+        this.capisaldiVisti.add(c.id);
+        this.catasto.segnaVisto(c.id);
+      }
     }
   }
 
@@ -1299,8 +1287,6 @@ export class Regia implements SistemaGioco {
     if (g.loop.paused) this.ponte.sonda(frameDt);
   }
 }
-
-const CODICE_STATO_MOTORE: Record<StatoCella, CellState> = { bianco: CellState.Blank, matita: CellState.Pencil, colore: CellState.Painted };
 
 /** Distanza minima (m) dall'asse del segmento a-b. */
 export function distanzaDallAsse(a: Vector3, b: Vector3): number {
