@@ -162,10 +162,7 @@ describe('Abitanti', () => {
     expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeGreaterThan(14);
     a.ottavioRaggiunge();
     expect(a.modoOttavio).toBe('raggiunge');
-    for (let i = 0; i < 60 * 10 && a.modoOttavio === 'raggiunge'; i++) {
-      a.update(1 / 60, ctx);
-      if (i % 60 === 0) console.log('d', a.distanzaDa('ottavio', elvira.z, elvira.theta), a.figure.get('ottavio')!.z, a.figure.get('ottavio')!.theta);
-    }
+    for (let i = 0; i < 60 * 10 && a.modoOttavio === 'raggiunge'; i++) a.update(1 / 60, ctx);
     expect(a.modoOttavio).toBe('fermo');
     const d = a.distanzaDa('ottavio', elvira.z, elvira.theta);
     expect(d).toBeLessThan(3);

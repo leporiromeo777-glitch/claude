@@ -359,7 +359,7 @@ export class Abitanti {
         const dz = ctx.elvira.z - f.z;
         const ds = deltaDeg(f.theta, ctx.elvira.theta) * METERS_PER_DEG;
         const dist = Math.hypot(dz, ds);
-        if (!f.visibile || dist <= OTTAVIO_VICINO) {
+        if (!f.visibile || dist <= OTTAVIO_VICINO + 0.05) {
           // arrivato: resta lì (fino a quando sarebbe rimasto dov'era, o per un'ora)
           const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
           this.ottavio = o.poi.tipo === 'accompagna' ? o.poi : { tipo: 'fermo', z: f.z, theta: f.theta, fino };
