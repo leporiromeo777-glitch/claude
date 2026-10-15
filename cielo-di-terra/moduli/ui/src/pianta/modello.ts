@@ -4,14 +4,17 @@
  */
 import { CIRCONFERENZA, LUNGHEZZA_Z, ampiezza, dentroPoligono, normalizzaGradi, type FasciaPianta } from './geometria';
 
-/** Stato di una particella: mai vista, vista con lo squadro (matita), rilevata (inchiostro e colore). */
-export type StatoParticella = 'bianco' | 'matita' | 'rilevato';
+/**
+ * Stato di una particella: mai vista, vista con lo squadro (matita), rilevata (inchiostro e colore).
+ * 'colore' è sinonimo di 'rilevato' (è il nome usato in content/fade_fase1.json).
+ */
+export type StatoParticella = 'bianco' | 'matita' | 'rilevato' | 'colore';
 /** Salute di una particella rilevata: il colore con cui si dipinge. */
 export type SaluteParticella = 'verde' | 'bruno' | 'grigio';
 /** Che cosa c'è sotto: cambia il colore dell'acquerello. */
 export type TerrenoParticella = 'terra' | 'acqua' | 'roccia' | 'abitato';
 
-export const CODICE_STATO: Record<StatoParticella, number> = { bianco: 0, matita: 1, rilevato: 2 };
+export const CODICE_STATO: Record<StatoParticella, number> = { bianco: 0, matita: 1, rilevato: 2, colore: 2 };
 export const CODICE_SALUTE: Record<SaluteParticella, number> = { verde: 1, bruno: 2, grigio: 3 };
 export const CODICE_TERRENO: Record<TerrenoParticella, number> = { terra: 0, acqua: 1, roccia: 2, abitato: 3 };
 
@@ -32,6 +35,8 @@ export interface ParticellaPianta {
   terreno?: TerrenoParticella;
   /** Cambiata nella notte: nel resoconto del mattino è ripassata in rosso. */
   cambiata?: boolean;
+  /** Inchiostro del rilievo: china (Elvira) o seppia (il rilievo G4 del 2291). */
+  inchiostro?: 'china' | 'seppia';
 }
 
 /**
@@ -49,6 +54,8 @@ export interface GrigliaPianta {
   terreno?: ArrayLike<number>;
   /** 1 = cambiata nella notte. */
   cambiate?: ArrayLike<number>;
+  /** 1 = rilevata a inchiostro seppia (rilievo di un altro Giardiniere). */
+  seppia?: ArrayLike<number>;
 }
 
 export type TipoCaposaldo = 'pilastro' | 'chiodo';
@@ -127,6 +134,7 @@ export class ModelloPianta {
   readonly salute: Uint8Array;
   readonly terreno: Uint8Array;
   readonly cambiate: Uint8Array;
+  readonly seppia: Uint8Array;
 
   constructor(nZ: number, nTheta: number) {
     this.nZ = Math.max(1, Math.floor(nZ));
@@ -136,6 +144,7 @@ export class ModelloPianta {
     this.salute = new Uint8Array(n);
     this.terreno = new Uint8Array(n);
     this.cambiate = new Uint8Array(n);
+    this.seppia = new Uint8Array(n);
   }
 
   /** Lato di una cella lungo z (m). */
@@ -159,6 +168,7 @@ export class ModelloPianta {
         m.salute[i] = g.salute?.[i] ?? 0;
         m.terreno[i] = g.terreno?.[i] ?? 0;
         m.cambiate[i] = g.cambiate?.[i] ? 1 : 0;
+        m.seppia[i] = g.seppia?.[i] ? 1 : 0;
       }
     }
     for (const p of dati.particelle ?? []) m.rasterizza(p);
@@ -176,6 +186,13 @@ export class ModelloPianta {
   statoIn(z: number, theta: number): number {
     if (z < 0 || z > LUNGHEZZA_Z) return 0;
     return this.stati[this.indice(z, theta)] ?? 0;
+  }
+
+  /** Campo binario: 1 dove la condizione vale (per i contorni). */
+  campo(condizione: (i: number) => boolean): Uint8Array {
+    const f = new Uint8Array(this.stati.length);
+    for (let i = 0; i < f.length; i++) f[i] = condizione(i) ? 1 : 0;
+    return f;
   }
 
   /** Quante celle per stato. */
@@ -225,6 +242,7 @@ export class ModelloPianta {
         }
         if (terreno !== undefined) this.terreno[i] = terreno;
         if (p.cambiata) this.cambiate[i] = 1;
+        if (p.inchiostro) this.seppia[i] = p.inchiostro === 'seppia' ? 1 : 0;
       }
     }
   }

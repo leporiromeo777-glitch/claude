@@ -227,7 +227,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     const c = this.pittore.modelloCorrente.conteggi();
     const totale = dati.totaleParticelle;
     const capisaldi = dati.capisaldi.filter((x) => x.rilevato).length;
-    const rilevate = dati.griglia || !dati.particelle?.length ? c.rilevato : dati.particelle.filter((p) => p.stato === 'rilevato').length;
+    const rilevate = dati.griglia || !dati.particelle?.length ? c.rilevato : dati.particelle.filter((p) => p.stato === 'rilevato' || p.stato === 'colore').length;
     const parti = [
       totale
         ? `${rilevate.toLocaleString('it-IT')} particelle rilevate su ${totale.toLocaleString('it-IT')}`
@@ -374,6 +374,7 @@ export class PiantaVerbano extends Componente<EventiPianta> {
     parti.push(`z ${Math.round(w.z).toLocaleString('it-IT')} m, θ ${Math.round(normalizzaGradi(w.theta))}°`);
     let statoTesto = NOMI_STATO[stato] ?? '';
     if (stato >= 2 && m.salute[i]) statoTesto += `, ${NOMI_SALUTE[m.salute[i]!]}`;
+    if (stato >= 2 && m.seppia[i]) statoTesto += ', a inchiostro seppia';
     if (m.cambiate[i]) statoTesto += ', cambiata stanotte';
     if (fascia?.tipo !== 'finestra') parti.push(statoTesto);
     this.didascalia.textContent = parti.join(' · ');

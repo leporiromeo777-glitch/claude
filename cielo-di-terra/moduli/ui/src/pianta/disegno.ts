@@ -90,6 +90,7 @@ export class PittorePianta {
   private contornoMatita: Float32Array = new Float32Array(0);
   private contornoInchiostro: Float32Array = new Float32Array(0);
   private contornoCambiate: Float32Array = new Float32Array(0);
+  private contornoSeppia: Float32Array = new Float32Array(0);
   private strato: HTMLCanvasElement = nuovoCanvas(1, 1);
   private stratoMaschera: HTMLCanvasElement = nuovoCanvas(1, 1);
   private readonly motivi: { carta: CanvasPattern | null; tratteggio: CanvasPattern | null; rosso: CanvasPattern | null; tappo: CanvasPattern | null; grana: CanvasPattern | null };
@@ -164,7 +165,8 @@ export class PittorePianta {
     this.modello = ModelloPianta.da(dati);
     const m = this.modello;
     this.contornoMatita = m.contorni(1);
-    this.contornoInchiostro = m.contorni(2);
+    this.contornoInchiostro = m.contorni(1, m.campo((i) => m.stati[i]! >= 2 && !m.seppia[i]));
+    this.contornoSeppia = m.contorni(1, m.campo((i) => m.stati[i]! >= 2 && !!m.seppia[i]));
     this.contornoCambiate = m.contorni(1, m.cambiate);
     if (!this.attivo) return;
     const matita = nuovoCanvas(m.nZ, m.nTheta);
@@ -258,6 +260,7 @@ export class PittorePianta {
       seme: 3,
     });
     this.disegnaContorni(this.contornoInchiostro, tMin, tMax, xZ, yT, { colore: COLORI.inchiostro, spessore: 1.5, doppio: false, ampiezza: 0.6, seme: 7 });
+    this.disegnaContorni(this.contornoSeppia, tMin, tMax, xZ, yT, { colore: '#7a4a28', spessore: 1.5, doppio: false, ampiezza: 0.6, seme: 9 });
     this.disegnaContorni(this.contornoCambiate, tMin, tMax, xZ, yT, { colore: COLORI.vermiglio, spessore: 1.6, doppio: true, ampiezza: 1.2, seme: 11 });
     this.disegnaParticelle(tMin, tMax, xZ, yT, opz.evidenzia ?? null);
     this.disegnaLuoghi(tMin, tMax, xZ, yT);
@@ -420,6 +423,8 @@ export class PittorePianta {
     sc.lineWidth = Math.max(3, 0.18 * vista.scala * 40);
     sc.strokeStyle = 'rgba(70, 60, 40, 0.18)';
     this.tracciaSegmenti(sc, this.contornoInchiostro, tMin, tMax, xZ, yT, 0, 0);
+    sc.stroke();
+    this.tracciaSegmenti(sc, this.contornoSeppia, tMin, tMax, xZ, yT, 0, 0);
     sc.stroke();
     versaStrato(0.82, 'multiply');
 
