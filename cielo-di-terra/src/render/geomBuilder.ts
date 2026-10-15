@@ -25,7 +25,8 @@ const cache = new Map<string, BufferGeometry>();
 function prim(key: string, make: () => BufferGeometry): BufferGeometry {
   let g = cache.get(key);
   if (!g) {
-    g = make().toNonIndexed();
+    const made = make();
+    g = made.index ? made.toNonIndexed() : made;
     cache.set(key, g);
   }
   return g;

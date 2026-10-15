@@ -7,7 +7,8 @@
 }
 .ui-imp-foglio {
   width: min(920px, 100%);
-  max-height: min(88vh, 100%);
+  /* Niente percentuali: nella griglia sarebbero cicliche e la riga crescerebbe col contenuto. */
+  max-height: min(88vh, calc(100vh - 32px));
   display: flex;
   flex-direction: column;
   padding: 26px 0 0;
