@@ -1,0 +1,18 @@
+{
+  "name": "@cielo-di-terra/popolamento",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cielo di Terra: il popolamento vero di Corbella (luoghi, capisaldi, elementi mobili, abitanti, collider, punti d'interazione, lumi) sopra il motore della fase 1A",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "vite --config vite.config.ts",
+    "build:demo": "vite build --config vite.config.ts",
+    "shots": "node scripts/schermate.mjs"
+  },
+  "_nota": "Nessuna dipendenza propria: usa three, vite, vitest, typescript e playwright della radice cielo-di-terra (gli script npm trovano i binari in ../../node_modules/.bin).",
+  "dependencies": {},
+  "devDependencies": {}
+}
