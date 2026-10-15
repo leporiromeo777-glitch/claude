@@ -195,3 +195,33 @@ describe('bolla dell\'ora (TOM-12)', () => {
     expect(text).toContain('Gino deve essere al Faro');
   });
 });
+
+describe('note a margine: quella dell\'ora corrente non aspetta la nota di un\'ora già fissata (D03, D04)', () => {
+  it('prologo veloce: alle 7 il primo incrocio mostra subito la sua nota', () => {
+    const base = fixture('g00');
+    const lv: LevelDef = {
+      ...base,
+      tutorial: [
+        { k: 'margine', when: 'incrocio', hour: 6, textKey: 'tombolo.test.margine' },
+        { k: 'margine', when: 'ora', hour: 6, textKey: 'tombolo.test.eco' },
+        { k: 'margine', when: 'incrocio', hour: 7, textKey: 'tombolo.test.rivela' },
+      ],
+    };
+    c = new NightController(h.s, nightParams(lv), { computed: null });
+    const rows = fixtureComputed('g00').base.rows ?? [];
+    const [r6, r7] = rows;
+    expect(r6 && r7).toBeTruthy();
+    for (const x of r6!.crossings) c.cross(x.pair, x.over, 'debug');
+    // Alle 6 una nota alla volta: la seconda della stessa ora resta in coda.
+    const first = c.margin.current;
+    expect(first).not.toBeNull();
+    expect(c.fix().ok).toBe(true);
+    // Fissata in meno di 4 s: la nota delle 6 resta finché non serve la nota delle 7…
+    expect(c.margin.current).toBe(first);
+    c.cross(r7!.crossings[0]!.pair, r7!.crossings[0]!.over, 'debug');
+    // …che compare subito, e quella in coda delle 6 non torna più.
+    expect(c.margin.current).toBe('tombolo.test.rivela');
+    c.closeNote();
+    expect(c.margin.visible()).toBe(false);
+  });
+});

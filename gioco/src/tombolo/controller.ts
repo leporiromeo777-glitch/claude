@@ -2371,16 +2371,32 @@ export class NightController {
 
   // ───────── Note a margine ─────────
 
-  /** Nota a margine del tutorial: una alla volta, le altre in coda (D04). */
+  /**
+   * Nota a margine del tutorial: una alla volta, le altre in coda (D04). Una nota
+   * rimasta da un'ora già fissata lascia il posto a quella dell'ora corrente, che
+   * deve comparire quando la regola serve (D03: alle 7 del prologo «Chi sta sopra,
+   * dà» al primo incrocio, anche se la nota delle 6 non ha ancora fatto i suoi 4 s);
+   * con lei se ne vanno le note ancora in coda delle ore passate.
+   */
   private showMargin(key: string, hand: MarginHand = 'clotilde'): void {
+    const hour = this.session.hour;
     if (this.margin.visible()) {
-      if (this.margin.current !== key && !this.noteQueue.some((q) => q.key === key)) this.noteQueue.push({ key, hand });
+      if (this.margin.current === key || this.noteQueue.some((q) => q.key === key)) return;
+      if (this.noteHour < hour) {
+        for (let i = this.noteQueue.length - 1; i >= 0; i--) if ((this.noteQueue[i]?.hour ?? hour) < hour) this.noteQueue.splice(i, 1);
+        this.margin.hide();
+        this.displayNote(key, hand);
+        return;
+      }
+      this.noteQueue.push({ key, hand, hour });
       return;
     }
     this.displayNote(key, hand);
   }
 
-  private readonly noteQueue: { key: string; hand: MarginHand }[] = [];
+  private readonly noteQueue: { key: string; hand: MarginHand; hour: number }[] = [];
+  /** Ora (della notte) in cui è comparsa la nota visibile. */
+  private noteHour = -1;
   private noteAt = -1;
   private noteBand = 0;
   private notePlace: NotePlacement | null = null;
@@ -2388,6 +2404,7 @@ export class NightController {
   private displayNote(key: string, hand: MarginHand): void {
     this.margin.show(key, hand);
     this.noteAt = this.time;
+    this.noteHour = this.session.hour;
     // Con una nota del tutorial il messaggio in basso non serve (un solo messaggio).
     this.explain.hide();
     this.positionNote();
