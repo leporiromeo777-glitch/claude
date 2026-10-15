@@ -499,11 +499,10 @@
   "nota": "Per ogni elemento le righe complete (con il genere giusto) sono in elementi_mobili[].motivi, con chiave «da>a» o «rimasta»; i modelli di righe valgono solo se manca la riga dell'elemento."
  },
  "inventario_corbella": {
-  "descrizione": "Le particelle del nucleo di Corbella (iz 22-29, itheta 5-16) che la rete della Fase 1 può rilevare. Quando sono tutte a colore, Meridiana rende il primo servizio: le campane di San Vigilio tornano a segnare l'ora (un rintocco per ora, dalle 06:00 alle 21:00). Contano le particelle a colore rilevate da chiunque, anche le 15 seppia del G4 (con i soli lati di Elvira si coprono comunque tutte e 63).",
+  "descrizione": "Le particelle del nucleo di Corbella (iz 22-29, itheta 5-16) che la rete della Fase 1 può rilevare. Quando sono tutte a colore, Meridiana rende il primo servizio: le campane di San Vigilio tornano a segnare l'ora (un rintocco per ora, dalle 06:00 alle 21:00). Contano le particelle a colore rilevate da chiunque, anche le 15 seppia del G4 (con i soli lati di Elvira si coprono comunque tutte e 62). La particella 2119 (le terrazze alte sotto le Selve) ne è uscita: la copre solo il lato 1-4, che si chiude solo di notte con il lume di Ottavio (dalla Fase 3).",
   "particelle": [
    2117,
    2118,
-   2119,
    2213,
    2214,
    2215,
@@ -565,7 +564,7 @@
    2799,
    2800
   ],
-  "quante": 63
+  "quante": 62
  },
  "particelle": [
   {
@@ -2267,7 +2266,7 @@
    "chiusa_da": [
     "1-4"
    ],
-   "inventario_corbella": true,
+   "inventario_corbella": false,
    "nota_stato": "Le Selve le ha disegnate Elvira: la Pianta si apre con il suo disegno del 2119."
   },
   {
