@@ -269,6 +269,27 @@ describe('Abitanti', () => {
       expect(corbella.npc('clelia')!.manuale).toBe(false);
     });
 
+    it('Clelia aspetta alla Bacheca finché non ha dato il dono: anche la sera e il giorno dopo', () => {
+      const a = new Abitanti(corbella);
+      const bacheca = luogo('bacheca_ore')!;
+      const elvira = { z: bacheca.z + 3, theta: bacheca.theta };
+      // alle 20:00 del giorno 2 gli orari la manderebbero alla Casa del Velo
+      corbella.applicaOrario(2, 20);
+      passi(a, contesto(elvira, 2, 20), 2);
+      expect(a.presente('clelia')).toBe(true);
+      expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeLessThan(3);
+      // di notte non c'è
+      passi(a, contesto(elvira, 2, 22), 40);
+      expect(a.presente('clelia')).toBe(false);
+      // il giorno 3, il dono ancora da dare: di nuovo alla Bacheca
+      corbella.applicaOrario(3, 8);
+      passi(a, contesto(elvira, 3, 8), 40);
+      expect(a.distanzaDa('clelia', bacheca.z, bacheca.theta)).toBeLessThan(3);
+      // il pacco l'ha portato Ottavio: torna agli orari
+      passi(a, contesto(elvira, 3, 8, (c) => c === 'dialogo:d_ottavio_pacco finito'), 40);
+      expect(corbella.npc('clelia')!.manuale).toBe(false);
+    });
+
     it('chi è vicino guarda Elvira; i gruppi non contano fra i vicini', () => {
       const a = new Abitanti(corbella);
       corbella.applicaOrario(1, 9);

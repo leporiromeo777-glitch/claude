@@ -6,7 +6,11 @@
  *   (annunciati dalla storia con `apriDialogo`): questi ultimi aspettano in coda finché non
  *   c'è niente di aperto (un altro dialogo, una carta da leggere);
  * - il nome di chi parla resta «una velata» finché Elvira non lo sa (GDD §8.1);
- * - mentre si parla la persona guarda Elvira (lo fanno gli abitanti: è vicina).
+ * - mentre si parla la persona guarda Elvira (lo fanno gli abitanti: è vicina);
+ * - un dialogo automatico in coda si apre solo se la sua condizione vale ancora (Elvira è
+ *   tornata alla Bacheca) e se chi parla è vicino: la novizia che aspetta alla Bacheca non
+ *   parla a Elvira dall'altra parte del paese, la mattina dopo, perché ieri sera lei era passata
+ *   di lì. Le richieste «forzate» della rete di sicurezza (`percorso.ts`) saltano la condizione.
  */
 import type { VistaNodo } from '../narrativa';
 import type { BattutaDialogo } from '../ui';
@@ -14,9 +18,18 @@ import type { Regia } from './regia';
 
 /** Oltre questa distanza (m) Ottavio viene incontro a Elvira prima di un dialogo automatico. */
 const DISTANZA_PER_PARLARE = 6;
+/** Entro questa distanza (m) da Elvira una persona apre un dialogo automatico (Ottavio a parte). */
+export const DISTANZA_DIALOGO_AUTOMATICO = 25;
+
+interface Richiesta {
+  dialogo: string;
+  automatico: boolean;
+  /** Richiesta della rete di sicurezza: si apre anche se la condizione non vale (chi parla viene da Elvira). */
+  forzato: boolean;
+}
 
 export class DirettoreDialoghi {
-  private coda: { dialogo: string; automatico: boolean }[] = [];
+  private coda: Richiesta[] = [];
   private vista: VistaNodo | null = null;
   /** Ultimo dialogo mostrato (per i test). */
   ultimo: string | null = null;
@@ -47,21 +60,32 @@ export class DirettoreDialoghi {
   }
 
   /** Un dialogo annunciato dalla storia (automatico o da un effetto). */
-  richiedi(dialogo: string, automatico: boolean): void {
-    if (this.coda.some((c) => c.dialogo === dialogo) || this.vista?.dialogo === dialogo) return;
-    this.coda.push({ dialogo, automatico });
+  richiedi(dialogo: string, automatico: boolean, forzato = false): void {
+    if (this.vista?.dialogo === dialogo) return;
+    const gia = this.coda.find((c) => c.dialogo === dialogo);
+    if (gia) {
+      gia.forzato ||= forzato;
+      return;
+    }
+    this.coda.push({ dialogo, automatico, forzato });
+  }
+
+  /** Il dialogo aspetta in coda di potersi aprire. */
+  inCoda(dialogo: string): boolean {
+    return this.coda.some((c) => c.dialogo === dialogo);
   }
 
   /** Da chiamare a ogni passo: apre il prossimo dialogo in coda quando si può. */
   update(): void {
     if (this.aperto || !this.coda.length) return;
     if (this.r.ui.lettore.visible || this.r.ponte.attesaAperta || this.r.ui.titolo.visible) return;
+    // i dialoghi già finiti (la novizia, quando il pacco l'ha portato Ottavio) escono dalla coda
+    this.coda = this.coda.filter((c) => !this.r.narrativa.dialoghi.finito(c.dialogo) || this.ripetibile(c.dialogo));
     // un dialogo con una persona aspetta che la persona ci sia (Ottavio che scende dal cielo)
-    const i = this.coda.findIndex((c) => this.personaPronta(c.dialogo));
+    const i = this.coda.findIndex((c) => this.condizioneVale(c) && this.personaPronta(c.dialogo, c.automatico));
     if (i < 0) return;
     const [prossimo] = this.coda.splice(i, 1);
     if (!prossimo) return;
-    if (this.r.narrativa.dialoghi.finito(prossimo.dialogo) && !this.ripetibile(prossimo.dialogo)) return;
     if (this.mostra(this.r.narrativa.dialoghi.avvia(prossimo.dialogo))) {
       const p = this.r.narrativa.dialoghi.definizione(prossimo.dialogo)?.personaggio ?? '';
       const testa = this.r.abitanti.puntoDialogo(p);
@@ -69,10 +93,22 @@ export class DirettoreDialoghi {
     }
   }
 
-  private personaPronta(dialogo: string): boolean {
+  /** Un dialogo automatico (non forzato) si apre solo se la sua condizione vale ancora. */
+  private condizioneVale(c: Richiesta): boolean {
+    if (!c.automatico || c.forzato) return true;
+    const cond = this.r.narrativa.dialoghi.definizione(c.dialogo)?.condizione;
+    return cond === undefined || this.r.narrativa.valuta(cond);
+  }
+
+  private personaPronta(dialogo: string, automatico = false): boolean {
     const p = this.r.narrativa.dialoghi.definizione(dialogo)?.personaggio;
     const a = this.r.abitanti;
     if (!p || !a.ha(p)) return true;
+    if (automatico && p !== 'ottavio') {
+      // chi parla per primo lo fa da vicino (la novizia alla Bacheca, la Pina con la figura)
+      const e = this.r.game.player.cyl;
+      return a.presente(p) && a.distanzaDa(p, e.z, e.theta) <= DISTANZA_DIALOGO_AUTOMATICO;
+    }
     if (p === 'ottavio') {
       if (a.modoOttavio === 'atterra' || a.modoOttavio === 'raggiunge') return false;
       // lontano (atterrato dall'altra parte della piazza, fermo davanti al fienile) o in volo:

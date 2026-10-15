@@ -38,6 +38,15 @@ const CAPSULE: Record<number, string> = {
 
 const NOMI_DIALOGO = ['togna', 'bortolo', 'annunciata', 'pina', 'nando', 'clelia', 'bambini', 'ottavio'];
 
+/** Che cosa dice la porta chiusa del campanile: chi ha le chiavi, e quando c'è (08:00-18:00 sul sagrato). */
+export function chiaviDelCampanaro(giorno: number, ore: number, campanaroQui: boolean): string {
+  if (giorno < 2) return 'Chiusa a chiave. Le chiavi le ha il campanaro.';
+  if (campanaroQui) return 'Chiusa a chiave. Le chiavi le ha il campanaro: è qui vicino, parlagli.';
+  if (ore < 8) return 'Chiusa a chiave. Il campanaro arriva sul sagrato alle 08:00: siediti (C) e aspetta (X).';
+  if (ore >= 18) return 'Chiusa a chiave. Il campanaro torna sul sagrato domattina alle 08:00.';
+  return 'Chiusa a chiave. Le chiavi le ha il campanaro: di giorno sta sul sagrato.';
+}
+
 export function registraBersagli(r: Regia): void {
   const I = r.interazioni;
   const n = () => r.narrativa;
@@ -101,11 +110,25 @@ export function registraBersagli(r: Regia): void {
     portata: 1.5,
     raggio: 1,
     disponibile: () => r.controllo.tipo === 'scala' && (r.controllo as { y: number }).y >= 6.2,
-    azione: () => r.esciDallaBotola(),
+    azione: () => {
+      // Prima la busta e l'armadietto: chi usciva prima restava fuori con il passo della Cripta
+      // da fare e nessuna strada per tornare giù (la botola si scendeva solo dopo lo sguardo in su).
+      if (!n().valuta('passo:pr_cripta completato') && !n().valuta('passo:pr_botola_scala completato')) {
+        const manca = [
+          ...(n().inventario.ha('lettera_marta') ? [] : ['la busta «Per la mamma» è ancora sul vetro della capsula 5']),
+          ...(flag('armadietto_aperto') ? [] : ["l'armadietto n. 5, accanto alla capsula, è ancora chiuso"]),
+        ];
+        r.ponte.notifica(`Non ancora: ${manca.join('; ') || 'manca qualcosa, giù'}.`);
+        return;
+      }
+      r.esciDallaBotola();
+    },
   });
 
   // ---------------------------------------------------------------- fuori: la Cripta e il castagno
-  add({ id: 'botola', verbo: 'Scendi nella Cripta', posizione: p('botola'), portata: 2.6, raggio: 0.8, disponibile: () => fuori() && n().valuta('passo:pr_guarda_su completato'), azione: () => r.entraNellaCripta() });
+  // si torna giù appena si è fuori (anche con il passo della Cripta ancora da fare: i vecchi
+  // salvataggi di chi era uscito prima di prendere la busta)
+  add({ id: 'botola', verbo: 'Scendi nella Cripta', posizione: p('botola'), portata: 3, raggio: 0.9, disponibile: () => fuori() && (n().valuta('passo:pr_guarda_su completato') || !n().valuta('passo:pr_cripta completato')), azione: () => r.entraNellaCripta() });
   let salutato = false;
   add({ id: 'castagno_morto', verbo: 'Tocca il castagno', posizione: p('castagno_morto'), portata: 2.4, raggio: 0.6, disponibile: () => fuori() && !salutato && !r.lente, azione: () => {
     salutato = true;
@@ -115,8 +138,9 @@ export function registraBersagli(r: Regia): void {
     id: 'ramo_vivo',
     verbo: 'Taglia una marza dal ramo vivo (tieni premuto E)',
     posizione: p('ramo_vivo'),
-    portata: 2.8,
-    raggio: 0.5,
+    // il ramo sta a due metri e mezzo, sopra la testa: più largo e da più lontano
+    portata: 3.6,
+    raggio: 0.8,
     priorita: 3,
     disponibile: () => fuori() && flag('ramo_vivo_trovato') && !n().inventario.ha('marza_pedrazzini') && !n().valuta('passo:m1_marza completato') && n().inventario.ha('coltello_innesto'),
     tenuta: { durata: 1.6, completa: () => n().inventario.aggiungi('marza_pedrazzini') },
@@ -149,14 +173,17 @@ export function registraBersagli(r: Regia): void {
   });
 
   // ---------------------------------------------------------------- la Terrazza Pedrazzini
-  add({ id: 'cartellino', verbo: 'Leggi il cartellino di zinco', posizione: p('cartellino'), portata: 2.6, raggio: 0.3, priorita: 2, disponibile: fuori, azione: () => r.ponte.leggi('cartellino_castagno') });
+  // il cartellino è legato al ramo più basso, un metro e mezzo sopra gli occhi: prima andava
+  // guardato da meno di due metri (ferma a quattro metri, a guardarlo, Elvira non poteva leggerlo)
+  add({ id: 'cartellino', verbo: 'Leggi il cartellino di zinco', posizione: p('cartellino'), portata: 4.6, raggio: 0.6, priorita: 2, disponibile: fuori, azione: () => r.ponte.leggi('cartellino_castagno') });
   const TEMPI = ['Taglia: lo spacco nel ramo (tieni premuto E)', 'Inserisci la marza (tieni premuto E)', 'Lega con rafia e mastice (tieni premuto E)'];
   add({
     id: 'innesto',
     verbo: () => TEMPI[Math.min(2, r.stadioInnesto)]!,
     posizione: p('innesto'),
-    portata: 2.8,
-    raggio: 0.5,
+    // anche l'innesto è sopra la testa (sul ramo del cartellino)
+    portata: 3.8,
+    raggio: 0.7,
     priorita: 3,
     disponibile: () => fuori() && n().valuta('passo:m1_innesto attivo') && n().inventario.ha('marza_pedrazzini') && !flag('innesto_fatto'),
     tenuta: {
@@ -186,11 +213,11 @@ export function registraBersagli(r: Regia): void {
     disponibile: fuori,
     azione: () => {
       if (flag('campanile_aperto')) r.saliCampanile();
-      else r.ponte.notifica('Chiusa a chiave. Le chiavi le ha il campanaro.');
+      else r.ponte.notifica(chiaviDelCampanaro(r.orologio.giorno, r.orologio.ore, r.abitanti.presente('bortolo')));
     },
   });
   const inCella = () => r.interno === 'cella' && libero();
-  add({ id: 'targa_p1', verbo: 'Leggi la targa del Pilastro 1', posizione: r.cella.punti['targa_p1']!, portata: 2.2, raggio: 0.3, priorita: 2, disponibile: inCella, azione: () => r.ponte.leggi('targa_p1') });
+  add({ id: 'targa_p1', verbo: 'Leggi la targa del Pilastro 1', posizione: r.cella.punti['targa_p1']!, portata: 3, raggio: 0.45, priorita: 2, disponibile: inCella, azione: () => r.ponte.leggi('targa_p1') });
   add({ id: 'altoparlante_cella', verbo: "Parla all'altoparlante", posizione: r.cella.punti['altoparlante_cella']!, portata: 2.6, raggio: 0.4, disponibile: () => inCella() && n().dialoghi.perInterazione('altoparlante_cella') !== null, azione: () => r.dialoghi.interagisci('altoparlante_cella') });
   add({ id: 'scendi_campanile', verbo: 'Scendi dal campanile', posizione: r.cella.punti['scendi_campanile']!, portata: 2.4, raggio: 0.7, disponibile: inCella, azione: () => r.scendiCampanile() });
   add({
@@ -224,8 +251,8 @@ export function registraBersagli(r: Regia): void {
       id: `png_${chi}`,
       verbo: () => `Parla con ${r.ponte.nomeVisibile(chi)}`,
       posizione: () => r.abitanti.puntoDialogo(chi),
-      portata: 3.4,
-      raggio: 0.6,
+      portata: 4,
+      raggio: 0.7,
       priorita: 1,
       disponibile: () => libero() && n().dialoghi.perPersonaggio(chi) !== null,
       azione: () => r.dialoghi.parla(chi),
@@ -255,8 +282,9 @@ export function registraBersagli(r: Regia): void {
       id: `pianta_${c.id}`,
       verbo: `Pianta lo squadro sul chiodo ${c.numero} (tieni premuto E)`,
       posizione: () => r.chiodo(c.id),
-      portata: 2.4,
-      raggio: 0.35,
+      // il chiodo d'ottone è ai piedi: si guarda in giù da un passo o due (prima 35 cm a 2,4 m)
+      portata: 3,
+      raggio: 0.6,
       priorita: 2,
       disponibile: () => libero() && r.squadro.disponibile && (c.id === 'cs_1' ? r.interno === 'cella' : r.interno === null),
       tenuta: { durata: 0.9, completa: () => r.piantaSquadro(c.id) },
@@ -266,7 +294,8 @@ export function registraBersagli(r: Regia): void {
 
   // ---------------------------------------------------------------- sguardi
   const S = r.sguardi;
-  S.registra({ id: 'guardato_vetro', posizione: r.cripta.scritta, raggio: 0.12, durata: 1.5, attivo: () => r.controllo.tipo === 'sdraiata', compiuto: () => r.flag('guardato_vetro') });
+  // la scritta è a 40 cm dagli occhi: un cono di 26° (prima 17°)
+  S.registra({ id: 'guardato_vetro', posizione: r.cripta.scritta, raggio: 0.2, durata: 1.5, attivo: () => r.controllo.tipo === 'sdraiata', compiuto: () => r.flag('guardato_vetro') });
   S.registra({
     id: 'guardato_in_su',
     durata: 1.5,

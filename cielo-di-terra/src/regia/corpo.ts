@@ -6,7 +6,10 @@
  *   soprattutto **seduti** (pieno in 6 s). Sotto 0,4 la vista si restringe: la prima volta
  *   accende `fiato_corto`.
  * - Una **planata** conta quando il Velo resta aperto almeno 2 s e Elvira atterra in piedi
- *   (`planata_fatta`); il punto di decollo dice da quale muro è partita (`planata:<luogo>`).
+ *   (`planata_fatta`), oppure quando il Velo si apre in un salto da un muro di almeno 2,5 m:
+ *   con la fisica del Velo un salto dal muretto della Terrazza (3,5 m) lo tiene aperto mezzo
+ *   secondo, e i 2 s chiedevano un dislivello di una quindicina di metri (nessuno lo trovava).
+ *   Il punto di decollo dice da quale muro è partita (`planata:<luogo>`).
  *
  * Logica pura: riceve lo stato del controller a ogni passo e restituisce eventi.
  */
@@ -27,7 +30,7 @@ export interface PassoCorpo {
 export type EventoCorpo =
   | { tipo: 'fiato_corto' }
   | { tipo: 'decollo'; da: Punto }
-  | { tipo: 'atterraggio'; dove: Punto; planata: boolean; secondiVelo: number; decollo: Punto | null; duro: boolean };
+  | { tipo: 'atterraggio'; dove: Punto; planata: boolean; secondiVelo: number; decollo: Punto | null; duro: boolean; dislivello: number };
 
 export interface Punto {
   z: number;
@@ -37,6 +40,18 @@ export interface Punto {
 
 /** Soglia sotto cui la vista si restringe. */
 export const SOGLIA_FIATO = 0.4;
+
+/** Una planata «lunga»: il Velo aperto per tanti secondi conta sempre. */
+export const SECONDI_PLANATA = 2;
+/** Una planata da un muro: bastano questi secondi di Velo aperto… */
+export const SECONDI_PLANATA_BREVE = 0.3;
+/** …se fra il decollo e l'atterraggio si scende di almeno tanto (m). */
+export const DISLIVELLO_PLANATA = 2.5;
+
+/** Vero se un volo con il Velo aperto per `secondiVelo` s e `dislivello` m di discesa è una planata. */
+export function eUnaPlanata(secondiVelo: number, dislivello: number): boolean {
+  return secondiVelo >= SECONDI_PLANATA || (secondiVelo >= SECONDI_PLANATA_BREVE && dislivello >= DISLIVELLO_PLANATA);
+}
 
 export class Corpo {
   fiato = 1;
@@ -73,8 +88,9 @@ export class Corpo {
     const qui: Punto = { z: s.z, theta: s.theta, h: s.h };
     if (s.grounded) {
       if (this.inAria) {
-        const planata = this.secondiVelo >= 2;
-        ev.push({ tipo: 'atterraggio', dove: qui, planata, secondiVelo: this.secondiVelo, decollo: this.decollo, duro: !!s.atterraggioDuro });
+        const dislivello = this.decollo ? this.decollo.h - qui.h : 0;
+        const planata = eUnaPlanata(this.secondiVelo, dislivello);
+        ev.push({ tipo: 'atterraggio', dove: qui, planata, secondiVelo: this.secondiVelo, decollo: this.decollo, duro: !!s.atterraggioDuro, dislivello });
         this.inAria = false;
         this.secondiVelo = 0;
         this.decollo = null;

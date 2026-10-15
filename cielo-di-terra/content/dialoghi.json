@@ -1583,7 +1583,7 @@
   "personaggio": "ottavio",
   "si_apre": {
    "come": "automatico",
-   "condizione": "passo:m1_fienile completato"
+   "condizione": "passo:m1_fienile completato e !passo:m1_notte completato"
   },
   "ripetibile": false,
   "alla_fine": [
@@ -1678,7 +1678,7 @@
   "personaggio": "ottavio",
   "si_apre": {
    "come": "automatico",
-   "condizione": "giorno:2 e passo:m1_notte completato e !flag:notte_su_E1"
+   "condizione": "giorno:>=2 e passo:m1_notte completato e !flag:notte_su_E1"
   },
   "ripetibile": false,
   "alla_fine": [
@@ -1743,7 +1743,7 @@
   "personaggio": "ottavio",
   "si_apre": {
    "come": "automatico",
-   "condizione": "giorno:2 e passo:m1_notte completato e flag:notte_su_E1"
+   "condizione": "giorno:>=2 e passo:m1_notte completato e flag:notte_su_E1"
   },
   "ripetibile": false,
   "alla_fine": [
@@ -1783,7 +1783,7 @@
   "personaggio": "clelia",
   "si_apre": {
    "come": "automatico",
-   "condizione": "giorno:>=2 e luogo:bacheca_ore raggiunto"
+   "condizione": "giorno:>=2 e luogo:bacheca_ore raggiunto e !dialogo:d_ottavio_pacco finito"
   },
   "ripetibile": false,
   "alla_fine": [

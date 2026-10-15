@@ -1,0 +1,390 @@
+/**
+ * Il percorso facile: le reti di sicurezza della storia per chi gioca davvero (cammina, mira a
+ * occhio, non ha letto il design). La partita automatica si teletrasporta e mira esatto, e non
+ * vedeva i punti dove un giocatore vero restava fermo; qui la regia li tiene d'occhio.
+ *
+ * - **Dialoghi di riserva** (la vecchia `campaneDiRiserva`, generalizzata): per ogni passo attivo
+ *   del prologo e della missione principale, i dialoghi automatici che lo fanno avanzare (quelli
+ *   nominati da `completa_quando`, quelli il cui `alla_fine` accende un flag che `completa_quando`
+ *   legge, e la scelta della notte nel fienile) si richiedono di nuovo se non sono aperti, in
+ *   coda o finiti e la loro condizione vale: un dialogo interrotto, perso in un caricamento o
+ *   annunciato quando la persona non c'era non ferma più la storia. Il Messo, dopo 25 s, va
+ *   incontro a Elvira anche fuori dalla piazza (il terzo velato può essere Nando, ai Ronchi).
+ * - **Indicazioni dei gesti**, nel posto del tasto E quando non c'è un bersaglio: la scala della
+ *   Cripta (W), il Velo in aria (Spazio), lo squadro piantato (A/D per la bolla, il tasto destro
+ *   per il cannocchiale, con la barra della collimazione), il fischio per Ottavio in volo (G),
+ *   l'attesa da seduti (X), e contro un muretto basso che ferma il passo «Spazio — scavalca»
+ *   (fuori dalla botola, verso il belvedere, c'è un parapetto di novanta centimetri).
+ * - **Promemoria**: se un passo resta fermo a lungo, il suo suggerimento dei comandi torna una
+ *   volta (sedersi nel prologo, aspettare la brace…).
+ * - **Lo sguardo nella capsula**: se dopo 12 s la scritta del vetro non è stata trovata, lo
+ *   sguardo ci scivola sopra da solo (e ancora a 30 s).
+ * - **Il fermo della prima notte**: finché Elvira non arriva al fienile l'orologio non passa le
+ *   05:00 del giorno 2. Senza, chi girava tutta la notte arrivava al fienile di giorno e la notte
+ *   (la scelta di Ottavio, il resoconto, il mattino del giorno 2) non tornava più.
+ * - **Il paese che dorme**: nel passo dei velati, se in piazza non c'è ancora abbastanza gente
+ *   con cui parlare, una nota dice quando arriva e come aspettare.
+ */
+import { Vector3 } from 'three';
+import type { CondizioneGrezza, DialogoDef, PassoDef } from '../narrativa';
+import type { AzioneContestuale } from '../ui';
+import type { Collider } from '../world/colliders';
+import { localFrameAt } from '../world/cylinder';
+import { assolutoDi } from './orologio';
+import type { Regia } from './regia';
+
+/** Le missioni della storia (il percorso da non perdere). */
+const TIPI_STORIA = new Set(['prologo', 'principale']);
+
+/** Dialoghi che fanno avanzare un passo senza essere nominati dalla sua condizione. */
+const DIALOGHI_IN_PIU: Readonly<Record<string, readonly string[]>> = {
+  // «Dormi o guardi?»: la scelta del sonno (dormi:fino 05:30) è un evento del passo
+  m1_notte: ['d_ottavio_fienile'],
+};
+
+/** Dialoghi che, dopo `dopo` s di passo, si aprono anche lontano dal loro luogo (chi parla viene da Elvira). */
+const RISERVA_OVUNQUE: Readonly<Record<string, { dialogo: string; dopo: number }>> = {
+  m1_ottavio: { dialogo: 'd_ottavio_incontro', dopo: 25 },
+};
+
+/** Ogni quanto (s) si controllano i dialoghi di riserva. */
+const PASSO_RISERVA = 1.5;
+
+/**
+ * Il suggerimento da ripetere se un passo resta fermo (se manca: quello dell'attivazione) e dopo
+ * quanti secondi; `null` = nessun promemoria («Alzati» nella Cripta, a Elvira già in piedi).
+ */
+const PROMEMORIA: Readonly<Record<string, { id: string; dopo?: number } | null>> = {
+  pr_cripta: null,
+  pr_campane: null,
+  pr_camminare: { id: 'siediti', dopo: 40 },
+  pr_lettera: { id: 'leggi_lettera', dopo: 45 },
+  m1_brace: { id: 'aspetta' },
+  m1_seconda_notte: { id: 'aspetta' },
+};
+const PROMEMORIA_DOPO = 90;
+
+/** Quando lo sguardo scivola da solo sulla scritta del vetro (s di passo). */
+const AIUTI_VETRO = [12, 30];
+
+/** Il fermo della prima notte: le 05:00 del giorno 2 (tempo assoluto). */
+export const FERMO_PRIMA_NOTTE = assolutoDi(2, 5);
+
+/** Chi conta per «Che cosa sanno, quelli velati?». */
+const VELATI = ['togna', 'bortolo', 'annunciata', 'pina', 'nando', 'bambini'];
+
+function testoCondizione(c: CondizioneGrezza): string {
+  return typeof c === 'string' ? c : c === undefined || c === null ? '' : JSON.stringify(c);
+}
+
+/** I dialoghi nominati da una condizione con «dialogo:id finito». */
+export function dialoghiNominati(c: CondizioneGrezza): string[] {
+  return [...testoCondizione(c).matchAll(/dialogo:([A-Za-z0-9_]+)\s+finit[oa]/g)].map((m) => m[1]!);
+}
+
+/** I flag letti da una condizione («flag:nome»). */
+export function flagNominati(c: CondizioneGrezza): string[] {
+  return [...testoCondizione(c).matchAll(/flag:([A-Za-z0-9_:]+)/g)].map((m) => m[1]!);
+}
+
+/**
+ * I dialoghi automatici che fanno avanzare un passo: nominati dalla sua condizione di
+ * completamento, oppure che accendono alla fine un flag che la condizione legge (la lettera di
+ * Rosa), oppure elencati in `DIALOGHI_IN_PIU` (la scelta della notte).
+ */
+export function dialoghiCheFannoAvanzare(passo: Pick<PassoDef, 'id' | 'completaQuando'>, dialoghi: Readonly<Record<string, DialogoDef>>): string[] {
+  const nominati = new Set(dialoghiNominati(passo.completaQuando));
+  const flag = new Set(flagNominati(passo.completaQuando));
+  for (const id of DIALOGHI_IN_PIU[passo.id] ?? []) nominati.add(id);
+  for (const d of Object.values(dialoghi)) {
+    if (d.effettiFine.some((e) => e.startsWith('flag:') && flag.has(e.slice(5)))) nominati.add(d.id);
+  }
+  return [...nominati].filter((id) => dialoghi[id]?.apertura.come === 'automatico');
+}
+
+/** Lo stato che serve per scegliere l'indicazione di un gesto (logica pura). */
+export interface StatoGesto {
+  controllo: 'libero' | 'sdraiata' | 'alzandosi' | 'scala' | 'seduta' | 'piantato' | 'dorme';
+  /** Altezza sulla scala della Cripta (m) e altezza della botola. */
+  scala?: { y: number; cima: number };
+  /** In aria: Velo aperto, altezza dal suolo (m), e se il passo chiede ancora la prima planata. */
+  aria?: { velo: boolean; altezza: number; insegna: boolean };
+  squadro?: { livellato: boolean; telescopio: boolean; caposaldo: string | null; coperto: boolean; tenuta: number; serve: number; meta?: string };
+  /** Ottavio da chiamare con il fischio (la strada del Messo, lui in volo). */
+  fischio?: boolean;
+  /** Ferma contro un muretto che si scavalca con un salto. */
+  muretto?: boolean;
+  /** Da seduta: si può aspettare (e la lettera di Marta, già letta, si può rileggere con E). */
+  attesa?: boolean;
+  rilettura?: boolean;
+}
+
+/** Altezza dal suolo (m) sopra la quale il Velo si apre (VELO_TUNABLES.minOpenHeight) con un margine. */
+const ALTEZZA_VELO = 1.2;
+
+/** Un muretto «da scavalcare»: più alto di un gradino (0,5 m), non più di quanto porta un salto. */
+export const MURETTO_MIN = 0.5;
+export const MURETTO_MAX = 1.2;
+
+const _avanti = new Vector3();
+const _punto = new Vector3();
+const _rel = new Vector3();
+const _cornice = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
+
+/**
+ * C'è un muretto basso subito davanti ai piedi? Si guarda un punto `davanti` m avanti, lungo lo
+ * sguardo sul piano, a mezzo metro da terra: dentro una scatola il cui tetto sta fra
+ * `MURETTO_MIN` e `MURETTO_MAX` sopra i piedi.
+ */
+export function murettoDavanti(piedi: Vector3, theta: number, sguardo: Vector3, collisori: readonly Collider[], davanti = 0.6): boolean {
+  localFrameAt(piedi, _cornice, theta);
+  const su = _cornice.up;
+  _avanti.copy(sguardo).addScaledVector(su, -sguardo.dot(su));
+  if (_avanti.lengthSq() < 1e-6) return false;
+  _avanti.normalize();
+  _punto.copy(piedi).addScaledVector(_avanti, davanti).addScaledVector(su, 0.3);
+  for (const c of collisori) {
+    if (c.kind !== 'box') continue;
+    _rel.subVectors(_punto, c.center);
+    if (Math.abs(_rel.dot(c.right)) > c.half.x + 0.05 || Math.abs(_rel.dot(c.forward)) > c.half.z + 0.05) continue;
+    // il tetto della scatola sopra i piedi
+    const tetto = c.half.y - _rel.dot(c.up) + 0.3;
+    if (Math.abs(_rel.dot(c.up)) > c.half.y + 0.05) continue;
+    if (tetto >= MURETTO_MIN && tetto <= MURETTO_MAX) return true;
+  }
+  return false;
+}
+
+/** Che cosa premere adesso, quando nessun bersaglio lo dice (o null). */
+export function indicazioneGesto(s: StatoGesto): AzioneContestuale | null {
+  if (s.controllo === 'scala' && s.scala && s.scala.y < s.scala.cima - 0.1) return { tasto: 'W', testo: 'Sali la scala (S per scendere)' };
+  if (s.controllo === 'piantato' && s.squadro) {
+    const q = s.squadro;
+    if (!q.livellato) return { tasto: 'A / D', testo: 'Centra la bolla della livella (W o S: stacca lo squadro)' };
+    const meta = q.meta ?? 'la palina di un altro caposaldo';
+    if (!q.telescopio) return { tasto: 'Tasto destro', testo: `Tienilo premuto: guarda nel cannocchiale e cerca ${meta}` };
+    if (q.caposaldo) {
+      const progresso = Math.max(0, Math.min(1, q.tenuta / Math.max(0.1, q.serve)));
+      return { tasto: 'Tasto destro', testo: q.coperto ? 'Qualcosa copre la palina: tieni la croce lo stesso' : 'Tieni la croce sulla palina', progresso };
+    }
+    return { tasto: 'Tasto destro', testo: `Porta la croce su ${meta}` };
+  }
+  if (s.aria && s.aria.insegna) {
+    if (!s.aria.velo && s.aria.altezza > ALTEZZA_VELO) return { tasto: 'Spazio', testo: 'Tienilo premuto in aria: apri il Velo' };
+    if (s.aria.velo) return { tasto: 'Spazio', testo: 'Tienilo premuto: il Velo plana (lo sguardo in giù per scendere)' };
+  }
+  if (s.controllo === 'libero' && s.muretto) return { tasto: 'Spazio', testo: 'Salta: scavalca il muretto' };
+  if (s.controllo === 'libero' && s.fischio) return { tasto: 'G', testo: 'Chiama Ottavio con un fischio: è in volo con le lettere' };
+  if (s.controllo === 'seduta' && s.attesa) return { tasto: 'X', testo: s.rilettura ? 'Aspetta fino a… (E: rileggi la lettera; C: alzati)' : 'Aspetta fino a… (C per alzarti)' };
+  return null;
+}
+
+export class Percorso {
+  /** L'indicazione del gesto da mostrare se non c'è un bersaglio (la legge il disegno). */
+  indicazione: AzioneContestuale | null = null;
+  /** Secondi di attività dei passi della storia attivi. */
+  private readonly tempi = new Map<string, number>();
+  private readonly promemoriaDati = new Set<string>();
+  private readonly aiutiVetro = new Set<number>();
+  private attesaRiserva = 0;
+  private ultimaNotaPlanata = -Infinity;
+  private notaVelati: string | null = null;
+  private tempo = 0;
+  /** Secondi passati spingendo (un tasto di movimento) senza muoversi. */
+  private spinta = 0;
+
+  constructor(private readonly r: Regia) {}
+
+  /** Partita nuova o caricata: si riparte da capo con i tempi dei passi. */
+  azzera(): void {
+    this.tempi.clear();
+    this.promemoriaDati.clear();
+    this.aiutiVetro.clear();
+    this.attesaRiserva = 0;
+    this.notaVelati = null;
+    this.indicazione = null;
+  }
+
+  /** Secondi da cui il passo della storia è attivo (0 se non lo è). */
+  tempoDelPasso(passo: string): number {
+    return this.tempi.get(passo) ?? 0;
+  }
+
+  update(dt: number): void {
+    const r = this.r;
+    this.tempo += dt;
+    const passi = this.passiDellaStoria();
+    const attivi = new Set(passi.map((p) => p.def.id));
+    for (const id of [...this.tempi.keys()]) if (!attivi.has(id)) this.tempi.delete(id);
+    for (const id of attivi) this.tempi.set(id, (this.tempi.get(id) ?? 0) + dt);
+
+    this.fermoPrimaNotte(attivi);
+    const p = r.game.player;
+    const inp = r.game.input;
+    const spinge = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp'].some((k) => inp.isDown(k));
+    const ferma = p.grounded && r.controllo.tipo === 'libero' && p.vel.length() < 0.4;
+    this.spinta = spinge && ferma && !r.ui.inputCatturato ? this.spinta + dt : 0;
+    this.attesaRiserva += dt;
+    if (this.attesaRiserva >= PASSO_RISERVA) {
+      this.attesaRiserva = 0;
+      this.dialoghiDiRiserva(passi);
+    }
+    if (!r.ui.inputCatturato && !r.dialoghi.aperto) {
+      this.promemoria(passi);
+      this.aiutoVetro(attivi);
+      this.paeseCheDorme(attivi);
+    }
+    this.indicazione = this.calcolaIndicazione(attivi);
+  }
+
+  /** I passi attivi del prologo e della missione principale, con la loro definizione. */
+  private passiDellaStoria(): { missione: string; def: PassoDef }[] {
+    const n = this.r.narrativa;
+    const out: { missione: string; def: PassoDef }[] = [];
+    for (const a of n.missioni.passiAttivi()) {
+      const m = n.contenuti.missioni.find((x) => x.id === a.missione);
+      if (!m || !TIPI_STORIA.has(m.tipo ?? '')) continue;
+      const def = m.passi.find((p) => p.id === a.passo);
+      if (def) out.push({ missione: m.id, def });
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------ dialoghi di riserva
+
+  private dialoghiDiRiserva(passi: { def: PassoDef }[]): void {
+    const r = this.r;
+    const n = r.narrativa;
+    if (r.dialoghi.aperto || n.dialoghi.aperto() || r.fase !== 'gioco') return;
+    for (const { def } of passi) {
+      const ovunque = RISERVA_OVUNQUE[def.id];
+      for (const id of dialoghiCheFannoAvanzare(def, n.contenuti.dialoghi)) {
+        const d = n.dialoghi.definizione(id);
+        if (!d || (n.dialoghi.finito(id) && !d.ripetibile) || r.dialoghi.inCoda(id)) continue;
+        const forza = !!ovunque && ovunque.dialogo === id && this.tempoDelPasso(def.id) >= ovunque.dopo && r.interno === null;
+        if (!forza && d.condizione !== undefined && !n.valuta(d.condizione)) continue;
+        r.log(`riserva: ${id}${forza ? ' (ovunque)' : ''}`);
+        r.dialoghi.richiedi(id, true, forza);
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------ il fermo della prima notte
+
+  /**
+   * Finché il fienile del Messo non è raggiunto (passo `m1_fienile`), l'orologio non passa le
+   * 05:00 del giorno 2: la notte aspetta Elvira. Il limite si toglie appena il passo finisce.
+   */
+  private fermoPrimaNotte(attivi: ReadonlySet<string>): void {
+    const o = this.r.orologio;
+    if (attivi.has('m1_fienile')) {
+      if (o.limite === null && o.fermo === null && o.assoluto < FERMO_PRIMA_NOTTE) o.limite = FERMO_PRIMA_NOTTE;
+    } else if (o.limite === FERMO_PRIMA_NOTTE) o.limite = null;
+  }
+
+  // ------------------------------------------------------------------ promemoria e aiuti
+
+  private promemoria(passi: { def: PassoDef }[]): void {
+    for (const { def } of passi) {
+      if (this.promemoriaDati.has(def.id)) continue;
+      const p = PROMEMORIA[def.id];
+      if (p === null) continue;
+      const id = p?.id ?? def.effettiAttivazione.find((e) => e.startsWith('suggerimento:'))?.slice('suggerimento:'.length);
+      if (!id) continue;
+      if (this.tempoDelPasso(def.id) < (p?.dopo ?? PROMEMORIA_DOPO)) continue;
+      this.promemoriaDati.add(def.id);
+      this.r.ponte.suggerimento(id, 12);
+      return;
+    }
+  }
+
+  private aiutoVetro(attivi: ReadonlySet<string>): void {
+    const r = this.r;
+    if (!attivi.has('pr_vetro') || r.controllo.tipo !== 'sdraiata') return;
+    const t = this.tempoDelPasso('pr_vetro');
+    for (const s of AIUTI_VETRO) {
+      if (t < s || this.aiutiVetro.has(s)) continue;
+      this.aiutiVetro.add(s);
+      r.voltatiVerso(r.cripta.scritta, 2.4, true);
+      r.log('aiuto: lo sguardo scivola sulla scritta del vetro');
+    }
+  }
+
+  /** I velati: se adesso in giro non c'è abbastanza gente con cui parlare, una nota dice quando arriva. */
+  private paeseCheDorme(attivi: ReadonlySet<string>): void {
+    const r = this.r;
+    if (!attivi.has('m1_velati') || !r.luoghiQui.has('piazza_ore')) return;
+    const n = r.narrativa;
+    let fatti = 0;
+    while (fatti < 3 && n.valuta(`contatore:velati>=${fatti + 1}`)) fatti++;
+    const servono = 3 - fatti;
+    if (servono <= 0) return;
+    const qui = VELATI.filter((id) => {
+      if (!r.abitanti.presente(id)) return false;
+      const d = n.dialoghi.perPersonaggio(id);
+      return d !== null && !!n.dialoghi.definizione(d)?.effettiFine.includes('contatore:velati+1');
+    }).length;
+    if (qui >= servono) return;
+    const o = r.orologio;
+    const chiave = `${o.giorno}-${Math.floor(o.ore)}`;
+    if (this.notaVelati === chiave) return;
+    this.notaVelati = chiave;
+    const quando = o.ore < 8 ? 'Il paese si sveglia: alle 08:00 sul sagrato c\'è il campanaro, sulla soglia la Pina, in piazza i bambini.' : 'Fra poco arriva qualcuno.';
+    r.ponte.notifica(`Adesso in piazza non c'è nessuno con cui parlare. ${quando} Siediti (C) e aspetta (X).`);
+  }
+
+  /** Un atterraggio che non è una planata, mentre il passo del Velo la chiede: perché. */
+  atterraggioSenzaPlanata(secondiVelo: number, dislivello: number): void {
+    const r = this.r;
+    if (r.narrativa.flag.vero('planata_fatta') || !r.narrativa.valuta('passo:m1_velo attivo')) return;
+    if (this.tempo - this.ultimaNotaPlanata < 20) return;
+    if (secondiVelo > 0.05) {
+      this.ultimaNotaPlanata = this.tempo;
+      r.ponte.notifica('Il Velo non ha preso aria: salta da un muro più alto (i muri a secco verso la piazza) e tieni premuto Spazio.');
+    } else if (dislivello >= 2) {
+      this.ultimaNotaPlanata = this.tempo;
+      r.ponte.notifica('In aria tieni premuto Spazio: il Velo si apre.');
+    }
+  }
+
+  // ------------------------------------------------------------------ il gesto di adesso
+
+  private calcolaIndicazione(attivi: ReadonlySet<string>): AzioneContestuale | null {
+    const r = this.r;
+    if (r.fase !== 'gioco' || r.dialoghi.aperto) return null;
+    const c = r.controllo;
+    const p = r.game.player;
+    const n = r.narrativa;
+    const s: StatoGesto = { controllo: c.tipo };
+    if (c.tipo === 'scala') s.scala = { y: c.y, cima: r.cimaScala };
+    if (c.tipo === 'libero' && !p.grounded && r.interno === null) {
+      s.aria = { velo: p.veloOpen, altezza: p.heightAboveGround, insegna: attivi.has('m1_velo') && !n.flag.vero('planata_fatta') };
+    }
+    if (c.tipo === 'piantato') {
+      const m = r.miraSquadro;
+      const capo = r.squadro.telescopio ? (m.b?.caposaldo ?? null) : null;
+      s.squadro = {
+        livellato: r.squadro.livellato,
+        telescopio: r.squadro.telescopio,
+        caposaldo: capo,
+        coperto: capo !== null && r.ostacoloFra(r.squadro.stazione, capo) !== null,
+        tenuta: m.t,
+        serve: r.ui.impostazioni.get('collimazioneAgganciata') ? 0.8 : 1.5,
+        ...(attivi.has('m1_chiodo2') || attivi.has('m1_primo_rilievo') ? { meta: 'la palina bianca e rossa sul campanile' } : attivi.has('m1_strada') ? { meta: "la palina dell'altro chiodo, di là dal riale" } : {}),
+      };
+    }
+    if (c.tipo === 'libero' && r.interno === null && this.spinta >= 0.4) {
+      const q = p.cyl;
+      s.muretto = murettoDavanti(p.pos, q.theta, r.game.rig.forward(_avanti), r.game.world.colliders.query(q.z, q.theta, 3, []));
+    }
+    if (c.tipo === 'libero' && r.interno === null && attivi.has('m1_strada') && !n.dialoghi.finito('d_ottavio_strada')) {
+      const o = r.orologio.ore;
+      s.fischio = n.flag.vero('ottavio_conosciuto') && o >= 6 && o < 20.5 && !r.abitanti.presente('ottavio');
+    }
+    if (c.tipo === 'seduta') {
+      s.attesa = !r.ponte.attesaAperta && r.vociAttesa().length > 0;
+      s.rilettura = n.inventario.ha('lettera_marta') && n.flag.vero('lettera_letta');
+    }
+    return indicazioneGesto(s);
+  }
+}

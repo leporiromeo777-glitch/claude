@@ -60,6 +60,7 @@ Documento normativo per la prima versione giocabile. Le regole generali sono nel
 | giorno 1, finché Ottavio non ha parlato con Elvira | l'orologio non supera le 17:30 |
 | giorno 2, finché non è fatto il primo rilievo | non supera le 16:00 |
 | giorno 2, finché la passerella del Messo non è rilevata | non supera le 19:00 |
+| notte 1, finché Elvira non arriva al fienile di Ottavio | non supera le 05:00 del giorno 2 (lo tiene la regia, `src/regia/percorso.ts`: chi gira tutta la notte trova ancora la notte quando arriva) |
 
 Quando un fermo tiene, il mondo non si blocca: la luce resta quella del pomeriggio, le persone continuano le loro routine dell'ultima ora. Il giocatore non deve accorgersene.
 
@@ -124,7 +125,7 @@ Le condizioni dei contenuti leggono 46 flag e 1 oggetto che **nessun effetto dei
 | `seduta` | Elvira si siede a respirare (si spegne quando si alza) | motore: controllo del giocatore |
 | `fiato_corto` | la vista si restringe per la prima volta per il fiato | motore: fiato |
 | `innesto_fatto` | il gesto dell'innesto (taglia, inserisci, lega) è completo sul castagno del cartellino | motore: gesto dell'innesto |
-| `planata_fatta` | il Velo resta aperto almeno 2 s e Elvira atterra in piedi | motore: Velo |
+| `planata_fatta` | il Velo resta aperto almeno 2 s e Elvira atterra in piedi, oppure il Velo si apre (almeno 0,3 s) in un salto che finisce almeno 2,5 m più in basso: dal muretto della Terrazza il Velo resta aperto mezzo secondo | motore: Velo |
 | `planata:ripa_san_vigilio` | una planata parte dal luogo `ripa_san_vigilio` | motore: Velo |
 | `atterrata_altra_valle` | atterraggio in piedi nella valle 2 o 3 | motore: Velo e regioni |
 | `velo_indossato` | Elvira indossa il velo nero dall'inventario (si spegne quando lo toglie; dalla missione 6 non cambia più) | motore: inventario |
@@ -384,7 +385,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
   2. Muraglione della Grà (985, 27,6), 8 m;
   3. Ripa di San Vigilio (1036, 33,2), 12 m, che finisce sopra la Piazza delle Ore.
 - **Che cosa fa**: sul primo muretto, suggerimento «Salta, poi apri il Velo». Il Velo si apre con un frullo di tela; in alto entra nell'inquadratura il bordo del Velo, la traversa di legno, la nappina che pende. Planata di 14 m. Al secondo muro una planata di 30 m. Alla Ripa una planata di 45 m che atterra in piazza, davanti ai velati che si voltano tutti insieme.
-- **Si può anche** scendere a piedi dalla scorciatoia o dalla mulattiera: il passo chiede una sola planata qualunque (almeno 3 m) e l'arrivo in piazza. Ma i tre muri sono la via più evidente e più corta.
+- **Si può anche** scendere a piedi dalla scorciatoia o dalla mulattiera: il passo chiede una sola planata qualunque (da un muro di almeno 2,5 m) e l'arrivo in piazza. Ma i tre muri sono la via più evidente e più corta.
 - **Elvira**, alla prima planata: «Oh.» Alla terza, atterrando: «Si vola ancora, qui.»
 - **Avanza quando**: `flag:planata_fatta e luogo:piazza_ore raggiunto`.
 - **Taccuino**: niente (le mani parlano da sole).
@@ -486,7 +487,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 #### M1.14 Il dono dell'Eremo — `m1_dono` (2 min)
 
 - **Obiettivo**: «Una novizia mi aspetta alla Bacheca.»
-- **Luogo**: Bacheca delle Ore (1043, 35,6). La novizia **Clelia** (maschera di castagno liscia, veste nera) aspetta dalle 07:00 alle 19:00; parte il dialogo quando Elvira è a 15 m.
+- **Luogo**: Bacheca delle Ore (1043, 35,6). La novizia **Clelia** (maschera di castagno liscia, veste nera) aspetta dalle 07:00 alle 21:00, ogni giorno dal secondo finché non ha dato il dono (la sera e il giorno dopo chi la cerca la trova ancora); parte il dialogo quando Elvira è alla Bacheca (raggio 8 m).
 - **Dialogo** `d_clelia_dono`:
   - **Clelia**: «Dalla Madre, per la Svegliata.» Porge un pacchetto legato con lo spago: un **velo di garza nera** e un biglietto.
   - Elvira: «Che cosa vuole la Madre?» / «Non porto veli.» / «Grazie.»

@@ -73,6 +73,19 @@ export function luogoDaOrario(p: Personaggio, giorno: number, ore: number, valut
   return null;
 }
 
+/** Clelia aspetta alla Bacheca (finché non ha dato il dono): dal giorno 2, dalle 07:00 alle 21:00. */
+export function cleliaAspettaAllaBacheca(giorno: number, ore: number): boolean {
+  return giorno >= 2 && ore >= 7 && ore < 21;
+}
+
+/** Dove sta Clelia alla Bacheca: come la mette il popolamento (0,8 m a Lag, 1,8 m a Mane). */
+export function posizioneCleliaAllaBacheca(): { z: number; theta: number } {
+  const l = luogo('bacheca_ore');
+  const z = l?.z ?? 1043;
+  const theta = l?.theta ?? 35.6;
+  return { z: z + 0.8, theta: theta + 1.8 / METERS_PER_DEG };
+}
+
 export class Abitanti {
   private _ottavio: ModoOttavio = { tipo: 'orario' };
   /** Diario dei cambi di modo di Ottavio (la regia lo collega al suo diario). */
@@ -254,19 +267,46 @@ export class Abitanti {
     this.sguardi(ctx);
   }
 
-  /** Le posizioni dei contenuti con una condizione (il popolamento non le valuta). */
+  /**
+   * Le posizioni dei contenuti con una condizione (il popolamento non le valuta).
+   *
+   * Clelia: dopo il dono, il giorno 2, se ne va (verso la Casa del Velo). Finché il dono non è
+   * fatto (né da lei né da Ottavio con il pacco), aspetta alla Bacheca dalle 07:00 alle 21:00 di
+   * ogni giorno dal secondo: gli orari la mandavano alla Casa del Velo alle 19:00, e chi arrivava
+   * alla Bacheca la sera non trovava nessuno (e il dialogo partiva da lontano).
+   */
   private condizioni(ctx: ContestoAbitanti): void {
     const clelia = this.npc('clelia');
     if (!clelia) return;
     const via = ctx.giorno === 2 && ctx.valuta('dialogo:d_clelia_dono finito');
-    if (via && !clelia.manuale) {
-      clelia.manuale = true;
-      clelia.mostra(false);
-    } else if (!via && clelia.manuale) {
+    const dono = via || ctx.valuta('dialogo:d_clelia_dono finito') || ctx.valuta('dialogo:d_ottavio_pacco finito');
+    const aspetta = !dono && cleliaAspettaAllaBacheca(ctx.giorno, ctx.ore);
+    if (via) {
+      if (!clelia.manuale || this.cleliaAllaBacheca) {
+        clelia.manuale = true;
+        clelia.mostra(false);
+        this.cleliaAllaBacheca = false;
+      }
+    } else if (aspetta) {
+      if (!this.cleliaAllaBacheca) {
+        const q = posizioneCleliaAllaBacheca();
+        clelia.manuale = true;
+        clelia.ferma();
+        clelia.vaiA(q.z, q.theta);
+        const piazza = luogo('piazza_ore');
+        if (piazza) clelia.orientaVerso(piazza);
+        clelia.mostra(true);
+        this.cleliaAllaBacheca = true;
+      }
+    } else if (clelia.manuale) {
       clelia.manuale = false;
+      this.cleliaAllaBacheca = false;
       this.corbella.applicaOrario(ctx.giorno, ctx.ore);
     }
   }
+
+  /** Clelia è tenuta alla Bacheca dalla regia (vedi `condizioni`). */
+  private cleliaAllaBacheca = false;
 
   private sguardi(ctx: ContestoAbitanti): void {
     const voltati = this.tempo < this.voltatiFino;

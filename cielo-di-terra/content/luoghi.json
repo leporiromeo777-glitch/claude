@@ -138,7 +138,7 @@
   "theta": 22.4,
   "altezza": 56,
   "descrizione": "Un castagno vigoroso ma inselvatichito: l'innesto del 2120 è morto e il portinnesto ha ripreso il sopravvento. Al ramo più basso, un cartellino di zinco scritto a punta secca.",
-  "raggio": 4,
+  "raggio": 8,
   "tipo": "albero",
   "zona": "corbella",
   "cella": 2213
@@ -258,7 +258,7 @@
   "theta": 35.6,
   "altezza": 39.7,
   "descrizione": "Una bacheca di legno sotto una tettoia di piode. Ottavio ci appende le notizie alla brace; la Confraternita le sue lettere.",
-  "raggio": 2,
+  "raggio": 8,
   "tipo": "oggetto",
   "zona": "corbella",
   "cella": 2505
@@ -438,7 +438,7 @@
   "theta": 51.9,
   "altezza": 0,
   "descrizione": "Tre assi di castagno buttate sul riale: la scorciatoia di Ottavio verso il fienile. Ogni sera lui le rimette; ogni notte spariscono.",
-  "raggio": 4,
+  "raggio": 7,
   "tipo": "passaggio",
   "zona": "corbella",
   "cella": 2797
@@ -474,7 +474,7 @@
   "theta": 58.5,
   "altezza": 11.7,
   "descrizione": "Un fienile di legno e pietra, con il fieno in alto e una finestrella che guarda il prato e il riale. Ottavio ci dorme quando non vola.",
-  "raggio": 6,
+  "raggio": 12,
   "tipo": "rifugio",
   "zona": "corbella",
   "cella": 2799

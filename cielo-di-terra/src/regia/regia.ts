@@ -53,6 +53,7 @@ import { Sguardi } from './sguardo';
 import { Squadro, type BersaglioMira } from './squadro';
 import { Velatura } from './velatura';
 import { registraBersagli } from './bersagli';
+import { Percorso } from './percorso';
 
 export type Controllo =
   | { tipo: 'libero' }
@@ -141,8 +142,8 @@ export class Regia implements SistemaGioco {
   private tenutaC = 0;
   /** La lettera di Marta si è già aperta da sola in questa seduta (vedi letteraDaSeduta). */
   private letteraOffertaDaSeduta = false;
-  /** Secondi dall'ultimo controllo del dialogo delle campane (vedi campaneDiRiserva). */
-  private attesaCampane = 0;
+  /** Le reti di sicurezza del percorso (dialoghi di riserva, gesti, fermo della prima notte). */
+  readonly percorso: Percorso;
   /** Indicazione a schermo per la lente (vedi cercaPuntoLente). */
   private indicazioneLente: { tasto: string; testo: string; progresso?: number } | null = null;
   private attesaVicini = new Set<string>();
@@ -199,7 +200,9 @@ export class Regia implements SistemaGioco {
     // --- squadro ---
     this.squadro = new Squadro(g, {
       bersagli: () => this.bersagliMira(),
-      tolleranzaBolla: () => (ui.impostazioni.get('bollaLarga') ? 0.25 : 0.12),
+      // la bolla corre a 0,75 al secondo: con 0,12 la finestra per lasciare A/D era di un terzo
+      // di secondo, e chi non lo sapeva la passava avanti e indietro
+      tolleranzaBolla: () => (ui.impostazioni.get('bollaLarga') ? 0.25 : 0.18),
       tempoCollimazione: () => (ui.impostazioni.get('collimazioneAgganciata') ? 0.8 : 1.5),
     });
     this.collegaSquadro();
@@ -249,6 +252,7 @@ export class Regia implements SistemaGioco {
 
     // la Meta: istante del passaggio sulla Finestra dei Ponti (la luce entra dal vetro)
     this.metaFase = calcolaFaseMeta();
+    this.percorso = new Percorso(this);
     this.nuovoMondo();
     registraBersagli(this);
   }
@@ -308,6 +312,7 @@ export class Regia implements SistemaGioco {
   /** Una partita nuova: Elvira sdraiata nella capsula 5, alle 05:38 del giorno 1. */
   nuovaPartita(): void {
     this.partitaIniziata = true;
+    this.percorso.azzera();
     this.fase = 'gioco';
     this.ui.titolo.hide();
     this.game.setFreeCamera(false);
@@ -344,6 +349,7 @@ export class Regia implements SistemaGioco {
       }
       this.partitaIniziata = true;
       this.fase = 'gioco';
+      this.percorso.azzera();
       // Un salvataggio fatto a dialogo aperto (il salvataggio automatico scatta al cambio di
       // passo, spesso mentre parte un dialogo automatico come quello delle campane) lo
       // ricaricherebbe «aperto» senza finestra: la storia resterebbe ferma. Lo si interrompe,
@@ -402,22 +408,6 @@ export class Regia implements SistemaGioco {
   }
 
   /**
-   * Rete di sicurezza del prologo: se il passo delle campane è attivo da qualche secondo e il
-   * dialogo con Meridiana non è aperto né finito (interrotto, perso in un caricamento), lo si
-   * richiede di nuovo.
-   */
-  private campaneDiRiserva(dt: number): void {
-    this.attesaCampane += dt;
-    if (this.attesaCampane < 2) return;
-    this.attesaCampane = 0;
-    const n = this.narrativa;
-    if (this.dialoghi.aperto || this.ui.inputCatturato) return;
-    if (n.dialoghi.finito('d_meridiana_1') || n.dialoghi.aperto()) return;
-    if (!n.missioni.passiAttivi().some((p) => p.passo === 'pr_campane')) return;
-    this.dialoghi.richiedi('d_meridiana_1', true);
-  }
-
-  /**
    * Che cosa dire a schermo sui punti d'esame della lente (i ricci, gli amenti, la corteccia,
    * il vecchio innesto): senza lente, vicino a un punto ancora da esaminare, «Q — prendi la
    * lente»; con la lente, il punto più vicino da guardare, con l'avanzamento dell'esame.
@@ -434,7 +424,8 @@ export class Regia implements SistemaGioco {
       if (!pos) continue;
       _lenteD.subVectors(pos, occhi);
       const d = _lenteD.length();
-      if (d > 9) continue;
+      // da una dozzina di metri (prima 9: chi girava attorno alla botola non vedeva l'indicazione)
+      if (d > 12) continue;
       const ang = d < 1e-3 ? 0 : Math.acos(Math.max(-1, Math.min(1, _lenteD.dot(avanti) / d)));
       if (!migliore || ang < migliore.ang) migliore = { id, d, ang };
       void nome;
@@ -688,12 +679,14 @@ export class Regia implements SistemaGioco {
         this.abitanti.voltatiTutti();
         return;
       case 'ottavio_atterra_in_piazza': {
+        // in piazza le atterra accanto; fuori (il terzo velato era Nando, ai Ronchi) a una
+        // dozzina di metri, come dicono i contenuti, e non a metà strada verso la piazza: il
+        // dialogo gli va incontro lì (la rete di sicurezza di percorso.ts)
         const pc = this.game.player.cyl;
-        const piazza = luogo('piazza_ore')!;
         const inPiazza = this.luoghiQui.has('piazza_ore');
-        const z = inPiazza ? pc.z + 3 : pc.z + 14;
-        const theta = inPiazza ? pc.theta + 2.5 / METERS_PER_DEG : pc.theta + 14 / METERS_PER_DEG;
-        this.abitanti.atterra(inPiazza ? z : (z + piazza.z) / 2, inPiazza ? theta : (theta + piazza.theta) / 2);
+        const z = inPiazza ? pc.z + 3 : pc.z + 9;
+        const theta = inPiazza ? pc.theta + 2.5 / METERS_PER_DEG : pc.theta + 9 / METERS_PER_DEG;
+        this.abitanti.atterra(z, theta);
         this.ponte.suono('[un frullo di tela, dall\'alto]', 'sopra');
         return;
       }
@@ -1037,6 +1030,16 @@ export class Regia implements SistemaGioco {
     s.eventi.on('mira', (m) => (this.mira = { b: m.bersaglio, d: m.distanza, t: m.tenuta }));
   }
 
+  /** La mira del cannocchiale adesso: il bersaglio, la distanza, da quanto la croce ci sta sopra (s). */
+  get miraSquadro(): { readonly b: BersaglioMira | null; readonly d: number; readonly t: number } {
+    return this.mira;
+  }
+
+  /** L'altezza della scala della Cripta (in cima si spinge la botola). */
+  get cimaScala(): number {
+    return SCALA.cima;
+  }
+
   /** I contenuti dicono che da `stazione` il segnale di `mira` è coperto (il tasso, la tettoia)? */
   segnaleCoperto(stazione: string | null, mira: string): boolean {
     return this.ostacoloFra(stazione, mira) !== null;
@@ -1086,7 +1089,9 @@ export class Regia implements SistemaGioco {
   /** I bersagli del cannocchiale adesso: segnali dei capisaldi, la Lanterna, i lumi della notte. */
   private bersagliMira(): BersaglioMira[] {
     const out: BersaglioMira[] = [];
-    const largo = this.ui.impostazioni.get('collimazioneAgganciata') ? 1.6 : 0.9;
+    // la croce sulla palina (gradi): 0,9° con il cannocchiale x4 voleva una mano ferma; 1,3° la
+    // tiene ancora sulla palina (8 m) da più di 300 m
+    const largo = this.ui.impostazioni.get('collimazioneAgganciata') ? 2 : 1.3;
     for (const c of CAPISALDI) {
       const p = this.scena.punto(`segnale_${c.id}`);
       if (p) out.push({ id: `segnale_${c.id}`, nome: c.nome, posizione: p, tolleranza: largo, caposaldo: c.id });
@@ -1141,15 +1146,18 @@ export class Regia implements SistemaGioco {
     this.game.syncEyeNow();
   }
 
-  /** Volta lo sguardo verso un punto in `secondi` (chi comincia a parlare, una voce dall'alto). */
-  voltatiVerso(p: Vector3, secondi = 0.7): void {
+  /**
+   * Volta lo sguardo verso un punto in `secondi` (chi comincia a parlare, una voce dall'alto).
+   * Con `libero` l'inclinazione non si limita (sdraiata nella capsula la scritta è a 60° in su).
+   */
+  voltatiVerso(p: Vector3, secondi = 0.7, libero = false): void {
     const da = this.yawPitch();
     const occhi = this.occhi(new Vector3());
     localFrameAt(this.game.player.pos, _f, this.game.player.cyl.theta);
     const d = _w.subVectors(p, occhi).normalize();
     const pitch = Math.asin(Math.max(-1, Math.min(1, d.dot(_f.up)))) / DEG;
     const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north)) / DEG;
-    this.sguardoGuidato = { da, a: { yaw, pitch: Math.max(-35, Math.min(45, pitch)) }, t: 0, durata: secondi };
+    this.sguardoGuidato = { da, a: { yaw, pitch: libero ? pitch : Math.max(-35, Math.min(45, pitch)) }, t: 0, durata: secondi };
   }
 
   private sguardoGuidato: { da: { yaw: number; pitch: number }; a: { yaw: number; pitch: number }; t: number; durata: number } | null = null;
@@ -1234,6 +1242,23 @@ export class Regia implements SistemaGioco {
     return this.game.world.cellAt(pc.z, pc.theta);
   }
 
+  /**
+   * Dalla terrazza del campanile si può saltare e planare giù (il Velo si apre ovunque): Elvira
+   * restava «dentro la cella» anche in piazza, e fuori non funzionava più niente (né i bersagli
+   * all'aperto né lo squadro, neanche dopo un caricamento). Lontana dalla terrazza, è fuori.
+   */
+  private esciDallaCellaSeCaduta(): void {
+    if (this.interno !== 'cella') return;
+    const pc = this.game.player.cyl;
+    const d = this.cella.dentro;
+    const lontana = Math.hypot(pc.z - d.z, (pc.theta - d.theta) * METERS_PER_DEG) > 8;
+    if (pc.h < this.cella.quotaPavimento - 4 || lontana) {
+      this.interno = null;
+      this.applicaInterno();
+      this.log('fuori dalla cella campanaria (scesa senza la scala)');
+    }
+  }
+
   aggiornaLuoghi(): void {
     const pc = this.game.player.cyl;
     this.luoghiQui.clear();
@@ -1260,19 +1285,25 @@ export class Regia implements SistemaGioco {
     g.movimentoBloccato = catturato || this.controllo.tipo !== 'libero';
 
     // dove sono, il corpo
+    this.esciDallaCellaSeCaduta();
     this.aggiornaLuoghi();
     const p = g.player;
-    const libero = this.controllo.tipo === 'libero' || this.controllo.tipo === 'seduta';
+    // allo squadro piantato il fiato torna come da fermi (prima restava corto: «Senza fiato la
+    // bolla non sta ferma» per sempre, finché non si staccava lo squadro)
+    const libero = this.controllo.tipo === 'libero' || this.controllo.tipo === 'seduta' || this.controllo.tipo === 'piantato';
     if (libero) {
       const corre = g.input.isDown('ShiftLeft') || g.input.isDown('ShiftRight');
       for (const e of this.corpo.aggiorna(dt, { grounded: p.grounded, veloOpen: p.veloOpen, velocita: p.grounded ? p.vel.length() : 0, corre, z: p.cyl.z, theta: p.cyl.theta, h: p.cyl.h })) {
         if (e.tipo === 'fiato_corto') this.flag('fiato_corto');
-        else if (e.tipo === 'atterraggio') this.atterraggio(e.planata, e.decollo, e.dove.theta);
+        else if (e.tipo === 'atterraggio') {
+          this.atterraggio(e.planata, e.decollo, e.dove.theta);
+          if (!e.planata) this.percorso.atterraggioSenzaPlanata(e.secondiVelo, e.dislivello);
+        }
       }
     }
     this.limitaVelocita();
     this.letteraDaSeduta();
-    this.campaneDiRiserva(dt);
+    this.percorso.update(dt);
 
     // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
     if (!ui.tempoFermo) {
@@ -1280,8 +1311,11 @@ export class Regia implements SistemaGioco {
         const vicini = this.personeVicine();
         if ([...vicini].some((v) => !this.attesaVicini.has(v)) || this.controllo.tipo !== 'seduta') this.orologio.interrompiAttesa();
       }
+      const inAttesa = this.orologio.inAttesa;
       const iv = this.orologio.avanza(dt);
       this.scorriTempo(iv);
+      // l'attesa è arrivata (la brace, l'alba): la storia lo sente subito, non al decimo dopo
+      if (inAttesa && !this.orologio.inAttesa) this.accTick = Math.max(this.accTick, 0.1);
     }
     g.clock.running = false;
     g.clock.setHours(this.orologio.ore);
@@ -1442,8 +1476,13 @@ export class Regia implements SistemaGioco {
     this.emisfero.intensity = 0.45 + 0.75 * s.sunIntensity;
     // indicazioni
     const st = this.statoInterazione;
-    const b = st.bersaglio;
-    const lente = !b && !ui.inputCatturato ? this.indicazioneLente : null;
+    // allo squadro piantato «E — Stacca lo squadro» (sempre davanti) non copre che cosa fare
+    // adesso (la bolla, il cannocchiale), né da seduta «E — Leggi la lettera» (già letta) copre
+    // l'attesa: lo dice il gesto, e E stacca o rilegge comunque
+    const gesto = ui.inputCatturato ? null : this.percorso.indicazione;
+    const davanti = st.bersaglio?.id === 'stacca_squadro' || (st.bersaglio?.id === 'lettera' && this.narrativa.flag.vero('lettera_letta'));
+    const b = davanti && gesto ? null : st.bersaglio;
+    const lente = !b && !ui.inputCatturato ? (this.indicazioneLente ?? gesto) : null;
     ui.indicazioni.azione(b && !ui.inputCatturato ? { tasto: 'E', testo: typeof b.verbo === 'function' ? b.verbo() : b.verbo, ...(st.progresso !== null ? { progresso: st.progresso } : {}) } : lente);
     ui.indicazioni.mostraPuntino(!!b && ui.impostazioni.get('puntino'));
     ui.indicazioni.fiato(this.corpo.fiato < 0.99 ? this.corpo.fiato : null);

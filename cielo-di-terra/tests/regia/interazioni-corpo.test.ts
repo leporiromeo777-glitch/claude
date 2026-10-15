@@ -160,6 +160,22 @@ describe('Corpo', () => {
     expect(ev2.find((e) => e.tipo === 'atterraggio')).toMatchObject({ planata: false });
   });
 
+  it('una planata corta da un muro conta: mezzo secondo di Velo e 3,5 m più in basso', () => {
+    const c = new Corpo();
+    c.aggiorna(1 / 60, passo({ z: 962, h: 66.5 })); // sulla copertina del muretto della Terrazza
+    const ev: EventoCorpo[] = [];
+    for (let i = 0; i < 50; i++) ev.push(...c.aggiorna(1 / 60, passo({ grounded: false, veloOpen: i > 18, z: 962 - i * 0.07, h: 66.5 - i * 0.07 })));
+    ev.push(...c.aggiorna(1 / 60, passo({ z: 958.5, h: 63 })));
+    expect(ev.find((e) => e.tipo === 'atterraggio')).toMatchObject({ planata: true, dislivello: 3.5 });
+    // lo stesso mezzo secondo in piano (un salto) non è una planata
+    const d = new Corpo();
+    d.aggiorna(1 / 60, passo({ h: 40 }));
+    const ev2: EventoCorpo[] = [];
+    for (let i = 0; i < 50; i++) ev2.push(...d.aggiorna(1 / 60, passo({ grounded: false, veloOpen: i > 18, h: 40.8 })));
+    ev2.push(...d.aggiorna(1 / 60, passo({ h: 40 })));
+    expect(ev2.find((e) => e.tipo === 'atterraggio')).toMatchObject({ planata: false });
+  });
+
   it('esporta e importa il fiato e la stanchezza del prologo', () => {
     const c = new Corpo();
     c.affaticata = true;
