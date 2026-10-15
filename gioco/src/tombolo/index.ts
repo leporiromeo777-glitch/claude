@@ -10,7 +10,8 @@ export { renderLacePng, drawLaceImage, laceImageSize } from './export';
 export type { LaceCaption } from './export';
 export { resumeNight, resumeParams, resolveLevel, resolveComputed, registerLevelResolver, rememberLevel, paramsForSave } from './resume';
 export { replayParams, spartitoParams, replayStepMs, RIPASSA_TOTAL_MS } from './modes/replay';
-export { activeNight } from './active';
+export { activeNight, nightHooks, setNightHooks } from './active';
+export type { NightHooks } from './active';
 export { isNightParams } from './TomboloScene';
 export type { NightSession, RequestStatus } from './session';
 

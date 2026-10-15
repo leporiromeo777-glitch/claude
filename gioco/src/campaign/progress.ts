@@ -37,6 +37,8 @@ export interface SetRecord {
   maxQuiete: number | null;
   simmetria: boolean;
   bestSpartito?: string;
+  /** Un merletto riuscito con queste richieste ha avuto il filo d'oro (lo legge il Telaio). */
+  filoDOro?: boolean;
 }
 
 /**
@@ -110,7 +112,29 @@ export function updateSetRecord(prev: SetRecord | null | undefined, m: LaceMetri
     after.maxQuiete = m.quiete;
   }
   if (m.simmetria) after.simmetria = true;
+  if (m.filoDOro || prev?.filoDOro) after.filoDOro = true;
   return { after, improved };
+}
+
+/**
+ * Quello che il Telaio mostra di un livello, letto dai record per insieme di richieste,
+ * cioè solo dai merletti riusciti (R2-D2): il filo d'oro e lo spartito migliore (quello
+ * dell'insieme `set`, se c'è, altrimenti quello col minimo d'incroci). I campi di livello
+ * dei salvataggi di prima della revisione 2 possono venire da merletti falliti (Q002):
+ * non si leggono.
+ */
+export function countedRecord(rec: LaceRecord | null | undefined, set?: readonly string[]): { filoDOro: boolean; bestSpartito: string | null } {
+  const sets = Object.values((rec as LaceRecordX | null | undefined)?.sets ?? {}).filter((x): x is SetRecord => !!x);
+  const filoDOro = sets.some((x) => !!x.filoDOro);
+  const own = set ? (rec as LaceRecordX | null | undefined)?.sets?.[requestSetKey(set)] : undefined;
+  let best: SetRecord | undefined = own?.bestSpartito ? own : undefined;
+  if (!best) {
+    for (const x of sets) {
+      if (!x.bestSpartito) continue;
+      if (!best || (x.minIncroci ?? Infinity) < (best.minIncroci ?? Infinity)) best = x;
+    }
+  }
+  return { filoDOro, bestSpartito: best?.bestSpartito ?? null };
 }
 
 export function goldCount(records: Record<LevelId, LaceRecord>): number {

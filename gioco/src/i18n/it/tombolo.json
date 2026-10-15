@@ -154,6 +154,8 @@
     "obiettiviTardi": "Da qui il merletto non si chiude come deve: disfa fino alle {ora}.",
     "lascia": "Lascia cadere lo spillo di {nome}",
     "disfaFino": "Disfa fino alle {ora}",
+    "tornaSera": "Torna alla sera",
+    "tornaSeraTesto": "Prima della prima ora puoi anche tornare alla sera e cambiare gli spilli, senza conseguenze.",
     "fantasmaConferma": "Il fantasma ti mostra l'incrocio giusto, ma stanotte niente filo d'oro.",
     "fantasmaSi": "Sì, mostramelo (perdi il filo d'oro)",
     "fantasmaNo": "No, ci provo da sola",

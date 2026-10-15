@@ -29,7 +29,7 @@ import type {
 } from '../core/types';
 import { services } from '../core/services';
 import { defaultKnowledge } from '../core/save/defaults';
-import { activeNight, resumeParams } from '../tombolo/index';
+import { activeNight, resumeParams, setNightHooks } from '../tombolo/index';
 import * as flow from './flow';
 import { rewindTo } from './rewind';
 import { refreshDiary } from './diary';
@@ -175,6 +175,9 @@ export class CampaignControllerImpl implements CampaignController {
     if (this.installed) return;
     this.installed = true;
     const bus = this.s.bus;
+    // Q012: la Spinta del tombolo («le richieste non stanno insieme») offre anche «Torna alla
+    // sera» prima della prima ora; il tombolo non conosce la campagna e chiede a questo aggancio.
+    setNightHooks({ backToEvening: { can: () => this.canGoBackToEvening(), go: () => void this.backToEvening() } });
     bus.on('scene:enter', ({ id }) => {
       if (this.pendingNav?.scene === id) this.pendingNav = null;
       try {

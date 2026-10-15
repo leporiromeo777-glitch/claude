@@ -16,6 +16,7 @@ import { decodeSpartito, spartitoRows } from '../engine/index';
 import { controller, type FinaleParams } from './controller';
 import { dayLabel, SideNotebook } from './frame';
 import { scoreFromRows } from './score';
+import { countedRecord } from './progress';
 import { replayRipassaParams } from './flow';
 import { sceneHost, tapKey } from './ui';
 import { tovagliaSection, tovagliaShown } from './tovaglia';
@@ -73,10 +74,12 @@ export class TelaioScene implements Scene {
   private rowsOf(id: LevelId): RowMoves[] | null {
     const h = controller.state()?.history[id] as DayResultX | undefined;
     if (h?.rows?.length) return h.rows;
-    const rec = controller.data().records[id];
+    // Senza la giornata nella storia di adesso: lo spartito migliore dei merletti riusciti
+    // (record per insieme di richieste, R2-D2), mai quello di un merletto fallito.
+    const best = countedRecord(controller.data().records[id], h?.requests?.map((r) => r.noteId)).bestSpartito;
     const lv = this.s.content.levels.get(id);
-    if (rec?.bestSpartito && lv) {
-      const sp = decodeSpartito(rec.bestSpartito);
+    if (best && lv) {
+      const sp = decodeSpartito(best);
       if (sp) return spartitoRows(lv, sp);
     }
     return null;
@@ -114,7 +117,7 @@ export class TelaioScene implements Scene {
         const lab = dayLabel(this.s.content, day.id);
         const node = el('li', { class: ['cp-nodo', h ? 'cp-nodo--fatto' : null, i === c.dayIndex ? 'cp-nodo--oggi' : null, known ? null : 'cp-nodo--futuro'], test: `cp-nodo-${day.id}`, data: { giornata: day.id } });
         const head = el('button', { type: 'button', class: 'cp-nodo-testa', disabled: !known, test: `cp-nodo-apri-${day.id}`, attrs: { 'aria-expanded': this.open === day.id ? 'true' : 'false' } }, el('span', { class: 'cp-nodo-punto', attrs: { 'aria-hidden': 'true' } }), textOf(lab.key, lab.params, 'span', { className: 'cp-nodo-giornata' }), known ? textOf(lv.titleKey, undefined, 'span', { className: 'cp-nodo-titolo' }) : el('span', { class: 'cp-nodo-titolo', text: '…' }));
-        if (rec?.filoDOro) head.appendChild(el('span', { class: 'cp-oro', test: `cp-nodo-oro-${day.id}` }, svgIcon('stella', { size: 16 }), textOf('campaign.telaio.filoDOro', undefined, 'span', { className: 'core-sr-only' })));
+        if (countedRecord(rec).filoDOro) head.appendChild(el('span', { class: 'cp-oro', test: `cp-nodo-oro-${day.id}` }, svgIcon('stella', { size: 16 }), textOf('campaign.telaio.filoDOro', undefined, 'span', { className: 'core-sr-only' })));
         if (h && h.requests.length > 0) {
           const ok = h.requests.filter((r) => r.status === 'soddisfatta').length;
           head.appendChild(textOf('campaign.telaio.richieste', { ok, ko: h.requests.length - ok }, 'span', { className: 'cp-tenue cp-nodo-esiti' }));

@@ -18,7 +18,8 @@ import { type TextDeps, describeCondition, formatHour } from '../text';
 export interface ArchivePanelHost {
   readonly session: Session;
   readonly textDeps: TextDeps;
-  openNamePicker(t: ThreadId): void;
+  /** `from: 'pannello'`: la scheda si apre sul pannello, col filo evidenziato nel merletto. */
+  openNamePicker(t: ThreadId, via?: undefined, from?: 'pannello'): void;
   /** Echi già letti stanotte (ora, coppia), nell'ordine. */
   heardEchoes(): readonly { hour: number; pair: number }[];
   /** Gli echi si possono toccare (nominato e rammendato). */
@@ -74,7 +75,7 @@ export class ArchivePanel {
         );
         b.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.host.openNamePicker(th);
+          this.host.openNamePicker(th, undefined, 'pannello');
         });
         li.appendChild(b);
       }

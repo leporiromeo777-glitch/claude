@@ -48,6 +48,7 @@ import { ObjectivesList } from './ui/objectives';
 import { Bubble, type BubbleTarget, bubbleTargetAt, bubbleText } from './ui/bubbles';
 import { ArchivePanel } from './ui/archivepanel';
 import { dormantQuirks, extraMode, shownQuirks } from './quirks';
+import { nightHooks } from './active';
 import { HintLamp, TIERS, hintCard } from './ui/hintlamp';
 import { charCard, namePicker } from './ui/charcard';
 import { ExplainLine, MarginNote, Popup, type PopupAnchor, ReasonLine, StatusLine, fitText, place, type Params } from './ui/popup';
@@ -399,11 +400,15 @@ export class NightController {
   /** Posto delle schede: sopra la barra delle azioni o, con `top`, in cima al merletto. */
   private popupAnchor(top = false): PopupAnchor {
     const l = this.layout;
+    // Sul pannello di sinistra (scheda di un filo sbiadito aperta da lì): il merletto resta libero.
+    if (this.popupSide && l.left) return { x: l.left.x, y: l.left.y + 8, w: l.left.w, h: l.left.h - 16, top: true };
     if (top) return { x: l.center.x, y: l.lace.y + 4, w: l.center.w, h: l.actions.y - l.lace.y - 12, top: true };
     return { x: l.center.x, y: l.cssH - l.actions.y + 8, w: l.center.w, h: l.actions.y - l.lace.y - 16 };
   }
 
   private popupTop = false;
+  /** La scheda aperta sta sul pannello di sinistra (layout largo). */
+  private popupSide = false;
 
   /**
    * Sul telefono la scheda del suggerimento non copre i fusi (Q063): se la riga
@@ -1596,7 +1601,10 @@ export class NightController {
 
   drop(noteId: NoteId): void {
     if (this.completed) return;
+    const before = this.session.dropped.length;
     this.session.drop(noteId);
+    // Q014: i pannelli della campagna (Bigliettini, Taccuino) si ridisegnano su questo evento.
+    if (this.session.dropped.length > before) this.s.bus.emit('night:drop', { noteId, levelId: this.params.level.id });
     // Di chi era lo spillo (Q017: «lo spillo rosso» non diceva quale richiesta).
     this.explain.show('tombolo.richieste.lasciataMsg', { nome: this.noteAuthor(noteId) }, 'info', 3000);
     this.refresh();
@@ -1888,6 +1896,26 @@ export class NightController {
       }, test: `tb-suggerimento-lascia-${id}` });
       box.appendChild(b);
     }
+    // Q012: prima della prima ora, dove la campagna lo permette, si può anche tornare alla sera
+    // e cambiare gli spilli (lasciar cadere uno spillo è una richiesta fallita).
+    const back = notes.length > 0 ? nightHooks().backToEvening : undefined;
+    let backText: HTMLElement | null = null;
+    if (back && this.session.rows.length === 0 && back.can()) {
+      backText = textOf('tombolo.hint.tornaSeraTesto', undefined, 'p', { className: 'tb-hint-text tb-hint-torna' });
+      backText.dataset.test = 'tb-suggerimento-torna-sera-testo';
+      box.appendChild(
+        button({
+          labelKey: 'tombolo.hint.tornaSera',
+          kind: 'secondario',
+          icon: 'indietro',
+          onClick: () => {
+            this.popup?.close();
+            if (back.can()) back.go();
+          },
+          test: 'tb-suggerimento-torna-sera',
+        }),
+      );
+    }
     const hour = d.k === 'incompatibili' ? null : d.hour;
     if (hour !== null && this.session.canRewindTo(hour)) {
       box.appendChild(button({ labelKey: 'tombolo.hint.disfaFino', params: { ora: hour }, kind: 'secondario', icon: 'disfa', onClick: () => {
@@ -1898,6 +1926,7 @@ export class NightController {
     const next = card.querySelector('[data-test="tb-suggerimento-ancora"]');
     if (next) card.insertBefore(box, next);
     else card.appendChild(box);
+    if (backText) card.insertBefore(backText, box);
   }
 
   /** Conferma del fantasma quando il filo d'oro è ancora possibile (D07.3). */
@@ -1945,10 +1974,16 @@ export class NightController {
    * click), e comunque lontano dal punto toccato; i primi 350 ms la scheda ignora
    * i tocchi (Popup). Dall'elenco dei fili si apre in cima al merletto.
    */
-  openNamePicker(t: ThreadId, via?: TapVia): void {
+  openNamePicker(t: ThreadId, via?: TapVia, from?: 'pannello'): void {
     const a = this.session.archive;
     if (!a || this.completed) return;
     const l = this.layout;
+    // Dal pannello di sinistra (layout largo) la scheda sta sul pannello: il merletto resta
+    // tutto in vista, col filo evidenziato (residuo R2, Q028).
+    if (from === 'pannello' && l.left) {
+      this.showNamePicker(t, true, true);
+      return;
+    }
     // Lontano dal dito: un tocco nella metà bassa (fusi, righe in basso) apre in cima.
     const top = via?.y === undefined ? true : via.y > l.lace.y + l.lace.h / 2;
     if (via?.pointer === 'touch' || via?.pointer === 'pen') {
@@ -1980,11 +2015,12 @@ export class NightController {
     timer = setTimeout(go, 400);
   }
 
-  private showNamePicker(t: ThreadId, top: boolean): void {
+  private showNamePicker(t: ThreadId, top: boolean, side = false): void {
     const a = this.session.archive;
     if (!a) return;
     if (a.isConfirmed(t)) {
       this.openCharCard(t);
+      this.traceWhileOpen(t);
       return;
     }
     const faded = this.params.level.archive?.faded ?? [];
@@ -2013,7 +2049,16 @@ export class NightController {
       },
       undefined,
       top,
+      side,
     );
+    this.traceWhileOpen(t);
+  }
+
+  /** Il filo della scheda appena aperta si segue nel merletto finché la scheda resta aperta (Q028). */
+  private traceWhileOpen(t: ThreadId): void {
+    if (!this.popup?.isOpen()) return;
+    this.overlay.trace = t;
+    this.popup.el.dataset.filo = t;
   }
 
   /** Eco di un incrocio: i due nomi del crocevia e la voce di allora (D05.8). */
@@ -2344,10 +2389,13 @@ export class NightController {
 
   // ───────── Pannelli, menu, schede ─────────
 
-  private openPopup(test: string, fill: (body: HTMLElement) => void, keys?: Partial<Record<ActionId, () => void>>, top = false): Popup {
+  private openPopup(test: string, fill: (body: HTMLElement) => void, keys?: Partial<Record<ActionId, () => void>>, top = false, side = false): Popup {
     this.popup?.close();
     const p = new Popup({ input: this.s.input, host: this.root, onClose: () => {
-      if (this.popup === p) this.popup = null;
+      if (this.popup === p) {
+        this.popup = null;
+        this.overlay.trace = null;
+      }
       const pl = this.popupList;
       if (pl && !pl.el.isConnected) {
         this.dropList(pl);
@@ -2357,6 +2405,7 @@ export class NightController {
     fill(p.body);
     this.popup = p;
     this.popupTop = top;
+    this.popupSide = side && !!this.layout.left;
     p.open(this.popupAnchor(top));
     return p;
   }

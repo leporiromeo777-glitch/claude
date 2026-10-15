@@ -459,6 +459,8 @@ export interface GameEventMap {
   'night:undo': { hour: Hour };
   'night:complete': { outcome: NightOutcome };
   'night:exit': { origin: NightOrigin };
+  /** Uno spillo rosso lasciato cadere durante la notte (gettone, Spinta, Taccuino, debug). */
+  'night:drop': { noteId: NoteId; levelId: LevelId };
   'quirk:discovered': { quirk: QuirkId; thread: ThreadId };
   'diary:new': { id: DiaryEntryId };
   'toast': { textKey: string; params?: Record<string, string | number>; kind?: 'info' | 'ok' | 'warn' };

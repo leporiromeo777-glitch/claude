@@ -17,7 +17,7 @@ import type { LaceModel, StackView } from './model';
 import { StripCache } from './cache';
 import { type CanvasMaker, defaultCanvasMaker, drawSlot, pinHeadOffset, PinSprites } from './pins';
 import { Velvet } from './velvet';
-import { type RowGeom, type RowStyle, drawHanging, drawKnot, drawRow, poolPoly } from './threads';
+import { type RowGeom, type RowStyle, drawHanging, drawKnot, drawRow, poolPoly, traceThreadRow } from './threads';
 import { drawBead, FlightPool } from './beads';
 import { type SpindleDrawOptions, SpindleRig } from './spindles';
 import { Poly, sampleThread, traceCurve } from './curves';
@@ -80,6 +80,8 @@ export interface Overlay {
   knotted: (thread: ThreadId) => boolean;
   label: (thread: ThreadId) => string | null;
   highlight: Set<ThreadId>;
+  /** Filo da seguire in tutto il merletto (scheda di un filo sbiadito aperta, residuo R2 Q028). */
+  trace: ThreadId | null;
   nomeOn: ThreadId | null;
   /** Tutorial (C02): barca della riga che pulsa (−1 = nessuna). */
   pulseEdge: number;
@@ -115,6 +117,7 @@ export function emptyOverlay(): Overlay {
     knotted: () => false,
     label: () => null,
     highlight: new Set(),
+    trace: null,
     nomeOn: null,
     pulseEdge: -1,
     pulsePinCol: -1,
@@ -215,6 +218,38 @@ export class LaceRenderer {
     }
     ctx.restore();
   };
+
+  /** Percorso di un filo dall'apertura all'ultima riga in vista (righe fissate, bozza, righe registrate). */
+  private traceThread(ctx: CanvasRenderingContext2D, l: TomboloLayout, m: LaceModel, top: number, t: ThreadId, alpha: number): void {
+    const g = this.geom as RowGeom;
+    const v = visualOf(m.visuals, t);
+    const lace = l.lace;
+    const halo = this.palette.ottone;
+    for (let i = 0; i <= m.rows; i++) {
+      const y0 = top + rowTop(l, i);
+      const y1 = top + rowBottom(l, i);
+      if (y1 < lace.y || y0 > lace.y + lace.h) continue;
+      if (i === 0) {
+        const c = m.openPos.indexOf(t);
+        if (c < 0) continue;
+        const x = g.colCx[c] ?? 0;
+        ctx.lineCap = 'round';
+        for (let pass = 0; pass < 2; pass++) {
+          ctx.globalAlpha = pass === 0 ? alpha : 1;
+          ctx.strokeStyle = pass === 0 ? halo : v.color;
+          ctx.lineWidth = pass === 0 ? v.width + 8 : v.width;
+          ctx.beginPath();
+          ctx.moveTo(x, y0 + 6);
+          ctx.lineTo(x, y1);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      const shape = i - 1 < m.rowShapes.length ? m.rowShapes[i - 1] : i === m.current && !m.done ? m.liveShape : m.recorded.find((r) => r.index === i);
+      if (shape) traceThreadRow(ctx, shape, g, y0, y1, t, v, halo, alpha);
+    }
+  }
 
   private hourLabel(ctx: CanvasRenderingContext2D, l: TomboloLayout, m: LaceModel, i: number, y0: number, y1: number, current: boolean): void {
     const s = m.hourLabels[i];
@@ -324,6 +359,8 @@ export class LaceRenderer {
         ctx.fillRect(l.center.x, vy, l.center.w, lace.y + lace.h - vy);
       }
     }
+    // Il filo della scheda aperta (Archivio): alone e filo ripassato in tutte le righe in vista.
+    if (o.trace) this.traceThread(ctx, l, m, top, o.trace, 0.4 + 0.35 * o.pulse);
     // Evidenze dei suggerimenti.
     if (o.hintRow >= 1) {
       const y0 = top + rowTop(l, o.hintRow);

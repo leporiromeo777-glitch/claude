@@ -482,30 +482,6 @@ export function fitStrip(strip: HTMLElement): number {
   return rows;
 }
 
-/** Firma dello stato della notte che i pannelli mostrano e che può cambiare senza eventi. */
-export function nightSignature(): string {
-  const n = activeNight();
-  if (!n) return '';
-  return `${n.params.level.id}|${(n.session.dropped ?? []).join(',')}|${n.completed ? 1 : 0}|${n.session.rows?.length ?? 0}`;
-}
-
-/**
- * Guarda la notte in corso (ogni 250 ms, solo mentre il pannello è montato) e chiama
- * `onChange` quando cambia qualcosa che non passa dal bus: uno spillo lasciato cadere
- * dal gettone del tombolo (Q014). Restituisce la funzione che smette di guardare.
- */
-export function watchNight(alive: () => boolean, onChange: () => void, ms = 250): Unsub {
-  let last = nightSignature();
-  const timer = setInterval(() => {
-    if (!alive()) return;
-    const now = nightSignature();
-    if (now === last) return;
-    last = now;
-    onChange();
-  }, ms);
-  return () => clearInterval(timer);
-}
-
 /** Pannello 'taccuino'. */
 export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown): PanelHandle {
   const o = (raw ?? {}) as TaccuinoOpts;
@@ -675,22 +651,14 @@ export function taccuinoPanel(s: Services, container: HTMLElement, raw?: unknown
     },
   ];
   // La bozza cambia lo stato «si compie se fissi l'ora» (C07): anche night:cross.
-  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'quirk:discovered'] as const) {
+  // Anche uno spillo lasciato cadere dal gettone del tombolo o dalla Spinta: night:drop (Q014).
+  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'night:drop', 'quirk:discovered'] as const) {
     offs.push(
       s.bus.on(ev, () => {
         if (root.isConnected && current === 'bigliettini') renderBody();
       }),
     );
   }
-  // Spilli lasciati cadere dal gettone del tombolo (Q014): senza evento sul bus.
-  offs.push(
-    watchNight(
-      () => root.isConnected,
-      () => {
-        if (root.isConnected && current === 'bigliettini') renderBody();
-      },
-    ),
-  );
   // Il tombolo monta i pannelli prima che la notte sia attiva: quando la scena è entrata
   // le schede (Bigliettini durante una notte con richieste) e lo stato dal vivo cambiano.
   offs.push(
@@ -757,10 +725,8 @@ export function bigliettiniPanel(s: Services, container: HTMLElement, raw?: unkn
       if (root.isConnected) render();
     });
   };
-  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'scene:enter'] as const) offs.push(s.bus.on(ev, later));
-  // Uno spillo lasciato cadere dal gettone del tombolo non ha un evento sul bus (Q014):
-  // il pannello guarda lo stato della notte e si ridisegna appena cambia.
-  offs.push(watchNight(() => root.isConnected, later));
+  // Uno spillo lasciato cadere (gettone del tombolo, Spinta, Taccuino): night:drop (Q014).
+  for (const ev of ['night:row', 'night:undo', 'night:cross', 'night:complete', 'night:drop', 'scene:enter'] as const) offs.push(s.bus.on(ev, later));
   return {
     update: render,
     destroy() {

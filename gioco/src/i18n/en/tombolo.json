@@ -154,6 +154,8 @@
     "obiettiviTardi": "From here the lace won't close as it should: undo back to {ora}.",
     "lascia": "Let go of {nome}'s pin",
     "disfaFino": "Undo back to {ora}",
+    "tornaSera": "Back to the evening",
+    "tornaSeraTesto": "Before the first hour you can also go back to the evening and change the pins, with no consequences.",
     "fantasmaConferma": "The ghost shows you the right crossing, but no golden thread tonight.",
     "fantasmaSi": "Yes, show me (lose the golden thread)",
     "fantasmaNo": "No, I'll try on my own",

@@ -216,6 +216,39 @@ function strokeSeg(ctx: CanvasRenderingContext2D, p: Poly, v: ThreadVisual, s: S
   drawPattern(ctx, p, v, w, phase, style.time);
 }
 
+/**
+ * Evidenzia il percorso di un filo in una riga (residuo R2, Q028): un alone d'ottone e il
+ * filo ripassato nel suo colore sopra gli altri. Serve a dire quale filo sbiadito si sta
+ * nominando dal pannello dell'Archivio.
+ */
+export function traceThreadRow(ctx: CanvasRenderingContext2D, shape: RowShape, g: RowGeom, y0: number, y1: number, thread: ThreadId, v: ThreadVisual, halo: string, alpha: number): void {
+  const p = POOL[0] as Poly;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (let k = 0; k < shape.segs.length; k++) {
+    const s = shape.segs[k] as SegShape;
+    if (s.thread !== thread || s.ghost) continue;
+    for (let pass = 0; pass < 2; pass++) {
+      segPoly(p, s, g, y0, y1, shape.hour);
+      strokeTrace(ctx, p, pass === 0 ? halo : v.color, pass === 0 ? v.width + 8 : v.width, pass === 0 ? alpha : 1);
+      if (s.exit !== 0) {
+        exitPoly(p, s, g, y0, y1);
+        strokeTrace(ctx, p, pass === 0 ? halo : v.color, pass === 0 ? v.width + 8 : v.width, pass === 0 ? alpha : 1);
+      }
+    }
+  }
+}
+
+function strokeTrace(ctx: CanvasRenderingContext2D, p: Poly, color: string, width: number, alpha: number): void {
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  traceCurve(ctx, p);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
 /** Disegna una riga di fili fra y0 e y1 (coordinate già sullo schermo o nel canvas della striscia). */
 export function drawRow(ctx: CanvasRenderingContext2D, shape: RowShape, g: RowGeom, y0: number, y1: number, visuals: Map<ThreadId, ThreadVisual>, style: RowStyle): void {
   const phase = y0 < 0 ? -y0 : y0;

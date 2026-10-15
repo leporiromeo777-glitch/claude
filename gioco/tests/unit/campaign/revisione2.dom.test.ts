@@ -29,7 +29,8 @@ import { defaultSettings } from '../../../src/core/settings';
 import { createI18n, loadI18nSources } from '../../../src/core/i18n';
 import { installServices } from '../../../src/core/services';
 import { contrastRatio } from '../../../src/core/ui/richtext';
-import { setActiveNight } from '../../../src/tombolo/active';
+import { nightHooks, setActiveNight, setNightHooks } from '../../../src/tombolo/active';
+import { countedRecord, recordNight } from '../../../src/campaign/progress';
 import { bigliettiniPanel, fitStrip, taccuinoPanel } from '../../../src/campaign/taccuino/panel';
 import { itemsSheet, noteDetailPanel, objectPanel } from '../../../src/campaign/notes';
 import { CLOTILDE_HAND, EMPTY_BOTTLE, handOf, spriteCanvas, tapKey } from '../../../src/campaign/ui';
@@ -225,8 +226,7 @@ function fakeNight(params: Record<string, unknown>, session: Record<string, unkn
 }
 
 describe('pannello dei bigliettini (Q014, Q066, Q012)', () => {
-  it('lo spillo lasciato cadere dal gettone: il pannello concorda subito (Q014)', async () => {
-    vi.useFakeTimers();
+  it('lo spillo lasciato cadere dal gettone: il pannello concorda subito, sull\'evento night:drop (Q014)', async () => {
     const { s, d, setScene } = setup('largo');
     const c = eveningAt(d, 'g06');
     const id = c.evening!.noteIds.find((x) => !!db().notes.get(x)?.request)!;
@@ -238,10 +238,14 @@ describe('pannello dei bigliettini (Q014, Q066, Q012)', () => {
     document.body.appendChild(box);
     const h = bigliettiniPanel(s, box, { from: 'tombolo' });
     expect(box.querySelector(`[data-test="cp-lascia-cadere-${id}"]`)).not.toBeNull();
-    // Il tombolo lascia cadere lo spillo (gettone) senza eventi sul bus.
+    // Il tombolo lascia cadere lo spillo (gettone) ed emette night:drop: niente controlli periodici.
+    const spy = vi.spyOn(globalThis, 'setInterval');
     night.drop(id);
-    await vi.advanceTimersByTimeAsync(300);
+    expect(box.querySelector(`[data-test="cp-lascia-cadere-${id}"]`)).not.toBeNull();
+    s.bus.emit('night:drop', { noteId: id, levelId: p.level.id });
+    await Promise.resolve();
     expect(box.querySelector(`[data-test="cp-lascia-cadere-${id}"]`)).toBeNull();
+    expect(spy).not.toHaveBeenCalled();
     expect(box.querySelector(`[data-test="cp-richiesta-${id}"] [data-stato="lasciata"]`)).not.toBeNull();
     h.destroy();
   });
@@ -684,5 +688,78 @@ describe('controller: fine della notte (R2-D5) e avvisi (Q069, Q075)', () => {
     await vi.advanceTimersByTimeAsync(10);
     expect(d.knowledge.quirks).toContain('ginoCorre');
     expect(toast).not.toHaveBeenCalled();
+  });
+});
+
+describe('rifinitura R2 (residui dei verificatori)', () => {
+  it('Taccuino › Lettere e il segnaposto della porta hanno il glifo «foglio», non la nota musicale (Q059)', () => {
+    const { s, d } = setup('stretto');
+    newCampaign(d, db());
+    d.knowledge.letters.push('lettera_1' as never);
+    const box = document.createElement('div');
+    document.body.appendChild(box);
+    const h = taccuinoPanel(s, box, { from: 'sera' });
+    const tab = box.querySelector('[data-test="cp-taccuino-scheda-lettere"]');
+    expect(tab).not.toBeNull();
+    expect(tab?.querySelector('svg')?.getAttribute('data-glyph')).toBe('foglio');
+    h.destroy();
+    const sera = readFileSync(resolve(ROOT, 'src/campaign/SeraScene.ts'), 'utf8');
+    expect(sera).not.toMatch(/svgIcon\('nota'/);
+  });
+
+  it('bilancio: «Continua» sta nel piede del foglio, fuori dalla zona che scorre; le voci non gli passano sotto', () => {
+    const { s, d } = setup();
+    dayToBilancio(d, 'g02');
+    const scene = new BilancioScene(s);
+    scene.enter();
+    const sheet = document.querySelector('[data-test="cp-bilancio-foglio"]');
+    const body = sheet?.querySelector('[data-test="cp-bilancio-scorre"]');
+    const cont = document.querySelector('[data-test="cp-bilancio-continua"]');
+    expect(body).not.toBeNull();
+    expect(cont).not.toBeNull();
+    expect(body?.contains(cont)).toBe(false);
+    expect(sheet?.lastElementChild?.contains(cont)).toBe(true);
+    // Riascolta e Spartito restano in fondo alle voci.
+    expect(body?.querySelector('[data-test="cp-bilancio-riascolta"]')).not.toBeNull();
+    scene.exit();
+    const css = readFileSync(resolve(ROOT, 'src/campaign/campaign.css'), 'utf8');
+    const rule = /\.cp-bilancio \.cp-foglio-continua \{([^}]*)\}/.exec(css)?.[1] ?? '';
+    expect(rule).not.toMatch(/sticky/);
+    expect(/\.cp-bilancio \.cp-foglio-scorre \{([^}]*)\}/.exec(css)?.[1] ?? '').toMatch(/overflow-y: auto/);
+  });
+
+  it('Telaio: filo d\'oro e spartito dai record per insieme di richieste, non dai campi di livello (merletti falliti)', () => {
+    // Record di prima della revisione 2: il filo d'oro e lo spartito possono venire da un merletto fallito.
+    const old = { minIncroci: 3, maxQuiete: 2, simmetria: false, filoDOro: true, bestSpartito: 'VECCHIO' };
+    expect(countedRecord(old)).toEqual({ filoDOro: false, bestSpartito: null });
+    const withSets = { ...old, sets: { 'g02.a': { minIncroci: 6, maxQuiete: 1, simmetria: false, bestSpartito: 'A6' }, 'g02.a+g02.b': { minIncroci: 5, maxQuiete: 1, simmetria: false, bestSpartito: 'AB5', filoDOro: true } } };
+    expect(countedRecord(withSets)).toEqual({ filoDOro: true, bestSpartito: 'AB5' });
+    expect(countedRecord(withSets, ['g02.a']).bestSpartito).toBe('A6');
+    // recordNight segna il filo d'oro sull'insieme del merletto riuscito.
+    const d = emptySave();
+    recordNight(d, 'g02', { incroci: 5, minIncroci: 5, quiete: 1, simmetria: false, filoDOro: true }, 'S', { ok: true, set: ['g02.b'] });
+    expect(countedRecord(d.records.g02).filoDOro).toBe(true);
+    // Nel Telaio la stella c'è solo per il livello coi record per insieme.
+    const { s, d: d2 } = setup();
+    newCampaign(d2, db());
+    camp(d2).dayIndex = dayIndexOf(db(), 'g04');
+    d2.records.g01 = { ...old };
+    d2.records.g02 = { ...withSets } as never;
+    const scene = new TelaioScene(s);
+    scene.enter({});
+    expect(document.querySelector('[data-test="cp-nodo-oro-g01"]')).toBeNull();
+    expect(document.querySelector('[data-test="cp-nodo-oro-g02"]')).not.toBeNull();
+    scene.exit();
+  });
+
+  it('la campagna offre al tombolo «Torna alla sera» per la Spinta (Q012)', () => {
+    setup('stretto');
+    const ctl = new CampaignControllerImpl();
+    ctl.install();
+    const back = nightHooks().backToEvening;
+    expect(back).toBeDefined();
+    // Senza una notte della storia non si torna alla sera.
+    expect(back?.can()).toBe(false);
+    setNightHooks({});
   });
 });
