@@ -1,6 +1,6 @@
 {
   "levelId": "arc3",
-  "sourceHash": "befb1775f7e9b0d2",
+  "sourceHash": "b1f264ca0633d53d",
   "solverVersion": 2,
   "base": {
     "incroci": 2,
@@ -64,7 +64,7 @@
         "minSenzaGino": null,
         "vuoteMax": 0,
         "vuoteTot": 0,
-        "soluzioniOttime": 4
+        "soluzioniOttime": 1
       }
     ],
     "designata": "base",

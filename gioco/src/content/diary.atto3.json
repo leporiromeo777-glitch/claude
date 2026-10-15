@@ -292,7 +292,35 @@
     "section": "persone",
     "textKey": "atto3.diario.persone.piero.fascio",
     "unlock": {
-      "ok": "g22.piero"
+      "all": [
+        {
+          "ok": "g22.piero"
+        },
+        {
+          "not": {
+            "flag": "lettereLivia",
+            "eq": "liberate"
+          }
+        }
+      ]
+    },
+    "character": "piero",
+    "source": "visto"
+  },
+  {
+    "id": "persone.piero.prima",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.piero.prima",
+    "unlock": {
+      "all": [
+        {
+          "ok": "g22.piero"
+        },
+        {
+          "flag": "lettereLivia",
+          "eq": "liberate"
+        }
+      ]
     },
     "character": "piero",
     "source": "visto"
@@ -352,7 +380,49 @@
     "section": "persone",
     "textKey": "atto3.diario.persone.ada.g18",
     "unlock": {
-      "done": "g18"
+      "all": [
+        {
+          "done": "g18"
+        },
+        {
+          "any": [
+            {
+              "flag": "riconciliate",
+              "eq": true
+            },
+            {
+              "ok": "g18.teresa"
+            }
+          ]
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g18nodo",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g18nodo",
+    "unlock": {
+      "all": [
+        {
+          "done": "g18"
+        },
+        {
+          "not": {
+            "any": [
+              {
+                "flag": "riconciliate",
+                "eq": true
+              },
+              {
+                "ok": "g18.teresa"
+              }
+            ]
+          }
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"
@@ -372,7 +442,35 @@
     "section": "persone",
     "textKey": "atto3.diario.persone.ada.g20",
     "unlock": {
-      "done": "g20"
+      "all": [
+        {
+          "done": "g20"
+        },
+        {
+          "flag": "nina",
+          "eq": "parte"
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g20resta",
+    "section": "persone",
+    "textKey": "atto3.diario.persone.ada.g20resta",
+    "unlock": {
+      "all": [
+        {
+          "done": "g20"
+        },
+        {
+          "not": {
+            "flag": "nina",
+            "eq": "parte"
+          }
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"

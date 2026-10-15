@@ -730,6 +730,53 @@
     "esito": {
       "ok": "atto2.g14.nina.esito.ok",
       "fallita": "atto2.g14.nina.esito.fallita"
+    },
+    "availableIf": {
+      "any": [
+        {
+          "flag": "ninaIscritta"
+        },
+        {
+          "ok": "g08.nina"
+        }
+      ]
+    }
+  },
+  {
+    "id": "g14.nina.tardiva",
+    "day": "g14",
+    "author": "nina",
+    "textKey": "atto2.g14.nina.tardiva.testo",
+    "request": {
+      "t": "tutti",
+      "of": [
+        {
+          "t": "consegnata",
+          "bead": "L_esame",
+          "by": 12
+        },
+        {
+          "t": "nonHa",
+          "who": "teresa",
+          "bead": "letta:L_esame"
+        }
+      ]
+    },
+    "esito": {
+      "ok": "atto2.g14.nina.esito.ok",
+      "fallita": "atto2.g14.nina.esito.fallita"
+    },
+    "availableIf": {
+      "not": {
+        "any": [
+          {
+            "flag": "ninaIscritta"
+          },
+          {
+            "ok": "g08.nina"
+          }
+        ]
+      }
     }
   },
   {

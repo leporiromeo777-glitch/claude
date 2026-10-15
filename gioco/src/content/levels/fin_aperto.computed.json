@@ -1,6 +1,6 @@
 {
   "levelId": "fin_aperto",
-  "sourceHash": "b751624f851a1fea",
+  "sourceHash": "e0597faa92e2f19f",
   "solverVersion": 2,
   "base": {
     "incroci": 0,
@@ -9,7 +9,7 @@
         "hour": 7,
         "crossings": [
           {
-            "pair": 0,
+            "pair": 1,
             "over": "R",
             "forced": true
           },
@@ -25,7 +25,7 @@
         "crossings": [
           {
             "pair": 0,
-            "over": "R",
+            "over": "L",
             "forced": true
           },
           {
@@ -206,5 +206,5 @@
       "hour": 12
     }
   ],
-  "occasionsSolutions": 15
+  "occasionsSolutions": 20
 }

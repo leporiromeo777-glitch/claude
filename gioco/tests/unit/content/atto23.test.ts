@@ -13,6 +13,14 @@ import { loadContent } from '../../../src/content/loader';
 import { validateContent } from '../../../src/content/validate';
 import { buildCatalogs, loadI18nSources } from '../../../src/core/i18n';
 import { SOLVER_VERSION, createContext, levelSourceHashFromDB, simulate, simulateAndEvaluate, solve } from '../../../src/engine/index';
+import { archiveParams, camp, choose, completeArchive, completeDay, completeFinal, finalParams, finishArchivePhase, finishBilancio, finishDawn, markObjectSeen, newCampaign, readDawnObject, startNight, currentNightParams } from '../../../src/campaign/flow';
+import { choiceCards } from '../../../src/campaign/endings';
+import { eveningItems, isAnonymous, pinNote, pinsLeft, replyNote } from '../../../src/campaign/evening';
+import { evalStory } from '../../../src/campaign/story';
+import { simulateNight } from '../../../src/campaign/simulate';
+import type { CampaignStateX } from '../../../src/campaign/types';
+import { defaultSaveData } from '../../../src/core/save/defaults';
+import type { Knowledge, NightOutcome, RowMoves, SaveData } from '../../../src/core/types';
 import diary2 from '../../../src/content/diary.atto2.json';
 import diary3 from '../../../src/content/diary.atto3.json';
 import lettere23 from '../../../src/content/lettere.atto23.json';
@@ -231,13 +239,16 @@ describe('bigliettini e vignette', () => {
       expect(ns.length).toBe(4);
       expect(ns.map((n) => n.ending).sort()).toEqual(['aperto', 'chiuso', 'merlettaia', 'seppia']);
       for (const n of ns) {
-        expect(t(n.textKey)).toBe(textOf[n.ending as string]);
+        if (n.ending !== 'merlettaia' || n.author === 'zeno') expect(t(n.textKey)).toBe(textOf[n.ending as string]);
+        else expect(t(n.textKey)).toMatch(/^(Resti|Resta|Cara, resta|Resto io)\b/);
         expect(n.request).toBeUndefined();
         if (n.ending !== 'merlettaia') expect(n.author).toBe(authors[n.ending as string]);
       }
-      // A è di Zeno, o di Don Piero se Zeno ha memoria 0.
+      // A è di Zeno; se Zeno ha dimenticato Ada, di Don Piero, poi di Marta, poi di Teresa (revisione 2, Q045):
+      // chi ha dimenticato Ada non firma. Se l'hanno dimenticata tutti e quattro, se lo scrive Ada da sola.
       const a = ns.find((n) => n.ending === 'merlettaia') as NoteDef;
-      expect(a.author).toBe((s.memoria.zeno ?? 0) >= 1 ? 'zeno' : 'piero');
+      const firma = (['zeno', 'piero', 'marta', 'teresa'] as const).find((c) => (s.memoria[c] ?? 0) >= 1) ?? 'ada';
+      expect(a.author).toBe(firma);
     }
     expect(db.campaign.days.find((d) => d.id === 'g23')?.pins).toBe(2);
   });
@@ -563,8 +574,12 @@ describe('finali (GDD 6.6)', () => {
     expect((aw?.allowedOccasions ?? []).length).toBeGreaterThanOrEqual(10);
     expect((aw?.allowedOccasions ?? []).length).toBeLessThanOrEqual(14);
     expect(lv.matassa).toBe(0);
-    expect(lv.goals?.length).toBe(9);
+    // Revisione 2 (Q042): niente Nina nel finale vero (è già partita in g20, o partirà a settembre); il Bepi prende il vaporetto.
+    expect(lv.goals?.length).toBe(8);
     expect(lv.goals).toContainEqual({ t: 'incontra', a: 'ada', b: 'livia' });
+    expect(lv.goals).toContainEqual({ t: 'parte', who: 'bepi', hour: 9 });
+    expect(JSON.stringify(lv.goals)).not.toContain('"nina"');
+    expect(lv.threads.map((x) => x.id)).not.toContain('nina');
     const c = db.computed.get('fin_aperto');
     expect(c?.occasionsSolution?.length ?? 0).toBeGreaterThan(0);
     expect(c?.occasionsSolutions ?? 0).toBeGreaterThanOrEqual(1);
@@ -877,7 +892,7 @@ describe('bibbia della verità (GDD 6.1, 6.4)', () => {
     ]);
     expect(vignetteText('g17.alba.livia')[0]).toBe('Nessuno qui sa chi sono. Va bene così. Basta che lei mi veda.');
     expect([...vignetteText('g18.alba.pace'), ...vignetteText('g18.alba.pane').slice(0, 1)]).toEqual([
-      'Trent\'anni, Teresa.', 'Trenta. E non era nemmeno colpa mia, si scopre: me l\'ha detto la piccola.', 'Lo so. Siediti, che il pane è caldo.',
+      'Trent\'anni, Teresa.', 'Trenta. E non era solo colpa mia, si scopre: me l\'ha detto la piccola.', 'Lo so. Siediti, che il pane è caldo.',
     ]);
     expect(vignetteText('g16.alba.trabocco')).toEqual(['Credevo di custodire peccati. Erano lettere.', 'Che Dio mi perdoni la distrazione.']);
   });
@@ -1391,8 +1406,9 @@ describe('revisione 1: finali (CA23-04)', () => {
     for (const s of FATES) {
       const vis = visible('aperto', s);
       const ids = vis.map((v) => v.id);
-      for (const id of ['finale.aperto.teresa', 'finale.aperto.gino', 'finale.aperto.lunardi', 'finale.aperto.zeno', 'finale.aperto.nastro']) expect(ids, id).toContain(id);
+      for (const id of ['finale.aperto.teresa', 'finale.aperto.gino', 'finale.aperto.lunardi', 'finale.aperto.nastro']) expect(ids, id).toContain(id);
       expect(ids.filter((x) => x.startsWith('finale.aperto.nina')).length).toBe(1);
+      expect(ids.filter((x) => x.startsWith('finale.aperto.zeno')).length).toBe(1);
       const text = vis.flatMap((v) => v.lines.map((l) => t(l.textKey))).join('\n');
       expect(text).toContain('Il nastro era abbastanza lungo per due fili. Ne ho fatto uno per me e uno per mia madre.');
       expect(text).toContain('Per un autunno e un inverno');
@@ -1460,3 +1476,436 @@ describe('revisione 1: testi minori (CA23-07)', () => {
     expect(t('finali.aperto.perline.ettore')).toBe('il nome del dottore');
   });
 });
+
+// ───────── Revisione 2 (R2-D3): la storia regge su tutti i rami ─────────
+// La campagna vera (src/campaign/flow) giocata dall'inizio alla scelta su più rami: tutto riuscito,
+// tutto fallito, tutto lasciato, memoria a zero e misti a caso con seme fisso. A ogni momento
+// (sera, alba, oggetto dell'alba, bilancio, Archivio, scelta, notte del finale, epilogo) si annotano
+// le chiavi dei testi mostrati con lo stato di quel momento, poi si controllano le condizioni di
+// coerenza dichiarate qui sotto come dati (COERENZA, UN_GIORNO, MAI_INSIEME) e le ripetizioni.
+
+type Rnd = () => number;
+function mulberry32(seed: number): Rnd {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let x = a;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+type Momento = 'sera' | 'alba' | 'oggetto' | 'bilancio' | 'archivio' | 'scelta' | 'notte' | 'epilogo';
+interface Voce { key: string; note?: NoteDef }
+interface Pagina { ramo: string; giorno: string; momento: Momento; voci: Voce[]; s: CampaignStateX; k: Knowledge }
+
+interface Ramo {
+  nome: string;
+  seed: number;
+  rispondi: (n: NoteDef, r: Rnd) => 'R1' | 'R2' | null;
+  /** Bigliettini da appuntare (fra quelli con richiesta della sera). */
+  appunta: (day: string, cands: NoteDef[], max: number, r: Rnd) => NoteDef[];
+  /** Fra gli appuntati, quelli che il giocatore prova a soddisfare stanotte. */
+  riuscite: (day: string, pinned: NoteDef[], r: Rnd) => NoteDef[];
+  rammenda: (arc: string, r: Rnd) => boolean;
+  /** Autore sbagliato per un anonimo (probabilità). */
+  sbaglia?: number;
+  /** Memoria dopo ogni notte col nome: piena (il nome passa bene) o zero (nessuno ricorda Ada). */
+  memoria?: 'piena' | 'zero';
+}
+
+/** Righe calcolate per un insieme esatto di bigliettini (null se non ci sono). */
+function exactRows(day: string, ids: string[]): RowMoves[] | null {
+  const c = db.computed.get(day);
+  if (!c) return null;
+  const key = [...ids].sort().join('|');
+  if (ids.length === 0) return c.base.rows ?? null;
+  if (ids.length === 1) return c.perNote[ids[0] as string]?.rows ?? null;
+  return c.combos.find((x) => [...x.notes].sort().join('|') === key)?.rows ?? null;
+}
+/** Righe per il sottoinsieme più grande dei bigliettini voluti che il solver sa tessere. */
+function rowsFor(day: string, want: string[]): RowMoves[] {
+  for (let k = want.length; k >= 0; k--) {
+    const subs: string[][] = [];
+    const rec = (i: number, acc: string[]): void => {
+      if (acc.length === k) {
+        subs.push([...acc]);
+        return;
+      }
+      for (let j = i; j < want.length; j++) rec(j + 1, [...acc, want[j] as string]);
+    };
+    rec(0, []);
+    for (const s of subs) {
+      const r = exactRows(day, s);
+      if (r) return r;
+    }
+  }
+  return db.computed.get(day)?.base.rows ?? [];
+}
+const tessibili = (day: string, ids: string[]): boolean => ids.length === 0 || exactRows(day, ids) !== null;
+
+/** Bigliettini da cui dipendono i destini e il finale vero: il ramo «riuscito» li tiene. */
+const CHIAVE = ['g08.nina', 'g15.nina', 'g16.zeno', 'g18.teresa', 'g20.nina', 'g20.bepi', 'g22.zeno', 'g14.zeno', 'g13.marta'];
+function migliori(day: string, cands: NoteDef[], max: number): NoteDef[] {
+  let best: NoteDef[] = [];
+  let score = -1;
+  const rec = (i: number, acc: NoteDef[]): void => {
+    if (acc.length > 0 && tessibili(day, acc.map((n) => n.id)) && new Set(acc.map((n) => n.author)).size === acc.length) {
+      const sc = acc.filter((n) => CHIAVE.includes(n.id)).length * 10 + acc.length;
+      if (sc > score) {
+        score = sc;
+        best = [...acc];
+      }
+    }
+    if (acc.length === max) return;
+    for (let j = i; j < cands.length; j++) rec(j + 1, [...acc, cands[j] as NoteDef]);
+  };
+  rec(0, []);
+  return best;
+}
+function shuffle<T>(xs: T[], r: Rnd): T[] {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j] as T, a[i] as T];
+  }
+  return a;
+}
+
+const RAMI: Ramo[] = [
+  {
+    nome: 'riuscito',
+    seed: 1,
+    rispondi: (n) => (n.replies?.some((x) => x.effects.some((e) => 'desire' in e)) ? (n.replies.find((x) => x.effects.some((e) => 'desire' in e))?.id ?? 'R1') : 'R1'),
+    appunta: (day, cands, max) => migliori(day, cands, max),
+    riuscite: (_d, pinned) => pinned,
+    rammenda: () => true,
+    memoria: 'piena',
+  },
+  {
+    // Il finale vero con la domanda della Nina persa (g08), la Nina rimasta (g20), il Bepi ferito (g15) e Zeno senza perdono (g22).
+    nome: 'riuscito-resta',
+    seed: 5,
+    rispondi: (n) => (n.replies?.some((x) => x.effects.some((e) => 'desire' in e)) ? (n.replies.find((x) => x.effects.some((e) => 'desire' in e))?.id ?? 'R2') : 'R2'),
+    appunta: (day, cands, max) => migliori(day, cands.filter((n) => !['g08.nina', 'g15.nina', 'g20.nina', 'g22.zeno'].includes(n.id)), max),
+    riuscite: (_d, pinned) => pinned,
+    rammenda: (arc) => arc !== 'arc4',
+    memoria: 'piena',
+  },
+  { nome: 'fallito', seed: 2, rispondi: () => 'R2', appunta: (_d, c, max, r) => shuffle(c, r).slice(0, max), riuscite: () => [], rammenda: () => false, sbaglia: 0.5 },
+  { nome: 'lasciato', seed: 3, rispondi: () => null, appunta: () => [], riuscite: () => [], rammenda: () => false },
+  { nome: 'dimenticata', seed: 4, rispondi: (_n, r) => (r() < 0.5 ? 'R1' : 'R2'), appunta: (_d, c, max, r) => shuffle(c, r).slice(0, Math.floor(r() * (max + 1))), riuscite: (_d, p, r) => p.filter(() => r() < 0.5), rammenda: (_a, r) => r() < 0.5, memoria: 'zero' },
+  ...[21, 22, 23, 24].map(
+    (seed): Ramo => ({
+      // Misti che tengono spesso i bigliettini dei destini (g08, g15, g16, g18, g20, g22).
+      nome: `chiave-${seed}`,
+      seed,
+      rispondi: (_n, r) => (r() < 0.5 ? 'R1' : 'R2'),
+      appunta: (_d, c, max, r) => [...shuffle(c.filter((n) => CHIAVE.includes(n.id) && r() < 0.8), r), ...shuffle(c.filter((n) => !CHIAVE.includes(n.id)), r)].slice(0, max),
+      riuscite: (_d, p, r) => p.filter((n) => r() < (CHIAVE.includes(n.id) ? 0.7 : 0.4)),
+      rammenda: (_a, r) => r() < 0.7,
+      memoria: seed % 2 === 0 ? 'piena' : undefined,
+    }),
+  ),
+  ...[11, 12, 13, 14, 15, 16, 17, 18].map(
+    (seed): Ramo => ({
+      nome: `misto-${seed}`,
+      seed,
+      rispondi: (_n, r) => {
+        const x = r();
+        return x < 0.4 ? 'R1' : x < 0.8 ? 'R2' : null;
+      },
+      appunta: (_d, c, max, r) => shuffle(c, r).slice(0, Math.floor(r() * (max + 1))),
+      riuscite: (_d, p, r) => p.filter(() => r() < 0.6),
+      rammenda: (_a, r) => r() < 0.6,
+      sbaglia: 0.1,
+    }),
+  ),
+];
+
+const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+const objectKeys = (id: string): string[] => {
+  const l = db.letters.find((x) => x.id === id);
+  if (l) return [l.textKey];
+  return IT.has(`comune.oggetti.${id}.descrizione`) ? [`comune.oggetti.${id}.descrizione`] : [];
+};
+const diaryKey = (id: string): string => db.diary.get(id)?.textKey ?? `?diario:${id}`;
+
+/** Gioca un ramo fino alla scelta e poi, da lì, ogni finale che si può appuntare. */
+function giocaRamo(ramo: Ramo): Pagina[] {
+  const r = mulberry32(ramo.seed);
+  const d: SaveData = defaultSaveData('test');
+  newCampaign(d, db);
+  const out: Pagina[] = [];
+  const page = (save: SaveData, giorno: string, momento: Momento, voci: Voce[]): void => {
+    out.push({ ramo: ramo.nome, giorno, momento, voci, s: clone(camp(save)), k: clone(save.knowledge) });
+  };
+  let guard = 0;
+  while (camp(d).phase === 'sera' && guard++ < 40) {
+    const c = camp(d);
+    const day = c.levelId;
+    const announced = markObjectSeen(d, db);
+    const items = eveningItems(c.dayIndex, 'sera', c, db).flatMap((it) => objectKeys(it.id));
+    const notes = (c.evening?.noteIds ?? []).map((id) => db.notes.get(id) as NoteDef);
+    page(d, day, 'sera', [...items.map((key) => ({ key })), ...announced.map((id) => ({ key: diaryKey(id) })), ...notes.map((n) => ({ key: n.textKey, note: n }))]);
+    for (const n of notes) {
+      if (!n.replies?.length) continue;
+      const rep = ramo.rispondi(n, r);
+      if (rep) replyNote(c, d.knowledge, db, n.id, rep);
+    }
+    const cands = notes.filter((n) => n.request);
+    const pins = pinsLeft(c, db);
+    const pinned = ramo.appunta(day, cands, pins, r).slice(0, pins);
+    for (const n of pinned) {
+      let guess = n.author;
+      if (isAnonymous(n, c, db) && ramo.sbaglia && r() < ramo.sbaglia) guess = n.author === 'zeno' ? 'teresa' : 'zeno';
+      pinNote(c, db, n.id, guess);
+    }
+    startNight(d, db);
+    const params = currentNightParams(d, db);
+    if (!params) throw new Error(`${ramo.nome}: nessuna notte a ${day}`);
+    const want = ramo.riuscite(day, pinned, r).map((n) => n.id);
+    const computed = db.computed.get(day) ?? null;
+    let outcome: NightOutcome | null = simulateNight(params, rowsFor(day, want), computed, db.balance);
+    outcome ??= simulateNight(params, computed?.base.rows ?? [], computed, db.balance);
+    if (!outcome) throw new Error(`${ramo.nome}: notte ${day} non simulabile`);
+    const report = completeDay(d, db, outcome);
+    if (ramo.memoria && level(day).rules.includes('nome')) for (const ch of CAST) camp(d).memoria[ch] = ramo.memoria === 'piena' ? 3 : 0;
+    page(d, day, 'alba', report.dawn.flatMap((v) => v.lines.map((l) => ({ key: l.textKey }))));
+    if (report.dawnItems?.length) {
+      const fresh = readDawnObject(d, db);
+      page(d, day, 'oggetto', [...report.dawnItems.flatMap(objectKeys).map((key) => ({ key })), ...fresh.map((id) => ({ key: diaryKey(id) }))]);
+    }
+    finishDawn(d, db);
+    page(d, day, 'bilancio', [
+      ...[...report.requests, ...report.ignored].map((x) => ({ key: x.consequenceKey, note: db.notes.get(x.noteId) })),
+      ...report.newDiary.map((id) => ({ key: diaryKey(id) })),
+    ]);
+    const next = finishBilancio(d, db);
+    if (next === 'archivio') {
+      const arc = camp(d).archiveOpen as string;
+      if (ramo.rammenda(arc, r)) {
+        const p = archiveParams(d, db, arc);
+        const lv = level(arc);
+        const rows = (lv.archive?.recorded ?? []).map((x) => ({ hour: x.hour, crossings: x.crossings.filter((cr) => !cr.forced) }));
+        const o = simulateNight(p, rows, db.computed.get(arc) ?? null, db.balance);
+        if (!o) throw new Error(`${ramo.nome}: Archivio ${arc} non simulabile`);
+        const res = completeArchive(d, db, o);
+        page(d, arc, 'archivio', [...(res.reveal?.lines ?? []).map((l) => ({ key: l.textKey })), ...res.newDiary.map((id) => ({ key: diaryKey(id) }))]);
+      }
+      finishArchivePhase(d, db);
+    }
+  }
+  // La sera della scelta: le carte, poi ogni finale appuntabile a partire da qui.
+  const c = camp(d);
+  if (c.phase !== 'scelta') throw new Error(`${ramo.nome}: la campagna non arriva alla scelta (${c.phase} ${c.levelId})`);
+  const cards = choiceCards(level(db.campaign.choiceDay), c, d.knowledge, db);
+  page(d, 'g23', 'scelta', cards.map((x) => ({ key: x.note.textKey, note: x.note })));
+  for (const card of cards.filter((x) => x.available)) {
+    const save = clone(d);
+    if (!choose(save, db, card.ending).ok) throw new Error(`${ramo.nome}: carta ${card.ending}`);
+    const p = finalParams(save, db);
+    const fin = p.level.id;
+    page(save, fin, 'notte', (p.goals ?? []).map((g) => ({ key: `obiettivo:${JSON.stringify(g)}` })));
+    const comp = db.computed.get(fin) ?? null;
+    const o = simulateNight(p, comp?.base.rows ?? [], comp, db.balance);
+    if (!o) throw new Error(`${ramo.nome}: finale ${fin} non simulabile`);
+    const res = completeFinal(save, db, o);
+    if (res.kind === 'riprova') throw new Error(`${ramo.nome}: il finale ${fin} non riesce con la soluzione calcolata`);
+    page(save, fin, 'epilogo', res.epilogue.flatMap((v) => v.lines.map((l) => ({ key: l.textKey }))));
+  }
+  return out;
+}
+
+const PAGINE: Pagina[] = RAMI.flatMap(giocaRamo);
+
+
+// ───────── Le condizioni di coerenza, dichiarate come dati ─────────
+
+/** La domanda d'iscrizione della Nina è partita col vaporetto di g08 (Q043). */
+const DOMANDA_PARTITA: StoryCond = { any: [{ flag: 'ninaIscritta' }, { ok: 'g08.nina' }] };
+const PACE: StoryCond = { any: [{ flag: 'riconciliate', eq: true }, { ok: 'g18.teresa' }] };
+
+interface Regola {
+  id: string;
+  /** Chiave del testo (o `obiettivo:<json>` per gli obiettivi di una notte, `nota:<id>` per un bigliettino). */
+  chiave?: RegExp;
+  /** Testo italiano (solo per i testi di questo pacchetto). */
+  testo?: RegExp;
+  richiede: StoryCond;
+}
+/** Un testo si mostra solo se, in quel momento, la condizione è vera. */
+const COERENZA: Regola[] = [
+  { id: 'Q043: ammessa solo se la domanda è partita', chiave: /^atto2\.(g14\.nina\.testo|g14\.alba\.ammessa\.|diario\.persone\.nina\.ammessa$)/, richiede: DOMANDA_PARTITA },
+  { id: 'Q043: la domanda tardiva solo se non è partita', chiave: /^atto2\.(g14\.nina\.tardiva\.|g14\.alba\.tardiva\.|diario\.persone\.nina\.tardiva$)/, richiede: { not: DOMANDA_PARTITA } },
+  { id: 'Q042: la Nina già partita nel finale vero', chiave: /^finali\.aperto\.epilogo\.ninaParte\./, richiede: { flag: 'nina', eq: 'parte' } },
+  { id: 'Q042: la Nina rimasta nel finale vero', chiave: /^finali\.aperto\.epilogo\.ninaResta\./, richiede: { not: { flag: 'nina', eq: 'parte' } } },
+  { id: 'Q042: nessun obiettivo per la Nina dopo che è partita', chiave: /^obiettivo:.*"nina"/, richiede: { not: { flag: 'nina', eq: 'parte' } } },
+  { id: 'Q044: il fascio intero torna a Livia solo se non è uscito in g16', chiave: /^atto3\.(g22\.alba\.fascio\.|diario\.persone\.piero\.fascio$)/, richiede: { not: { flag: 'lettereLivia', eq: 'liberate' } } },
+  { id: 'Q044: dopo g16 nel pozzo restano solo le ultime lettere e quella del \'51', chiave: /^atto3\.(g22\.alba\.prima\.|diario\.persone\.piero\.prima$)/, richiede: { flag: 'lettereLivia', eq: 'liberate' } },
+  { id: 'Q046: le regole sciolte solo dopo la pace', chiave: /^atto3\.diario\.persone\.ada\.g18$/, richiede: PACE },
+  { id: 'Q046: il nodo che resta solo senza la pace', chiave: /^atto3\.diario\.persone\.ada\.g18nodo$/, richiede: { not: PACE } },
+  { id: 'Q057: dopo la lettera della nonna Ada sa a chi Zeno chiede perdono', testo: /non dice a chi|non c'è più/i, richiede: { not: { knows: 'oggetto', id: 'lettera_clotilde' } } },
+  { id: 'Q019: il forno chiuso un\'ora non «resta aperto»', testo: /forno resta aperto/i, richiede: { not: { any: [{ reply: 'g10.marta', is: 'R1' }, { reply: 'g10.marta.senzaArchivio', is: 'R1' }] } } },
+];
+/** Fatti che si raccontano in una giornata sola (la stessa scena non torna un altro giorno). */
+const UN_GIORNO: { id: string; chiave: RegExp }[] = [
+  { id: 'Q042: la Nina parte una volta sola', chiave: /^atto3\.(g20\.alba\.parte\.|g20\.nina\.esito\.ok$|diario\.persone\.nina\.parte$)|^finali\.(aperto\.epilogo\.ninaResta\.2|seppia\.epilogo\.2\.2)$/ },
+  { id: 'Q044: le lettere di Livia tornano una volta sola', chiave: /^atto2\.(g16\.alba\.fascio\.|g16\.zeno\.esito\.ok$|diario\.domande\.pozzo\.risposta$)|^atto3\.(g22\.alba\.fascio\.|diario\.persone\.piero\.fascio$)/ },
+  { id: 'Q050: il perdono di Zeno per la valigia una volta sola', chiave: /^atto3\.g22\.alba\.perdono\.|^finali\.aperto\.epilogo\.zenoPerdono\./ },
+];
+/** Testi che non si possono leggere nella stessa giornata (alba, oggetto e bilancio). */
+const MAI_INSIEME: { id: string; a: RegExp; b: RegExp }[] = [
+  { id: 'Q047: g22, Zeno e mia madre si parlano all\'alba', a: /^atto3\.g22\.alba\.perdono\./, b: /senza dir(e|si) niente/i },
+  { id: 'Q047: g16, il segreto di Marta è arrivato al prete', a: /^atto2\.g16\.piero\.esito\.ok$/, b: /non l'ha mai detto al prete/i },
+  { id: 'Q046: g18, la confessione storta e le regole sciolte', a: /^atto3\.g18\.alba\.storta\./, b: /regole .*(togliere|sciolt)/i },
+];
+
+const MIE = /^(atto2|atto3|finali)\./;
+const testoDi = (key: string): string => (IT.get(key) ?? '').replace(/\[\[([a-z]+)\]\]/g, (_, id: string) => t(`comune.pers.${id}.nome`));
+const statoDi = (p: Pagina) => ({ s: p.s, k: p.k });
+const vale = (c: StoryCond, p: Pagina): boolean => evalStory(c, p.s, p.k, { db });
+
+describe('revisione 2: la storia regge su tutti i rami (R2-D3)', () => {
+  it('la campagna simulata arriva alla scelta su ogni ramo, e il finale vero si gioca con la Nina partita e rimasta', () => {
+    expect(RAMI.length).toBeGreaterThanOrEqual(12);
+    for (const r of RAMI) expect(PAGINE.some((p) => p.ramo === r.nome && p.momento === 'scelta'), r.nome).toBe(true);
+    const aperti = PAGINE.filter((p) => p.momento === 'epilogo' && p.giorno === 'fin_aperto');
+    expect(aperti.some((p) => p.s.flags['nina'] === 'parte')).toBe(true);
+    expect(aperti.some((p) => p.s.flags['nina'] !== 'parte')).toBe(true);
+    // I rami toccano tutti e due i lati dei destini e della domanda della Nina.
+    const scelte = PAGINE.filter((p) => p.momento === 'scelta');
+    for (const [f, v] of [['nina', 'parte'], ['nina', 'resta'], ['bepi', 'salvo'], ['bepi', 'ferito'], ['lettereLivia', 'liberate'], ['lettereLivia', 'sepolte'], ['zenoLivia', true], ['zenoLivia', false]] as const) {
+      expect(scelte.some((p) => p.s.flags[f] === v), `${f}=${String(v)}`).toBe(true);
+    }
+    expect(scelte.some((p) => vale(DOMANDA_PARTITA, p))).toBe(true);
+    expect(scelte.some((p) => !vale(DOMANDA_PARTITA, p))).toBe(true);
+    expect(scelte.some((p) => vale(PACE, p))).toBe(true);
+    expect(scelte.some((p) => !vale(PACE, p))).toBe(true);
+  });
+
+  it('ogni testo mostrato esiste in italiano e in inglese', () => {
+    const missing = new Set<string>();
+    for (const p of PAGINE) for (const v of p.voci) if (!v.key.startsWith('obiettivo:') && (!IT.get(v.key) || !EN.get(v.key))) missing.add(`${p.momento} ${p.giorno}: ${v.key}`);
+    expect([...missing]).toEqual([]);
+  });
+
+  it('condizioni di coerenza (COERENZA) su ogni pagina di ogni ramo', () => {
+    const bad = new Set<string>();
+    for (const p of PAGINE) {
+      for (const v of p.voci) {
+        for (const r of COERENZA) {
+          const hit = (r.chiave && r.chiave.test(v.key)) || (r.testo && MIE.test(v.key) && r.testo.test(testoDi(v.key)));
+          if (hit && !vale(r.richiede, p)) bad.add(`${r.id} — ${p.ramo} ${p.momento} ${p.giorno}: ${v.key}`);
+        }
+      }
+    }
+    expect([...bad]).toEqual([]);
+  });
+
+  it('fatti raccontati in una giornata sola (UN_GIORNO)', () => {
+    const bad: string[] = [];
+    for (const ramo of RAMI) {
+      for (const u of UN_GIORNO) {
+        // Un finale si gioca da solo a partire dalla scelta: ogni finale è un mondo a parte.
+        for (const fin of [null, ...FINALI_DI(ramo.nome)]) {
+          const days = new Set(PAGINE.filter((p) => p.ramo === ramo.nome && p.momento !== 'sera' && p.momento !== 'scelta' && p.momento !== 'notte' && (p.momento !== 'epilogo' || p.giorno === fin)).filter((p) => p.voci.some((v) => u.chiave.test(v.key))).map((p) => p.giorno));
+          if (days.size > 1) bad.push(`${u.id} — ${ramo.nome}${fin ? ` (${fin})` : ''}: ${[...days].join(', ')}`);
+        }
+      }
+    }
+    expect([...new Set(bad)]).toEqual([]);
+  });
+
+  it('testi che si contraddicono nella stessa giornata (MAI_INSIEME)', () => {
+    const bad = new Set<string>();
+    for (const [, ps] of giornate()) {
+      const keys = ps.flatMap((p) => p.voci.map((v) => v.key));
+      for (const m of MAI_INSIEME) {
+        const a = keys.some((k) => m.a.test(k));
+        const b = keys.some((k) => MIE.test(k) && m.b.test(testoDi(k)));
+        if (a && b) bad.add(`${m.id} — ${ps[0]?.ramo} ${ps[0]?.giorno}`);
+      }
+    }
+    expect([...bad]).toEqual([]);
+  });
+
+  it('Q045: le carte della scelta le firma chi ricorda Ada, ognuna col suo testo', () => {
+    const bad = new Set<string>();
+    for (const p of PAGINE.filter((x) => x.momento === 'scelta')) {
+      for (const v of p.voci) {
+        const n = v.note as NoteDef;
+        if ((CAST as string[]).includes(n.author) && !vale({ memoria: n.author, gte: 1 }, p)) bad.add(`${p.ramo}: ${n.id} firmata da ${n.author}, che ha dimenticato Ada`);
+      }
+      expect(p.voci.length, p.ramo).toBe(4);
+    }
+    expect([...bad]).toEqual([]);
+    for (const n of MY_NOTES) {
+      const who = /^atto\d\.g\d\d\.([a-z]+)\./.exec(n.textKey)?.[1];
+      expect(who, `${n.id}: ${n.textKey}`).toBe(n.author);
+    }
+  });
+
+  it('Q048: alba, oggetto, bilancio, Archivio ed epilogo non ripetono la stessa frase (5 parole di fila)', () => {
+    const bad = new Set<string>();
+    const pages = [...giornate().values(), ...PAGINE.filter((p) => p.momento === 'archivio' || p.momento === 'epilogo').map((p) => [p])];
+    for (const ps of pages) {
+      const keys = [...new Set(ps.flatMap((p) => p.voci.map((v) => v.key)).filter((k) => !k.startsWith('obiettivo:')))];
+      for (let i = 0; i < keys.length; i++) {
+        for (let j = i + 1; j < keys.length; j++) {
+          const a = keys[i] as string;
+          const b = keys[j] as string;
+          if (!MIE.test(a) && !MIE.test(b)) continue;
+          const shared = ngramComune(testoDi(a), testoDi(b), 5);
+          if (shared) bad.add(`${ps[0]?.giorno}: «${shared}» in ${a} e ${b}`);
+        }
+      }
+    }
+    expect([...bad].sort()).toEqual([]);
+  });
+
+  it('Q049: niente voci vaghe («o… o…») su quello che il giocatore ha appena visto', () => {
+    const VAGO = /(^|[ ,])o (non |si |l'|il |la |lo |una |anche |al |alla |dal |dalla )/i;
+    const bad = new Set<string>();
+    for (const p of PAGINE.filter((x) => x.momento === 'bilancio' || x.momento === 'oggetto' || x.momento === 'alba')) {
+      for (const v of p.voci) if (MIE.test(v.key) && /\.(esito|diario)\./.test(v.key) && VAGO.test(testoDi(v.key))) bad.add(`${v.key}: ${testoDi(v.key)}`);
+    }
+    expect([...bad]).toEqual([]);
+  });
+});
+
+/** Finali giocati a partire dalla scelta di un ramo. */
+function FINALI_DI(ramo: string): string[] {
+  return [...new Set(PAGINE.filter((p) => p.ramo === ramo && p.momento === 'epilogo').map((p) => p.giorno))];
+}
+/** Pagine della stessa giornata di un ramo: alba, oggetto e bilancio. */
+function giornate(): Map<string, Pagina[]> {
+  const m = new Map<string, Pagina[]>();
+  for (const p of PAGINE) {
+    if (p.momento !== 'alba' && p.momento !== 'oggetto' && p.momento !== 'bilancio') continue;
+    const k = `${p.ramo}|${p.giorno}`;
+    m.set(k, [...(m.get(k) ?? []), p]);
+  }
+  return m;
+}
+function parole(s: string): string[] {
+  return s
+    .toLowerCase()
+    .replace(/[«»"“”.,;:!?()—–-]/g, ' ')
+    .replace(/'/g, "' ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+/** La prima sequenza di `n` parole in comune fra due testi (o null). */
+function ngramComune(a: string, b: string, n: number): string | null {
+  const wa = parole(a);
+  const wb = parole(b);
+  const set = new Set<string>();
+  for (let i = 0; i + n <= wa.length; i++) set.add(wa.slice(i, i + n).join(' '));
+  for (let i = 0; i + n <= wb.length; i++) {
+    const g = wb.slice(i, i + n).join(' ');
+    if (set.has(g)) return g;
+  }
+  return null;
+}

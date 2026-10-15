@@ -282,7 +282,56 @@
           }
         ],
         "when": {
-          "ok": "g22.piero"
+          "all": [
+            {
+              "ok": "g22.piero"
+            },
+            {
+              "not": {
+                "flag": "lettereLivia",
+                "eq": "liberate"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "g22.alba.fascio.prima",
+        "priority": 60,
+        "background": "tab/sacrestia_lettere",
+        "figures": [
+          {
+            "character": "piero",
+            "pose": "porge",
+            "x": 0.35
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.65,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "piero",
+            "textKey": "atto3.g22.alba.prima.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "atto3.g22.alba.prima.2"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "ok": "g22.piero"
+            },
+            {
+              "flag": "lettereLivia",
+              "eq": "liberate"
+            }
+          ]
         }
       },
       {

@@ -1,6 +1,6 @@
 {
   "levelId": "g14",
-  "sourceHash": "fbd62907946b165c",
+  "sourceHash": "7e43b7d9664bec84",
   "solverVersion": 2,
   "base": {
     "incroci": 10,
@@ -198,6 +198,111 @@
       ]
     },
     "g14.nina": {
+      "incroci": 13,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 15,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 16,
+          "crossings": []
+        }
+      ]
+    },
+    "g14.nina.tardiva": {
       "incroci": 13,
       "rows": [
         {
@@ -526,6 +631,124 @@
     {
       "notes": [
         "g14.zeno",
+        "g14.nina.tardiva"
+      ],
+      "incroci": 15,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 15,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 16,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g14.zeno",
         "g14.gino"
       ],
       "incroci": 16,
@@ -649,6 +872,123 @@
     {
       "notes": [
         "g14.nina",
+        "g14.nina.tardiva"
+      ],
+      "incroci": 13,
+      "rows": [
+        {
+          "hour": 7,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 8,
+          "crossings": [
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 9,
+          "crossings": []
+        },
+        {
+          "hour": 10,
+          "crossings": [
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 11,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 12,
+          "crossings": [
+            {
+              "pair": 1,
+              "over": "R"
+            }
+          ]
+        },
+        {
+          "hour": 13,
+          "crossings": [
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 14,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 3,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 15,
+          "crossings": [
+            {
+              "pair": 0,
+              "over": "L"
+            },
+            {
+              "pair": 2,
+              "over": "L"
+            },
+            {
+              "pair": 4,
+              "over": "L"
+            }
+          ]
+        },
+        {
+          "hour": 16,
+          "crossings": []
+        }
+      ]
+    },
+    {
+      "notes": [
+        "g14.nina",
+        "g14.gino"
+      ],
+      "incroci": null,
+      "voluta": true
+    },
+    {
+      "notes": [
+        "g14.nina.tardiva",
         "g14.gino"
       ],
       "incroci": null,
@@ -686,6 +1026,15 @@
         "soluzioniOttime": 50
       },
       {
+        "config": "g14.nina.tardiva",
+        "min": 13,
+        "minSenzaGino": 11,
+        "costo": 3,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 50
+      },
+      {
         "config": "g14.gino",
         "min": 12,
         "minSenzaGino": 8,
@@ -703,12 +1052,28 @@
         "soluzioniOttime": 50
       },
       {
+        "config": "g14.zeno+g14.nina.tardiva",
+        "min": 15,
+        "minSenzaGino": 13,
+        "vuoteMax": 1,
+        "vuoteTot": 1,
+        "soluzioniOttime": 50
+      },
+      {
         "config": "g14.zeno+g14.gino",
         "min": 16,
         "minSenzaGino": 10,
         "vuoteMax": 0,
         "vuoteTot": 0,
         "soluzioniOttime": 3
+      },
+      {
+        "config": "g14.nina+g14.nina.tardiva",
+        "min": 13,
+        "minSenzaGino": 11,
+        "vuoteMax": 1,
+        "vuoteTot": 2,
+        "soluzioniOttime": 50
       }
     ],
     "designata": "g14.zeno+g14.gino",

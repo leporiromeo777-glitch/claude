@@ -824,10 +824,95 @@
     "id": "g23.piero",
     "day": "g23",
     "author": "piero",
-    "textKey": "atto3.g23.zeno.testo",
+    "textKey": "atto3.g23.piero.carta",
     "availableIf": {
-      "memoria": "zeno",
-      "lte": 0
+      "all": [
+        {
+          "memoria": "zeno",
+          "lte": 0
+        },
+        {
+          "memoria": "piero",
+          "gte": 1
+        }
+      ]
+    },
+    "ending": "merlettaia"
+  },
+  {
+    "id": "g23.marta.carta",
+    "day": "g23",
+    "author": "marta",
+    "textKey": "atto3.g23.marta.carta",
+    "availableIf": {
+      "all": [
+        {
+          "memoria": "zeno",
+          "lte": 0
+        },
+        {
+          "memoria": "piero",
+          "lte": 0
+        },
+        {
+          "memoria": "marta",
+          "gte": 1
+        }
+      ]
+    },
+    "ending": "merlettaia"
+  },
+  {
+    "id": "g23.teresa.carta",
+    "day": "g23",
+    "author": "teresa",
+    "textKey": "atto3.g23.teresa.carta",
+    "availableIf": {
+      "all": [
+        {
+          "memoria": "zeno",
+          "lte": 0
+        },
+        {
+          "memoria": "piero",
+          "lte": 0
+        },
+        {
+          "memoria": "marta",
+          "lte": 0
+        },
+        {
+          "memoria": "teresa",
+          "gte": 1
+        }
+      ]
+    },
+    "ending": "merlettaia"
+  },
+  {
+    "id": "g23.ada.carta",
+    "day": "g23",
+    "author": "ada",
+    "textKey": "atto3.g23.ada.carta",
+    "availableIf": {
+      "all": [
+        {
+          "memoria": "zeno",
+          "lte": 0
+        },
+        {
+          "memoria": "piero",
+          "lte": 0
+        },
+        {
+          "memoria": "marta",
+          "lte": 0
+        },
+        {
+          "memoria": "teresa",
+          "lte": 0
+        }
+      ]
     },
     "ending": "merlettaia"
   },

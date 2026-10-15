@@ -98,7 +98,7 @@
     },
     "hint": {
       "spinta": "No crossings: plant up to five occasions and let it happen. You can try again.",
-      "indizio": "Morning bread, afternoon festival, evening lantern: each goes where they please."
+      "indizio": "A ferry in the morning, two parties, the lantern at night: everyone goes where they like."
     },
     "margine": "I command no one. I plant an occasion and wait.",
     "epilogo": {
@@ -122,20 +122,27 @@
         "1": "“Good morning, Ettore.” Three people said it to me, before lunch.",
         "2": "I had to sit down on the wellhead, miss. From the emotion."
       },
-      "nina": {
-        "1": "Nina left for Venice, by choice, her books in her suitcase.",
-        "2": "Bepi said goodbye to her properly, and then went fishing."
-      },
-      "ninaBepi": {
-        "2": "Bepi said goodbye to her properly, with his good arm, and then stayed to watch."
-      },
       "zeno": {
-        "1": "Welcome back, Livia. No suitcase this time.",
-        "2": "This time I'm staying, Zeno. And there's nothing to forgive."
+        "1": "Welcome back, Livia. This time I'll carry your suitcase all the way home.",
+        "2": "And this time I'll unpack it, Zeno. One drawer at a time."
       },
       "nastro": {
         "1": "The ribbon was long enough for two threads. I made one for me and one for my mother.",
         "2": "Everyone has a thread now. The lace pillow rests in church, and the bell rings in tune."
+      },
+      "ninaParte": {
+        "1": "Bepi got on the first ferry in his Sunday suit: he was going to see Nina.",
+        "2": "At school he said a proper goodbye. She says Venice has too much water, not enough lagoon.",
+        "2b": "At school he said goodbye to her properly, with his good arm. She laughed, and so did he."
+      },
+      "ninaResta": {
+        "1": "Bepi took the first ferry in his Sunday suit: he's going to keep Nina's place for her.",
+        "2": "In September she left for Venice, by choice, and he said goodbye to her properly.",
+        "2b": "In September she left for Venice, by choice. He said goodbye to her with his good arm."
+      },
+      "zenoPerdono": {
+        "1": "Forgive me, Livia. That morning I was the one who carried your suitcase.",
+        "2": "This time I'm staying, Zeno. And there's nothing to forgive."
       }
     }
   },

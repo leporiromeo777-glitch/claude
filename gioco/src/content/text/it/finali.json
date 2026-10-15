@@ -98,7 +98,7 @@
     },
     "hint": {
       "spinta": "Nessun incrocio: pianta fino a cinque occasioni e lascia accadere. Si può riprovare.",
-      "indizio": "Pane la mattina, festa nel pomeriggio, lanterna la sera: ognuno va dove gli piace."
+      "indizio": "Un vaporetto la mattina, due feste, la lanterna la sera: ognuno va dove gli piace."
     },
     "margine": "Non comando nessuno. Pianto un'occasione e aspetto.",
     "epilogo": {
@@ -122,20 +122,27 @@
         "1": "«Buongiorno, Ettore.» Me l'hanno detto in tre, prima di pranzo.",
         "2": "Ho dovuto sedermi sulla vera del pozzo, signorina. Per l'emozione."
       },
-      "nina": {
-        "1": "La Nina è partita per Venezia, per scelta, coi libri in valigia.",
-        "2": "Il Bepi l'ha salutata come si deve, e poi è andato a pescare."
-      },
-      "ninaBepi": {
-        "2": "Il Bepi l'ha salutata come si deve, col braccio buono, e poi è rimasto a guardare."
-      },
       "zeno": {
-        "1": "Bentornata, Livia. Stavolta niente valigia.",
-        "2": "Stavolta resto, Zeno. E non c'è niente da perdonare."
+        "1": "Bentornata, Livia. Stavolta la valigia te la porto fino a casa.",
+        "2": "E stavolta la disfo, Zeno. Un cassetto alla volta."
       },
       "nastro": {
         "1": "Il nastro era abbastanza lungo per due fili. Ne ho fatto uno per me e uno per mia madre.",
         "2": "Tutti hanno un filo, adesso. Il tombolo riposa in chiesa, e la campana suona intonata."
+      },
+      "ninaParte": {
+        "1": "Il Bepi è salito sul primo vaporetto col vestito della festa: andava a trovare la Nina.",
+        "2": "In convitto l'ha salutata come si deve. Lei dice che Venezia ha troppa acqua, poca laguna.",
+        "2b": "In convitto l'ha salutata come si deve, col braccio buono. Lei rideva, e lui pure."
+      },
+      "ninaResta": {
+        "1": "Il Bepi ha preso il primo vaporetto col vestito buono: va a tenere il posto alla Nina.",
+        "2": "A settembre lei è partita per Venezia, per scelta, e lui l'ha salutata come si deve.",
+        "2b": "A settembre lei è partita per Venezia, per scelta. Lui l'ha salutata col braccio buono."
+      },
+      "zenoPerdono": {
+        "1": "Perdonami, Livia. Quella mattina la valigia te l'ho portata io.",
+        "2": "Stavolta resto, Zeno. E non c'è niente da perdonare."
       }
     }
   },

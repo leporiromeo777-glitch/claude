@@ -3387,18 +3387,26 @@
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.nina.1"
+            "textKey": "finali.aperto.epilogo.ninaParte.1"
           },
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.nina.2"
+            "textKey": "finali.aperto.epilogo.ninaParte.2"
           }
         ],
         "when": {
-          "not": {
-            "flag": "bepi",
-            "eq": "ferito"
-          }
+          "all": [
+            {
+              "flag": "nina",
+              "eq": "parte"
+            },
+            {
+              "not": {
+                "flag": "bepi",
+                "eq": "ferito"
+              }
+            }
+          ]
         }
       },
       {
@@ -3421,16 +3429,110 @@
         "lines": [
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.nina.1"
+            "textKey": "finali.aperto.epilogo.ninaParte.1"
           },
           {
             "speaker": "narratore",
-            "textKey": "finali.aperto.epilogo.ninaBepi.2"
+            "textKey": "finali.aperto.epilogo.ninaParte.2b"
           }
         ],
         "when": {
-          "flag": "bepi",
-          "eq": "ferito"
+          "all": [
+            {
+              "flag": "nina",
+              "eq": "parte"
+            },
+            {
+              "flag": "bepi",
+              "eq": "ferito"
+            }
+          ]
+        }
+      },
+      {
+        "id": "finale.aperto.nina.resta",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.36
+          },
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.64,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaResta.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaResta.2"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "flag": "nina",
+                "eq": "parte"
+              }
+            },
+            {
+              "not": {
+                "flag": "bepi",
+                "eq": "ferito"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "finale.aperto.nina.resta.bepi",
+        "priority": 100,
+        "background": "dio/molo/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.36
+          },
+          {
+            "character": "bepi",
+            "pose": "ferma",
+            "x": 0.64,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaResta.1"
+          },
+          {
+            "speaker": "narratore",
+            "textKey": "finali.aperto.epilogo.ninaResta.2b"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "not": {
+                "flag": "nina",
+                "eq": "parte"
+              }
+            },
+            {
+              "flag": "bepi",
+              "eq": "ferito"
+            }
+          ]
         }
       },
       {
@@ -3459,7 +3561,45 @@
             "speaker": "livia",
             "textKey": "finali.aperto.epilogo.zeno.2"
           }
-        ]
+        ],
+        "when": {
+          "flag": "zenoLivia",
+          "eq": true
+        }
+      },
+      {
+        "id": "finale.aperto.zeno.perdono",
+        "priority": 100,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {
+            "character": "zeno",
+            "pose": "ferma",
+            "x": 0.36
+          },
+          {
+            "character": "livia",
+            "pose": "ferma",
+            "x": 0.64,
+            "flip": true
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "zeno",
+            "textKey": "finali.aperto.epilogo.zenoPerdono.1"
+          },
+          {
+            "speaker": "livia",
+            "textKey": "finali.aperto.epilogo.zenoPerdono.2"
+          }
+        ],
+        "when": {
+          "not": {
+            "flag": "zenoLivia",
+            "eq": true
+          }
+        }
       },
       {
         "id": "finale.aperto.nastro",

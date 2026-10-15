@@ -15,9 +15,9 @@
   "endHour": 20,
   "threads": [
     {
-      "id": "nina",
+      "id": "lunardi",
       "kind": "persona",
-      "character": "nina"
+      "character": "lunardi"
     },
     {
       "id": "bepi",
@@ -51,9 +51,9 @@
     }
   ],
   "initial": [
-    "nina",
-    "bepi",
+    "lunardi",
     "gino",
+    "bepi",
     "ada",
     "livia",
     "zeno"
@@ -95,10 +95,7 @@
     "occasioni"
   ],
   "quirks": [
-    "martaNoSotto",
-    "teresaLegge",
     "ginoCorre",
-    "ninaCuriosa",
     "zenoFaro",
     "lunardiCura"
   ],
@@ -114,10 +111,10 @@
   "autoweave": {
     "agents": [
       {
-        "thread": "nina",
+        "thread": "lunardi",
         "agenda": [],
         "likes": [
-          "vaporetto",
+          "pane",
           "festa"
         ]
       },
@@ -188,19 +185,9 @@
     "occasionSlots": 5,
     "allowedOccasions": [
       {
-        "kind": "pane",
-        "place": "forno",
-        "hour": 7
-      },
-      {
         "kind": "vaporetto",
         "place": "molo",
         "hour": 9
-      },
-      {
-        "kind": "messa",
-        "place": "chiesa",
-        "hour": 11
       },
       {
         "kind": "festa",
@@ -211,6 +198,21 @@
         "kind": "lanterna",
         "place": "faro",
         "hour": 20
+      },
+      {
+        "kind": "festa",
+        "place": "farmacia",
+        "hour": 12
+      },
+      {
+        "kind": "pane",
+        "place": "forno",
+        "hour": 7
+      },
+      {
+        "kind": "messa",
+        "place": "chiesa",
+        "hour": 11
       },
       {
         "kind": "festa",
@@ -241,11 +243,6 @@
         "kind": "pane",
         "place": "forno",
         "hour": 19
-      },
-      {
-        "kind": "festa",
-        "place": "farmacia",
-        "hour": 12
       }
     ]
   },
@@ -269,13 +266,8 @@
       "hour": 20
     },
     {
-      "t": "incontra",
-      "a": "bepi",
-      "b": "nina"
-    },
-    {
       "t": "parte",
-      "who": "nina",
+      "who": "bepi",
       "hour": 9
     },
     {
@@ -300,11 +292,6 @@
         {
           "t": "ha",
           "who": "bepi",
-          "bead": "voce:ettore"
-        },
-        {
-          "t": "ha",
-          "who": "nina",
           "bead": "voce:ettore"
         },
         {

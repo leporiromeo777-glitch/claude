@@ -115,6 +115,7 @@
     "g14.zeno",
     "g14.teresa",
     "g14.nina",
+    "g14.nina.tardiva",
     "g14.gino"
   ],
   "matassa": 18,
@@ -177,7 +178,62 @@
           }
         ],
         "when": {
-          "ok": "g14.nina"
+          "all": [
+            {
+              "ok": "g14.nina"
+            },
+            {
+              "any": [
+                {
+                  "flag": "ninaIscritta"
+                },
+                {
+                  "ok": "g08.nina"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "g14.alba.ammessa.tardiva",
+        "priority": 100,
+        "background": "dio/faro/giorno",
+        "figures": [
+          {
+            "character": "nina",
+            "pose": "saluta",
+            "x": 0.5
+          }
+        ],
+        "lines": [
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g14.alba.tardiva.1"
+          },
+          {
+            "speaker": "nina",
+            "textKey": "atto2.g14.alba.tardiva.2"
+          }
+        ],
+        "when": {
+          "all": [
+            {
+              "ok": "g14.nina.tardiva"
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "flag": "ninaIscritta"
+                  },
+                  {
+                    "ok": "g08.nina"
+                  }
+                ]
+              }
+            }
+          ]
         }
       },
       {
@@ -209,7 +265,14 @@
           }
         ],
         "when": {
-          "failed": "g14.nina"
+          "any": [
+            {
+              "failed": "g14.nina"
+            },
+            {
+              "failed": "g14.nina.tardiva"
+            }
+          ]
         }
       },
       {

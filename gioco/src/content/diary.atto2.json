@@ -55,6 +55,25 @@
     "source": "sentito"
   },
   {
+    "id": "persone.zeno.chi",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.zeno.chi",
+    "unlock": {
+      "all": [
+        {
+          "knows": "desire",
+          "id": "zeno"
+        },
+        {
+          "knows": "oggetto",
+          "id": "lettera_clotilde"
+        }
+      ]
+    },
+    "character": "zeno",
+    "source": "visto"
+  },
+  {
     "id": "desiderio.lunardi",
     "section": "persone",
     "textKey": "atto2.diario.desiderio.lunardi",
@@ -204,7 +223,47 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.nina.ammessa",
     "unlock": {
-      "done": "g14"
+      "all": [
+        {
+          "done": "g14"
+        },
+        {
+          "any": [
+            {
+              "flag": "ninaIscritta"
+            },
+            {
+              "ok": "g08.nina"
+            }
+          ]
+        }
+      ]
+    },
+    "character": "nina",
+    "source": "sentito"
+  },
+  {
+    "id": "persone.nina.tardiva",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.nina.tardiva",
+    "unlock": {
+      "all": [
+        {
+          "done": "g14"
+        },
+        {
+          "not": {
+            "any": [
+              {
+                "flag": "ninaIscritta"
+              },
+              {
+                "ok": "g08.nina"
+              }
+            ]
+          }
+        }
+      ]
     },
     "character": "nina",
     "source": "sentito"
@@ -604,7 +663,33 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.marta.segreto",
     "unlock": {
-      "done": "g16"
+      "all": [
+        {
+          "done": "g16"
+        },
+        {
+          "not": {
+            "ok": "g16.piero"
+          }
+        }
+      ]
+    },
+    "character": "marta",
+    "source": "sentito"
+  },
+  {
+    "id": "persone.marta.segretoPozzo",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.marta.segretoPozzo",
+    "unlock": {
+      "all": [
+        {
+          "done": "g16"
+        },
+        {
+          "ok": "g16.piero"
+        }
+      ]
     },
     "character": "marta",
     "source": "sentito"
@@ -635,7 +720,40 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.ada.nome",
     "unlock": {
-      "done": "g12"
+      "any": [
+        {
+          "memoria": "teresa",
+          "lte": 0
+        },
+        {
+          "memoria": "marta",
+          "lte": 0
+        },
+        {
+          "memoria": "piero",
+          "lte": 0
+        },
+        {
+          "memoria": "gino",
+          "lte": 0
+        },
+        {
+          "memoria": "bepi",
+          "lte": 0
+        },
+        {
+          "memoria": "nina",
+          "lte": 0
+        },
+        {
+          "memoria": "zeno",
+          "lte": 0
+        },
+        {
+          "memoria": "lunardi",
+          "lte": 0
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"
@@ -665,7 +783,55 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.ada.g11",
     "unlock": {
-      "done": "g11"
+      "all": [
+        {
+          "done": "g11"
+        },
+        {
+          "event": "nodo"
+        },
+        {
+          "not": {
+            "done": "g12"
+          }
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "persone.ada.g11largo"
+          }
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g11largo",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.ada.g11largo",
+    "unlock": {
+      "all": [
+        {
+          "done": "g11"
+        },
+        {
+          "not": {
+            "event": "nodo"
+          }
+        },
+        {
+          "not": {
+            "done": "g12"
+          }
+        },
+        {
+          "not": {
+            "knows": "diary",
+            "id": "persone.ada.g11"
+          }
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"
@@ -685,7 +851,52 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.ada.g13",
     "unlock": {
-      "done": "g13"
+      "all": [
+        {
+          "done": "g13"
+        },
+        {
+          "flag": "febbreCurati",
+          "gte": 2
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g13nessuno",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.ada.g13nessuno",
+    "unlock": {
+      "all": [
+        {
+          "done": "g13"
+        },
+        {
+          "flag": "febbreCurati",
+          "lte": 0
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g13uno",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.ada.g13uno",
+    "unlock": {
+      "all": [
+        {
+          "done": "g13"
+        },
+        {
+          "flag": "febbreCurati",
+          "gte": 1,
+          "lte": 1
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"
@@ -716,7 +927,35 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.ada.g16",
     "unlock": {
-      "done": "g16"
+      "all": [
+        {
+          "done": "g16"
+        },
+        {
+          "flag": "lettereLivia",
+          "eq": "liberate"
+        }
+      ]
+    },
+    "character": "ada",
+    "source": "visto"
+  },
+  {
+    "id": "persone.ada.g16pozzo",
+    "section": "persone",
+    "textKey": "atto2.diario.persone.ada.g16pozzo",
+    "unlock": {
+      "all": [
+        {
+          "done": "g16"
+        },
+        {
+          "not": {
+            "flag": "lettereLivia",
+            "eq": "liberate"
+          }
+        }
+      ]
     },
     "character": "ada",
     "source": "visto"
@@ -806,7 +1045,14 @@
     "section": "persone",
     "textKey": "atto2.diario.persone.teresa.esame",
     "unlock": {
-      "failed": "g14.nina"
+      "any": [
+        {
+          "failed": "g14.nina"
+        },
+        {
+          "failed": "g14.nina.tardiva"
+        }
+      ]
     },
     "character": "teresa",
     "source": "visto"

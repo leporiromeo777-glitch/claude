@@ -43,6 +43,10 @@
       "id": "f5",
       "kind": "persona",
       "character": "bepi"
+    },
+    {
+      "id": "lino1",
+      "kind": "lino"
     }
   ],
   "initial": [
@@ -68,6 +72,13 @@
       "holder": "f3",
       "to": "scuola",
       "labelKey": "atto2.arc3.perline.medicina"
+    },
+    {
+      "id": "L_aldo",
+      "type": "lettera",
+      "holder": "f1",
+      "to": "f4",
+      "labelKey": "atto2.arc3.perline.L_aldo"
     }
   ],
   "rules": [
@@ -80,7 +91,34 @@
     "teresaLegge"
   ],
   "pins": [],
+  "edges": [
+    {
+      "hour": 8,
+      "side": "faro",
+      "kind": "barca",
+      "enters": "lino1"
+    }
+  ],
   "matassa": 2,
+  "tutorial": [
+    {
+      "k": "margine",
+      "when": "ora",
+      "hour": 9,
+      "textKey": "atto2.arc3.guida.nomina",
+      "mano": "ada"
+    },
+    {
+      "k": "margine",
+      "when": "archivioNomi",
+      "textKey": "atto2.arc3.guida.strappo",
+      "mano": "ada"
+    }
+  ],
+  "hintKeys": {
+    "spinta": "atto2.arc3.hint.spinta",
+    "indizio": "atto2.arc3.hint.indizio"
+  },
   "archive": {
     "year": "1958",
     "faded": [
@@ -216,24 +254,5 @@
         }
       ]
     }
-  },
-  "tutorial": [
-    {
-      "k": "margine",
-      "when": "ora",
-      "hour": 9,
-      "textKey": "atto2.arc3.guida.nomina",
-      "mano": "ada"
-    },
-    {
-      "k": "margine",
-      "when": "archivioNomi",
-      "textKey": "atto2.arc3.guida.strappo",
-      "mano": "ada"
-    }
-  ],
-  "hintKeys": {
-    "spinta": "atto2.arc3.hint.spinta",
-    "indizio": "atto2.arc3.hint.indizio"
   }
 }

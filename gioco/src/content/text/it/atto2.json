@@ -69,7 +69,7 @@
     },
     "alba": {
       "quarantena": {
-        "1": "Sulla Fondamenta si cammina in fila, lontani un braccio. Il forno resta aperto.",
+        "1": "Sulla Fondamenta si cammina in fila, lontani un braccio. Le porte restano socchiuse.",
         "2": "Il Signore conta anche quelli che pregano da casa. Io conto quelli che tossiscono."
       },
       "marta": {
@@ -145,7 +145,7 @@
       },
       "pagella": {
         "1": "BRAVO! C'è scritto BRAVO! Con la B grande e la riga sotto!",
-        "2": "Stasera torta. Ma la pagella, chi me l'ha portata? Non la Teresa, spero."
+        "2": "Stasera torta. E la pagella la metto in cornice, sopra il forno."
       },
       "letta": {
         "1": "La pagella ce l'ha ancora la Teresa. L'ha letta tutta, anche il retro!",
@@ -232,7 +232,7 @@
       "r1": "Prima o poi lo saprà, Bepi. Meglio da te che dalla strada.",
       "r2": "Da me non lo saprà, Bepi. Ma l'isola è piccola, e la Teresa è lunga.",
       "esito": {
-        "ok": "La Nina non ha saputo niente del debito. Bepi è tornato da Chioggia con le tasche vuote e la faccia di chi ha sistemato tutto.",
+        "ok": "Del debito, alla Nina non è arrivata una parola. Bepi è tornato da Chioggia con le tasche vuote e la faccia di chi ha sistemato tutto.",
         "fallita": "La Nina ha saputo del debito dalla strada, prima che dal babbo. Stasera a casa Scarpa non si parla."
       }
     },
@@ -247,7 +247,7 @@
       "testo": "Cara, il Bepi deve soldi a mezza Chioggia, lo sanno tutti tranne sua figlia. Non è giusto, a diciassette anni si è grandi. Che la Nina lo sappia prima delle due.",
       "esito": {
         "ok": "Teresa voleva che la Nina sapesse, e la Nina ha saputo. Teresa ha l'aria di chi ha fatto una buona azione.",
-        "fallita": "La Nina non ha saputo niente, prima delle due. Teresa ha detto «meglio così» con la faccia di chi non lo pensa."
+        "fallita": "Prima delle due la Nina non sapeva ancora niente. Teresa ha detto «meglio così» con la faccia di chi non lo pensa."
       }
     }
   },
@@ -344,6 +344,10 @@
       "lanterna": {
         "1": "Ho visto la lanterna! Spenta, però. Di giorno non la accende, lo Zeno!",
         "2": "Di giorno il Faro dorme. Torna una sera, quando la luce ha da fare."
+      },
+      "tardiva": {
+        "1": "Presa lo stesso! La domanda era in ritardo, ma il posto in convitto me lo danno da Pasqua.",
+        "2": "Il babbo dirà che Venezia è lontana. È a un'ora di vaporetto, gli dirò io."
       }
     },
     "titolo": "La lettera di Zeno",
@@ -366,6 +370,9 @@
       "esito": {
         "ok": "L'esito è arrivato alla Nina chiuso, col timbro intatto. L'ha aperto da sola, sul Molo, e ha gridato.",
         "fallita": "La busta dell'esame non è arrivata come doveva, chiusa e in tempo. La Nina ha detto grazie lo stesso, coi denti stretti."
+      },
+      "tardiva": {
+        "testo": "La domanda per Venezia l'ho spedita io, in ritardo, con due righe di Don Piero. Domani arriva la risposta, e ce l'ha la postina, che legge tutto. Che arrivi a me entro mezzogiorno. Chiusa."
       }
     },
     "gino": {
@@ -408,7 +415,7 @@
       "testo": "Il babbo è uscito a pescare e il mare si è girato. Zeno stia al Faro con la luce accesa dalle sei alle otto di sera, tutto il tempo. E alle sette portami al Molo, ad aspettarlo. Ti prego. Ti prego.",
       "esito": {
         "ok": "La luce del Faro è rimasta accesa fino alle otto, e la Nina era al Molo ad aspettarlo. Il Bepi è tornato a casa intero, e la Nina ha dormito.",
-        "fallita": "Qualcosa è mancato, la luce del Faro o la Nina al Molo, e la barca del Bepi ha preso la secca. Stanotte la Nina non mi ha scritto niente.",
+        "fallita": "La barca del Bepi ha preso la secca, al buio. Stanotte la Nina non mi ha scritto niente.",
         "lasciato": "Ho lasciato cadere la richiesta della Nina. Nessuno ha tenuto la luce del Faro per il Bepi."
       }
     },
@@ -456,8 +463,8 @@
         "2": "Che Dio mi perdoni la distrazione."
       },
       "fascio": {
-        "1": "Sono tue, piccola. Centosessantotto. Una al mese, per quattordici anni.",
-        "1d": "Sono sue, signorina. Centosessantotto. Una al mese, per quattordici anni.",
+        "1": "Sono tue, piccola. Centosessantotto, legate con lo spago del forno.",
+        "1d": "Sono sue, signorina. Centosessantotto, legate con lo spago del forno.",
         "2": "Leggile piano. Io aspetto fuori, col mare.",
         "2d": "Le legga piano. Io aspetto fuori, col mare."
       },
@@ -480,9 +487,9 @@
     "zeno": {
       "testo": "Il prete custodisce un fascio di lettere che non sa di avere. Sono tue, ma tu non hai filo: falle arrivare a me entro le cinque, che te le porto io. Le ho aspettate anch'io.",
       "esito": {
-        "ok": "Il fascio è uscito dal pozzo ed è arrivato a Zeno prima delle cinque. Le lettere di mia madre, dopo quattordici anni, sono in viaggio.",
-        "fallita": "Il fascio non è uscito dal pozzo, o non è arrivato a Zeno per le cinque. Zeno ha aspettato sulla porta fino a buio.",
-        "lasciato": "Ho lasciato cadere il fascio. Le lettere di mia madre restano nel pozzo, a dieci passi da casa."
+        "ok": "Il fascio è uscito dal pozzo ed è arrivato a Zeno prima delle cinque. Dopo quattordici anni, la voce di mia madre è in viaggio.",
+        "fallita": "Il fascio non è arrivato a Zeno entro le cinque. Zeno ha aspettato sulla porta fino a buio.",
+        "lasciato": "Ho lasciato cadere il fascio. Resta nel pozzo, a dieci passi da casa."
       }
     },
     "teresa": {
@@ -491,7 +498,7 @@
       "r2": "Quelle lettere sono di mia madre. Lasciale arrivare intere.",
       "esito": {
         "ok": "Alle due Teresa era al Forno, e il fascio non l'ha toccato. Davanti alla chiesa è passata con le mani in tasca, apposta.",
-        "fallita": "Teresa non è stata lontana dal fascio come voleva: alle due non era al Forno, o il fascio le è passato per la borsa."
+        "fallita": "Teresa non ce l'ha fatta a stare lontana dal fascio come voleva. Stasera evita di guardarmi."
       }
     },
     "piero": {
@@ -507,7 +514,7 @@
       "testo": "Quello che ho da dire al prete lo dico al Signore, senza intermediari. Il mio segreto resta mio, come il lievito madre. Domani alle due sono al mio Forno, e niente confessione.",
       "esito": {
         "ok": "Alle due Marta era al suo Forno, e il suo segreto non è arrivato al prete. Il pane le è venuto più buono.",
-        "fallita": "Alle due Marta non era al suo Forno, o il suo segreto è finito nel pozzo. Non me l'ha perdonato, ma il pane me l'ha portato lo stesso."
+        "fallita": "Marta non ha avuto la giornata che voleva, col suo forno e il suo segreto. Non me l'ha perdonato, ma il pane me l'ha portato lo stesso."
       }
     },
     "margine": {
@@ -519,7 +526,8 @@
     "scuola": "la scuola (sei bambini)",
     "perline": {
       "febbre": "la febbre",
-      "medicina": "l'unica dose del dottore per la scuola"
+      "medicina": "l'unica dose del dottore per la scuola",
+      "L_aldo": "la lettera dalla terraferma per Aldo"
     },
     "titolo": "La febbre",
     "eco": {
@@ -535,12 +543,12 @@
     },
     "margine": "Uno per sei. E uno che restava.",
     "guida": {
-      "nomina": "Chi porta la medicina, chi ha la febbre? I fili si riconoscono da quello che fanno.",
-      "strappo": "Le nove e le dieci sono strappate: ritessile com'erano, fino alla riga delle undici."
+      "nomina": "Chi porta la medicina, chi scotta, chi legge la posta degli altri, chi esce in barca?",
+      "strappo": "Nove e dieci sono strappate: alle undici ogni filo deve tornare dove lo trova la riga."
     },
     "hint": {
       "spinta": "Il filo con la medicina è il dottore. Quello con la febbre non lo raggiunge nessuno.",
-      "indizio": "Il rammendo è giusto quando alle undici ogni filo è dove lo trova la riga registrata."
+      "indizio": "Alle nove il dottore passa sopra Teresa, alle dieci un bambino della scuola."
     }
   },
   "arc4": {
@@ -576,7 +584,7 @@
       "marta": "Marta vuole che il Gino non se ne vada come Ernesto. Lo dice impastando, senza alzare gli occhi, come si dice una cosa che fa male da trent'anni.",
       "piero": "Don Piero vuole restituire quello che custodisce. Tutto: lettere, segreti, anni. Dice che un pozzo pieno non disseta nessuno.",
       "bepi": "Bepi vuole salutare la Nina come si deve, prima che parta. Non sa come si fa, e non lo chiederà a nessuno, ma lo vuole più della barca.",
-      "zeno": "Zeno vuole chiedere perdono a qualcuno che non c'è più. Non dice a chi, né per che cosa: guarda il mare dalla parte di Chioggia e tace.",
+      "zeno": "Zeno vuole chiedere perdono, e per farlo deve scendere dal Faro. Per lui è più difficile che attraversare la laguna a nuoto.",
       "lunardi": "Il dottor Lunardi vuole che l'isola lo chiami per nome. Ettore. Finora qui lo chiamano «il forestiero», o «il dottore», o niente."
     },
     "persone": {
@@ -591,10 +599,10 @@
         "dottore": "Ho ringraziato il dottore chiamandolo «dottore», come fanno tutti. Ha sorriso lo stesso, ma solo con la bocca."
       },
       "teresa": {
-        "borsa": "Teresa porta nella borsa la posta di tutta l'isola. Se qualcuno la sfiora, lo sa mezza Fondamenta prima di sera.",
+        "borsa": "Per Teresa la posta è sacra, tranne quando la legge lei. Un forestiero che le sfiora la borsa è peggio della febbre.",
         "lettera": "Teresa porta le lettere degli altri da trent'anni. Una per lei non è mai arrivata, e ogni mattina guarda il sacco come chi aspetta.",
         "trentanni": "Teresa conta gli anni da quel giorno del '36: trenta. Marta non li conta, ma li sa a memoria anche lei.",
-        "esame": "Teresa ha letto l'esito della Nina prima di lei. L'ha saputo tutta l'isola, prima di suo padre.",
+        "esame": "Teresa ha aperto l'esito della Nina prima di lei. Per la postina una busta col timbro di Venezia è una tentazione troppo grande.",
         "fascio": "Teresa ha tenuto in mano il fascio di mia madre e ne ha letta una. Una sola, dice. Mi ha chiesto perdono due volte.",
         "dottoreFiducia": "Ho scritto a Teresa che il dottore cura la gente e non legge la posta. Lei dice che chi non legge la posta non sa niente di nessuno.",
         "dottoreSospetto": "Ho promesso a Teresa di tenere il dottore dall'altra parte della Fondamenta. Una promessa da tombolo: costa filo, e lei non lo sa.",
@@ -613,55 +621,62 @@
       "marta": {
         "nodo": "Teresa e Marta, se si incrociano, si annodano: restano ferme un'ora e non si passano niente, nemmeno un saluto. Il nodo resta disegnato nel merletto.",
         "forno": "Nella settimana della febbre il forno di Marta è rimasto aperto, tranne un'ora: quella del Gino. Nessuno ha osato lamentarsi.",
-        "segreto": "Marta tiene ancora la lettera di Ernesto, quella del '36. Non l'ha mai detto al prete, e forse nemmeno al Signore.",
-        "confessione": "Marta non si è confessata. Il suo segreto è ancora suo: pesa uguale, dice, ma è suo.",
+        "segreto": "Marta tiene ancora la lettera di Ernesto, quella del '36. Non la legge più, ma sa dov'è anche al buio.",
+        "confessione": "Marta non si è confessata. Dice che il Signore la conosce già, e che al prete basta il pane della domenica.",
         "fornoChiuso": "Ho scritto a Marta di chiudere il forno un'ora e stare col Gino. Per la prima volta in trent'anni, il pane ha aspettato.",
         "promessa": "Ho promesso a Marta che il Gino guarirà e resterà con lei. Non so ancora perché le faccia tanta paura che qualcuno parta.",
         "perche": "Ho chiesto a Marta che cosa le ha fatto Teresa. Non ha risposto: ha impastato più forte, come se la pasta lo sapesse.",
-        "largo": "Marta gira al largo da Teresa da trent'anni. Le ho scritto di continuare, se le fa bene. Non so se le fa bene."
+        "largo": "Marta gira al largo da Teresa da trent'anni. Le ho scritto di continuare, se le fa bene. Non so se le fa bene.",
+        "segretoPozzo": "Il segreto di Marta, la lettera di Ernesto, adesso è nel pozzo del prete. Lei dice che il pozzo è profondo, e il prete un po' sordo."
       },
       "gino": {
         "pagella": "La maestra ha scritto BRAVO sulla pagella del Gino. In italiano. In aritmetica, meno: lì c'è scritto «si impegni», che è un altro modo di dire.",
         "febbre": "Il Gino con la febbre resta a letto: per una volta non corre. Chi gli passa accanto, però, se la prende.",
         "tempesta": "Nella tempesta il Gino è scappato a guardare le onde invece di stare a casa. Marta l'ha asciugato in silenzio, che è peggio di una sgridata.",
         "guarito": "Il Gino è guarito nella notte più lunga. Ha mangiato due pagnotte e ha ricominciato a correre prima di colazione.",
-        "faro": "Il Gino ha visto la lanterna di giorno, spenta. Zeno gli ha detto di tornare una sera, quando la luce lavora.",
+        "faro": "Il Gino ha visto la lanterna di giorno, spenta. Da allora conta sulle dita le sere che mancano.",
         "casa": "Ho scritto al Gino che stasera il Faro è di Zeno e della luce. Mi ha risposto con un faro disegnato, arrabbiato, con gli occhi.",
         "finestra": "Il Gino guarderà la tempesta dalla finestra, con la mamma accanto. Dice che è uguale. Non è uguale, ma va bene così."
       },
       "nina": {
-        "ammessa": "La Nina è ammessa al magistrale di Venezia, con un posto in convitto da Pasqua. Ha già deciso dove si siederà: in prima fila, vicino alla finestra.",
+        "ammessa": "Ammessa: la Nina andrà a studiare a Venezia, in convitto da Pasqua. Ha già deciso dove si siederà: in prima fila, vicino alla finestra.",
         "venezia": "La Nina tiene sotto il cuscino l'orario dei vaporetti per Venezia. Lo sa a memoria, come Leopardi, e lo ripete per addormentarsi.",
         "valigia": "La Nina ha la valigia pronta sotto il letto. È il segreto peggio tenuto dell'isola: lo sa perfino il pozzo.",
         "febbre": "La Nina ha preso la febbre dal Gino, di mano in mano. Legge Manzoni a letto, e dice che è il momento giusto.",
-        "debito": "La Nina ha saputo del debito. Il Bepi non parla più a nessuno."
+        "debito": "La Nina ha saputo del debito. Il Bepi non parla più a nessuno.",
+        "tardiva": "La domanda della Nina è partita in ritardo, per colpa del mio merletto. A Venezia l'hanno presa lo stesso, e io ho ricominciato a respirare."
       },
       "zeno": {
         "lettera": "Zeno ha tenuto per tutto questo tempo la lettera della nonna per me. Gliel'aveva data lei, alle due, passandogli sopra come un'onda.",
-        "calligrafia": "Zeno passa i pomeriggi a guardare il mare dalla parte di Chioggia. Dice che una calligrafia non si dimentica, nemmeno dopo quattordici anni."
+        "calligrafia": "Zeno riconosce una calligrafia a quattordici anni di distanza. Io la mia, certe sere, non la riconosco.",
+        "chi": "Adesso so a chi Zeno vuole chiedere perdono: a mia madre. Per che cosa, non lo so ancora."
       },
       "piero": {
         "trabocca": "Anche i pozzi si riempiono. Con tre segreti Don Piero trabocca, e al primo incrocio da sopra dà tutto quello che custodisce, lettere comprese.",
         "messa": "Don Piero ha detto la messa per i sani senza ammalarsi. Dice che il merito è del Signore; io so che un po' è del tombolo.",
         "campane": "Nella tempesta Don Piero ha suonato le campane come una volta. Le barche in mare le hanno sentite, e hanno pregato con lui.",
-        "febbre": "Don Piero ha preso la febbre e ha detto messa lo stesso. Dice che il Signore perdona. La febbre no.",
+        "febbre": "Don Piero si è ammalato per dire la messa ai sani. Credo che un prete sano, in quest'isola, si senta inutile.",
         "curato": "Don Piero è guarito, e domenica la campana la suonerà il Gino. Stonata, ha detto il prete, come tutto qui."
       },
       "livia": {
         "lettere": "Ho letto tre lettere di mia madre. Le altre centosessantacinque le leggo piano, una per sera, come un rosario."
       },
       "ada": {
-        "nome": "Ogni notte appunto il mio nome su un filo. Chi non lo riceve, il giorno dopo mi chiama «signorina», e poi niente.",
+        "nome": "Chi mi dimentica non mi chiama più Ada: «signorina», «la piccola», poi niente. Ho cominciato a contare chi mi saluta.",
         "g09": "Con il dottore è arrivata la febbre, o forse il contrario. L'isola guarda Lunardi come si guarda il mare d'inverno: da lontano.",
         "g10": "Nella settimana della febbre ho capito una cosa: chi cura deve stare sopra, e chi ama vuole stare vicino. Non è sempre la stessa cosa.",
-        "g11": "Teresa e Marta si sono annodate sul mio tombolo, o si sono girate al largo. In tutti e due i casi, il nodo è lì.",
-        "g12": "Da stanotte appunto il mio nome su un filo. Se non lo faccio, l'isola si dimentica di me un poco alla volta, come si dimentica una canzone.",
-        "g13": "La notte più lunga: quattro malati, un dottore, il filo contato. Ho provato a non scegliere, e il filo mi ha detto quanto costa.",
-        "g14": "Mia madre è viva. Si chiama Livia. Ho letto la lettera della nonna tre volte, poi l'ho messa sotto il cuscino.",
-        "g15": "Durante la tempesta il filo nero è tornato sul bordo del merletto. Qualcuno, da fuori, tesse verso di noi.",
-        "g16": "Adesso so dov'erano le lettere di mia madre: a dieci passi da casa, sotto le tovaglie dell'altare, da quattordici anni.",
+        "g11": "Il primo nodo sul mio tombolo. Trent'anni stretti in un'ora sola, sulla soglia del forno.",
+        "g12": "Mi chiamo Ada Vio. Lo scrivo qui, nel caso un giorno serva anche a me.",
+        "g13": "Stanotte ho scelto chi curare: due su quattro. La nonna nel '58 ha fatto lo stesso conto, e adesso so che cosa si prova.",
+        "g14": "Ho letto la lettera della nonna tre volte, poi l'ho messa sotto il cuscino. Stanotte dormirò con mia madre sotto la testa.",
+        "g15": "Qualcuno, da fuori, tesse verso di noi. Non ho paura: è come quando si sente un passo che si conosce.",
+        "g16": "Dieci passi da casa, quattordici anni. Ogni volta che passavo davanti alla chiesa, mia madre era lì dentro.",
         "arc3": "Ho rammendato il merletto del 1958. La nonna sapeva benissimo chi lasciava indietro: lo ha scritto a margine, con la sua grafia più ordinata.",
-        "arc4": "Ho visto mia madre salire sul vaporetto delle nove, nel 1951. Avevo due anni e dormivo. La nonna, a margine: «Non ancora.»"
+        "arc4": "Ho visto mia madre salire sul vaporetto delle nove, nel 1951. Avevo due anni e dormivo. La nonna, a margine: «Non ancora.»",
+        "g11largo": "Stanotte nessun nodo: le due donne si sono girate intorno, come da trent'anni. Il nodo aspetta.",
+        "g13uno": "Stanotte ho curato una persona sola. Il filo contato non aspetta chi esita, e io ho esitato.",
+        "g13nessuno": "Stanotte non ho curato nessuno. Quattro malati, un dottore solo, e io a guardare il filo finire.",
+        "g16pozzo": "Domani passerò davanti alla chiesa senza guardare, come si fa con chi ci ha offeso. Mia madre è lì dentro, e io fuori."
       }
     },
     "domande": {
@@ -670,8 +685,8 @@
       },
       "anno1958": {
         "cassapanca": "Nella cassapanca c'è un merletto datato 1958. Se dico quell'anno, Teresa cambia strada e Marta si fa il segno della croce.",
-        "notte": "Quattro malati e un medico solo, e il filo contato. Nella cassapanca, il merletto del 1958 ha la stessa forma di stanotte.",
-        "risposta": "Nel 1958 la nonna salvò i sei bambini della scuola e lasciò la febbre ad Aldo, il fidanzato di Teresa.",
+        "notte": "Dove guardare: la nonna deve aver già tessuto una notte così, col filo contato. Nella cassapanca c'è il merletto del '58.",
+        "risposta": "Il '58 fu l'anno della febbre: la nonna scelse la scuola, e Aldo, il fidanzato di Teresa, morì aspettando il dottore.",
         "pista": "Dove guardare: con la febbre, i vecchi dell'isola dicono «come nel cinquantotto» e cambiano discorso. Teresa parla di un certo Aldo solo quando piove."
       },
       "chiL": {
@@ -682,31 +697,31 @@
       },
       "madre": {
         "apre": "La nonna ha mandato via mia madre col vaporetto delle nove. Perché? Nella cassapanca c'è un merletto del 1951 che non ho ancora aperto.",
-        "risposta": "Mia madre voleva un merletto aperto, dove la gente sceglie da sola. La nonna, per paura, la tessé al Molo all'ora del vaporetto.",
+        "risposta": "Mia madre voleva un merletto aperto, dove la gente sceglie da sola. La nonna ebbe paura, e la mandò via.",
         "pista": "Dove guardare: il merletto del 1951 aspetta ancora nella cassapanca. Se dico quell'anno, Zeno guarda il mare dalla parte di Chioggia."
       },
       "pozzo": {
         "pista": "Don Piero custodisce qualcosa che non sa di avere. Dove guardare: un pozzo trabocca quando tiene tre segreti.",
-        "risposta": "Don Piero custodiva le lettere di mia madre: centosessantotto, una al mese per quattordici anni. Non sapeva di averle.",
-        "sepolte": "Le lettere di mia madre sono rimaste nel pozzo. Dove guardare: per liberarle bisogna farlo traboccare, con tre segreti."
+        "risposta": "Il pozzo di Don Piero custodiva le lettere che mia madre mi scriveva. Lui non lo sapeva: le teneva come si tengono i peccati degli altri.",
+        "sepolte": "Il fascio è rimasto nel pozzo di Don Piero. Dove guardare: per liberarlo bisogna farlo traboccare, con tre segreti."
       },
       "filoNero": {
-        "pista": "Dove guardare: durante la tempesta il filo nero è tornato sul bordo alto del merletto. In una delle prime bottiglie, L. parlava del nero di seppia."
+        "pista": "Dove guardare: in una delle prime bottiglie L. parlava del nero di seppia. Il filo nero arriva sempre dal lato del Faro."
       }
     },
     "archivio": {
       "arc3": {
-        "aldo": "Aldo era il fidanzato di Teresa. L'estate dopo l'avrebbe portata in terraferma, e la nonna non voleva che nessuno partisse.",
-        "scuola": "Il dottor Bortolo aveva una dose sola. La nonna lo mandò alla scuola, dai sei bambini. Ad Aldo non arrivò nessuno."
+        "aldo": "Teresa aveva in borsa una lettera per Aldo, dalla terraferma: un lavoro per l'estate. L'ha letta, come legge tutto. Non gliel'ha mai portata.",
+        "scuola": "Sei bambini contro uno. La nonna ha fatto il conto, e io, al suo posto, l'avrei fatto uguale. È questo che mi spaventa."
       },
       "arc4": {
         "valigia": "Zeno portò la valigia a mia madre credendo a una gita. Da allora non se lo perdona, e guarda il mare dalla parte di Chioggia.",
-        "lettera": "Prima di salire sul vaporetto, mia madre diede a Don Piero una lettera per me. Finì nel pozzo, la prima di tutte."
+        "lettera": "La prima lettera di mia madre Don Piero l'ha presa dalle sue mani, sul Molo, prima del vaporetto. Diceva già «Ada mia»."
       }
     },
     "lettere": {
       "bottiglia_nodo_nero": "Dopo la tempesta la laguna ha portato una bottiglia vuota. Dentro, un nodo di filo nero. Nessuno scrive più: qualcuno tesse.",
-      "fascio": "Il fascio delle lettere di mia madre: tre leggibili e altre centosessantacinque, legate con lo spago del forno. Una al mese, per quattordici anni.",
+      "fascio": "Il fascio di mia madre: tre lettere si leggono ancora, le altre l'umido del pozzo le ha fatte tornare carta. Le tengo lo stesso.",
       "clotilde": "La lettera della nonna è scritta con la grafia color seppia dei margini del Libro. In fondo, una lettera sola: C. Come sul biglietto appuntato al tombolo."
     }
   },
