@@ -23,6 +23,7 @@ export interface OpzioniCampanile {
   ordini?: number;
   /** palina del Pilastro 1 sulla cima */
   palina?: boolean;
+  /** altezza della palina del Pilastro 1 (8 m secondo capisaldi.json) */
   altezzaPalina?: number;
   /** aperture della cella: bifore o trifore */
   aperture?: 2 | 3;
@@ -175,48 +176,78 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   ];
   const campana = new THREE.LatheGeometry(profilo, 10);
   campana.deleteAttribute('uv');
-  for (let lato = 0; lato < 2; lato++) {
+  // le tre campane: la grande davanti, le due minori sui fianchi
+  for (let lato = 0; lato < 3; lato++) {
     const rot = (lato * Math.PI) / 2;
     const pc = new THREE.Vector3(0, yAp + 0.6, L / 2 - spessore - 0.25).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
-    b.aggiungi(campana, { matrice: mat(pc, [0, 0, 0], lato === 0 ? 1 : 0.8), colore: PALETTE.bronzo, gradiente: { basso: 0.8, alto: 1.15, y0: yAp + 0.6, y1: yAp + 1.6 } });
+    b.aggiungi(campana, { matrice: mat(pc, [0, 0, 0], lato === 0 ? 1 : lato === 1 ? 0.8 : 0.65), colore: PALETTE.bronzo, gradiente: { basso: 0.8, alto: 1.15, y0: yAp + 0.6, y1: yAp + 1.6 } });
     b.aggiungi(geoBoxC(0.25, 0.3, 1.4), { matrice: mat(pc.clone().add(new THREE.Vector3(0, 1.2, 0)), [0, rot + Math.PI / 2, 0]), colore: PALETTE.legnoScuro, piatto: true });
   }
-  // cornice sommitale
+  // terrazza sommitale: cornice, pavimento di lastre, parapetto basso
   const yTop = hF + hC;
-  b.aggiungi(geoBoxC(L + 0.5, 0.22, L + 0.5), { matrice: mat([0, yTop + 0.11, 0]), colore: PALETTE.calce, piatto: true });
+  const lt = L + 0.5;
+  b.aggiungi(geoBoxC(lt, 0.22, lt), { matrice: mat([0, yTop + 0.11, 0]), colore: PALETTE.calce, piatto: true });
+  b.aggiungi(geoBoxC(lt - 0.5, 0.04, lt - 0.5), { matrice: mat([0, yTop + 0.24, 0]), colore: PALETTE.gneissChiaro, variazione: 0.04, piatto: true });
+  const yPav = yTop + 0.26;
+  const hPar = 0.55;
+  for (let lato = 0; lato < 4; lato++) {
+    const rot = (lato * Math.PI) / 2;
+    const pc = new THREE.Vector3(0, yPav, lt / 2 - 0.13).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
+    b.aggiungi(geoBoxC(lt, hPar, 0.26), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar / 2, 0)), [0, rot, 0]), colore: PALETTE.calce, gradiente: { basso: 0.9, alto: 1.02, y0: yPav, y1: yPav + hPar }, piatto: true });
+    b.aggiungi(geoLastra(lt + 0.04, 0.08, 0.34, rng.intero(0, 1e6), 0.03), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar, 0)), [0, rot, 0]), colore: PALETTE.gneissChiaro, piatto: true });
+  }
 
-  // cappello di piode: piramide a gradoni con lastre
-  const hTetto = 3.2;
-  const base = L / 2 + 0.45;
+  // cuspide di piode al centro della terrazza: piramide a gradoni
+  const hTetto = 3.6;
+  const base = L * 0.31;
   const strati = 5;
-  for (let s = 0; s < strati; s++) {
-    const t0 = s / strati;
-    const t1 = (s + 1) / strati;
+  for (let st = 0; st < strati; st++) {
+    const t0 = st / strati;
+    const t1 = (st + 1) / strati;
     const r0 = base * (1 - t0) * Math.SQRT2;
     const r1 = base * (1 - t1) * Math.SQRT2;
     const g = new THREE.CylinderGeometry(r1, r0 + 0.04, (hTetto / strati) * 1.05, 4, 1, false);
     g.deleteAttribute('uv');
-    g.translate(0, (hTetto / strati) / 2, 0);
+    g.translate(0, hTetto / strati / 2, 0);
     b.aggiungi(g, {
-      matrice: mat([0, yTop + 0.22 + t0 * hTetto, 0], [0, Math.PI / 4 + rng.centrato(0.02), 0]),
-      colore: mescola(PALETTE.piode, s % 2 === 0 ? PALETTE.piodeChiare : PALETTE.piodeScure, 0.35),
+      matrice: mat([0, yPav + t0 * hTetto, 0], [0, Math.PI / 4 + rng.centrato(0.02), 0]),
+      colore: mescola(PALETTE.piode, st % 2 === 0 ? PALETTE.piodeChiare : PALETTE.piodeScure, 0.35),
       variazione: 0.06,
       piatto: true,
     });
   }
-  const yApice = yTop + 0.22 + hTetto;
+  // zoccolo della cuspide e croce di ferro in cima
+  b.aggiungi(geoBoxC(base * 2 + 0.2, 0.35, base * 2 + 0.2), { matrice: mat([0, yPav + 0.17, 0]), colore: PALETTE.calce, piatto: true });
+  const yApice = yPav + hTetto;
+  b.aggiungi(geoBoxC(0.05, 0.9, 0.05), { matrice: mat([0, yApice + 0.4, 0]), colore: PALETTE.ferro, piatto: true });
+  b.aggiungi(geoBoxC(0.45, 0.05, 0.05), { matrice: mat([0, yApice + 0.6, 0]), colore: PALETTE.ferro, piatto: true });
+  // botola di legno da cui si esce sulla terrazza (dalla scala interna)
+  b.aggiungi(geoBoxC(0.8, 0.06, 0.8), { matrice: mat([-(lt / 2 - 0.75), yPav + 0.03, -(lt / 2 - 0.75)]), colore: PALETTE.legnoVecchio, piatto: true });
+  b.aggiungi(geoBoxC(0.7, 0.02, 0.06), { matrice: mat([-(lt / 2 - 0.75), yPav + 0.07, -(lt / 2 - 0.75) + 0.2]), colore: PALETTE.ferro, piatto: true });
 
-  // Pilastro 1: colonnina di bronzo sull'apice con targa del 2120, e la palina
+  // Pilastro 1 sulla terrazza, accanto alla cuspide: colonnina di bronzo, targa del 2120, chiodo e palina
   const punti: Record<string, THREE.Vector3> = {};
-  b.aggiungi(geoCilindro(0.16, 0.2, 0.9, 8), { matrice: mat([0, yApice - 0.2, 0]), colore: PALETTE.bronzo, gradiente: { basso: 0.8, alto: 1.1, y0: yApice, y1: yApice + 0.7 }, piatto: true });
-  b.aggiungi(geoCilindro(0.22, 0.17, 0.1, 8), { matrice: mat([0, yApice + 0.7, 0]), colore: PALETTE.bronzoScuro, piatto: true });
-  const mTarga = mat([0, yApice + 0.35, 0.18]);
-  b.aggiungi(geoBoxC(0.2, 0.22, 0.015), { matrice: mTarga, colore: PALETTE.ottone });
-  numero(b, '1', mTarga.clone().multiply(mat([0, 0.035, 0.008])), 0.08, PALETTE.bronzoScuro);
-  numero(b, '2120', mTarga.clone().multiply(mat([0, -0.065, 0.008])), 0.032, PALETTE.bronzoScuro, 0.003);
-  punti['chiodo'] = new THREE.Vector3(0, yApice + 0.82, 0);
+  const px = lt / 2 - 0.62;
+  const pz = lt / 2 - 0.62;
+  const hPil = 1.15;
+  b.aggiungi(geoCilindro(0.17, 0.21, 0.1, 8), { matrice: mat([px, yPav, pz]), colore: PALETTE.bronzoScuro, piatto: true });
+  b.aggiungi(geoCilindro(0.15, 0.17, hPil, 8), { matrice: mat([px, yPav + 0.1, pz]), colore: PALETTE.bronzo, gradiente: { basso: 0.75, alto: 1.1, y0: yPav, y1: yPav + hPil }, piatto: true });
+  b.aggiungi(geoCilindro(0.2, 0.16, 0.1, 8), { matrice: mat([px, yPav + hPil + 0.1, pz]), colore: PALETTE.bronzoScuro, piatto: true });
+  const mTarga = mat([px, yPav + hPil * 0.62, pz], [0, Math.PI / 4, 0]).multiply(mat([0, 0, 0.155]));
+  b.aggiungi(geoBoxC(0.22, 0.26, 0.015), { matrice: mTarga, colore: PALETTE.ottone });
+  numero(b, '1', mTarga.clone().multiply(mat([0, 0.045, 0.008])), 0.09, PALETTE.bronzoScuro);
+  numero(b, '2120', mTarga.clone().multiply(mat([0, -0.075, 0.008])), 0.035, PALETTE.bronzoScuro, 0.003);
+  const yChiodo = yPav + hPil + 0.2;
+  // chiodo sulla sommità del pilastro (testa a cupola)
+  b.aggiungi(geoCilindro(0.045, 0.047, 0.012, 12), { matrice: mat([px, yChiodo, pz]), colore: PALETTE.ottone });
+  punti['chiodo'] = new THREE.Vector3(px, yChiodo + 0.02, pz);
+  punti['terrazza'] = new THREE.Vector3(0.0, yPav, lt / 2 - 0.9);
+  punti['botolaTerrazza'] = new THREE.Vector3(-(lt / 2 - 0.75), yPav, -(lt / 2 - 0.75));
   if (opz.palina ?? true) {
-    punti['cima'] = aggiungiPalina(b, new THREE.Vector3(0, yApice + 0.8, 0), opz.altezzaPalina ?? 9, 1.0, 0.075);
+    // la palina sta su un collare di ferro accanto al chiodo
+    const bp = new THREE.Vector3(px - 0.26, yPav, pz + 0.05);
+    b.aggiungi(geoCilindro(0.07, 0.08, 0.5, 6), { matrice: mat(bp), colore: PALETTE.ferro });
+    punti['cima'] = aggiungiPalina(b, bp.clone().add(new THREE.Vector3(0, 0.5, 0)), opz.altezzaPalina ?? 8, 1.0, 0.075);
   }
   punti['porta'] = new THREE.Vector3(0, 0, L / 2 + 0.8);
   punti['campane'] = new THREE.Vector3(0, yAp + 1, 0);
@@ -228,8 +259,13 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
     gruppo,
     collider: [
       box(0, (yTop - interr) / 2, 0, L / 2 + 0.1, (yTop + interr) / 2, L / 2 + 0.1, 'muro'),
-      box(0, yTop + hTetto / 2, 0, base * 0.6, hTetto / 2, base * 0.6, 'tetto'),
-      cil(0, yApice - 0.2, 0, 0.22, 1.0, 'caposaldo'),
+      box(0, yTop + 0.13, 0, lt / 2, 0.13, lt / 2, 'calpestabile'),
+      box(0, yPav + hPar / 2, lt / 2 - 0.13, lt / 2, hPar / 2, 0.13, 'muro'),
+      box(0, yPav + hPar / 2, -(lt / 2 - 0.13), lt / 2, hPar / 2, 0.13, 'muro'),
+      box(lt / 2 - 0.13, yPav + hPar / 2, 0, 0.13, hPar / 2, lt / 2, 'muro'),
+      box(-(lt / 2 - 0.13), yPav + hPar / 2, 0, 0.13, hPar / 2, lt / 2, 'muro'),
+      box(0, yPav + hTetto / 2, 0, base + 0.1, hTetto / 2, base + 0.1, 'tetto'),
+      cil(px, yPav, pz, 0.21, hPil + 0.2, 'caposaldo'),
     ],
     ingombro: ingombroDa(gruppo),
     punti,
