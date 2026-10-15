@@ -282,8 +282,8 @@ passo 1 allora non trova niente e non fa nulla.
 
 ## Numeri (Chromium SwiftShader, 1280×720)
 
-`installaCorbella` impiega circa 3 s (5 s in Node). Il popolamento ha 54 zone cotte in circa 110
-mesh, con LOD per case e muri: 552 mila triangoli vicini, cioè 0,8-0,9 milioni nell'inquadratura
+`installaCorbella` impiega circa 3 s (5 s in Node). Il popolamento ha 54 zone, ognuna cotta in al più
+due mesh col materiale del mondo, con LOD per case e muri: 552 mila triangoli vicini, cioè 0,8-0,9 milioni nell'inquadratura
 insieme al motore, con 90-165 draw call. Ci sono 2838 collider, 320 lumi, 102 punti d'interazione,
 58 case, 2785 m di muri e 33 maniglie di personaggi.
 

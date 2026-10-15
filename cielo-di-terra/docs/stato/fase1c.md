@@ -157,7 +157,7 @@ solo motore (senza regia, per gli screenshot del motore); `?debug` statistiche; 
   il primo rilievo 3-1, la strada del Messo e il lato 7-8, la seconda notte, la prova, la
   lettera di Rosa); poi salva e controlla «Continua». Le foto (`docs/shots/fase1/`) sono state
   guardate una per una; `e2e.json` ha il riassunto della corsa.
-- `npm run build` e `npm run shots` (le 6 foto del motore, `?senza-titolo`) restano verdi.
+- `npm run build` e `npm run shots` (le 6 foto del motore, prese dal canvas con la regia ferma sul titolo) restano verdi.
 
 ## Segnaposto (da sostituire con `popolamento`)
 
