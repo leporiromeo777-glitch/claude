@@ -25,6 +25,8 @@ export interface ProfiloSpaziale {
   max: number;
   /** Fattore di attenuazione (0 = solo direzione, nessuna attenuazione). */
   rolloff: number;
+  /** Pan a potenza costante invece di HRTF (per i suoni gravi, dove l'HRTF non serve). */
+  semplice?: boolean;
 }
 
 /** Ciò che il motore mette a disposizione di uno strato. */

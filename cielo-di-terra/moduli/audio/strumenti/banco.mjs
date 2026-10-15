@@ -64,7 +64,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   await mkdir(cartella, { recursive: true });
   const misure = [];
   for (const id of tutte) {
-    const m = await banco.rendi(id, { wav, ...(strati ? { strati } : {}) });
+    const m = await banco.rendi(id, { wav, semplice: args.includes('--semplice'), ...(strati ? { strati } : {}) });
     if (strati) m.id = `${m.id}[${strati.join('+')}]`;
     if (m.wav) {
       await writeFile(path.join(cartella, `${m.id}.wav`), Buffer.from(m.wav, 'base64'));

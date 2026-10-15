@@ -247,6 +247,7 @@ export async function rendi(
     wav?: boolean;
     sr?: number;
     strati?: NomeStrato[];
+    semplice?: boolean;
     muto?: boolean;
     volumi?: Partial<Record<NomeBus, number>>;
     limitatore?: boolean;
@@ -262,6 +263,7 @@ export async function rendi(
     limitatore: opz.limitatore ?? prova.limitatore ?? false,
     ambienti: prova.ambienti === true,
     ...(opz.strati ? { strati: opz.strati } : {}),
+    ...(opz.semplice ? { spazializzazione: 'semplice' as const } : {}),
     musicaAlba: false,
     battito: false,
   });

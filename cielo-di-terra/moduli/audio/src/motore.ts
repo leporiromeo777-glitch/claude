@@ -63,6 +63,11 @@ export interface OpzioniMotore {
   ambienti?: boolean;
   /** Quali strati d'ambiente creare (predefinito: tutti). Utile per prove e per scene particolari. */
   strati?: readonly NomeStrato[];
+  /**
+   * Spazializzazione: 'hrtf' (predefinita, migliore in cuffia) o 'semplice'
+   * (pan a potenza costante, molto più leggera, per dispositivi deboli).
+   */
+  spazializzazione?: 'hrtf' | 'semplice';
   /** Fa partire da solo il tema dell'alba (predefinito true). */
   musicaAlba?: boolean;
   /**
@@ -607,7 +612,7 @@ export class AudioEngine {
     const ctx = this.ctx as BaseAudioContext;
     const p = vettoreSicuro(posizione);
     const pan = ctx.createPanner();
-    pan.panningModel = 'HRTF';
+    pan.panningModel = profilo.semplice || this.opz.spazializzazione === 'semplice' ? 'equalpower' : 'HRTF';
     pan.distanceModel = 'inverse';
     pan.refDistance = profilo.rif;
     pan.maxDistance = profilo.max;

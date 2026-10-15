@@ -3,9 +3,9 @@
  * le barche a vela rossa sul lago e i lampioni della piazza.
  */
 import { Matrix4, Mesh, Vector3, type Material } from 'three';
-import { DEG, LAYOUT, METERS_PER_DEG } from '../world/constants';
+import { DEG, LAYOUT } from '../world/constants';
 import { cylToWorld } from '../world/cylinder';
-import { boxAt, cylinderAt, type ColliderWorld } from '../world/colliders';
+import { cylinderAt, type ColliderWorld } from '../world/colliders';
 import { mulberry32 } from '../world/noise';
 import { WATER_HEIGHT, surfaceHeight } from '../world/terrain';
 import { GeomBuilder, PRIMS } from '../render/geomBuilder';
@@ -84,8 +84,6 @@ export function buildProps(material: Material, colliders: ColliderWorld): PropsR
     lamps.push(cylToWorld(z, th, g + 3.2));
     colliders.add(cylinderAt(z, th, g, 0.12, 3.4, 'lampione'));
   }
-  void METERS_PER_DEG;
-  void boxAt;
 
   const mesh = new Mesh(b.build(), material);
   mesh.name = 'oggetti-di-scena';

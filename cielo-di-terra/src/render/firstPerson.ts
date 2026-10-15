@@ -42,6 +42,7 @@ export class FirstPersonVelo {
   private tasselVel = 0;
   private tasselPitch = 0;
   private open = 0;
+  private time = 0;
 
   constructor(fov: number, aspect: number) {
     this.camera = new PerspectiveCamera(fov, aspect, 0.02, 10);
@@ -180,7 +181,8 @@ export class FirstPersonVelo {
     const c = 4.5;
     this.tasselVel += (k * (target - this.tasselAngle) - c * this.tasselVel) * dt;
     this.tasselAngle += this.tasselVel * dt;
-    this.tasselPitch += (0.15 * Math.sin(performance.now() * 0.003) - this.tasselPitch) * Math.min(1, dt * 2);
+    this.time += dt;
+    this.tasselPitch += (0.15 * Math.sin(this.time * 3) - this.tasselPitch) * Math.min(1, dt * 2);
     this.tassel.rotation.set(this.tasselPitch, 0, this.tasselAngle);
   }
 
