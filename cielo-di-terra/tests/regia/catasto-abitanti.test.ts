@@ -211,6 +211,16 @@ describe('Abitanti', () => {
       passi(a, ctx, 2);
       expect(a.modoOttavio).toBe('fermo');
       expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(6);
+      // la regia chiede il dialogo nello stesso passo in cui lo mette fermo: per il direttore dei
+      // dialoghi è già lì (niente avanti e indietro fra «fermo» e «raggiunge»)
+      a.ottavioFermo(1071.6, 38.5);
+      passi(a, ctx, 1);
+      a.ottavioFermo(1174, 58.5, 31);
+      expect(a.distanzaOttavioDa(elvira.z, elvira.theta)).toBeLessThan(6);
+      a.ottavioRaggiunge();
+      a.update(1 / 60, ctx);
+      expect(a.modoOttavio).toBe('fermo');
+      expect(a.distanzaDa('ottavio', elvira.z, elvira.theta)).toBeLessThan(6);
       // lontano davvero: atterra vicino a Elvira (in volo non è «presente»)
       a.ottavioFermo(1071.6, 38.5);
       passi(a, ctx, 1);

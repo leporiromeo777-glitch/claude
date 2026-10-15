@@ -213,6 +213,16 @@ export class Abitanti {
     this.metaCammino = null;
   }
 
+  /**
+   * Distanza fra Ottavio e un punto, contando dove la storia lo vuole: fermo davanti al fienile
+   * c'è già, anche se la figura ci arriva al passo dopo.
+   */
+  distanzaOttavioDa(z: number, theta: number): number {
+    const o = this.ottavio;
+    if (o.tipo === 'fermo') return surfaceDistance(o.z, o.theta, z, theta);
+    return this.distanzaDa('ottavio', z, theta);
+  }
+
   get modoOttavio(): string {
     return this.ottavio.tipo;
   }
@@ -370,6 +380,7 @@ export class Abitanti {
         // doveva già stare vicino a Elvira (fermo davanti al fienile): ci va e basta
         if (o.poi.tipo === 'fermo' && surfaceDistance(o.poi.z, o.poi.theta, ctx.elvira.z, ctx.elvira.theta) <= OTTAVIO_A_PORTATA) {
           this.ottavio = o.poi;
+          this.aggiornaOttavio(dt, ctx); // subito al suo posto (fermo), non al passo dopo
           return;
         }
         const p = n.presente ? n.posizione() : null;

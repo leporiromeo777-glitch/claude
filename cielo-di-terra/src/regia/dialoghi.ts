@@ -78,7 +78,7 @@ export class DirettoreDialoghi {
       // lontano (atterrato dall'altra parte della piazza, fermo davanti al fienile) o in volo:
       // viene incontro (o scende dal cielo)
       const e = this.r.game.player.cyl;
-      if (a.modoOttavio !== 'accompagna' && a.modoOttavio !== 'cielo' && a.distanzaDa('ottavio', e.z, e.theta) > DISTANZA_PER_PARLARE) {
+      if (a.modoOttavio !== 'accompagna' && a.modoOttavio !== 'cielo' && a.distanzaOttavioDa(e.z, e.theta) > DISTANZA_PER_PARLARE) {
         a.ottavioRaggiunge();
         return false;
       }
