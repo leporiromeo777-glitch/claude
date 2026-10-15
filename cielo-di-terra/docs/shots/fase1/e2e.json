@@ -1,9 +1,9 @@
 {
-  "data": "2026-10-15T09:01:51.246Z",
+  "data": "2026-10-15T09:05:02.930Z",
   "esito": "fallita",
-  "secondi": 141,
+  "secondi": 97,
   "passi": [
-    "pronto in 9.9 s",
+    "pronto in 6.1 s",
     "— Titolo",
     "  📷 00-titolo.png",
     "  nella capsula 5, 05:38, giorno 1",
@@ -30,7 +30,6 @@
     "  ✓ la lettera letta fino in fondo (flag:lettera_letta e passo:pr_lettera completato)",
     "  ✓ la prima Meta (flag:prima_meta_vista e taccuino:i_ombre_meta)",
     "— P0.6 Le campane",
-    "  (animazioni ancora in corso per 05-meridiana)",
     "  📷 05-meridiana.png",
     "  risposte: Dove sono? / Dove sono? / Che anno è? / Chi mi ha svegliata? / Perché no? / … / Che cosa sta morendo? / … / Va bene. / …",
     "  ✓ prologo completato (missione:prologo completata e missione:m01_castagno_vuoto attiva)",
@@ -62,7 +61,6 @@
     "  annunciata: Con sei colleghi. / Da chi? / Che cosa scrivono? / Anche a me hanno scritto così. / …",
     "  ✓ tre velati (contatore:velati>=3 e passo:m1_velati completato)",
     "— M1.7 Il Messo",
-    "  (animazioni ancora in corso per 10-ottavio)",
     "  📷 10-ottavio.png",
     "  ottavio: 12 risposte",
     "  ✓ Ottavio, il Messo (passo:m1_ottavio completato e flag:aspetta_brace_sbloccato)",
