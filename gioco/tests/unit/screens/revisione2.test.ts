@@ -2,7 +2,8 @@
 /**
  * Revisione 2, gruppo schermi-atto1 (docs/REVISIONE-2.md, playtest-2.json):
  * - Q022: nel Merletto del giorno chi ha stranezze che stanotte non contano non è «senza stranezze»;
- * - Q036: dopo il finale vero il titolo dice a video «la Tovaglia è sul Telaio»;
+ * - Q036: dopo il finale vero il titolo dice a video «la Tovaglia è sul Telaio» (se il Telaio della storia
+ *   di adesso la mostra; altrimenti la riga a video dice della campana intonata);
  * - Q059: la regola del giorno e del libero ha l'icona di un foglio, non una nota musicale;
  * - Q068: la freccia di scorrimento del titolo sta sotto il menu, fuori dall'area che scorre;
  * - Q072: «TRAMA» nei Crediti non va a capo (CSS).
@@ -14,7 +15,7 @@ import type { SaveData, Viewport } from '../../../src/core/types';
 import { GLYPHS } from '../../../src/core/ui/glyphs';
 import { GiornalieroScene } from '../../../src/screens/GiornalieroScene';
 import { TitoloScene } from '../../../src/screens/TitoloScene';
-import { titleItems } from '../../../src/screens/titleMenu';
+import { titleItems, tovagliaOnLoom } from '../../../src/screens/titleMenu';
 import { chiInfo } from '../../../src/screens/chi';
 import { dailySpec, generate } from '../../../src/engine/index';
 import { resetScreensState, setTodayOverride } from '../../../src/screens/state';
@@ -109,9 +110,10 @@ describe('Q036 e Q068: titolo', () => {
     document.body.innerHTML = '';
   });
 
-  function enter(tovaglia: boolean): TitoloScene {
+  /** `history`: le giornate della storia di adesso (con le righe tessute). */
+  function enter(tovaglia: boolean, history: Record<string, unknown> = { g00: { rows: [{ hour: 7, crossings: [] }] }, fin_aperto: { rows: [{ hour: 7, crossings: [] }] } }): TitoloScene {
     const story: Partial<SaveData> = {
-      campaign: { history: { g00: {} } } as unknown as SaveData['campaign'],
+      campaign: { history } as unknown as SaveData['campaign'],
       stats: { playMs: 1, nights: 1, goldThreads: 0, dailyStreak: 0 },
       unlocks: { daily: true, libero: true, gradi: false, cosmetics: [], tovaglia },
     };
@@ -134,6 +136,22 @@ describe('Q036 e Q068: titolo', () => {
     const sub = Array.from(telaio.querySelectorAll('*')).find((e) => e.textContent === 'Hai visto il finale vero: la Tovaglia è sul Telaio.');
     expect(sub?.closest('.core-sr-only')).toBeNull();
     expect(q(document.body, 'sc-titolo-telaio-stella')).not.toBeNull();
+  });
+
+  it('Q036 (verifica): dopo una storia nuova il Telaio non mostra la Tovaglia, e il titolo non dice che c\'è', () => {
+    // La campagna mostra la Tovaglia solo nel Telaio della storia che ha tessuto il finale vero (tovagliaShown).
+    enter(true, { g00: { rows: [{ hour: 7, crossings: [] }] }, g01: { rows: [{ hour: 7, crossings: [] }] } });
+    const telaio = q(document.body, 'sc-titolo-telaio') as HTMLElement;
+    expect(telaio.textContent).not.toContain('Tovaglia');
+    // La riga del finale vero resta a video, con la campana intonata.
+    const sub = Array.from(telaio.querySelectorAll('*')).find((e) => e.textContent === 'Hai visto il finale vero: la campana suona intonata.');
+    expect(sub).toBeDefined();
+    expect(sub?.closest('.core-sr-only')).toBeNull();
+    expect(q(document.body, 'sc-titolo-telaio-stella')).not.toBeNull();
+    // Il finale vero tessuto ma senza righe (dato rotto) non conta.
+    const d = { campaign: { history: { fin_aperto: { rows: [] } } } } as unknown as SaveData;
+    expect(tovagliaOnLoom(d, 'fin_aperto')).toBe(false);
+    expect(tovagliaOnLoom(d, undefined)).toBe(false);
   });
 
   it('Q036: senza il finale vero niente riga; con il Telaio chiuso resta il lucchetto', () => {

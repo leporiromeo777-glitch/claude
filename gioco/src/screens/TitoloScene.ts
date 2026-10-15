@@ -13,7 +13,9 @@
  * - Il menu scorre: una freccia sotto il menu, fuori dall'area che scorre, dice che
  *   sotto c'è dell'altro (SCH-10; revisione 2, Q068: non copre più l'ultima voce).
  * - Dopo il finale vero (`unlocks.tovaglia`): un filo corallo sul tombolo e una
- *   stella accanto a Telaio (SCH-15, P121).
+ *   stella accanto a Telaio (SCH-15, P121); sotto «Telaio» una riga a video (revisione 2,
+ *   Q036): «la Tovaglia è sul Telaio» se il Telaio di questa storia la mostra, altrimenti
+ *   «la campana suona intonata».
  * - Musica del titolo (campana intonata dopo il finale vero) e laguna.
  * - Telefono verticale: titolo, tombolo, menu in colonna. Schermi larghi
  *   (rapporto ≥ 1,25 e almeno 640 px): tombolo a sinistra, titolo e menu a destra.
@@ -25,7 +27,7 @@ import { dailySpec } from '../engine/index';
 import { resumeNight } from '../tombolo/index';
 import { icon, laceEdge } from './icons';
 import { TitleArt } from './titleArt';
-import { isFirstLaunch, titleItems, type TitleItem, type TitleItemId } from './titleMenu';
+import { isFirstLaunch, titleItems, tovagliaOnLoom, type TitleItem, type TitleItemId } from './titleMenu';
 import { ruleTitleKey } from './bookPage';
 import { today } from './state';
 import { sceneRoot, wideButton } from './widgets';
@@ -136,6 +138,7 @@ export class TitoloScene implements Scene {
       dailyDoneToday: !!d.daily[today()],
       mouse: usesMouse(this.s),
       trueEnding: d.unlocks.tovaglia === true,
+      tovagliaOnLoom: d.unlocks.tovaglia === true && tovagliaOnLoom(d, this.s.content.campaign?.finals?.aperto),
     };
   }
 

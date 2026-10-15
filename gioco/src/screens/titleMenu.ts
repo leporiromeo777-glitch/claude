@@ -40,9 +40,15 @@ export interface TitleMenuContext {
   mouse?: boolean;
   /**
    * Il finale vero è stato visto (`unlocks.tovaglia`): la stella accanto a Telaio (SCH-15)
-   * e, sotto, la riga «Hai visto il finale vero: la Tovaglia è sul Telaio» (revisione 2, Q036).
+   * e, sotto, una riga a video (revisione 2, Q036).
    */
   trueEnding?: boolean;
+  /**
+   * La Tovaglia si vede nel Telaio della storia di adesso: la storia ha tessuto il finale vero
+   * (`tovagliaOnLoom`). Solo allora la riga dice «la Tovaglia è sul Telaio»; dopo una storia
+   * nuova il Telaio non la mostra (campagna, `tovagliaShown`) e la riga dice della campana.
+   */
+  tovagliaOnLoom?: boolean;
 }
 
 /** Primo avvio: nessuna storia, nessuna notte, nessun merletto. */
@@ -53,6 +59,16 @@ export function isFirstLaunch(d: SaveData): boolean {
 function hasHistory(d: SaveData): boolean {
   const h = d.campaign?.history;
   return !!h && Object.keys(h).length > 0;
+}
+
+/**
+ * La storia di adesso ha tessuto il finale vero (`finaleVero`, il livello di `campaign.finals.aperto`):
+ * è la condizione con cui la campagna mostra la Tovaglia nel Telaio (`tovagliaShown`).
+ */
+export function tovagliaOnLoom(d: SaveData, finaleVero: string | undefined): boolean {
+  if (!finaleVero) return false;
+  const h = d.campaign?.history?.[finaleVero];
+  return !!h && Array.isArray(h.rows) && h.rows.length > 0;
 }
 
 export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
@@ -102,8 +118,9 @@ export function titleItems(d: SaveData, c: TitleMenuContext): TitleItem[] {
       primary: false,
       locked: telaioLocked,
       slot: 'modo',
-      // Finale vero (revisione 2, Q036): una riga visibile che nomina la Tovaglia e dice dov'è.
-      ...(telaioLocked ? { subKey: 'ui.titolo.lucchetto.telaio' } : c.trueEnding ? { subKey: 'ui.titolo.finaleVeroTelaio' } : {}),
+      // Finale vero (revisione 2, Q036): una riga visibile; nomina la Tovaglia e dice dov'è
+      // solo se il Telaio di questa storia la mostra davvero (il gioco non mente).
+      ...(telaioLocked ? { subKey: 'ui.titolo.lucchetto.telaio' } : c.trueEnding ? { subKey: c.tovagliaOnLoom ? 'ui.titolo.finaleVeroTelaio' : 'ui.titolo.finaleVero' } : {}),
       ...(c.trueEnding ? { star: true } : {}),
     });
   }
