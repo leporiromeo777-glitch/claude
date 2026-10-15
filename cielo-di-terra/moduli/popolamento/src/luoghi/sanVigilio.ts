@@ -103,7 +103,7 @@ export function posaChiodo(ctx: Contesto, zona: string, numero: number, z: numbe
 export function quotaAppoggio(ctx: Contesto, z: number, theta: number): number {
   let h = suolo(z, theta);
   const p = mondo(z, theta, h);
-  const up = p.clone().normalize().negate();
+  const up = new Vector3(-p.x, -p.y, 0).normalize();
   for (const zona of ctx.zone.values()) {
     for (const v of zona.collider) {
       const c = v.collider;
