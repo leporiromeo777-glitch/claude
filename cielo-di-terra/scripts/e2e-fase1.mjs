@@ -527,7 +527,7 @@ async function main() {
     log('— M1.20 La seconda notte');
     await vai('fienile_ottavio');
     await aspetta('la brace', 200).catch(async () => aspetta("fra un'ora"));
-    while ((await stato()).ore < 20.6) await aspetta("fra un'ora");
+    while ((await stato()).ore < 20.5) await aspetta("fra un'ora");
     await alzati();
     await usa('dormi', { distanza: 2.5 });
     await avanza(1);
