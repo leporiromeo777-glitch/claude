@@ -246,3 +246,53 @@ Tutte le dodici attività del gruppo (CAM-01 … CAM-12) sono chiuse, ciascuna c
 
 - Le voci annunciate alla lettura possono essere molte (7 per la lettera di Clotilde). L'elenco scorre e «Continua» resta attaccato in fondo.
 - I nomi dati nell'Archivio prima di «Lascia per ora» si perdono (vedi C10 sopra).
+
+## Verifica della revisione 1
+
+Ho rifatto i passi del playtest per ogni segnalazione del gruppo, nel browser (build `VITE_E2E=1` servita con `vite preview` sulla porta 5705, tocchi veri al centro dei pulsanti, screenshot guardati uno per uno), e ho riletto il codice contro i contratti. Undici attività su dodici reggevano già; la dodicesima (CAM-11) no, e due difetti erano sfuggiti anche ai test.
+
+### Correzioni
+
+- **CAM-11, inchiostro dei nomi.** Nel bilancio e nel Taccuino il nome di Lunardi era ancora a **3,94:1**, come nel playtest (P096). La regola «nomi sulla carta» in fondo a `campaign.css` (miscuglio al 40% con l'inchiostro) veniva dopo quella con `--pers-ink` e la sovrascriveva. Adesso anche lei usa `var(--pers-ink, …)`. Nei bigliettini e nelle lettere l'inchiostro si calcola sulla carta della calligrafia e non su quella predefinita (`inkNamesOn` in `ui.ts`). Senza questo, l'etichetta di Marta, di Bepi e di Zeno sulla loro carta più scura sarebbe scesa a 3,2-3,8:1.
+- **CAM-06, Taccuino.** Aperto su una scheda il cui corpo non ha pulsanti (Domande vuote, Libro senza voci, Lettere), il Taccuino passava da solo alla prima scheda. Il motivo: l'overlay mette il fuoco sul primo pulsante, cioè sulla prima scheda, e la riga delle schede segue il fuoco. All'apertura il fuoco va ora sulla scheda scelta.
+- **Test nuovi.**
+  - `verifica-r1.test.ts` gioca tutta la storia due volte, una appuntando i bigliettini e una lasciandoli, e controlla ogni giornata:
+    - nessuna riga ripetuta nella pagina del bilancio, con i testi resi;
+    - le voci annunciate alla lettura non tornano;
+    - «Ora so che cosa desidera X» una sola volta per persona;
+    - le regole dell'alba (D11) e la consegna come ultima vignetta.
+  - `verifica-r1.dom.test.ts` controlla:
+    - che il CSS non colori nessun nome senza `--pers-ink`;
+    - che ogni bigliettino e ogni lettera del gioco abbia i nomi a 4,5:1 sulla sua carta;
+    - il Taccuino che resta sulla scheda chiesta;
+    - Esc e Indietro con la conferma;
+    - gli spilli contati solo con bigliettini da appuntare;
+    - niente Taccuino sul buio del prologo.
+
+  I due test delle correzioni falliscono sul codice di prima.
+
+### Prove nel browser (sonde in `scratchpad/rev1-campagna-ver`)
+
+| Segnalazioni | Sonda | Esito |
+|---|---|---|
+| P001, P032 | arc1 dopo il bilancio di g03: Apri, Pausa, «Lascia per ora», titolo e Continua (non riapre arc1), «Più tardi», sera di g04 con arc1 «nuovo»; Rileggi e Rifai su arc1 rammendato | 20/20 |
+| P007, P011, P021, P057, P058 | Gino g01, Bepi g04 e g10, Zeno g14 a 390×844 e 1440×900: `elementFromPoint` al centro di Appunta, Lascia e Rispondi, e l'azione avviene davvero; righe della lettera di g03 e di quella di Clotilde dentro il foglio, firma compresa; «Risposto» non coperto | 56/56 |
+| P009, P056, P074 | porta di g01, g02, g18, g15, g17; g14 dalla sera (Zeno e Nina appuntati) alla notte, alba con 3 culmini e la consegna per ultima, nessun avviso sopra le vignette, lettera, 7 voci annunciate, bilancio senza le voci della lettera, arc4, sera vuota di g15 | 22/22 |
+| P067, P117, P027, P098 | g18 con la pace: pace, pane, Gino, niente battute generiche né avvisi; record al plurale; «Come doveva andare» in g12 | 6/6 |
+| P016, P064, P088, P120 | da g00 a g09 giocando: cartello dell'Atto II, avviso «Nuova pagina nel Libro: La febbre» toccato, Libro su «La febbre» con «Nuova», 6 schede in una riga (390 e 1440); dopo la scelta niente pista e la frase di chiusura | 18/18 |
+| P025, P046, P070 | prologo largo con l'elenco degli obiettivi; Merletto del giorno a 1920×1080 con l'elenco completo (5 voci per 4 obiettivi più lo spillo); g05 riga per riga con la bozza: gettone e pannello concordano (Zeno alle 12, Marta e Teresa alle 13) | 10/10 |
+| P077, P108, P109, P111, P121, P073, P106 | A e B restano con «Continua» oltre 3,5 s; C al cartello nero subito, poi il biglietto piegato, non appuntabile, col rimando al «punto di Clotilde»; D con la soluzione delle occasioni: l'epilogo dice «il vaporetto delle 9, la festa in Farmacia a mezzogiorno, la festa in Piazza alle 17 e la lanterna alle 20», e la Fine ha la riga del finale vero | 21/21 |
+| P010, P024, P114, P116 | «Appunta · restano 2 spilli», «resta 1 spillo», «nessuno spillo» con la spiegazione e il collegamento che apre l'altro bigliettino; Esc chiede, Esc annulla, Esc col bigliettino aperto lo chiude solo; sera di g23 «spilli 0/2», scelta con 1 spillo (390 e 1440) | 30/30 |
+| P083 | prologo a 390×844 e 1440×900, in italiano e in inglese: niente Taccuino sul buio, fascia scura, biglietto sul tombolo | 12/12 |
+| P035, P096 | rivelazione di arc1 a tutta area come l'alba (390, 1180, 1440); nome di Lunardi su bigliettino, bilancio e Taccuino; scansione di 1007 nomi visibili in 13 sere, nei loro bigliettini e nei bilanci | 15/15, 0 sotto 4,5:1 |
+| tutte | 360×640 col testo al 140%, in italiano e in inglese: cartello, porta, oggetto con le voci, spilli finiti, Esc, consegna di g14, bilancio, Taccuino, Continua del finale | 39/40 (il collegamento sotto gli spilli finiti si raggiunge scorrendo l'overlay: verificato) |
+| regressione | `tests/unit/campaign/browser-verify.ts` sulla build nuova | 105/105 |
+
+### Come ho letto i contratti (verifica)
+
+- **CAM-01, «mostra nomi e colori».** L'ho intesa come P032 al contrario: i fili del merletto rammendato hanno il loro personaggio, colore e testa del fuso, e non sono più grigi con «Nomi dati 0/4». Così è. Il nome come testo non compare: in modo `replay` il tombolo non crea l'ArchiveBook, ignora `resume.archiveNames` e a merletto finito i fusi non si toccano. Anche gli echi in sola lettura dipendono dal tombolo.
+
+### Problemi noti (verifica)
+
+- **Tombolo, layout largo.** La nota a margine copre ancora il titolo e l'inizio del pannello dei Bigliettini (screenshot di g05 a 1440×900).
+- **Tombolo, build minimizzata.** Durante la verifica, una build con il `lace.ts` di prima del commit ff88c10 lanciava a ogni fotogramma `ReferenceError: Cannot access 'c' before initialization` nel disegno degli spilli: il minimizzatore di Vite 8.3.4 rinominava male l'indice del ciclo. Senza minimizzazione non succedeva. Con il codice attuale del tombolo la build è pulita; lo segnalo perché la stessa forma di codice potrebbe ripresentarlo.
