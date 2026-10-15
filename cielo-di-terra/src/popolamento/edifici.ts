@@ -15,6 +15,7 @@ import { PALETTE } from '../oggetti/palette';
 import { Rng, semeNumerico, type Seme } from '../oggetti/rng';
 import type { Collider, OggettoProcedurale } from '../oggetti/tipi';
 import { facciata, finestra, inF, porta, tettoPiode } from '../oggetti/oggetti/dettagli';
+import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../oggetti/superfici';
 import { testaLanterna } from '../oggetti/oggetti/lumi';
 
 /** Prisma triangolare (timpano) largo w, alto h, profondo d, base a y = 0. */
@@ -52,36 +53,61 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
   const H = opz.altezza ?? 6.4;
   const interr = opz.interrata ?? 2.5;
   const p = THREE.MathUtils.degToRad(29);
-  const calce = PALETTE.calce;
+  // calce sbiadita (avorio caldo); cornici, lesene e fasce dipinte d'ocra
+  const calce = mescola(PALETTE.calce, PALETTE.intonacoVecchio, 0.3);
+  const ocra = mescola(PALETTE.ocraIntonaco, PALETTE.calce, 0.2);
+  const supCalce = sup(SUP.INTONACO, rng.next());
   // zoccolo di gneiss
-  b.aggiungi(geoBoxC(W + 0.24, 0.8 + interr, L + 0.24), { matrice: mat([0, (0.8 - interr) / 2, 0]), colore: PALETTE.gneiss, gradiente: { basso: 0.65, alto: 0.95, y0: -interr, y1: 0.8 }, rumore: 0.06, piatto: true });
+  b.aggiungi(geoBoxC(W + 0.24, 0.8 + interr, L + 0.24), { matrice: mat([0, (0.8 - interr) / 2, 0]), colore: mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4), gradiente: { basso: 0.65, alto: 0.95, y0: -interr, y1: 0.8 }, rumore: 0.06, piatto: true, superficie: sup(SUP.PIETRA, rng.next()), occlusione: occlusionePiede(0.8, 0.5) });
   // muri di calce
-  b.aggiungi(geoBoxC(W, H, L), { matrice: mat([0, H / 2, 0]), colore: calce, gradiente: { basso: 0.86, alto: 1.02, y0: 0, y1: H }, rumore: 0.025 });
+  b.aggiungi(geoBoxC(W, H, L), { matrice: mat([0, H / 2, 0]), colore: calce, gradiente: { basso: 0.86, alto: 1.02, y0: 0, y1: H }, rumore: 0.025, superficie: supCalce, occlusione: occlusionePiede(1.4, 0.3) });
   // timpani e sottotetto
   const hT = (W / 2) * Math.tan(p);
-  b.aggiungi(geoTimpano(W, hT, L), { matrice: mat([0, H, 0]), colore: calce, gradiente: { basso: 0.95, alto: 1.02, y0: H, y1: H + hT } });
-  // cornice di gronda
-  for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.22, 0.18, L + 0.1), { matrice: mat([s * (W / 2 + 0.05), H - 0.06, 0]), colore: PALETTE.calceOmbra, piatto: true });
+  b.aggiungi(geoTimpano(W, hT, L), { matrice: mat([0, H, 0]), colore: calce, gradiente: { basso: 0.95, alto: 1.02, y0: H, y1: H + hT }, superficie: supCalce });
+  // cornice di gronda d'ocra e lesene d'angolo
+  for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.22, 0.24, L + 0.1), { matrice: mat([s * (W / 2 + 0.05), H - 0.08, 0]), colore: ocra, piatto: true, superficie: supCalce, occlusione: 0.15 });
+  for (const [sx, sz] of [[1, 1], [-1, 1], [1, -1], [-1, -1]] as const) {
+    b.aggiungi(geoBoxC(0.46, H - 0.8, 0.46), { matrice: mat([sx * (W / 2 - 0.2), 0.8 + (H - 0.8) / 2, sz * (L / 2 - 0.2)]), colore: ocra, piatto: true, superficie: supCalce });
+  }
+  // fascia d'ocra sotto il timpano della facciata
+  b.aggiungi(geoBoxC(W + 0.08, 0.2, 0.08), { matrice: mat([0, H - 0.1, L / 2 + 0.02]), colore: ocra, piatto: true, superficie: supCalce });
   // tetto di piode
   const yColmo = tettoPiode(b, rng, { larghezza: W, profondita: L, yGronda: H, pendenza: p, sporgenzaGronda: 0.55, sporgenzaTimpano: 0.35, corsi: 5, pezziPerCorso: 8 });
   // facciata (+Z): portale ad arco, lunetta, oculo, croce
   const f = facciata(0, L / 2, 0);
   porta(b, f, 0, 0, 1.5, 2.35, PALETTE.legnoScuro);
-  // arco di pietra e lunetta dipinta
+  // riquadro d'ocra attorno al portale, arco di pietra e lunetta affrescata (il santo sbiadito)
+  b.aggiungi(geoBoxC(2.7, 3.9, 0.02), { matrice: inF(f, 0, 1.95, 0.004), colore: mescola(ocra, calce, 0.35), piatto: true, superficie: supCalce });
   const arco = new THREE.ShapeGeometry(formaArco(1.5, 0.75 + 0.75, 8));
   arco.deleteAttribute('uv');
-  b.aggiungi(new THREE.CircleGeometry(0.75, 10, 0, Math.PI), { matrice: inF(f, 0, 2.6, 0.012), colore: 0x8e6a4a });
-  b.aggiungi(new THREE.CircleGeometry(0.42, 8, 0, Math.PI), { matrice: inF(f, 0, 2.62, 0.016), colore: 0xc9b07a });
-  b.aggiungi(new THREE.TorusGeometry(0.86, 0.1, 4, 12, Math.PI), { matrice: inF(f, 0, 2.6, 0.04), colore: PALETTE.gneissChiaro, piatto: true });
+  b.aggiungi(new THREE.CircleGeometry(0.75, 10, 0, Math.PI), { matrice: inF(f, 0, 2.6, 0.016), colore: 0x8e6a4a, superficie: supCalce });
+  b.aggiungi(new THREE.CircleGeometry(0.42, 8, 0, Math.PI), { matrice: inF(f, 0, 2.62, 0.02), colore: 0xc9b07a, superficie: supCalce });
+  b.aggiungi(new THREE.CircleGeometry(0.13, 8), { matrice: inF(f, 0, 2.95, 0.024), colore: 0xe6c779, superficie: sup(SUP.NESSUNA) });
+  b.aggiungi(new THREE.TorusGeometry(0.86, 0.1, 4, 12, Math.PI), { matrice: inF(f, 0, 2.6, 0.04), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, 0.3) });
   // protiro: tettuccio di piode sopra il portale su due mensole
-  b.aggiungi(geoLastra(2.4, 0.12, 1.3, rng.intero(0, 1e6), 0.06), { matrice: inF(f, 0, 3.75, 0.55, [-0.38, 0, 0]), colore: PALETTE.piode, variazione: 0.08, piatto: true });
-  for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.14, 0.14, 0.9), { matrice: inF(f, s * 1.05, 3.42, 0.42, [-0.5, 0, 0]), colore: PALETTE.legnoScuro, piatto: true });
+  b.aggiungi(geoLastra(2.4, 0.14, 1.3, rng.intero(0, 1e6), 0.06), { matrice: inF(f, 0, 3.75, 0.55, [-0.38, 0, 0]), colore: PALETTE.piode, variazione: 0.08, piatto: true, superficie: sup(SUP.PIODE, 0.2) });
+  for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.14, 0.14, 0.9), { matrice: inF(f, s * 1.05, 3.42, 0.42, [-0.5, 0, 0]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoOrizzontale(0.3), occlusione: 0.3 });
   // oculo (vetro acceso di notte) e cornice
-  b.aggiungi(new THREE.CircleGeometry(0.42, 12), { matrice: inF(f, 0, H + hT * 0.35, 0.012), colore: 0xffcf7a, canale: 'lume' });
-  b.aggiungi(new THREE.TorusGeometry(0.47, 0.08, 4, 14), { matrice: inF(f, 0, H + hT * 0.35, 0.03), colore: PALETTE.gneissChiaro, piatto: true });
+  b.aggiungi(new THREE.CircleGeometry(0.42, 12), { matrice: inF(f, 0, H + hT * 0.35, 0.012), colore: 0xffcf7a, canale: 'lume', superficie: SUP.VETRO });
+  b.aggiungi(new THREE.TorusGeometry(0.47, 0.08, 4, 14), { matrice: inF(f, 0, H + hT * 0.35, 0.03), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, 0.5) });
   // croce di ferro sul colmo della facciata
-  b.aggiungi(geoBoxC(0.07, 1.1, 0.07), { matrice: mat([0, yColmo + 0.75, L / 2 + 0.2]), colore: PALETTE.ferro, piatto: true });
-  b.aggiungi(geoBoxC(0.55, 0.07, 0.07), { matrice: mat([0, yColmo + 0.95, L / 2 + 0.2]), colore: PALETTE.ferro, piatto: true });
+  b.aggiungi(geoBoxC(0.07, 1.1, 0.07), { matrice: mat([0, yColmo + 0.75, L / 2 + 0.2]), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
+  b.aggiungi(geoBoxC(0.55, 0.07, 0.07), { matrice: mat([0, yColmo + 0.95, L / 2 + 0.2]), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
+  // meridiana dipinta sul fianco a sud (+X): riquadro d'ocra con le linee delle ore e lo gnomone
+  {
+    const fm = facciata(W / 2, 0, Math.PI / 2);
+    const um = L * 0.18;
+    const vm = H * 0.62;
+    b.aggiungi(geoBoxC(1.6, 1.3, 0.02), { matrice: inF(fm, um, vm, 0.006), colore: PALETTE.ocraIntonacoChiaro, piatto: true, superficie: supCalce });
+    b.aggiungi(geoBoxC(1.72, 1.42, 0.015), { matrice: inF(fm, um, vm, 0.003), colore: 0x8a5a3a, piatto: true, superficie: supCalce });
+    for (let k = -4; k <= 4; k++) {
+      const a = (k / 4) * 1.15;
+      const l = 0.62 / Math.max(0.55, Math.cos(a));
+      b.aggiungi(geoPiano(0.018, Math.min(0.62, l)), { matrice: inF(fm, um + Math.sin(a) * 0.3, vm + 0.5 - Math.cos(a) * 0.3, 0.018, [0, 0, a]), colore: 0x5a3a2a, superficie: sup(SUP.NESSUNA) });
+    }
+    b.aggiungi(new THREE.CircleGeometry(0.11, 8), { matrice: inF(fm, um, vm + 0.42, 0.02), colore: 0xb8463a, superficie: sup(SUP.NESSUNA) });
+    b.aggiungi(geoBoxC(0.02, 0.02, 0.45), { matrice: inF(fm, um, vm + 0.42, 0.2, [-0.6, 0, 0]), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
+  }
   // monofore sui fianchi (strette, a tutto sesto)
   const nF = 3;
   for (const lato of [1, -1]) {
@@ -91,8 +117,12 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
       const g = new THREE.ShapeGeometry(formaArco(0.36, 1.25, 5));
       g.deleteAttribute('uv');
       const accesa = (k + (lato > 0 ? 0 : 1)) % 2 === 0;
-      b.aggiungi(g, { matrice: inF(fl, u, 3.1, 0.015), colore: accesa ? 0xf2c46e : 0x2e2a33, canale: accesa ? 'lume' : 'opaco' });
-      b.aggiungi(geoBoxC(0.62, 0.1, 0.12), { matrice: inF(fl, u, 3.05, 0.05), colore: PALETTE.gneissChiaro, piatto: true });
+      b.aggiungi(g, { matrice: inF(fl, u, 3.1, 0.015), colore: accesa ? 0xf2c46e : 0x2e2a33, canale: accesa ? 'lume' : 'opaco', superficie: SUP.VETRO });
+      // strombatura dipinta d'ocra attorno alla monofora
+      const gs = new THREE.ShapeGeometry(formaArco(0.62, 1.5, 5));
+      gs.deleteAttribute('uv');
+      b.aggiungi(gs, { matrice: inF(fl, u, 2.98, 0.008), colore: ocra, superficie: supCalce, occlusione: 0.1 });
+      b.aggiungi(geoBoxC(0.62, 0.1, 0.12), { matrice: inF(fl, u, 3.05, 0.05), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, 0.2) });
     }
   }
   // abside semicircolare a −Z con tetto a mezzo cono
@@ -100,19 +130,19 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
   const hA = H - 1.1;
   const abs = new THREE.CylinderGeometry(rA, rA, hA + interr, 12, 1, false, Math.PI / 2, Math.PI);
   abs.deleteAttribute('uv');
-  b.aggiungi(abs, { matrice: mat([0, (hA - interr) / 2, -L / 2]), colore: calce, gradiente: { basso: 0.85, alto: 1.0, y0: 0, y1: hA } });
+  b.aggiungi(abs, { matrice: mat([0, (hA - interr) / 2, -L / 2]), colore: calce, gradiente: { basso: 0.85, alto: 1.0, y0: 0, y1: hA }, superficie: supCalce, occlusione: occlusionePiede(1.4, 0.3) });
   const tA = new THREE.ConeGeometry(rA + 0.45, 2.0, 12, 1, false, Math.PI / 2, Math.PI);
   tA.deleteAttribute('uv');
-  b.aggiungi(tA, { matrice: mat([0, hA + 1.0, -L / 2]), colore: PALETTE.piode, variazione: 0.05, piatto: true });
+  b.aggiungi(tA, { matrice: mat([0, hA + 1.0, -L / 2]), colore: PALETTE.piode, variazione: 0.05, piatto: true, superficie: sup(SUP.PIODE, 0.6) });
   // monofora dell'abside
   const ga = new THREE.ShapeGeometry(formaArco(0.3, 1.0, 5));
   ga.deleteAttribute('uv');
-  b.aggiungi(ga, { matrice: mat([0, 2.6, -L / 2 - rA - 0.01], [0, Math.PI, 0]), colore: 0xf2c46e, canale: 'lume' });
+  b.aggiungi(ga, { matrice: mat([0, 2.6, -L / 2 - rA - 0.01], [0, Math.PI, 0]), colore: 0xf2c46e, canale: 'lume', superficie: SUP.VETRO });
   // bacheca delle Lettere dalla Sorella accanto al portale (a sinistra guardando la facciata: X−)
   const uB = -1.75;
-  b.aggiungi(geoBoxC(0.9, 0.7, 0.08), { matrice: inF(f, uB, 1.55, 0.06), colore: PALETTE.legnoVecchio, piatto: true });
-  b.aggiungi(geoBoxC(0.32, 0.42, 0.01), { matrice: inF(f, uB - 0.18, 1.6, 0.105, [0, 0, 0.04]), colore: PALETTE.canapa });
-  b.aggiungi(geoBoxC(0.3, 0.36, 0.01), { matrice: inF(f, uB + 0.2, 1.55, 0.105, [0, 0, -0.05]), colore: 0xe6dcc3 });
+  b.aggiungi(geoBoxC(0.9, 0.7, 0.08), { matrice: inF(f, uB, 1.55, 0.06), colore: PALETTE.legnoVecchio, piatto: true, superficie: legnoVerticale(0.6) });
+  b.aggiungi(geoBoxC(0.32, 0.42, 0.01), { matrice: inF(f, uB - 0.18, 1.6, 0.105, [0, 0, 0.04]), colore: PALETTE.canapa, superficie: sup(SUP.NESSUNA) });
+  b.aggiungi(geoBoxC(0.3, 0.36, 0.01), { matrice: inF(f, uB + 0.2, 1.55, 0.105, [0, 0, -0.05]), colore: 0xe6dcc3, superficie: sup(SUP.NESSUNA) });
   // lanterna a muro sopra la bacheca
   const fiamma = testaLanterna(b, inF(f, uB, 2.65, 0.3), 0.9);
   const gruppo = b.costruisci('chiesa-san-vigilio');
@@ -152,16 +182,21 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
   const LZ = 2.2;
   const zV = -1.4; // centro della vasca
   // piattaforma di lastre e gradino davanti
-  b.aggiungi(geoLastra(7.4, 0.5, 6.2, rng.intero(0, 1e6), 0.04), { matrice: mat([0, -0.12, -0.6]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true });
-  b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 3.4]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true });
-  b.aggiungi(geoLastra(4.0, 0.5, 0.7, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.12, 2.75]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true });
-  // vasca
-  b.aggiungi(geoBoxC(LX, 0.85, LZ), { matrice: mat([0, 0.55, zV]), colore: 0x9c968e, rumore: 0.05, piatto: true });
-  b.aggiungi(geoBoxC(LX - 0.4, 0.04, LZ - 0.4), { matrice: mat([0, 0.86, zV]), colore: 0x3f6f73 });
-  b.aggiungi(geoBoxC(LX + 0.1, 0.1, 0.32), { matrice: mat([0, 0.97, zV + LZ / 2 - 0.1], [0.35, 0, 0]), colore: 0xb0aaa0, piatto: true });
-  // fontana: cannella di ferro
-  b.aggiungi(geoBoxC(0.5, 1.4, 0.4), { matrice: mat([LX / 2 + 0.1, 0.7, zV]), colore: PALETTE.gneissScuro, piatto: true });
-  b.aggiungi(geoCilindro(0.03, 0.03, 0.4, 5), { matrice: mat([LX / 2 - 0.1, 1.2, zV], [0, 0, Math.PI / 2]), colore: PALETTE.ferro });
+  const supP = sup(SUP.PIETRA, rng.next());
+  b.aggiungi(geoLastra(7.4, 0.5, 6.2, rng.intero(0, 1e6), 0.04), { matrice: mat([0, -0.12, -0.6]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+  b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 3.4]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true, superficie: supP });
+  b.aggiungi(geoLastra(4.0, 0.5, 0.7, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.12, 2.75]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+  // vasca di granito: bordo spesso, fianchi scuriti dall'acqua, pietra per lavare inclinata
+  b.aggiungi(geoBoxC(LX, 0.85, LZ), { matrice: mat([0, 0.55, zV]), colore: 0x9c968e, rumore: 0.05, gradiente: { basso: 0.7, alto: 1.05, y0: 0.12, y1: 0.97 }, piatto: true, superficie: sup(SUP.PIETRA, 0.8), occlusione: occlusionePiede(0.7, 0.45) });
+  for (const sz of [-1, 1]) b.aggiungi(geoBoxC(LX + 0.06, 0.12, 0.2), { matrice: mat([0, 0.98, zV + sz * (LZ / 2 - 0.1)]), colore: 0xb0aaa0, piatto: true, superficie: sup(SUP.PIETRA, 0.3) });
+  for (const sx of [-1, 1]) b.aggiungi(geoBoxC(0.2, 0.12, LZ), { matrice: mat([sx * (LX / 2 - 0.1), 0.98, zV]), colore: 0xb0aaa0, piatto: true, superficie: sup(SUP.PIETRA, 0.3) });
+  b.aggiungi(geoBoxC(LX - 0.4, 0.04, LZ - 0.4), { matrice: mat([0, 0.86, zV]), colore: 0x3f6f73, superficie: SUP.VETRO });
+  b.aggiungi(geoBoxC(LX + 0.1, 0.1, 0.32), { matrice: mat([0, 0.97, zV + LZ / 2 - 0.1], [0.35, 0, 0]), colore: 0xb0aaa0, piatto: true, superficie: sup(SUP.PIETRA, 0.5) });
+  // fontana: pilastro con la cannella di ferro e il getto d'acqua
+  b.aggiungi(geoLastra(0.55, 1.5, 0.45, rng.intero(0, 1e6), 0.05), { matrice: mat([LX / 2 + 0.12, -0.05, zV]), colore: PALETTE.gneissScuro, piatto: true, superficie: supP, occlusione: occlusionePiede(0.6, 0.4) });
+  b.aggiungi(geoLastra(0.7, 0.12, 0.6, rng.intero(0, 1e6), 0.08), { matrice: mat([LX / 2 + 0.12, 1.43, zV]), colore: PALETTE.gneiss, piatto: true, superficie: supP });
+  b.aggiungi(geoCilindro(0.03, 0.03, 0.4, 5), { matrice: mat([LX / 2 - 0.1, 1.2, zV], [0, 0, Math.PI / 2]), colore: PALETTE.ferro, superficie: SUP.METALLO });
+  b.aggiungi(geoCilindro(0.018, 0.026, 0.3, 5), { matrice: mat([LX / 2 - 0.3, 0.88, zV]), colore: 0xbfd8d8, canale: 'sottile', superficie: sup(SUP.NESSUNA) });
   // pilastri e tettoia
   const hP = 2.75;
   for (const [x, z] of [
@@ -170,10 +205,12 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
     [-3.1, 1.8],
     [3.1, 1.8],
   ] as const) {
-    b.aggiungi(geoLastra(0.5, hP, 0.5, rng.intero(0, 1e6), 0.04), { matrice: mat([x, hP / 2, z]), colore: PALETTE.gneissChiaro, gradiente: { basso: 0.75, alto: 1.0, y0: 0, y1: hP }, piatto: true });
+    // pilastro di pietra squadrata con il capitello (geoLastra ha la base a y = 0)
+    b.aggiungi(geoLastra(0.5, hP, 0.5, rng.intero(0, 1e6), 0.04), { matrice: mat([x, 0, z]), colore: PALETTE.gneissChiaro, gradiente: { basso: 0.75, alto: 1.0, y0: 0, y1: hP }, piatto: true, superficie: supP, occlusione: occlusionePiede(0.6, 0.4) });
+    b.aggiungi(geoLastra(0.66, 0.14, 0.66, rng.intero(0, 1e6), 0.06), { matrice: mat([x, hP - 0.14, z]), colore: PALETTE.gneissChiaro, piatto: true, superficie: supP });
   }
   // travi
-  for (const z of [-3.2, 1.8]) b.aggiungi(geoBoxC(7.0, 0.22, 0.22), { matrice: mat([0, hP + 0.1, z]), colore: PALETTE.legnoScuro, piatto: true });
+  for (const z of [-3.2, 1.8]) b.aggiungi(geoBoxC(7.0, 0.22, 0.22), { matrice: mat([0, hP + 0.1, z]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoOrizzontale(0.4), occlusione: 0.2 });
   // tettoia a due falde lungo X (colmo lungo X): costruita come tetto con colmo lungo Z e ruotata
   const bt = new Costruttore(rng.derivato('tettoia'));
   tettoPiode(bt, rng.derivato('t'), { larghezza: 5.6, profondita: 6.8, yGronda: 0, pendenza: 0.5, sporgenzaGronda: 0.7, sporgenzaTimpano: 0.4, corsi: 3, pezziPerCorso: 6 });
@@ -187,7 +224,7 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
   // panni stesi su una corda fra due pilastri
   for (let k = 0; k < 3; k++) {
     const g = geoPiano(0.7, 0.9, 2, 2);
-    b.aggiungi(g, { matrice: mat([-2.0 + k * 1.1, hP - 0.75, -3.25]), colore: k === 1 ? 0xe7dfcf : 0xf3eee2, canale: 'sottile' });
+    b.aggiungi(g, { matrice: mat([-2.0 + k * 1.1, hP - 0.75, -3.25]), colore: k === 1 ? 0xb8463a : k === 2 ? 0x5d6f8a : 0xf3eee2, canale: 'sottile', superficie: SUP.TESSUTO });
   }
   // lanterna appesa sotto la tettoia
   const fiamma = testaLanterna(b, mat([0, hP - 0.45, 1.2]), 0.9);
@@ -218,13 +255,17 @@ export function creaBacheca(seme: Seme = 'bacheca'): OggettoProcedurale {
   const s = semeNumerico(seme);
   const rng = new Rng(s);
   const b = new Costruttore(rng);
-  for (const x of [-0.95, 0.95]) b.aggiungi(geoBoxC(0.14, 2.6, 0.14), { matrice: mat([x, 1.3, 0]), colore: PALETTE.legnoScuro, piatto: true });
-  b.aggiungi(geoBoxC(1.9, 1.15, 0.08), { matrice: mat([0, 1.55, 0.04]), colore: PALETTE.legnoVecchio, variazione: 0.06, piatto: true });
+  for (const x of [-0.95, 0.95]) b.aggiungi(geoBoxC(0.14, 2.6, 0.14), { matrice: mat([x, 1.3, 0]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoVerticale(0.3), occlusione: occlusionePiede(0.5, 0.4) });
+  b.aggiungi(geoBoxC(1.9, 1.15, 0.08), { matrice: mat([0, 1.55, 0.04]), colore: PALETTE.legnoVecchio, variazione: 0.06, piatto: true, superficie: legnoOrizzontale(0.5) });
+  // cornice della tavola
+  for (const y of [0.95, 2.15]) b.aggiungi(geoBoxC(2.0, 0.08, 0.12), { matrice: mat([0, y, 0.05]), colore: PALETTE.larice, piatto: true, superficie: legnoOrizzontale(0.7) });
   const fogli = [0xf1e9d6, 0xe6dcc3, 0xd9cdb0, 0xf4efe2, 0xe0d2b5];
   for (let k = 0; k < 6; k++) {
     const w = rng.tra(0.3, 0.46);
     const h = rng.tra(0.32, 0.5);
-    b.aggiungi(geoBoxC(w, h, 0.01), { matrice: mat([-0.65 + (k % 3) * 0.62 + rng.centrato(0.06), 1.3 + Math.floor(k / 3) * 0.5 + rng.centrato(0.05), 0.09], [0, 0, rng.centrato(0.08)]), colore: rng.scegli(fogli) });
+    b.aggiungi(geoBoxC(w, h, 0.01), { matrice: mat([-0.65 + (k % 3) * 0.62 + rng.centrato(0.06), 1.3 + Math.floor(k / 3) * 0.5 + rng.centrato(0.05), 0.09], [0, 0, rng.centrato(0.08)]), colore: rng.scegli(fogli), superficie: sup(SUP.NESSUNA) });
+    // righe di scrittura e una puntina d'ottone
+    for (let r = 0; r < 3; r++) b.aggiungi(geoPiano(w * 0.7, 0.008), { matrice: mat([-0.65 + (k % 3) * 0.62, 1.38 + Math.floor(k / 3) * 0.5 - r * 0.06, 0.097]), colore: 0x4a4038, superficie: sup(SUP.NESSUNA) });
   }
   const bt = new Costruttore(rng.derivato('t'));
   tettoPiode(bt, rng.derivato('tt'), { larghezza: 0.9, profondita: 2.2, yGronda: 0, pendenza: 0.6, sporgenzaGronda: 0.2, sporgenzaTimpano: 0.05, corsi: 2, pezziPerCorso: 4 });
@@ -243,11 +284,11 @@ export function creaTelo(seme: Seme = 'telo-ombrista'): OggettoProcedurale {
   const b = new Costruttore(rng);
   const W = 4.4;
   const Hp = 3.4;
-  for (const x of [-W / 2 - 0.1, W / 2 + 0.1]) b.aggiungi(geoCilindro(0.07, 0.09, Hp, 6), { matrice: mat([x, 0, 0]), colore: PALETTE.legnoGrigio });
+  for (const x of [-W / 2 - 0.1, W / 2 + 0.1]) b.aggiungi(geoCilindro(0.07, 0.09, Hp, 6), { matrice: mat([x, 0, 0]), colore: PALETTE.legnoGrigio, superficie: SUP.CORTECCIA });
   const tela = geoPiano(W, 2.5, 8, 4);
   const pos = tela.getAttribute('position');
   for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin((pos.getX(i) / W) * Math.PI) * 0.06 * (0.6 + 0.4 * Math.sin(pos.getY(i) * 2)));
-  b.aggiungi(tela, { matrice: mat([0, 1.95, 0]), colore: 0xf3ede0, canale: 'sottile' });
+  b.aggiungi(tela, { matrice: mat([0, 1.95, 0]), colore: 0xf3ede0, canale: 'sottile', superficie: SUP.TESSUTO });
   b.aggiungi(geoCilindro(0.03, 0.03, W + 0.4, 5), { matrice: mat([-(W + 0.4) / 2, 3.25, 0], [0, 0, -Math.PI / 2]), colore: PALETTE.legnoGrigio });
   // tiranti
   for (const x of [-W / 2 - 0.1, W / 2 + 0.1]) b.aggiungi(geoCilindro(0.01, 0.01, 2.2, 3), { matrice: mat([x, Hp - 0.1, 0], [0.6, 0, 0]), colore: 0x8a7a5a });
@@ -263,8 +304,9 @@ export function creaPanca(seme: Seme = 'panca', lunghezza = 2.2, legno = true): 
   const s = semeNumerico(seme);
   const rng = new Rng(s);
   const b = new Costruttore(rng);
-  for (const x of [-lunghezza / 2 + 0.25, lunghezza / 2 - 0.25]) b.aggiungi(geoLastra(0.3, 0.45, 0.42, rng.intero(0, 1e6), 0.08), { matrice: mat([x, 0.22, 0]), colore: PALETTE.gneiss, piatto: true });
-  b.aggiungi(legno ? geoBoxC(lunghezza, 0.08, 0.45) : geoLastra(lunghezza, 0.12, 0.5, rng.intero(0, 1e6), 0.06), { matrice: mat([0, 0.48, 0]), colore: legno ? PALETTE.legnoVecchio : PALETTE.gneissChiaro, variazione: 0.06, piatto: true });
+  // spalle di pietra (geoLastra ha la base a y = 0) e seduta di larice o di pietra
+  for (const x of [-lunghezza / 2 + 0.25, lunghezza / 2 - 0.25]) b.aggiungi(geoLastra(0.3, 0.45, 0.42, rng.intero(0, 1e6), 0.08), { matrice: mat([x, -0.02, 0]), colore: PALETTE.gneiss, piatto: true, superficie: sup(SUP.PIETRA, rng.next()), occlusione: occlusionePiede(0.4, 0.45) });
+  b.aggiungi(legno ? geoBoxC(lunghezza, 0.08, 0.45) : geoLastra(lunghezza, 0.12, 0.5, rng.intero(0, 1e6), 0.06), { matrice: mat([0, legno ? 0.47 : 0.42, 0]), colore: legno ? PALETTE.larice : PALETTE.gneissChiaro, variazione: 0.06, piatto: true, superficie: legno ? legnoOrizzontale(rng.next()) : sup(SUP.PIETRA, rng.next()) });
   const gruppo = b.costruisci('panca');
   return risultato({ nome: 'panca', seme: s, gruppo, collider: [box(0, 0.26, 0, lunghezza / 2, 0.26, 0.24, 'panca')], ingombro: ingombroDa(gruppo), punti: { seduta: new THREE.Vector3(0, 0.5, 0) } });
 }
@@ -277,20 +319,45 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
   const rng = new Rng(s);
   const b = new Costruttore(rng);
   const H = altezza;
-  b.aggiungi(geoTubo([new THREE.Vector3(0, -0.4, 0), new THREE.Vector3(0.1, 1.2, 0.05), new THREE.Vector3(-0.05, 2.4, 0)], [0.55, 0.45, 0.35], 7), { colore: 0x6e3f2c });
-  const verdi = [0x24402a, 0x2c4b30, 0x355637, 0x1f3826];
-  for (let k = 0; k < 11; k++) {
-    const t = k / 10;
-    const r = (1 - t * 0.62) * Math.min(H * 0.3, 4.6);
+  // tronco rossiccio, corto e scanalato, con due rami grossi che si aprono
+  b.aggiungi(geoTubo([new THREE.Vector3(0, -0.4, 0), new THREE.Vector3(0.1, 1.2, 0.05), new THREE.Vector3(-0.05, 2.4, 0)], [0.58, 0.46, 0.36], 8, { forma: (_i, a) => 1 + Math.sin(a * 5) * 0.08 }), {
+    colore: 0x7a4532,
+    superficie: SUP.CORTECCIA,
+    occlusione: (p) => (p.y > 1.8 ? 0.45 : 0.15),
+  });
+  for (const a of [0.6, 2.9, 4.6]) {
+    const p0 = new THREE.Vector3(0, 2.0, 0);
+    const p1 = new THREE.Vector3(Math.cos(a) * 1.1, 3.4, Math.sin(a) * 1.1);
+    b.aggiungi(geoTubo([p0, p1], [0.24, 0.14], 6), { colore: 0x6e3f2c, superficie: SUP.CORTECCIA, occlusione: 0.4 });
+  }
+  // chioma: tante masse scure a ciuffi, colonnare e irregolare (la sagoma non è un pallone)
+  const verdi = [0x2e5233, 0x3a6338, 0x45703c, 0x2a4a30, 0x527a40];
+  const raggioMax = Math.min(H * 0.3, 4.6);
+  const n = 26;
+  for (let k = 0; k < n; k++) {
+    const t = Math.pow(rng.next(), 0.85);
+    const inv = 1 - t * 0.72;
+    const r = (0.42 + rng.next() * 0.3) * raggioMax * (0.55 + inv * 0.45);
     const a = rng.next() * Math.PI * 2;
-    const d = (1 - t) * H * 0.12;
-    b.aggiungi(geoMassa(r, rng.intero(0, 1e6), 0.22, 1, 0.9), {
-      matrice: mat([Math.cos(a) * d, 2.2 + t * (H - 3.2), Math.sin(a) * d]),
+    const d = inv * raggioMax * (0.25 + rng.next() * 0.5);
+    const y = 2.4 + t * (H - 3.0);
+    b.aggiungi(geoMassa(r, rng.intero(0, 1e6), 0.3, 1, 0.82, 0.7), {
+      matrice: mat([Math.cos(a) * d, y, Math.sin(a) * d], [rng.centrato(0.3), rng.next() * 6, rng.centrato(0.3)]),
       colore: rng.scegli(verdi),
-      variazione: 0.08,
-      gradiente: { basso: 0.7, alto: 1.1, y0: 1.5, y1: H },
+      variazione: 0.1,
+      gradiente: { basso: 0.65, alto: 1.12, y0: 1.5, y1: H },
+      superficie: sup(SUP.FOGLIAME, rng.next()),
+      // dentro e sotto la chioma è buio
+      occlusione: (p) => Math.min(0.55, Math.max(0, 0.5 - (p.y - 2.0) / (H * 1.4)) + Math.max(0, 0.35 - Math.hypot(p.x, p.z) / raggioMax) * 0.6),
     });
   }
+  // la punta che sfugge in alto
+  b.aggiungi(geoMassa(raggioMax * 0.32, rng.intero(0, 1e6), 0.35, 1, 1.4, 0.7), {
+    matrice: mat([rng.centrato(0.4), H - 0.6, rng.centrato(0.4)]),
+    colore: verdi[2]!,
+    variazione: 0.08,
+    superficie: sup(SUP.FOGLIAME, rng.next()),
+  });
   const gruppo = b.costruisci('tasso');
   return risultato({
     nome: 'tasso',

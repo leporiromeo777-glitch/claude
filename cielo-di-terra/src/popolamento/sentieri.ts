@@ -10,6 +10,7 @@
  * Il sentiero lascia anche il suo nastro sul suolo (lastre, terra battuta o prato pettinato) e si
  * registra nel contesto: i muri delle terrazze vi aprono un varco, le case lo evitano.
  */
+import { SUPERFICIE } from '../render/superfici';
 import { BoxGeometry, Matrix4, Quaternion, Vector3 } from 'three';
 import { geoLastra } from '../oggetti/forme';
 import { Costruttore, mat } from '../oggetti/costruttore';
@@ -196,11 +197,11 @@ function gradino(cant: Cantiere, a: CampioneSentiero, b: CampioneSentiero, largh
   const b2 = new Costruttore(seme);
   if (materiale === 'pietra') {
     // corpo del gradino e lastra di copertina
-    b2.aggiungi(new BoxGeometry(larghezza, alto - 0.12, lung), { matrice: mat([0, (alto - 0.12) / 2, 0]), colore: 0x7f7970, variazione: 0.06, piatto: true });
-    b2.aggiungi(geoLastra(larghezza + 0.1, 0.14, lung + 0.04, seme, 0.08), { matrice: mat([0, alto - 0.13, 0]), colore: 0x948e85, variazione: 0.08, piatto: true });
+    b2.aggiungi(new BoxGeometry(larghezza, alto - 0.12, lung), { matrice: mat([0, (alto - 0.12) / 2, 0]), colore: 0x7f7970, variazione: 0.06, piatto: true, superficie: SUPERFICIE.PIETRA + 0.3, occlusione: 0.22 });
+    b2.aggiungi(geoLastra(larghezza + 0.1, 0.14, lung + 0.04, seme, 0.08), { matrice: mat([0, alto - 0.13, 0]), colore: 0x948e85, variazione: 0.08, piatto: true, superficie: SUPERFICIE.PIETRA + 0.7 });
   } else {
     // asse di castagno infilata nel muro, su due paletti
-    b2.aggiungi(new BoxGeometry(larghezza, 0.07, Math.min(lung, 0.5)), { matrice: mat([0, alto - 0.035, 0]), colore: 0x7a5236, variazione: 0.1, piatto: true });
+    b2.aggiungi(new BoxGeometry(larghezza, 0.07, Math.min(lung, 0.5)), { matrice: mat([0, alto - 0.035, 0]), colore: 0x7a5236, variazione: 0.1, piatto: true, superficie: SUPERFICIE.LEGNO + 0.6 });
     for (const sx of [-1, 1]) b2.aggiungi(new BoxGeometry(0.08, alto - 0.05, 0.08), { matrice: mat([sx * (larghezza / 2 - 0.12), (alto - 0.05) / 2, 0]), colore: 0x5a3e2a, piatto: true });
   }
   cant.oggetto(b2.costruisci('gradino'), m, { lumi: false });

@@ -37,9 +37,16 @@ export interface VoceCollider {
 }
 
 interface Accumulo {
-  parti: Array<{ pos: Float32Array; nor: Float32Array; col: Float32Array }>;
+  /** `sup` (facoltativo): superficie e occlusione per vertice, come l'attributo `aSuperficie` */
+  parti: Array<{ pos: Float32Array; nor: Float32Array; col: Float32Array; sup?: Float32Array }>;
   vertici: number;
 }
+
+/**
+ * Superficie di una forma semplice: valore costante [tipo + variante, occlusione] oppure per
+ * vertice (posizione nelle coordinate della forma, prima della matrice).
+ */
+export type SuperficieForma = readonly [number, number] | ((p: Vector3) => readonly [number, number]);
 
 const VETRO_SPENTO: RGB = [0.17, 0.155, 0.19];
 const _v = new Vector3();
@@ -154,7 +161,7 @@ export class Cantiere {
    * Aggiunge una geometria semplice (position + normal) con un colore uniforme o per vertice.
    * `emissione` 0..1: quanto si accende di notte (finestre, vetri).
    */
-  forma(g: BufferGeometry, m: Matrix4, colore: RGB, emissione = 0, faccia: 'singolo' | 'doppio' = 'singolo', sfuma?: (p: Vector3, out: RGB) => void): void {
+  forma(g: BufferGeometry, m: Matrix4, colore: RGB, emissione = 0, faccia: 'singolo' | 'doppio' = 'singolo', sfuma?: (p: Vector3, out: RGB) => void, superficie?: SuperficieForma): void {
     const gg = g.index ? g.toNonIndexed() : g;
     const pos = gg.getAttribute('position');
     const nor = gg.getAttribute('normal');
@@ -162,6 +169,7 @@ export class Cantiere {
     const P = new Float32Array(n * 3);
     const N = new Float32Array(n * 3);
     const C = new Float32Array(n * 4);
+    const S = superficie ? new Float32Array(n * 2) : undefined;
     _nm.getNormalMatrix(m);
     const out: RGB = [0, 0, 0];
     for (let i = 0; i < n; i++) {
@@ -171,6 +179,11 @@ export class Cantiere {
         out[1] = colore[1];
         out[2] = colore[2];
         sfuma(_v, out);
+      }
+      if (S && superficie) {
+        const t = typeof superficie === 'function' ? superficie(_v) : superficie;
+        S[i * 2] = t[0];
+        S[i * 2 + 1] = t[1];
       }
       _v.applyMatrix4(m);
       P[i * 3] = _v.x;
@@ -188,14 +201,14 @@ export class Cantiere {
       C[i * 4 + 3] = emissione;
     }
     const acc = faccia === 'doppio' ? this.doppio : this.singolo;
-    acc.parti.push({ pos: P, nor: N, col: C });
+    acc.parti.push(S ? { pos: P, nor: N, col: C, sup: S } : { pos: P, nor: N, col: C });
     acc.vertici += n;
   }
 
-  /** Triangoli già in coordinate mondo (posizioni, normali, colori rgba). */
-  grezzo(P: Float32Array, N: Float32Array, C: Float32Array, faccia: 'singolo' | 'doppio' = 'singolo'): void {
+  /** Triangoli già in coordinate mondo (posizioni, normali, colori rgba; `S` = aSuperficie, 2 per vertice). */
+  grezzo(P: Float32Array, N: Float32Array, C: Float32Array, faccia: 'singolo' | 'doppio' = 'singolo', S?: Float32Array): void {
     const acc = faccia === 'doppio' ? this.doppio : this.singolo;
-    acc.parti.push({ pos: P, nor: N, col: C });
+    acc.parti.push(S ? { pos: P, nor: N, col: C, sup: S } : { pos: P, nor: N, col: C });
     acc.vertici += P.length / 3;
   }
 
@@ -206,12 +219,18 @@ export class Cantiere {
     const nor = gg.getAttribute('normal');
     const aCol = gg.getAttribute('aColor');
     const col = gg.getAttribute('color');
+    const sup = gg.getAttribute('aSuperficie');
     const n = pos.count;
     const P = new Float32Array(n * 3);
     const N = new Float32Array(n * 3);
     const C = new Float32Array(n * 4);
+    const S = sup ? new Float32Array(n * 2) : undefined;
     _nm.getNormalMatrix(m);
     for (let i = 0; i < n; i++) {
+      if (S && sup) {
+        S[i * 2] = sup.getX(i);
+        S[i * 2 + 1] = sup.itemSize > 1 ? sup.getY(i) : 0;
+      }
       _v.fromBufferAttribute(pos, i).applyMatrix4(m);
       P[i * 3] = _v.x;
       P[i * 3 + 1] = _v.y;
@@ -257,7 +276,7 @@ export class Cantiere {
       C[i * 4 + 3] = a;
     }
     const acc = faccia === 'doppio' ? this.doppio : this.singolo;
-    acc.parti.push({ pos: P, nor: N, col: C });
+    acc.parti.push(S ? { pos: P, nor: N, col: C, sup: S } : { pos: P, nor: N, col: C });
     acc.vertici += n;
     if (lume && raccogliLumi) this.raccogliLumi(P, N, C);
   }
@@ -294,7 +313,8 @@ export class Cantiere {
     for (const g of gruppi) {
       const p = g.s.multiplyScalar(1 / g.k);
       if (g.n.lengthSq() > 1e-6) p.addScaledVector(g.n.normalize(), 0.25);
-      this.lume(p, 0.55);
+      // alone piccolo: la finestra si deve leggere come una finestra, non come una lanterna
+      this.lume(p, 0.36);
     }
   }
 
@@ -343,17 +363,21 @@ export class Cantiere {
       const P = new Float32Array(acc.vertici * 3);
       const N = new Float32Array(acc.vertici * 3);
       const C = new Float32Array(acc.vertici * 4);
+      // aSuperficie solo se qualche parte la dichiara (le altre restano 0: superficie del materiale)
+      const S = acc.parti.some((p) => p.sup) ? new Float32Array(acc.vertici * 2) : null;
       let o = 0;
       for (const p of acc.parti) {
         P.set(p.pos, o * 3);
         N.set(p.nor, o * 3);
         C.set(p.col, o * 4);
+        if (S && p.sup) S.set(p.sup, o * 2);
         o += p.pos.length / 3;
       }
       const g = new BufferGeometry();
       g.setAttribute('position', new BufferAttribute(P, 3));
       g.setAttribute('normal', new BufferAttribute(N, 3));
       g.setAttribute('aColor', new BufferAttribute(C, 4));
+      if (S) g.setAttribute('aSuperficie', new BufferAttribute(S, 2));
       g.computeBoundingSphere();
       g.computeBoundingBox();
       const mesh = new Mesh(g, nome === 'doppio' ? mat.doppio : mat.singolo);

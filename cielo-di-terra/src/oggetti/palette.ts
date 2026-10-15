@@ -12,12 +12,17 @@ export const PALETTE = {
   gneissViola: 0x938c94,
   gneissCaldo: 0xb0a491,
   muschio: 0x6f7a46,
-  piode: 0x4a4c56,
-  piodeChiare: 0x63646d,
-  piodeScure: 0x34363f,
+  // piode di gneiss: grigio medio caldo (nei bozzetti i tetti prendono il cielo, non sono neri)
+  piode: 0x625f62,
+  piodeChiare: 0x807b78,
+  piodeScure: 0x4a494f,
+  piodeMuschio: 0x6b6a4e,
   calce: 0xf1ebde,
   calceOmbra: 0xd8d0c0,
   intonacoVecchio: 0xd9cfba,
+  /** ocra delle cornici e delle lesene di San Vigilio */
+  ocraIntonaco: 0xd9a95e,
+  ocraIntonacoChiaro: 0xe6c28a,
   terra: 0x6b5236,
   terraScura: 0x4a3a28,
 
@@ -27,6 +32,10 @@ export const PALETTE = {
   legnoChiaro: 0x9d7249,
   legnoGrigio: 0x8a7f72,
   legnoVecchio: 0x6a5546,
+  // larice delle porte e delle lobbie (bruno rossiccio, si ingrigisce al sole)
+  larice: 0x8a5634,
+  lariceScuro: 0x5e3a24,
+  lariceGrigio: 0x8e8175,
   troncoCastagno: 0x5e4535,
   troncoScuro: 0x3d2e25,
   troncoMorto: 0x857a6e,

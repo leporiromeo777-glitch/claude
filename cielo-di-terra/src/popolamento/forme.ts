@@ -4,6 +4,7 @@
  */
 import { BoxGeometry, BufferAttribute as THREE_ATTR, BufferGeometry as THREE_BUFGEO, Matrix4 as THREE_MAT4, PlaneGeometry as THREE_PLANE, Vector3 } from 'three';
 const THREE_GEOM = { BoxGeometry };
+import { SUPERFICIE } from '../render/superfici';
 import { DEG } from '../world/constants';
 import { cylToWorld } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
@@ -14,7 +15,7 @@ import { metriPerGrado, sposta } from './terreno';
  * Mantello sul suolo: griglia polare (disco) o lungo una spezzata, a `sopra` metri dal suolo.
  * `colore(x, y)` riceve le coordinate locali (est, nord in metri dal centro) e restituisce rgb.
  */
-export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: number, passo: number, sopra: number, colore: (x: number, y: number, r: number) => RGB, quota?: (z: number, th: number) => number, piatto = true): void {
+export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: number, passo: number, sopra: number, colore: (x: number, y: number, r: number) => RGB, quota?: (z: number, th: number) => number, piatto = true, opz: OpzioniMantello = {}): void {
   const anelli = Math.max(2, Math.ceil(raggio / passo));
   const settori = Math.max(16, Math.ceil((2 * Math.PI * raggio) / passo));
   const pos: number[] = [];
@@ -55,7 +56,20 @@ export function discoSulSuolo(c: Cantiere, z0: number, th0: number, raggio: numb
       if (i > 0) tri(p00, p01, p11);
     }
   }
-  aggiungiMantello(c, pos, col);
+  aggiungiMantello(c, pos, col, opz);
+}
+
+/** Opzioni dei mantelli sul suolo. */
+export interface OpzioniMantello {
+  /** superficie dipinta (valore di `SUPERFICIE` + variante; 0 = quella del materiale) */
+  superficie?: number;
+  /** occlusione cotta (0..1) */
+  occlusione?: number;
+  /**
+   * normali morbide (media delle facce che toccano il vertice; predefinito sì): i motivi dipinti
+   * (pietre, ciottoli, terra) restano continui da un triangolo all'altro, senza tessere
+   */
+  normaliLisce?: boolean;
 }
 
 /**
@@ -69,6 +83,7 @@ export function nastroSulSuolo(
   sopra: number,
   colore: (s: number, u: number) => RGB,
   quota?: (z: number, th: number, s: number) => number,
+  opz: OpzioniMantello = {},
 ): void {
   // ricampiona
   const camp: Array<{ z: number; theta: number; s: number; tz: number; te: number }> = [];
@@ -117,11 +132,11 @@ export function nastroSulSuolo(
       vert(a, u1);
     }
   }
-  aggiungiMantello(c, pos, col);
+  aggiungiMantello(c, pos, col, opz);
 }
 
 /** Aggiunge triangoli già in coordinate mondo; ogni triangolo viene girato con la faccia verso l'asse. */
-function aggiungiMantello(c: Cantiere, pos: number[], col: number[]): void {
+function aggiungiMantello(c: Cantiere, pos: number[], col: number[], opz: OpzioniMantello = {}): void {
   const n = pos.length / 3;
   const P = new Float32Array(pos);
   const C = new Float32Array(col);
@@ -155,7 +170,35 @@ function aggiungiMantello(c: Cantiere, pos: number[], col: number[]): void {
     d.normalize();
     for (let k = 0; k < 3; k++) N.set([d.x, d.y, d.z], o + k * 3);
   }
-  c.grezzo(P, N, C, 'singolo');
+  if (opz.normaliLisce ?? true) {
+    // media delle normali delle facce che condividono il vertice (chiave: posizione al millimetro)
+    const somma = new Map<string, [number, number, number]>();
+    const chiave = (i: number) => `${Math.round(P[i * 3]! * 1000)},${Math.round(P[i * 3 + 1]! * 1000)},${Math.round(P[i * 3 + 2]! * 1000)}`;
+    for (let i = 0; i < n; i++) {
+      const k = chiave(i);
+      const v = somma.get(k) ?? [0, 0, 0];
+      v[0] += N[i * 3]!;
+      v[1] += N[i * 3 + 1]!;
+      v[2] += N[i * 3 + 2]!;
+      somma.set(k, v);
+    }
+    for (let i = 0; i < n; i++) {
+      const v = somma.get(chiave(i))!;
+      const l = Math.hypot(v[0], v[1], v[2]) || 1;
+      N[i * 3] = v[0] / l;
+      N[i * 3 + 1] = v[1] / l;
+      N[i * 3 + 2] = v[2] / l;
+    }
+  }
+  let S: Float32Array | undefined;
+  if (opz.superficie !== undefined || opz.occlusione !== undefined) {
+    S = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      S[i * 2] = opz.superficie ?? 0;
+      S[i * 2 + 1] = opz.occlusione ?? 0;
+    }
+  }
+  c.grezzo(P, N, C, 'singolo', S);
 }
 
 /** Rumore di valore 2D deterministico (0..1). */
@@ -190,19 +233,31 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   const { BoxGeometry } = THREE_GEOM;
   const t = new THREE_MAT4();
   const box = new BoxGeometry(1, 1, 1);
-  const pietra: RGB = [0.66 + hash2(seme, 1) * 0.08, 0.64 + hash2(seme, 2) * 0.06, 0.6 + hash2(seme, 3) * 0.06];
+  const pietra: RGB = [0.62 + hash2(seme, 1) * 0.08, 0.6 + hash2(seme, 2) * 0.06, 0.56 + hash2(seme, 3) * 0.06];
   t.makeTranslation(0, (hMuri - interrata) / 2, 0).scale(new Vector3(W, hMuri + interrata, D));
-  c.forma(box, m.clone().multiply(t), pietra);
+  // muri di pietra, più scuri al piede (stesso motivo dipinto della casa vicina)
+  c.forma(box, m.clone().multiply(t), pietra, 0, 'singolo', (p, out) => {
+    const k = p.y < -0.3 ? 0.72 : 1;
+    out[0] *= k;
+    out[1] *= k;
+    out[2] *= k;
+  }, [SUPERFICIE.PIETRA + hash2(seme, 5) * 0.9, 0.05]);
   const pend = 0.55;
   const hT = (W / 2 + 0.45) * Math.tan(pend);
   t.makeTranslation(0, hMuri - 0.02, 0).scale(new Vector3(W + 0.9, hT, D + 0.8));
-  c.forma(timpanoUnitario(), m.clone().multiply(t), [0.3, 0.29, 0.31]);
-  // finestre (accese di notte) sulle due facciate lunghe
+  // tetto di piode grigio medio (come le piode vicine)
+  const piode: RGB = [0.39 + hash2(seme, 6) * 0.05, 0.38 + hash2(seme, 6) * 0.04, 0.38 + hash2(seme, 7) * 0.03];
+  c.forma(timpanoUnitario(), m.clone().multiply(t), piode, 0, 'singolo', undefined, [SUPERFICIE.PIODE + hash2(seme, 8) * 0.9, 0.08]);
+  // finestre (accese di notte) sulle due facciate lunghe e sul fronte
   const q = new THREE_PLANE(0.7, 0.85);
   for (const s of [-1, 1]) {
     t.makeTranslation(s * (W / 2 + 0.02), Math.min(hMuri - 1.2, 3.2), 0).multiply(new THREE_MAT4().makeRotationY((s * Math.PI) / 2));
-    c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, s) < 0.6 ? 1 : 0);
+    c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, s) < 0.6 ? 1 : 0, 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
   }
+  t.makeTranslation(0, Math.min(hMuri - 1.2, 3.2), D / 2 + 0.02);
+  c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, 9) < 0.5 ? 1 : 0, 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+  t.makeTranslation(0, 1.0, D / 2 + 0.02).scale(new Vector3(1.4, 2.3, 1));
+  c.forma(q, m.clone().multiply(t), [0.42, 0.28, 0.18], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
 }
 
 /** Nastro semplice di muro a secco (versione lontana): faccia e testa lungo la spezzata locale. */

@@ -52,6 +52,8 @@ const GIRO: Tappa[][] = [
 
 export interface Notte {
   sciami: THREE.Object3D[];
+  /** dove le Fade attive scaldano il suolo (centro di ogni sciame, coordinate mondo); restituisce quanti */
+  lumiFade(out: THREE.Vector3[]): number;
   /** forza la presenza delle Fade (null = segue l'ora) */
   fade: boolean | null;
   tecla: { pos: THREE.Vector3; visibile: boolean } | null;
@@ -101,8 +103,19 @@ export function costruisciNotte(ctx: Contesto, uniforms: WorldUniforms | undefin
   }
   void luogo;
   let t = 0;
+  const centri = GIRO.map(() => new THREE.Vector3());
   const notte: Notte = {
     sciami,
+    lumiFade(out) {
+      let n = 0;
+      sciami.forEach((g, i) => {
+        if (!g.visible || n >= out.length) return;
+        // il centro dello sciame, alzato a metà della quota di volo
+        const up = centri[i]!.set(-g.position.x, -g.position.y, 0).normalize();
+        out[n++]!.copy(g.position).addScaledVector(up, 2.6);
+      });
+      return n;
+    },
     fade: null,
     tecla,
     update(dt, ora) {

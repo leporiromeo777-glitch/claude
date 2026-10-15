@@ -27,6 +27,11 @@ export interface GiocoCorbella {
   simTime?: number;
   /** passo di simulazione del motore (viene avvolto se `agganciaCiclo`) */
   update?: (dt: number) => void;
+  /**
+   * sistemi del motore (`Game.sistemi`): il popolamento ci aggiunge un passo di disegno per la luce
+   * calda delle Fade sul suolo (dopo che il motore ha scelto i lumi vicini)
+   */
+  sistemi?: Array<{ render?(frameDt: number): void }>;
 }
 
 /** Posizione nel gioco: (z, theta) e quota assoluta h. */

@@ -9,7 +9,8 @@ import { luogo, RETE } from '../contenuti';
 import type { Contesto } from '../contesto';
 import { hex, mix, type RGB } from '../cantiere';
 import { creaBacheca, creaLavatoio, creaPanca, creaTelo } from '../edifici';
-import { discoSulSuolo, hash2, rumore2 } from '../forme';
+import { discoSulSuolo, hash2, nastroSulSuolo, rumore2 } from '../forme';
+import { SUPERFICIE } from '../../render/superfici';
 import { gradinataSulSuolo } from '../sentieri';
 import { sposta, spostaYaw, suolo, yawVerso } from '../terreno';
 import { posaChiodo } from './sanVigilio';
@@ -49,10 +50,78 @@ export function coloreMeridiana(x: number, y: number, r: number, raggio: number)
   return c;
 }
 
+/** Fondo del selciato: ciottoli chiari e grigi a chiazze larghe (i ciottoli li dipinge il materiale). */
+function coloreFondo(x: number, y: number): RGB {
+  const n = rumore2(x / 1.1, y / 1.1, 3) * 0.55 + rumore2(x / 3.2, y / 3.2, 7) * 0.45;
+  const c = mix(CIOTTOLO_CHIARO, CIOTTOLO_GRIGIO, Math.min(1, Math.max(0, (n - 0.3) * 1.5)));
+  // usura: più chiaro dove si passa (verso il centro e la chiesa), più scuro e caldo ai bordi
+  const r = Math.hypot(x, y);
+  return mix(c, mix(c, hex(0xb7a58a), 0.5), Math.min(1, Math.max(0, (r - 9) / 8)) * 0.5);
+}
+
+/**
+ * Il selciato della piazza delle Ore: fondo a ciottoli (superficie SELCIATO, normali morbide: niente
+ * tessere), cordolo di lastre, l'anello delle ore, le linee delle ore di ciottoli scuri verso il
+ * Sordo, la linea più scura verso Lag e Mane e il cerchio scuro al centro. Le linee sono nastri
+ * sottili appena sopra il fondo, così restano nette anche con pochi triangoli.
+ */
+function selciatoMeridiana(ctx: Contesto, z0: number, th0: number, raggio: number): void {
+  const c = ctx.zona('piazza');
+  const h = 38.5;
+  const SEL = SUPERFICIE.SELCIATO;
+  const qui = (x: number, y: number) => sposta(z0, th0, y, x, h);
+  discoSulSuolo(c, z0, th0, raggio - 0.6, 0.45, 0.04, (x, y) => coloreFondo(x, y), undefined, false, { superficie: SEL + 0.3 });
+  const scuro = (s: number, u: number): RGB => mix(CIOTTOLO_SCURO, CIOTTOLO_GRIGIO, 0.12 + hash2(Math.floor(s / 0.3), Math.floor(u * 2), 4) * 0.2);
+  const anello = (r: number, larghezza: number, sopra: number, colore: (s: number, u: number) => RGB, superficie: number) => {
+    const n = Math.max(24, Math.round((2 * Math.PI * r) / 0.9));
+    const punti = [];
+    for (let i = 0; i <= n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      punti.push(qui(Math.cos(a) * r, Math.sin(a) * r));
+    }
+    nastroSulSuolo(c, punti, larghezza, 0.7, sopra, colore, undefined, { superficie });
+  };
+  // cordolo esterno di lastre di gneiss
+  anello(raggio - 0.32, 0.72, 0.05, (s, u) => mix(CORDOLO, CIOTTOLO_SCURO, 0.15 + 0.25 * hash2(Math.floor(s / 0.7), u > 0 ? 1 : 0, 2)), SUPERFICIE.PIETRA + 0.6);
+  // anello delle ore
+  anello(raggio - 2.2, 0.44, 0.052, scuro, SEL + 0.7);
+  // linee delle ore: rette verso un punto lontano a Lag (il Sordo, 1750 m a nord)
+  const V = { x: 0, y: 1750 };
+  const rMax = raggio - 2.2 - 0.25;
+  for (let k = -5; k <= 5; k++) {
+    const sx = k * 2.6;
+    const sy = -raggio;
+    const dx = V.x - sx;
+    const dy = V.y - sy;
+    const l = Math.hypot(dx, dy);
+    // tratto dentro l'anello delle ore
+    let t0 = -1;
+    let t1 = -1;
+    for (let t = 0; t < raggio * 2.2; t += 0.1) {
+      const x = sx + (dx / l) * t;
+      const y = sy + (dy / l) * t;
+      const dentro = Math.hypot(x, y) < rMax && y < raggio - 2.2;
+      if (dentro && t0 < 0) t0 = t;
+      if (dentro) t1 = t;
+    }
+    if (t0 < 0 || t1 - t0 < 0.5) continue;
+    const a = qui(sx + (dx / l) * t0, sy + (dy / l) * t0);
+    const b = qui(sx + (dx / l) * t1, sy + (dy / l) * t1);
+    nastroSulSuolo(c, [a, b], 0.22, 0.7, 0.052, scuro, undefined, { superficie: SEL + 0.5 });
+  }
+  // la linea più scura: punta a Lag e a Mane (un punto preciso della parete del Sordo)
+  const ang = (12 * Math.PI) / 180;
+  const ta = (-raggio + 3) / Math.cos(ang);
+  const tb = raggio - 2.2;
+  nastroSulSuolo(c, [qui(Math.sin(ang) * ta, Math.cos(ang) * ta), qui(Math.sin(ang) * tb, Math.cos(ang) * tb)], 0.34, 0.7, 0.054, () => hex(0x2c2830), undefined, { superficie: SEL + 0.9 });
+  // cerchio scuro al centro
+  discoSulSuolo(c, z0, th0, 0.9, 0.3, 0.056, () => mix(CIOTTOLO_SCURO, CIOTTOLO_GRIGIO, 0.1), undefined, false, { superficie: SEL + 0.1 });
+}
+
 export function costruisciPiazza(ctx: Contesto): void {
   const p = luogo('piazza_ore');
   const raggio = p.raggio;
-  discoSulSuolo(ctx.zona('piazza'), p.z, p.theta, raggio, 0.3, 0.04, (x, y, r) => coloreMeridiana(x, y, r, raggio));
+  selciatoMeridiana(ctx, p.z, p.theta, raggio);
   ctx.occupa({ nome: 'piazza_ore', z: p.z, theta: p.theta, raggio: raggio + 1 });
 
   // Bacheca delle Ore: sul bordo a Sera, guarda il centro

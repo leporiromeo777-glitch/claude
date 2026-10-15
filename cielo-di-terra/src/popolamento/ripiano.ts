@@ -17,6 +17,7 @@ import type { Contesto } from './contesto';
 import { hash2, rumore2 } from './forme';
 import { spostaYaw, suolo, sposta } from './terreno';
 
+import { SUPERFICIE } from '../render/superfici';
 export type Superficie = 'erba' | 'lastre' | 'terra' | 'ciottoli' | 'nessuna';
 
 export interface OpzioniRipiano {
@@ -137,7 +138,18 @@ export function costruisciRipiano(ctx: Contesto, o: OpzioniRipiano): Ripiano {
         for (let k = 0; k < 9; k++) Na[t * 9 + k] = -Na[t * 9 + k]!;
       }
     }
-    cant.grezzo(new Float32Array(Pa), new Float32Array(Na), new Float32Array(col));
+    // normali radiali (la superficie è piana sul cilindro): i motivi dipinti restano continui,
+    // senza le tessere dei triangoli; superficie dipinta secondo il tipo
+    for (let i = 0; i < Pa.length / 3; i++) {
+      const l = Math.hypot(Pa[i * 3]!, Pa[i * 3 + 1]!) || 1;
+      Na[i * 3] = -Pa[i * 3]! / l;
+      Na[i * 3 + 1] = -Pa[i * 3 + 1]! / l;
+      Na[i * 3 + 2] = 0;
+    }
+    const tipo = { erba: SUPERFICIE.ERBA, lastre: SUPERFICIE.PIETRA + 0.45, terra: SUPERFICIE.TERRA, ciottoli: SUPERFICIE.SELCIATO + 0.2, nessuna: 0 }[o.superficie ?? 'erba'];
+    const S = new Float32Array((Pa.length / 3) * 2);
+    for (let i = 0; i < Pa.length / 3; i++) S[i * 2] = tipo;
+    cant.grezzo(new Float32Array(Pa), new Float32Array(Na), new Float32Array(col), 'singolo', S);
   }
 
   // muri di sostegno sui quattro lati (coordinate della libreria: X = sinistra, Z = avanti)

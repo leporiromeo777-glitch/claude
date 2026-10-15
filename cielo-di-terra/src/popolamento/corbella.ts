@@ -276,6 +276,25 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   // un primo passo per mettere tutto in posa
   update(0);
 
+  // la luce delle Fade sul suolo: il motore sceglie gli 8 lumi più vicini (fissi); di notte gli ultimi
+  // posti vanno agli sciami attivi entro 140 m, così il prato e le pietre si scaldano sotto di loro
+  const lumiFade = [new Vector3(), new Vector3()];
+  const sistemaLuciFade = {
+    render: () => {
+      const arr = game.uniforms?.uLamps.value;
+      const cam = (game.camera as { position?: Vector3 } | undefined)?.position;
+      if (!arr || !cam) return;
+      const n = notte.lumiFade(lumiFade);
+      let slot = arr.length - 1;
+      for (let i = 0; i < n && slot >= 0; i++) {
+        const p = lumiFade[i]!;
+        if (p.distanceToSquared(cam) > 140 * 140) continue;
+        arr[slot--]!.set(p.x, p.y, p.z, 2.8);
+      }
+    },
+  };
+  game.sistemi?.push(sistemaLuciFade);
+
   const maniglia: ManigliaCorbella = {
     radice,
     punti: ctx.punti,
@@ -332,6 +351,10 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
       for (const l of colliderVarianti.values()) for (const c of l) game.world.colliders.remove(c.collider.id);
       abitanti.dispose();
       notte.dispose();
+      if (game.sistemi) {
+        const i = game.sistemi.indexOf(sistemaLuciFade);
+        if (i >= 0) game.sistemi.splice(i, 1);
+      }
       game.lamps.setLamps(lumiMotore.lista, lumiMotore.dim);
       if (origUpdate) game.update = origUpdate;
     },

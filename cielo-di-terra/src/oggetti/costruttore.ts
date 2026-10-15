@@ -13,6 +13,9 @@ import { hashPosizione, Rng } from './rng';
 /** Funzione di colore per vertice: riceve posizione e normale (coordinate dell'oggetto). */
 export type FnColore = (p: THREE.Vector3, n: THREE.Vector3, out: THREE.Color) => void;
 
+/** Occlusione ambientale cotta per vertice (0 = nessuna, 1 = buio pieno), posizione e normale nell'oggetto. */
+export type FnOcclusione = (p: THREE.Vector3, n: THREE.Vector3) => number;
+
 export interface Gradiente {
   /** moltiplicatore di luminosità alla quota y0 */
   basso: number;
@@ -45,6 +48,15 @@ export interface OpzioniPezzo {
   osso?: number;
   /** pesi per vertice: restituisce [i0, w0, i1, w1] (solo per mesh con scheletro) */
   pesi?: (p: THREE.Vector3) => [number, number, number, number];
+  /**
+   * tipo di superficie dipinta dal materiale del mondo (valore di `SUPERFICIE` di
+   * `render/superfici.ts`, più la variante 0..0.99): pietra, piode, legno, intonaco, tessuto…
+   * Senza (0) vale la superficie del materiale (AUTO per gli oggetti: dedotta dal colore).
+   * Con `colore: 'geometria'` si tiene il tag della geometria sorgente se non se ne dà uno.
+   */
+  superficie?: number;
+  /** occlusione ambientale cotta: costante o per vertice (piede dei muri, sotto le gronde) */
+  occlusione?: number | FnOcclusione;
 }
 
 interface Accumulo {
@@ -54,6 +66,10 @@ interface Accumulo {
   skinI: number[];
   skinW: number[];
   skin: boolean;
+  /** superficie e occlusione per vertice (x, y), come l'attributo `aSuperficie` */
+  sup: number[];
+  /** almeno un pezzo ha dichiarato superficie o occlusione */
+  conSup: boolean;
 }
 
 /** Costruisce una matrice da posizione, rotazione (Eulero XYZ, radianti) e scala. */
@@ -98,7 +114,7 @@ export class Costruttore {
   private accumulo(canale: Canale): Accumulo {
     let a = this.canali.get(canale);
     if (!a) {
-      a = { pos: [], nor: [], col: [], skinI: [], skinW: [], skin: false };
+      a = { pos: [], nor: [], col: [], skinI: [], skinW: [], skin: false, sup: [], conSup: false };
       this.canali.set(canale, a);
     }
     return a;
@@ -123,6 +139,12 @@ export class Costruttore {
     const colAttr = opz.colore === 'geometria' ? (geo.getAttribute('color') as THREE.BufferAttribute | undefined) : undefined;
     const fn = typeof opz.colore === 'function' ? (opz.colore as FnColore) : null;
     const base = fn || opz.colore === 'geometria' ? null : new THREE.Color(opz.colore as THREE.ColorRepresentation);
+    // superficie: dal pezzo, oppure (pezzi già costruiti) dalla geometria sorgente
+    const supAttr = opz.superficie === undefined && opz.occlusione === undefined ? (geo.getAttribute('aSuperficie') as THREE.BufferAttribute | undefined) : undefined;
+    const supPezzo = opz.superficie ?? 0;
+    const occFn = typeof opz.occlusione === 'function' ? opz.occlusione : null;
+    const occK = typeof opz.occlusione === 'number' ? opz.occlusione : 0;
+    if (supAttr || opz.superficie !== undefined || opz.occlusione !== undefined) acc.conSup = true;
     const varPezzo = opz.variazione ? 1 + this.rng.centrato(opz.variazione) : 1;
     const tintaPezzo = opz.tinta ? this.rng.centrato(opz.tinta) : 0;
     const det = m.determinant();
@@ -161,6 +183,8 @@ export class Costruttore {
         bb *= 1 - tintaPezzo;
       }
       acc.col.push(r, gg, bb);
+      if (supAttr) acc.sup.push(supAttr.getX(i), supAttr.itemSize > 1 ? supAttr.getY(i) : 0);
+      else acc.sup.push(supPezzo, occFn ? occFn(_p, _n) : occK);
 
       if (opz.osso !== undefined || opz.pesi) {
         acc.skin = true;
@@ -227,6 +251,7 @@ export class Costruttore {
       g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(a.skinI, 4));
       g.setAttribute('skinWeight', new THREE.Float32BufferAttribute(a.skinW, 4));
     }
+    if (a.conSup) g.setAttribute('aSuperficie', new THREE.Float32BufferAttribute(a.sup, 2));
     g.computeBoundingSphere();
     g.computeBoundingBox();
     return g;
