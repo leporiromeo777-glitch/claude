@@ -59,9 +59,10 @@ export function costruisciRiale(ctx: Contesto): void {
   const cs7 = RETE.find((c) => c.id === 'cs_7')!;
   const yaw = 0;
   const D = 6.8;
-  const centro = spostaYaw(cs7.z, cs7.theta, yaw + 180, D / 2 + 0.35, 7);
-  // la soglia del mulino è il chiodo 7 (cs_7): la porta è a +0,6 m sull'asse X della libreria
-  const c2 = spostaYaw(centro.z, centro.theta, yaw - 90, -0.6, 7);
+  // la soglia del mulino (chiodo 7) sta allo spigolo a Sera della facciata a Lag: da lì si vedono
+  // sia il campanile (a Sera e a Mont) sia il Sass dal Messo (a Mane)
+  const centro = spostaYaw(cs7.z, cs7.theta, yaw + 180, D / 2 + 0.75, 7);
+  const c2 = spostaYaw(centro.z, centro.theta, yaw - 90, -1.95, 7);
   const base = suolo(cs7.z, cs7.theta) - 0.05;
   const mulino = creaMulino('mulino-riale', true);
   const pm = ctx.posa('riale', mulino, c2.z, c2.theta, yaw, { h: base, luogo: 'mulino' });

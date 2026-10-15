@@ -258,15 +258,15 @@ function colpisce(a: Vector3, b: Vector3, voci: ReturnType<ManigliaCorbella['col
   return null;
 }
 
-/** Il segmento passa sotto il suolo del motore (campioni ogni 2 m, margine 0,3 m)? */
+/** Il segmento sfiora o passa sotto il suolo del motore (campioni ogni 0,5 m, margine 0,25 m)? */
 function copertoDalTerreno(a: Vector3, b: Vector3): boolean {
   const L = a.distanceTo(b);
   const p = new Vector3();
-  for (let t = 3; t < L - 3; t += 2) {
+  for (let t = 3; t < L - 3; t += 0.5) {
     p.lerpVectors(a, b, t / L);
     const th = ((Math.atan2(-p.x, -p.y) * 180) / Math.PI + 360) % 360;
     const h = 646 - Math.hypot(p.x, p.y);
-    if (h < groundHeight(p.z, th) - 0.3) return true;
+    if (h < groundHeight(p.z, th) + 0.25) return true;
   }
   return false;
 }

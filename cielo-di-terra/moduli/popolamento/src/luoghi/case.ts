@@ -134,6 +134,7 @@ export function costruisciCase(ctx: Contesto, quante = 58): CasaPosata[] {
     const fp = impronta(p.z, p.theta, p.yaw, p.W + 0.6, p.D + 0.6);
     if (fp.max - fp.min > 3.9) continue;
     if (ctx.occupato(p.z, p.theta, 0.3) || occupatoRett(ctx, p, 0.35)) continue;
+    if (ctx.inVisuale(p.z, p.theta, Math.max(p.W, p.D) / 2)) continue;
     if (vicinoSentieri(ctx, p, 0.9)) continue;
     const m = { r: hash2(p.z, p.theta, 9), r2: hash2(p.theta, p.z, 11) };
     const piani = (m.r2 < 0.12 ? 1 : m.r < 0.32 ? 3 : 2) as 1 | 2 | 3;

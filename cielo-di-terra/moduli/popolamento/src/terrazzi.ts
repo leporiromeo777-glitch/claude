@@ -233,7 +233,7 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
       for (let i = 0; i < linea.length; i++) {
         const [x, y] = linea[i]!;
         const p = locale(r, x, y);
-        const valido = !(opz.escludi?.(p.z, p.theta) ?? false) && !ctx.occupato(p.z, p.theta, 0.6) && ctx.distanzaSentieri(p.z, p.theta) > 0.9;
+        const valido = !(opz.escludi?.(p.z, p.theta) ?? false) && !ctx.occupato(p.z, p.theta, 0.6) && ctx.distanzaSentieri(p.z, p.theta) > 0.9 && !ctx.inVisuale(p.z, p.theta, 0, true);
         if (!valido) {
           chiudi();
           continue;

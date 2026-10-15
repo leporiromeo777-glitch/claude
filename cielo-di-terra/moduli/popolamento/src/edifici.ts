@@ -204,7 +204,7 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
       cil(3.1, 0, -3.2, 0.3, hP, 'muro'),
       cil(-3.1, 0, 1.8, 0.3, hP, 'muro'),
       cil(3.1, 0, 1.8, 0.3, hP, 'muro'),
-      box(0, hP + 1.0, -0.7, 4.0, 0.9, 3.6, 'tetto'),
+      box(0, hP + 1.0, -0.7, 3.3, 0.9, 3.6, 'tetto'),
     ],
     ingombro: ingombroDa(gruppo),
     punti: { gradino: new THREE.Vector3(0, 0.08, 3.4), vasca: new THREE.Vector3(0, 0.9, zV + LZ / 2 + 0.4), lume: fiamma },
@@ -488,8 +488,8 @@ export function creaMulino(seme: Seme = 'mulino', ruotaADestra = false): Oggetto
   b.aggiungi(geoBoxC(W, H + interr, D), { matrice: mat([0, (H - interr) / 2, 0]), colore: PALETTE.gneiss, rumore: 0.06, gradiente: { basso: 0.7, alto: 1.0, y0: -interr, y1: H }, piatto: true });
   const yC = tettoPiode(b, rng, { larghezza: W, profondita: D, yGronda: H, pendenza: 0.55, corsi: 4, pezziPerCorso: 6 });
   b.aggiungi(geoTimpano(W, yC - H - 0.1, D), { matrice: mat([0, H, 0]), colore: PALETTE.gneissScuro, piatto: true });
-  porta(b, facciata(0, D / 2, 0), 0.6, 0, 1.0, 1.9, PALETTE.legnoVecchio);
-  finestra(b, facciata(0, D / 2, 0), -1.5, 1.3, { larghezza: 0.55, altezza: 0.65, ante: 0x6b4a33, accesa: true });
+  porta(b, facciata(0, D / 2, 0), 1.85, 0, 1.0, 1.9, PALETTE.legnoVecchio);
+  finestra(b, facciata(0, D / 2, 0), -0.8, 1.3, { larghezza: 0.55, altezza: 0.65, ante: 0x6b4a33, accesa: true });
   // ruota ferma
   const sR = ruotaADestra ? -1 : 1;
   const xR = sR * (W / 2 + 0.45);
@@ -505,15 +505,15 @@ export function creaMulino(seme: Seme = 'mulino', ruotaADestra = false): Oggetto
   // gora di legno
   b.aggiungi(geoBoxC(0.9, 0.4, 4.0), { matrice: mat([xR, 3.5, -2.6], [0.18, 0, 0]), colore: PALETTE.legnoGrigio, piatto: true });
   // soglia di pietra (chiodo 7)
-  b.aggiungi(geoLastra(1.6, 0.18, 0.8, rng.intero(0, 1e6), 0.06), { matrice: mat([0.6, 0.0, D / 2 + 0.35]), colore: PALETTE.gneissChiaro, piatto: true });
+  b.aggiungi(geoLastra(1.7, 0.18, 1.3, rng.intero(0, 1e6), 0.06), { matrice: mat([1.95, 0.0, D / 2 + 0.6]), colore: PALETTE.gneissChiaro, piatto: true });
   const gruppo = b.costruisci('mulino');
   return risultato({
     nome: 'mulino',
     seme: s,
     gruppo,
-    collider: [box(0, (H - interr) / 2, 0, W / 2, (H + interr) / 2, D / 2, 'muro'), box(0, H + 1, 0, W / 2 + 0.4, 1, D / 2 + 0.3, 'tetto'), cil(xR, -0.6, 0, 1.0, 3.5, 'oggetto'), box(-0.6, 0, D / 2 + 0.06, 0.5, 1.0, 0.06, 'porta')],
+    collider: [box(0, (H - interr) / 2, 0, W / 2, (H + interr) / 2, D / 2, 'muro'), box(0, H + 1, 0, W / 2 + 0.4, 1, D / 2 + 0.3, 'tetto'), cil(xR, -0.6, 0, 1.0, 3.5, 'oggetto'), box(1.85, 1.0, D / 2 + 0.06, 0.5, 1.0, 0.06, 'porta')],
     ingombro: ingombroDa(gruppo),
-    punti: { porta: new THREE.Vector3(0.6, 0, D / 2 + 0.9), soglia: new THREE.Vector3(0.6, 0.1, D / 2 + 0.35), ruota: new THREE.Vector3(xR, 1.4, 0) },
+    punti: { porta: new THREE.Vector3(1.85, 0, D / 2 + 1.1), soglia: new THREE.Vector3(1.95, 0.1, D / 2 + 0.75), ruota: new THREE.Vector3(xR, 1.4, 0) },
   });
 }
 

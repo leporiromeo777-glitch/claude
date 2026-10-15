@@ -8,7 +8,8 @@ import type { Collider } from '../../../src/world/colliders';
 import { impostaIntensitaLumi } from '../../oggetti/src/materiali';
 import { Abitanti, type ManigliaNpc } from './abitanti';
 import type { VoceCollider } from './cantiere';
-import { PARTICELLE, luogo } from './contenuti';
+import { LATI, PARTICELLE, RETE, luogo } from './contenuti';
+import { cylToWorld, worldToCyl } from '../../../src/world/cylinder';
 import { Contesto } from './contesto';
 import { costruisciBalcone, costruisciGraDiPian, costruisciLontani, costruisciPilastriValle } from './luoghi/capisaldi';
 import { costruisciCasaPina, costruisciCasaVelo, costruisciCase } from './luoghi/case';
@@ -104,6 +105,8 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const mat = materialiMotore(game);
   const ctx = new Contesto();
 
+  // 0. corridoi delle visuali dei lati chiudibili: dove la visuale passa bassa non si costruiscono case
+  segnaVisuali(ctx);
   // 1. luoghi con un nome (impronte prima delle case generiche) e sentieri
   costruisciSentieri(ctx);
   costruisciPiazza(ctx);
@@ -314,6 +317,36 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   };
   statistiche.msCostruzione = Math.round(performance.now() - t0);
   return maniglia;
+}
+
+/** Segna i corridoi delle visuali dei lati chiudibili (occhio a 1,45 m sul chiodo, segnale in cima). */
+function segnaVisuali(ctx: Contesto): void {
+  const punto = (id: string, occhio: boolean) => {
+    const cs = RETE.find((x) => x.id === id)!;
+    const g = suolo(cs.z, cs.theta);
+    const h = cs.id === 'cs_1' ? g + 24 + (occhio ? 1.45 : 8) : g + (occhio ? 1.45 : Math.max(1.2, cs.altezza_segnale));
+    return cylToWorld(cs.z, cs.theta, h);
+  };
+  for (const lato of LATI) {
+    if (!lato.chiudibile) continue;
+    const a = punto(lato.a, true);
+    const b = punto(lato.b, false);
+    const a2 = punto(lato.b, true);
+    const b2 = punto(lato.a, false);
+    for (const [p0, p1] of [
+      [a, b],
+      [a2, b2],
+    ] as const) {
+      const L = p0.distanceTo(p1);
+      for (let t = 0; t <= L; t += 1) {
+        const p = p0.clone().lerp(p1, t / L);
+        const c = worldToCyl(p);
+        const sopra = c.h - suolo(c.z, c.theta);
+        if (sopra < 13) ctx.visuali.push({ z: c.z, theta: c.theta, raggio: 2.2 });
+        if (sopra < 1.6) ctx.visualiBasse.push({ z: c.z, theta: c.theta, raggio: 1.6 });
+      }
+    }
+  }
 }
 
 function maniglieElemento(e: ElementoCostruito): ManigliaElemento {

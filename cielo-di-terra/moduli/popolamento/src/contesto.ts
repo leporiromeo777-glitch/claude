@@ -44,6 +44,10 @@ export class Contesto {
   /** oggetti con materiale proprio o animati (botola, lanterne, abitanti…) */
   readonly dinamici = new Group();
   readonly animati: Animato[] = [];
+  /** dischi (z, theta, raggio) dove passa bassa la visuale di un lato del rilievo: niente case */
+  readonly visuali: Array<{ z: number; theta: number; raggio: number }> = [];
+  /** dove la visuale sfiora il suolo (< 1,6 m): niente muri delle terrazze */
+  readonly visualiBasse: Array<{ z: number; theta: number; raggio: number }> = [];
   /** collider di oggetti dinamici (fuori dai cantieri), con tag */
   readonly colliderDinamici: Array<{ collider: Collider; tag: string; luogo?: string }> = [];
 
@@ -117,6 +121,12 @@ export class Contesto {
       const destra = -dn * Math.sin(y) + de * Math.cos(y);
       if (Math.abs(avanti) <= (i.profondita ?? 0) / 2 + margine && Math.abs(destra) <= (i.larghezza ?? 0) / 2 + margine) return true;
     }
+    return false;
+  }
+
+  /** Vero se (z, theta) cade in un corridoio di visuale (con margine). */
+  inVisuale(z: number, theta: number, margine = 0, basse = false): boolean {
+    for (const v of basse ? this.visualiBasse : this.visuali) if (distanza(v, { z, theta }) < v.raggio + margine) return true;
     return false;
   }
 

@@ -74,7 +74,12 @@ type ModoOttavio =
   | { tipo: 'cielo' }
   | { tipo: 'atterra'; da: Vector3; a: { z: number; theta: number }; t: number; poi: ModoOttavio }
   | { tipo: 'fermo'; z: number; theta: number; fino?: number }
-  | { tipo: 'accompagna'; tappe: string[] };
+  | { tipo: 'accompagna'; tappe: string[] }
+  /** Viene incontro a Elvira (un dialogo automatico con lui sta per aprirsi). */
+  | { tipo: 'raggiunge'; poi: ModoOttavio };
+
+/** A che distanza da Elvira Ottavio si ferma quando le viene incontro (m). */
+const OTTAVIO_VICINO = 2.4;
 
 export interface ContestoAbitanti {
   giorno: number;
@@ -210,19 +215,36 @@ export class Abitanti {
     this.ottavio = { tipo: 'cielo' };
   }
 
+  /**
+   * Ottavio viene incontro a Elvira (a passo svelto) e si ferma a un paio di metri da lei.
+   * Lo chiede il direttore dei dialoghi quando un dialogo automatico con lui sta per aprirsi
+   * e lui è lontano: si parla da vicino, non a quindici metri.
+   */
+  ottavioRaggiunge(): void {
+    const o = this.ottavio;
+    if (o.tipo === 'raggiunge' || o.tipo === 'atterra' || o.tipo === 'cielo') return;
+    this.ottavio = { tipo: 'raggiunge', poi: o };
+  }
+
+  /** Distanza (sulla superficie) fra una figura visibile e un punto; Infinity se non c'è. */
+  distanzaDa(id: string, z: number, theta: number): number {
+    const f = this.figure.get(id);
+    return f?.visibile ? surfaceDistance(f.z, f.theta, z, theta) : Infinity;
+  }
+
   get modoOttavio(): string {
     return this.ottavio.tipo;
   }
 
   esporta(): unknown {
     const o = this.ottavio;
-    if (o.tipo === 'atterra') return { ottavio: o.poi };
+    if (o.tipo === 'atterra' || o.tipo === 'raggiunge') return { ottavio: o.poi };
     return { ottavio: o };
   }
 
   importa(d: unknown): void {
     const o = (d as { ottavio?: ModoOttavio } | null)?.ottavio;
-    if (o && typeof o === 'object' && 'tipo' in o && o.tipo !== 'atterra') this.ottavio = o;
+    if (o && typeof o === 'object' && 'tipo' in o && o.tipo !== 'atterra' && o.tipo !== 'raggiunge') this.ottavio = o;
     else this.ottavio = { tipo: 'orario' };
   }
 
@@ -331,6 +353,26 @@ export class Abitanti {
           this.veloVerde.lookAt(_v.copy(this.veloVerde.position).add(_u));
         }
         if (t >= 1) this.ottavio = o.poi;
+        return;
+      }
+      case 'raggiunge': {
+        const dz = ctx.elvira.z - f.z;
+        const ds = deltaDeg(f.theta, ctx.elvira.theta) * METERS_PER_DEG;
+        const dist = Math.hypot(dz, ds);
+        if (!f.visibile || dist <= OTTAVIO_VICINO) {
+          // arrivato: resta lì (fino a quando sarebbe rimasto dov'era, o per un'ora)
+          const fino = o.poi.tipo === 'fermo' && o.poi.fino !== undefined ? o.poi.fino : ctx.assoluto + 1;
+          this.ottavio = o.poi.tipo === 'accompagna' ? o.poi : { tipo: 'fermo', z: f.z, theta: f.theta, fino };
+          this.mostra(f, true);
+          return;
+        }
+        const passo = Math.min(dist - OTTAVIO_VICINO, 2.4 * dt);
+        const k = passo / dist;
+        this.posa(f, f.z + dz * k, f.theta + (ds * k) / METERS_PER_DEG, (Math.atan2(ds, dz) * 180) / Math.PI);
+        this.mostra(f, true);
+        f.stato.modo = 'cammina';
+        f.stato.velocita = 2.4;
+        f.luogo = null;
         return;
       }
       case 'accompagna': {

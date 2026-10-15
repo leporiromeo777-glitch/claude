@@ -897,7 +897,7 @@ export class Regia implements SistemaGioco {
     if (!stazione) return null;
     const n = CAPISALDI.find((c) => c.id === mira)?.non_visibile_da?.find((x) => x.id === stazione);
     if (!n) return null;
-    const motivo = (n as { motivo?: string }).motivo ?? '';
+    const motivo = n.motivo ?? '';
     const chi = (motivo.split(/\s+copre\b/)[0] ?? '').split(',')[0]!.trim();
     return chi ? chi.charAt(0).toLowerCase() + chi.slice(1) : 'qualcosa';
   }
