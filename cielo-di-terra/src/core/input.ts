@@ -1,5 +1,6 @@
 /**
- * Input: tastiera (WASD, Spazio, Shift, E...), mouse con pointer lock al clic.
+ * Input: tastiera (WASD, Spazio, Shift, E...), mouse con pointer lock al clic,
+ * tasti del mouse come codici «Mouse0»/«Mouse2» (il destro serve al cannocchiale).
  * I tasti "appena premuti" restano in coda finché un passo di simulazione non
  * li consuma, così non si perdono fra un fotogramma e l'altro.
  */
@@ -19,6 +20,9 @@ export class Input {
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('blur', this.onBlur);
     el.addEventListener('click', this.onClick);
+    el.addEventListener('mousedown', this.onMouseDown);
+    window.addEventListener('mouseup', this.onMouseUp);
+    el.addEventListener('contextmenu', this.onContextMenu);
     document.addEventListener('pointerlockchange', this.onLockChange);
     document.addEventListener('mousemove', this.onMouseMove);
   }
@@ -28,6 +32,9 @@ export class Input {
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('blur', this.onBlur);
     this.target?.removeEventListener('click', this.onClick);
+    this.target?.removeEventListener('mousedown', this.onMouseDown);
+    window.removeEventListener('mouseup', this.onMouseUp);
+    this.target?.removeEventListener('contextmenu', this.onContextMenu);
     document.removeEventListener('pointerlockchange', this.onLockChange);
     document.removeEventListener('mousemove', this.onMouseMove);
   }
@@ -45,6 +52,28 @@ export class Input {
 
   private onBlur = () => {
     this.down.clear();
+  };
+
+  /** Dimentica i tasti tenuti e quelli in coda (quando un menu prende la tastiera). */
+  releaseAll(): void {
+    this.down.clear();
+    this.pressed.clear();
+  }
+
+  /** Tasti del mouse come codici «Mouse0» (sinistro), «Mouse1», «Mouse2» (destro). */
+  private onMouseDown = (e: MouseEvent) => {
+    if (!this.enabled) return;
+    const code = `Mouse${e.button}`;
+    if (!this.down.has(code)) this.pressed.add(code);
+    this.down.add(code);
+  };
+
+  private onMouseUp = (e: MouseEvent) => {
+    this.down.delete(`Mouse${e.button}`);
+  };
+
+  private onContextMenu = (e: Event) => {
+    e.preventDefault();
   };
 
   private onClick = () => {
