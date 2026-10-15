@@ -174,7 +174,7 @@ export class FirstPersonVelo {
     tb.add(PRIMS.frustum(0.25, 8), _t.clone(), [0.78, 0.2, 0.13]);
     const tasselMesh = new Mesh(tb.build(), mat);
     this.tassel.add(tasselMesh);
-    this.tassel.position.set(0.6, 0.06, -0.72);
+    this.tassel.position.set(0.47, 0.02, -0.7);
     this.rig.add(this.tassel);
 
     this.scene.add(this.rig);
