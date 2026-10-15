@@ -11,7 +11,7 @@ Fatta insieme al tombolo da un solo agente (gruppo «tombolo-motore» di docs/RE
 ### Suggerimenti che non mentono (R2-D1; Q025, Q041, Q062, Q076)
 
 - `hintFor(args)` ha due argomenti facoltativi: `draft` (la bozza della riga corrente) e `gradi`. Restituisce `RowHint` (estende `Hint`, compatibile con i chiamanti che leggono `Hint`): `ghosts` = tutti gli incroci del giocatore della riga corrente, `extra` = incroci della bozza che la riga giusta non ha.
-- Indizio: `rowDiffs(bozza, rigaDellaSoluzione)` coppia per coppia da sinistra (`manca`, `verso`, `troppo`); chiavi `indizio.sopra` (unico), `indizio.sopraAltri` (`altri`), `indizio.verso`, `indizio.troppo`, `indizio.va` («Quest'ora va bene: fissala»), `indizio.quiete` (riga e bozza vuote).
+- Indizio: `rowDiffs(bozza, rigaDellaSoluzione)` coppia per coppia da sinistra (`manca`, `verso`, `troppo`); si nomina prima il primo `troppo`, poi il primo degli altri (verifica, vedi sotto); chiavi `indizio.sopra` (unico), `indizio.sopraAltri` (`altri`), `indizio.verso`, `indizio.troppo`, `indizio.va` («Quest'ora va bene: fissala»), `indizio.quiete` (riga e bozza vuote).
 - Fantasma: `fantasma` (uno), `fantasma.due`, `fantasma.tre` (parametri `sopra2`, `sotto2`, `sopra3`, `sotto3`), `fantasma.va` (bozza già giusta, nessun incrocio mostrato).
 - Spinta: con «Spilli velati» solo gli spilli visibili (`VEILED_PIN_AHEAD` = 2 ore dopo la riga corrente, come il disegno); la frase del livello vale fino al primo evento della giornata (`spintaCustomUntil(level)`: barca o vaporetto, ingresso del filo nero, fine della marea); la Spinta sulle richieste non nomina mai un'ora già passata.
 - Prova: su livelli generati con righe da due incroci, applicare il Fantasma riga per riga, o aggiungere gli incroci dell'Indizio finché dice «va bene», arriva sempre a una soluzione (`tests/unit/engine/revisione2.test.ts`).
@@ -30,6 +30,10 @@ Fatta insieme al tombolo da un solo agente (gruppo «tombolo-motore» di docs/RE
 
 - `npx vitest run tests/unit/engine`: verdi, con il nuovo `revisione2.test.ts` (13 test) e i test aggiornati da «a_rischio» a «fallita/perso» (`conditions`, `verifica`, `violations`).
 - `npm run levels:check`: 34 livelli OK.
+
+### Verifica della revisione 2
+
+Il dettaglio è in docs/stato/tombolo.md, «Verifica della revisione 2». Per il motore: l'Indizio nominava per primo, da sinistra, un incrocio mancante anche quando nella bozza c'era un incrocio di troppo che lo impediva (un filo in comune: «disgiunto»; o la matassa che non basta più per entrambi: «matassa»), così seguirlo portava a un rifiuto. Ora `hintFor` nomina prima gli incroci di troppo (`engine/hints.ts`); `tests/unit/tombolo/verifica-r2.test.ts` segue l'Indizio, anche partendo da uno o due incroci sbagliati, su tutte le 23 notti della campagna (69 casi) e il Fantasma su sei notti, sempre fino a tutte le richieste compiute. `engine/quality.test.ts` (K7) non dipende più dai valori di GDD 5.2, aggiornati in questa revisione dal gruppo schermi-atto1.
 
 ## Revisione 1
 
