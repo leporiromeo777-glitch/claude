@@ -9,7 +9,7 @@ import { CatastoGioco, creaLineaLibera, dentroCollisore, posizioniCapisaldi } fr
 import { CAPISALDI, PARTICELLE_AREA, PERSONAGGI, type Personaggio } from '../../src/regia/contenuti';
 import { assolutoDi } from '../../src/regia/orologio';
 import { Abitanti, luogoDaOrario, type ContestoAbitanti } from '../../src/regia/png';
-import type { EventoCatasto, PuntoMira } from '../../src/rilievo';
+import type { ContestoVisibilita, EventoCatasto, PuntoMira } from '../../src/rilievo';
 import { ColliderWorld, boxAt } from '../../src/world/colliders';
 import { cylToWorld } from '../../src/world/cylinder';
 import { groundHeight } from '../../src/world/terrain';
@@ -22,6 +22,9 @@ function pm(id: string): PuntoMira {
 }
 
 /** Le posizioni senza scena: il Pilastro 1 sta in alto sulla cella (20 m sopra la piazza). */
+/** Contesto di una mira di giorno per un lato. */
+const LATO: ContestoVisibilita = { scopo: 'lato', ora: 10 * 60 };
+
 const posizioni = posizioniCapisaldi({
   punto: (id) => (id === 'cs_1' ? cylToWorld(1062, 37.2, groundHeight(1062, 37.2) + 20) : null),
   segnale: () => null,
@@ -31,14 +34,14 @@ describe('linea libera', () => {
   const libera = creaLineaLibera(null, posizioni.occhio, posizioni.segnale);
 
   it('i lati della Fase 1 si vedono sul terreno (3-1, 7-8, 6-2, 1-11)', () => {
-    expect(libera(pm('cs_3'), pm('cs_1'))).toBe(true);
-    expect(libera(pm('cs_7'), pm('cs_8'))).toBe(true);
-    expect(libera(pm('cs_6'), pm('cs_2'))).toBe(true);
-    expect(libera(pm('cs_11'), pm('cs_1'))).toBe(true);
+    expect(libera(pm('cs_3'), pm('cs_1'), LATO)).toBe(true);
+    expect(libera(pm('cs_7'), pm('cs_8'), LATO)).toBe(true);
+    expect(libera(pm('cs_6'), pm('cs_2'), LATO)).toBe(true);
+    expect(libera(pm('cs_11'), pm('cs_1'), LATO)).toBe(true);
   });
 
   it('il terreno copre il Monte (CS 4) da Corbella', () => {
-    expect(libera(pm('cs_1'), pm('cs_4'))).toEqual({ libera: false, motivo: 'Il terreno copre la mira.' });
+    expect(libera(pm('cs_1'), pm('cs_4'), LATO)).toEqual({ libera: false, motivo: 'Il terreno copre la mira.' });
   });
 
   it('una casa in mezzo copre la mira; il collisore che regge la stazione no', () => {
@@ -52,10 +55,10 @@ describe('linea libera', () => {
     // il muro su cui sta il chiodo 7
     cols.add(boxAt(a.z, a.theta, groundHeight(a.z, a.theta) - 1, 0, 2, 4, 2, 'muro'));
     const coperta = creaLineaLibera(cols, posizioni.occhio, posizioni.segnale);
-    expect(coperta(a, b)).toEqual({ libera: false, motivo: 'Una casa copre la mira.' });
+    expect(coperta(a, b, LATO)).toEqual({ libera: false, motivo: 'Una casa copre la mira.' });
     cols.clear();
     cols.add(boxAt(a.z, a.theta, groundHeight(a.z, a.theta) - 1, 0, 2, 4, 2, 'muro'));
-    expect(creaLineaLibera(cols, posizioni.occhio, posizioni.segnale)(a, b)).toBe(true);
+    expect(creaLineaLibera(cols, posizioni.occhio, posizioni.segnale)(a, b, LATO)).toBe(true);
   });
 
   it('dentroCollisore: scatole e cilindri, con il margine', () => {

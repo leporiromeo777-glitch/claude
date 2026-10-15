@@ -84,6 +84,11 @@ export function installaDebugRegia(r: Regia): DebugRegia {
         varianti: Object.fromEntries(['E1', 'E2', 'E3', 'E4'].map((e) => [e, r.catasto.variante(e)])),
         latiChiusi: r.catasto.latiChiusi(),
         ottavio: r.abitanti.modoOttavio,
+        ottavioDistanza: Math.round(r.abitanti.distanzaDa('ottavio', pc.z, pc.theta) * 10) / 10,
+        ottavioPos: (() => {
+          const f = r.abitanti.figure.get('ottavio');
+          return f ? [Math.round(f.z * 10) / 10, Math.round(f.theta * 100) / 100, f.visibile] : null;
+        })(),
         taccuino: n.taccuino.voci().length,
         rigaCielo: r.ponte.rigaCielo(),
       };
