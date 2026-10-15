@@ -48,12 +48,17 @@ export interface PresetQualita {
   fxaa: boolean;
   /** Ombre portate della traccia «luce» ('spente' a Bassa): vedi `Game.applicaOmbre`. */
   ombre: LivelloOmbre;
+  /**
+   * Motivi del mondo della traccia «luce» (`uDettaglio`): 1 = pieni, 0 = economici (niente tocchi
+   * fini del prato né foglie cadute, motivi delle superfici solo da vicino). Vedi `Game.applicaOmbre`.
+   */
+  motivi: number;
 }
 
 export const PRESET_QUALITA: Readonly<Record<LivelloQualita, PresetQualita>> = {
-  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente' },
-  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media' },
-  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta' },
+  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente', motivi: 0 },
+  media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media', motivi: 1 },
+  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta', motivi: 1 },
 };
 
 export function isLivello(x: unknown): x is LivelloQualita {

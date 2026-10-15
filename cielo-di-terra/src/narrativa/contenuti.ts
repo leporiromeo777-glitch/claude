@@ -15,6 +15,33 @@ import { listaEffetti } from './effetti';
 export interface EventoPassoDef {
   quando: CondizioneGrezza;
   effetti: string[];
+  /**
+   * `false`: l'evento non è una tappa di strada per il segnalino (di serie i luoghi e i dialoghi
+   * degli eventi lo sono: la passerella prima del fienile). Per un dialogo che serve solo in un
+   * ramo della storia, la tappa si scrive a mano nelle `tappe` del passo, con il suo `quando`.
+   */
+  tappa?: boolean;
+}
+
+/** Un'indicazione che sostituisce quella del passo finché `quando` è vera (vale la prima che lo è). */
+export interface IndicazioneSeDef {
+  quando: CondizioneGrezza;
+  indicazione: string;
+}
+
+/**
+ * Una tappa del segnalino scritta a mano (`tappe` del passo), prima di quelle che la guida ricava
+ * dalle condizioni: un luogo da cui passare (il Balcone prima dei Bugni), un punto da usare (la
+ * busta, l'armadietto: un punto d'interazione della regia), una persona da trovare, con il luogo
+ * dove cercarla (il campanaro sul sagrato: se non c'è, il segnalino va sul luogo e il pannello
+ * dice a che ora arriva).
+ */
+export interface TappaDef {
+  luogo?: string;
+  punto?: string;
+  persona?: string;
+  /** La tappa vale finché è vera; senza, un luogo vale finché non è raggiunto durante il passo e il resto sempre. */
+  quando?: CondizioneGrezza;
 }
 
 /** Un aiuto a tempo: dopo `dopoSecondi` secondi reali di passo attivo si applicano gli effetti (una volta). */
@@ -27,6 +54,20 @@ export interface PassoDef {
   id: string;
   /** Testo (o id di voce del taccuino) dell'obiettivo mostrato mentre il passo è attivo. */
   obiettivo?: string;
+  /**
+   * Indicazione pratica per il pannello dell'obiettivo: che cosa fare, dove e con quale tasto
+   * (segnaposto dei comandi fra graffe, come nei suggerimenti: «Siediti ({siedi})»).
+   */
+  indicazione?: string;
+  /** Indicazioni al posto di `indicazione` in un ramo della storia (`indicazione_se: [{ quando, indicazione }]`). */
+  indicazioniSe?: IndicazioneSeDef[];
+  /** `false`: per questo passo niente segnalino di direzione (si fa ovunque, o il luogo è alle spalle). */
+  segnalino?: boolean;
+  /**
+   * Tappe del segnalino scritte a mano (`tappe: [{ luogo | punto | persona, luogo?, quando? }]`).
+   * Un passo con le sue tappe non ripiega sul `luogo` quando non manca più niente da indicare.
+   */
+  tappe?: TappaDef[];
   /**
    * Condizione di attivazione. Se c'è, decide da sola (passi paralleli
    * possibili); se manca, il passo aspetta il precedente.
@@ -276,6 +317,48 @@ export function normalizzaMissioni(x: unknown, avvisi: string[] = []): MissioneD
       if (idPassi.has(idPasso)) avvisi.push(`missione «${id}»: passo duplicato «${idPasso}»`);
       idPassi.add(idPasso);
       const obiettivo = stringa(primo(p, 'obiettivo_taccuino', 'obiettivo', 'testo'));
+      const indicazione = stringa(p.indicazione);
+      if (p.indicazione !== undefined && p.indicazione !== null && (indicazione === undefined || !indicazione.trim())) {
+        avvisi.push(`missione «${id}», passo «${idPasso}»: «indicazione» deve essere un testo non vuoto`);
+      }
+      const segnalino = p.segnalino;
+      if (segnalino !== undefined && typeof segnalino !== 'boolean') avvisi.push(`missione «${id}», passo «${idPasso}»: «segnalino» deve essere true o false`);
+      const indicazioniSe: IndicazioneSeDef[] = [];
+      if (p.indicazione_se !== undefined) {
+        if (!Array.isArray(p.indicazione_se)) avvisi.push(`missione «${id}», passo «${idPasso}»: «indicazione_se» deve essere una lista`);
+        else
+          p.indicazione_se.forEach((x, k) => {
+            const quando = oggetto(x) ? condizione(x, 'quando', 'se') : undefined;
+            const testo = oggetto(x) ? stringa(x.indicazione) : undefined;
+            if (quando === undefined || !testo?.trim()) {
+              avvisi.push(`missione «${id}», passo «${idPasso}»: «indicazione_se» ${k + 1} vuole «quando» e «indicazione»`);
+              return;
+            }
+            indicazioniSe.push({ quando, indicazione: testo.trim() });
+          });
+      }
+      const tappe: TappaDef[] = [];
+      if (p.tappe !== undefined) {
+        if (!Array.isArray(p.tappe)) avvisi.push(`missione «${id}», passo «${idPasso}»: «tappe» deve essere una lista`);
+        else
+          p.tappe.forEach((x, k) => {
+            const t: TappaDef = {};
+            if (oggetto(x)) {
+              for (const c of ['luogo', 'punto', 'persona'] as const) {
+                const v = stringa(x[c]);
+                if (v) t[c] = v;
+              }
+              const quando = condizione(x, 'quando', 'se');
+              if (quando !== undefined) t.quando = quando;
+            }
+            const quante = (t.luogo ? 1 : 0) + (t.punto ? 1 : 0) + (t.persona ? 1 : 0);
+            if (!oggetto(x) || quante === 0 || (t.punto && quante > 1) || (t.luogo && !t.persona && quante > 1)) {
+              avvisi.push(`missione «${id}», passo «${idPasso}»: la tappa ${k + 1} vuole un «luogo», un «punto» o una «persona» (con il suo «luogo», se serve)`);
+              return;
+            }
+            tappe.push(t);
+          });
+      }
       const attivaQuando = condizione(p, 'attiva_quando', 'attivo_quando', 'condizione_attivazione');
       const completaQuando = condizione(p, 'completa_quando', 'completato_quando', 'condizione', 'condizioni');
       const luogo = stringa(p.luogo);
@@ -288,7 +371,8 @@ export function normalizzaMissioni(x: unknown, avvisi: string[] = []): MissioneD
             avvisi.push(`missione «${id}», passo «${idPasso}»: l'evento ${k + 1} non ha «quando»`);
             return;
           }
-          eventi.push({ quando, effetti: listaEffetti(primo(e, 'effetti', 'effetto')) });
+          if (e.tappa !== undefined && typeof e.tappa !== 'boolean') avvisi.push(`missione «${id}», passo «${idPasso}»: l'evento ${k + 1} ha «tappa» che non è true o false`);
+          eventi.push({ quando, effetti: listaEffetti(primo(e, 'effetti', 'effetto')), ...(e.tappa === false ? { tappa: false } : {}) });
         });
       }
       const aiuti: AiutoDef[] = [];
@@ -306,6 +390,10 @@ export function normalizzaMissioni(x: unknown, avvisi: string[] = []): MissioneD
       passi.push({
         id: idPasso,
         ...(obiettivo !== undefined ? { obiettivo } : {}),
+        ...(indicazione !== undefined && indicazione.trim() ? { indicazione: indicazione.trim() } : {}),
+        ...(indicazioniSe.length ? { indicazioniSe } : {}),
+        ...(typeof segnalino === 'boolean' ? { segnalino } : {}),
+        ...(tappe.length ? { tappe } : {}),
         ...(attivaQuando !== undefined ? { attivaQuando } : {}),
         ...(completaQuando !== undefined ? { completaQuando } : {}),
         effetti: listaEffetti(primo(p, 'effetti', 'effetto', 'effetti_completamento')),

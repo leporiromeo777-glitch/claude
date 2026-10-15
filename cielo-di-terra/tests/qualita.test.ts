@@ -17,6 +17,14 @@ describe('preset di qualità', () => {
     expect(PRESET_QUALITA.alta.raggio).toBeGreaterThan(PRESET_QUALITA.media.raggio);
   });
 
+  it('comanda il mondo della traccia «luce»: ombre e motivi economici a Bassa', () => {
+    expect(PRESET_QUALITA.bassa.motivi).toBeLessThan(0.5);
+    expect(PRESET_QUALITA.media.motivi).toBe(1);
+    expect(PRESET_QUALITA.alta.motivi).toBe(1);
+    expect(PRESET_QUALITA.media.ombre).toBe('media');
+    expect(PRESET_QUALITA.alta.ombre).toBe('alta');
+  });
+
   it('riconosce le scelte valide', () => {
     expect(isSceltaQualita('automatica')).toBe(true);
     expect(isSceltaQualita('alta')).toBe(true);

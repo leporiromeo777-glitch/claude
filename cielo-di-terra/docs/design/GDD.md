@@ -973,6 +973,14 @@ Il giocatore sceglie il finale nella Lanterna (M14), davanti alla Terra. È anch
 
 Principio: **nessuna icona**, nessun segnalino, nessuna bussola a schermo. Tutto ciò che il giocatore deve sapere sta nelle mani di Elvira o nel mondo.
 
+**Eccezione, per richiesta dell'utente (Fase 1, ottobre 2026): le indicazioni delle missioni.** Chi giocava la Fase 1 non capiva che cosa fare né dove andare: l'obiettivo si leggeva solo nel Taccuino, ed è una domanda o una frase allusiva («Le gambe. Due secoli. Piano.»). Ora il principio è un'**opzione**, e di serie le indicazioni sono **attive**: Impostazioni › Aiuti › «Indicazioni delle missioni»:
+
+- **Complete** (di serie): in alto a sinistra un ritaglio di carta con il titolo della missione, l'**indicazione pratica** del passo (che cosa fare, dove, con quale tasto: «Cammina piano verso il muretto del belvedere e siediti (tieni [C])») e, a matita, l'obiettivo del Taccuino; sul mondo un piccolo **segnalino** a matita sulla meta, con la distanza, che si appoggia al bordo dello schermo con una freccia quando la meta è fuori vista o alle spalle e dice «in su» o «sotto» quando è molto più in alto (l'altra parte della valle, la cella campanaria) o più in basso (la Cripta);
+- **Senza segnalino**: il pannello, senza segnalino;
+- **Nessuna**: come nel disegno originale, solo il Taccuino.
+
+Quando la persona da cercare non c'è ancora (all'alba in piazza ci sono solo i velati della folla, la novizia arriva alle 7, il campanaro sul sagrato alle 8) il segnalino va dove arriverà e il pannello dice a che ora, secondo gli orari dei personaggi; il menu «Aspetta fino a» propone quell'ora. Il tasto **O** nasconde e rimostra il pannello. Le indicazioni si nascondono nei dialoghi, nelle carte, nel Taccuino, nella Pianta, nella pausa e nelle scene; il Taccuino resta com'era (domande e indizi, mai «vai a»). Le indicazioni sono testi dei contenuti (campo `indicazione` dei passi, `FASE1.md` §2.5).
+
 ### 8.1 A schermo, durante il gioco
 
 - Le **mani** di Elvira e ciò che tengono (squadro, lente, lettera, Velo, lampada).
@@ -980,6 +988,7 @@ Principio: **nessuna icona**, nessun segnalino, nessuna bussola a schermo. Tutto
 - Il **fiato**: restringimento della vista e suono del respiratore, nessuna barra.
 - I **suggerimenti dei comandi**: una riga in corsivo a matita in basso, solo la prima volta di ogni verbo; disattivabili.
 - I **sottotitoli** con il nome di chi parla («una velata», finché Elvira non sa il nome).
+- Le **indicazioni delle missioni** (opzione, attiva di serie): il pannello dell'obiettivo in alto a sinistra e il segnalino sulla meta (vedi il principio qui sopra).
 
 ### 8.2 Il Taccuino
 
@@ -1047,6 +1056,7 @@ Progettati dal primo mese, provati con 5-8 persone sensibili al mal di movimento
 - Aiuti di rilievo: bolla più larga (finestra di 1,5 s nel Dondolio), collimazione che aggancia il segnale.
 - Apnea +50 %; Tenuta con la fascia verde più larga; traversate delle Finestre con 10 s d'ombra in più.
 - Puntatore della posizione sulla Pianta; rosa dei venti.
+- Indicazioni delle missioni: complete (pannello e segnalino, di serie), senza segnalino, nessuna; il tasto O nasconde il pannello.
 - **Avviso della sera** (opzione): prima di dormire il Taccuino elenca ciò che Elvira ha usato quel giorno e che non è misurato.
 - Comandi rimappabili, tenere o premere a scelta, nessun QTE, ogni azione a tempo ha un aiuto.
 - Pausa ovunque: il tempo del mondo si ferma nei menù, nella lettura delle lettere e nella pausa.

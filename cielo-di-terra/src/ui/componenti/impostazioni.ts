@@ -185,6 +185,17 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
       { tipo: 'interruttore', chiave: 'piuTempo', etichetta: 'Più tempo nelle prove', nota: 'Tenuta con la fascia verde più larga, dieci secondi d\u2019ombra in più sulle Finestre.' },
       { tipo: 'interruttore', chiave: 'arcoLancio', etichetta: 'Arco del lancio a matita', nota: 'Mostra prima dove curverà ciò che lanci.' },
       { tipo: 'interruttore', chiave: 'avvisoSera', etichetta: 'Avviso della sera', nota: 'Prima di dormire il taccuino elenca ciò che hai usato e che non è misurato.' },
+      {
+        tipo: 'scelta',
+        chiave: 'indicazioniMissioni',
+        etichetta: 'Indicazioni delle missioni',
+        nota: 'In alto a sinistra che cosa fare; sul mondo un segnalino con la distanza. «Senza segnalino»: solo il pannello. Il tasto O nasconde il pannello. «Nessuna»: solo il Taccuino.',
+        opzioni: [
+          { valore: 'complete', etichetta: 'Complete' },
+          { valore: 'obiettivo', etichetta: 'Senza segnalino' },
+          { valore: 'nessuna', etichetta: 'Nessuna' },
+        ],
+      },
     ],
   },
 ];

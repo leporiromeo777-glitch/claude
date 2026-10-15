@@ -43,6 +43,11 @@ export interface ContenutiVerifica {
   elementi?: Readonly<Record<string, readonly string[]>>;
   /** content/testi.json (facoltativo: controlla testo:, battuta:, suggerimento:). */
   testi?: unknown;
+  /**
+   * Segnaposto dei comandi che il gioco sa riempire («usa», «siedi»…: `TASTI` della regia).
+   * Se c'è, ogni `{segnaposto}` delle indicazioni dei passi e dei suggerimenti deve esserci.
+   */
+  tasti?: readonly string[];
 }
 
 export interface OpzioniVerifica {
@@ -164,6 +169,11 @@ function* condizioniDi(c: ContenutiNormalizzati): Generator<[CondizioneGrezza, s
       if (p.attivaQuando !== undefined) yield [p.attivaQuando, `missione ${m.id}, passo ${p.id} (attivazione)`];
       if (p.completaQuando !== undefined) yield [p.completaQuando, `missione ${m.id}, passo ${p.id} (completamento)`];
       for (let k = 0; k < p.eventi.length; k++) yield [p.eventi[k]!.quando, `missione ${m.id}, passo ${p.id}, evento ${k + 1}`];
+      for (let k = 0; k < (p.indicazioniSe ?? []).length; k++) yield [p.indicazioniSe![k]!.quando, `missione ${m.id}, passo ${p.id}, indicazione_se ${k + 1}`];
+      for (let k = 0; k < (p.tappe ?? []).length; k++) {
+        const q = p.tappe![k]!.quando;
+        if (q !== undefined) yield [q, `missione ${m.id}, passo ${p.id}, tappa ${k + 1}`];
+      }
     }
   }
   for (const d of Object.values(c.dialoghi)) {
@@ -980,6 +990,10 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
       if (altra !== undefined && altra !== m.id) avvisi.push(`il passo «${p.id}» è sia in ${altra} sia in ${m.id}`);
       passiVisti.set(p.id, m.id);
       if (p.luogo !== undefined && luoghi && !luoghi.has(p.luogo)) avvisi.push(`missione ${m.id}, passo ${p.id}: luogo «${p.luogo}» non è in luoghi.json`);
+      for (const t of p.tappe ?? []) {
+        if (t.luogo !== undefined && luoghi && !luoghi.has(t.luogo)) errori.push(`missione ${m.id}, passo ${p.id}: la tappa va al luogo «${t.luogo}», che non è in luoghi.json`);
+        if (t.persona !== undefined && personaggi && !personaggi.has(t.persona)) errori.push(`missione ${m.id}, passo ${p.id}: la tappa cerca «${t.persona}», che non è in personaggi.json`);
+      }
       if (p.completaQuando === undefined) errori.push(`missione ${m.id}, passo ${p.id}: manca «completa_quando»`);
     }
   }
@@ -1149,11 +1163,32 @@ export function verificaContenuti(grezzi: ContenutiVerifica, opzioni: OpzioniVer
     .sort((x, y) => x.nome.localeCompare(y.nome));
   const flagDelGioco = [...flagDaGioco].map(([nome, letto]) => ({ nome, letto: unici(letto) })).sort((x, y) => x.nome.localeCompare(y.nome));
   const oggettiDelGioco = [...oggettiDaGioco].map(([id, letto]) => ({ id, letto: unici(letto) })).sort((x, y) => x.id.localeCompare(y.id));
+  const tasti = grezzi.tasti ? new Set(grezzi.tasti) : null;
+  /** I segnaposto `{x}` di un testo che il gioco non sa riempire. */
+  const segnapostoIgnoti = (testo: string): string[] => (tasti ? [...testo.matchAll(/\{(\w+)\}/g)].map((x) => x[1]!).filter((k) => !tasti.has(k)) : []);
   for (const m of c.missioni) {
+    const visibile = m.tipo !== 'sfondo' && m.tipo !== 'segreto' && m.tipo !== 'indizio' && m.tipo !== 'easter_egg';
     for (const p of m.passi) {
-      if (p.obiettivo === undefined && m.tipo !== 'sfondo' && m.tipo !== 'segreto' && m.tipo !== 'indizio' && m.tipo !== 'easter_egg') {
+      if (p.obiettivo === undefined && visibile) {
         avvisi.push(`missione ${m.id}, passo ${p.id}: manca «obiettivo_taccuino»`);
       }
+      // il pannello dell'obiettivo: ogni passo con un obiettivo dice anche che cosa fare
+      if (p.obiettivo !== undefined && visibile && p.indicazione === undefined) {
+        avvisi.push(`missione ${m.id}, passo ${p.id}: manca «indicazione» (il pannello dell'obiettivo resterebbe senza istruzioni)`);
+      }
+      for (const testo of [p.indicazione, ...(p.indicazioniSe ?? []).map((x) => x.indicazione)]) {
+        if (testo === undefined) continue;
+        for (const k of segnapostoIgnoti(testo)) errori.push(`missione ${m.id}, passo ${p.id}: l'indicazione usa il segnaposto «{${k}}», che non è un comando del gioco`);
+        if (/[{}]/.test(testo.replace(/\{\w+\}/g, ''))) errori.push(`missione ${m.id}, passo ${p.id}: l'indicazione ha una graffa spaiata`);
+      }
+      if (p.indicazioniSe?.length && p.indicazione === undefined) avvisi.push(`missione ${m.id}, passo ${p.id}: «indicazione_se» senza l'«indicazione» di serie`);
+    }
+  }
+  const suggerimenti = (grezzi.testi as { suggerimenti?: Record<string, unknown> } | undefined)?.suggerimenti;
+  if (suggerimenti && typeof suggerimenti === 'object') {
+    for (const [id, t] of Object.entries(suggerimenti)) {
+      if (typeof t !== 'string' || id.startsWith('_')) continue;
+      for (const k of segnapostoIgnoti(t)) errori.push(`testi.suggerimenti.${id}: segnaposto «{${k}}» che non è un comando del gioco`);
     }
   }
 

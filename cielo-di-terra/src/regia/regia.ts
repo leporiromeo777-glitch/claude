@@ -43,6 +43,7 @@ import { ORDINE_LIBRETTO, PonteInterfaccia } from './interfaccia';
 import { Interazioni, type StatoInterazione } from './interazioni';
 import { Luoghi, quotaAppoggio } from './luoghi';
 import { NotteVista } from './notte';
+import { GuidaObiettivi } from './obiettivi';
 import { OrologioStoria, attraversa, type Intervallo } from './orologio';
 import { Abitanti } from './png';
 import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '../rilievo';
@@ -113,6 +114,8 @@ export class Regia implements SistemaGioco {
   readonly dialoghi: DirettoreDialoghi;
   readonly velatura: Velatura;
   readonly salvataggi: GestoreSalvataggi;
+  /** Le indicazioni delle missioni: pannello dell'obiettivo e segnalino di direzione. */
+  readonly guida: GuidaObiettivi;
 
   fase: 'caricamento' | 'titolo' | 'gioco' = 'caricamento';
   interno: 'cripta' | 'cella' | null = null;
@@ -196,6 +199,7 @@ export class Regia implements SistemaGioco {
     this.salvataggi = new GestoreSalvataggi({ archivio: archivioDaStorage(localStorage), prefisso: 'cielo-di-terra.salvataggio' });
     this.ponte = new PonteInterfaccia(this);
     this.dialoghi = new DirettoreDialoghi(this);
+    this.guida = new GuidaObiettivi(this);
 
     // --- squadro ---
     this.squadro = new Squadro(g, {
@@ -331,6 +335,7 @@ export class Regia implements SistemaGioco {
     this.velatura.dalNero(3.2, true);
     this.ui.indicazioni.show();
     this.narrativa.tick(0);
+    this.guida.azzera();
     this.log('nuova partita');
   }
 
@@ -360,6 +365,8 @@ export class Regia implements SistemaGioco {
       }
       this.suggerisciPassoCorrente();
       this.ui.indicazioni.show();
+      // l'obiettivo in corso torna nel pannello così com'era: non è «nuovo»
+      this.guida.riprendi();
       this.riallinea();
       this.velatura.dalNero(1.2);
       this.log('partita caricata');
@@ -780,6 +787,9 @@ export class Regia implements SistemaGioco {
   vociAttesa(): { testo: string; ore: number }[] {
     const o = this.orologio.ore;
     const v: { testo: string; ore: number }[] = [];
+    // chi si cerca per l'obiettivo e non c'è ancora (le indicazioni sanno quando arriva)
+    const a = this.guida.arrivo;
+    if (a && a.giorno === this.orologio.giorno && a.ore > o + 1 / 60 && o >= 5.5 && a.ore <= 20) v.push({ testo: `le ${fmtOra(a.ore)}, quando arriva qualcuno`, ore: a.ore });
     if (this.narrativa.flag.vero('aspetta_brace_sbloccato') && o < 19.5 && o >= 5.5) v.push({ testo: 'la brace (19:30)', ore: 19.5 });
     if (o >= 19 || this.narrativa.flag.vero('scelta_vegliare')) v.push({ testo: 'mezzanotte', ore: 0 });
     if (o >= 21 || o < 5.5) v.push({ testo: "l'alba (05:30)", ore: 5.5 });
@@ -1356,6 +1366,7 @@ export class Regia implements SistemaGioco {
       this.capisaldiTrovati(occhi);
     }
     this.ponte.sonda(dt);
+    this.guida.update(dt);
 
     // salvataggio automatico (ogni passo di missione e a ogni alba)
     if (this.salvaTra > 0) {
@@ -1461,6 +1472,7 @@ export class Regia implements SistemaGioco {
     g.loop.paused = inPausa || this.fase === 'titolo';
     this.audio.pausa(inPausa);
     if (this.fase !== 'gioco') {
+      this.guida.render(frameDt);
       ui.indicazioni.azione(null);
       ui.indicazioni.squadro(null);
       return;
@@ -1503,6 +1515,8 @@ export class Regia implements SistemaGioco {
     } else ui.indicazioni.squadro(this.squadro.stato === 'piantato' && !this.squadro.livellato ? { livella: this.squadro.bolla } : null);
     this.velatura.lente(this.lente && !this.squadro.telescopio);
     g.setFovScale(this.squadro.telescopio ? 0.25 : this.lente ? 0.62 : 1);
+    // il segnalino dopo il campo visivo della lente e del cannocchiale (la proiezione di adesso)
+    this.guida.render(frameDt);
     this.velatura.update(frameDt);
     if (ui.taccuino.visible) ui.taccuino.prossimoEvento(this.ponte.rigaCielo());
     // audio
