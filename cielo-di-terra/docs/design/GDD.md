@@ -101,7 +101,7 @@ Le campane della Confraternita suonano il mattutino alle 06:00, la mezza luce al
 
 ### 2.4 La mappa del cilindro
 
-Il cilindro srotolato (z in orizzontale, θ in verticale). Ogni riga vale 15°, ogni colonna 250 m.
+Il cilindro srotolato (z in orizzontale, θ in verticale). È uno schema, non in scala: le coordinate esatte sono nelle tabelle che seguono.
 
 ```
  θ \ z   0     250   500   750  1000  1250  1500  1750  2000  2250  2500  2750 3000

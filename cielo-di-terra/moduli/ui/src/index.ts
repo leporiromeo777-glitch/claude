@@ -50,7 +50,13 @@ export {
   type DatiTaccuino,
   type PistaTaccuino,
   type IndizioTaccuino,
+  type NotaTaccuino,
+  type ManoTaccuino,
   type ParolaTaccuino,
+  type ProverbioTaccuino,
+  type LeggendaTaccuino,
+  type RespiroTaccuino,
+  type SchedaTaccuino,
   type VociViste,
   type EventiTaccuino,
 } from './componenti/taccuino';

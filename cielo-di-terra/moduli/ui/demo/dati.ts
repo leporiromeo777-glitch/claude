@@ -162,22 +162,19 @@ export const TACCUINO: DatiTaccuino = {
     { tecnica: 'droni di manutenzione', locale: 'le Fade', nota: 'hanno un lume; ballano in cerchio sui prati', nuova: true },
     { tecnica: 'catasto', locale: 'la Carta' },
   ],
+  note: [{ id: 'n1', testo: 'Una stella non fa ombra. Non a otto anni luce.' }],
   proverbi: [
     {
-      dialetto: 'Ul castan da Cevi l’è ancamò in fiur. Va tegnum la val.',
-      traduzione: 'Il castagno di Cevio è ancora in fiore. Tienimi la valle.',
-      regola: 'Marta mi disse «tienimi la valle». Lo dicono tutti, in Valmaggia.',
+      dialetto: 'Ul castan da Cevi l\u2019è ancamò in fiur. Va tegnum la val.',
+      italiano: 'Il castagno di Cevio è ancora in fiore. Tienimi la valle.',
+      nota: 'Marta mi disse «tienimi la valle». Lo dicono tutti, in Valmaggia.',
     },
-    {
-      dialetto: 'Ciò che la Giardiniera ha misurato, la notte non lo tocca.',
-      traduzione: 'Le Fade rimettono come sulla Carta solo ciò che nessuno ha rilevato.',
-      nuovo: true,
-    },
-    { dialetto: 'La pietra misurata vale più della penna.', traduzione: 'Per cancellare una misura bisogna spostare il caposaldo?' },
+    { italiano: 'Ciò che la Giardiniera ha misurato, la notte non lo tocca.', fonte: 'in piazza', nuovo: true },
+    { italiano: 'La pietra misurata vale più della penna.', nota: 'Per cancellare una misura bisogna spostare il caposaldo?' },
   ],
   leggende: [
-    { id: 'o1', sera: 'Sera del giorno 1', testo: 'I Padri partirono dal Mondo Bruciato, e la Sorella partì con loro, e non li lasciò mai.' },
-    { id: 'o2', sera: 'Sera del giorno 2', testo: 'E la Santa salì nella Linea, e lasciò i guanti dove le api dormono.', nuova: true },
+    { id: 'o1', fonte: 'L\u2019Ombrista, prima sera', testo: '«…e la Sorella partì con loro, e non li lasciò mai.»' },
+    { id: 'o2', fonte: 'L\u2019Ombrista, seconda sera', testo: '«…e la Santa salì nella Linea, e lasciò i guanti dove le api dormono.»', nuova: true },
   ],
   respiri: [],
 };

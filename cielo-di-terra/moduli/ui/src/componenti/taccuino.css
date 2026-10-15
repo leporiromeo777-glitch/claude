@@ -435,3 +435,28 @@
   line-height: var(--riga-mano);
   color: var(--matita);
 }
+
+/* Note: appunti liberi e note sotto una domanda o un indizio (spesso dell'altra mano). */
+.ui-tc-nota {
+  position: relative;
+  margin: 0;
+}
+.ui-tc-nota--domanda {
+  margin: calc(var(--riga-mano) * -0.5) 0 calc(var(--riga-mano) * 0.5) 1.2em;
+}
+.ui-tc-nota--indizio {
+  margin-left: 1.2em;
+}
+.ui-tc-appunto {
+  margin-bottom: calc(var(--riga-mano) * 0.25);
+}
+.ui-tc-leggi {
+  min-height: 0;
+  margin: 2px 0 0 -0.4em;
+  padding: 0.05em 0.4em;
+  font-size: var(--t-piccolo);
+  color: var(--inchiostro-2);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
