@@ -327,11 +327,10 @@ void supPietra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   vec2 rel;
   vec4 vo = voronoi2(q, rel);
   float id = vo.z;
-  vec3 ocra = c * vec3(1.07, 1.0, 0.86);
-  vec3 bruno = c * vec3(0.94, 0.88, 0.8);
-  vec3 freddo = c * vec3(0.96, 0.98, 1.03);
-  vec3 pc = id < 0.3 ? ocra : (id < 0.6 ? c : (id < 0.84 ? freddo : bruno));
-  pc *= 0.88 + 0.18 * hash12(vec2(id * 31.0, 3.7));
+  // (rifinitura 2) ogni pietra ha il suo valore (±10%) e appena un'ombra di caldo o di freddo: con
+  // quattro tinte diverse (ocra, bruno, azzurrino) il muro e il selciato sembravano una vetrata
+  vec3 pc = c * (0.9 + 0.2 * hash12(vec2(id * 31.0, 3.7)));
+  pc *= mix(vec3(0.985, 0.995, 1.01), vec3(1.025, 1.0, 0.96), id);
   // faccia della pietra: scaglie, puntini scuri, licheni gialli e grigio-verdi
   float sc = vnoise2(uv * 9.0 + id * 13.0);
   float sc2 = vnoise2(uv * 23.0 + id * 5.0);
@@ -340,19 +339,22 @@ void supPietra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   pc = mix(pc, vec3(0.8, 0.74, 0.5), lich * 0.45);
   float lich2 = smoothstep(0.7, 0.84, vnoise2(uv * 4.1 + id * 3.0 + 20.0));
   pc = mix(pc, vec3(0.7, 0.74, 0.66), lich2 * 0.35);
-  float joint = 1.0 - smoothstep(0.015, 0.06, vo.x);
+  // (rifinitura 2) giunto sottile e chiaro: malta in ombra, non un contorno nero spesso
+  float joint = 1.0 - smoothstep(0.008, 0.03, vo.x);
   float round = smoothstep(0.0, 0.35, vo.x);
-  pc *= mix(0.9, 1.03, round);
-  // giunto: malta e ombra, scuro ma non nero (si legge come pietra a secco); sulle facce in su
-  // nei giunti cresce il muschio
+  pc *= mix(0.92, 1.03, round);
+  // giunto: malta e ombra, più scura della pietra ma non nera (si legge come pietra a secco);
+  // sulle facce in su nei giunti cresce il muschio
   float top = smoothstep(0.6, 0.95, dot(s.N, cylUp(P)));
-  vec3 jc = mix(c * vec3(0.52, 0.49, 0.46), vec3(0.33, 0.4, 0.19), top * 0.7);
+  vec3 jc = mix(c * vec3(0.74, 0.72, 0.68), vec3(0.5, 0.52, 0.32), top * 0.3);
   vec3 alb = mix(pc, jc, joint * 0.8);
   s.albedo = mix(s.albedo, alb, vis);
   // altezza: pietra a cuscino, giunto incavato (rilievo leggero: campitura, non plastica)
-  float h = (round * 0.6 + sc * 0.08) * 0.016 - joint * 0.008;
+  // (il giunto è un incavo leggero: con 8 mm su un centimetro le sue pareti ripide facevano un
+  // contorno scuro attorno a ogni pietra, anche dove la luce arriva solo dal cielo)
+  float h = (round * 0.6 + sc * 0.08) * 0.014 - joint * 0.002;
   s.N = bumpDaAltezza(s.N, P, h * vis, 1.0);
-  s.ao *= mix(1.0, mix(0.72, 1.0, smoothstep(0.0, 0.14, vo.x)), vis);
+  s.ao *= mix(1.0, mix(0.88, 1.0, smoothstep(0.0, 0.08, vo.x)), vis);
 }
 
 void supPiode(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
@@ -442,13 +444,15 @@ void supIntonaco(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   if (flake > 0.0 && pix < 0.06) {
     vec2 rel;
     vec4 vo = voronoi2(uv / vec2(0.34, 0.2) + 3.0, rel);
-    vec3 st = vec3(0.62, 0.57, 0.5) * (0.82 + 0.3 * vo.z);
-    st = mix(st, st * 0.45, 1.0 - smoothstep(0.03, 0.11, vo.x));
+    // (rifinitura 2: la pietra sotto è grigio caldo, c*0.65, con giunti appena più scuri: prima le
+    // scrostature erano macchie quasi nere sulla calce di San Vigilio)
+    vec3 st = c * vec3(0.68, 0.65, 0.6) * (0.9 + 0.16 * vo.z);
+    st = mix(st, st * 0.8, 1.0 - smoothstep(0.02, 0.07, vo.x));
     lc = mix(lc, st, flake);
     s.ao *= 1.0 - flake * 0.15;
   }
   float rim = smoothstep(0.69, 0.735, fl) * (1.0 - flake);
-  lc *= 1.0 - rim * 0.18;
+  lc *= 1.0 - rim * 0.1;
   s.albedo = lc;
   s.N = bumpDaAltezza(s.N, P, (m2 * 0.004 - flake * 0.01) * visMotivo(pix, 0.2), 1.0);
 }
@@ -529,6 +533,9 @@ void supFogliame(inout Sup s, vec3 P, vec3 Nv, vec3 up, float pix, float var) {
   // il bordo luminoso sta sui contorni della chioma, non sulle facce in su viste di scorcio
   s.bordo = 0.75 * (1.0 - smoothstep(0.6, 0.95, dot(Nv, up)) * 0.8);
   s.bande = 0.5;
+  // luce avvolgente (rifinitura 2, vedi shadeSup): sotto il tasso del sagrato il fogliame scuro in
+  // ombra finiva al nero puro dopo la mappatura dei toni
+  s.avvolge = 1.0;
 }
 
 void supTessuto(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
@@ -595,8 +602,8 @@ void supSasso(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   pc = mix(pc, vec3(0.7, 0.73, 0.64), lich2 * 0.3);
   // muschio sulle facce che guardano in su
   float top = smoothstep(0.35, 0.85, dot(s.N, up));
-  float moss = top * smoothstep(0.45, 0.7, vnoise2(uv * 1.7 + var * 7.0));
-  pc = mix(pc, vec3(0.435, 0.478, 0.243), moss * 0.7);
+  float moss = top * smoothstep(0.5, 0.75, vnoise2(uv * 1.7 + var * 7.0));
+  pc = mix(pc, vec3(0.435, 0.478, 0.243), moss * 0.5);
   s.albedo = mix(s.albedo, pc, vis);
   s.N = bumpDaAltezza(s.N, P, (sc * 0.6 + sc2 * 0.4) * 0.006 * vis, 1.0);
   s.bande = 0.5;
@@ -608,11 +615,12 @@ void supRoccia(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   float vis = visMotivo(pix, 1.2);
   vec2 rel;
   vec4 vo = voronoi2(uv / vec2(1.4, 0.9) + var * 13.0, rel);
-  float crack = 1.0 - smoothstep(0.02, 0.07, vo.x);
+  // (rifinitura 2) crepe sottili e non nere (il ponte visto da sotto era una pelle di drago)
+  float crack = 1.0 - smoothstep(0.008, 0.03, vo.x);
   float strata = smoothstep(0.82, 0.95, fract(hgt / 0.55 + vnoise2(uv * 0.4) * 0.8));
   vec3 lc = c * (0.84 + 0.28 * vo.z) * (0.94 + 0.12 * vnoise2(uv * 3.0));
   lc *= 1.0 - strata * 0.18;
-  lc = mix(lc, c * 0.38, crack);
+  lc = mix(lc, c * 0.72, crack);
   float lich = smoothstep(0.72, 0.85, vnoise2(uv * 2.2 + 17.0));
   lc = mix(lc, vec3(0.85, 0.58, 0.28), lich * 0.35);
   float top = smoothstep(0.55, 0.9, dot(s.N, up));
@@ -620,7 +628,7 @@ void supRoccia(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   lc = mix(lc, vec3(0.36, 0.45, 0.2), moss * 0.7);
   s.albedo = mix(c * (0.92 + 0.14 * vo.z), lc, max(vis, 0.3));
   s.N = bumpDaAltezza(s.N, P, (smoothstep(0.0, 0.4, vo.x) * 0.08 - crack * 0.03) * vis, 1.0);
-  s.ao *= mix(1.0, 1.0 - crack * 0.45, vis);
+  s.ao *= mix(1.0, 1.0 - crack * 0.25, vis);
 }
 
 // erba sugli oggetti: la stessa pittura del prato del terreno (pratoDipinto), un po' più fine
@@ -636,6 +644,21 @@ void supErba(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   s.albedo = pratoDipinto(c, cl, uv, pix, flatK, 1.0, st);
   s.trasm = 0.3;
   s.bande = 0.4;
+}
+
+// selciato (piazza, sagrato, vicoli): la pietra a ciottoli piccoli (8-12 cm); il disegno dei ciottoli
+// sfuma già oltre 6 m (resta la variazione di tono larga), così da lontano niente reticolo, e il
+// rilievo è più basso (ciottoli posati, non cuscini)
+void supSelciato(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
+  vec3 c = s.albedo;
+  vec3 N0 = s.N;
+  supPietra(s, P, uv * 4.5, pix * 4.5, var);
+  float v = visMotivo(pix, 0.6);
+  // da lontano: tono a chiazze larghe (terra fra i sassi, sassi più chiari), niente celle
+  float m = vnoise2(uv * 0.5 + var * 3.0) * 0.6 + vnoise2(uv * 1.7) * 0.4;
+  vec3 lontano = c * (0.9 + 0.18 * m);
+  s.albedo = mix(lontano, s.albedo, v);
+  s.N = normalize(mix(N0, s.N, 0.6 * v));
 }
 
 void supVetro(inout Sup s, vec3 P, vec2 uv, float pix) {
@@ -678,7 +701,8 @@ void applicaSuperficie(inout Sup s, float tipo, float var, vec3 P, vec3 Nv, floa
   else if (tipo < 12.5) supErba(s, P, uv, up, pix, var);
   else if (tipo < 13.5) supVetro(s, P, uv, pix);
   // 14 = AUTO (risolto prima); 15 = selciato: la pietra a ciottoli piccoli (traccia «paese»)
-  else if (tipo > 14.5 && tipo < 15.5) supPietra(s, P, uv * 2.6, pix * 2.6, var);
+  // (rifinitura 2: ciottoli di 8-12 cm invece di 15-25: da vicino il selciato era una vetrata a celle)
+  else if (tipo > 14.5 && tipo < 15.5) supSelciato(s, P, uv, pix, var);
   else if (tipo > 15.5 && tipo < 16.5) supSasso(s, P, uv, up, pix, var);
 }
 `;

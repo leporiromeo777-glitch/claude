@@ -187,5 +187,31 @@ describe('sguardo: trascinamento e frecce', () => {
     const e3 = new KeyboardEvent('keydown', { code: 'ArrowRight', bubbles: true, cancelable: true });
     window.dispatchEvent(e3);
     expect(e3.defaultPrevented).toBe(false);
+    input.bloccoInterfaccia = false;
+  });
+
+  it('↑ ↓ e Spazio restano ai cursori e ai menu (rifinitura 2), nel gioco non scorrono la pagina', () => {
+    for (const code of ['ArrowUp', 'ArrowDown', 'Space']) {
+      const e = new KeyboardEvent('keydown', { code, bubbles: true, cancelable: true });
+      window.dispatchEvent(e);
+      expect(e.defaultPrevented).toBe(true);
+      window.dispatchEvent(new KeyboardEvent('keyup', { code, bubbles: true }));
+    }
+    const cursore = document.createElement('input');
+    cursore.type = 'range';
+    document.body.append(cursore);
+    for (const code of ['ArrowUp', 'ArrowDown', 'Space']) {
+      const e = new KeyboardEvent('keydown', { code, bubbles: true, cancelable: true });
+      cursore.dispatchEvent(e);
+      expect(e.defaultPrevented).toBe(false);
+    }
+    cursore.remove();
+    input.bloccoInterfaccia = true;
+    for (const code of ['ArrowUp', 'ArrowDown', 'Space']) {
+      const e = new KeyboardEvent('keydown', { code, bubbles: true, cancelable: true });
+      window.dispatchEvent(e);
+      expect(e.defaultPrevented).toBe(false);
+    }
+    input.bloccoInterfaccia = false;
   });
 });

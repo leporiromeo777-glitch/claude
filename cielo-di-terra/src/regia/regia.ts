@@ -877,7 +877,8 @@ export class Regia implements SistemaGioco {
       }
       case 'scala': {
         const inp = this.game.input;
-        const su = (inp.isDown('KeyW') || inp.isDown('ArrowUp') || inp.isDown('Space') ? 1 : 0) - (inp.isDown('KeyS') || inp.isDown('ArrowDown') ? 1 : 0);
+        // (sulla scala W/S/Spazio: ↑ ↓ girano solo lo sguardo, come altrove)
+        const su = (inp.isDown('KeyW') || inp.isDown('Space') ? 1 : 0) - (inp.isDown('KeyS') ? 1 : 0);
         if (!this.ui.inputCatturato) c.y = Math.max(0, Math.min(SCALA.cima, c.y + su * 1.15 * dt));
         if (c.y <= 0 && su < 0) {
           this.controllo = { tipo: 'libero' };

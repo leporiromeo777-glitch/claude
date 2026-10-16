@@ -8,8 +8,7 @@
 import * as THREE from 'three';
 import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
-import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMasso } from '../forme';
+import { geoBoxC, geoCiuffo, geoCilindro, geoLastra } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, hashPosizione, semeNumerico, type Seme } from '../rng';
 import { SUP } from '../superfici';
@@ -102,30 +101,48 @@ function percorsoArco(L: number, R: number): THREE.Vector3[] {
  * Colore per vertice di una pietra di testa: calcare chiaro sopra (licheni, una macchia di muschio
  * dal lato a monte), più scuro e caldo sui fianchi e sotto.
  */
-function coloreTesta(sopra: THREE.Color, fianco: THREE.Color, muschio: THREE.Color, quantoMuschio: number, seme: number): FnColore {
-  const lichene = new THREE.Color(0xb3a675);
-  const scuro = new THREE.Color(0x6e6a63);
+function coloreTesta(sopra: THREE.Color, fianco: THREE.Color, muschio: THREE.Color, quantoMuschio: number, _seme: number): FnColore {
+  // (rifinitura 2: niente più macchie per vertice, chiare o scure: su una pietra di 20 triangoli
+  // disegnavano schegge di vetro dai bordi neri. Licheni e muschio fini li dipinge SASSO)
   return (p, n, out) => {
     out.copy(fianco).lerp(sopra, THREE.MathUtils.smoothstep(n.y, -0.1, 0.75));
-    // macchie per vertice: licheni gialli, pietra scura bagnata, muschio verso monte
-    const h = hashPosizione(p.x, p.y, p.z, seme);
-    if (h > 0.78) out.lerp(lichene, 0.55);
-    else if (h < 0.18) out.lerp(scuro, 0.5);
     if (quantoMuschio > 0) out.lerp(muschio, quantoMuschio * THREE.MathUtils.smoothstep(n.y, 0.3, 0.9) * THREE.MathUtils.smoothstep(-p.z, -0.02, 0.06));
   };
 }
 
-/** Sasso di testa: icosaedro schiacciato e irregolare con le normali morbide (un cuscino di pietra). */
+/**
+ * Sasso di testa: una cupola irregolare a base piatta (anello di 8 vertici a terra, anello di 8 a
+ * metà altezza un po' rientrato, cima), 24 triangoli a vertici condivisi: con le normali morbide
+ * è un calcare tondeggiante. (Rifinitura 2: era un icosaedro schiacciato, 20 facce, che di taglio e
+ * al tramonto sembrava una scaglia piatta dagli spigoli netti.)
+ */
 function sassoTesta(seme: number): THREE.BufferGeometry {
-  let g: THREE.BufferGeometry = geoMasso(1, seme, 0.2, 0, 1);
-  g.deleteAttribute('normal');
-  g = mergeVertices(g);
-  // il fondo piatto (appoggia sul muro), il dorso tondo
-  const pos = g.getAttribute('position') as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const y = pos.getY(i);
-    if (y < 0) pos.setY(i, y * 0.35);
+  const pos: number[] = [];
+  const j = (k: number) => hashPosizione(k * 1.37, seme * 0.01, k * 0.73, seme) - 0.5;
+  const n = 8;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + j(i) * 0.3;
+    const r = 1 + j(i + 10) * 0.22;
+    pos.push(Math.cos(a) * r, -0.15, Math.sin(a) * r);
   }
+  for (let i = 0; i < n; i++) {
+    const a = ((i + 0.5) / n) * Math.PI * 2 + j(i + 20) * 0.3;
+    const r = 0.8 + j(i + 30) * 0.18;
+    pos.push(Math.cos(a) * r, 0.62 + j(i + 40) * 0.2, Math.sin(a) * r);
+  }
+  pos.push(j(50) * 0.3, 1.0 + j(51) * 0.15, j(52) * 0.3);
+  const idx: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = i;
+    const b = (i + 1) % n;
+    const c = n + i;
+    const d = n + ((i + 1) % n);
+    idx.push(a, c, b, b, c, d);
+    idx.push(c, 2 * n, d);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
   g.computeVertexNormals();
   return g;
 }
@@ -182,26 +199,38 @@ function colorePietra(base: THREE.Color, muschio: number, lichene: number): THRE
 }
 
 /**
- * Pietra a vista del muro a dettaglio basso (i gradoni del paese, anche da vicino): un cuscino a
- * quattro falde col centro in fuori, a vertici condivisi (normali morbide: una pietra tonda, non
- * quattro schegge), 4 triangoli.
+ * Pietra a vista del muro a dettaglio basso (i gradoni del paese, anche da vicino): un cuscino col
+ * centro in fuori e i punti di mezzo dei lati sollevati, a vertici condivisi (normali morbide: una
+ * pietra tonda, non quattro schegge), 6 triangoli.
  */
 function pietraCuscino(w: number, h: number, sporge: number, seme: number): THREE.BufferGeometry {
   const j = (k: number) => (hashPosizione(k, seme, 0.5, seme) - 0.5) * 0.18;
   const x0 = -w / 2;
   const x1 = w / 2;
-  const v = [
+  const v: Array<[number, number, number]> = [
     [x0 + j(1) * w, j(2) * h, 0],
     [x1 + j(3) * w, j(4) * h, 0],
     [x1 + j(5) * w, h + j(6) * h, 0],
     [x0 + j(7) * w, h + j(8) * h, 0],
-    [j(9) * w * 0.6, h * (0.5 + j(10)), sporge],
-  ] as const;
+  ];
+  const cx = j(9) * w * 0.6;
+  const cy = h * (0.5 + j(10));
+  // (rifinitura 2) i punti di mezzo dei lati lunghi (sotto e sopra), sollevati più di metà: il
+  // cuscino ha il dorso tondo, non quattro falde piatte che di taglio sembravano schegge
+  for (const k of [0, 2]) {
+    const a = v[k]!;
+    const b = v[(k + 1) % 4]!;
+    const mx = (a[0] + b[0]) / 2;
+    const my = (a[1] + b[1]) / 2;
+    v.push([mx + (cx - mx) * 0.15, my + (cy - my) * 0.15, sporge * 0.6]);
+  }
+  v.push([cx, cy, sporge]);
   const pos: number[] = [];
   for (const p of v) pos.push(...p);
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setIndex([0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4]);
+  // 0-1 sotto (mezzo 4), 1-2 destra, 2-3 sopra (mezzo 5), 3-0 sinistra; 6 = centro
+  g.setIndex([0, 4, 6, 4, 1, 6, 1, 2, 6, 2, 5, 6, 5, 3, 6, 3, 0, 6]);
   return g;
 }
 
@@ -341,13 +370,19 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
       const forma = rng.next();
       const alt = forma < 0.3 ? rng.tra(0.09, 0.14) : forma > 0.85 ? rng.tra(0.28, 0.36) : rng.tra(0.16, 0.24);
       const fianco = mescola(tono, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.4);
-      const sopra = mescola(PALETTE.gneiss, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.5).multiplyScalar(0.8);
-      const colore = coloreTesta(sopra, fianco, muschio, rng.prob(0.45) ? rng.tra(0.3, 0.7) : 0, rng.intero(0, 1e6));
+      // (rifinitura 2: sopra calcare caldo, #b0a68e, col suo valore; prima gneiss ×0,8, che di sera
+      // si faceva lilla)
+      const sopra = mescola(0xb0a68e, rng.prob(0.5) ? PALETTE.gneissCaldo : PALETTE.gneiss, rng.next() * 0.35).multiplyScalar(0.9 + rng.next() * 0.14);
+      // (muschio su una testa su cinque, leggero: sul dorso tondo il muschio di SASSO basta)
+      const colore = coloreTesta(sopra, fianco, muschio, rng.prob(0.2) ? rng.tra(0.2, 0.45) : 0, rng.intero(0, 1e6));
       const larg = forma > 0.85 ? lw * 0.42 : lw * 0.62;
       b.aggiungi(sassoTesta(rng.intero(0, 1e6)), {
-        matrice: mat([centro.x, H - 0.03 - alt * 0.15, centro.z], [rng.centrato(0.1), ang + rng.centrato(0.3), rng.centrato(0.1)], [larg, alt * 0.6, prof * rng.tra(0.45, 0.58)]),
+        matrice: mat([centro.x, H - 0.03 - alt * 0.15, centro.z], [rng.centrato(0.1), ang + rng.centrato(0.3), rng.centrato(0.1)], [larg, alt * 0.75, prof * rng.tra(0.45, 0.58)]),
         colore,
-        variazione: 0.06,
+        variazione: 0.05,
+        // faccia scagliata, licheni e muschio dipinti (niente giunti dentro), piede in ombra
+        superficie: SUP.SASSO,
+        occlusione: (p) => Math.max(0, 0.35 - (p.y + 0.15) * 0.6),
       });
       s += lw;
     }

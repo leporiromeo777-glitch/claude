@@ -23,8 +23,13 @@
  *   dalla camera, 0 = fine elenco: i più vicini prima). Le scrive `LampGlows.updateNearest`. `uLamps` (vec4[8])
  *   resta per chi lo usa (personaggi, Fade): lo shader del mondo ne prende solo i lumi in più con
  *   w >= 2 (le Fade di `popolamento/corbella.ts`), perché quelli del motore sono già nelle pozze.
+ * - `uAlberiOmbra` (sampler2D) e `uAlberiInfo` (vec4): densità delle chiome degli alberi su tutto il
+ *   cilindro (u = theta / 360, v = z / L, circa 4 m per texel; la scrive
+ *   `Vegetation.costruisciOmbraAlberi`). Il terreno la legge spostata dalla parte opposta alla luce:
+ *   l'ombra degli alberi lontani, oltre la zona delle ombre portate, così gli alberi poggiano a
+ *   terra. `uAlberiInfo.x` = 1 se c'è la texture, y = forza dell'ombra.
  */
-import { Color, DataTexture, DepthFormat, DepthTexture, LessEqualCompare, Matrix4, NearestFilter, UnsignedIntType, Vector2, Vector3, Vector4, type Texture } from 'three';
+import { Color, DataTexture, DepthFormat, DepthTexture, LessEqualCompare, Matrix4, NearestFilter, RedFormat, UnsignedByteType, UnsignedIntType, Vector2, Vector3, Vector4, type Texture } from 'three';
 import { CELLS_NTHETA, CELLS_NZ, CELL_DEG, CELL_DZ, L, R } from '../world/constants';
 import { REVEAL_DURATION } from '../world/cells';
 import type { SkyState } from '../world/sky';
@@ -70,6 +75,9 @@ export interface WorldUniforms {
   uOmbraCentro: { value: Vector4 };
   uCellAnim: { value: number };
   uDettaglio: { value: number };
+  /** Densità delle chiome (ombra degli alberi sul terreno lontano), mai null. */
+  uAlberiOmbra: { value: Texture };
+  uAlberiInfo: { value: Vector4 };
 }
 
 export interface HazeSettings {
@@ -85,7 +93,12 @@ export interface HazeSettings {
 
 // (aria più densa al suolo: 3-4 quinte fra 100 e 600 m; velo dell'altra metà più sottile, così le
 // terre capovolte si leggono)
-export const DEFAULT_HAZE: HazeSettings = { density: 1.4 / 900, max: 0.9, layers: 0.5, velo: 0.05 };
+// (rifinitura 2: densità da 1,4 a 0,9/900 e copertura massima da 0,9 a 0,75. Con la densità ×1,4
+// i versanti oltre 300 m e l'altra metà erano pareti color crema o pesca, saturazione 0,2 contro
+// 0,39 del bozzetto 1: il mondo sembrava vuoto e lattiginoso. Le quinte a piani restano: le fa
+// `applyHazeK` a gradini, più il passo di tono fra un piano e l'altro)
+// (velo dell'altra metà da 0,05 a 0,12: con meno aria al suolo l'altra metà deve restare cielo blu)
+export const DEFAULT_HAZE: HazeSettings = { density: 0.9 / 900, max: 0.75, layers: 0.5, velo: 0.12 };
 
 /** Aria del cilindro: densa sul fondo (foschie di valle), più rada verso l'asse. */
 // (aria in quota più rada: i raggi che attraversano il cilindro vicino all'asse vedono le terre
@@ -111,6 +124,14 @@ export function mappaOmbraVuota(): DepthTexture {
   return t;
 }
 
+/** Texture 1×1 vuota per `uAlberiOmbra` (prima che la vegetazione scriva la sua). */
+export function alberiOmbraVuota(): DataTexture {
+  const t = new DataTexture(new Uint8Array([0]), 1, 1, RedFormat, UnsignedByteType);
+  t.name = 'alberi-ombra-vuota';
+  t.needsUpdate = true;
+  return t;
+}
+
 export function createWorldUniforms(): WorldUniforms {
   return {
     uTime: { value: 0 },
@@ -131,7 +152,7 @@ export function createWorldUniforms(): WorldUniforms {
     uPozze: { value: Array.from({ length: MAX_POZZE }, () => new Vector4(0, 0, 0, 0)) },
     uCellTex: { value: null },
     uCellGrid: { value: new Vector4(CELLS_NZ, CELLS_NTHETA, CELL_DZ, CELL_DEG) },
-    uPencil: { value: new Vector4(250, 450, 0, REVEAL_DURATION) },
+    uPencil: { value: new Vector4(400, 700, 0, REVEAL_DURATION) },
     uPixelAngle: { value: 0.001 },
     uDebugView: { value: 0 },
     uSole: { value: new Vector4(L / 2, 1, 0, 1) },
@@ -148,6 +169,8 @@ export function createWorldUniforms(): WorldUniforms {
     // nessuno lo aggiorna? allora si assume che una rivelazione sia sempre possibile (sicuro)
     uCellAnim: { value: 1e9 },
     uDettaglio: { value: 1 },
+    uAlberiOmbra: { value: alberiOmbraVuota() },
+    uAlberiInfo: { value: new Vector4(0, 0.45, 0, 0) },
   };
 }
 

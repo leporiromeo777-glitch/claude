@@ -16,10 +16,10 @@
  * ridistribuiti fra i livelli. I tronchi hanno collisori cilindrici con il tag `castagno` (il
  * popolamento di Corbella li toglie dove costruisce: `liberaCastagni`).
  */
-import { Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Material, type ShaderMaterial } from 'three';
+import { ClampToEdgeWrapping, DataTexture, Group, InstancedBufferAttribute, InstancedMesh, LinearFilter, Matrix4, RedFormat, RepeatWrapping, UnsignedByteType, Vector3, type BufferGeometry, type Material, type ShaderMaterial } from 'three';
 import { DEG, L, LAYOUT, METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, surfaceDistance, upAt, worldToCyl } from '../world/cylinder';
-import { cylinderAt, type ColliderWorld } from '../world/colliders';
+import { ColliderWorld, cylinderAt } from '../world/colliders';
 import { Simplex3, clamp, mulberry32, smoothstep } from '../world/noise';
 import { STRIPS, WATER_HEIGHT, createMasks, slopeAt, surfaceHeight, type TerrainMasks } from '../world/terrain';
 import type { RGB } from '../render/palette';
@@ -30,7 +30,9 @@ import { LAYER_OMBRE } from '../render/ombre';
 import { N_LOD_ALBERI, SPECIE, geometrieAlbero, triangoli, type Specie } from './alberi';
 import { BoschiLontani, densitaBosco } from './bosco';
 import { Sottobosco, aggiorna } from './sottobosco';
-import { suSentiero, trattiVicini } from './sentieri';
+import { distanzaTratto, suSentiero, trattiVicini } from './sentieri';
+import luoghiJson from '../../content/luoghi.json';
+import capisaldiJson from '../../content/capisaldi.json';
 
 export interface TreeInstance {
   pos: Vector3;
@@ -48,12 +50,14 @@ export interface TreeInstance {
 
 /** Tinte d'ottobre per specie: [principale, secondario, quota del secondario]. */
 const TINTE: Record<Specie, Array<[RGB, RGB, number]>> = {
+  // (rifinitura 2: verdi più chiari, verso l'oliva #8a8f45 del bozzetto 2, oro #c8a040 e ruggine
+  // #a0522d: da vicino le chiome erano grumi verde scuro)
   castagno: [
-    [[0.38, 0.44, 0.23], [0.76, 0.58, 0.26], 0.45],
-    [[0.45, 0.47, 0.22], [0.66, 0.4, 0.2], 0.4],
-    [[0.33, 0.41, 0.22], [0.8, 0.66, 0.32], 0.3],
-    [[0.55, 0.5, 0.24], [0.72, 0.46, 0.22], 0.55],
-    [[0.37, 0.43, 0.23], [0.52, 0.49, 0.24], 0.5],
+    [[0.45, 0.49, 0.25], [0.78, 0.63, 0.25], 0.45],
+    [[0.5, 0.52, 0.25], [0.63, 0.32, 0.18], 0.35],
+    [[0.41, 0.47, 0.24], [0.8, 0.66, 0.3], 0.3],
+    [[0.55, 0.53, 0.26], [0.72, 0.5, 0.22], 0.55],
+    [[0.44, 0.48, 0.25], [0.54, 0.56, 0.27], 0.5],
   ],
   betulla: [
     [[0.8, 0.67, 0.3], [0.56, 0.56, 0.28], 0.35],
@@ -82,6 +86,27 @@ const CIPRESSI: Array<[number, number]> = [
 ];
 
 const VILLAGE = LAYOUT.villages[0]!;
+
+/**
+ * Collisori dei tronchi (rifinitura 2, in attesa dell'approvazione del cambio di gioco: i boschi fitti
+ * della traccia «natura» avevano portato i tronchi con collisore da 5140 a 23 275). Con `true` il
+ * collisore ce l'hanno gli alberi dove si cammina: quelli sparsi (prati, filari, castagni da frutto)
+ * e, nei boschi, quelli entro `RAGGIO_CAMMINO` m da un sentiero o da un luogo del gioco o dentro
+ * l'anello del paese e delle terrazze. Nel fitto dei boschi lontani da tutto i tronchi restano senza
+ * collisore (come i rami e le chiome). `false` = tutti col collisore, come nella rifinitura 1.
+ */
+export const COLLISORI_SOLO_DOVE_SI_CAMMINA = true;
+const RAGGIO_CAMMINO = 60;
+const LUOGHI_CAMMINO: Array<{ z: number; theta: number; raggio?: number }> = [
+  ...(luoghiJson as Array<{ z: number; theta: number; raggio?: number; tipo?: string }>).filter((l) => l.tipo !== 'cielo' && l.tipo !== 'interno'),
+  ...((capisaldiJson as { rete_corbella?: Array<{ z: number; theta: number }> }).rete_corbella ?? []),
+];
+
+/** Raggio della chioma (m) dell'albero «tipo» di ogni specie (l'istanza lo scala): per l'ombra a terra. */
+const RAGGIO_CHIOMA: Record<Specie, number> = { castagno: 5.0, noce: 4.4, betulla: 2.6, larice: 2.8, cipresso: 1.4 };
+/** Texel della texture delle ombre degli alberi: lungo l'arco e lungo z (circa 4 m ciascuno). */
+const OMBRA_W = 1024;
+const OMBRA_H = 768;
 
 /** Distanze dei livelli di dettaglio alla qualità Alta (m). */
 const DISTANZE_ALTA = [40, 130, 280];
@@ -149,9 +174,10 @@ export class Vegetation {
     };
     this.pianta(colliders, seed);
     this.costruisciMesh();
+    this.costruisciOmbraAlberi();
     this.boschi = new BoschiLontani(this.u);
     this.group.add(this.boschi.group);
-    this.sottobosco = new Sottobosco(this.u, colliders, this.trees);
+    this.sottobosco = new Sottobosco(this.u, colliders, this.trees, this.tronchiLiberi);
     this.group.add(this.sottobosco.group);
     this.impostaDistanze(1);
   }
@@ -161,9 +187,10 @@ export class Vegetation {
    * distanze dei livelli di dettaglio degli alberi, raggio e densità del sottobosco.
    */
   impostaQualita(k: number): void {
-    // a Bassa (k < 0.5) niente carte di foglie ai livelli lontani (LOD 2 e 3): solo le masse dipinte,
-    // e una fascia di passaggio più larga (senza il filtro pittorico la retinatura si vede a puntini)
-    this.carteLontane = k >= 0.5;
+    // sotto Alta (k < 0.8: Media 0,6, Bassa 0,35) niente carte di foglie ai livelli lontani (LOD 2 e
+    // 3): solo le masse dipinte (rifinitura 2: margine per i 60 fps a Media su una integrata); a Bassa
+    // anche una fascia di passaggio più larga (senza il filtro pittorico la retinatura si vede a puntini)
+    this.carteLontane = k >= 0.8;
     this.fascia = k < 0.5 ? 1.6 : 1;
     for (const ms of this.lontani.values()) if (ms[1]) ms[1].visible = this.carteLontane;
     this.impostaDistanze(0.55 + 0.45 * clamp(k, 0, 1.3));
@@ -222,7 +249,9 @@ export class Vegetation {
           // niente tronchi sui sentieri di campagna (scene/sentieri.ts)
           if (suSentiero(zz, th, trattiVicini(zz, zz, th * METERS_PER_DEG, th * METERS_PER_DEG, 4)) > 0.3) continue;
           const base = cylToWorld(zz, th, h);
-          if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 3.0)) continue;
+          // (anche i tronchi senza collisore tengono la distanza: la semina resta quella di prima)
+          const pb = base.clone().addScaledVector(upAt(th), 1.2);
+          if (colliders.pointInside(pb, 3.0) || this.tronchiLiberi.pointInside(pb, 3.0)) continue;
           const specie = frutto ? (rnd() < 0.85 ? 'castagno' : 'noce') : this.scegliSpecie(rnd, masks, h, f);
           const bosco = f > 0.32 && !frutto;
           this.aggiungiAlbero(colliders, rnd, noise, zz, th, h, specie, bosco, strip.theme === 'selve');
@@ -233,7 +262,8 @@ export class Vegetation {
     for (const [z, th] of CIPRESSI) {
       const h = surfaceHeight(z, th, masks);
       const base = cylToWorld(z, th, h);
-      if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 1.5)) continue;
+      const pb = base.clone().addScaledVector(upAt(th), 1.2);
+      if (colliders.pointInside(pb, 1.5) || this.tronchiLiberi.pointInside(pb, 1.5)) continue;
       this.aggiungiAlbero(colliders, rnd, noise, z, th, h, 'cipresso', false, false, 0.85 + rnd() * 0.25);
     }
   }
@@ -272,7 +302,31 @@ export class Vegetation {
     // ottobre: nelle selve più masse hanno girato; altrove l'autunno è appena cominciato
     const quota = clamp(scelta[2] + (rnd() - 0.5) * 0.35 + (autunno ? 0.1 : -0.12), 0, 1);
     this.trees.push({ pos: base, matrix: m, tint: t1, tint2: t2, quota, specie, bosco, seme: rnd() });
-    colliders.add(cylinderAt(z, th, h - 0.3, geo.raggioTronco * 1.25 * scale, (geo.altezzaFusto + 1.5) * sy, 'castagno'));
+    const tronco = cylinderAt(z, th, h - 0.3, geo.raggioTronco * 1.25 * scale, (geo.altezzaFusto + 1.5) * sy, 'castagno');
+    if (this.serveCollisore(z, th, bosco)) {
+      colliders.add(tronco);
+      this.collisoriTronchi++;
+    } else this.tronchiLiberi.add(tronco);
+  }
+
+  /**
+   * Tronchi del fitto senza collisore del giocatore (`serveCollisore` falso): stanno qui solo per la
+   * semina (gli alberi seguenti ne tengono la distanza come prima) e per il sottobosco (niente erba
+   * dentro i fusti). Non entrano nel mondo dei collisori: né la camera né la fisica li vedono.
+   */
+  private readonly tronchiLiberi = new ColliderWorld();
+
+  /** Tronchi con il collisore (statistiche: vedi `COLLISORI_SOLO_DOVE_SI_CAMMINA`). */
+  collisoriTronchi = 0;
+
+  /** Il tronco in (z, theta) ha il collisore? Sempre, salvo nel fitto dei boschi lontani da tutto. */
+  private serveCollisore(z: number, th: number, bosco: boolean): boolean {
+    if (!COLLISORI_SOLO_DOVE_SI_CAMMINA || !bosco) return true;
+    if (surfaceDistance(z, th, VILLAGE.zCenter, VILLAGE.thetaCenter) < 450) return true;
+    const a = th * METERS_PER_DEG;
+    for (const t of trattiVicini(z, z, a, a, RAGGIO_CAMMINO)) if (distanzaTratto(z, a, t) < RAGGIO_CAMMINO) return true;
+    for (const l of LUOGHI_CAMMINO) if (Math.abs(l.z - z) < RAGGIO_CAMMINO + 40 && surfaceDistance(z, th, l.z, l.theta) < RAGGIO_CAMMINO + (l.raggio ?? 0)) return true;
+    return false;
   }
 
   // ---------------------------------------------------------------------------------- mesh
@@ -327,6 +381,64 @@ export class Vegetation {
     mesh.name = nome;
     this.group.add(mesh);
     return mesh;
+  }
+
+  private ombraTex: DataTexture | null = null;
+
+  /**
+   * Densità delle chiome su tutto il cilindro (rifinitura 2): una texture di circa 4 m per texel
+   * (u = theta / 360, v = z / L) con un disco morbido per albero, largo quanto la sua chioma. Il
+   * terreno la legge spostata dalla parte opposta alla luce (`ombraAlberi` in shaders/common.ts):
+   * oltre la zona delle ombre portate è l'ombra degli alberi a terra, che li fa poggiare sul prato.
+   */
+  private costruisciOmbraAlberi(): void {
+    const W = OMBRA_W;
+    const H = OMBRA_H;
+    const dati = this.ombraTex ? (this.ombraTex.image.data as Uint8Array) : new Uint8Array(W * H);
+    dati.fill(0);
+    const acc = new Float32Array(W * H);
+    const mu = (360 * METERS_PER_DEG) / W; // metri per texel lungo l'arco
+    const mz = L / H;
+    const c = { z: 0, theta: 0, r: 0, h: 0 };
+    const colonna = new Vector3();
+    for (const t of this.trees) {
+      worldToCyl(t.pos, c);
+      const sc = colonna.setFromMatrixColumn(t.matrix, 0).length();
+      const r = RAGGIO_CHIOMA[t.specie ?? 'castagno'] * sc;
+      const u0 = ((c.theta / 360) * W) - 0.5;
+      const v0 = (c.z / L) * H - 0.5;
+      const ru = Math.ceil(r / mu) + 1;
+      const rv = Math.ceil(r / mz) + 1;
+      const iu = Math.round(u0);
+      const iv = Math.round(v0);
+      for (let dv = -rv; dv <= rv; dv++) {
+        const y = iv + dv;
+        if (y < 0 || y >= H) continue;
+        for (let du = -ru; du <= ru; du++) {
+          const d = Math.hypot((iu + du - u0) * mu, (y - v0) * mz);
+          if (d > r) continue;
+          // copertura: piena al centro, morbida sul bordo della chioma
+          const k = 0.92 * smoothstep(r, r * 0.35, d);
+          const x = (((iu + du) % W) + W) % W;
+          const i = y * W + x;
+          acc[i] = 1 - (1 - acc[i]!) * (1 - k);
+        }
+      }
+    }
+    for (let i = 0; i < W * H; i++) dati[i] = Math.round(acc[i]! * 255);
+    if (!this.ombraTex) {
+      const tex = new DataTexture(dati, W, H, RedFormat, UnsignedByteType);
+      tex.wrapS = RepeatWrapping;
+      tex.wrapT = ClampToEdgeWrapping;
+      tex.magFilter = LinearFilter;
+      tex.minFilter = LinearFilter;
+      tex.generateMipmaps = false;
+      tex.name = 'alberi-ombra';
+      this.ombraTex = tex;
+      this.u.uAlberiOmbra.value = tex;
+      this.u.uAlberiInfo.value.x = 1;
+    }
+    this.ombraTex.needsUpdate = true;
   }
 
   /** Il livello 3: tutti gli alberi sparsi (non di bosco), statico. */
@@ -486,9 +598,10 @@ export class Vegetation {
     this.boschi.update(force ? 1e9 : 2);
     this.sottobosco.update(cam, force ? Infinity : 3);
     if (this.indicizzati !== this.trees.length) {
-      // alberi tolti dal popolamento (liberaCastagni): rifà le celle e il livello statico
+      // alberi tolti dal popolamento (liberaCastagni): rifà le celle, il livello statico e l'ombra
       this.indicizza();
       this.costruisciLontani();
+      this.costruisciOmbraAlberi();
       force = true;
     }
     if (!force && cam.distanceToSquared(this.lastCam) < 12 * 12) return;

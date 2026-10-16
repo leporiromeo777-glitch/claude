@@ -378,7 +378,11 @@ vec3 acesCalibrato(vec3 lin) {
 vec3 acesSrgb(vec3 c) {
   // ACES lavora in lineare: si torna allo sRGB «da pittore» alla fine
   vec3 lin = pow(max(c, vec3(0.0)), vec3(2.2));
-  return pow(clamp(acesCalibrato(lin), 0.0, 1.0), vec3(1.0 / 2.2));
+  vec3 a = pow(clamp(acesCalibrato(lin), 0.0, 1.0), vec3(1.0 / 2.2));
+  // (rifinitura 2) il piede dell'ACES dimezza gli scuri (0,1 → 0,05): sotto le chiome e nei
+  // sottosquadri il dipinto finiva a 5-11/255. Gli scuri non scendono sotto il 70% del valore
+  // dipinto (conta solo sotto ~0,2): le ombre restano profonde ma piene di colore, come nei bozzetti
+  return max(a, max(c, vec3(0.0)) * 0.7);
 }
 
 vec3 mappaToni(vec3 c) {
@@ -400,9 +404,11 @@ vec3 correggi(vec3 c) {
   float satNow = max3(c) - min(c.r, min(c.g, c.b));
   float s = uGrade.x + uGrade.y * (1.0 - smoothstep(0.0, 0.6, satNow));
   c = max(mix(vec3(l), c, s), 0.0);
-  // contrasto a S attorno al perno
+  // contrasto a S attorno al perno (rifinitura 2: verso il nero si spegne, così non schiaccia gli
+  // scuri sotto lo zero: prima ogni valore sotto 0,02 diventava nero puro)
   vec3 d = c - uGrade.w;
-  c = c + uGrade.z * d * (1.0 - min(abs(d) * 1.8, 1.0));
+  float piede = smoothstep(0.0, 0.22, l);
+  c = c + uGrade.z * d * (1.0 - min(abs(d) * 1.8, 1.0)) * mix(vec3(piede), vec3(1.0), step(0.0, d));
   // viraggio: luci calde, ombre fredde (più viola di notte)
   float h = smoothstep(0.15, 0.85, l);
   c *= mix(uOmbre, uLuci, h);

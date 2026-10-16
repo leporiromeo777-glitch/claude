@@ -95,24 +95,31 @@ const mixc = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1]
  */
 const PAL = {
   sunDay: hex(0xfff0d2),
-  sunGold: hex(0xffaa66),
+  // (rifinitura 2: meno satura, da 0xffaa66: il prato in luce radente era arancione pieno)
+  sunGold: hex(0xffc890),
   sunNight: hex(0x6a6ee0),
   ambTopDay: hex(0x93a7cf),
   ambTopGold: hex(0xa898c4),
   ambTopNight: hex(0x3e4088),
   ambBotDay: hex(0xa2906a),
-  ambBotGold: hex(0xa47e60),
+  // (rifinitura 2: all'alba e al tramonto le ombre sono fredde, azzurro-lilla come nel bozzetto 1;
+  // il rimbalzo caldo di prima rendeva tutto il quadro arancione, saturazione 0,8 contro 0,52)
+  ambBotGold: hex(0x857a8e),
   // (il suolo di notte più scuro del cielo: il prato non è più lilla chiaro)
   ambBotNight: hex(0x141628),
   hazeDay: hex(0xbcd1e6),
-  // all'alba e al tramonto la foschia è pesca (il controluce dorato del bozzetto 1)
-  hazeGold: hex(0xf0c49a),
-  hazeNight: hex(0x3a4288),
+  // all'alba e al tramonto la foschia lontana è lilla-azzurra (i monti a piani del bozzetto 1);
+  // l'oro sta solo dal lato del sole, nella diffusione in avanti (`hazeSunGold`). Prima era pesca
+  // dappertutto: cielo color carne e quadro monocromo arancione
+  hazeGold: hex(0xc6bfd9),
+  // (rifinitura 2: un filo più chiara, da 0x3a4288: il cielo notturno resta più chiaro dei monti)
+  hazeNight: hex(0x434c94),
   zenithDay: hex(0x5286cc),
-  zenithGold: hex(0x7884c4),
-  zenithNight: hex(0x2c387e),
+  // (il cielo resta blu anche nelle ore dorate)
+  zenithGold: hex(0x6688cc),
+  zenithNight: hex(0x323f88),
   hazeSunDay: hex(0xfff0d2),
-  hazeSunGold: hex(0xffa452),
+  hazeSunGold: hex(0xffb870),
   hazeSunNight: hex(0x4a58c8),
   coreDay: hex(0xfffbec),
   coreGold: hex(0xffd9a0),
@@ -120,7 +127,9 @@ const PAL = {
   glowDay: hex(0xffe9c4),
   glowEmber: hex(0x3b4fd8),
   // fase rosa del crepuscolo (fra il tramonto dorato e il blu della notte, e prima dell'alba)
-  hazeRosa: hex(0xe0909a),
+  // (rifinitura 2: un filo più rossa, 0xe88c86 invece di 0xe0909a: partendo dalla foschia dorata
+  // lilla di adesso, non pesca, la fase rosa resterebbe viola)
+  hazeRosa: hex(0xe88c86),
   zenithRosa: hex(0x5a5aa0),
   ambTopRosa: hex(0xa088b8),
   sunRosa: hex(0xff9a7a),

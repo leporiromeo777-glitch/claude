@@ -2,8 +2,9 @@
  * I tronchi dei boschi (collisori `castagno` della vegetazione, traccia «natura») non devono
  * ostruire i punti del gioco: i capisaldi della rete di Corbella, i luoghi delle missioni e il centro
  * delle aree d'atterraggio del percorso facile (Ronchi, Terrazza Pedrazzini, alpeggi del Tappo Sud).
- * Il rifacimento grafico ha piantato i boschi fitti (23 275 tronchi contro 5140): è un cambio di
- * gioco, e questa prova lo tiene d'occhio. Si costruisce come nel gioco: vegetazione, poi il paese
+ * Il rifacimento grafico ha piantato i boschi fitti (23 275 alberi contro 5140): è un cambio di
+ * gioco, e questa prova lo tiene d'occhio. Dalla rifinitura 2 il collisore ce l'hanno solo i tronchi
+ * dove si cammina (`COLLISORI_SOLO_DOVE_SI_CAMMINA` in scene/vegetation.ts). Si costruisce come nel gioco: vegetazione, poi il paese
  * vero di Corbella che libera i tronchi dove costruisce.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -31,6 +32,7 @@ const ATTERRAGGI: Array<{ id: string; raggio: number }> = [
 ];
 
 let tronchi: Array<{ z: number; arc: number; r: number }> = [];
+let alberi = 0;
 
 beforeAll(() => {
   const g = giocoFinto(true);
@@ -39,6 +41,7 @@ beforeAll(() => {
   const veg = new Vegetation(mat, mat, g.world.colliders);
   (g as unknown as { vegetation: Vegetation }).vegetation = veg;
   installaCorbella(g, { agganciaCiclo: false, luciAbitanti: false, orari: false });
+  alberi = veg.trees.length;
   tronchi = [];
   for (const c of g.world.colliders.all()) {
     if (c.kind !== 'cylinder' || c.tag !== 'castagno') continue;
@@ -62,8 +65,13 @@ function piuVicino(z: number, theta: number): number {
 }
 
 describe('i tronchi dei boschi non ostruiscono il gioco', () => {
-  it('ci sono i boschi fitti (migliaia di tronchi)', () => {
-    expect(tronchi.length).toBeGreaterThan(10000);
+  it('ci sono i boschi fitti (migliaia di alberi), ma il collisore solo dove si cammina', () => {
+    // (rifinitura 2, «mondo»: i boschi restano fitti, 23 mila alberi; in attesa che il cambio di gioco
+    // sia approvato il collisore ce l'hanno solo i tronchi vicino a sentieri, luoghi e capisaldi, nel
+    // paese e fuori dai boschi: circa quanti erano prima del rifacimento, 5140)
+    expect(alberi).toBeGreaterThan(10000);
+    expect(tronchi.length).toBeGreaterThan(3000);
+    expect(tronchi.length).toBeLessThan(8000);
   });
 
   it(`nessun tronco a meno di ${MARGINE} m da un caposaldo della rete di Corbella`, () => {

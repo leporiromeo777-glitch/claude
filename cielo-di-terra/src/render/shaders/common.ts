@@ -174,6 +174,8 @@ uniform vec4 uOmbra;         // x = accese (0/1), y = texel (uv), z = inizio spa
 uniform vec4 uOmbraCentro;   // xyz = centro della zona d'ombra, w = metri per texel
 uniform float uCellAnim;     // istante (s) dell'ultima rivelazione animata: serve a saltare le celle vicino
 uniform float uDettaglio;    // 1 = motivi pieni; < 0.5 = solo i motivi economici (qualità bassa)
+uniform sampler2D uAlberiOmbra; // densità delle chiome (u = theta/360, v = z/L, ~4 m per texel)
+uniform vec4 uAlberiInfo;    // x = 1 se c'è la texture, y = forza dell'ombra
 `;
 
 /** Funzioni del cilindro, luce della Linea, ombre, foschia. */
@@ -211,6 +213,24 @@ float lineaReach(vec3 P) {
   float dc = abs(P.z - uSole.x);
   float core = mix(0.8, 1.0, exp(-dc * dc / (1600.0 * 1600.0)));
   return mix(tip * core, 1.0, uNight);
+}
+
+// ombra degli alberi sul terreno (rifinitura 2): la densità delle chiome letta dove sta la chioma che
+// fa ombra a P (spostata verso la luce di altezza/elevazione, la chioma è a ~5,5 m), più un poco
+// d'occlusione proprio sotto. 1 = niente ombra. Oltre la zona delle ombre portate è l'unica ombra
+// degli alberi: senza, da lontano le chiome galleggiavano sul prato come lecca-lecca
+float ombraAlberi(vec3 P, vec3 up) {
+  if (uAlberiInfo.x < 0.5) return 1.0;
+  vec3 L = lineaLightDir(P, up);
+  float el = max(dot(L, up), 0.22);
+  vec3 off = (L - up * dot(L, up)) * (5.5 / el);
+  float lo = length(off);
+  if (lo > 24.0) off *= 24.0 / lo;
+  vec3 Q = P + off;
+  float dq = texture(uAlberiOmbra, vec2(cylThetaDeg(Q) / 360.0, Q.z / uLen)).r;
+  float d0 = texture(uAlberiOmbra, vec2(cylThetaDeg(P) / 360.0, P.z / uLen)).r;
+  float giorno = (1.0 - uNight) * smoothstep(0.05, 0.5, uSunIntensity);
+  return (1.0 - dq * uAlberiInfo.y * giorno) * (1.0 - d0 * 0.12);
 }
 
 // lambert a bande morbide (campiture); 'k' = forza delle bande
@@ -314,6 +334,7 @@ struct Sup {
   float bordo;  // bordo luminoso (fogliame: luce sui contorni)
   vec3 specC;   // colore del riflesso
   float bande;  // forza delle bande di luce (campiture): 0 = sfumato, 1 = tre toni netti
+  float avvolge; // luce avvolgente del fogliame (0..1): l'interno della chioma resta verde medio
 };
 
 Sup supBase(vec3 albedo, vec3 N) {
@@ -327,6 +348,7 @@ Sup supBase(vec3 albedo, vec3 N) {
   s.bordo = 0.0;
   s.specC = vec3(1.0);
   s.bande = 0.62;
+  s.avvolge = 0.0;
   return s;
 }
 
@@ -339,27 +361,45 @@ vec3 shadeSup(Sup s, vec3 Nv, vec3 P, vec3 V, out float tone) {
   float ndlG = dot(Nv, L);
   float reach = lineaReach(P);
   float sh = mix(1.0, ombraPortata(P, Nv, ndlG), uLuce.x);
+  // fogliame (rifinitura 2): luce avvolgente. La chioma è un volume di foglie che lascia passare la
+  // luce: le ombre portate pesano meno, il lato in ombra prende più cielo e l'albedo non scende
+  // sotto un verde medio. Senza, sotto le chiome scure (il tasso del sagrato) la mappatura dei
+  // toni schiacciava tutto al nero puro
+  float av = s.avvolge;
+  if (av > 0.0) {
+    sh = mix(sh, mix(1.0, sh, 0.65), av);
+    float la = lumaP(s.albedo);
+    s.albedo *= mix(1.0, max(1.0, 0.25 / max(la, 1e-3)), av);
+  }
   // le facce geometricamente in ombra non tornano in luce per la normale del pattern
   float self = smoothstep(-0.25, 0.05, ndlG);
   float b = bandLightK((ndl + 0.18) / 1.18, s.bande) * reach * sh * mix(0.35, 1.0, self);
   // luce radente = più dorata (spessore d'aria attraversato dalla luce)
   float elev = clamp(dot(L, up), 0.0, 1.0);
-  float warmK = (1.0 - smoothstep(0.12, 0.62, elev)) * (1.0 - uNight) * 0.85;
+  // (rifinitura 2: 0.6 invece di 0.85, e la luce dorata 1.25 invece di 1.5: l'oro sta nella luce
+  // radente e dal lato del sole, non su tutto il quadro)
+  float warmK = (1.0 - smoothstep(0.12, 0.62, elev)) * (1.0 - uNight) * 0.5;
   vec3 sunC = uSunColor * mix(vec3(1.0), vec3(1.1, 0.86, 0.64), warmK);
   // all alba e al tramonto la luce calda è più piena (come nei bozzetti: la luce radente "accende")
-  float key = uSunIntensity * uSole.w * mix(1.0, 1.5, uGolden);
+  float key = uSunIntensity * uSole.w * mix(1.0, 1.25, uGolden);
   // riempimento emisferico: cielo freddo sopra, rimbalzo caldo dal suolo sotto (più basso
   // all'alba e al tramonto: il contrasto fra luce dorata e ombra fredda è quello dei bozzetti)
   float hemi = dot(N, up) * 0.5 + 0.5;
+  hemi = mix(hemi, 0.35 + 0.65 * hemi, av);
   // (di notte il riempimento del cielo sul suolo cala: il suolo resta più scuro del cielo e le
   // pozze dei lumi si leggono)
-  vec3 fill = mix(uAmbBottom, uAmbTop, hemi) * mix(1.0, 0.78, uGolden) * mix(1.0, 0.72, uNight);
+  vec3 fill = mix(uAmbBottom, uAmbTop, hemi) * mix(1.0, 0.92, uGolden) * mix(1.0, 0.72, uNight);
   float occ = mix(1.0, s.ao, uLuce.y);
   // notte: i colori perdono saturazione e virano al blu (i lumi invece li mostrano veri)
   vec3 albN = mix(s.albedo, vec3(lumaP(s.albedo)) * vec3(0.7, 0.94, 1.22), 0.62 * uNight);
   // (taratura: al sole pieno ~1.15 volte l'albedo, in ombra ~0.5 e più azzurro: ombre piene di
   // luce riflessa, come nei bozzetti, mai nere)
   vec3 light = fill * (0.78 * occ) + sunC * (key * b * 0.66);
+  // luce rimbalzata dal suolo dove la luce principale non arriva (ombre portate e lati in ombra):
+  // le ombre del bozzetto 2 sono oliva calde, piene di luce, non verde acqua scuro
+  light += uAmbBottom * (0.25 * occ * (1.0 - clamp(b, 0.0, 1.0)) * (1.0 - uNight));
+  // (fogliame) il cielo filtra fra le foglie anche dentro la chioma
+  light += uAmbTop * (0.26 * av * (1.0 - 0.6 * uNight));
   vec3 col = albN * light;
   // banda calda sul terminatore (nella pittura il passaggio luce-ombra è più saturo)
   float term = smoothstep(-0.08, 0.1, ndl) * (1.0 - smoothstep(0.1, 0.42, ndl)) * reach * sh * key;
@@ -428,7 +468,9 @@ float foschiaFrazione(vec3 P, float dist) {
   float rho = (densitaAria(hc) + 4.0 * densitaAria(hm) + densitaAria(hp)) / 6.0;
   // chi vola alto, vicino all'asse, sta nell'aria limpida: il velo si assottiglia
   // all alba e al tramonto (foschie del mattino) il velo è più spesso
-  float velo = raggioAlto(P) * uHaze.w * mix(1.0, 0.3, smoothstep(60.0, 320.0, hc)) * mix(1.0, 1.45, uGolden);
+  // (di notte il velo è più spesso: l'altra metà è il cielo, più chiaro dei monti vicini, che
+  // restano sagome scure come nel bozzetto 5)
+  float velo = raggioAlto(P) * uHaze.w * mix(1.0, 0.3, smoothstep(60.0, 320.0, hc)) * mix(1.0, 1.45, uGolden) * mix(1.0, 2.6, uNight);
   return 1.0 - exp(-dist * uAria.x * (rho + velo));
 }
 
@@ -448,16 +490,23 @@ vec3 coloreFoschia(vec3 P, float dist, out float glow) {
   // come in un cielo vero: guardando in su (verso l'altra metà) azzurro pieno, all'orizzonte chiaro
   vec3 upC = cylUp(c);
   float elevV = dot(V, upC);
-  float alto = max(smoothstep(0.02, 0.5, elevV), smoothstep(0.2, 0.75, 1.0 - dmin / uR));
+  // (rifinitura 2: di giorno i raggi verso l'altra metà prendono prima l'azzurro dello zenit, 0,1-0,55
+  // invece di 0,2-0,75: a metà strada il lilla della foschia sopra le terre dipinte faceva una parete
+  // pallida, grigio-rosa all'alba; nel bozzetto 1 l'altra metà è azzurra. Di notte come prima)
+  float alto = max(smoothstep(0.02, 0.5, elevV), smoothstep(mix(0.1, 0.2, uNight), mix(0.55, 0.75, uNight), 1.0 - dmin / uR));
   vec3 hc = mix(uHazeColor, uHazeZenith, alto);
   // bagliore verso la luce principale: stessa direzione (radente) della luce sul terreno
   vec3 Lc = lineaLightDir(c, upC);
   // (un po' più basso della luce: il bagliore si posa sulla valle, come il sole basso dei bozzetti)
   Lc = normalize(Lc - upC * (dot(Lc, upC) * 0.45));
   float mu = max(dot(V, Lc), 0.0);
-  float fwd = (pow(mu, mix(10.0, 7.0, uGolden)) * 0.28 + pow(mu, 48.0) * 0.5) * uAria.w * mix(0.45, 1.15, uGolden) * uSunIntensity * (1.0 - uNight);
+  // (rifinitura 2: all'alba e al tramonto il bagliore è più raccolto attorno al sole, mix(0.45, 0.95)
+  // invece di 1.15 e lobo 9 invece di 7: l'oro sta dal lato del sole, il resto del cielo resta blu)
+  float fwd = (pow(mu, mix(10.0, 9.0, uGolden)) * 0.28 + pow(mu, 48.0) * 0.5) * uAria.w * mix(0.45, 0.95, uGolden) * uSunIntensity * (1.0 - uNight);
   // il bagliore si allarga lungo l'orizzonte (luce che attraversa più aria), non verso lo zenit
-  fwd *= mix(1.0, 0.55, alto);
+  // (rifinitura 2: all'alba e al tramonto ancora meno in alto, 0,2 invece di 0,55: l'oro del sole
+  // mescolato all'azzurro dell'altra metà faceva un grigio rosato, la parete pallida del confronto 1)
+  fwd *= mix(1.0, mix(0.55, 0.2, uGolden), alto);
   hc = mix(hc, uHazeSun, clamp(fwd, 0.0, 1.0));
   // la Linea illumina la foschia attorno a sé
   float litAt = max(step(q.z, uLineaIgnite), 0.55 * uNight);
@@ -474,14 +523,28 @@ vec3 coloreFoschia(vec3 P, float dist, out float glow) {
 // foschia con "quinte teatrali": 'k' scala la quantità (1 = piena)
 vec3 applyHazeK(vec3 col, vec3 P, float dist, float k) {
   float f = foschiaFrazione(P, dist);
+  float rA = raggioAlto(P);
+  // quinte lontane (rifinitura 2): i raggi che restano bassi sulla valle, oltre 600 m, si velano
+  // d'azzurro-lilla, anche all'alba e al tramonto quando la luce radente scalda tutto: sono i monti
+  // a piani del bozzetto 1. L'altra metà vista in su (i raggi vicino all'asse) resta nitida
+  // (all'alba e al tramonto più spessa e più azzurra, 0,6 e 65% di zenit: la terra in luce radente è
+  // arancione, e un velo lilla poco coprente la ingrigiva invece di farne un monte azzurro)
+  float qL = smoothstep(600.0, 1400.0, dist) * (1.0 - rA) * (1.0 - uNight) * mix(0.42, 0.6, uGolden);
+  f += (1.0 - f) * qL;
+  // all'alba e al tramonto l'altra metà sta dietro l'aria azzurra (bozzetto 1): la luce radente la
+  // illumina come la valle, e senza velo era una parete beige pallida
+  f = max(f, rA * 0.75 * uGolden * (1.0 - uNight));
   // quinte teatrali: la foschia sale a gradini morbidi (piani di profondità distinti)
   float steps = 5.0;
   float fs = f * steps;
   float fq = (floor(fs) + smoothstep(0.3, 0.7, fract(fs))) / steps;
   f = mix(f, fq, uHaze.z);
-  f = min(f, uHaze.y) * k;
+  // (i raggi che passano vicino all'asse arrivano all'altra metà: lì il velo può coprire di più,
+  // così l'altra metà resta cielo blu; di notte è il cielo, più chiaro dei monti vicini)
+  f = min(f, mix(mix(uHaze.y, 0.82, rA), 0.9, uNight)) * k;
   float glow;
   vec3 hc = coloreFoschia(P, dist, glow);
+  hc = mix(hc, mix(uHazeColor, uHazeZenith, mix(0.45, 0.65, uGolden)), min(qL * 1.2, 1.0));
   return mix(col, hc, clamp(f + glow * 0.18 * k, 0.0, 1.0));
 }
 vec3 applyHaze(vec3 col, vec3 P, float dist) {
@@ -715,10 +778,14 @@ float segniMatita(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, fl
   float far = smoothstep(120.0, 650.0, dist);
   hatch *= 1.0 - far * 0.8;
   // curve di livello dalla quota (passo che raddoppia con la distanza), deboli sulle pareti
-  float cstep = 6.0 * exp2(floor(clamp(log2(max(pix * 40.0 / 6.0, 1.0)), 0.0, 5.0)));
+  float cstep = 6.0 * exp2(floor(clamp(log2(max(pix * 40.0 / 6.0, 1.0)), 0.0, 7.0)));
   float fh = hgt / cstep;
   float fw = max(fwidth(fh), 1e-4);
   float contour = (1.0 - smoothstep(0.6, 1.4, abs(fract(fh + 0.5) - 0.5) / fw)) * (1.0 - steep * 0.85);
+  // (rifinitura 2) le curve più fitte di circa 5 pixel spariscono invece di fare moiré: da lontano
+  // e di scorcio facevano anelli concentrici, come legno tagliato, che il filtro a metà risoluzione
+  // ingrossava; oltre 600 m niente curve di livello
+  contour *= (1.0 - smoothstep(0.10, 0.25, fw)) * (1.0 - smoothstep(600.0, 1000.0, dist));
   // contorno: dove la superficie è vista di taglio
   float ndv = abs(dot(N, V));
   float wob = (vnoise2(uv * 0.35 + tq * 0.9) - 0.5) * 0.12;
@@ -757,34 +824,44 @@ vec3 pencilColor(vec2 uv, vec3 N, vec3 V, float tone, float hgt, float dist, flo
  */
 vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, float dist, float blank, float steep, float inked) {
   float pix = max(dist, 0.5) * uPixelAngle;
+  // (rifinitura 2) le stesure si misurano col lato lungo dell'impronta del pixel: con la sola
+  // distanza, di scorcio (l'altra metà, i versanti lontani) le macchie si schiacciavano in
+  // increspature ondulate, come un cielo a pecorelle
+  float pixS = max(pix, length(fwidth(uv)) * 0.75);
   vec3 paper = vec3(0.962, 0.935, 0.862);
   // da lontano la carta si confonde con l'aria (l'abbozzo dell'altra metà è dietro il velo azzurro)
-  paper = mix(paper, mix(uHazeColor, uHazeZenith, 0.35) * 1.08, smoothstep(350.0, 1100.0, dist) * 0.3 * (1.0 - uNight));
+  // (rifinitura 2: 0.12 invece di 0.3: la carta virata all'aria faceva le pareti color crema)
+  paper = mix(paper, mix(uHazeColor, uHazeZenith, 0.35) * 1.08, smoothstep(350.0, 1100.0, dist) * 0.12 * (1.0 - uNight));
   // la carta prende la luce dell'ora (di notte è blu-viola), ma resta più chiara del dipinto
   // (circa una volta e mezza): il non rilevato si legge al buio come carta, non come campitura
   // (solo entro qualche centinaio di metri: l'altra metà, di notte, resta un fondale scuro sotto la
   // foschia, dove si accendono i paesi lontani)
-  vec3 cartaBuio = uAmbTop * 0.48 + uSunColor * uSunIntensity * 0.18 + uHazeColor * 0.16;
-  float cartaVicina = 1.0 - smoothstep(450.0, 900.0, dist);
-  vec3 paperLight = mix(vec3(1.0), mix(cartaBuio, max(cartaBuio, uAmbTop * 0.8 + uHazeColor * 0.25), cartaVicina), uNight);
+  // (rifinitura 2: la carta notturna era più chiara del cielo, un lenzuolo lilla; nel bozzetto 5 i
+  // monti sono sagome scure sotto un cielo più chiaro, e il paese acceso risalta. Il minimo di luce
+  // per leggere il gesso vale solo vicino, entro 150 m)
+  vec3 cartaBuio = uAmbTop * 0.30 + uSunColor * uSunIntensity * 0.10 + uHazeColor * 0.08;
+  float cartaVicina = 1.0 - smoothstep(80.0, 150.0, dist);
+  vec3 paperLight = mix(vec3(1.0), mix(cartaBuio, max(cartaBuio, uAmbTop * 0.42 + uHazeColor * 0.10), cartaVicina), uNight);
   // da lontano la carta si vede meno e il colore torna (le terre si leggono a piani)
   float lontano = smoothstep(260.0, 950.0, dist);
   // pigmento: colore vero, meno saturo (circa 60%), un po' più chiaro; il foglio mai visto
   // è un abbozzo ancora più spento, ma non vuoto
   float lum = lumaP(col);
-  vec3 pig = mix(vec3(lum), col, mix(0.6, 0.88, lontano) * mix(1.0, 0.85, blank));
+  // (rifinitura 2: dal 75% al 100% del colore, prima dal 60 all'88%: l'acquerello lontano sbiadiva
+  // i versanti e il terzo alto di ogni inquadratura)
+  vec3 pig = mix(vec3(lum), col, mix(0.75, 1.0, lontano) * mix(1.0, 0.85, blank));
   pig = pig * 1.04 + 0.03;
   // stesure non uniformi: macchie d'acqua e di pigmento ancorate al mondo (in pixel, stabili)
-  float w1 = rumoreStabile2(uv, pix, 140.0, 2.0);
-  float w2 = rumoreStabile2(uv + 17.0, pix, 34.0, 0.6);
+  float w1 = rumoreStabile2(uv, pixS, 140.0, 2.0);
+  float w2 = rumoreStabile2(uv + 17.0, pixS, 34.0, 0.6);
   float wash = uAcquerello.x * (0.78 + 0.32 * w1 + 0.12 * (w2 - 0.5));
   // qua e là la carta resta scoperta (luci risparmiate)
   float risparmio = smoothstep(0.66, 0.8, w1 * 0.75 + w2 * 0.35) * 0.45 * uAcquerello.z;
   wash *= 1.0 - risparmio;
   // bordo della pozza: il pigmento si raccoglie e scurisce il contorno della stesura
-  float pozza = 1.0 - smoothstep(0.0, 0.035, abs(w1 - 0.44));
+  float pozza = (1.0 - smoothstep(0.0, 0.035, abs(w1 - 0.44))) * (1.0 - lontano * 0.8);
   // granulazione del pigmento
-  float gran = (rumoreStabile2(uv + 41.0, pix, 3.0, 0.04) - 0.5) * 0.06 * uAcquerello.w;
+  float gran = (rumoreStabile2(uv + 41.0, pixS, 3.0, 0.04) - 0.5) * 0.06 * uAcquerello.w;
   wash = clamp(wash * (1.0 + gran) + pozza * 0.12, 0.0, 1.0);
   // da lontano la carta si vede meno: resta una velatura di colore (le terre si leggono a piani)
   wash = mix(wash, 0.97, lontano * 0.85);
@@ -806,8 +883,11 @@ vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, f
   vec3 lineC = mix(graphite, inkC, inked);
   // di notte: gesso chiaro su carta scura, con un contrasto minimo (il tratteggio e le curve di
   // livello si leggono anche da lontano)
-  lineC = mix(lineC, wc * 1.9 + vec3(0.07, 0.07, 0.1), uNight * (1.0 - inked));
-  ink = mix(ink, max(ink, ink * 0.5 + 0.12 * step(0.02, ink)), uNight * (1.0 - smoothstep(300.0, 650.0, dist)));
+  // (rifinitura 2: gesso più tenue, e il rinforzo notturno dell'inchiostro morbido e solo entro
+  // 200 m: con step(0.02, ink) ogni puntino di tratteggio diventava un punto di gesso, e il
+  // versante notturno era un retino regolare)
+  lineC = mix(lineC, wc * 1.35 + vec3(0.03, 0.03, 0.05), uNight * (1.0 - inked));
+  ink = mix(ink, max(ink, ink * 0.5 + smoothstep(0.05, 0.25, ink) * 0.08), uNight * (1.0 - smoothstep(120.0, 200.0, dist)));
   return mix(wc, lineC, clamp(ink * (0.75 + inked * 0.6), 0.0, 0.85));
 }
 `;

@@ -295,7 +295,8 @@ export class Percorso {
     this.fermoPrimaNotte(attivi);
     const p = r.game.player;
     const inp = r.game.input;
-    const spinge = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp'].some((k) => inp.isDown(k));
+    // (le frecce girano solo lo sguardo: chi guarda in su con ↑ non «spinge» contro il muretto)
+    const spinge = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].some((k) => inp.isDown(k));
     // ferma contro qualcosa: quasi a terra (contro un muro sul pendio il controller salta fra
     // «a terra» e «in aria») e quasi immobile sul piano (strisciando sul muro resta mezzo metro al secondo)
     localFrameAt(p.pos, _cornice, p.cyl.theta);
