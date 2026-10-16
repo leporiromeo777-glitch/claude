@@ -23,6 +23,7 @@ import { costruisciRipiano, localeDa } from '../ripiano';
 import { scalinata } from '../sentieri';
 import { metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle } from '../terreno';
 import { posaChiodo } from './sanVigilio';
+import { gradiniPorta, oggettoSullaSoglia } from '../soglie';
 
 export function costruisciTerrazzaPedrazzini(ctx: Contesto): void {
   const t = luogo('terrazza_pedrazzini');
@@ -150,9 +151,12 @@ export function costruisciMuriDelVelo(ctx: Contesto): void {
     }
     // la vecchia grà sul ciglio (a Lag del varco)
     const pg = localeDa(centro.z, centro.theta, yv, -0.5 + 0, -D / 2 + 3.2, quotaTop);
-    const gra = creaGra('gra-muraglione', false);
     const pgg = spostaYaw(pg.z, pg.theta, 0, 9, quotaTop);
-    ctx.posa('velo', gra, pgg.z, pgg.theta, yv, { h: Math.max(quotaTop, suolo(pgg.z, pgg.theta)) - 0.05, luogo: 'muraglione_gra', tag: (t) => t ?? 'muro' });
+    // migliorie «porte»: la grà sta al piede del Muraglione, sul gradone di sotto, con la porta sul
+    // prato (prima era alla quota del ripiano, 3,4 m sopra il prato, con la porta sul vuoto)
+    const { oggetto: gra, base: baseGra, porta: portaGra } = oggettoSullaSoglia(() => creaGra('gra-muraglione', false), pgg.z, pgg.theta, yv, 4.4, 5.0, 2.2);
+    ctx.posa('velo', gra, pgg.z, pgg.theta, yv, { h: baseGra, luogo: 'muraglione_gra', tag: (t) => t ?? 'muro' });
+    if (portaGra) gradiniPorta(ctx.zona('velo'), pgg.z, pgg.theta, baseGra, yv, portaGra, { luogo: 'muraglione_gra', seme: 985 });
     ctx.occupa({ nome: 'gra_muraglione', z: pgg.z, theta: pgg.theta, raggio: 4 });
     const lancio = localeDa(centro.z, centro.theta, yv, 0, D / 2 - 0.6, quotaTop);
     ctx.punto('lancio_velo:muraglione_gra', 'lancio_velo', 'Salta dal Muraglione e apri il Velo', mondo(lancio.z, lancio.theta, quotaTop + 0.2), { raggio: 2.5, luogo: 'muraglione_gra', rif: 'suggerimento:velo' });

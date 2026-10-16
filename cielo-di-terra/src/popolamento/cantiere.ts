@@ -105,12 +105,46 @@ export interface OpzioniOggetto {
   lumi?: boolean;
   /** tinta moltiplicativa (rgb) applicata a tutta la geometria */
   tinta?: RGB;
+  /** nome dell'oggetto posato (per l'inventario delle porte: `rustico_12`, `annesso_3`…) */
+  nome?: string;
+}
+
+/**
+ * Una porta posata nel mondo (migliorie «porte»): la `PortaOggetto` della libreria portata in
+ * coordinate mondo con la matrice di posa. La raccolgono i cantieri; la maniglia di Corbella le
+ * elenca tutte (`porte()`) per le verifiche e per le schermate.
+ */
+export interface PortaPosata {
+  /** `proprietario:nome` (unico nella maniglia) */
+  id: string;
+  nome: string;
+  /** l'oggetto a cui appartiene (nome posato, luogo o nome del generatore) */
+  proprietario: string;
+  /** il generatore (rustico, annesso, casupola, campanile…) */
+  oggetto: string;
+  zona: string;
+  /** centro della soglia sul filo del muro (mondo) */
+  centro: Vector3;
+  /** normale orizzontale verso fuori (mondo, unitaria) */
+  normale: Vector3;
+  /** il su locale (verso l'asse) */
+  su: Vector3;
+  larghezza: number;
+  altezza: number;
+  battente: number;
+  appoggio: 'suolo' | 'scala' | 'balcone';
+  /** origine dell'oggetto posato (mondo) */
+  origine: Vector3;
+  /** variante di un elemento mobile (E2…) a cui appartiene, se è mobile */
+  variante?: string;
 }
 
 export class Cantiere {
   readonly singolo: Accumulo = { parti: [], vertici: 0 };
   readonly doppio: Accumulo = { parti: [], vertici: 0 };
   readonly collider: VoceCollider[] = [];
+  /** porte degli oggetti posati (coordinate mondo) */
+  readonly porte: PortaPosata[] = [];
   readonly lumi: Vector3[] = [];
   readonly dimensioniLumi: number[] = [];
   /** direzione di ogni lume (normale del vetro delle finestre; null = in tutte le direzioni) */
@@ -166,11 +200,55 @@ export class Cantiere {
           this.collider.push({ collider: col, tag, ...(opz.luogo ? { luogo: opz.luogo } : {}) });
         }
       }
+      if (o.porte) {
+        const proprietario = opz.nome ?? opz.luogo ?? o.nome;
+        const origine = new Vector3().setFromMatrixPosition(m);
+        const su = new Vector3(0, 1, 0).transformDirection(m);
+        for (const p of o.porte) {
+          this.porte.push({
+            id: `${proprietario}:${p.nome}`,
+            nome: p.nome,
+            proprietario,
+            oggetto: o.nome,
+            zona: this.nome,
+            centro: p.centro.clone().applyMatrix4(m),
+            normale: p.normale.clone().transformDirection(m),
+            su: su.clone(),
+            larghezza: p.larghezza,
+            altezza: p.altezza,
+            battente: p.battente,
+            appoggio: p.appoggio,
+            origine: origine.clone(),
+          });
+        }
+      }
       const punti: Record<string, Vector3> = {};
       for (const [k, v] of Object.entries(o.punti)) punti[k] = v.clone().applyMatrix4(m);
       return punti;
     }
     return {};
+  }
+
+  /**
+   * Segna una porta disegnata a mano nel cantiere (le versioni lontane delle case): soglia in (u, v)
+   * sulla facciata +Z dell'oggetto posato con la matrice `m`, battente a `battente` dal muro.
+   */
+  segnaPorta(m: Matrix4, proprietario: string, oggetto: string, u: number, v: number, larghezza: number, altezza: number, zFacciata: number, battente: number): void {
+    this.porte.push({
+      id: `${proprietario}:porta`,
+      nome: 'porta',
+      proprietario,
+      oggetto,
+      zona: this.nome,
+      centro: new Vector3(u, v, zFacciata).applyMatrix4(m),
+      normale: new Vector3(0, 0, 1).transformDirection(m),
+      su: new Vector3(0, 1, 0).transformDirection(m),
+      larghezza,
+      altezza,
+      battente,
+      appoggio: 'suolo',
+      origine: new Vector3().setFromMatrixPosition(m),
+    });
   }
 
   /** Aggiunge un collider già nel formato del motore. */

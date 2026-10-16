@@ -17,6 +17,7 @@ import { geoBoxC, geoCiuffo, geoEstrusione, geoLastra, geoPiano } from '../forme
 import { PALETTE } from '../palette';
 import type { Rng } from '../rng';
 import { SUP, legnoOrizzontale, legnoVerticale, sup } from '../superfici';
+import type { PortaOggetto } from '../tipi';
 
 /** Sistema di riferimento di una facciata: centro (cx, cz) sul muro, rotY tale che +Z locale esca dal muro. */
 export function facciata(cx: number, cz: number, rotY: number, y = 0): THREE.Matrix4 {
@@ -269,18 +270,39 @@ export function gerani(b: Costruttore, f: THREE.Matrix4, u: number, v: number, l
   }
 }
 
-/** Porta di legno con stipiti e architrave di pietra; la base è a v. (Appoggiata, senza foro.) */
-export function porta(b: Costruttore, f: THREE.Matrix4, u: number, v: number, larghezza = 1.0, altezza = 1.95, colore: number = PALETTE.legno): void {
+/**
+ * Descrizione di una porta in coordinate dell'oggetto (vedi `PortaOggetto`): soglia al centro di
+ * (u, v) sulla facciata `f`, normale = +Z della facciata, battente a `battente` dal filo del muro.
+ */
+export function descriviPorta(f: THREE.Matrix4, u: number, v: number, larghezza: number, altezza: number, battente: number, nome = 'porta', appoggio: PortaOggetto['appoggio'] = 'suolo'): PortaOggetto {
+  return {
+    nome,
+    centro: new THREE.Vector3(u, v, 0).applyMatrix4(f),
+    normale: new THREE.Vector3(0, 0, 1).transformDirection(f),
+    larghezza,
+    altezza,
+    battente,
+    appoggio,
+  };
+}
+
+/**
+ * Porta di legno con stipiti e architrave di pietra; la base è a v. (Appoggiata, senza foro.)
+ * Restituisce la sua descrizione (`PortaOggetto`): il generatore la mette fra le sue `porte`.
+ */
+export function porta(b: Costruttore, f: THREE.Matrix4, u: number, v: number, larghezza = 1.0, altezza = 1.95, colore: number = PALETTE.legno): PortaOggetto {
   const rng = b.rng;
-  b.aggiungi(geoBoxC(larghezza, altezza, 0.08), {
-    matrice: inF(f, u, v + altezza / 2, -0.01),
+  // il battente sporge 5 cm dal muro (migliorie «porte»: con 3 cm, oltre i 250 m, il muro dietro
+  // affiorava a tratti) e le bandelle stanno 1,5 cm davanti al battente (prima 0,5: sfarfallavano)
+  b.aggiungi(geoBoxC(larghezza, altezza, 0.1), {
+    matrice: inF(f, u, v + altezza / 2, 0),
     colore,
     variazione: 0.08,
     gradiente: { basso: 0.75, alto: 1.0, y0: v, y1: v + altezza },
     piatto: true,
     superficie: legnoVerticale(rng.next()),
   });
-  ferramentaPorta(b, f, u, v, larghezza, altezza, 0.035);
+  ferramentaPorta(b, f, u, v, larghezza, altezza, 0.065);
   // stipiti e architrave
   for (const s of [-1, 1]) {
     b.aggiungi(geoLastra(0.2, altezza, 0.16, rng.intero(0, 1e6), 0.08), {
@@ -306,6 +328,7 @@ export function porta(b: Costruttore, f: THREE.Matrix4, u: number, v: number, la
     piatto: true,
     superficie: sup(SUP.PIETRA, rng.next()),
   });
+  return descriviPorta(f, u, v, larghezza, altezza, 0.05, 'porta', v > 0.3 ? 'balcone' : 'suolo');
 }
 
 /** Bandelle di ferro, chiodi e maniglia ad anello su un battente (w0 = sporgenza dal battente). */
@@ -325,7 +348,16 @@ export function foroPorta(u: number, v: number, larghezza: number, altezza: numb
  * Porta di larice incassata nel foro di un muro spesso (`foroPorta`): battente ad assi verticali con
  * le bandelle di ferro, stipiti di pietra a filo del muro, architrave (lastra o trave), soglia.
  */
-export function portaIncassata(b: Costruttore, f: THREE.Matrix4, u: number, v: number, larghezza = 1.0, altezza = 1.95, colore: number = PALETTE.larice, opz: { profondita?: number; architraveLegno?: boolean; soglia?: boolean } = {}): void {
+export function portaIncassata(
+  b: Costruttore,
+  f: THREE.Matrix4,
+  u: number,
+  v: number,
+  larghezza = 1.0,
+  altezza = 1.95,
+  colore: number = PALETTE.larice,
+  opz: { profondita?: number; architraveLegno?: boolean; soglia?: boolean; nome?: string; appoggio?: PortaOggetto['appoggio'] } = {},
+): PortaOggetto {
   const rng = b.rng;
   const d = opz.profondita ?? 0.22;
   // battente in fondo al foro
@@ -338,7 +370,7 @@ export function portaIncassata(b: Costruttore, f: THREE.Matrix4, u: number, v: n
     superficie: legnoVerticale(rng.next()),
     occlusione: 0.28,
   });
-  ferramentaPorta(b, f, u, v, larghezza, altezza, -d + 0.04);
+  ferramentaPorta(b, f, u, v, larghezza, altezza, -d + 0.05);
   // spallette del foro (pietra chiara), più scure in fondo
   for (const s of [-1, 1]) {
     b.aggiungi(geoBoxC(0.02, altezza, d), { matrice: inF(f, u + s * (larghezza / 2 - 0.01), v + altezza / 2, -d / 2), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, rng.next()), occlusione: 0.3 });
@@ -379,6 +411,7 @@ export function portaIncassata(b: Costruttore, f: THREE.Matrix4, u: number, v: n
       superficie: sup(SUP.PIETRA, rng.next()),
     });
   }
+  return descriviPorta(f, u, v, larghezza, altezza, -d + 0.035, opz.nome ?? 'porta', opz.appoggio ?? 'suolo');
 }
 
 /**

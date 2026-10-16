@@ -7,10 +7,10 @@ import { Group, Vector3 } from 'three';
 import type { Collider } from '../world/colliders';
 import { impostaIntensitaLumi } from '../oggetti/materiali';
 import { Abitanti, type ManigliaNpc } from './abitanti';
-import { distanzaLodPerQualita, impostaDistanzaLod, type VoceCollider } from './cantiere';
+import { distanzaLodPerQualita, impostaDistanzaLod, type PortaPosata, type VoceCollider } from './cantiere';
 import { LATI, PARTICELLE, RETE, luogo } from './contenuti';
 import { cylToWorld, worldToCyl } from '../world/cylinder';
-import { Contesto } from './contesto';
+import { Contesto, type Impronta } from './contesto';
 import { costruisciBalcone, costruisciGraDiPian, costruisciLontani, costruisciPilastriValle } from './luoghi/capisaldi';
 import { cortiliDelleCase, costruisciAnnessi, costruisciCasaPina, costruisciCasaVelo, costruisciCase, costruisciVerdeDelPaese, lanterneDellePorte } from './luoghi/case';
 import { costruisciCripta, type Cripta } from './luoghi/cripta';
@@ -107,6 +107,16 @@ export interface ManigliaCorbella {
   readonly capisaldi: readonly string[];
   /** collider aggiunti al mondo, con tag e luogo (varianti attive comprese) */
   collider(): VoceCollider[];
+  /**
+   * tutte le porte del paese posate nel mondo (migliorie «porte»): rustici, annessi, casupole,
+   * campanile, chiesa, mulino, grà, fienile, capanno; delle case mobili solo la variante attiva
+   * (con `tutteLeVarianti` anche le altre)
+   */
+  porte(tutteLeVarianti?: boolean): PortaPosata[];
+  /** le porte disegnate nelle versioni lontane delle zone (per la verifica dei LOD) e le zone che ne hanno una */
+  porteLontane(): { porte: PortaPosata[]; zone: Set<string> };
+  /** impronte occupate dal popolamento (case, annessi, luoghi), per le verifiche */
+  readonly impronte: ReadonlyArray<Impronta>;
   readonly lumi: readonly Vector3[];
   readonly statistiche: StatisticheCorbella;
   /** da chiamare a ogni passo se `agganciaCiclo` è false */
@@ -245,13 +255,12 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const ora = () => game.sky?.hours ?? game.clock?.hours ?? 10;
   if (orari) abitanti.applicaOrario(giorno, ora());
 
-  // botola: collider attivi solo da chiusa
+  // botola: da chiusa la lastra; da aperta il telaio e il vano chiuso (migliorie «porte»: prima da
+  // aperta non restava niente, e attorno al vano si cadeva in una fossa senza uscita)
   const apriBotola = (a: boolean) => {
     cripta.apriBotola(a);
-    for (const c of cripta.colliderBotola) {
-      game.world.colliders.remove(c.id);
-      if (!a) game.world.colliders.add(c);
-    }
+    for (const c of [...cripta.colliderBotola, ...cripta.colliderBotolaAperta]) game.world.colliders.remove(c.id);
+    for (const c of a ? cripta.colliderBotolaAperta : cripta.colliderBotola) game.world.colliders.add(c);
   };
 
   const statistiche: StatisticheCorbella = {
@@ -360,6 +369,29 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     },
     capisaldi: [...ctx.segnali.keys()],
     collider: () => [...colliderStatici, ...[...colliderVarianti.values()].flat()],
+    porte(tutte = false) {
+      const out: PortaPosata[] = [];
+      for (const z of ctx.zone.values()) out.push(...z.porte);
+      for (const e of elementiCostruiti.values()) for (const [id, v] of e.varianti) if (tutte || id === e.attiva) out.push(...v.porte);
+      // id unici (due porte con lo stesso proprietario e lo stesso nome: _2, _3…)
+      const visti = new Map<string, number>();
+      return out.map((p) => {
+        const n = (visti.get(p.id) ?? 0) + 1;
+        visti.set(p.id, n);
+        return n > 1 ? { ...p, id: `${p.id}_${n}` } : p;
+      });
+    },
+    impronte: ctx.impronte,
+    porteLontane() {
+      const porte: PortaPosata[] = [];
+      const zone = new Set<string>();
+      for (const z of ctx.zone.values()) {
+        if (!z.haLontano) continue;
+        zone.add(z.nome);
+        porte.push(...z.lontano.porte);
+      }
+      return { porte, zone };
+    },
     lumi,
     statistiche,
     update,

@@ -18,7 +18,7 @@
 import * as THREE from 'three';
 import { Costruttore, mat, mescola } from '../../oggetti/costruttore';
 import { matriceSuperficie } from '../../oggetti/cilindro';
-import { creaBotolaCripta, creaCastagnoMorto, type StatoBotola } from '../../oggetti/oggetti/castagno';
+import { colliderBotolaAperta, creaBotolaCripta, creaCastagnoMorto, type StatoBotola } from '../../oggetti/oggetti/castagno';
 import { creaMuroSecco } from '../../oggetti/oggetti/muri';
 import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoTubo } from '../../oggetti/forme';
 import { PALETTE } from '../../oggetti/palette';
@@ -45,6 +45,8 @@ export interface Cripta {
   interno: THREE.Group;
   /** id dei collider che la botola chiusa aggiunge (da togliere quando è aperta) */
   colliderBotola: Collider[];
+  /** collider della botola aperta: il telaio calpestabile e il vano chiuso (fuori dal mondo da chiusa) */
+  colliderBotolaAperta: Collider[];
 }
 
 export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): Cripta {
@@ -114,7 +116,10 @@ export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): C
   const pb = spostaYaw(cm.z, cm.theta, yaw, rT * 0.6 + 1.9, 46);
   const fp = impronta(pb.z, pb.theta, yaw, 2.4, 2.4);
   const hB = fp.max + 0.04;
-  costruisciRipiano(ctx, { zona, nome: 'ripiano_botola', z: pb.z, theta: pb.theta, yaw, larghezza: 3.2, profondita: 3.2, quota: hB - 0.02, superficie: 'lastre', dettaglio: 'alto', luogo: 'botola', collider: false });
+  // (migliorie «porte»: il ripiano ha il suo collider calpestabile. Senza, fra i muretti di sostegno
+  // restava il suolo, settanta centimetri sotto le lastre: chi usciva dalla Cripta veniva posato lì
+  // in mezzo, accanto alla botola aperta, e non riusciva più a salire sui muretti)
+  costruisciRipiano(ctx, { zona, nome: 'ripiano_botola', z: pb.z, theta: pb.theta, yaw, larghezza: 3.2, profondita: 3.2, quota: hB - 0.02, superficie: 'lastre', dettaglio: 'alto', luogo: 'botola' });
   const botola = creaBotolaCripta({ seme: 'botola-cripta', apertaAllInizio: false, boccaBuia: true });
   adattaOggetto(botola.gruppo, materiali);
   const gB = new THREE.Group();
@@ -130,6 +135,7 @@ export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): C
     colliderBotola.push(cw);
     ctx.colliderDinamici.push({ collider: cw, tag: 'botola', luogo: 'botola' });
   }
+  const colliderAperta: Collider[] = colliderBotolaAperta().map((c) => ({ ...colliderAlMondo(c, mB), id: -1, tag: 'botola' }) as Collider);
   ctx.occupa({ nome: 'botola', z: pb.z, theta: pb.theta, raggio: 1.8 });
   const pBotola = mondo(pb.z, pb.theta, hB + 0.15);
   ctx.punto('apri:botola', 'apri', 'Apri la botola', pBotola, { raggio: 2.2, luogo: 'botola', rif: 'botola' });
@@ -192,6 +198,7 @@ export function costruisciCripta(ctx: Contesto, materiali: MaterialiCantiere): C
     sala: { z: sala.z, theta: sala.theta, h: hB - 6 },
     interno,
     colliderBotola,
+    colliderBotolaAperta: colliderAperta,
   };
 }
 

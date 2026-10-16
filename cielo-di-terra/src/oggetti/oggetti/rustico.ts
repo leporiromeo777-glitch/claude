@@ -14,7 +14,7 @@ import { box, ingombroDa, risultato } from '../comune';
 import { geoBoxC, geoEstrusione, geoLastra, geoMasso } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
-import type { Collider, OggettoProcedurale } from '../tipi';
+import type { Collider, OggettoProcedurale, PortaOggetto } from '../tipi';
 import { SUP, legnoOrizzontale, legnoVerticale, sup } from '../superfici';
 import {
   balcone,
@@ -74,6 +74,41 @@ export interface OpzioniRustico {
    * Rifinitura 2: con i piani (1-3) dà le altezze variate del nucleo attorno al campanile
    */
   altezzaPiani?: number;
+  /**
+   * Migliorie «porte»: da che parte del fronte sta la porta d'ingresso (+1 a +X, −1 a −X; solo le
+   * case larghe almeno 5,6 m, le altre l'hanno al centro). Senza, la sceglie il seme. Il seme fa
+   * la sua estrazione comunque: il resto della casa non cambia.
+   */
+  latoPorta?: 1 | -1;
+  /** Migliorie «porte»: la scala esterna sul fianco a +X (1, come prima) o a −X (−1) */
+  latoScala?: 1 | -1;
+  /** Migliorie «porte»: niente scala esterna (anche se il seme la vorrebbe), senza cambiare il resto */
+  senzaScala?: boolean;
+}
+
+/**
+ * Pianta di un rustico senza costruirlo (migliorie «porte»): dove stanno la porta d'ingresso e la
+ * scala esterna, per scegliere da che parte metterle prima di posare la casa.
+ */
+export interface PiantaRustico {
+  larghezza: number;
+  profondita: number;
+  /** x locale del centro della porta d'ingresso (sul fronte, z = D/2) */
+  portaU: number;
+  hTerra: number;
+  /** la scala esterna: fianco (+1 a +X), z locali della cima (porta) e del primo gradino */
+  scala: { lato: 1 | -1; zCima: number; zPiede: number } | null;
+}
+
+export function piantaRustico(opz: OpzioniRustico = {}): PiantaRustico {
+  const p = progetta(opz, new Rng(semeNumerico(opz.seme ?? 1)));
+  const ps = p.porteSuperiori[0];
+  let scala: PiantaRustico['scala'] = null;
+  if (p.scalaEsterna && ps) {
+    const n = Math.round(p.hTerra / 0.24);
+    scala = { lato: p.latoScala, zCima: ps.u + 0.65, zPiede: ps.u - 0.65 - (n - 1) * 0.3 };
+  }
+  return { larghezza: p.W, profondita: p.D, portaU: p.portaU, hTerra: p.hTerra, scala };
 }
 
 interface Finestra {
@@ -98,6 +133,8 @@ interface Pianta {
   interrata: number;
   balcone: 'fronte' | 'lato' | 'nessuno';
   scalaEsterna: boolean;
+  /** fianco della scala esterna: +1 a +X («destra» della pianta), −1 a −X */
+  latoScala: 1 | -1;
   timpanoLegno: boolean;
   camino: boolean;
   latoCamino: 1 | -1;
@@ -126,7 +163,9 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
   const pendenza = THREE.MathUtils.degToRad(o.pendenza ?? r.tra(27, 34));
   const yColmo = hMuri + (W / 2) * Math.tan(pendenza);
   const balconeTipo = o.balcone ?? (piani >= 2 ? (r.prob(0.45) ? 'fronte' : r.prob(0.35) ? 'lato' : 'nessuno') : 'nessuno');
-  const scalaEsterna = o.scalaEsterna ?? (piani >= 2 && balconeTipo !== 'lato' && r.prob(0.4));
+  const scalaEsterna = (o.scalaEsterna ?? (piani >= 2 && balconeTipo !== 'lato' && r.prob(0.4))) && !o.senzaScala;
+  const latoScala: 1 | -1 = o.latoScala ?? 1;
+  const fiancoScala: 'destra' | 'sinistra' = latoScala === 1 ? 'destra' : 'sinistra';
   const timpanoLegno = o.timpanoLegno ?? (balconeTipo === 'fronte' && r.prob(0.6));
   const caminoSi = o.camino ?? r.prob(0.75);
   const latoCamino: 1 | -1 = r.prob(0.5) ? 1 : -1;
@@ -141,8 +180,9 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
   const finestre: Finestra[] = [];
   const fw = r.tra(0.55, 0.72);
   const fh = r.tra(0.7, 0.88);
-  // porta sulla facciata principale
-  const portaU = W >= 5.6 ? r.scegli([-1, 1]) * W * 0.22 : 0;
+  // porta sulla facciata principale (il lato scelto da fuori vale più del seme, ma l'estrazione resta)
+  const latoPortaSeme = W >= 5.6 ? r.scegli([-1, 1]) : 0;
+  const portaU = latoPortaSeme === 0 ? 0 : (o.latoPorta ?? latoPortaSeme) * W * 0.22;
   for (let i = 0; i < piani; i++) {
     const y = quotaPiano({ hTerra, hPiano }, i);
     const terra = i === 0;
@@ -163,8 +203,9 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
     for (const lato of ['destra', 'sinistra'] as const) {
       for (let k = 0; k < nf; k++) {
         if (terra && r.prob(0.4)) continue;
-        // la porta in cima alla scala esterna sta verso il fronte (u più piccolo sul fianco destro)
-        if (scalaEsterna && lato === 'destra' && i === 1 && k === 0) continue;
+        // la porta in cima alla scala esterna sta verso il fronte (u più piccolo sul fianco destro,
+        // il più grande sul sinistro, che ha l'asse u girato)
+        if (scalaEsterna && lato === fiancoScala && i === 1 && k === (fiancoScala === 'destra' ? 0 : nf - 1)) continue;
         const u = -D / 2 + ((k + 0.5) * D) / nf + r.centrato(0.3);
         finestre.push({ lato, u, v: vv, w: ww, h: hh, terra });
       }
@@ -183,7 +224,9 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
   }
   const porteSuperiori: Pianta['porteSuperiori'] = [];
   if (scalaEsterna) {
-    porteSuperiori.push({ lato: 'destra', u: D / 2 - 1.0, v: hTerra });
+    // migliorie «porte»: a 1,35 m dallo spigolo (prima 1,0: i cantonali lunghi, fino a 0,85 m,
+    // entravano nella luce della porta)
+    porteSuperiori.push({ lato: fiancoScala, u: D / 2 - 1.35, v: hTerra });
   }
   return {
     W,
@@ -197,6 +240,7 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
     interrata: o.interrata ?? 1.0,
     balcone: balconeTipo,
     scalaEsterna,
+    latoScala,
     timpanoLegno,
     camino: caminoSi,
     latoCamino,
@@ -250,6 +294,8 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
   // --- aperture: fori nei muri (finestre strombate, porte) e dettagli da mettere dopo i muri
   const fori: Record<Finestra['lato'], Foro[]> = { fronte: [], retro: [], destra: [], sinistra: [] };
   const dopo: Array<() => void> = [];
+  /** le porte della casa (ingresso, porta della lobbia, porta in cima alla scala) */
+  const porte: PortaOggetto[] = [];
   const accese = opz.finestreAccese ?? 0.45;
   const rf = r.derivato('finestre');
   const yUltimo = quotaPiano(p, p.piani - 1);
@@ -273,7 +319,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     if (p.balcone === 'fronte' && fin.lato === 'fronte' && !fin.terra && fin.v > yUltimo && fin.v < yUltimo + 1.5) {
       const v0 = yUltimo + 0.05;
       fori.fronte.push(foroPorta(fin.u, v0, 0.82, 1.85));
-      dopo.push(() => portaIncassata(b, f, fin.u, v0, 0.82, 1.85, legnoPorta, { architraveLegno: true, soglia: false }));
+      dopo.push(() => porte.push(portaIncassata(b, f, fin.u, v0, 0.82, 1.85, legnoPorta, { architraveLegno: true, soglia: false, nome: 'lobbia', appoggio: 'balcone' })));
       continue;
     }
     fori[fin.lato].push(foroFinestra(fin.u, fin.v, fin.w, fin.h));
@@ -293,13 +339,14 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
   // porta d'ingresso
   const fFronte = telaio(p, 'fronte').f;
   fori.fronte.push(foroPorta(p.portaU, 0, 1.0, 1.95));
-  dopo.push(() => portaIncassata(b, fFronte, p.portaU, 0, 1.0, 1.95, legnoPorta, { architraveLegno: architraviLegno }));
+  dopo.push(() => porte.push(portaIncassata(b, fFronte, p.portaU, 0, 1.0, 1.95, legnoPorta, { architraveLegno: architraviLegno })));
   // porte superiori, in cima alla scala esterna (la scala sale verso +Z: la porta sta lì sopra)
   for (const ps of p.porteSuperiori) {
     const { f } = telaio(p, ps.lato);
-    const u = -ps.u;
+    // (sul fianco destro l'asse u della facciata va verso −Z, sul sinistro verso +Z)
+    const u = ps.lato === 'destra' ? -ps.u : ps.u;
     fori[ps.lato].push(foroPorta(u, ps.v, 0.9, 1.85));
-    dopo.push(() => portaIncassata(b, f, u, ps.v, 0.9, 1.85, PALETTE.lariceGrigio, { architraveLegno: true, soglia: false }));
+    dopo.push(() => porte.push(portaIncassata(b, f, u, ps.v, 0.9, 1.85, PALETTE.lariceGrigio, { architraveLegno: true, soglia: false, nome: 'scala', appoggio: 'scala' })));
   }
 
   // --- muri di pietra spessi con i fori veri
@@ -437,23 +484,24 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     punti['balcone'] = new THREE.Vector3(W / 2 + sp / 2, yb, 0);
   }
 
-  // scala esterna di pietra sul fianco destro, fino alla porta del primo piano
+  // scala esterna di pietra sul fianco destro (o sinistro, `latoScala`), fino alla porta del primo piano
   if (p.scalaEsterna) {
     const ps = p.porteSuperiori[0];
     if (ps) {
+      const sx = p.latoScala;
       const n = Math.round(p.hTerra / 0.24);
       const alz = p.hTerra / n;
       const ped = 0.3;
       const zTop = ps.u;
       // pianerottolo
       b.aggiungi(geoLastra(1.1, 0.2, 1.3, r.intero(0, 1e6), 0.06), {
-        matrice: mat([W / 2 + 0.55, p.hTerra - 0.2, zTop]),
+        matrice: mat([sx * (W / 2 + 0.55), p.hTerra - 0.2, zTop]),
         colore: PALETTE.gneissChiaro,
         piatto: true,
         superficie: sup(SUP.PIETRA, r.next()),
       });
       b.aggiungi(geoLastra(1.1, p.hTerra - 0.2 + interrata, 1.3, r.intero(0, 1e6), 0.03), {
-        matrice: mat([W / 2 + 0.55, -interrata, zTop]),
+        matrice: mat([sx * (W / 2 + 0.55), -interrata, zTop]),
         colore: tonoMuro,
         gradiente: { basso: 0.7, alto: 1.0, y0: 0, y1: p.hTerra },
         piatto: true,
@@ -464,7 +512,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
         const z = zTop - 0.65 - (n - 1 - i) * ped + ped / 2;
         const y = (i + 1) * alz;
         b.aggiungi(geoLastra(1.0, alz + 0.05, ped + 0.06, r.intero(0, 1e6), 0.1), {
-          matrice: mat([W / 2 + 0.52, y - alz - 0.03, z]),
+          matrice: mat([sx * (W / 2 + 0.52), y - alz - 0.03, z]),
           colore: mescola(PALETTE.gneiss, PALETTE.gneissChiaro, r.next()),
           variazione: 0.06,
           piatto: true,
@@ -472,7 +520,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
         });
         // muretto di sostegno sotto i gradini
         b.aggiungi(geoBoxC(1.0, y + interrata - alz, ped), {
-          matrice: mat([W / 2 + 0.52, (y - alz - interrata) / 2, z]),
+          matrice: mat([sx * (W / 2 + 0.52), (y - alz - interrata) / 2, z]),
           colore: tonoMuro,
           gradiente: { basso: 0.7, alto: 0.95, y0: 0, y1: p.hTerra },
           piatto: true,
@@ -483,8 +531,8 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
       const zInizio = zTop - 0.65 - (n - 1) * ped;
       // ringhiera di ferro lungo la scala
       if (alto) {
-        const a = new THREE.Vector3(W / 2 + 0.98, 0.95, zInizio + 0.2);
-        const c = new THREE.Vector3(W / 2 + 0.98, p.hTerra + 0.95, zTop - 0.6);
+        const a = new THREE.Vector3(sx * (W / 2 + 0.98), 0.95, zInizio + 0.2);
+        const c = new THREE.Vector3(sx * (W / 2 + 0.98), p.hTerra + 0.95, zTop - 0.6);
         const l = a.distanceTo(c);
         const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), c.clone().sub(a).normalize());
         b.aggiungi(geoBoxC(0.035, 0.035, l), { matrice: new THREE.Matrix4().compose(a.clone().lerp(c, 0.5), q, new THREE.Vector3(1, 1, 1)), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
@@ -494,9 +542,9 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
         }
       }
       collider.push(
-        box(W / 2 + 0.55, p.hTerra / 2 - 0.1, (zTop + 0.65 + zInizio) / 2, 0.55, p.hTerra / 2, (zTop + 0.65 - zInizio) / 2, 'scala'),
+        box(sx * (W / 2 + 0.55), p.hTerra / 2 - 0.1, (zTop + 0.65 + zInizio) / 2, 0.55, p.hTerra / 2, (zTop + 0.65 - zInizio) / 2, 'scala'),
       );
-      punti['scala'] = new THREE.Vector3(W / 2 + 0.55, 0, zInizio - 0.4);
+      punti['scala'] = new THREE.Vector3(sx * (W / 2 + 0.55), 0, zInizio - 0.4);
     }
   }
 
@@ -548,6 +596,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     collider,
     ingombro: ingombroDa(gruppo),
     punti,
+    porte,
   });
 }
 

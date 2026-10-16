@@ -24,6 +24,26 @@ export type Collider =
   | { tipo: 'box'; centro: Vec3; mezze: Vec3; rotY?: number; tag?: string }
   | { tipo: 'cilindro'; base: Vec3; raggio: number; altezza: number; tag?: string };
 
+/**
+ * Porta di un oggetto, in coordinate locali (migliorie «porte»): dove e come si entra. Serve alle
+ * verifiche (soglia sul suolo, spazio libero davanti, niente muri sopra il battente) e a chi posa
+ * l'oggetto nel paese (un annesso non deve coprire la porta di una casa).
+ */
+export interface PortaOggetto {
+  /** nome della porta nell'oggetto: 'porta', 'scala', 'lobbia', 'portale'… */
+  nome: string;
+  /** centro della soglia sul filo esterno del muro (la sua y è la quota della soglia) */
+  centro: THREE.Vector3;
+  /** normale orizzontale, verso fuori */
+  normale: THREE.Vector3;
+  larghezza: number;
+  altezza: number;
+  /** dove sta la faccia del battente rispetto al filo del muro, lungo la normale (negativo = incassato) */
+  battente: number;
+  /** su che cosa poggia la soglia, fuori: il suolo, il pianerottolo di una scala, una lobbia */
+  appoggio: 'suolo' | 'scala' | 'balcone';
+}
+
 /** Ingombro grossolano, utile per culling, distanze di LOD e piazzamento. */
 export interface Ingombro {
   /** raggio orizzontale massimo dal punto d'appoggio */
@@ -52,6 +72,8 @@ export interface OggettoProcedurale<S = undefined> {
   ingombro: Ingombro;
   /** punti notevoli in coordinate locali (porta, chiodo del caposaldo, cima della palina, lume…) */
   punti: Record<string, THREE.Vector3>;
+  /** le porte dell'oggetto (coordinate locali), se ne ha */
+  porte?: PortaOggetto[];
   /**
    * animazione procedurale (solo per gli oggetti animati). Dichiarata come metodo così che un
    * OggettoProcedurale<StatoX> si possa mettere in una lista di OggettoProcedurale<unknown>.

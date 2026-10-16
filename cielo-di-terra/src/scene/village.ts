@@ -8,7 +8,7 @@
  */
 import { Matrix4, Mesh, Vector3, type Material } from 'three';
 import { DEG, METERS_PER_DEG, type VillageDef } from '../world/constants';
-import { cylToWorld, deltaDeg, surfaceDistance } from '../world/cylinder';
+import { cylToWorld, deltaDeg, surfaceDistance, worldToCyl } from '../world/cylinder';
 import { boxAt, type Collider, type ColliderWorld } from '../world/colliders';
 import { Simplex3, mulberry32 } from '../world/noise';
 import { createMasks, slopeAt, surfaceHeight } from '../world/terrain';
@@ -124,8 +124,15 @@ function addHouse(b: GeomBuilder, s: HouseSite, rnd: () => number, lamps: Vector
       }
     }
   }
-  _t.makeTranslation(0, 1.05, -s.depth / 2 - 0.03).multiply(new Matrix4().makeRotationY(Math.PI)).scale(_v.set(1.1, 2.1, 1));
-  b.add(PRIMS.quad(), _m.clone().multiply(_t), PALETTE.wood, 0);
+  // la porta (migliorie «porte»): parte dal suolo davanti, non dalla base della casa (che sta 60 cm
+  // sotto il punto più basso dell'impronta: la porta era mezza sepolta), ed è una lastra che sporge
+  // 12 cm dal muro (un quadrato a 3 cm sfarfallava con il muro da lontano, e queste frazioni si
+  // vedono quasi sempre da lontano)
+  const piede = new Vector3(0, 0, -s.depth / 2 - 0.3).applyMatrix4(_m);
+  const pc = worldToCyl(piede);
+  const y0 = Math.max(0, surfaceHeight(pc.z, pc.theta) - s.baseH);
+  _t.makeTranslation(0, y0 + 1.05, -s.depth / 2 - 0.05).scale(_v.set(1.1, 2.1, 0.14));
+  b.add(PRIMS.box(), _m.clone().multiply(_t), PALETTE.wood, 0);
   return lit;
 }
 

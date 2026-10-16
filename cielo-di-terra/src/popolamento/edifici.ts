@@ -14,7 +14,7 @@ import { formaArco, geoBoxC, geoCilindro, geoCiuffo, geoCono, geoEstrusione, geo
 import { PALETTE } from '../oggetti/palette';
 import { Rng, semeNumerico, type Seme } from '../oggetti/rng';
 import type { Collider, OggettoProcedurale } from '../oggetti/tipi';
-import { cantonali, facciata, finestra, inF, porta, tettoPiode } from '../oggetti/oggetti/dettagli';
+import { cantonali, descriviPorta, facciata, finestra, inF, porta, tettoPiode } from '../oggetti/oggetti/dettagli';
 import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../oggetti/superfici';
 import { testaLanterna } from '../oggetti/oggetti/lumi';
 
@@ -57,8 +57,18 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
   const calce = mescola(PALETTE.calce, PALETTE.intonacoVecchio, 0.3);
   const ocra = mescola(PALETTE.ocraIntonaco, PALETTE.calce, 0.2);
   const supCalce = sup(SUP.INTONACO, rng.next());
-  // zoccolo di gneiss
-  b.aggiungi(geoBoxC(W + 0.24, 0.8 + interr, L + 0.24), { matrice: mat([0, (0.8 - interr) / 2, 0]), colore: mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4), gradiente: { basso: 0.65, alto: 0.95, y0: -interr, y1: 0.8 }, rumore: 0.06, piatto: true, superficie: sup(SUP.PIETRA, rng.next()), occlusione: occlusionePiede(0.8, 0.5) });
+  // zoccolo di gneiss. Migliorie «porte»: prima sporgeva 12 cm anche davanti al portale e ne
+  // copriva gli ottanta centimetri più bassi (il portale sembrava una finestra); ora sulla facciata
+  // è a filo del muro e sporge solo ai lati del portale
+  {
+    const supZ = sup(SUP.PIETRA, rng.next());
+    const pezzo = (w: number, d: number, x: number, z: number) =>
+      b.aggiungi(geoBoxC(w, 0.8 + interr, d), { matrice: mat([x, (0.8 - interr) / 2, z]), colore: mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4), gradiente: { basso: 0.65, alto: 0.95, y0: -interr, y1: 0.8 }, rumore: 0.06, piatto: true, superficie: supZ, occlusione: occlusionePiede(0.8, 0.5) });
+    pezzo(W + 0.24, L + 0.12, 0, -0.06);
+    const luce = 0.98;
+    const lw = (W + 0.24) / 2 - luce;
+    for (const s of [-1, 1]) pezzo(lw, 0.12, s * (luce + lw / 2), L / 2 + 0.06);
+  }
   // muri di calce
   b.aggiungi(geoBoxC(W, H, L), { matrice: mat([0, H / 2, 0]), colore: calce, gradiente: { basso: 0.86, alto: 1.02, y0: 0, y1: H }, rumore: 0.025, superficie: supCalce, occlusione: occlusionePiede(1.4, 0.3) });
   // timpani e sottotetto
@@ -75,7 +85,7 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
   const yColmo = tettoPiode(b, rng, { larghezza: W, profondita: L, yGronda: H, pendenza: p, sporgenzaGronda: 0.55, sporgenzaTimpano: 0.35, corsi: 5, pezziPerCorso: 8 });
   // facciata (+Z): portale ad arco, lunetta, oculo, croce
   const f = facciata(0, L / 2, 0);
-  porta(b, f, 0, 0, 1.5, 2.35, PALETTE.legnoScuro);
+  const portale = { ...porta(b, f, 0, 0, 1.5, 2.35, PALETTE.legnoScuro), nome: 'portale' };
   // riquadro d'ocra attorno al portale, arco di pietra e lunetta affrescata (il santo sbiadito)
   b.aggiungi(geoBoxC(2.7, 3.9, 0.02), { matrice: inF(f, 0, 1.95, 0.004), colore: mescola(ocra, calce, 0.35), piatto: true, superficie: supCalce });
   const arco = new THREE.ShapeGeometry(formaArco(1.5, 0.75 + 0.75, 8));
@@ -164,6 +174,7 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
       lume: fiamma,
       colmo: new THREE.Vector3(0, yColmo, 0),
     },
+    porte: [portale],
   });
 }
 
@@ -491,17 +502,31 @@ export function creaCasupola(opz: OpzioniCasupola = {}): OggettoProcedurale {
   const sp = 0.55;
   const muri = { fronte: true, retro: true, sinistra: true, destra: true, ...(opz.muri ?? {}) };
   const collider: Collider[] = [];
+  /** luce della porta (larghezza, altezza): il nucleo del muro ha il vano vero */
+  const LP = 1.0;
+  const HP = 1.9;
   const muro = (cx: number, cz: number, lung: number, rotY: number, conPorta: boolean) => {
     // pietre a corsi irregolari, nessuna calce: fughe scure profonde
     const m = mat([cx, 0, cz], [0, rotY, 0]);
-    b.aggiungi(geoBoxC(lung, H + interr, sp - 0.1), { matrice: m.clone().multiply(mat([0, (H - interr) / 2, 0])), colore: 0x6e6862, piatto: true });
+    const nucleo = (x0: number, x1: number, y0: number, y1: number) =>
+      b.aggiungi(geoBoxC(x1 - x0, y1 - y0, sp - 0.1), { matrice: m.clone().multiply(mat([(x0 + x1) / 2, (y0 + y1) / 2, 0])), colore: 0x6e6862, piatto: true });
+    if (conPorta) {
+      // migliorie «porte»: prima il nucleo era pieno e copriva la porta (che stava 15 cm dentro):
+      // da fuori si vedeva un muro senza porta. Ora il nucleo ha il vano, con l'architrave di legno
+      nucleo(-lung / 2, -LP / 2, -interr, H);
+      nucleo(LP / 2, lung / 2, -interr, H);
+      nucleo(-LP / 2, LP / 2, HP, H);
+      b.aggiungi(geoBoxC(LP + 0.5, 0.16, sp - 0.04), { matrice: m.clone().multiply(mat([0, HP + 0.08, 0])), colore: PALETTE.legnoScuro, piatto: true });
+      // soglia di pietra
+      b.aggiungi(geoLastra(LP + 0.4, 0.14, sp + 0.25, rng.intero(0, 1e6), 0.08), { matrice: m.clone().multiply(mat([0, -0.12, 0.12])), colore: PALETTE.gneiss, piatto: true });
+    } else nucleo(-lung / 2, lung / 2, -interr, H);
     let y = -interr * 0.5;
     while (y < H - 0.1) {
       const hc = Math.min(H - y, rng.tra(0.2, 0.34));
       let x = -lung / 2 + rng.next() * 0.2;
       while (x < lung / 2 - 0.05) {
         const lw = Math.min(lung / 2 - x, rng.tra(0.28, 0.6));
-        if (conPorta && Math.abs(x + lw / 2) < 0.55 && y < 1.85) {
+        if (conPorta && Math.abs(x + lw / 2) < LP / 2 + lw / 2 - 0.02 && y < HP + 0.12) {
           x += lw;
           continue;
         }
@@ -524,13 +549,22 @@ export function creaCasupola(opz: OpzioniCasupola = {}): OggettoProcedurale {
   if (muri.retro) muro(0, -D / 2, W, Math.PI, false);
   if (muri.sinistra) muro(W / 2, 0, D - sp, Math.PI / 2, false);
   if (muri.destra) muro(-W / 2, 0, D - sp, -Math.PI / 2, false);
-  // porta di assi
-  if (muri.fronte) {
-    b.aggiungi(geoBoxC(0.95, 1.85, 0.06), { matrice: mat([0, 0.93, D / 2 + 0.05]), colore: PALETTE.legnoGrigio, variazione: 0.1, piatto: true });
+  // porta di assi, nel vano del muro (la faccia a D/2 + 0,08: 14 cm dentro il filo del nucleo).
+  // Migliorie «porte»: se il muro davanti non c'è (la casa di Nando smontata dalle Fade: il muro a
+  // Sera è quello della porta), la porta resta lì, appoggiata in piedi nel vano vuoto vicino allo
+  // spigolo, con la scritta: la si vede e la si legge
+  const punti: Record<string, THREE.Vector3> = {};
+  const mPorta = muri.fronte ? mat([0, HP / 2, D / 2 + 0.05]) : mat([W / 2 - 0.85, HP / 2 * Math.cos(0.16) + 0.02, D / 2 - sp / 2 + 0.2], [-0.16, 0.35, 0]);
+  if (muri.fronte || opz.scritta) {
+    // (assi di legno dichiarate: senza, la superficie dedotta dal colore grigio era la pietra, e la
+    // porta sembrava un pezzo di muro; il valore fisso non tocca la sequenza del generatore)
+    b.aggiungi(geoBoxC(LP, HP, 0.06), { matrice: mPorta, colore: PALETTE.legnoGrigio, variazione: 0.1, piatto: true, superficie: legnoVerticale(0.37) });
+    if (!muri.fronte) punti['portaAppoggiata'] = new THREE.Vector3(0, 0, 0.6).applyMatrix4(mPorta).setY(0);
     if (opz.scritta) {
-      // «Cà dal Nando — rifacia tücc i dí», col carbone: due righe di segni scuri
+      // «Cà dal Nando — rifacia tücc i dí», col carbone: due righe di segni scuri (1,5 cm davanti
+      // alle assi: con mezzo centimetro sfarfallavano)
       for (let r = 0; r < 2; r++) {
-        for (let k = 0; k < 7 - r * 2; k++) b.aggiungi(geoBoxC(rng.tra(0.04, 0.09), 0.012, 0.005), { matrice: mat([-0.33 + k * 0.1, 1.45 - r * 0.1, D / 2 + 0.085], [0, 0, rng.centrato(0.4)]), colore: 0x1c1a1c });
+        for (let k = 0; k < 7 - r * 2; k++) b.aggiungi(geoBoxC(rng.tra(0.04, 0.09), 0.012, 0.005), { matrice: mPorta.clone().multiply(mat([-0.33 + k * 0.1, 1.45 - r * 0.1 - HP / 2, 0.045], [0, 0, rng.centrato(0.4)])), colore: 0x1c1a1c });
       }
     }
   }
@@ -582,7 +616,9 @@ export function creaCasupola(opz: OpzioniCasupola = {}): OggettoProcedurale {
   // pavimento di terra battuta
   b.aggiungi(geoBoxC(W - 0.3, 0.05, D - 0.3), { matrice: mat([0, 0.02, 0]), colore: 0x6b5236 });
   const gruppo = b.costruisci('casupola');
-  return risultato({ nome: 'casupola', seme: s, gruppo, collider, ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0, D / 2 + 0.7), letto: new THREE.Vector3(-W / 2 + 0.95, 0.5, -0.4) } });
+  // (la porta: il filo del muro è la faccia del nucleo, a D/2 + (sp − 0,1)/2)
+  const porte = muri.fronte ? [descriviPorta(facciata(0, D / 2 + (sp - 0.1) / 2, 0), 0, 0, LP, HP, 0.08 - (sp - 0.1) / 2)] : [];
+  return risultato({ nome: 'casupola', seme: s, gruppo, collider, ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0, D / 2 + 0.7), letto: new THREE.Vector3(-W / 2 + 0.95, 0.5, -0.4), ...punti }, porte });
 }
 
 /** Mucchio di pietre squadrate (le pietre della casa di Nando, il rudere). */
@@ -643,7 +679,7 @@ export function creaMulino(seme: Seme = 'mulino', ruotaADestra = false): Oggetto
   b.aggiungi(geoBoxC(W, H + interr, D), { matrice: mat([0, (H - interr) / 2, 0]), colore: PALETTE.gneiss, rumore: 0.06, gradiente: { basso: 0.7, alto: 1.0, y0: -interr, y1: H }, piatto: true });
   const yC = tettoPiode(b, rng, { larghezza: W, profondita: D, yGronda: H, pendenza: 0.55, corsi: 4, pezziPerCorso: 6 });
   b.aggiungi(geoTimpano(W, yC - H - 0.1, D), { matrice: mat([0, H, 0]), colore: PALETTE.gneissScuro, piatto: true });
-  porta(b, facciata(0, D / 2, 0), 1.85, 0, 1.0, 1.9, PALETTE.legnoVecchio);
+  const portaMulino = porta(b, facciata(0, D / 2, 0), 1.85, 0, 1.0, 1.9, PALETTE.legnoVecchio);
   finestra(b, facciata(0, D / 2, 0), -0.8, 1.3, { larghezza: 0.55, altezza: 0.65, ante: 0x6b4a33, accesa: true });
   // ruota ferma
   const sR = ruotaADestra ? -1 : 1;
@@ -669,6 +705,7 @@ export function creaMulino(seme: Seme = 'mulino', ruotaADestra = false): Oggetto
     collider: [box(0, (H - interr) / 2, 0, W / 2, (H + interr) / 2, D / 2, 'muro'), box(0, H + 1, 0, W / 2 + 0.4, 1, D / 2 + 0.3, 'tetto'), cil(xR, -0.6, 0, 1.0, 3.5, 'oggetto'), box(1.85, 1.0, D / 2 + 0.06, 0.5, 1.0, 0.06, 'porta')],
     ingombro: ingombroDa(gruppo),
     punti: { porta: new THREE.Vector3(1.85, 0, D / 2 + 1.1), soglia: new THREE.Vector3(1.95, 0.1, D / 2 + 0.75), ruota: new THREE.Vector3(xR, 1.4, 0) },
+    porte: [portaMulino],
   });
 }
 
@@ -700,7 +737,7 @@ export function creaGra(seme: Seme = 'gra', fumo = true): OggettoProcedurale {
     const m = o as THREE.Mesh;
     if (m.isMesh) b.aggiungi(m.geometry, { matrice: new THREE.Matrix4(), colore: 'geometria' });
   });
-  porta(b, facciata(0, D / 2, 0), 0, 0, 0.9, 1.7, PALETTE.legnoScuro);
+  const portaGra = porta(b, facciata(0, D / 2, 0), 0, 0, 0.9, 1.7, PALETTE.legnoScuro);
   finestra(b, facciata(0, D / 2, 0), 0, 2.4, { larghezza: 0.4, altezza: 0.45, ante: null, inferriata: true });
   if (fumo) {
     for (let k = 0; k < 6; k++) {
@@ -709,7 +746,7 @@ export function creaGra(seme: Seme = 'gra', fumo = true): OggettoProcedurale {
     }
   }
   const gruppo = b.costruisci('gra');
-  return risultato({ nome: 'gra', seme: s, gruppo, collider: [box(0, (H - interr) / 2, 0, W / 2, (H + interr) / 2, D / 2, 'muro'), box(0, H + 1, 0, W / 2 + 0.4, 1, D / 2 + 0.3, 'tetto')], ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0, D / 2 + 0.8), angolo: new THREE.Vector3(W / 2 + 0.02, 1.1, D / 2 + 0.02) } });
+  return risultato({ nome: 'gra', seme: s, gruppo, collider: [box(0, (H - interr) / 2, 0, W / 2, (H + interr) / 2, D / 2, 'muro'), box(0, H + 1, 0, W / 2 + 0.4, 1, D / 2 + 0.3, 'tetto')], ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0, D / 2 + 0.8), angolo: new THREE.Vector3(W / 2 + 0.02, 1.1, D / 2 + 0.02) }, porte: [portaGra] });
 }
 
 /** Capanno dei Messi sul Balcone: legno, Veli rattoppati appesi, il motto inciso sulla porta. */
@@ -725,13 +762,23 @@ export function creaCapanno(seme: Seme = 'capanno-messi'): OggettoProcedurale {
     const x = -W / 2 + (k + 0.5) * (W / 11);
     for (const z of [-D / 2, D / 2]) {
       if (z > 0 && Math.abs(x) < 0.5) continue;
-      b.aggiungi(geoBoxC(W / 11 - 0.02, H, 0.06), { matrice: mat([x, 0.3 + H / 2, z]), colore: mescola(PALETTE.legnoGrigio, PALETTE.legno, rng.next() * 0.5), piatto: true });
+      b.aggiungi(geoBoxC(W / 11 - 0.02, H, 0.06), { matrice: mat([x, 0.3 + H / 2, z]), colore: mescola(PALETTE.legnoGrigio, PALETTE.legno, rng.next() * 0.5), piatto: true, superficie: legnoVerticale((k * 0.137) % 1) });
     }
   }
-  for (const x of [-W / 2, W / 2]) b.aggiungi(geoBoxC(0.06, H, D), { matrice: mat([x, 0.3 + H / 2, 0]), colore: PALETTE.legnoGrigio, piatto: true });
-  b.aggiungi(geoBoxC(1.0, 1.9, 0.06), { matrice: mat([0, 0.3 + 0.95, D / 2 + 0.03]), colore: PALETTE.legnoVecchio, piatto: true });
-  // il motto inciso (segni scuri)
-  for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.aggiungi(geoBoxC(0.08, 0.012, 0.005), { matrice: mat([-0.3 + k * 0.12, 1.6 - r * 0.12, D / 2 + 0.065]), colore: 0x2a2018 });
+  // (migliorie «porte»: assi e porta con la superficie del legno dichiarata; dedotta dal colore
+  // grigio era la pietra, e la porta non si distingueva dal muro)
+  for (const x of [-W / 2, W / 2]) b.aggiungi(geoBoxC(0.06, H, D), { matrice: mat([x, 0.3 + H / 2, 0]), colore: PALETTE.legnoGrigio, piatto: true, superficie: legnoOrizzontale(x > 0 ? 0.3 : 0.7) });
+  b.aggiungi(geoBoxC(1.0, 1.9, 0.06), { matrice: mat([0, 0.3 + 0.95, D / 2 + 0.03]), colore: PALETTE.legnoVecchio, piatto: true, superficie: legnoVerticale(0.52) });
+  // migliorie «porte»: il telaio scuro, le bandelle e l'anello (prima la porta era un'asse più larga
+  // fra le altre: da qualche metro non si capiva che fosse una porta)
+  for (const s of [-1, 1]) b.aggiungi(geoBoxC(0.1, 2.0, 0.1), { matrice: mat([s * 0.55, 0.3 + 1.0, D / 2 + 0.04]), colore: PALETTE.legnoScuro, piatto: true });
+  b.aggiungi(geoBoxC(1.3, 0.12, 0.12), { matrice: mat([0, 0.3 + 1.96, D / 2 + 0.05]), colore: PALETTE.legnoScuro, piatto: true });
+  // sopra l'architrave il fronte si chiude con un'asse (prima restava un vuoto di mezzo metro sul cielo)
+  b.aggiungi(geoBoxC(1.0, H - 2.02, 0.06), { matrice: mat([0, 0.3 + 2.02 + (H - 2.02) / 2, D / 2]), colore: PALETTE.legnoGrigio, piatto: true, superficie: legnoOrizzontale(0.45) });
+  for (const y of [0.32, 1.52]) b.aggiungi(geoBoxC(0.78, 0.05, 0.01), { matrice: mat([-0.08, 0.3 + y, D / 2 + 0.07]), colore: PALETTE.ferro, piatto: true });
+  b.aggiungi(new THREE.TorusGeometry(0.05, 0.012, 3, 6), { matrice: mat([0.33, 0.3 + 0.98, D / 2 + 0.08]), colore: PALETTE.ferro });
+  // il motto inciso (segni scuri, 1,5 cm davanti alle assi)
+  for (let r = 0; r < 2; r++) for (let k = 0; k < 6; k++) b.aggiungi(geoBoxC(0.08, 0.012, 0.005), { matrice: mat([-0.3 + k * 0.12, 1.6 - r * 0.12, D / 2 + 0.075]), colore: 0x2a2018 });
   // tetto a una falda di assi
   b.aggiungi(geoBoxC(W + 0.6, 0.1, D + 0.7), { matrice: mat([0, 0.3 + H + 0.3, 0], [0.18, 0, 0]), colore: PALETTE.legnoScuro, piatto: true });
   // Veli rattoppati appesi fuori (tela grigia e verde)
@@ -741,7 +788,7 @@ export function creaCapanno(seme: Seme = 'capanno-messi'): OggettoProcedurale {
     b.aggiungi(geoBoxC(0.05, 0.05, 1.5), { matrice: mat([W / 2 + 0.1, 1.95, -0.8 + k * 0.8], [Math.PI / 2, 0, 0]), colore: PALETTE.legno, piatto: true });
   }
   const gruppo = b.costruisci('capanno');
-  return risultato({ nome: 'capanno', seme: s, gruppo, collider: [box(0, 0.3 + H / 2, 0, W / 2, H / 2 + 0.3, D / 2, 'muro')], ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0.3, D / 2 + 0.8), motto: new THREE.Vector3(0, 1.55, D / 2 + 0.1) } });
+  return risultato({ nome: 'capanno', seme: s, gruppo, collider: [box(0, 0.3 + H / 2, 0, W / 2, H / 2 + 0.3, D / 2, 'muro')], ingombro: ingombroDa(gruppo), punti: { porta: new THREE.Vector3(0, 0.3, D / 2 + 0.8), motto: new THREE.Vector3(0, 1.55, D / 2 + 0.1) }, porte: [descriviPorta(facciata(0, D / 2, 0), 0, 0.3, 1.0, 1.9, 0.06)] });
 }
 
 /** Masso tondo (Sass dal Messo), lisciato da chi ci si siede. */

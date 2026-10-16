@@ -535,11 +535,33 @@ export interface OpzioniBotola {
  * borchie e anello, pozzo scuro con i pioli di una scala. Cerniera sul lato −Z; si apre verso −Z.
  * update(dt, { aperta }) anima l'apertura.
  */
+/** Luce dell'apertura della botola della Cripta (m). */
+const LUCE_BOTOLA = 1.1;
+
+/**
+ * Collider della botola della Cripta da aperta (migliorie «porte»), nelle coordinate dell'oggetto.
+ * Da chiusa la botola è una lastra calpestabile larga 2,1 m (il suo `collider`); da aperta prima non
+ * restava niente, e fra i muretti del ripiano (che non ha collider) si apriva una fossa di settanta
+ * centimetri: chi usciva dalla Cripta e faceva un passo verso il centro ci cadeva e non ne usciva più.
+ * Da aperta restano le quattro lastre del telaio, calpestabili alla stessa quota, e il vano è chiuso
+ * da un ingombro alto un metro: non ci si cade dentro (nella Cripta si scende con il bersaglio).
+ */
+export function colliderBotolaAperta(): Collider[] {
+  const L = LUCE_BOTOLA;
+  return [
+    box(0, -0.1, -(L / 2 + 0.25), L / 2 + 0.5, 0.15, 0.25, 'botola'),
+    box(0, -0.1, L / 2 + 0.25, L / 2 + 0.5, 0.15, 0.25, 'botola'),
+    box(-(L / 2 + 0.25), -0.1, 0, 0.25, 0.15, L / 2, 'botola'),
+    box(L / 2 + 0.25, -0.1, 0, 0.25, 0.15, L / 2, 'botola'),
+    box(0, 0.45, 0, L / 2, 0.55, L / 2, 'botola'),
+  ];
+}
+
 export function creaBotolaCripta(opz: OpzioniBotola = {}): OggettoProcedurale<StatoBotola> {
   const seme = semeNumerico(opz.seme ?? 'botola');
   const rng = new Rng(seme);
   const b = new Costruttore(rng);
-  const L = 1.1; // luce dell'apertura
+  const L = LUCE_BOTOLA; // luce dell'apertura
   // telaio di quattro lastre
   const lastre: Array<[number, number, number, number]> = [
     // (x, z, larghezza, profondità) delle quattro lastre del telaio

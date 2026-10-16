@@ -24,6 +24,11 @@ export interface OpzioniFienile {
   pendenza?: number;
   /** fieno visibile dal portellone */
   fieno?: boolean;
+  /**
+   * scivolo di pietra sul retro (predefinito sì). Migliorie «porte»: il fienile di Ottavio ha la
+   * porta a monte e il retro più in basso di due metri: lì lo scivolo restava appeso nel vuoto
+   */
+  scivolo?: boolean;
   interrata?: number;
 }
 
@@ -139,14 +144,14 @@ export function creaFienile(opz: OpzioniFienile = {}): OggettoProcedurale {
     }
   }
   // porta della stalla e finestrelle con inferriata
-  porta(b, facciata(0, D / 2, 0), W * 0.18, 0, 1.1, 1.9, PALETTE.legnoVecchio);
+  const portaStalla = porta(b, facciata(0, D / 2, 0), W * 0.18, 0, 1.1, 1.9, PALETTE.legnoVecchio);
   finestra(b, facciata(0, D / 2, 0), -W * 0.25, 1.1, { larghezza: 0.45, altezza: 0.5, inferriata: true });
   finestra(b, facciata(W / 2, 0, Math.PI / 2), 0, 1.2, { larghezza: 0.45, altezza: 0.45, inferriata: true });
 
   tettoPiode(b, rng, { larghezza: W, profondita: D, yGronda: hG, pendenza: p, sporgenzaGronda: 0.55, sporgenzaTimpano: 0.4, sporgenzaFronte: 0.7, corsi: 4, pezziPerCorso: 5 });
 
   // scivolo di pietra sul retro (rampa per il carro del fieno)
-  b.aggiungi(geoLastra(1.8, 0.25, 2.6, rng.intero(0, 1e6), 0.04), {
+  if (opz.scivolo ?? true) b.aggiungi(geoLastra(1.8, 0.25, 2.6, rng.intero(0, 1e6), 0.04), {
     matrice: mat([0, hS - 0.2, -D / 2 - 1.2], [-Math.atan2(hS, 2.6) * 0.35, 0, 0]),
     colore: PALETTE.gneiss, superficie: SUP.PIETRA,
     piatto: true,
@@ -169,5 +174,6 @@ export function creaFienile(opz: OpzioniFienile = {}): OggettoProcedurale {
       portellone: new THREE.Vector3(portellone.u, portellone.v, D / 2),
       colmo: new THREE.Vector3(0, yColmo, 0),
     },
+    porte: [portaStalla],
   });
 }
