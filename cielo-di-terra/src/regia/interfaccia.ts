@@ -79,6 +79,8 @@ interface LetturaAperta {
   /** Pagine del libretto viste (id → secondi). */
   pagine?: Map<string, number>;
   scena?: string;
+  /** Una leggenda dell'Ombrista: si guarda il telo, non si tiene un foglio in mano (solo visivo). */
+  leggenda?: boolean;
   poi?: () => void;
 }
 
@@ -141,7 +143,7 @@ export class PonteInterfaccia {
     const t = trovaTesto(id);
     if (!t) return false;
     const carta = t.sezione === 'leggende' ? cartaDaLeggenda(id, t.voce) : cartaDaTesto(id, t.voce, t.sezione);
-    this.lettura = { id, carta, aperta: 0, finita: false, ...(poi ? { poi } : {}) };
+    this.lettura = { id, carta, aperta: 0, finita: false, ...(t.sezione === 'leggende' ? { leggenda: true } : {}), ...(poi ? { poi } : {}) };
     this.ui.lettore.show(carta);
     this.r.audio.evento({ tipo: 'pagina', verso: 'avanti' });
     return true;
@@ -152,7 +154,7 @@ export class PonteInterfaccia {
     const t = trovaTesto(id);
     if (!t) return false;
     const carta = cartaDaLeggenda(id, t.voce);
-    this.lettura = { id, carta, aperta: 0, finita: false, scena: id };
+    this.lettura = { id, carta, aperta: 0, finita: false, scena: id, leggenda: true };
     this.ui.lettore.show(carta);
     return true;
   }
@@ -165,6 +167,11 @@ export class PonteInterfaccia {
     this.lettura = { id: 'libretto', carta, aperta: 0, finita: false, pagine: new Map() };
     this.ui.lettore.show(carta, i);
     this.r.audio.evento({ tipo: 'pagina', verso: 'avanti' });
+  }
+
+  /** La carta aperta è una leggenda dell'Ombrista (per la lettera in mano: lì non si tiene niente). */
+  get letturaLeggenda(): boolean {
+    return this.ui.lettore.visible && !!this.lettura?.leggenda;
   }
 
   get letturaAperta(): string | null {

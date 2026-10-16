@@ -307,10 +307,11 @@ function parapetto(cant: Cantiere, a: CampioneSentiero, b: CampioneSentiero, p: 
   m.setPosition(cylToWorld(p.z, p.theta, fondo));
   const b2 = new Costruttore(seme);
   if (materiale === 'pietra') {
-    b2.aggiungi(new BoxGeometry(spessore, alto, lung), { matrice: mat([0, alto / 2, 0]), colore: 0x857e74, variazione: 0.07, piatto: true });
+    // (superfici come i gradini della traccia «paese»: pietra con l'occlusione al piede, legno)
+    b2.aggiungi(new BoxGeometry(spessore, alto, lung), { matrice: mat([0, alto / 2, 0]), colore: 0x857e74, variazione: 0.07, piatto: true, superficie: SUPERFICIE.PIETRA + 0.3, occlusione: 0.22 });
   } else {
-    b2.aggiungi(new BoxGeometry(0.08, 0.08, lung), { matrice: mat([0, alto - 0.04, 0]), colore: 0x7a5236, variazione: 0.1, piatto: true });
-    b2.aggiungi(new BoxGeometry(0.08, alto, 0.08), { matrice: mat([0, alto / 2, 0]), colore: 0x5a3e2a, piatto: true });
+    b2.aggiungi(new BoxGeometry(0.08, 0.08, lung), { matrice: mat([0, alto - 0.04, 0]), colore: 0x7a5236, variazione: 0.1, piatto: true, superficie: SUPERFICIE.LEGNO + 0.6 });
+    b2.aggiungi(new BoxGeometry(0.08, alto, 0.08), { matrice: mat([0, alto / 2, 0]), colore: 0x5a3e2a, piatto: true, superficie: SUPERFICIE.LEGNO + 0.6 });
   }
   cant.oggetto(b2.costruisci('parapetto'), m, { lumi: false });
   cant.aggiungiCollider(boxAt(p.z, p.theta, fondo, yaw, spessore, alto, lung, 'muro'), 'muro', luogo);

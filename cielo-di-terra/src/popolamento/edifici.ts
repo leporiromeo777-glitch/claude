@@ -659,21 +659,27 @@ export function creaMasso(seme: Seme, raggio: number, schiaccia = 0.7): OggettoP
   return risultato({ nome: 'masso', seme: s, gruppo, collider: [cil(0, -0.3, 0, raggio * 0.9, raggio * schiaccia * 1.3, 'arrampicabile')], ingombro: ingombroDa(gruppo), punti: { cima: new THREE.Vector3(0, raggio * schiaccia * 1.32, 0) } });
 }
 
-/** Erba alta e ricci vuoti sparsi in un cerchio (terrazze di castagni). */
-export function creaErbaRicci(seme: Seme, raggio: number, ciuffi = 40, ricci = 30): OggettoProcedurale {
+/**
+ * Erba alta e ricci vuoti sparsi in un cerchio (terrazze di castagni), oppure, con `rettangolo`
+ * (semilati lungo X e Z locali), in un rettangolo: su un ripiano il cerchio usciva oltre i muri e
+ * l'erba restava sospesa nel vuoto davanti alla terrazza.
+ */
+export function creaErbaRicci(seme: Seme, raggio: number, ciuffi = 40, ricci = 30, rettangolo?: { x: number; z: number }): OggettoProcedurale {
   const s = semeNumerico(seme);
   const rng = new Rng(s);
   const b = new Costruttore(rng);
+  // posizione (x, z) da due numeri casuali in [0, 1): nel cerchio o nel rettangolo
+  const posto = (u: number, v: number): [number, number] =>
+    rettangolo ? [(u * 2 - 1) * rettangolo.x, (v * 2 - 1) * rettangolo.z] : [Math.cos(u * Math.PI * 2) * Math.sqrt(v) * raggio, Math.sin(u * Math.PI * 2) * Math.sqrt(v) * raggio];
   for (let k = 0; k < ciuffi; k++) {
-    const a = rng.next() * Math.PI * 2;
-    const d = Math.sqrt(rng.next()) * raggio;
+    const [px, pz] = posto(rng.next(), rng.next());
     const colore = mescola(0x8a9a44, rng.prob(0.4) ? 0xc4a858 : 0x6f8a3c, rng.next());
     // ciuffo: tre-cinque fili sottili e inclinati
     const nf = rng.intero(3, 5);
     for (let f = 0; f < nf; f++) {
       const h = rng.tra(0.28, 0.62);
       b.aggiungi(geoCono(rng.tra(0.025, 0.045), h, 3), {
-        matrice: mat([Math.cos(a) * d + rng.centrato(0.12), -0.03, Math.sin(a) * d + rng.centrato(0.12)], [rng.centrato(0.5), rng.next() * 3, rng.centrato(0.5)]),
+        matrice: mat([px + rng.centrato(0.12), -0.03, pz + rng.centrato(0.12)], [rng.centrato(0.5), rng.next() * 3, rng.centrato(0.5)]),
         colore,
         variazione: 0.12,
         piatto: true,
@@ -681,9 +687,8 @@ export function creaErbaRicci(seme: Seme, raggio: number, ciuffi = 40, ricci = 3
     }
   }
   for (let k = 0; k < ricci; k++) {
-    const a = rng.next() * Math.PI * 2;
-    const d = Math.sqrt(rng.next()) * raggio;
-    b.aggiungi(geoCiuffo(0.07, rng.intero(0, 1e6), 0.75), { matrice: mat([Math.cos(a) * d, 0.04, Math.sin(a) * d]), colore: rng.prob(0.5) ? 0x9a8a3a : 0x7a5530, piatto: true });
+    const [px, pz] = posto(rng.next(), rng.next());
+    b.aggiungi(geoCiuffo(0.07, rng.intero(0, 1e6), 0.75), { matrice: mat([px, 0.04, pz]), colore: rng.prob(0.5) ? 0x9a8a3a : 0x7a5530, piatto: true });
   }
   const gruppo = b.costruisci('erba-ricci');
   return risultato({ nome: 'erba', seme: s, gruppo, collider: [], ingombro: ingombroDa(gruppo), punti: {} });

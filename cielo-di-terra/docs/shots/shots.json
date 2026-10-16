@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15T21:10:18.136Z",
+  "date": "2026-10-16T02:19:38.333Z",
   "size": [
     1280,
     720
@@ -10,17 +10,17 @@
     "--ignore-gpu-blocklist"
   ],
   "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
-  "startupSeconds": 12.54,
+  "startupSeconds": 7.7,
   "shots": [
     {
       "n": 1,
       "file": "01-paese-mezzogiorno.png",
       "title": "In paese a mezzogiorno, guardando in su verso le valli lontane",
       "frames": 4,
-      "frameMs": 7,
+      "frameMs": 5,
       "stats": {
-        "drawCalls": 172,
-        "triangles": 779159,
+        "drawCalls": 202,
+        "triangles": 1239254,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -29,14 +29,16 @@
           69
         ],
         "terrainTriangles": 238168,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          10,
-          1571,
-          3559
+          0,
+          13,
+          446,
+          2030,
+          2577
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 0,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -81,8 +83,8 @@
       "frames": 4,
       "frameMs": 4,
       "stats": {
-        "drawCalls": 246,
-        "triangles": 756443,
+        "drawCalls": 290,
+        "triangles": 1469232,
         "terrainChunks": 126,
         "terrainByLod": [
           5,
@@ -91,14 +93,16 @@
           75
         ],
         "terrainTriangles": 291480,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          9,
-          743,
-          4388
+          2,
+          22,
+          665,
+          2030,
+          7535
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 0,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -141,10 +145,10 @@
       "file": "03-planata-alta.png",
       "title": "In planata alta, a 50 m dall'asse, verso il lago dall'altra parte del cielo",
       "frames": 50,
-      "frameMs": 3,
+      "frameMs": 2,
       "stats": {
-        "drawCalls": 117,
-        "triangles": 339366,
+        "drawCalls": 109,
+        "triangles": 570818,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
@@ -153,14 +157,16 @@
           49
         ],
         "terrainTriangles": 180472,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
           0,
           0,
-          5140
+          0,
+          2030,
+          0
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -203,10 +209,10 @@
       "file": "04-finestra-stelle.png",
       "title": "A piedi su un costolone della Finestra dei Ponti: le stelle girano sotto il vetro",
       "frames": 2,
-      "frameMs": 8,
+      "frameMs": 4,
       "stats": {
-        "drawCalls": 91,
-        "triangles": 350877,
+        "drawCalls": 93,
+        "triangles": 598585,
         "terrainChunks": 126,
         "terrainByLod": [
           1,
@@ -215,14 +221,16 @@
           82
         ],
         "terrainTriangles": 179544,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
           0,
-          822,
-          4318
+          0,
+          501,
+          2030,
+          0
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -265,10 +273,10 @@
       "file": "05-notte-paese.png",
       "title": "Notte in piazza: la Linea è una brace blu, i lumi dei paesi nel cielo",
       "frames": 4,
-      "frameMs": 4,
+      "frameMs": 3,
       "stats": {
-        "drawCalls": 155,
-        "triangles": 863824,
+        "drawCalls": 200,
+        "triangles": 1497824,
         "terrainChunks": 126,
         "terrainByLod": [
           4,
@@ -277,14 +285,16 @@
           68
         ],
         "terrainTriangles": 256344,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          21,
-          1416,
-          3703
+          0,
+          18,
+          721,
+          2030,
+          4606
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 7.2,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -329,8 +339,8 @@
       "frames": 30,
       "frameMs": 3,
       "stats": {
-        "drawCalls": 97,
-        "triangles": 541371,
+        "drawCalls": 116,
+        "triangles": 1385712,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -339,14 +349,16 @@
           74
         ],
         "terrainTriangles": 227640,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          233,
-          1200,
-          3707
+          53,
+          679,
+          1340,
+          2030,
+          3336
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 13.846153846153845,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -391,8 +403,8 @@
       "frames": 6,
       "frameMs": 6,
       "stats": {
-        "drawCalls": 153,
-        "triangles": 885045,
+        "drawCalls": 206,
+        "triangles": 1599723,
         "terrainChunks": 126,
         "terrainByLod": [
           3,
@@ -401,14 +413,16 @@
           70
         ],
         "terrainTriangles": 241400,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          26,
-          1395,
-          3719
+          3,
+          48,
+          879,
+          2030,
+          4865
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 13.846153846153845,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -451,10 +465,10 @@
       "file": "confronto-2-terrazze-mezzogiorno.png",
       "title": "Bozzetto 2: a mezzogiorno sulle terrazze dei castagni, verso il paese e il lago lontano",
       "frames": 6,
-      "frameMs": 6,
+      "frameMs": 3,
       "stats": {
-        "drawCalls": 177,
-        "triangles": 823727,
+        "drawCalls": 229,
+        "triangles": 1606039,
         "terrainChunks": 126,
         "terrainByLod": [
           4,
@@ -463,14 +477,16 @@
           64
         ],
         "terrainTriangles": 265656,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          63,
-          1200,
-          3877
+          0,
+          110,
+          963,
+          2030,
+          6996
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 13.846153846153845,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -481,29 +497,29 @@
         ]
       },
       "player": {
-        "z": 964.875,
-        "theta": 25.00175096093428,
-        "h": 65.31045410986803,
-        "r": 580.689545890132,
-        "groundH": 65.31045410986802,
-        "heightAboveGround": 1.4210854715202004e-14,
-        "gravity": 8.813804071947446,
-        "gravityG": 0.8987578910175694,
+        "z": 965.8750000000001,
+        "theta": 25.001750960934277,
+        "h": 65.3104541098528,
+        "r": 580.6895458901472,
+        "groundH": 65.31045410985298,
+        "heightAboveGround": -1.8474111129762605e-13,
+        "gravity": 8.813804071947677,
+        "gravityG": 0.898757891017593,
         "velocity": [
-          -0.619373769327614,
-          -0.31831333196687683,
-          6.823466098855533e-13
+          -0.6193737693277264,
+          -0.31831333196736905,
+          4.994124812592606e-12
         ],
-        "speed": 0.6963815358256934,
+        "speed": 0.6963815358260184,
         "grounded": false,
         "mode": "air",
         "veloOpen": false,
         "coriolisFactor": 0.4,
         "freeCamera": false,
         "camera": {
-          "z": 964.875,
+          "z": 965.8750000000001,
           "theta": 25.00175096093428,
-          "h": 66.93045410986804
+          "h": 66.93045410985292
         },
         "hours": 12.5
       }
@@ -513,10 +529,10 @@
       "file": "confronto-3-planata-asse.png",
       "title": "Bozzetto 3: in planata alta lungo l'asse, il lago e le valli sopra la testa",
       "frames": 40,
-      "frameMs": 3,
+      "frameMs": 2,
       "stats": {
-        "drawCalls": 172,
-        "triangles": 438796,
+        "drawCalls": 171,
+        "triangles": 655599,
         "terrainChunks": 126,
         "terrainByLod": [
           0,
@@ -525,14 +541,16 @@
           59
         ],
         "terrainTriangles": 217240,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
           0,
-          1065,
-          4075
+          0,
+          200,
+          2030,
+          0
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 9.818181818181818,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -577,8 +595,8 @@
       "frames": 6,
       "frameMs": 2,
       "stats": {
-        "drawCalls": 130,
-        "triangles": 829763,
+        "drawCalls": 170,
+        "triangles": 1435855,
         "terrainChunks": 126,
         "terrainByLod": [
           2,
@@ -587,14 +605,16 @@
           70
         ],
         "terrainTriangles": 228888,
-        "trees": 5140,
+        "trees": 23275,
         "treesByLod": [
-          11,
-          1520,
-          3609
+          0,
+          19,
+          627,
+          2030,
+          4487
         ],
-        "colliders": 8102,
-        "lamps": 469,
+        "colliders": 26370,
+        "lamps": 452,
         "fps": 9.818181818181818,
         "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
         "qualita": "alta",
@@ -647,11 +667,11 @@
       "mode": "glide",
       "ratio": 5.5
     },
-    "updateMsPerStep": 0.032,
-    "renderCpuMs": 7870.6,
+    "updateMsPerStep": 0.023,
+    "renderCpuMs": 2703.4,
     "stats": {
-      "drawCalls": 184,
-      "triangles": 846879,
+      "drawCalls": 211,
+      "triangles": 1161296,
       "terrainChunks": 126,
       "terrainByLod": [
         3,
@@ -660,14 +680,16 @@
         68
       ],
       "terrainTriangles": 239384,
-      "trees": 5140,
+      "trees": 23275,
       "treesByLod": [
-        8,
-        1582,
-        3550
+        0,
+        4,
+        56,
+        2030,
+        427
       ],
-      "colliders": 8102,
-      "lamps": 469,
+      "colliders": 26370,
+      "lamps": 452,
       "fps": 2.770700636942675,
       "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
       "qualita": "bassa",

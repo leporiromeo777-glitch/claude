@@ -229,7 +229,14 @@ export class Regia implements SistemaGioco {
     g.clock.running = false;
     g.sistemi.push(this.squadro, this);
     // la lettera in mano in prima persona (solo visiva, traccia «paese»): il foglio della carta aperta
-    g.sistemi.push(new LetteraInMano(g, () => ({ aperta: ui.lettore.visible, tipo: ui.lettore.el.dataset['tipo'] ?? '' })));
+    g.sistemi.push(
+      new LetteraInMano(g, () => ({
+        aperta: ui.lettore.visible,
+        // le leggende dell'Ombrista sono carte «foglio», ma si guardano sul telo: niente foglio in mano
+        tipo: this.ponte.letturaLeggenda ? 'leggenda' : (ui.lettore.el.dataset['tipo'] ?? ''),
+        maniOccupate: this.squadro.stato !== 'riposto',
+      })),
+    );
 
     // --- interfaccia ---
     ui.on('catturaInput', (preso) => {

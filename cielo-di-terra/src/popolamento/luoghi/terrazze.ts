@@ -50,11 +50,14 @@ export function costruisciTerrazzaPedrazzini(ctx: Contesto): void {
   ];
   posti.forEach(([dz, de, h], i) => {
     const p = localeDa(centro.z, centro.theta, yaw, -dz, de, H);
-    const c = creaCastagno({ seme: `pedrazzini-${i}`, altezza: h, stagione: 'autunno', dettaglio: 'alto' });
+    // (i ricci li mette l'erba del ripiano: quelli del castagno, vicino al muro, cadevano oltre il bordo e restavano sospesi)
+    const c = creaCastagno({ seme: `pedrazzini-${i}`, altezza: h, stagione: 'autunno', dettaglio: 'alto', ricci: false });
     ctx.posa('terrazza', c, p.z, p.theta, i * 70, { h: H - 0.1, tag: () => 'tronco' });
     c.dispose();
   });
-  ctx.posa('terrazza', creaErbaRicci('erba-pedrazzini', 13, 90, 70), centro.z, centro.theta, 0, { h: H, collider: false });
+  // erba alta e ricci solo sul ripiano (un rettangolo orientato come il ripiano, a 0,5 m dai muri):
+  // il cerchio di 13 m usciva oltre il muro di fronte e l'erba restava sospesa nel vuoto
+  ctx.posa('terrazza', creaErbaRicci('erba-pedrazzini', 13, 90, 70, { x: 15 - 0.5, z: D / 2 - 0.5 }), centro.z, centro.theta, yaw, { h: H, collider: false });
   // il castagno del cartellino (vigoroso, inselvatichito) con il cartellino di zinco al ramo più basso
   const cc = luogo('castagno_cartellino');
   const hc = Math.max(H, suolo(cc.z, cc.theta)) - 0.1;

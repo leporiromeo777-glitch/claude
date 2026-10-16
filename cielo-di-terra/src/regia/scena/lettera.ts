@@ -12,8 +12,11 @@ import type { Game, SistemaGioco } from '../../game';
 import { creaLetteraPrimaPersona, type StatoLettera } from '../../oggetti/oggetti/primaPersona';
 import type { OggettoProcedurale } from '../../oggetti/tipi';
 
-/** Che cosa mostra il lettore dell'interfaccia (aperto, tipo di carta). */
-export type StatoLettore = () => { aperta: boolean; tipo: string };
+/**
+ * Che cosa mostra il lettore dell'interfaccia (aperto, tipo di carta) e se le mani sono già
+ * occupate da uno strumento (lo squadro in mano o piantato).
+ */
+export type StatoLettore = () => { aperta: boolean; tipo: string; maniOccupate?: boolean };
 
 /** Le carte che si tengono in mano come un foglio. */
 const IN_MANO = new Set(['lettera', 'biglietto', 'dattiloscritto', 'foglio']);
@@ -43,7 +46,7 @@ export class LetteraInMano implements SistemaGioco {
     else this.tieni = Math.max(0, this.tieni - dt);
     this.eraAperta = aperta;
     // col Velo aperto o lo squadro in mano la lettera non si tiene
-    const libera = this.game.player.veloAmount < 0.05;
+    const libera = this.game.player.veloAmount < 0.05 && !l.maniOccupate;
     const obiettivo = (aperta || this.tieni > 0) && libera ? 1 : 0;
     this.alzata += (obiettivo - this.alzata) * Math.min(1, dt * (obiettivo > this.alzata ? 6 : 3.2));
     if (this.alzata > 0.01 && !this.lettera) {
