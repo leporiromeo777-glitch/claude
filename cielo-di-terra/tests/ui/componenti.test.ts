@@ -30,7 +30,7 @@ describe('InterfacciaGioco', () => {
   it('monta tutti i componenti in una radice trasparente sopra il canvas', () => {
     const r = contenitore.querySelector('.ui-radice')!;
     expect(r).toBeTruthy();
-    expect(r.querySelectorAll('.ui-componente').length).toBe(11);
+    expect(r.querySelectorAll('.ui-componente').length).toBe(12);
     expect(r.classList.contains('ui-ridotto')).toBe(true);
     expect(document.getElementById('ui-f-bordo')).toBeTruthy();
   });

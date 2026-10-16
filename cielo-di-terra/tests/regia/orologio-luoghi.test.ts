@@ -3,7 +3,17 @@
  * e i luoghi dei contenuti (quote, «dentro», dove sono).
  */
 import { describe, expect, it } from 'vitest';
-import { OrologioStoria, assolutoDi, attraversa, eNotte } from '../../src/regia/orologio';
+import {
+  ATTESA_DURATA_MAX,
+  ATTESA_DURATA_SALTO,
+  OrologioStoria,
+  assolutoDi,
+  attraversa,
+  curvaAttesa,
+  durataAttesa,
+  eNotte,
+  type Intervallo,
+} from '../../src/regia/orologio';
 import { Luoghi, dentroLuogo, quotaAppoggio, quotaLuogo } from '../../src/regia/luoghi';
 import { ColliderWorld, boxAt } from '../../src/world/colliders';
 import { luogo, oreDa, ostacoloFra, testo, testoOra } from '../../src/regia/contenuti';
@@ -62,23 +72,141 @@ describe('OrologioStoria', () => {
     expect(o.limite).toBeNull();
   });
 
-  it('«aspetta fino a» accelera fino all\'ora chiesta e si ferma lì', () => {
+  /** Aspetta (a passi di 1/60 s) finché l'attesa finisce: i secondi reali e gli intervalli percorsi. */
+  const finoAllaFine = (o: OrologioStoria, max = 60): { secondi: number; passi: Intervallo[] } => {
+    const passi: Intervallo[] = [];
+    let secondi = 0;
+    while (o.inAttesa && secondi < max) {
+      passi.push(o.avanza(1 / 60));
+      secondi += 1 / 60;
+    }
+    return { secondi, passi };
+  };
+
+  it('«aspetta fino a» è un time-lapse di pochi secondi che arriva esattamente all\'ora chiesta', () => {
     const o = new OrologioStoria();
     o.imposta(1, 9);
     expect(o.aspettaFino(10)).toBe(true);
-    const base = 24 / (40 * 60);
-    expect(o.oreAlSecondo()).toBeCloseTo(base * 20, 9);
-    let secondi = 0;
-    while (o.inAttesa && secondi < 60) {
-      o.avanza(0.25);
-      secondi += 0.25;
-    }
-    expect(o.ore).toBeCloseTo(10, 6);
-    // un'ora di gioco in 5 secondi reali (x20 su 40 minuti al giorno)
-    expect(secondi).toBeCloseTo(5, 0);
+    const { secondi, passi } = finoAllaFine(o);
+    expect(o.ore).toBeCloseTo(10, 9);
+    expect(o.inAttesa).toBe(false);
+    // un'ora di gioco: un paio di secondi (prima 5 s, a x20)
+    expect(secondi).toBeCloseTo(durataAttesa(1), 1);
+    expect(secondi).toBeLessThan(2.5);
+    // a passi contigui, mai all'indietro
+    for (let i = 1; i < passi.length; i++) expect(passi[i]!.da).toBeCloseTo(passi[i - 1]!.a, 12);
+    for (const p of passi) expect(p.a).toBeGreaterThanOrEqual(p.da);
+    // finita l'attesa il tempo torna normale (un giorno in 40 minuti)
+    const iv = o.avanza(60);
+    expect(iv.a - iv.da).toBeCloseTo(24 / 40, 6);
     // non si aspetta con l'orologio fermo
     o.comando(['fermo', '10:00']);
     expect(o.aspettaFino(12)).toBe(false);
+  });
+
+  it('qualunque attesa dura al più 5,5 secondi: la brace dalla mattina, la notte intera, quasi un giorno', () => {
+    for (const [da, a] of [
+      [7, 19.5],
+      [9.5, 19.5],
+      [21, 5.5],
+      [6, 2],
+      [12, 12.5],
+    ] as const) {
+      const o = new OrologioStoria();
+      o.imposta(1, da);
+      expect(o.aspettaFino(a)).toBe(true);
+      const { secondi } = finoAllaFine(o);
+      expect(secondi, `${da} → ${a}`).toBeLessThanOrEqual(ATTESA_DURATA_MAX + 1 / 60 + 1e-9);
+      expect(o.ore, `${da} → ${a}`).toBeCloseTo(a, 9);
+    }
+    expect(durataAttesa(12.5)).toBe(ATTESA_DURATA_MAX);
+    expect(durataAttesa(0.25)).toBeGreaterThan(1.5);
+  });
+
+  it('il cielo parte piano, corre e frena alla fine (accelerazione morbida)', () => {
+    expect(curvaAttesa(0)).toBe(0);
+    expect(curvaAttesa(1)).toBe(1);
+    expect(curvaAttesa(0.5)).toBeCloseTo(0.5, 9);
+    const o = new OrologioStoria();
+    o.imposta(1, 9);
+    o.aspettaFino(19.5);
+    const { passi } = finoAllaFine(o);
+    const v = passi.map((p) => p.a - p.da);
+    const n = v.length;
+    const media = v.reduce((x, y) => x + y, 0) / n;
+    // all'inizio e alla fine molto più piano che a metà; a metà al più una volta e mezza la media
+    expect(v[1]!).toBeLessThan(media * 0.2);
+    expect(v[n - 2]!).toBeLessThan(media * 0.2);
+    expect(Math.max(...v)).toBeLessThanOrEqual(media * 1.52);
+    // nessun salto: da un passo all'altro la velocità cambia poco
+    for (let i = 1; i < n; i++) expect(Math.abs(v[i]! - v[i - 1]!)).toBeLessThan(media * 0.06);
+  });
+
+  it('il secondo tocco salta alla fine in un attimo, sempre a passi contigui', () => {
+    const o = new OrologioStoria();
+    o.imposta(1, 9);
+    o.aspettaFino(19.5);
+    for (let i = 0; i < 60; i++) o.avanza(1 / 60);
+    const prima = o.assoluto;
+    expect(o.saltaAllaFine()).toBe(true);
+    expect(o.inSalto).toBe(true);
+    // un secondo tocco non riparte da capo
+    expect(o.saltaAllaFine()).toBe(false);
+    const { secondi, passi } = finoAllaFine(o);
+    expect(secondi).toBeLessThanOrEqual(ATTESA_DURATA_SALTO + 1 / 60 + 1e-9);
+    expect(o.ore).toBeCloseTo(19.5, 9);
+    expect(passi[0]!.da).toBeCloseTo(prima, 12);
+    for (let i = 1; i < passi.length; i++) expect(passi[i]!.da).toBeCloseTo(passi[i - 1]!.a, 12);
+    // senza attesa non c'è niente da saltare
+    expect(o.saltaAllaFine()).toBe(false);
+  });
+
+  it('gli eventi della notte scattano tutti e in ordine, una volta sola, anche saltando', () => {
+    const ore = [22 + 5 / 60, 22 + 20 / 60, 23 + 20 / 60, 0.5, 2, 4.5];
+    for (const salta of [false, true]) {
+      const o = new OrologioStoria();
+      o.imposta(1, 21);
+      o.aspettaFino(5.5);
+      const visti: number[] = [];
+      let k = 0;
+      while (o.inAttesa && k < 1000) {
+        if (salta && k === 30) o.saltaAllaFine();
+        const iv = o.avanza(1 / 60);
+        for (const h of ore) visti.push(...attraversa(iv, h));
+        k++;
+      }
+      expect(visti, salta ? 'saltando' : 'aspettando').toEqual([...visti].sort((a, b) => a - b));
+      expect(visti.length).toBe(ore.length);
+      expect(o.giorno).toBe(2);
+      expect(o.ore).toBeCloseTo(5.5, 9);
+    }
+  });
+
+  it('un limite (orologio:max) più vicino accorcia l\'attesa: frena al limite e si ferma lì', () => {
+    const o = new OrologioStoria();
+    o.imposta(1, 16);
+    o.comando(['max', '17:30']);
+    expect(o.aspettaFino(19.5)).toBe(true);
+    expect(o.attesa!.fino).toBeCloseTo(17.5, 9);
+    expect(o.attesa!.chiesta).toBeCloseTo(19.5, 9);
+    const { secondi, passi } = finoAllaFine(o);
+    expect(o.ore).toBeCloseTo(17.5, 9);
+    expect(secondi).toBeCloseTo(durataAttesa(1.5), 1);
+    // frena: l'ultimo passo è corto
+    expect(passi[passi.length - 2]!.a - passi[passi.length - 2]!.da).toBeLessThan(0.01);
+  });
+
+  it('interrotta (Elvira si alza, arriva qualcuno), il tempo torna subito normale', () => {
+    const o = new OrologioStoria();
+    o.imposta(1, 9);
+    o.aspettaFino(19.5);
+    for (let i = 0; i < 90; i++) o.avanza(1 / 60);
+    const meta = o.ore;
+    expect(meta).toBeGreaterThan(9.3);
+    expect(meta).toBeLessThan(19.5);
+    o.interrompiAttesa();
+    const iv = o.avanza(1);
+    expect(iv.a - iv.da).toBeCloseTo(24 / 2400, 9);
   });
 
   it('esporta e importa giorno, ora, fermo e limite (l\'attesa no)', () => {
@@ -93,6 +221,29 @@ describe('OrologioStoria', () => {
     expect(p.ore).toBeCloseTo(19, 6);
     expect(p.limite).toBeCloseTo(assolutoDi(2, 20.5), 6);
     expect(p.inAttesa).toBe(false);
+  });
+
+  it('salvare durante l\'attesa tiene l\'ora di quel momento; caricato, il tempo riparte normale', () => {
+    const o = new OrologioStoria();
+    o.imposta(1, 21);
+    o.aspettaFino(5.5);
+    for (let i = 0; i < 120; i++) o.avanza(1 / 60);
+    const s = o.esporta();
+    expect(s.giorno * 24 + s.ore).toBeGreaterThan(assolutoDi(1, 21.5));
+    expect(s.giorno * 24 + s.ore).toBeLessThan(assolutoDi(2, 5.5) + 24);
+    expect(JSON.stringify(s)).not.toContain('attesa');
+    const p = new OrologioStoria();
+    p.importa(JSON.parse(JSON.stringify(s)));
+    expect(p.assoluto).toBeCloseTo(o.assoluto, 9);
+    expect(p.inAttesa).toBe(false);
+    const iv = p.avanza(1);
+    expect(iv.a - iv.da).toBeCloseTo(24 / 2400, 9);
+    // e dopo l'attesa si salva l'ora d'arrivo
+    while (o.inAttesa) o.avanza(1 / 60);
+    const q = new OrologioStoria();
+    q.importa(o.esporta());
+    expect(q.giorno).toBe(2);
+    expect(q.ore).toBeCloseTo(5.5, 9);
   });
 
   it('attraversa trova un\'ora del giorno dentro un intervallo, anche su più giorni', () => {

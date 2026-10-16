@@ -173,6 +173,7 @@ export const SEZIONI_IMPOSTAZIONI: readonly Sezione[] = [
     id: 'aiuti',
     titolo: 'Aiuti',
     righe: [
+      { tipo: 'interruttore', chiave: 'orologioSchermo', etichetta: 'Orologio a schermo', nota: 'In alto a destra l\u2019ora di gioco e il giorno, con il sole o la luna. Durante l\u2019attesa le cifre corrono.' },
       { tipo: 'interruttore', chiave: 'puntino', etichetta: 'Punto al centro', nota: 'Compare quando lo sguardo cade su qualcosa con cui si può fare qualcosa.' },
       { tipo: 'interruttore', chiave: 'suggerimentiComandi', etichetta: 'Suggerimenti dei comandi', nota: 'Una riga a matita in basso, la prima volta di ogni gesto.' },
       { tipo: 'interruttore', chiave: 'indicatoriFiato', etichetta: 'Segni del fiato e del Velo', nota: 'Due archi sottili intorno al punto, solo quando servono. Senza, resta la vista che si restringe.' },

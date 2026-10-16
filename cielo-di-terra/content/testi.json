@@ -247,7 +247,7 @@
   "pianta": "La Pianta: {pianta}",
   "innesta": "Innesta: taglia, inserisci, lega ({usa} per ogni gesto)",
   "velo": "Salta dal muro ({salta}), poi apri il Velo ({velo})",
-  "aspetta": "Da seduta, aspetta fino a…: {aspetta}",
+  "aspetta": "Aspetta fino a…: {aspetta} (di nuovo {aspetta}: salta alla fine)",
   "libretto": "Il libretto di Aurelio: {libretto}",
   "pianta_squadro": "Pianta lo squadro sul chiodo: tieni premuto {usa}. Poi centra la bolla",
   "collima": "Guarda nel cannocchiale ({mira}) e tieni la croce sulla palina",

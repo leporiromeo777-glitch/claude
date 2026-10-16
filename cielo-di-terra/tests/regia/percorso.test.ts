@@ -9,7 +9,7 @@ import { CONTENUTI_NARRATIVA, luogo, personaggio } from '../../src/regia/contenu
 import { DISLIVELLO_PLANATA, eUnaPlanata } from '../../src/regia/corpo';
 import { chiaviDelCampanaro } from '../../src/regia/bersagli';
 import { dentroLuogo, quotaLuogo } from '../../src/regia/luoghi';
-import { ATTESA_MAX_ORE, OrologioStoria, oreFino, vociDiAttesa } from '../../src/regia/orologio';
+import { ATTESA_DURATA_MAX, ATTESA_MAX_ORE, OrologioStoria, durataAttesa, oreFino, vociDiAttesa } from '../../src/regia/orologio';
 import { AIUTI_IN_SU, AIUTI_VETRO, FERMO_PRIMA_NOTTE, altezzeDavanti, dialoghiCheFannoAvanzare, dialoghiNominati, flagNominati, indicazioneGesto, muroAltoDavanti, murettoDavanti, stradaDeiPassi, troppoRipido } from '../../src/regia/percorso';
 import { cleliaAspettaAllaBacheca, posizioneCleliaAllaBacheca, postoDiClelia } from '../../src/regia/png';
 import { prossimoArrivo } from '../../src/regia/orari';
@@ -85,6 +85,16 @@ describe('che cosa premere (indicazioni dei gesti)', () => {
     expect(indicazioneGesto({ controllo: 'seduta', attesa: true })).toMatchObject({ tasto: 'X' });
     expect(indicazioneGesto({ controllo: 'seduta', attesa: true, rilettura: true })?.testo).toMatch(/rileggi/);
     expect(indicazioneGesto({ controllo: 'libero' })).toBeNull();
+  });
+
+  it('durante l\'attesa X salta alla fine; in piedi, quando il passo chiede di aspettare, X apre l\'attesa', () => {
+    expect(indicazioneGesto({ controllo: 'seduta', attesa: true, inAttesa: true })).toEqual({ tasto: 'X', testo: 'Salta alla fine (C: alzati)' });
+    // saltando (sotto il nero) niente: né «salta» né «aspetta fino a»
+    expect(indicazioneGesto({ controllo: 'seduta', attesa: true, inAttesa: true, salto: true })).toBeNull();
+    expect(indicazioneGesto({ controllo: 'libero', aspettare: true })).toEqual({ tasto: 'X', testo: 'Aspetta fino a… (ti siedi)' });
+    // un muretto o un fischio contano di più
+    expect(indicazioneGesto({ controllo: 'libero', aspettare: true, muretto: true })).toMatchObject({ tasto: 'Spazio' });
+    expect(indicazioneGesto({ controllo: 'libero', aspettare: true, fischio: true })).toMatchObject({ tasto: 'G' });
   });
 });
 
@@ -255,6 +265,55 @@ describe('«Aspetta fino a…» di notte', () => {
     expect(testi(19.5)).not.toContain("l'alba (05:30)");
     expect(testi(20.25)).not.toContain("fra un'ora");
   });
+  it("la brace e, la prima sera, l'Ombrista: dopo la brace non restano 25 secondi da aspettare in piedi", () => {
+    const voci = (o: number, passi: string[]) => vociDiAttesa(o, 1, null, { brace: true, vegliare: false, passi });
+    expect(voci(10, ['m1_brace']).map((v) => v.testo)).toEqual(['la brace (19:30)', "l'Ombrista (19:45)", "fra un'ora"]);
+    expect(voci(19.5, ['m1_ombrista']).map((v) => v.testo)).toContain("l'Ombrista (19:45)");
+    expect(voci(19.5, ['m1_ombrista']).find((v) => v.testo.startsWith("l'Ombrista"))?.ore).toBeCloseTo(19.75, 9);
+    expect(voci(19.8, ['m1_ombrista']).map((v) => v.testo)).not.toContain("l'Ombrista (19:45)");
+    // un altro giorno, senza il passo, niente Ombrista
+    expect(voci(10, []).map((v) => v.testo)).not.toContain("l'Ombrista (19:45)");
+  });
+
+  it('la seconda notte: le 20:30 per dormire e il mattino, da qualunque ora del pomeriggio', () => {
+    const t = vociDiAttesa(14, 2, null, { brace: true, vegliare: false, passi: new Set(['m1_seconda_notte']) }).map((v) => v.testo);
+    expect(t).toEqual(['la brace (19:30)', 'le 20:30 (si può dormire)', "l'alba (05:30)", "fra un'ora"]);
+    const sera = vociDiAttesa(21, 2, null, { brace: true, vegliare: false, passi: ['m1_seconda_notte'] }).map((v) => v.testo);
+    expect(sera).not.toContain('le 20:30 (si può dormire)');
+    expect(sera).toContain("l'alba (05:30)");
+    // la mattina presto l'alba sarebbe quasi un giorno intero: no
+    expect(vociDiAttesa(6, 2, null, { brace: true, vegliare: false, passi: ['m1_seconda_notte'] }).map((v) => v.testo)).not.toContain("l'alba (05:30)");
+  });
+
+  it('vegliando la prima notte: le Fade (22:05), finché non si sono viste; poi l\'alba', () => {
+    const voci = (o: number, fadeViste: boolean) => vociDiAttesa(o, 1, null, { brace: true, vegliare: true, fadeViste, passi: ['m1_notte'] }).map((v) => v.testo);
+    expect(voci(20.8, false)).toEqual(['le Fade (22:05)', 'mezzanotte', "l'alba (05:30)"]);
+    expect(voci(20.8, true)).toEqual(['mezzanotte', "l'alba (05:30)"]);
+    expect(voci(22.5, false)).not.toContain('le Fade (22:05)');
+  });
+
+  it('chi arriva oggi, con il nome; le voci non si ripetono', () => {
+    const v = vociDiAttesa(6.3, 1, { giorno: 1, ore: 7, chi: 'una velata al lavatoio' }, { brace: false, vegliare: false });
+    expect(v[0]).toEqual({ testo: 'le 07:00: arriva una velata al lavatoio', ore: 7 });
+    expect(vociDiAttesa(6.3, 1, { giorno: 1, ore: 7 }, { brace: false, vegliare: false })[0]?.testo).toBe('le 07:00, quando arriva qualcuno');
+    expect(vociDiAttesa(7.5, 1, { giorno: 1, ore: 8, chi: 'due bambini', molti: true }, { brace: false, vegliare: false })[0]?.testo).toBe('le 08:00: arrivano due bambini');
+    // fra un'ora alle 18:30 è la brace delle 19:30: una voce sola
+    const b = vociDiAttesa(18.5, 1, null, { brace: true, vegliare: false });
+    expect(b.filter((x) => Math.abs(x.ore - 19.5) < 0.01)).toHaveLength(1);
+  });
+
+  it('ogni voce del menu, a ogni ora, dura al più 5,5 secondi reali', () => {
+    for (let o = 0; o < 24; o += 0.25) {
+      for (const passi of [[], ['m1_brace'], ['m1_seconda_notte'], ['m1_notte']]) {
+        for (const v of vociDiAttesa(o, 2, { giorno: 2, ore: 8, chi: 'x' }, { brace: true, vegliare: true, passi })) {
+          const ore = oreFino(o, v.ore);
+          expect(ore, `${o} → ${v.testo}`).toBeLessThanOrEqual(ATTESA_MAX_ORE);
+          expect(durataAttesa(ore)).toBeLessThanOrEqual(ATTESA_DURATA_MAX);
+        }
+      }
+    }
+  });
+
   it("un'attesa di quasi un giorno intero si rifiuta", () => {
     expect(oreFino(0, 0)).toBe(24);
     expect(oreFino(0, 0)).toBeGreaterThan(ATTESA_MAX_ORE);

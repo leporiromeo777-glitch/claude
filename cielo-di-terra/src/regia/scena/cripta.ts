@@ -898,7 +898,8 @@ export function costruisciCripta(materialeMondo: Material): Cripta {
     coperchioAperto: () => aperturaCoperchio > 0.95,
     update(dt: number) {
       if (apri && aperturaCoperchio < 1) {
-        aperturaCoperchio = Math.min(1, aperturaCoperchio + dt / 2.2);
+        // 1,5 s (erano 2,2: «Alzati» arrivava dopo più di due secondi fermi a guardare il coperchio)
+        aperturaCoperchio = Math.min(1, aperturaCoperchio + dt / 1.5);
         const k = 0.5 - 0.5 * Math.cos(aperturaCoperchio * Math.PI);
         if (coperchio5?.parent) coperchio5.parent.rotation.x = -1.25 * k;
         // rifinitura 2: aperto, il vetro non è più appannato dal fiato (la scritta è stata letta): da

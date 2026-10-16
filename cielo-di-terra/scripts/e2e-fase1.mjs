@@ -6,8 +6,10 @@
  * Ci si sposta con il teletrasporto della regia (`__GAME__.regia.vai/avvicina`), ma ogni passo
  * si compie con i sistemi veri: il tasto E sui bersagli, i gesti tenuti, la lente, lo sguardo,
  * i dialoghi con le risposte (tasti 1-9 nella finestra di dialogo), le carte lette fino in
- * fondo, il Velo, il sedersi e «aspetta fino a», il sonno e la notte del catasto, il
- * resoconto del mattino, lo squadro piantato, livellato e collimato.
+ * fondo, il Velo, il sedersi e «aspetta fino a» (X anche in piedi, il time-lapse di pochi
+ * secondi, il secondo X che salta alla fine, il salvataggio e «Continua» a metà attesa), il sonno
+ * e la notte del catasto, il resoconto del mattino, lo squadro piantato, livellato e collimato.
+ * L'orologio a schermo si vede in tutte le foto (in alto a destra).
  *
  * Opzioni: --no-build, --size=1280x720, --senza-foto. Le schermate vanno in docs/shots/fase1/.
  */
@@ -58,6 +60,41 @@ const vai = (l, theta, alt) => R(([a, b, c]) => window.__GAME__.regia.vai(a, b, 
 const avvicina = (id, d) => R(([a, b]) => window.__GAME__.regia.avvicina(a, b), [id, d]);
 const mira = (id) => R((a) => window.__GAME__.regia.mira(a), id);
 const attendi = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * I tempi delle attese (secondi di gioco simulati a 60 passi al secondo, cioè i secondi reali di
+ * chi gioca): si scrivono nel diario («⏱») e in e2e.json, per la tabella prima/dopo di
+ * docs/migliorie/tempo.md.
+ */
+const tempiAttese = [];
+function annotaTempo(cosa, secondi, nota = '') {
+  tempiAttese.push({ cosa, secondi: Math.round(secondi * 100) / 100, ...(nota ? { nota } : {}) });
+  log(`  ⏱ ${cosa}: ${secondi.toFixed(2)} s${nota ? ` (${nota})` : ''}`);
+}
+/** Avanza a passi di `passo` s finché la condizione della storia vale; restituisce i secondi passati. */
+const misuraFinche = (cond, max = 120, passo = 0.1) =>
+  R(([c, m, p]) => {
+    const G = window.__GAME__.regia;
+    let t = 0;
+    while (t < m && !G.regia.narrativa.valuta(c)) {
+      G.avanza(p);
+      t += p;
+    }
+    return t;
+  }, [cond, max, passo]);
+/** Come misuraFinche, con un controllo scritto in JS sulla regia (`r`). */
+const misuraFincheJs = (corpo, max = 120, passo = 0.1) =>
+  R(([src, m, p]) => {
+    const G = window.__GAME__.regia;
+    // eslint-disable-next-line no-new-func
+    const ok = new Function('r', `return (${src});`);
+    let t = 0;
+    while (t < m && !ok(G.regia)) {
+      G.avanza(p);
+      t += p;
+    }
+    return t;
+  }, [corpo, max, passo]);
 
 async function verifica(cond, messaggio) {
   if (await vale(cond)) {
@@ -138,26 +175,39 @@ async function leggi(chiudi = true) {
   }
 }
 
-/** Seduta, «aspetta fino a» con la voce che contiene `testo`. */
-async function aspetta(testo, maxS = 120) {
-  const s = await stato();
-  if (s.controllo !== 'seduta') {
-    await tieni('KeyC', 0.5);
-    await avanza(0.1);
-  }
+/**
+ * «Aspetta fino a» con la voce che contiene `testo`: X anche in piedi (Elvira si siede da sola e il
+ * menu si apre), il numero della voce, poi il time-lapse fino alla fine. Con `salta` (secondi) a
+ * quel punto un secondo X salta alla fine; con `foto` un fotogramma a metà (le cifre che corrono).
+ * Restituisce i secondi reali dell'attesa.
+ */
+async function aspetta(testo, { maxS = 30, salta = null, foto: nomeFoto = null } = {}) {
   await premi('KeyX');
+  let s = await stato();
+  if (s.controllo !== 'seduta') throw new Error(`X non ha fatto sedere Elvira (${s.controllo})`);
   const voci = await page.$$eval('.regia-attesa button', (bs) => bs.map((b) => b.textContent));
   const i = voci.findIndex((v) => v.includes(testo));
   if (i < 0) throw new Error(`«aspetta fino a: ${testo}» non c'è fra ${JSON.stringify(voci)}`);
   await page.keyboard.press(String(i + 1));
   await attendi(30);
-  const ore0 = (await stato()).ore;
-  for (let t = 0; t < maxS; t += 2) {
-    await avanza(2);
-    const st = await R(() => window.__GAME__.regia.regia.orologio.inAttesa);
-    if (!st) break;
+  const s0 = await stato();
+  if (!(await R(() => window.__GAME__.regia.regia.orologio.inAttesa))) throw new Error(`l'attesa «${testo}» non è partita: ${s0.ora}`);
+  let secondi = 0;
+  if (nomeFoto) {
+    secondi += await misuraFincheJs('!r.orologio.inAttesa', 1.8, 0.05);
+    await foto(nomeFoto);
   }
-  log(`  aspetta fino a ${testo}: ${ore0.toFixed(2)} → ${(await stato()).ora}${(await stato()).controllo !== 'seduta' ? ' (interrotta)' : ''}`);
+  if (salta !== null) {
+    secondi += await misuraFincheJs('!r.orologio.inAttesa', salta, 0.05);
+    await premi('KeyX'); // il secondo tocco: salta alla fine
+    secondi += 2 / 60;
+  }
+  secondi += await misuraFincheJs('!r.orologio.inAttesa', maxS, 0.05);
+  s = await stato();
+  const ore = (s.giorno - s0.giorno) * 24 + s.ore - s0.ore;
+  annotaTempo(`aspetta fino a ${testo}${salta !== null ? ' (con il salto)' : ''}`, secondi, `${s0.ora} → ${s.ora}, ${ore.toFixed(2)} h di gioco${s.controllo !== 'seduta' ? ', interrotta' : ''}`);
+  if (secondi > 6) throw new Error(`l'attesa «${testo}» è durata ${secondi.toFixed(1)} s (al più 5,5)`);
+  return secondi;
 }
 
 async function alzati() {
@@ -269,10 +319,12 @@ async function main() {
     await avanza(2);
     await verifica('!flag:guardato_vetro', 'lo sguardo non è ancora sulla scritta');
     await mira('scritta_vetro');
-    await avanza(1.7);
+    const tGuardo = await misuraFinche('passo:pr_vetro completato', 5, 1 / 60);
+    // il coperchio si solleva: da quando la scritta è letta a quando si può dire «Alzati»
+    annotaTempo('il coperchio della capsula si apre', await misuraFincheJs('r.cripta.coperchioAperto()', 6, 1 / 60));
+    await avanza(Math.max(0, 1.7 - tGuardo));
     await verifica('flag:guardato_vetro e passo:pr_vetro completato', 'guardato il vetro');
     await foto('01-capsula-vetro');
-    await avanza(2.5); // il coperchio si solleva
     await premi('KeyE'); // Alzati
     await avanza(1.8);
     s = await stato();
@@ -340,6 +392,7 @@ async function main() {
     await foto('04-lettera-di-marta');
     await leggi();
     await verifica('flag:lettera_letta e passo:pr_lettera completato', 'la lettera letta fino in fondo');
+    annotaTempo('dalla lettera chiusa alla voce delle campane', await misuraFinche('dialogo:d_meridiana_1 iniziato', 60, 1 / 60));
     await avanzaFinche('passo:bg_meta completato', 60);
     await verifica('flag:prima_meta_vista e taccuino:i_ombre_meta', 'la prima Meta');
 
@@ -442,6 +495,8 @@ async function main() {
     log('— M1.6 I velati');
     // Togna arriva al lavatoio alle 07:00, Annunciata alle 09:00: si aspetta seduti
     await aspetta("fra un'ora");
+    // la seconda volta, a metà il secondo X salta alla fine (sotto una dissolvenza)
+    await aspetta("fra un'ora", { salta: 0.5 });
     while ((await stato()).ore < 9.1) await aspetta("fra un'ora");
     await alzati();
     for (const chi of ['togna', 'bortolo', 'annunciata']) {
@@ -454,13 +509,13 @@ async function main() {
 
     log('— M1.7 Il Messo');
     await vai('piazza_ore');
-    await avanzaFinche('dialogo:d_ottavio_incontro iniziato', 30);
+    annotaTempo('Ottavio scende in piazza e parla', await misuraFinche('dialogo:d_ottavio_incontro iniziato', 40));
     await foto('10-ottavio', () => inquadra('ottavio', 3.6));
     log(`  ottavio: ${(await dialogo()).length} risposte`);
     await verifica('passo:m1_ottavio completato e flag:aspetta_brace_sbloccato', 'Ottavio, il Messo');
 
     log('— M1.8 La brace');
-    await aspetta('la brace');
+    await aspetta('la brace', { foto: '10b-attesa-della-brace' });
     await verifica('passo:m1_brace completato', 'la brace');
 
     log("— M1.9 L'Ombrista");
@@ -468,7 +523,9 @@ async function main() {
     await vai('telo_ombrista');
     await avanza(0.2);
     await R(() => window.__GAME__.regia.sguardo(0, 5));
-    await avanzaFinche('ora:>=19:46', 30);
+    // dopo la brace: «aspetta fino a: l'Ombrista (19:45)» (prima 25 s in piedi davanti al telo)
+    await aspetta("l'Ombrista");
+    annotaTempo("dalla brace all'Ombrista, davanti al telo (la scena parte)", await misuraFincheJs('r.ponte.letturaAperta !== null', 30));
     await avanza(0.5);
     s = await stato();
     if (!s.lettura) throw new Error(`la scena dell'Ombrista doveva partire: ${JSON.stringify(s)}`);
@@ -491,7 +548,7 @@ async function main() {
     await verifica('passo:m1_fienile completato', 'al fienile');
 
     log('— M1.11 La notte');
-    await avanzaFinche('dialogo:d_ottavio_fienile iniziato', 10);
+    annotaTempo('al fienile: Ottavio comincia a parlare', await misuraFinche('dialogo:d_ottavio_fienile iniziato', 40));
     await foto('12-fienile-notte', () =>
       R(() => {
         // dalla parte opposta al fienile, così i muri non si mettono in mezzo
@@ -521,7 +578,7 @@ async function main() {
     await foto('13-resoconto-del-mattino');
     await page.keyboard.press('Escape');
     await avanza(0.5);
-    await avanzaFinche('dialogo:d_ottavio_mattino iniziato o dialogo:d_ottavio_mattino_salvata iniziato', 10);
+    annotaTempo('il mattino: Ottavio comincia a parlare', await misuraFinche('dialogo:d_ottavio_mattino iniziato o dialogo:d_ottavio_mattino_salvata iniziato', 40));
     log(`  ottavio: ${(await dialogo()).join(' / ')}`);
     await verifica('passo:m1_mattino completato e flag:taccuino_spostato', 'il mattino: la passerella non c\'è più');
 
@@ -533,18 +590,25 @@ async function main() {
     await verifica('passo:m1_ritorno completato', 'tornata in piazza dal guado');
 
     log('— M1.14 Il dono');
-    await aspetta("fra un'ora");
-    await aspetta("fra un'ora");
-    await alzati();
+    // alla Bacheca prima delle 7: il pannello dice quando arriva la novizia e il menu la nomina
     await vai('bacheca_ore');
-    await avanzaFinche('dialogo:d_clelia_dono iniziato', 10);
+    await avanza(0.5);
+    if ((await stato()).ore < 7) await aspetta('07:00');
+    annotaTempo('alla Bacheca: la novizia comincia a parlare', await misuraFinche('dialogo:d_clelia_dono iniziato', 40));
     log(`  clelia: ${(await dialogo()).join(' / ')}`);
     await avanza(0.3);
     if ((await stato()).lettura) await leggi();
     await verifica('passo:m1_dono completato e oggetto:velo_nero', 'il dono della Madre');
+    await alzati();
 
     log('— M1.15 Il campanile');
-    while ((await stato()).ore < 8.05) await avanza(5);
+    // il campanaro arriva sul sagrato alle 08:00 (prima la prova aspettava in piedi, 55 s)
+    if ((await stato()).ore < 8) {
+      await aspetta('08:00');
+      annotaTempo('alle 08:00 il campanaro è sul sagrato', await misuraFincheJs("r.abitanti.presente('bortolo')", 10, 1 / 60));
+      await alzati();
+    }
+    await avanza(0.5);
     await usa('png_bortolo', { distanza: 1.8 });
     log(`  bortolo: ${(await dialogo()).join(' / ')}`);
     await verifica('flag:campanile_aperto', 'Bortolo apre il campanile');
@@ -586,7 +650,8 @@ async function main() {
     await vai('prato_ronco');
     await avanza(0.3);
     await premi('KeyG'); // il fischio
-    await avanza(8);
+    annotaTempo('il fischio: Ottavio scende dal cielo', await misuraFincheJs("r.abitanti.presente('ottavio') && r.abitanti.modoOttavio === 'fermo'", 20));
+    await avanza(0.3);
     await usa('png_ottavio', { distanza: 1.8 });
     log(`  ottavio: ${(await dialogo()).join(' / ')}`);
     await verifica('dialogo:d_ottavio_strada finito e variante:E1=Abitata', 'la passerella rimessa con Ottavio');
@@ -602,9 +667,57 @@ async function main() {
     }));
 
     log('— M1.20 La seconda notte');
-    await vai('fienile_ottavio');
-    await aspetta('la brace', 200).catch(async () => aspetta("fra un'ora"));
-    while ((await stato()).ore < 20.5) await aspetta("fra un'ora");
+    // davanti alla porta del fienile (il centro del luogo è dentro il fienile), con i piedi per
+    // terra: X fa sedere solo lì
+    await avvicina('dormi', 2.5);
+    await avanza(1);
+    // salvataggio e «Continua» a metà attesa: si riparte dall'ora di quel momento, in piedi
+    {
+      await premi('KeyX');
+      if ((await stato()).controllo !== 'seduta') throw new Error(`X in piedi non ha fatto sedere Elvira: ${JSON.stringify(await R(() => window.__GAME__.getPlayerState()))}`);
+      const voci = await page.$$eval('.regia-attesa button', (bs) => bs.map((b) => b.textContent));
+      log(`  il menu dell'attesa alle ${(await stato()).ora}: ${voci.join(' / ')}`);
+      const i = voci.findIndex((v) => v.includes('20:30'));
+      if (i < 0) throw new Error(`manca «le 20:30» fra ${JSON.stringify(voci)}`);
+      await page.keyboard.press(String(i + 1));
+      await attendi(30);
+      await avanza(1.5);
+      const meta = await stato();
+      if (!(await R(() => window.__GAME__.regia.regia.orologio.inAttesa))) throw new Error('l\'attesa delle 20:30 non corre');
+      await foto('18b-attesa-fino-alle-20-30');
+      await R(() => window.__GAME__.regia.salva());
+      log(`  salvato a metà attesa: giorno ${meta.giorno}, ${meta.ora}`);
+      await page.reload();
+      await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 300000 });
+      await R(() => window.__GAME__.stopLoop());
+      await page.getByRole('button', { name: 'Continua' }).click();
+      await avanza(1);
+      const dopo = await stato();
+      const inAttesa = await R(() => window.__GAME__.regia.regia.orologio.inAttesa);
+      const menu = await page.$$eval('.regia-attesa', (x) => x.length);
+      // l'orologio a schermo si aggiorna disegnando
+      await R(() => window.__GAME__.render());
+      const orologio = await page.$eval('.ui-or-ora', (e) => e.textContent);
+      const minuti = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+      if (dopo.giorno !== meta.giorno || Math.abs(dopo.ore - meta.ore) > 0.1 || inAttesa || menu || dopo.controllo !== 'libero') {
+        throw new Error(`«Continua» dopo un salvataggio a metà attesa: ${JSON.stringify({ meta: meta.ora, dopo: dopo.ora, inAttesa, menu, controllo: dopo.controllo })}`);
+      }
+      if (Math.abs(minuti(orologio) - minuti(dopo.ora)) > 1) throw new Error(`l'orologio a schermo dice ${orologio}, la storia ${dopo.ora}`);
+      log(`  ✓ «Continua» a metà attesa: ${dopo.ora}, in piedi, l'orologio dice ${orologio}`);
+    }
+    // di nuovo, fino in fondo
+    await aspetta('20:30');
+    if ((await stato()).ore < 20.49) throw new Error(`dopo l'attesa sono le ${(await stato()).ora}`);
+    // finita l'attesa si salva l'ora d'arrivo
+    await avanza(1.5);
+    {
+      const ultimo = await R(async () => {
+        const el = await window.__GAME__.regia.regia.salvataggi.elenco();
+        return el.filter((x) => x.stato === 'valido').sort((a, b) => (b.contatore ?? 0) - (a.contatore ?? 0))[0]?.meta?.descrizione ?? '';
+      });
+      if (!/20:3\d/.test(ultimo)) throw new Error(`il salvataggio dopo l'attesa dice «${ultimo}»`);
+      log(`  ✓ salvato dopo l'attesa: ${ultimo}`);
+    }
     await alzati();
     await usa('dormi', { distanza: 2.5 });
     await avanza(1);
@@ -620,12 +733,12 @@ async function main() {
     }
     await verifica('variante:E1=Abitata', 'la passerella è rimasta');
     await vai('passerella_messo');
-    await avanzaFinche('dialogo:d_ottavio_prova iniziato', 10);
+    annotaTempo('alla passerella: Ottavio comincia a parlare', await misuraFinche('dialogo:d_ottavio_prova iniziato', 40));
     log(`  ottavio: ${(await dialogo()).join(' / ')}`);
     await verifica('passo:m1_prova completato e taccuino:i_legge_1', 'la prima legge');
 
     log('— M1.22 La lettera di Rosa');
-    await avanzaFinche('dialogo:d_ottavio_gancio iniziato', 10);
+    annotaTempo('Ottavio porta la lettera di Rosa', await misuraFinche('dialogo:d_ottavio_gancio iniziato', 40));
     log(`  ottavio: ${(await dialogo()).join(' / ')}`);
     await avanza(0.5);
     await verifica('missione:m01_castagno_vuoto completata e flag:gioco_libero', 'missione 1 completata');
@@ -649,7 +762,7 @@ async function main() {
   }
   const errori = logs.filter((l) => /pageerror|\[error\]/i.test(l));
   if (errori.length) console.log(`errori del browser:\n${errori.slice(0, 20).join('\n')}`);
-  writeFileSync(join(cartellaFoto, 'e2e.json'), JSON.stringify({ data: new Date().toISOString(), esito, secondi: Math.round((Date.now() - t0) / 1000), passi: diarioProva, errori: errori.slice(0, 50) }, null, 2));
+  writeFileSync(join(cartellaFoto, 'e2e.json'), JSON.stringify({ data: new Date().toISOString(), esito, secondi: Math.round((Date.now() - t0) / 1000), tempiAttese, passi: diarioProva, errori: errori.slice(0, 50) }, null, 2));
   console.log(`prova ${esito} in ${Math.round((Date.now() - t0) / 1000)} s`);
   await browser.close();
   server.close();
