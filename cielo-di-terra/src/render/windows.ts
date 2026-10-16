@@ -116,12 +116,17 @@ void main() {
   // spazio, da lontano e di taglio il vetro rimanda l'interno illuminato e si fa cielo
   float fres = 0.05 + 0.95 * pow(graz, 2.4);
   float giorno = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight);
-  // spessore del vetro: di notte oltremare profondo; di giorno un neutro scuro (il blu del vetro,
-  // sotto l'aria illuminata del cilindro, faceva una lastra di oltremare saturo nel cielo)
-  vec3 profondo = mix(mix(vec3(0.04, 0.05, 0.16), vec3(0.1, 0.16, 0.36), 0.5 + 0.5 * uSunIntensity), vec3(0.07, 0.08, 0.11), giorno);
+  // l'aria illuminata del cilindro fra l'occhio e il vetro conta solo da lontano: da vicino (sul
+  // costolone, sulla passerella) ce n'è pochi metri, il vetro resta profondo e le stelle si vedono
+  // anche di giorno (unione 3: col velo pieno a ogni distanza la Finestra vista da sopra era un
+  // lattiginoso senza stelle). Oltre 240 m è il velo della rifinitura 1, invariato.
+  float giornoAria = giorno * smoothstep(60.0, 240.0, dist);
+  // spessore del vetro: di notte oltremare profondo; di giorno, da lontano, un neutro scuro (il blu
+  // del vetro, sotto l'aria illuminata del cilindro, faceva una lastra di oltremare saturo nel cielo)
+  vec3 profondo = mix(mix(vec3(0.04, 0.05, 0.16), vec3(0.1, 0.16, 0.36), 0.5 + 0.5 * uSunIntensity), vec3(0.07, 0.08, 0.11), giornoAria);
   col = mix(col, col * vec3(0.75, 0.85, 1.25) + profondo * 0.35, 0.6);
   // le stelle restano bianche e calde: il vetro le vela di taglio e quando rimanda il giorno
-  col += stelle * (1.0 - clamp(pow(graz, 2.0) * 0.8, 0.0, 0.85)) * (1.0 - 0.6 * giorno * fres) * (1.0 - giorno);
+  col += stelle * (1.0 - clamp(pow(graz, 2.0) * 0.8, 0.0, 0.85)) * (1.0 - 0.6 * giorno * fres) * (1.0 - giornoAria);
   col = mix(col, profondo, clamp(pow(graz, 2.0) * 0.55, 0.0, 0.6));
   // riflesso dell'interno: di giorno un cielo ceruleo velato dalla foschia, con chiazze morbide
   // (le terre dell'altra parte, sfocate nel vetro); calda vicino alla Linea
@@ -145,9 +150,9 @@ void main() {
   col = mix(col, vec3(0.6, 0.67, 0.8) * (0.4 + 0.6 * uSunIntensity), clamp(frost, 0.0, 1.0) * 0.38);
   // di giorno fra l'occhio e il vetro c'è l'aria illuminata del cilindro (come davanti alle terre
   // dell'altra metà): la striscia si fa cielo velato, più da lontano
-  col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 1.03, giorno * mix(0.55, 0.85, smoothstep(250.0, 1100.0, dist)));
-  // e perde metà della saturazione (di notte resta com'è)
-  col = mix(vec3(dot(col, vec3(0.3, 0.59, 0.11))), col, mix(1.0, 0.5, giorno));
+  col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 1.03, giornoAria * mix(0.55, 0.85, smoothstep(250.0, 1100.0, dist)));
+  // e perde metà della saturazione (di notte e da vicino resta com'è)
+  col = mix(vec3(dot(col, vec3(0.3, 0.59, 0.11))), col, mix(1.0, 0.5, giornoAria));
   col = applyHaze(col, P, dist);
   gl_FragColor = vec4(col, 1.0);
 }

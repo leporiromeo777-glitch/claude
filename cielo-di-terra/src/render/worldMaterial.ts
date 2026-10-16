@@ -213,8 +213,9 @@ void main() {
 #endif
   if (uAriaVetro > 0.5) {
     // costoloni e travi delle Finestre: di giorno stanno dietro la stessa aria del vetro (niente
-    // reticolo scuro disegnato sul cielo velato)
-    float giornoV = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight);
+    // reticolo scuro disegnato sul cielo velato). Da vicino no: sul costolone il ferro è ferro
+    // (unione 3, come il vetro: l'aria comincia dopo 40-200 m)
+    float giornoV = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight) * smoothstep(40.0, 200.0, dist);
     col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 0.9, giornoV * mix(0.7, 0.95, smoothstep(150.0, 900.0, dist)));
   }
   col = applyHazeK(col, P, dist, hazeK);
