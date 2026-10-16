@@ -36,84 +36,121 @@ vec3 tocchi(vec2 uv, float scala, float ang, float seed) {
 }
 
 /**
- * Prato dipinto: 'a' = colore di base (verde), 'cl' = coordinate srotolate (arco, z, quota),
- * 'duv' = coordinate della proiezione dominante, 'pix' = metri per pixel, 'flatK' = quanto è in
- * piano (1 = orizzontale). Restituisce il colore; 'st' (out) = luminosità del tocco (-0.5..0.5).
+ * Il colore del prato (le chiazze): 'a' = colore di base (verde), 'cl' = coordinate srotolate (arco,
+ * z, quota), 'pix' = metri per pixel, 'flatK' = quanto è in piano (1 = orizzontale), 'grass' = quanto
+ * è prato (0..1).
+ *
+ * Migliorie del 16 ottobre («la grafica del suolo»): il prato era una spalmata giallo-oliva quasi
+ * uniforme (variazione locale 0,01-0,03 contro 0,08-0,10 dei bozzetti) che la luce dorata faceva
+ * arancione. Ora tre materiali che si distinguono a colpo d'occhio, come nel bozzetto 2:
+ * - chiazze grandi (6-40 m) di verde (scuro nelle conche, fresco, giallo-verde al sole), d'oro secco
+ *   e, più sui pendii, di ruggine delle felci (qui);
+ * - zolle e ciuffi di 0,2-0,75 m, con la cima chiara e il piede in ombra: da 3 a ~25 m il prato è
+ *   fatto d'erba, non di colore steso («pratoDipinto»);
+ * - tocchi di pennello più leggeri sopra, e qualche foglia caduta («pratoDipinto»).
+ * La luminosità resta quella del bioma (il colore per vertice): boschi e conche più scuri.
  */
-vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass, out float st) {
-  float m1 = vnoise2(cl.xy / 80.0 + 3.1) * 0.6 + vnoise2(cl.xy / 27.0 + 9.4) * 0.4;
-  float m2 = vnoise2(cl.xy / 40.0 + 21.7);
-  float m3 = vnoise2(cl.xy / 13.0 + 5.3);
+vec3 pratoColore(vec3 a, vec3 cl, float pix, float flatK, float grass) {
   float lumA = lumaP(a);
-  vec3 g = a;
-  // verde profondo e fresco nelle conche
-  g = mix(g, a * vec3(0.72, 0.88, 0.62), smoothstep(0.44, 0.22, m1) * 0.6);
-  // prato al sole: verde-oliva caldo (non giallo)
-  g = mix(g, a * vec3(1.05, 1.0, 0.86), smoothstep(0.45, 0.7, m3) * 0.4);
-  // erba secca color paglia (non limone)
-  vec3 dry = vec3(0.725, 0.635, 0.416) * (0.86 + 0.26 * m2) * (0.72 + lumA * 0.7);
-  g = mix(g, dry, smoothstep(0.52, 0.72, m1) * 0.75);
-  // felci d'ottobre, color ruggine (più sui pendii)
-  vec3 rust = vec3(0.64, 0.37, 0.2) * (0.85 + 0.3 * m1);
-  g = mix(g, rust, smoothstep(0.66, 0.86, m2) * (0.3 + 0.35 * (1.0 - flatK)));
+  // la luminosità del bioma rispetto al prato di riferimento (#7d8a4a, 0,51)
+  float kL = clamp(lumA / 0.51, 0.72, 1.22);
+  // chiazze grandi: m1 verde ↔ secco, m2 ruggine, m3 verde scuro ↔ fresco ↔ al sole. Le ottave
+  // piccole (4-11 m) si spengono con la distanza in pixel verso il loro valore medio: dall'alto e da
+  // lontano erano un mimetico a macchioline
+  float vp = visMotivo(pix, 8.0);
+  float m1 = vnoise2(cl.xy / 36.0 + 3.1) * 0.55 + mix(0.5, vnoise2(cl.xy / 11.0 + 9.4), vp) * 0.45;
+  float m2 = vnoise2(cl.xy / 33.0 + 21.7) * 0.7 + mix(0.5, vnoise2(cl.xy / 8.0 + 4.2), vp) * 0.3;
+  float m3 = vnoise2(cl.xy / 11.0 + 5.3) * 0.78 + mix(0.5, vnoise2(cl.xy / 4.3 + 1.9), visMotivo(pix, 4.0)) * 0.22;
+  // (verdi d'oliva, non lime: al sole di mezzogiorno il verde fresco virava al limone)
+  vec3 g = mix(vec3(0.38, 0.44, 0.26), vec3(0.48, 0.53, 0.32), smoothstep(0.28, 0.6, m3));
+  g = mix(g, vec3(0.58, 0.6, 0.38), smoothstep(0.58, 0.82, m3) * 0.6);
+  // oro secco: paglia, non limone (più chiaro e più spento del verde)
+  float secco = smoothstep(0.5, 0.64, m1);
+  g = mix(g, vec3(0.72, 0.63, 0.41) * (0.9 + 0.2 * m2), secco * 0.85);
+  // felci d'ottobre color ruggine, a macchie (più sui pendii, meno sull'oro)
+  float rug = smoothstep(0.64, 0.8, m2) * (0.32 + 0.45 * (1.0 - flatK)) * (1.0 - 0.5 * secco);
+  g = mix(g, vec3(0.6, 0.37, 0.2), rug);
+  // un poco della tinta del bioma (prati d'ocra, pascoli, sottobosco) e la sua luminosità
+  g = mix(g * kL, a, 0.18);
   a = mix(a, g, grass);
-  // variazione di valore a chiazze di 8-20 m (±15%): il prato non è mai una campitura uniforme
+  // variazione di valore a chiazze di 7-15 m (±10%): il prato non è mai una campitura uniforme
   // (si spengono con la distanza in pixel: sull'altra metà, di scorcio, farebbero increspature)
   float chiazza = vnoise2(cl.xy / 15.0 + 31.7) * 0.6 + vnoise2(cl.xy / 7.0 + 12.9) * 0.4;
-  a *= 1.0 + (chiazza - 0.5) * 0.36 * grass * visMotivo(pix, 12.0);
-  // prato d'ottobre del bozzetto 2: un filo più spento e più scuro (al sole non diventa limone)
-  a = mix(vec3(lumaP(a)), a, mix(1.0, 0.84, grass)) * mix(1.0, 0.9, grass);
+  a *= 1.0 + (chiazza - 0.5) * 0.2 * grass * visMotivo(pix, 12.0);
+  return a;
+}
 
-  // tocchi di pennello: mosaico di pennellate corte, tre scale
+/**
+ * Il prato dipinto intero: il colore delle chiazze («pratoColore», la sola parte che serve ai fili
+ * d'erba del sottobosco) più le zolle, i tocchi di pennello e le foglie cadute. Stessi parametri, più
+ * 'duv' = coordinate della proiezione dominante; 'st' (out) = luminosità del tocco (-0.5..0.5).
+ */
+vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass, out float st) {
+  a = pratoColore(a, cl, pix, flatK, grass);
+  st = 0.0;
+  // zolle e ciuffi (0,2-0,75 m): macchie morbide allungate come tocchi (rumore, non celle: le celle di Voronoi col bordo scuro
+  // facevano un selciato) con la cima dei ciuffi più chiara e gialla e il piede in ombra, più verde.
+  // Si vedono fino a ~25 m (Media e Alta; a Bassa fino a ~10 m), poi resta il colore medio: più in
+  // là, di scorcio, diventavano un mimetico fitto
+  float vz = visMotivo(pix, 1.3) * grass;
+  if (vz > 0.0) {
+    vec2 q = vec2(0.8 * duv.x - 0.6 * duv.y, 0.6 * duv.x + 0.8 * duv.y);
+    float c = vnoise2(q / vec2(0.3, 0.17) + 17.0) * 0.55 + vnoise2(q / vec2(0.75, 0.45) + 5.0) * 0.45;
+    float cima = smoothstep(0.52, 0.8, c);
+    float piede = smoothstep(0.44, 0.16, c);
+    st += (cima - piede) * 0.5 * vz;
+    a *= 1.0 + (cima * 0.16 - piede * 0.18) * vz;
+    a = mix(a, a * vec3(1.05, 1.03, 0.88), cima * 0.4 * vz);
+    a = mix(a, a * vec3(0.92, 1.0, 0.95), piede * 0.35 * vz);
+  }
+
+  // tocchi di pennello sopra (più leggeri: le zolle portano già la variazione)
   // angolo costante: ruotare coordinate assolute (centinaia di metri) con un angolo variabile
   // disegnerebbe anelli concentrici; la varietà la danno le celle stesse
   float ang = 0.5;
   float v1 = visMotivo(pix, 1.7);
   float v2 = visMotivo(pix, 3.6);
-  st = 0.0;
   float tw = 0.0;
   // sulla terra (sentieri, terra battuta, campi) i tocchi sono più leggeri: a celle nette di 1-2 m
   // e con il ±20% di valore, da vicino sembravano le faccette di un terreno triangolato
   float tv = mix(0.4, 1.0, grass);
   if (v2 > 0.0) {
     vec3 t2 = tocchi(duv, 5.0, ang, 3.0);
-    st += (t2.x - 0.5) * v2 * 0.55 * mix(0.7, 1.0, grass);
+    st += (t2.x - 0.5) * v2 * 0.45 * mix(0.7, 1.0, grass);
     tw += (t2.y - 0.5) * v2 * 0.6;
   }
   if (v1 > 0.0) {
     vec3 t1 = tocchi(duv, 1.3, ang + 0.4, 7.0);
-    st += (t1.x - 0.5) * v1 * 0.5 * tv;
+    st += (t1.x - 0.5) * v1 * 0.35 * tv;
     tw += (t1.y - 0.5) * v1 * 0.45;
   }
-  // tocchi fini vicino al giocatore (ciuffi d'erba dipinti), solo a qualità piena: pennellate
-  // lunghe e strette lungo la pendenza (rifinitura 2: prima erano tessere di 30 cm)
+  // vicino al giocatore, solo a qualità piena: fili d'erba dipinti (trattini corti, chiari e scuri)
+  // e qualche foglia caduta
   float v3 = visMotivo(pix, 0.5) * step(0.5, uDettaglio);
   float foglia = 0.0;
   if (v3 > 0.0) {
     vec3 t3 = tocchi(duv, 0.32, ang - 0.7, 11.0);
     vec2 dp = vec2(dot(duv, vec2(0.8, 0.6)), dot(duv, vec2(-0.6, 0.8)));
-    // (corte, 20-40 cm e allungate appena: lunghe, di scorcio, sembravano raggi verso l'orizzonte)
-    float pen = vnoise2(dp * vec2(2.4, 4.8) + 11.0) * 0.6 + vnoise2(dp * vec2(3.6, 7.2) + 3.0) * 0.4;
-    st += (pen - 0.5) * v3 * (0.26 + 0.16 * grass) * tv;
+    float fil = vnoise2(dp * vec2(9.0, 26.0) + 11.0) * 0.6 + vnoise2(dp * vec2(17.0, 41.0) + 3.0) * 0.4;
+    st += (fil - 0.5) * v3 * 0.5 * grass;
     tw += (vnoise2(dp * vec2(0.9, 2.6) + 21.0) - 0.5) * v3 * 0.3;
     // ottobre: qualche foglia caduta sul prato, a gruppi radi (le foglie vere sotto i castagni le
     // mette il sottobosco della traccia «natura»): tocchi piccoli, non pozze arancioni
     float gruppi = smoothstep(0.55, 0.85, vnoise2(cl.xy / 6.0 + 2.7));
-    foglia = step(1.0 - 0.07 * gruppi, t3.x) * smoothstep(0.12, 0.3, t3.z) * v3 * grass;
+    foglia = step(1.0 - 0.05 * gruppi, t3.x) * smoothstep(0.12, 0.3, t3.z) * v3 * grass;
   }
-  // (i bozzetti hanno molta variazione locale: i tocchi si vedono; sul prato di più, il bozzetto 2
-  // ha una deviazione di valore tre volte la nostra)
-  // (rifinitura 2: un poco meno, 0.3-0.45 invece di 0.42-0.58: i tocchi sfumano)
-  a *= 1.0 + st * mix(0.3, 0.45, grass);
+  a *= 1.0 + st * mix(0.3, 0.42, grass);
   // tocchi caldi e freddi (come nei bozzetti: giallo-oliva e verde-azzurro accostati)
-  a = mix(a, a * vec3(1.08, 1.02, 0.86), clamp(tw * 2.0, 0.0, 1.0) * mix(0.5, 0.62, grass));
-  a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * mix(0.45, 0.55, grass));
+  a = mix(a, a * vec3(1.08, 1.02, 0.86), clamp(tw * 2.0, 0.0, 1.0) * mix(0.5, 0.5, grass));
+  a = mix(a, a * vec3(0.86, 0.98, 1.08), clamp(-tw * 2.0, 0.0, 1.0) * mix(0.45, 0.5, grass));
   vec3 fogliaC = mix(vec3(0.74, 0.42, 0.16), vec3(0.82, 0.62, 0.24), hash12(floor(duv / 0.3) + 0.5));
   a = mix(a, fogliaC, foglia * 0.6);
   return a;
 }
 
-void terrenoDipinto(inout Sup s, vec3 P, vec3 Nv, float dist, float pix) {
+// restituisce quanto il punto è prato (0..1): la terra nuda (sentieri, campi, rive) tiene di più il
+// colore locale nella luce dorata (vedi worldMaterial)
+float terrenoDipinto(inout Sup s, vec3 P, vec3 Nv, float dist, float pix) {
   vec3 up = cylUp(P);
   vec3 cl = cylLocal(P);
   float flatK = clamp(dot(Nv, up), 0.0, 1.0);
@@ -123,7 +160,12 @@ void terrenoDipinto(inout Sup s, vec3 P, vec3 Nv, float dist, float pix) {
   s.bande = 0.32;
 
   // --- prati: chiazze grandi (decine di metri) fra verde caldo, oro secco e ruggine, e tocchi ---
-  float grass = clamp((a.g - max(a.r, a.b) + 0.03) * 7.0, 0.0, 1.0) * (1.0 - steep * 0.7);
+  // (il prato del paese, #8e9259 mescolato, valeva solo 0,3: ora i prati d'oliva sono prato pieno;
+  // l'ocra, le rive, la terra e la roccia restano fuori)
+  float grass = clamp((a.g - max(a.r, a.b) + 0.05) * 8.0, 0.0, 1.0) * (1.0 - steep * 0.7);
+  // (migliorie, suolo) sulla terra nuda luce quasi senza bande: sulle sponde dei sentieri nella luce
+  // radente la banda più chiara faceva una striscia rosso mattone
+  s.bande = mix(0.16, 0.32, grass);
   float lumA = lumaP(a);
   float st;
   a = pratoDipinto(a, cl, duv, pix, flatK, grass, st);
@@ -166,5 +208,6 @@ void terrenoDipinto(inout Sup s, vec3 P, vec3 Nv, float dist, float pix) {
     s.bande = mix(s.bande, 0.6, rockW);
   }
   s.albedo = a;
+  return grass;
 }
 `;

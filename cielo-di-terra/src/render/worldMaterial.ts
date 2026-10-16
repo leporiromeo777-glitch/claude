@@ -132,7 +132,10 @@ void main() {
   // (media geometrica dei due assi: come un filtro anisotropo, il dettaglio resta anche di scorcio)
   float pixW = max(pix, min(sqrt(length(dFdx(P)) * length(dFdy(P))), pix * 8.0));
   Sup s = supBase(vColor.rgb, N);
+  // suolo (terreno, terra battuta ed erba degli oggetti): tiene il colore locale nella luce dorata
+  float kLocale = 0.0;
 #ifdef TERRAIN
+  kLocale = 1.0;
 #ifdef VETRO_TERRENO
   if (vColor.a > 0.5) discard;
 #endif
@@ -147,12 +150,22 @@ void main() {
 #endif
   // variazione pittorica a bassa frequenza e pennellata
   float big = vnoise3(P * 0.0045) - 0.5;
+#ifdef TERRAIN
+  // (migliorie, suolo) il terreno si dipinge sul colore del bioma puro: il viraggio caldo prima della
+  // pittura spostava il prato verso il giallo e il riconoscimento del prato (verde sopra il rosso)
+  // lo perdeva; viraggio più leggero dopo
+  float prato = terrenoDipinto(s, P, N, dist, pixW);
+  // la terra nuda (sentieri, sponde, campi) tiene di più il suo colore, come la terra battuta degli oggetti
+  kLocale = mix(1.6, 1.0, prato);
+  s.albedo *= 1.0 + big * 0.14;
+  s.albedo = mix(s.albedo, s.albedo * vec3(1.05, 0.98, 0.9), clamp(big * 2.0 + 0.5, 0.0, 1.0) * 0.2);
+#else
   s.albedo *= 1.0 + big * 0.14;
   s.albedo *= 1.0 + br * 0.16 * uBrush;
   // leggero viraggio caldo/freddo
   s.albedo = mix(s.albedo, s.albedo * vec3(1.05, 0.98, 0.9), clamp(big * 2.0 + 0.5, 0.0, 1.0) * 0.35);
+#endif
 #ifdef TERRAIN
-  terrenoDipinto(s, P, N, dist, pixW);
   // curvatura dal vertice (render/terrainMesh.ts): conche più scure, dossi più chiari (±12%)
   // (solo fino a qualche centinaio di metri: lontano, sui triangoli grandi, farebbe increspature)
   float curvT = clamp((vColor.a - 0.2235) / 0.2235, -1.0, 1.0) * (1.0 - smoothstep(300.0, 650.0, dist));
@@ -177,6 +190,12 @@ void main() {
   }
   s.ao = 1.0 - clamp(vSup.y, 0.0, 1.0);
   applicaSuperficie(s, tipo, var, P, N, pixW);
+  // (la terra battuta di più: grigio-bruna, nella luce dorata virava al rosso mattone)
+  if (tipo > 7.5 && tipo < 8.5) kLocale = 1.6;
+  else if (tipo > 11.5 && tipo < 12.5) kLocale = 1.0;
+  // la pietra in piano fa parte del suolo (selciati, lastre dei sentieri, la faccia dei gradini): tiene
+  // il suo grigio come la terra; i muri e le facciate restano accesi dalla luce dorata
+  else if ((tipo > 0.5 && tipo < 1.5) || tipo > 14.5) kLocale = smoothstep(0.8, 0.95, dot(N, cylUp(P)));
 #endif
   vec3 albedo = s.albedo;
   float tone;
@@ -193,6 +212,7 @@ void main() {
   tone = 1.0;
 #else
   vec3 col = shadeSup(s, N, P, V, tone);
+  if (kLocale > 0.0) col = coloreLocale(col, s.albedo, quotaColoreLocale() * kLocale);
   // bordo dipinto: le campiture viste di taglio si scuriscono appena
   float rimD = 1.0 - abs(dot(N, V));
   col *= 1.0 - smoothstep(0.75, 1.0, rimD) * 0.12;
@@ -240,7 +260,10 @@ void main() {
   }
 #endif
   col = applyHazeK(col, P, dist, hazeK);
-  if (uDebugView > 0.5) col = N * 0.5 + 0.5;
+  // viste di prova (__GAME__.game.uniforms.uDebugView): 1 = normali, 2 = albedo dipinto, senza luce
+  // né aria (migliorie, suolo: per separare il colore del prato dalla luce dorata)
+  if (uDebugView > 0.5 && uDebugView < 1.5) col = N * 0.5 + 0.5;
+  else if (uDebugView > 1.5) col = albedo;
   gl_FragColor = vec4(col, 1.0);
 }
 `;

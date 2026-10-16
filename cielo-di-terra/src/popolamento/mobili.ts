@@ -22,10 +22,9 @@ import { ELEMENTI_MOBILI, luogo, type ElementoMobile } from './contenuti';
 import type { Contesto } from './contesto';
 import { creaAssi, creaCasupola, creaMucchioPietre } from './edifici';
 import { nastroSulSuolo } from './forme';
-import { campionaSentiero, gradiniLungo, profiloCamminabile, suoloDiTraverso } from './sentieri';
+import { TRAVERSO_BATTUTO, campionaSentiero, coloreTerraBattuta, gradiniLungo, profiloCamminabile, suoloDiTraverso } from './sentieri';
 import { distanza, impronta, metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle, yawVerso, type PuntoCil } from './terreno';
 import { hex, mix } from './cantiere';
-import { rumore2 } from './forme';
 import type { PuntoInterazione } from './tipi';
 
 export interface VarianteCostruita {
@@ -96,7 +95,8 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
     variante(e, 'Abitata', (c, punti) => {
       const assi = creaAssi('assi-passerella', 3, L, false);
       c.oggetto(assi, matriceSuperficie(centro.z, centro.theta, hPas, 90), { tag: (t) => (t === 'calpestabile' ? 'passerella' : t ?? 'oggetto'), luogo: 'passerella_messo' });
-      nastroSulSuolo(c, sentiero, 1.2, 0.8, 0.05, (s, u) => mix(hex(0x9a7e58), hex(0x86a048), Math.abs(u) > 0.6 ? 0.7 : rumore2(s, u * 3, 1) * 0.3));
+      // (migliorie, suolo: la stessa terra battuta grigio-bruna dei sentieri, con l'orlo d'erba)
+      nastroSulSuolo(c, sentiero, 1.2, 0.8, 0.05, coloreTerraBattuta, undefined, { traverso: TRAVERSO_BATTUTO });
       ctx.punto('attraversa:passerella', 'attraversa', 'Passerella del Messo', mondo(centro.z, centro.theta, hPas + 0.3), { raggio: 3, luogo: 'passerella_messo', attivo: false });
       ctx.punto('siediti:passerella', 'siediti', 'Siediti sulle assi', mondo(centro.z, centro.theta, hPas + 0.3), { raggio: 2.2, luogo: 'passerella_messo', rif: 'flag:notte_su_E1', attivo: false });
       punti.push('attraversa:passerella', 'siediti:passerella');
@@ -195,7 +195,7 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
     // aprono il varco; senza i gradini, variante Carta, le alzate restano troppo ripide da salire)
     variante(e, 'Abitata', (c, punti) => {
       gradiniLungo(c, camp, 1.1, 'assi', 0.42, 'gradino', 'scorciatoia_terrazze', 2311, (z, t) => ctx.distanzaSentieri(z, t, 'scorciatoia_terrazze') < 0.6);
-      nastroSulSuolo(c, TRACCIATO_SCORCIATOIA, 1.1, 0.8, 0.05, (s, u) => mix(hex(0x9a7e58), hex(0x86a048), Math.abs(u) > 0.6 ? 0.7 : rumore2(s, u * 3, 2) * 0.3));
+      nastroSulSuolo(c, TRACCIATO_SCORCIATOIA, 1.1, 0.8, 0.05, coloreTerraBattuta, undefined, { traverso: TRAVERSO_BATTUTO });
       const sc = luogo('scorciatoia_terrazze');
       ctx.punto('sentiero:scorciatoia', 'attraversa', 'Scorciatoia delle Terrazze', mondo(sc.z, sc.theta, suolo(sc.z, sc.theta) + 0.5), { raggio: sc.raggio, luogo: 'scorciatoia_terrazze', attivo: false });
       punti.push('sentiero:scorciatoia');

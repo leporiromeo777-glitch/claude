@@ -558,6 +558,30 @@ void supTerra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   float m = vnoise2(uv * 0.6 + 2.3);
   vec3 lc = c * (0.88 + 0.2 * m);
   lc = mix(lc, lc * vec3(0.78, 0.74, 0.7), smoothstep(0.6, 0.85, vnoise2(uv * 0.25 + 3.0)) * 0.5);
+  // (migliorie, suolo) polvere chiara a chiazze e sassi nella terra (8-15 cm, chiari e grigi, con
+  // l'ombra al piede) che si vedono fino a ~20 m: la terra battuta da vicino non è una campitura
+  lc = mix(lc, lc * 1.1 + vec3(0.025, 0.022, 0.018), smoothstep(0.55, 0.82, vnoise2(uv * 1.3 + 9.0)) * 0.45);
+  float vs = visMotivo(pix, 0.9);
+  if (vs > 0.0) {
+    // dominio deformato: sassi di forma irregolare, non dischi
+    vec2 w = uv * 5.0 + 4.1;
+    w += (vec2(vnoise2(w * 1.3), vnoise2(w * 1.3 + 7.7)) - 0.5) * 0.7;
+    vec3 vo = voronoi4(w);
+    float tono = hash12(vec2(vo.z * 91.0, 3.0));
+    float r = mix(0.13, 0.27, hash12(vec2(vo.z * 37.0, 1.0)));
+    float c0 = step(0.74, vo.z);
+    float sasso = c0 * (1.0 - smoothstep(r - 0.06, r, vo.y));
+    float piede = c0 * (1.0 - smoothstep(r, r + 0.1, vo.y)) * (1.0 - sasso);
+    vec3 sc = mix(vec3(0.6, 0.58, 0.54), vec3(0.72, 0.69, 0.63), tono) * (0.92 + 0.16 * m);
+    // la faccia del sasso: chiara in cima, più scura verso il bordo
+    sc *= 0.88 + 0.16 * (1.0 - vo.y / max(r, 1e-3));
+    lc = mix(lc, mix(lc, sc, 0.75), sasso * vs);
+    lc *= 1.0 - piede * 0.06 * vs;
+    s.ao *= 1.0 - piede * 0.1 * vs;
+  }
+  // luce sfumata, quasi senza bande: sulla strada appena bombata le tre bande di luce delle campiture
+  // disegnavano strisce parallele (una rosso mattone nella luce radente)
+  s.bande = 0.22;
   if (pix < 0.03) {
     // ghiaino: sassolini tondi (celle), chiari e scuri, che spariscono presto con la distanza
     vec3 vo = voronoi4(uv * 18.0 + 1.7);

@@ -70,6 +70,11 @@ export interface ParametriPost {
   ombreNotte: [number, number, number];
   /** Viraggio delle luci nelle ore dorate (moltiplica, pesato con `StatoPost.oro`). */
   luciOro: [number, number, number];
+  /**
+   * Ginocchio della saturazione dei colori caldi e d'erba: sopra [0] (saturazione HSV) cresce con
+   * pendenza [1] (1 = spento). Il cielo e le ombre viola non cambiano.
+   */
+  ginocchioSaturazione: [number, number];
   /** Bagliore: forza, soglia di giorno e di notte, ginocchio della soglia. */
   bloom: number;
   /** Tinta del bagliore di giorno e di notte (moltiplica): l'alone caldo della Linea. */
@@ -130,6 +135,8 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
   // (rifinitura 2: più leggero, da [1.08, 1.0, 0.86]: l'oro lo dà la luce radente, non un filtro
   // arancione su tutto il quadro)
   luciOro: [1.04, 1.0, 0.93],
+  // (migliorie, suolo) il prato e la strada al sole arrivavano a 0,78: sopra 0,58 la metà
+  ginocchioSaturazione: [0.58, 0.5],
   bloom: 0.5,
   tintaBagliore: [1.0, 0.88, 0.7],
   tintaBaglioreNotte: [1.0, 0.96, 0.9],
@@ -253,6 +260,7 @@ export class PostProduzione {
     uGrade: { value: new Vector4() },
     uLuci: { value: new Vector3(1, 1, 1) },
     uOmbre: { value: new Vector3(1, 1, 1) },
+    uSatGinocchio: { value: new Vector2(1, 1) },
     uNotte: { value: 0 },
   });
 
@@ -565,6 +573,7 @@ export class PostProduzione {
     const luci = (u.uLuci!.value as Vector3).copy(mix3(P.luci, P.luciNotte, n, _v3));
     luci.multiply(mix3(UNO, P.luciOro, oro, _v3));
     (u.uOmbre!.value as Vector3).copy(mix3(P.ombre, P.ombreNotte, n, _v3));
+    (u.uSatGinocchio!.value as Vector2).set(P.ginocchioSaturazione[0], P.ginocchioSaturazione[1]);
     u.uNotte!.value = n;
     this.fase('finale', () => {
       r.setRenderTarget(null);

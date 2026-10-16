@@ -296,12 +296,21 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
       if (sentieri.length) {
         const k = suSentiero(Z[i]!, th, sentieri);
         if (k > 0) {
-          // terra battuta ocra in mezzo, le spalle consumate (erba rada e terra) ai lati
+          // terra battuta grigio-bruna sotto il sentiero, poi le spalle: erba calpestata (più chiara e
+          // più gialla, ma ancora prato per la pittura del terreno), che sfuma nel prato in ~1,5 m.
+          // (Migliorie, suolo: prima l'ocra 0,62/0,51/0,36 arrivava a 2,5 m dal bordo con un peso
+          // k^1,6: una fascia arancione larga il doppio del sentiero, e niente bordo d'erba)
+          const d = (1 - k) * 2.5; // metri dal bordo del sentiero (0 = bordo o dentro)
           const v = 0.92 + 0.16 * Math.abs(Math.sin(Z[i]! * 1.7 + th * 31));
-          const t = Math.pow(k, 1.6) * (1 - smoothSlope(slope));
-          tmpColor[0] = tmpColor[0]! + (0.62 * v - tmpColor[0]!) * t;
-          tmpColor[1] = tmpColor[1]! + (0.51 * v - tmpColor[1]!) * t;
-          tmpColor[2] = tmpColor[2]! + (0.36 * v - tmpColor[2]!) * t;
+          const piano = 1 - smoothSlope(slope);
+          const terra = (1 - smoothstep01(0.05, 0.55, d)) * piano;
+          const calpestata = (1 - smoothstep01(0.4, 1.6, d)) * piano * 0.6;
+          tmpColor[0] = tmpColor[0]! + (0.53 - tmpColor[0]!) * calpestata;
+          tmpColor[1] = tmpColor[1]! + (0.56 - tmpColor[1]!) * calpestata;
+          tmpColor[2] = tmpColor[2]! + (0.33 - tmpColor[2]!) * calpestata;
+          tmpColor[0] = tmpColor[0]! + (0.55 * v - tmpColor[0]!) * terra;
+          tmpColor[1] = tmpColor[1]! + (0.48 * v - tmpColor[1]!) * terra;
+          tmpColor[2] = tmpColor[2]! + (0.38 * v - tmpColor[2]!) * terra;
         }
       }
       colors[vi * 4] = Math.round(Math.min(1, Math.max(0, tmpColor[0]!)) * 255);
@@ -400,6 +409,11 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
   geo.setIndex(new BufferAttribute(index, 1));
   geo.computeBoundingSphere();
   return geo;
+}
+
+function smoothstep01(a: number, b: number, x: number): number {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
 }
 
 /** Sui pendii ripidi (roccia) il sentiero non si dipinge: 0 in piano, 1 oltre ~45°. */

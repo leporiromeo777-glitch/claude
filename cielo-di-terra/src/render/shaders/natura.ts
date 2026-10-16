@@ -248,14 +248,21 @@ void erbaDipinta(inout Sup s, vec3 P, float pix, float punta) {
   vec3 c = s.albedo;
   float v = vnoise2(cylLocal(P).xy * 0.35);
   c *= 0.92 + 0.16 * v;
-  // punte un filo più calde e chiare (prendono il sole); le basi restano paglia e oliva
+  // il piede del ciuffo è in ombra (più scuro e più verde), le punte più chiare e calde: è questo
+  // stacco che fa leggere il ciuffo sul prato dello stesso colore (migliorie, suolo: prima le basi
+  // erano quasi come le punte e i ciuffi si leggevano solo dove la luce trasmessa li accendeva,
+  // fiammelle gialle)
   // (rifinitura 2: con le basi fredde e l'occlusione forte, in ombra i ciuffi erano lame blu-nere)
-  c = mix(c * vec3(0.96, 0.96, 0.9), c * vec3(1.08, 1.04, 0.92), smoothstep(0.2, 0.9, punta));
-  c *= max(1.0, 0.25 / max(lumaP(c), 1e-3));
+  // (il filo porta già il suo chiaroscuro dal vertice, 0,8 al piede e 1,1 in punta: qui solo la tinta)
+  c = mix(c * vec3(0.9, 0.95, 0.86), c * vec3(1.1, 1.06, 0.9), smoothstep(0.05, 0.85, punta));
+  // un filo meno saturi del prato sotto: i fili sottili controluce non diventano lime
+  c = mix(vec3(lumaP(c)), c, 0.86);
+  c *= max(1.0, 0.24 / max(lumaP(c), 1e-3));
   s.albedo = c;
-  s.ao *= mix(0.8, 1.0, smoothstep(0.0, 0.7, punta));
-  s.trasm = 0.55;
-  s.bordo = 0.3;
+  s.ao *= mix(0.88, 1.0, smoothstep(0.0, 0.7, punta));
+  // (luce trasmessa e bordo più leggeri: con 0.55 e 0.3 le punte controluce erano fiammelle)
+  s.trasm = 0.28;
+  s.bordo = 0.14;
   s.bande = 0.35;
   s.avvolge = 0.6;
 }
