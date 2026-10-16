@@ -2,7 +2,7 @@
  * Forme proprie del popolamento: mantelli che seguono il suolo (selciati, sentieri, prati
  * pettinati), lastre, pietre e piccoli oggetti costruiti con il Costruttore della libreria.
  */
-import { BoxGeometry, BufferAttribute as THREE_ATTR, BufferGeometry as THREE_BUFGEO, Matrix4 as THREE_MAT4, PlaneGeometry as THREE_PLANE, Vector3 } from 'three';
+import { BoxGeometry, BufferAttribute as THREE_ATTR, BufferGeometry as THREE_BUFGEO, IcosahedronGeometry as IcoGeo, Matrix4 as THREE_MAT4, PlaneGeometry as THREE_PLANE, Vector3 } from 'three';
 const THREE_GEOM = { BoxGeometry };
 import { SUPERFICIE } from '../render/superfici';
 import { DEG } from '../world/constants';
@@ -91,6 +91,12 @@ export function coronaSulSuolo(
   sopra: number,
   zona: (x: number, y: number, r: number) => [number, RGB] | null,
   occlusione: (x: number, y: number, r: number) => number = () => 0,
+  /**
+   * colore per vertice (rifinitura 2, facoltativo): se c'è, il colore non è più piatto per triangolo
+   * ma sfuma da un vertice all'altro, così i bordi fra le zone (terra battuta e prato) non fanno più
+   * il dente di sega dei triangoli; la superficie dipinta resta quella della zona del triangolo
+   */
+  coloreVertice?: (x: number, y: number, r: number) => RGB,
 ): void {
   const anelli = Math.max(1, Math.ceil((r1 - r0) / passo));
   const settori = Math.max(24, Math.ceil((2 * Math.PI * r1) / passo));
@@ -114,9 +120,10 @@ export function coronaSulSuolo(
     const cy = (a[1]! + b[1]! + d[1]!) / 3;
     const z = zona(cx, cy, Math.hypot(cx, cy));
     if (!z) return;
-    vertice(a[0]!, a[1]!, z[1], z[0]);
-    vertice(b[0]!, b[1]!, z[1], z[0]);
-    vertice(d[0]!, d[1]!, z[1], z[0]);
+    const cv = coloreVertice;
+    vertice(a[0]!, a[1]!, cv ? cv(a[0]!, a[1]!, Math.hypot(a[0]!, a[1]!)) : z[1], z[0]);
+    vertice(b[0]!, b[1]!, cv ? cv(b[0]!, b[1]!, Math.hypot(b[0]!, b[1]!)) : z[1], z[0]);
+    vertice(d[0]!, d[1]!, cv ? cv(d[0]!, d[1]!, Math.hypot(d[0]!, d[1]!)) : z[1], z[0]);
   };
   for (let i = 0; i < anelli; i++) {
     const ra = r0 + ((r1 - r0) * i) / anelli;
@@ -403,8 +410,9 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   const hT = (W / 2) * Math.tan(pend);
   t.makeTranslation(0, hMuri - 0.01, 0).scale(new Vector3(W, hT, D));
   c.forma(timpanoUnitario(), m.clone().multiply(t), pietra, 0, 'singolo', undefined, supPietra);
-  // tetto: due falde che sporgono 0,4 m, ognuna in tre file di lastre a gradino
-  const sp = 0.4;
+  // tetto: due falde che sporgono 0,6 m (rifinitura 2: prima 0,4), ognuna in tre file di lastre a
+  // gradino, con lo spessore chiaro della lastra di gronda che si legge da lontano
+  const sp = 0.6;
   const sT = 0.35;
   const L = (W / 2 + sp) / Math.cos(pend);
   const dT = D + 2 * sT;
@@ -435,6 +443,19 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
       }
     }
   }
+  // lo spessore del tetto (0,15 m), chiaro, lungo le gronde e sui timpani
+  const bordo: RGB = mixRGB(chiara, [0.78, 0.74, 0.67], 0.45);
+  for (const s of [1, -1]) {
+    const dx = s * Math.cos(pend);
+    const dy = -Math.sin(pend);
+    const nx = s * Math.sin(pend);
+    const ny = Math.cos(pend);
+    const rz = -s * pend;
+    // gronda: la testa della lastra in fondo alla falda
+    scatola(dx * (L - 0.03) + nx * 0.06, yColmo + dy * (L - 0.03) + ny * 0.06, 0, 0.08, 0.15, dT + 0.02, bordo, [SUPERFICIE.PIODE + 0.6, 0.02], rz);
+    // timpani: il bordo della falda davanti e dietro
+    for (const zz of [dT / 2, -dT / 2]) scatola(dx * (L / 2) + nx * 0.06, yColmo + dy * (L / 2) + ny * 0.06, zz, L, 0.15, 0.08, bordo, [SUPERFICIE.PIODE + 0.6, 0.02], rz);
+  }
   // lastre di colmo, più chiare
   scatola(0, yColmo + 0.22, 0, 0.42, 0.09, dT + 0.02, mixRGB(chiara, [0.7, 0.66, 0.6], 0.3), [SUPERFICIE.PIODE + 0.2, 0.05]);
   // camino di pietra con la lastra
@@ -444,25 +465,103 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   const yTetto = yColmo - Math.abs(xc) * Math.tan(pend);
   scatola(xc, yTetto + 0.35, zc, 0.5, 1.3, 0.5, mixRGB(pietra, [0.5, 0.47, 0.44], 0.25), supPietra);
   scatola(xc, yTetto + 1.05, zc, 0.72, 0.08, 0.72, scura, [SUPERFICIE.PIODE + 0.4, 0.1]);
-  // finestrelle scure (accese di notte come quelle vicine): due per facciata, la porta sul fronte
+  // finestrelle (accese di notte come quelle vicine): due per facciata, la porta sul fronte.
+  // Rifinitura 2: da lontano erano buchi neri; ora hanno la cornice di calce chiara (#d8cfc0, 8 cm) e
+  // le persiane aperte, verde salvia (#5a6b48) o noce (#7a4a30), una tinta per casa
   const finestra = new THREE_PLANE(0.55, 0.72);
+  const cornice = new THREE_PLANE(0.55 + 0.16, 0.72 + 0.16);
+  const anta = new THREE_PLANE(0.3, 0.76);
   const vetro: RGB = [0.17, 0.155, 0.19];
+  const calce: RGB = [0.847, 0.812, 0.753];
+  const persiane: RGB = hash2(seme, 31) < 0.55 ? [0.353, 0.42, 0.282] : [0.478, 0.29, 0.188];
   const yF = Math.min(hMuri - 1.15, 3.35);
   const accesa = (k: number) => (hash2(seme, 20 + k) < 0.7 ? 1 : 0);
+  /** una finestra sulla facciata: `f` = matrice della facciata (z fuori dal muro) */
+  const conCornice = (f: import('three').Matrix4, k: number) => {
+    c.forma(cornice, m.clone().multiply(f).multiply(q.makeTranslation(0, 0, 0.005)), calce, 0, 'singolo', undefined, [SUPERFICIE.INTONACO + 0.3, 0]);
+    c.forma(finestra, m.clone().multiply(f).multiply(q.makeTranslation(0, 0, 0.012)), vetro, accesa(k), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+    for (const sx of [-1, 1]) c.forma(anta, m.clone().multiply(f).multiply(q.makeTranslation(sx * (0.36 + 0.15), 0, 0.01)), persiane, 0, 'singolo', undefined, [SUPERFICIE.LEGNO + 0.2, 0.05]);
+  };
+  const ff = new THREE_MAT4();
   for (const s of [-1, 1]) {
     for (const u of [-D * 0.22, D * 0.22]) {
-      t.makeTranslation(s * (W / 2 + 0.02), yF, u).multiply(q.makeRotationY((s * Math.PI) / 2));
-      c.forma(finestra, m.clone().multiply(t), vetro, accesa(s * 3 + u), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+      ff.makeTranslation(s * (W / 2 + 0.02), yF, u).multiply(new THREE_MAT4().makeRotationY((s * Math.PI) / 2));
+      conCornice(ff, s * 3 + u);
     }
   }
   for (const u of [-W * 0.24, W * 0.24]) {
-    t.makeTranslation(u, yF, D / 2 + 0.02);
-    c.forma(finestra, m.clone().multiply(t), vetro, accesa(u), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+    ff.makeTranslation(u, yF, D / 2 + 0.02);
+    conCornice(ff, u);
   }
-  t.makeTranslation(0, yF, -D / 2 - 0.02).multiply(q.makeRotationY(Math.PI));
-  c.forma(finestra, m.clone().multiply(t), vetro, accesa(7), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+  ff.makeTranslation(0, yF, -D / 2 - 0.02).multiply(new THREE_MAT4().makeRotationY(Math.PI));
+  conCornice(ff, 7);
   t.makeTranslation(0, 1.0, D / 2 + 0.02).scale(new Vector3(1.6, 2.6, 1));
   c.forma(finestra, m.clone().multiply(t), [0.36, 0.24, 0.16], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+}
+
+/**
+ * Versione lontana di un annesso (rifinitura 2): il corpo di pietra, la falda unica di piode che
+ * scende verso il davanti (alta `hB` dietro, `hF` davanti) col suo bordo chiaro, la porta scura.
+ */
+export function annessoLontano(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hF: number, hB: number, interrata: number, seme = 0): void {
+  const { BoxGeometry } = THREE_GEOM;
+  const box = new BoxGeometry(1, 1, 1);
+  const t = new THREE_MAT4();
+  const q = new THREE_MAT4();
+  const pietra: RGB = [0.7 + hash2(seme, 1) * 0.06, 0.66 + hash2(seme, 2) * 0.05, 0.59 + hash2(seme, 3) * 0.05];
+  const supPietra = [SUPERFICIE.PIETRA + hash2(seme, 5) * 0.9, 0.05] as const;
+  t.makeTranslation(0, (hF - interrata) / 2, 0).scale(new Vector3(W, hF + interrata, D));
+  c.forma(box, m.clone().multiply(t), pietra, 0, 'singolo', (p, out) => {
+    const k = p.y < -0.3 ? 0.72 : 1;
+    out[0] *= k;
+    out[1] *= k;
+    out[2] *= k;
+  }, supPietra);
+  // i fianchi a trapezio sopra la gronda davanti: un cuneo
+  const cuneo = new THREE_BUFGEO();
+  const a = hB - hF;
+  const P = [
+    // fianchi (x = ±W/2): triangolo (z = D/2, y = 0) → (z = −D/2, y = 0) → (z = −D/2, y = a)
+    W / 2, 0, D / 2, W / 2, 0, -D / 2, W / 2, a, -D / 2,
+    -W / 2, 0, D / 2, -W / 2, a, -D / 2, -W / 2, 0, -D / 2,
+    // dietro
+    -W / 2, 0, -D / 2, -W / 2, a, -D / 2, W / 2, a, -D / 2,
+    -W / 2, 0, -D / 2, W / 2, a, -D / 2, W / 2, 0, -D / 2,
+  ];
+  cuneo.setAttribute('position', new THREE_ATTR(new Float32Array(P), 3));
+  cuneo.computeVertexNormals();
+  t.makeTranslation(0, hF, 0);
+  c.forma(cuneo, m.clone().multiply(t), pietra, 0, 'singolo', undefined, supPietra);
+  // la falda: una lastra inclinata che sporge 0,4 m davanti e 0,2 sui fianchi
+  const pend = Math.atan2(a, D);
+  const lungo = Math.hypot(a, D) + 0.45;
+  const tetto: RGB = [0.46 + hash2(seme, 6) * 0.05, 0.43 + hash2(seme, 7) * 0.04, 0.38];
+  t.makeTranslation(0, hF + a / 2 + 0.06, 0.2).multiply(q.makeRotationX(pend)).scale(new Vector3(W + 0.4, 0.14, lungo));
+  c.forma(box, m.clone().multiply(t), tetto, 0, 'singolo', undefined, [SUPERFICIE.PIODE + hash2(seme, 8) * 0.9, 0.06]);
+  // la porta
+  t.makeTranslation(0, 0.95, D / 2 + 0.02).scale(new Vector3(1.0, 1.9, 1));
+  c.forma(new THREE_PLANE(1, 1), m.clone().multiply(t), [0.33, 0.22, 0.15], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+}
+
+/**
+ * Versione lontana di un albero da frutto (rifinitura 2): il tronco e la chioma tonda, verde oliva
+ * che ingiallisce (`yChioma` = quota del centro della chioma, `r` = raggio).
+ */
+export function alberoLontano(c: Cantiere, m: import('three').Matrix4, yChioma: number, r: number, seme = 0): void {
+  const { BoxGeometry } = THREE_GEOM;
+  const t = new THREE_MAT4();
+  t.makeTranslation(0, yChioma * 0.35, 0).scale(new Vector3(0.25, yChioma * 0.7, 0.25));
+  c.forma(new BoxGeometry(1, 1, 1), m.clone().multiply(t), [0.36, 0.29, 0.22], 0, 'singolo', undefined, [SUPERFICIE.CORTECCIA, 0.1]);
+  const chioma = new IcoGeo(1, 1);
+  t.makeTranslation(0, yChioma, 0).scale(new Vector3(r, r * 0.85, r));
+  const k = hash2(seme, 9);
+  const col: RGB = [0.42 + k * 0.18, 0.5 + k * 0.08, 0.24];
+  c.forma(chioma, m.clone().multiply(t), col, 0, 'singolo', (p, out) => {
+    const l = 0.75 + Math.max(0, p.y) * 0.3;
+    out[0] *= l;
+    out[1] *= l;
+    out[2] *= l;
+  }, [SUPERFICIE.FOGLIAME, 0.1]);
 }
 
 function mixRGB(a: RGB, b: RGB, k: number): RGB {

@@ -69,6 +69,11 @@ export interface OpzioniRustico {
   dettaglio?: Dettaglio;
   /** profondità della fondazione sotto il suolo (copre i pendii) */
   interrata?: number;
+  /**
+   * altezza dei piani rispetto a quella di base (2,5 m il pianterreno, 2,45 gli altri), 0,85-1,2.
+   * Rifinitura 2: con i piani (1-3) dà le altezze variate del nucleo attorno al campanile
+   */
+  altezzaPiani?: number;
 }
 
 interface Finestra {
@@ -114,8 +119,9 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
   const piani = o.piani ?? (r.prob(0.2) ? 1 : r.prob(0.75) ? 2 : 3);
   const W = o.larghezza ?? r.tra(5, 7.2);
   const D = o.profondita ?? r.tra(5.6, 8.6) + (piani - 1) * 0.3;
-  const hTerra = 2.5;
-  const hPiano = 2.45;
+  const kPiani = Math.min(1.2, Math.max(0.85, o.altezzaPiani ?? 1));
+  const hTerra = 2.5 * kPiani;
+  const hPiano = 2.45 * kPiani;
   const hMuri = hTerra + (piani - 1) * hPiano + 0.35;
   const pendenza = THREE.MathUtils.degToRad(o.pendenza ?? r.tra(27, 34));
   const yColmo = hMuri + (W / 2) * Math.tan(pendenza);
@@ -124,8 +130,13 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
   const timpanoLegno = o.timpanoLegno ?? (balconeTipo === 'fronte' && r.prob(0.6));
   const caminoSi = o.camino ?? r.prob(0.75);
   const latoCamino: 1 | -1 = r.prob(0.5) ? 1 : -1;
-  const colAnte = r.prob(0.55) ? r.scegli(COLORI_ANTE) : null;
-  const contornoCalce = r.prob(0.35);
+  // rifinitura 2: più persiane e più contorni a calce (da lontano le finestre erano buchi neri); le
+  // case che prima non li avevano li prendono da un hash del seme, senza toccare la sequenza dei
+  // numeri casuali (la pianta, le porte e le finestre restano dove sono)
+  const h1 = ((r.seme * 0.6180339887) % 1 + 1) % 1;
+  const h2 = ((r.seme * 0.3819660113 + 0.5) % 1 + 1) % 1;
+  const colAnte = r.prob(0.55) ? r.scegli(COLORI_ANTE) : h1 < 0.6 ? COLORI_ANTE[Math.floor(h1 * 8.3) % COLORI_ANTE.length]! : null;
+  const contornoCalce = r.prob(0.35) || h2 < 0.5;
 
   const finestre: Finestra[] = [];
   const fw = r.tra(0.55, 0.72);

@@ -235,6 +235,8 @@ interface Posa {
    * dall'occhio (piantato) il gomito deve uscire dal bordo dello schermo, come nel bozzetto 2
    */
   lunghezze?: { destra?: number; sinistra?: number };
+  /** spalle di questa posa, se non sono `SPALLE` (spazio camera) */
+  spalle?: { destra: THREE.Vector3; sinistra: THREE.Vector3 };
 }
 
 /** Lunghezza dell'avambraccio dal polso del guanto al gomito (m). */
@@ -242,8 +244,22 @@ const AVAMBRACCIO = 0.27;
 /** Spalle (spazio camera): dietro e sotto l'occhio. */
 const SPALLE = { destra: v(0.21, -0.3, 0.1), sinistra: v(-0.21, -0.3, 0.1) };
 
-/** Posizione (spazio camera) del puntale nella posa 'piantato': serve per far coincidere la camera col chiodo. */
-export const PUNTALE_PIANTATO = v(-0.12, -0.37, -0.72);
+/** Gira la direzione `d` (spazio camera) di `gradi` verso il basso, attorno all'asse orizzontale perpendicolare. */
+function giuDi(d: THREE.Vector3, gradi: number): THREE.Vector3 {
+  const n = d.clone().normalize();
+  const asse = new THREE.Vector3(n.z, 0, -n.x).normalize();
+  if (asse.lengthSq() < 1e-6) return n;
+  // il verso dell'asse tale che la rotazione positiva abbassi la direzione
+  const prova = n.clone().applyAxisAngle(asse, 0.01);
+  return n.applyAxisAngle(asse, prova.y < n.y ? (gradi * Math.PI) / 180 : (-gradi * Math.PI) / 180);
+}
+
+/**
+ * Posizione (spazio camera) del puntale nella posa 'piantato'. Rifinitura 2 (bozzetto 2): lo
+ * strumento sta a sinistra e un po' più lontano, il cannocchiale all'altezza dell'occhio e il
+ * puntale giù sul chiodo; la presa della sinistra cade nel terzo basso a sinistra.
+ */
+export const PUNTALE_PIANTATO = v(-0.28, -0.56, -0.7);
 
 /**
  * Pose: strumento (punta del puntale) in spazio camera, mani agganciate allo strumento o alla
@@ -252,16 +268,20 @@ export const PUNTALE_PIANTATO = v(-0.12, -0.37, -0.72);
  */
 const POSE: Record<PosaSquadro, Posa> = {
   // piantato sul chiodo davanti, sul muro (bozzetto 2): la sinistra impugna l'asta da sinistra col
-  // dorso verso l'occhio e l'avambraccio che esce dal bordo sinistro, la destra è appoggiata sul
-  // muro. Il giro −0,38 attorno all'asta annulla l'imbardata dello strumento (dorso alla camera)
+  // dorso verso l'occhio, la destra è appoggiata sul muro. Il giro attorno all'asta annulla
+  // l'imbardata dello strumento (dorso alla camera). Rifinitura 2: l'avambraccio sinistro era un
+  // tubo orizzontale dal bordo fino al centro; ora gli avambracci scendono di 35° verso il basso e
+  // se ne vedono 18 cm, poi il braccio va giù verso la spalla e la manica entra dall'angolo basso a
+  // sinistra; la destra sta più in alto (+6 cm), sul muro
   piantato: {
-    strumento: [PUNTALE_PIANTATO.clone(), e(0, 0.38, 0)],
-    sinistra: { strumento: [v(0, 0.27, 0), e(0, -0.38, 0)] },
-    destra: { camera: [v(0.13, -0.395, -0.6), e(0.05, 0.35, 0.04)] },
-    destraAppoggiata: true,
+    strumento: [PUNTALE_PIANTATO.clone(), e(0, 0.62, 0)],
+    sinistra: { strumento: [v(0, 0.42, 0), e(0, -0.62, 0)] },
+    destra: { strumento: [v(0, 0.2, 0), e(0, -0.62, 0)] },
+    destraAppoggiata: false,
     sinistraCulla: false,
-    avambracci: { destra: v(0.35, -0.5, 0.8), sinistra: v(-0.62, -0.1, 0.78) },
-    lunghezze: { sinistra: 0.42 },
+    avambracci: { destra: giuDi(v(0.62, -0.1, 0.78), 35), sinistra: giuDi(v(-0.62, -0.1, 0.78), 35) },
+    lunghezze: { sinistra: 0.18, destra: 0.18 },
+    spalle: { destra: v(0.22, -0.46, 0.04), sinistra: v(-0.3, -0.44, 0.02) },
   },
   // tenuto in mano a sinistra, come nel bozzetto 2: il centro dello schermo (dove si mira) resta
   // libero. La sinistra impugna l'asta sotto la squadra col dorso verso l'occhio e l'avambraccio
@@ -274,8 +294,11 @@ const POSE: Record<PosaSquadro, Posa> = {
     sinistra: { strumento: [v(0, 0.36, 0), e(0, -0.72, 0)] },
     destraAppoggiata: false,
     sinistraCulla: false,
-    avambracci: { destra: v(0.6, -0.45, 0.66), sinistra: v(-0.6, -0.22, 0.77) },
-    lunghezze: { sinistra: 0.3 },
+    // (rifinitura 2: come da piantato, avambracci più corti e girati verso il basso; la manica entra
+    // dall'angolo basso a sinistra, non più come un tubo orizzontale dal bordo)
+    avambracci: { destra: v(0.6, -0.45, 0.66), sinistra: giuDi(v(-0.6, -0.22, 0.77), 30) },
+    lunghezze: { sinistra: 0.2, destra: 0.22 },
+    spalle: { destra: v(0.24, -0.44, 0.05), sinistra: v(-0.32, -0.46, 0.02) },
   },
   riposo: {
     strumento: [v(0.25, -1.45, -0.5), e(0.4, 0.4, 0.2)],
@@ -287,7 +310,10 @@ const POSE: Record<PosaSquadro, Posa> = {
   },
 };
 
-const mDa = ([p, r]: Trasf) => new THREE.Matrix4().compose(p, new THREE.Quaternion().setFromEuler(r), new THREE.Vector3(1, 1, 1));
+const _qDa = new THREE.Quaternion();
+const _unoDa = new THREE.Vector3(1, 1, 1);
+/** Matrice di una trasformazione (posizione, giro), scritta in `out` (niente allocazioni a ogni fotogramma). */
+const mDa = ([p, r]: Trasf, out: THREE.Matrix4) => out.compose(p, _qDa.setFromEuler(r), _unoDa);
 
 /**
  * Matrice di presa: dallo spazio della mano a quello dell'oggetto impugnato. `asse` = direzione
@@ -396,8 +422,13 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
   const _qa = new THREE.Quaternion();
   const agganci = { sinistra: { p: new THREE.Vector3(), q: new THREE.Quaternion(), pronto: false }, destra: { p: new THREE.Vector3(), q: new THREE.Quaternion(), pronto: false } };
   const mLoc = new THREE.Matrix4();
-  const obiettivoMano = (a: Aggancio, lato: 'sinistra' | 'destra', mStrumento: THREE.Matrix4, k: number): THREE.Matrix4 => {
-    if (!('strumento' in a)) return mDa(a.camera);
+  // matrici di lavoro riusate a ogni fotogramma (rifinitura 2: prima `update` ne allocava di nuove)
+  const _mSt = new THREE.Matrix4();
+  const _mMira = new THREE.Matrix4();
+  const _mMano = new THREE.Matrix4();
+  /** Matrice obiettivo di una mano, scritta in `out`. */
+  const obiettivoMano = (a: Aggancio, lato: 'sinistra' | 'destra', mStrumento: THREE.Matrix4, k: number, out: THREE.Matrix4): THREE.Matrix4 => {
+    if (!('strumento' in a)) return mDa(a.camera, out);
     const g = agganci[lato];
     _qa.setFromEuler(a.strumento[1]);
     if (!g.pronto || k >= 1) {
@@ -408,7 +439,7 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
       g.p.lerp(a.strumento[0], k);
       g.q.slerp(_qa, k);
     }
-    return mStrumento.clone().multiply(mLoc.compose(g.p, g.q, uno));
+    return out.multiplyMatrices(mStrumento, mLoc.compose(g.p, g.q, uno));
   };
   const _p = new THREE.Vector3();
   const _q = new THREE.Quaternion();
@@ -423,6 +454,9 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
   let passo = 0;
   let fasePasso = 0;
   const polso = new THREE.Vector3();
+  // spalle della posa (si spostano con la posa, smorzate)
+  const spallaD = (POSE[opz.posa ?? 'piantato'].spalle ?? SPALLE).destra.clone();
+  const spallaS = (POSE[opz.posa ?? 'piantato'].spalle ?? SPALLE).sinistra.clone();
   const update = (dt: number, stato?: StatoSquadro) => {
     t += dt;
     if (stato?.posa) posa = stato.posa;
@@ -431,16 +465,19 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
     fasePasso += dt * 7 * passo;
     const P = POSE[posa];
     const k = dt <= 0 ? 1 : 1 - Math.exp(-7 * dt);
-    const mSt = mDa(P.strumento);
+    const mSt = mDa(P.strumento, _mSt);
     if (posa === 'mano' && mira > 0.001) {
       // la mira porta il cannocchiale verso l'occhio
-      mSt.premultiply(new THREE.Matrix4().makeTranslation(0.19 * mira, -0.1 * mira, 0.33 * mira));
+      mSt.premultiply(_mMira.makeTranslation(0.19 * mira, -0.1 * mira, 0.33 * mira));
     }
     avvicina(nodoSt, mSt, k);
     nodoSt.updateMatrix();
     // le mani agganciate allo strumento seguono la sua posizione attuale (restano incollate nelle transizioni)
-    avvicina(nodoS, obiettivoMano(P.sinistra, 'sinistra', nodoSt.matrix, k), 'strumento' in P.sinistra ? 1 : k);
-    avvicina(nodoD, obiettivoMano(P.destra, 'destra', nodoSt.matrix, k), 'strumento' in P.destra ? 1 : k);
+    avvicina(nodoS, obiettivoMano(P.sinistra, 'sinistra', nodoSt.matrix, k, _mMano), 'strumento' in P.sinistra ? 1 : k);
+    avvicina(nodoD, obiettivoMano(P.destra, 'destra', nodoSt.matrix, k, _mMano), 'strumento' in P.destra ? 1 : k);
+    const sp = P.spalle ?? SPALLE;
+    spallaS.lerp(sp.sinistra, k);
+    spallaD.lerp(sp.destra, k);
     manoD.visible = !P.destraAppoggiata;
     manoDApp.visible = P.destraAppoggiata;
     dirD.lerp(_s.copy(P.avambracci.destra).normalize(), k).normalize();
@@ -454,11 +491,11 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
     lunD += ((P.lunghezze?.destra ?? AVAMBRACCIO) - lunD) * k;
     gomito.copy(polso).addScaledVector(dirS, lunS);
     manicaS.orienta(polso, gomito);
-    manicaS.orientaBraccio(gomito, SPALLE.sinistra);
+    manicaS.orientaBraccio(gomito, spallaS);
     polso.copy(P.destraAppoggiata ? polsoDApp : polsoD).applyMatrix4(nodoD.matrix);
     gomito.copy(polso).addScaledVector(dirD, lunD);
     manicaD.orienta(polso, gomito);
-    manicaD.orientaBraccio(gomito, SPALLE.destra);
+    manicaD.orientaBraccio(gomito, spallaD);
     // respiro e passo
     const resp = Math.sin(t * 1.6) * 0.004;
     const bobY = Math.abs(Math.sin(fasePasso)) * 0.02 * passo;
@@ -514,21 +551,28 @@ export interface StatoVelo {
  * più alto al centro e più basso agli angoli.
  */
 export const VELO = {
-  /** traversa: quota, profondità, mezza lunghezza, raggio */
-  yT: -0.25,
-  zT: -0.42,
-  mezza: 0.62,
+  /**
+   * traversa: quota, profondità, mezza lunghezza, raggio. Rifinitura 2: la traversa sale (da −0,25 a
+   * −0,20) e si allontana (da −0,42 a −0,54, più lunga perché arrivi ai bordi): sullo schermo sta
+   * a tre quarti dell'altezza come nel bozzetto 3, e le maniche entrano dagli angoli bassi (prima
+   * uscivano dal campo e restavano due guanti senza braccia)
+   */
+  yT: -0.2,
+  zT: -0.54,
+  mezza: 0.76,
   rT: 0.026,
   /** dove i montanti si legano alla traversa (|x|) */
-  attacco: 0.24,
+  attacco: 0.27,
   /** cima dei montanti (sull'orlo della tela, agli angoli) */
   cima: v(1.08, 0.66, -1.0),
   /** di quanto l'orlo sale al centro rispetto agli angoli */
   arcoOrlo: 0.2,
   /** prese delle mani sulla traversa */
-  prese: [-0.34, 0.32] as const,
-  /** gomiti, fuori campo */
-  gomito: v(0.46, -0.52, -0.04),
+  prese: [-0.42, 0.4] as const,
+  /** gomiti: in basso verso gli angoli, la manica attraversa l'angolo dello schermo */
+  gomito: v(0.47, -0.34, -0.31),
+  /** spalle (dietro e sotto l'occhio): il braccio dal gomito esce dal bordo basso */
+  spalla: v(0.32, -0.42, 0.05),
 };
 
 /** Quota dell'orlo della tela a `x` (alla profondità della cima dei montanti). */
@@ -618,8 +662,9 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
     const sinistra = x < 0;
     const fm = new FormePrimoPiano();
     // sulla traversa le mani stanno quasi sempre in controluce (la Linea è sopra, davanti): un cuoio
-    // un filo più chiaro e consumato, che non diventi una sagoma nera
-    const p = manoGuanto(fm, presaVelo, { consumo: 1, colore: 0x684832 });
+    // un filo più chiaro e consumato, che non diventi una sagoma nera (rifinitura 2: meno chiaro e
+    // meno rosso di prima, #684832, che al sole sembrava pelle)
+    const p = manoGuanto(fm, presaVelo, { consumo: 0.7, colore: 0x573c2a });
     // il dorso guarda in su e verso l'occhio, le dita avvolgono la traversa dal davanti
     const rx = 0.5;
     const m = new THREE.Matrix4().makeRotationX(rx);
@@ -632,6 +677,10 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
     const gomito = VELO.gomito.clone();
     gomito.x *= sinistra ? -1 : 1;
     manica(f, polso, gomito, { seme: 0.3 + i * 0.4 });
+    // il braccio fino alla spalla: col gomito in vista la manica non finisce nel vuoto
+    const spalla = VELO.spalla.clone();
+    spalla.x *= sinistra ? -1 : 1;
+    braccio(f, gomito, spalla, { seme: 0.5 + i * 0.3 });
   }
   const telaio = mesh(f, 'velo-telaio');
 

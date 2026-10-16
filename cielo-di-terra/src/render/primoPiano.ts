@@ -185,6 +185,8 @@ void main() {
     float punti = step(0.45, fract(u * 95.0));
     alb *= 1.0 - 0.18 * conCuc * (1.0 - smoothstep(0.02, 0.05, abs(fract(v + 0.5) - 0.5)));
     alb = mix(alb, alb * 0.42, cuc * punti * conCuc * 0.85);
+    // (rifinitura 2: di notte il cuoio resta bruno, non una macchia viola)
+    alb = mix(alb, alb * vec3(1.35, 1.05, 0.6), uNight * 0.7);
     lucido = 0.035;
     durezza = 6.0;
     avvolgi = 0.42;
@@ -195,9 +197,14 @@ void main() {
     float magliaF = step(0.6, fract(vC.a + 0.5));
     float coste = sin(v * 6.2831 * 34.0);
     float maglia = sin(u * 260.0 + sin(v * 6.2831 * 34.0) * 1.5);
-    float punto = sin(v * 6.2831 * 90.0) * sin(u * 420.0);
-    alb *= mix(0.86 + 0.1 * coste + 0.06 * maglia, 0.95 + 0.06 * punto, magliaF);
+    // (rifinitura 2, area «oggetti»: maglia più grossa e più contrastata, ±12%, che sfuma dove i punti
+    // diventano più piccoli di un pixel; di notte la lana non diventa grigio neutro sotto il cielo blu)
+    float fasePunto = sin(v * 6.2831 * 48.0);
+    float punto = fasePunto * sin(u * 230.0 + fasePunto * 0.8);
+    float nitido = 1.0 - smoothstep(0.35, 0.9, fwidth(u * 230.0) + fwidth(v * 48.0) * 6.2831);
+    alb *= mix(0.86 + 0.1 * coste + 0.06 * maglia, 0.97 + 0.12 * punto * nitido, magliaF);
     alb *= mix(0.85 + 0.25 * fbm(vec2(u * 18.0, v * 12.0)), 0.82 + 0.3 * fbm(vec2(u * 11.0, v * 8.0)), magliaF);
+    alb = mix(alb, alb * vec3(1.3, 1.25, 0.5), uNight * 0.85);
     avvolgi = 0.5;
     peluria = mix(0.45, 0.3, magliaF);
   } else if (materia < 4.5) {

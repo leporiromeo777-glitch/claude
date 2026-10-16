@@ -23,8 +23,15 @@ const CIOTTOLO_CHIARO: RGB = hex(0xa89e8c);
 const CIOTTOLO_GRIGIO: RGB = hex(0x857d70);
 const CIOTTOLO_SCURO: RGB = hex(0x5a4a3a);
 const CORDOLO: RGB = hex(0x7d766c);
-/** di quanto il lastricato del lavatoio sta sopra il gradino del chiodo 5 (m) */
-export const DISLIVELLO_LAVATOIO = 0.8;
+/**
+ * di quanto il lastricato del lavatoio sta sopra il gradino del chiodo 5 (m). Rifinitura 2: torna a 0.
+ * La rifinitura 1 l'aveva alzato di 0,8 m su un basamento con quattro gradini (vasca fuori terra), ma
+ * cambiava i collider (basamento calpestabile e gradini), la quota della vasca (`esamina:lavatoio`) e il
+ * posto di Togna, e il brief non lo permette senza l'approvazione di chi decide il gioco. Con 0,8 si
+ * torna a quella soluzione (`creaLavatoio(seme, 0.8)` e il posto di Togna in `abitanti.ts`); con 0 la
+ * vasca sepolta nel pendio si risolve solo nel visivo (`lastricatoSulPendio`).
+ */
+export const DISLIVELLO_LAVATOIO = 0;
 /** la linea di Lag e Mane (prima quasi nera) */
 const LINEA_LAG: RGB = hex(0x4a3a2c);
 /** mezza larghezza delle linee delle ore e della linea di Lag (m) */
@@ -154,6 +161,31 @@ function coronaPiazza(ctx: Contesto, z0: number, th0: number, raggio: number): v
     terrainColor(z, th, h, slopeAt(z, th), masks, out);
     return [out[0]!, out[1]!, out[2]!];
   };
+  // i bordi irregolari delle tre fasce (selciato, terra battuta, prato) in (x, y)
+  const bordi = (x: number, y: number) => {
+    const a = Math.atan2(y, x);
+    const n1 = rumore2(Math.cos(a) * 3 + 11, Math.sin(a) * 3, 5);
+    const n2 = rumore2(x / 2.2, y / 2.2, 9);
+    return {
+      selciato: raggio + 1.4 + n1 * 2.2 + (n2 - 0.5) * 1.0,
+      terra: raggio + 5.5 + rumore2(Math.cos(a) * 4, Math.sin(a) * 4 + 3, 8) * 4.5 + (n2 - 0.5) * 1.6,
+    };
+  };
+  /**
+   * Il colore per vertice (rifinitura 2): sfuma fra le fasce su 0,5-0,8 m, così il bordo fra la terra
+   * battuta e il prato non è più il dente di sega dei triangoli (a03 del direttore artistico)
+   */
+  const coloreVertice = (x: number, y: number, r: number): RGB => {
+    const b = bordi(x, y);
+    const ciottoli = mix(cCiottoli, coloreFondo(x, y), 0.5);
+    const terra = mix(cTerra, cTerraScura, rumore2(x / 5.5, y / 5.5, 2) * 0.55);
+    const k = Math.min(1, Math.max(0, (r - b.terra) / Math.max(1, r1 - 1.2 - b.terra)));
+    const suoloQui = coloreSuolo(x, y);
+    const prato = mix(mix(suoloQui, cTerra, 0.3), suoloQui, k);
+    const t1 = Math.min(1, Math.max(0, (r - b.selciato) / 0.5 + 0.5));
+    const t2 = Math.min(1, Math.max(0, (r - b.terra) / 0.8 + 0.5));
+    return mix(mix(ciottoli, terra, t1), prato, t2);
+  };
   coronaSulSuolo(
     c,
     z0,
@@ -163,11 +195,7 @@ function coronaPiazza(ctx: Contesto, z0: number, th0: number, raggio: number): v
     0.55,
     0.035,
     (x, y, r) => {
-      const a = Math.atan2(y, x);
-      const n1 = rumore2(Math.cos(a) * 3 + 11, Math.sin(a) * 3, 5);
-      const n2 = rumore2(x / 2.2, y / 2.2, 9);
-      const bordoSelciato = raggio + 1.4 + n1 * 2.2 + (n2 - 0.5) * 1.0;
-      const bordoTerra = raggio + 5.5 + rumore2(Math.cos(a) * 4, Math.sin(a) * 4 + 3, 8) * 4.5 + (n2 - 0.5) * 1.6;
+      const { selciato: bordoSelciato, terra: bordoTerra } = bordi(x, y);
       if (r < bordoSelciato) return [SUPERFICIE.SELCIATO + 0.6, mix(cCiottoli, coloreFondo(x, y), 0.5)];
       if (r < bordoTerra) {
         // terra battuta: più scura dove l'acqua ristagna. Rifinitura 1: la variante del motivo e il
@@ -181,6 +209,7 @@ function coronaPiazza(ctx: Contesto, z0: number, th0: number, raggio: number): v
       return [SUPERFICIE.ERBA + 0.3, mix(mix(suoloQui, cTerra, 0.3), suoloQui, k)];
     },
     (_x, _y, r) => (r < raggio + 0.3 ? 0.25 : 0),
+    coloreVertice,
   );
 }
 
@@ -256,4 +285,58 @@ export function costruisciPiazza(ctx: Contesto): void {
   ctx.occupa({ nome: 'lavatoio', z: centroL.z, theta: centroL.theta, yaw: yawL, larghezza: 8, profondita: 7.5 });
   posaChiodo(ctx, 'piazza', cs5.numero, cs5.z, cs5.theta, 'cs_5', 'lavatoio', baseL + 0.08);
   if (pl['vasca']) ctx.punto('esamina:lavatoio', 'esamina', 'La vasca del lavatoio', pl['vasca'], { raggio: 2.2, luogo: 'lavatoio' });
+  if (DISLIVELLO_LAVATOIO <= 0) lastricatoSulPendio(ctx, centroL.z, centroL.theta, yawL, baseL);
+}
+
+/**
+ * Il pendio dentro il lavatoio (rifinitura 2, solo visivo): alla quota di prima il suolo che sale a
+ * monte (fino a 2,5 m) copre la parte alta del lastricato e della vasca, e sotto la tettoia c'era un
+ * prato in salita con la vasca che spuntava dall'erba. Dove il suolo sta sopra il lastricato si posa
+ * un lastricato che segue il suolo (lastre di gneiss a giunti, il pavimento del lavatoio che sale col
+ * pendio), e dove sta sopra il bordo della vasca le lastre di copertura più chiare: la vasca si legge
+ * come una vasca in parte coperta, scavata nel pendio. Nessun collider: si cammina sul suolo come
+ * prima, e il lastricato ci sta appoggiato sopra (3,5 cm).
+ */
+function lastricatoSulPendio(ctx: Contesto, z0: number, th0: number, yaw: number, base: number): void {
+  const c = ctx.zona('piazza');
+  const y = (yaw * Math.PI) / 180;
+  const kdeg = (646 - 35.5) * (Math.PI / 180);
+  const lastra = hex(0x948d82);
+  const lastraScura = hex(0x7b746a);
+  const copertura = hex(0xaaa399);
+  coronaSulSuolo(
+    c,
+    z0,
+    th0,
+    0,
+    4.6,
+    0.32,
+    0.035,
+    (x, yN) => {
+      // coordinate dell'oggetto: avanti (z) e destra (x, verso yaw − 90)
+      const zl = yN * Math.cos(y) + x * Math.sin(y);
+      const xl = yN * Math.sin(y) - x * Math.cos(y);
+      if (Math.abs(xl) > 3.65 || zl < -3.65 || zl > 2.45) return null;
+      const h = suolo(z0 + yN, th0 + x / kdeg) - base;
+      const vasca = Math.abs(xl) < 2.95 && zl > -2.6 && zl < -0.2;
+      if (vasca) {
+        if (h < 1.06) return null;
+        // lastre di copertura sopra la vasca, a giunti larghi
+        const g = Math.abs(((xl + 10) % 0.9) - 0.45) < 0.035 ? 0.78 : 1;
+        return [SUPERFICIE.PIETRA + 0.45, mix(copertura, lastraScura, (1 - g) * 2.2 + hash2(Math.floor(xl / 0.9), 3, 7) * 0.12)];
+      }
+      if (h < 0.42) return null;
+      // lastre di gneiss a corsi (0,6 × 0,9 m circa), un po' più scure verso il monte (umido)
+      const corso = Math.floor((zl + 10) / 0.62);
+      const lx = (xl + 10 + (corso % 2) * 0.45) / 0.9;
+      const giunto = Math.abs(((zl + 10) % 0.62) - 0.31) > 0.27 || Math.abs((lx % 1) - 0.5) > 0.46;
+      const t = hash2(Math.floor(lx), corso, 5);
+      const base0 = mix(lastra, lastraScura, t * 0.5 + Math.max(0, -zl - 1) * 0.1);
+      return [SUPERFICIE.PIETRA + 0.75, giunto ? mix(base0, lastraScura, 0.6) : base0];
+    },
+    (x, yN) => {
+      const h = suolo(z0 + yN, th0 + x / kdeg) - base;
+      return Math.min(0.3, Math.max(0, (h - 0.4) * 0.12));
+    },
+  );
 }

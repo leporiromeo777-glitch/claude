@@ -23,11 +23,13 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  NoColorSpace,
   PlaneGeometry,
   Quaternion,
-  SRGBColorSpace,
+  ShaderMaterial,
   TorusGeometry,
   Vector3,
+  Vector4,
   type Material,
 } from 'three';
 import { GeomBuilder, PRIMS } from '../../render/geomBuilder';
@@ -66,9 +68,15 @@ const CONCIO: RGB = [0.55, 0.52, 0.47];
 const LASTRA: RGB = [0.47, 0.44, 0.4];
 const METALLO: RGB = [0.5, 0.55, 0.5];
 const RAME: RGB = [0.72, 0.42, 0.24];
-/** corpo delle capsule: rame-ottone #8a6a3a */
-const CAPSULA: RGB = [0.541, 0.416, 0.227];
-const CAPSULA_SCURA: RGB = [0.3, 0.23, 0.14];
+/**
+ * corpo delle capsule: rame #a0582c (rifinitura 2: prima un rame-ottone #8a6a3a che sotto la luce
+ * della Cripta sembrava legno marrone), con le fasce d'ottone #b08a3a
+ */
+const CAPSULA: RGB = [0.627, 0.345, 0.173];
+const CAPSULA_SCURA: RGB = [0.36, 0.19, 0.1];
+const FASCIA_OTTONE: RGB = [0.69, 0.541, 0.227];
+/** il tubo di rame lungo la volta */
+const TUBO_VOLTA: RGB = [0.66, 0.36, 0.18];
 /** verderame sullo zoccolo delle capsule (il rame si legge come rame, non come legno) */
 const PATINA: RGB = [0.26, 0.36, 0.31];
 const CORNICE: RGB = [0.66, 0.52, 0.27];
@@ -112,16 +120,18 @@ function texturaVetro(conScritta: boolean, gelato: boolean): CanvasTexture | nul
   c.height = 256;
   const g = c.getContext('2d');
   if (!g) return null;
+  // rifinitura 2: il vetro è quasi trasparente (alfa ~0,3; prima un piano bianco opaco), più appannato
+  // dove c'è la scritta e gelato sulle capsule dei dormienti
   const grad = g.createRadialGradient(256, 128, 30, 256, 128, 300);
-  grad.addColorStop(0, gelato ? 'rgba(232,240,248,0.78)' : 'rgba(214,224,230,0.32)');
-  grad.addColorStop(1, gelato ? 'rgba(220,232,244,0.92)' : 'rgba(200,212,220,0.62)');
+  grad.addColorStop(0, gelato ? 'rgba(232,240,248,0.66)' : conScritta ? 'rgba(214,224,230,0.32)' : 'rgba(214,224,230,0.04)');
+  grad.addColorStop(1, gelato ? 'rgba(220,232,244,0.84)' : conScritta ? 'rgba(200,212,220,0.5)' : 'rgba(200,212,220,0.2)');
   g.fillStyle = grad;
   g.fillRect(0, 0, 512, 256);
   // gocce di condensa
   for (let i = 0; i < 260; i++) {
     const x = (Math.sin(i * 12.9898) * 43758.5453) % 1;
     const y = (Math.sin(i * 78.233) * 12345.678) % 1;
-    g.fillStyle = `rgba(255,255,255,${0.12 + 0.2 * Math.abs(x)})`;
+    g.fillStyle = `rgba(255,255,255,${(gelato || conScritta ? 0.08 : 0.04) + 0.14 * Math.abs(x)})`;
     g.beginPath();
     g.arc(Math.abs(x) * 512, Math.abs(y) * 256, 1 + Math.abs(y) * 3, 0, Math.PI * 2);
     g.fill();
@@ -137,8 +147,28 @@ function texturaVetro(conScritta: boolean, gelato: boolean): CanvasTexture | nul
     g.fillText('delle campane', 256, 166);
     g.restore();
   }
+  // il bordo del vetro prende la luce del lume (rifinitura 2): un filo chiaro e caldo tutt'attorno, e
+  // un riflesso di sbieco; il resto del vetro è quasi trasparente
+  g.fillStyle = 'rgba(255,236,200,0.85)';
+  g.fillRect(0, 0, 512, 5);
+  g.fillRect(0, 251, 512, 5);
+  g.fillRect(0, 0, 9, 256);
+  g.fillRect(503, 0, 9, 256);
+  const riflesso = g.createLinearGradient(120, 0, 230, 256);
+  riflesso.addColorStop(0, 'rgba(255,240,215,0)');
+  riflesso.addColorStop(0.5, 'rgba(255,240,215,0.14)');
+  riflesso.addColorStop(1, 'rgba(255,240,215,0)');
+  g.fillStyle = riflesso;
+  g.beginPath();
+  g.moveTo(150, 0);
+  g.lineTo(200, 0);
+  g.lineTo(330, 256);
+  g.lineTo(280, 256);
+  g.fill();
   const t = new CanvasTexture(c);
-  t.colorSpace = SRGBColorSpace;
+  // colori «da pittore» come il resto della catena (ColorManagement spento, uscita lineare): con
+  // SRGBColorSpace la scheda linearizzava in lettura e brina e scritta uscivano più scure
+  t.colorSpace = NoColorSpace;
   return t;
 }
 
@@ -257,8 +287,41 @@ function pareteConci(C: CantiereCripta, lungo: 'e' | 'n', fisso: number, dentro:
   }
 }
 
-/** Pavimento a lastre grandi (0,8-1,2 m) sfalsate, con i giunti scuri sotto. */
+/**
+ * Piastrella del pavimento (x, z in [−0,5, 0,5], normale +y) in 3 × 3 riquadri: il riquadro centrale
+ * è la lastra (`giunto` falso), gli otto del bordo (6%) il giunto, dipinto, a filo della lastra (più
+ * stretto il filtro pittorico lo cancellava). Due geometrie, perché i vertici del bordo della lastra
+ * stanno anche sul giunto: col colore per vertice la lastra intera prendeva il colore del giunto.
+ */
+function tesseraPavimento(giunto: boolean): BufferGeometry {
+  const xs = [-0.5, -0.44, 0.44, 0.5];
+  const pos: number[] = [];
+  const nor: number[] = [];
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if ((i === 1 && j === 1) === giunto) continue;
+      const [a, b2, c, d] = [xs[i]!, xs[i + 1]!, xs[j]!, xs[j + 1]!];
+      pos.push(a, 0, c, a, 0, d, b2, 0, d, a, 0, c, b2, 0, d, b2, 0, c);
+      for (let k = 0; k < 6; k++) nor.push(0, 1, 0);
+    }
+  }
+  const g = new BufferGeometry();
+  g.setAttribute('position', new BufferAttribute(new Float32Array(pos), 3));
+  g.setAttribute('normal', new BufferAttribute(new Float32Array(nor), 3));
+  return g;
+}
+const TESSERA_LASTRA = tesseraPavimento(false);
+const TESSERA_GIUNTO = tesseraPavimento(true);
+
+/**
+ * Pavimento a lastre grandi (0,8-1,2 m) sfalsate. Rifinitura 2: prima le lastre erano scatole staccate
+ * di 3,5 cm sopra la malta scura, e il contorno della post disegnava ogni giunto come una riga nera
+ * spessa; ora sono piastrelle a filo con il giunto dipinto a ×0,75 del colore della lastra (più
+ * scuro, non nero), e le lastre variano di ±10%.
+ */
 function pavimentoLastre(C: CantiereCripta, e0: number, e1: number, n0: number, n1: number, seme: number): void {
+  const m = new Matrix4();
+  const t = new Matrix4();
   let n = n0;
   let fila = 0;
   while (n < n1 - 0.05) {
@@ -271,7 +334,10 @@ function pavimentoLastre(C: CantiereCripta, e0: number, e1: number, n0: number, 
       const b = Math.min(e + w, e1);
       if (b - a > 0.15) {
         const r = hc(a * 1.7 + seme, n * 2.9);
-        C.scatola((a + b) / 2, n + p / 2, -0.05, b - a - 0.035, 0.054 + r * 0.01, p - 0.035, tinta(LASTRA, 0.82 + r * 0.3, hc(n, a) - 0.5));
+        const col = tinta(LASTRA, 0.9 + r * 0.2, hc(n, a) - 0.5);
+        m.copy(C.A.matrice).multiply(t.makeTranslation((a + b) / 2, 0.004, -(n + p / 2))).multiply(t.makeScale(b - a, 1, p));
+        C.b.add(TESSERA_LASTRA, m, col, 0);
+        C.b.add(TESSERA_GIUNTO, m, tinta(col, 0.75), 0);
       }
       e += w;
       k++;
@@ -367,7 +433,55 @@ function voltaABotte(C: CantiereCripta, e0: number, e1: number, n0: number, n1: 
   return quota;
 }
 
-export function costruisciCripta(materiale: Material): Cripta {
+/** La riga dell'emissione notturna nello shader degli oggetti del mondo (`render/worldMaterial.ts`). */
+const RIGA_EMISSIONE = 'col = mix(col, uLampColor * 1.15, vColor.a * uNight);';
+
+/**
+ * Materiale della Cripta (rifinitura 2). È lo stesso materiale degli oggetti del mondo, con le sue
+ * superfici dipinte, ma con una luce sua: sotto terra non arrivano né il cielo né la notte del
+ * motore. Prima, di notte (il prologo comincia prima dell'alba) il materiale del mondo spegneva i
+ * colori verso il blu della luna (saturazione 0,37) e le pozze cotte dei lumi si accendevano solo
+ * con `uNight`; di giorno restavano spente. Qui:
+ * - niente notte (`uNight` 0): i colori restano veri, il rame è rame;
+ * - la luce principale è quella dei lumi appesi alla volta: calda, dall'alto, senza le ombre del
+ *   sole (la mappa d'ombra vedrebbe il terreno sopra la Cripta);
+ * - il riempimento è caldo e basso (il rimbalzo dei lumi sulla calce e sul rame);
+ * - l'emissione cotta (le pozze dei lumi e i loro vetri) è sempre accesa: `uEmissioneInterna`.
+ * Gli altri uniform restano condivisi con il mondo (stesso oggetto: si aggiornano da soli). Se lo
+ * shader del mondo cambia e la riga dell'emissione non c'è più, la Cripta resta senza emissione ma
+ * con la sua luce.
+ */
+export function materialeCripta(base: Material): Material {
+  const m = base as ShaderMaterial;
+  if (!m.isShaderMaterial || !m.uniforms) return base;
+  const U = m.uniforms;
+  const propri: Record<string, { value: unknown }> = {
+    uNight: { value: 0 },
+    uSunColor: { value: new Vector3(1.0, 0.78, 0.55) },
+    uSunIntensity: { value: 0.7 },
+    // il nucleo della luce sopra la sala: la luce scende dall'alto (vedi `lineaLightDir`)
+    uSole: { value: new Vector4(ANCORA_CRIPTA.z, 4, 0, 1) },
+    uLineaIgnite: { value: 1e6 },
+    uGolden: { value: 0 },
+    uAmbTop: { value: new Vector3(0.38, 0.3, 0.24) },
+    uAmbBottom: { value: new Vector3(0.24, 0.18, 0.13) },
+    // ombre portate spente (x), occlusione, trasmissione, saturazione del colore pieno (w)
+    uLuce: { value: new Vector4(0, 1, 1, 1.06) },
+  };
+  const uniforms: Record<string, { value: unknown }> = { ...U };
+  for (const [k, v] of Object.entries(propri)) if (k in U) uniforms[k] = v;
+  let frag = m.fragmentShader;
+  if (frag.includes(RIGA_EMISSIONE)) {
+    uniforms['uEmissioneInterna'] = { value: 1 };
+    frag = frag.replace(RIGA_EMISSIONE, 'col = mix(col, uLampColor * 1.15, vColor.a * max(uNight, uEmissioneInterna));').replace('void main() {', 'uniform float uEmissioneInterna;\nvoid main() {');
+  }
+  const mat = new ShaderMaterial({ name: 'world-object-cripta', uniforms, vertexShader: m.vertexShader, fragmentShader: frag, defines: { ...m.defines }, side: m.side });
+  (mat.defaultAttributeValues as Record<string, number[]>)['aSuperficie'] = [0, 0];
+  return mat;
+}
+
+export function costruisciCripta(materialeMondo: Material): Cripta {
+  const materiale = materialeCripta(materialeMondo);
   const A = new Ancora(ANCORA_CRIPTA.z, ANCORA_CRIPTA.theta, QUOTA_CRIPTA);
   const C = new CantiereCripta(A);
   const b = C.b;
@@ -450,6 +564,23 @@ export function costruisciCripta(materiale: Material): Cripta {
       C.scatola(S.e1 - 0.32, n, 1.25, 0.04, 0.22, 0.22, FERRO);
     }
   });
+  // rifinitura 2: un tubo di rame lungo la volta, accanto al colmo (al centro pende il lume), con le
+  // staffe di ferro: prende il riflesso caldo dei lumi e porta l'occhio lungo la sala
+  {
+    const eT = ec + 0.62;
+    const yT = quotaVolta(eT) - 0.2;
+    C.con(SUPERFICIE.OTTONE + 0.55, () => {
+      C.tubo(eT, S.n0 + 0.3, yT, eT, S.n1 - 0.3, yT, 0.065, TUBO_VOLTA, 12);
+      // le teste: il tubo piega e scende lungo le pareti di testa
+      C.tubo(eT, S.n0 + 0.3, yT, eT, S.n0 + 0.3, S.alt - 0.2, 0.065, TUBO_VOLTA, 12);
+      C.tubo(eT, S.n1 - 0.3, yT, eT, S.n1 - 0.3, S.alt - 0.2, 0.065, TUBO_VOLTA, 12);
+      // manicotti d'ottone ogni tanto
+      for (let n = S.n0 + 1.1; n < S.n1 - 0.6; n += 2.2) C.tubo(eT, n - 0.05, yT, eT, n + 0.05, yT, 0.078, FASCIA_OTTONE, 12);
+    });
+    C.con(SUPERFICIE.METALLO, () => {
+      for (let n = S.n0 + 0.6; n < S.n1 - 0.3; n += 1.5) C.scatola(eT, n, yT + 0.04, 0.04, quotaVolta(eT) - yT, 0.05, FERRO);
+    });
+  }
 
   // --- capsule ---
   const punti: Record<string, Vector3> = {};
@@ -465,9 +596,11 @@ export function costruisciCripta(materiale: Material): Cripta {
     /** punto sulla capsula: `s` lungo il lato lungo, `w` di traverso */
     // (gli assi della scatola ruotata: lungo = (−sin, −cos), traverso = (cos, −sin) in (e, n))
     const su = (s: number, w: number) => ({ e: c.e - s * Math.sin(rr) + w * Math.cos(rr), n: c.n - s * Math.cos(rr) - w * Math.sin(rr) });
-    C.con(SUPERFICIE.METALLO, () => {
-      // zoccolo scuro, cassa di rame-ottone fino al vano, le pareti del vano, due fasce
-      C.scatola(c.e, c.n, 0, 1.15, 0.1, 2.35, PATINA, 0, ruota);
+    C.con(SUPERFICIE.METALLO + 0.2, () => C.scatola(c.e, c.n, 0, 1.15, 0.1, 2.35, PATINA, 0, ruota));
+    // rifinitura 2: il corpo di rame (#a0582c) con il riflesso caldo del lume (superficie OTTONE: riflesso
+    // netto e patina negli incavi), non più il ferro brunito che lo faceva sembrare legno
+    C.con(SUPERFICIE.OTTONE + 0.35, () => {
+      // cassa di rame fino al vano e le pareti del vano
       C.scatola(c.e, c.n, 0.1, 1.05, 0.52, 2.25, CAPSULA, 0, ruota);
       for (const w of [-0.49, 0.49]) {
         const p = su(0, w);
@@ -477,19 +610,22 @@ export function costruisciCripta(materiale: Material): Cripta {
         const p = su(s, 0);
         C.scatola(p.e, p.n, 0.62, 1.05, 0.3, 0.07, tinta(CAPSULA, 0.95), 0, ruota);
       }
-      for (const s of [-0.78, 0.78]) {
-        const p = su(s, 0);
-        C.scatola(p.e, p.n, 0.22, 1.09, 0.06, 0.09, CAPSULA_SCURA, 0, ruota);
-      }
       // costole verticali di lamiera ribattuta sui fianchi lunghi e il bordo scuro in basso:
       // la cassa si legge come un sarcofago di metallo, non come una cassa di legno
       for (const s of [-0.75, -0.25, 0.25, 0.75]) {
         for (const w of [-0.54, 0.54]) {
           const p = su(s, w);
-          C.scatola(p.e, p.n, 0.1, 0.03, 0.8, 0.07, tinta(CAPSULA, 0.72), 0, ruota);
+          C.scatola(p.e, p.n, 0.1, 0.03, 0.8, 0.07, tinta(CAPSULA, 0.78), 0, ruota);
         }
       }
       C.scatola(c.e, c.n, 0.1, 1.08, 0.05, 2.28, CAPSULA_SCURA, 0, ruota);
+    });
+    // due fasce d'ottone (#b08a3a) attorno alla cassa
+    C.con(SUPERFICIE.OTTONE + 0.75, () => {
+      for (const s of [-0.78, 0.78]) {
+        const p = su(s, 0);
+        C.scatola(p.e, p.n, 0.2, 1.1, 0.1, 0.1, FASCIA_OTTONE, 0, ruota);
+      }
     });
     // il fondo scuro del vano, sotto il vetro appannato
     C.con(NESSUNA, () => C.scatola(c.e, c.n, 0.6, 0.92, 0.025, 2.12, FONDO_CAPSULA, 0, ruota));
@@ -564,7 +700,9 @@ export function costruisciCripta(materiale: Material): Cripta {
     }
     // coperchio di vetro (mesh a parte: la 5 si apre, la 1 è già aperta)
     const tex = texturaVetro(i === 5, i === 6 || i === 7);
-    const mat = new MeshBasicMaterial({ map: tex ?? undefined, color: tex ? 0xe4eef8 : 0xc8d8e6, transparent: true, opacity: i === 5 ? 0.95 : 0.85, side: DoubleSide, depthWrite: false });
+    // (il vetro non è illuminato: nella penombra della Cripta resta grigio-azzurro tenue, chiaro solo
+    // dove è appannato o gelato e sul bordo che prende il lume)
+    const mat = new MeshBasicMaterial({ map: tex ?? undefined, color: !tex ? 0xc8d8e6 : i === 5 || i === 6 || i === 7 ? 0xd6dde4 : 0xa8b2bc, transparent: true, opacity: tex ? 1 : 0.3, side: DoubleSide, depthWrite: false });
     // la luce fredda della capsula: un chiarore azzurrino sotto il vetro (additivo, non illuminato;
     // tutti in una mesh sola). Nella 5 c'è Elvira (gli occhi stanno sotto): lì niente chiarore
     if (i !== 5) chiarori.push(new PlaneGeometry(0.9, 2.0).applyMatrix4(A.matriceScatola(c.e, c.n, 0.71, 1, 1, 1, ruota).multiply(new Matrix4().makeRotationX(-Math.PI / 2))).toNonIndexed());
@@ -763,6 +901,9 @@ export function costruisciCripta(materiale: Material): Cripta {
         aperturaCoperchio = Math.min(1, aperturaCoperchio + dt / 2.2);
         const k = 0.5 - 0.5 * Math.cos(aperturaCoperchio * Math.PI);
         if (coperchio5?.parent) coperchio5.parent.rotation.x = -1.25 * k;
+        // rifinitura 2: aperto, il vetro non è più appannato dal fiato (la scritta è stata letta): da
+        // fuori resta un vetro quasi trasparente col bordo di luce, non un pannello bianco
+        if (coperchio5) (coperchio5.material as MeshBasicMaterial).opacity = 1 - 0.55 * k;
       }
       if (apriArm && aperturaArm < 1) {
         // segnaposto: l'anta sparisce a metà del gesto (niente cardine vero)
@@ -826,7 +967,11 @@ function illuminaCripta(geo: BufferGeometry, A: Ancora, tipi: Array<[number, num
       d.copy(l.p).sub(v);
       const dist = d.length();
       const ndl = Math.min(1, Math.max(0, d.dot(nn) / Math.max(dist, 1e-3) * 0.7 + 0.3));
-      caldo += (l.k * ndl) / (1 + dist * dist * 0.3);
+      caldo += (l.k * ndl) / (1 + dist * dist * 0.15);
+      // rifinitura 2: la pozza sotto il lume, sul pavimento e sulle facce rivolte in su: un cerchio
+      // caldo di circa 1,5 m che si legge (con la sola caduta morbida il pavimento era tutto uguale)
+      const h2 = d.x * d.x + d.z * d.z;
+      caldo += l.k * 0.5 * Math.exp(-h2 / (2 * 1.5 * 1.5)) * (nn.y > 0.7 ? 1 : 0.25);
     }
     caldo = Math.min(1.15, caldo);
     // luce fredda delle capsule (a metà altezza)
@@ -837,15 +982,17 @@ function illuminaCripta(geo: BufferGeometry, A: Ancora, tipi: Array<[number, num
     }
     glow = Math.min(1, glow);
     const piede = Math.max(0, 1 - y / 0.9);
-    const occ = emette ? 0 : Math.min(0.7, Math.max(0.08, 0.6 - caldo * 0.5 - glow * 0.12 + piede * 0.1));
+    const occ = emette ? 0 : Math.min(0.6, Math.max(0.05, 0.5 - caldo * 0.45 - glow * 0.12 + piede * 0.1));
     sup[i * 2] = tipo;
     sup[i * 2 + 1] = occ;
     if (!emette) {
       // dai colori freddi e spenti degli angoli ai colori caldi e chiari vicino ai lumi
       const t = caldo / (caldo + 0.35);
-      let r = c[0]! * (0.62 + t * 0.82);
-      let g = c[1]! * (0.66 + t * 0.56);
-      let bb = c[2]! * (0.8 + t * 0.12);
+      // (rifinitura 2: la luce della Cripta è già calda nel materiale; qui meno arancio e più valori:
+      // pozze chiare, angoli scuri)
+      let r = c[0]! * (0.58 + t * 0.78);
+      let g = c[1]! * (0.6 + t * 0.64);
+      let bb = c[2]! * (0.7 + t * 0.42);
       // azzurro vicino alle capsule, bruno umido al piede delle pareti
       const k = glow * 0.3 * (1 - t);
       r *= 1 - k * 0.25;
@@ -860,7 +1007,7 @@ function illuminaCripta(geo: BufferGeometry, A: Ancora, tipi: Array<[number, num
       col.setXYZ(i, r, g, bb);
       // la pozza calda dei lumi accesi: un filo d'emissione (il colore dei lumi di notte, vedi
       // `worldMaterial`), così la luce calda si legge anche sotto l'ambiente freddo della notte
-      if (tipo > 0.25) col.setW(i, Math.min(0.42, Math.max(0, caldo - 0.2) * 0.45));
+      if (tipo > 0.25) col.setW(i, Math.min(0.3, Math.max(0, caldo - 0.25) * 0.32));
     }
   }
   col.needsUpdate = true;
