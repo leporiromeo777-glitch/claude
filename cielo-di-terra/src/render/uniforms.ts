@@ -18,7 +18,11 @@
  *   z = velatura di carta, w = granulazione;
  * - `uCellAnim` (float): istante dell'ultima rivelazione animata (lo scrive `installaLuce` da
  *   `CellTexture.ultimaRivelazione`): vicino al giocatore, senza animazioni, lo shader salta le celle;
- * - `uDettaglio` (float): 1 = motivi pieni, 0 = economici (la traccia «post» lo lega alla qualità).
+ * - `uDettaglio` (float): 1 = motivi pieni, 0 = economici (la traccia «post» lo lega alla qualità);
+ * - `uPozze` (vec4[24]): le pozze di luce calda dei lumi più vicini (xyz posizione, w = 1 + distanza
+ *   dalla camera, 0 = fine elenco: i più vicini prima). Le scrive `LampGlows.updateNearest`. `uLamps` (vec4[8])
+ *   resta per chi lo usa (personaggi, Fade): lo shader del mondo ne prende solo i lumi in più con
+ *   w >= 2 (le Fade di `popolamento/corbella.ts`), perché quelli del motore sono già nelle pozze.
  */
 import { Color, DataTexture, DepthFormat, DepthTexture, LessEqualCompare, Matrix4, NearestFilter, UnsignedIntType, Vector2, Vector3, Vector4, type Texture } from 'three';
 import { CELLS_NTHETA, CELLS_NZ, CELL_DEG, CELL_DZ, L, R } from '../world/constants';
@@ -26,6 +30,8 @@ import { REVEAL_DURATION } from '../world/cells';
 import type { SkyState } from '../world/sky';
 
 export const MAX_LAMPS = 8;
+/** Pozze di luce calda dei lumi vicini (`uPozze`): i più vicini alla camera, entro 120 m. */
+export const MAX_POZZE = 24;
 
 export interface WorldUniforms {
   [k: string]: { value: unknown };
@@ -44,6 +50,7 @@ export interface WorldUniforms {
   uNight: { value: number };
   uLampColor: { value: Vector3 };
   uLamps: { value: Vector4[] };
+  uPozze: { value: Vector4[] };
   uCellTex: { value: DataTexture | null };
   uCellGrid: { value: Vector4 };
   uPencil: { value: Vector4 };
@@ -76,10 +83,14 @@ export interface HazeSettings {
   velo: number;
 }
 
-export const DEFAULT_HAZE: HazeSettings = { density: 1 / 900, max: 0.9, layers: 0.5, velo: 0.12 };
+// (aria più densa al suolo: 3-4 quinte fra 100 e 600 m; velo dell'altra metà più sottile, così le
+// terre capovolte si leggono)
+export const DEFAULT_HAZE: HazeSettings = { density: 1.4 / 900, max: 0.9, layers: 0.5, velo: 0.05 };
 
 /** Aria del cilindro: densa sul fondo (foschie di valle), più rada verso l'asse. */
-export const DEFAULT_ARIA = { scaleHeight: 150, upperFraction: 0.32, forward: 0.8 };
+// (aria in quota più rada: i raggi che attraversano il cilindro vicino all'asse vedono le terre
+// dell'altra metà sotto un velo azzurro, non dentro una nebbia bianca; la foschia di valle resta)
+export const DEFAULT_ARIA = { scaleHeight: 150, upperFraction: 0.16, forward: 0.8 };
 
 /**
  * Mappa d'ombra "vuota" (1×1, profondità con confronto). Il `sampler2DShadow` dello shader deve
@@ -117,6 +128,7 @@ export function createWorldUniforms(): WorldUniforms {
     uNight: { value: 0 },
     uLampColor: { value: new Vector3(1.0, 0.7, 0.36) },
     uLamps: { value: Array.from({ length: MAX_LAMPS }, () => new Vector4(0, 0, 0, 0)) },
+    uPozze: { value: Array.from({ length: MAX_POZZE }, () => new Vector4(0, 0, 0, 0)) },
     uCellTex: { value: null },
     uCellGrid: { value: new Vector4(CELLS_NZ, CELLS_NTHETA, CELL_DZ, CELL_DEG) },
     uPencil: { value: new Vector4(250, 450, 0, REVEAL_DURATION) },
@@ -153,6 +165,7 @@ export function applySky(u: WorldUniforms, s: SkyState): void {
   u.uSole.value.x = s.coreZ;
   u.uSole.value.y = s.coreFlat;
   u.uSole.value.z = s.coreSide;
+  u.uSole.value.w = s.forzaLuce ?? 1;
   u.uHazeSun.value.set(...s.hazeSun);
   u.uHazeZenith.value.set(...s.hazeZenith);
   u.uGolden.value = s.golden;

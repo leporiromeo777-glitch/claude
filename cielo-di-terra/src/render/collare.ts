@@ -112,7 +112,8 @@ void main() {
   vec3 nNube = normalize(wh / Rn + up * (hv / (Rn * 0.5)) + up * 0.15);
   float zz = sqrt(max(0.0, 1.0 - min(d * d, 1.0)));
   vec3 nSbuffo = normalize(vAsseA * q.x + vAsseB * q.y + V * zz * 0.9);
-  vec3 N = normalize(nNube * 0.65 + nSbuffo * 0.45);
+  // (la forma della nube intera conta più dello sbuffo: un volume, non ritagli di carta)
+  vec3 N = normalize(nNube * 0.8 + nSbuffo * 0.35);
   vec3 Ld = lineaLightDir(Cn, up);
   float reach = lineaReach(Cn);
   float ndl = dot(N, Ld) * 0.5 + 0.5;
@@ -126,7 +127,8 @@ void main() {
   ombra = mix(ombra, uHazeColor * 0.85, 0.2);
   ombra += vec3(0.08, 0.06, 0.02) * (1.0 - smoothstep(-0.9, 0.0, hRel)) * (1.0 - notte);
   vec3 luce = mix(uSunColor, vec3(1.0, 0.97, 0.92), 0.35) * (0.86 + 0.28 * uSunIntensity);
-  vec3 col = vTint * mix(ombra, luce, lit);
+  // volume: il lato in luce più acceso (+20%), la base più scura (-30%) e fredda, verso il blu
+  vec3 col = vTint * mix(ombra * 0.7 * vec3(0.9, 0.95, 1.1), luce * 1.2, lit);
   col *= mix(1.0, 0.4, notte);
 
   // --- sagoma della nube vista dalla camera: 0 al centro, 1 sul contorno esterno

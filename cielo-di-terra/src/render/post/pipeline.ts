@@ -68,6 +68,8 @@ export interface ParametriPost {
   ombre: [number, number, number];
   luciNotte: [number, number, number];
   ombreNotte: [number, number, number];
+  /** Viraggio delle luci nelle ore dorate (moltiplica, pesato con `StatoPost.oro`). */
+  luciOro: [number, number, number];
   /** Bagliore: forza, soglia di giorno e di notte, ginocchio della soglia. */
   bloom: number;
   /** Tinta del bagliore di giorno e di notte (moltiplica): l'alone caldo della Linea. */
@@ -114,30 +116,34 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
   esposizione: 1,
   tonemap: 3,
   ginocchio: 0.82,
-  saturazione: 1.12,
-  vibranza: 0.16,
+  // (con l'albedo del prato già spento basta meno spinta: il prato non torna limone)
+  saturazione: 1.06,
+  vibranza: 0.12,
   contrasto: 0.22,
   pernoContrasto: 0.42,
   luci: [1.03, 1.0, 0.955],
   ombre: [0.96, 0.975, 1.05],
   luciNotte: [1.05, 1.0, 0.93],
   ombreNotte: [0.97, 0.97, 1.07],
+  luciOro: [1.08, 1.0, 0.86],
   bloom: 0.5,
   tintaBagliore: [1.0, 0.88, 0.7],
   tintaBaglioreNotte: [1.0, 0.96, 0.9],
   sogliaGiorno: 1.0,
   sogliaNotte: 0.7,
   ginocchioSoglia: 0.3,
-  contorni: 0.62,
+  // (contorni leggeri e solo vicino: i bozzetti sono dipinti senza linee; l'inchiostro pieno resta
+  // sul fronte della rivelazione, nello shader del mondo, e sulla prima persona)
+  contorni: 0.35,
   contorniPrimoPiano: 0.5,
-  sogliaContorni: [0.01, 0.06],
-  distanzaContorni: [90, 900],
-  contorniLontano: 0.25,
+  sogliaContorni: [0.03, 0.12],
+  distanzaContorni: [30, 250],
+  contorniLontano: 0.05,
   durezza: 8,
   nitidezza: 8,
   alfa: 2,
   vicino: [1.5, 9],
-  lontano: [80, 450, 1.35],
+  lontano: [80, 450, 1.15],
   dettaglio: [0.05, 0.16, 0.85],
   pennellata: 0.085,
   pennellataColore: 0.05,
@@ -151,6 +157,8 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
 /** Quello che la post deve sapere del cielo per la soglia del bagliore e il viraggio. */
 export interface StatoPost {
   notte: number;
+  /** 0..1 ore dorate (alba e tramonto): viraggio caldo delle luci (`luciOro`). */
+  oro?: number;
 }
 
 const TRIANGOLO = (() => {
@@ -533,7 +541,7 @@ export class PostProduzione {
     u.uOverlay!.value = overlay;
     u.uFxaa!.value = p.fxaa ? 1 : 0;
     u.uBloom!.value = this.bloom.length ? P.bloom : 0;
-    (u.uTintaBagliore!.value as Vector3).set(...mix3(P.tintaBagliore, P.tintaBaglioreNotte, stato.notte));
+    (u.uTintaBagliore!.value as Vector3).copy(mix3(P.tintaBagliore, P.tintaBaglioreNotte, stato.notte, _v3));
     (u.uContorni!.value as Vector2).set(p.contorni ? P.contorni : 0, p.contorni ? P.contorniPrimoPiano : 0);
     u.uOrientata!.value = this.tensoreA ? 1 : 0;
     (u.uCarta!.value as Vector3).set(p.pennellata ? P.pennellata : 0, P.grana * (p.pennellata ? 1 : 0.6), P.macchie);
@@ -545,8 +553,11 @@ export class PostProduzione {
     const n = stato.notte;
     // di notte quasi tutto sta sotto il perno: il contrasto a S scurirebbe, quindi cala
     (u.uGrade!.value as Vector4).set(P.saturazione, P.vibranza, P.contrasto * (1 - 0.7 * n), P.pernoContrasto);
-    (u.uLuci!.value as Vector3).set(...mix3(P.luci, P.luciNotte, n));
-    (u.uOmbre!.value as Vector3).set(...mix3(P.ombre, P.ombreNotte, n));
+    const luci = (u.uLuci!.value as Vector3).copy(mix3(P.luci, P.luciNotte, n, _v3));
+    // ore dorate: le luci virano al caldo (la notte lo spegne)
+    const oro = Math.max(0, Math.min(1, stato.oro ?? 0)) * (1 - n);
+    luci.multiply(mix3(UNO, P.luciOro, oro, _v3));
+    (u.uOmbre!.value as Vector3).copy(mix3(P.ombre, P.ombreNotte, n, _v3));
     u.uNotte!.value = n;
     this.fase('finale', () => {
       r.setRenderTarget(null);
@@ -561,6 +572,10 @@ export class PostProduzione {
   }
 }
 
-function mix3(a: readonly number[], b: readonly number[], t: number): [number, number, number] {
-  return [a[0]! + (b[0]! - a[0]!) * t, a[1]! + (b[1]! - a[1]!) * t, a[2]! + (b[2]! - a[2]!) * t];
+const UNO = [1, 1, 1] as const;
+const _v3 = new Vector3();
+
+/** Mescola due terne in `out` (niente allocazioni a ogni fotogramma). */
+function mix3(a: readonly number[], b: readonly number[], t: number, out: Vector3): Vector3 {
+  return out.set(a[0]! + (b[0]! - a[0]!) * t, a[1]! + (b[1]! - a[1]!) * t, a[2]! + (b[2]! - a[2]!) * t);
 }

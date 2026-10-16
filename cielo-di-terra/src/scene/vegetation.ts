@@ -26,9 +26,10 @@ import type { RGB } from '../render/palette';
 import { surfaceMatrix } from '../render/placement';
 import { creaMaterialeNatura, impostaNucleo, impostaSfuma } from '../render/naturaMateriali';
 import type { WorldUniforms } from '../render/uniforms';
+import { LAYER_OMBRE } from '../render/ombre';
 import { N_LOD_ALBERI, SPECIE, geometrieAlbero, triangoli, type Specie } from './alberi';
 import { BoschiLontani, densitaBosco } from './bosco';
-import { Sottobosco } from './sottobosco';
+import { Sottobosco, aggiorna } from './sottobosco';
 import { suSentiero, trattiVicini } from './sentieri';
 
 export interface TreeInstance {
@@ -58,9 +59,10 @@ const TINTE: Record<Specie, Array<[RGB, RGB, number]>> = {
     [[0.8, 0.67, 0.3], [0.56, 0.56, 0.28], 0.35],
     [[0.74, 0.62, 0.28], [0.82, 0.72, 0.38], 0.4],
   ],
+  // (oro d'ottobre spento, #a87a2a: non un candelotto arancione)
   larice: [
-    [[0.74, 0.54, 0.25], [0.54, 0.52, 0.27], 0.3],
-    [[0.7, 0.48, 0.24], [0.78, 0.62, 0.3], 0.35],
+    [[0.66, 0.48, 0.17], [0.5, 0.48, 0.25], 0.3],
+    [[0.62, 0.45, 0.17], [0.7, 0.55, 0.24], 0.35],
   ],
   noce: [
     [[0.52, 0.53, 0.27], [0.74, 0.62, 0.3], 0.45],
@@ -110,6 +112,14 @@ export class Vegetation {
   private livelli = new Map<Specie, Livello[]>();
   /** per specie: livello 3 statico (alberi sparsi), masse e carte */
   private lontani = new Map<Specie, InstancedMesh[]>();
+  /**
+   * per specie: chi proietta l'ombra degli alberi (masse e tronco del LOD 2, solo sul layer delle
+   * ombre), per tutti gli alberi entro il raggio della zona d'ombra: l'ombra non sparisce più di
+   * colpo quando l'albero passa dal LOD 0 al LOD 1
+   */
+  private ombre = new Map<Specie, { chioma: InstancedMesh; tronco: InstancedMesh | null; capienza: number }>();
+  /** raggio (m) della zona d'ombra (0 = ombre spente): vedi `impostaRaggioOmbre` */
+  private raggioOmbre = 0;
   private materiali: { chioma: ShaderMaterial[]; tronco: ShaderMaterial[]; lontano: ShaderMaterial; carte: Map<Specie, ShaderMaterial[]>; carteLontane: Map<Specie, ShaderMaterial> };
   private celle = new Map<number, number[]>();
   private indicizzati = -1;
@@ -127,7 +137,8 @@ export class Vegetation {
       chioma: [0, 1, 2].map((lod) => {
         const m = creaMaterialeNatura(this.u, { tipo: 'chioma' });
         // sotto le carte di foglie le masse sono l'interno in ombra della chioma
-        impostaNucleo(m, lod === 0 ? 0.66 : lod === 1 ? 0.78 : 0.92);
+        // (0.85: più piccolo, coperto dalle carte, e meno scuro: non palle scure lisce)
+        impostaNucleo(m, lod === 0 ? 0.85 : lod === 1 ? 0.88 : 0.92);
         return m;
       }),
       tronco: [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'tronco' })),
@@ -150,9 +161,18 @@ export class Vegetation {
    * distanze dei livelli di dettaglio degli alberi, raggio e densità del sottobosco.
    */
   impostaQualita(k: number): void {
+    // a Bassa (k < 0.5) niente carte di foglie ai livelli lontani (LOD 2 e 3): solo le masse dipinte,
+    // e una fascia di passaggio più larga (senza il filtro pittorico la retinatura si vede a puntini)
+    this.carteLontane = k >= 0.5;
+    this.fascia = k < 0.5 ? 1.6 : 1;
+    for (const ms of this.lontani.values()) if (ms[1]) ms[1].visible = this.carteLontane;
     this.impostaDistanze(0.55 + 0.45 * clamp(k, 0, 1.3));
     this.sottobosco.impostaQualita(k);
   }
+  /** carte di foglie ai LOD 2 e 3 (spente a Bassa) */
+  private carteLontane = true;
+  /** larghezza relativa delle fasce di passaggio fra i livelli (più larga a Bassa) */
+  private fascia = 1;
 
   // ---------------------------------------------------------------------------------- piantare
 
@@ -276,9 +296,22 @@ export class Vegetation {
         if (carte && lod < 2 && SOLO_CARTE.includes(sp)) chioma.layers.disable(0);
         const tg = geo.tronco[lod];
         const tronco = tg ? this.istanze(tg, this.materiali.tronco[lod]!, n, `alberi-${sp}-tronco-lod${lod}`, false) : null;
+        // l'ombra la fanno i proiettori qui sotto (anche per il LOD 0)
+        chioma.userData['ombra'] = false;
+        if (tronco) tronco.userData['ombra'] = false;
         liv.push({ chioma, carte, tronco, capienza: n });
       }
       this.livelli.set(sp, liv);
+      // proiettori d'ombra: masse e tronco del LOD 2 (la chioma intera, non il nucleo sotto le carte)
+      const nO = Math.min(quanti, 700);
+      const oc = this.istanze(geo.chioma[2]!, this.materiali.chioma[2]!, nO, `alberi-${sp}-ombra`, true);
+      const ot = geo.tronco[2] ? this.istanze(geo.tronco[2]!, this.materiali.tronco[2]!, nO, `alberi-${sp}-ombra-tronco`, false) : geo.tronco[1] ? this.istanze(geo.tronco[1]!, this.materiali.tronco[1]!, nO, `alberi-${sp}-ombra-tronco`, false) : null;
+      for (const m of [oc, ot]) {
+        if (!m) continue;
+        m.layers.set(LAYER_OMBRE);
+        m.userData['ombra'] = true;
+      }
+      this.ombre.set(sp, { chioma: oc, tronco: ot, capienza: nO });
     }
     this.costruisciLontani();
   }
@@ -302,6 +335,8 @@ export class Vegetation {
       for (const m of ms) {
         this.group.remove(m);
         m.geometry.dispose();
+        // (anche il buffer delle matrici delle istanze)
+        m.dispose();
       }
     }
     this.lontani.clear();
@@ -315,7 +350,7 @@ export class Vegetation {
       for (const mesh of ms) {
         lista.forEach((t, i) => this.scrivi(mesh, i, t, true));
         mesh.count = lista.length;
-        mesh.visible = true;
+        mesh.visible = mesh === ms[0] || this.carteLontane;
         mesh.userData['ombra'] = false;
         mesh.instanceMatrix.needsUpdate = true;
       }
@@ -325,18 +360,61 @@ export class Vegetation {
 
   private scrivi(mesh: InstancedMesh, i: number, t: TreeInstance, chioma: boolean): void {
     t.matrix.toArray(mesh.instanceMatrix.array as Float32Array, i * 16);
+    // (assegnazioni per indice: niente array temporanei per ogni albero)
     const a = (mesh.geometry.getAttribute('aTint') as InstancedBufferAttribute).array as Float32Array;
     const seme = t.seme ?? 0.5;
+    const o = i * 4;
     if (chioma) {
-      a.set([t.tint[0], t.tint[1], t.tint[2], seme], i * 4);
+      a[o] = t.tint[0];
+      a[o + 1] = t.tint[1];
+      a[o + 2] = t.tint[2];
+      a[o + 3] = seme;
       const b = (mesh.geometry.getAttribute('aTint2') as InstancedBufferAttribute).array as Float32Array;
       const t2 = t.tint2 ?? t.tint;
-      b.set([t2[0], t2[1], t2[2], t.quota ?? 0.4], i * 4);
+      b[o] = t2[0];
+      b[o + 1] = t2[1];
+      b[o + 2] = t2[2];
+      b[o + 3] = t.quota ?? 0.4;
     } else {
       const v = 0.85 + seme * 0.3;
-      a.set([v, v * (0.97 + seme * 0.05), v * 0.96, seme], i * 4);
+      a[o] = v;
+      a[o + 1] = v * (0.97 + seme * 0.05);
+      a[o + 2] = v * 0.96;
+      a[o + 3] = seme;
     }
   }
+
+  /** Mette l'albero `t` nel livello `lod` della sua specie (se c'è posto). */
+  private metti(liv: Livello[], cc: number[], lod: number, t: TreeInstance): void {
+    const L = liv[lod]!;
+    if (cc[lod]! >= L.capienza) return;
+    const j = cc[lod]!++;
+    this.scrivi(L.chioma, j, t, true);
+    if (L.carte) this.scrivi(L.carte, j, t, true);
+    if (L.tronco) this.scrivi(L.tronco, j, t, false);
+    this.nLod[lod]!++;
+  }
+
+  /** Spostamenti delle celle attorno a quella della camera, dalla più vicina alla più lontana. */
+  private offsetCelle(rc: number): Int32Array {
+    if (this.offsetRc === rc && this.offset) return this.offset;
+    const lista: Array<[number, number, number]> = [];
+    for (let dz = -rc; dz <= rc; dz++) for (let da = -rc; da <= rc; da++) lista.push([dz, da, dz * dz + da * da]);
+    lista.sort((a, b) => a[2] - b[2]);
+    const out = new Int32Array(lista.length * 2);
+    lista.forEach(([dz, da], i) => {
+      out[i * 2] = dz;
+      out[i * 2 + 1] = da;
+    });
+    this.offset = out;
+    this.offsetRc = rc;
+    return out;
+  }
+  private offset: Int32Array | null = null;
+  private offsetRc = -1;
+  private readonly nLod = [0, 0, 0];
+  private readonly conta = new Map<Specie, number[]>(SPECIE.map((sp) => [sp, [0, 0, 0]]));
+  private readonly contaOmbre = new Map<Specie, number[]>(SPECIE.map((sp) => [sp, [0]]));
 
   /**
    * Densità della vegetazione (0.4..1, dalla qualità): accorcia le distanze dei livelli di
@@ -346,9 +424,9 @@ export class Vegetation {
     const f = clamp(k, 0.3, 1.5);
     this.lodDistances = DISTANZE_ALTA.map((d) => d * f);
     const [d0, d1, d2] = this.lodDistances as [number, number, number];
-    const b0 = 7 * f;
-    const b1 = 14 * f;
-    const b2 = 26 * f;
+    const b0 = 7 * f * this.fascia;
+    const b1 = 14 * f * this.fascia;
+    const b2 = 26 * f * this.fascia;
     // comparsa/scomparsa complementari: dove uno sparisce l'altro compare, pixel per pixel
     impostaSfuma(this.materiali.chioma[0]!, 0, 0, d0 - b0, d0 + b0);
     impostaSfuma(this.materiali.tronco[0]!, 0, 0, d0 - b0, d0 + b0);
@@ -364,6 +442,16 @@ export class Vegetation {
       impostaSfuma(c2!, d1 - b1, d1 + b1, d2 - b2, d2);
     }
     this.boschi.impostaComparsa(d2 - b2, d2);
+    this.lastCam.set(1e9, 0, 0);
+  }
+
+  /**
+   * Raggio (m) della zona delle ombre portate (`PROFILI_OMBRE[q].raggio`, 0 = spente): gli alberi
+   * entro questo raggio (più il passo della ridistribuzione) proiettano l'ombra.
+   */
+  impostaRaggioOmbre(r: number): void {
+    if (Math.abs(r - this.raggioOmbre) < 1e-3) return;
+    this.raggioOmbre = r;
     this.lastCam.set(1e9, 0, 0);
   }
 
@@ -407,57 +495,75 @@ export class Vegetation {
     this.lastCam.copy(cam);
     const [d0, d1, d2] = this.lodDistances as [number, number, number];
     const f = d2 / DISTANZE_ALTA[2]!;
-    const b0 = 7 * f;
-    const b1 = 14 * f;
-    const conta = new Map<Specie, number[]>();
-    for (const sp of SPECIE) conta.set(sp, [0, 0, 0]);
+    const b0 = 7 * f * this.fascia;
+    const b1 = 14 * f * this.fascia;
+    for (const cc of this.conta.values()) cc.fill(0);
     const c = worldToCyl(cam);
     const rc = Math.ceil((d2 + 20) / CELLA);
     const iz0 = Math.floor(c.z / CELLA);
     const ia0 = Math.floor((c.theta * METERS_PER_DEG) / CELLA);
     // vicino all'asse la camera vede l'altra metà: gli alberi vicini restano comunque quelli sotto
-    const n = [0, 0, 0];
-    for (let dz = -rc; dz <= rc; dz++) {
-      for (let da = -rc; da <= rc; da++) {
-        const l = this.celle.get(this.chiave(iz0 + dz, ia0 + da));
-        if (!l) continue;
-        for (const i of l) {
-          const t = this.trees[i]!;
-          const d = t.pos.distanceTo(cam);
-          if (d > d2) continue;
-          const sp = t.specie ?? 'castagno';
-          const liv = this.livelli.get(sp)!;
-          const cc = conta.get(sp)!;
-          // nelle fasce di passaggio l'albero sta in tutti e due i livelli (retinati)
-          const metti = (lod: number) => {
-            const L = liv[lod]!;
-            if (cc[lod]! >= L.capienza) return;
-            const j = cc[lod]!++;
-            this.scrivi(L.chioma, j, t, true);
-            if (L.carte) this.scrivi(L.carte, j, t, true);
-            if (L.tronco) this.scrivi(L.tronco, j, t, false);
-            n[lod]!++;
-          };
-          if (d < d0 + b0) metti(0);
-          if (d > d0 - b0 && d < d1 + b1) metti(1);
-          if (d > d1 - b1) metti(2);
+    const n = this.nLod;
+    n.fill(0);
+    // celle dalla più vicina alla più lontana: le istanze si disegnano più o meno dal davanti
+    // all'indietro (la profondità scarta prima i frammenti delle chiome dietro)
+    const off = this.offsetCelle(rc);
+    const d2q = d2 * d2;
+    // (la zona d'ombra segue la camera: si tiene il margine del passo di ridistribuzione)
+    const rO = this.raggioOmbre > 0 ? this.raggioOmbre + 14 : 0;
+    const rOq = rO * rO;
+    for (const cc of this.contaOmbre.values()) cc[0] = 0;
+    for (let k = 0; k < off.length; k += 2) {
+      const l = this.celle.get(this.chiave(iz0 + off[k]!, ia0 + off[k + 1]!));
+      if (!l) continue;
+      for (const i of l) {
+        const t = this.trees[i]!;
+        const dq = t.pos.distanceToSquared(cam);
+        if (dq > d2q) continue;
+        const d = Math.sqrt(dq);
+        const sp = t.specie ?? 'castagno';
+        const liv = this.livelli.get(sp)!;
+        const cc = this.conta.get(sp)!;
+        if (dq < rOq) {
+          const o = this.ombre.get(sp)!;
+          const co = this.contaOmbre.get(sp)!;
+          if (co[0]! < o.capienza) {
+            const j = co[0]!++;
+            t.matrix.toArray(o.chioma.instanceMatrix.array as Float32Array, j * 16);
+            if (o.tronco) t.matrix.toArray(o.tronco.instanceMatrix.array as Float32Array, j * 16);
+          }
         }
+        // nelle fasce di passaggio l'albero sta in tutti e due i livelli (retinati)
+        if (d < d0 + b0) this.metti(liv, cc, 0, t);
+        if (d > d0 - b0 && d < d1 + b1) this.metti(liv, cc, 1, t);
+        if (d > d1 - b1) this.metti(liv, cc, 2, t);
       }
     }
     for (const sp of SPECIE) {
       const liv = this.livelli.get(sp)!;
-      const cc = conta.get(sp)!;
+      const cc = this.conta.get(sp)!;
       for (let lod = 0; lod < 3; lod++) {
         const L = liv[lod]!;
+        const q = cc[lod]!;
         for (const mesh of [L.chioma, L.carte, L.tronco]) {
           if (!mesh) continue;
-          mesh.count = cc[lod]!;
-          mesh.visible = cc[lod]! > 0;
-          mesh.instanceMatrix.needsUpdate = true;
-          mesh.geometry.getAttribute('aTint').needsUpdate = true;
-          const t2 = mesh.geometry.getAttribute('aTint2');
-          if (t2) t2.needsUpdate = true;
+          mesh.count = q;
+          mesh.visible = q > 0 && (mesh !== L.carte || lod < 2 || this.carteLontane);
+          // solo la parte usata dei buffer va alla scheda (non 11 MB di capienza)
+          aggiorna(mesh.instanceMatrix, q * 16);
+          aggiorna(mesh.geometry.getAttribute('aTint') as InstancedBufferAttribute, q * 4);
+          const t2 = mesh.geometry.getAttribute('aTint2') as InstancedBufferAttribute | undefined;
+          if (t2) aggiorna(t2, q * 4);
         }
+      }
+    }
+    for (const [sp, o] of this.ombre) {
+      const q = this.contaOmbre.get(sp)![0]!;
+      for (const mesh of [o.chioma, o.tronco]) {
+        if (!mesh) continue;
+        mesh.count = q;
+        mesh.visible = q > 0;
+        aggiorna(mesh.instanceMatrix, q * 16);
       }
     }
     let lontani = 0;

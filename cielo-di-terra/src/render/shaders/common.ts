@@ -154,7 +154,8 @@ uniform vec3 uLineaGlow;
 uniform vec4 uHaze;          // x = densità (1/m), y = massimo, z = forza delle quinte, w = velo dell'altra metà
 uniform float uNight;
 uniform vec3 uLampColor;
-uniform vec4 uLamps[8];      // xyz posizione, w intensità
+uniform vec4 uLamps[8];      // xyz posizione, w intensità (qui contano solo quelli con w >= 2: le Fade)
+uniform vec4 uPozze[24];     // pozze calde dei lumi vicini: xyz posizione, w = 1 + distanza dalla camera (0 = fine)
 uniform sampler2D uCellTex;
 uniform vec4 uCellGrid;      // nZ, nTheta, dz (m), dTheta (gradi)
 uniform vec4 uPencil;        // x,y = raggio "vicino sempre dipinto" (inizio, fine); z = forza matita globale; w = durata rivelazione
@@ -226,17 +227,44 @@ float bandLight(float x) {
   return bandLightK(x, 0.62);
 }
 
-// pozze calde dei lumi (finestre, lanterne): solo di notte, con caduta morbida
+// pozze calde dei lumi (finestre, lanterne, lampioni): solo di notte, con caduta morbida
 vec3 lampLight(vec3 P, vec3 N) {
+  // di giorno niente lumi: si salta il ciclo (ramo uniforme, uguale per tutti i pixel)
+  if (uNight < 0.01) return vec3(0.0);
   vec3 acc = vec3(0.0);
+  // le luci in più (le Fade, w >= 2): larghe e morbide
   for (int i = 0; i < 8; i++) {
     vec4 l = uLamps[i];
-    if (l.w <= 0.0) continue;
+    if (l.w < 2.0) continue;
     vec3 d = l.xyz - P;
     float dist = length(d);
     float att = l.w / (1.0 + dist * dist * 0.11) * (1.0 - smoothstep(9.0, 24.0, dist));
     float ndl = clamp(dot(N, d / max(dist, 1e-3)) * 0.65 + 0.35, 0.0, 1.0);
     acc += uLampColor * att * ndl;
+  }
+  // le pozze dei lumi vicini (i più vicini prima; w = 0 chiude l'elenco): un cerchio caldo di 5-7 m
+  // sul suolo e sui muri, che cade come 1/(1+d²) e finisce a 11 m. I lumi arrivano in ordine di
+  // distanza dalla camera (w = 1 + quella distanza), tutti entro 120 m: un frammento a dCam dalla
+  // camera prende luce solo dai lumi fra dCam - 11 e dCam + 11, quindi il ciclo salta gli altri e
+  // si ferma al primo troppo lontano (e oltre 132 m non parte nemmeno)
+  vec3 pozza = vec3(1.0, 0.69, 0.376);
+  const float POZZE_FORZA = 1.2;
+  float dCam = distance(P, cameraPosition);
+  if (dCam < 132.0) {
+    for (int i = 0; i < 24; i++) {
+      vec4 l = uPozze[i];
+      if (l.w <= 0.0) break;
+      float dl = l.w - 1.0;
+      if (dl > dCam + 11.0) break;
+      if (dl < dCam - 11.0) continue;
+      vec3 d = l.xyz - P;
+      float dd = dot(d, d);
+      if (dd > 121.0) continue;
+      float dist = sqrt(dd);
+      float att = POZZE_FORZA / (1.0 + dd * 0.1) * (1.0 - smoothstep(6.0, 11.0, dist));
+      float ndl = clamp(dot(N, d / max(dist, 1e-3)) * 0.6 + 0.4, 0.0, 1.0);
+      acc += pozza * (att * ndl * 1.3);
+    }
   }
   return acc * uNight * 0.62;
 }
@@ -323,7 +351,9 @@ vec3 shadeSup(Sup s, vec3 Nv, vec3 P, vec3 V, out float tone) {
   // riempimento emisferico: cielo freddo sopra, rimbalzo caldo dal suolo sotto (più basso
   // all'alba e al tramonto: il contrasto fra luce dorata e ombra fredda è quello dei bozzetti)
   float hemi = dot(N, up) * 0.5 + 0.5;
-  vec3 fill = mix(uAmbBottom, uAmbTop, hemi) * mix(1.0, 0.78, uGolden);
+  // (di notte il riempimento del cielo sul suolo cala: il suolo resta più scuro del cielo e le
+  // pozze dei lumi si leggono)
+  vec3 fill = mix(uAmbBottom, uAmbTop, hemi) * mix(1.0, 0.78, uGolden) * mix(1.0, 0.72, uNight);
   float occ = mix(1.0, s.ao, uLuce.y);
   // notte: i colori perdono saturazione e virano al blu (i lumi invece li mostrano veri)
   vec3 albN = mix(s.albedo, vec3(lumaP(s.albedo)) * vec3(0.7, 0.94, 1.22), 0.62 * uNight);
@@ -433,7 +463,10 @@ vec3 coloreFoschia(vec3 P, float dist, out float glow) {
   float litAt = max(step(q.z, uLineaIgnite), 0.55 * uNight);
   // (alone stretto: con la post-produzione il bagliore HDR della Linea apre già l'alone largo;
   // qui resta una riga di luce nell'aria, come nei bozzetti, non una colonna bianca)
-  glow = (exp(-dmin / 20.0) * 0.6 + exp(-dmin / 110.0) * 0.24) * 0.7 * litAt * smoothstep(0.0, 260.0, dist);
+  // (la riga stretta è larga qualche pixel a ogni distanza: vicino all'asse, in planata, 20 m
+  // d'aria luminosa diventavano una banda bianca larga quanto un dito)
+  float dminPx = dmin / max(length(q - c), 1.0) / max(uPixelAngle, 1e-5);
+  glow = (exp(-dminPx / 6.0) * 0.6 + exp(-dmin / 110.0) * 0.2) * 0.7 * litAt * smoothstep(0.0, 260.0, dist);
   glow *= 1.0 - 0.45 * uNight;
   return hc + uLineaGlow * glow * 0.36;
 }
@@ -582,9 +615,12 @@ vec4 cellSample(vec2 idx, vec3 P, float thetaDeg, float edgeNoise) {
 }
 
 PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
+  // di notte il raggio sempre dipinto si stringe (solo visivo: il gioco non usa nearPaint), così
+  // la differenza fra rilevato e non rilevato si legge anche al buio, prima che la foschia copra
+  vec2 np = mix(uPencil.xy, min(uPencil.xy, vec2(70.0, 150.0)), uNight);
   // dentro il raggio sempre dipinto, se nessuna rivelazione è in corso, le celle non contano:
   // si salta tutto il lavoro (gran parte dello schermo, vicino al giocatore)
-  if (dist <= uPencil.x && uTime - uCellAnim > uPencil.w + 0.05) {
+  if (dist <= np.x && uTime - uCellAnim > uPencil.w + 0.05) {
     PaintInfo q;
     q.paint = 1.0 - uPencil.z;
     q.blank = 0.0;
@@ -630,7 +666,7 @@ PaintInfo paintState(vec3 P, float thetaDeg, float dist) {
   pi.wet = anim * step(0.0, edge) * (1.0 - smoothstep(0.0, 12.0, edge));
   pi.bleed = anim * step(edge, 0.0) * (1.0 - smoothstep(0.0, 30.0, -edge)) * (0.6 + 0.4 * vnoise3(P * 0.11));
   // il mondo vicino è sempre dipinto (ci sei dentro)
-  float nearP = 1.0 - smoothstep(uPencil.x, uPencil.y, dist);
+  float nearP = 1.0 - smoothstep(np.x, np.y, dist);
   pi.paint = max(pi.paint, nearP);
   pi.blank *= 1.0 - nearP;
   pi.bleed *= 1.0 - nearP;
@@ -723,9 +759,14 @@ vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, f
   float pix = max(dist, 0.5) * uPixelAngle;
   vec3 paper = vec3(0.962, 0.935, 0.862);
   // da lontano la carta si confonde con l'aria (l'abbozzo dell'altra metà è dietro il velo azzurro)
-  paper = mix(paper, mix(uHazeColor, uHazeZenith, 0.35) * 1.08, smoothstep(350.0, 1100.0, dist) * 0.55 * (1.0 - uNight));
-  // la carta prende la luce dell'ora (di notte è blu-viola)
-  vec3 paperLight = mix(vec3(1.0), uAmbTop * 0.48 + uSunColor * uSunIntensity * 0.18 + uHazeColor * 0.16, uNight);
+  paper = mix(paper, mix(uHazeColor, uHazeZenith, 0.35) * 1.08, smoothstep(350.0, 1100.0, dist) * 0.3 * (1.0 - uNight));
+  // la carta prende la luce dell'ora (di notte è blu-viola), ma resta più chiara del dipinto
+  // (circa una volta e mezza): il non rilevato si legge al buio come carta, non come campitura
+  // (solo entro qualche centinaio di metri: l'altra metà, di notte, resta un fondale scuro sotto la
+  // foschia, dove si accendono i paesi lontani)
+  vec3 cartaBuio = uAmbTop * 0.48 + uSunColor * uSunIntensity * 0.18 + uHazeColor * 0.16;
+  float cartaVicina = 1.0 - smoothstep(450.0, 900.0, dist);
+  vec3 paperLight = mix(vec3(1.0), mix(cartaBuio, max(cartaBuio, uAmbTop * 0.8 + uHazeColor * 0.25), cartaVicina), uNight);
   // da lontano la carta si vede meno e il colore torna (le terre si leggono a piani)
   float lontano = smoothstep(260.0, 950.0, dist);
   // pigmento: colore vero, meno saturo (circa 60%), un po' più chiaro; il foglio mai visto
@@ -749,6 +790,8 @@ vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, f
   wash = mix(wash, 0.97, lontano * 0.85);
   // il foglio mai visto: una prima velatura leggera (il mondo non sembra mai vuoto)
   wash *= mix(1.0, mix(0.72, 0.94, lontano), blank);
+  // di notte il colore della scena è già buio: la stesura si fa leggera e la carta si vede
+  wash *= 1.0 - 0.62 * uNight * cartaVicina;
   vec3 wc = paper * mix(vec3(1.0), clamp(pig, 0.0, 1.0), wash);
   wc *= 1.0 - pozza * 0.06 * (1.0 - blank);
   // grana della carta
@@ -761,6 +804,10 @@ vec3 schizzo(vec3 col, vec2 uv, vec3 N, vec3 V, vec3 P, float tone, float hgt, f
   vec3 graphite = mix(vec3(0.36, 0.34, 0.37), pig * 0.45, 0.35) * paperLight;
   vec3 inkC = vec3(0.2, 0.17, 0.24);
   vec3 lineC = mix(graphite, inkC, inked);
+  // di notte: gesso chiaro su carta scura, con un contrasto minimo (il tratteggio e le curve di
+  // livello si leggono anche da lontano)
+  lineC = mix(lineC, wc * 1.9 + vec3(0.07, 0.07, 0.1), uNight * (1.0 - inked));
+  ink = mix(ink, max(ink, ink * 0.5 + 0.12 * step(0.02, ink)), uNight * (1.0 - smoothstep(300.0, 650.0, dist)));
   return mix(wc, lineC, clamp(ink * (0.75 + inked * 0.6), 0.0, 0.85));
 }
 `;

@@ -9,9 +9,10 @@ import * as THREE from 'three';
 import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMasso, geoPietraFaccia } from '../forme';
+import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMasso } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, hashPosizione, semeNumerico, type Seme } from '../rng';
+import { SUP } from '../superfici';
 import type { Collider, OggettoProcedurale } from '../tipi';
 
 export interface OpzioniMuro {
@@ -129,19 +130,61 @@ function sassoTesta(seme: number): THREE.BufferGeometry {
   return g;
 }
 
-/** Pietra della faccia a vista: blocco senza il retro e senza il fondo (8 triangoli). */
-function pietraFaccia(w: number, h: number, d: number, seme: number, irr: number): THREE.BufferGeometry {
-  const g = geoPietraFaccia(w, h, d, seme, irr);
-  const idx = g.getIndex() as THREE.BufferAttribute;
-  // BoxGeometry: gruppi +x, −x, +y, −y, +z (il −z l'ha già tolto geoPietraFaccia): via anche il −y
-  const a = Array.from(idx.array);
-  g.setIndex([...a.slice(0, 18), ...a.slice(24, 30)]);
+/**
+ * Pietra della faccia a vista: un blocco smussato (smusso di 2-3 cm, normali morbide) che sporge
+ * di `d` dal corpo del muro. Anello esterno sul corpo, anello interno rientrato dello smusso, faccia
+ * davanti appena bombata: 10 triangoli. Il giunto è il corpo scuro che si vede fra le pietre (un
+ * incavo vero), non un triangolo disegnato.
+ */
+function pietraSmussata(w: number, h: number, d: number, seme: number, irr: number): THREE.BufferGeometry {
+  const j = (k: number) => (hashPosizione(k, seme, 0.5, seme) - 0.5) * irr;
+  const sm = Math.min(0.03, w * 0.2, h * 0.22);
+  const x0 = -w / 2;
+  const x1 = w / 2;
+  // angoli un po' irregolari (pietra spaccata, non mattone)
+  const est: Array<[number, number]> = [
+    [x0 + j(1) * w, j(2) * h],
+    [x1 + j(3) * w, j(4) * h],
+    [x1 + j(5) * w, h + j(6) * h],
+    [x0 + j(7) * w, h + j(8) * h],
+  ];
+  const cx = (est[0]![0] + est[1]![0] + est[2]![0] + est[3]![0]) / 4;
+  const cy = (est[0]![1] + est[1]![1] + est[2]![1] + est[3]![1]) / 4;
+  const pos: number[] = [];
+  for (const [x, y] of est) pos.push(x, y, 0);
+  for (const [x, y] of est) {
+    // anello interno: rientra dello smusso verso il centro, sporge quasi tutto
+    const dx = cx - x;
+    const dy = cy - y;
+    const l = Math.hypot(dx, dy) || 1;
+    pos.push(x + (dx / l) * sm * 1.3, y + (dy / l) * sm * 1.3, d * (0.9 + j(9 + x) * 0.08));
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  // smusso (anello esterno -> interno) e faccia davanti
+  g.setIndex([0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7, 4, 5, 6, 4, 6, 7]);
   return g;
 }
 
+const C_MUSCHIO = new THREE.Color(0x6f7a3e);
+const C_LICHENE = new THREE.Color(0xc0a868);
+
 /**
- * Pietra a vista del muro lontano (dettaglio basso): un cuscino a quattro falde, col centro in
- * fuori: ogni pietra prende la luce su quattro facce come una pietra spaccata (4 triangoli).
+ * Colore di una pietra della faccia (uno per pietra: un colore per vertice disegnerebbe triangoli):
+ * gneiss chiaro, licheni ocra, muschio. Le macchie fini e il muschio sulle facce in su li dipinge
+ * il motivo SASSO nello shader.
+ */
+function colorePietra(base: THREE.Color, muschio: number, lichene: number): THREE.Color {
+  const out = base.clone();
+  if (muschio > 0) out.lerp(C_MUSCHIO, muschio * 0.45);
+  if (lichene > 0) out.lerp(C_LICHENE, lichene);
+  return out;
+}
+
+/**
+ * Pietra a vista del muro a dettaglio basso (i gradoni del paese, anche da vicino): un cuscino a
+ * quattro falde col centro in fuori, a vertici condivisi (normali morbide: una pietra tonda, non
+ * quattro schegge), 4 triangoli.
  */
 function pietraCuscino(w: number, h: number, sporge: number, seme: number): THREE.BufferGeometry {
   const j = (k: number) => (hashPosizione(k, seme, 0.5, seme) - 0.5) * 0.18;
@@ -154,16 +197,11 @@ function pietraCuscino(w: number, h: number, sporge: number, seme: number): THRE
     [x0 + j(7) * w, h + j(8) * h, 0],
     [j(9) * w * 0.6, h * (0.5 + j(10)), sporge],
   ] as const;
-  const t = [
-    [0, 1, 4],
-    [1, 2, 4],
-    [2, 3, 4],
-    [3, 0, 4],
-  ];
   const pos: number[] = [];
-  for (const tri of t) for (const k of tri) pos.push(...v[k]!);
+  for (const p of v) pos.push(...p);
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex([0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4]);
   return g;
 }
 
@@ -214,19 +252,24 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
   const corpo = new THREE.BufferGeometry();
   corpo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   corpo.setIndex(idx);
-  b.aggiungi(corpo, { colore: mescola(tono, 0x2b2620, 0.55), piatto: true });
+  // (il corpo si vede nei giunti: scuro, ma non nero)
+  b.aggiungi(corpo, { colore: mescola(tono, 0x2b2620, 0.42), piatto: true });
 
-  // pietre della faccia a corsi
+  // pietre della faccia a corsi orizzontali (pietre lunghe 1,5-3 volte l'altezza, qualche zeppa
+  // piccola fra l'una e l'altra), di gneiss chiaro con licheni ocra e muschio sopra (bozzetto 2)
   const facce = opz.terrapieno ? [1] : [1, -1];
+  const gneissMuro = new THREE.Color(0xb8b2a4);
   for (const lato of facce) {
     let y = -interr * 0.5;
     let corso = 0;
     while (y < H - 0.12) {
-      const hc = Math.min(H - y, pietra * rng.tra(0.42, 0.62));
+      const hc = Math.min(H - y, pietra * rng.tra(0.4, 0.56));
       if (hc < 0.08) break;
-      let s = corso % 2 === 0 ? 0 : -pietra * 0.4;
+      let s = corso % 2 === 0 ? 0 : -pietra * 0.45;
       while (s < L) {
-        const lw = pietra * rng.tra(0.7, 1.45);
+        // zeppa: una scaglia piccola e bassa fra due pietre (una su dieci)
+        const zeppa = det === 'alto' && rng.prob(0.1);
+        const lw = zeppa ? pietra * rng.tra(0.22, 0.36) : Math.max(hc * 1.7, Math.min(hc * 3.1, pietra * rng.tra(1.1, 1.9)));
         const s0 = Math.max(0, s);
         const s1 = Math.min(L, s + lw);
         if (s1 - s0 > 0.08) {
@@ -241,18 +284,33 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
           // licheni gialli e muschio su qualche pietra (più in basso, dove resta l'umido)
           if (rng.prob(0.14)) colore = mescola(colore, 0xb3a86e, rng.tra(0.25, 0.5));
           else if (yy < H * 0.35 && rng.prob(0.18)) colore = mescola(colore, PALETTE.muschio, rng.tra(0.2, 0.45));
+          // valore proprio di ogni pietra (±12%, da un hash: la posa delle pietre non cambia)
+          const valore = 0.88 + 0.24 * hashPosizione(sm * 3.1, yy * 7.3, lato, seme);
           if (det === 'alto') {
-            b.aggiungi(pietraFaccia(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
-              matrice: mat([centro.x, y + 0.017, centro.z], [lato > 0 ? -scarpa * 0.8 : scarpa * 0.4, ang + (lato > 0 ? 0 : Math.PI), rng.centrato(0.04)]),
-              colore,
-              variazione: 0.06,
-              piatto: true,
+            const base = new THREE.Color(colore).lerp(gneissMuro, 0.42).multiplyScalar(valore);
+            const hz = zeppa ? hc * rng.tra(0.35, 0.55) : hc - 0.04;
+            const yz = zeppa ? y + (hc - hz) * rng.next() : y + 0.02;
+            const mp = mat([centro.x, yz, centro.z], [lato > 0 ? -scarpa * 0.8 : scarpa * 0.4, ang + (lato > 0 ? 0 : Math.PI), rng.centrato(0.05)]);
+            const fronte = new THREE.Vector3(0, 0, 1).transformDirection(mp);
+            b.aggiungi(pietraSmussata(s1 - s0 - 0.04, hz, zeppa ? 0.04 : rng.tra(0.06, 0.09), rng.intero(0, 1e6), 0.1), {
+              matrice: mp,
+              // muschio sulle facce in alto di una pietra su cinque, licheni ocra su qualcuna
+              colore: colorePietra(base, rng.prob(0.2) ? rng.tra(0.35, 0.7) : 0, rng.prob(0.15) ? rng.tra(0.2, 0.4) : 0),
+              variazione: 0.07,
+              // un solo sasso: faccia scagliata, licheni e muschio, niente giunti disegnati dentro
+              superficie: SUP.SASSO,
+              // il bordo della pietra (lo smusso, che guarda di lato) in ombra: il giunto si legge per incavo
+              occlusione: (_p, n) => Math.min(0.5, Math.max(0.04, (0.95 - n.dot(fronte)) * 1.1)),
             });
           } else {
-            b.aggiungi(pietraCuscino(s1 - s0 - 0.03, hc - 0.03, 0.05, rng.intero(0, 1e6)), {
-              matrice: mat([centro.x + c.n.x * 0.01 * lato, y + 0.015, centro.z + c.n.z * 0.01 * lato], [lato > 0 ? -scarpa : scarpa * 0.5, ang + (lato > 0 ? 0 : Math.PI), 0]),
-              colore,
-              piatto: true,
+            const mp = mat([centro.x + c.n.x * 0.01 * lato, y + 0.015, centro.z + c.n.z * 0.01 * lato], [lato > 0 ? -scarpa : scarpa * 0.5, ang + (lato > 0 ? 0 : Math.PI), 0]);
+            const fronte = new THREE.Vector3(0, 0, 1).transformDirection(mp);
+            b.aggiungi(pietraCuscino(s1 - s0 - 0.04, hc - 0.04, 0.07, rng.intero(0, 1e6)), {
+              matrice: mp,
+              colore: new THREE.Color(colore).lerp(gneissMuro, 0.38).multiplyScalar(valore),
+              variazione: 0.07,
+              superficie: SUP.SASSO,
+              occlusione: (_p, n) => Math.min(0.45, Math.max(0.04, (0.97 - n.dot(fronte)) * 1.3)),
             });
           }
         }

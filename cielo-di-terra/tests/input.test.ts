@@ -18,7 +18,8 @@ function cambiaBlocco(su: Element | null): void {
 }
 
 function puntatore(tipo: string, x: number, y: number, extra: Partial<PointerEventInit> = {}): PointerEvent {
-  return new PointerEvent(tipo, { clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0, bubbles: true, ...extra });
+  // (mentre si trascina il tasto sinistro è giù: buttons = 1; al rilascio 0)
+  return new PointerEvent(tipo, { clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0, buttons: tipo === 'pointerup' ? 0 : 1, bubbles: true, ...extra });
 }
 
 beforeEach(() => {
@@ -96,6 +97,22 @@ describe('sguardo: ripiego quando il pointer lock è vietato', () => {
     ok.detach();
   });
 
+  it('se il blocco arriva dopo l’attesa (permesso lento) si torna al blocco', () => {
+    impostaBlocco(() => new Promise(() => {}));
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    vi.advanceTimersByTime(ATTESA_BLOCCO_MS + 100);
+    expect(input.modoSguardo).toBe('trascina');
+    cambiaBlocco(el);
+    expect(input.modoSguardo).toBe('blocco');
+    expect(modi).toEqual(['trascina', 'blocco']);
+    // dopo Esc il clic richiede il blocco
+    cambiaBlocco(null);
+    const chiesto = vi.fn(() => new Promise(() => {}));
+    impostaBlocco(chiesto);
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(chiesto).toHaveBeenCalled();
+  });
+
   it('dopo il ripiego il clic non chiede più il blocco', () => {
     const chiesto = vi.fn(() => Promise.reject(new Error('no')));
     impostaBlocco(chiesto);
@@ -119,6 +136,18 @@ describe('sguardo: trascinamento e frecce', () => {
     expect(input.consumeMouse()).toEqual({ dx: 0, dy: 0 });
     el.dispatchEvent(puntatore('pointerdown', 0, 0, { button: 2 }));
     window.dispatchEvent(puntatore('pointermove', 50, 0));
+    expect(input.consumeMouse()).toEqual({ dx: 0, dy: 0 });
+  });
+
+  it('se il rilascio si perde (fuori dalla finestra) lo sguardo si ferma al primo movimento senza tasto', () => {
+    el.dispatchEvent(puntatore('pointerdown', 100, 100));
+    window.dispatchEvent(puntatore('pointermove', 120, 100));
+    expect(input.consumeMouse()).toEqual({ dx: 20, dy: 0 });
+    // niente pointerup: il mouse torna dentro col tasto già alzato
+    window.dispatchEvent(puntatore('pointermove', 160, 100, { buttons: 0 }));
+    expect(input.consumeMouse()).toEqual({ dx: 0, dy: 0 });
+    expect(input.trascina).toBe(false);
+    window.dispatchEvent(puntatore('pointermove', 200, 100));
     expect(input.consumeMouse()).toEqual({ dx: 0, dy: 0 });
   });
 

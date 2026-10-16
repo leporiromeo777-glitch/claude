@@ -46,17 +46,29 @@ export class Linea {
     core.translate(0, 0, LIN.zStart + len / 2);
     const coreMat = new ShaderMaterial({
       name: 'linea-nucleo',
-      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole },
+      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole, uPixelAngle: world.uPixelAngle, uRaggio: { value: LIN.coreRadius } },
       vertexShader: /* glsl */ `
+        uniform float uPixelAngle;
+        uniform float uRaggio;
         varying float vZ;
+        varying float vK;
         void main() {
           vZ = position.z;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          // il filo resta sottile sullo schermo (circa 2 pixel a 1080p): non una banda bianca larga
+          // quando si vola vicino all'asse; l'alone lo fanno il nastro qui sotto e il bagliore
+          vec3 p = position;
+          float d = length(cameraPosition - vec3(0.0, 0.0, p.z));
+          float rr = min(uRaggio, max(0.9 * uPixelAngle * d, 0.04));
+          p.xy *= rr / uRaggio;
+          // più sottile, un po' più acceso: il bagliore della post conserva l'alone
+          vK = min(2.2, sqrt(uRaggio / rr));
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
         }`,
       fragmentShader: /* glsl */ `
         uniform vec3 uCore; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uTime; uniform float uHdr;
         uniform vec4 uSole;
         varying float vZ;
+        varying float vK;
         void main() {
           float lit = 1.0 - smoothstep(uLineaIgnite - 6.0, uLineaIgnite + 6.0, vZ);
           // il nucleo più luminoso che scorre lungo l'asse (traccia «luce»)
@@ -64,7 +76,7 @@ export class Linea {
           float tip = exp(-pow((vZ - uLineaIgnite) / 30.0, 2.0)) * step(1.0, uLineaIgnite);
           // un filo vivo: pulsazioni lente lungo l'asse, appena percettibili
           float vivo = 0.94 + 0.06 * sin(vZ * 0.013 - uTime * 0.7) * sin(vZ * 0.0041 + uTime * 0.23);
-          vec3 c = mix(uEmber * 1.1, uCore * uBright * uHdr * vivo * nucleo, lit) + vec3(1.0, 0.85, 0.6) * tip * 2.2;
+          vec3 c = mix(uEmber * 1.1, uCore * uBright * uHdr * vivo * nucleo * vK, lit) + vec3(1.0, 0.85, 0.6) * tip * 2.2;
           gl_FragColor = vec4(c, 1.0);
         }`,
     });
@@ -98,7 +110,7 @@ export class Linea {
     halo.setIndex(idx);
     const haloMat = new ShaderMaterial({
       name: 'linea-alone',
-      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole },
+      uniforms: { ...this.uniforms, uLineaIgnite: world.uLineaIgnite, uTime: world.uTime, uNight: world.uNight, uSole: world.uSole, uPixelAngle: world.uPixelAngle },
       vertexShader: /* glsl */ `
         attribute float aSide;
         uniform float uHalfWidth;
@@ -124,24 +136,28 @@ export class Linea {
       fragmentShader: /* glsl */ `
         uniform vec3 uGlow; uniform vec3 uEmber; uniform float uLineaIgnite; uniform float uBright; uniform float uNight; uniform float uHdr;
         uniform vec4 uSole;
+        uniform float uPixelAngle;
         varying float vSide;
         varying float vZ;
         varying float vDist;
         varying float vHw;
         void main() {
           float d = abs(vSide);
-          // filo sottile e vivo, alone stretto e un velo largo appena accennato (come nei
-          // bozzetti: una riga di luce, non una colonna); il resto lo fa il bagliore della post
-          float inner = exp(-pow(d / 0.032, 2.0));
-          float mid = exp(-pow(d / 0.12, 2.0));
+          // filo e alone stretto misurati in pixel (una riga di luce di qualche pixel a ogni
+          // distanza, non una banda larga quando si vola vicino all'asse); il velo largo in metri
+          float px = d * vHw / max(vDist * uPixelAngle, 1e-5);
+          float inner = exp(-pow(px / 2.5, 2.0));
+          float mid = exp(-pow(px / 12.0, 2.0));
           float outer = exp(-pow(d / 0.45, 2.0));
           float lit = 1.0 - smoothstep(uLineaIgnite - 25.0, uLineaIgnite + 25.0, vZ);
           float tip = exp(-pow((vZ - uLineaIgnite) / 60.0, 2.0)) * step(1.0, uLineaIgnite) * (1.0 - step(2990.0, uLineaIgnite));
           // alone caldo: bianco-oro sul filo, ambra verso il bordo
           vec3 caldo = mix(uGlow, uGlow * vec3(1.05, 0.82, 0.58), smoothstep(0.03, 0.4, d));
           float nucleo = 0.82 + 0.4 * exp(-pow((vZ - uSole.x) / 420.0, 2.0));
-          vec3 day = caldo * (inner * 0.9 * uHdr * 0.55 + mid * 0.2 + outer * 0.075) * uBright * nucleo;
-          vec3 ember = uEmber * (inner * 0.7 + mid * 0.26 + outer * 0.08);
+          // (il filo lo fa il nucleo, sottile; qui solo un alone stretto e il velo largo: il resto
+          // dell'alone lo apre il bagliore della post)
+          vec3 day = caldo * (inner * 0.35 + mid * 0.14 + outer * 0.07) * uBright * nucleo;
+          vec3 ember = uEmber * (inner * 0.4 + mid * 0.2 + outer * 0.08);
           vec3 c = mix(ember, day, lit) + vec3(1.0, 0.8, 0.5) * tip * (inner * 1.6 + mid * 0.8 + outer * 0.2);
           gl_FragColor = vec4(c, 1.0);
         }`,

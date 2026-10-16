@@ -70,6 +70,28 @@ describe('qualità automatica', () => {
     expect(m.livello).toBe('media');
   });
 
+  it('il costo misurato (GPU o disegno) si giudica a 1/55 s: 20 ms fanno scendere', () => {
+    const m = new MisuraQualita('alta');
+    let r: string | null = null;
+    // il browser va a 60 Hz ma la scheda (ombre comprese) lavora 20 ms: sotto i 60 fps veri
+    for (let i = 0; i < 600 && !r; i++) r = m.campione(1 / 60, 0.02);
+    expect(r).toBe('media');
+  });
+
+  it('senza costo misurato 20 ms per fotogramma restano sotto la soglia di 1/44 s', () => {
+    const m = new MisuraQualita('alta');
+    for (let i = 0; i < 600 && !m.finita; i++) expect(m.campione(0.02)).toBeNull();
+    expect(m.livello).toBe('alta');
+  });
+
+  it('un fotogramma lento per la CPU conta come uno lento per la scheda', () => {
+    const m = new MisuraQualita('media');
+    let r: string | null = null;
+    // GPU 6 ms, ma il disegno (draw call, ridistribuzione) costa 25 ms alla CPU: il gioco passa il massimo
+    for (let i = 0; i < 600 && !r; i++) r = m.campione(1 / 40, Math.max(0.006, 0.025));
+    expect(r).toBe('bassa');
+  });
+
   it('mediana', () => {
     expect(mediana([3, 1, 2])).toBe(2);
     expect(mediana([4, 1, 2, 3])).toBe(2.5);

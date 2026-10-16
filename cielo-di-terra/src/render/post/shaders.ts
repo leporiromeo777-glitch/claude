@@ -214,6 +214,9 @@ void main() {
   vec2 tv = vec2(l1 - g.x, -g.z);
   vec2 t = length(tv) > 0.0 ? normalize(tv) : vec2(0.0, 1.0);
   float A = (l1 + l2 > 0.0) ? (l1 - l2) / (l1 + l2) : 0.0;
+  // dove la grana è debole (superfici piatte, carta lontana, foschia) l'orientazione è casuale:
+  // niente ellissi allungate, che disegnerebbero vortici
+  A *= smoothstep(2e-5, 4e-4, l1 + l2);
   float a = rr * clamp((uAlfa + A) / uAlfa, 0.1, 2.0);
   float b = rr * clamp(uAlfa / (uAlfa + A), 0.1, 2.0);
   // asse lungo dell'ellisse lungo t (la direzione dei bordi), asse corto attraverso
@@ -439,6 +442,9 @@ vec3 pittura(vec2 uv, vec3 orig, float pp) {
   }
   float dl = abs(luma(o) - luma(comprimi(k)));
   float salva = smoothstep(uDettaglio.x, uDettaglio.y, dl) * uDettaglio.z;
+  // le luci HDR (il filo della Linea, i lumi, le stelle, la Meta) restano fuori dal filtro: il
+  // filtro le spalmerebbe in una banda; il loro alone lo fa il bagliore
+  salva = max(salva, smoothstep(1.15, 1.8, max3(orig)));
   return mix(k, orig, max(salva, pp * 0.25));
 }
 
@@ -484,10 +490,12 @@ void main() {
       vec2 tv = vec2(l1 - g.x, -g.z);
       dir = length(tv) > 1e-6 ? normalize(tv) : vec2(0.7071, 0.7071);
       float A = (l1 + l2 > 1e-6) ? (l1 - l2) / (l1 + l2) : 0.0;
-      // nelle zone piatte la direzione è casuale: si torna al campo morbido
+      // nelle zone piatte (cielo, foschia, carta lontana) la direzione è casuale: si torna al campo
+      // morbido e la pennellata si fa leggera (tirata lunga sul piatto disegnerebbe archi)
+      float energia = smoothstep(2e-5, 4e-4, l1 + l2);
       float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 2.2) - 0.5) * 1.3;
       dir = normalize(mix(vec2(cos(ang), sin(ang)), dir, smoothstep(0.15, 0.6, A)));
-      forza = 0.6 + 0.4 * A;
+      forza = mix(0.3, 0.6 + 0.4 * A, energia);
     } else {
       float ang = 0.8 + (vnoise(uv * vec2(uRisoluzione.x / uRisoluzione.y, 1.0) * 2.2) - 0.5) * 1.3;
       dir = vec2(cos(ang), sin(ang));

@@ -39,6 +39,7 @@ import { applySky, createWorldUniforms, hazeClearColor, type WorldUniforms } fro
 import { PostProduzione } from './render/post/pipeline';
 import { MisuraQualita, PRESET_QUALITA, stimaIniziale, type LivelloQualita, type PresetQualita, type SceltaQualita } from './render/post/qualita';
 import { TempoGpu } from './render/post/tempoGpu';
+import { PROFILI_OMBRE } from './render/ombre';
 import { createLake, createRiale } from './render/water';
 import { Windows } from './render/windows';
 import { createWorldMaterial } from './render/worldMaterial';
@@ -357,6 +358,8 @@ export class Game {
   private applicaOmbre(p: PresetQualita): void {
     this.uniforms.uDettaglio.value = p.motivi;
     this.luce?.ombre.impostaQualita(p.ombre);
+    // gli alberi entro la zona d'ombra la proiettano (anche oltre il LOD 0)
+    this.vegetation?.impostaRaggioOmbre(p.ombre === 'spente' ? 0 : PROFILI_OMBRE[p.ombre].raggio);
   }
 
   private nomeRenderer(): string {
@@ -400,19 +403,43 @@ export class Game {
     return tempi;
   }
 
-  /** Qualità automatica: un campione per fotogramma (tempo GPU se c'è, altrimenti il fotogramma). */
-  private misuraQualita(frameDt: number): void {
+  /**
+   * Qualità automatica: un campione per fotogramma. Con il timer della scheda il costo è il massimo
+   * fra il tempo GPU (ombre comprese) e il tempo CPU del disegno (un fotogramma lento per la CPU,
+   * con molte draw call o la ridistribuzione degli alberi, conta anche lui); senza timer (Firefox,
+   * Safari) si giudica l'intervallo fra i fotogrammi.
+   */
+  private misuraQualita(frameDt: number, cpuDisegno: number): void {
     const m = this.misura;
     if (!m || m.finita) return;
-    let costo = frameDt;
+    let nuovo: LivelloQualita | null;
     if (this.tempoGpu.disponibile) {
       const gpu = this.tempoGpu.raccogli();
       if (!gpu.length) return;
-      costo = Math.max(...gpu) / 1000;
+      let g = 0;
+      for (const x of gpu) g = Math.max(g, x);
+      nuovo = m.campione(frameDt, Math.max(g / 1000, cpuDisegno));
+    } else {
+      nuovo = m.campione(frameDt);
     }
-    const nuovo = m.campione(frameDt, costo);
     if (nuovo) this.applicaLivello(nuovo);
   }
+
+  /**
+   * Rifà la misura della qualità automatica partendo dalla stima iniziale (anche verso l'alto, una
+   * volta): la prima misura avviene sulla schermata del titolo, che pesa meno del gioco. La chiama
+   * da sé il primo fotogramma di gioco vero (il ciclo esce dalla pausa del titolo).
+   */
+  rimisuraQualita(): void {
+    if (this.sceltaQualita !== 'automatica' || this.opts.e2e) return;
+    const livello = stimaIniziale(this.nomeRenderer());
+    this.tempoGpu.raccogli();
+    this.misura = new MisuraQualita(livello);
+    if (livello !== this.livello) this.applicaLivello(livello);
+  }
+
+  /** Il ciclo è uscito una prima volta dalla pausa (titolo → gioco). */
+  private giocoIniziato = false;
 
   /** Restringe o allarga il campo visivo (1 = quello delle impostazioni; 0.25 = cannocchiale x4). */
   setFovScale(k: number): void {
@@ -521,6 +548,12 @@ export class Game {
   }
 
   render(alpha: number, frameDt: number): void {
+    const t0Disegno = performance.now();
+    if (!this.giocoIniziato && !this.loop.paused) {
+      // primo fotogramma di gioco (la regia tiene il ciclo in pausa sul titolo): si rimisura
+      this.giocoIniziato = true;
+      if (this.misura) this.rimisuraQualita();
+    }
     // sguardo dal mouse (o dal trascinamento) e dalle frecce a ogni fotogramma (latenza minima)
     const m = this.input.consumeMouse();
     const kb = this.input.lookKeys(frameDt);
@@ -548,11 +581,12 @@ export class Game {
 
     // Velo in primo piano e nappina
     this.updateFirstPerson(frameDt);
+    // (il tempo GPU comprende anche i sistemi: la passata delle ombre si disegna lì)
+    const misura = !!this.misura && !this.misura.finita;
+    if (misura) this.tempoGpu.inizio();
     for (const s of this.sistemi) s.render?.(frameDt);
 
     this.renderer.info.reset();
-    const misura = !!this.misura && !this.misura.finita;
-    if (misura) this.tempoGpu.inizio();
     // 1. il mondo nel render target HDR della post
     this.post.inizioMondo();
     this.post.fase('mondo', () => this.renderer.render(this.scene, this.camera));
@@ -567,11 +601,14 @@ export class Game {
       for (const s of this.sistemi) s.overlay?.(this.renderer);
     });
     // 4. bagliore, filtro pittorico, toni: sul canvas
-    this.post.fine({ notte: this.sky.night });
+    this.post.fine({ notte: this.sky.night, oro: this.sky.golden });
     if (misura) this.tempoGpu.fine();
-    this.misuraQualita(frameDt);
-    this.stats.frame(frameDt, () => this.statsLines());
+    this.misuraQualita(frameDt, (performance.now() - t0Disegno) / 1000);
+    this.stats.frame(frameDt, this.righeStats);
   }
+
+  /** (una sola funzione, non una chiusura nuova a ogni fotogramma) */
+  private readonly righeStats = (): string[] => this.statsLines();
 
   private updateFirstPerson(dt: number): void {
     const fp = this.fp;

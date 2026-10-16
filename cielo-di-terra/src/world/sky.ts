@@ -54,6 +54,10 @@ export interface SkyState {
   night: number;
   /** 0..1 quanto è "alba/tramonto" (colori caldi). */
   golden: number;
+  /** 0..1 fase rosa del crepuscolo (mentre la Linea si accende o si ritira). */
+  rosa: number;
+  /** Moltiplicatore della luce principale (`uSole.w`): più piena nelle ore dorate. */
+  forzaLuce: number;
   /** Inclinazione della luce dalla verticale (rad). */
   tiltAlpha: number;
   /** Azimut dell'inclinazione: 0 = da Mane (est), pi/2 = da Lag (nord), pi = da Sera (rad). */
@@ -91,29 +95,35 @@ const mixc = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1]
  */
 const PAL = {
   sunDay: hex(0xfff0d2),
-  sunGold: hex(0xffc282),
+  sunGold: hex(0xffaa66),
   sunNight: hex(0x6a6ee0),
   ambTopDay: hex(0x93a7cf),
-  ambTopGold: hex(0x8f9cd0),
-  ambTopNight: hex(0x5052a2),
+  ambTopGold: hex(0xa898c4),
+  ambTopNight: hex(0x3e4088),
   ambBotDay: hex(0xa2906a),
   ambBotGold: hex(0xa47e60),
-  ambBotNight: hex(0x262848),
+  // (il suolo di notte più scuro del cielo: il prato non è più lilla chiaro)
+  ambBotNight: hex(0x141628),
   hazeDay: hex(0xbcd1e6),
-  // all'alba la foschia è lilla-rosata; l'oro sta solo verso la luce (hazeSunGold)
-  hazeGold: hex(0xc6bccb),
+  // all'alba e al tramonto la foschia è pesca (il controluce dorato del bozzetto 1)
+  hazeGold: hex(0xf0c49a),
   hazeNight: hex(0x3a4288),
   zenithDay: hex(0x5286cc),
-  zenithGold: hex(0x5a82c4),
+  zenithGold: hex(0x7884c4),
   zenithNight: hex(0x2c387e),
   hazeSunDay: hex(0xfff0d2),
-  hazeSunGold: hex(0xffbf7a),
+  hazeSunGold: hex(0xffa452),
   hazeSunNight: hex(0x4a58c8),
   coreDay: hex(0xfffbec),
   coreGold: hex(0xffd9a0),
   coreEmber: hex(0x6f86ff),
   glowDay: hex(0xffe9c4),
   glowEmber: hex(0x3b4fd8),
+  // fase rosa del crepuscolo (fra il tramonto dorato e il blu della notte, e prima dell'alba)
+  hazeRosa: hex(0xe0909a),
+  zenithRosa: hex(0x5a5aa0),
+  ambTopRosa: hex(0xa088b8),
+  sunRosa: hex(0xff9a7a),
 };
 
 export class WorldClock {
@@ -166,9 +176,14 @@ export function computeSky(hours: number, t: SkyTimes = DEFAULT_TIMES, out?: Sky
   const mid = (t.dawnEnd + t.duskStart) / 2;
   const half = (t.duskStart - t.dawnEnd) / 2;
   const fromMid = Math.abs(h - mid) / half; // 0 a mezzogiorno, 1 a fine alba/inizio tramonto
-  // (finestra larga: la luce dorata dura le prime e le ultime due ore, come nei bozzetti)
-  const golden = dayK * smoothstep(0.5, 1.0, fromMid);
+  // (finestra larga: la luce dorata dura le prime e le ultime tre ore, come nei bozzetti)
+  const golden = dayK * smoothstep(0.3, 1.0, fromMid);
   const night = 1 - dayK;
+  // fase rosa: mentre la Linea si accende o si ritira (lit fra 0.9 e 0.3, circa 19:40-20:40 e
+  // 5:35-5:55) il cielo passa per il rosa e il lilla prima del blu della notte
+  const rosa = smoothstep(0.22, 0.5, lit) * (1 - smoothstep(0.72, 0.95, lit));
+  // nella fase rosa la notte vela meno il cielo (il blu arriva dopo)
+  const notteCielo = night * (1 - 0.6 * rosa);
 
   // inclinazione della luce (schermo girevole)
   const dayFrac = clamp((h - t.dawnStart) / (t.duskEnd - t.dawnStart), 0, 1);
@@ -184,26 +199,31 @@ export function computeSky(hours: number, t: SkyTimes = DEFAULT_TIMES, out?: Sky
   if (h >= t.duskStart || h < t.dawnStart) coreZ = Math.min(coreZ, Math.max(0, lineaIgnite - 60));
   // radenza: luce bassa nelle prime e nelle ultime ore, alta a mezzogiorno
   const arc = Math.sin(Math.PI * dayU);
-  const coreFlat = lerp(0.5, 1, smoothstep(0, 0.75, arc));
+  // nelle ore dorate la luce scende più radente (ombre lunghe), nella fase rosa quasi di lato
+  const coreFlat = lerp(lerp(lerp(0.5, 0.3, golden), 0.18, rosa), 1, smoothstep(0, 0.75, arc));
   const coreSide = 0.32 * Math.cos(tiltBeta);
 
-  const sunColor = mixc(mixc(PAL.sunDay, PAL.sunGold, golden), PAL.sunNight, night);
+  const sunColor = mixc(mixc(mixc(PAL.sunDay, PAL.sunGold, golden), PAL.sunRosa, rosa * 0.6), PAL.sunNight, night);
   const res: SkyState = out ?? ({} as SkyState);
   res.hours = h;
   res.lineaIgnite = lineaIgnite;
   res.sunIntensity = lerp(0.1, 1, dayK);
   res.night = night;
   res.golden = golden;
+  res.rosa = rosa;
+  // luce principale più piena nelle ore dorate (il moltiplicatore va in uSole.w; sunIntensity resta
+  // quella del giorno, che regola anche le termiche del Velo)
+  res.forzaLuce = 1 + 0.2 * golden;
   res.tiltAlpha = tiltAlpha;
   res.tiltBeta = tiltBeta;
   res.coreZ = coreZ;
   res.coreFlat = coreFlat;
   res.coreSide = coreSide;
   res.sunColor = sunColor;
-  res.ambientTop = mixc(mixc(PAL.ambTopDay, PAL.ambTopGold, golden), PAL.ambTopNight, night);
+  res.ambientTop = mixc(mixc(mixc(PAL.ambTopDay, PAL.ambTopGold, golden), PAL.ambTopRosa, rosa * 0.7), PAL.ambTopNight, night);
   res.ambientBottom = mixc(mixc(PAL.ambBotDay, PAL.ambBotGold, golden), PAL.ambBotNight, night);
-  res.hazeColor = mixc(mixc(PAL.hazeDay, PAL.hazeGold, golden * 0.85), PAL.hazeNight, night);
-  res.hazeZenith = mixc(mixc(PAL.zenithDay, PAL.zenithGold, golden * 0.8), PAL.zenithNight, night);
+  res.hazeColor = mixc(mixc(mixc(PAL.hazeDay, PAL.hazeGold, golden * 0.85), PAL.hazeRosa, rosa), PAL.hazeNight, notteCielo);
+  res.hazeZenith = mixc(mixc(mixc(PAL.zenithDay, PAL.zenithGold, golden * 0.8), PAL.zenithRosa, rosa), PAL.zenithNight, notteCielo);
   res.hazeSun = mixc(mixc(PAL.hazeSunDay, PAL.hazeSunGold, golden), PAL.hazeSunNight, night);
   res.airDensity = lerp(1, 1.18, golden) * lerp(1, 0.92, night);
   res.lineaCore = mixc(mixc(PAL.coreDay, PAL.coreGold, golden), PAL.coreEmber, night);

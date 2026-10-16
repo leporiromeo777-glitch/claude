@@ -138,43 +138,23 @@ float ciuffoFoglie(vec2 uv, float seme, float forma, float px, out float id, out
   }
   float dentro = 0.0;
   if (forma < 0.5) {
-    // castagno: una carta su tre è una macchia fitta di foglie (riempie l'interno della chioma),
-    // le altre due rametti con le foglie alterne, lunghe, strette e seghettate, che pendono un
-    // poco (la gravità sullo schermo: in giù)
-    if (seme < 0.34) {
-      // macchia irregolare (tre gobbe) col bordo fatto di tante punte di foglia; dentro, le foglie
-      // a scaglie (settori e anelli) prendono ognuna il suo tono
-      float lob = 0.56 + 0.12 * sin(ang * 3.0 + seme * 41.0) + 0.06 * sin(ang * 5.0 + seme * 9.0);
-      lob += 0.12 * pow(abs(sin(ang * 13.0 + seme * 17.0)), 5.0);
-      dentro = step(r, lob);
-      float settore = floor((ang + 3.14159) * 2.2 + r * 3.0);
-      id = fract(seme * 29.0 + settore * 0.173 + floor(r * 4.0) * 0.31);
-      trasv = sin((ang + 3.14159) * 2.2 * 3.14159 + r * 9.0);
-      dir = r > 1e-3 ? uv / r : vec2(0.0, 1.0);
-      return step(0.001, dentro);
-    }
-    for (int ramo = 0; ramo < 2; ramo++) {
-      float fr = float(ramo);
-      float a0 = seme * 6.2832 + fr * 2.6;
-      vec2 d = vec2(cos(a0), sin(a0));
-      vec2 nr = vec2(-d.y, d.x);
-      vec2 base = -d * 0.62 + nr * (fr - 0.5) * 0.3;
-      for (int i = 0; i < 5; i++) {
-        float fi = float(i) + fr * 5.0;
-        float t = 0.1 + float(i) * 0.2;
-        vec2 q0 = base + d * (t * 1.05);
-        float lato = mod(float(i), 2.0) < 0.5 ? 1.0 : -1.0;
-        if (i == 4) lato = 0.0;
-        float ang = (0.62 + 0.3 * hash12(vec2(fi, seme * 7.0))) * lato;
-        vec2 dl = normalize(d * cos(ang) + nr * sin(ang) + vec2(0.0, -0.32));
-        float len = (0.46 + 0.2 * hash12(vec2(seme * 3.0, fi))) * (1.0 - float(i) * 0.05);
-        vec3 f = fogliaLanceolata(uv - q0, dl, len, 0.15 * len, 0.26);
-        if (f.x > 0.5 && f.y > dentro) {
-          dentro = max(f.y, 0.01);
-          id = fract(seme * 13.0 + fi * 0.137);
-          dir = dl;
-          trasv = f.z;
-        }
+    // castagno: foglie lanceolate e seghettate (15-20 cm in una carta di ~60 cm) sparse nel ciuffo,
+    // ognuna col suo verso e la sua inclinazione (niente ventaglio, niente stella): pendono un poco
+    for (int i = 0; i < 10; i++) {
+      float fi = float(i);
+      vec2 h = hash22(vec2(seme * 53.0 + fi * 1.7, fi * 2.3 + 0.5));
+      float rr = sqrt(h.x) * 0.5;
+      float aa = h.y * 6.2832;
+      vec2 c = vec2(cos(aa), sin(aa)) * rr;
+      float a = hash12(vec2(fi * 3.7, seme * 11.0)) * 6.2832;
+      vec2 d = normalize(vec2(cos(a), sin(a)) + vec2(0.0, -0.5));
+      float len = 0.5 + 0.18 * hash12(vec2(seme * 5.0, fi));
+      vec3 f = fogliaLanceolata(uv - c + d * len * 0.5, d, len, 0.16 * len, 0.26);
+      if (f.x > 0.5 && f.y > dentro) {
+        dentro = max(f.y, 0.01);
+        id = fract(seme * 13.0 + fi * 0.137);
+        dir = d;
+        trasv = f.z;
       }
     }
   } else if (forma < 1.5) {
@@ -283,7 +263,8 @@ vec3 dipintoNatura(vec3 col, vec3 P, vec3 N, vec3 V, float dist, float tone, vec
   float th = cylThetaDeg(P);
   PaintInfo pi = paintState(P, th, dist);
   vec3 colPieno = max(mix(vec3(lumaP(col)), col, uLuce.w), 0.0);
-  hazeK = mix(1.12, 1.0, pi.paint);
+  // (di notte il non rilevato sta meno dietro l'aria: la carta e il gesso si leggono)
+  hazeK = mix(mix(1.05, 0.67, uNight * (1.0 - smoothstep(400.0, 900.0, dist))), 1.0, pi.paint);
   if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
     vec3 pc = schizzo(col, suv, N, V, P, tone, hgt, dist, pi.blank, 0.0, pi.wet + pi.bleed * 0.6);

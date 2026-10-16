@@ -47,15 +47,21 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   vec3 g = a;
   // verde profondo e fresco nelle conche
   g = mix(g, a * vec3(0.72, 0.88, 0.62), smoothstep(0.44, 0.22, m1) * 0.6);
-  // prato al sole: verde-oliva caldo
-  g = mix(g, a * vec3(1.06, 1.0, 0.76), smoothstep(0.45, 0.7, m3) * 0.4);
-  // erba secca dorata
-  vec3 dry = vec3(0.74, 0.61, 0.35) * (0.86 + 0.26 * m2) * (0.72 + lumA * 0.7);
+  // prato al sole: verde-oliva caldo (non giallo)
+  g = mix(g, a * vec3(1.05, 1.0, 0.86), smoothstep(0.45, 0.7, m3) * 0.4);
+  // erba secca color paglia (non limone)
+  vec3 dry = vec3(0.725, 0.635, 0.416) * (0.86 + 0.26 * m2) * (0.72 + lumA * 0.7);
   g = mix(g, dry, smoothstep(0.52, 0.72, m1) * 0.75);
   // felci d'ottobre, color ruggine (più sui pendii)
   vec3 rust = vec3(0.64, 0.37, 0.2) * (0.85 + 0.3 * m1);
   g = mix(g, rust, smoothstep(0.66, 0.86, m2) * (0.3 + 0.35 * (1.0 - flatK)));
   a = mix(a, g, grass);
+  // variazione di valore a chiazze di 8-20 m (±15%): il prato non è mai una campitura uniforme
+  // (si spengono con la distanza in pixel: sull'altra metà, di scorcio, farebbero increspature)
+  float chiazza = vnoise2(cl.xy / 15.0 + 31.7) * 0.6 + vnoise2(cl.xy / 7.0 + 12.9) * 0.4;
+  a *= 1.0 + (chiazza - 0.5) * 0.36 * grass * visMotivo(pix, 12.0);
+  // prato d'ottobre del bozzetto 2: un filo più spento e più scuro (al sole non diventa limone)
+  a = mix(vec3(lumaP(a)), a, mix(1.0, 0.84, grass)) * mix(1.0, 0.9, grass);
 
   // tocchi di pennello: mosaico di pennellate corte, tre scale
   // angolo costante: ruotare coordinate assolute (centinaia di metri) con un angolo variabile
@@ -65,14 +71,17 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   float v2 = visMotivo(pix, 3.6);
   st = 0.0;
   float tw = 0.0;
+  // sulla terra (sentieri, terra battuta, campi) i tocchi sono più leggeri: a celle nette di 1-2 m
+  // e con il ±20% di valore, da vicino sembravano le faccette di un terreno triangolato
+  float tv = mix(0.4, 1.0, grass);
   if (v2 > 0.0) {
     vec3 t2 = tocchi(duv, 5.0, ang, 3.0);
-    st += (t2.x - 0.5) * v2 * 0.55;
+    st += (t2.x - 0.5) * v2 * 0.55 * mix(0.7, 1.0, grass);
     tw += (t2.y - 0.5) * v2 * 0.6;
   }
   if (v1 > 0.0) {
     vec3 t1 = tocchi(duv, 1.3, ang + 0.4, 7.0);
-    st += (t1.x - 0.5) * v1 * 0.5;
+    st += (t1.x - 0.5) * v1 * 0.5 * tv;
     tw += (t1.y - 0.5) * v1 * 0.45;
   }
   // tocchi fini vicino al giocatore (ciuffi d'erba dipinti), solo a qualità piena
@@ -80,18 +89,19 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   float foglia = 0.0;
   if (v3 > 0.0) {
     vec3 t3 = tocchi(duv, 0.32, ang - 0.7, 11.0);
-    st += (t3.x - 0.5) * v3 * (0.35 + 0.25 * grass);
+    st += (t3.x - 0.5) * v3 * (0.35 + 0.25 * grass) * tv;
     tw += (t3.y - 0.5) * v3 * 0.3;
     // ottobre: qualche foglia caduta sul prato, a gruppi radi (le foglie vere sotto i castagni le
     // mette il sottobosco della traccia «natura»): tocchi piccoli, non pozze arancioni
     float gruppi = smoothstep(0.55, 0.85, vnoise2(cl.xy / 6.0 + 2.7));
     foglia = step(1.0 - 0.07 * gruppi, t3.x) * smoothstep(0.12, 0.3, t3.z) * v3 * grass;
   }
-  // (i bozzetti hanno molta variazione locale: i tocchi si vedono)
-  a *= 1.0 + st * 0.42;
+  // (i bozzetti hanno molta variazione locale: i tocchi si vedono; sul prato di più, il bozzetto 2
+  // ha una deviazione di valore tre volte la nostra)
+  a *= 1.0 + st * mix(0.42, 0.58, grass);
   // tocchi caldi e freddi (come nei bozzetti: giallo-oliva e verde-azzurro accostati)
-  a = mix(a, a * vec3(1.1, 1.02, 0.78), clamp(tw * 2.0, 0.0, 1.0) * 0.5);
-  a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * 0.45);
+  a = mix(a, a * vec3(1.08, 1.02, 0.86), clamp(tw * 2.0, 0.0, 1.0) * mix(0.5, 0.62, grass));
+  a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * mix(0.45, 0.55, grass));
   vec3 fogliaC = mix(vec3(0.74, 0.42, 0.16), vec3(0.82, 0.62, 0.24), hash12(floor(duv / 0.3) + 0.5));
   a = mix(a, fogliaC, foglia * 0.6);
   return a;

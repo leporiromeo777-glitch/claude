@@ -410,7 +410,8 @@ function castagno(seme: number): GeometrieAlbero {
     else if (lod === 1) masse = masseTonde(rnd, C, S, 5, 2, [1, 1, 0]);
     else if (lod === 2) masse = masseTonde(rnd, C, S, 3, 1, [0, 0, -1], 1.18);
     else masse = [{ c: C.clone().add(new Vector3(0, -0.3, 0)), r: S.clone().multiplyScalar(0.86), m: 0.5, det: 1 }];
-    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
+    // (il nucleo sotto le carte: più piccolo, così le carte di foglie fanno la sagoma)
+    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.51 : 0.35, lod === 0 ? 1 : 0) : masse;
     chioma.push(
       chiomaAMasse({
         masse: nucleo,
@@ -424,8 +425,9 @@ function castagno(seme: number): GeometrieAlbero {
       }),
     );
     carte.push(
+      // LOD 0: carte doppie e grandi il 60%: foglie da 15-20 cm, non girandole da un metro
       lod === 0
-        ? carteChioma({ masse, centro: C, semiassi: S, n: 620, lato: 1.05, seme: seme + 7, fondo: 0.8 })
+        ? carteChioma({ masse, centro: C, semiassi: S, n: 1240, lato: 0.63, seme: seme + 7, fondo: 0.8 })
         : lod === 1
           ? carteChioma({ masse, centro: C, semiassi: S, n: 190, lato: 2.1, seme: seme + 7, fondo: 0.8 })
           : lod === 2
@@ -550,7 +552,7 @@ function fuso(o: { det: number; base: number; altezza: number; raggio: number; p
  * Chioma «a fuso» (larice, cipresso): un icosaedro suddiviso stirato lungo l'asse con il profilo
  * `prof(t)` (t = 0 alla base, 1 in punta), con i bozzi dei rami a palchi.
  */
-function chiomaFuso(o: { seme: number; det: number; base: number; altezza: number; raggio: number; prof: (t: number) => number; bozzi: number; palchi: number; C: Vector3; S: Vector3; fusto?: { raggio: number; altezza: number } }): BufferGeometry {
+function chiomaFuso(o: { seme: number; det: number; base: number; altezza: number; raggio: number; prof: (t: number) => number; bozzi: number; palchi: number; pendenti?: boolean; C: Vector3; S: Vector3; fusto?: { raggio: number; altezza: number } }): BufferGeometry {
   const acc = new Accumulo();
   const rnd = mulberry32(o.seme);
   const g = sfera(o.det);
@@ -563,7 +565,8 @@ function chiomaFuso(o: { seme: number; det: number; base: number; altezza: numbe
     const ang = Math.atan2(_d.z, _d.x);
     const rad = Math.sqrt(Math.max(0, 1 - _d.y * _d.y));
     // palchi: il profilo si gonfia a ogni palco di rami; bozzi attorno
-    const palco = Math.pow(Math.abs(Math.sin(t * o.palchi * Math.PI)), 0.6);
+    // (pendenti: ogni palco è più largo in basso, come rami che ricadono)
+    const palco = o.pendenti ? Math.pow(1 - (t * o.palchi - Math.floor(t * o.palchi)), 1.4) : Math.pow(Math.abs(Math.sin(t * o.palchi * Math.PI)), 0.6);
     const b = 1 + o.bozzi * (0.55 * palco + 0.45 * Math.sin(ang * 5 + fase + t * 9) * 0.5 - 0.3) + (rnd() - 0.5) * 0.06;
     // (vicino ai poli il raggio si chiude sull'asse: fondo piatto e punta)
     const r = o.raggio * o.prof(t) * b * Math.min(1, rad * 3);
@@ -600,14 +603,15 @@ function larice(seme: number): GeometrieAlbero {
   const chioma: BufferGeometry[] = [];
   const carte: (BufferGeometry | null)[] = [];
   const tr: (BufferGeometry | null)[] = [];
-  // cono morbido: largo in basso, punta stretta
-  const prof = (t: number) => Math.pow(Math.max(0, 1 - t), 0.85) * (0.55 + 0.45 * Math.sin(Math.min(1, t * 4) * Math.PI * 0.5));
+  // cono morbido: largo in basso, punta smussata (non un candelotto)
+  const prof = (t: number) => Math.pow(Math.max(0, 1 - t * 0.88), 0.8) * (0.55 + 0.45 * Math.sin(Math.min(1, t * 4) * Math.PI * 0.5));
   const base = 2.6;
   const alt = H - base;
   for (let lod = 0; lod < N_LOD_ALBERI; lod++) {
     const det = lod === 0 ? 3 : lod === 1 ? 2 : 1;
-    chioma.push(chiomaFuso({ seme: seme + lod * 101, det, base, altezza: alt, raggio: S.x * (lod === 0 ? 0.62 : lod === 1 ? 0.72 : lod === 2 ? 0.86 : 1), prof, bozzi: lod <= 1 ? 0.22 : 0.12, palchi: 6, C, S, ...(lod === 3 ? { fusto: { raggio: rT * 1.3, altezza: base + 1 } } : {}) }));
-    const masse = fuso({ det: 0, base, altezza: alt, raggio: S.x, prof, palchi: 7, m: mulberry32(seme)() });
+    // palchi pendenti: quattro livelli di rami che ricadono (gonne), fino in cima
+    chioma.push(chiomaFuso({ seme: seme + lod * 101, det, base, altezza: alt, raggio: S.x * (lod === 0 ? 0.62 : lod === 1 ? 0.72 : lod === 2 ? 0.86 : 1), prof, bozzi: lod <= 1 ? 0.3 : 0.18, palchi: 4, pendenti: true, C, S, ...(lod === 3 ? { fusto: { raggio: rT * 1.3, altezza: base + 1 } } : {}) }));
+    const masse = fuso({ det: 0, base, altezza: alt * 1.04, raggio: S.x, prof, palchi: 5, m: mulberry32(seme)() });
     carte.push(
       lod === 0
         ? carteChioma({ masse, centro: C, semiassi: S, n: 260, lato: 1.1, seme: seme + 7, fondo: 0.9, fuori: 0.92 })

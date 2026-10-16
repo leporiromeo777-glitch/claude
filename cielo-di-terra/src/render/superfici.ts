@@ -65,6 +65,12 @@ export const SUPERFICIE = {
    * per la piazza delle Ore, il sagrato e i vicoli.
    */
   SELCIATO: 15,
+  /**
+   * Un sasso solo (rifinitura «mondo»: le pietre dei muri a secco): faccia scagliata, licheni ocra
+   * e grigio-verdi, muschio sulle facce in su; niente giunti disegnati dentro (la forma la dà la
+   * geometria smussata, il giunto l'incavo fra un sasso e l'altro).
+   */
+  SASSO: 16,
 } as const;
 
 export type Superficie = (typeof SUPERFICIE)[keyof typeof SUPERFICIE];
@@ -87,6 +93,7 @@ export const NOMI_SUPERFICIE: Record<Superficie, string> = {
   13: 'vetro',
   14: 'automatica',
   15: 'selciato',
+  16: 'sasso',
 };
 
 export interface OpzioniTag {
@@ -500,6 +507,21 @@ void supFogliame(inout Sup s, vec3 P, vec3 Nv, vec3 up, float pix, float var) {
     float vf2 = visMotivo(pix, 0.12);
     if (vf2 > 0.0) lf += (vnoise3(P / 0.07 + 3.0) - 0.5) * 0.5 * vf2;
     lc *= 1.0 + lf * 0.4 * vf;
+    // da vicino la massa si legge fatta di foglie: ciuffetti di ~20 cm, ognuno col suo tono
+    // (qualcuno ha già girato), con un'ombra leggera fra l'uno e l'altro. Il dominio è deformato
+    // e il bordo è morbido: con celle regolari e il filo scuro netto sembrava un guscio a tessere
+    float vc = visMotivo(pix, 0.22);
+    if (vc > 0.0) {
+      vec3 relF;
+      vec3 qf = P / 0.24 + var * 5.0;
+      qf += (vec3(vnoise3(P / 0.5 + 1.0), vnoise3(P / 0.5 + 7.0), vnoise3(P / 0.5 + 13.0)) - 0.5) * 1.1;
+      vec3 vo = voronoi3(qf, relF);
+      vec3 tono = mix(vec3(0.92), vec3(1.08, 1.03, 0.9), vo.z);
+      tono = mix(tono, vec3(1.2, 0.95, 0.68), step(0.88, vo.z) * 0.6);
+      lc = mix(lc, lc * tono, vc * 0.6);
+      lc *= 1.0 - (1.0 - smoothstep(0.0, 0.25, vo.x)) * 0.12 * vc;
+      s.N = normalize(mix(s.N, normalize(s.N - relF * 0.6), 0.3 * vc));
+    }
   }
   s.albedo = lc;
   s.ao *= 1.0 - gapK * 0.35;
@@ -524,12 +546,14 @@ void supTessuto(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
 
 void supTerra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   vec3 c = s.albedo;
-  float m = vnoise2(uv * 0.6 + var * 5.0);
+  // il motivo non dipende dalla variante: la terra battuta del popolamento sceglie la variante per
+  // triangolo, e un rumore spostato per triangolo disegnava le faccette (a03)
+  float m = vnoise2(uv * 0.6 + 2.3);
   vec3 lc = c * (0.88 + 0.2 * m);
   lc = mix(lc, lc * vec3(0.78, 0.74, 0.7), smoothstep(0.6, 0.85, vnoise2(uv * 0.25 + 3.0)) * 0.5);
   if (pix < 0.03) {
     // ghiaino: sassolini tondi (celle), chiari e scuri, che spariscono presto con la distanza
-    vec3 vo = voronoi4(uv * 18.0 + var * 3.0);
+    vec3 vo = voronoi4(uv * 18.0 + 1.7);
     float pebble = step(0.8, vo.z) * (1.0 - smoothstep(0.18, 0.32, vo.y)) * (1.0 - smoothstep(0.008, 0.025, pix));
     lc = mix(lc, vo.z > 0.9 ? lc * 1.3 + 0.04 : lc * 0.68, pebble * 0.6);
   }
@@ -552,6 +576,30 @@ void supOttone(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
   s.spec = 1.0 - pat * 0.6;
   s.lucido = 70.0;
   s.specC = c * vec3(1.35, 1.15, 0.75) + 0.08;
+}
+
+// un sasso solo (pietre dei muri a secco): faccia scagliata, licheni, muschio sopra, niente giunti
+void supSasso(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
+  vec3 c = s.albedo;
+  float far = vnoise2(uv * 1.3 + var * 11.0);
+  s.albedo = c * (0.94 + 0.1 * far);
+  float vis = visMotivo(pix, 0.3);
+  if (vis <= 0.0) return;
+  float sc = vnoise2(uv * 9.0 + var * 13.0);
+  float sc2 = vnoise2(uv * 23.0 + var * 5.0);
+  vec3 pc = c * (0.9 + 0.16 * sc + (sc2 - 0.5) * 0.1);
+  // licheni ocra a macchie tonde e grigio-verdi più larghi
+  float lich = smoothstep(0.68, 0.8, vnoise2(uv * 3.1 + var * 9.0));
+  pc = mix(pc, vec3(0.78, 0.68, 0.42), lich * 0.4);
+  float lich2 = smoothstep(0.7, 0.84, vnoise2(uv * 1.9 + var * 3.0 + 20.0));
+  pc = mix(pc, vec3(0.7, 0.73, 0.64), lich2 * 0.3);
+  // muschio sulle facce che guardano in su
+  float top = smoothstep(0.35, 0.85, dot(s.N, up));
+  float moss = top * smoothstep(0.45, 0.7, vnoise2(uv * 1.7 + var * 7.0));
+  pc = mix(pc, vec3(0.435, 0.478, 0.243), moss * 0.7);
+  s.albedo = mix(s.albedo, pc, vis);
+  s.N = bumpDaAltezza(s.N, P, (sc * 0.6 + sc2 * 0.4) * 0.006 * vis, 1.0);
+  s.bande = 0.5;
 }
 
 void supRoccia(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
@@ -578,9 +626,10 @@ void supRoccia(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
 // erba sugli oggetti: la stessa pittura del prato del terreno (pratoDipinto), un po' più fine
 void supErba(inout Sup s, vec3 P, vec2 uv, vec3 up, float pix, float var) {
   vec3 c = s.albedo;
-  // i verdi acidi dei segnaposto diventano verdi d'ottobre, più caldi e meno chiari
+  // i verdi acidi dei segnaposto e dei ripiani diventano il prato d'ottobre del terreno (oliva
+  // spento, #7d8a4a), con la loro luminosità
   float lum = lumaP(c);
-  c = mix(c, vec3(lum) * vec3(1.02, 1.08, 0.7), 0.28) * 0.9;
+  c = mix(c, vec3(0.49, 0.54, 0.29) * clamp(lum / 0.47, 0.7, 1.15), 0.8) * 0.92;
   float st;
   vec3 cl = cylLocal(P);
   float flatK = clamp(dot(s.N, up), 0.0, 1.0);
@@ -602,10 +651,19 @@ void supVetro(inout Sup s, vec3 P, vec2 uv, float pix) {
  */
 void applicaSuperficie(inout Sup s, float tipo, float var, vec3 P, vec3 Nv, float pix) {
   if (tipo < 0.5) return;
+  vec3 up = cylUp(P);
+  // terra battuta ed erba degli oggetti quasi in piano (ripiani, piazze, zolle triangolate a facce
+  // piatte): motivo e luce col «su» del cilindro, non con la faccetta: niente triangoli disegnati
+  if ((tipo > 7.5 && tipo < 8.5) || (tipo > 11.5 && tipo < 12.5)) {
+    float piano = smoothstep(0.72, 0.92, dot(Nv, up));
+    if (piano > 0.0) {
+      Nv = normalize(mix(Nv, up, piano));
+      s.N = normalize(mix(s.N, up, piano * 0.85));
+    }
+  }
   vec3 tW;
   vec3 bW;
   vec2 uv = uvSuperficie(P, Nv, tW, bW);
-  vec3 up = cylUp(P);
   if (tipo < 1.5) supPietra(s, P, uv, pix, var);
   else if (tipo < 2.5) supPiode(s, P, uv, pix, var);
   else if (tipo < 3.5) supLegno(s, P, uv, pix, var);
@@ -621,5 +679,6 @@ void applicaSuperficie(inout Sup s, float tipo, float var, vec3 P, vec3 Nv, floa
   else if (tipo < 13.5) supVetro(s, P, uv, pix);
   // 14 = AUTO (risolto prima); 15 = selciato: la pietra a ciottoli piccoli (traccia «paese»)
   else if (tipo > 14.5 && tipo < 15.5) supPietra(s, P, uv * 2.6, pix * 2.6, var);
+  else if (tipo > 15.5 && tipo < 16.5) supSasso(s, P, uv, up, pix, var);
 }
 `;

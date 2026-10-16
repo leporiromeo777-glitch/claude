@@ -177,6 +177,12 @@ export class Input {
     if (this.pointerLocked) {
       this.bloccoOttenuto = true;
       this.annullaAttesa();
+      // il permesso è arrivato dopo l'attesa (lento, non negato): si torna al blocco, così dopo
+      // Esc il clic lo richiede e il suggerimento non dice più «Trascina»
+      if (this.modoSguardo === 'trascina') {
+        this.modoSguardo = 'blocco';
+        this.onModoSguardo?.('blocco');
+      }
     }
   };
 
@@ -218,7 +224,8 @@ export class Input {
 
   private onPointerMove = (e: PointerEvent) => {
     if (this.trascinando === null || e.pointerId !== this.trascinando) return;
-    if (!this.enabled || this.pointerLocked) {
+    // il rilascio si è perso (fuori dalla finestra o dall'iframe): il tasto non è più giù
+    if (!this.enabled || this.pointerLocked || (e.pointerType === 'mouse' && (e.buttons & 1) === 0)) {
       this.trascinando = null;
       return;
     }
@@ -268,23 +275,33 @@ export class Input {
 
   /** Spostamento del mouse accumulato (pixel) dall'ultima lettura. */
   consumeMouse(): { dx: number; dy: number } {
-    const r = { dx: this.dx, dy: this.dy };
+    // (un oggetto riusato: niente allocazioni a ogni fotogramma; va letto subito)
+    const r = this.letturaMouse;
+    r.dx = this.dx;
+    r.dy = this.dy;
     this.dx = 0;
     this.dy = 0;
     return r;
   }
+  private readonly letturaMouse = { dx: 0, dy: 0 };
+  private readonly letturaFrecce = { yaw: 0, pitch: 0 };
 
   /**
    * Sguardo dalle frecce per `dt` secondi: radianti di imbardata (+ = destra) e di
    * beccheggio (+ = su). Zero se l'interfaccia ha la tastiera o l'input è spento.
    */
   lookKeys(dt: number): { yaw: number; pitch: number } {
-    if (!this.enabled || this.bloccoInterfaccia || dt <= 0) return { yaw: 0, pitch: 0 };
+    const r = this.letturaFrecce;
+    r.yaw = 0;
+    r.pitch = 0;
+    if (!this.enabled || this.bloccoInterfaccia || dt <= 0) return r;
     const x = (this.down.has('ArrowRight') ? 1 : 0) - (this.down.has('ArrowLeft') ? 1 : 0);
     const y = (this.down.has('ArrowUp') ? 1 : 0) - (this.down.has('ArrowDown') ? 1 : 0);
     if (x || y) this.segnaSguardo();
     const t = Math.min(dt, 0.1);
-    return { yaw: x * FRECCE_IMBARDATA * t, pitch: y * FRECCE_BECCHEGGIO * t };
+    r.yaw = x * FRECCE_IMBARDATA * t;
+    r.pitch = y * FRECCE_BECCHEGGIO * t;
+    return r;
   }
 
   /** Simula tasti (debug/E2E). */

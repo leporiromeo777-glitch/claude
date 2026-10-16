@@ -10,31 +10,35 @@ export type RGB = [number, number, number];
 
 export const hex = (h: number): RGB => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
 
+// (prati d'ottobre del bozzetto 2: verde oliva spento, ombre verde muschio, erba secca color paglia;
+// niente giallo limone: l'acido del prato stava nell'albedo, non nella post)
 export const PALETTE = {
-  meadow: hex(0x7d8a48),
-  meadowLight: hex(0xa29f56),
-  meadowDark: hex(0x4c6232),
-  meadowOchre: hex(0xbb924c),
+  meadow: hex(0x7d8a4a),
+  meadowLight: hex(0x8e9259),
+  meadowDark: hex(0x5f6e40),
+  meadowOchre: hex(0xb9a26a),
   forestFloor: hex(0x58622c),
   forestLitter: hex(0xa8763a),
   rock: hex(0xa3a2a2),
   rockViolet: hex(0x8f8699),
   rockDark: hex(0x6d6872),
   sordo: hex(0x8e8c92),
-  pasture: hex(0x84944a),
-  pastureDry: hex(0xc2a052),
+  pasture: hex(0x7f8c50),
+  pastureDry: hex(0xb9a26a),
   terraceRiser: hex(0x8f8066),
   village: hex(0xa89a82),
   piazza: hex(0xc4b59a),
   stream: hex(0x3e9b8c),
   shore: hex(0xd6bf8a),
   lakeBed: hex(0x3a8a7c),
-  fieldOchre: hex(0xd8a843),
-  fieldGreen: hex(0x76a043),
-  fieldBrown: hex(0x9a6a40),
-  fieldGold: hex(0xe3bd50),
-  fieldSage: hex(0x8ea85a),
-  hedge: hex(0x4f7432),
+  // campi: solo ocra, oliva, salvia, stoppie e terra (niente verde acido: da lontano, sotto la
+  // foschia, diventava verde acqua e lilla)
+  fieldOchre: hex(0xc4a25a),
+  fieldGreen: hex(0x8a8c4a),
+  fieldBrown: hex(0x9a7a52),
+  fieldGold: hex(0xc9aa5e),
+  fieldSage: hex(0x8f9c68),
+  hedge: hex(0x56663a),
   // oggetti
   gneiss: hex(0xa9a8a5),
   gneissLight: hex(0xc0bfbb),
@@ -63,8 +67,11 @@ function mixInto(out: number[], c: RGB, w: number): void {
 function fieldColor(z: number, theta: number, out: number[]): number {
   const arc = theta * METERS_PER_DEG;
   const a = 0.13;
-  const u = arc * Math.cos(a) + z * Math.sin(a);
-  const v = -arc * Math.sin(a) + z * Math.cos(a);
+  // bordi degli appezzamenti deformati di qualche metro (non rettangoli tirati a righello)
+  const du = N.noise(arc / 31, z / 31, 5.3) * 3;
+  const dv = N.noise(arc / 29 + 11.7, z / 29, 9.1) * 3;
+  const u = arc * Math.cos(a) + z * Math.sin(a) + du;
+  const v = -arc * Math.sin(a) + z * Math.cos(a) + dv;
   const iu = Math.floor(u / 74);
   const iv = Math.floor(v / 118);
   const pick = hash2(iu, iv);

@@ -131,7 +131,10 @@ void main() {
   float tr = uTime * (2.2 + aCarta.w * 2.0) + aCarta.w * 40.0;
   float rot = sin(tr) * 0.06 * uVento.x;
   vec2 cr = vec2(aCarta.x * cos(rot) - aCarta.y * sin(rot), aCarta.x * sin(rot) + aCarta.y * cos(rot));
-  wp.xyz += (camR * cr.x + camU * cr.y) * (aCarta.z * 0.5 * scalaX);
+  // vicinissimo alla camera la carta si rimpicciolisce (fra 3 e 1,2 m) e sotto 1,2 m sparisce:
+  // la camera non finisce mai dentro un ciuffo di foglie grande come lo schermo
+  float vicinoCam = smoothstep(1.2, 3.0, distance(cameraPosition, wp.xyz));
+  wp.xyz += (camR * cr.x + camU * cr.y) * (aCarta.z * 0.5 * scalaX * vicinoCam);
   // la carta sta un poco davanti al suo punto (verso la camera): non entra nella massa sotto
   vec3 versoCam = cameraPosition - wp.xyz;
   float dCam = length(versoCam);
@@ -206,11 +209,16 @@ void main() {
   // retinatura del passaggio fra livelli di dettaglio (stabile sullo schermo, complementare)
   if (retinato(vSfuma)) discard;
 #ifdef BOSCO
-  // le masse dei boschi lontani: una cella = una chioma; al margine del bosco le chiome spariscono
-  // una per una (il bordo è fatto di chiome, non tagliato)
+  // le masse dei boschi lontani: da vicino una cella = una chioma; da lontano (oltre ~300 m) gruppi
+  // di chiome della stessa specie, larghi 20-40 m. Al margine del bosco spariscono una chioma o un
+  // gruppo alla volta (il bordo è fatto di chiome, non tagliato)
+  float distB = distance(cameraPosition, vWorldPos);
+  float lonB = smoothstep(220.0, 500.0, distB);
   vec3 relB;
   vec3 voB = voronoi3(vWorldPos / 6.5, relB);
-  if (vInfo.z < 0.3 + 0.38 * voB.z) discard;
+  vec3 relG;
+  vec3 voG = voronoi3(vWorldPos / 26.0 + 3.7, relG);
+  if (vInfo.z < 0.3 + 0.38 * mix(voB.z, voG.z, lonB)) discard;
 #endif
 #ifdef CARTE
   float idF;
@@ -274,26 +282,40 @@ void main() {
     applicaSuperficie(s, tipo, fract(vInfo.x * 7.0) * 0.9, P, N, pixW);
   }
 #else
-  // BOSCO: chiome lontane come masse dipinte (ciuffi grandi: una cella = un albero)
+  // BOSCO: chiome lontane come masse dipinte. Da vicino (fino a ~250 m) una cella = un albero, con
+  // la sua cupola; da lontano niente gobba per albero (era un «pluriball»): macchie morbide di
+  // gruppi di specie (oliva, oro, ruggine) larghe 20-40 m, più scure nelle valli fra i gruppi
   {
     vec3 rel = relB;
     vec3 vo = voB;
-    float vis = visMotivo(pixW, 9.0);
-    // ogni chioma è una cupola: la normale gira attorno al centro della cella, più in su
+    float lon = lonB;
+    float vis = visMotivo(pixW, 9.0) * (1.0 - lon);
+    // ogni chioma vicina è una cupola: la normale gira attorno al centro della cella, più in su
     vec3 nb = normalize(s.N * 0.6 - rel * 1.4 + up * 0.5);
-    s.N = normalize(mix(s.N, nb, 0.8 * vis));
-    float gap = (1.0 - smoothstep(0.0, 0.36, vo.x)) * vis * 0.7;
-    // il colore d'ottobre va a macchie (gruppi della stessa specie: verde, oro, ruggine) e ogni
-    // chioma ci aggiunge un poco del suo; da lontano le chiome si fondono in campiture
+    s.N = normalize(mix(s.N, nb, 0.3 * vis));
+    // da lontano la normale si ammorbidisce verso il su: masse continue, niente gobbe
+    s.N = normalize(mix(s.N, normalize(s.N + up * 0.8), 0.5 * lon));
+    // lo scurimento fra le chiome solo da vicino (oltre 300 m niente buchi)
+    float gap = (1.0 - smoothstep(0.0, 0.36, vo.x)) * vis * 0.7 * (1.0 - smoothstep(220.0, 300.0, distB));
+    // il colore d'ottobre va a macchie (gruppi della stessa specie: verde, oro, ruggine); da vicino
+    // ogni chioma ci aggiunge un poco del suo, da lontano comanda il gruppo
     float macchia = vnoise3(P * 0.012 + 4.0) * 0.65 + vnoise3(P * 0.045) * 0.35;
-    float t = mix(macchia, vo.z, 0.35 * vis + 0.1);
+    float macchiaG = vnoise3(P * 0.034 + 9.0);
+    float t = mix(mix(macchia, vo.z, 0.35 * vis + 0.1), mix(macchia, mix(macchiaG, voG.z, 0.35), 0.6), lon);
     vec3 c = s.albedo;
     c = mix(c, c * vec3(1.3, 1.08, 0.64), smoothstep(0.55, 0.72, t) * 0.7);
     c = mix(c, c * vec3(1.2, 0.8, 0.52), smoothstep(0.74, 0.88, t) * 0.7);
     c = mix(c, c * vec3(0.84, 0.95, 0.9), smoothstep(0.38, 0.2, t) * 0.45);
     c *= 1.0 - gap * 0.24;
+    // fra un gruppo e l'altro appena più scuro e freddo, con un rumore morbido (niente righe né
+    // ciottoli: da lontano il bosco è una massa continua a chiazze)
+    float valle = (1.0 - smoothstep(0.0, 0.45, voG.x)) * smoothstep(0.35, 0.65, vnoise3(P * 0.02 + 3.3)) * lon;
+    c *= mix(1.0, 0.9, valle);
+    c = mix(c, c * vec3(0.94, 0.98, 1.04), valle * 0.5);
+    // il bordo del bosco (copertura bassa) sfuma verso il colore del sottobosco, invece di staccarsi
+    c = mix(c, c * vec3(0.82, 0.8, 0.7), (1.0 - smoothstep(0.32, 0.62, vInfo.z)) * 0.5);
     s.albedo = c;
-    s.ao *= 1.0 - gap * 0.4;
+    s.ao *= 1.0 - gap * 0.4 - valle * 0.15;
     s.trasm = 0.6;
     s.bordo = 0.5;
     s.bande = 0.5;

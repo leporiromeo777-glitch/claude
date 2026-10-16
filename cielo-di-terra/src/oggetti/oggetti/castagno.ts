@@ -10,6 +10,7 @@ import { Costruttore, mat, matSegmento, mescola, type FnColore } from '../costru
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
 import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMassa, geoMasso, geoSfera, geoToro, geoTubo } from '../forme';
 import { PALETTE } from '../palette';
+import { SUP } from '../superfici';
 import { hashPosizione, Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
 
@@ -102,8 +103,9 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     { colore: corteccia1 },
   );
 
-  // masse della chioma
-  const nMasse = opz.masse ?? Math.round(rng.tra(8, 11));
+  // masse della chioma (da vicino più numerose e più piccole: la chioma si legge a ciuffi, non a palle)
+  const nMasse = opz.masse ?? (det === 'alto' ? Math.round(rng.tra(12, 15)) : Math.round(rng.tra(8, 11)));
+  const kMassa = det === 'alto' && opz.masse === undefined ? 0.84 : 1;
   const cChioma = new THREE.Vector3(pende.x, H * 0.62, pende.z);
   const rx = larg / 2;
   const ry = (H - hFusto) * 0.5;
@@ -123,7 +125,7 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       const rr = basso ? rx * rng.tra(0.58, 0.72) : rx * rng.tra(0.3, 0.45);
       const y = basso ? cChioma.y - ry * rng.tra(0.15, 0.35) : cChioma.y + ry * rng.tra(0.15, 0.35);
       c = new THREE.Vector3(cChioma.x + Math.cos(a) * rr, y, cChioma.z + Math.sin(a) * rr);
-      r = basso ? rx * rng.tra(0.36, 0.46) : rx * rng.tra(0.38, 0.48);
+      r = (basso ? rx * rng.tra(0.36, 0.46) : rx * rng.tra(0.38, 0.48)) * kMassa;
     }
     centri.push({ c, r });
   }
@@ -152,8 +154,9 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
   const yMin = hFusto;
   const yMax = H;
   for (const [i, { c, r }] of centri.entries()) {
-    // in autunno alcune masse restano più verdi
-    const mixVerde = stagione === 'autunno' ? Math.max(0, rng.next() - 0.45) * 1.2 : 0;
+    // in autunno più della metà delle masse resta verde (l'ottobre dei bozzetti: verde, oro e
+    // ruggine accostati, non palle arancioni)
+    const mixVerde = stagione === 'autunno' ? (det === 'alto' ? (rng.next() < 0.55 ? rng.tra(0.7, 0.95) : rng.tra(0, 0.3)) : Math.max(0, rng.next() - 0.45) * 1.2) : 0;
     const tintaMassa = rng.centrato(0.05);
     const fn: FnColore = (p, n, out) => {
       const altezza = THREE.MathUtils.clamp((p.y - yMin) / (yMax - yMin), 0, 1);
@@ -165,20 +168,22 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       const t = THREE.MathUtils.clamp(n.y * 0.3 + 0.2 + altezza * 0.35 + esterno * 0.3 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.05, 0, 1);
       if (t < 0.5) out.copy(cScuro).lerp(cMedio, t / 0.5);
       else out.copy(cMedio).lerp(cChiaro, (t - 0.5) / 0.5);
-      // (da vicino le masse sono l'interno della chioma, sotto i ciuffi di foglie: più scure)
-      out.multiplyScalar((0.72 + 0.28 * esterno) * (det === 'alto' ? 0.7 : 1));
+      // (da vicino le masse sono il corpo della chioma sotto le foglie: appena più scure, non palle
+      // scure lisce: il motivo FOGLIAME ci dipinge le masse di foglie)
+      out.multiplyScalar((0.72 + 0.28 * esterno) * (det === 'alto' ? 0.88 : 1));
       if (mixVerde > 0) out.lerp(new THREE.Color(verdi[t < 0.5 ? 0 : 1]), mixVerde);
       out.r *= 1 + tintaMassa;
       out.b *= 1 - tintaMassa;
       // da vicino il nucleo sotto i ciuffi è verde oliva in ombra: col verde che prevale la superficie
       // AUTO lo dipinge a ciuffi di fogliame (bruno-arancio diventerebbe corteccia liscia)
-      if (det === 'alto') out.lerp(OLIVA, 0.8);
+      if (det === 'alto') out.lerp(OLIVA, 0.3);
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
     const dettaglioMassa = 1;
     // (da vicino le masse sono il nucleo sotto i ciuffi di foglie: più piccole, i ciuffi fanno la sagoma)
-    const g = geoMassa(det === 'alto' ? r * 0.78 : r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
-    b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn });
+    const g = geoMassa(det === 'alto' ? r * 0.86 : r, seme + i * 31, det === 'alto' ? 0.28 : 0.16, dettaglioMassa, 0.84, 0.7);
+    // fogliame dichiarato (non dedotto dal colore: le masse d'autunno, oro e ruggine, restano foglie)
+    b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn, superficie: SUP.FOGLIAME });
   }
 
   // ciuffi di foglie sul contorno della chioma (solo da vicino): foglie lanceolate a ventaglio, a
@@ -189,12 +194,12 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     const pos: number[] = [];
     const nor: number[] = [];
     const col: number[] = [];
-    const tinte = stagione === 'autunno' ? [tavolozza[1], tavolozza[2], verdi[1], tavolozza[0], verdi[2], tavolozza[2]] : [tavolozza[1], tavolozza[2], tavolozza[1], tavolozza[0]];
+    const tinte = stagione === 'autunno' ? [tavolozza[1], tavolozza[2], verdi[1], tavolozza[0], verdi[2], verdi[1], verdi[0], tavolozza[2]] : [tavolozza[1], tavolozza[2], tavolozza[1], tavolozza[0]];
     const cc = new THREE.Color();
     const cBase = new THREE.Color();
     const nC = new THREE.Vector3();
     const v = new THREE.Vector3();
-    const ciuffi = Math.round(400 * Math.min(1.15, larg / 11));
+    const ciuffi = Math.round(560 * Math.min(1.15, larg / 11));
     let fatti = 0;
     for (let tent = 0; tent < ciuffi * 20 && fatti < ciuffi; tent++) {
       const m = centri[rng.intero(0, centri.length - 2)] as { c: THREE.Vector3; r: number };
@@ -213,19 +218,22 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       if (t1.lengthSq() < 1e-3) t1.set(1, 0, 0);
       t1.normalize();
       const t2 = new THREE.Vector3().crossVectors(dir, t1).normalize();
-      const nFoglie = 5;
-      const fase = rng.next() * Math.PI * 2;
+      // quattro foglie per ciuffo, ognuna col suo verso, la sua inclinazione e il suo attacco (niente
+      // ventaglio a stella); lunghe 28-42 cm (le foglie vere sono 15-20 cm, ma qui una foglia fa anche
+      // da gruppo di foglie: la tessitura fine la dipinge il motivo FOGLIAME delle masse)
+      const nFoglie = 4;
       for (let f = 0; f < nFoglie; f++) {
-        const a = fase + (f / nFoglie) * Math.PI * 2 + rng.centrato(0.4);
-        const df = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a)).addScaledVector(dir, rng.tra(0.45, 0.95)).normalize();
+        const a = rng.next() * Math.PI * 2;
+        const df = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a)).addScaledVector(dir, rng.tra(0.2, 0.9)).normalize();
         // le foglie pendono un poco
-        df.y -= 0.25;
+        df.y -= rng.tra(0.15, 0.45);
         df.normalize();
-        const len = rng.tra(0.5, 0.78);
-        const lat = new THREE.Vector3().crossVectors(df, dir).normalize().multiplyScalar(len * 0.17);
-        const b0 = p.clone().addScaledVector(df, 0.04);
-        const punta = p.clone().addScaledVector(df, len);
-        const mezzo = p.clone().addScaledVector(df, len * 0.38);
+        const len = rng.tra(0.32, 0.48);
+        const lat = new THREE.Vector3().crossVectors(df, dir).normalize().multiplyScalar(len * 0.16);
+        const attacco = p.clone().addScaledVector(t1, rng.centrato(0.22)).addScaledVector(t2, rng.centrato(0.22));
+        const b0 = attacco.clone().addScaledVector(df, 0.02);
+        const punta = attacco.clone().addScaledVector(df, len);
+        const mezzo = attacco.clone().addScaledVector(df, len * 0.42);
         const sx = mezzo.clone().add(lat);
         const dx = mezzo.clone().sub(lat);
         for (const [q, c] of [

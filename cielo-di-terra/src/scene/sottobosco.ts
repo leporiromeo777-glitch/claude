@@ -34,6 +34,18 @@ import { geoCiuffoErba, geoFelce, geoFiore, geoFoglieTerra, geoRicci, geoSasso }
 
 /** Lato della cella (m). */
 const CELLA = 12;
+
+/**
+ * Segna un buffer di istanze da rimandare alla scheda, solo per i primi `quanti` valori: three.js
+ * senza intervalli rimanda l'intero array alla sua capienza (megabyte a ogni ridistribuzione).
+ */
+export function aggiorna(attr: { clearUpdateRanges(): void; addUpdateRange(start: number, count: number): void; needsUpdate: boolean }, quanti: number): void {
+  attr.clearUpdateRanges();
+  // (senza intervalli three.js rimanda tutto: con zero istanze non serve rimandare niente)
+  if (quanti <= 0) return;
+  attr.addUpdateRange(0, quanti);
+  attr.needsUpdate = true;
+}
 const NA = Math.round((360 * METERS_PER_DEG) / CELLA);
 /** Campioni del terreno per lato di cella (griglia di 3 m). */
 const SUB = 4;
@@ -92,6 +104,8 @@ export class Sottobosco {
   private ultimaCam = new Vector3(1e9, 0, 0);
   /** celle lontane dalla camera (l'erba vi si dirada) */
   private readonly lontane = new Map<number, boolean>();
+  /** tipi spenti dalla qualità */
+  private spenti = new Set<Tipo>();
   /** istanze disegnate per tipo (statistiche) */
   readonly conteggi: Record<Tipo, number> = { erba: 0, fiori: 0, felci: 0, sassi: 0, foglie: 0, ricci: 0, cespugliChioma: 0, cespugliCarte: 0 };
 
@@ -135,8 +149,10 @@ export class Sottobosco {
       m.visible = false;
       m.frustumCulled = false;
       m.name = `sottobosco-${tipo}`;
-      // l'erba e le carte non proiettano (tanti triangoli piccoli); i sassi e i cespugli sì
-      m.userData['ombra'] = tipo === 'sassi' || tipo === 'cespugliChioma';
+      // l'erba e le carte non proiettano (tanti triangoli piccoli); i cespugli sì. I sassi no: sono
+      // piccoli e la passata d'ombra non li rimpicciolisce con la distanza come la vista (l'ombra
+      // restava piena e poi spariva di colpo al bordo della cella)
+      m.userData['ombra'] = tipo === 'cespugliChioma';
       this.mesh.set(tipo, m);
       this.group.add(m);
       this.materiali.push(mats[tipo]);
@@ -154,6 +170,8 @@ export class Sottobosco {
 
   /** Qualità (0.2..1.3): raggio e densità del sottobosco (Bassa ~0.45, Media ~0.75, Alta 1). */
   impostaQualita(k: number): void {
+    // a Bassa niente felci né fiori (restano erba, sassi, foglie, ricci e cespugli)
+    this.spenti = k < 0.5 ? new Set<Tipo>(['felci', 'fiori']) : new Set<Tipo>();
     const p = preset(k);
     if (Math.abs(p.densita - this.densita) > 1e-3) this.celle.clear();
     this.raggio = p.raggio;
@@ -187,7 +205,7 @@ export class Sottobosco {
     const iz0 = Math.floor(c.z / CELLA);
     const ia0 = Math.floor(arc / CELLA);
     const rc = Math.ceil(this.raggio / CELLA) + 1;
-    const voglio: Array<[number, number, number]> = [];
+    const voglio: Array<[number, number, number, number]> = [];
     for (let dz = -rc; dz <= rc; dz++) {
       for (let da = -rc; da <= rc; da++) {
         const iz = iz0 + dz;
@@ -198,9 +216,12 @@ export class Sottobosco {
         const d = Math.hypot(zc - c.z, ac - arc);
         if (d > this.raggio + 1) continue;
         if (iz < 0 || iz * CELLA > LAYOUT.cylinder.length) continue;
-        voglio.push([chiave(iz, ia), iz, ((ia % NA) + NA) % NA]);
+        voglio.push([chiave(iz, ia), iz, ((ia % NA) + NA) % NA, d]);
       }
     }
+    // dalle celle più vicine alle più lontane: si generano prima e si disegnano prima (le istanze
+    // vicine riempiono la profondità e i frammenti lontani dietro si scartano prima)
+    voglio.sort((a, b) => a[3] - b[3]);
     // genera le celle mancanti, le più vicine prima, entro il budget
     const t0 = performance.now();
     let mancano = false;
@@ -250,7 +271,7 @@ export class Sottobosco {
       const T = (mesh.geometry.getAttribute('aTint') as InstancedBufferAttribute).array as Float32Array;
       const T2a = mesh.geometry.getAttribute('aTint2') as InstancedBufferAttribute | undefined;
       let n = 0;
-      for (const k of this.attive) {
+      for (const k of this.spenti.has(tipo) ? [] : this.attive) {
         const b = this.celle.get(k)?.blocchi[tipo];
         if (!b || !b.n) continue;
         // l'erba è fitta vicino e si dirada lontano (metà dei ciuffi oltre ~18 m)
@@ -270,17 +291,21 @@ export class Sottobosco {
           // cespugli: seconda tinta = oro d'autunno (quota di masse che l'hanno presa nel seme)
           const T2 = T2a.array as Float32Array;
           for (let i = 0; i < q; i++) {
-            const s = b.t[i * 4 + 3]!;
-            T2.set([0.74, 0.56, 0.24, 0.3 + s * 0.5], (n + i) * 4);
+            const o = (n + i) * 4;
+            T2[o] = 0.74;
+            T2[o + 1] = 0.56;
+            T2[o + 2] = 0.24;
+            T2[o + 3] = 0.3 + b.t[i * 4 + 3]! * 0.5;
           }
-          T2a.needsUpdate = true;
         }
         n += q;
       }
       mesh.count = n;
       mesh.visible = n > 0;
-      mesh.instanceMatrix.needsUpdate = true;
-      mesh.geometry.getAttribute('aTint').needsUpdate = true;
+      // alla scheda si rimanda solo la parte usata dei buffer (non tutta la capienza)
+      aggiorna(mesh.instanceMatrix, n * 16);
+      aggiorna(mesh.geometry.getAttribute('aTint') as InstancedBufferAttribute, n * 4);
+      if (T2a) aggiorna(T2a, n * 4);
       this.conteggi[tipo] = n;
     }
   }

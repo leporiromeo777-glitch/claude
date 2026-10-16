@@ -86,6 +86,7 @@ const _c = new Vector3();
 const _r = new Vector3();
 const _u = new Vector3();
 const _bias = new Matrix4();
+const _agg = new Vector3();
 
 export class Ombre {
   readonly camera = new OrthographicCamera(-50, 50, 50, -50, 1, 800);
@@ -263,7 +264,7 @@ export class Ombre {
     const y = centro.dot(upV);
     const dx = Math.round(x / texel) * texel - x;
     const dy = Math.round(y / texel) * texel - y;
-    const agganciato = centro.clone().addScaledVector(right, dx).addScaledVector(upV, dy);
+    const agganciato = _agg.copy(centro).addScaledVector(right, dx).addScaledVector(upV, dy);
     const cam = this.camera;
     cam.position.copy(agganciato).addScaledVector(L, DISTANZA);
     cam.up.copy(upV);
