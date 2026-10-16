@@ -103,7 +103,8 @@ describe('budget di triangoli e draw call', () => {
     [/dettaglio basso/, 3000, 3],
     [/smontato/, 7000, 3],
     [/campanile/, 6000, 3],
-    [/castagno vivo/, 6000, 2],
+    // (castagno vivo da vicino: solo i 6 della Terrazza Pedrazzini; foglie piccole e masse a ciuffi)
+    [/castagno vivo/, 8000, 2],
     [/castagno morto/, 5000, 4],
     [/muro a secco 14 m \(curvo\)/, 4500, 2],
     [/abitante/, 2500, 2],

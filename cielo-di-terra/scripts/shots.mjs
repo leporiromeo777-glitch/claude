@@ -113,6 +113,26 @@ const SHOTS = [
     // rimette il raggio dipinto di prima (le inquadrature seguenti usano quello predefinito)
     after: (g) => g.setSetting('nearPaint', g.__nearPaintPrima),
   },
+  {
+    n: 7,
+    file: '07-notte-rilievo.png',
+    title: 'Di notte, in planata a 70 m: il cerchio rilevato attorno a Corbella contro la carta del non rilevato',
+    setup: (g) => {
+      // un cerchio di 200 m rilevato (subito, senza animazione) attorno a Corbella
+      const ids = g.cellsInRadius(1040, 36.4, 200);
+      g.__celle7 = ids.map((id) => [id, g.game.world.cells.get(id)]);
+      for (const id of ids) g.setCellState(id, 2);
+      g.setTime(23.5);
+      const ground = g.game.world.groundAt(1000, 33);
+      g.setCamera(1000, 33, ground + 70, 70, -14);
+    },
+    frames: 4,
+    // le inquadrature seguenti ritrovano le celle com'erano (bianche, a matita o dipinte)
+    after: (g) => {
+      for (const [id, stato] of g.__celle7) g.setCellState(id, stato);
+      g.setFreeCamera(false);
+    },
+  },
   // Confronti con i bozzetti del concept (idee-gioco/pagina/img/finale-N.jpg): stessa scena, stessa ora.
   {
     n: 11,

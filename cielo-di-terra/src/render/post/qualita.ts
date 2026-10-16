@@ -61,9 +61,11 @@ export interface PresetQualita {
 }
 
 export const PRESET_QUALITA: Readonly<Record<LivelloQualita, PresetQualita>> = {
-  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente', motivi: 0, vegetazione: 0.45 },
+  // (Bassa: vegetazione 0.35, sotto 0.5 niente carte di foglie lontane né felci e fiori: vedi
+  // Vegetation.impostaQualita e Sottobosco.impostaQualita)
+  bassa: { livello: 'bassa', maxPixelRatio: 1, scala: 0.7, msaa: 0, bloom: 3, filtro: 'nessuno', raggio: 0, mezzaRisoluzione: false, contorni: false, pennellata: false, fxaa: true, ombre: 'spente', motivi: 0, vegetazione: 0.35 },
   media: { livello: 'media', maxPixelRatio: 1, scala: 1, msaa: 0, bloom: 5, filtro: 'generalizzato', raggio: 4, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'media', motivi: 1, vegetazione: 0.75 },
-  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 6.5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta', motivi: 1, vegetazione: 1 },
+  alta: { livello: 'alta', maxPixelRatio: 1.25, scala: 1, msaa: 2, bloom: 6, filtro: 'anisotropico', raggio: 5, mezzaRisoluzione: true, contorni: true, pennellata: true, fxaa: false, ombre: 'alta', motivi: 1, vegetazione: 1 },
 };
 
 export function isLivello(x: unknown): x is LivelloQualita {
@@ -98,23 +100,32 @@ export interface OpzioniMisura {
   finestra: number;
   /** Sopra questo tempo per fotogramma (s, mediana) si scende di livello. */
   soglia: number;
+  /**
+   * Soglia per il costo misurato (tempo GPU o del disegno, s, mediana): più stretta della soglia
+   * sull'intervallo fra i fotogrammi, perché l'obiettivo è 60 fps e il costo misurato non comprende
+   * il resto del fotogramma (logica, compositore del browser).
+   */
+  sogliaCosto: number;
   /** Quante volte al massimo si scende. */
   maxCambi: number;
 }
 
-export const MISURA_PREDEFINITA: OpzioniMisura = { riscaldamento: 1.5, finestra: 2.5, soglia: 1 / 44, maxCambi: 2 };
+export const MISURA_PREDEFINITA: OpzioniMisura = { riscaldamento: 1.5, finestra: 2.5, soglia: 1 / 44, sogliaCosto: 1 / 55, maxCambi: 2 };
 
 /**
  * Misura dei primi secondi per la qualità automatica. Si chiama `campione(dt, costo)` a ogni
  * fotogramma: `dt` è il tempo reale trascorso (fa avanzare il riscaldamento e la finestra),
- * `costo` quello da giudicare (il tempo GPU se c'è, altrimenti `dt`). Restituisce il nuovo livello
- * quando decide di scendere, altrimenti null. Fotogrammi lunghi più di 0,25 s (scheda nascosta,
- * pausa del debugger) non contano.
+ * `costo` quello da giudicare: se è dato (il massimo fra il tempo GPU, ombre comprese, e il tempo
+ * CPU del disegno) vale la soglia `sogliaCosto` (circa 1/55 s), altrimenti si giudica `dt` con
+ * `soglia` (1/44 s). Restituisce il nuovo livello quando decide di scendere, altrimenti null.
+ * Fotogrammi lunghi più di 0,25 s (scheda nascosta, pausa del debugger) non contano.
  */
 export class MisuraQualita {
   private t = 0;
   private campioni: number[] = [];
   private cambi = 0;
+  /** nella finestra corrente è arrivato un costo misurato (GPU o disegno) */
+  private misurato = false;
   finita = false;
 
   constructor(
@@ -122,8 +133,10 @@ export class MisuraQualita {
     private readonly opz: OpzioniMisura = MISURA_PREDEFINITA,
   ) {}
 
-  campione(dt: number, costo: number = dt): LivelloQualita | null {
+  campione(dt: number, costoMisurato?: number): LivelloQualita | null {
+    const costo = costoMisurato ?? dt;
     if (this.finita || !(dt > 0) || dt > 0.25 || !(costo >= 0)) return null;
+    if (costoMisurato !== undefined) this.misurato = true;
     this.t += dt;
     if (this.t < this.opz.riscaldamento) return null;
     this.campioni.push(costo);
@@ -132,7 +145,9 @@ export class MisuraQualita {
     const m = mediana(this.campioni);
     this.campioni = [];
     this.t = 0;
-    if (m > this.opz.soglia && this.livello !== 'bassa' && this.cambi < this.opz.maxCambi) {
+    const soglia = this.misurato ? this.opz.sogliaCosto : this.opz.soglia;
+    this.misurato = false;
+    if (m > soglia && this.livello !== 'bassa' && this.cambi < this.opz.maxCambi) {
       this.cambi++;
       this.livello = livelloSotto(this.livello);
       // più in basso non si può andare: niente altre misure

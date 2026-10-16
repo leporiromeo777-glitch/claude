@@ -196,7 +196,8 @@ export class BoschiLontani {
         const n2 = N1.noise(x / 5.5 + 7, y / 5.5, z / 5.5);
         const cop = smoothstep(0.24, 0.4, f) + n1 * 0.12;
         if (cop > 0.3) qualcosa = true;
-        const alto = ALTEZZA * smoothstep(0.16, 0.42, f) * (0.88 + 0.22 * n1) + 1.6 * n2 * smoothstep(0.2, 0.4, f);
+        // (le gobbe fini sono basse: da lontano il bosco è una massa morbida, non un selciato di cupole)
+        const alto = ALTEZZA * smoothstep(0.16, 0.42, f) * (0.88 + 0.22 * n1) + 0.5 * n2 * smoothstep(0.2, 0.4, f);
         P[o * 3] = h + Math.max(0, alto);
         // colore della massa: verde d'ottobre; in alto (larici) più oro
         const hl = smoothstep(55, 95, h);
@@ -208,9 +209,9 @@ export class BoschiLontani {
           g = 0.5;
           b = 0.21;
         }
-        r += (0.74 - r) * hl * 0.6;
-        g += (0.56 - g) * hl * 0.6;
-        b += (0.22 - b) * hl * 0.6;
+        r += (0.66 - r) * hl * 0.6;
+        g += (0.5 - g) * hl * 0.6;
+        b += (0.2 - b) * hl * 0.6;
         const k = 0.9 + 0.2 * (N1.noise(x / 60, y / 60, z / 60) * 0.5 + 0.5);
         C[o * 4] = r * k;
         C[o * 4 + 1] = g * k;
@@ -253,7 +254,9 @@ export class BoschiLontani {
         const b = (i + 1) * W + j;
         const c = b + 1;
         const d = a + 1;
-        if (Math.max(C[a * 4 + 3]!, C[b * 4 + 3]!, C[c * 4 + 3]!, C[d * 4 + 3]!) < 0.42) continue;
+        // (soglia bassa: il margine del bosco si chiude nel colore e nella retinatura delle chiome,
+        // non con il taglio del quadrilatero)
+        if (Math.max(C[a * 4 + 3]!, C[b * 4 + 3]!, C[c * 4 + 3]!, C[d * 4 + 3]!) < 0.3) continue;
         // facce verso l'asse (come il terreno): a, c, b e a, d, c
         vert(i, j);
         vert(i + 1, j + 1);

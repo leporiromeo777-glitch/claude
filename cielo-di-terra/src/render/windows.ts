@@ -103,7 +103,8 @@ void main() {
   // vetro: brina ai bordi, condensa, riflessi morbidi dell'interno e della Linea
   float th = cylThetaDeg(P);
   float edgeDist = min(th - uWinRange.x, uWinRange.y - th) * uR * PI / 180.0;
-  float frost = (1.0 - smoothstep(3.0, 26.0, edgeDist)) * (0.45 + 0.55 * vnoise2(vec2(P.z, th * 11.0) * 0.12));
+  // (la brina sfuma su 40-60 m: da lontano il bordo del vetro non è una riga)
+  float frost = (1.0 - smoothstep(10.0, 80.0, edgeDist)) * (0.45 + 0.55 * vnoise2(vec2(P.z, th * 11.0) * 0.12));
   float ribD = abs(mod(P.z + 20.0, 40.0) - 20.0);
   frost += (1.0 - smoothstep(1.2, 3.5, ribD)) * 0.12 * vnoise2(vec2(P.z * 0.6, th * 30.0));
   // da lontano la brina non deve disegnare righe bianche lungo le rive
@@ -115,11 +116,12 @@ void main() {
   // spazio, da lontano e di taglio il vetro rimanda l'interno illuminato e si fa cielo
   float fres = 0.05 + 0.95 * pow(graz, 2.4);
   float giorno = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight);
-  // spessore del vetro: oltremare profondo, più denso di taglio
-  vec3 profondo = mix(vec3(0.04, 0.05, 0.16), vec3(0.1, 0.16, 0.36), 0.5 + 0.5 * uSunIntensity);
+  // spessore del vetro: di notte oltremare profondo; di giorno un neutro scuro (il blu del vetro,
+  // sotto l'aria illuminata del cilindro, faceva una lastra di oltremare saturo nel cielo)
+  vec3 profondo = mix(mix(vec3(0.04, 0.05, 0.16), vec3(0.1, 0.16, 0.36), 0.5 + 0.5 * uSunIntensity), vec3(0.07, 0.08, 0.11), giorno);
   col = mix(col, col * vec3(0.75, 0.85, 1.25) + profondo * 0.35, 0.6);
   // le stelle restano bianche e calde: il vetro le vela di taglio e quando rimanda il giorno
-  col += stelle * (1.0 - clamp(pow(graz, 2.0) * 0.8, 0.0, 0.85)) * (1.0 - 0.6 * giorno * fres);
+  col += stelle * (1.0 - clamp(pow(graz, 2.0) * 0.8, 0.0, 0.85)) * (1.0 - 0.6 * giorno * fres) * (1.0 - giorno);
   col = mix(col, profondo, clamp(pow(graz, 2.0) * 0.55, 0.0, 0.6));
   // riflesso dell'interno: di giorno un cielo ceruleo velato dalla foschia, con chiazze morbide
   // (le terre dell'altra parte, sfocate nel vetro); calda vicino alla Linea
@@ -141,6 +143,11 @@ void main() {
   col = mix(col, interno, riflesso);
   col += uLineaGlow * filo * (0.25 + 0.75 * fres) * mix(1.1, 0.35, uNight) * (0.6 + 0.4 * vnoise2(vec2(P.z * 0.02, th * 4.0)));
   col = mix(col, vec3(0.6, 0.67, 0.8) * (0.4 + 0.6 * uSunIntensity), clamp(frost, 0.0, 1.0) * 0.38);
+  // di giorno fra l'occhio e il vetro c'è l'aria illuminata del cilindro (come davanti alle terre
+  // dell'altra metà): la striscia si fa cielo velato, più da lontano
+  col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 1.03, giorno * mix(0.55, 0.85, smoothstep(250.0, 1100.0, dist)));
+  // e perde metà della saturazione (di notte resta com'è)
+  col = mix(vec3(dot(col, vec3(0.3, 0.59, 0.11))), col, mix(1.0, 0.5, giorno));
   col = applyHaze(col, P, dist);
   gl_FragColor = vec4(col, 1.0);
 }
@@ -172,7 +179,7 @@ export class Windows {
     this.group.name = 'finestre';
     const windows = LAYOUT.strips.filter((s) => s.kind === 'finestra');
     // i costoloni appartengono al vetro, non al terreno da rilevare: sempre dipinti (mai a matita)
-    const ironMat = createWorldMaterial(world, { kind: 'object', brush: 0.6, side: DoubleSide, noPencil: true });
+    const ironMat = createWorldMaterial(world, { kind: 'object', brush: 0.6, side: DoubleSide, noPencil: true, ariaVetro: true });
     const ribPos: number[] = [];
     const ribNor: number[] = [];
     const ribCol: number[] = [];

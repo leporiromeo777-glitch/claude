@@ -289,7 +289,17 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
       colors[vi * 4] = Math.round(Math.min(1, Math.max(0, tmpColor[0]!)) * 255);
       colors[vi * 4 + 1] = Math.round(Math.min(1, Math.max(0, tmpColor[1]!)) * 255);
       colors[vi * 4 + 2] = Math.round(Math.min(1, Math.max(0, tmpColor[2]!)) * 255);
-      colors[vi * 4 + 3] = m.kind === 'finestra' && h < 0.35 ? 255 : 0;
+      // alfa: 255 = vetro di finestra da scartare; altrimenti la curvatura del suolo in 0..115
+      // (57 = piano): quanto il vertice sta sotto (conca, > 57) o sopra (dosso, < 57) la media dei
+      // vicini, in metri / 1.5. Lo shader scurisce le conche e schiarisce i dossi (±12%): i
+      // gradoni si leggono (piede scuro, ciglio chiaro) anche senza ombre
+      if (m.kind === 'finestra' && h < 0.35) colors[vi * 4 + 3] = 255;
+      else {
+        const hN = (o2: number): number => R - Math.hypot(P[o2]!, P[o2 + 1]!);
+        const media = (hN(oe) + hN(ow) + hN(((i + 1) * W + j) * 3) + hN(((i - 1) * W + j) * 3)) * 0.25;
+        const c = Math.max(-1, Math.min(1, (media - h) / 1.5));
+        colors[vi * 4 + 3] = Math.round(57 + c * 57);
+      }
     }
     if (i % 3 === 0) yield;
   }
