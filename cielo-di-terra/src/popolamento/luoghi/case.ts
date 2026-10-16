@@ -12,11 +12,13 @@ import { BoxGeometry, PlaneGeometry, Vector3 } from 'three';
 import { Costruttore, mat } from '../../oggetti/costruttore';
 import { matriceSuperficie } from '../../oggetti/cilindro';
 import { creaRustico } from '../../oggetti/oggetti/rustico';
+import { creaLanterna } from '../../oggetti/oggetti/lumi';
 import { PARTICELLE, luogo } from '../contenuti';
 import type { Contesto } from '../contesto';
 import { casaLontana, hash2 } from '../forme';
-import { distanza, impronta, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
+import { differenza, distanza, impronta, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { boxAt } from '../../world/colliders';
+import { worldToCyl } from '../../world/cylinder';
 
 const CELLE_ABITATE = new Set(PARTICELLE.filter((p) => p.tipo === 'abitato' || p.tipo === 'piazza').map((p) => p.id));
 /** I Ronchi hanno le loro casupole (ronchi.ts) */
@@ -144,7 +146,9 @@ export function costruisciCase(ctx: Contesto, quante = 58): CasaPosata[] {
       larghezza: p.W,
       profondita: p.D,
       piani,
-      finestreAccese: 0.4 + m.r * 0.35,
+      // di notte il paese è acceso (bozzetto 5: decine di finestre); con i bagliori orientati
+      // della traccia «paese» ne restava una per lato visto
+      finestreAccese: 0.65 + m.r * 0.25,
       gerani: 0.4,
       dettaglio: distanza(p, piazza) < 55 ? 'alto' : 'medio',
     });
@@ -166,6 +170,43 @@ export function costruisciCase(ctx: Contesto, quante = 58): CasaPosata[] {
     }
   }
   return out;
+}
+
+/**
+ * Lanterne a braccio sulle porte (rifinitura 1, bozzetto 5: di notte il paese ha decine di lumi):
+ * una accanto alla porta di ogni casa della corona della piazza e qualcuna sugli spigoli dei
+ * vicoli, `quante` al massimo. Il vetro sta nel canale `lume`: di giorno è spento, di notte si
+ * accende con le finestre (dalle 20) e il cantiere ne fa un bagliore del motore.
+ */
+export function lanterneDellePorte(ctx: Contesto, case_: CasaPosata[], quante = 10): number {
+  const piazza = luogo('piazza_ore');
+  // prima le case della corona (più vicine alla piazza), poi quelle sui vicoli verso la Cripta
+  const candidate = case_
+    .filter((c) => c.nome.startsWith('rustico_'))
+    .map((c) => ({ c, d: distanza(c, piazza) }))
+    .filter((x) => x.d < piazza.raggio + 45)
+    .sort((a, b) => a.d - b.d);
+  let messe = 0;
+  const usate: Array<{ z: number; theta: number }> = [];
+  for (const { c } of candidate) {
+    if (messe >= quante) break;
+    // la porta (punto davanti all'uscio, a 0,6 m) riportata sulla facciata
+    const pc = worldToCyl(c.porta);
+    const facciata = spostaYaw(pc.z, pc.theta, c.yaw + 180, 0.58, c.base);
+    // da che parte del centro della casa sta la porta: la lanterna va verso il centro
+    const d = differenza(c, facciata, c.base);
+    const lat = d.est * Math.cos(c.yaw * (Math.PI / 180)) - d.nord * Math.sin(c.yaw * (Math.PI / 180));
+    const verso = lat > 0.2 ? -1 : 1;
+    const q = spostaYaw(facciata.z, facciata.theta, c.yaw + 90 * verso, 0.82, c.base);
+    // non due lanterne a meno di 5 m (le case a schiera hanno le porte vicine)
+    if (usate.some((u) => distanza(u, q) < 5)) continue;
+    usate.push(q);
+    const l = creaLanterna({ tipo: 'muro', seme: `lanterna-porta-${messe}`, luce: false, alone: false });
+    ctx.posa(`case:${Math.floor(c.z / 70)}:${Math.floor(c.theta / 8)}`, l, q.z, q.theta, c.yaw, { h: c.base + 2.4, collider: false });
+    l.dispose();
+    messe++;
+  }
+  return messe;
 }
 
 /** La proposta tocca un'impronta già occupata (controllo sui quattro spigoli e sul centro)? */

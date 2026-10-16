@@ -36,6 +36,15 @@ import {
 
 export type Dettaglio = 'alto' | 'medio' | 'basso';
 
+/** Tinte dei tetti di piode [colore, quanto]: grigio freddo, bruno caldo, chiaro di licheni, scuro, neutro. */
+const TINTE_TETTI: ReadonlyArray<readonly [number, number]> = [
+  [0x6a6a6e, 0.3],
+  [0x7d6650, 0.35],
+  [0x9a8f7a, 0.32],
+  [0x4e4640, 0.3],
+  [0x6c6258, 0],
+];
+
 export interface OpzioniRustico {
   seme?: Seme;
   /** larghezza in X (m), 4.5-8 */
@@ -149,8 +158,13 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
         finestre.push({ lato, u, v: vv, w: ww, h: hh, terra });
       }
     }
-    // retro
-    if (!terra && r.prob(0.6)) finestre.push({ lato: 'retro', u: r.centrato(W * 0.2), v: vv, w: ww, h: hh, terra });
+    // retro: una finestra a ogni piano alto (rifinitura 1: prima al 60%; di notte, viste da monte,
+    // le case erano buie, e nel bozzetto 5 il paese ha finestre accese da ogni lato). La stessa
+    // estrazione di prima, così il resto della pianta non cambia
+    if (!terra) {
+      r.prob(0.6);
+      finestre.push({ lato: 'retro', u: r.centrato(W * 0.2), v: vv, w: ww, h: hh, terra });
+    }
   }
   // finestrella del sottotetto nel timpano
   if (W * Math.tan(pendenza) * 0.5 > 1.3 && !timpanoLegno) {
@@ -232,6 +246,12 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     const { f } = telaio(p, fin.lato);
     const accesa = rf.prob(accese);
     const gerani = !fin.terra && !fin.timpano && alto && rf.prob(opz.gerani ?? 0.5);
+    // sul retro (che di solito guarda il pendio) la finestra è appoggiata, senza foro: pochi
+    // triangoli, ma di notte si accende come le altre
+    if (fin.lato === 'retro' && !fin.terra) {
+      dopo.push(() => finestra(b, f, fin.u, fin.v, { larghezza: fin.w, altezza: fin.h, accesa, ante: p.colAnte }));
+      continue;
+    }
     if (fin.timpano || (p.timpanoLegno && fin.lato === 'fronte' && fin.v > yUltimo)) {
       // sul timpano (o sul timpano di legno): finestrella appoggiata, senza foro
       const fs = p.timpanoLegno && fin.lato === 'fronte' && !fin.timpano ? inF(f, 0, 0, 0.07) : f;
@@ -482,6 +502,12 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     pezziPerCorso: alto ? Math.max(4, Math.round(D / 1.5)) : 3,
     travi: det !== 'basso',
     cedimento: r.tra(0.02, 0.08),
+    // file di lastre a contrasto doppio (rifinitura 1): dal Velo e dalle terrazze i tetti erano
+    // lastre lisce grigio-blu, senza righe
+    contrasto: 2,
+    // ogni tetto il suo grigio (dal seme, senza toccare la sequenza dei numeri casuali): più freddo,
+    // più bruno, più chiaro, più scuro; visto dall'alto il paese non è più una fila di dadi uguali
+    tinta: TINTE_TETTI[Math.abs(Math.floor(seme)) % TINTE_TETTI.length]!,
   });
 
   if (p.camino) {

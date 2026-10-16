@@ -32,6 +32,8 @@ export interface GiocoCorbella {
    * calda delle Fade sul suolo (dopo che il motore ha scelto i lumi vicini)
    */
   sistemi?: Array<{ render?(frameDt: number): void }>;
+  /** qualità grafica (`Game.onQualita`): il paese sposta la distanza del suo dettaglio lontano */
+  onQualita?(fn: (p: { livello: string }) => void): unknown;
 }
 
 /** Posizione nel gioco: (z, theta) e quota assoluta h. */

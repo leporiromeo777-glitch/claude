@@ -12,11 +12,16 @@ export const PALETTE = {
   gneissViola: 0x938c94,
   gneissCaldo: 0xb0a491,
   muschio: 0x6f7a46,
-  // piode di gneiss: grigio medio caldo (nei bozzetti i tetti prendono il cielo, non sono neri)
-  piode: 0x6f6c6d,
-  piodeChiare: 0x8f8a85,
-  piodeScure: 0x56555a,
+  // piode di gneiss: grigio caldo (nei bozzetti 1 e 3 i tetti sono masse grigio-brune che prendono
+  // la luce; il grigio neutro di prima, sotto il cielo, diventava blu-ardesia)
+  piode: 0x6c6258,
+  piodeChiare: 0x8c8274,
+  piodeScure: 0x4f4740,
   piodeMuschio: 0x707058,
+  /** licheni ocra sulle piode (circa il 15% delle lastre) */
+  piodeLichene: 0x9a8a5a,
+  /** giunti e ombra sotto le file */
+  piodeGiunti: 0x3a332d,
   /** assito sotto le gronde (larice ingrigito) */
   assito: 0x7a6250,
   calce: 0xf1ebde,

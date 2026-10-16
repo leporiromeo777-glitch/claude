@@ -586,6 +586,17 @@ export interface OpzioniTetto {
   travi?: boolean;
   /** imbarcamento del colmo (m): i tetti vecchi cedono un poco nel mezzo */
   cedimento?: number;
+  /**
+   * contrasto fra le file di lastre (1 = di base): tono alternato da una fila all'altra e ombra sotto
+   * ogni fila. I rustici usano 2, perché le file si leggano anche dall'alto dopo il filtro pittorico.
+   */
+  contrasto?: number;
+  /** colore dell'assito sotto le falde (predefinito `PALETTE.assito`) */
+  assito?: number;
+  /** tetto per l'occlusione cotta dell'assito e delle travi (le tettoie viste da sotto non devono essere nere) */
+  occlusioneMassima?: number;
+  /** tinta del tetto intero [colore, quanto 0..1]: ogni casa ha il suo grigio (più freddo, più bruno, più chiaro) */
+  tinta?: readonly [number, number];
 }
 
 /** Tetto a due falde in piode, colmo lungo Z. Restituisce la quota del colmo. */
@@ -594,6 +605,9 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
   const st = o.sporgenzaTimpano ?? 0.3;
   const corsi = o.corsi ?? 4;
   const ppc = o.pezziPerCorso ?? 5;
+  const contrasto = o.contrasto ?? 1;
+  const occMax = o.occlusioneMassima ?? 1;
+  const tinge = (c: THREE.ColorRepresentation): THREE.Color => (o.tinta ? mescola(c, o.tinta[0], o.tinta[1]) : new THREE.Color(c));
   const p = o.pendenza;
   const w2 = o.larghezza / 2;
   const yColmo = o.yGronda + w2 * Math.tan(p);
@@ -616,7 +630,8 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
     cBase.z = zc;
     b.aggiungi(geoBoxC(lFalda + 0.05, sp, dTot), {
       matrice: mat(cBase, [0, 0, rotZ]),
-      colore: PALETTE.piodeScure,
+      // la lastra di base si vede nei giunti fra le lastre: scura e calda
+      colore: tinge(PALETTE.piodeGiunti),
       variazione: 0.03,
       piatto: true,
       superficie: supBase,
@@ -629,11 +644,11 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
       // una sola faccia, rivolta in giù (dentro casa non si vede)
       b.aggiungi(new THREE.PlaneGeometry(lFalda - 0.04, dTot - 0.04), {
         matrice: mat(cAss, [0, 0, rotZ]).multiply(mat([0, 0, 0], [Math.PI / 2, 0, 0])),
-        colore: PALETTE.assito,
+        colore: o.assito ?? PALETTE.assito,
         variazione: 0.05,
         piatto: true,
         superficie: legnoOrizzontale(rng.next()),
-        occlusione: 0.22,
+        occlusione: Math.min(occMax, 0.22),
       });
     }
     if (corsi <= 0) continue;
@@ -661,16 +676,22 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
         centro.z = z + lz / 2;
         centro.y -= imbarca(centro.z);
         const tono = rng.next();
-        const colore = tono < 0.06 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.4 + rng.next() * 0.4) : mescola(PALETTE.piode, tono < 0.55 ? PALETTE.piodeChiare : PALETTE.piodeScure, rng.next() * 0.38);
+        // muschio (6%), licheni ocra (15%), poi lastre più chiare o più scure; le stesse estrazioni
+        // di prima (i numeri casuali che seguono non cambiano)
+        const quanto = rng.next();
+        let colore = tono < 0.06 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.4 + quanto * 0.4) : tono < 0.21 ? mescola(PALETTE.piode, PALETTE.piodeLichene, 0.35 + quanto * 0.4) : mescola(PALETTE.piode, tono < 0.6 ? PALETTE.piodeChiare : PALETTE.piodeScure, quanto * 0.38);
+        // file alternate più chiare e più scure: le file si leggono come righe anche da lontano
+        if (contrasto > 1) colore = mescola(colore, c % 2 === 0 ? PALETTE.piodeChiare : PALETTE.piodeScure, Math.min(0.6, 0.22 * (contrasto - 1) + 0.08));
+        const ombraFila = Math.min(0.55, 0.18 * contrasto);
         b.aggiungi(geoLastra(lungo, spessore, lz + 0.03, rng.intero(0, 1e6), 0.14), {
           matrice: mat(centro.clone().addScaledVector(nrm, -spessore / 2), [rng.centrato(0.02), rng.centrato(0.015), rotZ + s * 0.035 + rng.centrato(0.012)]),
-          colore,
+          colore: tinge(colore),
           variazione: 0.1,
           tinta: 0.03,
           piatto: true,
           superficie: sup(SUP.PIODE, rng.next()),
-          // le file basse (vicine alla gronda) stanno più in ombra sotto
-          occlusione: (pp) => (pp.y < centro.y - 0.02 ? 0.18 : 0.04),
+          // ombra sotto ogni fila (il bordo basso della lastra sopra): più forte col contrasto
+          occlusione: (pp) => (pp.y < centro.y - 0.02 ? ombraFila : 0.04),
         });
         z += lz;
       }
@@ -682,7 +703,7 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
     const z = zc - dTot / 2 + ((k + 0.5) * dTot) / ncr;
     b.aggiungi(geoLastra(0.6, 0.08, dTot / ncr + 0.08, rng.intero(0, 1e6), 0.14), {
       matrice: mat([0.09 * (k % 2 === 0 ? 1 : -1), yColmo + sp + 0.05 - imbarca(z), z], [0, rng.centrato(0.03), (k % 2 === 0 ? -1 : 1) * p * 0.6]),
-      colore: mescola(PALETTE.piodeChiare, PALETTE.piode, rng.next() * 0.4),
+      colore: tinge(mescola(PALETTE.piodeChiare, PALETTE.piode, rng.next() * 0.4)),
       variazione: 0.08,
       piatto: true,
       superficie: sup(SUP.PIODE, rng.next()),
@@ -696,7 +717,7 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
       const lt = (segno > 0 ? sf : st) + 0.25;
       for (const xx of [0, -w2 * 0.5, w2 * 0.5]) {
         const yy = yColmo - Math.abs(xx) * Math.tan(p) - 0.12;
-        b.aggiungi(geoBoxC(0.18, 0.2, lt), { matrice: mat([xx, yy, zt - segno * (lt / 2 - 0.05)]), colore: legno, variazione: 0.08, piatto: true, superficie: legnoOrizzontale(rng.next()), occlusione: 0.3 });
+        b.aggiungi(geoBoxC(0.18, 0.2, lt), { matrice: mat([xx, yy, zt - segno * (lt / 2 - 0.05)]), colore: legno, variazione: 0.08, piatto: true, superficie: legnoOrizzontale(rng.next()), occlusione: Math.min(occMax, 0.3) });
       }
     }
     const nt = Math.max(3, Math.round(o.profondita / 0.95));
@@ -710,7 +731,7 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
         const a = new THREE.Vector3(x0, y0, z);
         const c = new THREE.Vector3(x1, y1, z);
         const l = a.distanceTo(c);
-        b.aggiungi(geoBoxC(l, 0.1, 0.09), { matrice: mat(a.clone().lerp(c, 0.5), [0, 0, -s * p]), colore: legno, variazione: 0.1, piatto: true, superficie: legnoOrizzontale(0.2), occlusione: 0.38 });
+        b.aggiungi(geoBoxC(l, 0.1, 0.09), { matrice: mat(a.clone().lerp(c, 0.5), [0, 0, -s * p]), colore: legno, variazione: 0.1, piatto: true, superficie: legnoOrizzontale(0.2), occlusione: Math.min(occMax, 0.38) });
       }
     }
   }

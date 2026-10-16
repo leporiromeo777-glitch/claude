@@ -7,12 +7,12 @@ import { Group, Vector3 } from 'three';
 import type { Collider } from '../world/colliders';
 import { impostaIntensitaLumi } from '../oggetti/materiali';
 import { Abitanti, type ManigliaNpc } from './abitanti';
-import type { VoceCollider } from './cantiere';
+import { distanzaLodPerQualita, impostaDistanzaLod, type VoceCollider } from './cantiere';
 import { LATI, PARTICELLE, RETE, luogo } from './contenuti';
 import { cylToWorld, worldToCyl } from '../world/cylinder';
 import { Contesto } from './contesto';
 import { costruisciBalcone, costruisciGraDiPian, costruisciLontani, costruisciPilastriValle } from './luoghi/capisaldi';
-import { costruisciCasaPina, costruisciCasaVelo, costruisciCase } from './luoghi/case';
+import { costruisciCasaPina, costruisciCasaVelo, costruisciCase, lanterneDellePorte } from './luoghi/case';
 import { costruisciCripta, type Cripta } from './luoghi/cripta';
 import { costruisciPiazza } from './luoghi/piazza';
 import { costruisciFienile, costruisciRiale, costruisciRonchi } from './luoghi/ronchi';
@@ -59,6 +59,8 @@ export interface StatisticheCorbella {
   castagniTolti: number;
   segnaposto: RisultatoSegnaposto | null;
   msCostruzione: number;
+  /** lanterne a braccio sulle porte (rifinitura 1) */
+  lanterne: number;
 }
 
 export interface ManigliaElemento {
@@ -138,6 +140,8 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const elementiCostruiti = costruisciMobili(ctx, mat);
   // 2. rustici sulle particelle abitate
   const case_ = costruisciCase(ctx);
+  // lanterne a braccio accanto alle porte della corona della piazza (di notte il paese è acceso)
+  const lanterne = lanterneDellePorte(ctx, case_);
   // 3. muri delle terrazze lungo le alzate dei gradoni
   const piazza = luogo('piazza_ore');
   const tipoCella = new Map(PARTICELLE.map((p) => [p.id, p.tipo]));
@@ -179,6 +183,8 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   radice.add(ctx.dinamici);
   radice.add(abitanti.gruppo);
   game.scene.add(radice);
+  // il dettaglio lontano delle case segue la qualità grafica (400 m a Media e Alta, 260 a Bassa)
+  game.onQualita?.((p) => impostaDistanzaLod(radice, distanzaLodPerQualita(p.livello)));
   for (const c of colliderStatici) game.world.colliders.add(c.collider);
   abitanti.collegaCollider(game.world.colliders);
 
@@ -250,6 +256,7 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     castagniTolti,
     segnaposto: seg,
     msCostruzione: 0,
+    lanterne,
   };
 
   const update = (dt: number) => {

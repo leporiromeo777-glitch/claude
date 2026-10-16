@@ -47,8 +47,11 @@ export const MATERIA = {
 } as const;
 export type Materia = number;
 
-/** Cuoio con la cucitura (una riga di punti chiari dove v = 0, sul dorso delle dita e sui polsini). */
+/** Cuoio con la cucitura (una riga di punti di filo scuro dove v = 0, sul dorso delle dita e sui polsini). */
 export const CUOIO_CUCITO = MATERIA.CUOIO + 0.25;
+
+/** Lana a maglia fitta, senza coste (il corpo delle maniche; il polsino resta `MATERIA.LANA`, a coste). */
+export const LANA_MAGLIA = MATERIA.LANA + 0.25;
 
 export type Colore = number | readonly [number, number, number];
 
@@ -152,6 +155,7 @@ void main() {
   float metallo = 0.0;
   float trasmessa = 0.0;  // luce che passa (tela, carta, foglie)
   float peluria = 0.0;    // bordo vellutato (lana)
+  float opaco = 0.0;      // 1 = niente controluce sul contorno (il cuoio dei guanti)
 
   if (materia < 0.5) {
     alb *= 0.94 + 0.12 * fbm(vO.xy * 40.0 + vO.z * 13.0);
@@ -166,30 +170,36 @@ void main() {
     lucido = 0.18;
     durezza = 14.0;
   } else if (materia < 2.5) {
-    // cuoio dei guanti: grana, pieghe, sbiaditure sulle parti in fuori, cuciture a puntini
+    // cuoio dei guanti (rifinitura 1, bozzetto 2): cuoio scuro e opaco, grana e pieghe, più chiaro
+    // dove si consuma; niente riflesso né bordo luminoso (se no sembra pelle nuda), cuciture SCURE
     float gr = fbm(vO.xy * 140.0 + vO.z * 77.0);
     float pieghe = fbm(vec2(u * 60.0, v * 5.0));
-    alb *= 0.8 + 0.28 * gr;
-    alb *= 0.9 + 0.2 * smoothstep(0.35, 0.8, pieghe);
+    alb *= 0.86 + 0.22 * gr;
+    alb *= 0.9 + 0.16 * smoothstep(0.35, 0.8, pieghe);
     // consumato (più chiaro e caldo) dove non c'è occlusione
-    alb = mix(alb, alb * vec3(1.25, 1.15, 1.0), (1.0 - occ) * 0.25 * smoothstep(0.5, 0.8, gr));
-    // cucitura (materia + 0,25: forme con la cucitura): una riga a puntini dove v = 0
+    alb = mix(alb, alb * vec3(1.22, 1.12, 1.0), (1.0 - occ) * 0.25 * smoothstep(0.5, 0.8, gr));
+    // cucitura (materia + 0,25: forme con la cucitura): un solco appena più scuro con i punti di
+    // filo scuro dove v = 0
     float conCuc = step(0.6, fract(vC.a + 0.5));
     float cuc = 1.0 - smoothstep(0.012, 0.03, abs(fract(v + 0.5) - 0.5));
     float punti = step(0.45, fract(u * 95.0));
-    alb = mix(alb, alb * vec3(1.5, 1.35, 1.1), cuc * punti * conCuc * 0.75);
-    alb *= 1.0 - 0.25 * conCuc * (1.0 - smoothstep(0.02, 0.05, abs(fract(v + 0.5) - 0.5))) * (1.0 - cuc * punti);
-    lucido = 0.32;
-    durezza = 9.0;
-    avvolgi = 0.3;
+    alb *= 1.0 - 0.18 * conCuc * (1.0 - smoothstep(0.02, 0.05, abs(fract(v + 0.5) - 0.5)));
+    alb = mix(alb, alb * 0.42, cuc * punti * conCuc * 0.85);
+    lucido = 0.035;
+    durezza = 6.0;
+    avvolgi = 0.42;
+    opaco = 1.0;
   } else if (materia < 3.5) {
-    // lana verde: coste del polsino e maglia, peluria sul bordo
+    // lana verde: il polsino a coste; il corpo della manica (materia + 0,25, LANA_MAGLIA) a maglia
+    // fitta e a basso contrasto (le coste lungo tutta la manica la facevano un tubo rigato)
+    float magliaF = step(0.6, fract(vC.a + 0.5));
     float coste = sin(v * 6.2831 * 34.0);
     float maglia = sin(u * 260.0 + sin(v * 6.2831 * 34.0) * 1.5);
-    alb *= 0.86 + 0.1 * coste + 0.06 * maglia;
-    alb *= 0.85 + 0.25 * fbm(vec2(u * 18.0, v * 12.0));
+    float punto = sin(v * 6.2831 * 90.0) * sin(u * 420.0);
+    alb *= mix(0.86 + 0.1 * coste + 0.06 * maglia, 0.95 + 0.06 * punto, magliaF);
+    alb *= mix(0.85 + 0.25 * fbm(vec2(u * 18.0, v * 12.0)), 0.82 + 0.3 * fbm(vec2(u * 11.0, v * 8.0)), magliaF);
     avvolgi = 0.5;
-    peluria = 0.45;
+    peluria = mix(0.45, 0.3, magliaF);
   } else if (materia < 4.5) {
     // tela del Velo: trama fine, rattoppi, punti a croce sulle cuciture (u, v in metri)
     float trama = 0.5 + 0.25 * sin(u * 2400.0) + 0.25 * sin(v * 2400.0);
@@ -257,11 +267,13 @@ void main() {
   vec3 cielo = uAmb;
   vec3 suolo = mix(uAmb * 0.55, vec3(0.6, 0.5, 0.36), 0.55 * (1.0 - uNight));
   vec3 amb = mix(suolo, cielo, alto);
-  float ao = 1.0 - occ * 0.85;
+  // il cuoio (opaco) prende meno occlusione e più riempimento frontale: scuro e opaco sì, ma non una
+  // sagoma nera quando la mano è in ombra (rifinitura 1)
+  float ao = 1.0 - occ * mix(0.85, 0.6, opaco);
   vec3 luce = uSun * uSunI;
   // riempimento dal corpo e dall'occhio (le cose in mano non stanno mai al buio, come nei bozzetti)
   float fronte = max(0.0, dot(N, V)) * 0.5 + 0.5;
-  vec3 col = alb * (amb * 0.82 * ao + amb * 0.16 * fronte + luce * d * 0.86 * mix(1.0, ao, 0.4));
+  vec3 col = alb * (amb * 0.82 * ao + amb * (0.16 + 0.34 * opaco) * fronte + luce * d * 0.86 * mix(1.0, ao, 0.4));
   // luce trasmessa (controluce della tela e della carta)
   col += alb * luce * trasmessa * max(0.0, -ndl) * 0.55;
   col += alb * luce * trasmessa * 0.18;
@@ -277,7 +289,8 @@ void main() {
     // la luce principale riflessa: una macchia larga e calda dalla parte della luce
     env += luce * 0.7 * smoothstep(0.6, 0.95, dot(R, L));
     vec3 m = alb * env * 1.1 * ao + alb * luce * d * 0.25;
-    col = mix(col, m + luce * sp * alb * 1.8, metallo * 0.9);
+    // il riflesso della luce: caldo ma non giallo pieno (l'ottone non è plastica)
+    col = mix(col, m + luce * sp * mix(alb * 1.6, vec3(1.0, 0.93, 0.8), 0.35), metallo * 0.9);
     // bordi chiari (Fresnel)
     float fr = pow(1.0 - max(dot(N, V), 0.0), 3.0);
     col += alb * cielo * fr * 0.3 * metallo;
@@ -286,7 +299,7 @@ void main() {
   float bordo = pow(1.0 - max(dot(N, V), 0.0), 2.5);
   col += alb * (luce * 0.6 + cielo * 0.3) * bordo * peluria * (0.4 + 0.6 * max(0.0, ndl + 0.3));
   // controluce sui contorni di tutte le forme (il bordo luminoso dei bozzetti)
-  col += luce * alb * bordo * 0.22 * smoothstep(0.0, 0.6, dot(-V, L) + 0.4);
+  col += luce * alb * bordo * 0.22 * smoothstep(0.0, 0.6, dot(-V, L) + 0.4) * (1.0 - opaco);
   gl_FragColor = vec4(col, 1.0);
 }
 `;

@@ -17,10 +17,19 @@ import { gradinataSulSuolo } from '../sentieri';
 import { sposta, spostaYaw, suolo, yawVerso } from '../terreno';
 import { posaChiodo } from './sanVigilio';
 
-const CIOTTOLO_CHIARO: RGB = hex(0xd9d0bd);
-const CIOTTOLO_GRIGIO: RGB = hex(0xa69f93);
-const CIOTTOLO_SCURO: RGB = hex(0x4b4650);
-const CORDOLO: RGB = hex(0x8d877f);
+// rifinitura 1: il selciato era quasi bianco con le righe nere (di giorno un foglio sovraesposto,
+// di notte la cosa più luminosa della scena): ciottoli grigio-beige caldi, linee bruno-bronzo
+const CIOTTOLO_CHIARO: RGB = hex(0xa89e8c);
+const CIOTTOLO_GRIGIO: RGB = hex(0x857d70);
+const CIOTTOLO_SCURO: RGB = hex(0x5a4a3a);
+const CORDOLO: RGB = hex(0x7d766c);
+/** di quanto il lastricato del lavatoio sta sopra il gradino del chiodo 5 (m) */
+export const DISLIVELLO_LAVATOIO = 0.8;
+/** la linea di Lag e Mane (prima quasi nera) */
+const LINEA_LAG: RGB = hex(0x4a3a2c);
+/** mezza larghezza delle linee delle ore e della linea di Lag (m) */
+const LINEA_ORE = 0.06;
+const LINEA_LAG_MEZZA = 0.09;
 
 /** Colore del selciato a meridiana in (x est, y nord) dal centro. */
 export function coloreMeridiana(x: number, y: number, r: number, raggio: number): RGB {
@@ -43,12 +52,12 @@ export function coloreMeridiana(x: number, y: number, r: number, raggio: number)
     const l = Math.hypot(dx, dy);
     const d = Math.abs((x - sx) * dy - (y - sy) * dx) / l;
     if (y > raggio - 2.2) continue;
-    if (d < 0.11) return mix(CIOTTOLO_SCURO, c, 0.12 + fine * 0.1);
+    if (d < LINEA_ORE) return mix(CIOTTOLO_SCURO, c, 0.12 + fine * 0.1);
   }
   // la linea più scura: punta a Lag e a Mane (un punto preciso della parete del Sordo)
   const ang = (12 * Math.PI) / 180;
   const d2 = Math.abs(x * Math.cos(ang) - y * Math.sin(ang));
-  if (d2 < 0.17 && y > -raggio + 3 && r < raggio - 2.2) return hex(0x2c2830);
+  if (d2 < LINEA_LAG_MEZZA && y > -raggio + 3 && r < raggio - 2.2) return LINEA_LAG;
   return c;
 }
 
@@ -109,13 +118,13 @@ function selciatoMeridiana(ctx: Contesto, z0: number, th0: number, raggio: numbe
     if (t0 < 0 || t1 - t0 < 0.5) continue;
     const a = qui(sx + (dx / l) * t0, sy + (dy / l) * t0);
     const b = qui(sx + (dx / l) * t1, sy + (dy / l) * t1);
-    nastroSulSuolo(c, [a, b], 0.22, 0.7, 0.052, scuro, undefined, { superficie: SEL + 0.5 });
+    nastroSulSuolo(c, [a, b], LINEA_ORE * 2, 0.7, 0.052, scuro, undefined, { superficie: SEL + 0.5 });
   }
   // la linea più scura: punta a Lag e a Mane (un punto preciso della parete del Sordo)
   const ang = (12 * Math.PI) / 180;
   const ta = (-raggio + 3) / Math.cos(ang);
   const tb = raggio - 2.2;
-  nastroSulSuolo(c, [qui(Math.sin(ang) * ta, Math.cos(ang) * ta), qui(Math.sin(ang) * tb, Math.cos(ang) * tb)], 0.34, 0.7, 0.054, () => hex(0x2c2830), undefined, { superficie: SEL + 0.9 });
+  nastroSulSuolo(c, [qui(Math.sin(ang) * ta, Math.cos(ang) * ta), qui(Math.sin(ang) * tb, Math.cos(ang) * tb)], LINEA_LAG_MEZZA * 2, 0.7, 0.054, () => LINEA_LAG, undefined, { superficie: SEL + 0.9 });
   // cerchio scuro al centro
   discoSulSuolo(c, z0, th0, 0.9, 0.3, 0.056, () => mix(CIOTTOLO_SCURO, CIOTTOLO_GRIGIO, 0.1), undefined, false, { superficie: SEL + 0.1 });
 }
@@ -159,12 +168,12 @@ function coronaPiazza(ctx: Contesto, z0: number, th0: number, raggio: number): v
       const n2 = rumore2(x / 2.2, y / 2.2, 9);
       const bordoSelciato = raggio + 1.4 + n1 * 2.2 + (n2 - 0.5) * 1.0;
       const bordoTerra = raggio + 5.5 + rumore2(Math.cos(a) * 4, Math.sin(a) * 4 + 3, 8) * 4.5 + (n2 - 0.5) * 1.6;
-      const fine = hash2(Math.floor(x / 0.6), Math.floor(y / 0.6), 6);
-      if (r < bordoSelciato) return [SUPERFICIE.SELCIATO + 0.6, mix(cCiottoli, coloreFondo(x, y), 0.4 + fine * 0.2)];
+      if (r < bordoSelciato) return [SUPERFICIE.SELCIATO + 0.6, mix(cCiottoli, coloreFondo(x, y), 0.5)];
       if (r < bordoTerra) {
-        // terra battuta: più scura dove l'acqua ristagna, qualche ciottolo sparso
-        if (fine < 0.08) return [SUPERFICIE.SELCIATO + 0.3, mix(cCiottoli, cTerra, 0.5)];
-        return [SUPERFICIE.TERRA + 0.2 + fine * 0.5, mix(cTerra, cTerraScura, rumore2(x / 1.6, y / 1.6, 2) * 0.7)];
+        // terra battuta: più scura dove l'acqua ristagna. Rifinitura 1: la variante del motivo e il
+        // colore cambiavano da un triangolo all'altro (faccette) e i ciottoli sparsi erano toppe
+        // isolate; ora la variante è una sola e il colore cambia piano, a chiazze larghe
+        return [SUPERFICIE.TERRA + 0.35, mix(cTerra, cTerraScura, rumore2(x / 5.5, y / 5.5, 2) * 0.55)];
       }
       // prato calpestato che torna il prato del suolo
       const k = Math.min(1, Math.max(0, (r - bordoTerra) / Math.max(1, r1 - 1.2 - bordoTerra)));
@@ -240,7 +249,10 @@ export function costruisciPiazza(ctx: Contesto): void {
   const yawL = yawVerso(lv, campanile) + 180;
   const centroL = spostaYaw(lv.z, lv.theta, yawL + 180, 3.4, 35.5);
   const baseL = suolo(cs5.z, cs5.theta) + 0.05;
-  const pl = ctx.posa('piazza', creaLavatoio('lavatoio-piazza'), centroL.z, centroL.theta, yawL, { h: baseL, luogo: 'lavatoio' });
+  // rifinitura 1: il pendio dietro il gradino sale di 2 m e seppelliva la vasca; il lastricato sale
+  // di DISLIVELLO_LAVATOIO su un basamento, con una scalinata fino al primo gradino, che col chiodo 5
+  // resta dov'era (stessa posizione e stessa quota). La tettoia, più alta, copre ancora il lato 5-1
+  const pl = ctx.posa('piazza', creaLavatoio('lavatoio-piazza', DISLIVELLO_LAVATOIO), centroL.z, centroL.theta, yawL, { h: baseL + DISLIVELLO_LAVATOIO, luogo: 'lavatoio' });
   ctx.occupa({ nome: 'lavatoio', z: centroL.z, theta: centroL.theta, yaw: yawL, larghezza: 8, profondita: 7.5 });
   posaChiodo(ctx, 'piazza', cs5.numero, cs5.z, cs5.theta, 'cs_5', 'lavatoio', baseL + 0.08);
   if (pl['vasca']) ctx.punto('esamina:lavatoio', 'esamina', 'La vasca del lavatoio', pl['vasca'], { raggio: 2.2, luogo: 'lavatoio' });
