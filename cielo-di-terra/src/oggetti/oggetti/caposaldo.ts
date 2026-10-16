@@ -16,6 +16,7 @@ import { geoBoxC, geoCilindro, geoLastra, geoMasso, geoSfera, geoToro } from '..
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
+import { SUP } from '../superfici';
 
 // segmenti di una cifra a sette segmenti: [cx, cy, orizzontale]
 const SEGMENTI: Record<string, Array<[number, number, boolean]>> = {
@@ -68,14 +69,14 @@ export function numero(b: Costruttore, testo: string, m: THREE.Matrix4, h: numbe
 export function testaChiodo(b: Costruttore, m: THREE.Matrix4, num: number, scala = 1): void {
   const r = 0.045 * scala;
   // gambo appena visibile e testa
-  b.aggiungi(geoCilindro(r * 0.35, r * 0.35, 0.05 * scala, 6), { matrice: m.clone().multiply(mat([0, -0.045 * scala, 0])), colore: PALETTE.ottoneScuro });
-  b.aggiungi(geoCilindro(r, r * 1.05, 0.012 * scala, 14), { matrice: m, colore: PALETTE.ottone, gradiente: { basso: 0.8, alto: 1.1, y0: -0.01, y1: 0.02 } });
+  b.aggiungi(geoCilindro(r * 0.35, r * 0.35, 0.05 * scala, 6), { matrice: m.clone().multiply(mat([0, -0.045 * scala, 0])), colore: PALETTE.ottoneScuro, superficie: SUP.OTTONE });
+  b.aggiungi(geoCilindro(r, r * 1.05, 0.012 * scala, 14), { matrice: m, colore: PALETTE.ottone, superficie: SUP.OTTONE, gradiente: { basso: 0.8, alto: 1.1, y0: -0.01, y1: 0.02 } });
   const cupola = geoSfera(r, 14, 5);
   cupola.scale(1, 0.25, 1);
-  b.aggiungi(cupola, { matrice: m.clone().multiply(mat([0, 0.012 * scala, 0])), colore: PALETTE.ottoneChiaro });
+  b.aggiungi(cupola, { matrice: m.clone().multiply(mat([0, 0.012 * scala, 0])), colore: PALETTE.ottoneChiaro, superficie: SUP.OTTONE });
   b.aggiungi(geoToro(r * 0.86, 0.004 * scala, 4, 18), {
     matrice: m.clone().multiply(mat([0, 0.016 * scala, 0], [Math.PI / 2, 0, 0])),
-    colore: PALETTE.ottoneScuro,
+    colore: PALETTE.ottoneScuro, superficie: SUP.OTTONE,
   });
   // numero inciso (scuro) sulla cupola, rivolto verso +Z locale del sistema
   numero(b, String(num), m.clone().multiply(mat([0, 0.0185 * scala + 0.002, 0], [-Math.PI / 2, 0, 0])), r * 0.6, mescola(PALETTE.ottoneScuro, 0x000000, 0.5), 0.003 * scala);
@@ -117,7 +118,7 @@ export function creaCaposaldo(opz: OpzioniChiodo): OggettoProcedurale {
     const L = 1.6;
     const H = 0.95;
     const prof = 0.6;
-    b.aggiungi(geoBoxC(L, H, prof), { matrice: mat([0, H / 2 - 0.2, 0]), colore: PALETTE.gneissScuro, piatto: true });
+    b.aggiungi(geoBoxC(L, H, prof), { matrice: mat([0, H / 2 - 0.2, 0]), colore: PALETTE.gneissScuro, superficie: SUP.PIETRA, piatto: true });
     let y = -0.2;
     while (y < H - 0.25) {
       const hc = rng.tra(0.17, 0.27);
@@ -138,7 +139,7 @@ export function creaCaposaldo(opz: OpzioniChiodo): OggettoProcedurale {
     }
     b.aggiungi(geoLastra(L + 0.06, 0.12, prof + 0.1, rng.intero(0, 1e6), 0.06), {
       matrice: mat([0, H - 0.25, 0]),
-      colore: PALETTE.gneissChiaro,
+      colore: PALETTE.gneissChiaro, superficie: SUP.PIETRA,
       variazione: 0.05,
       piatto: true,
     });
@@ -148,7 +149,7 @@ export function creaCaposaldo(opz: OpzioniChiodo): OggettoProcedurale {
     const h = 0.75;
     b.aggiungi(geoLastra(0.3, h + 0.2, 0.3, rng.intero(0, 1e6), 0.04), {
       matrice: mat([0, -0.2, 0], [0, rng.next(), 0]),
-      colore: PALETTE.gneissChiaro,
+      colore: PALETTE.gneissChiaro, superficie: SUP.PIETRA,
       gradiente: { basso: 0.75, alto: 1.05, y0: 0, y1: h },
       variazione: 0.04,
       piatto: true,
@@ -202,7 +203,7 @@ export function aggiungiPalina(b: Costruttore, a: THREE.Vector3, h: number, band
   }
   const cima = new THREE.Vector3(a.x, a.y + h, a.z);
   // pomo e bandierina a coda di rondine
-  b.aggiungi(geoSfera(raggio * 1.3, 6, 4), { matrice: mat(cima), colore: PALETTE.ottone });
+  b.aggiungi(geoSfera(raggio * 1.3, 6, 4), { matrice: mat(cima), colore: PALETTE.ottone, superficie: SUP.OTTONE });
   if (bandierina) {
     const f = new THREE.Shape();
     f.moveTo(0, 0);
@@ -277,13 +278,13 @@ export function creaPalina(opz: OpzioniPalina = {}): OggettoProcedurale {
       const terra = new THREE.Vector3(Math.cos(a) * 3.2, 0, Math.sin(a) * 3.2);
       const alto = new THREE.Vector3(0, yBase + h * 0.62, 0);
       b.aggiungi(geoCilindro(0.012, 0.012, 1, 3, true), { matrice: matSegmento(terra, alto), colore: PALETTE.canapaScura, canale: 'sottile' });
-      b.aggiungi(geoCilindro(0.03, 0.04, 0.35, 5), { matrice: mat([terra.x, -0.1, terra.z]), colore: PALETTE.legno });
+      b.aggiungi(geoCilindro(0.03, 0.04, 0.35, 5), { matrice: mat([terra.x, -0.1, terra.z]), colore: PALETTE.legno, superficie: SUP.LEGNO });
     }
   } else if (base === 'pilastro') {
     const hp = 1.9;
     b.aggiungi(geoLastra(1.0, hp + 0.3, 1.0, rng.intero(0, 1e6), 0.03), {
       matrice: mat([0, -0.3, 0]),
-      colore: PALETTE.gneiss,
+      colore: PALETTE.gneiss, superficie: SUP.PIETRA,
       gradiente: { basso: 0.75, alto: 1.03, y0: 0, y1: hp },
       rumore: 0.05,
       piatto: true,
@@ -302,14 +303,14 @@ export function creaPalina(opz: OpzioniPalina = {}): OggettoProcedurale {
         });
       }
     }
-    b.aggiungi(geoLastra(1.15, 0.14, 1.15, rng.intero(0, 1e6), 0.05), { matrice: mat([0, hp, 0]), colore: PALETTE.gneissChiaro, piatto: true });
+    b.aggiungi(geoLastra(1.15, 0.14, 1.15, rng.intero(0, 1e6), 0.05), { matrice: mat([0, hp, 0]), colore: PALETTE.gneissChiaro, superficie: SUP.PIETRA, piatto: true });
     yBase = hp + 0.14;
     const mc = mat([0.3, yBase, 0.3]);
     testaChiodo(b, mc, opz.numero ?? 0);
     punti['chiodo'] = new THREE.Vector3(0.3, yBase + 0.02, 0.3);
     collider.push(box(0, hp / 2, 0, 0.55, hp / 2 + 0.07, 0.55, 'arrampicabile'));
     // collare della palina
-    b.aggiungi(geoCilindro(0.13, 0.15, 0.3, 8), { matrice: mat([0, yBase, 0]), colore: PALETTE.ferro });
+    b.aggiungi(geoCilindro(0.13, 0.15, 0.3, 8), { matrice: mat([0, yBase, 0]), colore: PALETTE.ferro, superficie: SUP.METALLO });
   }
   const cima = aggiungiPalina(b, new THREE.Vector3(0, yBase, 0), h, opz.banda ?? 1.0, 0.07, opz.bandierina ?? true);
   collider.push(cil(0, yBase, 0, 0.1, h, 'palina'));
@@ -344,23 +345,23 @@ export function creaPilastro(opz: OpzioniPilastro): OggettoProcedurale {
   // zoccolo di pietra
   b.aggiungi(geoLastra(0.8, 0.5, 0.8, rng.intero(0, 1e6), 0.05), {
     matrice: mat([0, -0.25, 0]),
-    colore: PALETTE.gneissChiaro,
+    colore: PALETTE.gneissChiaro, superficie: SUP.PIETRA,
     gradiente: { basso: 0.75, alto: 1.0, y0: -0.2, y1: 0.25 },
     piatto: true,
   });
   const hc = 1.25;
   const mCol = mat([0, 0.25, 0], [inc, 0, inc * 0.4]);
-  b.aggiungi(geoCilindro(0.17, 0.21, 0.12, 8), { matrice: mCol, colore: PALETTE.bronzoScuro, piatto: true });
+  b.aggiungi(geoCilindro(0.17, 0.21, 0.12, 8), { matrice: mCol, colore: PALETTE.bronzoScuro, superficie: SUP.OTTONE, piatto: true });
   b.aggiungi(geoCilindro(0.15, 0.17, hc, 8), {
     matrice: mCol.clone().multiply(mat([0, 0.1, 0])),
-    colore: PALETTE.bronzo,
+    colore: PALETTE.bronzo, superficie: SUP.OTTONE,
     gradiente: { basso: 0.7, alto: 1.1, y0: 0.3, y1: hc + 0.3 },
     piatto: true,
   });
-  b.aggiungi(geoCilindro(0.2, 0.16, 0.1, 8), { matrice: mCol.clone().multiply(mat([0, hc + 0.1, 0])), colore: PALETTE.bronzoScuro, piatto: true });
+  b.aggiungi(geoCilindro(0.2, 0.16, 0.1, 8), { matrice: mCol.clone().multiply(mat([0, hc + 0.1, 0])), colore: PALETTE.bronzoScuro, superficie: SUP.OTTONE, piatto: true });
   // targa
   const mTarga = mCol.clone().multiply(mat([0, hc * 0.62, 0.155], [-0.02, 0, 0]));
-  b.aggiungi(geoBoxC(0.2, 0.26, 0.015), { matrice: mTarga, colore: PALETTE.ottone });
+  b.aggiungi(geoBoxC(0.2, 0.26, 0.015), { matrice: mTarga, colore: PALETTE.ottone, superficie: SUP.OTTONE });
   numero(b, String(opz.numero), mTarga.clone().multiply(mat([0, 0.045, 0.008])), 0.09, PALETTE.bronzoScuro, 0.004);
   numero(b, '2120', mTarga.clone().multiply(mat([0, -0.075, 0.008])), 0.035, PALETTE.bronzoScuro, 0.003);
   const mTesta = mCol.clone().multiply(mat([0, hc + 0.2, 0]));
@@ -371,12 +372,12 @@ export function creaPilastro(opz: OpzioniPilastro): OggettoProcedurale {
   if (segnale === 'palina') {
     // la palina sta su un collare accanto al chiodo
     const base = new THREE.Vector3().setFromMatrixPosition(mCol.clone().multiply(mat([0.24, 0, 0])));
-    b.aggiungi(geoCilindro(0.06, 0.06, hc + 0.2, 6), { matrice: mat(base), colore: PALETTE.ferro });
+    b.aggiungi(geoCilindro(0.06, 0.06, hc + 0.2, 6), { matrice: mat(base), colore: PALETTE.ferro, superficie: SUP.METALLO });
     punti['cima'] = aggiungiPalina(b, base.clone().add(new THREE.Vector3(0, hc + 0.2, 0)), opz.altezzaSegnale ?? 8.5, 1.0, 0.06);
   } else if (segnale === 'disco') {
     const base = new THREE.Vector3().setFromMatrixPosition(mCol.clone().multiply(mat([0.24, 0, 0])));
     const hs = opz.altezzaSegnale ?? 8.5;
-    b.aggiungi(geoCilindro(0.05, 0.06, hc + 0.2 + hs, 6), { matrice: mat(base), colore: PALETTE.ferro });
+    b.aggiungi(geoCilindro(0.05, 0.06, hc + 0.2 + hs, 6), { matrice: mat(base), colore: PALETTE.ferro, superficie: SUP.METALLO });
     const centroDisco = base.clone().add(new THREE.Vector3(0, hc + 0.2 + hs, 0));
     const disco = new THREE.CircleGeometry(0.8, 16);
     b.aggiungi(disco, { matrice: mat(centroDisco), colore: PALETTE.biancoPalina, canale: 'sottile' });

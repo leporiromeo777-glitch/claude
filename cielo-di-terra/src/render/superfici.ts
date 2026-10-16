@@ -60,6 +60,11 @@ export const SUPERFICIE = {
   VETRO: 13,
   /** Automatica: il tipo si deduce dal colore per vertice (vedi in cima). Predefinita degli oggetti. */
   AUTO: 14,
+  /**
+   * Selciato (traccia «paese»): ciottoli e cubetti a corsi, la PIETRA a scala ridotta (circa 15 cm),
+   * per la piazza delle Ore, il sagrato e i vicoli.
+   */
+  SELCIATO: 15,
 } as const;
 
 export type Superficie = (typeof SUPERFICIE)[keyof typeof SUPERFICIE];
@@ -81,6 +86,7 @@ export const NOMI_SUPERFICIE: Record<Superficie, string> = {
   12: 'erba',
   13: 'vetro',
   14: 'automatica',
+  15: 'selciato',
 };
 
 export interface OpzioniTag {
@@ -613,5 +619,7 @@ void applicaSuperficie(inout Sup s, float tipo, float var, vec3 P, vec3 Nv, floa
   else if (tipo < 11.5) supRoccia(s, P, uv, up, pix, var);
   else if (tipo < 12.5) supErba(s, P, uv, up, pix, var);
   else if (tipo < 13.5) supVetro(s, P, uv, pix);
+  // 14 = AUTO (risolto prima); 15 = selciato: la pietra a ciottoli piccoli (traccia «paese»)
+  else if (tipo > 14.5 && tipo < 15.5) supPietra(s, P, uv * 2.6, pix * 2.6, var);
 }
 `;

@@ -9,17 +9,11 @@
  *   2. si collima: il reticolo sul segnale di un altro caposaldo per 1,5 s;
  *   3. «leggi»: evento `collimato` (la regia chiede al catasto se il lato si chiude).
  *
- * Disegna lo strumento e le mani (src/oggetti) in una scena a parte sopra il mondo.
+ * Disegna lo strumento d'ottone e le mani guantate (src/oggetti, bozzetto 2) in una scena a parte
+ * sopra il mondo, con il materiale del primo piano: la luce è quella del mondo (gli uniform
+ * `UNIFORMI_PRIMO_PIANO`, che il motore aggiorna a ogni fotogramma).
  */
-import {
-  AmbientLight,
-  DirectionalLight,
-  HemisphereLight,
-  PerspectiveCamera,
-  Scene,
-  Vector3,
-  type WebGLRenderer,
-} from 'three';
+import { PerspectiveCamera, Scene, Vector3, type WebGLRenderer } from 'three';
 import type { Game, SistemaGioco } from '../game';
 import { Emettitore } from '../narrativa';
 import { creaSquadroPrimaPersona, type OggettoProcedurale, type StatoSquadro } from '../oggetti';
@@ -95,8 +89,6 @@ export class Squadro implements SistemaGioco {
   private fp: OggettoProcedurale<StatoSquadro> | null = null;
   private scena = new Scene();
   private camera: PerspectiveCamera;
-  private luce: DirectionalLight;
-  private emisfero: HemisphereLight;
   private miraCorrente: { id: string | null; tempo: number; appuntato: boolean } = { id: null, tempo: 0, appuntato: false };
   private passo = 0;
   private derivaBolla = 0;
@@ -106,10 +98,6 @@ export class Squadro implements SistemaGioco {
     private opz: OpzioniSquadro,
   ) {
     this.camera = new PerspectiveCamera(game.settings.fov, 1, 0.02, 10);
-    this.emisfero = new HemisphereLight(0xfff1dc, 0x5a5048, 1.2);
-    this.luce = new DirectionalLight(0xffe6c4, 1.6);
-    this.luce.position.set(-0.6, 1, 0.4);
-    this.scena.add(this.emisfero, this.luce, new AmbientLight(0x404050, 0.4));
   }
 
   private assicuraModello(): OggettoProcedurale<StatoSquadro> {
@@ -235,11 +223,6 @@ export class Squadro implements SistemaGioco {
     const v = g.player.vel.length();
     this.passo += (Math.min(1, v / 7) - this.passo) * 0.1;
     this.fp.update?.(1 / 60, { posa: this.stato === 'piantato' ? 'piantato' : 'mano', passo: g.player.grounded ? this.passo : 0, mira: 0 });
-    const s = g.sky;
-    const k = 0.35 + 0.75 * s.sunIntensity;
-    this.luce.intensity = 1.5 * k;
-    this.emisfero.intensity = 1.1 * k + 0.25;
-    this.luce.color.setRGB(s.sunColor[0], s.sunColor[1], s.sunColor[2]);
     const aspetto = g.camera.aspect;
     if (this.camera.aspect !== aspetto || this.camera.fov !== g.settings.fov) {
       this.camera.aspect = aspetto;

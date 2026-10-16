@@ -45,8 +45,25 @@ function costruisciParti(rng: Rng, scala = 1): PartiFada {
     12,
   );
   cappello.deleteAttribute('uv');
-  corpo.aggiungi(cappello, { colore: PALETTE.smaltoVerde, gradiente: { basso: 0.7, alto: 1.15, y0: 0.44 * s, y1: 0.62 * s } });
+  corpo.aggiungi(cappello, { colore: mescola(PALETTE.smaltoVerde, 0x1d2a2a, 0.45), gradiente: { basso: 0.55, alto: 1.1, y0: 0.44 * s, y1: 0.62 * s } });
   corpo.aggiungi(geoToro(0.36 * s, 0.014 * s, 3, 16), { matrice: mat([0, 0.445 * s, 0], [Math.PI / 2, 0, 0]), colore: PALETTE.ottone });
+  // costole d'ottone sul cappello e frangia di piccole lamelle sotto la tesa
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2;
+    corpo.aggiungi(geoBoxC(0.012 * s, 0.012 * s, 0.32 * s), {
+      matrice: mat([Math.cos(a) * 0.19 * s, 0.53 * s, -Math.sin(a) * 0.19 * s], [0, a + Math.PI / 2, 0]).multiply(mat([0, 0, 0], [0.42, 0, 0])),
+      colore: PALETTE.ottoneScuro,
+      piatto: true,
+    });
+  }
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2;
+    corpo.aggiungi(geoBoxC(0.035 * s, 0.07 * s, 0.006 * s), {
+      matrice: mat([Math.cos(a) * 0.35 * s, 0.4 * s, -Math.sin(a) * 0.35 * s], [0, a + Math.PI / 2, 0]),
+      colore: PALETTE.rameScuro,
+      piatto: true,
+    });
+  }
   // pomolo e anello in cima
   corpo.aggiungi(geoSfera(0.03 * s, 6, 4), { matrice: mat([0, 0.63 * s, 0]), colore: PALETTE.ottone });
   corpo.aggiungi(geoToro(0.035 * s, 0.007 * s, 4, 8), { matrice: mat([0, 0.68 * s, 0]), colore: PALETTE.ottoneScuro });
@@ -435,6 +452,13 @@ export function creaSciameFade(opz: OpzioniSciameFade = {}): OggettoProcedurale<
   const gRotore = parti.rotore.geometria('opaco') as THREE.BufferGeometry;
   const bp = new Costruttore(rng.derivato('pietre'));
   bp.aggiungi(geoLastra(0.42 * sc, 0.26 * sc, 0.3 * sc, 7, 0.15), { colore: PALETTE.gneiss, variazione: 0.05, piatto: true });
+  // tre catenelle dalla pietra alle griffe (la pietra pende sotto la macchina)
+  for (let k = 0; k < 3; k++) {
+    const a = (k / 3) * Math.PI * 2 + 0.5;
+    const da = new THREE.Vector3(Math.cos(a) * 0.12 * sc, 0.24 * sc, Math.sin(a) * 0.1 * sc);
+    const aa = new THREE.Vector3(Math.cos(a) * 0.05 * sc, 0.3 * sc, Math.sin(a) * 0.05 * sc);
+    bp.aggiungi(geoCilindro(0.006 * sc, 0.006 * sc, 1, 3), { matrice: matSegmento(da, aa), colore: PALETTE.ferro });
+  }
   const gPietra = bp.geometria('opaco') as THREE.BufferGeometry;
   const nPietre = Math.round(n * (opz.conPietra ?? 0.4));
 
@@ -473,9 +497,23 @@ export function creaSciameFade(opz: OpzioniSciameFade = {}): OggettoProcedurale<
   aloni.name = 'sciame-fade-aloni';
   aloni.frustumCulled = false;
 
+  // scie luminose: l'arco che ogni Fada ha appena percorso, ambra che svanisce (una draw call)
+  const NS = 22;
+  const gScie = new THREE.BufferGeometry();
+  const posScie = new Float32Array(n * (NS - 1) * 2 * 3);
+  const colScie = new Float32Array(n * (NS - 1) * 2 * 3);
+  gScie.setAttribute('position', new THREE.BufferAttribute(posScie, 3));
+  gScie.setAttribute('color', new THREE.BufferAttribute(colScie, 3));
+  const matScie = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+  matScie.userData['proprio'] = true;
+  const scie = new THREE.LineSegments(gScie, matScie);
+  scie.name = 'sciame-fade-scie';
+  scie.frustumCulled = false;
+  const cScia = new THREE.Color(0xffb35a);
+
   const gruppo = new THREE.Group();
   gruppo.name = 'sciame-fade';
-  gruppo.add(mCorpo, mLume, mRotore, mPietre, aloni);
+  gruppo.add(mCorpo, mLume, mRotore, mPietre, aloni, scie);
 
   const individui = Array.from({ length: n }, (_, i) => ({
     r: (opz.raggio ?? 6) * rng.tra(0.35, 1.0),
@@ -526,6 +564,34 @@ export function creaSciameFade(opz: OpzioniSciameFade = {}): OggettoProcedurale<
     const k = leggiIntensitaLumi();
     matAloni.opacity = Math.min(1, k);
     matAloni.visible = k > 0.02;
+    // scie: il moto è analitico, l'arco passato si ricalcola (niente memoria per individuo)
+    matScie.visible = k > 0.02;
+    if (matScie.visible) {
+      let o = 0;
+      const pa = new THREE.Vector3();
+      const pb = new THREE.Vector3();
+      const punto = (f: (typeof individui)[number], tt: number, out: THREE.Vector3) => {
+        const a = f.a + tt * f.w;
+        return out.set(centro.x + Math.cos(a) * f.r * f.ex, centro.y + f.q + Math.sin(tt * 1.3 + f.ph) * 0.25 + parti.quotaLume, centro.z + Math.sin(a) * f.r);
+      };
+      for (let i = 0; i < n; i++) {
+        const f = individui[i] as (typeof individui)[number];
+        // la scia è lunga circa un terzo di giro, più corta per chi gira piano
+        const passo = 0.95 / (NS - 1) / Math.max(0.25, Math.abs(f.w)) * 0.55;
+        punto(f, t, pa);
+        for (let j = 1; j < NS; j++) {
+          punto(f, t - j * passo, pb);
+          const k0 = Math.pow(1 - (j - 1) / (NS - 1), 1.6) * 1.5 * Math.min(1, k);
+          const k1 = Math.pow(1 - j / (NS - 1), 1.6) * 1.5 * Math.min(1, k);
+          posScie.set([pa.x, pa.y, pa.z, pb.x, pb.y, pb.z], o * 6);
+          colScie.set([cScia.r * k0, cScia.g * k0, cScia.b * k0, cScia.r * k1, cScia.g * k1, cScia.b * k1], o * 6);
+          o++;
+          pa.copy(pb);
+        }
+      }
+      gScie.getAttribute('position').needsUpdate = true;
+      gScie.getAttribute('color').needsUpdate = true;
+    }
   };
   update(0);
   return risultato<{ centro?: THREE.Vector3 }>({

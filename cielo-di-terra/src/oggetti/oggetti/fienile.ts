@@ -11,6 +11,7 @@ import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
 import { cantonali, facciata, finestra, inF, porta, tettoPiode } from './dettagli';
+import { SUP } from '../superfici';
 
 export interface OpzioniFienile {
   seme?: Seme;
@@ -98,7 +99,7 @@ export function creaFienile(opz: OpzioniFienile = {}): OggettoProcedurale {
       });
     }
     // trave orizzontale alla base del legno
-    b.aggiungi(geoBoxC(lato.l + 0.3, 0.16, 0.18), { matrice: inF(lato.f, 0, hS + 0.05, 0.05), colore: PALETTE.legnoScuro, piatto: true });
+    b.aggiungi(geoBoxC(lato.l + 0.3, 0.16, 0.18), { matrice: inF(lato.f, 0, hS + 0.05, 0.05), colore: PALETTE.legnoScuro, superficie: SUP.LEGNO, piatto: true });
   }
   // portellone: vano buio, anta aperta, fieno che sporge
   const fF = (lati[0] as { f: THREE.Matrix4 }).f;
@@ -147,7 +148,7 @@ export function creaFienile(opz: OpzioniFienile = {}): OggettoProcedurale {
   // scivolo di pietra sul retro (rampa per il carro del fieno)
   b.aggiungi(geoLastra(1.8, 0.25, 2.6, rng.intero(0, 1e6), 0.04), {
     matrice: mat([0, hS - 0.2, -D / 2 - 1.2], [-Math.atan2(hS, 2.6) * 0.35, 0, 0]),
-    colore: PALETTE.gneiss,
+    colore: PALETTE.gneiss, superficie: SUP.PIETRA,
     piatto: true,
   });
 

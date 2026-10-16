@@ -165,12 +165,14 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const colliderStatici: VoceCollider[] = [];
   const lumi: Vector3[] = [];
   const dimLumi: number[] = [];
+  const dirLumi: (Vector3 | null)[] = [];
   let triangoli = 0;
   for (const z of ctx.zone.values()) {
     radice.add(z.costruisci(mat));
     colliderStatici.push(...z.collider);
     lumi.push(...z.lumi);
     dimLumi.push(...z.dimensioniLumi);
+    dirLumi.push(...z.direzioniLumi);
     triangoli += z.triangoli;
   }
   colliderStatici.push(...ctx.colliderDinamici);
@@ -190,7 +192,7 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
       const l = (v?.gruppo.userData['lumi'] as Vector3[] | undefined) ?? [];
       extra.push(...l);
     }
-    game.lamps.setLamps([...lumiMotore.lista, ...lumi, ...extra], [...lumiMotore.dim, ...dimLumi, ...extra.map(() => 0.55)]);
+    game.lamps.setLamps([...lumiMotore.lista, ...lumi, ...extra], [...lumiMotore.dim, ...dimLumi, ...extra.map(() => 0.55)], [...lumiMotore.dir, ...dirLumi, ...extra.map(() => null)]);
   };
   const setVariante = (id: string, v: string) => {
     const e = elementiCostruiti.get(id);
@@ -276,6 +278,25 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   // un primo passo per mettere tutto in posa
   update(0);
 
+  // la luce delle Fade sul suolo: il motore sceglie gli 8 lumi più vicini (fissi); di notte gli ultimi
+  // posti vanno agli sciami attivi entro 140 m, così il prato e le pietre si scaldano sotto di loro
+  const lumiFade = [new Vector3(), new Vector3()];
+  const sistemaLuciFade = {
+    render: () => {
+      const arr = game.uniforms?.uLamps.value;
+      const cam = (game.camera as { position?: Vector3 } | undefined)?.position;
+      if (!arr || !cam) return;
+      const n = notte.lumiFade(lumiFade);
+      let slot = arr.length - 1;
+      for (let i = 0; i < n && slot >= 0; i++) {
+        const p = lumiFade[i]!;
+        if (p.distanceToSquared(cam) > 140 * 140) continue;
+        arr[slot--]!.set(p.x, p.y, p.z, 2.8);
+      }
+    },
+  };
+  game.sistemi?.push(sistemaLuciFade);
+
   const maniglia: ManigliaCorbella = {
     radice,
     punti: ctx.punti,
@@ -332,7 +353,11 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
       for (const l of colliderVarianti.values()) for (const c of l) game.world.colliders.remove(c.collider.id);
       abitanti.dispose();
       notte.dispose();
-      game.lamps.setLamps(lumiMotore.lista, lumiMotore.dim);
+      if (game.sistemi) {
+        const i = game.sistemi.indexOf(sistemaLuciFade);
+        if (i >= 0) game.sistemi.splice(i, 1);
+      }
+      game.lamps.setLamps(lumiMotore.lista, lumiMotore.dim, lumiMotore.dir);
       if (origUpdate) game.update = origUpdate;
     },
   };
@@ -382,19 +407,23 @@ function maniglieElemento(e: ElementoCostruito): ManigliaElemento {
   };
 }
 
-function leggiLumi(game: GiocoCorbella): { lista: Vector3[]; dim: number[] } {
+function leggiLumi(game: GiocoCorbella): { lista: Vector3[]; dim: number[]; dir: (Vector3 | null)[] } {
   const geo = game.lamps.points.geometry;
   const pos = geo.getAttribute('position');
   const size = geo.getAttribute('aSize');
+  const dirA = geo.getAttribute('aDir');
   const lista: Vector3[] = [];
   const dim: number[] = [];
+  const dir: (Vector3 | null)[] = [];
   if (pos) {
     for (let i = 0; i < pos.count; i++) {
       lista.push(new Vector3(pos.getX(i), pos.getY(i), pos.getZ(i)));
       dim.push(size ? size.getX(i) : 0.6);
+      const d = dirA ? new Vector3(dirA.getX(i), dirA.getY(i), dirA.getZ(i)) : null;
+      dir.push(d && d.lengthSq() > 0.25 ? d : null);
     }
   }
-  return { lista, dim };
+  return { lista, dim, dir };
 }
 
 function cilDa(p: Vector3): { z: number; theta: number } {

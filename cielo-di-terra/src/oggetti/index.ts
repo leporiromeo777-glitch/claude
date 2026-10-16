@@ -75,14 +75,17 @@ export {
   creaSquadroPrimaPersona,
   creaVeloPrimaPersona,
   PUNTALE_PIANTATO,
-  manoPresa,
-  manoAppoggiata,
+  creaLetteraPrimaPersona,
+  materialiPrimoPiano,
+  VELO,
+  type StatoLettera,
   type PosaSquadro,
   type StatoSquadro,
   type OpzioniSquadro,
   type StatoVelo,
   type OpzioniVelo,
 } from './oggetti/primaPersona';
+export { manoGuanto, manica, posaAngoli, posaAvvolta, matriceMano, COLORI_MANI, type PosaMano, type OpzioniMano } from './oggetti/mani';
 export {
   creaAbitante,
   type OpzioniAbitante,

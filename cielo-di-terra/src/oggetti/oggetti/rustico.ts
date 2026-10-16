@@ -15,6 +15,7 @@ import { geoBoxC, geoEstrusione, geoLastra, geoMasso } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
+import { SUP, legnoOrizzontale, legnoVerticale, sup } from '../superfici';
 import {
   balcone,
   camino,
@@ -22,10 +23,15 @@ import {
   COLORI_ANTE,
   facciata,
   finestra,
+  finestraIncassata,
+  foroFinestra,
+  foroPorta,
+  geoMuroForato,
   inF,
-  pietreAVista,
-  porta,
+  portaIncassata,
+  SPESSORE_MURO,
   tettoPiode,
+  type Foro,
 } from './dettagli';
 
 export type Dettaglio = 'alto' | 'medio' | 'basso';
@@ -137,7 +143,8 @@ function progetta(o: OpzioniRustico, rng: Rng): Pianta {
     for (const lato of ['destra', 'sinistra'] as const) {
       for (let k = 0; k < nf; k++) {
         if (terra && r.prob(0.4)) continue;
-        if (scalaEsterna && lato === 'destra' && i === 1 && k === nf - 1) continue;
+        // la porta in cima alla scala esterna sta verso il fronte (u più piccolo sul fianco destro)
+        if (scalaEsterna && lato === 'destra' && i === 1 && k === 0) continue;
         const u = -D / 2 + ((k + 0.5) * D) / nf + r.centrato(0.3);
         finestre.push({ lato, u, v: vv, w: ww, h: hh, terra });
       }
@@ -203,40 +210,140 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
   const r = b.rng;
   const { W, D, hMuri, interrata } = p;
   const pendenza = p.pendenza;
+  const t = SPESSORE_MURO;
+  const alto = det === 'alto';
 
-  // corpo: prisma a cinque lati estruso lungo Z
-  const forma = new THREE.Shape();
-  forma.moveTo(-W / 2, -interrata);
-  forma.lineTo(W / 2, -interrata);
-  forma.lineTo(W / 2, hMuri);
-  forma.lineTo(0, p.yColmo);
-  forma.lineTo(-W / 2, hMuri);
-  forma.lineTo(-W / 2, -interrata);
-  const tonoMuro = mescola(PALETTE.gneiss, r.prob(0.5) ? PALETTE.gneissViola : PALETTE.gneissCaldo, r.next() * 0.45);
-  b.aggiungi(geoEstrusione(forma, D), {
-    colore: tonoMuro,
-    gradiente: { basso: 0.68, alto: 1.06, y0: -interrata * 0.3, y1: hMuri * 0.85 },
-    rumore: 0.05,
-    piatto: true,
-  });
+  // carattere della casa: pietra calda o fredda (chiara, come nei bozzetti), spallette a calce,
+  // persiane, architravi di legno
+  // gneiss chiaro e caldo (nei bozzetti le case di pietra prendono la luce: grigio-beige, mai fango);
+  // stessa sequenza di numeri casuali di prima, così il resto della casa non cambia
+  const tonoMuro = mescola(mescola(PALETTE.gneiss, r.prob(0.35) ? PALETTE.gneissViola : PALETTE.gneissCaldo, 0.25 + r.next() * 0.4), 0xcdc2ad, 0.28 + r.next() * 0.22);
+  const supMuro = sup(SUP.PIETRA, r.next());
+  const architraviLegno = r.prob(0.45);
+  const legnoPorta = r.scegli([PALETTE.larice, PALETTE.larice, PALETTE.lariceScuro, PALETTE.lariceGrigio]);
 
-  // cantonali e pietre a vista
+  // --- aperture: fori nei muri (finestre strombate, porte) e dettagli da mettere dopo i muri
+  const fori: Record<Finestra['lato'], Foro[]> = { fronte: [], retro: [], destra: [], sinistra: [] };
+  const dopo: Array<() => void> = [];
+  const accese = opz.finestreAccese ?? 0.45;
+  const rf = r.derivato('finestre');
+  const yUltimo = quotaPiano(p, p.piani - 1);
+  for (const fin of p.finestre) {
+    const { f } = telaio(p, fin.lato);
+    const accesa = rf.prob(accese);
+    const gerani = !fin.terra && !fin.timpano && alto && rf.prob(opz.gerani ?? 0.5);
+    if (fin.timpano || (p.timpanoLegno && fin.lato === 'fronte' && fin.v > yUltimo)) {
+      // sul timpano (o sul timpano di legno): finestrella appoggiata, senza foro
+      const fs = p.timpanoLegno && fin.lato === 'fronte' && !fin.timpano ? inF(f, 0, 0, 0.07) : f;
+      dopo.push(() => finestra(b, fs, fin.u, fin.v, { larghezza: fin.w, altezza: fin.h, accesa: fin.timpano ? false : accesa, ante: null }));
+      continue;
+    }
+    // sul balcone davanti: la finestra dell'ultimo piano diventa la porta della lobbia
+    if (p.balcone === 'fronte' && fin.lato === 'fronte' && !fin.terra && fin.v > yUltimo && fin.v < yUltimo + 1.5) {
+      const v0 = yUltimo + 0.05;
+      fori.fronte.push(foroPorta(fin.u, v0, 0.82, 1.85));
+      dopo.push(() => portaIncassata(b, f, fin.u, v0, 0.82, 1.85, legnoPorta, { architraveLegno: true, soglia: false }));
+      continue;
+    }
+    fori[fin.lato].push(foroFinestra(fin.u, fin.v, fin.w, fin.h));
+    dopo.push(() =>
+      finestraIncassata(b, f, fin.u, fin.v, {
+        larghezza: fin.w,
+        altezza: fin.h,
+        ante: fin.terra ? null : p.colAnte,
+        contornoCalce: p.contornoCalce,
+        gerani,
+        accesa,
+        inferriata: fin.terra,
+        architraveLegno: architraviLegno && !fin.terra,
+      }),
+    );
+  }
+  // porta d'ingresso
+  const fFronte = telaio(p, 'fronte').f;
+  fori.fronte.push(foroPorta(p.portaU, 0, 1.0, 1.95));
+  dopo.push(() => portaIncassata(b, fFronte, p.portaU, 0, 1.0, 1.95, legnoPorta, { architraveLegno: architraviLegno }));
+  // porte superiori, in cima alla scala esterna (la scala sale verso +Z: la porta sta lì sopra)
+  for (const ps of p.porteSuperiori) {
+    const { f } = telaio(p, ps.lato);
+    const u = -ps.u;
+    fori[ps.lato].push(foroPorta(u, ps.v, 0.9, 1.85));
+    dopo.push(() => portaIncassata(b, f, u, ps.v, 0.9, 1.85, PALETTE.lariceGrigio, { architraveLegno: true, soglia: false }));
+  }
+
+  // --- muri di pietra spessi con i fori veri
+  const profiloTimpano: Array<[number, number]> = [
+    [-W / 2, -interrata],
+    [W / 2, -interrata],
+    [W / 2, hMuri],
+    [0, p.yColmo],
+    [-W / 2, hMuri],
+  ];
+  const Lf = D / 2 - t;
+  const profiloFianco: Array<[number, number]> = [
+    [-Lf, -interrata],
+    [Lf, -interrata],
+    [Lf, hMuri],
+    [-Lf, hMuri],
+  ];
+  for (const lato of ['fronte', 'retro', 'destra', 'sinistra'] as const) {
+    const { f } = telaio(p, lato);
+    const timp = lato === 'fronte' || lato === 'retro';
+    b.aggiungi(geoMuroForato(timp ? profiloTimpano : profiloFianco, fori[lato], t), {
+      matrice: f,
+      colore: tonoMuro,
+      gradiente: { basso: 0.7, alto: 1.05, y0: -interrata * 0.3, y1: hMuri * 0.85 },
+      rumore: 0.04,
+      piatto: true,
+      superficie: supMuro,
+      occlusione: 0.05,
+    });
+  }
+
+  // zoccolo a scarpa: la base del muro è più larga e più scura, buia dove tocca il suolo
   if (det !== 'basso') {
-    cantonali(b, W, D, -0.1, hMuri, det === 'alto' ? 0.5 : 0.8);
-    const quante = det === 'alto' ? 1 : 0.5;
+    const hz = r.tra(0.55, 0.85);
+    const sez = new THREE.Shape();
+    sez.moveTo(-0.06, -interrata);
+    sez.lineTo(0.13, -interrata);
+    sez.lineTo(0.13, -0.05);
+    sez.lineTo(0.02, hz);
+    sez.lineTo(-0.06, hz);
+    sez.lineTo(-0.06, -interrata);
+    const tonoZ = mescola(tonoMuro, PALETTE.gneissScuro, 0.25);
+    const occZ = (pp: THREE.Vector3) => (pp.y < hz * 0.45 ? 0.55 : 0.12);
     for (const lato of ['fronte', 'retro', 'destra', 'sinistra'] as const) {
       const { f, larghezza } = telaio(p, lato);
-      const evitare: Array<[number, number, number, number]> = p.finestre
-        .filter((x) => x.lato === lato)
-        .map((x) => [x.u - x.w / 2 - 0.35, x.v - 0.3, x.u + x.w / 2 + 0.35, x.v + x.h + 0.3]);
-      if (lato === 'fronte') evitare.push([p.portaU - 0.9, -0.2, p.portaU + 0.9, 2.4]);
-      pietreAVista(b, f, larghezza, 0.2, hMuri - 0.2, Math.round(((larghezza * hMuri) / 3.5) * quante), evitare);
+      const L = larghezza + 0.26;
+      const tagli = fori[lato].filter((fo) => fo[1] < hz).map((fo) => [fo[0] - 0.02, fo[2] + 0.02] as [number, number]);
+      let u0 = -L / 2;
+      const tratti: Array<[number, number]> = [];
+      for (const [a, c] of tagli.sort((x, y) => x[0] - y[0])) {
+        if (a > u0) tratti.push([u0, a]);
+        u0 = Math.max(u0, c);
+      }
+      if (u0 < L / 2) tratti.push([u0, L / 2]);
+      for (const [a, c] of tratti) {
+        const lt = c - a;
+        if (lt < 0.05) continue;
+        b.aggiungi(geoEstrusione(sez, lt, 1), {
+          matrice: inF(f, (a + c) / 2, 0, 0, [0, -Math.PI / 2, 0]),
+          colore: tonoZ,
+          variazione: 0.04,
+          piatto: true,
+          superficie: supMuro,
+          occlusione: occZ,
+        });
+      }
     }
   }
 
-  // timpano di legno sul fronte
+  // cantonali di pietra chiara sugli spigoli
+  if (det !== 'basso') cantonali(b, W, D, -0.1, hMuri, alto ? 0.48 : 0.75);
+
+  // timpano di legno sul fronte (assi verticali sopra l'ultimo piano)
   if (p.timpanoLegno) {
-    const yb = quotaPiano(p, p.piani - 1) + 0.1;
+    const yb = yUltimo + 0.1;
     const ft = new THREE.Shape();
     const hw = W / 2 - 0.02;
     ft.moveTo(-hw, yb);
@@ -245,54 +352,33 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     ft.lineTo(0, p.yColmo - 0.05);
     ft.lineTo(-hw, hMuri);
     ft.lineTo(-hw, yb);
-    const legnoT = r.scegli([PALETTE.legnoVecchio, PALETTE.legno, PALETTE.legnoGrigio]);
+    const legnoT = r.scegli([PALETTE.legnoVecchio, PALETTE.larice, PALETTE.lariceGrigio]);
     b.aggiungi(geoEstrusione(ft, 0.06), {
       matrice: mat([0, 0, D / 2 + 0.03]),
       colore: legnoT,
       gradiente: { basso: 0.8, alto: 1.0, y0: yb, y1: p.yColmo },
       piatto: true,
+      superficie: legnoVerticale(r.next()),
+      occlusione: 0.1,
     });
-    // assi verticali
+    // coprigiunti delle assi
     const na = Math.floor(W / 0.32);
     for (let i = 1; i < na; i++) {
       const x = -W / 2 + (i * W) / na;
       const top = hMuri + (W / 2 - Math.abs(x)) * Math.tan(pendenza) - 0.08;
-      b.aggiungi(geoBoxC(0.03, top - yb, 0.02), {
+      b.aggiungi(geoBoxC(0.035, top - yb, 0.02), {
         matrice: mat([x, (top + yb) / 2, D / 2 + 0.065]),
         colore: mescola(legnoT, 0x000000, 0.4),
         piatto: true,
+        superficie: legnoVerticale(0.2),
       });
     }
+    // trave di base del timpano
+    b.aggiungi(geoBoxC(W + 0.1, 0.18, 0.16), { matrice: mat([0, yb - 0.04, D / 2 + 0.06]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoOrizzontale(0.4), occlusione: 0.15 });
   }
 
-  // finestre (accese di notte secondo la frazione richiesta)
-  const accese = opz.finestreAccese ?? 0.45;
-  const rf = r.derivato('finestre');
-  for (const fin of p.finestre) {
-    const { f } = telaio(p, fin.lato);
-    if (p.timpanoLegno && fin.lato === 'fronte' && fin.v > quotaPiano(p, p.piani - 1)) {
-      // sul timpano di legno: finestra semplice sporgente dal legno
-      finestra(b, inF(f, 0, 0, 0.07), fin.u, fin.v, { larghezza: fin.w, altezza: fin.h, accesa: rf.prob(accese), ante: null });
-      continue;
-    }
-    finestra(b, f, fin.u, fin.v, {
-      larghezza: fin.w,
-      altezza: fin.h,
-      ante: fin.terra || fin.timpano ? null : p.colAnte,
-      contornoCalce: p.contornoCalce && !fin.timpano,
-      gerani: !fin.terra && !fin.timpano && det !== 'basso' && rf.prob(opz.gerani ?? 0.5),
-      accesa: !fin.timpano && rf.prob(accese),
-      inferriata: fin.terra,
-    });
-  }
-
-  // porta
-  const fFronte = telaio(p, 'fronte').f;
-  porta(b, fFronte, p.portaU, 0, 1.0, 1.95, r.scegli([PALETTE.legno, PALETTE.legnoVecchio, PALETTE.legnoScuro]));
-  for (const ps of p.porteSuperiori) {
-    const { f } = telaio(p, ps.lato);
-    porta(b, f, ps.u, ps.v, 0.9, 1.85, PALETTE.legnoVecchio);
-  }
+  // finestre e porte nei loro fori
+  for (const fn of dopo) fn();
 
   const collider: Collider[] = [];
   const punti: Record<string, THREE.Vector3> = {
@@ -300,14 +386,14 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     colmo: new THREE.Vector3(0, p.yColmo, 0),
   };
 
-  // balcone
-  const yb = quotaPiano(p, p.piani - 1);
+  // balcone (lobbia)
+  const yb = yUltimo;
   let sporgenzaFronte = 0.35;
   let sporgenzaGronda = 0.45;
   if (p.balcone === 'fronte') {
     const sp = 1.0;
     sporgenzaFronte = sp + 0.35;
-    balcone(b, fFronte, 0, yb, W - 0.2, sp, hMuri - yb + 0.2);
+    balcone(b, fFronte, 0, yb, W - 0.2, sp, hMuri - yb + 0.2, { fiori: alto && r.prob(0.7), panni: alto && r.prob(0.4) });
     collider.push(box(0, yb + 0.5, D / 2 + sp / 2, W / 2, 0.55, sp / 2, 'calpestabile'));
     punti['balcone'] = new THREE.Vector3(0, yb, D / 2 + sp / 2);
   } else if (p.balcone === 'lato') {
@@ -315,7 +401,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     sporgenzaGronda = sp + 0.4;
     const { f } = telaio(p, 'destra');
     const l = D - 0.8;
-    balcone(b, f, 0, yb, l, sp, hMuri - yb);
+    balcone(b, f, 0, yb, l, sp, hMuri - yb, { fiori: alto && r.prob(0.6), panni: alto && r.prob(0.5) });
     collider.push(box(W / 2 + sp / 2, yb + 0.5, 0, sp / 2, 0.55, l / 2, 'calpestabile'));
     punti['balcone'] = new THREE.Vector3(W / 2 + sp / 2, yb, 0);
   }
@@ -333,12 +419,15 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
         matrice: mat([W / 2 + 0.55, p.hTerra - 0.2, zTop]),
         colore: PALETTE.gneissChiaro,
         piatto: true,
+        superficie: sup(SUP.PIETRA, r.next()),
       });
       b.aggiungi(geoLastra(1.1, p.hTerra - 0.2 + interrata, 1.3, r.intero(0, 1e6), 0.03), {
         matrice: mat([W / 2 + 0.55, -interrata, zTop]),
         colore: tonoMuro,
         gradiente: { basso: 0.7, alto: 1.0, y0: 0, y1: p.hTerra },
         piatto: true,
+        superficie: supMuro,
+        occlusione: (pp) => (pp.y < 0.3 ? 0.45 : 0.08),
       });
       for (let i = 0; i < n - 1; i++) {
         const z = zTop - 0.65 - (n - 1 - i) * ped + ped / 2;
@@ -348,6 +437,7 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
           colore: mescola(PALETTE.gneiss, PALETTE.gneissChiaro, r.next()),
           variazione: 0.06,
           piatto: true,
+          superficie: sup(SUP.PIETRA, r.next()),
         });
         // muretto di sostegno sotto i gradini
         b.aggiungi(geoBoxC(1.0, y + interrata - alz, ped), {
@@ -355,9 +445,23 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
           colore: tonoMuro,
           gradiente: { basso: 0.7, alto: 0.95, y0: 0, y1: p.hTerra },
           piatto: true,
+          superficie: supMuro,
+          occlusione: (pp) => (pp.y < 0.2 ? 0.45 : 0.1),
         });
       }
       const zInizio = zTop - 0.65 - (n - 1) * ped;
+      // ringhiera di ferro lungo la scala
+      if (alto) {
+        const a = new THREE.Vector3(W / 2 + 0.98, 0.95, zInizio + 0.2);
+        const c = new THREE.Vector3(W / 2 + 0.98, p.hTerra + 0.95, zTop - 0.6);
+        const l = a.distanceTo(c);
+        const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), c.clone().sub(a).normalize());
+        b.aggiungi(geoBoxC(0.035, 0.035, l), { matrice: new THREE.Matrix4().compose(a.clone().lerp(c, 0.5), q, new THREE.Vector3(1, 1, 1)), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
+        for (let k = 0; k <= 4; k++) {
+          const pk = a.clone().lerp(c, k / 4);
+          b.aggiungi(geoBoxC(0.025, 0.95, 0.025), { matrice: mat([pk.x, pk.y - 0.475, pk.z]), colore: PALETTE.ferro, piatto: true, superficie: SUP.METALLO });
+        }
+      }
       collider.push(
         box(W / 2 + 0.55, p.hTerra / 2 - 0.1, (zTop + 0.65 + zInizio) / 2, 0.55, p.hTerra / 2, (zTop + 0.65 - zInizio) / 2, 'scala'),
       );
@@ -365,17 +469,19 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     }
   }
 
-  // tetto in piode
+  // tetto in piode, spesso, con le travi in vista
   tettoPiode(b, r, {
     larghezza: W,
     profondita: D,
     yGronda: hMuri,
     pendenza,
     sporgenzaGronda,
-    sporgenzaTimpano: 0.35,
+    sporgenzaTimpano: 0.4,
     sporgenzaFronte,
-    corsi: det === 'alto' ? 4 : det === 'medio' ? 3 : 0,
-    pezziPerCorso: det === 'alto' ? Math.max(4, Math.round(D / 1.5)) : 3,
+    corsi: alto ? 4 : det === 'medio' ? 3 : 0,
+    pezziPerCorso: alto ? Math.max(4, Math.round(D / 1.5)) : 3,
+    travi: det !== 'basso',
+    cedimento: r.tra(0.02, 0.08),
   });
 
   if (p.camino) {
@@ -388,6 +494,8 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
   }
 
   const gruppo = b.costruisci('rustico');
+  // muri a scarpa e un filo fuori piombo: niente scatole perfette
+  irregolarita(gruppo, hMuri, r.tra(0.008, 0.016), r.centrato(0.006), r.centrato(0.006));
   // collider principali
   collider.unshift(box(0, (hMuri - interrata) / 2, 0, W / 2, (hMuri + interrata) / 2, D / 2, 'muro'));
   const hT = p.yColmo - hMuri;
@@ -403,6 +511,32 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
     collider,
     ingombro: ingombroDa(gruppo),
     punti,
+  });
+}
+
+/**
+ * Irregolarità del costruito, sulla geometria finita: i muri rastremano verso l'alto (la base è più
+ * larga: `scarpa` è il restringimento relativo in cima ai muri) e pendono appena (fuori piombo
+ * `pendeX`, `pendeZ` in m per m). Il tetto segue la cima dei muri. Pochi centimetri: i collider
+ * restano quelli della pianta.
+ */
+export function irregolarita(gruppo: THREE.Object3D, hMuri: number, scarpa: number, pendeX: number, pendeZ: number): void {
+  gruppo.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      const k = Math.min(1, Math.max(0, y / hMuri));
+      const s = 1 - scarpa * k;
+      const yy = Math.max(0, y);
+      pos.setXYZ(i, x * s + pendeX * yy, y, z * s + pendeZ * yy);
+    }
+    pos.needsUpdate = true;
+    m.geometry.computeBoundingSphere();
+    m.geometry.computeBoundingBox();
   });
 }
 

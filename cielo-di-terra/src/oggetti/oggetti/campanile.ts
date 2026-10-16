@@ -11,6 +11,7 @@ import { formaArco, geoBoxC, geoCilindro, geoEstrusione, geoLastra } from '../fo
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
+import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../superfici';
 import { aggiungiPalina, numero, testaChiodo } from './caposaldo';
 
 export interface OpzioniCampanile {
@@ -38,8 +39,11 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   const ordini = opz.ordini ?? 4;
   const hC = 4.4; // cella
   const interr = 1.0;
-  const calce = PALETTE.calce;
-  const ombraCalce = mescola(PALETTE.calceOmbra, PALETTE.gneissViola, 0.45);
+  // calce sbiadita (avorio caldo) con le lesene e le cornici dipinte d'ocra
+  const calce = mescola(PALETTE.calce, PALETTE.intonacoVecchio, 0.35);
+  const ocra = mescola(PALETTE.ocraIntonacoChiaro, PALETTE.calce, 0.25);
+  const ombraCalce = mescola(PALETTE.ocraIntonaco, PALETTE.gneissViola, 0.35);
+  const supCalce = sup(SUP.INTONACO, rng.next());
 
   // fusto
   b.aggiungi(geoBoxC(L, hF + interr, L), {
@@ -47,13 +51,17 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
     colore: calce,
     gradiente: { basso: 0.82, alto: 1.02, y0: 0, y1: hF * 0.5 },
     rumore: 0.03,
+    superficie: supCalce,
+    occlusione: occlusionePiede(1.6, 0.35),
   });
   // zoccolo di pietra a vista
   b.aggiungi(geoLastra(L + 0.2, 1.2 + interr, L + 0.2, rng.intero(0, 1e6), 0.01), {
     matrice: mat([0, -interr, 0]),
-    colore: PALETTE.gneiss,
+    colore: mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4),
     gradiente: { basso: 0.7, alto: 1.0, y0: 0, y1: 1.2 },
     piatto: true,
+    superficie: sup(SUP.PIETRA, rng.next()),
+    occlusione: occlusionePiede(0.9, 0.5),
   });
   // lesene sugli spigoli e cornici con archetti pensili per ordine
   const hOrd = hF / ordini;
@@ -61,14 +69,15 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   for (const [sx, sz] of [[1, 1], [-1, 1], [1, -1], [-1, -1]] as const) {
     b.aggiungi(geoBoxC(0.5, hF - 1.2, 0.5), {
       matrice: mat([sx * (L / 2 - 0.25 + sp), 1.2 + (hF - 1.2) / 2, sz * (L / 2 - 0.25 + sp)]),
-      colore: calce,
+      colore: ocra,
       gradiente: { basso: 0.85, alto: 1.02, y0: 0, y1: hF * 0.5 },
+      superficie: sup(SUP.INTONACO, rng.next()),
     });
   }
   for (let o = 1; o <= ordini; o++) {
     const y = o * hOrd;
     // cornice
-    b.aggiungi(geoBoxC(L + 0.34, 0.16, L + 0.34), { matrice: mat([0, y - 0.08, 0]), colore: PALETTE.calce, piatto: true });
+    b.aggiungi(geoBoxC(L + 0.34, 0.16, L + 0.34), { matrice: mat([0, y - 0.08, 0]), colore: ocra, piatto: true, superficie: supCalce, occlusione: 0.1 });
     // archetti pensili: piccoli archi in ombra dipinti sotto la cornice
     const n = 5;
     for (let lato = 0; lato < 4; lato++) {
@@ -78,7 +87,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
         const arco = new THREE.ShapeGeometry(formaArco((L - 1.0) / n - 0.1, 0.42, 5));
         arco.deleteAttribute('uv');
         const pos = new THREE.Vector3(u, y - 0.6, L / 2 + sp + 0.005).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
-        b.aggiungi(arco, { matrice: mat(pos, [0, rot, 0]), colore: ombraCalce, piatto: true });
+        b.aggiungi(arco, { matrice: mat(pos, [0, rot, 0]), colore: ombraCalce, piatto: true, superficie: supCalce, occlusione: 0.3 });
       }
     }
     // feritoia sull'asse di ogni lato (solo ordini intermedi)
@@ -89,7 +98,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
         const pos = new THREE.Vector3(0, y - hOrd * 0.62, L / 2 + 0.01).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
         const fer = new THREE.ShapeGeometry(formaArco(0.22, 1.0, 4));
         fer.deleteAttribute('uv');
-        b.aggiungi(fer, { matrice: mat(pos, [0, rot, 0]), colore: PALETTE.finestraBuia, canale: 'lume' });
+        b.aggiungi(fer, { matrice: mat(pos, [0, rot, 0]), colore: PALETTE.finestraBuia, canale: 'lume', superficie: SUP.VETRO });
       }
     }
   }
@@ -97,7 +106,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   // porta ad arco
   const formaPorta = new THREE.ShapeGeometry(formaArco(1.2, 2.5, 6));
   formaPorta.deleteAttribute('uv');
-  b.aggiungi(formaPorta, { matrice: mat([0, 0, L / 2 + 0.02]), colore: PALETTE.legnoScuro });
+  b.aggiungi(formaPorta, { matrice: mat([0, 0, L / 2 + 0.02]), colore: PALETTE.lariceScuro, superficie: legnoVerticale(0.3), occlusione: 0.2 });
   const ghiera = new THREE.Shape();
   {
     const ri = 0.6;
@@ -114,7 +123,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
     }
     ghiera.lineTo(-re, 1.9);
   }
-  b.aggiungi(geoEstrusione(ghiera, 0.12), { matrice: mat([0, 0, L / 2 + 0.06]), colore: PALETTE.gneissChiaro, piatto: true });
+  b.aggiungi(geoEstrusione(ghiera, 0.12), { matrice: mat([0, 0, L / 2 + 0.06]), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, 0.4) });
 
   // cella campanaria: quattro pareti con bifore (o trifore) vere
   const nAp = opz.aperture ?? 2;
@@ -148,22 +157,24 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
       colore: calce,
       gradiente: { basso: 0.95, alto: 1.03, y0: hF, y1: hF + hC },
       piatto: true,
+      superficie: supCalce,
     });
     // colonnine con capitello fra le aperture
     for (let k = 0; k < nAp - 1; k++) {
       const u = (k - (nAp - 2) / 2) * (wAp + 0.32);
       const pc = new THREE.Vector3(u, yAp, L / 2 - spessore / 2 + 0.06).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
-      b.aggiungi(geoCilindro(0.1, 0.12, hAp - wAp / 2 - 0.25, 8), { matrice: mat(pc), colore: PALETTE.gneissChiaro });
+      b.aggiungi(geoCilindro(0.1, 0.12, hAp - wAp / 2 - 0.25, 8), { matrice: mat(pc), colore: PALETTE.gneissChiaro, superficie: sup(SUP.NESSUNA) });
       b.aggiungi(geoLastra(0.36, 0.22, 0.42, rng.intero(0, 1e6), 0.04), {
         matrice: mat(pc.clone().add(new THREE.Vector3(0, hAp - wAp / 2 - 0.25, 0)), [0, rot, 0]),
         colore: PALETTE.gneissChiaro,
         piatto: true,
+        superficie: sup(SUP.PIETRA, 0.6),
       });
     }
   }
   // pavimento della cella (scuro) e interno in ombra
-  b.aggiungi(geoBoxC(L - 0.4, 0.2, L - 0.4), { matrice: mat([0, hF + 0.1, 0]), colore: mescola(calce, 0x000000, 0.55), piatto: true });
-  b.aggiungi(geoBoxC(L - 0.8, hC - 0.3, L - 0.8), { matrice: mat([0, hF + hC / 2, 0]), colore: mescola(calce, 0x302a3a, 0.75), piatto: true });
+  b.aggiungi(geoBoxC(L - 0.4, 0.2, L - 0.4), { matrice: mat([0, hF + 0.1, 0]), colore: mescola(calce, 0x000000, 0.55), piatto: true, superficie: sup(SUP.PIETRA, 0.2), occlusione: 0.5 });
+  b.aggiungi(geoBoxC(L - 0.8, hC - 0.3, L - 0.8), { matrice: mat([0, hF + hC / 2, 0]), colore: mescola(calce, 0x302a3a, 0.75), piatto: true, superficie: sup(SUP.NESSUNA), occlusione: 0.7 });
   // campane (profilo a tornio) appese a un ceppo di legno
   const profilo: THREE.Vector2[] = [
     new THREE.Vector2(0.0, 0.0),
@@ -180,21 +191,21 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   for (let lato = 0; lato < 3; lato++) {
     const rot = (lato * Math.PI) / 2;
     const pc = new THREE.Vector3(0, yAp + 0.6, L / 2 - spessore - 0.25).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
-    b.aggiungi(campana, { matrice: mat(pc, [0, 0, 0], lato === 0 ? 1 : lato === 1 ? 0.8 : 0.65), colore: PALETTE.bronzo, gradiente: { basso: 0.8, alto: 1.15, y0: yAp + 0.6, y1: yAp + 1.6 } });
-    b.aggiungi(geoBoxC(0.25, 0.3, 1.4), { matrice: mat(pc.clone().add(new THREE.Vector3(0, 1.2, 0)), [0, rot + Math.PI / 2, 0]), colore: PALETTE.legnoScuro, piatto: true });
+    b.aggiungi(campana, { matrice: mat(pc, [0, 0, 0], lato === 0 ? 1 : lato === 1 ? 0.8 : 0.65), colore: PALETTE.bronzo, gradiente: { basso: 0.8, alto: 1.15, y0: yAp + 0.6, y1: yAp + 1.6 }, superficie: sup(SUP.OTTONE, 0.3), occlusione: 0.25 });
+    b.aggiungi(geoBoxC(0.25, 0.3, 1.4), { matrice: mat(pc.clone().add(new THREE.Vector3(0, 1.2, 0)), [0, rot + Math.PI / 2, 0]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoOrizzontale(0.3), occlusione: 0.3 });
   }
   // terrazza sommitale: cornice, pavimento di lastre, parapetto basso
   const yTop = hF + hC;
   const lt = L + 0.5;
-  b.aggiungi(geoBoxC(lt, 0.22, lt), { matrice: mat([0, yTop + 0.11, 0]), colore: PALETTE.calce, piatto: true });
-  b.aggiungi(geoBoxC(lt - 0.5, 0.04, lt - 0.5), { matrice: mat([0, yTop + 0.24, 0]), colore: PALETTE.gneissChiaro, variazione: 0.04, piatto: true });
+  b.aggiungi(geoBoxC(lt, 0.22, lt), { matrice: mat([0, yTop + 0.11, 0]), colore: ocra, piatto: true, superficie: supCalce });
+  b.aggiungi(geoBoxC(lt - 0.5, 0.04, lt - 0.5), { matrice: mat([0, yTop + 0.24, 0]), colore: PALETTE.gneissChiaro, variazione: 0.04, piatto: true, superficie: sup(SUP.PIETRA, 0.7) });
   const yPav = yTop + 0.26;
   const hPar = 0.55;
   for (let lato = 0; lato < 4; lato++) {
     const rot = (lato * Math.PI) / 2;
     const pc = new THREE.Vector3(0, yPav, lt / 2 - 0.13).applyAxisAngle(new THREE.Vector3(0, 1, 0), rot);
-    b.aggiungi(geoBoxC(lt, hPar, 0.26), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar / 2, 0)), [0, rot, 0]), colore: PALETTE.calce, gradiente: { basso: 0.9, alto: 1.02, y0: yPav, y1: yPav + hPar }, piatto: true });
-    b.aggiungi(geoLastra(lt + 0.04, 0.08, 0.34, rng.intero(0, 1e6), 0.03), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar, 0)), [0, rot, 0]), colore: PALETTE.gneissChiaro, piatto: true });
+    b.aggiungi(geoBoxC(lt, hPar, 0.26), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar / 2, 0)), [0, rot, 0]), colore: calce, gradiente: { basso: 0.9, alto: 1.02, y0: yPav, y1: yPav + hPar }, piatto: true, superficie: supCalce });
+    b.aggiungi(geoLastra(lt + 0.04, 0.08, 0.34, rng.intero(0, 1e6), 0.03), { matrice: mat(pc.clone().add(new THREE.Vector3(0, hPar, 0)), [0, rot, 0]), colore: PALETTE.gneissChiaro, piatto: true, superficie: sup(SUP.PIETRA, 0.5) });
   }
 
   // cuspide di piode al centro della terrazza: piramide a gradoni
@@ -214,10 +225,11 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
       colore: mescola(PALETTE.piode, st % 2 === 0 ? PALETTE.piodeChiare : PALETTE.piodeScure, 0.35),
       variazione: 0.06,
       piatto: true,
+      superficie: sup(SUP.PIODE, rng.next()),
     });
   }
   // zoccolo della cuspide e croce di ferro in cima
-  b.aggiungi(geoBoxC(base * 2 + 0.2, 0.35, base * 2 + 0.2), { matrice: mat([0, yPav + 0.17, 0]), colore: PALETTE.calce, piatto: true });
+  b.aggiungi(geoBoxC(base * 2 + 0.2, 0.35, base * 2 + 0.2), { matrice: mat([0, yPav + 0.17, 0]), colore: calce, piatto: true, superficie: supCalce });
   const yApice = yPav + hTetto;
   b.aggiungi(geoBoxC(0.05, 0.9, 0.05), { matrice: mat([0, yApice + 0.4, 0]), colore: PALETTE.ferro, piatto: true });
   b.aggiungi(geoBoxC(0.45, 0.05, 0.05), { matrice: mat([0, yApice + 0.6, 0]), colore: PALETTE.ferro, piatto: true });
