@@ -136,6 +136,14 @@ function schedaPer(id: string, voce?: VoceModello): SchedaModello {
   };
 }
 
+/** Decodifica il testo base64 di un modello (build pubblicata) nei suoi byte. */
+function daBase64(testo: string): ArrayBuffer {
+  const s = atob(testo.trim());
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out.buffer;
+}
+
 async function leggiVoci(cartella: string): Promise<VoceModello[]> {
   try {
     if (typeof fetch !== 'function') throw new Error('fetch assente');
@@ -195,7 +203,8 @@ function caricaUno(v: VoceModello, cartella: string): Promise<PrototipoPersonagg
       const segnale = segnaleUscita();
       const r = await fetch(url.href, segnale ? { signal: segnale } : {});
       if (!r.ok) throw new Error(`${r.status} ${url.pathname}`);
-      const dati = await r.arrayBuffer();
+      // nella build pubblicata i modelli sono testo base64 (<id>.glb.txt, vedi vite.config.ts)
+      const dati = url.pathname.endsWith('.txt') ? daBase64(await r.text()) : await r.arrayBuffer();
       if (uscendo) throw new Error('pagina chiusa');
       const gltf = await loader.parseAsync(dati, new URL('.', url).href);
       const proto = preparaPrototipo(v.id, gltf.scene, schedaPer(v.id, v));
