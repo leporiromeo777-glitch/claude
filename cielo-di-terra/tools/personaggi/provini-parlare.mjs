@@ -61,6 +61,8 @@ const SCENE = [
   { nome: 'bambini', chi: 'lisa', altri: ['gioanin'], dialogo: 'd_bambini', ora: [1, 10.5], vai: 'piazza_ore', d: 2.2, giro: 60 },
   // la gente velata all'alba in piazza: non parla, ma si volta verso Elvira che passa e parla con Bortolo
   { nome: 'velati', chi: 'velato_5', altri: ['velato_4', 'velato_6'], dialogo: null, ora: [2, 5.92], vai: 'piazza_ore', d: 2.6, giro: 100, prima: 'G.regia.regia.abitanti.voltatiTutti(30)' },
+  // un dialogo lungo con Ottavio davanti (sei battute): i gesti ogni tanto, la mano al petto alla quarta
+  { nome: 'ottavio-gesti', chi: 'ottavio', dialogo: 'd_ottavio_incontro', ora: [2, 15.2], vai: 'prato_ronco', prima: "G.regia.regia.abitanti.ottavioSegueOrario(); X.corbella.npc('ottavio').manuale = false", d: 2.4, giro: 10, battute: [2.2, 4.4, 6.6, 8.8, 11.0], chiudi: 12.5, fine: 13.5 },
   // lontano: la novizia apre il dialogo automatico da 16 m (il limite è 25)
   { nome: 'clelia-lontana', chi: 'clelia', dialogo: 'd_clelia_dono', automatico: true, ora: [2, 10.0], vai: 'bacheca_ore', d: 16, giro: 120, lato: [50, 6] },
 ];
@@ -162,9 +164,19 @@ async function installa() {
       game.loop.stepUpdates(2);
       const testa = t.piedi.clone().addScaledVector(t.su, 1.25);
       r.guarda(testa);
-      const pc = game.player.cyl;
-      const dove = C.cylToWorld(pc.z, pc.theta, pc.h);
-      return { voluta: d, vera: Math.round(dove.distanceTo(t.piedi) * 100) / 100 };
+      let pc = game.player.cyl;
+      let dove = C.cylToWorld(pc.z, pc.theta, pc.h);
+      // un muro o la vasca l'hanno spinta via (Togna al lavatoio): come la prova giocata, girando attorno
+      let ripiego = false;
+      if (Math.abs(dove.distanceTo(t.piedi) - d) > 0.5 && r.interazioni.get(`png_${id}`)) {
+        G.regia.avvicina(`png_${id}`, d);
+        game.loop.stepUpdates(2);
+        r.guarda(testa);
+        pc = game.player.cyl;
+        dove = C.cylToWorld(pc.z, pc.theta, pc.h);
+        ripiego = true;
+      }
+      return { voluta: d, vera: Math.round(dove.distanceTo(t.piedi) * 100) / 100, ripiego };
     },
     /** apre il dialogo: dal tasto E (parla → mostra) o dalla coda (automatico, la regia volta lo sguardo) */
     apri(dialogo, automatico) {
@@ -402,6 +414,14 @@ async function scena(q) {
     X.ora(q.ora[0], q.ora[1]);
     G.regia.avanza(1.5);
     if (!X.figura(q.chi) || !X.corbella.npc(q.chi)?.presente) return { errore: `${q.chi} non c'è` };
+    // venti minuti di gioco già passati per chi è in scena (il tempo interno dell'animatore: prima il
+    // respiro, a ogni battuta, tremava tanto più quanto più a lungo si era giocato)
+    for (const id of [q.chi, ...(q.altri ?? [])]) {
+      X.figura(id)?.traverse((o) => {
+        const a = o.userData?.animatore;
+        if (a && typeof a.t === 'number') a.t += 1200;
+      });
+    }
     const piazza = X.piazzaElvira(q.chi, q.d, q.giro);
     // un secondo con Elvira lì (gli sguardi si girano già)
     G.regia.avanza(1.0);

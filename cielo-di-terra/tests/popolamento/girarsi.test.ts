@@ -12,6 +12,7 @@ import { installaCorbella, type ManigliaCorbella } from '../../src/popolamento/i
 import { GIRO, deltaYaw } from '../../src/popolamento/abitanti';
 import { sposta } from '../../src/popolamento/terreno';
 import { localFrameTheta } from '../../src/world/cylinder';
+import { groundHeight } from '../../src/world/terrain';
 import { giocoFinto } from './banco';
 
 let g: ReturnType<typeof giocoFinto>;
@@ -127,6 +128,20 @@ describe('girarsi verso chi parla', () => {
     expect(Math.abs(deltaYaw(prima, yawDi('annunciata')))).toBeLessThan(0.01);
     expect(n.posizione()!.h).toBeCloseTo(h0, 6);
     n.rivolgiVerso(null);
+  });
+
+  it('Ottavio seduto sulla passerella (giorno 3) sta sulle assi, non sul fondo del riale', () => {
+    const n = c.npc('ottavio')!;
+    n.manuale = false;
+    c.setVariante('E1', 'Abitata');
+    c.applicaOrario(3, 6.2);
+    expect(n.posaAttuale).toBe('seduto');
+    const p = n.posizione()!;
+    // le assi stanno sopra le rive (≥ 1,6 m sul fondo): coi piedi della figura 42 cm sotto il piano delle
+    // assi, mai più giù del suolo + 1 m (prima: il fondo del riale meno 42 cm)
+    expect(p.h - groundHeight(p.z, p.theta)).toBeGreaterThan(1);
+    c.setVariante('E1', 'Carta');
+    c.applicaOrario(1, 10);
   });
 
   it('orientaVerso resta immediato (per chi è appena stato messo in un posto)', () => {

@@ -741,8 +741,23 @@ export class Abitanti {
         if (ht > h && ht < suolo(z, theta) + 8) h = ht;
       }
     }
+    // le assi della passerella del Messo: un elemento mobile, i suoi collider (della variante che c'è) stanno
+    // nel mondo e non nelle zone. Senza, Ottavio seduto «sulla passerella» il giorno 3 (la prova, la lettera
+    // di Rosa: due dialoghi da seduto) sedeva sul fondo del riale, con l'acqua al petto
+    if (this.colliders) {
+      for (const c of this.colliders.query(z, theta, 4, this.vicini)) {
+        if (c.kind !== 'box' || c.tag !== 'passerella') continue;
+        const d = new THREE.Vector3().subVectors(p, c.center);
+        if (Math.abs(d.dot(c.right)) > c.half.x || Math.abs(d.dot(c.forward)) > c.half.z) continue;
+        const top = c.center.clone().addScaledVector(c.up, c.half.y);
+        const ht = h0 + new THREE.Vector3().subVectors(top, p).dot(up);
+        if (ht > h && ht < h0 + 8) h = ht;
+      }
+    }
     return h;
   }
+
+  private readonly vicini: Collider[] = [];
 
   // ------------------------------------------------------------- per fotogramma
 
