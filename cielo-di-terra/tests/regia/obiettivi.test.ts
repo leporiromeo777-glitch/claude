@@ -426,6 +426,12 @@ describe('rami della storia, ripresa, dentro e fuori', () => {
     f.narrativa.tick(0);
     f.fatti.luoghi.delete('guado_sass');
     f.disegna();
+    // dal guado alla piazza si passa per i Ronchi (in linea retta ci sono i muri)
+    expect(f.guida.tappeAttuali[0]).toEqual({ tipo: 'luogo', id: 'i_ronchi' });
+    f.fatti.luoghi.add('i_ronchi');
+    f.narrativa.tick(0);
+    f.fatti.luoghi.delete('i_ronchi');
+    f.disegna();
     expect(f.guida.tappeAttuali[0]).toEqual({ tipo: 'luogo', id: 'piazza_ore' });
     // salva, ricarica in una guida nuova (niente memoria locale): il guado è ancora alle spalle
     const salvato = JSON.parse(JSON.stringify(f.narrativa.esporta()));

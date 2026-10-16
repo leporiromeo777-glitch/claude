@@ -295,6 +295,10 @@
     "obiettivo_taccuino": "Dove l'ho piantato, il primo innesto di casa?",
     "indicazione": "Sali alla Terrazza Pedrazzini (è sulla Pianta, {pianta}) e leggi il cartellino del castagno ({usa}).",
     "luogo": "castagno_cartellino",
+    "tappe": [
+     { "luogo": "scorciatoia_terrazze", "quando": "variante:E4=Abitata e !luogo:scorciatoia_terrazze raggiunto e !luogo:castagno_cartellino raggiunto" },
+     { "luogo": "mulattiera_terrazze", "quando": "!variante:E4=Abitata e !luogo:mulattiera_terrazze raggiunto e !luogo:castagno_cartellino raggiunto" }
+    ],
     "attiva_quando": "passo:m1_marza completato",
     "completa_quando": "luogo:castagno_cartellino raggiunto e flag:cartellino_letto",
     "effetti": [
@@ -507,6 +511,9 @@
     "obiettivo_taccuino": "Tornare in paese dal guado.",
     "indicazione": "Torna alla Piazza delle Ore passando dal guado del Sass, le pietre piatte sul riale.",
     "luogo": "guado_sass",
+    "tappe": [
+     { "luogo": "i_ronchi", "quando": "luogo:guado_sass raggiunto e !luogo:i_ronchi raggiunto" }
+    ],
     "attiva_quando": "passo:m1_mattino completato",
     "completa_quando": "luogo:piazza_ore raggiunto",
     "effetti": [
@@ -588,6 +595,10 @@
     "obiettivo_taccuino": "Dalla Terrazza Pedrazzini si vede il campanile?",
     "indicazione": "Al chiodo 3, sulla Terrazza Pedrazzini: pianta, livella e tieni la croce sulla palina del campanile ({mira}).",
     "luogo": "terrazza_pedrazzini",
+    "tappe": [
+     { "luogo": "scorciatoia_terrazze", "quando": "variante:E4=Abitata e !luogo:scorciatoia_terrazze raggiunto e !luogo:terrazza_pedrazzini raggiunto" },
+     { "luogo": "mulattiera_terrazze", "quando": "!variante:E4=Abitata e !luogo:mulattiera_terrazze raggiunto e !luogo:terrazza_pedrazzini raggiunto" }
+    ],
     "attiva_quando": "passo:m1_chiodo2 completato",
     "completa_quando": "cella:2214 rilevata",
     "effetti_attivazione": [

@@ -231,7 +231,11 @@ describe('le tappe dei passi veri della Fase 1', () => {
 
   it('missione 1: il castagno, la terrazza, la piazza, i velati, Ottavio', () => {
     expect(prima('m1_lente')).toEqual({ tipo: 'luogo', id: 'castagno_morto' });
-    expect(prima('m1_cartellino')).toEqual({ tipo: 'luogo', id: 'castagno_cartellino' });
+    // la terrazza non si raggiunge in linea retta: prima l'attacco della mulattiera (o della scorciatoia, con i gradini)
+    expect(prima('m1_cartellino')).toEqual({ tipo: 'luogo', id: 'mulattiera_terrazze' });
+    // «variante:E4=Abitata» (i gradini della scorciatoia) è un atomo di cella: chiave «cella:E4»
+    expect(prima('m1_cartellino', ['cella:E4'])).toEqual({ tipo: 'luogo', id: 'scorciatoia_terrazze' });
+    expect(prima('m1_cartellino', ['luogo:mulattiera_terrazze'])).toEqual({ tipo: 'luogo', id: 'castagno_cartellino' });
     // prima la Ripa di San Vigilio, da cui si salta; dopo la planata, la piazza
     expect(prima('m1_velo')).toEqual({ tipo: 'luogo', id: 'ripa_san_vigilio' });
     expect(tappe('m1_velo', ['flag:planata_fatta'])).toEqual([{ tipo: 'luogo', id: 'piazza_ore' }]);
@@ -258,7 +262,8 @@ describe('le tappe dei passi veri della Fase 1', () => {
     expect(prima('m1_campanile', ['flag:campanile_aperto'])).toEqual({ tipo: 'luogo', id: 'cella_campanaria' });
     expect(tappe('m1_libretto')).toEqual([]);
     expect(prima('m1_chiodo2')).toEqual({ tipo: 'caposaldo', id: 'cs_2' });
-    expect(prima('m1_primo_rilievo')).toEqual({ tipo: 'caposaldo', id: 'cs_3' });
+    expect(prima('m1_primo_rilievo')).toEqual({ tipo: 'luogo', id: 'mulattiera_terrazze' });
+    expect(prima('m1_primo_rilievo', ['luogo:mulattiera_terrazze'])).toEqual({ tipo: 'caposaldo', id: 'cs_3' });
     expect(tappe('m1_strada').slice(0, 2)).toEqual([
       { tipo: 'persona', id: 'ottavio' },
       { tipo: 'caposaldo', id: 'cs_7' },
