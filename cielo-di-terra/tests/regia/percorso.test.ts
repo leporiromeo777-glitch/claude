@@ -9,8 +9,8 @@ import { CONTENUTI_NARRATIVA, luogo, personaggio } from '../../src/regia/contenu
 import { DISLIVELLO_PLANATA, eUnaPlanata } from '../../src/regia/corpo';
 import { chiaviDelCampanaro } from '../../src/regia/bersagli';
 import { dentroLuogo, quotaLuogo } from '../../src/regia/luoghi';
-import { OrologioStoria } from '../../src/regia/orologio';
-import { FERMO_PRIMA_NOTTE, altezzeDavanti, dialoghiCheFannoAvanzare, dialoghiNominati, flagNominati, indicazioneGesto, muroAltoDavanti, murettoDavanti, troppoRipido } from '../../src/regia/percorso';
+import { ATTESA_MAX_ORE, OrologioStoria, oreFino, vociDiAttesa } from '../../src/regia/orologio';
+import { AIUTI_IN_SU, AIUTI_VETRO, FERMO_PRIMA_NOTTE, altezzeDavanti, dialoghiCheFannoAvanzare, dialoghiNominati, flagNominati, indicazioneGesto, muroAltoDavanti, murettoDavanti, stradaDeiPassi, troppoRipido } from '../../src/regia/percorso';
 import { cleliaAspettaAllaBacheca, posizioneCleliaAllaBacheca, postoDiClelia } from '../../src/regia/png';
 import { prossimoArrivo } from '../../src/regia/orari';
 import { METERS_PER_DEG } from '../../src/world/constants';
@@ -218,5 +218,57 @@ describe('la porta del campanile e la novizia', () => {
     expect(prossimoArrivo(clelia, 2, 22, { valuta })?.luogo).toBe('bacheca_ore');
     // dato il dono non la si aspetta più alla Bacheca
     expect(prossimoArrivo(clelia, 2, 22, { luogo: 'bacheca_ore', valuta: () => false })).toBeNull();
+  });
+});
+
+describe('le strade dove in linea retta non si arriva', () => {
+  it('verso la Terrazza Pedrazzini: la mulattiera dalla piazza; la scorciatoia solo con i gradini', () => {
+    const con = stradaDeiPassi(['m1_cartellino'], true);
+    expect(con).toContain('mulattiera');
+    expect(con).toContain('Piazza delle Ore');
+    expect(con).toContain('scorciatoia con i gradini di assi');
+    expect(con).toContain('castagno morto');
+    const senza = stradaDeiPassi(['m1_primo_rilievo'], false);
+    expect(senza).toContain('mulattiera');
+    expect(senza).toContain('07:00');
+    expect(senza).not.toContain('castagno morto');
+  });
+  it('dal guado alla piazza e alla passerella: la strada dei Ronchi; altrove la strada di serie', () => {
+    expect(stradaDeiPassi(['m1_dono', 'm1_ritorno'], true)).toContain('strada dei Ronchi');
+    expect(stradaDeiPassi(['m1_prova'], true)).toContain('strada dei Ronchi');
+    expect(stradaDeiPassi(['m1_fienile'], true)).toContain('passerella');
+    expect(stradaDeiPassi(['m1_velati'], true)).toBe('cerca un sentiero o dei gradini (la Pianta)');
+  });
+});
+
+describe('«Aspetta fino a…» di notte', () => {
+  const testi = (o: number, f: { brace?: boolean; vegliare?: boolean } = {}) => vociDiAttesa(o, 2, null, { brace: f.brace ?? false, vegliare: f.vegliare ?? false }).map((v) => v.testo);
+  it('mezzanotte la sera, o di giorno per chi ha scelto di vegliare; mai dopo la mezzanotte', () => {
+    expect(testi(22)).toContain('mezzanotte');
+    expect(testi(10, { vegliare: true })).toContain('mezzanotte');
+    expect(testi(10)).not.toContain('mezzanotte');
+    for (const o of [0, 0.5, 2, 5]) expect(testi(o, { vegliare: true }), `alle ${o}`).not.toContain('mezzanotte');
+    expect(testi(0, { vegliare: true })).toContain("l'alba (05:30)");
+  });
+  it("l'alba dalle 20:00 (il pannello della seconda notte dice «aspetta il mattino»)", () => {
+    expect(testi(20.25)).toContain("l'alba (05:30)");
+    expect(testi(19.5)).not.toContain("l'alba (05:30)");
+    expect(testi(20.25)).not.toContain("fra un'ora");
+  });
+  it("un'attesa di quasi un giorno intero si rifiuta", () => {
+    expect(oreFino(0, 0)).toBe(24);
+    expect(oreFino(0, 0)).toBeGreaterThan(ATTESA_MAX_ORE);
+    expect(oreFino(23, 0)).toBeCloseTo(1);
+    expect(oreFino(21, 5.5)).toBeCloseTo(8.5);
+    expect(oreFino(10, 19.5)).toBeLessThan(ATTESA_MAX_ORE);
+  });
+});
+
+describe('gli aiuti dello sguardo si ripetono', () => {
+  it('finché il passo resta da fare, ogni 20-30 s', () => {
+    expect(AIUTI_VETRO.length).toBeGreaterThanOrEqual(4);
+    expect(AIUTI_IN_SU.length).toBeGreaterThanOrEqual(5);
+    for (const a of [AIUTI_VETRO, AIUTI_IN_SU]) for (let i = 1; i < a.length; i++) expect(a[i]! - a[i - 1]!).toBeLessThanOrEqual(30);
+    expect(AIUTI_IN_SU[0]).toBe(50);
   });
 });

@@ -22,7 +22,7 @@ import { ELEMENTI_MOBILI, luogo, type ElementoMobile } from './contenuti';
 import type { Contesto } from './contesto';
 import { creaAssi, creaCasupola, creaMucchioPietre } from './edifici';
 import { nastroSulSuolo } from './forme';
-import { campionaSentiero, gradiniLungo, profiloCamminabile } from './sentieri';
+import { campionaSentiero, gradiniLungo, profiloCamminabile, suoloDiTraverso } from './sentieri';
 import { distanza, impronta, metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle, yawVerso, type PuntoCil } from './terreno';
 import { hex, mix } from './cantiere';
 import { rumore2 } from './forme';
@@ -48,7 +48,9 @@ export const TRACCIATO_SCORCIATOIA: PuntoCil[] = [
   { z: 1039, theta: 29.9 },
   { z: 1000, theta: 27.3 },
   { z: 966, theta: 25.0 },
-  { z: 956, theta: 24.2 },
+  // le ultime tre alzate dritte fino all'angolo della terrazza, dove arriva anche la mulattiera
+  // (finiva 7 m sotto il ripiano, davanti al muro)
+  { z: 967, theta: 22.92 },
 ];
 
 export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): Map<string, ElementoCostruito> {
@@ -187,9 +189,12 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
   {
     const e = nuovo(el('E4'));
     const camp = campionaSentiero(TRACCIATO_SCORCIATOIA, 0.5);
+    suoloDiTraverso(camp, 1.1);
     profiloCamminabile(camp, 33);
+    // (il tracciato è registrato fra i sentieri da `costruisciSentieri`: i muri delle terrazze gli
+    // aprono il varco; senza i gradini, variante Carta, le alzate restano troppo ripide da salire)
     variante(e, 'Abitata', (c, punti) => {
-      gradiniLungo(c, camp, 1.1, 'assi', 0.42, 'gradino', 'scorciatoia_terrazze', 2311);
+      gradiniLungo(c, camp, 1.1, 'assi', 0.42, 'gradino', 'scorciatoia_terrazze', 2311, (z, t) => ctx.distanzaSentieri(z, t, 'scorciatoia_terrazze') < 0.6);
       nastroSulSuolo(c, TRACCIATO_SCORCIATOIA, 1.1, 0.8, 0.05, (s, u) => mix(hex(0x9a7e58), hex(0x86a048), Math.abs(u) > 0.6 ? 0.7 : rumore2(s, u * 3, 2) * 0.3));
       const sc = luogo('scorciatoia_terrazze');
       ctx.punto('sentiero:scorciatoia', 'attraversa', 'Scorciatoia delle Terrazze', mondo(sc.z, sc.theta, suolo(sc.z, sc.theta) + 0.5), { raggio: sc.raggio, luogo: 'scorciatoia_terrazze', attivo: false });

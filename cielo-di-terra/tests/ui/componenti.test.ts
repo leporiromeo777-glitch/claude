@@ -50,6 +50,24 @@ describe('InterfacciaGioco', () => {
     expect(tempo).toEqual([true, false]);
   });
 
+  it('Esc in un dialogo apre la pausa sopra il dialogo, che resta aperto sotto', () => {
+    ui.dialogo.show({ chi: 'Ottavio', testo: 'Allora?', risposte: [{ testo: 'Sì.' }, { testo: 'No.' }] });
+    const e = tasto('Escape');
+    expect(e.defaultPrevented).toBe(true);
+    expect(ui.pausa.visible).toBe(true);
+    expect(ui.dialogo.visible).toBe(true);
+    expect(ui.tempoFermo).toBe(true);
+    tasto('Escape'); // riprendi: si torna al dialogo
+    expect(ui.pausa.visible).toBe(false);
+    expect(ui.dialogo.visible).toBe(true);
+    expect(ui.inputCatturato).toBe(true);
+    // con lo storico aperto Esc chiude lo storico, non apre la pausa
+    tasto('h');
+    tasto('Escape');
+    expect(ui.pausa.visible).toBe(false);
+    expect(ui.dialogo.visible).toBe(true);
+  });
+
   it('dalla pausa alle impostazioni e indietro, senza perdere la pausa', () => {
     const tempo: boolean[] = [];
     ui.on('tempoFermo', (v) => tempo.push(v));

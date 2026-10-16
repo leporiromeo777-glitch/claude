@@ -13,7 +13,7 @@
  *
  * Il tempo assoluto è in ore dall'inizio del giorno 1: `assoluto = (giorno - 1) * 24 + ore`.
  */
-import { oreDa } from './contenuti';
+import { oreDa, testoOra } from './contenuti';
 
 export interface StatoOrologio {
   giorno: number;
@@ -35,6 +35,31 @@ export const FINE_NOTTE = 5.5;
 
 export function eNotte(ore: number): boolean {
   return ore >= INIZIO_NOTTE || ore < FINE_NOTTE;
+}
+
+/** Ore da `da` alla prossima occorrenza dell'ora `a` (0 < x ≤ 24). */
+export function oreFino(da: number, a: number): number {
+  const x = (((a - da) % 24) + 24) % 24;
+  return x < 1 / 120 ? 24 : x;
+}
+
+/** Un'attesa più lunga di così (ore) si rifiuta: è quasi un giorno intero, una scelta sbagliata. */
+export const ATTESA_MAX_ORE = 20;
+
+/**
+ * Le voci del menu «Aspetta fino a» (da seduti) all'ora `o` del giorno `giorno`: chi si cerca e
+ * arriva oggi (dalle indicazioni), la brace, mezzanotte (la sera, o per chi ha scelto di vegliare,
+ * ma mai dopo la mezzanotte: sarebbe un giorno intero), l'alba (dalle 20:00, anche per il
+ * pannello della seconda notte, «aspetta il mattino»), fra un'ora (di giorno).
+ */
+export function vociDiAttesa(o: number, giorno: number, arrivo: { giorno: number; ore: number } | null, f: { brace: boolean; vegliare: boolean }): { testo: string; ore: number }[] {
+  const v: { testo: string; ore: number }[] = [];
+  if (arrivo && arrivo.giorno === giorno && arrivo.ore > o + 1 / 60 && o >= FINE_NOTTE && arrivo.ore <= 20) v.push({ testo: `le ${testoOra(arrivo.ore)}, quando arriva qualcuno`, ore: arrivo.ore });
+  if (f.brace && o < 19.5 && o >= FINE_NOTTE) v.push({ testo: 'la brace (19:30)', ore: 19.5 });
+  if (o >= 19 || (f.vegliare && o >= FINE_NOTTE)) v.push({ testo: 'mezzanotte', ore: 0 });
+  if (o >= 20 || o < FINE_NOTTE) v.push({ testo: "l'alba (05:30)", ore: FINE_NOTTE });
+  if (o >= FINE_NOTTE && o < 20) v.push({ testo: "fra un'ora", ore: (o + 1) % 24 });
+  return v;
 }
 
 export function assolutoDi(giorno: number, ore: number): number {

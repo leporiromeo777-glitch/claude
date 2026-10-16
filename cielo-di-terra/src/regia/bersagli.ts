@@ -180,14 +180,28 @@ export function registraBersagli(r: Regia): void {
     portata: 1.5,
     raggio: 1,
     priorita: -1,
-    disponibile: () => r.controllo.tipo === 'seduta' && n().inventario.ha('lettera_marta') && !r.dialoghi.aperto,
+    // da seduta sempre; in piedi finché il passo della lettera è da fare (dopo «Continua» Elvira
+    // è in piedi e il pannello dice «o premi E»: prima E non faceva niente)
+    disponibile: () =>
+      n().inventario.ha('lettera_marta') && !r.dialoghi.aperto && (r.controllo.tipo === 'seduta' || (fuori() && n().valuta('passo:pr_lettera attivo'))),
     azione: () => r.ponte.leggi('lettera_marta'),
   });
 
   // ---------------------------------------------------------------- la Terrazza Pedrazzini
   // il cartellino è legato al ramo più basso, un metro e mezzo sopra gli occhi: prima andava
   // guardato da meno di due metri (ferma a quattro metri, a guardarlo, Elvira non poteva leggerlo)
-  add({ id: 'cartellino', verbo: 'Leggi il cartellino di zinco', posizione: p('cartellino'), portata: 4.6, raggio: 0.6, priorita: 2, disponibile: fuori, azione: () => r.ponte.leggi('cartellino_castagno') });
+  // (letto, durante l'innesto tace: sta a ottanta centimetri dal punto d'innesto e tenendo E si
+  // apriva la carta invece di tagliare)
+  add({
+    id: 'cartellino',
+    verbo: 'Leggi il cartellino di zinco',
+    posizione: p('cartellino'),
+    portata: 4.6,
+    raggio: 0.6,
+    priorita: 2,
+    disponibile: () => fuori() && !(flag('cartellino_letto') && n().valuta('passo:m1_innesto attivo')),
+    azione: () => r.ponte.leggi('cartellino_castagno'),
+  });
   const TEMPI = ['Taglia: lo spacco nel ramo (tieni premuto E)', 'Inserisci la marza (tieni premuto E)', 'Lega con rafia e mastice (tieni premuto E)'];
   add({
     id: 'innesto',
@@ -302,7 +316,10 @@ export function registraBersagli(r: Regia): void {
       portata: 3,
       raggio: 0.6,
       priorita: 2,
-      disponibile: () => libero() && r.squadro.disponibile && (c.id === 'cs_1' ? r.interno === 'cella' : r.interno === null),
+      // il chiodo 1, nella cella, dopo la targa: entrando si guarda il pavimento e «Pianta lo
+      // squadro» copriva la targa da leggere (tenendo E si finiva nella bolla)
+      disponibile: () =>
+        libero() && r.squadro.disponibile && (c.id === 'cs_1' ? r.interno === 'cella' && (flag('targa_p1_letta') || !n().valuta('passo:m1_campanile attivo')) : r.interno === null),
       tenuta: { durata: 0.9, completa: () => r.piantaSquadro(c.id) },
     });
   }

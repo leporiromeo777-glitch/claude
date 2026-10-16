@@ -44,7 +44,7 @@ import { Interazioni, type StatoInterazione } from './interazioni';
 import { Luoghi, quotaAppoggio } from './luoghi';
 import { NotteVista } from './notte';
 import { GuidaObiettivi } from './obiettivi';
-import { OrologioStoria, attraversa, type Intervallo } from './orologio';
+import { ATTESA_MAX_ORE, OrologioStoria, attraversa, oreFino, vociDiAttesa, type Intervallo } from './orologio';
 import { Abitanti } from './png';
 import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '../rilievo';
 import { CatastoGioco, posizioniCapisaldi } from './catasto';
@@ -79,6 +79,8 @@ export interface MondoSalvato {
 }
 
 const OCCHI = 1.62;
+/** Ogni quanti secondi di gioco, camminando, si salva da sé (oltre ai passi, all'alba e al sonno). */
+const SALVA_OGNI = 90;
 const _v = new Vector3();
 const _w = new Vector3();
 const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
@@ -141,6 +143,8 @@ export class Regia implements SistemaGioco {
   private metaPrecedente = -1;
   private metaImpulso = -1;
   private salvaTra = -1;
+  /** Secondi di cammino dall'ultimo salvataggio periodico. */
+  private salvaPeriodico = 0;
   private ombristaSera = -1;
   private tenutaC = 0;
   /** La lettera di Marta si è già aperta da sola in questa seduta (vedi letteraDaSeduta). */
@@ -390,6 +394,9 @@ export class Regia implements SistemaGioco {
       const m = defs.find((d) => d.id === a.missione);
       if (!m || (m.tipo !== 'prologo' && m.tipo !== 'principale')) continue;
       const s = m.passi.find((x) => x.id === a.passo)?.effettiAttivazione.find((e) => e.startsWith('suggerimento:'));
+      // «Alzati» a Elvira già in piedi (Continua nella Cripta, con la busta ancora da prendere):
+      // niente; che cosa fare lo dice il pannello
+      if (s === 'suggerimento:alzati' && this.controllo.tipo !== 'sdraiata') continue;
       if (s) {
         this.ponte.suggerimento(s.slice('suggerimento:'.length), 15);
         return;
@@ -776,6 +783,11 @@ export class Regia implements SistemaGioco {
   /** «Aspetta fino a» (da seduti). */
   aspettaFino(scelta: number | 'meta'): void {
     if (scelta === 'meta') return;
+    // «mezzanotte» scelta all'una di notte sarebbe un giorno intero (la mattina della prova persa)
+    if (oreFino(this.orologio.ore, scelta) > ATTESA_MAX_ORE) {
+      this.ponte.notifica(`Fino alle ${fmtOra(scelta)} manca quasi un giorno intero: scegli un'ora più vicina.`);
+      return;
+    }
     if (!this.orologio.aspettaFino(scelta, 20)) {
       this.ponte.notifica('Il tempo non passa ancora: c\'è qualcosa da fare.');
       return;
@@ -785,16 +797,10 @@ export class Regia implements SistemaGioco {
   }
 
   vociAttesa(): { testo: string; ore: number }[] {
-    const o = this.orologio.ore;
-    const v: { testo: string; ore: number }[] = [];
-    // chi si cerca per l'obiettivo e non c'è ancora (le indicazioni sanno quando arriva)
-    const a = this.guida.arrivo;
-    if (a && a.giorno === this.orologio.giorno && a.ore > o + 1 / 60 && o >= 5.5 && a.ore <= 20) v.push({ testo: `le ${fmtOra(a.ore)}, quando arriva qualcuno`, ore: a.ore });
-    if (this.narrativa.flag.vero('aspetta_brace_sbloccato') && o < 19.5 && o >= 5.5) v.push({ testo: 'la brace (19:30)', ore: 19.5 });
-    if (o >= 19 || this.narrativa.flag.vero('scelta_vegliare')) v.push({ testo: 'mezzanotte', ore: 0 });
-    if (o >= 21 || o < 5.5) v.push({ testo: "l'alba (05:30)", ore: 5.5 });
-    if (o >= 5.5 && o < 20) v.push({ testo: "fra un'ora", ore: (o + 1) % 24 });
-    return v;
+    return vociDiAttesa(this.orologio.ore, this.orologio.giorno, this.guida.arrivo, {
+      brace: this.narrativa.flag.vero('aspetta_brace_sbloccato'),
+      vegliare: this.narrativa.flag.vero('scelta_vegliare'),
+    });
   }
 
   /** Chi è entro `raggio` m da Elvira (Ottavio no: è il compagno di strada e le si siede accanto). */
@@ -1160,17 +1166,17 @@ export class Regia implements SistemaGioco {
    * Volta lo sguardo verso un punto in `secondi` (chi comincia a parlare, una voce dall'alto).
    * Con `libero` l'inclinazione non si limita (sdraiata nella capsula la scritta è a 60° in su).
    */
-  voltatiVerso(p: Vector3, secondi = 0.7, libero = false): void {
+  voltatiVerso(p: Vector3, secondi = 0.7, libero = false, allaFine?: () => void): void {
     const da = this.yawPitch();
     const occhi = this.occhi(new Vector3());
     localFrameAt(this.game.player.pos, _f, this.game.player.cyl.theta);
     const d = _w.subVectors(p, occhi).normalize();
     const pitch = Math.asin(Math.max(-1, Math.min(1, d.dot(_f.up)))) / DEG;
     const yaw = Math.atan2(d.dot(_f.east), d.dot(_f.north)) / DEG;
-    this.sguardoGuidato = { da, a: { yaw, pitch: libero ? pitch : Math.max(-35, Math.min(45, pitch)) }, t: 0, durata: secondi };
+    this.sguardoGuidato = { da, a: { yaw, pitch: libero ? pitch : Math.max(-35, Math.min(45, pitch)) }, t: 0, durata: secondi, ...(allaFine ? { allaFine } : {}) };
   }
 
-  private sguardoGuidato: { da: { yaw: number; pitch: number }; a: { yaw: number; pitch: number }; t: number; durata: number } | null = null;
+  private sguardoGuidato: { da: { yaw: number; pitch: number }; a: { yaw: number; pitch: number }; t: number; durata: number; allaFine?: () => void } | null = null;
 
   private guidaSguardo(dt: number): void {
     const s = this.sguardoGuidato;
@@ -1179,7 +1185,10 @@ export class Regia implements SistemaGioco {
     const k = s.t * s.t * (3 - 2 * s.t);
     const dy = ((((s.a.yaw - s.da.yaw) % 360) + 540) % 360) - 180;
     this.game.setView(s.da.yaw + dy * k, s.da.pitch + (s.a.pitch - s.da.pitch) * k);
-    if (s.t >= 1) this.sguardoGuidato = null;
+    if (s.t >= 1) {
+      this.sguardoGuidato = null;
+      s.allaFine?.();
+    }
   }
 
   guardaDirezione(yaw: number, pitch: number): void {
@@ -1368,7 +1377,15 @@ export class Regia implements SistemaGioco {
     this.ponte.sonda(dt);
     this.guida.update(dt);
 
-    // salvataggio automatico (ogni passo di missione e a ogni alba)
+    // salvataggio automatico (ogni passo di missione, a ogni alba e, camminando, ogni 90 s di
+    // gioco: chi chiudeva il browser perdeva tutto quello che aveva fatto dall'ultimo passo)
+    if (this.fase === 'gioco' && this.controllo.tipo === 'libero' && !catturato && !this.dialoghi.aperto && !this.orologio.inAttesa) {
+      this.salvaPeriodico += dt;
+      if (this.salvaPeriodico >= SALVA_OGNI && this.salvaTra <= 0 && p.grounded) {
+        this.salvaPeriodico = 0;
+        this.salvaTra = 1;
+      }
+    }
     if (this.salvaTra > 0) {
       this.salvaTra -= dt;
       if (this.salvaTra <= 0 && !this.dormendo) void this.salva();

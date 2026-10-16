@@ -8,7 +8,9 @@
  * - il nome di chi parla resta «una velata» finché Elvira non lo sa (GDD §8.1);
  * - mentre si parla la persona guarda Elvira (lo fanno gli abitanti: è vicina);
  * - un dialogo automatico in coda si apre solo se la sua condizione vale ancora (Elvira è
- *   tornata alla Bacheca) e, se è legato a un luogo, solo se chi parla è vicino: la novizia che
+ *   tornata alla Bacheca), adesso o nell'ambito del passo che fa avanzare (il luogo raggiunto
+ *   durante il passo, come per il segnalino: la prova alla passerella, con Elvira che va
+ *   incontro a Ottavio), e, se è legato a un luogo, solo se chi parla è vicino: la novizia che
  *   aspetta alla Bacheca non parla a Elvira dall'altra parte del paese, la mattina dopo, perché
  *   ieri sera lei era passata di lì. Le richieste «forzate» della rete di sicurezza
  *   (`percorso.ts`) saltano la condizione.
@@ -103,11 +105,18 @@ export class DirettoreDialoghi {
     }
   }
 
-  /** Un dialogo automatico (non forzato) si apre solo se la sua condizione vale ancora. */
+  /**
+   * Un dialogo automatico (non forzato) si apre solo se la sua condizione vale ancora: adesso, o
+   * nell'ambito di un passo che il dialogo fa avanzare, come la legge il segnalino (la prova alla
+   * passerella: «raggiunta durante il passo» anche se Elvira, seguendo il segnalino su Ottavio che
+   * scende, ne è uscita; lui viene da lei).
+   */
   private condizioneVale(c: Richiesta): boolean {
     if (!c.automatico || c.forzato) return true;
-    const cond = this.r.narrativa.dialoghi.definizione(c.dialogo)?.condizione;
-    return cond === undefined || this.r.narrativa.valuta(cond);
+    const n = this.r.narrativa;
+    const cond = n.dialoghi.definizione(c.dialogo)?.condizione;
+    if (cond === undefined || n.valuta(cond)) return true;
+    return this.r.percorso.ambitiDelDialogo(c.dialogo).some((a) => n.valuta(cond, undefined, a));
   }
 
   private personaPronta(dialogo: string, automatico = false): boolean {

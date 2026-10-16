@@ -8,8 +8,10 @@
  *   nominati da `completa_quando`, quelli il cui `alla_fine` accende un flag che `completa_quando`
  *   legge, e la scelta della notte nel fienile) si richiedono di nuovo se non sono aperti, in
  *   coda o finiti e la loro condizione vale: un dialogo interrotto, perso in un caricamento o
- *   annunciato quando la persona non c'era non ferma più la storia. Il Messo, dopo 25 s, va
- *   incontro a Elvira anche fuori dalla piazza (il terzo velato può essere Nando, ai Ronchi).
+ *   annunciato quando la persona non c'era non ferma più la storia. La condizione si legge
+ *   nell'ambito del passo, come la legge il segnalino (la passerella della prova, raggiunta e poi
+ *   lasciata per andare incontro a Ottavio, resta raggiunta). Il Messo, dopo 25 s, va incontro a
+ *   Elvira anche fuori dalla piazza (il terzo velato può essere Nando, ai Ronchi).
  * - **Indicazioni dei gesti**, nel posto del tasto E quando non c'è un bersaglio: la scala della
  *   Cripta (W), il Velo in aria (Spazio), lo squadro piantato (A/D per la bolla, il tasto destro
  *   per il cannocchiale, con la barra della collimazione), il fischio per Ottavio in volo (G),
@@ -18,12 +20,14 @@
  * - **Promemoria**: se un passo resta fermo a lungo, il suo suggerimento dei comandi torna una
  *   volta (sedersi nel prologo, aspettare la brace…).
  * - **Lo sguardo nella capsula**: se dopo 12 s la scritta del vetro non è stata trovata, lo
- *   sguardo ci scivola sopra da solo (e ancora a 30 s); fuori dalla botola, se dopo 50 s Elvira
+ *   sguardo ci scivola sopra da solo (e ancora ogni 20 s); fuori dalla botola, se dopo 50 s Elvira
  *   non ha ancora guardato in su (il passero a 20 s, il suggerimento a 35 s), lo sguardo sale da
- *   solo verso il lago appeso (e ancora a 80 s).
+ *   solo verso il lago appeso (e ancora ogni 30 s). Dal secondo aiuto, finita la planata dello
+ *   sguardo, il passo si chiude da sé: chi tirava giù il mouse consumava gli aiuti.
  * - **Muri troppo alti**: chi spinge contro un muro che non si scavalca (le terrazze, il muro di
- *   Ronco) legge «P — troppo alto…» e, verso la Terrazza Pedrazzini, la strada: la mulattiera o
- *   la scorciatoia con i gradini di assi.
+ *   Ronco) legge «P — troppo alto…» e la strada del passo: verso la Terrazza Pedrazzini la
+ *   mulattiera, che parte dalla piazza, e la scorciatoia (solo quando ha i gradini); fra il riale
+ *   e la piazza la strada dei Ronchi.
  * - **Il fermo della prima notte**: finché Elvira non arriva al fienile l'orologio non passa le
  *   05:00 del giorno 2. Senza, chi girava tutta la notte arrivava al fienile di giorno e la notte
  *   (la scelta di Ottavio, il resoconto, il mattino del giorno 2) non tornava più.
@@ -71,23 +75,47 @@ const PROMEMORIA: Readonly<Record<string, { id: string; dopo?: number } | null>>
 };
 const PROMEMORIA_DOPO = 90;
 
-/** Quando lo sguardo scivola da solo sulla scritta del vetro (s di passo). */
-const AIUTI_VETRO = [12, 30];
-/** Quando lo sguardo sale da solo verso il lago appeso, fuori dalla botola (s di passo). */
-const AIUTI_IN_SU = [50, 80];
+/**
+ * Quando lo sguardo scivola da solo sulla scritta del vetro (s di passo): ancora ogni 20 s finché
+ * il passo resta da fare; dal secondo aiuto in poi, finita la planata dello sguardo, il passo si
+ * chiude da sé (chi tira giù il mouse mentre lo sguardo sale consumava gli aiuti e restava lì).
+ */
+export const AIUTI_VETRO = [12, 30, 50, 70, 90];
+/** Quando lo sguardo sale da solo verso il lago appeso, fuori dalla botola (s di passo): come sopra, ogni 30 s. */
+export const AIUTI_IN_SU = [50, 80, 110, 140, 170, 200];
 
 /**
  * La strada da dire a chi spinge contro un muro troppo alto o un pendio troppo ripido, per i
- * passi che portano in alto (la Terrazza Pedrazzini sta sopra muri e scarpate di terrazza di
- * tre metri e più).
+ * passi che portano dove in linea retta non si arriva: la Terrazza Pedrazzini sta sopra muri e
+ * scarpate di terrazza di tre metri e più (la mulattiera parte dalla piazza; la scorciatoia, 75 m
+ * a Mont del castagno morto, solo quando ha i gradini: il campanaro li rimette alle 07:00); fra il
+ * riale e la piazza ci sono i muri alti dei Ronchi (la strada battuta dei Ronchi parte dal guado).
  */
-const TERRAZZA = 'alla Terrazza Pedrazzini si sale dalla mulattiera delle Terrazze o dalla scorciatoia con i gradini di assi (la Pianta)';
-const STRADE: Readonly<Record<string, string>> = {
-  m1_cartellino: TERRAZZA,
-  m1_innesto: TERRAZZA,
-  m1_primo_rilievo: TERRAZZA,
+export function stradaTerrazza(scorciatoia: boolean): string {
+  return scorciatoia
+    ? 'alla Terrazza Pedrazzini si sale dalla mulattiera, che parte dalla Piazza delle Ore, o dalla scorciatoia con i gradini di assi, 75 m a Mont del castagno morto (la Pianta)'
+    : 'alla Terrazza Pedrazzini si sale dalla mulattiera delle Terrazze, che parte dalla Piazza delle Ore (la scorciatoia non ha ancora i gradini: il campanaro li rimette alle 07:00)';
+}
+const RONCHI_SU = 'in piazza si torna dalla strada dei Ronchi: dal guado sali fra le case dei Ronchi e seguila verso il paese (la Pianta)';
+const RONCHI_GIU = 'alla passerella del Messo si scende dalla strada dei Ronchi, che parte dalla piazza verso il riale (la Pianta)';
+const STRADE: Readonly<Record<string, string | ((scorciatoia: boolean) => string)>> = {
+  m1_cartellino: stradaTerrazza,
+  m1_innesto: stradaTerrazza,
+  m1_primo_rilievo: stradaTerrazza,
+  m1_ritorno: RONCHI_SU,
+  m1_fienile: RONCHI_GIU,
+  m1_prova: RONCHI_GIU,
 };
 const STRADA_DI_SERIE = 'cerca un sentiero o dei gradini (la Pianta)';
+
+/** La strada da dire per i passi attivi (la prima che c'è), o quella di serie. */
+export function stradaDeiPassi(attivi: Iterable<string>, scorciatoia: boolean): string {
+  for (const id of attivi) {
+    const s = STRADE[id];
+    if (s) return typeof s === 'function' ? s(scorciatoia) : s;
+  }
+  return STRADA_DI_SERIE;
+}
 
 /** Il pendio più ripido che si cammina (`slopeLimitDeg` del controller). */
 const PENDENZA_MAX_GRADI = 47;
@@ -302,17 +330,30 @@ export class Percorso {
 
   // ------------------------------------------------------------------ dialoghi di riserva
 
-  private dialoghiDiRiserva(passi: { def: PassoDef }[]): void {
+  /**
+   * Gli ambiti (missione, passo) dei passi attivi della storia che il dialogo fa avanzare: la
+   * sua condizione vale anche lì dentro, dove un luogo resta «raggiunto» per tutto il passo.
+   */
+  ambitiDelDialogo(dialogo: string): { missione: string; passo: string }[] {
+    const n = this.r.narrativa;
+    return this.passiDellaStoria()
+      .filter(({ def }) => dialoghiCheFannoAvanzare(def, n.contenuti.dialoghi).includes(dialogo))
+      .map(({ missione, def }) => ({ missione, passo: def.id }));
+  }
+
+  private dialoghiDiRiserva(passi: { missione: string; def: PassoDef }[]): void {
     const r = this.r;
     const n = r.narrativa;
     if (r.dialoghi.aperto || n.dialoghi.aperto() || r.fase !== 'gioco') return;
-    for (const { def } of passi) {
+    for (const { missione, def } of passi) {
       const ovunque = RISERVA_OVUNQUE[def.id];
       for (const id of dialoghiCheFannoAvanzare(def, n.contenuti.dialoghi)) {
         const d = n.dialoghi.definizione(id);
         if (!d || (n.dialoghi.finito(id) && !d.ripetibile) || r.dialoghi.inCoda(id)) continue;
         const forza = !!ovunque && ovunque.dialogo === id && this.tempoDelPasso(def.id) >= ovunque.dopo && r.interno === null;
-        if (!forza && d.condizione !== undefined && !n.valuta(d.condizione)) continue;
+        // la condizione nell'ambito del passo, come la legge il segnalino: il luogo raggiunto
+        // durante il passo resta raggiunto (la passerella della prova, quando Ottavio scende lontano)
+        if (!forza && d.condizione !== undefined && !n.valuta(d.condizione, undefined, { missione, passo: def.id })) continue;
         r.log(`riserva: ${id}${forza ? ' (ovunque)' : ''}`);
         r.dialoghi.richiedi(id, true, forza);
       }
@@ -352,15 +393,17 @@ export class Percorso {
   private aiutiSguardo(attivi: ReadonlySet<string>): void {
     const r = this.r;
     if (attivi.has('pr_vetro') && r.controllo.tipo === 'sdraiata') {
-      if (this.aiuto('pr_vetro', AIUTI_VETRO)) {
-        r.voltatiVerso(r.cripta.scritta, 2.4, true);
+      const k = this.aiuto('pr_vetro', AIUTI_VETRO);
+      if (k > 0) {
+        r.voltatiVerso(r.cripta.scritta, 2.4, true, k > 1 ? () => r.flag('guardato_vetro') : undefined);
         r.log('aiuto: lo sguardo scivola sulla scritta del vetro');
       }
     }
     // fuori dalla botola, in piedi o seduta
     const fuori = r.interno === null && (r.controllo.tipo === 'libero' || r.controllo.tipo === 'seduta');
     if (attivi.has('pr_guarda_su') && fuori && !r.narrativa.flag.vero('guardato_in_su')) {
-      if (this.aiuto('pr_guarda_su', AIUTI_IN_SU)) {
+      const k = this.aiuto('pr_guarda_su', AIUTI_IN_SU);
+      if (k > 0) {
         // un punto alto davanti: quasi dritto in su, dove pende il lago (più di 50° sull'orizzonte)
         const p = r.game.player;
         localFrameAt(p.pos, _cornice, p.cyl.theta);
@@ -369,22 +412,25 @@ export class Percorso {
         if (_sguardo.lengthSq() < 1e-6) _sguardo.copy(_cornice.north);
         _sguardo.normalize();
         const punto = r.occhi(_occhi).addScaledVector(su, 30).addScaledVector(_sguardo, 8);
-        r.voltatiVerso(punto, 2.4, true);
+        r.voltatiVerso(punto, 2.4, true, k > 1 ? () => r.flag('guardato_in_su') : undefined);
         r.log('aiuto: lo sguardo sale verso il lago appeso');
       }
     }
   }
 
-  /** Vero (una volta per ciascuno) quando il passo è attivo da uno dei tempi `quando` (s). */
-  private aiuto(passo: string, quando: readonly number[]): boolean {
+  /**
+   * Quale aiuto dare adesso (1 il primo, 2 il secondo…), una volta per ciascuno, quando il passo è
+   * attivo da uno dei tempi `quando` (s); 0 se nessuno.
+   */
+  private aiuto(passo: string, quando: readonly number[]): number {
     const t = this.tempoDelPasso(passo);
-    for (const s of quando) {
+    for (const [i, s] of quando.entries()) {
       const k = `${passo}@${s}`;
       if (t < s || this.aiutiDati.has(k)) continue;
       this.aiutiDati.add(k);
-      return true;
+      return i + 1;
     }
-    return false;
+    return 0;
   }
 
   /** Un atterraggio che non è una planata, mentre il passo del Velo la chiede: perché. */
@@ -451,7 +497,7 @@ export class Percorso {
         const muro = muroAltoDavanti(altezze);
         const ripido = !muro && altezze.length === 0 && this.salitaDavanti(1.2);
         if (muro || ripido) {
-          const strada = [...attivi].map((id) => STRADE[id]).find((x) => x) ?? STRADA_DI_SERIE;
+          const strada = stradaDeiPassi(attivi, r.catasto.variante('E4') === 'Abitata');
           s.muroAlto = `${muro ? 'Troppo alto' : 'Troppo ripido'}: ${strada}`;
         }
       }

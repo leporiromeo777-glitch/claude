@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { Narrativa } from '../../src/narrativa/narrativa';
 import { CONTENUTI_NARRATIVA } from '../../src/regia/contenuti';
 import { DISTANZA_DIALOGO_AUTOMATICO, DirettoreDialoghi, dialogoDiUnLuogo } from '../../src/regia/dialoghi';
+import { Percorso } from '../../src/regia/percorso';
 import type { Regia } from '../../src/regia/regia';
 import { FattiFinti } from '../narrativa/aiuti';
 
@@ -45,7 +46,9 @@ function regiaFinta(persone: Record<string, number>) {
     },
     game: { player: { cyl: { z: 1043, theta: 35.6, h: 38.5 } } },
     voltatiVerso: () => {},
+    percorso: null as Percorso | null,
   };
+  r.percorso = new Percorso(r as unknown as Regia);
   const d = new DirettoreDialoghi(r as unknown as Regia);
   return { d, fatti, narrativa };
 }
@@ -105,6 +108,36 @@ describe('la coda dei dialoghi', () => {
     narrativa.dialoghi.importa({ ...st, finiti: [...st.finiti, 'd_clelia_dono'] });
     d.update();
     expect(d.inCoda('d_clelia_dono')).toBe(false);
+    expect(d.aperto).toBe(false);
+  });
+
+  it('la prova alla passerella: raggiunta durante il passo, si apre anche con Elvira già uscita (Ottavio viene da lei)', () => {
+    const { d, narrativa, fatti } = regiaFinta({ ottavio: 3 });
+    narrativa.missioni.avvia('m01_castagno_vuoto');
+    for (const p of narrativa.contenuti.missioni.find((m) => m.id === 'm01_castagno_vuoto')!.passi) {
+      if (p.id === 'm1_prova') break;
+      narrativa.missioni.completaPasso('m01_castagno_vuoto', p.id);
+    }
+    fatti.giornoCorrente = 3;
+    fatti.oraCorrente = 10;
+    narrativa.tick(0);
+    expect(narrativa.valuta('passo:m1_prova attivo')).toBe(true);
+    // Elvira arriva alla passerella (la storia annuncia la prova), poi segue il segnalino su Ottavio
+    fatti.luoghi.add('passerella_messo');
+    narrativa.tick(0);
+    d.richiedi('d_ottavio_prova', true);
+    fatti.luoghi.delete('passerella_messo');
+    narrativa.tick(0);
+    expect(narrativa.valuta('giorno:>=3 e luogo:passerella_messo raggiunto')).toBe(false);
+    d.update();
+    expect(d.nodo?.dialogo).toBe('d_ottavio_prova');
+  });
+
+  it('fuori dal passo che fa avanzare la condizione si legge com\'è adesso (la novizia lontana dalla Bacheca)', () => {
+    const { d, fatti } = regiaFinta({ clelia: 3 });
+    fatti.giornoCorrente = 2;
+    d.richiedi('d_clelia_dono', true);
+    d.update();
     expect(d.aperto).toBe(false);
   });
 });

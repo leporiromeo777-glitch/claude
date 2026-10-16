@@ -367,7 +367,7 @@ Lati chiudibili: 1-3, 1-4, 1-6, 1-7, 1-8, 1-11 (già fatto), 3-4, 3-5, 3-11, 3-3
 #### M1.3 La terrazza — `m1_cartellino` (2-3 min)
 
 - **Obiettivo**: «Dove l'ho piantato, il primo innesto di casa?»
-- **Luogo**: Terrazza Pedrazzini (948, 23,0, 56), 170 m a Mont della Cripta. Due strade: la **mulattiera delle Terrazze** (Carta: tornanti, lunga) o la **scorciatoia** con i gradini di assi (rimessi dal campanaro alle 07:00; se il giocatore ci arriva prima delle 07:00 trova le assi accatastate e Bortolo che le sta infilando nei muri: battuta di Bortolo, `d_bortolo_gradini`).
+- **Luogo**: Terrazza Pedrazzini (948, 23,0, 56), 170 m a Mont della Cripta. Due strade: la **mulattiera delle Terrazze** (Carta: tornanti, lunga) o la **scorciatoia** con i gradini di assi (rimessi dal campanaro alle 07:00; se il giocatore ci arriva prima delle 07:00 trova le assi accatastate e Bortolo che le sta infilando nei muri: battuta di Bortolo, `d_bortolo_gradini`). La mulattiera parte dalla Piazza delle Ore, la scorciatoia 75 m a Mont del castagno morto; tutte e due entrano nella terrazza dal suo angolo a Lag e a Sera, dove il suolo è già alla quota del ripiano (sugli altri lati la terrazza sta su muri di 3,5-7 m). Dove tagliano di sbieco un'alzata hanno gradini a tutta larghezza e un parapetto a valle. Contro un muro o una scarpata, «P — Troppo alto…» dice la strada (la scorciatoia solo quando ha i gradini).
 - **Che cosa vede**: la terrazza larga, i castagni da frutto inselvatichiti, ricci vuoti dappertutto. Su un castagno vigoroso, legato al ramo più basso, un **cartellino di zinco**.
 - **Che cosa fa**: si avvicina e legge il cartellino (vista di lettura breve): «Marze: selva Pedrazzini, Cevio. E. P. 2119».
 - **Elvira**: «La mia scrittura.»

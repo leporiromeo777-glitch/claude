@@ -270,6 +270,13 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
       if (cima.gestisciTasto(e)) {
         e.preventDefault();
         e.stopPropagation();
+      } else if (e.key === 'Escape' && !e.repeat && cima === (this.dialogo as unknown as ComponenteQualsiasi)) {
+        // Esc in un dialogo (lo storico è chiuso): la pausa sopra il dialogo, che resta aperto
+        // sotto; «Esci al titolo» lo interrompe come un caricamento (prima Esc non faceva niente
+        // e da un dialogo lungo non si usciva)
+        this.apriPausa();
+        e.preventDefault();
+        e.stopPropagation();
       }
       return;
     }

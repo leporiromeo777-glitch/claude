@@ -52,7 +52,7 @@ export class MenuPausa extends Componente<EventiPausa> {
     this.conferma = h(
       'div',
       { class: 'ui-pausa-conferma', hidden: true, role: 'group', 'aria-labelledby': 'ui-pausa-conferma-d' },
-      h('p', { id: 'ui-pausa-conferma-d', class: 'ui-pausa-domanda' }, 'Tornare al titolo? Il viaggio è salvato all’ultima alba o all’ultimo letto.'),
+      h('p', { id: 'ui-pausa-conferma-d', class: 'ui-pausa-domanda' }, 'Tornare al titolo? Il viaggio si salva qui, adesso: «Continua» riparte da questo punto.'),
       h(
         'ul',
         { class: 'ui-menu' },

@@ -138,10 +138,11 @@ export class Contesto {
     return false;
   }
 
-  /** Distanza minima (m) da un sentiero. */
-  distanzaSentieri(z: number, theta: number): number {
+  /** Distanza minima (m) da un sentiero (fuorché quello di nome `tranne`). */
+  distanzaSentieri(z: number, theta: number, tranne?: string): number {
     let best = Infinity;
     for (const s of this.sentieri) {
+      if (s.nome === tranne) continue;
       for (let k = 0; k < s.punti.length - 1; k++) {
         const a = s.punti[k]!;
         const b = s.punti[k + 1]!;
