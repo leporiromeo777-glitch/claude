@@ -7,8 +7,9 @@
  * - niente scatti: nessun osso oltre 220°/s nello spazio della figura (un cenno vivace sta sotto i 100°/s;
  *   prima i gesti delle battute arrivavano a 1100°/s) e niente gradini di velocità (accelerazione sotto
  *   i 3000°/s²: prima il cenno partiva a 63°/s da fermo in un fotogramma, 3800°/s²);
- * - il busto respira piano: petto, collo e testa sotto i 90°/s (prima il respiro cambiava ritmo a ogni
- *   battuta con la fase t·2π/periodo e, con qualche minuto di gioco, il petto tremava);
+ * - il busto respira piano: petto, collo e testa sotto i 120°/s, la testa che si volta compresa (prima il
+ *   respiro cambiava ritmo a ogni battuta con la fase t·2π/periodo e, con qualche minuto di gioco, il petto
+ *   tremava);
  * - le mani non entrano nel busto (al più 1,5 cm, la stoffa) e i polsi non si girano (al più 45° rispetto
  *   all'avambraccio), i gomiti non si piegano oltre 150°, la testa non oltre 90° rispetto al petto;
  * - i piedi a terra non scivolano mentre il corpo si gira (al più 0,12 m/s al 95° percentile: si alzano e
@@ -108,6 +109,33 @@ describe('la figura procedurale di riserva', () => {
     }
     expect(vMax).toBeLessThan(170);
     expect(aMax).toBeLessThan(2500);
+  });
+
+  it('i passi sul posto del giro cominciano e finiscono senza gradini di velocità', () => {
+    // il popolamento, mentre la figura procedurale si gira verso chi parla, la fa camminare sul posto
+    // (abitanti.ts, gira): il peso della camminata entrava e usciva al primo ordine, gambe e braccia
+    // partivano a 100-120°/s in un fotogramma (gli stinchi hanno il loro ginocchio a gomito: fuori). Si
+    // ferma a metà passo, il caso peggiore: prima 120°/s e 5300°/s², adesso 64°/s e 900°/s²
+    const o = creaAbitante({ seme: 'riserva-giro' });
+    const nomi = ['cosciaS', 'cosciaD', 'braccioS', 'braccioD', 'petto', 'testa'];
+    const ossa = nomi.map((n) => o.gruppo.getObjectByName(n) as THREE.Bone);
+    for (let i = 0; i < 60; i++) o.update?.(1 / 60, { modo: 'fermo' });
+    const prec = ossa.map((b) => b.quaternion.clone());
+    const vPrec = ossa.map(() => 0);
+    let vMax = 0;
+    let aMax = 0;
+    for (let i = 0; i < 240; i++) {
+      o.update?.(1 / 60, { modo: i >= 30 && i < 100 ? 'cammina' : 'fermo', velocita: 0.45 });
+      ossa.forEach((b, j) => {
+        const v = b.quaternion.angleTo(prec[j] as THREE.Quaternion) * 60 * (180 / Math.PI);
+        vMax = Math.max(vMax, v);
+        if (i > 0) aMax = Math.max(aMax, Math.abs(v - (vPrec[j] as number)) * 60);
+        vPrec[j] = v;
+        (prec[j] as THREE.Quaternion).copy(b.quaternion);
+      });
+    }
+    expect(vMax).toBeLessThan(90);
+    expect(aMax).toBeLessThan(SOGLIE.acc);
   });
 });
 

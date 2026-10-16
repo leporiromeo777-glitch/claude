@@ -14,7 +14,7 @@
  */
 import * as THREE from 'three';
 import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
-import { cil, ingombroDa, risultato, smorza } from '../comune';
+import { cil, ingombroDa, risultato } from '../comune';
 import { geoBoxC, geoCilindro, geoSfera, geoTubo } from '../forme';
 import { materialePer } from '../materiali';
 import { PALETTE } from '../palette';
@@ -525,7 +525,16 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
   let t = rng.next() * 20;
   let fase = 0;
   let pesoCamminata = 0;
-  const gesti: Record<Gesto, number> = { nessuno: 1, saluta: 0, indica: 0, 'mano-al-petto': 0 };
+  // i pesi della camminata e dei gesti salgono e scendono con una molla (prima un inseguimento del primo
+  // ordine: la velocità di gambe e braccia partiva da ferma a 100-120°/s in un fotogramma, per esempio
+  // quando la figura comincia e finisce i passi sul posto del giro verso chi parla)
+  const camminata = { x: 0, v: 0 };
+  const gesti: Record<Gesto, { x: number; v: number }> = {
+    nessuno: { x: 1, v: 0 },
+    saluta: { x: 0, v: 0 },
+    indica: { x: 0, v: 0 },
+    'mano-al-petto': { x: 0, v: 0 },
+  };
   const sguardo = { yaw: 0, pitch: 0, vYaw: 0, vPitch: 0 };
   /** tempo dall'ultimo cenno di battuta (s); oltre 0,85 nessun cenno */
   let cenno = 9;
@@ -542,10 +551,11 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     t += dt;
     const modo = stato?.modo ?? 'fermo';
     const vel = stato?.velocita ?? 1.1;
-    pesoCamminata = smorza(pesoCamminata, modo === 'cammina' ? 1 : 0, 5, dt);
+    molla(camminata, 'x', 'v', modo === 'cammina' ? 1 : 0, dt, 6, 8);
+    pesoCamminata = THREE.MathUtils.clamp(camminata.x, 0, 1);
     fase += dt * (vel / (0.62 * H)) * Math.PI * pesoCamminata;
     const gesto = stato?.gesto ?? 'nessuno';
-    for (const k of Object.keys(gesti) as Gesto[]) gesti[k] = smorza(gesti[k], k === gesto ? 1 : 0, 6, dt);
+    for (const k of Object.keys(gesti) as Gesto[]) molla(gesti[k], 'x', 'v', k === gesto ? 1 : 0, dt, 7, 10);
 
     // reset alle rotazioni di riposo
     for (let i = 0; i < ossa.length; i++) {
@@ -601,7 +611,9 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     // testa parte e si ferma piano)
     molla(sguardo, 'yaw', 'vYaw', yawObj, dt);
     molla(sguardo, 'pitch', 'vPitch', pitchObj, dt);
-    const yawTesta = THREE.MathUtils.clamp(sguardo.yaw, -1.0, 1.0);
+    // la testa gira fino a ~1 rad, il resto lo fa il petto: un limite morbido (lineare fino a 0,6 rad, poi
+    // tanh), perché con un limite netto la testa si fermava di colpo e il petto partiva di colpo
+    const yawTesta = limiteMorbido(sguardo.yaw, 0.6, 0.4);
     os('testa').rotation.y += yawTesta;
     os('testa').rotation.x += -sguardo.pitch * 0.8;
     // il cenno di una battuta (battutaPersonaggio): giù e su, lento
@@ -611,13 +623,13 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     }
     os('petto').rotation.y += (sguardo.yaw - yawTesta) * 0.8;
     // gesti con la mano destra (o sinistra per il bastone)
-    const g1 = gesti.saluta;
+    const g1 = THREE.MathUtils.clamp(gesti.saluta.x, 0, 1);
     if (g1 > 0.001) {
       const onda = Math.sin(t * 9) * 0.35;
       mescolaRot(os('braccioD'), [-0.3, 0, -2.5], g1);
       mescolaRot(os('avambraccioD'), [-0.2, 0, -0.35 + onda], g1);
     }
-    const g2 = gesti.indica;
+    const g2 = THREE.MathUtils.clamp(gesti.indica.x, 0, 1);
     if (g2 > 0.001) {
       if (stato?.indica) {
         gruppo.updateWorldMatrix(true, false);
@@ -630,7 +642,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
       mescolaRot(os('braccioD'), [-(Math.PI / 2 + indicaDir.pitch), indicaDir.yaw, 0], g2);
       mescolaRot(os('avambraccioD'), [0, 0, 0], g2);
     }
-    const g3 = gesti['mano-al-petto'];
+    const g3 = THREE.MathUtils.clamp(gesti['mano-al-petto'].x, 0, 1);
     if (g3 > 0.001) {
       mescolaRot(os('braccioD'), [-0.35, 0, 0.25], g3);
       mescolaRot(os('avambraccioD'), [-1.85, 0.6, 0], g3);
@@ -656,11 +668,11 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
 }
 
 /**
- * Una molla smorzata in modo critico sul campo `x` (velocità nel campo `v`) verso `bersaglio`: arriva in
- * circa un secondo, senza oscillare e senza salti di velocità; al più 2,8 rad/s. A passi di 1/60 s.
+ * Una molla smorzata in modo critico sul campo `x` (velocità nel campo `v`) verso `bersaglio`: con k = 4,5
+ * arriva in circa un secondo, senza oscillare e senza salti di velocità; al più `vmax` (per lo sguardo
+ * 2,8 rad/s). A passi di 1/60 s.
  */
-function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, bersaglio: number, dt: number): void {
-  const k = 4.5;
+function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, bersaglio: number, dt: number, k = 4.5, vmax = 2.8): void {
   const n = Math.max(1, Math.ceil(dt * 60 - 1e-6));
   const h = dt / n;
   const r = o as Record<string, number>;
@@ -668,9 +680,16 @@ function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, b
   const kv = v as string;
   for (let i = 0; i < n; i++) {
     const a = k * k * (bersaglio - (r[kx] as number)) - 2 * k * (r[kv] as number);
-    r[kv] = THREE.MathUtils.clamp((r[kv] as number) + a * h, -2.8, 2.8);
+    r[kv] = THREE.MathUtils.clamp((r[kv] as number) + a * h, -vmax, vmax);
     r[kx] = (r[kx] as number) + (r[kv] as number) * h;
   }
+}
+
+/** `x` fino a `lineare` com'è, poi verso `lineare + coda` con una tanh (derivata continua, mai oltre). */
+function limiteMorbido(x: number, lineare: number, coda: number): number {
+  const a = Math.abs(x);
+  if (a <= lineare) return x;
+  return Math.sign(x) * (lineare + coda * Math.tanh((a - lineare) / coda));
 }
 
 /** Porta le rotazioni di un osso verso un obiettivo con peso w. */

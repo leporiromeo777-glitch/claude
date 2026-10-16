@@ -61,10 +61,11 @@ const SCENE = [
   { nome: 'bambini', chi: 'lisa', altri: ['gioanin'], dialogo: 'd_bambini', ora: [1, 10.5], vai: 'piazza_ore', d: 2.2, giro: 60 },
   // la gente velata all'alba in piazza: non parla, ma si volta verso Elvira che passa e parla con Bortolo
   { nome: 'velati', chi: 'velato_5', altri: ['velato_4', 'velato_6'], dialogo: null, ora: [2, 5.92], vai: 'piazza_ore', d: 2.6, giro: 100, prima: 'G.regia.regia.abitanti.voltatiTutti(30)' },
-  // un dialogo lungo con Ottavio davanti (sei battute): i gesti ogni tanto, la mano al petto alla quarta
+  // un dialogo lungo con Ottavio davanti (sei battute): i cenni e i gesti, che devono venire solo ogni tanto
   { nome: 'ottavio-gesti', chi: 'ottavio', dialogo: 'd_ottavio_incontro', ora: [2, 15.2], vai: 'prato_ronco', prima: "G.regia.regia.abitanti.ottavioSegueOrario(); X.corbella.npc('ottavio').manuale = false", d: 2.4, giro: 10, battute: [2.2, 4.4, 6.6, 8.8, 11.0], chiudi: 12.5, fine: 13.5 },
-  // lontano: la novizia apre il dialogo automatico da 16 m (il limite è 25)
-  { nome: 'clelia-lontana', chi: 'clelia', dialogo: 'd_clelia_dono', automatico: true, ora: [2, 10.0], vai: 'bacheca_ore', d: 16, giro: 120, lato: [50, 6] },
+  // lontano: la novizia apre il dialogo automatico da 16 m (il limite è 25); in una pagina nuova, perché dopo
+  // il dono della scena «clelia» non è più alla Bacheca
+  { nome: 'clelia-lontana', chi: 'clelia', dialogo: 'd_clelia_dono', automatico: true, ora: [2, 10.0], vai: 'bacheca_ore', d: 16, giro: 120, lato: [50, 6], nuova: true },
 ];
 
 const moduli = realpathSync(join(radice, 'node_modules'));
@@ -504,10 +505,10 @@ async function scena(q) {
   console.log(`  ${q.nome}: ${foto} fotogrammi, eventi ${JSON.stringify(eventi)}`);
 }
 
-try {
+/** Carica una partita nuova e installa gli attrezzi delle scene. */
+async function carica() {
   const t0 = Date.now();
-  let pronto = false;
-  for (let tentativo = 1; !pronto; tentativo++) {
+  for (let tentativo = 1; ; tentativo++) {
     await page.goto(`http://127.0.0.1:${porta}/?nuova`);
     await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__?.regia, null, { timeout: 900000 });
     console.log(`gioco pronto in ${Math.round((Date.now() - t0) / 1000)} s`);
@@ -515,15 +516,23 @@ try {
     await S((qq) => window.__GAME__.setSetting('qualita', qq), QUALITA);
     try {
       await page.evaluate(`(${installa.toString()})()`);
-      pronto = true;
+      return;
     } catch (e) {
       if (tentativo >= 2) throw e;
       console.error(`nuovo tentativo dopo: ${String(e).split('\n')[0]}`);
     }
   }
+}
+
+try {
+  await carica();
   const solo = args.solo ? args.solo.split(',') : null;
+  let fatte = 0;
   for (const q of SCENE) {
     if (solo && !solo.some((s) => q.nome.startsWith(s))) continue;
+    // una scena che vuole la storia da capo (il dono di Clelia già dato la fa sparire) in una pagina nuova
+    if (q.nuova && fatte > 0) await carica();
+    fatte++;
     const t1 = Date.now();
     await scena(q);
     console.log(`  (${Math.round((Date.now() - t1) / 1000)} s)`);
