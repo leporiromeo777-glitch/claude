@@ -1,0 +1,1154 @@
+{
+ "versione": 1,
+ "descrizione": "Personaggi della Fase 1 generati (Higgsfield -> Blender -> GLB skinned). Prodotto da tools/personaggi/indice.py; vedi docs/personaggi/PIPELINE.md.",
+ "unita": "metri (scala 1 = 1 m; altezza = cima della testa o del cappello)",
+ "orientamento": "glTF: +Y in alto, il personaggio guarda +Z, la sua sinistra è +X; piedi a y = 0, centrato sui fianchi",
+ "posa_di_riposo": "A-pose (braccia a circa 25-30 gradi dal corpo): le abbassa l'animatore (apertura)",
+ "ossa": [
+  "bacino",
+  "schiena",
+  "petto",
+  "collo",
+  "testa",
+  "braccioS",
+  "avambraccioS",
+  "manoS",
+  "braccioD",
+  "avambraccioD",
+  "manoD",
+  "cosciaS",
+  "stincoS",
+  "piedeS",
+  "cosciaD",
+  "stincoD",
+  "piedeD"
+ ],
+ "lod": "un GLB per personaggio con due SkinnedMesh sullo stesso scheletro e lo stesso materiale: lod0 (8000 tri) e lod1 (2000 tri)",
+ "texture": "una texture di colore JPEG 1024 px per personaggio, materiale opaco (metallic 0, roughness 1)",
+ "totale_kb": 4918,
+ "personaggi": [
+  {
+   "id": "ottavio",
+   "file": "ottavio.glb",
+   "lod1": {
+    "file": "ottavio.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.74,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 380,
+   "generatore": "tripo_h3_1_image_to_3d",
+   "proporzioni": "adulto",
+   "volto": "scoperto",
+   "gonna": false,
+   "apertura": 10,
+   "curvo": 0.0,
+   "oggetti": [
+    "lume@bacino",
+    "velo-da-planata (oggetto a parte)"
+   ],
+   "note": "Il Messo, 17 anni; volto dipinto e stilizzato, fascia verde sulla fronte, borsa a tracolla nel modello. Tripo: il più dettagliato, si vede da vicino.",
+   "tavolozza": [
+    [
+     0.4039,
+     0.2824,
+     0.1843
+    ],
+    [
+     0.2784,
+     0.2157,
+     0.149
+    ],
+    [
+     0.3412,
+     0.251,
+     0.1725
+    ],
+    [
+     0.3725,
+     0.3412,
+     0.251
+    ],
+    [
+     0.4392,
+     0.3882,
+     0.3137
+    ],
+    [
+     0.7569,
+     0.6863,
+     0.5647
+    ],
+    [
+     0.7216,
+     0.5216,
+     0.3647
+    ],
+    [
+     0.6157,
+     0.4431,
+     0.3059
+    ]
+   ],
+   "versione": "731ed135e3"
+  },
+  {
+   "id": "togna",
+   "file": "togna.glb",
+   "lod1": {
+    "file": "togna.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.62,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 384,
+   "generatore": "tripo_h3_1_image_to_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 13,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "La lavandaia; curvo 1 quando è china sulla vasca (raggiungi() per le mani nell'acqua). Tripo, dal pilota.",
+   "tavolozza": [
+    [
+     0.4353,
+     0.2549,
+     0.1608
+    ],
+    [
+     0.498,
+     0.298,
+     0.1843
+    ],
+    [
+     0.4118,
+     0.3098,
+     0.2314
+    ],
+    [
+     0.3412,
+     0.2627,
+     0.1922
+    ],
+    [
+     0.6941,
+     0.5294,
+     0.3843
+    ],
+    [
+     0.7843,
+     0.7333,
+     0.6549
+    ],
+    [
+     0.7216,
+     0.6157,
+     0.4588
+    ],
+    [
+     0.5686,
+     0.4431,
+     0.3059
+    ]
+   ],
+   "versione": "a26ddb62a4"
+  },
+  {
+   "id": "bortolo",
+   "file": "bortolo.glb",
+   "lod1": {
+    "file": "bortolo.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.8,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 360,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 13,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Il campanaro: cappello di feltro nero sopra il velo, martello e chiavi d'ottone alla cintura (nel modello).",
+   "tavolozza": [
+    [
+     0.1922,
+     0.1412,
+     0.102
+    ],
+    [
+     0.1529,
+     0.1176,
+     0.0863
+    ],
+    [
+     0.2353,
+     0.1569,
+     0.0902
+    ],
+    [
+     0.2784,
+     0.1882,
+     0.102
+    ],
+    [
+     0.1098,
+     0.0863,
+     0.0706
+    ],
+    [
+     0.5686,
+     0.3843,
+     0.251
+    ],
+    [
+     0.4706,
+     0.302,
+     0.1922
+    ],
+    [
+     0.5882,
+     0.5216,
+     0.4353
+    ]
+   ],
+   "versione": "667b7469c0"
+  },
+  {
+   "id": "pina",
+   "file": "pina.glb",
+   "lod1": {
+    "file": "pina.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.52,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 426,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.45,
+   "oggetti": [
+    "forbici@manoD",
+    "figura-di-cartone@manoS"
+   ],
+   "note": "L'Ombrista, 81 anni: cappuccio di lana grigia, scialle, grembiule ocra; piccola (1,52 m) e curva.",
+   "tavolozza": [
+    [
+     0.2431,
+     0.2118,
+     0.1765
+    ],
+    [
+     0.2863,
+     0.2471,
+     0.2
+    ],
+    [
+     0.1882,
+     0.1686,
+     0.1451
+    ],
+    [
+     0.3333,
+     0.2863,
+     0.2314
+    ],
+    [
+     0.098,
+     0.0941,
+     0.0902
+    ],
+    [
+     0.4745,
+     0.4275,
+     0.3686
+    ],
+    [
+     0.6039,
+     0.498,
+     0.3529
+    ],
+    [
+     0.4078,
+     0.3647,
+     0.302
+    ]
+   ],
+   "versione": "d438745b6f"
+  },
+  {
+   "id": "annunciata",
+   "file": "annunciata.glb",
+   "lod1": {
+    "file": "annunciata.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.56,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 372,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 11,
+   "curvo": 0.55,
+   "oggetti": [
+    "bastone@manoD"
+   ],
+   "note": "Vecchia, velo noce scuro fino ai gomiti; curva (la curva la fa l'animatore), 1,56 m.",
+   "tavolozza": [
+    [
+     0.2118,
+     0.1333,
+     0.0784
+    ],
+    [
+     0.1725,
+     0.1059,
+     0.0667
+    ],
+    [
+     0.2588,
+     0.1647,
+     0.102
+    ],
+    [
+     0.3137,
+     0.1961,
+     0.1176
+    ],
+    [
+     0.1176,
+     0.0902,
+     0.0706
+    ],
+    [
+     0.4863,
+     0.3529,
+     0.1804
+    ],
+    [
+     0.4,
+     0.2745,
+     0.1373
+    ],
+    [
+     0.5647,
+     0.4353,
+     0.251
+    ]
+   ],
+   "versione": "8245b391b0"
+  },
+  {
+   "id": "nando",
+   "file": "nando.glb",
+   "lod1": {
+    "file": "nando.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 6614
+   },
+   "altezza": 1.76,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 346,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "scoperto",
+   "gonna": false,
+   "apertura": 10,
+   "curvo": 0.0,
+   "oggetti": [
+    "pietra@manoD"
+   ],
+   "note": "Lo Smascherato: testa scoperta, volto dipinto e stilizzato, barba grigia corta.",
+   "tavolozza": [
+    [
+     0.4078,
+     0.3333,
+     0.2235
+    ],
+    [
+     0.702,
+     0.6392,
+     0.498
+    ],
+    [
+     0.3333,
+     0.2784,
+     0.2
+    ],
+    [
+     0.6471,
+     0.4824,
+     0.349
+    ],
+    [
+     0.251,
+     0.1961,
+     0.1373
+    ],
+    [
+     0.5843,
+     0.3961,
+     0.2745
+    ],
+    [
+     0.651,
+     0.5569,
+     0.4039
+    ],
+    [
+     0.4275,
+     0.4,
+     0.3765
+    ]
+   ],
+   "versione": "f91974cba0"
+  },
+  {
+   "id": "clelia",
+   "file": "clelia.glb",
+   "lod1": {
+    "file": "clelia.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.68,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 408,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "maschera",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [
+    "pacchetto@manoS"
+   ],
+   "note": "Novizia della Confraternita: veste di garza nero-viola fino a terra, maschera ovale di castagno senza tratti.",
+   "tavolozza": [
+    [
+     0.0588,
+     0.0588,
+     0.0588
+    ],
+    [
+     0.0941,
+     0.0824,
+     0.0902
+    ],
+    [
+     0.1255,
+     0.1098,
+     0.1255
+    ],
+    [
+     0.1647,
+     0.1412,
+     0.1686
+    ],
+    [
+     0.5412,
+     0.3686,
+     0.2667
+    ],
+    [
+     0.3412,
+     0.2706,
+     0.2392
+    ],
+    [
+     0.6471,
+     0.4863,
+     0.3725
+    ],
+    [
+     0.2941,
+     0.1686,
+     0.0784
+    ]
+   ],
+   "versione": "a58a2ce5b0"
+  },
+  {
+   "id": "lisa",
+   "file": "lisa.glb",
+   "lod1": {
+    "file": "lisa.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.25,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 398,
+   "generatore": "sam_3_3d",
+   "proporzioni": "bambino",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Nove anni: garza bianca annodata storta, nastro vermiglio al polso sinistro. Proporzioni da bambina (testa 1/5).",
+   "tavolozza": [
+    [
+     0.6745,
+     0.5765,
+     0.4314
+    ],
+    [
+     0.698,
+     0.6235,
+     0.4902
+    ],
+    [
+     0.7686,
+     0.7373,
+     0.6745
+    ],
+    [
+     0.6588,
+     0.5176,
+     0.3804
+    ],
+    [
+     0.3725,
+     0.298,
+     0.2196
+    ],
+    [
+     0.4275,
+     0.3843,
+     0.3333
+    ],
+    [
+     0.6275,
+     0.0902,
+     0.0353
+    ],
+    [
+     0.2,
+     0.1686,
+     0.1529
+    ]
+   ],
+   "versione": "49f869e16f"
+  },
+  {
+   "id": "gioanin",
+   "file": "gioanin.glb",
+   "lod1": {
+    "file": "gioanin.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.12,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 450,
+   "generatore": "sam_3_3d",
+   "proporzioni": "bambino",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Sei anni: garza bianca troppo lunga, calzoncini con le bretelle, zoccoli. Proporzioni da bambino.",
+   "tavolozza": [
+    [
+     0.3608,
+     0.2235,
+     0.1294
+    ],
+    [
+     0.7098,
+     0.6549,
+     0.5529
+    ],
+    [
+     0.8,
+     0.7608,
+     0.6863
+    ],
+    [
+     0.6745,
+     0.549,
+     0.4275
+    ],
+    [
+     0.2588,
+     0.1725,
+     0.1255
+    ],
+    [
+     0.098,
+     0.098,
+     0.0863
+    ],
+    [
+     0.4314,
+     0.3216,
+     0.2235
+    ],
+    [
+     0.6118,
+     0.4392,
+     0.3255
+    ]
+   ],
+   "versione": "491264bd34"
+  },
+  {
+   "id": "velata_donna",
+   "file": "velata_donna.glb",
+   "lod1": {
+    "file": "velata_donna.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.63,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 365,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [
+    "cesto@manoS (facoltativo)"
+   ],
+   "note": "Velata generica: garza noce, scialle verde salvia, gonna noce, grembiule ocra. Varianti con tinta/scala/posa.",
+   "tavolozza": [
+    [
+     0.2275,
+     0.149,
+     0.0824
+    ],
+    [
+     0.1765,
+     0.1255,
+     0.0667
+    ],
+    [
+     0.2745,
+     0.1843,
+     0.098
+    ],
+    [
+     0.0902,
+     0.0824,
+     0.0549
+    ],
+    [
+     0.5333,
+     0.4039,
+     0.2
+    ],
+    [
+     0.3294,
+     0.251,
+     0.1412
+    ],
+    [
+     0.6549,
+     0.4784,
+     0.3569
+    ],
+    [
+     0.6863,
+     0.5843,
+     0.4549
+    ]
+   ],
+   "versione": "8bc1890d3e"
+  },
+  {
+   "id": "velato_gerla",
+   "file": "velato_gerla.glb",
+   "lod1": {
+    "file": "velato_gerla.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7818
+   },
+   "altezza": 1.75,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 313,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": false,
+   "apertura": 12,
+   "curvo": 0.1,
+   "oggetti": [
+    "gerla@petto"
+   ],
+   "note": "Velato generico: cappello di feltro bruno, giacca ocra, fasce alle gambe. La gerla l'ha tolta sam_3_3d (ritaglia la persona): va attaccata come oggetto di scena all'osso petto, sulla schiena.",
+   "tavolozza": [
+    [
+     0.2745,
+     0.1843,
+     0.1059
+    ],
+    [
+     0.2235,
+     0.1529,
+     0.0902
+    ],
+    [
+     0.5098,
+     0.3961,
+     0.1961
+    ],
+    [
+     0.4549,
+     0.3451,
+     0.1686
+    ],
+    [
+     0.3961,
+     0.2824,
+     0.1412
+    ],
+    [
+     0.3255,
+     0.2235,
+     0.1176
+    ],
+    [
+     0.4667,
+     0.4,
+     0.3137
+    ],
+    [
+     0.5412,
+     0.3451,
+     0.2275
+    ]
+   ],
+   "versione": "52f1cf86c3"
+  },
+  {
+   "id": "velato_maschera",
+   "file": "velato_maschera.glb",
+   "lod1": {
+    "file": "velato_maschera.glb",
+    "mesh": "lod1",
+    "triangoli": 2000
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 8000
+   },
+   "altezza": 1.6,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 352,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "maschera",
+   "gonna": true,
+   "apertura": 11,
+   "curvo": 0.35,
+   "oggetti": [
+    "bastone@manoD"
+   ],
+   "note": "Anziano generico: cappuccio noce, maschera di castagno con due tagli per gli occhi, mantellina grigio-viola, cappotto lungo.",
+   "tavolozza": [
+    [
+     0.349,
+     0.2471,
+     0.1608
+    ],
+    [
+     0.1922,
+     0.1451,
+     0.0902
+    ],
+    [
+     0.2471,
+     0.1765,
+     0.1176
+    ],
+    [
+     0.2863,
+     0.2118,
+     0.149
+    ],
+    [
+     0.1373,
+     0.1176,
+     0.0824
+    ],
+    [
+     0.0784,
+     0.0745,
+     0.0588
+    ],
+    [
+     0.3608,
+     0.3176,
+     0.2902
+    ],
+    [
+     0.549,
+     0.3882,
+     0.2667
+    ]
+   ],
+   "versione": "bb9666452a"
+  },
+  {
+   "id": "velato_cappuccio",
+   "file": "velato_cappuccio.glb",
+   "lod1": {
+    "file": "velato_cappuccio.glb",
+    "mesh": "lod1",
+    "triangoli": 1999
+   },
+   "lod0": {
+    "mesh": "lod0",
+    "triangoli": 7999
+   },
+   "altezza": 1.7,
+   "ossa": [
+    "bacino",
+    "schiena",
+    "petto",
+    "collo",
+    "testa",
+    "braccioS",
+    "avambraccioS",
+    "manoS",
+    "braccioD",
+    "avambraccioD",
+    "manoD",
+    "cosciaS",
+    "stincoS",
+    "piedeS",
+    "cosciaD",
+    "stincoD",
+    "piedeD"
+   ],
+   "kb": 362,
+   "generatore": "sam_3_3d",
+   "proporzioni": "adulto",
+   "volto": "velo",
+   "gonna": true,
+   "apertura": 12,
+   "curvo": 0.0,
+   "oggetti": [],
+   "note": "Figura incappucciata generica: cappuccio e mantello grigio-viola aperto davanti, tunica ocra, velo noce dentro il cappuccio.",
+   "tavolozza": [
+    [
+     0.1961,
+     0.1608,
+     0.1333
+    ],
+    [
+     0.2392,
+     0.2,
+     0.1647
+    ],
+    [
+     0.1451,
+     0.1216,
+     0.098
+    ],
+    [
+     0.2941,
+     0.2627,
+     0.2392
+    ],
+    [
+     0.3412,
+     0.3137,
+     0.2941
+    ],
+    [
+     0.0863,
+     0.0824,
+     0.0745
+    ],
+    [
+     0.4196,
+     0.3216,
+     0.2275
+    ],
+    [
+     0.5373,
+     0.4314,
+     0.298
+    ]
+   ],
+   "versione": "972689f5f4"
+  }
+ ]
+}

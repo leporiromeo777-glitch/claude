@@ -1,0 +1,5 @@
+{
+  "//": "Solo per controllare i tipi della pagina di prova: npx tsc -p tools/personaggi",
+  "extends": "../../tsconfig.json",
+  "include": ["prova.ts", "compila.ts", "../../src/personaggi", "../../src/oggetti"]
+}

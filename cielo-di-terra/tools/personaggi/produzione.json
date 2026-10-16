@@ -1,0 +1,18 @@
+{
+ "_nota": "Lavori Higgsfield della produzione dei personaggi (dopo il pilota). immagini: le due varianti (a, b) di gpt_image_2_5, tutte con la sorgente di Togna (media 1918f415-69cf-4d4b-ba2b-53a52b9170f4) come riferimento di stile; scelta: la variante convertita in 3D; tre_d: il job della conversione. Prompt: tools/personaggi/prompt.py --id <id>. Spese: docs/personaggi/crediti.md.",
+ "riferimento_stile": "1918f415-69cf-4d4b-ba2b-53a52b9170f4",
+ "personaggi": {
+  "bortolo": { "immagini": ["42643337-2d38-4527-b3ec-ef221d409ef0", "aac0b40d-72b1-4a13-bd0d-c12c111694c6"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the man with the hat", "job": "748d5c12-54d2-42db-9b76-e8390e49fd16" } },
+  "ottavio": { "immagini": ["88ae706e-2bc4-4865-9281-ea9713b4b87a", "8114f4ac-7325-4fda-a885-8fd505a03877"], "scelta": "a", "tre_d": { "modello": "tripo_h3_1_image_to_3d", "job": "7e9e85c5-7c66-4d93-8e59-63b3244253c6" } },
+  "nando": { "immagini": ["47260afd-cfcd-464d-9580-ce288dd35a2d", "d93fcd13-f4d3-4b3b-9670-aa7ddabbb711"], "scelta": "a", "tre_d": { "modello": "sam_3_3d", "prompt": "the man", "job": "1c6186bc-21cc-48f2-bbc3-346f207a48a9" } },
+  "pina": { "immagini": ["fcae12da-3168-46fd-bad3-d23b4640ef61", "587e1a75-e48f-46e7-8c65-a710d01aff57"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the old woman", "job": "c19a36ed-cd51-4cce-923a-2d8efb3ccc18" } },
+  "annunciata": { "immagini": ["2d3ccbf1-2287-426e-a355-44809c72e449", "7c23fa13-fe89-408a-afa9-e48ad7660b2c"], "scelta": "a", "tre_d": { "modello": "sam_3_3d", "prompt": "the old woman", "job": "27324392-b49a-4c67-abd9-cd22f80c4f31" } },
+  "clelia": { "immagini": ["0e3f5470-8c88-4236-8324-66175239f6ee", "ab4db775-14ee-46bf-86fb-24eca2fd7398"], "scelta": "a", "tre_d": { "modello": "sam_3_3d", "prompt": "the hooded woman", "job": "14c33250-b2e9-4618-9971-577f71643d3e" } },
+  "lisa": { "immagini": ["00c156ea-b58e-479f-a824-59406bfbcde1", "f0c179a8-d07d-4c96-b50c-528e5cfcba5c"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the girl", "job": "08f20283-1115-495a-a8a9-be032e843369" } },
+  "gioanin": { "immagini": ["e235b0e1-6505-491d-8bec-10c499d1c8a3", "40fb6a6b-dcbc-487d-89f0-c3e56c8e7d86"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the child", "job": "1dd5394c-d934-4547-ab0d-dd9eb7430239", "fallito_e_rimborsato": "27e5f42b-5f6b-40bc-b251-41224204e54a (prompt «the boy»)" } },
+  "velata_donna": { "immagini": ["36526316-2f4b-4bbd-875b-1d9973707a6e", "bbd59806-35a1-4334-965c-119bb42ae2fd"], "scelta": "a", "tre_d": { "modello": "sam_3_3d", "prompt": "the woman", "job": "7962b631-0dc9-49cc-844f-e2378e6625d6" } },
+  "velato_gerla": { "immagini": ["818632b3-97be-4c92-92d1-6fbc173a6691", "e4b1a8b0-7a41-413c-b75d-f8c4fda78c22"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the man with the basket on his back", "job": "28197ec4-753e-4746-91cf-2bb2c8c5211a" } },
+  "velato_maschera": { "immagini": ["76a899e5-e0be-4b94-863e-ff3ad3586a9d", "e37cc0b7-438e-4b1e-9df9-b8a15400868a"], "scelta": "a", "tre_d": { "modello": "sam_3_3d", "prompt": "the hooded man", "job": "22b08589-2c40-4c99-a02b-1617d6da51bb" } },
+  "velato_cappuccio": { "immagini": ["22ada67f-a922-4c68-bb20-324c4137a73c", "f55136de-53ed-4ad7-a7bb-7ff5c71311e0"], "scelta": "b", "tre_d": { "modello": "sam_3_3d", "prompt": "the hooded man", "job": "837ad541-d712-4de7-ac28-b300c271bb8c" } }
+ }
+}

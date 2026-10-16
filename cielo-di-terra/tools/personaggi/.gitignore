@@ -1,0 +1,6 @@
+__pycache__/
+# schermate e prove locali
+schermate/
+pilota/_*
+# copie temporanee di common.ts di altri rami (compila.mjs)
+_common/

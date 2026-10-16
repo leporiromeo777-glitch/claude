@@ -12,6 +12,7 @@
  */
 import type { Object3D, Vector3 } from 'three';
 import type { ManigliaCorbella, ManigliaNpc } from '../popolamento';
+import { battutaPersonaggio } from '../personaggi/fabbrica';
 import { METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, deltaDeg, surfaceDistance } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
@@ -221,6 +222,15 @@ export class Abitanti {
   voltaVerso(id: string, elvira: { z: number; theta: number }): void {
     const n = this.npc(id);
     if (n?.presente && !n.inCammino && !this.inVolo(n)) n.orientaVerso(elvira);
+  }
+
+  /**
+   * Comincia una battuta di `id`: i personaggi nuovi fanno un cenno del capo o un gesto breve
+   * (src/personaggi/fabbrica.ts, battutaPersonaggio); le figure procedurali niente.
+   */
+  battuta(id: string): void {
+    const n = this.npc(id);
+    if (n?.presente && n.figura && !n.inCammino) battutaPersonaggio(n.figura);
   }
 
   /** I velati della piazza si voltano tutti insieme verso Elvira (evento:velati_si_voltano). */

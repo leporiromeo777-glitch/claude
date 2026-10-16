@@ -153,6 +153,8 @@ export class DirettoreDialoghi {
     this.r.ui.dialogo.show(this.battuta(v));
     // chi parla si gira verso Elvira, se la didascalia non dice il contrario («Non si gira»)
     if (!/non si gira/i.test(v.didascalia ?? '')) this.r.abitanti.voltaVerso(v.chi, this.r.game.player.cyl);
+    // a ogni battuta un cenno o un gesto breve (solo i personaggi nuovi, src/personaggi)
+    this.r.abitanti.battuta(v.chi);
     return true;
   }
 
@@ -182,6 +184,7 @@ export class DirettoreDialoghi {
     if (prossimo) {
       this.vista = prossimo;
       this.r.ui.dialogo.show(this.battuta(prossimo));
+      this.r.abitanti.battuta(prossimo.chi);
     } else this.chiudi();
   }
 
