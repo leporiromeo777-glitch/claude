@@ -92,6 +92,8 @@ export class Squadro implements SistemaGioco {
   private miraCorrente: { id: string | null; tempo: number; appuntato: boolean } = { id: null, tempo: 0, appuntato: false };
   private passo = 0;
   private derivaBolla = 0;
+  /** durata dell'ultimo fotogramma (s), da `render` */
+  private dtFotogramma = 1 / 60;
 
   constructor(
     private game: Game,
@@ -217,12 +219,20 @@ export class Squadro implements SistemaGioco {
     }
   }
 
+  /** Il tempo vero del fotogramma (lo dà il motore prima del disegno): l'animazione in mano lo segue. */
+  render(frameDt: number): void {
+    this.dtFotogramma = Math.min(0.1, Math.max(0, frameDt));
+  }
+
   overlay(renderer: WebGLRenderer): void {
     if (this.stato === 'riposto' || this.telescopio || this.bloccato || !this.fp) return;
     const g = this.game;
     const v = g.player.vel.length();
-    this.passo += (Math.min(1, v / 7) - this.passo) * 0.1;
-    this.fp.update?.(1 / 60, { posa: this.stato === 'piantato' ? 'piantato' : 'mano', passo: g.player.grounded ? this.passo : 0, mira: 0 });
+    // avanza col tempo vero del fotogramma (prima: un passo fisso di 1/60 per fotogramma, quindi più
+    // veloce o più lento secondo il frame rate, che cambia molto con la qualità)
+    const dt = this.dtFotogramma;
+    this.passo += (Math.min(1, v / 7) - this.passo) * (1 - Math.exp(-6 * dt));
+    this.fp.update?.(dt, { posa: this.stato === 'piantato' ? 'piantato' : 'mano', passo: g.player.grounded ? this.passo : 0, mira: 0 });
     const aspetto = g.camera.aspect;
     if (this.camera.aspect !== aspetto || this.camera.fov !== g.settings.fov) {
       this.camera.aspect = aspetto;

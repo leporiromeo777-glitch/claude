@@ -10,18 +10,28 @@
  * cilindro (`posaAvvolta`: la traversa del Velo, l'asta dello squadro, l'anello della botola).
  */
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import { CUOIO_CUCITO, FormePrimoPiano, MATERIA, misto, type Colore } from '../../render/primoPiano';
+import { CUOIO_CUCITO, FormePrimoPiano, LANA_MAGLIA, MATERIA, misto, type Colore } from '../../render/primoPiano';
 import { PALETTE } from '../palette';
 
-/** Colori dei guanti e della giacca (bozzetti 1, 2, 3: cuoio marrone, lana verde oliva). */
+/**
+ * Colori dei guanti e della giacca (bozzetti 1, 2, 3: cuoio scuro cucito, lana verde oliva).
+ * Rifinitura 1: il cuoio era un bruno rossiccio chiaro che con la luce calda sembrava pelle nuda;
+ * ora è un cuoio scuro (#4b3426) con le luci consumate (#6e4c34) e il polsino a manopola più
+ * chiaro (#8a6a4a), che sta sopra la lana come nel bozzetto 2.
+ */
 export const COLORI_MANI = {
-  guanto: 0x7a5136,
-  guantoChiaro: 0x9c6c47,
-  guantoScuro: 0x4a2f20,
-  cinghia: 0x3e2a1e,
+  guanto: 0x4b3426,
+  guantoChiaro: 0x6e4c34,
+  guantoScuro: 0x2c1f17,
+  /** polsino a manopola, cuoio più chiaro e meno conciato */
+  manopola: 0x7a5e45,
+  manopolaOrlo: 0x5e4430,
+  cinghia: 0x2e2119,
   fibbia: PALETTE.ottoneScuro,
-  manica: 0x5f6a3e,
-  manicaScura: 0x4a5330,
+  // verde oliva spento, quasi cachi (bozzetti 1 e 2), non il verde saturo di un tubo di plastica:
+  // la post-produzione satura, quindi la base tira al bruno
+  manica: 0x67624c,
+  manicaScura: 0x4c4838,
   polsino: 0x535d36,
 } as const;
 
@@ -131,7 +141,7 @@ export interface OpzioniMano {
   colore?: Colore;
   /** consumo del cuoio (0..1): più chiaro sulle nocche */
   consumo?: number;
-  /** cinghia al polso con la fibbia */
+  /** cinghia al polso con la fibbia (predefinito no: le fibbie d'ottone si leggevano come puntini gialli) */
   cinghia?: boolean;
   /** fasce di cuoio avvolte al polso (bozzetto 3) */
   fasce?: boolean;
@@ -161,11 +171,13 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
   );
   // eminenza del pollice (sotto, verso −X)
   f.ellissoide(new Vector3(-0.022, -0.009, -0.03), new Vector3(0.019, 0.014, 0.031), new Quaternion().setFromAxisAngle(Y, 0.35), { colore: g, materia: MATERIA.CUOIO, occlusione: 0.25 });
-  // cuciture sul dorso (tre righe appena in rilievo verso le nocche, come i guanti da lavoro)
+  // cuciture sul dorso (tre righe di filo scuro verso le nocche, come i guanti da lavoro) e la
+  // cucitura del bordo del dorso, che gira attorno al pollice
   for (let i = 0; i < 3; i++) {
     const x = -0.021 + i * 0.021;
-    f.tubo([new Vector3(x * 0.6, 0.0118, -0.03), new Vector3(x, 0.0138, -0.055), new Vector3(x * 1.05, 0.0142, -0.074)], 0.0013, { colore: scuro, materia: MATERIA.CUOIO, segmenti: 4, chiudiInizio: true, chiudiFine: true, occlusione: 0.2 });
+    f.tubo([new Vector3(x * 0.6, 0.0118, -0.03), new Vector3(x, 0.0138, -0.055), new Vector3(x * 1.05, 0.0142, -0.074)], 0.0011, { colore: COLORI_MANI.guantoScuro, materia: MATERIA.CUOIO, segmenti: 4, chiudiInizio: true, chiudiFine: true, occlusione: 0.3 });
   }
+  f.tubo([new Vector3(-0.026, 0.006, -0.012), new Vector3(-0.031, 0.009, -0.04), new Vector3(-0.034, 0.008, -0.07)], 0.001, { colore: COLORI_MANI.guantoScuro, materia: MATERIA.CUOIO, segmenti: 4, occlusione: 0.3 });
   // dita
   for (let i = 0; i < 4; i++) {
     const d = DITA[i]!;
@@ -210,22 +222,24 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
     chiudiInizio: true,
     occlusione: 0.12,
   });
-  // polsino a manopola: si allarga verso il gomito, orlo cucito
+  // polsino a manopola (bozzetto 2): cuoio più chiaro, 7-8 cm, si allarga verso il gomito e sta
+  // SOPRA la lana (la manica parte da dentro); la cucitura scura corre lungo il dorso
   const av = new Vector3(0, -0.12, 1).normalize();
   const w0 = new Vector3(0, 0, 0.0);
-  const w1 = w0.clone().addScaledVector(av, 0.062);
-  f.tubo([w0.clone().addScaledVector(av, -0.012), w0.clone().addScaledVector(av, 0.03), w1], [0.032, 0.035, 0.042], {
-    colore: misto(g, COLORI_MANI.guantoScuro, 0.25),
+  const w1 = w0.clone().addScaledVector(av, 0.078);
+  const mano = COLORI_MANI.manopola;
+  f.tubo([w0.clone().addScaledVector(av, -0.014), w0.clone().addScaledVector(av, 0.02), w0.clone().addScaledVector(av, 0.05), w1], [0.032, 0.035, 0.043, 0.049], {
+    colore: (p, u) => misto(misto(mano, g, Math.max(0, 0.3 - u * 6)), COLORI_MANI.manopolaOrlo, p.y < -0.012 ? 0.35 : 0),
     materia: CUOIO_CUCITO,
-    ellisse: 0.72,
+    ellisse: 0.82,
     lato: X.clone(),
     giro: 0.25,
-    segmenti: 14,
-    occlusione: (p) => (p.y < -0.01 ? 0.25 : 0.06),
+    segmenti: 16,
+    occlusione: (p, u) => (p.y < -0.012 ? 0.3 : 0.05) + Math.max(0, 0.25 - u * 4),
   });
-  // orlo del polsino
-  f.tubo([w1.clone().addScaledVector(av, -0.004), w1.clone().addScaledVector(av, 0.004)], 0.0445, { colore: chiaro, materia: MATERIA.CUOIO, ellisse: 0.72, lato: X.clone(), segmenti: 14, occlusione: 0.1 });
-  if (o.cinghia ?? true) {
+  // orlo del polsino, rivoltato e più scuro
+  f.tubo([w1.clone().addScaledVector(av, -0.006), w1.clone().addScaledVector(av, 0.004)], 0.0515, { colore: COLORI_MANI.manopolaOrlo, materia: MATERIA.CUOIO, ellisse: 0.82, lato: X.clone(), segmenti: 16, occlusione: 0.12 });
+  if (o.cinghia ?? false) {
     // cinghia attorno al polso con la fibbia sul dorso
     const c = w0.clone().addScaledVector(av, 0.03);
     f.tubo([c.clone().addScaledVector(av, -0.007), c.clone().addScaledVector(av, 0.007)], 0.0375, { colore: COLORI_MANI.cinghia, materia: MATERIA.CUOIO, ellisse: 0.74, lato: X.clone(), segmenti: 14, occlusione: 0.15 });
@@ -249,7 +263,8 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
       f.tubo(pts, 0.0045, { colore: k ? scuro : misto(g, COLORI_MANI.guantoChiaro, 0.3), materia: MATERIA.CUOIO, ellisse: 0.45, segmenti: 6, occlusione: 0.1 });
     }
   }
-  return { polso: w1.clone().addScaledVector(av, 0.004), avambraccio: av };
+  // la manica parte da dentro la manopola (2,5 cm prima dell'orlo): il cuoio le sta sopra
+  return { polso: w1.clone().addScaledVector(av, -0.026), avambraccio: av };
 }
 
 /**
@@ -262,31 +277,57 @@ export function manica(f: FormePrimoPiano, polso: Vector3, gomito: Vector3, o: {
   const dir = d.clone().normalize();
   const seme = o.seme ?? 0.3;
   const lato = o.lato ?? new Vector3(1, 0, 0);
-  // polsino a coste (copre il bordo del guanto)
-  const p0 = polso.clone().addScaledVector(dir, -0.012);
-  const p1 = polso.clone().addScaledVector(dir, 0.045);
-  f.tubo([p0, p1], [0.052, 0.054], { colore: COLORI_MANI.polsino, materia: MATERIA.LANA, ellisse: 0.82, lato, segmenti: 18, occlusione: 0.08, chiudiInizio: false });
-  // orlo del polsino arrotolato
-  f.tubo([p0.clone().addScaledVector(dir, -0.002), p0.clone().addScaledVector(dir, 0.008)], 0.0545, { colore: misto(COLORI_MANI.polsino, 0x000000, 0.15), materia: MATERIA.LANA, ellisse: 0.82, lato, segmenti: 18, occlusione: 0.15 });
-  // corpo della manica, con le pieghe
+  // la manica esce dalla manopola del guanto (che le sta sopra): stretta al polso, poi si allarga;
+  // lana a maglia fitta a basso contrasto (`LANA_MAGLIA`), pieghe morbide e larghe, non a coste
+  const p0 = polso.clone();
   const pts: Vector3[] = [];
   const n = 8;
   for (let i = 0; i <= n; i++) {
     const t = i / n;
-    const p = p1.clone().addScaledVector(dir, t * (l - 0.03));
+    const p = p0.clone().addScaledVector(dir, t * (l - 0.01));
     // la stoffa cede un poco verso il basso
     p.y -= Math.sin(t * Math.PI) * 0.012;
     pts.push(p);
   }
-  const r = (t: number) => 0.058 + t * 0.022 + Math.sin(t * 19 + seme * 7) * 0.0035 * (1 - t * 0.5) + Math.max(0, Math.sin(t * 7.5 + seme * 3)) * 0.004;
+  const r = (t: number) => {
+    const s = t * l;
+    // stretta al polso, poi la lana si gonfia in pieghe larghe (sbuffi) e torna a stringersi
+    const sbuffi = Math.max(0, Math.sin(s * 16 + seme * 7)) * 0.009 * Math.min(1, s / 0.06) * (1 - t * 0.6);
+    return 0.036 + Math.min(1, s / 0.08) * 0.014 + t * 0.012 + sbuffi + Math.max(0, Math.sin(t * 5.5 + seme * 3)) * 0.003;
+  };
+  // pieghe di sbieco (la stoffa si arriccia dove il braccio si piega): più scure e più in ombra
+  const piega = (u: number, v: number) => Math.max(0, Math.sin(u * 24 + Math.sin(v * 6.283) * 1.6 + seme * 5)) ** 2;
   f.tubo(pts, r, {
-    colore: (_p, u) => misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, Math.max(0, Math.sin(u * 46 + seme * 5)) * 0.35),
-    materia: MATERIA.LANA,
+    colore: (_p, u, v) => misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, piega(u, v) * 0.45),
+    materia: LANA_MAGLIA,
     ellisse: 0.86,
     lato,
     segmenti: 18,
-    passi: 26,
-    occlusione: (_p, u) => Math.max(0, 0.25 - u * 2.5) + Math.max(0, Math.sin(u * 46 + seme * 5)) * 0.18,
+    passi: 30,
+    occlusione: (_p, u, v) => Math.max(0, 0.3 - u * 3) + piega(u, v) * 0.22,
+  });
+}
+
+/**
+ * Il braccio dal gomito alla spalla (spazio di chi chiama): la stessa lana della manica, più larga,
+ * con la piega del gomito all'inizio. Va quasi sempre fuori campo: serve perché la manica non
+ * finisca nel vuoto quando il gomito si vede.
+ */
+export function braccio(f: FormePrimoPiano, gomito: Vector3, spalla: Vector3, o: { seme?: number; lato?: Vector3 } = {}): void {
+  const seme = o.seme ?? 0.3;
+  const d = spalla.clone().sub(gomito);
+  const pts: Vector3[] = [];
+  for (let i = 0; i <= 4; i++) pts.push(gomito.clone().addScaledVector(d, i / 4 - (i === 0 ? 0.08 : 0)));
+  const piega = (u: number, v: number) => Math.max(0, Math.sin(u * 20 + Math.sin(v * 6.283) * 1.4 + seme * 3)) ** 2;
+  f.tubo(pts, (t) => 0.07 + t * 0.012 + Math.max(0, Math.sin(t * 9 + seme * 5)) * 0.004, {
+    colore: (_p, u, v) => misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, 0.12 + piega(u, v) * 0.4),
+    materia: LANA_MAGLIA,
+    ellisse: 0.9,
+    lato: o.lato ?? new Vector3(1, 0, 0),
+    segmenti: 16,
+    passi: 12,
+    chiudiInizio: true,
+    occlusione: (_p, u, v) => 0.15 + piega(u, v) * 0.2,
   });
 }
 

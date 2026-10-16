@@ -14,7 +14,7 @@ import { formaArco, geoBoxC, geoCilindro, geoCiuffo, geoCono, geoEstrusione, geo
 import { PALETTE } from '../oggetti/palette';
 import { Rng, semeNumerico, type Seme } from '../oggetti/rng';
 import type { Collider, OggettoProcedurale } from '../oggetti/tipi';
-import { facciata, finestra, inF, porta, tettoPiode } from '../oggetti/oggetti/dettagli';
+import { cantonali, facciata, finestra, inF, porta, tettoPiode } from '../oggetti/oggetti/dettagli';
 import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../oggetti/superfici';
 import { testaLanterna } from '../oggetti/oggetti/lumi';
 
@@ -173,19 +173,65 @@ export function creaChiesa(opz: OpzioniChiesa = {}): OggettoProcedurale {
  * Lavatoio coperto: vasca di granito con l'acqua, quattro pilastri di pietra e una tettoia di piode
  * (costruita dopo il 2121: copre la vista della cella campanaria dal chiodo 5). Il primo gradino è a
  * +Z (davanti), con il chiodo 5 al centro.
+ *
+ * `dislivello` (rifinitura 1): il lavatoio sta su un pendio di 21°, e la vasca restava sepolta. Con
+ * `dislivello` > 0 il lastricato (y = 0) sta su un basamento di pietra che scende nel pendio, la vasca
+ * è più avanti e una scalinata scende di `dislivello` fino al primo gradino, quello del chiodo, che
+ * resta alla sua quota (y = −dislivello). La tettoia, alzata con il resto, copre ancora la cella.
  */
-export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
+export function creaLavatoio(seme: Seme = 'lavatoio', dislivello = 0): OggettoProcedurale {
   const s = semeNumerico(seme);
   const rng = new Rng(s);
   const b = new Costruttore(rng);
   const LX = 5.6; // lungo X
   const LZ = 2.2;
-  const zV = -1.4; // centro della vasca
-  // piattaforma di lastre e gradino davanti
+  // la vasca sta verso il davanti (rifinitura 1): dietro il pendio sale e la seppelliva
+  const zV = dislivello > 0 ? 0.1 : -1.4; // centro della vasca
+  const Δ = Math.max(0, dislivello);
+  // il piano del lastricato (y = 0) e, davanti, i gradini che scendono di `dislivello` fino al primo,
+  // quello del chiodo 5 (il suo piano a −dislivello + 0,085: la testa del chiodo a filo)
+  const piano = 0.12;
+  const nGradini = Δ > 0 ? Math.max(1, Math.round((Δ + 0.035) / 0.21)) : 0;
+  const alzata = nGradini ? (piano - (-Δ + 0.085)) / nGradini : 0;
+  const pedata = 0.45;
+  const zPrimo = 3.4;
+  /** fronte del lastricato (dietro all'ultimo gradino) */
+  const zFronte = Δ > 0 ? zPrimo - 0.325 - (nGradini - 1) * pedata : 2.5;
+  const zRetro = -3.7;
+  const fondo = -Δ - 1.4;
   const supP = sup(SUP.PIETRA, rng.next());
-  b.aggiungi(geoLastra(7.4, 0.5, 6.2, rng.intero(0, 1e6), 0.04), { matrice: mat([0, -0.12, -0.6]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
-  b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 3.4]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true, superficie: supP });
-  b.aggiungi(geoLastra(4.0, 0.5, 0.7, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.12, 2.75]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+  if (Δ > 0) {
+    // lastricato sopra un basamento di pietra a scarpa che scende nel pendio (si vede davanti e a Sera)
+    b.aggiungi(geoLastra(7.4, 0.5, zFronte - zRetro, rng.intero(0, 1e6), 0.03), { matrice: mat([0, piano - 0.5, (zFronte + zRetro) / 2]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+    b.aggiungi(geoLastra(7.6, piano - 0.5 - fondo, zFronte - zRetro + 0.2, rng.intero(0, 1e6), 0.02), {
+      matrice: mat([0, fondo, (zFronte + zRetro) / 2 - 0.05]),
+      colore: PALETTE.gneissScuro,
+      gradiente: { basso: 0.65, alto: 0.95, y0: fondo, y1: piano },
+      variazione: 0.06,
+      piatto: true,
+      superficie: sup(SUP.PIETRA, rng.next()),
+      occlusione: occlusionePiede(0.6, 0.45),
+    });
+    // la scalinata: gradini di lastre larghe, il primo (con il chiodo 5) quasi a filo del suolo
+    for (let k = 0; k < nGradini; k++) {
+      const top = -Δ + 0.085 + k * alzata;
+      const z = zPrimo - k * pedata;
+      const pd = k === 0 ? 0.65 : pedata + 0.06;
+      b.aggiungi(geoLastra(k === 0 ? 4.0 : 3.4, top - fondo, pd, rng.intero(0, 1e6), 0.03), {
+        matrice: mat([0, fondo, z]),
+        colore: k === 0 ? PALETTE.gneissChiaro : mescola(PALETTE.gneiss, PALETTE.gneissChiaro, 0.4 + 0.15 * (k % 2)),
+        variazione: 0.05,
+        piatto: true,
+        superficie: supP,
+        occlusione: (p) => (p.y < top - 0.12 ? 0.35 : 0.04),
+      });
+    }
+  } else {
+    // piattaforma di lastre e gradino davanti
+    b.aggiungi(geoLastra(7.4, 0.5, 6.2, rng.intero(0, 1e6), 0.04), { matrice: mat([0, -0.12, -0.6]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+    b.aggiungi(geoLastra(4.2, 0.3, 0.8, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.08, 3.4]), colore: PALETTE.gneissChiaro, variazione: 0.05, piatto: true, superficie: supP });
+    b.aggiungi(geoLastra(4.0, 0.5, 0.7, rng.intero(0, 1e6), 0.05), { matrice: mat([0, -0.12, 2.75]), colore: PALETTE.gneiss, variazione: 0.05, piatto: true, superficie: supP });
+  }
   // vasca di granito: bordo spesso, fianchi scuriti dall'acqua, pietra per lavare inclinata
   b.aggiungi(geoBoxC(LX, 0.85, LZ), { matrice: mat([0, 0.55, zV]), colore: 0x9c968e, rumore: 0.05, gradiente: { basso: 0.7, alto: 1.05, y0: 0.12, y1: 0.97 }, piatto: true, superficie: sup(SUP.PIETRA, 0.8), occlusione: occlusionePiede(0.7, 0.45) });
   for (const sz of [-1, 1]) b.aggiungi(geoBoxC(LX + 0.06, 0.12, 0.2), { matrice: mat([0, 0.98, zV + sz * (LZ / 2 - 0.1)]), colore: 0xb0aaa0, piatto: true, superficie: sup(SUP.PIETRA, 0.3) });
@@ -197,23 +243,25 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
   b.aggiungi(geoLastra(0.7, 0.12, 0.6, rng.intero(0, 1e6), 0.08), { matrice: mat([LX / 2 + 0.12, 1.43, zV]), colore: PALETTE.gneiss, piatto: true, superficie: supP });
   b.aggiungi(geoCilindro(0.03, 0.03, 0.4, 5), { matrice: mat([LX / 2 - 0.1, 1.2, zV], [0, 0, Math.PI / 2]), colore: PALETTE.ferro, superficie: SUP.METALLO });
   b.aggiungi(geoCilindro(0.018, 0.026, 0.3, 5), { matrice: mat([LX / 2 - 0.3, 0.88, zV]), colore: 0xbfd8d8, canale: 'sottile', superficie: sup(SUP.NESSUNA) });
-  // pilastri e tettoia
+  // pilastri e tettoia (i pilastri davanti stanno sul lastricato, dietro la scalinata)
   const hP = 2.75;
+  const zPilD = Δ > 0 ? Math.min(1.8, zFronte - 0.35) : 1.8;
   for (const [x, z] of [
     [-3.1, -3.2],
     [3.1, -3.2],
-    [-3.1, 1.8],
-    [3.1, 1.8],
+    [-3.1, zPilD],
+    [3.1, zPilD],
   ] as const) {
     // pilastro di pietra squadrata con il capitello (geoLastra ha la base a y = 0)
     b.aggiungi(geoLastra(0.5, hP, 0.5, rng.intero(0, 1e6), 0.04), { matrice: mat([x, 0, z]), colore: PALETTE.gneissChiaro, gradiente: { basso: 0.75, alto: 1.0, y0: 0, y1: hP }, piatto: true, superficie: supP, occlusione: occlusionePiede(0.6, 0.4) });
     b.aggiungi(geoLastra(0.66, 0.14, 0.66, rng.intero(0, 1e6), 0.06), { matrice: mat([x, hP - 0.14, z]), colore: PALETTE.gneissChiaro, piatto: true, superficie: supP });
   }
-  // travi
-  for (const z of [-3.2, 1.8]) b.aggiungi(geoBoxC(7.0, 0.22, 0.22), { matrice: mat([0, hP + 0.1, z]), colore: PALETTE.legnoScuro, piatto: true, superficie: legnoOrizzontale(0.4), occlusione: 0.2 });
-  // tettoia a due falde lungo X (colmo lungo X): costruita come tetto con colmo lungo Z e ruotata
+  // travi (larice, non nere: da sotto si leggono)
+  for (const z of [-3.2, zPilD]) b.aggiungi(geoBoxC(7.0, 0.22, 0.22), { matrice: mat([0, hP + 0.1, z]), colore: PALETTE.larice, piatto: true, superficie: legnoOrizzontale(0.4), occlusione: 0.12 });
+  // tettoia a due falde lungo X (colmo lungo X): costruita come tetto con colmo lungo Z e ruotata;
+  // l'assito di larice chiaro e poca occlusione (rifinitura 1: vista da sotto era quasi nera)
   const bt = new Costruttore(rng.derivato('tettoia'));
-  tettoPiode(bt, rng.derivato('t'), { larghezza: 5.6, profondita: 6.8, yGronda: 0, pendenza: 0.5, sporgenzaGronda: 0.7, sporgenzaTimpano: 0.4, corsi: 3, pezziPerCorso: 6 });
+  tettoPiode(bt, rng.derivato('t'), { larghezza: 5.6, profondita: 6.8, yGronda: 0, pendenza: 0.5, sporgenzaGronda: 0.7, sporgenzaTimpano: 0.4, corsi: 3, pezziPerCorso: 6, assito: 0x8a6a48, occlusioneMassima: 0.15 });
   const gT = bt.costruisci('tettoia');
   gT.updateMatrixWorld(true);
   gT.traverse((o) => {
@@ -227,24 +275,30 @@ export function creaLavatoio(seme: Seme = 'lavatoio'): OggettoProcedurale {
     b.aggiungi(g, { matrice: mat([-2.0 + k * 1.1, hP - 0.75, -3.25]), colore: k === 1 ? 0xb8463a : k === 2 ? 0x5d6f8a : 0xf3eee2, canale: 'sottile', superficie: SUP.TESSUTO });
   }
   // lanterna appesa sotto la tettoia
-  const fiamma = testaLanterna(b, mat([0, hP - 0.45, 1.2]), 0.9);
+  const fiamma = testaLanterna(b, mat([0, hP - 0.45, Math.min(1.2, zPilD - 0.4)]), 0.9);
   const gruppo = b.costruisci('lavatoio');
+  const collider: Collider[] =
+    Δ > 0
+      ? [
+          box(0, 0.5, zV, LX / 2 + 0.3, 0.5, LZ / 2 + 0.1, 'muro'),
+          // il lastricato è un blocco pieno fino nel pendio: ci si cammina sopra, non sotto
+          box(0, (piano + fondo) / 2, (zFronte + zRetro) / 2, 3.7, (piano - fondo) / 2, (zFronte - zRetro) / 2, 'calpestabile'),
+          ...Array.from({ length: nGradini }, (_, k) => {
+            const top = -Δ + 0.085 + k * alzata;
+            const pd = k === 0 ? 0.65 : pedata;
+            const larga = k === 0 ? 2.0 : 1.7;
+            return box(0, (top + fondo) / 2, zPrimo - k * pedata, larga, (top - fondo) / 2, pd / 2, 'gradino');
+          }),
+        ]
+      : [box(0, 0.5, zV, LX / 2 + 0.3, 0.5, LZ / 2 + 0.1, 'muro'), box(0, 0.06, -0.6, 3.7, 0.06, 3.1, 'calpestabile'), box(0, 0.06, 3.4, 2.1, 0.1, 0.4, 'gradino')];
+  collider.push(cil(-3.1, 0, -3.2, 0.3, hP, 'muro'), cil(3.1, 0, -3.2, 0.3, hP, 'muro'), cil(-3.1, 0, zPilD, 0.3, hP, 'muro'), cil(3.1, 0, zPilD, 0.3, hP, 'muro'), box(0, hP + 1.0, -0.7, 3.3, 0.9, 3.6, 'tetto'));
   return risultato({
     nome: 'lavatoio',
     seme: s,
     gruppo,
-    collider: [
-      box(0, 0.5, zV, LX / 2 + 0.3, 0.5, LZ / 2 + 0.1, 'muro'),
-      box(0, 0.06, -0.6, 3.7, 0.06, 3.1, 'calpestabile'),
-      box(0, 0.06, 3.4, 2.1, 0.1, 0.4, 'gradino'),
-      cil(-3.1, 0, -3.2, 0.3, hP, 'muro'),
-      cil(3.1, 0, -3.2, 0.3, hP, 'muro'),
-      cil(-3.1, 0, 1.8, 0.3, hP, 'muro'),
-      cil(3.1, 0, 1.8, 0.3, hP, 'muro'),
-      box(0, hP + 1.0, -0.7, 3.3, 0.9, 3.6, 'tetto'),
-    ],
+    collider,
     ingombro: ingombroDa(gruppo),
-    punti: { gradino: new THREE.Vector3(0, 0.08, 3.4), vasca: new THREE.Vector3(0, 0.9, zV + LZ / 2 + 0.4), lume: fiamma },
+    punti: { gradino: new THREE.Vector3(0, Δ > 0 ? -Δ + 0.085 : 0.08, zPrimo), vasca: new THREE.Vector3(0, 0.9, zV + LZ / 2 + 0.4), lume: fiamma },
   });
 }
 
@@ -339,8 +393,9 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
     b.aggiungi(geoTubo([p0, p1], [0.24, 0.14], 6), { colore: 0x6e3f2c, superficie: SUP.CORTECCIA, occlusione: 0.4 });
   }
   // chioma: tante masse a ciuffi, colonnare e appuntita come una fiamma (i tassi e i cipressi dei
-  // sagrati nei bozzetti): verde scuro che prende la luce sui fianchi, mai una macchia nera
-  const verdi = [0x34603a, 0x3f6c40, 0x4b7a46, 0x2f5636, 0x5a874c];
+  // sagrati nei bozzetti): verde nero-bluastro dei tassi veri, che prende la luce sui fianchi
+  // (rifinitura 1: il verde di prima, chiaro e saturo, sotto il sole era un broccolo verde acido)
+  const verdi = [0x223428, 0x2a3e30, 0x324a38, 0x1c2c22, 0x3a523c];
   const raggioMax = Math.min(H * 0.24, 3.4);
   const n = 46;
   for (let k = 0; k < n; k++) {
@@ -355,7 +410,7 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
       matrice: mat([Math.cos(a) * d, y, Math.sin(a) * d], [rng.centrato(0.3), rng.next() * 6, rng.centrato(0.3)]),
       colore: rng.scegli(verdi),
       variazione: 0.1,
-      gradiente: { basso: 0.75, alto: 1.12, y0: 1.5, y1: H },
+      gradiente: { basso: 0.75, alto: 0.95, y0: 1.5, y1: H },
       superficie: sup(SUP.FOGLIAME, rng.next()),
       occlusione: (p) => Math.min(0.32, Math.max(0, 0.3 - (p.y - 2.0) / (H * 1.6)) + Math.max(0, 0.28 - Math.hypot(p.x, p.z) / raggioMax) * 0.5),
     });
@@ -367,6 +422,30 @@ export function creaTasso(seme: Seme = 'tasso', altezza = 10): OggettoProcedural
     variazione: 0.08,
     superficie: sup(SUP.FOGLIAME, rng.next()),
   });
+  // ciuffi d'aghi che escono dalla sagoma (la rompono: niente palla liscia): rametti a ventaglio di
+  // tre punte, un po' più chiari in punta, dove la massa è più larga
+  const rc = new Rng(s ^ 0x7a55);
+  for (let k = 0; k < 11; k++) {
+    const t = 0.1 + (k / 10) * 0.75 + rc.centrato(0.04);
+    const prof = Math.sin(Math.PI * Math.min(1, 0.18 + t * 0.95)) * (1 - t * 0.35);
+    const a = (k * 2.39996 + rc.centrato(0.3)) % (Math.PI * 2);
+    const d = prof * raggioMax * (0.78 + rc.next() * 0.12);
+    const y = 2.2 + t * (H - 2.6);
+    const fuori = new THREE.Vector3(Math.cos(a), 0.35 + rc.next() * 0.35, Math.sin(a)).normalize();
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), fuori);
+    for (let j = -1; j <= 1; j++) {
+      const qj = q.clone().multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(j * 0.35, rc.next() * 6, j * 0.25)));
+      const lung = 0.7 + rc.next() * 0.45;
+      b.aggiungi(geoCono(0.13 + rc.next() * 0.05, lung, 5), {
+        matrice: new THREE.Matrix4().compose(new THREE.Vector3(Math.cos(a) * d, y, Math.sin(a) * d), qj, new THREE.Vector3(1, 1, 0.55)),
+        colore: rc.scegli(verdi),
+        variazione: 0.08,
+        gradiente: { basso: 0.85, alto: 1.25, y0: 0, y1: lung },
+        superficie: sup(SUP.FOGLIAME, rc.next()),
+        occlusione: 0.12,
+      });
+    }
+  }
   const gruppo = b.costruisci('tasso');
   return risultato({
     nome: 'tasso',
@@ -602,9 +681,25 @@ export function creaGra(seme: Seme = 'gra', fumo = true): OggettoProcedurale {
   const D = 5.0;
   const H = 4.0;
   const interr = 2.2;
-  b.aggiungi(geoBoxC(W, H + interr, D), { matrice: mat([0, (H - interr) / 2, 0]), colore: PALETTE.gneissScuro, rumore: 0.08, gradiente: { basso: 0.65, alto: 1.0, y0: -interr, y1: H }, piatto: true });
-  const yC = tettoPiode(b, rng, { larghezza: W, profondita: D, yGronda: H, pendenza: 0.6, corsi: 3, pezziPerCorso: 5 });
-  b.aggiungi(geoTimpano(W, yC - H - 0.1, D), { matrice: mat([0, H, 0]), colore: PALETTE.gneiss, piatto: true });
+  // muri di pietra a vista (rifinitura 1: era una scatola liscia), più scuri e affumicati in alto,
+  // dove escono le fessure del fumo; cantonali chiari sugli spigoli
+  b.aggiungi(geoBoxC(W, H + interr, D), { matrice: mat([0, (H - interr) / 2, 0]), colore: PALETTE.gneissScuro, rumore: 0.08, gradiente: { basso: 0.65, alto: 1.0, y0: -interr, y1: H }, piatto: true, superficie: sup(SUP.PIETRA, 0.35), occlusione: occlusionePiede(0.6, 0.45) });
+  const yC = tettoPiode(b, rng, { larghezza: W, profondita: D, yGronda: H, pendenza: 0.6, corsi: 3, pezziPerCorso: 5, contrasto: 2 });
+  b.aggiungi(geoTimpano(W, yC - H - 0.1, D), { matrice: mat([0, H, 0]), colore: PALETTE.gneiss, piatto: true, superficie: sup(SUP.PIETRA, 0.6) });
+  const rc = new Rng(s ^ 0x6ea);
+  const bc = new Costruttore(rc);
+  cantonali(bc, W, D, 0, H, 0.55);
+  for (const sx of [-1, 1]) {
+    // le fessure del fumo sotto la gronda: feritoie scure con l'alone di fuliggine
+    for (const z of [-D * 0.25, D * 0.25]) {
+      bc.aggiungi(geoBoxC(0.06, 0.5, 0.16), { matrice: mat([sx * (W / 2 + 0.01), H - 0.55, z]), colore: 0x1e1a18, piatto: true, superficie: sup(SUP.NESSUNA) });
+      bc.aggiungi(geoBoxC(0.03, 0.9, 0.5), { matrice: mat([sx * (W / 2 + 0.005), H - 0.35, z]), colore: 0x4a4440, piatto: true, superficie: sup(SUP.PIETRA, 0.2), occlusione: 0.3 });
+    }
+  }
+  bc.costruisci('gra-dettagli').traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (m.isMesh) b.aggiungi(m.geometry, { matrice: new THREE.Matrix4(), colore: 'geometria' });
+  });
   porta(b, facciata(0, D / 2, 0), 0, 0, 0.9, 1.7, PALETTE.legnoScuro);
   finestra(b, facciata(0, D / 2, 0), 0, 2.4, { larghezza: 0.4, altezza: 0.45, ante: null, inferriata: true });
   if (fumo) {

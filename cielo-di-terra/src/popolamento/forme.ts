@@ -352,38 +352,123 @@ export function hash2(x: number, y: number, seme = 0): number {
 
 export const RAD = DEG;
 
-/** Versione lontana di un rustico: scatola di gneiss, tetto a capanna di piode, due finestre accese. */
+
+/**
+ * Versione lontana di un rustico (oltre 400 m a Media e Alta, 260 a Bassa). Rifinitura 1: dal Velo
+ * e dalle terrazze le case lontane erano cubetti grigio-blu col tetto liscio («Monopoli»); ora
+ * hanno, con circa 200 triangoli:
+ * - il tetto di piode grigio-bruno caldo che sporge 0,4 m (gronde e timpani) con l'ombra di gronda
+ *   sul muro, tre file di lastre a contrasto forte (alternate chiare e scure, una riga scura sotto
+ *   ogni fila) e licheni ocra su una fila ogni tanto;
+ * - due finestrelle scure per facciata (accese di notte come quelle vicine) e la porta;
+ * - il camino con la lastra sopra.
+ */
 export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hMuri: number, interrata: number, seme = 0): void {
   const { BoxGeometry } = THREE_GEOM;
   const t = new THREE_MAT4();
   const box = new BoxGeometry(1, 1, 1);
+  const q = new THREE_MAT4();
+  const v3 = new Vector3();
+  /** scatola centrata in (x, y, z) locali, ruotata di `rz` attorno a Z */
+  const scatola = (x: number, y: number, z: number, sx: number, sy: number, sz: number, colore: RGB, sup: readonly [number, number], rz = 0) => {
+    t.makeTranslation(x, y, z);
+    if (rz) t.multiply(q.makeRotationZ(rz));
+    t.scale(v3.set(sx, sy, sz));
+    c.forma(box, m.clone().multiply(t), colore, 0, 'singolo', undefined, sup);
+  };
   // lo stesso gneiss chiaro e caldo delle case vicine
   const pietra: RGB = [0.72 + hash2(seme, 1) * 0.06, 0.68 + hash2(seme, 2) * 0.05, 0.61 + hash2(seme, 3) * 0.05];
+  const supPietra = [SUPERFICIE.PIETRA + hash2(seme, 5) * 0.9, 0.05] as const;
   t.makeTranslation(0, (hMuri - interrata) / 2, 0).scale(new Vector3(W, hMuri + interrata, D));
   // muri di pietra, più scuri al piede (stesso motivo dipinto della casa vicina)
-  c.forma(box, m.clone().multiply(t), pietra, 0, 'singolo', (p, out) => {
-    const k = p.y < -0.3 ? 0.72 : 1;
-    out[0] *= k;
-    out[1] *= k;
-    out[2] *= k;
-  }, [SUPERFICIE.PIETRA + hash2(seme, 5) * 0.9, 0.05]);
-  const pend = 0.55;
-  const hT = (W / 2 + 0.45) * Math.tan(pend);
-  t.makeTranslation(0, hMuri - 0.02, 0).scale(new Vector3(W + 0.9, hT, D + 0.8));
-  // tetto di piode grigio medio (come le piode vicine)
-  const piode: RGB = [0.43 + hash2(seme, 6) * 0.05, 0.42 + hash2(seme, 6) * 0.04, 0.42 + hash2(seme, 7) * 0.03];
-  c.forma(timpanoUnitario(), m.clone().multiply(t), piode, 0, 'singolo', undefined, [SUPERFICIE.PIODE + hash2(seme, 8) * 0.9, 0.08]);
-  // finestre (accese di notte) sulle due facciate lunghe e sul fronte
-  const q = new THREE_PLANE(0.7, 0.85);
-  for (const s of [-1, 1]) {
-    t.makeTranslation(s * (W / 2 + 0.02), Math.min(hMuri - 1.2, 3.2), 0).multiply(new THREE_MAT4().makeRotationY((s * Math.PI) / 2));
-    c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, s) < 0.6 ? 1 : 0, 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+  c.forma(
+    box,
+    m.clone().multiply(t),
+    pietra,
+    0,
+    'singolo',
+    (p, out) => {
+      const k = p.y < -0.3 ? 0.72 : 1;
+      out[0] *= k;
+      out[1] *= k;
+      out[2] *= k;
+    },
+    supPietra,
+  );
+  // ombra di gronda: una fascia scura appena fuori dal muro, sotto lo sporto
+  const ombra: RGB = [pietra[0] * 0.5, pietra[1] * 0.48, pietra[2] * 0.47];
+  scatola(0, hMuri - 0.22, 0, W + 0.03, 0.44, D + 0.03, ombra, [SUPERFICIE.PIETRA + 0.3, 0.45]);
+  // timpani di pietra fin sotto il colmo
+  const pend = 0.52;
+  const hT = (W / 2) * Math.tan(pend);
+  t.makeTranslation(0, hMuri - 0.01, 0).scale(new Vector3(W, hT, D));
+  c.forma(timpanoUnitario(), m.clone().multiply(t), pietra, 0, 'singolo', undefined, supPietra);
+  // tetto: due falde che sporgono 0,4 m, ognuna in tre file di lastre a gradino
+  const sp = 0.4;
+  const sT = 0.35;
+  const L = (W / 2 + sp) / Math.cos(pend);
+  const dT = D + 2 * sT;
+  const yColmo = hMuri + hT + 0.04;
+  const giunti: RGB = [0.227, 0.2, 0.176];
+  const lichene: RGB = [0.604, 0.541, 0.353];
+  const base: RGB = [0.424 + hash2(seme, 6) * 0.04, 0.384 + hash2(seme, 6) * 0.035, 0.345 + hash2(seme, 7) * 0.03];
+  const chiara = mixRGB(base, [0.62, 0.58, 0.52], 0.42);
+  const scura = mixRGB(base, giunti, 0.38);
+  for (const s of [1, -1]) {
+    const dx = s * Math.cos(pend);
+    const dy = -Math.sin(pend);
+    const nx = s * Math.sin(pend);
+    const ny = Math.cos(pend);
+    const rz = -s * pend;
+    for (let k = 0; k < 3; k++) {
+      // la fila più alta sta sopra quella sotto (il bordo basso fa il gradino con la sua ombra)
+      const a = (L * (k + 0.5)) / 3;
+      const lungo = L / 3 + 0.12;
+      const sopra = 0.08 + (2 - k) * 0.045;
+      let col = k % 2 === 0 ? chiara : scura;
+      if (hash2(seme * 3 + k, s, 12) < 0.15) col = mixRGB(col, lichene, 0.45);
+      scatola(dx * a + nx * sopra, yColmo + dy * a + ny * sopra, 0, lungo, 0.1, dT, col, [SUPERFICIE.PIODE + hash2(seme, 8 + k) * 0.9, 0.06], rz);
+      // la riga scura sotto il bordo della fila (sulla fila sotto)
+      if (k < 2) {
+        const b = (L * (k + 1)) / 3 + 0.08;
+        scatola(dx * b + nx * (sopra - 0.02), yColmo + dy * b + ny * (sopra - 0.02), 0, 0.2, 0.1, dT + 0.01, giunti, [SUPERFICIE.PIODE + 0.5, 0.4], rz);
+      }
+    }
   }
-  t.makeTranslation(0, Math.min(hMuri - 1.2, 3.2), D / 2 + 0.02);
-  c.forma(q, m.clone().multiply(t), [0.17, 0.155, 0.19], hash2(seme, 9) < 0.5 ? 1 : 0, 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
-  t.makeTranslation(0, 1.0, D / 2 + 0.02).scale(new Vector3(1.4, 2.3, 1));
-  c.forma(q, m.clone().multiply(t), [0.42, 0.28, 0.18], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+  // lastre di colmo, più chiare
+  scatola(0, yColmo + 0.22, 0, 0.42, 0.09, dT + 0.02, mixRGB(chiara, [0.7, 0.66, 0.6], 0.3), [SUPERFICIE.PIODE + 0.2, 0.05]);
+  // camino di pietra con la lastra
+  const lato = hash2(seme, 13) < 0.5 ? -1 : 1;
+  const xc = lato * W * 0.24;
+  const zc = -D * 0.25;
+  const yTetto = yColmo - Math.abs(xc) * Math.tan(pend);
+  scatola(xc, yTetto + 0.35, zc, 0.5, 1.3, 0.5, mixRGB(pietra, [0.5, 0.47, 0.44], 0.25), supPietra);
+  scatola(xc, yTetto + 1.05, zc, 0.72, 0.08, 0.72, scura, [SUPERFICIE.PIODE + 0.4, 0.1]);
+  // finestrelle scure (accese di notte come quelle vicine): due per facciata, la porta sul fronte
+  const finestra = new THREE_PLANE(0.55, 0.72);
+  const vetro: RGB = [0.17, 0.155, 0.19];
+  const yF = Math.min(hMuri - 1.15, 3.35);
+  const accesa = (k: number) => (hash2(seme, 20 + k) < 0.7 ? 1 : 0);
+  for (const s of [-1, 1]) {
+    for (const u of [-D * 0.22, D * 0.22]) {
+      t.makeTranslation(s * (W / 2 + 0.02), yF, u).multiply(q.makeRotationY((s * Math.PI) / 2));
+      c.forma(finestra, m.clone().multiply(t), vetro, accesa(s * 3 + u), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+    }
+  }
+  for (const u of [-W * 0.24, W * 0.24]) {
+    t.makeTranslation(u, yF, D / 2 + 0.02);
+    c.forma(finestra, m.clone().multiply(t), vetro, accesa(u), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+  }
+  t.makeTranslation(0, yF, -D / 2 - 0.02).multiply(q.makeRotationY(Math.PI));
+  c.forma(finestra, m.clone().multiply(t), vetro, accesa(7), 'singolo', undefined, [SUPERFICIE.VETRO, 0]);
+  t.makeTranslation(0, 1.0, D / 2 + 0.02).scale(new Vector3(1.6, 2.6, 1));
+  c.forma(finestra, m.clone().multiply(t), [0.36, 0.24, 0.16], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
 }
+
+function mixRGB(a: RGB, b: RGB, k: number): RGB {
+  return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+}
+
 
 /** Nastro semplice di muro a secco (versione lontana): faccia e testa lungo la spezzata locale. */
 export function muroLontano(c: Cantiere, m: import('three').Matrix4, percorso: Array<[number, number]>, altezza: number, spessore: number, seme = 0): void {

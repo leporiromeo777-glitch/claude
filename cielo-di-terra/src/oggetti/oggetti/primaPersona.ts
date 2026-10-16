@@ -16,9 +16,9 @@ import * as THREE from 'three';
 import { ingombroDa, risultato, smorza } from '../comune';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
-import { CUOIO_CUCITO, FormePrimoPiano, MATERIA, materialePrimoPiano, misto } from '../../render/primoPiano';
+import { CUOIO_CUCITO, FormePrimoPiano, MATERIA, materialePrimoPiano, misto, type OpzioniForma } from '../../render/primoPiano';
 import { PALETTE } from '../palette';
-import { COLORI_MANI, manica, manoGuanto, matriceMano, posaAngoli, posaAvvolta } from './mani';
+import { braccio, COLORI_MANI, manica, manoGuanto, matriceMano, posaAngoli, posaAvvolta } from './mani';
 
 const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 const e = (x: number, y: number, z: number) => new THREE.Euler(x, y, z, 'YXZ');
@@ -42,7 +42,7 @@ function mesh(f: FormePrimoPiano | THREE.BufferGeometry, nome: string, doppia = 
 }
 
 /** Profilo di tornitura (raggio, quota) attorno all'asse Y, nella geometria di `f`. */
-function tornito(f: FormePrimoPiano, profilo: Array<[number, number]>, m: THREE.Matrix4, colore: number | readonly [number, number, number], materia: number, seg = 20, occ = 0): void {
+function tornito(f: FormePrimoPiano, profilo: Array<[number, number]>, m: THREE.Matrix4, colore: OpzioniForma['colore'], materia: number, seg = 20, occ = 0): void {
   const g = new THREE.LatheGeometry(
     profilo.map(([r, y]) => new THREE.Vector2(r, y)),
     seg,
@@ -64,18 +64,46 @@ function sagoma(f: FormePrimoPiano, forma: THREE.Shape, spessore: number, m: THR
 // ---------------------------------------------------------------------------------------------
 
 /** Squadro a cannocchiale: origine sulla punta del puntale, asta lungo +Y, cannocchiale verso −Z. */
+/**
+ * L'ottone dello squadro (rifinitura 1): un ottone vecchio e caldo, mai giallo puro. Base #b08a3a,
+ * cavità e giunti #5e4520, una striscia di luce dipinta lungo i tubi (dalla parte dell'occhio e
+ * della luce) e il riflesso del cielo in alto lo fa il materiale.
+ */
+const OTTONE_SQ = { base: 0xb08a3a, cavita: 0x5e4520, luce: 0xd8c08a, scuro: 0x6e5428, cielo: 0xb9b49c } as const;
+
+/**
+ * Colore dipinto di un tubo d'ottone con l'asse lungo `asse` passante per `centro`: una striscia
+ * di luce stretta e pallida verso `luceAng` (angolo nel piano della sezione), il cielo riflesso
+ * (grigio chiaro, appena freddo) sulla fascia in alto, l'ombra calda e scura in basso.
+ */
+function ottoneStriato(centro: THREE.Vector3, asse: 'x' | 'y' | 'z', luceAng = 2.1, alto = Math.PI / 2): (p: THREE.Vector3) => [number, number, number] {
+  return (p) => {
+    const d = p.clone().sub(centro);
+    const [a, b] = asse === 'y' ? [d.x, d.z] : asse === 'z' ? [d.x, d.y] : [d.z, d.y];
+    const ang = Math.atan2(b, a);
+    const k = Math.cos(ang - luceAng);
+    const kc = Math.cos(ang - alto);
+    const striscia = Math.max(0, (k - 0.86) / 0.14);
+    const cielo = Math.max(0, (kc - 0.55) / 0.45);
+    const ombra = Math.max(0, -kc - 0.1) / 0.9;
+    let c = misto(OTTONE_SQ.base, OTTONE_SQ.cielo, cielo * 0.45);
+    c = misto(c, OTTONE_SQ.scuro, ombra * 0.7);
+    return misto(c, OTTONE_SQ.luce, striscia * 0.8);
+  };
+}
+
 function squadro(f: FormePrimoPiano): { quotaCannocchiale: number; quotaPresa: number } {
-  const ott = PALETTE.ottone;
-  const scuro = PALETTE.ottoneScuro;
-  const chiaro = PALETTE.ottoneChiaro;
+  const ott = OTTONE_SQ.base;
+  const scuro = OTTONE_SQ.cavita;
+  const chiaro = OTTONE_SQ.luce;
   const nero = 0x262220;
   const I = new THREE.Matrix4();
   // puntale e disco d'appoggio (tornito)
   tornito(f, [[0.0006, 0], [0.004, 0.03], [0.009, 0.09], [0.012, 0.115], [0.016, 0.118], [0.038, 0.12], [0.04, 0.125], [0.037, 0.131], [0.016, 0.133], [0.013, 0.14]], I, ott, MATERIA.OTTONE, 22);
-  // asta con i collari
-  f.tubo([v(0, 0.135, 0), v(0, 0.56, 0)], [0.0118, 0.0108], { colore: ott, materia: MATERIA.OTTONE, segmenti: 14 });
-  tornito(f, [[0.011, 0.29], [0.0155, 0.293], [0.0158, 0.31], [0.011, 0.313]], I, scuro, MATERIA.OTTONE, 18);
-  tornito(f, [[0.011, 0.5], [0.0145, 0.503], [0.0145, 0.515], [0.011, 0.518]], I, chiaro, MATERIA.OTTONE, 18);
+  // asta con i collari (la striscia di luce verso l'occhio e a sinistra)
+  f.tubo([v(0, 0.135, 0), v(0, 0.56, 0)], [0.0118, 0.0108], { colore: ottoneStriato(v(0, 0, 0), 'y', 2.2), materia: MATERIA.OTTONE, segmenti: 14 });
+  tornito(f, [[0.011, 0.29], [0.0155, 0.293], [0.0158, 0.31], [0.011, 0.313]], I, scuro, MATERIA.OTTONE, 18, 0.3);
+  tornito(f, [[0.011, 0.5], [0.0145, 0.503], [0.0145, 0.515], [0.011, 0.518]], I, OTTONE_SQ.scuro, MATERIA.OTTONE, 18, 0.2);
   // montante piatto (smussato) e squadra triangolare cava a destra
   const mont = new THREE.Shape();
   mont.moveTo(-0.004, 0.33);
@@ -144,7 +172,15 @@ function squadro(f: FormePrimoPiano): { quotaCannocchiale: number; quotaPresa: n
       [0.0001, 0.124],
     ],
     mTubo,
-    ott,
+    (() => {
+      // striscia di luce lungo il tubo e i giunti (gli scalini del profilo) scuri: la patina
+      const s = ottoneStriato(v(0, yC, 0), 'z', 1.95);
+      const giunti = [-0.209, -0.166, -0.03, -0.006, 0.072];
+      return (p: THREE.Vector3) => {
+        const g = giunti.reduce((m, z) => Math.max(m, 1 - Math.abs(p.z - z) / 0.006), 0);
+        return misto(s(p), OTTONE_SQ.cavita, Math.max(0, g) * 0.7);
+      };
+    })(),
     MATERIA.OTTONE,
     24,
   );
@@ -187,9 +223,24 @@ interface Posa {
   destraAppoggiata: boolean;
   /** la sinistra culla il cannocchiale invece di stringere l'asta */
   sinistraCulla: boolean;
-  /** gomiti (spazio camera, fuori campo) */
-  gomiti: { destra: THREE.Vector3; sinistra: THREE.Vector3 };
+  /**
+   * direzione dell'avambraccio dal polso verso il gomito (spazio camera). Rifinitura 1: il gomito sta
+   * a una lunghezza vera d'avambraccio dal polso (`AVAMBRACCIO`) e da lì il braccio va alla spalla,
+   * dietro la camera; prima il «gomito» era un punto a un metro, e la manica un tubo lungo mezzo
+   * schermo
+   */
+  avambracci: { destra: THREE.Vector3; sinistra: THREE.Vector3 };
+  /**
+   * lunghezza della manica dal polso al gomito, se non è `AVAMBRACCIO`: dove la mano è lontana
+   * dall'occhio (piantato) il gomito deve uscire dal bordo dello schermo, come nel bozzetto 2
+   */
+  lunghezze?: { destra?: number; sinistra?: number };
 }
+
+/** Lunghezza dell'avambraccio dal polso del guanto al gomito (m). */
+const AVAMBRACCIO = 0.27;
+/** Spalle (spazio camera): dietro e sotto l'occhio. */
+const SPALLE = { destra: v(0.21, -0.3, 0.1), sinistra: v(-0.21, -0.3, 0.1) };
 
 /** Posizione (spazio camera) del puntale nella posa 'piantato': serve per far coincidere la camera col chiodo. */
 export const PUNTALE_PIANTATO = v(-0.12, -0.37, -0.72);
@@ -200,31 +251,39 @@ export const PUNTALE_PIANTATO = v(-0.12, -0.37, -0.72);
  * matrici di presa (`presaAsta`, `presaCannocchiale`) mettono l'asta o il tubo dentro il pugno.
  */
 const POSE: Record<PosaSquadro, Posa> = {
-  // piantato sul chiodo davanti, sul muro: la sinistra impugna l'asta, la destra è appoggiata sul muro
+  // piantato sul chiodo davanti, sul muro (bozzetto 2): la sinistra impugna l'asta da sinistra col
+  // dorso verso l'occhio e l'avambraccio che esce dal bordo sinistro, la destra è appoggiata sul
+  // muro. Il giro −0,38 attorno all'asta annulla l'imbardata dello strumento (dorso alla camera)
   piantato: {
     strumento: [PUNTALE_PIANTATO.clone(), e(0, 0.38, 0)],
-    sinistra: { strumento: [v(0, 0.27, 0), e(0, 0, 0)] },
+    sinistra: { strumento: [v(0, 0.27, 0), e(0, -0.38, 0)] },
     destra: { camera: [v(0.13, -0.395, -0.6), e(0.05, 0.35, 0.04)] },
     destraAppoggiata: true,
     sinistraCulla: false,
-    gomiti: { destra: v(0.42, -0.82, 0.05), sinistra: v(-0.78, -0.5, -0.22) },
+    avambracci: { destra: v(0.35, -0.5, 0.8), sinistra: v(-0.62, -0.1, 0.78) },
+    lunghezze: { sinistra: 0.42 },
   },
-  // tenuto in mano come cannocchiale: la destra impugna l'asta, la sinistra culla il tubo
+  // tenuto in mano a sinistra, come nel bozzetto 2: il centro dello schermo (dove si mira) resta
+  // libero. La sinistra impugna l'asta sotto la squadra col dorso verso l'occhio e l'avambraccio
+  // che esce dal bordo sinistro; la destra la regge in basso, vicino al puntale, quasi fuori campo.
+  // Rifinitura 1: prima la sinistra cullava il cannocchiale al centro dello schermo e la manica era
+  // un tubo verde lungo mezzo schermo
   mano: {
-    strumento: [v(0.2, -0.62, -0.6), e(0.06, 0.45, 0.03)],
-    destra: { strumento: [v(0, 0.3, 0), e(0, 0, 0)] },
-    sinistra: { strumento: [v(0, 0.6, -0.12), e(0, 0, 0)] },
+    strumento: [v(-0.25, -0.53, -0.5), e(0.04, 0.72, 0.02)],
+    destra: { strumento: [v(0, 0.14, 0), e(0, -0.72, 0)] },
+    sinistra: { strumento: [v(0, 0.36, 0), e(0, -0.72, 0)] },
     destraAppoggiata: false,
-    sinistraCulla: true,
-    gomiti: { destra: v(0.5, -0.95, 0.05), sinistra: v(-0.3, -0.95, 0.0) },
+    sinistraCulla: false,
+    avambracci: { destra: v(0.6, -0.45, 0.66), sinistra: v(-0.6, -0.22, 0.77) },
+    lunghezze: { sinistra: 0.3 },
   },
   riposo: {
     strumento: [v(0.25, -1.45, -0.5), e(0.4, 0.4, 0.2)],
-    destra: { strumento: [v(0, 0.235, 0), e(0, 0, 0)] },
+    destra: { strumento: [v(0, 0.235, 0), e(0, -0.72, 0)] },
     sinistra: { camera: [v(-0.3, -1.1, -0.45), e(0.4, -0.2, -0.2)] },
     destraAppoggiata: false,
     sinistraCulla: false,
-    gomiti: { destra: v(0.42, -0.9, 0.05), sinistra: v(-0.42, -0.9, 0.05) },
+    avambracci: { destra: v(0.6, 0.5, 0.6), sinistra: v(-0.1, 0.7, 0.7) },
   },
 };
 
@@ -256,18 +315,21 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
   const info = squadro(fs);
   const strumento = mesh(fs, 'squadro');
 
-  // destra sull'asta (pollice in su, dorso verso destra e verso l'occhio)
+  // destra sull'asta: dorso verso l'occhio (si vede il dorso del guanto con le cuciture), dita che
+  // girano dietro l'asta, pollice sotto e polso a destra, così l'avambraccio va verso il bordo
+  // destro e non attraversa lo schermo (rifinitura 1: prima il polso puntava a sinistra e la
+  // manica, che andava a destra, lo spezzava)
   const fd = new FormePrimoPiano();
   const pd = manoGuanto(fd, posaAvvolta(CENTRO_PRESA, 0.0115, 1), { consumo: 0.5 });
-  const mPresaD = presa(v(0, 1, 0), v(0.94, 0, -0.35), v(0, 0, 0), false);
+  const mPresaD = presa(v(0, -1, 0), v(-0.22, 0.08, 1), v(0, 0, 0), false);
   const fD = new FormePrimoPiano();
   fD.unisci(fd, mPresaD);
   const manoD = mesh(fD, 'mano-destra');
   const polsoD = pd.polso.clone().applyMatrix4(mPresaD);
-  // sinistra sull'asta (piantato): pollice in su, dorso verso sinistra
+  // sinistra sull'asta: come la destra, specchiata (dorso verso l'occhio, polso a sinistra)
   const fs2 = new FormePrimoPiano();
   const ps = manoGuanto(fs2, posaAvvolta(CENTRO_PRESA, 0.0115, 1), { consumo: 0.35 });
-  const mPresaS = presa(v(0, 1, 0), v(-0.94, 0, -0.35), v(0, 0, 0), true);
+  const mPresaS = presa(v(0, -1, 0), v(0.22, 0.08, 1), v(0, 0, 0), true);
   const fS = new FormePrimoPiano();
   fS.unisci(fs2, mPresaS);
   const manoS = mesh(fS, 'mano-sinistra');
@@ -286,24 +348,27 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
   const manoDApp = mesh(fa, 'mano-destra-appoggiata');
   const polsoDApp = pa.polso.clone();
 
-  // maniche: costruite lungo +Y per 0,72 m e orientate ogni fotogramma
-  const L0 = 0.72;
-  const creaManica = (nome: string, s: number) => {
-    const fm = new FormePrimoPiano();
-    manica(fm, v(0, 0, 0), v(0, L0, 0), { seme: s, lato: v(1, 0, 0) });
-    const m = mesh(fm, nome);
+  // maniche: l'avambraccio (dal polso al gomito, lungo AVAMBRACCIO) e il braccio (dal gomito alla
+  // spalla), costruiti lungo +Y e orientati ogni fotogramma
+  const orientabile = (m: THREE.Mesh, L0: number) => {
     const su = v(0, 1, 0);
     const d = new THREE.Vector3();
-    return {
-      mesh: m,
-      orienta: (polso: THREE.Vector3, gomito: THREE.Vector3) => {
-        d.subVectors(gomito, polso);
-        const l = d.length();
-        m.position.copy(polso);
-        m.quaternion.setFromUnitVectors(su, d.divideScalar(l || 1));
-        m.scale.set(1, l / L0, 1);
-      },
+    return (da: THREE.Vector3, a: THREE.Vector3) => {
+      d.subVectors(a, da);
+      const l = d.length();
+      m.position.copy(da);
+      m.quaternion.setFromUnitVectors(su, d.divideScalar(l || 1));
+      m.scale.set(1, l / L0, 1);
     };
+  };
+  const creaManica = (nome: string, s: number) => {
+    const fm = new FormePrimoPiano();
+    manica(fm, v(0, 0, 0), v(0, AVAMBRACCIO, 0), { seme: s, lato: v(1, 0, 0) });
+    const m = mesh(fm, nome);
+    const fb = new FormePrimoPiano();
+    braccio(fb, v(0, 0, 0), v(0, 0.3, 0), { seme: s });
+    const mb = mesh(fb, `${nome}-braccio`);
+    return { mesh: m, braccio: mb, orienta: orientabile(m, AVAMBRACCIO), orientaBraccio: orientabile(mb, 0.3) };
   };
   const manicaD = creaManica('manica-destra', 0.3);
   const manicaS = creaManica('manica-sinistra', 0.7);
@@ -316,13 +381,35 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
   nodoS.add(manoS, manoSCulla);
   nodoD.add(manoD, manoDApp);
   nodoSt.add(strumento);
-  gruppo.add(nodoSt, nodoD, nodoS, manicaD.mesh, manicaS.mesh);
-  // gomiti fuori campo (si spostano con la posa)
-  const gomitoD = POSE[opz.posa ?? 'piantato'].gomiti.destra.clone();
-  const gomitoS = POSE[opz.posa ?? 'piantato'].gomiti.sinistra.clone();
+  gruppo.add(nodoSt, nodoD, nodoS, manicaD.mesh, manicaS.mesh, manicaD.braccio, manicaS.braccio);
+  // direzioni degli avambracci (si spostano con la posa) e gomiti
+  const dirD = POSE[opz.posa ?? 'piantato'].avambracci.destra.clone().normalize();
+  const dirS = POSE[opz.posa ?? 'piantato'].avambracci.sinistra.clone().normalize();
+  const gomito = new THREE.Vector3();
+  let lunD = POSE[opz.posa ?? 'piantato'].lunghezze?.destra ?? AVAMBRACCIO;
+  let lunS = POSE[opz.posa ?? 'piantato'].lunghezze?.sinistra ?? AVAMBRACCIO;
 
   let posa: PosaSquadro = opz.posa ?? 'piantato';
-  const obiettivoMano = (a: Aggancio, mStrumento: THREE.Matrix4): THREE.Matrix4 => ('strumento' in a ? mStrumento.clone().multiply(mDa(a.strumento)) : mDa(a.camera));
+  // aggancio allo strumento di ciascuna mano (posizione sull'asta e giro attorno all'asta), smorzato
+  // come lo strumento: cambiando posa la presa scorre lungo l'asta invece di scattare
+  const uno = new THREE.Vector3(1, 1, 1);
+  const _qa = new THREE.Quaternion();
+  const agganci = { sinistra: { p: new THREE.Vector3(), q: new THREE.Quaternion(), pronto: false }, destra: { p: new THREE.Vector3(), q: new THREE.Quaternion(), pronto: false } };
+  const mLoc = new THREE.Matrix4();
+  const obiettivoMano = (a: Aggancio, lato: 'sinistra' | 'destra', mStrumento: THREE.Matrix4, k: number): THREE.Matrix4 => {
+    if (!('strumento' in a)) return mDa(a.camera);
+    const g = agganci[lato];
+    _qa.setFromEuler(a.strumento[1]);
+    if (!g.pronto || k >= 1) {
+      g.p.copy(a.strumento[0]);
+      g.q.copy(_qa);
+      g.pronto = true;
+    } else {
+      g.p.lerp(a.strumento[0], k);
+      g.q.slerp(_qa, k);
+    }
+    return mStrumento.clone().multiply(mLoc.compose(g.p, g.q, uno));
+  };
   const _p = new THREE.Vector3();
   const _q = new THREE.Quaternion();
   const _s = new THREE.Vector3();
@@ -347,23 +434,31 @@ export function creaSquadroPrimaPersona(opz: OpzioniSquadro = {}): OggettoProced
     const mSt = mDa(P.strumento);
     if (posa === 'mano' && mira > 0.001) {
       // la mira porta il cannocchiale verso l'occhio
-      mSt.premultiply(new THREE.Matrix4().makeTranslation(-0.2 * mira, 0.33 * mira, 0.12 * mira));
+      mSt.premultiply(new THREE.Matrix4().makeTranslation(0.19 * mira, -0.1 * mira, 0.33 * mira));
     }
     avvicina(nodoSt, mSt, k);
     nodoSt.updateMatrix();
     // le mani agganciate allo strumento seguono la sua posizione attuale (restano incollate nelle transizioni)
-    avvicina(nodoS, obiettivoMano(P.sinistra, 'strumento' in P.sinistra ? nodoSt.matrix : mSt), 'strumento' in P.sinistra ? 1 : k);
-    avvicina(nodoD, obiettivoMano(P.destra, 'strumento' in P.destra ? nodoSt.matrix : mSt), 'strumento' in P.destra ? 1 : k);
+    avvicina(nodoS, obiettivoMano(P.sinistra, 'sinistra', nodoSt.matrix, k), 'strumento' in P.sinistra ? 1 : k);
+    avvicina(nodoD, obiettivoMano(P.destra, 'destra', nodoSt.matrix, k), 'strumento' in P.destra ? 1 : k);
     manoD.visible = !P.destraAppoggiata;
     manoDApp.visible = P.destraAppoggiata;
-    gomitoD.lerp(P.gomiti.destra, k);
-    gomitoS.lerp(P.gomiti.sinistra, k);
+    dirD.lerp(_s.copy(P.avambracci.destra).normalize(), k).normalize();
+    dirS.lerp(_s.copy(P.avambracci.sinistra).normalize(), k).normalize();
     manoS.visible = !P.sinistraCulla;
     manoSCulla.visible = P.sinistraCulla;
     nodoS.updateMatrix();
     nodoD.updateMatrix();
-    manicaS.orienta(polso.copy(P.sinistraCulla ? polsoSCulla : polsoS).applyMatrix4(nodoS.matrix), gomitoS);
-    manicaD.orienta(polso.copy(P.destraAppoggiata ? polsoDApp : polsoD).applyMatrix4(nodoD.matrix), gomitoD);
+    polso.copy(P.sinistraCulla ? polsoSCulla : polsoS).applyMatrix4(nodoS.matrix);
+    lunS += ((P.lunghezze?.sinistra ?? AVAMBRACCIO) - lunS) * k;
+    lunD += ((P.lunghezze?.destra ?? AVAMBRACCIO) - lunD) * k;
+    gomito.copy(polso).addScaledVector(dirS, lunS);
+    manicaS.orienta(polso, gomito);
+    manicaS.orientaBraccio(gomito, SPALLE.sinistra);
+    polso.copy(P.destraAppoggiata ? polsoDApp : polsoD).applyMatrix4(nodoD.matrix);
+    gomito.copy(polso).addScaledVector(dirD, lunD);
+    manicaD.orienta(polso, gomito);
+    manicaD.orientaBraccio(gomito, SPALLE.destra);
     // respiro e passo
     const resp = Math.sin(t * 1.6) * 0.004;
     const bobY = Math.abs(Math.sin(fasePasso)) * 0.02 * passo;
@@ -411,20 +506,36 @@ export interface StatoVelo {
   rollio?: number;
 }
 
-/** Geometria del Velo nello spazio della camera (vedi `creaVeloPrimaPersona`). */
+/**
+ * Geometria del Velo nello spazio della camera (vedi `creaVeloPrimaPersona`).
+ * Rifinitura 1 (bozzetto 3): la traversa sta bassa, nel quarto basso dello schermo; i montanti
+ * partono dalla traversa vicino alle mani e si aprono verso gli angoli in alto (prima facevano una
+ * cornice da televisore con l'asta dritta in alto); della tela si vede solo l'orlo cucito e curvo,
+ * più alto al centro e più basso agli angoli.
+ */
 export const VELO = {
   /** traversa: quota, profondità, mezza lunghezza, raggio */
-  yT: -0.185,
-  zT: -0.47,
-  mezza: 0.6,
-  rT: 0.021,
-  /** cima dei montanti (sul bordo della tela) */
-  cima: v(0.74, 0.555, -1.0),
+  yT: -0.25,
+  zT: -0.42,
+  mezza: 0.62,
+  rT: 0.026,
+  /** dove i montanti si legano alla traversa (|x|) */
+  attacco: 0.24,
+  /** cima dei montanti (sull'orlo della tela, agli angoli) */
+  cima: v(1.08, 0.66, -1.0),
+  /** di quanto l'orlo sale al centro rispetto agli angoli */
+  arcoOrlo: 0.2,
   /** prese delle mani sulla traversa */
-  prese: [-0.29, 0.27] as const,
+  prese: [-0.34, 0.32] as const,
   /** gomiti, fuori campo */
-  gomito: v(0.43, -0.44, -0.06),
+  gomito: v(0.46, -0.52, -0.04),
 };
+
+/** Quota dell'orlo della tela a `x` (alla profondità della cima dei montanti). */
+function quotaOrlo(x: number): number {
+  const k = Math.min(1.6, (x / VELO.cima.x) ** 2);
+  return VELO.cima.y + VELO.arcoOrlo * (1 - k);
+}
 
 /** Fasce di cuoio avvolte a spirale attorno a una barra lungo X. */
 function fasciatura(f: FormePrimoPiano, x0: number, x1: number, y: number, z: number, r: number, colore: number | readonly [number, number, number], materia: number = MATERIA.CUOIO, spessore = 0.0042, passo = 0.011): void {
@@ -475,35 +586,42 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   // fasce di cuoio dove si impugna e al centro, con l'anello di ferro della corda di sospensione
   for (const x of VELO.prese) fasciatura(f, x - 0.075, x + 0.075, yT, zT, rT + 0.002, misto(COLORI_MANI.guantoScuro, 0x000000, 0.1));
   fasciatura(f, -0.04, 0.04, yT, zT, rT + 0.002, 0x7a5236, MATERIA.CUOIO, 0.0045, 0.012);
-  // montanti di castagno, legati alla traversa e al bordo della tela
+  // montanti di castagno: dalla traversa, accanto alle mani, si aprono verso gli angoli in alto
+  // dove reggono l'orlo della tela (legature di corda in basso e in cima)
   for (const s of [-1, 1]) {
-    const a = v(s * mezza, yT + 0.004, zT - 0.004);
-    const c = v(s * VELO.cima.x, VELO.cima.y, VELO.cima.z);
-    f.tubo([a.clone().add(v(0, -0.03, 0.006)), a.clone().lerp(c, 0.5).add(v(s * 0.008, 0, 0)), c], [0.0175, 0.0165, 0.0155], { colore: legnoScuro, materia: MATERIA.LEGNO, segmenti: 10, chiudiInizio: true });
-    // ferro a squadra sul giunto basso e la legatura
-    legatura(f, v(s * (mezza - 0.06), yT, zT), v(s * (mezza + 0.01), yT, zT), rT + 0.004, 6);
+    const a = v(s * VELO.attacco, yT + 0.006, zT - 0.006);
+    const c = v(s * VELO.cima.x, VELO.cima.y + 0.01, VELO.cima.z + 0.02);
+    // un filo d'arco (il castagno piegato al vapore), più grosso in basso
+    const mezzo = a.clone().lerp(c, 0.5).add(v(-s * 0.02, 0.015, 0));
+    f.tubo([a.clone().add(v(0, -0.035, 0.008)), a, mezzo, c, c.clone().add(v(s * 0.05, 0.03, -0.02))], [0.021, 0.02, 0.0175, 0.0155, 0.015], { colore: legnoScuro, materia: MATERIA.LEGNO, segmenti: 10, chiudiInizio: true, chiudiFine: true });
+    // legatura sul giunto basso (attorno alla traversa e al piede del montante)
+    legatura(f, v(s * (VELO.attacco - 0.045), yT, zT), v(s * (VELO.attacco + 0.045), yT, zT), rT + 0.004, 7);
     const dir = c.clone().sub(a).normalize();
-    legatura(f, a.clone().addScaledVector(dir, 0.012), a.clone().addScaledVector(dir, 0.06), 0.02, 5);
-    legatura(f, c.clone().addScaledVector(dir, -0.09), c.clone().addScaledVector(dir, -0.02), 0.019, 5, misto(PALETTE.canapa, PALETTE.canapaScura, 0.4));
+    legatura(f, a.clone().addScaledVector(dir, 0.015), a.clone().addScaledVector(dir, 0.07), 0.024, 5);
+    legatura(f, c.clone().addScaledVector(dir, -0.1), c.clone().addScaledVector(dir, -0.025), 0.02, 5, misto(PALETTE.canapa, PALETTE.canapaScura, 0.4));
   }
-  // asta del bordo della tela (dove la tela è cucita)
-  f.tubo([v(-1.7, VELO.cima.y + 0.012, VELO.cima.z - 0.01), v(0, VELO.cima.y + 0.02, VELO.cima.z), v(1.7, VELO.cima.y + 0.012, VELO.cima.z - 0.01)], 0.014, {
-    colore: misto(frassino, 0xb08a60, 0.3),
-    materia: MATERIA.LEGNO,
-    segmenti: 10,
-    passi: 30,
-  });
+  // traversino dell'orlo: solo agli angoli, dove la tela si cuce al montante (al centro l'orlo è libero)
+  for (const s of [-1, 1]) {
+    const pts: THREE.Vector3[] = [];
+    for (let k = 0; k <= 6; k++) {
+      const x = s * (VELO.cima.x - 0.12 + k * 0.1);
+      pts.push(v(x, quotaOrlo(x) - 0.004, VELO.cima.z - 0.012));
+    }
+    f.tubo(pts, 0.011, { colore: misto(frassino, 0xb08a60, 0.2), materia: MATERIA.LEGNO, segmenti: 8, chiudiInizio: true, chiudiFine: true });
+  }
 
   // mani sulla traversa e maniche (ferme rispetto alla traversa: una sola draw call col telaio)
   // presa «a uncino»: le nocche dietro la cima della traversa, le prime falangi la scavalcano (si vedono)
   const CENTRO_VELO = { y: -0.03, z: -0.102 };
-  const presaVelo = posaAvvolta(CENTRO_VELO, rT + 0.003, 1);
+  const presaVelo = posaAvvolta(CENTRO_VELO, rT + 0.003, 1, 'sotto');
   for (const [i, x] of VELO.prese.entries()) {
     const sinistra = x < 0;
     const fm = new FormePrimoPiano();
-    const p = manoGuanto(fm, presaVelo, { consumo: 0.55 });
+    // sulla traversa le mani stanno quasi sempre in controluce (la Linea è sopra, davanti): un cuoio
+    // un filo più chiaro e consumato, che non diventi una sagoma nera
+    const p = manoGuanto(fm, presaVelo, { consumo: 1, colore: 0x684832 });
     // il dorso guarda in su e verso l'occhio, le dita avvolgono la traversa dal davanti
-    const rx = 0.36;
+    const rx = 0.5;
     const m = new THREE.Matrix4().makeRotationX(rx);
     m.multiply(new THREE.Matrix4().makeRotationY(sinistra ? -0.12 : 0.12));
     const off = v(0, CENTRO_VELO.y, CENTRO_VELO.z).applyMatrix4(m);
@@ -525,16 +643,17 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   const ppT = new Float32Array((nx + 1) * (nz + 1) * 3);
   const base: THREE.Vector3[] = [];
   const libero: number[] = [];
-  const cTela = new THREE.Color(opz.tela ?? 0xece2c8);
-  const yC = VELO.cima.y;
+  // lino grezzo caldo: in controluce passa una luce color miele (il materiale della tela)
+  const cTela = new THREE.Color(opz.tela ?? 0xf0dfbd);
   const zC = VELO.cima.z;
   const righe: Array<[number, number]> = [];
-  // le prime due righe avvolgono l'asta (orlo), poi la tela sale verso la nuca
-  righe.push([yC - 0.006, zC - 0.03]);
-  righe.push([yC + 0.04, zC - 0.012]);
+  // le prime due righe sono l'orlo rivoltato e cucito, poi la tela sale verso la nuca; le quote
+  // sono relative all'orlo, che è curvo (più alto al centro: lì la tela quasi non si vede)
+  righe.push([-0.008, zC - 0.026]);
+  righe.push([0.034, zC - 0.01]);
   for (let j = 2; j <= nz; j++) {
     const w = (j - 1) / (nz - 1);
-    righe.push([yC + 0.045 + w * 0.42 + Math.sin(Math.PI * w) * 0.06, zC + w * 1.55]);
+    righe.push([0.04 + w * 0.42 + Math.sin(Math.PI * w) * 0.06, zC + w * 1.55]);
   }
   for (let j = 0; j <= nz; j++) {
     const [y0, z0] = righe[j]!;
@@ -543,7 +662,7 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
       const uu = i / nx;
       const x = (uu - 0.5) * 3.6;
       // la tela si alza verso i lati (camber) e si gonfia fra le cuciture
-      const y = y0 + Math.pow(Math.abs(uu - 0.5) * 2, 2) * 0.1 * Math.min(1, w * 3) + (j > 1 ? Math.abs(Math.sin((x / 0.42) * Math.PI)) * 0.012 : 0);
+      const y = quotaOrlo(x) + y0 + Math.pow(Math.abs(uu - 0.5) * 2, 2) * 0.1 * Math.min(1, w * 3) + (j > 1 ? Math.abs(Math.sin((x / 0.42) * Math.PI)) * 0.012 : 0);
       base.push(v(x, y, z0));
       libero.push(j > 1 ? Math.sin(Math.PI * uu) * Math.min(1, (j - 1) / 4) : 0);
       const k = j * (nx + 1) + i;
@@ -603,7 +722,8 @@ export function creaVeloPrimaPersona(opz: OpzioniVelo = {}): OggettoProcedurale<
   nappina.scale.setScalar(1.55);
   // la nappina pende dal montante destro, sotto la legatura alta: sempre in vista in alto a destra
   const pernoNappina = new THREE.Group();
-  pernoNappina.position.copy(VELO.cima).add(v(-0.008, -0.13, 0.03));
+  const dirMont = VELO.cima.clone().sub(v(VELO.attacco, VELO.yT, VELO.zT)).normalize();
+  pernoNappina.position.copy(VELO.cima).addScaledVector(dirMont, -0.14).add(v(0, -0.02, 0.03));
   pernoNappina.add(nappina);
 
   const gruppo = new THREE.Group();

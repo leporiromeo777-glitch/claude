@@ -22,6 +22,21 @@ import type { Collider } from '../world/colliders';
 
 export type RGB = [number, number, number];
 
+/** Distanza del cambio di dettaglio delle zone del paese per livello di qualità (m). */
+export function distanzaLodPerQualita(livello: string): number {
+  return livello === 'bassa' ? 260 : 400;
+}
+
+/** Aggiorna la distanza del cambio di dettaglio di tutti i LOD cotti sotto `radice`. */
+export function impostaDistanzaLod(radice: Object3D, distanza: number): void {
+  radice.traverse((o) => {
+    const lod = o as LOD;
+    if (!lod.isLOD || !lod.name.startsWith('corbella:')) return;
+    const l = lod.levels[1];
+    if (l) l.distance = distanza;
+  });
+}
+
 /** Materiali del motore usati dalle mesh cotte. */
 export interface MaterialiCantiere {
   singolo: Material;
@@ -93,8 +108,12 @@ export class Cantiere {
   /** direzione di ogni lume (normale del vetro delle finestre; null = in tutte le direzioni) */
   readonly direzioniLumi: (Vector3 | null)[] = [];
 
-  /** distanza (m) oltre la quale si mostra la versione `lontano` (se c'è) */
-  distanzaLod = 210;
+  /**
+   * distanza (m) oltre la quale si mostra la versione `lontano` (se c'è). Rifinitura 1: 400 m a
+   * Media e Alta, 260 a Bassa (prima 210: dalle terrazze e dal belvedere il paese era di scatole);
+   * la cambia la qualità con `distanzaLodPerQualita` (vedi `installaCorbella`).
+   */
+  distanzaLod = 400;
   private _lontano: Cantiere | null = null;
 
   constructor(readonly nome: string) {}
