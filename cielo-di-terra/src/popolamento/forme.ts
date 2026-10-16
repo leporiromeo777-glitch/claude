@@ -361,8 +361,8 @@ export const RAD = DEG;
 
 
 /**
- * Versione lontana di un rustico (oltre 400 m a Media e Alta, 260 a Bassa). Rifinitura 1: dal Velo
- * e dalle terrazze le case lontane erano cubetti grigio-blu col tetto liscio («Monopoli»); ora
+ * Versione lontana di un rustico (oltre 350 m ad Alta, 310 a Media, 260 a Bassa: vedi
+ * `distanzaLodPerQualita`). Rifinitura 1: dal Velo e dalle terrazze le case lontane erano cubetti grigio-blu col tetto liscio («Monopoli»); ora
  * hanno, con circa 200 triangoli:
  * - il tetto di piode grigio-bruno caldo che sporge 0,4 m (gronde e timpani) con l'ombra di gronda
  *   sul muro, tre file di lastre a contrasto forte (alternate chiare e scure, una riga scura sotto

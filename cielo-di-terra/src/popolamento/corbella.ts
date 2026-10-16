@@ -193,7 +193,7 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   radice.add(ctx.dinamici);
   radice.add(abitanti.gruppo);
   game.scene.add(radice);
-  // il dettaglio lontano delle case segue la qualità grafica (400 m a Media e Alta, 260 a Bassa)
+  // il dettaglio lontano delle case segue la qualità grafica (350 m ad Alta, 310 a Media, 260 a Bassa)
   game.onQualita?.((p) => impostaDistanzaLod(radice, distanzaLodPerQualita(p.livello)));
   for (const c of colliderStatici) game.world.colliders.add(c.collider);
   abitanti.collegaCollider(game.world.colliders);

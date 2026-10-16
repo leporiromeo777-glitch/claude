@@ -25,10 +25,14 @@ export type RGB = [number, number, number];
 /**
  * Distanza del cambio di dettaglio delle zone del paese per livello di qualità (m). Rifinitura 2:
  * Media da 400 a 310 m (dalla terrazza verso il paese faceva 257 draw call e 1,85 M triangoli, sul
- * livello che deve reggere i 60 fps su grafica integrata); Alta resta a 400, Bassa a 260.
+ * livello che deve reggere i 60 fps su grafica integrata); Bassa a 260.
+ * Unione 4: Alta da 400 a 350 m. La rifinitura 2 «oggetti» teneva 400 finché il caso peggiore (il
+ * paese da 190 m nel bosco, 860/16) restava sotto i 2,5 M triangoli; con i fusti e le chiome della
+ * rifinitura 2 «mondo» arrivava a 2,51 M di sola scena (2,69 M con le ombre); a 350 m scende a
+ * 2,26 M (2,45 M con le ombre). Da vicino (terrazze, castagno morto, Velo) non cambia nulla.
  */
 export function distanzaLodPerQualita(livello: string): number {
-  return livello === 'bassa' ? 260 : livello === 'media' ? 310 : 400;
+  return livello === 'bassa' ? 260 : livello === 'media' ? 310 : 350;
 }
 
 /** Aggiorna la distanza del cambio di dettaglio di tutti i LOD cotti sotto `radice`. */
@@ -115,7 +119,7 @@ export class Cantiere {
   /**
    * distanza (m) oltre la quale si mostra la versione `lontano` (se c'è). Rifinitura 1: 400 m a
    * Media e Alta, 260 a Bassa (prima 210: dalle terrazze e dal belvedere il paese era di scatole);
-   * la cambia la qualità con `distanzaLodPerQualita` (vedi `installaCorbella`).
+   * la cambia la qualità con `distanzaLodPerQualita` (vedi `installaCorbella`; oggi 350/310/260).
    */
   distanzaLod = 400;
   private _lontano: Cantiere | null = null;
