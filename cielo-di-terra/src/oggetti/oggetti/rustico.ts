@@ -215,7 +215,9 @@ function rusticoIntero(opz: OpzioniRustico, p: Pianta, seme: number, rng: Rng): 
 
   // carattere della casa: pietra calda o fredda (chiara, come nei bozzetti), spallette a calce,
   // persiane, architravi di legno
-  const tonoMuro = mescola(mescola(PALETTE.gneiss, r.prob(0.5) ? PALETTE.gneissViola : PALETTE.gneissCaldo, r.next() * 0.45), PALETTE.gneissChiaro, 0.2 + r.next() * 0.2);
+  // gneiss chiaro e caldo (nei bozzetti le case di pietra prendono la luce: grigio-beige, mai fango);
+  // stessa sequenza di numeri casuali di prima, così il resto della casa non cambia
+  const tonoMuro = mescola(mescola(PALETTE.gneiss, r.prob(0.35) ? PALETTE.gneissViola : PALETTE.gneissCaldo, 0.25 + r.next() * 0.4), 0xcdc2ad, 0.28 + r.next() * 0.22);
   const supMuro = sup(SUP.PIETRA, r.next());
   const architraviLegno = r.prob(0.45);
   const legnoPorta = r.scegli([PALETTE.larice, PALETTE.larice, PALETTE.lariceScuro, PALETTE.lariceGrigio]);

@@ -20,6 +20,7 @@ import { materialePer } from '../materiali';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
+import { SUP, legnoOrizzontale, sup } from '../superfici';
 
 export type Copricapo = 'velo' | 'maschera' | 'maschera-liscia' | 'apicoltore' | 'cappuccio' | 'cappello';
 export type Corporatura = 'esile' | 'media' | 'robusta' | 'anziana' | 'bambino';
@@ -147,8 +148,8 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     const anca = J[coscia] as THREE.Vector3;
     const gin = J[stinco] as THREE.Vector3;
     const cav = caviglia(s);
-    b.aggiungi(geoTubo([anca, gin], [0.075 * Lx * P.pancia, 0.06 * Lx], 6), { colore: mescola(cVeste, 0x000000, 0.35), osso: coscia });
-    b.aggiungi(geoTubo([gin, cav], [0.058 * Lx, 0.045 * Lx], 6), { colore: 0x4a4038, osso: stinco });
+    b.aggiungi(geoTubo([anca, gin], [0.075 * Lx * P.pancia, 0.06 * Lx], 6), { colore: mescola(cVeste, 0x000000, 0.35), osso: coscia, superficie: SUP.TESSUTO });
+    b.aggiungi(geoTubo([gin, cav], [0.058 * Lx, 0.045 * Lx], 6), { colore: 0x4a4038, osso: stinco, superficie: SUP.TESSUTO });
     b.aggiungi(geoBoxC(0.11 * Lx, 0.08 * H, 0.24 * H), { matrice: mat([cav.x, 0.04 * H, cav.z + 0.04 * H]), colore: 0x2f2620, osso: stinco, piatto: true });
   }
 
@@ -218,17 +219,18 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     const piega = p.y < 0.95 * H ? Math.sin(a * 7) * 0.5 + 0.5 : 0.5;
     out.copy(cV2).lerp(cV1, 0.45 + piega * 0.4 + n.y * 0.1);
   };
-  b.aggiungi(gVeste, { colore: coloreVeste, pesi: pesiVeste, gradiente: { basso: 0.8, alto: 1.05, y0: yOrlo, y1: 1.4 * H } });
+  b.aggiungi(gVeste, { colore: coloreVeste, pesi: pesiVeste, superficie: SUP.TESSUTO, gradiente: { basso: 0.8, alto: 1.05, y0: yOrlo, y1: 1.4 * H } });
   // cintura
   b.aggiungi(new THREE.TorusGeometry(0.205 * Lx * P.pancia, 0.028, 4, 14).rotateX(Math.PI / 2).scale(1, 1, 0.78), {
     matrice: mat([0, 0.97 * H, 0]),
     colore: cAccento,
     osso: O.bacino,
+    superficie: sup(SUP.TESSUTO, 0.6),
   });
   // stola sulle spalle (a volte)
   if (r.prob(0.45) && copr !== 'velo') {
     const st = new THREE.TorusGeometry(0.2 * Lx, 0.05, 4, 14).rotateX(Math.PI / 2).scale(1, 1, 0.8);
-    b.aggiungi(st, { matrice: mat([0, 1.4 * H, 0.0], [0.15, 0, 0]), colore: mescola(cAccento, cVeste, 0.3), osso: O.petto });
+    b.aggiungi(st, { matrice: mat([0, 1.4 * H, 0.0], [0.15, 0, 0]), colore: mescola(cAccento, cVeste, 0.3), osso: O.petto, superficie: SUP.TESSUTO });
   }
 
   // --- braccia: manica larga e mano (guanto o pelle)
@@ -238,11 +240,11 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     const spalla = J[ib] as THREE.Vector3;
     const gomito = J[ia] as THREE.Vector3;
     const pol = polso(s);
-    b.aggiungi(geoTubo([spalla.clone().add(new THREE.Vector3(0, 0.03, 0)), gomito], [0.07 * Lx, 0.065 * Lx], 6, { chiudiInizio: true }), { colore: cVeste, osso: ib });
-    b.aggiungi(geoTubo([gomito.clone().add(new THREE.Vector3(0, 0.03, 0)), pol], [0.066 * Lx, 0.085 * Lx], 6), { colore: mescola(cVeste, 0xffffff, 0.05), osso: ia });
+    b.aggiungi(geoTubo([spalla.clone().add(new THREE.Vector3(0, 0.03, 0)), gomito], [0.07 * Lx, 0.065 * Lx], 6, { chiudiInizio: true }), { colore: cVeste, osso: ib, superficie: SUP.TESSUTO });
+    b.aggiungi(geoTubo([gomito.clone().add(new THREE.Vector3(0, 0.03, 0)), pol], [0.066 * Lx, 0.085 * Lx], 6), { colore: mescola(cVeste, 0xffffff, 0.05), osso: ia, superficie: SUP.TESSUTO });
     const mano = geoSfera(0.05 * Lx, 6, 5);
     mano.scale(0.8, 1.35, 1.0);
-    b.aggiungi(mano, { matrice: mat(pol.clone().add(new THREE.Vector3(0, -0.06 * H, 0.01))), colore: cMani, osso: ia });
+    b.aggiungi(mano, { matrice: mat(pol.clone().add(new THREE.Vector3(0, -0.06 * H, 0.01))), colore: cMani, osso: ia, superficie: sup(SUP.NESSUNA) });
     if (opz.bastone && s < 0) {
       const top = pol.clone().add(new THREE.Vector3(0, -0.04, 0.05));
       b.aggiungi(geoCilindro(0.018, 0.022, 1, 5), {
@@ -308,6 +310,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
           out.copy(c1).lerp(c2, banda * 0.35 + (p.y < 1.17 * H ? 0.45 : 0) + n.y * 0.08);
         },
         pesi: pesiTesta,
+        superficie: sup(SUP.TESSUTO, 0.3),
       });
       break;
     }
@@ -322,7 +325,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
         [0.19 * Lx, 1.4 * H],
         [0.24 * Lx, 1.3 * H],
       ];
-      b.aggiungi(tornio(prof, 12, 0.92), { colore: copr === 'maschera-liscia' ? 0x242022 : mescola(cVelo, PALETTE.lana, 0.4), pesi: pesiTesta });
+      b.aggiungi(tornio(prof, 12, 0.92), { colore: copr === 'maschera-liscia' ? 0x242022 : mescola(cVelo, PALETTE.lana, 0.4), pesi: pesiTesta, superficie: SUP.TESSUTO });
       // maschera ovale di castagno, intagliata a forme semplici
       const masch = geoSfera(rT * 0.95, 10, 8);
       masch.scale(0.92, 1.18, 0.5);
@@ -331,6 +334,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
         matrice: mat([0, yC + 0.005, cT.z + rT * 0.78]),
         colore: (_p, n, out) => out.copy(cLegno).multiplyScalar(0.85 + n.z * 0.2),
         osso: O.testa,
+        superficie: sup(SUP.LEGNO, 0.2),
       });
       if (copr === 'maschera') {
         // intagli: due fessure orizzontali e un motivo a foglia (linee scure)
@@ -348,8 +352,8 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     case 'apicoltore': {
       // cappello a tesa larga e velo a rete color rame (canale sottile, aperto)
       const tesa = geoCilindro(rT * 2.75, rT * 2.75, 0.02, 14);
-      b.aggiungi(tesa, { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa });
-      b.aggiungi(geoCilindro(rT * 1.0, rT * 1.15, rT * 0.8, 12), { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa });
+      b.aggiungi(tesa, { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa, superficie: SUP.TESSUTO });
+      b.aggiungi(geoCilindro(rT * 1.0, rT * 1.15, rT * 0.8, 12), { matrice: mat([0, yC + rT * 0.7, 0]), colore: PALETTE.canapa, osso: O.testa, superficie: SUP.TESSUTO });
       b.aggiungi(geoCilindro(rT * 1.16, rT * 1.16, rT * 0.18, 12, true), { matrice: mat([0, yC + rT * 0.72, 0]), colore: PALETTE.vermiglio, osso: O.testa });
       // testa scura dentro la rete
       b.aggiungi(geoSfera(rT, 8, 6), { matrice: mat(cT), colore: 0x2b2420, osso: O.testa });
@@ -390,7 +394,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
         [0.27 * Lx, 1.28 * H],
       ];
       const cL = new THREE.Color(mescola(PALETTE.lana, cVelo, 0.3));
-      b.aggiungi(tornio(prof, 12, 0.92, 6), { colore: cL, pesi: pesiTesta });
+      b.aggiungi(tornio(prof, 12, 0.92, 6), { colore: cL, pesi: pesiTesta, superficie: SUP.TESSUTO });
       // apertura del viso: ovale buio
       const vuoto = geoSfera(rT * 0.82, 8, 6);
       vuoto.scale(0.85, 1.05, 0.45);
@@ -400,8 +404,8 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     case 'cappello': {
       // cappello di feltro a tesa larga; sotto, il viso resta in ombra
       b.aggiungi(geoSfera(rT, 8, 6), { matrice: mat(cT), colore: 0x241d19, osso: O.testa });
-      b.aggiungi(geoCilindro(rT * 2.4, rT * 2.5, 0.025, 14), { matrice: mat([0, yC + rT * 0.55, 0]), colore: mescola(cVelo, 0x000000, 0.25), osso: O.testa });
-      b.aggiungi(geoCilindro(rT * 0.95, rT * 1.1, rT * 0.95, 12), { matrice: mat([0, yC + rT * 0.55, 0]), colore: mescola(cVelo, 0x000000, 0.25), osso: O.testa });
+      b.aggiungi(geoCilindro(rT * 2.4, rT * 2.5, 0.025, 14), { matrice: mat([0, yC + rT * 0.55, 0]), colore: mescola(cVelo, 0x000000, 0.25), osso: O.testa, superficie: SUP.TESSUTO });
+      b.aggiungi(geoCilindro(rT * 0.95, rT * 1.1, rT * 0.95, 12), { matrice: mat([0, yC + rT * 0.55, 0]), colore: mescola(cVelo, 0x000000, 0.25), osso: O.testa, superficie: SUP.TESSUTO });
       b.aggiungi(geoCilindro(rT * 1.11, rT * 1.11, rT * 0.2, 12, true), { matrice: mat([0, yC + rT * 0.6, 0]), colore: cAccento, osso: O.testa });
       // scialle sulle spalle
       const prof: Array<[number, number]> = [
@@ -410,7 +414,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
         [0.27 * Lx, 1.3 * H],
         [0.28 * Lx, 1.22 * H],
       ];
-      b.aggiungi(tornio(prof, 12, 0.85, 7), { colore: mescola(cVelo, PALETTE.canapa, 0.2), osso: O.petto });
+      b.aggiungi(tornio(prof, 12, 0.85, 7), { colore: mescola(cVelo, PALETTE.canapa, 0.2), osso: O.petto, superficie: SUP.TESSUTO });
       break;
     }
   }
@@ -432,6 +436,7 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
       matrice: mat([0, 0.98 * H, -0.3 * Lx], [-0.12, 0, 0], [1, 1, 0.8]),
       colore: (p, _n, out) => out.copy(cG2).lerp(cG1, Math.sin(p.y * 48) * 0.5 + 0.5),
       osso: O.petto,
+      superficie: legnoOrizzontale(0.6),
     });
     for (const s of [-1, 1]) {
       b.aggiungi(geoTubo([new THREE.Vector3(s * 0.11, 1.42 * H, 0.06), new THREE.Vector3(s * 0.12, 1.3 * H, 0.17 * Lx), new THREE.Vector3(s * 0.14, 1.08 * H, 0.14 * Lx)], [0.015], 3), {

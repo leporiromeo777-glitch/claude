@@ -423,7 +423,7 @@ export const VELO = {
   /** prese delle mani sulla traversa */
   prese: [-0.29, 0.27] as const,
   /** gomiti, fuori campo */
-  gomito: v(0.45, -0.5, -0.12),
+  gomito: v(0.43, -0.44, -0.06),
 };
 
 /** Fasce di cuoio avvolte a spirale attorno a una barra lungo X. */
@@ -756,7 +756,7 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
   const fm = new FormePrimoPiano();
   // la destra tiene l'angolo basso a destra: il dorso del guanto verso l'occhio, le dita distese sul
   // foglio (si vedono, come nel bozzetto), il pollice dietro
-  const pm = manoGuanto(fm, posaAngoli([[0.3, 0.45, 0.3], [0.26, 0.42, 0.3], [0.34, 0.48, 0.32], [0.45, 0.55, 0.35]], [0.35, 0.95, 0.3], [-0.015, 0, 0.02, 0.05]), { consumo: 0.5 });
+  const pm = manoGuanto(fm, posaAngoli([[0.3, 0.45, 0.3], [0.26, 0.42, 0.3], [0.34, 0.48, 0.32], [0.45, 0.55, 0.35]], [0.35, 0.95, 0.3], [-0.006, 0, 0.01, 0.026]), { consumo: 0.5 });
   const mMano = matriceMano(v(0.175, -0.115, 0.03), v(-0.93, 0.37, 0), v(0, 0.15, 1));
   const fM = new FormePrimoPiano();
   fM.unisci(fm, mMano);
@@ -768,7 +768,7 @@ export function creaLetteraPrimaPersona(opz: { seme?: Seme } = {}): OggettoProce
   const gruppo = new THREE.Group();
   gruppo.name = 'lettera-prima-persona';
   gruppo.add(nodo);
-  const su = { p: v(0.21, -0.13, -0.47), r: e(0.12, -0.38, -0.2) };
+  const su = { p: v(0.235, -0.15, -0.44), r: e(0.12, -0.38, -0.2) };
   const giu = { p: v(0.45, -0.85, -0.45), r: e(0.6, -0.4, -0.3) };
   let alz = 1;
   const update = (dt: number, stato?: StatoLettera) => {

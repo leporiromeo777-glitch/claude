@@ -15,8 +15,8 @@ export interface GiocoCorbella {
   world: { colliders: ColliderWorld };
   lamps: {
     points: Points;
-    setLamps(list: Vector3[], sizes?: number[]): void;
-    addLamps(list: Vector3[], sizes?: number[]): void;
+    setLamps(list: Vector3[], sizes?: number[], dirs?: (Vector3 | null)[]): void;
+    addLamps(list: Vector3[], sizes?: number[], dirs?: (Vector3 | null)[]): void;
   };
   uniforms?: WorldUniforms;
   materials?: Record<string, Material>;

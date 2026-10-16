@@ -661,7 +661,7 @@ export function tettoPiode(b: Costruttore, rng: Rng, o: OpzioniTetto): number {
         centro.z = z + lz / 2;
         centro.y -= imbarca(centro.z);
         const tono = rng.next();
-        const colore = tono < 0.06 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.4 + rng.next() * 0.4) : mescola(PALETTE.piode, tono < 0.55 ? PALETTE.piodeChiare : PALETTE.piodeScure, rng.next() * 0.7);
+        const colore = tono < 0.06 ? mescola(PALETTE.piode, PALETTE.piodeMuschio, 0.4 + rng.next() * 0.4) : mescola(PALETTE.piode, tono < 0.55 ? PALETTE.piodeChiare : PALETTE.piodeScure, rng.next() * 0.38);
         b.aggiungi(geoLastra(lungo, spessore, lz + 0.03, rng.intero(0, 1e6), 0.14), {
           matrice: mat(centro.clone().addScaledVector(nrm, -spessore / 2), [rng.centrato(0.02), rng.centrato(0.015), rotZ + s * 0.035 + rng.centrato(0.012)]),
           colore,

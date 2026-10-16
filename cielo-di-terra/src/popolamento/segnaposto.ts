@@ -75,17 +75,22 @@ export function filtraLumi(game: GiocoCorbella, tieni: (p: Vector3) => boolean):
   const pos = geo.getAttribute('position') as BufferAttribute | undefined;
   if (!pos) return 0;
   const size = geo.getAttribute('aSize') as BufferAttribute | undefined;
+  const dirA = geo.getAttribute('aDir') as BufferAttribute | undefined;
   const lista: Vector3[] = [];
   const dim: number[] = [];
+  const dir: (Vector3 | null)[] = [];
   let tolti = 0;
   for (let i = 0; i < pos.count; i++) {
     const p = new Vector3().fromBufferAttribute(pos, i);
     if (tieni(p)) {
       lista.push(p);
       dim.push(size ? size.getX(i) : 0.6);
+      // la direzione delle finestre (se c'è) resta
+      const d = dirA ? new Vector3().fromBufferAttribute(dirA, i) : null;
+      dir.push(d && d.lengthSq() > 0.25 ? d : null);
     } else tolti++;
   }
-  if (tolti) game.lamps.setLamps(lista, dim);
+  if (tolti) game.lamps.setLamps(lista, dim, dir);
   return tolti;
 }
 

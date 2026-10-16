@@ -213,7 +213,7 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
   // polsino a manopola: si allarga verso il gomito, orlo cucito
   const av = new Vector3(0, -0.12, 1).normalize();
   const w0 = new Vector3(0, 0, 0.0);
-  const w1 = w0.clone().addScaledVector(av, 0.085);
+  const w1 = w0.clone().addScaledVector(av, 0.062);
   f.tubo([w0.clone().addScaledVector(av, -0.012), w0.clone().addScaledVector(av, 0.03), w1], [0.032, 0.035, 0.042], {
     colore: misto(g, COLORI_MANI.guantoScuro, 0.25),
     materia: CUOIO_CUCITO,

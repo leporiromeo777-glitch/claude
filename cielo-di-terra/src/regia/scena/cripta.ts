@@ -13,6 +13,9 @@
  * anche se il terreno, visto da sotto, non si disegna.
  */
 import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
   CanvasTexture,
   DoubleSide,
   Group,
@@ -25,6 +28,7 @@ import {
   type Material,
 } from 'three';
 import { GeomBuilder, PRIMS } from '../../render/geomBuilder';
+import { SUPERFICIE } from '../../render/superfici';
 import type { RGB } from '../../render/palette';
 import type { Collider } from '../../world/colliders';
 import { Ancora } from './ancora';
@@ -160,6 +164,7 @@ export function costruisciCripta(materiale: Material): Cripta {
   const lumi: Vector3[] = [];
   let coperchio5: Mesh | null = null;
   const vetri: Mesh[] = [];
+  const chiarori: BufferGeometry[] = [];
   for (let i = 1; i <= 7; i++) {
     const c = centroCapsula(i);
     const a = angoloCapsula(i);
@@ -193,7 +198,10 @@ export function costruisciCripta(materiale: Material): Cripta {
     }
     // coperchio di vetro (mesh a parte: la 5 si apre, la 1 è già aperta)
     const tex = texturaVetro(i === 5, i === 6 || i === 7);
-    const mat = new MeshBasicMaterial({ map: tex ?? undefined, color: tex ? 0xffffff : 0xd4dde4, transparent: true, opacity: i === 5 ? 0.95 : 0.85, side: DoubleSide, depthWrite: false });
+    const mat = new MeshBasicMaterial({ map: tex ?? undefined, color: tex ? 0xe4eef8 : 0xc8d8e6, transparent: true, opacity: i === 5 ? 0.95 : 0.85, side: DoubleSide, depthWrite: false });
+    // la luce fredda della capsula: un chiarore azzurrino sotto il vetro (additivo, non illuminato;
+    // tutti in una mesh sola). Nella 5 c'è Elvira (gli occhi stanno sotto): lì niente chiarore
+    if (i !== 5) chiarori.push(new PlaneGeometry(0.9, 2.0).applyMatrix4(A.matriceScatola(c.e, c.n, 0.71, 1, 1, 1, ruota).multiply(new Matrix4().makeRotationX(-Math.PI / 2))).toNonIndexed());
     const vetro = new Mesh(new PlaneGeometry(1.0, 2.15), mat);
     vetro.name = `vetro-${i}`;
     // perno sul bordo esterno (lontano da Q): il vetro ruota attorno a quello
@@ -212,6 +220,22 @@ export function costruisciCripta(materiale: Material): Cripta {
     vetri.push(vetro);
     if (i === 1) braccio.rotation.x = -1.1;
     if (i === 5) coperchio5 = vetro;
+  }
+  {
+    // i chiarori delle capsule in una mesh sola (una draw call)
+    const n = chiarori.reduce((t, g) => t + g.getAttribute('position').count, 0);
+    const pos = new Float32Array(n * 3);
+    let k = 0;
+    for (const g of chiarori) {
+      pos.set(g.getAttribute('position').array as Float32Array, k);
+      k += g.getAttribute('position').count * 3;
+      g.dispose();
+    }
+    const geo = new BufferGeometry();
+    geo.setAttribute('position', new BufferAttribute(pos, 3));
+    const chiarore = new Mesh(geo, new MeshBasicMaterial({ color: 0x5f86ad, transparent: true, opacity: 0.55, blending: AdditiveBlending, depthWrite: false, side: DoubleSide }));
+    chiarore.name = 'chiarori-capsule';
+    gruppo.add(chiarore);
   }
   // il vetro della 5: dove sta la scritta e dove sono gli occhi di Elvira sdraiata
   const c5 = centroCapsula(5);
@@ -301,7 +325,9 @@ export function costruisciCripta(materiale: Material): Cripta {
     if (luce) lumi.push(A.punto(e, n, y));
   }
 
-  const mesh = new Mesh(b.build(), materiale);
+  const geoMuri = b.build();
+  illuminaCripta(geoMuri, A);
+  const mesh = new Mesh(geoMuri, materiale);
   mesh.name = 'cripta-muri';
   mesh.frustumCulled = false;
   gruppo.add(mesh);
@@ -338,4 +364,70 @@ export function costruisciCripta(materiale: Material): Cripta {
       }
     },
   };
+}
+
+/**
+ * Luce dipinta della Cripta (traccia «paese»): il materiale del mondo illumina tutto col cielo, ma
+ * qui sotto il cielo non arriva. Si cuoce nella geometria:
+ * - la superficie dipinta per colore (pareti e costoloni di pietra, volta a intonaco con le macchie
+ *   d'umido, pavimento di lastre, tubi e capsule di ferro, display e lumi di vetro);
+ * - un'occlusione media (il riempimento del cielo cala; non di più, perché scurisce anche le pozze
+ *   dei lumi), che cala ancora attorno alle capsule: lì il riempimento rimasto si legge come la
+ *   loro luce fredda, e i vertici vicini virano all'azzurro;
+ * - più buio e più umido in basso (il piede delle pareti).
+ * I lumi color miele restano i lumi del motore (pozze calde).
+ */
+function illuminaCripta(geo: BufferGeometry, A: Ancora): void {
+  const pos = geo.getAttribute('position');
+  const col = geo.getAttribute('aColor');
+  if (!pos || !col) return;
+  const inv = A.matrice.clone().invert();
+  const v = new Vector3();
+  const n = pos.count;
+  const sup = new Float32Array(n * 2);
+  const capsule = [1, 2, 3, 4, 5, 6, 7].map((i) => centroCapsula(i));
+  const vicino = (c: readonly number[], t: readonly number[]) => Math.abs(c[0]! - t[0]!) + Math.abs(c[1]! - t[1]!) + Math.abs(c[2]! - t[2]!) < 0.02;
+  for (let i = 0; i < n; i++) {
+    v.fromBufferAttribute(pos, i).applyMatrix4(inv);
+    const e = v.x;
+    const y = v.y;
+    const nn = -v.z;
+    const c = [col.getX(i), col.getY(i), col.getZ(i)];
+    const emette = col.getW(i) > 0.02;
+    let tipo = 0;
+    if (emette) tipo = SUPERFICIE.VETRO;
+    else if (vicino(c, PIETRA)) tipo = SUPERFICIE.PIETRA + 0.3;
+    else if (vicino(c, VOLTA)) tipo = SUPERFICIE.INTONACO + 0.6;
+    else if (vicino(c, PAVIMENTO)) tipo = SUPERFICIE.PIETRA + 0.75;
+    else if (vicino(c, METALLO)) tipo = SUPERFICIE.METALLO;
+    else if (vicino(c, RAME)) tipo = SUPERFICIE.OTTONE;
+    else if (c[0]! < 0.55 && Math.abs(c[0]! - c[2]!) < 0.08) tipo = SUPERFICIE.PIETRA + 0.5;
+    // luce fredda delle capsule (a metà altezza)
+    let glow = 0;
+    for (const k of capsule) {
+      const d2 = Math.pow(e - k.e, 2) + Math.pow(nn - k.n, 2) + Math.pow(y - 0.8, 2);
+      glow += Math.exp(-d2 / (2.2 * 2.2));
+    }
+    glow = Math.min(1, glow);
+    const piede = Math.max(0, 1 - y / 0.9);
+    const occ = emette ? 0 : Math.min(0.6, Math.max(0.1, 0.44 - glow * 0.3 + piede * 0.12));
+    sup[i * 2] = tipo;
+    sup[i * 2 + 1] = occ;
+    if (!emette) {
+      // azzurro vicino alle capsule, bruno umido al piede delle pareti
+      const k = glow * 0.35;
+      let r = c[0]! * (1 - k * 0.25);
+      let g = c[1]! * (1 - k * 0.05);
+      let bb = c[2]! * (1 + k * 0.25);
+      if (piede > 0) {
+        const u = piede * 0.25;
+        r *= 1 - u;
+        g *= 1 - u * 0.9;
+        bb *= 1 - u * 1.1;
+      }
+      col.setXYZ(i, r, g, bb);
+    }
+  }
+  col.needsUpdate = true;
+  geo.setAttribute('aSuperficie', new BufferAttribute(sup, 2));
 }

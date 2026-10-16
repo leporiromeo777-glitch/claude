@@ -90,6 +90,8 @@ export class Cantiere {
   readonly collider: VoceCollider[] = [];
   readonly lumi: Vector3[] = [];
   readonly dimensioniLumi: number[] = [];
+  /** direzione di ogni lume (normale del vetro delle finestre; null = in tutte le direzioni) */
+  readonly direzioniLumi: (Vector3 | null)[] = [];
 
   /** distanza (m) oltre la quale si mostra la versione `lontano` (se c'è) */
   distanzaLod = 210;
@@ -151,10 +153,11 @@ export class Cantiere {
     return c;
   }
 
-  /** Aggiunge un lume (punto mondo). */
-  lume(p: Vector3, dimensione = 0.6): void {
+  /** Aggiunge un lume (punto mondo); `direzione`: verso dove guarda (finestre), se no tutt'attorno. */
+  lume(p: Vector3, dimensione = 0.6, direzione: Vector3 | null = null): void {
     this.lumi.push(p.clone());
     this.dimensioniLumi.push(dimensione);
+    this.direzioniLumi.push(direzione ? direzione.clone().normalize() : null);
   }
 
   /**
@@ -310,14 +313,15 @@ export class Cantiere {
       g.n.add(nn);
       g.k++;
     }
-    // al più due bagliori per casa (le finestre più grandi): i bagliori del motore non si nascondono
-    // dietro i muri, e tante finestre sui fianchi diventavano puntini attorno alla casa
-    gruppi.sort((a, b) => b.k - a.k);
-    for (const g of gruppi.slice(0, 2)) {
+    // ogni finestra accesa ha il suo bagliore, con la direzione del vetro: i bagliori del motore
+    // sono spinti verso la camera e passano i muri, e le finestre sul retro facevano puntini attorno
+    // alla casa; con la direzione si spengono quando il vetro guarda dall'altra parte
+    for (const g of gruppi) {
       const p = g.s.multiplyScalar(1 / g.k);
-      if (g.n.lengthSq() > 1e-6) p.addScaledVector(g.n.normalize(), 0.25);
-      // alone piccolo: la finestra si deve leggere come una finestra, non come una lanterna
-      this.lume(p, 0.3);
+      const n = g.n.lengthSq() > 1e-6 ? g.n.normalize() : null;
+      if (n) p.addScaledVector(n, 0.25);
+      // alone contenuto: la finestra si deve leggere come una finestra, non come una lanterna
+      this.lume(p, 0.42, n);
     }
   }
 

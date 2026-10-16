@@ -357,7 +357,8 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   const { BoxGeometry } = THREE_GEOM;
   const t = new THREE_MAT4();
   const box = new BoxGeometry(1, 1, 1);
-  const pietra: RGB = [0.62 + hash2(seme, 1) * 0.08, 0.6 + hash2(seme, 2) * 0.06, 0.56 + hash2(seme, 3) * 0.06];
+  // lo stesso gneiss chiaro e caldo delle case vicine
+  const pietra: RGB = [0.72 + hash2(seme, 1) * 0.06, 0.68 + hash2(seme, 2) * 0.05, 0.61 + hash2(seme, 3) * 0.05];
   t.makeTranslation(0, (hMuri - interrata) / 2, 0).scale(new Vector3(W, hMuri + interrata, D));
   // muri di pietra, più scuri al piede (stesso motivo dipinto della casa vicina)
   c.forma(box, m.clone().multiply(t), pietra, 0, 'singolo', (p, out) => {
