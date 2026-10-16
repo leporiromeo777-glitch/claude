@@ -27,6 +27,17 @@ const DISTANZA_PER_PARLARE = 6;
  */
 export const DISTANZA_DIALOGO_AUTOMATICO = 25;
 
+/**
+ * Per quanto «parla» chi dice la battuta (s): il tempo in cui la finestra scrive il testo (50 caratteri al
+ * secondo, più le pause della punteggiatura) e un po' di più, perché lo si legge; mai meno di 1,2 s né più
+ * di 6. Il markup del testo non conta.
+ */
+export function durataBattuta(testo: string): number {
+  const t = testo.replace(/<[^>]*>/g, '');
+  const pause = (t.match(/[.,;:!?…]/g) ?? []).length;
+  return Math.max(1.2, Math.min(6, 0.6 + t.length / 38 + pause * 0.15));
+}
+
 /** La condizione d'apertura di un dialogo nomina un luogo («luogo:bacheca_ore raggiunto»)? */
 export function dialogoDiUnLuogo(condizione: unknown): boolean {
   const t = typeof condizione === 'string' ? condizione : condizione === undefined || condizione === null ? '' : JSON.stringify(condizione);
@@ -151,10 +162,11 @@ export class DirettoreDialoghi {
     this.vista = v;
     this.ultimo = v.dialogo;
     this.r.ui.dialogo.show(this.battuta(v));
-    // chi parla si gira verso Elvira, se la didascalia non dice il contrario («Non si gira»)
-    if (!/non si gira/i.test(v.didascalia ?? '')) this.r.abitanti.voltaVerso(v.chi, this.r.game.player.cyl);
-    // a ogni battuta un cenno o un gesto breve (solo i personaggi nuovi, src/personaggi)
-    this.r.abitanti.battuta(v.chi);
+    // chi parla si gira con calma verso Elvira, se la didascalia non dice il contrario («Non si gira»: Togna
+    // china sulla vasca); in ogni caso la guarda
+    this.r.abitanti.voltaVerso(v.chi, this.r.game.player.cyl, !/non si gira/i.test(v.didascalia ?? ''));
+    // la battuta: un piccolo cenno, ogni tanto un gesto (src/personaggi/animatore.ts, annunciaBattuta)
+    this.r.abitanti.battuta(v.chi, durataBattuta(v.testo));
     return true;
   }
 
@@ -184,7 +196,7 @@ export class DirettoreDialoghi {
     if (prossimo) {
       this.vista = prossimo;
       this.r.ui.dialogo.show(this.battuta(prossimo));
-      this.r.abitanti.battuta(prossimo.chi);
+      this.r.abitanti.battuta(prossimo.chi, durataBattuta(prossimo.testo));
     } else this.chiudi();
   }
 
@@ -194,6 +206,8 @@ export class DirettoreDialoghi {
     this.vista = null;
     if (this.r.ui.dialogo.visible) this.r.ui.dialogo.hide();
     if (v && !this.r.narrativa.dialoghi.isFinished()) this.r.narrativa.dialoghi.interrompi();
+    // chi parlava smette e, fra poco, torna alle sue cose (src/regia/png.ts, dopoDialogo)
+    if (v) this.r.abitanti.fineDialogo();
   }
 
   svuota(): void {

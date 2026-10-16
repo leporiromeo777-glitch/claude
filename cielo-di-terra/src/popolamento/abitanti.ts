@@ -88,8 +88,17 @@ export interface ManigliaNpc {
   posizione(): PosCil | null;
   /** teletrasporto sul suolo (o a quota `h` assoluta) */
   vaiA(z: number, theta: number, opz?: { h?: number; yaw?: number; sopra?: number }): void;
-  /** gira il corpo verso un punto (z, theta) */
+  /** gira il corpo verso un punto (z, theta), di colpo: per chi è appena stato messo lì (vaiA) */
   orientaVerso(p: PuntoCil): void;
+  /**
+   * si gira con calma verso un punto (chi gli parla): una rotazione morbida, i piedi a passi (personaggi
+   * nuovi); niente se è seduto, chino o in cammino, né se basta girare la testa (meno di 25°). Con null
+   * smette di prestargli attenzione e, se segue gli orari, torna piano a guardare dove guardava.
+   * Vero se se ne occupa (anche solo con la testa).
+   */
+  rivolgiVerso(p: PuntoCil | null): boolean;
+  /** la posa di adesso (in piedi, seduto, chino) */
+  readonly posaAttuale: PosaNpc;
   /** la testa segue un punto (mondo o cilindrico); null = guarda avanti */
   guarda(p: THREE.Vector3 | PosCil | null): void;
   /** gesto della mano destra; `durata` s (0 = finché non se ne chiede un altro) */
@@ -114,6 +123,15 @@ interface StatoNpc {
   obj: ReturnType<typeof creaAbitante> | null;
   pos: PosCil | null;
   yaw: number;
+  /** dove guarda per gli orari (il verso del suo posto): ci torna piano dopo una conversazione */
+  yawCasa: number;
+  /** verso cui si sta girando con calma (gradi bussola) e con che velocità (gradi/s); null = fermo */
+  yawMeta: number | null;
+  vYaw: number;
+  /** il giro in corso verso yawMeta (pianoGiro) */
+  piano: PianoGiro | null;
+  /** presta attenzione a qualcuno (rivolgiVerso): gli orari non lo rigirano */
+  rivolto: boolean;
   posa: PosaNpc;
   stato: StatoAbitante;
   gestoFino: number;
@@ -189,6 +207,10 @@ export class Abitanti {
         });
       },
       orientaVerso: (q) => membri.forEach((x) => x.orientaVerso(q)),
+      rivolgiVerso: (q) => membri.map((x) => x.rivolgiVerso(q)).some(Boolean),
+      get posaAttuale() {
+        return primo.posaAttuale;
+      },
       guarda: (q) => membri.forEach((x) => x.guarda(q)),
       gesto: (g, d, i) => membri.forEach((x) => x.gesto(g, d, i)),
       posa: (q) => membri.forEach((x) => x.posa(q)),
@@ -249,6 +271,11 @@ export class Abitanti {
       obj,
       pos: null,
       yaw: 0,
+      yawCasa: 0,
+      yawMeta: null,
+      vYaw: 0,
+      piano: null,
+      rivolto: false,
       posa: 'in-piedi',
       stato: { modo: 'fermo' },
       gestoFino: 0,
@@ -346,6 +373,14 @@ export class Abitanti {
         self.npc.get('lisa')!.orientaVerso(q);
         self.npc.get('gioanin')!.orientaVerso(q);
       },
+      rivolgiVerso(q) {
+        const a = self.npc.get('lisa')!.rivolgiVerso(q);
+        const b = self.npc.get('gioanin')!.rivolgiVerso(q);
+        return a || b;
+      },
+      get posaAttuale() {
+        return lisa.posa;
+      },
       guarda(q) {
         self.npc.get('lisa')!.guarda(q);
         self.npc.get('gioanin')!.guarda(q);
@@ -400,7 +435,11 @@ export class Abitanti {
       vaiA(z, theta, o = {}) {
         const h = o.h ?? suolo(z, theta) + (o.sopra ?? 0);
         s.pos = { z, theta, h };
-        if (o.yaw !== undefined) s.yaw = o.yaw;
+        if (o.yaw !== undefined) {
+          s.yaw = o.yaw;
+          s.yawMeta = null;
+          s.vYaw = 0;
+        }
         s.percorso = [];
         s.stato.modo = 'fermo';
         self.posaFigura(s);
@@ -408,7 +447,31 @@ export class Abitanti {
       orientaVerso(p) {
         if (!s.pos) return;
         s.yaw = yawVerso(s.pos, p);
+        s.yawMeta = null;
+        s.vYaw = 0;
         self.posaFigura(s);
+      },
+      rivolgiVerso(p) {
+        if (!s.pos || !s.figura) return false;
+        if (p === null) {
+          if (!s.rivolto) return false;
+          s.rivolto = false;
+          // chi segue gli orari torna piano a guardare dove guardava; chi è in mano alla regia resta così
+          if (!s.manuale && s.posa === 'in-piedi' && Math.abs(deltaYaw(s.yaw, s.yawCasa)) > 1) s.yawMeta = s.yawCasa;
+          return true;
+        }
+        s.rivolto = true;
+        // seduti e chini non si girano (la testa sì: lo sguardo); in cammino gira il passo
+        if (s.posa !== 'in-piedi' || s.percorso.length) return true;
+        const y = yawVerso(s.pos, p);
+        const delta = deltaYaw(s.yaw, y);
+        // fino a 25° basta la testa; oltre si gira quasi tutto (gli ultimi gradi li fa lo sguardo)
+        if (Math.abs(delta) < 25 && s.yawMeta === null) return true;
+        s.yawMeta = y - Math.sign(delta) * 5;
+        return true;
+      },
+      get posaAttuale() {
+        return s.posa;
       },
       guarda(p) {
         if (!p) s.stato.guarda = null;
@@ -566,16 +629,36 @@ export class Abitanti {
       guardaVerso = piazzamento.verso ? (luogoOpz(piazzamento.verso) ?? null) : null;
       sopra = piazzamento.sopra ?? 0;
     }
-    if (!s.pos || distanza(s.pos, { z, theta: th }) > 0.5 || s.luogo !== l.id) {
+    const nuovo = !s.pos || distanza(s.pos, { z, theta: th }) > 0.5 || s.luogo !== l.id || !s.presente || s.posa !== posa;
+    if (nuovo) {
       s.pos = { z, theta: th, h: this.quota(z, th) + sopra };
       s.percorso = [];
     }
     s.posa = posa;
-    if (guardaVerso) s.yaw = yawVerso({ z, theta: th }, guardaVerso);
+    if (guardaVerso) this.versoDelPosto(s, yawVerso({ z, theta: th }, guardaVerso), nuovo);
     s.luogo = l.id;
     this.posaFigura(s);
     this.mostra(s, true);
     return l.id;
+  }
+
+  /**
+   * Il verso del posto degli orari. Prima si rimetteva a ogni minuto di gioco (1,7 s reali): chi si era
+   * girato verso Elvira per parlarle tornava di scatto com'era, a metà della prima battuta. Adesso: di
+   * colpo solo se la figura è appena arrivata lì (o non si vedeva, o ha cambiato posa); altrimenti, se non
+   * sta prestando attenzione a qualcuno (rivolgiVerso), ci torna piano.
+   */
+  private versoDelPosto(s: StatoNpc, yaw: number, nuovo: boolean): void {
+    s.yawCasa = yaw;
+    if (nuovo || s.posa !== 'in-piedi') {
+      s.yaw = yaw;
+      s.yawMeta = null;
+      s.vYaw = 0;
+      if (nuovo) s.rivolto = false;
+      return;
+    }
+    if (s.rivolto) return;
+    if (Math.abs(deltaYaw(s.yaw, yaw)) > 1) s.yawMeta = yaw;
   }
 
   private collocaVelato(s: StatoNpc, voce: PosizionePersonaggio | null, i: number): string {
@@ -609,10 +692,12 @@ export class Abitanti {
       p = GIRO_VELATI[i % GIRO_VELATI.length]!;
       verso = (i % 3 === 0 ? piazza : { z: p.z + 10, theta: p.theta + (i % 2 ? 2 : -2) });
     }
+    const luogo = voce.luogo.startsWith('corbella') ? 'corbella' : voce.luogo;
+    const nuovo = !s.pos || distanza(s.pos, p) > 0.5 || s.luogo !== luogo || !s.presente || s.posa !== posa;
     s.pos = { z: p.z, theta: p.theta, h: this.quota(p.z, p.theta) + sopra };
-    if (verso) s.yaw = yawVerso(p, verso);
     s.posa = posa;
-    s.luogo = voce.luogo.startsWith('corbella') ? 'corbella' : voce.luogo;
+    if (verso) this.versoDelPosto(s, yawVerso(p, verso), nuovo);
+    s.luogo = luogo;
     this.posaFigura(s);
     this.mostra(s, true);
     return s.luogo;
@@ -674,6 +759,7 @@ export class Abitanti {
       // i personaggi nuovi fanno da sé seduto e chino (la posa passa nello stato); le rotazioni di
       // posaOssa sono per le ossa della figura procedurale
       const nuovo = s.obj.gruppo.userData['personaggio'] !== undefined;
+      this.gira(s, dt, nuovo);
       if (nuovo) {
         // da seduti anche il profilo del suolo davanti e dietro (panche comprese): la figura ci posa anche
         // e piedi (src/personaggi/sedute.ts); il luogo serve alle correzioni per id@luogo
@@ -685,6 +771,43 @@ export class Abitanti {
       s.obj.update?.(dt, s.stato);
       if (!nuovo) this.posaOssa(s);
     }
+  }
+
+  /**
+   * Il giro con calma verso `yawMeta` (rivolgiVerso, il ritorno al verso del posto): la velocità sale e
+   * scende con un'accelerazione costante (niente gradini), al più GIRO.vmax; frena in tempo per fermarsi
+   * sul verso voluto. I personaggi nuovi seguono il corpo con i piedi, a passi (animatore.ts); la figura
+   * procedurale, che non ha i piedi a terra, fa due passi sul posto mentre gira.
+   */
+  private gira(s: StatoNpc, dt: number, nuovo: boolean): void {
+    if (s.yawMeta === null || !s.pos) {
+      s.piano = null;
+      return;
+    }
+    if (s.percorso.length || s.posa !== 'in-piedi') {
+      s.yawMeta = null;
+      s.vYaw = 0;
+      s.piano = null;
+      return;
+    }
+    // un piano nuovo quando cambia la meta: dallo yaw e dalla velocità di adesso (niente gradini di velocità)
+    if (!s.piano || s.piano.meta !== s.yawMeta) s.piano = pianoGiro(s.yaw, s.vYaw, s.yawMeta);
+    const p = s.piano;
+    p.t = Math.min(p.T, p.t + dt);
+    const { yaw, v } = posizioneGiro(p);
+    s.yaw = yaw;
+    s.vYaw = v;
+    if (p.t >= p.T) {
+      s.yaw = p.meta;
+      s.yawMeta = null;
+      s.vYaw = 0;
+      s.piano = null;
+    }
+    if (!nuovo && s.yawMeta !== null) {
+      s.stato.modo = 'cammina';
+      s.stato.velocita = 0.45;
+    }
+    this.posaFigura(s);
   }
 
   private passo(s: StatoNpc, dt: number): void {
@@ -785,6 +908,50 @@ export class Abitanti {
     }
     this.gruppo.parent?.remove(this.gruppo);
   }
+}
+
+/**
+ * Il giro con calma: velocità e accelerazione più alte (gradi/s, gradi/s²) e durata minima (s). Un quarto
+ * di giro in circa un secondo e tre quarti.
+ */
+export const GIRO = { vmax: 75, acc: 250, minimo: 0.7 } as const;
+
+/** Un giro pianificato: da `da` (gradi) a `meta`, velocità iniziale `v0` (gradi/s), in `T` s; `t` = tempo passato. */
+export interface PianoGiro {
+  da: number;
+  delta: number;
+  meta: number;
+  v0: number;
+  T: number;
+  t: number;
+}
+
+/**
+ * Il piano di un giro da `yaw` (con velocità `v0`) a `meta`: una curva di Hermite cubica, velocità `v0` in
+ * partenza e zero all'arrivo, lunga quanto serve per non superare GIRO.vmax e GIRO.acc (da fermi è uno
+ * smoothstep: velocità di punta 1,5·Δ/T, accelerazione 6·Δ/T²).
+ */
+export function pianoGiro(yaw: number, v0: number, meta: number): PianoGiro {
+  const delta = deltaYaw(yaw, meta);
+  const d = Math.abs(delta);
+  const T = Math.max(GIRO.minimo, (1.5 * d) / GIRO.vmax, Math.sqrt((6 * d) / GIRO.acc), Math.abs(v0) / GIRO.acc * 2);
+  return { da: yaw, delta, meta, v0, T, t: 0 };
+}
+
+/** Dove è arrivato un giro pianificato (yaw in gradi) e a che velocità (gradi/s). */
+export function posizioneGiro(p: PianoGiro): { yaw: number; v: number } {
+  const u = Math.min(1, p.t / p.T);
+  const u2 = u * u;
+  const u3 = u2 * u;
+  // Hermite: h10·T·v0 + h01·Δ (h00·0 = 0)
+  const pos = (u3 - 2 * u2 + u) * p.T * p.v0 + (-2 * u3 + 3 * u2) * p.delta;
+  const vel = (3 * u2 - 4 * u + 1) * p.v0 + ((-6 * u2 + 6 * u) * p.delta) / p.T;
+  return { yaw: p.da + pos, v: vel };
+}
+
+/** La differenza fra due yaw (gradi), da -180 a 180. */
+export function deltaYaw(da: number, a: number): number {
+  return ((((a - da) % 360) + 540) % 360) - 180;
 }
 
 /** Piazzamenti fini per personaggio@luogo: spostamento (m) dal punto del luogo, posa, verso chi guarda. */

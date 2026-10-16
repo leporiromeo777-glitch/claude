@@ -526,7 +526,12 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
   let fase = 0;
   let pesoCamminata = 0;
   const gesti: Record<Gesto, number> = { nessuno: 1, saluta: 0, indica: 0, 'mano-al-petto': 0 };
-  const sguardo = { yaw: 0, pitch: 0 };
+  const sguardo = { yaw: 0, pitch: 0, vYaw: 0, vPitch: 0 };
+  /** tempo dall'ultimo cenno di battuta (s); oltre 0,85 nessun cenno */
+  let cenno = 9;
+  gruppo.userData['battuta'] = () => {
+    cenno = 0;
+  };
   const indicaDir = { yaw: 0, pitch: 0 };
   const respiroPeriodo = 3.6 + rng.next() * 1.4;
   const pesoPeriodo = 6 + rng.next() * 4;
@@ -592,11 +597,18 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
       yawObj = THREE.MathUtils.clamp(Math.atan2(tmp.x, tmp.z), -1.4, 1.4);
       pitchObj = THREE.MathUtils.clamp(Math.atan2(tmp.y, Math.hypot(tmp.x, tmp.z)), -0.6, 0.7);
     }
-    sguardo.yaw = smorza(sguardo.yaw, yawObj, 4, dt);
-    sguardo.pitch = smorza(sguardo.pitch, pitchObj, 4, dt);
+    // (una molla smorzata, non un inseguimento del primo ordine: quando chi guarda cambia di colpo la
+    // testa parte e si ferma piano)
+    molla(sguardo, 'yaw', 'vYaw', yawObj, dt);
+    molla(sguardo, 'pitch', 'vPitch', pitchObj, dt);
     const yawTesta = THREE.MathUtils.clamp(sguardo.yaw, -1.0, 1.0);
     os('testa').rotation.y += yawTesta;
     os('testa').rotation.x += -sguardo.pitch * 0.8;
+    // il cenno di una battuta (battutaPersonaggio): giù e su, lento
+    if (cenno < 0.85) {
+      cenno += dt;
+      os('testa').rotation.x += 0.08 * 0.5 * (1 - Math.cos((2 * Math.PI * Math.min(cenno, 0.85)) / 0.85));
+    }
     os('petto').rotation.y += (sguardo.yaw - yawTesta) * 0.8;
     // gesti con la mano destra (o sinistra per il bastone)
     const g1 = gesti.saluta;
@@ -641,6 +653,24 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     },
     update,
   });
+}
+
+/**
+ * Una molla smorzata in modo critico sul campo `x` (velocità nel campo `v`) verso `bersaglio`: arriva in
+ * circa un secondo, senza oscillare e senza salti di velocità; al più 2,8 rad/s. A passi di 1/60 s.
+ */
+function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, bersaglio: number, dt: number): void {
+  const k = 4.5;
+  const n = Math.max(1, Math.ceil(dt * 60 - 1e-6));
+  const h = dt / n;
+  const r = o as Record<string, number>;
+  const kx = x as string;
+  const kv = v as string;
+  for (let i = 0; i < n; i++) {
+    const a = k * k * (bersaglio - (r[kx] as number)) - 2 * k * (r[kv] as number);
+    r[kv] = THREE.MathUtils.clamp((r[kv] as number) + a * h, -2.8, 2.8);
+    r[kx] = (r[kx] as number) + (r[kv] as number) * h;
+  }
 }
 
 /** Porta le rotazioni di un osso verso un obiettivo con peso w. */

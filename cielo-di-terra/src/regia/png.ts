@@ -12,7 +12,7 @@
  */
 import type { Object3D, Vector3 } from 'three';
 import type { ManigliaCorbella, ManigliaNpc } from '../popolamento';
-import { battutaPersonaggio } from '../personaggi/fabbrica';
+import { battutaPersonaggio, fineBattutePersonaggio } from '../personaggi/fabbrica';
 import { METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, deltaDeg, surfaceDistance } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
@@ -37,6 +37,13 @@ const OTTAVIO_LONTANO_A_PIEDI = 36;
 const IN_VOLO = 6;
 /** Maniglie di gruppo del popolamento (muovono più figure). */
 const GRUPPI = new Set(['bambini', 'velati_corbella']);
+/** I due bambini (nei dialoghi parlano a turno, come «bambini», «lisa» e «gioanin»). */
+const BAMBINI = new Set(['bambini', 'lisa', 'gioanin']);
+/**
+ * Dopo un dialogo chi ha parlato resta rivolto a Elvira finché lei è vicina (al più DOPO_DIALOGO.max s),
+ * poi torna alle sue cose; se lei si allontana oltre DOPO_DIALOGO.vicino m, dopo DOPO_DIALOGO.min s.
+ */
+const DOPO_DIALOGO = { min: 2.5, max: 10, vicino: 3.5 } as const;
 
 export interface ContestoAbitanti {
   giorno: number;
@@ -218,19 +225,61 @@ export class Abitanti {
     return out;
   }
 
-  /** Chi parla si gira verso Elvira (il corpo; la testa la gira già da vicino). */
-  voltaVerso(id: string, elvira: { z: number; theta: number }): void {
-    const n = this.npc(id);
-    if (n?.presente && !n.inCammino && !this.inVolo(n)) n.orientaVerso(elvira);
+  /**
+   * Chi parla si gira verso Elvira: con calma, i piedi a passi (prima di colpo, e al minuto di gioco dopo
+   * gli orari lo rigiravano com'era, sempre di colpo). Seduti e chini girano solo la testa. Mentre il
+   * dialogo è aperto, e per un po' dopo, la guarda anche da lontano.
+   */
+  voltaVerso(id: string, elvira: { z: number; theta: number }, siGira = true): void {
+    // i bambini parlano a turno: si girano tutti e due (la maniglia di gruppo)
+    const chi = BAMBINI.has(id) ? 'bambini' : id;
+    const n = chi === 'bambini' ? this.corbella.npc('bambini') : this.npc(chi);
+    if (!n?.presente || this.inVolo(n)) return;
+    if (this.interlocutore && this.interlocutore.id !== chi) this.lascia();
+    this.interlocutore = { id: chi, finito: null };
+    if (siGira && !n.inCammino) n.rivolgiVerso(elvira);
   }
 
+  /** Il personaggio `id` (del popolamento) sta parlando con Elvira o ci ha appena parlato. */
+  private interlocutoreE(id: string): boolean {
+    const i = this.interlocutore?.id;
+    return !!i && (i === id || (i === 'bambini' && BAMBINI.has(id)));
+  }
+
+  /** Il dialogo è stato chiuso: chi parlava smette di parlare e, fra poco, di prestare attenzione. */
+  fineDialogo(): void {
+    const i = this.interlocutore;
+    if (!i || i.finito !== null) return;
+    i.finito = this.tempo;
+    const n = this.npc(i.id);
+    if (n?.figura) fineBattutePersonaggio(n.figura);
+    if (i.id === 'bambini') {
+      for (const b of ['lisa', 'gioanin']) {
+        const f = this.corbella.npc(b)?.figura;
+        if (f) fineBattutePersonaggio(f);
+      }
+    }
+  }
+
+  /** Smette di prestare attenzione a Elvira: chi segue gli orari torna piano a guardare dove guardava. */
+  private lascia(): void {
+    const i = this.interlocutore;
+    if (!i) return;
+    this.interlocutore = null;
+    (i.id === 'bambini' ? this.corbella.npc('bambini') : this.npc(i.id))?.rivolgiVerso(null);
+  }
+
+  /** Chi parla con Elvira (o ci ha appena parlato): id e quando il dialogo è stato chiuso (null = aperto). */
+  private interlocutore: { id: string; finito: number | null } | null = null;
+
   /**
-   * Comincia una battuta di `id`: i personaggi nuovi fanno un cenno del capo o un gesto breve
-   * (src/personaggi/fabbrica.ts, battutaPersonaggio); le figure procedurali niente.
+   * Comincia una battuta di `id` lunga `durata` s: i personaggi nuovi fanno quasi sempre un piccolo cenno
+   * del capo e ogni tanto un gesto della mano libera (src/personaggi/animatore.ts, annunciaBattuta); la
+   * figura procedurale un cenno.
    */
-  battuta(id: string): void {
+  battuta(id: string, durata?: number): void {
     const n = this.npc(id);
-    if (n?.presente && n.figura && !n.inCammino) battutaPersonaggio(n.figura);
+    if (n?.presente && n.figura && !n.inCammino) battutaPersonaggio(n.figura, durata);
   }
 
   /** I velati della piazza si voltano tutti insieme verso Elvira (evento:velati_si_voltano). */
@@ -328,7 +377,17 @@ export class Abitanti {
       this.condizioni(ctx);
     }
     this.aggiornaOttavio(dt, ctx);
+    this.dopoDialogo(ctx);
     this.sguardi(ctx);
+  }
+
+  /** Finito il dialogo: un po' rivolto a Elvira, poi torna alle sue cose (vedi DOPO_DIALOGO). */
+  private dopoDialogo(ctx: ContestoAbitanti): void {
+    const i = this.interlocutore;
+    if (!i || i.finito === null) return;
+    const passati = this.tempo - i.finito;
+    const d = this.distanzaDa(i.id === 'bambini' ? 'lisa' : i.id, ctx.elvira.z, ctx.elvira.theta);
+    if (passati > DOPO_DIALOGO.max || (passati > DOPO_DIALOGO.min && d > DOPO_DIALOGO.vicino)) this.lascia();
   }
 
   /**
@@ -368,7 +427,8 @@ export class Abitanti {
       if (GRUPPI.has(id) || !n.figura) continue;
       const p = n.presente ? n.posizione() : null;
       const d = p ? surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta) : Infinity;
-      if (d < 9 || (voltati && d < 70)) {
+      // chi parla con lei la guarda anche da lontano (un dialogo automatico si apre fino a 25 m)
+      if (d < 9 || (voltati && d < 70) || (d < 40 && this.interlocutoreE(id))) {
         n.guarda(ctx.occhi);
         this.guardanti.add(id);
       } else if (this.guardanti.delete(id)) n.guarda(null);
@@ -435,7 +495,7 @@ export class Abitanti {
         if (t >= 1) {
           this.ottavio = o.poi;
           n.vaiA(o.a.z, o.a.theta);
-          n.orientaVerso(ctx.elvira);
+          n.rivolgiVerso(ctx.elvira); // atterrato, si gira con calma verso di lei
           n.mostra(true); // il collider sul suolo
         }
         return;
@@ -489,7 +549,7 @@ export class Abitanti {
         if (dist <= OTTAVIO_VICINO + 0.15) {
           n.ferma();
           this.metaCammino = null;
-          n.orientaVerso(ctx.elvira);
+          n.rivolgiVerso(ctx.elvira); // arrivato, si gira con calma verso di lei
           this.ottavio = o.poi.tipo === 'accompagna' ? o.poi : { tipo: 'fermo', z: p.z, theta: p.theta, fino };
           return;
         }
