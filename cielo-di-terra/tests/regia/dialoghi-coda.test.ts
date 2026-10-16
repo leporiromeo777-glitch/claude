@@ -43,6 +43,7 @@ function regiaFinta(persone: Record<string, number>) {
       ottavioRaggiunge: () => {},
       puntoDialogo: () => null,
       voltaVerso: () => {},
+      battuta: () => {},
     },
     game: { player: { cyl: { z: 1043, theta: 35.6, h: 38.5 } } },
     voltatiVerso: () => {},
