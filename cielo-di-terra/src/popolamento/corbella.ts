@@ -12,7 +12,7 @@ import { LATI, PARTICELLE, RETE, luogo } from './contenuti';
 import { cylToWorld, worldToCyl } from '../world/cylinder';
 import { Contesto } from './contesto';
 import { costruisciBalcone, costruisciGraDiPian, costruisciLontani, costruisciPilastriValle } from './luoghi/capisaldi';
-import { costruisciCasaPina, costruisciCasaVelo, costruisciCase, lanterneDellePorte } from './luoghi/case';
+import { cortiliDelleCase, costruisciAnnessi, costruisciCasaPina, costruisciCasaVelo, costruisciCase, costruisciVerdeDelPaese, lanterneDellePorte } from './luoghi/case';
 import { costruisciCripta, type Cripta } from './luoghi/cripta';
 import { costruisciPiazza } from './luoghi/piazza';
 import { costruisciFienile, costruisciRiale, costruisciRonchi } from './luoghi/ronchi';
@@ -61,6 +61,10 @@ export interface StatisticheCorbella {
   msCostruzione: number;
   /** lanterne a braccio sulle porte (rifinitura 1) */
   lanterne: number;
+  /** annessi addossati fra le case vicine, orti e alberi da frutto (rifinitura 2) */
+  annessi?: number;
+  orti?: number;
+  alberiFrutto?: number;
 }
 
 export interface ManigliaElemento {
@@ -142,6 +146,12 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   const case_ = costruisciCase(ctx);
   // lanterne a braccio accanto alle porte della corona della piazza (di notte il paese è acceso)
   const lanterne = lanterneDellePorte(ctx, case_);
+  // rifinitura 2: stalle, legnaie e fienili addossati fra le case vicine (le cortine diventano
+  // continue), poi un orto o un albero da frutto ogni due o tre case: il nucleo è un grumo
+  const annessi = costruisciAnnessi(ctx, case_);
+  const verde = costruisciVerdeDelPaese(ctx, case_);
+  // e le aie di terra battuta attorno alle case: le case non stanno più sul prato come pedine
+  cortiliDelleCase(ctx, case_);
   // 3. muri delle terrazze lungo le alzate dei gradoni
   const piazza = luogo('piazza_ore');
   const tipoCella = new Map(PARTICELLE.map((p) => [p.id, p.tipo]));
@@ -257,6 +267,9 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     segnaposto: seg,
     msCostruzione: 0,
     lanterne,
+    annessi,
+    orti: verde.orti,
+    alberiFrutto: verde.alberi,
   };
 
   const update = (dt: number) => {

@@ -23,15 +23,26 @@ export const COLORI_MANI = {
   guanto: 0x4b3426,
   guantoChiaro: 0x6e4c34,
   guantoScuro: 0x2c1f17,
-  /** polsino a manopola, cuoio più chiaro e meno conciato */
-  manopola: 0x7a5e45,
-  manopolaOrlo: 0x5e4430,
+  /** rifinitura 2: le cuciture fra le dita e lungo i fianchi (filo cerato scuro) */
+  cucitura: 0x2e2018,
+  /** rifinitura 2: la luce sulle nocche (il cuoio consumato, più chiaro e caldo) */
+  nocche: 0x8a6446,
+  /**
+   * polsino a manopola, cuoio più chiaro e meno conciato. Rifinitura 2: da #7a5e45 a #7a5236, stesso
+   * valore ma più saturo: al sole il bruno-rosa di prima sembrava un polso nudo
+   */
+  manopola: 0x7a5236,
+  manopolaOrlo: 0x553a26,
   cinghia: 0x2e2119,
   fibbia: PALETTE.ottoneScuro,
   // verde oliva spento, quasi cachi (bozzetti 1 e 2), non il verde saturo di un tubo di plastica:
   // la post-produzione satura, quindi la base tira al bruno
   manica: 0x67624c,
   manicaScura: 0x4c4838,
+  /** rifinitura 2: la piega diagonale della manica (la lana si arriccia dove il braccio si piega) */
+  manicaPiega: 0x3b3829,
+  /** e la cresta chiara della piega, dalla parte della luce */
+  manicaChiara: 0x7d7759,
   polsino: 0x535d36,
 } as const;
 
@@ -137,6 +148,28 @@ export function posaAvvolta(centro: { y: number; z: number }, raggio: number, ch
   return { dita: out, pollice: [base, a1, a2, a3] };
 }
 
+/**
+ * Cuciture fra le dita (rifinitura 2): un filo scuro sul fianco alto di ogni dito, dalla parte del
+ * dito vicino (l'indice e il mignolo solo verso l'interno), dalla nocca alla punta. Si leggono come
+ * le righe scure fra un dito e l'altro dei guanti da lavoro dei bozzetti.
+ */
+function cucitureDito(f: FormePrimoPiano, pts: Vector3[], r: number, i: number): void {
+  const lati = i === 0 ? [1] : i === 3 ? [-1] : [-1, 1];
+  for (const s of lati) {
+    const curva: Vector3[] = [];
+    for (let k = 0; k < pts.length; k++) {
+      const p = pts[k]!;
+      const t = (k < pts.length - 1 ? pts[k + 1]!.clone().sub(p) : p.clone().sub(pts[k - 1]!)).normalize();
+      const lat = X.clone().addScaledVector(t, -t.dot(X)).normalize();
+      const su = lat.clone().cross(t).normalize();
+      // la punta resta libera (la cucitura gira sotto il polpastrello)
+      const rr = r * (k === pts.length - 1 ? 0.78 : 0.95);
+      curva.push(p.clone().addScaledVector(lat, s * rr).addScaledVector(su, r * 0.3));
+    }
+    f.tubo(curva, 0.0013, { colore: COLORI_MANI.cucitura, materia: MATERIA.CUOIO, segmenti: 4, occlusione: 0.35 });
+  }
+}
+
 export interface OpzioniMano {
   colore?: Colore;
   /** consumo del cuoio (0..1): più chiaro sulle nocche */
@@ -179,11 +212,15 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
   }
   f.tubo([new Vector3(-0.026, 0.006, -0.012), new Vector3(-0.031, 0.009, -0.04), new Vector3(-0.034, 0.008, -0.07)], 0.001, { colore: COLORI_MANI.guantoScuro, materia: MATERIA.CUOIO, segmenti: 4, occlusione: 0.3 });
   // dita
+  // rifinitura 2: le nocche prendono la luce (il cuoio consumato #8a6446) e le cuciture scure corrono
+  // lungo i fianchi delle dita, fra un dito e l'altro (#2e2018): da lontano le dita si contano
+  const nocca = misto(g, COLORI_MANI.nocche, 0.38 + (o.consumo ?? 0.4) * 0.25);
   for (let i = 0; i < 4; i++) {
     const d = DITA[i]!;
     const pts = posa.dita[i]!;
     // la nocca sporge appena sul dorso
-    f.ellissoide(d.k.clone().add(new Vector3(0, 0.0035, 0.003)), new Vector3(d.r * 1.05, d.r * 0.8, d.r * 1.05), new Quaternion(), { colore: misto(g, chiaro, 0.5), materia: MATERIA.CUOIO, w: 10, h: 7 });
+    f.ellissoide(d.k.clone().add(new Vector3(0, 0.0038, 0.003)), new Vector3(d.r * 1.08, d.r * 0.82, d.r * 1.08), new Quaternion(), { colore: nocca, materia: MATERIA.CUOIO, w: 10, h: 7 });
+    cucitureDito(f, pts, d.r, i);
     // tubo del dito: un po' più grosso alle articolazioni, stretto in punta
     const radii = [d.r * 1.08, d.r * 1.0, d.r * 1.03, d.r * 0.95, d.r * 0.98, d.r * 0.86];
     const p0 = pts[0]!;
@@ -222,14 +259,15 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
     chiudiInizio: true,
     occlusione: 0.12,
   });
-  // polsino a manopola (bozzetto 2): cuoio più chiaro, 7-8 cm, si allarga verso il gomito e sta
-  // SOPRA la lana (la manica parte da dentro); la cucitura scura corre lungo il dorso
+  // polsino a manopola (bozzetto 2): cuoio più chiaro (#7a5e45), alto 6 cm (rifinitura 2: prima
+  // 7-8 cm), si allarga verso il gomito e sta SOPRA la lana (la manica parte da dentro); la cucitura
+  // scura corre lungo il dorso e un'altra fa il giro dove il polsino si attacca al guanto
   const av = new Vector3(0, -0.12, 1).normalize();
   const w0 = new Vector3(0, 0, 0.0);
-  const w1 = w0.clone().addScaledVector(av, 0.078);
+  const w1 = w0.clone().addScaledVector(av, 0.06);
   const mano = COLORI_MANI.manopola;
-  f.tubo([w0.clone().addScaledVector(av, -0.014), w0.clone().addScaledVector(av, 0.02), w0.clone().addScaledVector(av, 0.05), w1], [0.032, 0.035, 0.043, 0.049], {
-    colore: (p, u) => misto(misto(mano, g, Math.max(0, 0.3 - u * 6)), COLORI_MANI.manopolaOrlo, p.y < -0.012 ? 0.35 : 0),
+  f.tubo([w0.clone().addScaledVector(av, -0.014), w0.clone().addScaledVector(av, 0.016), w0.clone().addScaledVector(av, 0.04), w1], [0.032, 0.036, 0.044, 0.05], {
+    colore: (p, u) => misto(misto(mano, g, Math.max(0, 0.3 - u * 7)), COLORI_MANI.manopolaOrlo, p.y < -0.012 ? 0.35 : 0),
     materia: CUOIO_CUCITO,
     ellisse: 0.82,
     lato: X.clone(),
@@ -237,8 +275,10 @@ export function manoGuanto(f: FormePrimoPiano, posa: PosaMano, o: OpzioniMano = 
     segmenti: 16,
     occlusione: (p, u) => (p.y < -0.012 ? 0.3 : 0.05) + Math.max(0, 0.25 - u * 4),
   });
+  // la cucitura del giro, dove il polsino si attacca al guanto
+  f.tubo([w0.clone().addScaledVector(av, 0.006), w0.clone().addScaledVector(av, 0.0075)], 0.0362, { colore: COLORI_MANI.cucitura, materia: MATERIA.CUOIO, ellisse: 0.82, lato: X.clone(), segmenti: 16, occlusione: 0.3 });
   // orlo del polsino, rivoltato e più scuro
-  f.tubo([w1.clone().addScaledVector(av, -0.006), w1.clone().addScaledVector(av, 0.004)], 0.0515, { colore: COLORI_MANI.manopolaOrlo, materia: MATERIA.CUOIO, ellisse: 0.82, lato: X.clone(), segmenti: 16, occlusione: 0.12 });
+  f.tubo([w1.clone().addScaledVector(av, -0.006), w1.clone().addScaledVector(av, 0.004)], 0.0525, { colore: COLORI_MANI.manopolaOrlo, materia: MATERIA.CUOIO, ellisse: 0.82, lato: X.clone(), segmenti: 16, occlusione: 0.12 });
   if (o.cinghia ?? false) {
     // cinghia attorno al polso con la fibbia sul dorso
     const c = w0.clone().addScaledVector(av, 0.03);
@@ -297,14 +337,24 @@ export function manica(f: FormePrimoPiano, polso: Vector3, gomito: Vector3, o: {
   };
   // pieghe di sbieco (la stoffa si arriccia dove il braccio si piega): più scure e più in ombra
   const piega = (u: number, v: number) => Math.max(0, Math.sin(u * 24 + Math.sin(v * 6.283) * 1.6 + seme * 5)) ** 2;
+  // rifinitura 2: una piega diagonale netta che gira attorno alla manica (scura, con la cresta chiara
+  // accanto): la manica non è più un tubo liscio, nemmeno al buio
+  const diag = (u: number, v: number) => {
+    const k = Math.abs(((v - (u / Math.max(l, 0.1)) * 0.85 + seme * 0.37 + 10) % 1) - 0.5);
+    const lungo = Math.min(1, Math.max(0, (u - 0.04) / 0.05)) * Math.min(1, Math.max(0, (l - 0.03 - u) / 0.05));
+    return { scura: Math.max(0, 1 - k / 0.07) * lungo, chiara: Math.max(0, 1 - Math.abs(k - 0.12) / 0.06) * lungo };
+  };
   f.tubo(pts, r, {
-    colore: (_p, u, v) => misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, piega(u, v) * 0.45),
+    colore: (_p, u, v) => {
+      const d = diag(u, v);
+      return misto(misto(misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, piega(u, v) * 0.45), COLORI_MANI.manicaChiara, d.chiara * 0.4), COLORI_MANI.manicaPiega, d.scura * 0.75);
+    },
     materia: LANA_MAGLIA,
     ellisse: 0.86,
     lato,
     segmenti: 18,
     passi: 30,
-    occlusione: (_p, u, v) => Math.max(0, 0.3 - u * 3) + piega(u, v) * 0.22,
+    occlusione: (_p, u, v) => Math.max(0, 0.3 - u * 3) + piega(u, v) * 0.22 + diag(u, v).scura * 0.3,
   });
 }
 
@@ -319,8 +369,10 @@ export function braccio(f: FormePrimoPiano, gomito: Vector3, spalla: Vector3, o:
   const pts: Vector3[] = [];
   for (let i = 0; i <= 4; i++) pts.push(gomito.clone().addScaledVector(d, i / 4 - (i === 0 ? 0.08 : 0)));
   const piega = (u: number, v: number) => Math.max(0, Math.sin(u * 20 + Math.sin(v * 6.283) * 1.4 + seme * 3)) ** 2;
+  // la piega del gomito: un ventaglio di pieghe scure che parte dall'interno del gomito
+  const gomitoP = (u: number, v: number) => Math.max(0, 1 - u / 0.12) * Math.max(0, Math.sin(v * 6.283 * 3 + u * 30 + seme)) ** 3;
   f.tubo(pts, (t) => 0.07 + t * 0.012 + Math.max(0, Math.sin(t * 9 + seme * 5)) * 0.004, {
-    colore: (_p, u, v) => misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, 0.12 + piega(u, v) * 0.4),
+    colore: (_p, u, v) => misto(misto(COLORI_MANI.manica, COLORI_MANI.manicaScura, 0.12 + piega(u, v) * 0.4), COLORI_MANI.manicaPiega, gomitoP(u, v) * 0.6),
     materia: LANA_MAGLIA,
     ellisse: 0.9,
     lato: o.lato ?? new Vector3(1, 0, 0),

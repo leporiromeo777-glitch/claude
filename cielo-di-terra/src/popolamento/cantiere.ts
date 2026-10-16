@@ -22,9 +22,13 @@ import type { Collider } from '../world/colliders';
 
 export type RGB = [number, number, number];
 
-/** Distanza del cambio di dettaglio delle zone del paese per livello di qualità (m). */
+/**
+ * Distanza del cambio di dettaglio delle zone del paese per livello di qualità (m). Rifinitura 2:
+ * Media da 400 a 310 m (dalla terrazza verso il paese faceva 257 draw call e 1,85 M triangoli, sul
+ * livello che deve reggere i 60 fps su grafica integrata); Alta resta a 400, Bassa a 260.
+ */
 export function distanzaLodPerQualita(livello: string): number {
-  return livello === 'bassa' ? 260 : 400;
+  return livello === 'bassa' ? 260 : livello === 'media' ? 310 : 400;
 }
 
 /** Aggiorna la distanza del cambio di dettaglio di tutti i LOD cotti sotto `radice`. */

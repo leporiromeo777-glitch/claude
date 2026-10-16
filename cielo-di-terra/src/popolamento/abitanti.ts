@@ -793,8 +793,9 @@ const PIAZZAMENTI: Record<string, { nord?: number; est?: number; posa?: PosaNpc;
   'pina@telo_ombrista': { nord: 1.6, est: 0.3, verso: 'piazza_ore' },
   // davanti alla vasca, sul lastricato del lavatoio, 20 cm dal bordo (prima era 2,6 m indietro, fuori
   // dalla piattaforma: china sul niente)
-  // (rifinitura 1: la vasca è più avanti, sul lastricato rialzato di 0,8 m: Togna le sta davanti)
-  'togna@lavatoio': { nord: 2.63, est: -0.3, posa: 'chino', verso: 'campanile' },
+  // (rifinitura 2: di nuovo il posto di prima, perché il lavatoio è tornato alla sua quota; con il
+  // lastricato rialzato di 0,8 m della rifinitura 1 il posto era nord 2,63, est −0,3)
+  'togna@lavatoio': { nord: 3.73, est: -1.51, posa: 'chino', verso: 'campanile' },
   'togna@piazza_ore': { nord: 6, est: -12, verso: 'telo_ombrista' },
   'bortolo@sagrato': { nord: 2, est: -4, verso: 'piazza_ore' },
   'bortolo@campanile': { nord: -3.6, est: 0, verso: 'piazza_ore' },
