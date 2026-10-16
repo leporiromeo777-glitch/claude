@@ -27,6 +27,9 @@ import { costruisciMuriTerrazze } from './terrazzi';
 import { distanza, suolo } from './terreno';
 import type { GiocoCorbella, PuntoInterazione } from './tipi';
 
+/** Quando il tempo corre (più di un minuto di gioco a passo), gli orari si rileggono un passo ogni tanti. */
+export const PASSI_ORARIO_VELOCE = 4;
+
 export interface OpzioniCorbella {
   /** 'rimuovi' (predefinito) toglie il paese segnaposto del motore; 'tieni' lo lascia (confronti) */
   segnaposto?: 'rimuovi' | 'tieni';
@@ -242,6 +245,7 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
   let giorno = opzioni.giorno ?? 1;
   const orari = opzioni.orari ?? true;
   let ultimaOra = -1;
+  let passiDaOrario = 0;
   const ora = () => game.sky?.hours ?? game.clock?.hours ?? 10;
   if (orari) abitanti.applicaOrario(giorno, ora());
 
@@ -278,8 +282,16 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
     for (const a of ctx.animati) a.update?.(dt);
     // fumo della grà di Pian dalle 6 alle 10
     fumoGra.visible = h >= 6 && h < 10;
-    if (orari && Math.abs(h - ultimaOra) > 1 / 60) {
+    // gli orari si rileggono a ogni minuto di gioco; quando il tempo corre («Aspetta fino a» della
+    // regia: ore di gioco in pochi secondi, più di un minuto a ogni passo) al più un passo ogni
+    // PASSI_ORARIO_VELOCE: collocare tutti costa circa un millisecondo, e a ogni passo triplicava
+    // il costo della simulazione durante l'attesa. Un salto da fermo (il sonno, un caricamento, il
+    // giorno nuovo) si applica subito; alla fine dell'attesa la regia li rilegge da sé.
+    passiDaOrario++;
+    const dh = Math.abs(h - ultimaOra);
+    if (orari && dh > 1 / 60 && (passiDaOrario >= PASSI_ORARIO_VELOCE || dh > 3 || ultimaOra < 0)) {
       ultimaOra = h;
+      passiDaOrario = 0;
       abitanti.applicaOrario(giorno, h);
     }
     abitanti.update(dt, game.sky as never);

@@ -530,10 +530,10 @@ export class Percorso {
     if (c.tipo === 'seduta') {
       s.inAttesa = r.orologio.inAttesa;
       s.salto = r.orologio.inSalto;
-      s.attesa = !r.ponte.attesaAperta && r.vociAttesa().length > 0;
+      s.attesa = !r.ponte.attesaAperta && r.tempoBloccato() === null && r.vociAttesa().length > 0;
       s.rilettura = n.inventario.ha('lettera_marta') && n.flag.vero('lettera_letta');
     }
-    if (c.tipo === 'libero' && r.interno === null && this.fermaDa >= FERMA_PER_ASPETTARE && r.orologio.fermo === null) {
+    if (c.tipo === 'libero' && r.interno === null && this.fermaDa >= FERMA_PER_ASPETTARE && r.tempoBloccato() === null) {
       // chi si cerca non c'è ancora (le indicazioni dicono quando arriva), o il passo è un'attesa
       const daAspettare = r.guida.arrivo !== null || [...attivi].some((id) => PASSI_DI_ATTESA.has(id)) || (attivi.has('m1_notte') && n.flag.vero('scelta_vegliare'));
       s.aspettare = daAspettare && r.vociAttesa().length > 0;

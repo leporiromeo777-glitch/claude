@@ -82,6 +82,13 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   private catturato = false;
   private inPausa = false;
   private readonly suTasto: (e: KeyboardEvent) => void;
+  /**
+   * Un menu del gioco fuori dalla pila dei modali (il menu «Aspetta fino a…» della regia) che
+   * vuole i tasti prima delle scorciatoie: se restituisce vero il tasto è suo e si ferma lì.
+   * Quando un modale è aperto i tasti vanno al modale. (Prima il menu ascoltava la finestra per
+   * conto suo, dopo questo ascoltatore: Esc chiudeva il menu e apriva anche la pausa.)
+   */
+  tastiPrima: ((e: KeyboardEvent) => boolean) | null = null;
 
   constructor(contenitore: HTMLElement, opz: OpzioniInterfaccia = {}) {
     super();
@@ -287,6 +294,11 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
         e.preventDefault();
         e.stopPropagation();
       }
+      return;
+    }
+    if (this.tastiPrima?.(e)) {
+      e.preventDefault();
+      e.stopPropagation();
       return;
     }
     if (this.opz.scorciatoie === false || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;

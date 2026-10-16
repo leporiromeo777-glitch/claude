@@ -8,6 +8,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { InterfacciaGioco, StoreImpostazioni, arcoAstro, cieloQuadrante, eNotteOrologio, testoOrologio } from '../../src/ui/index';
 import { SEZIONI_IMPOSTAZIONI } from '../../src/ui/componenti/impostazioni';
+import { testoOra } from '../../src/regia/contenuti';
 
 let ui: InterfacciaGioco;
 let contenitore: HTMLDivElement;
@@ -40,6 +41,21 @@ describe('la matematica dell\'orologio', () => {
     expect(testoOrologio(0)).toBe('00:00');
     expect(testoOrologio(23.99)).toBe('23:59');
     expect(testoOrologio(24)).toBe('00:00');
+  });
+
+  it("la pausa, il salvataggio e il diario (testoOra) dicono l'ora dell'orologio a schermo", () => {
+    // prima testoOra arrotondava: alle 09:29 e mezzo l'orologio diceva 09:29 e la pausa 09:30, e
+    // con «fra un'ora» dalle 07:04 e mezzo l'orologio «fino alle 08:04», il diario «08:05»
+    expect(testoOra(9 + 29.5 / 60)).toBe('09:29');
+    expect(testoOra(8 + 4.6 / 60)).toBe('08:04');
+    for (let m = 0; m < 1440 * 4; m++) {
+      const ore = m / 240 + (m % 7) * 1e-9 - (m % 5) * 1e-12;
+      expect(testoOra(ore), `${ore}`).toBe(testoOrologio(ore));
+    }
+    // le ore esatte di un'attesa non diventano il minuto prima per un errore di virgola mobile
+    expect(testoOra(19.5 - 1e-12)).toBe('19:30');
+    expect(testoOra(22 + 5 / 60)).toBe('22:05');
+    expect(testoOra(0.1 + 0.2 + 20.2)).toBe('20:30');
   });
 
   it('il sole va da un orizzonte all\'altro dalle 05:30 alle 21:00; la luna di notte', () => {

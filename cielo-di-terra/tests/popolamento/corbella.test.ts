@@ -10,6 +10,7 @@ import { cylToWorld } from '../../src/world/cylinder';
 import { groundHeight } from '../../src/world/terrain';
 import { ELEMENTI_MOBILI, LATI, LONTANI, PERSONAGGI, RETE, luogo } from '../../src/popolamento/contenuti';
 import { ALIAS_SEGNAPOSTO, installaCorbella, portaPopolamento, type ManigliaCorbella } from '../../src/popolamento/index';
+import { PASSI_ORARIO_VELOCE } from '../../src/popolamento/corbella';
 import { dentroCorbella } from '../../src/popolamento/segnaposto';
 import { distanza } from '../../src/popolamento/terreno';
 import { giocoFinto } from './banco';
@@ -202,6 +203,43 @@ describe('personaggi', () => {
     n.guarda({ z: 1062, theta: 37.2, h: 62 });
     c.update(0.5);
     n.manuale = false;
+  });
+  it('quando il tempo corre (l\'attesa) gli orari si rileggono un passo ogni tanto; un salto da fermo subito', () => {
+    // Ottavio il giorno 1 vola sopra la valle: la sua posizione cambia a ogni lettura degli orari
+    const pos = () => {
+      const p = c.npc('ottavio')!.posizione()!;
+      return `${p.z.toFixed(3)},${p.theta.toFixed(4)}`;
+    };
+    const ck = g.clock!;
+    c.giorno = 1;
+    ck.hours = 6;
+    c.update(1 / 60); // il giorno nuovo: subito
+    const letture: boolean[] = [];
+    let prima = pos();
+    // il time-lapse: tre minuti di gioco a ogni passo
+    for (let i = 0; i < 12; i++) {
+      ck.hours += 0.05;
+      c.update(1 / 60);
+      const ora = pos();
+      letture.push(ora !== prima);
+      prima = ora;
+    }
+    expect(letture.filter(Boolean)).toHaveLength(12 / PASSI_ORARIO_VELOCE);
+    // il tempo normale (40 minuti per giorno): una lettura a ogni minuto di gioco, come prima
+    let passi = 0;
+    for (; passi < 200 && pos() === prima; passi++) {
+      ck.hours += 24 / (40 * 60 * 60);
+      c.update(1 / 60);
+    }
+    expect(passi).toBeGreaterThan(90);
+    expect(passi).toBeLessThan(110);
+    // un salto da fermo (dormire, caricare): al primo passo
+    prima = pos();
+    ck.hours += 4;
+    c.update(1 / 60);
+    expect(pos()).not.toBe(prima);
+    ck.hours = 10;
+    c.applicaOrario(1, 10);
   });
 });
 

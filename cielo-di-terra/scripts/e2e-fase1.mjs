@@ -181,18 +181,41 @@ async function leggi(chiudi = true) {
  * quel punto un secondo X salta alla fine; con `foto` un fotogramma a metà (le cifre che corrono).
  * Restituisce i secondi reali dell'attesa.
  */
-async function aspetta(testo, { maxS = 30, salta = null, foto: nomeFoto = null } = {}) {
+async function aspetta(testo, { maxS = 30, salta = null, foto: nomeFoto = null, tastiInCoda = false } = {}) {
+  if (tastiInCoda) {
+    // un Invio in più a dialogo chiuso (nessuno lo legge in gioco): non deve saltare l'attesa dopo
+    await page.keyboard.press('Enter');
+    await attendi(30);
+    await avanza(0.1);
+  }
   await premi('KeyX');
   let s = await stato();
   if (s.controllo !== 'seduta') throw new Error(`X non ha fatto sedere Elvira (${s.controllo})`);
   const voci = await page.$$eval('.regia-attesa button', (bs) => bs.map((b) => b.textContent));
   const i = voci.findIndex((v) => v.includes(testo));
   if (i < 0) throw new Error(`«aspetta fino a: ${testo}» non c'è fra ${JSON.stringify(voci)}`);
+  if (tastiInCoda) {
+    // ...né Spazio e Invio premuti a menu aperto
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Enter');
+    await attendi(30);
+    await avanza(1 / 60);
+  }
   await page.keyboard.press(String(i + 1));
   await attendi(30);
   const s0 = await stato();
   if (!(await R(() => window.__GAME__.regia.regia.orologio.inAttesa))) throw new Error(`l'attesa «${testo}» non è partita: ${s0.ora}`);
   let secondi = 0;
+  if (tastiInCoda) {
+    await avanza(0.25);
+    secondi += 0.25;
+    const at = await R(() => {
+      const r = window.__GAME__.regia.regia;
+      return { inAttesa: r.orologio.inAttesa, salto: r.orologio.inSalto, diario: r.diario.slice(-4) };
+    });
+    if (!at.inAttesa || at.salto) throw new Error(`un tasto rimasto in coda ha fatto saltare l'attesa «${testo}»: ${JSON.stringify(at)}`);
+    log('  ✓ Invio e Spazio rimasti in coda non saltano l\'attesa (il time-lapse corre)');
+  }
   if (nomeFoto) {
     secondi += await misuraFincheJs('!r.orologio.inAttesa', 1.8, 0.05);
     await foto(nomeFoto);
@@ -515,7 +538,17 @@ async function main() {
     await verifica('passo:m1_ottavio completato e flag:aspetta_brace_sbloccato', 'Ottavio, il Messo');
 
     log('— M1.8 La brace');
-    await aspetta('la brace', { foto: '10b-attesa-della-brace' });
+    // Esc nel menu dell'attesa lo chiude e basta (prima apriva anche la pausa)
+    await premi('KeyX');
+    if (!(await R(() => !!document.querySelector('.regia-attesa')))) throw new Error('X non ha aperto il menu dell\'attesa');
+    await page.keyboard.press('Escape');
+    await attendi(60);
+    await avanza(0.05);
+    s = await stato();
+    if (s.modali.pausa || (await R(() => !!document.querySelector('.regia-attesa'))) || s.controllo !== 'seduta') throw new Error(`Esc nel menu dell'attesa: ${JSON.stringify({ pausa: s.modali.pausa, controllo: s.controllo })}`);
+    log('  ✓ Esc chiude il menu dell\'attesa, senza la pausa');
+    // appena chiuso il dialogo con Ottavio, un Invio in più e Spazio a menu aperto
+    await aspetta('la brace', { foto: '10b-attesa-della-brace', tastiInCoda: true });
     await verifica('passo:m1_brace completato', 'la brace');
 
     log("— M1.9 L'Ombrista");

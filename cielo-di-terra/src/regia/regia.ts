@@ -82,6 +82,14 @@ export interface MondoSalvato {
 const OCCHI = 1.62;
 /** Ogni quanti secondi di gioco, camminando, si salva da sé (oltre ai passi, all'alba e al sonno). */
 const SALVA_OGNI = 90;
+/**
+ * I tasti del secondo tocco, che durante «Aspetta fino a» saltano alla fine. Contano solo se
+ * premuti mentre il tempo corre: l'ingresso tiene in coda ogni pressione finché qualcuno non la
+ * legge, e nessun altro legge Invio in gioco, né Spazio da seduti o a menu aperto. Un Invio in
+ * più alla fine di un dialogo restava lì e faceva saltare al nero l'attesa dopo, senza che
+ * nessuno l'avesse chiesto (prova del verificatore, 16 ottobre).
+ */
+const TASTI_SALTO = ['KeyX', 'Enter', 'NumpadEnter', 'Space'] as const;
 const _v = new Vector3();
 const _w = new Vector3();
 const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
@@ -818,7 +826,16 @@ export class Regia implements SistemaGioco {
     const at = this.orologio.attesa!;
     this.attesaVicini = this.personeVicine(10);
     this.saltoAttesa = false;
+    // il secondo tocco vale da adesso: un Invio o uno Spazio rimasti in coda (premuti in gioco, a
+    // dialogo chiuso, o a menu aperto) non devono saltare al nero il time-lapse appena partito
+    this.dimenticaTastiSalto();
     this.log(`aspetta fino alle ${fmtOra(scelta)} (${(at.fino - at.da).toFixed(2)} h di gioco in ${at.durata.toFixed(1)} s)`);
+  }
+
+  /** Toglie dalla coda dell'ingresso le pressioni dei tasti del secondo tocco (vedi TASTI_SALTO). */
+  private dimenticaTastiSalto(): void {
+    const inp = this.game.input;
+    for (const k of TASTI_SALTO) inp.consumePressed(k);
   }
 
   /** Il secondo tocco durante l'attesa: il resto corre in un attimo, sotto una dissolvenza al nero. */
@@ -873,7 +890,16 @@ export class Regia implements SistemaGioco {
       vegliare: this.narrativa.flag.vero('scelta_vegliare'),
       fadeViste: this.narrativa.flag.vero('fade_viste'),
       passi: this.narrativa.missioni.passiAttivi().map((p) => p.passo),
+      oreAlLimite: this.orologio.limite !== null ? Math.max(0, this.orologio.limite - this.orologio.assoluto) : null,
     });
+  }
+
+  /** Il tempo non può passare adesso (l'ora è ferma, o è arrivata al limite: orologio:max): perché, o null. */
+  tempoBloccato(): string | null {
+    const o = this.orologio;
+    if (o.fermo !== null) return 'Il tempo non passa ancora: c\'è qualcosa da fare.';
+    if (o.limite !== null && o.assoluto >= o.limite - 1 / 120) return 'Il tempo non va più in là: prima c\'è qualcosa da fare.';
+    return null;
   }
 
   /**
@@ -890,8 +916,9 @@ export class Regia implements SistemaGioco {
       return;
     }
     if (c !== 'libero' || !this.game.player.grounded || this.game.player.veloOpen) return;
-    if (this.orologio.fermo !== null) {
-      this.ponte.notifica('Il tempo non passa ancora: c\'è qualcosa da fare.');
+    const bloccato = this.tempoBloccato();
+    if (bloccato) {
+      this.ponte.notifica(bloccato);
       return;
     }
     this.siedi();
@@ -900,6 +927,11 @@ export class Regia implements SistemaGioco {
   }
 
   private apriMenuAttesa(): void {
+    const bloccato = this.tempoBloccato();
+    if (bloccato) {
+      this.ponte.notifica(bloccato);
+      return;
+    }
     const voci = this.vociAttesa();
     if (!voci.length) {
       this.ponte.notifica('Adesso non c\'è niente da aspettare.');
@@ -1407,6 +1439,9 @@ export class Regia implements SistemaGioco {
     const premuto = this.ePremuto && !ui.inputCatturato;
     this.ePremuto = false;
     if (!catturato) this.tasti();
+    // a menu dell'attesa aperto, o con una carta sopra l'attesa, i tasti del secondo tocco non
+    // restano in coda per dopo (vedi TASTI_SALTO)
+    else if (this.orologio.inAttesa || this.ponte.attesaAperta) this.dimenticaTastiSalto();
     this.squadro.bloccato = ui.inputCatturato || this.controllo.tipo === 'sdraiata' || this.controllo.tipo === 'scala' || this.interno === 'cripta';
     g.movimentoBloccato = catturato || this.controllo.tipo !== 'libero';
 
@@ -1598,6 +1633,8 @@ export class Regia implements SistemaGioco {
     const inPausa = this.fase === 'gioco' && (ui.pausa.visible || ui.pannelloImpostazioni.visible || ui.crediti.visible);
     g.loop.paused = inPausa || this.fase === 'titolo';
     this.audio.pausa(inPausa);
+    // (in pausa la simulazione è ferma: un tasto del secondo tocco premuto lì non salta dopo)
+    if (inPausa && this.orologio.inAttesa) this.dimenticaTastiSalto();
     if (this.fase !== 'gioco') {
       if (ui.orologio.visible) ui.orologio.hide();
       this.guida.render(frameDt);

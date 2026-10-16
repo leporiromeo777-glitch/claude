@@ -96,7 +96,11 @@ describe('le tappe di un passo', () => {
     const f = fonti({ dialoghi, corpi: ['ottavio', 'clelia'] });
     expect(tappeDelPasso(passo('dialogo:d_parla finito', { luogo: 'piazza_ore' }), f)[0]).toEqual({ tipo: 'persona', id: 'ottavio' });
     expect(tappeDelPasso(passo('dialogo:d_voce finito', { luogo: 'belvedere_muretto' }), f)).toEqual([{ tipo: 'luogo', id: 'belvedere_muretto' }]);
-    expect(tappeDelPasso(passo('dialogo:d_bacheca finito o dialogo:d_parla finito', { luogo: 'bacheca_ore' }), f)[0]).toEqual({ tipo: 'luogo', id: 'bacheca_ore' });
+    // (con chi parla lì: se non c'è ancora, il menu dell'attesa sa quando arriva)
+    expect(tappeDelPasso(passo('dialogo:d_bacheca finito o dialogo:d_parla finito', { luogo: 'bacheca_ore' }), f)[0]).toEqual({ tipo: 'luogo', id: 'bacheca_ore', chi: 'clelia' });
+    // una voce senza corpo che parla arrivando in un posto: il posto, senza nessuno da aspettare
+    const g = fonti({ dialoghi: { d_cella: { personaggio: 'meridiana', apertura: 'luogo:cella_campanaria raggiunto' } }, corpi: [] });
+    expect(tappeDelPasso(passo('dialogo:d_cella finito'), g)[0]).toEqual({ tipo: 'luogo', id: 'cella_campanaria' });
   });
 
   it('un flag acceso da un dialogo: chi lo accende, poi il resto (il campanaro, poi la cella)', () => {
@@ -243,7 +247,7 @@ describe('le tappe dei passi veri della Fase 1', () => {
     expect(velati?.tipo).toBe('persone');
     expect([...(velati as Extract<Destinazione, { tipo: 'persone' }>).ids].sort()).toEqual(['annunciata', 'bambini', 'bortolo', 'nando', 'pina', 'togna']);
     // Ottavio scende quando Elvira è in piazza: prima la piazza
-    expect(prima('m1_ottavio')).toEqual({ tipo: 'luogo', id: 'piazza_ore' });
+    expect(prima('m1_ottavio')).toEqual({ tipo: 'luogo', id: 'piazza_ore', chi: 'ottavio' });
     expect(tappe('m1_fienile').map((t) => ('id' in t ? t.id : ''))).toEqual(['passerella_messo', 'fienile_ottavio']);
     expect(prima('m1_mattino')).toEqual({ tipo: 'persona', id: 'ottavio' });
   });
@@ -253,7 +257,7 @@ describe('le tappe dei passi veri della Fase 1', () => {
       { tipo: 'luogo', id: 'guado_sass' },
       { tipo: 'luogo', id: 'piazza_ore' },
     ]);
-    expect(prima('m1_dono')).toEqual({ tipo: 'luogo', id: 'bacheca_ore' });
+    expect(prima('m1_dono')).toEqual({ tipo: 'luogo', id: 'bacheca_ore', chi: 'clelia' });
     // il campanaro si cerca sul sagrato (non inseguito sulla scorciatoia); aperto il campanile, la cella
     expect(tappe('m1_campanile')).toEqual([
       { tipo: 'persona', id: 'bortolo', luogo: 'sagrato' },
@@ -271,7 +275,7 @@ describe('le tappe dei passi veri della Fase 1', () => {
     // la passerella salvata nella notte (E1 Abitata): niente Ottavio, dritti al chiodo 7
     expect(prima('m1_strada', ['cella:E1'])).toEqual({ tipo: 'caposaldo', id: 'cs_7' });
     expect(tappe('m1_seconda_notte')).toEqual([{ tipo: 'luogo', id: 'fienile_ottavio' }]);
-    expect(prima('m1_prova')).toEqual({ tipo: 'luogo', id: 'passerella_messo' });
+    expect(prima('m1_prova')).toEqual({ tipo: 'luogo', id: 'passerella_messo', chi: 'ottavio' });
     expect(tappe('lb_volo')).toEqual([]);
   });
 

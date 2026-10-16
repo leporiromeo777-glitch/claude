@@ -377,9 +377,21 @@ export class GuidaObiettivi {
     const nessuna: Scelta = { bersaglio: null, attesa: null, arrivo: null };
     for (const t of this.tappe) {
       switch (t.tipo) {
-        case 'luogo':
-          if (this.r.luoghi.get(t.id)) return { ...nessuna, bersaglio: t };
-          break;
+        case 'luogo': {
+          const l = this.r.luoghi.get(t.id);
+          if (!l) break;
+          // chi parla arrivando lì e non c'è ancora (la novizia alla Bacheca, alle 07:00): il
+          // segnalino e il pannello restano sul luogo, ma il menu dell'attesa offre già, da
+          // lontano, «le 07:00: arriva una novizia» (prima solo una volta arrivati alla Bacheca)
+          let arrivo: ArrivoDi | null = null;
+          if (t.chi) {
+            const qui = this.r.abitanti.posizione(t.chi);
+            const giaLi = qui && surfaceDistance(qui.z, qui.theta, l.z, l.theta) < l.raggio + ATTORNO_AL_LUOGO;
+            const a = giaLi ? null : this.arrivoDi(t.chi, t.id);
+            if (a) arrivo = { ...a, chi: t.chi };
+          }
+          return { ...nessuna, bersaglio: { tipo: 'luogo', id: t.id }, arrivo };
+        }
         case 'caposaldo':
           return { ...nessuna, bersaglio: t };
         case 'punto':

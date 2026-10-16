@@ -95,7 +95,7 @@ export class PonteInterfaccia {
   paginaParole = false;
   private attesa: HTMLDivElement | null = null;
   private sceltaAttesa: { testo: string; ore: number | 'meta' }[] = [];
-  private suTastoAttesa = (e: KeyboardEvent) => this.tastoAttesa(e);
+  private suTastoAttesa = (e: KeyboardEvent): boolean => this.tastoAttesa(e);
 
   constructor(private r: Regia) {
     this.ui = r.ui;
@@ -422,13 +422,15 @@ export class PonteInterfaccia {
     el.append(nota);
     this.ui.radice.append(el);
     this.attesa = el;
-    window.addEventListener('keydown', this.suTastoAttesa, true);
+    // i tasti passano dall'interfaccia, prima delle scorciatoie: Esc chiude il menu e non apre
+    // anche la pausa (con un ascoltatore suo sulla finestra, l'interfaccia lo sentiva prima)
+    this.ui.tastiPrima = this.suTastoAttesa;
   }
 
   chiudiAttesa(): void {
     this.attesa?.remove();
     this.attesa = null;
-    window.removeEventListener('keydown', this.suTastoAttesa, true);
+    if (this.ui.tastiPrima === this.suTastoAttesa) this.ui.tastiPrima = null;
   }
 
   private scegliAttesa(i: number): void {
@@ -437,15 +439,16 @@ export class PonteInterfaccia {
     if (v) this.r.aspettaFino(v.ore);
   }
 
-  private tastoAttesa(e: KeyboardEvent): void {
+  /** I tasti del menu: il numero sceglie, X o Esc lasciano perdere. Vero se il tasto è del menu. */
+  private tastoAttesa(e: KeyboardEvent): boolean {
     if (/^[1-9]$/.test(e.key)) {
-      this.scegliAttesa(Number(e.key) - 1);
-      e.preventDefault();
-      e.stopPropagation();
-    } else if (e.key === 'x' || e.key === 'X' || e.key === 'Escape') {
-      this.chiudiAttesa();
-      e.preventDefault();
-      e.stopPropagation();
+      if (!e.repeat) this.scegliAttesa(Number(e.key) - 1);
+      return true;
     }
+    if (e.key === 'x' || e.key === 'X' || e.key === 'Escape') {
+      if (!e.repeat) this.chiudiAttesa();
+      return true;
+    }
+    return false;
   }
 }

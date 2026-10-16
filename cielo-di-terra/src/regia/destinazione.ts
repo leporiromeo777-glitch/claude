@@ -28,7 +28,11 @@
 import type { Atomo, NodoCondizione, PassoDef } from '../narrativa';
 
 export type Destinazione =
-  | { tipo: 'luogo'; id: string }
+  /**
+   * Un luogo; con `chi`, la persona di un dialogo che si apre arrivando lì (la novizia alla
+   * Bacheca): se non c'è ancora, il menu dell'attesa sa già da lontano quando arriva.
+   */
+  | { tipo: 'luogo'; id: string; chi?: string }
   /** Una persona dov'è adesso; con `luogo`, da cercare lì (se non c'è, il luogo e l'ora in cui arriva). */
   | { tipo: 'persona'; id: string; luogo?: string }
   | { tipo: 'persone'; ids: readonly string[] }
@@ -170,9 +174,9 @@ export function metaDiAtomo(a: Atomo, p: PassoDaSeguire, f: FontiDestinazione): 
     case 'dialogo': {
       const d = f.dialogo(a.id);
       if (!d) return null;
-      // un dialogo che si apre da solo arrivando in un posto: il posto
+      // un dialogo che si apre da solo arrivando in un posto: il posto (e chi parla lì)
       const dove = atomiMancanti(d.apertura, f.vero).find((x): x is Extract<Atomo, { k: 'luogo' }> => x.k === 'luogo');
-      if (dove) return { tipo: 'luogo', id: dove.id };
+      if (dove) return f.haCorpo(d.personaggio) ? { tipo: 'luogo', id: dove.id, chi: d.personaggio } : { tipo: 'luogo', id: dove.id };
       return f.haCorpo(d.personaggio) ? { tipo: 'persona', id: d.personaggio } : null;
     }
     case 'flag': {

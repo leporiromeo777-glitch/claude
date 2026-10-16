@@ -43,7 +43,9 @@ Non c'era: l'ora si leggeva solo nel menu di pausa («Giorno 1, 10:20») e, a oc
   corre (al più una volta e mezza la media) e frena all'arrivo, che è esattamente l'ora chiesta.
 - **Il secondo tocco salta alla fine**: X, Invio o Spazio durante l'attesa. Lo schermo va al nero
   in 0,2 secondi, il resto dell'attesa corre in 0,6 secondi (sempre a passi contigui) e la vista
-  torna in 0,6 secondi. L'orologio resta sopra il nero e le sue cifre corrono anche lì.
+  torna in 0,6 secondi. L'orologio resta sopra il nero e le sue cifre corrono anche lì. Il tocco
+  conta solo se arriva mentre il tempo corre: un Invio o uno Spazio premuti prima restavano in
+  coda e saltavano l'attesa da soli (vedi *Correzioni dopo la verifica*).
 - **Gli eventi scattano tutti e in ordine, come prima.** Il tempo passa sempre a passi contigui
   (`avanza` restituisce l'intervallo di ogni passo: `attraversa`, il giro delle Fade, il catasto);
   durante l'attesa la storia si valuta a ogni passo (non dieci volte al secondo), così nessuna
@@ -108,6 +110,124 @@ Non c'era: l'ora si leggeva solo nel menu di pausa («Giorno 1, 10:20») e, a oc
   cambia il minuto.
 - **Impostazioni › Aiuti › «Orologio a schermo»**, accesa di serie.
 
+## Correzioni dopo la verifica
+
+Un verificatore indipendente ha giocato la build (voto 8,5/10, lamentela risolta) e ha trovato un
+difetto nuovo di gravità media e quattro piccoli. Ognuno l'ho prima riprodotto sulla build di
+prima (`f80c2d5`), con tasti veri in Chromium (Playwright, SwiftShader, 1280×720, qualità Media),
+poi corretto e riprovato sulla build nuova, nello stesso punto e con gli stessi tasti. Il foglio
+`tempo/15-correzioni-prima-dopo.jpg` mette le schermate una accanto all'altra.
+
+### Un Invio rimasto in coda saltava l'attesa al nero (media)
+
+- **Il difetto.** Con un Invio in più a dialogo chiuso (cosa comunissima: Invio è il tasto dei
+  dialoghi), poi X e «fra un'ora», lo schermo andava subito al nero e il time-lapse non si vedeva.
+  Lo stesso succedeva con uno Spazio o un Invio premuti a menu dell'attesa aperto. Chi gioca
+  crede a un difetto. Sul ramo principale Invio in gioco non faceva niente.
+- **La causa.** L'ingresso (`src/core/input.ts`) tiene in coda ogni pressione finché un sistema
+  non la legge (`consumePressed`), così un tasto non si perde fra un fotogramma e l'altro. In gioco
+  nessuno legge Invio, e da seduti nessuno legge Spazio (per alzarsi si guarda il tasto tenuto,
+  non la pressione). Il nuovo codice dell'attesa leggeva Invio e Spazio al primo passo
+  dell'attesa e trovava la pressione vecchia, magari di minuti prima.
+- **La correzione** (`src/regia/regia.ts`). I tasti del secondo tocco (`TASTI_SALTO`: X, Invio,
+  Invio del tastierino, Spazio) contano solo se premuti mentre il tempo corre:
+  - quando l'attesa parte (`aspettaFino`), le loro pressioni in coda si buttano;
+  - si buttano anche finché il menu dell'attesa è aperto, o un modale è sopra l'attesa;
+  - e in pausa durante l'attesa (la simulazione è ferma e non le leggerebbe).
+
+  Non ho toccato l'ingresso, che usano tutti.
+- **Riprodotto e verificato.** Le stesse prove sulle due build:
+
+  | Prova | Prima | Dopo |
+  |---|---|---|
+  | Invio in gioco, poi X e «fra un'ora» (lavatoio, 07:04) | salta subito: «salta alla fine» nel diario, nero, alle 07:55 dopo 0,5 s | nessun salto: dopo 0,5 s sono le 07:13 e il cielo corre |
+  | Dialogo con Togna chiuso con Invio e 1, un Invio in più, X, «fra un'ora» | salta subito, schermo nero (schermata) | nessun salto: Togna davanti, «X — Salta alla fine», 07:14 «fino alle 08:05» |
+  | Spazio e Invio a menu aperto, poi «la brace» (piazza, 09:30) | salta subito: alle 17:50 dopo 0,5 s | nessun salto: 09:44 dopo 0,5 s |
+  | Il secondo tocco vero, a metà della brace: X, Invio, Spazio | salta, 19:30 in 0,6 s | uguale: salta, 19:30 in 0,6 s, ancora seduta |
+  | Esc a metà attesa, Invio sulla pausa («Riprendi»), di nuovo in gioco | nessun salto | nessun salto |
+
+- **In sequenza** (riga 4 del foglio). Dopo un Invio in più, «fra un'ora» corre davanti agli occhi:
+  07:07, 07:24, 07:46, 08:02, poi l'arrivo alle 08:04. Un Invio voluto a metà della brace porta
+  invece al nero (alle 14:49, con le cifre sopra), e la vista torna alle 19:30.
+- **La prova automatica** (`npm run e2e:fase1`) adesso lo controlla. Appena chiuso il dialogo con
+  Ottavio preme un Invio in più in gioco, poi X, Spazio e Invio a menu aperto, poi «la brace». Se
+  dopo 0,25 s l'attesa non corre o sta saltando, la prova fallisce.
+
+### Esc nel menu «Aspetta fino a…» apriva anche la pausa (bassa)
+
+- **La causa.** Il menu ascoltava i tasti sulla finestra per conto suo. L'interfaccia ascolta
+  anche lei sulla finestra, e il suo ascoltatore era registrato prima: con Esc apriva la pausa,
+  poi il menu si chiudeva (fermare la propagazione non ferma un altro ascoltatore sullo stesso
+  nodo). Il difetto c'era anche sul ramo principale.
+- **La correzione.** L'interfaccia ha un posto per un menu del gioco che non sta nella pila dei
+  modali (`InterfacciaGioco.tastiPrima`, `src/ui/interfaccia.ts`). Il menu dell'attesa si mette
+  lì (`PonteInterfaccia.apriAttesa`) e vede i tasti prima delle scorciatoie: i numeri scelgono,
+  X o Esc chiudono il menu e basta. Se c'è un modale aperto, i tasti vanno al modale. Tenendo X
+  premuto, la ripetizione del tasto non chiude più il menu appena aperto.
+- **Verificato.** Prima: menu chiuso e «In pausa» aperta. Dopo: menu chiuso, niente pausa,
+  Elvira ancora seduta con «X — Aspetta fino a…» (riga 3 del foglio). C'è anche un test
+  (`tests/ui/componenti.test.ts`), e la prova automatica lo controlla alla brace.
+
+### L'orologio troncava i minuti, la pausa li arrotondava (bassa)
+
+- **La causa.** `testoOra` (`src/regia/contenuti.ts`) arrotondava i minuti. È quella che scrive
+  l'ora nella pausa, nella descrizione del salvataggio, nel diario e nelle voci del menu.
+  L'orologio a schermo invece li tronca, come un orologio vero. Alle 09:29 e mezzo l'orologio
+  diceva 09:29 e la pausa 09:30; con «fra un'ora» dalle 07:04 e mezzo, l'orologio diceva «fino
+  alle 08:04» e il diario «08:05».
+- **La correzione.** Adesso anche `testoOra` tronca, con lo stesso conto dell'orologio
+  (`testoOrologio`), compreso un milionesimo di minuto contro gli errori di virgola mobile: le
+  19:30 a cui arriva un'attesa restano 19:30.
+- **Verificato.** Alle 09:29 e mezzo, prima: orologio 09:29, `stato().ora` 09:30, pausa «Giorno 1,
+  09:30». Dopo: 09:29 dappertutto. Un test confronta le due funzioni su 5760 istanti.
+
+### Il giorno 2 il menu offriva voci che non c'entravano (bassa)
+
+- **Il difetto.** Il giorno 2 alle 05:33 in piazza, dopo il mattino con Ottavio e avendo vegliato
+  la prima notte, il menu diceva «la brace (19:30) / mezzanotte / fra un'ora». C'era però il
+  limite delle 16:00 (`orologio:max`): le prime due voci portavano alle 16:00 con «Il tempo non
+  va più in là». E la novizia delle 07:00 compariva solo alla Bacheca, non dalla piazza.
+- **Le cause e le correzioni.**
+  - `vociDiAttesa` (`src/regia/orologio.ts`) non sapeva del limite. Adesso lo riceve
+    (`oreAlLimite`) e non offre le voci che lo passerebbero. «fra un'ora» resta: al più si ferma
+    al limite e lo dice.
+  - «mezzanotte» si offriva di giorno a chi aveva vegliato, perché il flag `scelta_vegliare`
+    resta acceso anche il giorno dopo. Adesso si offre solo la sera, dalle 19:00. La prima notte
+    la veglia comincia nel fienile dopo le 20:30, quindi non cambia niente.
+  - La novizia: le tappe delle indicazioni portano alla Bacheca, perché il dialogo si apre
+    arrivando lì, ma non dicevano chi parla. Adesso la tappa del luogo porta anche chi parla
+    (`Destinazione` `{ tipo: 'luogo', chi }`, `src/regia/destinazione.ts`). Le indicazioni
+    (`src/regia/obiettivi.ts`) danno al menu l'ora del suo arrivo se non è ancora lì. Il
+    segnalino e il pannello restano come prima.
+  - Al limite raggiunto, X dice subito «Il tempo non va più in là: prima c'è qualcosa da fare.»
+    (`Regia.tempoBloccato`) e Elvira non si siede per niente. Anche «X — Aspetta fino a…» in
+    piedi non compare più.
+- **Verificato.** Prima, dalla piazza: «la brace (19:30) / mezzanotte / fra un'ora». Alla Bacheca:
+  «le 07:00: arriva una novizia / la brace (19:30) / mezzanotte / fra un'ora». Dopo, sia dalla
+  piazza sia alla Bacheca: «le 07:00: arriva una novizia / fra un'ora» (riga 2 del foglio).
+
+### Il costo della simulazione durante l'attesa (bassa)
+
+- **La causa.** Il popolamento rilegge gli orari degli abitanti (`applicaOrario`, che li ricolloca
+  tutti) a ogni minuto di gioco. Durante l'attesa ogni passo fa più di un minuto, quindi lo faceva
+  a ogni passo. Ogni volta costa circa 1,3 ms su questa macchina carica (Chromium con SwiftShader,
+  CPU condivisa).
+- **La correzione** (`src/popolamento/corbella.ts`, `PASSI_ORARIO_VELOCE = 4`). Quando il tempo
+  corre, gli orari si rileggono un passo ogni quattro (15 volte al secondo). Il tempo normale non
+  cambia (una lettura al minuto di gioco). Un salto da fermo (il sonno, un caricamento, il giorno
+  nuovo) si applica subito. Alla fine dell'attesa la regia li rilegge comunque da sé: il
+  campanaro alle 08:00 c'è subito. Chi arriva durante l'attesa la ferma al più tre passi dopo
+  (un ventesimo di secondo).
+- **Misurato** (piazza alle 09:30, qualità Media, `performance.now()` attorno a ogni passo):
+
+  | | Prima | Dopo |
+  |---|---|---|
+  | In piedi, tempo normale | 0,58 ms a passo | 0,53 ms |
+  | Durante l'attesa della brace (331 passi) | 2,2 ms a passo (mediana 1,8) | 0,83 ms (mediana 0,3) |
+
+  La storia valutata a ogni passo costa circa 0,1 ms e resta così: serve perché nessuna finestra
+  d'orario si salti. Draw call e triangoli non cambiano (è tutto CPU).
+
 ## Come si regola
 
 | Che cosa | Dove |
@@ -115,7 +235,11 @@ Non c'era: l'ora si leggeva solo nel menu di pausa («Giorno 1, 10:20») e, a oc
 | Durata dell'attesa (base, secondi per ora, massimo) | `ATTESA_DURATA_MIN`, `ATTESA_SECONDI_PER_ORA`, `ATTESA_DURATA_MAX` in `src/regia/orologio.ts` |
 | Il salto (secondo tocco) | `ATTESA_DURATA_SALTO` (orologio.ts); la dissolvenza in `Regia.saltaAttesa`/`fineAttesa` |
 | La curva (partenza e frenata) | `curvaAttesa` (orologio.ts) |
-| Le voci del menu e le ore della sera | `vociDiAttesa`, `ORA_BRACE`, `ORA_OMBRISTA`, `ORA_DORMIRE`, `ORA_FADE` (orologio.ts) |
+| Le voci del menu e le ore della sera | `vociDiAttesa`, `ORA_BRACE`, `ORA_OMBRISTA`, `ORA_DORMIRE`, `ORA_FADE` (orologio.ts); il limite dell'orologio le filtra (`oreAlLimite`) |
+| I tasti del secondo tocco, e che contino solo durante l'attesa | `TASTI_SALTO`, `dimenticaTastiSalto` in `src/regia/regia.ts` |
+| I tasti del menu prima delle scorciatoie (Esc non apre la pausa) | `InterfacciaGioco.tastiPrima` (`src/ui/interfaccia.ts`), `PonteInterfaccia.tastoAttesa` |
+| Ogni quanti passi si rileggono gli orari quando il tempo corre | `PASSI_ORARIO_VELOCE` in `src/popolamento/corbella.ts` |
+| L'ora scritta (pausa, salvataggio, diario, menu) | `testoOra` in `src/regia/contenuti.ts`, con lo stesso conto di `testoOrologio` |
 | Quando compare «X — Aspetta fino a…» in piedi | `PASSI_DI_ATTESA`, `FERMA_PER_ASPETTARE` in `src/regia/percorso.ts` |
 | La discesa di Ottavio, il suo passo | `DURATA_ATTERRAGGIO`, `GIRI_ATTERRAGGIO`, `passoAccompagna` in `src/regia/png.ts` |
 | Ottavio fuori dalla piazza | `RISERVA_OVUNQUE` in percorso.ts |
@@ -156,8 +280,20 @@ non lo usava aspettava a tempo normale, 100 secondi per ogni ora di gioco.
 
 ## Prove
 
-- `npm run typecheck`, `npm test` (64 file, 864 test: 22 in più), `npm run build`,
-  `npm run verifica-contenuti` (0 errori, 0 avvisi): verdi.
+- `npm run typecheck`, `npm test` (64 file, 868 test passati e uno saltato: 26 in più del ramo
+  principale, 4 con le correzioni dopo la verifica), `npm run build`, `npm run
+  verifica-contenuti` (0 errori, 0 avvisi): verdi.
+- **Test delle correzioni.** `tests/ui/componenti.test.ts`: un menu fuori dalla pila
+  (`tastiPrima`) prende i suoi tasti prima delle scorciatoie; Esc lo chiude senza aprire la pausa;
+  l'ingresso del gioco non sente i suoi tasti; con la pausa sopra, i tasti vanno alla pausa.
+  `tests/ui/orologio.test.ts`: `testoOra` e l'orologio dicono la stessa ora su 5760 istanti
+  (09:29 e mezzo è 09:29 per tutti, 19:30 resta 19:30). `tests/regia/percorso.test.ts`: con il
+  limite delle 16:00 il giorno 2 la mattina il menu dice solo «le 07:00: arriva una novizia» e
+  «fra un'ora»; mezzanotte non di giorno. `tests/regia/obiettivi.test.ts`: dalla piazza le
+  indicazioni sanno già che la novizia arriva alla Bacheca alle 07:00.
+  `tests/regia/destinazione.test.ts`: la tappa del luogo porta chi parla lì.
+  `tests/popolamento/corbella.test.ts`: quando il tempo corre gli orari si rileggono un passo
+  ogni quattro, a tempo normale una volta al minuto di gioco, dopo un salto subito.
 - **Test nuovi.** `tests/regia/orologio-luoghi.test.ts`: il time-lapse arriva esattamente all'ora
   chiesta, a passi contigui e mai all'indietro; qualunque attesa (la brace dalla mattina, la notte,
   quasi un giorno) dura al più 5,5 s; la partenza piano e la frenata (all'inizio e alla fine meno
@@ -175,7 +311,10 @@ non lo usava aspettava a tempo normale, 100 secondi per ogni ora di gioco.
   scritto solo al cambio del minuto, l'impostazione, le notifiche sotto, i modali che lo coprono
   e il dialogo che no.
 - **`npm run e2e:fase1`**: «prova ok» (389 s; prima 327 s: la prova adesso ricarica una volta in
-  più, per «Continua» a metà attesa, e fa due foto in più). Usa X in piedi, il menu con le voci
+  più, per «Continua» a metà attesa, e fa due foto in più). Dopo le correzioni: «prova ok in
+  599 s» (la macchina era più carica). Controlla anche, alla brace, che Esc chiuda il menu
+  dell'attesa senza la pausa, e che un Invio e uno Spazio rimasti in coda non facciano saltare
+  l'attesa. I tempi delle attese sono quelli della tabella sopra. Usa X in piedi, il menu con le voci
   nuove (l'Ombrista, «le 07:00: arriva una novizia», «le 08:00…», «le 20:30 (si può dormire)»),
   salta un'attesa a metà, salva a metà dell'attesa delle 20:30, ricarica e «Continua»
   (controlla l'ora, che Elvira sia in piedi, senza attesa né menu, e che l'orologio a schermo dica
@@ -186,6 +325,8 @@ non lo usava aspettava a tempo normale, 100 secondi per ogni ora di gioco.
 - **`npm run shots`**: le inquadrature nuove 15 (giorno), 16 (notte), 17, 17b, 17c (l'attesa della
   brace a 1,5 s, a 3,5 s e all'arrivo: le cifre e il sole che corrono), fatte con la pagina intera
   dopo le verifiche di gioco (le altre inquadrature e le verifiche non cambiano).
+- **Le correzioni dopo la verifica**, provate con tasti veri sulle due build (prima e dopo), con
+  uno script Playwright: vedi *Correzioni dopo la verifica* e il foglio 15.
 - **A occhio** (Playwright, letto con Read): l'orologio a 1280×720 e a 1920×1080, di giorno, di
   notte, nell'attesa e con due notifiche sotto; una sequenza di nove fotogrammi dell'attesa della
   brace (ogni 0,7 s: 10:21, 10:45, 11:50, 13:20, 15:03, 16:45, 18:12, 19:11, 19:30: si vede la
@@ -207,13 +348,10 @@ non lo usava aspettava a tempo normale, 100 secondi per ogni ora di gioco.
 | `12-menu-aspetta-fino-a.jpg` | Il menu: la brace, l'Ombrista, fra un'ora, con i tastini |
 | `13-sequenza-attesa-brace-ogni-0-7-s.jpg` | Nove fotogrammi dell'attesa della brace, uno ogni 0,7 s: 10:21 → 19:30 in 5,5 s |
 | `14-salto-prima-nero-dopo.jpg` | Il salto: alle 20:41 (fino a mezzanotte), sotto il nero alle 22:15, a mezzanotte (giorno 2) |
+| `15-correzioni-prima-dopo.jpg` | Le correzioni dopo la verifica, prima e dopo: un Invio in più dopo il dialogo con Togna (prima nero, dopo il cielo che corre), il menu del giorno 2 alle 05:33 (prima la brace e mezzanotte, dopo la novizia), Esc nel menu (prima la pausa, dopo solo il menu chiuso); sotto, nove fotogrammi dopo la correzione: un Invio in più e «fra un'ora» (07:07 → 08:04, il cielo corre), poi «la brace» con un Invio voluto a metà (il nero a 14:49, la vista che torna alle 19:30) |
 
 ## Che cosa resta
 
-- **La voce con il nome di chi arriva** c'è quando le indicazioni sanno chi si aspetta e dove
-  (`GuidaObiettivi.arrivo`): per la novizia lo sanno solo con Elvira già alla Bacheca (la tappa
-  del dialogo è il luogo, poi la persona: `destinazione.ts`). Prima, dalla piazza, il pannello dice
-  «dalle 7 una novizia ti aspetta lì» e il menu offre «fra un'ora».
 - **Le scene restano com'erano**: il nero a scatti dell'inizio nella capsula (3,2 s), la luce
   della botola (1,6 s), la dissolvenza del sonno (2,6 s), alzarsi dalla capsula (1,4 s). Non sono
   attese a mani in mano: lo sguardo si muove già.
@@ -222,10 +360,14 @@ non lo usava aspettava a tempo normale, 100 secondi per ogni ora di gioco.
   di restare fermo indietro. Che venga accanto a lei prima di parlare è della traccia «parlare».
 - **La discesa di Ottavio va in tempo reale** (4,5 s): un dialogo con lui chiesto durante
   un'attesa si apre dopo l'attesa, quando è a terra.
-- **L'orologio tronca i minuti** come un orologio vero; la pausa e la descrizione del salvataggio
-  li arrotondano (`testoOra`): a metà minuto possono differire di uno.
 - **Prestazioni**: l'orologio è DOM, non scena: draw call e triangoli non cambiano (le
   inquadrature 15-17 di `npm run shots`, in piazza a qualità Media, fanno 197-211 draw call e
   1,34-1,38 milioni di triangoli, con e senza attesa); l'orologio scrive nel DOM una volta al
-  minuto di gioco (a ogni fotogramma solo durante l'attesa: cinque scritture); la storia valutata
-  a ogni passo durante l'attesa costa circa 0,05 ms per passo (misurato in Node).
+  minuto di gioco (a ogni fotogramma solo durante l'attesa: cinque scritture). Durante l'attesa
+  un passo costa ancora un po' più del normale (0,83 ms contro 0,53 ms su questa macchina): la
+  storia valutata a ogni passo (0,1 ms) e gli orari un passo ogni quattro.
+- **Le pressioni in coda in generale**: l'ingresso tiene in coda qualunque tasto finché qualcuno
+  non lo legge. Per l'attesa la regia butta le pressioni del secondo tocco. Non ho cercato altri
+  casi in cui una pressione vecchia venga letta tardi: una regola generale (buttare a ogni passo
+  le pressioni che nessuno ha letto) cambierebbe l'ingresso di tutto il gioco ed è fuori da
+  questa traccia.

@@ -340,6 +340,9 @@ describe('chi non c’è ancora: il luogo e l’ora in cui arriva', () => {
     f.disegna();
     expect(f.guida.chiaveSeguita).toBe('m01_castagno_vuoto/m1_dono');
     expect(f.guida.metaAttuale).toEqual({ tipo: 'luogo', id: 'bacheca_ore' });
+    // ancora in piazza, il menu dell'attesa sa già chi arriva alla Bacheca e quando («le 07:00:
+    // arriva una novizia»: prima la voce c'era solo una volta arrivati lì)
+    expect(f.guida.arrivo).toEqual({ chi: 'clelia', giorno: 2, ore: 7, luogo: 'bacheca_ore' });
     f.fatti.luoghi.add('bacheca_ore');
     f.narrativa.tick(0);
     f.disegna();

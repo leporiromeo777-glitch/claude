@@ -93,6 +93,12 @@ export interface ContestoAttesa {
   fadeViste?: boolean;
   /** I passi attivi della storia: le voci giuste per il passo (l'Ombrista, il sonno, le Fade, l'alba). */
   passi?: Iterable<string>;
+  /**
+   * Ore di gioco da adesso al limite dell'orologio (`orologio:max`), se c'è: le voci che lo
+   * passerebbero non si offrono (il giorno 2 la mattina «la brace (19:30)» portava alle 16:00 con
+   * «Il tempo non va più in là»). «fra un'ora» resta: al più si ferma al limite e lo dice.
+   */
+  oreAlLimite?: number | null;
 }
 
 /** Una voce del menu: il testo e l'ora (del giorno) a cui arriva. */
@@ -118,16 +124,21 @@ export interface ArrivoAttesa {
  * - la seconda notte le 20:30, quando nel fienile si può dormire (prima si arrivava alle 20:30
  *   con la brace e poi «fra un'ora»);
  * - vegliando la prima notte, le Fade (22:05);
- * - mezzanotte (la sera, o per chi ha scelto di vegliare, ma mai dopo la mezzanotte: sarebbe un
- *   giorno intero);
+ * - mezzanotte (la sera, dalle 19:00; mai dopo la mezzanotte: sarebbe un giorno intero; e non più
+ *   di giorno per chi ha vegliato: il giorno dopo la voce restava, e non c'entrava);
  * - l'alba (dalle 20:00, e a ogni ora nei passi che chiedono il mattino: la seconda notte, la
  *   prima vegliando);
  * - fra un'ora (di giorno).
+ *
+ * Con un limite dell'orologio davanti (`oreAlLimite`), le voci che lo passerebbero non ci sono.
  */
 export function vociDiAttesa(o: number, giorno: number, arrivo: ArrivoAttesa | null, f: ContestoAttesa): VoceAttesa[] {
   const passi = new Set(f.passi ?? []);
   const v: VoceAttesa[] = [];
-  const aggiungi = (testo: string, ore: number): void => {
+  const limite = f.oreAlLimite ?? null;
+  const aggiungi = (testo: string, ore: number, finoAlLimite = false): void => {
+    // (oltre il limite l'attesa si fermerebbe lì: la voce prometterebbe un'ora che non arriva)
+    if (!finoAlLimite && limite !== null && oreFino(o, ore) > limite + 1 / 120) return;
     if (!v.some((x) => Math.abs(x.ore - ore) < 1 / 120)) v.push({ testo, ore });
   };
   const giorno_ = o >= FINE_NOTTE;
@@ -138,10 +149,10 @@ export function vociDiAttesa(o: number, giorno: number, arrivo: ArrivoAttesa | n
   if ((passi.has('m1_brace') || passi.has('m1_ombrista')) && o < ORA_OMBRISTA && giorno_) aggiungi(`l'Ombrista (${testoOra(ORA_OMBRISTA)})`, ORA_OMBRISTA);
   if (passi.has('m1_seconda_notte') && o < ORA_DORMIRE && giorno_) aggiungi(`le ${testoOra(ORA_DORMIRE)} (si può dormire)`, ORA_DORMIRE);
   if (passi.has('m1_notte') && f.vegliare && !f.fadeViste && o >= 12 && o < ORA_FADE - 1 / 60) aggiungi(`le Fade (${testoOra(ORA_FADE)})`, ORA_FADE);
-  if (o >= 19 || (f.vegliare && giorno_)) aggiungi('mezzanotte', 0);
+  if (o >= 19) aggiungi('mezzanotte', 0);
   const chiedeIlMattino = passi.has('m1_seconda_notte') || (passi.has('m1_notte') && f.vegliare);
   if (o >= 20 || !giorno_ || (chiedeIlMattino && oreFino(o, FINE_NOTTE) <= ATTESA_MAX_ORE)) aggiungi(`l'alba (${testoOra(FINE_NOTTE)})`, FINE_NOTTE);
-  if (giorno_ && o < 20) aggiungi("fra un'ora", (o + 1) % 24);
+  if (giorno_ && o < 20) aggiungi("fra un'ora", (o + 1) % 24, true);
   return v;
 }
 

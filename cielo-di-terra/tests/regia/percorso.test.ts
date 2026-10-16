@@ -253,9 +253,11 @@ describe('le strade dove in linea retta non si arriva', () => {
 
 describe('«Aspetta fino a…» di notte', () => {
   const testi = (o: number, f: { brace?: boolean; vegliare?: boolean } = {}) => vociDiAttesa(o, 2, null, { brace: f.brace ?? false, vegliare: f.vegliare ?? false }).map((v) => v.testo);
-  it('mezzanotte la sera, o di giorno per chi ha scelto di vegliare; mai dopo la mezzanotte', () => {
+  it('mezzanotte la sera; di giorno no, neanche il giorno dopo la veglia; mai dopo la mezzanotte', () => {
     expect(testi(22)).toContain('mezzanotte');
-    expect(testi(10, { vegliare: true })).toContain('mezzanotte');
+    expect(testi(19)).toContain('mezzanotte');
+    // (il giorno 2 la mattina «mezzanotte» restava per chi aveva vegliato, e portava al limite delle 16:00)
+    expect(testi(10, { vegliare: true })).not.toContain('mezzanotte');
     expect(testi(10)).not.toContain('mezzanotte');
     for (const o of [0, 0.5, 2, 5]) expect(testi(o, { vegliare: true }), `alle ${o}`).not.toContain('mezzanotte');
     expect(testi(0, { vegliare: true })).toContain("l'alba (05:30)");
@@ -300,6 +302,22 @@ describe('«Aspetta fino a…» di notte', () => {
     // fra un'ora alle 18:30 è la brace delle 19:30: una voce sola
     const b = vociDiAttesa(18.5, 1, null, { brace: true, vegliare: false });
     expect(b.filter((x) => Math.abs(x.ore - 19.5) < 0.01)).toHaveLength(1);
+  });
+
+  it('con un limite dell\'orologio davanti, niente voci che lo passano («fra un\'ora» sì: si ferma lì e lo dice)', () => {
+    // giorno 2 alle 05:33 in piazza, dopo il mattino con Ottavio (orologio:max 16:00), avendo vegliato
+    const o = 5 + 33 / 60;
+    const f = { brace: true, vegliare: true, fadeViste: true, passi: ['m1_dono', 'm1_campanile'], oreAlLimite: 16 - o };
+    expect(vociDiAttesa(o, 2, null, f).map((v) => v.testo)).toEqual(["fra un'ora"]);
+    // chi arriva prima del limite c'è: la novizia alle 07:00 (anche dalla piazza, vedi obiettivi)
+    expect(vociDiAttesa(o, 2, { giorno: 2, ore: 7, chi: 'una novizia' }, f).map((v) => v.testo)).toEqual(['le 07:00: arriva una novizia', "fra un'ora"]);
+    // il primo giorno, fermi alle 17:30 finché non si conosce Ottavio: la brace (19:30) no
+    expect(vociDiAttesa(15, 1, null, { brace: true, vegliare: false, oreAlLimite: 2.5 }).map((v) => v.testo)).toEqual(["fra un'ora"]);
+    // a mezz'ora dal limite «fra un'ora» resta (si ferma al limite); senza limite la brace c'è
+    expect(vociDiAttesa(17, 1, null, { brace: true, vegliare: false, oreAlLimite: 0.5 }).map((v) => v.testo)).toEqual(["fra un'ora"]);
+    expect(vociDiAttesa(15, 1, null, { brace: true, vegliare: false, oreAlLimite: null }).map((v) => v.testo)).toContain('la brace (19:30)');
+    // un limite esattamente all'ora della voce non la toglie
+    expect(vociDiAttesa(15, 1, null, { brace: true, vegliare: false, oreAlLimite: 4.5 }).map((v) => v.testo)).toContain('la brace (19:30)');
   });
 
   it('ogni voce del menu, a ogni ora, dura al più 5,5 secondi reali', () => {
