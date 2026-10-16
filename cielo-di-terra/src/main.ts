@@ -11,6 +11,7 @@ import { SuggerimentoSguardo } from './core/suggerimentoSguardo';
 import { Game } from './game';
 import { collegaMotorePersonaggi, impostaDistanzePersonaggi, precaricaPersonaggi, preriscaldaPersonaggi } from './personaggi';
 import { installaCorbella } from './popolamento';
+import { aggiungiAcquaLavatoio } from './render/water';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
 import { InterfacciaGioco, caricaCaratteri } from './ui';
@@ -89,6 +90,8 @@ async function boot(): Promise<void> {
     const corbella = installaCorbella(game, { agganciaCiclo: false, luciAbitanti: false });
     // texture e materiale dei personaggi già sulla GPU (niente scatto al primo che entra in vista)
     preriscaldaPersonaggi(game.renderer, game.camera);
+    // l'acqua che si muove nella vasca del lavatoio (traccia «natura»)
+    aggiungiAcquaLavatoio(game, corbella.punto('esamina:lavatoio')?.pos, corbella.chiodo(5));
     ui.caricamento.progresso(0.97, 'la Cripta, i chiodi');
     await new Promise((r) => setTimeout(r, 0));
     regia = new Regia(game, ui, corbella, { e2e });

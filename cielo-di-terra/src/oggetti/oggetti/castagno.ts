@@ -6,12 +6,15 @@
  * - botola di pietra della Cripta fra le radici del castagno morto (apribile, animata).
  */
 import * as THREE from 'three';
-import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
+import { Costruttore, mat, matSegmento, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
 import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMassa, geoMasso, geoSfera, geoToro, geoTubo } from '../forme';
 import { PALETTE } from '../palette';
 import { hashPosizione, Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
+
+/** Il nucleo in ombra della chioma vista da vicino (sotto i ciuffi di foglie). */
+const OLIVA = new THREE.Color(0.26, 0.33, 0.12);
 
 export type Stagione = 'estate' | 'autunno' | 'fioritura';
 
@@ -162,15 +165,89 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       const t = THREE.MathUtils.clamp(n.y * 0.3 + 0.2 + altezza * 0.35 + esterno * 0.3 + (hashPosizione(p.x, p.y, p.z, seme) - 0.5) * 0.05, 0, 1);
       if (t < 0.5) out.copy(cScuro).lerp(cMedio, t / 0.5);
       else out.copy(cMedio).lerp(cChiaro, (t - 0.5) / 0.5);
-      out.multiplyScalar(0.72 + 0.28 * esterno);
+      // (da vicino le masse sono l'interno della chioma, sotto i ciuffi di foglie: più scure)
+      out.multiplyScalar((0.72 + 0.28 * esterno) * (det === 'alto' ? 0.7 : 1));
       if (mixVerde > 0) out.lerp(new THREE.Color(verdi[t < 0.5 ? 0 : 1]), mixVerde);
       out.r *= 1 + tintaMassa;
       out.b *= 1 - tintaMassa;
+      // da vicino il nucleo sotto i ciuffi è verde oliva in ombra: col verde che prevale la superficie
+      // AUTO lo dipinge a ciuffi di fogliame (bruno-arancio diventerebbe corteccia liscia)
+      if (det === 'alto') out.lerp(OLIVA, 0.8);
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
-    const dettaglioMassa = det === 'alto' ? (r > rx * 0.42 ? 3 : 2) : 1;
-    const g = geoMassa(r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
+    const dettaglioMassa = 1;
+    // (da vicino le masse sono il nucleo sotto i ciuffi di foglie: più piccole, i ciuffi fanno la sagoma)
+    const g = geoMassa(det === 'alto' ? r * 0.78 : r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
     b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn });
+  }
+
+  // ciuffi di foglie sul contorno della chioma (solo da vicino): foglie lanceolate a ventaglio, a
+  // doppia faccia, con la normale della chioma intera (la luce gira la chioma come un volume unico).
+  // Rompono la sagoma liscia delle masse come le pennellate dei bozzetti; le masse sotto diventano
+  // l'interno in ombra della chioma.
+  if (det === 'alto') {
+    const pos: number[] = [];
+    const nor: number[] = [];
+    const col: number[] = [];
+    const tinte = stagione === 'autunno' ? [tavolozza[1], tavolozza[2], verdi[1], tavolozza[0], verdi[2], tavolozza[2]] : [tavolozza[1], tavolozza[2], tavolozza[1], tavolozza[0]];
+    const cc = new THREE.Color();
+    const cBase = new THREE.Color();
+    const nC = new THREE.Vector3();
+    const v = new THREE.Vector3();
+    const ciuffi = Math.round(400 * Math.min(1.15, larg / 11));
+    let fatti = 0;
+    for (let tent = 0; tent < ciuffi * 20 && fatti < ciuffi; tent++) {
+      const m = centri[rng.intero(0, centri.length - 2)] as { c: THREE.Vector3; r: number };
+      const dir = new THREE.Vector3(rng.centrato(1), rng.tra(-0.55, 1), rng.centrato(1));
+      if (dir.lengthSq() < 0.05) continue;
+      dir.normalize();
+      const p = m.c.clone().addScaledVector(dir, m.r * rng.tra(0.86, 1.02));
+      // solo sul contorno della chioma: niente ciuffi sepolti nelle altre masse
+      if (centri.some((o) => o !== m && o.c.distanceTo(p) < o.r * 0.9)) continue;
+      fatti++;
+      nC.set((p.x - cChioma.x) / rx, ((p.y - cChioma.y) / ry) * 0.8, (p.z - cChioma.z) / rx).normalize().lerp(dir, 0.3).normalize();
+      cc.set(tinte[rng.intero(0, tinte.length - 1)]!).multiplyScalar(rng.tra(0.85, 1.1));
+      cBase.copy(cc).multiplyScalar(0.62);
+      // piano del ciuffo: quasi tangente alla chioma, un po' inclinato
+      const t1 = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0));
+      if (t1.lengthSq() < 1e-3) t1.set(1, 0, 0);
+      t1.normalize();
+      const t2 = new THREE.Vector3().crossVectors(dir, t1).normalize();
+      const nFoglie = 5;
+      const fase = rng.next() * Math.PI * 2;
+      for (let f = 0; f < nFoglie; f++) {
+        const a = fase + (f / nFoglie) * Math.PI * 2 + rng.centrato(0.4);
+        const df = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a)).addScaledVector(dir, rng.tra(0.45, 0.95)).normalize();
+        // le foglie pendono un poco
+        df.y -= 0.25;
+        df.normalize();
+        const len = rng.tra(0.5, 0.78);
+        const lat = new THREE.Vector3().crossVectors(df, dir).normalize().multiplyScalar(len * 0.17);
+        const b0 = p.clone().addScaledVector(df, 0.04);
+        const punta = p.clone().addScaledVector(df, len);
+        const mezzo = p.clone().addScaledVector(df, len * 0.38);
+        const sx = mezzo.clone().add(lat);
+        const dx = mezzo.clone().sub(lat);
+        for (const [q, c] of [
+          [b0, cBase],
+          [sx, cc],
+          [punta, cc],
+          [b0, cBase],
+          [punta, cc],
+          [dx, cc],
+        ] as const) {
+          v.copy(q);
+          pos.push(v.x, v.y, v.z);
+          nor.push(nC.x, nC.y, nC.z);
+          col.push(c.r, c.g, c.b);
+        }
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    b.aggiungi(g, { colore: 'geometria', canale: 'sottile' });
   }
 
   // amenti a ciuffi sulla chioma in fioritura
@@ -229,81 +306,174 @@ export interface StatoBotola {
   aperta: boolean;
 }
 
-/** Castagno morto, eventualmente con la botola della Cripta fra le radici. */
+/**
+ * Castagno morto (secolare, come quello del bozzetto 1), eventualmente con la botola della Cripta
+ * fra le radici:
+ * - fusto largo e torto con le radici a contrafforte, i solchi verticali della corteccia che girano
+ *   col tronco, la cavità scura; legno grigio argento dove la corteccia è caduta, muschio al piede
+ *   dal lato in ombra e licheni sulle facce in su;
+ * - quattro branche che si aprono a coppa e salgono torcendosi, poi rami e ramoscelli sempre più
+ *   sottili fino a punte di pochi centimetri (niente monconi tagliati a sega), qualche ramo spezzato;
+ * - radici scoperte che strisciano e affondano nel terreno.
+ * Triangoli: ~3700 (con la botola resta sotto 5000).
+ */
 export function creaCastagnoMorto(opz: OpzioniCastagnoMorto = {}): OggettoProcedurale<StatoBotola> {
   const seme = semeNumerico(opz.seme ?? 'castagno-morto');
   const rng = new Rng(seme);
   const b = new Costruttore(rng);
   const H = opz.altezza ?? rng.tra(9, 12);
   const rT = H * 0.08;
-  const hFusto = H * 0.42;
-  const col = corteccia(0xa69d91, 0x6a6158, seme, H);
+  const hFusto = H * 0.4;
+  const BUDGET = 3500;
 
-  // fusto spaccato: due metà divaricate in cima
-  const nA = 7;
-  const fase = rng.next() * 6;
+  // corteccia: solchi scuri e creste chiare (grigio argento del legno morto), muschio al piede dal
+  // lato in ombra (-Z), licheni chiari sulle facce in su. Toni sotto ~0.52 di luminanza: il
+  // materiale del mondo li legge come CORTECCIA (motivo dei solchi).
+  const cCresta = new THREE.Color(0x8e857b);
+  const cSolco = new THREE.Color(0x3f3730);
+  const cLegno = new THREE.Color(0x9a9286);
+  const cMuschio = new THREE.Color(0x6c7243);
+  const cLichene = new THREE.Color(0xa49f84);
+  const fase = rng.next() * 6.28;
+  const corteccia: FnColore = (p, n, out) => {
+    const ang = Math.atan2(p.z, p.x);
+    // solchi che girano col tronco (torsione) e si interrompono a placche
+    const solco = Math.abs(Math.sin(ang * 6.5 + p.y * 0.55 + fase + Math.sin(p.y * 1.7 + ang * 2) * 0.6));
+    const placche = hashPosizione(Math.round(ang * 3) / 3, Math.round(p.y * 1.2) / 1.2, 0, seme);
+    const k = Math.pow(solco, 0.7) * (0.75 + 0.35 * placche);
+    out.copy(cSolco).lerp(cCresta, Math.min(1, k));
+    // legno nudo (la corteccia è caduta) sui rami alti e a chiazze sul fusto
+    const nudo = p.y > hFusto * 0.9 ? 0.35 + 0.4 * hashPosizione(Math.round(p.x * 2), Math.round(p.y * 2), Math.round(p.z * 2), seme + 5) : placche > 0.86 ? 0.6 : 0;
+    out.lerp(cLegno, nudo * 0.7);
+    // muschio al piede dal lato in ombra e sulle radici
+    const piede = 1 - THREE.MathUtils.smoothstep(p.y, 0.2, 1.9);
+    const ombra = THREE.MathUtils.smoothstep(-p.z / (Math.hypot(p.x, p.z) + 1e-3), -0.3, 0.6);
+    out.lerp(cMuschio, piede * (0.35 + 0.45 * ombra) * (0.7 + 0.3 * placche));
+    // licheni sulle facce in su dei rami
+    if (n.y > 0.55 && p.y > hFusto * 0.8) out.lerp(cLichene, (n.y - 0.55) * 0.9 * placche);
+  };
+
+  // ---- fusto con le radici a contrafforte, i solchi e la torsione
+  const nA = 10;
+  const lobi = rng.intero(5, 6);
+  const pende = new THREE.Vector3(rng.centrato(0.5), 0, rng.centrato(0.5));
   const pts: THREE.Vector3[] = [];
   const raggi: number[] = [];
   for (let i = 0; i < nA; i++) {
     const t = i / (nA - 1);
-    pts.push(new THREE.Vector3(Math.sin(t * 2.2) * 0.25, -0.5 + t * (hFusto + 0.5), Math.cos(t * 1.7) * 0.15 - 0.15));
-    raggi.push(rT * (1 + 0.6 * Math.pow(1 - t, 3)) * (1 - t * 0.25));
+    pts.push(new THREE.Vector3(pende.x * t * t + Math.sin(t * 2.4) * 0.12, -0.6 + t * (hFusto + 0.9), pende.z * t * t + Math.cos(t * 1.9) * 0.1 - 0.1));
+    raggi.push(rT * (1 + 0.75 * Math.pow(1 - t, 3.2)) * (1 - t * 0.12) * (t > 0.85 ? 1.08 : 1));
   }
   b.aggiungi(
-    geoTubo(pts, raggi, 8, {
+    geoTubo(pts, raggi, 16, {
       chiudiFine: true,
       fase,
-      forma: (i, a) => 1 + Math.pow(Math.max(0, Math.cos(a * 5 + fase)), 2) * 0.5 * Math.pow(1 - i / (nA - 1), 2) + Math.sin(a * 2 + i) * 0.06,
+      forma: (i, a) => {
+        const t = i / (nA - 1);
+        // contrafforti in basso, solchi verticali che girano col tronco
+        const contr = Math.pow(Math.max(0, Math.cos(a * lobi + fase + t * 0.8)), 2.2) * 0.75 * Math.pow(1 - t, 2.4);
+        const solco = -Math.pow(Math.abs(Math.sin(a * 6.5 + t * 3.2 + fase)), 6) * 0.07;
+        const nodo = Math.sin(a * 2 + i * 0.9) * 0.05;
+        return 1 + contr + solco + nodo;
+      },
     }),
-    { colore: col },
+    { colore: corteccia },
   );
-  // cavità scura sul fusto (spacco)
-  const cav = geoMasso(rT * 0.45, seme + 3, 0.2, 0, 1);
-  cav.scale(0.55, 1.9, 0.3);
-  b.aggiungi(cav, { matrice: mat([pts[3]!.x * 0.5, hFusto * 0.5, rT * 0.98 + pts[3]!.z * 0.5], [0, 0, 0.1]), colore: 0x1e1814, piatto: true });
+  // cavità scura sul fusto (il castagno è cavo: ci si vede il buio dentro)
+  const cav = geoMasso(rT * 0.5, seme + 3, 0.22, 1, 1);
+  cav.scale(0.5, 1.7, 0.32);
+  b.aggiungi(cav, { matrice: mat([pts[3]!.x * 0.6 + rT * 0.15, hFusto * 0.42, rT * 1.02 + pts[3]!.z * 0.5], [0, -0.15, 0.08]), colore: 0x1a1512, piatto: true });
+  // labbro della cavità (legno chiaro attorno al buio)
+  const lab = geoMasso(rT * 0.5, seme + 4, 0.18, 1, 1);
+  lab.scale(0.66, 1.9, 0.26);
+  b.aggiungi(lab, { matrice: mat([pts[3]!.x * 0.6 + rT * 0.15, hFusto * 0.42, rT * 0.96 + pts[3]!.z * 0.5], [0, -0.15, 0.08]), colore: 0x8a8074, piatto: true });
 
-  // rami ricorsivi
-  const cima = pts[nA - 1] as THREE.Vector3;
-  const rami = (inizio: THREE.Vector3, dir: THREE.Vector3, lung: number, r0: number, livello: number): void => {
-    const fine = inizio.clone().addScaledVector(dir, lung);
-    const p = percorsoTorto(rng, inizio, fine, livello === 0 ? 5 : 4, 0.1);
-    const rr = p.map((_, i) => r0 * (1 - (i / (p.length - 1)) * 0.65));
-    b.aggiungi(geoTubo(p, rr, livello === 0 ? 6 : 5, { chiudiFine: true }), { colore: col });
-    if (livello >= 2) return;
-    const nFigli = livello === 0 ? rng.intero(2, 3) : rng.intero(1, 3);
-    for (let k = 0; k < nFigli; k++) {
-      const t = rng.tra(0.55, 0.95);
-      const da = (p[Math.floor(t * (p.length - 1))] as THREE.Vector3).clone();
-      const nd = dir
-        .clone()
-        .add(new THREE.Vector3(rng.centrato(0.9), rng.tra(-0.1, 0.5), rng.centrato(0.9)))
-        .normalize();
-      rami(da, nd, lung * rng.tra(0.45, 0.7), r0 * 0.5, livello + 1);
-    }
+  // ---- branche, rami e ramoscelli
+  const cima = pts[nA - 1]!.clone();
+  const _q = new THREE.Quaternion();
+  const _asse = new THREE.Vector3();
+  const giraVerso = (d: THREE.Vector3, angolo: number, rnd: number): THREE.Vector3 => {
+    // ruota d di 'angolo' attorno a un asse perpendicolare scelto a caso
+    const ref = Math.abs(d.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+    _asse.crossVectors(d, ref).normalize().applyAxisAngle(d, rnd * Math.PI * 2);
+    _q.setFromAxisAngle(_asse, angolo);
+    return d.clone().applyQuaternion(_q);
   };
-  const nPrincipali = rng.intero(3, 4);
-  for (let k = 0; k < nPrincipali; k++) {
-    const a = (k / nPrincipali) * Math.PI * 2 + rng.centrato(0.4);
-    const dir = new THREE.Vector3(Math.cos(a) * 0.7, rng.tra(0.55, 1.0), Math.sin(a) * 0.7).normalize();
-    rami(cima.clone().add(new THREE.Vector3(0, -0.4, 0)), dir, H * rng.tra(0.3, 0.42), rT * 0.55, 0);
+  const LIVELLI = [
+    { punti: 6, lati: 8, figli: [3, 3] as const, angolo: [0.45, 0.8] as const },
+    { punti: 5, lati: 6, figli: [2, 3] as const, angolo: [0.5, 0.85] as const },
+    { punti: 4, lati: 4, figli: [1, 2] as const, angolo: [0.5, 0.9] as const },
+    { punti: 3, lati: 4, figli: [0, 0] as const, angolo: [0, 0] as const },
+  ];
+  const ramo = (p0: THREE.Vector3, dir: THREE.Vector3, len: number, r0: number, livello: number): void => {
+    const L = LIVELLI[livello]!;
+    if (livello >= 1 && b.triangoli() > tetto - (livello === 1 ? 100 : 0)) return;
+    const n = L.punti;
+    const p: THREE.Vector3[] = [p0.clone()];
+    const d = dir.clone().normalize();
+    const passo = len / (n - 1);
+    for (let i = 1; i < n; i++) {
+      // il ramo serpeggia; le branche si aprono verso l'esterno e poi risalgono (coppa)
+      d.add(new THREE.Vector3(rng.centrato(0.36), rng.centrato(0.22), rng.centrato(0.36)));
+      if (livello === 0) {
+        const fuori = new THREE.Vector3(d.x, 0, d.z).normalize();
+        d.addScaledVector(fuori, i < 3 ? 0.18 : -0.04).add(new THREE.Vector3(0, i < 3 ? -0.05 : 0.1, 0));
+      } else d.y += 0.05;
+      d.normalize();
+      p.push(p[i - 1]!.clone().addScaledVector(d, passo));
+    }
+    // spezzato: un ramo su sette finisce in un moncone (legno chiaro), niente figli
+    const spezzato = livello === 1 && rng.prob(0.15);
+    const fine = livello === LIVELLI.length - 1 ? 0.012 : spezzato ? r0 * 0.5 : r0 * 0.28;
+    const rr = p.map((_, i) => {
+      const t = i / (n - 1);
+      return THREE.MathUtils.lerp(r0, fine, Math.pow(t, 0.85));
+    });
+    b.aggiungi(geoTubo(p, rr, L.lati, { chiudiFine: true }), { colore: corteccia });
+    if (spezzato) {
+      b.aggiungi(geoCilindro(fine * 0.95, fine * 0.6, fine * 1.2, 5), { matrice: matSegmento(p[n - 1]!, p[n - 1]!.clone().addScaledVector(d, fine * 1.2)), colore: 0xb3a998 });
+      return;
+    }
+    const nf = rng.intero(L.figli[0], L.figli[1]);
+    for (let k = 0; k < nf; k++) {
+      const t = rng.tra(0.38, 0.92);
+      const fi = t * (n - 1);
+      const i0 = Math.min(n - 2, Math.floor(fi));
+      const q = p[i0]!.clone().lerp(p[i0 + 1]!, fi - i0);
+      const rq = THREE.MathUtils.lerp(rr[i0]!, rr[i0 + 1]!, fi - i0);
+      const dq = p[i0 + 1]!.clone().sub(p[i0]!).normalize();
+      const nd = giraVerso(dq, rng.tra(L.angolo[0], L.angolo[1]), rng.next());
+      nd.y = Math.max(nd.y, -0.25);
+      ramo(q, nd, len * rng.tra(0.5, 0.68) * (1.1 - t * 0.3), rq * 0.68, livello + 1);
+    }
+    // l'ultimo tratto prosegue sottile (la punta del ramo)
+    if (livello < LIVELLI.length - 1) ramo(p[n - 1]!, d, len * 0.42, fine, livello + 1);
+  };
+  const nBranche = 4;
+  // ogni branca ha la sua parte di triangoli (la ricorsione è in profondità: senza tetto
+  // l'ultima branca resterebbe spoglia)
+  let tetto = BUDGET;
+  for (let k = 0; k < nBranche; k++) {
+    const a = (k / nBranche) * Math.PI * 2 + fase * 0.3 + rng.centrato(0.45);
+    const dir = new THREE.Vector3(Math.cos(a) * 0.62, rng.tra(0.65, 0.95), Math.sin(a) * 0.62).normalize();
+    const p0 = cima.clone().add(new THREE.Vector3(Math.cos(a) * rT * 0.25, -0.7 - rng.next() * 0.5, Math.sin(a) * rT * 0.25));
+    tetto = b.triangoli() + (BUDGET - b.triangoli()) / (nBranche - k);
+    ramo(p0, dir, H * rng.tra(0.36, 0.46), rT * rng.tra(0.5, 0.62), 0);
   }
-  // moncone spezzato
-  b.aggiungi(geoTubo([cima.clone(), cima.clone().add(new THREE.Vector3(0.2, 1.1, -0.1))], [rT * 0.7, rT * 0.45], 6, { chiudiFine: true }), { colore: col });
 
-  // radici scoperte che strisciano sul terreno
-  const nRadici = 6;
-  const angoliRadici: number[] = [];
+  // ---- radici scoperte che strisciano e affondano
+  const nRadici = 7;
   for (let k = 0; k < nRadici; k++) {
-    const a = (k / nRadici) * Math.PI * 2 + rng.centrato(0.25) + (opz.cripta ? 0.5 : 0);
-    angoliRadici.push(a);
-    const l = rng.tra(2.2, 3.6);
+    const a = (k / nRadici) * Math.PI * 2 + fase + rng.centrato(0.25) + (opz.cripta ? 0.5 : 0);
+    const l = rng.tra(2.0, 3.8);
     const p: THREE.Vector3[] = [];
     for (let i = 0; i < 5; i++) {
       const t = i / 4;
-      const d = rT * 0.6 + t * l;
-      p.push(new THREE.Vector3(Math.cos(a + Math.sin(t * 3) * 0.15) * d, 0.9 * Math.pow(1 - t, 2) + 0.05 - t * 0.25, Math.sin(a + Math.sin(t * 3) * 0.15) * d));
+      const d = rT * 0.55 + t * l;
+      const aa = a + Math.sin(t * 3 + k) * 0.18;
+      p.push(new THREE.Vector3(Math.cos(aa) * d, 0.95 * Math.pow(1 - t, 2) + 0.06 - t * 0.32, Math.sin(aa) * d));
     }
-    b.aggiungi(geoTubo(p, [rT * 0.5, rT * 0.38, rT * 0.26, rT * 0.16, rT * 0.06], 5, { chiudiFine: true }), { colore: col });
+    b.aggiungi(geoTubo(p, [rT * 0.52, rT * 0.38, rT * 0.25, rT * 0.15, rT * 0.05], 6, { chiudiFine: true }), { colore: corteccia });
   }
 
   const collider: Collider[] = [cil(0, -0.5, 0, rT * 1.2, hFusto + 0.5, 'tronco')];

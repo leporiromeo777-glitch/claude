@@ -6,11 +6,12 @@
  * senza fughe. Con `terrapieno` il retro è considerato interrato (muro di sostegno di una terrazza).
  */
 import * as THREE from 'three';
-import { Costruttore, mat, mescola } from '../costruttore';
+import { Costruttore, mat, mescola, type FnColore } from '../costruttore';
 import { box, cil, ingombroDa, risultato, smorza } from '../comune';
-import { geoBoxC, geoCilindro, geoLastra, geoPiano, geoPietraFaccia } from '../forme';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { geoBoxC, geoCiuffo, geoCilindro, geoLastra, geoMasso, geoPietraFaccia } from '../forme';
 import { PALETTE } from '../palette';
-import { Rng, semeNumerico, type Seme } from '../rng';
+import { Rng, hashPosizione, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
 
 export interface OpzioniMuro {
@@ -96,6 +97,76 @@ function percorsoArco(L: number, R: number): THREE.Vector3[] {
   return pts;
 }
 
+/**
+ * Colore per vertice di una pietra di testa: calcare chiaro sopra (licheni, una macchia di muschio
+ * dal lato a monte), più scuro e caldo sui fianchi e sotto.
+ */
+function coloreTesta(sopra: THREE.Color, fianco: THREE.Color, muschio: THREE.Color, quantoMuschio: number, seme: number): FnColore {
+  const lichene = new THREE.Color(0xb3a675);
+  const scuro = new THREE.Color(0x6e6a63);
+  return (p, n, out) => {
+    out.copy(fianco).lerp(sopra, THREE.MathUtils.smoothstep(n.y, -0.1, 0.75));
+    // macchie per vertice: licheni gialli, pietra scura bagnata, muschio verso monte
+    const h = hashPosizione(p.x, p.y, p.z, seme);
+    if (h > 0.78) out.lerp(lichene, 0.55);
+    else if (h < 0.18) out.lerp(scuro, 0.5);
+    if (quantoMuschio > 0) out.lerp(muschio, quantoMuschio * THREE.MathUtils.smoothstep(n.y, 0.3, 0.9) * THREE.MathUtils.smoothstep(-p.z, -0.02, 0.06));
+  };
+}
+
+/** Sasso di testa: icosaedro schiacciato e irregolare con le normali morbide (un cuscino di pietra). */
+function sassoTesta(seme: number): THREE.BufferGeometry {
+  let g: THREE.BufferGeometry = geoMasso(1, seme, 0.2, 0, 1);
+  g.deleteAttribute('normal');
+  g = mergeVertices(g);
+  // il fondo piatto (appoggia sul muro), il dorso tondo
+  const pos = g.getAttribute('position') as THREE.BufferAttribute;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    if (y < 0) pos.setY(i, y * 0.35);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Pietra della faccia a vista: blocco senza il retro e senza il fondo (8 triangoli). */
+function pietraFaccia(w: number, h: number, d: number, seme: number, irr: number): THREE.BufferGeometry {
+  const g = geoPietraFaccia(w, h, d, seme, irr);
+  const idx = g.getIndex() as THREE.BufferAttribute;
+  // BoxGeometry: gruppi +x, −x, +y, −y, +z (il −z l'ha già tolto geoPietraFaccia): via anche il −y
+  const a = Array.from(idx.array);
+  g.setIndex([...a.slice(0, 18), ...a.slice(24, 30)]);
+  return g;
+}
+
+/**
+ * Pietra a vista del muro lontano (dettaglio basso): un cuscino a quattro falde, col centro in
+ * fuori: ogni pietra prende la luce su quattro facce come una pietra spaccata (4 triangoli).
+ */
+function pietraCuscino(w: number, h: number, sporge: number, seme: number): THREE.BufferGeometry {
+  const j = (k: number) => (hashPosizione(k, seme, 0.5, seme) - 0.5) * 0.18;
+  const x0 = -w / 2;
+  const x1 = w / 2;
+  const v = [
+    [x0 + j(1) * w, j(2) * h, 0],
+    [x1 + j(3) * w, j(4) * h, 0],
+    [x1 + j(5) * w, h + j(6) * h, 0],
+    [x0 + j(7) * w, h + j(8) * h, 0],
+    [j(9) * w * 0.6, h * (0.5 + j(10)), sporge],
+  ] as const;
+  const t = [
+    [0, 1, 4],
+    [1, 2, 4],
+    [2, 3, 4],
+    [3, 0, 4],
+  ];
+  const pos: number[] = [];
+  for (const tri of t) for (const k of tri) pos.push(...v[k]!);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  return g;
+}
+
 /** Muro a secco lungo un percorso. */
 export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
   const seme = semeNumerico(opz.seme ?? 'muro');
@@ -166,17 +237,20 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
           const off = lato > 0 ? -scarpa * Math.max(0, yy) + 0.02 : -sp - 0.02 + (opz.terrapieno ? 0 : scarpa * Math.max(0, yy) * 0.5);
           const centro = c.p.clone().addScaledVector(c.n, off);
           const ang = Math.atan2(-c.t.z, c.t.x);
-          const colore = mescola(tono, rng.prob(0.5) ? PALETTE.gneissChiaro : rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
+          let colore = mescola(tono, rng.prob(0.5) ? PALETTE.gneissChiaro : rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
+          // licheni gialli e muschio su qualche pietra (più in basso, dove resta l'umido)
+          if (rng.prob(0.14)) colore = mescola(colore, 0xb3a86e, rng.tra(0.25, 0.5));
+          else if (yy < H * 0.35 && rng.prob(0.18)) colore = mescola(colore, PALETTE.muschio, rng.tra(0.2, 0.45));
           if (det === 'alto') {
-            b.aggiungi(geoPietraFaccia(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
+            b.aggiungi(pietraFaccia(s1 - s0 - 0.035, hc - 0.035, 0.16, rng.intero(0, 1e6), 0.14), {
               matrice: mat([centro.x, y + 0.017, centro.z], [lato > 0 ? -scarpa * 0.8 : scarpa * 0.4, ang + (lato > 0 ? 0 : Math.PI), rng.centrato(0.04)]),
               colore,
               variazione: 0.06,
               piatto: true,
             });
           } else {
-            b.aggiungi(geoPiano(s1 - s0 - 0.03, hc - 0.03), {
-              matrice: mat([centro.x + c.n.x * 0.015 * lato, yy, centro.z + c.n.z * 0.015 * lato], [lato > 0 ? -scarpa : scarpa * 0.5, ang + (lato > 0 ? 0 : Math.PI), 0]),
+            b.aggiungi(pietraCuscino(s1 - s0 - 0.03, hc - 0.03, 0.05, rng.intero(0, 1e6)), {
+              matrice: mat([centro.x + c.n.x * 0.01 * lato, y + 0.015, centro.z + c.n.z * 0.01 * lato], [lato > 0 ? -scarpa : scarpa * 0.5, ang + (lato > 0 ? 0 : Math.PI), 0]),
               colore,
               piatto: true,
             });
@@ -189,23 +263,55 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
     }
   }
 
-  // copertina di lastre
+  // testa del muro: pietre di coronamento irregolari e proporzionate, dello stesso tono del muro
+  // (non lastre lunghe e chiare). Nel muro di sostegno la testa sta sul davanti: dietro c'è la
+  // terra della terrazza; nel muro libero copre tutto lo spessore.
   {
+    // (calcare chiaro e tondeggiante come nel bozzetto 2: le facce lisce e chiare non prendono
+    // il motivo della pietra a giunti, che disegnerebbe pietre dentro le pietre)
+    const prof = opz.terrapieno ? Math.min(0.62, sp * 0.85) : sp + 0.06;
+    const muschio = new THREE.Color(PALETTE.muschio);
     let s = 0;
     while (s < L) {
-      const lw = Math.min(L - s, rng.tra(0.45, 0.8));
-      if (lw < 0.15) break;
+      const lw = Math.min(L - s, pietra * rng.tra(0.55, 1.25));
+      if (lw < 0.12) break;
       const c = aLunghezza(camp, s + lw / 2);
-      const centro = c.p.clone().addScaledVector(c.n, -scarpa * H * 0.5 - sp / 2 + 0.02);
+      const off = opz.terrapieno ? -scarpa * H - prof / 2 + 0.06 : -scarpa * H * 0.5 - sp / 2 + 0.02;
+      const centro = c.p.clone().addScaledVector(c.n, off);
       const ang = Math.atan2(-c.t.z, c.t.x);
-      b.aggiungi(geoLastra(lw - 0.02, rng.tra(0.1, 0.16), sp + 0.08 + scarpa * H * 0.3, rng.intero(0, 1e6), 0.12), {
-        matrice: mat([centro.x, H - 0.03, centro.z], [rng.centrato(0.04), ang, rng.centrato(0.06)]),
-        colore: mescola(tono, PALETTE.gneissChiaro, 0.3 + rng.next() * 0.4),
+      // lastre piatte e sassi tondi, qualcuno di coltello: la testa non è una fila di cuscini uguali
+      const forma = rng.next();
+      const alt = forma < 0.3 ? rng.tra(0.09, 0.14) : forma > 0.85 ? rng.tra(0.28, 0.36) : rng.tra(0.16, 0.24);
+      const fianco = mescola(tono, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.4);
+      const sopra = mescola(PALETTE.gneiss, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.5).multiplyScalar(0.8);
+      const colore = coloreTesta(sopra, fianco, muschio, rng.prob(0.45) ? rng.tra(0.3, 0.7) : 0, rng.intero(0, 1e6));
+      const larg = forma > 0.85 ? lw * 0.42 : lw * 0.62;
+      b.aggiungi(sassoTesta(rng.intero(0, 1e6)), {
+        matrice: mat([centro.x, H - 0.03 - alt * 0.15, centro.z], [rng.centrato(0.1), ang + rng.centrato(0.3), rng.centrato(0.1)], [larg, alt * 0.6, prof * rng.tra(0.45, 0.58)]),
+        colore,
         variazione: 0.06,
+      });
+      s += lw;
+    }
+  }
+  // muschio e ciuffi d'erba sulla testa e al piede (solo da vicino)
+  if (det === 'alto') {
+    const n = Math.round(L / 1.4);
+    for (let k = 0; k < n; k++) {
+      const c = aLunghezza(camp, rng.next() * L);
+      const ang = Math.atan2(-c.t.z, c.t.x);
+      const sopra = rng.prob(0.6);
+      const y = sopra ? H + 0.08 : -0.02;
+      const off = sopra ? (opz.terrapieno ? -scarpa * H - rng.tra(0.1, 0.5) : -scarpa * H * 0.5 - sp * rng.tra(0.2, 0.8)) : rng.tra(0.02, 0.14);
+      const p = c.p.clone().addScaledVector(c.n, off);
+      const erba = sopra && rng.prob(0.5);
+      const g = geoCiuffo(erba ? 0.16 : 0.13, rng.intero(0, 1e6), erba ? 1.8 : 0.45);
+      b.aggiungi(g, {
+        matrice: mat([p.x, y, p.z], [0, ang + rng.next() * 3, 0], [rng.tra(1, 2.2), 1, rng.tra(0.8, 1.4)]),
+        colore: erba ? (rng.prob(0.5) ? 0x9a8a48 : 0x6d7a3c) : PALETTE.muschio,
+        variazione: 0.12,
         piatto: true,
       });
-      // ciuffi di muschio qua e là
-      s += lw;
     }
   }
 

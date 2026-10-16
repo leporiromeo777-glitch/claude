@@ -18,6 +18,8 @@ import { CHUNK_COLS, CHUNK_DEG, CHUNK_ROWS, CHUNK_S, LOD_COUNT, S_TOTAL, lodCols
 import { capMeanHeight } from '../world/terrainProfile';
 import { stripAt } from '../world/terrain';
 import { terrainColor } from './palette';
+import { suSentiero, trattiVicini } from '../scene/sentieri';
+import { METERS_PER_DEG } from '../world/constants';
 
 export interface TerrainChunk {
   row: number;
@@ -241,6 +243,8 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
 
   const positions = new Float32Array(nV * 3);
   const normals = new Float32Array(nV * 3);
+  // sentieri di terra battuta (traccia «natura»): solo il colore, solo dove passano vicino al chunk
+  const sentieri = trattiVicini(Math.min(Z[1]!, Z[rows + 1]!), Math.max(Z[1]!, Z[rows + 1]!), chunk.thetaStart * METERS_PER_DEG, (chunk.thetaStart + CHUNK_DEG) * METERS_PER_DEG, 6);
   for (let i = 1; i <= rows + 1; i++) {
     for (let j = 1; j <= cols + 1; j++) {
       const vi = (i - 1) * (cols + 1) + (j - 1);
@@ -271,6 +275,17 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
       const m = maskStore[vi]!;
       const h = hs[vi]!;
       terrainColor(Z[i]!, th, h, slope, m, tmpColor);
+      if (sentieri.length) {
+        const k = suSentiero(Z[i]!, th, sentieri);
+        if (k > 0) {
+          // terra battuta ocra in mezzo, le spalle consumate (erba rada e terra) ai lati
+          const v = 0.92 + 0.16 * Math.abs(Math.sin(Z[i]! * 1.7 + th * 31));
+          const t = Math.pow(k, 1.6) * (1 - smoothSlope(slope));
+          tmpColor[0] = tmpColor[0]! + (0.62 * v - tmpColor[0]!) * t;
+          tmpColor[1] = tmpColor[1]! + (0.51 * v - tmpColor[1]!) * t;
+          tmpColor[2] = tmpColor[2]! + (0.36 * v - tmpColor[2]!) * t;
+        }
+      }
       colors[vi * 4] = Math.round(Math.min(1, Math.max(0, tmpColor[0]!)) * 255);
       colors[vi * 4 + 1] = Math.round(Math.min(1, Math.max(0, tmpColor[1]!)) * 255);
       colors[vi * 4 + 2] = Math.round(Math.min(1, Math.max(0, tmpColor[2]!)) * 255);
@@ -357,4 +372,10 @@ export function* buildChunkGeometry(chunk: TerrainChunk, lod: number): Generator
   geo.setIndex(new BufferAttribute(index, 1));
   geo.computeBoundingSphere();
   return geo;
+}
+
+/** Sui pendii ripidi (roccia) il sentiero non si dipinge: 0 in piano, 1 oltre ~45°. */
+function smoothSlope(slope: number): number {
+  const t = Math.min(1, Math.max(0, (slope - 0.6) / 0.3));
+  return t * t * (3 - 2 * t);
 }

@@ -1,219 +1,488 @@
 /**
- * Castagni segnaposto: masse tonde a tre toni (la luce a bande fa i toni) su un
- * tronco torto. Tre livelli di dettaglio, ciascuno una InstancedMesh: ogni
- * ~0.3 s gli alberi vengono ridistribuiti fra vicino/medio/lontano in base alla
- * distanza dalla camera. I tronchi hanno collisori cilindrici.
+ * Alberi del cilindro (traccia «natura»): castagni delle selve, betulle ai margini, larici in alto,
+ * noci nei prati, cipressi vicino alla chiesa. Boschi fitti sui versanti, alberi sparsi nei prati.
+ *
+ * Livelli di dettaglio (distanze per la qualità Alta, scalate da `impostaQualita`/`impostaDistanze`):
+ * - LOD 0 (0-40 m): carte di foglie rivolte alla camera sopra le masse della chioma (il nucleo in
+ *   ombra; per le latifoglie, `SOLO_CARTE`, le masse fanno solo l'ombra e non si vedono), tronco a
+ *   radici di contrafforte con le branche;
+ * - LOD 1 (40-130 m), LOD 2 (130-280 m): meno masse e carte più grandi, tronco semplice;
+ * - oltre 280 m gli alberi dei boschi lasciano il posto alle masse dipinte dei boschi lontani
+ *   (`scene/bosco.ts`), quelli sparsi a un LOD 3 statico (una InstancedMesh per specie con tutti gli
+ *   alberi sparsi, che compare da sola con la distanza nello shader).
+ * I passaggi fra livelli sono retinati (`uSfuma` in `render/naturaMateriali.ts`): niente salti.
+ *
+ * Ogni ~12 m di spostamento della camera gli alberi vicini (una griglia di celle da 64 m) vengono
+ * ridistribuiti fra i livelli. I tronchi hanno collisori cilindrici con il tag `castagno` (il
+ * popolamento di Corbella li toglie dove costruisce: `liberaCastagni`).
  */
-import { BufferAttribute, BufferGeometry, Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Vector3, type Material } from 'three';
-import { L, LAYOUT, METERS_PER_DEG } from '../world/constants';
-import { cylToWorld, upAt } from '../world/cylinder';
+import { Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Material, type ShaderMaterial } from 'three';
+import { DEG, L, LAYOUT, METERS_PER_DEG } from '../world/constants';
+import { cylToWorld, surfaceDistance, upAt, worldToCyl } from '../world/cylinder';
 import { cylinderAt, type ColliderWorld } from '../world/colliders';
-import { Simplex3, mulberry32 } from '../world/noise';
-import { STRIPS, WATER_HEIGHT, createMasks, forestDensity, slopeAt, surfaceHeight } from '../world/terrain';
-import { GeomBuilder, PRIMS } from '../render/geomBuilder';
-import { PALETTE, type RGB } from '../render/palette';
+import { Simplex3, clamp, mulberry32, smoothstep } from '../world/noise';
+import { STRIPS, WATER_HEIGHT, createMasks, slopeAt, surfaceHeight, type TerrainMasks } from '../world/terrain';
+import type { RGB } from '../render/palette';
 import { surfaceMatrix } from '../render/placement';
+import { creaMaterialeNatura, impostaNucleo, impostaSfuma } from '../render/naturaMateriali';
+import type { WorldUniforms } from '../render/uniforms';
+import { N_LOD_ALBERI, SPECIE, geometrieAlbero, triangoli, type Specie } from './alberi';
+import { BoschiLontani, densitaBosco } from './bosco';
+import { Sottobosco } from './sottobosco';
+import { suSentiero, trattiVicini } from './sentieri';
 
 export interface TreeInstance {
   pos: Vector3;
   matrix: Matrix4;
+  /** colore principale della chioma */
   tint: RGB;
+  /** colore secondario (oro, ruggine…) e quota di masse che lo prendono */
+  tint2?: RGB;
+  quota?: number;
+  specie?: Specie;
+  /** albero di bosco (oltre 280 m lo sostituiscono le masse dei boschi lontani) */
+  bosco?: boolean;
+  seme?: number;
 }
 
-const _t = new Matrix4();
-const _v = new Vector3();
+/** Tinte d'ottobre per specie: [principale, secondario, quota del secondario]. */
+const TINTE: Record<Specie, Array<[RGB, RGB, number]>> = {
+  castagno: [
+    [[0.38, 0.44, 0.23], [0.76, 0.58, 0.26], 0.45],
+    [[0.45, 0.47, 0.22], [0.66, 0.4, 0.2], 0.4],
+    [[0.33, 0.41, 0.22], [0.8, 0.66, 0.32], 0.3],
+    [[0.55, 0.5, 0.24], [0.72, 0.46, 0.22], 0.55],
+    [[0.37, 0.43, 0.23], [0.52, 0.49, 0.24], 0.5],
+  ],
+  betulla: [
+    [[0.8, 0.67, 0.3], [0.56, 0.56, 0.28], 0.35],
+    [[0.74, 0.62, 0.28], [0.82, 0.72, 0.38], 0.4],
+  ],
+  larice: [
+    [[0.74, 0.54, 0.25], [0.54, 0.52, 0.27], 0.3],
+    [[0.7, 0.48, 0.24], [0.78, 0.62, 0.3], 0.35],
+  ],
+  noce: [
+    [[0.52, 0.53, 0.27], [0.74, 0.62, 0.3], 0.45],
+    [[0.58, 0.55, 0.27], [0.45, 0.5, 0.25], 0.4],
+  ],
+  cipresso: [[[0.19, 0.26, 0.16], [0.24, 0.31, 0.18], 0.4]],
+};
 
-/** Geometrie dei tre LOD (unità: albero alto ~10 m prima della scala). */
-function treeGeometries(): BufferGeometry[] {
-  const trunk = PALETTE.chestnut;
-  const leaf: RGB = [1, 1, 1]; // il colore della chioma viene dalla tinta per istanza
-  const out: BufferGeometry[] = [];
-  // LOD 0: tronco in due tratti piegati + 5 masse
-  {
-    const b = new GeomBuilder();
-    _t.makeTranslation(0, 0, 0).scale(_v.set(0.42, 2.4, 0.42));
-    b.add(PRIMS.frustum(0.75, 7), _t.clone(), trunk);
-    _t.makeTranslation(0.25, 2.3, 0).multiply(new Matrix4().makeRotationZ(-0.22)).scale(_v.set(0.32, 2.3, 0.32));
-    b.add(PRIMS.frustum(0.6, 7), _t.clone(), trunk);
-    _t.makeTranslation(-0.2, 2.6, 0.1).multiply(new Matrix4().makeRotationZ(0.6)).scale(_v.set(0.18, 1.8, 0.18));
-    b.add(PRIMS.frustum(0.5, 5), _t.clone(), trunk);
-    const blobs: [number, number, number, number][] = [
-      [0.4, 5.6, 0, 2.9],
-      [-1.6, 4.9, 0.6, 2.2],
-      [1.9, 4.8, -0.5, 2.1],
-      [0.2, 6.9, -0.8, 2.0],
-      [-0.4, 5.2, -1.9, 2.0],
-    ];
-    for (const [x, y, z, r] of blobs) {
-      _t.makeTranslation(x, y, z).scale(_v.set(r, r * 0.86, r));
-      b.add(PRIMS.blob(1), _t.clone(), leaf, 0, (lp, c) => {
-        // fondo della chioma più scuro (ombra propria dipinta)
-        const k = lp.y < -0.3 ? 0.82 : 1;
-        c[0] = c[0]! * k;
-        c[1] = c[1]! * k;
-        c[2] = c[2]! * k;
-      });
-    }
-    out.push(b.build());
-  }
-  // LOD 1: tronco semplice + 2 masse
-  {
-    const b = new GeomBuilder();
-    _t.makeTranslation(0, 0, 0).scale(_v.set(0.4, 4.2, 0.4));
-    b.add(PRIMS.frustum(0.6, 5), _t.clone(), trunk);
-    _t.makeTranslation(0.2, 5.5, 0).scale(_v.set(3.2, 2.7, 3.2));
-    b.add(PRIMS.blob(0), _t.clone(), leaf);
-    _t.makeTranslation(-1.2, 4.9, 0.5).scale(_v.set(2.2, 1.9, 2.2));
-    b.add(PRIMS.blob(0), _t.clone(), leaf);
-    out.push(b.build());
-  }
-  // LOD 2: una massa
-  {
-    const b = new GeomBuilder();
-    _t.makeTranslation(0, 5.2, 0).scale(_v.set(3.6, 3.0, 3.6));
-    b.add(PRIMS.blob(0), _t.clone(), leaf);
-    out.push(b.build());
-  }
-  return out;
+/** Cipressi vicino alla chiesa di San Vigilio (z, theta): il popolamento toglie quelli d'ingombro. */
+const CIPRESSI: Array<[number, number]> = [
+  [1076, 39.6],
+  [1079, 39.9],
+  [1070, 41.4],
+  [1084, 36.1],
+  [1052, 41.5],
+  [1093, 38.4],
+];
+
+const VILLAGE = LAYOUT.villages[0]!;
+
+/** Distanze dei livelli di dettaglio alla qualità Alta (m). */
+const DISTANZE_ALTA = [40, 130, 280];
+const CELLA = 64;
+
+interface Livello {
+  chioma: InstancedMesh;
+  /** carte di foglie (LOD 0 e 1) */
+  carte: InstancedMesh | null;
+  tronco: InstancedMesh | null;
+  capienza: number;
 }
+
+/** Specie la cui chioma, ai livelli 0 e 1, è fatta di sole carte di foglie (le masse fanno solo ombra). */
+const SOLO_CARTE: readonly Specie[] = ['castagno', 'noce', 'betulla'];
+
+/** Istanze al più per livello e specie (vicino ne bastano poche). */
+const CAPIENZA = [900, 4000, 14000];
 
 export class Vegetation {
   readonly group = new Group();
   readonly trees: TreeInstance[] = [];
-  private meshes: InstancedMesh[] = [];
-  private trunkMeshes: InstancedMesh[] = [];
-  /** Distanze di passaggio fra i LOD (m). */
-  lodDistances = [140, 520];
+  /** Distanze di passaggio fra i LOD (m): [0→1, 1→2, 2→lontano]. */
+  lodDistances = DISTANZE_ALTA.slice();
   private lastCam = new Vector3(1e9, 0, 0);
+  private readonly u: WorldUniforms;
+  /** per specie: livelli 0..2 dinamici */
+  private livelli = new Map<Specie, Livello[]>();
+  /** per specie: livello 3 statico (alberi sparsi), masse e carte */
+  private lontani = new Map<Specie, InstancedMesh[]>();
+  private materiali: { chioma: ShaderMaterial[]; tronco: ShaderMaterial[]; lontano: ShaderMaterial; carte: Map<Specie, ShaderMaterial[]>; carteLontane: Map<Specie, ShaderMaterial> };
+  private celle = new Map<number, number[]>();
+  private indicizzati = -1;
+  private conteggi = [0, 0, 0, 0];
+  /** le masse dei boschi lontani (oltre l'ultimo livello) */
+  readonly boschi: BoschiLontani;
+  /** erba, felci, fiori, cespugli, sassi, foglie e ricci vicino alla camera */
+  readonly sottobosco: Sottobosco;
 
-  constructor(material: Material, trunkMaterial: Material, colliders: ColliderWorld, seed = 99) {
-    this.group.name = 'castagni';
+  constructor(material: Material, _trunkMaterial: Material, colliders: ColliderWorld, seed = 99) {
+    this.group.name = 'alberi';
+    // i materiali della vegetazione usano gli stessi uniform del mondo (quelli del materiale passato)
+    this.u = (material as ShaderMaterial).uniforms as unknown as WorldUniforms;
+    this.materiali = {
+      chioma: [0, 1, 2].map((lod) => {
+        const m = creaMaterialeNatura(this.u, { tipo: 'chioma' });
+        // sotto le carte di foglie le masse sono l'interno in ombra della chioma
+        impostaNucleo(m, lod === 0 ? 0.66 : lod === 1 ? 0.78 : 0.92);
+        return m;
+      }),
+      tronco: [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'tronco' })),
+      lontano: creaMaterialeNatura(this.u, { tipo: 'chioma' }),
+      // carte di foglie: un materiale per specie e livello (la forma delle foglie è della specie)
+      carte: new Map(SPECIE.map((sp) => [sp, [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'carte', foglia: geometrieAlbero(sp).forma }))])),
+      carteLontane: new Map(SPECIE.map((sp) => [sp, creaMaterialeNatura(this.u, { tipo: 'carte', foglia: geometrieAlbero(sp).forma })])),
+    };
+    this.pianta(colliders, seed);
+    this.costruisciMesh();
+    this.boschi = new BoschiLontani(this.u);
+    this.group.add(this.boschi.group);
+    this.sottobosco = new Sottobosco(this.u, colliders, this.trees);
+    this.group.add(this.sottobosco.group);
+    this.impostaDistanze(1);
+  }
+
+  /**
+   * Qualità della vegetazione (`PresetQualita.vegetazione`: Bassa ~0.45, Media ~0.75, Alta 1):
+   * distanze dei livelli di dettaglio degli alberi, raggio e densità del sottobosco.
+   */
+  impostaQualita(k: number): void {
+    this.impostaDistanze(0.55 + 0.45 * clamp(k, 0, 1.3));
+    this.sottobosco.impostaQualita(k);
+  }
+
+  // ---------------------------------------------------------------------------------- piantare
+
+  private pianta(colliders: ColliderWorld, seed: number): void {
     const rnd = mulberry32(seed);
     const noise = new Simplex3(seed);
     const masks = createMasks();
-    const spacing = 10.5;
-    const tintsAutumn: RGB[] = [PALETTE.leafGreen, PALETTE.leafGreen, PALETTE.leafDeep, PALETTE.leafDeep, PALETTE.leafOchre, PALETTE.leafRust, [0.62, 0.68, 0.36]];
+    const passo = 8.5;
     for (const strip of STRIPS) {
       if (strip.kind !== 'valle') continue;
       const forest = LAYOUT.forests.find((f) => f.strip === strip.id);
       const k = forest ? forest.density : 0.2;
       const arcLen = (strip.thetaEnd - strip.thetaStart) * METERS_PER_DEG;
-      for (let z = 5; z < L - 5; z += spacing) {
-        for (let a = 2; a < arcLen - 2; a += spacing) {
-          const zz = z + (rnd() - 0.5) * spacing * 0.9;
-          const th = strip.thetaStart + (a + (rnd() - 0.5) * spacing * 0.9) / METERS_PER_DEG;
+      for (let z = 5; z < L - 5; z += passo) {
+        for (let a = 2; a < arcLen - 2; a += passo) {
+          const zz = z + (rnd() - 0.5) * passo * 0.9;
+          const th = strip.thetaStart + (a + (rnd() - 0.5) * passo * 0.9) / METERS_PER_DEG;
+          const pr = rnd();
           const h = surfaceHeight(zz, th, masks);
           if (masks.capN > 0 || masks.capS > 0.4) continue;
-          if (masks.lakeQ < 1.08 || h < WATER_HEIGHT + 0.6 && masks.theme === 'lago') continue;
+          if (masks.lakeQ < 1.08 || (h < WATER_HEIGHT + 0.6 && masks.theme === 'lago')) continue;
           if (masks.piazza > 0) continue;
+          if (masks.stream < 6) continue;
           const slope = slopeAt(zz, th, false);
-          let d = forestDensity(zz, th, h, slope, masks) * (0.55 + 0.45 * k);
-          // alberi isolati nei prati
-          d = Math.max(d, 0.012 * (1 - masks.bank));
-          if (rnd() > d) continue;
+          const f = densitaBosco(zz, th, h, slope, masks);
+          // boschi: probabilità alta dove la densità supera la soglia (chiome che si toccano)
+          let d = smoothstep(0.06, 0.5, f) * (0.45 + 0.55 * k);
+          // alberi sparsi nei prati (nel paese quasi nessuno: lo costruisce il popolamento)
+          // (a gruppi: boschetti, filari lungo i muri e qualche albero solo, non pois sui prati)
+          const tt = th * DEG;
+          const gruppi = smoothstep(0.52, 0.78, noise.noise((-Math.sin(tt) * 646) / 75, (-Math.cos(tt) * 646) / 75, zz / 75) * 0.5 + 0.5);
+          d = Math.max(d, (0.002 + 0.05 * gruppi) * (1 - masks.bank) * (1 - 0.9 * smoothstep(0.05, 0.5, masks.village)));
+          // selva castanile sulle terrazze attorno al paese (castagni da frutto radi, come nel
+          // bozzetto 2), fuori dal nucleo delle case e dalla fascia dei muri del Velo
+          let frutto = false;
+          if (masks.village > 0.02 && strip.theme === 'selve') {
+            const dv = surfaceDistance(zz, th, VILLAGE.zCenter, VILLAGE.thetaCenter);
+            const anello = smoothstep(105, 135, dv) * (1 - smoothstep(280, 320, dv));
+            const corridoio = zz > 945 && zz < 1060 && th > 23 && th < 39;
+            const pf = corridoio ? 0 : 0.085 * anello * (1 - smoothstep(0.35, 0.6, slope));
+            if (pf > d) {
+              d = pf;
+              frutto = true;
+            }
+          }
+          if (pr > d) continue;
+          // niente tronchi sui sentieri di campagna (scene/sentieri.ts)
+          if (suSentiero(zz, th, trattiVicini(zz, zz, th * METERS_PER_DEG, th * METERS_PER_DEG, 4)) > 0.3) continue;
           const base = cylToWorld(zz, th, h);
-          if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 3.2)) continue;
-          const scale = 0.72 + rnd() * 0.6 + noise.noise(base.x / 80, base.y / 80, base.z / 80) * 0.15;
-          const m = surfaceMatrix(zz, th, h - 0.3, rnd() * 360, scale, scale * (0.9 + rnd() * 0.2), scale);
-          let tint = tintsAutumn[Math.floor(rnd() * tintsAutumn.length)]!;
-          if (strip.theme !== 'selve' && rnd() < 0.6) tint = PALETTE.leafGreen;
-          const tv = 0.92 + rnd() * 0.16;
-          this.trees.push({ pos: base, matrix: m, tint: [tint[0] * tv, tint[1] * tv, tint[2] * tv] });
-          colliders.add(cylinderAt(zz, th, h - 0.3, 0.42 * scale, 4.5 * scale, 'castagno'));
+          if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 3.0)) continue;
+          const specie = frutto ? (rnd() < 0.85 ? 'castagno' : 'noce') : this.scegliSpecie(rnd, masks, h, f);
+          const bosco = f > 0.32 && !frutto;
+          this.aggiungiAlbero(colliders, rnd, noise, zz, th, h, specie, bosco, strip.theme === 'selve');
         }
       }
     }
-    const geos = treeGeometries();
-    const n = this.trees.length;
-    for (let lod = 0; lod < 3; lod++) {
-      const g = geos[lod]!;
-      // separa tronco (bruno, senza tinta) e chioma (tinta per istanza): due mesh per LOD
-      const { crown, trunk } = splitTrunk(g);
-      const crownMesh = new InstancedMesh(crown, material, n);
-      crown.setAttribute('aTint', new InstancedBufferAttribute(new Float32Array(n * 3), 3));
-      crownMesh.count = 0;
-      crownMesh.frustumCulled = false;
-      crownMesh.name = `castagni-chioma-lod${lod}`;
-      this.meshes.push(crownMesh);
-      this.group.add(crownMesh);
-      if (trunk) {
-        const trunkMesh = new InstancedMesh(trunk, trunkMaterial, n);
-        trunkMesh.count = 0;
-        trunkMesh.frustumCulled = false;
-        trunkMesh.name = `castagni-tronco-lod${lod}`;
-        this.trunkMeshes[lod] = trunkMesh;
-        this.group.add(trunkMesh);
+    // cipressi della chiesa
+    for (const [z, th] of CIPRESSI) {
+      const h = surfaceHeight(z, th, masks);
+      const base = cylToWorld(z, th, h);
+      if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 1.5)) continue;
+      this.aggiungiAlbero(colliders, rnd, noise, z, th, h, 'cipresso', false, false, 0.85 + rnd() * 0.25);
+    }
+  }
+
+  private scegliSpecie(rnd: () => number, m: TerrainMasks, h: number, f: number): Specie {
+    const r = rnd();
+    const alto = smoothstep(55, 95, h);
+    if (m.capS > 0.02) return r < 0.7 ? 'larice' : 'betulla';
+    if (m.theme === 'selve') {
+      if (r < alto * 0.35) return 'larice';
+      if (f < 0.3 && r > 0.82) return 'betulla';
+      if (m.village > 0.05 && r > 0.75) return 'noce';
+      return r > 0.93 ? 'betulla' : 'castagno';
+    }
+    if (m.theme === 'lago') {
+      if (r < alto * 0.5 + 0.1) return 'larice';
+      if (r < 0.45) return 'castagno';
+      if (r < 0.75) return 'betulla';
+      return 'noce';
+    }
+    if (r < 0.35) return 'noce';
+    if (r < 0.65) return 'castagno';
+    return 'betulla';
+  }
+
+  private aggiungiAlbero(colliders: ColliderWorld, rnd: () => number, noise: Simplex3, z: number, th: number, h: number, specie: Specie, bosco: boolean, autunno: boolean, scalaFissa?: number): void {
+    const base = cylToWorld(z, th, h);
+    const geo = geometrieAlbero(specie);
+    const scale = scalaFissa ?? 0.74 + rnd() * 0.58 + noise.noise(base.x / 80, base.y / 80, base.z / 80) * 0.15;
+    const sy = scale * (0.9 + rnd() * 0.2);
+    const m = surfaceMatrix(z, th, h - 0.3, rnd() * 360, scale, sy, scale);
+    const scelta = TINTE[specie][Math.floor(rnd() * TINTE[specie].length)]!;
+    const tv = 0.9 + rnd() * 0.2;
+    const t1: RGB = [scelta[0][0] * tv, scelta[0][1] * tv, scelta[0][2] * tv];
+    const t2: RGB = [scelta[1][0] * tv, scelta[1][1] * tv, scelta[1][2] * tv];
+    // ottobre: nelle selve più masse hanno girato; altrove l'autunno è appena cominciato
+    const quota = clamp(scelta[2] + (rnd() - 0.5) * 0.35 + (autunno ? 0.1 : -0.12), 0, 1);
+    this.trees.push({ pos: base, matrix: m, tint: t1, tint2: t2, quota, specie, bosco, seme: rnd() });
+    colliders.add(cylinderAt(z, th, h - 0.3, geo.raggioTronco * 1.25 * scale, (geo.altezzaFusto + 1.5) * sy, 'castagno'));
+  }
+
+  // ---------------------------------------------------------------------------------- mesh
+
+  private costruisciMesh(): void {
+    for (const sp of SPECIE) {
+      const geo = geometrieAlbero(sp);
+      const liv: Livello[] = [];
+      const quanti = Math.max(1, this.trees.filter((t) => (t.specie ?? 'castagno') === sp).length);
+      for (let lod = 0; lod < 3; lod++) {
+        // capienza: gli alberi di una specie, al più quelli che stanno in un anello del livello
+        const n = Math.min(quanti, CAPIENZA[lod]!);
+        const chioma = this.istanze(geo.chioma[lod]!, this.materiali.chioma[lod]!, n, `alberi-${sp}-chioma-lod${lod}`, true);
+        const cg = geo.carte[lod];
+        const carte = cg ? this.istanze(cg, this.materiali.carte.get(sp)![lod]!, n, `alberi-${sp}-carte-lod${lod}`, true) : null;
+        // (le carte sono degeneri nel passaggio delle ombre: non proiettano, inutile disegnarle)
+        if (carte) carte.userData['ombra'] = false;
+        // latifoglie da vicino: la chioma la fanno le sole carte di foglie (con i buchi di cielo dei
+        // bozzetti); le masse sotto, viste, erano macchie scure in controluce. Restano solo come
+        // sagoma che proietta l'ombra (layer delle ombre, non quello della camera)
+        if (carte && lod < 2 && SOLO_CARTE.includes(sp)) chioma.layers.disable(0);
+        const tg = geo.tronco[lod];
+        const tronco = tg ? this.istanze(tg, this.materiali.tronco[lod]!, n, `alberi-${sp}-tronco-lod${lod}`, false) : null;
+        liv.push({ chioma, carte, tronco, capienza: n });
+      }
+      this.livelli.set(sp, liv);
+    }
+    this.costruisciLontani();
+  }
+
+  private istanze(g: BufferGeometry, mat: Material, n: number, nome: string, chioma: boolean): InstancedMesh {
+    const geo = g.clone();
+    geo.setAttribute('aTint', new InstancedBufferAttribute(new Float32Array(n * 4), 4));
+    if (chioma) geo.setAttribute('aTint2', new InstancedBufferAttribute(new Float32Array(n * 4), 4));
+    const mesh = new InstancedMesh(geo, mat, n);
+    mesh.count = 0;
+    mesh.visible = false;
+    mesh.frustumCulled = false;
+    mesh.name = nome;
+    this.group.add(mesh);
+    return mesh;
+  }
+
+  /** Il livello 3: tutti gli alberi sparsi (non di bosco), statico. */
+  private costruisciLontani(): void {
+    for (const ms of this.lontani.values()) {
+      for (const m of ms) {
+        this.group.remove(m);
+        m.geometry.dispose();
       }
     }
+    this.lontani.clear();
+    for (const sp of SPECIE) {
+      const lista = this.trees.filter((t) => (t.specie ?? 'castagno') === sp && !t.bosco);
+      if (!lista.length) continue;
+      const geo = geometrieAlbero(sp);
+      const ms: InstancedMesh[] = [this.istanze(geo.chioma[N_LOD_ALBERI - 1]!, this.materiali.lontano, lista.length, `alberi-${sp}-chioma-lod3`, true)];
+      const cg = geo.carte[N_LOD_ALBERI - 1];
+      if (cg) ms.push(this.istanze(cg, this.materiali.carteLontane.get(sp)!, lista.length, `alberi-${sp}-carte-lod3`, true));
+      for (const mesh of ms) {
+        lista.forEach((t, i) => this.scrivi(mesh, i, t, true));
+        mesh.count = lista.length;
+        mesh.visible = true;
+        mesh.userData['ombra'] = false;
+        mesh.instanceMatrix.needsUpdate = true;
+      }
+      this.lontani.set(sp, ms);
+    }
+  }
+
+  private scrivi(mesh: InstancedMesh, i: number, t: TreeInstance, chioma: boolean): void {
+    t.matrix.toArray(mesh.instanceMatrix.array as Float32Array, i * 16);
+    const a = (mesh.geometry.getAttribute('aTint') as InstancedBufferAttribute).array as Float32Array;
+    const seme = t.seme ?? 0.5;
+    if (chioma) {
+      a.set([t.tint[0], t.tint[1], t.tint[2], seme], i * 4);
+      const b = (mesh.geometry.getAttribute('aTint2') as InstancedBufferAttribute).array as Float32Array;
+      const t2 = t.tint2 ?? t.tint;
+      b.set([t2[0], t2[1], t2[2], t.quota ?? 0.4], i * 4);
+    } else {
+      const v = 0.85 + seme * 0.3;
+      a.set([v, v * (0.97 + seme * 0.05), v * 0.96, seme], i * 4);
+    }
+  }
+
+  /**
+   * Densità della vegetazione (0.4..1, dalla qualità): accorcia le distanze dei livelli di
+   * dettaglio (Bassa ~0.55, Media ~0.8, Alta 1).
+   */
+  impostaDistanze(k: number): void {
+    const f = clamp(k, 0.3, 1.5);
+    this.lodDistances = DISTANZE_ALTA.map((d) => d * f);
+    const [d0, d1, d2] = this.lodDistances as [number, number, number];
+    const b0 = 7 * f;
+    const b1 = 14 * f;
+    const b2 = 26 * f;
+    // comparsa/scomparsa complementari: dove uno sparisce l'altro compare, pixel per pixel
+    impostaSfuma(this.materiali.chioma[0]!, 0, 0, d0 - b0, d0 + b0);
+    impostaSfuma(this.materiali.tronco[0]!, 0, 0, d0 - b0, d0 + b0);
+    impostaSfuma(this.materiali.chioma[1]!, d0 - b0, d0 + b0, d1 - b1, d1 + b1);
+    impostaSfuma(this.materiali.tronco[1]!, d0 - b0, d0 + b0, d1 - b1, d1 + b1);
+    impostaSfuma(this.materiali.chioma[2]!, d1 - b1, d1 + b1, d2 - b2, d2);
+    impostaSfuma(this.materiali.tronco[2]!, d1 - b1, d1 + b1, d2 - b2, d2);
+    impostaSfuma(this.materiali.lontano, d2 - b2, d2, 0, 0);
+    for (const m of this.materiali.carteLontane.values()) impostaSfuma(m, d2 - b2, d2, 0, 0);
+    for (const [c0, c1, c2] of this.materiali.carte.values()) {
+      impostaSfuma(c0!, 0, 0, d0 - b0, d0 + b0);
+      impostaSfuma(c1!, d0 - b0, d0 + b0, d1 - b1, d1 + b1);
+      impostaSfuma(c2!, d1 - b1, d1 + b1, d2 - b2, d2);
+    }
+    this.boschi.impostaComparsa(d2 - b2, d2);
+    this.lastCam.set(1e9, 0, 0);
+  }
+
+  /** Inizio della comparsa delle masse dei boschi lontani (per `scene/bosco.ts`). */
+  get inizioBoschi(): [number, number] {
+    const d2 = this.lodDistances[2]!;
+    return [d2 - 26 * (d2 / DISTANZE_ALTA[2]!), d2];
+  }
+
+  // ---------------------------------------------------------------------------------- celle
+
+  private indicizza(): void {
+    this.celle.clear();
+    this.trees.forEach((t, i) => {
+      const c = worldToCyl(t.pos);
+      const k = this.chiave(Math.floor(c.z / CELLA), Math.floor((c.theta * METERS_PER_DEG) / CELLA));
+      let l = this.celle.get(k);
+      if (!l) this.celle.set(k, (l = []));
+      l.push(i);
+    });
+    this.indicizzati = this.trees.length;
+  }
+
+  private chiave(iz: number, ia: number): number {
+    const na = Math.ceil((360 * METERS_PER_DEG) / CELLA);
+    return iz * 1000 + (((ia % na) + na) % na);
   }
 
   /** Ridistribuisce gli alberi fra i LOD (chiamare spesso: lavora solo se la camera si è mossa). */
   update(cam: Vector3, force = false): void {
-    if (!force && cam.distanceToSquared(this.lastCam) < 15 * 15) return;
-    this.lastCam.copy(cam);
-    const counts = [0, 0, 0];
-    const d0 = this.lodDistances[0]! ** 2;
-    const d1 = this.lodDistances[1]! ** 2;
-    for (const t of this.trees) {
-      const d = t.pos.distanceToSquared(cam);
-      const lod = d < d0 ? 0 : d < d1 ? 1 : 2;
-      const i = counts[lod]!++;
-      const crown = this.meshes[lod]!;
-      t.matrix.toArray(crown.instanceMatrix.array as Float32Array, i * 16);
-      const tint = crown.geometry.getAttribute('aTint') as InstancedBufferAttribute;
-      (tint.array as Float32Array).set(t.tint, i * 3);
-      const trunk = this.trunkMeshes[lod];
-      if (trunk) t.matrix.toArray(trunk.instanceMatrix.array as Float32Array, i * 16);
+    // le masse dei boschi lontani si costruiscono a pezzi (subito se richiesto)
+    this.boschi.update(force ? 1e9 : 2);
+    this.sottobosco.update(cam, force ? Infinity : 3);
+    if (this.indicizzati !== this.trees.length) {
+      // alberi tolti dal popolamento (liberaCastagni): rifà le celle e il livello statico
+      this.indicizza();
+      this.costruisciLontani();
+      force = true;
     }
-    for (let lod = 0; lod < 3; lod++) {
-      const crown = this.meshes[lod]!;
-      crown.count = counts[lod]!;
-      crown.instanceMatrix.needsUpdate = true;
-      crown.geometry.getAttribute('aTint').needsUpdate = true;
-      const trunk = this.trunkMeshes[lod];
-      if (trunk) {
-        trunk.count = counts[lod]!;
-        trunk.instanceMatrix.needsUpdate = true;
+    if (!force && cam.distanceToSquared(this.lastCam) < 12 * 12) return;
+    this.lastCam.copy(cam);
+    const [d0, d1, d2] = this.lodDistances as [number, number, number];
+    const f = d2 / DISTANZE_ALTA[2]!;
+    const b0 = 7 * f;
+    const b1 = 14 * f;
+    const conta = new Map<Specie, number[]>();
+    for (const sp of SPECIE) conta.set(sp, [0, 0, 0]);
+    const c = worldToCyl(cam);
+    const rc = Math.ceil((d2 + 20) / CELLA);
+    const iz0 = Math.floor(c.z / CELLA);
+    const ia0 = Math.floor((c.theta * METERS_PER_DEG) / CELLA);
+    // vicino all'asse la camera vede l'altra metà: gli alberi vicini restano comunque quelli sotto
+    const n = [0, 0, 0];
+    for (let dz = -rc; dz <= rc; dz++) {
+      for (let da = -rc; da <= rc; da++) {
+        const l = this.celle.get(this.chiave(iz0 + dz, ia0 + da));
+        if (!l) continue;
+        for (const i of l) {
+          const t = this.trees[i]!;
+          const d = t.pos.distanceTo(cam);
+          if (d > d2) continue;
+          const sp = t.specie ?? 'castagno';
+          const liv = this.livelli.get(sp)!;
+          const cc = conta.get(sp)!;
+          // nelle fasce di passaggio l'albero sta in tutti e due i livelli (retinati)
+          const metti = (lod: number) => {
+            const L = liv[lod]!;
+            if (cc[lod]! >= L.capienza) return;
+            const j = cc[lod]!++;
+            this.scrivi(L.chioma, j, t, true);
+            if (L.carte) this.scrivi(L.carte, j, t, true);
+            if (L.tronco) this.scrivi(L.tronco, j, t, false);
+            n[lod]!++;
+          };
+          if (d < d0 + b0) metti(0);
+          if (d > d0 - b0 && d < d1 + b1) metti(1);
+          if (d > d1 - b1) metti(2);
+        }
       }
     }
-  }
-
-  /** Numero di alberi per LOD visibili (statistiche). */
-  counts(): number[] {
-    return this.meshes.map((m) => m.count);
-  }
-}
-
-/** Divide una geometria d'albero in tronco (colore non bianco) e chioma (bianca). */
-function splitTrunk(g: BufferGeometry): { crown: BufferGeometry; trunk: BufferGeometry | null } {
-  const pos = g.getAttribute('position');
-  const nor = g.getAttribute('normal');
-  const col = g.getAttribute('aColor');
-  const cp: number[] = [];
-  const cn: number[] = [];
-  const cc: number[] = [];
-  const tp: number[] = [];
-  const tn: number[] = [];
-  const tc: number[] = [];
-  for (let tri = 0; tri < pos.count; tri += 3) {
-    const isCrown = col.getX(tri) > 0.75 || col.getY(tri) > 0.75;
-    const P = isCrown ? cp : tp;
-    const Nn = isCrown ? cn : tn;
-    const C = isCrown ? cc : tc;
-    for (let k = 0; k < 3; k++) {
-      const i = tri + k;
-      P.push(pos.getX(i), pos.getY(i), pos.getZ(i));
-      Nn.push(nor.getX(i), nor.getY(i), nor.getZ(i));
-      C.push(col.getX(i), col.getY(i), col.getZ(i), col.getW(i));
+    for (const sp of SPECIE) {
+      const liv = this.livelli.get(sp)!;
+      const cc = conta.get(sp)!;
+      for (let lod = 0; lod < 3; lod++) {
+        const L = liv[lod]!;
+        for (const mesh of [L.chioma, L.carte, L.tronco]) {
+          if (!mesh) continue;
+          mesh.count = cc[lod]!;
+          mesh.visible = cc[lod]! > 0;
+          mesh.instanceMatrix.needsUpdate = true;
+          mesh.geometry.getAttribute('aTint').needsUpdate = true;
+          const t2 = mesh.geometry.getAttribute('aTint2');
+          if (t2) t2.needsUpdate = true;
+        }
+      }
     }
+    let lontani = 0;
+    for (const ms of this.lontani.values()) lontani += ms[0]!.count;
+    this.conteggi = [n[0]!, n[1]!, n[2]!, lontani];
   }
-  const mk = (p: number[], n: number[], c: number[]) => {
-    const out = new BufferGeometry();
-    out.setAttribute('position', new BufferAttribute(new Float32Array(p), 3));
-    out.setAttribute('normal', new BufferAttribute(new Float32Array(n), 3));
-    out.setAttribute('aColor', new BufferAttribute(new Float32Array(c), 4));
-    out.computeBoundingSphere();
-    return out;
-  };
-  return { crown: mk(cp, cn, cc), trunk: tp.length ? mk(tp, tn, tc) : null };
+
+  /**
+   * Numero di alberi per LOD (statistiche): [vicini, medi, lontani, sparsi statici, istanze del
+   * sottobosco].
+   */
+  counts(): number[] {
+    return [...this.conteggi, this.sottobosco.istanze];
+  }
+
+  /** Triangoli disegnati dagli alberi dinamici (stima per le statistiche). */
+  triangoli(): number {
+    let t = 0;
+    for (const liv of this.livelli.values()) {
+      for (const L of liv) {
+        t += triangoli(L.chioma.geometry) * L.chioma.count;
+        if (L.carte) t += triangoli(L.carte.geometry) * L.carte.count;
+        if (L.tronco) t += triangoli(L.tronco.geometry) * L.tronco.count;
+      }
+    }
+    return t;
+  }
 }
