@@ -4,7 +4,7 @@
  * per misurare la geometria e lo scheletro la texture non serve). La geometria quantizzata
  * (KHR_mesh_quantization) la legge GLTFLoader da solo.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -48,7 +48,10 @@ const cache = new Map<string, Promise<THREE.Object3D>>();
 export function scenaGlb(id: string): Promise<THREE.Object3D> {
   let p = cache.get(id);
   if (!p) {
-    const dati = senzaImmagini(readFileSync(join(CARTELLA_GLB, `${id}.glb`)));
+    // PROVA_GLB=<cartella>: i GLB di una prova della pipeline (quelli che ci sono), il resto da public/
+    const prova = process.env['PROVA_GLB'];
+    const file = prova && existsSync(join(prova, `${id}.glb`)) ? join(prova, `${id}.glb`) : join(CARTELLA_GLB, `${id}.glb`);
+    const dati = senzaImmagini(readFileSync(file));
     p = new GLTFLoader().parseAsync(dati, '').then((g) => g.scene);
     cache.set(id, p);
     // il risultato si usa una volta: la prossima chiamata riparsa (scene indipendenti)

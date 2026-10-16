@@ -7,9 +7,9 @@ import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { creaAbitante, type OpzioniAbitante } from '../../src/oggetti/oggetti/abitante';
 import { createWorldUniforms } from '../../src/render/uniforms';
-import { AnimatorePersonaggio, carattereDa } from '../../src/personaggi/animatore';
-import { creaPersonaggio, livelloPersonaggio, type StatoPersonaggioGioco } from '../../src/personaggi/fabbrica';
-import { PEZZI_COMUNI } from '../../src/personaggi/materiale';
+import { ANCA_SEDUTA, ANCA_TERRA, AnimatorePersonaggio, carattereDa } from '../../src/personaggi/animatore';
+import { battutaPersonaggio, creaPersonaggio, livelloPersonaggio, type StatoPersonaggioGioco } from '../../src/personaggi/fabbrica';
+import { PEZZI_COMUNI, spostamentiVariante } from '../../src/personaggi/materiale';
 import {
   cartellaPersonaggi,
   collegaMotorePersonaggi,
@@ -116,6 +116,14 @@ describe('indice dei modelli', () => {
     expect(leggiIndice(null)).toEqual([]);
   });
 
+  it('la versione del file e la tavolozza dall indice (revisione finale)', () => {
+    const [v] = leggiIndice({ personaggi: [{ id: 'velata_donna', versione: '0a1b2c3d4e', tavolozza: [[0.2, 0.1, 0.05]] }] });
+    expect(v?.versione).toBe('0a1b2c3d4e');
+    expect(v?.tavolozza?.[0]).toEqual([0.2, 0.1, 0.05]);
+    // una versione che non è un nome di file pulito non entra nell'indirizzo
+    expect(leggiIndice({ personaggi: [{ id: 'togna', versione: '../x?y' }] })[0]?.versione).toBeUndefined();
+  });
+
   it('risolve la cartella sulla base del gioco', () => {
     expect(cartellaPersonaggi()).toMatch(/\/personaggi\/$/);
     expect(cartellaPersonaggi('https://esempio.it/gioco/personaggi')).toBe('https://esempio.it/gioco/personaggi/');
@@ -134,7 +142,8 @@ describe('ripiego senza modelli', () => {
     const avanzamento: number[] = [];
     const esito = await precaricaPersonaggi((f) => avanzamento.push(f));
     expect(esito.caricati).toEqual([]);
-    expect(esito.mancanti).toEqual(['nando', 'togna']);
+    // senza indice si provano tutti e tredici i modelli delle schede (la build li contiene)
+    expect(esito.mancanti).toEqual(Object.keys(SCHEDE).sort());
     expect(avanzamento[avanzamento.length - 1]).toBe(1);
     expect(creaPersonaggio('togna', TOGNA)).toBeNull();
   });
@@ -181,6 +190,8 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     if (!p) throw new Error('null');
     const dz: number[] = [];
     for (let i = 0; i < 90; i++) {
+      // il passo va con la distanza percorsa davvero: il gruppo avanza come nel gioco
+      p.gruppo.position.z += 1.2 / 60;
       p.update?.(1 / 60, { modo: 'cammina', velocita: 1.2 });
       if (i > 40) dz.push(osso(p.gruppo, 'piedeS').z - osso(p.gruppo, 'piedeD').z);
     }
@@ -212,7 +223,7 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     p2.dispose();
   });
 
-  it('seduto: il bacino scende a 0,5 m dall origine più lo spessore delle vesti (5% dell altezza); chino: la testa va avanti e giù', () => {
+  it('seduto: le anche ANCA_SEDUTA·H sopra il sedile (senza profilo una panca di 0,45 m), per terra sul suolo; chino: la testa va avanti e giù', () => {
     registra('togna');
     const p = creaPersonaggio('togna', { ...TOGNA, postura: 'eretta' });
     if (!p) throw new Error('null');
@@ -220,7 +231,17 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     const testaIn = osso(p.gruppo, 'testa');
     const stato: StatoPersonaggioGioco = { modo: 'fermo', posa: 'seduto' };
     for (let i = 0; i < 180; i++) p.update?.(1 / 60, stato);
-    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(0.5 + 0.05 * 1.62, 1);
+    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(0.45 + ANCA_SEDUTA * 1.62, 1);
+    // su un gradino di 0,3 m col profilo del suolo: le anche sul gradino, i piedi giù
+    stato.profilo = { inizio: -0.8, passo: 0.1, quote: Array.from({ length: 19 }, (_, i) => (-0.8 + i * 0.1 <= 0.15 ? 0.3 : 0)) };
+    for (let i = 0; i < 180; i++) p.update?.(1 / 60, stato);
+    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(0.3 + ANCA_SEDUTA * 1.62, 1);
+    // per terra (suolo piatto): le anche a ANCA_TERRA·H dal suolo
+    stato.profilo = { inizio: -0.8, passo: 0.1, quote: new Array(19).fill(0) };
+    for (let i = 0; i < 180; i++) p.update?.(1 / 60, stato);
+    expect(osso(p.gruppo, 'cosciaS').y).toBeCloseTo(ANCA_TERRA * 1.62, 1);
+    stato.profilo = null;
+    for (let i = 0; i < 180; i++) p.update?.(1 / 60, stato);
     // le ginocchia avanti
     expect(osso(p.gruppo, 'stincoS').z).toBeGreaterThan(0.2);
     stato.posa = 'chino';
@@ -229,6 +250,26 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     expect(testaChina.z - testaIn.z).toBeGreaterThan(0.18);
     expect(testaIn.y - testaChina.y).toBeGreaterThan(0.1);
     p.dispose();
+  });
+
+  it('a ogni battuta chi parla annuisce: la testa si muove più che da fermo', () => {
+    registra('togna');
+    const giro = (battuta: boolean) => {
+      const p = creaPersonaggio('togna', TOGNA);
+      if (!p) throw new Error('null');
+      for (let i = 0; i < 60; i++) p.update?.(1 / 60, { modo: 'fermo' });
+      const testa = p.gruppo.getObjectByName('testa') as THREE.Bone;
+      const q0 = testa.quaternion.clone();
+      if (battuta) battutaPersonaggio(p.gruppo);
+      let max = 0;
+      for (let i = 0; i < 40; i++) {
+        p.update?.(1 / 60, { modo: 'fermo' });
+        max = Math.max(max, testa.quaternion.angleTo(q0));
+      }
+      p.dispose();
+      return max;
+    };
+    expect(giro(true)).toBeGreaterThan(giro(false) + 0.05);
   });
 
   it('la postura delle opzioni (curva, mani giunte) arriva all animatore', () => {
@@ -275,6 +316,24 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
 });
 
 describe('materiale del mondo', () => {
+  it('varianti dei generici: la stessa stoffa gira tutta insieme, stoffe diverse no', () => {
+    // il chiaro e lo scuro di una gonna ruggine, un velo verde scuro, un grembiule quasi bianco
+    const tav = [
+      [0.55, 0.3, 0.18],
+      [0.47, 0.25, 0.15],
+      [0.12, 0.22, 0.12],
+      [0.86, 0.84, 0.8],
+    ];
+    const v = spostamentiVariante(12345, tav);
+    expect(v[0]!.equals(v[1]!)).toBe(true);
+    expect(v[0]!.equals(v[2]!)).toBe(false);
+    expect(v[0]!.equals(v[3]!)).toBe(false);
+    // deterministico per seme, diverso fra semi; tinta entro ±28°
+    expect(spostamentiVariante(12345, tav)[2]!.equals(v[2]!)).toBe(true);
+    expect(spostamentiVariante(999, tav)[0]!.equals(v[0]!)).toBe(false);
+    for (const x of v) expect(Math.abs(x.x)).toBeLessThanOrEqual(28 / 360);
+  });
+
   it('con gli uniform del motore usa la variante del materiale del mondo (anche per chi c era già)', () => {
     registra('togna');
     const p = creaPersonaggio('togna', TOGNA);
@@ -302,7 +361,7 @@ describe('materiale del mondo', () => {
 describe('livelli di dettaglio e frequenza dell animazione', () => {
   it('LOD0 vicino, LOD1 oltre 25 m, lontano oltre 120 m, sparito oltre 230 m', () => {
     registra('togna');
-    const camera = new THREE.PerspectiveCamera();
+    const camera = new THREE.PerspectiveCamera(70);
     collegaMotorePersonaggi({ camera });
     const p = creaPersonaggio('togna', TOGNA);
     if (!p) throw new Error('null');
@@ -329,9 +388,28 @@ describe('livelli di dettaglio e frequenza dell animazione', () => {
     p.dispose();
   });
 
+  it('col cannocchiale (campo visivo stretto) le distanze contano come viste: a 200 m resta visibile e vicino', () => {
+    registra('togna');
+    const camera = new THREE.PerspectiveCamera(70 * 0.25);
+    collegaMotorePersonaggi({ camera });
+    const p = creaPersonaggio('togna', TOGNA);
+    if (!p) throw new Error('null');
+    camera.position.set(0, 1.6, 200);
+    camera.updateMatrixWorld(true);
+    p.gruppo.updateMatrixWorld(true);
+    for (let i = 0; i < 10; i++) p.update?.(1 / 60, { modo: 'fermo' });
+    // 200 m con un campo visivo quattro volte più stretto sembrano circa 45 m: LOD1, animato, visibile
+    expect(livelloPersonaggio(p)).toBe(1);
+    camera.fov = 70;
+    camera.updateProjectionMatrix();
+    for (let i = 0; i < 10; i++) p.update?.(1 / 60, { modo: 'fermo' });
+    expect(livelloPersonaggio(p)).toBe(2);
+    p.dispose();
+  });
+
   it('da lontano le ossa si aggiornano di rado', () => {
     registra('togna');
-    const camera = new THREE.PerspectiveCamera();
+    const camera = new THREE.PerspectiveCamera(70);
     camera.position.set(0, 1.6, 160);
     camera.updateMatrixWorld(true);
     collegaMotorePersonaggi({ camera });

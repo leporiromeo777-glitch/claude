@@ -202,7 +202,8 @@ try {
   const INQUADRATURE = [
     // un dialogo vero per primo: dopo, gli orari del giorno 2 farebbero partire il dono di Clelia
     { chiave: 'dialogo', nome: 'dialogo-togna', dialogo: 'togna', vai: 'lavatoio', ora: [1, 9.5] },
-    { chiave: 'togna', nome: 'togna-lavatoio', vai: 'lavatoio', ora: [1, 9.5], passi: 120, davanti: ['togna', 3.0, 60, 1.75, 0.75] },
+    // (revisione finale) Togna sta sul lastricato davanti alla vasca: la camera sopra l'acqua, davanti a lei
+    { chiave: 'togna', nome: 'togna-lavatoio', vai: 'lavatoio', ora: [1, 9.5], passi: 120, davanti: ['togna', 1.8, 35, 1.6, 0.6] },
     // Ottavio: in volo col Velo verde (06:20 del primo giorno), poi a terra al prato del ronco (giorno 2, 15:00)
     { chiave: 'ottavio', nome: 'ottavio-in-volo', vai: 'piazza_ore', ora: [1, 6.33], prima: 'G.regia.regia.abitanti.ottavioInCielo()', passi: 120, davanti: ['ottavio', 3.4, 25, 1.9, 1.3] },
     { chiave: 'ottavio', nome: 'ottavio-a-terra', vai: 'prato_ronco', ora: [2, 15.0], prima: "G.regia.regia.abitanti.ottavioSegueOrario(); X.corbella.npc('ottavio').manuale = false", passi: 90, davanti: ['ottavio', 3.0, 25, 1.6, 1.1] },

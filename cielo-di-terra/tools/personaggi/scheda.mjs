@@ -4,7 +4,7 @@
  * calda della pagina di prova (toon a tre campiture, come nel gioco), e sotto, per confronto, gli
  * abitanti procedurali di oggi con lo stesso aspetto.
  *
- *   node tools/personaggi/scheda.mjs [--out=docs/personaggi/scheda-cast.png] [--luce=sera] [--senza-vecchi]
+ *   node tools/personaggi/scheda.mjs [--out=docs/personaggi/scheda-cast.jpg] [--luce=sera] [--senza-vecchi]
  *
  * Avvia Vite e Chromium headless (SwiftShader, come fotografa.mjs), fotografa tre file in una cartella
  * temporanea e li compone con tools/personaggi/componi_scheda.py (Pillow).
@@ -24,7 +24,7 @@ const args = Object.fromEntries(
     return [k, v.join('=') || '1'];
   }),
 );
-const uscita = resolve(radice, args.out ?? 'docs/personaggi/scheda-cast.png');
+const uscita = resolve(radice, args.out ?? 'docs/personaggi/scheda-cast.jpg');
 const tmp = mkdtempSync(join(tmpdir(), 'scheda-cast-'));
 const indice = JSON.parse(readFileSync(join(radice, 'public', 'personaggi', 'indice.json'), 'utf-8'));
 const ids = indice.personaggi.map((p) => p.id);

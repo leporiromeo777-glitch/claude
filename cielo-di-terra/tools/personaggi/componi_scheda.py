@@ -48,7 +48,11 @@ def main():
         y += fascia_testo
         tela.paste(im, (0, y))
         y += im.height
-    tela.save(uscita, optimize=True)
+    # (finale) in JPEG: la scheda in PNG pesava 1,6 MB nel repository
+    if uscita.lower().endswith(('.jpg', '.jpeg')):
+        tela.convert('RGB').save(uscita, quality=86, optimize=True, progressive=True)
+    else:
+        tela.save(uscita, optimize=True)
     print('scritto', uscita, tela.size, f'{os.path.getsize(uscita) // 1024} KB')
 
 

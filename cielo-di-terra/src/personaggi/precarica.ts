@@ -15,6 +15,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { WorldUniforms } from '../render/uniforms';
+import { geometriaSeduta } from './gonne';
 import { MODELLI_SENZA_INDICE, SCHEDE, leggiIndice, type SchedaModello, type VoceModello } from './schede';
 
 /** Un modello pronto da copiare. */
@@ -27,9 +28,19 @@ export interface PrototipoPersonaggio {
   readonly altezza: number;
   /** raggio orizzontale massimo a riposo (posa ad A, m) */
   readonly raggio: number;
-  /** z della superficie davanti al petto (m, spazio del modello) */
+  /**
+   * z della superficie davanti al petto (m, spazio del modello), misurata solo sui vertici del busto
+   * (pesati su petto e schiena: niente veli, teste, braccia)
+   */
   readonly fronteBusto: number;
+  /** z della schiena (m, spazio del modello), sugli stessi vertici del busto: dove posa la gerla */
+  readonly retroBusto: number;
   readonly scheda: SchedaModello;
+  /**
+   * per le vesti lunghe: le geometrie con i pesi «da seduti» (gonne.ts), per nome della SkinnedMesh
+   * (`lod0`, `lod1`); la fabbrica le usa quando il personaggio è seduto
+   */
+  readonly geometrieSedute: ReadonlyMap<string, THREE.BufferGeometry>;
 }
 
 export interface EsitoPrecarica {
@@ -60,6 +71,31 @@ const prototipi = new Map<string, PrototipoPersonaggio>();
 const inCorso = new Map<string, Promise<PrototipoPersonaggio | null>>();
 const errori = new Map<string, string>();
 let loader: GLTFLoader | null = null;
+/**
+ * La pagina se ne va (ricarica, chiusura) mentre i modelli si scaricano: le richieste si interrompono e
+ * niente si analizza più, così GLTFLoader non decodifica texture da indirizzi blob già revocati (e non
+ * riempie la console di «Couldn't load texture»).
+ */
+let uscendo = false;
+let interruzione: AbortController | null = null;
+function segnaleUscita(): AbortSignal | undefined {
+  if (typeof AbortController === 'undefined') return undefined;
+  if (!interruzione) {
+    interruzione = new AbortController();
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      const ctl = interruzione;
+      window.addEventListener(
+        'pagehide',
+        () => {
+          uscendo = true;
+          ctl.abort();
+        },
+        { once: true },
+      );
+    }
+  }
+  return interruzione.signal;
+}
 
 /** Stato condiviso con la fabbrica (uniform del mondo, camera, distanze, istanze vive). */
 export const motore: {
@@ -96,6 +132,7 @@ function schedaPer(id: string, voce?: VoceModello): SchedaModello {
     ...(voce?.curvo !== undefined ? { curvo: voce.curvo } : {}),
     ...(voce?.oggetti !== undefined ? { oggetti: voce.oggetti } : {}),
     ...(voce?.bambino !== undefined ? { bambino: voce.bambino } : {}),
+    ...(voce?.tavolozza !== undefined ? { tavolozza: voce.tavolozza } : {}),
   };
 }
 
@@ -152,7 +189,15 @@ function caricaUno(v: VoceModello, cartella: string): Promise<PrototipoPersonagg
   p = (async () => {
     try {
       loader ??= new GLTFLoader();
-      const gltf = await loader.loadAsync(new URL(v.file, cartella).href);
+      // la versione nell'indirizzo: dopo una nuova esportazione con lo stesso nome il browser non tiene il GLB vecchio
+      const url = new URL(v.file, cartella);
+      if (v.versione) url.searchParams.set('v', v.versione);
+      const segnale = segnaleUscita();
+      const r = await fetch(url.href, segnale ? { signal: segnale } : {});
+      if (!r.ok) throw new Error(`${r.status} ${url.pathname}`);
+      const dati = await r.arrayBuffer();
+      if (uscendo) throw new Error('pagina chiusa');
+      const gltf = await loader.parseAsync(dati, new URL('.', url).href);
       const proto = preparaPrototipo(v.id, gltf.scene, schedaPer(v.id, v));
       prototipi.set(v.id, proto);
       errori.delete(v.id);
@@ -199,15 +244,34 @@ export function preparaPrototipo(id: string, scena: THREE.Object3D, scheda: Sche
   const altezza = box.max.y - Math.min(0, box.min.y);
   let raggio = 0;
   let fronteBusto = -Infinity;
+  let retroBusto = Infinity;
+  // le ossa del busto: solo i vertici pesati per lo più su petto e schiena contano per il davanti del petto
+  // (un velo che pende davanti al petto è della testa o del collo e allontanerebbe le mani: braccia
+  // conserte tese come uno zombi)
+  const ossa0 = m0.skeleton.bones;
+  const busto = new Set([ossa0.findIndex((b) => b.name === 'petto'), ossa0.findIndex((b) => b.name === 'schiena')]);
+  const si0 = m0.geometry.getAttribute('skinIndex');
+  const sw0 = m0.geometry.getAttribute('skinWeight');
+  const pettoOsso = ossa0.find((b) => b.name === 'petto');
+  const zPetto = pettoOsso ? pettoOsso.getWorldPosition(new THREE.Vector3()).applyMatrix4(new THREE.Matrix4().copy(m0.matrixWorld).invert()).z : 0;
   for (let i = 0; i < pos.count; i++) {
     const x = rest[i * 3] as number;
     const y = rest[i * 3 + 1] as number;
     const z = rest[i * 3 + 2] as number;
     raggio = Math.max(raggio, Math.hypot(x, z));
-    // la superficie del petto (per le mani): il punto più avanti del busto fra 0,66 e 0,78 H
-    if (y > 0.66 * altezza && y < 0.78 * altezza && Math.abs(x) < 0.08 * altezza) fronteBusto = Math.max(fronteBusto, z);
+    // la superficie del petto (per le mani): il punto più avanti del busto fra 0,62 e 0,76 H
+    if (y > 0.62 * altezza && y < 0.76 * altezza && Math.abs(x) < 0.08 * altezza) {
+      let w = 0;
+      if (si0 && sw0) for (let k = 0; k < 4; k++) if (busto.has(si0.getComponent(i, k))) w += sw0.getComponent(i, k);
+      if (!si0 || w >= 0.6) {
+        fronteBusto = Math.max(fronteBusto, z);
+        retroBusto = Math.min(retroBusto, z);
+      }
+    }
   }
-  if (!Number.isFinite(fronteBusto)) fronteBusto = 0.1 * altezza;
+  // mai più di 0,07·H davanti all'attacco del petto; la schiena fra 0,04 e 0,16·H dietro
+  fronteBusto = Number.isFinite(fronteBusto) ? Math.min(fronteBusto, zPetto + 0.07 * altezza) : zPetto + 0.06 * altezza;
+  retroBusto = Number.isFinite(retroBusto) ? THREE.MathUtils.clamp(retroBusto, zPetto - 0.16 * altezza, zPetto - 0.04 * altezza) : zPetto - 0.08 * altezza;
   let mappa: THREE.Texture | null = null;
   for (const m of mesh) {
     m.skeleton.update();
@@ -230,13 +294,24 @@ export function preparaPrototipo(id: string, scena: THREE.Object3D, scheda: Sche
     m.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, altezza * 0.5, 0), altezza * 0.62 + 0.25);
     m.frustumCulled = true;
   }
+  // le vesti lunghe: i pesi da seduti (gonne.ts), una geometria per livello di dettaglio
+  const geometrieSedute = new Map<string, THREE.BufferGeometry>();
+  if (scheda.gonna) {
+    for (const m of mesh) {
+      const g = geometriaSeduta(m, altezza);
+      if (g) {
+        g.boundingSphere = m.geometry.boundingSphere;
+        geometrieSedute.set(m.name, g);
+      }
+    }
+  }
   if (mappa) {
     // il motore lavora con ColorManagement spento e colori sRGB «da pittore»: niente decodifica
     mappa.colorSpace = THREE.NoColorSpace;
     mappa.anisotropy = 4;
     mappa.needsUpdate = true;
   }
-  return { id, scena, mappa, altezza, raggio, fronteBusto, scheda };
+  return { id, scena, mappa, altezza, raggio, fronteBusto, retroBusto, scheda, geometrieSedute };
 }
 
 /** Registra un modello già pronto (prove, pagine di prova): da qui `creaPersonaggio` lo usa. */

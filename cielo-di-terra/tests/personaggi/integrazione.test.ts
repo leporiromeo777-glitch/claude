@@ -129,8 +129,11 @@ describe('i personaggi nuovi nel popolamento', () => {
     expect(cerca(fig('nando'), 'oggetto:pietra')).not.toBeNull();
     expect(cerca(fig('nando'), 'pietra-nando')).toBeNull();
     expect(cerca(proc.npc('nando')?.figura, 'pietra-nando')).not.toBeNull();
-    // Ottavio: il lume sulla presa «cintura», il Velo da planata nel gruppo (png.ts lo cerca per nome)
-    expect(cerca(fig('ottavio'), 'lume-ottavio')?.parent?.name).toBe('cintura');
+    // Ottavio: il lume dell'indice appeso al bacino (segue l'anca, non una presa ferma), non quello
+    // procedurale; il Velo da planata nel gruppo (png.ts lo cerca per nome)
+    expect(cerca(fig('ottavio'), 'oggetto:lume')?.parent?.name).toBe('bacino');
+    expect(cerca(fig('ottavio'), 'lume-ottavio')).toBeNull();
+    expect(cerca(proc.npc('ottavio')?.figura, 'lume-ottavio')).not.toBeNull();
     expect(cerca(fig('ottavio'), 'velo-ottavio')).not.toBeNull();
     expect(cerca(fig('pina'), 'oggetto:forbici')).not.toBeNull();
     expect(cerca(fig('pina'), 'oggetto:figura-di-cartone')).not.toBeNull();

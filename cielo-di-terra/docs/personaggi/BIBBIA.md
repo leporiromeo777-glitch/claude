@@ -73,7 +73,7 @@ Il prompt completo lo compone `tools/personaggi/prompt.py --id <id>` (STILE + RI
 
 Altezze in metri (sono quelle a cui la pipeline scala il modello; gli scarti fra personaggi si leggono meglio della corporatura). Adulti fra 1,60 e 1,80 m; le due vecchie più piccole di proposito (Pina 1,52, Annunciata 1,56: «minuta», «esile»), e la curva gliela dà l'animatore (`curvo` nell'indice); bambini 1,12 (Gioanin) e 1,25 (Lisa, prima 1,30: i bambini stanno fra 1,10 e 1,25).
 
-Tutti fatti: le immagini scelte sono in [`sorgenti/`](sorgenti/) ([`sorgenti/tutte.jpg`](sorgenti/tutte.jpg)), i modelli in `public/personaggi/<id>.glb`, l'elenco in `public/personaggi/indice.json`, la scheda in [`scheda-cast.png`](scheda-cast.png). Che cosa è uscito diverso dal previsto è in fondo a ogni voce («Fatto»).
+Tutti fatti: le immagini scelte sono in [`sorgenti/`](sorgenti/) ([`sorgenti/tutte.jpg`](sorgenti/tutte.jpg)), i modelli in `public/personaggi/<id>.glb`, l'elenco in `public/personaggi/indice.json`, la scheda in [`scheda-cast.jpg`](scheda-cast.jpg). Che cosa è uscito diverso dal previsto è in fondo a ogni voce («Fatto»).
 
 ### 1. Ottavio, detto Ventin — `ottavio` (1,74 m)
 - **Chi**: il Messo, 17 anni; plana fra le valli con il Velo verde. Primo amico di Elvira.
@@ -114,7 +114,7 @@ Tutti fatti: le immagini scelte sono in [`sorgenti/`](sorgenti/) ([`sorgenti/tut
 - **Silhouette**: piccola, curva (la curva la fa il rig, il modello sta quasi dritto con le spalle un po' tonde), cappuccio di lana grigia a punta morbida che copre tutta la faccia, scialle sulle spalle; le forbici enormi in mano.
 - **Abiti**: cappuccio di lana grigio-viola lungo fino al petto, scialle di lana grigia, veste lunga grigio scuro, grembiule ocra macchiato, scarpe di panno.
 - **Colori**: lana grigia `#8d8780`, grigio-viola, ocra del cartone.
-- **Accessori** (procedurali, attaccati alle mani nel gioco): un grande paio di forbici da sarta nella mano destra, la punta in basso; nella sinistra una figura di cartone ocra (un omino con una ruota). La scatola dei cartoni è un oggetto di scena a parte. Nell'immagine le mani sono vuote.
+- **Accessori** (procedurali, attaccati alle mani nel gioco): un grande paio di forbici da sarta nella mano destra, la punta in basso; nella sinistra una figura di cartone ocra: la Santa che sale nella Linea, velata e con l'aureola. NON l'omino con la ruota: quello è l'indizio della missione (FASE1.md §8.2), sta in fondo alla scatola e Pina non lo tiene mai in mano. La scatola dei cartoni è un oggetto di scena a parte. Nell'immagine le mani sono vuote.
 - **Niente**: volto, mani giganti (solo le ombre sul telo lo sono), lampada in mano.
 - **Prompt**:
 > A tiny, very old village woman with slightly rounded shoulders, a long soft grey wool hood with a gentle point that hangs down to the chest and hides her face completely in shadowless fabric, a grey wool shawl over the shoulders, a long dark grey dress to the ankles, a stained ochre apron with a big front pocket, cloth shoes, empty open hands.

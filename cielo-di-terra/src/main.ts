@@ -9,7 +9,7 @@
 import { installDebugApi } from './core/debug';
 import { SuggerimentoSguardo } from './core/suggerimentoSguardo';
 import { Game } from './game';
-import { collegaMotorePersonaggi, precaricaPersonaggi } from './personaggi';
+import { collegaMotorePersonaggi, impostaDistanzePersonaggi, precaricaPersonaggi, preriscaldaPersonaggi } from './personaggi';
 import { installaCorbella } from './popolamento';
 import { installaDebugRegia } from './regia/debug';
 import { Regia } from './regia/regia';
@@ -53,6 +53,17 @@ async function boot(): Promise<void> {
   });
   ui.caricamento.show({ testo: 'preparo il cilindro…' });
   await caricaCaratteri(e2e ? 400 : 1500).catch(() => undefined);
+  // i modelli dei personaggi (public/personaggi, docs/personaggi/INTEGRAZIONE.md) si scaricano mentre il
+  // motore si prepara; la barra li mostra solo al loro passo, così resta monotona. (Dopo i caratteri: una
+  // pagina ricaricata appena aperta non lascia scaricamenti a metà.)
+  let frazionePersonaggi = 0;
+  let mostraPersonaggi = false;
+  const personaggi = params.has('senza-titolo')
+    ? null
+    : precaricaPersonaggi((f) => {
+        frazionePersonaggi = f;
+        if (mostraPersonaggi) ui.caricamento.progresso(0.86 + 0.04 * f, 'la gente di Corbella');
+      });
   const game = new Game(app, { debugOverlay: params.has('debug'), e2e });
   const passi = ['particelle', 'terreno', 'finestre, Linea, Collare', 'paesi', 'castagni', 'pronto'];
   await game.init(async (m) => {
@@ -67,11 +78,17 @@ async function boot(): Promise<void> {
     // personaggi nuovi (public/personaggi/*.glb, docs/personaggi/INTEGRAZIONE.md): materiale del mondo e
     // camera per i livelli di dettaglio, poi i modelli; senza file la gente resta procedurale
     collegaMotorePersonaggi({ uniforms: game.uniforms, camera: game.camera });
-    await precaricaPersonaggi((f) => ui.caricamento.progresso(0.86 + 0.04 * f, 'la gente di Corbella'));
+    mostraPersonaggi = true;
+    ui.caricamento.progresso(0.86 + 0.04 * frazionePersonaggi, 'la gente di Corbella');
+    // al più 20 s (una rete lenta, una richiesta appesa): chi arriva dopo resta procedurale per questa partita
+    await Promise.race([personaggi, new Promise((r) => setTimeout(r, 20000))]);
+    mostraPersonaggi = false;
     ui.caricamento.progresso(0.9, 'Corbella: le case, i muri, la gente');
     await new Promise((r) => setTimeout(r, 0));
     // il paese vero (src/popolamento) al posto del segnaposto del motore; il suo passo lo chiama la regia
     const corbella = installaCorbella(game, { agganciaCiclo: false, luciAbitanti: false });
+    // texture e materiale dei personaggi già sulla GPU (niente scatto al primo che entra in vista)
+    preriscaldaPersonaggi(game.renderer, game.camera);
     ui.caricamento.progresso(0.97, 'la Cripta, i chiodi');
     await new Promise((r) => setTimeout(r, 0));
     regia = new Regia(game, ui, corbella, { e2e });
@@ -111,6 +128,8 @@ function collegaInterfaccia(game: Game, ui: InterfacciaGioco): void {
   imp.on('ripristino', qualita);
   const nomi = { bassa: 'Bassa', media: 'Media', alta: 'Alta' } as const;
   game.onQualita((p) => {
+    // i personaggi seguono la qualità: in «bassa» dettaglio ridotto e animazione fino a 160 m
+    impostaDistanzePersonaggi(p.livello === 'bassa' ? { lod1: 15, lontano: 80, sparisce: 160 } : { lod1: 25, lontano: 120, sparisce: 230 });
     const auto = game.qualita === 'automatica' ? ' (scelta automatica)' : '';
     ui.pannelloImpostazioni.impostaNota('qualitaGrafica', `${NOTA_QUALITA} Adesso: ${nomi[p.livello]}${auto}.`);
   });

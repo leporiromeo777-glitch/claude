@@ -17,10 +17,10 @@
 import * as THREE from 'three';
 import { creaAbitante, type OpzioniAbitante, type StatoAbitante } from '../oggetti/oggetti/abitante';
 // personaggi nuovi (GLB dipinti, docs/personaggi/INTEGRAZIONE.md): stessa interfaccia di creaAbitante
-import { creaPersonaggio, type StatoPersonaggioGioco } from '../personaggi';
+import { CAMPIONI_PROFILO, creaPersonaggio, type ProfiloSuolo, type StatoPersonaggioGioco } from '../personaggi';
 import { matriceSuperficie } from '../oggetti/cilindro';
 import { geoBoxC, geoCilindro, geoLastra, geoPiano } from '../oggetti/forme';
-import { Costruttore, mat } from '../oggetti/costruttore';
+import { Costruttore, mat, matSegmento } from '../oggetti/costruttore';
 import { PALETTE } from '../oggetti/palette';
 import { cylinderAt, type Collider, type ColliderWorld } from '../world/colliders';
 import { localFrameTheta } from '../world/cylinder';
@@ -127,6 +127,8 @@ interface StatoNpc {
   punto: PuntoInterazione | null;
   extra: THREE.Object3D | null;
   altezzaFianchi: number;
+  /** personaggi nuovi seduti: il profilo del suolo per posto e verso (profiloSeduta) */
+  profilo?: { chiave: string; p: ProfiloSuolo };
 }
 
 export class Abitanti {
@@ -289,21 +291,26 @@ export class Abitanti {
       return g;
     }
     if (id === 'ottavio') {
-      // lume a petrolio d'ottone alla cintura e il Velo verde (visibile in volo)
-      const b = new Costruttore(8);
-      b.aggiungi(geoCilindro(0.05, 0.06, 0.16, 6), { colore: PALETTE.ottone });
-      b.aggiungi(geoBoxC(0.08, 0.06, 0.08), { matrice: mat([0, 0.19, 0]), colore: 0xffc870, canale: 'lume' });
-      const lume = b.costruisci('lume-ottavio');
-      lume.position.set(-0.2, -0.05, 0.1);
-      // sui modelli nuovi la presa «cintura» ha gli assi del modello, come l'osso del bacino procedurale
-      (osso('cintura') ?? osso('bacino'))?.add(lume);
+      // lume a petrolio d'ottone alla cintura e il Velo verde (visibile in volo); sui modelli nuovi il
+      // lume è un oggetto di scena dell'indice (la gabbia col vetro acceso dietro l'anca, src/personaggi/oggetti.ts)
+      if (!nuovo) {
+        const b = new Costruttore(8);
+        b.aggiungi(geoCilindro(0.05, 0.06, 0.16, 6), { colore: PALETTE.ottone });
+        b.aggiungi(geoBoxC(0.08, 0.06, 0.08), { matrice: mat([0, 0.19, 0]), colore: 0xffc870, canale: 'lume' });
+        const lume = b.costruisci('lume-ottavio');
+        lume.position.set(-0.2, -0.05, 0.1);
+        osso('bacino')?.add(lume);
+      }
       const v = new Costruttore(9);
       const tela = geoPiano(3.6, 1.8, 6, 3);
       const pp = tela.getAttribute('position');
       for (let i = 0; i < pp.count; i++) pp.setZ(i, -Math.pow(pp.getX(i) / 1.8, 2) * 0.35);
       v.aggiungi(tela, { matrice: mat([0, 2.6, 0], [-Math.PI / 2 + 0.25, 0, 0]), colore: 0x5f8a4a, canale: 'sottile' });
       v.aggiungi(geoBoxC(3.7, 0.06, 0.06), { matrice: mat([0, 2.65, 0.6]), colore: PALETTE.legno });
-      for (const s of [-1, 1]) v.aggiungi(geoCilindro(0.02, 0.02, 1.2, 4), { matrice: mat([s * 0.25, 1.45, 0.1], [0, 0, s * 0.2]), colore: PALETTE.legno });
+      // la barra di comando (come nel bozzetto finale-3: ci si tiene con due mani) a 1,25 m, 35 cm davanti, e
+      // i due montanti che dai suoi capi salgono alla tela, fuori dalle spalle (PRESA_VELO in src/personaggi/fabbrica.ts)
+      v.aggiungi(geoCilindro(0.02, 0.02, 0.76, 6), { matrice: mat([0.38, 1.25, 0.35], [0, 0, Math.PI / 2]), colore: PALETTE.legno });
+      for (const s of [-1, 1]) v.aggiungi(geoCilindro(0.016, 0.016, 1, 5), { matrice: matSegmento(new THREE.Vector3(s * 0.36, 1.25, 0.35), new THREE.Vector3(s * 0.55, 2.58, 0.12)), colore: PALETTE.legno });
       const velo = v.costruisci('velo-ottavio');
       velo.visible = false;
       velo.name = 'velo-ottavio';
@@ -611,19 +618,40 @@ export class Abitanti {
     return s.luogo;
   }
 
-  /** Quota d'appoggio: suolo o collider calpestabile (gradini, ripiani, panche) sotto il punto. */
-  private quota(z: number, theta: number): number {
-    let h = suolo(z, theta);
+  /**
+   * Personaggi nuovi seduti: le quote d'appoggio (panche comprese) rispetto ai piedi della figura lungo la
+   * direzione in cui guarda, da 0,8 m dietro a 1 m davanti ogni 10 cm (CAMPIONI_PROFILO di
+   * src/personaggi/sedute.ts). Calcolate una volta per posto e verso.
+   */
+  private profiloSeduta(s: StatoNpc): ProfiloSuolo | null {
+    if (!s.pos) return null;
+    const chiave = `${s.pos.z.toFixed(2)}:${s.pos.theta.toFixed(4)}:${s.pos.h.toFixed(2)}:${s.yaw.toFixed(1)}`;
+    if (s.profilo?.chiave === chiave) return s.profilo.p;
+    const quote: number[] = [];
+    for (let i = 0; i < CAMPIONI_PROFILO.n; i++) {
+      const q = spostaYaw(s.pos.z, s.pos.theta, s.yaw, CAMPIONI_PROFILO.inizio + i * CAMPIONI_PROFILO.passo, s.pos.h);
+      quote.push(this.quota(q.z, q.theta, true) - s.pos.h);
+    }
+    const p: ProfiloSuolo = { inizio: CAMPIONI_PROFILO.inizio, passo: CAMPIONI_PROFILO.passo, quote };
+    s.profilo = { chiave, p };
+    return p;
+  }
+
+  /** Quota d'appoggio: suolo o collider calpestabile (gradini, ripiani; con `panche` anche le panche) sotto il punto. */
+  private quota(z: number, theta: number, panche = false): number {
+    const h0 = suolo(z, theta);
+    let h = h0;
     const p = mondo(z, theta, h);
     const up = new THREE.Vector3(-p.x, -p.y, 0).normalize();
     for (const zona of this.ctx.zone.values()) {
       for (const v of zona.collider) {
         const c = v.collider;
-        if (c.kind !== 'box' || !['gradino', 'calpestabile'].includes(v.tag)) continue;
+        if (c.kind !== 'box' || !(['gradino', 'calpestabile'].includes(v.tag) || (panche && v.tag === 'panca'))) continue;
         const d = new THREE.Vector3().subVectors(p, c.center);
         if (Math.abs(d.dot(c.right)) > c.half.x || Math.abs(d.dot(c.forward)) > c.half.z) continue;
         const top = c.center.clone().addScaledVector(c.up, c.half.y);
-        const ht = h + new THREE.Vector3().subVectors(top, p).dot(up);
+        // (per il profilo delle sedute dal suolo: la panca sta SOPRA il ripiano della chiesa, non va contato due volte)
+        const ht = (panche ? h0 : h) + new THREE.Vector3().subVectors(top, p).dot(up);
         // fino a 8 m: il ripiano della chiesa sta 4,3 m sopra il terreno (la panca di Annunciata)
         if (ht > h && ht < suolo(z, theta) + 8) h = ht;
       }
@@ -646,7 +674,14 @@ export class Abitanti {
       // i personaggi nuovi fanno da sé seduto e chino (la posa passa nello stato); le rotazioni di
       // posaOssa sono per le ossa della figura procedurale
       const nuovo = s.obj.gruppo.userData['personaggio'] !== undefined;
-      if (nuovo) (s.stato as StatoPersonaggioGioco).posa = s.posa;
+      if (nuovo) {
+        // da seduti anche il profilo del suolo davanti e dietro (panche comprese): la figura ci posa anche
+        // e piedi (src/personaggi/sedute.ts); il luogo serve alle correzioni per id@luogo
+        const st = s.stato as StatoPersonaggioGioco;
+        st.posa = s.posa;
+        st.luogo = s.luogo;
+        st.profilo = s.posa === 'seduto' ? this.profiloSeduta(s) : null;
+      }
       s.obj.update?.(dt, s.stato);
       if (!nuovo) this.posaOssa(s);
     }
@@ -756,7 +791,9 @@ export class Abitanti {
 const PIAZZAMENTI: Record<string, { nord?: number; est?: number; posa?: PosaNpc; verso?: string; sopra?: number }> = {
   'pina@soglia_pina': { est: 0.6, posa: 'seduto', verso: 'piazza_ore', sopra: -0.26 },
   'pina@telo_ombrista': { nord: 1.6, est: 0.3, verso: 'piazza_ore' },
-  'togna@lavatoio': { nord: 2.1, est: 0.5, posa: 'chino', verso: 'campanile' },
+  // davanti alla vasca, sul lastricato del lavatoio, 20 cm dal bordo (prima era 2,6 m indietro, fuori
+  // dalla piattaforma: china sul niente)
+  'togna@lavatoio': { nord: 3.73, est: -1.51, posa: 'chino', verso: 'campanile' },
   'togna@piazza_ore': { nord: 6, est: -12, verso: 'telo_ombrista' },
   'bortolo@sagrato': { nord: 2, est: -4, verso: 'piazza_ore' },
   'bortolo@campanile': { nord: -3.6, est: 0, verso: 'piazza_ore' },

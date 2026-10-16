@@ -538,7 +538,71 @@ def smussa(x, a, b):
     return t * t * (3 - 2 * t)
 
 
-def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: float | None):
+# segmenti degli arti per la plausibilità dei pesi: osso -> (giuntura di testa, di coda, raggio (frazione di H),
+# t minimo e massimo lungo il segmento). Larghi per maniche, gonne e mantelli; stretti sui capi.
+ARTI = {}
+for _n in ('S', 'D'):
+    ARTI['braccio' + _n] = ('spalla' + _n, 'gomito' + _n, 0.12, -0.3, 1.25)
+    ARTI['avambraccio' + _n] = ('gomito' + _n, 'polso' + _n, 0.11, -0.25, 1.25)
+    ARTI['mano' + _n] = ('polso' + _n, 'dita' + _n, 0.09, -0.4, 1.7)
+    ARTI['coscia' + _n] = ('anca' + _n, 'ginocchio' + _n, 0.32, -0.08, 1.35)
+    ARTI['stinco' + _n] = ('ginocchio' + _n, 'caviglia' + _n, 0.32, -0.25, 1.4)
+    ARTI['piede' + _n] = ('caviglia' + _n, 'punta' + _n, 0.14, -0.8, 1.6)
+
+
+def pesi_plausibili(v: np.ndarray, P: np.ndarray, nomi: list, J: dict, H: float, nome: str) -> np.ndarray:
+    """(finale) Un osso degli arti non muove un vertice lontano dal suo segmento: oltre il raggio dell'arto o
+    oltre i suoi capi (la coscia sopra l'anca, il braccio dentro il busto). Sono i pesi che il bone heat sul
+    proxy a voxel lascia dove mani, gonna e mantello si toccano nella posa ad A (il velato col cappuccio
+    aveva un lembo del mantello all'altezza del gomito pesato tutto sulla coscia destra, Bortolo un pezzo
+    di avambraccio sulla coscia): con le pose nuove (seduti, braccia conserte) diventavano lame e dita
+    staccate. Il peso sfuma a zero fuori dal tratto; quello tolto resta agli altri ossi del vertice e, se
+    non ne resta, va al busto alla sua quota."""
+    i = {n: k for k, n in enumerate(nomi)}
+    tolti = 0
+    for osso, (a, b, r, t0, t1) in ARTI.items():
+        k = i.get(osso)
+        if k is None:
+            continue
+        sel = P[:, k] > 1e-4
+        if not sel.any():
+            continue
+        A, B = np.array(J[a]), np.array(J[b])
+        ab = B - A
+        pts = v[sel]
+        t = ((pts - A) @ ab) / max(float(ab @ ab), 1e-12)
+        d = np.linalg.norm(pts - (A + np.clip(t, 0, 1)[:, None] * ab), axis=1)
+        g = smussa(t, t0 - 0.1, t0) * smussa(t, t1 + 0.15, t1) * smussa(d, r * H * 1.4, r * H)
+        prima = P[sel, k].copy()
+        P[sel, k] = prima * g
+        tolti += int(((prima > 0.05) & (g < 0.5)).sum())
+    s = P.sum(1)
+    vuoti = s < 0.05
+    z = v[:, 2]
+    busto = np.where(z < J['schiena'].z, i['bacino'], np.where(z < J['petto'].z, i['schiena'], np.where(z < J['collo'].z, i['petto'], np.where(z < J['testa'].z, i['collo'], i['testa']))))
+    P[vuoti] = 0
+    P[np.where(vuoti)[0], busto[vuoti]] = 1
+    log(f'{nome}: pesi impossibili tolti a {tolti} vertici ({int(vuoti.sum())} passati al busto)')
+    return P
+
+
+def ammorbidisci_pesi(P: np.ndarray, adiac: list, passi: int = 2, quanto: float = 0.5) -> np.ndarray:
+    """(finale) Pesi morbidi fra vertici vicini: dove due zone pesate su ossa diverse si toccano (manica e
+    fianco, mantello e braccio) gli spigoli non si stirano più di colpo quando le ossa ruotano molto."""
+    from scipy.sparse import csr_matrix, diags
+    n = len(adiac)
+    righe = np.repeat(np.arange(n), [len(a) for a in adiac])
+    colonne = np.fromiter((w for a in adiac for w in a), dtype=np.int64, count=len(righe))
+    A = csr_matrix((np.ones(len(righe)), (righe, colonne)), shape=(n, n))
+    grado = np.asarray(A.sum(1)).ravel()
+    M = diags(1 / np.maximum(grado, 1)) @ A
+    for _ in range(passi):
+        Q = M @ P
+        P = (1 - quanto) * P + quanto * np.where(grado[:, None] > 0, Q, P)
+    return P
+
+
+def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: float | None, morbide: bool = False):
     """Correzioni geometriche ai pesi del bone heat.
     - gonna: fra l'anca e l'orlo i pesi delle gambe sfumano verso il bacino (all'orlo restano al 55%),
       e destra/sinistra si scelgono per lato con una transizione morbida al centro;
@@ -637,7 +701,9 @@ def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: floa
         t = ((v - S_) @ asse) / float(asse @ asse)
         # (non solo l'insieme «braccio» raggiungibile dalle dita: i pezzi di manica staccati dal braccio
         # nella mesh, come gli sbuffi, non ci arrivano; sopra il bacino, così la gonna vicino alle mani resta)
-        cand = ~lontano & (t > 0.25) & (t < 0.8) & (x * seg > 0) & (z > J['bacino'].z)
+        # (finale) con `braccia_morbide` (mantelli che avvolgono le braccia, come il velato col cappuccio)
+        # la stoffa a metà fra braccio e fianco segue il braccio in parte, fino al polso: niente lembo a punta
+        cand = ~lontano & (t > (0.2 if morbide else 0.25)) & (t < (1.05 if morbide else 0.8)) & (x * seg > 0) & (z > J['bacino'].z)
         if cand.any():
             pts = v[cand]
             d = np.stack([
@@ -650,7 +716,7 @@ def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: floa
                            [J['bacino'].y, J['schiena'].y, J['petto'].y, J['collo'].y])
             dasse = np.hypot(pts[:, 0], pts[:, 1] - yb)
             rapporto = dbr / np.maximum(dasse, 1e-6)
-            a = smussa(rapporto, 0.45, 0.25) * smussa(t[cand], 0.25, 0.42)
+            a = (smussa(rapporto, 0.85, 0.35) * smussa(t[cand], 0.2, 0.4)) if morbide else (smussa(rapporto, 0.45, 0.25) * smussa(t[cand], 0.25, 0.42))
             g = 1 / np.maximum(d, 0.004 * H) ** 4
             g /= g.sum(1, keepdims=True)
             nuovo = np.zeros((len(pts), len(nomi)))
@@ -659,6 +725,9 @@ def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: floa
             P[cand] = (1 - a[:, None]) * P[cand] + a[:, None] * nuovo
             log(f'{mesh.name}: braccio {n}, {int((a > 0.5).sum())} vertici di omero e gomito portati al braccio '
                 f'({int(((prima < 0.5) & (a > 0.5)).sum())} pesavano meno di metà sul braccio)')
+    # (finale) via i pesi impossibili e una passata di pesi morbidi fra vicini
+    P = pesi_plausibili(v, P, nomi, J, H, mesh.name)
+    P = ammorbidisci_pesi(P, adiac, passi=int(os.environ.get('PASSI_PESI', 2)), quanto=0.5)
     # chi è rimasto senza peso: al petto sopra la vita, al bacino sotto
     vuoti = P.sum(1) < 1e-4
     P[vuoti & (z >= J['schiena'].z), i['petto']] = 1
@@ -679,6 +748,39 @@ def ritocca_pesi(mesh, P: np.ndarray, nomi: list, J: dict, H: float, gonna: floa
         P[m] *= (1 - manca)[:, None]
         P[m, i['piede' + n]] += manca
     return P
+
+
+def unisci_gusci(mesh, P: np.ndarray, J: dict, H: float) -> np.ndarray:
+    """(finale, con `gusci`) I mantelli generati sono gusci con lo spessore: fuori e dentro a 1-2 cm. Il
+    bone heat dà ai due gusci pesi diversi (fuori la schiena, dentro il petto) e in posa il guscio interno
+    esce da quello esterno: macchie scure (la faccia interna, dipinta scura) sulla schiena del velato col
+    cappuccio. Ogni vertice del guscio interno (normale verso l'asse del corpo) prende i pesi del punto
+    del guscio esterno che ha davanti, entro 3 cm lungo il raggio verso fuori. Fra il ginocchio e il collo."""
+    from mathutils import Vector
+    me = mesh.data
+    v = vertici(mesh)
+    vn = np.array([tuple(x.normal) for x in me.vertices])
+    r = v.copy()
+    r[:, 2] = 0
+    lr = np.linalg.norm(r, axis=1)
+    r /= np.maximum(lr, 1e-6)[:, None]
+    verso = (vn * r).sum(1)
+    interni = (verso < -0.3) & (lr > 0.03 * H) & (v[:, 2] > 0.3 * H) & (v[:, 2] < J['collo'].z)
+    bvh = BVHTree.FromPolygons([tuple(x) for x in v], [tuple(pol.vertices) for pol in me.polygons])
+    Q = P.copy()
+    n = 0
+    for k in np.nonzero(interni)[0]:
+        d = Vector(tuple(r[k]))
+        loc, nor, f, dist = bvh.ray_cast(Vector(tuple(v[k])) + d * 0.002, d, 0.03)
+        if loc is None or Vector(tuple(nor)).dot(d) < 0.3:
+            continue
+        ids = list(me.polygons[f].vertices)
+        dd = np.linalg.norm(v[ids] - np.array(loc), axis=1)
+        w = 1 / np.maximum(dd, 1e-4)
+        Q[k] = (P[ids] * w[:, None]).sum(0) / w.sum()
+        n += 1
+    log(f'{mesh.name}: {n} vertici del guscio interno con i pesi del guscio esterno ({int(interni.sum())} interni)')
+    return Q
 
 
 def scrivi_pesi(mesh, P: np.ndarray, nomi: list, max_infl: int = 4, soglia: float = 0.02):
@@ -741,7 +843,253 @@ def riempi_neri(im, soglia: float = 16 / 255, passi: int = 48):
     log(f'texture: {n0} texel quasi neri riempiti dai vicini ({n0 / (w * h) * 100:.1f}%)')
 
 
-def prepara_materiale(o, lato_tex: int, nome: str):
+def campiture(im, o, J: dict, H: float, volto_scoperto: bool, lato: int, macchie3d: bool = False) -> list:
+    """(finale) La texture verso i bozzetti, «campiture piatte e pittura a mano»:
+    1. mappa delle facce nell'atlante (ogni texel sa a quale faccia appartiene);
+    2. via le macchie: texel molto più chiari o più scuri della mediana della loro faccia, in macchie
+       piccole (lo sfondo bianco della sorgente proiettato su una giacca, i buchi scuri di un mantello),
+       ridipinti dai vicini (inpaint);
+    3. i texel fuori dalle isole presi dal colore dell'isola vicina, mai da sfondo o bianco;
+    4. filtro che conserva i bordi (bilaterale di 3-4 px) e ombre cotte attenuate (la luce la fa il gioco);
+    5. k-means in Lab a 8 toni per personaggio: ogni texel va per tre quarti verso il suo tono (campitura);
+    6. una trama a pennello leggera.
+    I volti scoperti (Nando, Ottavio: già dipinti e riusciti) restano per tre quarti com'erano.
+    Restituisce la tavolozza (8 colori sRGB 0..1, dal più usato), che il gioco usa per le varianti dei
+    velati generici (src/personaggi/materiale.ts)."""
+    import cv2
+    w, h = im.size
+    k = lato / 1024
+    px = np.empty(w * h * 4, dtype=np.float32)
+    im.pixels.foreach_get(px)
+    a = px.reshape(h, w, 4)
+    rgb = np.clip(a[:, :, :3] * 255 + 0.5, 0, 255).astype(np.uint8)  # righe dal basso, come Blender
+    # 1. facce nell'atlante
+    me = o.data
+    uv = me.uv_layers.active.data
+    idmap = np.zeros((h, w), np.int32)
+    n_f = len(me.polygons)
+    centri = np.zeros((n_f + 1, 3))
+    for p in me.polygons:
+        pts = np.array([[uv[l].uv[0] * w - 0.5, uv[l].uv[1] * h - 0.5] for l in p.loop_indices])
+        cv2.fillPoly(idmap, [np.round(pts * 4).astype(np.int32)], int(p.index + 1), lineType=cv2.LINE_8, shift=2)
+        centri[p.index + 1] = tuple(p.center)
+    coperto = idmap > 0
+    # i volti scoperti: facce della testa, davanti
+    volto = np.zeros(n_f + 1, dtype=bool)
+    if volto_scoperto:
+        volto = (centri[:, 2] > J['collo'].z) & (centri[:, 1] < J['testa'].y + 0.01 * H)
+        volto[0] = False
+    tex_volto = volto[idmap]
+    # 2. macchie: lontane dalla mediana di luminosità della loro faccia
+    lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
+    L = lab[:, :, 0].astype(np.float32)
+    ids = idmap[coperto]
+    Ls = L[coperto]
+    ordine = np.argsort(ids, kind='stable')
+    ids_o = ids[ordine]
+    L_o = Ls[ordine]
+    facce = np.unique(ids_o)
+    inizi = np.searchsorted(ids_o, facce)
+    fini = np.searchsorted(ids_o, facce, side='right')
+    med = np.zeros(n_f + 1, np.float32)
+    for f, i0, i1 in zip(facce, inizi, fini):
+        med[f] = np.median(L_o[i0:i1])
+    scarto = np.abs(L - med[idmap])
+    macchia = (coperto & (scarto > 42) & ~tex_volto).astype(np.uint8)
+    n_c, etichette, stat, _ = cv2.connectedComponentsWithStats(macchia, connectivity=8)
+    piccole = np.zeros(n_c, dtype=bool)
+    piccole[1:] = stat[1:, cv2.CC_STAT_AREA] < 0.002 * w * h
+    macchia = piccole[etichette].astype(np.uint8)
+    macchia = cv2.dilate(macchia, np.ones((3, 3), np.uint8))
+    n_macchie = int(piccole.sum())
+    if macchia.any():
+        rgb = cv2.inpaint(rgb, macchia, 4, cv2.INPAINT_TELEA)
+    # 2b. (con `macchie_3d`) le macchie che la regola sopra non vede, guardando nello spazio invece che
+    # nell'atlante a isolette:
+    #  - l'INTERNO SCOPERTO: dove il guscio esterno di un mantello ha un buco, si vede la faccia interna
+    #    (normale verso l'asse del corpo), dipinta scura perché la sorgente non la vedeva. Una faccia
+    #    interna da cui un raggio verso fuori esce senza toccare niente è scoperta: prende il colore delle
+    #    facce esterne entro 7 cm (la schiena del velato col cappuccio);
+    #  - le facce molto più scure delle vicine (mediana entro 7 cm).
+    # Solo fra il ginocchio e il collo: la testa (occhi delle maschere, ombra del cappuccio) e le scarpe
+    # restano come sono.
+    if macchie3d:
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        from scipy.spatial import cKDTree
+        n_tex = np.bincount(idmap[coperto], minlength=n_f + 1).astype(np.float64)
+        rgb_f = np.stack([np.bincount(idmap[coperto], weights=rgb[:, :, c][coperto].astype(np.float64), minlength=n_f + 1) for c in range(3)], 1)
+        rgb_f /= np.maximum(n_tex, 1)[:, None]
+        L_f = cv2.cvtColor(np.clip(rgb_f, 0, 255).astype(np.uint8).reshape(-1, 1, 3), cv2.COLOR_RGB2LAB).reshape(-1, 3)[:, 0].astype(np.float32)
+        normali = np.zeros((n_f + 1, 3))
+        for pol in me.polygons:
+            normali[pol.index + 1] = tuple(pol.normal)
+        radiale = centri.copy()
+        radiale[:, 2] = 0
+        lr = np.linalg.norm(radiale, axis=1)
+        radiale /= np.maximum(lr, 1e-6)[:, None]
+        verso = (normali * radiale).sum(1)  # > 0 esterna, < 0 interna
+        valide = np.nonzero((n_tex > 0) & (np.arange(n_f + 1) > 0))[0]
+        corpo_t = (centri[:, 2] < J['collo'].z) & (centri[:, 2] > 0.3 * H) & (lr > 0.03 * H)
+        bvh = BVHTree.FromPolygons([tuple(v.co) for v in me.vertices], [tuple(pol.vertices) for pol in me.polygons])
+        scoperte = np.zeros(n_f + 1, dtype=bool)
+        for f in valide:
+            if corpo_t[f] and verso[f] < -0.3:
+                d = Vector(tuple(radiale[f]))
+                if bvh.ray_cast(Vector(tuple(centri[f])) + d * 0.003, d, 0.6)[0] is None:
+                    scoperte[f] = True
+        albero = cKDTree(centri[valide])
+        vicini = albero.query_ball_point(centri[valide], r=0.07 * H)
+        scure = np.zeros(n_f + 1, dtype=bool)
+        sost = np.zeros((n_f + 1, 3))
+        for i, v in enumerate(vicini):
+            f = valide[i]
+            if not corpo_t[f] or len(v) < 8:
+                continue
+            vv = valide[np.array(v)]
+            if scoperte[f]:
+                fuori = vv[(verso[vv] > 0.3) & ~scoperte[vv]]
+                if len(fuori) >= 3:
+                    scure[f] = True
+                    sost[f] = np.median(rgb_f[fuori], 0)
+                continue
+            Lv = L_f[vv]
+            m = np.median(Lv)
+            if L_f[f] < m - 26:
+                chiare = vv[Lv >= m - 10]
+                if len(chiare):
+                    scure[f] = True
+                    sost[f] = np.median(rgb_f[chiare], 0)
+        tex_scuri = scure[idmap] & coperto
+        if tex_scuri.any():
+            rgb[tex_scuri] = np.clip(sost[idmap[tex_scuri]], 0, 255).astype(np.uint8)
+        log(f'campiture: {int(scoperte.sum())} facce interne scoperte, {int(scure.sum())} facce ridipinte dalle vicine nello spazio ({int(tex_scuri.sum())} texel)')
+    # 3. fuori dalle isole: il colore dell'isola vicina
+    pieno = coperto.copy()
+    rf = rgb.astype(np.float32)
+    for _ in range(int(24 * k) + 4):
+        if pieno.all():
+            break
+        m = pieno.astype(np.float32)
+        s = cv2.blur(rf * m[:, :, None], (3, 3))
+        c = cv2.blur(m, (3, 3))
+        nuovi = ~pieno & (c > 0.01)
+        rf[nuovi] = s[nuovi] / c[nuovi][:, None]
+        pieno |= nuovi
+    originale = np.clip(rf, 0, 255).astype(np.uint8)
+    # 4. bordi tenuti, trama spianata; ombre cotte attenuate
+    bgr = cv2.cvtColor(originale, cv2.COLOR_RGB2BGR)
+    f = bgr.copy()
+    for _ in range(3):
+        f = cv2.bilateralFilter(f, max(5, int(7 * k) | 1), 30, 4 * k + 1)
+    grande = f.copy()
+    for _ in range(2):
+        grande = cv2.bilateralFilter(grande, max(9, int(25 * k) | 1), 22, 25 * k)
+    lab_f = cv2.cvtColor(f, cv2.COLOR_BGR2LAB).astype(np.float32)
+    Lg = cv2.cvtColor(grande, cv2.COLOR_BGR2LAB).astype(np.float32)[:, :, 0]
+    lab_f[:, :, 0] = Lg + 0.55 * (lab_f[:, :, 0] - Lg)
+    # 5. k-means a 8 toni (in Lab), tre quarti verso il tono
+    campioni = lab_f[pieno].reshape(-1, 3)
+    rng = np.random.default_rng(7)
+    sotto = campioni[rng.choice(len(campioni), size=min(60000, len(campioni)), replace=False)]
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 40, 0.5)
+    _, _, centri_k = cv2.kmeans(sotto.astype(np.float32), 8, None, crit, 3, cv2.KMEANS_PP_CENTERS)
+    tutti = lab_f.reshape(-1, 3)
+    dist = ((tutti[:, None, :] - centri_k[None, :, :]) ** 2).sum(2)
+    etichetta = dist.argmin(1)
+    tono = centri_k[etichetta].reshape(h, w, 3)
+    out = 0.74 * tono + 0.26 * lab_f
+    # 6. trama a pennello: rumore allungato, leggero
+    n = rng.normal(0, 1, (max(8, h // 3), max(8, w // 3))).astype(np.float32)
+    n = cv2.resize(n, (w, h), interpolation=cv2.INTER_CUBIC)
+    n = cv2.GaussianBlur(n, (0, 0), sigmaX=5 * k + 0.5, sigmaY=1.0 * k + 0.3)
+    out[:, :, 0] += n * 3.0
+    out = np.clip(out, 0, 255).astype(np.uint8)
+    nuovo = cv2.cvtColor(cv2.cvtColor(out, cv2.COLOR_LAB2BGR), cv2.COLOR_BGR2RGB).astype(np.float32)
+    # i volti scoperti restano per tre quarti com'erano
+    if tex_volto.any():
+        nuovo[tex_volto] = 0.75 * originale[tex_volto].astype(np.float32) + 0.25 * nuovo[tex_volto]
+    a[:, :, :3] = nuovo / 255
+    im.pixels.foreach_set(a.reshape(-1))
+    im.update()
+    # la tavolozza, dal tono più usato
+    uso = np.bincount(etichetta[pieno.reshape(-1)], minlength=8)
+    ordine_t = np.argsort(-uso)
+    lab8 = np.clip(centri_k[ordine_t], 0, 255).astype(np.uint8).reshape(1, 8, 3)
+    rgb8 = cv2.cvtColor(lab8, cv2.COLOR_LAB2RGB).reshape(8, 3) / 255
+    log(f'campiture: {n_macchie} macchie ridipinte, {int((~coperto).sum())} texel fuori dalle isole, '
+        f'8 toni (il più usato {np.round(rgb8[0], 3)}), volto scoperto {int(tex_volto.sum())} texel')
+    return [[round(float(x), 4) for x in c] for c in rgb8]
+
+
+def ripara_scoperte(lod, nome: str, J: dict, H: float) -> None:
+    """(finale, con `macchie_3d`) Dopo la decimazione. Dove un mantello ha due gusci vicini (fuori e
+    dentro, a un centimetro), il collasso degli spigoli fa facce del guscio esterno coi vertici e le UV
+    di quello interno: la normale va verso il corpo e la texture è quella scura dell'interno (la macchia
+    sulla schiena del velato col cappuccio). Una faccia rivolta verso l'asse del corpo da cui un raggio
+    verso fuori esce senza toccare niente è una di queste: si gira e il suo triangolo nell'atlante prende
+    il colore mediano delle facce esterne entro 7 cm. Fra il ginocchio e il collo."""
+    import bmesh
+    import cv2
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    im = bpy.data.images.get(f'{nome}_colore')
+    if im is None:
+        return
+    w, h = im.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    im.pixels.foreach_get(px)
+    a = px.reshape(h, w, 4)
+    me = lod.data
+    uv = me.uv_layers.active.data
+    n = len(me.polygons)
+    centri = np.array([tuple(pol.center) for pol in me.polygons])
+    normali = np.array([tuple(pol.normal) for pol in me.polygons])
+    uvc = np.array([np.mean([uv[l].uv[:] for l in pol.loop_indices], 0) for pol in me.polygons])
+    radiale = centri.copy()
+    radiale[:, 2] = 0
+    lr = np.linalg.norm(radiale, axis=1)
+    radiale /= np.maximum(lr, 1e-6)[:, None]
+    verso = (normali * radiale).sum(1)
+    corpo = (centri[:, 2] < J['collo'].z) & (centri[:, 2] > 0.3 * H) & (lr > 0.03 * H)
+    bvh = BVHTree.FromPolygons([tuple(v.co) for v in me.vertices], [tuple(pol.vertices) for pol in me.polygons])
+    scoperte = np.zeros(n, dtype=bool)
+    for f in np.nonzero(corpo & (verso < -0.3))[0]:
+        d = Vector(tuple(radiale[f]))
+        if bvh.ray_cast(Vector(tuple(centri[f])) + d * 0.003, d, 0.6)[0] is None:
+            scoperte[f] = True
+    if not scoperte.any():
+        return
+    colore = a[np.clip((uvc[:, 1] * h).astype(int), 0, h - 1), np.clip((uvc[:, 0] * w).astype(int), 0, w - 1), :3]
+    from scipy.spatial import cKDTree
+    albero = cKDTree(centri)
+    tela = np.ascontiguousarray(a[:, :, :3])
+    girare = []
+    for f in np.nonzero(scoperte)[0]:
+        v = np.array(albero.query_ball_point(centri[f], r=0.07 * H))
+        fuori = v[(verso[v] > 0.3) & ~scoperte[v]]
+        if len(fuori) < 3:
+            continue
+        c = np.median(colore[fuori], 0)
+        pts = np.array([[uv[l].uv[0] * w - 0.5, uv[l].uv[1] * h - 0.5] for l in me.polygons[f].loop_indices])
+        cv2.fillPoly(tela, [np.round(pts * 4).astype(np.int32)], tuple(float(x) for x in c), lineType=cv2.LINE_8, shift=2)
+        cv2.polylines(tela, [np.round(pts * 4).astype(np.int32)], True, tuple(float(x) for x in c), thickness=3, lineType=cv2.LINE_8, shift=2)
+        girare.append(int(f))
+    a[:, :, :3] = tela
+    im.pixels.foreach_set(a.reshape(-1))
+    im.update()
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
+    bmesh.ops.reverse_faces(bm, faces=[bm.faces[i] for i in girare])
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+    log(f'{lod.name}: {len(girare)} facce del guscio esterno con l\'interno scoperto, girate e ridipinte')
+
+
+def prepara_materiale(o, lato_tex: int, nome: str, J: dict | None = None, H: float = 1.7, volto_scoperto: bool = False, stile: bool = True, macchie3d: bool = False) -> list:
+    tavolozza: list = []
     mats = [s.material for s in o.material_slots if s.material]
     for m in mats:
         m.name = f'{nome}'
@@ -766,12 +1114,15 @@ def prepara_materiale(o, lato_tex: int, nome: str):
                             im.scale(lato_tex, lato_tex)
                         im.name = f'{nome}_colore'
                         riempi_neri(im)
+                        if stile and J is not None:
+                            tavolozza = campiture(im, o, J, H, volto_scoperto, lato_tex, macchie3d)
             nm = bsdf.inputs.get('Normal')
             if nm:
                 for l in list(nm.links):
                     m.node_tree.links.remove(l)
     if len(mats) > 1:
         log(f'ATTENZIONE: {len(mats)} materiali (il gioco ne aspetta uno)')
+    return tavolozza
 
 
 # --------------------------------------------------------------------------- 10 esportazione
@@ -985,12 +1336,15 @@ def main():
     orienta_e_scala(o, H, cfg.get('ruota'))
     J = analizza(o, H, prop)
     arm = crea_armatura(J, nome)
-    prepara_materiale(o, int(cfg['texture']), nome)
+    tavolozza = prepara_materiale(o, int(cfg['texture']), nome, J, H, cfg.get('volto') == 'scoperto', bool(int(cfg.get('campiture', 1))), bool(cfg.get('macchie_3d')))
 
     lod0 = copia(o, 'lod0')
     decima(lod0, int(cfg['lod0']))
     lod1 = copia(o, 'lod1')
     decima(lod1, int(cfg['lod1']))
+    if cfg.get('macchie_3d'):
+        for lod in (lod0, lod1):
+            ripara_scoperte(lod, nome, J, H)
 
     # pesi: «diretto» = bone heat sul modello pulito ad alta risoluzione (va bene quando il generatore
     # dà una mesh sola e quasi chiusa, come tripo); se lascia più del 2% di vertici senza peso si ripiega
@@ -1011,7 +1365,9 @@ def main():
         log(f'bone heat sul proxy ({triangoli(sorgente)} tri): vertici senza peso {vuoti * 100:.1f}%')
     for lod in (lod0, lod1):
         P, nomi, _ = trasferisci_pesi(sorgente, lod)
-        P = ritocca_pesi(lod, P, nomi, J, H, cfg.get('gonna'))
+        P = ritocca_pesi(lod, P, nomi, J, H, cfg.get('gonna'), bool(cfg.get('braccia_morbide')))
+        if cfg.get('gusci'):
+            P = unisci_gusci(lod, P, J, H)
         scrivi_pesi(lod, P, nomi)
         lega(lod, arm)
     bpy.data.objects.remove(sorgente, do_unlink=True)
@@ -1028,6 +1384,7 @@ def main():
         'altezza': H,
         'triangoli': {'lod0': triangoli(lod0), 'lod1': triangoli(lod1)},
         'kb': round(os.path.getsize(uscita) / 1024),
+        'tavolozza': tavolozza,
         'giunture': {k: [round(x, 4) for x in (v.x, v.z, -v.y)] for k, v in J.items() if isinstance(v, Vector)},  # in assi glTF (x, y alto, z avanti)
     }
     # il rapporto (giunture, triangoli, peso) sta fra gli strumenti, non in public/ (finirebbe nella build)

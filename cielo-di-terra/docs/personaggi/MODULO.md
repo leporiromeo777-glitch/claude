@@ -67,7 +67,7 @@ const obj = creaPersonaggio('togna', aspetto) ?? creaAbitante(aspetto);   // Ogg
    s.obj.update?.(dt, s.stato);
    if (!nuovo) this.posaOssa(s);
    ```
-   Seduti: il bacino scende a 0,5 m dall'origine e 12 cm indietro, come faceva `posaOssa` (i `sopra` dei `PIAZZAMENTI` restano validi). Chini: schiena e petto avanti (40° in tutto), ginocchia morbide, le mani avanti e in basso con un lento lavorare.
+   Seduti (dalla revisione finale): il popolamento passa anche il **profilo del suolo** lungo la direzione in cui la figura guarda (`StatoPersonaggioGioco.profilo`, quote da 0,8 m dietro a 1 m davanti ogni 10 cm, panche comprese) e il luogo; `sedute.ts` ne ricava la seduta (`Seduta`: quota del sedile, dei piedi, dove stanno le anche, per terra o no) e la figura ci posa il sedere e i piedi. Senza profilo vale una panca di 0,45 m. Chini: bacino indietro e giù, schiena e petto avanti, le mani nel lavatoio che strofinano (`maniAlLavoro`).
 
 4. **`accessori()`** (riga ~276): la pietra di Nando va sulla presa della mano, non sull'avambraccio:
    ```ts
@@ -100,7 +100,9 @@ Il rifacimento grafico riscrive `common.ts`: se cambia una firma o l'ordine dei 
 ```sh
 node tools/personaggi/compila.mjs --ramo=grafica/luce     # compila il materiale con common.ts di questo ramo e di grafica/luce
 ```
-Oggi compila con tutti e due. La post-produzione di `grafica/post` legge solo colore e profondità, che il materiale scrive. Se `grafica/luce` disegna le ombre portate con un materiale proprio (`uOmbraMappa`), quel materiale deve avere lo skinning per le `SkinnedMesh` (o le ombre dei personaggi restano alla posa di riposo).
+Oggi compila con tutti e due. La post-produzione di `grafica/post` legge solo colore e profondità, che il materiale scrive. Le ombre portate di `grafica/luce` (`src/render/ombre.ts`, ora nel ramo) si disegnano con `scene.overrideMaterial`: three compila quel materiale con lo skinning per ogni `SkinnedMesh`, quindi le ombre dei personaggi seguono la posa; il materiale dei personaggi le riceve da `shadeLit` come il mondo.
+
+Dalla revisione finale il frammento ha anche: le **varianti per regione** dei generici (`uTavolozza`, gli 8 toni della texture scritti dalla pipeline, e `uSposta`, di quanto girare tinta, saturazione e luce per ognuno: `spostamentiVariante(seme, tavolozza)`, tutta la figura più un poco per stoffa, i toni della stessa stoffa insieme), la **sagoma più scura** da lontano (`uSagoma`, LOD1), di notte i colori **smorzati verso il cielo** (niente vesti che brillano) e il controluce solo vicino alle lampade. La faccia «di dietro» si decide con la normale geometrica (`dFdx`/`dFdy`), non con `gl_FrontFacing`: le facce con l'avvolgimento al contrario dei modelli generati non diventano macchie scure.
 
 Senza gli uniform del motore (pagina di prova, Node) si usa il toon di ripiego; quando arrivano gli uniform (`collegaMotorePersonaggi`), i personaggi già creati cambiano materiale.
 
@@ -108,13 +110,13 @@ Senza gli uniform del motore (pagina di prova, Node) si usa il toon di ripiego; 
 
 | distanza dalla camera | modello | animazione |
 |---|---|---|
-| fino a 25 m | LOD0 (8000 triangoli) | ogni fotogramma |
+| fino a 25 m (con il campo visivo di 70°) | LOD0 (8000 triangoli) | ogni fotogramma |
 | 25-60 m | LOD1 (2000 triangoli) | 30 Hz |
 | 60-120 m | LOD1 | 15 Hz |
 | 120-230 m | LOD1, senza ombra portata | 6 Hz |
 | oltre 230 m | non si disegna né si anima | — |
 
-Isteresi di 2 m a ogni confine; gli aggiornamenti dei lontani sono sfasati (non tutti nello stesso fotogramma). A 130 m un personaggio è alto 2-3 pixel. Oltre 230 m si è scelto «niente» invece di una figura semplice: la figura procedurale costerebbe come il LOD1, e a quella distanza è sotto i 2 pixel e dentro la foschia. Le distanze si cambiano con `impostaDistanzePersonaggi`. Una copia costa uno scheletro di 17 ossa (più 4 prese), due `SkinnedMesh` (una sola visibile: una chiamata di disegno) e un materiale; nessuna allocazione per fotogramma (vettori e quaternioni di lavoro del modulo, stato riusato, distanza letta da `matrixWorld`). Misura in Node (modello sintetico, macchina carica): 25 personaggi animati tutti a piena frequenza costano 0,21 ms di CPU per fotogramma, circa 8 µs l'uno, senza contare l'aggiornamento delle matrici nel disegno.
+Le distanze valgono per un campo visivo verticale di 70° (`FOV_RIFERIMENTO`): con lo zoom si moltiplicano per tan(fov/2)/tan(35°), così un personaggio ingrandito dal binocolo resta LOD0. Con la qualità «bassa» il gioco le accorcia (`impostaDistanzePersonaggi({ lod1: 15, lontano: 80, sparisce: 160 })`, in `main.ts`). Isteresi di 2 m a ogni confine; gli aggiornamenti dei lontani sono sfasati (non tutti nello stesso fotogramma). A 130 m un personaggio è alto 2-3 pixel. Oltre 230 m si è scelto «niente» invece di una figura semplice: la figura procedurale costerebbe come il LOD1, e a quella distanza è sotto i 2 pixel e dentro la foschia. Le distanze si cambiano con `impostaDistanzePersonaggi`. Una copia costa uno scheletro di 17 ossa (più 4 prese), due `SkinnedMesh` (una sola visibile: una chiamata di disegno) e un materiale; nessuna allocazione per fotogramma (vettori e quaternioni di lavoro del modulo, stato riusato, distanza letta da `matrixWorld`). Misura in Node (modello sintetico, macchina carica): 25 personaggi animati tutti a piena frequenza costano 0,21 ms di CPU per fotogramma, circa 8 µs l'uno, senza contare l'aggiornamento delle matrici nel disegno.
 
 ## Le prove
 
@@ -125,8 +127,8 @@ Isteresi di 2 m a ogni confine; gli aggiornamenti dei lontani sono sfasati (non 
 
 ## Limiti noti e cose da fare
 
-- **Gonne da sedute**: i pesi della gonna (15-55% alle gambe) la fanno restare quasi verticale quando le cosce vanno avanti: da vicino Togna seduta sembra appollaiata. Per Pina, Annunciata e Lisa sedute conviene provare con i loro modelli; se serve, una seduta più alta per chi ha la gonna o un ritocco dei pesi in `processa.py`.
+- ~~Gonne da sedute~~: risolto nella revisione finale con i pesi «da seduti» (`gonne.ts`: da seduti la gonna segue la coscia e lo stinco del suo lato, la geometria si scambia), vedi INTEGRAZIONE.md.
 - I **veli** non ondeggiano (solo l'orlo delle gonne): per farlo servirebbe una maschera del velo nella texture o un attributo dalla pipeline.
-- **Ombre portate** del rifacimento grafico: vedi sopra (skinning nel materiale delle ombre).
-- La camminata è «sul posto» come quella procedurale: lo spostamento lo fa il popolamento (`passo()`), il passo si accorda con `velocita`.
+- ~~Ombre portate del rifacimento grafico~~: seguono la posa (vedi sopra).
+- La camminata: lo spostamento lo fa il popolamento (`passo()`); dalla revisione finale la fase del passo avanza con la **distanza percorsa davvero** dal gruppo (`StatoPersonaggio.avanzamento`), così le suole in appoggio non pattinano (senza spostamento, come nella pagina di prova, si accorda con `velocita`).
 - I modelli degli altri 11 personaggi li produce il lavoro degli asset: per ognuno basta il file in `public/personaggi/` e la voce nell'indice. Le schede in `schede.ts` hanno già altezza, gonna e apertura della Bibbia.

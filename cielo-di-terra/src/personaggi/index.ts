@@ -16,10 +16,14 @@ export {
   type Carattere,
   type GestoPersonaggio,
   type OpzioniAnimatore,
+  type ManiSeduta,
   type PosaBraccia,
   type PosaCorpo,
+  type Seduta,
   type StatoPersonaggio,
 } from './animatore';
+export { CAMPIONI_PROFILO, CORREZIONI, sedutaDaProfilo, type ProfiloSuolo } from './sedute';
+export { geometriaSeduta } from './gonne';
 export {
   GENERICI,
   MODELLI_SENZA_INDICE,
@@ -47,8 +51,8 @@ export {
   type OpzioniPrecarica,
   type PrototipoPersonaggio,
 } from './precarica';
-export { creaPersonaggio, livelloPersonaggio, type StatoPersonaggioGioco } from './fabbrica';
-export { PEZZI_COMUNI, RIEMPIMENTO, creaMaterialeMondo, creaMaterialePersonaggio, creaMaterialeToon } from './materiale';
+export { PRESA_VELO, battutaPersonaggio, creaPersonaggio, livelloPersonaggio, preriscaldaPersonaggi, type StatoPersonaggioGioco } from './fabbrica';
+export { COLORI_TAVOLOZZA, PEZZI_COMUNI, RIEMPIMENTO, creaMaterialeMondo, creaMaterialePersonaggio, creaMaterialeToon, spostamentiVariante } from './materiale';
 export { caricaPersonaggio, scaricaPersonaggio, type ModelloPersonaggio, type OpzioniCaricamento, type StileMateriale } from './carica';
 export { caricaIndice, opzioniDaIndice, urlPersonaggio, type IndicePersonaggi, type VoceIndice, type VoltoPersonaggio } from './indice';
 export { attaccaOggetto, leggiOggetto, type NomeOggetto } from './oggetti';

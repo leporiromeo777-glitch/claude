@@ -25,3 +25,5 @@ Piano per gli altri 11 modelli (PIPELINE.md): 11 coppie di immagini (11) + 10 `s
 **Produzione: 32 crediti** (saldo 63,97 → 31,97, letto con `balance` dopo l'ultima spesa): 1 (immagini di Bortolo, della sessione interrotta) + 11 (immagini degli altri 11) + 9 (tripo per Ottavio) + 10 (sam: 11 lanci, uno fallito e rimborsato) + 1 (secondo sam di Gioanin). A parte il secondo tentativo per Gioanin non è servito rifare niente: tutte le 24 immagini erano usabili e i 12 modelli 3D anche.
 
 **Totale personaggi: 45 crediti su 50** (pilota 13 + produzione 32). Restano 5 crediti sotto il tetto, non spesi.
+
+**Revisione finale (ramo `personaggi/finale`): 0 crediti.** Tutto il lavoro (pipeline rifatta sui 13 GLB grezzi già scaricati, animatore, materiale, oggetti, prove) gira in locale. Tre generici velati nuovi per la folla costerebbero circa 4,5 crediti (3 coppie di immagini e 3 `sam_3_3d`): non fatti, la ripetizione si è risolta con le varianti per regione (INTEGRAZIONE.md, voce 9). Totale personaggi: 45 su 50.

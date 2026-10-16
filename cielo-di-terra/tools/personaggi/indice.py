@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import hashlib
 import struct
 import sys
 
@@ -122,6 +123,10 @@ def main() -> int:
             'curvo': gioco['curvo'],
             'oggetti': gioco['oggetti'],
             'note': gioco['note'],
+            # i toni a campitura della texture (processa.py): le varianti per regione dei generici
+            'tavolozza': rap.get('tavolozza', []),
+            # cambia a ogni esportazione: entra nell'indirizzo del GLB (niente file vecchi nella cache)
+            'versione': hashlib.sha1(open(uscita, 'rb').read()).hexdigest()[:10],
         })
     if totale > LIMITE_TOTALE:
         errori.append(f'totale {totale / 1024 / 1024:.1f} MB oltre 18 MB')

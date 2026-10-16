@@ -9,7 +9,7 @@ Che aspetto deve avere ciascuno e con quali prompt: [BIBBIA.md](BIBBIA.md). Cred
 
 ## La produzione: tutti i 13 modelli della Fase 1
 
-![la scheda del cast: di fronte, di tre quarti e, sotto, gli abitanti a blocchi di oggi con lo stesso aspetto](scheda-cast.png)
+![la scheda del cast: di fronte, di tre quarti e, sotto, gli abitanti a blocchi di oggi con lo stesso aspetto](scheda-cast.jpg)
 
 Fatti tutti e 13 con la pipeline decisa dal pilota: `public/personaggi/<id>.glb` (ottavio, togna, bortolo, pina, annunciata, nando, clelia, lisa, gioanin, velata_donna, velato_gerla, velato_maschera, velato_cappuccio) e l'indice `public/personaggi/indice.json`. Da 359 a 447 KB l'uno, **5,1 MB in tutto** (tetto: 1,5 MB a file, 18 MB in tutto). La scheda la rifà `node tools/personaggi/scheda.mjs`.
 
@@ -28,7 +28,7 @@ Fatti tutti e 13 con la pipeline decisa dal pilota: `public/personaggi/<id>.glb`
 
 **Oggetti di scena** (`src/personaggi/oggetti.ts`, `attaccaOggetto(modello, 'bastone@manoD')`): gerla, bastone, forbici, figura di cartone, pacchetto, pietra, cesto, procedurali e attaccati alle ossa nella posa di riposo; l'indice dice chi porta che cosa. La **gerla** di velato_gerla l'ha buttata `sam_3_3d` (ritaglia la persona, come la pietra di Nando nel pilota): ora è un oggetto di scena sull'osso `petto`, che può anche essere carica.
 
-**Controlli fatti** (pagina di prova, Chromium con SwiftShader, tutti e 13 in fila): di fronte e di tre quarti ([scheda](scheda-cast.png)), camminata ([`produzione/cammina.jpg`](produzione/cammina.jpg)), gesti e curvo ([`produzione/gesti.jpg`](produzione/gesti.jpg)), pose delle braccia ([`produzione/pose.jpg`](produzione/pose.jpg)), luce di sera con il LOD1 forzato ([`produzione/sera-lod1.jpg`](produzione/sera-lod1.jpg)), pesi colorati ([`produzione/pesi.jpg`](produzione/pesi.jpg)), anteprime Cycles con le giunture ([`produzione/rig-blender.jpg`](produzione/rig-blender.jpg)).
+**Controlli fatti** (pagina di prova, Chromium con SwiftShader, tutti e 13 in fila): di fronte e di tre quarti ([scheda](scheda-cast.jpg)), camminata ([`produzione/cammina.jpg`](produzione/cammina.jpg)), gesti e curvo ([`produzione/gesti.jpg`](produzione/gesti.jpg)), pose delle braccia ([`produzione/pose.jpg`](produzione/pose.jpg)), luce di sera con il LOD1 forzato ([`produzione/sera-lod1.jpg`](produzione/sera-lod1.jpg)), pesi colorati ([`produzione/pesi.jpg`](produzione/pesi.jpg)), anteprime Cycles con le giunture ([`produzione/rig-blender.jpg`](produzione/rig-blender.jpg)).
 
 **Difetti noti** (piccoli, alla distanza di gioco non si vedono):
 - velato_cappuccio ha due punte sottili del mantello all'altezza del gomito che restano un poco fuori quando le braccia sono giù;
@@ -127,7 +127,12 @@ Legge i parametri da `tools/personaggi/personaggi.json`:
 | `ruota` | gradi attorno all'alto: **-90 per tripo**, 0 per sam |
 | `proporzioni` | `adulto` (testa 1/7) o `bambino` (testa 1/5: Lisa, Gioanin) |
 | `pesi` | `diretto` (predefinito) o `proxy` |
-| `lod0`, `lod1`, `texture`, `jpeg`, `formato`, `quantizza` | 8000, 2000, 1024, 85, `jpeg`, 1 |
+| `lod0`, `lod1`, `texture`, `jpeg`, `formato`, `quantizza` | 8000, 2000, 1024, 85, `jpeg`, 1 (i quattro velati generici: `texture` 512) |
+| `volto` | `scoperto` per Nando e Ottavio: la campitura lascia il volto dipinto quasi com'è |
+| `campiture` | 1 (predefinito): la texture «a campiture» (passo 8); 0 la lascia com'era |
+| `braccia_morbide` | (velato col cappuccio) la regola di omero e gomito più larga e sfumata: il mantello che avvolge il braccio non fa più la «lama» |
+| `macchie_3d` | (velato col cappuccio) le macchie scure cercate nello spazio, e le facce del guscio esterno con l'interno scoperto dopo la decimazione |
+| `gusci` | (velato col cappuccio) i due gusci del mantello con gli stessi pesi |
 
 I passi:
 1. **import** del GLB, unione delle mesh, trasformazioni applicate, normali personalizzate tolte;
@@ -142,10 +147,20 @@ I passi:
    - **gonne**: fra l'anca e l'orlo le gambe pesano dal 15% (anca) al 55% (orlo), il resto al bacino, destra e sinistra sfumate al centro: la gonna segue il passo senza strapparsi;
    - **testa**: sopra l'attacco della testa tutto alla testa (veli e cappelli rigidi);
    - **piedi**: sotto la caviglia almeno il 60% al piede;
+   - (revisione finale) **pesi plausibili**: un osso di braccio o gamba vale solo dentro il suo tratto (fra le giunture, con un margine) ed entro un raggio dalla sua catena; il resto torna al busto. Toglie le dita «sospese» e i lembi di mantello che seguivano la mano;
+   - (revisione finale) **pesi ammorbiditi** fra vertici vicini (2 passi di media sui vicini, metà e metà): dove due zone pesate su ossa diverse si toccano gli spigoli non si stirano più di colpo;
+   - (revisione finale, con `gusci`) **i due gusci con gli stessi pesi**: i mantelli generati hanno lo spessore (fuori e dentro a 1-2 cm) e il bone heat dava al guscio interno il petto e a quello esterno la schiena, così in posa l'interno usciva da fuori (la macchia scura sulla schiena del velato col cappuccio). Ogni vertice del guscio interno prende i pesi del punto del guscio esterno che ha davanti, entro 3 cm;
    - massimo 4 influenze, normalizzate;
-8. **materiale**: metallic 0, roughness 1, solo la texture del colore, ridotta a 1024; i **texel quasi neri** dell'atlante (sam lascia nero dove l'immagine non arriva: punte delle dita, risvolti, l'interno dei veli; 1-3% della texture) si riempiono con la media dei vicini, a passi (dove il nero è vero, come la veste di Clelia, i vicini sono scuri e non cambia niente);
+8. **materiale**: metallic 0, roughness 1, solo la texture del colore, ridotta a 1024 (512 per i generici); i **texel quasi neri** dell'atlante (sam lascia nero dove l'immagine non arriva: punte delle dita, risvolti, l'interno dei veli; 1-3% della texture) si riempiono con la media dei vicini, a passi (dove il nero è vero, come la veste di Clelia, i vicini sono scuri e non cambia niente). Poi (revisione finale) le **campiture**, verso i bozzetti «a campiture piatte e pittura a mano»:
+   1. ogni texel sa a quale faccia appartiene (le facce disegnate nell'atlante);
+   2. via le **macchie**: texel molto più chiari o più scuri della mediana della loro faccia, in macchie piccole (lo sfondo bianco della sorgente su una giacca, i buchi scuri di un mantello), ridipinti dai vicini; con `macchie_3d` anche le facce intere molto più scure delle vicine entro 7 cm nello spazio;
+   3. i texel fuori dalle isole prendono il colore dell'isola vicina (mai bianco: le cuciture bianche sparite);
+   4. filtro che tiene i bordi (bilaterale) e ombre cotte dimezzate (la luce la fa il gioco); i ciuffi a strisce dei veli (Bortolo, il velato con la gerla: sembravano capelli lunghi) diventano stoffa;
+   5. **8 toni** per personaggio (k-means in Lab): ogni texel va per tre quarti verso il suo tono; i toni sono la **tavolozza** scritta nel rapporto e nell'indice, che il gioco usa per le varianti dei generici;
+   6. una trama a pennello leggera. I volti scoperti (Nando, Ottavio) restano per tre quarti com'erano.
+   Dopo la decimazione, con `macchie_3d`, le facce del guscio esterno che il collasso ha fatto con i vertici e le UV del guscio interno (normale verso il corpo, raggio verso fuori libero) si girano e prendono il colore delle facce esterne vicine;
 9. **esportazione** GLB (armatura + `lod0` + `lod1`, stesso materiale), poi **quantizzazione** con `npx -y @gltf-transform/cli@4.5.1 quantize` (l'esportatore di Blender non quantizza; la compressione meshopt del pacchetto bpy non funziona): da 580 a 390 KB;
-10. rapporto in `tools/personaggi/rapporti/<id>.json` (giunture in assi glTF, triangoli, KB).
+10. rapporto in `tools/personaggi/rapporti/<id>.json` (giunture in assi glTF, triangoli, KB, tavolozza). `python3 -I tools/personaggi/indice.py` riscrive `public/personaggi/indice.json` con, per ognuno, la `tavolozza` e la `versione` (le prime 10 cifre dello SHA-1 del GLB): il gioco chiede `<id>.glb?v=<versione>`, così un modello rifatto non resta nella cache del browser.
 
 Con `--anteprima file.png` fa una striscia Cycles (CPU, senza GPU): riposo di fronte con le giunture in rosso, di fianco, una posa di camminata e un saluto ([`pilota/rig-blender.jpg`](pilota/rig-blender.jpg); per tutti i 13: [`produzione/rig-blender.jpg`](produzione/rig-blender.jpg)). Strumenti di servizio: `ispeziona.py` (triangoli, isole, bordi aperti, materiali, ingombro), `anteprima.py` (striscia del GLB grezzo), `peso-glb.mjs` (quanto pesa ogni parte), `mosaico.py` (mette insieme le schermate).
 
@@ -167,7 +182,7 @@ Con `--anteprima file.png` fa una striscia Cycles (CPU, senza GPU): riposo di fr
 npx vite                                  # dalla cartella cielo-di-terra
 # http://127.0.0.1:5173/tools/personaggi/prova.html?m=vecchio,togna,nando&modo=cammina
 node tools/personaggi/fotografa.mjs --out=/tmp/schermate [--m=...] [--solo=viste,cammina,gesti,primo,sfondo] [--lod=1] [--luce=sera] [--indice=1 --passo=0.9 --nomi=1]
-node tools/personaggi/scheda.mjs          # docs/personaggi/scheda-cast.png (tutti in fila + gli abitanti di oggi)
+node tools/personaggi/scheda.mjs          # docs/personaggi/scheda-cast.jpg (tutti in fila + gli abitanti di oggi)
 npx tsc -p tools/personaggi               # controllo dei tipi della pagina
 ```
 Luce calda principale e riempimento freddo dal cielo, un controluce tenue; «vecchio:<id>» mette accanto l'abitante procedurale di oggi con l'aspetto di quel personaggio (copia di `ASPETTO` di `abitanti.ts`); con `indice=1` gonna, apertura, postura e oggetti di scena vengono dall'indice. `fotografa.mjs` avvia Vite e Chromium headless (SwiftShader, come `scripts/shots.mjs`) e fa viste, camminata, gesti, pose, primi piani.

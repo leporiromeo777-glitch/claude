@@ -30,6 +30,10 @@ export interface SchedaModello {
   readonly curvo?: number;
   /** oggetti di scena dell'indice, «nome@osso» (oggetti.ts); le voci senza @ sono note */
   readonly oggetti?: readonly string[];
+  /** pose delle braccia che il modello non regge (mantelli che avvolgono le braccia): si usano le mani giunte */
+  readonly bracciaVietate?: readonly PosaBraccia[];
+  /** i colori a campitura della texture (sRGB 0..1), per le varianti per regione dei generici (materiale.ts) */
+  readonly tavolozza?: readonly (readonly number[])[];
 }
 
 /**
@@ -37,7 +41,7 @@ export interface SchedaModello {
  * produzione: altezze, apertura delle braccia, curvo, oggetti). L'indice, se c'è, vince comunque.
  */
 export const SCHEDE: Readonly<Record<string, SchedaModello>> = {
-  ottavio: { id: 'ottavio', altezza: 1.74, gonna: false, apertura: 10, generico: false, curvo: 0 },
+  ottavio: { id: 'ottavio', altezza: 1.74, gonna: false, apertura: 10, generico: false, curvo: 0, oggetti: ['lume@bacino'] },
   togna: { id: 'togna', altezza: 1.62, gonna: true, apertura: 13, generico: false, curvo: 0 },
   bortolo: { id: 'bortolo', altezza: 1.8, gonna: false, apertura: 13, generico: false, curvo: 0 },
   pina: { id: 'pina', altezza: 1.52, gonna: true, apertura: 12, generico: false, curvo: 0.45, oggetti: ['forbici@manoD', 'figura-di-cartone@manoS'] },
@@ -49,7 +53,8 @@ export const SCHEDE: Readonly<Record<string, SchedaModello>> = {
   velata_donna: { id: 'velata_donna', altezza: 1.63, gonna: true, apertura: 12, generico: true, curvo: 0, oggetti: ['cesto@manoS (facoltativo)'] },
   velato_gerla: { id: 'velato_gerla', altezza: 1.75, gonna: false, apertura: 12, generico: true, curvo: 0.1, oggetti: ['gerla@petto'] },
   velato_maschera: { id: 'velato_maschera', altezza: 1.6, gonna: true, apertura: 11, generico: true, curvo: 0.35, oggetti: ['bastone@manoD'] },
-  velato_cappuccio: { id: 'velato_cappuccio', altezza: 1.7, gonna: true, apertura: 12, generico: true, curvo: 0 },
+  // il mantello avvolge le braccia: incrociate o dietro la schiena lo strapperebbero (mani giunte invece)
+  velato_cappuccio: { id: 'velato_cappuccio', altezza: 1.7, gonna: true, apertura: 12, generico: true, curvo: 0, bracciaVietate: ['braccia-conserte', 'mani-dietro'] },
 };
 
 /** I quattro generici, nell'ordine in cui si ripiega quando quello preferito manca. */
@@ -162,6 +167,10 @@ export interface VoceModello {
   oggetti?: string[];
   /** `proporzioni: "bambino"` nell'indice degli asset */
   bambino?: boolean;
+  /** colori a campitura della texture (sRGB 0..1) */
+  tavolozza?: number[][];
+  /** versione del file (cambia a ogni esportazione: entra nell'indirizzo, così il browser non tiene un GLB vecchio) */
+  versione?: string;
 }
 
 /**
@@ -190,6 +199,12 @@ export function leggiIndice(json: unknown): VoceModello[] {
     if (Array.isArray(o['oggetti'])) r.oggetti = o['oggetti'].filter((x): x is string => typeof x === 'string');
     if (o['proporzioni'] === 'bambino') r.bambino = true;
     else if (o['proporzioni'] === 'adulto') r.bambino = false;
+    if (Array.isArray(o['tavolozza'])) {
+      const t = (o['tavolozza'] as unknown[]).filter((c): c is number[] => Array.isArray(c) && c.length >= 3 && c.every((x) => typeof x === 'number'));
+      if (t.length) r.tavolozza = t.map((c) => c.slice(0, 3));
+    }
+    if (typeof o['versione'] === 'string' && /^[a-z0-9]+$/i.test(o['versione'])) r.versione = o['versione'];
+    else if (typeof o['kb'] === 'number') r.versione = String(o['kb']);
     out.push(r);
   };
   const lista = (x: unknown): boolean => {
@@ -217,5 +232,9 @@ export function leggiIndice(json: unknown): VoceModello[] {
   return out.filter((v) => (visti.has(v.id) ? false : (visti.add(v.id), true)));
 }
 
-/** I modelli che il repository contiene già (il pilota), usati se manca l'indice. */
-export const MODELLI_SENZA_INDICE: readonly string[] = ['togna', 'nando'];
+/**
+ * I modelli da chiedere se l'indice non arriva (404, errore momentaneo, una risposta HTML): tutti e tredici
+ * quelli delle schede, che la build contiene comunque. Meglio provarli tutti che lasciare due personaggi
+ * nuovi in mezzo alle figure a blocchi.
+ */
+export const MODELLI_SENZA_INDICE: readonly string[] = Object.keys(SCHEDE);

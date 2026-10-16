@@ -37,7 +37,8 @@ describe('oggetti di scena', () => {
     expect(leggiOggetto('bastone@manoD')).toEqual({ nome: 'bastone', osso: 'manoD' });
     expect(leggiOggetto('cesto@manoS (facoltativo)')).toEqual({ nome: 'cesto', osso: 'manoS' });
     expect(leggiOggetto('velo-da-planata (oggetto a parte)')).toBeNull();
-    expect(leggiOggetto('lume@bacino')).toBeNull();
+    expect(leggiOggetto('lume@bacino')).toEqual({ nome: 'lume', osso: 'bacino' }); // il lume di Ottavio
+    expect(leggiOggetto('ombrello@manoS')).toBeNull();
     expect(leggiOggetto('bastone@gomito')).toBeNull();
   });
 
@@ -67,7 +68,10 @@ describe('oggetti di scena', () => {
     const g = attaccaOggetto(m, 'gerla@petto') as THREE.Object3D;
     m.gruppo.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(g);
-    expect(box.max.z).toBeLessThan(0.05); // il corpo guarda +Z: la gerla è dietro
+    // il corpo guarda +Z: la cesta è dietro la schiena (retroBusto), solo gli spallacci vengono avanti
+    // sulle spalle, senza passare il davanti del petto
+    expect((box.max.z + box.min.z) / 2).toBeLessThan(m.animatore.retroBusto);
+    expect(box.max.z).toBeLessThan(m.animatore.fronteBusto);
     expect(Math.abs((box.max.x + box.min.x) / 2)).toBeLessThan(0.02); // centrata sulla schiena
     expect(box.min.y).toBeGreaterThan(0.6);
     expect(box.max.y).toBeGreaterThan(1.25); // la bocca arriva alle spalle
