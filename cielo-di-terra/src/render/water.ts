@@ -309,8 +309,10 @@ export function aggiungiAcquaLavatoio(game: { uniforms: WorldUniforms; scene: { 
   const avanti = chiodo.clone().sub(puntoVasca);
   const su = upAt((Math.atan2(-puntoVasca.x, -puntoVasca.y) * 180) / Math.PI);
   avanti.addScaledVector(su, -avanti.dot(su)).normalize();
-  // il pelo dell'acqua: 4 cm sotto il punto (bordo della vasca a 0.9 m, acqua a 0.86 m)
-  const centro = puntoVasca.clone().addScaledVector(avanti, -1.5).addScaledVector(su, -0.035);
+  // il pelo dell'acqua: nel modello del paese (`creaLavatoio`) la vasca di granito è un blocco pieno
+  // alto 0.975 m con l'acqua dipinta dentro, che non si vede; l'acqua sta 1.5 cm sopra il bordo
+  // (il punto è a 0.9 m), la vasca piena fino all'orlo, con 25 cm di pietra tutt'attorno
+  const centro = puntoVasca.clone().addScaledVector(avanti, -1.5).addScaledVector(su, 0.09);
   const m = creaAcquaLavatoio(game.uniforms, centro, avanti);
   game.scene.add(m);
   return m;

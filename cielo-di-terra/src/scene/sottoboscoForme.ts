@@ -195,7 +195,7 @@ export function geoSasso(seme: number): BufferGeometry {
     let gg = tono * (1.0 + h * 0.06);
     let b = tono * (0.94 + h * 0.06);
     // muschio sulle facce in su, licheni chiari qua e là
-    const m = Math.min(1, Math.max(0, (ny - 0.55) / 0.4)) * (0.25 + 0.35 * rnd());
+    const m = Math.min(1, Math.max(0, (ny - 0.7) / 0.3)) * (0.15 + 0.3 * rnd());
     r += (0.36 - r) * m;
     gg += (0.44 - gg) * m;
     b += (0.2 - b) * m;
@@ -207,6 +207,7 @@ export function geoSasso(seme: number): BufferGeometry {
     col.set([r, gg, b, 0], i * 4);
   }
   g.setAttribute('aColor', new BufferAttribute(col, 4));
+  // (normali morbide: un sasso tondeggiante consumato; il colore per vertice fa licheni e muschio)
   return g.toNonIndexed();
 }
 
@@ -252,7 +253,7 @@ export function geoFoglieTerra(seme: number, n = 12): BufferGeometry {
 export function geoRicci(seme: number): BufferGeometry {
   const t = new Tri();
   const rnd = mulberry32(seme);
-  const ico = new IcosahedronGeometry(1, 1).toNonIndexed();
+  const ico = new IcosahedronGeometry(1, 1); // (già senza indici)
   const ip = ico.getAttribute('position');
   const dir = new Vector3();
   const ricci = 6;

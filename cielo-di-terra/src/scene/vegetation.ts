@@ -2,10 +2,11 @@
  * Alberi del cilindro (traccia «natura»): castagni delle selve, betulle ai margini, larici in alto,
  * noci nei prati, cipressi vicino alla chiesa. Boschi fitti sui versanti, alberi sparsi nei prati.
  *
- * Livelli di dettaglio (distanze per la qualità Alta, scalate da `impostaDensita`):
- * - LOD 0 (0-40 m): chioma a masse con la sagoma a smerli e i ciuffi in rilievo, tronco a radici
- *   di contrafforte con le branche;
- * - LOD 1 (40-130 m), LOD 2 (130-280 m): meno masse, tronco semplice;
+ * Livelli di dettaglio (distanze per la qualità Alta, scalate da `impostaQualita`/`impostaDistanze`):
+ * - LOD 0 (0-40 m): carte di foglie rivolte alla camera sopra le masse della chioma (il nucleo in
+ *   ombra; per le latifoglie, `SOLO_CARTE`, le masse fanno solo l'ombra e non si vedono), tronco a
+ *   radici di contrafforte con le branche;
+ * - LOD 1 (40-130 m), LOD 2 (130-280 m): meno masse e carte più grandi, tronco semplice;
  * - oltre 280 m gli alberi dei boschi lasciano il posto alle masse dipinte dei boschi lontani
  *   (`scene/bosco.ts`), quelli sparsi a un LOD 3 statico (una InstancedMesh per specie con tutti gli
  *   alberi sparsi, che compare da sola con la distanza nello shader).
@@ -28,6 +29,7 @@ import type { WorldUniforms } from '../render/uniforms';
 import { N_LOD_ALBERI, SPECIE, geometrieAlbero, triangoli, type Specie } from './alberi';
 import { BoschiLontani, densitaBosco } from './bosco';
 import { Sottobosco } from './sottobosco';
+import { suSentiero, trattiVicini } from './sentieri';
 
 export interface TreeInstance {
   pos: Vector3;
@@ -91,6 +93,9 @@ interface Livello {
   capienza: number;
 }
 
+/** Specie la cui chioma, ai livelli 0 e 1, è fatta di sole carte di foglie (le masse fanno solo ombra). */
+const SOLO_CARTE: readonly Specie[] = ['castagno', 'noce', 'betulla'];
+
 /** Istanze al più per livello e specie (vicino ne bastano poche). */
 const CAPIENZA = [900, 4000, 14000];
 
@@ -122,7 +127,7 @@ export class Vegetation {
       chioma: [0, 1, 2].map((lod) => {
         const m = creaMaterialeNatura(this.u, { tipo: 'chioma' });
         // sotto le carte di foglie le masse sono l'interno in ombra della chioma
-        impostaNucleo(m, lod === 0 ? 0.62 : lod === 1 ? 0.72 : 0.92);
+        impostaNucleo(m, lod === 0 ? 0.66 : lod === 1 ? 0.78 : 0.92);
         return m;
       }),
       tronco: [0, 1, 2].map(() => creaMaterialeNatura(this.u, { tipo: 'tronco' })),
@@ -194,6 +199,8 @@ export class Vegetation {
             }
           }
           if (pr > d) continue;
+          // niente tronchi sui sentieri di campagna (scene/sentieri.ts)
+          if (suSentiero(zz, th, trattiVicini(zz, zz, th * METERS_PER_DEG, th * METERS_PER_DEG, 4)) > 0.3) continue;
           const base = cylToWorld(zz, th, h);
           if (colliders.pointInside(base.clone().addScaledVector(upAt(th), 1.2), 3.0)) continue;
           const specie = frutto ? (rnd() < 0.85 ? 'castagno' : 'noce') : this.scegliSpecie(rnd, masks, h, f);
@@ -263,6 +270,10 @@ export class Vegetation {
         const carte = cg ? this.istanze(cg, this.materiali.carte.get(sp)![lod]!, n, `alberi-${sp}-carte-lod${lod}`, true) : null;
         // (le carte sono degeneri nel passaggio delle ombre: non proiettano, inutile disegnarle)
         if (carte) carte.userData['ombra'] = false;
+        // latifoglie da vicino: la chioma la fanno le sole carte di foglie (con i buchi di cielo dei
+        // bozzetti); le masse sotto, viste, erano macchie scure in controluce. Restano solo come
+        // sagoma che proietta l'ombra (layer delle ombre, non quello della camera)
+        if (carte && lod < 2 && SOLO_CARTE.includes(sp)) chioma.layers.disable(0);
         const tg = geo.tronco[lod];
         const tronco = tg ? this.istanze(tg, this.materiali.tronco[lod]!, n, `alberi-${sp}-tronco-lod${lod}`, false) : null;
         liv.push({ chioma, carte, tronco, capienza: n });

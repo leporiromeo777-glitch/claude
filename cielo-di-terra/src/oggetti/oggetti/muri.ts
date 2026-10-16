@@ -283,7 +283,7 @@ export function creaMuroSecco(opz: OpzioniMuro = {}): OggettoProcedurale {
       const forma = rng.next();
       const alt = forma < 0.3 ? rng.tra(0.09, 0.14) : forma > 0.85 ? rng.tra(0.28, 0.36) : rng.tra(0.16, 0.24);
       const fianco = mescola(tono, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.4);
-      const sopra = mescola(PALETTE.gneiss, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, rng.next() * 0.55);
+      const sopra = mescola(PALETTE.gneiss, rng.prob(0.5) ? PALETTE.gneissScuro : PALETTE.gneissCaldo, 0.3 + rng.next() * 0.5).multiplyScalar(0.8);
       const colore = coloreTesta(sopra, fianco, muschio, rng.prob(0.45) ? rng.tra(0.3, 0.7) : 0, rng.intero(0, 1e6));
       const larg = forma > 0.85 ? lw * 0.42 : lw * 0.62;
       b.aggiungi(sassoTesta(rng.intero(0, 1e6)), {

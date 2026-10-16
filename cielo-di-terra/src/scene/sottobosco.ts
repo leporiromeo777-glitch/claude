@@ -27,7 +27,7 @@ import { WATER_HEIGHT, createMasks, groundHeight, slopeAt, surfaceHeight } from 
 import { terrainColor } from '../render/palette';
 import { creaMaterialeNatura, impostaNucleo, impostaSfuma } from '../render/naturaMateriali';
 import type { WorldUniforms } from '../render/uniforms';
-import { TRACCIATI } from '../popolamento/luoghi/sentieriCorbella';
+import { distanzaTratto, trattiVicini, type Tratto } from './sentieri';
 import { densitaBosco } from './bosco';
 import { geometrieCespuglio } from './alberi';
 import { geoCiuffoErba, geoFelce, geoFiore, geoFoglieTerra, geoRicci, geoSasso } from './sottoboscoForme';
@@ -64,24 +64,6 @@ interface Campione {
   riva: number;
 }
 
-/** Tracciati dei sentieri di Corbella in (z, arco) per escludere l'erba dal nastro. */
-const SENTIERI: Array<[number, number, number, number]> = [];
-for (const t of Object.values(TRACCIATI)) {
-  for (let i = 0; i < t.length - 1; i++) {
-    const a = t[i]!;
-    const b = t[i + 1]!;
-    SENTIERI.push([a.z, a.theta * METERS_PER_DEG, b.z, b.theta * METERS_PER_DEG]);
-  }
-}
-
-function distSegmento(z: number, s: number, seg: [number, number, number, number]): number {
-  const [z0, s0, z1, s1] = seg;
-  const dz = z1 - z0;
-  const ds = s1 - s0;
-  const l2 = dz * dz + ds * ds || 1;
-  const t = clamp(((z - z0) * dz + (s - s0) * ds) / l2, 0, 1);
-  return Math.hypot(z - (z0 + dz * t), s - (s0 + ds * t));
-}
 
 const VILLAGE = LAYOUT.villages[0]!;
 const NOISE = new Simplex3(8080);
@@ -108,6 +90,8 @@ export class Sottobosco {
   /** castagni per cella (basi in z, arco), per foglie e ricci */
   private castagni = new Map<number, Array<[number, number]>>();
   private ultimaCam = new Vector3(1e9, 0, 0);
+  /** celle lontane dalla camera (l'erba vi si dirada) */
+  private readonly lontane = new Map<number, boolean>();
   /** istanze disegnate per tipo (statistiche) */
   readonly conteggi: Record<Tipo, number> = { erba: 0, fiori: 0, felci: 0, sassi: 0, foglie: 0, ricci: 0, cespugliChioma: 0, cespugliCarte: 0 };
 
@@ -133,7 +117,7 @@ export class Sottobosco {
       erba: creaMaterialeNatura(u, { tipo: 'erba', flessione: 1 }),
       fiori: creaMaterialeNatura(u, { tipo: 'erba', flessione: 0.8 }),
       felci: creaMaterialeNatura(u, { tipo: 'erba', flessione: 0.35 }),
-      sassi: creaMaterialeNatura(u, { tipo: 'sottobosco', superficie: 11 }),
+      sassi: creaMaterialeNatura(u, { tipo: 'sottobosco', superficie: 0 }),
       foglie: creaMaterialeNatura(u, { tipo: 'sottobosco', superficie: 0 }),
       ricci: creaMaterialeNatura(u, { tipo: 'sottobosco', superficie: 0 }),
       cespugliChioma: creaMaterialeNatura(u, { tipo: 'chioma', flessione: 2.5 }),
@@ -229,7 +213,16 @@ export class Sottobosco {
       this.celle.set(k, this.genera(iz, ia));
     }
     const pronte = voglio.filter(([k]) => this.celle.has(k)).map(([k]) => k);
-    const ch = pronte.join(',');
+    // vicine e lontane cambiano anche senza cambiare celle: la chiave porta la cella della camera
+    const ch = `${iz0}:${ia0}|${pronte.join(',')}`;
+    this.lontane.clear();
+    for (const [k, iz, ia] of voglio) {
+      const dz = (iz + 0.5) * CELLA - c.z;
+      let da = (ia + 0.5) * CELLA - arc;
+      const giro = NA * CELLA;
+      da -= Math.round(da / giro) * giro;
+      this.lontane.set(k, Math.hypot(dz, da) > 18);
+    }
     if (ch !== this.chiaveAttive) {
       this.chiaveAttive = mancano ? '' : ch;
       this.attive = pronte;
@@ -260,6 +253,15 @@ export class Sottobosco {
       for (const k of this.attive) {
         const b = this.celle.get(k)?.blocchi[tipo];
         if (!b || !b.n) continue;
+        // l'erba è fitta vicino e si dirada lontano (metà dei ciuffi oltre ~18 m)
+        if (tipo === 'erba' && (this.lontane.get(k) ?? false)) {
+          for (let i = 0; i < b.n && n < cap; i += 2) {
+            M.set(b.m.subarray(i * 16, i * 16 + 16), n * 16);
+            T.set(b.t.subarray(i * 4, i * 4 + 4), n * 4);
+            n++;
+          }
+          continue;
+        }
         const q = Math.min(b.n, cap - n);
         if (q <= 0) break;
         M.set(b.m.subarray(0, q * 16), n * 16);
@@ -317,7 +319,7 @@ export class Sottobosco {
     const zc = z0 + CELLA / 2;
     const thc = (a0 + CELLA / 2) / METERS_PER_DEG;
     const vicini: Collider[] = this.colliders.query(zc, thc, CELLA).slice();
-    const sentieri = SENTIERI.filter((s) => distSegmento(zc, a0 + CELLA / 2, s) < CELLA + 3);
+    const sentieri: Tratto[] = trattiVicini(z0, z0 + CELLA, a0, a0 + CELLA, 3);
     const castagni: Array<[number, number]> = [];
     for (let dz = -1; dz <= 1; dz++) for (let da = -1; da <= 1; da++) castagni.push(...(this.castagni.get(chiave(iz + dz, ((ia + da) % NA + NA) % NA)) ?? []));
     const blocchi = {} as Record<Tipo, Blocco>;
@@ -328,7 +330,7 @@ export class Sottobosco {
     const occupato = (z: number, th: number, h: number, margine: number): boolean => {
       // sentieri (nastro largo ~2 m)
       const s = th * METERS_PER_DEG;
-      for (const seg of sentieri) if (distSegmento(z, s, seg) < 1.35 + margine) return true;
+      for (const seg of sentieri) if (distanzaTratto(z, s, seg) < seg.larghezza / 2 + 0.35 + margine) return true;
       if (!vicini.length) return false;
       cylPunto(z, th, h + 0.12, _p);
       for (const col of vicini) {
@@ -351,7 +353,7 @@ export class Sottobosco {
     };
 
     // --- erba: ciuffi fitti, più alti nei prati incolti, rasi in paese, radi nel bosco fitto
-    const nErba = Math.round(CELLA * CELLA * 2.3 * k);
+    const nErba = Math.round(CELLA * CELLA * 3.3 * k);
     for (let i = 0; i < nErba; i++) {
       const u = rnd();
       const v = rnd();
@@ -436,8 +438,8 @@ export class Sottobosco {
       const h = groundHeight(z, th);
       if (occupato(z, th, h, 0.4)) continue;
       // grandi solo dove non si cammina (pendii ripidi, roccia)
-      const grande = Math.max(c.roccia, smoothstep(0.55, 0.85, c.slope));
-      const s = (0.16 + rnd() * 0.22) * (1 + grande * 2.2);
+      const grande = Math.max(c.roccia, smoothstep(0.55, 0.85, c.slope)) * (1 - smoothstep(0.05, 0.3, c.riva));
+      const s = (0.16 + rnd() * 0.22) * (1 + grande * 2.2) * (1 - c.riva * 0.4);
       const tv = 0.95 + rnd() * 0.15;
       metti('sassi', z, th, h, rnd() * 360, s * (0.8 + rnd() * 0.5), s * (0.7 + rnd() * 0.4), s, tv, tv, tv, rnd());
     }

@@ -282,16 +282,18 @@ void main() {
     // ogni chioma è una cupola: la normale gira attorno al centro della cella, più in su
     vec3 nb = normalize(s.N * 0.6 - rel * 1.4 + up * 0.5);
     s.N = normalize(mix(s.N, nb, 0.8 * vis));
-    float gap = (1.0 - smoothstep(0.03, 0.22, vo.x)) * vis * 0.8;
-    // ogni albero col suo colore d'ottobre: verde, oro, ruggine
-    float t = vo.z;
+    float gap = (1.0 - smoothstep(0.0, 0.36, vo.x)) * vis * 0.7;
+    // il colore d'ottobre va a macchie (gruppi della stessa specie: verde, oro, ruggine) e ogni
+    // chioma ci aggiunge un poco del suo; da lontano le chiome si fondono in campiture
+    float macchia = vnoise3(P * 0.012 + 4.0) * 0.65 + vnoise3(P * 0.045) * 0.35;
+    float t = mix(macchia, vo.z, 0.35 * vis + 0.1);
     vec3 c = s.albedo;
-    c = mix(c, c * vec3(1.32, 1.08, 0.62), smoothstep(0.62, 0.8, t) * 0.75);
-    c = mix(c, c * vec3(1.22, 0.78, 0.5), smoothstep(0.86, 0.96, t) * 0.8);
-    c = mix(c, c * vec3(0.82, 0.95, 0.9), smoothstep(0.3, 0.1, t) * 0.5);
-    c *= 1.0 - gap * 0.38;
+    c = mix(c, c * vec3(1.3, 1.08, 0.64), smoothstep(0.55, 0.72, t) * 0.7);
+    c = mix(c, c * vec3(1.2, 0.8, 0.52), smoothstep(0.74, 0.88, t) * 0.7);
+    c = mix(c, c * vec3(0.84, 0.95, 0.9), smoothstep(0.38, 0.2, t) * 0.45);
+    c *= 1.0 - gap * 0.24;
     s.albedo = c;
-    s.ao *= 1.0 - gap * 0.5;
+    s.ao *= 1.0 - gap * 0.4;
     s.trasm = 0.6;
     s.bordo = 0.5;
     s.bande = 0.5;

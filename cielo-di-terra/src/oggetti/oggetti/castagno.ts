@@ -13,6 +13,9 @@ import { PALETTE } from '../palette';
 import { hashPosizione, Rng, semeNumerico, type Seme } from '../rng';
 import type { Collider, OggettoProcedurale } from '../tipi';
 
+/** Il nucleo in ombra della chioma vista da vicino (sotto i ciuffi di foglie). */
+const OLIVA = new THREE.Color(0.26, 0.33, 0.12);
+
 export type Stagione = 'estate' | 'autunno' | 'fioritura';
 
 export interface OpzioniCastagno {
@@ -163,14 +166,18 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       if (t < 0.5) out.copy(cScuro).lerp(cMedio, t / 0.5);
       else out.copy(cMedio).lerp(cChiaro, (t - 0.5) / 0.5);
       // (da vicino le masse sono l'interno della chioma, sotto i ciuffi di foglie: più scure)
-      out.multiplyScalar((0.72 + 0.28 * esterno) * (det === 'alto' ? 0.66 : 1));
+      out.multiplyScalar((0.72 + 0.28 * esterno) * (det === 'alto' ? 0.7 : 1));
       if (mixVerde > 0) out.lerp(new THREE.Color(verdi[t < 0.5 ? 0 : 1]), mixVerde);
       out.r *= 1 + tintaMassa;
       out.b *= 1 - tintaMassa;
+      // da vicino il nucleo sotto i ciuffi è verde oliva in ombra: col verde che prevale la superficie
+      // AUTO lo dipinge a ciuffi di fogliame (bruno-arancio diventerebbe corteccia liscia)
+      if (det === 'alto') out.lerp(OLIVA, 0.8);
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
-    const dettaglioMassa = det === 'alto' ? 2 : 1;
-    const g = geoMassa(r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
+    const dettaglioMassa = 1;
+    // (da vicino le masse sono il nucleo sotto i ciuffi di foglie: più piccole, i ciuffi fanno la sagoma)
+    const g = geoMassa(det === 'alto' ? r * 0.78 : r, seme + i * 31, 0.16, dettaglioMassa, 0.84, 0.7);
     b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn });
   }
 
@@ -187,14 +194,14 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     const cBase = new THREE.Color();
     const nC = new THREE.Vector3();
     const v = new THREE.Vector3();
-    const ciuffi = Math.round(340 * Math.min(1.15, larg / 11));
+    const ciuffi = Math.round(400 * Math.min(1.15, larg / 11));
     let fatti = 0;
     for (let tent = 0; tent < ciuffi * 20 && fatti < ciuffi; tent++) {
       const m = centri[rng.intero(0, centri.length - 2)] as { c: THREE.Vector3; r: number };
       const dir = new THREE.Vector3(rng.centrato(1), rng.tra(-0.55, 1), rng.centrato(1));
       if (dir.lengthSq() < 0.05) continue;
       dir.normalize();
-      const p = m.c.clone().addScaledVector(dir, m.r * rng.tra(0.92, 1.04));
+      const p = m.c.clone().addScaledVector(dir, m.r * rng.tra(0.86, 1.02));
       // solo sul contorno della chioma: niente ciuffi sepolti nelle altre masse
       if (centri.some((o) => o !== m && o.c.distanceTo(p) < o.r * 0.9)) continue;
       fatti++;
@@ -206,11 +213,11 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       if (t1.lengthSq() < 1e-3) t1.set(1, 0, 0);
       t1.normalize();
       const t2 = new THREE.Vector3().crossVectors(dir, t1).normalize();
-      const nFoglie = 4;
+      const nFoglie = 5;
       const fase = rng.next() * Math.PI * 2;
       for (let f = 0; f < nFoglie; f++) {
         const a = fase + (f / nFoglie) * Math.PI * 2 + rng.centrato(0.4);
-        const df = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a)).addScaledVector(dir, rng.tra(0.1, 0.5)).normalize();
+        const df = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a)).addScaledVector(dir, rng.tra(0.45, 0.95)).normalize();
         // le foglie pendono un poco
         df.y -= 0.25;
         df.normalize();

@@ -20,7 +20,7 @@
 export const NATURA_UNIFORMS_GLSL = /* glsl */ `
 uniform vec4 uVento;   // x = forza (0..1.5), y = raffiche (0..1), z/w = direzione (est, nord)
 uniform vec4 uSfuma;   // x..y = comparsa con la distanza (m), z..w = scomparsa (m); y <= 0 niente comparsa, w <= 0 niente scomparsa
-uniform vec4 uFoglia;  // carte di foglie: x = forma (0 lanceolata, 1 tonda, 2 aghi, 3 squame)
+uniform vec4 uFoglia;  // x = forma delle foglie delle carte (0 lanceolata, 1 tonda, 2 aghi, 3 squame), y = nucleo (scurisce le masse sotto le carte, 0 = no), z = 1 erba a prato (colore dal terreno)
 `;
 
 export const VENTO_GLSL = /* glsl */ `
@@ -138,24 +138,44 @@ float ciuffoFoglie(vec2 uv, float seme, float forma, float px, out float id, out
   }
   float dentro = 0.0;
   if (forma < 0.5) {
-    // castagno: 9 foglie lunghe che si aprono a ventaglio dal rametto, più il nodo al centro
-    for (int i = 0; i < 9; i++) {
-      float fi = float(i);
-      float a = seme * 6.2832 + fi * 0.6981 + (hash12(vec2(seme * 91.0, fi)) - 0.5) * 0.6;
-      vec2 d = vec2(cos(a), sin(a));
-      // le foglie verso l'alto sono più corte (il ciuffo pende)
-      float len = (0.64 + 0.34 * hash12(vec2(fi, seme * 53.0))) * (0.8 + 0.2 * (0.5 - 0.5 * d.y));
-      vec3 f = fogliaLanceolata(uv + d * 0.1, d, len, 0.22 * len, 0.2);
-      if (f.x > 0.5 && f.y > dentro) {
-        dentro = max(f.y, 0.01);
-        id = fract(seme * 13.0 + fi * 0.137);
-        dir = d;
-        trasv = f.z;
-      }
+    // castagno: una carta su tre è una macchia fitta di foglie (riempie l'interno della chioma),
+    // le altre due rametti con le foglie alterne, lunghe, strette e seghettate, che pendono un
+    // poco (la gravità sullo schermo: in giù)
+    if (seme < 0.34) {
+      // macchia irregolare (tre gobbe) col bordo fatto di tante punte di foglia; dentro, le foglie
+      // a scaglie (settori e anelli) prendono ognuna il suo tono
+      float lob = 0.56 + 0.12 * sin(ang * 3.0 + seme * 41.0) + 0.06 * sin(ang * 5.0 + seme * 9.0);
+      lob += 0.12 * pow(abs(sin(ang * 13.0 + seme * 17.0)), 5.0);
+      dentro = step(r, lob);
+      float settore = floor((ang + 3.14159) * 2.2 + r * 3.0);
+      id = fract(seme * 29.0 + settore * 0.173 + floor(r * 4.0) * 0.31);
+      trasv = sin((ang + 3.14159) * 2.2 * 3.14159 + r * 9.0);
+      dir = r > 1e-3 ? uv / r : vec2(0.0, 1.0);
+      return step(0.001, dentro);
     }
-    if (dentro <= 0.0 && r < 0.3) {
-      dentro = 0.01;
-      id = fract(seme * 5.0);
+    for (int ramo = 0; ramo < 2; ramo++) {
+      float fr = float(ramo);
+      float a0 = seme * 6.2832 + fr * 2.6;
+      vec2 d = vec2(cos(a0), sin(a0));
+      vec2 nr = vec2(-d.y, d.x);
+      vec2 base = -d * 0.62 + nr * (fr - 0.5) * 0.3;
+      for (int i = 0; i < 5; i++) {
+        float fi = float(i) + fr * 5.0;
+        float t = 0.1 + float(i) * 0.2;
+        vec2 q0 = base + d * (t * 1.05);
+        float lato = mod(float(i), 2.0) < 0.5 ? 1.0 : -1.0;
+        if (i == 4) lato = 0.0;
+        float ang = (0.62 + 0.3 * hash12(vec2(fi, seme * 7.0))) * lato;
+        vec2 dl = normalize(d * cos(ang) + nr * sin(ang) + vec2(0.0, -0.32));
+        float len = (0.46 + 0.2 * hash12(vec2(seme * 3.0, fi))) * (1.0 - float(i) * 0.05);
+        vec3 f = fogliaLanceolata(uv - q0, dl, len, 0.15 * len, 0.26);
+        if (f.x > 0.5 && f.y > dentro) {
+          dentro = max(f.y, 0.01);
+          id = fract(seme * 13.0 + fi * 0.137);
+          dir = dl;
+          trasv = f.z;
+        }
+      }
     }
   } else if (forma < 1.5) {
     // betulla, noce: foglioline ovali sparse nel ciuffo

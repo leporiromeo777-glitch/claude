@@ -378,9 +378,9 @@ function masseTonde(rnd: () => number, C: Vector3, S: Vector3, nBasse: number, n
   return out;
 }
 
-/** Riduce le masse (il nucleo scuro sotto le carte di foglie). */
-function rimpicciolisci(masse: Massa[], k: number): Massa[] {
-  return masse.map((M) => ({ ...M, r: M.r.clone().multiplyScalar(k) }));
+/** Riduce le masse (il nucleo scuro sotto le carte di foglie); `det` = suddivisione massima. */
+function rimpicciolisci(masse: Massa[], k: number, det = 9): Massa[] {
+  return masse.map((M) => ({ ...M, r: M.r.clone().multiplyScalar(k), det: Math.min(M.det, det) }));
 }
 
 function castagno(seme: number): GeometrieAlbero {
@@ -410,7 +410,7 @@ function castagno(seme: number): GeometrieAlbero {
     else if (lod === 1) masse = masseTonde(rnd, C, S, 5, 2, [1, 1, 0]);
     else if (lod === 2) masse = masseTonde(rnd, C, S, 3, 1, [0, 0, -1], 1.18);
     else masse = [{ c: C.clone().add(new Vector3(0, -0.3, 0)), r: S.clone().multiplyScalar(0.86), m: 0.5, det: 1 }];
-    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.7 : 0.6) : masse;
+    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
     chioma.push(
       chiomaAMasse({
         masse: nucleo,
@@ -425,9 +425,9 @@ function castagno(seme: number): GeometrieAlbero {
     );
     carte.push(
       lod === 0
-        ? carteChioma({ masse, centro: C, semiassi: S, n: 420, lato: 1.35, seme: seme + 7, fondo: 0.8 })
+        ? carteChioma({ masse, centro: C, semiassi: S, n: 620, lato: 1.05, seme: seme + 7, fondo: 0.8 })
         : lod === 1
-          ? carteChioma({ masse, centro: C, semiassi: S, n: 150, lato: 2.3, seme: seme + 7, fondo: 0.8 })
+          ? carteChioma({ masse, centro: C, semiassi: S, n: 190, lato: 2.1, seme: seme + 7, fondo: 0.8 })
           : lod === 2
             ? carteChioma({ masse, centro: C, semiassi: S, n: 28, lato: 4.4, seme: seme + 7, fondo: 0.8, minimo: 0.7 })
             : carteChioma({ masse: masseTonde(mulberry32(seme), C, S, 3, 1, [0, 0, -1], 1.18), centro: C, semiassi: S, n: 14, lato: 5.6, seme: seme + 7, fondo: 0.8, minimo: 0.72 }),
@@ -466,11 +466,11 @@ function noce(seme: number): GeometrieAlbero {
     else if (lod === 1) masse = masseTonde(rnd, C, S, 4, 2, [1, 1, 0], 1.08);
     else if (lod === 2) masse = masseTonde(rnd, C, S, 3, 1, [0, 0, -1], 1.2);
     else masse = [{ c: C.clone().add(new Vector3(0, -0.3, 0)), r: S.clone().multiplyScalar(0.86), m: 0.5, det: 1 }];
-    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.7 : 0.6) : masse;
+    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
     chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: lod === 0 ? 0.18 : 0.12, sferiche: 0.64, seme: seme + lod * 101, fondo: 0.72, ...(lod === 3 ? { fusto: { raggio: rT * 1.2, altezza: hF + 2 } } : {}) }));
     carte.push(
       lod === 0
-        ? carteChioma({ masse, centro: C, semiassi: S, n: 400, lato: 1.3, seme: seme + 7, fondo: 0.72 })
+        ? carteChioma({ masse, centro: C, semiassi: S, n: 340, lato: 1.35, seme: seme + 7, fondo: 0.72 })
         : lod === 1
           ? carteChioma({ masse, centro: C, semiassi: S, n: 140, lato: 2.3, seme: seme + 7, fondo: 0.72 })
           : lod === 2
@@ -507,7 +507,7 @@ function betulla(seme: number): GeometrieAlbero {
       const r = rr * (0.62 + rnd() * 0.15) * (n === 1 ? 1.5 : 1);
       masse.push({ c: new Vector3(pende.x * (y / H) + Math.cos(a) * rr * 0.35, y, pende.z * (y / H) + Math.sin(a) * rr * 0.35), r: new Vector3(r, r * (n === 1 ? 2.4 : 1.05), r), m: rnd(), det: lod <= 1 ? 1 : 0 });
     }
-    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.7 : 0.6) : masse;
+    const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
     chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: 0.2, sferiche: 0.55, seme: seme + lod * 101, fondo: 0.85, ...(lod === 3 ? { fusto: { raggio: rT * 1.4, altezza: hF * 0.7 } } : {}) }));
     carte.push(
       lod === 0
@@ -664,8 +664,8 @@ export function geometrieCespuglio(seme = 4242): { chioma: BufferGeometry; carte
     masse.push({ c: new Vector3(Math.cos(a) * rr, 0.55 + (k === 3 ? 0.35 : rnd() * 0.15), Math.sin(a) * rr), r: new Vector3(r, r * 0.85, r), m: rnd(), det: 1 });
   }
   cespuglio = {
-    chioma: chiomaAMasse({ masse: rimpicciolisci(masse, 0.72), centro: C, semiassi: S, bozzi: 0.18, sferiche: 0.6, seme, fondo: 0.5 }),
-    carte: carteChioma({ masse, centro: C, semiassi: S, n: 70, lato: 0.62, seme: seme + 7, fondo: 0.5, minimo: 0.5 }),
+    chioma: chiomaAMasse({ masse: rimpicciolisci(masse, 0.6), centro: C, semiassi: S, bozzi: 0.18, sferiche: 0.6, seme, fondo: 0.5 }),
+    carte: carteChioma({ masse, centro: C, semiassi: S, n: 150, lato: 0.5, seme: seme + 7, fondo: 0.5, minimo: 0.45 }),
   };
   return cespuglio;
 }

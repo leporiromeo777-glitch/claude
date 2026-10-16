@@ -164,23 +164,21 @@ const SHOTS = [
     frames: 4,
   },
   {
-    n: 99,
-    file: 'debug-99-solo-carte.png',
-    // prova: le chiome vicine senza le masse (si vedono solo le carte di foglie)
+    n: 30,
+    file: 'natura-30-terrazza-pedrazzini.png',
+    // sulla Terrazza Pedrazzini, fra i castagni da frutto, verso il castagno del cartellino
     setup: (g) => {
-      g.setTime(10.5);
-      g.teleport(1093, 53.2, 0);
-      g.look(2, -14);
-      g.game.vegetation.group.traverse((o) => {
-        if (/chioma-lod[01]$/.test(o.name)) o.material.visible = false;
-      });
+      g.setTime(10.2);
+      g.teleport(939, 22.35, 0);
+      g.lookAt(951, 22.2, g.game.world.groundAt(951, 22.2) + 4);
     },
     frames: 6,
   },
   {
     n: 28,
     file: 'natura-28-lavatoio.png',
-    // il lavatoio coperto della piazza
+    // il lavatoio coperto della piazza (la vasca del popolamento è affondata nel suolo della
+    // piazza: dell'acqua «lago-lavatoio» si vede solo l'estremità, vedi docs/grafica/natura.md)
     setup: (g) => {
       g.setTime(10.5);
       g.teleport(1035.5, 39.9, 0);
@@ -250,8 +248,8 @@ async function main() {
     const file = join(outDir, shot.file);
     const dataUrl = await page.evaluate(() => window.__GAME__.capture());
     writeFileSync(file, Buffer.from(dataUrl.split(',')[1], 'base64'));
-    const st = await page.evaluate(() => ({ s: window.__GAME__.getStats(), p: window.__GAME__.getPlayerState() }));
-    const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s, draw ${st.s.drawCalls}, tri ${st.s.triangles}, alberi ${st.s.treesByLod.join('/')}, camera z ${st.p.camera.z.toFixed(0)} θ ${st.p.camera.theta.toFixed(1)} h ${st.p.camera.h.toFixed(1)}, ${st.p.mode}`;
+    const st = await page.evaluate(() => ({ s: window.__GAME__.getStats(), p: window.__GAME__.getPlayerState(), o: window.__LUCE__?.ombre?.stats ?? null }));
+    const line = `${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s, draw ${st.s.drawCalls}, tri ${st.s.triangles}, alberi ${st.s.treesByLod.join('/')}, camera z ${st.p.camera.z.toFixed(0)} θ ${st.p.camera.theta.toFixed(1)} h ${st.p.camera.h.toFixed(1)}, ${st.p.mode}${st.o ? `, ombre draw ${st.o.calls} tri ${st.o.triangles}` : ""}`;
     console.log(line);
     report.push({ file: shot.file, stats: st.s, player: st.p });
   }
