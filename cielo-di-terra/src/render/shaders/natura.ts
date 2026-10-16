@@ -97,6 +97,8 @@ void chiomaDipinta(inout Sup s, vec3 P, vec3 Nv, vec3 up, float pix, float seme,
   s.trasm = 0.9;
   s.bordo = 0.8 * (1.0 - smoothstep(0.6, 0.95, dot(Nv, up)) * 0.7);
   s.bande = 0.45;
+  // luce avvolgente (shadeSup): l'interno della chioma resta verde medio, non un grumo nero
+  s.avvolge = 1.0;
 }
 `;
 
@@ -235,6 +237,7 @@ void carteDipinte(inout Sup s, vec3 altro, float esterno, float id, vec2 dir, fl
   s.trasm = 1.1;
   s.bordo = 0.7;
   s.bande = 0.5;
+  s.avvolge = 0.8;
 }
 `;
 
@@ -245,13 +248,16 @@ void erbaDipinta(inout Sup s, vec3 P, float pix, float punta) {
   vec3 c = s.albedo;
   float v = vnoise2(cylLocal(P).xy * 0.35);
   c *= 0.92 + 0.16 * v;
-  // punte un filo più calde e chiare (prendono il sole), basi fredde
-  c = mix(c * vec3(0.86, 0.92, 1.0), c * vec3(1.08, 1.04, 0.92), smoothstep(0.2, 0.9, punta));
+  // punte un filo più calde e chiare (prendono il sole); le basi restano paglia e oliva
+  // (rifinitura 2: con le basi fredde e l'occlusione forte, in ombra i ciuffi erano lame blu-nere)
+  c = mix(c * vec3(0.96, 0.96, 0.9), c * vec3(1.08, 1.04, 0.92), smoothstep(0.2, 0.9, punta));
+  c *= max(1.0, 0.25 / max(lumaP(c), 1e-3));
   s.albedo = c;
-  s.ao *= mix(0.62, 1.0, smoothstep(0.0, 0.7, punta));
-  s.trasm = 0.85;
+  s.ao *= mix(0.8, 1.0, smoothstep(0.0, 0.7, punta));
+  s.trasm = 0.55;
   s.bordo = 0.3;
   s.bande = 0.35;
+  s.avvolge = 0.6;
 }
 `;
 
@@ -264,7 +270,7 @@ vec3 dipintoNatura(vec3 col, vec3 P, vec3 N, vec3 V, float dist, float tone, vec
   PaintInfo pi = paintState(P, th, dist);
   vec3 colPieno = max(mix(vec3(lumaP(col)), col, uLuce.w), 0.0);
   // (di notte il non rilevato sta meno dietro l'aria: la carta e il gesso si leggono)
-  hazeK = mix(mix(1.05, 0.67, uNight * (1.0 - smoothstep(400.0, 900.0, dist))), 1.0, pi.paint);
+  hazeK = mix(mix(1.05, 0.95, uNight * (1.0 - smoothstep(400.0, 900.0, dist))), 1.0, pi.paint);
   if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
     vec3 pc = schizzo(col, suv, N, V, P, tone, hgt, dist, pi.blank, 0.0, pi.wet + pi.bleed * 0.6);

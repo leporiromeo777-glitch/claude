@@ -214,11 +214,18 @@ void main() {
   // gruppo alla volta (il bordo è fatto di chiome, non tagliato)
   float distB = distance(cameraPosition, vWorldPos);
   float lonB = smoothstep(220.0, 500.0, distB);
-  vec3 relB;
-  vec3 voB = voronoi3(vWorldPos / 6.5, relB);
-  vec3 relG;
-  vec3 voG = voronoi3(vWorldPos / 26.0 + 3.7, relG);
-  if (vInfo.z < 0.3 + 0.38 * mix(voB.z, voG.z, lonB)) discard;
+  // (rifinitura 2) le due voronoi solo dove servono: quella delle chiome (6,5 m) fino a 500 m, quella
+  // dei gruppi (26 m) solo da lontano e solo sul margine del bosco (copertura sotto 0,68: altrove il
+  // test qui sotto passa comunque). Il valore che manca vale 0,5
+  vec3 relB = vec3(0.0);
+  vec3 voB = vec3(1.0, 0.5, 0.5);
+  if (lonB < 1.0) voB = voronoi3(vWorldPos / 6.5, relB);
+  float idG = 0.5;
+  if (lonB > 0.0 && vInfo.z < 0.68) {
+    vec3 relG;
+    idG = voronoi3(vWorldPos / 26.0 + 3.7, relG).z;
+  }
+  if (vInfo.z < 0.3 + 0.38 * mix(voB.z, idG, lonB)) discard;
 #endif
 #ifdef CARTE
   float idF;
@@ -260,6 +267,9 @@ void main() {
   vec3 camR = vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
   vec3 camU = vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
   carteDipinte(s, vAltro, vInfo.z, idF, dirF, trasvF, camR, camU, smoothstep(30.0, 90.0, pxCarta));
+  // (rifinitura 2) gli aghi del larice lasciano passare meno luce: in controluce, al tramonto, i
+  // larici erano candelotti arancioni accesi
+  if (uFoglia.x > 1.5 && uFoglia.x < 2.5) s.trasm = 0.5;
 #elif defined(TRONCO)
   applicaSuperficie(s, 5.0, fract(vInfo.x * 7.0) * 0.9, P, N, pixW);
   s.bande = 0.55;
@@ -300,8 +310,10 @@ void main() {
     // il colore d'ottobre va a macchie (gruppi della stessa specie: verde, oro, ruggine); da vicino
     // ogni chioma ci aggiunge un poco del suo, da lontano comanda il gruppo
     float macchia = vnoise3(P * 0.012 + 4.0) * 0.65 + vnoise3(P * 0.045) * 0.35;
-    float macchiaG = vnoise3(P * 0.034 + 9.0);
-    float t = mix(mix(macchia, vo.z, 0.35 * vis + 0.1), mix(macchia, mix(macchiaG, voG.z, 0.35), 0.6), lon);
+    // (rifinitura 2: da lontano i gruppi sono macchie di rumore, non celle: le celle di 26 m col filo
+    // scuro fra l'una e l'altra facevano sui versanti un selciato di ciottoli grandi)
+    float macchiaG = vnoise3(P * 0.034 + 9.0) * 0.7 + vnoise3(P * 0.11 + 2.0) * 0.3;
+    float t = mix(mix(macchia, vo.z, 0.35 * vis + 0.1), mix(macchia, macchiaG, 0.6), lon);
     vec3 c = s.albedo;
     c = mix(c, c * vec3(1.3, 1.08, 0.64), smoothstep(0.55, 0.72, t) * 0.7);
     c = mix(c, c * vec3(1.2, 0.8, 0.52), smoothstep(0.74, 0.88, t) * 0.7);
@@ -309,7 +321,7 @@ void main() {
     c *= 1.0 - gap * 0.24;
     // fra un gruppo e l'altro appena più scuro e freddo, con un rumore morbido (niente righe né
     // ciottoli: da lontano il bosco è una massa continua a chiazze)
-    float valle = (1.0 - smoothstep(0.0, 0.45, voG.x)) * smoothstep(0.35, 0.65, vnoise3(P * 0.02 + 3.3)) * lon;
+    float valle = smoothstep(0.42, 0.2, vnoise3(P * 0.03 + 3.3)) * lon;
     c *= mix(1.0, 0.9, valle);
     c = mix(c, c * vec3(0.94, 0.98, 1.04), valle * 0.5);
     // il bordo del bosco (copertura bassa) sfuma verso il colore del sottobosco, invece di staccarsi
@@ -319,6 +331,7 @@ void main() {
     s.trasm = 0.6;
     s.bordo = 0.5;
     s.bande = 0.5;
+    s.avvolge = 0.5;
   }
 #endif
   float tone;

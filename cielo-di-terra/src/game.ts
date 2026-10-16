@@ -37,7 +37,7 @@ import { Linea } from './render/linea';
 import { TerrainSystem } from './render/terrainMesh';
 import { applySky, createWorldUniforms, hazeClearColor, type WorldUniforms } from './render/uniforms';
 import { PostProduzione } from './render/post/pipeline';
-import { MisuraQualita, PRESET_QUALITA, stimaIniziale, type LivelloQualita, type PresetQualita, type SceltaQualita } from './render/post/qualita';
+import { MisuraQualita, PRESET_GRADINI, stimaIniziale, type GradinoQualita, type LivelloQualita, type PresetQualita, type SceltaQualita } from './render/post/qualita';
 import { TempoGpu } from './render/post/tempoGpu';
 import { PROFILI_OMBRE } from './render/ombre';
 import { createLake, createRiale } from './render/water';
@@ -149,7 +149,8 @@ export class Game {
   private playerAccel = new Vector3();
   private lastLit = -1;
   private sceltaQualita: SceltaQualita = 'automatica';
-  private livello: LivelloQualita = 'media';
+  /** gradino in uso (i tre livelli più «Media ridotta» dell'automatica) */
+  private gradino: GradinoQualita = 'media';
   private misura: MisuraQualita | null = null;
   private readonly tempoGpu: TempoGpu;
   private readonly ascoltatoriQualita = new Set<(p: PresetQualita) => void>();
@@ -201,7 +202,9 @@ export class Game {
     this.materials.trunk = createWorldMaterial(u, { kind: 'object', brush: 0.6 });
 
     await progress('terreno');
-    this.terrain = new TerrainSystem(this.materials.terrain);
+    // (i chunk con il vetro delle Finestre usano la variante col discard: gli altri no, così il test
+    // di profondità anticipato resta acceso sul resto del terreno)
+    this.terrain = new TerrainSystem(this.materials.terrain, createWorldMaterial(u, { kind: 'terrain', vetro: true }));
     this.scene.add(this.terrain.group);
 
     await progress('finestre, Linea, Collare');
@@ -253,6 +256,8 @@ export class Game {
     this.applySettings();
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    // un cambio di densità dei pixel senza `resize` (finestra spostata su un altro schermo)
+    this.seguiDensita();
     this.input.attach(this.renderer.domElement);
     // le ombre (traccia «luce», se c'è) prendono la qualità scelta
     this.applicaOmbre(this.presetQualita);
@@ -275,11 +280,29 @@ export class Game {
     this.resize();
   }
 
+  /**
+   * Ascolta il cambio di `devicePixelRatio` (che non sempre manda `resize`): `matchMedia` della
+   * densità corrente, ricreato a ogni cambio.
+   */
+  private seguiDensita(): void {
+    if (this.opts.e2e || typeof window.matchMedia !== 'function') return;
+    const dpr = window.devicePixelRatio || 1;
+    const mq = window.matchMedia(`(resolution: ${dpr}dppx)`);
+    const cambio = (): void => {
+      mq.removeEventListener('change', cambio);
+      this.resize();
+      this.seguiDensita();
+    };
+    mq.addEventListener('change', cambio);
+  }
+
   resize(): void {
     const w = Math.max(1, this.container.clientWidth || window.innerWidth);
     const h = Math.max(1, this.container.clientHeight || window.innerHeight);
     const dpr = this.opts.e2e ? 1 : window.devicePixelRatio || 1;
-    const dprCanvas = Math.min(dpr, 2);
+    // (rifinitura 2) la passata finale non lavora oltre la densità del preset: a Bassa su uno schermo
+    // Retina costava otto volte i pixel del mondo; l'interfaccia HTML resta nitida da sola
+    const dprCanvas = Math.min(dpr, 2, this.presetQualita.maxPixelRatioCanvas);
     if (this.renderer.getPixelRatio() !== dprCanvas) this.renderer.setPixelRatio(dprCanvas);
     this.renderer.setSize(w, h, false);
     this.post.setSize(w, h, dprCanvas, dpr);
@@ -318,12 +341,17 @@ export class Game {
 
   /** Il livello in uso adesso. */
   get livelloQualita(): LivelloQualita {
-    return this.livello;
+    return PRESET_GRADINI[this.gradino].livello;
+  }
+
+  /** Il gradino in uso (come il livello, più «mediaRidotta» dell'automatica). */
+  get gradinoQualita(): GradinoQualita {
+    return this.gradino;
   }
 
   /** Il preset in uso adesso (che cosa è acceso). */
   get presetQualita(): PresetQualita {
-    return PRESET_QUALITA[this.livello];
+    return PRESET_GRADINI[this.gradino];
   }
 
   /**
@@ -337,9 +365,9 @@ export class Game {
     return () => this.ascoltatoriQualita.delete(fn);
   }
 
-  private applicaLivello(l: LivelloQualita): void {
-    this.livello = l;
-    const p = PRESET_QUALITA[l];
+  private applicaLivello(l: GradinoQualita): void {
+    this.gradino = l;
+    const p = PRESET_GRADINI[l];
     this.post.setPreset(p);
     this.resize();
     this.applicaOmbre(p);
@@ -411,14 +439,15 @@ export class Game {
    */
   private misuraQualita(frameDt: number, cpuDisegno: number): void {
     const m = this.misura;
-    if (!m || m.finita) return;
-    let nuovo: LivelloQualita | null;
+    if (!m || m.conclusa) return;
+    let nuovo: GradinoQualita | null;
     if (this.tempoGpu.disponibile) {
       const gpu = this.tempoGpu.raccogli();
-      if (!gpu.length) return;
+      // (la misura iniziale giudica solo col costo; la sorveglianza deve far passare il tempo)
+      if (!gpu.length && !m.finita) return;
       let g = 0;
       for (const x of gpu) g = Math.max(g, x);
-      nuovo = m.campione(frameDt, Math.max(g / 1000, cpuDisegno));
+      nuovo = m.campione(frameDt, gpu.length ? Math.max(g / 1000, cpuDisegno) : undefined);
     } else {
       nuovo = m.campione(frameDt);
     }
@@ -435,11 +464,13 @@ export class Game {
     const livello = stimaIniziale(this.nomeRenderer());
     this.tempoGpu.raccogli();
     this.misura = new MisuraQualita(livello);
-    if (livello !== this.livello) this.applicaLivello(livello);
+    if (livello !== this.gradino) this.applicaLivello(livello);
   }
 
   /** Il ciclo è uscito una prima volta dalla pausa (titolo → gioco). */
   private giocoIniziato = false;
+  /** La misura è già stata riarmata all'aperto e di giorno. */
+  private riarmataAllAperto = false;
 
   /** Restringe o allarga il campo visivo (1 = quello delle impostazioni; 0.25 = cannocchiale x4). */
   setFovScale(k: number): void {
@@ -554,6 +585,16 @@ export class Game {
       this.giocoIniziato = true;
       if (this.misura) this.rimisuraQualita();
     }
+    // (rifinitura 2) la prima misura cade spesso nella Cripta, di notte: niente ombre né vegetazione
+    // in vista, un costo che non somiglia al mondo aperto. Una volta, la prima volta che la camera è
+    // all'aperto e di giorno, la misura riparte (dalla stima, anche verso l'alto)
+    if (this.giocoIniziato && !this.riarmataAllAperto && this.misura && !this.loop.paused && !this.freeCamera && this.sky.night < 0.3) {
+      const c = this.player.cyl;
+      if (c.h > this.world.groundAt(c.z, c.theta) - 1.0 && this.player.heightAboveGround > -0.5) {
+        this.riarmataAllAperto = true;
+        this.rimisuraQualita();
+      }
+    }
     // sguardo dal mouse (o dal trascinamento) e dalle frecce a ogni fotogramma (latenza minima)
     const m = this.input.consumeMouse();
     const kb = this.input.lookKeys(frameDt);
@@ -582,7 +623,7 @@ export class Game {
     // Velo in primo piano e nappina
     this.updateFirstPerson(frameDt);
     // (il tempo GPU comprende anche i sistemi: la passata delle ombre si disegna lì)
-    const misura = !!this.misura && !this.misura.finita;
+    const misura = !!this.misura && this.misura.vuoleCosto;
     if (misura) this.tempoGpu.inizio();
     for (const s of this.sistemi) s.render?.(frameDt);
 
@@ -643,7 +684,7 @@ export class Game {
       `z ${s.z.toFixed(0)}  θ ${s.theta.toFixed(1)}°  h ${s.h.toFixed(1)} m`,
       `g ${s.gravityG.toFixed(2)}  v ${s.speed.toFixed(1)} m/s  ${s.mode}${s.freeCamera ? ' (libera)' : ''}`,
       `ora ${s.hours.toFixed(2)}`,
-      `qualità ${this.livello}${this.sceltaQualita === 'automatica' ? ' (automatica)' : ''}  ${this.post.interna.x}×${this.post.interna.y}`,
+      `qualità ${this.gradino}${this.sceltaQualita === 'automatica' ? ' (automatica)' : ''}  ${this.post.interna.x}×${this.post.interna.y}`,
     ];
   }
 

@@ -101,9 +101,11 @@ export class Input {
 
   private onKeyDown = (e: KeyboardEvent) => {
     if (!this.enabled) return;
-    // la pagina non deve scorrere; ← → restano ai controlli dell'interfaccia (cursori, scelte)
-    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') e.preventDefault();
-    else if ((e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !this.bloccoInterfaccia && !campoDiTesto(e.target)) e.preventDefault();
+    // la pagina non deve scorrere; ma quando l'interfaccia ha la tastiera (menu, dialoghi, schede) o
+    // il fuoco è su un controllo (cursori, caselle, scelte) Spazio e le frecce restano a lei
+    // (rifinitura 2: prima ↑ ↓ e Spazio si annullavano sempre, e ↑ ↓ non muovevano i cursori)
+    const daGioco = !this.bloccoInterfaccia && !campoDiTesto(e.target);
+    if (daGioco && (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown' || e.code === 'ArrowLeft' || e.code === 'ArrowRight')) e.preventDefault();
     if (!this.down.has(e.code)) this.pressed.add(e.code);
     this.down.add(e.code);
   };

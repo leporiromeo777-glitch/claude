@@ -29,8 +29,9 @@ vec3 tocchi(vec2 uv, float scala, float ang, float seed) {
   float wn = vnoise2(r * 1.7) - 0.5;
   r += vec2(wn, -wn * 0.8) * 0.8;
   vec3 vo = voronoi4(r);
-  // il tocco è quasi piatto dentro e sfuma sul bordo, che resta leggibile ma morbido
-  float k = smoothstep(0.0, 0.3, vo.x);
+  // il tocco sfuma dal centro al bordo (rifinitura 2: con il bordo netto, smoothstep(0, 0.3), il
+  // prato da vicino era un mosaico mimetico di tessere)
+  float k = smoothstep(0.0, 0.8, vo.x);
   return vec3(mix(0.5, vo.z, k), mix(0.5, hash12(vec2(vo.z * 97.0, seed)), k), vo.x);
 }
 
@@ -84,13 +85,17 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
     st += (t1.x - 0.5) * v1 * 0.5 * tv;
     tw += (t1.y - 0.5) * v1 * 0.45;
   }
-  // tocchi fini vicino al giocatore (ciuffi d'erba dipinti), solo a qualità piena
+  // tocchi fini vicino al giocatore (ciuffi d'erba dipinti), solo a qualità piena: pennellate
+  // lunghe e strette lungo la pendenza (rifinitura 2: prima erano tessere di 30 cm)
   float v3 = visMotivo(pix, 0.5) * step(0.5, uDettaglio);
   float foglia = 0.0;
   if (v3 > 0.0) {
     vec3 t3 = tocchi(duv, 0.32, ang - 0.7, 11.0);
-    st += (t3.x - 0.5) * v3 * (0.35 + 0.25 * grass) * tv;
-    tw += (t3.y - 0.5) * v3 * 0.3;
+    vec2 dp = vec2(dot(duv, vec2(0.8, 0.6)), dot(duv, vec2(-0.6, 0.8)));
+    // (corte, 20-40 cm e allungate appena: lunghe, di scorcio, sembravano raggi verso l'orizzonte)
+    float pen = vnoise2(dp * vec2(2.4, 4.8) + 11.0) * 0.6 + vnoise2(dp * vec2(3.6, 7.2) + 3.0) * 0.4;
+    st += (pen - 0.5) * v3 * (0.26 + 0.16 * grass) * tv;
+    tw += (vnoise2(dp * vec2(0.9, 2.6) + 21.0) - 0.5) * v3 * 0.3;
     // ottobre: qualche foglia caduta sul prato, a gruppi radi (le foglie vere sotto i castagni le
     // mette il sottobosco della traccia «natura»): tocchi piccoli, non pozze arancioni
     float gruppi = smoothstep(0.55, 0.85, vnoise2(cl.xy / 6.0 + 2.7));
@@ -98,7 +103,8 @@ vec3 pratoDipinto(vec3 a, vec3 cl, vec2 duv, float pix, float flatK, float grass
   }
   // (i bozzetti hanno molta variazione locale: i tocchi si vedono; sul prato di più, il bozzetto 2
   // ha una deviazione di valore tre volte la nostra)
-  a *= 1.0 + st * mix(0.42, 0.58, grass);
+  // (rifinitura 2: un poco meno, 0.3-0.45 invece di 0.42-0.58: i tocchi sfumano)
+  a *= 1.0 + st * mix(0.3, 0.45, grass);
   // tocchi caldi e freddi (come nei bozzetti: giallo-oliva e verde-azzurro accostati)
   a = mix(a, a * vec3(1.08, 1.02, 0.86), clamp(tw * 2.0, 0.0, 1.0) * mix(0.5, 0.62, grass));
   a = mix(a, a * vec3(0.86, 0.97, 1.1), clamp(-tw * 2.0, 0.0, 1.0) * mix(0.45, 0.55, grass));

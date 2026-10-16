@@ -36,7 +36,9 @@ describe('impostazioni: nuovo raggio dipinto e migrazione', () => {
   it('il raggio sempre dipinto è più largo di prima', () => {
     expect(DEFAULT_SETTINGS.nearPaint[0]).toBeGreaterThanOrEqual(200);
     expect(DEFAULT_SETTINGS.nearPaint[1]).toBeGreaterThan(DEFAULT_SETTINGS.nearPaint[0]);
-    expect(SETTINGS_VERSION).toBe(2);
+    expect(SETTINGS_VERSION).toBe(3);
+    // rifinitura 2: dipinto pieno fino a 400 m, sfumato fino a 700
+    expect(DEFAULT_SETTINGS.nearPaint[0]).toBeGreaterThanOrEqual(400);
   });
 
   it('da v1 butta il vecchio nearPaint e tiene il resto', () => {
@@ -46,14 +48,21 @@ describe('impostazioni: nuovo raggio dipinto e migrazione', () => {
     expect(m.nearPaint).toBeUndefined();
   });
 
-  it('in v2 un nearPaint scelto resta, uno rotto si scarta', () => {
-    expect(migraImpostazioni({ versione: 2, nearPaint: [120, 300] }).nearPaint).toEqual([120, 300]);
-    expect(migraImpostazioni({ versione: 2, nearPaint: [300, 100] }).nearPaint).toBeUndefined();
-    expect(migraImpostazioni({ versione: 2, nearPaint: 'x' }).nearPaint).toBeUndefined();
+  it('da v2 butta il nearPaint salvato (il vecchio predefinito [250, 450]) e tiene il resto', () => {
+    const m = migraImpostazioni({ versione: 2, fov: 75, nearPaint: [250, 450], headBob: true });
+    expect(m.fov).toBe(75);
+    expect(m.headBob).toBe(true);
+    expect(m.nearPaint).toBeUndefined();
+  });
+
+  it('in v3 un nearPaint scelto resta, uno rotto si scarta', () => {
+    expect(migraImpostazioni({ versione: 3, nearPaint: [120, 300] }).nearPaint).toEqual([120, 300]);
+    expect(migraImpostazioni({ versione: 3, nearPaint: [300, 100] }).nearPaint).toBeUndefined();
+    expect(migraImpostazioni({ versione: 3, nearPaint: 'x' }).nearPaint).toBeUndefined();
     expect(migraImpostazioni(null)).toEqual({});
   });
 
-  it('loadSettings legge la chiave v1, migra e riscrive in v2', () => {
+  it('loadSettings legge la chiave v1, migra e riscrive nella versione corrente', () => {
     const mem = new MemoriaFinta();
     mem.setItem(LEGACY_SETTINGS_KEYS[1]!, JSON.stringify({ ...DEFAULT_SETTINGS, fov: 77, nearPaint: [70, 150] }));
     g.localStorage = mem;
@@ -61,11 +70,23 @@ describe('impostazioni: nuovo raggio dipinto e migrazione', () => {
     expect(s.fov).toBe(77);
     expect(s.nearPaint).toEqual(DEFAULT_SETTINGS.nearPaint);
     const salvato = JSON.parse(mem.getItem(SETTINGS_KEY)!) as { versione: number; nearPaint: number[] };
-    expect(salvato.versione).toBe(2);
+    expect(salvato.versione).toBe(SETTINGS_VERSION);
     expect(salvato.nearPaint).toEqual(DEFAULT_SETTINGS.nearPaint);
   });
 
-  it('saveSettings + loadSettings: andata e ritorno in v2', () => {
+  it('loadSettings legge la chiave v2 (preferita alla v1), migra e riscrive in v3', () => {
+    const mem = new MemoriaFinta();
+    mem.setItem(LEGACY_SETTINGS_KEYS[1]!, JSON.stringify({ ...DEFAULT_SETTINGS, fov: 60, nearPaint: [70, 150] }));
+    mem.setItem(LEGACY_SETTINGS_KEYS[2]!, JSON.stringify({ versione: 2, ...DEFAULT_SETTINGS, fov: 81, nearPaint: [250, 450] }));
+    g.localStorage = mem;
+    const s = loadSettings();
+    expect(s.fov).toBe(81);
+    expect(s.nearPaint).toEqual(DEFAULT_SETTINGS.nearPaint);
+    const salvato = JSON.parse(mem.getItem(SETTINGS_KEY)!) as { versione: number };
+    expect(salvato.versione).toBe(3);
+  });
+
+  it('saveSettings + loadSettings: andata e ritorno nella versione corrente', () => {
     const mem = new MemoriaFinta();
     g.localStorage = mem;
     saveSettings({ ...DEFAULT_SETTINGS, nearPaint: [6, 14], headBob: true });

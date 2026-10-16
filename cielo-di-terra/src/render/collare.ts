@@ -94,14 +94,20 @@ void main() {
   float ang = atan(q.y, q.x);
   float d = length(q);
   float frangia = vnoise2(vec2(ang * 2.2 + seed * 17.0, seed * 5.0)) * 0.55 + vnoise2(q * 3.1 + seed * 31.0) * 0.45;
-  float bordo = d + (frangia - 0.5) * 0.42;
+  // (rifinitura 2: la frangia solo sul bordo dello sbuffo; dentro è pieno: con la frangia anche al
+  // centro, fra uno sbuffo e l'altro restavano buchi d'azzurro e la nube sembrava un adesivo)
+  float bordo = d + (frangia - 0.5) * 0.42 * smoothstep(0.25, 0.85, d);
   // base piatta: sotto la base della nube lo sbuffo si taglia (si vede di lato)
   float hN = dot(P - Cn, up);
   float base = -Rn * 0.16 - vR * 0.15;
-  float alpha = (1.0 - smoothstep(0.6, 1.0, bordo)) * smoothstep(base - vR * 0.25, base + vR * 0.12, hN);
+  float alpha = (1.0 - smoothstep(0.62, 1.05, bordo)) * smoothstep(base - vR * 0.25, base + vR * 0.12, hN);
   // da vicino si attraversa: lo sbuffo svanisce invece di riempire lo schermo
   float dc = length(cameraPosition - vCenter);
   alpha *= smoothstep(vR * 0.35, vR * 1.4, dc) * vForma.w;
+  // bordo della nube intera morbido (l'ultimo 20% del raggio): non un ritaglio dagli spigoli netti
+  vec3 wq = P - Cn;
+  vec3 wqp = wq - V * dot(wq, V);
+  alpha *= 1.0 - 0.75 * smoothstep(0.8, 1.05, length(wqp) / (Rn * 0.95));
   if (alpha < 0.01) discard;
 
   // --- luce della nube intera: ellissoide schiacciato attorno al centro del cumulo,
@@ -120,15 +126,17 @@ void main() {
   float lit = bandLight(ndl) * reach;
   // la base piatta resta in ombra, la cima è piena di luce
   float hRel = clamp(hv / (Rn * 0.55), -1.0, 1.0);
-  lit *= mix(0.55, 1.0, smoothstep(-0.7, 0.5, hRel));
+  lit *= mix(0.7, 1.0, smoothstep(-0.7, 0.5, hRel));
   float notte = uNight;
   // ombra: azzurro freddo del cielo, con un filo di luce calda riflessa dal suolo sulla pancia
   vec3 ombra = mix(vec3(0.6, 0.65, 0.8), uAmbTop * 0.95, 0.35);
   ombra = mix(ombra, uHazeColor * 0.85, 0.2);
   ombra += vec3(0.08, 0.06, 0.02) * (1.0 - smoothstep(-0.9, 0.0, hRel)) * (1.0 - notte);
-  vec3 luce = mix(uSunColor, vec3(1.0, 0.97, 0.92), 0.35) * (0.86 + 0.28 * uSunIntensity);
-  // volume: il lato in luce più acceso (+20%), la base più scura (-30%) e fredda, verso il blu
-  vec3 col = vTint * mix(ombra * 0.7 * vec3(0.9, 0.95, 1.1), luce * 1.2, lit);
+  // (all'alba e al tramonto il lato verso la Linea prende la luce calda)
+  vec3 luce = mix(uSunColor, vec3(1.0, 0.97, 0.92), mix(0.35, 0.1, uGolden)) * (0.86 + 0.28 * uSunIntensity);
+  // volume: il lato in luce più acceso (+20%), la base appena più scura (-15%) e fredda (rifinitura
+  // 2: con -30% e verso il blu le basi sembravano buchi d'azzurro dentro la nube)
+  vec3 col = vTint * mix(ombra * 0.85 * vec3(0.96, 0.98, 1.04), luce * 1.2, lit);
   col *= mix(1.0, 0.4, notte);
 
   // --- sagoma della nube vista dalla camera: 0 al centro, 1 sul contorno esterno
@@ -149,7 +157,7 @@ void main() {
   col += argento * contro * (esterno * 1.5 + 0.12) * reach * (1.0 - notte);
   // pennellata leggera dentro lo sbuffo, sempre nello stesso verso (pittura, non rumore)
   float pen = vnoise2(vec2(dot(q, vec2(0.9, 0.44)) * 4.0, dot(q, vec2(-0.44, 0.9)) * 1.3) + seed * 9.0);
-  col *= 0.95 + pen * 0.1;
+  col *= 0.97 + pen * 0.06;
   // di notte: sagome blu-viola appena più chiare dell'aria (come nel bozzetto della notte), con la
   // cima che prende la brace della Linea e la pancia un filo dei lumi dei paesi
   vec3 notturna = uHazeColor * mix(0.98, 1.28, lit) + vec3(0.01, 0.012, 0.035) + argento * esterno * 0.035;

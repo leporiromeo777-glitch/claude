@@ -176,12 +176,15 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
       out.b *= 1 - tintaMassa;
       // da vicino il nucleo sotto i ciuffi è verde oliva in ombra: col verde che prevale la superficie
       // AUTO lo dipinge a ciuffi di fogliame (bruno-arancio diventerebbe corteccia liscia)
-      if (det === 'alto') out.lerp(OLIVA, 0.3);
+      // (rifinitura 2: il nucleo è più scuro e più piccolo, sotto il guscio di foglie)
+      if (det === 'alto') out.lerp(OLIVA, 0.45);
       if (stagione === 'fioritura' && n.y > -0.1 && hashPosizione(p.x * 1.7, p.y * 1.7, p.z * 1.7, seme + 5) > 0.72) out.lerp(amenti, 0.75);
     };
     const dettaglioMassa = 1;
     // (da vicino le masse sono il nucleo sotto i ciuffi di foglie: più piccole, i ciuffi fanno la sagoma)
-    const g = geoMassa(det === 'alto' ? r * 0.86 : r, seme + i * 31, det === 'alto' ? 0.28 : 0.16, dettaglioMassa, 0.84, 0.7);
+    // (rifinitura 2: da vicino il nucleo è al 72% del raggio, prima all'86%: era lui la palla di
+    // broccolo; la sagoma e il colore li fa il guscio di foglie qui sotto)
+    const g = geoMassa(det === 'alto' ? r * 0.72 : r, seme + i * 31, det === 'alto' ? 0.28 : 0.16, dettaglioMassa, 0.84, 0.7);
     // fogliame dichiarato (non dedotto dal colore: le masse d'autunno, oro e ruggine, restano foglie)
     b.aggiungi(g, { matrice: mat(c, [0, rng.next() * 6, 0]), colore: fn, superficie: SUP.FOGLIAME });
   }
@@ -194,19 +197,23 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     const pos: number[] = [];
     const nor: number[] = [];
     const col: number[] = [];
-    const tinte = stagione === 'autunno' ? [tavolozza[1], tavolozza[2], verdi[1], tavolozza[0], verdi[2], verdi[1], verdi[0], tavolozza[2]] : [tavolozza[1], tavolozza[2], tavolozza[1], tavolozza[0]];
+    // (rifinitura 2: d'autunno più di metà verde oliva chiaro #8a8f45, un terzo oro #c8a040 e qualche
+    // foglia ruggine: il castagno d'ottobre del bozzetto 2, non un broccolo verde scuro; la ruggine
+    // piena #a0522d, sotto la luce calda e il motivo del fogliame, diventava rosso vivo)
+    const tinte = stagione === 'autunno' ? [0x8a8f45, 0x8a8f45, 0x97994c, 0x7d8a40, 0x8f9a4e, 0xa0a456, 0x8a8f45, 0xc8a040, 0xc8a040, 0xb8963a, 0xd2ab4a, 0x9a6234] : [tavolozza[1], tavolozza[2], tavolozza[1], tavolozza[0]];
     const cc = new THREE.Color();
     const cBase = new THREE.Color();
     const nC = new THREE.Vector3();
     const v = new THREE.Vector3();
-    const ciuffi = Math.round(560 * Math.min(1.15, larg / 11));
+    // (rifinitura 2: un quarto di ciuffi in più e foglie più grandi: il guscio copre il nucleo)
+    const ciuffi = Math.round(700 * Math.min(1.15, larg / 11));
     let fatti = 0;
     for (let tent = 0; tent < ciuffi * 20 && fatti < ciuffi; tent++) {
       const m = centri[rng.intero(0, centri.length - 2)] as { c: THREE.Vector3; r: number };
       const dir = new THREE.Vector3(rng.centrato(1), rng.tra(-0.55, 1), rng.centrato(1));
       if (dir.lengthSq() < 0.05) continue;
       dir.normalize();
-      const p = m.c.clone().addScaledVector(dir, m.r * rng.tra(0.86, 1.02));
+      const p = m.c.clone().addScaledVector(dir, m.r * rng.tra(0.8, 1.0));
       // solo sul contorno della chioma: niente ciuffi sepolti nelle altre masse
       if (centri.some((o) => o !== m && o.c.distanceTo(p) < o.r * 0.9)) continue;
       fatti++;
@@ -228,9 +235,9 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
         // le foglie pendono un poco
         df.y -= rng.tra(0.15, 0.45);
         df.normalize();
-        const len = rng.tra(0.32, 0.48);
-        const lat = new THREE.Vector3().crossVectors(df, dir).normalize().multiplyScalar(len * 0.16);
-        const attacco = p.clone().addScaledVector(t1, rng.centrato(0.22)).addScaledVector(t2, rng.centrato(0.22));
+        const len = rng.tra(0.4, 0.58);
+        const lat = new THREE.Vector3().crossVectors(df, dir).normalize().multiplyScalar(len * 0.2);
+        const attacco = p.clone().addScaledVector(t1, rng.centrato(0.3)).addScaledVector(t2, rng.centrato(0.3));
         const b0 = attacco.clone().addScaledVector(df, 0.02);
         const punta = attacco.clone().addScaledVector(df, len);
         const mezzo = attacco.clone().addScaledVector(df, len * 0.42);
@@ -255,7 +262,9 @@ export function creaCastagno(opz: OpzioniCastagno = {}): OggettoProcedurale {
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    b.aggiungi(g, { colore: 'geometria', canale: 'sottile' });
+    // (fogliame dichiarato: le foglie oro e ruggine non sono «verdi», e senza il tipo non prendevano
+    // la luce avvolgente del fogliame)
+    b.aggiungi(g, { colore: 'geometria', canale: 'sottile', superficie: SUP.FOGLIAME });
   }
 
   // amenti a ciuffi sulla chioma in fioritura

@@ -122,10 +122,14 @@ export const PARAMETRI_PREDEFINITI: ParametriPost = {
   contrasto: 0.22,
   pernoContrasto: 0.42,
   luci: [1.03, 1.0, 0.955],
-  ombre: [0.96, 0.975, 1.05],
+  // (rifinitura 2: di giorno le ombre non virano più al blu: sotto i castagni del bozzetto 2 sono
+  // oliva calde e piene di luce rimbalzata; quelle della notte restano viola)
+  ombre: [1.0, 0.99, 0.97],
   luciNotte: [1.05, 1.0, 0.93],
   ombreNotte: [0.97, 0.97, 1.07],
-  luciOro: [1.08, 1.0, 0.86],
+  // (rifinitura 2: più leggero, da [1.08, 1.0, 0.86]: l'oro lo dà la luce radente, non un filtro
+  // arancione su tutto il quadro)
+  luciOro: [1.04, 1.0, 0.93],
   bloom: 0.5,
   tintaBagliore: [1.0, 0.88, 0.7],
   tintaBaglioreNotte: [1.0, 0.96, 0.9],
@@ -552,10 +556,13 @@ export class PostProduzione {
     u.uGinocchio!.value = P.ginocchio;
     const n = stato.notte;
     // di notte quasi tutto sta sotto il perno: il contrasto a S scurirebbe, quindi cala
-    (u.uGrade!.value as Vector4).set(P.saturazione, P.vibranza, P.contrasto * (1 - 0.7 * n), P.pernoContrasto);
-    const luci = (u.uLuci!.value as Vector3).copy(mix3(P.luci, P.luciNotte, n, _v3));
     // ore dorate: le luci virano al caldo (la notte lo spegne)
     const oro = Math.max(0, Math.min(1, stato.oro ?? 0)) * (1 - n);
+    // (rifinitura 2) nelle ore dorate un poco meno saturazione e niente spinta ai colori spenti: la
+    // luce radente scalda già tutto, e il quadro diventava monocromo arancione (saturazione del terzo
+    // basso 0,8 contro 0,52 del bozzetto 1)
+    (u.uGrade!.value as Vector4).set(P.saturazione * (1 - 0.08 * oro), P.vibranza * (1 - 0.6 * oro), P.contrasto * (1 - 0.7 * n), P.pernoContrasto);
+    const luci = (u.uLuci!.value as Vector3).copy(mix3(P.luci, P.luciNotte, n, _v3));
     luci.multiply(mix3(UNO, P.luciOro, oro, _v3));
     (u.uOmbre!.value as Vector3).copy(mix3(P.ombre, P.ombreNotte, n, _v3));
     u.uNotte!.value = n;

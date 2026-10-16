@@ -421,7 +421,9 @@ function castagno(seme: number): GeometrieAlbero {
         sferiche: lod === 0 ? 0.58 : 0.66,
         seme: seme + lod * 101,
         fondo: 0.8,
-        ...(lod === 3 ? { fusto: { raggio: rT * 1.1, altezza: hF + 2 } } : {}),
+        // (rifinitura 2: tronco lontano più grosso, da 1,1 a 1,7 volte: da 300-600 m deve leggersi
+        // sotto la chioma, che altrimenti galleggia sul prato come un lecca-lecca)
+        ...(lod === 3 ? { fusto: { raggio: rT * 1.7, altezza: hF + 2.4 } } : {}),
       }),
     );
     carte.push(
@@ -436,7 +438,7 @@ function castagno(seme: number): GeometrieAlbero {
     );
     if (lod === 0) tr.push(tronco({ seme, raggio: rT, fusto: hF + 0.6, segmenti: 9, anelli: 6, lobi: 5, pende, rami, segRami: 6, ...bark, altezzaColore: H * 0.6 }));
     else if (lod === 1) tr.push(tronco({ seme, raggio: rT, fusto: hF + 0.6, segmenti: 6, anelli: 3, lobi: 3, pende, rami: rami.slice(0, 2).map((r) => ({ punti: [r.punti[0]!, r.punti[2]!, r.punti[4]!], raggi: [r.raggi[0]!, r.raggi[2]!, r.raggi[4]!] })), segRami: 4, ...bark, altezzaColore: H * 0.6 }));
-    else if (lod === 2) tr.push(tronco({ seme, raggio: rT * 1.1, fusto: hF + 1.5, segmenti: 4, anelli: 2, lobi: 2, pende, rami: [], segRami: 3, ...bark, altezzaColore: H * 0.6 }));
+    else if (lod === 2) tr.push(tronco({ seme, raggio: rT * 1.45, fusto: hF + 1.5, segmenti: 4, anelli: 2, lobi: 2, pende, rami: [], segRami: 3, ...bark, altezzaColore: H * 0.6 }));
     else tr.push(null);
   }
   return { chioma, carte, tronco: tr, forma: FORMA_FOGLIA.lanceolata, altezza: H, raggioTronco: rT, altezzaFusto: hF };
@@ -469,7 +471,7 @@ function noce(seme: number): GeometrieAlbero {
     else if (lod === 2) masse = masseTonde(rnd, C, S, 3, 1, [0, 0, -1], 1.2);
     else masse = [{ c: C.clone().add(new Vector3(0, -0.3, 0)), r: S.clone().multiplyScalar(0.86), m: 0.5, det: 1 }];
     const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
-    chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: lod === 0 ? 0.18 : 0.12, sferiche: 0.64, seme: seme + lod * 101, fondo: 0.72, ...(lod === 3 ? { fusto: { raggio: rT * 1.2, altezza: hF + 2 } } : {}) }));
+    chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: lod === 0 ? 0.18 : 0.12, sferiche: 0.64, seme: seme + lod * 101, fondo: 0.72, ...(lod === 3 ? { fusto: { raggio: rT * 1.8, altezza: hF + 2.4 } } : {}) }));
     carte.push(
       lod === 0
         ? carteChioma({ masse, centro: C, semiassi: S, n: 340, lato: 1.35, seme: seme + 7, fondo: 0.72 })
@@ -480,7 +482,7 @@ function noce(seme: number): GeometrieAlbero {
             : carteChioma({ masse: masseTonde(mulberry32(seme), C, S, 3, 1, [0, 0, -1], 1.2), centro: C, semiassi: S, n: 14, lato: 5.8, seme: seme + 7, fondo: 0.72, minimo: 0.72 }),
     );
     if (lod <= 1) tr.push(tronco({ seme, raggio: rT, fusto: hF + 0.6, segmenti: lod === 0 ? 8 : 5, anelli: lod === 0 ? 5 : 3, lobi: 3, pende, rami: lod === 0 ? rami : [], segRami: 5, ...bark, altezzaColore: H * 0.6 }));
-    else if (lod === 2) tr.push(tronco({ seme, raggio: rT, fusto: hF + 1.5, segmenti: 4, anelli: 2, lobi: 2, pende, rami: [], segRami: 3, ...bark, altezzaColore: H * 0.6 }));
+    else if (lod === 2) tr.push(tronco({ seme, raggio: rT * 1.4, fusto: hF + 1.5, segmenti: 4, anelli: 2, lobi: 2, pende, rami: [], segRami: 3, ...bark, altezzaColore: H * 0.6 }));
     else tr.push(null);
   }
   return { chioma, carte, tronco: tr, forma: FORMA_FOGLIA.tonda, altezza: H, raggioTronco: rT, altezzaFusto: hF };
@@ -510,7 +512,7 @@ function betulla(seme: number): GeometrieAlbero {
       masse.push({ c: new Vector3(pende.x * (y / H) + Math.cos(a) * rr * 0.35, y, pende.z * (y / H) + Math.sin(a) * rr * 0.35), r: new Vector3(r, r * (n === 1 ? 2.4 : 1.05), r), m: rnd(), det: lod <= 1 ? 1 : 0 });
     }
     const nucleo = lod <= 2 ? rimpicciolisci(masse, lod === 2 ? 0.9 : lod === 1 ? 0.64 : 0.44, lod === 0 ? 1 : 0) : masse;
-    chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: 0.2, sferiche: 0.55, seme: seme + lod * 101, fondo: 0.85, ...(lod === 3 ? { fusto: { raggio: rT * 1.4, altezza: hF * 0.7 } } : {}) }));
+    chioma.push(chiomaAMasse({ masse: nucleo, centro: C, semiassi: S, bozzi: 0.2, sferiche: 0.55, seme: seme + lod * 101, fondo: 0.85, ...(lod === 3 ? { fusto: { raggio: rT * 2.0, altezza: hF * 0.85 } } : {}) }));
     carte.push(
       lod === 0
         ? carteChioma({ masse, centro: C, semiassi: S, n: 240, lato: 0.95, seme: seme + 7, fondo: 0.85 })
@@ -610,7 +612,7 @@ function larice(seme: number): GeometrieAlbero {
   for (let lod = 0; lod < N_LOD_ALBERI; lod++) {
     const det = lod === 0 ? 3 : lod === 1 ? 2 : 1;
     // palchi pendenti: quattro livelli di rami che ricadono (gonne), fino in cima
-    chioma.push(chiomaFuso({ seme: seme + lod * 101, det, base, altezza: alt, raggio: S.x * (lod === 0 ? 0.62 : lod === 1 ? 0.72 : lod === 2 ? 0.86 : 1), prof, bozzi: lod <= 1 ? 0.3 : 0.18, palchi: 4, pendenti: true, C, S, ...(lod === 3 ? { fusto: { raggio: rT * 1.3, altezza: base + 1 } } : {}) }));
+    chioma.push(chiomaFuso({ seme: seme + lod * 101, det, base, altezza: alt, raggio: S.x * (lod === 0 ? 0.62 : lod === 1 ? 0.72 : lod === 2 ? 0.86 : 1), prof, bozzi: lod <= 1 ? 0.3 : 0.18, palchi: 4, pendenti: true, C, S, ...(lod === 3 ? { fusto: { raggio: rT * 1.9, altezza: base + 1.2 } } : {}) }));
     const masse = fuso({ det: 0, base, altezza: alt * 1.04, raggio: S.x, prof, palchi: 5, m: mulberry32(seme)() });
     carte.push(
       lod === 0

@@ -113,6 +113,8 @@ export class Sottobosco {
     u: WorldUniforms,
     private readonly colliders: ColliderWorld,
     alberi: ReadonlyArray<{ pos: Vector3; specie?: string }>,
+    /** tronchi del fitto senza collisore (`Vegetation.tronchiLiberi`): l'erba li scansa lo stesso */
+    private readonly tronchiLiberi?: ColliderWorld,
   ) {
     this.group.name = 'sottobosco';
     const cesp = geometrieCespuglio();
@@ -344,6 +346,7 @@ export class Sottobosco {
     const zc = z0 + CELLA / 2;
     const thc = (a0 + CELLA / 2) / METERS_PER_DEG;
     const vicini: Collider[] = this.colliders.query(zc, thc, CELLA).slice();
+    if (this.tronchiLiberi) vicini.push(...this.tronchiLiberi.query(zc, thc, CELLA));
     const sentieri: Tratto[] = trattiVicini(z0, z0 + CELLA, a0, a0 + CELLA, 3);
     const castagni: Array<[number, number]> = [];
     for (let dz = -1; dz <= 1; dz++) for (let da = -1; da <= 1; da++) castagni.push(...(this.castagni.get(chiave(iz + dz, ((ia + da) % NA + NA) % NA)) ?? []));

@@ -29,6 +29,8 @@ const STEEL: RGB = [0.3, 0.32, 0.38];
 const STEEL_DARK: RGB = [0.2, 0.23, 0.31];
 
 const WIN = LAYOUT.windows;
+/** Il vetro sborda sotto le rive di tanto (m): niente fessura fra il terreno e il vetro. */
+const MARGINE_VETRO = 30;
 
 const GLASS_FRAG = /* glsl */ `
 ${WORLD_UNIFORMS_GLSL}
@@ -102,13 +104,15 @@ void main() {
   }
   // vetro: brina ai bordi, condensa, riflessi morbidi dell'interno e della Linea
   float th = cylThetaDeg(P);
-  float edgeDist = min(th - uWinRange.x, uWinRange.y - th) * uR * PI / 180.0;
+  // (fuori dall'intervallo: il margine sotto la riva, vedi MARGINE_VETRO; vale come il bordo)
+  float edgeDist = max(min(th - uWinRange.x, uWinRange.y - th) * uR * PI / 180.0, 0.0);
   // (la brina sfuma su 40-60 m: da lontano il bordo del vetro non è una riga)
   float frost = (1.0 - smoothstep(10.0, 80.0, edgeDist)) * (0.45 + 0.55 * vnoise2(vec2(P.z, th * 11.0) * 0.12));
   float ribD = abs(mod(P.z + 20.0, 40.0) - 20.0);
   frost += (1.0 - smoothstep(1.2, 3.5, ribD)) * 0.12 * vnoise2(vec2(P.z * 0.6, th * 30.0));
-  // da lontano la brina non deve disegnare righe bianche lungo le rive
-  frost *= 1.0 - 0.75 * smoothstep(150.0, 900.0, dist);
+  // da lontano la brina non deve disegnare righe bianche lungo le rive (rifinitura 2: sparisce
+  // quasi del tutto oltre 500 m)
+  frost *= 1.0 - 0.95 * smoothstep(120.0, 500.0, dist);
   vec3 up = cylUp(P);
   float cosV = abs(dot(-V, up));
   float graz = 1.0 - cosV;
@@ -153,6 +157,12 @@ void main() {
   col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 1.03, giornoAria * mix(0.55, 0.85, smoothstep(250.0, 1100.0, dist)));
   // e perde metà della saturazione (di notte e da vicino resta com'è)
   col = mix(vec3(dot(col, vec3(0.3, 0.59, 0.11))), col, mix(1.0, 0.5, giornoAria));
+  // bordo morbido (rifinitura 2): negli ultimi 35 m verso la riva il vetro si mescola alla foschia
+  // del terreno di bordo, così da lontano la striscia è un fiume di cielo (bozzetto 1), non una
+  // lastra dagli spigoli dritti
+  float bordoMorbido = (1.0 - smoothstep(0.0, 35.0, edgeDist)) * smoothstep(80.0, 300.0, dist);
+  vec3 foschiaRiva = mix(uHazeColor, uHazeZenith, 0.4) * mix(0.35, 0.92, giorno);
+  col = mix(col, foschiaRiva, bordoMorbido * 0.5);
   col = applyHaze(col, P, dist);
   gl_FragColor = vec4(col, 1.0);
 }
@@ -194,7 +204,11 @@ export class Windows {
       for (let k = 0; k < zSegs; k++) {
         const z0 = (k / zSegs) * LAYOUT.cylinder.length;
         const z1 = ((k + 1) / zSegs) * LAYOUT.cylinder.length;
-        const geo = cylinderStrip(w.thetaStart, w.thetaEnd, z0, z1, R + 0.03, 24, 30);
+        // (rifinitura 2) il vetro sborda di MARGINE_VETRO sotto le rive: il terreno scarta i suoi
+        // triangoli a metà fra l'ultimo vertice di riva e il primo di vetro, e da lontano (celle di
+        // 24 m) fra i due restava una riga di cielo, la riga bianca tratteggiata lungo le Finestre
+        const mg = MARGINE_VETRO / (R * DEG);
+        const geo = cylinderStrip(w.thetaStart - mg, w.thetaEnd + mg, z0, z1, R + 0.03, 26, 30);
         const mat = new ShaderMaterial({
           name: `vetro-${w.id}`,
           uniforms: { ...world, ...this.uniforms, uWinRange: { value: [w.thetaStart, w.thetaEnd] } },

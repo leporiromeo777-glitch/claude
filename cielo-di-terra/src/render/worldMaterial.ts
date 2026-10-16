@@ -10,8 +10,8 @@
  * - `aTint` (vec3, solo InstancedMesh, opzionale): moltiplica l'albedo per istanza.
  * Le SkinnedMesh funzionano (ossa di three.js): servono `aColor` e, se si vuole, `aSuperficie`.
  *
- * Varianti (defines): TERRAIN, OBJECT, CLOUD, NO_PENCIL, USE_TINT (+ USE_INSTANCING, USE_SKINNING
- * messi da three.js).
+ * Varianti (defines): TERRAIN, OBJECT, CLOUD, NO_PENCIL, USE_TINT, ARIA_VETRO (costoloni delle
+ * Finestre) (+ USE_INSTANCING, USE_SKINNING messi da three.js).
  *
  * Uniform propri di ogni materiale: `uBrush` (forza della pennellata), `uSuperficieBase` (tipo di
  * superficie usato dove il vertice non ne dichiara uno; 0 = nessuno).
@@ -40,6 +40,11 @@ export interface WorldMaterialOptions {
   superficie?: number;
   /** Costoloni delle Finestre: di giorno la stessa aria illuminata del vetro (render/windows.ts). */
   ariaVetro?: boolean;
+  /**
+   * Terreno con il vetro di una Finestra (alfa del vertice 1): quei frammenti si scartano. Solo i
+   * chunk che lo contengono usano questa variante (il discard spegne il test di profondità anticipato).
+   */
+  vetro?: boolean;
 }
 
 const VERT = /* glsl */ `
@@ -98,7 +103,6 @@ const FRAG = /* glsl */ `
 ${WORLD_UNIFORMS_GLSL}
 uniform float uBrush;
 uniform float uSuperficieBase;
-uniform float uAriaVetro;   // 1 = costoloni delle Finestre: di giorno la stessa aria illuminata del vetro
 varying vec3 vWorldPos;
 varying vec3 vNormalW;
 varying vec4 vColor;
@@ -116,9 +120,12 @@ void main() {
   if (!gl_FrontFacing) N = -N;
   vec3 toCam = cameraPosition - P;
   float dist = length(toCam);
-  // costoloni delle Finestre: da lontano spariscono (retinati fra 350 e 600 m). Nei bozzetti le
-  // Finestre lontane sono cielo velato; i costoloni sopra il bastione facevano trattini chiari
-  if (uAriaVetro > 0.5 && hash12(floor(gl_FragCoord.xy) + 0.71) < smoothstep(350.0, 600.0, dist)) discard;
+#ifdef ARIA_VETRO
+  // costoloni delle Finestre: oltre 650 m non si disegnano (fra 350 e 600 m sono già sfumati nel
+  // colore del vetro, qui sotto). Il discard sta solo in questa variante: negli altri materiali del
+  // mondo il test di profondità anticipato resta acceso (rifinitura 2)
+  if (dist > 650.0) discard;
+#endif
   vec3 V = toCam / max(dist, 1e-4);
   // metri per pixel: isotropo (tratteggio stabile) e reale, con lo scorcio (motivi senza moiré)
   float pix = max(dist, 0.3) * uPixelAngle;
@@ -126,7 +133,9 @@ void main() {
   float pixW = max(pix, min(sqrt(length(dFdx(P)) * length(dFdy(P))), pix * 8.0));
   Sup s = supBase(vColor.rgb, N);
 #ifdef TERRAIN
+#ifdef VETRO_TERRENO
   if (vColor.a > 0.5) discard;
+#endif
   vec2 suv = cylDominantUV(P, N);
   // la pennellata del terreno la fa terrenoDipinto (tocchi ancorati al mondo)
   float br = 0.0;
@@ -149,6 +158,10 @@ void main() {
   float curvT = clamp((vColor.a - 0.2235) / 0.2235, -1.0, 1.0) * (1.0 - smoothstep(300.0, 650.0, dist));
   s.albedo *= 1.0 - curvT * 0.12;
   s.ao *= 1.0 - max(curvT, 0.0) * 0.15;
+  // ombra degli alberi (rifinitura 2): dove ci sono le ombre portate le fa la mappa d'ombra; oltre,
+  // la densità delle chiome (gli alberi lontani poggiano a terra con la loro ombra)
+  float kAl = uOmbra.x > 0.5 ? smoothstep(uOmbra.z * 0.8, uOmbra.w, distance(P, uOmbraCentro.xyz)) : 1.0;
+  if (kAl > 0.0) s.albedo *= mix(1.0, ombraAlberi(P, cylUp(P)), kAl);
 #elif !defined(CLOUD)
   // vertice taggato (anche NESSUNA dichiarata = 0.5) oppure la superficie predefinita del materiale
   float tipoF = vSup.x > 0.25 ? vSup.x : uSuperficieBase;
@@ -191,8 +204,9 @@ void main() {
   // rilevato: inchiostro e colore pieno (un filo più saturo)
   vec3 colPieno = max(mix(vec3(lumaP(col)), col, uLuce.w), 0.0);
   // l'abbozzo sta un po' più dietro l'aria (si legge come un fondale), il dipinto è più nitido
-  // (di notte il non rilevato sta meno dietro l'aria: la carta e il gesso si leggono)
-  hazeK = mix(mix(1.05, 0.67, uNight * (1.0 - smoothstep(400.0, 900.0, dist))), 1.0, pi.paint);
+  // (di notte il non rilevato sta appena meno dietro l'aria; rifinitura 2: 0,95 invece di 0,67, con la
+  // carta notturna più scura i versanti fanno quinte più chiare con la distanza, sotto un cielo chiaro)
+  hazeK = mix(mix(1.05, 0.95, uNight * (1.0 - smoothstep(400.0, 900.0, dist))), 1.0, pi.paint);
   if (pi.paint < 0.999) {
     float hgt = uR - length(P.xy);
     float steep = 1.0 - smoothstep(0.35, 0.8, abs(dot(N, cylUp(P))));
@@ -211,13 +225,20 @@ void main() {
   // finestre illuminate di notte (segnali vivi: restano a colori anche nell'abbozzo)
   col = mix(col, uLampColor * 1.15, vColor.a * uNight);
 #endif
-  if (uAriaVetro > 0.5) {
+#ifdef ARIA_VETRO
+  {
     // costoloni e travi delle Finestre: di giorno stanno dietro la stessa aria del vetro (niente
     // reticolo scuro disegnato sul cielo velato). Da vicino no: sul costolone il ferro è ferro
     // (unione 3, come il vetro: l'aria comincia dopo 40-200 m)
     float giornoV = smoothstep(0.05, 0.6, uSunIntensity) * (1.0 - uNight) * smoothstep(40.0, 200.0, dist);
-    col = mix(col, mix(uHazeZenith, uHazeColor, 0.45) * 0.9, giornoV * mix(0.7, 0.95, smoothstep(150.0, 900.0, dist)));
+    vec3 aria = mix(uHazeZenith, uHazeColor, 0.45);
+    col = mix(col, aria * 0.9, giornoV * mix(0.7, 0.95, smoothstep(150.0, 900.0, dist)));
+    // fra 350 e 600 m il ferro si scioglie nel colore del vetro lontano (aria velata, mezza
+    // saturazione), di giorno; di notte nel vetro scuro. Prima era retinato: trattini bianchi
+    vec3 vetroL = mix(mix(vec3(lumaP(aria)), aria, 0.5) * 1.03, vec3(0.05, 0.05, 0.11), 1.0 - giornoV);
+    col = mix(col, vetroL, smoothstep(350.0, 600.0, dist));
   }
+#endif
   col = applyHazeK(col, P, dist, hazeK);
   if (uDebugView > 0.5) col = N * 0.5 + 0.5;
   gl_FragColor = vec4(col, 1.0);
@@ -236,11 +257,13 @@ export function createWorldMaterial(u: WorldUniforms, opts: WorldMaterialOptions
   if (opts.tint) defines.USE_TINT = '';
   // superfici a doppia faccia (tele, veli, foglie piatte): AUTO legge i chiari come tessuto
   if (opts.side === DoubleSide) defines.DOPPIA_FACCIA = '';
+  if (opts.ariaVetro) defines.ARIA_VETRO = '';
+  if (opts.vetro) defines.VETRO_TERRENO = '';
   // gli oggetti senza superficie dichiarata prendono il motivo dal colore (AUTO, vedi superfici.ts)
   const base = opts.superficie ?? (opts.kind === 'object' ? SUPERFICIE.AUTO : SUPERFICIE.NESSUNA);
   const mat = new ShaderMaterial({
     name: `world-${opts.kind}`,
-    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: base }, uChioma: { value: new Vector4(0, 5.5, 1.35, 0) }, uAriaVetro: { value: opts.ariaVetro ? 1 : 0 } },
+    uniforms: { ...u, uBrush: { value: opts.brush ?? 1 }, uSuperficieBase: { value: base }, uChioma: { value: new Vector4(0, 5.5, 1.35, 0) } },
     vertexShader: VERT,
     fragmentShader: FRAG,
     defines,

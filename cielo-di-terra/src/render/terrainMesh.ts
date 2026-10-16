@@ -43,6 +43,16 @@ interface BuildJob {
 
 const _cam = new Vector3();
 
+/** Vero se la geometria ha almeno un vertice di vetro di Finestra (alfa 255). */
+function haVetro(geo: BufferGeometry): boolean {
+  const a = geo.getAttribute('aColor');
+  if (!a || a.itemSize < 4) return false;
+  const arr = a.array as ArrayLike<number>;
+  const soglia = a.normalized || arr instanceof Uint8Array ? 200 : 0.8;
+  for (let i = 3; i < arr.length; i += 4) if (arr[i]! > soglia) return true;
+  return false;
+}
+
 export class TerrainSystem {
   readonly group = new Group();
   readonly chunks: TerrainChunk[] = [];
@@ -50,7 +60,15 @@ export class TerrainSystem {
   lodDistances = [110, 430, 1000];
   private job: BuildJob | null = null;
 
-  constructor(private material: Material) {
+  /**
+   * @param material materiale del terreno
+   * @param materialeVetro variante con il discard del vetro delle Finestre (alfa 255): la usano solo
+   *   i chunk che contengono vetro; senza, tutti usano `material`
+   */
+  constructor(
+    private material: Material,
+    private materialeVetro: Material = material,
+  ) {
     this.group.name = 'terreno';
     for (let row = 0; row < CHUNK_ROWS; row++) {
       for (let col = 0; col < CHUNK_COLS; col++) {
@@ -77,7 +95,7 @@ export class TerrainSystem {
   }
 
   private attach(chunk: TerrainChunk, lod: number, geo: BufferGeometry): void {
-    const mesh = new Mesh(geo, this.material);
+    const mesh = new Mesh(geo, haVetro(geo) ? this.materialeVetro : this.material);
     mesh.name = `terreno-${chunk.row}-${chunk.col}-lod${lod}`;
     mesh.matrixAutoUpdate = false;
     mesh.visible = false;

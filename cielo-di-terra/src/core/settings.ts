@@ -7,6 +7,10 @@
  * - v2 (`cielo-di-terra.settings.v2`): `{ versione: 2, ...valori }`. Il raggio sempre dipinto è
  *   cresciuto a [250, 450] (il non rilevato ora è un abbozzo ad acquerello, non carta bianca):
  *   la migrazione da v1 butta il vecchio `nearPaint` e tiene tutto il resto.
+ * - v3 (`cielo-di-terra.settings.v3`): `{ versione: 3, ...valori }`. Il raggio sempre dipinto passa
+ *   a [400, 700] (rifinitura 2: l'acquerello del non rilevato oltre 450 m sbiadiva i versanti e il
+ *   terzo alto di ogni inquadratura). Come da v1: la migrazione da v2 butta il `nearPaint` salvato
+ *   (dall'interfaccia non si sceglie: era il vecchio predefinito) e tiene tutto il resto.
  */
 import { PLAYER_TUNABLES } from '../player/tunables';
 
@@ -39,14 +43,14 @@ export const DEFAULT_SETTINGS: GameSettings = {
   coriolisOnFoot: PLAYER_TUNABLES.coriolisOnFoot,
   starSpeed: 1,
   dayLengthMinutes: 40,
-  nearPaint: [250, 450],
+  nearPaint: [400, 700],
 };
 
 /** Versione corrente dell'archivio delle impostazioni. */
-export const SETTINGS_VERSION = 2;
-export const SETTINGS_KEY = 'cielo-di-terra.settings.v2';
+export const SETTINGS_VERSION = 3;
+export const SETTINGS_KEY = 'cielo-di-terra.settings.v3';
 /** Chiavi delle versioni precedenti (lette solo per migrare). */
-export const LEGACY_SETTINGS_KEYS: Record<number, string> = { 1: 'cielo-di-terra.settings.v1' };
+export const LEGACY_SETTINGS_KEYS: Record<number, string> = { 1: 'cielo-di-terra.settings.v1', 2: 'cielo-di-terra.settings.v2' };
 
 function valido(np: unknown): np is [number, number] {
   return Array.isArray(np) && np.length === 2 && np.every((x) => typeof x === 'number' && Number.isFinite(x)) && np[0]! >= 0 && np[1]! > np[0]!;
@@ -66,6 +70,12 @@ export function migraImpostazioni(dati: unknown, versione = 1): Partial<GameSett
     // v1 -> v2: il vecchio raggio dipinto [70, 150] lasciava il mondo bianco; vale il nuovo predefinito
     delete o['nearPaint'];
     v = 2;
+  }
+  if (v < 3) {
+    // v2 -> v3: il raggio dipinto [250, 450] lasciava i versanti oltre 450 m sbiaditi; vale il nuovo
+    // predefinito
+    delete o['nearPaint'];
+    v = 3;
   }
   if ('nearPaint' in o && !valido(o['nearPaint'])) delete o['nearPaint'];
   return o as Partial<GameSettings>;
