@@ -58,10 +58,11 @@ export function geoCiuffoErba(seme: number, lame = 16): BufferGeometry {
     const d = v3(Math.cos(a), 0, Math.sin(a));
     const lat = v3(-d.z, 0, d.x);
     const h = 0.55 + rnd() * 0.45;
-    // fili quasi diritti: si aprono poco e si piegano in punta
-    const piega = 0.08 + rnd() * 0.3;
+    // fili quasi diritti: si aprono poco e si piegano in punta (migliorie, suolo: un cespo più
+    // stretto e più dritto; aperto e basso, di scorcio, sembrava paglia sparsa per terra)
+    const piega = 0.05 + rnd() * 0.22;
     const w = 0.011 + rnd() * 0.009;
-    const r0 = Math.sqrt(rnd()) * 0.17;
+    const r0 = Math.sqrt(rnd()) * 0.13;
     const base = v3(Math.cos(a + 1.3) * r0, 0, Math.sin(a + 1.3) * r0);
     const mid = base.clone().addScaledVector(d, piega * 0.22 * h).add(v3(0, h * 0.58, 0));
     const tip = base.clone().addScaledVector(d, piega * h).add(v3(0, h * (1 - piega * 0.3), 0));

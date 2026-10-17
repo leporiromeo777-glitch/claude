@@ -23,6 +23,9 @@
  *   dalla camera, 0 = fine elenco: i più vicini prima). Le scrive `LampGlows.updateNearest`. `uLamps` (vec4[8])
  *   resta per chi lo usa (personaggi, Fade): lo shader del mondo ne prende solo i lumi in più con
  *   w >= 2 (le Fade di `popolamento/corbella.ts`), perché quelli del motore sono già nelle pozze.
+ * - `uSuolo` (vec4, migliorie, suolo): x = soglia e y = pendenza del ginocchio della saturazione del
+ *   suolo e dell'erba (`ginocchioSuolo`; y = 1 lo spegne), z = forza dei fili d'erba dipinti vicino
+ *   (`filiErba`; 0 = spenti), w = riservato. Vivo da console: `__GAME__.game.uniforms.uSuolo.value`;
  * - `uAlberiOmbra` (sampler2D) e `uAlberiInfo` (vec4): densità delle chiome degli alberi su tutto il
  *   cilindro (u = theta / 360, v = z / L, circa 4 m per texel; la scrive
  *   `Vegetation.costruisciOmbraAlberi`). Il terreno la legge spostata dalla parte opposta alla luce:
@@ -75,6 +78,8 @@ export interface WorldUniforms {
   uOmbraCentro: { value: Vector4 };
   uCellAnim: { value: number };
   uDettaglio: { value: number };
+  /** Suolo: ginocchio della saturazione (x soglia, y pendenza) e forza dei fili d'erba (z). */
+  uSuolo: { value: Vector4 };
   /** Densità delle chiome (ombra degli alberi sul terreno lontano), mai null. */
   uAlberiOmbra: { value: Texture };
   uAlberiInfo: { value: Vector4 };
@@ -169,6 +174,7 @@ export function createWorldUniforms(): WorldUniforms {
     // nessuno lo aggiorna? allora si assume che una rivelazione sia sempre possibile (sicuro)
     uCellAnim: { value: 1e9 },
     uDettaglio: { value: 1 },
+    uSuolo: { value: new Vector4(0.2, 0.5, 1, 0) },
     uAlberiOmbra: { value: alberiOmbraVuota() },
     uAlberiInfo: { value: new Vector4(0, 0.45, 0, 0) },
   };

@@ -148,9 +148,18 @@ export function profiloCamminabile(c: CampioneSentiero[], gradi = 30): void {
 
 const LASTRA: RGB = hex(0xa59e94);
 const LASTRA_SCURA: RGB = hex(0x7c766f);
-const TERRA: RGB = hex(0x9a7e58);
 const TERRA_SCURA: RGB = hex(0x7a6244);
 const ERBA_PETTINATA: RGB = hex(0x9db45a);
+// terra battuta (migliorie, suolo): grigio-bruna e polverosa, più chiara in mezzo dove si cammina,
+// più scura e umida verso i bordi, e un orlo d'erba che entra a tratti. Prima #9a7e58: un bruno
+// saturo che nella luce dorata diventava una fascia arancione. (Colori scelti per la superficie
+// AUTO: i bruni con max−min ≥ 0,16 e luminanza < 0,56 sono terra, i verdi sono erba)
+const BATTUTO_CHIARO: RGB = hex(0x9b8a70);
+const BATTUTO: RGB = hex(0x8a785e);
+const BATTUTO_SCURO: RGB = hex(0x7a684e);
+const ORLO_ERBA: RGB = hex(0x7d8a4c);
+/** I vertici di traverso dei nastri di terra: fitti ai bordi, per l'orlo d'erba. */
+export const TRAVERSO_BATTUTO: readonly number[] = [-1, -0.84, -0.6, -0.25, 0.25, 0.6, 0.84, 1];
 
 function coloreNastro(tipo: TipoSentiero, s: number, u: number): RGB {
   if (tipo === 'lastre') {
@@ -165,8 +174,41 @@ function coloreNastro(tipo: TipoSentiero, s: number, u: number): RGB {
   }
   if (tipo === 'erba') return mix(hex(0x87a148), hex(0x9cb556), rumore2(s * 0.6, u * 2, 2));
   const n = rumore2(s * 0.8, u * 2.5, 4);
-  const bordo = Math.abs(u) > 0.7 ? 0.6 : 0;
-  return mix(mix(TERRA, TERRA_SCURA, n * 0.7), hex(0x8a9a4c), bordo);
+  const au = Math.abs(u);
+  // in mezzo la striscia consumata, chiara; verso i bordi la terra più scura
+  let c = mix(BATTUTO_CHIARO, BATTUTO, Math.min(1, Math.max(0, (au - 0.2) / 0.5)) * 0.8 + n * 0.25);
+  c = mix(c, BATTUTO_SCURO, Math.max(0, (au - 0.55) / 0.3) * 0.6);
+  // l'orlo: terra con l'erba che entra a tratti (rumore lungo il sentiero), da un lato e dall'altro in
+  // modo diverso. Resta terra (al massimo 45% di verde): una riga di prato dipinto lungo il bordo era
+  // un filo verde acceso tirato a righello; il bordo d'erba vero lo fanno i ciuffi, che ci sporgono sopra
+  const entra = rumore2(s * 0.45, u > 0 ? 3.7 : 8.1, 6);
+  const erba = au > 0.95 ? 0.2 + 0.25 * smoothstepN(0.3, 0.6, entra) : au > 0.8 ? 0.3 * smoothstepN(0.55, 0.8, entra) : 0;
+  return mix(c, ORLO_ERBA, erba);
+}
+
+/**
+ * La superficie dipinta dei nastri, dichiarata (migliorie, suolo, correzione). Con la superficie
+ * automatica (dal colore per vertice) il nastro di terra, dove le normali lisce seguono il terreno e
+ * girano più di ~0,45 rad per metro (sponde, gobbe, gradoni), si leggeva come «forma tonda» (tronco,
+ * sasso): perdeva la terra battuta, i sassi e il colore locale, e nella luce dorata restava una
+ * striscia o un triangolo salmone piatto sulla strada (la vista della segnalazione, la discesa dal
+ * belvedere verso il paese).
+ */
+export const SUPERFICIE_NASTRO: Record<TipoSentiero, number> = {
+  battuto: SUPERFICIE.TERRA,
+  lastre: SUPERFICIE.PIETRA + 0.45,
+  pettinato: SUPERFICIE.ERBA,
+  erba: SUPERFICIE.ERBA,
+};
+
+/** Il colore della terra battuta dei sentieri (anche quelli del popolamento mobile, vedi mobili.ts). */
+export function coloreTerraBattuta(s: number, u: number): RGB {
+  return coloreNastro('battuto', s, u);
+}
+
+function smoothstepN(a: number, b: number, x: number): number {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
 }
 
 /**
@@ -181,7 +223,10 @@ export function costruisciSentiero(ctx: Contesto, zona: string, nome: string, pu
   profiloCamminabile(c, opz.pendenzaMax ?? 30);
   const cant = ctx.zona(zona);
   if (opz.nastro ?? true) {
-    nastroSulSuolo(cant, punti, larghezza, 0.8, 0.05, (s, u) => coloreNastro(tipo, s, u));
+    // (la terra battuta 8 cm sopra il suolo invece di 5: sulle sponde in diagonale il terreno, a
+    // triangoli di 3 m, sbucava fra un vertice e l'altro del nastro e faceva una striscia chiara)
+    const sopra = tipo === 'battuto' ? 0.08 : 0.05;
+    nastroSulSuolo(cant, punti, larghezza, 0.8, sopra, (s, u) => coloreNastro(tipo, s, u), undefined, tipo === 'battuto' ? { traverso: TRAVERSO_BATTUTO, superficie: SUPERFICIE_NASTRO.battuto } : { superficie: SUPERFICIE_NASTRO[tipo] });
   }
   let gradini = 0;
   if ((opz.gradini ?? 'pietra') !== 'nessuno') {

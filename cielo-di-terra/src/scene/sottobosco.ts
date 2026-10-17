@@ -28,6 +28,8 @@ import { terrainColor } from '../render/palette';
 import { creaMaterialeNatura, impostaNucleo, impostaSfuma } from '../render/naturaMateriali';
 import type { WorldUniforms } from '../render/uniforms';
 import { distanzaTratto, trattiVicini, type Tratto } from './sentieri';
+import { RIPIANI_ERBOSI, type RipianoErboso } from '../popolamento/ripiano';
+import { PALETTE } from '../render/palette';
 import { densitaBosco } from './bosco';
 import { geometrieCespuglio } from './alberi';
 import { geoCiuffoErba, geoFelce, geoFiore, geoFoglieTerra, geoRicci, geoSasso } from './sottoboscoForme';
@@ -73,13 +75,22 @@ interface Campione {
   piazza: number;
   paese: number;
   roccia: number;
+  /** la parte della roccia che non dipende dalla pendenza (bastioni, il Sordo) */
+  rocciaBioma: number;
   riva: number;
+  /**
+   * Vero se il campione o uno dei suoi vicini pende più di ~31°: solo lì serve guardare la pendenza nel
+   * punto (rocciaNelPunto, quattro letture del terreno). Nei prati in piano no (correzione: la
+   * generazione delle celle era più lenta del 25-130%)
+   */
+  ripido: boolean;
 }
 
 
 const VILLAGE = LAYOUT.villages[0]!;
 const NOISE = new Simplex3(8080);
 const _p = new Vector3();
+const _q = new Vector3();
 const _v = new Vector3();
 
 /** Preset di qualità: raggio (m) e densità. */
@@ -119,7 +130,8 @@ export class Sottobosco {
     this.group.name = 'sottobosco';
     const cesp = geometrieCespuglio();
     const geos: Record<Tipo, BufferGeometry> = {
-      erba: geoCiuffoErba(11),
+      // (correzione: 13 fili per ciuffo invece di 16; il tappeto fra i ciuffi lo dipinge il terreno)
+      erba: geoCiuffoErba(11, 13),
       fiori: geoFiore(12),
       felci: geoFelce(13),
       sassi: geoSasso(14),
@@ -327,10 +339,23 @@ export class Sottobosco {
         const bosco = densitaBosco(z, th, h, slope, m);
         terrainColor(z, th, h, slope, m, col);
         const acqua = m.stream < 3.2 || (m.lakeQ < 1.25 && h < WATER_HEIGHT + 0.25) || m.kind !== 'valle' && m.capS <= 0 && m.capN <= 0;
-        const roccia = Math.max(smoothstep(0.62, 0.95, slope), m.bank * 0.8, m.capN > 0.05 ? 0.7 : 0);
+        const rocciaBioma = Math.max(m.bank * 0.8, m.capN > 0.05 ? 0.7 : 0);
+        const roccia = Math.max(smoothstep(0.62, 0.95, slope), rocciaBioma);
         const riva = m.stream < 9 ? 1 - smoothstep(3.2, 9, m.stream) : m.lakeQ < 1.4 ? 1 - smoothstep(WATER_HEIGHT + 0.2, WATER_HEIGHT + 2.5, h) : 0;
         const dv = surfaceDistance(z, th, VILLAGE.zCenter, VILLAGE.thetaCenter);
-        out.push({ h, slope, bosco, colore: [col[0]!, col[1]!, col[2]!], acqua, piazza: m.piazza, paese: m.theme === 'selve' ? 1 - smoothstep(110, 150, dv) : 0, roccia, riva });
+        out.push({ h, slope, bosco, colore: [col[0]!, col[1]!, col[2]!], acqua, piazza: m.piazza, paese: m.theme === 'selve' ? 1 - smoothstep(110, 150, dv) : 0, roccia, rocciaBioma, riva, ripido: false });
+      }
+    }
+    // (i campioni sono a 3 m: un'alzata dei gradoni può stare fra due campioni in piano, quindi si
+    // guardano anche i vicini)
+    for (let j = 0; j < SUB; j++) {
+      for (let i = 0; i < SUB; i++) {
+        let s = 0;
+        for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+          const q = out[Math.min(SUB - 1, Math.max(0, j + dj)) * SUB + Math.min(SUB - 1, Math.max(0, i + di))]!;
+          s = Math.max(s, q.slope);
+        }
+        out[j * SUB + i]!.ripido = s > 0.55;
       }
     }
     return out;
@@ -355,15 +380,58 @@ export class Sottobosco {
     const tinte: Record<Tipo, number[]> = { erba: [], fiori: [], felci: [], sassi: [], foglie: [], ricci: [], cespugliChioma: [], cespugliCarte: [] };
     const k = this.densita;
 
-    const occupato = (z: number, th: number, h: number, margine: number): boolean => {
-      // sentieri (nastro largo ~2 m)
+    // distanza (m) dal bordo del sentiero più vicino (negativa sul sentiero; Infinity se non ce n'è)
+    const bordoSentiero = (z: number, th: number): number => {
       const s = th * METERS_PER_DEG;
-      for (const seg of sentieri) if (distanzaTratto(z, s, seg) < seg.larghezza / 2 + 0.35 + margine) return true;
+      let d = Infinity;
+      for (const seg of sentieri) d = Math.min(d, distanzaTratto(z, s, seg) - seg.larghezza / 2);
+      return d;
+    };
+    // i collisori per quadrato di 3 m (con il loro ingombro più 1,2 m): occupato() guarda solo quelli del
+    // suo quadrato. In paese i vicini sono centinaia e, con l'erba più fitta, provarli tutti per ogni
+    // ciuffo triplicava il tempo di generazione di una cella (migliorie, suolo)
+    const perQuadrato: Collider[][] = Array.from({ length: SUB * SUB }, () => []);
+    const lato = CELLA / SUB;
+    const giro = NA * CELLA;
+    for (const col of vicini) {
+      const cc = worldToCyl(col.kind === 'box' ? col.center : col.base);
+      let da = cc.theta * METERS_PER_DEG - a0;
+      da -= Math.round((da - CELLA / 2) / giro) * giro;
+      const dz = cc.z - z0;
+      const r = (col.kind === 'box' ? Math.hypot(col.half.x, col.half.y, col.half.z) : col.radius) + 1.2;
+      for (let qz = 0; qz < SUB; qz++) {
+        for (let qa = 0; qa < SUB; qa++) {
+          const ez = Math.max(qz * lato - dz, 0, dz - (qz + 1) * lato);
+          const ea = Math.max(qa * lato - da, 0, da - (qa + 1) * lato);
+          if (ez * ez + ea * ea <= r * r) perQuadrato[qz * SUB + qa]!.push(col);
+        }
+      }
+    }
+    const quadrato = (z: number, th: number): Collider[] => {
+      let da = th * METERS_PER_DEG - a0;
+      da -= Math.round((da - CELLA / 2) / giro) * giro;
+      const qz = Math.min(SUB - 1, Math.max(0, Math.floor((z - z0) / lato)));
+      const qa = Math.min(SUB - 1, Math.max(0, Math.floor(da / lato)));
+      return perQuadrato[qz * SUB + qa]!;
+    };
+    /**
+     * Vero se il punto è dentro un collisore o su un sentiero. `sulBordo` = quanto il sentiero si
+     * lascia libero oltre il suo bordo (m): 0,35 per quasi tutto; l'erba dei bordi ci entra (−0,2:
+     * i ciuffi lo orlano e ci sporgono sopra, come nei bozzetti)
+     */
+    const occupato = (z: number, th: number, h: number, margine: number, sulBordo = 0.35, suiMuri = false): boolean => {
+      // sentieri (nastro largo ~2 m)
+      if (bordoSentiero(z, th) < sulBordo + margine) return true;
+      const vicini = quadrato(z, th);
       if (!vicini.length) return false;
       cylPunto(z, th, h + 0.12, _p);
+      // (suiMuri: i collisori dei muri delle terrazze comprendono il terrapieno, 3 m dietro il muro, e
+      // sporgono 0,18 m sopra il ripiano: l'erba ci cresce, come fra le pietre della copertina; si
+      // prova un punto 0,3 m sopra il suolo, che sta fuori dal terrapieno ma dentro il muro vero)
+      if (suiMuri) cylPunto(z, th, h + 0.3, _q);
       for (const col of vicini) {
         if (col.kind === 'box') {
-          if (dentroBox(col, _p, margine)) return true;
+          if (dentroBox(col, suiMuri && col.tag === 'muro' ? _q : _p, margine)) return true;
         } else {
           _v.subVectors(_p, col.base);
           const y = _v.dot(col.up);
@@ -375,39 +443,106 @@ export class Sottobosco {
       return false;
     };
     const campione = (u: number, v: number): Campione => camp[Math.min(SUB - 1, Math.floor(v * SUB)) * SUB + Math.min(SUB - 1, Math.floor(u * SUB))]!;
+    // ripiani d'erba (terrazze, belvederi) che toccano la cella: l'erba ci sta sopra, alla loro
+    // quota, a 0,45 m dai muri (migliorie, suolo: prima si fermava al piede dei muri)
+    const ripiani: RipianoErboso[] = [];
+    for (const r of RIPIANI_ERBOSI.values()) {
+      const raggio = Math.hypot(r.larghezza, r.profondita) / 2 + 1;
+      const ra = r.theta * METERS_PER_DEG;
+      if (r.z + raggio < z0 || r.z - raggio > z0 + CELLA || ra + raggio < a0 || ra - raggio > a0 + CELLA) continue;
+      ripiani.push(r);
+    }
+    /** Quota del ripiano d'erba sotto il punto (−Infinity se non ce n'è). */
+    const quotaRipiano = (z: number, th: number): number => {
+      for (const r of ripiani) {
+        const nord = z - r.z;
+        const est = ((((th - r.theta) % 360) + 540) % 360 - 180) * (LAYOUT.cylinder.radius - r.quota) * DEG;
+        const y = r.yaw * DEG;
+        const avanti = nord * Math.cos(y) + est * Math.sin(y);
+        const destra = -nord * Math.sin(y) + est * Math.cos(y);
+        if (Math.abs(destra) < r.larghezza / 2 - 0.45 && Math.abs(avanti) < r.profondita / 2 - 0.45) return r.quota;
+      }
+      return -Infinity;
+    };
+    // sopra un ripiano il campione del terreno (roccia delle alzate, riale...) non conta: è prato
+    const sulRipiano: Campione = { h: 0, slope: 0, bosco: 0, colore: [PALETTE.meadow[0], PALETTE.meadow[1], PALETTE.meadow[2]], acqua: false, piazza: 0, paese: 0, roccia: 0, rocciaBioma: 0, riva: 0, ripido: false };
+    /**
+     * Roccia nel punto (non nel campione di 3 m): sui gradoni del paese e delle terrazze un campione
+     * su quattro cadeva su un'alzata di 60° e toglieva l'erba a tutto il suo quadrato di 3 m, anche
+     * ai ripiani in piano (migliorie, suolo). Qui la pendenza del triangolo del terreno sotto il punto.
+     * (Correzione: la roccia comincia a ~49° e toglie l'erba del tutto a ~63°, come la roccia dipinta
+     * dallo shader del terreno, che comincia a ~52°. Prima cominciava a 35°: le scarpate delle
+     * terrazze, fra 35° e 52°, restavano falde ocra lisce, senza erba né roccia)
+     */
+    const rocciaNelPunto = (c: Campione, z: number, th: number, h: number): number => {
+      if (c === sulRipiano) return 0;
+      if (!c.ripido) return c.rocciaBioma;
+      // (differenze in avanti dal punto, la cui quota 'h' è già nota: due letture del terreno invece di quattro)
+      const d = 0.4;
+      const dth = d / ((LAYOUT.cylinder.radius - h) * DEG);
+      const gz = (groundHeight(z + d, th) - h) / d;
+      const ge = (groundHeight(z, th + dth) - h) / d;
+      return Math.max(c.rocciaBioma, smoothstep(0.85, 1.1, Math.atan(Math.hypot(gz, ge))));
+    };
+    const campioneIn = (u: number, v: number, z: number, th: number): { c: Campione; h: number } => {
+      const c = campione(u, v);
+      const g = groundHeight(z, th);
+      const q = ripiani.length ? quotaRipiano(z, th) : -Infinity;
+      if (q <= g) return { c, h: g };
+      sulRipiano.paese = c.paese;
+      sulRipiano.bosco = c.bosco * 0.5;
+      return { c: sulRipiano, h: q };
+    };
     const metti = (tipo: Tipo, z: number, th: number, h: number, yaw: number, sx: number, sy: number, sz: number, r: number, g: number, b: number, s: number): void => {
       matriceSuperficie(z, th, h, yaw, sx, sy, sz, liste[tipo]);
       tinte[tipo].push(r, g, b, s);
     };
 
-    // --- erba: ciuffi fitti, più alti nei prati incolti, rasi in paese, radi nel bosco fitto
-    const nErba = Math.round(CELLA * CELLA * 3.3 * k);
+    // --- erba: ciuffi fitti, più alti nei prati incolti e lungo i sentieri, più bassi in paese,
+    // radi nel bosco fitto. (Migliorie, suolo: i ciuffi più stretti e più alti: larghi 0,6 m e alti
+    // 0,16-0,28 m, in paese, si leggevano come paglia sparsa. Correzione: il tappeto fra un ciuffo e
+    // l'altro ora lo dipinge il terreno, a fili, «filiErba»; i ciuffi tornano fitti come prima, 3,4 per
+    // m² invece di 4,2, e in paese −25%: istanze e triangoli erano saliti di 2,3 volte e dell'8-12%)
+    const nErba = Math.round(CELLA * CELLA * 3.4 * k);
     for (let i = 0; i < nErba; i++) {
       const u = rnd();
       const v = rnd();
-      const c = campione(u, v);
-      if (c.acqua || c.piazza > 0.2) continue;
       const z = z0 + v * CELLA;
       const a = a0 + u * CELLA;
       const th = a / METERS_PER_DEG;
-      let p = 1 - c.roccia * 0.85;
+      // (i conti cari, quota, pendenza nel punto e sentieri, solo per i candidati che possono passare:
+      // prima la probabilità più alta possibile, poi quella vera con lo stesso numero a caso)
+      let c = campione(u, v);
+      let h = NaN;
+      if (ripiani.length) ({ c, h } = campioneIn(u, v, z, th));
+      if (c.acqua || c.piazza > 0.2) continue;
+      const roccia0 = c === sulRipiano ? 0 : c.rocciaBioma;
+      let p = 1 - roccia0 * 0.85;
       p *= 1 - smoothstep(0.35, 0.8, c.bosco) * 0.75;
-      p *= 1 - c.paese * 0.45;
+      p *= 1 - c.paese * 0.25;
       // a chiazze: l'erba si accoppia (zolle), con qualche radura
       const nz = NOISE.noise(z / 7, a / 7, 3.1) * 0.5 + 0.5;
       p *= 0.45 + 0.9 * nz;
-      if (rnd() > p) continue;
-      const h = groundHeight(z, th);
-      if (occupato(z, th, h, 0.05)) continue;
-      const incolto = smoothstep(0.45, 0.8, NOISE.noise(z / 23, a / 23, 7.7) * 0.5 + 0.5) * (1 - c.paese);
-      const alt = (0.26 + rnd() * 0.2) * (1 - c.paese * 0.4) * (1 + incolto * 1.2 + c.riva * 0.6);
-      const larg = 1.0 + rnd() * 0.6;
+      const caso = rnd();
+      if (caso > p * 1.8) continue;
+      if (Number.isNaN(h)) h = groundHeight(z, th);
+      p *= (1 - rocciaNelPunto(c, z, th, h) * 0.85) / (1 - roccia0 * 0.85);
+      // lungo i sentieri l'erba non calpestata è più fitta (i bordi d'erba)
+      const bs = bordoSentiero(z, th);
+      const bordo = bs < 1.4 ? 1 - smoothstep(0.2, 1.4, bs) : 0;
+      p = Math.min(1, p * (1 + bordo * 0.8));
+      if (caso > p) continue;
+      if (occupato(z, th, h, 0.05, -0.2, true)) continue;
+      const incolto = smoothstep(0.45, 0.8, NOISE.noise(z / 23, a / 23, 7.7) * 0.5 + 0.5) * (1 - c.paese * 0.6);
+      const alt = (0.24 + rnd() * 0.22) * (1 - c.paese * 0.2) * (1 + incolto * 1.1 + c.riva * 0.6 + bordo * 0.6);
+      const larg = 0.72 + rnd() * 0.42;
       const tv = 0.92 + rnd() * 0.16;
       metti('erba', z, th, h - 0.03, rnd() * 360, larg, alt, larg, c.colore[0] * tv, c.colore[1] * tv, c.colore[2] * tv, rnd());
     }
 
     // --- fiori d'ottobre a mazzetti nei prati: colchici lilla, margherite, cicoria azzurra, qualche giallo
-    const nFiori = Math.round(CELLA * CELLA * 0.09 * k);
+    // (migliorie, suolo: un poco più fitti, e anche ai margini del paese: «fiori qua e là»)
+    const nFiori = Math.round(CELLA * CELLA * 0.12 * k);
     const fiori: Array<[number, number, number]> = [
       [0.86, 0.68, 0.95],
       [0.97, 0.96, 0.92],
@@ -417,14 +552,13 @@ export class Sottobosco {
     for (let i = 0; i < nFiori; i++) {
       const u = rnd();
       const v = rnd();
-      const c = campione(u, v);
-      if (c.acqua || c.piazza > 0.1 || c.roccia > 0.4 || c.bosco > 0.4) continue;
       const z = z0 + v * CELLA;
       const a = a0 + u * CELLA;
-      const mazzo = NOISE.noise(z / 9, a / 9, 1.7) * 0.5 + 0.5;
-      if (rnd() > smoothstep(0.5, 0.75, mazzo) * (1 - c.paese * 0.6)) continue;
       const th = a / METERS_PER_DEG;
-      const h = groundHeight(z, th);
+      const { c, h } = campioneIn(u, v, z, th);
+      if (c.acqua || c.piazza > 0.1 || c.bosco > 0.4 || rocciaNelPunto(c, z, th, h) > 0.4) continue;
+      const mazzo = NOISE.noise(z / 9, a / 9, 1.7) * 0.5 + 0.5;
+      if (rnd() > smoothstep(0.5, 0.75, mazzo) * (1 - c.paese * 0.35)) continue;
       if (occupato(z, th, h, 0.05)) continue;
       const f = fiori[Math.floor((NOISE.noise(z / 30, a / 30, 9.9) * 0.5 + 0.5) * 3.99)]!;
       const s = 0.8 + rnd() * 0.5;
@@ -470,6 +604,36 @@ export class Sottobosco {
       const s = (0.16 + rnd() * 0.22) * (1 + grande * 2.2) * (1 - c.riva * 0.4);
       const tv = 0.95 + rnd() * 0.15;
       metti('sassi', z, th, h, rnd() * 360, s * (0.8 + rnd() * 0.5), s * (0.7 + rnd() * 0.4), s, tv, tv, tv, rnd());
+    }
+
+    // --- sassi lungo i sentieri (migliorie, suolo): sul bordo, mezzi affondati nell'erba, a gruppi
+    // radi; ogni tanto uno più grande. Il bordo del sentiero si legge anche da lontano
+    for (const seg of sentieri) {
+      const lz = seg.z1 - seg.z0;
+      const la = seg.a1 - seg.a0;
+      const l = Math.hypot(lz, la);
+      if (l < 0.5) continue;
+      const nS = Math.round(l * 0.55 * k);
+      for (let i = 0; i < nS; i++) {
+        const t = rnd();
+        const lato = rnd() < 0.5 ? -1 : 1;
+        const off = seg.larghezza / 2 + 0.05 + rnd() * 0.55;
+        const z = seg.z0 + lz * t + (-la / l) * off * lato;
+        const a = seg.a0 + la * t + (lz / l) * off * lato;
+        if (z < z0 || z >= z0 + CELLA || a < a0 || a >= a0 + CELLA) continue;
+        const c = campione((a - a0) / CELLA, (z - z0) / CELLA);
+        if (c.acqua || c.piazza > 0) continue;
+        // a gruppi: dove il rumore è basso niente sassi
+        if (rnd() > smoothstep(0.35, 0.65, NOISE.noise(z / 5, a / 5, 6.6) * 0.5 + 0.5)) continue;
+        const th = a / METERS_PER_DEG;
+        const h = groundHeight(z, th);
+        // (il sentiero vicino non conta: i sassi gli stanno proprio sul bordo)
+        if (occupato(z, th, h, 0.15, -0.3)) continue;
+        const grande = rnd() < 0.15 ? 1.8 : 1;
+        const sz = (0.14 + rnd() * 0.16) * grande;
+        const tv = 0.92 + rnd() * 0.16;
+        metti('sassi', z, th, h - sz * 0.25, rnd() * 360, sz * (0.9 + rnd() * 0.5), sz * (0.55 + rnd() * 0.35), sz, tv, tv, tv * 0.97, rnd());
+      }
     }
 
     // --- cespugli ai margini del bosco e lungo le rive

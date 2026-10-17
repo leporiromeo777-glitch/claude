@@ -16,6 +16,7 @@ import { boxAt } from '../world/colliders';
 import { localFrameTheta } from '../world/cylinder';
 import { cil } from './terreno';
 import { metriPerGrado, sposta, suolo } from './terreno';
+import { RIPIANI_ERBOSI } from './ripiano';
 
 export interface Regione {
   z0: number;
@@ -324,6 +325,9 @@ function muroSuPezzo(ctx: Contesto, opz: OpzioniMuriTerrazze, r: Regione, pezzo:
     const ter = localFrameTheta(cc.theta);
     const yawC = (Math.atan2(fw.dot(ter.east), fw.dot(ter.north)) * 180) / Math.PI;
     cz.aggiungiCollider(boxAt(cc.z, cc.theta, piede - 0.6, yawC, L + 0.3, alto + 0.2 + 0.6, 3.1), 'muro');
+    // il riempimento è un prato: il sottobosco ci mette l'erba vera, alla sua quota (migliorie, suolo:
+    // prima l'erba restava sotto, nascosta nel riempimento, e dietro ogni muro c'era una striscia nuda)
+    RIPIANI_ERBOSI.set(`riempimento:${zona}:${cc.z.toFixed(1)}:${cc.theta.toFixed(2)}`, { z: cc.z, theta: cc.theta, yaw: yawC, larghezza: L + 0.3, profondita: 3.1, quota: piede + alto + 0.2 });
   }
   // versione lontana: nastro semplice (faccia di pietra, testa erbosa come il gradone di sopra)
   cz.distanzaLod = 130;

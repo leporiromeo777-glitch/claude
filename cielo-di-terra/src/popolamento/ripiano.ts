@@ -57,15 +57,34 @@ export interface Ripiano {
 
 const ERBA: RGB = hex(0x8aa448);
 const ERBA2: RGB = hex(0xa4b85a);
-const TERRA: RGB = hex(0x9a7e58);
+// (migliorie, suolo: la terra battuta grigio-bruna dei sentieri, non il bruno saturo #9a7e58)
+const TERRA: RGB = hex(0x8f7c62);
 const LASTRA: RGB = hex(0xa59e94);
+
+/** Un ripiano d'erba (quota e rettangolo orientato): il sottobosco ci mette sopra l'erba vera. */
+export interface RipianoErboso {
+  z: number;
+  theta: number;
+  /** bussola del lato «fronte» */
+  yaw: number;
+  larghezza: number;
+  profondita: number;
+  quota: number;
+}
+
+/**
+ * I ripiani d'erba costruiti (per nome). Il sottobosco (`scene/sottobosco.ts`) li legge quando
+ * genera le celle: prima l'erba vera si fermava al piede dei loro muri e sopra restava il solo
+ * colore dipinto (migliorie, suolo).
+ */
+export const RIPIANI_ERBOSI = new Map<string, RipianoErboso>();
 
 function coloreSuperficie(s: Superficie, x: number, y: number): RGB {
   switch (s) {
     case 'erba':
       return mix(ERBA, ERBA2, rumore2(x / 2.2, y / 2.2, 9) * 0.8 + hash2(Math.floor(x * 2), Math.floor(y * 2)) * 0.2);
     case 'terra':
-      return mix(TERRA, hex(0x7f6748), rumore2(x / 1.5, y / 1.5, 3));
+      return mix(TERRA, hex(0x766449), rumore2(x / 1.5, y / 1.5, 3));
     case 'ciottoli':
       return mix(hex(0xb8ae9c), hex(0x8c857a), hash2(Math.floor(x / 0.3), Math.floor(y / 0.3), 2) * 0.7);
     default: {
@@ -218,6 +237,7 @@ export function costruisciRipiano(ctx: Contesto, o: OpzioniRipiano): Ripiano {
     cant.aggiungiCollider(boxAt(o.z, o.theta, fondo, yaw, W, H - fondo, D), o.tag ?? 'calpestabile', o.luogo);
   }
   ctx.occupa({ nome: o.nome, z: o.z, theta: o.theta, yaw, larghezza: W, profondita: D });
+  if ((o.superficie ?? 'erba') === 'erba') RIPIANI_ERBOSI.set(o.nome, { z: o.z, theta: o.theta, yaw, larghezza: W, profondita: D, quota: H });
   return { locale, quota: H, saltoMax };
 }
 

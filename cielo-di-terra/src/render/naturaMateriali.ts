@@ -275,9 +275,10 @@ void main() {
   s.bande = 0.55;
 #elif defined(ERBA)
   if (uFoglia.z > 0.5) {
-    // il prato dipinto del terreno (stesse chiazze, stessi tocchi), poi il chiaroscuro del filo
-    float st;
-    s.albedo = pratoDipinto(s.albedo, cylLocal(P), cylDominantUV(P, up), pixW, 1.0, 1.0, st);
+    // il colore del prato dipinto del terreno (stesse chiazze), poi il chiaroscuro del filo. (Migliorie,
+    // suolo: solo le chiazze, «pratoColore»; le zolle e i tocchi di pennello, su un filo largo 3 cm,
+    // erano rumore e costavano quanto il terreno per ogni frammento d'erba)
+    s.albedo = pratoColore(s.albedo, cylLocal(P), pixW, 1.0, 1.0);
     s.albedo *= vInfo.y;
   }
   erbaDipinta(s, P, pixW, vInfo.z);
@@ -336,8 +337,14 @@ void main() {
 #endif
   float tone;
   vec3 col = shadeSup(s, N, P, V, tone);
+#ifdef ERBA
+  // erba, felci e fiori tengono il loro colore nella luce dorata, come il prato sotto (migliorie, suolo)
+  col = ginocchioSuolo(coloreLocale(col, s.albedo, quotaColoreLocale()));
+#endif
   col = dipintoNatura(col, P, N, V, dist, tone, suv);
-  if (uDebugView > 0.5) col = N * 0.5 + 0.5;
+  // viste di prova (come worldMaterial): 1 = normali, 2 = albedo
+  if (uDebugView > 0.5 && uDebugView < 1.5) col = N * 0.5 + 0.5;
+  else if (uDebugView > 1.5) col = s.albedo;
   gl_FragColor = vec4(col, 1.0);
 }
 `;

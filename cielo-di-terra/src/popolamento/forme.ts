@@ -70,6 +70,11 @@ export interface OpzioniMantello {
    * (pietre, ciottoli, terra) restano continui da un triangolo all'altro, senza tessere
    */
   normaliLisce?: boolean;
+  /**
+   * Solo per i nastri: posizioni dei vertici di traverso (u da −1 a 1). Predefinito
+   * [−1, −0,5, 0, 0,5, 1]; più fitte ai bordi per disegnare un orlo (erba che entra, terra che esce).
+   */
+  traverso?: readonly number[];
 }
 
 /**
@@ -248,7 +253,7 @@ export function nastroSulSuolo(
     const cc = colore(p.s, u);
     col.push(cc[0], cc[1], cc[2], 0);
   };
-  const U = [-1, -0.5, 0, 0.5, 1];
+  const U = opz.traverso ?? [-1, -0.5, 0, 0.5, 1];
   for (let i = 0; i < camp.length - 1; i++) {
     const a = camp[i]!;
     const b = camp[i + 1]!;

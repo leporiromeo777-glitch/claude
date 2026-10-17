@@ -160,7 +160,7 @@ uniform sampler2D uCellTex;
 uniform vec4 uCellGrid;      // nZ, nTheta, dz (m), dTheta (gradi)
 uniform vec4 uPencil;        // x,y = raggio "vicino sempre dipinto" (inizio, fine); z = forza matita globale; w = durata rivelazione
 uniform float uPixelAngle;   // radianti per pixel (per il tratteggio stabile con la distanza)
-uniform float uDebugView;    // 0 normale
+uniform float uDebugView;    // 0 normale, 1 normali, 2 albedo (viste di prova)
 uniform vec4 uSole;          // x = z del nucleo della Linea, y = radenza, z = componente laterale, w = forza della luce principale
 uniform vec3 uHazeSun;       // foschia in controluce verso il nucleo
 uniform vec3 uHazeZenith;    // foschia "allo zenit" (raggi vicini all'asse); uHazeColor = verso l'orizzonte
@@ -174,6 +174,7 @@ uniform vec4 uOmbra;         // x = accese (0/1), y = texel (uv), z = inizio spa
 uniform vec4 uOmbraCentro;   // xyz = centro della zona d'ombra, w = metri per texel
 uniform float uCellAnim;     // istante (s) dell'ultima rivelazione animata: serve a saltare le celle vicino
 uniform float uDettaglio;    // 1 = motivi pieni; < 0.5 = solo i motivi economici (qualità bassa)
+uniform vec4 uSuolo;         // x, y = ginocchio della saturazione del suolo (soglia, pendenza); z = forza dei fili d'erba
 uniform sampler2D uAlberiOmbra; // densità delle chiome (u = theta/360, v = z/L, ~4 m per texel)
 uniform vec4 uAlberiInfo;    // x = 1 se c'è la texture, y = forza dell'ombra
 `;
@@ -431,6 +432,40 @@ vec3 shadeSup(Sup s, vec3 Nv, vec3 P, vec3 V, out float tone) {
   }
   tone = clamp(lumaP(light) * 0.95, 0.0, 1.2);
   return col + s.albedo * lampLight(P, N) * occ;
+}
+
+// colore locale (migliorie, suolo): il pittore tiene il colore del prato e della terra anche nella luce
+// dorata. Senza, l'albedo giallo-oliva per la luce arancione radente e il riempimento lilla dava un
+// prato tutto arancione (tinta 33°, saturazione 0,78 contro 45-57° e 0,5 dei bozzetti). Si tiene la
+// luminosità illuminata e si riporta la tinta verso quella dell'albedo per la frazione 'k'.
+vec3 coloreLocale(vec3 col, vec3 albedo, float k) {
+  float la = lumaP(albedo);
+  vec3 loc = albedo * (lumaP(col) / max(la, 1e-3));
+  return mix(col, loc, clamp(k, 0.0, 1.0) * step(1e-3, la));
+}
+
+// quanto il suolo (prato, terra, sentieri) tiene il suo colore locale: poco a mezzogiorno, di più
+// nelle ore dorate; di notte niente (la luce dei lumi e il blu della notte restano)
+float quotaColoreLocale() {
+  return (0.15 + 0.4 * uGolden) * (1.0 - uNight);
+}
+
+// ginocchio della saturazione del suolo (migliorie, suolo, correzione): sopra la soglia la saturazione
+// cresce la metà. Si misura sulla radice del colore (circa come la vede l'occhio dopo la codifica sRGB).
+// Al sole il prato e la strada arrivavano a 0,7-0,78 (HSV) dopo la mappatura dei toni; nei bozzetti i
+// prati e i campi stanno fra 0,45 e 0,6. Prima stava nella passata finale e valeva per tutti i colori
+// caldi: spegneva anche i castagni d'autunno e le vesti rosse. Qui solo il suolo (terreno, terra,
+// prato, pietra in piano) e l'erba; tinta e valore restano
+vec3 ginocchioSuolo(vec3 c) {
+  float soglia = uSuolo.x;
+  vec3 q = sqrt(max(c, 0.0));
+  float mx = max(q.r, max(q.g, q.b));
+  float mn = min(q.r, min(q.g, q.b));
+  float sv = mx > 1e-4 ? (mx - mn) / mx : 0.0;
+  if (sv <= soglia || uSuolo.y >= 1.0) return c;
+  float sn = soglia + (sv - soglia) * uSuolo.y;
+  q = mx - (mx - q) * (sn / sv);
+  return q * q;
 }
 
 // colore illuminato di una campitura (firma storica: acqua e materiali semplici)
