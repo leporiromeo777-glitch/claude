@@ -25,7 +25,6 @@ import { nastroSulSuolo } from './forme';
 import { SUPERFICIE_NASTRO, TRAVERSO_BATTUTO, campionaSentiero, coloreTerraBattuta, gradiniLungo, profiloCamminabile, suoloDiTraverso } from './sentieri';
 import { distanza, impronta, metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle, yawVerso, type PuntoCil } from './terreno';
 import { hex, mix } from './cantiere';
-import { rumore2 } from './forme';
 import { gradiniLuogo, oggettoSullaSoglia, progettaGradini } from './soglie';
 import type { PuntoInterazione } from './tipi';
 
