@@ -84,6 +84,12 @@ export interface StatoPersonaggio {
   mani?: { readonly S: THREE.Vector3; readonly D: THREE.Vector3 } | null;
   /** appeso al Velo da planata: il corpo si inclina in avanti, le gambe pendono un po' indietro */
   volo?: boolean;
+  /**
+   * di quanto (rad, + = verso la propria sinistra, attorno a +Y) si è girata la figura intera dall'ultimo
+   * aggiornamento: in piedi e fermi i piedi restano dove sono e fanno dei passi brevi per seguire il corpo
+   * (non ruota su se stesso né scivola); oltre 1,2 rad in un colpo è un salto (vaiA), i piedi ripartono
+   */
+  giro?: number;
 }
 
 export interface OpzioniAnimatore {
@@ -113,6 +119,8 @@ export interface OpzioniAnimatore {
   maniSeduta?: ManiSeduta;
   /** la mano destra tiene qualcosa (bastone, pietra): i gesti si fanno con la sinistra */
   manoDOccupata?: boolean;
+  /** tutte e due le mani tengono qualcosa (Pina: forbici e cartone): parlando niente gesti delle mani, solo il capo */
+  maniOccupate?: boolean;
 }
 
 /** Il «carattere» del movimento, dal seme: ritmi e ampiezze un po' diversi per ognuno. */
@@ -203,6 +211,7 @@ const _polso = new THREE.Vector3();
 const _m = new THREE.Matrix4();
 const IDENTITA = new THREE.Quaternion();
 const ASSE_X = new THREE.Vector3(1, 0, 0);
+const ASSE_Y = new THREE.Vector3(0, 1, 0);
 
 interface Osso {
   nome: NomeOsso;
@@ -222,6 +231,89 @@ const liscio = (a: number, b: number, x: number) => {
   const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
   return t * t * (3 - 2 * t);
 };
+/** 0 → 1 con velocità nulla ai due capi (mezzo coseno), x in [0, 1] */
+const morbido = (x: number) => (1 - Math.cos(Math.PI * THREE.MathUtils.clamp(x, 0, 1))) / 2;
+
+/**
+ * Una molla smorzata in modo critico (posizione e velocità): va verso il bersaglio senza oscillare e
+ * senza salti di velocità quando il bersaglio cambia di colpo (la testa che passa da uno sguardo distratto
+ * a chi parla). `k` = rigidezza (1/s: a 5 arriva in circa un secondo), `vmax` = velocità massima.
+ * Integrata a passi di 1/60 s al più, così regge anche gli aggiornamenti radi dei lontani.
+ */
+export function molla(stato: { x: number; v: number }, bersaglio: number, k: number, dt: number, vmax = Infinity): void {
+  const n = Math.max(1, Math.ceil(dt * 60 - 1e-6));
+  const h = dt / n;
+  for (let i = 0; i < n; i++) {
+    const a = k * k * (bersaglio - stato.x) - 2 * k * stato.v;
+    stato.v = THREE.MathUtils.clamp(stato.v + a * h, -vmax, vmax);
+    stato.x += stato.v * h;
+  }
+}
+
+/** Un numero fra 0 e 1 dal seme e da un indice (mulberry32 di una volta): le scelte delle battute. */
+function caso(seme: number, n: number): number {
+  let t = (seme ^ Math.imul(n + 1, 0x9e3779b9)) >>> 0;
+  t = (t + 0x6d2b79f5) >>> 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/** I gesti che accompagnano le battute: la mano che si apre davanti (il più comune) o la mano al petto. */
+export type GestoBattuta = 'apre' | 'mano-al-petto';
+
+/**
+ * Le misure della conversazione (secondi, gradi): quanto spesso e quanto ampio. Tutto quello che si muove
+ * parlando entra e esce a velocità nulla (mezzo coseno), mai a gradino.
+ */
+export const CONVERSAZIONE = {
+  /** probabilità di un gesto a una battuta (bambini un po' di più), e il tempo minimo fra due gesti */
+  gesto: 0.4,
+  gestoBambino: 0.55,
+  fraGesti: 6,
+  /** entrata, tenuta (al più) e uscita del gesto */
+  gestoEntra: 0.9,
+  gestoTiene: 1.5,
+  gestoEsce: 1.0,
+  /** il cenno del capo all'inizio di una battuta: probabilità, ampiezza (gradi) e durata */
+  cenno: 0.7,
+  cennoAmp: [3.5, 6] as const,
+  cennoDurata: [0.75, 1.0] as const,
+  /** il capo che si muove appena mentre parla (gradi) */
+  capo: 1.6,
+  /** il petto che respira (gradi), e quanto di più mentre parla (frazione) */
+  respiro: 1.0,
+  respiroParla: 0.3,
+  /**
+   * lo sguardo: rigidezza della molla (1/s) e velocità massima (gradi/s). La testa nello spazio della
+   * figura gira quanto lo sguardo (petto, collo e testa insieme): 110°/s la tengono sotto i 120°/s
+   */
+  sguardoK: 4.5,
+  sguardoVmax: 110,
+  /**
+   * chi gli sta dietro (oltre questi gradi dal suo avanti, cioè a meno di 25° dalla schiena) lo guarda
+   * dal lato da cui lo stava già guardando: la testa non salta da una spalla all'altra quando Elvira
+   * passa di poco oltre la schiena; cambia lato solo quando lei è chiaramente dall'altra parte
+   */
+  sguardoDietro: 155,
+  /** un passo per seguire il corpo che si gira: oltre questo scarto (rad) fra piede e corpo, durata (s), alzata (·H) */
+  passoGiro: 0.15,
+  passoGiroDurata: 0.44,
+  passoGiroAlzata: 0.022,
+  /**
+   * la parte del passo (frazione della durata) in cui il piede si alza (e poi si posa), e quella in cui
+   * gira: il piede gira solo quando è già su (dal 12 all'88 per cento), a terra resta fermo
+   */
+  passoGiroSu: 0.33,
+  passoGiroGira: [0.12, 0.88] as const,
+  /** dove si posa il piede: avanti nel verso del giro di metà di quanto gira il corpo in un passo, al più (rad) */
+  passoGiroAvanti: 0.35,
+  /**
+   * il piede a terra ruota sul posto (sulla caviglia, come sulla pianta) per questa frazione del giro del
+   * corpo: la punta segue un po' il corpo e la gamba si torce meno; la caviglia resta ferma
+   */
+  passoGiroPerno: 0.4,
+} as const;
 
 /** Nomi delle ossa per lato (niente stringhe composte a ogni fotogramma). */
 const LATO = {
@@ -254,6 +346,7 @@ export class AnimatorePersonaggio {
     bambino: boolean;
     maniSeduta: ManiSeduta;
     manoDOccupata: boolean;
+    maniOccupate: boolean;
   };
   private t = 0;
   /** fase del ciclo del passo (0..1, un ciclo = due passi) */
@@ -261,8 +354,16 @@ export class AnimatorePersonaggio {
   /** 0 = fermo, 1 = cammina (sfuma fra i due) */
   private cammino = 0;
   private velocita = 0;
-  private yaw = 0;
-  private pitch = 0;
+  /** lo sguardo (rad): molle con posizione e velocità (vedi `molla`) */
+  private readonly yaw = { x: 0, v: 0 };
+  private readonly pitch = { x: 0, v: 0 };
+  /**
+   * da che lato (nello spazio del modello: +1 = verso +x, -1 = verso -x) la testa guarda chi le sta
+   * attorno; 0 = non guarda nessuno. Con isteresi dietro la schiena (CONVERSAZIONE.sguardoDietro)
+   */
+  private latoSguardo = 0;
+  /** fase del respiro (rad): si accumula, così cambiare il ritmo non fa saltare il petto */
+  private faseRespiro = 0;
   private gestoPeso = 0;
   /** peso della posa delle braccia (sfuma col cammino e con i gesti) */
   private posaPeso = 0;
@@ -279,10 +380,33 @@ export class AnimatorePersonaggio {
   private maniPeso = 0;
   private readonly maniS = new THREE.Vector3();
   private readonly maniD = new THREE.Vector3();
-  /** la battuta in corso (annunciaBattuta): tempo dall'inizio, gesto scelto, quante finora */
+  /** la battuta in corso (annunciaBattuta): tempo dall'inizio, quanto dura il parlato, quante finora */
   private battutaT = 99;
-  private battutaGesto: GestoPersonaggio | 'cenno' = 'cenno';
+  private battutaDurata = 0;
   private battute = 0;
+  /** quanto sta parlando adesso (0..1, sale e scende morbido) */
+  private parla = 0;
+  /** il cenno del capo della battuta: tempo dall'inizio (s), ampiezza (rad), durata (s) */
+  private cenno = { t: 99, amp: 0, durata: 1 };
+  /** il gesto della battuta: quale, da quanto (s), quanto tiene, con che mano, e quando è cominciato l'ultimo */
+  private gestoB: { tipo: GestoBattuta; t: number; tiene: number; lato: 'S' | 'D' } | null = null;
+  private ultimoGesto = -99;
+  private readonly semeBattute: number;
+  /** quanto i piedi sono girati rispetto al corpo (rad, attorno a +Y del modello) e il passo in corso per rimetterli */
+  private readonly piedeGiro = { S: 0, D: 0 };
+  /**
+   * il passo in corso: piede, tempo (0..1), angolo del piede rispetto al corpo alla partenza, dove si posa
+   * rispetto al corpo, di quanto si è girato il corpo da quando il piede si è staccato (B) e di quanto si
+   * prevedeva che girasse (Bp)
+   */
+  private passoGiro: { lato: 'S' | 'D'; t: number; da: number; a: number; B: number; Bp: number } | null = null;
+  /** velocità con cui il corpo intero sta girando (rad/s, smorzata) e il peso dell'IK dei piedi girati */
+  private giroVel = 0;
+  /** e con che accelerazione (rad/s², smorzata): il piede che si stacca prevede dove sarà il corpo quando si posa */
+  private giroAcc = 0;
+  private giroPeso = 0;
+  private readonly giroPesoM = { x: 0, v: 0 };
+  private fermoGiro = 0;
   /**
    * spostamento del modello (m, nello spazio del suo genitore) da applicare alla radice dopo `update`:
    * y = abbassamento del bacino nel passo e nella seduta, z = indietro da seduti
@@ -323,10 +447,13 @@ export class AnimatorePersonaggio {
       bambino: opz.bambino ?? false,
       maniSeduta: opz.maniSeduta ?? (opz.bastone ? 'bastone' : 'grembo'),
       manoDOccupata: opz.manoDOccupata ?? opz.bastone ?? false,
+      maniOccupate: opz.maniOccupate ?? false,
     };
     this.t = this.opz.sfasamento;
     this.curvo = this.opz.curvo;
     this.fase = (this.opz.sfasamento * 0.37) % 1;
+    this.faseRespiro = (this.opz.sfasamento * Math.PI * 2) / this.carattere.respiro;
+    this.semeBattute = ((opz.seme ?? 0) ^ 0x7a11c0) >>> 0;
     radice.updateMatrixWorld(true);
     const radiceInv = new THREE.Quaternion();
     radice.getWorldQuaternion(radiceInv).invert();
@@ -338,7 +465,10 @@ export class AnimatorePersonaggio {
     for (const nome of NOMI_OSSA) {
       const osso = trovate.get(nome);
       if (!osso) throw new Error(`personaggio senza l'osso «${nome}»`);
-      const W = osso.getWorldQuaternion(new THREE.Quaternion()).premultiply(radiceInv);
+      // (normalizzato: nei generici la copia è scalata in modo diverso in larghezza e altezza e il quaternione
+      // estratto dalla matrice del mondo non è unitario; W⁻¹·R·W allora non era una rotazione pura e ogni osso
+      // si accorciava di qualche decimillesimo)
+      const W = osso.getWorldQuaternion(new THREE.Quaternion()).premultiply(radiceInv).normalize();
       const attacco = osso.getWorldPosition(new THREE.Vector3()).applyMatrix4(radiceMatInv);
       const o: Osso = { nome, osso, riposo: osso.quaternion.clone(), W, Winv: W.clone().invert(), attacco, R: new THREE.Quaternion() };
       this.ossa.set(nome, o);
@@ -407,21 +537,59 @@ export class AnimatorePersonaggio {
     return this.L1g + this.L2g;
   }
 
+  /**
+   * Il lato verso cui la testa guarda chi le sta attorno, come un punto nel mondo (di lato, all'altezza
+   * della testa, a un'altezza della figura); false se non guarda nessuno. Il popolamento lo usa per girare
+   * il corpo da quel lato quando chi gli parla è quasi dietro la schiena: la testa, già girata verso di
+   * lei, non deve passare all'altra spalla mentre il corpo si gira.
+   */
+  puntoSguardo(out: THREE.Vector3): boolean {
+    if (!this.latoSguardo) return false;
+    const a = this.o('testa').attacco;
+    out.set(a.x + this.latoSguardo * this.altezza, a.y, a.z);
+    this.radice.localToWorld(out);
+    return true;
+  }
+
   /** l'attacco a riposo di un osso, nello spazio del modello */
   attacco(nome: NomeOsso): THREE.Vector3 {
     return this.o(nome).attacco;
   }
 
   /**
-   * Una battuta di dialogo comincia: un cenno del capo e, a seconda del carattere, la mano al petto o un
-   * gesto verso chi ascolta; mentre parla il respiro è più ampio.
+   * Una battuta di dialogo comincia (`durata` = per quanto parla, s): come una persona in una conversazione
+   * tranquilla. Quasi sempre un piccolo cenno del capo, lento; mentre parla il capo si muove appena e il
+   * respiro si fa un po' più ampio; ogni tanto (non a ogni battuta, mai due gesti a meno di
+   * `CONVERSAZIONE.fraGesti` s) la mano libera si apre davanti o va al petto. Le scelte vengono dal seme
+   * del personaggio: la stessa battuta fa sempre lo stesso.
    */
-  annunciaBattuta(): void {
-    this.battutaT = 0;
+  annunciaBattuta(durata = 2.6): void {
     const n = this.battute++;
-    const s = Math.floor(this.carattere.respiro * 100) + n;
-    const giro: (GestoPersonaggio | 'cenno')[] = ['cenno', 'mano-al-petto', 'cenno', 'indica'];
-    this.battutaGesto = giro[s % giro.length] as GestoPersonaggio | 'cenno';
+    const K = CONVERSAZIONE;
+    this.battutaT = 0;
+    this.battutaDurata = THREE.MathUtils.clamp(durata, 1.2, 7);
+    const s = this.semeBattute;
+    // il cenno (se il precedente è finito: due cenni non si sommano)
+    if (this.cenno.t >= this.cenno.durata && caso(s, n * 3) < K.cenno) {
+      const bimbo = this.opz.bambino ? 1.3 : 1;
+      this.cenno = {
+        t: -0.08 - 0.2 * caso(s, n * 3 + 1),
+        amp: (K.cennoAmp[0] + (K.cennoAmp[1] - K.cennoAmp[0]) * caso(s, n * 3 + 2)) * bimbo * DEG,
+        durata: K.cennoDurata[0] + (K.cennoDurata[1] - K.cennoDurata[0]) * caso(s, n * 7 + 5),
+      };
+    }
+    // il gesto: raro, mai alla prima battuta di chi non si conosce ancora, mai due di fila
+    const p = this.opz.bambino ? K.gestoBambino : K.gesto;
+    if (n > 0 && !this.opz.maniOccupate && !this.gestoB && this.t - this.ultimoGesto > K.fraGesti && caso(s, n * 5 + 11) < p) {
+      const tipo: GestoBattuta = caso(s, n * 5 + 13) < 0.72 ? 'apre' : 'mano-al-petto';
+      this.gestoB = { tipo, t: -0.15, tiene: Math.min(K.gestoTiene, Math.max(0.6, this.battutaDurata * 0.45)), lato: this.opz.manoDOccupata ? 'S' : 'D' };
+      this.ultimoGesto = this.t;
+    }
+  }
+
+  /** Il dialogo è finito: niente più parlato; il gesto in corso esce da solo, morbido. */
+  fineBattute(): void {
+    this.battutaDurata = Math.min(this.battutaDurata, this.battutaT);
   }
 
   private o(nome: NomeOsso): Osso {
@@ -469,12 +637,16 @@ export class AnimatorePersonaggio {
     const posa = stato.braccia ?? this.opz.braccia;
     if (posa !== this.posaAttiva && this.posaPeso < 0.02) this.posaAttiva = posa;
     this.posaPeso = smorza(this.posaPeso, posa === this.posaAttiva && posa !== 'libere' && stato.modo !== 'cammina' ? 1 : 0, 4, d);
-    // il gesto chiesto dallo stato o quello della battuta in corso
+    // la battuta in corso: quanto parla (sale in un terzo di secondo, scende in uno), cenno e gesto
     this.battutaT += d;
-    const gBattuta = this.battutaT < 1.6 && this.battutaGesto !== 'cenno' ? this.battutaGesto : 'nessuno';
-    const gesto = stato.gesto && stato.gesto !== 'nessuno' ? stato.gesto : gBattuta;
+    this.cenno.t += d;
+    if (this.gestoB) this.gestoB.t += d;
+    const parlaOra = this.battutaT < this.battutaDurata ? 1 : 0;
+    this.parla = smorza(this.parla, parlaOra, parlaOra > this.parla ? 6 : 2.5, d);
+    // il gesto chiesto dallo stato (la storia: saluta, indica un punto), sfumato con calma
+    const gesto = stato.gesto && stato.gesto !== 'nessuno' ? stato.gesto : 'nessuno';
     if (gesto !== this.gestoAttivo && this.gestoPeso < 0.02) this.gestoAttivo = gesto;
-    this.gestoPeso = smorza(this.gestoPeso, gesto === this.gestoAttivo && gesto !== 'nessuno' ? 1 : 0, 7, d);
+    this.gestoPeso = smorza(this.gestoPeso, gesto === this.gestoAttivo && gesto !== 'nessuno' ? 1 : 0, 4.5, d);
 
     const k = this.cammino;
     const fermo = 1 - k;
@@ -485,6 +657,8 @@ export class AnimatorePersonaggio {
     const sed = this.sedutaAttiva;
     const terra = sed.terra ? sd : 0;
     const panca = sed.terra ? 0 : sd;
+    // il corpo intero che si gira (verso chi parla): i piedi restano a terra e lo seguono a passi
+    this.aggiornaGiro(stato.giro ?? 0, d, inPiedi, k);
 
     // --- il passo: fase dalla distanza percorsa
     const v = Math.max(this.velocita, 0.3);
@@ -503,10 +677,14 @@ export class AnimatorePersonaggio {
     this.ruota('petto', 0, 2 * DEG * amp * c);
 
     // --- fermo: respiro e peso che si sposta (solo in piedi)
-    const parla = Math.max(0, 1 - this.battutaT / 3);
-    const resp = Math.sin((t * Math.PI * 2) / (C.respiro * (1 - 0.25 * parla)));
+    // (la fase si accumula: prima era sin(t·2π/periodo) con il periodo che cambiava a ogni battuta, e con
+    // t di qualche minuto il petto e le spalle tremavano per tre secondi a ogni battuta)
+    const K = CONVERSAZIONE;
+    const pa = this.parla;
+    this.faseRespiro = (this.faseRespiro + (d * Math.PI * 2) / (C.respiro * (1 - 0.12 * pa))) % (Math.PI * 2);
+    const resp = Math.sin(this.faseRespiro);
     const peso = Math.sin((t * Math.PI * 2) / C.peso + 1.3) * C.pesoAmp * fermo * inPiedi;
-    this.ruota('petto', -1.2 * DEG * resp * (0.6 + 0.4 * fermo + 0.9 * parla));
+    this.ruota('petto', -K.respiro * DEG * resp * (0.6 + 0.4 * fermo) * (1 + K.respiroParla * pa));
     this.ruota('bacino', 0, 0, 1.6 * DEG * peso);
     this.ruota('schiena', 0, 0, -1.2 * DEG * peso);
     const fermoGambe = fermo * inPiedi;
@@ -520,8 +698,18 @@ export class AnimatorePersonaggio {
     // abitudini: testa un po' inclinata, spalle un po' avanti
     this.ruota('collo', C.spalle * 0.5 * DEG, 0, C.inclina * 0.4 * DEG);
     this.ruota('testa', 0, 0, C.inclina * 0.6 * DEG);
-    // la battuta: un cenno del capo all'inizio (giù e su in 0,45 s)
-    if (this.battutaT < 0.45) this.ruota('testa', 9 * DEG * Math.sin((this.battutaT / 0.45) * Math.PI));
+    // la battuta: un cenno del capo lento (giù e su, velocità nulla ai capi) e, mentre parla, il capo che
+    // si muove appena (tre seni lenti sul tempo continuo: a una battuta nuova niente riparte da capo)
+    const cn = this.cenno;
+    if (cn.t > 0 && cn.t < cn.durata) {
+      const u = 0.5 * (1 - Math.cos((2 * Math.PI * cn.t) / cn.durata));
+      this.ruota('collo', cn.amp * 0.3 * u * (1 - 0.5 * ch));
+      this.ruota('testa', cn.amp * 0.7 * u * (1 - 0.5 * ch));
+    }
+    if (pa > 0.001) {
+      const a = K.capo * DEG * pa * (this.opz.bambino ? 1.4 : 1) * (1 - 0.5 * ch);
+      this.ruota('testa', a * (0.6 * Math.sin(t * 4.1 + 0.3) + 0.4 * Math.sin(t * 6.7 + 1.9)), a * 0.8 * Math.sin(t * 2.3 + 0.7), a * 0.5 * Math.sin(t * 3.1 + 2.2));
+    }
 
     // --- curvo (anziani): schiena e collo avanti, testa che rialza lo sguardo
     const cv = this.curvo * (1 - sd * 0.5) * (1 - ch) * (1 - vl);
@@ -583,9 +771,12 @@ export class AnimatorePersonaggio {
       sp.y += 0.04 * H * vl;
       sp.z += 0.03 * H * vl;
     }
+    // girandosi a passi le ginocchia si sbloccano appena (e l'IK dei piedi resta lontano dalla gamba tesa)
+    if (this.giroPeso > 0.001) sp.y -= 0.008 * H * this.giroPeso * inPiedi;
 
     // --- gambe: il passo (piedi a terra che non pattinano), la seduta, il chino, il volo
     if (k > 0.001 && inPiedi > 0.001) this.gambePasso(k * inPiedi, amp, passo, H);
+    if (this.giroPeso > 0.001) this.gambeGiro(this.giroPeso * inPiedi * (1 - k), H);
     if (ch > 0.001) this.gambeFerme(ch * (1 - k));
     if (panca > 0.001) this.gambeSedute(panca, sed, H);
     if (terra > 0.001) this.gambePerTerra(terra, sed, H);
@@ -633,9 +824,11 @@ export class AnimatorePersonaggio {
       this.raggiungiModello('D', _u.copy(this.maniD).sub(sp), this.maniPeso, 1);
     }
 
-    // --- gesti (mano destra, o sinistra se la destra tiene qualcosa), sfumati
-    const g = this.gestoPeso * libero;
-    if (g > 0.001) this.gesto(this.gestoAttivo, this.gestoPeso, t, stato.indica ?? null);
+    // --- il gesto della battuta (la mano libera che si apre davanti, o al petto), sotto quelli della storia
+    if (this.gestoB) this.gestoBattuta(H, libero);
+
+    // --- gesti della storia (mano destra, o sinistra se la destra tiene qualcosa), sfumati
+    if (this.gestoPeso > 0.001) this.gesto(this.gestoAttivo, this.gestoPeso, t, stato.indica ?? null);
 
     // --- scrive le ossa: riposo · W⁻¹ · R · W
     for (const o of this.lista) {
@@ -682,7 +875,7 @@ export class AnimatorePersonaggio {
    * spostamento), il ginocchio verso `polo` (spazio del modello), il piede inclinato di `beccheggio`
    * (Rx, + = punta giù) rispetto al suolo.
    */
-  private gambaIK(L: Lato, caviglia: THREE.Vector3, polo: THREE.Vector3, beccheggio: number, peso: number): void {
+  private gambaIK(L: Lato, caviglia: THREE.Vector3, polo: THREE.Vector3, beccheggio: number, peso: number, imbardata = 0): void {
     if (peso <= 0.0005) return;
     const sp = this.spostamento;
     _bersaglio2.copy(caviglia).sub(sp);
@@ -698,8 +891,111 @@ export class AnimatorePersonaggio {
     const pi = this.o(L.piede);
     _qa.copy(this.C.bacino).multiply(co.R).multiply(st.R).invert();
     _qb.setFromAxisAngle(ASSE_X, beccheggio);
+    // il piede girato attorno alla verticale (i piedi rimasti a terra mentre il corpo si gira)
+    if (imbardata) _qb.premultiply(_qc.setFromAxisAngle(ASSE_Y, imbardata));
     _qa.multiply(_qb);
     pi.R.slerp(_qa, peso);
+  }
+
+  /**
+   * Il corpo intero si è girato di `dg` rad (StatoPersonaggio.giro): il piede a terra resta dov'è (rispetto
+   * al corpo gira al contrario); quando un piede è girato più di `CONVERSAZIONE.passoGiro` rispetto al corpo
+   * fa un passo breve per tornargli sotto (posandosi un filo avanti nel verso del giro), poi l'altro. A
+   * corpo fermo, i piedi rimasti storti si sistemano con un passo. Seduti, chini, in cammino o dopo un salto
+   * i piedi tornano subito sotto il corpo (non c'è niente da seguire).
+   */
+  private aggiornaGiro(dg: number, d: number, inPiedi: number, k: number): void {
+    const K = CONVERSAZIONE;
+    const pg = this.piedeGiro;
+    if (Math.abs(dg) > 1.2 || inPiedi < 0.5 || k > 0.3) {
+      pg.S = 0;
+      pg.D = 0;
+      this.passoGiro = null;
+      this.giroVel = 0;
+      this.giroAcc = 0;
+      this.giroPeso = Math.abs(dg) > 1.2 ? 0 : smorza(this.giroPeso, 0, 6, d);
+      this.giroPesoM.v = 0;
+      return;
+    }
+    if (d <= 0) return;
+    const vPrima = this.giroVel;
+    this.giroVel = smorza(this.giroVel, dg / d, 8, d);
+    this.giroAcc = smorza(this.giroAcc, (this.giroVel - vPrima) / d, 6, d);
+    const ps = this.passoGiro;
+    for (const L of LATI) if (ps?.lato !== L.lato) pg[L.lato] -= dg;
+    if (ps) {
+      // il piede in aria va da dov'era (fermo nel mondo) a dove si posa (fermo nel mondo): la traiettoria è
+      // nel mondo, non rispetto al corpo. Prima andava da `da` ad `a` rispetto al corpo: nel momento in cui
+      // si staccava e in quello in cui si posava il piede, ancora o già a terra, correva con il corpo che
+      // girava (0,3 m/s) e poi si fermava di colpo
+      ps.t += d / K.passoGiroDurata;
+      ps.B += dg;
+      const [g0, g1] = K.passoGiroGira;
+      pg[ps.lato] = ps.da + (ps.Bp + ps.a - ps.da) * morbido((ps.t - g0) / (g1 - g0)) - ps.B;
+      if (ps.t >= 1) this.passoGiro = null;
+    }
+    const gira = Math.abs(this.giroVel) > 0.25;
+    this.fermoGiro = gira ? 0 : this.fermoGiro + d;
+    if (!this.passoGiro) {
+      // dove si posa un piede: un filo avanti nel verso del giro se il corpo sta ancora girando, se no sotto il corpo
+      // (così, girando di continuo, i piedi stanno fra ±metà del giro di un passo rispetto al corpo: prima
+      // l'avanti era al più 0,18 rad e il piede fermo arrivava a 26° di torsione, le gambe a forbice)
+      const T = K.passoGiroDurata;
+      // la velocità del corpo quando il piede si posa (con l'accelerazione di adesso, mai al contrario)
+      const vPosa = this.giroVel + this.giroAcc * T;
+      const vFine = Math.sign(vPosa) === Math.sign(this.giroVel) ? vPosa : 0;
+      const avanti = gira ? THREE.MathUtils.clamp(vFine * T * 0.5, -K.passoGiroAvanti, K.passoGiroAvanti) : 0;
+      // il piede più lontano da lì fa il passo (a pari merito quello dal lato verso cui si gira)
+      const sS = Math.abs(pg.S - avanti);
+      const sD = Math.abs(pg.D - avanti);
+      const lato: 'S' | 'D' = sS > sD + 1e-4 ? 'S' : sD > sS + 1e-4 ? 'D' : this.giroVel >= 0 ? 'S' : 'D';
+      const scarto = lato === 'S' ? sS : sD;
+      // quanto girerà il corpo mentre il piede è in aria (velocità e accelerazione di adesso): il piede si
+      // posa lì, fermo nel mondo
+      const Bp = gira ? THREE.MathUtils.clamp(((this.giroVel + vFine) / 2) * T, -1, 1) : 0;
+      // (a corpo fermo da un po', i piedi rimasti storti si sistemano; non quando il corpo comincia appena a
+      // girare: il passo partiva senza sapere dove posarsi e il piede restava indietro di 45°)
+      const sistema = this.fermoGiro > 0.4 && Math.abs(this.giroVel) < 0.05 && scarto > 0.03;
+      if (scarto > K.passoGiro || sistema) this.passoGiro = { lato, t: 0, da: pg[lato], a: avanti, B: 0, Bp };
+    }
+    const serve = this.passoGiro || Math.abs(pg.S) > 0.003 || Math.abs(pg.D) > 0.003 ? 1 : 0;
+    // (una molla: l'IK dei piedi entra e esce senza gradini di velocità; svelta, perché finché il peso è basso
+    // i piedi seguono il corpo e strisciano: con k = 7 all'inizio del giro arrivavano a 0,1-0,28 m/s)
+    this.giroPesoM.x = this.giroPeso;
+    molla(this.giroPesoM, serve, 14, d);
+    this.giroPeso = THREE.MathUtils.clamp(this.giroPesoM.x, 0, 1);
+  }
+
+  /** Le gambe con i piedi girati (aggiornaGiro): la caviglia ruotata attorno alla verticale, il passo in aria. */
+  private gambeGiro(peso: number, H: number): void {
+    if (peso <= 0.001) return;
+    const ps = this.passoGiro;
+    for (const L of LATI) {
+      const ang = this.piedeGiro[L.lato];
+      const r = this.o(L.piede).attacco;
+      const c = Math.cos(ang);
+      const s = Math.sin(ang);
+      // rotazione attorno a +Y: x' = x·c + z·s, z' = -x·s + z·c (nello spazio del suolo: a riposo i piedi ci posano)
+      _bersaglio.set(r.x * c + r.z * s, r.y, -r.x * s + r.z * c);
+      let becc = 0;
+      if (ps && ps.lato === L.lato) {
+        // su in CONVERSAZIONE.passoGiroSu, resta su mentre gira, giù alla fine: si stacca e si posa a
+        // velocità nulla (mezzo coseno). Prima era la quarta del seno: sotto 1,5 cm per metà del passo,
+        // mentre il piede girava già, cioè strisciava
+        const su = CONVERSAZIONE.passoGiroSu;
+        const u = THREE.MathUtils.clamp(ps.t, 0, 1);
+        const a = u < su ? morbido(u / su) : u > 1 - su ? morbido((1 - u) / su) : 1;
+        _bersaglio.y += CONVERSAZIONE.passoGiroAlzata * H * a;
+        becc = 8 * DEG * a;
+      }
+      // il ginocchio a metà fra il davanti del bacino e quello del piede
+      const c2 = Math.cos(ang / 2);
+      const s2 = Math.sin(ang / 2);
+      const px = L.segno * 0.08;
+      _polo.set(px * c2 + s2, 0, -px * s2 + c2);
+      // il piede ruota sul posto per una parte del giro (CONVERSAZIONE.passoGiroPerno): la caviglia resta dov'è
+      this.gambaIK(L, _bersaglio, _polo, becc, peso, ang * (1 - CONVERSAZIONE.passoGiroPerno));
+    }
   }
 
   /** Il ciclo del passo per le due gambe e l'abbassamento del bacino che serve perché ci arrivino. */
@@ -810,34 +1106,99 @@ export class AnimatorePersonaggio {
     }
   }
 
-  /** Lo sguardo: testa e collo verso il punto (in spazio modello), con limiti e inerzia. */
+  /**
+   * Lo sguardo: testa e collo verso il punto (in spazio modello), con limiti e inerzia. Una molla
+   * smorzata (non più un inseguimento del primo ordine): quando il punto cambia di colpo la testa parte e
+   * si ferma piano, senza scatti, e non supera `CONVERSAZIONE.sguardoVmax`. Chi è chino sul lavoro gira
+   * la testa poco (Togna alla vasca «non si gira»).
+   */
   private sguardo(stato: StatoPersonaggio, d: number, fermo: number, ch: number, t: number): void {
     const C = this.carattere;
+    const K = CONVERSAZIONE;
     let yawB = 0;
     let pitchB = 0;
+    const limite = (75 - 40 * ch) * DEG;
     if (stato.guarda) {
       _v.copy(stato.guarda);
       this.radice.worldToLocal(_v);
       _w.copy(_v).sub(this.o('testa').attacco);
       const ang = Math.atan2(_w.x, _w.z);
-      yawB = THREE.MathUtils.clamp(ang, -75 * DEG, 75 * DEG);
       const oriz = Math.hypot(_w.x, _w.z);
-      pitchB = THREE.MathUtils.clamp(-Math.atan2(_w.y, oriz), -30 * DEG, 35 * DEG);
-      // dietro le spalle: si gira fin dove può, dal lato giusto
-      if (_w.z < 0 && Math.abs(ang) > 100 * DEG) yawB = Math.sign(_w.x || 1) * 75 * DEG;
+      pitchB = THREE.MathUtils.clamp(-Math.atan2(_w.y, oriz), -30 * DEG, (35 - 15 * ch) * DEG);
+      // il lato da cui guardarla: il suo (anche se arriva da dietro, la testa si gira verso di lei, fin dove
+      // può). Solo quando è quasi dietro la schiena il lato resta quello di prima (isteresi: chi le passa
+      // di poco dietro le spalle non fa saltare la testa da una spalla all'altra); se intanto il corpo si
+      // sta girando, il lato è quello verso cui gira, perché è da lì che lei gli comparirà davanti.
+      // (Prima, oltre i 100°, la testa restava dal lato da cui era già girata per uno sguardo distratto:
+      // una volta su due guardava dalla parte opposta a Elvira e, quando il corpo si girava, attraversava
+      // 150° a 160°/s.)
+      const dietro = Math.abs(ang) > K.sguardoDietro * DEG;
+      if (!dietro || this.latoSguardo === 0) this.latoSguardo = Math.sign(ang) || this.latoSguardo || 1;
+      else if (Math.abs(this.giroVel) > 0.2) this.latoSguardo = Math.sign(this.giroVel);
+      yawB = !dietro || Math.sign(ang) === this.latoSguardo ? THREE.MathUtils.clamp(ang, -limite, limite) : this.latoSguardo * limite;
     } else {
+      this.latoSguardo = 0;
       // sguardi distratti quando è fermo
       const fq = C.sguardoF;
       yawB = (Math.sin(t * 0.37 * fq + 1.1) * 0.6 + Math.sin(t * 0.13 * fq) * 0.4) * C.sguardoAmp * DEG * fermo * (1 - ch * 0.7);
       pitchB = Math.sin(t * 0.29 * fq + 2) * 4 * DEG * fermo;
     }
-    this.yaw = smorza(this.yaw, yawB, 4, d);
-    this.pitch = smorza(this.pitch, pitchB, 4, d);
-    // oltre 45° gira anche il busto (metà del resto), poi collo e testa
-    const busto = Math.max(0, Math.abs(this.yaw) - 45 * DEG) * Math.sign(this.yaw);
+    molla(this.yaw, yawB, K.sguardoK, d, K.sguardoVmax * DEG);
+    molla(this.pitch, pitchB, K.sguardoK, d, K.sguardoVmax * DEG);
+    const yaw = this.yaw.x;
+    const pitch = this.pitch.x;
+    // oltre 45° gira anche il busto (metà del resto), poi collo e testa; il passaggio è morbido (prima
+    // max(0, |yaw| - 45°) aveva uno spigolo a 45°)
+    const oltre = Math.abs(yaw) - 45 * DEG;
+    const busto = (oltre > -10 * DEG ? (oltre < 10 * DEG ? (oltre + 10 * DEG) ** 2 / (40 * DEG) : oltre) : 0) * Math.sign(yaw);
     this.ruota('petto', 0, busto * 0.5);
-    this.ruota('collo', this.pitch * 0.35, (this.yaw - busto * 0.5) * 0.4);
-    this.ruota('testa', this.pitch * 0.65, (this.yaw - busto * 0.5) * 0.6);
+    this.ruota('collo', pitch * 0.35, (yaw - busto * 0.5) * 0.4);
+    this.ruota('testa', pitch * 0.65, (yaw - busto * 0.5) * 0.6);
+  }
+
+  /**
+   * Il gesto di una battuta (annunciaBattuta): entra e esce a mezzo coseno, tiene per un po' con un piccolo
+   * battito della mano. Solo con la mano libera: chi è chino, cammina, è appeso al Velo, tiene la barra,
+   * ha le braccia conserte o le mani dietro, è seduto col bastone o con le forbici non lo fa (sfuma via
+   * se nel frattempo il corpo passa a una di queste pose).
+   *  - «apre»: la mano davanti al ventre, un po' di lato, il gomito piegato lungo il fianco (il percorso della
+   *    mano va avanti e in su, fuori dal corpo);
+   *  - «mano-al-petto»: la mano sul petto dal suo lato (prima attraversava la linea di mezzo).
+   */
+  private gestoBattuta(H: number, libero: number): void {
+    const g = this.gestoB;
+    if (!g) return;
+    const K = CONVERSAZIONE;
+    const fine = K.gestoEntra + g.tiene + K.gestoEsce;
+    if (g.t >= fine) {
+      this.gestoB = null;
+      return;
+    }
+    if (g.t <= 0) return;
+    let w = g.t < K.gestoEntra ? morbido(g.t / K.gestoEntra) : g.t < K.gestoEntra + g.tiene ? 1 : 1 - morbido((g.t - K.gestoEntra - g.tiene) / K.gestoEsce);
+    // le mani occupate o il corpo che fa altro
+    const posaOccupa = this.posaAttiva === 'braccia-conserte' || this.posaAttiva === 'mani-dietro' ? this.posaPeso : 0;
+    const sedutaOccupa = this.maniSedutaAttive !== 'grembo' ? this.seduto : 0;
+    w *= (1 - this.cammino) * (1 - this.chino) * (1 - this.volo) * (1 - this.maniPeso) * (1 - posaOccupa) * (1 - sedutaOccupa) * libero;
+    if (w < 0.001) return;
+    const L = LATO[g.lato];
+    const sg = L.segno;
+    if (g.tipo === 'apre') {
+      const bac = this.o('bacino').attacco;
+      const spalla = this.o(L.braccio).attacco;
+      // un battito lento della mano mentre tiene (sale e scende di un centimetro e mezzo)
+      const batti = Math.sin((g.t - K.gestoEntra) * 4.2) * 0.009 * H * w * w;
+      _bersaglio.set(spalla.x * 0.8, bac.y + 0.12 * H + batti, this.fronteBusto + 0.11 * H);
+      this.raggiungi(L.lato, _bersaglio, w, 0.84);
+      // il palmo appena verso l'alto e la mano un po' aperta in fuori
+      this.ruota(L.mano, -8 * DEG * w, 0, -sg * 6 * DEG * w);
+    } else {
+      const petto = this.o('petto').attacco;
+      const collo = this.o('collo').attacco;
+      _bersaglio.set(sg * 0.025 * H, petto.y + 0.28 * (collo.y - petto.y), this.fronteBusto + 0.04 * H);
+      this.raggiungi(L.lato, _bersaglio, w, 0.9);
+      this.ruota(L.mano, -14 * DEG * w, 0, sg * 18 * DEG * w);
+    }
   }
 
   private gesto(gesto: GestoPersonaggio, g: number, t: number, indica: THREE.Vector3 | null): void {

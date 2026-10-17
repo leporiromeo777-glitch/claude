@@ -70,6 +70,7 @@ const FOV_RIFERIMENTO = 70;
 const _pos = new THREE.Vector3();
 const _cam = new THREE.Vector3();
 const _a = new THREE.Vector3();
+const _x = new THREE.Vector3();
 const _m = new THREE.Matrix4();
 const _q = new THREE.Quaternion();
 const _q2 = new THREE.Quaternion();
@@ -147,17 +148,61 @@ export function creaPersonaggio(chi: string, opz: OpzioniAbitante = {}): Oggetto
   return istanza(chi, proto, opz);
 }
 
+/** La funzione `chiave` messa in userData dalla fabbrica (o dalla figura procedurale) dentro `figura`. */
+function funzioneDi(figura: THREE.Object3D | null | undefined, chiave: string): ((x?: number) => void) | undefined {
+  let f: ((x?: number) => void) | undefined;
+  figura?.traverse((o) => {
+    f ??= o.userData[chiave] as ((x?: number) => void) | undefined;
+  });
+  return f;
+}
+
 /**
  * Una battuta di dialogo comincia per chi è disegnato in `figura` (il gruppo dell'abitante o quello del
- * personaggio): un cenno del capo, a volte la mano al petto o un gesto verso chi ascolta. Per le figure
- * procedurali non fa niente. Lo chiama la regia (src/regia/png.ts) a ogni battuta.
+ * personaggio) e dura `durata` s: quasi sempre un piccolo cenno del capo, il capo che si muove appena
+ * mentre parla, ogni tanto un gesto della mano libera (animatore.ts, annunciaBattuta). La figura
+ * procedurale fa un cenno. Lo chiama la regia (src/regia/png.ts) a ogni battuta.
  */
-export function battutaPersonaggio(figura: THREE.Object3D | null | undefined): void {
-  let f: (() => void) | undefined;
+export function battutaPersonaggio(figura: THREE.Object3D | null | undefined, durata?: number): void {
+  funzioneDi(figura, 'battuta')?.(durata);
+}
+
+/** Il dialogo è finito: chi parlava smette (il gesto in corso esce da solo, morbido). */
+export function fineBattutePersonaggio(figura: THREE.Object3D | null | undefined): void {
+  funzioneDi(figura, 'fineBattute')?.();
+}
+
+/**
+ * Mette via (o riprende in mano) l'oggetto di scena `nome` di chi è disegnato in `figura`: Clelia, dato il
+ * pacchetto a Elvira, non lo tiene più in mano mentre se ne va. Il livello di dettaglio lo rispetta.
+ */
+export function ripostoOggettoPersonaggio(figura: THREE.Object3D | null | undefined, nome: string, riposto: boolean): void {
   figura?.traverse((o) => {
-    f ??= o.userData['battuta'] as (() => void) | undefined;
+    if (o.userData['oggettoDiScena'] !== nome) return;
+    o.userData['riposto'] = riposto;
+    let livello = 0;
+    for (let p = o.parent; p; p = p.parent) {
+      if (typeof p.userData['livello'] === 'number') {
+        livello = p.userData['livello'] as number;
+        break;
+      }
+    }
+    o.visible = !riposto && livello < 3;
   });
-  f?.();
+}
+
+/**
+ * Da che lato chi è disegnato in `figura` sta girando la testa per guardare qualcuno: un punto nel mondo
+ * da quel lato (in `out`); false se non guarda nessuno o se la figura non lo sa dire. Il popolamento
+ * (src/popolamento/abitanti.ts, rivolgiVerso) gira il corpo da quel lato quando chi parla è quasi dietro
+ * la schiena.
+ */
+export function puntoSguardoPersonaggio(figura: THREE.Object3D | null | undefined, out: THREE.Vector3): boolean {
+  let f: ((o: THREE.Vector3) => boolean) | undefined;
+  figura?.traverse((o) => {
+    f ??= o.userData['puntoSguardo'] as ((o: THREE.Vector3) => boolean) | undefined;
+  });
+  return f ? f(out) : false;
 }
 
 function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante): OggettoProcedurale<StatoAbitante> {
@@ -248,8 +293,12 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     maniSeduta,
     // la destra tiene il bastone o la pietra: i gesti li fa la sinistra
     manoDOccupata: !!opz.bastone || voci.some((v) => /@manoD/.test(v) && leggiOggetto(v)?.nome !== 'forbici'),
+    // forbici e cartone (Pina): parlando gesticola solo col capo
+    maniOccupate: voci.some((v) => /@manoD/.test(v)) && voci.some((v) => /@manoS/.test(v) && !/facoltativo/.test(v)),
   });
-  gruppo.userData['battuta'] = () => animatore.annunciaBattuta();
+  gruppo.userData['battuta'] = (durata?: number) => animatore.annunciaBattuta(durata);
+  gruppo.userData['fineBattute'] = () => animatore.fineBattute();
+  gruppo.userData['puntoSguardo'] = (out: THREE.Vector3) => animatore.puntoSguardo(out);
   // per le prove e gli strumenti (tests/personaggi/posa.ts)
   gruppo.userData['animatore'] = animatore;
 
@@ -300,10 +349,12 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
   let velo: THREE.Object3D | null = null;
   let cercaVelo = 3;
   const maniVelo = { S: new THREE.Vector3(), D: new THREE.Vector3() };
-  // la posizione del gruppo all'ultimo aggiornamento (per la distanza percorsa)
+  // la posizione e la direzione del gruppo all'ultimo aggiornamento (per la distanza percorsa e il giro)
   const ultimo = new THREE.Vector3();
   let haUltimo = false;
   const avanti = new THREE.Vector3();
+  const avantiPrima = new THREE.Vector3();
+  const su = new THREE.Vector3();
   const passa = (s: StatoAbitante | undefined, dt: number) => {
     const g = s as StatoPersonaggioGioco | undefined;
     st.modo = s?.modo ?? 'fermo';
@@ -312,19 +363,29 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     st.gesto = s?.gesto ?? 'nessuno';
     st.indica = s?.indica ?? null;
     st.posa = g?.posa ?? 'in-piedi';
-    // la distanza percorsa davvero dal gruppo, lungo la direzione in cui guarda (unità del modello)
+    // la distanza percorsa davvero dal gruppo, lungo la direzione in cui guarda (unità del modello), e di
+    // quanto si è girato attorno al suo su (i piedi lo seguono a passi, animatore.ts)
     gruppo.updateWorldMatrix(true, false);
     _pos.setFromMatrixPosition(gruppo.matrixWorld);
+    avanti.set(0, 0, 1).transformDirection(gruppo.matrixWorld);
+    su.set(0, 1, 0).transformDirection(gruppo.matrixWorld);
     let percorso = -1;
+    let giro = 0;
     if (haUltimo) {
-      avanti.set(0, 0, 1).transformDirection(gruppo.matrixWorld);
       _a.copy(_pos).sub(ultimo);
       const dist = _a.length();
       // un salto (vaiA) non è un passo
-      if (dist < Math.max(0.6, 3 * dt * (st.velocita ?? 1.1) + 0.05)) percorso = Math.max(0, _a.dot(avanti)) / scala.z;
+      if (dist < Math.max(0.6, 3 * dt * (st.velocita ?? 1.1) + 0.05)) {
+        percorso = Math.max(0, _a.dot(avanti)) / scala.z;
+        _a.copy(avantiPrima).addScaledVector(su, -avantiPrima.dot(su));
+        _cam.copy(avanti).addScaledVector(su, -avanti.dot(su));
+        giro = Math.atan2(_x.crossVectors(_a, _cam).dot(su), _a.dot(_cam));
+      } else giro = 9;
     }
     ultimo.copy(_pos);
+    avantiPrima.copy(avanti);
     haUltimo = true;
+    st.giro = giro;
     if (st.modo === 'cammina' && percorso >= 0) st.avanzamento = percorso;
     else delete st.avanzamento;
     // le correzioni di sedute.ts per id@luogo (solo la figura che si vede gira o cambia sedile)
@@ -444,7 +505,8 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     }
     aggiornaVariante(materiale, l);
     if (bastone) bastone.visible = l < 3;
-    for (const o of oggetti) o.visible = l < 3;
+    // (un oggetto «messo via», ripostoOggettoPersonaggio, resta nascosto)
+    for (const o of oggetti) o.visible = l < 3 && !o.userData['riposto'];
   };
   mostra(0);
   /** la distanza «vista» dalla camera: con un campo visivo stretto (cannocchiale, lente) conta di meno */
@@ -521,6 +583,8 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
       // gli oggetti di scena: geometrie proprie, materiali condivisi (della libreria o del mondo)
       for (const o of oggetti) o.traverse((x) => (x as THREE.Mesh).geometry?.dispose());
       delete gruppo.userData['battuta'];
+      delete gruppo.userData['fineBattute'];
+      delete gruppo.userData['puntoSguardo'];
       gruppo.removeFromParent();
     },
   };

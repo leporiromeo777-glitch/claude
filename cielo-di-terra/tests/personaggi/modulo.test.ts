@@ -252,24 +252,33 @@ describe('creaPersonaggio: stesso contratto della figura procedurale', () => {
     p.dispose();
   });
 
-  it('a ogni battuta chi parla annuisce: la testa si muove più che da fermo', () => {
+  it('parlando chi parla annuisce piano: la testa si muove più che da fermo, ma lenta', () => {
     registra('togna');
+    // quattro battute a 2 s l'una dall'altra (traccia «parlare»: un cenno lento quasi a ogni battuta, non
+    // più uno scatto di 9° in 0,45 s a tutte)
     const giro = (battuta: boolean) => {
       const p = creaPersonaggio('togna', TOGNA);
       if (!p) throw new Error('null');
       for (let i = 0; i < 60; i++) p.update?.(1 / 60, { modo: 'fermo' });
       const testa = p.gruppo.getObjectByName('testa') as THREE.Bone;
       const q0 = testa.quaternion.clone();
-      if (battuta) battutaPersonaggio(p.gruppo);
+      const prima = testa.quaternion.clone();
       let max = 0;
-      for (let i = 0; i < 40; i++) {
+      let vel = 0;
+      for (let i = 0; i < 480; i++) {
+        if (battuta && i % 120 === 0) battutaPersonaggio(p.gruppo, 1.8);
         p.update?.(1 / 60, { modo: 'fermo' });
         max = Math.max(max, testa.quaternion.angleTo(q0));
+        vel = Math.max(vel, testa.quaternion.angleTo(prima) * 60);
+        prima.copy(testa.quaternion);
       }
       p.dispose();
-      return max;
+      return { max, vel };
     };
-    expect(giro(true)).toBeGreaterThan(giro(false) + 0.05);
+    const parla = giro(true);
+    const zitta = giro(false);
+    expect(parla.max).toBeGreaterThan(zitta.max + 0.03);
+    expect(parla.vel).toBeLessThan(1.6); // rad/s: meno di 92°/s
   });
 
   it('la postura delle opzioni (curva, mani giunte) arriva all animatore', () => {

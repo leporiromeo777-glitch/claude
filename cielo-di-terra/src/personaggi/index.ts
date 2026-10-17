@@ -51,7 +51,7 @@ export {
   type OpzioniPrecarica,
   type PrototipoPersonaggio,
 } from './precarica';
-export { PRESA_VELO, battutaPersonaggio, creaPersonaggio, livelloPersonaggio, preriscaldaPersonaggi, type StatoPersonaggioGioco } from './fabbrica';
+export { PRESA_VELO, battutaPersonaggio, creaPersonaggio, fineBattutePersonaggio, livelloPersonaggio, puntoSguardoPersonaggio, ripostoOggettoPersonaggio, preriscaldaPersonaggi, type StatoPersonaggioGioco } from './fabbrica';
 export { COLORI_TAVOLOZZA, PEZZI_COMUNI, RIEMPIMENTO, creaMaterialeMondo, creaMaterialePersonaggio, creaMaterialeToon, spostamentiVariante } from './materiale';
 export { caricaPersonaggio, scaricaPersonaggio, type ModelloPersonaggio, type OpzioniCaricamento, type StileMateriale } from './carica';
 export { caricaIndice, opzioniDaIndice, urlPersonaggio, type IndicePersonaggi, type VoceIndice, type VoltoPersonaggio } from './indice';
