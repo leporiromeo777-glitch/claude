@@ -44,7 +44,7 @@ import { Interazioni, type StatoInterazione } from './interazioni';
 import { Luoghi, quotaAppoggio } from './luoghi';
 import { NotteVista } from './notte';
 import { GuidaObiettivi } from './obiettivi';
-import { ATTESA_MAX_ORE, OrologioStoria, attraversa, oreFino, vociDiAttesa, type Intervallo } from './orologio';
+import { ATTESA_MAX_ORE, OrologioStoria, attraversa, oreFino, vociDiAttesa, type Intervallo, type VoceAttesa } from './orologio';
 import { Abitanti } from './png';
 import type { Bersaglio as BersaglioCatasto, EventoCatasto, Resoconto } from '../rilievo';
 import { CatastoGioco, posizioniCapisaldi } from './catasto';
@@ -82,6 +82,14 @@ export interface MondoSalvato {
 const OCCHI = 1.62;
 /** Ogni quanti secondi di gioco, camminando, si salva da sé (oltre ai passi, all'alba e al sonno). */
 const SALVA_OGNI = 90;
+/**
+ * I tasti del secondo tocco, che durante «Aspetta fino a» saltano alla fine. Contano solo se
+ * premuti mentre il tempo corre: l'ingresso tiene in coda ogni pressione finché qualcuno non la
+ * legge, e nessun altro legge Invio in gioco, né Spazio da seduti o a menu aperto. Un Invio in
+ * più alla fine di un dialogo restava lì e faceva saltare al nero l'attesa dopo, senza che
+ * nessuno l'avesse chiesto (prova del verificatore, 16 ottobre).
+ */
+const TASTI_SALTO = ['KeyX', 'Enter', 'NumpadEnter', 'Space'] as const;
 const _v = new Vector3();
 const _w = new Vector3();
 const _f = { up: new Vector3(), east: new Vector3(), north: new Vector3() };
@@ -155,6 +163,8 @@ export class Regia implements SistemaGioco {
   /** Indicazione a schermo per la lente (vedi cercaPuntoLente). */
   private indicazioneLente: { tasto: string; testo: string; progresso?: number } | null = null;
   private attesaVicini = new Set<string>();
+  /** Il secondo tocco ha coperto la vista con il nero: torna quando l'attesa finisce. */
+  private saltoAttesa = false;
   private mira: { b: BersaglioMira | null; d: number; t: number } = { b: null, d: 0, t: 0 };
   private emisfero: HemisphereLight;
   private sole: DirectionalLight;
@@ -347,6 +357,7 @@ export class Regia implements SistemaGioco {
     // sdraiata, lo sguardo in su verso la volta: la scritta è sul vetro, un po' più in basso
     this.guardaDirezione(0, 62);
     this.velatura.dalNero(3.2, true);
+    this.saltoAttesa = false;
     this.ui.indicazioni.show();
     this.narrativa.tick(0);
     this.guida.azzera();
@@ -369,6 +380,10 @@ export class Regia implements SistemaGioco {
       this.partitaIniziata = true;
       this.fase = 'gioco';
       this.percorso.azzera();
+      // un salvataggio fatto durante un'attesa ha l'ora di quel momento (l'attesa non si salva):
+      // si riparte da lì, in piedi, senza il nero del salto
+      this.saltoAttesa = false;
+      this.ponte.chiudiAttesa();
       // Un salvataggio fatto a dialogo aperto (il salvataggio automatico scatta al cambio di
       // passo, spesso mentre parte un dialogo automatico come quello delle campane) lo
       // ricaricherebbe «aperto» senza finestra: la storia resterebbe ferma. Lo si interrompe,
@@ -474,6 +489,8 @@ export class Regia implements SistemaGioco {
   private async esciAlTitolo(): Promise<void> {
     await this.salva();
     this.dialoghi.svuota();
+    // (un'attesa a metà si ferma lì, e il nero del salto non resta sopra il titolo)
+    this.fermaAttesa('titolo');
     this.ponte.chiudiAttesa();
     await this.mostraTitolo();
   }
@@ -790,7 +807,11 @@ export class Regia implements SistemaGioco {
     this.salvaTra = 2;
   }
 
-  /** «Aspetta fino a» (da seduti). */
+  /**
+   * «Aspetta fino a» (da seduti): un time-lapse di pochi secondi (orologio.ts, `durataAttesa`),
+   * il cielo che corre e le cifre dell'orologio a schermo che girano. Si ferma se Elvira si alza,
+   * se arriva qualcuno, se comincia un dialogo o una scena; X, Invio o Spazio saltano alla fine.
+   */
   aspettaFino(scelta: number | 'meta'): void {
     if (scelta === 'meta') return;
     // «mezzanotte» scelta all'una di notte sarebbe un giorno intero (la mattina della prova persa)
@@ -798,19 +819,125 @@ export class Regia implements SistemaGioco {
       this.ponte.notifica(`Fino alle ${fmtOra(scelta)} manca quasi un giorno intero: scegli un'ora più vicina.`);
       return;
     }
-    if (!this.orologio.aspettaFino(scelta, 20)) {
+    if (!this.orologio.aspettaFino(scelta)) {
       this.ponte.notifica('Il tempo non passa ancora: c\'è qualcosa da fare.');
       return;
     }
+    const at = this.orologio.attesa!;
     this.attesaVicini = this.personeVicine(10);
-    this.log(`aspetta fino alle ${fmtOra(scelta)}`);
+    this.saltoAttesa = false;
+    // il secondo tocco vale da adesso: un Invio o uno Spazio rimasti in coda (premuti in gioco, a
+    // dialogo chiuso, o a menu aperto) non devono saltare al nero il time-lapse appena partito
+    this.dimenticaTastiSalto();
+    this.log(`aspetta fino alle ${fmtOra(scelta)} (${(at.fino - at.da).toFixed(2)} h di gioco in ${at.durata.toFixed(1)} s)`);
   }
 
-  vociAttesa(): { testo: string; ore: number }[] {
-    return vociDiAttesa(this.orologio.ore, this.orologio.giorno, this.guida.arrivo, {
+  /** Toglie dalla coda dell'ingresso le pressioni dei tasti del secondo tocco (vedi TASTI_SALTO). */
+  private dimenticaTastiSalto(): void {
+    const inp = this.game.input;
+    for (const k of TASTI_SALTO) inp.consumePressed(k);
+  }
+
+  /** Il secondo tocco durante l'attesa: il resto corre in un attimo, sotto una dissolvenza al nero. */
+  saltaAttesa(): void {
+    if (!this.orologio.saltaAllaFine()) return;
+    this.saltoAttesa = true;
+    this.velatura.alNero(0.22);
+    this.log('salta alla fine dell\'attesa');
+  }
+
+  /** L'attesa si ferma prima dell'ora chiesta (Elvira si alza, arriva qualcuno, un dialogo). */
+  private fermaAttesa(motivo: string, chi?: string): void {
+    if (!this.orologio.inAttesa) return;
+    this.orologio.interrompiAttesa();
+    if (this.saltoAttesa) this.velatura.dalNero(0.5);
+    this.saltoAttesa = false;
+    this.accTick = Math.max(this.accTick, 0.1);
+    if (chi) this.ponte.notifica(`Arriva ${this.ponte.nomeVisibile(chi)}: smetti di aspettare.`);
+    this.log(`attesa interrotta (${motivo}${chi ? `: ${chi}` : ''}) alle ${this.testoOra()}`);
+  }
+
+  /** L'attesa è arrivata all'ora chiesta (o al limite dell'orologio, orologio:max). */
+  private fineAttesa(chiesta: number): void {
+    if (this.saltoAttesa) this.velatura.dalNero(0.6);
+    this.saltoAttesa = false;
+    // chi arriva a quell'ora c'è subito: gli orari del popolamento si rileggono a ogni minuto di
+    // gioco, e l'ultimo passo dell'attesa ne fa meno di uno (il campanaro alle 08:00 compariva
+    // qualche secondo dopo)
+    this.corbella.applicaOrario(this.orologio.giorno, this.orologio.ore);
+    // la storia lo sente subito (la brace, l'alba), non al decimo dopo; e si salva l'ora nuova
+    this.accTick = Math.max(this.accTick, 0.1);
+    if (this.salvaTra <= 0) this.salvaTra = 1;
+    if (this.orologio.assoluto < chiesta - 1 / 120) this.ponte.notifica('Il tempo non va più in là: prima c\'è qualcosa da fare.');
+    this.log(`attesa finita alle ${this.testoOra()}`);
+  }
+
+  /** Perché l'attesa in corso si deve fermare adesso (o null). */
+  private motivoFineAttesa(): { motivo: string; chi?: string } | null {
+    if (this.controllo.tipo !== 'seduta') return { motivo: 'in piedi' };
+    if (this.dialoghi.aperto) return { motivo: 'un dialogo' };
+    if (this.ui.lettore.visible) return { motivo: 'una lettura' };
+    for (const v of this.personeVicine()) if (!this.attesaVicini.has(v)) return { motivo: 'arriva qualcuno', chi: v };
+    return null;
+  }
+
+  vociAttesa(): VoceAttesa[] {
+    const a = this.guida.arrivo;
+    // il nome come lo sa Elvira, senza il mestiere dopo la virgola («una velata al lavatoio», «due bambini»)
+    const chi = a?.chi ? (this.ponte.nomeVisibile(a.chi).split(',')[0] ?? '').trim() : '';
+    return vociDiAttesa(this.orologio.ore, this.orologio.giorno, a ? { giorno: a.giorno, ore: a.ore, ...(chi ? { chi, molti: a.chi === 'bambini' } : {}) } : null, {
       brace: this.narrativa.flag.vero('aspetta_brace_sbloccato'),
       vegliare: this.narrativa.flag.vero('scelta_vegliare'),
+      fadeViste: this.narrativa.flag.vero('fade_viste'),
+      passi: this.narrativa.missioni.passiAttivi().map((p) => p.passo),
+      oreAlLimite: this.orologio.limite !== null ? Math.max(0, this.orologio.limite - this.orologio.assoluto) : null,
     });
+  }
+
+  /** Il tempo non può passare adesso (l'ora è ferma, o è arrivata al limite: orologio:max): perché, o null. */
+  tempoBloccato(): string | null {
+    const o = this.orologio;
+    if (o.fermo !== null) return 'Il tempo non passa ancora: c\'è qualcosa da fare.';
+    if (o.limite !== null && o.assoluto >= o.limite - 1 / 120) return 'Il tempo non va più in là: prima c\'è qualcosa da fare.';
+    return null;
+  }
+
+  /**
+   * X: da seduta apre (o chiude) il menu dell'attesa, e durante l'attesa salta alla fine; in
+   * piedi Elvira si siede da sola e il menu si apre (prima X funzionava solo da seduti, e le
+   * indicazioni dicevano «siediti e aspetta»).
+   */
+  private tastoAttesa(): void {
+    const c = this.controllo.tipo;
+    if (c === 'seduta') {
+      if (this.orologio.inAttesa) this.saltaAttesa();
+      else if (this.ponte.attesaAperta) this.ponte.chiudiAttesa();
+      else this.apriMenuAttesa();
+      return;
+    }
+    if (c !== 'libero' || !this.game.player.grounded || this.game.player.veloOpen) return;
+    const bloccato = this.tempoBloccato();
+    if (bloccato) {
+      this.ponte.notifica(bloccato);
+      return;
+    }
+    this.siedi();
+    // (siedi() cambia il controllo: TypeScript lo crede ancora «libero»)
+    if ((this.controllo as Controllo).tipo === 'seduta') this.apriMenuAttesa();
+  }
+
+  private apriMenuAttesa(): void {
+    const bloccato = this.tempoBloccato();
+    if (bloccato) {
+      this.ponte.notifica(bloccato);
+      return;
+    }
+    const voci = this.vociAttesa();
+    if (!voci.length) {
+      this.ponte.notifica('Adesso non c\'è niente da aspettare.');
+      return;
+    }
+    this.ponte.apriAttesa(voci);
   }
 
   /** Chi è entro `raggio` m da Elvira (Ottavio no: è il compagno di strada e le si siede accanto). */
@@ -922,7 +1049,7 @@ export class Regia implements SistemaGioco {
     this.controllo = { tipo: 'libero' };
     this.corpo.seduta = false;
     this.spegni('seduta');
-    this.orologio.interrompiAttesa();
+    this.fermaAttesa('in piedi');
     this.ponte.chiudiAttesa();
     this.game.player.teleport(c.z, c.theta, quotaAppoggio(this.game.world.colliders, c.z, c.theta), true);
   }
@@ -1225,14 +1352,15 @@ export class Regia implements SistemaGioco {
       }
     }
     if (inp.consumePressed('KeyG')) this.fischia();
-    if (inp.consumePressed('KeyX') && this.controllo.tipo === 'seduta') {
-      if (this.ponte.attesaAperta) this.ponte.chiudiAttesa();
-      else this.ponte.apriAttesa(this.vociAttesa());
-    }
+    if (inp.consumePressed('KeyX')) this.tastoAttesa();
+    // durante l'attesa anche Invio e Spazio saltano alla fine (Spazio non fa alzare)
+    const inAttesa = this.orologio.inAttesa;
+    if (inAttesa && this.controllo.tipo === 'seduta' && (inp.consumePressed('Enter') || inp.consumePressed('NumpadEnter') || inp.consumePressed('Space'))) this.saltaAttesa();
     // sedersi: C tenuto (o premuto con «azioni: premi»); alzarsi: C o un tasto di movimento
     if (this.controllo.tipo === 'seduta') {
       inp.consumePressed('KeyC') ? this.alzaDaSeduta() : null;
-      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space'].some((k) => inp.isDown(k)) && !this.ponte.attesaAperta) this.alzaDaSeduta();
+      const alza = inAttesa ? ['KeyW', 'KeyA', 'KeyS', 'KeyD'] : ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space'];
+      if (alza.some((k) => inp.isDown(k)) && !this.ponte.attesaAperta && this.controllo.tipo === 'seduta') this.alzaDaSeduta();
       this.tenutaC = 0;
     } else if (this.controllo.tipo === 'libero') {
       const premi = this.ui.impostazioni.get('azioniTenute') === 'premi';
@@ -1311,6 +1439,9 @@ export class Regia implements SistemaGioco {
     const premuto = this.ePremuto && !ui.inputCatturato;
     this.ePremuto = false;
     if (!catturato) this.tasti();
+    // a menu dell'attesa aperto, o con una carta sopra l'attesa, i tasti del secondo tocco non
+    // restano in coda per dopo (vedi TASTI_SALTO)
+    else if (this.orologio.inAttesa || this.ponte.attesaAperta) this.dimenticaTastiSalto();
     this.squadro.bloccato = ui.inputCatturato || this.controllo.tipo === 'sdraiata' || this.controllo.tipo === 'scala' || this.interno === 'cripta';
     g.movimentoBloccato = catturato || this.controllo.tipo !== 'libero';
 
@@ -1335,17 +1466,18 @@ export class Regia implements SistemaGioco {
     this.letteraDaSeduta();
     this.percorso.update(dt);
 
+    // l'attesa si ferma anche a tempo fermo: la scena dell'Ombrista (una carta, che ferma il tempo)
+    // la interrompe, non la mette in pausa fino a dopo il racconto
+    if (this.orologio.inAttesa) {
+      const m = this.motivoFineAttesa();
+      if (m) this.fermaAttesa(m.motivo, m.chi);
+    }
     // tempo (fermo quando l'interfaccia lo chiede: pausa, carte, menu)
     if (!ui.tempoFermo) {
-      if (this.orologio.inAttesa) {
-        const vicini = this.personeVicine();
-        if ([...vicini].some((v) => !this.attesaVicini.has(v)) || this.controllo.tipo !== 'seduta') this.orologio.interrompiAttesa();
-      }
-      const inAttesa = this.orologio.inAttesa;
+      const at = this.orologio.attesa;
       const iv = this.orologio.avanza(dt);
       this.scorriTempo(iv);
-      // l'attesa è arrivata (la brace, l'alba): la storia lo sente subito, non al decimo dopo
-      if (inAttesa && !this.orologio.inAttesa) this.accTick = Math.max(this.accTick, 0.1);
+      if (at && !this.orologio.inAttesa) this.fineAttesa(at.chiesta);
     }
     g.clock.running = false;
     g.clock.setHours(this.orologio.ore);
@@ -1371,9 +1503,10 @@ export class Regia implements SistemaGioco {
     });
     this.aggiornaMeta();
 
-    // la storia (10 volte al secondo)
+    // la storia (10 volte al secondo; a ogni passo durante l'attesa, quando il tempo corre: così
+    // nessuna finestra d'orario si salta, come quando il tempo correva a x20)
     this.accTick += dt;
-    if (this.accTick >= 0.1) {
+    if (this.accTick >= 0.1 || (this.orologio.inAttesa && this.accTick > 0)) {
       this.narrativa.tick(this.accTick);
       this.accTick = 0;
     }
@@ -1397,7 +1530,8 @@ export class Regia implements SistemaGioco {
         this.salvaTra = 1;
       }
     }
-    if (this.salvaTra > 0) {
+    // (durante l'attesa no: si salva l'ora d'arrivo, appena l'attesa finisce)
+    if (this.salvaTra > 0 && !this.orologio.inAttesa) {
       this.salvaTra -= dt;
       if (this.salvaTra <= 0 && !this.dormendo) void this.salva();
     }
@@ -1499,7 +1633,10 @@ export class Regia implements SistemaGioco {
     const inPausa = this.fase === 'gioco' && (ui.pausa.visible || ui.pannelloImpostazioni.visible || ui.crediti.visible);
     g.loop.paused = inPausa || this.fase === 'titolo';
     this.audio.pausa(inPausa);
+    // (in pausa la simulazione è ferma: un tasto del secondo tocco premuto lì non salta dopo)
+    if (inPausa && this.orologio.inAttesa) this.dimenticaTastiSalto();
     if (this.fase !== 'gioco') {
+      if (ui.orologio.visible) ui.orologio.hide();
       this.guida.render(frameDt);
       ui.indicazioni.azione(null);
       ui.indicazioni.squadro(null);
@@ -1514,6 +1651,9 @@ export class Regia implements SistemaGioco {
     this.sole.intensity = 0.25 + 1.5 * s.sunIntensity;
     this.sole.color.setRGB(s.sunColor[0], s.sunColor[1], s.sunColor[2]);
     this.emisfero.intensity = 0.45 + 0.75 * s.sunIntensity;
+    // l'orologio a schermo (l'ora della storia; nell'attesa le cifre corrono)
+    if (!ui.orologio.visible) ui.orologio.show();
+    this.ponte.aggiornaOrologio();
     // indicazioni
     const st = this.statoInterazione;
     // allo squadro piantato «E — Stacca lo squadro» (sempre davanti) non copre che cosa fare

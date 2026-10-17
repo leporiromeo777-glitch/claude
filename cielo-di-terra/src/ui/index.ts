@@ -79,6 +79,7 @@ export {
   type EventiPannelloObiettivo,
   type IndicazioniMissioni,
 } from './componenti/obiettivo';
+export { OrologioSchermo, testoOrologio, arcoAstro, cieloQuadrante, eNotteOrologio, type DatiOrologio, type OpzioniOrologio } from './componenti/orologio';
 export { Crediti, CREDITI_PREDEFINITI, type DatiCrediti, type SezioneCrediti, type EventiCrediti } from './componenti/crediti';
 export { SchermataCaricamento, PROVERBI_PREDEFINITI, type DatiCaricamento, type EventiCaricamento } from './componenti/caricamento';
 

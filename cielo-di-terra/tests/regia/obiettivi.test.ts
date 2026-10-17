@@ -318,9 +318,9 @@ describe('chi non c’è ancora: il luogo e l’ora in cui arriva', () => {
     expect(indicazione()).toContain('una velata al lavatoio dalle 7');
     // Togna al lavatoio e il campanaro sulla scorciatoia arrivano tutti e due alle 7: il più vicino
     expect(f.guida.metaAttuale).toEqual({ tipo: 'luogo', id: 'lavatoio' });
-    expect(f.guida.arrivo).toEqual({ giorno: 1, ore: 7, luogo: 'lavatoio' });
+    expect(f.guida.arrivo).toEqual({ chi: 'togna', giorno: 1, ore: 7, luogo: 'lavatoio' });
     expect(attesa().hidden).toBe(false);
-    expect(attesa().textContent).toBe("Adesso non c'è nessuno con cui parlare. Una velata al lavatoio arriva alle 07:00: siediti (C) e aspetta (X).");
+    expect(attesa().textContent).toBe("Adesso non c'è nessuno con cui parlare. Una velata al lavatoio arriva alle 07:00: aspetta (X).");
     expect(segno().hidden).toBe(false);
     // arriva Togna: il segnalino va su di lei e l'attesa se ne va
     f.fatti.oraCorrente = 7.05;
@@ -340,14 +340,17 @@ describe('chi non c’è ancora: il luogo e l’ora in cui arriva', () => {
     f.disegna();
     expect(f.guida.chiaveSeguita).toBe('m01_castagno_vuoto/m1_dono');
     expect(f.guida.metaAttuale).toEqual({ tipo: 'luogo', id: 'bacheca_ore' });
+    // ancora in piazza, il menu dell'attesa sa già chi arriva alla Bacheca e quando («le 07:00:
+    // arriva una novizia»: prima la voce c'era solo una volta arrivati lì)
+    expect(f.guida.arrivo).toEqual({ chi: 'clelia', giorno: 2, ore: 7, luogo: 'bacheca_ore' });
     f.fatti.luoghi.add('bacheca_ore');
     f.narrativa.tick(0);
     f.disegna();
     expect(f.guida.metaAttuale).toEqual({ tipo: 'luogo', id: 'bacheca_ore' });
-    expect(attesa().textContent).toBe('Una novizia arriva alle 07:00: siediti (C) e aspetta (X).');
+    expect(attesa().textContent).toBe('Una novizia arriva alle 07:00: aspetta (X).');
     // dentro la Bacheca il segnalino tace; la riga dell'attesa resta
     expect(segno().hidden).toBe(true);
-    expect(f.guida.arrivo).toEqual({ giorno: 2, ore: 7, luogo: 'bacheca_ore' });
+    expect(f.guida.arrivo).toEqual({ chi: 'clelia', giorno: 2, ore: 7, luogo: 'bacheca_ore' });
   });
 
   it('il campanaro si cerca sul sagrato: alle 7 è sulla scorciatoia, il segnalino non lo insegue', () => {
@@ -361,7 +364,7 @@ describe('chi non c’è ancora: il luogo e l’ora in cui arriva', () => {
     expect(f.guida.chiaveSeguita).toBe('m01_castagno_vuoto/m1_campanile');
     expect(indicazione()).toContain('sul sagrato dalle 8');
     expect(f.guida.metaAttuale).toEqual({ tipo: 'luogo', id: 'sagrato' });
-    expect(attesa().textContent).toBe('Un velato col cappello arriva alle 08:00: siediti (C) e aspetta (X).');
+    expect(attesa().textContent).toBe('Un velato col cappello arriva alle 08:00: aspetta (X).');
     // alle 8 è sul sagrato: il segnalino su di lui
     f.fatti.oraCorrente = 8.05;
     f.stato.persone.set('bortolo', suolo(1052, 39.4));
@@ -389,10 +392,10 @@ describe('rami della storia, ripresa, dentro e fuori', () => {
     expect(indicazione()).toContain('dormire fino al mattino o vegliare');
     f.narrativa.flag.set('scelta_vegliare');
     f.disegna();
-    expect(indicazione()).toBe("Vegli: guarda le Fade dalla finestrella del fienile; poi, da seduta (C), aspetta l'alba (X).");
+    expect(indicazione()).toBe("Vegli: le Fade escono alle 22:05 (aspettale: X). Guardale dalla finestrella del fienile, poi aspetta l'alba.");
     f.narrativa.flag.set('fade_viste');
     f.disegna();
-    expect(indicazione()).toBe("Le hai viste. Da seduta (C) aspetta l'alba (X).");
+    expect(indicazione()).toBe("Le hai viste. Aspetta l'alba (X).");
   });
 
   it('«Continua»: l’obiettivo ripreso non è nuovo (niente suono, niente animazione); il passo dopo sì', () => {

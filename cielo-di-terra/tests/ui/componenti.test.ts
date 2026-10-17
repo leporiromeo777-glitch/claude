@@ -30,7 +30,7 @@ describe('InterfacciaGioco', () => {
   it('monta tutti i componenti in una radice trasparente sopra il canvas', () => {
     const r = contenitore.querySelector('.ui-radice')!;
     expect(r).toBeTruthy();
-    expect(r.querySelectorAll('.ui-componente').length).toBe(11);
+    expect(r.querySelectorAll('.ui-componente').length).toBe(12);
     expect(r.classList.contains('ui-ridotto')).toBe(true);
     expect(document.getElementById('ui-f-bordo')).toBeTruthy();
   });
@@ -66,6 +66,53 @@ describe('InterfacciaGioco', () => {
     tasto('Escape');
     expect(ui.pausa.visible).toBe(false);
     expect(ui.dialogo.visible).toBe(true);
+  });
+
+  it('un menu del gioco fuori dalla pila («Aspetta fino a…»): Esc lo chiude e non apre anche la pausa', () => {
+    // come il menu dell'attesa della regia: i numeri scelgono, X o Esc lasciano perdere
+    let aperto = true;
+    const scelte: string[] = [];
+    const menu = (e: KeyboardEvent): boolean => {
+      if (/^[1-9]$/.test(e.key)) scelte.push(e.key);
+      else if (e.key === 'Escape' || e.key === 'x') aperto = false;
+      else return false;
+      if (!aperto) ui.tastiPrima = null;
+      return true;
+    };
+    // l'ingresso del gioco ascolta la finestra dopo l'interfaccia (in bolla): non deve sentire i tasti del menu
+    const sentiti: string[] = [];
+    const ingresso = (e: KeyboardEvent): void => void sentiti.push(e.key);
+    window.addEventListener('keydown', ingresso);
+    try {
+      ui.tastiPrima = menu;
+      const uno = tasto('1');
+      expect(uno.defaultPrevented).toBe(true);
+      expect(scelte).toEqual(['1']);
+      // un tasto che non è del menu passa (Invio arriva all'ingresso: la regia lo scarta da sé)
+      tasto('Enter');
+      expect(sentiti).toEqual(['Enter']);
+      const esc = tasto('Escape');
+      expect(esc.defaultPrevented).toBe(true);
+      expect(aperto).toBe(false);
+      expect(ui.pausa.visible).toBe(false);
+      expect(ui.tastiPrima).toBeNull();
+      expect(sentiti).toEqual(['Enter']);
+      // menu chiuso: Esc torna ad aprire la pausa
+      tasto('Escape');
+      expect(ui.pausa.visible).toBe(true);
+      // con un modale aperto (la pausa sopra il menu) i tasti vanno al modale, non al menu
+      ui.pausa.hide();
+      aperto = true;
+      ui.tastiPrima = menu;
+      ui.apriPausa();
+      tasto('Escape');
+      expect(ui.pausa.visible).toBe(false);
+      expect(aperto).toBe(true);
+      expect(ui.tastiPrima).toBe(menu);
+    } finally {
+      window.removeEventListener('keydown', ingresso);
+      ui.tastiPrima = null;
+    }
   });
 
   it('dalla pausa alle impostazioni e indietro, senza perdere la pausa', () => {

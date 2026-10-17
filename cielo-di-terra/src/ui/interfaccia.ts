@@ -11,6 +11,7 @@ import { Taccuino, type DatiTaccuino } from './componenti/taccuino';
 import { PiantaVerbano } from './componenti/pianta';
 import { Indicazioni } from './componenti/indicazioni';
 import { PannelloObiettivo } from './componenti/obiettivo';
+import { OrologioSchermo } from './componenti/orologio';
 import { Crediti } from './componenti/crediti';
 import { SchermataCaricamento } from './componenti/caricamento';
 import type { DatiPianta } from './pianta/modello';
@@ -62,6 +63,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   readonly indicazioni: Indicazioni;
   /** Pannello dell'obiettivo e segnalino di direzione (le indicazioni delle missioni). */
   readonly obiettivo: PannelloObiettivo;
+  /** L'orologio a schermo: l'ora di gioco e il giorno (in alto a destra). */
+  readonly orologio: OrologioSchermo;
   readonly dialogo: FinestraDialogo;
   readonly titolo: SchermataTitolo;
   readonly pausa: MenuPausa;
@@ -79,6 +82,13 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   private catturato = false;
   private inPausa = false;
   private readonly suTasto: (e: KeyboardEvent) => void;
+  /**
+   * Un menu del gioco fuori dalla pila dei modali (il menu «Aspetta fino a…» della regia) che
+   * vuole i tasti prima delle scorciatoie: se restituisce vero il tasto è suo e si ferma lì.
+   * Quando un modale è aperto i tasti vanno al modale. (Prima il menu ascoltava la finestra per
+   * conto suo, dopo questo ascoltatore: Esc chiudeva il menu e apriva anche la pausa.)
+   */
+  tastiPrima: ((e: KeyboardEvent) => boolean) | null = null;
 
   constructor(contenitore: HTMLElement, opz: OpzioniInterfaccia = {}) {
     super();
@@ -89,6 +99,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
 
     this.indicazioni = new Indicazioni();
     this.obiettivo = new PannelloObiettivo({ modo: () => imp.get('indicazioniMissioni') });
+    this.orologio = new OrologioSchermo({ attivo: () => imp.get('orologioSchermo') });
     this.dialogo = new FinestraDialogo({ caratteriAlSecondo: () => VELOCITA_CARATTERI[imp.get('velocitaTesto')] });
     this.titolo = new SchermataTitolo();
     this.pausa = new MenuPausa();
@@ -107,6 +118,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     const tutti: ComponenteQualsiasi[] = [
       this.indicazioni,
       this.obiettivo,
+      this.orologio,
       this.dialogo,
       this.titolo,
       this.pausa,
@@ -136,7 +148,9 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
       const perPianta: string[] = ['rosaDeiVenti', 'posizioneSullaPianta', 'altoContrasto', 'matitaMarcata'];
       if (perPianta.includes(c.chiave) && this.pianta.visible) this.pianta.ridisegna();
       if (c.chiave === 'indicazioniMissioni') this.obiettivo.ridisegna();
+      if (c.chiave === 'orologioSchermo') this.orologio.ridisegna();
     });
+    imp.on('ripristino', () => this.orologio.ridisegna());
 
     this.collegaNavigazione();
     this.suTasto = (e) => this.gestisciTasto(e);
@@ -186,7 +200,7 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
   /** Smonta tutto e toglie gli ascoltatori. */
   destroy(): void {
     window.removeEventListener('keydown', this.suTasto, true);
-    for (const c of [this.indicazioni, this.obiettivo, this.dialogo, this.titolo, this.pausa, this.taccuino, this.pianta, this.lettore, this.pannelloImpostazioni, this.crediti, this.caricamento]) c.destroy();
+    for (const c of [this.indicazioni, this.obiettivo, this.orologio, this.dialogo, this.titolo, this.pausa, this.taccuino, this.pianta, this.lettore, this.pannelloImpostazioni, this.crediti, this.caricamento]) c.destroy();
     this.radice.remove();
     this.offAll();
   }
@@ -253,6 +267,8 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
     const fermano = [this.pausa, this.lettore, this.pannelloImpostazioni, this.crediti, this.titolo, this.caricamento];
     const inPausa = sottomenuDiPausa || fermano.some((c) => c.visible);
     this.radice.classList.toggle('ui-con-modale', catturato);
+    // solo la finestra di dialogo (in basso): l'orologio resta, le carte a tutto schermo lo coprono
+    this.radice.classList.toggle('ui-solo-dialogo', this.pila.length === 1 && this.pila[0] === (this.dialogo as unknown as ComponenteQualsiasi));
     if (catturato !== this.catturato) {
       this.catturato = catturato;
       this.emit('catturaInput', catturato);
@@ -278,6 +294,11 @@ export class InterfacciaGioco extends Emettitore<EventiInterfaccia> {
         e.preventDefault();
         e.stopPropagation();
       }
+      return;
+    }
+    if (this.tastiPrima?.(e)) {
+      e.preventDefault();
+      e.stopPropagation();
       return;
     }
     if (this.opz.scorciatoie === false || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;

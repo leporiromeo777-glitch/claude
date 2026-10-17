@@ -224,16 +224,17 @@ export function oreDa(testo: string): number {
   return Number(m[1]) + Number(m[2] ?? 0) / 60;
 }
 
-/** Ore decimali → «HH:MM». */
+/**
+ * Ore decimali → «HH:MM», con i minuti troncati come su un orologio vero (alle 09:29 e mezzo sono
+ * ancora le 09:29). Così la pausa, il salvataggio, il diario e il menu dell'attesa dicono la stessa
+ * ora dell'orologio a schermo (`testoOrologio` in src/ui/componenti/orologio.ts, che fa lo stesso
+ * conto): prima qui si arrotondava, e lo stesso istante era «09:29» sull'orologio e «09:30» nella
+ * pausa. Il milionesimo di minuto in più assorbe gli errori di virgola mobile (le 19:30 a cui
+ * arriva un'attesa non diventano 19:29).
+ */
 export function testoOra(ore: number): string {
-  const h = ((ore % 24) + 24) % 24;
-  let hh = Math.floor(h);
-  let mm = Math.round((h - hh) * 60);
-  if (mm === 60) {
-    mm = 0;
-    hh = (hh + 1) % 24;
-  }
-  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  const m = Math.floor((((ore % 24) + 24) % 24) * 60 + 1e-6) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 
 /**

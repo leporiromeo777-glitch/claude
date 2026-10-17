@@ -402,7 +402,7 @@
    {
     "id": "m1_brace",
     "obiettivo_taccuino": "Aspettare la brace.",
-    "indicazione": "Siediti (tieni {siedi}) e aspetta fino alla brace ({aspetta}).",
+    "indicazione": "Aspetta fino alla brace ({aspetta}): Elvira si siede e il tempo corre.",
     "luogo": "piazza_ore",
     "attiva_quando": "passo:m1_ottavio completato",
     "completa_quando": "ora:>=19:30",
@@ -417,7 +417,7 @@
    {
     "id": "m1_ombrista",
     "obiettivo_taccuino": "La Pina racconta la Partenza.",
-    "indicazione": "Dalle 19:45, davanti al telo dell'Ombrista in piazza, siediti a guardare il racconto ({usa}).",
+    "indicazione": "Alle 19:45, davanti al telo dell'Ombrista in piazza, comincia il racconto: aspetta lì ({aspetta}), o dal telo guardalo ({usa}).",
     "luogo": "telo_ombrista",
     "attiva_quando": "passo:m1_brace completato",
     "completa_quando": "ora:>=20:30 o flag:ombrista_1_vista",
@@ -454,8 +454,8 @@
     "obiettivo_taccuino": "Dormire o guardare.",
     "indicazione": "Nel fienile scegli con Ottavio: dormire fino al mattino o vegliare.",
     "indicazione_se": [
-     { "quando": "flag:scelta_vegliare e !flag:fade_viste", "indicazione": "Vegli: guarda le Fade dalla finestrella del fienile; poi, da seduta ({siedi}), aspetta l'alba ({aspetta})." },
-     { "quando": "flag:scelta_vegliare", "indicazione": "Le hai viste. Da seduta ({siedi}) aspetta l'alba ({aspetta})." }
+     { "quando": "flag:scelta_vegliare e !flag:fade_viste", "indicazione": "Vegli: le Fade escono alle 22:05 (aspettale: {aspetta}). Guardale dalla finestrella del fienile, poi aspetta l'alba." },
+     { "quando": "flag:scelta_vegliare", "indicazione": "Le hai viste. Aspetta l'alba ({aspetta})." }
     ],
     "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_fienile completato",
@@ -647,7 +647,7 @@
    {
     "id": "m1_seconda_notte",
     "obiettivo_taccuino": "Aspettare il mattino.",
-    "indicazione": "Dopo le 20:30 dormi nel fienile di Ottavio ({usa} sulla porta), o da seduta ({siedi}) aspetta il mattino ({aspetta}).",
+    "indicazione": "Dalle 20:30 si dorme nel fienile di Ottavio ({usa} sulla porta); o aspetta il mattino ({aspetta}).",
     "luogo": "fienile_ottavio",
     "attiva_quando": "passo:m1_strada completato",
     "completa_quando": "giorno:3 e ora:>=05:30",

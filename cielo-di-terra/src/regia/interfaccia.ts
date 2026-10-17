@@ -6,6 +6,7 @@
  *   (`lettera_letta`, `cartellino_letto`, `targa_p1_letta`) e quanto resta aperta una pagina
  *   del libretto (`libretto_cs1_letto`, `libretto_pagina:<id>`);
  * - suggerimenti dei comandi (con i nomi dei tasti), battute e sottotitoli, notifiche;
+ * - l'orologio a schermo (`ui.orologio`): l'ora dell'orologio della storia, a ogni disegno;
  * - il piccolo menu «Aspetta fino a…» (GDD §3.7), che l'interfaccia non ha ancora.
  */
 import {
@@ -94,7 +95,7 @@ export class PonteInterfaccia {
   paginaParole = false;
   private attesa: HTMLDivElement | null = null;
   private sceltaAttesa: { testo: string; ore: number | 'meta' }[] = [];
-  private suTastoAttesa = (e: KeyboardEvent) => this.tastoAttesa(e);
+  private suTastoAttesa = (e: KeyboardEvent): boolean => this.tastoAttesa(e);
 
   constructor(private r: Regia) {
     this.ui = r.ui;
@@ -280,6 +281,18 @@ export class PonteInterfaccia {
     this.ui.indicazioni.notifica(testo, { tono });
   }
 
+  // ---------- l'orologio a schermo ----------
+
+  /**
+   * L'orologio a schermo legge l'ora dalla fonte unica, l'orologio della storia (a ogni disegno:
+   * il componente scrive nel DOM solo quando cambia il minuto). Nell'attesa dice fino a che ora.
+   */
+  aggiornaOrologio(): void {
+    const o = this.r.orologio;
+    const at = o.attesa;
+    this.ui.orologio.aggiorna({ giorno: o.giorno, ore: o.ore, verso: at ? at.fino - Math.floor(at.fino / 24) * 24 : null });
+  }
+
   // ---------- dati per i componenti ----------
 
   rigaCielo(): string {
@@ -381,24 +394,43 @@ export class PonteInterfaccia {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'ui-bottone ui-bottone--leggero';
-      b.textContent = `${i + 1}  ${v.testo}`;
-      b.style.display = 'block';
+      // il numero come un tastino e l'ora in tondo (nel maiuscoletto inciso «19:30» si leggeva «I9:3o»)
+      const tasto = document.createElement('span');
+      tasto.className = 'ui-tasto';
+      tasto.textContent = String(i + 1);
+      const testo = document.createElement('span');
+      testo.textContent = ` ${v.testo}`;
+      b.append(tasto, testo);
+      Object.assign(b.style, {
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'flex-start',
+        gap: '0.6em',
+        fontFamily: 'var(--f-testo)',
+        fontSize: 'calc(19px * var(--ui-scala, 1))',
+        letterSpacing: '0',
+        fontVariantNumeric: 'lining-nums',
+        textAlign: 'left',
+      } satisfies Partial<CSSStyleDeclaration>);
       b.onclick = () => this.scegliAttesa(i);
       el.append(b);
     });
     const nota = document.createElement('div');
-    nota.textContent = 'X o Esc per lasciar perdere';
+    // (l'attesa dura pochi secondi; mentre il tempo corre, X, Invio o Spazio saltano alla fine)
+    nota.textContent = 'X o Esc: lascia perdere. Mentre aspetti, X salta alla fine.';
     nota.style.cssText = 'margin-top:6px;font-size:.85em;color:#57534c';
     el.append(nota);
     this.ui.radice.append(el);
     this.attesa = el;
-    window.addEventListener('keydown', this.suTastoAttesa, true);
+    // i tasti passano dall'interfaccia, prima delle scorciatoie: Esc chiude il menu e non apre
+    // anche la pausa (con un ascoltatore suo sulla finestra, l'interfaccia lo sentiva prima)
+    this.ui.tastiPrima = this.suTastoAttesa;
   }
 
   chiudiAttesa(): void {
     this.attesa?.remove();
     this.attesa = null;
-    window.removeEventListener('keydown', this.suTastoAttesa, true);
+    if (this.ui.tastiPrima === this.suTastoAttesa) this.ui.tastiPrima = null;
   }
 
   private scegliAttesa(i: number): void {
@@ -407,15 +439,16 @@ export class PonteInterfaccia {
     if (v) this.r.aspettaFino(v.ore);
   }
 
-  private tastoAttesa(e: KeyboardEvent): void {
+  /** I tasti del menu: il numero sceglie, X o Esc lasciano perdere. Vero se il tasto è del menu. */
+  private tastoAttesa(e: KeyboardEvent): boolean {
     if (/^[1-9]$/.test(e.key)) {
-      this.scegliAttesa(Number(e.key) - 1);
-      e.preventDefault();
-      e.stopPropagation();
-    } else if (e.key === 'x' || e.key === 'X' || e.key === 'Escape') {
-      this.chiudiAttesa();
-      e.preventDefault();
-      e.stopPropagation();
+      if (!e.repeat) this.scegliAttesa(Number(e.key) - 1);
+      return true;
     }
+    if (e.key === 'x' || e.key === 'X' || e.key === 'Escape') {
+      if (!e.repeat) this.chiudiAttesa();
+      return true;
+    }
+    return false;
   }
 }

@@ -89,6 +89,8 @@ export interface Impostazioni {
    * di serie): «complete», «obiettivo» (il pannello senza segnalino), «nessuna» (come nel GDD).
    */
   indicazioniMissioni: 'complete' | 'obiettivo' | 'nessuna';
+  /** L'orologio a schermo, in alto a destra: l'ora di gioco e il giorno (per richiesta dell'utente, di serie). */
+  orologioSchermo: boolean;
 }
 
 export type ChiaveImpostazione = keyof Impostazioni;
@@ -164,6 +166,7 @@ export function impostazioniPredefinite(preferisceMenoMovimento = false): Impost
     arcoLancio: false,
     avvisoSera: false,
     indicazioniMissioni: 'complete',
+    orologioSchermo: true,
   };
 }
 

@@ -10,12 +10,13 @@
  *   coda o finiti e la loro condizione vale: un dialogo interrotto, perso in un caricamento o
  *   annunciato quando la persona non c'era non ferma più la storia. La condizione si legge
  *   nell'ambito del passo, come la legge il segnalino (la passerella della prova, raggiunta e poi
- *   lasciata per andare incontro a Ottavio, resta raggiunta). Il Messo, dopo 25 s, va incontro a
- *   Elvira anche fuori dalla piazza (il terzo velato può essere Nando, ai Ronchi).
+ *   lasciata per andare incontro a Ottavio, resta raggiunta). Il Messo, atterrato (7 s), va incontro
+ *   a Elvira anche fuori dalla piazza (il terzo velato può essere Nando, ai Ronchi).
  * - **Indicazioni dei gesti**, nel posto del tasto E quando non c'è un bersaglio: la scala della
  *   Cripta (W), il Velo in aria (Spazio), lo squadro piantato (A/D per la bolla, il tasto destro
  *   per il cannocchiale, con la barra della collimazione), il fischio per Ottavio in volo (G),
- *   l'attesa da seduti (X), e contro un muretto basso che ferma il passo «Spazio — scavalca»
+ *   l'attesa (X: da seduti, e in piedi, ferma, quando il passo chiede di aspettare; durante
+ *   l'attesa X salta alla fine), e contro un muretto basso che ferma il passo «Spazio — scavalca»
  *   (fuori dalla botola, verso il belvedere, c'è un parapetto di novanta centimetri).
  * - **Promemoria**: se un passo resta fermo a lungo, il suo suggerimento dei comandi torna una
  *   volta (sedersi nel prologo, aspettare la brace…).
@@ -53,9 +54,13 @@ const DIALOGHI_IN_PIU: Readonly<Record<string, readonly string[]>> = {
   m1_notte: ['d_ottavio_fienile'],
 };
 
-/** Dialoghi che, dopo `dopo` s di passo, si aprono anche lontano dal loro luogo (chi parla viene da Elvira). */
+/**
+ * Dialoghi che, dopo `dopo` s di passo, si aprono anche lontano dal loro luogo (chi parla viene da
+ * Elvira). Il Messo atterra comunque accanto a lei (a 9 m, fuori dalla piazza): finita la discesa
+ * (4,5 s) le va incontro; prima restava lì fermo fino a 25 s.
+ */
 const RISERVA_OVUNQUE: Readonly<Record<string, { dialogo: string; dopo: number }>> = {
-  m1_ottavio: { dialogo: 'd_ottavio_incontro', dopo: 25 },
+  m1_ottavio: { dialogo: 'd_ottavio_incontro', dopo: 7 },
 };
 
 /** Ogni quanto (s) si controllano i dialoghi di riserva. */
@@ -174,7 +179,17 @@ export interface StatoGesto {
   /** Da seduta: si può aspettare (e la lettera di Marta, già letta, si può rileggere con E). */
   attesa?: boolean;
   rilettura?: boolean;
+  /** L'attesa corre adesso (X salta alla fine); `salto`: sta già saltando (sotto il nero, niente da dire). */
+  inAttesa?: boolean;
+  salto?: boolean;
+  /** In piedi e ferma, in un passo che chiede di aspettare (chi arriva, la brace, la notte). */
+  aspettare?: boolean;
 }
+
+/** I passi della storia in cui si aspetta un'ora (oltre a chi deve arrivare, che lo dicono le indicazioni). */
+export const PASSI_DI_ATTESA: ReadonlySet<string> = new Set(['m1_brace', 'm1_seconda_notte']);
+/** Ferma da tanti secondi, in un passo d'attesa, compare «X — Aspetta fino a…». */
+const FERMA_PER_ASPETTARE = 1.5;
 
 /** Altezza dal suolo (m) sopra la quale il Velo si apre (VELO_TUNABLES.minOpenHeight) con un margine. */
 const ALTEZZA_VELO = 1.2;
@@ -248,7 +263,9 @@ export function indicazioneGesto(s: StatoGesto): AzioneContestuale | null {
   if (s.controllo === 'libero' && s.muretto) return { tasto: 'Spazio', testo: 'Salta: scavalca il muretto' };
   if (s.controllo === 'libero' && s.muroAlto) return { tasto: 'P', testo: s.muroAlto };
   if (s.controllo === 'libero' && s.fischio) return { tasto: 'G', testo: 'Chiama Ottavio con un fischio: è in volo con le lettere' };
+  if (s.controllo === 'seduta' && s.inAttesa) return s.salto ? null : { tasto: 'X', testo: 'Salta alla fine (C: alzati)' };
   if (s.controllo === 'seduta' && s.attesa) return { tasto: 'X', testo: s.rilettura ? 'Aspetta fino a… (E: rileggi la lettera; C: alzati)' : 'Aspetta fino a… (C per alzarti)' };
+  if (s.controllo === 'libero' && s.aspettare) return { tasto: 'X', testo: 'Aspetta fino a… (ti siedi)' };
   return null;
 }
 
@@ -265,6 +282,8 @@ export class Percorso {
   private tempo = 0;
   /** Secondi passati spingendo (un tasto di movimento) senza muoversi. */
   private spinta = 0;
+  /** Secondi passati ferma in piedi, senza spingere (per «X — Aspetta fino a…»). */
+  private fermaDa = 0;
   /** Le altezze delle scatole davanti all'ultima spinta (per il debug e le prove). */
   altezzeDavanti: readonly number[] = [];
 
@@ -304,6 +323,7 @@ export class Percorso {
     // (chi cammina piano, senza fiato o nel prologo, non è «ferma»)
     const ferma = r.controllo.tipo === 'libero' && p.heightAboveGround < 0.6 && sulPiano < Math.min(0.8, 0.35 * p.tunables.walkSpeed);
     this.spinta = spinge && ferma && !r.ui.inputCatturato ? this.spinta + dt : 0;
+    this.fermaDa = !spinge && ferma && p.grounded && !r.ui.inputCatturato ? this.fermaDa + dt : 0;
     this.attesaRiserva += dt;
     if (this.attesaRiserva >= PASSO_RISERVA) {
       this.attesaRiserva = 0;
@@ -508,8 +528,15 @@ export class Percorso {
       s.fischio = n.flag.vero('ottavio_conosciuto') && o >= 6 && o < 20.5 && !r.abitanti.presente('ottavio');
     }
     if (c.tipo === 'seduta') {
-      s.attesa = !r.ponte.attesaAperta && r.vociAttesa().length > 0;
+      s.inAttesa = r.orologio.inAttesa;
+      s.salto = r.orologio.inSalto;
+      s.attesa = !r.ponte.attesaAperta && r.tempoBloccato() === null && r.vociAttesa().length > 0;
       s.rilettura = n.inventario.ha('lettera_marta') && n.flag.vero('lettera_letta');
+    }
+    if (c.tipo === 'libero' && r.interno === null && this.fermaDa >= FERMA_PER_ASPETTARE && r.tempoBloccato() === null) {
+      // chi si cerca non c'è ancora (le indicazioni dicono quando arriva), o il passo è un'attesa
+      const daAspettare = r.guida.arrivo !== null || [...attivi].some((id) => PASSI_DI_ATTESA.has(id)) || (attivi.has('m1_notte') && n.flag.vero('scelta_vegliare'));
+      s.aspettare = daAspettare && r.vociAttesa().length > 0;
     }
     return indicazioneGesto(s);
   }

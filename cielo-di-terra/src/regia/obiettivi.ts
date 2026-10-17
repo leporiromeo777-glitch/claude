@@ -84,11 +84,14 @@ interface Seguito {
 /** La meta scelta fra le tappe, pronta da mettere nel mondo. */
 type Bersaglio = { tipo: 'luogo'; id: string } | { tipo: 'persona'; id: string } | { tipo: 'caposaldo'; id: string } | { tipo: 'punto'; id: string };
 
+/** Un arrivo con chi arriva (l'id del personaggio): il menu dell'attesa lo nomina. */
+export type ArrivoDi = Arrivo & { chi?: string };
+
 interface Scelta {
   bersaglio: Bersaglio | null;
   /** La riga dell'attesa per il pannello (chi arriva e quando), con i segnaposto dei tasti. */
   attesa: string | null;
-  arrivo: Arrivo | null;
+  arrivo: ArrivoDi | null;
 }
 
 type Area = { sinistra: number; destra: number; sotto: number };
@@ -102,7 +105,7 @@ export class GuidaObiettivi {
   private readonly raggiuntiQui = new Set<string>();
   private tappe: Destinazione[] = [];
   private bersaglio: Bersaglio | null = null;
-  private arrivoAttuale: Arrivo | null = null;
+  private arrivoAttuale: ArrivoDi | null = null;
   private readonly compilati = new Map<string, PassoDaSeguire>();
   private readonly varianti = new Map<string, (NodoCondizione | null)[]>();
   private readonly aperture = new Map<string, NodoCondizione | null>();
@@ -116,6 +119,7 @@ export class GuidaObiettivi {
   /** Le aree dello schermo occupate dal pannello e dalle notifiche (rilette due volte al secondo). */
   private areaPannello: Area | null = null;
   private areaNotifiche: Area | null = null;
+  private areaOrologio: Area | null = null;
   private notaMostrata = false;
   /** Il prossimo aggiornamento del pannello riprende l'obiettivo senza annunciarlo («Continua»). */
   private daRiprendere = false;
@@ -152,7 +156,7 @@ export class GuidaObiettivi {
   }
 
   /** Quando arriva chi si cerca e non c'è ancora (il menu dell'attesa lo propone), o null. */
-  get arrivo(): Arrivo | null {
+  get arrivo(): ArrivoDi | null {
     return this.arrivoAttuale;
   }
 
@@ -373,9 +377,21 @@ export class GuidaObiettivi {
     const nessuna: Scelta = { bersaglio: null, attesa: null, arrivo: null };
     for (const t of this.tappe) {
       switch (t.tipo) {
-        case 'luogo':
-          if (this.r.luoghi.get(t.id)) return { ...nessuna, bersaglio: t };
-          break;
+        case 'luogo': {
+          const l = this.r.luoghi.get(t.id);
+          if (!l) break;
+          // chi parla arrivando lì e non c'è ancora (la novizia alla Bacheca, alle 07:00): il
+          // segnalino e il pannello restano sul luogo, ma il menu dell'attesa offre già, da
+          // lontano, «le 07:00: arriva una novizia» (prima solo una volta arrivati alla Bacheca)
+          let arrivo: ArrivoDi | null = null;
+          if (t.chi) {
+            const qui = this.r.abitanti.posizione(t.chi);
+            const giaLi = qui && surfaceDistance(qui.z, qui.theta, l.z, l.theta) < l.raggio + ATTORNO_AL_LUOGO;
+            const a = giaLi ? null : this.arrivoDi(t.chi, t.id);
+            if (a) arrivo = { ...a, chi: t.chi };
+          }
+          return { ...nessuna, bersaglio: { tipo: 'luogo', id: t.id }, arrivo };
+        }
         case 'caposaldo':
           return { ...nessuna, bersaglio: t };
         case 'punto':
@@ -387,14 +403,14 @@ export class GuidaObiettivi {
             const l = this.r.luoghi.get(t.luogo);
             if (qui && l && surfaceDistance(qui.z, qui.theta, l.z, l.theta) < l.raggio + ATTORNO_AL_LUOGO) return { ...nessuna, bersaglio: { tipo: 'persona', id: t.id } };
             const a = this.arrivoDi(t.id, t.luogo);
-            if (a) return { bersaglio: { tipo: 'luogo', id: t.luogo }, attesa: this.notaArrivo(t.id, a, false), arrivo: a };
+            if (a) return { bersaglio: { tipo: 'luogo', id: t.luogo }, attesa: this.notaArrivo(t.id, a, false), arrivo: { ...a, chi: t.id } };
             if (qui) return { ...nessuna, bersaglio: { tipo: 'persona', id: t.id } };
             if (l) return { ...nessuna, bersaglio: { tipo: 'luogo', id: t.luogo } };
             break;
           }
           if (qui) return { ...nessuna, bersaglio: { tipo: 'persona', id: t.id } };
           const a = this.arrivoDi(t.id);
-          if (a) return { bersaglio: { tipo: 'luogo', id: a.luogo }, attesa: this.notaArrivo(t.id, a, false), arrivo: a };
+          if (a) return { bersaglio: { tipo: 'luogo', id: a.luogo }, attesa: this.notaArrivo(t.id, a, false), arrivo: { ...a, chi: t.id } };
           break;
         }
         case 'persone': {
@@ -417,7 +433,7 @@ export class GuidaObiettivi {
               primo = { id, a };
             }
           }
-          if (primo) return { bersaglio: { tipo: 'luogo', id: primo.a.luogo }, attesa: this.notaArrivo(primo.id, primo.a, true), arrivo: primo.a };
+          if (primo) return { bersaglio: { tipo: 'luogo', id: primo.a.luogo }, attesa: this.notaArrivo(primo.id, primo.a, true), arrivo: { ...primo.a, chi: primo.id } };
           break;
         }
       }
@@ -433,7 +449,7 @@ export class GuidaObiettivi {
     return prossimoArrivo(p, o.giorno, o.ore, { ...(luogo ? { luogo } : {}), valuta: (c) => this.r.narrativa.valuta(c), giaIniziata: IN_RITARDO });
   }
 
-  /** «Adesso non c'è nessuno con cui parlare: una velata al lavatoio arriva alle 07:00: siediti…». */
+  /** «Adesso non c'è nessuno con cui parlare. Una velata al lavatoio arriva alle 07:00: aspetta (X).» */
   private notaArrivo(id: string, a: Arrivo, nessuno: boolean): string {
     const o = this.r.orologio;
     const molti = id === 'bambini';
@@ -446,7 +462,8 @@ export class GuidaObiettivi {
         ? 'stanno arrivando'
         : 'sta arrivando'
       : `${molti ? 'arrivano' : 'arriva'} ${giorni === 1 ? 'domani ' : giorni >= 2 ? 'dopodomani ' : ''}alle ${testoOra(a.ore)}`;
-    return `${nessuno ? "Adesso non c'è nessuno con cui parlare. " : ''}${chi} ${quando}: siediti ({siedi}) e aspetta ({aspetta}).`;
+    // (X apre l'attesa anche in piedi: Elvira si siede da sola)
+    return `${nessuno ? "Adesso non c'è nessuno con cui parlare. " : ''}${chi} ${quando}: aspetta ({aspetta}).`;
   }
 
   /** Fra le persone, la più vicina a Elvira che sia nel paese adesso. */
@@ -509,8 +526,10 @@ export class GuidaObiettivi {
       this.tArea = PASSO_AREA;
       this.areaPannello = ob.areaPannello();
       this.areaNotifiche = ui.indicazioni.areaNotifiche();
+      this.areaOrologio = ui.orologio.area();
     }
     this.evita(this.areaPannello);
+    this.evita(this.areaOrologio);
     this.evita(this.areaNotifiche);
     const st = this.stato;
     st.x = this.proiezione.x;

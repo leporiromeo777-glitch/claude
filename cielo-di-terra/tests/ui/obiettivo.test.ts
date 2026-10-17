@@ -54,7 +54,7 @@ describe('pannello dell’obiettivo', () => {
   it('è montato fra le indicazioni e i modali, e senza dati non si vede', () => {
     const r = contenitore.querySelector('.ui-radice')!;
     const ordine = [...r.querySelectorAll('.ui-componente')].map((e) => e.classList[1]);
-    expect(ordine.slice(0, 3)).toEqual(['ui-indicazioni', 'ui-obiettivo', 'ui-modale']);
+    expect(ordine.slice(0, 4)).toEqual(['ui-indicazioni', 'ui-obiettivo', 'ui-orologio', 'ui-modale']);
     expect(pannello().hidden).toBe(true);
     expect(ui.obiettivo.pannelloVisibile).toBe(false);
   });

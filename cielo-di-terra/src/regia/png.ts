@@ -35,6 +35,13 @@ const OTTAVIO_A_PORTATA = 6;
 const OTTAVIO_LONTANO_A_PIEDI = 36;
 /** Sopra il suolo di tanto (m) una figura è «in volo»: si vede, ma non è lì. */
 const IN_VOLO = 6;
+/**
+ * Quanto dura la discesa in spirale di Ottavio (s): in piazza dopo i tre velati, al fischio,
+ * quando scende vicino a Elvira per parlarle. Erano 7 s fermi a guardarlo (14 nella prova).
+ */
+export const DURATA_ATTERRAGGIO = 4.5;
+/** Mezzi giri della spirale (erano 3 in 7 s: la velocità resta simile). */
+const GIRI_ATTERRAGGIO = 2.5;
 /** Maniglie di gruppo del popolamento (muovono più figure). */
 const GRUPPI = new Set(['bambini', 'velati_corbella']);
 
@@ -139,8 +146,11 @@ export class Abitanti {
   /** Meta del cammino in corso di Ottavio (per non ridare lo stesso ordine a ogni passo). */
   private metaCammino: { z: number; theta: number } | null = null;
   private prossimaCondizione = 0;
-  /** Velocità di cammino di chi accompagna (m/s). */
-  passoAccompagna = 1.7;
+  /**
+   * Velocità di cammino di chi accompagna (m/s): passo svelto. Era 1,7: dalla piazza al fienile
+   * (280 m) chi seguiva Ottavio camminava quasi tre minuti al suo passo (Elvira va a 4,2).
+   */
+  passoAccompagna = 2.3;
 
   constructor(readonly corbella: ManigliaCorbella) {}
 
@@ -418,11 +428,11 @@ export class Abitanti {
         return;
       }
       case 'atterra': {
-        o.t += dt / 7;
+        o.t += dt / DURATA_ATTERRAGGIO;
         const t = Math.min(1, o.t);
         const s = t * t * (3 - 2 * t);
         const hA = groundHeight(o.a.z, o.a.theta);
-        const giri = (1 - t) * Math.PI * 3;
+        const giri = (1 - t) * Math.PI * GIRI_ATTERRAGGIO;
         const raggio = 18 * (1 - t);
         const zc = o.da.z + (o.a.z - o.da.z) * s;
         const thc = o.da.theta + deltaDeg(o.da.theta, o.a.theta) * s;
@@ -455,19 +465,23 @@ export class Abitanti {
         const p = n.posizione()!;
         const dist = surfaceDistance(p.z, p.theta, dest.z, dest.theta);
         const distElvira = surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta);
+        // Elvira è più avanti di lui sulla strada (più vicina all'ultima tappa): non la si aspetta,
+        // la si segue (prima si fermava lì dov'era, e lei arrivava al fienile da sola)
+        const fine = luogo(o.tappe[o.tappe.length - 1] ?? '') ?? dest;
+        const davanti = surfaceDistance(ctx.elvira.z, ctx.elvira.theta, fine.z, fine.theta) + 4 < surfaceDistance(p.z, p.theta, fine.z, fine.theta);
         if (dist < 1.5) {
           this.metaCammino = null;
-          if (o.tappe.length > 1 && distElvira < 12) o.tappe.shift();
+          if (o.tappe.length > 1 && (distElvira < 12 || davanti)) o.tappe.shift();
           else if (o.tappe.length === 1) this.ottavio = { tipo: 'fermo', z: p.z, theta: p.theta };
           return;
         }
-        if (distElvira > 22) {
+        if (distElvira > 22 && !davanti) {
           // aspetta che Elvira lo raggiunga
           if (n.inCammino) n.ferma();
           this.metaCammino = null;
           return;
         }
-        this.cammina(n, dest, this.passoAccompagna);
+        this.cammina(n, dest, davanti && distElvira > 12 ? this.passoAccompagna * 1.3 : this.passoAccompagna);
         return;
       }
       case 'raggiunge': {

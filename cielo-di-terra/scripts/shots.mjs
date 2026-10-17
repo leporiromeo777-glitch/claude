@@ -8,7 +8,10 @@
  *    con WebGL2 via ANGLE + SwiftShader: flag --use-angle=swiftshader
  *    --enable-unsafe-swiftshader --ignore-gpu-blocklist;
  * 4. per ogni inquadratura usa window.__GAME__ per piazzare camera e ora, poi salva
- *    il PNG in docs/shots/.
+ *    il PNG in docs/shots/;
+ * 5. dopo le verifiche di gioco, le inquadrature con l'interfaccia (15-17): una partita vera
+ *    della regia, fotografata con la pagina intera (canvas e interfaccia), per l'orologio a
+ *    schermo di giorno, di notte e durante «Aspetta fino a» (le cifre che corrono).
  *
  * Opzioni: --no-build, --only=1,3 (numeri delle inquadrature), --size=1280x720
  */
@@ -181,6 +184,70 @@ const SHOTS = [
   },
 ];
 
+/**
+ * Inquadrature con l'interfaccia (la regia in gioco, la pagina intera): `setup` gira nel browser
+ * con `g = window.__GAME__` dopo `preparaPartita`. Si fanno dopo le verifiche: la regia in gioco
+ * comanda l'ora e il corpo, e le inquadrature del motore sopra non la vogliono.
+ */
+const SHOTS_INTERFACCIA = [
+  // (in quest'ordine: l'attesa della brace con il suo pannello, poi la notte, che manda avanti la storia)
+  {
+    n: 15,
+    file: '15-orologio-giorno.png',
+    title: "L'orologio a schermo di giorno, in piazza alle 10:20 (missione 1, la brace da aspettare)",
+    setup: (g) => {
+      const G = g.regia;
+      G.regia.orologio.imposta(1, 10 + 20 / 60);
+      G.avanza(0.2);
+      G.mira([1057, 36.2, 46]);
+    },
+  },
+  {
+    n: 17,
+    file: '17-orologio-attesa.png',
+    title: '«Aspetta fino a: la brace»: dopo un secondo e mezzo le cifre corrono (fino alle 19:30), il sole scivola sul quadrante',
+    setup: (g) => {
+      const G = g.regia;
+      const r = G.regia;
+      r.orologio.imposta(1, 10 + 20 / 60);
+      G.avanza(0.2);
+      G.mira([1057, 36.2, 46]);
+      r.siedi();
+      r.aspettaFino(19.5);
+      G.avanza(1.5);
+    },
+  },
+  {
+    n: 17.1,
+    file: '17b-orologio-attesa.png',
+    title: '…dopo tre secondi e mezzo (sempre la stessa attesa: 5,5 s in tutto)',
+    setup: (g) => {
+      g.regia.avanza(2);
+    },
+  },
+  {
+    n: 17.2,
+    file: '17c-orologio-arrivo.png',
+    title: '…arrivati: le 19:30, la brace (la storia lo sente subito)',
+    setup: (g) => {
+      const G = g.regia;
+      while (G.regia.orologio.inAttesa) G.avanza(0.25);
+      G.avanza(0.2);
+    },
+  },
+  {
+    n: 16,
+    file: '16-orologio-notte.png',
+    title: "L'orologio a schermo di notte: il quadrante blu, la luna e le stelle (alle 23:40)",
+    setup: (g) => {
+      const G = g.regia;
+      G.regia.orologio.imposta(1, 23 + 40 / 60);
+      G.avanza(0.2);
+      G.mira([1057, 36.2, 46]);
+    },
+  },
+];
+
 function serve(dir, port) {
   const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.map': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml' };
   const server = createServer((req, res) => {
@@ -303,6 +370,53 @@ async function main() {
     return out;
   });
   console.log('verifiche:', JSON.stringify(checks));
+  // l'interfaccia: una partita della regia nella missione 1 (la brace da aspettare), a qualità Media
+  const interfaccia = SHOTS_INTERFACCIA.filter((s) => !only.length || only.includes(Math.floor(s.n)));
+  if (interfaccia.length) {
+    await page.evaluate(() => {
+      const g = window.__GAME__;
+      g.stopLoop();
+      g.setSetting('qualita', 'media');
+      const G = g.regia;
+      const r = G.regia;
+      r.nuovaPartita();
+      const m = r.narrativa.missioni;
+      for (const p of ['pr_vetro', 'pr_cripta', 'pr_botola_scala', 'pr_guarda_su', 'pr_camminare', 'pr_lettera', 'pr_campane']) m.completaPasso('prologo', p);
+      for (const p of ['m1_lente', 'm1_marza', 'm1_cartellino', 'm1_innesto', 'm1_velo', 'm1_velati', 'm1_ottavio']) m.completaPasso('m01_castagno_vuoto', p);
+      // i dialoghi automatici di quei passi, detti fino in fondo (se no si aprirebbero adesso)
+      const d = r.narrativa.dialoghi;
+      for (const id of ['d_meridiana_1', 'd_ottavio_incontro']) {
+        if (d.finito(id) || !d.avvia(id)) continue;
+        for (let k = 0; k < 80 && !d.isFinished(); k++) d.choose(0);
+      }
+      r.narrativa.tick(0);
+      r.dialoghi.svuota();
+      r.ui.tornaAlGioco();
+      r.orologio.fermo = null;
+      r.orologio.limite = null;
+      r.velatura.dalNero(0.01);
+      r.vai(1044, 37.4);
+      G.avanza(0.5);
+    });
+    // le notifiche del Taccuino dei passi completati se ne vanno (4,2 s)
+    await new Promise((ok) => setTimeout(ok, 5200));
+    for (const shot of interfaccia) {
+      const ts = Date.now();
+      await page.evaluate((src) => {
+        const g = window.__GAME__;
+        // eslint-disable-next-line no-new-func
+        new Function('g', `(${src})(g)`)(g);
+        g.ensureLoaded();
+        g.render();
+      }, shot.setup.toString());
+      await new Promise((ok) => setTimeout(ok, 350));
+      // (la pagina intera: con SwiftShader e la macchina carica, il primo disegno a Media è lento)
+      await page.screenshot({ path: join(outDir, shot.file), timeout: 240000 });
+      const st = await page.evaluate(() => ({ s: window.__GAME__.getStats(), ora: window.__GAME__.regia.stato().ora, orologio: document.querySelector('.ui-or-ora')?.textContent, sotto: document.querySelector('.ui-or-sotto')?.textContent }));
+      console.log(`${shot.file}: ${((Date.now() - ts) / 1000).toFixed(1)} s, ore ${st.ora}, orologio «${st.orologio} · ${st.sotto}», draw ${st.s.drawCalls}, tri ${st.s.triangles}`);
+      report.push({ ...shot, setup: undefined, stats: st.s, orologio: `${st.orologio} · ${st.sotto}` });
+    }
+  }
   writeFileSync(join(outDir, 'shots.json'), JSON.stringify({ date: new Date().toISOString(), size: [W, H], chromiumArgs: CHROMIUM_ARGS, renderer: info.renderer, startupSeconds: startup, shots: report, checks }, null, 2));
   const errors = logs.filter((l) => l.includes('error') || l.includes('Error'));
   if (errors.length) console.log('messaggi di errore del browser:\n' + errors.slice(0, 20).join('\n'));
