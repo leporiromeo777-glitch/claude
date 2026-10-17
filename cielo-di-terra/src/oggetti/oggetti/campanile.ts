@@ -13,6 +13,7 @@ import { Rng, semeNumerico, type Seme } from '../rng';
 import type { OggettoProcedurale } from '../tipi';
 import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../superfici';
 import { aggiungiPalina, numero, testaChiodo } from './caposaldo';
+import { descriviPorta, facciata } from './dettagli';
 
 export interface OpzioniCampanile {
   seme?: Seme;
@@ -54,14 +55,39 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
     superficie: supCalce,
     occlusione: occlusionePiede(1.6, 0.35),
   });
-  // zoccolo di pietra a vista
-  b.aggiungi(geoLastra(L + 0.2, 1.2 + interr, L + 0.2, rng.intero(0, 1e6), 0.01), {
-    matrice: mat([0, -interr, 0]),
-    colore: mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4),
-    gradiente: { basso: 0.7, alto: 1.0, y0: 0, y1: 1.2 },
+  // zoccolo di pietra a vista. Migliorie «porte»: prima era una scatola che sporgeva 10 cm su
+  // tutti i lati, anche davanti alla porta, e ne copriva il primo metro e venti (si vedeva solo
+  // l'arco sopra una fascia di pietra). Ora sul davanti è a filo del muro dietro la porta e sporge
+  // solo ai lati del vano, con due stipiti di pietra e la soglia
+  const tonoZoccolo = mescola(PALETTE.gneiss, PALETTE.gneissCaldo, 0.4);
+  const supZoccolo = sup(SUP.PIETRA, rng.next());
+  const pezzoZoccolo = (w: number, d: number, x: number, z: number) =>
+    b.aggiungi(geoLastra(w, 1.2 + interr, d, rng.intero(0, 1e6), 0.004), {
+      matrice: mat([x, -interr, z]),
+      colore: tonoZoccolo,
+      gradiente: { basso: 0.7, alto: 1.0, y0: 0, y1: 1.2 },
+      piatto: true,
+      superficie: supZoccolo,
+      occlusione: occlusionePiede(0.9, 0.5),
+    });
+  pezzoZoccolo(L + 0.2, L + 0.1, 0, -0.06);
+  const luce = 0.6 + 0.12;
+  for (const s of [-1, 1]) pezzoZoccolo(L / 2 + 0.1 - luce, 0.12, s * (luce + (L / 2 + 0.1 - luce) / 2), L / 2 + 0.05);
+  for (const s of [-1, 1]) {
+    b.aggiungi(geoLastra(0.22, 1.92, 0.16, rng.intero(0, 1e6), 0.05), {
+      matrice: mat([s * 0.71, 0, L / 2 + 0.06]),
+      colore: PALETTE.gneissChiaro,
+      variazione: 0.05,
+      piatto: true,
+      superficie: sup(SUP.PIETRA, rng.next()),
+    });
+  }
+  b.aggiungi(geoLastra(1.7, 0.13, 0.55, rng.intero(0, 1e6), 0.08), {
+    matrice: mat([0, -0.11, L / 2 + 0.22]),
+    colore: PALETTE.gneiss,
+    variazione: 0.06,
     piatto: true,
     superficie: sup(SUP.PIETRA, rng.next()),
-    occlusione: occlusionePiede(0.9, 0.5),
   });
   // lesene sugli spigoli e cornici con archetti pensili per ordine
   const hOrd = hF / ordini;
@@ -106,7 +132,7 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
   // porta ad arco
   const formaPorta = new THREE.ShapeGeometry(formaArco(1.2, 2.5, 6));
   formaPorta.deleteAttribute('uv');
-  b.aggiungi(formaPorta, { matrice: mat([0, 0, L / 2 + 0.02]), colore: PALETTE.lariceScuro, superficie: legnoVerticale(0.3), occlusione: 0.2 });
+  b.aggiungi(formaPorta, { matrice: mat([0, 0, L / 2 + 0.05]), colore: PALETTE.lariceScuro, superficie: legnoVerticale(0.3), occlusione: 0.2 });
   const ghiera = new THREE.Shape();
   {
     const ri = 0.6;
@@ -281,5 +307,6 @@ export function creaCampanile(opz: OpzioniCampanile = {}): OggettoProcedurale {
     ],
     ingombro: ingombroDa(gruppo),
     punti,
+    porte: [descriviPorta(facciata(0, L / 2, 0), 0, 0, 1.2, 2.5, 0.05)],
   });
 }

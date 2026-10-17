@@ -106,14 +106,22 @@ describe('collider', () => {
     for (const t of ['muro', 'tetto', 'porta', 'botola', 'chiodo', 'caposaldo', 'gradino', 'calpestabile', 'tronco', 'palo']) expect(tag.has(t), t).toBe(true);
     expect(g.world.colliders.size).toBeGreaterThan(collPrima - c.statistiche.segnaposto!.colliderTolti + 1000);
   });
-  it('la botola chiusa ha il collider, aperta no', () => {
-    const conta = () => [...(g.world.colliders.all() as IterableIterator<Collider>)].filter((x) => x.tag === 'botola').length;
-    expect(conta()).toBeGreaterThan(0);
+  it('la botola chiusa ha la lastra; aperta il telaio e il vano chiuso (migliorie «porte»)', () => {
+    const nelMondo = () => new Set([...(g.world.colliders.all() as IterableIterator<Collider>)].filter((x) => x.tag === 'botola'));
+    const chiusa = c.cripta.colliderBotola;
+    const aperta = c.cripta.colliderBotolaAperta;
+    expect(chiusa.length).toBeGreaterThan(0);
+    expect(aperta.length).toBe(5);
+    expect(chiusa.every((k) => nelMondo().has(k))).toBe(true);
     c.apriBotola(true);
-    expect(conta()).toBe(0);
+    const m = nelMondo();
+    expect(chiusa.some((k) => m.has(k))).toBe(false);
+    expect(aperta.every((k) => m.has(k))).toBe(true);
     expect(c.punto('entra:cripta')!.attivo).toBe(true);
     c.apriBotola(false);
-    expect(conta()).toBeGreaterThan(0);
+    const m2 = nelMondo();
+    expect(chiusa.every((k) => m2.has(k))).toBe(true);
+    expect(aperta.some((k) => m2.has(k))).toBe(false);
   });
 });
 

@@ -328,6 +328,16 @@ async function main() {
     await R(() => window.__GAME__.stopLoop());
     log(`pronto in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
 
+    // ============================================================== porte (migliorie «porte»)
+    // la verifica delle porte sul paese di chi gioca: nel browser il paese non è identico a quello
+    // dei test in Node (Math.sin, cos e pow del motore JavaScript differiscono nell'ultima cifra)
+    {
+      const v = await R(() => window.__GAME__.regia.verificaPorte());
+      const difettose = v.porte.filter((p) => p.difetti.length);
+      log(`  porte nel browser: ${v.riassunto.totale}, difettose ${v.riassunto.difettose}`);
+      if (difettose.length) throw new Error(`porte difettose nel mondo del browser: ${difettose.map((p) => `${p.id} ${p.difetti.join(',')} ${p.ostacolo ?? ''} ${p.note.join('; ')}`).join(' | ')}`);
+    }
+
     // ============================================================== titolo
     log('— Titolo');
     await foto('00-titolo');

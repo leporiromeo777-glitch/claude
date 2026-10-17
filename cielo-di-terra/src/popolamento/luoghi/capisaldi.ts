@@ -22,6 +22,7 @@ import { creaCapanno, creaGra, creaMasso } from '../edifici';
 import { costruisciRipiano } from '../ripiano';
 import { impronta, mondo, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { isWindowTheta } from '../../world/terrain';
+import { gradiniLuogo, oggettoSullaSoglia } from '../soglie';
 
 export interface Fumo {
   gruppo: THREE.Object3D;
@@ -55,10 +56,10 @@ export function costruisciGraDiPian(ctx: Contesto): THREE.Object3D {
   // centro = chiodo − spigolo (X sinistra = bussola yaw − 90)
   const q = spostaYaw(cs37.z, cs37.theta, yaw, -pAng.z, 100);
   const g = spostaYaw(q.z, q.theta, yaw - 90, -pAng.x, 100);
-  const fp = impronta(g.z, g.theta, yaw, 5.0, 5.6);
-  const gra = creaGra('gra-di-pian', false);
-  const base = fp.min - 0.05;
+  // migliorie «porte»: la soglia sul suolo davanti alla porta (prima 16 cm sotto)
+  const { oggetto: gra, base, porta: portaGra } = oggettoSullaSoglia(() => creaGra('gra-di-pian', false), g.z, g.theta, yaw, 5.0, 5.6, 2.2);
   ctx.posa('selve', gra, g.z, g.theta, yaw, { h: base, luogo: 'gra_di_pian', tag: (t) => t ?? 'muro' });
+  if (portaGra) gradiniLuogo(ctx, ctx.zona('selve'), 'gra_di_pian', g.z, g.theta, base, yaw, portaGra, { luogo: 'gra_di_pian', seme: 890 });
   ctx.occupa({ nome: 'gra_di_pian', z: g.z, theta: g.theta, yaw, larghezza: 6, profondita: 7 });
   const mG = matriceSuperficie(g.z, g.theta, base, yaw);
   const m = mG.clone().multiply(new THREE.Matrix4().makeTranslation(pAng.x, pAng.y, pAng.z)).multiply(new THREE.Matrix4().makeRotationX((migliore.sz * Math.PI) / 2));
@@ -125,10 +126,12 @@ export function costruisciBalcone(ctx: Contesto): void {
   const pp = ctx.posa('balcone', pil, pfr2.z, pfr2.theta, 270, { h: H + 0.35, luogo: 'balcone_messi', tag: (t) => t ?? 'caposaldo' });
   if (pp['cima']) ctx.segnali.set('cs_42', pp['cima'].clone());
   ctx.punto('chiodo:42', 'pianta_squadro', 'Pianta lo squadro sul Pilastro 42', pp['chiodo'] ?? mondo(pfr2.z, pfr2.theta, H + 1.8), { raggio: 1.8, luogo: 'balcone_messi', rif: 'cs_42' });
-  const pc = spostaYaw(b.z, b.theta, yaw + 180, 6.2, H);
-  const fpc = impronta(pc.z, pc.theta, yaw, 4, 4);
+  // il capanno sul retro del Balcone, dentro il parapetto, con la porta verso il Balcone. Migliorie
+  // «porte»: prima stava 6,2 m dietro il centro, fuori dal ripiano (profondo 7): appeso cinque metri
+  // sopra il pendio, con la porta contro il parapetto
+  const pc = spostaYaw(b.z, b.theta, yaw + 180, 7 / 2 - 0.75 - 1.5, H);
   const capanno = creaCapanno('capanno-messi');
-  const ppc = ctx.posa('balcone', capanno, pc.z, pc.theta, yaw, { h: Math.max(fpc.max, H) - 0.25, luogo: 'balcone_messi' });
+  const ppc = ctx.posa('balcone', capanno, pc.z, pc.theta, yaw, { h: H - 0.2, luogo: 'balcone_messi' });
   ctx.punto('leggi:motto_messi', 'leggi', 'Leggi il motto sulla porta', ppc['motto'] ?? mondo(pc.z, pc.theta, H + 1.5), { raggio: 2.2, luogo: 'balcone_messi', rif: 'motto_messi' });
   const lancio = spostaYaw(b.z, b.theta, yaw, 3.2, H);
   ctx.punto('lancio_velo:balcone_messi', 'lancio_velo', "Buttati nell'altra valle (aspetta che la nappina penda)", mondo(lancio.z, lancio.theta, H + 0.2), { raggio: 3, luogo: 'balcone_messi', rif: 'flag:atterrata_altra_valle' });

@@ -9,7 +9,7 @@
  */
 import { matriceSuperficie } from '../oggetti/cilindro';
 import { creaMuroSecco } from '../oggetti/oggetti/muri';
-import type { Contesto } from './contesto';
+import type { Contesto, Impronta } from './contesto';
 import * as THREE from 'three';
 import type { Cantiere } from './cantiere';
 import { boxAt } from '../world/colliders';
@@ -220,20 +220,35 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
       const linea = semplifica(smussa(media(curva, 3), 1), 1.0);
       // taglia in pezzi validi
       let pezzo: Spezzata = [];
-      const chiudi = () => {
-        if (pezzo.length >= 2 && lunghezza(pezzo) >= 1.8) {
-          const fatto = muroSuPezzo(ctx, opz, r, pezzo, kdeg);
+      const costruisci = (parte: Spezzata) => {
+        if (parte.length >= 2 && lunghezza(parte) >= 1.8) {
+          const fatto = muroSuPezzo(ctx, opz, r, parte, kdeg);
           if (fatto > 0) {
             metri += fatto;
             pezzi++;
           }
+        }
+      };
+      const chiudi = () => {
+        // migliorie «porte»: davanti a una porta, alla sua scaletta o a una scala esterna il muro si apre
+        // (correzione dopo la verifica: prima si toglieva tutto il tratto, fino a 4,2 m, e nel browser
+        // mancavano 37 m di muri). Le giunture degli altri tratti restano dove erano, e così i varchi
+        if (pezzo.length >= 2 && lunghezza(pezzo) >= 1.8) {
+          let parte: Spezzata = [];
+          for (const [x, y] of pezzo) {
+            if (davantiAPorta(ctx, locale(r, x, y), 0.6)) {
+              costruisci(parte);
+              parte = [];
+            } else parte.push([x, y]);
+          }
+          costruisci(parte);
         }
         pezzo = [];
       };
       for (let i = 0; i < linea.length; i++) {
         const [x, y] = linea[i]!;
         const p = locale(r, x, y);
-        const valido = !(opz.escludi?.(p.z, p.theta) ?? false) && !ctx.occupato(p.z, p.theta, 0.6) && ctx.distanzaSentieri(p.z, p.theta) > 0.9 && !ctx.inVisuale(p.z, p.theta, 0, true);
+        const valido = !(opz.escludi?.(p.z, p.theta) ?? false) && !occupatoFuoriPorte(ctx, p.z, p.theta, 0.6) && ctx.distanzaSentieri(p.z, p.theta) > 0.9 && !ctx.inVisuale(p.z, p.theta, 0, true);
         if (!valido) {
           chiudi();
           continue;
@@ -249,6 +264,27 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
     }
   }
   return { metri, pezzi };
+}
+
+/** (z, θ) occupato da un'impronta che non sia lo spazio davanti a una porta o a una scala? */
+function occupatoFuoriPorte(ctx: Contesto, z: number, theta: number, margine: number): boolean {
+  return ctx.impronte.some((i) => !i.nome.startsWith('porta:') && !i.nome.startsWith('scala:') && dentroImpronta(i, z, theta, margine));
+}
+
+/** (z, θ) davanti a una porta o a una scala esterna (con `margine`)? */
+function davantiAPorta(ctx: Contesto, p: { z: number; theta: number }, margine: number): boolean {
+  return ctx.impronte.some((i) => (i.nome.startsWith('porta:') || i.nome.startsWith('scala:')) && dentroImpronta(i, p.z, p.theta, margine));
+}
+
+/** Come `Contesto.occupato` per una sola impronta. */
+function dentroImpronta(i: Impronta, z: number, theta: number, margine: number): boolean {
+  if (i.raggio !== undefined) return Math.hypot(z - i.z, (((theta - i.theta + 540) % 360) - 180) * metriPerGrado(40)) < i.raggio + margine;
+  const y = ((i.yaw ?? 0) * Math.PI) / 180;
+  const dn = z - i.z;
+  const de = (((theta - i.theta + 540) % 360) - 180) * metriPerGrado(40);
+  const avanti = dn * Math.cos(y) + de * Math.sin(y);
+  const destra = -dn * Math.sin(y) + de * Math.cos(y);
+  return Math.abs(avanti) <= (i.profondita ?? 0) / 2 + margine && Math.abs(destra) <= (i.larghezza ?? 0) / 2 + margine;
 }
 
 /** Un tratto di muro di sostegno lungo il pezzo di curva. Restituisce la lunghezza o 0. */

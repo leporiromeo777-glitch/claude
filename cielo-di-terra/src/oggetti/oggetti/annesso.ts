@@ -13,7 +13,7 @@ import { box, ingombroDa, risultato } from '../comune';
 import { geoBoxC, geoEstrusione, geoLastra } from '../forme';
 import { PALETTE } from '../palette';
 import { Rng, semeNumerico, type Seme } from '../rng';
-import type { Collider, OggettoProcedurale } from '../tipi';
+import type { Collider, OggettoProcedurale, PortaOggetto } from '../tipi';
 import { SUP, legnoOrizzontale, legnoVerticale, occlusionePiede, sup } from '../superfici';
 import { cantonali, facciata, finestra, porta, tettoPiode } from './dettagli';
 
@@ -35,6 +35,11 @@ export interface OpzioniAnnesso {
   dettaglio?: 'alto' | 'basso';
   /** frazione di finestrelle accese di notte (0-1) */
   finestreAccese?: number;
+  /**
+   * Migliorie «porte»: x della porta sul davanti (senza, la sceglie il seme; il seme fa comunque la
+   * sua estrazione, così il resto dell'annesso non cambia)
+   */
+  porta?: number;
 }
 
 /** Tinte dei tetti degli annessi: un po' più chiari e verdi di muschio dei rustici. */
@@ -122,6 +127,7 @@ export function creaAnnesso(opz: OpzioniAnnesso = {}): OggettoProcedurale {
   }
 
   // --- davanti: porta, finestrella o la catasta di legna
+  const porte: PortaOggetto[] = [];
   if (tipo === 'legnaia') {
     // fronte aperto: due pilastri e la catasta di ciocchi che riempie il vano (le teste chiare dei ciocchi)
     const hc = Math.min(hF - 0.3, 2.0);
@@ -142,8 +148,9 @@ export function creaAnnesso(opz: OpzioniAnnesso = {}): OggettoProcedurale {
     }
     for (const s of [-1, 1]) b.aggiungi(geoLastra(0.36, hF - 0.05, 0.4, r.intero(0, 1e6), 0.04), { matrice: mat([s * (W / 2 - 0.18), 0, D / 2 - 0.1]), colore: PALETTE.gneissChiaro, gradiente: { basso: 0.75, alto: 1, y0: 0, y1: hF }, piatto: true, superficie: supMuro, occlusione: occlusionePiede(0.6, 0.4) });
   } else {
-    const pu = W > 3.6 ? r.centrato(W * 0.2) : 0;
-    porta(b, fronte, pu, 0, tipo === 'fienile' ? 1.2 : 1.0, tipo === 'fienile' ? Math.min(1.9, hPietra - 0.05) : Math.min(1.85, hF - 0.45), r.scegli([PALETTE.larice, PALETTE.lariceScuro, PALETTE.lariceGrigio]));
+    const puSeme = W > 3.6 ? r.centrato(W * 0.2) : 0;
+    const pu = opz.porta ?? puSeme;
+    porte.push(porta(b, fronte, pu, 0, tipo === 'fienile' ? 1.2 : 1.0, tipo === 'fienile' ? Math.min(1.9, hPietra - 0.05) : Math.min(1.85, hF - 0.45), r.scegli([PALETTE.larice, PALETTE.lariceScuro, PALETTE.lariceGrigio])));
     if (tipo === 'stalla' && W > 3.2) {
       const fu = pu > 0 ? -W * 0.28 : W * 0.28;
       finestra(b, fronte, fu, 1.15, { larghezza: 0.36, altezza: 0.42, inferriata: true, accesa: r.prob(opz.finestreAccese ?? 0.3), ante: null });
@@ -188,5 +195,6 @@ export function creaAnnesso(opz: OpzioniAnnesso = {}): OggettoProcedurale {
     collider,
     ingombro: ingombroDa(gruppo),
     punti: { davanti: new THREE.Vector3(0, 0, D / 2 + 0.5), gronda: new THREE.Vector3(0, hF, D / 2), colmo: new THREE.Vector3(0, hB, -D / 2) },
+    porte,
   });
 }

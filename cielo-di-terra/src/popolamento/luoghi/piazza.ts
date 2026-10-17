@@ -259,10 +259,12 @@ export function costruisciPiazza(ctx: Contesto): void {
     ctx.posa('piazza', l, q.z, q.theta, ang + 180, { tag: () => 'palo' });
     l.dispose();
   });
+  // (migliorie «porte»: la terza a −30° invece di −35°: stava proprio davanti alla porta di una
+  // casa della corona, a ottanta centimetri dal muro)
   const panche: Array<[number, number]> = [
     [170, raggio + 1.6],
     [100, raggio + 1.8],
-    [-35, raggio + 1.6],
+    [-30, raggio + 1.6],
   ];
   panche.forEach(([ang, r], i) => {
     const q = spostaYaw(p.z, p.theta, ang, r, 38.5);

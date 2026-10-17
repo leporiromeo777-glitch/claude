@@ -11,6 +11,7 @@ import { cylToWorld, worldToCyl } from '../world/cylinder';
 import { luogo } from './contenuti';
 import { posizioneDi, verboDi } from './interazioni';
 import type { Regia } from './regia';
+import { inventarioPorte, riassuntoPorte, verificaPaese } from '../popolamento/verificaPorte';
 
 export interface DebugRegia {
   regia: Regia;
@@ -39,6 +40,11 @@ export interface DebugRegia {
   salva(): Promise<void>;
   sguardo(yaw: number, pitch: number): void;
   posizione(id: string): [number, number, number] | null;
+  /**
+   * Migliorie «porte»: la verifica delle porte sul paese di questa partita (lo stesso di chi gioca,
+   * con la vegetazione del motore), con l'inventario per le schermate.
+   */
+  verificaPorte(): Promise<{ riassunto: Record<string, number>; porte: unknown[] }>;
 }
 
 export function installaDebugRegia(r: Regia): DebugRegia {
@@ -193,6 +199,10 @@ export function installaDebugRegia(r: Regia): DebugRegia {
       if (!p) return null;
       const c = worldToCyl(p);
       return [c.z, c.theta, c.h];
+    },
+    async verificaPorte() {
+      const esiti = verificaPaese(r.corbella, g.world.colliders);
+      return { riassunto: riassuntoPorte(esiti), porte: inventarioPorte(esiti, r.corbella.scalette(true)) };
     },
   };
   const w = window as unknown as { __GAME__?: Record<string, unknown> };

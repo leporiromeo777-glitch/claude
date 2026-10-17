@@ -375,7 +375,7 @@ export const RAD = DEG;
  * - due finestrelle scure per facciata (accese di notte come quelle vicine) e la porta;
  * - il camino con la lastra sopra.
  */
-export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hMuri: number, interrata: number, seme = 0): void {
+export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hMuri: number, interrata: number, seme = 0, proprietario?: string, portaU = 0): void {
   const { BoxGeometry } = THREE_GEOM;
   const t = new THREE_MAT4();
   const box = new BoxGeometry(1, 1, 1);
@@ -500,15 +500,19 @@ export function casaLontana(c: Cantiere, m: import('three').Matrix4, W: number, 
   }
   ff.makeTranslation(0, yF, -D / 2 - 0.02).multiply(new THREE_MAT4().makeRotationY(Math.PI));
   conCornice(ff, 7);
-  t.makeTranslation(0, 1.0, D / 2 + 0.02).scale(new Vector3(1.6, 2.6, 1));
-  c.forma(finestra, m.clone().multiply(t), [0.36, 0.24, 0.16], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+  // la porta (migliorie «porte»): dove sta quella vera (`portaU`), una lastra scura che sporge 10 cm.
+  // Prima era un piano a 2 cm dal muro, sempre al centro del fronte: al cambio di dettaglio la porta
+  // saltava di un metro e mezzo, e oltre i 300 m sfarfallava con il muro
+  t.makeTranslation(portaU, 0.95, D / 2 + 0.05).scale(new Vector3(0.95, 1.9, 0.1));
+  c.forma(box, m.clone().multiply(t), [0.36, 0.24, 0.16], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+  if (proprietario) c.segnaPorta(m, proprietario, 'lontano', portaU, 0, 0.95, 1.9, D / 2, 0.1);
 }
 
 /**
  * Versione lontana di un annesso (rifinitura 2): il corpo di pietra, la falda unica di piode che
  * scende verso il davanti (alta `hB` dietro, `hF` davanti) col suo bordo chiaro, la porta scura.
  */
-export function annessoLontano(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hF: number, hB: number, interrata: number, seme = 0): void {
+export function annessoLontano(c: Cantiere, m: import('three').Matrix4, W: number, D: number, hF: number, hB: number, interrata: number, seme = 0, proprietario?: string, portaU: number | null = 0): void {
   const { BoxGeometry } = THREE_GEOM;
   const box = new BoxGeometry(1, 1, 1);
   const t = new THREE_MAT4();
@@ -544,8 +548,12 @@ export function annessoLontano(c: Cantiere, m: import('three').Matrix4, W: numbe
   t.makeTranslation(0, hF + a / 2 + 0.06, 0.2).multiply(q.makeRotationX(pend)).scale(new Vector3(W + 0.4, 0.14, lungo));
   c.forma(box, m.clone().multiply(t), tetto, 0, 'singolo', undefined, [SUPERFICIE.PIODE + hash2(seme, 8) * 0.9, 0.06]);
   // la porta
-  t.makeTranslation(0, 0.95, D / 2 + 0.02).scale(new Vector3(1.0, 1.9, 1));
-  c.forma(new THREE_PLANE(1, 1), m.clone().multiply(t), [0.33, 0.22, 0.15], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+  // la porta, dove sta quella vera (le legnaie non ne hanno: `portaU` null), sporgente come nelle case
+  if (portaU !== null) {
+    t.makeTranslation(portaU, 0.9, D / 2 + 0.05).scale(new Vector3(1.0, 1.8, 0.1));
+    c.forma(box, m.clone().multiply(t), [0.33, 0.22, 0.15], 0, 'singolo', undefined, [SUPERFICIE.LEGNO, 0.2]);
+    if (proprietario) c.segnaPorta(m, proprietario, 'lontano', portaU, 0, 1.0, 1.8, D / 2, 0.1);
+  }
 }
 
 /**

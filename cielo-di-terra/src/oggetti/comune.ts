@@ -2,7 +2,7 @@
  * Utilità comuni ai generatori: composizione del risultato, aloni dei lumi, luci opzionali.
  */
 import * as THREE from 'three';
-import type { Collider, Ingombro, OggettoProcedurale } from './tipi';
+import type { Collider, Ingombro, OggettoProcedurale, PortaOggetto } from './tipi';
 import { materiali } from './materiali';
 
 /** Libera tutte le geometrie di un sotto-albero (i materiali condivisi restano). */
@@ -24,6 +24,8 @@ export interface DatiRisultato<S> {
   collider: Collider[];
   ingombro: Ingombro;
   punti?: Record<string, THREE.Vector3>;
+  /** le porte dell'oggetto (coordinate locali) */
+  porte?: PortaOggetto[];
   appoggio?: THREE.Vector3;
   update?: (dt: number, stato?: S) => void;
 }
@@ -44,6 +46,7 @@ export function risultato<S = undefined>(d: DatiRisultato<S>): OggettoProcedural
     punti: d.punti ?? {},
     dispose: () => liberaGeometrie(d.gruppo),
   };
+  if (d.porte?.length) r.porte = d.porte;
   if (d.update) r.update = d.update;
   return r;
 }
