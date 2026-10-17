@@ -3,14 +3,20 @@
  * Le porte della Fase 1 a piedi (migliorie «porte»), nel browser con la build E2E: la partita vera
  * dall'inizio, la Cripta lasciata salendo la scala e spingendo la botola (W, E), poi per ogni porta
  * della Fase 1 (campanile, San Vigilio, fienile di Ottavio, Casa del Velo, mulino, capanno dei Messi,
- * casa di Nando) si parte a 7 m davanti (3 m per il capanno, che sta su un ripiano), si cammina con W
- * guardando il battente fino alla soglia e si torna indietro: la porta si vede, si raggiunge, non si
- * resta incastrati. Dalla botola si va a piedi al muretto del belvedere, e alla botola si torna da
- * cinque metri da otto parti. Le stesse porte
- * si fotografano di giorno e di notte (il giro di tutte le porte: `scripts/porte-schermate.mjs`).
+ * casa di Nando) si parte a 7 m davanti (3 m per il capanno, che sta su un ripiano), e poi a 4 m di
+ * sbieco (±40°), si cammina con W guardando il battente fino alla soglia e si torna indietro: la porta
+ * si vede, si raggiunge, non si resta incastrati. Se la porta ha una scaletta e dritti non si arriva,
+ * si prova come farebbe chi gioca: prima al piede della scaletta, poi su. Dalla botola si va a piedi
+ * al muretto del belvedere, e alla botola si torna da cinque metri da otto parti. Le stesse porte si
+ * fotografano di giorno e di notte (il giro di tutte le porte: `scripts/porte-schermate.mjs`).
  *
- *   npx tsx scripts/verifica-porte.ts --json=test-results/porte/inventario.json
- *   node scripts/porte-a-piedi.mjs [--no-build] [--json=…] [--out=test-results/porte/a-piedi]
+ *   node scripts/porte-a-piedi.mjs [--no-build] [--out=test-results/porte/a-piedi] [--tutte]
+ *
+ * L'inventario delle porte lo fa la verifica nel browser (`regia.verificaPorte()`: il paese del
+ * browser non è identico a quello di Node), e se una porta è difettosa lo script esce con 1; con
+ * `--json=…` si usa invece un inventario di `scripts/verifica-porte.ts`. Con `--tutte` si cammina
+ * fino a tutte le porte a terra (da 7 m dritti e da 4 m a ±40°), non solo a quelle della Fase 1;
+ * con `--tutte --solo-scalette` solo a quelle con la scaletta.
  *
  * Esce con codice 1 se una porta non si raggiunge o ci si incastra.
  */
@@ -133,10 +139,25 @@ async function cammina(meta, occhio, raggio, max = 12) {
   return { d, t };
 }
 
+/** (z, θ) a `d` m davanti alla soglia della porta `p` dell'inventario e `l` m di lato. */
+function davantiA(p, d, l = 0) {
+  const s0 = p.davanti.soglia;
+  const a3 = p.davanti.a3;
+  const mpd = (Math.PI * (646 - s0.h)) / 180;
+  let nz = a3.z - s0.z;
+  let ne = (a3.theta - s0.theta) * mpd;
+  const L = Math.hypot(nz, ne);
+  nz /= L;
+  ne /= L;
+  // (la soglia di `davanti.soglia` sta a 0,6 m dal muro)
+  return { z: s0.z + nz * (d - 0.6) - ne * l, theta: s0.theta + (ne * (d - 0.6) + nz * l) / mpd, h: s0.h };
+}
+
 async function main() {
-  if (!existsSync(json)) throw new Error(`manca l'inventario ${json}: npx tsx scripts/verifica-porte.ts --json=${json}`);
-  const inv = JSON.parse(readFileSync(json, 'utf8'));
-  const perId = new Map(inv.porte.map((p) => [p.id, p]));
+  const daJson = flag('json');
+  if (daJson && !existsSync(json)) throw new Error(`manca l'inventario ${json}: npx tsx scripts/verifica-porte.ts --json=${json}`);
+  let inv = daJson ? JSON.parse(readFileSync(json, 'utf8')) : null;
+  let perId = new Map((inv?.porte ?? []).map((p) => [p.id, p]));
   if (!flag('no-build')) execSync('npm run build:e2e', { cwd: root, stdio: 'inherit' });
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = await serve(join(root, 'dist-e2e'), port);
@@ -154,6 +175,16 @@ async function main() {
       window.__GAME__.stopLoop();
       window.__GAME__.setSetting('qualita', 'media');
     });
+    // l'inventario e la verifica delle porte nel mondo del browser
+    if (!inv) {
+      inv = await R(() => window.__GAME__.regia.verificaPorte());
+      perId = new Map(inv.porte.map((p) => [p.id, p]));
+      writeFileSync(join(out, 'inventario-browser.json'), JSON.stringify(inv, null, 1));
+      const difettose = inv.porte.filter((p) => p.difetti.length);
+      log(`— Verifica delle porte nel browser: ${inv.porte.length} porte, difettose ${difettose.length}`);
+      for (const p of difettose) log(`  ✗ ${p.id}: ${p.difetti.join(', ')} ${p.ostacolo ?? ''} ${p.note.join('; ')}`);
+      if (difettose.length) esito = 1;
+    }
     await page.getByRole('button', { name: 'Nuova partita' }).click();
     await avanza(0.5);
 
@@ -224,6 +255,29 @@ async function main() {
     } else log(`  ✗ botola o muretto non trovati (${JSON.stringify({ botola, muretto })})`);
 
     // ------------------------------------------------ le porte della Fase 1
+    /**
+     * Da `partenza` alla soglia della porta `p` con W (guardando il battente); se non si arriva e la
+     * porta ha una scaletta, prima al piede della scaletta e poi su. Poi indietro verso `partenza`.
+     */
+    const allaPorta = async (p, partenza, etichetta, foto0) => {
+      await R(([z, t]) => window.__GAME__.regia.vai(z, t), [partenza.z, partenza.theta]);
+      await avanza(0.3);
+      await mira([p.battente.z, p.battente.theta, p.battente.h]);
+      await avanza(0.05);
+      if (foto0) await foto(foto0);
+      let r = await cammina(p.davanti.soglia, p.battente, 0.45);
+      let via = '';
+      if (r.d >= 0.45 && p.scaletta) {
+        const u = p.scaletta.uscita;
+        await cammina(u, { ...u, h: u.h + 1.2 }, 0.6, 10);
+        r = await cammina(p.davanti.soglia, p.battente, 0.45);
+        via = ' (dal piede della scaletta)';
+      }
+      s = await stato();
+      const dh = s.posizione.h - p.soglia.h;
+      const arrivata = r.d < 0.45 && Math.abs(dh) < 0.35;
+      return { arrivata, r, dh, via, etichetta };
+    };
     const tutte = async (ora, aPiedi) => {
       for (const [id, da] of PORTE) {
         const p = perId.get(id);
@@ -236,15 +290,15 @@ async function main() {
         const partenza = da === 3 ? p.davanti.a3 : p.davanti.a7;
         // la casa di Nando: Abitata (E2), quella con la porta al muro
         if (id === 'casa_nando:porta') await R(() => window.__GAME__.regia.regia.corbella.setVariante('E2', 'Abitata'));
-        await R(([z, t]) => window.__GAME__.regia.vai(z, t), [partenza.z, partenza.theta]);
-        await avanza(0.3);
-        await mira([p.battente.z, p.battente.theta, p.battente.h]);
-        await avanza(0.05);
-        await foto(`${nome}-${ora}-da-${da}m`);
-        if (!aPiedi) continue;
-        const r = await cammina(p.davanti.soglia, p.battente, 0.45);
-        s = await stato();
-        const dh = s.posizione.h - p.soglia.h;
+        if (!aPiedi) {
+          await R(([z, t]) => window.__GAME__.regia.vai(z, t), [partenza.z, partenza.theta]);
+          await avanza(0.3);
+          await mira([p.battente.z, p.battente.theta, p.battente.h]);
+          await avanza(0.05);
+          await foto(`${nome}-${ora}-da-${da}m`);
+          continue;
+        }
+        const r0 = await allaPorta(p, partenza, `da ${da} m`, `${nome}-${ora}-da-${da}m`);
         await foto(`${nome}-${ora}-soglia`);
         // il bersaglio della porta, se ne ha uno (la porta del campanile: «chiusa» o «Sali»)
         let bersaglio = '';
@@ -255,14 +309,23 @@ async function main() {
           await foto(`${nome}-${ora}-bersaglio`);
         }
         // e indietro: si guarda il punto di partenza e si cammina
-        const via = await cammina(partenza, { ...partenza, h: partenza.h + 1.6 }, 0.6, 8);
+        const indietro = await cammina(partenza, { ...partenza, h: partenza.h + 1.6 }, 0.6, 8);
         const s2 = await stato();
         const allontanata = dist(s2.posizione, p.davanti.soglia, s2.posizione.h);
-        const ok = r.d < 0.45 && Math.abs(dh) < 0.35 && allontanata > da - 0.6 - 1 && (!BERSAGLI[id] || bersaglio === BERSAGLI[id]);
+        const ok = r0.arrivata && allontanata > da - 0.6 - 1 && (!BERSAGLI[id] || bersaglio === BERSAGLI[id]);
         log(
-          `  ${ok ? '✓' : '✗'} ${id}: da ${da} m alla soglia in ${r.t.toFixed(1)} s (resta ${r.d.toFixed(2)} m, quota ${dh >= 0 ? '+' : ''}${dh.toFixed(2)} m)${bersaglio ? `, bersaglio «${bersaglio}»` : ''}; indietro ${allontanata.toFixed(1)} m in ${via.t.toFixed(1)} s`,
+          `  ${ok ? '✓' : '✗'} ${id}: da ${da} m alla soglia in ${r0.r.t.toFixed(1)} s${r0.via} (resta ${r0.r.d.toFixed(2)} m, quota ${r0.dh >= 0 ? '+' : ''}${r0.dh.toFixed(2)} m)${bersaglio ? `, bersaglio «${bersaglio}»` : ''}; indietro ${allontanata.toFixed(1)} m in ${indietro.t.toFixed(1)} s`,
         );
         if (!ok) esito = 1;
+        // di sbieco, da 4 m a ±40° (come chi arriva da un vicolo di lato)
+        if (da > 3) {
+          for (const a of [40, -40]) {
+            const y = (a * Math.PI) / 180;
+            const r = await allaPorta(p, davantiA(p, 4 * Math.cos(y), 4 * Math.sin(y)), `da 4 m a ${a}°`);
+            log(`    ${r.arrivata ? '✓' : '✗'} ${id} ${r.etichetta}: resta ${r.r.d.toFixed(2)} m, quota ${r.dh >= 0 ? '+' : ''}${r.dh.toFixed(2)} m${r.via}`);
+            if (!r.arrivata) esito = 1;
+          }
+        }
       }
     };
     log('— Le porte della Fase 1 a piedi (giorno, ore 10)');
@@ -271,6 +334,28 @@ async function main() {
     await R(() => window.__GAME__.regia.impostaOra(1, 22));
     await avanza(0.2);
     await tutte('notte', false);
+    if (flag('tutte')) {
+      // tutte le porte a terra, di giorno: da 7 m dritti e da 4 m a ±40° (con la scaletta, se serve)
+      await R(() => window.__GAME__.regia.impostaOra(1, 10));
+      await avanza(0.2);
+      const aTerra = inv.porte.filter((p) => p.appoggio === 'suolo' && !p.variante && (!flag('solo-scalette') || p.scaletta));
+      log(`— Tutte le porte a terra a piedi (${aTerra.length})`);
+      let fatte = 0;
+      const mancate = [];
+      for (const p of aTerra) {
+        const prove = [];
+        for (const [d, a] of [[7, 0], [4, 40], [4, -40]]) {
+          const y = (a * Math.PI) / 180;
+          const r = await allaPorta(p, davantiA(p, d * Math.cos(y), d * Math.sin(y)), `${d} m ${a}°`);
+          prove.push(r);
+        }
+        const ok = prove.filter((r) => r.arrivata).length;
+        if (ok === prove.length) fatte++;
+        else mancate.push(`${p.id} (${prove.filter((r) => !r.arrivata).map((r) => `${r.etichetta}: resta ${r.r.d.toFixed(2)} m, quota ${r.dh.toFixed(2)}`).join('; ')})`);
+      }
+      log(`  porte raggiunte da tutte e tre le partenze: ${fatte} su ${aTerra.length}`);
+      for (const m of mancate) log(`  · ${m}`);
+    }
 
     log(`foto in ${out}`);
   } catch (e) {

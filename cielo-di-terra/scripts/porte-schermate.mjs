@@ -7,7 +7,9 @@
  *   node scripts/porte-schermate.mjs --json=test-results/porte/inventario.json --out=test-results/porte/foto
  *
  * Opzioni: --no-build, --tutte (anche le porte senza difetti), --id=a,b (solo quelle), --ora=9.5,
- * --dist=4.5 (metri davanti alla porta), --size=960x540, --qualita=media, --max=N, --jpeg=0.82
+ * --dist=4.5 (metri davanti alla porta), --size=960x540, --qualita=media, --max=N, --jpeg=0.82,
+ * --dal-browser (l'inventario lo fa la verifica nel browser, `regia.verificaPorte()`: il paese del
+ * browser non è identico a quello di Node, e alcune case e annessi stanno altrove; senza --json)
  */
 import { execSync } from 'node:child_process';
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -52,16 +54,17 @@ function serve(dir, port) {
 
 /** Inquadratura da (z, θ, h) del centro della soglia e normale: la ricalcola nel browser se si cambia la distanza. */
 async function main() {
-  const inv = JSON.parse(readFileSync(json, 'utf8'));
-  let porte = inv.porte.filter((p) => (soloId.length ? soloId.includes(p.id) : flag('tutte') || p.difetti.length));
-  porte = porte.slice(0, max);
-  console.log(`${porte.length} porte da fotografare (${inv.porte.length} nell'inventario)`);
   if (!flag('no-build')) execSync('npm run build:e2e', { cwd: root, stdio: 'inherit' });
   const server = await serve(join(root, 'dist-e2e'), 4380 + Math.floor(Math.random() * 300));
   const browser = await chromium.launch({ headless: true, args: CHROMIUM_ARGS });
   const page = await browser.newPage({ viewport: { width: W, height: H } });
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__, null, { timeout: 300000 });
+  const inv = flag('dal-browser') ? await page.evaluate(() => window.__GAME__.regia.verificaPorte()) : JSON.parse(readFileSync(json, 'utf8'));
+  if (flag('dal-browser')) writeFileSync(join(outDir, 'inventario-browser.json'), JSON.stringify(inv, null, 1));
+  let porte = inv.porte.filter((p) => (soloId.length ? soloId.includes(p.id) : flag('tutte') || p.difetti.length));
+  porte = porte.slice(0, max);
+  console.log(`${porte.length} porte da fotografare (${inv.porte.length} nell'inventario${flag('dal-browser') ? ' del browser' : ''})`);
   await page.evaluate(([q, o]) => {
     const g = window.__GAME__;
     g.stopLoop();

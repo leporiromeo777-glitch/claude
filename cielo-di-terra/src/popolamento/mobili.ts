@@ -17,7 +17,7 @@ import { matriceSuperficie } from '../oggetti/cilindro';
 import { creaMuroSecco } from '../oggetti/oggetti/muri';
 import type { Collider } from '../world/colliders';
 import { rialeTheta } from '../world/terrain';
-import { Cantiere, type MaterialiCantiere, type PortaPosata } from './cantiere';
+import { Cantiere, type MaterialiCantiere, type PortaPosata, type ScalettaPosata } from './cantiere';
 import { ELEMENTI_MOBILI, luogo, type ElementoMobile } from './contenuti';
 import type { Contesto } from './contesto';
 import { creaAssi, creaCasupola, creaMucchioPietre } from './edifici';
@@ -26,7 +26,7 @@ import { campionaSentiero, gradiniLungo, profiloCamminabile, suoloDiTraverso } f
 import { distanza, impronta, metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle, yawVerso, type PuntoCil } from './terreno';
 import { hex, mix } from './cantiere';
 import { rumore2 } from './forme';
-import { gradiniPorta, oggettoSullaSoglia } from './soglie';
+import { gradiniLuogo, oggettoSullaSoglia, progettaGradini } from './soglie';
 import type { PuntoInterazione } from './tipi';
 
 export interface VarianteCostruita {
@@ -36,6 +36,8 @@ export interface VarianteCostruita {
   punti: string[];
   /** porte della variante (la casa di Nando abitata o smontata) */
   porte: PortaPosata[];
+  /** scalette davanti alle porte della variante */
+  scalette: ScalettaPosata[];
 }
 
 export interface ElementoCostruito {
@@ -71,7 +73,7 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
     g.name = `mobile:${e.id}:${id}`;
     g.visible = false;
     ctx.dinamici.add(g);
-    e.varianti.set(id, { id, gruppo: g, collider: c.collider.map((v) => ({ ...v })), punti, porte: c.porte.map((p) => ({ ...p, variante: `${e.id}=${id}` })) });
+    e.varianti.set(id, { id, gruppo: g, collider: c.collider.map((v) => ({ ...v })), punti, porte: c.porte.map((p) => ({ ...p, variante: `${e.id}=${id}` })), scalette: [...c.scalette] });
     // i lumi delle varianti (finestre della casa di Nando) vanno nel gruppo per l'integratore
     g.userData['lumi'] = c.lumi;
   };
@@ -140,6 +142,8 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
     misura.oggetto.dispose();
     const { base, interrata, porta: portaNando } = misura;
     const m = matriceSuperficie(cc.z, cc.theta, base, yaw);
+    // (le due varianti hanno la stessa scaletta; lo spazio davanti si segna una volta sola)
+    const progettoNando = portaNando ? progettaGradini(cc.z, cc.theta, base, yaw, portaNando, { inizio: 0.3 }) : null;
     // il muro «a Sera» rispetto alla casa: quello la cui normale punta più verso -theta
     const latoSera = latoVerso(yaw, 270);
     const mettiPunti = (punti: string[], porta: THREE.Vector3) => {
@@ -149,13 +153,13 @@ export function costruisciMobili(ctx: Contesto, materiali: MaterialiCantiere): M
     variante(e, 'Abitata', (c, punti) => {
       const casa = creaCasupola({ seme: 'casa-nando', larghezza: W, profondita: D, interrata, scritta: true, finestraAccesa: true });
       const p = c.oggetto(casa, m, { luogo: 'casa_nando', tag: (t) => t ?? 'muro' });
-      if (portaNando) gradiniPorta(c, cc.z, cc.theta, base, yaw, portaNando, { luogo: 'casa_nando', seme: 1188, inizio: 0.3 });
+      if (portaNando && progettoNando) gradiniLuogo(ctx, c, 'casa_nando', cc.z, cc.theta, base, yaw, portaNando, { luogo: 'casa_nando', seme: 1188, progetto: progettoNando });
       mettiPunti(punti, p['porta']!);
     });
     variante(e, 'Smontata', (c, punti) => {
       const casa = creaCasupola({ seme: 'casa-nando', larghezza: W, profondita: D, interrata, scritta: true, finestraAccesa: true, muri: { [latoSera]: false } });
       const p = c.oggetto(casa, m, { luogo: 'casa_nando', tag: (t) => t ?? 'muro' });
-      if (portaNando && latoSera !== 'fronte') gradiniPorta(c, cc.z, cc.theta, base, yaw, portaNando, { luogo: 'casa_nando', seme: 1188, inizio: 0.3 });
+      if (portaNando && progettoNando && latoSera !== 'fronte') gradiniLuogo(ctx, c, 'casa_nando', cc.z, cc.theta, base, yaw, portaNando, { luogo: 'casa_nando', seme: 1188, progetto: progettoNando, occupa: false });
       // (il muro tolto è quello della porta: la porta resta appoggiata nel vano, e la scritta si legge lì)
       if (p['portaAppoggiata']) p['porta'] = p['portaAppoggiata'];
       // segni delle pietre mancanti: poche pietre rimaste a terra lungo il lato tolto

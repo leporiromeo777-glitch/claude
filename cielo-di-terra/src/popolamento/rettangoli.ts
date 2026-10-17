@@ -41,6 +41,15 @@ export function dentroRettangolo(r: Rettangolo, p: PuntoCil, margine = 0): boole
   return Math.abs(avanti) <= r.profondita / 2 + margine && Math.abs(destra) <= r.larghezza / 2 + margine;
 }
 
+/** (z, θ) dentro un'impronta del contesto (rettangolo orientato o cerchio), allargata di `margine`? */
+export function dentroImpronta(i: { z: number; theta: number; yaw?: number; larghezza?: number; profondita?: number; raggio?: number }, p: PuntoCil, margine = 0): boolean {
+  if (i.raggio !== undefined) {
+    const d = differenza(i, p, 40);
+    return Math.hypot(d.nord, d.est) < i.raggio + margine;
+  }
+  return dentroRettangolo({ z: i.z, theta: i.theta, yaw: i.yaw ?? 0, larghezza: i.larghezza ?? 0, profondita: i.profondita ?? 0 }, p, margine);
+}
+
 /** Spigoli del rettangolo in metri (nord, est) rispetto a `o`. */
 function spigoli(r: Rettangolo, o: PuntoCil, margine: number): Array<[number, number]> {
   const c = differenza(o, r, 40);

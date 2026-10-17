@@ -22,7 +22,7 @@ import { creaCapanno, creaGra, creaMasso } from '../edifici';
 import { costruisciRipiano } from '../ripiano';
 import { impronta, mondo, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { isWindowTheta } from '../../world/terrain';
-import { gradiniPorta, oggettoSullaSoglia } from '../soglie';
+import { gradiniLuogo, oggettoSullaSoglia } from '../soglie';
 
 export interface Fumo {
   gruppo: THREE.Object3D;
@@ -59,7 +59,7 @@ export function costruisciGraDiPian(ctx: Contesto): THREE.Object3D {
   // migliorie «porte»: la soglia sul suolo davanti alla porta (prima 16 cm sotto)
   const { oggetto: gra, base, porta: portaGra } = oggettoSullaSoglia(() => creaGra('gra-di-pian', false), g.z, g.theta, yaw, 5.0, 5.6, 2.2);
   ctx.posa('selve', gra, g.z, g.theta, yaw, { h: base, luogo: 'gra_di_pian', tag: (t) => t ?? 'muro' });
-  if (portaGra) gradiniPorta(ctx.zona('selve'), g.z, g.theta, base, yaw, portaGra, { luogo: 'gra_di_pian', seme: 890 });
+  if (portaGra) gradiniLuogo(ctx, ctx.zona('selve'), 'gra_di_pian', g.z, g.theta, base, yaw, portaGra, { luogo: 'gra_di_pian', seme: 890 });
   ctx.occupa({ nome: 'gra_di_pian', z: g.z, theta: g.theta, yaw, larghezza: 6, profondita: 7 });
   const mG = matriceSuperficie(g.z, g.theta, base, yaw);
   const m = mG.clone().multiply(new THREE.Matrix4().makeTranslation(pAng.x, pAng.y, pAng.z)).multiply(new THREE.Matrix4().makeRotationX((migliore.sz * Math.PI) / 2));

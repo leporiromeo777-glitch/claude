@@ -11,6 +11,7 @@
  *   botola della Cripta) raggiunte a piedi con il controller vero, e ci si allontana senza restare
  *   incastrati sulla soglia.
  */
+import { Vector3 } from 'three';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { PlayerController, emptyInput, type ViewBasis } from '../../src/player/controller';
 import { installaCorbella, type ManigliaCorbella } from '../../src/popolamento/index';
@@ -72,7 +73,7 @@ function davanti(p: PortaPosata, d: number): P {
  * Cammina con W da `da` verso `meta` guardandola, al più `secondi`; si ferma a `raggio` m.
  * Restituisce il controller (per continuare a camminare) e se è arrivata.
  */
-function cammina(p: PlayerController | null, da: P, meta: P, raggio: number, secondi = 20): { p: PlayerController; arrivata: boolean; distanza: number } {
+function cammina(p: PlayerController | null, da: P, meta: P, raggio: number, secondi = 20, quota?: number): { p: PlayerController; arrivata: boolean; distanza: number } {
   const pc = p ?? new PlayerController(g.world.colliders);
   if (!p) {
     pc.groundFn = groundHeight;
@@ -83,7 +84,8 @@ function cammina(p: PlayerController | null, da: P, meta: P, raggio: number, sec
   const avanti = { ...emptyInput(), forward: 1 };
   for (let passo = 0; passo < secondi * 60; passo++) {
     const qui: P = { z: pc.cyl.z, theta: pc.cyl.theta };
-    if (dist(qui, meta) < raggio) return { p: pc, arrivata: true, distanza: dist(qui, meta) };
+    // (con `quota`, si arriva solo alla quota giusta: non sul muretto accanto alla soglia)
+    if (dist(qui, meta) < raggio && (quota === undefined || Math.abs(pc.cyl.h - quota) < 0.3)) return { p: pc, arrivata: true, distanza: dist(qui, meta) };
     pc.step(1 / 60, avanti, vista(yawVerso(qui, meta), pc.cyl.theta));
   }
   return { p: pc, arrivata: false, distanza: dist({ z: pc.cyl.z, theta: pc.cyl.theta }, meta) };
@@ -131,6 +133,48 @@ describe('verifica di tutte le porte', () => {
   });
 });
 
+describe('le scalette davanti alle porte (correzione dopo la verifica)', () => {
+  it('nessuna scaletta entra in un altro edificio o nel muro di una terrazza, nessuna pedata sotto il suolo, ultimo scalino al più 30 cm', () => {
+    const scale = esiti.filter((e) => e.difetti.some((d) => d.startsWith('gradini_'))).map((e) => `${e.porta.id}: ${e.difetti.join(', ')} (${e.ostacolo ?? ''} ${e.note.join('; ')})`);
+    expect(scale).toEqual([]);
+  });
+  it('le scalette lunghe sono poche: nessuna oltre 13 gradini (il mulino, giù per la riva del riale, 16), al più 8 porte con più di 7 gradini', () => {
+    const sc = c.scalette(true);
+    expect(sc.length).toBeGreaterThan(15);
+    for (const x of sc) expect(x.gradini.length - 1, x.proprietario ?? x.zona).toBeLessThanOrEqual(x.proprietario === 'mulino' ? 16 : 13);
+    expect(sc.filter((x) => x.gradini.length - 1 > 7).length).toBeLessThanOrEqual(8);
+  });
+  it('ogni pedata sta sopra il suolo, anche sui pendii di traverso (niente «denti»)', () => {
+    const sepolte: string[] = [];
+    for (const x of c.scalette(true)) {
+      const t = new Vector3().crossVectors(x.su, x.normale).normalize();
+      x.gradini.forEach((g, i) => {
+        if (i === 0) return;
+        for (const a of [-g.lungo / 2 + 0.04, 0, g.lungo / 2 - 0.04]) {
+          for (const b of [-g.largo / 2 + 0.04, 0, g.largo / 2 - 0.04]) {
+            const q = worldToCyl(x.soglia.clone().addScaledVector(x.normale, g.d + g.fd * a - g.fl * b).addScaledVector(t, g.l + g.fl * a + g.fd * b).addScaledVector(x.su, g.top));
+            const sotto = groundHeight(q.z, q.theta) - q.h;
+            if (sotto > 0.02) sepolte.push(`${x.proprietario ?? x.zona} gradino ${i}: ${sotto.toFixed(2)} m sotto il suolo`);
+          }
+        }
+      });
+    }
+    expect(sepolte).toEqual([]);
+  });
+  it('le casupole dei Ronchi non hanno scalette lunghe (la casupola 0 aveva 13 gradini dentro il muro della terrazza)', () => {
+    for (const x of c.scalette(true)) if (x.proprietario?.startsWith('casupola_')) expect(x.gradini.length - 1, x.proprietario).toBeLessThanOrEqual(3);
+  });
+  it('il mulino, su un pendio di traverso: la scaletta scende verso il riale e il pianerottolo ha il muretto dove sotto c\'è il salto', () => {
+    const m = c.scalette(true).find((x) => x.proprietario === 'mulino');
+    expect(m).toBeDefined();
+    expect(m!.verso).not.toBe('avanti');
+    expect(m!.parapetti.length).toBeGreaterThan(0);
+  });
+  it('i muri delle terrazze si aprono davanti alle porte, ma non spariscono a tratti interi', () => {
+    expect(c.statistiche.muriMetri).toBeGreaterThan(2600);
+  });
+});
+
 describe("i punti d'interazione delle porte", () => {
   it('nessun punto apri:/entra:/dormi: dentro un muro (al più a filo di un piano calpestabile)', () => {
     const dentro: string[] = [];
@@ -172,6 +216,31 @@ describe('le porte della Fase 1 a piedi', () => {
       expect(Math.abs(r.p.cyl.h - hSoglia), `${id}: quota sulla soglia`).toBeLessThan(0.3);
       const via = cammina(r.p, soglia, davanti(p, Math.min(4, partenza)), 0.6, 8);
       expect(via.arrivata, `${id}: incastrato sulla soglia (a ${via.distanza.toFixed(2)} m dalla meta)`).toBe(true);
+    });
+  }
+  for (const id of ['casa_del_velo:porta', 'mulino:porta', 'fienile_ottavio:porta']) {
+    it(`${id}: da 4 m di sbieco (±40°), dritti o passando dal piede della scaletta`, () => {
+      const p = porta(id);
+      const sc = c.scalette(true).find((x) => x.soglia.distanceTo(p.centro) < 0.3);
+      const t = new Vector3().crossVectors(p.su, p.normale).normalize();
+      const fuori = (d: number, l: number): P => {
+        const q = worldToCyl(p.centro.clone().addScaledVector(p.normale, d).addScaledVector(t, l));
+        return { z: q.z, theta: q.theta };
+      };
+      const soglia = davanti(p, 0.55);
+      const hS = worldToCyl(p.centro).h;
+      for (const a of [40, -40]) {
+        const y = (a * Math.PI) / 180;
+        const da = fuori(4 * Math.cos(y), 4 * Math.sin(y));
+        let r = cammina(null, da, soglia, 0.45, 12, hS);
+        if (!r.arrivata && sc) {
+          const u = fuori(sc.uscita.d, sc.uscita.l);
+          const r1 = cammina(r.p, { z: r.p.cyl.z, theta: r.p.cyl.theta }, u, 0.6, 12);
+          r = cammina(r1.p, u, soglia, 0.45, 12, hS);
+        }
+        expect(r.arrivata, `${id} da 4 m a ${a}°: fermo a ${r.distanza.toFixed(2)} m dalla soglia`).toBe(true);
+        expect(Math.abs(r.p.cyl.h - worldToCyl(p.centro).h), `${id} da ${a}°: quota sulla soglia`).toBeLessThan(0.3);
+      }
     });
   }
   it('la botola della Cripta si raggiunge a piedi: dal muretto del belvedere, dalla fine della strada della Cripta e da quasi ogni parte', () => {

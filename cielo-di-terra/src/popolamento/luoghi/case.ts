@@ -4,9 +4,10 @@
  * la casa bassa di Pina sulla piazza (la soglia è il luogo `soglia_pina`) e la Casa del Velo
  * della Confraternita (finestre con le grate, un velo nero sulla porta).
  *
- * Le case stanno sui gradoni: la porta (davanti, +Z della libreria) è alla quota del suolo più
- * basso dell'impronta e il retro si interra nell'alzata, come i rustici costruiti nel pendio.
- * Davanti guardano la piazza (se vicine) o la valle.
+ * Le case stanno sui gradoni: la porta (davanti, +Z della libreria) sta sul suolo davanti, con una
+ * scaletta se il suolo poi scende, e i muri si interrano nell'alzata, come i rustici costruiti nel
+ * pendio. Davanti guardano la piazza (se vicine) o la valle; qualcuna, dove davanti alla porta non
+ * c'è posto per la scaletta, guarda a monte (migliorie «porte», `scegliPorteEScale`).
  */
 import { BoxGeometry, PlaneGeometry, Vector3 } from 'three';
 import { Costruttore, mat } from '../../oggetti/costruttore';
@@ -27,7 +28,7 @@ import { differenza, distanza, impronta, sposta, spostaYaw, suolo, yawValle, yaw
 import { ColliderWorld, boxAt, type Collider } from '../../world/colliders';
 import { cylToWorld, worldToCyl } from '../../world/cylinder';
 import { groundHeight } from '../../world/terrain';
-import { baseDaPorta, gradiniPorta, interrataPer, suoloPorta } from '../soglie';
+import { baseDaPorta, gradiniPorta, interrataPer, progettaGradini, zoneGradini, type ProgettoGradini } from '../soglie';
 import { dentroRettangolo, puntiRettangolo, rettangoliSiToccano, rettangoloLocale, type Rettangolo } from '../rettangoli';
 import { colliderNelPunto, improntaAperta } from '../verificaPorte';
 import type { Impronta } from '../contesto';
@@ -66,10 +67,8 @@ function portaFronte(u: number, D: number): { centro: Vector3; normale: Vector3;
   return { centro: new Vector3(u, 0, D / 2), normale: new Vector3(0, 0, 1), larghezza: 1.0 };
 }
 
-/** Spazio davanti alla porta d'ingresso (1,8 m di traverso, 1,3 m più i gradini davanti al muro). */
-function zonaPorta(z: number, theta: number, h: number, yaw: number, u: number, D: number, gradini = 0): Rettangolo {
-  return rettangoloLocale(z, theta, h, yaw, u - 0.9, u + 0.9, D / 2 + 0.05, D / 2 + 1.35 + gradini);
-}
+/** Spazio oltre la fine della scaletta (o la soglia) da tenere libero davanti alla porta d'ingresso (m). */
+const OLTRE_PORTA = 1.3;
 
 /** Ingombro della scala esterna sul fianco `lato` (+1 a +X) e dello spazio davanti al primo gradino. */
 function zonaScala(z: number, theta: number, h: number, yaw: number, W: number, lato: 1 | -1, zPiede: number, zCima: number): Rettangolo {
@@ -95,7 +94,7 @@ export function posaRustico(
   z: number,
   theta: number,
   yaw: number,
-  opz: OpzioniRustico & { base?: number; luogo?: string; occupa?: boolean },
+  opz: OpzioniRustico & { base?: number; luogo?: string; occupa?: boolean; progetto?: ProgettoGradini },
 ): CasaPosata {
   const W = opz?.larghezza ?? 6;
   const D = opz?.profondita ?? 7;
@@ -116,10 +115,11 @@ export function posaRustico(
   const pd = spostaYaw(z, theta, yaw, D / 2 + 0.05, base);
   const pdd = spostaYaw(pd.z, pd.theta, yaw - 90, pl.x, base);
   ctx.zona(zona).aggiungiCollider(boxAt(pdd.z, pdd.theta, base, yaw, 1.1, 2.0, 0.12), 'porta', opz?.luogo ?? nome);
-  // i gradini, se davanti alla soglia il suolo scende
-  const gr = gradiniPorta(ctx.zona(zona), z, theta, base, yaw, porta, { ...(opz?.luogo ? { luogo: opz.luogo } : {}), seme: Math.floor(z * 13 + theta * 7) });
-  const davanti = zonaPorta(z, theta, base, yaw, pianta.portaU, D, gr.lunghezza);
-  ctx.occupa({ nome: `porta:${nome}`, ...davanti });
+  // i gradini, se davanti alla soglia il suolo scende (il progetto scelto da `scegliPorteEScale`)
+  const gr = gradiniPorta(ctx.zona(zona), z, theta, base, yaw, porta, { ...(opz?.luogo ? { luogo: opz.luogo } : {}), seme: Math.floor(z * 13 + theta * 7), proprietario: nome, ...(opz?.progetto ? { progetto: opz.progetto } : {}) });
+  const zone = zoneGradini(z, theta, base, yaw, porta, gr.progetto, OLTRE_PORTA);
+  for (const r of zone) ctx.occupa({ nome: `porta:${nome}`, ...r });
+  const davanti = zone[0]!;
   if (pianta.scala) ctx.occupa({ nome: `scala:${nome}`, ...zonaScala(z, theta, base, yaw, W, pianta.scala.lato, pianta.scala.zPiede, pianta.scala.zCima) });
   if (opz?.occupa ?? true) ctx.occupa({ nome, z, theta, yaw, larghezza: W + 0.3, profondita: D + 0.8 });
   casa.dispose();
@@ -169,22 +169,54 @@ interface PianoCasa {
   p: Proposta;
   zona: string;
   nome: string;
-  opz: OpzioniRustico;
+  opz: OpzioniRustico & { progetto?: ProgettoGradini; base?: number };
+  /** la casa non si costruisce (nessun posto per la porta) */
+  tolta?: boolean;
+}
+
+/** Esito di `scegliPorteEScale`. */
+export interface EsitoPorteEScale {
+  porteGirate: number;
+  scaleGirate: number;
+  scaleTolte: number;
+  /** case spostate (indietro o di lato) perché la porta e la sua scaletta avessero posto */
+  caseSpostate: number;
+  /** case girate con la porta verso monte (spostate o no) perché la porta avesse posto */
+  caseGirate: number;
+  /** case tolte: la porta non trova posto buono nemmeno spostandole o girandole */
+  caseTolte: string[];
 }
 
 /**
  * Migliorie «porte»: prima di posare le case pianificate, sceglie da che parte del fronte mettere la
  * porta e su che fianco la scala esterna (o niente scala) perché davanti non ci siano il muro di
  * un'altra casa, un collider o un luogo, e la soglia stia il più possibile alla quota del suolo.
- * La pianta delle case (dove stanno e quanto sono grandi) non cambia.
+ *
+ * Correzione dopo la verifica: prima si guardava solo il metro e trenta davanti alla porta, ma la
+ * scaletta di gneiss (fino a 13 gradini, 4,3 m) finiva dentro la casa di fronte o sotto la sua gronda
+ * (rustico_15, 21, 22, 29, 30, 86). Ora per ogni lato si progetta la scaletta (`progettaGradini`) e si
+ * controlla tutto lo spazio che occupa, fino a 1,3 m dopo l'ultimo gradino, contro i muri delle altre
+ * case (con la gronda), le loro scale e scalette, i luoghi e i collider. Se nessun lato va bene la
+ * casa si sposta un poco indietro o di lato (al più 3 m, dove c'è posto) finché la porta lo trova.
  */
-function scegliPorteEScale(ctx: Contesto, piani: PianoCasa[]): { porteGirate: number; scaleGirate: number; scaleTolte: number } {
+function scegliPorteEScale(ctx: Contesto, piani: PianoCasa[]): EsitoPorteEScale {
   const col = colliderPosati(ctx);
   const nomi = new Set(piani.map((q) => q.nome));
-  const muri = piani.map((q) => ({ nome: q.nome, r: { z: q.p.z, theta: q.p.theta, yaw: q.p.yaw, larghezza: q.p.W, profondita: q.p.D } as Rettangolo }));
+  const muro = (q: PianoCasa): Rettangolo => ({ z: q.p.z, theta: q.p.theta, yaw: q.p.yaw, larghezza: q.p.W, profondita: q.p.D });
+  /** i muri della casa e la sua lobbia (sul fronte o sul fianco destro, al primo piano): niente scale lì davanti */
+  const ingombri = (q: PianoCasa): Rettangolo[] => {
+    const b = piantaRustico({ ...q.opz }).balcone;
+    const g0 = groundHeight(q.p.z, q.p.theta);
+    const W = q.p.W;
+    const D = q.p.D;
+    if (b === 'lato') return [muro(q), rettangoloLocale(q.p.z, q.p.theta, g0, q.p.yaw, W / 2, W / 2 + 1.0, -D / 2 + 0.4, D / 2 - 0.4)];
+    if (b === 'fronte') return [muro(q), rettangoloLocale(q.p.z, q.p.theta, g0, q.p.yaw, -W / 2, W / 2, D / 2, D / 2 + 1.05)];
+    return [muro(q)];
+  };
   const altre = ctx.impronte.filter((i) => !nomi.has(i.nome) && !improntaAperta(i.nome));
-  const libero = (r: Rettangolo, tranne: string, extra: Rettangolo[] = []): boolean => {
-    for (const m of muri) if (m.nome !== tranne && rettangoliSiToccano(m.r, r, 0.05)) return false;
+  /** il rettangolo `r` non tocca i muri delle altre case (con `gronda` di margine), `extra`, impronte e collider */
+  const libero = (r: Rettangolo, tranne: string, extra: Rettangolo[] = [], gronda = 0.05): boolean => {
+    for (const q of piani) if (!q.tolta && q.nome !== tranne && ingombri(q).some((x) => rettangoliSiToccano(x, r, gronda))) return false;
     for (const e of extra) if (rettangoliSiToccano(e, r, 0)) return false;
     for (const pt of puntiRettangolo(r)) {
       for (const i of altre) if (inImpronta(i, pt)) return false;
@@ -192,22 +224,24 @@ function scegliPorteEScale(ctx: Contesto, piani: PianoCasa[]): { porteGirate: nu
     }
     return true;
   };
-  const esito = { porteGirate: 0, scaleGirate: 0, scaleTolte: 0 };
+  const esito: EsitoPorteEScale = { porteGirate: 0, scaleGirate: 0, scaleTolte: 0, caseSpostate: 0, caseGirate: 0, caseTolte: [] };
+  /** la scala esterna di `q` messa in `p` (lato preferito, poi l'altro): il suo rettangolo, o null */
+  const provaScala = (q: PianoCasa, p: Proposta, preferito: 1 | -1, tranne: Rettangolo[] = []): { lato: 1 | -1; r: Rettangolo } | null => {
+    const pianta = piantaRustico({ ...q.opz, senzaScala: false });
+    if (!pianta.scala) return null;
+    const g0 = groundHeight(p.z, p.theta);
+    for (const lato of [preferito, preferito === 1 ? -1 : 1] as Array<1 | -1>) {
+      const r = zonaScala(p.z, p.theta, g0, p.yaw, p.W, lato, pianta.scala.zPiede, pianta.scala.zCima);
+      if (libero(r, q.nome, tranne)) return { lato, r };
+    }
+    return null;
+  };
   // 1. le scale esterne (contro i muri delle altre case, i luoghi, i collider)
   const scale = new Map<string, Rettangolo>();
   for (const q of piani) {
     const pianta = piantaRustico({ ...q.opz });
     if (!pianta.scala) continue;
-    const g0 = groundHeight(q.p.z, q.p.theta);
-    const lati: Array<1 | -1> = [pianta.scala.lato, pianta.scala.lato === 1 ? -1 : 1];
-    let scelta: { lato: 1 | -1; r: Rettangolo } | null = null;
-    for (const lato of lati) {
-      const r = zonaScala(q.p.z, q.p.theta, g0, q.p.yaw, q.p.W, lato, pianta.scala.zPiede, pianta.scala.zCima);
-      if (libero(r, q.nome)) {
-        scelta = { lato, r };
-        break;
-      }
-    }
+    const scelta = provaScala(q, q.p, pianta.scala.lato);
     if (!scelta) {
       q.opz.senzaScala = true;
       esito.scaleTolte++;
@@ -219,37 +253,89 @@ function scegliPorteEScale(ctx: Contesto, piani: PianoCasa[]): { porteGirate: nu
     }
     scale.set(q.nome, scelta.r);
   }
-  // 2. le porte d'ingresso (anche contro le scale delle altre case), con la soglia più bassa possibile
+  // 2. le porte d'ingresso e le loro scalette (anche contro le scale e le scalette delle altre case)
+  const zonePorte = new Map<string, Rettangolo[]>();
+  interface Opzione {
+    u: number;
+    ok: boolean;
+    progetto: ProgettoGradini;
+    base: number;
+    zone: Rettangolo[];
+    costo: number;
+  }
+  const valuta = (q: PianoCasa, p: Proposta, u: number, extra: Rettangolo[]): Opzione => {
+    const porta = portaFronte(u, p.D);
+    const base = baseDaPorta(p.z, p.theta, p.yaw, porta);
+    const progetto = progettaGradini(p.z, p.theta, base, p.yaw, porta);
+    const zone = zoneGradini(p.z, p.theta, base, p.yaw, porta, progetto, OLTRE_PORTA);
+    // (la gronda delle altre case sporge mezzo metro: la scaletta non ci passa sotto)
+    const ok = progetto.buona && zone.every((r, i) => libero(r, q.nome, extra, i === 0 && !progetto.quanti ? 0.05 : 0.5));
+    // a parità, la soglia più bassa (meno gradini) e il lato della pianta
+    return { u, ok, progetto, base, zone, costo: progetto.costo + (ok ? 0 : 100) };
+  };
+  const altreZone = (nome: string): Rettangolo[] => [
+    ...[...scale].filter(([n]) => n !== nome).map(([, r]) => r),
+    ...[...zonePorte].filter(([n]) => n !== nome).flatMap(([, r]) => r),
+  ];
   for (const q of piani) {
     const pianta = piantaRustico({ ...q.opz });
-    const g0 = groundHeight(q.p.z, q.p.theta);
-    const altreScale = [...scale].filter(([n]) => n !== q.nome).map(([, r]) => r);
+    const extra = altreZone(q.nome);
     const candidati = pianta.portaU === 0 ? [0] : [pianta.portaU, -pianta.portaU];
-    const valutati = candidati.map((u) => ({
-      u,
-      ok: libero(zonaPorta(q.p.z, q.p.theta, g0, q.p.yaw, u, q.p.D), q.nome, altreScale),
-      alto: suoloPorta(q.p.z, q.p.theta, q.p.yaw, portaFronte(u, q.p.D), g0).alto,
-    }));
-    const [naturale, altro] = valutati;
-    let scelta = naturale!;
-    if (altro && altro.ok && (!naturale!.ok || altro.alto < naturale!.alto - 0.35)) scelta = altro;
-    if (scelta !== naturale) {
+    const valutati = candidati.map((u) => valuta(q, q.p, u, extra));
+    let scelta = valutati.reduce((a, b) => (b.costo < a.costo - 0.25 ? b : a));
+    if (!scelta.ok) {
+      // la casa si sposta (indietro, via dalla porta, o di lato, al più 3 m, dove c'è posto); se non
+      // basta si gira con la porta verso monte (come le case della corona della piazza)
+      const provaQui = (p: Proposta) => {
+        // (non sulla scaletta o sulla scala esterna di un'altra casa)
+        const muriQui: Rettangolo = { z: p.z, theta: p.theta, yaw: p.yaw, larghezza: p.W + 0.2, profondita: p.D + 0.2 };
+        if (extra.some((e) => rettangoliSiToccano(e, muriQui, 0))) return null;
+        const v = candidati.map((u) => valuta(q, p, u, extra)).filter((o) => o.ok);
+        if (!v.length) return null;
+        // la scala esterna, se c'è, deve trovare posto anche lì
+        if (scale.has(q.nome) && !provaScala(q, p, q.opz.latoScala ?? pianta.scala?.lato ?? 1, [...extra, ...v[0]!.zone])) return null;
+        return v.reduce((a, b) => (b.costo < a.costo - 0.25 ? b : a));
+      };
+      const spostata = spostaCasa(ctx, q, piani, provaQui) ?? spostaCasa(ctx, q, piani, provaQui, 180);
+      if (spostata) {
+        if (spostata.p.yaw !== q.p.yaw) esito.caseGirate++;
+        else esito.caseSpostate++;
+        q.p = spostata.p;
+        scelta = spostata.esito;
+        if (scale.has(q.nome)) {
+          const sc = provaScala(q, q.p, q.opz.latoScala ?? pianta.scala?.lato ?? 1, [...extra, ...scelta.zone])!;
+          q.opz.latoScala = sc.lato;
+          scale.set(q.nome, sc.r);
+        }
+      } else {
+        // nessun posto: la casa non si costruisce (meglio un vuoto fra le case che una porta incastrata)
+        esito.caseTolte.push(q.nome);
+        q.tolta = true;
+        scale.delete(q.nome);
+        const k = ctx.impronte.findIndex((x) => x.nome === q.nome);
+        if (k >= 0) ctx.impronte.splice(k, 1);
+        continue;
+      }
+    }
+    if (scelta.u !== pianta.portaU) {
       q.opz.latoPorta = scelta.u > 0 ? 1 : -1;
       esito.porteGirate++;
     }
+    q.opz.progetto = scelta.progetto;
+    q.opz.base = scelta.base;
+    // (le zone delle porte senza gradini non contano per le altre: due porte possono guardarsi a 3 m)
+    if (scelta.progetto.quanti) zonePorte.set(q.nome, scelta.zone);
   }
-  // 3. una scala che finisce davanti alla porta di un'altra casa: dall'altra parte o niente
-  const porte = piani.map((q) => {
-    const pianta = piantaRustico({ ...q.opz });
-    return { nome: q.nome, r: zonaPorta(q.p.z, q.p.theta, groundHeight(q.p.z, q.p.theta), q.p.yaw, pianta.portaU, q.p.D) };
-  });
+  // 3. una scala esterna che finisce davanti alla porta (o sulla scaletta) di un'altra casa: dall'altra parte o niente
   for (const q of piani) {
+    if (q.tolta) continue;
     const r = scale.get(q.nome);
-    if (!r || !porte.some((d) => d.nome !== q.nome && rettangoliSiToccano(d.r, r, 0))) continue;
+    const davantiAltre = (x: Rettangolo) => [...zonePorte].some(([n, zs]) => n !== q.nome && zs.some((d) => rettangoliSiToccano(d, x, 0)));
+    if (!r || !davantiAltre(r)) continue;
     const pianta = piantaRustico({ ...q.opz });
     const lato: 1 | -1 = pianta.scala!.lato === 1 ? -1 : 1;
     const r2 = zonaScala(q.p.z, q.p.theta, groundHeight(q.p.z, q.p.theta), q.p.yaw, q.p.W, lato, pianta.scala!.zPiede, pianta.scala!.zCima);
-    if (libero(r2, q.nome) && !porte.some((d) => d.nome !== q.nome && rettangoliSiToccano(d.r, r2, 0))) {
+    if (libero(r2, q.nome) && !davantiAltre(r2)) {
       q.opz.latoScala = lato;
       esito.scaleGirate++;
     } else {
@@ -260,6 +346,45 @@ function scegliPorteEScale(ctx: Contesto, piani: PianoCasa[]): { porteGirate: nu
   }
   return esito;
 }
+
+/**
+ * Cerca un posto vicino per la casa `q` (indietro, via dalla porta, fino a 3 m, e di lato fino a
+ * 1,5 m) dove la sua impronta non tocca le altre case né i luoghi, i sentieri e le visuali, e `prova`
+ * trova una porta buona. Aggiorna l'impronta della casa nel contesto.
+ */
+function spostaCasa<T>(ctx: Contesto, q: PianoCasa, piani: PianoCasa[], prova: (p: Proposta) => T | null, giro = 0): { p: Proposta; esito: T } | null {
+  const tentativi: Array<[number, number]> = [];
+  for (const indietro of [0, 0.5, 1, 1.5, 2, 2.5, 3]) for (const lato of [0, 0.75, -0.75, 1.5, -1.5]) if (indietro || lato || giro) tentativi.push([indietro, lato]);
+  tentativi.sort((a, b) => Math.hypot(...a) - Math.hypot(...b));
+  const i = ctx.impronte.findIndex((x) => x.nome === q.nome);
+  for (const [indietro, lato] of tentativi) {
+    const yaw = q.p.yaw + giro;
+    const c0 = spostaYaw(q.p.z, q.p.theta, yaw + 180, indietro, 40);
+    const c = spostaYaw(c0.z, c0.theta, yaw + 90, lato, 40);
+    const p: Proposta = { ...q.p, z: c.z, theta: c.theta, yaw };
+    // la stessa cella abitata, lontano dalle altre case (come quando si pianificano), dai luoghi e dai sentieri
+    const cel = cella(p.z, p.theta);
+    if (!CELLE_ABITATE.has(cel) || CELLE_ESCLUSE.has(cel)) continue;
+    // (come quando si pianificano: i muri della casa a più di 35 cm dalle impronte delle altre)
+    const r: Rettangolo = { z: p.z, theta: p.theta, yaw: p.yaw, larghezza: p.W, profondita: p.D };
+    if (piani.some((o) => !o.tolta && o.nome !== q.nome && rettangoliSiToccano({ z: o.p.z, theta: o.p.theta, yaw: o.p.yaw, larghezza: o.p.W + 0.3, profondita: o.p.D + 0.8 }, r, 0.35))) continue;
+    if (ctx.impronte.some((x, k) => k !== i && !x.nome.startsWith('rustico_') && !x.nome.startsWith('porta:') && !x.nome.startsWith('scala:') && puntiRettangolo(r, 0.6).some((pt) => inImpronta(x, pt)))) continue;
+    if (vicinoSentieri(ctx, p, 0.9) || ctx.inVisuale(p.z, p.theta, Math.max(p.W, p.D) / 2)) continue;
+    // niente punti d'interazione sotto la casa o a ridosso, e lontano dalla strada del prologo come prima
+    if ([...ctx.punti.values()].some((pt) => dentroRettangolo(r, pt.cil, 1.0))) continue;
+    if (q.nome !== 'casa_pina' && Number(q.nome.split('_')[1]) >= CASE_DI_PRIMA && LIBERI().some((l) => distanza(p, l) < 32)) continue;
+    const fp = impronta(p.z, p.theta, p.yaw, p.W + 0.6, p.D + 0.6);
+    if (fp.max - fp.min > 3.9) continue;
+    const esito = prova(p);
+    if (esito === null) continue;
+    if (i >= 0) ctx.impronte[i] = { ...ctx.impronte[i]!, z: p.z, theta: p.theta, yaw: p.yaw };
+    return { p, esito };
+  }
+  return null;
+}
+
+/** L'esito dell'ultima scelta di porte e scale (per le prove e lo script di verifica). */
+export let ultimoEsitoPorte: EsitoPorteEScale | null = null;
 
 interface Proposta {
   z: number;
@@ -277,6 +402,8 @@ interface Proposta {
  */
 /** I rustici generici fino alla rifinitura 1: gli stessi, negli stessi posti (con lo stesso ordine). */
 const CASE_DI_PRIMA = 58;
+/** I luoghi del prologo da cui le case aggiunte dalla rifinitura 2 stanno lontane (32 m). */
+const LIBERI = () => ['belvedere_muretto', 'botola', 'castagno_morto'].map((id) => luogo(id));
 
 /**
  * Rifinitura 2: 90 rustici invece di 58. Le case nuove vengono dopo nella stessa coda (le prime 58 non
@@ -284,7 +411,7 @@ const CASE_DI_PRIMA = 58;
  * nucleo è un grumo, non case sparse.
  */
 export function costruisciCase(ctx: Contesto, quante = 90): CasaPosata[] {
-  const LIBERI = ['belvedere_muretto', 'botola', 'castagno_morto'].map((id) => luogo(id));
+  const liberi = LIBERI();
   const piazza = luogo('piazza_ore');
   const ronchi = luogo('i_ronchi');
   const campanile = luogo('campanile');
@@ -338,7 +465,7 @@ export function costruisciCase(ctx: Contesto, quante = 90): CasaPosata[] {
     // le case aggiunte dalla rifinitura 2 (oltre le prime 58, che restano dove sono) stanno lontane
     // dalla strada del prologo (botola, castagno morto) e dal belvedere: non coprono la vista sul
     // paese né il cammino dalla botola al muretto
-    if (piani.length >= CASE_DI_PRIMA && LIBERI.some((l) => distanza(p, l) < 32)) continue;
+    if (piani.length >= CASE_DI_PRIMA && liberi.some((l) => distanza(p, l) < 32)) continue;
     if (distanza(p, piazza) < piazza.raggio + 1.8 + p.D / 2 - 0.5) continue;
     const fp = impronta(p.z, p.theta, p.yaw, p.W + 0.6, p.D + 0.6);
     if (fp.max - fp.min > 3.9) continue;
@@ -390,8 +517,8 @@ export function costruisciCase(ctx: Contesto, quante = 90): CasaPosata[] {
       coda.push({ ...q, yaw: yawN, W: n.W, D: n.D });
     }
   }
-  scegliPorteEScale(ctx, piani);
-  return piani.map((q) => posaRustico(ctx, q.zona, q.nome, q.p.z, q.p.theta, q.p.yaw, { ...q.opz, occupa: false }));
+  ultimoEsitoPorte = scegliPorteEScale(ctx, piani);
+  return piani.filter((q) => !q.tolta).map((q) => posaRustico(ctx, q.zona, q.nome, q.p.z, q.p.theta, q.p.yaw, { ...q.opz, occupa: false }));
 }
 
 /**
@@ -553,16 +680,22 @@ export function costruisciAnnessi(ctx: Contesto, case_: CasaPosata[], quanti = 5
     // scale, altri annessi, collider), se no dall'altra parte del davanti, se no niente annesso; la
     // soglia sul suolo più alto davanti (come le case), i muri giù fin sotto il suolo
     let base = fp.min - 0.1;
-    let davanti: Rettangolo | null = null;
+    let progetto: ProgettoGradini | null = null;
     const p0 = an.porte?.[0];
     if (p0) {
-      const g0 = groundHeight(c0.z, c0.theta);
+      // correzione dopo la verifica: lo spazio libero comprende la scaletta, se serve, fino a 1 m dopo
+      // l'ultimo gradino; una scaletta che non va bene (pedate sepolte, ultimo scalino alto) non si posa
       const candidati = Math.abs(p0.centro.x) > 0.3 ? [p0.centro.x, -p0.centro.x] : [p0.centro.x];
-      let scelto: number | null = null;
+      let scelto: { u: number; base: number; progetto: ProgettoGradini } | null = null;
       for (const u of candidati) {
-        const r = rettangoloLocale(c0.z, c0.theta, g0, yaw, u - 0.9, u + 0.9, D / 2 + 0.05, D / 2 + 1.35);
-        if (davantiLibero(r)) {
-          scelto = u;
+        const porta = u === p0.centro.x ? p0 : { ...p0, centro: p0.centro.clone().setX(u) };
+        const b = baseDaPorta(c0.z, c0.theta, yaw, porta);
+        // un annesso che per avere la porta sul suolo dovrebbe stare più di 1,2 m sopra il suo punto più alto: no
+        if (b > fp.max + 1.2) continue;
+        const pr = progettaGradini(c0.z, c0.theta, b, yaw, porta);
+        if (!pr.buona) continue;
+        if (zoneGradini(c0.z, c0.theta, b, yaw, porta, pr, 1.0, 1.8).every((r) => davantiLibero(r))) {
+          scelto = { u, base: b, progetto: pr };
           break;
         }
       }
@@ -570,31 +703,25 @@ export function costruisciAnnessi(ctx: Contesto, case_: CasaPosata[], quanti = 5
         an.dispose();
         return false;
       }
-      if (scelto !== p0.centro.x) {
+      if (scelto.u !== p0.centro.x) {
         an.dispose();
-        an = creaAnnesso({ ...opzA, interrata, porta: scelto });
+        an = creaAnnesso({ ...opzA, interrata, porta: scelto.u });
       }
-      const porta = an.porte![0]!;
-      base = baseDaPorta(c0.z, c0.theta, yaw, porta);
-      // un annesso che per avere la porta sul suolo dovrebbe stare più di 1,2 m sopra il suo punto più alto: no
-      if (base > fp.max + 1.2) {
-        an.dispose();
-        return false;
-      }
+      base = scelto.base;
+      progetto = scelto.progetto;
       const serve = interrataPer(base, fp.min, fp.max, 0.5);
       if (serve > interrata + 0.01) {
         an.dispose();
         interrata = serve;
-        an = creaAnnesso({ ...opzA, interrata, porta: scelto });
+        an = creaAnnesso({ ...opzA, interrata, porta: scelto.u });
       }
     }
     ctx.posa(zona, an, c0.z, c0.theta, yaw, { h: base, nome, tag: (t) => (t === 'muro' ? 'casa' : t ?? 'casa') });
     const portaA = an.porte?.[0];
     annessoLontano(ctx.zona(zona).lontano, matriceSuperficie(c0.z, c0.theta, base, yaw), W, D, an.punti['gronda']!.y, an.punti['colmo']!.y, interrata, Math.floor(c0.z * 5 + c0.theta), nome, portaA ? portaA.centro.x : null);
     if (portaA) {
-      const gr = gradiniPorta(ctx.zona(zona), c0.z, c0.theta, base, yaw, portaA, { seme: Math.floor(c0.z * 11 + c0.theta * 5) });
-      davanti = rettangoloLocale(c0.z, c0.theta, base, yaw, portaA.centro.x - 0.9, portaA.centro.x + 0.9, D / 2 + 0.05, D / 2 + 1.35 + gr.lunghezza);
-      ctx.occupa({ nome: `porta:${nome}`, ...davanti });
+      const gr = gradiniPorta(ctx.zona(zona), c0.z, c0.theta, base, yaw, portaA, { seme: Math.floor(c0.z * 11 + c0.theta * 5), proprietario: nome, ...(progetto ? { progetto } : {}) });
+      for (const r of zoneGradini(c0.z, c0.theta, base, yaw, portaA, gr.progetto, 1.0, 1.8)) ctx.occupa({ nome: `porta:${nome}`, ...r });
     }
     an.dispose();
     ctx.occupa({ nome, z: c0.z, theta: c0.theta, yaw, larghezza: W, profondita: D + 0.4 });
@@ -898,9 +1025,30 @@ export function costruisciCasaPina(ctx: Contesto): CasaPosata {
 export function costruisciCasaVelo(ctx: Contesto): CasaPosata {
   const l = luogo('casa_del_velo');
   const piazza = luogo('piazza_ore');
-  const yaw = yawVerso(l, piazza) + 8;
   const W = 5.5;
   const D = 7.8;
+  // la casa guarda la piazza. Correzione dopo la verifica: girata di 8° la porta stava sullo spigolo
+  // del gradone, con il suolo che scendeva di traverso di 1,4 m: il pianerottolo aveva un fianco di
+  // pietra alto più di un metro e chi arrivava da valle ci sbatteva contro. Si prova a girarla un poco
+  // (al più 40°) finché davanti alla porta il suolo è quasi in piano, senza toccare sentieri e luoghi
+  const yaw0 = yawVerso(l, piazza) + 8;
+  let yaw = yaw0;
+  let migliore = Infinity;
+  /** i punti dell'impronta (allargata) che toccano luoghi o sentieri: girata, non più di com'era */
+  const occupati = (y: number) => puntiRett(l.z, l.theta, y, W + 0.3, D + 0.8).filter((q) => ctx.occupato(q.z, q.theta, 0.2) || ctx.distanzaSentieri(q.z, q.theta) < 0.6).length;
+  const occupati0 = occupati(yaw0);
+  for (const giro of [0, -10, -20, -25, -30, -35, -40, 10, 20, 30, 40]) {
+    const y = yaw0 + giro;
+    if (occupati(y) > occupati0) continue;
+    const porta = portaFronte(0, D);
+    const pr = progettaGradini(l.z, l.theta, baseDaPorta(l.z, l.theta, y, porta), y, porta);
+    // (il fianco del pianerottolo alto più di 35 cm conta: chi arriva da valle ci sbatte contro)
+    const costo = pr.costo + Math.max(0, pr.esposto - 0.35) * 2 + Math.abs(giro) * 0.004;
+    if (costo < migliore) {
+      migliore = costo;
+      yaw = y;
+    }
+  }
   const casa = posaRustico(ctx, 'nucleo', 'casa_del_velo', l.z, l.theta, yaw, {
     seme: 'casa-del-velo',
     larghezza: W,

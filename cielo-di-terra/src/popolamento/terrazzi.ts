@@ -219,15 +219,28 @@ export function costruisciMuriTerrazze(ctx: Contesto, opz: OpzioniMuriTerrazze):
       const linea = semplifica(smussa(media(curva, 3), 1), 1.0);
       // taglia in pezzi validi
       let pezzo: Spezzata = [];
-      const chiudi = () => {
-        // migliorie «porte»: un tratto che passa davanti a una porta o a una scala esterna non si
-        // costruisce (tutto il tratto: le altre giunture restano dove erano, e così i varchi)
-        if (pezzo.length >= 2 && lunghezza(pezzo) >= 1.8 && !pezzo.some(([x, y]) => davantiAPorta(ctx, locale(r, x, y), 0.6))) {
-          const fatto = muroSuPezzo(ctx, opz, r, pezzo, kdeg);
+      const costruisci = (parte: Spezzata) => {
+        if (parte.length >= 2 && lunghezza(parte) >= 1.8) {
+          const fatto = muroSuPezzo(ctx, opz, r, parte, kdeg);
           if (fatto > 0) {
             metri += fatto;
             pezzi++;
           }
+        }
+      };
+      const chiudi = () => {
+        // migliorie «porte»: davanti a una porta, alla sua scaletta o a una scala esterna il muro si apre
+        // (correzione dopo la verifica: prima si toglieva tutto il tratto, fino a 4,2 m, e nel browser
+        // mancavano 37 m di muri). Le giunture degli altri tratti restano dove erano, e così i varchi
+        if (pezzo.length >= 2 && lunghezza(pezzo) >= 1.8) {
+          let parte: Spezzata = [];
+          for (const [x, y] of pezzo) {
+            if (davantiAPorta(ctx, locale(r, x, y), 0.6)) {
+              costruisci(parte);
+              parte = [];
+            } else parte.push([x, y]);
+          }
+          costruisci(parte);
         }
         pezzo = [];
       };

@@ -139,12 +139,51 @@ export interface PortaPosata {
   variante?: string;
 }
 
+/**
+ * Una scaletta di gneiss posata davanti a una porta (migliorie «porte», `gradiniPorta`): il
+ * pianerottolo e i gradini, misurati dalla soglia lungo la normale della porta. Serve alla verifica
+ * (gradini dentro altri edifici o nel muro di una terrazza, pedate sepolte da un fianco, ultimo
+ * scalino troppo alto).
+ */
+export interface ScalettaPosata {
+  /** l'oggetto della porta (nome posato o luogo), se noto */
+  proprietario?: string;
+  zona: string;
+  /** centro della soglia sul filo del muro (mondo) */
+  soglia: Vector3;
+  /** normale orizzontale della porta (mondo, unitaria) e su locale */
+  normale: Vector3;
+  su: Vector3;
+  /** la rampa scende dritta davanti alla porta o di lato, lungo la facciata */
+  verso: string;
+  /** larghezza del pianerottolo (m) */
+  larghezza: number;
+  /** profondità del pianerottolo (m dal muro) */
+  inizio: number;
+  /** quanto la scaletta si allontana dal muro lungo la normale (m) */
+  lunghezza: number;
+  alzata: number;
+  /**
+   * il pianerottolo e le pedate nel riferimento della porta: centro `d` m davanti al muro e `l` m di
+   * lato (verso t = su × normale), direzione della rampa (fd, fl), lunghezza e larghezza, cima `top`
+   * rispetto alla soglia
+   */
+  gradini: Array<{ d: number; l: number; fd: number; fl: number; lungo: number; largo: number; top: number }>;
+  /** i muretti sul bordo del pianerottolo (con la rampa di lato), nello stesso riferimento */
+  parapetti: Array<{ d: number; l: number; fd: number; fl: number; lungo: number }>;
+  /** dove si scende sul prato (0,3 m dopo l'ultimo gradino) e direzione della rampa */
+  uscita: { d: number; l: number };
+  direzione: { d: number; l: number };
+}
+
 export class Cantiere {
   readonly singolo: Accumulo = { parti: [], vertici: 0 };
   readonly doppio: Accumulo = { parti: [], vertici: 0 };
   readonly collider: VoceCollider[] = [];
   /** porte degli oggetti posati (coordinate mondo) */
   readonly porte: PortaPosata[] = [];
+  /** scalette davanti alle porte (coordinate mondo) */
+  readonly scalette: ScalettaPosata[] = [];
   readonly lumi: Vector3[] = [];
   readonly dimensioniLumi: number[] = [];
   /** direzione di ogni lume (normale del vetro delle finestre; null = in tutte le direzioni) */

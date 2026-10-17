@@ -15,7 +15,13 @@
  * - `coperta`: un raggio che arriva dritto sulla porta incontra qualcos'altro prima del battente
  *   (lo zoccolo del campanile, il muro di un annesso, il nucleo di un muro a secco…) o il terreno;
  * - `sfarfallio`: sul battente c'è un'altra superficie a meno di 1,2 cm (stesso piano: z-fighting);
- * - `lod`: la casa ha una versione lontana ma lì la porta non c'è, o sta altrove.
+ * - `lod`: la casa ha una versione lontana ma lì la porta non c'è, o sta altrove;
+ * - `gradini_ostruiti`: sopra il pianerottolo o un gradino della scaletta davanti alla porta (fino a
+ *   1,7 m), o nel metro dopo l'ultimo, c'è un collider che non si calpesta (il muro di un'altra casa,
+ *   il suo tetto, il muro di una terrazza), o la scaletta entra nell'impronta di un altro edificio;
+ * - `gradini_sepolti`: una pedata sta sotto il suolo, da un fianco, più di 2 cm (il «dente» di
+ *   pietra dei pendii di traverso, o il prato che spunta sulla pietra);
+ * - `gradini_sospesi`: dall'ultimo gradino al prato c'è più di 30 cm.
  *
  * I raggi attraversano le mesh vere del paese (quelle cotte dai cantieri, vicino e lontano), con un
  * indice dei soli triangoli attorno alle porte: tutta la verifica dura pochi secondi.
@@ -24,14 +30,14 @@ import { Mesh, Vector3, type BufferAttribute, type Object3D } from 'three';
 import type { ColliderWorld, Collider } from '../world/colliders';
 import { cylToWorld, localFrameTheta, worldToCyl } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
-import type { PortaPosata } from './cantiere';
+import type { PortaPosata, ScalettaPosata } from './cantiere';
 import type { Impronta } from './contesto';
 import type { ManigliaCorbella } from './corbella';
 import { differenza, distanza } from './terreno';
 
-export type DifettoPorta = 'sotto_terra' | 'sospesa' | 'contro_pendio' | 'ostruita' | 'dentro_impronta' | 'coperta' | 'sfarfallio' | 'lod';
+export type DifettoPorta = 'sotto_terra' | 'sospesa' | 'contro_pendio' | 'ostruita' | 'dentro_impronta' | 'coperta' | 'sfarfallio' | 'lod' | 'gradini_ostruiti' | 'gradini_sepolti' | 'gradini_sospesi';
 
-export const DIFETTI_PORTA: readonly DifettoPorta[] = ['sotto_terra', 'sospesa', 'contro_pendio', 'ostruita', 'dentro_impronta', 'coperta', 'sfarfallio', 'lod'];
+export const DIFETTI_PORTA: readonly DifettoPorta[] = ['sotto_terra', 'sospesa', 'contro_pendio', 'ostruita', 'dentro_impronta', 'coperta', 'sfarfallio', 'lod', 'gradini_ostruiti', 'gradini_sepolti', 'gradini_sospesi'];
 
 export interface EsitoPorta {
   porta: PortaPosata;
@@ -68,7 +74,16 @@ export interface FontiVerificaPorte {
   velate?: ReadonlySet<string>;
   /** quota del suolo visivo (predefinita: `groundHeight`, la mesh LOD 0) */
   suolo?: (z: number, theta: number) => number;
+  /** le scalette davanti alle porte (`ManigliaCorbella.scalette()`): senza, niente controlli dei gradini */
+  scalette?: ReadonlyArray<ScalettaPosata>;
 }
+
+/** Una pedata può stare sotto il suolo, da un fianco, al più di tanto (m): il prato non spunta sulla pietra. */
+export const GRADINO_SEPOLTO = 0.02;
+/** Il pianerottolo, sul suo spigolo a monte, può stare sotto il suolo al più di tanto (m). */
+export const PIANEROTTOLO_SEPOLTO = 0.12;
+/** Dall'ultimo gradino al prato al più (m). */
+export const ULTIMO_SCALINO = 0.3;
 
 /**
  * Porte coperte apposta: la Casa del Velo ha un velo nero appeso davanti alla porta (contenuti:
@@ -143,10 +158,14 @@ function quotaCalpestabile(col: ColliderWorld, p: Vector3, hp: number, sotto: nu
   return best;
 }
 
-/** Il collider che contiene `p` (escluse le lastre calpestabili con la cima entro `passo` m sopra `hBase`), o null. */
+/**
+ * Il collider che contiene `p` (escluse le lastre calpestabili con la cima entro `passo` m sopra
+ * `hBase`, e le persone: Pina sulla sua soglia si sposta), o null.
+ */
 export function colliderNelPunto(col: ColliderWorld, p: Vector3, hp: number, hBase: number, passo: number): Collider | null {
   const c = worldToCyl(p);
   for (const k of col.query(c.z, c.theta, 8, _q)) {
+    if (k.tag === 'personaggio') continue;
     let dentro = false;
     let top = 0;
     if (k.kind === 'box') {
@@ -341,6 +360,12 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
       return Math.max(g, k) - hS;
     };
 
+    // la scaletta davanti alla porta, se c'è. Con la rampa di lato (lungo la facciata) davanti al
+    // pianerottolo c'è il muretto: lo spazio davanti e i salti si guardano solo sul pianerottolo, il
+    // resto lo controlla la verifica della scaletta
+    const sc = fonti.scalette?.find((x) => x.soglia.distanceTo(porta.centro) < 0.3 && x.normale.dot(T.n) > 0.9);
+    const finoA = sc && sc.verso !== 'avanti' ? sc.inizio - 0.3 : Infinity;
+
     // 1. soglia sul suolo (solo le porte a terra; le altre hanno la scala o la lobbia)
     let suoloMin = 0;
     let suoloMax = 0;
@@ -354,7 +379,7 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
       for (const l of [-0.35 * w, 0, 0.35 * w]) fuori.push(appoggio(0.7, l));
       suoloMin = Math.min(...vicino);
       suoloMax = Math.max(...fuori);
-      suolo120 = appoggio(SPAZIO_DAVANTI, 0);
+      suolo120 = appoggio(Math.min(SPAZIO_DAVANTI, finoA), 0);
       if (suoloMax > TOLLERANZA_SOGLIA) {
         difetti.add('sotto_terra');
         note.push(`suolo ${suoloMax.toFixed(2)} m sopra la soglia`);
@@ -371,7 +396,7 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
       if (!difetti.has('sospesa')) {
         for (const l of [-0.35 * w, 0, 0.35 * w]) {
           let prima = appoggio(0.3, l);
-          for (let d = 0.4; d <= 1.6 + 1e-6; d += 0.1) {
+          for (let d = 0.4; d <= Math.min(1.6, finoA) + 1e-6; d += 0.1) {
             const ora = appoggio(d, l);
             if (prima - ora > 0.26) {
               difetti.add('sospesa');
@@ -388,7 +413,7 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
     // 2. spazio libero davanti: collider (non i gradini alla quota della soglia) e impronte
     let ostacolo: string | undefined;
     // (davanti alla porta in cima a una scala c'è il pianerottolo, largo 1,1 m: oltre, la scala scende)
-    for (const d of porta.appoggio === 'scala' ? [0.3, 0.7] : [0.3, 0.7, SPAZIO_DAVANTI]) {
+    for (const d of (porta.appoggio === 'scala' ? [0.3, 0.7] : [0.3, 0.7, SPAZIO_DAVANTI]).filter((x) => x <= Math.max(0.3, finoA))) {
       if (ostacolo) break;
       for (const l of [-0.3 * w, 0, 0.3 * w]) {
         if (ostacolo) break;
@@ -494,6 +519,14 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
       }
     }
 
+    // 5. la scaletta davanti alla porta, se c'è: libera, con le pedate fuori dal suolo, fino al prato
+    if (sc) {
+      const r = verificaScaletta(sc, fonti, porta, suolo);
+      for (const d of r.difetti) difetti.add(d);
+      note.push(...r.note);
+      if (r.ostacolo) ostacolo = ostacolo ? `${ostacolo}; ${r.ostacolo}` : r.ostacolo;
+    }
+
     out.push({
       porta,
       difetti: DIFETTI_PORTA.filter((d) => difetti.has(d)),
@@ -509,6 +542,108 @@ export function verificaPorte(porte: ReadonlyArray<PortaPosata>, fonti: FontiVer
     });
   });
   return out;
+}
+
+/**
+ * Controlla la scaletta `sc` davanti alla porta: niente collider (che non si calpestano) sopra le
+ * pedate e nel metro dopo l'ultimo gradino, niente impronte di altri edifici, nessuna pedata sotto
+ * il suolo da un fianco, l'ultimo scalino fino al prato al più di `ULTIMO_SCALINO`.
+ */
+export function verificaScaletta(
+  sc: ScalettaPosata,
+  fonti: FontiVerificaPorte,
+  porta?: PortaPosata,
+  suolo: (z: number, theta: number) => number = fonti.suolo ?? groundHeight,
+): { difetti: DifettoPorta[]; note: string[]; ostacolo?: string; sepolto: number; ultimo: number } {
+  const difetti = new Set<DifettoPorta>();
+  const note: string[] = [];
+  let ostacolo: string | undefined;
+  const n = sc.normale.clone().normalize();
+  const u = sc.su.clone().normalize();
+  const t = new Vector3().crossVectors(u, n).normalize();
+  const P = (d: number, l: number, h: number, out = new Vector3()) => out.copy(sc.soglia).addScaledVector(n, d).addScaledVector(t, l).addScaledVector(u, h);
+  const p = new Vector3();
+  const hS = worldToCyl(sc.soglia).h;
+  let sepolto = -Infinity;
+  const origine = porta ? worldToCyl(porta.origine) : null;
+  /** punto (d, l) del riferimento della porta: `a` m lungo la rampa della pedata `g`, `b` di traverso */
+  const nellaPedata = (g: ScalettaPosata['gradini'][number], a: number, b: number): [number, number] => [g.d + g.fd * a - g.fl * b, g.l + g.fl * a + g.fd * b];
+  sc.gradini.forEach((g, i) => {
+    // pedata fuori dal suolo (il pianerottolo, sul suo spigolo a monte, può toccare il prato)
+    const tolleranza = i === 0 ? PIANEROTTOLO_SEPOLTO - GRADINO_SEPOLTO : 0;
+    for (const a of [-g.lungo / 2 + 0.04, 0, g.lungo / 2 - 0.04]) {
+      for (const b of [-g.largo / 2 + 0.04, -g.largo / 4, 0, g.largo / 4, g.largo / 2 - 0.04]) {
+        const c = worldToCyl(P(...nellaPedata(g, a, b), g.top, p));
+        sepolto = Math.max(sepolto, suolo(c.z, c.theta) - c.h - tolleranza);
+      }
+    }
+    const nome = i === 0 ? 'pianerottolo' : `gradino ${i}`;
+    // niente sopra la pedata (sul pianerottolo con i muretti, fra i muretti)
+    if (!ostacolo) {
+      const bordo = i === 0 && sc.parapetti.length ? 0.4 : 0.12;
+      for (const b of [-g.largo / 2 + bordo, 0, g.largo / 2 - bordo]) {
+        if (ostacolo) break;
+        for (const h of [0.35, 1.0, 1.7]) {
+          P(...nellaPedata(g, 0, b), g.top + h, p);
+          const ph = worldToCyl(p).h;
+          const k = colliderNelPunto(fonti.colliders, p, ph, hS + g.top, 0.5);
+          if (k) {
+            ostacolo = `${nome}: collider «${k.tag ?? '?'}» a ${h} m sopra la pedata`;
+            break;
+          }
+        }
+      }
+    }
+    // né dentro l'impronta di un altro edificio
+    if (!ostacolo) {
+      const c = worldToCyl(P(g.d, g.l, g.top, p));
+      for (const imp of fonti.impronte) {
+        if (improntaAperta(imp.nome) || (porta && imp.nome === porta.proprietario)) continue;
+        if (origine && dentroImpronta(imp, origine.z, origine.theta)) continue;
+        if (!/^(rustico|annesso|casa|casupola|mulino|fienile|gra|capanno|campanile|chiesa|E2)/.test(imp.nome)) continue;
+        if (dentroImpronta(imp, c.z, c.theta)) {
+          ostacolo = `${nome} nell'impronta «${imp.nome}»`;
+          break;
+        }
+      }
+    }
+  });
+  // nel metro dopo l'ultimo gradino, all'altezza di chi scende
+  const ultimoTop = sc.gradini[sc.gradini.length - 1]?.top ?? 0;
+  const f = sc.direzione;
+  const prato = (a: number, b = 0) => {
+    const c = worldToCyl(P(sc.uscita.d + f.d * a - f.l * b, sc.uscita.l + f.l * a + f.d * b, 0, p));
+    return suolo(c.z, c.theta) - hS;
+  };
+  const ultimo = ultimoTop - Math.min(prato(-0.15), prato(0.05));
+  if (!ostacolo) {
+    for (const a of [0, 0.5]) {
+      if (ostacolo) break;
+      for (const b of [-0.45, 0, 0.45]) {
+        if (ostacolo) break;
+        const base = prato(a, b);
+        for (const h of [0.35, 1.0, 1.7]) {
+          P(sc.uscita.d + f.d * a - f.l * b, sc.uscita.l + f.l * a + f.d * b, base + h, p);
+          const ph = worldToCyl(p).h;
+          const k = colliderNelPunto(fonti.colliders, p, ph, hS + base, 0.5);
+          if (k) {
+            ostacolo = `dopo l'ultimo gradino: collider «${k.tag ?? '?'}»`;
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (ostacolo) difetti.add('gradini_ostruiti');
+  if (sepolto > GRADINO_SEPOLTO) {
+    difetti.add('gradini_sepolti');
+    note.push(`una pedata ${sepolto.toFixed(2)} m sotto il suolo`);
+  }
+  if (ultimo > ULTIMO_SCALINO) {
+    difetti.add('gradini_sospesi');
+    note.push(`ultimo scalino di ${ultimo.toFixed(2)} m`);
+  }
+  return { difetti: [...difetti], note, ...(ostacolo ? { ostacolo } : {}), sepolto, ultimo };
 }
 
 /** Riassunto per difetto: quante porte ne hanno uno. */
@@ -545,7 +680,7 @@ export function inquadraturaPorta(p: PortaPosata, dist = 4.5, lato = 0.8, suolo:
  */
 export function verificaPaese(c: ManigliaCorbella, colliders: ColliderWorld): EsitoPorta[] {
   const lontane = c.porteLontane();
-  const fonti: FontiVerificaPorte = { colliders, impronte: c.impronte, scena: c.radice, porteLontane: lontane.porte, zoneLontane: lontane.zone };
+  const fonti: FontiVerificaPorte = { colliders, impronte: c.impronte, scena: c.radice, porteLontane: lontane.porte, zoneLontane: lontane.zone, scalette: c.scalette(false) };
   const esiti = verificaPorte(c.porte(false), fonti);
   for (const [id, e] of c.elementi) {
     const iniziale = e.variante;
@@ -553,9 +688,77 @@ export function verificaPaese(c: ManigliaCorbella, colliders: ColliderWorld): Es
       if (v === iniziale) continue;
       c.setVariante(id, v);
       const sue = c.porte(false).filter((p) => p.variante === `${id}=${v}`);
-      if (sue.length) esiti.push(...verificaPorte(sue, fonti));
+      if (sue.length) esiti.push(...verificaPorte(sue, { ...fonti, scalette: c.scalette(false) }));
     }
     c.setVariante(id, iniziale);
   }
   return esiti;
+}
+
+/** Una riga dell'inventario delle porte (serializzabile: per gli script e per il browser). */
+export interface VocePorta {
+  id: string;
+  oggetto: string;
+  proprietario: string;
+  zona: string;
+  variante: string | null;
+  appoggio: PortaPosata['appoggio'];
+  soglia: { z: number; theta: number; h: number };
+  difetti: DifettoPorta[];
+  suoloMin: number;
+  suoloMax: number;
+  suolo120: number;
+  copertura: number;
+  complanare: number;
+  ostacolo: string | null;
+  note: string[];
+  /** da dove guardarla (`inquadraturaPorta`) */
+  inquadratura: { z: number; theta: number; h: number; yaw: number; pitch: number };
+  /** (z, θ, h) a 7, 3 e 0,6 m davanti alla soglia */
+  davanti: { a7: { z: number; theta: number; h: number }; a3: { z: number; theta: number; h: number }; soglia: { z: number; theta: number; h: number } };
+  /** il centro del battente */
+  battente: { z: number; theta: number; h: number };
+  /** la scaletta davanti, se c'è: verso, gradini e dove si scende (z, θ, h) */
+  scaletta: { verso: string; gradini: number; uscita: { z: number; theta: number; h: number } } | null;
+}
+
+/** L'inventario delle porte verificate, pronto per un JSON. */
+export function inventarioPorte(esiti: ReadonlyArray<EsitoPorta>, scalette: ReadonlyArray<ScalettaPosata> = []): VocePorta[] {
+  const cil = (v: Vector3) => {
+    const q = worldToCyl(v);
+    return { z: q.z, theta: q.theta, h: q.h };
+  };
+  const davanti = (p: PortaPosata, d: number, su = 0) => cil(p.centro.clone().addScaledVector(p.normale, d).addScaledVector(p.su, su));
+  return esiti.map((e) => {
+    const p = e.porta;
+    const sc = scalette.find((x) => x.soglia.distanceTo(p.centro) < 0.3 && x.normale.dot(p.normale) > 0.9);
+    let scaletta: VocePorta['scaletta'] = null;
+    if (sc) {
+      const t = new Vector3().crossVectors(sc.su, sc.normale).normalize();
+      const u = sc.soglia.clone().addScaledVector(sc.normale, sc.uscita.d).addScaledVector(t, sc.uscita.l);
+      const c = worldToCyl(u);
+      scaletta = { verso: sc.verso, gradini: sc.gradini.length - 1, uscita: { z: c.z, theta: c.theta, h: groundHeight(c.z, c.theta) } };
+    }
+    return {
+      id: p.id,
+      oggetto: p.oggetto,
+      proprietario: p.proprietario,
+      zona: p.zona,
+      variante: p.variante ?? null,
+      appoggio: p.appoggio,
+      soglia: e.soglia,
+      difetti: e.difetti,
+      suoloMin: +e.suoloMin.toFixed(3),
+      suoloMax: +e.suoloMax.toFixed(3),
+      suolo120: +e.suolo120.toFixed(3),
+      copertura: e.copertura,
+      complanare: e.complanare,
+      ostacolo: e.ostacolo ?? null,
+      note: e.note,
+      inquadratura: inquadraturaPorta(p),
+      davanti: { a7: davanti(p, 7), a3: davanti(p, 3), soglia: davanti(p, 0.6) },
+      battente: davanti(p, p.battente, p.altezza * 0.55),
+      scaletta,
+    };
+  });
 }

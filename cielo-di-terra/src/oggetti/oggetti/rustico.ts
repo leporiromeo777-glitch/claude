@@ -98,6 +98,8 @@ export interface PiantaRustico {
   hTerra: number;
   /** la scala esterna: fianco (+1 a +X), z locali della cima (porta) e del primo gradino */
   scala: { lato: 1 | -1; zCima: number; zPiede: number } | null;
+  /** la lobbia: sul fronte, sul fianco destro (+X) o niente */
+  balcone: 'fronte' | 'lato' | 'nessuno';
 }
 
 export function piantaRustico(opz: OpzioniRustico = {}): PiantaRustico {
@@ -108,7 +110,7 @@ export function piantaRustico(opz: OpzioniRustico = {}): PiantaRustico {
     const n = Math.round(p.hTerra / 0.24);
     scala = { lato: p.latoScala, zCima: ps.u + 0.65, zPiede: ps.u - 0.65 - (n - 1) * 0.3 };
   }
-  return { larghezza: p.W, profondita: p.D, portaU: p.portaU, hTerra: p.hTerra, scala };
+  return { larghezza: p.W, profondita: p.D, portaU: p.portaU, hTerra: p.hTerra, scala, balcone: p.balcone };
 }
 
 interface Finestra {

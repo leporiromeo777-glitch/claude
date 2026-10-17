@@ -20,7 +20,9 @@ import { creaCasupola, creaMasso, creaMulino } from '../edifici';
 import { metriPerGrado, mondo, sposta, spostaYaw, suolo, yawValle, yawVerso } from '../terreno';
 import { rialeTheta } from '../../world/terrain';
 import { posaChiodo } from './sanVigilio';
-import { gradiniPorta, oggettoSullaSoglia } from '../soglie';
+import { VERSI_TUTTI, gradiniLuogo, oggettoSullaSoglia, progettaGradini, zoneGradini, type ProgettoGradini } from '../soglie';
+import { dentroImpronta, puntiRettangolo } from '../rettangoli';
+import { improntaAperta } from '../verificaPorte';
 
 /** Casupole dei Ronchi (oltre alla casa di Nando, che è mobile). */
 export function costruisciRonchi(ctx: Contesto): void {
@@ -31,14 +33,33 @@ export function costruisciRonchi(ctx: Contesto): void {
     [1171, 48.0, 3],
   ];
   for (const [z, th, i] of posti) {
-    const yaw = yawValle(z, th) + (i % 2 ? 12 : -10);
+    const yaw0 = yawValle(z, th) + (i % 2 ? 12 : -10);
     const W = 4.2 + (i % 2) * 0.6;
     const D = 4.8 + (i % 3) * 0.4;
+    const crea = (interrata: number) => creaCasupola({ seme: `ronco-${i}`, larghezza: W, profondita: D, interrata, finestraAccesa: i !== 2 });
     // migliorie «porte»: la soglia sul suolo davanti (prima la base era il suolo più basso: la porta di
-    // casupola 0 restava mezza sepolta), e i gradini se davanti il suolo scende
-    const { oggetto: c, base, porta } = oggettoSullaSoglia((interrata) => creaCasupola({ seme: `ronco-${i}`, larghezza: W, profondita: D, interrata, finestraAccesa: i !== 2 }), z, th, yaw, W, D);
+    // casupola 0 restava mezza sepolta), e i gradini se davanti il suolo scende. Correzione dopo la
+    // verifica: con la porta verso valle la casupola 0 aveva 13 gradini giù per l'alzata del gradone,
+    // dentro il muro a secco della terrazza. La casupola può girarsi (la porta di lato, lungo la curva
+    // di livello, o verso monte): si sceglie il verso con la scaletta più corta, che non va contro
+    // impronte, luoghi o sentieri; a parità, verso valle come prima
+    let scelta: { yaw: number; m: ReturnType<typeof oggettoSullaSoglia<ReturnType<typeof crea>>>; progetto: ProgettoGradini | null; costo: number } | null = null;
+    for (const giro of [0, 90, -90, 180]) {
+      const yaw = yaw0 + giro;
+      const m = oggettoSullaSoglia(crea, z, th, yaw, W, D);
+      const progetto = m.porta ? progettaGradini(z, th, m.base, yaw, m.porta, { inizio: 0.3 }) : null;
+      const zone = m.porta && progetto ? zoneGradini(z, th, m.base, yaw, m.porta, progetto, 1.2, 1.8) : [];
+      const occupate = zone.some((r) => puntiRettangolo(r, 0.4).some((pt) => ctx.impronte.some((imp) => !improntaAperta(imp.nome) && dentroImpronta(imp, pt)) || ctx.distanzaSentieri(pt.z, pt.theta) < 0.4));
+      const costo = (progetto?.costo ?? 0) + (occupate ? 20 : 0) + (giro ? 0.4 : 0);
+      if (!scelta || costo < scelta.costo) {
+        scelta?.m.oggetto.dispose();
+        scelta = { yaw, m, progetto, costo };
+      } else m.oggetto.dispose();
+    }
+    const { yaw, m, progetto } = scelta!;
+    const { oggetto: c, base, porta } = m;
     const punti = ctx.posa('ronchi', c, z, th, yaw, { h: base, luogo: 'i_ronchi', nome: `casupola_${i}`, tag: (t) => t ?? 'muro' });
-    if (porta) gradiniPorta(ctx.zona('ronchi'), z, th, base, yaw, porta, { luogo: 'i_ronchi', seme: 1160 + i, inizio: 0.3 });
+    if (porta && progetto) gradiniLuogo(ctx, ctx.zona('ronchi'), `casupola_${i}`, z, th, base, yaw, porta, { luogo: 'i_ronchi', seme: 1160 + i, progetto });
     c.dispose();
     ctx.occupa({ nome: `casupola_${i}`, z, theta: th, yaw, larghezza: W + 1, profondita: D + 1.4 });
     void punti;
@@ -72,7 +93,11 @@ export function costruisciRiale(ctx: Contesto): void {
   // prima mezza porta era sepolta e l'altra metà sospesa), gradini dalla parte che scende
   const { oggetto: mulino, base, porta: portaMulino } = oggettoSullaSoglia(() => creaMulino('mulino-riale', true), c2.z, c2.theta, yaw, 5.6, 6.8, 2.0);
   const pm = ctx.posa('riale', mulino, c2.z, c2.theta, yaw, { h: base, luogo: 'mulino' });
-  if (portaMulino) gradiniPorta(ctx.zona('riale'), c2.z, c2.theta, base, yaw, portaMulino, { luogo: 'mulino', seme: 1130, inizio: 1.27 });
+  // correzione dopo la verifica: il suolo davanti alla porta scende di traverso (un metro sulla
+  // larghezza dei gradini): i gradini dritti finivano sotto il prato da un fianco, e il pianerottolo
+  // aveva un fianco alto più di un metro. La scaletta può scendere di lato, lungo la facciata, dal
+  // pianerottolo della soglia del chiodo 7, con un muretto dove sotto c'è il salto
+  if (portaMulino) gradiniLuogo(ctx, ctx.zona('riale'), 'mulino', c2.z, c2.theta, base, yaw, portaMulino, { luogo: 'mulino', seme: 1130, inizio: 1.27, versi: VERSI_TUTTI, gradiniMax: 16 });
   ctx.occupa({ nome: 'mulino', z: c2.z, theta: c2.theta, yaw, larghezza: 9.5, profondita: 8 });
   posaChiodo(ctx, 'riale', cs7.numero, cs7.z, cs7.theta, 'cs_7', 'mulino', base + 0.1);
   if (pm['porta']) ctx.punto('apri:porta_mulino', 'apri', 'Porta del mulino', pm['porta'], { raggio: 2, luogo: 'mulino' });
@@ -184,7 +209,7 @@ export function costruisciFienile(ctx: Contesto): void {
     0.8,
   );
   const punti = ctx.posa('fienile', fienile, f.z, f.theta, yaw, { h: base, luogo: 'fienile_ottavio' });
-  if (portaStalla) gradiniPorta(ctx.zona('fienile'), f.z, f.theta, base, yaw, portaStalla, { luogo: 'fienile_ottavio', seme: 1176 });
+  if (portaStalla) gradiniLuogo(ctx, ctx.zona('fienile'), 'fienile_ottavio', f.z, f.theta, base, yaw, portaStalla, { luogo: 'fienile_ottavio', seme: 1176 });
   ctx.occupa({ nome: 'fienile_ottavio', z: f.z, theta: f.theta, yaw, larghezza: 7.4, profondita: 8.6 });
   // finestrella del fieno che guarda il prato e il riale, lume dentro
   const b = new Costruttore(1176);

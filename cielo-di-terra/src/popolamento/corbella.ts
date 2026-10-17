@@ -7,7 +7,7 @@ import { Group, Vector3 } from 'three';
 import type { Collider } from '../world/colliders';
 import { impostaIntensitaLumi } from '../oggetti/materiali';
 import { Abitanti, type ManigliaNpc } from './abitanti';
-import { distanzaLodPerQualita, impostaDistanzaLod, type PortaPosata, type VoceCollider } from './cantiere';
+import { distanzaLodPerQualita, impostaDistanzaLod, type PortaPosata, type ScalettaPosata, type VoceCollider } from './cantiere';
 import { LATI, PARTICELLE, RETE, luogo } from './contenuti';
 import { cylToWorld, worldToCyl } from '../world/cylinder';
 import { Contesto, type Impronta } from './contesto';
@@ -113,6 +113,8 @@ export interface ManigliaCorbella {
    * (con `tutteLeVarianti` anche le altre)
    */
   porte(tutteLeVarianti?: boolean): PortaPosata[];
+  /** le scalette di gneiss davanti alle porte (delle case mobili solo la variante attiva, o tutte) */
+  scalette(tutteLeVarianti?: boolean): ScalettaPosata[];
   /** le porte disegnate nelle versioni lontane delle zone (per la verifica dei LOD) e le zone che ne hanno una */
   porteLontane(): { porte: PortaPosata[]; zone: Set<string> };
   /** impronte occupate dal popolamento (case, annessi, luoghi), per le verifiche */
@@ -380,6 +382,12 @@ export function installaCorbella(game: GiocoCorbella, opzioni: OpzioniCorbella =
         visti.set(p.id, n);
         return n > 1 ? { ...p, id: `${p.id}_${n}` } : p;
       });
+    },
+    scalette(tutte = false) {
+      const out: ScalettaPosata[] = [];
+      for (const z of ctx.zone.values()) out.push(...z.scalette);
+      for (const e of elementiCostruiti.values()) for (const [id, v] of e.varianti) if (tutte || id === e.attiva) out.push(...v.scalette);
+      return out;
     },
     impronte: ctx.impronte,
     porteLontane() {
