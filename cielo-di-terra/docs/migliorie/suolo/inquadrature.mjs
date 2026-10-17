@@ -38,6 +38,19 @@ const A = [
   { id: 's06-gradoni-17', setup: (g) => { g.setTime(17.0); g.teleport(1120, 25.0, 0); const gr = g.game.world.groundAt(1100, 30); g.lookAt(1100, 30, gr - 2); } },
   // un sentiero di notte (la strada dei Ronchi)
   { id: 's05-sentiero-notte', setup: (g) => { g.setTime(22.6); g.teleport(1086, 42.1, 0); const gr = g.game.world.groundAt(1126, 44.2); g.lookAt(1126, 44.2, gr); } },
+  // (correzione, dopo la verifica indipendente: le sue inquadrature)
+  // la strada un poco più vicina al paese, e lo sguardo ai piedi: la strada e il prato a 4-5 m
+  { id: 's07-strada-vicina', setup: (g) => { g.setTime(6.5); g.teleport(1076, 32.1, 0); const gr = g.game.world.groundAt(1058, 33.9); g.lookAt(1058, 33.9, gr + 4); } },
+  { id: 's08-piedi-strada-7', setup: (g) => { g.setTime(7.0); g.teleport(1079, 31.7, 0); const gr = g.game.world.groundAt(1074, 32.2); g.lookAt(1074, 32.2, gr); } },
+  { id: 's08b-piedi-prato-7', setup: (g) => { g.setTime(7.0); g.teleport(1088, 31.0, 0); const gr = g.game.world.groundAt(1092, 31.6); g.lookAt(1092, 31.6, gr); } },
+  // il prato del Ronco a metà mattina (era giallo limone a mimetico), a Media e a Bassa
+  { id: 's09-ronco-9', setup: (g) => { g.setTime(9.0); g.teleport(1163, 54.0, 0); const gr = g.game.world.groundAt(1176, 58.5); g.lookAt(1176, 58.5, gr + 1); } },
+  { id: 's09b-ronco-9-bassa', q: 'bassa', setup: (g) => { g.setTime(9.0); g.teleport(1163, 54.0, 0); const gr = g.game.world.groundAt(1176, 58.5); g.lookAt(1176, 58.5, gr + 1); } },
+  // il piede del muraglione della Terrazza Pedrazzini (missione 1): era una campitura khaki
+  { id: 's10-pedrazzini-16', setup: (g) => { g.setTime(16.0); g.teleport(955, 23.8, 0); const gr = g.game.world.groundAt(948, 23.0); g.lookAt(948, 23.0, gr + 1); } },
+  // Gra di Pian alle 10 e il tramonto dal belvedere
+  { id: 's11-gra-pian-10', setup: (g) => { g.setTime(10.0); g.teleport(896, 18.3, 0); const gr = g.game.world.groundAt(890, 17.5); g.lookAt(890, 17.5, gr); } },
+  { id: 's12-tramonto-1918', setup: (g) => { g.setTime(19.3); g.teleport(1094, 29.8, 0); const gr = g.game.world.groundAt(1030, 26.5); g.lookAt(1030, 26.5, gr); } },
 ];
 
 function serve(dir, port) {

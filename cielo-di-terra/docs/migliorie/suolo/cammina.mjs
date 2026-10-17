@@ -2,6 +2,9 @@
 // che l'erba non «spunta» a scatti, che le zolle e i sassi non sfarfallano e che il bordo della strada
 // regge in movimento. Dalla cartella del gioco, dopo `npm run build:e2e`:
 //   node docs/migliorie/suolo/cammina.mjs <cartella> [--dist=<dist-e2e>] [--q=media] [--n=8] [--passi=30]
+// Con --w (correzione): come chi gioca, W tenuto sempre premuto dalla vista della segnalazione, un
+// fotogramma ogni `passi` passi a 60 Hz (--passi=6: uno ogni 0,1 s), a 1280×720:
+//   node docs/migliorie/suolo/cammina.mjs <cartella> --w --n=24 --passi=6 [--q=bassa]
 import { createRequire } from 'node:module';
 import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -17,6 +20,7 @@ const dist = arg('dist', join(root, 'dist-e2e'));
 const q = arg('q', 'media');
 const n = Number(arg('n', '8'));
 const passi = Number(arg('passi', '30'));
+const tenuto = process.argv.includes('--w');
 mkdirSync(outDir, { recursive: true });
 const CHROMIUM_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 
@@ -38,29 +42,41 @@ async function main() {
   const port = 7300 + Math.floor(Math.random() * 400);
   const server = await serve(dist, port);
   const browser = await chromium.launch({ headless: true, args: CHROMIUM_ARGS });
-  const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
+  const page = await browser.newPage({ viewport: tenuto ? { width: 1280, height: 720 } : { width: 960, height: 540 } });
   await page.goto(`http://127.0.0.1:${port}/`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForFunction(() => window.__GAME_READY__ === true && !!window.__GAME__, null, { timeout: 300000 });
-  await page.evaluate((q) => {
+  await page.evaluate(([q, tenuto]) => {
     const g = window.__GAME__;
     g.stopLoop(); g.pause(); g.setClockRunning(false);
     g.setSetting('qualita', q);
     g.setTime(6.5);
+    if (tenuto) {
+      g.teleport(1083, 31.3, 0);
+      const gr = g.game.world.groundAt(1058, 33.9);
+      g.lookAt(1058, 33.9, gr + 1.2);
+      g.ensureLoaded(); g.step(10); g.ensureLoaded();
+      g.holdKey('KeyW', true);
+      return;
+    }
     g.teleport(1090, 30.6, 0);
     const gr = g.game.world.groundAt(1060, 34.4);
     g.lookAt(1060, 34.4, gr + 1.5);
     g.ensureLoaded(); g.step(4);
-  }, q);
+  }, [q, tenuto]);
   for (let i = 0; i < n; i++) {
-    await page.evaluate((passi) => {
+    await page.evaluate(([passi, tenuto]) => {
       const g = window.__GAME__;
+      if (tenuto) {
+        g.step(passi);
+        return;
+      }
       g.holdKey('KeyW', true);
       g.step(passi);
       g.holdKey('KeyW', false);
       g.step(1);
-    }, passi);
+    }, [passi, tenuto]);
     const dataUrl = await page.evaluate(() => window.__GAME__.capture());
     writeFileSync(join(outDir, `cammina-${String(i).padStart(2, '0')}.png`), Buffer.from(dataUrl.split(',')[1], 'base64'));
     const p = await page.evaluate(() => { const s = window.__GAME__.getPlayerState(); return `z ${s.z.toFixed(1)} θ ${s.theta.toFixed(2)}`; });

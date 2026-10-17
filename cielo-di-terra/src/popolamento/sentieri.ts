@@ -186,6 +186,21 @@ function coloreNastro(tipo: TipoSentiero, s: number, u: number): RGB {
   return mix(c, ORLO_ERBA, erba);
 }
 
+/**
+ * La superficie dipinta dei nastri, dichiarata (migliorie, suolo, correzione). Con la superficie
+ * automatica (dal colore per vertice) il nastro di terra, dove le normali lisce seguono il terreno e
+ * girano più di ~0,45 rad per metro (sponde, gobbe, gradoni), si leggeva come «forma tonda» (tronco,
+ * sasso): perdeva la terra battuta, i sassi e il colore locale, e nella luce dorata restava una
+ * striscia o un triangolo salmone piatto sulla strada (la vista della segnalazione, la discesa dal
+ * belvedere verso il paese).
+ */
+export const SUPERFICIE_NASTRO: Record<TipoSentiero, number> = {
+  battuto: SUPERFICIE.TERRA,
+  lastre: SUPERFICIE.PIETRA + 0.45,
+  pettinato: SUPERFICIE.ERBA,
+  erba: SUPERFICIE.ERBA,
+};
+
 /** Il colore della terra battuta dei sentieri (anche quelli del popolamento mobile, vedi mobili.ts). */
 export function coloreTerraBattuta(s: number, u: number): RGB {
   return coloreNastro('battuto', s, u);
@@ -211,7 +226,7 @@ export function costruisciSentiero(ctx: Contesto, zona: string, nome: string, pu
     // (la terra battuta 8 cm sopra il suolo invece di 5: sulle sponde in diagonale il terreno, a
     // triangoli di 3 m, sbucava fra un vertice e l'altro del nastro e faceva una striscia chiara)
     const sopra = tipo === 'battuto' ? 0.08 : 0.05;
-    nastroSulSuolo(cant, punti, larghezza, 0.8, sopra, (s, u) => coloreNastro(tipo, s, u), undefined, tipo === 'battuto' ? { traverso: TRAVERSO_BATTUTO } : {});
+    nastroSulSuolo(cant, punti, larghezza, 0.8, sopra, (s, u) => coloreNastro(tipo, s, u), undefined, tipo === 'battuto' ? { traverso: TRAVERSO_BATTUTO, superficie: SUPERFICIE_NASTRO.battuto } : { superficie: SUPERFICIE_NASTRO[tipo] });
   }
   let gradini = 0;
   if ((opz.gradini ?? 'pietra') !== 'nessuno') {

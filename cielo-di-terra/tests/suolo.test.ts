@@ -7,10 +7,17 @@
  *   saturazione nella passata finale;
  * - l'erba vera cresce anche sopra i ripiani d'erba (terrazze, riempimenti dei muri), alla loro quota,
  *   e non fuori dal loro rettangolo.
+ * Correzione (dopo la verifica indipendente):
+ * - il nastro dei sentieri dichiara la sua superficie (terra battuta): con la superficie automatica,
+ *   dove le normali giravano, diventava «forma tonda» e restava una striscia salmone piatta;
+ * - il ginocchio della saturazione sta nello shader del suolo, non più nella passata finale;
+ * - il terreno dipinge fili d'erba in piedi vicino e terra nuda con sassolini;
+ * - l'erba vera tiene sui pendii fino a ~49° (prima si toglieva da 35°: scarpate nude).
  */
 import { describe, expect, it } from 'vitest';
 import { InstancedMesh, ShaderMaterial } from 'three';
-import { TRAVERSO_BATTUTO, coloreTerraBattuta } from '../src/popolamento/sentieri';
+import { SUPERFICIE_NASTRO, TRAVERSO_BATTUTO, coloreTerraBattuta, costruisciSentiero } from '../src/popolamento/sentieri';
+import { Contesto } from '../src/popolamento/contesto';
 import { RIPIANI_ERBOSI } from '../src/popolamento/ripiano';
 import { SUPERFICIE, superficieAutomatica } from '../src/render/superfici';
 import { createWorldMaterial } from '../src/render/worldMaterial';
@@ -50,6 +57,26 @@ describe('terra battuta dei sentieri', () => {
     for (const u of [-1, -0.6, 0, 0.6, 1]) expect(sat(coloreTerraBattuta(10, u))).toBeLessThan(vecchio);
   });
 
+  it('il nastro dichiara la terra battuta: niente superficie automatica che la scambia per un tronco', () => {
+    // la superficie automatica sulle forme «tonde» (normali che girano più di ~0,45 rad/m: le sponde,
+    // le gobbe, vicino ai gradini) non è terra: era lì che la strada restava salmone piatta
+    expect(superficieAutomatica(coloreTerraBattuta(10, 0), 1, 0, { curvo: true })).not.toBe(SUPERFICIE.TERRA);
+    expect(SUPERFICIE_NASTRO.battuto).toBe(SUPERFICIE.TERRA);
+    const ctx = new Contesto();
+    const punti = [
+      { z: 1500, theta: 4.0 },
+      { z: 1512, theta: 4.4 },
+      { z: 1520, theta: 5.1 },
+    ];
+    costruisciSentiero(ctx, 'prova', 'prova-suolo', punti, { tipo: 'battuto', gradini: 'nessuno' });
+    const parti = ctx.zona('prova').singolo.parti;
+    expect(parti.length).toBeGreaterThan(0);
+    for (const p of parti) {
+      expect(p.sup, 'il nastro ha aSuperficie').toBeDefined();
+      for (let i = 0; i < p.sup!.length; i += 2) expect(Math.floor(p.sup![i]! + 1e-3)).toBe(SUPERFICIE.TERRA);
+    }
+  });
+
   it('i vertici di traverso sono ordinati e vanno da −1 a 1', () => {
     expect(TRAVERSO_BATTUTO[0]).toBe(-1);
     expect(TRAVERSO_BATTUTO[TRAVERSO_BATTUTO.length - 1]).toBe(1);
@@ -71,6 +98,16 @@ describe('shader del suolo', () => {
     expect(TERRENO_GLSL).toContain('return grass;');
   });
 
+  it('il terreno dipinge fili d\'erba in piedi vicino e la terra nuda con sassolini', () => {
+    expect(TERRENO_GLSL).toContain('vec3 filiErba(');
+    expect(TERRENO_GLSL).toContain('vec3 terraDipinta(');
+    // i fili si spengono con uSuolo.z (vivo da console) e stanno nel prato dipinto
+    expect(TERRENO_GLSL).toMatch(/vfil = [^;]*uSuolo\.z/);
+    expect(createWorldUniforms().uSuolo.value.z).toBe(1);
+    // i tocchi di pennello non stanno più tutti nello stesso angolo: ogni cella ha il suo verso
+    expect(TERRENO_GLSL).toMatch(/vec2 dv = normalize\(base \+ \(hash22/);
+  });
+
   it("l'erba prende solo il colore delle chiazze del prato e tiene il suo colore", () => {
     const fs = creaMaterialeNatura(u, { tipo: 'erba' }).fragmentShader;
     expect(fs).toContain('pratoColore(s.albedo');
@@ -78,13 +115,15 @@ describe('shader del suolo', () => {
     expect(TERRENO_GLSL).toContain('vec3 pratoColore(');
   });
 
-  it('la passata finale ha il ginocchio della saturazione, tarato fra 0,5 e 0,7', () => {
-    expect(FRAG_FINALE).toContain('uSatGinocchio');
-    const [soglia, pendenza] = PARAMETRI_PREDEFINITI.ginocchioSaturazione;
-    expect(soglia).toBeGreaterThan(0.5);
-    expect(soglia).toBeLessThan(0.7);
-    expect(pendenza).toBeGreaterThan(0);
-    expect(pendenza).toBeLessThan(1);
+  it('il ginocchio della saturazione vale solo per il suolo e l\'erba, non nella passata finale', () => {
+    // (correzione: nella passata finale spegneva anche i castagni d'autunno e le vesti rosse)
+    expect(FRAG_FINALE).not.toContain('uSatGinocchio');
+    expect('ginocchioSaturazione' in PARAMETRI_PREDEFINITI).toBe(false);
+    for (const kind of ['terrain', 'object'] as const) {
+      const fs = (createWorldMaterial(u, { kind }) as ShaderMaterial).fragmentShader;
+      expect(fs).toContain('ginocchioSuolo(col)');
+    }
+    expect(creaMaterialeNatura(u, { tipo: 'erba' }).fragmentShader).toContain('ginocchioSuolo(coloreLocale(');
   });
 });
 

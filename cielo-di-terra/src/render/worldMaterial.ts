@@ -168,7 +168,7 @@ void main() {
 #ifdef TERRAIN
   // curvatura dal vertice (render/terrainMesh.ts): conche più scure, dossi più chiari (±12%)
   // (solo fino a qualche centinaio di metri: lontano, sui triangoli grandi, farebbe increspature)
-  float curvT = clamp((vColor.a - 0.2235) / 0.2235, -1.0, 1.0) * (1.0 - smoothstep(300.0, 650.0, dist));
+  float curvT = clamp((vColor.a - 0.2235) / 0.2235, -1.0, 1.0) * (1.0 - smoothstep(300.0, 650.0, dist)) * step(uDebugView, 2.5);
   s.albedo *= 1.0 - curvT * 0.12;
   s.ao *= 1.0 - max(curvT, 0.0) * 0.15;
   // ombra degli alberi (rifinitura 2): dove ci sono le ombre portate le fa la mappa d'ombra; oltre,
@@ -212,7 +212,11 @@ void main() {
   tone = 1.0;
 #else
   vec3 col = shadeSup(s, N, P, V, tone);
-  if (kLocale > 0.0) col = coloreLocale(col, s.albedo, quotaColoreLocale() * kLocale);
+  if (kLocale > 0.0) {
+    col = coloreLocale(col, s.albedo, quotaColoreLocale() * kLocale);
+    // (solo il suolo: i muri, le case, i personaggi e il cielo restano saturi come sono)
+    col = mix(col, ginocchioSuolo(col), min(kLocale, 1.0));
+  }
   // bordo dipinto: le campiture viste di taglio si scuriscono appena
   float rimD = 1.0 - abs(dot(N, V));
   col *= 1.0 - smoothstep(0.75, 1.0, rimD) * 0.12;

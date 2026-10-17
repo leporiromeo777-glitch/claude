@@ -339,7 +339,7 @@ void main() {
   vec3 col = shadeSup(s, N, P, V, tone);
 #ifdef ERBA
   // erba, felci e fiori tengono il loro colore nella luce dorata, come il prato sotto (migliorie, suolo)
-  col = coloreLocale(col, s.albedo, quotaColoreLocale());
+  col = ginocchioSuolo(coloreLocale(col, s.albedo, quotaColoreLocale()));
 #endif
   col = dipintoNatura(col, P, N, V, dist, tone, suv);
   // viste di prova (come worldMaterial): 1 = normali, 2 = albedo

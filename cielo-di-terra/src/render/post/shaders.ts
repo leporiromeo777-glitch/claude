@@ -310,7 +310,6 @@ uniform float uGinocchio;
 uniform vec4 uGrade;         // x saturazione, y vibranza, z contrasto, w perno del contrasto
 uniform vec3 uLuci;          // tinta delle luci
 uniform vec3 uOmbre;         // tinta delle ombre
-uniform vec2 uSatGinocchio;  // x soglia (saturazione HSV), y pendenza sopra la soglia (1 = spento)
 uniform float uNotte;
 varying vec2 vUv;
 
@@ -413,19 +412,6 @@ vec3 correggi(vec3 c) {
   // viraggio: luci calde, ombre fredde (più viola di notte)
   float h = smoothstep(0.15, 0.85, l);
   c *= mix(uOmbre, uLuci, h);
-  // ginocchio della saturazione (migliorie, suolo): sopra la soglia la saturazione cresce meno, solo
-  // per i colori caldi e d'erba (il blu è il canale più basso: terra, prato, pietra al sole, legno).
-  // La mappatura dei toni e la correzione portavano il prato e la strada al sole a 0,78 (HSV), un
-  // arancione pieno; nei bozzetti i prati e i campi stanno fra 0,45 e 0,6. Il cielo, le ombre
-  // viola e i lumi non cambiano. Tinta e valore (il canale più forte) restano
-  float mx = max3(c);
-  float mn = min(c.r, min(c.g, c.b));
-  float sv = mx > 1e-4 ? (mx - mn) / mx : 0.0;
-  float caldo = smoothstep(0.0, 0.04, min(c.r, c.g) - c.b) * (1.0 - uNotte);
-  if (sv > uSatGinocchio.x && caldo > 0.0) {
-    float sn = uSatGinocchio.x + (sv - uSatGinocchio.x) * uSatGinocchio.y;
-    c = mix(c, mx - (mx - c) * (sn / sv), caldo);
-  }
   return clamp(c, 0.0, 1.0);
 }
 

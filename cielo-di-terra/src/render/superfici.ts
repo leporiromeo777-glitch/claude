@@ -566,18 +566,38 @@ void supTerra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
     // dominio deformato: sassi di forma irregolare, non dischi
     vec2 w = uv * 5.0 + 4.1;
     w += (vec2(vnoise2(w * 1.3), vnoise2(w * 1.3 + 7.7)) - 0.5) * 0.7;
-    vec3 vo = voronoi4(w);
-    float tono = hash12(vec2(vo.z * 91.0, 3.0));
-    float r = mix(0.13, 0.27, hash12(vec2(vo.z * 37.0, 1.0)));
-    float c0 = step(0.74, vo.z);
-    float sasso = c0 * (1.0 - smoothstep(r - 0.06, r, vo.y));
-    float piede = c0 * (1.0 - smoothstep(r, r + 0.1, vo.y)) * (1.0 - sasso);
-    vec3 sc = mix(vec3(0.6, 0.58, 0.54), vec3(0.72, 0.69, 0.63), tono) * (0.92 + 0.16 * m);
-    // la faccia del sasso: chiara in cima, più scura verso il bordo
-    sc *= 0.88 + 0.16 * (1.0 - vo.y / max(r, 1e-3));
-    lc = mix(lc, mix(lc, sc, 0.75), sasso * vs);
-    lc *= 1.0 - piede * 0.06 * vs;
-    s.ao *= 1.0 - piede * 0.1 * vs;
+    // (correzione: la cella più vicina col suo vettore, per la luce sul sasso e l'ombra da una parte
+    // sola: con l'anello scuro tutto attorno i sassi sembravano pozze bianche o buchi)
+    vec2 n0 = floor(w - 0.5);
+    vec2 f0 = w - n0;
+    float d1 = 8.0;
+    vec2 r1 = vec2(0.0);
+    vec2 c1 = vec2(0.0);
+    for (int k = 0; k < 4; k++) {
+      vec2 g = vec2(float(k & 1), float(k >> 1));
+      vec2 rr = g + hash22(n0 + g) * 0.5 + 0.25 - f0;
+      float dd = dot(rr, rr);
+      if (dd < d1) { d1 = dd; r1 = rr; c1 = n0 + g; }
+    }
+    float id = hash12(c1 + 0.37);
+    float dist = sqrt(d1);
+    float tono = hash12(vec2(id * 91.0, 3.0));
+    float r = mix(0.12, 0.24, hash12(vec2(id * 37.0, 1.0)));
+    float c0 = step(0.76, id);
+    float sasso = c0 * (1.0 - smoothstep(r - 0.05, r, dist));
+    // la luce viene da una parte (fissa nel mondo): il sasso è chiaro da quella, l'ombra dall'altra
+    vec2 dirL = vec2(-0.6, 0.8);
+    float lato = dot(-r1 / max(dist, 1e-3), dirL);
+    float piede = c0 * (1.0 - smoothstep(r, r + 0.12, dist)) * (1.0 - sasso) * smoothstep(0.0, 0.6, -lato);
+    vec3 sc = mix(vec3(0.54, 0.52, 0.49), vec3(0.67, 0.64, 0.59), tono) * (0.92 + 0.16 * m);
+    sc *= 0.84 + 0.26 * clamp(0.5 + lato * 0.5 * (dist / max(r, 1e-3)), 0.0, 1.0);
+    lc = mix(lc, mix(lc, sc, 0.6), sasso * vs);
+    lc *= 1.0 - piede * 0.18 * vs;
+    s.ao *= 1.0 - piede * 0.12 * vs;
+    // terra mossa a media scala: impronte, solchi appena accennati
+    lc *= 1.0 + (vnoise2(uv * 3.1 + 2.0) - 0.5) * 0.12 * vs;
+    // grumi e impronte: la terra battuta da vicino non è liscia
+    lc *= 1.0 + (vnoise2(uv * 11.0 + 5.0) - 0.5) * 0.14 * vs;
   }
   // luce sfumata, quasi senza bande: sulla strada appena bombata le tre bande di luce delle campiture
   // disegnavano strisce parallele (una rosso mattone nella luce radente)
@@ -586,7 +606,8 @@ void supTerra(inout Sup s, vec3 P, vec2 uv, float pix, float var) {
     // ghiaino: sassolini tondi (celle), chiari e scuri, che spariscono presto con la distanza
     vec3 vo = voronoi4(uv * 18.0 + 1.7);
     float pebble = step(0.8, vo.z) * (1.0 - smoothstep(0.18, 0.32, vo.y)) * (1.0 - smoothstep(0.008, 0.025, pix));
-    lc = mix(lc, vo.z > 0.9 ? lc * 1.3 + 0.04 : lc * 0.68, pebble * 0.6);
+    // (correzione: meno contrasto: erano puntini neri regolari)
+    lc = mix(lc, vo.z > 0.9 ? lc * 1.18 + 0.025 : lc * 0.8, pebble * 0.45);
   }
   s.albedo = lc;
 }
