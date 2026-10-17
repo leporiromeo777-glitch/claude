@@ -11,6 +11,126 @@ testa **tremavano** a ogni battuta per un errore nel respiro. Adesso si gira con
 piccoli cenni lenti; un gesto morbido ogni tanto (mai con le mani occupate); il respiro è continuo; chi è
 seduto o chino resta com'è e gira solo la testa.
 
+Una verifica indipendente (voto 7/10) ha trovato poi quattro cose, una nuova per colpa della prima tornata:
+**con Elvira che arriva da dietro la testa guardava dalla parte sbagliata** e, quando il corpo si girava,
+attraversava di colpo tutto il collo; nel giro ampio **i piedi strisciavano** all'inizio e alla fine di ogni
+passo; **dieci secondi dopo il dialogo** chi aveva parlato voltava le spalle a Elvira anche se lei era ancora
+lì; **Clelia spariva in un fotogramma** dopo il dono. Sono corrette tutte e quattro: vedi la sezione
+«Seconda tornata», più sotto.
+
+## Seconda tornata: quello che ha trovato la verifica
+
+Ogni difetto l'ho prima riprodotto (una prova in Node sui 13 modelli veri che fallisce sul codice di
+`f8a00fc` con i numeri della verifica, e le sequenze del gioco vero della verifica come «prima»), poi
+corretto e rifatto nel gioco vero con lo stesso copione: Elvira arriva camminando, si apre il dialogo col
+tasto E, si legge e si va avanti con Invio, poi resta lì e infine se ne va (`tools/personaggi/prova-dialoghi.mjs`,
+Vite in modo e2e, Chromium SwiftShader, passi fissi di 1/60 s, misure a 60 Hz).
+
+### 1. La testa dalla parte sbagliata (la regressione) — media
+
+**Che cosa si vedeva.** Giorno 2, 15:00, prato del Ronco: Elvira arriva da dietro a sinistra di Ottavio
+(110° dal suo avanti). Fino all'apertura del dialogo si vedeva la nuca di Ottavio, girata via da lei; poi,
+mentre il corpo si girava, la testa attraversava tutto il collo a 160°/s rispetto al corpo (232°/s nel
+mondo, oltre la soglia di 120°/s che ci si era dati per petto, collo e testa). Su tutti i 13 modelli.
+
+**La causa.** In `sguardo()` (animatore.ts) la prima tornata aveva messo, per chi sta oltre 100° dall'avanti,
+`yawB = sign(this.yaw.x || _w.x || 1) · limite`: la testa restava sulla spalla da cui era già girata. Se uno
+sguardo distratto l'aveva girata dall'altra parte (una volta su due), guardava lontano da Elvira; appena,
+girandosi il corpo, Elvira scendeva sotto i 100°, il bersaglio cambiava lato e la molla dello sguardo
+correva alla sua velocità massima (160°/s), nello stesso verso del corpo.
+
+**La correzione.**
+- La testa guarda **dalla parte di Elvira** (il segno del suo angolo), fin dove può. Solo quando lei è quasi
+  dietro la schiena (oltre `CONVERSAZIONE.sguardoDietro` = 155°, cioè a meno di 25° dalla schiena) il lato
+  resta quello di prima (isteresi: chi le passa di poco dietro le spalle non fa saltare la testa); se in
+  quel momento il corpo si sta girando, il lato è quello verso cui gira, perché è da lì che lei gli comparirà
+  davanti. Lo stesso nella figura procedurale di riserva (abitante.ts).
+- Il corpo si gira **dal lato della testa**: con Elvira a più di 140° (`rivolgiVerso`) il popolamento chiede
+  alla figura da che parte sta guardando (`puntoSguardoPersonaggio`, dalla fabbrica o dalla figura
+  procedurale) e, se è l'altra rispetto alla via più corta, fa il giro lungo (al più una ventina di gradi in
+  più: `pianoGiro(…, verso)`). Così la testa, già girata verso di lei, non deve mai passare all'altra spalla.
+- La molla dello sguardo va al più a **110°/s** (era 160): la testa nello spazio della figura gira quanto lo
+  sguardo, e così resta sotto i 120°/s anche quando Elvira passa davvero da una spalla all'altra.
+
+**Dopo.** In Node (`sguardoDaDietro`, Elvira a ±110° e ±150° mentre lui guardava dall'altra parte, 13
+modelli): prima la testa all'apertura era a −76° (dalla parte opposta), andava a 163°/s nella figura e
+237°/s nel mondo, cambiava spalla su tutti i modelli; adesso è a +71…+72° dalla sua parte, al più 61°/s
+nella figura e 75°/s nel mondo, mai dalla parte sbagliata. Col giro lungo (Elvira a 170° dalla parte
+opposta alla testa): 58°/s e 75°/s, la testa non cambia spalla. Nel gioco vero, Ottavio al prato: la testa
+nello spazio della figura da 163 a 58°/s, il collo da 112 a 40°/s, il petto da 80 a 28°/s; la nuca non si
+vede più, il viso è girato verso Elvira già mentre lei arriva (`parlare/testa-da-dietro.jpg`).
+
+### 2. Il giro ampio: i piedi strisciavano — bassa
+
+**Che cosa si vedeva.** Con Elvira alle spalle (160°) il giro dura 3,2 s e ogni passo cominciava e finiva
+strisciando: in gioco i piedi a terra arrivavano a 0,6 m/s (Bortolo da dietro), in Node a 165° il 95°
+percentile era 0,11-0,26 m/s e il massimo 0,4-0,7 m/s; il piede fermo si torceva fino a 26-31° rispetto al
+bacino (un istante a gambe «a forbice»).
+
+**La causa** (misurata fotogramma per fotogramma, `aggiornaGiro`): il piede in aria andava da dov'era a
+dove si posava **rispetto al corpo**, a mezzo coseno. Nel fotogramma in cui si staccava e in quello in cui
+si posava la sua velocità relativa era zero, cioè nel mondo correva con il corpo che girava (0,3 m/s alla
+caviglia, che sta a 21 cm dal centro del giro): appena posato si fermava di colpo. In più si alzava alla
+quarta del seno (sotto 1,5 cm per metà del passo, mentre girava già), il primo passo partiva quando il corpo
+cominciava appena a girare (senza sapere dove posarsi: il piede restava indietro di 45°) e il punto dove
+posarsi era limitato a 0,18 rad, troppo poco per centrare la torsione.
+
+**La correzione.**
+- La traiettoria del piede in aria è **nel mondo**: parte ferma da dov'era e arriva ferma dove si posa (il
+  punto dove sarà il corpo, previsto con la velocità e l'accelerazione del giro, `giroAcc`).
+- Il piede **si alza prima di girare e si posa dopo**: su in un terzo del passo (`passoGiroSu`), gira solo
+  fra il 12 e l'88 per cento (`passoGiroGira`), alzata 0,022·H.
+- Dove si posa: avanti di metà del giro di un passo (fino a 0,35 rad): girando di continuo i piedi stanno
+  fra ±20° rispetto al corpo; il piede a terra **ruota un po' sul posto** (sulla caviglia, il 40 per cento:
+  `passoGiroPerno`), così la gamba si torce meno.
+- Il passo «per sistemare i piedi» a corpo fermo non parte più quando il corpo comincia appena a girare, e
+  l'IK dei piedi girati entra più svelta (finché il suo peso era basso i piedi seguivano il corpo).
+
+**Dopo.** In Node sui 13 modelli: a ±165° piedi a terra al 95° percentile 0,001-0,003 m/s (prima
+0,11-0,26), al più 0,02-0,14 (prima 0,39-0,69), torsione piede-bacino 19° (prima 26-27°); a 120°: 0,010-0,022
+e al più 0,06-0,14 (prima 0,05-0,13 e 0,42-0,75), torsione 22° (prima 31°); a 75° (il giro di tutti i
+giorni): 0,010-0,022 e al più 0,07-0,17 (prima 0,02-0,06 e 0,36-0,63), torsione 24° (prima 32°); gambe al
+più 202°/s e 4600°/s² (soglie 320 e 6000). Anche l'IK dei piedi entra più svelta all'inizio del giro (la
+molla del peso a k = 14 invece di 7: finché il peso era basso i piedi seguivano un po' il corpo). Nel gioco vero, Bortolo da dietro: piedi a terra durante il giro da 0,125 a
+0,006 m/s (95° percentile) e da 0,60 a 0,10 m/s al più; nessun osso oltre i 300°/s
+(`parlare/giro-ampio.jpg`). La durata del giro (3,2 s a 160°) non è cambiata: 75°/s di punta, come una
+persona che si gira con calma.
+
+### 3. Dopo il dialogo voltava le spalle a Elvira — bassa
+
+**La causa.** `DOPO_DIALOGO.max = 10` (png.ts): dieci secondi dopo la chiusura chi aveva parlato tornava al
+verso del suo posto anche con Elvira ferma a 1,8 m; se lei era arrivata da dietro, le voltava le spalle con
+un giro di 160° (nel gioco: Bortolo a 30,1 s, Ottavio a 59 s).
+
+**La correzione.** Niente più massimo: resta rivolto a Elvira finché lei gli sta vicino (4,5 m), per quanto
+ci resti; torna alle sue cose quando lei si è allontanata da 1,5 s (e non prima di 2,5 s dalla fine del
+dialogo). Se lei, ferma, gli è girata attorno (oltre 50° dal suo avanti), si rigira con calma verso di lei;
+se gli passa accanto camminando per andarsene la segue solo con la testa. E chi cammina con Elvira alle
+spalle (oltre 110°) guarda dove va, invece di voltarsi per tutto il cammino (a meno che non le stia
+parlando in quel momento).
+
+**Dopo.** Nel gioco vero, Bortolo e Ottavio restano rivolti a Elvira per tutti i 16 e 11 s in cui lei resta
+lì; prima, 10 s dopo la chiusura, cominciavano a voltarle le spalle con lei ancora lì (Bortolo da 160° verso
+0°, Ottavio da 104° a 53°). Quando lei se ne va tornano al loro verso (`parlare/giro-ampio.jpg`, il grafico
+del giro).
+
+### 4. Clelia spariva dopo il dono — bassa
+
+**La causa.** Appena `d_clelia_dono` risulta finito, `postoDiClelia` dà «via» e `condizioni` la nascondeva
+(`mostra(false)`): 0,15 s dopo l'ultima battuta, con la lettera della Madre aperta. Chiusa la lettera, la
+novizia non c'era più, mentre la didascalia dice «si inchina appena e se ne va verso la Casa del Velo».
+
+**La correzione.** Se è lì alla Bacheca, Clelia fa un piccolo cenno, aspetta che il dialogo sia chiuso, si
+gira con calma (a passi, senza lasciare gli ultimi gradi alla testa: `rivolgiVerso(punto, true)`) e va a
+piedi alla Casa del Velo (1 m/s, la via dritta dalla Bacheca alla porta è libera: controllato sui
+collisori del paese); arrivata alla porta entra. Il pacchetto non lo tiene più in mano
+(`ripostoOggettoPersonaggio`: un oggetto di scena «messo via» resta nascosto anche quando cambia il livello
+di dettaglio). Se la si ritrova altrove (un salvataggio, un'altra ora) vale quello che c'era: alla Casa del
+Velo dalle 20, nessuno di notte.
+
+**Dopo.** Nel gioco vero, a 1280×720 con l'interfaccia: chiusa la lettera Clelia è ancora lì, poi si gira e
+se ne va; a 32 s è entrata nella Casa del Velo (`parlare/clelia-se-ne-va.jpg`).
+
 ## Come ho guardato: i provini dei dialoghi veri
 
 `tools/personaggi/provini-parlare.mjs` gioca i dialoghi veri della Fase 1 con la regia (Vite in modo e2e,
@@ -101,15 +221,17 @@ con cartone e forbici, Nando con la pietra in mano, Clelia alla Bacheca (dialogo
 - `Abitanti.voltaVerso` chiama `rivolgiVerso`; i bambini (che parlano a turno) si girano tutti e due; la
   didascalia «Non si gira» (Togna alla vasca) lascia il corpo com'è, ma lo sguardo va a Elvira.
 - Finito il dialogo (`DirettoreDialoghi.chiudi` → `Abitanti.fineDialogo`) chi ha parlato resta rivolto a
-  Elvira finché lei è lì (al più 10 s; 2,5 s se si allontana oltre 3,5 m) e poi torna piano alle sue cose.
+  Elvira finché lei è lì (entro 4,5 m, senza limite di tempo; se lei, ferma, gli gira attorno si rigira) e
+  poi, quando lei se ne va, torna piano alle sue cose (seconda tornata: prima al più 10 s).
   Durante il dialogo (e subito dopo) la guarda anche da lontano (fino a 40 m: il dialogo automatico della
   novizia si apre fino a 25).
 - Ottavio che atterra o arriva vicino a Elvira si gira con calma (prima: di colpo).
 - I **piedi seguono il corpo a passi** (`aggiornaGiro`/`gambeGiro` nell'animatore): la figura riceve dalla
   fabbrica quanto sta girando (`StatoPersonaggio.giro`, °/s, dallo yaw del gruppo); i piedi restano piantati
-  finché lo scarto con il corpo supera 0,15 rad, poi un passo di 0,44 s (alzata a sin⁴: si stacca e si posa
-  a velocità nulla), alternando i piedi; il bacino si abbassa appena (1,4 cm) durante il passo. Senza i
-  passi, con un giro morbido i piedi avrebbero ruotato sul posto come su un piatto girevole.
+  finché lo scarto con il corpo supera 0,15 rad, poi un passo di 0,44 s, alternando i piedi; il bacino si
+  abbassa appena (1,4 cm) durante il passo. Senza i passi, con un giro morbido i piedi avrebbero ruotato
+  sul posto come su un piatto girevole. (Nella seconda tornata il piede in aria segue una traiettoria nel
+  mondo, si alza prima di girare e si posa dopo, e il piede a terra ruota un po' sul posto: vedi sopra.)
 - `quota()` del popolamento cerca la seduta anche fra i collisori del mondo marcati `passerella`: Ottavio
   siede sulle assi della passerella del riale, non sul fondo.
 
@@ -137,9 +259,10 @@ con cartone e forbici, Nando con la pietra in mano, Clelia alla Bacheca (dialogo
 
 - Il respiro è una **fase accumulata** (`faseRespiro += dt·2π/periodo`): cambiare il periodo mentre si parla
   cambia la velocità, non la fase. Niente tremito, qualunque sia l'ora di gioco.
-- Lo **sguardo è una molla critica** (`molla`, k = 4,5 1/s, al più 160°/s), del secondo ordine: parte e
-  arriva con velocità nulla. Con Elvira dietro le spalle la testa si gira fin dove può dal lato da cui è
-  già girata (prima seguiva il segno di x e scattava da una spalla all'altra).
+- Lo **sguardo è una molla critica** (`molla`, k = 4,5 1/s, al più 110°/s dalla seconda tornata), del
+  secondo ordine: parte e arriva con velocità nulla. Con Elvira dietro le spalle la testa si gira dalla sua
+  parte, fin dove può, con l'isteresi a 155° (vedi «Seconda tornata»: la prima versione teneva il lato da cui
+  la testa era già girata e una volta su due guardava dalla parte sbagliata).
 - Le **figure procedurali** (src/oggetti/oggetti/abitante.ts) hanno la stessa molla per lo sguardo e un
   cenno del capo (giù e su a mezzo coseno, 0,85 s) alla battuta. Mentre si girano verso chi parla il
   popolamento le fa camminare sul posto (non hanno i piedi a terra): il peso della camminata e quello dei
@@ -168,14 +291,22 @@ Tutto in costanti con un nome, una riga di commento ciascuna:
   - `cenno` (0,7), `cennoAmp` (3,5-6°), `cennoDurata` (0,75-1 s): il cenno del capo a inizio battuta;
   - `capo` (1,6°): quanto si muove il capo mentre parla;
   - `respiro` (1,0°) e `respiroParla` (+30 %): l'ampiezza del respiro, un po' più ampio parlando;
-  - `sguardoK` (4,5 1/s) e `sguardoVmax` (160°/s): la molla dello sguardo;
-  - `passoGiro` (0,15 rad), `passoGiroDurata` (0,44 s), `passoGiroAlzata` (0,026·H): i passi con cui i
-    piedi seguono il corpo che si gira.
+  - `sguardoK` (4,5 1/s) e `sguardoVmax` (110°/s): la molla dello sguardo; `sguardoDietro` (155°): oltre
+    quest'angolo dall'avanti chi guarda è «dietro la schiena» e il lato della testa ha l'isteresi;
+  - `passoGiro` (0,15 rad), `passoGiroDurata` (0,44 s), `passoGiroAlzata` (0,022·H): i passi con cui i
+    piedi seguono il corpo che si gira; `passoGiroSu` (un terzo del passo per alzarsi e per posarsi),
+    `passoGiroGira` (il piede gira fra il 12 e l'88 per cento del passo, quando è su), `passoGiroAvanti`
+    (0,35 rad: quanto avanti si posa al più), `passoGiroPerno` (0,4: quanto il piede a terra ruota sul
+    posto con il corpo).
 - `GIRO` in `src/popolamento/abitanti.ts` (75°/s, 250°/s², almeno 0,7 s): il giro del corpo intero verso
   chi parla e il ritorno; `pianoGiro`/`posizioneGiro` sono la curva (Hermite, velocità continua).
-- La soglia dei 25° sotto la quale gira solo la testa è in `ManigliaNpc.rivolgiVerso`.
-- `DOPO_DIALOGO` in `src/regia/png.ts` (2,5 / 10 s, 3,5 m): quanto chi ha parlato resta rivolto a Elvira
-  dopo il dialogo.
+- La soglia dei 25° sotto la quale gira solo la testa è in `ManigliaNpc.rivolgiVerso`, e lì anche i 140°
+  oltre i quali il corpo si gira dal lato della testa (`puntoSguardoPersonaggio`).
+- `DOPO_DIALOGO` in `src/regia/png.ts` (`min` 2,5 s, `vicino` 4,5 m, `via` 1,5 s, `rigira` 50°): chi ha
+  parlato resta rivolto a Elvira finché lei è entro `vicino`, si rigira se lei, ferma, è oltre `rigira`
+  gradi dal suo avanti, torna alle sue cose quando lei è lontana da `via` s. `DIETRO_IN_CAMMINO` (110°): chi
+  cammina non si volta a guardarla se lei gli sta così dietro. `CLELIA_VIA` (1 m/s, 1,2 m dalla porta):
+  Clelia che se ne va alla Casa del Velo.
 - `durataBattuta` in `src/regia/dialoghi.ts`: per quanto «parla» chi dice una battuta (dal testo).
 
 ## Le prove
@@ -199,6 +330,25 @@ Tutto in costanti con un nome, una riga di commento ciascuna:
   il dialogo torna piano; l'accelerazione è limitata; sotto i 25° gira solo la testa; Annunciata seduta non
   gira e non si alza; Ottavio il giorno 3 sta sulle assi della passerella; `orientaVerso` resta immediato.
 - `tests/personaggi/modulo.test.ts`: la prova del cenno riscritta (si vede, ma sotto 1,6 rad/s).
+
+Seconda tornata (tutte falliscono sul codice di `f8a00fc`, con i numeri della verifica):
+- `parlare.test.ts`, «Elvira arriva da dietro» (13 + 1 prove, `sguardoDaDietro` in `conversazione.ts`):
+  Elvira a ±110° e ±150° mentre la testa guardava dall'altra parte; all'apertura del dialogo la testa è
+  dalla sua parte (oltre 55°), non passa mai dalla parte opposta né all'altra spalla, e va sotto i 120°/s
+  nella figura e nel mondo mentre il corpo si gira; a 170° col giro lungo dal lato della testa, idem; chi le
+  passa dietro le spalle cambia spalla una volta sola, sotto i 120°/s.
+- `parlare.test.ts`, «il giro ampio» (13 prove): a ±165° e 120° piedi a terra al 95° percentile sotto
+  0,05 m/s e al più 0,25 m/s, torsione piede-bacino sotto i 27°, gambe sotto 320°/s e 6000°/s², petto e
+  testa sotto i 120°/s; `conversazione.ts` misura anche la torsione dei piedi.
+- `parlare.test.ts`, «Clelia»: il pacchetto si mette via e resta via mentre la figura si anima.
+- `tests/popolamento/girarsi-dietro.test.ts` (2 prove, i personaggi veri nel paese vero): Bortolo con la
+  testa girata da una parte ed Elvira a 170° dall'altra si gira dal lato della testa (185° invece di 165°)
+  e la testa non cambia spalla, sotto i 120°/s. `girarsi.test.ts`: lo stesso per la figura procedurale.
+- `tests/regia/catasto-abitanti.test.ts`: finito il dialogo Bortolo resta rivolto a Elvira per 30 s con lei
+  lì (prima: a 11 s era già girato di 46°), si rigira con calma se lei, ferma, gli gira attorno, non la
+  insegue col corpo se lei gli passa accanto camminando, torna al suo verso quando lei se ne va; Clelia,
+  dato il dono, se ne va a piedi (al più 1,15 m/s, nessun salto) ed entra alla porta della Casa del Velo
+  dopo più di 20 s (prima spariva dopo 0,5 s).
 
 Sul codice di prima (`49e41d8`, con le stesse prove adattate alle API di allora) falliscono 21 delle prime
 25 prove (le quattro che passano sono prove del popolamento che sul codice di allora, senza
@@ -246,16 +396,17 @@ il velato con la gerla (9 cm) ci stanno già a riposo, prima e dopo, senza parla
 
 ### I confronti (docs/migliorie/parlare/)
 
-Ogni foglio: a sinistra prima, a destra dopo; sopra dagli occhi di Elvira, sotto di lato; 4 fotogrammi al
-secondo; bordo rosso dove nei 100 ms prima un osso ha superato i 400°/s o il corpo i 90°/s. I `-misure`
-sono i grafici delle misure a 60 Hz delle due versioni.
+Prima tornata. Ogni foglio: a sinistra prima, a destra dopo; sopra dagli occhi di Elvira, sotto di lato; 4
+fotogrammi al secondo; bordo rosso dove nei 100 ms prima un osso ha superato i 400°/s o il corpo i 90°/s.
+`misure.jpg` raccoglie i grafici delle misure a 60 Hz di tre scene (Ottavio in piedi, Bortolo, il dialogo
+lungo con Ottavio), prima sopra e dopo sotto.
 
-- `ottavio-in-piedi.jpg`, `ottavio-in-piedi-misure.jpg`: il giro di colpo e il ritorno (prima); il giro a
-  passi in 1,4 s, la testa che rientra mentre il corpo gira, niente gesti rigidi (dopo).
+- `ottavio-in-piedi.jpg` (e il primo grafico di `misure.jpg`): il giro di colpo e il ritorno (prima); il
+  giro a passi in 1,4 s, la testa che rientra mentre il corpo gira, niente gesti rigidi (dopo).
 - `ottavio-seduto.jpg`: prima nel riale e ruota sul posto; dopo sulle assi, fermo, un gesto lento della
   mano alla terza battuta.
 - `togna-china.jpg`: prima la mano esce dalla vasca e va al petto; dopo resta al lavoro, gira la testa.
-- `bortolo.jpg`, `bortolo-misure.jpg`: prima giro e ritorno, la mano attraverso il corpo, il braccio teso;
+- `bortolo.jpg` (e il secondo grafico di `misure.jpg`): prima giro e ritorno, la mano attraverso il corpo, il braccio teso;
   dopo il giro a passi e le mani dietro la schiena per tutto il dialogo.
 - `annunciata-seduta.jpg`, `pina-seduta.jpg`: prima ruotano sul sedile; dopo restano sedute e girano la
   testa.
@@ -263,11 +414,24 @@ sono i grafici delle misure a 60 Hz delle due versioni.
   pietra in mano.
 - `bambini.jpg`: dopo si girano tutti e due, a passetti.
 - `clelia-lontana.jpg`: da 16 m prima trema e non si gira; dopo si gira piano verso Elvira.
-- `ottavio-gesti.jpg`, `ottavio-gesti-misure.jpg`: sei battute; prima tre gesti a scatto (uno ogni due
+- `ottavio-gesti.jpg` (e il terzo grafico di `misure.jpg`): sei battute; prima tre gesti a scatto (uno ogni due
   battute), dopo un solo gesto alla quarta, lento, e piccoli cenni.
 - `velati.jpg`: si voltano solo con la testa, prima e dopo.
 - `procedurali.jpg`: Ottavio come figura di riserva (i GLB dei personaggi bloccati): prima giro e ritorno
   di colpo; dopo si gira in 1,4 s con i passi sul posto e la testa che lo precede.
+
+Seconda tornata (`tools/personaggi/prova-dialoghi.mjs` e `prova-clelia.mjs`; «prima» sono le sequenze della
+verifica su `f8a00fc`, girate con lo stesso copione; fogli e grafici con `tools/personaggi/prova_fogli.py`):
+
+- `testa-da-dietro.jpg`: Ottavio al prato, Elvira da dietro a sinistra; sopra la testa dagli occhi di Elvira
+  (prima la nuca fino all'apertura del dialogo, poi la testa che attraversa il collo; dopo il viso già
+  girato verso di lei), sotto il giro del corpo e la velocità della testa (prima 163°/s, dopo 58°/s).
+- `giro-ampio.jpg`: Bortolo da dietro (165°); sopra il giro visto di lato (i piedi si alzano e si posano,
+  non strisciano), sotto il giro del corpo per tutta la scena (prima, 10 s dopo il dialogo, le voltava le
+  spalle con lei ancora lì; dopo resta rivolto a lei finché se ne va) e la velocità dei piedi a terra (prima
+  fino a 0,6 m/s a ogni passo, dopo sotto 0,1).
+- `clelia-se-ne-va.jpg`: il dono alla Bacheca, a 1280×720 con l'interfaccia; prima, chiusa la lettera,
+  Clelia non c'è più; dopo è ancora lì, si gira, cammina verso la Casa del Velo ed entra.
 
 ### Le prove di sempre e le prestazioni
 
@@ -284,15 +448,22 @@ sono i grafici delle misure a 60 Hz delle due versioni.
 
 ## Che cosa resta
 
-- **Clelia sparisce alla quarta battuta del dono** (prima e dopo; si vede in `clelia-lontana.jpg`):
-  appena il dialogo `d_clelia_dono` risulta finito (all'ultima battuta, prima che si chiuda) `postoDiClelia`
-  dà «via» e `Abitanti.condizioni` la nasconde in un fotogramma (`clelia.mostra(false)`). Dagli occhi di
-  Elvira in quel momento c'è la lettera in primo piano, ma quando la si abbassa Clelia non c'è più. Andrebbe
-  fatta allontanare camminando verso la Casa del Velo (o almeno nascosta dopo la chiusura, quando Elvira
-  non la guarda): è il popolamento della regia, fuori da quello che questa traccia poteva toccare in
-  `png.ts`.
 - Le **gonne** (`gonne.ts`) non sono state toccate: nei provini di Clelia, Togna e Lisa seguono il giro e i
-  passi senza strappi, ma i passi del giro sono brevi; con giri più ampi andrebbero riguardate.
+  passi senza strappi, anche nel giro con cui Clelia si volta per andarsene (seconda tornata); con i giri
+  ampi dei personaggi in gonna (165°) non le ho guardate fotogramma per fotogramma.
+- Il **giro ampio** dura ancora 3,2 s a 160° (75°/s di punta, la curva di Hermite): è calmo, ma chi è alle
+  spalle aspetta un po' prima di avere davanti la faccia. Si accorcia alzando `GIRO.vmax`; i passi seguono
+  (la torsione dei piedi cresce con la velocità: a 75°/s sta entro ±20°).
+- Quando Elvira passa davvero da una spalla all'altra di chi la guarda (gli gira dietro), la testa cambia
+  spalla una volta, attraversando il collo a 110°/s (circa 1,5 s): è quello che fa una persona, ma è il
+  movimento più svelto che resta.
+- **Clelia che se ne va** cammina dritta dalla Bacheca alla Casa del Velo (la via è libera dai collisori del
+  paese); se Elvira le si mette davanti, il collisore della novizia la sposta, non c'è un giro attorno. Il
+  cammino del popolamento gira la figura verso la tappa a 240°/s (qui la novizia è già girata a passi
+  prima di partire, ma chi cammina per gli orari o con la regia, come Ottavio, gira ancora così agli
+  angoli del percorso).
+- Il **pacchetto della Madre**: Clelia lo mette via quando il dialogo risulta finito (la lettera è aperta
+  e copre la scena), non c'è un gesto del porgerlo.
 - Il velato con la gerla tiene a riposo un polso 9 cm dentro l'ellisse del busto (le mani sulle cinghie):
   non c'entra con il parlare, ma va guardato con le prove di forma.
 - I gesti sono due («apre», «mano al petto»): bastano per una conversazione tranquilla; un gesto «indica»
@@ -301,6 +472,6 @@ sono i grafici delle misure a 60 Hz delle due versioni.
   camminano sul posto (il ciclo della camminata a 0,45 m/s), non hanno i piedi piantati che seguono il
   corpo come i personaggi nuovi, e il loro ginocchio nel ciclo del passo ha ancora un piccolo gomito
   (`max(0, cos)` sullo stinco: ~100°/s che si fermano in un fotogramma).
-- I provini sono lenti (dai 5 ai 25 minuti a scena con SwiftShader, secondo quanto è carico il computer);
-  per rifarli conviene `--solo=…`. `clelia-lontana` si gira in una pagina nuova (`nuova: true`): dopo il
-  dono della scena `clelia` la novizia non è più alla Bacheca.
+- I provini sono lenti (dai 5 ai 25 minuti a scena con SwiftShader, secondo quanto è carico il computer;
+  le scene di `prova-dialoghi.mjs` anche 20-40): per rifarli conviene `--solo=…`. `clelia-lontana` si gira
+  in una pagina nuova (`nuova: true`): dopo il dono della scena `clelia` la novizia non è più alla Bacheca.

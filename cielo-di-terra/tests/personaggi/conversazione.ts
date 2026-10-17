@@ -49,6 +49,8 @@ export interface MisureConversazione {
   bacino: number;
   /** di quanto si è girato il corpo intero (gradi) */
   giro: number;
+  /** torsione più grande di un piede rispetto al bacino (gradi, oltre quella di riposo): le gambe a forbice */
+  torsione: number;
 }
 
 export interface OpzioniConversazione {
@@ -110,11 +112,14 @@ export function conversazione(o: OggettoProcedurale<StatoAbitante>, opz: Opzioni
   let piano: PianoGiro | null = null;
   let meta: number | null = null;
   const yawElvira = (Math.atan2(occhi.x, occhi.z) * DEG) - 5 * Math.sign(occhi.x);
-  const m: MisureConversazione = { velMax: 0, velOsso: '', velT: 0, accMax: 0, accOsso: '', accT: 0, velBusto: 0, velGambe: 0, accGambe: 0, dentroBusto: 0, dentroDove: '', gomitoMax: 0, polsoMax: 0, collo: 0, scivolaMax: 0, scivolaP95: 0, alzataPiedi: 0, bacino: 0, giro: 0 };
+  const m: MisureConversazione = { velMax: 0, velOsso: '', velT: 0, accMax: 0, accOsso: '', accT: 0, velBusto: 0, velGambe: 0, accGambe: 0, dentroBusto: 0, dentroDove: '', gomitoMax: 0, polsoMax: 0, collo: 0, scivolaMax: 0, scivolaP95: 0, alzataPiedi: 0, bacino: 0, giro: 0, torsione: 0 };
   const q0 = new Map<string, THREE.Quaternion>();
   const w0 = new Map<string, number>();
   const q = new THREE.Quaternion();
   const piediPrima = new Map<string, THREE.Vector3>();
+  const qBac = new THREE.Quaternion();
+  const qPiede = new THREE.Quaternion();
+  const torsione0 = new Map<string, THREE.Quaternion>();
   const scivola: number[] = [];
   const baseDentro = new Map<string, number>();
   let bacMin = Infinity;
@@ -209,6 +214,14 @@ export function conversazione(o: OggettoProcedurale<StatoAbitante>, opz: Opzioni
       const riposo = rc.clone().multiply(rt);
       m.collo = Math.max(m.collo, 2 * Math.acos(Math.min(1, Math.abs(riposo.dot(ora)))) * DEG);
     }
+    // la torsione di ogni piede rispetto al bacino, oltre quella del primo fotogramma
+    rotazioneNelModello(ossa.get('bacino')!, anim.radice, qBac).invert();
+    for (const lato of ['S', 'D']) {
+      rotazioneNelModello(ossa.get(`piede${lato}`)!, anim.radice, qPiede).premultiply(qBac);
+      const r0 = torsione0.get(lato);
+      if (!r0) torsione0.set(lato, qPiede.clone());
+      else m.torsione = Math.max(m.torsione, 2 * Math.acos(Math.min(1, Math.abs(r0.dot(qPiede)))) * DEG);
+    }
     // i piedi nel mondo: a terra (caviglia entro 1,5 cm dalla quota di riposo) non devono scivolare
     for (const lato of ['S', 'D']) {
       const p = ossa.get(`piede${lato}`)!.getWorldPosition(new THREE.Vector3());
@@ -226,6 +239,90 @@ export function conversazione(o: OggettoProcedurale<StatoAbitante>, opz: Opzioni
   m.scivolaP95 = scivola[Math.floor(scivola.length * 0.95)] ?? 0;
   m.bacino = bacMax - bacMin;
   m.giro = yaw;
+  mondo.remove(o.gruppo);
+  return m;
+}
+
+export interface MisureSguardo {
+  /** dove guarda la testa (gradi nello spazio della figura, + = verso la sinistra della figura) quando si apre il dialogo */
+  testaAllApertura: number;
+  /** velocità più alta della testa nello spazio della figura e nel mondo (gradi/s) */
+  velFigura: number;
+  velMondo: number;
+  /** quante volte la testa passa da una spalla all'altra (oltre ±20°) */
+  cambiLato: number;
+  /** la testa dalla parte opposta a Elvira (gradi, il caso peggiore: 0 = mai) */
+  dallaParteSbagliata: number;
+}
+
+/** Lo yaw (gradi) della testa nello spazio della figura: dove punta il suo avanti, dalle rotazioni delle ossa. */
+function yawTesta(o: OggettoProcedurale<StatoAbitante>): number {
+  const anim = animatoreDi(o);
+  const testa = anim.ossa.get('testa') as { osso: THREE.Object3D; W: THREE.Quaternion };
+  const q = rotazioneNelModello(testa.osso, anim.radice, new THREE.Quaternion()).multiply(testa.W.clone().invert());
+  const f = new THREE.Vector3(0, 0, 1).applyQuaternion(q);
+  return Math.atan2(f.x, f.z) * DEG;
+}
+
+/**
+ * Elvira arriva da dietro (a `da` gradi dall'avanti della figura) mentre lui guardava dall'altra parte
+ * (`distratto` gradi, per 1,5 s); dopo `attesa` s si apre il dialogo e il corpo si gira verso di lei con il
+ * profilo del popolamento (`verso`: da che parte, 0 = la più corta). Oppure, con `passaDietro`, Elvira gli
+ * gira dietro le spalle da `da` a `-da` in 3 s, senza dialogo. Misura la testa a ogni passo di 1/60 s.
+ */
+export function sguardoDaDietro(
+  o: OggettoProcedurale<StatoAbitante>,
+  opz: { da: number; distratto: number; distanza?: number; attesa?: number; verso?: number; passaDietro?: boolean },
+): MisureSguardo {
+  const dt = 1 / 60;
+  const mondo = new THREE.Group();
+  mondo.add(o.gruppo);
+  const stato: StatoPersonaggioGioco = { modo: 'fermo' };
+  for (let t = 0; t < 30; t += 0.25) o.update?.(0.25, stato);
+  const dist = opz.distanza ?? 2.2;
+  const punto = (g: number) => new THREE.Vector3(Math.sin(g / DEG) * dist, 1.6, Math.cos(g / DEG) * dist);
+  stato.guarda = punto(opz.distratto);
+  for (let i = 0; i < 90; i++) o.update?.(dt, stato);
+  stato.guarda = punto(opz.da);
+  const attesa = opz.attesa ?? 3;
+  for (let i = 0; i < attesa * 60; i++) o.update?.(dt, stato);
+  const m: MisureSguardo = { testaAllApertura: yawTesta(o), velFigura: 0, velMondo: 0, cambiLato: 0, dallaParteSbagliata: 0 };
+  const meta = opz.da - 5 * Math.sign(opz.da);
+  const piano = opz.passaDietro ? null : pianoGiro(0, 0, meta, opz.verso ?? 0);
+  let prima = yawTesta(o);
+  let primaMondo = prima;
+  let lato = Math.sign(prima);
+  for (let i = 0; i < 6 * 60; i++) {
+    let elvira = opz.da;
+    if (opz.passaDietro) {
+      // da `da` a 180 e poi a -da, in 3 s (dopo un secondo fermo)
+      const u = THREE.MathUtils.clamp((i * dt - 1) / 3, 0, 1);
+      const a = Math.abs(opz.da);
+      elvira = Math.sign(opz.da) * (a + (360 - 2 * a) * u);
+      stato.guarda = punto(elvira);
+    }
+    let yawCorpo = 0;
+    if (piano) {
+      piano.t = Math.min(piano.T, piano.t + dt);
+      yawCorpo = posizioneGiro(piano).yaw;
+      mondo.rotation.y = yawCorpo / DEG;
+    }
+    o.update?.(dt, stato);
+    mondo.updateMatrixWorld(true);
+    const y = yawTesta(o);
+    const yMondo = y + yawCorpo;
+    m.velFigura = Math.max(m.velFigura, Math.abs(y - prima) / dt);
+    m.velMondo = Math.max(m.velMondo, Math.abs(yMondo - primaMondo) / dt);
+    prima = y;
+    primaMondo = yMondo;
+    if (Math.abs(y) > 20 && Math.sign(y) !== lato) {
+      if (lato !== 0) m.cambiLato++;
+      lato = Math.sign(y);
+    }
+    // Elvira nello spazio della figura (gradi, da -180 a 180): la testa dalla parte opposta (oltre 20°)
+    const rel = ((((elvira - yawCorpo) % 360) + 540) % 360) - 180;
+    if (Math.abs(rel) < 150 && Math.abs(y) > 20 && Math.sign(y) !== Math.sign(rel)) m.dallaParteSbagliata = Math.max(m.dallaParteSbagliata, Math.abs(y));
+  }
   mondo.remove(o.gruppo);
   return m;
 }

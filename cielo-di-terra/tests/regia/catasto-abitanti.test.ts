@@ -4,16 +4,17 @@
  * personaggi e Ottavio che viene incontro a Elvira.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 import { CatastoGioco, creaLineaLibera, dentroCollisore, posizioniCapisaldi } from '../../src/regia/catasto';
 import { CAPISALDI, PARTICELLE_AREA, PERSONAGGI, luogo, type Personaggio } from '../../src/regia/contenuti';
 import { installaCorbella, type ManigliaCorbella } from '../../src/popolamento';
 import { giocoFinto } from '../popolamento/banco';
 import { assolutoDi } from '../../src/regia/orologio';
-import { Abitanti, luogoDaOrario, type ContestoAbitanti } from '../../src/regia/png';
+import { Abitanti, angoloDallAvanti, luogoDaOrario, posizioneCleliaAllaCasa, type ContestoAbitanti } from '../../src/regia/png';
+import { sposta } from '../../src/popolamento/terreno';
 import type { ContestoVisibilita, EventoCatasto, PuntoMira } from '../../src/rilievo';
 import { ColliderWorld, boxAt } from '../../src/world/colliders';
-import { cylToWorld } from '../../src/world/cylinder';
+import { cylToWorld, localFrameTheta, surfaceDistance } from '../../src/world/cylinder';
 import { groundHeight } from '../../src/world/terrain';
 import type { World } from '../../src/world/world';
 
@@ -257,13 +258,36 @@ describe('Abitanti', () => {
     it('Clelia lascia la Bacheca dopo il dono (la condizione che il popolamento non valuta)', () => {
       const a = new Abitanti(corbella);
       const bacheca = luogo('bacheca_ore')!;
+      const casa = posizioneCleliaAllaCasa()!;
       const elvira = { z: bacheca.z + 3, theta: bacheca.theta };
       corbella.applicaOrario(2, 9);
       passi(a, contesto(elvira, 2, 9), 2);
       expect(a.presente('clelia')).toBe(true);
       expect(a.vicini(elvira.z, elvira.theta, 8)).toContain('clelia');
       const donato = (c: string) => c === 'dialogo:d_clelia_dono finito';
-      passi(a, contesto(elvira, 2, 9, donato), 40);
+      // se ne va a piedi verso la Casa del Velo (prima spariva in un fotogramma, all'ultima battuta): saluta,
+      // si gira con calma, cammina senza salti ed entra alla porta
+      const ctx = contesto(elvira, 2, 9, donato);
+      let p = a.posizione('clelia')!;
+      const p0 = p;
+      let vMax = 0;
+      let sparita = -1;
+      for (let i = 0; i < 60 * 60 && sparita < 0; i++) {
+        a.update(1 / 60, ctx);
+        corbella.update(1 / 60);
+        const q = a.posizione('clelia');
+        if (!q) sparita = i / 60;
+        else {
+          // (all'arrivo il popolamento posa la figura sulla meta: al più 5 cm, l'ultimo passo non conta)
+          if (corbella.npc('clelia')!.inCammino) vMax = Math.max(vMax, surfaceDistance(p.z, p.theta, q.z, q.theta) * 60);
+          p = q;
+        }
+      }
+      expect(sparita).toBeGreaterThan(20);
+      expect(vMax).toBeLessThan(1.15);
+      expect(surfaceDistance(p0.z, p0.theta, p.z, p.theta)).toBeGreaterThan(25);
+      // alla porta della Casa del Velo (dove la sera la si trova)
+      expect(surfaceDistance(p.z, p.theta, casa.z, casa.theta)).toBeLessThan(2);
       expect(a.presente('clelia')).toBe(false);
       // la sera è alla Casa del Velo (offre il letto a chi porta il velo), non alla Bacheca
       passi(a, contesto(elvira, 2, 20.2, donato), 40);
@@ -278,6 +302,61 @@ describe('Abitanti', () => {
       passi(a, contesto(elvira, 3, 22, donato), 40);
       expect(corbella.npc('clelia')!.manuale).toBe(false);
       expect(a.presente('clelia')).toBe(false);
+    });
+
+    it('finito il dialogo resta rivolto a Elvira finché lei è lì, si rigira se gli gira attorno, poi torna alle sue cose', () => {
+      // prima, dieci secondi dopo la chiusura, chi aveva parlato tornava al verso del suo posto anche con Elvira
+      // ancora lì davanti: se lei era arrivata da dietro, le voltava le spalle
+      const a = new Abitanti(corbella);
+      corbella.applicaOrario(1, 10);
+      const n = corbella.npc('bortolo')!;
+      const f = n.figura!;
+      const casa = new Vector3(0, 0, 1).applyQuaternion(f.getWorldQuaternion(new Quaternion()));
+      /** Elvira a `d` m da Bortolo, a `gradi` dall'avanti del suo posto (+ = verso est) */
+      const attorno = (gradi: number, d: number) => {
+        const p = n.posizione()!;
+        const t = localFrameTheta(p.theta);
+        const y = Math.atan2(casa.dot(t.east), casa.dot(t.north)) + (gradi * Math.PI) / 180;
+        return sposta(p.z, p.theta, Math.cos(y) * d, Math.sin(y) * d, 40);
+      };
+      const angolo = (ctx: ContestoAbitanti) => angoloDallAvanti(f, ctx.occhi);
+      let elvira = attorno(150, 2);
+      let ctx = contesto(elvira, 1, 10);
+      passi(a, ctx, 2);
+      expect(angolo(ctx)).toBeGreaterThan(140);
+      a.voltaVerso('bortolo', elvira);
+      passi(a, ctx, 60 * 4);
+      expect(angolo(ctx)).toBeLessThan(10);
+      a.fineDialogo();
+      // mezzo minuto con lei lì davanti: non le volta le spalle
+      for (let i = 0; i < 30; i++) {
+        passi(a, ctx, 60);
+        expect(angolo(ctx), `dopo ${i + 1} s`).toBeLessThan(10);
+      }
+      // lei gli gira attorno (a 2,5 m, 100° più in là): si rigira con calma
+      elvira = attorno(150 - 100, 2.5);
+      ctx = contesto(elvira, 1, 10);
+      passi(a, ctx, 60);
+      expect(angolo(ctx)).toBeGreaterThan(40);
+      passi(a, ctx, 60 * 4);
+      expect(angolo(ctx)).toBeLessThan(10);
+      // se lei gli passa accanto camminando (1 m/s, a 2,5 m) la segue con la testa, non col corpo
+      const avantiPrima = new Vector3(0, 0, 1).applyQuaternion(f.getWorldQuaternion(new Quaternion()));
+      for (let i = 0; i < 120; i++) {
+        elvira = attorno(50 - (i / 120) * 110, 2.5);
+        ctx = contesto(elvira, 1, 10);
+        passi(a, ctx, 1);
+      }
+      const avantiDopo = new Vector3(0, 0, 1).applyQuaternion(f.getWorldQuaternion(new Quaternion()));
+      expect(avantiDopo.angleTo(avantiPrima)).toBeLessThan(0.02);
+      // se ne va: dopo qualche secondo torna a guardare dove guardava
+      elvira = attorno(50, 9);
+      ctx = contesto(elvira, 1, 10);
+      passi(a, ctx, 60 * 1);
+      expect(angolo(ctx)).toBeLessThan(15);
+      passi(a, ctx, 60 * 6);
+      const ora = new Vector3(0, 0, 1).applyQuaternion(f.getWorldQuaternion(new Quaternion()));
+      expect(ora.angleTo(casa)).toBeLessThan(0.02);
     });
 
     it('Clelia aspetta alla Bacheca finché non ha dato il dono: anche la sera e il giorno dopo', () => {

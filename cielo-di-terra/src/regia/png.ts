@@ -10,9 +10,9 @@
  *   prima di un dialogo automatico (`ottavioRaggiunge`), arriva quando lo si chiama col fischio.
  * - Chi è vicino a Elvira gira la testa verso di lei (tutti, per un po', con `velati_si_voltano`).
  */
-import type { Object3D, Vector3 } from 'three';
+import { Quaternion, Vector3, type Object3D } from 'three';
 import type { ManigliaCorbella, ManigliaNpc } from '../popolamento';
-import { battutaPersonaggio, fineBattutePersonaggio } from '../personaggi/fabbrica';
+import { battutaPersonaggio, fineBattutePersonaggio, ripostoOggettoPersonaggio } from '../personaggi/fabbrica';
 import { METERS_PER_DEG } from '../world/constants';
 import { cylToWorld, deltaDeg, surfaceDistance } from '../world/cylinder';
 import { groundHeight } from '../world/terrain';
@@ -40,10 +40,34 @@ const GRUPPI = new Set(['bambini', 'velati_corbella']);
 /** I due bambini (nei dialoghi parlano a turno, come «bambini», «lisa» e «gioanin»). */
 const BAMBINI = new Set(['bambini', 'lisa', 'gioanin']);
 /**
- * Dopo un dialogo chi ha parlato resta rivolto a Elvira finché lei è vicina (al più DOPO_DIALOGO.max s),
- * poi torna alle sue cose; se lei si allontana oltre DOPO_DIALOGO.vicino m, dopo DOPO_DIALOGO.min s.
+ * Dopo un dialogo chi ha parlato resta rivolto a Elvira finché lei gli sta vicino (entro `vicino` m), per
+ * quanto tempo ci resti: prima, dopo 10 s, le voltava le spalle anche se lei era ancora lì davanti. Se lei
+ * gli gira attorno (oltre `rigira` gradi dal suo avanti) si rigira con calma. Torna alle sue cose quando
+ * lei si è allontanata da `via` s (e comunque non prima di `min` s dalla fine del dialogo).
  */
-const DOPO_DIALOGO = { min: 2.5, max: 10, vicino: 3.5 } as const;
+const DOPO_DIALOGO = { min: 2.5, vicino: 4.5, via: 1.5, rigira: 50 } as const;
+/** Chi cammina non si volta a guardare Elvira se lei gli sta dietro più di tanto (gradi). */
+const DIETRO_IN_CAMMINO = 110;
+/** Clelia, dato il dono, va verso la Casa del Velo a questa velocità (m/s) e si ferma a tanti m dalla porta. */
+const CLELIA_VIA = { velocita: 1.0, primaDellaPorta: 1.2 } as const;
+
+const _q = new Quaternion();
+const _p = new Vector3();
+const _su = new Vector3();
+const _av = new Vector3();
+const _ve = new Vector3();
+
+/** Di quanti gradi il punto `occhi` è lontano dall'avanti della figura `f`, sul piano del suolo. */
+export function angoloDallAvanti(f: Object3D, occhi: Vector3): number {
+  f.getWorldQuaternion(_q);
+  f.getWorldPosition(_p);
+  _su.set(0, 1, 0).applyQuaternion(_q);
+  _av.set(0, 0, 1).applyQuaternion(_q).projectOnPlane(_su).normalize();
+  _ve.copy(occhi).sub(_p).projectOnPlane(_su);
+  if (_ve.lengthSq() < 1e-8) return 0;
+  _ve.normalize();
+  return (Math.acos(Math.max(-1, Math.min(1, _av.dot(_ve)))) * 180) / Math.PI;
+}
 
 export interface ContestoAbitanti {
   giorno: number;
@@ -236,7 +260,7 @@ export class Abitanti {
     const n = chi === 'bambini' ? this.corbella.npc('bambini') : this.npc(chi);
     if (!n?.presente || this.inVolo(n)) return;
     if (this.interlocutore && this.interlocutore.id !== chi) this.lascia();
-    this.interlocutore = { id: chi, finito: null };
+    this.interlocutore = { id: chi, finito: null, siGira, lontano: null, prossimoGiro: 0, dove: null };
     if (siGira && !n.inCammino) n.rivolgiVerso(elvira);
   }
 
@@ -269,8 +293,19 @@ export class Abitanti {
     (i.id === 'bambini' ? this.corbella.npc('bambini') : this.npc(i.id))?.rivolgiVerso(null);
   }
 
-  /** Chi parla con Elvira (o ci ha appena parlato): id e quando il dialogo è stato chiuso (null = aperto). */
-  private interlocutore: { id: string; finito: number | null } | null = null;
+  /**
+   * Chi parla con Elvira (o ci ha appena parlato): id, quando il dialogo è stato chiuso (null = aperto), se
+   * si gira verso di lei (no per «Non si gira»), da quando lei è lontana (null = è vicina), quando
+   * guardare di nuovo se lei gli è girata attorno e dov'era lei l'ultima volta che si è guardato.
+   */
+  private interlocutore: {
+    id: string;
+    finito: number | null;
+    siGira: boolean;
+    lontano: number | null;
+    prossimoGiro: number;
+    dove: { z: number; theta: number } | null;
+  } | null = null;
 
   /**
    * Comincia una battuta di `id` lunga `durata` s: i personaggi nuovi fanno quasi sempre un piccolo cenno
@@ -378,16 +413,34 @@ export class Abitanti {
     }
     this.aggiornaOttavio(dt, ctx);
     this.dopoDialogo(ctx);
+    this.aggiornaUscitaClelia(dt);
     this.sguardi(ctx);
   }
 
-  /** Finito il dialogo: un po' rivolto a Elvira, poi torna alle sue cose (vedi DOPO_DIALOGO). */
+  /**
+   * Finito il dialogo: resta rivolto a Elvira finché lei è lì (e si rigira con calma se lei gli gira
+   * attorno); quando lei se ne va, torna alle sue cose (vedi DOPO_DIALOGO).
+   */
   private dopoDialogo(ctx: ContestoAbitanti): void {
     const i = this.interlocutore;
     if (!i || i.finito === null) return;
-    const passati = this.tempo - i.finito;
-    const d = this.distanzaDa(i.id === 'bambini' ? 'lisa' : i.id, ctx.elvira.z, ctx.elvira.theta);
-    if (passati > DOPO_DIALOGO.max || (passati > DOPO_DIALOGO.min && d > DOPO_DIALOGO.vicino)) this.lascia();
+    const id = i.id === 'bambini' ? 'lisa' : i.id;
+    const d = this.distanzaDa(id, ctx.elvira.z, ctx.elvira.theta);
+    if (d > DOPO_DIALOGO.vicino) {
+      i.lontano ??= this.tempo;
+      if (this.tempo - i.finito > DOPO_DIALOGO.min && this.tempo - i.lontano > DOPO_DIALOGO.via) this.lascia();
+      return;
+    }
+    i.lontano = null;
+    if (!i.siGira || this.tempo < i.prossimoGiro) return;
+    i.prossimoGiro = this.tempo + 0.5;
+    // solo se lei si è fermata lì (mentre gli passa accanto per andarsene la segue con la testa, non col corpo)
+    const prima = i.dove;
+    i.dove = { z: ctx.elvira.z, theta: ctx.elvira.theta };
+    if (!prima || surfaceDistance(prima.z, prima.theta, ctx.elvira.z, ctx.elvira.theta) > 0.3) return;
+    const n = i.id === 'bambini' ? this.corbella.npc('bambini') : this.npc(i.id);
+    const f = this.npc(id)?.figura;
+    if (n?.presente && f && !n.inCammino && !n.girando && angoloDallAvanti(f, ctx.occhi) > DOPO_DIALOGO.rigira) n.rivolgiVerso(ctx.elvira);
   }
 
   /**
@@ -397,15 +450,24 @@ export class Abitanti {
   private condizioni(ctx: ContestoAbitanti): void {
     const clelia = this.npc('clelia');
     if (!clelia) return;
-    const posto = postoDiClelia(ctx.giorno, ctx.ore, ctx.valuta('dialogo:d_clelia_dono finito'), ctx.valuta('dialogo:d_ottavio_pacco finito'));
+    const donoDaLei = ctx.valuta('dialogo:d_clelia_dono finito');
+    const paccoDaOttavio = ctx.valuta('dialogo:d_ottavio_pacco finito');
+    const posto = postoDiClelia(ctx.giorno, ctx.ore, donoDaLei, paccoDaOttavio);
     if (posto === this.postoClelia && (posto !== null || !clelia.manuale)) return;
     this.postoClelia = posto;
+    this.uscitaClelia = null;
+    // il pacchetto della Madre: in mano finché non l'ha dato (a Elvira o a Ottavio per lei)
+    ripostoOggettoPersonaggio(clelia.figura, 'pacchetto', donoDaLei || paccoDaOttavio);
     if (posto === null) {
       clelia.manuale = false;
       this.corbella.applicaOrario(ctx.giorno, ctx.ore);
       return;
     }
     clelia.manuale = true;
+    // dato il dono, se è lì alla Bacheca, se ne va a piedi verso la Casa del Velo (la didascalia: «si
+    // inchina appena e se ne va verso la Casa del Velo»). Prima spariva in un fotogramma all'ultima
+    // battuta: chiusa la lettera della Madre, la novizia non c'era più
+    if (posto === 'via' && this.avviaUscitaClelia(clelia)) return;
     const q = posto === 'bacheca' ? posizioneCleliaAllaBacheca() : posto === 'casa' ? posizioneCleliaAllaCasa() : null;
     if (!q) {
       clelia.mostra(false);
@@ -421,14 +483,69 @@ export class Abitanti {
   /** Dove la regia tiene Clelia adesso (vedi `condizioni`). */
   private postoClelia: PostoClelia = null;
 
+  /**
+   * Clelia che se ne va dopo il dono: saluta (un cenno, finché il dialogo è aperto), si gira con calma
+   * verso la Casa del Velo, ci va a piedi (la via dritta dalla Bacheca alla porta è libera) e, arrivata,
+   * entra (non si vede più). null = non se ne sta andando.
+   */
+  private uscitaClelia: { fase: 'saluta' | 'gira' | 'cammina'; t: number; meta: { z: number; theta: number } } | null = null;
+
+  /** Comincia l'uscita di Clelia, se è alla Bacheca e si vede; falso se non c'è niente da far vedere. */
+  private avviaUscitaClelia(clelia: ManigliaNpc): boolean {
+    const p = clelia.presente ? clelia.posizione() : null;
+    const bacheca = posizioneCleliaAllaBacheca();
+    const casa = posizioneCleliaAllaCasa();
+    if (!p || !casa || this.inVolo(clelia) || surfaceDistance(p.z, p.theta, bacheca.z, bacheca.theta) > 4) return false;
+    const d = surfaceDistance(p.z, p.theta, casa.z, casa.theta);
+    const u = Math.max(0, (d - CLELIA_VIA.primaDellaPorta) / Math.max(d, 1e-3));
+    const meta = { z: p.z + (casa.z - p.z) * u, theta: p.theta + deltaDeg(p.theta, casa.theta) * u };
+    this.uscitaClelia = { fase: 'saluta', t: 0, meta };
+    if (clelia.figura) battutaPersonaggio(clelia.figura, 1.2);
+    return true;
+  }
+
+  private aggiornaUscitaClelia(dt: number): void {
+    const u = this.uscitaClelia;
+    if (!u) return;
+    const c = this.npc('clelia');
+    if (!c?.presente) {
+      this.uscitaClelia = null;
+      return;
+    }
+    u.t += dt;
+    if (u.fase === 'saluta') {
+      // finché il dialogo è aperto resta lì (al più qualche secondo: la lettera della Madre può restare aperta)
+      const aperto = this.interlocutoreE('clelia') && this.interlocutore?.finito === null;
+      if (u.t < 1.2 || (aperto && u.t < 6)) return;
+      if (this.interlocutoreE('clelia')) this.lascia();
+      c.rivolgiVerso(u.meta, true);
+      u.fase = 'gira';
+      u.t = 0;
+    } else if (u.fase === 'gira') {
+      if ((c.girando && u.t < 5) || u.t < 0.3) return;
+      void c.cammina(u.meta, CLELIA_VIA.velocita);
+      u.fase = 'cammina';
+      u.t = 0;
+    } else if (!c.inCammino || u.t > 60) {
+      // arrivata alla porta: entra
+      c.ferma();
+      c.mostra(false);
+      this.uscitaClelia = null;
+    }
+  }
+
   private sguardi(ctx: ContestoAbitanti): void {
     const voltati = this.tempo < this.voltatiFino;
     for (const [id, n] of this.corbella.personaggi) {
       if (GRUPPI.has(id) || !n.figura) continue;
       const p = n.presente ? n.posizione() : null;
       const d = p ? surfaceDistance(p.z, p.theta, ctx.elvira.z, ctx.elvira.theta) : Infinity;
-      // chi parla con lei la guarda anche da lontano (un dialogo automatico si apre fino a 25 m)
-      if (d < 9 || (voltati && d < 70) || (d < 40 && this.interlocutoreE(id))) {
+      // chi parla con lei la guarda anche da lontano (un dialogo automatico si apre fino a 25 m); chi cammina
+      // e se la lascia alle spalle guarda dove va (prima si voltava a guardarla girando la testa fin dove
+      // poteva, per tutto il cammino), a meno che non ci stia parlando adesso
+      const parlaOra = this.interlocutoreE(id) && this.interlocutore?.finito === null;
+      const dietro = d < 40 && n.inCammino && !parlaOra && angoloDallAvanti(n.figura, ctx.occhi) > DIETRO_IN_CAMMINO;
+      if (!dietro && (d < 9 || (voltati && d < 70) || (d < 40 && this.interlocutoreE(id)))) {
         n.guarda(ctx.occhi);
         this.guardanti.add(id);
       } else if (this.guardanti.delete(id)) n.guarda(null);

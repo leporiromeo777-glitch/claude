@@ -172,6 +172,39 @@ export function fineBattutePersonaggio(figura: THREE.Object3D | null | undefined
   funzioneDi(figura, 'fineBattute')?.();
 }
 
+/**
+ * Mette via (o riprende in mano) l'oggetto di scena `nome` di chi è disegnato in `figura`: Clelia, dato il
+ * pacchetto a Elvira, non lo tiene più in mano mentre se ne va. Il livello di dettaglio lo rispetta.
+ */
+export function ripostoOggettoPersonaggio(figura: THREE.Object3D | null | undefined, nome: string, riposto: boolean): void {
+  figura?.traverse((o) => {
+    if (o.userData['oggettoDiScena'] !== nome) return;
+    o.userData['riposto'] = riposto;
+    let livello = 0;
+    for (let p = o.parent; p; p = p.parent) {
+      if (typeof p.userData['livello'] === 'number') {
+        livello = p.userData['livello'] as number;
+        break;
+      }
+    }
+    o.visible = !riposto && livello < 3;
+  });
+}
+
+/**
+ * Da che lato chi è disegnato in `figura` sta girando la testa per guardare qualcuno: un punto nel mondo
+ * da quel lato (in `out`); false se non guarda nessuno o se la figura non lo sa dire. Il popolamento
+ * (src/popolamento/abitanti.ts, rivolgiVerso) gira il corpo da quel lato quando chi parla è quasi dietro
+ * la schiena.
+ */
+export function puntoSguardoPersonaggio(figura: THREE.Object3D | null | undefined, out: THREE.Vector3): boolean {
+  let f: ((o: THREE.Vector3) => boolean) | undefined;
+  figura?.traverse((o) => {
+    f ??= o.userData['puntoSguardo'] as ((o: THREE.Vector3) => boolean) | undefined;
+  });
+  return f ? f(out) : false;
+}
+
 function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante): OggettoProcedurale<StatoAbitante> {
   const scheda = proto.scheda;
   const der = derivaProcedurale(opz);
@@ -265,6 +298,7 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
   });
   gruppo.userData['battuta'] = (durata?: number) => animatore.annunciaBattuta(durata);
   gruppo.userData['fineBattute'] = () => animatore.fineBattute();
+  gruppo.userData['puntoSguardo'] = (out: THREE.Vector3) => animatore.puntoSguardo(out);
   // per le prove e gli strumenti (tests/personaggi/posa.ts)
   gruppo.userData['animatore'] = animatore;
 
@@ -471,7 +505,8 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
     }
     aggiornaVariante(materiale, l);
     if (bastone) bastone.visible = l < 3;
-    for (const o of oggetti) o.visible = l < 3;
+    // (un oggetto «messo via», ripostoOggettoPersonaggio, resta nascosto)
+    for (const o of oggetti) o.visible = l < 3 && !o.userData['riposto'];
   };
   mostra(0);
   /** la distanza «vista» dalla camera: con un campo visivo stretto (cannocchiale, lente) conta di meno */
@@ -549,6 +584,7 @@ function istanza(chi: string, proto: PrototipoPersonaggio, opz: OpzioniAbitante)
       for (const o of oggetti) o.traverse((x) => (x as THREE.Mesh).geometry?.dispose());
       delete gruppo.userData['battuta'];
       delete gruppo.userData['fineBattute'];
+      delete gruppo.userData['puntoSguardo'];
       gruppo.removeFromParent();
     },
   };

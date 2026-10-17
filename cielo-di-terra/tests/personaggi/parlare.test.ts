@@ -18,8 +18,8 @@
  */
 import { beforeAll, describe, expect, it } from 'vitest';
 import { creaAbitante } from '../../src/oggetti/oggetti/abitante';
-import { battutaPersonaggio } from '../../src/personaggi/fabbrica';
-import { conversazione } from './conversazione';
+import { battutaPersonaggio, ripostoOggettoPersonaggio } from '../../src/personaggi/fabbrica';
+import { conversazione, sguardoDaDietro } from './conversazione';
 import { MODELLI, anima, animatoreDi, figura, osso, profiloGradino, registraVeri } from './posa';
 import * as THREE from 'three';
 
@@ -49,6 +49,71 @@ describe('in piedi: si gira con calma, battute senza scatti', () => {
       expect(Math.abs(m.giro - 70), dove).toBeLessThan(1);
     });
   }
+});
+
+describe('il giro ampio (Elvira alle spalle): i piedi fanno passi, non strisciano', () => {
+  // prima il piede in aria andava da dov'era a dove si posava rispetto al corpo: nel momento in cui si
+  // staccava e in quello in cui si posava correva, ancora a terra, con il corpo che girava (0,3 m/s) e poi
+  // si fermava di colpo; e si alzava alla quarta del seno, sotto 1,5 cm per metà del passo mentre già
+  // girava. A 165° i piedi a terra scivolavano a 0,11-0,26 m/s (95° percentile) e fino a 0,4-0,7 m/s, il
+  // piede fermo si torceva fino a 30° rispetto al bacino. Adesso la traiettoria del piede in aria è nel
+  // mondo (si stacca e si posa fermo), gira solo quando è su, il piede a terra ruota un po' sul posto.
+  for (const id of MODELLI) {
+    it(id, () => {
+      for (const da of [165, -165, 120]) {
+        const m = conversazione(figura(id), { da, fine: 12 });
+        const dove = `${id} da ${da}°: ${JSON.stringify(m, (_k, v) => (typeof v === 'number' ? Math.round(v * 1000) / 1000 : v))}`;
+        expect(m.scivolaP95, dove).toBeLessThan(0.05);
+        expect(m.scivolaMax, dove).toBeLessThan(0.25);
+        expect(m.torsione, dove).toBeLessThan(27);
+        expect(m.velGambe, dove).toBeLessThan(SOGLIE.gambe);
+        expect(m.accGambe, dove).toBeLessThan(SOGLIE.accGambe);
+        expect(m.velBusto, dove).toBeLessThan(SOGLIE.busto);
+        expect(m.alzataPiedi, dove).toBeGreaterThan(0.02);
+        expect(Math.abs(Math.abs(m.giro) - (Math.abs(da) - 5)), dove).toBeLessThan(1);
+      }
+    });
+  }
+});
+
+describe('Elvira arriva da dietro: la testa si gira dalla sua parte', () => {
+  // prima, oltre i 100° la testa restava dal lato da cui era girata per uno sguardo distratto: una volta su
+  // due guardava dalla parte opposta a Elvira e, quando il corpo si girava, attraversava 150° a 160°/s
+  // (232°/s nel mondo); adesso la guarda dalla sua parte e, mentre il corpo gira, la testa rientra piano
+  for (const id of MODELLI) {
+    it(id, () => {
+      for (const da of [110, -110, 150, -150]) {
+        const m = sguardoDaDietro(figura(id), { da, distratto: -Math.sign(da) * 40 });
+        const dove = `${id} da ${da}°: ${JSON.stringify(m, (_k, v) => (typeof v === 'number' ? Math.round(v * 10) / 10 : v))}`;
+        expect(Math.sign(m.testaAllApertura), dove).toBe(Math.sign(da));
+        expect(Math.abs(m.testaAllApertura), dove).toBeGreaterThan(55);
+        expect(m.dallaParteSbagliata, dove).toBe(0);
+        expect(m.cambiLato, dove).toBe(0);
+        expect(m.velFigura, dove).toBeLessThan(SOGLIE.busto);
+        expect(m.velMondo, dove).toBeLessThan(SOGLIE.busto);
+      }
+      // quasi alle spalle (170°), con la testa ancora dal lato di prima: il popolamento gira il corpo da
+      // quel lato (rivolgiVerso, il giro un po' più lungo) e la testa non passa all'altra spalla
+      for (const da of [170, -170]) {
+        const o = figura(id);
+        const m = sguardoDaDietro(o, { da, distratto: -Math.sign(da) * 140, verso: -Math.sign(da) });
+        const dove = `${id} da ${da}° col giro lungo: ${JSON.stringify(m, (_k, v) => (typeof v === 'number' ? Math.round(v * 10) / 10 : v))}`;
+        expect(Math.sign(m.testaAllApertura), dove).toBe(-Math.sign(da));
+        expect(m.cambiLato, dove).toBe(0);
+        expect(m.velFigura, dove).toBeLessThan(SOGLIE.busto);
+        expect(m.velMondo, dove).toBeLessThan(SOGLIE.busto);
+      }
+    });
+  }
+
+  it('chi le passa dietro le spalle: la testa cambia spalla una volta sola, piano', () => {
+    for (const id of ['bortolo', 'clelia', 'lisa']) {
+      const m = sguardoDaDietro(figura(id), { da: 130, distratto: 0, passaDietro: true });
+      const dove = `${id}: ${JSON.stringify(m)}`;
+      expect(m.cambiLato, dove).toBe(1);
+      expect(m.velFigura, dove).toBeLessThan(SOGLIE.busto);
+    }
+  });
 });
 
 describe('seduti e chini', () => {
@@ -136,6 +201,21 @@ describe('la figura procedurale di riserva', () => {
     }
     expect(vMax).toBeLessThan(90);
     expect(aMax).toBeLessThan(SOGLIE.acc);
+  });
+});
+
+describe('Clelia, dato il pacchetto, non lo tiene più in mano', () => {
+  it('il pacchetto si mette via e resta via mentre la figura si anima; si può riprendere', () => {
+    const o = figura('clelia');
+    const p = o.gruppo.getObjectByName('oggetto:pacchetto')!;
+    expect(p).toBeTruthy();
+    expect(p.visible).toBe(true);
+    ripostoOggettoPersonaggio(o.gruppo, 'pacchetto', true);
+    expect(p.visible).toBe(false);
+    anima(o, { modo: 'fermo' }, 30);
+    expect(p.visible).toBe(false);
+    ripostoOggettoPersonaggio(o.gruppo, 'pacchetto', false);
+    expect(p.visible).toBe(true);
   });
 });
 

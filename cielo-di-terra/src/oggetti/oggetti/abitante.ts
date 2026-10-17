@@ -536,6 +536,12 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
     'mano-al-petto': { x: 0, v: 0 },
   };
   const sguardo = { yaw: 0, pitch: 0, vYaw: 0, vPitch: 0 };
+  /**
+   * da che lato (+1 = verso +x del gruppo) la testa guarda chi le sta attorno; 0 = nessuno. Come nei
+   * personaggi nuovi (animatore.ts, sguardo): con isteresi quando chi guarda è quasi dietro la schiena, e il
+   * popolamento ci gira il corpo dallo stesso lato (puntoSguardo)
+   */
+  let latoSguardo = 0;
   /** tempo dall'ultimo cenno di battuta (s); oltre 0,85 nessun cenno */
   let cenno = 9;
   gruppo.userData['battuta'] = () => {
@@ -546,6 +552,13 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
   const pesoPeriodo = 6 + rng.next() * 4;
   const tmp = new THREE.Vector3();
   const posTesta = J[O.testa] as THREE.Vector3;
+  gruppo.userData['puntoSguardo'] = (out: THREE.Vector3): boolean => {
+    if (!latoSguardo) return false;
+    out.set(posTesta.x + latoSguardo * H, posTesta.y, posTesta.z);
+    gruppo.updateWorldMatrix(true, false);
+    gruppo.localToWorld(out);
+    return true;
+  };
 
   const update = (dt: number, stato?: StatoAbitante) => {
     t += dt;
@@ -604,9 +617,14 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
       tmp.copy(stato.guarda);
       gruppo.worldToLocal(tmp);
       tmp.sub(posTesta);
-      yawObj = THREE.MathUtils.clamp(Math.atan2(tmp.x, tmp.z), -1.4, 1.4);
+      const ang = Math.atan2(tmp.x, tmp.z);
+      // dal lato di chi guarda; quasi dietro la schiena (oltre 155°) resta il lato di prima: la testa non
+      // salta da una spalla all'altra quando le passano di poco dietro
+      const dietro = Math.abs(ang) > SGUARDO_DIETRO;
+      if (!dietro || latoSguardo === 0) latoSguardo = Math.sign(ang) || latoSguardo || 1;
+      yawObj = !dietro || Math.sign(ang) === latoSguardo ? THREE.MathUtils.clamp(ang, -1.4, 1.4) : latoSguardo * 1.4;
       pitchObj = THREE.MathUtils.clamp(Math.atan2(tmp.y, Math.hypot(tmp.x, tmp.z)), -0.6, 0.7);
-    }
+    } else latoSguardo = 0;
     // (una molla smorzata, non un inseguimento del primo ordine: quando chi guarda cambia di colpo la
     // testa parte e si ferma piano)
     molla(sguardo, 'yaw', 'vYaw', yawObj, dt);
@@ -667,12 +685,15 @@ export function creaAbitante(opz: OpzioniAbitante = {}): OggettoProcedurale<Stat
   });
 }
 
+/** Oltre quest'angolo (rad) dal suo avanti chi guarda è «dietro la schiena» (vedi latoSguardo). */
+const SGUARDO_DIETRO = (155 * Math.PI) / 180;
+
 /**
  * Una molla smorzata in modo critico sul campo `x` (velocità nel campo `v`) verso `bersaglio`: con k = 4,5
  * arriva in circa un secondo, senza oscillare e senza salti di velocità; al più `vmax` (per lo sguardo
- * 2,8 rad/s). A passi di 1/60 s.
+ * 1,9 rad/s, 110°/s, come i personaggi nuovi). A passi di 1/60 s.
  */
-function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, bersaglio: number, dt: number, k = 4.5, vmax = 2.8): void {
+function molla<T extends Record<string, number>>(o: T, x: keyof T, v: keyof T, bersaglio: number, dt: number, k = 4.5, vmax = 1.9): void {
   const n = Math.max(1, Math.ceil(dt * 60 - 1e-6));
   const h = dt / n;
   const r = o as Record<string, number>;

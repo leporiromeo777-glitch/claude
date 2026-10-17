@@ -144,6 +144,37 @@ describe('girarsi verso chi parla', () => {
     c.applicaOrario(1, 10);
   });
 
+  it('la figura procedurale con Elvira quasi alle spalle si gira dal lato da cui la testa la guarda', () => {
+    // (le figure di riserva, quando i personaggi nuovi non ci sono: stessa regola, puntoSguardo)
+    for (const verso of [1, -1]) {
+      const ore = { h: 10 };
+      c.applicaOrario(1, ore.h);
+      c.update(1 / 60);
+      const n = c.npc('bortolo')!;
+      const casa = yawDi('bortolo');
+      const altro = davanti('bortolo', verso * 60, 4);
+      n.guarda({ ...altro, h: groundHeight(altro.z, altro.theta) + 1.6 });
+      for (let i = 0; i < 90; i++) c.update(1 / 60);
+      const e = davanti('bortolo', -verso * 170, 2);
+      n.guarda({ ...e, h: groundHeight(e.z, e.theta) + 1.6 });
+      for (let i = 0; i < 30; i++) c.update(1 / 60);
+      expect(n.rivolgiVerso(e)).toBe(true);
+      let prima = yawDi('bortolo');
+      let girato = 0;
+      for (let i = 0; i < 5 * 60; i++) {
+        c.update(1 / 60);
+        const y = yawDi('bortolo');
+        girato += deltaYaw(prima, y);
+        prima = y;
+      }
+      expect(Math.sign(girato), `girato ${girato.toFixed(1)}°`).toBe(verso);
+      expect(Math.abs(deltaYaw(casa, yawDi('bortolo')) + verso * 175)).toBeLessThan(3);
+      n.rivolgiVerso(null);
+      n.guarda(null);
+      avanza('bortolo', 5, ore);
+    }
+  });
+
   it('orientaVerso resta immediato (per chi è appena stato messo in un posto)', () => {
     const ore = { h: 10 };
     c.applicaOrario(1, ore.h);
