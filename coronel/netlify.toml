@@ -1,3 +1,9 @@
 [build]
   publish = "."
   command = ""
+
+# Il vecchio indirizzo della versione classica porta alla pagina principale
+[[redirects]]
+  from = "/classico.html"
+  to = "/"
+  status = 301
