@@ -1,4 +1,4 @@
-// Coronel Studio: codice comune a tutte le pagine.
+// Coronel: codice comune a tutte le pagine.
 // Ogni blocco si attiva solo se la pagina contiene gli elementi che gli servono.
 
 // Link di prenotazione: incollare qui l'URL completo (con ?studio=...) dalla bio Instagram.
@@ -291,3 +291,50 @@ function updateStatus() {
 }
 updateStatus();
 setInterval(updateStatus, 30000);
+
+// ---------- Modulo "Proponi una collaborazione" (pagina Collaborazioni) ----------
+// Non c'è un server: il modulo prepara il messaggio, lo copia negli appunti
+// e apre la chat Instagram di @_coro.nel, dove basta incollarlo e inviarlo.
+const collabForm = $("#collab-form");
+if (collabForm) {
+  const IG_DM = "https://ig.me/m/_coro.nel";
+  const msg = $("#collab-msg");
+  const copySync = text => {
+    // copia immediata (dentro il clic), così funziona anche prima di aprire la nuova scheda
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    return ok;
+  };
+  collabForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const data = new FormData(collabForm);
+    const nome = (data.get("nome") || "").trim(), idea = (data.get("idea") || "").trim();
+    const contatto = (data.get("contatto") || "").trim(), tipo = data.get("tipo");
+    collabForm.querySelectorAll(".field").forEach(f => f.classList.remove("invalid"));
+    if (!nome || !idea) {
+      if (!nome) collabForm.elements.nome.closest(".field").classList.add("invalid");
+      if (!idea) collabForm.elements.idea.closest(".field").classList.add("invalid");
+      msg.className = "form-msg err";
+      msg.textContent = "Scrivi il tuo nome/brand e la tua idea.";
+      return;
+    }
+    const text = [
+      "Ciao Coronel! Vorrei proporre una collaborazione.",
+      `Nome / brand: ${nome}`,
+      `Tipo: ${tipo}`,
+      `Idea: ${idea}`,
+      contatto ? `Contatto: ${contatto}` : "",
+    ].filter(Boolean).join("\n");
+    let copied = copySync(text);
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => {}, () => {});
+    window.open(IG_DM, "_blank", "noopener");
+    msg.className = "form-msg ok";
+    msg.textContent = copied
+      ? "Messaggio copiato! Si è aperta la chat Instagram di @_coro.nel: incollalo e invia."
+      : "Si è aperta la chat Instagram di @_coro.nel: scrivi lì la tua proposta.";
+  });
+}

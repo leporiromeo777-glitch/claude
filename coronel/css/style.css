@@ -380,7 +380,7 @@
   .page-head .lead { margin-top: 18px; }
 
   /* Pagine collegate (in fondo a ogni pagina e nella home) */
-  .pages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .pages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
   .page-card {
     position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 340px;
     border-radius: var(--radius); overflow: hidden; isolation: isolate; border: 1px solid var(--line);
@@ -399,7 +399,56 @@
   .foot-nav { display: flex; gap: 22px; flex-wrap: wrap; }
   .foot-nav a:hover { color: var(--text); }
 
+  /* ---------- Pagina Collaborazioni ---------- */
+  .feature { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; padding: 36px 0; }
+  .feature + .feature { border-top: 1px solid var(--line); }
+  .feature.reverse .feature-img { order: 2; }
+  .feature-img { aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--bg-2); }
+  .feature-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--ease); }
+  .feature:hover .feature-img img { transform: scale(1.04); }
+  .feature-icon { display: grid; place-items: center; background: radial-gradient(60% 60% at 30% 20%, rgba(42,76,196,.35), transparent 70%), radial-gradient(50% 50% at 80% 90%, rgba(224,49,49,.25), transparent 70%), var(--bg-2); }
+  .feature-icon svg { width: 38%; height: 38%; color: var(--text); opacity: .9; }
+  .feature-num { font-family: "Archivo Black", sans-serif; color: var(--red); font-size: 15px; }
+  .feature-body h3 { font-family: "Archivo Black", sans-serif; text-transform: uppercase; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; margin: 10px 0 14px; }
+  .feature-body p { color: var(--muted); }
+  .ticks { list-style: none; margin-top: 18px; display: grid; gap: 8px; }
+  .ticks li { display: flex; gap: 10px; align-items: baseline; }
+  .ticks li::before { content: "★"; color: var(--red); font-size: 12px; }
+  .why-item a { color: var(--text); border-bottom: 1px solid var(--red); }
+
+  .steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: none; }
+  .steps li { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; }
+  .steps span { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--red); color: var(--white); font-family: "Archivo Black", sans-serif; }
+  .steps h3 { font-size: 20px; font-weight: 600; margin: 18px 0 6px; }
+  .steps p { color: var(--muted); font-size: 15px; }
+
+  .propose { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 28px; padding: clamp(28px, 5vw, 56px); }
+  .propose-intro p { color: var(--muted); margin-top: 16px; }
+  .propose-form { display: grid; gap: 18px; }
+  .field { display: grid; gap: 8px; border: 0; }
+  .field > span, .field legend { font-size: 14px; font-weight: 600; color: var(--text); }
+  .field small { color: var(--muted); font-weight: 400; }
+  .field input, .field textarea {
+    width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; font: inherit; font-size: 16px; transition: border-color .2s; resize: vertical;
+  }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--blue-soft); }
+  .field.invalid input, .field.invalid textarea { border-color: var(--red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chips label { position: relative; }
+  .chips input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .chips span { display: inline-block; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); font-size: 14px; color: var(--muted); transition: all .2s; }
+  .chips input:checked + span { background: var(--red); border-color: var(--red); color: var(--white); }
+  .chips input:focus-visible + span { outline: 2px solid var(--blue-soft); outline-offset: 2px; }
+  .form-msg { font-size: 14px; color: var(--muted); min-height: 1.2em; }
+  .form-msg.ok { color: #40c057; }
+  .form-msg.err { color: #ff6b6b; }
+  .propose-form .btn { justify-self: start; }
+
   @media (max-width: 900px) {
+    .feature, .propose { grid-template-columns: 1fr; gap: 26px; }
+    .feature.reverse .feature-img { order: 0; }
+    .steps { grid-template-columns: 1fr; }
     .burger { display: grid; }
     .pages-grid { grid-template-columns: 1fr; }
     .page-card { min-height: 240px; }
@@ -416,6 +465,7 @@
     .scroll-hint { display: none; }
   }
   @media (max-width: 600px) {
+    .propose-form .btn { justify-self: stretch; white-space: normal; text-align: center; }
     .nav .btn { display: none; }
     .mobile-book { display: block; }
     footer { padding-bottom: 100px; }
