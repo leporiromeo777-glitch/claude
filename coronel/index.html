@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coronel Studio · Barbiere a Tesserete</title>
-<meta name="description" content="Coronel Studio, barbiere cileno a Tesserete. Taglio, barba, decolorazione su appuntamento. Via Luigi Canonica 7, Tesserete. Mar–Ven 9–18, Sab 9–17.">
+<meta name="description" content="Coronel Studio, barbiere cileno a Tesserete. Taglio, barba, decolorazione su appuntamento. Via Luigi Canonica 7, Tesserete. Mar–Ven 9–19, Sab 9–18.">
 <meta name="theme-color" content="#0a0a0b">
 <meta property="og:title" content="Coronel Studio · Barbiere a Tesserete">
 <meta property="og:description" content="Taglio, barba e decolorazione su appuntamento. Prenota online.">
@@ -27,8 +27,8 @@
     "addressCountry": "CH"
   },
   "openingHoursSpecification": [
-    {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "18:00"},
-    {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "17:00"}
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "19:00"},
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "18:00"}
   ],
   "sameAs": ["https://www.instagram.com/_coro.nel/"]
 }
@@ -481,7 +481,7 @@
           <a class="btn btn-ghost magnetic" href="#servizi">Vedi il listino</a>
         </div>
         <div class="fade-up" style="--d:1.1s">
-          <a class="status" href="#orari"><span class="dot" id="status-dot"></span><span id="status-text">Mar–Ven 9–18 · Sab 9–17</span></a>
+          <a class="status" href="#orari"><span class="dot" id="status-dot"></span><span id="status-text">Mar–Ven 9–19 · Sab 9–18</span></a>
         </div>
       </div>
       <div class="hero-visual fade-up" style="--d:.4s">
@@ -585,11 +585,11 @@
           <div class="daybar" aria-hidden="true"><i id="daybar"></i></div>
           <ul class="hours" id="hours">
             <li data-day="1" class="off"><span>Lunedì</span><span>Chiuso</span></li>
-            <li data-day="2"><span>Martedì</span><span>09:00 – 18:00</span></li>
-            <li data-day="3"><span>Mercoledì</span><span>09:00 – 18:00</span></li>
-            <li data-day="4"><span>Giovedì</span><span>09:00 – 18:00</span></li>
-            <li data-day="5"><span>Venerdì</span><span>09:00 – 18:00</span></li>
-            <li data-day="6"><span>Sabato</span><span>09:00 – 17:00</span></li>
+            <li data-day="2"><span>Martedì</span><span>09:00 – 19:00</span></li>
+            <li data-day="3"><span>Mercoledì</span><span>09:00 – 19:00</span></li>
+            <li data-day="4"><span>Giovedì</span><span>09:00 – 19:00</span></li>
+            <li data-day="5"><span>Venerdì</span><span>09:00 – 19:00</span></li>
+            <li data-day="6"><span>Sabato</span><span>09:00 – 18:00</span></li>
             <li data-day="0" class="off"><span>Domenica</span><span>Chiuso</span></li>
           </ul>
         </div>
@@ -913,7 +913,7 @@
   });
 
   // ---------- Aperto/chiuso in tempo reale (ora di Zurigo) ----------
-  const HOURS = { 2: [9, 18], 3: [9, 18], 4: [9, 18], 5: [9, 18], 6: [9, 17] };
+  const HOURS = { 2: [9, 19], 3: [9, 19], 4: [9, 19], 5: [9, 19], 6: [9, 18] };
   const DAY_NAMES = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
   const pad = n => String(n).padStart(2, "0");
   const fmtLeft = h => { const m = Math.round(h * 60); return m >= 60 ? `${Math.floor(m / 60)} h ${pad(m % 60)} min` : `${m} min`; };
