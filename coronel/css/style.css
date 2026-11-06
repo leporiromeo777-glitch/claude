@@ -8,6 +8,14 @@
     --blue-soft: #4c6ef5;
     --red: #e03131;
     --white: #ffffff;
+    --kicker: var(--red);
+    --logo-ro: #ffffff;
+    --chip: rgba(255,255,255,.05);
+    --hover-line: #3a3a42;
+    --shadow: rgba(0,0,0,.9);
+    --glow1: rgba(42,76,196,.28);
+    --glow2: rgba(224,49,49,.16);
+    --mark: rgba(255,255,255,.07);
     --radius: 18px;
     --max: 1120px;
     --ease: cubic-bezier(.2, .8, .2, 1);
@@ -39,7 +47,7 @@
   .logo .co { color: var(--blue); display: flex; align-items: center; }
   .logo .co .o { position: relative; display: inline-grid; place-items: center; }
   .logo .co .o svg { position: absolute; width: 42%; height: 42%; }
-  .logo .ro { color: var(--white); padding-left: .55em; }
+  .logo .ro { color: var(--logo-ro); padding-left: .55em; }
   .logo .nel { color: var(--red); font-family: "Archivo Black", sans-serif; letter-spacing: -.04em; }
 
   /* ---------- Nav ---------- */
@@ -48,14 +56,14 @@
     transition: background .3s, border-color .3s, transform .4s var(--ease);
     border-bottom: 1px solid transparent;
   }
-  header.nav.scrolled { background: rgba(10,10,11,.82); backdrop-filter: blur(14px); border-color: var(--line); }
+  header.nav.scrolled { background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(14px); border-color: var(--line); }
   header.nav.hidden { transform: translateY(-100%); }
   header.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
   .nav .logo { font-size: 15px; }
   .nav ul { display: flex; gap: 6px; list-style: none; font-size: 15px; color: var(--muted); }
   .nav ul a { position: relative; padding: 8px 14px; border-radius: 999px; transition: color .2s, background .2s; }
   .nav ul a:hover { color: var(--text); }
-  .nav ul a.active { color: var(--white); background: rgba(255,255,255,.08); }
+  .nav ul a.active { color: var(--text); background: var(--chip); }
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -117,7 +125,7 @@
   .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
   .status {
     margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted);
-    padding: 8px 14px 8px 12px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid var(--line);
+    padding: 8px 14px 8px 12px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line);
   }
   .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
   .dot.open { background: #40c057; box-shadow: 0 0 0 4px rgba(64,192,87,.2); animation: pulse 2s infinite; }
@@ -159,7 +167,7 @@
   /* ---------- Sections ---------- */
   section.block { padding: 110px 0; }
   .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 48px; flex-wrap: wrap; }
-  .kicker { color: var(--red); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+  .kicker { color: var(--kicker); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
   h2 {
     font-family: "Archivo Black", sans-serif; font-weight: 400; text-transform: uppercase;
     font-size: clamp(32px, 5vw, 56px); line-height: 1; letter-spacing: -.02em;
@@ -179,7 +187,7 @@
     content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .3s;
     background: radial-gradient(400px circle at var(--mx) var(--my), rgba(255,255,255,.12), transparent 50%);
   }
-  .svc:hover { --ty: -6px; border-color: #3a3a42; box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); }
+  .svc:hover { --ty: -6px; border-color: var(--hover-line); box-shadow: 0 30px 60px -30px var(--shadow); }
   .svc:hover::before { opacity: 1; }
   .svc.selected { border-color: var(--red); box-shadow: 0 0 0 1px var(--red), 0 30px 60px -30px rgba(224,49,49,.5); }
   .svc-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #1a1a1f; }
@@ -253,7 +261,7 @@
   .why-item .bar::after { content: ""; position: absolute; inset: 0; transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.2s .3s var(--ease); background: var(--c); }
   .why-item.in .bar::after { transform: scaleX(1); }
   .why-item:nth-child(1) { --c: var(--blue-soft); }
-  .why-item:nth-child(2) { --c: var(--white); }
+  .why-item:nth-child(2) { --c: var(--text); }
   .why-item:nth-child(3) { --c: var(--red); }
   .why-item h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
   .why-item p { color: var(--muted); font-size: 15px; }
@@ -284,7 +292,7 @@
   .info-card h3 { font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 20px; }
   .live {
     display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 14px;
-    background: rgba(255,255,255,.03); border: 1px solid var(--line); margin-bottom: 18px;
+    background: var(--chip); border: 1px solid var(--line); margin-bottom: 18px;
   }
   .live strong { display: block; font-size: 17px; }
   .live small { color: var(--muted); font-size: 14px; }
@@ -296,7 +304,7 @@
   .hours li:last-child { border-bottom: 0; }
   .hours li span:last-child { font-variant-numeric: tabular-nums; }
   .hours li.off span:last-child { color: var(--muted); }
-  .hours li.today { color: var(--white); font-weight: 600; }
+  .hours li.today { color: var(--text); font-weight: 600; }
   .hours li.today span:first-child::after {
     content: "oggi"; margin-left: 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
     background: var(--blue); color: var(--white); padding: 3px 8px; border-radius: 999px; vertical-align: 2px; font-weight: 600;
@@ -345,14 +353,14 @@
   @view-transition { navigation: auto; }
   .nav-right { display: flex; align-items: center; gap: 10px; }
   .burger { display: none; width: 44px; height: 44px; place-items: center; border-radius: 50%; }
-  .burger span, .burger span::before, .burger span::after { display: block; width: 22px; height: 2px; background: var(--white); position: relative; border-radius: 2px; transition: transform .3s var(--ease), background .3s; }
+  .burger span, .burger span::before, .burger span::after { display: block; width: 22px; height: 2px; background: var(--text); position: relative; border-radius: 2px; transition: transform .3s var(--ease), background .3s; }
   .burger span::before, .burger span::after { content: ""; position: absolute; left: 0; }
   .burger span::before { top: -7px; } .burger span::after { top: 7px; }
   .menu-open .burger span { background: transparent; }
   .menu-open .burger span::before { transform: translateY(7px) rotate(45deg); }
   .menu-open .burger span::after { transform: translateY(-7px) rotate(-45deg); }
   .mobile-menu {
-    position: fixed; inset: 0; z-index: 45; background: rgba(10,10,11,.97); backdrop-filter: blur(10px);
+    position: fixed; inset: 0; z-index: 45; background: color-mix(in srgb, var(--bg) 97%, transparent); backdrop-filter: blur(10px);
     display: flex; flex-direction: column; justify-content: center; padding: 0 28px;
     opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s;
   }
@@ -372,7 +380,7 @@
   .page-head { position: relative; padding: 150px 0 70px; isolation: isolate; overflow: hidden; }
   .page-head::before {
     content: ""; position: absolute; inset: 0; z-index: -1;
-    background: radial-gradient(50% 70% at 85% 0%, rgba(42,76,196,.28), transparent 70%), radial-gradient(40% 60% at 0% 100%, rgba(224,49,49,.16), transparent 70%);
+    background: radial-gradient(50% 70% at 85% 0%, var(--glow1), transparent 70%), radial-gradient(40% 60% at 0% 100%, var(--glow2), transparent 70%);
   }
   .crumbs { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 22px; }
   .crumbs a:hover { color: var(--text); }
@@ -388,7 +396,7 @@
   }
   .page-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .8s var(--ease); }
   .page-card::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,10,11,.1) 20%, rgba(10,10,11,.9)); }
-  .page-card:hover { transform: translateY(-6px); border-color: #3a3a42; }
+  .page-card:hover { transform: translateY(-6px); border-color: var(--hover-line); }
   .page-card:hover img { transform: scale(1.06); }
   .page-card .kicker { margin-bottom: 8px; }
   .page-card h3 { font-family: "Archivo Black", sans-serif; text-transform: uppercase; font-size: 28px; line-height: 1.05; }
@@ -507,3 +515,85 @@
     .why-img { clip-path: none; }
     .chile .word { opacity: 1; }
   }
+
+  /* ---------- Elementi che restano scuri su ogni pagina ---------- */
+  .summary, .page-card, .cta, .chile, .svc-img {
+    --text: #f4f4f5; --muted: #a1a1aa; --line: rgba(255,255,255,.12); --chip: rgba(255,255,255,.06); --logo-ro: #fff;
+  }
+  .page-card, .cta, .chile { color: var(--text); }
+  .summary { color: var(--text); }
+
+  /* Scritta decorativa contornata nella testata di ogni pagina */
+  .page-head[data-mark]::after {
+    content: attr(data-mark); position: absolute; right: -1vw; bottom: -.14em; z-index: -1; pointer-events: none;
+    font-family: "Archivo Black", sans-serif; font-size: clamp(96px, 19vw, 280px); line-height: 1; white-space: nowrap;
+    color: transparent; -webkit-text-stroke: 1.5px var(--mark);
+  }
+
+  /* ---------- Un carattere diverso per ogni pagina ---------- */
+
+  /* Home: copertina scura del brand, con la striscia rossa */
+  body[data-page="home"] .marquee { background: var(--red); border-color: var(--red); }
+  body[data-page="home"] .marquee span, body[data-page="home"] .marquee span:nth-child(3n+1) { color: #fff; }
+  body[data-page="home"] .marquee span::after { color: #0b1d45; }
+
+  /* Servizi: chiara e calda, color crema, per far risaltare le foto */
+  body[data-page="servizi"] {
+    --bg: #f6f1ea; --bg-2: #fffdf9; --line: #e4d9ca; --text: #1f1a16; --muted: #6f655b;
+    --logo-ro: #1f1a16; --chip: rgba(31,26,22,.06); --hover-line: #cdbfab; --shadow: rgba(80,50,20,.35);
+    --glow1: rgba(224,49,49,.14); --glow2: rgba(42,76,196,.10); --mark: rgba(31,26,22,.10);
+  }
+  body[data-page="servizi"] .svc { background: #fff; }
+
+  /* Lo studio: calda e terrosa, sabbia e terracotta, il "calor chileno" */
+  body[data-page="studio"] {
+    --bg: #efe3d2; --bg-2: #f8efe3; --line: #dccab2; --text: #2a1a10; --muted: #77604c;
+    --kicker: #b5401c; --logo-ro: #2a1a10; --chip: rgba(42,26,16,.06); --hover-line: #c9b293; --shadow: rgba(90,50,20,.35);
+    --glow1: rgba(214,104,47,.28); --glow2: rgba(181,64,28,.18); --mark: rgba(181,64,28,.16);
+  }
+  body[data-page="studio"] .why { background: #e6d4bd; border-color: #d6c0a2; }
+  body[data-page="studio"] .why-item:nth-child(1) { --c: #b5401c; }
+  body[data-page="studio"] .why-item:nth-child(3) { --c: #e03131; }
+  body[data-page="studio"] .why-img { border-radius: 200px 200px 14px 14px; }
+
+  /* Orari & dove: fresca e luminosa, azzurro e blu cileno, come una mappa */
+  body[data-page="orari"] {
+    --bg: #eef4fc; --bg-2: #ffffff; --line: #d3e0f2; --text: #0b1d45; --muted: #52627e;
+    --kicker: #0039a6; --blue: #0039a6; --logo-ro: #0b1d45; --chip: rgba(0,57,166,.06); --hover-line: #a9c1e6; --shadow: rgba(0,40,120,.25);
+    --glow1: rgba(0,57,166,.18); --glow2: rgba(224,49,49,.10); --mark: rgba(0,57,166,.10);
+  }
+  body[data-page="orari"] .map { filter: saturate(.85); }
+  body[data-page="orari"] .info-card { box-shadow: 0 20px 50px -30px rgba(0,40,120,.35); }
+  body[data-page="orari"] .daybar i { background: linear-gradient(90deg, #0039a6, #e03131); }
+
+  /* Collaborazioni: audace, testata rossa cilena a tutto schermo, stile poster */
+  body[data-page="collab"] {
+    --bg: #fafaf8; --bg-2: #ffffff; --line: #e6e6e2; --text: #111111; --muted: #61615c;
+    --logo-ro: #111; --chip: rgba(0,0,0,.05); --hover-line: #c9c9c2; --shadow: rgba(0,0,0,.25); --mark: rgba(255,255,255,.22);
+  }
+  body[data-page="collab"] .page-head { background: var(--red); color: #fff; --text: #fff; --muted: rgba(255,255,255,.85); --kicker: #fff; }
+  body[data-page="collab"] .page-head::before { background: radial-gradient(60% 80% at 90% 10%, rgba(11,29,69,.45), transparent 70%); }
+  body[data-page="collab"] .page-head .btn-primary { background: #fff; color: var(--red); box-shadow: 0 14px 34px -14px rgba(0,0,0,.45); }
+  body[data-page="collab"] .page-head .crumbs a:hover { color: #fff; }
+  body[data-page="collab"] header.nav:not(.scrolled) { --text: #fff; --muted: rgba(255,255,255,.85); --logo-ro: #fff; --chip: rgba(255,255,255,.16); }
+  body[data-page="collab"] header.nav:not(.scrolled) .btn-primary { background: #0b1d45; box-shadow: none; }
+  body[data-page="collab"] .feature-num { font-size: 56px; line-height: 1; display: block; -webkit-text-stroke: 1.5px var(--red); color: transparent; }
+  body[data-page="collab"] .steps li { border-top: 4px solid var(--red); }
+  body[data-page="collab"] .why { background: #0b1d45; --text: #fff; --muted: #b9c3da; --line: rgba(255,255,255,.14); color: var(--text); }
+  body[data-page="collab"] .why .why-item a { color: #fff; }
+  body[data-page="collab"].menu-open header.nav { --text: #111; --muted: #61615c; --logo-ro: #111; }
+  body[data-page="collab"] header.nav:not(.scrolled) .logo .nel { color: #0b1d45; }
+  body[data-page="collab"].menu-open header.nav .logo .nel { color: var(--red); }
+
+  /* Riquadro finale "Prenota il tuo posto" nei colori di ogni pagina */
+  body[data-page="servizi"] .cta { background: #1f1a16; }
+  body[data-page="servizi"] .cta::before { background: radial-gradient(600px circle at var(--mx) var(--my), rgba(224,49,49,.35), transparent 60%), linear-gradient(135deg, #4a2c1c 0%, #1f1a16 70%); }
+  body[data-page="studio"] .cta { background: #7a2a12; }
+  body[data-page="studio"] .cta::before { background: radial-gradient(600px circle at var(--mx) var(--my), rgba(255,210,170,.25), transparent 60%), linear-gradient(135deg, #c2541f 0%, #7a2a12 75%); }
+  body[data-page="studio"] .cta .btn-primary { background: #fff7ee; color: #7a2a12; box-shadow: 0 14px 34px -14px rgba(0,0,0,.45); }
+  body[data-page="studio"] .cta .kicker { color: #ffd9bf; }
+  body[data-page="orari"] .cta { background: #0b1d45; }
+  body[data-page="orari"] .cta::before { background: radial-gradient(600px circle at var(--mx) var(--my), rgba(255,255,255,.18), transparent 60%), linear-gradient(135deg, #0039a6 0%, #0b1d45 75%); }
+  body[data-page="orari"] .cta .kicker { color: #9fc0ff; }
+  body[data-page="collab"] .cta { background: #0b1d45; }
+  body[data-page="collab"] .cta::before { background: radial-gradient(600px circle at var(--mx) var(--my), rgba(224,49,49,.4), transparent 60%), linear-gradient(135deg, #0b1d45 0%, #08142f 80%); }
