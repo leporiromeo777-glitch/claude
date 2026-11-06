@@ -70,23 +70,6 @@
     background: linear-gradient(90deg, var(--blue), var(--white), var(--red));
   }
 
-  /* ---------- Cursor (solo mouse) ---------- */
-  .cursor {
-    position: fixed; top: 0; left: 0; z-index: 200; pointer-events: none;
-    width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,.55);
-    display: grid; place-items: center;
-    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--white);
-    transition: width .3s var(--ease), height .3s var(--ease), margin .3s var(--ease), background .3s, border-color .3s, opacity .3s;
-    opacity: 0;
-  }
-  .cursor span { opacity: 0; transition: opacity .2s; white-space: nowrap; }
-  .cursor.on { opacity: 1; }
-  .cursor.hover { width: 60px; height: 60px; margin: -30px 0 0 -30px; border-color: var(--red); background: rgba(224,49,49,.12); }
-  .cursor.label { width: 92px; height: 92px; margin: -46px 0 0 -46px; background: var(--red); border-color: var(--red); }
-  .cursor.label span { opacity: 1; }
-  @media (pointer: fine) { body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: none; } }
-
   /* ---------- Logo ---------- */
   .logo { display: inline-flex; flex-direction: column; line-height: .82; font-weight: 800; letter-spacing: -.02em; }
   .logo .co { color: var(--blue); display: flex; align-items: center; }
@@ -452,7 +435,6 @@
 <body>
 
 <div class="progress" id="progress"></div>
-<div class="cursor" id="cursor"><span id="cursor-label">Aggiungi</span></div>
 
 <template id="logo-tpl">
   <span class="logo" aria-label="Coronel">
@@ -740,7 +722,6 @@
     card.classList.toggle("selected", on);
     card.setAttribute("aria-pressed", on);
     card.querySelector(".add-label").textContent = on ? "Aggiunto" : "Aggiungi";
-    $("#cursor-label").textContent = on ? "Togli" : "Aggiungi";
     renderSummary();
   });
   $("#sum-clear").addEventListener("click", () => {
@@ -878,24 +859,6 @@
 
   // ---------- Effetti col mouse ----------
   if (finePointer && !reduced) {
-    // Cursore personalizzato
-    document.body.classList.add("has-cursor");
-    const cur = $("#cursor");
-    let cx = innerWidth / 2, cy = innerHeight / 2, tx = cx, ty = cy;
-    addEventListener("mousemove", e => { tx = e.clientX; ty = e.clientY; cur.classList.add("on"); });
-    document.addEventListener("mouseleave", () => cur.classList.remove("on"));
-    (function follow() {
-      cx += (tx - cx) * 0.2; cy += (ty - cy) * 0.2;
-      cur.style.transform = `translate(${cx}px, ${cy}px)`;
-      requestAnimationFrame(follow);
-    })();
-    document.addEventListener("mouseover", e => {
-      const svc = e.target.closest(".svc");
-      if (svc) $("#cursor-label").textContent = svc.classList.contains("selected") ? "Togli" : "Aggiungi";
-      cur.classList.toggle("label", !!svc);
-      cur.classList.toggle("hover", !svc && !!e.target.closest("a, button"));
-    });
-
     // Luce che segue il mouse nell'hero + logo in 3D
     const hero = $("#hero"), badge = $("#badge");
     hero.addEventListener("mousemove", e => {
