@@ -159,3 +159,10 @@ h2 { font-size: 20px; margin: 28px 0 12px; }
 .lang button { padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; }
 .lang button.on { background: var(--red); color: #fff; }
 .auth { position: relative; }
+
+/* Account */
+.acct { width: 34px; height: 34px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--bg-3); border: 1px solid var(--line); font-weight: 700; font-size: 14px; flex: none; }
+.acct.is-admin { border-color: var(--red); box-shadow: 0 0 0 2px rgba(224,49,49,.25); }
+.acct.big { width: 44px; height: 44px; font-size: 18px; }
+.linklike { color: var(--text); font-weight: 600; text-decoration: underline; }
+.auth .back { margin-top: 0; }

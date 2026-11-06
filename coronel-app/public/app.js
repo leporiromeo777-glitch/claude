@@ -46,7 +46,13 @@ async function api(action, body = {}) {
   return data;
 }
 function setToken(t) { S.token = t; try { t ? localStorage.setItem("coronel_token", t) : localStorage.removeItem("coronel_token"); } catch (e) {} }
-function logout() { setToken(null); S.user = null; S.stamps = null; render(); }
+// Esce dall'account e mostra l'accesso ("login") o la registrazione ("signup")
+function logout(mode = "login") {
+  while (openSheets.length) openSheets[openSheets.length - 1](true);
+  setToken(null); S.user = null; S.stamps = null; S.route = "home"; S.adminTab = "oggi"; S.bk = {};
+  history.replaceState({ route: "home", depth: 0 }, "");
+  S.authMode = mode; render(); scrollTo(0, 0);
+}
 
 // QR come SVG (qrcode-generator, caricato solo quando serve)
 function loadScript(src) {
@@ -164,12 +170,29 @@ function langSwitch() {
 function pageTop(title) {
   const lv = S.stamps?.level;
   const back = S.route !== "home" ? `<button class="back" data-back>‹ <span>Indietro</span></button>` : "";
-  return `<div class="top">${logo(14)}<div class="top-right">${langSwitch()}${lv ? `<span class="pill lvl-${lv.id}">★ ${esc(lv.name)}</span>` : ""}</div></div>${back}${title || ""}`;
+  const initial = esc((S.user?.name || "?").trim().charAt(0).toUpperCase());
+  return `<div class="top">${logo(14)}<div class="top-right">${langSwitch()}${lv ? `<span class="pill lvl-${lv.id}">★ ${esc(lv.name)}</span>` : ""}<button class="acct ${S.user?.isAdmin ? "is-admin" : ""}" data-acct aria-label="Account">${initial}</button></div></div>${back}${title || ""}`;
 }
 document.addEventListener("click", e => {
   const l = e.target.closest("[data-lang]"); if (l && l.dataset.lang !== LANG) return setLang(l.dataset.lang);
   if (e.target.closest("[data-back]")) goBack();
+  if (e.target.closest("[data-acct]")) accountSheet();
+  const sw = e.target.closest("[data-switch]"); if (sw) logout(sw.dataset.switch);
 });
+// Finestra account: con chi sei collegato, cambia account, crea un nuovo account, esci
+function accountSheet() {
+  if (!S.user) return;
+  sheet(`<div class="kicker">Account</div><h2>Connesso come</h2>
+    <div class="item" style="margin-bottom:14px"><span class="acct big ${S.user.isAdmin ? "is-admin" : ""}">${esc(S.user.name.charAt(0).toUpperCase())}</span>
+      <div class="grow"><strong>${esc(S.user.name)}</strong><small>${esc(S.user.email)}</small></div>${S.user.isAdmin ? `<span class="badge st-confermata">Amministratore</span>` : ""}</div>
+    <div class="list">
+      <button class="btn btn-red btn-block" data-act="login">Cambia account</button>
+      <button class="btn btn-ghost btn-block" data-act="signup">Crea un nuovo account</button>
+      <button class="btn btn-ghost btn-block" data-act="logout">Esci</button>
+    </div>`, (el, close) => {
+      el.querySelectorAll("[data-act]").forEach(b => b.onclick = () => { const m = b.dataset.act === "signup" ? "signup" : "login"; close(true); logout(m); });
+    });
+}
 
 async function render() {
   renderNav();
@@ -178,7 +201,7 @@ async function render() {
     try { const r = await api("me"); S.user = r.user; S.stamps = r.stamps; renderNav(); }
     catch (e) { setToken(null); }
   }
-  if (!S.user) return renderAuth("login");
+  if (!S.user) return renderAuth(S.authMode || "login");
   const views = { home: viewHome, prenota: viewBook, tessera: viewCard, profilo: viewProfile, admin: viewAdmin };
   (views[S.route] || viewHome)();
 }
@@ -188,8 +211,10 @@ async function refreshMe() { const r = await api("me"); S.user = r.user; S.stamp
 function renderAuth(mode) {
   nav.classList.add("hidden");
   const signup = mode === "signup";
+  S.authMode = mode;
   app.innerHTML = `<div class="auth">
     <div style="position:absolute;top:18px;right:0">${langSwitch()}</div>
+    ${signup ? `<button class="back" data-mode="login" style="align-self:flex-start;margin-bottom:22px">‹ <span>Indietro</span></button>` : ""}
     ${logo(44)}
     <div class="kicker">${signup ? "Crea il tuo account" : "Bentornato"}</div>
     <h1>${signup ? "Entra nel<br>club Coronel" : "Accedi"}</h1>
@@ -205,7 +230,7 @@ function renderAuth(mode) {
     <p class="switch">${signup ? `Hai già un account? <button data-mode="login">Accedi</button>` : `Non hai un account? <button data-mode="signup">Registrati</button>`}</p>
     ${signup ? "" : `<p class="switch" style="margin-top:8px">Password dimenticata? <a href="https://ig.me/m/_coro.nel" target="_blank" rel="noopener">Scrivi a Coronel</a></p>`}
   </div>`;
-  app.querySelector("[data-mode]").onclick = e => renderAuth(e.target.dataset.mode);
+  app.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => renderAuth(b.dataset.mode));
   $("#auth-form").onsubmit = async e => {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.target)), msg = $("#auth-msg"), btn = e.target.querySelector("button");
@@ -406,7 +431,7 @@ async function viewProfile() {
     <div class="card"><p><strong>Coronel</strong><br>Via Luigi Canonica 7, 6950 Tesserete</p>
       <p class="sub" style="margin-top:6px">Mar–Ven 9–19 · Sab 9–18 · Dom–Lun chiuso</p>
       <div class="grid2" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="https://ig.me/m/_coro.nel" target="_blank" rel="noopener">Instagram</a><a class="btn btn-ghost btn-sm" href="https://coronel-studio.netlify.app" target="_blank" rel="noopener">Sito web</a></div></div>
-    <button class="btn btn-ghost btn-block" id="logout" style="margin-top:22px">Esci</button>
+    <div class="grid2" style="margin-top:22px"><button class="btn btn-ghost" data-switch="login">Cambia account</button><button class="btn btn-ghost" id="logout">Esci</button></div>
     <button class="btn btn-block" id="del-acc" style="margin-top:8px;color:#ff8787;font-size:13px">Elimina il mio account</button>`;
   $("#pf").onsubmit = async e => {
     e.preventDefault();
@@ -415,7 +440,7 @@ async function viewProfile() {
     try { const r = await api("update-profile", f); S.user = r.user; msg.className = "msg ok"; msg.textContent = "Salvato"; e.target.reset(); viewProfile(); toast("Profilo aggiornato"); }
     catch (err) { msg.className = "msg err"; msg.textContent = err.message; }
   };
-  $("#logout").onclick = logout;
+  $("#logout").onclick = () => logout("login");
   $("#del-acc").onclick = () => sheet(`<div class="kicker">Attenzione</div><h2>Elimina account</h2>
     <p class="sub">Verranno cancellati il tuo profilo, i timbri e le prenotazioni future. L'operazione non si può annullare.</p>
     <label class="field" style="margin-top:14px"><span>Conferma con la tua password</span><input id="del-pw" type="password" autocomplete="current-password"></label>
@@ -450,6 +475,9 @@ const ADMIN_TABS = [["oggi", "Prenotazioni"], ["scanner", "Scansiona cliente"], 
 function viewAdmin() {
   if (!S.user.isAdmin) return go("home");
   app.innerHTML = `${pageTop(`<div class="kicker">Area riservata</div><h1>Admin</h1>`)}
+    <div class="card row" style="margin:6px 0 12px;padding:14px 16px"><div><small class="sub">Sei collegato come amministratore</small><br><strong>${esc(S.user.email)}</strong></div>
+      <button class="btn btn-ghost btn-sm" data-switch="login">Cambia account</button></div>
+    <p class="sub" style="margin:-4px 0 12px;font-size:13px">Per provare l'app come cliente: <button class="linklike" data-switch="signup">crea un account cliente</button>.</p>
     <div class="tabs">${ADMIN_TABS.map(([k, l]) => `<button class="tab ${S.adminTab === k ? "on" : ""}" data-tab="${k}">${l}</button>`).join("")}</div>
     <div id="adm"><div class="empty"><div class="spin" style="margin:auto"></div></div></div>`;
   app.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
