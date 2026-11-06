@@ -22,9 +22,7 @@ const logo = (size = 14) => `<span class="logo" style="font-size:${size}px"><spa
 
 // ---------- Utilità ----------
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const DAYS = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
-const DAYS_L = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
-const MONTHS = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+const DAYS = DATES.days, DAYS_L = DATES.daysL, MONTHS = DATES.months;
 const wd = d => new Date(d + "T12:00:00Z").getUTCDay();
 const addDays = (d, n) => { const x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 const fmtDate = d => { const x = new Date(d + "T12:00:00Z"); return `${DAYS_L[x.getUTCDay()]} ${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]}`; };
@@ -66,12 +64,21 @@ function fillQR(root) {
   });
 }
 
-// Finestra dal basso
+// Finestra dal basso (si chiude anche con il tasto "indietro" del telefono)
+const openSheets = [];
+let ignorePop = false;
 function sheet(html, onOpen) {
   const bg = document.createElement("div");
   bg.className = "sheet-bg";
   bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}<button class="btn btn-ghost btn-block" data-close style="margin-top:14px">Chiudi</button></div>`;
-  const close = () => { bg.dispatchEvent(new Event("closed")); bg.remove(); };
+  history.pushState({ ...history.state, sheet: true, depth: (history.state?.depth || 0) + 1 }, "");
+  const close = fromPop => {
+    if (!bg.isConnected) return;
+    bg.dispatchEvent(new Event("closed")); bg.remove();
+    openSheets.splice(openSheets.indexOf(close), 1);
+    if (fromPop !== true && history.state?.sheet) { ignorePop = true; history.back(); }
+  };
+  openSheets.push(close);
   bg.addEventListener("click", e => { if (e.target === bg || e.target.closest("[data-close]")) close(); });
   document.body.appendChild(bg);
   if (onOpen) onOpen(bg.querySelector(".sheet"), close, bg);
@@ -128,7 +135,20 @@ function openScanner(title, onCode) {
 }
 
 // ---------- Navigazione ----------
-function go(route) { S.route = route; render(); scrollTo(0, 0); }
+function go(route) {
+  if (route !== S.route) history.pushState({ route, tab: S.adminTab, depth: (history.state?.depth || 0) + 1 }, "");
+  S.route = route; render(); scrollTo(0, 0);
+}
+function goBack() { if ((history.state?.depth || 0) > 0) history.back(); else go("home"); }
+addEventListener("popstate", e => {
+  if (ignorePop) { ignorePop = false; return; }
+  if (openSheets.length) { openSheets[openSheets.length - 1](true); return; }
+  const st = e.state || {};
+  S.route = st.route || "home";
+  if (st.tab) S.adminTab = st.tab;
+  render(); scrollTo(0, 0);
+});
+history.replaceState({ route: S.route, tab: S.adminTab, depth: 0 }, "");
 function renderNav() {
   if (!S.user) { nav.classList.add("hidden"); return; }
   const items = [["home", "Home", I.home], ["prenota", "Prenota", I.cal], ["tessera", "Tessera", I.card], ["profilo", "Profilo", I.user]];
@@ -138,10 +158,18 @@ function renderNav() {
 }
 navIn.addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) go(b.dataset.go); });
 
+function langSwitch() {
+  return `<div class="lang" role="group" aria-label="Lingua">${LANGS.map(l => `<button data-lang="${l}" class="${l === LANG ? "on" : ""}">${l.toUpperCase()}</button>`).join("")}</div>`;
+}
 function pageTop(title) {
   const lv = S.stamps?.level;
-  return `<div class="top">${logo(14)}<div class="top-right">${lv ? `<span class="pill lvl-${lv.id}">★ ${esc(lv.name)}</span>` : ""}</div></div>${title || ""}`;
+  const back = S.route !== "home" ? `<button class="back" data-back>‹ <span>Indietro</span></button>` : "";
+  return `<div class="top">${logo(14)}<div class="top-right">${langSwitch()}${lv ? `<span class="pill lvl-${lv.id}">★ ${esc(lv.name)}</span>` : ""}</div></div>${back}${title || ""}`;
 }
+document.addEventListener("click", e => {
+  const l = e.target.closest("[data-lang]"); if (l && l.dataset.lang !== LANG) return setLang(l.dataset.lang);
+  if (e.target.closest("[data-back]")) goBack();
+});
 
 async function render() {
   renderNav();
@@ -161,6 +189,7 @@ function renderAuth(mode) {
   nav.classList.add("hidden");
   const signup = mode === "signup";
   app.innerHTML = `<div class="auth">
+    <div style="position:absolute;top:18px;right:0">${langSwitch()}</div>
     ${logo(44)}
     <div class="kicker">${signup ? "Crea il tuo account" : "Bentornato"}</div>
     <h1>${signup ? "Entra nel<br>club Coronel" : "Accedi"}</h1>
@@ -230,12 +259,12 @@ function bindCommon() {
 function bookingItem(b, cancellable) {
   const final = b.discount ? Math.round(b.price * (100 - b.discount) / 100) : b.price;
   return `<div class="item"><div class="grow"><strong>${esc(b.serviceName)}</strong>
-    <small>${fmtDate(b.date)} · ${b.time}${b.discount ? ` · sconto ${b.discount}%` : ""}</small></div>
+    <small>${fmtDate(b.date)} · ${b.time}${b.discount ? tr(` · sconto ${b.discount}%`) : ""}</small></div>
     <div class="end"><span class="badge st-${b.status}">${b.status}</span><br><small>${final}€</small>
     ${cancellable && ["richiesta", "confermata"].includes(b.status) ? `<br><button class="btn btn-ghost btn-sm" style="margin-top:6px" data-cancel="${b.id}">Annulla</button>` : ""}</div></div>`;
 }
 async function cancelBooking(id) {
-  if (!confirm("Vuoi annullare questa prenotazione?")) return;
+  if (!confirm(tr("Vuoi annullare questa prenotazione?"))) return;
   try { await api("cancel-booking", { id }); toast("Prenotazione annullata"); render(); } catch (e) { toast(e.message); }
 }
 function showMyQR() {
@@ -367,6 +396,8 @@ async function viewProfile() {
       </details>
       <p class="msg" id="pf-msg"></p>
       <button class="btn btn-red btn-block">Salva</button></form></div>
+    <h2>Lingua</h2>
+    <div class="card row"><span>Italiano / English</span>${langSwitch()}</div>
     <h2>Buoni regalo</h2>
     <div class="card"><p class="sub">Regala un momento da Coronel: scegli l'importo, Coronel attiva il buono e ti dà il codice da regalare.</p>
       <button class="btn btn-ghost btn-block" id="v-new" style="margin-top:12px">${I.gift} Richiedi un buono regalo</button></div>
@@ -421,7 +452,12 @@ function viewAdmin() {
   app.innerHTML = `${pageTop(`<div class="kicker">Area riservata</div><h1>Admin</h1>`)}
     <div class="tabs">${ADMIN_TABS.map(([k, l]) => `<button class="tab ${S.adminTab === k ? "on" : ""}" data-tab="${k}">${l}</button>`).join("")}</div>
     <div id="adm"><div class="empty"><div class="spin" style="margin:auto"></div></div></div>`;
-  app.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { S.adminTab = b.dataset.tab; viewAdmin(); });
+  app.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+    if (b.dataset.tab === S.adminTab) return;
+    S.adminTab = b.dataset.tab;
+    history.pushState({ route: "admin", tab: S.adminTab, depth: (history.state?.depth || 0) + 1 }, "");
+    viewAdmin(); scrollTo(0, 0);
+  });
   ({ oggi: admBookings, scanner: admScanner, qr: admQR, clienti: admClients, calendario: admCalendar, buoni: admVouchers })[S.adminTab]();
 }
 const adm = () => $("#adm");
@@ -469,10 +505,10 @@ function bindClientPanel(root, c, refresh) {
     catch (err) { toast(err.message); e.target.disabled = false; }
   };
   const rd = root.querySelector("#cp-redeem");
-  if (rd) rd.onclick = async () => { if (!confirm("Confermi il premio per " + c.name + "?")) return; try { const r = await api("admin/redeem", { userId: c.id }); toast("Premio riscattato"); refresh(r.stamps); } catch (err) { toast(err.message); } };
+  if (rd) rd.onclick = async () => { if (!confirm(tr("Confermi il premio per " + c.name + "?"))) return; try { const r = await api("admin/redeem", { userId: c.id }); toast("Premio riscattato"); refresh(r.stamps); } catch (err) { toast(err.message); } };
   root.querySelectorAll("[data-adj]").forEach(b => b.onclick = async () => { try { const r = await api("admin/adjust", { userId: c.id, delta: +b.dataset.adj }); toast("Corretto"); refresh(r.stamps); } catch (err) { toast(err.message); } });
   root.querySelector("#cp-pass").onclick = async () => {
-    const p = prompt("Nuova password per " + c.name + " (almeno 8 caratteri):");
+    const p = prompt(tr("Nuova password per " + c.name + " (almeno 8 caratteri):"));
     if (!p) return;
     try { await api("admin/reset-password", { userId: c.id, password: p }); toast("Password aggiornata: comunicala al cliente"); } catch (err) { toast(err.message); }
   };
