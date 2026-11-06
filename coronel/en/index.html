@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coronel · Haircuts in Tesserete</title>
+<meta name="description" content="Coronel: haircuts, beard and bleaching in Tesserete, with Chilean roots. By appointment. Via Luigi Canonica 7, Tesserete. Tue–Fri 9–19, Sat 9–18.">
+<meta name="theme-color" content="#0a0a0b">
+<meta property="og:title" content="Coronel · Haircuts in Tesserete">
+<meta property="og:description" content="Coronel: haircuts, beard and bleaching in Tesserete, with Chilean roots. By appointment. Via Luigi Canonica 7, Tesserete. Tue–Fri 9–19, Sat 9–18.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="../img/taglio.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HairSalon",
+  "name": "Coronel",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Via Luigi Canonica 7",
+    "postalCode": "6950",
+    "addressLocality": "Tesserete",
+    "addressRegion": "TI",
+    "addressCountry": "CH"
+  },
+  "openingHoursSpecification": [
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "19:00"},
+    {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "18:00"}
+  ],
+  "sameAs": ["https://www.instagram.com/_coro.nel/"]
+}
+</script>
+</head>
+<body data-page="home">
+
+<div class="progress" id="progress"></div>
+
+<template id="logo-tpl">
+  <span class="logo" aria-label="Coronel">
+    <span class="co">C<span class="o">O<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.3L12 17.8 5.8 21.5l1.6-7.3L2 9.5l7.1-.6z"/></svg></span></span>
+    <span class="ro">ro</span>
+    <span class="nel">NEL</span>
+  </span>
+</template>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="index.html" data-logo aria-label="Coronel, home"></a>
+    <ul>
+      <li><a href="index.html" data-nav="home">Home</a></li>
+      <li><a href="servizi.html" data-nav="servizi">Services</a></li>
+      <li><a href="studio.html" data-nav="studio">The studio</a></li>
+      <li><a href="orari.html" data-nav="orari">Hours &amp; location</a></li>
+      <li><a href="collaborazioni.html" data-nav="collab">Collaborations</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-switch" role="group" aria-label="Language"><a href="../index.html" hreflang="it" lang="it" data-lang="it">IT</a><a href="index.html" hreflang="en" lang="en" data-lang="en" class="on">EN</a></div>
+      
+      
+      
+      
+      
+      <a class="btn btn-primary btn-sm magnetic" data-book href="#">Book</a>
+      <button class="burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false" aria-controls="mobile-menu"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="mobile-menu" aria-label="Menu">
+  <div class="lang-switch" role="group" aria-label="Language"><a href="../index.html" hreflang="it" lang="it" data-lang="it">IT</a><a href="index.html" hreflang="en" lang="en" data-lang="en" class="on">EN</a></div>
+  
+  
+  
+  
+  
+  <a href="index.html" data-nav="home">Home<small>01</small></a>
+  <a href="servizi.html" data-nav="servizi">Services<small>02</small></a>
+  <a href="studio.html" data-nav="studio">The studio<small>03</small></a>
+  <a href="orari.html" data-nav="orari">Hours &amp; location<small>04</small></a>
+  <a href="collaborazioni.html" data-nav="collab">Collaborations<small>05</small></a>
+  <a class="btn btn-primary" data-book href="#">Book an appointment</a>
+</nav>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="wrap">
+      <div>
+        <span class="eyebrow fade-up" style="--d:.05s">
+          <svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#d52b1e"/><rect width="3" height="1" fill="#fff"/><rect width="1" height="1" fill="#0039a6"/><path fill="#fff" d="M.5.25l.06.18h.19l-.15.11.06.18L.5.61.34.72.4.54.25.43h.19z"/></svg>
+          Chilean roots · Tesserete
+        </span>
+        <h1 aria-label="Your style, made for you">
+          <span class="w"><span style="--i:0">Your</span></span>
+          <span class="w"><span style="--i:1" class="rotator" id="rotator"><span class="cur">style,</span><span>cut,</span><span>fade,</span><span>look,</span></span></span><br>
+          <span class="w"><span style="--i:2" class="b">made</span></span>
+          <span class="w"><span style="--i:3" class="r">for</span></span> <span class="w"><span style="--i:4" class="r">you</span></span>
+        </h1>
+        <p class="lead fade-up" style="--d:.8s">Haircuts in Tesserete, with Chilean roots. Cut, beard and bleaching with attention to every detail, taking all the time it needs — by appointment only.</p>
+        <div class="hero-cta fade-up" style="--d:.95s">
+          <a class="btn btn-primary magnetic" data-book href="#">
+            Book your appointment
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a class="btn btn-ghost magnetic" href="servizi.html">See the price list</a>
+        </div>
+        <div class="fade-up" style="--d:1.1s">
+          <a class="status" href="orari.html"><span class="dot" id="status-dot"></span><span id="status-text">Tue–Fri 9–19 · Sat 9–18</span></a>
+        </div>
+      </div>
+      <div class="hero-visual fade-up" style="--d:.4s">
+        <div class="hero-badge" id="badge">
+          <div class="ring" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><defs><path id="circle" d="M50,50 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
+              <text><textPath href="#circle" textLength="286" lengthAdjust="spacing">Coronel ★ Cut &amp; style ★ Tesserete ★</textPath></text>
+            </svg>
+          </div>
+          <span data-logo></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marquee">
+      <span>Cut</span><span>Fade</span><span>Beard</span><span>Bleaching</span><span>Wash</span><span>By appointment</span>
+      <span>Cut</span><span>Fade</span><span>Beard</span><span>Bleaching</span><span>Wash</span><span>By appointment</span>
+    </div>
+  </div>
+
+  <section class="block" style="padding-top:110px">
+    <div class="wrap">
+      <div class="section-head reveal"><div><div class="kicker">The pages</div><h2>Discover Coronel</h2></div></div>
+      <div class="pages-grid">
+        <a class="page-card reveal" href="servizi.html" style="--d:0.0s">
+          <img src="../img/taglio.webp" alt="" loading="lazy">
+          <div class="kicker">Services & prices</div>
+          <h3>The price list</h3>
+          <p>Cut, beard, bleaching: real prices and length of every service.</p>
+          <span class="go">Open <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="page-card reveal" href="studio.html" style="--d:0.1s">
+          <img src="../img/calor.webp" alt="" loading="lazy">
+          <div class="kicker">The studio</div>
+          <h3>Chilean warmth</h3>
+          <p>The Coronel philosophy: wellbeing first, then the cut.</p>
+          <span class="go">Open <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="page-card reveal" href="orari.html" style="--d:0.2s">
+          <img src="../img/tempo.webp" alt="" loading="lazy">
+          <div class="kicker">Hours &amp; location</div>
+          <h3>Come and see us</h3>
+          <p>Opening hours, address in Tesserete and directions.</p>
+          <span class="go">Open <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="page-card reveal" href="collaborazioni.html" style="--d:0.3s">
+          <img src="../img/collab-scaffale.webp" alt="" loading="lazy">
+          <div class="kicker">Collaborations</div>
+          <h3>Work with Coronel</h3>
+          <p>Display products, merchandise and events: bring your brand into the studio.</p>
+          <span class="go">Open <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="wrap">
+    <section class="cta reveal" id="cta">
+      <div class="kicker">By appointment</div>
+      <h2>Book<br>your spot</h2>
+      <p>Choose your service and time online in seconds. See you in the studio.</p>
+      <a class="btn btn-primary magnetic" data-book href="#">Book now
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-logo></span>
+    <span>Coronel · Via Luigi Canonica 7, 6950 Tesserete · <a href="https://www.instagram.com/_coro.nel/" target="_blank" rel="noopener">@_coro.nel</a></span>
+    <nav class="foot-nav" aria-label="Pages"><a href="index.html">Home</a> <a href="servizi.html">Services</a> <a href="studio.html">The studio</a> <a href="orari.html">Hours &amp; location</a> <a href="collaborazioni.html">Collaborations</a></nav>
+  </div>
+</footer>
+
+<div class="mobile-book away" id="mobile-book"><a class="btn btn-primary" data-book href="#">Book an appointment</a></div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

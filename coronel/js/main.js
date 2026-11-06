@@ -4,12 +4,16 @@
 // Link di prenotazione: incollare qui l'URL completo (con ?studio=...) dalla bio Instagram.
 const BOOKING_URL = "https://elegance-style-75db0663.base44.app/PrenotazioneCliente";
 
+// Lingua della pagina: le pagine inglesi stanno in /en/ con <html lang="en">
+const EN = document.documentElement.lang === "en";
+const t = (it, en) => EN ? en : it;
+
 const SERVICES = [
-  { id: "taglio",        name: "Taglio Uomo",     price: 32, min: 45,  popular: true, alt: "Taglio uomo con sfumatura" },
-  { id: "studente",      name: "Taglio studente", price: 25, min: 45,  alt: "Taglio per studenti" },
-  { id: "barba",         name: "Barba",           price: 15, min: 30,  alt: "Rifinitura della barba" },
-  { id: "decolorazione", name: "Decolorazione",   price: 80, min: 120, alt: "Decolorazione dei capelli" },
-  { id: "lavaggio",      name: "Lavaggio",        price: 5,  min: 10,  alt: "Lavaggio dei capelli" },
+  { id: "taglio",        name: t("Taglio Uomo", "Men's Cut"),     price: 32, min: 45,  popular: true, alt: t("Taglio uomo con sfumatura", "Men's cut with fade") },
+  { id: "studente",      name: t("Taglio studente", "Student Cut"), price: 25, min: 45,  alt: t("Taglio per studenti", "Student haircut") },
+  { id: "barba",         name: t("Barba", "Beard"),           price: 15, min: 30,  alt: t("Rifinitura della barba", "Beard trim") },
+  { id: "decolorazione", name: t("Decolorazione", "Bleaching"),   price: 80, min: 120, alt: t("Decolorazione dei capelli", "Hair bleaching") },
+  { id: "lavaggio",      name: t("Lavaggio", "Wash"),        price: 5,  min: 10,  alt: t("Lavaggio dei capelli", "Hair wash") },
 ];
 
 // Orari (ora di Zurigo): giorno della settimana → [apertura, chiusura]
@@ -50,12 +54,12 @@ if (servicesEl) {
   servicesEl.innerHTML = SERVICES.map((s, i) => `
     <button class="svc reveal" type="button" data-id="${s.id}" aria-pressed="false" style="--d:${(i % 3) * 0.1}s">
       <div class="svc-img">
-        ${s.popular ? '<span class="badge">Più richiesto</span>' : ""}
+        ${s.popular ? `<span class="badge">${t("Più richiesto", "Most popular")}</span>` : ""}
         <span class="price">${s.price}€</span>
-        <img src="img/${s.id}.webp" alt="${s.alt}" width="896" height="1120" loading="lazy">
+        <img src="${EN ? "../" : ""}img/${s.id}.webp" alt="${s.alt}" width="896" height="1120" loading="lazy">
       </div>
       <div class="svc-body"><h3>${s.name}</h3><span class="dur">${s.min} min</span></div>
-      <span class="svc-add"><span class="add-label">Aggiungi</span><span class="plus">${plus}</span></span>
+      <span class="svc-add"><span class="add-label">${t("Aggiungi", "Add")}</span><span class="plus">${plus}</span></span>
     </button>`).join("");
   $("#dots").innerHTML = SERVICES.map(() => "<i></i>").join("");
 
@@ -83,7 +87,7 @@ if (servicesEl) {
   const setCard = (card, on) => {
     card.classList.toggle("selected", on);
     card.setAttribute("aria-pressed", on);
-    card.querySelector(".add-label").textContent = on ? "Aggiunto" : "Aggiungi";
+    card.querySelector(".add-label").textContent = on ? t("Aggiunto", "Added") : t("Aggiungi", "Add");
   };
   servicesEl.addEventListener("click", e => {
     const card = e.target.closest(".svc"); if (!card) return;
@@ -246,13 +250,13 @@ if (finePointer && !reduced) {
 // ---------- Copia indirizzo (orari) ----------
 const copyBtn = $("#copy-addr");
 if (copyBtn) copyBtn.addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText("Via Luigi Canonica 7, 6950 Tesserete"); copyBtn.textContent = "Copiato ✓"; copyBtn.classList.add("copy-ok"); }
+  try { await navigator.clipboard.writeText("Via Luigi Canonica 7, 6950 Tesserete"); copyBtn.textContent = t("Copiato ✓", "Copied ✓"); copyBtn.classList.add("copy-ok"); }
   catch { copyBtn.textContent = "Via Luigi Canonica 7"; }
-  setTimeout(() => { copyBtn.textContent = "Copia indirizzo"; copyBtn.classList.remove("copy-ok"); }, 2000);
+  setTimeout(() => { copyBtn.textContent = t("Copia indirizzo", "Copy address"); copyBtn.classList.remove("copy-ok"); }, 2000);
 });
 
 // ---------- Aperto/chiuso in tempo reale (ora di Zurigo) ----------
-const DAY_NAMES = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+const DAY_NAMES = EN ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] : ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
 const pad = n => String(n).padStart(2, "0");
 const fmtLeft = h => { const m = Math.round(h * 60); return m >= 60 ? `${Math.floor(m / 60)} h ${pad(m % 60)} min` : `${m} min`; };
 const setText = (sel, t) => { const el = $(sel); if (el) el.textContent = t; };
@@ -264,22 +268,22 @@ function updateStatus() {
   $$("#hours li").forEach(li => li.classList.toggle("today", +li.dataset.day === day));
   let open = false, short, title, sub, pct = 0;
   if (today && h >= today[0] && h < today[1]) {
-    open = true; title = "Aperto ora";
-    short = `Aperto ora · chiude alle ${today[1]}:00`;
-    sub = `Chiude tra ${fmtLeft(today[1] - h)}`;
+    open = true; title = t("Aperto ora", "Open now");
+    short = t(`Aperto ora · chiude alle ${today[1]}:00`, `Open now · closes at ${today[1]}:00`);
+    sub = t(`Chiude tra ${fmtLeft(today[1] - h)}`, `Closes in ${fmtLeft(today[1] - h)}`);
     pct = (h - today[0]) / (today[1] - today[0]) * 100;
   } else if (today && h < today[0]) {
-    title = "Chiuso";
-    short = `Chiuso · apre oggi alle ${pad(today[0])}:00`;
-    sub = `Apre tra ${fmtLeft(today[0] - h)}`;
+    title = t("Chiuso", "Closed");
+    short = t(`Chiuso · apre oggi alle ${pad(today[0])}:00`, `Closed · opens today at ${pad(today[0])}:00`);
+    sub = t(`Apre tra ${fmtLeft(today[0] - h)}`, `Opens in ${fmtLeft(today[0] - h)}`);
   } else {
     for (let i = 1; i <= 7; i++) {
       const d = (day + i) % 7;
       if (HOURS[d]) {
-        const when = i === 1 ? "domani" : DAY_NAMES[d];
-        title = "Chiuso";
-        short = `Chiuso · riapre ${when} alle ${pad(HOURS[d][0])}:00`;
-        sub = `Riapre ${when} alle ${pad(HOURS[d][0])}:00`;
+        const when = i === 1 ? t("domani", "tomorrow") : (EN ? "on " : "") + DAY_NAMES[d];
+        title = t("Chiuso", "Closed");
+        short = t(`Chiuso · riapre ${when} alle ${pad(HOURS[d][0])}:00`, `Closed · reopens ${when} at ${pad(HOURS[d][0])}:00`);
+        sub = t(`Riapre ${when} alle ${pad(HOURS[d][0])}:00`, `Reopens ${when} at ${pad(HOURS[d][0])}:00`);
         pct = today ? 100 : 0;
         break;
       }
@@ -319,22 +323,22 @@ if (collabForm) {
       if (!nome) collabForm.elements.nome.closest(".field").classList.add("invalid");
       if (!idea) collabForm.elements.idea.closest(".field").classList.add("invalid");
       msg.className = "form-msg err";
-      msg.textContent = "Scrivi il tuo nome/brand e la tua idea.";
+      msg.textContent = t("Scrivi il tuo nome/brand e la tua idea.", "Please enter your name/brand and your idea.");
       return;
     }
     const text = [
-      "Ciao Coronel! Vorrei proporre una collaborazione.",
-      `Nome / brand: ${nome}`,
-      `Tipo: ${tipo}`,
-      `Idea: ${idea}`,
-      contatto ? `Contatto: ${contatto}` : "",
+      t("Ciao Coronel! Vorrei proporre una collaborazione.", "Hi Coronel! I'd like to propose a collaboration."),
+      `${t("Nome / brand", "Name / brand")}: ${nome}`,
+      `${t("Tipo", "Type")}: ${tipo}`,
+      `${t("Idea", "Idea")}: ${idea}`,
+      contatto ? `${t("Contatto", "Contact")}: ${contatto}` : "",
     ].filter(Boolean).join("\n");
     let copied = copySync(text);
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => {}, () => {});
     window.open(IG_DM, "_blank", "noopener");
     msg.className = "form-msg ok";
     msg.textContent = copied
-      ? "Messaggio copiato! Si è aperta la chat Instagram di @_coro.nel: incollalo e invia."
-      : "Si è aperta la chat Instagram di @_coro.nel: scrivi lì la tua proposta.";
+      ? t("Messaggio copiato! Si è aperta la chat Instagram di @_coro.nel: incollalo e invia.", "Message copied! The Instagram chat with @_coro.nel is open: paste it and send.")
+      : t("Si è aperta la chat Instagram di @_coro.nel: scrivi lì la tua proposta.", "The Instagram chat with @_coro.nel is open: write your proposal there.");
   });
 }

@@ -597,3 +597,12 @@
   body[data-page="orari"] .cta .kicker { color: #9fc0ff; }
   body[data-page="collab"] .cta { background: #0b1d45; }
   body[data-page="collab"] .cta::before { background: radial-gradient(600px circle at var(--mx) var(--my), rgba(224,49,49,.4), transparent 60%), linear-gradient(135deg, #0b1d45 0%, #08142f 80%); }
+
+  /* Selettore lingua IT / EN */
+  .lang-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--chip); }
+  .lang-switch a { padding: 6px 11px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); transition: color .2s, background .2s; }
+  .lang-switch a:hover { color: var(--text); }
+  .lang-switch a.on { background: var(--red); color: #fff; }
+  .mobile-menu .lang-switch { align-self: flex-start; margin-bottom: 18px; }
+  .mobile-menu .lang-switch a { padding: 9px 16px; font-size: 14px; border: 0; display: inline-block; font-family: "Outfit", sans-serif; }
+  body[data-page="collab"] header.nav:not(.scrolled) .lang-switch a.on { background: #0b1d45; }
