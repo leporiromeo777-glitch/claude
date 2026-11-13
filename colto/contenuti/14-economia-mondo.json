@@ -24,7 +24,7 @@
     "titolo": "La regina che disse no a una macchina",
     "libro": { "titolo": "Perché le nazioni falliscono", "autore": "Daron Acemoglu, James A. Robinson", "anno": 2012, "titoloOriginale": "Why Nations Fail" },
     "scene": [
-      { "tipo": "apertura", "testo": "Inventi una macchina che fa le calze da sola. La regina ==dice no==." },
+      { "tipo": "apertura", "testo": "Inventi una macchina per fare le calze. La regina ==ti dice no==." },
       { "tipo": "esempio", "testo": "1589. William Lee porta a Elisabetta I un telaio per la maglia. Niente brevetto: i sudditi resterebbero ==senza lavoro==. Poi rifiuta anche Giacomo I." },
       { "tipo": "colpo", "testo": "Bontà d'animo? Non proprio." },
       { "tipo": "testo", "testo": "Il nuovo crea nuovi ricchi e mette in crisi i vecchi potenti. Per Acemoglu e Robinson la regina teme ==per il trono==." },
@@ -40,9 +40,9 @@
     "titolo": "Un chilo di lenticchie per un vaccino",
     "libro": { "titolo": "L'economia dei poveri", "autore": "Abhijit V. Banerjee, Esther Duflo", "anno": 2011, "titoloOriginale": "Poor Economics" },
     "scene": [
-      { "tipo": "apertura", "testo": "I vaccini sono gratis. Li completano ==6 bambini su 100==." },
+      { "tipo": "apertura", "testo": "Udaipur, India: vaccini gratis. Li completano ==6 bambini su 100==." },
       { "tipo": "colpo", "testo": "La soluzione? ==Lenticchie.==" },
-      { "tipo": "testo", "titolo": "Udaipur, India", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. E i genitori ==rimandano==." },
+      { "tipo": "testo", "titolo": "Perché così pochi?", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. E i genitori ==rimandano==." },
       { "tipo": "esempio", "testo": "Banerjee e Duflo fanno una prova. Prima: una clinica mobile sempre puntuale. Poi un regalo: ==un chilo di lenticchie== a ogni vaccino." },
       { "tipo": "grafico", "titolo": "Bambini con tutti i vaccini", "forma": "barre", "unita": "%",
         "dati": [ { "e": "Niente", "v": 6 }, { "e": "Clinica", "v": 18 }, { "e": "Più dono", "v": 39 } ],

@@ -219,29 +219,28 @@
       { "tipo": "esempio", "testo": "È un racconto di David Bach. Zoey ha il lavoro dei sogni a New York e niente da parte. La sua capa la manda da Henry, ==un vecchio barista==." },
       { "tipo": "colpo", "testo": "Henry le fa ==contare i caffè==." },
       { "tipo": "numero", "valore": 1825, "suffisso": " €", "didascalia": "Un anno di caffè e snack, a ==5 euro al giorno==.", "nota": "Esempio illustrativo: 5 × 365." },
-      { "tipo": "testo", "titolo": "La critica", "testo": "Casa e auto pesano più dei caffè: i critici hanno ragione. Per Bach però il caffè è ==solo un simbolo==." },
+      { "tipo": "testo", "titolo": "La critica", "testo": "Casa e auto pesano più dei caffè, dicono i critici. È vero. Per Bach però il caffè è ==solo un simbolo==." },
       { "tipo": "mito", "mito": "Per risparmiare devo guadagnare di più", "realta": "Per Bach i soldi per iniziare li hai già: ==escono in spese che non noti==." },
-      { "tipo": "principio", "testo": "Non conta rinunciare a tutto. Conta ==scegliere tu== quali piccole spese valgono. Il resto è abitudine." },
+      { "tipo": "principio", "testo": "Non devi rinunciare a tutto. ==Scegli tu== quali piccole spese valgono. Il resto è abitudine." },
       { "tipo": "chiusura", "azione": "Apri l'estratto conto. Segna ==tre piccole spese== che avevi già dimenticato." }
     ]
   },
   {
     "id": "money-master-game-costi",
     "categoria": "investimenti",
-    "titolo": "Quanto ti costa davvero un fondo al 2%",
-    "libro": { "titolo": "Money: Master the Game", "autore": "Tony Robbins", "anno": 2014 },
+    "titolo": "Tre amici, stesso investimento, 250 mila di differenza",
+    "libro": { "titolo": "Soldi. Domina il gioco", "autore": "Tony Robbins", "anno": 2014, "titoloOriginale": "Money: Master the Game" },
     "scene": [
-      { "tipo": "apertura", "testo": "Un fondo costa lo 0,2% l'anno, un altro il 2%. ==Poca differenza?==" },
-      { "tipo": "quiz", "domanda": "Entrambi rendono il 6% lordo. Dopo 30 anni, quanto vale in meno quello al 2%?",
-        "opzioni": ["Circa il 40%", "Circa il 20%", "Circa il 2%"], "corretta": 0,
-        "spiegazione": "Esempio illustrativo: 10 mila euro diventano circa 54 mila o 32 mila." },
-      { "tipo": "grafico", "titolo": "10 mila euro dopo 30 anni, per costo annuo", "forma": "barre", "unita": "mila",
-        "dati": [ { "e": "0,2%", "v": 54.3 }, { "e": "1%", "v": 43.2 }, { "e": "2%", "v": 32.4 } ],
-        "nota": "Esempio illustrativo: 6% lordo ipotetico. I rendimenti reali variano." },
-      { "tipo": "colpo", "testo": "Il costo ==si paga ogni anno==." },
-      { "tipo": "testo", "testo": "Tony Robbins cita Jack Bogle, fondatore di Vanguard. I costi li paghi su tutto il capitale, ==interessi maturati compresi==." },
-      { "tipo": "principio", "testo": "Per Robbins il rendimento non lo controlli. ==I costi sì.== Ogni punto risparmiato resta a te." },
-      { "tipo": "chiusura", "azione": "Hai un fondo? Cerca nel documento informativo la voce ==«costi correnti»==." }
+      { "tipo": "apertura", "testo": "Tre amici, stessi soldi, stesso mercato. A uno mancano ==250 mila==." },
+      { "tipo": "esempio", "testo": "L'esempio è di Tony Robbins. Jason, Matthew e Taylor hanno 35 anni e 100 mila dollari a testa. Tre fondi diversi, ==stesso 7% lordo== per trent'anni." },
+      { "tipo": "colpo", "testo": "Cambia solo ==il costo==." },
+      { "tipo": "grafico", "titolo": "A 65 anni, per costo annuo del fondo", "forma": "barre", "unita": "mila",
+        "dati": [ { "e": "1%", "v": 574 }, { "e": "2%", "v": 432 }, { "e": "3%", "v": 324 } ],
+        "nota": "Esempio del libro, in dollari. Rendimento ipotetico, non garantito." },
+      { "tipo": "mito", "mito": "Il 2% l'anno è un prezzo piccolo", "realta": "Per Robbins è un mito: lo paghi ogni anno, ==guadagni compresi==." },
+      { "tipo": "colpo", "testo": "E su ==50 anni==?" },
+      { "tipo": "principio", "testo": "Jack Bogle, fondatore di Vanguard, a Robbins: col 2% di costi ==ti resta poco più di un terzo==." },
+      { "tipo": "chiusura", "azione": "Hai un fondo? Trova il costo annuo e ==traducilo in euro==. Scrivi la cifra." }
     ]
   }
 ]
