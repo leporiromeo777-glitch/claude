@@ -5,7 +5,7 @@
     "titolo": "Il caffè non ti sveglia: ti nasconde il sonno",
     "libro": { "titolo": "Perché dormiamo", "autore": "Matthew Walker", "anno": 2017, "titoloOriginale": "Why We Sleep" },
     "scene": [
-      { "tipo": "apertura", "testo": "Il caffè non ti toglie il sonno. ==Te lo nasconde.==" },
+      { "tipo": "apertura", "testo": "Il caffè non ti fa passare il sonno. ==Te lo nasconde.==" },
       { "tipo": "testo", "titolo": "La pressione del sonno", "testo": "Per Matthew Walker, da sveglio accumuli nel cervello l'adenosina. ==Più ne hai, più hai sonno.== Dormendo la smaltisci." },
       { "tipo": "colpo", "testo": "Poi arriva ==la tazzina==." },
       { "tipo": "mito", "mito": "Il caffè ti ricarica", "realta": "Occupa i recettori dell'adenosina: ==il segnale di sonno non arriva==." },
@@ -26,8 +26,9 @@
       { "tipo": "esempio", "testo": "Naperville, vicino a Chicago. Lì la ginnastica non è una gara. Si corre con il cardiofrequenzimetro. Il voto guarda il battito, ==non il cronometro==." },
       { "tipo": "colpo", "testo": "E nelle ==altre materie==?" },
       { "tipo": "numero", "valore": 1, "suffisso": "°", "didascalia": "Il posto del distretto in scienze, in un test mondiale del 1999.", "nota": "TIMSS, terza media. Sesti in matematica." },
-      { "tipo": "testo", "titolo": "Che cosa c'entra la corsa", "testo": "Per John Ratey il movimento prepara il cervello a imparare. Sale l'attenzione. E sale il BDNF, una proteina che ==aiuta i neuroni a collegarsi==." },
-      { "tipo": "mito", "mito": "La ginnastica toglie tempo allo studio", "realta": "Per Ratey lo prepara. Ma Naperville è un indizio, ==non una prova==." },
+      { "tipo": "colpo", "testo": "Una prova? ==No: un indizio.==" },
+      { "tipo": "testo", "titolo": "Che cosa c'entra la corsa", "testo": "Naperville è un distretto benestante: i voti hanno tante cause. Ma per John Ratey muoversi fa salire il BDNF, che ==aiuta i neuroni a collegarsi==." },
+      { "tipo": "mito", "mito": "La ginnastica toglie tempo allo studio", "realta": "Per Ratey lo prepara: dopo il movimento il cervello è ==più pronto a imparare==." },
       { "tipo": "chiusura", "azione": "Prima di studiare fai ==dieci minuti a passo svelto==. Poi siediti." }
     ]
   },
@@ -55,7 +56,7 @@
     "libro": { "titolo": "Rest", "autore": "Alex Soojung-Kim Pang", "anno": 2016 },
     "scene": [
       { "tipo": "apertura", "testo": "Darwin lavorava tre blocchi da 90 minuti al giorno. ==Poi basta.==" },
-      { "tipo": "colpo", "testo": "Non era ==un'eccezione==." },
+      { "tipo": "colpo", "testo": "E non era ==il solo==." },
       { "tipo": "grafico", "titolo": "Ore di lavoro concentrato al giorno", "forma": "barre", "unita": "h",
         "dati": [ { "e": "Darwin", "v": 4.5 }, { "e": "Poincaré", "v": 4 }, { "e": "Hardy", "v": 4 } ],
         "nota": "Dagli orari che Alex Pang ricostruisce nel libro." },
@@ -88,7 +89,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Cuore a mille prima dell'esame. «Calmati», ti dicono. ==C'è di meglio.==" },
       { "tipo": "colpo", "testo": "Due parole: ==«sono carico»==." },
-      { "tipo": "esempio", "testo": "Harvard. Alison Wood Brooks fa parlare in pubblico dei volontari. Prima, metà dice «sono calmo», metà «sono carico». ==I secondi parlano meglio.==" },
+      { "tipo": "esempio", "testo": "Alison Wood Brooks, docente a Harvard, fa parlare in pubblico dei volontari. Prima, metà dice «sono calmo», metà «sono carico». ==I secondi convincono di più.==" },
       { "tipo": "quiz", "domanda": "A metà degli studenti dicono: «l'ansia può aiutarti». Come vanno al test?",
         "opzioni": ["Peggio degli altri", "Come gli altri", "Meglio degli altri"], "corretta": 2,
         "spiegazione": "È lo studio di Jeremy Jamieson citato da McGonigal: cambia l'idea, cambia il voto." },
@@ -100,7 +101,7 @@
     "id": "elogio-lentezza-favola-un-minuto",
     "categoria": "benessere",
     "titolo": "La favola della buonanotte in sessanta secondi",
-    "libro": { "titolo": "Elogio della lentezza", "autore": "Carl Honoré", "anno": 2004, "titoloOriginale": "In Praise of Slowness" },
+    "libro": { "titolo": "Elogio della lentezza", "autore": "Carl Honoré", "anno": 2004, "titoloOriginale": "In Praise of Slow" },
     "scene": [
       { "tipo": "apertura", "testo": "Favole della buonanotte ==da un minuto==. Un papà stava per comprarle." },
       { "tipo": "esempio", "testo": "Carl Honoré, giornalista sempre di corsa, legge al figlio saltando le righe. In aeroporto vede un articolo: fiabe ==in sessanta secondi==." },
@@ -121,10 +122,10 @@
     "titolo": "Il decathlon dei tuoi novant'anni",
     "libro": { "titolo": "Outlive", "autore": "Peter Attia", "anno": 2023 },
     "scene": [
-      { "tipo": "apertura", "testo": "Che cosa vuoi saper fare ==a novant'anni==? Scrivilo adesso." },
-      { "tipo": "elenco", "titolo": "Per esempio", "voci": ["Alzarti da terra da solo", "Prendere in braccio un bambino", "Sollevare una valigia"] },
-      { "tipo": "colpo", "testo": "Peter Attia ne fa ==una gara==." },
-      { "tipo": "testo", "titolo": "Il decathlon del centenario", "testo": "Attia, medico, fa scegliere dieci gesti così. Poi ragiona all'indietro: ==cosa devi saper fare oggi== per riuscirci?" },
+      { "tipo": "apertura", "testo": "C'è una gara a cui ti iscrivi oggi. ==Si corre a novant'anni.==" },
+      { "tipo": "colpo", "testo": "E le prove ==le scegli tu==." },
+      { "tipo": "elenco", "titolo": "Le prove, per esempio", "voci": ["Alzarti da terra da solo", "Prendere in braccio un bambino", "Sollevare una valigia"] },
+      { "tipo": "testo", "titolo": "Il decathlon del centenario", "testo": "Peter Attia, medico, fa scegliere dieci gesti così. Poi ragiona all'indietro: ==cosa devi saper fare oggi== per riuscirci?" },
       { "tipo": "quiz", "domanda": "A 90 anni vuoi fare le scale con la spesa. Per Attia, a 50 devi…",
         "opzioni": ["Riuscirci appena", "Riuscirci con molto margine"], "corretta": 1,
         "spiegazione": "Forza e fiato calano con l'età. Per Attia il margine si costruisce prima." },
@@ -142,7 +143,7 @@
       { "tipo": "confronto", "titolo": "Che cosa è cambiato",
         "a": { "etichetta": "Senza fondo", "voci": ["La pagina non finisce mai", "Nessuna pausa per decidere"] },
         "b": { "etichetta": "Con un fondo", "voci": ["A fine pagina clicchi «avanti»", "Un attimo per dirti: smetto?"] } },
-      { "tipo": "esempio", "testo": "2006. Il programmatore Aza Raskin inventa lo scorrimento infinito. Anni dopo dice a Johann Hari di essersene pentito. Tiene la gente sullo schermo ==troppo a lungo==." },
+      { "tipo": "esempio", "testo": "2006. Aza Raskin è tra i primi a progettare lo scorrimento infinito. Anni dopo dice a Johann Hari di essersene pentito: tiene la gente sullo schermo ==molto più a lungo==." },
       { "tipo": "colpo", "testo": "E ==non è un incidente==." },
       { "tipo": "mito", "mito": "Mi distraggo perché ho poca forza di volontà", "realta": "Per Hari molte app sono progettate apposta per ==non farti smettere==." },
       { "tipo": "principio", "testo": "Per Hari la tua attenzione non è crollata da sola. ==Te la stanno portando via.==" },
@@ -155,13 +156,13 @@
     "titolo": "Problema risolto, stress ancora lì",
     "libro": { "titolo": "Burnout", "autore": "Emily Nagoski, Amelia Nagoski", "anno": 2019 },
     "scene": [
-      { "tipo": "apertura", "testo": "Hai consegnato. Problema risolto. ==Allora perché sei ancora teso?==" },
+      { "tipo": "apertura", "testo": "Hai consegnato. Problema risolto. ==Il tuo corpo non lo sa.==" },
       { "tipo": "testo", "titolo": "Due cose diverse", "testo": "Emily e Amelia Nagoski separano la causa dallo stress. La causa è la scadenza. Lo stress è ciò che ==succede nel tuo corpo==." },
       { "tipo": "esempio", "testo": "Un leone ti insegue. Corri, arrivi al villaggio, sei salvo: il corpo capisce che ==è finita==. Dopo una mail difficile quel segnale non arriva." },
       { "tipo": "colpo", "testo": "Il ciclo resta ==aperto==." },
       { "tipo": "elenco", "titolo": "Come si chiude, per le autrici", "voci": ["Muoverti: il modo più efficace", "Una risata vera", "Un abbraccio lungo, venti secondi", "Un bel pianto"] },
       { "tipo": "mito", "mito": "Risolto il problema, lo stress passa da solo", "realta": "Per le Nagoski il corpo aspetta ==un segnale che è finita==." },
-      { "tipo": "chiusura", "azione": "Dopo la prossima giornata pesante, ==cammina svelto dieci minuti== prima di sederti." }
+      { "tipo": "chiusura", "azione": "Stasera, chiuso il computer, metti una canzone e ==muoviti finché dura==." }
     ]
   },
   {
@@ -184,13 +185,13 @@
   {
     "id": "blue-zones-muoversi-senza-palestra",
     "categoria": "benessere",
-    "titolo": "Zone blu: muoversi senza accorgersene",
+    "titolo": "Muoversi senza accorgersene, come i pastori sardi",
     "libro": { "titolo": "The Blue Zones", "autore": "Dan Buettner", "anno": 2008 },
     "scene": [
-      { "tipo": "apertura", "testo": "Le «zone blu»? Il nome viene da ==una penna blu== su una cartina sarda." },
-      { "tipo": "esempio", "testo": "Primi anni Duemila. Gianni Pes e Michel Poulain studiano i centenari sardi. Cerchiano i loro paesi in blu. ==Il nome resta.==" },
+      { "tipo": "apertura", "testo": "Palestra un'ora, sedia per dieci. ==I pastori sardi fanno l'opposto.==" },
+      { "tipo": "esempio", "testo": "Primi anni Duemila. Gianni Pes e Michel Poulain studiano i centenari sardi. Segnano i loro paesi con una penna blu. Nasce un nome: ==zone blu==." },
       { "tipo": "testo", "testo": "Dan Buettner visita posti simili, da Okinawa alla Costa Rica. Cerca ==che cosa hanno in comune==." },
-      { "tipo": "colpo", "testo": "Niente ==palestra==." },
+      { "tipo": "colpo", "testo": "Non è ==la palestra==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Come lo pensiamo", "voci": ["Un'ora intensa, poi seduti"] },
         "b": { "etichetta": "Come lo ha visto lì", "voci": ["Pastori a piedi, orti, salite", "Poco sforzo, tutto il giorno"] } },
@@ -209,10 +210,10 @@
       { "tipo": "mito", "mito": "È tutta questione di endorfine", "realta": "Per gli studi che McGonigal cita c'entrano di più gli ==endocannabinoidi==." },
       { "tipo": "colpo", "testo": "E c'entra ==la preistoria==." },
       { "tipo": "testo", "testo": "Per l'antropologo David Raichlen cacciare e raccogliere chiedeva ore di movimento. Il cervello imparò a ==premiare chi insisteva==." },
-      { "tipo": "quiz", "domanda": "Mezz'ora sul tapis roulant. Quale andatura dà lo sballo?",
+      { "tipo": "quiz", "domanda": "Mezz'ora sul tapis roulant. Quale andatura alza gli endocannabinoidi?",
         "opzioni": ["Corsetta costante", "Camminata lenta", "Corsa al massimo"], "corretta": 0,
-        "spiegazione": "Nel test di Raichlen gli endocannabinoidi salirono solo con lo sforzo moderato." },
-      { "tipo": "principio", "testo": "Per McGonigal non premia la velocità ma la costanza: ==in bici, in salita, in acqua==." },
+        "spiegazione": "Nel test di Raichlen salirono solo con lo sforzo moderato. Né piano, né al massimo." },
+      { "tipo": "principio", "testo": "Per McGonigal non premia la velocità ma la costanza. Vale anche ==in bici o in salita==." },
       { "tipo": "chiusura", "azione": "Oggi ==venti minuti di camminata svelta==, senza fermarti." }
     ]
   },
@@ -220,7 +221,7 @@
     "id": "elogio-lentezza-slow-food",
     "categoria": "benessere",
     "titolo": "La lumaca che sfidò il fast food",
-    "libro": { "titolo": "Elogio della lentezza", "autore": "Carl Honoré", "anno": 2004, "titoloOriginale": "In Praise of Slowness" },
+    "libro": { "titolo": "Elogio della lentezza", "autore": "Carl Honoré", "anno": 2004, "titoloOriginale": "In Praise of Slow" },
     "scene": [
       { "tipo": "apertura", "testo": "Roma, 1986. Apre un fast food a Piazza di Spagna. ==Risponde una lumaca.==" },
       { "tipo": "esempio", "testo": "Carlo Petrini, giornalista piemontese, non ci sta e lancia Slow Food. Simbolo: una chiocciola. Idea: il cibo buono ==chiede tempo== e compagnia." },
