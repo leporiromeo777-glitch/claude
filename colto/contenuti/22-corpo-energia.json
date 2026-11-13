@@ -27,7 +27,7 @@
       { "tipo": "colpo", "testo": "E nelle ==altre materie==?" },
       { "tipo": "numero", "valore": 1, "suffisso": "°", "didascalia": "Il posto del distretto in scienze, in un test mondiale del 1999.", "nota": "TIMSS, terza media. Sesti in matematica." },
       { "tipo": "colpo", "testo": "Una prova? ==No: un indizio.==" },
-      { "tipo": "testo", "titolo": "Che cosa c'entra la corsa", "testo": "Naperville è un distretto benestante: i voti hanno tante cause. Ma per John Ratey muoversi fa salire il BDNF, che ==aiuta i neuroni a collegarsi==." },
+      { "tipo": "testo", "titolo": "Che cosa c'entra la corsa", "testo": "Naperville è un distretto benestante: i voti hanno tante cause. Ma per John Ratey la corsa c'entra. Alza il BDNF, che ==aiuta i neuroni a collegarsi==." },
       { "tipo": "mito", "mito": "La ginnastica toglie tempo allo studio", "realta": "Per Ratey lo prepara: dopo il movimento il cervello è ==più pronto a imparare==." },
       { "tipo": "chiusura", "azione": "Prima di studiare fai ==dieci minuti a passo svelto==. Poi siediti." }
     ]
@@ -143,7 +143,7 @@
       { "tipo": "confronto", "titolo": "Che cosa è cambiato",
         "a": { "etichetta": "Senza fondo", "voci": ["La pagina non finisce mai", "Nessuna pausa per decidere"] },
         "b": { "etichetta": "Con un fondo", "voci": ["A fine pagina clicchi «avanti»", "Un attimo per dirti: smetto?"] } },
-      { "tipo": "esempio", "testo": "2006. Aza Raskin è tra i primi a progettare lo scorrimento infinito. Anni dopo dice a Johann Hari di essersene pentito: tiene la gente sullo schermo ==molto più a lungo==." },
+      { "tipo": "esempio", "testo": "2006. Aza Raskin è tra i primi a progettare lo scorrimento infinito. Anni dopo dice a Johann Hari di essersene pentito. Tiene la gente sullo schermo ==molto più a lungo==." },
       { "tipo": "colpo", "testo": "E ==non è un incidente==." },
       { "tipo": "mito", "mito": "Mi distraggo perché ho poca forza di volontà", "realta": "Per Hari molte app sono progettate apposta per ==non farti smettere==." },
       { "tipo": "principio", "testo": "Per Hari la tua attenzione non è crollata da sola. ==Te la stanno portando via.==" },
@@ -192,7 +192,7 @@
       { "tipo": "esempio", "testo": "Primi anni Duemila. Gianni Pes e Michel Poulain studiano i centenari sardi. Segnano i loro paesi con una penna blu. Nasce un nome: ==zone blu==." },
       { "tipo": "testo", "testo": "Dan Buettner visita posti simili, da Okinawa alla Costa Rica. Cerca ==che cosa hanno in comune==." },
       { "tipo": "colpo", "testo": "Non è ==la palestra==." },
-      { "tipo": "confronto",
+      { "tipo": "confronto", "titolo": "Il movimento",
         "a": { "etichetta": "Come lo pensiamo", "voci": ["Un'ora intensa, poi seduti"] },
         "b": { "etichetta": "Come lo ha visto lì", "voci": ["Pastori a piedi, orti, salite", "Poco sforzo, tutto il giorno"] } },
       { "tipo": "testo", "testo": "Attenzione: alcuni studiosi contestano i dati sull'età di quei centenari. Prendila come ==la tesi di Buettner==, non come una ricetta." },
