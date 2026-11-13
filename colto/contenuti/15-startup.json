@@ -2,13 +2,13 @@
   {
     "id": "lean-startup-prodotto-minimo",
     "categoria": "business",
-    "titolo": "Prima prova, poi costruisci: il prodotto minimo",
+    "titolo": "Come provare un'idea prima di costruirla",
     "libro": { "titolo": "Partire leggeri", "autore": "Eric Ries", "anno": 2011, "titoloOriginale": "The Lean Startup" },
     "scene": [
       { "tipo": "apertura", "testo": "Zappos è nata vendendo scarpe ==che non aveva==." },
       { "tipo": "esempio", "testo": "Nick Swinmurn fotografa le scarpe dei negozi vicini e le mette online. Arriva un ordine? Torna in negozio e le compra ==a prezzo pieno==." },
-      { "tipo": "colpo", "testo": "Era ==un esperimento==." },
-      { "tipo": "testo", "titolo": "Il prodotto minimo (MVP)", "testo": "Eric Ries chiama così la versione più semplice di un prodotto. Si prova con clienti veri. Serve a ==imparare spendendo poco==." },
+      { "tipo": "colpo", "testo": "Era ==solo una prova==." },
+      { "tipo": "testo", "titolo": "Il prodotto minimo (MVP)", "testo": "Per Eric Ries è la versione più semplice che puoi provare con clienti veri. Serve a ==imparare spendendo poco==." },
       { "tipo": "quiz", "domanda": "Dropbox era difficile da mostrare. Come provò l'interesse?",
         "opzioni": ["Un video di tre minuti", "Uno spot in TV", "Un sondaggio via email"], "corretta": 0,
         "spiegazione": "Lista d'attesa: da 5 mila a 75 mila persone in una notte. Lo racconta Ries." },
@@ -39,12 +39,12 @@
   {
     "id": "zero-to-one-da-zero-a-uno",
     "categoria": "business",
-    "titolo": "Copiare porta da 1 a n. Creare, da 0 a 1",
+    "titolo": "Copiare è facile: il salto vero è da 0 a 1",
     "libro": { "titolo": "Da zero a uno", "autore": "Peter Thiel, Blake Masters", "anno": 2014, "titoloOriginale": "Zero to One" },
     "scene": [
       { "tipo": "apertura", "testo": "Il prossimo Zuckerberg ==non farà un social network==." },
-      { "tipo": "colpo", "testo": "Tutto sta fra ==0 e 1==." },
-      { "tipo": "testo", "testo": "Per Peter Thiel copiare ciò che funziona porta ==da 1 a n==. Fare una cosa mai vista porta ==da 0 a 1==. Lì nasce il valore." },
+      { "tipo": "colpo", "testo": "Copiare ==non è imparare==." },
+      { "tipo": "testo", "testo": "Per Peter Thiel copiare ciò che funziona porta ==da 1 a n==. Fare una cosa mai vista porta ==da 0 a 1==: così si costruisce il futuro." },
       { "tipo": "quiz", "domanda": "Hai una macchina da scrivere e ne costruisci cento. Che progresso è?",
         "opzioni": ["Da 0 a 1", "Da 1 a n"], "corretta": 1,
         "spiegazione": "Stesso oggetto, moltiplicato. Da 0 a 1 è inventare la videoscrittura." },
@@ -63,7 +63,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Fanno volare milioni di persone. E ==non guadagnano quasi niente==." },
       { "tipo": "numero", "valore": 37, "suffisso": " cent", "didascalia": "Di dollaro. Il guadagno ==per passeggero== delle compagnie aeree USA nel 2012.", "nota": "Biglietto medio: 178 dollari. Dati citati da Thiel." },
-      { "tipo": "colpo", "testo": "Colpa ==della concorrenza==." },
+      { "tipo": "colpo", "testo": "Colpa ==dei troppi rivali==." },
       { "tipo": "testo", "testo": "Vendono tutte lo stesso servizio. Quindi si battono sul prezzo. Per Peter Thiel finisce così: ==i profitti spariscono==." },
       { "tipo": "confronto", "titolo": "Nel 2012",
         "a": { "etichetta": "Compagnie aeree", "voci": ["Ricavi: 160 miliardi di dollari", "37 centesimi a passeggero"] },
@@ -76,19 +76,20 @@
   {
     "id": "hard-thing-pace-e-guerra",
     "categoria": "leadership",
-    "titolo": "Il capo giusto in pace è sbagliato in guerra",
+    "titolo": "Perché Jobs e Google comandavano al contrario",
     "libro": { "titolo": "The Hard Thing About Hard Things", "autore": "Ben Horowitz", "anno": 2014 },
     "scene": [
-      { "tipo": "apertura", "testo": "Il capo perfetto oggi può essere ==quello sbagliato== fra un anno." },
+      { "tipo": "apertura", "testo": "Google regalava tempo alle idee di tutti. Jobs no. ==Chi sbagliava?==" },
+      { "tipo": "colpo", "testo": "==Nessuno dei due.==" },
       { "tipo": "testo", "testo": "Ben Horowitz distingue due fasi. In pace sei in vantaggio e il mercato cresce. In guerra rischi ==di chiudere==." },
+      { "tipo": "esempio", "testo": "Google dominava le ricerche: 20% del tempo ai progetti dei dipendenti. Jobs tornò in una Apple quasi fallita: ==un solo piano, per tutti==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Capo di pace", "voci": ["Allarga il mercato", "Cerca il consenso"] },
         "b": { "etichetta": "Capo di guerra", "voci": ["Vuole vincere il mercato", "Non aspetta il consenso"] } },
-      { "tipo": "colpo", "testo": "Due ==mestieri opposti==." },
-      { "tipo": "esempio", "testo": "Horowitz cita Google, che dominava: 20% del tempo ai progetti dei dipendenti. E Jobs, in una Apple quasi fallita: ==un solo piano per tutti==." },
-      { "tipo": "quiz", "domanda": "Quale mossa è da tempo di pace?",
-        "opzioni": ["Violare le regole per vincere", "Non tollerare discussioni", "Allargare il mercato"], "corretta": 2,
-        "spiegazione": "Chi è in vantaggio fa crescere il mercato. Le altre due sono mosse da guerra." },
+      { "tipo": "quiz", "domanda": "Per Horowitz, quale capo raccontano quasi tutti i libri di management?",
+        "opzioni": ["Tutti e due", "Quello di guerra", "Quello di pace"], "corretta": 2,
+        "spiegazione": "Chi li scrive studia aziende di successo in tempo di pace." },
+      { "tipo": "principio", "testo": "Per Horowitz le regole dei manuali valgono in pace. In guerra devi sapere ==quali rompere==." },
       { "tipo": "chiusura", "azione": "Scrivi in che fase sei: ==pace o guerra==. Poi una regola da cambiare." }
     ]
   },
@@ -103,10 +104,10 @@
         "opzioni": ["Un'ora", "Dieci ore", "Cinque ore"], "corretta": 1,
         "spiegazione": "Un'ora per ciascuno dei dieci presenti. Il conto è di Fried e Hansson." },
       { "tipo": "colpo", "testo": "E ==non finisce lì==." },
-      { "tipo": "testo", "titolo": "Perché le chiamano tossiche", "testo": "Per Fried e Hansson parlano di astrazioni e vanno fuori tema. ==Una tira l'altra.== E dopo ti serve tempo per ripartire." },
+      { "tipo": "numero", "valore": 15, "suffisso": " ore", "didascalia": "Il conto vero secondo loro: dopo, a ognuno serve tempo ==per ripartire==.", "nota": "Stima di Fried e Hansson, non una misura." },
+      { "tipo": "testo", "titolo": "Perché le chiamano tossiche", "testo": "Per Fried e Hansson parlano di astrazioni e vanno fuori tema. E ==una tira l'altra==." },
       { "tipo": "elenco", "titolo": "Se proprio devi farla",
         "voci": ["Metti un timer: suona, è finita", "Invita meno persone possibile", "Chiudi con ==un responsabile=="] },
-      { "tipo": "principio", "testo": "Una riunione costa il tempo di ==tutti i presenti==, sommato." },
       { "tipo": "chiusura", "azione": "Apri il calendario. Dalla prossima riunione ==togli un invitato==." }
     ]
   },
@@ -131,24 +132,24 @@
   {
     "id": "100-startup-convergenza",
     "categoria": "business",
-    "titolo": "La passione non basta: serve chi paga",
+    "titolo": "«Segui la tua passione» è un consiglio a metà",
     "libro": { "titolo": "The $100 Startup", "autore": "Chris Guillebeau", "anno": 2012 },
     "scene": [
-      { "tipo": "apertura", "testo": "«Segui la tua passione» è ==un consiglio a metà==." },
-      { "tipo": "colpo", "testo": "Manca ==chi paga==." },
-      { "tipo": "testo", "titolo": "La convergenza", "testo": "Chris Guillebeau ha studiato chi vive di una piccola attività. Il punto in comune: ciò che amano fare ==serve anche ad altri==." },
+      { "tipo": "apertura", "testo": "La passione, da sola, ==non paga le bollette==." },
+      { "tipo": "colpo", "testo": "Le manca ==un pezzo==." },
+      { "tipo": "testo", "titolo": "La convergenza", "testo": "Chris Guillebeau ha studiato chi vive di una piccola attività. Il punto in comune: ciò che amano o sanno fare ==serve anche ad altri==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Solo passione", "voci": ["Ami camminare in montagna", "Nessuno ti paga per farlo"] },
-        "b": { "etichetta": "Convergenza", "voci": ["Organizzi gite per chi non sa dove", "Risolvi un problema: ti pagano"] } },
+        "b": { "etichetta": "Convergenza", "voci": ["Guidi chi non conosce i sentieri", "Risolvi un problema: ti pagano"] } },
       { "tipo": "esempio", "testo": "Un caso del libro. Un venditore di Portland perde il lavoro. Un amico ha materassi invenduti. Di materassi non sa niente, ma ==sa vendere==. Apre un negozio." },
-      { "tipo": "numero", "valore": 100, "suffisso": " dollari", "didascalia": "O anche meno: a molti dei casi raccontati è bastato ==per cominciare==.", "nota": "È la cifra che dà il titolo al libro." },
+      { "tipo": "numero", "valore": 100, "suffisso": " $", "didascalia": "O anche meno: a molti dei casi raccontati è bastato ==per cominciare==.", "nota": "Cento dollari: la cifra che dà il titolo al libro." },
       { "tipo": "chiusura", "azione": "Scrivi tre cose che sai fare. Accanto, ==chi pagherebbe== per averle." }
     ]
   },
   {
     "id": "4-ore-meno-ma-meglio",
     "categoria": "produttivita",
-    "titolo": "Lavorare tanto non vuol dire lavorare bene",
+    "titolo": "Occupato tutto il giorno, e il lavoro vero resta lì",
     "libro": { "titolo": "4 ore alla settimana", "autore": "Timothy Ferriss", "anno": 2007, "titoloOriginale": "The 4-Hour Workweek" },
     "scene": [
       { "tipo": "apertura", "testo": "Sei sempre occupato? Per Tim Ferriss è ==una forma di pigrizia==." },
@@ -165,17 +166,15 @@
   {
     "id": "shoe-dog-credere",
     "categoria": "business",
-    "titolo": "Vendi bene solo ciò in cui credi",
+    "titolo": "Stesso venditore, prodotto diverso: cambia tutto",
     "libro": { "titolo": "L'arte della vittoria", "autore": "Phil Knight", "anno": 2016, "titoloOriginale": "Shoe Dog" },
     "scene": [
       { "tipo": "apertura", "testo": "Il fondatore di Nike ==non riusciva a vendere== enciclopedie." },
-      { "tipo": "esempio", "testo": "Phil Knight ci prova porta a porta: un disastro. Con i fondi d'investimento va meglio, ma si sente spento. Nel 1964 vende scarpe ==dal bagagliaio dell'auto==." },
-      { "tipo": "colpo", "testo": "E vanno ==a ruba==." },
-      { "tipo": "testo", "titolo": "Perché stavolta funziona", "testo": "Knight capisce che quello non è vendere. Lui ==crede nella corsa==: pensa che faccia bene a tutti e che quelle scarpe siano migliori." },
-      { "tipo": "confronto",
-        "a": { "etichetta": "Prima", "voci": ["Enciclopedie: un fiasco", "Fondi: si sentiva spento"] },
-        "b": { "etichetta": "Con le scarpe", "voci": ["Era un corridore anche lui", "Chi ascoltava sentiva che ci credeva"] } },
-      { "tipo": "principio", "testo": "Per Knight, se credi in ciò che offri non stai vendendo: ==la convinzione è contagiosa==." },
+      { "tipo": "esempio", "testo": "Phil Knight ci prova porta a porta, alle Hawaii: un disastro. Poi vende fondi d'investimento. Va un po' meglio, ma ==si sente spento==." },
+      { "tipo": "colpo", "testo": "Poi arrivano ==le scarpe==." },
+      { "tipo": "testo", "testo": "Nel 1964 le vende dal bagagliaio dell'auto, alle gare di atletica. Vanno a ruba. Stesso venditore: ==che cosa è cambiato?==" },
+      { "tipo": "mito", "mito": "Un bravo venditore vende qualsiasi cosa", "realta": "Per Knight quello non era vendere: lui ==credeva nella corsa==." },
+      { "tipo": "principio", "testo": "Se credi davvero in ciò che offri, chi ascolta lo sente. E ==ne vuole un po' anche lui==." },
       { "tipo": "chiusura", "azione": "Scrivi in tre righe perché credi in ciò che fai. ==Non ti vengono?== Problema trovato." }
     ]
   },
@@ -185,7 +184,7 @@
     "titolo": "Le domande a cui nessuno può mentirti",
     "libro": { "titolo": "The Mom Test", "autore": "Rob Fitzpatrick", "anno": 2013 },
     "scene": [
-      { "tipo": "apertura", "testo": "Tua mamma dice che la tua idea è bellissima. ==Non hai imparato niente.==" },
+      { "tipo": "apertura", "testo": "Chiedi a tua mamma se la tua idea è buona. ==Sai già cosa risponde.==" },
       { "tipo": "colpo", "testo": "Sbagliata è ==la domanda==." },
       { "tipo": "elenco", "titolo": "Le tre regole di Rob Fitzpatrick",
         "voci": ["Parla della loro vita, non della tua idea", "Chiedi ==fatti del passato==, non opinioni", "Parla meno, ascolta di più"] },
@@ -227,8 +226,8 @@
       { "tipo": "colpo", "testo": "==Non è sfortuna.==" },
       { "tipo": "grafico", "titolo": "Chi adotta una novità, gruppo dopo gruppo", "forma": "barre", "unita": "%",
         "dati": [ { "e": "Tecnofili", "v": 2.5 }, { "e": "Visionari", "v": 13.5 }, { "e": "Pratici", "v": 34 }, { "e": "Prudenti", "v": 34 }, { "e": "Scettici", "v": 16 } ],
-        "nota": "Quote del modello classico di Everett Rogers." },
-      { "tipo": "testo", "testo": "Per Geoffrey Moore ogni gruppo compra per motivi diversi. Fra i visionari e i pragmatici c'è un vuoto: ==il burrone==." },
+        "nota": "Quote: modello classico di Everett Rogers." },
+      { "tipo": "testo", "testo": "Per Geoffrey Moore, nella tecnologia ogni gruppo compra per motivi diversi. Fra visionari e pragmatici c'è un vuoto: ==il burrone==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Visionari", "voci": ["Comprano una promessa", "Vogliono arrivare primi"] },
         "b": { "etichetta": "Pragmatici (i pratici)", "voci": ["Vogliono una soluzione completa", "Chiedono chi altro la usa già"] } },
@@ -250,7 +249,7 @@
       { "tipo": "elenco", "titolo": "I quattro tratti secondo Jarvis",
         "voci": ["Resilienza: regge agli scossoni", "Autonomia: decidi tu come lavorare", "Velocità: cambi strada in fretta", "Semplicità: poche regole"] },
       { "tipo": "colpo", "testo": "E poi mette ==un tetto==." },
-      { "tipo": "testo", "titolo": "Quanto è abbastanza?", "testo": "Di solito fissiamo un minimo: almeno tanti clienti. Jarvis propone anche ==un massimo==. Oltre, crescere può solo complicare." },
+      { "tipo": "testo", "titolo": "Quanto è abbastanza?", "testo": "Di solito fissiamo un minimo: almeno tanti clienti. Jarvis propone anche ==un massimo==. Oltre quella soglia, di più non vuol dire meglio." },
       { "tipo": "chiusura", "azione": "Scrivi quanto ti basta al mese per vivere bene. È ==il tuo «abbastanza»==." }
     ]
   }

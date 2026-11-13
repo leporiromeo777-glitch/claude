@@ -167,7 +167,7 @@
         "opzioni": ["La fusoliera", "Il motore", "Tutto, in parti uguali"], "corretta": 1,
         "spiegazione": "Dove i fori mancano: gli aerei colpiti al motore non erano tornati." },
       { "tipo": "colpo", "testo": "Mancavano ==gli aerei caduti==." },
-      { "tipo": "testo", "testo": "Ellenberg racconta così Abraham Wald, matematico a New York per i militari americani: guardò ==i dati che non c'erano==." },
+      { "tipo": "testo", "testo": "Abraham Wald è un matematico al lavoro a New York per i militari americani. Ellenberg lo racconta così: guardò ==i dati che non c'erano==." },
       { "tipo": "principio", "testo": "Prima di fidarti di un dato chiediti ==chi manca dal conteggio==." },
       { "tipo": "chiusura", "azione": "Recensioni entusiaste di un corso? Chiediti: ==chi ha mollato le ha scritte?==" }
     ]
@@ -181,9 +181,9 @@
       { "tipo": "apertura", "testo": "Una notizia ti dà ragione: la condividi. Ti dà torto: ==cerchi l'errore==." },
       { "tipo": "colpo", "testo": "Si chiama ==fare il soldato==." },
       { "tipo": "confronto", "titolo": "Due modi di ragionare, per Galef",
-        "a": { "etichetta": "Soldato", "voci": ["Difende ciò che crede già", "«Posso crederci?» «Devo crederci?»"] },
+        "a": { "etichetta": "Soldato", "voci": ["Gli piace: «Posso crederci?»", "Non gli piace: «Devo crederci?»"] },
         "b": { "etichetta": "Esploratore", "voci": ["Vuole una mappa esatta", "Si chiede solo: «È vero?»"] } },
-      { "tipo": "esempio", "testo": "Francia, 1894: Dreyfus è condannato per spionaggio. Il colonnello Picquart lo crede colpevole. Poi trova prove contrarie e ==cambia idea==. Finirà in carcere." },
+      { "tipo": "esempio", "testo": "Francia, 1894: Dreyfus è condannato per spionaggio. L'ufficiale Picquart lo crede colpevole. Poi trova prove contrarie e ==cambia idea==. Gli costerà il carcere." },
       { "tipo": "mito", "mito": "Chi è intelligente ragiona in modo più obiettivo", "realta": "Per Galef non basta essere svegli: conta ==voler sapere com'è davvero==." },
       { "tipo": "principio", "testo": "Ragionare bene non è vincere una discussione. È ==disegnare una mappa esatta==." },
       { "tipo": "chiusura", "azione": "Un dato ti dà torto? Chiediti: ==se mi desse ragione, ci crederei?==" }
@@ -195,8 +195,8 @@
     "titolo": "Il rimedio ha funzionato. O passava da solo?",
     "libro": { "titolo": "La cattiva scienza", "autore": "Ben Goldacre", "anno": 2008, "titoloOriginale": "Bad Science" },
     "scene": [
-      { "tipo": "apertura", "testo": "Provi un rimedio e il mal di schiena passa. ==Merito suo?==" },
-      { "tipo": "grafico", "titolo": "Un dolore che va e viene", "forma": "linea",
+      { "tipo": "apertura", "testo": "«Con me ha funzionato.» Sembra una prova. ==Non lo è.==" },
+      { "tipo": "grafico", "titolo": "Mal di schiena: un dolore che va e viene", "forma": "linea",
         "dati": [ { "e": "Lun", "v": 3 }, { "e": "Mar", "v": 6 }, { "e": "Mer", "v": 9 }, { "e": "Gio", "v": 6 }, { "e": "Ven", "v": 4 }, { "e": "Sab", "v": 2 } ],
         "nota": "Esempio illustrativo: il rimedio arriva mercoledì, al picco." },
       { "tipo": "colpo", "testo": "Forse passava ==da solo==." },
