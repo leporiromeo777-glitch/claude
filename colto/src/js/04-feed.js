@@ -12,6 +12,7 @@ function alterna(lista) {
   while (resto.length) {
     const ultimo = esito[esito.length - 1];
     let k = ultimo ? resto.findIndex((v) => v.categoria !== ultimo.categoria && v.libro.titolo !== ultimo.libro.titolo) : 0;
+    if (k < 0) k = resto.findIndex((v) => v.libro.titolo !== ultimo.libro.titolo);
     if (k < 0) k = 0;
     esito.push(resto.splice(k, 1)[0]);
   }
@@ -34,7 +35,8 @@ function ordinePerTe() {
 function listaPerFiltro() {
   const f = stato.filtro;
   if (f.tipo === 'categoria') {
-    const suoi = VIDEO.filter((v) => v.categoria === f.valore);
+    // dentro una categoria i libri si alternano, e le idee già viste vanno in fondo
+    const suoi = alterna(mescola(VIDEO.filter((v) => v.categoria === f.valore), casuale(seme(oggi() + f.valore))));
     return [...suoi.filter((v) => !memoria.visti[v.id]), ...suoi.filter((v) => memoria.visti[v.id])];
   }
   if (f.tipo === 'libro') return VIDEO.filter((v) => v.libro.titolo === f.valore);
