@@ -7,7 +7,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Auschwitz, 1944. A uno psichiatra tolgono tutto. ==Tranne una cosa.==" },
       { "tipo": "testo", "titolo": "Viktor Frankl", "testo": "Medico di Vienna, deportato nel 1942. Passa per quattro lager. Da psichiatra ==osserva== i prigionieri, sé compreso." },
-      { "tipo": "colpo", "testo": "E nota una cosa." },
+      { "tipo": "colpo", "testo": "E nota certi gesti." },
       { "tipo": "esempio", "testo": "Nelle baracche c'è chi consola i compagni. Chi regala ==l'ultimo pezzo di pane==. Sono pochi, scrive Frankl. Ma bastano come prova." },
       { "tipo": "principio", "testo": "A una persona puoi togliere tutto, tranne una libertà: ==scegliere come stare== davanti a ciò che le capita." },
       { "tipo": "testo", "titolo": "Che cosa non dice", "testo": "Non dice che l'atteggiamento salvasse la vita: lì si moriva anche ==per caso==. Dice che una scelta interiore restava." },
@@ -38,7 +38,7 @@
     "id": "happiness-hypothesis-felicita-in-mezzo",
     "categoria": "benessere",
     "titolo": "La felicità non viene da dentro. E nemmeno da fuori",
-    "libro": { "titolo": "The Happiness Hypothesis", "autore": "Jonathan Haidt", "anno": 2006 },
+    "libro": { "titolo": "Felicità: un'ipotesi", "autore": "Jonathan Haidt", "anno": 2006, "titoloOriginale": "The Happiness Hypothesis" },
     "scene": [
       { "tipo": "apertura", "testo": "Buddha e gli stoici: la felicità sta dentro di te. ==Manca un pezzo.==" },
       { "tipo": "colpo", "testo": "Uno psicologo controlla." },
@@ -56,13 +56,13 @@
     "id": "ikigai-ragione-per-alzarsi",
     "categoria": "benessere",
     "titolo": "Il paese dove a 90 anni si cura ancora l'orto",
-    "libro": { "titolo": "Ikigai", "autore": "Héctor García, Francesc Miralles", "anno": 2016 },
+    "libro": { "titolo": "Il metodo Ikigai", "autore": "Héctor García, Francesc Miralles", "anno": 2016, "titoloOriginale": "Ikigai" },
     "scene": [
       { "tipo": "apertura", "testo": "A Ogimi, in Giappone, anche chi ha novant'anni ==cura un orto==. Perché?" },
       { "tipo": "testo", "testo": "Héctor García e Francesc Miralles vanno a Ogimi, detto villaggio della longevità. Non fanno esperimenti: chiedono agli anziani ==come vivono==." },
       { "tipo": "colpo", "testo": "Lì lo chiamano ==ikigai==." },
       { "tipo": "principio", "testo": "Per gli autori l'ikigai è ==il motivo per cui ti alzi==: ciò che ti tiene attivo." },
-      { "tipo": "mito", "mito": "L'ikigai è lo schema a quattro cerchi", "realta": "Quello schema ==non nasce in Giappone==. Lì ikigai è una ragione per vivere." },
+      { "tipo": "mito", "mito": "L'ikigai è lo schema a quattro cerchi", "realta": "Lo schema ==nasce in Occidente==. Il libro lo riporta, ma a Ogimi trova altro." },
       { "tipo": "elenco", "titolo": "Che cosa notano a Ogimi",
         "voci": ["Quasi tutti curano ==un orto==", "Gruppi di amici che si aiutano: i moai", "A tavola ci si ferma prima di essere pieni"] },
       { "tipo": "chiusura", "azione": "Scrivi una cosa per cui domattina ==vale la pena alzarsi==. Mettila in agenda alle 8." }
@@ -72,7 +72,7 @@
     "id": "potere-di-adesso-problema-adesso",
     "categoria": "benessere",
     "titolo": "Che problema hai in questo preciso momento?",
-    "libro": { "titolo": "Il potere di Adesso", "autore": "Eckhart Tolle", "anno": 1997, "titoloOriginale": "The Power of Now" },
+    "libro": { "titolo": "Il potere di adesso", "autore": "Eckhart Tolle", "anno": 1997, "titoloOriginale": "The Power of Now" },
     "scene": [
       { "tipo": "apertura", "testo": "Che problema hai in questo preciso istante? ==Non domani. Adesso.==" },
       { "tipo": "colpo", "testo": "Pensaci davvero." },
@@ -81,14 +81,14 @@
         "voci": ["Troppo futuro: ansia", "Troppo passato: rimpianto e rancore", "Adesso: una cosa da fare, o da accettare"] },
       { "tipo": "mito", "mito": "Vivere nel presente vuol dire non fare piani", "realta": "Per Tolle i piani servono. Poi ==torni a ciò che fai ora==." },
       { "tipo": "principio", "testo": "Passato e futuro esistono solo come pensieri. ==La vita succede adesso==, e solo adesso puoi agire." },
-      { "tipo": "chiusura", "azione": "Per un minuto segui ==solo il respiro==. Poi richiediti: che problema ho, adesso?" }
+      { "tipo": "chiusura", "azione": "Guardati intorno per un minuto, ==senza commentare==. Poi richiediti: che problema ho, adesso?" }
     ]
   },
   {
     "id": "subtle-art-scegli-la-fatica",
     "categoria": "benessere",
     "titolo": "Non conta cosa vuoi: conta che fatica scegli",
-    "libro": { "titolo": "The Subtle Art of Not Giving a F*ck", "autore": "Mark Manson", "anno": 2016 },
+    "libro": { "titolo": "La sottile arte di fare quello che c***o ti pare", "autore": "Mark Manson", "anno": 2016, "titoloOriginale": "The Subtle Art of Not Giving a F*ck" },
     "scene": [
       { "tipo": "apertura", "testo": "Tutti vogliono gli addominali. Quasi nessuno vuole ==la palestra alle 6==." },
       { "tipo": "mito", "mito": "Per essere felice devi sapere cosa vuoi", "realta": "Per Mark Manson vogliamo tutti le stesse cose. Conta ==quale fatica accetti==." },
@@ -105,7 +105,7 @@
     "id": "coraggio-non-piacere-separazione-compiti",
     "categoria": "benessere",
     "titolo": "Di chi è questo problema? Forse non tuo",
-    "libro": { "titolo": "Il coraggio di non piacere", "autore": "Ichiro Kishimi, Fumitake Koga", "anno": 2013, "titoloOriginale": "Kirawareru yuki" },
+    "libro": { "titolo": "Il coraggio di non piacere", "autore": "Ichiro Kishimi, Fumitake Koga", "anno": 2013, "titoloOriginale": "Kirawareru yūki" },
     "scene": [
       { "tipo": "apertura", "testo": "Quante cose fai solo perché ==qualcuno non ci resti male==?" },
       { "tipo": "testo", "testo": "Il libro è un dialogo fra un filosofo e un ragazzo. Le idee sono di Alfred Adler. La regola: chiediti ==di chi è il compito==." },
@@ -148,7 +148,7 @@
       { "tipo": "apertura", "testo": "Terza fetta di torta. Prima di prenderla, prova ==una domanda sola==." },
       { "tipo": "quiz", "domanda": "Quale domanda, secondo te?",
         "opzioni": ["Me la merito?", "Mi renderà felice?", "Quante calorie ha?"], "corretta": 1,
-        "spiegazione": "Non «mi piacerà?» ma «mi renderà felice?». Per il libro sono due cose diverse." },
+        "spiegazione": "Non se ti piacerà: se ti renderà felice. Per il libro sono due cose diverse." },
       { "tipo": "colpo", "testo": "Piacere ==non è felicità==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Piacere", "voci": ["Arriva subito, dura poco"] },
@@ -180,7 +180,7 @@
     "titolo": "Il perfezionismo non è voler fare bene",
     "libro": { "titolo": "The Gifts of Imperfection", "autore": "Brené Brown", "anno": 2010 },
     "scene": [
-      { "tipo": "apertura", "testo": "Rileggi la mail otto volte prima di inviarla. ==Non è precisione.==" },
+      { "tipo": "apertura", "testo": "Rileggi la mail otto volte prima di inviarla. ==La chiami precisione.==" },
       { "tipo": "mito", "mito": "Il perfezionismo è solo voler fare bene", "realta": "Per Brené Brown è ==uno scudo==: speri di evitare critiche e vergogna." },
       { "tipo": "testo", "testo": "Brown studia da anni la vergogna. Il ragionamento nascosto, dice, è questo: se sembro perfetto, ==nessuno potrà giudicarmi==." },
       { "tipo": "confronto", "titolo": "La domanda che ti fai",
@@ -211,14 +211,14 @@
   {
     "id": "good-life-relazioni-a-80-anni",
     "categoria": "benessere",
-    "titolo": "Cosa prevede come starai a 80 anni",
+    "titolo": "Come starai a 80 anni? C'è un indizio a 50",
     "libro": { "titolo": "The Good Life", "autore": "Robert Waldinger, Marc Schulz", "anno": 2023 },
     "scene": [
       { "tipo": "apertura", "testo": "A 50 anni un dato prevede come starai a 80. ==Non è il colesterolo.==" },
-      { "tipo": "numero", "valore": 724, "didascalia": "Ragazzi di Harvard e dei quartieri poveri di Boston, seguiti ==dal 1938==.", "nota": "Harvard Study of Adult Development, oggi guidato dagli autori." },
+      { "tipo": "numero", "valore": 724, "didascalia": "Ragazzi di Harvard e dei quartieri poveri di Boston: lo studio parte ==nel 1938==.", "nota": "Harvard Study of Adult Development, oggi guidato dagli autori." },
       { "tipo": "quiz", "domanda": "Che cosa prevedeva meglio la salute a 80 anni?",
         "opzioni": ["Il reddito a 50 anni", "La carriera fatta", "La soddisfazione per i legami"], "corretta": 2,
-        "spiegazione": "Chi a 50 anni era più contento dei suoi legami era il più sano a 80. Più del colesterolo." },
+        "spiegazione": "I più contenti dei loro legami a 50 anni erano i più sani a 80. Prevedeva meglio del colesterolo." },
       { "tipo": "colpo", "testo": "Non servono cento amici." },
       { "tipo": "confronto",
         "a": { "etichetta": "Conta meno", "voci": ["Quanti contatti hai"] },

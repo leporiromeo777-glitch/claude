@@ -146,7 +146,7 @@
       { "tipo": "quiz", "domanda": "Buste con 5 o 20 dollari da spendere in giornata. Chi è più felice la sera?",
         "opzioni": ["Chi li spende per un altro", "Chi li spende per sé"], "corretta": 0,
         "spiegazione": "Conta come li spendi, non quanto: 5 o 20 dollari, stesso effetto." },
-      { "tipo": "testo", "testo": "Lo studio è di Dunn, Norton e Lara Aknin, in un campus canadese. Metà dei passanti spende per sé, metà per altri. Vince ==il secondo gruppo==." },
+      { "tipo": "testo", "testo": "Lo studio è di Dunn, Norton e Lara Aknin. Campus canadese: metà dei passanti spende per sé, metà per altri. Vince ==il secondo gruppo==." },
       { "tipo": "colpo", "testo": "Noi ==prevediamo l'opposto==." },
       { "tipo": "principio", "testo": "Anche pochi euro rendono più felici ==se li spendi per qualcun altro==." },
       { "tipo": "elenco", "titolo": "Funziona meglio se",
@@ -216,12 +216,12 @@
     "libro": { "titolo": "The Latte Factor", "autore": "David Bach, John David Mann", "anno": 2019 },
     "scene": [
       { "tipo": "apertura", "testo": "Zoey è piena di debiti. La dritta giusta arriva da ==un barista==." },
-      { "tipo": "esempio", "testo": "È un racconto di David Bach. Zoey ha il lavoro dei sogni a New York e niente da parte. La sua capa la manda da Henry, ==un vecchio barista==." },
+      { "tipo": "esempio", "testo": "È un racconto di David Bach. Zoey ha il lavoro dei sogni a New York. Da parte, niente. La capa la manda da Henry, ==un vecchio barista==." },
       { "tipo": "colpo", "testo": "Henry le fa ==contare i caffè==." },
       { "tipo": "numero", "valore": 1825, "suffisso": " €", "didascalia": "Un anno di caffè e snack, a ==5 euro al giorno==.", "nota": "Esempio illustrativo: 5 × 365." },
-      { "tipo": "testo", "titolo": "La critica", "testo": "Casa e auto pesano più dei caffè, dicono i critici. È vero. Per Bach però il caffè è ==solo un simbolo==." },
+      { "tipo": "testo", "titolo": "Il «fattore latte»", "testo": "Bach chiama così le piccole spese di ogni giorno. I critici: casa e auto pesano di più. Per lui il caffè è ==solo un simbolo==." },
       { "tipo": "mito", "mito": "Per risparmiare devo guadagnare di più", "realta": "Per Bach i soldi per iniziare li hai già: ==escono in spese che non noti==." },
-      { "tipo": "principio", "testo": "Non devi rinunciare a tutto. ==Scegli tu== quali piccole spese valgono. Il resto è abitudine." },
+      { "tipo": "principio", "testo": "Non devi rinunciare a tutto. ==Scegli tu== quali piccole spese valgono." },
       { "tipo": "chiusura", "azione": "Apri l'estratto conto. Segna ==tre piccole spese== che avevi già dimenticato." }
     ]
   },
@@ -232,14 +232,14 @@
     "libro": { "titolo": "Soldi. Domina il gioco", "autore": "Tony Robbins", "anno": 2014, "titoloOriginale": "Money: Master the Game" },
     "scene": [
       { "tipo": "apertura", "testo": "Tre amici, stessi soldi, stesso mercato. A uno mancano ==250 mila==." },
-      { "tipo": "esempio", "testo": "L'esempio è di Tony Robbins. Jason, Matthew e Taylor hanno 35 anni e 100 mila dollari a testa. Tre fondi diversi, ==stesso 7% lordo== per trent'anni." },
+      { "tipo": "esempio", "testo": "L'esempio è di Tony Robbins. Jason, Matthew e Taylor hanno 35 anni. Investono 100 mila dollari a testa. Tre fondi diversi, ==stesso 7% lordo== per trent'anni." },
       { "tipo": "colpo", "testo": "Cambia solo ==il costo==." },
       { "tipo": "grafico", "titolo": "A 65 anni, per costo annuo del fondo", "forma": "barre", "unita": "mila",
         "dati": [ { "e": "1%", "v": 574 }, { "e": "2%", "v": 432 }, { "e": "3%", "v": 324 } ],
         "nota": "Esempio del libro, in dollari. Rendimento ipotetico, non garantito." },
       { "tipo": "mito", "mito": "Il 2% l'anno è un prezzo piccolo", "realta": "Per Robbins è un mito: lo paghi ogni anno, ==guadagni compresi==." },
       { "tipo": "colpo", "testo": "E su ==50 anni==?" },
-      { "tipo": "principio", "testo": "Jack Bogle, fondatore di Vanguard, a Robbins: col 2% di costi ==ti resta poco più di un terzo==." },
+      { "tipo": "principio", "testo": "Jack Bogle, fondatore di Vanguard, a Robbins: col 2% di costi tieni ==poco più di un terzo== del risultato." },
       { "tipo": "chiusura", "azione": "Hai un fondo? Trova il costo annuo e ==traducilo in euro==. Scrivi la cifra." }
     ]
   }
