@@ -199,7 +199,7 @@
       { "tipo": "confronto", "titolo": "Due modi di scegliere",
         "a": { "etichetta": "Massimizzatore", "voci": ["Vuole il meglio, poi si pente"] },
         "b": { "etichetta": "Chi si accontenta", "voci": ["Prende la prima cosa che va bene"] } },
-      { "tipo": "principio", "testo": "Per Schwartz chi cerca sempre il meglio ==se lo gode di meno== di chi sa dire «va bene così»." },
+      { "tipo": "principio", "testo": "Per Schwartz chi cerca sempre il meglio ==se lo gode di meno==. Meglio saper dire «va bene così»." },
       { "tipo": "chiusura", "azione": "Prossimo acquisto: scrivi ==tre requisiti== e prendi la prima cosa che li rispetta." }
     ]
   },

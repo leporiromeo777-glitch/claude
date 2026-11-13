@@ -26,8 +26,8 @@
     "scene": [
       { "tipo": "apertura", "testo": "Buffett ha fatto quasi tutti i suoi soldi ==dopo i 65 anni==." },
       { "tipo": "numero", "valore": 81.5, "decimali": 1, "suffisso": " mld", "didascalia": "Miliardi di dollari arrivati ==dopo i 65 anni circa==. Su 84,5 totali.", "nota": "Cifre riportate nel libro, uscito nel 2020." },
-      { "tipo": "colpo", "testo": "Il segreto? ==Ha iniziato a 10.==" },
-      { "tipo": "testo", "testo": "L'interesse composto sono gli interessi sugli interessi. Per Housel lavora per Buffett da ==tre quarti di secolo==." },
+      { "tipo": "colpo", "testo": "Il suo segreto: ==il tempo==." },
+      { "tipo": "testo", "testo": "Per Housel investe sul serio da quando ha 10 anni. Gli interessi sugli interessi lavorano per lui da ==tre quarti di secolo==." },
       { "tipo": "quiz", "domanda": "E se avesse iniziato a 30 anni e smesso a 60? Oggi avrebbe…",
         "opzioni": ["Circa 12 milioni di dollari", "Circa 12 miliardi di dollari"], "corretta": 0,
         "spiegazione": "È il conto di Housel, a parità di rendimenti. Il 99,9% in meno." },
@@ -61,7 +61,7 @@
       { "tipo": "apertura", "testo": "Hai cose che Rockefeller non poteva comprare. ==E non ti senti ricco.==" },
       { "tipo": "testo", "testo": "Lui non ebbe mai la penicillina né l'ibuprofene. Tu sì. Ma per Morgan Housel non pesiamo ciò che abbiamo." },
       { "tipo": "colpo", "testo": "Pesiamo ==le attese==." },
-      { "tipo": "quiz", "domanda": "Tu prendi il 10% in più, i tuoi amici il 30%. Come rischi di sentirti?",
+      { "tipo": "quiz", "domanda": "Il tuo stipendio sale del 10%, quello dei tuoi amici del 30%. Come rischi di sentirti?",
         "opzioni": ["Più ricco di prima", "Più povero di prima"], "corretta": 1,
         "spiegazione": "Ci misuriamo con chi ci sta intorno. Le cifre assolute contano meno." },
       { "tipo": "testo", "testo": "Una volta ti confrontavi con i vicini. Oggi i social mostrano ==i momenti migliori di tutti==. Le attese salgono da sole." },
@@ -75,8 +75,8 @@
     "titolo": "I risparmi che non userai sono ore lavorate gratis",
     "libro": { "titolo": "Die With Zero", "autore": "Bill Perkins", "anno": 2020 },
     "scene": [
-      { "tipo": "apertura", "testo": "E se i risparmi che lasci fossero ==anni di lavoro regalati==?" },
-      { "tipo": "testo", "testo": "È la tesi di Bill Perkins. Ogni euro ti è costato tempo di vita. Mai speso né donato? Quelle ore ==le hai lavorate gratis==." },
+      { "tipo": "apertura", "testo": "Morire con il conto pieno vuol dire ==aver lavorato gratis==." },
+      { "tipo": "testo", "testo": "È la tesi di Bill Perkins. Ogni euro ti è costato ore di vita. Se non lo spendi né lo doni, ==quelle ore le hai regalate==." },
       { "tipo": "colpo", "testo": "Fai il conto." },
       { "tipo": "numero", "valore": 8000, "suffisso": " ore", "didascalia": "Il lavoro dietro ==100 mila euro mai usati==. A 12,50 euro netti l'ora.", "nota": "Esempio illustrativo: 100 000 : 12,50. Circa 4 anni a tempo pieno." },
       { "tipo": "mito", "mito": "L'eredità si lascia alla fine", "realta": "Per Perkins arriva tardi. Meglio dare ==mentre sei vivo==, quando serve davvero." },
@@ -105,7 +105,7 @@
   {
     "id": "almanack-naval-leva",
     "categoria": "finanza",
-    "titolo": "Le tre leve che moltiplicano il tuo lavoro",
+    "titolo": "La leva che non chiede il permesso a nessuno",
     "libro": { "titolo": "The Almanack of Naval Ravikant", "autore": "Eric Jorgenson", "anno": 2020 },
     "scene": [
       { "tipo": "apertura", "testo": "La tua giornata ha 24 ore. Se vendi tempo, ==il tetto è già fissato==." },
@@ -124,13 +124,13 @@
     "titolo": "Ricco a 65 anni? Per DeMarco è un pessimo affare",
     "libro": { "titolo": "The Millionaire Fastlane", "autore": "MJ DeMarco", "anno": 2011 },
     "scene": [
-      { "tipo": "apertura", "testo": "Lavora, risparmia, ricco a 65 anni. ==E se fosse un pessimo affare?==" },
-      { "tipo": "testo", "testo": "Lo sostiene MJ DeMarco, che ha fondato e venduto un'azienda online. Per lui verso i soldi ci sono ==tre strade==." },
+      { "tipo": "apertura", "testo": "Quarant'anni di lavoro per essere ricco a 65. ==Firmeresti?==" },
+      { "tipo": "testo", "testo": "Per MJ DeMarco è un pessimo affare. Lui ha fondato e venduto un'azienda online. Verso i soldi vede ==tre strade==." },
       { "tipo": "elenco", "titolo": "Le tre strade di DeMarco",
         "voci": ["Marciapiede: spendi tutto quello che entra", "Corsia lenta: stipendio, risparmio, attesa", "Corsia veloce: un'impresa che ==rende senza di te=="] },
       { "tipo": "confronto",
-        "a": { "etichetta": "Corsia lenta", "voci": ["Scambi ore con uno stipendio", "La ricchezza arriva da vecchio"] },
-        "b": { "etichetta": "Corsia veloce", "voci": ["Un sistema che vende senza di te", "Può servire migliaia di persone"] } },
+        "a": { "etichetta": "Corsia lenta", "voci": ["Dipende dalle tue ore", "E le ore non si moltiplicano"] },
+        "b": { "etichetta": "Corsia veloce", "voci": ["Dipende da quante persone servi", "Un sistema vende anche senza di te"] } },
       { "tipo": "colpo", "testo": "Veloce ==non vuol dire facile==." },
       { "tipo": "testo", "titolo": "Prima di crederci", "testo": "È una tesi, non una garanzia. DeMarco stesso avverte: servono anni di lavoro. E ==molte imprese chiudono==." },
       { "tipo": "chiusura", "azione": "Guarda le entrate del mese: ==quante dipendono dalle tue ore?== Scrivi un'idea alternativa." }
@@ -146,7 +146,7 @@
       { "tipo": "quiz", "domanda": "Buste con 5 o 20 dollari da spendere in giornata. Chi è più felice la sera?",
         "opzioni": ["Chi li spende per un altro", "Chi li spende per sé"], "corretta": 0,
         "spiegazione": "Conta come li spendi, non quanto: 5 o 20 dollari, stesso effetto." },
-      { "tipo": "testo", "testo": "L'esperimento è di Dunn e Norton, in un campus canadese. Metà dei passanti spende per sé, metà per altri. Vince ==il secondo gruppo==." },
+      { "tipo": "testo", "testo": "Lo studio è di Dunn, Norton e Lara Aknin, in un campus canadese. Metà dei passanti spende per sé, metà per altri. Vince ==il secondo gruppo==." },
       { "tipo": "colpo", "testo": "Noi ==prevediamo l'opposto==." },
       { "tipo": "principio", "testo": "Anche pochi euro rendono più felici ==se li spendi per qualcun altro==." },
       { "tipo": "elenco", "titolo": "Funziona meglio se",
@@ -212,20 +212,17 @@
   {
     "id": "latte-factor-piccole-spese",
     "categoria": "finanza",
-    "titolo": "Cinque euro al giorno: fai il conto",
+    "titolo": "La lezione sui soldi di un vecchio barista",
     "libro": { "titolo": "The Latte Factor", "autore": "David Bach, John David Mann", "anno": 2019 },
     "scene": [
-      { "tipo": "apertura", "testo": "Cinque euro al giorno tra caffè e snack. ==Quanto fa in un anno?==" },
-      { "tipo": "quiz", "domanda": "Fai il conto: in un anno sono…",
-        "opzioni": ["Circa 900 euro", "Circa 1800 euro", "Circa 3600 euro"], "corretta": 1,
-        "spiegazione": "5 × 365 fa 1825 euro. Esempio illustrativo." },
-      { "tipo": "colpo", "testo": "Il caffè ==è solo un simbolo==." },
-      { "tipo": "testo", "testo": "David Bach lo chiama «Latte Factor». Per iniziare a risparmiare non serve guadagnare di più. ==Quei soldi li hai già.==" },
-      { "tipo": "grafico", "titolo": "5 euro al giorno (150 al mese) investiti al 4%", "forma": "linea", "unita": "€",
-        "dati": [ { "e": "Oggi", "v": 0 }, { "e": "10 anni", "v": 22087 }, { "e": "20 anni", "v": 55016 }, { "e": "30 anni", "v": 104107 }, { "e": "40 anni", "v": 177294 } ],
-        "nota": "Esempio illustrativo: versi 72 000. I rendimenti reali variano." },
-      { "tipo": "testo", "titolo": "La critica", "testo": "Casa e auto pesano di più, è vero. Per Bach però conta ==scegliere tu== quali piccole spese valgono. Il resto è abitudine." },
-      { "tipo": "chiusura", "azione": "Trova nell'estratto conto ==una piccola spesa che si ripete==. Moltiplicala per 365." }
+      { "tipo": "apertura", "testo": "Zoey è piena di debiti. La dritta giusta arriva da ==un barista==." },
+      { "tipo": "esempio", "testo": "È un racconto di David Bach. Zoey ha il lavoro dei sogni a New York e niente da parte. La sua capa la manda da Henry, ==un vecchio barista==." },
+      { "tipo": "colpo", "testo": "Henry le fa ==contare i caffè==." },
+      { "tipo": "numero", "valore": 1825, "suffisso": " €", "didascalia": "Un anno di caffè e snack, a ==5 euro al giorno==.", "nota": "Esempio illustrativo: 5 × 365." },
+      { "tipo": "testo", "titolo": "La critica", "testo": "Casa e auto pesano più dei caffè: i critici hanno ragione. Per Bach però il caffè è ==solo un simbolo==." },
+      { "tipo": "mito", "mito": "Per risparmiare devo guadagnare di più", "realta": "Per Bach i soldi per iniziare li hai già: ==escono in spese che non noti==." },
+      { "tipo": "principio", "testo": "Non conta rinunciare a tutto. Conta ==scegliere tu== quali piccole spese valgono. Il resto è abitudine." },
+      { "tipo": "chiusura", "azione": "Apri l'estratto conto. Segna ==tre piccole spese== che avevi già dimenticato." }
     ]
   },
   {

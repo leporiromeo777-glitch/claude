@@ -40,14 +40,14 @@
     "titolo": "Un chilo di lenticchie per un vaccino",
     "libro": { "titolo": "L'economia dei poveri", "autore": "Abhijit V. Banerjee, Esther Duflo", "anno": 2011, "titoloOriginale": "Poor Economics" },
     "scene": [
-      { "tipo": "apertura", "testo": "Vaccini gratis in ogni villaggio. Li completano ==6 bambini su 100==." },
+      { "tipo": "apertura", "testo": "I vaccini sono gratis. Li completano ==6 bambini su 100==." },
       { "tipo": "colpo", "testo": "La soluzione? ==Lenticchie.==" },
       { "tipo": "testo", "titolo": "Udaipur, India", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. E i genitori ==rimandano==." },
       { "tipo": "esempio", "testo": "Banerjee e Duflo fanno una prova. Prima: una clinica mobile sempre puntuale. Poi un regalo: ==un chilo di lenticchie== a ogni vaccino." },
       { "tipo": "grafico", "titolo": "Bambini con tutti i vaccini", "forma": "barre", "unita": "%",
         "dati": [ { "e": "Niente", "v": 6 }, { "e": "Clinica", "v": 18 }, { "e": "Più dono", "v": 39 } ],
         "nota": "Studio a Udaipur pubblicato nel 2010." },
-      { "tipo": "mito", "mito": "Chi non vaccina è contrario ai vaccini", "realta": "Bastano le lenticchie: ==non era ostilità==, era rinvio." },
+      { "tipo": "mito", "mito": "Se non vaccinano i figli è perché non si fidano", "realta": "A Udaipur bastano le lenticchie: ==non era sfiducia==, era rinvio." },
       { "tipo": "principio", "testo": "Rimandare è umano. Un ==piccolo premio oggi== batte un grande beneficio lontano." },
       { "tipo": "chiusura", "azione": "Quella cosa che rimandi da settimane: legala a ==un piccolo premio== e falla oggi." }
     ]
@@ -122,7 +122,7 @@
     "titolo": "Il baratto che nessuno ha mai trovato",
     "libro": { "titolo": "Debito. I primi 5000 anni", "autore": "David Graeber", "anno": 2011, "titoloOriginale": "Debt: The First 5,000 Years" },
     "scene": [
-      { "tipo": "apertura", "testo": "Io ho le galline, tu le scarpe. Scambiamo? ==Non è mai andata così.==" },
+      { "tipo": "apertura", "testo": "Io ho le galline, tu le scarpe. Scambiamo? ==Non è andata così.==" },
       { "tipo": "mito", "mito": "Prima dei soldi c'era il baratto", "realta": "Nessuno ha mai trovato una società di ==puro baratto==, scrive Graeber." },
       { "tipo": "colpo", "testo": "E allora cosa c'era?" },
       { "tipo": "quiz", "domanda": "Secondo Graeber, che cosa nasce prima?",
@@ -165,7 +165,7 @@
       { "tipo": "esempio", "testo": "1925: Churchill riporta la sterlina all'oro, al valore di prima della guerra. Per Keynes è ==troppo cara di circa il 10%==: salari tagliati, scioperi." },
       { "tipo": "colpo", "testo": "Chi molla l'oro riparte prima." },
       { "tipo": "principio", "testo": "Per Ahamed la Depressione non fu fatalità: nacque da ==decisioni sbagliate== sulla moneta." },
-      { "tipo": "chiusura", "azione": "Chiedi a un amico se i suoi euro sono coperti dall'oro. ==Non lo sono.==" }
+      { "tipo": "chiusura", "azione": "Chiedi a un amico se i suoi soldi sono coperti dall'oro. ==Non lo sono.==" }
     ]
   },
   {
@@ -178,7 +178,7 @@
       { "tipo": "colpo", "testo": "Qui i pazienti sono paesi." },
       { "tipo": "elenco", "titolo": "La ricetta del Fondo Monetario",
         "voci": ["Tagli alla spesa, subito", "Privatizzare in fretta", "Mercati e capitali aperti"] },
-      { "tipo": "testo", "testo": "A denunciarla è uno ==che l'ha vista da dentro==: Joseph Stiglitz, ex capo economista della Banca Mondiale." },
+      { "tipo": "testo", "testo": "Lo denuncia Joseph Stiglitz, ex capo economista della Banca Mondiale. ==L'ha vista da vicino.==" },
       { "tipo": "esempio", "testo": "1997: la crisi travolge l'Asia. Il Fondo chiede tagli e tassi altissimi. Per Stiglitz ==aggrava la recessione==." },
       { "tipo": "confronto", "titolo": "Due strade, secondo Stiglitz",
         "a": { "etichetta": "La cura del Fondo", "voci": ["Tagli, tassi alti, capitali in fuga"] },
