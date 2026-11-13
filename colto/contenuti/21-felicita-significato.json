@@ -235,8 +235,8 @@
     "scene": [
       { "tipo": "apertura", "testo": "Un'ora a settimana con un amico, per 40 anni. Totale: ==87 giorni==." },
       { "tipo": "colpo", "testo": "Meno di tre mesi." },
-      { "tipo": "grafico", "titolo": "Un'ora insieme per 40 anni: giorni in tutto", "forma": "barre", "unita": "gg",
-        "dati": [ { "e": "A sett.", "v": 87 }, { "e": "Al mese", "v": 20 }, { "e": "All'anno", "v": 2 } ],
+      { "tipo": "grafico", "titolo": "Un'ora insieme ogni…, per 40 anni: giorni totali", "forma": "barre", "unita": "gg",
+        "dati": [ { "e": "Settimana", "v": 87 }, { "e": "Mese", "v": 20 }, { "e": "Anno", "v": 2 } ],
         "nota": "Esempio illustrativo: ore totali divise per 24, arrotondate." },
       { "tipo": "testo", "titolo": "Forma sociale", "testo": "Waldinger e Schulz dirigono lo studio di Harvard sulla vita adulta. Per loro i legami sono come muscoli: ==fermi, si indeboliscono==." },
       { "tipo": "mito", "mito": "Le amicizie vere durano da sole", "realta": "Per gli autori vanno ==tenute in allenamento==, come il corpo." },
