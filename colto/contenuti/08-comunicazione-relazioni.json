@@ -1,0 +1,247 @@
+[
+  {
+    "id": "come-trattare-gli-altri-interesse-sincero",
+    "categoria": "comunicazione",
+    "titolo": "Il segreto del cane per piacere a tutti",
+    "libro": { "titolo": "Come trattare gli altri e farseli amici", "autore": "Dale Carnegie", "anno": 1936, "titoloOriginale": "How to Win Friends and Influence People" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Gallina: uova. Mucca: latte. Il cane? ==Niente.== Eppure lo adori." },
+      { "tipo": "colpo", "testo": "Come si guadagna da vivere?" },
+      { "tipo": "esempio", "testo": "Torni a casa e ti corre incontro, felice. Non deve venderti niente. Per Dale Carnegie il suo segreto è tutto qui: ==si interessa a te==." },
+      { "tipo": "colpo", "testo": "Noi facciamo il contrario." },
+      { "tipo": "mito", "mito": "Per piacere devi essere interessante", "realta": "Per Carnegie piace di più chi è ==interessato agli altri==." },
+      { "tipo": "numero", "valore": 2, "suffisso": " mesi", "didascalia": "Se ti interessi agli altri, ti fai più amici che in ==due anni== a parlare di te.", "nota": "Non è una statistica: è il paragone di Carnegie." },
+      { "tipo": "elenco", "titolo": "Come si fa, in pratica",
+        "voci": ["Ricorda il nome e usalo", "Chiedi di ciò che sta a cuore a loro", "Ascolta fino in fondo, ==sul serio=="] },
+      { "tipo": "chiusura", "azione": "Oggi fai ==due domande sull'altro== prima di raccontare qualcosa di te." }
+    ]
+  },
+  {
+    "id": "crucial-conversations-silenzio-o-violenza",
+    "categoria": "comunicazione",
+    "titolo": "Chi urla e chi tace stanno facendo la stessa cosa",
+    "libro": { "titolo": "Crucial Conversations", "autore": "Kerry Patterson, Joseph Grenny, Ron McMillan, Al Switzler", "anno": 2002 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Lui alza la voce, tu ti zittisci. ==È la stessa mossa.==" },
+      { "tipo": "testo", "titolo": "Conversazioni cruciali", "testo": "Posta alta, opinioni opposte, emozioni forti. Per gli autori è lì che ==diamo il peggio==. E scappiamo in due modi." },
+      { "tipo": "elenco", "titolo": "Le due vie di fuga",
+        "voci": ["Silenzio: taci, svii, minimizzi", "Violenza: alzi la voce, etichetti, attacchi"] },
+      { "tipo": "quiz", "domanda": "In piena discussione butti lì una battuta sarcastica. Per gli autori è…",
+        "opzioni": ["Silenzio", "Violenza"], "corretta": 0,
+        "spiegazione": "Col sarcasmo mascheri ciò che pensi senza dirlo davvero. Il libro lo mette nel silenzio." },
+      { "tipo": "colpo", "testo": "La causa è ==una sola==." },
+      { "tipo": "principio", "testo": "Chi tace o attacca non reagisce a ciò che dici: ==non si sente al sicuro==." },
+      { "tipo": "chiusura", "azione": "Alla prossima discussione tesa fermati: di' ==cosa non intendi==, poi cosa intendi." }
+    ]
+  },
+  {
+    "id": "nonviolent-communication-quattro-passi",
+    "categoria": "comunicazione",
+    "titolo": "Come lamentarti e farti ascoltare davvero",
+    "libro": { "titolo": "Le parole sono finestre (oppure muri)", "autore": "Marshall B. Rosenberg", "anno": 1999, "titoloOriginale": "Nonviolent Communication" },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Non mi ascolti mai.» Indovina cosa fa l'altro ==subito dopo==." },
+      { "tipo": "colpo", "testo": "Si difende. E non ascolta." },
+      { "tipo": "elenco", "titolo": "I quattro passi di Rosenberg", "numerato": true,
+        "voci": ["Osservazione: il fatto, senza giudizi", "Sentimento: cosa provo", "Bisogno: cosa mi manca", "Richiesta: un gesto, non una pretesa"] },
+      { "tipo": "quiz", "domanda": "Quale di queste frasi esprime davvero un sentimento?",
+        "opzioni": ["«Mi sento ignorato»", "«Mi sento triste»"], "corretta": 1,
+        "spiegazione": "«Ignorato» descrive cosa fa l'altro, non cosa provi. Per Rosenberg è un'interpretazione." },
+      { "tipo": "colpo", "testo": "Ora ==rifacciamo== la frase." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Giudizio", "voci": ["«Non mi ascolti mai»"] },
+        "b": { "etichetta": "Quattro passi", "voci": ["«Guardavi il telefono. Ci resto male»", "«Ho bisogno di ascolto. Lo posi un po'?»"] } },
+      { "tipo": "chiusura", "azione": "Prendi una lamentela che ripeti spesso e riscrivila ==partendo da un fatto==." }
+    ]
+  },
+  {
+    "id": "quiet-introverso-non-timido",
+    "categoria": "mente",
+    "titolo": "No, introverso non vuol dire timido",
+    "libro": { "titolo": "Quiet", "autore": "Susan Cain", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Timido e introverso: prova a dire ==la differenza==." },
+      { "tipo": "esempio", "testo": "Susan Cain fa due nomi. Bill Gates: introverso, per niente timido. Barbra Streisand: travolgente, ma col panico da palco. ==Estroversa e timida.==" },
+      { "tipo": "colpo", "testo": "Com'è possibile?" },
+      { "tipo": "mito", "mito": "Introverso vuol dire timido", "realta": "Timidezza è ==paura del giudizio==. Introversione è preferire pochi stimoli." },
+      { "tipo": "testo", "titolo": "Questione di stimoli", "testo": "A un estroverso la folla dà energia. Un introverso poi deve ricaricarsi da solo. Per Cain ==non è un difetto== da correggere." },
+      { "tipo": "numero", "valore": 1, "suffisso": " su 3", "didascalia": "Almeno ==una persona su tre== è introversa, per gli studi citati da Cain.", "nota": "Le stime vanno da un terzo a metà degli americani." },
+      { "tipo": "chiusura", "azione": "Domani metti ==dieci minuti da solo== dopo l'impegno più affollato." }
+    ]
+  },
+  {
+    "id": "difficult-conversations-tre-conversazioni",
+    "categoria": "comunicazione",
+    "titolo": "Perché litigate sempre per gli stessi piatti",
+    "libro": { "titolo": "Difficult Conversations", "autore": "Douglas Stone, Bruce Patton, Sheila Heen", "anno": 1999 },
+    "scene": [
+      { "tipo": "apertura", "testo": "In ogni litigio ce ne sono ==tre==. Tu ne senti uno solo." },
+      { "tipo": "esempio", "testo": "«Hai lasciato di nuovo i piatti.» Si discute di turni. Sotto, uno si sente dato per scontato. Più sotto, l'altro si chiede: ==sono un egoista?==" },
+      { "tipo": "elenco", "titolo": "Le tre conversazioni",
+        "voci": ["Cosa è successo: chi ha ragione?", "Sentimenti: cosa provo e non dico", "Identità: cosa dice di me questa storia"] },
+      { "tipo": "colpo", "testo": "Di solito fai ==solo la prima==." },
+      { "tipo": "testo", "testo": "Lo spiegano Stone, Patton e Heen, studiosi di negoziazione a Harvard. Finché le altre due restano sotto, ==la lite ritorna==." },
+      { "tipo": "mito", "mito": "Discutere serve a stabilire chi ha ragione", "realta": "Per gli autori serve a ==capire cosa è successo== a tutti e due." },
+      { "tipo": "chiusura", "azione": "Pensa a una lite in sospeso. Scrivi una riga per livello: ==fatti, sentimenti, identità==." }
+    ]
+  },
+  {
+    "id": "radical-candor-empatia-rovinosa",
+    "categoria": "comunicazione",
+    "titolo": "Dieci mesi di silenzio gentile, poi il licenziamento",
+    "libro": { "titolo": "Radical Candor", "autore": "Kim Scott", "anno": 2017 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Kim Scott licenzia Bob. Lui chiede: ==perché nessuno me l'ha detto?==" },
+      { "tipo": "colpo", "testo": "Riavvolgi di dieci mesi." },
+      { "tipo": "esempio", "testo": "Nella sua startup Bob piace a tutti, ma il lavoro non va. Per non ferirlo, Scott gli dice che va bene. ==Per dieci mesi.== Poi deve mandarlo via." },
+      { "tipo": "mito", "mito": "Se non hai niente di carino da dire, taci", "realta": "Per Scott tacere così è ==empatia rovinosa==: l'altro non può migliorare." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Empatia rovinosa", "voci": ["Ci tieni, quindi taci", "L'altro lo scopre troppo tardi"] },
+        "b": { "etichetta": "Sincerità radicale", "voci": ["Ci tieni, quindi lo dici chiaro", "L'altro può ancora rimediare"] } },
+      { "tipo": "principio", "testo": "Dire una verità scomoda a qualcuno a cui tieni ==è un modo di tenerci==." },
+      { "tipo": "chiusura", "azione": "Chiedi oggi a un collega: ==«Cosa potrei fare meglio?»== Poi ascolta senza difenderti." }
+    ]
+  },
+  {
+    "id": "talk-like-ted-storie",
+    "categoria": "comunicazione",
+    "titolo": "Il discorso di 18 minuti che raccolse 1 milione",
+    "libro": { "titolo": "Talk Like TED", "autore": "Carmine Gallo", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "18 minuti di discorso. Alla fine il pubblico dona ==1 milione==." },
+      { "tipo": "esempio", "testo": "TED, 2012. L'avvocato Bryan Stevenson parla di carceri. Racconta di sua nonna, di Rosa Parks, di un custode. La sala dona ==1 milione di dollari== alla sua causa." },
+      { "tipo": "colpo", "testo": "Gallo ha ==contato le parole==." },
+      { "tipo": "quiz", "domanda": "Quanta parte del discorso era fatta di dati e ragionamenti?",
+        "opzioni": ["Un quarto", "Metà", "Tre quarti"], "corretta": 0,
+        "spiegazione": "Il 25%, secondo il conteggio di Carmine Gallo." },
+      { "tipo": "grafico", "titolo": "Di cosa era fatto quel discorso", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "Pathos", "v": 65 }, { "e": "Logos", "v": 25 }, { "e": "Ethos", "v": 10 } ],
+        "nota": "Pathos: emozioni e storie. Logos: dati. Ethos: credibilità." },
+      { "tipo": "principio", "testo": "I dati informano. Ma è una storia a ==creare un legame== e a farsi ricordare." },
+      { "tipo": "chiusura", "azione": "Prossima presentazione: apri con ==una storia vera== di tre righe, prima dei numeri." }
+    ]
+  },
+  {
+    "id": "intelligenza-emotiva-sequestro-emotivo",
+    "categoria": "mente",
+    "titolo": "La scorciatoia del cervello che ti fa esplodere",
+    "libro": { "titolo": "Intelligenza emotiva", "autore": "Daniel Goleman", "anno": 1995, "titoloOriginale": "Emotional Intelligence" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Urli. Poi ti chiedi: ==ma perché ho reagito così?==" },
+      { "tipo": "testo", "titolo": "Sequestro emozionale", "testo": "Goleman lo chiama così: per un attimo la parte emotiva del cervello ==prende il comando==. Quella razionale arriva dopo." },
+      { "tipo": "confronto", "titolo": "Due strade nel cervello",
+        "a": { "etichetta": "Via breve", "voci": ["Dritta all'amigdala", "Rapidissima, ma grossolana"] },
+        "b": { "etichetta": "Via lunga", "voci": ["Passa dalla corteccia", "Più lenta, ma valuta"] } },
+      { "tipo": "colpo", "testo": "Ti salva. E ti fa litigare." },
+      { "tipo": "testo", "titolo": "Una mappa, non una foto", "testo": "L'idea viene dagli studi di Joseph LeDoux. Oggi molti neuroscienziati la trovano ==troppo semplice==: il cervello è più intrecciato." },
+      { "tipo": "mito", "mito": "Sfogare la rabbia la fa passare", "realta": "Per le ricerche citate da Goleman di solito ==la alimenta==. Meglio allontanarsi." },
+      { "tipo": "chiusura", "azione": "Quando sale la rabbia, ==dalle un nome== e fai due passi prima di rispondere." }
+    ]
+  },
+  {
+    "id": "thanks-for-the-feedback-tre-tipi",
+    "categoria": "comunicazione",
+    "titolo": "Volevi un grazie, ti è arrivato un voto",
+    "libro": { "titolo": "Thanks for the Feedback", "autore": "Douglas Stone, Sheila Heen", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Stai per chiedere un parere? Prima scegli ==quale dei tre==." },
+      { "tipo": "elenco", "titolo": "Feedback vuol dire tre cose",
+        "voci": ["Apprezzamento: «vedo cosa fai»", "Consiglio: «ecco come migliorare»", "Valutazione: «ecco a che punto sei»"] },
+      { "tipo": "quiz", "domanda": "«La prossima volta parti dalla conclusione.» Che feedback è?",
+        "opzioni": ["Valutazione", "Apprezzamento", "Consiglio"], "corretta": 2,
+        "spiegazione": "Ti dice come fare meglio. Gli autori lo chiamano coaching." },
+      { "tipo": "colpo", "testo": "Il guaio è ==l'incrocio==." },
+      { "tipo": "esempio", "testo": "Un mese di sere su un progetto. Il capo: «Buono, ma rifai la slide 4». Consiglio giusto. Eppure esci deluso: ==volevi un grazie==." },
+      { "tipo": "principio", "testo": "Il feedback delude quando ne cerchi un tipo e ==te ne arriva un altro==." },
+      { "tipo": "chiusura", "azione": "Al prossimo parere che chiedi, dillo: ti serve un grazie, ==un consiglio o un voto==?" }
+    ]
+  },
+  {
+    "id": "come-trattare-gli-altri-lettera-lincoln",
+    "categoria": "comunicazione",
+    "titolo": "La lettera furiosa che Lincoln non spedì",
+    "libro": { "titolo": "Come trattare gli altri e farseli amici", "autore": "Dale Carnegie", "anno": 1936, "titoloOriginale": "How to Win Friends and Influence People" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il generale Meade non ha mai letto ==la lettera furiosa di Lincoln==." },
+      { "tipo": "esempio", "testo": "1863, dopo Gettysburg. Meade esita e l'esercito nemico scappa. Lincoln gli scrive che ha sprecato l'occasione di ==chiudere la guerra==." },
+      { "tipo": "colpo", "testo": "Poi ==non la spedisce==." },
+      { "tipo": "testo", "titolo": "Perché nel cassetto?", "testo": "La trovano fra le sue carte, dopo la morte. Carnegie immagina il ragionamento: sfogarmi mi fa bene, ma Meade ==se la prenderà con me==." },
+      { "tipo": "mito", "mito": "Una critica dura fa capire l'errore", "realta": "Per Carnegie mette l'altro ==sulla difensiva==: cerca scuse e si offende." },
+      { "tipo": "principio", "testo": "Criticare è facile. Serve di più ==capire perché l'altro l'ha fatto==." },
+      { "tipo": "chiusura", "azione": "Scrivi il messaggio arrabbiato che hai in testa. Poi lascialo ==nelle bozze fino a domani==." }
+    ]
+  },
+  {
+    "id": "give-and-take-generosi-ultimi-e-primi",
+    "categoria": "comunicazione",
+    "titolo": "I generosi arrivano ultimi. E anche primi",
+    "libro": { "titolo": "Più dai più hai", "autore": "Adam Grant", "anno": 2013, "titoloOriginale": "Give and Take" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Essere generosi al lavoro ti affonda. ==Oppure ti porta in cima.==" },
+      { "tipo": "elenco", "titolo": "Tre tipi, secondo Adam Grant",
+        "voci": ["Chi prende: vuole più di quanto dà", "Chi pareggia: ti aiuto se mi aiuti", "Chi dà: aiuta senza tenere i conti"] },
+      { "tipo": "quiz", "domanda": "Chi finisce più spesso in fondo alla scala dei risultati?",
+        "opzioni": ["Chi prende", "Chi pareggia", "Chi dà"], "corretta": 2,
+        "spiegazione": "Chi dà senza limiti trascura il proprio lavoro e si fa sfruttare." },
+      { "tipo": "colpo", "testo": "Ora guarda ==in cima==." },
+      { "tipo": "testo", "testo": "In cima Grant ritrova ==chi dà==. Fra ingegneri, studenti di medicina, venditori. Gli altri due tipi stanno più spesso in mezzo." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Chi si annulla", "voci": ["Dice sempre di sì e si esaurisce"] },
+        "b": { "etichetta": "Chi dà con criterio", "voci": ["Aiuta, ma tiene ai suoi obiettivi"] } },
+      { "tipo": "chiusura", "azione": "Oggi fai un ==favore da cinque minuti==: presenta fra loro due persone." }
+    ]
+  },
+  {
+    "id": "charisma-myth-presenza-potere-calore",
+    "categoria": "comunicazione",
+    "titolo": "Il carisma si accende e si spegne: guarda Marilyn",
+    "libro": { "titolo": "The Charisma Myth", "autore": "Olivia Fox Cabane", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Come fa Marilyn Monroe a prendere la metro ==senza farsi notare==?" },
+      { "tipo": "colpo", "testo": "Aveva un interruttore." },
+      { "tipo": "esempio", "testo": "New York, 1955. Racconta Olivia Fox Cabane: in metropolitana nessuno la guarda. In strada Marilyn cambia posa, si sistema i capelli. ==La folla la circonda.==" },
+      { "tipo": "mito", "mito": "Il carisma o ce l'hai o non ce l'hai", "realta": "Per Cabane è fatto di ==comportamenti che si imparano==." },
+      { "tipo": "elenco", "titolo": "I tre ingredienti",
+        "voci": ["Presenza: sei davvero lì", "Potere: sembri in grado di incidere", "Calore: vuoi il bene dell'altro"] },
+      { "tipo": "testo", "titolo": "Si parte dalla presenza", "testo": "Se pensi ad altro, il viso ti tradisce. Il trucco di Cabane: senti per un secondo ==le dita dei piedi==. Poi torna a chi hai davanti." },
+      { "tipo": "chiusura", "azione": "Nella prossima conversazione ==aspetta due secondi== prima di rispondere." }
+    ]
+  },
+  {
+    "id": "quiet-brainstorming-da-soli",
+    "categoria": "mente",
+    "titolo": "In riunione vengono meno idee che da soli",
+    "libro": { "titolo": "Quiet", "autore": "Susan Cain", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Servono idee? Convochi una riunione. ==Primo errore.==" },
+      { "tipo": "quiz", "domanda": "Chi tira fuori più idee sullo stesso problema?",
+        "opzioni": ["Quattro persone in brainstorming", "Quattro persone, ognuna da sola"], "corretta": 1,
+        "spiegazione": "Da sole. E per gli studi citati da Susan Cain le idee non sono peggiori." },
+      { "tipo": "numero", "valore": 23, "suffisso": " su 24", "didascalia": "I gruppi che nel 1963 ebbero ==più idee lavorando separati== che riuniti.", "nota": "Studio di Marvin Dunnette alla 3M, raccontato da Cain." },
+      { "tipo": "colpo", "testo": "Cosa frena il gruppo?" },
+      { "tipo": "elenco", "titolo": "Tre freni",
+        "voci": ["Qualcuno lascia fare agli altri", "Si parla uno alla volta: le idee aspettano", "Si teme la brutta figura"] },
+      { "tipo": "principio", "testo": "Cain non boccia il gruppo: le idee nascono meglio ==da soli==, poi ci si confronta." },
+      { "tipo": "chiusura", "azione": "Prima della prossima riunione scrivi ==tre idee per conto tuo==." }
+    ]
+  },
+  {
+    "id": "difficult-conversations-intenzione-ed-effetto",
+    "categoria": "comunicazione",
+    "titolo": "Non conosci le sue intenzioni: le stai immaginando",
+    "libro": { "titolo": "Difficult Conversations", "autore": "Douglas Stone, Bruce Patton, Sheila Heen", "anno": 1999 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti ha ferito. Quindi voleva ferirti. ==Trova l'errore.==" },
+      { "tipo": "colpo", "testo": "L'errore è il ==«quindi»==." },
+      { "tipo": "testo", "titolo": "Il salto che facciamo", "testo": "Per Stone, Patton e Heen giudichiamo le intenzioni da ==come ci siamo sentiti==. Ma le intenzioni non si vedono: le indoviniamo." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Accusa", "voci": ["«Volevi mettermi in imbarazzo»"] },
+        "b": { "etichetta": "Effetto e domanda", "voci": ["«Mi hai corretto davanti a tutti»", "«Ci sono rimasto male. Cosa intendevi?»"] } },
+      { "tipo": "colpo", "testo": "Vale anche al contrario." },
+      { "tipo": "quiz", "domanda": "Hai ferito qualcuno senza volerlo. Cosa dici per prima cosa?",
+        "opzioni": ["«Non era mia intenzione»", "«Capisco che ci sei rimasto male»"], "corretta": 1,
+        "spiegazione": "Per gli autori le buone intenzioni non cancellano l'effetto. Prima riconoscilo, poi spiega." },
+      { "tipo": "chiusura", "azione": "Ripensa a un torto recente. Scrivi: «Ha fatto… mi sono sentito… ==sto supponendo che…==»" }
+    ]
+  }
+]

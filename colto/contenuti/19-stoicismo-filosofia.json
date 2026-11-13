@@ -1,0 +1,244 @@
+[
+  {
+    "id": "pensieri-marco-aurelio-persone-difficili",
+    "categoria": "filosofia",
+    "titolo": "Metti in conto i maleducati prima di uscire",
+    "libro": { "titolo": "Pensieri", "autore": "Marco Aurelio", "anno": 180, "titoloOriginale": "Ta eis heauton" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Oggi qualcuno sarà scortese con te. ==Mettilo in conto adesso==." },
+      { "tipo": "testo", "titolo": "Il promemoria dell'imperatore", "testo": "Marco Aurelio annota: all'alba ripetiti che incontrerai invadenti, ingrati, prepotenti, sleali. ==Non è pessimismo==: è prepararsi." },
+      { "tipo": "colpo", "testo": "E non si arrabbia. ==Perché?==" },
+      { "tipo": "confronto",
+        "a": { "etichetta": "D'istinto", "voci": ["Ce l'ha con me", "Mi ha rovinato la giornata"] },
+        "b": { "etichetta": "Marco Aurelio", "voci": ["Sbaglia: non distingue bene e male", "Non può rendermi peggiore"] } },
+      { "tipo": "principio", "testo": "Siamo nati per collaborare, come le mani o ==le due file di denti==. Farsi la guerra è contro natura." },
+      { "tipo": "esempio", "testo": "Riunione delle nove. Un collega ti interrompe tre volte. Te lo aspettavi: non è un affronto, è lui. Rispondi nel merito e ==vai avanti==." },
+      { "tipo": "chiusura", "azione": "Stasera scrivi chi può innervosirti domani e ==come vuoi rispondere==." }
+    ]
+  },
+  {
+    "id": "pensieri-marco-aurelio-opinione-altrui",
+    "categoria": "filosofia",
+    "titolo": "Ti ami più di tutti, ma credi più agli altri",
+    "libro": { "titolo": "Pensieri", "autore": "Marco Aurelio", "anno": 180, "titoloOriginale": "Ta eis heauton" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti vuoi più bene di chiunque. Eppure ==un commento ti rovina la serata==." },
+      { "tipo": "colpo", "testo": "Un imperatore ==se ne stupiva==." },
+      { "tipo": "testo", "testo": "Marco Aurelio lo annota. Ognuno ama sé stesso più di tutti. Ma dà più peso ==al giudizio altrui== che al proprio." },
+      { "tipo": "quiz", "domanda": "Per Marco Aurelio, quanto dura la fama dopo la morte?",
+        "opzioni": ["Per sempre, se meritata", "Finché durano le opere", "Poco: muore anche chi ti ricorda"], "corretta": 2,
+        "spiegazione": "Chi ti loda sparirà presto, e anche chi verrà dopo. Inseguire applausi è fatica sprecata." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Per gli applausi", "voci": ["Conti i like ogni dieci minuti"] },
+        "b": { "etichetta": "Per te", "voci": ["Ti chiedi: è fatto bene?"] } },
+      { "tipo": "principio", "testo": "Uno smeraldo non peggiora se nessuno lo loda. ==Un lavoro fatto bene nemmeno==." },
+      { "tipo": "chiusura", "azione": "Consegna o pubblica una cosa oggi. ==Non guardare le reazioni== fino a domani." }
+    ]
+  },
+  {
+    "id": "lettere-lucilio-paure-immaginate",
+    "categoria": "filosofia",
+    "titolo": "Soffri più per quello che immagini che per i fatti",
+    "libro": { "titolo": "Lettere a Lucilio", "autore": "Seneca", "anno": 65, "titoloOriginale": "Epistulae morales ad Lucilium" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quante delle paure che ti tolgono il sonno ==succedono davvero==?" },
+      { "tipo": "esempio", "testo": "Il capo scrive: domani ti devo parlare. Notte in bianco, immagini il licenziamento. Voleva solo spostare una riunione." },
+      { "tipo": "colpo", "testo": "Guaio zero. ==Insonnia vera.==" },
+      { "tipo": "principio", "testo": "Ci spaventano più cose di quante ci colpiscano: ==soffriamo più di fantasia== che di realtà." },
+      { "tipo": "elenco", "titolo": "Tre modi di farsi male da soli",
+        "voci": ["Ingrandire un problema che c'è", "Soffrire prima che arrivi", "Soffrire per un guaio che non verrà mai"] },
+      { "tipo": "testo", "titolo": "Il consiglio di Seneca", "testo": "Non promette che andrà bene. Dice: controlla le prove, spesso sono solo voci. E se il guaio verrà, ==soffrirai allora==." },
+      { "tipo": "chiusura", "azione": "Scrivi la paura di adesso e accanto ==i fatti che la provano==. Pochi? Rimandala." }
+    ]
+  },
+  {
+    "id": "brevita-vita-tempo-regalato",
+    "categoria": "filosofia",
+    "titolo": "La vita non è corta: sei tu che la regali",
+    "libro": { "titolo": "La brevità della vita", "autore": "Seneca", "anno": 49, "titoloOriginale": "De brevitate vitae" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Non regali 500 euro a chi passa. ==Tre ore al giorno== sì." },
+      { "tipo": "testo", "testo": "Seneca lo nota quasi duemila anni fa. Difendiamo i soldi con le unghie. E ==regaliamo le giornate== a chiunque le chieda." },
+      { "tipo": "colpo", "testo": "Fai il conto." },
+      { "tipo": "quiz", "domanda": "Tre ore al giorno sul telefono. In un anno quanto fa?",
+        "opzioni": ["Una settimana", "Tre settimane", "Un mese e mezzo"], "corretta": 2,
+        "spiegazione": "3 × 365 = 1095 ore: oltre 45 giorni interi, notti comprese. Esempio illustrativo." },
+      { "tipo": "mito", "mito": "La vita è troppo breve", "realta": "Per Seneca è lunga abbastanza: ==ne sprechiamo gran parte==." },
+      { "tipo": "testo", "titolo": "Il trucco del «dopo»", "testo": "Seneca prende in giro chi rimanda la vita ai cinquanta o ai sessant'anni. ==Chi ti garantisce di arrivarci?==" },
+      { "tipo": "chiusura", "azione": "Apri le statistiche del telefono. Guarda ==le ore di ieri== e togline una oggi." }
+    ]
+  },
+  {
+    "id": "manuale-epitteto-dicotomia-controllo",
+    "categoria": "filosofia",
+    "titolo": "Dipende da te? La prima domanda da farti",
+    "libro": { "titolo": "Manuale", "autore": "Epitteto", "anno": 125, "titoloOriginale": "Encheiridion" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un ex schiavo divise il mondo in due liste. ==L'ansia sta in una sola==." },
+      { "tipo": "quiz", "domanda": "Le liste: «dipende da me» e «non dipende». Per Epitteto il tuo corpo dove sta?",
+        "opzioni": ["Non dipende da me", "Dipende da me"], "corretta": 0,
+        "spiegazione": "Il corpo può ammalarsi o essere bloccato da altri. Giudizi e scelte no." },
+      { "tipo": "confronto", "titolo": "Le due liste di Epitteto",
+        "a": { "etichetta": "Non dipende da te", "voci": ["Corpo, soldi, reputazione, cariche"] },
+        "b": { "etichetta": "Dipende da te", "voci": ["Giudizi, desideri, le tue azioni"] } },
+      { "tipo": "colpo", "testo": "Indovina ==dove guardi di più==." },
+      { "tipo": "esempio", "testo": "Esame domani. Domande e voto non li decidi tu. Quanto ripassi stasera sì. ==Metti lì l'energia==." },
+      { "tipo": "principio", "testo": "Alcune cose dipendono da te, altre no. ==Chi le confonde soffre==, chi le distingue è libero." },
+      { "tipo": "chiusura", "azione": "Dividi la preoccupazione di oggi in due colonne: ==dipende da me, non dipende==." }
+    ]
+  },
+  {
+    "id": "manuale-epitteto-giudizi-sui-fatti",
+    "categoria": "filosofia",
+    "titolo": "Non è l'offesa a ferirti: è come la leggi",
+    "libro": { "titolo": "Manuale", "autore": "Epitteto", "anno": 125, "titoloOriginale": "Encheiridion" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti rispondono «ok.» con il punto. ==Ci rimugini per ore==." },
+      { "tipo": "colpo", "testo": "Che cosa è successo davvero?" },
+      { "tipo": "esempio", "testo": "Rileggi la scena. Il fatto: un «ok.» sullo schermo. Il giudizio: ce l'ha con me. ==Il secondo l'hai aggiunto tu.==" },
+      { "tipo": "principio", "testo": "Non sono i fatti a turbarci, ma ==i giudizi che diamo sui fatti==." },
+      { "tipo": "mito", "mito": "È lui che mi ha fatto arrabbiare", "realta": "Per Epitteto ti irrita ==il tuo giudizio== che quella sia un'offesa." },
+      { "tipo": "testo", "testo": "Il suo consiglio: non seguire subito la prima impressione. ==Prendi tempo== e torni padrone di te." },
+      { "tipo": "chiusura", "azione": "Alla prossima irritazione scrivi ==il fatto== e ==cosa ci hai aggiunto==. Poi rispondi." }
+    ]
+  },
+  {
+    "id": "etica-nicomachea-giusto-mezzo",
+    "categoria": "filosofia",
+    "titolo": "Il coraggio sta in mezzo a due difetti",
+    "libro": { "titolo": "Etica Nicomachea", "autore": "Aristotele", "anno": -340, "titoloOriginale": "Ethika Nikomacheia" },
+    "scene": [
+      { "tipo": "apertura", "testo": "All'opposto della viltà non c'è il coraggio. ==C'è un altro difetto==." },
+      { "tipo": "elenco", "titolo": "Troppo poco, giusto, troppo",
+        "voci": ["Pericolo: viltà, coraggio, temerarietà", "Soldi: avarizia, generosità, spreco"] },
+      { "tipo": "colpo", "testo": "Ma ==non è la media==." },
+      { "tipo": "testo", "testo": "La stessa razione è poca per un lottatore, troppa per chi comincia. Per Aristotele il giusto mezzo ==si misura su di te==." },
+      { "tipo": "quiz", "domanda": "Per Aristotele c'è un giusto mezzo anche nel rubare?",
+        "opzioni": ["No: è sbagliato sempre", "Sì: basta non esagerare"], "corretta": 0,
+        "spiegazione": "Furto, omicidio o invidia non hanno una dose giusta: sono sbagliati in sé." },
+      { "tipo": "principio", "testo": "Arrabbiarsi è facile. Con la persona, la misura e il momento giusti: ==lì sta la virtù==." },
+      { "tipo": "chiusura", "azione": "Scegli un tuo difetto. Pendi verso il troppo? Oggi ==spingiti dall'altra parte==." }
+    ]
+  },
+  {
+    "id": "etica-nicomachea-tre-amicizie",
+    "categoria": "filosofia",
+    "titolo": "Tre tipi di amicizia, uno solo che dura",
+    "libro": { "titolo": "Etica Nicomachea", "autore": "Aristotele", "anno": -340, "titoloOriginale": "Ethika Nikomacheia" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Smetti di essere utile o divertente. ==Chi ti resta?==" },
+      { "tipo": "elenco", "titolo": "Le tre amicizie di Aristotele",
+        "voci": ["Per utilità: ci serviamo a vicenda", "Per piacere: stiamo bene insieme", "Per virtù: ti stimo per chi sei"] },
+      { "tipo": "quiz", "domanda": "Quale amicizia è tipica dei giovani, per Aristotele?",
+        "opzioni": ["Per utilità", "Per piacere", "Per virtù"], "corretta": 1,
+        "spiegazione": "I giovani seguono ciò che piace ora: fanno e disfano amicizie in fretta." },
+      { "tipo": "colpo", "testo": "Le prime due ==scadono==." },
+      { "tipo": "testo", "testo": "Finito il vantaggio o lo svago, finisce il legame. La terza dura ma ==chiede tempo==. Prima, dice un proverbio, si mangia insieme molto sale." },
+      { "tipo": "principio", "testo": "L'amico vero vuole il tuo bene ==per te, non per sé==." },
+      { "tipo": "chiusura", "azione": "Scrivi adesso a un amico del terzo tipo. ==Non per chiedere==: per sapere come sta." }
+    ]
+  },
+  {
+    "id": "apologia-socrate-so-di-non-sapere",
+    "categoria": "filosofia",
+    "titolo": "Il vantaggio di sapere che non sai",
+    "libro": { "titolo": "Apologia di Socrate", "autore": "Platone", "anno": -399, "titoloOriginale": "Apologia Sokratous" },
+    "scene": [
+      { "tipo": "apertura", "testo": "L'oracolo: nessuno è più sapiente di Socrate. ==Lui va a controllare==." },
+      { "tipo": "numero", "valore": 70, "suffisso": " anni", "didascalia": "L'età di Socrate quando lo racconta. È ==sotto processo== e rischia la vita." },
+      { "tipo": "elenco", "titolo": "Chi va a interrogare",
+        "voci": ["Politici: sicuri di sapere, non sapevano", "Poeti: non sapevano spiegare i loro versi", "Artigiani: bravi, presuntuosi sul resto"] },
+      { "tipo": "colpo", "testo": "==Tutti troppo sicuri.==" },
+      { "tipo": "principio", "testo": "Socrate non sa più degli altri. Ma ==non crede di sapere ciò che non sa==." },
+      { "tipo": "mito", "mito": "Socrate disse: so di non sapere", "realta": "La formula è un riassunto. Lui dice di ==non illudersi di sapere==." },
+      { "tipo": "chiusura", "azione": "Alla prima sigla che non capisci oggi, ==chiedi cosa vuol dire==. Anche se tutti annuiscono." }
+    ]
+  },
+  {
+    "id": "tao-te-ching-wu-wei",
+    "categoria": "filosofia",
+    "titolo": "Wu wei: fare di più forzando di meno",
+    "libro": { "titolo": "Tao Te Ching", "autore": "Laozi", "anno": -400, "titoloOriginale": "Dao De Jing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Niente cede più dell'acqua. ==Niente la batte== contro ciò che è duro." },
+      { "tipo": "testo", "testo": "Il Tao Te Ching, attribuito a Laozi, lo chiama wu wei: non agire. Non è stare fermi. È ==non forzare==." },
+      { "tipo": "mito", "mito": "Se non funziona, spingi più forte", "realta": "Per Laozi vince chi cede. ==Tutti lo sanno, nessuno lo pratica.==" },
+      { "tipo": "esempio", "testo": "Lite in corso. Più alzi la voce, più l'altro si irrigidisce. Fai una domanda a voce bassa: spesso ==il nodo si allenta==." },
+      { "tipo": "colpo", "testo": "Vale anche per i capi." },
+      { "tipo": "quiz", "domanda": "Per il Tao Te Ching, com'è il capo migliore?",
+        "opzioni": ["Temuto da tutti", "Amato e lodato", "Quasi non lo noti"], "corretta": 2,
+        "spiegazione": "Con lui la gente dice: abbiamo fatto da soli. Il capo amato viene secondo." },
+      { "tipo": "chiusura", "azione": "Scegli una cosa che spingi a forza da giorni. Oggi ==smetti di spingere==." }
+    ]
+  },
+  {
+    "id": "saggi-montaigne-cannibali",
+    "categoria": "filosofia",
+    "titolo": "Chiami barbaro quello che non è abitudine tua",
+    "libro": { "titolo": "Saggi", "autore": "Michel de Montaigne", "anno": 1580, "titoloOriginale": "Essais" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tre indigeni brasiliani in Francia, nel '500. ==Gli strani siamo noi==." },
+      { "tipo": "elenco", "titolo": "Cosa li colpisce, scrive Montaigne",
+        "voci": ["Uomini armati agli ordini di un re bambino", "Ricchi sazi accanto a mendicanti affamati", "E gli affamati che non si ribellano"] },
+      { "tipo": "colpo", "testo": "==Chi sono i selvaggi?==" },
+      { "tipo": "quiz", "domanda": "Quel popolo mangiava i nemici uccisi. Per Montaigne, che cosa è più barbaro?",
+        "opzioni": ["Mangiare un nemico già morto", "Torturare una persona viva"], "corretta": 1,
+        "spiegazione": "Non assolve i cannibali. Dice che l'Europa delle torture li superava in crudeltà." },
+      { "tipo": "principio", "testo": "Ognuno chiama barbarie ==ciò che non è nelle sue abitudini==." },
+      { "tipo": "chiusura", "azione": "Prendi un'usanza che trovi strana. Cerca per cinque minuti ==da dove nasce==." }
+    ]
+  },
+  {
+    "id": "obstacle-is-the-way-tre-discipline",
+    "categoria": "filosofia",
+    "titolo": "L'ostacolo non blocca la strada: è la strada",
+    "libro": { "titolo": "La via dell'ostacolo", "autore": "Ryan Holiday", "anno": 2014, "titoloOriginale": "The Obstacle Is the Way" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Al colloquio speri di piacere. ==George Clooney faceva lo stesso errore==." },
+      { "tipo": "esempio", "testo": "Agli inizi lo scartano provino dopo provino, e ci resta male. Poi capisce: anche chi sceglie ha un problema. ==Deve trovare l'attore giusto.==" },
+      { "tipo": "colpo", "testo": "Lui è ==la soluzione==." },
+      { "tipo": "confronto", "titolo": "Al prossimo colloquio",
+        "a": { "etichetta": "Prima", "voci": ["Spero di piacere"] },
+        "b": { "etichetta": "Dopo", "voci": ["Cercano qualcuno: mostro che servo"] } },
+      { "tipo": "elenco", "titolo": "Le tre discipline del libro", "numerato": true,
+        "voci": ["Percezione: guarda il problema com'è", "Azione: fai il prossimo passo utile", "Volontà: reggi ciò che non puoi cambiare"] },
+      { "tipo": "principio", "testo": "Ciò che ti sbarra la strada può ==diventare la strada==. Holiday lo riprende da Marco Aurelio." },
+      { "tipo": "chiusura", "azione": "Scrivi il tuo ostacolo. Sotto, ==una cosa che ti costringe a imparare==." }
+    ]
+  },
+  {
+    "id": "ego-is-the-enemy-essere-o-fare",
+    "categoria": "filosofia",
+    "titolo": "Vuoi essere qualcuno o fare qualcosa?",
+    "libro": { "titolo": "Ego è il nemico", "autore": "Ryan Holiday", "anno": 2016, "titoloOriginale": "Ego Is the Enemy" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Prima o poi arrivi a un bivio: ==sembrare importante== o fare sul serio." },
+      { "tipo": "testo", "testo": "Ryan Holiday racconta di John Boyd, pilota e stratega americano. Ai giovani ufficiali poneva ==sempre la stessa scelta==." },
+      { "tipo": "confronto", "titolo": "Il bivio di Boyd",
+        "a": { "etichetta": "Essere qualcuno", "voci": ["Promozioni e incarichi", "Al prezzo di compromessi"] },
+        "b": { "etichetta": "Fare qualcosa", "voci": ["Il lavoro che conta", "Anche senza promozioni"] } },
+      { "tipo": "colpo", "testo": "Boyd scelse ==la seconda==." },
+      { "tipo": "quiz", "domanda": "Le idee di Boyd cambiarono l'aviazione militare. A che grado si fermò?",
+        "opzioni": ["Capitano", "Colonnello", "Generale"], "corretta": 1,
+        "spiegazione": "Mai promosso generale. Eppure le sue idee hanno cambiato caccia e strategia." },
+      { "tipo": "principio", "testo": "Ego, per Holiday: credersi importanti. Ma ==avere autorità non è essere autorevoli==." },
+      { "tipo": "chiusura", "azione": "Nella lista di oggi segna cosa fai solo ==per farti notare==. Parti da altro." }
+    ]
+  },
+  {
+    "id": "guide-good-life-visualizzazione-negativa",
+    "categoria": "filosofia",
+    "titolo": "Immagina di perderlo e tornerai ad apprezzarlo",
+    "libro": { "titolo": "A Guide to the Good Life", "autore": "William B. Irvine", "anno": 2008 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il telefono nuovo ti ha reso felice due settimane. ==Poi basta.==" },
+      { "tipo": "testo", "titolo": "Adattamento edonico", "testo": "Ci abituiamo in fretta a ciò che abbiamo e vogliamo altro. William Irvine cerca il rimedio ==negli stoici==." },
+      { "tipo": "colpo", "testo": "Il rimedio sembra ==assurdo==." },
+      { "tipo": "elenco", "titolo": "Visualizzazione negativa", "numerato": true,
+        "voci": ["Scegli qualcuno o qualcosa a cui tieni", "Immagina per pochi secondi di averlo perso", "Torna al presente: è ancora qui"] },
+      { "tipo": "mito", "mito": "Pensare al peggio rende tristi", "realta": "Per Irvine, fatto per pochi secondi, ==ti fa apprezzare ciò che hai==." },
+      { "tipo": "principio", "testo": "Il modo più diretto per essere contento: ==desiderare ciò che hai già==." },
+      { "tipo": "chiusura", "azione": "Stasera a tavola guarda chi hai davanti. Pensa dieci secondi che ==potrebbe non esserci==." }
+    ]
+  }
+]

@@ -1,0 +1,243 @@
+[
+  {
+    "id": "nazioni-falliscono-nogales-confine",
+    "categoria": "economia",
+    "titolo": "Una città, una rete in mezzo, due destini",
+    "libro": { "titolo": "Perché le nazioni falliscono", "autore": "Daron Acemoglu, James A. Robinson", "anno": 2012, "titoloOriginale": "Why Nations Fail" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Una rete taglia in due una città. Da un lato si guadagna ==il triplo==." },
+      { "tipo": "colpo", "testo": "Stessa gente. Stesso clima." },
+      { "tipo": "testo", "titolo": "Nogales", "testo": "A nord è Arizona, a sud Sonora, Messico. Stessi antenati, stessa cucina. A sud una famiglia guadagna ==circa un terzo==." },
+      { "tipo": "quiz", "domanda": "Che cosa spiega il divario, secondo gli autori?",
+        "opzioni": ["Il clima", "La cultura", "Le regole"], "corretta": 2,
+        "spiegazione": "Clima e cultura sono gli stessi. Cambiano le istituzioni: le regole del gioco." },
+      { "tipo": "confronto", "titolo": "Due tipi di regole",
+        "a": { "etichetta": "Estrattive", "voci": ["Potere e ricchezza restano a pochi"] },
+        "b": { "etichetta": "Inclusive", "voci": ["Chi ha un'idea può provarci"] } },
+      { "tipo": "principio", "testo": "Un paese resta povero quando ==le regole servono solo a chi comanda==. Non per sfortuna." },
+      { "tipo": "chiusura", "azione": "Apri una mappa, cerca Nogales e segui ==la linea del confine== che la taglia." }
+    ]
+  },
+  {
+    "id": "nazioni-falliscono-paura-del-nuovo",
+    "categoria": "economia",
+    "titolo": "La regina che disse no a una macchina",
+    "libro": { "titolo": "Perché le nazioni falliscono", "autore": "Daron Acemoglu, James A. Robinson", "anno": 2012, "titoloOriginale": "Why Nations Fail" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Inventi una macchina che fa le calze da sola. La regina ==dice no==." },
+      { "tipo": "esempio", "testo": "1589. William Lee porta a Elisabetta I un telaio per la maglia. Niente brevetto: i sudditi resterebbero ==senza lavoro==. Poi rifiuta anche Giacomo I." },
+      { "tipo": "colpo", "testo": "Bontà d'animo? Non proprio." },
+      { "tipo": "testo", "testo": "Il nuovo crea nuovi ricchi e mette in crisi i vecchi potenti. Per Acemoglu e Robinson la regina teme ==per il trono==." },
+      { "tipo": "elenco", "titolo": "Altri «no» nel libro",
+        "voci": ["Austria: l'imperatore frena le ferrovie", "Russia: lo zar teme le fabbriche", "Ottomani: stampa in turco solo dal 1727"] },
+      { "tipo": "mito", "mito": "Una buona invenzione si impone da sola", "realta": "Passa solo dove chi comanda ==non può bloccarla==." },
+      { "tipo": "chiusura", "azione": "Scegli un'app che usi ogni giorno e cerca ==quale mestiere== ha messo in crisi." }
+    ]
+  },
+  {
+    "id": "economia-poveri-lenticchie-vaccini",
+    "categoria": "economia",
+    "titolo": "Un chilo di lenticchie per un vaccino",
+    "libro": { "titolo": "L'economia dei poveri", "autore": "Abhijit V. Banerjee, Esther Duflo", "anno": 2011, "titoloOriginale": "Poor Economics" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Vaccini gratis in ogni villaggio. Li completano ==6 bambini su 100==." },
+      { "tipo": "colpo", "testo": "La soluzione? ==Lenticchie.==" },
+      { "tipo": "testo", "titolo": "Udaipur, India", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. I genitori ==rimandano==: fatica oggi, beneficio lontano." },
+      { "tipo": "esempio", "testo": "Banerjee e Duflo fanno una prova. Prima: una clinica mobile sempre puntuale. Poi un regalo: ==un chilo di lenticchie== a ogni vaccino." },
+      { "tipo": "grafico", "titolo": "Bambini con tutti i vaccini", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "Niente", "v": 6 }, { "e": "Clinica", "v": 18 }, { "e": "Più dono", "v": 39 } ],
+        "nota": "Studio a Udaipur pubblicato nel 2010." },
+      { "tipo": "mito", "mito": "Chi non vaccina è contrario ai vaccini", "realta": "Bastano le lenticchie: ==non era ostilità==, era rinvio." },
+      { "tipo": "principio", "testo": "Rimandare è umano. Un ==piccolo premio oggi== batte un grande beneficio lontano." },
+      { "tipo": "chiusura", "azione": "Quella cosa che rimandi da settimane: legala a ==un piccolo premio== e falla oggi." }
+    ]
+  },
+  {
+    "id": "economia-poveri-tv-prima-del-cibo",
+    "categoria": "economia",
+    "titolo": "Perché chi ha fame compra una tv",
+    "libro": { "titolo": "L'economia dei poveri", "autore": "Abhijit V. Banerjee, Esther Duflo", "anno": 2011, "titoloOriginale": "Poor Economics" },
+    "scene": [
+      { "tipo": "apertura", "testo": "In casa manca il cibo. Sul tetto però c'è ==la parabola==." },
+      { "tipo": "esempio", "testo": "Marocco. Un uomo dice agli autori che con più soldi comprerebbe più cibo. In casa ha tv, parabola e DVD. Ride: ==la tv conta più del cibo==." },
+      { "tipo": "colpo", "testo": "Sembra assurdo. Non lo è." },
+      { "tipo": "quiz", "domanda": "Cina: famiglie povere ricevono uno sconto sul riso. Che succede?",
+        "opzioni": ["Mangiano più riso", "Mangiano meno riso"], "corretta": 1,
+        "spiegazione": "Con i soldi risparmiati comprano carne e gamberi. Le calorie non salgono." },
+      { "tipo": "mito", "mito": "Chi ha fame spende ogni soldo in più per mangiare", "realta": "Cerca anche gusto e svago: ==non è una macchina da calorie==." },
+      { "tipo": "chiusura", "azione": "Prendi l'ultimo scontrino e segna ==cosa hai comprato per gusto==, non per fame." }
+    ]
+  },
+  {
+    "id": "buona-economia-migranti-salari",
+    "categoria": "economia",
+    "titolo": "125 mila arrivi in pochi mesi. E gli stipendi?",
+    "libro": { "titolo": "Una buona economia per tempi difficili", "autore": "Abhijit V. Banerjee, Esther Duflo", "anno": 2019, "titoloOriginale": "Good Economics for Hard Times" },
+    "scene": [
+      { "tipo": "apertura", "testo": "1980: in Florida sbarcano ==125 mila cubani== in pochi mesi. E i salari?" },
+      { "tipo": "testo", "testo": "Castro apre il porto di Mariel. Metà di chi arriva si ferma a Miami: i lavoratori della città crescono ==del 7%==." },
+      { "tipo": "quiz", "domanda": "David Card confronta Miami con altre città. Cosa trova?",
+        "opzioni": ["Nessun effetto visibile", "Salari in forte calo"], "corretta": 0,
+        "spiegazione": "Salari e lavoro dei residenti vanno come nelle altre città." },
+      { "tipo": "colpo", "testo": "Il conto non torna. Perché?" },
+      { "tipo": "principio", "testo": "Il lavoro non è una torta fissa: chi arriva ==spende e compra==, e crea altro lavoro." },
+      { "tipo": "testo", "titolo": "Il dibattito", "testo": "Borjas rilegge i dati e vede salari in calo tra i meno istruiti. Per gli autori ==molte altre ricerche== danno ragione a Card." },
+      { "tipo": "chiusura", "azione": "Indovina la percentuale di stranieri nel tuo paese. Poi ==cerca il dato vero==." }
+    ]
+  },
+  {
+    "id": "economia-ciambella-anello-sicuro",
+    "categoria": "economia",
+    "titolo": "E se l'economia fosse una ciambella?",
+    "libro": { "titolo": "L'economia della ciambella", "autore": "Kate Raworth", "anno": 2017, "titoloOriginale": "Doughnut Economics" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Disegna un'economia sana. Freccia in su? Raworth fa ==una ciambella==." },
+      { "tipo": "mito", "mito": "Se il PIL cresce, il paese sta bene", "realta": "Per Raworth il PIL ==non dice se stiamo bene== né a che prezzo." },
+      { "tipo": "elenco", "titolo": "Com'è fatta la ciambella",
+        "voci": ["Il buco: chi non ha il minimo", "Bordo interno: 12 bisogni di base", "Bordo esterno: 9 limiti del pianeta", "In mezzo: ==spazio sicuro e giusto=="] },
+      { "tipo": "principio", "testo": "Lo scopo non è crescere senza fine: è dare ==il necessario a tutti== nei limiti del pianeta." },
+      { "tipo": "colpo", "testo": "Oggi sbagliamo due volte." },
+      { "tipo": "numero", "valore": 4, "suffisso": " su 9", "didascalia": "Limiti del pianeta ==già superati== nel 2017. E milioni di persone restano nel buco.", "nota": "Nell'aggiornamento del 2025 i limiti superati sono almeno sei." },
+      { "tipo": "chiusura", "azione": "Disegna una ciambella. Nel buco scrivi ==una cosa che manca== a chi vive vicino a te." }
+    ]
+  },
+  {
+    "id": "ascesa-denaro-argento-potosi",
+    "categoria": "economia",
+    "titolo": "La montagna d'argento che non salvò la Spagna",
+    "libro": { "titolo": "Ascesa e declino del denaro", "autore": "Niall Ferguson", "anno": 2008, "titoloOriginale": "The Ascent of Money" },
+    "scene": [
+      { "tipo": "apertura", "testo": "La Spagna trova ==una montagna d'argento==. Finisce in bancarotta." },
+      { "tipo": "esempio", "testo": "1545, Potosí, sulle Ande: un monte pieno d'argento. Gli spagnoli lo svuotano per oltre due secoli, con il lavoro forzato degli indigeni." },
+      { "tipo": "colpo", "testo": "Poi arriva il conto." },
+      { "tipo": "testo", "testo": "Più argento arriva, meno vale: in Europa ==i prezzi salgono== per un secolo. Dal 1557 la corona smette più volte di pagare i debiti." },
+      { "tipo": "mito", "mito": "Più oro e argento hai, più sei ricco", "realta": "Per Ferguson un metallo vale solo ==ciò che ti danno in cambio==." },
+      { "tipo": "principio", "testo": "«Credito» viene da credere: il denaro è ==fiducia che qualcuno pagherà==, non metallo." },
+      { "tipo": "chiusura", "azione": "Prendi una banconota e cerca ==la firma==: è di chi garantisce che quel foglio vale." }
+    ]
+  },
+  {
+    "id": "debito-mito-del-baratto",
+    "categoria": "economia",
+    "titolo": "Il baratto che nessuno ha mai trovato",
+    "libro": { "titolo": "Debito. I primi 5000 anni", "autore": "David Graeber", "anno": 2011, "titoloOriginale": "Debt: The First 5,000 Years" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Io ho le galline, tu le scarpe. Scambiamo? ==Non è mai andata così.==" },
+      { "tipo": "mito", "mito": "Prima dei soldi c'era il baratto", "realta": "Nessuno ha mai trovato una società di ==puro baratto==, scrive Graeber." },
+      { "tipo": "colpo", "testo": "E allora cosa c'era?" },
+      { "tipo": "quiz", "domanda": "Secondo Graeber, che cosa nasce prima?",
+        "opzioni": ["I debiti", "Le monete"], "corretta": 0,
+        "spiegazione": "In Mesopotamia i debiti si registrano 5000 anni fa. Le prime monete: verso il 600 a.C." },
+      { "tipo": "testo", "testo": "Nei villaggi ci si conosce: ==prendi oggi, ricambi quando puoi==. Il baratto compare tra estranei, o se la moneta sparisce." },
+      { "tipo": "principio", "testo": "Il denaro nasce per ==tenere il conto di chi deve cosa a chi==, non per scambiare galline." },
+      { "tipo": "chiusura", "azione": "Conta i ==debiti senza soldi== che hai in giro: un caffè offerto, un favore." }
+    ]
+  },
+  {
+    "id": "questa-volta-diverso-sindrome",
+    "categoria": "economia",
+    "titolo": "La frase che precede ogni crisi",
+    "libro": { "titolo": "Questa volta è diverso", "autore": "Carmen M. Reinhart, Kenneth S. Rogoff", "anno": 2009, "titoloOriginale": "This Time Is Different" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Prima di ogni grande crisi qualcuno ripete ==la stessa frase==." },
+      { "tipo": "numero", "valore": 66, "didascalia": "I paesi studiati da Reinhart e Rogoff, lungo ==otto secoli== di debiti e crolli." },
+      { "tipo": "colpo", "testo": "«Questa volta è diverso.»" },
+      { "tipo": "elenco", "titolo": "Cosa ci si racconta prima",
+        "voci": ["Abbiamo imparato dagli errori", "Le vecchie regole non valgono più", "Noi siamo più solidi degli altri"] },
+      { "tipo": "principio", "testo": "Le crisi non sono incidenti rari: tornano. E ogni volta le prepara ==troppo debito==." },
+      { "tipo": "quiz", "domanda": "Dal Cinquecento all'Ottocento, quante volte la Spagna non paga i debiti?",
+        "opzioni": ["2 volte", "5 volte", "13 volte"], "corretta": 2,
+        "spiegazione": "Tredici, nel conto degli autori. E ogni volta qualcuno le ha prestato ancora." },
+      { "tipo": "chiusura", "azione": "Ti dicono che un prezzo «non può scendere»? Cerca ==com'è finita== l'ultima volta." }
+    ]
+  },
+  {
+    "id": "lords-of-finance-gabbia-oro",
+    "categoria": "economia",
+    "titolo": "I quattro banchieri che ruppero il mondo",
+    "libro": { "titolo": "Lords of Finance", "autore": "Liaquat Ahamed", "anno": 2009 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Chi ha causato la Grande Depressione? Un libro fa ==quattro nomi==." },
+      { "tipo": "elenco", "titolo": "Quattro banchieri centrali",
+        "voci": ["Norman, Banca d'Inghilterra", "Strong, Federal Reserve di New York", "Schacht, Reichsbank tedesca", "Moreau, Banca di Francia"] },
+      { "tipo": "colpo", "testo": "Li univa una fede: ==l'oro==." },
+      { "tipo": "testo", "testo": "Ogni moneta vale una quantità fissa d'oro. Sembra solidità. Ma se l'economia affonda ==non puoi creare moneta==." },
+      { "tipo": "esempio", "testo": "1925: Churchill riporta la sterlina all'oro, al valore di prima della guerra. Per Keynes è ==troppo cara di circa il 10%==: salari tagliati, scioperi." },
+      { "tipo": "colpo", "testo": "Chi molla l'oro riparte prima." },
+      { "tipo": "principio", "testo": "Per Ahamed la Depressione non fu fatalità: nacque da ==decisioni sbagliate== sulla moneta." },
+      { "tipo": "chiusura", "azione": "Cerca quanto oro ha la banca centrale del tuo paese: ==non garantisce più== le banconote." }
+    ]
+  },
+  {
+    "id": "globalizzazione-oppositori-ricetta-unica",
+    "categoria": "economia",
+    "titolo": "La stessa medicina per ogni paese",
+    "libro": { "titolo": "La globalizzazione e i suoi oppositori", "autore": "Joseph E. Stiglitz", "anno": 2002, "titoloOriginale": "Globalization and Its Discontents" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un medico dà ==la stessa cura== a ogni paziente. Ti fideresti?" },
+      { "tipo": "colpo", "testo": "Qui i pazienti sono paesi." },
+      { "tipo": "elenco", "titolo": "La ricetta del Fondo Monetario",
+        "voci": ["Tagli alla spesa, subito", "Privatizzare in fretta", "Mercati e capitali aperti"] },
+      { "tipo": "testo", "testo": "A denunciarla è uno ==che l'ha vista da dentro==: Joseph Stiglitz, ex capo economista della Banca Mondiale." },
+      { "tipo": "esempio", "testo": "1997: la crisi parte dalla Thailandia e travolge l'Asia. Il Fondo chiede tagli e tassi altissimi. Per Stiglitz ==aggrava la recessione==." },
+      { "tipo": "confronto", "titolo": "Due strade, secondo Stiglitz",
+        "a": { "etichetta": "La cura del Fondo", "voci": ["Tagli, tassi alti, capitali in fuga"] },
+        "b": { "etichetta": "Malesia, 1998", "voci": ["Frena i capitali: meno danni"] } },
+      { "tipo": "principio", "testo": "Aprirsi al mondo può aiutare, ma contano ==tempi e modi==: nessuna ricetta vale per tutti." },
+      { "tipo": "chiusura", "azione": "Cerca «Washington Consensus» e annota ==le tre politiche== che Stiglitz contesta." }
+    ]
+  },
+  {
+    "id": "grande-fuga-progresso-disuguaglianza",
+    "categoria": "economia",
+    "titolo": "Quando i ricchi iniziarono a vivere di più",
+    "libro": { "titolo": "La grande fuga", "autore": "Angus Deaton", "anno": 2013, "titoloOriginale": "The Great Escape" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Fino al 1750 i duchi inglesi vivevano ==quanto la gente comune==." },
+      { "tipo": "colpo", "testo": "Poi qualcosa cambia." },
+      { "tipo": "numero", "valore": 20, "suffisso": " anni", "didascalia": "Il vantaggio di vita dei nobili sulla gente comune ==un secolo dopo==.", "nota": "Dati ripresi da Deaton, discussi dagli storici." },
+      { "tipo": "testo", "testo": "Arrivano cure nuove, come l'inoculazione contro il vaiolo. Costano: le usa ==prima chi può==." },
+      { "tipo": "mito", "mito": "Il progresso riduce le disuguaglianze", "realta": "Per Deaton spesso le crea: ==chi esce per primo== stacca gli altri." },
+      { "tipo": "esempio", "testo": "Il titolo viene da un film del 1963: prigionieri che scavano un tunnel. Per Deaton l'umanità fugge dalla miseria, ma ==non tutti insieme==." },
+      { "tipo": "principio", "testo": "Un divario non è un male se gli altri seguono. Lo diventa se i primi ==chiudono il tunnel==." },
+      { "tipo": "chiusura", "azione": "Cerca l'==aspettativa di vita== nel tuo paese nel 1900 e oggi: è la fuga di Deaton." }
+    ]
+  },
+  {
+    "id": "23-cose-lavatrice-internet",
+    "categoria": "economia",
+    "titolo": "La lavatrice ha cambiato il mondo più di internet",
+    "libro": { "titolo": "23 cose che non ti hanno mai detto sul capitalismo", "autore": "Ha-Joon Chang", "anno": 2010, "titoloOriginale": "23 Things They Don't Tell You About Capitalism" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Internet contro lavatrice. Chi ha cambiato di più ==il mondo==?" },
+      { "tipo": "colpo", "testo": "Stai per dire internet." },
+      { "tipo": "quiz", "domanda": "Chi ha accelerato di più un messaggio oltre l'Atlantico?",
+        "opzioni": ["Internet", "Il telegrafo"], "corretta": 1,
+        "spiegazione": "Il telegrafo: da due settimane a pochi minuti. Internet al fax toglie secondi." },
+      { "tipo": "confronto", "titolo": "Il conto di Chang su 300 parole",
+        "a": { "etichetta": "Internet sul fax", "voci": ["Da 10 secondi a 2: 5 volte"] },
+        "b": { "etichetta": "Telegrafo sulla nave", "voci": ["Da 2 settimane a minuti: 2500 volte"] } },
+      { "tipo": "testo", "titolo": "Per Chang vince la lavatrice", "testo": "Con acqua corrente, gas e luce toglie ore di fatica al giorno. Milioni di donne possono ==lavorare fuori casa==." },
+      { "tipo": "principio", "testo": "Una tecnologia si giudica da ==quanto cambia la vita==, non da quanto è nuova." },
+      { "tipo": "chiusura", "azione": "Chiedi a una nonna com'era ==il giorno del bucato== prima della lavatrice." }
+    ]
+  },
+  {
+    "id": "stato-innovatore-dentro-iphone",
+    "categoria": "economia",
+    "titolo": "Chi ha pagato le invenzioni dentro il tuo telefono",
+    "libro": { "titolo": "Lo Stato innovatore", "autore": "Mariana Mazzucato", "anno": 2013, "titoloOriginale": "The Entrepreneurial State" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tocchi lo schermo, apri la mappa, chiedi a Siri. ==Chi ha pagato?==" },
+      { "tipo": "quiz", "domanda": "Chi ha finanziato la ricerca da cui nasce Siri?",
+        "opzioni": ["Un'agenzia militare americana", "Apple"], "corretta": 0,
+        "spiegazione": "La DARPA, agenzia di ricerca della Difesa americana. Apple compra Siri nel 2010." },
+      { "tipo": "colpo", "testo": "E non è l'unico pezzo." },
+      { "tipo": "elenco", "titolo": "Dentro l'iPhone",
+        "voci": ["Internet: da una rete della DARPA", "GPS: sistema della Difesa americana", "Touch: ricerca con fondi pubblici"] },
+      { "tipo": "mito", "mito": "I privati innovano, lo Stato intralcia", "realta": "Per Mazzucato lo Stato ==rischia per primo==, quando tutto è incerto." },
+      { "tipo": "principio", "testo": "Spesso ==i rischi sono pubblici== e i guadagni privati. Per Mazzucato vanno divisi anche i frutti." },
+      { "tipo": "chiusura", "azione": "Scegli una funzione del telefono e cerca ==chi ha pagato la ricerca== da cui nasce." }
+    ]
+  }
+]

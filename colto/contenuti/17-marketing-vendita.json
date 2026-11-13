@@ -1,0 +1,242 @@
+[
+  {
+    "id": "mucca-viola-straordinario",
+    "categoria": "business",
+    "titolo": "Il contrario di straordinario non è «scarso»",
+    "libro": { "titolo": "La mucca viola", "autore": "Seth Godin", "anno": 2003, "titoloOriginale": "Purple Cow" },
+    "scene": [
+      { "tipo": "apertura", "testo": "La prima mucca la guardi. Alla ventesima ==non ti giri nemmeno==." },
+      { "tipo": "testo", "titolo": "L'immagine di Seth Godin", "testo": "Dopo un po' le mucche sono tutte uguali: invisibili. Una ==mucca viola== invece la noteresti. E la racconteresti a qualcuno." },
+      { "tipo": "mito", "mito": "Se un prodotto è molto buono, si fa notare", "realta": "Per Godin «molto buono» è la norma. E della norma ==non parla nessuno==." },
+      { "tipo": "esempio", "testo": "Dutch Boy vendeva vernice come tutti. Poi cambia il barattolo: facile da portare, versare, richiudere. La gente ==inizia a parlarne==." },
+      { "tipo": "colpo", "testo": "Stessa vernice. ==Altra storia.==" },
+      { "tipo": "principio", "testo": "Straordinario, per Godin, è ciò di cui ==vale la pena parlare==. Il resto passa inosservato." },
+      { "tipo": "chiusura", "azione": "Scrivi la frase che un cliente direbbe di te ==a un amico==. Non ti viene? Parti da lì." }
+    ]
+  },
+  {
+    "id": "questo-e-il-marketing-mercato-minimo",
+    "categoria": "business",
+    "titolo": "«È per tutti» è la risposta sbagliata",
+    "libro": { "titolo": "Questo è il marketing", "autore": "Seth Godin", "anno": 2018, "titoloOriginale": "This Is Marketing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Per chi è quello che fai?» «Per tutti.» ==Risposta sbagliata.==" },
+      { "tipo": "mito", "mito": "Più persone raggiungi, più vendi", "realta": "Per Seth Godin chi parla a tutti fa una cosa media: ==non entusiasma nessuno==." },
+      { "tipo": "colpo", "testo": "Lui parte ==dal lato opposto==." },
+      { "tipo": "principio", "testo": "Scegli il mercato più piccolo che ti tiene in piedi. E ==servilo meglio di chiunque altro==." },
+      { "tipo": "quiz", "domanda": "Apri una palestra. Seguendo Godin, da chi parti?",
+        "opzioni": ["Chi vuole tenersi in forma", "Le neomamme del quartiere", "Tutta la città, a prezzi bassi"], "corretta": 1,
+        "spiegazione": "Un gruppo piccolo e preciso lo capisci e lo servi davvero." },
+      { "tipo": "testo", "testo": "Piccolo non è per sempre. Per Godin pochi clienti che ti adorano ==ti portano gli altri==." },
+      { "tipo": "chiusura", "azione": "Completa in una riga: «Quello che faccio è per chi crede che…». ==Mostrala a qualcuno.==" }
+    ]
+  },
+  {
+    "id": "questo-e-il-marketing-gente-come-noi",
+    "categoria": "business",
+    "titolo": "Compri quello che compra la gente come te",
+    "libro": { "titolo": "Questo è il marketing", "autore": "Seth Godin", "anno": 2018, "titoloOriginale": "This Is Marketing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quelle scarpe non le hai scelte da solo. ==Le avevano i tuoi amici.==" },
+      { "tipo": "esempio", "testo": "In ufficio tre colleghi si portano il pranzo da casa. Dopo un mese lo fanno quasi tutti. ==Nessuno ha letto studi sul risparmio.==" },
+      { "tipo": "colpo", "testo": "Hanno guardato ==gli altri==." },
+      { "tipo": "mito", "mito": "Scelgo in base a prezzo e qualità", "realta": "Per Seth Godin scegli pensando: ==gente come noi fa cose come questa==." },
+      { "tipo": "confronto", "titolo": "Due idee di marketing",
+        "a": { "etichetta": "Convincere tutti", "voci": ["Elenchi i vantaggi", "Parli alla massa"] },
+        "b": { "etichetta": "Cambiare un gruppo", "voci": ["Scegli un «noi» preciso", "Mostri cosa fa chi ne fa parte"] } },
+      { "tipo": "testo", "titolo": "Quale gruppo?", "testo": "Per Godin non si cambia «la» cultura: è troppo grande. Se ne sceglie ==una piccola==: una classe, un quartiere, una nicchia." },
+      { "tipo": "chiusura", "azione": "Guarda l'ultima cosa che hai comprato. Scrivi ==chi intorno a te la usava già==." }
+    ]
+  },
+  {
+    "id": "positioning-scala-nella-mente",
+    "categoria": "business",
+    "titolo": "Avis ammise di essere seconda. E iniziò a guadagnare",
+    "libro": { "titolo": "Positioning: The Battle for Your Mind", "autore": "Al Ries, Jack Trout", "anno": 1981 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Elenca le marche di dentifricio che ricordi. ==Ti fermi presto.==" },
+      { "tipo": "testo", "testo": "Per Al Ries e Jack Trout la mente tiene ==poche marche, in ordine==, per ogni prodotto. Come i pioli di una scala." },
+      { "tipo": "colpo", "testo": "E se sei ==il numero due==?" },
+      { "tipo": "esempio", "testo": "Anni Sessanta. Avis è dietro Hertz e perde soldi da 13 anni. Poi lo ammette: siamo i numeri due, quindi ==ci impegniamo di più==." },
+      { "tipo": "grafico", "titolo": "Utili di Avis dopo la campagna, in dollari", "forma": "barre", "unita": "mln",
+        "dati": [ { "e": "1° anno", "v": 1.2 }, { "e": "2° anno", "v": 2.6 }, { "e": "3° anno", "v": 5 } ],
+        "nota": "Cifre riportate da Ries e Trout." },
+      { "tipo": "mito", "mito": "Per crescere devi dire che sei il migliore", "realta": "Avis ha ==legato il suo nome a Hertz== e si è presa il secondo piolo." },
+      { "tipo": "principio", "testo": "Il posizionamento non si fa sul prodotto: si fa ==nella testa di chi compra==." },
+      { "tipo": "chiusura", "azione": "Chiedi a tre persone la prima marca del tuo campo. ==Segna a che piolo sei tu.==" }
+    ]
+  },
+  {
+    "id": "22-leggi-marketing-essere-primi",
+    "categoria": "business",
+    "titolo": "Chi è stato il secondo? Appunto",
+    "libro": { "titolo": "Le 22 immutabili leggi del marketing", "autore": "Al Ries, Jack Trout", "anno": 1993, "titoloOriginale": "The 22 Immutable Laws of Marketing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il primo a volare da solo sull'Atlantico? Facile. ==E il secondo?==" },
+      { "tipo": "colpo", "testo": "Lindbergh. Poi ==il vuoto==." },
+      { "tipo": "testo", "testo": "Per Al Ries e Jack Trout nel marketing è uguale: vince chi arriva ==primo nella testa della gente==, non chi è meglio." },
+      { "tipo": "quiz", "domanda": "Arrivi tardi, il leader c'è già. Cosa consigliano gli autori?",
+        "opzioni": ["Un prodotto migliore", "Copiare il leader a meno", "Aprire una categoria nuova"], "corretta": 2,
+        "spiegazione": "La domanda utile non è «in cosa sei meglio?» ma «in cosa sei il primo?»." },
+      { "tipo": "esempio", "testo": "Amelia Earhart non fu la prima a sorvolare da sola l'Atlantico. Fu ==la prima donna==. E il nome lo conosci." },
+      { "tipo": "principio", "testo": "Se non puoi essere il primo in una categoria, ==inventane una in cui lo sei==." },
+      { "tipo": "chiusura", "azione": "Completa: «Sono il primo che…». ==Restringi il campo== finché è vera." }
+    ]
+  },
+  {
+    "id": "22-leggi-marketing-una-parola",
+    "categoria": "business",
+    "titolo": "La marca più forte possiede una parola sola",
+    "libro": { "titolo": "Le 22 immutabili leggi del marketing", "autore": "Al Ries, Jack Trout", "anno": 1993, "titoloOriginale": "The 22 Immutable Laws of Marketing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Dico «sicurezza». Tu pensi a ==una marca d'auto==. Sempre quella." },
+      { "tipo": "colpo", "testo": "==Volvo.== E non per caso." },
+      { "tipo": "testo", "testo": "Per anni ha ripetuto una cosa sola. Per Al Ries e Jack Trout una marca è forte se ==possiede una parola== in testa alla gente." },
+      { "tipo": "elenco", "titolo": "Altri esempi dal libro",
+        "voci": ["FedEx: ==consegna in una notte==", "Crest, dentifricio: niente carie", "BMW: il piacere di guidare"] },
+      { "tipo": "quiz", "domanda": "Per gli autori, quale parola è la meno adatta da «possedere»?",
+        "opzioni": ["Qualità", "Velocità", "Sicurezza"], "corretta": 0,
+        "spiegazione": "La dichiarano tutti, nessuno dice il contrario: non distingue." },
+      { "tipo": "mito", "mito": "Dieci pregi convincono più di uno", "realta": "Per gli autori così la parola si annacqua: ==più restringi, più resti==." },
+      { "tipo": "chiusura", "azione": "Scrivi cinque cose che dici di te. ==Cancellane quattro.== Resta la tua parola." }
+    ]
+  },
+  {
+    "id": "storybrand-cliente-eroe",
+    "categoria": "business",
+    "titolo": "Nella tua storia l'eroe non sei tu",
+    "libro": { "titolo": "Building a StoryBrand", "autore": "Donald Miller", "anno": 2017 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quando parli di te, sei ==Luke o Yoda==? Quasi tutti sbagliano ruolo." },
+      { "tipo": "confronto", "titolo": "Lo stesso idraulico, due voci",
+        "a": { "etichetta": "Fa Luke", "voci": ["Trent'anni di esperienza", "Furgoni nuovi, premi vinti"] },
+        "b": { "etichetta": "Fa Yoda", "voci": ["Perdita in casa?", "Arriviamo in un'ora"] } },
+      { "tipo": "testo", "testo": "Donald Miller nota che le aziende parlano di sé: storia, premi, valori. Ma chi ascolta ==è già l'eroe della sua storia==." },
+      { "tipo": "colpo", "testo": "Cerca ==una guida==." },
+      { "tipo": "elenco", "titolo": "La trama che Miller propone", "numerato": true,
+        "voci": ["Un personaggio ha un problema", "Incontra una guida con un piano", "La guida lo chiama all'azione", "Evita il fallimento, arriva al successo"] },
+      { "tipo": "principio", "testo": "Il cliente è Luke. Tu sei Yoda: hai un piano e ==lo aiuti a vincere==." },
+      { "tipo": "chiusura", "azione": "Apri la tua bio. Conta le frasi con «io» o «noi». ==Riscrivine una partendo dal cliente.==" }
+    ]
+  },
+  {
+    "id": "100m-offers-equazione-valore",
+    "categoria": "business",
+    "titolo": "Stesso risultato, prezzi lontanissimi: cosa paghi?",
+    "libro": { "titolo": "$100M Offers", "autore": "Alex Hormozi", "anno": 2021 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Paghi la ditta di traslochi molto più del furgone. ==E ti sembra giusto.==" },
+      { "tipo": "colpo", "testo": "I mobili arrivano ==uguali==." },
+      { "tipo": "testo", "testo": "Alex Hormozi la chiama equazione del valore: quanto vale un'offerta dipende da ==quattro leve==." },
+      { "tipo": "elenco", "titolo": "Due da alzare, due da abbassare",
+        "voci": ["Su: quanto desideri il risultato", "Su: quanto credi di ottenerlo", "Giù: quanto devi aspettare", "Giù: quanta fatica ti costa"] },
+      { "tipo": "quiz", "domanda": "La ditta, rispetto al furgone, quali leve muove?",
+        "opzioni": ["Un risultato più desiderato", "Meno attesa e meno fatica"], "corretta": 1,
+        "spiegazione": "Il risultato è lo stesso. Lo paghi per averlo in un giorno, senza scatoloni." },
+      { "tipo": "colpo", "testo": "Paghi ==tempo e fatica in meno==." },
+      { "tipo": "chiusura", "azione": "Prendi una cosa che offri. Trova un modo per ==dimezzare l'attesa== del risultato." }
+    ]
+  },
+  {
+    "id": "ogilvy-advertising-titolo",
+    "categoria": "business",
+    "titolo": "Su cinque che leggono il titolo, uno solo continua",
+    "libro": { "titolo": "Ogilvy on Advertising", "autore": "David Ogilvy", "anno": 1983 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tre settimane di studio per scrivere ==una riga sola==. Ne valeva la pena." },
+      { "tipo": "esempio", "testo": "David Ogilvy deve vendere una Rolls-Royce. Legge tutto sull'auto e trova un dettaglio: a 60 miglia all'ora il rumore più forte è ==l'orologio==." },
+      { "tipo": "colpo", "testo": "Quel fatto ==diventa il titolo==." },
+      { "tipo": "numero", "valore": 5, "suffisso": " volte", "didascalia": "Per Ogilvy il titolo è letto da ==cinque volte più persone== del testo." },
+      { "tipo": "mito", "mito": "Il titolo incuriosisce, poi vende il testo", "realta": "Per Ogilvy se il titolo non vende hai ==sprecato quasi tutti i soldi==." },
+      { "tipo": "elenco", "titolo": "I titoli che funzionano, per Ogilvy",
+        "voci": ["Promettono un ==vantaggio== a chi legge", "Portano una notizia", "Dicono fatti precisi, non giochi di parole"] },
+      { "tipo": "chiusura", "azione": "Riprendi il tuo ultimo post. ==Riscrivi solo il titolo== con un vantaggio preciso." }
+    ]
+  },
+  {
+    "id": "spin-selling-quattro-domande",
+    "categoria": "business",
+    "titolo": "Il venditore bravo non chiude: chiede",
+    "libro": { "titolo": "SPIN Selling", "autore": "Neil Rackham", "anno": 1988 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Vuoi vendere qualcosa e ==parli tu==. È lì che perdi il cliente." },
+      { "tipo": "mito", "mito": "Il bravo venditore è chi sa chiudere", "realta": "Nelle vendite grandi, per Neil Rackham, spingere a chiudere ==serve a poco==." },
+      { "tipo": "numero", "valore": 35, "suffisso": " mila", "didascalia": "Le visite di vendita studiate dal suo gruppo in ==dodici anni==." },
+      { "tipo": "elenco", "titolo": "I migliori fanno 4 domande: SPIN", "numerato": true,
+        "voci": ["Situazione: come lavorate oggi?", "Problema: cosa non va?", "Implicazione: e cosa comporta?", "Need-payoff: quanto vale risolverlo?"] },
+      { "tipo": "quiz", "domanda": "«Se il sito resta lento, quanti ordini perdete?» Che tipo è?",
+        "opzioni": ["Di situazione", "Di problema", "Di implicazione"], "corretta": 2,
+        "spiegazione": "Non chiede se il problema c'è: fa vedere quanto costa." },
+      { "tipo": "chiusura", "azione": "Prima di proporre, prepara ==due domande sulle conseguenze==. Poi ascolta." }
+    ]
+  },
+  {
+    "id": "traction-bersaglio-canali",
+    "categoria": "business",
+    "titolo": "19 modi per farti trovare. Te ne serve uno",
+    "libro": { "titolo": "Traction", "autore": "Gabriel Weinberg, Justin Mares", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Per farti trovare usi tre canali. ==E gli altri sedici?==" },
+      { "tipo": "numero", "valore": 19, "didascalia": "I canali che Weinberg e Mares mettono in fila: ==stampa, fiere, email…==" },
+      { "tipo": "testo", "testo": "Dopo decine di interviste a fondatori, la loro tesi: usi i canali che conosci e ==scarti senza provarlo== quello giusto." },
+      { "tipo": "colpo", "testo": "Loro usano ==un bersaglio==." },
+      { "tipo": "elenco", "titolo": "Il metodo del bersaglio", "numerato": true,
+        "voci": ["Fuori: un'idea per ognuno dei 19 canali", "In mezzo: prove piccole sui migliori", "Centro: tutto sul canale che funziona"] },
+      { "tipo": "esempio", "testo": "Vendi biscotti. Con 50 euro a prova tenti annunci social, mercato, due bar. I bar riordinano ogni settimana: ==ecco il centro==." },
+      { "tipo": "principio", "testo": "Di solito, in ogni fase, ti fa crescere ==un canale solo==. Va trovato provando." },
+      { "tipo": "chiusura", "azione": "Scrivi ==tre canali mai provati==. Per ognuno, una prova da meno di 50 euro." }
+    ]
+  },
+  {
+    "id": "alchemy-psico-logica",
+    "categoria": "business",
+    "titolo": "Bocciata agli assaggi, cara, minuscola: ha stravinto",
+    "libro": { "titolo": "Alchemy", "autore": "Rory Sutherland", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Cara, in lattina minuscola, bocciata agli assaggi. ==Chi la compra?==" },
+      { "tipo": "colpo", "testo": "È ==Red Bull==." },
+      { "tipo": "confronto", "titolo": "Sfidare la Coca-Cola",
+        "a": { "etichetta": "La logica chiedeva", "voci": ["Più buona", "Più grande, meno cara"] },
+        "b": { "etichetta": "Ha funzionato", "voci": ["Gusto bocciato ai test", "Lattina mini, prezzo alto"] } },
+      { "tipo": "testo", "testo": "Per Rory Sutherland non scegliamo con la logica degli economisti. Seguiamo una ==psico-logica==: segnali, contesto, sensazioni." },
+      { "tipo": "quiz", "domanda": "Aspettare il taxi snerva. Qual è la mossa «psico-logica»?",
+        "opzioni": ["Mettere più auto in strada", "Mostrare l'auto sulla mappa"], "corretta": 1,
+        "spiegazione": "È la mappa di Uber: l'attesa è uguale, ma senza incertezza pesa molto meno." },
+      { "tipo": "principio", "testo": "Anche il contrario di una buona idea può funzionare: ==prova ciò che sembra assurdo==." },
+      { "tipo": "chiusura", "azione": "Prendi un problema che ti blocca. Scrivi ==la soluzione opposta a quella ovvia==." }
+    ]
+  },
+  {
+    "id": "obviously-awesome-contesto",
+    "categoria": "business",
+    "titolo": "Suona in metro un grande violinista: tirano dritto",
+    "libro": { "titolo": "Obviously Awesome", "autore": "April Dunford", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un violinista famoso suona in metro. ==Quasi nessuno si ferma.==" },
+      { "tipo": "esempio", "testo": "Washington, 2007. Joshua Bell suona in incognito in una stazione. Stesso violino, stessa musica. Vedono ==un musicista di strada==." },
+      { "tipo": "colpo", "testo": "Cambia ==solo il contesto==." },
+      { "tipo": "testo", "testo": "Per April Dunford ai prodotti capita uguale: è il contesto a dire ==che cos'è questa cosa== e con cosa confrontarla." },
+      { "tipo": "quiz", "domanda": "Per posizionare un prodotto, da dove parte Dunford?",
+        "opzioni": ["Da cosa useresti se non ci fosse", "Dalle sue funzioni migliori"], "corretta": 0,
+        "spiegazione": "Dalle alternative vere. Spesso non è un'azienda: è Excel, uno stagista, o niente." },
+      { "tipo": "principio", "testo": "Posizionare è scegliere la cornice in cui sei ==la scelta ovvia== per le persone giuste." },
+      { "tipo": "chiusura", "azione": "Chiedi a un cliente: ==«Se questo non esistesse, cosa useresti?»== Scrivi la risposta." }
+    ]
+  },
+  {
+    "id": "scientific-advertising-prova-in-piccolo",
+    "categoria": "business",
+    "titolo": "Il nonno del test A/B usava buoni di carta",
+    "libro": { "titolo": "Scientific Advertising", "autore": "Claude C. Hopkins", "anno": 1923 },
+    "scene": [
+      { "tipo": "apertura", "testo": "1923, niente internet. C'è già chi fa ==test A/B==. Con la carta." },
+      { "tipo": "colpo", "testo": "Lui diceva ==campagne di prova==." },
+      { "tipo": "mito", "mito": "La pubblicità migliore si sceglie in riunione", "realta": "Per Claude Hopkins decide ==una piccola prova== sui clienti veri." },
+      { "tipo": "elenco", "titolo": "Il metodo di Hopkins", "numerato": true,
+        "voci": ["Due annunci, un buono con codice diverso", "Poche copie: conti i buoni tornati", "Spendi in grande solo su chi vince"] },
+      { "tipo": "esempio", "testo": "Oggi vendi torte. Titolo A: «La torta della nonna». Titolo B: «Torta per 8, pronta in 24 ore». ==Due codici sconto==: vedi quale usano di più." },
+      { "tipo": "principio", "testo": "Prima chiedi a pochi clienti veri. Poi ==spendi su tutti gli altri==." },
+      { "tipo": "chiusura", "azione": "Scrivi ==due versioni dell'oggetto== della prossima mail. Mandale a due gruppi e conta." }
+    ]
+  }
+]

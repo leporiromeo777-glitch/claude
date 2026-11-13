@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validaTutto, CATEGORIE } from './valida.mjs';
+import { validaTutto, validaVideo, CATEGORIE } from './valida.mjs';
 
 const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const leggi = (p) => readFileSync(join(RADICE, p), 'utf8');
@@ -14,12 +14,20 @@ const leggi = (p) => readFileSync(join(RADICE, p), 'utf8');
 const solo = process.argv.includes('--solo') ? process.argv[process.argv.indexOf('--solo') + 1] : null;
 let { tutti, problemi } = validaTutto(solo ?? undefined);
 if (solo) tutti = tutti.filter((f) => f.nome === solo);
-if (problemi.length) {
+// «--tollera» (solo per le anteprime): invece di fermarsi, lascia fuori i video che non passano il controllo.
+const tollera = process.argv.includes('--tollera');
+if (problemi.length && !tollera) {
   console.error(problemi.join('\n'));
   console.error(`\n✗ ${problemi.length} problemi nei contenuti: build interrotta`);
   process.exit(1);
 }
-const video = tutti.flatMap((f) => f.video);
+let video = tutti.filter((f) => Array.isArray(f.video)).flatMap((f) => f.video);
+if (tollera) {
+  const prima = video.length;
+  const visti = new Set();
+  video = video.filter((v) => v?.id && !visti.has(v.id) && visti.add(v.id) && validaVideo(v).length === 0);
+  if (video.length < prima) console.warn(`! anteprima: ${prima - video.length} video lasciati fuori perché non validi`);
+}
 
 const stile = leggi('src/stile.css');
 const script = readdirSync(join(RADICE, 'src/js')).filter((f) => f.endsWith('.js')).sort()

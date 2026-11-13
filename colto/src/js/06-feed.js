@@ -85,6 +85,7 @@ function idrata(clip) {
     <div class="scene"></div>
     <div class="pausa" aria-hidden="true">${ICONE.play}</div>
     <div class="piede">
+      <button type="button" class="prossima" data-fa="prossima" hidden><span>Prossima idea</span><b></b>${ICONE.su}</button>
       <div class="didascalia">
         <p class="did-titolo">${esc(tipografia(video.titolo))}</p>
         <p class="did-libro"><i>${esc(tipografia(l.titolo))}</i> · ${esc(l.autore)}</p>
@@ -95,13 +96,13 @@ function idrata(clip) {
       ${bottone('piace', ICONE.cuore, 'Mi piace', !!memoria.piaciuti[video.id])}
       ${bottone('salva', ICONE.segnalibro, 'Salva', !!memoria.salvati[video.id])}
       ${bottone('condividi', ICONE.condividi, 'Invia')}
-      ${voce.ok ? bottone('voce', ICONE.muto, 'Voce', voce.attiva) : ''}
+      ${bottone('suono', suono.vuole && suono.pronto ? ICONE.suono : ICONE.muto, 'Suono', suono.vuole && suono.pronto)}
+      ${voce.ok ? bottone('voce', ICONE.voce, 'Voce', voce.attiva) : ''}
     </div>`;
   const primo = creaScena(video.scene[0], video, 0);
   primo.classList.add('fermo');
   $('.scene', palco).append(primo);
   adatta(primo);
-  if (voce.attiva) aggiornaVoce(clip);
 }
 
 function creaClipFinale() {
@@ -177,7 +178,15 @@ function attiva(clip) {
   stato.attivo = { clip, video, riproduttore: null };
   if (!video) return;
   idrata(clip);
-  const r = new Riproduttore(clip, video, (v) => { segnaVisto(v.id); aggiornaCromo(); });
+  // l'anteprima della prossima idea compare sull'ultima scena: è il motivo per scorrere ancora
+  const dopo = PER_ID.get(clip.nextElementSibling?.dataset.id);
+  const anteprima = $('.prossima', clip);
+  anteprima.hidden = !dopo;
+  if (dopo) $('b', anteprima).textContent = tipografia(dopo.titolo);
+  const r = new Riproduttore(clip, video, (v, palco) => {
+    if (segnaVisto(v.id)) premiaVideo(v, palco);
+    aggiornaCromo();
+  });
   stato.attivo.riproduttore = r;
   r.monta();
   if (pannelloAperto()) r.pausa(true);
@@ -190,15 +199,29 @@ function vaiAClip(passi) {
   if (meta) meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function aggiornaCromo() {
-  $('#oggi-numero').textContent = vistiOggi();
+function aggiornaCromo(scatto) {
+  const gettone = $('#apri-percorso');
+  const fatti = Math.min(vistiOggi(), OBIETTIVO);
+  $('#punti').textContent = formatta(memoria.punti || 0);
+  $('#meta-giorno').style.width = `${(fatti / OBIETTIVO) * 100}%`;
+  gettone.setAttribute('aria-label', `Il tuo percorso: ${memoria.punti || 0} punti, ${fatti} idee su ${OBIETTIVO} oggi`);
+  if (scatto) { gettone.classList.remove('scatto'); void gettone.offsetWidth; gettone.classList.add('scatto'); }
 }
 
-function aggiornaVoce(radice = feed) {
-  $$('.az--voce', radice).forEach((b) => {
-    b.setAttribute('aria-pressed', voce.attiva);
-    b.firstElementChild.outerHTML = voce.attiva ? ICONE.voce : ICONE.muto;
+// Il suono è «acceso» solo se lo si vuole e il browser l'ha sbloccato con un tocco.
+function aggiornaAudio() {
+  const acceso = suono.vuole && suono.pronto;
+  $$('.az--voce', feed).forEach((b) => b.setAttribute('aria-pressed', voce.attiva));
+  $$('.az--suono', feed).forEach((b) => {
+    b.setAttribute('aria-pressed', acceso);
+    b.firstElementChild.outerHTML = acceso ? ICONE.suono : ICONE.muto;
   });
+  $('#invito-suono').hidden = !(suono.vuole && !suono.pronto);
+}
+
+function ripartiBase() {
+  const r = stato.attivo?.riproduttore;
+  if (r && !r.inPausa && !pannelloAperto()) base.parti(r.video.id);
 }
 
 let avvisoTimer = 0;
@@ -255,18 +278,29 @@ feed.addEventListener('click', (ev) => {
   if (fa === 'inizio') return feed.scrollTo({ top: 0, behavior: 'smooth' });
   if (fa === 'per-te') return impostaFiltro({ tipo: 'tutti' });
   if (fa === 'esplora') return apriPannello('esplora');
+  if (fa === 'prossima') return vaiAClip(1);
 
   const video = PER_ID.get(clip.dataset.id);
   if (!video) return;
   const az = ev.target.closest('.az');
   if (az) {
-    if (az.classList.contains('az--piace')) alternaSegno(video, 'piaciuti');
-    else if (az.classList.contains('az--salva')) avviso(alternaSegno(video, 'salvati') ? 'Salvato: lo trovi in Esplora › Salvati' : 'Tolto dai salvati');
+    if (az.classList.contains('az--piace')) { if (alternaSegno(video, 'piaciuti')) { suono.cuore(); vibra(12); } }
+    else if (az.classList.contains('az--salva')) { suono.tocco(); avviso(alternaSegno(video, 'salvati') ? 'Salvato: lo trovi in Esplora › Salvati' : 'Tolto dai salvati'); }
     else if (az.classList.contains('az--condividi')) condividi(video);
-    else if (az.classList.contains('az--voce')) {
+    else if (az.classList.contains('az--suono')) {
+      // se questo stesso tocco ha appena sbloccato il suono, resta acceso
+      if (!suono.appena) {
+        suono.vuole = !suono.vuole;
+        memoria.suono = suono.vuole;
+        ricorda();
+        if (suono.vuole) { suono.sblocca(); ripartiBase(); suono.pop(); } else base.ferma();
+        aggiornaAudio();
+        avviso(suono.vuole ? 'Suono acceso' : 'Suono spento', 1400);
+      }
+    } else if (az.classList.contains('az--voce')) {
       if (!voce.attiva && voce.senzaItaliano()) return avviso('Su questo dispositivo non c’è una voce italiana.', 3600);
       voce.attiva = !voce.attiva;
-      aggiornaVoce();
+      aggiornaAudio();
       const r = stato.attivo?.riproduttore;
       if (voce.attiva && r) voce.di(testoVoce(r.video.scene[r.i]));
       else voce.zitta();
@@ -278,6 +312,7 @@ feed.addEventListener('click', (ev) => {
   const opzione = ev.target.closest('.opzione');
   if (opzione) { attivo?.rivela(Number(opzione.dataset.i)); return; }
   if (ev.target.closest('button, a, input')) return;
+  if (suono.appena) return; // il primo tocco accende solo il suono, non mette in pausa
 
   // Un tocco ferma o riprende, due tocchi vicini mettono «mi piace».
   const ora = performance.now();
@@ -286,6 +321,8 @@ feed.addEventListener('click', (ev) => {
     tocco.t = 0;
     alternaSegno(video, 'piaciuti', true);
     cuoreVolante($('.palco', clip), ev.clientX, ev.clientY);
+    suono.cuore();
+    vibra(12);
   } else {
     tocco.t = ora;
     tocco.timer = setTimeout(() => attivo?.pausa(), 300);

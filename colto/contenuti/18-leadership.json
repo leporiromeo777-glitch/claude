@@ -1,0 +1,262 @@
+[
+  {
+    "id": "leaders-eat-last-cerchio-di-sicurezza",
+    "categoria": "leadership",
+    "titolo": "Perché nei Marines i capi mangiano per ultimi",
+    "libro": { "titolo": "Ultimo viene il leader", "autore": "Simon Sinek", "anno": 2014, "titoloOriginale": "Leaders Eat Last" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Alla mensa dei Marines gli ufficiali mangiano ==per ultimi==." },
+      { "tipo": "colpo", "testo": "Nessuno glielo ordina." },
+      { "tipo": "testo", "testo": "Per Simon Sinek è un segnale. Chi guida protegge il gruppo. Nasce così un ==cerchio di sicurezza==." },
+      { "tipo": "confronto", "titolo": "Dove vanno le energie",
+        "a": { "etichetta": "Senza cerchio", "voci": ["Ti guardi le spalle dai colleghi", "Nascondi gli errori"] },
+        "b": { "etichetta": "Dentro il cerchio", "voci": ["Chiedi aiuto senza vergogna", "Le forze vanno ai pericoli veri"] } },
+      { "tipo": "colpo", "testo": "Lo sapeva già ==Esopo==." },
+      { "tipo": "esempio", "testo": "Quattro buoi stanno coda contro coda. Il leone trova solo corna. Poi litigano e si separano. Il leone ==li mangia uno a uno==. Sinek cita questa favola." },
+      { "tipo": "principio", "testo": "I pericoli fuori non li controlli. Quelli dentro sì: toglierli è ==il compito di chi guida==." },
+      { "tipo": "chiusura", "azione": "Scegli chi nel tuo gruppo è in difficoltà. Chiedigli: ==di cosa hai bisogno?==" }
+    ]
+  },
+  {
+    "id": "five-dysfunctions-piramide-fiducia",
+    "categoria": "leadership",
+    "titolo": "Tutti bravi, squadra pessima: c'è una piramide sotto",
+    "libro": { "titolo": "La guerra nel team", "autore": "Patrick Lencioni", "anno": 2002, "titoloOriginale": "The Five Dysfunctions of a Team" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tutti bravi, presi uno per uno. Insieme, ==un disastro==." },
+      { "tipo": "colpo", "testo": "Sotto c'è ==una piramide==." },
+      { "tipo": "testo", "testo": "Patrick Lencioni la racconta così: cinque difetti impilati. Ognuno ==regge quello sopra==." },
+      { "tipo": "elenco", "titolo": "La piramide, dal basso", "numerato": true,
+        "voci": ["Niente fiducia: nessuno ammette errori", "Niente conflitto: accordo per finta", "Niente impegno: decisioni vaghe", "Niente richiami fra colleghi"] },
+      { "tipo": "colpo", "testo": "In cima: ==ognuno pensa a sé==." },
+      { "tipo": "quiz", "domanda": "Per riparare la squadra, da quale piano si parte?",
+        "opzioni": ["Dai risultati", "Dai richiami", "Dalla fiducia"], "corretta": 2,
+        "spiegazione": "Senza fiducia nessuno dice cosa pensa. E i piani sopra cedono." },
+      { "tipo": "principio", "testo": "Fidarsi, in squadra, è poter dire ==«ho sbagliato»== senza pagarla." },
+      { "tipo": "chiusura", "azione": "Alla prossima riunione ammetti tu per primo ==un tuo errore==." }
+    ]
+  },
+  {
+    "id": "extreme-ownership-colpa-mia",
+    "categoria": "leadership",
+    "titolo": "Fuoco amico: il comandante che disse «colpa mia»",
+    "libro": { "titolo": "Mai dire ma", "autore": "Jocko Willink, Leif Babin", "anno": 2015, "titoloOriginale": "Extreme Ownership" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Fuoco amico in Iraq. Il comandante dice: ==colpa mia==." },
+      { "tipo": "esempio", "testo": "Ramadi, 2006. Nel caos due gruppi alleati si sparano addosso. Hanno sbagliato in tanti. Jocko Willink comanda i SEAL. A rapporto si prende ==tutta la colpa==." },
+      { "tipo": "colpo", "testo": "Poteva costargli ==il comando==." },
+      { "tipo": "testo", "testo": "Invece, racconta Willink, i superiori si fidano di più. E se il capo non cerca scuse, ==non le cerca nessuno==." },
+      { "tipo": "mito", "mito": "Se ammetti un errore perdi autorità", "realta": "Per Willink e Babin è il contrario: ==la guadagni==." },
+      { "tipo": "confronto", "titolo": "Quando va storto",
+        "a": { "etichetta": "Scuse", "voci": ["«Nessuno me l'aveva detto»"] },
+        "b": { "etichetta": "Responsabilità", "voci": ["«Non l'ho spiegato bene io»"] } },
+      { "tipo": "principio", "testo": "Di ciò che succede alla tua squadra rispondi tu. Non c'è ==nessun altro da incolpare==." },
+      { "tipo": "chiusura", "azione": "Una cosa andata male questa settimana: scrivi cosa ==potevi fare tu==." }
+    ]
+  },
+  {
+    "id": "extreme-ownership-una-priorita-alla-volta",
+    "categoria": "leadership",
+    "titolo": "Dieci urgenze insieme: la regola dei Navy SEAL",
+    "libro": { "titolo": "Mai dire ma", "autore": "Jocko Willink, Leif Babin", "anno": 2015, "titoloOriginale": "Extreme Ownership" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Dieci urgenze nello stesso minuto. ==Da quale parti?==" },
+      { "tipo": "esempio", "testo": "Ramadi, Iraq. La squadra di Leif Babin è su un tetto, allo scoperto. Un uomo è caduto di sotto, ferito. E non si sa se ==ci sono tutti==." },
+      { "tipo": "colpo", "testo": "Tre emergenze. ==Un minuto.==" },
+      { "tipo": "quiz", "domanda": "Qual è il primo ordine di Babin?",
+        "opzioni": ["Soccorrere il ferito", "Mettere la squadra al sicuro", "Contare gli uomini"], "corretta": 1,
+        "spiegazione": "Prima la sicurezza di tutti. Poi il ferito. Poi la conta. Una cosa alla volta." },
+      { "tipo": "principio", "testo": "Se affronti tutti i problemi insieme li sbagli tutti. ==Scegli il più grave== e parti da lì." },
+      { "tipo": "elenco", "titolo": "La formula dei Navy SEAL", "numerato": true,
+        "voci": ["Rilassati", "Guardati intorno", "Decidi"] },
+      { "tipo": "chiusura", "azione": "Scrivi cosa ti assilla. Cerchia ==la cosa più grave==. Dieci minuti solo su quella." }
+    ]
+  },
+  {
+    "id": "dare-to-lead-chiaro-e-gentile",
+    "categoria": "leadership",
+    "titolo": "Sei vago per gentilezza? È il contrario",
+    "libro": { "titolo": "Dare to Lead", "autore": "Brené Brown", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Va bene così, tranquillo». Poi rifai tutto ==di nascosto==." },
+      { "tipo": "colpo", "testo": "Ti sembra ==gentilezza==." },
+      { "tipo": "testo", "testo": "Quando addolciamo una verità, scrive Brené Brown, di rado è per l'altro. È per ==evitare il nostro disagio==." },
+      { "tipo": "elenco", "titolo": "Tre modi di essere vaghi",
+        "voci": ["Dire mezze verità", "Non dire cosa ti aspetti, poi lamentarti", "Parlare di qualcuno, non con lui"] },
+      { "tipo": "mito", "mito": "Essere gentili vuol dire evitare le cose scomode", "realta": "Per Brown è il contrario. Chiaro è gentile, ==vago è scortese==." },
+      { "tipo": "confronto", "titolo": "Chiedere un lavoro",
+        "a": { "etichetta": "Vago", "voci": ["«Mi sistemi le slide?»"] },
+        "b": { "etichetta": "Chiaro", "voci": ["«Cinque slide con i dati»", "«Entro giovedì alle 18»"] } },
+      { "tipo": "chiusura", "azione": "Oggi, se chiedi qualcosa, descrivi ==il lavoro finito==: cosa e per quando." }
+    ]
+  },
+  {
+    "id": "turn-the-ship-around-ho-intenzione-di",
+    "categoria": "leadership",
+    "titolo": "Il sottomarino dove il capo smise di dare ordini",
+    "libro": { "titolo": "Turn the Ship Around!", "autore": "L. David Marquet", "anno": 2013 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sottomarino nucleare. Il comandante dà ==un ordine impossibile==." },
+      { "tipo": "colpo", "testo": "L'ufficiale ==lo ripete==." },
+      { "tipo": "esempio", "testo": "David Marquet comanda il Santa Fe da poco. Ordina una velocità che lì non esiste. L'ufficiale lo sa. Ma ==l'ha detto il capo==." },
+      { "tipo": "testo", "testo": "Marquet capisce il rischio. Se tutti aspettano ordini, ==pensa uno solo==. Smette di darne e cambia una frase." },
+      { "tipo": "confronto", "titolo": "La frase che cambia",
+        "a": { "etichetta": "Prima", "voci": ["«Chiedo il permesso di immergere»"] },
+        "b": { "etichetta": "Dopo", "voci": ["«Ho intenzione di immergere»", "Il capo conferma, o ferma"] } },
+      { "tipo": "principio", "testo": "Chi dice cosa intende fare ==pensa già da responsabile==." },
+      { "tipo": "mito", "mito": "Dare autonomia significa dire «fate voi»", "realta": "Per Marquet servono due cose: ==competenza e obiettivo chiaro==." },
+      { "tipo": "chiusura", "azione": "Invece di «cosa faccio?», scrivi: ==«Ho intenzione di…»== e il perché." }
+    ]
+  },
+  {
+    "id": "culture-code-torre-di-spaghetti",
+    "categoria": "leadership",
+    "titolo": "Bambini dell'asilo contro futuri manager: chi vince?",
+    "libro": { "titolo": "The Culture Code", "autore": "Daniel Coyle", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Spaghetti, nastro, spago, un marshmallow. Chi fa ==la torre più alta==?" },
+      { "tipo": "quiz", "domanda": "Stessi materiali, stesso tempo. Chi vince in media?",
+        "opzioni": ["Bambini dell'asilo", "Studenti di business school", "Avvocati"], "corretta": 0,
+        "spiegazione": "Vincono i bambini. Torri alte oltre il doppio di quelle degli studenti." },
+      { "tipo": "colpo", "testo": "Non sono ==più intelligenti==." },
+      { "tipo": "confronto", "titolo": "Come lavorano",
+        "a": { "etichetta": "Gli studenti", "voci": ["Discutono e pianificano", "Si chiedono chi comanda"] },
+        "b": { "etichetta": "I bambini", "voci": ["Provano, sbagliano, riprovano", "Spalla a spalla"] } },
+      { "tipo": "principio", "testo": "Per Daniel Coyle conta ==come il gruppo interagisce==. Non quanto talento somma." },
+      { "tipo": "elenco", "titolo": "Le tre abilità dei gruppi forti",
+        "voci": ["Creare sicurezza", "Mostrarsi vulnerabili", "Darsi uno scopo"] },
+      { "tipo": "chiusura", "azione": "Lavoro di gruppo? Chiedi il parere a ==chi non ha ancora parlato==." }
+    ]
+  },
+  {
+    "id": "creativity-inc-braintrust",
+    "categoria": "leadership",
+    "titolo": "Alla Pixar ogni film all'inizio è brutto",
+    "libro": { "titolo": "Verso la creatività e oltre", "autore": "Ed Catmull, Amy Wallace", "anno": 2014, "titoloOriginale": "Creativity, Inc." },
+    "scene": [
+      { "tipo": "apertura", "testo": "Toy Story, Nemo, Up. All'inizio erano ==tutti brutti==." },
+      { "tipo": "colpo", "testo": "Lo dice chi guidava la Pixar." },
+      { "tipo": "testo", "testo": "Ed Catmull, cofondatore: le prime versioni non funzionano mai. Serve chi ti dica ==cosa non va, e presto==." },
+      { "tipo": "elenco", "titolo": "Il Braintrust, in breve",
+        "voci": ["Il regista mostra il film ai colleghi", "Si critica il film, non la persona", "Si indica il problema con precisione", "Nessuno può imporre nulla"] },
+      { "tipo": "principio", "testo": "Una critica si ascolta meglio da chi ==non può imporla==." },
+      { "tipo": "confronto", "titolo": "Una nota che serve",
+        "a": { "etichetta": "Vaga", "voci": ["«Non mi convince»"] },
+        "b": { "etichetta": "Precisa", "voci": ["«Dal terzo minuto perdo il filo»"] } },
+      { "tipo": "chiusura", "azione": "Mostra a due persone un lavoro a metà. Chiedi: ==«Dove non funziona?»==" }
+    ]
+  },
+  {
+    "id": "creativity-inc-squadra-prima-dell-idea",
+    "categoria": "leadership",
+    "titolo": "Idea geniale o squadra geniale? Scegline una",
+    "libro": { "titolo": "Verso la creatività e oltre", "autore": "Ed Catmull, Amy Wallace", "anno": 2014, "titoloOriginale": "Creativity, Inc." },
+    "scene": [
+      { "tipo": "apertura", "testo": "Idea geniale e gruppo mediocre. O il contrario. ==Cosa scegli?==" },
+      { "tipo": "quiz", "domanda": "Per Ed Catmull della Pixar, cosa funziona meglio?",
+        "opzioni": ["Idea mediocre, squadra brillante", "Idea geniale, squadra mediocre"], "corretta": 0,
+        "spiegazione": "Una squadra mediocre rovina anche l'idea buona. Una brillante la aggiusta." },
+      { "tipo": "colpo", "testo": "È successo con ==Toy Story 2==." },
+      { "tipo": "esempio", "testo": "Nasce come film minore, con un secondo gruppo. A meno di un anno dall'uscita non funziona. La Pixar cambia la guida e lo rifà. ==Stesso spunto, altro film==." },
+      { "tipo": "principio", "testo": "Le idee vengono dalle persone. Quindi ==le persone giuste== vengono prima dell'idea giusta." },
+      { "tipo": "confronto", "titolo": "Da dove parti",
+        "a": { "etichetta": "Dall'idea perfetta", "voci": ["Poi la affidi a chi capita"] },
+        "b": { "etichetta": "Dalle persone giuste", "voci": ["L'idea la aggiustano loro"] } },
+      { "tipo": "chiusura", "azione": "Prossimo progetto: scrivi prima ==con chi== vuoi farlo. Poi cosa." }
+    ]
+  },
+  {
+    "id": "no-rules-rules-feedback-quattro-a",
+    "categoria": "leadership",
+    "titolo": "A Netflix tacere una critica è sleale",
+    "libro": { "titolo": "L'unica regola è che non ci sono regole", "autore": "Reed Hastings, Erin Meyer", "anno": 2020, "titoloOriginale": "No Rules Rules" },
+    "scene": [
+      { "tipo": "apertura", "testo": "A Netflix tacere una critica utile è ==slealtà verso l'azienda==." },
+      { "tipo": "colpo", "testo": "Reed Hastings dà ==4 regole==." },
+      { "tipo": "elenco", "titolo": "Se la critica la fai tu",
+        "voci": ["Punta ad aiutare, non a sfogarti", "Di' cosa si può fare di diverso"] },
+      { "tipo": "confronto", "titolo": "Stessa critica, due modi",
+        "a": { "etichetta": "Sfogo", "voci": ["«Le tue slide sono un caos»"] },
+        "b": { "etichetta": "Aiuto", "voci": ["«Un grafico per slide e si capisce»"] } },
+      { "tipo": "elenco", "titolo": "Se la critica la ricevi",
+        "voci": ["Ascolta e ringrazia, senza difenderti", "Valutala sul serio, poi decidi tu"] },
+      { "tipo": "quiz", "domanda": "Ricevi una critica sincera. Cosa sei tenuto a fare?",
+        "opzioni": ["Seguirla", "Ribattere", "Ascoltarla e valutarla"], "corretta": 2,
+        "spiegazione": "Ascoltare e ringraziare è d'obbligo. Se seguirla lo decidi tu." },
+      { "tipo": "chiusura", "azione": "Chiedi a qualcuno: ==«Cosa potrei fare meglio?»== Poi ringrazia e basta." }
+    ]
+  },
+  {
+    "id": "principles-meritocrazia-delle-idee",
+    "categoria": "leadership",
+    "titolo": "Era sicuro di avere ragione. Perse quasi tutto",
+    "libro": { "titolo": "I principi del successo", "autore": "Ray Dalio", "anno": 2017, "titoloOriginale": "Principles" },
+    "scene": [
+      { "tipo": "apertura", "testo": "1982. Ray Dalio annuncia una grande crisi. ==Non arriva.==" },
+      { "tipo": "colpo", "testo": "Perde ==quasi tutto==." },
+      { "tipo": "testo", "testo": "Dalio racconta che lì cambiò domanda. Non più «ho ragione». Ma: ==come so di avere ragione?==" },
+      { "tipo": "mito", "mito": "Il modo più giusto di decidere è votare", "realta": "Per Dalio no: deve pesare di più ==chi ne sa davvero==." },
+      { "tipo": "elenco", "titolo": "I tre ingredienti di Dalio",
+        "voci": ["Verità: dici quello che pensi", "Trasparenza: le informazioni girano", "Peso: conta di più chi ne sa davvero"] },
+      { "tipo": "quiz", "domanda": "Per Dalio, chi è «credibile» su un tema?",
+        "opzioni": ["Chi ha il grado più alto", "Chi l'ha già fatto bene, più volte", "Chi parla più sicuro"], "corretta": 1,
+        "spiegazione": "Conta chi ha risultati ripetuti e sa spiegare le sue scelte." },
+      { "tipo": "chiusura", "azione": "Prossima decisione di gruppo: chiedi chi ==l'ha già fatto davvero==." }
+    ]
+  },
+  {
+    "id": "multipliers-moltiplicatori",
+    "categoria": "leadership",
+    "titolo": "Il capo che ti rende più sveglio, e quello che ti spegne",
+    "libro": { "titolo": "Multipliers", "autore": "Liz Wiseman", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Con certi capi ti senti un genio. Con altri ==ti spegni==." },
+      { "tipo": "colpo", "testo": "Stessa testa. ==Capo diverso.==" },
+      { "tipo": "testo", "testo": "Liz Wiseman ha studiato oltre cento capi. I primi li chiama moltiplicatori. Gli altri ==rimpiccioliscono chi hanno intorno==." },
+      { "tipo": "numero", "valore": 2, "suffisso": "×", "didascalia": "Con un moltiplicatore le persone dicono di dare ==circa il doppio==.", "nota": "Stima degli intervistati, non una misura oggettiva." },
+      { "tipo": "confronto", "titolo": "Due tipi di capo",
+        "a": { "etichetta": "Chi rimpicciolisce", "voci": ["Ha sempre lui la risposta", "Decide da solo, poi informa"] },
+        "b": { "etichetta": "Chi moltiplica", "voci": ["Fa domande difficili", "Fa discutere, poi si decide"] } },
+      { "tipo": "mito", "mito": "Il capo migliore è il più intelligente della stanza", "realta": "Per Wiseman è chi tira fuori ==l'intelligenza degli altri==." },
+      { "tipo": "chiusura", "azione": "In riunione datti ==cinque interventi==. Finiti quelli, ascolta e basta." }
+    ]
+  },
+  {
+    "id": "first-90-days-punto-di-pareggio",
+    "categoria": "leadership",
+    "titolo": "Nuovo lavoro: all'inizio costi più di quanto rendi",
+    "libro": { "titolo": "I primi 90 giorni", "autore": "Michael D. Watkins", "anno": 2003, "titoloOriginale": "The First 90 Days" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Primo giorno di lavoro: non produci valore. ==Lo consumi.==" },
+      { "tipo": "colpo", "testo": "Per quanto tempo?" },
+      { "tipo": "numero", "valore": 6.2, "decimali": 1, "suffisso": " mesi", "didascalia": "Tempo medio perché un nuovo manager ==vada in pari==, secondo Watkins.", "nota": "Stima di 210 dirigenti, per manager di medio livello." },
+      { "tipo": "testo", "testo": "Michael Watkins lo chiama punto di pareggio: hai reso quanto hai assorbito. I primi tre mesi decidono ==quanto presto ci arrivi==." },
+      { "tipo": "confronto", "titolo": "Due modi di cominciare",
+        "a": { "etichetta": "L'errore tipico", "voci": ["Arrivi con la soluzione in tasca"] },
+        "b": { "etichetta": "Il metodo", "voci": ["Prima fai domande e impari"] } },
+      { "tipo": "principio", "testo": "Nei primi mesi non strafare. ==Impara in fretta== e porta un piccolo risultato visibile." },
+      { "tipo": "elenco", "titolo": "Tre cose da chiedere al capo",
+        "voci": ["Come vedi la situazione?", "Cosa ti aspetti da me?", "Come vuoi essere aggiornato?"] },
+      { "tipo": "chiusura", "azione": "Sei nuovo? Scrivi ==cinque domande== su come funziona davvero il posto." }
+    ]
+  },
+  {
+    "id": "team-of-teams-giardiniere",
+    "categoria": "leadership",
+    "titolo": "Il generale che smise di decidere tutto lui",
+    "libro": { "titolo": "Team of Teams", "autore": "Stanley McChrystal", "anno": 2015 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Iraq, 2004. Le forze speciali più forti del mondo ==stanno perdendo==." },
+      { "tipo": "colpo", "testo": "Il nemico è ==una rete==." },
+      { "tipo": "testo", "testo": "Stanley McChrystal ha più uomini e mezzi. Ma ogni decisione sale e scende la gerarchia. Arriva quando ==è già tardi==." },
+      { "tipo": "quiz", "domanda": "Lo svegliano di notte per approvare un raid. Cosa aggiunge?",
+        "opzioni": ["Soprattutto ritardo", "Informazioni decisive", "Più sicurezza"], "corretta": 0,
+        "spiegazione": "Chi era sul posto ne sapeva più di lui. Lo ammette lo stesso generale." },
+      { "tipo": "confronto", "titolo": "Due idee di capo",
+        "a": { "etichetta": "Lo scacchista", "voci": ["Muove ogni pezzo di persona"] },
+        "b": { "etichetta": "Il giardiniere", "voci": ["Cura il terreno: fiducia e informazioni", "Lascia decidere chi è sul posto"] } },
+      { "tipo": "principio", "testo": "Fai sapere a tutti ciò che sa il capo. Poi decide chi è ==più vicino al problema==." },
+      { "tipo": "chiusura", "azione": "Metti ==tutto quello che sai== sul progetto in un documento per tutti." }
+    ]
+  }
+]

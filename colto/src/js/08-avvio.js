@@ -1,6 +1,7 @@
 // Collegamenti dell'interfaccia e partenza.
 
 $$('[data-icona]').forEach((e) => e.insertAdjacentHTML('beforeend', ICONE[e.dataset.icona]));
+$$('[data-icona-prima]').forEach((e) => e.insertAdjacentHTML('afterbegin', ICONE[e.dataset.iconaPrima]));
 
 $('#apri-esplora').addEventListener('click', () => apriPannello('esplora'));
 $('#apri-percorso').addEventListener('click', () => apriPannello('percorso'));
@@ -39,7 +40,24 @@ function rimisura() {
 window.addEventListener('resize', () => { clearTimeout(misura); misura = setTimeout(rimisura, 150); });
 document.fonts?.ready.then(rimisura);
 
-document.addEventListener('visibilitychange', () => { if (document.hidden) voce.zitta(); });
+// Il browser lascia partire l'audio solo dopo un tocco: il primo clic, ovunque, accende il suono.
+suono.alVia = () => { ripartiBase(); aggiornaAudio(); };
+document.addEventListener('click', () => {
+  if (!suono.vuole || suono.pronto) return;
+  if (!suono.sblocca()) return;
+  suono.appena = true;
+  setTimeout(() => { suono.appena = false; }, 0);
+  suono.ctx.resume?.().then(() => suono.alVia()).catch(() => {});
+  suono.alVia();
+  suono.pop();
+  avviso('Suono acceso. Lo spegni dal tasto a destra.', 2600);
+}, true);
+$('#invito-suono').addEventListener('click', () => { /* basta il clic: ci pensa l'ascoltatore qui sopra */ });
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { voce.zitta(); base.ferma(); return; }
+  if (suono.pronto) { try { suono.ctx.resume().then(ripartiBase).catch(() => {}); } catch (e) { /* niente */ } }
+});
 if (voce.ok) { try { speechSynthesis.addEventListener('voiceschanged', () => { voce._scelta = null; }); } catch (e) { /* niente */ } }
 
 window.addEventListener('hashchange', () => {
@@ -53,4 +71,5 @@ feed.addEventListener('scroll', () => {
 
 costruisciFeed(decodeURIComponent(location.hash.slice(1)));
 aggiornaCromo();
-if (!memoria.guida) setTimeout(() => { if (!memoria.guida && !pannelloAperto()) avviso('Scorri in su per la prossima idea. Un tocco mette in pausa.', 5200); }, 3200);
+aggiornaAudio();
+if (!memoria.guida) setTimeout(() => { if (!memoria.guida && !pannelloAperto()) avviso('Scorri in su per la prossima idea. Un tocco mette in pausa.', 5200); }, 6500);

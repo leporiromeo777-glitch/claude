@@ -1,0 +1,248 @@
+[
+  {
+    "id": "atomic-habits-identita",
+    "categoria": "abitudini",
+    "titolo": "Ogni gesto è un voto per chi vuoi diventare",
+    "libro": { "titolo": "Atomic Habits", "autore": "James Clear", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti offrono una sigaretta. «Provo a smettere» è ==la risposta debole==." },
+      { "tipo": "confronto", "titolo": "Due modi di dire no",
+        "a": { "etichetta": "«Provo a smettere»", "voci": ["Si crede ancora un fumatore", "Spera di cambiare restando uguale"] },
+        "b": { "etichetta": "«Non fumo»", "voci": ["Fumare è la sua vita di prima", "Non si vede più come fumatore"] } },
+      { "tipo": "colpo", "testo": "Stesso no. ==Identità diversa.==" },
+      { "tipo": "elenco", "titolo": "Tre strati. Clear parte dal terzo", "numerato": true,
+        "voci": ["Risultati: ciò che ottieni", "Processi: ciò che fai", "Identità: ==ciò che credi di essere=="] },
+      { "tipo": "principio", "testo": "Ogni gesto che ripeti è ==un voto== per la persona che vuoi diventare." },
+      { "tipo": "colpo", "testo": "E non serve l'unanimità." },
+      { "tipo": "esempio", "testo": "Vuoi essere uno che legge? Una pagina stasera è un voto. Domani salti? Pazienza. Come alle elezioni, ==basta la maggioranza==." },
+      { "tipo": "chiusura", "azione": "Scrivi «Sono una persona che…» e dalle ==il primo voto==: un gesto di due minuti, adesso." }
+    ]
+  },
+  {
+    "id": "atomic-habits-quattro-leggi",
+    "categoria": "abitudini",
+    "titolo": "Perché il telefono vince sempre (e come copiarlo)",
+    "libro": { "titolo": "Atomic Habits", "autore": "James Clear", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Perché il telefono lo apri senza pensarci e ==il libro no==?" },
+      { "tipo": "colpo", "testo": "Il telefono segue 4 leggi." },
+      { "tipo": "elenco", "titolo": "Le 4 leggi di Clear, viste sul telefono", "numerato": true,
+        "voci": ["Evidente: sempre sotto gli occhi", "Attraente: promette una novità", "Facile: basta un pollice", "Soddisfacente: ==ripaga subito=="] },
+      { "tipo": "colpo", "testo": "Ora girale ==al contrario==." },
+      { "tipo": "quiz", "domanda": "Telefono e studio: quale mossa gira le leggi al contrario?",
+        "opzioni": ["Ripeterti di resistere", "Lasciarlo in un'altra stanza", "Tenerlo in carica sul tavolo"], "corretta": 1,
+        "spiegazione": "Lontano e fuori vista: invisibile e difficile. Non devi nemmeno resistere." },
+      { "tipo": "principio", "testo": "Rendi le abitudini buone evidenti e facili. Le cattive, ==invisibili e scomode==." },
+      { "tipo": "chiusura", "azione": "Metti ==in bella vista== ciò che serve all'abitudine che vuoi: stasera, il libro sul cuscino." }
+    ]
+  },
+  {
+    "id": "power-of-habit-circolo",
+    "categoria": "abitudini",
+    "titolo": "Non volevi il biscotto: volevi la pausa",
+    "libro": { "titolo": "The Power of Habit", "autore": "Charles Duhigg", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il biscotto delle 15:30 non era fame. ==Era un'altra cosa.==" },
+      { "tipo": "esempio", "testo": "Charles Duhigg, giornalista. Ogni pomeriggio un biscotto in caffetteria. Più di 3 chili presi. ==Non riesce a smettere.==" },
+      { "tipo": "quiz", "domanda": "Prova un premio diverso ogni giorno. Che cosa scopre?",
+        "opzioni": ["Voleva lo zucchero", "Gli serviva energia", "Voleva due chiacchiere"], "corretta": 2,
+        "spiegazione": "Dopo due chiacchiere con un collega la voglia sparisce." },
+      { "tipo": "colpo", "testo": "Il biscotto era ==una scusa==." },
+      { "tipo": "elenco", "titolo": "Il suo circolo, riscritto", "numerato": true,
+        "voci": ["Segnale: le 15:30 circa", "Routine: ==dieci minuti da un collega==", "Gratificazione: la pausa in compagnia"] },
+      { "tipo": "principio", "testo": "Un'abitudine non la cancelli. Tieni segnale e gratificazione: ==cambia la routine==." },
+      { "tipo": "chiusura", "azione": "Alla prossima voglia fuori orario segna ==ora, posto e umore==: lì c'è il segnale." }
+    ]
+  },
+  {
+    "id": "power-of-habit-abitudini-chiave",
+    "categoria": "abitudini",
+    "titolo": "Zero infortuni, utili per cinque: l'abitudine chiave",
+    "libro": { "titolo": "The Power of Habit", "autore": "Charles Duhigg", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "1987. Un nuovo capo promette ==zero infortuni==. In Borsa c'è chi vende." },
+      { "tipo": "numero", "valore": 5, "suffisso": "×", "didascalia": "==L'utile annuo== nel 2000, quando lui lascia, rispetto a prima del suo arrivo.", "nota": "Dato riportato da Duhigg nel libro." },
+      { "tipo": "colpo", "testo": "Parlando di infortuni?" },
+      { "tipo": "esempio", "testo": "Paul O'Neill guida Alcoa, colosso dell'alluminio. Agli investitori non parla di profitti: indica ==le uscite di sicurezza==. Poi fissa una regola." },
+      { "tipo": "elenco", "titolo": "La reazione a catena", "numerato": true,
+        "voci": ["Ogni infortunio al capo entro 24 ore", "Con un piano perché non si ripeta", "Operai e dirigenti si parlano in fretta", "==Circolano anche le altre idee=="] },
+      { "tipo": "principio", "testo": "Duhigg le chiama ==abitudini chiave==: ne cambi una e le altre la seguono." },
+      { "tipo": "chiusura", "azione": "Scegli ==una sola abitudine== che può muoverne altre. Scrivi a che ora la fai domani." }
+    ]
+  },
+  {
+    "id": "tiny-habits-tre-ingredienti",
+    "categoria": "abitudini",
+    "titolo": "Prima di incolpare la voglia, controlla questo",
+    "libro": { "titolo": "Tiny Habits", "autore": "BJ Fogg", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Se un'abitudine non parte, la voglia è ==l'ultima sospettata==." },
+      { "tipo": "mito", "mito": "Per cambiare abitudini serve più motivazione", "realta": "Per BJ Fogg la voglia va e viene come un'onda: ==punta sul gesto facile==." },
+      { "tipo": "elenco", "titolo": "Un gesto parte se ci sono tutti e tre",
+        "voci": ["Motivazione: quanto lo vuoi", "Capacità: quanto ti è facile", "Innesco: ciò che ti dice «adesso»"] },
+      { "tipo": "colpo", "testo": "E c'è ==un ordine preciso==." },
+      { "tipo": "quiz", "domanda": "Un'abitudine non parte. Per Fogg, che cosa guardi per prima?",
+        "opzioni": ["Se qualcosa te la ricorda", "Se hai abbastanza voglia", "Se il gesto è troppo difficile"], "corretta": 0,
+        "spiegazione": "Prima l'innesco, poi la facilità. La voglia per ultima: è la più instabile." },
+      { "tipo": "chiusura", "azione": "All'abitudine che salti sempre aggiungi un innesco: ==un oggetto in vista== o una sveglia." }
+    ]
+  },
+  {
+    "id": "tiny-habits-ancora-festa",
+    "categoria": "abitudini",
+    "titolo": "Un dente solo, poi festeggia: il metodo minuscolo",
+    "libro": { "titolo": "Tiny Habits", "autore": "BJ Fogg", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Passa il filo su ==un dente solo==. Poi esulta. Dico sul serio." },
+      { "tipo": "testo", "testo": "È la ricetta di BJ Fogg, che studia i comportamenti a Stanford. Sembra uno scherzo. Dentro c'è ==tutto il suo metodo==." },
+      { "tipo": "elenco", "titolo": "La ricetta in tre mosse", "numerato": true,
+        "voci": ["Àncora: «Dopo essermi lavato i denti…»", "Gesto minuscolo: «…passo il filo su un dente»", "Festa: un «bravo» detto subito"] },
+      { "tipo": "colpo", "testo": "La festa ==non è un extra==." },
+      { "tipo": "mito", "mito": "Per fissare un'abitudine basta ripeterla", "realta": "Per Fogg la fissa ==l'emozione positiva== subito dopo, più del numero di volte." },
+      { "tipo": "esempio", "testo": "E gli altri denti? Facoltativi. Nei giorni buoni li fai tutti. In quelli storti uno solo: ==l'abitudine resta in piedi==." },
+      { "tipo": "chiusura", "azione": "Scrivi «Dopo che ho…, farò…». Fallo una volta adesso e ==festeggia subito==." }
+    ]
+  },
+  {
+    "id": "compound-effect-centesimo",
+    "categoria": "abitudini",
+    "titolo": "Il centesimo che batte 3 milioni",
+    "libro": { "titolo": "The Compound Effect", "autore": "Darren Hardy", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "==3 milioni subito== o 1 centesimo che raddoppia per 31 giorni?" },
+      { "tipo": "quiz", "domanda": "Scegli. Il giorno 31 chi ha più soldi in tasca?",
+        "opzioni": ["Chi ha preso i 3 milioni", "Chi ha preso il centesimo"], "corretta": 1,
+        "spiegazione": "Il giorno 31 il centesimo vale più di 10 milioni di dollari." },
+      { "tipo": "colpo", "testo": "Al giorno 29 ==perdevi ancora==." },
+      { "tipo": "grafico", "titolo": "Il centesimo negli ultimi quattro giorni", "forma": "barre", "unita": "$",
+        "dati": [ { "e": "Giorno 28", "v": 1342177.28 }, { "e": "Giorno 29", "v": 2684354.56 }, { "e": "Giorno 30", "v": 5368709.12 }, { "e": "Giorno 31", "v": 10737418.24 } ],
+        "nota": "Al giorno 20 valeva circa 5 mila dollari." },
+      { "tipo": "testo", "titolo": "Perché quasi tutti mollano", "testo": "Per Darren Hardy le abitudini fanno così. Per settimane ==non si vede niente==. Il grosso arriva in fondo." },
+      { "tipo": "principio", "testo": "Piccole scelte furbe, ripetute a lungo, fanno ==una differenza enorme==. Se non molli prima." },
+      { "tipo": "chiusura", "azione": "Scegli un gesto da cinque minuti. Scrivi ==a che ora== lo farai ogni giorno, per un mese." }
+    ]
+  },
+  {
+    "id": "compound-effect-annota-tutto",
+    "categoria": "abitudini",
+    "titolo": "Il trucco del taccuino: cambi solo ciò che vedi",
+    "libro": { "titolo": "The Compound Effect", "autore": "Darren Hardy", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quanto hai speso ieri? ==Al centesimo.== Scommetto che non lo sai." },
+      { "tipo": "colpo", "testo": "C'è chi l'ha dovuto imparare." },
+      { "tipo": "esempio", "testo": "Il commercialista di Darren Hardy gli fa tenere in tasca un taccuino. Per 30 giorni ci scrive ==ogni centesimo== che spende." },
+      { "tipo": "colpo", "testo": "Che seccatura. ==Ed è il punto.==" },
+      { "tipo": "confronto",
+        "a": { "etichetta": "A memoria", "voci": ["«Più o meno spendo poco»", "Le piccole spese spariscono"] },
+        "b": { "etichetta": "Con il taccuino", "voci": ["Ogni spesa ha una riga", "Ci pensi prima di pagare"] } },
+      { "tipo": "elenco", "titolo": "Il metodo di Hardy", "numerato": true,
+        "voci": ["Scegli un solo ambito: soldi, cibo o tempo", "Annota ogni gesto, sul momento", "Fallo una settimana. Poi punta a tre"] },
+      { "tipo": "principio", "testo": "Non migliori ciò che non misuri. Annotare un gesto ==ti costringe a vederlo==." },
+      { "tipo": "chiusura", "azione": "Apri le note del telefono. Da adesso a stasera ==scrivi ogni spesa==, anche il caffè." }
+    ]
+  },
+  {
+    "id": "mini-habits-una-flessione",
+    "categoria": "abitudini",
+    "titolo": "Una flessione al giorno: troppo piccola per fallire",
+    "libro": { "titolo": "Mini Habits", "autore": "Stephen Guise", "anno": 2013 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Obiettivo del giorno: ==una flessione==. Sì, una sola." },
+      { "tipo": "esempio", "testo": "Stephen Guise vuole allenarsi mezz'ora. Voglia: zero. Prova l'opposto: una flessione. La fa. Poi ==ne fa altre==." },
+      { "tipo": "colpo", "testo": "Il difficile era ==cominciare==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Obiettivo classico", "voci": ["Mezz'ora di palestra", "Un libro a settimana"] },
+        "b": { "etichetta": "Mini abitudine", "voci": ["Una flessione", "Due pagine"] } },
+      { "tipo": "quiz", "domanda": "Fatta la flessione, ti senti carico. Che cosa prevede il metodo?",
+        "opzioni": ["Da domani ne fai venti", "Ti fermi: di più è vietato", "Ne fai altre, se ti va"], "corretta": 2,
+        "spiegazione": "Il di più è un bonus. Il minimo resta minimo, anche nei giorni storti." },
+      { "tipo": "principio", "testo": "Un impegno ==troppo piccolo per fallire== lo rispetti anche nel giorno peggiore." },
+      { "tipo": "chiusura", "azione": "Scegli il tuo minimo, ==una flessione o due pagine==. Fallo prima di posare il telefono." }
+    ]
+  },
+  {
+    "id": "good-habits-bad-habits-automatico",
+    "categoria": "abitudini",
+    "titolo": "Il 43% della tua giornata va in automatico",
+    "libro": { "titolo": "Good Habits, Bad Habits", "autore": "Wendy Wood", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Oggi 4 gesti su 10 li hai fatti ==senza deciderli==." },
+      { "tipo": "numero", "valore": 43, "suffisso": "%", "didascalia": "La quota di azioni quotidiane fatte ==per abitudine==, spesso pensando ad altro.", "nota": "Stima dagli studi di Wendy Wood riportati nel libro." },
+      { "tipo": "colpo", "testo": "Come fa a saperlo?" },
+      { "tipo": "esempio", "testo": "Nei suoi studi le persone annotano ogni ora che cosa fanno e a cosa pensano. Spesso non coincide: ==le mani vanno da sole==." },
+      { "tipo": "confronto", "titolo": "Chi comanda?",
+        "a": { "etichetta": "Come credi di agire", "voci": ["Decido, quindi faccio", "Non cambio? Poca volontà"] },
+        "b": { "etichetta": "Come agisci spesso", "voci": ["Il contesto fa partire il gesto", "Stesso posto, stessa ora"] } },
+      { "tipo": "principio", "testo": "Buona parte della giornata non la decidi: la ripeti. Per cambiarla ==cambia il contesto==." },
+      { "tipo": "chiusura", "azione": "Ripensa alla prima ora di oggi. Scrivi ==tre gesti== che hai fatto senza deciderli." }
+    ]
+  },
+  {
+    "id": "good-habits-bad-habits-attrito",
+    "categoria": "abitudini",
+    "titolo": "La palestra 2 km più in là: quanto pesa l'attrito",
+    "libro": { "titolo": "Good Habits, Bad Habits", "autore": "Wendy Wood", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Forse non sei pigro. La palestra è solo ==2 km troppo in là==." },
+      { "tipo": "quiz", "domanda": "Chi fa circa 6 km per la palestra ci va 5 volte al mese o più. E chi ne fa 8?",
+        "opzioni": ["Tre volte al mese", "Una volta al mese", "Quattro volte al mese"], "corretta": 1,
+        "spiegazione": "Circa una volta al mese. Sono dati GPS di iscritti in palestra, citati da Wood." },
+      { "tipo": "colpo", "testo": "Si chiama ==attrito==." },
+      { "tipo": "testo", "testo": "Per Wendy Wood è attrito ogni ostacolo fra te e un gesto: strada, tempo, passaggi. Per cambiare non spingere di più: ==sposta gli ostacoli==." },
+      { "tipo": "mito", "mito": "Chi ha autocontrollo resiste meglio alle tentazioni", "realta": "Per Wood spesso ne ==incontra meno==: si organizza per evitarle." },
+      { "tipo": "chiusura", "azione": "Togli un passaggio a un gesto di domani: ==prepara stasera la borsa== della palestra." }
+    ]
+  },
+  {
+    "id": "willpower-instinct-effetto-ormai",
+    "categoria": "abitudini",
+    "titolo": "L'effetto «ormai»: quando uno sgarro diventa dieci",
+    "libro": { "titolo": "The Willpower Instinct", "autore": "Kelly McGonigal", "anno": 2011 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Uno sgarro. Poi «ormai». Poi ==tutto il pacco==." },
+      { "tipo": "colpo", "testo": "Ha un nome: ==«what the hell»==." },
+      { "tipo": "esempio", "testo": "Uno studio citato da Kelly McGonigal. Donne attente alla linea mangiano una ciambella. A metà dicono: capita a tutti, ==non essere dura con te==. Poi arrivano le caramelle." },
+      { "tipo": "quiz", "domanda": "Chi mangia meno caramelle?",
+        "opzioni": ["Chi ha sentito quelle parole", "Chi non le ha sentite"], "corretta": 0,
+        "spiegazione": "Meno della metà. La colpa non frena: spinge a consolarsi con altro cibo." },
+      { "tipo": "grafico", "titolo": "Caramelle mangiate, con e senza quelle parole", "forma": "barre", "unita": "g",
+        "dati": [ { "e": "Senza", "v": 70 }, { "e": "Con", "v": 28 } ],
+        "nota": "Quasi 70 g contro 28. Studio di Adams e Leary (2007), dal libro." },
+      { "tipo": "principio", "testo": "A farti crollare non è lo sgarro. È ==la vergogna che viene dopo==." },
+      { "tipo": "chiusura", "azione": "Al prossimo sgarro parlati come a un amico: capita. Poi ==riparti dal gesto dopo==." }
+    ]
+  },
+  {
+    "id": "willpower-instinct-dieci-minuti",
+    "categoria": "abitudini",
+    "titolo": "Tentazione? Prima aspetta dieci minuti",
+    "libro": { "titolo": "The Willpower Instinct", "autore": "Kelly McGonigal", "anno": 2011 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Alla tentazione non dire no. Di' ==«fra dieci minuti»==." },
+      { "tipo": "colpo", "testo": "Al cervello ==basta questo==." },
+      { "tipo": "testo", "titolo": "Lo sconto sul futuro", "testo": "Un premio a portata di mano ci sembra valere di più. Per Kelly McGonigal dieci minuti di attesa bastano: per il cervello diventa ==«futuro»==." },
+      { "tipo": "elenco", "titolo": "La regola, passo per passo", "numerato": true,
+        "voci": ["Arriva la voglia: guarda l'ora", "Aspetta dieci minuti, lontano da lì", "Pensa a cosa guadagni se resisti", "La vuoi ancora? Puoi concedertela"] },
+      { "tipo": "colpo", "testo": "Funziona ==anche al contrario==." },
+      { "tipo": "esempio", "testo": "Devi studiare e non ne hai voglia? «Dieci minuti, poi posso smettere.» Spesso, una volta partito, ==vai avanti==." },
+      { "tipo": "chiusura", "azione": "Alla prossima voglia di oggi metti un ==timer di dieci minuti== e cambia stanza." }
+    ]
+  },
+  {
+    "id": "slight-edge-facile-da-saltare",
+    "categoria": "abitudini",
+    "titolo": "Dieci pagine al giorno: facile farle, facile saltarle",
+    "libro": { "titolo": "The Slight Edge", "autore": "Jeff Olson", "anno": 2005 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Stasera non leggi e ==non succede niente==. È questo il guaio." },
+      { "tipo": "confronto", "titolo": "Stasera, dieci pagine",
+        "a": { "etichetta": "Le salti", "voci": ["Nessun danno", "Nessuno lo nota"] },
+        "b": { "etichetta": "Le leggi", "voci": ["Nessun risultato visibile", "Nessuno lo nota"] } },
+      { "tipo": "colpo", "testo": "Oggi pari. ==Fra un anno no.==" },
+      { "tipo": "numero", "valore": 3650, "didascalia": "Le pagine che leggi in un anno con ==dieci al giorno==. L'esempio è di Jeff Olson.", "nota": "Conto: 10 pagine × 365 giorni." },
+      { "tipo": "testo", "titolo": "Facile da fare, facile da non fare", "testo": "Per Olson i gesti che portano lontano sono semplici. Ma saltarli è altrettanto semplice, e sul momento ==non cambia niente==." },
+      { "tipo": "mito", "mito": "Il successo arriva con una grande mossa", "realta": "Per Olson viene da ==gesti semplici ripetuti== a lungo, anche se oggi non si vede." },
+      { "tipo": "chiusura", "azione": "Stasera leggi ==dieci pagine== di un buon libro prima di dormire. Domani rifallo." }
+    ]
+  }
+]

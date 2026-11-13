@@ -1,0 +1,247 @@
+[
+  {
+    "id": "giocati-dal-caso-sopravvissuti",
+    "categoria": "investimenti",
+    "titolo": "Quel gestore è un genio o ha solo avuto fortuna?",
+    "libro": { "titolo": "Giocati dal caso", "autore": "Nassim Nicholas Taleb", "anno": 2001, "titoloOriginale": "Fooled by Randomness" },
+    "scene": [
+      { "tipo": "apertura", "testo": "10 mila gestori tirano una moneta. Dopo 5 anni spunta ==un genio==." },
+      { "tipo": "testo", "titolo": "L'esperimento di Taleb", "testo": "Ogni anno hanno una probabilità su due di guadagnare. Decide il caso. Chi perde ==esce dal gioco==." },
+      { "tipo": "grafico", "titolo": "Gestori ancora in gara", "forma": "linea",
+        "dati": [ { "e": "Inizio", "v": 10000 }, { "e": "1 anno", "v": 5000 }, { "e": "2 anni", "v": 2500 }, { "e": "3 anni", "v": 1250 }, { "e": "4 anni", "v": 625 }, { "e": "5 anni", "v": 313 } ],
+        "nota": "Ogni anno ne resta metà: sono i numeri di Taleb." },
+      { "tipo": "colpo", "testo": "313 «geni». ==Per puro caso.==" },
+      { "tipo": "quiz", "domanda": "Un fondo guadagna da 5 anni di fila. Cosa ti dice?",
+        "opzioni": ["Che il gestore è bravo", "Poco: quanti erano in partenza?", "Che andrà bene domani"], "corretta": 1,
+        "spiegazione": "Su tanti che provano, qualcuno vince a lungo per caso. Conta quanti hanno cominciato." },
+      { "tipo": "principio", "testo": "Se guardi solo chi è rimasto in piedi, ==scambi la fortuna per bravura==." },
+      { "tipo": "chiusura", "azione": "Davanti a una storia di successo chiediti: ==quanti sono spariti?==" }
+    ]
+  },
+  {
+    "id": "big-short-torre-tripla-a",
+    "categoria": "investimenti",
+    "titolo": "Come il debito peggiore diventò tripla A",
+    "libro": { "titolo": "The Big Short", "autore": "Michael Lewis", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Debiti che pochi volevano. Poco dopo, gli stessi: ==«sicurissimi»==." },
+      { "tipo": "colpo", "testo": "Bastò ==impilarli==." },
+      { "tipo": "testo", "titolo": "La torre dei mutui", "testo": "Michael Lewis la racconta così. I mutui a rischio finivano in un titolo a piani. Se i debitori non pagano, ==si allaga prima il piano terra==." },
+      { "tipo": "elenco", "titolo": "La ricetta del CDO", "numerato": true,
+        "voci": ["Prendi 100 piani terra che pochi vogliono", "Impilali: ecco una torre nuova", "Chiedi il voto alle agenzie. Le paghi tu."] },
+      { "tipo": "numero", "valore": 80, "suffisso": "%", "didascalia": "della nuova torre ottenne il voto massimo: ==la tripla A==.", "nota": "È la quota riportata da Lewis." },
+      { "tipo": "mito", "mito": "Se mescoli tanti rischi, il rischio sparisce", "realta": "Solo se sono diversi. Quelli dipendevano tutti ==dal prezzo delle case==." },
+      { "tipo": "chiusura", "azione": "Ti dicono «è sicuro»? Chiedi: ==chi ha dato quel voto, e chi lo paga?==" }
+    ]
+  },
+  {
+    "id": "cigno-nero-tacchino",
+    "categoria": "investimenti",
+    "titolo": "Mille giorni di prove, e il tacchino sbaglia",
+    "libro": { "titolo": "Il cigno nero", "autore": "Nassim Nicholas Taleb", "anno": 2007, "titoloOriginale": "The Black Swan" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Per mille giorni un tacchino ha le prove che ==l'uomo gli vuole bene==." },
+      { "tipo": "esempio", "testo": "Ogni mattina arriva il cibo. Ogni giorno la sua fiducia cresce. È al massimo il mercoledì prima del Ringraziamento." },
+      { "tipo": "colpo", "testo": "Quel pomeriggio, ==la sorpresa==." },
+      { "tipo": "numero", "valore": 1000, "suffisso": " giorni", "didascalia": "di conferme. Sul giorno 1001 non dicevano ==niente==.", "nota": "Esempio di Taleb, ripreso da Bertrand Russell." },
+      { "tipo": "testo", "titolo": "Il Cigno nero", "testo": "Taleb chiama così l'evento raro, dall'impatto enorme, che dopo sembra ovvio. Per il tacchino lo è. ==Per il macellaio no.==" },
+      { "tipo": "mito", "mito": "Non è mai successo, quindi non succederà", "realta": "Mille conferme non provano una regola. ==Basta un caso contrario.==" },
+      { "tipo": "chiusura", "azione": "Scegli una cosa «sempre andata così». Scrivi ==cosa fai se domani finisce==." }
+    ]
+  },
+  {
+    "id": "four-pillars-costi",
+    "categoria": "investimenti",
+    "titolo": "I tre costi di un fondo che non stanno in vetrina",
+    "libro": { "titolo": "The Four Pillars of Investing", "autore": "William J. Bernstein", "anno": 2002 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il costo che leggi su un fondo ==non è tutto== quello che paghi." },
+      { "tipo": "elenco", "titolo": "I quattro strati, per Bernstein", "numerato": true,
+        "voci": ["Costo di gestione: l'unico in vetrina", "Commissioni su ogni compravendita", "Scarto fra prezzo di acquisto e vendita", "Prezzi mossi dagli ordini del fondo"] },
+      { "tipo": "colpo", "testo": "Adesso ==sommali==." },
+      { "tipo": "grafico", "titolo": "Fondo USA di grandi azioni: costo l'anno", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "Scritto", "v": 1.3 }, { "e": "Totale", "v": 2.2 } ],
+        "nota": "Stime di Bernstein, primi anni 2000. Emergenti: da 2% a 9%." },
+      { "tipo": "testo", "titolo": "Il quarto pilastro", "testo": "Bernstein lo chiama il pilastro del business: l'industria finanziaria vive di commissioni. ==I suoi ricavi sono i tuoi costi.==" },
+      { "tipo": "mito", "mito": "Se costa di più, sarà gestito meglio", "realta": "Per Bernstein la bravura dei gestori non si ripete. I costi sì: ==ogni anno==." },
+      { "tipo": "chiusura", "azione": "Hai un fondo? Nel suo documento cerca la riga ==«costi di transazione»==." }
+    ]
+  },
+  {
+    "id": "antifragile-triade",
+    "categoria": "investimenti",
+    "titolo": "Il contrario di fragile non è robusto",
+    "libro": { "titolo": "Antifragile", "autore": "Nassim Nicholas Taleb", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sul pacco c'è scritto «fragile». Cosa scrivi sul ==pacco opposto==?" },
+      { "tipo": "quiz", "domanda": "Qual è il vero contrario di «fragile»?",
+        "opzioni": ["Robusto", "Indistruttibile", "Che migliora con gli urti"], "corretta": 2,
+        "spiegazione": "Il robusto resta uguale. Il contrario di chi perde con gli urti è chi ci guadagna." },
+      { "tipo": "colpo", "testo": "La parola ==non esisteva==." },
+      { "tipo": "testo", "testo": "Taleb la inventa: ==antifragile==. Il fragile teme gli scossoni. Il robusto li regge. L'antifragile ne ha bisogno." },
+      { "tipo": "esempio", "testo": "I muscoli sono antifragili: li affatichi e crescono. Un mese a letto, al riparo da ogni sforzo, e ==si indeboliscono==." },
+      { "tipo": "principio", "testo": "Lo shock non lo prevedi. Puoi capire ==se ti romperà o ti rafforzerà==." },
+      { "tipo": "chiusura", "azione": "Scegli un ambito: lavoro, soldi, salute. ==Un imprevisto lì ti rompe o ti migliora?==" }
+    ]
+  },
+  {
+    "id": "manias-panics-crashes-copione",
+    "categoria": "investimenti",
+    "titolo": "Le crisi finanziarie recitano sempre lo stesso copione",
+    "libro": { "titolo": "Manias, Panics, and Crashes", "autore": "Charles P. Kindleberger", "anno": 1978 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tulipani nel 1637. Wall Street nel 1929. ==Stesso copione.==" },
+      { "tipo": "colpo", "testo": "Tre secoli, ==un solo schema==." },
+      { "tipo": "elenco", "titolo": "Il copione, dal modello di Minsky", "numerato": true,
+        "voci": ["Una novità promette guadagni", "Il credito si allarga, i prezzi salgono", "Euforia: si compra solo per rivendere", "Panico: tutti verso l'uscita"] },
+      { "tipo": "quiz", "domanda": "Per Kindleberger, cosa trasforma l'entusiasmo in una mania?",
+        "opzioni": ["Il credito facile", "Una grande truffa", "Un errore dei governi"], "corretta": 0,
+        "spiegazione": "Senza soldi in prestito l'entusiasmo resta piccolo. È il debito facile a gonfiarlo." },
+      { "tipo": "principio", "testo": "Per Kindleberger le manie cambiano oggetto, non meccanismo: ==credito, euforia, panico==." },
+      { "tipo": "chiusura", "azione": "Prendi la moda finanziaria del momento. Prova a dire ==in quale atto si trova==." }
+    ]
+  },
+  {
+    "id": "giocati-dal-caso-rumore",
+    "categoria": "investimenti",
+    "titolo": "Più guardi il conto, più vedi rumore",
+    "libro": { "titolo": "Giocati dal caso", "autore": "Nassim Nicholas Taleb", "anno": 2001, "titoloOriginale": "Fooled by Randomness" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quante volte al giorno controlli ==come vanno i tuoi soldi==?" },
+      { "tipo": "esempio", "testo": "Taleb immagina un dentista con un ottimo portafoglio: in media rende il 15% l'anno più dei titoli di Stato, con oscillazioni del 10%. Lo controlla ==di continuo==." },
+      { "tipo": "grafico", "titolo": "Lo vede in attivo, se guarda ogni…", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "Minuto", "v": 50.2 }, { "e": "Giorno", "v": 54 }, { "e": "Mese", "v": 67 }, { "e": "Anno", "v": 93 } ],
+        "nota": "Esempio illustrativo di Taleb, non una previsione." },
+      { "tipo": "colpo", "testo": "Ogni minuto: ==testa o croce==." },
+      { "tipo": "testo", "testo": "Il portafoglio è lo stesso. Ma una perdita ==brucia più== di quanto un guadagno consoli. Il dentista arriva a sera sfinito." },
+      { "tipo": "mito", "mito": "Più controllo, più capisco come va", "realta": "Sul breve vedi le oscillazioni, non il rendimento: ==raccogli rumore==." },
+      { "tipo": "chiusura", "azione": "Togli le notifiche sui prezzi. Decidi ==una data fissa== per guardare." }
+    ]
+  },
+  {
+    "id": "stocks-long-run-orizzonte",
+    "categoria": "investimenti",
+    "titolo": "Quanto rischi dipende da quanto aspetti",
+    "libro": { "titolo": "Stocks for the Long Run", "autore": "Jeremy J. Siegel", "anno": 1994 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Su un anno le azioni fanno paura. E su ==vent'anni==?" },
+      { "tipo": "testo", "testo": "Jeremy Siegel ricostruisce due secoli di borsa americana, dal 1802. Poi toglie ==l'inflazione==." },
+      { "tipo": "confronto", "titolo": "Azioni USA, tolta l'inflazione",
+        "a": { "etichetta": "Tenute un anno", "voci": ["Anno peggiore: −38,6%"] },
+        "b": { "etichetta": "Tenute vent'anni", "voci": ["Ventennio peggiore: circa +1% l'anno"] } },
+      { "tipo": "mito", "mito": "Le obbligazioni sono sempre le più sicure", "realta": "Nei dati di Siegel in certi ventenni perdono ==contro l'inflazione==. Le azioni mai." },
+      { "tipo": "principio", "testo": "Per Siegel il rischio non è fisso: ==dipende da quanto a lungo tieni==." },
+      { "tipo": "colpo", "testo": "Però ==attenzione==." },
+      { "tipo": "testo", "testo": "È un solo Paese, fortunato. Sull'Ottocento c'è chi contesta i suoi dati. E Tokyo ha rivisto i massimi del 1989 solo ==dopo 34 anni==." },
+      { "tipo": "chiusura", "azione": "Accanto a ogni somma che hai da parte scrivi ==fra quanti anni ti serve==." }
+    ]
+  },
+  {
+    "id": "cigno-nero-estremistan",
+    "categoria": "investimenti",
+    "titolo": "Entra il più ricco del mondo e la media impazzisce",
+    "libro": { "titolo": "Il cigno nero", "autore": "Nassim Nicholas Taleb", "anno": 2007, "titoloOriginale": "The Black Swan" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un super ricco entra in sala. In media, ora siete ==tutti milionari==." },
+      { "tipo": "confronto", "titolo": "Esempio illustrativo: uno in più",
+        "a": { "etichetta": "Entra il più pesante", "voci": ["Mille da 70 kg, lui 300", "La media sale di 2 etti"] },
+        "b": { "etichetta": "Entra il più ricco", "voci": ["Mille da 100 mila euro, lui 100 miliardi", "La media sale a 100 milioni a testa"] } },
+      { "tipo": "colpo", "testo": "Due mondi ==diversi==." },
+      { "tipo": "testo", "testo": "Taleb li chiama ==Mediocristan== ed ==Estremistan==. Nel primo nessun caso sposta il totale. Nel secondo ne basta uno." },
+      { "tipo": "quiz", "domanda": "Quale vive nell'Estremistan?",
+        "opzioni": ["Le copie vendute da un libro", "L'altezza", "Le ore di sonno"], "corretta": 0,
+        "spiegazione": "Un libro può vendere più di mille altri insieme. Nessuno è alto mille volte te." },
+      { "tipo": "principio", "testo": "Dove un caso solo può cambiare tutto, ==la media ti dice poco==." },
+      { "tipo": "chiusura", "azione": "Prendi una «media» che usi spesso. ==Un caso solo può stravolgerla?==" }
+    ]
+  },
+  {
+    "id": "when-genius-failed-leva",
+    "categoria": "investimenti",
+    "titolo": "Due Nobel, un fondo e il debito che lo affondò",
+    "libro": { "titolo": "When Genius Failed", "autore": "Roger Lowenstein", "anno": 2000 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tra i soci del fondo, due premi Nobel. Nel 1998 ==perde quasi tutto==." },
+      { "tipo": "testo", "testo": "Long-Term Capital Management nasce nel 1994. Scommette su minuscole differenze di prezzo. Le ingrandisce ==con il debito==." },
+      { "tipo": "numero", "valore": 25, "suffisso": " a 1", "didascalia": "A inizio 1998: oltre 25 dollari ==in prestito== per ogni dollaro dei soci.", "nota": "Senza contare i derivati." },
+      { "tipo": "grafico", "titolo": "Gli attivi calano del 2%: quanto perdi", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "Leva 1×", "v": 2 }, { "e": "Leva 5×", "v": 10 }, { "e": "Leva 10×", "v": 20 }, { "e": "Leva 25×", "v": 50 } ],
+        "nota": "Leva: soldi investiti per ogni euro tuo. Esempio illustrativo." },
+      { "tipo": "colpo", "testo": "Poi arriva ==agosto 1998==." },
+      { "tipo": "esempio", "testo": "La Russia non paga più il suo debito. Tutti corrono verso i titoli sicuri. Le differenze ==si allargano tutte insieme==." },
+      { "tipo": "principio", "testo": "Il debito non rende un'idea più giusta. Rende ==fatale il periodo in cui hai torto==." },
+      { "tipo": "chiusura", "azione": "Elenca i tuoi debiti: rate, carta, prestiti. ==Reggi tre mesi storti?==" }
+    ]
+  },
+  {
+    "id": "rischiare-grosso-rovina",
+    "categoria": "investimenti",
+    "titolo": "Cento sere al casinò: la media non ti salva",
+    "libro": { "titolo": "Rischiare grosso", "autore": "Nassim Nicholas Taleb", "anno": 2018, "titoloOriginale": "Skin in the Game" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Cento persone al casinò per una sera. O tu, per cento sere. ==È uguale?==" },
+      { "tipo": "colpo", "testo": "No. ==Per niente.==" },
+      { "tipo": "esempio", "testo": "È l'esempio di Taleb. Se il giocatore 28 perde tutto, il 29 gioca lo stesso. Se perdi tutto tu la sera 28, ==la sera 29 non esiste==." },
+      { "tipo": "quiz", "domanda": "Un gioco ti rovina 1 volta su 6. Lo ripeti 20 volte. Con che probabilità resti in gioco?",
+        "opzioni": ["Circa la metà", "Circa 1 su 6", "Meno di 3 su 100"], "corretta": 2,
+        "spiegazione": "5/6 moltiplicato per sé stesso 20 volte fa 0,026: 2,6 probabilità su 100." },
+      { "tipo": "grafico", "titolo": "Rovina 1 su 6: chi resta in gioco", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "1 giro", "v": 83.3 }, { "e": "5 giri", "v": 40.2 }, { "e": "10 giri", "v": 16.2 }, { "e": "20 giri", "v": 2.6 } ],
+        "nota": "Esempio illustrativo: 5/6 per ogni giro." },
+      { "tipo": "principio", "testo": "Per Taleb prima viene ==sopravvivere==. Guadagnare viene dopo." },
+      { "tipo": "chiusura", "azione": "Elenca i rischi che corri spesso. Segna quelli che ==non ti lasciano riprovare==." }
+    ]
+  },
+  {
+    "id": "reminiscences-speranza-paura",
+    "categoria": "investimenti",
+    "titolo": "Speri quando dovresti avere paura",
+    "libro": { "titolo": "Reminiscences of a Stock Operator", "autore": "Edwin Lefèvre", "anno": 1923 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il titolo che hai comprato perde il 20%. Pensi: ==«Aspetto che risalga»==." },
+      { "tipo": "colpo", "testo": "Speri. ==Proprio adesso.==" },
+      { "tipo": "testo", "testo": "Lo racconta Larry Livingston, in un romanzo del 1923. È ispirato allo speculatore Jesse Livermore. Speranza e paura ==arrivano al contrario==." },
+      { "tipo": "confronto", "titolo": "Due emozioni fuori tempo",
+        "a": { "etichetta": "D'istinto", "voci": ["In perdita speri che risalga", "In guadagno temi di perderlo"] },
+        "b": { "etichetta": "Per Livingston", "voci": ["In perdita, temi che peggiori", "In guadagno, spera che cresca"] } },
+      { "tipo": "esempio", "testo": "Livingston non è un maestro infallibile. Nel libro fa fortuna e ==resta senza un soldo== più di una volta. Spesso per aver tradito le sue regole." },
+      { "tipo": "principio", "testo": "Per Livingston sbagliare costa poco. È ==rifiutarsi di ammetterlo== che fa i danni grossi." },
+      { "tipo": "chiusura", "azione": "Ripensa a una scelta di soldi andata male. Scrivi: ==quale segnale avevo ignorato?==" }
+    ]
+  },
+  {
+    "id": "euforia-irrazionale-circolo",
+    "categoria": "investimenti",
+    "titolo": "Perché una bolla si gonfia da sola",
+    "libro": { "titolo": "Euforia irrazionale", "autore": "Robert J. Shiller", "anno": 2000, "titoloOriginale": "Irrational Exuberance" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Nessuno organizza una bolla. Eppure somiglia a ==uno schema Ponzi==." },
+      { "tipo": "testo", "testo": "Lo dice Robert Shiller. In uno schema Ponzi i primi sono pagati con i soldi degli ultimi. In una bolla ==non c'è un truffatore==." },
+      { "tipo": "elenco", "titolo": "Il giro che si alimenta da solo", "numerato": true,
+        "voci": ["I prezzi salgono", "Tutti parlano di chi ha guadagnato", "Nasce una storia: «è una nuova era»", "Entrano altri, i prezzi salgono ancora"] },
+      { "tipo": "colpo", "testo": "Finché ==entra gente nuova==." },
+      { "tipo": "grafico", "titolo": "Azioni USA: prezzo diviso utili medi di 10 anni", "forma": "barre",
+        "dati": [ { "e": "1901", "v": 25.2 }, { "e": "1929", "v": 32.6 }, { "e": "1966", "v": 24.1 }, { "e": "2000", "v": 44.3 } ],
+        "nota": "I picchi citati da Shiller. Il libro uscì a marzo 2000." },
+      { "tipo": "mito", "mito": "Se sale così tanto, un motivo ci sarà", "realta": "In una bolla sale perché è salito: ==l'entusiasmo si contagia==." },
+      { "tipo": "chiusura", "azione": "Senti «stavolta è diverso»? Chiediti: ==cosa so, a parte che è salito?==" }
+    ]
+  },
+  {
+    "id": "four-pillars-quattro-pilastri",
+    "categoria": "investimenti",
+    "titolo": "Sai tre cose su quattro? Per investire non basta",
+    "libro": { "titolo": "The Four Pillars of Investing", "autore": "William J. Bernstein", "anno": 2002 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Per investire male basta ignorare ==una cosa su quattro==." },
+      { "tipo": "elenco", "titolo": "I quattro pilastri di Bernstein",
+        "voci": ["Teoria: più rendimento, più rischio", "Storia: ogni tanto i mercati impazziscono", "Psicologia: il nemico sei tu", "Industria: vive dei tuoi costi"] },
+      { "tipo": "colpo", "testo": "Ne manca uno? ==Crolla tutto.==" },
+      { "tipo": "esempio", "testo": "L'esempio di Bernstein: il fondo LTCM, con due premi Nobel. Teoria impeccabile. ==Storia dei mercati ignorata.== Nel 1998 sfiora il fallimento." },
+      { "tipo": "quiz", "domanda": "Rendimento alto, «garantito, senza rischi». Che dice il primo pilastro?",
+        "opzioni": ["È un'occasione rara", "Va bene, se dura poco", "Il rischio c'è: non lo vedi"], "corretta": 2,
+        "spiegazione": "Rendimenti alti, rischi alti. Se non li vedi, sono nascosti. O è una truffa." },
+      { "tipo": "chiusura", "azione": "Scegli il pilastro ==che conosci meno==. Dagli dieci minuti oggi." }
+    ]
+  }
+]

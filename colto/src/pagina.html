@@ -16,8 +16,9 @@
     <header class="barra">
       <button id="marchio" class="marchio" type="button" aria-label="Colto: torna a Per te">Colto</button>
       <button id="apri-esplora" class="gettone" type="button" aria-haspopup="dialog" data-icona="giu"><span id="filtro-nome">Per te</span></button>
-      <button id="apri-percorso" class="gettone" type="button" aria-haspopup="dialog" aria-label="Il tuo percorso"><b id="oggi-numero">0</b><span>oggi</span></button>
+      <button id="apri-percorso" class="gettone gettone--punti" type="button" aria-haspopup="dialog" aria-label="Il tuo percorso" data-icona-prima="lampo"><b id="punti">0</b><i class="meta-giorno" aria-hidden="true"><i id="meta-giorno"></i></i></button>
     </header>
+    <button id="invito-suono" class="invito-suono" type="button" hidden data-icona-prima="muto"><span>Tocca per il suono</span></button>
     <div class="frecce">
       <button id="freccia-su" type="button" aria-label="Video precedente" data-icona="su"></button>
       <button id="freccia-giu" type="button" aria-label="Video successivo" data-icona="giu"></button>
@@ -28,6 +29,7 @@
 
   <div class="cromo">
     <div id="avviso" class="avviso" role="status" aria-live="polite"></div>
+    <div id="stendardo" class="stendardo" role="status" aria-live="polite"></div>
     <section id="pannello" class="pannello" role="dialog" aria-modal="true" aria-labelledby="pannello-titolo">
       <header class="pannello-testa">
         <h2 id="pannello-titolo">Esplora</h2>

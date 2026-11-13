@@ -1,0 +1,253 @@
+[
+  {
+    "id": "good-to-great-concetto-riccio",
+    "categoria": "business",
+    "titolo": "Perché il riccio batte la volpe",
+    "libro": { "titolo": "Good to Great", "autore": "Jim Collins", "anno": 2001 },
+    "scene": [
+      { "tipo": "apertura", "testo": "La volpe sa cento trucchi. Il riccio uno solo. ==Chi vince?==" },
+      { "tipo": "colpo", "testo": "Vince ==il riccio==." },
+      { "tipo": "testo", "titolo": "Un'idea sola", "testo": "Per Jim Collins le aziende che diventano eccellenti ragionano da ricci: riducono tutto a ==una sola idea semplice==." },
+      { "tipo": "elenco", "titolo": "I tre cerchi: l'idea sta al centro",
+        "voci": ["Ciò che ti appassiona", "Ciò in cui puoi essere il migliore al mondo", "Ciò che ti fa guadagnare"] },
+      { "tipo": "esempio", "testo": "Walgreens sceglie: le farmacie più comode. E guarda un numero solo: ==il profitto per ogni visita== del cliente." },
+      { "tipo": "principio", "testo": "Capisci in che cosa puoi essere il migliore. Poi trova la disciplina di ==dire no al resto==." },
+      { "tipo": "numero", "valore": 2, "didascalia": "delle 11 aziende lodate nel libro cadono nel 2008: Circuit City e Fannie Mae.",
+        "nota": "Una fallita, l'altra commissariata. Il metodo non è una garanzia." },
+      { "tipo": "chiusura", "azione": "Disegna tre cerchi e riempili. ==Che cosa finisce al centro?==" }
+    ]
+  },
+  {
+    "id": "dilemma-innovatore-fallire-facendo-bene",
+    "categoria": "business",
+    "titolo": "Come si perde un mercato facendo tutto giusto",
+    "libro": { "titolo": "Il dilemma dell'innovatore", "autore": "Clayton M. Christensen", "anno": 1997, "titoloOriginale": "The Innovator's Dilemma" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ascolti i clienti. Investi dove rende. ==E perdi il mercato.==" },
+      { "tipo": "esempio", "testo": "1985. Seagate mostra ai clienti un disco più piccolo, da 3,5 pollici. Non interessa: vogliono più capienza. Progetto fermato." },
+      { "tipo": "colpo", "testo": "Poi arrivano ==i portatili==." },
+      { "tipo": "testo", "testo": "Quei dischi finiscono nei portatili, venduti da altri. E migliorano ogni anno, ==finché bastano a tutti==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Innovazione di sostegno", "voci": ["Migliora ciò che c'è già", "La chiedono i clienti migliori"] },
+        "b": { "etichetta": "Innovazione dirompente", "voci": ["All'inizio peggiore, ma più semplice", "Parte da mercati piccoli"] } },
+      { "tipo": "mito", "mito": "Le grandi aziende cadono perché gestite male", "realta": "Per Christensen cadono ==facendo le cose giuste==: servire i clienti migliori." },
+      { "tipo": "colpo", "testo": "Tesi discussa, ==non una legge==." },
+      { "tipo": "chiusura", "azione": "Scrivi un prodotto «giocattolo» del tuo settore. Accanto: ==chi lo usa già==." }
+    ]
+  },
+  {
+    "id": "high-output-management-leva-manageriale",
+    "categoria": "leadership",
+    "titolo": "Il lavoro di un capo non è il suo lavoro",
+    "libro": { "titolo": "High Output Management", "autore": "Andrew S. Grove", "anno": 1983 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sei un capo? ==Il tuo lavoro non è il tuo lavoro.==" },
+      { "tipo": "colpo", "testo": "È quello ==degli altri==." },
+      { "tipo": "principio", "testo": "Il risultato di un capo è ==il risultato della sua squadra==, più quello dei gruppi che influenza." },
+      { "tipo": "testo", "titolo": "La leva", "testo": "Andrew Grove, che ha guidato Intel, misura ogni attività così: quanto lavoro degli altri muove ==un'ora del tuo tempo==." },
+      { "tipo": "numero", "valore": 80, "suffisso": " ore", "didascalia": "di lavoro di un collaboratore: le migliora ==un colloquio di 90 minuti==.",
+        "nota": "Conto di Grove: un colloquio ogni due settimane, 2 × 40 ore." },
+      { "tipo": "esempio", "testo": "Grove parla due ore a 200 nuovi assunti: storia, valori, stile di Intel. Due ore sue, ==duecento persone orientate==." },
+      { "tipo": "mito", "mito": "Finché non decido, non faccio danni", "realta": "Per Grove un via libera che non arriva è un rosso: ==ferma tutti==." },
+      { "tipo": "chiusura", "azione": "Apri l'agenda di domani. Cerchia ==l'impegno che tocca più persone==." }
+    ]
+  },
+  {
+    "id": "competitive-strategy-cinque-forze",
+    "categoria": "business",
+    "titolo": "Le cinque forze che decidono chi guadagna",
+    "libro": { "titolo": "Competitive Strategy", "autore": "Michael E. Porter", "anno": 1980 },
+    "scene": [
+      { "tipo": "apertura", "testo": "In certi settori guadagnano quasi tutti. In altri, ==quasi nessuno==." },
+      { "tipo": "colpo", "testo": "Non basta ==essere bravi==." },
+      { "tipo": "testo", "titolo": "La struttura", "testo": "Per Michael Porter decide la struttura del settore: cinque forze si contendono il valore. La prima: la ==rivalità fra chi c'è già==." },
+      { "tipo": "elenco", "titolo": "Le altre quattro",
+        "voci": ["Nuovi concorrenti", "Prodotti sostitutivi", "Il potere dei clienti", "Il potere dei fornitori"] },
+      { "tipo": "quiz", "domanda": "Per un cinema, lo streaming è…",
+        "opzioni": ["Un prodotto sostitutivo", "Un nuovo concorrente", "Un fornitore"], "corretta": 0,
+        "spiegazione": "Stesso bisogno, altro modo. Per Porter i sostituti mettono un tetto ai prezzi." },
+      { "tipo": "principio", "testo": "Più le cinque forze sono deboli, ==più margine resta== a chi lavora in quel settore." },
+      { "tipo": "chiusura", "azione": "Dai un voto da 1 a 5 a ogni forza ==nel tuo settore==. Qual è la più forte?" }
+    ]
+  },
+  {
+    "id": "oceano-blu-mercato-nuovo",
+    "categoria": "business",
+    "titolo": "Il circo che ha smesso di fare il circo",
+    "libro": { "titolo": "Strategia Oceano Blu", "autore": "W. Chan Kim, Renée Mauborgne", "anno": 2005, "titoloOriginale": "Blue Ocean Strategy" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un circo toglie gli animali, alza i prezzi ==e fa il pieno==." },
+      { "tipo": "testo", "titolo": "Cirque du Soleil, 1984", "testo": "Il circo perde pubblico da anni. Loro non fanno un circo migliore: lo mescolano al teatro e puntano sugli adulti." },
+      { "tipo": "colpo", "testo": "Niente rivali. ==Mare aperto.==" },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Oceano rosso", "voci": ["Il mercato che esiste già", "Tutti sugli stessi clienti"] },
+        "b": { "etichetta": "Oceano blu", "voci": ["Uno spazio di mercato nuovo", "La concorrenza non conta più"] } },
+      { "tipo": "elenco", "titolo": "Quattro mosse per arrivarci",
+        "voci": ["Elimina ciò che tutti danno per scontato", "Riduci ciò che è troppo", "Aumenta ciò che vale", "Crea ciò che nessuno offre"] },
+      { "tipo": "esempio", "testo": "Via animali e artisti famosi: costano. Dentro una storia, musica, danza. ==Meno costi, più valore==, a prezzi da teatro." },
+      { "tipo": "chiusura", "azione": "Dividi un foglio in quattro: elimina, riduci, aumenta, crea. ==Riempilo.==" }
+    ]
+  },
+  {
+    "id": "effective-executive-conosci-il-tempo",
+    "categoria": "leadership",
+    "titolo": "Non sai dove va il tuo tempo",
+    "libro": { "titolo": "The Effective Executive", "autore": "Peter F. Drucker", "anno": 1967 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Credi di sapere dove va il tuo tempo. ==Quasi certamente sbagli.==" },
+      { "tipo": "quiz", "domanda": "Per Drucker, qual è il primo passo per lavorare meglio?",
+        "opzioni": ["Pianificare la settimana", "Registrare dove va il tempo", "Fare una lista di priorità"], "corretta": 1,
+        "spiegazione": "Prima di pianificare devi sapere dove va il tempo. La memoria non basta." },
+      { "tipo": "esempio", "testo": "Un presidente d'azienda giura: mi divido fra dirigenti, clienti e impegni pubblici. Il registro dice altro: ==quasi niente a tutti e tre==." },
+      { "tipo": "colpo", "testo": "La memoria ==mente==." },
+      { "tipo": "elenco", "titolo": "I tre passi di Drucker", "numerato": true,
+        "voci": ["Registra il tempo mentre lo usi", "Taglia ciò che non serve", "Unisci il resto in blocchi lunghi"] },
+      { "tipo": "principio", "testo": "Finché non governi il tuo tempo, ==non governi nient'altro==." },
+      { "tipo": "chiusura", "azione": "Fino a stasera annota ogni mezz'ora cosa fai. ==Domani confronta.==" }
+    ]
+  },
+  {
+    "id": "good-strategy-bad-strategy-nocciolo",
+    "categoria": "business",
+    "titolo": "27 navi contro 33: che cos'è una strategia",
+    "libro": { "titolo": "Good Strategy/Bad Strategy", "autore": "Richard P. Rumelt", "anno": 2011 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Trafalgar, 1805. 27 navi contro 33. ==Vincono le 27.==" },
+      { "tipo": "esempio", "testo": "Nelson non si mette in fila davanti al nemico. Divide la flotta in due colonne e taglia la loro linea. Loro perdono 22 navi. Lui nessuna." },
+      { "tipo": "colpo", "testo": "Questa è ==strategia==." },
+      { "tipo": "testo", "titolo": "E questa no", "testo": "«Cresceremo del 20% l'anno.» Per Richard Rumelt è un desiderio: non dice ==quale ostacolo== superare, né come." },
+      { "tipo": "elenco", "titolo": "Il nocciolo, per Rumelt", "numerato": true,
+        "voci": ["Diagnosi: qual è la vera sfida", "Linea guida: come la affronti", "Azioni coerenti che si rafforzano"] },
+      { "tipo": "quiz", "domanda": "Quale di queste è una strategia?",
+        "opzioni": ["Raddoppiare i clienti", "Diventare i numeri uno", "Servire solo i ristoranti"], "corretta": 2,
+        "spiegazione": "Le prime due sono traguardi. La terza sceglie dove concentrare le forze." },
+      { "tipo": "chiusura", "azione": "Prendi un tuo obiettivo. Scrivi sotto ==l'ostacolo principale==." }
+    ]
+  },
+  {
+    "id": "built-to-last-bhag",
+    "categoria": "business",
+    "titolo": "L'obiettivo che fa un po' paura",
+    "libro": { "titolo": "Built to Last", "autore": "Jim Collins, Jerry I. Porras", "anno": 1994 },
+    "scene": [
+      { "tipo": "apertura", "testo": "1961. Kennedy punta alla Luna ==entro il decennio==. Poteva dire meno." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Vago", "voci": ["Rafforzare il programma spaziale"] },
+        "b": { "etichetta": "Preciso", "voci": ["Un uomo sulla Luna entro il decennio"] } },
+      { "tipo": "colpo", "testo": "Chiaro. ==E spaventoso.==" },
+      { "tipo": "testo", "testo": "Collins e Porras chiamano traguardi così BHAG, Big Hairy Audacious Goals: ==enormi, audaci, un po' spaventosi==." },
+      { "tipo": "esempio", "testo": "1952. Boeing vive di aerei militari. Punta lo stesso su un jet di linea, mentre Douglas resta alle eliche. Nasce il 707." },
+      { "tipo": "mito", "mito": "Un buon obiettivo deve essere realistico", "realta": "Un BHAG è fuori dalla zona di comfort: riuscirci ==non è affatto scontato==." },
+      { "tipo": "principio", "testo": "Un traguardo enorme e chiaro ==mette in moto le persone== più di cento buoni propositi." },
+      { "tipo": "chiusura", "azione": "Riscrivi un tuo «vorrei migliorare»: ==un risultato e una data==." }
+    ]
+  },
+  {
+    "id": "the-goal-collo-di-bottiglia",
+    "categoria": "business",
+    "titolo": "Il gruppo va al passo del più lento",
+    "libro": { "titolo": "The Goal", "autore": "Eliyahu M. Goldratt, Jeff Cox", "anno": 1984 },
+    "scene": [
+      { "tipo": "apertura", "testo": "In gita la fila va al passo ==del più lento==. In azienda pure." },
+      { "tipo": "esempio", "testo": "Nel romanzo Alex, direttore di fabbrica, porta in gita degli scout. La fila si sfilaccia: tutti dipendono da Herbie, il più lento. Lo mette ==in testa==." },
+      { "tipo": "colpo", "testo": "In fabbrica è ==una macchina==." },
+      { "tipo": "grafico", "titolo": "Pezzi all'ora in ogni fase", "forma": "barre",
+        "dati": [ { "e": "Taglio", "v": 20 }, { "e": "Saldatura", "v": 12 }, { "e": "Forno", "v": 5 }, { "e": "Montaggio", "v": 15 } ],
+        "nota": "Esempio illustrativo: escono 5 pezzi l'ora, come dal forno." },
+      { "tipo": "quiz", "domanda": "Dove investi per produrre di più?",
+        "opzioni": ["Nel taglio, il più veloce", "Nel forno, il più lento", "Un po' ovunque"], "corretta": 1,
+        "spiegazione": "Potenziare le altre fasi crea solo pezzi fermi in coda davanti al forno." },
+      { "tipo": "principio", "testo": "Goldratt lo chiama collo di bottiglia: un'ora persa lì è ==persa per tutto il sistema==." },
+      { "tipo": "chiusura", "azione": "Guarda la tua settimana: ==dove si accumula il lavoro in attesa?==" }
+    ]
+  },
+  {
+    "id": "measure-what-matters-okr",
+    "categoria": "business",
+    "titolo": "Il pezzo che manca ai tuoi obiettivi",
+    "libro": { "titolo": "Measure What Matters", "autore": "John Doerr", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Quest'anno voglio migliorare.» ==Come saprai se ci sei riuscito?==" },
+      { "tipo": "colpo", "testo": "Manca ==un numero==." },
+      { "tipo": "testo", "titolo": "Da Intel a Google", "testo": "John Doerr impara il metodo a Intel, da Andy Grove. Nel 1999 lo porta a ==Google==. Si chiama OKR: obiettivi e risultati chiave." },
+      { "tipo": "confronto", "titolo": "Le due metà di un OKR",
+        "a": { "etichetta": "Obiettivo", "voci": ["Che cosa vuoi ottenere"] },
+        "b": { "etichetta": "Risultati chiave", "voci": ["Come sai di esserci arrivato", "Con un numero e una scadenza"] } },
+      { "tipo": "quiz", "domanda": "Quale di questi è un risultato chiave?",
+        "opzioni": ["Migliorare l'assistenza", "Curare di più i clienti", "Rispondere a tutti entro 24 ore"], "corretta": 2,
+        "spiegazione": "È l'unico che si può verificare: a fine mese o è successo, o no." },
+      { "tipo": "principio", "testo": "L'obiettivo dice dove vai. I risultati chiave dicono ==se ci sei arrivato==." },
+      { "tipo": "chiusura", "azione": "Scrivi un obiettivo per tre mesi. Sotto, ==tre risultati con un numero==." }
+    ]
+  },
+  {
+    "id": "high-output-management-maturita-compito",
+    "categoria": "leadership",
+    "titolo": "Quando controllare tutto è la scelta giusta",
+    "libro": { "titolo": "High Output Management", "autore": "Andrew S. Grove", "anno": 1983 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Controllare ogni dettaglio è da pessimo capo. ==O da ottimo.==" },
+      { "tipo": "quiz", "domanda": "Una collega esperta riceve un compito mai fatto. Come la segui?",
+        "opzioni": ["Indicazioni precise e verifiche", "La lascio fare: è esperta"], "corretta": 0,
+        "spiegazione": "Per Andrew Grove conta quanto è pronta su quel compito, non in generale." },
+      { "tipo": "colpo", "testo": "Dipende ==dal compito==." },
+      { "tipo": "elenco", "titolo": "Più è pronta, meno la guidi",
+        "voci": ["Poco pronta: dici cosa, quando e come", "A metà: dialogo e sostegno", "Molto pronta: obiettivi e pochi controlli"] },
+      { "tipo": "esempio", "testo": "Grove pensa a un genitore. Al bimbo dici no. Con la prima bici gli stai accanto. All'università ==chiedi solo come va==." },
+      { "tipo": "principio", "testo": "Lo stile giusto dipende da quanto la persona è pronta ==per quel compito==." },
+      { "tipo": "chiusura", "azione": "Per ogni collega scrivi il compito della settimana e ==lo stile che serve==." }
+    ]
+  },
+  {
+    "id": "partire-dal-perche-cerchio-doro",
+    "categoria": "business",
+    "titolo": "Sai cosa fai. Sai anche perché?",
+    "libro": { "titolo": "Partire dal perché", "autore": "Simon Sinek", "anno": 2009, "titoloOriginale": "Start with Why" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tutti sanno dire cosa fanno. Pochi sanno dire ==perché==." },
+      { "tipo": "elenco", "titolo": "Il cerchio d'oro di Sinek",
+        "voci": ["Fuori: che cosa fai", "In mezzo: come lo fai", "Al centro: perché lo fai"] },
+      { "tipo": "colpo", "testo": "Quasi tutti partono ==da fuori==." },
+      { "tipo": "confronto", "titolo": "Lo stesso computer",
+        "a": { "etichetta": "Dal che cosa", "voci": ["Facciamo ottimi computer. Ne vuoi uno?"] },
+        "b": { "etichetta": "Dal perché", "voci": ["Crediamo nel pensare diverso.", "Per questo li facciamo così."] } },
+      { "tipo": "esempio", "testo": "1903. Langley ha fondi pubblici e la stampa al seguito. I Wright un negozio di bici. ==Volano loro.== Per Sinek li muoveva uno scopo." },
+      { "tipo": "mito", "mito": "Il perché di un'azienda è fare soldi", "realta": "Per Sinek i soldi sono un risultato. Il perché è ==ciò in cui credi==." },
+      { "tipo": "testo", "testo": "È un modello costruito su storie scelte a posteriori: ==utile, non una legge==." },
+      { "tipo": "chiusura", "azione": "Completa: ==«Faccio questo lavoro perché credo che…»==" }
+    ]
+  },
+  {
+    "id": "competitive-strategy-bloccati-a-meta",
+    "categoria": "business",
+    "titolo": "Né il più economico né il migliore",
+    "libro": { "titolo": "Competitive Strategy", "autore": "Michael E. Porter", "anno": 1980 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Né il più economico, né il migliore. ==Chi ti sceglie?==" },
+      { "tipo": "esempio", "testo": "Quattro alimentari in città. Il discount vince sul prezzo. La gastronomia sulla qualità. La bottega senza glutine sulla nicchia. E il quarto?" },
+      { "tipo": "colpo", "testo": "Il quarto ==resta a metà==." },
+      { "tipo": "elenco", "titolo": "Le tre strade di Porter",
+        "voci": ["Costi più bassi di tutti", "Qualcosa che il cliente vede come unico", "Una nicchia servita meglio di chiunque"] },
+      { "tipo": "mito", "mito": "Chi offre un po' di tutto accontenta tutti", "realta": "Per Porter resta ==bloccato a metà==: nessun vantaggio, margini bassi." },
+      { "tipo": "testo", "titolo": "Non tutti sono d'accordo", "testo": "È la tesi di Porter, del 1980. Kim e Mauborgne ribattono: in un mercato nuovo puoi avere ==costi bassi e unicità==." },
+      { "tipo": "chiusura", "azione": "Scrivi in una riga perché scelgono te: ==prezzo, unicità o nicchia?==" }
+    ]
+  },
+  {
+    "id": "effective-executive-punti-di-forza",
+    "categoria": "leadership",
+    "titolo": "Assumeresti un genio pieno di difetti?",
+    "libro": { "titolo": "The Effective Executive", "autore": "Peter F. Drucker", "anno": 1967 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Geniale coi numeri, un disastro con le persone. ==Lo assumi?==" },
+      { "tipo": "mito", "mito": "Meglio assumere chi non ha punti deboli", "realta": "Per Drucker così ottieni la mediocrità: ==dove ci sono cime ci sono valli==." },
+      { "tipo": "esempio", "testo": "Lincoln sceglie generali senza grossi difetti. Va male. Poi nomina Grant: dicono che beva, ma ==vince le battaglie==. È la svolta, scrive Drucker." },
+      { "tipo": "colpo", "testo": "Conta ==cosa sa fare==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Evitare i difetti", "voci": ["Cerchi chi non sbaglia mai", "Ottieni una squadra nella media"] },
+        "b": { "etichetta": "Puntare sui talenti", "voci": ["Cerchi chi eccelle in ciò che serve", "Tolleri i difetti che lì non pesano"] } },
+      { "tipo": "principio", "testo": "Un'organizzazione serve a rendere ==produttivi i punti di forza== e irrilevanti le debolezze." },
+      { "tipo": "chiusura", "azione": "Scrivi tre colleghi e accanto ==ciò che ognuno fa meglio==. Poi tu." }
+    ]
+  }
+]

@@ -1,0 +1,246 @@
+[
+  {
+    "id": "factfulness-test-scimpanze",
+    "categoria": "scienza",
+    "titolo": "Il test sul mondo in cui il caso fa meglio di noi",
+    "libro": { "titolo": "Factfulness", "autore": "Hans Rosling, Ola Rosling, Anna Rosling Rönnlund", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tre risposte fra cui scegliere. Uno scimpanzé farebbe ==meglio di noi==." },
+      { "tipo": "quiz", "domanda": "Dal 1997 al 2017 la quota di persone in povertà estrema nel mondo è…",
+        "opzioni": ["Quasi raddoppiata", "Più o meno uguale", "Quasi dimezzata"], "corretta": 2,
+        "spiegazione": "Quasi dimezzata. In media lo sa meno di una persona su dieci." },
+      { "tipo": "grafico", "titolo": "Risposte giuste su 12 domande sul mondo", "forma": "barre",
+        "dati": [ { "e": "Persone", "v": 2 }, { "e": "A caso", "v": 4 } ],
+        "nota": "Media di quasi 12 mila persone in 14 Paesi, 2017." },
+      { "tipo": "colpo", "testo": "Peggio del caso. ==Non a caso.==" },
+      { "tipo": "testo", "titolo": "Non è ignoranza", "testo": "Chi tira a caso ne azzecca una su tre. Noi sbagliamo ==tutti dalla stessa parte==: la più cupa." },
+      { "tipo": "mito", "mito": "Il mondo va sempre peggio", "realta": "Per Rosling il mondo va male e ==va meglio di prima==. Insieme." },
+      { "tipo": "chiusura", "azione": "Alla prossima notizia nera cerca un dato: ==com'era vent'anni fa?==" }
+    ]
+  },
+  {
+    "id": "mondo-infestato-demoni-kit-antibufale",
+    "categoria": "scienza",
+    "titolo": "Il kit di Carl Sagan per smascherare le bufale",
+    "libro": { "titolo": "Il mondo infestato dai demoni", "autore": "Carl Sagan", "anno": 1995, "titoloOriginale": "The Demon-Haunted World" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti arriva un vocale: «È tutto vero, fai girare!» ==Come lo controlli?==" },
+      { "tipo": "colpo", "testo": "Sagan aveva ==un kit==." },
+      { "tipo": "elenco", "titolo": "Quattro attrezzi del kit",
+        "voci": ["Cerca una ==conferma indipendente==", "Contano le prove, non chi parla", "Fai più di un'ipotesi", "Chiediti: cosa la smentirebbe?"] },
+      { "tipo": "esempio", "testo": "Un video giura: «Questa calamita dimezza i consumi». Chi altro l'ha provato? Chi lo dice la vende? ==Cosa lo smentirebbe?==" },
+      { "tipo": "mito", "mito": "Se lo dice un esperto, dev'essere vero", "realta": "Per Sagan nella scienza non ci sono autorità: solo esperti, ==e sbagliano==." },
+      { "tipo": "testo", "titolo": "L'attrezzo più scomodo", "testo": "Vale anche per te. Non affezionarti a un'idea solo perché è tua: cerca per primo ==i motivi per scartarla==." },
+      { "tipo": "chiusura", "azione": "Riprendi l'ultima cosa che hai inoltrato. Passale ==un attrezzo del kit==." }
+    ]
+  },
+  {
+    "id": "cosmo-eratostene-misura-terra",
+    "categoria": "scienza",
+    "titolo": "L'uomo che misurò la Terra senza lasciare l'Egitto",
+    "libro": { "titolo": "Cosmo", "autore": "Carl Sagan", "anno": 1980, "titoloOriginale": "Cosmos" },
+    "scene": [
+      { "tipo": "apertura", "testo": "2200 anni fa un uomo misurò la Terra con ==un bastone e un'ombra==." },
+      { "tipo": "esempio", "testo": "Eratostene legge una notizia. A Siene, a mezzogiorno del 21 giugno, i bastoni ==non fanno ombra==. Controlla ad Alessandria: lì l'ombra c'è." },
+      { "tipo": "colpo", "testo": "Perché lì no e qui sì?" },
+      { "tipo": "testo", "titolo": "La Terra è curva", "testo": "Se fosse piatta, le ombre sarebbero uguali. La differenza dà un angolo di circa 7 gradi: ==un cinquantesimo di giro==." },
+      { "tipo": "quiz", "domanda": "Fra le due città ci sono circa 800 km. Quanto misura il giro della Terra?",
+        "opzioni": ["8 mila km", "40 mila km", "400 mila km"], "corretta": 1,
+        "spiegazione": "800 per 50 fa 40 mila km. La misura di oggi è vicinissima." },
+      { "tipo": "principio", "testo": "Gli bastarono bastoni, occhi, piedi e cervello. Più la ==voglia di fare la prova==." },
+      { "tipo": "chiusura", "azione": "A mezzogiorno pianta una matita al sole e ==misura l'ombra==. Lui partì da lì." }
+    ]
+  },
+  {
+    "id": "dal-big-bang-buchi-neri-non-neri",
+    "categoria": "scienza",
+    "titolo": "I buchi neri non sono del tutto neri",
+    "libro": { "titolo": "Dal big bang ai buchi neri", "autore": "Stephen Hawking", "anno": 1988, "titoloOriginale": "A Brief History of Time" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Hawking scoprì che i buchi neri non sono neri. ==E ci rimase male.==" },
+      { "tipo": "mito", "mito": "Un buco nero non emette niente", "realta": "Per i calcoli di Hawking emette una ==debole radiazione==." },
+      { "tipo": "testo", "titolo": "Perché ci rimase male", "testo": "Il fisico Bekenstein diceva: i buchi neri hanno entropia. Hawking era contrario. Fece i conti: in sostanza ==aveva ragione l'altro==." },
+      { "tipo": "colpo", "testo": "E c'è una conseguenza." },
+      { "tipo": "principio", "testo": "Se emette energia, un buco nero perde massa. Lentissimamente, ==evapora==." },
+      { "tipo": "confronto", "titolo": "Più piccolo, più caldo",
+        "a": { "etichetta": "Buco nero enorme", "voci": ["Freddissimo", "Evapora in tempi immensi"] },
+        "b": { "etichetta": "Buco nero minuscolo", "voci": ["Molto più caldo", "Evapora prima"] } },
+      { "tipo": "testo", "testo": "Resta una previsione teorica: quella radiazione è debolissima e ==nessuno l'ha ancora osservata==." },
+      { "tipo": "chiusura", "azione": "Un'idea altrui ti irrita? Prima di scartarla, ==prova a fare i conti==." }
+    ]
+  },
+  {
+    "id": "gene-egoista-macchine-di-sopravvivenza",
+    "categoria": "scienza",
+    "titolo": "Perché un'ape muore per difendere l'alveare",
+    "libro": { "titolo": "Il gene egoista", "autore": "Richard Dawkins", "anno": 1976, "titoloOriginale": "The Selfish Gene" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un'ape punge il ladro di miele e muore. ==Chi ci guadagna?==" },
+      { "tipo": "colpo", "testo": "Non lei. ==I suoi geni.==" },
+      { "tipo": "testo", "titolo": "Il punto di vista del gene", "testo": "Per Dawkins la selezione sceglie fra geni: resta chi si fa copiare di più. Il corpo è la loro ==macchina di sopravvivenza==." },
+      { "tipo": "confronto", "titolo": "Un tuo gene raro: chi altro ce l'ha?",
+        "a": { "etichetta": "Un cugino", "voci": ["1 probabilità su 8"] },
+        "b": { "etichetta": "Un fratello", "voci": ["1 probabilità su 2"] } },
+      { "tipo": "esempio", "testo": "L'operaia non fa figli. Ma l'alveare è pieno di parenti strette con copie dei suoi geni. Morendo per loro, ==le salva==." },
+      { "tipo": "mito", "mito": "«Gene egoista» vuol dire che siamo nati egoisti", "realta": "Egoista è il gene, per metafora. Per copiarsi costruisce anche ==corpi generosi==." },
+      { "tipo": "chiusura", "azione": "Racconta a qualcuno dell'ape che punge e muore. Poi chiedi: ==chi ci guadagna?==" }
+    ]
+  },
+  {
+    "id": "origine-specie-selezione-naturale",
+    "categoria": "scienza",
+    "titolo": "Che cosa c'entrano i piccioni con l'evoluzione",
+    "libro": { "titolo": "L'origine delle specie", "autore": "Charles Darwin", "anno": 1859, "titoloOriginale": "On the Origin of Species" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Per spiegare la vita sulla Terra, Darwin comincia dai ==piccioni==." },
+      { "tipo": "esempio", "testo": "Li alleva lui stesso. Code a ventaglio, gozzi gonfi: razze diversissime. Tutte discese dal ==piccione selvatico==." },
+      { "tipo": "testo", "testo": "Gli allevatori scelgono chi far riprodurre. Piccole differenze, sommate nel tempo, diventano enormi. E in natura ==chi sceglie?==" },
+      { "tipo": "colpo", "testo": "Nessuno. E funziona lo stesso." },
+      { "tipo": "elenco", "titolo": "La selezione naturale in tre mosse", "numerato": true,
+        "voci": ["Si nasce ==tutti un po' diversi==", "Nascono più individui di quanti ne vivano", "Chi è più adatto lascia più figli simili a sé"] },
+      { "tipo": "mito", "mito": "L'evoluzione premia il più forte", "realta": "Premia chi è ==più adatto al suo ambiente== e lascia più discendenti." },
+      { "tipo": "chiusura", "azione": "Guarda i piccioni in piazza: da uccelli così sono nate ==tutte quelle razze==." }
+    ]
+  },
+  {
+    "id": "struttura-rivoluzioni-cambio-paradigma",
+    "categoria": "scienza",
+    "titolo": "La carta truccata che quasi nessuno vede",
+    "libro": { "titolo": "La struttura delle rivoluzioni scientifiche", "autore": "Thomas S. Kuhn", "anno": 1962, "titoloOriginale": "The Structure of Scientific Revolutions" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti mostro per un attimo un sei di picche ==rosso==. Tu lo vedi normale." },
+      { "tipo": "esempio", "testo": "Esperimento del 1949, raccontato da Kuhn. Carte mostrate per un istante, alcune truccate. Quasi tutti le vedono normali, ==senza esitare==." },
+      { "tipo": "colpo", "testo": "Nella scienza va uguale." },
+      { "tipo": "testo", "titolo": "Il paradigma", "testo": "Per Kuhn ogni scienza lavora dentro un paradigma: un modo condiviso di vedere. Ciò che non ci rientra, all'inizio ==non lo si vede==." },
+      { "tipo": "elenco", "titolo": "Come cambia una scienza, per Kuhn", "numerato": true,
+        "voci": ["Scienza normale: si risolvono rompicapi", "Le anomalie si accumulano", "Crisi: lo schema non regge", "==Rivoluzione==: paradigma nuovo"] },
+      { "tipo": "principio", "testo": "La scienza non cresce solo un mattone alla volta. Ogni tanto ==cambia le fondamenta==." },
+      { "tipo": "chiusura", "azione": "Oggi, se un dato «non torna», non buttarlo. ==Annotalo==: le svolte partono da lì." }
+    ]
+  },
+  {
+    "id": "superforecasting-volpi-e-ricci",
+    "categoria": "scienza",
+    "titolo": "Chi indovina il futuro: la volpe o il riccio?",
+    "libro": { "titolo": "Superforecasting", "autore": "Philip E. Tetlock, Dan Gardner", "anno": 2015 },
+    "scene": [
+      { "tipo": "apertura", "testo": "In vent'anni di dati, gli esperti più famosi ==prevedevano peggio==." },
+      { "tipo": "numero", "valore": 284, "didascalia": "Gli esperti seguiti da Tetlock: ==decine di migliaia di previsioni== alla prova." },
+      { "tipo": "colpo", "testo": "In media? Come tirare a caso." },
+      { "tipo": "testo", "titolo": "Ma non erano tutti uguali", "testo": "Tetlock distingue due tipi. I ricci spiegano tutto con ==una grande idea==. Le volpi mettono insieme tante fonti e dicono spesso «forse»." },
+      { "tipo": "confronto", "titolo": "Chi prevedeva meglio?",
+        "a": { "etichetta": "Riccio", "voci": ["Una teoria per tutto", "Sicuro di sé: piace alla TV"] },
+        "b": { "etichetta": "Volpe", "voci": ["Tanti punti di vista", "Dubita e si corregge"] } },
+      { "tipo": "principio", "testo": "Chi sembra sicuro convince di più. Ma prevede meglio chi ==dubita, misura e aggiorna==." },
+      { "tipo": "chiusura", "azione": "Scrivi una previsione con ==una percentuale e una data==. Fra un mese controlla." }
+    ]
+  },
+  {
+    "id": "segnale-rumore-pensare-da-bayesiani",
+    "categoria": "scienza",
+    "titolo": "Quanto vale davvero un indizio",
+    "libro": { "titolo": "Il segnale e il rumore", "autore": "Nate Silver", "anno": 2012, "titoloOriginale": "The Signal and the Noise" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Nel cassetto trovi biancheria ==che non è tua==. Quanto devi preoccuparti?" },
+      { "tipo": "quiz", "domanda": "Con i numeri di Nate Silver, quanto è probabile che il partner tradisca?",
+        "opzioni": ["Il 29%", "Il 60%", "Il 95%"], "corretta": 0,
+        "spiegazione": "Il sospetto cresce di sette volte. Ma partiva basso." },
+      { "tipo": "colpo", "testo": "Solo il 29%? ==Ecco il conto.==" },
+      { "tipo": "elenco", "titolo": "Il conto di Silver", "numerato": true,
+        "voci": ["Prima della scoperta: ==4%==", "Se tradisce, quel capo spunta 1 volta su 2", "Se non tradisce, 1 volta su 20"] },
+      { "tipo": "testo", "titolo": "Il teorema di Bayes", "testo": "Parti da quanto una cosa era probabile ==prima==. Poi sposta la stima a ogni nuovo indizio." },
+      { "tipo": "principio", "testo": "Un indizio non dà certezze: ==sposta una probabilità==." },
+      { "tipo": "chiusura", "azione": "Prima di dire «sicuro» dai un numero: ==quanto ci credi, da 0 a 100?== Poi aggiornalo." }
+    ]
+  },
+  {
+    "id": "numeri-non-sbagliano-fori-mancanti",
+    "categoria": "scienza",
+    "titolo": "I fori che mancavano sugli aerei",
+    "libro": { "titolo": "I numeri non sbagliano mai", "autore": "Jordan Ellenberg", "anno": 2014, "titoloOriginale": "How Not to Be Wrong" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Gli aerei tornano dalla guerra pieni di fori. ==Dove metti la corazza?==" },
+      { "tipo": "grafico", "titolo": "Fori di proiettile per piede quadrato", "forma": "barre",
+        "dati": [ { "e": "Motore", "v": 1.11 }, { "e": "Fusoliera", "v": 1.73 } ],
+        "nota": "Aerei rientrati. Cifre riportate da Ellenberg." },
+      { "tipo": "quiz", "domanda": "I militari vogliono corazzare dove ci sono più fori. Che cosa dice Wald?",
+        "opzioni": ["La fusoliera", "Il motore", "Tutto, in parti uguali"], "corretta": 1,
+        "spiegazione": "Dove i fori mancano: gli aerei colpiti al motore non erano tornati." },
+      { "tipo": "colpo", "testo": "Mancavano ==gli aerei caduti==." },
+      { "tipo": "testo", "testo": "Ellenberg racconta così Abraham Wald, matematico a New York per i militari americani: guardò ==i dati che non c'erano==." },
+      { "tipo": "principio", "testo": "Prima di fidarti di un dato chiediti ==chi manca dal conteggio==." },
+      { "tipo": "chiusura", "azione": "Recensioni entusiaste di un corso? Chiediti: ==chi ha mollato le ha scritte?==" }
+    ]
+  },
+  {
+    "id": "scout-mindset-soldato-esploratore",
+    "categoria": "scienza",
+    "titolo": "Ragioni da soldato o da esploratore?",
+    "libro": { "titolo": "The Scout Mindset", "autore": "Julia Galef", "anno": 2021 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Una notizia ti dà ragione: la condividi. Ti dà torto: ==cerchi l'errore==." },
+      { "tipo": "colpo", "testo": "Si chiama ==fare il soldato==." },
+      { "tipo": "confronto", "titolo": "Due modi di ragionare, per Galef",
+        "a": { "etichetta": "Soldato", "voci": ["Difende ciò che crede già", "«Posso crederci?» «Devo crederci?»"] },
+        "b": { "etichetta": "Esploratore", "voci": ["Vuole una mappa esatta", "Si chiede solo: «È vero?»"] } },
+      { "tipo": "esempio", "testo": "Francia, 1894: Dreyfus è condannato per spionaggio. Il colonnello Picquart lo crede colpevole. Poi trova prove contrarie e ==cambia idea==. Finirà in carcere." },
+      { "tipo": "mito", "mito": "Chi è intelligente ragiona in modo più obiettivo", "realta": "Per Galef non basta essere svegli: conta ==voler sapere com'è davvero==." },
+      { "tipo": "principio", "testo": "Ragionare bene non è vincere una discussione. È ==disegnare una mappa esatta==." },
+      { "tipo": "chiusura", "azione": "Un dato ti dà torto? Chiediti: ==se mi desse ragione, ci crederei?==" }
+    ]
+  },
+  {
+    "id": "cattiva-scienza-regressione-verso-media",
+    "categoria": "scienza",
+    "titolo": "Il rimedio ha funzionato. O passava da solo?",
+    "libro": { "titolo": "La cattiva scienza", "autore": "Ben Goldacre", "anno": 2008, "titoloOriginale": "Bad Science" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Provi un rimedio e il mal di schiena passa. ==Merito suo?==" },
+      { "tipo": "grafico", "titolo": "Un dolore che va e viene", "forma": "linea",
+        "dati": [ { "e": "Lun", "v": 3 }, { "e": "Mar", "v": 6 }, { "e": "Mer", "v": 9 }, { "e": "Gio", "v": 6 }, { "e": "Ven", "v": 4 }, { "e": "Sab", "v": 2 } ],
+        "nota": "Esempio illustrativo: il rimedio arriva mercoledì, al picco." },
+      { "tipo": "colpo", "testo": "Forse passava ==da solo==." },
+      { "tipo": "testo", "titolo": "Regressione verso la media", "testo": "Molti disturbi vanno a ondate. Cerchi un rimedio ==nel momento peggiore==: dopo, comunque, tendi a migliorare." },
+      { "tipo": "quiz", "domanda": "Come si capisce se un rimedio funziona davvero?",
+        "opzioni": ["Lo provi e vedi se passa", "Chiedi a chi l'ha provato", "Confronti due gruppi simili"], "corretta": 2,
+        "spiegazione": "Metà prende il rimedio, metà una pillola finta, a sorte. Conta la differenza." },
+      { "tipo": "principio", "testo": "«Dopo» non vuol dire «grazie a». Senza un ==gruppo di confronto== non puoi saperlo." },
+      { "tipo": "chiusura", "azione": "Quando senti «con me ha funzionato» chiedi: ==rispetto a che cosa?==" }
+    ]
+  },
+  {
+    "id": "sette-brevi-lezioni-spazio-curvo",
+    "categoria": "scienza",
+    "titolo": "Lo spazio non è vuoto: si piega",
+    "libro": { "titolo": "Sette brevi lezioni di fisica", "autore": "Carlo Rovelli", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "La Terra gira intorno al Sole. Per Einstein ==nessuna forza la tira==." },
+      { "tipo": "mito", "mito": "Lo spazio è una scatola vuota e immobile", "realta": "Per Einstein lo spazio ==si piega e si incurva== vicino alle masse." },
+      { "tipo": "esempio", "testo": "Rovelli usa un imbuto. Una biglia ci gira dentro: non la tira il centro, la guidano ==le pareti curve==. Così la Terra con il Sole." },
+      { "tipo": "colpo", "testo": "E i conti tornano." },
+      { "tipo": "elenco", "titolo": "Previsioni poi confermate",
+        "voci": ["La luce ==devia== vicino al Sole", "Il tempo rallenta in basso", "Esistono i buchi neri", "Lo spazio vibra: onde gravitazionali"] },
+      { "tipo": "testo", "testo": "Einstein ci arriva nel novembre 1915, dopo dieci anni. Rovelli la chiama la più bella delle teorie: lo spazio ==è il campo gravitazionale==." },
+      { "tipo": "chiusura", "azione": "Tendi un lenzuolo, posaci un'arancia, lancia una biglia. ==Guarda la curva.==" }
+    ]
+  },
+  {
+    "id": "ordine-del-tempo-montagna",
+    "categoria": "scienza",
+    "titolo": "In montagna il tempo corre di più",
+    "libro": { "titolo": "L'ordine del tempo", "autore": "Carlo Rovelli", "anno": 2017 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Chi vive in montagna ==invecchia più in fretta== di chi sta al mare." },
+      { "tipo": "colpo", "testo": "Di pochissimo. ==Ma è vero.==" },
+      { "tipo": "testo", "testo": "Rovelli parte da qui: il tempo scorre più veloce in alto, più lento in basso. La Terra ==lo rallenta== intorno a sé." },
+      { "tipo": "numero", "valore": 0.55, "decimali": 2, "suffisso": " ms",
+        "didascalia": "Millesimi di secondo in più, in ==80 anni a 2000 metri==.",
+        "nota": "Esempio illustrativo: g × quota ÷ c², rispetto al mare." },
+      { "tipo": "quiz", "domanda": "Due orologi da laboratorio: che dislivello basta per vederli sfasati?",
+        "opzioni": ["Almeno mille metri", "Pochi centimetri"], "corretta": 1,
+        "spiegazione": "L'orologio per terra va un filo più lento di quello sul tavolo." },
+      { "tipo": "mito", "mito": "Il tempo scorre uguale per tutti, ovunque", "realta": "Non c'è un tempo solo: ==ogni luogo ha il suo==." },
+      { "tipo": "chiusura", "azione": "Stasera posa l'orologio per terra un minuto. ==Lì il tempo va più piano.==" }
+    ]
+  }
+]

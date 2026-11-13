@@ -1,0 +1,252 @@
+[
+  {
+    "id": "7-regole-cerchio-di-influenza",
+    "categoria": "crescita",
+    "titolo": "Due cerchi che spiegano dove finisce la tua energia",
+    "libro": { "titolo": "Le 7 regole per avere successo", "autore": "Stephen R. Covey", "anno": 1989, "titoloOriginale": "The 7 Habits of Highly Effective People" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quanta energia butti in cose che ==non dipendono da te==?" },
+      { "tipo": "testo", "testo": "Stephen Covey disegna due cerchi. Il grande: ciò che ti preoccupa. Il piccolo, dentro: ciò su cui ==puoi agire==." },
+      { "tipo": "confronto", "titolo": "Dove va la tua energia?",
+        "a": { "etichetta": "Preoccupazione", "voci": ["Il carattere del capo", "Il meteo, il traffico"] },
+        "b": { "etichetta": "Influenza", "voci": ["Come ti prepari e rispondi", "Le tue abitudini"] } },
+      { "tipo": "quiz", "domanda": "Quale frase viene dal cerchio d'influenza?",
+        "opzioni": ["«Se solo il capo cambiasse»", "«Preparo meglio la riunione»", "«Con questi colleghi è inutile»"], "corretta": 1,
+        "spiegazione": "Le frasi reattive parlano degli altri. Quelle proattive partono da te." },
+      { "tipo": "colpo", "testo": "E i cerchi ==non stanno fermi==." },
+      { "tipo": "principio", "testo": "Per Covey, se lavori sul cerchio piccolo, ==si allarga==. Se fissi solo il grande, il piccolo si restringe." },
+      { "tipo": "chiusura", "azione": "Scrivi la preoccupazione di oggi e ==un gesto== che dipende da te. Fallo." }
+    ]
+  },
+  {
+    "id": "7-regole-importante-non-urgente",
+    "categoria": "crescita",
+    "titolo": "Le cose importanti non suonano mai",
+    "libro": { "titolo": "Le 7 regole per avere successo", "autore": "Stephen R. Covey", "anno": 1989, "titoloOriginale": "The 7 Habits of Highly Effective People" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Hai corso tutto il giorno. La cosa che contava ==è rimasta lì==." },
+      { "tipo": "colpo", "testo": "Urgente non è importante." },
+      { "tipo": "elenco", "titolo": "I quattro quadranti di Covey", "numerato": true,
+        "voci": ["Urgente e importante: le crisi", "==Importante, non urgente==: salute, studio", "Urgente, non importante: interruzioni", "Nessuno dei due: tempo perso"] },
+      { "tipo": "quiz", "domanda": "Allenarti con regolarità: in quale quadrante sta?",
+        "opzioni": ["Urgente e importante", "Urgente, non importante", "Importante, non urgente"], "corretta": 2,
+        "spiegazione": "Nessuno te lo chiede oggi. Ma se lo trascuri, prima o poi diventa una crisi." },
+      { "tipo": "principio", "testo": "Per Covey il secondo quadrante è il cuore di tutto. O lo metti in agenda tu, o ==non ci entra==." },
+      { "tipo": "chiusura", "azione": "Apri l'agenda e ==blocca un'ora== per una cosa importante che nessuno ti chiede." }
+    ]
+  },
+  {
+    "id": "pensa-arricchisci-master-mind",
+    "categoria": "crescita",
+    "titolo": "Scegli chi ragiona con te",
+    "libro": { "titolo": "Pensa e arricchisci te stesso", "autore": "Napoleon Hill", "anno": 1937, "titoloOriginale": "Think and Grow Rich" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Conta le persone con cui ragioni sui tuoi obiettivi. ==Zero?==" },
+      { "tipo": "mito", "mito": "Chi arriva in alto ce l'ha fatta da solo", "realta": "Per Napoleon Hill dietro ogni grande piano c'è ==un gruppo che pensa insieme==." },
+      { "tipo": "testo", "titolo": "Il Master Mind", "testo": "Hill lo chiama così. Più persone uniscono conoscenze e sforzi, ==in armonia==, per uno scopo preciso." },
+      { "tipo": "elenco", "titolo": "Le istruzioni di Hill", "numerato": true,
+        "voci": ["Scegli chi serve al tuo piano", "Decidi cosa offri tu in cambio", "Vedetevi almeno due volte a settimana", "Tenete l'armonia, o non funziona"] },
+      { "tipo": "colpo", "testo": "Ma occhio alla storia." },
+      { "tipo": "testo", "testo": "Hill dice di averlo imparato da Andrew Carnegie, re dell'acciaio. Il biografo di Carnegie non ha trovato ==prove di un loro incontro==. L'idea resta." },
+      { "tipo": "chiusura", "azione": "Scrivi a ==due persone== che stimi: un incontro fisso per parlare di obiettivi." }
+    ]
+  },
+  {
+    "id": "as-a-man-thinketh-mente-giardino",
+    "categoria": "crescita",
+    "titolo": "Nella tua testa qualcosa cresce sempre",
+    "libro": { "titolo": "As a Man Thinketh", "autore": "James Allen", "anno": 1903 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un giardino abbandonato non resta vuoto. ==Si riempie di erbacce.==" },
+      { "tipo": "colpo", "testo": "Per Allen, la mente fa uguale." },
+      { "tipo": "testo", "testo": "A inizio Novecento James Allen paragona la mente a un giardino. Se non ci semini pensieri utili, ==ci crescono da soli== quelli inutili." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Giardino trascurato", "voci": ["Pensieri che arrivano a caso", "Lamentele ripetute"] },
+        "b": { "etichetta": "Giardino coltivato", "voci": ["Scegli cosa seminare", "Strappi le erbacce"] } },
+      { "tipo": "esempio", "testo": "Due colleghi, la stessa critica. Uno ci rimugina per giorni. L'altro si chiede cosa imparare. ==Due semi diversi==." },
+      { "tipo": "principio", "testo": "Tesi di Allen: il carattere è la somma dei tuoi pensieri. E ogni gesto ==nasce da un seme==." },
+      { "tipo": "testo", "testo": "Allen esagera: quasi tutto ciò che ti capita nascerebbe dai pensieri. È una convinzione, non un fatto. Ma il giardino ==lo curi tu==." },
+      { "tipo": "chiusura", "azione": "Scrivi il pensiero che oggi hai ripetuto di più. ==Erbaccia o seme?==" }
+    ]
+  },
+  {
+    "id": "magic-thinking-big-malattia-delle-scuse",
+    "categoria": "crescita",
+    "titolo": "La scusa che ripeti finisce per sembrarti vera",
+    "libro": { "titolo": "The Magic of Thinking Big", "autore": "David J. Schwartz", "anno": 1959 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Troppo vecchio», «non portato», «sfortunato». ==Quale usi tu?==" },
+      { "tipo": "testo", "testo": "David Schwartz la chiama «excusitis»: malattia delle scuse. Chi combina poco, dice, ha sempre ==un perché pronto==." },
+      { "tipo": "elenco", "titolo": "Le quattro scuse classiche",
+        "voci": ["Salute: «non sto bene»", "Intelligenza: «non ci arrivo»", "Età: «ormai è tardi»", "Fortuna: «a me va male»"] },
+      { "tipo": "colpo", "testo": "Poi succede il peggio." },
+      { "tipo": "principio", "testo": "Per Schwartz all'inizio sai che è un alibi. Ripetilo abbastanza e ==finisci per crederci==." },
+      { "tipo": "quiz", "domanda": "A 40 anni vuoi cambiare mestiere. Che direbbe Schwartz?",
+        "opzioni": ["Hai decenni di lavoro davanti", "Ormai è tardi", "Aspetta il momento giusto"], "corretta": 0,
+        "spiegazione": "Nel libro lo dice a un quarantenne: 20 anni di lavoro fatti, 30 davanti." },
+      { "tipo": "chiusura", "azione": "Scrivi la tua scusa preferita e ==una volta in cui non era vera==." }
+    ]
+  },
+  {
+    "id": "vincere-lo-stress-formula-di-carrier",
+    "categoria": "crescita",
+    "titolo": "Qual è il peggio che può succedere?",
+    "libro": { "titolo": "Come vincere lo stress e cominciare a vivere", "autore": "Dale Carnegie", "anno": 1948, "titoloOriginale": "How to Stop Worrying and Start Living" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sono le tre di notte. ==Stesso problema==, ventesimo giro." },
+      { "tipo": "esempio", "testo": "Willis Carrier, pioniere dell'aria condizionata, da giovane installa un impianto. ==Non rende come garantito.== Non dorme più." },
+      { "tipo": "colpo", "testo": "Poi si dà tre passi." },
+      { "tipo": "elenco", "titolo": "La formula di Carrier", "numerato": true,
+        "voci": ["Qual è il peggio che può succedere?", "Preparati ad accettarlo, se serve", "Poi lavora per ==migliorare quel peggio=="] },
+      { "tipo": "testo", "testo": "Il suo peggio: perdere il posto. Lo accetta, e torna lucido. Fa nuove prove e ==trova il rimedio==." },
+      { "tipo": "numero", "valore": 15, "prefisso": "+", "suffisso": " mila",
+        "didascalia": "I dollari che la ditta guadagna alla fine. Stava per ==perderne 20 mila==.",
+        "nota": "Cifre dal racconto di Carnegie." },
+      { "tipo": "principio", "testo": "Per Carnegie chi ha accettato il peggio ==non ha più niente da perdere==: può solo migliorarlo." },
+      { "tipo": "chiusura", "azione": "Scrivi il peggio che può succedere e ==una cosa== che lo rende meno grave." }
+    ]
+  },
+  {
+    "id": "vincere-lo-stress-compartimenti-stagni",
+    "categoria": "crescita",
+    "titolo": "Chiudi le porte su ieri e su domani",
+    "libro": { "titolo": "Come vincere lo stress e cominciare a vivere", "autore": "Dale Carnegie", "anno": 1948, "titoloOriginale": "How to Stop Worrying and Start Living" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Oggi stai portando il peso di ==tre giorni==: ieri, oggi e domani." },
+      { "tipo": "esempio", "testo": "Carnegie parte da un discorso del 1913. Il medico William Osler, a Yale: sulle navi si chiudono le paratie. Fatelo ==con le giornate==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Porte aperte", "voci": ["Rimpianti per ieri", "Ansia per domani"] },
+        "b": { "etichetta": "Compartimento stagno", "voci": ["Ieri è chiuso, domani non c'è", "Tutta l'attenzione su oggi"] } },
+      { "tipo": "colpo", "testo": "Non vuol dire non programmare." },
+      { "tipo": "quiz", "domanda": "Domani hai un esame. Cosa è da «compartimento stagno»?",
+        "opzioni": ["Non pensarci fino a domani", "Ripassare oggi ciò che manca", "Passare la sera in ansia"], "corretta": 1,
+        "spiegazione": "Prepararsi è lavoro di oggi. Fuori resta l'ansia, non il programma." },
+      { "tipo": "principio", "testo": "Per Carnegie domani si prepara così: ==facendo bene il lavoro di oggi==." },
+      { "tipo": "chiusura", "azione": "Scrivi ==tre cose== da fare oggi. Il resto su un foglio per domani. Chiudilo." }
+    ]
+  },
+  {
+    "id": "psycho-cybernetics-immagine-di-se",
+    "categoria": "crescita",
+    "titolo": "Agisci come la persona che credi di essere",
+    "libro": { "titolo": "Psycho-Cybernetics", "autore": "Maxwell Maltz", "anno": 1960 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un chirurgo plastico scopre che ==rifare un viso non basta==." },
+      { "tipo": "esempio", "testo": "Maxwell Maltz opera nasi e cicatrici. Molti pazienti poi cambiano carattere. Altri, con un viso nuovo, si sentono ==brutti come prima==." },
+      { "tipo": "colpo", "testo": "Il problema non era la faccia." },
+      { "tipo": "testo", "titolo": "L'immagine di sé", "testo": "Era l'idea che avevano di sé. Per Maltz agiamo sempre ==in coerenza con quell'immagine==, anche quando è sbagliata." },
+      { "tipo": "confronto", "titolo": "Un brutto voto, due letture",
+        "a": { "etichetta": "«Sono negato»", "voci": ["Il voto conferma chi credi di essere", "Smetti di provarci"] },
+        "b": { "etichetta": "«Ho sbagliato»", "voci": ["Il voto è un fatto, non sei tu", "Cerchi cosa correggere"] } },
+      { "tipo": "principio", "testo": "Per Maltz non ti comporti a lungo in modo diverso da come ti vedi. ==Cambia prima l'immagine==." },
+      { "tipo": "chiusura", "azione": "Scrivi tre frasi «Io sono una persona che…». ==Fatti o abitudini di pensiero?==" }
+    ]
+  },
+  {
+    "id": "awaken-giant-dolore-e-piacere",
+    "categoria": "crescita",
+    "titolo": "Perché rimandi anche se sai cosa fare",
+    "libro": { "titolo": "Awaken the Giant Within", "autore": "Tony Robbins", "anno": 1991 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Rimandi e ti dai del pigro. Per Tony Robbins ==hai sbagliato diagnosi==." },
+      { "tipo": "principio", "testo": "Per lui due spinte muovono ogni scelta: ==evitare il dolore== e cercare il piacere." },
+      { "tipo": "colpo", "testo": "E il dolore pesa di più." },
+      { "tipo": "mito", "mito": "Rimando perché sono pigro", "realta": "Per Robbins rimandi perché agire ora ti sembra ==più doloroso che aspettare==." },
+      { "tipo": "confronto", "titolo": "Cambia i collegamenti",
+        "a": { "etichetta": "Prima", "voci": ["Allenarmi = fatica", "Divano = riposo"] },
+        "b": { "etichetta": "Dopo", "voci": ["Saltare = come starò fra 5 anni", "Allenarmi = energia"] } },
+      { "tipo": "elenco", "titolo": "Fare leva: tre domande",
+        "voci": ["Cosa mi è già costato non cambiare?", "Cosa mi costerà se continuo?", "Cosa guadagno se cambio ora?"] },
+      { "tipo": "testo", "testo": "È il modello di un formatore, non una legge scientifica. Usalo come ==domanda pratica==." },
+      { "tipo": "chiusura", "azione": "Scrivi ==tre costi== di ciò che rimandi. Poi fai il primo passo: due minuti." }
+    ]
+  },
+  {
+    "id": "road-less-traveled-torta-e-glassa",
+    "categoria": "crescita",
+    "titolo": "Prima la torta, poi la glassa",
+    "libro": { "titolo": "The Road Less Traveled", "autore": "M. Scott Peck", "anno": 1978 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Mangi prima la glassa o la torta? Per uno psichiatra ==dice come lavori==." },
+      { "tipo": "esempio", "testo": "Lo psichiatra Scott Peck segue una paziente che al lavoro rimanda tutto. Le chiede come mangia la torta. Lei: ==prima la glassa==." },
+      { "tipo": "testo", "testo": "In ufficio fa uguale. La prima ora ai compiti piacevoli. Le altre sei a ==trascinarsi sul resto==." },
+      { "tipo": "colpo", "testo": "Peck le propone il contrario." },
+      { "tipo": "grafico", "titolo": "Ore piacevoli se parti dalla…", "forma": "barre", "unita": "h",
+        "dati": [ { "e": "Glassa", "v": 1 }, { "e": "Torta", "v": 6 } ],
+        "nota": "Il conto di Peck: un'ora di fatica, poi sei di piacere." },
+      { "tipo": "principio", "testo": "Peck lo chiama rimandare la gratificazione: ==prima il dolore==, e il piacere dopo è pieno." },
+      { "tipo": "chiusura", "azione": "Metti ==primo in lista== per domattina il compito che ti pesa di più." }
+    ]
+  },
+  {
+    "id": "road-less-traveled-amare-e-una-scelta",
+    "categoria": "crescita",
+    "titolo": "Innamorarsi non è ancora amare",
+    "libro": { "titolo": "The Road Less Traveled", "autore": "M. Scott Peck", "anno": 1978 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Le farfalle nello stomaco passano. ==E poi?==" },
+      { "tipo": "mito", "mito": "Il vero amore è un sentimento travolgente", "realta": "Per Peck innamorarsi è un crollo temporaneo dei confini. ==Finisce per tutti.==" },
+      { "tipo": "principio", "testo": "Amare, per Peck, è volontà: ==impegnarsi per la crescita interiore== di un altro, o della propria." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Innamorarsi", "voci": ["Succede, non lo decidi", "Non costa fatica"] },
+        "b": { "etichetta": "Amare", "voci": ["È una scelta che ripeti", "Si vede da quello che fai"] } },
+      { "tipo": "quiz", "domanda": "Per Peck, quale di questi è un atto d'amore?",
+        "opzioni": ["Non poter stare senza l'altro", "Provare un'emozione fortissima", "Ascoltare davvero, anche da stanchi"], "corretta": 2,
+        "spiegazione": "Dipendenza ed emozione non sono amore. Per Peck l'amore è lavoro: anzitutto attenzione." },
+      { "tipo": "chiusura", "azione": "Oggi dai a qualcuno ==dieci minuti di ascolto pieno==: telefono lontano." }
+    ]
+  },
+  {
+    "id": "cant-hurt-me-regola-del-40",
+    "categoria": "crescita",
+    "titolo": "Quando dici basta, quanto ti resta?",
+    "libro": { "titolo": "Can't Hurt Me", "autore": "David Goggins", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Non ce la faccio più.» Per un ex Navy SEAL è ==quasi sempre falso==." },
+      { "tipo": "quiz", "domanda": "Ti senti finito. Secondo Goggins, quanta forza hai usato?",
+        "opzioni": ["Circa il 40%", "Circa il 70%", "Circa il 90%"], "corretta": 0,
+        "spiegazione": "È la sua «regola del 40%»: una stima personale, non una misura scientifica." },
+      { "tipo": "testo", "titolo": "Il limitatore", "testo": "Goggins paragona la mente al limitatore di un'auto. Taglia la potenza ==molto prima== che il motore rischi." },
+      { "tipo": "colpo", "testo": "Per lui stanco non è finito." },
+      { "tipo": "elenco", "titolo": "Come si sposta il limite",
+        "voci": ["Vuoi fermarti? Fai ancora un ==5-10%==", "Massimo 100 flessioni? Punta a 105 o 110", "Sali piano, per non farti male"] },
+      { "tipo": "testo", "testo": "Si allena la testa al disagio, a piccoli passi. ==Un dolore vero== resta un segnale da ascoltare." },
+      { "tipo": "chiusura", "azione": "Al prossimo allenamento, quando vuoi smettere fai ancora ==il 10% in più==." }
+    ]
+  },
+  {
+    "id": "cant-hurt-me-barattolo-dei-biscotti",
+    "categoria": "crescita",
+    "titolo": "Il barattolo che apri quando stai per mollare",
+    "libro": { "titolo": "Can't Hurt Me", "autore": "David Goggins", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Nel momento peggiore di una gara, Goggins pensa ai ==biscotti==." },
+      { "tipo": "colpo", "testo": "Non per fame." },
+      { "tipo": "esempio", "testo": "Da bambino sua madre teneva un barattolo pieno di biscotti diversi. Prenderne uno era ==un premio da gustare==." },
+      { "tipo": "quiz", "domanda": "Che cosa tiene oggi Goggins nel suo «barattolo» mentale?",
+        "opzioni": ["I premi che si concede dopo", "Le prove dure che ha superato", "Le frasi dei suoi allenatori"], "corretta": 1,
+        "spiegazione": "Lo studio matto per un esame, i chili persi per i SEAL. Quando sta per mollare ne pesca una." },
+      { "tipo": "testo", "testo": "Non è nostalgia. Goggins rivive la fatica che ha retto e ==la usa per il passo dopo==." },
+      { "tipo": "principio", "testo": "La prova che puoi farcela ==ce l'hai già==: le cose difficili che hai superato." },
+      { "tipo": "chiusura", "azione": "Scrivi ==cinque cose difficili== che hai superato. Rileggile quando stai per cedere." }
+    ]
+  },
+  {
+    "id": "12-regole-confronto-con-ieri",
+    "categoria": "crescita",
+    "titolo": "Confrontati con chi eri ieri",
+    "libro": { "titolo": "12 regole per la vita", "autore": "Jordan B. Peterson", "anno": 2018, "titoloOriginale": "12 Rules for Life" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Apri un social: in dieci secondi c'è qualcuno ==più bravo di te==." },
+      { "tipo": "testo", "testo": "Peterson parte da qui: c'è sempre chi fa meglio. E la tua voce critica trova sempre ==un confronto che perdi==." },
+      { "tipo": "colpo", "testo": "Allora cambia avversario." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Tu e gli altri", "voci": ["Vedi un solo pezzo della loro vita", "Il confronto lo sceglie il critico"] },
+        "b": { "etichetta": "Tu e il te di ieri", "voci": ["Conosci tutta la storia", "Ogni piccolo passo conta"] } },
+      { "tipo": "principio", "testo": "Per Peterson l'unico confronto utile è con chi eri ieri, ==non con un altro oggi==." },
+      { "tipo": "elenco", "titolo": "Il metodo dei piccoli passi", "numerato": true,
+        "voci": ["Cosa potrei sistemare, di piccolo?", "Scegli una cosa che faresti davvero", "Falla, e concediti un premio"] },
+      { "tipo": "chiusura", "azione": "Stasera scegli una cosa piccola da sistemare domani. ==Solo quella.==" }
+    ]
+  }
+]

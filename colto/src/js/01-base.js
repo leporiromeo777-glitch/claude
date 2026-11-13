@@ -55,8 +55,6 @@ function compatta(v) {
 }
 
 const tipografia = (s) => String(s).replace(/'/g, '’').replace(/\.\.\./g, '…');
-const senzaSegni = (s) => String(s || '').replace(/==/g, '');
-const lunghezza = (s) => senzaSegni(s).length;
 
 // «testo con ==parole evidenziate==» → HTML
 function segmenti(testo) {
@@ -65,11 +63,19 @@ function segmenti(testo) {
 function htmlTesto(testo) {
   return segmenti(testo).map((p) => (p.m ? `<mark>${esc(p.t)}</mark>` : esc(p.t))).join('');
 }
-function htmlParole(testo, passo = 70, inizio = 0) {
-  let k = 0;
-  return segmenti(testo).map((p) => {
-    const parole = p.t.split(/(\s+)/).map((w) => (!w || /^\s+$/.test(w) ? w : `<span class="p" style="--d:${inizio + k++ * passo}ms">${esc(w)}</span>`)).join('');
-    return p.m ? `<mark style="--d:${inizio + k * passo + 150}ms">${parole}</mark>` : parole;
+// Parole che arrivano una dopo l'altra, al passo della lettura.
+// modo «p»: compaiono dal nulla (ganci, titoli). modo «k»: da spente ad accese (testi da leggere).
+function htmlParole(testo, { inizio = 0, ms = 44, modo = 'p' } = {}) {
+  let car = 0;
+  return segmenti(testo).map((seg) => {
+    const da = Math.round(inizio + car * ms);
+    const parole = seg.t.split(/(\s+)/).map((w) => {
+      if (!w || /^\s+$/.test(w)) return w;
+      const h = `<span class="${modo}" style="--d:${Math.round(inizio + car * ms)}ms">${esc(w)}</span>`;
+      car += w.length + 1;
+      return h;
+    }).join('');
+    return seg.m ? `<mark style="--d:${da + 90}ms">${parole}</mark>` : parole;
   }).join('');
 }
 
@@ -80,7 +86,7 @@ const oggi = () => {
 
 // Memoria nel browser: se non è disponibile l'app funziona lo stesso, senza ricordare.
 const CHIAVE = 'colto:v1';
-const memoria = { piaciuti: {}, salvati: {}, visti: {}, giorni: [], voce: false, guida: 0 };
+const memoria = { piaciuti: {}, salvati: {}, visti: {}, giorni: [], voce: false, guida: 0, suono: true, punti: 0, quiz: {}, serie: 0, bonus: '' };
 try {
   const grezzo = localStorage.getItem(CHIAVE);
   if (grezzo) Object.assign(memoria, JSON.parse(grezzo));
@@ -89,12 +95,16 @@ function ricorda() {
   try { localStorage.setItem(CHIAVE, JSON.stringify(memoria)); } catch (e) { /* idem */ }
 }
 
+// Segna il video come visto; risponde vero se è la prima volta.
 function segnaVisto(id) {
-  if (!memoria.visti[id]) memoria.visti[id] = Date.now();
+  const nuovo = !memoria.visti[id];
+  if (nuovo) memoria.visti[id] = Date.now();
   const g = oggi();
   if (!memoria.giorni.includes(g)) memoria.giorni = [...memoria.giorni.slice(-400), g];
   ricorda();
+  return nuovo;
 }
+const vibra = (ms) => { try { navigator.vibrate?.(ms); } catch (e) { /* niente */ } };
 function giorniDiFila() {
   const set = new Set(memoria.giorni);
   const d = new Date();
@@ -113,7 +123,9 @@ const ICONE = {
   cuore: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
   segnalibro: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>',
   condividi: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M12 15V4m0 0L8 8m4-4l4 4M5 12v7h14v-7"/></svg>',
-  voce: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="tratto" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
+  suono: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="tratto" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
+  voce: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11h-9l-5 4v-4H4z"/></svg>',
+  lampo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2L4 13.5h6.2L9 22l10-12h-6.4z"/></svg>',
   muto: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="tratto" d="M16 9.5l5 5m0-5l-5 5"/></svg>',
   play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
   cerca: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',

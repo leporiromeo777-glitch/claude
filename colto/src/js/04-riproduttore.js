@@ -25,7 +25,7 @@ const voce = {
       const u = new SpeechSynthesisUtterance(testo);
       u.lang = 'it-IT';
       if (this._scelta) u.voice = this._scelta;
-      u.rate = 1.05;
+      u.rate = 1.08;
       this._corrente = u;
       this._finita = false;
       let partita = false;
@@ -80,6 +80,7 @@ class Riproduttore {
     this.attivo = true;
     this.palco.classList.remove('in-pausa');
     this.vai(0);
+    base.parti(this.video.id);
     this.ultimo = performance.now();
     this.raf = requestAnimationFrame(this.passo);
   }
@@ -88,13 +89,14 @@ class Riproduttore {
     this.attivo = false;
     cancelAnimationFrame(this.raf);
     voce.zitta();
+    base.ferma();
     this.nodi.slice(1).forEach((n) => n.remove());
     const primo = this.nodi[0];
-    primo.classList.remove('on', 'esce');
+    primo.classList.remove('on');
     primo.classList.add('fermo');
     disposizione(this.video, 0).forEach((tr, k) => { this.forme[k].style.transform = tr; });
     this.barra.innerHTML = '';
-    this.palco.classList.remove('in-pausa');
+    this.palco.classList.remove('in-pausa', 'su-accento', 'alla-fine', 'scossa');
   }
 
   riadatta() { this.nodi.forEach(adatta); }
@@ -110,14 +112,33 @@ class Riproduttore {
   aggiorna() {
     const sc = this.video.scene[this.i];
     const d = this.durate[this.i];
+    const nodo = this.nodi[this.i];
     if (sc.tipo === 'quiz' && !this.rivelato && this.t >= this.quiz.domanda) this.rivela(null);
+    if (this.mito) {
+      if (!this.timbrato && this.t >= this.mito.mito * 0.58) {
+        this.timbrato = true;
+        nodo.classList.add('timbrata');
+        suono.timbro();
+        vibra(18);
+      }
+      if (!this.svelato && this.t >= this.mito.mito) {
+        this.svelato = true;
+        nodo.classList.add('svelata');
+        suono.pop();
+        voce.di(`Falso. ${senzaSegni(sc.realta)}`);
+      }
+    }
     if (this.contatore) {
-      const p = Math.max(0, Math.min(1, (this.t - 250) / 1500));
+      const p = Math.max(0, Math.min(1, (this.t - 200) / 1100));
       const morbido = 1 - Math.pow(1 - p, 3);
       this.contatore.textContent = formatta(sc.valore * morbido, sc.decimali || 0);
-      if (p >= 1) this.contatore = null;
+      if (p >= 1) { this.contatore = null; suono.pop(); }
     }
     this.segmenti[this.i].style.transform = `scaleX(${Math.min(1, this.t / d)})`;
+    if (this.ultima && !this.annunciata && this.t >= Math.min(d * 0.5, 2600)) {
+      this.annunciata = true;
+      this.palco.classList.add('alla-fine');
+    }
     if (this.t >= d) {
       if (voce.staParlando() && this.t < d + 9000) return; // aspetta che la voce finisca la frase
       this.vai(this.i + 1);
@@ -126,38 +147,53 @@ class Riproduttore {
 
   vai(i) {
     if (i >= this.nodi.length) {
-      if (!this.finito) { this.finito = true; this.alTermine?.(this.video); }
+      if (!this.finito) { this.finito = true; this.alTermine?.(this.video, this.palco); }
       i = 0;
       this.primoGiro = false;
     }
     if (i < 0) i = 0;
     const prima = this.nodi[this.i];
     const nodo = this.nodi[i];
-    if (prima && prima !== nodo) {
-      prima.classList.remove('on', 'fermo');
-      prima.classList.add('esce');
-      setTimeout(() => prima.classList.remove('esce'), 320);
-    }
+    const inizio = i === 0 && this.primoGiro;
+    if (prima && prima !== nodo) prima.classList.remove('on', 'fermo'); // taglio netto, niente dissolvenza
     this.i = i;
     this.t = 0;
     const sc = this.video.scene[i];
 
-    nodo.classList.remove('esce', 'on', 'rivelata');
+    nodo.classList.remove('on', 'rivelata', 'timbrata', 'svelata');
     $$('.opzione', nodo).forEach((o) => { o.classList.remove('giusta', 'sbagliata'); o.disabled = false; });
+    nodo.style.setProperty('--dur', `${this.durate[i]}ms`);
     void nodo.offsetWidth; // fa ripartire le animazioni
-    nodo.classList.toggle('fermo', i === 0 && this.primoGiro);
+    nodo.classList.toggle('fermo', inizio);
     nodo.classList.add('on');
 
     this.rivelato = false;
     this.quiz = sc.tipo === 'quiz' ? durataQuiz(sc) : null;
+    this.mito = sc.tipo === 'mito' ? durataMito(sc) : null;
+    this.timbrato = false;
+    this.svelato = false;
+    this.ultima = i === this.nodi.length - 1;
+    this.annunciata = false;
     this.contatore = sc.tipo === 'numero' ? $('.cifra-val', nodo) : null;
     if (this.contatore) this.contatore.textContent = formatta(0, sc.decimali || 0);
+
+    this.palco.classList.toggle('su-accento', sc.tipo === 'colpo');
+    this.palco.classList.remove('alla-fine', 'scossa');
+    if (sc.tipo === 'colpo') {
+      void this.palco.offsetWidth;
+      this.palco.classList.add('scossa');
+      suono.colpo();
+      vibra(10);
+    } else if (!inizio) {
+      suono.taglio();
+    }
 
     this.segmenti.forEach((s, k) => { s.style.transform = `scaleX(${k < i ? 1 : 0})`; });
     disposizione(this.video, i).forEach((tr, k) => { this.forme[k].style.transform = tr; });
     voce.di(testoVoce(sc));
   }
 
+  // scelta: indice toccato, oppure null se il tempo è scaduto e la risposta si svela da sola
   rivela(scelta) {
     const sc = this.video.scene[this.i];
     if (sc.tipo !== 'quiz' || this.rivelato) return;
@@ -170,6 +206,8 @@ class Riproduttore {
     });
     nodo.classList.add('rivelata');
     this.t = this.quiz.domanda;
+    if (scelta === null) suono.pop();
+    else premiaQuiz(this.video, scelta === sc.corretta, this.palco);
     voce.di(`${senzaSegni(sc.opzioni[sc.corretta])}. ${sc.spiegazione}`);
   }
 
@@ -177,6 +215,7 @@ class Riproduttore {
     this.inPausa = si;
     this.palco.classList.toggle('in-pausa', si);
     voce.ferma(si);
+    if (si) base.ferma(); else base.parti(this.video.id);
   }
 
   salta(passi) {

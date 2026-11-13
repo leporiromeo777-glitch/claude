@@ -1,0 +1,239 @@
+[
+  {
+    "id": "ricchezza-nazioni-divisione-lavoro",
+    "categoria": "economia",
+    "titolo": "Dieci operai, 48 mila spilli al giorno",
+    "libro": { "titolo": "La ricchezza delle nazioni", "autore": "Adam Smith", "anno": 1776, "titoloOriginale": "The Wealth of Nations" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Da solo fai forse ==uno spillo al giorno==. In fabbrica, 4800." },
+      { "tipo": "colpo", "testo": "Stesse mani. ==Altro metodo.==" },
+      { "tipo": "esempio", "testo": "Adam Smith visita una fabbrica di spilli. Uno tira il filo, uno lo taglia, uno fa la punta. Il lavoro è diviso in circa ==18 operazioni==." },
+      { "tipo": "numero", "valore": 48, "suffisso": " mila", "didascalia": "Gli spilli al giorno di ==dieci operai==, secondo Smith: 4800 a testa.",
+        "nota": "Da soli, scrive, non ne avrebbero fatti nemmeno 20 a testa." },
+      { "tipo": "elenco", "titolo": "Perché rende così tanto",
+        "voci": ["Ripeti un gesto e diventi più abile", "Non perdi tempo a cambiare compito", "Chi fa una cosa sola inventa attrezzi migliori"] },
+      { "tipo": "principio", "testo": "Per Smith un paese si arricchisce quando ==divide il lavoro==. Le stesse persone producono molto di più." },
+      { "tipo": "chiusura", "azione": "Prendi un oggetto dalla tasca. Conta ==quanti mestieri== sono serviti per fartelo avere." }
+    ]
+  },
+  {
+    "id": "ricchezza-nazioni-mano-invisibile",
+    "categoria": "economia",
+    "titolo": "Chi ha organizzato la tua colazione?",
+    "libro": { "titolo": "La ricchezza delle nazioni", "autore": "Adam Smith", "anno": 1776, "titoloOriginale": "The Wealth of Nations" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Chi ha deciso che oggi al bar ci fossero i cornetti? ==Nessuno.==" },
+      { "tipo": "testo", "titolo": "Perché funziona", "testo": "Per Smith la cena non viene dalla bontà di macellai e fornai. Viene perché ognuno ==bada al proprio interesse==." },
+      { "tipo": "colpo", "testo": "Nessuno dirige. ==Eppure gira.==" },
+      { "tipo": "principio", "testo": "Cerchi il tuo guadagno. Per Smith è ==come una mano invisibile==: spesso ti porta a servire gli altri." },
+      { "tipo": "quiz", "domanda": "Quante volte Smith scrive «mano invisibile» nel libro?",
+        "opzioni": ["Una ventina", "In ogni capitolo", "Una sola"], "corretta": 2,
+        "spiegazione": "Una sola, nel quarto libro. La fama è arrivata dopo." },
+      { "tipo": "mito", "mito": "L'egoismo fa sempre il bene di tutti", "realta": "Smith diffida dei mercanti: se possono, ==si accordano contro il pubblico==." },
+      { "tipo": "chiusura", "azione": "Prima di comprare, conta ==quanti altri vendono== la stessa cosa." }
+    ]
+  },
+  {
+    "id": "economics-one-lesson-vetrina-rotta",
+    "categoria": "economia",
+    "titolo": "La vetrina rotta fa bene all'economia?",
+    "libro": { "titolo": "Economics in One Lesson", "autore": "Henry Hazlitt", "anno": 1946 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un ragazzo spacca una vetrina. Qualcuno dice: ==fa girare l'economia==." },
+      { "tipo": "esempio", "testo": "Il fornaio paga il vetraio, che spende quei soldi altrove. Sembra un guadagno. Ma con quei soldi il fornaio voleva ==un abito nuovo==." },
+      { "tipo": "colpo", "testo": "Il sarto ==non lo vede nessuno==." },
+      { "tipo": "confronto", "titolo": "Chi vedi e chi no",
+        "a": { "etichetta": "Quello che si vede", "voci": ["Il vetraio che lavora", "La vetrina nuova"] },
+        "b": { "etichetta": "Quello che non si vede", "voci": ["Il sarto senza cliente", "L'abito mai cucito"] } },
+      { "tipo": "testo", "titolo": "La stessa lente, in grande", "testo": "Hazlitt la usa per sussidi, dazi e opere pubbliche. Chi riceve i soldi si vede. Chi li paga con le tasse ==resta fuori dalla foto==." },
+      { "tipo": "principio", "testo": "Per Hazlitt la lezione è una: guarda gli effetti ==nel tempo e su tutti==, non solo quelli immediati." },
+      { "tipo": "chiusura", "azione": "Leggi una notizia su un bonus. Scrivi ==chi lo paga e a cosa rinuncia==." }
+    ]
+  },
+  {
+    "id": "basic-economics-usi-alternativi",
+    "categoria": "economia",
+    "titolo": "Il vero costo non è sul cartellino",
+    "libro": { "titolo": "Basic Economics", "autore": "Thomas Sowell", "anno": 2000 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Nemmeno il paese più ricco ha ==abbastanza di tutto per tutti==." },
+      { "tipo": "esempio", "testo": "Lo stesso latte può diventare formaggio, gelato o yogurt. Un litro usato per uno ==manca agli altri==." },
+      { "tipo": "colpo", "testo": "Ogni scelta ==esclude le altre==." },
+      { "tipo": "testo", "titolo": "Costo opportunità", "testo": "Per Sowell il vero costo è ==l'alternativa a cui rinunci==. Vale per una famiglia e per uno Stato." },
+      { "tipo": "quiz", "domanda": "Hai un'ora libera: studi invece di allenarti. Qual è il costo?",
+        "opzioni": ["Nessuno: era gratis", "L'allenamento che salti", "La fatica di studiare"], "corretta": 1,
+        "spiegazione": "Paghi con l'alternativa migliore che lasci. Anche senza spendere un euro." },
+      { "tipo": "principio", "testo": "Per Sowell l'economia è questo: usare ==risorse scarse== che hanno usi alternativi." },
+      { "tipo": "chiusura", "azione": "Prima di spendere 50 euro scrivi ==cos'altro ci faresti==. Poi decidi." }
+    ]
+  },
+  {
+    "id": "basic-economics-prezzi-bloccati",
+    "categoria": "economia",
+    "titolo": "Blocchi gli affitti. Poi cosa succede?",
+    "libro": { "titolo": "Basic Economics", "autore": "Thomas Sowell", "anno": 2000 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Affitti troppo alti. La legge mette un tetto. ==Risolto?==" },
+      { "tipo": "colpo", "testo": "Per Sowell, ==tutt'altro==." },
+      { "tipo": "testo", "titolo": "Il prezzo è un messaggio", "testo": "Per Sowell un prezzo dice a tutti ==quanto una cosa è scarsa==. Se sale, chi compra ne usa meno. E chi produce ne offre di più." },
+      { "tipo": "elenco", "titolo": "Tetto agli affitti: cosa segue", "numerato": true,
+        "voci": ["Prezzo basso: più persone cercano casa", "Affittare rende meno: l'offerta cala", "Le case mancano e si curano meno"] },
+      { "tipo": "mito", "mito": "Con il prezzo bloccato la casa costa meno a tutti", "realta": "Per Sowell costa meno ==solo a chi la trova==. Gli altri restano in coda." },
+      { "tipo": "principio", "testo": "Per Sowell un tetto al prezzo non crea più case. Fa sì che ==molti cerchino e pochi offrano==." },
+      { "tipo": "chiusura", "azione": "Trova un prezzo salito da poco. Scrivi ==cosa sta segnalando== a chi compra e a chi vende." }
+    ]
+  },
+  {
+    "id": "teoria-generale-domanda-complessiva",
+    "categoria": "economia",
+    "titolo": "Se tutti risparmiano, chi compra?",
+    "libro": { "titolo": "Teoria generale dell'occupazione, dell'interesse e della moneta", "autore": "John Maynard Keynes", "anno": 1936, "titoloOriginale": "The General Theory of Employment, Interest and Money" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Risparmiare è prudente. Ma se lo fanno ==tutti insieme==, chi compra?" },
+      { "tipo": "esempio", "testo": "Tempi incerti. Tu rimandi l'auto nuova. Il concessionario vende meno e licenzia. ==La tua spesa era uno stipendio.==" },
+      { "tipo": "colpo", "testo": "Poi taglia ==pure il licenziato==." },
+      { "tipo": "quiz", "domanda": "Tutti risparmiano di più. Per Keynes il risparmio totale:",
+        "opzioni": ["Sale di sicuro", "Può non salire"], "corretta": 1,
+        "spiegazione": "Se tutti tagliano, i redditi calano. E chi guadagna meno mette da parte meno." },
+      { "tipo": "testo", "titolo": "L'idea di Keynes", "testo": "Per Keynes il lavoro dipende dalla ==domanda complessiva==: quanto spendono famiglie e imprese. Se manca, può spendere lo Stato." },
+      { "tipo": "principio", "testo": "Per Keynes un'economia può restare a lungo con molti disoccupati: ==non riparte da sola==." },
+      { "tipo": "chiusura", "azione": "Chiedi a un parente ==cosa tagliò per primo== nell'ultima crisi." }
+    ]
+  },
+  {
+    "id": "teoria-generale-moltiplicatore",
+    "categoria": "economia",
+    "titolo": "La provocazione delle banconote sotterrate",
+    "libro": { "titolo": "Teoria generale dell'occupazione, dell'interesse e della moneta", "autore": "John Maynard Keynes", "anno": 1936, "titoloOriginale": "The General Theory of Employment, Interest and Money" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sotterrare banconote e far scavare. ==Keynes lo scrisse davvero.==" },
+      { "tipo": "testo", "titolo": "Una provocazione", "testo": "Lui preferirebbe costruire case. Ma in crisi, dice, anche una spesa assurda dà reddito a qualcuno. ==Che lo rispende.==" },
+      { "tipo": "colpo", "testo": "E il giro ==ricomincia==." },
+      { "tipo": "esempio", "testo": "Lo Stato paga 100 a un muratore. Lui ne spende 80 dal fruttivendolo, che ne spende 64 dal meccanico. ==A ogni giro l'onda si accorcia.==" },
+      { "tipo": "grafico", "titolo": "Reddito totale creato da una spesa di 100", "forma": "linea",
+        "dati": [ { "e": "1 giro", "v": 100 }, { "e": "2 giri", "v": 180 }, { "e": "3 giri", "v": 244 }, { "e": "5 giri", "v": 336 }, { "e": "10 giri", "v": 446 }, { "e": "20 giri", "v": 494 } ],
+        "nota": "Esempio illustrativo: ognuno rispende l'80%. Limite: 500." },
+      { "tipo": "principio", "testo": "Per Keynes una nuova spesa crea reddito ==più della spesa stessa==. Quanto, dipende da quanto si rispende." },
+      { "tipo": "chiusura", "azione": "Prendi uno scontrino di oggi. Segui i soldi per tre passaggi: ==chi li rispende?==" }
+    ]
+  },
+  {
+    "id": "via-schiavitu-piano-unico",
+    "categoria": "economia",
+    "titolo": "Chi decide il piano decide le tue priorità",
+    "libro": { "titolo": "La via della schiavitù", "autore": "Friedrich A. Hayek", "anno": 1944, "titoloOriginale": "The Road to Serfdom" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Lo Stato decide prezzi e produzione. ==A te cosa resta?==" },
+      { "tipo": "testo", "titolo": "Inghilterra, 1944", "testo": "In guerra molti sognano un'economia guidata dal centro. Hayek avverte: anche con buone intenzioni, ==toglie libertà==." },
+      { "tipo": "elenco", "titolo": "Il suo ragionamento", "numerato": true,
+        "voci": ["Un piano unico sceglie cosa conta di più", "Ma le persone hanno priorità diverse", "Così qualcuno impone le sue a tutti"] },
+      { "tipo": "colpo", "testo": "E non si ferma ==ai soldi==." },
+      { "tipo": "principio", "testo": "Per Hayek chi controlla l'economia controlla ==i mezzi di ogni nostro scopo==." },
+      { "tipo": "quiz", "domanda": "Hayek accettava un minimo garantito a tutti contro la miseria?",
+        "opzioni": ["Sì", "No"], "corretta": 0,
+        "spiegazione": "Sì: per lui un minimo di cibo e casa non minaccia la libertà. Il piano unico sì." },
+      { "tipo": "chiusura", "azione": "Scrivi tre scelte di questa settimana. Segna ==chi le ha decise== davvero." }
+    ]
+  },
+  {
+    "id": "capitalismo-liberta-imposta-negativa",
+    "categoria": "economia",
+    "titolo": "L'imposta che ti paga invece di chiederti soldi",
+    "libro": { "titolo": "Capitalismo e libertà", "autore": "Milton Friedman", "anno": 1962, "titoloOriginale": "Capitalism and Freedom" },
+    "scene": [
+      { "tipo": "apertura", "testo": "E se sotto un certo reddito fosse ==il fisco a pagare te==?" },
+      { "tipo": "testo", "titolo": "La proposta", "testo": "Sopra una soglia paghi le tasse. Sotto, ricevi ==una parte di ciò che ti manca==. Friedman la chiama imposta negativa." },
+      { "tipo": "esempio", "testo": "Numeri inventati: soglia 12 mila euro, sussidio 50%. Guadagni zero: ricevi 6 mila. Guadagni 4 mila: ne ricevi altri 4. ==Totale 8 mila.==" },
+      { "tipo": "colpo", "testo": "Lavorare ==conviene sempre==." },
+      { "tipo": "quiz", "domanda": "Stesse regole. Guadagni 10 mila: quanto ricevi dal fisco?",
+        "opzioni": ["Niente", "2000 euro", "1000 euro"], "corretta": 2,
+        "spiegazione": "Ti mancano 2 mila per la soglia: ne ricevi la metà. Totale: 11 mila." },
+      { "tipo": "principio", "testo": "Per Friedman l'aiuto più diretto a chi ha poco è ==denaro==. Come usarlo, lo decide lui." },
+      { "tipo": "chiusura", "azione": "Conta gli aiuti al reddito del tuo paese. Friedman ne voleva ==uno al posto di tanti==." }
+    ]
+  },
+  {
+    "id": "capitale-xxi-secolo-rendimento-crescita",
+    "categoria": "economia",
+    "titolo": "Lavorare sodo o sposare un'ereditiera?",
+    "libro": { "titolo": "Il capitale nel XXI secolo", "autore": "Thomas Piketty", "anno": 2013, "titoloOriginale": "Le Capital au XXIe siècle" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Studiare e lavorare, o sposare un'ereditiera? ==Balzac fece il conto.==" },
+      { "tipo": "esempio", "testo": "In Papà Goriot un personaggio avverte il giovane Rastignac: nessuna carriera gli darà quanto ==un matrimonio ricco==. Piketty riparte da lì." },
+      { "tipo": "colpo", "testo": "Può tornare ==quel mondo==?" },
+      { "tipo": "testo", "titolo": "Due velocità", "testo": "Piketty confronta r, quanto rende il capitale, e g, ==quanto cresce l'economia==. Nei suoi dati storici r è circa 4-5% l'anno, g molto meno." },
+      { "tipo": "grafico", "titolo": "100 euro dopo 30 anni: all'1,5% e al 5%", "forma": "barre", "unita": "€",
+        "dati": [ { "e": "Oggi", "v": 100 }, { "e": "All'1,5%", "v": 156 }, { "e": "Al 5%", "v": 432 } ],
+        "nota": "Esempio illustrativo: tutto reinvestito, senza tasse né spese." },
+      { "tipo": "principio", "testo": "Per Piketty il capitale tende a rendere più di quanto cresce l'economia. Così ==le eredità pesano sempre di più==." },
+      { "tipo": "chiusura", "azione": "Fai il conto di casa: quanto entra ==dal lavoro== e quanto da affitti o investimenti?" }
+    ]
+  },
+  {
+    "id": "capitale-marx-plusvalore",
+    "categoria": "economia",
+    "titolo": "Da dove esce il profitto, secondo Marx",
+    "libro": { "titolo": "Il capitale", "autore": "Karl Marx", "anno": 1867, "titoloOriginale": "Das Kapital" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Se ogni scambio è alla pari, ==da dove esce il profitto?==" },
+      { "tipo": "testo", "titolo": "La risposta di Marx", "testo": "L'operaio non vende il suo lavoro. Vende la ==forza-lavoro==: la capacità di lavorare per una giornata. Il salario è il suo prezzo." },
+      { "tipo": "esempio", "testo": "L'esempio di Marx: giornata di 12 ore. In 6 l'operaio produce il valore del suo salario. Nelle altre 6 produce ancora, ma ==per il capitalista==." },
+      { "tipo": "colpo", "testo": "Marx lo chiama ==plusvalore==." },
+      { "tipo": "confronto", "titolo": "La giornata divisa in due",
+        "a": { "etichetta": "Lavoro necessario", "voci": ["Ripaga il salario"] },
+        "b": { "etichetta": "Pluslavoro", "voci": ["Diventa profitto di chi assume"] } },
+      { "tipo": "principio", "testo": "Per Marx il profitto non nasce da un imbroglio nello scambio. Nasce dal ==lavoro non pagato==." },
+      { "tipo": "chiusura", "azione": "Calcola quanto vale una tua ora: ==stipendio netto diviso ore lavorate== nel mese." }
+    ]
+  },
+  {
+    "id": "economista-mascherato-potere-scarsita",
+    "categoria": "economia",
+    "titolo": "Chi guadagna davvero sul tuo caffè",
+    "libro": { "titolo": "L'economista mascherato", "autore": "Tim Harford", "anno": 2005, "titoloOriginale": "The Undercover Economist" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il caffè in stazione costa caro. Ma il grosso ==non va al bar==." },
+      { "tipo": "esempio", "testo": "Sei di corsa. Il chiosco è proprio sulla strada per il binario. Paghi senza guardare. ==Posti così sono pochi.==" },
+      { "tipo": "colpo", "testo": "E chi possiede ==quel posto==?" },
+      { "tipo": "testo", "titolo": "Il potere della scarsità", "testo": "Tanti bar vogliono quel punto e l'affitto sale. Per Harford gran parte del margine va ==al padrone dello spazio==." },
+      { "tipo": "quiz", "domanda": "Perché l'affitto di quel chiosco è così alto?",
+        "opzioni": ["Il caffè costa di più", "Lì i clienti pagano caro", "Serve più personale"], "corretta": 1,
+        "spiegazione": "La causa va al contrario: clienti disposti a pagare rendono prezioso il posto." },
+      { "tipo": "principio", "testo": "Per Harford guadagna di più ==chi controlla la risorsa più scarsa==." },
+      { "tipo": "chiusura", "azione": "Al prossimo acquisto di corsa guardati intorno: ==quante alternative avevi?==" }
+    ]
+  },
+  {
+    "id": "naked-economics-capitale-umano",
+    "categoria": "economia",
+    "titolo": "Cosa ti resta se perdi tutto",
+    "libro": { "titolo": "Naked Economics", "autore": "Charles Wheelan", "anno": 2002 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti tolgono casa, soldi e lavoro. Resti per strada. ==Cosa ti rimane?==" },
+      { "tipo": "esempio", "testo": "Wheelan fa la prova con Bill Gates: toglietegli tutto e lasciatelo per strada. Con quello che sa fare, dice, ==se la caverebbe benissimo==." },
+      { "tipo": "colpo", "testo": "Si chiama ==capitale umano==." },
+      { "tipo": "elenco", "titolo": "Cosa c'è dentro, per Wheelan",
+        "voci": ["Istruzione ed esperienza", "Intelligenza e creatività", "Carisma e spirito d'iniziativa"] },
+      { "tipo": "testo", "titolo": "E lo stipendio?", "testo": "Per Wheelan il lavoro ha un prezzo come tutto. Competenze ==rare e richieste== vengono pagate molto: sono difficili da sostituire." },
+      { "tipo": "mito", "mito": "Se gli altri diventano più bravi, io ci perdo", "realta": "Per Wheelan chi sa di più produce di più: ==la torta cresce== per tutti." },
+      { "tipo": "chiusura", "azione": "Scrivi ==tre cose che sai fare bene==. Accanto, una da imparare entro l'anno." }
+    ]
+  },
+  {
+    "id": "freakonomics-multa-asilo",
+    "categoria": "economia",
+    "titolo": "Tre dollari di multa e un effetto imprevisto",
+    "libro": { "titolo": "Freakonomics", "autore": "Steven D. Levitt, Stephen J. Dubner", "anno": 2005 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un asilo multa i genitori in ritardo. ==Indovina com'è finita.==" },
+      { "tipo": "esempio", "testo": "Haifa, Israele, dieci asili. Troppi genitori arrivano tardi. Due economisti provano ==3 dollari di multa== oltre i dieci minuti." },
+      { "tipo": "quiz", "domanda": "Dopo la multa, i ritardi:",
+        "opzioni": ["Aumentano", "Calano", "Restano uguali"], "corretta": 0,
+        "spiegazione": "Da 8 a 20 a settimana per asilo. Sono i dati citati nel libro." },
+      { "tipo": "colpo", "testo": "La colpa aveva ==un prezzo==." },
+      { "tipo": "testo", "titolo": "Cos'è successo", "testo": "Prima chi tardava si sentiva in colpa: incentivo morale. La multa l'ha sostituito con uno economico, ==e basso==. Pagavi ed eri a posto." },
+      { "tipo": "principio", "testo": "Per Levitt e Dubner l'economia studia gli incentivi. ==Ne cambi uno== e la gente cambia. Non sempre come speri." },
+      { "tipo": "chiusura", "azione": "Scegli una regola che nessuno rispetta. Scrivi ==cosa ci guadagna chi la ignora==." }
+    ]
+  }
+]

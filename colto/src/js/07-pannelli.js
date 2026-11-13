@@ -92,15 +92,25 @@ function disegnaPercorso() {
         <span class="pr-barra"><i style="width:${(fatti / suoi.length) * 100}%"></i></span>
       </button></li>`;
   }).join('');
+  const punti = memoria.punti || 0;
+  const liv = livelloDi(punti);
+  const oggiFatti = Math.min(vistiOggi(), OBIETTIVO);
+  const mancano = liv.a - punti;
   corpoPannello.innerHTML = `
-    <div class="cifre">
-      <div><b>${visti.length}</b><span>${visti.length === 1 ? 'idea vista' : 'idee viste'} su ${VIDEO.length}</span></div>
-      <div><b>${libri.size}</b><span>${libri.size === 1 ? 'libro toccato' : 'libri toccati'} su ${LIBRI.length}</span></div>
-      <div><b>${fila}</b><span>${fila === 1 ? 'giorno' : 'giorni'} di fila</span></div>
+    <div class="livello">
+      <p class="livello-nome"><span>Livello ${liv.n}</span><b>${esc(liv.nome)}</b></p>
+      <div class="livello-barra" role="img" aria-label="${punti} punti, ne mancano ${mancano} al livello ${liv.n + 1}"><i style="width:${((punti - liv.da) / (liv.a - liv.da)) * 100}%"></i></div>
+      <p class="piccolo">${formatta(punti)} punti · ancora ${mancano} per il livello ${liv.n + 1}</p>
     </div>
-    <h3 class="sezione">Per categoria</h3>
+    <div class="cifre">
+      <div><b>${oggiFatti}<small>/${OBIETTIVO}</small></b><span>${oggiFatti >= OBIETTIVO ? 'obiettivo di oggi fatto' : 'idee nuove oggi'}</span></div>
+      <div><b>${fila}</b><span>${fila === 1 ? 'giorno' : 'giorni'} di fila</span></div>
+      <div><b>${memoria.serie || 0}</b><span>quiz giusti di fila</span></div>
+    </div>
+    <p class="piccolo">${PUNTI_VIDEO} punti per ogni video nuovo visto fino in fondo, ${PUNTI_QUIZ} per ogni quiz azzeccato al primo colpo, 20 quando chiudi l’obiettivo del giorno.</p>
+    <h3 class="sezione"><span>Idee viste</span><span>${visti.length} di ${VIDEO.length} · ${libri.size} libri su ${LIBRI.length}</span></h3>
     <ul class="progressi">${righe}</ul>
-    <p class="piccolo">Un’idea conta come vista quando il video arriva alla fine. I progressi restano su questo dispositivo.</p>
+    <p class="piccolo">Punti e progressi restano su questo dispositivo.</p>
     <button type="button" class="tasto tasto--solo" id="azzera">Azzera i progressi</button>`;
 }
 
@@ -116,8 +126,7 @@ corpoPannello.addEventListener('click', (ev) => {
   }
   if (b.id === 'azzera') {
     if (b.dataset.sicuro) {
-      memoria.visti = {};
-      memoria.giorni = [];
+      Object.assign(memoria, { visti: {}, giorni: [], punti: 0, quiz: {}, serie: 0, bonus: '' });
       ricorda();
       aggiornaCromo();
       disegnaPercorso();

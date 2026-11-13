@@ -1,0 +1,241 @@
+[
+  {
+    "id": "deep-work-profondo-superficiale",
+    "categoria": "produttivita",
+    "titolo": "La torre di Jung e il lavoro che conta davvero",
+    "libro": { "titolo": "Deep Work", "autore": "Cal Newport", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Per lavorare davvero, Carl Jung si chiudeva ==in una torre di pietra==." },
+      { "tipo": "esempio", "testo": "Zurigo, anni Venti. Jung ha pazienti e conferenze. Per scrivere va a Bollingen, in una torre sul lago. ==Lì nessuno lo interrompe.==" },
+      { "tipo": "colpo", "testo": "Non era una fuga." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Lavoro superficiale", "voci": ["Mail, riunioni, moduli", "Si fa anche da distratti"] },
+        "b": { "etichetta": "Lavoro profondo", "voci": ["Concentrazione piena", "Ti porta al limite e crea valore"] } },
+      { "tipo": "principio", "testo": "Per Newport concentrarsi a fondo è sempre ==più raro e più prezioso==. Chi lo coltiva si distingue." },
+      { "tipo": "quiz", "domanda": "Per Newport, quante ore al giorno di lavoro profondo regge chi è allenato?",
+        "opzioni": ["Circa 4", "Circa 8", "Circa 12"], "corretta": 0,
+        "spiegazione": "È la stima che riprende dagli studi di Anders Ericsson. Chi comincia: circa un'ora." },
+      { "tipo": "chiusura", "azione": "Blocca per domattina ==un'ora senza notifiche==. Mettici il compito più difficile." }
+    ]
+  },
+  {
+    "id": "deep-work-residuo-attenzione",
+    "categoria": "produttivita",
+    "titolo": "Cosa ti resta in testa dopo ogni occhiata alla chat",
+    "libro": { "titolo": "Deep Work", "autore": "Cal Newport", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Guardo la chat un attimo.» ==Il conto arriva dopo.==" },
+      { "tipo": "quiz", "domanda": "Lasci a metà il compito A e passi a B. Dov'è la tua attenzione?",
+        "opzioni": ["Tutta su B", "In parte ancora su A", "Azzerata: riparte fresca"], "corretta": 1,
+        "spiegazione": "Sophie Leroy lo chiama «residuo di attenzione»: un pezzo di testa resta su A." },
+      { "tipo": "colpo", "testo": "A testa divisa rendi meno." },
+      { "tipo": "testo", "titolo": "L'esperimento", "testo": "Cal Newport lo racconta: Leroy spostava le persone da un compito all'altro, a metà. Più residuo restava, ==peggio andavano==." },
+      { "tipo": "esempio", "testo": "Apri la mail «un secondo». Trovi un messaggio che non puoi chiudere ora. ==Ti resta in testa.==" },
+      { "tipo": "mito", "mito": "Un'occhiata veloce non costa niente", "realta": "Lavori sul compito nuovo ==con la testa sul vecchio==." },
+      { "tipo": "chiusura", "azione": "Scegli ora due momenti per mail e chat. Fuori da quelli, ==tienile chiuse==." }
+    ]
+  },
+  {
+    "id": "digital-minimalism-trenta-giorni",
+    "categoria": "produttivita",
+    "titolo": "Il mese che decide quali app ti servono davvero",
+    "libro": { "titolo": "Minimalismo digitale", "autore": "Cal Newport", "anno": 2019, "titoloOriginale": "Digital Minimalism" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un mese senza le app di cui puoi fare a meno. ==Ci stai?==" },
+      { "tipo": "numero", "valore": 1600, "didascalia": "I lettori che si offrirono volontari quando Cal Newport propose la prova.", "nota": "Newport parla di oltre 1600 adesioni." },
+      { "tipo": "mito", "mito": "Basta un detox digitale ogni tanto", "realta": "Per Newport dopo un detox torni come prima. Qui ==scegli cosa rientra==." },
+      { "tipo": "elenco", "titolo": "Il riordino in tre passi", "numerato": true,
+        "voci": ["30 giorni senza le tecnologie facoltative", "Intanto riscopri cosa ti piace fare", "Rientra solo ciò che supera l'esame"] },
+      { "tipo": "confronto", "titolo": "L'esame per rientrare",
+        "a": { "etichetta": "Non basta", "voci": ["«Ogni tanto mi è utile»"] },
+        "b": { "etichetta": "Rientra se", "voci": ["Serve qualcosa a cui tieni molto", "Decidi tu quando e come usarla"] } },
+      { "tipo": "chiusura", "azione": "Scrivi l'elenco delle tue ==app facoltative==: quelle che puoi sospendere un mese senza danni." }
+    ]
+  },
+  {
+    "id": "essentialism-regola-novanta",
+    "categoria": "produttivita",
+    "titolo": "La regola del 90% contro i «quasi sì»",
+    "libro": { "titolo": "Essentialism", "autore": "Greg McKeown", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Le proposte brutte le scarti da solo. ==Ti fregano le discrete.==" },
+      { "tipo": "quiz", "domanda": "Ti propongono un progetto da 80 su 100. Per Greg McKeown che fai?",
+        "opzioni": ["Accetti: 80 è un bel voto", "Accetti, ma con meno impegno", "Rifiuti"], "corretta": 2,
+        "spiegazione": "È la sua regola del 90%: sotto il 90 il voto diventa zero." },
+      { "tipo": "colpo", "testo": "Sì: 80 vale zero." },
+      { "tipo": "elenco", "titolo": "Come funziona", "numerato": true,
+        "voci": ["Trova il criterio che conta di più", "Dai all'opzione un voto da 0 a 100", "Sotto 90 diventa zero: rifiuta"] },
+      { "tipo": "esempio", "testo": "Pensa all'armadio. Con «potrei metterlo, un giorno?» tieni tutto. Con «mi piace davvero?» ==resta solo il meglio==." },
+      { "tipo": "principio", "testo": "Ogni «quasi sì» ruba il posto a un'occasione migliore. ==Se non ti convince del tutto, è no.==" },
+      { "tipo": "chiusura", "azione": "Dai un voto da 0 a 100 all'ultima proposta ricevuta. ==Sotto 90, di' di no.==" }
+    ]
+  },
+  {
+    "id": "essentialism-paradosso-successo",
+    "categoria": "produttivita",
+    "titolo": "Più riesci, più rischi di perderti",
+    "libro": { "titolo": "Essentialism", "autore": "Greg McKeown", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sei bravo in una cosa. Tutti lo notano. ==E lì cominciano i guai.==" },
+      { "tipo": "esempio", "testo": "Sei bravo con le presentazioni. Tutti te ne chiedono una. Poi un parere, poi una mano. Un anno dopo sei sommerso. ==E quel lavoro non lo fai più.==" },
+      { "tipo": "colpo", "testo": "Ha un nome." },
+      { "tipo": "elenco", "titolo": "Il paradosso del successo", "numerato": true,
+        "voci": ["Idee chiare: arrivano i risultati", "I risultati portano nuove richieste", "Dici sì a tutto e ti disperdi", "Perdi la chiarezza di partenza"] },
+      { "tipo": "testo", "titolo": "Capita anche alle aziende", "testo": "Greg McKeown riprende Jim Collins: tante aziende ammirate sono cadute per la ==rincorsa indisciplinata al di più==." },
+      { "tipo": "principio", "testo": "Meno, ma meglio: scegli dove dai il contributo più grande. ==Lascia andare il resto==, anche se è buono." },
+      { "tipo": "chiusura", "azione": "Guarda gli impegni della settimana. Disdici quello accettato solo ==per non dire di no==." }
+    ]
+  },
+  {
+    "id": "one-thing-domanda-guida",
+    "categoria": "produttivita",
+    "titolo": "La domanda che accorcia la lista a una voce sola",
+    "libro": { "titolo": "Una cosa sola", "autore": "Gary Keller, Jay Papasan", "anno": 2013, "titoloOriginale": "The ONE Thing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "La tua lista delle cose da fare ==ti sta mentendo==." },
+      { "tipo": "testo", "titolo": "Non tutto pesa uguale", "testo": "Poche cose producono gran parte dei risultati. Gary Keller e Jay Papasan insistono: scegli le poche, poi fra quelle, finché ==ne resta una==." },
+      { "tipo": "colpo", "testo": "Una. Ma quale?" },
+      { "tipo": "principio", "testo": "Chiediti: qual è l'unica cosa che, fatta, rende il resto ==più facile o inutile==?" },
+      { "tipo": "esempio", "testo": "Vuoi cambiare lavoro. Curriculum, portali, un corso? Forse la cosa unica è scrivere a chi lavora già lì. ==Il resto viene dopo.== O non serve più." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Lista delle cose da fare", "voci": ["Lunga, tutto sullo stesso piano", "Ti tiene occupato"] },
+        "b": { "etichetta": "Lista del successo", "voci": ["Corta, in ordine di importanza", "Ti porta a un risultato"] } },
+      { "tipo": "chiusura", "azione": "Scrivi la domanda su un foglietto. Rispondi pensando a oggi. ==Fai quella cosa per prima.==" }
+    ]
+  },
+  {
+    "id": "one-thing-effetto-domino",
+    "categoria": "produttivita",
+    "titolo": "Fin dove arriva un domino che cresce del 50%",
+    "libro": { "titolo": "Una cosa sola", "autore": "Gary Keller, Jay Papasan", "anno": 2013, "titoloOriginale": "The ONE Thing" },
+    "scene": [
+      { "tipo": "apertura", "testo": "23 tessere del domino. La prima è alta 5 cm. ==L'ultima 380 metri.==" },
+      { "tipo": "testo", "titolo": "Lo dice la fisica", "testo": "Una tessera ne fa cadere una più grande del 50%. Lo mostrò il fisico Lorne Whitehead nel 1983. Ora ==mettile in fila==." },
+      { "tipo": "grafico", "titolo": "Altezza della tessera, se cresce del 50%", "forma": "linea", "unita": "m",
+        "dati": [ { "e": "1ª", "v": 0.05 }, { "e": "10ª", "v": 1.95 }, { "e": "18ª", "v": 50 }, { "e": "23ª", "v": 380 } ],
+        "nota": "Calcolo: 5,08 cm moltiplicati per 1,5 a ogni tessera." },
+      { "tipo": "colpo", "testo": "E siamo solo alla 23ª." },
+      { "tipo": "quiz", "domanda": "Vai avanti. Quanto è alta la tessera numero 31?",
+        "opzioni": ["Più dell'Everest", "Come il Monte Bianco", "Circa un chilometro"], "corretta": 0,
+        "spiegazione": "5,08 cm per 1,5 trenta volte: oltre 9700 metri. L'Everest ne misura 8849." },
+      { "tipo": "principio", "testo": "Per Keller e Papasan il successo si costruisce ==in sequenza==. Parti da una cosa piccola." },
+      { "tipo": "chiusura", "azione": "Scegli un obiettivo grande. Scrivi ==la sua prima tessera==: un gesto da fare oggi." }
+    ]
+  },
+  {
+    "id": "getting-things-done-testa-libera",
+    "categoria": "produttivita",
+    "titolo": "La testa serve per pensare, non per fare da agenda",
+    "libro": { "titolo": "Detto, fatto!", "autore": "David Allen", "anno": 2001, "titoloOriginale": "Getting Things Done" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Le due di notte. Ti svegli di colpo: ==devi chiamare il dentista==." },
+      { "tipo": "colpo", "testo": "Perché proprio adesso?" },
+      { "tipo": "testo", "titolo": "I cerchi aperti", "testo": "David Allen li chiama «open loops»: impegni presi e mai sistemati. Finché stanno in testa, ==la mente te li ripete==. Al momento sbagliato." },
+      { "tipo": "esempio", "testo": "L'esempio di Allen: la torcia con le pile scariche. Quando te ne ricordi? Quando non si accende. ==Mai davanti allo scaffale delle pile.==" },
+      { "tipo": "mito", "mito": "Se è importante, me lo ricordo", "realta": "Per Allen la testa serve ad avere idee, ==non a custodirle==." },
+      { "tipo": "elenco", "titolo": "Come si svuota la testa",
+        "voci": ["Scrivi ogni cosa in sospeso", "Pochi punti di raccolta: taccuino, app", "Svuotali con regolarità"] },
+      { "tipo": "chiusura", "azione": "Prendi un foglio. Per dieci minuti scrivi ==ogni cosa in sospeso==, senza ordinare." }
+    ]
+  },
+  {
+    "id": "getting-things-done-due-minuti",
+    "categoria": "produttivita",
+    "titolo": "Due minuti: la soglia fra «subito» e «dopo»",
+    "libro": { "titolo": "Detto, fatto!", "autore": "David Allen", "anno": 2001, "titoloOriginale": "Getting Things Done" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quella mail da un minuto che rimandi ==da tre giorni==." },
+      { "tipo": "elenco", "titolo": "Per rimandarla devi",
+        "voci": ["Segnarla da qualche parte", "Ritrovarla", "Rileggerla da capo"] },
+      { "tipo": "principio", "testo": "Organizzare una cosa costa tempo. Se farla costa meno, ==falla appena ti capita in mano==." },
+      { "tipo": "numero", "valore": 2, "suffisso": " min", "didascalia": "La soglia di David Allen: sotto i due minuti, ==non rimandare==." },
+      { "tipo": "colpo", "testo": "Ma non è un numero magico." },
+      { "tipo": "quiz", "domanda": "Hai una mattina libera per smaltire la posta. La soglia dei due minuti?",
+        "opzioni": ["Resta due: la regola è quella", "Può salire a cinque o dieci"], "corretta": 1,
+        "spiegazione": "Per Allen due minuti sono un'indicazione. Con poco tempo puoi scendere a uno." },
+      { "tipo": "chiusura", "azione": "Apri la posta. Sbriga subito i primi cinque messaggi da ==meno di due minuti==." }
+    ]
+  },
+  {
+    "id": "eat-that-frog-rana-per-prima",
+    "categoria": "produttivita",
+    "titolo": "Perché cominciare la giornata dalla cosa peggiore",
+    "libro": { "titolo": "Eat That Frog!", "autore": "Brian Tracy", "anno": 2001 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Domattina, per prima cosa, ==mangia una rana viva==." },
+      { "tipo": "colpo", "testo": "Il peggio è già passato." },
+      { "tipo": "testo", "titolo": "Che cos'è la rana", "testo": "Brian Tracy parte da questa battuta. La attribuisce a Mark Twain, ma non risulta sua. La rana è il compito più importante: ==quello che rimandi==." },
+      { "tipo": "mito", "mito": "Comincio dalle cose facili, così mi scaldo", "realta": "Per Tracy è una tentazione da vincere: ==prima il compito che conta==." },
+      { "tipo": "elenco", "titolo": "Le due regole di Tracy",
+        "voci": ["Due rane? Prima la più brutta", "Fissarla a lungo non serve: mangiala"] },
+      { "tipo": "principio", "testo": "Comincia dal compito più importante e ==non mollarlo== finché non è finito." },
+      { "tipo": "chiusura", "azione": "Stasera scrivi la lista di domani e ==cerchia la rana==. Prepara ciò che ti serve." }
+    ]
+  },
+  {
+    "id": "four-thousand-weeks-non-farai-tutto",
+    "categoria": "produttivita",
+    "titolo": "Non farai mai tutto, ed è una buona notizia",
+    "libro": { "titolo": "Quattromila settimane", "autore": "Oliver Burkeman", "anno": 2021, "titoloOriginale": "Four Thousand Weeks" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Una vita di 80 anni, contata in settimane. ==Spara un numero.==" },
+      { "tipo": "quiz", "domanda": "Se vivi fino a 80 anni, quante settimane hai in tutto?",
+        "opzioni": ["Circa 400 000", "Circa 40 000", "Circa 4000"], "corretta": 2,
+        "spiegazione": "80 anni per 52 settimane fa 4160. Oliver Burkeman arrotonda a quattromila." },
+      { "tipo": "colpo", "testo": "Quattromila. Tutto qui." },
+      { "tipo": "mito", "mito": "Se vado più veloce, prima o poi finisco tutto", "realta": "Più smaltisci, più arriva. Per Burkeman è la ==trappola dell'efficienza==." },
+      { "tipo": "principio", "testo": "Non farai mai tutto. Ed è un sollievo: smetti di rincorrere e ==scegli cosa trascurare==." },
+      { "tipo": "elenco", "titolo": "Due mosse di Burkeman",
+        "voci": ["Al massimo tre progetti aperti", "Decidi prima in cosa andrai male"] },
+      { "tipo": "chiusura", "azione": "Scrivi i progetti che hai aperti. Tienine ==al massimo tre==. Gli altri: «in attesa»." }
+    ]
+  },
+  {
+    "id": "indistractable-trazione",
+    "categoria": "produttivita",
+    "titolo": "Il contrario di distrazione non è concentrazione",
+    "libro": { "titolo": "Indistractable", "autore": "Nir Eyal", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Hai spento le notifiche e ti distrai lo stesso. ==Chi è stato?==" },
+      { "tipo": "mito", "mito": "Mi distraggo per colpa del telefono", "realta": "Per Nir Eyal la spinta parte da dentro: ==noia, ansia, stress==." },
+      { "tipo": "testo", "titolo": "Trazione", "testo": "Per Eyal il contrario di distrazione è «trazione». Stessa radice latina: «trahere», tirare. Una ti tira verso ciò che hai deciso. ==L'altra via.==" },
+      { "tipo": "quiz", "domanda": "Apri i social alle 21, come avevi deciso. È distrazione?",
+        "opzioni": ["No: l'avevo deciso io", "Sì: i social lo sono sempre"], "corretta": 0,
+        "spiegazione": "Per Eyal conta l'intenzione. Se era nel tuo programma, è trazione." },
+      { "tipo": "principio", "testo": "Senza un piano per il tuo tempo, non puoi dire ==cosa ti sta distraendo==." },
+      { "tipo": "chiusura", "azione": "Alla prossima voglia di aprire una app, scrivi cosa provi. Poi ==aspetta dieci minuti==." }
+    ]
+  },
+  {
+    "id": "hyperfocus-concentrarsi-e-vagare",
+    "categoria": "produttivita",
+    "titolo": "Le idee sotto la doccia non sono un caso",
+    "libro": { "titolo": "Hyperfocus", "autore": "Chris Bailey", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Perché le idee buone arrivano ==sotto la doccia== e non alla scrivania?" },
+      { "tipo": "mito", "mito": "Se la mente vaga, sto perdendo tempo", "realta": "Per Chris Bailey, se la lasci vagare apposta, ==collega idee lontane==." },
+      { "tipo": "testo", "titolo": "Si chiama scatterfocus", "testo": "Fai un gesto automatico: cammini, lavi i piatti. La mente vaga ==di proposito==. Così, dice Bailey, trova idee, fa piani e si ricarica." },
+      { "tipo": "confronto", "titolo": "Poi serve il contrario",
+        "a": { "etichetta": "Scatterfocus", "voci": ["La mente libera, di proposito", "Per trovare idee e fare piani"] },
+        "b": { "etichetta": "Hyperfocus", "voci": ["Un solo compito, zero distrazioni", "Per portare a termine"] } },
+      { "tipo": "colpo", "testo": "Servono tutte e due." },
+      { "tipo": "chiusura", "azione": "Oggi dieci minuti a piedi ==senza telefono né cuffie==. In tasca, un taccuino per le idee." }
+    ]
+  },
+  {
+    "id": "make-time-highlight",
+    "categoria": "produttivita",
+    "titolo": "Decidi stamattina il momento migliore di oggi",
+    "libro": { "titolo": "Make Time", "autore": "Jake Knapp, John Zeratsky", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Stasera ti chiederanno il momento migliore di oggi. ==Sceglilo ora.==" },
+      { "tipo": "testo", "titolo": "Si chiama Highlight", "testo": "Per Jake Knapp e John Zeratsky è ==una cosa sola== al giorno. Più grande di una voce in lista, più piccola di un obiettivo." },
+      { "tipo": "numero", "valore": 90, "suffisso": " min", "didascalia": "La durata massima consigliata per un Highlight. La minima è 60.", "nota": "Sotto i 60 non entri nel ritmo. Dopo 90 serve una pausa." },
+      { "tipo": "elenco", "titolo": "Tre modi per sceglierlo",
+        "voci": ["Urgenza: cosa preme di più oggi?", "Soddisfazione: cosa vorrei aver chiuso?", "Gioia: cosa mi farà più piacere?"] },
+      { "tipo": "principio", "testo": "Non devi fare di più. Decidi ogni giorno a cosa ==dare il meglio== e proteggi quel tempo." },
+      { "tipo": "colpo", "testo": "Anche se non è lavoro." },
+      { "tipo": "chiusura", "azione": "Scrivi su un post-it l'Highlight di domani. ==Blocca in agenda== da 60 a 90 minuti." }
+    ]
+  }
+]

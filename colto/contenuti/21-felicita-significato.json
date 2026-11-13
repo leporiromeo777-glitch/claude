@@ -1,0 +1,247 @@
+[
+  {
+    "id": "psicologo-nei-lager-ultima-liberta",
+    "categoria": "benessere",
+    "titolo": "La libertà che nessuno ti può togliere",
+    "libro": { "titolo": "Uno psicologo nei lager", "autore": "Viktor E. Frankl", "anno": 1946, "titoloOriginale": "Ein Psychologe erlebt das Konzentrationslager" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Auschwitz, 1944. A uno psichiatra tolgono tutto. ==Tranne una cosa.==" },
+      { "tipo": "testo", "titolo": "Viktor Frankl", "testo": "Medico di Vienna, deportato nel 1942. Passa per quattro lager. Da psichiatra ==osserva== i prigionieri, sé compreso." },
+      { "tipo": "colpo", "testo": "E nota una cosa." },
+      { "tipo": "esempio", "testo": "Nelle baracche c'è chi consola i compagni. Chi regala ==l'ultimo pezzo di pane==. Sono pochi, scrive Frankl. Ma bastano come prova." },
+      { "tipo": "principio", "testo": "A una persona puoi togliere tutto, tranne una libertà: ==scegliere come stare== davanti a ciò che le capita." },
+      { "tipo": "testo", "titolo": "Che cosa non dice", "testo": "Non dice che l'atteggiamento salvasse la vita: lì si moriva anche ==per caso==. Dice che una scelta interiore restava." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Non lo scegli", "voci": ["Che cosa ti succede"] },
+        "b": { "etichetta": "Lo scegli", "voci": ["Come rispondi"] } },
+      { "tipo": "chiusura", "azione": "Scrivi una cosa che oggi non puoi cambiare. Sotto: ==come scelgo di affrontarla==." }
+    ]
+  },
+  {
+    "id": "psicologo-nei-lager-domanda-girata",
+    "categoria": "benessere",
+    "titolo": "Il senso della vita? Frankl ribalta la domanda",
+    "libro": { "titolo": "Uno psicologo nei lager", "autore": "Viktor E. Frankl", "anno": 1946, "titoloOriginale": "Ein Psychologe erlebt das Konzentrationslager" },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Che senso ha la mia vita?» Per Frankl la domanda ==va girata==." },
+      { "tipo": "colpo", "testo": "Non sei tu a chiedere." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Di solito", "voci": ["Che cosa mi aspetto dalla vita?"] },
+        "b": { "etichetta": "Frankl", "voci": ["Che cosa si aspetta la vita da me?"] } },
+      { "tipo": "testo", "testo": "Viktor Frankl, psichiatra, lo capisce da prigioniero nei lager. È la vita a interrogarti, ogni giorno. E si risponde ==con quello che fai==." },
+      { "tipo": "esempio", "testo": "Due compagni non vedono più motivi per andare avanti. Frankl cerca con loro che cosa li aspetta fuori. Per uno ==un figlio==. Per l'altro dei libri da finire." },
+      { "tipo": "principio", "testo": "Chi ha ==un perché== per vivere regge quasi ogni come: Frankl lo riprende da Nietzsche." },
+      { "tipo": "chiusura", "azione": "Scrivi chi, o che cosa, ==ha bisogno di te== questa settimana. Comincia da lì." }
+    ]
+  },
+  {
+    "id": "happiness-hypothesis-felicita-in-mezzo",
+    "categoria": "benessere",
+    "titolo": "La felicità non viene da dentro. E nemmeno da fuori",
+    "libro": { "titolo": "The Happiness Hypothesis", "autore": "Jonathan Haidt", "anno": 2006 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Buddha e gli stoici: la felicità sta dentro di te. ==Manca un pezzo.==" },
+      { "tipo": "colpo", "testo": "Uno psicologo controlla." },
+      { "tipo": "quiz", "domanda": "Casa più grande, ma più traffico ogni giorno. A cosa ti abitui?",
+        "opzioni": ["Alla casa", "Al traffico"], "corretta": 0,
+        "spiegazione": "Per Jonathan Haidt allo spazio ti adatti presto. Al traffico no: certe cose esterne pesano." },
+      { "tipo": "colpo", "testo": "Quindi viene da fuori? No." },
+      { "tipo": "principio", "testo": "La felicità non viene né da dentro né da fuori: ==nasce in mezzo==, dai legami fra te e il resto." },
+      { "tipo": "elenco", "titolo": "I tre legami, per Haidt",
+        "voci": ["Fra te e gli altri", "Fra te e il tuo lavoro", "Fra te e ==qualcosa di più grande=="] },
+      { "tipo": "chiusura", "azione": "Guarda la tua settimana: quale dei tre legami trascuri? ==Dagli un'ora in agenda==." }
+    ]
+  },
+  {
+    "id": "ikigai-ragione-per-alzarsi",
+    "categoria": "benessere",
+    "titolo": "Il paese dove a 90 anni si cura ancora l'orto",
+    "libro": { "titolo": "Ikigai", "autore": "Héctor García, Francesc Miralles", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "A Ogimi, in Giappone, anche chi ha novant'anni ==cura un orto==. Perché?" },
+      { "tipo": "testo", "testo": "Héctor García e Francesc Miralles vanno a Ogimi, detto villaggio della longevità. Non fanno esperimenti: chiedono agli anziani ==come vivono==." },
+      { "tipo": "colpo", "testo": "Lì lo chiamano ==ikigai==." },
+      { "tipo": "principio", "testo": "Per gli autori l'ikigai è ==il motivo per cui ti alzi==: ciò che ti tiene attivo." },
+      { "tipo": "mito", "mito": "L'ikigai è lo schema a quattro cerchi", "realta": "Quello schema ==non nasce in Giappone==. Lì ikigai è una ragione per vivere." },
+      { "tipo": "elenco", "titolo": "Che cosa notano a Ogimi",
+        "voci": ["Quasi tutti curano ==un orto==", "Gruppi di amici che si aiutano: i moai", "A tavola ci si ferma prima di essere pieni"] },
+      { "tipo": "chiusura", "azione": "Scrivi una cosa per cui domattina ==vale la pena alzarsi==. Mettila in agenda alle 8." }
+    ]
+  },
+  {
+    "id": "potere-di-adesso-problema-adesso",
+    "categoria": "benessere",
+    "titolo": "Che problema hai in questo preciso momento?",
+    "libro": { "titolo": "Il potere di Adesso", "autore": "Eckhart Tolle", "anno": 1997, "titoloOriginale": "The Power of Now" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Che problema hai in questo preciso istante? ==Non domani. Adesso.==" },
+      { "tipo": "colpo", "testo": "Pensaci davvero." },
+      { "tipo": "testo", "testo": "È una domanda di Eckhart Tolle, maestro spirituale. Per lui la risposta è quasi sempre: nessuno. I problemi vivono ==nel prima e nel dopo==." },
+      { "tipo": "elenco", "titolo": "Dove va la testa, secondo Tolle",
+        "voci": ["Troppo futuro: ansia", "Troppo passato: rimpianto e rancore", "Adesso: una cosa da fare, o da accettare"] },
+      { "tipo": "mito", "mito": "Vivere nel presente vuol dire non fare piani", "realta": "Per Tolle i piani servono. Poi ==torni a ciò che fai ora==." },
+      { "tipo": "principio", "testo": "Passato e futuro esistono solo come pensieri. ==La vita succede adesso==, e solo adesso puoi agire." },
+      { "tipo": "chiusura", "azione": "Per un minuto segui ==solo il respiro==. Poi richiediti: che problema ho, adesso?" }
+    ]
+  },
+  {
+    "id": "subtle-art-scegli-la-fatica",
+    "categoria": "benessere",
+    "titolo": "Non conta cosa vuoi: conta che fatica scegli",
+    "libro": { "titolo": "The Subtle Art of Not Giving a F*ck", "autore": "Mark Manson", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tutti vogliono gli addominali. Quasi nessuno vuole ==la palestra alle 6==." },
+      { "tipo": "mito", "mito": "Per essere felice devi sapere cosa vuoi", "realta": "Per Mark Manson vogliamo tutti le stesse cose. Conta ==quale fatica accetti==." },
+      { "tipo": "esempio", "testo": "Da ragazzo Manson sogna di fare la rockstar. Ma provare ogni giorno, trovare una band, caricare gli strumenti gli pesa. Dopo anni molla." },
+      { "tipo": "colpo", "testo": "Amava la cima. ==Non la salita.==" },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Domanda facile", "voci": ["Che cosa voglio godermi?"] },
+        "b": { "etichetta": "Domanda utile", "voci": ["Per che cosa accetto di faticare?"] } },
+      { "tipo": "principio", "testo": "Non ti definisce ciò che sogni. Ti definisce ==la fatica che accetti di fare==." },
+      { "tipo": "chiusura", "azione": "Prendi un tuo obiettivo e scrivi ==la sua parte noiosa==. La faresti ogni settimana?" }
+    ]
+  },
+  {
+    "id": "coraggio-non-piacere-separazione-compiti",
+    "categoria": "benessere",
+    "titolo": "Di chi è questo problema? Forse non tuo",
+    "libro": { "titolo": "Il coraggio di non piacere", "autore": "Ichiro Kishimi, Fumitake Koga", "anno": 2013, "titoloOriginale": "Kirawareru yuki" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Quante cose fai solo perché ==qualcuno non ci resti male==?" },
+      { "tipo": "testo", "testo": "Il libro è un dialogo fra un filosofo e un ragazzo. Le idee sono di Alfred Adler. La regola: chiediti ==di chi è il compito==." },
+      { "tipo": "quiz", "domanda": "Come capisci di chi è un compito?",
+        "opzioni": ["Da chi ci tiene di più", "Da chi ne avrà le conseguenze"], "corretta": 1,
+        "spiegazione": "È di chi alla fine riceve il risultato della scelta. Studiare è compito del figlio." },
+      { "tipo": "confronto", "titolo": "Dopo che hai detto un no",
+        "a": { "etichetta": "Compito dell'altro", "voci": ["Che cosa pensa di te"] },
+        "b": { "etichetta": "Compito tuo", "voci": ["Fare ciò che ritieni giusto"] } },
+      { "tipo": "colpo", "testo": "Aiutare sì. ==Sostituirsi no.==" },
+      { "tipo": "principio", "testo": "Essere liberi vuol dire accettare che ==a qualcuno non piacerai==: quel giudizio non è compito tuo." },
+      { "tipo": "chiusura", "azione": "Prendi il pensiero che ti pesa oggi e scrivi accanto: ==compito mio o suo?==" }
+    ]
+  },
+  {
+    "id": "flourish-cinque-pezzi-perma",
+    "categoria": "benessere",
+    "titolo": "Stare bene è fatto di cinque pezzi, non di uno",
+    "libro": { "titolo": "Flourish", "autore": "Martin E. P. Seligman", "anno": 2011 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Nel 2002 scrive un libro sulla felicità. Nel 2011 ==si corregge da solo==." },
+      { "tipo": "testo", "testo": "Martin Seligman, fra i fondatori della psicologia positiva, cambia idea: la felicità come buonumore ==è troppo poco==." },
+      { "tipo": "colpo", "testo": "Servono cinque pezzi." },
+      { "tipo": "grafico", "titolo": "I cinque pezzi: un profilo di esempio (0-10)", "forma": "barre",
+        "dati": [ { "e": "Emozioni", "v": 8 }, { "e": "Flow", "v": 4 }, { "e": "Relazioni", "v": 7 }, { "e": "Senso", "v": 3 }, { "e": "Risultati", "v": 6 } ],
+        "nota": "Esempio illustrativo: ognuno ha il suo profilo." },
+      { "tipo": "testo", "titolo": "Le iniziali inglesi: PERMA", "testo": "Emozioni positive. Flow: sei così preso che il tempo vola. Relazioni. Senso. Risultati. Ognuno ==vale per sé==." },
+      { "tipo": "quiz", "domanda": "Quale di questi non è fra i cinque pezzi?",
+        "opzioni": ["Relazioni", "Risultati", "Soldi"], "corretta": 2,
+        "spiegazione": "Il denaro non c'è. Per Seligman è un mezzo: conta se fa crescere il benessere." },
+      { "tipo": "chiusura", "azione": "Dai un voto da 0 a 10 ai cinque pezzi. Al più basso dedica ==dieci minuti oggi==." }
+    ]
+  },
+  {
+    "id": "arte-felicita-piacere-o-felicita",
+    "categoria": "benessere",
+    "titolo": "Prima della terza fetta di torta, chiediti questo",
+    "libro": { "titolo": "L'arte della felicità", "autore": "Dalai Lama, Howard C. Cutler", "anno": 1998, "titoloOriginale": "The Art of Happiness" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Terza fetta di torta. Prima di prenderla, prova ==una domanda sola==." },
+      { "tipo": "quiz", "domanda": "Quale domanda, secondo te?",
+        "opzioni": ["Me la merito?", "Mi renderà felice?", "Quante calorie ha?"], "corretta": 1,
+        "spiegazione": "Non «mi piacerà?» ma «mi renderà felice?». Per il libro sono due cose diverse." },
+      { "tipo": "colpo", "testo": "Piacere ==non è felicità==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Piacere", "voci": ["Arriva subito, dura poco"] },
+        "b": { "etichetta": "Felicità", "voci": ["Si costruisce allenando la mente"] } },
+      { "tipo": "testo", "testo": "Lo psichiatra Howard Cutler ne parla a lungo con il Dalai Lama. L'idea di fondo: la felicità ==si può allenare==, come un'abilità." },
+      { "tipo": "principio", "testo": "Con quella domanda non ti neghi qualcosa: ==scegli qualcosa==. Per questo il no pesa meno." },
+      { "tipo": "chiusura", "azione": "Oggi, davanti a uno sfizio, chiediti: ==mi renderà felice?== Poi decidi tu." }
+    ]
+  },
+  {
+    "id": "dovunque-tu-vada-onde-e-surf",
+    "categoria": "benessere",
+    "titolo": "Meditare non è svuotare la testa",
+    "libro": { "titolo": "Dovunque tu vada, ci sei già", "autore": "Jon Kabat-Zinn", "anno": 1994, "titoloOriginale": "Wherever You Go, There You Are" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Prova a non pensare a niente per dieci secondi. ==Fallito? Bene.==" },
+      { "tipo": "mito", "mito": "Meditare vuol dire svuotare la mente", "realta": "Per Jon Kabat-Zinn è ==accorgerti di dove va== la mente. E riportarla qui." },
+      { "tipo": "elenco", "titolo": "Consapevolezza è fare attenzione…",
+        "voci": ["Di proposito", "Al momento presente", "==Senza giudicare=="] },
+      { "tipo": "colpo", "testo": "Poi c'è un poster." },
+      { "tipo": "esempio", "testo": "Kabat-Zinn lo descrive: un maestro di yoga anziano, barba bianca, su una tavola da surf. Il senso: le onde ==non le fermi==. Impari a cavalcarle." },
+      { "tipo": "principio", "testo": "Pensieri e stress arrivano come onde. Non puoi fermarli: ==puoi imparare a starci sopra==." },
+      { "tipo": "chiusura", "azione": "Fermati dove sei e segui ==tre respiri interi==. Se la testa scappa, riportala." }
+    ]
+  },
+  {
+    "id": "gifts-of-imperfection-perfezionismo-scudo",
+    "categoria": "benessere",
+    "titolo": "Il perfezionismo non è voler fare bene",
+    "libro": { "titolo": "The Gifts of Imperfection", "autore": "Brené Brown", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Rileggi la mail otto volte prima di inviarla. ==Non è precisione.==" },
+      { "tipo": "mito", "mito": "Il perfezionismo è solo voler fare bene", "realta": "Per Brené Brown è ==uno scudo==: speri di evitare critiche e vergogna." },
+      { "tipo": "testo", "testo": "Brown studia da anni la vergogna. Il ragionamento nascosto, dice, è questo: se sembro perfetto, ==nessuno potrà giudicarmi==." },
+      { "tipo": "confronto", "titolo": "La domanda che ti fai",
+        "a": { "etichetta": "Perfezionismo", "voci": ["Che cosa penseranno di me?"] },
+        "b": { "etichetta": "Voler migliorare", "voci": ["Come posso fare meglio?"] } },
+      { "tipo": "esempio", "testo": "Il progetto è pronto da mesi. Non lo mostri: «manca ancora qualcosa». Brown la chiama ==paralisi==: le occasioni perse per paura di non essere perfetti." },
+      { "tipo": "colpo", "testo": "Lo scudo pesa. ==E non protegge.==" },
+      { "tipo": "chiusura", "azione": "Scegli una cosa che tieni ferma da troppo. Oggi ==mostrala a una persona== così com'è." }
+    ]
+  },
+  {
+    "id": "how-of-happiness-dose-giusta",
+    "categoria": "benessere",
+    "titolo": "Il diario della gratitudine ha una dose giusta",
+    "libro": { "titolo": "The How of Happiness", "autore": "Sonja Lyubomirsky", "anno": 2007 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Scrivere per cosa sei grato fa bene. ==Più spesso è meglio?==" },
+      { "tipo": "testo", "testo": "La psicologa Sonja Lyubomirsky lo prova con due gruppi, per sei settimane. Uno scrive una volta a settimana. L'altro tre." },
+      { "tipo": "quiz", "domanda": "Chi diventa più felice?",
+        "opzioni": ["Chi scrive una volta", "Chi scrive tre volte", "Uguale"], "corretta": 0,
+        "spiegazione": "Solo chi scrive una volta. Ipotesi dell'autrice: per gli altri era diventato un compito." },
+      { "tipo": "colpo", "testo": "E non è l'unico caso." },
+      { "tipo": "esempio", "testo": "Altro suo studio: cinque gesti gentili a settimana. Sta meglio chi li fa ==tutti in un giorno==. Sparsi, si confondono con il resto." },
+      { "tipo": "principio", "testo": "Più spesso non vuol dire meglio. Per stare bene ==contano momento e varietà==." },
+      { "tipo": "chiusura", "azione": "Scegli una sera fissa a settimana. Lì scrivi ==cinque cose per cui sei grato==." }
+    ]
+  },
+  {
+    "id": "good-life-relazioni-a-80-anni",
+    "categoria": "benessere",
+    "titolo": "Cosa prevede come starai a 80 anni",
+    "libro": { "titolo": "The Good Life", "autore": "Robert Waldinger, Marc Schulz", "anno": 2023 },
+    "scene": [
+      { "tipo": "apertura", "testo": "A 50 anni un dato prevede come starai a 80. ==Non è il colesterolo.==" },
+      { "tipo": "numero", "valore": 724, "didascalia": "Ragazzi di Harvard e dei quartieri poveri di Boston, seguiti ==dal 1938==.", "nota": "Harvard Study of Adult Development, oggi guidato dagli autori." },
+      { "tipo": "quiz", "domanda": "Che cosa prevedeva meglio la salute a 80 anni?",
+        "opzioni": ["Il reddito a 50 anni", "La carriera fatta", "La soddisfazione per i legami"], "corretta": 2,
+        "spiegazione": "Chi a 50 anni era più contento dei suoi legami era il più sano a 80. Più del colesterolo." },
+      { "tipo": "colpo", "testo": "Non servono cento amici." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Conta meno", "voci": ["Quanti contatti hai"] },
+        "b": { "etichetta": "Conta di più", "voci": ["Su chi puoi contare davvero"] } },
+      { "tipo": "principio", "testo": "La protezione più forte per salute e felicità? Per gli autori ==i legami stretti==." },
+      { "tipo": "chiusura", "azione": "Pensa a una persona che ti manca. ==Scrivile adesso==, anche solo due righe." }
+    ]
+  },
+  {
+    "id": "good-life-forma-sociale",
+    "categoria": "benessere",
+    "titolo": "Quanto tempo ti resta con il tuo migliore amico",
+    "libro": { "titolo": "The Good Life", "autore": "Robert Waldinger, Marc Schulz", "anno": 2023 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un'ora a settimana con un amico, per 40 anni. Totale: ==87 giorni==." },
+      { "tipo": "colpo", "testo": "Meno di tre mesi." },
+      { "tipo": "grafico", "titolo": "Un'ora insieme per 40 anni: giorni in tutto", "forma": "barre", "unita": "gg",
+        "dati": [ { "e": "A sett.", "v": 87 }, { "e": "Al mese", "v": 20 }, { "e": "All'anno", "v": 2 } ],
+        "nota": "Esempio illustrativo: ore totali divise per 24, arrotondate." },
+      { "tipo": "testo", "titolo": "Forma sociale", "testo": "Waldinger e Schulz dirigono lo studio di Harvard sulla vita adulta. Per loro i legami sono come muscoli: ==fermi, si indeboliscono==." },
+      { "tipo": "mito", "mito": "Le amicizie vere durano da sole", "realta": "Per gli autori vanno ==tenute in allenamento==, come il corpo." },
+      { "tipo": "esempio", "testo": "Marta e Giulia si scrivono «dobbiamo vederci» da due anni. Nessuna lite. ==Nessuna data.== Un'amicizia può spegnersi così, senza che nessuno lo decida." },
+      { "tipo": "chiusura", "azione": "Apri l'agenda. Fissa ==un appuntamento che si ripete== con una persona che conta." }
+    ]
+  }
+]

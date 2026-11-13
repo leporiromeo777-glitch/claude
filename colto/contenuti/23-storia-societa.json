@@ -1,0 +1,250 @@
+[
+  {
+    "id": "sapiens-finzioni-condivise",
+    "categoria": "storia",
+    "titolo": "Perché comandiamo noi e non gli scimpanzé",
+    "libro": { "titolo": "Sapiens. Da animali a dèi", "autore": "Yuval Noah Harari", "anno": 2011, "titoloOriginale": "Sapiens: A Brief History of Humankind" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Prometti il paradiso a una scimmia in cambio di una banana. ==Rifiuta.==" },
+      { "tipo": "colpo", "testo": "Noi umani invece ==ci crediamo==." },
+      { "tipo": "testo", "titolo": "Le finzioni condivise", "testo": "Per Harari il segreto di Sapiens è questo. Crediamo in tanti a cose che esistono ==solo nell'immaginazione==. Dèi, nazioni, soldi, aziende." },
+      { "tipo": "numero", "valore": 150, "didascalia": "Circa. Il limite di un gruppo tenuto insieme ==dal pettegolezzo==, secondo Harari.",
+        "nota": "Oltre questa soglia serve una storia comune." },
+      { "tipo": "esempio", "testo": "Peugeot non è le sue auto né i suoi operai. Per Harari è una ==finzione legale==. Esiste perché giudici, banche e clienti credono alla stessa storia." },
+      { "tipo": "principio", "testo": "Milioni di sconosciuti collaborano solo quando ==credono alla stessa storia==." },
+      { "tipo": "chiusura", "azione": "Prendi una banconota e chiediti: ==perché il barista la accetta?==" }
+    ]
+  },
+  {
+    "id": "sapiens-trappola-del-grano",
+    "categoria": "storia",
+    "titolo": "Chi ha addomesticato chi? Il grano e noi",
+    "libro": { "titolo": "Sapiens. Da animali a dèi", "autore": "Yuval Noah Harari", "anno": 2011, "titoloOriginale": "Sapiens: A Brief History of Humankind" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il grano non l'abbiamo addomesticato noi. ==È stato lui.==" },
+      { "tipo": "testo", "titolo": "Diecimila anni fa", "testo": "Il grano è un'erba selvatica del Medio Oriente. Poi Sapiens comincia a zappare, irrigare e togliere sassi ==per lui==. Dall'alba al tramonto." },
+      { "tipo": "quiz", "domanda": "Chi lavorava meno ore, secondo Harari?",
+        "opzioni": ["I cacciatori-raccoglitori", "I primi contadini"], "corretta": 0,
+        "spiegazione": "I raccoglitori mangiavano più vario e faticavano meno. Il contadino ebbe più cibo, non più tempo." },
+      { "tipo": "colpo", "testo": "Allora ==chi ci ha guadagnato==?" },
+      { "tipo": "numero", "valore": 2.25, "decimali": 2, "suffisso": " mln km²",
+        "didascalia": "La terra coperta oggi dal grano: ==quasi dieci volte la Gran Bretagna==.",
+        "nota": "Dato riportato da Harari." },
+      { "tipo": "principio", "testo": "Per Harari l'agricoltura fu una trappola: ==più cibo, più bocche, più fatica==. E indietro non si torna." },
+      { "tipo": "chiusura", "azione": "Scrivi una comodità che per te è diventata un obbligo. ==Decidi se tenerla.==" }
+    ]
+  },
+  {
+    "id": "homo-deus-like-ti-conoscono",
+    "categoria": "storia",
+    "titolo": "Quanti like servono per conoscerti meglio dei tuoi",
+    "libro": { "titolo": "Homo Deus. Breve storia del futuro", "autore": "Yuval Noah Harari", "anno": 2015, "titoloOriginale": "Homo Deus: A Brief History of Tomorrow" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Bastano 300 like e un algoritmo ti descrive ==meglio del tuo partner==." },
+      { "tipo": "quiz", "domanda": "E per descriverti meglio di un collega di lavoro, quanti like servono?",
+        "opzioni": ["10", "100", "200"], "corretta": 0,
+        "spiegazione": "Ne bastano dieci. Harari cita uno studio del 2015 su 86 mila utenti Facebook." },
+      { "tipo": "grafico", "titolo": "Like che bastano per battere chi ti conosce", "forma": "barre",
+        "dati": [ { "e": "Collega", "v": 10 }, { "e": "Amico", "v": 70 }, { "e": "Famiglia", "v": 150 }, { "e": "Partner", "v": 300 } ],
+        "nota": "La gara: prevedere un test di personalità." },
+      { "tipo": "colpo", "testo": "E quello era ==il 2015==." },
+      { "tipo": "testo", "titolo": "Chi ha l'ultima parola", "testo": "Per secoli il consiglio è stato: ascolta te stesso. Harari immagina il passo dopo. Se i dati ti conoscono meglio, ==ascolterai loro==." },
+      { "tipo": "principio", "testo": "Harari lo chiama dataismo: ==l'autorità passa da te agli algoritmi==. È uno scenario, non una profezia." },
+      { "tipo": "chiusura", "azione": "Apri l'app di musica o video. Delle scelte di oggi, ==quante erano tue?==" }
+    ]
+  },
+  {
+    "id": "21-lezioni-mosca-e-toro",
+    "categoria": "storia",
+    "titolo": "La mosca, il toro e la paura del terrorismo",
+    "libro": { "titolo": "21 lezioni per il XXI secolo", "autore": "Yuval Noah Harari", "anno": 2018, "titoloOriginale": "21 Lessons for the 21st Century" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Come fa una mosca a distruggere ==un negozio di porcellane==?" },
+      { "tipo": "colpo", "testo": "Le serve ==un toro==." },
+      { "tipo": "esempio", "testo": "Da sola non sposta una tazzina. Allora entra nell'orecchio di un toro e ronza. Il toro, impazzito di paura e rabbia, ==sfascia il negozio==." },
+      { "tipo": "testo", "titolo": "La metafora è di Harari", "testo": "Per lui il terrorista è la mosca. È troppo debole per vincere da solo. Punta tutto sulla ==reazione esagerata== di chi è molto più forte." },
+      { "tipo": "numero", "valore": 50, "didascalia": "Circa. I morti l'anno per terrorismo nell'Unione Europea ==dopo il 2001==.",
+        "nota": "Sulle strade europee, scrive Harari, circa 80 mila l'anno." },
+      { "tipo": "principio", "testo": "Per Harari il terrorismo è uno spettacolo. ==Vince solo se la paura ci fa reagire male.==" },
+      { "tipo": "chiusura", "azione": "Una notizia ti spaventa? Cerca ==quanti casi ci sono in un anno==." }
+    ]
+  },
+  {
+    "id": "armi-acciaio-malattie-germi-del-bestiame",
+    "categoria": "storia",
+    "titolo": "168 spagnoli contro 80 mila: l'arma che non si vedeva",
+    "libro": { "titolo": "Armi, acciaio e malattie", "autore": "Jared Diamond", "anno": 1997, "titoloOriginale": "Guns, Germs, and Steel" },
+    "scene": [
+      { "tipo": "apertura", "testo": "In 168 catturano un imperatore difeso da ==80 mila soldati==. È il 1532." },
+      { "tipo": "colpo", "testo": "Non fu solo ==l'acciaio==." },
+      { "tipo": "quiz", "domanda": "Dopo Colombo, che cosa uccise più nativi americani?",
+        "opzioni": ["Le spade", "I fucili", "Le malattie"], "corretta": 2,
+        "spiegazione": "Il vaiolo arrivò in Perù prima di Pizarro. Per Diamond i germi uccisero più delle armi." },
+      { "tipo": "testo", "titolo": "Il regalo letale del bestiame", "testo": "Vaiolo e morbillo nascono da germi degli animali domestici. Chi viveva da millenni accanto al bestiame ==aveva sviluppato difese==." },
+      { "tipo": "numero", "valore": 13, "suffisso": " su 14",
+        "didascalia": "I grandi mammiferi domestici nati in Eurasia. ==Alle Americhe toccò il lama.==",
+        "nota": "Conteggio di Diamond." },
+      { "tipo": "principio", "testo": "Per Diamond non vinsero popoli migliori. Vinse ==la geografia==, che distribuì male animali e germi." },
+      { "tipo": "chiusura", "azione": "A cena scegli un cibo nel piatto. Cerca ==in quale continente è nato==." }
+    ]
+  },
+  {
+    "id": "armi-acciaio-malattie-asse-dei-continenti",
+    "categoria": "storia",
+    "titolo": "L'Eurasia è larga, le Americhe lunghe: e cambia tutto",
+    "libro": { "titolo": "Armi, acciaio e malattie", "autore": "Jared Diamond", "anno": 1997, "titoloOriginale": "Guns, Germs, and Steel" },
+    "scene": [
+      { "tipo": "apertura", "testo": "L'Eurasia è larga. Le Americhe sono lunghe. ==Per Diamond cambia tutto.==" },
+      { "tipo": "testo", "titolo": "Stessa latitudine, stesso clima", "testo": "Da est a ovest stagioni e ore di luce si somigliano. Il grano della Mezzaluna fertile ==arriva fino in Spagna e in India==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Asse nord-sud", "voci": ["Americhe e Africa", "Ogni tratto, un clima diverso"] },
+        "b": { "etichetta": "Asse est-ovest", "voci": ["Eurasia", "Semi e animali viaggiano veloci"] } },
+      { "tipo": "colpo", "testo": "Poi c'è ==la storia della ruota==." },
+      { "tipo": "esempio", "testo": "In Messico inventano la ruota, ma resta sui giocattoli. Sulle Ande allevano i lama. Ruota e lama ==non si incontrano mai==. In mezzo ci sono i tropici." },
+      { "tipo": "principio", "testo": "Per Diamond conta la forma dei continenti. Decide ==quanto in fretta viaggiano== semi, animali e idee." },
+      { "tipo": "chiusura", "azione": "Trova la tua città sulla mappa e segui il parallelo. ==Quali paesi incontri?==" }
+    ]
+  },
+  {
+    "id": "collasso-ultimo-albero-isola-di-pasqua",
+    "categoria": "storia",
+    "titolo": "Chi ha tagliato l'ultimo albero dell'Isola di Pasqua?",
+    "libro": { "titolo": "Collasso", "autore": "Jared Diamond", "anno": 2005, "titoloOriginale": "Collapse" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Cosa pensava chi tagliò ==l'ultimo albero== dell'Isola di Pasqua?" },
+      { "tipo": "esempio", "testo": "È la domanda di Jared Diamond. Per lui gli isolani abbattono le palme: servono campi, canoe, statue. Senza legno arrivano ==fame, guerre, crollo==." },
+      { "tipo": "colpo", "testo": "Ma forse ==non andò così==." },
+      { "tipo": "confronto", "titolo": "Una tesi contestata",
+        "a": { "etichetta": "Diamond", "voci": ["Foresta tagliata dagli isolani", "Crollo prima degli europei"] },
+        "b": { "etichetta": "Altri archeologi", "voci": ["Semi di palma mangiati dai topi", "Crollo dopo il 1722, con gli europei"] } },
+      { "tipo": "testo", "titolo": "Cosa resta dell'idea", "testo": "Diamond confronta molte società con cinque fattori: ambiente, clima, nemici, commerci persi. Il quinto c'è sempre: ==come la società reagisce==." },
+      { "tipo": "principio", "testo": "Per Diamond il collasso non è destino. Conta ==cosa scegli di fare== quando il problema si vede già." },
+      { "tipo": "chiusura", "azione": "Cerca «Rapa Nui» e leggi le due versioni. ==Quale ti convince di più?==" }
+    ]
+  },
+  {
+    "id": "lessons-of-history-ricchezza-concentrata",
+    "categoria": "storia",
+    "titolo": "Atene, 594 a.C.: la rivolta che non scoppiò",
+    "libro": { "titolo": "The Lessons of History", "autore": "Will Durant, Ariel Durant", "anno": 1968 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Atene, 594 avanti Cristo. Ricchi e poveri ==a un passo dalla guerra==." },
+      { "tipo": "esempio", "testo": "Gli ateniesi eleggono Solone. Svaluta la moneta, alleggerisce i debiti, tassa di più i ricchi. Protestano tutti. ==La rivolta non scoppia.==" },
+      { "tipo": "mito", "mito": "La disuguaglianza estrema è un problema moderno", "realta": "Per i Durant torna in ogni epoca: ==la ricchezza tende a concentrarsi==." },
+      { "tipo": "colpo", "testo": "E dopo? ==Due finali.==" },
+      { "tipo": "confronto", "titolo": "Come torna in circolo",
+        "a": { "etichetta": "Roma", "voci": ["Il Senato ferma i Gracchi", "Un secolo di guerre civili"] },
+        "b": { "etichetta": "Atene", "voci": ["Le riforme di Solone", "Niente rivoluzione"] } },
+      { "tipo": "principio", "testo": "Per i Durant finisce in due modi. Una legge redistribuisce ricchezza, o ==una rivolta distribuisce povertà==." },
+      { "tipo": "chiusura", "azione": "Leggi una notizia di oggi su tasse o debiti. ==Cerca un caso simile nel passato.==" }
+    ]
+  },
+  {
+    "id": "menti-tribali-sei-sapori-morali",
+    "categoria": "storia",
+    "titolo": "Perché a cena nessuno cambia idea sulla politica",
+    "libro": { "titolo": "Menti tribali", "autore": "Jonathan Haidt", "anno": 2012, "titoloOriginale": "The Righteous Mind" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Cena di famiglia, si parla di politica. ==Nessuno cambia idea.== Mai." },
+      { "tipo": "colpo", "testo": "Non è ==testardaggine==." },
+      { "tipo": "testo", "titolo": "La morale ha sei sapori", "testo": "Per Jonathan Haidt la mente morale è come una lingua. Ha ==sei recettori del gusto==. Li abbiamo tutti. Ognuno li pesa a modo suo." },
+      { "tipo": "elenco", "titolo": "I sei fondamenti morali", "voci": ["Cura ed equità", "Lealtà e autorità", "Sacralità e libertà"] },
+      { "tipo": "esempio", "testo": "Una donna trova una vecchia bandiera. La taglia e ci pulisce il bagno. Non fa male a nessuno. Ma se senti forte ==lealtà e sacralità==, è un oltraggio." },
+      { "tipo": "mito", "mito": "Chi vota diverso da me non ha valori", "realta": "Per Haidt ha gli stessi sei sapori. ==Li pesa in modo diverso== da te." },
+      { "tipo": "chiusura", "azione": "Alla prossima discussione chiedi: ==che cosa ti sta a cuore qui?== Poi ascolta." }
+    ]
+  },
+  {
+    "id": "bowling-alone-capitale-sociale",
+    "categoria": "storia",
+    "titolo": "Più gente al bowling, meno squadre: che succede?",
+    "libro": { "titolo": "Capitale sociale e individualismo", "autore": "Robert D. Putnam", "anno": 2000, "titoloOriginale": "Bowling Alone" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Sempre più americani giocano a bowling. Sempre meno ==in squadra==." },
+      { "tipo": "confronto", "titolo": "Bowling negli USA, 1980-1993",
+        "a": { "etichetta": "Giocatori", "voci": ["+10%"] },
+        "b": { "etichetta": "Iscritti ai campionati", "voci": ["−40%"] } },
+      { "tipo": "colpo", "testo": "Il bowling ==è solo un simbolo==." },
+      { "tipo": "testo", "titolo": "Si chiama capitale sociale", "testo": "Per Putnam è la ricchezza fatta di legami. Club, sindacati, parrocchie, cene con amici. Negli USA cala ==nell'ultimo terzo del Novecento==." },
+      { "tipo": "quiz", "domanda": "Quale causa pesa di più, secondo Putnam?",
+        "opzioni": ["La televisione", "Il ricambio generazionale", "Il troppo lavoro"], "corretta": 1,
+        "spiegazione": "Vale circa metà del calo. I nati prima del 1940 partecipavano di più. La TV, un quarto." },
+      { "tipo": "principio", "testo": "Una comunità funziona grazie a ==fiducia e favori reciproci==. Si costruiscono solo frequentandosi." },
+      { "tipo": "chiusura", "azione": "Cerca oggi ==un gruppo vicino a casa==: una squadra, un coro, un'associazione." }
+    ]
+  },
+  {
+    "id": "declino-violenza-epoca-piu-pacifica",
+    "categoria": "storia",
+    "titolo": "E se vivessimo nell'epoca meno violenta di sempre?",
+    "libro": { "titolo": "Il declino della violenza", "autore": "Steven Pinker", "anno": 2011, "titoloOriginale": "The Better Angels of Our Nature" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Apri le notizie: sembra ==l'epoca più violenta di sempre==." },
+      { "tipo": "mito", "mito": "Il mondo non è mai stato così violento", "realta": "Per Pinker la violenza ==cala da secoli==: forse è l'epoca più pacifica." },
+      { "tipo": "numero", "valore": 10, "suffisso": " volte",
+        "didascalia": "Almeno. Il calo degli omicidi in Europa ==dal Medioevo al Novecento==.",
+        "nota": "Fra 10 e 50 volte, scrive Pinker. Sulle guerre la tesi è più discussa." },
+      { "tipo": "colpo", "testo": "Allora perché ==non sembra==?" },
+      { "tipo": "testo", "testo": "Una strage fa notizia. Milioni di persone che arrivano a sera vive, no. Così la memoria si riempie di ==casi rari e terribili==." },
+      { "tipo": "elenco", "titolo": "Cosa ci ha cambiati, per Pinker",
+        "voci": ["Stati che fermano le vendette private", "Il commercio: l'altro ti serve vivo", "Lettura e istruzione: più empatia"] },
+      { "tipo": "chiusura", "azione": "Per una brutta notizia di oggi cerca ==il dato degli ultimi cinquant'anni==." }
+    ]
+  },
+  {
+    "id": "vie-della-seta-centro-del-mondo",
+    "categoria": "storia",
+    "titolo": "Il centro del mondo non era dove pensi",
+    "libro": { "titolo": "Le vie della seta", "autore": "Peter Frankopan", "anno": 2015, "titoloOriginale": "The Silk Roads" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Chi percorreva la Via della seta ==non la chiamava così==." },
+      { "tipo": "quiz", "domanda": "Quando nasce il nome «Via della seta»?",
+        "opzioni": ["Nell'antica Roma", "Ai tempi di Marco Polo", "Nel 1877"], "corretta": 2,
+        "spiegazione": "Lo conia il geografo tedesco Ferdinand von Richthofen." },
+      { "tipo": "colpo", "testo": "E la seta era ==il meno==." },
+      { "tipo": "elenco", "titolo": "Cosa viaggiava su quelle strade",
+        "voci": ["Buddhismo, cristianesimo, islam", "Argento, spezie, schiavi", "La peste nera del Trecento"] },
+      { "tipo": "numero", "valore": 100, "suffisso": " mln",
+        "didascalia": "Sesterzi che Roma perdeva ogni anno ==verso Oriente==, secondo Plinio il Vecchio.",
+        "nota": "Per comprare seta, spezie e altri lussi." },
+      { "tipo": "mito", "mito": "L'Europa è sempre stata il centro della storia", "realta": "Per Frankopan lo diventa ==dopo il 1492==. Prima il cuore era più a est." },
+      { "tipo": "chiusura", "azione": "Apri una mappa e mettila al centro su Samarcanda. ==Guarda dove finisce l'Europa.==" }
+    ]
+  },
+  {
+    "id": "dieci-mappe-pianura-russa",
+    "categoria": "storia",
+    "titolo": "Il paese più grande del mondo ha paura di una pianura",
+    "libro": { "titolo": "Le 10 mappe che spiegano il mondo", "autore": "Tim Marshall", "anno": 2015, "titoloOriginale": "Prisoners of Geography" },
+    "scene": [
+      { "tipo": "apertura", "testo": "È il paese più grande del mondo. E da secoli ==teme una pianura==." },
+      { "tipo": "testo", "titolo": "La grande pianura europea", "testo": "Dalla Francia agli Urali è quasi tutto piatto. Per Tim Marshall, da Mosca sembra ==un corridoio senza porte==." },
+      { "tipo": "elenco", "titolo": "Chi è passato da lì",
+        "voci": ["1605: i polacchi", "1708: gli svedesi", "1812: Napoleone", "1914 e 1941: i tedeschi"] },
+      { "tipo": "colpo", "testo": "Capire ==non è giustificare==." },
+      { "tipo": "confronto", "titolo": "La tesi di Marshall",
+        "a": { "etichetta": "Cambiano", "voci": ["Zar, soviet, presidenti", "Ideologie e alleanze"] },
+        "b": { "etichetta": "Restano", "voci": ["Pianure, monti, mari", "Le stesse paure strategiche"] } },
+      { "tipo": "principio", "testo": "Per Marshall chi governa è ==prigioniero della geografia==. La mappa gli restringe le mosse." },
+      { "tipo": "chiusura", "azione": "Apri la mappa fisica del tuo paese: ==quale barriera naturale lo protegge?==" }
+    ]
+  },
+  {
+    "id": "origins-political-order-tre-pilastri",
+    "categoria": "storia",
+    "titolo": "Tre pilastri che tengono in piedi un paese",
+    "libro": { "titolo": "The Origins of Political Order", "autore": "Francis Fukuyama", "anno": 2011 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Lo Stato moderno nasce ==1800 anni prima== che in Europa. Indovina dove." },
+      { "tipo": "quiz", "domanda": "Dove nasce, secondo Fukuyama?",
+        "opzioni": ["In Persia", "In Cina", "In Egitto"], "corretta": 1,
+        "spiegazione": "Nel 221 a.C. i Qin unificano la Cina. Creano una burocrazia centrale e impersonale." },
+      { "tipo": "colpo", "testo": "Ma uno Stato forte ==non basta==." },
+      { "tipo": "elenco", "titolo": "I tre pilastri di Fukuyama",
+        "voci": ["Uno Stato che sa farsi obbedire", "La legge sopra chi comanda", "Un governo che risponde ai cittadini"] },
+      { "tipo": "esempio", "testo": "Fukuyama lo chiama «arrivare in Danimarca»: un paese stabile, prospero, poco corrotto. ==Pochi conoscono la strada.==" },
+      { "tipo": "principio", "testo": "La Cina ebbe presto il primo pilastro, non gli altri due. Per Fukuyama servono ==tutti e tre in equilibrio==." },
+      { "tipo": "chiusura", "azione": "Prendi una notizia di politica di oggi. ==Parla di Stato, legge o controllo?==" }
+    ]
+  }
+]

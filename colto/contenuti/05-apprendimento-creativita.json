@@ -1,0 +1,250 @@
+[
+  {
+    "id": "make-it-stick-richiamare-a-memoria",
+    "categoria": "crescita",
+    "titolo": "Rileggere ti inganna: fai questo invece",
+    "libro": { "titolo": "Make It Stick", "autore": "Peter C. Brown, Henry L. Roediger III, Mark A. McDaniel", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Hai riletto tre volte e ti sembra di saperlo. ==Ti sembra.==" },
+      { "tipo": "testo", "titolo": "Riconoscere non è ricordare", "testo": "Rileggere rende la pagina familiare. E la familiarità ==sembra padronanza==. È il metodo più usato, e tra i meno efficaci." },
+      { "tipo": "colpo", "testo": "E allora ==cosa funziona?==" },
+      { "tipo": "quiz", "domanda": "Cosa ti fa ricordare di più dopo una settimana?",
+        "opzioni": ["Rileggere ancora", "Evidenziare", "Chiudere e interrogarti"], "corretta": 2,
+        "spiegazione": "Ripescare un'informazione dalla memoria la fissa più che rivederla." },
+      { "tipo": "grafico", "titolo": "Esame di scienze: argomenti con e senza quiz", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "No quiz", "v": 79 }, { "e": "Con quiz", "v": 92 } ],
+        "nota": "Scuola media di Columbia, Illinois. Negli USA: da C+ ad A−." },
+      { "tipo": "principio", "testo": "Ogni volta che ==ripeschi un'idea dalla memoria==, la rendi più facile da ritrovare." },
+      { "tipo": "chiusura", "azione": "Finita una pagina, chiudi e scrivi ==cosa ricordi==. Poi controlla." }
+    ]
+  },
+  {
+    "id": "ruba-come-artista-furto-buono",
+    "categoria": "crescita",
+    "titolo": "Quando copiare diventa originalità",
+    "libro": { "titolo": "Ruba come un artista", "autore": "Austin Kleon", "anno": 2012, "titoloOriginale": "Steal Like an Artist" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Copi da un autore: plagio. Copi ==da cento==: ti chiamano originale." },
+      { "tipo": "mito", "mito": "Le idee originali nascono dal nulla", "realta": "Per Austin Kleon ogni lavoro nuovo è ==un miscuglio di idee venute prima==." },
+      { "tipo": "esempio", "testo": "I Beatles hanno cominciato suonando canzoni degli altri. McCartney lo ha raccontato: imitava Buddy Holly, Little Richard, Elvis. ==Come tutti.==" },
+      { "tipo": "colpo", "testo": "Ma c'è ==furto e furto==." },
+      { "tipo": "confronto", "titolo": "Furto cattivo, furto buono",
+        "a": { "etichetta": "Cattivo", "voci": ["Rubi da uno solo", "Imiti e nascondi la fonte"] },
+        "b": { "etichetta": "Buono", "voci": ["Rubi da tanti", "Trasformi e dici da chi"] } },
+      { "tipo": "principio", "testo": "Ruba ==il modo di pensare==, non solo lo stile. Dove non riesci a imitare, comincia la tua voce." },
+      { "tipo": "chiusura", "azione": "Scrivi ==tre persone che ammiri== e, per ognuna, una cosa precisa da rubare." }
+    ]
+  },
+  {
+    "id": "mind-for-numbers-modo-diffuso",
+    "categoria": "crescita",
+    "titolo": "Perché la soluzione arriva sotto la doccia",
+    "libro": { "titolo": "A Mind for Numbers", "autore": "Barbara Oakley", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Dalí si addormentava con ==una chiave in mano==. Apposta." },
+      { "tipo": "esempio", "testo": "In poltrona, la chiave sospesa sopra il pavimento. Appena si assopiva, cadeva. Il rumore lo svegliava. E lui ==afferrava le idee== appena affiorate." },
+      { "tipo": "colpo", "testo": "Non era una stranezza." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Modo concentrato", "voci": ["Attenzione stretta su un punto", "Strade che conosci già"] },
+        "b": { "etichetta": "Modo diffuso", "voci": ["La mente vaga: doccia, passeggiata", "Collega idee lontane"] } },
+      { "tipo": "mito", "mito": "Se sei bloccato, devi insistere", "realta": "Per Barbara Oakley insistere ti incastra. ==Staccare== accende l'altro modo." },
+      { "tipo": "elenco", "titolo": "Quando sei bloccato", "numerato": true,
+        "voci": ["Prima concentrati: senza, staccare non serve", "Poi stacca davvero: cammina, dormi", "Torna sul problema ==più tardi=="] },
+      { "tipo": "chiusura", "azione": "Al prossimo blocco: ==dieci minuti a piedi senza telefono==. Poi riprova." }
+    ]
+  },
+  {
+    "id": "essere-originali-tante-idee",
+    "categoria": "crescita",
+    "titolo": "I geni non hanno più mira: tirano più volte",
+    "libro": { "titolo": "Essere originali", "autore": "Adam Grant", "anno": 2016, "titoloOriginale": "Originals" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Prova a nominare ==quattro invenzioni== di Edison. Ha 1093 brevetti." },
+      { "tipo": "colpo", "testo": "E gli altri ==mille==?" },
+      { "tipo": "elenco", "titolo": "Non è il solo",
+        "voci": ["Shakespeare: 37 opere teatrali, 154 sonetti", "Mozart: più di 600 composizioni", "Bach: più di mille"] },
+      { "tipo": "colpo", "testo": "Ne ricordiamo ==una manciata==." },
+      { "tipo": "quiz", "domanda": "I grandi creativi, rispetto ai colleghi, hanno…",
+        "opzioni": ["Stessa media, più tentativi", "Una media di successi più alta"], "corretta": 0,
+        "spiegazione": "Lo trova lo psicologo Dean Simonton, ripreso da Adam Grant: producono di più, non meglio." },
+      { "tipo": "principio", "testo": "Per Grant l'idea buona si trova ==facendone tante==. Anche perché le tue non le sai giudicare." },
+      { "tipo": "chiusura", "azione": "Prossimo problema: scrivi ==dieci idee== prima di sceglierne una." }
+    ]
+  },
+  {
+    "id": "smart-notes-schedario-luhmann",
+    "categoria": "crescita",
+    "titolo": "Il sociologo che pensava con uno schedario",
+    "libro": { "titolo": "How to Take Smart Notes", "autore": "Sönke Ahrens", "anno": 2017 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Diceva di non pensare da solo. Il suo socio: ==uno schedario==." },
+      { "tipo": "numero", "valore": 90, "suffisso": " mila", "didascalia": "Le schede del sociologo Niklas Luhmann. In trent'anni: ==58 libri==.", "nota": "Cifre riportate da Sönke Ahrens." },
+      { "tipo": "colpo", "testo": "Ma non era ==un archivio==." },
+      { "tipo": "testo", "titolo": "Una rete, non un mucchio", "testo": "Ogni idea su una scheda, con parole sue. Poi un numero e ==i rimandi ad altre schede==. Così un pensiero ne richiamava un altro." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Appunti classici", "voci": ["Copi o sottolinei frasi altrui", "Per materia, poi dimenticati"] },
+        "b": { "etichetta": "Appunti intelligenti", "voci": ["Un'idea per nota, parole tue", "Ogni nota collegata ad altre"] } },
+      { "tipo": "mito", "mito": "Prima penso, poi scrivo", "realta": "Per Ahrens scrivere ==è il modo in cui si pensa==, non il passo dopo." },
+      { "tipo": "chiusura", "azione": "Prendi l'ultima cosa che ti ha colpito e scrivi ==tre frasi con parole tue==." }
+    ]
+  },
+  {
+    "id": "war-of-art-resistenza",
+    "categoria": "crescita",
+    "titolo": "Il nemico che ti fa rimandare ha un nome",
+    "libro": { "titolo": "The War of Art", "autore": "Steven Pressfield", "anno": 2002 },
+    "scene": [
+      { "tipo": "apertura", "testo": "C'è una forza che ti tiene lontano dal tuo progetto. ==Ha un nome.==" },
+      { "tipo": "esempio", "testo": "Devi scrivere. Di colpo la scrivania va riordinata, il frigo è vuoto, c'è una mail urgente. ==Tutte ottime ragioni.==" },
+      { "tipo": "testo", "titolo": "La Resistenza", "testo": "Steven Pressfield la chiama così: una forza interna che si sveglia quando provi a fare ==qualcosa che conta==." },
+      { "tipo": "quiz", "domanda": "Per Pressfield, quando la Resistenza è più forte?",
+        "opzioni": ["Quando inizi", "A metà strada", "Vicino al traguardo"], "corretta": 2,
+        "spiegazione": "Dà il massimo quando la fine è in vista. È lì che tanti mollano." },
+      { "tipo": "colpo", "testo": "E la paura? ==Una bussola.==" },
+      { "tipo": "principio", "testo": "Per Pressfield, più un lavoro ti spaventa, più è ==quello che devi fare==." },
+      { "tipo": "chiusura", "azione": "Prendi la cosa che rimandi di più e dalle ==dieci minuti adesso==." }
+    ]
+  },
+  {
+    "id": "make-it-stick-pratica-mescolata",
+    "categoria": "crescita",
+    "titolo": "L'allenamento che sembra andare peggio e funziona di più",
+    "libro": { "titolo": "Make It Stick", "autore": "Peter C. Brown, Henry L. Roediger III, Mark A. McDaniel", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Se mentre ripassi ti senti bravo, ==preoccupati==." },
+      { "tipo": "esempio", "testo": "Studenti alle prese con il volume di quattro solidi. Un gruppo fa gli esercizi un tipo alla volta. L'altro li trova ==mescolati==." },
+      { "tipo": "grafico", "titolo": "Risposte giuste in allenamento", "forma": "barre", "unita": "%",
+        "dati": [ { "e": "A blocchi", "v": 89 }, { "e": "Mescolati", "v": 60 } ] },
+      { "tipo": "colpo", "testo": "Una settimana dopo: ==il test==." },
+      { "tipo": "quiz", "domanda": "Chi fa meglio al test?",
+        "opzioni": ["Chi si è allenato a blocchi", "Chi li aveva mescolati"], "corretta": 1,
+        "spiegazione": "A blocchi: 20% di risposte giuste. Mescolati: 63%. Studio di Rohrer e Taylor, 2007." },
+      { "tipo": "colpo", "testo": "Da 89 a 20. ==In una settimana.==" },
+      { "tipo": "principio", "testo": "Mescolando devi ogni volta ==capire che problema hai davanti==. È quella fatica a far restare le cose." },
+      { "tipo": "chiusura", "azione": "Al prossimo ripasso mescola esercizi di ==tre argomenti diversi==." }
+    ]
+  },
+  {
+    "id": "pensaci-ancora-pensa-da-scienziato",
+    "categoria": "crescita",
+    "titolo": "La differenza fra 300 dollari e 12 mila",
+    "libro": { "titolo": "Pensaci ancora", "autore": "Adam Grant", "anno": 2021, "titoloOriginale": "Think Again" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Oltre cento startup italiane, lo stesso corso. Cambia ==una sola idea==." },
+      { "tipo": "testo", "titolo": "L'esperimento", "testo": "Lo racconta Adam Grant. A un gruppo di fondatori si insegna in più a vedere la strategia come una teoria e il prodotto come ==un esperimento==." },
+      { "tipo": "colpo", "testo": "Un anno dopo, ==i ricavi==." },
+      { "tipo": "confronto", "titolo": "Ricavi medi in un anno",
+        "a": { "etichetta": "Corso normale", "voci": ["Meno di 300 dollari"] },
+        "b": { "etichetta": "Da scienziati", "voci": ["Più di 12 mila dollari"] } },
+      { "tipo": "testo", "titolo": "Che cosa è cambiato", "testo": "Chi ragionava da scienziato ha ==cambiato strada== oltre il doppio delle volte. Gli altri restavano fedeli al piano, anche quando non funzionava." },
+      { "tipo": "mito", "mito": "Cambiare idea è da deboli", "realta": "Per Grant è da scienziati: un'opinione è ==un'ipotesi da mettere alla prova==." },
+      { "tipo": "chiusura", "azione": "Prendi un'opinione a cui tieni e scrivi ==quale fatto te la farebbe cambiare==." }
+    ]
+  },
+  {
+    "id": "arte-di-ricordare-palazzo-memoria",
+    "categoria": "crescita",
+    "titolo": "Da giornalista a campione di memoria in un anno",
+    "libro": { "titolo": "L'arte di ricordare tutto", "autore": "Joshua Foer", "anno": 2011, "titoloOriginale": "Moonwalking with Einstein" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un giornalista vince il campionato USA di memoria. ==Memoria normale.==" },
+      { "tipo": "mito", "mito": "Chi ricorda tutto è nato così", "realta": "Joshua Foer, quel giornalista, scopre che i campioni usano ==una tecnica==." },
+      { "tipo": "colpo", "testo": "Il trucco ha ==2500 anni==." },
+      { "tipo": "esempio", "testo": "Leggenda greca: Simonide esce da un banchetto e il tetto crolla. Corpi irriconoscibili. Lui ricorda ==dov'era seduto ognuno==." },
+      { "tipo": "elenco", "titolo": "Il palazzo della memoria", "numerato": true,
+        "voci": ["Scegli un posto che conosci: casa tua", "Fissa un percorso: porta, divano, lavandino", "In ogni punto, ==un'immagine assurda=="] },
+      { "tipo": "esempio", "testo": "Latte, uova, pile. Sulla porta una mucca ti sbarra il passo. Sul divano una gallina cova. Nel lavandino ==nuotano pile accese==." },
+      { "tipo": "colpo", "testo": "Più è strano, ==meglio resta==." },
+      { "tipo": "chiusura", "azione": "Metti i primi cinque impegni di domani in ==cinque punti di casa tua==." }
+    ]
+  },
+  {
+    "id": "semina-come-artista-mostra-processo",
+    "categoria": "crescita",
+    "titolo": "Perché nessuno si accorge del tuo lavoro",
+    "libro": { "titolo": "Semina come un artista", "autore": "Austin Kleon", "anno": 2014, "titoloOriginale": "Show Your Work!" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il tuo lavoro migliore lo conosce solo ==il tuo computer==." },
+      { "tipo": "mito", "mito": "Se sei bravo, prima o poi ti notano", "realta": "Per Austin Kleon non basta: per farti scoprire devi ==essere trovabile==." },
+      { "tipo": "colpo", "testo": "Senza farti ==pubblicità==." },
+      { "tipo": "confronto", "titolo": "Cosa mostri",
+        "a": { "etichetta": "Solo il prodotto", "voci": ["Aspetti che sia perfetto"] },
+        "b": { "etichetta": "Anche il processo", "voci": ["Bozze, prove, strumenti, errori", "Una piccola cosa ogni giorno"] } },
+      { "tipo": "elenco", "titolo": "Cosa condividere, fase per fase",
+        "voci": ["All'inizio: cosa ti ispira", "A metà: metodi e lavori in corso", "Alla fine: il risultato e gli scarti"] },
+      { "tipo": "principio", "testo": "Non devi essere un genio. Devi ==far vedere come lavori==, un pezzetto al giorno." },
+      { "tipo": "chiusura", "azione": "Fotografa ==un pezzetto del lavoro di oggi== e mostralo a qualcuno." }
+    ]
+  },
+  {
+    "id": "ultralearning-pratica-diretta",
+    "categoria": "crescita",
+    "titolo": "Perché puoi studiare inglese per anni e restare muto",
+    "libro": { "titolo": "Ultralearning", "autore": "Scott H. Young", "anno": 2019 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tre anni di app per l'inglese. Primo colloquio vero: ==muto==." },
+      { "tipo": "colpo", "testo": "Hai allenato ==un'altra cosa==." },
+      { "tipo": "mito", "mito": "Prima studio bene, poi mi butto", "realta": "Per Scott Young conviene il contrario: fai subito ==la cosa vera==, anche male." },
+      { "tipo": "esempio", "testo": "Young e un amico passano un anno fra Spagna, Brasile, Cina e Corea del Sud. Una regola: ==niente inglese== dal primo giorno." },
+      { "tipo": "elenco", "titolo": "Come andare dritti al punto",
+        "voci": ["Progetto vero: fai un sito, non un corso", "Immersione: vai dove quella cosa si usa", "Simulazione: prove d'esame, dialoghi finti"] },
+      { "tipo": "principio", "testo": "Ciò che impari in un contesto ==passa a fatica in un altro==. Allenati nella situazione vera." },
+      { "tipo": "chiusura", "azione": "Scegli cosa vuoi imparare e fissa oggi ==la prima prova reale==: anche una telefonata." }
+    ]
+  },
+  {
+    "id": "good-ideas-intuizione-lenta",
+    "categoria": "crescita",
+    "titolo": "Il colpo di genio che è durato dieci anni",
+    "libro": { "titolo": "Where Good Ideas Come From", "autore": "Steven Johnson", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "E se l'idea geniale ce l'avessi già, ma ==a metà==?" },
+      { "tipo": "esempio", "testo": "Darwin raccontò di aver capito la selezione naturale di colpo, leggendo Malthus. I suoi taccuini dicono altro: ==i pezzi c'erano già==." },
+      { "tipo": "colpo", "testo": "Altro che ==lampo==." },
+      { "tipo": "quiz", "domanda": "Quanto ha covato l'idea del web Tim Berners-Lee?",
+        "opzioni": ["Circa dieci anni", "Qualche mese", "Una notte"], "corretta": 0,
+        "spiegazione": "Primo programmino al CERN nel 1980. La proposta del web arriva nel 1989." },
+      { "tipo": "principio", "testo": "Johnson la chiama intuizione lenta: un ==sospetto vago== che matura per anni, finché trova il pezzo mancante." },
+      { "tipo": "elenco", "titolo": "Coltiva le mezze idee",
+        "voci": ["Rileggi ogni tanto i vecchi appunti", "Parlane: il pezzo mancante ce l'ha un altro"] },
+      { "tipo": "chiusura", "azione": "Apri una nota «Mezze idee» e scrivi ==la prima che ti gira in testa==." }
+    ]
+  },
+  {
+    "id": "secondo-cervello-metodo-para",
+    "categoria": "produttivita",
+    "titolo": "Smetti di ordinare gli appunti per argomento",
+    "libro": { "titolo": "Il tuo secondo cervello", "autore": "Tiago Forte", "anno": 2022, "titoloOriginale": "Building a Second Brain" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Perché salvi tutto e poi ==non ritrovi niente==?" },
+      { "tipo": "colpo", "testo": "Colpa delle ==cartelle==." },
+      { "tipo": "confronto",
+        "a": { "etichetta": "Per argomento", "voci": ["«Marketing», «Salute», «Idee»"] },
+        "b": { "etichetta": "Per progetto", "voci": ["«Presentazione di venerdì»", "Apri e trovi ciò che serve ora"] } },
+      { "tipo": "elenco", "titolo": "PARA: le quattro cartelle di Forte",
+        "voci": ["Progetti: obiettivi con una scadenza", "Aree: impegni continui, come la salute", "Risorse: temi che ti interessano", "Archivio: ciò che non è più attivo"] },
+      { "tipo": "quiz", "domanda": "Un articolo per la presentazione di venerdì. Dove lo salvi?",
+        "opzioni": ["In Risorse", "Nel progetto «Presentazione»", "In Archivio"], "corretta": 1,
+        "spiegazione": "Regola di Forte: ogni cosa va dove ti servirà prima. Il progetto attivo vince." },
+      { "tipo": "colpo", "testo": "Non il tema: ==l'uso==." },
+      { "tipo": "chiusura", "azione": "Crea le quattro cartelle nelle tue note. Poi una per ==ogni progetto attivo==." }
+    ]
+  },
+  {
+    "id": "essere-originali-tieni-il-lavoro",
+    "categoria": "crescita",
+    "titolo": "Gli innovatori che si sono tenuti il posto fisso",
+    "libro": { "titolo": "Essere originali", "autore": "Adam Grant", "anno": 2016, "titoloOriginale": "Originals" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Mollare tutto per la tua idea o tenerti il posto? ==C'è uno studio.==" },
+      { "tipo": "quiz", "domanda": "Quale impresa sopravvive più spesso?",
+        "opzioni": ["Di chi tiene il vecchio lavoro", "Di chi si licenzia subito"], "corretta": 0,
+        "spiegazione": "Studio su oltre 5 mila imprenditori americani, citato da Adam Grant." },
+      { "tipo": "numero", "valore": 33, "prefisso": "−", "suffisso": "%", "didascalia": "Il ==rischio di fallire== di chi teneva il lavoro, rispetto a chi lo lasciava.", "nota": "Studio di Raffiee e Feng." },
+      { "tipo": "colpo", "testo": "E i ==grandi nomi==?" },
+      { "tipo": "esempio", "testo": "Phil Knight (Nike) vende scarpe dal bagagliaio dal 1964, ma resta contabile fino al 1969. Wozniak fonda Apple nel 1976: lascia ==Hewlett-Packard== nel 1977." },
+      { "tipo": "principio", "testo": "Essere originali non è amare il rischio: è rischiare in un punto e ==proteggersi negli altri==." },
+      { "tipo": "chiusura", "azione": "Il progetto che rimandi: mettigli in agenda ==due ore fisse a settimana==." }
+    ]
+  }
+]

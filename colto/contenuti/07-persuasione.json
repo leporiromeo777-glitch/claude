@@ -1,0 +1,215 @@
+[
+  {
+    "id": "armi-persuasione-reciprocita",
+    "categoria": "comunicazione",
+    "titolo": "Il regalo gratis che poi paghi",
+    "libro": { "titolo": "Le armi della persuasione", "autore": "Robert B. Cialdini", "anno": 1984, "titoloOriginale": "Influence: The Psychology of Persuasion" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Ti regalano un fiore per strada. Ora ti senti ==in debito==." },
+      { "tipo": "esempio", "testo": "Un esperimento. Uno sconosciuto ti offre una Coca-Cola, poi vende biglietti della lotteria. Chi ha avuto la bibita ==ne compra il doppio==." },
+      { "tipo": "colpo", "testo": "Anche chi lo trova ==antipatico==." },
+      { "tipo": "testo", "titolo": "La regola del contraccambio", "testo": "Cialdini la chiama reciprocità: chi riceve si sente in obbligo. Vale ==anche per un regalo non richiesto==." },
+      { "tipo": "elenco", "titolo": "Dove la incontri", "voci": ["L'assaggio gratis al supermercato", "L'omaggio nella busta che chiede soldi", "Il venditore che cede per primo"] },
+      { "tipo": "mito", "mito": "Se accetti un omaggio, poi devi qualcosa", "realta": "Per Cialdini a un favore si risponde. ==A un trucco per venderti no.==" },
+      { "tipo": "chiusura", "azione": "Davanti a un omaggio chiediti: ==direi sì anche senza regalo?==" }
+    ]
+  },
+  {
+    "id": "armi-persuasione-impegno-coerenza",
+    "categoria": "comunicazione",
+    "titolo": "Dici un piccolo sì. Poi non sai più dire no",
+    "libro": { "titolo": "Le armi della persuasione", "autore": "Robert B. Cialdini", "anno": 1984, "titoloOriginale": "Influence: The Psychology of Persuasion" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Un cartellone orrendo in giardino. ==Tre su quattro== dicono sì." },
+      { "tipo": "testo", "titolo": "California, anni Sessanta", "testo": "Bussano alle case: metteresti in giardino un cartello enorme sulla guida sicura? ==Più di quattro su cinque== dicono no." },
+      { "tipo": "colpo", "testo": "Tranne ==un gruppo==." },
+      { "tipo": "esempio", "testo": "Due settimane prima avevano detto sì a un cartellino minuscolo sulla guida sicura. Ora accettano ==anche il cartellone==." },
+      { "tipo": "grafico", "titolo": "Chi accetta il cartellone in giardino", "forma": "barre", "unita": "%", "dati": [{"e": "A freddo", "v": 17}, {"e": "Dopo", "v": 76}], "nota": "Dopo: con il cartellino già accettato." },
+      { "tipo": "principio", "testo": "Un piccolo sì cambia l'idea che hai di te. Poi vuoi ==restare coerente==." },
+      { "tipo": "elenco", "titolo": "Succede anche a te", "voci": ["Prima una firma, poi la richiesta grossa", "Il prezzo che sale a decisione presa"] },
+      { "tipo": "chiusura", "azione": "Prima di un altro sì chiediti: ==rifarei la prima scelta?==" }
+    ]
+  },
+  {
+    "id": "pre-suasion-domanda-prima",
+    "categoria": "comunicazione",
+    "titolo": "La domanda innocua che ti prepara al sì",
+    "libro": { "titolo": "Pre-Suasion", "autore": "Robert B. Cialdini", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "«Ti consideri una persona disponibile?» ==Attento a cosa rispondi.==" },
+      { "tipo": "quiz", "domanda": "Ti fermano per un sondaggio. Quanti dicono sì, a freddo?", "opzioni": ["Circa 3 su 10", "Circa 6 su 10"], "corretta": 0, "spiegazione": "Nello studio citato da Cialdini accetta il 29%." },
+      { "tipo": "colpo", "testo": "Poi cambiano ==una cosa sola==." },
+      { "tipo": "testo", "titolo": "La domanda prima", "testo": "A un altro gruppo chiedono prima: ti consideri disponibile? Quasi tutti dicono sì. Solo dopo arriva il sondaggio." },
+      { "tipo": "numero", "valore": 77.3, "decimali": 1, "suffisso": "%", "didascalia": "Tanti accettano ora il sondaggio. ==Più del doppio== di prima.", "nota": "Studio di Bolkan e Andersen citato nel libro." },
+      { "tipo": "principio", "testo": "Per Cialdini si convince prima di chiedere: ==spostando la tua attenzione==." },
+      { "tipo": "chiusura", "azione": "Domanda su di te, poi una richiesta? ==Valuta solo la richiesta.==" }
+    ]
+  },
+  {
+    "id": "made-to-stick-maledizione-conoscenza",
+    "categoria": "comunicazione",
+    "titolo": "Il gioco che spiega perché non ti capiscono",
+    "libro": { "titolo": "Made to Stick", "autore": "Chip Heath, Dan Heath", "anno": 2007 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tamburella «Tanti auguri» sul tavolo. ==Scommetti che la indovinano?==" },
+      { "tipo": "esempio", "testo": "Stanford, 1990. Metà dei volontari tamburella canzoni famose, l'altra metà indovina. Chi tamburella prevede: ==una su due==." },
+      { "tipo": "quiz", "domanda": "Quante canzoni hanno indovinato davvero?", "opzioni": ["Una su 4", "Una su 10", "Una su 40"], "corretta": 2, "spiegazione": "Tre su 120. Chi tamburella sente la melodia in testa. Chi ascolta no." },
+      { "tipo": "colpo", "testo": "E tu lo fai ==quando spieghi==." },
+      { "tipo": "testo", "titolo": "La maledizione della conoscenza", "testo": "I fratelli Heath la chiamano così. Quando sai una cosa, non riesci più a immaginare ==com'era non saperla==." },
+      { "tipo": "confronto", "a": {"etichetta": "Da esperto", "voci": ["«Creiamo valore per gli azionisti»"]}, "b": {"etichetta": "Per chi ascolta", "voci": ["Un esempio concreto", "Una storia vera"]} },
+      { "tipo": "chiusura", "azione": "Spiega il tuo lavoro in due frasi, ==senza parole tecniche==." }
+    ]
+  },
+  {
+    "id": "made-to-stick-concreto-popcorn",
+    "categoria": "comunicazione",
+    "titolo": "Un numero si dimentica. Tre pasti su un tavolo no",
+    "libro": { "titolo": "Made to Stick", "autore": "Chip Heath, Dan Heath", "anno": 2007 },
+    "scene": [
+      { "tipo": "apertura", "testo": "37 grammi di grassi saturi. Ti dice qualcosa? ==Appunto.==" },
+      { "tipo": "testo", "titolo": "Anni Novanta, Stati Uniti", "testo": "Tanto ce n'è in un popcorn medio del cinema. Quasi il doppio del massimo consigliato in un giorno. Ma chi se lo ricorda?" },
+      { "tipo": "colpo", "testo": "Serve ==un'immagine==." },
+      { "tipo": "elenco", "titolo": "Un popcorn ha più grassi di…", "voci": ["Uova e pancetta a colazione", "Big Mac e patatine a pranzo", "Bistecca e contorni a cena", "==Tutti e tre insieme=="] },
+      { "tipo": "esempio", "testo": "Art Silverman e colleghi mettono i tre pasti su un tavolo. Davanti alle telecamere. Le vendite crollano. Le grandi catene ==cambiano olio==." },
+      { "tipo": "principio", "testo": "Per i fratelli Heath un'idea resta se è concreta: ==la puoi vedere==." },
+      { "tipo": "chiusura", "azione": "Prendi un numero che devi dire. Trovagli ==un paragone che si vede==." }
+    ]
+  },
+  {
+    "id": "contagious-inneschi",
+    "categoria": "comunicazione",
+    "titolo": "Il mistero delle barrette Mars del 1997",
+    "libro": { "titolo": "Contagious", "autore": "Jonah Berger", "anno": 2013 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Estate 1997. Le barrette Mars vendono di più. ==Zero pubblicità nuova.==" },
+      { "tipo": "colpo", "testo": "Il motivo è ==nello spazio==." },
+      { "tipo": "testo", "titolo": "Cos'era successo", "testo": "Una sonda della NASA era atterrata su Marte, in inglese «Mars». I notiziari lo ripetevano ogni giorno. E la barretta ==tornava in mente==." },
+      { "tipo": "quiz", "domanda": "Di cosa si parla di più, secondo i dati di Berger?", "opzioni": ["Disney World", "I cereali Cheerios"], "corretta": 1, "spiegazione": "Il parco stupisce, ma ci vai di rado. I cereali li vedi ogni mattina." },
+      { "tipo": "principio", "testo": "Per Berger parliamo e compriamo ==ciò che ci torna in mente==." },
+      { "tipo": "elenco", "titolo": "Altri inneschi nel libro", "voci": ["Il venerdì fa cercare la canzone «Friday»", "Kit Kat si è legato alla pausa caffè"] },
+      { "tipo": "chiusura", "azione": "Voglia improvvisa di comprare? Chiediti: ==cosa ho appena visto?==" }
+    ]
+  },
+  {
+    "id": "never-split-difference-etichette",
+    "categoria": "comunicazione",
+    "titolo": "Come parla un negoziatore dell'FBI",
+    "libro": { "titolo": "Never Split the Difference", "autore": "Chris Voss", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Tre fuggitivi armati dietro una porta. ==Come li fai uscire?==" },
+      { "tipo": "esempio", "testo": "Harlem, 1998. Chris Voss, negoziatore FBI, parla per ore a quella porta. Dice ad alta voce ==le paure di chi è dentro==." },
+      { "tipo": "colpo", "testo": "Alla fine ==escono==." },
+      { "tipo": "mito", "mito": "In una trattativa le emozioni vanno tenute fuori", "realta": "Per Voss sono ==la prima cosa di cui parlare==." },
+      { "tipo": "testo", "titolo": "Si chiama etichettare", "testo": "Dai un nome a ciò che prova l'altro. Esempio: «Sembra che tu abbia paura». Chi si sente capito ==si calma==." },
+      { "tipo": "confronto", "a": {"etichetta": "«Io sento che…»", "voci": ["Mette te al centro"]}, "b": {"etichetta": "«Sembra che…»", "voci": ["Mette al centro l'altro"]} },
+      { "tipo": "chiusura", "azione": "Con chi è nervoso, oggi, prova: ==«Sembra che ti pesi»==. Poi taci e ascolta." }
+    ]
+  },
+  {
+    "id": "never-split-difference-domande-calibrate",
+    "categoria": "comunicazione",
+    "titolo": "Come dire no senza dire no",
+    "libro": { "titolo": "Never Split the Difference", "autore": "Chris Voss", "anno": 2016 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il capo ti chiede l'impossibile. ==Non dire no.==" },
+      { "tipo": "colpo", "testo": "Fai ==una domanda==." },
+      { "tipo": "confronto", "a": {"etichetta": "No secco", "voci": ["«Non se ne parla»"]}, "b": {"etichetta": "Domanda calibrata", "voci": ["«Come faccio a farlo?»"]} },
+      { "tipo": "testo", "titolo": "Domande calibrate", "testo": "Voss chiama così le domande aperte con «come» o «cosa». L'altro deve pensarci. E sente di ==avere lui il controllo==." },
+      { "tipo": "mito", "mito": "Per capire qualcuno chiedigli «perché?»", "realta": "Per Voss «perché» ==suona come un'accusa==. Meglio «cosa ti ha portato qui?»" },
+      { "tipo": "quiz", "domanda": "Il capo vuole tutto per domani. Qual è la domanda calibrata?", "opzioni": ["«Perché me lo dici adesso?»", "«Cosa lascio indietro per finirlo?»"], "corretta": 1, "spiegazione": "Comincia con «cosa»: il capo deve ragionare con te." },
+      { "tipo": "chiusura", "azione": "Alla prossima richiesta assurda rispondi: ==«Come faccio a farlo?»==" }
+    ]
+  },
+  {
+    "id": "arte-negoziato-interessi-posizioni",
+    "categoria": "comunicazione",
+    "titolo": "La lite per una finestra risolta in un minuto",
+    "libro": { "titolo": "L'arte del negoziato", "autore": "Roger Fisher, William Ury", "anno": 1981, "titoloOriginale": "Getting to Yes" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Uno vuole la finestra aperta, l'altro chiusa. ==Vincono tutti e due.==" },
+      { "tipo": "esempio", "testo": "In biblioteca due litigano su quanto aprire la finestra. Arriva la bibliotecaria e chiede perché. Uno vuole ==aria fresca==. L'altro teme ==la corrente==." },
+      { "tipo": "colpo", "testo": "Lei apre ==un'altra finestra==." },
+      { "tipo": "testo", "titolo": "Nella stanza accanto", "testo": "Entra l'aria, niente corrente. Sulle richieste nessun accordo possibile. ==Sui motivi sì.==" },
+      { "tipo": "mito", "mito": "Trattare è incontrarsi a metà strada", "realta": "Finestra aperta a metà: ==scontenti tutti e due==." },
+      { "tipo": "confronto", "a": {"etichetta": "Posizione", "voci": ["Cosa chiedi", "«Finestra chiusa»"]}, "b": {"etichetta": "Interesse", "voci": ["Perché lo chiedi", "«Non voglio la corrente»"]} },
+      { "tipo": "principio", "testo": "Per Fisher e Ury si tratta ==sugli interessi==, non sulle posizioni." },
+      { "tipo": "chiusura", "azione": "Richiesta che ti pare assurda? Chiedi: ==«A cosa ti serve?»==" }
+    ]
+  },
+  {
+    "id": "arte-negoziato-migliore-alternativa",
+    "categoria": "comunicazione",
+    "titolo": "In trattativa il più forte non è chi credi",
+    "libro": { "titolo": "L'arte del negoziato", "autore": "Roger Fisher, William Ury", "anno": 1981, "titoloOriginale": "Getting to Yes" },
+    "scene": [
+      { "tipo": "apertura", "testo": "In una trattativa il più forte ==non è il più ricco==." },
+      { "tipo": "confronto", "titolo": "Lo stesso colloquio, due volte", "a": {"etichetta": "Senza altre offerte", "voci": ["Accetti quasi tutto"]}, "b": {"etichetta": "Con due offerte in tasca", "voci": ["Tratti sullo stipendio"]} },
+      { "tipo": "colpo", "testo": "Più forte è ==chi può andarsene==." },
+      { "tipo": "testo", "titolo": "Si chiama BATNA", "testo": "Per Fisher e Ury è la tua migliore alternativa se l'accordo salta. Ogni proposta si misura lì: ==se è peggio, te ne vai==." },
+      { "tipo": "mito", "mito": "Per trattare bene basta fissare un prezzo minimo", "realta": "Un limite ti irrigidisce. ==Un'alternativa pronta ti dà forza.==" },
+      { "tipo": "elenco", "titolo": "Costruisci la tua alternativa", "numerato": true, "voci": ["Elenca cosa faresti senza accordo", "Rendi concrete le idee migliori", "Scegli la migliore di oggi"] },
+      { "tipo": "chiusura", "azione": "Prossima trattativa: scrivi in una riga ==cosa fai se salta tutto==." }
+    ]
+  },
+  {
+    "id": "punto-critico-messaggio-pratico",
+    "categoria": "comunicazione",
+    "titolo": "Il vaccino gratis che non voleva quasi nessuno",
+    "libro": { "titolo": "Il punto critico", "autore": "Malcolm Gladwell", "anno": 2000, "titoloOriginale": "The Tipping Point" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Cosa ti fa agire di più: la paura o ==una mappa==?" },
+      { "tipo": "testo", "titolo": "Yale, anni Sessanta", "testo": "Vaccino antitetanico gratis. Howard Leventhal dà agli studenti un opuscolo. Per alcuni è ==spaventoso==, per altri tranquillo." },
+      { "tipo": "quiz", "domanda": "Un mese dopo, chi si è vaccinato di più?", "opzioni": ["Chi ha letto la versione paurosa", "Chi ha letto quella tranquilla", "Nessuna differenza"], "corretta": 2, "spiegazione": "Appena il 3% in tutto. La paura convinceva, ma non faceva muovere." },
+      { "tipo": "colpo", "testo": "Poi aggiunge ==una mappa==." },
+      { "tipo": "grafico", "titolo": "Studenti che si vaccinano", "forma": "barre", "unita": "%", "dati": [{"e": "Senza", "v": 3}, {"e": "Con mappa", "v": 28}], "nota": "Mappa del campus e orari delle vaccinazioni." },
+      { "tipo": "principio", "testo": "Per Gladwell un messaggio fa presa quando diventa ==pratico e personale==." },
+      { "tipo": "chiusura", "azione": "Al prossimo invito aggiungi ==luogo, orario e come arrivare==." }
+    ]
+  },
+  {
+    "id": "to-sell-is-human-ambiversi",
+    "categoria": "comunicazione",
+    "titolo": "Chi vende di più: estroversi o introversi?",
+    "libro": { "titolo": "To Sell Is Human", "autore": "Daniel H. Pink", "anno": 2012 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Il venditore nato parla tanto e non molla mai. ==O no?==" },
+      { "tipo": "quiz", "domanda": "Call center, tre mesi. Chi incassa di più all'ora?", "opzioni": ["I più estroversi", "Chi sta nel mezzo", "I più introversi"], "corretta": 1, "spiegazione": "Lo ha misurato Adam Grant su 340 venditori." },
+      { "tipo": "grafico", "titolo": "Dollari incassati in un'ora", "forma": "barre", "unita": "$", "dati": [{"e": "Introv.", "v": 120}, {"e": "Estrov.", "v": 125}, {"e": "Ambiv.", "v": 155}], "nota": "Studio di Adam Grant nel libro. Cifre arrotondate." },
+      { "tipo": "testo", "titolo": "Si chiamano ambiversi", "testo": "Stanno nel mezzo fra introversi ed estroversi. Per Pink sanno ==quando parlare e quando tacere==." },
+      { "tipo": "mito", "mito": "Per vendere devi essere estroverso", "realta": "Chi parla troppo ascolta poco. ==Vince chi sa fare entrambe le cose.==" },
+      { "tipo": "colpo", "testo": "Nel mezzo c'è ==la maggioranza==." },
+      { "tipo": "chiusura", "azione": "Prima di convincere qualcuno, oggi, ==fagli due domande==." }
+    ]
+  },
+  {
+    "id": "hooked-modello-gancio",
+    "categoria": "comunicazione",
+    "titolo": "Perché sblocchi il telefono senza motivo",
+    "libro": { "titolo": "Hooked", "autore": "Nir Eyal", "anno": 2014 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Hai sbloccato il telefono senza motivo. ==Non è un caso.==" },
+      { "tipo": "testo", "titolo": "Il modello del gancio", "testo": "Nir Eyal ha studiato come un'app diventa abitudine. Descrive un ciclo in ==quattro passi==." },
+      { "tipo": "elenco", "titolo": "I quattro passi", "numerato": true, "voci": ["Innesco: una notifica", "Azione: apri e scorri", "Ricompensa: non sai cosa troverai", "Investimento: lasci foto e contatti"] },
+      { "tipo": "colpo", "testo": "Poi la notifica ==non serve più==." },
+      { "tipo": "quiz", "domanda": "Quale di questi è un innesco interno?", "opzioni": ["La noia in fila alla cassa", "Una notifica sullo schermo"], "corretta": 0, "spiegazione": "La notifica arriva da fuori. La noia nasce in te: apri l'app da solo." },
+      { "tipo": "principio", "testo": "Per Eyal l'abitudine è fatta quando ==l'innesco passa dentro di te==." },
+      { "tipo": "chiusura", "azione": "Apri l'app che usi di più e ==spegni le notifiche==. Ora." }
+    ]
+  },
+  {
+    "id": "switch-elefante-cavaliere",
+    "categoria": "comunicazione",
+    "titolo": "Sai cosa fare e non lo fai: c'entra un elefante",
+    "libro": { "titolo": "Switch", "autore": "Chip Heath, Dan Heath", "anno": 2010 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Perché sai benissimo cosa fare e poi ==non lo fai==?" },
+      { "tipo": "colpo", "testo": "C'entra ==un elefante==." },
+      { "tipo": "testo", "titolo": "Il Cavaliere e l'Elefante", "testo": "L'immagine è di Jonathan Haidt. La ragione è un Cavaliere, l'emozione il suo Elefante. Se litigano, ==vince l'Elefante==." },
+      { "tipo": "elenco", "titolo": "Tre mosse per cambiare", "voci": ["Guida il Cavaliere: istruzioni precise", "Motiva l'Elefante: fagli sentire perché", "Spiana il Percorso: rendilo facile"] },
+      { "tipo": "esempio", "testo": "West Virginia. Niente «mangia sano». Una campagna dice solo: ==compra il latte all'1% di grassi==." },
+      { "tipo": "grafico", "titolo": "Quota del latte magro venduto", "forma": "barre", "unita": "%", "dati": [{"e": "Prima", "v": 18}, {"e": "Dopo", "v": 41}], "nota": "Dati riportati nel libro." },
+      { "tipo": "principio", "testo": "Per gli Heath quella che sembra resistenza è spesso ==mancanza di chiarezza==." },
+      { "tipo": "chiusura", "azione": "Scegli un cambiamento e scrivi ==il primo gesto preciso==." }
+    ]
+  }
+]
