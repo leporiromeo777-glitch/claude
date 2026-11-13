@@ -1,0 +1,1237 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>:root{color-scheme:light;box-sizing:border-box;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Una pagina alla volta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one lesson per screen, built like an animated paperback cover —
+   illustration plate on top, the passage set in type below, colophon at the foot.
+   Each cover carries its own four colours; the chrome around it uses the tokens here. */
+:root {
+  --ground: #DDE1E7;   /* the desk around the cover on wide screens */
+  --paper: #F3F5F7;    /* chips and the library sheet */
+  --ink: #14171C;
+  --muted: #586070;
+  --rule: #CBD2DB;
+  --mark: #2B4BD8;     /* the reader's pen */
+  --scrim: rgba(12, 15, 20, .46);
+  --f-display: "Bricolage Grotesque", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-text: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --f-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ground: #0B0D10; --paper: #181B21; --ink: #ECEFF3; --muted: #9BA4B1; --rule: #2E343E; --mark: #9DB1FF; --scrim: rgba(0, 0, 0, .62); color-scheme: dark }
+}
+:root[data-theme="dark"] { --ground: #0B0D10; --paper: #181B21; --ink: #ECEFF3; --muted: #9BA4B1; --rule: #2E343E; --mark: #9DB1FF; --scrim: rgba(0, 0, 0, .62); color-scheme: dark }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  --gl: max(16px, env(safe-area-inset-left, 0px));
+  --gr: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--ground);
+  background: color-mix(in oklab, var(--desk, var(--ground)) 26%, var(--ground));
+  transition: background-color .7s ease;
+  color: var(--ink);
+  font-family: var(--f-text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:focus-visible, #feed:focus-visible { outline: 2px solid var(--mark); outline-offset: 2px; }
+.clip button:focus-visible { outline-color: var(--c-ink); }
+
+#app { height: 100%; display: grid; grid-template-columns: 1fr auto 1fr; }
+.column {
+  position: relative; height: 100%; overflow: hidden;
+  width: min(100vw, calc(100vh * 9 / 16));
+  width: min(100vw, calc((100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 9 / 16));
+}
+
+/* —— notes on the desk, wide screens only —— */
+.note { align-self: end; padding: 0 32px 40px; max-width: 330px; color: var(--ink); }
+.note-l { justify-self: end; text-align: right; }
+.note-r { justify-self: start; }
+.wordmark { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; font-size: 44px; line-height: .92; letter-spacing: -.025em; margin: 0 0 14px; text-wrap: balance; }
+.note p { margin: 0; font-size: 17px; line-height: 1.35; color: var(--muted); text-wrap: balance; }
+.keys { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font: 12px/1.2 var(--f-mono); color: var(--muted); }
+.keys kbd { font: inherit; color: var(--ink); border: 1px solid var(--rule); border-radius: 5px; padding: 2px 6px; margin-right: 8px; background: var(--paper); }
+@media (max-width: 999px) { .note { display: none; } }
+
+/* —— floating chrome —— */
+.top { position: absolute; z-index: 6; top: 10px; left: var(--gl); right: var(--gr); display: flex; justify-content: space-between; align-items: center; gap: 8px; pointer-events: none; }
+.top > * { pointer-events: auto; }
+.chip { background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 999px; font: 550 13px/1 var(--f-display); letter-spacing: .005em; }
+.seg { display: flex; padding: 3px; gap: 2px; }
+.seg button { padding: 8px 13px; border-radius: 999px; color: var(--muted); }
+.seg button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.lib { display: flex; align-items: center; gap: 7px; padding: 7px 12px 7px 8px; }
+.lib .ring { width: 24px; height: 24px; }
+.lib .ring circle { fill: none; stroke-width: 3; }
+.lib .ring .tr { stroke: var(--rule); }
+.lib .ring .pr { stroke: var(--mark); transition: stroke-dasharray .5s ease; }
+.lib b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lib small { font: 500 11px/1 var(--f-mono); color: var(--muted); margin-left: -4px; }
+.lib .bk { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; margin-left: 3px; }
+
+.toast { position: absolute; z-index: 7; top: 62px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 40px); background: var(--ink); color: var(--paper); font: 500 13px/1.3 var(--f-display); padding: 9px 14px; border-radius: 12px; text-align: center; animation: toast .25s ease both; }
+@keyframes toast { from { opacity: 0; transform: translate(-50%, -6px); } }
+
+/* —— the feed —— */
+#feed { position: relative; height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none; }
+#feed::-webkit-scrollbar { display: none; }
+.clip {
+  --c-bg: var(--paper); --c-ink: var(--ink); --c-a: var(--mark); --c-b: var(--muted);
+  position: relative; height: 100%; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always;
+  container-type: size; background: var(--c-bg); color: var(--c-ink); user-select: none; -webkit-user-select: none;
+}
+.plate { position: absolute; top: 0; left: 0; width: 100%; height: 54%; display: block; }
+
+.stage { position: absolute; top: 53%; left: 0; right: 0; padding-left: var(--gl); padding-right: calc(var(--gr) + 58px); }
+.scene { display: flex; flex-direction: column; gap: 2cqh; min-width: 0; }
+.scene.live { animation: lift .55s cubic-bezier(.2, .75, .2, 1) both; }
+@keyframes lift { from { transform: translateY(2.4cqh); } }
+.txt { margin: 0; overflow-wrap: break-word; }
+.live .w { animation: ink .42s ease both; animation-delay: calc(var(--i) * 62ms); }
+@keyframes ink { from { opacity: 0; } }
+.txt em { font-style: normal; background: linear-gradient(var(--c-a), var(--c-a)) no-repeat 0 100% / 0% .17em; }
+.clip.on .txt em { animation: mark .6s cubic-bezier(.3, .7, .2, 1) both; animation-delay: calc(var(--i) * 62ms + 380ms); }
+@keyframes mark { to { background-size: 100% .17em; } }
+
+.s-h .txt { font-family: var(--f-display); font-weight: 760; font-stretch: 80%; line-height: 1.01; letter-spacing: -.014em; text-wrap: balance; font-size: 39px; font-size: clamp(22px, 10.4cqw, 64px); }
+.s-h.len-m .txt { font-size: 31px; font-size: clamp(19px, 8.3cqw, 52px); line-height: 1.03; }
+.s-h.len-l .txt { font-size: 25px; font-size: clamp(17px, 6.6cqw, 42px); line-height: 1.06; letter-spacing: -.016em; }
+.s-p .txt, .s-n .txt, .s-l .txt { font-family: var(--f-text); font-weight: 450; line-height: 1.15; letter-spacing: -.008em; text-wrap: pretty; font-size: 25px; font-size: clamp(17px, 6.7cqw, 42px); }
+.s-p.len-l .txt { font-size: 22px; font-size: clamp(16px, 5.9cqw, 37px); }
+.s-n { gap: 1.2cqh; }
+.s-n .fig { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; line-height: .84; letter-spacing: -.045em; font-size: 110px; font-size: clamp(60px, 29cqw, 180px); font-variant-numeric: tabular-nums; }
+.live .fig { animation: pop .6s cubic-bezier(.2, 1.3, .3, 1) both; transform-origin: 0 80%; }
+@keyframes pop { from { opacity: 0; transform: scale(.72); } }
+.s-n .txt { font-size: 21px; font-size: clamp(16px, 5.6cqw, 35px); }
+.s-l { gap: 0; }
+.s-l .txt { font-size: 22px; font-size: clamp(16px, 5.8cqw, 36px); padding: 1.3cqh 0; }
+.s-l .txt + .txt { border-top: 1px solid color-mix(in srgb, var(--c-ink) 28%, transparent); }
+.s-l .txt:first-child { padding-top: 0; }
+.s-a { gap: 1.5cqh; }
+.s-a .tag { align-self: flex-start; font: 500 11px/1 var(--f-mono); font-size: clamp(10px, 2.9cqw, 16px); letter-spacing: .14em; text-transform: uppercase; padding: .55em .8em .5em; border-radius: 999px; background: var(--c-ink); color: var(--c-bg); }
+.live .tag { animation: ink .4s ease both; }
+.s-a .txt { font-family: var(--f-display); font-weight: 620; font-stretch: 86%; line-height: 1.07; letter-spacing: -.014em; text-wrap: pretty; font-size: 27px; font-size: clamp(18px, 7.1cqw, 44px); }
+.s-a.len-l .txt { font-size: 23px; font-size: clamp(16px, 6.1cqw, 38px); }
+
+.meta { position: absolute; left: 0; right: 0; bottom: 20px; padding-left: var(--gl); padding-right: calc(var(--gr) + 58px); display: grid; gap: 3px; }
+.kicker, .by { font: 500 10.5px/1.25 var(--f-mono); font-size: clamp(9.5px, 2.75cqw, 14px); letter-spacing: .07em; text-transform: uppercase; }
+.kicker { opacity: .78; }
+.by { text-transform: none; letter-spacing: .01em; opacity: .85; }
+.book { font-family: var(--f-text); font-style: italic; font-weight: 500; line-height: 1.04; letter-spacing: -.01em; font-size: 21px; font-size: clamp(17px, 5.5cqw, 34px); }
+
+.bar { position: absolute; left: var(--gl); right: var(--gr); bottom: 8px; height: 3px; display: flex; gap: 4px; }
+.bar i { flex: 1; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--c-ink) 24%, transparent); }
+.bar i::after { content: ""; display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--c-ink); }
+
+.rail { position: absolute; right: calc(var(--gr) - 4px); bottom: 26px; display: grid; gap: 9px; justify-items: center; }
+.rb { width: 48px; display: grid; justify-items: center; gap: 4px; font: 500 9px/1 var(--f-mono); letter-spacing: .07em; text-transform: uppercase; }
+.rb .ic { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid color-mix(in srgb, var(--c-ink) 55%, transparent); transition: background-color .2s, color .2s, transform .2s; }
+.rb svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rb[aria-pressed="true"] .ic { background: var(--c-ink); color: var(--c-bg); border-color: var(--c-ink); }
+.rb:active .ic { transform: scale(.92); }
+.rb.next .ic { border-color: transparent; width: 42px; height: 30px; }
+.clip.done .rb.next .ic { animation: nudge 1.1s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(5px); } }
+.no-voice .rb.voice { display: none; }
+
+.pausemark { position: absolute; left: 50%; top: 27%; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%; display: grid; place-items: center; background: var(--c-ink); color: var(--c-bg); opacity: 0; transform: scale(.8); transition: opacity .18s, transform .18s; pointer-events: none; }
+.pausemark svg { width: 30px; height: 30px; fill: currentColor; margin-left: 4px; }
+.clip.paused .pausemark { opacity: .92; transform: none; }
+.clip.paused .scene, .clip.paused .scene * { animation-play-state: paused !important; }
+
+.burst { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; pointer-events: none; color: var(--c-ink); animation: burst .7s cubic-bezier(.2, .9, .3, 1) both; }
+.burst svg { width: 100%; height: 100%; fill: currentColor; }
+@keyframes burst { 0% { opacity: 0; transform: scale(.3) rotate(-14deg); } 30% { opacity: 1; transform: scale(1.1) rotate(4deg); } 100% { opacity: 0; transform: scale(1) translateY(-40px); } }
+
+.empty { display: grid; align-content: center; gap: 14px; padding: 0 var(--gr) 0 var(--gl); }
+.empty h2 { margin: 0; font-family: var(--f-display); font-weight: 760; font-stretch: 80%; font-size: clamp(26px, 9cqw, 52px); line-height: 1; letter-spacing: -.02em; text-wrap: balance; }
+.empty p { margin: 0; font-size: clamp(16px, 5cqw, 26px); line-height: 1.3; color: var(--muted); max-width: 22em; }
+.empty button { justify-self: start; margin-top: 6px; padding: 12px 18px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 600 14px/1 var(--f-display); }
+
+/* —— library sheet —— */
+.sheet { position: absolute; inset: 0; z-index: 20; display: grid; align-items: end; background: var(--scrim); animation: fade .2s ease both; }
+@keyframes fade { from { opacity: 0; } }
+.sheet-card { background: var(--paper); color: var(--ink); border-radius: 20px 20px 0 0; max-height: 90%; overflow-y: auto; overscroll-behavior: contain; padding: 20px var(--gr) 28px var(--gl); display: grid; gap: 18px; animation: up .34s cubic-bezier(.2, .8, .2, 1) both; outline: none; }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.sheet-head h2 { margin: 0 0 4px; font-family: var(--f-display); font-weight: 760; font-stretch: 80%; font-size: 32px; line-height: 1; letter-spacing: -.02em; }
+.sheet-head p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.3; }
+.x { width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid var(--rule); display: grid; place-items: center; }
+.x svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--rule); }
+.stats div { padding: 12px 0 11px; display: grid; gap: 5px; }
+.stats div + div { padding-left: 14px; border-left: 1px solid var(--rule); }
+.stats dt { font: 500 10.5px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stats dd { margin: 0; font-family: var(--f-display); font-weight: 720; font-stretch: 80%; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stats small { font: 500 12px/1 var(--f-mono); color: var(--muted); margin-left: 3px; }
+.shelf { display: grid; gap: 4px; }
+.shelf h3 { margin: 14px 0 4px; font: 500 10.5px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.shelf h3:first-child { margin-top: 0; }
+.bookrow { width: 100%; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 13px; align-items: center; text-align: left; padding: 7px 0; border-radius: 8px; }
+.spine { width: 38px; height: 52px; border-radius: 3px; background: var(--c-bg); position: relative; overflow: hidden; }
+.spine::before { content: ""; position: absolute; left: 9px; top: 9px; width: 16px; height: 16px; border-radius: 50%; background: var(--c-a); }
+.spine::after { content: ""; position: absolute; left: 7px; right: 7px; bottom: 9px; height: 3px; background: var(--c-ink); box-shadow: 0 -7px 0 var(--c-ink); opacity: .9; }
+.bookrow .t { display: block; font-size: 18px; line-height: 1.12; font-weight: 500; text-wrap: balance; }
+.bookrow .au { display: block; margin-top: 3px; font: 400 11.5px/1.2 var(--f-mono); color: var(--muted); }
+.dots { display: flex; gap: 5px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--muted); }
+.dots i.s { background: var(--ink); border-color: var(--ink); }
+.fine { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.35; border-top: 1px solid var(--rule); padding-top: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene, .scene *, .sheet, .sheet-card, .toast, .burst, .clip.done .rb.next .ic { animation: none !important; }
+  .clip.on .txt em { background-size: 100% .17em; }
+  body { transition: none; }
+}
+</style>
+
+<div id="app">
+  <aside class="note note-l">
+    <h1 class="wordmark">Una pagina alla volta</h1>
+    <p>Trenta lezioni da diciannove libri. Ogni schermata è un'idea da portarti via.</p>
+  </aside>
+
+  <div class="column" id="column">
+    <div class="top">
+      <div class="chip seg" role="tablist" aria-label="Cosa guardare">
+        <button role="tab" id="tab-path" aria-selected="true">Percorso</button>
+        <button role="tab" id="tab-saved" aria-selected="false">Salvati</button>
+      </div>
+      <button class="chip lib" id="open-lib" aria-haspopup="dialog">
+        <svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><circle class="tr" cx="12" cy="12" r="9"/><circle class="pr" id="ring" cx="12" cy="12" r="9" stroke-dasharray="0 57" transform="rotate(-90 12 12)"/></svg>
+        <b id="today-n">0</b><small>/5</small>
+        <svg class="bk" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="4.2" height="16" rx=".7"/><rect x="9.6" y="7" width="4.2" height="13" rx=".7"/><path d="M15.4 8.3l3.6-1 3 11.5-3.6 1z"/></svg>
+      </button>
+    </div>
+
+    <main id="feed" tabindex="0" aria-label="Lezioni"></main>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="sheet" id="sheet" hidden>
+      <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-h" tabindex="-1">
+        <div class="sheet-head">
+          <div>
+            <h2 id="sheet-h">Libreria</h2>
+            <p>Trenta lezioni da diciannove libri, nell'ordine del percorso.</p>
+          </div>
+          <button class="x" id="close-lib" aria-label="Chiudi la libreria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <dl class="stats">
+          <div><dt>Oggi</dt><dd><span id="st-today">0</span><small>/5</small></dd></div>
+          <div><dt>Serie</dt><dd><span id="st-streak">0</span><small id="st-streak-u">giorni</small></dd></div>
+          <div><dt>Viste</dt><dd><span id="st-seen">0</span><small>/30</small></dd></div>
+        </dl>
+        <div class="shelf" id="shelf"></div>
+        <p class="fine">Ogni lezione riassume un'idea del libro con parole nuove. Per capirla fino in fondo, la fonte resta il libro.</p>
+      </div>
+    </div>
+  </div>
+
+  <aside class="note note-r">
+    <ul class="keys">
+      <li><kbd>↓</kbd><kbd>↑</kbd>cambia lezione</li>
+      <li><kbd>Spazio</kbd>pausa</li>
+      <li><kbd>S</kbd>salva</li>
+      <li><kbd>V</kbd>voce</li>
+      <li><kbd>R</kbd>rivedi</li>
+    </ul>
+  </aside>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ───────────────────────── I libri ───────────────────────── */
+// c = [fondo, inchiostro, accento, secondo colore] della copertina
+const BOOKS = {
+  ah: { t: 'Atomic Habits', au: 'James Clear', th: 'Abitudini', c: ['#F2B33D', '#1C1A14', '#C8371B', '#FFF4D2'] },
+  pa: { t: 'Il potere delle abitudini', au: 'Charles Duhigg', th: 'Abitudini', c: ['#8CCBEA', '#10212E', '#E0412B', '#2E6F94'] },
+  dw: { t: 'Deep Work', au: 'Cal Newport', th: 'Concentrazione', c: ['#14324A', '#F1EDE2', '#F2C14E', '#5E88A8'] },
+  fl: { t: 'Flow', au: 'Mihály Csíkszentmihályi', th: 'Concentrazione', c: ['#1846A3', '#F4F0E6', '#7BE0D2', '#0D2C6B'] },
+  es: { t: 'Essentialism', au: 'Greg McKeown', th: 'Concentrazione', c: ['#EEF0EC', '#121212', '#1F4FD8', '#B9BBB2'] },
+  tf: { t: 'Pensieri lenti e veloci', au: 'Daniel Kahneman', th: 'Decisioni', c: ['#E7E1D3', '#1D1D1B', '#DC432A', '#2F5DA8'] },
+  ep: { t: 'Manuale', au: 'Epitteto', th: 'Stoicismo', c: ['#B5412E', '#FBF1E2', '#F7D774', '#6E1F14'] },
+  ma: { t: 'Pensieri', au: 'Marco Aurelio', th: 'Stoicismo', c: ['#2B2A4C', '#F3E9D2', '#E8A33D', '#8D8BC4'] },
+  sb: { t: 'La brevità della vita', au: 'Seneca', th: 'Stoicismo', c: ['#D8C9A0', '#2A2118', '#A2331F', '#8A7B55'] },
+  sl: { t: 'Lettere a Lucilio', au: 'Seneca', th: 'Stoicismo', c: ['#55603A', '#F4EEDC', '#F0C05A', '#2F3820'] },
+  fr: { t: "L'uomo in cerca di senso", au: 'Viktor E. Frankl', th: 'Senso e direzione', c: ['#24332E', '#EFE9DC', '#F28C38', '#51655E'] },
+  co: { t: 'Le 7 regole per avere successo', au: 'Stephen R. Covey', th: 'Senso e direzione', c: ['#E86A33', '#1B1612', '#FFF3D6', '#9E3A12'] },
+  mi: { t: 'Mindset', au: 'Carol S. Dweck', th: 'Crescita', c: ['#2F7D5B', '#FAF4E4', '#FFD35C', '#1C5A40'] },
+  gr: { t: 'Grinta', au: 'Angela Duckworth', th: 'Crescita', c: ['#6B2D5C', '#F8ECDD', '#FF9F5A', '#43183A'] },
+  an: { t: 'Antifragile', au: 'Nassim Nicholas Taleb', th: 'Crescita', c: ['#F2A7B5', '#2B1420', '#B3122F', '#7A3D52'] },
+  ms: { t: 'Make It Stick', au: 'Brown, Roediger, McDaniel', th: 'Crescita', c: ['#CFC6F2', '#1E1838', '#D9472A', '#7D6FC2'] },
+  ps: { t: 'La psicologia dei soldi', au: 'Morgan Housel', th: 'Denaro e persone', c: ['#0E6B6B', '#F5F0E1', '#F4B942', '#094848'] },
+  ca: { t: 'Come trattare gli altri e farseli amici', au: 'Dale Carnegie', th: 'Denaro e persone', c: ['#BFE3D0', '#143027', '#DE432B', '#4E8F74'] },
+  sa: { t: 'Sapiens', au: 'Yuval Noah Harari', th: 'Denaro e persone', c: ['#8C5A3C', '#FBF0DC', '#F6C453', '#5E3A25'] },
+};
+const THEMES = ['Abitudini', 'Concentrazione', 'Decisioni', 'Stoicismo', 'Senso e direzione', 'Crescita', 'Denaro e persone'];
+
+/* ───────────────────────── Le lezioni ─────────────────────────
+   Scene: ['h', gancio] · ['p', idea] · ['n', cifra, didascalia, voce] · ['l', [righe], voce] · ['a', azione, etichetta]
+   *asterischi* = passaggio sottolineato. Il terzo campo, dove c'è, è il testo per la voce. */
+const RAW = [
+  ['ah1', 'ah', "L'1% che cambia tutto", 'curve', [
+    ['h', "E se migliorassi solo dell'*1% al giorno*?"],
+    ['n', '37×', "Dopo un anno sei *37 volte* più avanti di oggi."],
+    ['p', "Peggiori dell'1% al giorno? In un anno scendi *quasi a zero*."],
+    ['p', "Le abitudini sono l'*interesse composto* del miglioramento personale."],
+    ['a', "Scegli una cosa sola e falla un filo meglio di ieri."]]],
+  ['ah2', 'ah', 'Chi vuoi diventare', 'tally', [
+    ['h', "Il problema non sono i tuoi obiettivi. È *chi credi di essere*."],
+    ['p', "Il cambiamento che dura parte dall'identità, non dal risultato."],
+    ['l', ["L'obiettivo non è leggere un libro.", "È *diventare un lettore*."]],
+    ['p', "Ogni azione è *un voto* per la persona che vuoi diventare."],
+    ['a', "Completa la frase «Sono una persona che…» e dai il primo voto."]]],
+  ['ah3', 'ah', 'La regola dei due minuti', 'twomin', [
+    ['h', "Una nuova abitudine deve durare *meno di due minuti*."],
+    ['l', ["«Leggere trenta libri l'anno»", "diventa «leggere *una pagina*»."]],
+    ['l', ["«Correre cinque chilometri»", "diventa «*allacciare le scarpe*»."]],
+    ['p', "Un'abitudine va prima *avviata*, poi migliorata. Impara a presentarti."],
+    ['a', "Prendi l'abitudine che rimandi e riducila alla versione da due minuti."]]],
+  ['pa1', 'pa', "Il circuito dell'abitudine", 'loop', [
+    ['h', "Una cattiva abitudine non si cancella. *Si sostituisce*."],
+    ['l', ["*Segnale*: ciò che la innesca.", "*Routine*: ciò che fai.", "*Gratificazione*: ciò che ottieni."]],
+    ['p', "La regola d'oro: tieni lo stesso segnale e la stessa gratificazione. *Cambia solo la routine*."],
+    ['a', "Scegli un'abitudine da cambiare e trova il segnale: che ora è, dove sei, cosa provi?"]]],
+  ['dw1', 'dw', 'Lavoro profondo', 'focus', [
+    ['h', "Concentrarsi è sempre più *raro*. E sempre più *prezioso*."],
+    ['p', "*Lavoro profondo*: attività svolte senza distrazioni, che portano la mente al suo limite."],
+    ['p', "*Lavoro superficiale*: email, chat, riunioni. Chiunque può farlo, e vale poco."],
+    ['p', "Chi sa andare in profondità ha un vantaggio che cresce ogni anno."],
+    ['a', "Blocca 60 minuti. Telefono in un'altra stanza. Una cosa sola."]]],
+  ['dw2', 'dw', 'Il residuo di attenzione', 'residue', [
+    ['h', "«Controllo un attimo il telefono.» *Quell'attimo ti costa caro*."],
+    ['p', "Quando cambi attività, una parte della tua attenzione resta *incollata* a quella di prima."],
+    ['p', "Si chiama *residuo di attenzione*. Più salti da una cosa all'altra, peggio pensi."],
+    ['a', "Leggi email e messaggi in due momenti fissi, non tutto il giorno."]]],
+  ['dw3', 'dw', 'Abbraccia la noia', 'calm', [
+    ['h', "Se a ogni momento vuoto prendi il telefono, stai *allenando la distrazione*."],
+    ['p', "La concentrazione è un muscolo. Si allena anche quando non lavori."],
+    ['l', ["Non fare pause dalla distrazione.", "Fai pause *dalla concentrazione*."]],
+    ['a', "In coda o in attesa, niente schermo. Resta con i tuoi pensieri."]]],
+  ['fl1', 'fl', 'Il canale del flow', 'channel', [
+    ['h', "I momenti migliori della vita *non sono quelli rilassanti*."],
+    ['p', "Arrivano quando corpo e mente sono tesi al limite, nello sforzo di fare qualcosa di *difficile e di valore*."],
+    ['l', ["Sfida troppo alta: *ansia*.", "Sfida troppo bassa: *noia*.", "Nel mezzo: *flow*."]],
+    ['a', "Prendi qualcosa che sai già fare e alza di poco la difficoltà."]]],
+  ['es1', 'es', 'Meno, ma meglio', 'essential', [
+    ['h', "Se non è un *sì convinto*, è un no."],
+    ['p', "Puoi fare un millimetro di strada in mille direzioni. Oppure molta strada *in una sola*."],
+    ['p', "Se non decidi tu le tue priorità, *lo farà qualcun altro*."],
+    ['a', "Rispondi con un no gentile a una richiesta che non è essenziale."]]],
+  ['tf1', 'tf', 'Due sistemi', 'twosys', [
+    ['h', "Una mazza e una pallina costano 1,10 €. La mazza costa 1 € più della pallina. *Quanto costa la pallina?*", "Una mazza e una pallina costano un euro e dieci. La mazza costa un euro più della pallina. Quanto costa la pallina?"],
+    ['n', '5 cent', "Hai pensato *10*? È la risposta che viene quasi a tutti. Ed è sbagliata.", "Cinque centesimi. Hai pensato dieci? È la risposta che viene quasi a tutti. Ed è sbagliata."],
+    ['l', ["*Sistema 1*: veloce, automatico, intuitivo.", "*Sistema 2*: lento, logico. E pigro."]],
+    ['p', "Il Sistema 1 risponde per primo. Il Sistema 2 interviene solo *se lo chiami*."],
+    ['a', "Davanti a una scelta importante, fermati e chiediti: sto pensando o sto reagendo?"]]],
+  ['tf2', 'tf', "L'effetto ancoraggio", 'anchor', [
+    ['h', "Il primo numero che senti *decide* quanto sei disposto a pagare."],
+    ['p', "Si chiama *ancoraggio*. La mente parte da un valore iniziale e se ne allontana troppo poco."],
+    ['p', "Funziona anche con numeri *del tutto casuali*. E anche sugli esperti."],
+    ['a', "Prima di una trattativa decidi il tuo numero. E diffida della prima cifra sul tavolo."]]],
+  ['tf3', 'tf', 'Perdere pesa il doppio', 'scale', [
+    ['h', "Perdere 100 € fa male *circa il doppio* di quanto fa piacere vincerli.", "Perdere cento euro fa male circa il doppio di quanto fa piacere vincerli."],
+    ['p', "È l'*avversione alla perdita*. Per evitare una perdita rinunciamo a guadagni più grandi."],
+    ['p', "Per questo teniamo investimenti sbagliati, abbonamenti inutili, progetti già morti."],
+    ['a', "Chiediti: se partissi da zero, oggi lo sceglierei ancora?"]]],
+  ['ep1', 'ep', 'Ciò che dipende da te', 'control', [
+    ['h', "Alcune cose *dipendono da noi*. Altre no."],
+    ['l', ["Dipendono da te: *giudizi, desideri, azioni*.", "Non dipendono da te: il corpo, i beni, la reputazione."]],
+    ['p', "L'infelicità nasce quando vuoi *comandare* ciò che non è tuo."],
+    ['a', "Per ogni preoccupazione chiediti: dipende da me? Se no, lasciala andare."]]],
+  ['ep2', 'ep', 'Non sono i fatti', 'lens', [
+    ['h', "Non sono le cose a turbarti. Sono *i giudizi* che dai alle cose."],
+    ['p', "Tra ciò che accade e ciò che provi c'è sempre *un'interpretazione*."],
+    ['p', "Il fatto non puoi cambiarlo. L'interpretazione sì."],
+    ['a', "Quando qualcosa ti irrita, descrivi il fatto senza usare aggettivi."]]],
+  ['ma1', 'ma', "L'ostacolo è la via", 'obstacle', [
+    ['h', "Ciò che ostacola il cammino *diventa il cammino*."],
+    ['p', "Marco Aurelio guidava un impero tra guerre ed epidemie. Queste righe le scriveva *per sé*."],
+    ['p', "La mente può trasformare ogni impedimento in *materia per agire*."],
+    ['a', "Prendi il problema che ti blocca e chiediti: quale qualità mi sta allenando?"]]],
+  ['ma2', 'ma', "All'alba", 'dawn', [
+    ['h', "Al mattino di' a te stesso: oggi incontrerò un *invadente*, un *ingrato*, un *arrogante*."],
+    ['p', "Non è pessimismo. È *preparazione*."],
+    ['p', "Agiscono così per ignoranza. E nessuno di loro può farti davvero del male."],
+    ['a', "Prima del telefono, trenta secondi per prevedere le difficoltà della giornata.", 'Domattina']]],
+  ['se1', 'sb', 'Il tempo che regali', 'weeks', [
+    ['h', "Non abbiamo poco tempo. *Ne perdiamo molto*."],
+    ['p', "La vita è lunga abbastanza, se la sai usare."],
+    ['p', "Difendiamo i soldi con le unghie. Il tempo, invece, *lo regaliamo a chiunque*."],
+    ['a', "Guarda dove sono finite le tue ultime 24 ore. Poi taglia una cosa."]]],
+  ['se2', 'sl', 'La paura immaginata', 'shadow', [
+    ['h', "Soffriamo più spesso *nell'immaginazione* che nella realtà."],
+    ['p', "Molte delle cose che temi non accadranno mai."],
+    ['p', "E quelle che accadranno, le soffrirai una volta sola. *Non due*."],
+    ['a', "Scrivi la tua paura peggiore. Accanto, cosa faresti se accadesse."]]],
+  ['fr1', 'fr', "L'ultima libertà", 'ember', [
+    ['h', "A una persona si può togliere tutto. *Tranne una cosa*."],
+    ['p', "Viktor Frankl, psichiatra, sopravvisse ai lager nazisti."],
+    ['p', "Lì vide l'ultima delle libertà umane: *scegliere il proprio atteggiamento*, in qualunque circostanza."],
+    ['a', "In una situazione che non puoi cambiare, scegli come starci dentro."]]],
+  ['fr2', 'fr', 'Un perché', 'north', [
+    ['h', "Chi ha un *perché* per vivere sopporta quasi ogni *come*."],
+    ['p', "È una frase di Nietzsche. Nei lager, Frankl la vide diventare vera."],
+    ['p', "Resisteva di più chi aveva qualcosa ad aspettarlo: *una persona, un lavoro da finire*."],
+    ['a', "Scrivi chi, o che cosa, ha bisogno di te domani."]]],
+  ['co1', 'co', 'Urgente non è importante', 'matrix', [
+    ['h', "Ciò che è *urgente* di rado è *importante*."],
+    ['p', "Salute, relazioni, studio, progetti: sono importanti ma non urgenti. *Nessuno te li chiede*."],
+    ['p', "Per questo li rimandi. Ed è lì che *si costruisce una vita*."],
+    ['a', "Metti in agenda un'ora per una cosa importante che nessuno ti sta chiedendo."]]],
+  ['co2', 'co', 'Comincia dalla fine', 'endpath', [
+    ['h', "Immagina il tuo funerale. *Che cosa vorresti sentir dire di te?*"],
+    ['p', "È la seconda regola di Covey: *comincia pensando alla fine*."],
+    ['p', "Puoi salire in fretta la scala del successo e scoprire che era appoggiata *al muro sbagliato*."],
+    ['a', "Scrivi tre righe su chi vuoi essere tra dieci anni."]]],
+  ['mi1', 'mi', 'Non ancora', 'sprout', [
+    ['h', "Due parole cambiano il modo in cui impari: *«non ancora»*."],
+    ['l', ["*Mentalità fissa*: il talento è dato. Ogni errore è una sentenza.", "*Mentalità di crescita*: le capacità si costruiscono. Ogni errore è un'informazione."]],
+    ['p', "Chi crede di poter migliorare *cerca le sfide*. Chi non ci crede le evita."],
+    ['a', "Sostituisci «non sono capace» con «non sono ancora capace»."]]],
+  ['gr1', 'gr', "L'impegno conta due volte", 'grit', [
+    ['h', "Il talento conta. *L'impegno conta due volte*."],
+    ['l', ["Talento × impegno = *abilità*.", "Abilità × impegno = *risultati*."], "Talento per impegno uguale abilità. Abilità per impegno uguale risultati."],
+    ['p', "Senza impegno, il talento resta soltanto *un potenziale*."],
+    ['a', "Fai la tua sessione di pratica anche se non ne hai voglia."]]],
+  ['an1', 'an', 'Oltre la resistenza', 'antifragile', [
+    ['h', "Il contrario di fragile *non è robusto*."],
+    ['l', ["*Fragile*: con gli urti si rompe.", "*Robusto*: resiste, resta uguale.", "*Antifragile*: con gli urti migliora."]],
+    ['p', "Muscoli, ossa, sistema immunitario: crescono con lo stress, *a piccole dosi*."],
+    ['a', "Scegli un piccolo disagio volontario: una doccia fredda, uno sforzo, una richiesta scomoda."]]],
+  ['ms1', 'ms', "L'illusione di sapere", 'recall', [
+    ['h', "Rileggere e sottolineare ti danno solo *l'illusione di sapere*."],
+    ['p', "Si impara davvero quando ci si sforza di *ricordare*: chiudi il libro e ripeti a memoria."],
+    ['p', "Meglio ancora se *distanzi i ripassi*. Dimenticare un po' e poi recuperare fissa la memoria."],
+    ['a', "Chiudi gli occhi e ripeti l'idea di questa lezione. Senza guardare."]]],
+  ['ps1', 'ps', 'Il segreto è il tempo', 'compound', [
+    ['n', '96%', "del patrimonio di Warren Buffett è arrivato *dopo i 65 anni*.", "Il novantasei per cento del patrimonio di Warren Buffett è arrivato dopo i sessantacinque anni."],
+    ['p', "È un grande investitore. Ma soprattutto investe *da quando era bambino*."],
+    ['p', "Il suo segreto non è il rendimento. È *il tempo*."],
+    ['a', "Comincia, anche con poco. Poi non interrompere."]]],
+  ['ps2', 'ps', 'Ciò che non vedi', 'iceberg', [
+    ['h', "La ricchezza è *ciò che non vedi*."],
+    ['p', "L'auto di lusso ti dice quanto uno *ha speso*. Non quanto ha."],
+    ['p', "Ricchezza sono i soldi non spesi: opzioni, libertà, *tempo tuo*."],
+    ['a', "Prima di un acquisto chiediti: lo voglio io, o voglio che gli altri lo vedano?"]]],
+  ['ca1', 'ca', 'Interessati davvero', 'overlap', [
+    ['h', "Ti fai più amici in due mesi *interessandoti agli altri* che in due anni cercando di interessarli a te."],
+    ['p', "Le persone parlano volentieri di ciò che hanno a cuore. *Chiediglielo*."],
+    ['p', "E per chiunque il proprio nome è *il suono più dolce*."],
+    ['a', "Nella prossima conversazione fai tre domande prima di parlare di te. E usa il nome."]]],
+  ['sa1', 'sa', 'Storie condivise', 'network', [
+    ['h', "Perché Homo sapiens domina il pianeta? Perché *crede alle storie*."],
+    ['p', "Denaro, nazioni, aziende, leggi: esistono perché milioni di persone *ci credono insieme*."],
+    ['p', "Sono queste finzioni condivise a far cooperare *milioni di sconosciuti*."],
+    ['a', "Chiediti quali storie stai seguendo senza averle mai scelte."]]],
+];
+
+const strip = s => s.replace(/\*/g, '');
+function mkScene(a) {
+  const k = a[0]; let sc;
+  if (k === 'n') sc = { k, fig: a[1], t: a[2], v: a[3] || strip(a[2]) };
+  else if (k === 'l') sc = { k, rows: a[1], v: a[2] || a[1].map(strip).join(' ') };
+  else if (k === 'a') sc = { k, t: a[1], tag: a[2] || 'Oggi', v: (a[2] || 'Oggi') + ': ' + strip(a[1]) };
+  else sc = { k, t: a[1], v: a[2] || strip(a[1]) };
+  const w = sc.v.split(/\s+/).length;
+  sc.dur = Math.max(3.4, (k === 'a' ? 2.8 : k === 'n' ? 2.4 : 1.7) + w * .34 + (k === 'l' ? sc.rows.length * .5 : 0));
+  return sc;
+}
+const LESSONS = RAW.map(([id, b, title, m, sc], i) => ({ id, b, title, m, n: i + 1, scenes: sc.map(mkScene) }));
+const VALID = new Set(LESSONS.map(L => L.id));
+const BYBOOK = {};
+LESSONS.forEach(L => { (BYBOOK[L.b] = BYBOOK[L.b] || []).push(L); L.k = BYBOOK[L.b].length; });
+const GOAL = 5;
+
+/* ───────────────────────── Stato e memoria ───────────────────────── */
+const S = { saved: {}, seen: {}, days: {}, auto: false, voice: false, tab: 'path' };
+const KEY = 'una-pagina:v1';
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+function merge(r) {
+  if (!r || typeof r !== 'object') return;
+  for (const [id, t] of Object.entries(r.saved || {})) if (VALID.has(id) && typeof t === 'number' && Math.abs(t) > Math.abs(S.saved[id] || 0)) S.saved[id] = t;
+  for (const [id, t] of Object.entries(r.seen || {})) if (VALID.has(id) && typeof t === 'number' && (!S.seen[id] || t < S.seen[id])) S.seen[id] = t;
+  for (const [day, ids] of Object.entries(r.days || {})) if (DAY.test(day) && Array.isArray(ids)) S.days[day] = [...new Set([...(S.days[day] || []), ...ids.filter(x => VALID.has(x))])].sort();
+  const keys = Object.keys(S.days).sort(); while (keys.length > 120) delete S.days[keys.shift()];
+}
+const sig = o => JSON.stringify([o.saved, o.seen, o.days].map(m => Object.keys(m || {}).sort().map(k => [k, m[k]])));
+function loadLocal() { try { const o = JSON.parse(localStorage.getItem(KEY) || 'null'); if (o) { merge(o); S.auto = !!o.auto; } } catch (e) {} }
+function saveLocal() { try { localStorage.setItem(KEY, JSON.stringify({ saved: S.saved, seen: S.seen, days: S.days, auto: S.auto })); } catch (e) {} }
+
+// Sincronizzazione tra dispositivi, quando la pagina è aperta da un account che può salvare.
+let ref = null, syncT = 0, writing = false, dirty = false;
+function changed() { saveLocal(); if (ref) { dirty = true; clearTimeout(syncT); syncT = setTimeout(flush, 1500); } }
+async function flush() {
+  if (!ref || writing || !dirty) return;
+  writing = true; dirty = false;
+  try { await ref.set({ v: 1, saved: S.saved, seen: S.seen, days: S.days }); }
+  catch (e) { if (e && e.code === 'unavailable') dirty = true; else ref = null; }
+  writing = false;
+  if (dirty && ref) { clearTimeout(syncT); syncT = setTimeout(flush, 4000); }
+}
+async function connect() {
+  const cl = window.claude;
+  if (!cl || typeof cl.use !== 'function') return;
+  Promise.resolve(cl.use('tts')).then(t => { if (t) { Nar.tts = t; Nar.kind = 'claude'; voiceAvail(); } }).catch(() => {});
+  try {
+    const [db, user] = await Promise.all([cl.use('db'), cl.use('user')]);
+    if (!db || !user) return;
+    const uid = await user.id();
+    if (!uid) return;
+    const r = db.doc('data/users/' + uid + '/progress');
+    const snap = await r.get();
+    ref = r;
+    const remote = snap.exists ? (snap.data() || {}) : null, before = sig(S);
+    if (remote) merge(remote);
+    const after = sig(S);
+    if (after !== before) { saveLocal(); refreshAll(); }
+    const has = Object.keys(S.saved).length + Object.keys(S.seen).length > 0;
+    if (remote ? after !== sig(remote) : has) { dirty = true; syncT = setTimeout(flush, 1500); }
+  } catch (e) {}
+}
+
+function todayCount() { return (S.days[dayKey()] || []).length; }
+function streak() {
+  const d = new Date(); let n = 0;
+  if (!(S.days[dayKey(d)] || []).length) d.setDate(d.getDate() - 1);
+  while ((S.days[dayKey(d)] || []).length) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function markSeen(id) {
+  const k = dayKey(), today = S.days[k] || (S.days[k] = []);
+  let ch = false;
+  if (!S.seen[id]) { S.seen[id] = Date.now(); ch = true; }
+  if (!today.includes(id)) { today.push(id); today.sort(); ch = true; }
+  if (ch) { changed(); stats(); if (today.length === GOAL) toast('Cinque lezioni oggi. Obiettivo raggiunto.'); }
+}
+
+/* ───────────────────────── Disegno: la penna ───────────────────────── */
+const TAU = Math.PI * 2, NO = [];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => { t = clamp(t); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+const eo = t => 1 - Math.pow(1 - clamp(t), 3);
+const seg = (g, a, b) => clamp((g - a) / (b - a));
+const rnd = i => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const cos = Math.cos, sin = Math.sin;
+
+function cut(P, k) {
+  const L = []; let tot = 0;
+  for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); L.push(l); tot += l; }
+  let rem = tot * clamp(k), n = 0; const out = [P[0]];
+  for (let i = 1; i < P.length; i++) {
+    const l = L[i - 1];
+    if (rem >= l) { out.push(P[i]); rem -= l; n = i; }
+    else { const f = l ? rem / l : 0; out.push([lerp(P[i - 1][0], P[i][0], f), lerp(P[i - 1][1], P[i][1], f)]); break; }
+  }
+  return { pts: out, head: out[out.length - 1], n };
+}
+const quad = (a, c, b, n) => { const p = []; for (let i = 0; i <= n; i++) { const u = i / n, v = 1 - u; p.push([v * v * a[0] + 2 * v * u * c[0] + u * u * b[0], v * v * a[1] + 2 * v * u * c[1] + u * u * b[1]]); } return p; };
+const cubic = (a, b, c, e, u) => { const v = 1 - u; return [v * v * v * a[0] + 3 * v * v * u * b[0] + 3 * v * u * u * c[0] + u * u * u * e[0], v * v * v * a[1] + 3 * v * v * u * b[1] + 3 * v * u * u * c[1] + u * u * u * e[1]]; };
+
+// Coordinate in unità: la tavola è un quadrato da -1 a 1, centrato nell'illustrazione.
+const D = {
+  ctx: null, ink: '', a: '', b: '', bg: '', cx: 0, cy: 0, R: 1, dpr: 1,
+  disc(x, y, r, col, al = 1) { al = clamp(al); if (r <= 0 || !al) return; const c = this.ctx; c.globalAlpha = al; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.globalAlpha = 1; },
+  ell(x, y, rx, ry, col, al = 1) { al = clamp(al); if (rx <= 0 || ry <= 0 || !al) return; const c = this.ctx; c.globalAlpha = al; c.fillStyle = col; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.fill(); c.globalAlpha = 1; },
+  _s(col, lw, al, dash) { const c = this.ctx; c.globalAlpha = al; c.strokeStyle = col; c.lineWidth = lw; c.setLineDash(dash || NO); },
+  _e() { const c = this.ctx; c.globalAlpha = 1; c.setLineDash(NO); },
+  ring(x, y, r, col, lw = .02, al = 1, dash) { al = clamp(al); if (r <= 0 || !al) return; const c = this.ctx; this._s(col, lw, al, dash); c.beginPath(); c.arc(x, y, r, 0, TAU); c.stroke(); this._e(); },
+  arc(x, y, r, a0, a1, col, lw = .02, al = 1) { al = clamp(al); if (r <= 0 || !al) return; const c = this.ctx; this._s(col, lw, al); c.beginPath(); c.arc(x, y, r, a0, a1); c.stroke(); this._e(); },
+  wedge(x, y, r, a0, a1, col, al = 1) { al = clamp(al); if (!al) return; const c = this.ctx; c.globalAlpha = al; c.fillStyle = col; c.beginPath(); c.moveTo(x, y); c.arc(x, y, r, a0, a1); c.closePath(); c.fill(); c.globalAlpha = 1; },
+  line(x1, y1, x2, y2, col, lw = .02, al = 1, dash) { al = clamp(al); if (!al) return; const c = this.ctx; this._s(col, lw, al, dash); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); this._e(); },
+  path(pts, col, lw = .02, al = 1, close, dash) { al = clamp(al); if (pts.length < 2 || !al) return; const c = this.ctx; this._s(col, lw, al, dash); c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); if (close) c.closePath(); c.stroke(); this._e(); },
+  fill(pts, col, al = 1) { al = clamp(al); if (pts.length < 3 || !al) return; const c = this.ctx; c.globalAlpha = al; c.fillStyle = col; c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.closePath(); c.fill(); c.globalAlpha = 1; },
+  rect(x, y, w, h, col, al = 1) { al = clamp(al); if (!al) return; const c = this.ctx; c.globalAlpha = al; c.fillStyle = col; c.fillRect(x, y, w, h); c.globalAlpha = 1; },
+  box(x, y, w, h, col, lw = .02, al = 1) { al = clamp(al); if (!al) return; const c = this.ctx; this._s(col, lw, al); c.strokeRect(x, y, w, h); this._e(); },
+  sq(x, y, s, rot, col, al = 1) { al = clamp(al); if (!al) return; const c = this.ctx; c.save(); c.translate(x, y); c.rotate(rot); c.globalAlpha = al; c.fillStyle = col; c.fillRect(-s / 2, -s / 2, s, s); c.restore(); },
+  arrow(x1, y1, x2, y2, col, lw = .025, al = 1) { const a = Math.atan2(y2 - y1, x2 - x1), h = Math.min(.1, Math.hypot(x2 - x1, y2 - y1) * .5); this.line(x1, y1, x2, y2, col, lw, al); this.line(x2, y2, x2 - cos(a - .5) * h, y2 - sin(a - .5) * h, col, lw, al); this.line(x2, y2, x2 - cos(a + .5) * h, y2 - sin(a + .5) * h, col, lw, al); },
+  clip(shape, draw) { const c = this.ctx; c.save(); c.beginPath(); shape(c); c.clip(); draw(); c.restore(); },
+  text(s, x, y, size, col, align = 'center', al = 1) {
+    al = clamp(al); if (!al) return;
+    const c = this.ctx; c.save(); c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    c.globalAlpha = al; c.fillStyle = col || this.ink; c.font = '500 ' + Math.max(8.5, size * this.R).toFixed(1) + 'px "DM Mono", ui-monospace, Menlo, Consolas, monospace';
+    c.textAlign = align; c.textBaseline = 'middle'; c.fillText(s, this.cx + x * this.R, this.cy + y * this.R); c.restore();
+  },
+};
+
+/* ───────────────────────── Le trenta animazioni ─────────────────────────
+   Ogni funzione disegna un fotogramma: T = secondi trascorsi, g = avanzamento della lezione (0–1). */
+const OBST = [[-1.15, .5], [-.42, .5], ...quad([-.42, .5], [-.3, -.55], [-.02, -.12], 14).slice(1), [.26, -.12], ...quad([.26, -.12], [.5, -1.15], [.86, -.6], 14).slice(1), [1.1, -.6]];
+const SPROUT = [[-1.05, .62], [-.72, .34], [-.56, .5], [-.24, .08], [-.08, .27], [.26, -.2], [.42, -.03], [.76, -.56], [1.05, -.8]];
+
+const M = {
+  // 1,01 elevato a 365: la curva è in scala reale
+  curve(d, T, g) {
+    const x0 = -1, x1 = 1, yb = .62, yt = -.8, top = Math.pow(1.01, 365);
+    const X = n => lerp(x0, x1, n / 365), Y = v => lerp(yb, yt, v / top);
+    d.line(x0, yb, x1, yb, d.ink, .014, .6); d.line(x0, yb, x0, yt, d.ink, .014, .6);
+    for (let m = 1; m <= 12; m++) d.line(X(m * 365 / 12), yb, X(m * 365 / 12), yb + .045, d.ink, .01, .5);
+    d.line(x0, Y(1), x1, Y(1), d.ink, .01, .5, [.03, .04]);
+    const n = 365 * ease(seg(g, .04, .6)), pts = [];
+    for (let i = 0; i < n; i += 3) pts.push([X(i), Y(Math.pow(1.01, i))]);
+    const v = Math.pow(1.01, n), hx = X(n), hy = Y(v); pts.push([hx, hy]);
+    d.path(pts, d.a, .042);
+    d.disc(hx, hy, .062 + .012 * sin(T * 4), d.a);
+    const lab = '×' + (v < 10 ? v.toFixed(1).replace('.', ',') : String(Math.floor(v)));
+    if (hx < -.2) d.text(lab, hx + .1, hy - .15, .12, d.ink, 'left'); else d.text(lab, hx - .1, hy - .1, .12, d.ink, 'right');
+    d.text('GIORNO ' + Math.round(n), x0, yb + .16, .07, d.ink, 'left', .75); d.text('365', x1, yb + .16, .07, d.ink, 'right', .75);
+  },
+  // un voto alla volta
+  tally(d, T, g) {
+    const n = 45 * ease(seg(g, .02, .92));
+    for (let i = 0; i < 45; i++) {
+      const k = clamp(n - i); if (k <= 0) break;
+      const grp = Math.floor(i / 5), j = i % 5, gx = -.74 + (grp % 3) * .74, gy = -.58 + Math.floor(grp / 3) * .6, w = (rnd(i) - .5) * .035;
+      if (j < 4) { const x = gx - .21 + j * .14; d.line(x + w, gy - .19, x - w, gy - .19 + .38 * k, d.ink, .034); }
+      else d.line(gx - .32, gy + .13, gx - .32 + .64 * k, gy + .13 - .26 * k, d.a, .042);
+    }
+    d.text(String(Math.floor(n)).padStart(2, '0') + ' VOTI', 1.05, -.95, .07, d.ink, 'right', .75);
+  },
+  // due minuti su un'ora
+  twomin(d, T, g) {
+    const r = .86, a0 = -Math.PI / 2, two = TAU * 2 / 60, grow = ease(seg(g, .6, 1));
+    d.wedge(0, 0, r - .14, a0, a0 + two + grow * TAU * .3, d.ink, .13 * (grow > 0 ? 1 : 0));
+    d.wedge(0, 0, r - .14, a0, a0 + two, d.a);
+    for (let i = 0; i < 60; i++) { const a = a0 + i / 60 * TAU, l = i % 5 ? .05 : .11; d.line(cos(a) * (r - l), sin(a) * (r - l), cos(a) * r, sin(a) * r, d.ink, i % 5 ? .01 : .02, i % 5 ? .55 : .95); }
+    const h = a0 + two * ((T * .45) % 1);
+    d.line(0, 0, cos(h) * (r - .2), sin(h) * (r - .2), d.ink, .028); d.disc(0, 0, .06, d.ink);
+    d.text('2 MIN', .2, -.98, .075, d.ink, 'left', .85);
+  },
+  // segnale → routine → gratificazione
+  loop(d, T, g) {
+    const r = .64, k = ease(seg(g, .52, .74)), run = -Math.PI / 2 + T * 1.15, N = ['SEGNALE', 'ROUTINE', 'GRATIFICAZIONE'];
+    d.ring(0, 0, r, d.ink, .016, .55);
+    d.arc(0, 0, r, run - .85, run, d.a, .045); d.disc(cos(run) * r, sin(run) * r, .07, d.a);
+    [-90, 30, 150].forEach((deg, i) => {
+      const a = deg * Math.PI / 180, x = cos(a) * r, y = sin(a) * r;
+      d.disc(x, y, .16, d.bg);
+      if (i === 1) { d.sq(x, y, .24, k * Math.PI / 4, d.ink, 1 - k); d.sq(x, y, .26, k * Math.PI / 4, d.a, k); }
+      else { d.ring(x, y, .12, d.ink, .03); d.disc(x, y, .045, d.ink); }
+      d.text(N[i], x, y + (i ? .28 : -.27), .068, d.ink, 'center', .9);
+    });
+  },
+  // tante particelle, un solo punto
+  focus(d, T, g) {
+    const k = ease(seg(g, .12, .8));
+    d.ring(0, 0, .52, d.ink, .008, .35 * (1 - k), [.03, .04]);
+    d.disc(0, 0, .08 + .4 * k, d.a);
+    for (let i = 0; i < 64; i++) {
+      const a = rnd(i) * TAU + T * (.2 + rnd(i + 7) * .5) * (i % 2 ? 1 : -1), r0 = .46 + rnd(i + 31) * .66 + sin(T * 1.7 + i) * .05;
+      const r = lerp(r0, rnd(i + 3) * (.06 + .36 * k), k);
+      d.disc(cos(a) * r * 1.1, sin(a) * r, .023, d.ink, lerp(.9, 0, seg(k, .55, 1)));
+    }
+  },
+  // ogni salto lascia un pezzo di attenzione
+  residue(d, T, g) {
+    const per = 1.7, ph = T / per, n = Math.floor(ph), f = ease(clamp((ph - n) * 1.7 - .35)), ax = -.6, bx = .6, s = .6, y0 = .1;
+    [[ax, 'A'], [bx, 'B']].forEach(([x, l]) => { d.box(x - s / 2, y0 - s / 2, s, s, d.ink, .024); d.text('ATTIVITÀ ' + l, x, y0 + s / 2 + .14, .065, d.ink, 'center', .8); });
+    for (let j = 0; j <= Math.min(n, 9); j++) { const al = j < n ? .5 : f * .5; d.disc((j % 2 ? bx : ax) + (rnd(j) - .5) * .34, y0 + (rnd(j + 5) - .5) * .34, .055, d.a, al); }
+    const from = n % 2 ? bx : ax, to = n % 2 ? ax : bx, x = lerp(from, to, f), y = y0 - sin(f * Math.PI) * .62;
+    d.disc(x, y, Math.max(.07, .2 - Math.min(n, 8) * .017), d.a); d.ring(x, y, Math.max(.07, .2 - Math.min(n, 8) * .017) + .04, d.ink, .014, .7);
+  },
+  // dal rumore alla calma
+  calm(d, T, g) {
+    const k = ease(seg(g, .08, .9)), amp = lerp(.17, .012, k), fr = lerp(10, 3, k), sp = lerp(5, 1.1, k);
+    const y = (x, j) => j * .32 + sin(x * fr + T * sp + j * 1.3) * amp * (1 + .5 * sin(x * fr * 2.3 + T * sp * 1.7 + j) * (1 - k));
+    for (let j = -2; j <= 2; j++) { const pts = []; for (let x = -1.15; x <= 1.16; x += .025) pts.push([x, y(x, j)]); d.path(pts, j ? d.ink : d.a, j ? .016 : .036, j ? .55 : 1); }
+    d.disc(0, y(0, 0), .075, d.a); d.ring(0, y(0, 0), .12, d.ink, .014, .7);
+  },
+  // tra ansia e noia
+  channel(d, T, g) {
+    const ox = -.9, oy = .68, ex = .95, ey = -.82, nx = -.642, ny = -.766, w = .27;
+    const P = u => [lerp(ox, ex, u), lerp(oy, ey, u)];
+    d.clip(c => c.rect(ox, ey - .08, ex - ox + .08, oy - ey + .08), () => { const a = P(-.2), b = P(1.2); d.fill([[a[0] + nx * w, a[1] + ny * w], [b[0] + nx * w, b[1] + ny * w], [b[0] - nx * w, b[1] - ny * w], [a[0] - nx * w, a[1] - ny * w]], d.a, .3); });
+    d.line(ox, oy, ex + .08, oy, d.ink, .014, .65); d.line(ox, oy, ox, ey - .08, d.ink, .014, .65);
+    d.text('SFIDA', ox + .06, ey - .16, .07, d.ink, 'left', .8); d.text('ABILITÀ', ex + .08, oy + .14, .07, d.ink, 'right', .8);
+    d.text('ANSIA', -.5, -.55, .075, d.ink, 'center', .75); d.text('NOIA', .5, .42, .075, d.ink, 'center', .75); d.text('FLOW', .56, -.5, .075, d.ink, 'center', .95);
+    const pos = v => { const p = P(lerp(.06, .9, v)), dev = sin(v * TAU * 2.25) * .31 * (1 - .55 * v); return [p[0] + nx * dev, p[1] + ny * dev]; };
+    const pts = []; for (let v = 0; v <= g; v += .01) pts.push(pos(v)); const h = pos(g); pts.push(h);
+    d.path(pts, d.ink, .02, .85); d.disc(h[0], h[1], .07 + .01 * sin(T * 3), d.a); d.ring(h[0], h[1], .11, d.ink, .014, .7);
+  },
+  // mille direzioni, oppure una
+  essential(d, T, g) {
+    const k = ease(seg(g, .3, .68)), ox = lerp(0, -.8, k), n = 10, L = .46;
+    for (let i = 1; i < n; i++) { const a = i / n * TAU + sin(T * .7 + i) * .05; d.arrow(ox + cos(a) * .22, sin(a) * .22, ox + cos(a) * (.22 + L * (1 - k) + .001), sin(a) * (.22 + L * (1 - k) + .001), d.ink, .024, 1 - k); }
+    d.arrow(ox + .22, 0, ox + .22 + lerp(L, 1.52, k) + sin(T * 2) * .015, 0, d.a, .045);
+    d.disc(ox, 0, .13, d.ink);
+  },
+  // la lepre e il righello
+  twosys(d, T, g) {
+    const y1 = -.38, y2 = .46, xa = -1.05, w = 2.1;
+    d.text('SISTEMA 1', xa, y1 - .34, .072, d.ink, 'left', .85); d.text('SISTEMA 2', xa, y2 - .34, .072, d.ink, 'left', .85);
+    d.line(xa, y1, xa + w, y1, d.ink, .01, .45); d.line(xa, y2, xa + w, y2, d.ink, .01, .45);
+    for (let i = 0; i <= 14; i++) d.line(xa + i * .15, y2, xa + i * .15, y2 + (i % 5 ? .05 : .09), d.ink, .01, .55);
+    const u = (T * 1.2) % 1, hop = v => y1 - .09 - Math.abs(sin(v * Math.PI * 3)) * .15;
+    for (let j = 6; j >= 1; j--) { const v = clamp(u - j * .03); d.disc(xa + ease(v) * w, hop(v), .08 - j * .008, d.a, .5 - j * .07); }
+    d.disc(xa + ease(u) * w, hop(u), .09, d.a);
+    const sx = xa + ((T * .045) % 1) * w;
+    d.line(xa, y2, sx, y2, d.b, .034); d.sq(sx, y2 - .1, .17, 0, d.b);
+  },
+  // la stima resta legata all'ancora
+  anchor(d, T, g) {
+    const y = .3, xa = -.62, xt = .8, ey = y - .3;
+    d.line(-1.1, y, 1.1, y, d.ink, .014, .65);
+    for (let i = 0; i <= 22; i++) d.line(-1.1 + i * .1, y, -1.1 + i * .1, y + (i % 5 ? .04 : .08), d.ink, .01, .5);
+    d.line(xa, y, xa, y - .62, d.ink, .032); d.sq(xa, y - .7, .2, Math.PI / 4, d.ink); d.text('ANCORA', xa, y - .97, .072);
+    d.line(xt, y, xt, ey + .1, d.ink, .01, .55, [.02, .03]); d.ring(xt, ey, .09, d.ink, .018, .85, [.035, .03]); d.text('VALORE REALE', xt, ey - .22, .072, d.ink, 'center', .85);
+    const x = xa + .16 + .46 * (1 - Math.exp(-g * 5)) * (1 + .13 * sin(T * 2.4)), pts = [[xa, ey]], N = 14;
+    for (let i = 1; i < N; i++) pts.push([lerp(xa + .04, x - .12, i / N), ey + (i % 2 ? -.07 : .07)]);
+    pts.push([x - .1, ey]);
+    d.path(pts, d.ink, .018); d.disc(x, ey, .1, d.a); d.text('STIMA', x, y + .2, .072);
+  },
+  // la bilancia pende dalla parte della perdita
+  scale(d, T, g) {
+    const th = .27 * ease(seg(g, .06, .45)) + sin(T * 1.4) * .012, L = .8, py = -.34, ex = cos(th) * L, ey = sin(th) * L;
+    d.line(0, .82, 0, py, d.ink, .032); d.line(-.34, .82, .34, .82, d.ink, .032);
+    d.line(-ex, py - ey, ex, py + ey, d.ink, .036); d.disc(0, py, .055, d.ink);
+    [-1, 1].forEach(s => {
+      const hx = s * ex, hy = py + s * ey, pan = hy + .46;
+      d.line(hx, hy, hx - .22, pan, d.ink, .012, .8); d.line(hx, hy, hx + .22, pan, d.ink, .012, .8); d.line(hx - .27, pan, hx + .27, pan, d.ink, .03);
+      if (s < 0) { d.disc(hx, pan - .21, .2, d.bg); d.ring(hx, pan - .21, .19, d.ink, .026); d.text('+100', hx, pan - .21, .085, d.ink); }
+      else { d.disc(hx, pan - .21, .2, d.a); d.text('−100', hx, pan - .21, .085, d.bg); }
+    });
+  },
+  // dentro: ciò che dipende da te
+  control(d, T, g) {
+    const br = 1 + sin(T * 1.2) * .035, ph = (T * .32) % 1;
+    for (let i = 0; i < 30; i++) { const a = rnd(i) * TAU + T * (.25 + rnd(i + 11) * .5) * (i % 2 ? 1 : -1) + sin(T * 1.3 + i) * .5, r = .74 + rnd(i + 23) * .3 + sin(T * 2.1 + i * 3) * .07; d.sq(cos(a) * r * 1.06, sin(a) * r * .9, .052, a + T, d.ink, .78); }
+    d.ring(0, 0, .56, d.ink, .014, .7, [.04, .05]);
+    d.ring(0, 0, .36 + ph * .2, d.a, .014, (1 - ph) * .7);
+    d.disc(0, 0, .36 * br, d.a);
+  },
+  // lo stesso fatto, visto attraverso un giudizio
+  lens(d, T, g) {
+    const lx = sin(T * .75) * .7, lr = .5;
+    d.sq(0, 0, .36, 0, d.ink); d.text('IL FATTO', 0, .68, .07, d.ink, 'center', .8);
+    d.clip(c => c.arc(lx, 0, lr, 0, TAU), () => {
+      d.rect(-2, -2, 4, 4, d.bg); d.rect(-2, -2, 4, 4, d.a, .24);
+      const pts = []; for (let i = 0; i < 28; i++) { const a = i / 28 * TAU + T * .3, r = i % 2 ? .2 : .3 + .12 * (.6 + .4 * sin(T * 3 + i)); pts.push([cos(a) * r, sin(a) * r]); }
+      d.fill(pts, d.a);
+    });
+    d.ring(lx, 0, lr, d.ink, .032); d.text('IL GIUDIZIO', lx, -lr - .16, .07, d.ink, 'center', .9);
+  },
+  // il blocco diventa il gradino
+  obstacle(d, T, g) {
+    d.line(-1.15, .5, 1.15, .5, d.ink, .012, .5);
+    d.rect(-.2, -.12, .62, .62, d.ink);
+    d.rect(.74, -.6, .46, .08, d.ink); d.rect(.74, -.52, .46, 1.02, d.ink, .14);
+    d.line(1.1, -.6, 1.1, -.9, d.ink, .018); d.fill([[1.1, -.9], [.9, -.83], [1.1, -.76]], d.a);
+    const c = cut(OBST, ease(seg(g, .06, .82)));
+    d.path(c.pts, d.a, .04, 1, false, [.001, .075]);
+    d.disc(c.head[0], c.head[1] - .07, .075 + .008 * sin(T * 4), d.a);
+  },
+  // il sole sale, la giornata si prepara
+  dawn(d, T, g) {
+    const hy = .38, k = ease(seg(g, 0, .75)), sy = lerp(hy + .5, hy - .34, k), r = .42;
+    d.clip(c => c.rect(-1.4, -1.3, 2.8, hy + 1.3), () => {
+      for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + T * .12, r1 = r + .1, r2 = r + .3 + .06 * sin(T * 2 + i); d.line(cos(a) * r1, sy + sin(a) * r1, cos(a) * r2, sy + sin(a) * r2, d.a, .024, .2 + .8 * k); }
+      d.disc(0, sy, r, d.a);
+    });
+    d.line(-1.2, hy, 1.2, hy, d.ink, .024);
+    for (let j = 1; j <= 4; j++) { const w = (.52 - j * .09) * k; if (w > .01) d.line(-w, hy + j * .11, w, hy + j * .11, d.a, .022, .85 - j * .15); }
+    [-.84, -.62, .58, .8, 1.0].forEach((x, i) => { const h = .13 + rnd(i) * .11; d.rect(x - .026, hy - h, .052, h, d.ink); d.disc(x, hy - h - .045, .04, d.ink); });
+  },
+  // le giornate regalate
+  weeks(d, T, g) {
+    const w = .74 * ease(seg(g, .08, .7)), k = ease(seg(g, .72, .95));
+    for (let i = 0; i < 108; i++) {
+      const x = -.935 + (i % 12) * .17, y = -.72 + Math.floor(i / 12) * .17;
+      if (rnd(i * 3 + 1) < w) d.ring(x, y, .042, d.ink, .012, .38);
+      else { d.disc(x, y, .055, d.ink); d.disc(x, y, .055 + .008 * sin(T * 2 + i), d.a, k); }
+    }
+  },
+  // una cosa piccola, un'ombra enorme
+  shadow(d, T, g) {
+    const gy = .5, s = (.25 + .75 * ease(seg(g, 0, .42))) * lerp(1, .34, ease(seg(g, .68, .95))) * (1 + sin(T * 2.3) * .03);
+    const tx = -.55, fx = .52, bw = .36 * s, bh = 1.25 * s;
+    d.line(-1.2, gy, 1.2, gy, d.ink, .016, .65);
+    d.disc(-1.02, gy - .1, .05 + .012 * sin(T * 9), d.a); d.ring(-1.02, gy - .1, .11, d.a, .012, .6);
+    d.fill([[tx, gy], [fx + bw, gy], [fx, gy - bh], [tx, gy - .18]], d.ink, .14);
+    d.ell(fx, gy - bh * .5, bw, bh * .5, d.ink);
+    d.fill([[fx - bw * .75, gy - bh * .8], [fx - bw * 1.0, gy - bh * 1.12], [fx - bw * .25, gy - bh * .96]], d.ink);
+    d.fill([[fx + bw * .75, gy - bh * .8], [fx + bw * 1.0, gy - bh * 1.12], [fx + bw * .25, gy - bh * .96]], d.ink);
+    d.disc(fx - bw * .36, gy - bh * .64, bw * .13, d.bg); d.disc(fx + bw * .36, gy - bh * .64, bw * .13, d.bg);
+    d.disc(tx, gy - .09, .09, d.a);
+    d.text('REALTÀ', tx, gy + .15, .068, d.ink, 'center', .85); d.text('IMMAGINAZIONE', fx, gy + .15, .068, d.ink, 'center', .85);
+  },
+  // tra le sbarre, una luce che resta
+  ember(d, T, g) {
+    const glow = .22 + .5 * ease(seg(g, .3, .9)), pulse = 1 + sin(T * 2.2) * .08, dark = .5 + .5 * ease(seg(g, 0, .3));
+    for (let j = 3; j >= 1; j--) d.disc(0, 0, (glow * j / 3 + .08) * pulse, d.a, .14);
+    for (let i = 0; i < 8; i++) d.rect(-.875 + i * .25 - .042, -.88, .084, 1.76, d.ink, dark);
+    d.line(-.96, -.88, .96, -.88, d.ink, .06, dark); d.line(-.96, .88, .96, .88, d.ink, .06, dark);
+    d.disc(0, 0, .082 * pulse, d.a);
+  },
+  // un sentiero verso una stella
+  north(d, T, g) {
+    for (let i = 0; i < 22; i++) d.disc(-1.1 + rnd(i) * 2.2, -.95 + rnd(i + 40) * 1.5, .012 + rnd(i + 80) * .012, d.ink, .3 + .25 * sin(T * 1.5 + i));
+    const sx = .62, sy = -.6, r = .21 * (1 + sin(T * 2.6) * .12), st = [];
+    for (let i = 0; i < 8; i++) { const a = i / 8 * TAU - Math.PI / 2, q = i % 2 ? r * .3 : r; st.push([sx + cos(a) * q, sy + sin(a) * q]); }
+    d.fill(st, d.a);
+    const k = ease(seg(g, .05, .88)), N = 46; let last = null;
+    for (let i = 0; i <= N * k; i++) { const u = i / N; last = [lerp(-.9, sx - .16, u) + sin(u * TAU * 1.4) * .26 * (1 - u), lerp(.8, sy + .16, u) + cos(u * TAU * 1.1) * .1 * (1 - u) - .1 * (1 - u)]; d.disc(last[0], last[1], .019, d.ink, .85); }
+    if (last) d.disc(last[0], last[1], .06, d.ink);
+  },
+  // quadrante due: importante, non urgente
+  matrix(d, T, g) {
+    const s = .8, gap = .07, k = ease(seg(g, .32, .72));
+    [[-1, -1, 'IMPORTANTE', 'URGENTE'], [1, -1, 'IMPORTANTE', 'NON URGENTE'], [-1, 1, 'NON IMPORTANTE', 'URGENTE'], [1, 1, 'NON IMPORTANTE', 'NON URGENTE']].forEach(([sx, sy, l1, l2], i) => {
+      const x = sx > 0 ? gap / 2 : -gap / 2 - s, y = (sy > 0 ? gap / 2 : -gap / 2 - s) + .04, q2 = i === 1;
+      if (q2) d.rect(x, y, s, s, d.a, k);
+      d.box(x, y, s, s, d.ink, q2 ? .03 : .016, q2 ? 1 : .6);
+      d.text(l1, x + .06, y + .1, .056, d.ink, 'left', .9); d.text(l2, x + .06, y + .2, .056, d.ink, 'left', .9);
+      if (sx < 0) for (let j = 0; j < (sy < 0 ? 9 : 12); j++) d.disc(x + .12 + rnd(i * 20 + j) * (s - .24) + sin(T * (4 + rnd(j) * 5) + j) * .03, y + .36 + rnd(i * 30 + j + 5) * (s - .5) + cos(T * (5 + rnd(j + 2) * 4) + j) * .03, .028, d.ink, .85 * (1 - .6 * k));
+      if (q2) d.disc(x + s / 2, y + s * .62, .14 * k * (1 + sin(T * 2) * .05), d.ink);
+    });
+  },
+  // prima il traguardo, poi la strada
+  endpath(d, T, g) {
+    const S0 = [-.82, .62], E = [.72, -.52], B = u => cubic(S0, [-.05, .98], [.0, -.9], E, u);
+    const k0 = eo(seg(g, 0, .14)), k = ease(seg(g, .16, .72)), N = 44;
+    d.ring(E[0], E[1], .27 * k0 * (1 + sin(T * 2.4) * .05), d.a, .028); d.ring(E[0], E[1], .17 * k0, d.a, .028); d.disc(E[0], E[1], .08 * k0, d.a);
+    d.text('LA FINE', E[0], E[1] - .42, .07, d.ink, 'center', k0 * .9);
+    for (let i = N; i >= N * (1 - k); i--) { const p = B(i / N); d.disc(p[0], p[1], .02, d.ink, .85); }
+    d.ring(S0[0], S0[1], .09, d.ink, .028); d.text('OGGI', S0[0], S0[1] + .23, .07, d.ink, 'center', .9);
+    const u = ease(seg(g, .76, 1)); if (u > 0) { const p = B(u); d.disc(p[0], p[1], .068, d.ink); }
+  },
+  // si cade, si risale più in alto
+  sprout(d, T, g) {
+    d.line(-1.05, .62, 1.05, .62, d.ink, .012, .5, [.04, .04]); d.text('MENTALITÀ FISSA', 1.05, .76, .065, d.ink, 'right', .7);
+    const c = cut(SPROUT, ease(seg(g, .05, .85)));
+    d.path(c.pts, d.a, .042);
+    [2, 4, 6].forEach(i => { if (c.n >= i) d.ring(SPROUT[i][0], SPROUT[i][1], .085, d.ink, .018); });
+    d.disc(c.head[0], c.head[1], .065 + .008 * sin(T * 4), d.a);
+    if (c.n >= 8) d.text('NON ANCORA → ORA', 1.05, -.95, .065, d.ink, 'right', .85);
+  },
+  // talento × impegno × impegno
+  grit(d, T, g) {
+    const y = .14, X = [-.82, -.12, .68], Rr = [.13, .24, .4], K = [eo(seg(g, 0, .15)), eo(seg(g, .28, .48)), eo(seg(g, .5, .72))], L = ['TALENTO', 'ABILITÀ', 'RISULTATI'];
+    for (let i = 0; i < 3; i++) {
+      if (i === 0) d.ring(X[0], y, Rr[0] * K[0], d.ink, .032); else d.disc(X[i], y, Rr[i] * K[i], i === 2 ? d.a : d.ink);
+      d.text(L[i], X[i], y + Rr[i] + .16, .068, d.ink, 'center', K[i] * .9);
+    }
+    for (let i = 0; i < 2; i++) {
+      const k = eo(seg(g, .15 + i * .24, .3 + i * .24)); if (k <= 0) continue;
+      const a = [X[i], y - Rr[i] - .07], b = [X[i + 1], y - Rr[i + 1] - .07], c = [(a[0] + b[0]) / 2, y - Rr[i + 1] - .56];
+      const p = cut(quad(a, c, b, 22), k).pts, h = p[p.length - 1], q = p[Math.max(0, p.length - 3)];
+      d.path(p, d.a, .03); d.arrow(q[0], q[1], h[0], h[1], d.a, .03);
+      d.text('× IMPEGNO', c[0], (a[1] + 2 * c[1] + b[1]) / 4 - .13, .068, d.ink, 'center', k * .95);
+    }
+  },
+  // tre modi di reagire a un urto
+  antifragile(d, T, g) {
+    const per = 1.5, n = Math.min(6, Math.floor(T / per)), ph = (T % per) / per, hit = T >= per ? Math.exp(-ph * 6) : 0, X = [-.74, 0, .74], y = .16;
+    if (ph > .7) { const q = (ph - .7) / .3; X.forEach(x => { for (let j = -1; j <= 1; j++) d.line(x + j * .1, -.98 + q * .5, x + j * .1, -.84 + q * .5, d.ink, .018, q * .8); }); }
+    const dsp = .034 * Math.min(n, 5);
+    for (let i = 0; i < 6; i++) { const m = (i + .5) / 6 * TAU, gap = n ? .12 : 0, rot = (rnd(i) - .5) * .16 * n; d.arc(X[0] + cos(m) * dsp, y + sin(m) * dsp, .25, i / 6 * TAU + gap + rot, (i + 1) / 6 * TAU - gap + rot + .001, d.ink, .03); }
+    d.sq(X[1], y + hit * .03, .44, 0, d.ink);
+    d.disc(X[2], y, (.13 + .04 * n) * (1 + hit * .12), d.a);
+    ['FRAGILE', 'ROBUSTO', 'ANTIFRAGILE'].forEach((l, i) => d.text(l, X[i], y + .62, .064, d.ink, 'center', .9));
+  },
+  // la curva dell'oblio, e i ripassi che la raddrizzano
+  recall(d, T, g) {
+    const ox = -1, oy = .62, ty = -.68, ex = 1.05, rev = [.2, .45, .75], st = [.09, .2, .42, .9];
+    const R = u => { let j = 0; while (j < 3 && u >= rev[j]) j++; return Math.exp(-(u - (j ? rev[j - 1] : 0)) / st[j]); };
+    const X = u => lerp(ox, ex, u), Y = r => lerp(oy, ty, r);
+    d.line(ox, oy, ex, oy, d.ink, .014, .65); d.line(ox, oy, ox, ty - .24, d.ink, .014, .65);
+    d.text('RICORDO', ox + .06, ty - .32, .07, d.ink, 'left', .8); d.text('TEMPO', ex, oy + .15, .07, d.ink, 'right', .8);
+    const dash = []; for (let u = 0; u <= 1.001; u += .02) dash.push([X(u), Y(Math.exp(-u / st[0]))]);
+    d.path(dash, d.ink, .014, .45, false, [.03, .04]);
+    const k = ease(seg(g, .05, .85)), pts = []; for (let u = 0; u < k; u += .005) pts.push([X(u), Y(R(u))]); pts.push([X(k), Y(R(k))]);
+    d.path(pts, d.ink, .03);
+    rev.forEach((r, i) => { if (k >= r) { d.line(X(r), Y(Math.exp(-(r - (i ? rev[i - 1] : 0)) / st[i])), X(r), Y(1), d.a, .042); d.disc(X(r), Y(1), .058, d.a); d.text('RIPASSO ' + (i + 1), X(r), Y(1) - .14, .058, d.ink, 'center', .85); } });
+    d.disc(X(k), Y(R(k)), .05, d.ink);
+  },
+  // la capitalizzazione premia chi resta
+  compound(d, T, g) {
+    const base = .62, n = 17, k = ease(seg(g, .04, .7)) * n, w = .088, x0 = -1, dx = 2 / (n - 1);
+    d.line(-1.1, base, 1.1, base, d.ink, .014, .65);
+    for (let i = 0; i < n; i++) { const age = 10 + i * 5, q = eo(clamp(k - i)); if (q <= 0) continue; const h = Math.max(.014, Math.exp((age - 90) / 80 * Math.log(60)) * 1.4) * q; d.rect(x0 + i * dx - w / 2, base - h, w, h, age >= 65 ? d.a : d.ink); }
+    const x65 = x0 + 10.5 * dx;
+    d.line(x65, base + .05, x65, -.86, d.ink, .012, .75, [.035, .04]);
+    d.text('65 ANNI', x65 - .06, -.8, .072, d.ink, 'right', .9);
+    d.text('10', x0, base + .15, .068, d.ink, 'center', .75); d.text('90', x0 + 16 * dx, base + .15, .068, d.ink, 'center', .75);
+  },
+  // sopra l'acqua, ciò che si è speso
+  iceberg(d, T, g) {
+    const wl = -.24, bob = sin(T * .9) * .025, k = ease(seg(g, .22, .7)), mv = p => p.map(q => [q[0], q[1] + bob]);
+    const under = mv([[-.5, wl], [.56, wl], [.78, wl + .42], [.3, wl + 1.1], [-.28, wl + .94], [-.72, wl + .4]]);
+    d.fill(under, d.a, .2 + .8 * k); d.path(under, d.a, .024, 1, true);
+    d.fill(mv([[-.2, wl], [.03, wl - .48], [.24, wl]]), d.ink);
+    const wv = []; for (let x = -1.2; x <= 1.21; x += .04) wv.push([x, wl + sin(x * 5 + T * 1.4) * .018]);
+    d.path(wv, d.ink, .022);
+    d.text('SPESO', .34, wl - .3 + bob, .072, d.ink, 'left', .9); d.text('NON SPESO', -.62, wl + .8, .072, d.ink, 'right', .9 * k);
+  },
+  // più domande fai, più terreno comune trovi
+  overlap(d, T, g) {
+    const r = .5, dd = lerp(.76, .3, ease(seg(g, .1, .78))) + sin(T * .9) * .012, y = -.06;
+    d.clip(c => c.arc(-dd, y, r, 0, TAU), () => d.disc(dd, y, r, d.a));
+    d.ring(-dd, y, r, d.ink, .03); d.ring(dd, y, r, d.ink, .03);
+    for (let i = 0; i < 3; i++) { const u = (T * .35 + i / 3) % 1; d.disc(lerp(-dd - .2, dd + .2, u), y + (i - 1) * .14 - sin(u * Math.PI) * .08, .032, d.ink, sin(u * Math.PI)); }
+    d.text('TU', -dd - .12, y + r + .17, .072, d.ink, 'center', .9); d.text("L'ALTRO", dd + .12, y + r + .17, .072, d.ink, 'center', .9);
+  },
+  // tutti collegati a qualcosa che non esiste
+  network(d, T, g) {
+    const N = 36, k = ease(seg(g, .08, .8)), nodes = [];
+    for (let i = 0; i < N; i++) { const a = rnd(i) * TAU, r = .44 + rnd(i + 50) * .6; nodes.push([cos(a) * r * 1.1 + sin(T * .7 + i) * .012, sin(a) * r * .9 + cos(T * .8 + i * 2) * .012, r, i]); }
+    nodes.slice().sort((p, q) => p[2] - q[2]).forEach((n, rank) => {
+      const c = clamp(k * N - rank), l = Math.hypot(n[0], n[1]);
+      if (c > 0) d.line(n[0], n[1], n[0] * (1 - c * (l - .22) / l), n[1] * (1 - c * (l - .22) / l), d.ink, .009, .45);
+      d.disc(n[0], n[1], .034, d.ink, .35 + .65 * c);
+    });
+    d.ctx.lineDashOffset = -T * .08; d.ring(0, 0, .22, d.a, .032, 1, [.07, .05]); d.ctx.lineDashOffset = 0;
+    d.text('STORIA', 0, 0, .058, d.ink, 'center', .95);
+  },
+};
+
+/* ───────────────────────── La voce ─────────────────────────
+   Dove la pagina ha una voce propria la usa; altrove prova quella del browser. */
+const Nar = {
+  kind: ('speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function') ? 'browser' : null,
+  tts: null, run: 0, live: false, cur: null,
+  start(lines, cb) {
+    const run = ++this.run; this.live = true;
+    if (this.kind === 'claude') {
+      const t = this.tts; let off = () => {};
+      try { off = t.onLine(e => { if (run === this.run) cb.line(e.id != null ? Number(e.id) : e.line); }); } catch (e) {}
+      Promise.resolve().then(() => t.speak(lines.map((text, i) => ({ text, id: String(i) })), { language: 'it' }))
+        .then(() => { if (run === this.run) { this.live = false; cb.done(); } })
+        .catch(e => { if (run === this.run) { this.live = false; cb.fail((e && e.code) || 'upstream_error', e && e.reason); } })
+        .then(() => { try { off(); } catch (e) {} });
+      return;
+    }
+    const ss = window.speechSynthesis; let i = 0, started = false;
+    const it = (ss.getVoices() || []).find(v => /^it(-|_|$)/i.test(v.lang));
+    const next = () => {
+      if (run !== this.run) return;
+      if (i >= lines.length) { this.live = false; return cb.done(); }
+      const idx = i++, u = new SpeechSynthesisUtterance(lines[idx]);
+      u.lang = 'it-IT'; if (it) u.voice = it; u.rate = 1;
+      u.onstart = () => { started = true; if (run === this.run) cb.line(idx); };
+      u.onend = () => { if (run === this.run) setTimeout(next, 260); };
+      u.onerror = e => { if (run === this.run && e.error !== 'interrupted' && e.error !== 'canceled') { this.live = false; cb.fail('browser'); } };
+      this.cur = u; ss.speak(u);
+    };
+    try { ss.cancel(); next(); } catch (e) { this.live = false; return cb.fail('browser'); }
+    setTimeout(() => { if (run === this.run && !started) { this.stop(); cb.fail('browser'); } }, 4500);
+  },
+  pause() { if (!this.live) return; try { this.kind === 'claude' ? this.tts.pause().catch(() => {}) : speechSynthesis.pause(); } catch (e) {} },
+  resume() { if (!this.live) return; try { this.kind === 'claude' ? this.tts.resume().catch(() => {}) : speechSynthesis.resume(); } catch (e) {} },
+  stop() { this.run++; if (!this.live) return; this.live = false; try { this.kind === 'claude' ? this.tts.stop().catch(() => {}) : speechSynthesis.cancel(); } catch (e) {} },
+};
+
+/* ───────────────────────── Il feed ───────────────────────── */
+const $ = s => document.querySelector(s);
+const feed = $('#feed'), column = $('#column'), sheet = $('#sheet'), toastEl = $('#toast');
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const ICON = {
+  save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.8h11v16.4L12 16.4l-5.5 3.8z"/></svg>',
+  voice: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.6v4.8h3.4l4.6 4V5.6l-4.6 4z"/><path d="M15.6 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>',
+  auto: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5l5 5 5-5"/><path d="M7 13l5 5 5-5"/></svg>',
+  replay: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 1 0 2.2-5.1"/><path d="M4.6 4.6v4.2h4.2"/></svg>',
+  next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+};
+const CLIP = '<canvas class="plate" aria-hidden="true"></canvas><div class="stage"></div>'
+  + '<div class="pausemark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></svg></div>'
+  + '<div class="rail">'
+  + '<button class="rb replay" data-act="replay" hidden><span class="ic">' + ICON.replay + '</span><span>Rivedi</span></button>'
+  + '<button class="rb save" data-act="save" aria-pressed="false"><span class="ic">' + ICON.save + '</span><span class="lb">Salva</span></button>'
+  + '<button class="rb voice" data-act="voice" aria-pressed="false"><span class="ic">' + ICON.voice + '</span><span>Voce</span></button>'
+  + '<button class="rb auto" data-act="auto" aria-pressed="false"><span class="ic">' + ICON.auto + '</span><span>Auto</span></button>'
+  + '<button class="rb next" data-act="next" aria-label="Lezione successiva"><span class="ic">' + ICON.next + '</span></button>'
+  + '</div><div class="meta"><div class="kicker"></div><div class="book"></div><div class="by"></div></div><div class="bar" aria-hidden="true"></div>';
+
+let clips = [], io = null, voiceT = 0, autoT = 0, toastT = 0;
+const A = { clip: null, scene: 0, st: 0, T: 0, playing: true, finished: false, mode: 'timer' };
+
+function typeset(host, text, i) {
+  text.split('*').forEach((part, j) => {
+    if (!part) return;
+    const into = j % 2 ? host.appendChild(el('em')) : host;
+    if (j % 2) into.style.setProperty('--i', i);
+    part.split(/(\s+)/).forEach(tok => {
+      if (!tok) return;
+      if (/^\s+$/.test(tok)) into.appendChild(document.createTextNode(' '));
+      else { const w = el('span', 'w', tok); w.style.setProperty('--i', i++); into.appendChild(w); }
+    });
+  });
+  return i;
+}
+function renderScene(C, i, live) {
+  const sc = C.L.scenes[i], n = strip(sc.t || '').length;
+  const len = sc.k === 'h' ? (n > 84 ? ' len-l' : n > 44 ? ' len-m' : '') : sc.k === 'p' ? (n > 84 ? ' len-l' : '') : sc.k === 'a' ? (n > 62 ? ' len-l' : '') : '';
+  const box = el('div', 'scene s-' + sc.k + len + (live ? ' live' : ''));
+  if (sc.k === 'n') { box.appendChild(el('div', 'fig', sc.fig)); typeset(box.appendChild(el('p', 'txt')), sc.t, 4); }
+  else if (sc.k === 'l') { let w = 0; sc.rows.forEach((r, j) => { w = typeset(box.appendChild(el('p', 'txt')), r, w + (j ? 7 : 0)); }); }
+  else if (sc.k === 'a') { box.appendChild(el('span', 'tag', sc.tag)); typeset(box.appendChild(el('p', 'txt')), sc.t, 3); }
+  else typeset(box.appendChild(el('p', 'txt')), sc.t, 0);
+  C.stage.replaceChildren(box);
+}
+
+function mkClip(L, i) {
+  const B = BOOKS[L.b], e = el('section', 'clip');
+  e.setAttribute('aria-label', 'Lezione ' + L.n + ': ' + L.title + '. ' + B.t + ', ' + B.au);
+  ['bg', 'ink', 'a', 'b'].forEach((k, j) => e.style.setProperty('--c-' + k, B.c[j]));
+  e.innerHTML = CLIP;
+  e.querySelector('.kicker').textContent = String(L.n).padStart(2, '0') + ' · ' + L.title;
+  e.querySelector('.book').textContent = B.t;
+  e.querySelector('.by').textContent = B.au + (BYBOOK[L.b].length > 1 ? ' · lezione ' + L.k + ' di ' + BYBOOK[L.b].length : '');
+  const bar = e.querySelector('.bar'), segs = L.scenes.map(() => bar.appendChild(el('i')));
+  const C = { L, B, el: e, i, canvas: e.querySelector('canvas'), ctx: null, stage: e.querySelector('.stage'), segs, sized: false, w: 0, h: 0, dpr: 1 };
+  e._c = C; renderScene(C, 0, false); syncClip(C);
+  return C;
+}
+function syncClip(C) {
+  const on = S.saved[C.L.id] > 0, b = C.el.querySelector('.save');
+  b.setAttribute('aria-pressed', on); b.querySelector('.lb').textContent = on ? 'Salvata' : 'Salva';
+  C.el.querySelector('.voice').setAttribute('aria-pressed', S.voice);
+  C.el.querySelector('.auto').setAttribute('aria-pressed', S.auto);
+}
+function emptyState() {
+  const e = el('section', 'clip empty');
+  e.appendChild(el('h2', '', 'Qui finiscono le lezioni che vuoi rivedere.'));
+  e.appendChild(el('p', '', 'Tocca Salva su una lezione, oppure fai doppio tocco sulla copertina, e la ritrovi in questa scheda.'));
+  const b = el('button', '', 'Torna al percorso'); b.addEventListener('click', () => setTab('path')); e.appendChild(b);
+  return e;
+}
+function buildFeed() {
+  deactivate(); if (io) io.disconnect();
+  io = new IntersectionObserver(es => { for (const en of es) if (en.isIntersecting && en.intersectionRatio >= .6 && en.target._c) activate(en.target._c); }, { root: feed, threshold: [.6] });
+  const list = S.tab === 'saved' ? LESSONS.filter(L => S.saved[L.id] > 0) : LESSONS;
+  clips = list.map(mkClip);
+  feed.replaceChildren(...(clips.length ? clips.map(C => C.el) : [emptyState()]));
+  document.body.style.setProperty('--desk', clips.length ? clips[0].B.c[0] : 'transparent');
+  clips.forEach(C => io.observe(C.el));
+}
+
+/* —— tela —— */
+function size(C) {
+  const r = C.canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1), w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+  if (!w || !h) return false;
+  if (C.canvas.width !== w || C.canvas.height !== h) { C.canvas.width = w; C.canvas.height = h; }
+  C.ctx = C.ctx || C.canvas.getContext('2d'); C.w = r.width; C.h = r.height; C.dpr = dpr; C.sized = true;
+  return true;
+}
+function paint(C, T, g) {
+  if (!C.sized || !C.ctx) return;
+  const c = C.ctx, W = C.w, H = C.h;
+  D.ctx = c; D.bg = C.B.c[0]; D.ink = C.B.c[1]; D.a = C.B.c[2]; D.b = C.B.c[3];
+  D.cx = W / 2; D.cy = H * .56; D.R = Math.max(40, Math.min(W * .4, (H - 64) * .44)); D.dpr = C.dpr;
+  c.setTransform(C.dpr, 0, 0, C.dpr, 0, 0); c.clearRect(0, 0, W, H);
+  c.translate(D.cx, D.cy); c.scale(D.R, D.R); c.lineCap = 'round'; c.lineJoin = 'round';
+  try { (M[C.L.m] || M.focus)(D, T, g); } catch (e) {}
+  c.globalAlpha = 1; c.setLineDash(NO);
+}
+function canvases(i) {
+  clips.forEach(C => {
+    const near = Math.abs(C.i - i) <= 1;
+    if (near && !C.sized) { if (size(C)) paint(C, 0, 0); }
+    else if (!near && C.sized) { C.canvas.width = C.canvas.height = 0; C.sized = false; }
+  });
+}
+
+/* —— riproduzione —— */
+const progress = () => { const C = A.clip; if (!C) return 0; if (A.finished) return 1; const n = C.L.scenes.length; return (A.scene + clamp(A.st / C.L.scenes[A.scene].dur)) / n; };
+function setScene(i, live) {
+  const C = A.clip; if (!C) return;
+  A.scene = i; A.st = 0; renderScene(C, i, live);
+  C.segs.forEach((s, j) => s.style.setProperty('--p', j < i ? 1 : 0));
+}
+function activate(C) {
+  if (A.clip === C) return;
+  deactivate();
+  A.clip = C; A.T = 0; A.st = 0; A.scene = 0; A.finished = false; A.playing = true; A.mode = 'timer';
+  C.el.classList.add('on');
+  canvases(C.i);
+  document.body.style.setProperty('--desk', C.B.c[0]);
+  if (S.voice && Nar.kind) { A.mode = 'voice'; voiceT = setTimeout(startVoice, 480); }
+}
+function deactivate() {
+  clearTimeout(voiceT); clearTimeout(autoT); Nar.stop();
+  const C = A.clip; if (!C) return;
+  A.clip = null;
+  C.el.classList.remove('on', 'paused', 'done'); C.el.querySelector('.replay').hidden = true;
+  renderScene(C, 0, false); C.segs.forEach(s => s.style.setProperty('--p', 0)); paint(C, 0, 0);
+}
+function finish() {
+  const C = A.clip; if (!C || A.finished) return;
+  A.finished = true; C.el.classList.add('done'); C.el.querySelector('.replay').hidden = false;
+  C.segs.forEach(s => s.style.setProperty('--p', 1));
+  markSeen(C.L.id);
+  if (S.auto && C.i < clips.length - 1) autoT = setTimeout(() => go(1), 1300);
+}
+function advance() { const C = A.clip; if (!C) return; if (A.scene < C.L.scenes.length - 1) setScene(A.scene + 1, true); else finish(); }
+function replay() {
+  const C = A.clip; if (!C) return;
+  clearTimeout(voiceT); clearTimeout(autoT); Nar.stop();
+  A.T = 0; A.finished = false; A.playing = true; A.mode = 'timer';
+  C.el.classList.remove('done', 'paused'); C.el.querySelector('.replay').hidden = true;
+  setScene(0, true);
+  if (S.voice && Nar.kind) { A.mode = 'voice'; voiceT = setTimeout(startVoice, 250); }
+}
+function startVoice() {
+  const C = A.clip;
+  if (!C || !S.voice || !Nar.kind) { A.mode = 'timer'; return; }
+  A.mode = 'voice';
+  Nar.start(C.L.scenes.map(s => s.v), {
+    line: i => { if (A.clip === C && i > A.scene && i < C.L.scenes.length) setScene(i, true); },
+    done: () => { if (A.clip !== C) return; if (A.scene < C.L.scenes.length - 1) setScene(C.L.scenes.length - 1, true); A.mode = 'timer'; finish(); },
+    fail: (code, reason) => {
+      if (A.clip !== C) return;
+      A.mode = 'timer';
+      if (code === 'stopped' && reason === 'hidden') return;
+      S.voice = false; clips.forEach(syncClip);
+      if (code === 'not_granted' || code === 'unavailable') { Nar.kind = null; voiceAvail(); }
+      if (code === 'stopped') return;
+      toast(code === 'rate_limited' ? 'Troppe letture di fila: la voce riposa qualche minuto.' : code === 'no_gesture' || code === 'busy' ? 'Tocca di nuovo Voce per farla ripartire.' : 'Qui la voce non è disponibile. Le lezioni continuano in silenzio.');
+    },
+  });
+}
+function setPlaying(on) {
+  const C = A.clip; if (!C || A.playing === on) return;
+  A.playing = on; C.el.classList.toggle('paused', !on);
+  if (A.mode === 'voice') on ? Nar.resume() : Nar.pause();
+  if (!on) clearTimeout(autoT);
+}
+function go(dir) {
+  const C = A.clip, t = clips[(C ? C.i : 0) + dir];
+  if (t) feed.scrollTo({ top: t.el.offsetTop, behavior: RM ? 'auto' : 'smooth' });
+  else if (dir > 0 && C) toast(S.tab === 'saved' ? 'Sei alla fine dei salvati.' : 'Hai finito il percorso. Ripassare è la mossa giusta.');
+}
+
+let last = 0;
+function tick(now) {
+  requestAnimationFrame(tick);
+  const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now;
+  const C = A.clip;
+  if (!C || !A.playing || document.hidden) return;
+  A.T += dt;
+  if (!A.finished) {
+    A.st += dt;
+    const sc = C.L.scenes[A.scene];
+    if (A.mode === 'timer') { if (A.st >= sc.dur) advance(); }
+    else if (A.st > sc.dur * 2.5 + 9) { Nar.stop(); A.mode = 'timer'; advance(); }
+    if (A.clip === C && !A.finished) C.segs[A.scene].style.setProperty('--p', clamp(A.st / C.L.scenes[A.scene].dur).toFixed(3));
+  }
+  if (!C.sized) size(C);
+  if (RM) paint(C, 2, A.finished ? 1 : (A.scene + 1) / C.L.scenes.length); else paint(C, A.T, progress());
+}
+
+/* —— azioni —— */
+function toast(msg) { toastEl.hidden = true; void toastEl.offsetWidth; toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { toastEl.hidden = true; }, 2600); }
+function save(C, force) {
+  const on = S.saved[C.L.id] > 0; if (force && on) return;
+  S.saved[C.L.id] = (on ? -1 : 1) * Date.now(); changed(); syncClip(C);
+  toast(on ? 'Tolta dai salvati.' : 'Salvata. La trovi nella scheda Salvati.');
+}
+function burst(C, e) {
+  const r = C.el.getBoundingClientRect(), b = el('div', 'burst');
+  b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6.5 3.8h11v16.4L12 16.4l-5.5 3.8z"/></svg>';
+  b.style.left = (e.clientX - r.left) + 'px'; b.style.top = (e.clientY - r.top) + 'px';
+  C.el.appendChild(b); setTimeout(() => b.remove(), 800);
+}
+function voiceAvail() { column.classList.toggle('no-voice', !Nar.kind); }
+function act(name) {
+  const C = A.clip; if (!C) return;
+  if (name === 'save') save(C);
+  else if (name === 'replay') replay();
+  else if (name === 'next') go(1);
+  else if (name === 'auto') { S.auto = !S.auto; saveLocal(); clips.forEach(syncClip); toast(S.auto ? 'Auto attivo: a fine lezione parte la successiva.' : 'Auto spento: scorri tu.'); if (!S.auto) clearTimeout(autoT); else if (A.finished) autoT = setTimeout(() => go(1), 900); }
+  else if (name === 'voice') {
+    if (!Nar.kind) return toast('Qui la voce non è disponibile.');
+    S.voice = !S.voice; clips.forEach(syncClip);
+    if (S.voice) replay(); else { clearTimeout(voiceT); Nar.stop(); A.mode = 'timer'; }
+  }
+}
+let tap = 0, was = true;
+feed.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (b) { const c = b.closest('.clip'); if (c && c._c === A.clip) act(b.dataset.act); return; }
+  const c = e.target.closest('.clip'); if (!c || !c._c || c._c !== A.clip) return;
+  const now = performance.now();
+  if (now - tap < 320) { tap = 0; setPlaying(was); save(A.clip, true); burst(A.clip, e); }
+  else { tap = now; was = A.playing; setPlaying(!A.playing); }
+});
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!sheet.hidden) { if (e.key === 'Escape') { e.preventDefault(); closeLib(); } return; }
+  const k = e.key, onBtn = e.target.closest && e.target.closest('button');
+  if (k === 'ArrowDown' || k === 'PageDown' || k === 'j') { e.preventDefault(); go(1); }
+  else if (k === 'ArrowUp' || k === 'PageUp' || k === 'k') { e.preventDefault(); go(-1); }
+  else if (k === ' ' && !onBtn) { e.preventDefault(); setPlaying(!A.playing); }
+  else if (k === 's' || k === 'S') act('save');
+  else if (k === 'v' || k === 'V') act('voice');
+  else if (k === 'r' || k === 'R') act('replay');
+});
+let hid = false;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (A.clip && A.playing) { hid = true; setPlaying(false); } }
+  else if (hid) { hid = false; setPlaying(true); }
+});
+new ResizeObserver(() => {
+  const C = A.clip; if (!C) return;
+  feed.scrollTop = C.el.offsetTop;
+  clips.forEach(X => { if (X.sized && size(X) && X !== C) paint(X, 0, 0); });
+}).observe(feed);
+
+/* —— schede, statistiche, libreria —— */
+function setTab(t) {
+  S.tab = t;
+  $('#tab-path').setAttribute('aria-selected', t === 'path'); $('#tab-saved').setAttribute('aria-selected', t === 'saved');
+  buildFeed(); feed.scrollTop = 0;
+  if (t === 'path') resume();
+}
+function resume() { const C = clips.find(X => !S.seen[X.L.id]); if (C) feed.scrollTop = C.el.offsetTop; }
+function jump(id) {
+  if (S.tab !== 'path') { S.tab = 'path'; $('#tab-path').setAttribute('aria-selected', true); $('#tab-saved').setAttribute('aria-selected', false); buildFeed(); }
+  const C = clips.find(X => X.L.id === id); if (C) feed.scrollTop = C.el.offsetTop;
+}
+function stats() {
+  const t = todayCount(), st = streak(), seen = LESSONS.filter(L => S.seen[L.id]).length;
+  $('#today-n').textContent = t; $('#ring').setAttribute('stroke-dasharray', (Math.min(1, t / GOAL) * 56.55).toFixed(2) + ' 57');
+  $('#open-lib').setAttribute('aria-label', 'Libreria e progressi: ' + t + ' lezioni oggi su ' + GOAL);
+  $('#st-today').textContent = t; $('#st-streak').textContent = st; $('#st-streak-u').textContent = st === 1 ? 'giorno' : 'giorni'; $('#st-seen').textContent = seen;
+}
+function shelf() {
+  const box = $('#shelf'); box.replaceChildren();
+  THEMES.forEach(th => {
+    box.appendChild(el('h3', '', th));
+    Object.keys(BOOKS).filter(k => BOOKS[k].th === th).forEach(k => {
+      const B = BOOKS[k], Ls = BYBOOK[k], row = el('button', 'bookrow'), sp = el('span', 'spine'), mid = el('span'), dots = el('span', 'dots');
+      ['bg', 'ink', 'a'].forEach((n, j) => sp.style.setProperty('--c-' + n, B.c[j]));
+      mid.appendChild(el('span', 't', B.t)); mid.appendChild(el('span', 'au', B.au));
+      Ls.forEach(L => dots.appendChild(el('i', S.seen[L.id] ? 's' : '')));
+      const done = Ls.filter(L => S.seen[L.id]).length;
+      row.setAttribute('aria-label', B.t + ', ' + B.au + '. ' + done + ' lezioni viste su ' + Ls.length);
+      row.append(sp, mid, dots);
+      row.addEventListener('click', () => { closeLib(true); jump((Ls.find(L => !S.seen[L.id]) || Ls[0]).id); });
+      box.appendChild(row);
+    });
+  });
+}
+let libWas = true;
+function openLib() { libWas = A.playing; setPlaying(false); stats(); shelf(); sheet.hidden = false; sheet.querySelector('.sheet-card').scrollTop = 0; $('#close-lib').focus(); }
+function closeLib(skip) { sheet.hidden = true; if (!skip && libWas) setPlaying(true); $('#open-lib').focus({ preventScroll: true }); }
+function refreshAll() { stats(); clips.forEach(syncClip); if (!sheet.hidden) shelf(); }
+$('#open-lib').addEventListener('click', openLib);
+$('#close-lib').addEventListener('click', () => closeLib());
+sheet.addEventListener('click', e => { if (e.target === sheet) closeLib(); });
+$('#tab-path').addEventListener('click', () => { if (S.tab !== 'path') setTab('path'); });
+$('#tab-saved').addEventListener('click', () => { if (S.tab !== 'saved') setTab('saved'); });
+
+/* —— avvio —— */
+loadLocal(); voiceAvail(); buildFeed(); resume(); stats();
+requestAnimationFrame(t => { last = t; requestAnimationFrame(tick); });
+connect();
+})();
+</script>
+</body></html>
