@@ -46,7 +46,7 @@
         "a": { "etichetta": "Quello che si vede", "voci": ["Il vetraio che lavora", "La vetrina nuova"] },
         "b": { "etichetta": "Quello che non si vede", "voci": ["Il sarto senza cliente", "L'abito mai cucito"] } },
       { "tipo": "mito", "mito": "Rompere e ricostruire crea ricchezza", "realta": "Per Hazlitt no: prima c'erano vetrina e soldi per l'abito. Ora ==solo la vetrina==." },
-      { "tipo": "testo", "titolo": "Una storia del 1850", "testo": "È di Frédéric Bastiat. Hazlitt ne fa la sua lezione: guarda gli effetti ==nel tempo e su tutti==. Vale per sussidi, dazi, opere pubbliche." },
+      { "tipo": "testo", "titolo": "Una storia del 1850", "testo": "È di Frédéric Bastiat. Hazlitt ne fa la sua lezione: guarda gli effetti ==nel tempo e su tutti==. La applica a sussidi, dazi, opere pubbliche." },
       { "tipo": "chiusura", "azione": "Leggi una notizia su un bonus. Scrivi ==chi lo paga e a cosa rinuncia==." }
     ]
   },
@@ -113,7 +113,7 @@
       { "tipo": "grafico", "titolo": "Reddito totale creato da una spesa di 100", "forma": "linea",
         "dati": [ { "e": "1 giro", "v": 100 }, { "e": "2 giri", "v": 180 }, { "e": "3 giri", "v": 244 }, { "e": "5 giri", "v": 336 }, { "e": "10 giri", "v": 446 }, { "e": "20 giri", "v": 494 } ],
         "nota": "Esempio illustrativo: ognuno rispende l'80%. Limite: 500." },
-      { "tipo": "principio", "testo": "Per Keynes una spesa nuova crea ==più reddito di quanto costa==. Quanto di più, gli economisti lo discutono ancora." },
+      { "tipo": "principio", "testo": "Per Keynes una spesa nuova crea ==più reddito di quanto costa==. Quanto di più, gli economisti discutono ancora." },
       { "tipo": "chiusura", "azione": "Prendi uno scontrino di oggi. Segui i soldi per tre passaggi: ==chi li rispende?==" }
     ]
   },
@@ -147,7 +147,7 @@
       { "tipo": "quiz", "domanda": "Stesse regole. Guadagni 10 mila: quanto ricevi dal fisco?",
         "opzioni": ["Niente", "2000 euro", "1000 euro"], "corretta": 2,
         "spiegazione": "Ti mancano 2 mila per la soglia: ne ricevi la metà. Totale: 11 mila." },
-      { "tipo": "mito", "mito": "Un sussidio toglie sempre la voglia di lavorare", "realta": "Per Friedman questo la frena, non la toglie: ==chi guadagna di più ha di più==." },
+      { "tipo": "mito", "mito": "Un sussidio toglie sempre la voglia di lavorare", "realta": "Per Friedman qui cala, non sparisce: ==ogni euro guadagnato ti lascia più soldi==." },
       { "tipo": "chiusura", "azione": "Conta gli aiuti al reddito del tuo paese. Friedman ne voleva ==uno al posto di tanti==." }
     ]
   },
@@ -165,8 +165,8 @@
         "dati": [ { "e": "Oggi", "v": 100 }, { "e": "All'1,5%", "v": 156 }, { "e": "Al 5%", "v": 432 } ],
         "nota": "Esempio illustrativo: senza tasse né spese." },
       { "tipo": "principio", "testo": "Per Piketty, se r resta sopra g, i patrimoni corrono più dei redditi. E ==le eredità pesano di più==." },
-      { "tipo": "testo", "titolo": "Tesi discussa", "testo": "Molti economisti obiettano: r sopra g, da solo, ==non basta a spiegare== le disuguaglianze. Il confronto è aperto." },
-      { "tipo": "chiusura", "azione": "Fai il conto di casa: quanto entra ==dal lavoro== e quanto da affitti o risparmi?" }
+      { "tipo": "testo", "titolo": "Tesi discussa", "testo": "Molti economisti obiettano: r sopra g, da solo, ==non basta a spiegare== le disuguaglianze." },
+      { "tipo": "chiusura", "azione": "Fai il conto di casa: quanto entra ==dal lavoro== e quanto da affitti o interessi?" }
     ]
   },
   {
@@ -177,9 +177,9 @@
     "scene": [
       { "tipo": "apertura", "testo": "Se ogni scambio è alla pari, ==da dove esce il profitto?==" },
       { "tipo": "testo", "titolo": "La risposta di Marx", "testo": "L'operaio non vende il suo lavoro. Vende la ==forza-lavoro==: la capacità di lavorare per una giornata. Il salario è il suo prezzo." },
-      { "tipo": "esempio", "testo": "L'esempio di Marx: giornata di 12 ore. In 6 l'operaio produce il valore del suo salario. Nelle altre 6 produce ancora, ma ==per il capitalista==." },
+      { "tipo": "esempio", "testo": "L'esempio di Marx: giornata di 12 ore. In 6 l'operaio produce il valore del suo salario. Nelle altre 6 lavora ==per il capitalista==." },
       { "tipo": "colpo", "testo": "Marx lo chiama ==plusvalore==." },
-      { "tipo": "confronto", "titolo": "La giornata divisa in due",
+      { "tipo": "confronto", "titolo": "La giornata in due",
         "a": { "etichetta": "Lavoro necessario", "voci": ["Ripaga il salario"] },
         "b": { "etichetta": "Pluslavoro", "voci": ["Diventa profitto di chi assume"] } },
       { "tipo": "principio", "testo": "Per Marx il profitto non nasce da un imbroglio nello scambio. Nasce dal ==lavoro non pagato==." },
@@ -214,7 +214,7 @@
       { "tipo": "elenco", "titolo": "Cosa c'è dentro, per Wheelan",
         "voci": ["Istruzione ed esperienza", "Intelligenza e creatività", "Carisma e spirito d'iniziativa"] },
       { "tipo": "testo", "titolo": "E lo stipendio?", "testo": "Per Wheelan il lavoro ha un prezzo come tutto. Competenze ==rare e richieste== vengono pagate molto: sono difficili da sostituire." },
-      { "tipo": "mito", "mito": "I posti di lavoro sono un numero fisso", "realta": "Per Wheelan no: chi sa fare di più crea ricchezza e ==lavoro anche per altri==." },
+      { "tipo": "mito", "mito": "I posti di lavoro sono un numero fisso", "realta": "Per Wheelan no: ogni prodotto o servizio nuovo ==crea lavoro che prima non c'era==." },
       { "tipo": "chiusura", "azione": "Scrivi ==tre cose che sai fare bene==. Accanto, una da imparare entro l'anno." }
     ]
   },
