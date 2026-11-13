@@ -7,7 +7,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Una rete taglia in due una città. Da un lato si guadagna ==il triplo==." },
       { "tipo": "colpo", "testo": "Stessa gente. Stesso clima." },
-      { "tipo": "testo", "titolo": "Nogales", "testo": "A nord è Arizona, a sud Sonora, Messico. Stessi antenati, stessa cucina. A sud una famiglia guadagna ==circa un terzo==." },
+      { "tipo": "testo", "titolo": "Nogales", "testo": "A nord è Arizona, a sud Sonora, Messico. Stessi antenati, stessa cucina. Per gli autori a sud una famiglia guadagna ==circa un terzo==." },
       { "tipo": "quiz", "domanda": "Che cosa spiega il divario, secondo gli autori?",
         "opzioni": ["Il clima", "La cultura", "Le regole"], "corretta": 2,
         "spiegazione": "Clima e cultura sono gli stessi. Cambiano le istituzioni: le regole del gioco." },
@@ -31,7 +31,7 @@
       { "tipo": "elenco", "titolo": "Altri «no» nel libro",
         "voci": ["Austria: l'imperatore frena le ferrovie", "Russia: lo zar teme le fabbriche", "Ottomani: stampa in turco solo dal 1727"] },
       { "tipo": "mito", "mito": "Una buona invenzione si impone da sola", "realta": "Passa solo dove chi comanda ==non può bloccarla==." },
-      { "tipo": "chiusura", "azione": "Scegli un'app che usi ogni giorno e cerca ==quale mestiere== ha messo in crisi." }
+      { "tipo": "chiusura", "azione": "Scegli un'app che usi ogni giorno. Scrivi ==quale mestiere== ha messo in crisi." }
     ]
   },
   {
@@ -42,7 +42,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Vaccini gratis in ogni villaggio. Li completano ==6 bambini su 100==." },
       { "tipo": "colpo", "testo": "La soluzione? ==Lenticchie.==" },
-      { "tipo": "testo", "titolo": "Udaipur, India", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. I genitori ==rimandano==: fatica oggi, beneficio lontano." },
+      { "tipo": "testo", "titolo": "Udaipur, India", "testo": "Ambulatori spesso chiusi, c'è sempre da lavorare. E i genitori ==rimandano==." },
       { "tipo": "esempio", "testo": "Banerjee e Duflo fanno una prova. Prima: una clinica mobile sempre puntuale. Poi un regalo: ==un chilo di lenticchie== a ogni vaccino." },
       { "tipo": "grafico", "titolo": "Bambini con tutti i vaccini", "forma": "barre", "unita": "%",
         "dati": [ { "e": "Niente", "v": 6 }, { "e": "Clinica", "v": 18 }, { "e": "Più dono", "v": 39 } ],
@@ -76,12 +76,12 @@
     "scene": [
       { "tipo": "apertura", "testo": "1980: in Florida sbarcano ==125 mila cubani== in pochi mesi. E i salari?" },
       { "tipo": "testo", "testo": "Castro apre il porto di Mariel. Metà di chi arriva si ferma a Miami: i lavoratori della città crescono ==del 7%==." },
-      { "tipo": "quiz", "domanda": "David Card confronta Miami con altre città. Cosa trova?",
+      { "tipo": "quiz", "domanda": "L'economista David Card confronta Miami con altre città. Cosa trova?",
         "opzioni": ["Nessun effetto visibile", "Salari in forte calo"], "corretta": 0,
         "spiegazione": "Salari e lavoro dei residenti vanno come nelle altre città." },
-      { "tipo": "colpo", "testo": "Il conto non torna. Perché?" },
+      { "tipo": "colpo", "testo": "Più braccia, stessi salari?" },
       { "tipo": "principio", "testo": "Il lavoro non è una torta fissa: chi arriva ==spende e compra==, e crea altro lavoro." },
-      { "tipo": "testo", "titolo": "Il dibattito", "testo": "Borjas rilegge i dati e vede salari in calo tra i meno istruiti. Per gli autori ==molte altre ricerche== danno ragione a Card." },
+      { "tipo": "testo", "testo": "Non tutti concordano: l'economista Borjas vede salari in calo tra i meno istruiti. Per gli autori ==molte altre ricerche== danno ragione a Card." },
       { "tipo": "chiusura", "azione": "Indovina la percentuale di stranieri nel tuo paese. Poi ==cerca il dato vero==." }
     ]
   },
@@ -91,13 +91,13 @@
     "titolo": "E se l'economia fosse una ciambella?",
     "libro": { "titolo": "L'economia della ciambella", "autore": "Kate Raworth", "anno": 2017, "titoloOriginale": "Doughnut Economics" },
     "scene": [
-      { "tipo": "apertura", "testo": "Disegna un'economia sana. Freccia in su? Raworth fa ==una ciambella==." },
-      { "tipo": "mito", "mito": "Se il PIL cresce, il paese sta bene", "realta": "Per Raworth il PIL ==non dice se stiamo bene== né a che prezzo." },
-      { "tipo": "elenco", "titolo": "Com'è fatta la ciambella",
+      { "tipo": "apertura", "testo": "Disegna un'economia sana. Una freccia in su? ==O una ciambella?==" },
+      { "tipo": "mito", "mito": "Se il PIL cresce, il paese sta bene", "realta": "Per Kate Raworth il PIL ==non dice se stiamo bene== né a che prezzo." },
+      { "tipo": "elenco", "titolo": "La sua ciambella",
         "voci": ["Il buco: chi non ha il minimo", "Bordo interno: 12 bisogni di base", "Bordo esterno: 9 limiti del pianeta", "In mezzo: ==spazio sicuro e giusto=="] },
       { "tipo": "principio", "testo": "Lo scopo non è crescere senza fine: è dare ==il necessario a tutti== nei limiti del pianeta." },
       { "tipo": "colpo", "testo": "Oggi sbagliamo due volte." },
-      { "tipo": "numero", "valore": 4, "suffisso": " su 9", "didascalia": "Limiti del pianeta ==già superati== nel 2017. E milioni di persone restano nel buco.", "nota": "Nell'aggiornamento del 2025 i limiti superati sono almeno sei." },
+      { "tipo": "numero", "valore": 4, "suffisso": " su 9", "didascalia": "Limiti del pianeta ==già superati== nel 2017. E milioni di persone restano nel buco.", "nota": "Aggiornamento del 2025: almeno sei." },
       { "tipo": "chiusura", "azione": "Disegna una ciambella. Nel buco scrivi ==una cosa che manca== a chi vive vicino a te." }
     ]
   },
@@ -145,7 +145,7 @@
       { "tipo": "elenco", "titolo": "Cosa ci si racconta prima",
         "voci": ["Abbiamo imparato dagli errori", "Le vecchie regole non valgono più", "Noi siamo più solidi degli altri"] },
       { "tipo": "principio", "testo": "Le crisi non sono incidenti rari: tornano. E ogni volta le prepara ==troppo debito==." },
-      { "tipo": "quiz", "domanda": "Dal Cinquecento all'Ottocento, quante volte la Spagna non paga i debiti?",
+      { "tipo": "quiz", "domanda": "Dal 1500 al 1900, quante volte la Spagna non paga i debiti?",
         "opzioni": ["2 volte", "5 volte", "13 volte"], "corretta": 2,
         "spiegazione": "Tredici, nel conto degli autori. E ogni volta qualcuno le ha prestato ancora." },
       { "tipo": "chiusura", "azione": "Ti dicono che un prezzo «non può scendere»? Cerca ==com'è finita== l'ultima volta." }
@@ -165,7 +165,7 @@
       { "tipo": "esempio", "testo": "1925: Churchill riporta la sterlina all'oro, al valore di prima della guerra. Per Keynes è ==troppo cara di circa il 10%==: salari tagliati, scioperi." },
       { "tipo": "colpo", "testo": "Chi molla l'oro riparte prima." },
       { "tipo": "principio", "testo": "Per Ahamed la Depressione non fu fatalità: nacque da ==decisioni sbagliate== sulla moneta." },
-      { "tipo": "chiusura", "azione": "Cerca quanto oro ha la banca centrale del tuo paese: ==non garantisce più== le banconote." }
+      { "tipo": "chiusura", "azione": "Chiedi a un amico se i suoi euro sono coperti dall'oro. ==Non lo sono.==" }
     ]
   },
   {
@@ -179,7 +179,7 @@
       { "tipo": "elenco", "titolo": "La ricetta del Fondo Monetario",
         "voci": ["Tagli alla spesa, subito", "Privatizzare in fretta", "Mercati e capitali aperti"] },
       { "tipo": "testo", "testo": "A denunciarla è uno ==che l'ha vista da dentro==: Joseph Stiglitz, ex capo economista della Banca Mondiale." },
-      { "tipo": "esempio", "testo": "1997: la crisi parte dalla Thailandia e travolge l'Asia. Il Fondo chiede tagli e tassi altissimi. Per Stiglitz ==aggrava la recessione==." },
+      { "tipo": "esempio", "testo": "1997: la crisi travolge l'Asia. Il Fondo chiede tagli e tassi altissimi. Per Stiglitz ==aggrava la recessione==." },
       { "tipo": "confronto", "titolo": "Due strade, secondo Stiglitz",
         "a": { "etichetta": "La cura del Fondo", "voci": ["Tagli, tassi alti, capitali in fuga"] },
         "b": { "etichetta": "Malesia, 1998", "voci": ["Frena i capitali: meno danni"] } },
@@ -193,13 +193,12 @@
     "titolo": "Quando i ricchi iniziarono a vivere di più",
     "libro": { "titolo": "La grande fuga", "autore": "Angus Deaton", "anno": 2013, "titoloOriginale": "The Great Escape" },
     "scene": [
-      { "tipo": "apertura", "testo": "Fino al 1750 i duchi inglesi vivevano ==quanto la gente comune==." },
+      { "tipo": "apertura", "testo": "Fino al 1750 essere duca in Inghilterra ==non allungava la vita==." },
       { "tipo": "colpo", "testo": "Poi qualcosa cambia." },
       { "tipo": "numero", "valore": 20, "suffisso": " anni", "didascalia": "Il vantaggio di vita dei nobili sulla gente comune ==un secolo dopo==.", "nota": "Dati ripresi da Deaton, discussi dagli storici." },
       { "tipo": "testo", "testo": "Arrivano cure nuove, come l'inoculazione contro il vaiolo. Costano: le usa ==prima chi può==." },
+      { "tipo": "esempio", "testo": "La grande fuga è un film del 1963: prigionieri che scavano un tunnel. Per Deaton l'umanità scappa così dalla miseria. ==Non tutti insieme.==" },
       { "tipo": "mito", "mito": "Il progresso riduce le disuguaglianze", "realta": "Per Deaton spesso le crea: ==chi esce per primo== stacca gli altri." },
-      { "tipo": "esempio", "testo": "Il titolo viene da un film del 1963: prigionieri che scavano un tunnel. Per Deaton l'umanità fugge dalla miseria, ma ==non tutti insieme==." },
-      { "tipo": "principio", "testo": "Un divario non è un male se gli altri seguono. Lo diventa se i primi ==chiudono il tunnel==." },
       { "tipo": "chiusura", "azione": "Cerca l'==aspettativa di vita== nel tuo paese nel 1900 e oggi: è la fuga di Deaton." }
     ]
   },
@@ -230,14 +229,14 @@
     "scene": [
       { "tipo": "apertura", "testo": "Tocchi lo schermo, apri la mappa, chiedi a Siri. ==Chi ha pagato?==" },
       { "tipo": "quiz", "domanda": "Chi ha finanziato la ricerca da cui nasce Siri?",
-        "opzioni": ["Un'agenzia militare americana", "Apple"], "corretta": 0,
-        "spiegazione": "La DARPA, agenzia di ricerca della Difesa americana. Apple compra Siri nel 2010." },
+        "opzioni": ["Un'agenzia militare USA", "Apple"], "corretta": 0,
+        "spiegazione": "La DARPA, agenzia della Difesa americana. Apple compra Siri nel 2010." },
       { "tipo": "colpo", "testo": "E non è l'unico pezzo." },
       { "tipo": "elenco", "titolo": "Dentro l'iPhone",
         "voci": ["Internet: da una rete della DARPA", "GPS: sistema della Difesa americana", "Touch: ricerca con fondi pubblici"] },
       { "tipo": "mito", "mito": "I privati innovano, lo Stato intralcia", "realta": "Per Mazzucato lo Stato ==rischia per primo==, quando tutto è incerto." },
-      { "tipo": "principio", "testo": "Spesso ==i rischi sono pubblici== e i guadagni privati. Per Mazzucato vanno divisi anche i frutti." },
-      { "tipo": "chiusura", "azione": "Scegli una funzione del telefono e cerca ==chi ha pagato la ricerca== da cui nasce." }
+      { "tipo": "principio", "testo": "==Rischi pubblici, guadagni privati==: per Mazzucato vanno condivisi anche i frutti." },
+      { "tipo": "chiusura", "azione": "Apri la mappa e guarda il puntino blu: è ==ricerca pubblica== che usi ogni giorno." }
     ]
   }
 ]
