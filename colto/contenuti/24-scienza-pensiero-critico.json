@@ -99,7 +99,7 @@
       { "tipo": "elenco", "titolo": "La selezione naturale in tre mosse", "numerato": true,
         "voci": ["Si nasce ==tutti un po' diversi==", "Nascono più individui di quanti ne vivano", "Chi è più adatto lascia più figli simili a sé"] },
       { "tipo": "mito", "mito": "L'evoluzione premia il più forte", "realta": "Premia chi è ==più adatto al suo ambiente== e lascia più discendenti." },
-      { "tipo": "chiusura", "azione": "Guarda i piccioni in piazza: da uccelli così sono nate ==tutte quelle razze==." }
+      { "tipo": "chiusura", "azione": "Oggi guarda due piccioni in piazza e trova le differenze. ==Si parte da lì.==" }
     ]
   },
   {
@@ -109,7 +109,7 @@
     "libro": { "titolo": "La struttura delle rivoluzioni scientifiche", "autore": "Thomas S. Kuhn", "anno": 1962, "titoloOriginale": "The Structure of Scientific Revolutions" },
     "scene": [
       { "tipo": "apertura", "testo": "Ti mostro per un attimo un sei di picche ==rosso==. Tu lo vedi normale." },
-      { "tipo": "esempio", "testo": "Esperimento del 1949, raccontato da Kuhn. Carte mostrate per un istante, alcune truccate. Quasi tutti le vedono normali, ==senza esitare==." },
+      { "tipo": "esempio", "testo": "Esperimento del 1949, raccontato da Kuhn. Carte mostrate per un istante, alcune truccate. Quasi sempre vengono prese per normali, ==senza esitare==." },
       { "tipo": "colpo", "testo": "Nella scienza va uguale." },
       { "tipo": "testo", "titolo": "Il paradigma", "testo": "Per Kuhn ogni scienza lavora dentro un paradigma: un modo condiviso di vedere. Ciò che non ci rientra, all'inizio ==non lo si vede==." },
       { "tipo": "elenco", "titolo": "Come cambia una scienza, per Kuhn", "numerato": true,
@@ -125,7 +125,7 @@
     "libro": { "titolo": "Superforecasting", "autore": "Philip E. Tetlock, Dan Gardner", "anno": 2015 },
     "scene": [
       { "tipo": "apertura", "testo": "In vent'anni di dati, gli esperti più famosi ==prevedevano peggio==." },
-      { "tipo": "numero", "valore": 284, "didascalia": "Gli esperti seguiti da Tetlock: ==decine di migliaia di previsioni== alla prova." },
+      { "tipo": "numero", "valore": 284, "didascalia": "Gli esperti seguiti da Tetlock: ==circa 28 mila previsioni== alla prova." },
       { "tipo": "colpo", "testo": "In media? Come tirare a caso." },
       { "tipo": "testo", "titolo": "Ma non erano tutti uguali", "testo": "Tetlock distingue due tipi. I ricci spiegano tutto con ==una grande idea==. Le volpi mettono insieme tante fonti e dicono spesso «forse»." },
       { "tipo": "confronto", "titolo": "Chi prevedeva meglio?",
@@ -138,10 +138,10 @@
   {
     "id": "segnale-rumore-pensare-da-bayesiani",
     "categoria": "scienza",
-    "titolo": "Quanto vale davvero un indizio",
+    "titolo": "Il conto da fare prima di una scenata di gelosia",
     "libro": { "titolo": "Il segnale e il rumore", "autore": "Nate Silver", "anno": 2012, "titoloOriginale": "The Signal and the Noise" },
     "scene": [
-      { "tipo": "apertura", "testo": "Nel cassetto trovi biancheria ==che non è tua==. Quanto devi preoccuparti?" },
+      { "tipo": "apertura", "testo": "Biancheria non tua nel cassetto. Prima di urlare, ==fai un conto==." },
       { "tipo": "quiz", "domanda": "Con i numeri di Nate Silver, quanto è probabile che il partner tradisca?",
         "opzioni": ["Il 29%", "Il 60%", "Il 95%"], "corretta": 0,
         "spiegazione": "Il sospetto cresce di sette volte. Ma partiva basso." },

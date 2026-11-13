@@ -235,7 +235,7 @@
     "scene": [
       { "tipo": "apertura", "testo": "Un'ora a settimana con un amico, per 40 anni. Totale: ==87 giorni==." },
       { "tipo": "colpo", "testo": "Meno di tre mesi." },
-      { "tipo": "grafico", "titolo": "Un'ora insieme ogni…, per 40 anni: giorni totali", "forma": "barre", "unita": "gg",
+      { "tipo": "grafico", "titolo": "Giorni insieme in 40 anni, con un'ora ogni…", "forma": "barre", "unita": "gg",
         "dati": [ { "e": "Settimana", "v": 87 }, { "e": "Mese", "v": 20 }, { "e": "Anno", "v": 2 } ],
         "nota": "Esempio illustrativo: ore totali divise per 24, arrotondate." },
       { "tipo": "testo", "titolo": "Forma sociale", "testo": "Waldinger e Schulz dirigono lo studio di Harvard sulla vita adulta. Per loro i legami sono come muscoli: ==fermi, si indeboliscono==." },
