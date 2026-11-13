@@ -25,11 +25,11 @@
     "scene": [
       { "tipo": "apertura", "testo": "Testa vinci 150 dollari, croce ne perdi 100. ==Giochi?==" },
       { "tipo": "colpo", "testo": "I più dicono ==no==." },
-      { "tipo": "testo", "testo": "Eppure in media conviene. Ma per Kahneman la paura di perdere 100 è ==più forte della voglia== di vincerne 150." },
-      { "tipo": "quiz", "domanda": "Rischi di perdere 100 dollari. Quale vincita serve a molti per accettare?",
+      { "tipo": "testo", "testo": "Eppure in media conviene. Per Kahneman è semplice: perdere 100 ==spaventa più== di quanto attiri vincerne 150." },
+      { "tipo": "quiz", "domanda": "A testa o croce rischi 100 dollari. Quale vincita serve a molti per accettare?",
         "opzioni": ["Poco più di 100", "Circa 200", "Almeno 1000"], "corretta": 1,
-        "spiegazione": "Per molti serve circa il doppio. Negli esperimenti una perdita pesa da 1,5 a 2,5 volte." },
-      { "tipo": "esempio", "testo": "Golf professionistico. A pari distanza, i tiri per non perdere un colpo entrano più spesso di quelli per ==guadagnarne uno==." },
+        "spiegazione": "Per molti serve circa il doppio: una perdita pesa da 1,5 a 2,5 volte un guadagno uguale." },
+      { "tipo": "esempio", "testo": "Golf professionistico, stessa distanza dalla buca. I tiri per non perdere un colpo entrano più spesso. Quelli per ==guadagnarne uno==, meno." },
       { "tipo": "principio", "testo": "Una perdita pesa più di un guadagno uguale. Per questo dici no ==anche ai rischi che convengono==." },
       { "tipo": "chiusura", "azione": "Pensa a un'occasione rifiutata per paura. Scrivi ==quanto potevi vincere== e quanto perdere." }
     ]
@@ -37,29 +37,29 @@
   {
     "id": "pensieri-lenti-veloci-fallacia-pianificazione",
     "categoria": "mente",
-    "titolo": "Perché ci metti sempre più del previsto",
+    "titolo": "Il progetto da due anni che ne durò otto",
     "libro": { "titolo": "Pensieri lenti e veloci", "autore": "Daniel Kahneman", "anno": 2011, "titoloOriginale": "Thinking, Fast and Slow" },
     "scene": [
       { "tipo": "apertura", "testo": "Stima: 2 anni. Realtà: 8. Uno di loro ==aveva già i dati==." },
       { "tipo": "esempio", "testo": "Kahneman scrive un libro di testo con un gruppo. Chiede a tutti: quanto ci manca? Le risposte girano intorno a ==due anni==." },
       { "tipo": "colpo", "testo": "Poi fa ==un'altra domanda==." },
-      { "tipo": "elenco", "titolo": "Com'è andata a gruppi simili?",
-        "voci": ["4 su 10 non hanno mai finito", "Gli altri: da 7 a 10 anni", "E l'esperto? Aveva stimato ==come tutti=="] },
+      { "tipo": "elenco", "titolo": "Risponde l'esperto del gruppo",
+        "voci": ["Gruppi simili: 4 su 10 mai arrivati in fondo", "Gli altri: da 7 a 10 anni", "E lui? Aveva stimato ==come tutti=="] },
       { "tipo": "numero", "valore": 8, "suffisso": " anni", "didascalia": "Tanto servì davvero per finire il libro. ==La stima era due.==" },
       { "tipo": "confronto", "titolo": "Due modi di stimare",
         "a": { "etichetta": "Visione interna", "voci": ["Guardi solo il tuo piano"] },
         "b": { "etichetta": "Visione esterna", "voci": ["Guardi com'è andata a progetti simili"] } },
-      { "tipo": "principio", "testo": "Per sapere quanto ci metterai non guardare il tuo piano: guarda ==com'è andata agli altri==." },
+      { "tipo": "principio", "testo": "Non chiederti quanto ci metterai tu. Guarda ==quanto ci hanno messo gli altri==." },
       { "tipo": "chiusura", "azione": "Hai una consegna? Guarda quanto ti è servito ==l'ultima volta==. Parti da lì." }
     ]
   },
   {
     "id": "prevedibilmente-irrazionale-effetto-esca",
     "categoria": "mente",
-    "titolo": "L'offerta che nessuno sceglie (e che funziona)",
+    "titolo": "L'offerta che nessuno sceglie è lì per un motivo",
     "libro": { "titolo": "Prevedibilmente irrazionale", "autore": "Dan Ariely", "anno": 2008, "titoloOriginale": "Predictably Irrational" },
     "scene": [
-      { "tipo": "apertura", "testo": "Guarda bene il listino: un prezzo è lì ==per non essere scelto==." },
+      { "tipo": "apertura", "testo": "C'è un'offerta che nessuno sceglie. ==È lì apposta.==" },
       { "tipo": "elenco", "titolo": "Abbonarsi all'Economist",
         "voci": ["Solo online: 59 dollari", "Solo carta: 125 dollari", "Carta più online: 125 dollari"] },
       { "tipo": "esempio", "testo": "Dan Ariely le propone a 100 studenti del MIT. «Solo carta» non la sceglie nessuno. Allora la toglie e rifà la prova." },
@@ -87,7 +87,7 @@
       { "tipo": "quiz", "domanda": "Spedizione: 4 euro. È gratis se aggiungi un libro da 9. Quanto spendi in più?",
         "opzioni": ["5 euro", "Niente: è gratis", "9 euro"], "corretta": 0,
         "spiegazione": "Risparmi 4 euro di spedizione ma ne paghi 9 per un libro che non cercavi: 5 in più." },
-      { "tipo": "principio", "testo": "Per Ariely lo zero non è uno sconto qualunque: senti di ==non rischiare niente== e scordi cosa volevi." },
+      { "tipo": "principio", "testo": "Per Ariely lo zero non è uno sconto qualunque. Senti di ==non rischiare niente== e scordi cosa volevi." },
       { "tipo": "chiusura", "azione": "Alla prossima offerta gratis chiediti: la prenderei ==se costasse 1 euro?==" }
     ]
   },
@@ -97,11 +97,11 @@
     "titolo": "Il trucco della mosca: guidarti senza vietare niente",
     "libro": { "titolo": "Nudge", "autore": "Richard H. Thaler, Cass R. Sunstein", "anno": 2008 },
     "scene": [
-      { "tipo": "apertura", "testo": "Ad Amsterdam hanno disegnato ==una mosca== negli orinatoi." },
+      { "tipo": "apertura", "testo": "All'aeroporto di Amsterdam c'è ==una mosca== disegnata negli orinatoi." },
       { "tipo": "colpo", "testo": "E gli uomini ==prendono la mira==." },
       { "tipo": "numero", "valore": 80, "suffisso": "%", "didascalia": "Schizzi in meno fuori dal bersaglio, ==secondo lo staff dell'aeroporto==." },
-      { "tipo": "testo", "titolo": "Si chiama pungolo", "testo": "Nessun divieto, nessuna multa. Per Thaler e Sunstein un «nudge» ==orienta la scelta== senza togliere opzioni né cambiare davvero i costi." },
-      { "tipo": "esempio", "testo": "Gli autori immaginano una mensa scolastica: ciò che sta all'altezza degli occhi viene preso di più. Qualunque ordine sposta le scelte." },
+      { "tipo": "testo", "titolo": "Si chiama pungolo", "testo": "Nessun divieto, nessuna multa. Per Thaler e Sunstein è un «nudge»: ==orienta la scelta== senza togliere opzioni. E quasi senza toccare i costi." },
+      { "tipo": "esempio", "testo": "Gli autori immaginano una mensa scolastica. Quello che sta all'altezza degli occhi viene preso di più. ==Qualunque ordine== sposta le scelte." },
       { "tipo": "colpo", "testo": "Un ordine neutro ==non esiste==." },
       { "tipo": "confronto", "titolo": "Divieto o pungolo?",
         "a": { "etichetta": "Divieto", "voci": ["Via le merendine dalla mensa"] },
@@ -133,14 +133,14 @@
     "titolo": "Il cimitero dei progetti che nessuno ti mostra",
     "libro": { "titolo": "L'arte di pensare chiaro", "autore": "Rolf Dobelli", "anno": 2011, "titoloOriginale": "Die Kunst des klaren Denkens" },
     "scene": [
-      { "tipo": "apertura", "testo": "Vuoi scrivere un romanzo? Prima visita ==un cimitero==." },
+      { "tipo": "apertura", "testo": "Prima di scrivere un romanzo, visita ==un cimitero==." },
       { "tipo": "colpo", "testo": "Quello ==dei libri mai nati==." },
       { "tipo": "elenco", "titolo": "Dietro ogni scrittore famoso",
         "voci": ["Tanti autori pubblicati che non vendono", "Tanti altri che non trovano un editore", "Tanti manoscritti fermi nel cassetto"] },
       { "tipo": "quiz", "domanda": "Intervisti 50 imprenditori di successo: tutti si alzano alle 5. Cosa hai dimostrato?",
         "opzioni": ["Alzarsi presto porta al successo", "Il successo fa dormire poco", "Niente: mancano i falliti"], "corretta": 2,
         "spiegazione": "Forse anche chi ha fallito si alzava alle 5. Senza i perdenti non sai cosa fa la differenza." },
-      { "tipo": "principio", "testo": "È il bias del sopravvissuto: vedi solo chi ce l'ha fatta e ==sopravvaluti le tue probabilità==." },
+      { "tipo": "principio", "testo": "È il bias del sopravvissuto. Vedi solo chi ce l'ha fatta e ==sopravvaluti le tue probabilità==." },
       { "tipo": "chiusura", "azione": "Prima di buttarti in un progetto cerca ==tre storie finite male== e leggi perché." }
     ]
   },
@@ -150,9 +150,9 @@
     "titolo": "I tuoi soldi non valgono tutti uguale",
     "libro": { "titolo": "Misbehaving", "autore": "Richard H. Thaler", "anno": 2015 },
     "scene": [
-      { "tipo": "apertura", "testo": "50 euro trovati per strada li spendi subito. Quelli sudati no." },
+      { "tipo": "apertura", "testo": "50 euro trovati per strada li spendi subito. ==Quelli sudati no.==" },
       { "tipo": "colpo", "testo": "Eppure sono ==gli stessi euro==." },
-      { "tipo": "testo", "titolo": "La contabilità mentale", "testo": "Per Richard Thaler, Nobel per l'economia, dividi i soldi in ==barattoli con l'etichetta==: affitto, svago, risparmi. E non li mescoli." },
+      { "tipo": "testo", "titolo": "La contabilità mentale", "testo": "Lo spiega Richard Thaler, Nobel per l'economia. Dividi i soldi in ==barattoli con l'etichetta==: affitto, svago, risparmi. E non li mescoli." },
       { "tipo": "esempio", "testo": "Dal libro: radiosveglia da 45 dollari, a dieci minuti da lì costa 35. Ci vai? E per una TV da 495 che là costa 485? ==Probabilmente no.==" },
       { "tipo": "colpo", "testo": "Sempre ==10 dollari==." },
       { "tipo": "elenco", "titolo": "Altri barattoli dal libro",
@@ -199,7 +199,7 @@
       { "tipo": "confronto", "titolo": "Due modi di scegliere",
         "a": { "etichetta": "Massimizzatore", "voci": ["Vuole il meglio, poi si pente"] },
         "b": { "etichetta": "Chi si accontenta", "voci": ["Prende la prima cosa che va bene"] } },
-      { "tipo": "principio", "testo": "Secondo Schwartz chi cerca sempre il meglio ==se lo gode di meno== di chi sa dire «questo va bene»." },
+      { "tipo": "principio", "testo": "Secondo Schwartz chi cerca sempre il meglio ==se lo gode di meno==. Sta meglio chi sa dire «questo va bene»." },
       { "tipo": "chiusura", "azione": "Prossimo acquisto: scrivi ==tre requisiti== e prendi la prima cosa che li rispetta." }
     ]
   },
@@ -210,7 +210,7 @@
     "libro": { "titolo": "Stumbling on Happiness", "autore": "Daniel Gilbert", "anno": 2006 },
     "scene": [
       { "tipo": "apertura", "testo": "Stai scegliendo il tuo futuro con ==l'umore di oggi==." },
-      { "tipo": "esempio", "testo": "Fai la spesa a stomaco pieno e compri troppo poco: non riesci a immaginarti affamato. Per Daniel Gilbert ==col futuro fai lo stesso==." },
+      { "tipo": "esempio", "testo": "Fai la spesa a stomaco pieno e compri troppo poco. Non riesci a immaginarti affamato. Per Daniel Gilbert ==col futuro fai lo stesso==." },
       { "tipo": "elenco", "titolo": "Tre difetti dell'immaginazione",
         "voci": ["Riempie i dettagli, e non te ne accorgi", "Colora il domani con l'umore di oggi", "Non prevede quanto in fretta ti adatti"] },
       { "tipo": "colpo", "testo": "Il terzo è ==una buona notizia==." },

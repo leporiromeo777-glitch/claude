@@ -108,7 +108,7 @@
     "libro": { "titolo": "Giocati dal caso", "autore": "Nassim Nicholas Taleb", "anno": 2001, "titoloOriginale": "Fooled by Randomness" },
     "scene": [
       { "tipo": "apertura", "testo": "Quante volte al giorno controlli ==come vanno i tuoi soldi==?" },
-      { "tipo": "esempio", "testo": "Taleb immagina un dentista con un ottimo portafoglio: in media rende il 15% l'anno più dei titoli di Stato, con oscillazioni del 10%. Lo controlla ==di continuo==." },
+      { "tipo": "esempio", "testo": "Taleb immagina un dentista con un ottimo portafoglio. In media rende il 15% l'anno più dei titoli di Stato. Oscilla del 10%. Lui lo controlla ==di continuo==." },
       { "tipo": "grafico", "titolo": "Lo vede in attivo, se guarda ogni…", "forma": "barre", "unita": "%",
         "dati": [ { "e": "Minuto", "v": 50.2 }, { "e": "Giorno", "v": 54 }, { "e": "Mese", "v": 67 }, { "e": "Anno", "v": 93 } ],
         "nota": "Esempio illustrativo di Taleb, non una previsione." },
