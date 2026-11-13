@@ -15,7 +15,7 @@ a scorrere via. Non hanno letto il libro.
 
 - Un file per gruppo di libri: `contenuti/NN-nome.json`, con **una lista** `[ … ]` di video.
 - Controllo obbligatorio, dalla cartella `colto/`:
-  `node scripts/valida.mjs --ritmo contenuti/NN-nome.json`
+  `node scripts/valida.mjs contenuti/NN-nome.json`
   Deve stampare `✓`. Se elenca problemi, correggili e rilancia.
 - Tocca solo il tuo file.
 
@@ -174,7 +174,7 @@ chiusura  → il gesto di oggi
 
 ## Prima di consegnare
 
-- [ ] `node scripts/valida.mjs --ritmo contenuti/NN-nome.json` stampa `✓`.
+- [ ] `node scripts/valida.mjs contenuti/NN-nome.json` stampa `✓`.
 - [ ] Leggi solo i ganci, uno dopo l'altro: ti fermeresti su ognuno? Sono diversi fra loro?
 - [ ] In ogni video c'è il momento «ah, ecco»?
 - [ ] Ogni titolo, autore e anno è giusto. Ogni titolo italiano esiste davvero.

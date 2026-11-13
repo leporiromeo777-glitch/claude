@@ -2,7 +2,7 @@
 // Controlla i video in contenuti/*.json.
 //   node scripts/valida.mjs                              → tutti i file
 //   node scripts/valida.mjs contenuti/03-x.json          → un file (gli id restano unici fra tutti)
-//   node scripts/valida.mjs --ritmo contenuti/03-x.json  → con le regole «ritmo» (video corti e serrati)
+// Le regole «ritmo» sono sempre attive; il vecchio flag --ritmo è accettato ma non serve più.
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,8 +10,8 @@ import { fileURLToPath } from 'node:url';
 const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CARTELLA = join(RADICE, 'contenuti');
 
-// Quando tutti i file rispettano le regole «ritmo», diventano quelle predefinite.
-export const RITMO_PREDEFINITO = false;
+// Le regole «ritmo» (video corti e serrati) sono quelle predefinite: tutti i contenuti le rispettano.
+export const RITMO_PREDEFINITO = true;
 
 export const CATEGORIE = JSON.parse(readFileSync(join(RADICE, 'src/categorie.json'), 'utf8'));
 const ID_CATEGORIE = new Set(CATEGORIE.map((c) => c.id));
