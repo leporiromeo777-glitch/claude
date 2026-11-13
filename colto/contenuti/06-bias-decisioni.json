@@ -25,12 +25,12 @@
     "scene": [
       { "tipo": "apertura", "testo": "Testa vinci 150 dollari, croce ne perdi 100. ==Giochi?==" },
       { "tipo": "colpo", "testo": "I più dicono ==no==." },
-      { "tipo": "testo", "testo": "Eppure in media conviene. Per Kahneman è semplice: perdere 100 ==spaventa più== di quanto attiri vincerne 150." },
+      { "tipo": "testo", "testo": "Eppure in media conviene. Ma perdere 100 ==spaventa più== di quanto attiri vincerne 150." },
       { "tipo": "quiz", "domanda": "A testa o croce rischi 100 dollari. Quale vincita serve a molti per accettare?",
         "opzioni": ["Poco più di 100", "Circa 200", "Almeno 1000"], "corretta": 1,
         "spiegazione": "Per molti serve circa il doppio: una perdita pesa da 1,5 a 2,5 volte un guadagno uguale." },
       { "tipo": "esempio", "testo": "Golf professionistico, stessa distanza dalla buca. I tiri per non perdere un colpo entrano più spesso. Quelli per ==guadagnarne uno==, meno." },
-      { "tipo": "principio", "testo": "Una perdita pesa più di un guadagno uguale. Per questo dici no ==anche ai rischi che convengono==." },
+      { "tipo": "principio", "testo": "Una perdita pesa più di un guadagno uguale. Così dici no ==anche ai rischi che convengono==." },
       { "tipo": "chiusura", "azione": "Pensa a un'occasione rifiutata per paura. Scrivi ==quanto potevi vincere== e quanto perdere." }
     ]
   },
@@ -95,7 +95,7 @@
     "id": "nudge-architettura-delle-scelte",
     "categoria": "mente",
     "titolo": "Il trucco della mosca: guidarti senza vietare niente",
-    "libro": { "titolo": "Nudge", "autore": "Richard H. Thaler, Cass R. Sunstein", "anno": 2008 },
+    "libro": { "titolo": "Nudge. La spinta gentile", "autore": "Richard H. Thaler, Cass R. Sunstein", "anno": 2008, "titoloOriginale": "Nudge" },
     "scene": [
       { "tipo": "apertura", "testo": "All'aeroporto di Amsterdam c'è ==una mosca== disegnata negli orinatoi." },
       { "tipo": "colpo", "testo": "E gli uomini ==prendono la mira==." },
@@ -113,7 +113,7 @@
     "id": "nudge-opzione-predefinita",
     "categoria": "mente",
     "titolo": "La casella già spuntata decide al posto tuo",
-    "libro": { "titolo": "Nudge", "autore": "Richard H. Thaler, Cass R. Sunstein", "anno": 2008 },
+    "libro": { "titolo": "Nudge. La spinta gentile", "autore": "Richard H. Thaler, Cass R. Sunstein", "anno": 2008, "titoloOriginale": "Nudge" },
     "scene": [
       { "tipo": "apertura", "testo": "Cosa scegli quando non scegli? ==Quello che ha deciso un altro.==" },
       { "tipo": "esempio", "testo": "Un'azienda americana. Per entrare nel fondo pensione bisogna fare domanda. Poi la regola si inverte: iscritti in automatico, ==liberi di uscire==." },
@@ -199,7 +199,7 @@
       { "tipo": "confronto", "titolo": "Due modi di scegliere",
         "a": { "etichetta": "Massimizzatore", "voci": ["Vuole il meglio, poi si pente"] },
         "b": { "etichetta": "Chi si accontenta", "voci": ["Prende la prima cosa che va bene"] } },
-      { "tipo": "principio", "testo": "Secondo Schwartz chi cerca sempre il meglio ==se lo gode di meno==. Sta meglio chi sa dire «questo va bene»." },
+      { "tipo": "principio", "testo": "Per Schwartz chi cerca sempre il meglio ==se lo gode di meno== di chi sa dire «va bene così»." },
       { "tipo": "chiusura", "azione": "Prossimo acquisto: scrivi ==tre requisiti== e prendi la prima cosa che li rispetta." }
     ]
   },
