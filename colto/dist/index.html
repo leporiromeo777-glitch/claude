@@ -1,0 +1,1363 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}</style>
+<title>Colto</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Colto: le idee dei grandi libri di crescita personale, economia e finanza in brevi video verticali da scorrere.">
+<meta name="theme-color" content="#151210">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=DM+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap">
+<style>
+/* Colto. Una colonna 9:16 a tutto schermo: ogni video è una «copertina» a tinta piatta,
+   testo allineato a sinistra, azioni a destra, capitoli in basso. Angoli vivi, etichette piene. */
+:root {
+  color-scheme: dark;
+  --fondo: #151210;   /* attorno al palco sugli schermi larghi */
+  --carta: #F3ECDD;   /* chiaro di riserva */
+  --bg: #2A2622;      /* le quattro tinte della clip attiva: le ridefinisce lo script */
+  --ink: #F3ECDD;
+  --acc: #FFD23F;
+  --su: #1B1A12;
+  --f-titoli: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-testo: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-dati: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --morbido: cubic-bezier(.2, .7, .2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--carta);
+  font-family: var(--f-testo);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+svg { width: 1.25em; height: 1.25em; fill: currentColor; flex: none; }
+.tratto { fill: none !important; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.app { position: relative; height: 100%; overflow: hidden; }
+.app, .clip {
+  --linea: color-mix(in srgb, var(--ink) 28%, transparent);
+  --velatura: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+/* ---------- feed ---------- */
+.feed {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.feed::-webkit-scrollbar { display: none; }
+.clip {
+  position: relative;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background: color-mix(in srgb, var(--bg) 24%, var(--fondo));
+}
+.palco, .cromo {
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  container-type: size;
+}
+.palco {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--ink);
+  user-select: none;
+  -webkit-user-select: none;
+  --u: 1cqw;
+}
+@media (min-aspect-ratio: 3/4) and (min-height: 560px) {
+  .palco, .cromo { height: calc(100% - 28px); }
+  .palco { border-radius: 10px; }
+}
+
+/* ---------- forme sullo sfondo ---------- */
+.forme { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.f {
+  position: absolute; left: 0; top: 0;
+  width: 60cqw; height: 60cqw; margin: -30cqw 0 0 -30cqw;
+  transition: transform 1.25s cubic-bezier(.65, 0, .2, 1);
+  --t: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+.f--cerchio { border-radius: 50%; background: var(--t); }
+.f--anello { border-radius: 50%; border: 7cqw solid var(--t); }
+.f--mezzo { height: 30cqw; border-radius: 30cqw 30cqw 0 0; background: var(--t); }
+.f--quadro { background: var(--t); }
+.f--righe { background: repeating-linear-gradient(90deg, var(--t) 0 2.2cqw, transparent 2.2cqw 5.4cqw); }
+.f--punti { background: radial-gradient(circle, var(--t) 0 1.1cqw, transparent 1.2cqw) 0 0 / 5cqw 5cqw; }
+
+/* ---------- scene ---------- */
+.scene { position: absolute; inset: 0; }
+.scena {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding-block: 25cqw 41cqw;
+  padding-left: max(16px, 7cqw, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, 17cqw, env(safe-area-inset-right, 0px));
+  visibility: hidden; opacity: 0;
+  --u: calc(1cqw * var(--s, 1));
+}
+.scena.on, .scena.fermo { visibility: visible; opacity: 1; }
+.scena.esce { visibility: visible; opacity: 0; transition: opacity .26s ease; }
+.corpo { display: flex; flex-direction: column; gap: calc(4.4 * var(--u)); min-width: 0; }
+
+.entra, .p { opacity: 0; }
+.p { display: inline-block; }
+.scena.on .entra { animation: sale .6s var(--morbido) both; animation-delay: var(--d, 0ms); }
+.scena.on .p { animation: parola .5s var(--morbido) both; animation-delay: var(--d, 0ms); }
+.scena.fermo .entra, .scena.fermo .p { opacity: 1; animation: none; }
+.palco.in-pausa * { animation-play-state: paused !important; }
+@keyframes sale { from { opacity: 0; transform: translateY(calc(3.5 * var(--u))); } to { opacity: 1; transform: none; } }
+@keyframes parola { from { opacity: 0; transform: translateY(.45em) rotate(2deg); } to { opacity: 1; transform: none; } }
+
+mark {
+  --m-bg: var(--acc); --m-ink: var(--su);
+  color: inherit;
+  background: linear-gradient(var(--m-bg), var(--m-bg)) no-repeat 0 60% / 0% 88%;
+  padding: 0 .06em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.scena.on mark { animation: evidenzia .55s ease-out both; animation-delay: var(--d, 900ms); }
+.scena.on .entra mark { animation-delay: calc(var(--d, 0ms) + 700ms); }
+.scena.fermo:not(.on) mark { background-size: 100% 88%; color: var(--m-ink); }
+@keyframes evidenzia { to { background-size: 100% 88%; color: var(--m-ink); } }
+
+.etichetta { font: 500 max(10px, calc(3.05 * var(--u))) / 1.2 var(--f-dati); letter-spacing: .09em; text-transform: uppercase; }
+.gancio { font-family: var(--f-titoli); font-stretch: 68%; font-weight: 800; font-size: calc(12.4 * var(--u)); line-height: .98; letter-spacing: -.012em; text-wrap: balance; }
+.titolo { font-family: var(--f-titoli); font-stretch: 72%; font-weight: 760; font-size: calc(8.6 * var(--u)); line-height: 1.02; letter-spacing: -.008em; text-wrap: balance; }
+.titolo--piccolo { font-size: calc(7 * var(--u)); }
+.paragrafo { font-size: calc(5.5 * var(--u)); line-height: 1.32; font-weight: 440; text-wrap: pretty; }
+.massima { font-style: italic; font-weight: 500; font-size: calc(9 * var(--u)); line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; }
+.nota { font: 400 max(10px, calc(3.2 * var(--u))) / 1.4 var(--f-dati); opacity: .88; }
+
+/* elenco */
+.voci { display: flex; flex-direction: column; gap: calc(3.6 * var(--u)); }
+.voci li { display: grid; grid-template-columns: auto 1fr; gap: calc(3.2 * var(--u)); align-items: start; font-family: var(--f-titoli); font-stretch: 92%; font-weight: 560; font-size: calc(5.5 * var(--u)); line-height: 1.2; }
+.segno { width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); margin-top: calc(2 * var(--u)); background: var(--acc); }
+.voci--numerate .segno { display: grid; place-items: center; width: calc(7 * var(--u)); height: calc(7 * var(--u)); margin-top: calc(-.2 * var(--u)); color: var(--su); font: 500 calc(3.8 * var(--u)) / 1 var(--f-dati); }
+
+/* numero */
+.cifra { display: flex; align-items: baseline; gap: calc(1.2 * var(--u)); font-family: var(--f-titoli); font-stretch: 62%; font-weight: 900; font-size: calc(34 * var(--u) * var(--z, 1)); line-height: .86; letter-spacing: -.02em; color: var(--acc); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cifra-lato { font-size: .5em; font-stretch: 75%; }
+
+/* confronto */
+.lati { display: flex; flex-direction: column; gap: calc(3 * var(--u)); }
+.lato { display: flex; flex-direction: column; gap: calc(2.4 * var(--u)); padding: calc(4 * var(--u)) calc(4.4 * var(--u)) calc(4.4 * var(--u)); border: max(1.5px, .45cqw) solid var(--linea); }
+.lato ul { display: flex; flex-direction: column; gap: calc(1.6 * var(--u)); }
+.lato li { font-family: var(--f-titoli); font-stretch: 92%; font-weight: 540; font-size: calc(5 * var(--u)); line-height: 1.2; }
+.lato--b { background: var(--acc); border-color: var(--acc); color: var(--su); }
+.lato--b mark { --m-bg: var(--su); --m-ink: var(--acc); }
+
+/* grafico */
+.grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+.g-base { stroke: var(--linea); stroke-width: .5; }
+.g-linea { fill: none; stroke: var(--acc); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.g-area { fill: var(--acc); opacity: 0; }
+.g-punto { fill: var(--ink); opacity: 0; }
+.g-punto--fine { fill: var(--acc); stroke: var(--bg); stroke-width: .8; }
+.g-barra { fill: color-mix(in srgb, var(--ink) 36%, transparent); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); }
+.g-barra--max { fill: var(--acc); }
+.g-asse, .g-val { font-family: var(--f-dati); fill: var(--ink); }
+.g-asse { font-size: 3.5px; opacity: .88; }
+.g-val { font-size: 4.2px; font-weight: 500; opacity: 0; }
+.scena.on .g-linea { animation: traccia 1.7s .45s cubic-bezier(.5, 0, .3, 1) forwards; }
+.scena.on .g-area { --fino: .16; animation: appare .8s 1.6s forwards; }
+.scena.on .g-punto, .scena.on .g-val { animation: appare .4s forwards; animation-delay: var(--d, 0ms); }
+.scena.on .g-barra { animation: cresce .7s var(--morbido) forwards; animation-delay: var(--d, 0ms); }
+@keyframes traccia { to { stroke-dashoffset: 0; } }
+@keyframes appare { to { opacity: var(--fino, 1); } }
+@keyframes cresce { to { transform: scaleY(1); } }
+
+/* esempio */
+.scheda { display: flex; flex-direction: column; gap: calc(3 * var(--u)); padding: calc(5 * var(--u)) calc(5 * var(--u)) calc(6 * var(--u)); background: var(--ink); color: var(--bg); rotate: -1.2deg; }
+.scheda mark { --m-bg: var(--bg); --m-ink: var(--ink); }
+
+/* quiz */
+.domanda { font-family: var(--f-titoli); font-stretch: 80%; font-weight: 700; font-size: calc(6.6 * var(--u)); line-height: 1.1; text-wrap: balance; }
+.opzioni { display: flex; flex-direction: column; gap: calc(2.4 * var(--u)); }
+.opzione { display: grid; grid-template-columns: auto 1fr; gap: calc(3 * var(--u)); align-items: center; min-height: 44px; padding: calc(3.2 * var(--u)) calc(3.6 * var(--u)); border: max(1.5px, .45cqw) solid var(--linea); text-align: left; font-family: var(--f-titoli); font-stretch: 92%; font-weight: 560; font-size: calc(5 * var(--u)); line-height: 1.15; transition: background .25s, color .25s, border-color .25s, opacity .25s; }
+.opzione:disabled { cursor: default; }
+.lettera { font: 500 calc(3.6 * var(--u)) / 1 var(--f-dati); opacity: .8; }
+.opzione.giusta { background: var(--acc); border-color: var(--acc); color: var(--su); }
+.opzione.sbagliata { text-decoration: line-through; }
+.rivelata .opzione:not(.giusta) { opacity: .55; }
+@media (hover: hover) { .opzione:not(:disabled):hover { background: var(--velatura); } }
+.spiegazione { font-size: calc(4.9 * var(--u)); line-height: 1.3; visibility: hidden; opacity: 0; transform: translateY(calc(2 * var(--u))); transition: opacity .4s, transform .4s var(--morbido); }
+.rivelata .spiegazione { visibility: visible; opacity: 1; transform: none; }
+
+/* chiusura */
+.azione { font-family: var(--f-titoli); font-stretch: 72%; font-weight: 760; font-size: calc(8.8 * var(--u)); line-height: 1.03; text-wrap: balance; }
+.colofone { display: flex; flex-direction: column; gap: calc(1.2 * var(--u)); margin-top: calc(2 * var(--u)); padding-top: calc(4 * var(--u)); border-top: max(1.5px, .45cqw) solid var(--linea); }
+.colofone-da { font: 500 max(10px, calc(2.9 * var(--u))) / 1.2 var(--f-dati); letter-spacing: .09em; text-transform: uppercase; opacity: .85; }
+.colofone-libro { font-style: italic; font-weight: 500; font-size: calc(6.2 * var(--u)); line-height: 1.1; }
+.colofone-autore { font: 400 max(10px, calc(3.4 * var(--u))) / 1.3 var(--f-dati); }
+
+/* ---------- sopra il video ---------- */
+.piede { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 3.4cqw; padding-bottom: max(12px, 4cqw); padding-left: max(16px, 7cqw, env(safe-area-inset-left, 0px)); padding-right: max(16px, 7cqw, env(safe-area-inset-right, 0px)); pointer-events: none; }
+.didascalia { display: flex; flex-direction: column; gap: 1cqw; padding-right: 12cqw; }
+.did-titolo { font-family: var(--f-titoli); font-stretch: 88%; font-weight: 680; font-size: max(14px, 4.3cqw); line-height: 1.15; }
+.did-libro { font-size: max(13px, 3.9cqw); line-height: 1.25; }
+.avanzamento { display: flex; gap: 1.1cqw; height: max(3px, .8cqw); }
+.avanzamento i { flex: 1 1 0; overflow: hidden; background: var(--linea); }
+.avanzamento b { display: block; height: 100%; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
+
+.azioni { position: absolute; right: max(6px, 2cqw, env(safe-area-inset-right, 0px)); bottom: max(44px, 14cqw); display: flex; flex-direction: column; align-items: center; gap: 3cqw; }
+.az { display: flex; flex-direction: column; align-items: center; gap: .9cqw; width: max(48px, 13.5cqw); min-height: 44px; padding: 1cqw 0; font: 500 max(9.5px, 2.5cqw) / 1.1 var(--f-dati); letter-spacing: .02em; }
+.az svg { width: max(27px, 7.4cqw); height: max(27px, 7.4cqw); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.az[aria-pressed="true"] svg { fill: var(--acc); stroke: var(--acc); }
+.az.scatto svg { animation: scatto .4s var(--morbido); }
+@keyframes scatto { 40% { transform: scale(1.3); } }
+
+.pausa { position: absolute; top: max(60px, 17cqw); left: 0; right: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transform: translateY(-6px); transition: opacity .2s, transform .2s; }
+.pausa svg { width: max(40px, 11cqw); height: max(40px, 11cqw); padding: 2.6cqw; background: var(--ink); fill: var(--bg); }
+.in-pausa .pausa { opacity: 1; transform: none; }
+
+.cuore-volante { position: absolute; width: 24cqw; height: 24cqw; margin: -12cqw 0 0 -12cqw; pointer-events: none; animation: vola .85s var(--morbido) forwards; }
+.cuore-volante svg { width: 100%; height: 100%; fill: var(--acc); stroke: var(--bg); stroke-width: .8; }
+@keyframes vola {
+  0% { transform: scale(.3) rotate(-12deg); opacity: 0; }
+  25% { transform: scale(1.1) rotate(-8deg); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(-18cqw) rotate(-4deg); opacity: 0; }
+}
+
+/* ---------- ultima clip ---------- */
+.clip--fine { --bg: #2A2622; --ink: #F3ECDD; --acc: #FFD23F; --su: #1B1A12; }
+.fine { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 5cqw; padding-block: 25cqw 20cqw; padding-left: max(16px, 7cqw, env(safe-area-inset-left, 0px)); padding-right: max(16px, 7cqw, env(safe-area-inset-right, 0px)); }
+.fine-azioni { display: flex; flex-wrap: wrap; gap: 2.4cqw; margin-top: 3cqw; }
+
+/* ---------- barra in alto, pannelli ---------- */
+.cromo { position: absolute; inset: 0; margin: auto; pointer-events: none; color: var(--ink); }
+.cromo > * { pointer-events: auto; }
+.barra { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 2cqw; padding-top: max(10px, 3.4cqw); padding-left: max(16px, 7cqw, env(safe-area-inset-left, 0px)); padding-right: max(16px, 5cqw, env(safe-area-inset-right, 0px)); pointer-events: none; }
+.barra > * { pointer-events: auto; }
+.marchio { margin-right: auto; padding: 1.3cqw 2.6cqw 1.1cqw; background: var(--ink); color: var(--bg); font-family: var(--f-titoli); font-stretch: 66%; font-weight: 900; font-size: max(21px, 6.6cqw); line-height: 1; letter-spacing: -.005em; transition: background .3s, color .3s; }
+.gettone { display: inline-flex; align-items: center; gap: 1.2cqw; min-width: 0; max-width: 46cqw; min-height: max(36px, 9.4cqw); padding: 0 3.2cqw; background: var(--ink); color: var(--bg); font: 500 max(11.5px, 3.1cqw) / 1 var(--f-dati); letter-spacing: .03em; transition: background .3s, color .3s; }
+.gettone span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gettone b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.gettone svg { width: 1.1em; height: 1.1em; }
+
+.frecce { display: none; }
+@media (min-aspect-ratio: 1/1) and (hover: hover) {
+  .frecce { display: flex; flex-direction: column; gap: 10px; position: absolute; left: calc(100% + 18px); top: 50%; transform: translateY(-50%); }
+  .frecce button { display: grid; place-items: center; width: 44px; height: 44px; background: color-mix(in srgb, var(--carta) 12%, transparent); color: var(--carta); }
+  .frecce button:hover { background: color-mix(in srgb, var(--carta) 22%, transparent); }
+}
+
+.avviso { position: absolute; left: max(16px, 7cqw); bottom: max(92px, 29cqw); max-width: 70cqw; padding: 2.6cqw 3.6cqw; background: var(--ink); color: var(--bg); font: 500 max(12px, 3.3cqw) / 1.35 var(--f-dati); opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .25s, transform .25s, visibility 0s .25s; pointer-events: none; user-select: text; }
+.avviso.visibile { opacity: 1; visibility: visible; transform: none; transition: opacity .25s, transform .25s; }
+
+.velo { position: absolute; inset: 0; background: color-mix(in srgb, var(--fondo) 60%, transparent); opacity: 0; visibility: hidden; transition: opacity .25s, visibility 0s .25s; }
+.con-pannello .velo { opacity: 1; visibility: visible; transition: opacity .25s; }
+.pannello { position: absolute; left: 0; right: 0; bottom: 0; height: 88%; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); border-top: max(3px, 1cqw) solid var(--ink); transform: translateY(104%); visibility: hidden; transition: transform .34s var(--morbido), visibility 0s .34s; }
+.con-pannello .pannello { transform: none; visibility: visible; transition: transform .34s var(--morbido); }
+.pannello-testa { display: flex; align-items: center; justify-content: space-between; padding: 4.4cqw max(16px, 6cqw) 2.4cqw; }
+.pannello-testa h2 { font-family: var(--f-titoli); font-stretch: 68%; font-weight: 850; font-size: max(26px, 8.4cqw); line-height: 1; }
+.pannello-testa button { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; }
+.pannello-corpo { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4.4cqw; padding: 1.6cqw max(16px, 6cqw) max(24px, 8cqw); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+#esiti { display: flex; flex-direction: column; gap: 4.4cqw; }
+
+.ricerca { display: flex; align-items: center; gap: 2.4cqw; min-height: max(46px, 12cqw); padding: 0 3.6cqw; border: max(1.5px, .45cqw) solid var(--ink); }
+.ricerca:focus-within { outline: 2px solid var(--acc); outline-offset: 2px; }
+.ricerca input { flex: 1; min-width: 0; padding: 0; background: none; border: 0; outline: 0; color: inherit; font: 400 max(16px, 4.2cqw) / 1.2 var(--f-testo); }
+.ricerca input::placeholder { color: color-mix(in srgb, var(--ink) 62%, transparent); }
+.sezione { display: flex; justify-content: space-between; margin-top: 1.6cqw; font: 500 max(11px, 3cqw) / 1.2 var(--f-dati); letter-spacing: .09em; text-transform: uppercase; }
+.raccolte, .categorie { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4cqw; }
+.raccolta { display: flex; flex-direction: column; gap: 1.2cqw; padding: 3.6cqw; background: var(--ink); color: var(--bg); text-align: left; }
+.raccolta b { font-family: var(--f-titoli); font-stretch: 72%; font-weight: 800; font-size: max(19px, 5.8cqw); line-height: 1; }
+.raccolta span, .categoria span { font: 400 max(10.5px, 2.9cqw) / 1.3 var(--f-dati); }
+.categoria { display: flex; flex-direction: column; justify-content: space-between; gap: 3cqw; min-height: max(76px, 22cqw); padding: 3.2cqw; background: var(--bg); color: var(--ink); text-align: left; box-shadow: inset 0 0 0 max(1.5px, .4cqw) color-mix(in srgb, var(--ink) 30%, transparent); }
+.categoria b { font-family: var(--f-titoli); font-stretch: 72%; font-weight: 780; font-size: max(16px, 4.9cqw); line-height: 1.02; }
+.libri, .progressi { display: flex; flex-direction: column; }
+.libro { display: grid; grid-template-columns: 1fr auto; gap: .6cqw 3cqw; align-items: center; width: 100%; padding: 3cqw 0; border-top: 1px solid var(--linea); text-align: left; }
+.libro b { font-style: italic; font-weight: 500; font-size: max(16px, 4.6cqw); line-height: 1.15; }
+.libro span { grid-column: 1; font: 400 max(11px, 3cqw) / 1.3 var(--f-dati); }
+.libro em { grid-column: 2; grid-row: 1 / 3; font: 500 max(11px, 3cqw) / 1 var(--f-dati); font-style: normal; white-space: nowrap; }
+.vuoto { font-size: max(16px, 4.6cqw); line-height: 1.35; }
+
+.cifre { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4cqw; }
+.cifre div { display: flex; flex-direction: column; gap: 1.6cqw; padding: 3.4cqw 3cqw; background: var(--ink); color: var(--bg); }
+.cifre b { font-family: var(--f-titoli); font-stretch: 62%; font-weight: 900; font-size: max(36px, 11.5cqw); line-height: .9; font-variant-numeric: tabular-nums; }
+.cifre span { font: 400 max(10px, 2.7cqw) / 1.25 var(--f-dati); }
+.progresso { display: grid; grid-template-columns: 1fr auto; gap: 1.8cqw 3cqw; width: 100%; padding: 2.8cqw 0; border-top: 1px solid var(--linea); text-align: left; }
+.pr-nome { font-family: var(--f-titoli); font-stretch: 88%; font-weight: 620; font-size: max(14px, 4.2cqw); }
+.pr-num { align-self: center; font: 500 max(11px, 3cqw) / 1 var(--f-dati); font-variant-numeric: tabular-nums; }
+.pr-barra { grid-column: 1 / 3; height: max(4px, 1.2cqw); background: var(--velatura); }
+.pr-barra i { display: block; height: 100%; background: var(--ink); }
+.piccolo { font: 400 max(11px, 3cqw) / 1.45 var(--f-dati); }
+.tasto { min-height: max(44px, 11.5cqw); padding: 0 5cqw; border: max(1.5px, .45cqw) solid var(--ink); font: 500 max(12px, 3.3cqw) / 1 var(--f-dati); letter-spacing: .05em; text-transform: uppercase; }
+.tasto--pieno { background: var(--ink); color: var(--bg); }
+.tasto--solo { align-self: flex-start; }
+
+@media (prefers-reduced-motion: reduce) {
+  .f { transition: none; }
+  .pannello, .con-pannello .pannello { transition: none; }
+  @keyframes sale { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes parola { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes vola { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
+}
+
+</style>
+</head>
+<body>
+<div id="app" class="app">
+  <main id="feed" class="feed" aria-label="Idee dai libri"></main>
+
+  <div class="cromo">
+    <header class="barra">
+      <button id="marchio" class="marchio" type="button" aria-label="Colto: torna a Per te">Colto</button>
+      <button id="apri-esplora" class="gettone" type="button" aria-haspopup="dialog" data-icona="giu"><span id="filtro-nome">Per te</span></button>
+      <button id="apri-percorso" class="gettone" type="button" aria-haspopup="dialog" aria-label="Il tuo percorso"><b id="oggi-numero">0</b><span>oggi</span></button>
+    </header>
+    <div class="frecce">
+      <button id="freccia-su" type="button" aria-label="Video precedente" data-icona="su"></button>
+      <button id="freccia-giu" type="button" aria-label="Video successivo" data-icona="giu"></button>
+    </div>
+  </div>
+
+  <div id="velo" class="velo"></div>
+
+  <div class="cromo">
+    <div id="avviso" class="avviso" role="status" aria-live="polite"></div>
+    <section id="pannello" class="pannello" role="dialog" aria-modal="true" aria-labelledby="pannello-titolo">
+      <header class="pannello-testa">
+        <h2 id="pannello-titolo">Esplora</h2>
+        <button id="pannello-chiudi" type="button" aria-label="Chiudi" data-icona="chiudi"></button>
+      </header>
+      <div id="pannello-corpo" class="pannello-corpo"></div>
+    </section>
+  </div>
+</div>
+
+<script type="application/json" id="dati">{"categorie":[{"id":"abitudini","nome":"Abitudini","bg":"#17483A","ink":"#F5EEDC","accento":"#FFD23F","suAccento":"#1B1A12"},{"id":"produttivita","nome":"Focus e produttività","bg":"#EDE7D9","ink":"#15171C","accento":"#C93515","suAccento":"#FFF7EE"},{"id":"crescita","nome":"Crescita personale","bg":"#BF3A1F","ink":"#FFF6EA","accento":"#FFE066","suAccento":"#231405"},{"id":"mente","nome":"Psicologia e decisioni","bg":"#55267E","ink":"#F6EEFF","accento":"#FFB3C7","suAccento":"#2A0F3D"},{"id":"comunicazione","nome":"Comunicazione e persuasione","bg":"#F3A6B4","ink":"#2B0F1A","accento":"#6B1D3A","suAccento":"#FFE9EF"},{"id":"finanza","nome":"Finanza personale","bg":"#F4C430","ink":"#1A1712","accento":"#0F5C4D","suAccento":"#F4F1E4"},{"id":"investimenti","nome":"Investimenti","bg":"#0D3B45","ink":"#E8F4F1","accento":"#7CE3B5","suAccento":"#06261F"},{"id":"economia","nome":"Economia","bg":"#7D1D2C","ink":"#FFF1E6","accento":"#FFC857","suAccento":"#2B1200"},{"id":"business","nome":"Business e startup","bg":"#1F4FD8","ink":"#F4F7FF","accento":"#FFE14D","suAccento":"#151A2E"},{"id":"leadership","nome":"Leadership e lavoro","bg":"#56652A","ink":"#F7F5E6","accento":"#F9E27D","suAccento":"#232808"},{"id":"filosofia","nome":"Filosofia e saggezza","bg":"#D6CFBF","ink":"#1D1B18","accento":"#A3301E","suAccento":"#FFF3E8"},{"id":"benessere","nome":"Benessere e felicità","bg":"#BFE3F5","ink":"#0A2433","accento":"#0B5C8A","suAccento":"#EAF7FF"},{"id":"storia","nome":"Storia e società","bg":"#5A3825","ink":"#F8EAD8","accento":"#F2A65A","suAccento":"#2A160A"},{"id":"scienza","nome":"Scienza e pensiero critico","bg":"#0B2545","ink":"#EAF2FF","accento":"#C7F464","suAccento":"#10210A"}],"video":[{"id":"atomic-habits-uno-per-cento","categoria":"abitudini","titolo":"L'1% al giorno che cambia tutto","libro":{"titolo":"Atomic Habits","autore":"James Clear","anno":2018},"scene":[{"tipo":"apertura","testo":"Migliorare dell'==1% al giorno== ti cambia più di quanto pensi."},{"tipo":"testo","titolo":"Il problema dei grandi obiettivi","testo":"Pensiamo che i grandi risultati chiedano grandi mosse. James Clear sostiene il contrario: contano i piccoli gesti ripetuti, perché ==si sommano come gli interessi==."},{"tipo":"grafico","titolo":"1% meglio ogni giorno, per un anno","forma":"linea","unita":"×","dati":[{"e":"Oggi","v":1},{"e":"3 mesi","v":2.45},{"e":"6 mesi","v":6},{"e":"9 mesi","v":14.68},{"e":"1 anno","v":37.78}],"nota":"Calcolo: 1,01 moltiplicato per sé stesso 365 volte."},{"tipo":"confronto","titolo":"Obiettivi o sistemi?","a":{"etichetta":"Solo l'obiettivo","voci":["Voglio correre una maratona","Aspetto di sentirmi motivato"]},"b":{"etichetta":"Il sistema","voci":["Corro 10 minuti ogni mattina","Il risultato arriva di conseguenza"]}},{"tipo":"principio","testo":"Non sali al livello dei tuoi obiettivi: ==scendi al livello dei tuoi sistemi==."},{"tipo":"quiz","domanda":"Se invece peggiori dell'1% al giorno, dopo un anno quanto ti resta?","opzioni":["Circa la metà","Circa un terzo","Quasi niente"],"corretta":2,"spiegazione":"0,99 moltiplicato 365 volte fa 0,03: perdi il 97%. Anche i piccoli cedimenti si sommano."},{"tipo":"chiusura","azione":"Scegli un'abitudine e rendila piccolissima: ==due minuti al giorno==, da stasera."}]},{"id":"pensieri-lenti-veloci-due-sistemi","categoria":"mente","titolo":"Hai due modi di pensare","libro":{"titolo":"Pensieri lenti e veloci","autore":"Daniel Kahneman","anno":2011,"titoloOriginale":"Thinking, Fast and Slow"},"scene":[{"tipo":"apertura","testo":"Una mazza e una pallina costano 1,10 euro. Stai per ==sbagliare il conto==."},{"tipo":"quiz","domanda":"La mazza costa 1 euro più della pallina. Quanto costa la pallina?","opzioni":["10 centesimi","5 centesimi"],"corretta":1,"spiegazione":"Con 10 centesimi la mazza costerebbe 1,10 e il totale 1,20. La risposta svelta è sbagliata."},{"tipo":"testo","titolo":"Perché ci caschiamo","testo":"Daniel Kahneman descrive due modi di pensare. Il Sistema 1 risponde subito, senza fatica. Il Sistema 2 ragiona, ma è pigro: spesso ==accetta la prima risposta== senza controllarla."},{"tipo":"confronto","titolo":"I due sistemi","a":{"etichetta":"Sistema 1","voci":["Veloce e automatico","Riconosce un volto, completa «2 + 2»"]},"b":{"etichetta":"Sistema 2","voci":["Lento e faticoso","Calcola 17 × 24, compila un modulo"]}},{"tipo":"principio","testo":"Sentirsi sicuri di una risposta ==non prova che sia giusta==."},{"tipo":"chiusura","azione":"Prima di una decisione importante fermati e chiediti: ==sto rispondendo d'istinto?=="}]},{"id":"uomo-piu-ricco-babilonia-paga-te-stesso","categoria":"finanza","titolo":"Paga prima te stesso","libro":{"titolo":"L'uomo più ricco di Babilonia","autore":"George S. Clason","anno":1926,"titoloOriginale":"The Richest Man in Babylon"},"scene":[{"tipo":"apertura","testo":"La regola per mettere da parte i soldi ha ==cent'anni== e sta in una riga."},{"tipo":"principio","testo":"Di tutto quello che guadagni, ==una parte è tua da tenere==."},{"tipo":"numero","valore":10,"suffisso":"%","didascalia":"È la quota minima che Clason consiglia di mettere da parte da ogni entrata, prima di spendere il resto."},{"tipo":"elenco","titolo":"Come si fa in pratica","numerato":true,"voci":["Il giorno dello stipendio sposta subito la tua quota","Vivi con quello che resta","Fai lavorare i risparmi invece di lasciarli fermi"]},{"tipo":"grafico","titolo":"200 euro al mese investiti al 7% annuo","forma":"linea","unita":"€","dati":[{"e":"Oggi","v":0},{"e":"10 anni","v":34617},{"e":"20 anni","v":104185},{"e":"30 anni","v":243994}],"nota":"Esempio illustrativo: versi 72 000, il resto sono interessi. I rendimenti reali variano."},{"tipo":"esempio","testo":"Guadagni 2000 al mese. Il giorno di paga 200 partono da soli verso un altro conto. Dopo qualche mese non te ne accorgi più, ma ==il conto cresce comunque==."},{"tipo":"chiusura","azione":"Imposta oggi un ==bonifico automatico== verso il conto risparmio, il giorno dopo lo stipendio."}]}]}</script>
+<script>
+(() => {
+'use strict';
+// ---- 01-base.js
+// Dati, utilità e memoria locale.
+const DATI = JSON.parse(document.getElementById('dati').textContent);
+const CATEGORIE = DATI.categorie;
+const CAT = Object.fromEntries(CATEGORIE.map((c) => [c.id, c]));
+const VIDEO = DATI.video;
+const PER_ID = new Map(VIDEO.map((v) => [v.id, v]));
+
+const $ = (sel, radice = document) => radice.querySelector(sel);
+const $$ = (sel, radice = document) => [...radice.querySelectorAll(sel)];
+
+function crea(tag, classe, html) {
+  const e = document.createElement(tag);
+  if (classe) e.className = classe;
+  if (html != null) e.innerHTML = html;
+  return e;
+}
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// Numero da stringa (FNV-1a) e generatore casuale ripetibile (mulberry32).
+function seme(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function casuale(s) {
+  let a = s >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function mescola(lista, rnd) {
+  const a = lista.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Numeri: spazio sottile per le migliaia, virgola per i decimali.
+function formatta(n, decimali = 0) {
+  const [int, dec] = Math.abs(n).toFixed(decimali).split('.');
+  const gruppi = int.length > 4 ? int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : int;
+  return (n < 0 ? '−' : '') + gruppi + (dec ? ',' + dec : '');
+}
+function compatta(v) {
+  if (v >= 1e9) return formatta(v / 1e9, v % 1e9 ? 1 : 0) + ' mld';
+  if (v >= 1e6) return formatta(v / 1e6, v % 1e6 ? 1 : 0) + ' mln';
+  if (Number.isInteger(v)) return formatta(v);
+  return formatta(v, v < 10 ? 2 : 1).replace(/,?0+$/, '');
+}
+
+const tipografia = (s) => String(s).replace(/'/g, '’').replace(/\.\.\./g, '…');
+const senzaSegni = (s) => String(s || '').replace(/==/g, '');
+const lunghezza = (s) => senzaSegni(s).length;
+
+// «testo con ==parole evidenziate==» → HTML
+function segmenti(testo) {
+  return tipografia(testo).split('==').map((t, i) => ({ t, m: i % 2 === 1 })).filter((p) => p.t);
+}
+function htmlTesto(testo) {
+  return segmenti(testo).map((p) => (p.m ? `<mark>${esc(p.t)}</mark>` : esc(p.t))).join('');
+}
+function htmlParole(testo, passo = 70, inizio = 0) {
+  let k = 0;
+  return segmenti(testo).map((p) => {
+    const parole = p.t.split(/(\s+)/).map((w) => (!w || /^\s+$/.test(w) ? w : `<span class="p" style="--d:${inizio + k++ * passo}ms">${esc(w)}</span>`)).join('');
+    return p.m ? `<mark style="--d:${inizio + k * passo + 150}ms">${parole}</mark>` : parole;
+  }).join('');
+}
+
+const oggi = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+// Memoria nel browser: se non è disponibile l'app funziona lo stesso, senza ricordare.
+const CHIAVE = 'colto:v1';
+const memoria = { piaciuti: {}, salvati: {}, visti: {}, giorni: [], voce: false, guida: 0 };
+try {
+  const grezzo = localStorage.getItem(CHIAVE);
+  if (grezzo) Object.assign(memoria, JSON.parse(grezzo));
+} catch (e) { /* memoria non disponibile */ }
+function ricorda() {
+  try { localStorage.setItem(CHIAVE, JSON.stringify(memoria)); } catch (e) { /* idem */ }
+}
+
+function segnaVisto(id) {
+  if (!memoria.visti[id]) memoria.visti[id] = Date.now();
+  const g = oggi();
+  if (!memoria.giorni.includes(g)) memoria.giorni = [...memoria.giorni.slice(-400), g];
+  ricorda();
+}
+function giorniDiFila() {
+  const set = new Set(memoria.giorni);
+  const d = new Date();
+  const chiave = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  if (!set.has(chiave(d))) d.setDate(d.getDate() - 1);
+  let n = 0;
+  while (set.has(chiave(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function vistiOggi() {
+  const inizio = new Date(); inizio.setHours(0, 0, 0, 0);
+  return Object.values(memoria.visti).filter((t) => t >= inizio.getTime()).length;
+}
+
+const ICONE = {
+  cuore: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
+  segnalibro: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>',
+  condividi: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M12 15V4m0 0L8 8m4-4l4 4M5 12v7h14v-7"/></svg>',
+  voce: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="tratto" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
+  muto: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z"/><path class="tratto" d="M16 9.5l5 5m0-5l-5 5"/></svg>',
+  play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+  cerca: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+  chiudi: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  giu: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M6 9l6 6 6-6"/></svg>',
+  su: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M6 15l6-6 6 6"/></svg>',
+  spunta: '<svg viewBox="0 0 24 24" aria-hidden="true" class="tratto"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+};
+
+// ---- 02-scene.js
+// Ogni video è una lista di scene: qui si trasformano in HTML, con durata e testo per la voce.
+
+const leggi = (caratteri, base = 1600) => Math.max(3200, Math.min(10500, base + caratteri * 56));
+const somma = (lista) => lista.reduce((a, t) => a + lunghezza(t), 0);
+
+function durataQuiz(sc) {
+  const domanda = leggi(lunghezza(sc.domanda) + somma(sc.opzioni), 3200);
+  const risposta = leggi(lunghezza(sc.spiegazione), 2200);
+  return { domanda, risposta };
+}
+
+function durataScena(sc) {
+  switch (sc.tipo) {
+    case 'apertura': return leggi(lunghezza(sc.testo), 1900);
+    case 'testo': return leggi(lunghezza(sc.titolo) + lunghezza(sc.testo));
+    case 'principio': return leggi(lunghezza(sc.testo), 2500);
+    case 'elenco': return leggi(lunghezza(sc.titolo) + somma(sc.voci), 1500 + sc.voci.length * 800);
+    case 'numero': return leggi(lunghezza(sc.didascalia) + lunghezza(sc.nota), 3300);
+    case 'confronto': return leggi(lunghezza(sc.titolo) + somma(sc.a.voci) + somma(sc.b.voci), 3400);
+    case 'grafico': return leggi(lunghezza(sc.titolo) + lunghezza(sc.nota), 4200);
+    case 'esempio': return leggi(lunghezza(sc.testo), 2000);
+    case 'quiz': { const d = durataQuiz(sc); return d.domanda + d.risposta; }
+    case 'chiusura': return leggi(lunghezza(sc.azione), 4000);
+    default: return 5000;
+  }
+}
+
+function annoLeggibile(anno) {
+  if (anno < 0) return `${-anno} a.C.`;
+  if (anno < 1000) return `${anno} d.C.`;
+  return String(anno);
+}
+
+function testoVoce(sc) {
+  const p = (...parti) => parti.filter(Boolean).map(senzaSegni).join('. ');
+  switch (sc.tipo) {
+    case 'apertura': case 'principio': return p(sc.testo);
+    case 'testo': return p(sc.titolo, sc.testo);
+    case 'elenco': return p(sc.titolo, ...sc.voci);
+    case 'numero': return p(`${sc.prefisso || ''}${formatta(sc.valore, sc.decimali || 0)}${sc.suffisso || ''}`, sc.didascalia);
+    case 'confronto': return p(sc.titolo, sc.a.etichetta, ...sc.a.voci, sc.b.etichetta, ...sc.b.voci);
+    case 'grafico': return p(sc.titolo, sc.nota);
+    case 'esempio': return p('Esempio', sc.testo);
+    case 'quiz': return p(sc.domanda, ...sc.opzioni);
+    case 'chiusura': return p('Da provare oggi', sc.azione);
+    default: return '';
+  }
+}
+
+function svgGrafico(sc) {
+  const sx = 8, dx = 92, base = 58, cima = 15;
+  const dati = sc.dati;
+  const max = Math.max(...dati.map((d) => d.v)) || 1;
+  const y = (v) => base - (v / max) * (base - cima);
+  const u = sc.unita || '';
+  const valore = (v) => compatta(v) + (u ? (/^[%×x°]$/.test(u) ? u : ' ' + u) : '');
+  const n = dati.length;
+  let corpo = `<line class="g-base" x1="${sx - 3}" y1="${base}" x2="${dx + 3}" y2="${base}"/>`;
+
+  if (sc.forma === 'barre') {
+    const banda = (dx - sx) / n;
+    const larg = Math.min(banda * 0.62, 17);
+    const top = Math.max(...dati.map((d) => d.v));
+    const entro = (base, testi) => Math.min(base, (banda * 0.94) / (Math.max(...testi.map((t) => t.length)) * 0.6)).toFixed(2);
+    const cAsse = entro(3.5, dati.map((d) => d.e));
+    const cVal = entro(4.2, dati.map((d) => valore(d.v)));
+    dati.forEach((d, i) => {
+      const cx = sx + banda * (i + 0.5);
+      const alto = Math.max(base - y(d.v), 0.8);
+      corpo += `<rect class="g-barra${d.v === top ? ' g-barra--max' : ''}" style="--d:${350 + i * 260}ms" x="${(cx - larg / 2).toFixed(2)}" y="${(base - alto).toFixed(2)}" width="${larg.toFixed(2)}" height="${alto.toFixed(2)}" rx="0.8"/>`;
+      corpo += `<text class="g-val" style="--d:${800 + i * 260}ms;font-size:${cVal}px" x="${cx.toFixed(2)}" y="${(base - alto - 3).toFixed(2)}" text-anchor="middle">${esc(valore(d.v))}</text>`;
+      corpo += `<text class="g-asse" style="font-size:${cAsse}px" x="${cx.toFixed(2)}" y="${base + 7.5}" text-anchor="middle">${esc(tipografia(d.e))}</text>`;
+    });
+  } else {
+    const x = (i) => sx + (i * (dx - sx)) / (n - 1);
+    const punti = dati.map((d, i) => `${x(i).toFixed(2)} ${y(d.v).toFixed(2)}`);
+    corpo += `<path class="g-area" d="M${punti.join(' L')} L${dx} ${base} L${sx} ${base} Z"/>`;
+    corpo += `<path class="g-linea" pathLength="1" d="M${punti.join(' L')}"/>`;
+    dati.forEach((d, i) => {
+      const ancora = i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle';
+      const mostra = n <= 4 || i === 0 || i === n - 1 || (n % 2 === 1 && i === (n - 1) / 2);
+      corpo += `<circle class="g-punto${i === n - 1 ? ' g-punto--fine' : ''}" style="--d:${500 + (i / (n - 1)) * 1500}ms" cx="${x(i).toFixed(2)}" cy="${y(d.v).toFixed(2)}" r="${i === n - 1 ? 2.1 : 1.1}"/>`;
+      if (mostra) corpo += `<text class="g-asse" x="${x(i).toFixed(2)}" y="${base + 7.5}" text-anchor="${ancora}">${esc(tipografia(d.e))}</text>`;
+    });
+    const primo = dati[0], ultimo = dati[n - 1];
+    if (primo.v !== ultimo.v) corpo += `<text class="g-val" style="--d:500ms" x="${sx}" y="${(y(primo.v) - 4).toFixed(2)}" text-anchor="start">${esc(valore(primo.v))}</text>`;
+    corpo += `<text class="g-val g-val--fine" style="--d:2000ms" x="${dx}" y="${(y(ultimo.v) - 5).toFixed(2)}" text-anchor="end">${esc(valore(ultimo.v))}</text>`;
+  }
+  const descr = dati.map((d) => `${d.e}: ${valore(d.v)}`).join(', ');
+  return `<svg viewBox="0 0 100 70" role="img" aria-label="${esc(sc.titolo + '. ' + descr)}">${corpo}</svg>`;
+}
+
+const entra = (ms) => `class="entra" style="--d:${ms}ms"`;
+
+function htmlScena(sc, video) {
+  const cat = CAT[video.categoria];
+  switch (sc.tipo) {
+    case 'apertura':
+      return `<p class="etichetta entra" style="--d:0ms">${esc(cat.nome)}</p>
+        <h2 class="gancio">${htmlParole(sc.testo, 75, 180)}</h2>`;
+    case 'testo':
+      return `${sc.titolo ? `<h3 class="titolo entra" style="--d:0ms">${esc(tipografia(sc.titolo))}</h3>` : ''}
+        <p class="paragrafo entra" style="--d:${sc.titolo ? 320 : 0}ms">${htmlTesto(sc.testo)}</p>`;
+    case 'principio':
+      return `<p class="etichetta entra" style="--d:0ms">L’idea in una frase</p>
+        <p class="massima">${htmlParole(sc.testo, 95, 250)}</p>`;
+    case 'elenco': {
+      let attesa = 550;
+      const voci = sc.voci.map((v, i) => {
+        const li = `<li ${entra(attesa)}><span class="segno">${sc.numerato ? String(i + 1) : ''}</span><span>${htmlTesto(v)}</span></li>`;
+        attesa += 650 + lunghezza(v) * 22;
+        return li;
+      }).join('');
+      return `<h3 class="titolo entra" style="--d:0ms">${esc(tipografia(sc.titolo))}</h3>
+        <ol class="voci${sc.numerato ? ' voci--numerate' : ''}">${voci}</ol>`;
+    }
+    case 'numero':
+      return `<p class="cifra entra" style="--d:0ms">${sc.prefisso ? `<span class="cifra-lato">${esc(sc.prefisso)}</span>` : ''}<span class="cifra-val" data-v="${sc.valore}" data-dec="${sc.decimali || 0}">${formatta(sc.valore, sc.decimali || 0)}</span>${sc.suffisso ? `<span class="cifra-lato">${esc(sc.suffisso)}</span>` : ''}</p>
+        <p class="paragrafo entra" style="--d:700ms">${htmlTesto(sc.didascalia)}</p>
+        ${sc.nota ? `<p class="nota entra" style="--d:1300ms">${esc(tipografia(sc.nota))}</p>` : ''}`;
+    case 'confronto': {
+      const lato = (x, quale, ms) => `<div class="lato lato--${quale} entra" style="--d:${ms}ms">
+          <p class="etichetta">${esc(tipografia(x.etichetta))}</p>
+          <ul>${x.voci.map((v) => `<li>${htmlTesto(v)}</li>`).join('')}</ul>
+        </div>`;
+      const dopo = 1100 + somma(sc.a.voci) * 22;
+      return `${sc.titolo ? `<h3 class="titolo entra" style="--d:0ms">${esc(tipografia(sc.titolo))}</h3>` : ''}
+        <div class="lati">${lato(sc.a, 'a', 350)}${lato(sc.b, 'b', dopo)}</div>`;
+    }
+    case 'grafico':
+      return `<h3 class="titolo titolo--piccolo entra" style="--d:0ms">${esc(tipografia(sc.titolo))}</h3>
+        <div class="grafico entra" style="--d:250ms">${svgGrafico(sc)}</div>
+        ${sc.nota ? `<p class="nota entra" style="--d:2300ms">${esc(tipografia(sc.nota))}</p>` : ''}`;
+    case 'esempio':
+      return `<div class="scheda entra" style="--d:0ms">
+          <p class="etichetta">Esempio</p>
+          <p class="paragrafo">${htmlTesto(sc.testo)}</p>
+        </div>`;
+    case 'quiz':
+      return `<p class="etichetta entra" style="--d:0ms">Prova tu</p>
+        <h3 class="domanda entra" style="--d:150ms">${esc(tipografia(sc.domanda))}</h3>
+        <div class="opzioni">${sc.opzioni.map((o, i) => `<button type="button" class="opzione entra" style="--d:${700 + i * 220}ms" data-i="${i}"><span class="lettera">${'ABC'[i]}</span><span>${esc(tipografia(o))}</span></button>`).join('')}</div>
+        <p class="spiegazione">${esc(tipografia(sc.spiegazione))}</p>`;
+    case 'chiusura': {
+      const l = video.libro;
+      return `<p class="etichetta entra" style="--d:0ms">Da provare oggi</p>
+        <p class="azione">${htmlParole(sc.azione, 70, 200)}</p>
+        <div class="colofone entra" style="--d:1600ms">
+          <p class="colofone-da">Dal libro</p>
+          <p class="colofone-libro">${esc(tipografia(l.titolo))}</p>
+          <p class="colofone-autore">${esc(l.autore)} · ${annoLeggibile(l.anno)}</p>
+        </div>`;
+    }
+    default: return '';
+  }
+}
+
+function creaScena(sc, video, i) {
+  const s = crea('div', `scena scena--${sc.tipo}`, `<div class="corpo">${htmlScena(sc, video)}</div>`);
+  s.dataset.i = i;
+  return s;
+}
+
+// Tre forme geometriche per video: restano le stesse e a ogni scena scivolano in una nuova posizione.
+const FORME = ['cerchio', 'anello', 'righe', 'punti', 'mezzo', 'quadro'];
+const ZONE = [[88, 14], [104, 48], [2, 86], [-4, 22], [96, 92], [40, 104], [60, -4]];
+
+function formeVideo(video) {
+  const rnd = casuale(seme(video.id));
+  return mescola(FORME, rnd).slice(0, 3);
+}
+function disposizione(video, indice) {
+  const rnd = casuale(seme(video.id + '#' + indice));
+  return mescola(ZONE, rnd).slice(0, 3).map(([x, y]) => {
+    const px = x + (rnd() - 0.5) * 14;
+    const py = y + (rnd() - 0.5) * 10;
+    const scala = 0.7 + rnd() * 0.75;
+    const giro = Math.round((rnd() - 0.5) * 8) * 15;
+    return `translate(${px.toFixed(1)}cqw, ${py.toFixed(1)}cqh) rotate(${giro}deg) scale(${scala.toFixed(2)})`;
+  });
+}
+
+// Riduce il testo finché la scena entra nello spazio disponibile.
+function adatta(scena) {
+  const corpo = scena.firstElementChild;
+  if (!corpo) return;
+  const stile = getComputedStyle(scena);
+  const spazio = scena.clientHeight - parseFloat(stile.paddingTop) - parseFloat(stile.paddingBottom);
+  if (spazio <= 0) return;
+  let s = 1;
+  scena.style.setProperty('--s', 1);
+  for (let giro = 0; giro < 7; giro++) {
+    const alto = corpo.scrollHeight;
+    if (alto <= spazio + 1) break;
+    s = Math.max(0.55, s * Math.max(0.8, Math.min(0.96, spazio / alto)));
+    scena.style.setProperty('--s', s.toFixed(3));
+    if (s <= 0.55) break;
+  }
+}
+
+// ---- 03-riproduttore.js
+// Voce del dispositivo (facoltativa) e riproduttore che fa scorrere le scene di un video.
+
+const voce = {
+  ok: typeof speechSynthesis !== 'undefined' && typeof SpeechSynthesisUtterance !== 'undefined',
+  attiva: false,
+  _scelta: null,
+  _corrente: null,
+  _finita: true,
+  _scegli() {
+    const italiane = speechSynthesis.getVoices().filter((v) => /^it([-_]|$)/i.test(v.lang));
+    const punti = (v) => (/natural|premium|enhanced|neural|siri/i.test(v.name) ? 4 : 0) + (/google/i.test(v.name) ? 2 : 0) + (/it[-_]IT/i.test(v.lang) ? 1 : 0);
+    this._scelta = italiane.sort((a, b) => punti(b) - punti(a))[0] || null;
+  },
+  // Vero se il dispositivo ha caricato le voci ma nessuna è italiana.
+  senzaItaliano() {
+    if (!this.ok) return true;
+    const tutte = speechSynthesis.getVoices();
+    return tutte.length > 0 && !tutte.some((v) => /^it([-_]|$)/i.test(v.lang));
+  },
+  di(testo) {
+    if (!this.ok || !this.attiva || !testo) return;
+    try {
+      speechSynthesis.cancel();
+      if (!this._scelta) this._scegli();
+      const u = new SpeechSynthesisUtterance(testo);
+      u.lang = 'it-IT';
+      if (this._scelta) u.voice = this._scelta;
+      u.rate = 1.05;
+      this._corrente = u;
+      this._finita = false;
+      let partita = false;
+      u.onstart = () => { partita = true; };
+      u.onend = u.onerror = () => { if (this._corrente === u) this._finita = true; };
+      speechSynthesis.speak(u);
+      // Se dopo due secondi non ha iniziato a parlare, il video non resta ad aspettarla.
+      setTimeout(() => { if (!partita && this._corrente === u) this._finita = true; }, 2000);
+    } catch (e) { this._finita = true; }
+  },
+  staParlando() { return this.ok && this.attiva && !this._finita; },
+  zitta() {
+    this._corrente = null;
+    this._finita = true;
+    if (this.ok) { try { speechSynthesis.cancel(); } catch (e) { /* niente */ } }
+  },
+  ferma(si) {
+    if (!this.ok || !this.attiva) return;
+    try { si ? speechSynthesis.pause() : speechSynthesis.resume(); } catch (e) { /* niente */ }
+  },
+};
+
+class Riproduttore {
+  constructor(clip, video, alTermine) {
+    this.clip = clip;
+    this.video = video;
+    this.alTermine = alTermine;
+    this.palco = $('.palco', clip);
+    this.scatola = $('.scene', clip);
+    this.barra = $('.avanzamento', clip);
+    this.forme = $$('.f', clip);
+    this.passo = this.passo.bind(this);
+  }
+
+  monta() {
+    const scene = this.video.scene;
+    this.durate = scene.map(durataScena);
+    this.nodi = [$('.scena', this.scatola)];
+    for (let i = 1; i < scene.length; i++) {
+      const nodo = creaScena(scene[i], this.video, i);
+      this.scatola.append(nodo);
+      this.nodi.push(nodo);
+    }
+    this.riadatta();
+    this.barra.innerHTML = this.durate.map((d) => `<i style="flex-grow:${Math.round(d / 100)}"><b></b></i>`).join('');
+    this.segmenti = $$('b', this.barra);
+    this.i = -1;
+    this.t = 0;
+    this.primoGiro = true;
+    this.finito = false;
+    this.inPausa = false;
+    this.attivo = true;
+    this.palco.classList.remove('in-pausa');
+    this.vai(0);
+    this.ultimo = performance.now();
+    this.raf = requestAnimationFrame(this.passo);
+  }
+
+  smonta() {
+    this.attivo = false;
+    cancelAnimationFrame(this.raf);
+    voce.zitta();
+    this.nodi.slice(1).forEach((n) => n.remove());
+    const primo = this.nodi[0];
+    primo.classList.remove('on', 'esce');
+    primo.classList.add('fermo');
+    disposizione(this.video, 0).forEach((tr, k) => { this.forme[k].style.transform = tr; });
+    this.barra.innerHTML = '';
+    this.palco.classList.remove('in-pausa');
+  }
+
+  riadatta() { this.nodi.forEach(adatta); }
+
+  passo(ora) {
+    if (!this.attivo) return;
+    const dt = Math.min(ora - this.ultimo, 100);
+    this.ultimo = ora;
+    if (!this.inPausa) { this.t += dt; this.aggiorna(); }
+    this.raf = requestAnimationFrame(this.passo);
+  }
+
+  aggiorna() {
+    const sc = this.video.scene[this.i];
+    const d = this.durate[this.i];
+    if (sc.tipo === 'quiz' && !this.rivelato && this.t >= this.quiz.domanda) this.rivela(null);
+    if (this.contatore) {
+      const p = Math.max(0, Math.min(1, (this.t - 250) / 1500));
+      const morbido = 1 - Math.pow(1 - p, 3);
+      this.contatore.textContent = formatta(sc.valore * morbido, sc.decimali || 0);
+      if (p >= 1) this.contatore = null;
+    }
+    this.segmenti[this.i].style.transform = `scaleX(${Math.min(1, this.t / d)})`;
+    if (this.t >= d) {
+      if (voce.staParlando() && this.t < d + 9000) return; // aspetta che la voce finisca la frase
+      this.vai(this.i + 1);
+    }
+  }
+
+  vai(i) {
+    if (i >= this.nodi.length) {
+      if (!this.finito) { this.finito = true; this.alTermine?.(this.video); }
+      i = 0;
+      this.primoGiro = false;
+    }
+    if (i < 0) i = 0;
+    const prima = this.nodi[this.i];
+    const nodo = this.nodi[i];
+    if (prima && prima !== nodo) {
+      prima.classList.remove('on', 'fermo');
+      prima.classList.add('esce');
+      setTimeout(() => prima.classList.remove('esce'), 320);
+    }
+    this.i = i;
+    this.t = 0;
+    const sc = this.video.scene[i];
+
+    nodo.classList.remove('esce', 'on', 'rivelata');
+    $$('.opzione', nodo).forEach((o) => { o.classList.remove('giusta', 'sbagliata'); o.disabled = false; });
+    void nodo.offsetWidth; // fa ripartire le animazioni
+    nodo.classList.toggle('fermo', i === 0 && this.primoGiro);
+    nodo.classList.add('on');
+
+    this.rivelato = false;
+    this.quiz = sc.tipo === 'quiz' ? durataQuiz(sc) : null;
+    this.contatore = sc.tipo === 'numero' ? $('.cifra-val', nodo) : null;
+    if (this.contatore) this.contatore.textContent = formatta(0, sc.decimali || 0);
+
+    this.segmenti.forEach((s, k) => { s.style.transform = `scaleX(${k < i ? 1 : 0})`; });
+    disposizione(this.video, i).forEach((tr, k) => { this.forme[k].style.transform = tr; });
+    voce.di(testoVoce(sc));
+  }
+
+  rivela(scelta) {
+    const sc = this.video.scene[this.i];
+    if (sc.tipo !== 'quiz' || this.rivelato) return;
+    this.rivelato = true;
+    const nodo = this.nodi[this.i];
+    $$('.opzione', nodo).forEach((o, k) => {
+      o.disabled = true;
+      if (k === sc.corretta) o.classList.add('giusta');
+      else if (k === scelta) o.classList.add('sbagliata');
+    });
+    nodo.classList.add('rivelata');
+    this.t = this.quiz.domanda;
+    voce.di(`${senzaSegni(sc.opzioni[sc.corretta])}. ${sc.spiegazione}`);
+  }
+
+  pausa(si = !this.inPausa) {
+    this.inPausa = si;
+    this.palco.classList.toggle('in-pausa', si);
+    voce.ferma(si);
+  }
+
+  salta(passi) {
+    this.vai(Math.max(0, Math.min(this.nodi.length - 1, this.i + passi)));
+  }
+}
+
+// ---- 04-feed.js
+// Il feed verticale: una clip per video, quella al centro dello schermo viene riprodotta.
+
+const app = $('#app');
+const feed = $('#feed');
+const stato = { filtro: { tipo: 'tutti' }, lista: [], attivo: null };
+let osservaVicini = null;
+let osservaAttivo = null;
+
+function alterna(lista) {
+  const resto = lista.slice();
+  const esito = [];
+  while (resto.length) {
+    const ultimo = esito[esito.length - 1];
+    let k = ultimo ? resto.findIndex((v) => v.categoria !== ultimo.categoria && v.libro.titolo !== ultimo.libro.titolo) : 0;
+    if (k < 0) k = 0;
+    esito.push(resto.splice(k, 1)[0]);
+  }
+  return esito;
+}
+
+// «Per te»: prima le idee non ancora viste, con un po' più di spazio alle categorie che ti piacciono.
+function ordinePerTe() {
+  const rnd = casuale((seme(oggi()) ^ Math.floor(Math.random() * 2 ** 31)) >>> 0);
+  const gusti = {};
+  for (const id of Object.keys(memoria.piaciuti)) {
+    const v = PER_ID.get(id);
+    if (v) gusti[v.categoria] = (gusti[v.categoria] || 0) + 1;
+  }
+  const peso = (v) => rnd() - 0.12 * Math.min(gusti[v.categoria] || 0, 3);
+  const ordina = (lista) => alterna(lista.map((v) => [peso(v), v]).sort((a, b) => a[0] - b[0]).map((x) => x[1]));
+  return [...ordina(VIDEO.filter((v) => !memoria.visti[v.id])), ...ordina(VIDEO.filter((v) => memoria.visti[v.id]))];
+}
+
+function listaPerFiltro() {
+  const f = stato.filtro;
+  if (f.tipo === 'categoria') {
+    const suoi = VIDEO.filter((v) => v.categoria === f.valore);
+    return [...suoi.filter((v) => !memoria.visti[v.id]), ...suoi.filter((v) => memoria.visti[v.id])];
+  }
+  if (f.tipo === 'libro') return VIDEO.filter((v) => v.libro.titolo === f.valore);
+  if (f.tipo === 'salvati') {
+    return Object.entries(memoria.salvati).sort((a, b) => b[1] - a[1]).map(([id]) => PER_ID.get(id)).filter(Boolean);
+  }
+  return ordinePerTe();
+}
+
+function etichettaFiltro() {
+  const f = stato.filtro;
+  if (f.tipo === 'categoria') return CAT[f.valore].nome;
+  if (f.tipo === 'libro') return f.valore;
+  if (f.tipo === 'salvati') return 'Salvati';
+  return 'Per te';
+}
+
+function coloriClip(nodo, cat) {
+  nodo.style.setProperty('--bg', cat.bg);
+  nodo.style.setProperty('--ink', cat.ink);
+  nodo.style.setProperty('--acc', cat.accento);
+  nodo.style.setProperty('--su', cat.suAccento);
+}
+
+function creaClip(video) {
+  const clip = crea('section', 'clip');
+  clip.dataset.id = video.id;
+  coloriClip(clip, CAT[video.categoria]);
+  clip.innerHTML = '<div class="palco"></div>';
+  return clip;
+}
+
+function idrata(clip) {
+  if (clip.dataset.pronta) return;
+  const video = PER_ID.get(clip.dataset.id);
+  if (!video) return;
+  clip.dataset.pronta = '1';
+  const palco = $('.palco', clip);
+  const forme = formeVideo(video);
+  const posa = disposizione(video, 0);
+  const l = video.libro;
+  const bottone = (classe, icona, nome, premuto) =>
+    `<button type="button" class="az az--${classe}" ${premuto === undefined ? '' : `aria-pressed="${premuto}"`} aria-label="${nome}">${icona}<span>${nome}</span></button>`;
+  palco.innerHTML = `
+    <div class="forme" aria-hidden="true">${forme.map((f, k) => `<i class="f f--${f}" style="transform:${posa[k]}"></i>`).join('')}</div>
+    <div class="scene"></div>
+    <div class="pausa" aria-hidden="true">${ICONE.play}</div>
+    <div class="piede">
+      <div class="didascalia">
+        <p class="did-titolo">${esc(tipografia(video.titolo))}</p>
+        <p class="did-libro"><i>${esc(tipografia(l.titolo))}</i> · ${esc(l.autore)}</p>
+      </div>
+      <div class="avanzamento" aria-hidden="true"></div>
+    </div>
+    <div class="azioni">
+      ${bottone('piace', ICONE.cuore, 'Mi piace', !!memoria.piaciuti[video.id])}
+      ${bottone('salva', ICONE.segnalibro, 'Salva', !!memoria.salvati[video.id])}
+      ${bottone('condividi', ICONE.condividi, 'Invia')}
+      ${voce.ok ? bottone('voce', ICONE.muto, 'Voce', voce.attiva) : ''}
+    </div>`;
+  const primo = creaScena(video.scene[0], video, 0);
+  primo.classList.add('fermo');
+  $('.scene', palco).append(primo);
+  adatta(primo);
+  if (voce.attiva) aggiornaVoce(clip);
+}
+
+function creaClipFinale() {
+  const clip = crea('section', 'clip clip--fine');
+  const f = stato.filtro;
+  const vuoto = !stato.lista.length;
+  let titolo = 'Per ora è tutto.';
+  let testo = 'Hai scorso tutte le idee di questa raccolta. Le ritrovi quando vuoi, oppure cambia argomento.';
+  if (vuoto && f.tipo === 'salvati') {
+    titolo = 'Ancora nessuna idea salvata.';
+    testo = 'Tocca il segnalibro accanto a un video per ritrovarlo qui.';
+  }
+  clip.innerHTML = `<div class="palco"><div class="fine">
+      <p class="etichetta">${esc(etichettaFiltro())}</p>
+      <h2 class="titolo">${titolo}</h2>
+      <p class="paragrafo">${testo}</p>
+      <div class="fine-azioni">
+        ${vuoto ? '' : '<button type="button" class="tasto" data-fa="inizio">Torna all’inizio</button>'}
+        ${f.tipo === 'tutti' ? '' : '<button type="button" class="tasto" data-fa="per-te">Vai a Per te</button>'}
+        <button type="button" class="tasto tasto--pieno" data-fa="esplora">Esplora i libri</button>
+      </div>
+    </div></div>`;
+  return clip;
+}
+
+function costruisciFeed(idIniziale) {
+  disattiva();
+  osservaVicini?.disconnect();
+  osservaAttivo?.disconnect();
+  let lista = listaPerFiltro();
+  if (idIniziale && PER_ID.has(idIniziale)) {
+    const scelto = PER_ID.get(idIniziale);
+    lista = [scelto, ...lista.filter((v) => v !== scelto)];
+  }
+  stato.lista = lista;
+  feed.innerHTML = '';
+  const pezzi = document.createDocumentFragment();
+  lista.forEach((v) => pezzi.append(creaClip(v)));
+  pezzi.append(creaClipFinale());
+  feed.append(pezzi);
+  feed.scrollTop = 0;
+
+  osservaVicini = new IntersectionObserver((voci) => {
+    voci.forEach((v) => { if (v.isIntersecting) idrata(v.target); });
+  }, { root: feed, rootMargin: '160% 0px' });
+  osservaAttivo = new IntersectionObserver((voci) => {
+    voci.forEach((v) => { if (v.isIntersecting && v.intersectionRatio >= 0.6) attiva(v.target); });
+  }, { root: feed, threshold: [0.6] });
+  $$('.clip', feed).forEach((c) => { osservaVicini.observe(c); osservaAttivo.observe(c); });
+
+  $('#filtro-nome').textContent = etichettaFiltro();
+  const prima = feed.firstElementChild;
+  idrata(prima);
+  attiva(prima);
+}
+
+function disattiva() {
+  const a = stato.attivo;
+  if (!a) return;
+  a.riproduttore?.smonta();
+  a.clip.classList.remove('clip--attiva');
+  stato.attivo = null;
+}
+
+function attiva(clip) {
+  if (stato.attivo?.clip === clip) return;
+  disattiva();
+  const video = PER_ID.get(clip.dataset.id);
+  clip.classList.add('clip--attiva');
+  const cat = video ? CAT[video.categoria] : null;
+  if (cat) coloriClip(app, cat);
+  else ['--bg', '--ink', '--acc', '--su'].forEach((p) => app.style.removeProperty(p));
+  stato.attivo = { clip, video, riproduttore: null };
+  if (!video) return;
+  idrata(clip);
+  const r = new Riproduttore(clip, video, (v) => { segnaVisto(v.id); aggiornaCromo(); });
+  stato.attivo.riproduttore = r;
+  r.monta();
+  if (pannelloAperto()) r.pausa(true);
+  try { history.replaceState(null, '', '#' + video.id); } catch (e) { /* niente */ }
+}
+
+function vaiAClip(passi) {
+  const clip = stato.attivo?.clip;
+  const meta = passi > 0 ? clip?.nextElementSibling : clip?.previousElementSibling;
+  if (meta) meta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function aggiornaCromo() {
+  $('#oggi-numero').textContent = vistiOggi();
+}
+
+function aggiornaVoce(radice = feed) {
+  $$('.az--voce', radice).forEach((b) => {
+    b.setAttribute('aria-pressed', voce.attiva);
+    b.firstElementChild.outerHTML = voce.attiva ? ICONE.voce : ICONE.muto;
+  });
+}
+
+let avvisoTimer = 0;
+function avviso(testo, durata = 2600) {
+  const a = $('#avviso');
+  a.textContent = testo;
+  a.classList.add('visibile');
+  clearTimeout(avvisoTimer);
+  avvisoTimer = setTimeout(() => a.classList.remove('visibile'), durata);
+}
+
+function alternaSegno(video, quale, forza) {
+  const registro = memoria[quale];
+  const nuovo = forza ?? !registro[video.id];
+  if (nuovo) registro[video.id] = Date.now(); else delete registro[video.id];
+  ricorda();
+  const classe = quale === 'piaciuti' ? 'piace' : 'salva';
+  $$(`.clip[data-id="${video.id}"] .az--${classe}`, feed).forEach((b) => {
+    b.setAttribute('aria-pressed', nuovo);
+    if (nuovo) { b.classList.remove('scatto'); void b.offsetWidth; b.classList.add('scatto'); }
+  });
+  return nuovo;
+}
+
+async function condividi(video) {
+  const testo = `«${video.titolo}»: un’idea da ${video.libro.titolo} di ${video.libro.autore}.`;
+  const inCornice = window.self !== window.top;
+  const url = !inCornice && /^https?:$/.test(location.protocol) ? `${location.origin}${location.pathname}#${video.id}` : '';
+  if (!inCornice && navigator.share) {
+    try { await navigator.share({ title: 'Colto', text: testo, ...(url ? { url } : {}) }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  try {
+    await navigator.clipboard.writeText(url ? `${testo}\n${url}` : testo);
+    avviso('Copiato: incollalo dove vuoi');
+  } catch (e) {
+    avviso(testo, 7000);
+  }
+}
+
+function cuoreVolante(palco, x, y) {
+  const c = crea('div', 'cuore-volante', ICONE.cuore);
+  const r = palco.getBoundingClientRect();
+  c.style.left = `${x - r.left}px`;
+  c.style.top = `${y - r.top}px`;
+  palco.append(c);
+  setTimeout(() => c.remove(), 900);
+}
+
+let tocco = { t: 0, timer: 0 };
+feed.addEventListener('click', (ev) => {
+  const clip = ev.target.closest('.clip');
+  if (!clip) return;
+  const fa = ev.target.closest('[data-fa]')?.dataset.fa;
+  if (fa === 'inizio') return feed.scrollTo({ top: 0, behavior: 'smooth' });
+  if (fa === 'per-te') return impostaFiltro({ tipo: 'tutti' });
+  if (fa === 'esplora') return apriPannello('esplora');
+
+  const video = PER_ID.get(clip.dataset.id);
+  if (!video) return;
+  const az = ev.target.closest('.az');
+  if (az) {
+    if (az.classList.contains('az--piace')) alternaSegno(video, 'piaciuti');
+    else if (az.classList.contains('az--salva')) avviso(alternaSegno(video, 'salvati') ? 'Salvato: lo trovi in Esplora › Salvati' : 'Tolto dai salvati');
+    else if (az.classList.contains('az--condividi')) condividi(video);
+    else if (az.classList.contains('az--voce')) {
+      if (!voce.attiva && voce.senzaItaliano()) return avviso('Su questo dispositivo non c’è una voce italiana.', 3600);
+      voce.attiva = !voce.attiva;
+      aggiornaVoce();
+      const r = stato.attivo?.riproduttore;
+      if (voce.attiva && r) voce.di(testoVoce(r.video.scene[r.i]));
+      else voce.zitta();
+      avviso(voce.attiva ? 'Voce accesa' : 'Voce spenta', 1400);
+    }
+    return;
+  }
+  const attivo = stato.attivo?.clip === clip ? stato.attivo.riproduttore : null;
+  const opzione = ev.target.closest('.opzione');
+  if (opzione) { attivo?.rivela(Number(opzione.dataset.i)); return; }
+  if (ev.target.closest('button, a, input')) return;
+
+  // Un tocco ferma o riprende, due tocchi vicini mettono «mi piace».
+  const ora = performance.now();
+  if (ora - tocco.t < 300) {
+    clearTimeout(tocco.timer);
+    tocco.t = 0;
+    alternaSegno(video, 'piaciuti', true);
+    cuoreVolante($('.palco', clip), ev.clientX, ev.clientY);
+  } else {
+    tocco.t = ora;
+    tocco.timer = setTimeout(() => attivo?.pausa(), 300);
+  }
+});
+
+function impostaFiltro(filtro, idIniziale) {
+  stato.filtro = filtro;
+  chiudiPannello();
+  costruisciFeed(idIniziale);
+}
+
+// ---- 05-pannelli.js
+// Pannelli a comparsa: «Esplora» (categorie, libri, ricerca) e «Il tuo percorso».
+
+let pannello = null;
+let fermoPrima = false; // il video era già in pausa quando si è aperto il pannello
+const pannelloAperto = () => !!pannello;
+const corpoPannello = $('#pannello-corpo');
+
+const piatto = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const idee = (n) => (n === 1 ? '1 idea' : `${n} idee`);
+
+const LIBRI = (() => {
+  const mappa = new Map();
+  for (const v of VIDEO) {
+    const k = v.libro.titolo;
+    if (!mappa.has(k)) mappa.set(k, { titolo: k, autore: v.libro.autore, cerca: piatto(`${k} ${v.libro.autore} ${v.libro.titoloOriginale || ''}`), n: 0 });
+    mappa.get(k).n++;
+  }
+  return [...mappa.values()].sort((a, b) => a.titolo.localeCompare(b.titolo, 'it'));
+})();
+
+function apriPannello(quale) {
+  if (!pannello) fermoPrima = !!stato.attivo?.riproduttore?.inPausa;
+  pannello = quale;
+  app.classList.add('con-pannello');
+  stato.attivo?.riproduttore?.pausa(true);
+  if (quale === 'esplora') disegnaEsplora(); else disegnaPercorso();
+  corpoPannello.scrollTop = 0;
+  $('#pannello-chiudi').focus({ preventScroll: true });
+}
+
+function chiudiPannello() {
+  if (!pannello) return;
+  pannello = null;
+  app.classList.remove('con-pannello');
+  if (!fermoPrima) stato.attivo?.riproduttore?.pausa(false);
+  fermoPrima = false;
+}
+
+const rigaLibro = (l) => `<li><button type="button" class="libro" data-libro="${esc(l.titolo)}"><b>${esc(tipografia(l.titolo))}</b><span>${esc(l.autore)}</span><em>${idee(l.n)}</em></button></li>`;
+
+function disegnaEsiti(domanda) {
+  const q = piatto(domanda.trim());
+  const esiti = $('#esiti');
+  if (!q) {
+    const conta = {};
+    VIDEO.forEach((v) => { conta[v.categoria] = (conta[v.categoria] || 0) + 1; });
+    const salvati = Object.keys(memoria.salvati).filter((id) => PER_ID.has(id)).length;
+    esiti.innerHTML = `
+      <div class="raccolte">
+        <button type="button" class="raccolta" data-raccolta="tutti"><b>Per te</b><span>${idee(VIDEO.length)}, prima le nuove</span></button>
+        <button type="button" class="raccolta" data-raccolta="salvati"><b>Salvati</b><span>${salvati ? idee(salvati) : 'Ancora niente'}</span></button>
+      </div>
+      <h3 class="sezione">Categorie</h3>
+      <div class="categorie">${CATEGORIE.filter((c) => conta[c.id]).map((c) =>
+        `<button type="button" class="categoria" data-cat="${c.id}" style="--bg:${c.bg};--ink:${c.ink}"><b>${esc(c.nome)}</b><span>${idee(conta[c.id])}</span></button>`).join('')}</div>
+      <h3 class="sezione"><span>Libri</span><span>${LIBRI.length}</span></h3>
+      <ul class="libri">${LIBRI.map(rigaLibro).join('')}</ul>`;
+    return;
+  }
+  const libri = LIBRI.filter((l) => l.cerca.includes(q));
+  const video = VIDEO.filter((v) => piatto(v.titolo).includes(q)).slice(0, 30);
+  if (!libri.length && !video.length) {
+    esiti.innerHTML = `<p class="vuoto">Nessun risultato per «${esc(domanda.trim())}». Prova con un autore o con il titolo originale.</p>`;
+    return;
+  }
+  esiti.innerHTML = `
+    ${libri.length ? `<h3 class="sezione"><span>Libri</span><span>${libri.length}</span></h3><ul class="libri">${libri.map(rigaLibro).join('')}</ul>` : ''}
+    ${video.length ? `<h3 class="sezione"><span>Idee</span><span>${video.length}</span></h3><ul class="libri">${video.map((v) =>
+      `<li><button type="button" class="libro" data-video="${v.id}"><b>${esc(tipografia(v.titolo))}</b><span>${esc(v.libro.titolo)} · ${esc(v.libro.autore)}</span></button></li>`).join('')}</ul>` : ''}`;
+}
+
+function disegnaEsplora() {
+  $('#pannello-titolo').textContent = 'Esplora';
+  corpoPannello.innerHTML = `
+    <label class="ricerca" for="cerca">${ICONE.cerca}<input id="cerca" type="search" autocomplete="off" enterkeyhint="search" placeholder="Cerca un libro, un autore, un’idea" aria-label="Cerca un libro, un autore, un’idea"></label>
+    <div id="esiti"></div>`;
+  $('#cerca').addEventListener('input', (ev) => disegnaEsiti(ev.target.value));
+  disegnaEsiti('');
+}
+
+function disegnaPercorso() {
+  $('#pannello-titolo').textContent = 'Il tuo percorso';
+  const visti = Object.keys(memoria.visti).filter((id) => PER_ID.has(id));
+  const libri = new Set(visti.map((id) => PER_ID.get(id).libro.titolo));
+  const fila = giorniDiFila();
+  const righe = CATEGORIE.map((c) => {
+    const suoi = VIDEO.filter((v) => v.categoria === c.id);
+    if (!suoi.length) return '';
+    const fatti = suoi.filter((v) => memoria.visti[v.id]).length;
+    return `<li><button type="button" class="progresso" data-cat="${c.id}">
+        <span class="pr-nome">${esc(c.nome)}</span><span class="pr-num">${fatti} di ${suoi.length}</span>
+        <span class="pr-barra"><i style="width:${(fatti / suoi.length) * 100}%"></i></span>
+      </button></li>`;
+  }).join('');
+  corpoPannello.innerHTML = `
+    <div class="cifre">
+      <div><b>${visti.length}</b><span>${visti.length === 1 ? 'idea vista' : 'idee viste'} su ${VIDEO.length}</span></div>
+      <div><b>${libri.size}</b><span>${libri.size === 1 ? 'libro toccato' : 'libri toccati'} su ${LIBRI.length}</span></div>
+      <div><b>${fila}</b><span>${fila === 1 ? 'giorno' : 'giorni'} di fila</span></div>
+    </div>
+    <h3 class="sezione">Per categoria</h3>
+    <ul class="progressi">${righe}</ul>
+    <p class="piccolo">Un’idea conta come vista quando il video arriva alla fine. I progressi restano su questo dispositivo.</p>
+    <button type="button" class="tasto tasto--solo" id="azzera">Azzera i progressi</button>`;
+}
+
+corpoPannello.addEventListener('click', (ev) => {
+  const b = ev.target.closest('button');
+  if (!b) return;
+  if (b.dataset.raccolta) return impostaFiltro({ tipo: b.dataset.raccolta });
+  if (b.dataset.cat) return impostaFiltro({ tipo: 'categoria', valore: b.dataset.cat });
+  if (b.dataset.libro) return impostaFiltro({ tipo: 'libro', valore: b.dataset.libro });
+  if (b.dataset.video) {
+    const v = PER_ID.get(b.dataset.video);
+    return impostaFiltro({ tipo: 'libro', valore: v.libro.titolo }, v.id);
+  }
+  if (b.id === 'azzera') {
+    if (b.dataset.sicuro) {
+      memoria.visti = {};
+      memoria.giorni = [];
+      ricorda();
+      aggiornaCromo();
+      disegnaPercorso();
+      avviso('Progressi azzerati');
+    } else {
+      b.dataset.sicuro = '1';
+      b.textContent = 'Tocca ancora per confermare';
+    }
+  }
+});
+
+// ---- 06-avvio.js
+// Collegamenti dell'interfaccia e partenza.
+
+$$('[data-icona]').forEach((e) => e.insertAdjacentHTML('beforeend', ICONE[e.dataset.icona]));
+
+$('#apri-esplora').addEventListener('click', () => apriPannello('esplora'));
+$('#apri-percorso').addEventListener('click', () => apriPannello('percorso'));
+$('#pannello-chiudi').addEventListener('click', chiudiPannello);
+$('#velo').addEventListener('click', chiudiPannello);
+$('#marchio').addEventListener('click', () => {
+  if (stato.filtro.tipo === 'tutti') feed.scrollTo({ top: 0, behavior: 'smooth' });
+  else impostaFiltro({ tipo: 'tutti' });
+});
+$('#freccia-su').addEventListener('click', () => vaiAClip(-1));
+$('#freccia-giu').addEventListener('click', () => vaiAClip(1));
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') return chiudiPannello();
+  if (ev.target.closest?.('input, textarea') || pannelloAperto() || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+  const a = stato.attivo;
+  const tasti = {
+    ArrowDown: () => vaiAClip(1), PageDown: () => vaiAClip(1), j: () => vaiAClip(1),
+    ArrowUp: () => vaiAClip(-1), PageUp: () => vaiAClip(-1), k: () => vaiAClip(-1),
+    ArrowRight: () => a?.riproduttore?.salta(1),
+    ArrowLeft: () => a?.riproduttore?.salta(-1),
+    ' ': () => { if (!ev.target.closest?.('button')) a?.riproduttore?.pausa(); else return false; },
+    l: () => a?.video && alternaSegno(a.video, 'piaciuti'),
+    s: () => a?.video && alternaSegno(a.video, 'salvati'),
+  };
+  const fa = tasti[ev.key];
+  if (fa && fa() !== false) ev.preventDefault();
+});
+
+// Quando cambia la misura dello schermo (o arrivano i caratteri) il testo va rimisurato.
+let misura = 0;
+function rimisura() {
+  $$('.clip[data-pronta] .scena.fermo', feed).forEach(adatta);
+  stato.attivo?.riproduttore?.riadatta();
+}
+window.addEventListener('resize', () => { clearTimeout(misura); misura = setTimeout(rimisura, 150); });
+document.fonts?.ready.then(rimisura);
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) voce.zitta(); });
+if (voce.ok) { try { speechSynthesis.addEventListener('voiceschanged', () => { voce._scelta = null; }); } catch (e) { /* niente */ } }
+
+window.addEventListener('hashchange', () => {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (PER_ID.has(id) && stato.attivo?.video?.id !== id) impostaFiltro({ tipo: 'tutti' }, id);
+});
+
+feed.addEventListener('scroll', () => {
+  if (!memoria.guida && feed.scrollTop > 40) { memoria.guida = 1; ricorda(); }
+}, { passive: true });
+
+costruisciFeed(decodeURIComponent(location.hash.slice(1)));
+aggiornaCromo();
+if (!memoria.guida) setTimeout(() => { if (!memoria.guida && !pannelloAperto()) avviso('Scorri in su per la prossima idea. Un tocco mette in pausa.', 5200); }, 3200);
+
+})();
+</script>
+</body>
+</html>

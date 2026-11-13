@@ -1,0 +1,16 @@
+[
+  { "id": "abitudini",     "nome": "Abitudini",                    "bg": "#17483A", "ink": "#F5EEDC", "accento": "#FFD23F", "suAccento": "#1B1A12" },
+  { "id": "produttivita",  "nome": "Focus e produttività",         "bg": "#EDE7D9", "ink": "#15171C", "accento": "#C93515", "suAccento": "#FFF7EE" },
+  { "id": "crescita",      "nome": "Crescita personale",           "bg": "#BF3A1F", "ink": "#FFF6EA", "accento": "#FFE066", "suAccento": "#231405" },
+  { "id": "mente",         "nome": "Psicologia e decisioni",       "bg": "#55267E", "ink": "#F6EEFF", "accento": "#FFB3C7", "suAccento": "#2A0F3D" },
+  { "id": "comunicazione", "nome": "Comunicazione e persuasione",  "bg": "#F3A6B4", "ink": "#2B0F1A", "accento": "#6B1D3A", "suAccento": "#FFE9EF" },
+  { "id": "finanza",       "nome": "Finanza personale",            "bg": "#F4C430", "ink": "#1A1712", "accento": "#0F5C4D", "suAccento": "#F4F1E4" },
+  { "id": "investimenti",  "nome": "Investimenti",                 "bg": "#0D3B45", "ink": "#E8F4F1", "accento": "#7CE3B5", "suAccento": "#06261F" },
+  { "id": "economia",      "nome": "Economia",                     "bg": "#7D1D2C", "ink": "#FFF1E6", "accento": "#FFC857", "suAccento": "#2B1200" },
+  { "id": "business",      "nome": "Business e startup",           "bg": "#1F4FD8", "ink": "#F4F7FF", "accento": "#FFE14D", "suAccento": "#151A2E" },
+  { "id": "leadership",    "nome": "Leadership e lavoro",          "bg": "#56652A", "ink": "#F7F5E6", "accento": "#F9E27D", "suAccento": "#232808" },
+  { "id": "filosofia",     "nome": "Filosofia e saggezza",         "bg": "#D6CFBF", "ink": "#1D1B18", "accento": "#A3301E", "suAccento": "#FFF3E8" },
+  { "id": "benessere",     "nome": "Benessere e felicità",         "bg": "#BFE3F5", "ink": "#0A2433", "accento": "#0B5C8A", "suAccento": "#EAF7FF" },
+  { "id": "storia",        "nome": "Storia e società",             "bg": "#5A3825", "ink": "#F8EAD8", "accento": "#F2A65A", "suAccento": "#2A160A" },
+  { "id": "scienza",       "nome": "Scienza e pensiero critico",   "bg": "#0B2545", "ink": "#EAF2FF", "accento": "#C7F464", "suAccento": "#10210A" }
+]

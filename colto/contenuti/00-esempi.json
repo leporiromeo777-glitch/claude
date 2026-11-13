@@ -1,0 +1,59 @@
+[
+  {
+    "id": "atomic-habits-uno-per-cento",
+    "categoria": "abitudini",
+    "titolo": "L'1% al giorno che cambia tutto",
+    "libro": { "titolo": "Atomic Habits", "autore": "James Clear", "anno": 2018 },
+    "scene": [
+      { "tipo": "apertura", "testo": "Migliorare dell'==1% al giorno== ti cambia più di quanto pensi." },
+      { "tipo": "testo", "titolo": "Il problema dei grandi obiettivi", "testo": "Pensiamo che i grandi risultati chiedano grandi mosse. James Clear sostiene il contrario: contano i piccoli gesti ripetuti, perché ==si sommano come gli interessi==." },
+      { "tipo": "grafico", "titolo": "1% meglio ogni giorno, per un anno", "forma": "linea", "unita": "×",
+        "dati": [ { "e": "Oggi", "v": 1 }, { "e": "3 mesi", "v": 2.45 }, { "e": "6 mesi", "v": 6 }, { "e": "9 mesi", "v": 14.68 }, { "e": "1 anno", "v": 37.78 } ],
+        "nota": "Calcolo: 1,01 moltiplicato per sé stesso 365 volte." },
+      { "tipo": "confronto", "titolo": "Obiettivi o sistemi?",
+        "a": { "etichetta": "Solo l'obiettivo", "voci": ["Voglio correre una maratona", "Aspetto di sentirmi motivato"] },
+        "b": { "etichetta": "Il sistema", "voci": ["Corro 10 minuti ogni mattina", "Il risultato arriva di conseguenza"] } },
+      { "tipo": "principio", "testo": "Non sali al livello dei tuoi obiettivi: ==scendi al livello dei tuoi sistemi==." },
+      { "tipo": "quiz", "domanda": "Se invece peggiori dell'1% al giorno, dopo un anno quanto ti resta?",
+        "opzioni": ["Circa la metà", "Circa un terzo", "Quasi niente"], "corretta": 2,
+        "spiegazione": "0,99 moltiplicato 365 volte fa 0,03: perdi il 97%. Anche i piccoli cedimenti si sommano." },
+      { "tipo": "chiusura", "azione": "Scegli un'abitudine e rendila piccolissima: ==due minuti al giorno==, da stasera." }
+    ]
+  },
+  {
+    "id": "pensieri-lenti-veloci-due-sistemi",
+    "categoria": "mente",
+    "titolo": "Hai due modi di pensare",
+    "libro": { "titolo": "Pensieri lenti e veloci", "autore": "Daniel Kahneman", "anno": 2011, "titoloOriginale": "Thinking, Fast and Slow" },
+    "scene": [
+      { "tipo": "apertura", "testo": "Una mazza e una pallina costano 1,10 euro. Stai per ==sbagliare il conto==." },
+      { "tipo": "quiz", "domanda": "La mazza costa 1 euro più della pallina. Quanto costa la pallina?",
+        "opzioni": ["10 centesimi", "5 centesimi"], "corretta": 1,
+        "spiegazione": "Con 10 centesimi la mazza costerebbe 1,10 e il totale 1,20. La risposta svelta è sbagliata." },
+      { "tipo": "testo", "titolo": "Perché ci caschiamo", "testo": "Daniel Kahneman descrive due modi di pensare. Il Sistema 1 risponde subito, senza fatica. Il Sistema 2 ragiona, ma è pigro: spesso ==accetta la prima risposta== senza controllarla." },
+      { "tipo": "confronto", "titolo": "I due sistemi",
+        "a": { "etichetta": "Sistema 1", "voci": ["Veloce e automatico", "Riconosce un volto, completa «2 + 2»"] },
+        "b": { "etichetta": "Sistema 2", "voci": ["Lento e faticoso", "Calcola 17 × 24, compila un modulo"] } },
+      { "tipo": "principio", "testo": "Sentirsi sicuri di una risposta ==non prova che sia giusta==." },
+      { "tipo": "chiusura", "azione": "Prima di una decisione importante fermati e chiediti: ==sto rispondendo d'istinto?==" }
+    ]
+  },
+  {
+    "id": "uomo-piu-ricco-babilonia-paga-te-stesso",
+    "categoria": "finanza",
+    "titolo": "Paga prima te stesso",
+    "libro": { "titolo": "L'uomo più ricco di Babilonia", "autore": "George S. Clason", "anno": 1926, "titoloOriginale": "The Richest Man in Babylon" },
+    "scene": [
+      { "tipo": "apertura", "testo": "La regola per mettere da parte i soldi ha ==cent'anni== e sta in una riga." },
+      { "tipo": "principio", "testo": "Di tutto quello che guadagni, ==una parte è tua da tenere==." },
+      { "tipo": "numero", "valore": 10, "suffisso": "%", "didascalia": "È la quota minima che Clason consiglia di mettere da parte da ogni entrata, prima di spendere il resto." },
+      { "tipo": "elenco", "titolo": "Come si fa in pratica", "numerato": true,
+        "voci": ["Il giorno dello stipendio sposta subito la tua quota", "Vivi con quello che resta", "Fai lavorare i risparmi invece di lasciarli fermi"] },
+      { "tipo": "grafico", "titolo": "200 euro al mese investiti al 7% annuo", "forma": "linea", "unita": "€",
+        "dati": [ { "e": "Oggi", "v": 0 }, { "e": "10 anni", "v": 34617 }, { "e": "20 anni", "v": 104185 }, { "e": "30 anni", "v": 243994 } ],
+        "nota": "Esempio illustrativo: versi 72 000, il resto sono interessi. I rendimenti reali variano." },
+      { "tipo": "esempio", "testo": "Guadagni 2000 al mese. Il giorno di paga 200 partono da soli verso un altro conto. Dopo qualche mese non te ne accorgi più, ma ==il conto cresce comunque==." },
+      { "tipo": "chiusura", "azione": "Imposta oggi un ==bonifico automatico== verso il conto risparmio, il giorno dopo lo stipendio." }
+    ]
+  }
+]
