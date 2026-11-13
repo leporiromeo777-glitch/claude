@@ -91,7 +91,7 @@
   {
     "id": "effective-executive-conosci-il-tempo",
     "categoria": "leadership",
-    "titolo": "Il presidente smentito dalla sua agenda",
+    "titolo": "Il presidente che non sapeva dove finiva il suo tempo",
     "libro": { "titolo": "The Effective Executive", "autore": "Peter F. Drucker", "anno": 1967 },
     "scene": [
       { "tipo": "apertura", "testo": "Credi di sapere dove va il tuo tempo. ==Quasi certamente sbagli.==" },
@@ -132,12 +132,12 @@
     "scene": [
       { "tipo": "apertura", "testo": "16 milioni di dollari per un jet ==che nessuno ha ordinato==." },
       { "tipo": "esempio", "testo": "1952. Boeing vive di aerei militari. Fra i civili domina Douglas, che resta alle eliche. Boeing rischia: ==ne nasce il 707==." },
-      { "tipo": "colpo", "testo": "Azzardi così hanno ==un nome==." },
-      { "tipo": "testo", "testo": "Collins e Porras li chiamano BHAG, Big Hairy Audacious Goals: traguardi ==enormi, audaci, un po' spaventosi==." },
+      { "tipo": "mito", "mito": "Un buon obiettivo deve essere realistico", "realta": "Per Collins e Porras le aziende che durano puntano a ciò che ==fa un po' paura==." },
+      { "tipo": "testo", "testo": "Li chiamano BHAG, Big Hairy Audacious Goals: enormi, audaci, ==tutt'altro che garantiti==." },
       { "tipo": "confronto", "titolo": "Kennedy, 1961",
         "a": { "etichetta": "Vago", "voci": ["Rafforzare il programma spaziale"] },
         "b": { "etichetta": "BHAG", "voci": ["Un uomo sulla Luna entro il decennio"] } },
-      { "tipo": "mito", "mito": "Un buon obiettivo deve essere realistico", "realta": "Un BHAG sta fuori dalla zona di comfort: riuscirci ==non è scontato==." },
+      { "tipo": "colpo", "testo": "Chiaro. ==E spaventoso.==" },
       { "tipo": "principio", "testo": "Un traguardo enorme e chiaro ==muove le persone== più di cento buoni propositi." },
       { "tipo": "chiusura", "azione": "Riscrivi un tuo «vorrei migliorare»: ==un risultato e una data==." }
     ]
@@ -210,10 +210,10 @@
       { "tipo": "colpo", "testo": "Quasi tutti partono ==da fuori==." },
       { "tipo": "confronto", "titolo": "Lo stesso computer",
         "a": { "etichetta": "Dal che cosa", "voci": ["Facciamo ottimi computer. Ne vuoi uno?"] },
-        "b": { "etichetta": "Dal perché", "voci": ["Crediamo nel pensare diverso.", "Per questo li facciamo così."] } },
-      { "tipo": "esempio", "testo": "1903. Langley ha i fondi del governo e la stampa. I Wright un negozio di bici. ==Volano loro.== Per Sinek avevano uno scopo." },
+        "b": { "etichetta": "Dal perché", "voci": ["Crediamo nel pensare diverso.", "E facciamo ottimi computer."] } },
+      { "tipo": "esempio", "testo": "1903. Langley ha i fondi del governo e la stampa. I Wright un negozio di bici. ==Volano loro.== Per Sinek li muoveva uno scopo." },
       { "tipo": "mito", "mito": "Il perché di un'azienda è fare soldi", "realta": "Per Sinek i soldi sono un risultato. Il perché è ==ciò in cui credi==." },
-      { "tipo": "testo", "testo": "Occhio: sono storie scelte a cose fatte. ==Ispirano, non dimostrano.==" },
+      { "tipo": "testo", "testo": "Occhio: storie scelte a cose fatte. ==Ispirano, non dimostrano.==" },
       { "tipo": "chiusura", "azione": "Completa: ==«Faccio questo lavoro perché credo che…»==" }
     ]
   },
@@ -236,7 +236,7 @@
   {
     "id": "effective-executive-punti-di-forza",
     "categoria": "leadership",
-    "titolo": "Il generale che beveva e vinceva",
+    "titolo": "Dicevano che beveva. Lincoln lo scelse lo stesso",
     "libro": { "titolo": "The Effective Executive", "autore": "Peter F. Drucker", "anno": 1967 },
     "scene": [
       { "tipo": "apertura", "testo": "Geniale coi numeri, un disastro con le persone. ==Lo assumi?==" },

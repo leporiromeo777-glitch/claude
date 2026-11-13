@@ -96,8 +96,8 @@
     "scene": [
       { "tipo": "apertura", "testo": "In Messico inventano la ruota. La mettono ==solo sui giocattoli==." },
       { "tipo": "colpo", "testo": "Mancava ==chi tirasse il carro==." },
-      { "tipo": "esempio", "testo": "L'unico grande animale domestico d'America è il lama. Vive sulle Ande. Ruota e lama ==non si incontrano mai==: in mezzo ci sono i tropici." },
-      { "tipo": "colpo", "testo": "Tutta colpa ==della mappa==." },
+      { "tipo": "esempio", "testo": "In tutta l'America c'è un solo grande animale domestico: il lama. Sta sulle Ande. Ruota e lama ==non si incontrano mai==. In mezzo ci sono i tropici." },
+      { "tipo": "colpo", "testo": "Guarda ==la mappa==." },
       { "tipo": "testo", "titolo": "Stessa latitudine, stesso clima", "testo": "Da est a ovest stagioni e ore di luce si somigliano. Il grano della Mezzaluna fertile ==arriva fino in Spagna e in India==." },
       { "tipo": "confronto",
         "a": { "etichetta": "Asse nord-sud", "voci": ["Americhe e Africa", "Ogni tratto, un clima diverso"] },
@@ -130,7 +130,7 @@
     "libro": { "titolo": "The Lessons of History", "autore": "Will Durant, Ariel Durant", "anno": 1968 },
     "scene": [
       { "tipo": "apertura", "testo": "Quando la ricchezza finisce in poche mani, la storia ha ==due finali==." },
-      { "tipo": "esempio", "testo": "Atene, 594 a.C.: ricchi e poveri a un passo dalla guerra. Solone, raccontano i Durant, svaluta la moneta, alleggerisce i debiti, tassa di più i ricchi. ==Niente rivolta.==" },
+      { "tipo": "esempio", "testo": "Atene, 594 a.C.: ricchi e poveri a un passo dalla guerra. I Durant raccontano le mosse di Solone: moneta svalutata, debiti ridotti, più tasse ai ricchi. ==Niente rivolta.==" },
       { "tipo": "colpo", "testo": "Roma sceglie ==l'altro finale==." },
       { "tipo": "confronto", "titolo": "Stesso problema, due finali",
         "a": { "etichetta": "Roma", "voci": ["Il Senato ferma i Gracchi", "Un secolo di guerre civili"] },
@@ -201,13 +201,13 @@
       { "tipo": "apertura", "testo": "Chi percorreva la Via della seta ==non la chiamava così==." },
       { "tipo": "quiz", "domanda": "Quando nasce il nome «Via della seta»?",
         "opzioni": ["Nell'antica Roma", "Ai tempi di Marco Polo", "Nell'Ottocento"], "corretta": 2,
-        "spiegazione": "Lo rende celebre nel 1877 il geografo tedesco Ferdinand von Richthofen." },
+        "spiegazione": "Lo lancia nel 1877 il geografo tedesco von Richthofen." },
       { "tipo": "colpo", "testo": "E la seta era ==il meno==." },
       { "tipo": "elenco", "titolo": "Cosa viaggiava su quelle strade",
         "voci": ["Buddhismo, cristianesimo, islam", "Argento, spezie, schiavi", "La peste nera del Trecento"] },
       { "tipo": "numero", "valore": 100, "suffisso": " mln",
         "didascalia": "Sesterzi che Roma perdeva ogni anno ==verso Oriente==, secondo Plinio il Vecchio.",
-        "nota": "Per comprare seta, spezie e altri lussi." },
+        "nota": "Per seta, spezie e altri lussi." },
       { "tipo": "mito", "mito": "L'Europa è sempre stata il centro della storia", "realta": "Per Frankopan lo diventa ==dopo il 1492==. Prima il cuore era più a est." },
       { "tipo": "chiusura", "azione": "Apri una mappa e centrala su Samarcanda. ==Guarda dove finisce l'Europa.==" }
     ]
@@ -243,7 +243,7 @@
       { "tipo": "colpo", "testo": "Ma uno Stato forte ==non basta==." },
       { "tipo": "elenco", "titolo": "I tre pilastri di Fukuyama",
         "voci": ["Uno Stato che sa farsi obbedire", "La legge sopra chi comanda", "Un governo che risponde ai cittadini"] },
-      { "tipo": "esempio", "testo": "Gli studiosi lo chiamano «arrivare in Danimarca»: diventare un paese stabile, prospero, poco corrotto. Per Fukuyama ==pochi conoscono la strada==." },
+      { "tipo": "esempio", "testo": "L'obiettivo ha un soprannome: «arrivare in Danimarca». Un paese stabile, prospero, poco corrotto. Per Fukuyama ==pochi conoscono la strada==." },
       { "tipo": "principio", "testo": "La Cina ebbe presto il primo pilastro, non gli altri due. Per Fukuyama servono ==tutti e tre in equilibrio==." },
       { "tipo": "chiusura", "azione": "Prendi una notizia di politica di oggi. ==Parla di Stato, legge o controllo?==" }
     ]
