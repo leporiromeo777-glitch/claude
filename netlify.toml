@@ -8,6 +8,8 @@
 # Una visita reale fa circa 8 richieste per pagina: 120 al minuto lascia
 # ampio margine anche a chi naviga veloce. Oltre il limite Netlify risponde
 # 429 per il resto della finestra.
+# Le 2 regole del piano Personal sono entrambe usate: questa e quella in
+# netlify/functions/check-customer.mjs (10 verifiche cliente al minuto per IP).
 # status = 200 rende la regola una riscrittura sullo stesso percorso (nessun
 # cambio di pagina): senza, il valore predefinito 301 rischierebbe un ciclo
 # di reindirizzamenti sulle pagine che non esistono.

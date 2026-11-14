@@ -1113,10 +1113,12 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
     c.classList.add('sel');
     state.pagamento=c.getAttribute('data-pay'); if(fPag)fPag.value=state.pagamento;
   });});
-  // fattura: consentita solo ai clienti di ritorno (verifica email lato server su Firebase)
+  // fattura: consentita solo ai clienti di ritorno (verifica lato server su Firebase:
+  // email + telefono di una corsa completata). Parte solo all'apertura dello step pagamento
+  // (showStep(4)), quando i contatti sono già compilati: nessuna verifica mentre si scrive.
   var bonCard=wiz.querySelector('.pay-card[data-pay=fattura]');
   if(bonCard){
-    var lastEm='';
+    var lastKey='';
     var setBon=function(ok){
       bonCard.classList.toggle('locked',!ok);
       if(!ok&&state.pagamento==='fattura'){
@@ -1126,17 +1128,17 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
     };
     setBon(false); // finche' non e' verificato, il cliente e' trattato come nuovo
     checkReturning=function(){
-      var em=fval('[name=email]').toLowerCase();
-      if(!/.+@.+\..+/.test(em)||em===lastEm)return;
-      lastEm=em;
-      fetch('/.netlify/functions/check-customer',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({email:em})})
-        .then(function(r){return r.json();})
-        .then(function(d){setBon(!!(d&&d.returning));})
-        .catch(function(){setBon(false);});
+      var em=fval('[name=email]').toLowerCase(), ph=fval('[name=telefono]');
+      var key=em+'|'+ph;
+      if(!/.+@.+\..+/.test(em)||!ph||key===lastKey)return;
+      lastKey=key;
+      setBon(false); // contatti cambiati: bloccata finche' non arriva la nuova risposta
+      fetch('/api/check-customer',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:em,phone:ph})})
+        .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}) // 429 = troppe verifiche dallo stesso IP
+        .then(function(d){if(key===lastKey)setBon(!!(d&&d.returning));})
+        .catch(function(){if(key===lastKey){lastKey='';setBon(false);}}); // errore: si riprova al prossimo step 4
     };
-    var emEl=wiz.querySelector('[name=email]');
-    if(emEl){emEl.addEventListener('change',checkReturning);emEl.addEventListener('blur',checkReturning);}
   }
   wiz.addEventListener('input',function(){ updateSide(); if(cur===2)updateClsPrices(); if(cur===3)buildBreakdown(); if(sprPanel&&!sprPanel.hidden)updateSprLinks(); });
   wiz.addEventListener('change',function(){ updateSide(); });
