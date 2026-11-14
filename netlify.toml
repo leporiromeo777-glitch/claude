@@ -1,3 +1,23 @@
 [build]
   publish = "."
   command = ""
+
+# Limite di richieste per indirizzo IP su tutto il sito (rate limiting di
+# Netlify, disponibile anche sul piano Personal: massimo 2 regole per sito).
+# Serve contro chi scarica i file in loop per consumare i crediti di banda.
+# Una visita reale fa circa 8 richieste per pagina: 120 al minuto lascia
+# ampio margine anche a chi naviga veloce. Oltre il limite Netlify risponde
+# 429 per il resto della finestra.
+# status = 200 rende la regola una riscrittura sullo stesso percorso (nessun
+# cambio di pagina): senza, il valore predefinito 301 rischierebbe un ciclo
+# di reindirizzamenti sulle pagine che non esistono.
+# Docs: https://docs.netlify.com/manage/security/secure-access-to-sites/rate-limiting/
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 200
+
+  [redirects.rate_limit]
+    window_limit = 120
+    window_size = 60
+    aggregate_by = ["ip", "domain"]
