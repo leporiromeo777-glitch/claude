@@ -580,7 +580,7 @@ gtag('config', 'G-412YFN67C4');
       <div class="wiz-progress" id="wiz-progress"></div>
     </div>
 
-    <form class="wiz-form" name="prenotazione" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/grazie.html">
+    <form class="wiz-form" name="prenotazione" method="POST" data-netlify="true" data-netlify-recaptcha="true" netlify-honeypot="bot-field" action="/grazie.html">
       <input type="hidden" name="form-name" value="prenotazione">
       <p class="bk-hp"><label>Non compilare: <input name="bot-field"></label></p>
       <input type="hidden" name="classe" id="f-classe">
@@ -665,6 +665,10 @@ gtag('config', 'G-412YFN67C4');
           <button type="button" class="pay-card" data-pay="fattura"><span class="pay-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2h8l4 4v16H7z"/><path d="M15 2v4h4"/><path d="M10 11h6M10 15h6"/></svg></span><span class="pay-tx"><span class="pay-t" data-i18n="pay.bank">Rechnung</span><span class="pay-d" data-i18n="pay.bank.d">Sie erhalten die Rechnung per E-Mail und zahlen bequem per Überweisung.</span><span class="pay-lock" data-i18n="pay.bonifico.locked">Ab der zweiten Fahrt verfügbar</span></span><span class="pay-radio"></span></button>
         </div>
       </div>
+
+      <!-- reCAPTCHA di Netlify Forms (Netlify sostituisce il div interno con il widget):
+           visibile solo all'ultimo step, insieme al pulsante di invio (script in fondo) -->
+      <div class="bk-recaptcha" style="margin:18px 0;display:none;justify-content:center"><div data-netlify-recaptcha="true"></div></div>
 
       <div class="wiz-nav">
         <button type="button" class="btn btn-ghost" id="wiz-prev" data-i18n="wiz.prev" hidden>Zurück</button>
@@ -1161,6 +1165,14 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
   }catch(e){}
   if(fTipo)fTipo.value=state.tipo;
   typeFields(); showStep(startStep);
+})();
+</script>
+<script>
+(function(){
+  var cap=document.querySelector('.bk-recaptcha'),sub=document.getElementById('wiz-submit');
+  if(!cap||!sub)return;
+  function sync(){cap.style.display=sub.hasAttribute('hidden')?'none':'flex';}
+  sync();new MutationObserver(sync).observe(sub,{attributes:true,attributeFilter:['hidden']});
 })();
 </script>
 </body>
