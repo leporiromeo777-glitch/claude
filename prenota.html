@@ -1161,6 +1161,22 @@ if(di){const d=new Date();di.min=d.getFullYear()+'-'+String(d.getMonth()+1).padS
   typeFields(); showStep(startStep);
 })();
 </script>
+<script>
+/* Contatti dal sito (WhatsApp, telefono, email): eventi GA4, importati in Google Ads come conversioni.
+   Si invia solo il tipo di contatto e la pagina, mai il testo precompilato del messaggio. */
+(function(){
+  document.addEventListener('click', function(e){
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if(!a || typeof gtag !== 'function') return;
+    var h = a.getAttribute('href') || '', ev = null;
+    if(/^https?:\/\/(api\.)?wa\.me\//i.test(h)) ev = 'contact_whatsapp';
+    else if(/^tel:/i.test(h)) ev = 'contact_phone';
+    else if(/^mailto:/i.test(h)) ev = 'contact_email';
+    if(!ev) return;
+    gtag('event', ev, { link_url: h.split('?')[0], page_path: location.pathname, transport_type: 'beacon' });
+  }, true);
+})();
+</script>
 </body>
 </html>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
